@@ -390,39 +390,35 @@ void InitThemes()
 	_gbWeaponFlag = true;
 
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
-		themeCount = 0;
-		for (i = 0; i < numtrans && themeCount < MAXTHEMES; i++) {
+		for (i = 0; i < numtrans && numthemes < MAXTHEMES; i++) {
 			if (CheckThemeRoom(i)) {
-				themeLoc[themeCount].ttval = i;
-				themeCount++;
+				themes[numthemes]._tsTransVal = i;
+				numthemes++;
 			}
 		}
 	}
-	for (i = 0; i < themeCount; i++) {
-		themes[i].ttype = THEME_NONE;
-		if (currLvl._dDunType == DTYPE_CATHEDRAL)
-			themes[i].ttval = themeLoc[i].ttval;
-		else
-			themes[i].ttval = themeLoc[i].ttval = dTransVal[DBORDERX + 2 * themeLoc[i].x + themeLoc[i].width][DBORDERY + 2 * themeLoc[i].y + themeLoc[i].height];
+	for (i = 0; i < numthemes; i++) {
+		themes[i]._tsType = THEME_NONE;
+		if (currLvl._dDunType != DTYPE_CATHEDRAL) // TODO: use dType instead?
+			themes[i]._tsTransVal = dTransVal[DBORDERX + 2 * themes[i]._tsx + themes[i]._tsWidth][DBORDERY + 2 * themes[i]._tsy + themes[i]._tsHeight];
 	}
 	if (QuestStatus(Q_ZHAR)) {
-		for (i = 0; i < themeCount; i++) {
-			if (SpecialThemeFit(themes[i].ttval, THEME_LIBRARY)) {
-				themes[i].ttype = THEME_LIBRARY;
+		for (i = 0; i < numthemes; i++) {
+			if (SpecialThemeFit(themes[i]._tsTransVal, THEME_LIBRARY)) {
+				themes[i]._tsType = THEME_LIBRARY;
 				zharlib = i;
 				break;
 			}
 		}
 	}
-	for (i = 0; i < themeCount; i++) {
-		if (themes[i].ttype == THEME_NONE) {
+	for (i = 0; i < numthemes; i++) {
+		if (themes[i]._tsType == THEME_NONE) {
 			j = ThemeGood[random_(0, lengthof(ThemeGood))];
-			while (!SpecialThemeFit(themes[i].ttval, j))
+			while (!SpecialThemeFit(themes[i]._tsTransVal, j))
 				j = random_(0, NUM_THEMES);
-			themes[i].ttype = j;
+			themes[i]._tsType = j;
 		}
 	}
-	numthemes = themeCount;
 }
 
 void HoldThemeRooms()
@@ -434,7 +430,7 @@ void HoldThemeRooms()
 
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
 		for (i = 0; i < numthemes; i++) {
-			v = themes[i].ttval;
+			v = themes[i]._tsTransVal;
 			for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
 				for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
 					if (dTransVal[xx][yy] == v) {
@@ -444,10 +440,9 @@ void HoldThemeRooms()
 			}
 		}
 	} else {
-		// assert((currLvl._dLevelIdx < DLV_HELL4 && numthemes == themeCount) || (currLvl._dLevelIdx >= DLV_HELL4 && numthemes == 0));
 		for (i = 0; i < numthemes; i++) {
-			for (x = themeLoc[i].x; x < themeLoc[i].x + themeLoc[i].width; x++) {
-				for (y = themeLoc[i].y; y < themeLoc[i].y + themeLoc[i].height; y++) {
+			for (x = themes[i]._tsx; x < themes[i]._tsx + themes[i]._tsWidth; x++) {
+				for (y = themes[i]._tsy; y < themes[i]._tsy + themes[i]._tsHeight; y++) {
 					xx = 2 * x + DBORDERX;
 					yy = 2 * y + DBORDERY;
 					dFlags[xx][yy] |= BFLAG_POPULATED;
@@ -953,8 +948,8 @@ void CreateThemeRooms()
 
 	//gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
-		tv = themes[i].ttval;
-		switch (themes[i].ttype) {
+		tv = themes[i]._tsTransVal;
+		switch (themes[i]._tsType) {
 		case THEME_BARREL:
 			Theme_Barrel(tv);
 			break;

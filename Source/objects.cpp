@@ -162,7 +162,7 @@ void InitObjectGFX()
 	memset(themeload, 0, sizeof(themeload));
 
 	for (i = 0; i < numthemes; i++)
-		themeload[themes[i].ttype] = true;
+		themeload[themes[i]._tsType] = true;
 
 	BYTE lvlMask = 1 << currLvl._dType;
 	for (i = 0; i < NUM_OBJECTS; i++) {
@@ -3221,7 +3221,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-	if (zharlib != -1 && themes[zharlib].ttval == dTransVal[os->_ox][os->_oy]
+	if (zharlib != -1 && themes[zharlib]._tsTransVal == dTransVal[os->_ox][os->_oy]
 	 && quests[Q_ZHAR]._qvar1 < QV_ZHAR_ATTACK) {
 		assert((monsters[MAX_MINIONS]._muniqtype - 1) == UMT_ZHAR);
 		//assert(monsters[MAX_MINIONS]._mgoal == MGOAL_TALKING);

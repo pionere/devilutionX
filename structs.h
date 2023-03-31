@@ -2172,14 +2172,6 @@ typedef struct ViewportStruct {
 // gendung
 //////////////////////////////////////////////////
 
-typedef struct THEME_LOC {
-	int x;
-	int y;
-	BYTE ttval;
-	int width;
-	int height;
-} THEME_LOC;
-
 //////////////////////////////////////////////////
 // drlg
 //////////////////////////////////////////////////
@@ -2222,13 +2214,17 @@ typedef struct ROOMHALLNODE {
 //////////////////////////////////////////////////
 
 typedef struct ThemeStruct {
-	BYTE ttype;
-	BYTE ttval;
+	int _tsx;
+	int _tsy;
+	BYTE _tsType;
+	BYTE _tsTransVal;
+	int _tsWidth;
+	int _tsHeight;
 } ThemeStruct;
 
-#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
-#endif
+//#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+//static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
+//#endif
 
 //////////////////////////////////////////////////
 // inv

@@ -43,8 +43,6 @@ extern int8_t dObject[MAXDUNX][MAXDUNY];
 extern BYTE dItem[MAXDUNX][MAXDUNY];
 extern BYTE dMissile[MAXDUNX][MAXDUNY];
 extern BYTE dSpecial[MAXDUNX][MAXDUNY];
-extern int themeCount;
-extern THEME_LOC themeLoc[MAXTHEMES];
 
 void InitLvlDungeon();
 void FreeSetPieces();

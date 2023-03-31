@@ -121,10 +121,6 @@ static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMiss
  * "levels/towndata/towns.cel") contains trees rather than arches.
  */
 BYTE dSpecial[MAXDUNX][MAXDUNY];
-/** Specifies the number of themes generated in the dungeon (valid entries in themeLoc). */
-int themeCount;
-/** Themes on the (mega-)map. */
-THEME_LOC themeLoc[MAXTHEMES];
 
 void DRLG_Init_Globals()
 {
@@ -1101,10 +1097,10 @@ static bool DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int maxS
 static void DRLG_CreateThemeRoom(int themeIndex)
 {
 	int xx, yy;
-	const int lx = themeLoc[themeIndex].x;
-	const int ly = themeLoc[themeIndex].y;
-	const int hx = lx + themeLoc[themeIndex].width;
-	const int hy = ly + themeLoc[themeIndex].height;
+	const int lx = themes[themeIndex]._tsx;
+	const int ly = themes[themeIndex]._tsy;
+	const int hx = lx + themes[themeIndex]._tsWidth;
+	const int hy = ly + themes[themeIndex]._tsHeight;
 	BYTE v;
 
 	// left/right side
@@ -1185,7 +1181,6 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 	int themeW, themeH;
 	int min;
 
-	themeCount = 0;
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			if (dungeon[i][j] == floor && (freq == 0 || random_low(0, freq) == 0) && DRLG_WillThemeRoomFit(floor, i, j, minSize, maxSize, &themeW, &themeH)) {
@@ -1197,16 +1192,16 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 					themeW = RandRangeLow(min, themeW);
 					themeH = RandRangeLow(min, themeH);
 				}
-				themeLoc[themeCount].x = i + 1;
-				themeLoc[themeCount].y = j + 1;
-				themeLoc[themeCount].width = themeW;
-				themeLoc[themeCount].height = themeH;
+				themes[numthemes]._tsx = i + 1;
+				themes[numthemes]._tsy = j + 1;
+				themes[numthemes]._tsWidth = themeW;
+				themes[numthemes]._tsHeight = themeH;
 				//themeLoc[themeCount].ttval = numtrans;
 				int x1 = 2 * i + DBORDERX + 3;
 				int y1 = 2 * j + DBORDERY + 3;
 				int x2 = 2 * (i + themeW) + DBORDERX;
 				int y2 = 2 * (j + themeH) + DBORDERY;
-				if (currLvl._dDunType == DTYPE_CAVES) {
+				if (currLvl._dDunType == DTYPE_CAVES) { // TODO: use dType instead?
 					x1++;
 					y1++;
 					x2--;
@@ -1214,8 +1209,8 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 					DRLG_RectTrans(x1, y1, x2, y2);
 				}
 				//DRLG_RectTrans(x1, y1, x2, y2);
-				DRLG_CreateThemeRoom(themeCount);
-				themeCount++;
+				DRLG_CreateThemeRoom(numthemes);
+				numthemes++;
 			}
 		}
 	}
@@ -1225,9 +1220,9 @@ bool NearThemeRoom(int x, int y)
 {
 	int i;
 
-	for (i = 0; i < themeCount; i++) {
-		if (x >= themeLoc[i].x - 2 && x < themeLoc[i].x + themeLoc[i].width + 2
-		    && y >= themeLoc[i].y - 2 && y < themeLoc[i].y + themeLoc[i].height + 2)
+	for (i = 0; i < numthemes; i++) {
+		if (x >= themes[i]._tsx - 2 && x < themes[i]._tsx + themes[i]._tsWidth + 2
+		 && y >= themes[i]._tsy - 2 && y < themes[i]._tsy + themes[i]._tsHeight + 2)
 			return true;
 	}
 

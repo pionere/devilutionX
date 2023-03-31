@@ -935,8 +935,8 @@ static void PlaceUniqueMonst(int uniqindex, int mtidx)
 		assert(nummonsters == MAX_MINIONS);
 		if (zharlib == -1)
 			return;
-		xp = 2 * themeLoc[zharlib].x + DBORDERX + 4;
-		yp = 2 * themeLoc[zharlib].y + DBORDERY + 4;
+		xp = 2 * themes[zharlib]._tsx + DBORDERX + 4;
+		yp = 2 * themes[zharlib]._tsy + DBORDERY + 4;
 		break;
 	default:
 		count = 0;
