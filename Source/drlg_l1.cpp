@@ -520,18 +520,6 @@ const BYTE L5RNDLFLOOR1[20] = {
 	0,   0, 0,
 	// clang-format on
 };
-/** Miniset: Replace random floor tile 2 with another one 1. */
-const BYTE L5RNDFLOOR2_0[4] = { 1, 1, 98, 189 };
-/** Miniset: Replace random floor tile 2 with another one 2. */
-const BYTE L5RNDFLOOR2_1[4] = { 1, 1, 98, 190 };
-/** Miniset: Replace random floor tile 1 with another one. */
-const BYTE L5RNDFLOOR1_0[4] = { 1, 1, 97, 191 };
-/** Miniset: Replace random floor tile 3 with another one 1. */
-const BYTE L5RNDFLOOR3_0[4] = { 1, 1, 99, 193 };
-/** Miniset: Replace random floor tile 3 with another one 2. */
-const BYTE L5RNDFLOOR3_1[4] = { 1, 1, 99, 194 };
-/** Miniset: Replace random floor tile 4 with another one. */
-const BYTE L5RNDFLOOR4_0[4] = { 1, 1, 100, 195 };
 /** Miniset: Lava fountain bowl. */
 const BYTE L5RNDLFLOOR2[20] = {
 	// clang-format off
@@ -2046,13 +2034,13 @@ static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 			if (!found)
 				continue;
 			// assert(ii == sw * sh + 2);
-			if (miniset[ii] >= 84 && miniset[ii] <= 100) {
+			if (miniset[ii] >= 89 && miniset[ii] <= 101) {
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84 (fixed)
-				if ((sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100)
-				 || (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100)
-				 || (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100)
-				 || (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100)) {
+				if ((sx > 0 && dungeon[sx - 1][sy] >= 89 && dungeon[sx - 1][sy] <= 101)
+				 || (dungeon[sx + 1][sy] >= 89 && dungeon[sx + 1][sy] <= 101)
+				 || (dungeon[sx][sy + 1] >= 89 && dungeon[sx][sy + 1] <= 101)
+				 || (sy > 0 && dungeon[sx][sy - 1] >= 89 && dungeon[sx][sy - 1] <= 101)) {
 					continue;
 				}
 			}
@@ -2286,6 +2274,8 @@ static void DRLG_L5Crypt_pattern6(BYTE rndper)
 	DRLG_PlaceRndTile(11, 186, rndper);
 	/** Miniset: Column on the northern side of a horizontal wall 3. pointless? same as 96 */
 	DRLG_PlaceRndTile(12, 188, rndper);
+	/** Miniset: Use random column 1. (Cracked) */
+	DRLG_PlaceRndTile(15, 192, rndper);
 	/** Miniset: Replace vertical wall tile on the bottom 1. */
 	DRLG_PlaceRndTile(89, 173, rndper);
 	/** Miniset: Replace vertical wall tile on the bottom 2. */
@@ -2310,19 +2300,23 @@ static void DRLG_L5Crypt_pattern6(BYTE rndper)
 	DRLG_PlaceRndTile(94, 183, rndper);
 	/** Miniset: Replace random horizontal wall tile on west 2. */
 	DRLG_PlaceRndTile(94, 184, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR2_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR2_1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR1_0, rndper);
-	/** Miniset: Use random column 1. (Cracked) */
-	DRLG_PlaceRndTile(15, 192, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR3_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR3_1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR4_0, rndper);
+	/** Miniset: Replace random floor tile 1 with another one. */
+	DRLG_PlaceRndTile(97, 191, rndper);
+	/** Miniset: Replace random floor tile 2 with another one 1. */
+	DRLG_PlaceRndTile(98, 189, rndper);
+	/** Miniset: Replace random floor tile 2 with another one 2. */
+	DRLG_PlaceRndTile(98, 190, rndper);
+	/** Miniset: Replace random floor tile 3 with another one 1. */
+	DRLG_PlaceRndTile(99, 193, rndper);
+	/** Miniset: Replace random floor tile 3 with another one 2. */
+	DRLG_PlaceRndTile(99, 194, rndper);
+	/** Miniset: Replace random floor tile 4 with another one 1. */
+	DRLG_PlaceRndTile(100, 195, rndper);
+	/** Miniset: Replace random floor tile 4 with another one 2. */
+	DRLG_PlaceRndTile(100, 196, rndper);
 	/** Miniset: Replace random large floor tile 1. */
-	DRLG_PlaceRndTile(101, 196, rndper);
-	/** Miniset: Replace random large floor tile 2. */
 	DRLG_PlaceRndTile(101, 197, rndper);
-	/** Miniset: Replace random large floor tile 3. */
+	/** Miniset: Replace random large floor tile 2. */
 	DRLG_PlaceRndTile(101, 198, rndper);
 }
 
