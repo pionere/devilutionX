@@ -396,11 +396,10 @@ void InitThemes()
 				numthemes++;
 			}
 		}
-	}
-	for (i = 0; i < numthemes; i++) {
-		themes[i]._tsType = THEME_NONE;
-		if (currLvl._dDunType != DTYPE_CATHEDRAL) // TODO: use dType instead?
+	} else {
+		for (i = 0; i < numthemes; i++) {
 			themes[i]._tsTransVal = dTransVal[DBORDERX + 2 * themes[i]._tsx + themes[i]._tsWidth][DBORDERY + 2 * themes[i]._tsy + themes[i]._tsHeight];
+		}
 	}
 	if (QuestStatus(Q_ZHAR)) {
 		for (i = 0; i < numthemes; i++) {
@@ -412,7 +411,7 @@ void InitThemes()
 		}
 	}
 	for (i = 0; i < numthemes; i++) {
-		if (themes[i]._tsType == THEME_NONE) {
+		if (i != zharlib) {
 			j = ThemeGood[random_(0, lengthof(ThemeGood))];
 			while (!SpecialThemeFit(themes[i]._tsTransVal, j))
 				j = random_(0, NUM_THEMES);
