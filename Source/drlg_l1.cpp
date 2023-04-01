@@ -980,106 +980,6 @@ void DRLG_InitL5Specials(int x1, int y1, int x2, int y2)
 }
 #endif
 
-static void DRLG_L1SetMapFix(BYTE* pMap)
-{
-	uint16_t* lm = (uint16_t*)pMap;
-
-	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		// patch set-piece - Vile2.DUN
-		// - fix empty tiles
-		// assert(pMap[(2 + 8 + 16 * 21) * 2] == 0);
-		// assert(dungeon[8][16] == 13);
-		dungeon[8][16] = 203;
-		// assert(pMap[(2 + 12 + 22 * 21) * 2] == 0);
-		// assert(dungeon[12][22] == 13);
-		dungeon[12][22] = 203;
-		// assert(pMap[(2 + 13 + 22 * 21) * 2] == 0);
-		// assert(dungeon[13][22] == 13);
-		dungeon[13][22] = 203;
-		// assert(pMap[(2 + 14 + 22 * 21) * 2] == 0);
-		// assert(dungeon[14][22] == 13);
-		dungeon[14][22] = 203;
-		// - add monsters
-		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
-		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 24 + 29 * 21 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
-		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 22 + 33 * 21 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
-		// - replace the books
-		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
-		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
-	} else if (currLvl._dLevelIdx == SL_SKELKING) {
-		// patch set-piece to add monsters - SklKng2.DUN
-		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
-	}
-}
-
-static BYTE* LoadL1DungeonData(const char* sFileName)
-{
-	int rw, rh, i, j;
-	BYTE* pMap;
-	BYTE *sp;
-
-	pMap = LoadFileInMem(sFileName);
-
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
-
-	rw = SwapLE16(*(uint16_t*)&pMap[0]);
-	rh = SwapLE16(*(uint16_t*)&pMap[2]);
-
-	sp = &pMap[4];
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L1;
-			// no need to protect the fields, DRLG_L1Floor is commented out because Vile1 is not protected
-			// drlgFlags[i][j] |= *sp != 0 ? DLRG_PROTECTED : 0;
-			sp += 2;
-		}
-	}
-
-	return pMap;
-}
-
-void LoadL1Dungeon(const LevelData* lds)
-{
-	BYTE* pMap;
-
-	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
-	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
-	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
-
-	// load pre-dungeon
-	pMap = LoadL1DungeonData(lds->dSetLvlPreDun);
-
-	DRLG_InitTrans();
-	//DRLG_FloodTVal(13);
-	DRLG_SetMapTrans(pMap);
-
-	mem_free_dbg(pMap);
-
-	//memset(drlgFlags, 0, sizeof(drlgFlags));
-	//DRLG_L1Floor();
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	// load dungeon
-	pMap = LoadL1DungeonData(lds->dSetLvlDun);
-
-	DRLG_L1SetMapFix(pMap);
-
-	//DRLG_L1Floor();
-
-	DRLG_Init_Globals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	// assert(currLvl._dType == DTYPE_CATHEDRAL);
-	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	SetMapMonsters(pMap, 0, 0);
-	SetMapObjects(pMap);
-
-	mem_free_dbg(pMap);
-}
-
 static void L1ClearChamberFlags()
 {
 	int i;
@@ -2893,6 +2793,106 @@ void CreateL1Dungeon()
 		DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	DRLG_SetPC();
+}
+
+static void DRLG_L1SetMapFix(BYTE* pMap)
+{
+	uint16_t* lm = (uint16_t*)pMap;
+
+	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+		// patch set-piece - Vile2.DUN
+		// - fix empty tiles
+		// assert(pMap[(2 + 8 + 16 * 21) * 2] == 0);
+		// assert(dungeon[8][16] == 13);
+		dungeon[8][16] = 203;
+		// assert(pMap[(2 + 12 + 22 * 21) * 2] == 0);
+		// assert(dungeon[12][22] == 13);
+		dungeon[12][22] = 203;
+		// assert(pMap[(2 + 13 + 22 * 21) * 2] == 0);
+		// assert(dungeon[13][22] == 13);
+		dungeon[13][22] = 203;
+		// assert(pMap[(2 + 14 + 22 * 21) * 2] == 0);
+		// assert(dungeon[14][22] == 13);
+		dungeon[14][22] = 203;
+		// - add monsters
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 24 + 29 * 21 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 22 + 33 * 21 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+		// - replace the books
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
+	} else if (currLvl._dLevelIdx == SL_SKELKING) {
+		// patch set-piece to add monsters - SklKng2.DUN
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
+	}
+}
+
+static BYTE* LoadL1DungeonData(const char* sFileName)
+{
+	int rw, rh, i, j;
+	BYTE* pMap;
+	BYTE *sp;
+
+	pMap = LoadFileInMem(sFileName);
+
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
+	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
+
+	rw = SwapLE16(*(uint16_t*)&pMap[0]);
+	rh = SwapLE16(*(uint16_t*)&pMap[2]);
+
+	sp = &pMap[4];
+
+	for (j = 0; j < rh; j++) {
+		for (i = 0; i < rw; i++) {
+			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L1;
+			// no need to protect the fields, DRLG_L1Floor is commented out because Vile1 is not protected
+			// drlgFlags[i][j] |= *sp != 0 ? DLRG_PROTECTED : 0;
+			sp += 2;
+		}
+	}
+
+	return pMap;
+}
+
+void LoadL1Dungeon(const LevelData* lds)
+{
+	BYTE* pMap;
+
+	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
+	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
+
+	// load pre-dungeon
+	pMap = LoadL1DungeonData(lds->dSetLvlPreDun);
+
+	DRLG_InitTrans();
+	//DRLG_FloodTVal(13);
+	DRLG_SetMapTrans(pMap);
+
+	mem_free_dbg(pMap);
+
+	//memset(drlgFlags, 0, sizeof(drlgFlags));
+	//DRLG_L1Floor();
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// load dungeon
+	pMap = LoadL1DungeonData(lds->dSetLvlDun);
+
+	DRLG_L1SetMapFix(pMap);
+
+	//DRLG_L1Floor();
+
+	DRLG_Init_Globals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
+	// assert(currLvl._dType == DTYPE_CATHEDRAL);
+	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+
+	SetMapMonsters(pMap, 0, 0);
+	SetMapObjects(pMap);
+
+	mem_free_dbg(pMap);
 }
 
 DEVILUTION_END_NAMESPACE

@@ -2507,6 +2507,20 @@ void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
 	}
 }
 
+void CreateL2Dungeon()
+{
+	// in the original version the function was executed twice in case the quest of the
+	// current level was not available (only in single player mode). The point of this
+	// could have been to share the same layout between levels, but that does not make too
+	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
+	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
+	DRLG_LoadL2SP();
+	DRLG_L2();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
+	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+	DRLG_SetPC();
+}
+
 static void DRLG_L2SetMapFix()
 {
 	// this logic should not be applied to 'proper' set-levels.
@@ -2598,20 +2612,6 @@ void LoadL2Dungeon(const LevelData* lds)
 	SetMapObjects(pMap);
 
 	mem_free_dbg(pMap);
-}
-
-void CreateL2Dungeon()
-{
-	// in the original version the function was executed twice in case the quest of the
-	// current level was not available (only in single player mode). The point of this
-	// could have been to share the same layout between levels, but that does not make too
-	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
-	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
-	DRLG_LoadL2SP();
-	DRLG_L2();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE
