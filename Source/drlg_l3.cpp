@@ -2132,6 +2132,23 @@ static bool DRLG_L3Lockout()
 	return true;
 }
 
+static void DRLG_L3InitTransVals()
+{
+	DRLG_InitTrans();
+	DRLG_L3FloodTVal();
+	for (int i = 0; i < numthemes; i++) {
+		int x = themes[i]._tsx - 1;
+		int y = themes[i]._tsy - 1;
+		int themeW = themes[i]._tsWidth;
+		int themeH = themes[i]._tsHeight;
+		int x1 = 2 * x + DBORDERX + 4;
+		int y1 = 2 * y + DBORDERY + 4;
+		int x2 = 2 * (x + themeW) + DBORDERX - 1;
+		int y2 = 2 * (y + themeH) + DBORDERY - 1;
+		DRLG_RectTrans(x1, y1, x2, y2);
+	}
+}
+
 static void DRLG_L3()
 {
 	bool doneflag;
@@ -2382,19 +2399,7 @@ static void DRLG_L3()
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// create rooms (transvals)
-	DRLG_InitTrans();
-	DRLG_L3FloodTVal();
-	for (int i = 0; i < numthemes; i++) {
-		int x = themes[i]._tsx - 1;
-		int y = themes[i]._tsy - 1;
-		int themeW = themes[i]._tsWidth;
-		int themeH = themes[i]._tsHeight;
-		int x1 = 2 * x + DBORDERX + 4;
-		int y1 = 2 * y + DBORDERY + 4;
-		int x2 = 2 * (x + themeW) + DBORDERX - 1;
-		int y2 = 2 * (y + themeH) + DBORDERY - 1;
-		DRLG_RectTrans(x1, y1, x2, y2);
-	}
+	DRLG_L3InitTransVals();
 
 	DRLG_Init_Globals();
 }

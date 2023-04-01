@@ -1959,28 +1959,32 @@ static void DRLG_L2InitTransVals()
 	// block arches with walls to stop the spread of transVals
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
-			switch (dungeon[i][j]) {
+			switch (drlg.transvalMap[i][j]) {
 			case 39:
 			case 42:
-				dungeon[i][j + 1] = 1;
+				drlg.transvalMap[i][j + 1] = 1;
 				break;
 			case 41:
-				dungeon[i][j + 1] = 1;
-				dungeon[i + 1][j] = 2;
+				drlg.transvalMap[i][j + 1] = 1;
+				drlg.transvalMap[i + 1][j] = 2;
 				break;
 			case 40:
 			case 43:
-				dungeon[i + 1][j] = 2;
+				drlg.transvalMap[i + 1][j] = 2;
 				break;
 			}
 		}
 	}
+	// prepare transvalMap
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			drlg.transvalMap[i][j] = L2FTYPES[drlg.transvalMap[i][j]];
+		}
+	}
 
 	DRLG_InitTrans();
-	DRLG_FloodTVal(L2FTYPES);
+	DRLG_FloodTVal();
 	DRLG_L2TransFix();
-	// restore arches
-	memcpy(dungeon, drlg.transvalMap, sizeof(dungeon));
 }
 
 /*

@@ -2517,6 +2517,37 @@ static void DRLG_L5TransFix()
 }
 #endif
 
+static void DRLG_L1InitTransVals()
+{
+	int i, j;
+
+	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
+	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
+	// prepare transvalMap
+	const bool *floorTypes = L1FTYPES;
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		floorTypes = L5FTYPES;
+	}
+#endif
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			drlg.transvalMap[i][j] = floorTypes[drlg.transvalMap[i][j]];
+		}
+	}
+
+	DRLG_InitTrans();
+	DRLG_FloodTVal();
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_L5TransFix();
+	} else
+#endif
+	{
+		DRLG_L1TransFix();
+	}
+}
+
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
  * New dungeon values: 199..205 / 82..88
@@ -2619,7 +2650,6 @@ static void DRLG_L1()
 
 	while (true) {
 		do {
-			static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L1.");
 			memset(dungeon, 0, sizeof(dungeon));
 			L1FirstRoom();
 		} while (L1GetArea() < minarea);
@@ -2784,17 +2814,7 @@ static void DRLG_L1()
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
-	DRLG_InitTrans();
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
-		DRLG_FloodTVal(L5FTYPES);
-		DRLG_L5TransFix();
-	} else
-#endif
-	{
-		DRLG_FloodTVal(L1FTYPES);
-		DRLG_L1TransFix();
-	}
+	DRLG_L1InitTransVals();
 
 	DRLG_Init_Globals();
 

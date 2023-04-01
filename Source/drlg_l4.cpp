@@ -1738,20 +1738,23 @@ static void DRLG_L4InitTransVals()
 	// block arches with walls to stop the spread of transVals
 	for (i = 0; i < DMAXX - 1; i++) {
 		for (j = 0; j < DMAXY; j++) {
-			if (dungeon[i][j] == 53) {
-				dungeon[i][j + 1] = 1;
-			} else if (dungeon[i][j] == 57) {
-				dungeon[i + 1][j] = 2;
+			if (drlg.transvalMap[i][j] == 53) {
+				drlg.transvalMap[i][j + 1] = 1;
+			} else if (drlg.transvalMap[i][j] == 57) {
+				drlg.transvalMap[i + 1][j] = 2;
 			}
+		}
+	}
+	// prepare transvalMap
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			drlg.transvalMap[i][j] = L4FTYPES[drlg.transvalMap[i][j]];
 		}
 	}
 
 	DRLG_InitTrans();
-	DRLG_FloodTVal(L4FTYPES);
+	DRLG_FloodTVal();
 	DRLG_L4TransFix();
-
-	// restore arches
-	memcpy(dungeon, drlg.transvalMap, sizeof(dungeon));
 }
 
 /*
