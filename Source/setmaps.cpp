@@ -7,32 +7,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-// BUGFIX: constant data should be const
-const BYTE BoneChamTrans1[] = {
-	DBORDERX + 27, DBORDERY + 3, DBORDERX + 34, DBORDERY + 10,
-	DBORDERX + 35, DBORDERY + 3, DBORDERX + 43, DBORDERY + 10,
-	DBORDERX + 19, DBORDERY + 11, DBORDERX + 26, DBORDERY + 18,
-	DBORDERX + 27, DBORDERY + 11, DBORDERX + 33, DBORDERY + 18,
-	DBORDERX + 34, DBORDERY + 11, DBORDERX + 43, DBORDERY + 18
-};
-
-const BYTE BoneChamTrans2[] = {
-	DBORDERX + 3, DBORDERY + 15, DBORDERX + 18, DBORDERY + 31,
-	DBORDERX + 18, DBORDERY + 19, DBORDERX + 26, DBORDERY + 26
-};
-
-const BYTE BoneChamTrans3[] = {
-	DBORDERX + 27, DBORDERY + 19, DBORDERX + 34, DBORDERY + 26,
-	DBORDERX + 35, DBORDERY + 19, DBORDERX + 46, DBORDERY + 26,
-	DBORDERX + 47, DBORDERY + 15, DBORDERX + 50, DBORDERY + 30,
-	DBORDERX + 51, DBORDERY + 15, DBORDERX + 62, DBORDERY + 18,
-	DBORDERX + 51, DBORDERY + 19, DBORDERX + 62, DBORDERY + 26,
-	DBORDERX + 51, DBORDERY + 27, DBORDERX + 62, DBORDERY + 30,
-	DBORDERX + 19, DBORDERY + 27, DBORDERX + 26, DBORDERY + 35,
-	DBORDERX + 27, DBORDERY + 27, DBORDERX + 33, DBORDERY + 35,
-	DBORDERX + 34, DBORDERY + 27, DBORDERX + 43, DBORDERY + 35
-};
-
 /** Maps from quest level to quest level names. */
 /*const char *const quest_level_names[] = {
 	"",
@@ -115,10 +89,6 @@ void LoadSetMap()
 		// gbInitObjFlag = false;
 		break;
 	case SL_BONECHAMB:
-		numtrans = 1;
-		DRLG_ListTrans(sizeof(BoneChamTrans1) / 4, &BoneChamTrans1[0]);
-		DRLG_AreaTrans(sizeof(BoneChamTrans2) / 4, &BoneChamTrans2[0]);
-		DRLG_ListTrans(sizeof(BoneChamTrans3) / 4, &BoneChamTrans3[0]);
 		AddSChamObjs();
 		// gbInitObjFlag = false;
 		break;

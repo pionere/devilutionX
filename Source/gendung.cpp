@@ -951,35 +951,6 @@ void DRLG_FloodTVal()
 #pragma GCC pop_options
 #endif
 
-void DRLG_SetMapTrans(BYTE* pMap)
-{
-	int i, j;
-	BYTE tv;
-	uint16_t rw, rh, *lm;
-
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-	lm += rw * rh; // skip dun
-	rw <<= 1;
-	rh <<= 1;
-	lm += 3 * rw * rh; // skip items?, monsters, objects
-
-	rw += DBORDERX;
-	rh += DBORDERY;
-	for (j = DBORDERY; j < rh; j++) {
-		for (i = DBORDERX; i < rw; i++) {
-			tv = SwapLE16(*lm);
-			dTransVal[i][j] = tv;
-			if (tv >= numtrans)
-				numtrans = tv + 1;
-			lm++;
-		}
-	}
-}
-
 void DRLG_SetPC()
 {
 	int x, y, w, h, i, j, x0, x1, y0, y1;

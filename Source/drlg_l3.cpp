@@ -2482,13 +2482,12 @@ void LoadL3Dungeon(const LevelData* lds)
 	// load pre-dungeon
 	pMap = LoadL3DungeonData(lds->dSetLvlPreDun);
 
-	DRLG_InitTrans();
-	DRLG_L3FloodTVal();
-	DRLG_SetMapTrans(pMap);
-
 	mem_free_dbg(pMap);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	// assert(numthemes == 0);
+	DRLG_L3InitTransVals();
 
 	// load dungeon
 	pMap = LoadL3DungeonData(lds->dSetLvlDun);

@@ -1984,13 +1984,11 @@ void LoadL4Dungeon(const LevelData* lds)
 	// load pre-dungeon
 	pMap = LoadL4DungeonData(lds->dSetLvlPreDun);
 
-	DRLG_InitTrans();
-	//DRLG_FloodTVal(6);
-	DRLG_SetMapTrans(pMap);
-
 	mem_free_dbg(pMap);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+
+	DRLG_L4InitTransVals();
 
 	// load dungeon
 	pMap = LoadL4DungeonData(lds->dSetLvlDun);
