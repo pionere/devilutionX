@@ -1007,7 +1007,7 @@ static POS32 DRLG_FitThemeRoom(int floor, int x, int y, int minSize, int maxSize
 	smallest = xmax;
 	for (i = 0; i < ymax; ) {
 		for (j = 0; j < smallest; j++) {
-			if (dungeon[x + j][y + i] != floor) {
+			if (dungeon[x + j][y + i] != floor || drlgFlags[x + j][y + i]) {
 				smallest = j;
 				break;
 			}
@@ -1023,7 +1023,7 @@ static POS32 DRLG_FitThemeRoom(int floor, int x, int y, int minSize, int maxSize
 	smallest = ymax;
 	for (i = 0; i < xmax; ) {
 		for (j = 0; j < smallest; j++) {
-			if (dungeon[x + i][y + j] != floor) {
+			if (dungeon[x + i][y + j] != floor || drlgFlags[x + i][y + j]) {
 				smallest = j;
 				break;
 			}
