@@ -4335,7 +4335,24 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 	}
 	return sizeof(*pCmd);
 }
+#ifdef HELLFIRE
+static unsigned On_OPENNAKRUL(TCmd* pCmd, int pnum)
+{
+	// net_assert(quests[Q_NAKRUL]._qactive != QUEST_NOTAVAIL);
+	net_assert(plr._pDunLevel == questlist[Q_NAKRUL]._qdlvl);
 
+	quests[Q_NAKRUL]._qactive = QUEST_DONE;
+	quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_BOOKOPEN;
+
+	//if (QuestStatus(Q_NAKRUL))
+	if (currLvl._dLevelIdx == questlist[Q_NAKRUL]._qdlvl) {
+		OpenNakrulRoom();
+		WakeNakrul();
+		//RedoLightAndVision();
+	}
+	return sizeof(*pCmd);
+}
+#endif
 unsigned ParseMsg(int pnum, TCmd* pCmd)
 {
 //#ifndef NOHOSTING
@@ -4505,6 +4522,10 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_BLOODPASS(pCmd, pnum);
 	case CMD_OPENSPIL:
 		return On_OPENSPIL(pCmd, pnum);
+#ifdef HELLFIRE
+	case CMD_OPENNAKRUL:
+		return On_OPENNAKRUL(pCmd, pnum);
+#endif
 #if DEV_MODE
 	case CMD_DUMP_MONSTERS:
 		return On_DUMP_MONSTERS(pCmd, pnum);

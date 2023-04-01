@@ -703,7 +703,7 @@ static bool MonstPlace(int xp, int yp)
 }
 
 #ifdef HELLFIRE
-void WakeUberDiablo()
+void WakeNakrul()
 {
 	MonsterStruct* mon;
 

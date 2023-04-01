@@ -41,6 +41,9 @@ void SyncTrapOpen(int oi);
 void SyncTrapClose(int oi);
 void SyncObjectAnim(int oi);
 void GetObjectStr(int oi);
+#ifdef HELLFIRE
+void OpenNakrulRoom();
+#endif
 
 #ifdef __cplusplus
 }

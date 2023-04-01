@@ -257,9 +257,10 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_L5SARC*/      { OFILE_L5SARCO,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, TRUE      , ALIGN },
 /*OBJ_URN*/         { OFILE_URN,      DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_URNEX*/       { OFILE_URNEXPLD, DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_L5BOOK*/      { OFILE_L5BOOKS,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_L5CANDLE*/    { OFILE_L5CANDLE, DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN }, // OPF_LIGHT
-/*OBJ_L5LEVER*/     { OFILE_L5LEVER,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
+/*OBJ_L5BOOK*/      { OFILE_L5BOOKS,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_NAKRULBOOK*/  { OFILE_L5BOOKS,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_NEKRULLEVER*/ { OFILE_L5LEVER,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
 /*OBJ_POD*/         { OFILE_L6POD1,   DTM_NEST,                                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_PODEX*/       { OFILE_L6POD2,   DTM_NEST,                                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 #endif

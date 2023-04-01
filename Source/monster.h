@@ -37,7 +37,7 @@ extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 void InitLevelMonsters();
 void GetLevelMTypes();
 #ifdef HELLFIRE
-void WakeUberDiablo();
+void WakeNakrul();
 #endif
 void InitMonsters();
 void SetMapMonsters(BYTE* pMap, int startx, int starty);

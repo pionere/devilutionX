@@ -122,7 +122,6 @@ const char StoryBookName[][28] = {
 	"Journal: His Power Grows",
 	"Journal: NA-KRUL",
 	"Journal: The End",
-	"A Spellbook",
 #endif
 };
 /** Specifies the speech IDs of each dungeon type narrator book. */
@@ -717,28 +716,34 @@ static void AddDiabObjs()
 }
 
 #ifdef HELLFIRE
-static void AddHBooks(int bookidx, int ox, int oy)
+static void AddL5StoryBook(int bookidx, int ox, int oy)
 {
 	ObjectStruct* os;
-	constexpr int bookframe = 1;
+	constexpr int bookframe = 3;
 	int oi = AddObject(OBJ_L5BOOK, ox, oy);
 
-	if (oi == -1)
-		return;
+	// assert(oi != -1);
 
 	os = &objects[oi];
-	// os->_oVar1 = bookframe;
-	os->_oAnimFrame = 5 - 2 * bookframe;
-	os->_oVar4 = os->_oAnimFrame + 1; // STORY_BOOK_READ_FRAME
-	if (bookidx >= QNB_BOOK_A) {
-		os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A; // STORY_BOOK_MSG
-		os->_oVar3 = 14;                                // STORY_BOOK_NAME
-		os->_oVar8 = bookidx;                           // STORY_BOOK_NAKRUL_IDX
-	} else {
-		os->_oVar2 = TEXT_BOOK4 + bookidx; // STORY_BOOK_MSG
-		os->_oVar3 = bookidx + 9;          // STORY_BOOK_NAME
-		os->_oVar8 = 0;                    // STORY_BOOK_NAKRUL_IDX
-	}
+	os->_oAnimFrame = bookframe;
+	os->_oVar4 = os->_oAnimFrame + 1;  // STORY_BOOK_READ_FRAME
+	os->_oVar2 = TEXT_BOOK4 + bookidx; // STORY_BOOK_MSG
+	os->_oVar3 = 9 + bookidx;          // STORY_BOOK_NAME
+}
+
+static void AddNakrulBook(int bookidx, int ox, int oy)
+{
+	ObjectStruct* os;
+	constexpr int bookframe = 3;
+	int oi = AddObject(OBJ_NAKRULBOOK, ox, oy);
+
+	// assert(oi != -1);
+
+	os = &objects[oi];
+	os->_oAnimFrame = bookframe;
+	os->_oVar4 = os->_oAnimFrame + 1;               // STORY_BOOK_READ_FRAME
+	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A; // STORY_BOOK_MSG
+	os->_oVar3 = bookidx;                           // STORY_BOOK_NAKRUL_IDX
 }
 
 static void AddLvl2xBooks(int bookidx)
@@ -748,7 +753,7 @@ static void AddLvl2xBooks(int bookidx)
 	if (pos.x == 0)
 		return;
 
-	AddHBooks(bookidx, pos.x, pos.y);
+	AddL5StoryBook(bookidx, pos.x, pos.y);
 	AddObject(OBJ_L5CANDLE, pos.x - 2, pos.y + 1);
 	AddObject(OBJ_L5CANDLE, pos.x - 2, pos.y);
 	AddObject(OBJ_L5CANDLE, pos.x - 1, pos.y - 1);
@@ -757,19 +762,13 @@ static void AddLvl2xBooks(int bookidx)
 	AddObject(OBJ_L5CANDLE, pos.x + 2, pos.y + 1);
 }
 
-static void AddUberLever()
-{
-	int oi;
-
-	oi = AddObject(OBJ_L5LEVER, 2 * pSetPieces[0]._spx + DBORDERX + 7, 2 * pSetPieces[0]._spy + DBORDERY + 5);
-	SetObjMapRange(oi, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3, 1);
-}
-
 static void AddLvl24Books()
 {
 	BYTE books[4];
 
-	AddUberLever();
+	// add main lever
+	AddObject(OBJ_NAKRULLEVER, 2 * pSetPieces[0]._spx + DBORDERX + 7, 2 * pSetPieces[0]._spy + DBORDERY + 5);
+	// add books
 	switch (random_(0, 6)) {
 	case 0:
 		books[0] = QNB_BOOK_A; books[1] = QNB_BOOK_B; books[2] = QNB_BOOK_C; books[3] = 0;
@@ -793,9 +792,9 @@ static void AddLvl24Books()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddHBooks(books[0], 2 * pSetPieces[0]._spx + DBORDERX + 7, 2 * pSetPieces[0]._spy + DBORDERY + 6);
-	AddHBooks(books[1], 2 * pSetPieces[0]._spx + DBORDERX + 6, 2 * pSetPieces[0]._spy + DBORDERY + 3);
-	AddHBooks(books[2], 2 * pSetPieces[0]._spx + DBORDERX + 6, 2 * pSetPieces[0]._spy + DBORDERY + 8);
+	AddNakrulBook(books[0], 2 * pSetPieces[0]._spx + DBORDERX + 7, 2 * pSetPieces[0]._spy + DBORDERY + 6);
+	AddNakrulBook(books[1], 2 * pSetPieces[0]._spx + DBORDERX + 6, 2 * pSetPieces[0]._spy + DBORDERY + 3);
+	AddNakrulBook(books[2], 2 * pSetPieces[0]._spx + DBORDERX + 6, 2 * pSetPieces[0]._spy + DBORDERY + 8);
 }
 
 static int ProgressUberLever(int bookidx, int status)
@@ -2170,7 +2169,7 @@ static bool CheckLeverGroup(int type, int lvrIdx)
 
 	for (i = 0; i < numobjects; i++) {
 		os = &objects[i]; // objects[objectactive[i]]
-		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_VILEBOOK or OBJ_L5LEVER
+		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_VILEBOOK
 			continue;
 		if (lvrIdx != os->_oVar8 || !(os->_oModeFlags & OMF_ACTIVE)) // LEVER_INDEX
 			continue;
@@ -2213,18 +2212,6 @@ static void OperateLever(int oi, bool sendmsg)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 	if (!CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
 		return;
-#ifdef HELLFIRE
-	if (currLvl._dLevelIdx == DLV_CRYPT4 && !deltaload) {
-		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
-			// assert(quests[Q_NAKRUL]._qvar1 < QV_NAKRUL_BOOKOPEN);
-			quests[Q_NAKRUL]._qactive = QUEST_DONE;
-			// quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_LEVEROPEN;
-			if (sendmsg)
-				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
-		}
-		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
-	}
-#endif
 	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
@@ -3318,13 +3305,6 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
-#ifdef HELLFIRE
-void OpenUberRoom()
-{
-	ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
-}
-#endif
-
 /**
  * Handle the reading of story books in the dungeon.
  */
@@ -3338,47 +3318,81 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 
 	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
-#ifdef HELLFIRE // STORY_BOOK_NAKRUL_IDX
-		if (currLvl._dLevelIdx == DLV_CRYPT4 && os->_oVar8 == QNB_BOOK_C) {
-			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN)
-				WakeUberDiablo();
-			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN /*|| quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_DEADOPEN*/)
-				OpenUberRoom();
-		}
-#endif
 		return;
 	}
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT && quests[Q_NAKRUL]._qactive != QUEST_DONE) {
-		if (os->_oVar8 != 0) { // STORY_BOOK_NAKRUL_IDX
-			assert(currLvl._dLevelIdx == DLV_CRYPT4);
-			if (pnum != -1) {
-				quests[Q_NAKRUL]._qvar1 = ProgressUberLever(os->_oVar8, quests[Q_NAKRUL]._qvar1);
-				if (sendmsg)
-					NetSendCmdQuest(Q_NAKRUL, true);
-			}
-			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKC) {
-				quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_BOOKOPEN;
-				quests[Q_NAKRUL]._qactive = QUEST_DONE;
-				if (sendmsg)
-					NetSendCmdQuest(Q_NAKRUL, true);
-				OpenUberRoom();
-				WakeUberDiablo();
-				return;
-			}
-		} else {
-			quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
-			quests[Q_NAKRUL]._qlog = TRUE;
-			quests[Q_NAKRUL]._qmsg = os->_oVar2; // STORY_BOOK_MSG
-		}
-	}
-#endif
 	if (pnum == mypnum)
 		StartQTextMsg(os->_oVar2); // STORY_BOOK_MSG
 }
+
+#ifdef HELLFIRE
+void OpenNakrulRoom()
+{
+	ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
+}
+
+static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	// assert(os->_oSelFlag != 0);
+	// assert(currLvl._dLevelIdx == DLV_CRYPT4);
+
+	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	if (deltaload) {
+		if (os->_oVar3 == QNB_BOOK_C) { // STORY_BOOK_NAKRUL_IDX
+			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN)
+				WakeNakrul();
+			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN /*|| quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_DEADOPEN*/)
+				OpenNakrulRoom();
+		}
+		return;
+	}
+	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	if (sendmsg)
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+	if (pnum == mypnum) {
+		StartQTextMsg(os->_oVar2); // STORY_BOOK_MSG
+		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
+			quests[Q_NAKRUL]._qvar2 = ProgressUberLever(os->_oVar3, quests[Q_NAKRUL]._qvar2); // STORY_BOOK_NAKRUL_IDX
+			if (quests[Q_NAKRUL]._qvar2 == QV_NAKRUL_BOOKC) {
+				NetSendCmd(CMD_OPENNAKRUL);
+			}
+		}
+	}
+}
+
+static void OperateNakrulLever(int oi, bool sendmsg)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame++; // 2
+
+	if (sendmsg)
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+
+	if (!deltaload) {
+		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
+			// assert(quests[Q_NAKRUL]._qvar1 < QV_NAKRUL_BOOKOPEN);
+			quests[Q_NAKRUL]._qactive = QUEST_DONE;
+			// quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_LEVEROPEN;
+			if (sendmsg)
+				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
+		}
+		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
+		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
+	}
+	OpenNakrulRoom();
+}
+#endif
 
 static void OperateLazStand(int oi, bool sendmsg)
 {
@@ -3533,9 +3547,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 			OperateL3Door(oi, sendmsg);
 		break;
 	case OBJ_LEVER:
-#ifdef HELLFIRE
-	case OBJ_L5LEVER:
-#endif
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, sendmsg);
 		break;
@@ -3614,10 +3625,16 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_TEARFTN:
 		OperateFountains(pnum, oi, sendmsg);
 		break;
-	case OBJ_STORYBOOK:
 #ifdef HELLFIRE
+	case OBJ_NAKRULLEVER:
+		OperateNakrulLever(oi, sendmsg);
+		break;
+	case OBJ_NAKRULBOOK:
+		OperateNakrulBook(pnum, oi, sendmsg);
+		break;
 	case OBJ_L5BOOK:
 #endif
+	case OBJ_STORYBOOK:
 		OperateStoryBook(pnum, oi, sendmsg);
 		break;
 	case OBJ_PEDESTAL:
@@ -3699,9 +3716,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		OperateL3Door(oi, false);
 		break;
 	case OBJ_LEVER:
-#ifdef HELLFIRE
-	case OBJ_L5LEVER:
-#endif
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
@@ -3780,10 +3794,16 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_TEARFTN:
 		OperateFountains(pnum, oi, false);
 		break;
-	case OBJ_STORYBOOK:
 #ifdef HELLFIRE
+	case OBJ_NAKRULLEVER:
+		OperateNakrulLever(oi, false);
+		break;
+	case OBJ_NAKRULBOOK:
+		OperateNakrulBook(pnum, oi, false);
+		break;
 	case OBJ_L5BOOK:
 #endif
+	case OBJ_STORYBOOK:
 		OperateStoryBook(-1, oi, false);
 		break;
 	case OBJ_PEDESTAL:
@@ -3843,6 +3863,18 @@ static void SyncCrux(int oi)
 	if (CheckCrux(os->_oVar8)) // LEVER_EFFECT
 		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
+
+#ifdef HELLFIRE
+static void SyncNakrulLever(int oi)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	if (os->_oSelFlag == 0) {
+		OpenNakrulRoom();
+	}
+}
+#endif
 
 static void SyncL1Doors(int oi)
 {
@@ -3987,13 +4019,15 @@ void SyncObjectAnim(int oi)
 		SyncL3Doors(oi);
 		break;
 	case OBJ_LEVER:
-#ifdef HELLFIRE
-	case OBJ_L5LEVER:
-#endif
 	case OBJ_VILEBOOK:
 	case OBJ_SWITCHSKL:
 		SyncLever(oi);
 		break;
+#ifdef HELLFIRE
+	case OBJ_NAKRULLEVER:
+		SyncNakrulLever(oi);
+		break;
+#endif
 	case OBJ_CRUXM:
 	//case OBJ_CRUXR: -- check only one of them
 	//case OBJ_CRUXL:
@@ -4019,7 +4053,7 @@ void GetObjectStr(int oi)
 	switch (os->_otype) {
 	case OBJ_LEVER:
 #ifdef HELLFIRE
-	case OBJ_L5LEVER:
+	case OBJ_NAKRULLEVER:
 #endif
 	//case OBJ_FLAMELVR:
 		copy_cstr(infostr, "Lever");
@@ -4150,6 +4184,11 @@ void GetObjectStr(int oi)
 #endif
 		copy_cstr(infostr, StoryBookName[os->_oVar3]); // STORY_BOOK_NAME
 		break;
+#ifdef HELLFIRE
+	case OBJ_NAKRULBOOK:
+		copy_cstr(infostr, "A Spellbook");
+		break;
+#endif
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		copy_cstr(infostr, "Weapon Rack");
