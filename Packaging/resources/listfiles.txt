@@ -227,6 +227,7 @@ Levels\L4Data\L4_3.PAL
 Levels\L4Data\L4_4.PAL
 Levels\L4Data\L4_5.PAL
 Levels\L4Data\Vile1.DUN
+Levels\L4Data\Viles.DUN
 Levels\L4Data\Warlord.DUN
 Levels\L4Data\Warlord2.DUN
 _Levels\TownData\Sector1s.DUN

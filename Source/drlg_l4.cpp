@@ -319,13 +319,15 @@ static void DRLG_LoadL4SP()
 		// - fix shadow of the bottom right corner
 		pSetPieces[0]._spData[(2 + 0 + 4 * 6) * 2] = 75;
 		pSetPieces[0]._spData[(2 + 0 + 5 * 6) * 2] = 74;
-	} else if (IsMultiGame && QuestStatus(Q_BETRAYER)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
-		// patch set-piece to add monsters - Vile1.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
-		lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
-		lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+	} else if (QuestStatus(Q_BETRAYER)) {
+		pSetPieces[0]._spData = LoadFileInMem(IsMultiGame ? "Levels\\L4Data\\Vile1.DUN" : "Levels\\L4Data\\Viles.DUN");
+		if (IsMultiGame) {
+			// patch set-piece to add monsters - Vile1.DUN
+			uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+		}
 		pSetPieces[0]._sptype = SPT_BETRAYER;
 	} else if (QuestStatus(Q_WARLORD)) {
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
