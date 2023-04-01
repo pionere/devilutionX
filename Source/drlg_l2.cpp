@@ -18,8 +18,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Shadow type of the base floor(3). */
 #define SF 3
 
-/** The number of generated rooms. */
-#define L2_MAXROOMS 32
 #define AREA_MIN    2
 #define ROOM_MAX    10
 #define ROOM_MIN    4
@@ -31,7 +29,6 @@ enum HALL_DIR {
 	HDIR_LEFT,
 };
 static int nRoomCnt;
-static ROOMHALLNODE RoomList[L2_MAXROOMS];
 const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
 /*
@@ -905,7 +902,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 {
 	int nAw, nAh, nRw, nRh, nRx1, nRy1, nRx2, nRy2, nHx1, nHy1, nHx2, nHy2, nRid;
 
-	if (nRoomCnt >= L2_MAXROOMS)
+	if (nRoomCnt >= lengthof(drlg.RoomList))
 		return;
 	//assert(nX1 <= DMAXX - 2 || nX1 >= nX2);
 	//assert(nX1 >= 1 || nX1 >= nX2);
@@ -960,13 +957,13 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	pdungeon[nRx2][nRy2] = 65; // 69    65
 
 	// add entry to RoomList
-	RoomList[nRoomCnt].nRoomParent = nRDest;
-	RoomList[nRoomCnt].nRoomx1 = nRx1;
-	RoomList[nRoomCnt].nRoomy1 = nRy1;
-	RoomList[nRoomCnt].nRoomx2 = nRx2;
-	RoomList[nRoomCnt].nRoomy2 = nRy2;
+	drlg.RoomList[nRoomCnt].nRoomParent = nRDest;
+	drlg.RoomList[nRoomCnt].nRoomx1 = nRx1;
+	drlg.RoomList[nRoomCnt].nRoomy1 = nRy1;
+	drlg.RoomList[nRoomCnt].nRoomx2 = nRx2;
+	drlg.RoomList[nRoomCnt].nRoomy2 = nRy2;
 	if (nRDest >= 0) {
-		ROOMHALLNODE& parentRoom = RoomList[nRDest];
+		ROOMHALLNODE& parentRoom = drlg.RoomList[nRDest];
 		switch (nHDir) {
 		case HDIR_UP:
 			nHx1 = RandRange(nRx1 + 1, nRx2 - 1);
@@ -996,11 +993,11 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 			ASSUME_UNREACHABLE
 			break;
 		}
-		RoomList[nRoomCnt].nHallx1 = nHx1;
-		RoomList[nRoomCnt].nHally1 = nHy1;
-		RoomList[nRoomCnt].nHallx2 = nHx2;
-		RoomList[nRoomCnt].nHally2 = nHy2;
-		RoomList[nRoomCnt].nHalldir = nHDir;
+		drlg.RoomList[nRoomCnt].nHallx1 = nHx1;
+		drlg.RoomList[nRoomCnt].nHally1 = nHy1;
+		drlg.RoomList[nRoomCnt].nHallx2 = nHx2;
+		drlg.RoomList[nRoomCnt].nHally2 = nHy2;
+		drlg.RoomList[nRoomCnt].nHalldir = nHDir;
 	}
 
 	nRid = nRoomCnt;
@@ -1835,12 +1832,12 @@ static void DRLG_L2CreateDungeon()
 	CreateRoom(1, 1, DMAXX - 2, DMAXY - 2, -1, HDIR_NONE, ForceW, ForceH);
 
 	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
-		pSetPieces[0]._spx = RoomList[0].nRoomx1 + 2;
-		pSetPieces[0]._spy = RoomList[0].nRoomy1 + 2;
+		pSetPieces[0]._spx = drlg.RoomList[0].nRoomx1 + 2;
+		pSetPieces[0]._spy = drlg.RoomList[0].nRoomy1 + 2;
 	}
 
 	for (i = 1; i < nRoomCnt; i++) {
-		ConnectHall(RoomList[i].nHallx1, RoomList[i].nHally1, RoomList[i].nHallx2, RoomList[i].nHally2, RoomList[i].nHalldir);
+		ConnectHall(drlg.RoomList[i].nHallx1, drlg.RoomList[i].nHally1, drlg.RoomList[i].nHallx2, drlg.RoomList[i].nHally2, drlg.RoomList[i].nHalldir);
 	}
 
 	// prevent standalone walls between the hallway-tiles
@@ -1907,31 +1904,6 @@ static void DRLG_L2CreateDungeon()
 	}
 }
 
-/* Block arches with walls to stop the spread of transVals */
-static void DRLG_L2BlockArches()
-{
-	int i, j;
-
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			switch (dungeon[i][j]) {
-			case 39:
-			case 42:
-				dungeon[i][j + 1] = 1;
-				break;
-			case 41:
-				dungeon[i][j + 1] = 1;
-				dungeon[i + 1][j] = 2;
-				break;
-			case 40:
-			case 43:
-				dungeon[i + 1][j] = 2;
-				break;
-			}
-		}
-	}
-}
-
 /*
  * Spread transVals further.
  * - spread transVals on corner tiles to make the bottom room-tiles visible.
@@ -1976,6 +1948,39 @@ static void DRLG_L2TransFix()
 		}
 		yy += 2;
 	}
+}
+
+static void DRLG_L2InitTransVals()
+{
+	int i, j;
+
+	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
+	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
+	// block arches with walls to stop the spread of transVals
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			switch (dungeon[i][j]) {
+			case 39:
+			case 42:
+				dungeon[i][j + 1] = 1;
+				break;
+			case 41:
+				dungeon[i][j + 1] = 1;
+				dungeon[i + 1][j] = 2;
+				break;
+			case 40:
+			case 43:
+				dungeon[i + 1][j] = 2;
+				break;
+			}
+		}
+	}
+
+	DRLG_InitTrans();
+	DRLG_FloodTVal(L2FTYPES);
+	DRLG_L2TransFix();
+	// restore arches
+	memcpy(dungeon, drlg.transvalMap, sizeof(dungeon));
 }
 
 /*
@@ -2410,12 +2415,7 @@ static void DRLG_L2()
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// create rooms (transvals)
-	DRLG_L2BlockArches();
-	DRLG_InitTrans();
-	DRLG_FloodTVal(L2FTYPES);
-	DRLG_L2TransFix();
-	// restore arches
-	memcpy(dungeon, pdungeon, sizeof(pdungeon));
+	DRLG_L2InitTransVals();
 
 	DRLG_Init_Globals();
 

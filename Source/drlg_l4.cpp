@@ -14,13 +14,8 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Default megatile if the tile is zero. */
 #define DEFAULT_MEGATILE_L4 6
 
-static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
-#define L4BLOCKX (DMAXX / 2)
-static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even height.");
-#define L4BLOCKY (DMAXY / 2)
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKX, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 I.");
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKY, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 II.");
-static BYTE dungBlock[L4BLOCKX][L4BLOCKY];
 
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
@@ -1044,22 +1039,22 @@ static void L4Block2Dungeon()
 	int i, j;
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i][j] = dungBlock[i][j];
+			dungeon[i][j] = drlg.dungBlock[i][j];
 		}
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i][j + L4BLOCKY] = dungBlock[i][L4BLOCKY - 1 - j];
+			dungeon[i][j + L4BLOCKY] = drlg.dungBlock[i][L4BLOCKY - 1 - j];
 		}
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i + L4BLOCKX][j] = dungBlock[L4BLOCKX - 1 - i][j];
+			dungeon[i + L4BLOCKX][j] = drlg.dungBlock[L4BLOCKX - 1 - i][j];
 		}
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i + L4BLOCKX][j + L4BLOCKY] = dungBlock[L4BLOCKX - 1 - i][L4BLOCKY - 1 - j];
+			dungeon[i + L4BLOCKX][j + L4BLOCKY] = drlg.dungBlock[L4BLOCKX - 1 - i][L4BLOCKY - 1 - j];
 		}
 	}
 }
@@ -1076,9 +1071,9 @@ static void L4ConnectBlock()
 	memset(hallok, 0, sizeof(hallok));
 	for (j = L4BLOCKY - 2; j >= 0; j--) {
 		for (i = L4BLOCKX - 2; i >= 0; i--) {
-			if (dungBlock[i][j] == 1) {
+			if (drlg.dungBlock[i][j] == 1) {
 				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (dungBlock[i][j + 1] == 1 && dungBlock[i + 1][j + 1] == 0) {
+				if (drlg.dungBlock[i][j + 1] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
 					hallok[j] = i;
 				}
 				i = 0;
@@ -1090,8 +1085,8 @@ static void L4ConnectBlock()
 	while (TRUE) {
 		if (hallok[rv] != 0) {
 			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
-				dungBlock[i][rv] = 1;
-				dungBlock[i][rv + 1] = 1;
+				drlg.dungBlock[i][rv] = 1;
+				drlg.dungBlock[i][rv + 1] = 1;
 			}
 			break;
 		} else {
@@ -1105,9 +1100,9 @@ static void L4ConnectBlock()
 	memset(hallok, 0, sizeof(hallok));
 	for (i = L4BLOCKX - 2; i >= 0; i--) {
 		for (j = L4BLOCKY - 2; j >= 0; j--) {
-			if (dungBlock[i][j] == 1) {
+			if (drlg.dungBlock[i][j] == 1) {
 				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (dungBlock[i + 1][j] == 1 && dungBlock[i + 1][j + 1] == 0) {
+				if (drlg.dungBlock[i + 1][j] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
 					hallok[i] = j;
 				}
 				j = 0;
@@ -1119,8 +1114,8 @@ static void L4ConnectBlock()
 	while (TRUE) {
 		if (hallok[rv] != 0) {
 			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
-				dungBlock[rv][j] = 1;
-				dungBlock[rv + 1][j] = 1;
+				drlg.dungBlock[rv][j] = 1;
+				drlg.dungBlock[rv + 1][j] = 1;
 			}
 			break;
 		} else {
@@ -1138,8 +1133,8 @@ static int GetArea()
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
-	pTmp = &dungBlock[0][0];
+	static_assert(sizeof(drlg.dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
+	pTmp = &drlg.dungBlock[0][0];
 	for (i = 0; i < L4BLOCKX * L4BLOCKY; i++, pTmp++) {
 		assert(*pTmp <= 1);
 		rv += *pTmp;
@@ -1156,7 +1151,7 @@ static void L4DrawRoom(int x, int y, int width, int height)
 	y2 = y + height;
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			dungBlock[i][j] = 1;
+			drlg.dungBlock[i][j] = 1;
 		}
 	}
 }
@@ -1175,7 +1170,7 @@ static bool L4CheckRoom(int x, int y, int width, int height)
 
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			if (dungBlock[i][j] != 0) {
+			if (drlg.dungBlock[i][j] != 0) {
 				return false;
 			}
 		}
@@ -1197,11 +1192,11 @@ static bool L4CheckVHall(int x, int top, int h)
 	bottom = j + h;
 	if (bottom >= L4BLOCKY)
 		return false;
-	while (j < bottom && dungBlock[x][j] == 0)
+	while (j < bottom && drlg.dungBlock[x][j] == 0)
 		j++;
-	while (j < bottom && dungBlock[x][j] == 1)
+	while (j < bottom && drlg.dungBlock[x][j] == 1)
 		j++;
-	while (j < bottom && dungBlock[x][j] == 0)
+	while (j < bottom && drlg.dungBlock[x][j] == 0)
 		j++;
 	return j == bottom;
 }
@@ -1216,11 +1211,11 @@ static bool L4CheckHHall(int y, int left, int w)
 	right = i + w;
 	if (right >= L4BLOCKX)
 		return false;
-	while (i < right && dungBlock[i][y] == 0)
+	while (i < right && drlg.dungBlock[i][y] == 0)
 		i++;
-	while (i < right && dungBlock[i][y] == 1)
+	while (i < right && drlg.dungBlock[i][y] == 1)
 		i++;
-	while (i < right && dungBlock[i][y] == 0)
+	while (i < right && drlg.dungBlock[i][y] == 0)
 		i++;
 	return i == right;
 }
@@ -1347,22 +1342,6 @@ static void DRLG_LoadDiabQuads()
 	DRLG_L4SetRoom(1);
 	DRLG_L4SetRoom(2);
 	DRLG_L4SetRoom(3);
-}
-
-/* Block arches with walls to stop the spread of transVals */
-static void DRLG_L4BlockArches()
-{
-	int i, j;
-
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			if (dungeon[i][j] == 53) {
-				dungeon[i][j + 1] = 1;
-			} else if (dungeon[i][j] == 57) {
-				dungeon[i + 1][j] = 2;
-			}
-		}
-	}
 }
 
 /*
@@ -1750,6 +1729,31 @@ static void DRLG_L4TransFix()
 	}
 }
 
+static void DRLG_L4InitTransVals()
+{
+	int i, j;
+
+	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
+	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
+	// block arches with walls to stop the spread of transVals
+	for (i = 0; i < DMAXX - 1; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			if (dungeon[i][j] == 53) {
+				dungeon[i][j + 1] = 1;
+			} else if (dungeon[i][j] == 57) {
+				dungeon[i + 1][j] = 2;
+			}
+		}
+	}
+
+	DRLG_InitTrans();
+	DRLG_FloodTVal(L4FTYPES);
+	DRLG_L4TransFix();
+
+	// restore arches
+	memcpy(dungeon, drlg.transvalMap, sizeof(dungeon));
+}
+
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
  * New dungeon values: 116..128
@@ -1795,7 +1799,7 @@ static void DRLG_L4()
 {
 	while (true) {
 		do {
-			memset(dungBlock, 0, sizeof(dungBlock));
+			memset(drlg.dungBlock, 0, sizeof(drlg.dungBlock));
 
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
@@ -1875,12 +1879,7 @@ static void DRLG_L4()
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// create rooms (transvals)
-	DRLG_L4BlockArches();
-	DRLG_InitTrans();
-	DRLG_FloodTVal(L4FTYPES);
-	DRLG_L4TransFix();
-	// restore arches
-	memcpy(dungeon, pdungeon, sizeof(pdungeon));
+	DRLG_L4InitTransVals();
 
 	DRLG_Init_Globals();
 

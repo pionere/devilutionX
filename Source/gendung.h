@@ -15,6 +15,7 @@ extern "C" {
 extern BYTE dungeon[DMAXX][DMAXY];
 extern BYTE pdungeon[DMAXX][DMAXY];
 extern BYTE drlgFlags[DMAXX][DMAXY];
+extern DrlgMem drlg;
 extern SetPieceStruct pSetPieces[4];
 extern WarpStruct pWarps[NUM_DWARP];
 extern BYTE* pSpecialCels;

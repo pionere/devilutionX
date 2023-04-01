@@ -2209,6 +2209,15 @@ typedef struct ROOMHALLNODE {
 	int nHalldir;
 } ROOMHALLNODE;
 
+typedef struct DrlgMem {
+	union {
+		ROOMHALLNODE RoomList[L2_MAXROOMS]; // drlg_l2
+		BYTE transvalMap[DMAXX][DMAXY];     // drlg_l2, drlg_l4
+		BYTE lockoutMap[DMAXX][DMAXY];      // drlg_l3
+		BYTE dungBlock[L4BLOCKX][L4BLOCKY]; // drlg_l4
+	};
+} DrlgMem;
+
 //////////////////////////////////////////////////
 // themes
 //////////////////////////////////////////////////

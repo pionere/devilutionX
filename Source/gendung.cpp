@@ -13,9 +13,11 @@ BYTE dungeon[DMAXX][DMAXY];
 BYTE pdungeon[DMAXX][DMAXY];
 /** Flags of mega tiles during dungeon generation. */
 BYTE drlgFlags[DMAXX][DMAXY];
+/** Container for large, temporary entities during dungeon generation. */
+DrlgMem drlg;
 /**
- * Contains the information about the set pieces of the map.
- * pData containts the content of the .DUN file.
+ * Contains information about the set pieces of the map.
+ * pData contains the content of the .DUN file.
  *  - First the post version, at the end of CreateLevel the pre version is loaded.
  *  - this is not available after the player enters the level.
  */
