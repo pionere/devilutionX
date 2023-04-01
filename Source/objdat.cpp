@@ -16,10 +16,10 @@ DEVILUTION_BEGIN_NAMESPACE
 const BYTE ObjConvTbl[128] = {
 	// clang-format off
 	0,
-	OBJ_LEVER, // Q_SKELKING
-	OBJ_CRUXM, // Q_SKELKING
-	OBJ_CRUXR, // Q_SKELKING
-	OBJ_CRUXL, // Q_SKELKING
+	OBJ_LEVER, // SklKng2.DUN
+	OBJ_CRUXM, // SklKng2.DUN
+	OBJ_CRUXR, // SklKng2.DUN
+	OBJ_CRUXL, // SklKng2.DUN
 	0, //OBJ_ANGEL,
 	0, //OBJ_BANNERL,
 	0, //OBJ_BANNERM,
@@ -29,12 +29,12 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_ANCIENTTOME, // Q_BCHAMB
-	OBJ_BLOODBOOK, //Q_BLOOD
-	OBJ_TBCROSS, // Q_BCHAMB
+	OBJ_ANCIENTTOME, // Bonecha1.DUN
+	OBJ_BLOODBOOK, // Blood2.DUN (Q_BLOOD)
+	OBJ_TBCROSS, // Bonecha1.DUN
 	0,
 	0, //OBJ_CANDLE1,
-	OBJ_CANDLE2, // Q_BCHAMB, Q_BETRAYER
+	OBJ_CANDLE2, // Bonecha1.DUN, Viles.DUN (Q_BETRAYER)
 	0, //OBJ_CANDLEO,
 	0, //OBJ_CAULDRON,
 	0,
@@ -51,8 +51,8 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_MCIRCLE1, // Q_BETRAYER
-	OBJ_MCIRCLE2, // Q_BETRAYER
+	OBJ_MCIRCLE1, // Vile2.DUN
+	OBJ_MCIRCLE2, // Vile2.DUN
 	0, //OBJ_SKFIRE,
 	0, //OBJ_SKPILE,
 	0, //OBJ_SKSTICK1,
@@ -62,19 +62,19 @@ const BYTE ObjConvTbl[128] = {
 	0, //OBJ_SKSTICK5,
 	0,
 	0,
-	OBJ_VILEBOOK, // Q_BETRAYER
+	OBJ_VILEBOOK, // Vile2.DUN
 	0,
 	0,
 	0,
-	OBJ_SWITCHSKL, // Q_BCHAMB, Q_DIABLO
+	OBJ_SWITCHSKL, // Bonecha1.DUN, diab1.DUN, diab2a.DUN, diab3a.DUN
 	0,
 	0, //OBJ_TRAPL,
 	0, //OBJ_TRAPR,
-	OBJ_TORTUREL1, // Q_BUTCHER
-	OBJ_TORTUREL2, // Q_BUTCHER
-	OBJ_TORTURER1, // Q_BUTCHER
-	OBJ_TORTURER2, // Q_BUTCHER
-	OBJ_TORTUREL3, // Q_BUTCHER
+	OBJ_TORTUREL1, // Butcher.DUN (Q_BUTCHER)
+	OBJ_TORTUREL2, // Butcher.DUN (Q_BUTCHER)
+	OBJ_TORTURER1, // Butcher.DUN (Q_BUTCHER)
+	OBJ_TORTURER2, // Butcher.DUN (Q_BUTCHER)
+	OBJ_TORTUREL3, // Butcher.DUN (Q_BUTCHER)
 	0,
 	0,
 	0,
@@ -84,33 +84,29 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_LAZSTAND, // Q_BETRAYER
-	OBJ_TNUDEM, //1, Q_BUTCHER
-	OBJ_TNUDEM, //2, Q_BUTCHER
-	OBJ_TNUDEM, //3, Q_BUTCHER
-	OBJ_TNUDEM, //4, Q_BUTCHER
-	OBJ_TNUDEW, //1, Q_BUTCHER
-	OBJ_TNUDEW, //2, Q_BUTCHER
-	OBJ_TNUDEW, //3, Q_BUTCHER
+	OBJ_LAZSTAND, // Viles.DUN (Q_BETRAYER)
+	OBJ_TNUDEM, // Butcher.DUN (Q_BUTCHER)
+	0,
+	0,
+	0,
+	OBJ_TNUDEW, // Butcher.DUN (Q_BUTCHER)
+	0,
+	0,
 	0, //OBJ_CHEST1,
-	OBJ_CHEST1, // Q_SKELKING
+	OBJ_CHEST1, // SklKng2.DUN
 	0, //OBJ_CHEST1,
 	0, //OBJ_CHEST2,
-	OBJ_CHEST2, // Q_SKELKING
+	OBJ_CHEST2, // SklKng2.DUN
 	0, //OBJ_CHEST2,
 	0, //OBJ_CHEST3,
-	OBJ_CHEST3, // Q_BCHAMB
-	OBJ_NAKRULBOOK, // Nakrul1.DUN
-	OBJ_NAKRULLEVER, // Nakrul1.DUN
+	OBJ_CHEST3, // Bonecha1.DUN
+	OBJ_NAKRULBOOK, // Nakrul1.DUN (Q_NAKRUL)
+	OBJ_NAKRULLEVER, // Nakrul1.DUN (Q_NAKRUL)
 	0,
 	0,
 	0,
-	OBJ_SIGNCHEST, // Q_BANNER
-	OBJ_PEDESTAL, // Q_BLOOD,
-	0,
-	0,
-	0,
-	0,
+	OBJ_SIGNCHEST, // Banner2.DUN (Q_BANNER)
+	OBJ_PEDESTAL, // Blood2.DUN (Q_BLOOD)
 	0,
 	0,
 	0,
@@ -120,13 +116,17 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0,
-	OBJ_ALTBOY, // Q_BETRAYER
 	0,
 	0,
-	OBJ_ARMORSTANDN, //OBJ_ARMORSTAND, // Q_WARLORD - changed to inactive versions to eliminate farming potential
-	OBJ_WEAPONRACKLN, //OBJ_WEAPONRACKL, // Q_WARLORD
-	OBJ_TORCHR1, // Q_BLOOD
-	OBJ_TORCHL1, // Q_BLOOD
+	0,
+	0,
+	OBJ_ALTBOY, // L4Data/Vile1.DUN (Q_BETRAYER), L1Data/Vile2.DUN
+	0,
+	0,
+	OBJ_ARMORSTANDN, //OBJ_ARMORSTAND, // Warlord2.DUN (Q_WARLORD) - changed to inactive versions to eliminate farming potential
+	OBJ_WEAPONRACKLN, //OBJ_WEAPONRACKL, // Warlord2.DUN (Q_WARLORD)
+	OBJ_TORCHR1, // Blood2.DUN (Q_BLOOD)
+	OBJ_TORCHL1, // Blood2.DUN (Q_BLOOD)
 	0, //OBJ_MUSHPATCH,
 	0, //OBJ_STAND,
 	0, //OBJ_TORCHL2,
@@ -235,8 +235,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_L3LDOOR*/     { OFILE_L3DOORS,  DTM_CAVES,                                 DTYPE_CAVES,     THEME_NONE,              Q_INVALID,             2, OPF_DOOR,   OMF_ACTIVE,             ODT_LEFT,         3, TRUE      , ALIGN },
 /*OBJ_L3RDOOR*/     { OFILE_L3DOORS,  DTM_CAVES,                                 DTYPE_CAVES,     THEME_NONE,              Q_INVALID,             1, OPF_DOOR,   OMF_ACTIVE,             ODT_RIGHT,        3, TRUE      , ALIGN },
 /*OBJ_PURIFYINGFTN*/{ OFILE_PFOUNTN,  0,                                         0,               THEME_PURIFYINGFOUNTAIN, Q_INVALID,             0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_ARMORSTAND*/  { OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_WARLORD,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_ARMORSTANDN*/ { OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_INVALID,             2, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
+/*OBJ_ARMORSTAND*/  { OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_ARMORSTANDN*/ { OFILE_ARMSTAND, 0,                                         0,               THEME_ARMORSTAND,        Q_WARLORD,             2, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
 /*OBJ_GOATSHRINE*/  { OFILE_GOATSHRN, 0,                                         0,               THEME_GOATSHRINE,        Q_INVALID,             0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_CAULDRON*/    { OFILE_CAULDREN, DTM_HELL,                                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_MURKYFTN*/    { OFILE_MFOUNTN,  0,                                         0,               THEME_MURKYFOUNTAIN,     Q_INVALID,             0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
@@ -247,8 +247,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_STORYBOOK*/   { OFILE_BKSLBRNT, DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN }, // BUGFIX should only be loaded on level 1-12 (crypt masks as 1-4) (fixed)
 /*OBJ_STORYCANDLE*/ { OFILE_CANDLE2,  DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, 0,               THEME_NONE,              Q_BETRAYER,            0, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN }, // OPF_LIGHT
 /*OBJ_TBCROSS*/     { OFILE_BURNCROS, 0,                                         0,               THEME_BRNCROSS,          Q_INVALID,             0, OPF_BCROSS, OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN }, // + OPF_LIGHT 5
-/*OBJ_WEAPONRACKL*/ { OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_WARLORD,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_WEAPONRACKLN*/{ OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,             2, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
+/*OBJ_WEAPONRACKL*/ { OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_WEAPONRACKLN*/{ OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_WARLORD,             2, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
 /*OBJ_WEAPONRACKR*/ { OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,             3, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_WEAPONRACKRN*/{ OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,             4, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
 /*OBJ_MUSHPATCH*/   { OFILE_MUSHPTCH, 0,                                         0,               THEME_NONE,              Q_MUSHROOM,            1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
@@ -264,8 +264,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_URNEX*/       { OFILE_URNEXPLD, DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_L5CANDLE*/    { OFILE_L5CANDLE, DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN }, // OPF_LIGHT
 /*OBJ_L5BOOK*/      { OFILE_L5BOOKS,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             3, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_NAKRULBOOK*/  { OFILE_L5BOOKS,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             3, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_NAKRULLEVER*/ { OFILE_L5LEVER,  DTM_CRYPT,                                 0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
+/*OBJ_NAKRULBOOK*/  { OFILE_L5BOOKS,  0,                                         0,               THEME_NONE,              Q_NAKRUL,              3, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
+/*OBJ_NEKRULLEVER*/ { OFILE_L5LEVER,  0,                                         0,               THEME_NONE,              Q_NAKRUL,              1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
 /*OBJ_POD*/         { OFILE_L6POD1,   DTM_NEST,                                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_PODEX*/       { OFILE_L6POD2,   DTM_NEST,                                  0,               THEME_NONE,              Q_INVALID,             1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 #endif
