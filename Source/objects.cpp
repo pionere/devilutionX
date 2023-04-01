@@ -3318,6 +3318,13 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
+#ifdef HELLFIRE
+void OpenUberRoom()
+{
+	ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
+}
+#endif
+
 /**
  * Handle the reading of story books in the dungeon.
  */
@@ -4167,12 +4174,5 @@ void GetObjectStr(int oi)
 		infoclr = COL_RED;
 	}
 }
-
-#ifdef HELLFIRE
-void OpenUberRoom()
-{
-	ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
-}
-#endif
 
 DEVILUTION_END_NAMESPACE
