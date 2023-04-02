@@ -2419,25 +2419,17 @@ static void DRLG_L5TransFix()
 
 static void DRLG_L1InitTransVals()
 {
-	int i, j;
-
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
-	// prepare transvalMap
+
+	DRLG_InitTrans();
 	const bool *floorTypes = L1FTYPES;
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		floorTypes = L5FTYPES;
 	}
 #endif
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			drlg.transvalMap[i][j] = floorTypes[drlg.transvalMap[i][j]];
-		}
-	}
-
-	DRLG_InitTrans();
-	DRLG_FloodTVal();
+	DRLG_FloodTVal(floorTypes);
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		DRLG_L5TransFix();

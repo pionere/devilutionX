@@ -928,9 +928,16 @@ static void DRLG_FTVR(int i, int j, int x, int y, int dir)
 	}
 }
 
-void DRLG_FloodTVal()
+void DRLG_FloodTVal(const bool *floorTypes)
 {
 	int xx, yy, i, j;
+
+	// prepare transvalMap
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			drlg.transvalMap[i][j] = floorTypes[drlg.transvalMap[i][j]];
+		}
+	}
 
 	xx = DBORDERX;
 

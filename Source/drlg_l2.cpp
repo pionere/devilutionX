@@ -1975,15 +1975,9 @@ static void DRLG_L2InitTransVals()
 			}
 		}
 	}
-	// prepare transvalMap
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			drlg.transvalMap[i][j] = L2FTYPES[drlg.transvalMap[i][j]];
-		}
-	}
 
 	DRLG_InitTrans();
-	DRLG_FloodTVal();
+	DRLG_FloodTVal(L2FTYPES);
 	DRLG_L2TransFix();
 }
 
