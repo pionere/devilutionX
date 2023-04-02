@@ -2432,6 +2432,18 @@ static void DRLG_L2()
 		pSetPieces[0]._spData[(2 + 4 + 3 * 11) * 2] = 25;
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_BLOOD) {
+		// patch transvals to prevent transparent walls in the central room
+		int x = DBORDERX + 2 * pSetPieces[0]._spx;
+		int y = DBORDERY + 2 * pSetPieces[0]._spy;
+		BYTE tv0 = dTransVal[x + 7][y + 15];
+		BYTE tv1 = numtrans;
+		numtrans++;
+		for (int i = x + 4; i < x + 16; i++) {
+			for (int j = y + 0; j < y + 15; j++) {
+				if (dTransVal[i][j] == tv0)
+					dTransVal[i][j] = tv1;
+			}
+		}
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");

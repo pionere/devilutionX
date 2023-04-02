@@ -2521,7 +2521,19 @@ static void SyncPedestal(/*int oi*/)
 		break;
 	case QV_BLOOD_STONE3: {
 		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
-		ObjChangeMap(pSetPieces[0]._spx /*+ 2*/, pSetPieces[0]._spy, pSetPieces[0]._spx + 9/*6*/, pSetPieces[0]._spy + 8/*, false*/);
+		ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+		// patch transvals to prevent transparency glitch
+		int x = DBORDERX + 2 * pSetPieces[0]._spx;
+		int y = DBORDERY + 2 * pSetPieces[0]._spy;
+		BYTE tv0 = dTransVal[x + 7][y + 15];
+		BYTE tv1 = dTransVal[x + 7][y + 14];
+		for (int i = x + 4; i < x + 16; i++) {
+			for (int j = y + 15; j < y + 24; j++) {
+				if (dTransVal[i][j] == tv0)
+					dTransVal[i][j] = tv1;
+			}
+		}
+		// load the torches
 		LoadPreLighting();
 		BYTE* setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 		LoadMapSetObjs(setp);
