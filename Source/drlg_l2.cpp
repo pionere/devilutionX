@@ -835,25 +835,7 @@ static void DRLG_LoadL2SP()
  */
 static void DRLG_L2SetRoom(int idx)
 {
-	int rx1, ry1, rw, rh, i, j;
-	BYTE* sp;
-
-	rx1 = pSetPieces[idx]._spx;
-	ry1 = pSetPieces[idx]._spy;
-
-	rw = SwapLE16(*(uint16_t*)&pSetPieces[idx]._spData[0]);
-	rh = SwapLE16(*(uint16_t*)&pSetPieces[idx]._spData[2]);
-	sp = &pSetPieces[idx]._spData[4];
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L2;
-			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
+	DRLG_LoadSP(idx, DEFAULT_MEGATILE_L2);
 }
 
 static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
@@ -2556,55 +2538,36 @@ static void DRLG_L2SetMapFix()
 	dungeon[16][15] = 51;
 }
 
-static BYTE* LoadL2DungeonData(const char* sFileName)
+static void LoadL2DungeonData(const char* sFileName)
 {
-	int rw, rh, i, j;
-	BYTE* pMap;
-	BYTE* sp;
-
-	//DRLG_InitTrans();
-	pMap = LoadFileInMem(sFileName);
-
-	//memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
 
-	rw = SwapLE16(*(uint16_t*)&pMap[0]);
-	rh = SwapLE16(*(uint16_t*)&pMap[2]);
+	pSetPieces[0]._spx = 0;
+	pSetPieces[0]._spy = 0;
+	pSetPieces[0]._spData = LoadFileInMem(sFileName);
 
-	sp = &pMap[4];
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L2;
-			// no need to protect the fields, unused on setmaps
-			// drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
-
-	return pMap;
+	DRLG_LoadSP(0, DEFAULT_MEGATILE_L2);
 }
 
 void LoadL2Dungeon(const LevelData* lds)
 {
-	BYTE* pMap;
-
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
 	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
 	// load pre-dungeon
-	pMap = LoadL2DungeonData(lds->dSetLvlPreDun);
+	LoadL2DungeonData(lds->dSetLvlPreDun);
 
-	mem_free_dbg(pMap);
+	MemFreeDbg(pSetPieces[0]._spData);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	DRLG_L2InitTransVals();
 
 	// load dungeon
-	pMap = LoadL2DungeonData(lds->dSetLvlDun);
+	LoadL2DungeonData(lds->dSetLvlDun);
 
 	DRLG_L2SetMapFix();
 
@@ -2612,10 +2575,10 @@ void LoadL2Dungeon(const LevelData* lds)
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
-	SetMapMonsters(pMap, 0, 0);
-	SetMapObjects(pMap);
+	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
+	SetMapObjects(pSetPieces[0]._spData);
 
-	mem_free_dbg(pMap);
+	MemFreeDbg(pSetPieces[0]._spData);
 }
 
 DEVILUTION_END_NAMESPACE

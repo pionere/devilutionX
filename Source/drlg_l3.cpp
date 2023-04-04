@@ -1327,7 +1327,7 @@ static void DRLG_L3MakeMegas()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			// assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1 && dungeon[i + 1][j] <= 1 && dungeon[i][j + 1] <= 1 && dungeon[i + 1][j + 1] <= 1);
 			v = dungeon[i + 1][j + 1]
 			 | (dungeon[i][j + 1] << 1)
 			 | (dungeon[i + 1][j] << 2)
@@ -2018,25 +2018,7 @@ static void DRLG_L3Wood()
 
 static void DRLG_L3SetRoom(int idx)
 {
-	int rx1, ry1, rw, rh, i, j;
-	BYTE* sp;
-
-	rx1 = pSetPieces[idx]._spx;
-	ry1 = pSetPieces[idx]._spy;
-
-	rw = SwapLE16(*(uint16_t*)&pSetPieces[idx]._spData[0]);
-	rh = SwapLE16(*(uint16_t*)&pSetPieces[idx]._spData[2]);
-	sp = &pSetPieces[idx]._spData[4];
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L3;
-			drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
+	DRLG_LoadSP(idx, DEFAULT_MEGATILE_L3);
 }
 
 static void FixL3Warp()
@@ -2443,46 +2425,29 @@ void CreateL3Dungeon()
 	DRLG_SetPC();
 }
 
-static BYTE* LoadL3DungeonData(const char* sFileName)
+static void LoadL3DungeonData(const char* sFileName)
 {
-	int rw, rh, i, j;
-	BYTE* pMap;
-	BYTE* sp;
-
-	pMap = LoadFileInMem(sFileName);
-
+	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
-	rw = SwapLE16(*(uint16_t*)&pMap[0]);
-	rh = SwapLE16(*(uint16_t*)&pMap[2]);
+	pSetPieces[0]._spx = 0;
+	pSetPieces[0]._spy = 0;
+	pSetPieces[0]._spData = LoadFileInMem(sFileName);
 
-	sp = &pMap[4];
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : DEFAULT_MEGATILE_L3;
-			// no need to protect the fields, unused on setmaps
-			// drlgFlags[i][j] = *sp != 0 ? TRUE : FALSE; // |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
-
-	return pMap;
+	DRLG_LoadSP(0, DEFAULT_MEGATILE_L3);
 }
 
 void LoadL3Dungeon(const LevelData* lds)
 {
-	BYTE* pMap;
-
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
 	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
 	// load pre-dungeon
-	pMap = LoadL3DungeonData(lds->dSetLvlPreDun);
+	LoadL3DungeonData(lds->dSetLvlPreDun);
 
-	mem_free_dbg(pMap);
+	MemFreeDbg(pSetPieces[0]._spData);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
@@ -2490,17 +2455,17 @@ void LoadL3Dungeon(const LevelData* lds)
 	DRLG_L3InitTransVals();
 
 	// load dungeon
-	pMap = LoadL3DungeonData(lds->dSetLvlDun);
+	LoadL3DungeonData(lds->dSetLvlDun);
 
 	DRLG_Init_Globals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 
-	SetMapMonsters(pMap, 0, 0);
-	SetMapObjects(pMap);
+	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
+	SetMapObjects(pSetPieces[0]._spData);
 
 	DRLG_L3LightTiles();
 
-	mem_free_dbg(pMap);
+	MemFreeDbg(pSetPieces[0]._spData);
 }
 
 DEVILUTION_END_NAMESPACE

@@ -958,6 +958,27 @@ void DRLG_FloodTVal(const bool *floorTypes)
 #pragma GCC pop_options
 #endif
 
+void DRLG_LoadSP(int idx, BYTE bv)
+{
+	int rx1, ry1, rx2, ry2, i, j;
+	BYTE* sp;
+	SetPieceStruct* pSetPiece = &pSetPieces[idx];
+
+	rx1 = pSetPiece->_spx;
+	ry1 = pSetPiece->_spy;
+	rx2 = rx1 + SwapLE16(*(uint16_t*)&pSetPiece->_spData[0]);
+	ry2 = ry1 + SwapLE16(*(uint16_t*)&pSetPiece->_spData[2]);
+	sp = &pSetPiece->_spData[4];
+
+	for (j = ry1; j < ry2; j++) {
+		for (i = rx1; i < rx2; i++) {
+			dungeon[i][j] = *sp != 0 ? *sp : bv;
+			drlgFlags[i][j] = *sp != 0 ? DLRG_PROTECTED : 0; // FIXME |= DLRG_PROTECTED
+			sp += 2;
+		}
+	}
+}
+
 void DRLG_SetPC()
 {
 	int x, y, w, h, i, j, x0, x1, y0, y1;

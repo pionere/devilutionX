@@ -59,6 +59,7 @@ void DRLG_RectTrans(int x1, int y1, int x2, int y2);
 void DRLG_ListTrans(int num, const BYTE* List);
 void DRLG_AreaTrans(int num, const BYTE* List);
 void DRLG_FloodTVal(const bool *floorTypes);
+void DRLG_LoadSP(int idx, BYTE bv);
 void DRLG_SetPC();
 void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rndSize);
 bool NearThemeRoom(int x, int y);
