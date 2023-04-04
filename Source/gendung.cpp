@@ -165,32 +165,6 @@ void InitLvlDungeon()
 	assert(pMegaTiles == NULL);
 	pMegaTiles = (uint16_t*)LoadFileInMem(lds->dMegaTiles);
 	// patch mega tiles
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		// patch L1.TIL
-		// - remove lower layer of tile 203
-		// assert(pMegaTiles[(203 - 1) * 4 + 0] == SwapLE16(447 - 1));
-		// assert(pMegaTiles[(203 - 1) * 4 + 1] == SwapLE16(438 - 1));
-		// assert(pMegaTiles[(203 - 1) * 4 + 2] == SwapLE16(443 - 1));
-		// assert(pMegaTiles[(203 - 1) * 4 + 3] == SwapLE16(440 - 1));
-		pMegaTiles[(203 - 1) * 4 + 0] = 40 - 1;
-		pMegaTiles[(203 - 1) * 4 + 1] = 31 - 1;
-		pMegaTiles[(203 - 1) * 4 + 2] = 36 - 1;
-		pMegaTiles[(203 - 1) * 4 + 3] = 33 - 1;
-	}
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
-		// patch L5.TIL
-		// - remove lower layer of tile 86
-		// assert(pMegaTiles[(86 - 1) * 4 + 0] == SwapLE16(245 - 1));
-		// assert(pMegaTiles[(86 - 1) * 4 + 1] == SwapLE16(237 - 1));
-		// assert(pMegaTiles[(86 - 1) * 4 + 2] == SwapLE16(242 - 1));
-		// assert(pMegaTiles[(86 - 1) * 4 + 3] == SwapLE16(239 - 1));
-		pMegaTiles[(86 - 1) * 4 + 0] = 72 - 1;
-		pMegaTiles[(86 - 1) * 4 + 1] = 64 - 1;
-		pMegaTiles[(86 - 1) * 4 + 2] = 69 - 1;
-		pMegaTiles[(86 - 1) * 4 + 3] = 66 - 1;
-	}
-#endif
 	assert(pSpecialCels == NULL);
 	if (currLvl._dLevelIdx != DLV_TOWN)
 		pSpecialCels = LoadFileInMem(lds->dSpecCels);
