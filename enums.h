@@ -4358,12 +4358,12 @@ typedef enum action_id {
 	ACTION_TALK,
 } action_id;
 
-typedef enum dlrg_flag {
-	DLRG_HDOOR     = 0x01,
-	DLRG_VDOOR     = 0x02,
-	DLRG_CHAMBER   = 0x40,
-	DLRG_PROTECTED = 0x80,
-} dlrg_flag;
+typedef enum drlg_flag {
+	DRLG_L1_HDOOR   = 0x01,
+	DRLG_L1_VDOOR   = 0x02,
+	DRLG_L1_CHAMBER = 0x40,
+	DRLG_PROTECTED  = 0x80,
+} drlg_flag;
 
 typedef enum movie_flag {
 	MOV_SKIP       = 1 << 0, // Makes the video skippable by mouse-button or keypress (not just ESC).

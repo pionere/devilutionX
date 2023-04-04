@@ -623,13 +623,13 @@ static void DRLG_L1PlaceDoors()
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			df = drlgFlags[i][j];
-			if ((df & ~DLRG_PROTECTED) == 0)
+			if ((df & ~DRLG_PROTECTED) == 0)
 				continue;
-			assert(!(df & DLRG_PROTECTED));
-			//if (!(df & DLRG_PROTECTED)) {
+			assert(!(df & DRLG_PROTECTED));
+			//if (!(df & DRLG_PROTECTED)) {
 				c = dungeon[i][j];
 
-				if (df == DLRG_HDOOR) {
+				if (df == DRLG_L1_HDOOR) {
 					assert(c == 2);
 					if (j == 1)
 						df = 0;
@@ -649,7 +649,7 @@ static void DRLG_L1PlaceDoors()
 					if (i != 1 && c == 6)
 						c = 30; ? */
 				} else {
-					assert(df == DLRG_VDOOR);
+					assert(df == DRLG_L1_VDOOR);
 					assert(c == 1);
 					if (i == 1)
 						df = 0;
@@ -669,7 +669,7 @@ static void DRLG_L1PlaceDoors()
 					if (j != 1 && c == 7)
 						c = 31; ? */
 				} /* commented out because this is not possible with the current implementation
-				  else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
+				  else if (df == (DRLG_L1_HDOOR | DRLG_L1_VDOOR)) {
 					if (i != 1 && j != 1 && c == 4)
 						c = 28; -- edge with double door
 					if (i != 1 && c == 10)
@@ -687,7 +687,7 @@ static void DRLG_L1PlaceDoors()
 				}*/
 				dungeon[i][j] = c;
 			//}
-			// TODO: might want to convert DLRG_VDOOR and DLRG_HDOOR to DLRG_PROTECTED
+			// TODO: might want to convert DRLG_L1_VDOOR and DRLG_L1_HDOOR to DRLG_PROTECTED
 			drlgFlags[i][j] = df;
 		}
 	}
@@ -988,7 +988,7 @@ static void L1ClearChamberFlags()
 	static_assert(sizeof(drlgFlags) == DMAXX * DMAXY, "Linear traverse of drlgFlags does not work in L1ClearFlags.");
 	pTmp = &drlgFlags[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		*pTmp &= ~DLRG_CHAMBER;
+		*pTmp &= ~DRLG_L1_CHAMBER;
 }
 
 static void L1DrawRoom(int x, int y, int width, int height)
@@ -1292,7 +1292,7 @@ static void L1HorizWall(int i, int j, int dx)
 	dungeon[i + xx][j] = wt;
 	if (wt != 12) {
 		assert(drlgFlags[i + xx][j] == 0);
-		drlgFlags[i + xx][j] = DLRG_HDOOR;
+		drlgFlags[i + xx][j] = DRLG_L1_HDOOR;
 	}
 }
 
@@ -1374,7 +1374,7 @@ static void L1VertWall(int i, int j, int dy)
 	dungeon[i][j + yy] = wt;
 	if (wt != 11) {
 		assert(drlgFlags[i][j + yy] == 0);
-		drlgFlags[i][j + yy] = DLRG_VDOOR;
+		drlgFlags[i][j + yy] = DRLG_L1_VDOOR;
 	}
 }
 
@@ -1458,7 +1458,7 @@ static void DRLG_L1GChamber(int sx, int sy)
 	for (i = 0; i < CHAMBER_SIZE; i++) {
 		for (j = 0; j < CHAMBER_SIZE; j++) {
 			assert(dungeon[i + sx][j + sy] == 13);
-			drlgFlags[i + sx][j + sy] |= DLRG_CHAMBER;
+			drlgFlags[i + sx][j + sy] |= DRLG_L1_CHAMBER;
 		}
 	}
 	// add the four main pillars of the chamber
@@ -2490,9 +2490,9 @@ static void DRLG_L1Corners()
 
 			// 0,  0, 0, replace
 			// 0, 16, 0,
-			if (!(drlgFlags[i][j] & DLRG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
+			if (!(drlgFlags[i][j] & DRLG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
 				dungeon[i][j] = 16;
-				drlgFlags[i][j - 1] &= DLRG_PROTECTED;
+				drlgFlags[i][j - 1] &= DRLG_PROTECTED;
 			}
 			// 0, 202, 13,  search
 			// 0,   1,  0,

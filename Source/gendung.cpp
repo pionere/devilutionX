@@ -973,7 +973,7 @@ void DRLG_LoadSP(int idx, BYTE bv)
 	for (j = ry1; j < ry2; j++) {
 		for (i = rx1; i < rx2; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : bv;
-			drlgFlags[i][j] = *sp != 0 ? DLRG_PROTECTED : 0; // FIXME |= DLRG_PROTECTED
+			drlgFlags[i][j] = *sp != 0 ? DRLG_PROTECTED : 0; // FIXME |= DRLG_PROTECTED
 			sp += 2;
 		}
 	}
