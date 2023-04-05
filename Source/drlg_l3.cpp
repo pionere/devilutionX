@@ -136,6 +136,29 @@ const BYTE L6TWARP[] = {
 };
 #endif*/
 /*
+ * Maps tile IDs to their corresponding undecorated tile type.
+ */
+const BYTE L3BTYPES[157] = {
+	// clang-format off
+	0, 0, 0, 0, 0, 0, 0, 1, 0, 2,
+	3, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 10..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 20..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 40..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 50..
+	0, 0, 0, 0, 0, 0, 0, 0, 2, 3, // 60..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 70..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 90..
+	0, 0, 0, 0, 0, 0, 1, 1, 1, 2, //100..
+	3, 0, 3, 0, 0, 0, 0, 0, 0, 0, //110..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //120..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
+	0, 0, 0, 0, 0, 0, 0           //150..
+	// clang-format on
+};
+/*
  * Specifies where the given tile ID should spread the room ID (transval).
  */
 const BYTE L3FTYPES[157] = {
@@ -159,6 +182,29 @@ const BYTE L3FTYPES[157] = {
 	// clang-format on
 };
 #ifdef HELLFIRE
+/*
+ * Maps tile IDs to their corresponding undecorated tile type.
+ */
+const BYTE L6BTYPES[167] = {
+	// clang-format off
+	0, 0, 0, 0, 0, 0, 0, 1, 2, 3,
+	4, 5, 0, 0, 0, 0, 0, 0, 0, 0, // 10..
+	0, 0, 0, 0, 0, 2, 2, 2, 2, 1, // 20..
+	1, 1, 1, 3, 3, 3, 3, 3, 5, 4, // 30..
+	4, 4, 4, 4, 5, 3, 3, 4, 4, 5, // 40..
+	5, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 50..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 70..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 90..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //100..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //110..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //120..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
+	0, 0, 0, 0, 0, 0, 0           //150..
+	// clang-format on
+};
 /*
  * Specifies where the given tile ID should spread the room ID (transval).
  */
@@ -185,165 +231,121 @@ const BYTE L6FTYPES[167] = {
 };
 #endif
 /** Miniset: Stalagmite white stalactite 1. */
-const BYTE L3TITE1[] = {
+const BYTE L3TITEBASE[] = {
 	// clang-format off
-	4, 4, // width, height
+	3, 3, // width, height
 
-	7, 7, 7, 7, // search
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
+	7, 7, 7, // search
+	7, 7, 7,
+	7, 7, 7,
 
-	0,  0,  0, 0, // replace
-	0, 57, 58, 0,
-	0, 56, 55, 0,
-	0,  0,  0, 0,
+	57, 58, 0, // replace
+	56, 55, 0,
+	 0,  0, 0,
 	// clang-format on
 };
 /** Miniset: Stalagmite white stalactite 2. */
 const BYTE L3TITE2[] = {
 	// clang-format off
-	4, 4, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, 7, // search
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
+	57, 58, // search
+	56, 55,
 
-	0,  0,  0, 0, // replace
-	0, 61, 62, 0,
-	0, 60, 59, 0,
-	0,  0,  0, 0,
+	61, 62, // replace
+	60, 59,
 	// clang-format on
 };
 /** Miniset: Stalagmite white stalactite 3. */
 const BYTE L3TITE3[] = {
 	// clang-format off
-	4, 4, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, 7, // search
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
+	57, 58, // search
+	56, 55,
 
-	0,  0,  0, 0, // replace
-	0, 65, 66, 0,
-	0, 64, 63, 0,
-	0,  0,  0, 0,
-	// clang-format on
-};
-/** Miniset: Stalagmite white stalactite horizontal. */
-const BYTE L3TITE6[] = {
-	// clang-format off
-	5, 4, // width, height
-
-	7, 7, 7, 7, 7, // search
-	7, 7, 7, 0, 7,
-	7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7,
-
-	0,  0,  0,  0, 0, // replace
-	0, 77, 78,  0, 0,
-	0, 76, 74, 75, 0,
-	0,  0,  0,  0, 0,
-	// clang-format on
-};
-/** Miniset: Stalagmite white stalactite vertical. */
-const BYTE L3TITE7[] = {
-	// clang-format off
-	4, 5, // width, height
-
-	7, 7, 7, 7, // search
-	7, 7, 0, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-	7, 7, 7, 7,
-
-	0,  0,  0, 0, // replace
-	0, 83,  0, 0,
-	0, 82, 80, 0,
-	0, 81, 79, 0,
-	0,  0,  0, 0,
+	65, 66, // replace
+	64, 63,
 	// clang-format on
 };
 /** Miniset: Stalagmite 1. */
 const BYTE L3TITE8[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	57, 58, // search
+	56, 55,
 
-	0,  0, 0, // replace
-	0, 52, 0,
-	0,  0, 0,
+	7,  7, // replace
+	7, 52,
 	// clang-format on
 };
 /** Miniset: Stalagmite 2. */
 const BYTE L3TITE9[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	57, 58, // search
+	56, 55,
 
-	0,  0, 0, // replace
-	0, 53, 0,
-	0,  0, 0,
+	7,  7, // replace
+	7, 53,
 	// clang-format on
 };
 /** Miniset: Stalagmite 3. */
 const BYTE L3TITE10[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	57, 58, // search
+	56, 55,
 
-	0,  0, 0, // replace
-	0, 54, 0,
-	0,  0, 0,
+	7,  7, // replace
+	7, 54,
 	// clang-format on
 };
 /** Miniset: Stalagmite 4. */
 const BYTE L3TITE11[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
+	57, 58, // search
+	56, 55,
+
+	7,  7, // replace
+	7, 67,
+	// clang-format on
+};
+/** Miniset: Stalagmite white stalactite horizontal. */
+/*const BYTE L3LTITE1[] = {
+	// clang-format off
+	4, 3, // width, height
+
+	7, 7, 0, 7, // search
+	7, 7, 7, 7,
+	7, 7, 7, 7,
+
+	77, 78,  0, 0, // replace
+	76, 74, 75, 0,
+	 0,  0,  0, 0,
+	// clang-format on
+};*/
+/** Miniset: Stalagmite white stalactite vertical. */
+/*const BYTE L3LTITE2[] = {
+	// clang-format off
+	3, 4, // width, height
+
+	7, 0, 7, // search
 	7, 7, 7,
 	7, 7, 7,
+	7, 7, 7,
 
-	0,  0, 0, // replace
-	0, 67, 0,
-	0,  0, 0,
+	83,  0, 0, // replace
+	82, 80, 0,
+	81, 79, 0,
+	 0,  0, 0,
 	// clang-format on
-};
-/** Miniset: Stalagmite on vertical wall. */
-const BYTE L3TITE12[] = {
-	// clang-format off
-	2, 1, // width, height
-
-	9, 7, // search
-
-	68, 0, // replace
-	// clang-format on
-};
-/** Miniset: Stalagmite on horizontal wall. */
-const BYTE L3TITE13[] = {
-	// clang-format off
-	1, 2, // width, height
-
-	10, // search
-	 7,
-
-	69, // replace
-	 0,
-	// clang-format on
-};
+};*/
 /** Miniset: Cracked vertical wall 1. */
 const BYTE L3CREV1[] = {
 	// clang-format off
@@ -557,8 +559,22 @@ const BYTE L6PUDDLE2[] = {
 	0,   0, 0,
 	// clang-format on
 };
+/** Miniset: Small acid puddle 3. */
+/*const BYTE L6PUDDLE3[] = {
+	// clang-format off
+	3, 3, // width, height
+
+	7, 7, 7, // search
+	7, 7, 7,
+	7, 7, 7,
+
+	0,   0, 0, // replace
+	0, 145, 0,
+	0,   0, 0,
+	// clang-format on
+};*/
 /** Miniset: Two floor tiles with a vertical wall in the middle 1. */
-const BYTE L6MITE1[] = {
+const BYTE L6MITEBASE[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -574,116 +590,133 @@ const BYTE L6MITE1[] = {
 /** Miniset: Two floor tiles with a vertical wall in the middle 2. */
 const BYTE L6MITE2[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	69,  0, 0, // replace
-	68, 52, 0,
-	 0,  0, 0,
+	69,  0, // replace
+	68, 52,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 3. */
 const BYTE L6MITE3[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	70,  0, 0, // replace
-	71, 53, 0,
-	 0,  0, 0,
+	70,  0, // replace
+	71, 53,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 4. */
 const BYTE L6MITE4[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	73,  0, 0, // replace
-	72, 54, 0,
-	 0,  0, 0,
+	73,  0, // replace
+	72, 54,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 5. */
 const BYTE L6MITE5[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	75,  0, 0, // replace
-	74, 55, 0,
-	 0,  0, 0,
+	75,  0, // replace
+	74, 55,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 6. */
 const BYTE L6MITE6[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	77,  0, 0, // replace
-	76, 56, 0,
-	 0,  0, 0,
+	77,  0, // replace
+	76, 56,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 7. */
 const BYTE L6MITE7[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	79,  0, 0, // replace
-	78, 57, 0,
-	 0,  0, 0,
+	79,  0, // replace
+	78, 57,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 8. */
 const BYTE L6MITE8[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	81,  0, 0, // replace
-	80, 58, 0,
-	 0,  0, 0,
+	81,  0, // replace
+	80, 58,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 9. */
 const BYTE L6MITE9[] = {
 	// clang-format off
-	3, 3, // width, height
+	2, 2, // width, height
 
-	7, 7, 7, // search
-	7, 7, 7,
-	7, 7, 7,
+	67,  0, // search
+	66, 51,
 
-	83,  0, 0, // replace
-	82, 59, 0,
-	 0,  0, 0,
+	83,  0, // replace
+	82, 59,
 	// clang-format on
 };
 const BYTE L6MITE10[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	67,  0, // search
+	66, 51,
+
+	84,  0, // replace
+	85, 60,
+	// clang-format on
+};
+const BYTE L6MITE11[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	67,  0, // search
+	66, 51,
+
+	100,  0, // replace
+	99,  89,
+	// clang-format on
+};
+/*const BYTE L6MITE12[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	67,  0, // search
+	66, 51,
+
+	101,  0, // replace
+	84/102, 90,
+	// clang-format on
+};*/
+/*const BYTE L6MITE13[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -691,11 +724,67 @@ const BYTE L6MITE10[] = {
 	7, 7, 7,
 	7, 7, 7,
 
-	84,  0, 0, // replace
-	85, 60, 0,
-	 0,  0, 0,
+	102,  0, 0, // replace
+	101, 91, 0,
+	 0,   0, 0,
 	// clang-format on
-};
+};*/
+/*const BYTE L6LMITE1[] = {
+	// clang-format off
+	4, 3, // width, height
+
+	7, 7, 7, 7, // search
+	7, 7, 7, 7,
+	7, 7, 7, 7,
+
+	 0,  0,  0, 0, // replace
+	 0, 61, 62, 0,
+	 0,  0,  0, 0,
+	// clang-format on
+};*/
+/*const BYTE L6LMITE2[] = {
+	// clang-format off
+	4, 4, // width, height
+
+	7, 7, 7, 7, // search
+	7, 7, 7, 7,
+	7, 7, 7, 7,
+	7, 7, 7, 7,
+
+	 0,  0,  0, 0, // replace
+	 0, 64, 65, 0,
+	 0, 63, 65, 0,
+	 0,  0,  0, 0,
+	// clang-format on
+};*/
+/*const BYTE L6LMITE3[] = {
+	// clang-format off
+	4, 3, // width, height
+
+	7, 7, 7, 7, // search
+	7, 7, 7, 7,
+	7, 7, 7, 7,
+
+	 ,  ,   0, 0, // replace
+	 , 94, 95, 0,
+	 0,  0,  0, 0,
+	// clang-format on
+};*/
+/*const BYTE L6LMITE4[] = {
+	// clang-format off
+	3, 4, // width, height
+
+	7, 7, 7, // search
+	7, 7, 7,
+	7, 7, 7,
+	7, 7, 7,
+
+	  0,  0, 0, // replace
+	100, 97, 0,
+	 99, 96, 0,
+	  0,  0, 0,
+	// clang-format on
+};*/
 const BYTE L6VERTWALLFIX2[] = {
 	// clang-format off
 	2, 3, // width, height
@@ -1868,7 +1957,134 @@ static void DRLG_L3PlaceRndSet(const BYTE* miniset, int rndper)
 	}
 }
 
+static void DRLG_L3Subs()
+{
+	int x, y; //, i, j;
+	BYTE c, k;
+	int8_t rv;
+	const unsigned MAX_MATCH = 4;
+	const unsigned NUM_L3TYPES = 113;
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L3Subs.");
+	static_assert(NUM_L3TYPES <= UCHAR_MAX, "NUM_L3TYPES does not fit to i(BYTE) in DRLG_L3Subs.");
+#if DEBUG_MODE
+	for (int i = sizeof(L3BTYPES) - 1; i >= 0; i--) {
+		if (L3BTYPES[i] != 0) {
+			if (i >= NUM_L3TYPES)
+				app_fatal("Value %d is ignored in L3BTYPES at %d", L3BTYPES[i], i);
+			break;
+		}
+	}
+
+	for (int i = 0; i < sizeof(L3BTYPES); i++) {
+		c = L3BTYPES[i];
+		if (c == 0)
+			continue;
+		x = 0;
+		for (int j = 0; j < sizeof(L3BTYPES); j++) {
+			if (c == L3BTYPES[j])
+				x++;
+		}
+		if (x > MAX_MATCH)
+			app_fatal("Too many(%d) matching('%d') values in L3BTYPES", x, c);
+	}
+#endif
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
+			if (drlgFlags[x][y])
+				continue;
+			if (random_(0, 4) == 0) {
+				c = L3BTYPES[dungeon[x][y]];
+				if (c != 0) {
+					rv = random_(0, MAX_MATCH);
+					k = 0;
+					while (TRUE) {
+						if (c == L3BTYPES[k] && --rv < 0) {
+							break;
+						}
+						if (++k == NUM_L3TYPES)
+							k = 0;
+					}
+					/*for (j = y - 2; j < y + 2; j++) {
+						for (i = x - 2; i < x + 2; i++) {
+							if (dungeon[i][j] == k) {
+								j = y + 3;
+								i = x + 2;
+							}
+						}
+					}
+					if (j < y + 3) {*/
+						dungeon[x][y] = k;
+					//}
+				}
+			}
+		}
+	}
+}
 #ifdef HELLFIRE
+static void DRLG_L6Subs()
+{
+	int x, y; //, i, j;
+	BYTE c, k;
+	int8_t rv;
+	const unsigned MAX_MATCH = 8;
+	const unsigned NUM_L6TYPES = 51;
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L6Subs.");
+	static_assert(NUM_L6TYPES <= UCHAR_MAX, "NUM_L6TYPES does not fit to i(BYTE) in DRLG_L6Subs.");
+#if DEBUG_MODE
+	for (int i = sizeof(L6BTYPES) - 1; i >= 0; i--) {
+		if (L6BTYPES[i] != 0) {
+			if (i >= NUM_L6TYPES)
+				app_fatal("Value %d is ignored in L6BTYPES at %d", L6BTYPES[i], i);
+			break;
+		}
+	}
+
+	for (int i = 0; i < sizeof(L6BTYPES); i++) {
+		c = L6BTYPES[i];
+		if (c == 0)
+			continue;
+		x = 0;
+		for (int j = 0; j < sizeof(L6BTYPES); j++) {
+			if (c == L6BTYPES[j])
+				x++;
+		}
+		if (x > MAX_MATCH)
+			app_fatal("Too many(%d) matching('%d') values in L6BTYPES", x, c);
+	}
+#endif
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
+			if (drlgFlags[x][y])
+				continue;
+			if (random_(0, 4) == 0) {
+				c = L6BTYPES[dungeon[x][y]];
+				if (c != 0) {
+					rv = random_(0, MAX_MATCH);
+					k = 0;
+					while (TRUE) {
+						if (c == L6BTYPES[k] && --rv < 0) {
+							break;
+						}
+						if (++k == NUM_L6TYPES)
+							k = 0;
+					}
+					/*for (j = y - 2; j < y + 2; j++) {
+						for (i = x - 2; i < x + 2; i++) {
+							if (dungeon[i][j] == k) {
+								j = y + 3;
+								i = x + 2;
+							}
+						}
+					}
+					if (j < y + 3) {*/
+						dungeon[x][y] = k;
+					//}
+				}
+			}
+		}
+	}
+}
+
 static void DRLG_L6PlaceRndPool(const BYTE* miniset, int rndper)
 {
 	int sx, sy, sw, sh, xx, yy, ii;
@@ -2280,18 +2496,25 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L6WALLLPOOL2, 10);
 		DRLG_L3PlaceRndSet(L6WALLSPOOL1, 10);
 		DRLG_L3PlaceRndSet(L6WALLSPOOL2, 10);
-		DRLG_L3PlaceRndSet(L6MITE1, 10);
-		DRLG_L3PlaceRndSet(L6MITE2, 15);
-		DRLG_L3PlaceRndSet(L6MITE3, 20);
-		DRLG_L3PlaceRndSet(L6MITE4, 25);
-		DRLG_L3PlaceRndSet(L6MITE5, 30);
-		DRLG_L3PlaceRndSet(L6MITE6, 35);
-		DRLG_L3PlaceRndSet(L6MITE7, 40);
-		DRLG_L3PlaceRndSet(L6MITE8, 45);
-		DRLG_L3PlaceRndSet(L6MITE9, 50);
-		DRLG_L3PlaceRndSet(L6MITE10, 60);
+		// DRLG_L3PlaceRndSet(L6LMITE1, 25); - commented out because of a graphical glitch
+		// DRLG_L3PlaceRndSet(L6LMITE2, 25);
+		// DRLG_L3PlaceRndSet(L6LMITE3, 25);
+		// DRLG_L3PlaceRndSet(L6LMITE4, 25);
+		DRLG_L3PlaceRndSet(L6MITEBASE, 98);
+		DRLG_L3PlaceRndSet(L6MITE2, 8);
+		DRLG_L3PlaceRndSet(L6MITE3, 9);
+		DRLG_L3PlaceRndSet(L6MITE4, 10);
+		DRLG_L3PlaceRndSet(L6MITE5, 11);
+		DRLG_L3PlaceRndSet(L6MITE6, 14);
+		DRLG_L3PlaceRndSet(L6MITE7, 16);
+		DRLG_L3PlaceRndSet(L6MITE8, 20);
+		DRLG_L3PlaceRndSet(L6MITE9, 30);
+		DRLG_L3PlaceRndSet(L6MITE10, 40);
+		DRLG_L3PlaceRndSet(L6MITE11, 50);
+		// DRLG_L3PlaceRndSet(L6MITE12, 50); - commented out because of a missing shadow tile
 		DRLG_L3PlaceRndSet(L6PUDDLE1, 50);
 		DRLG_L3PlaceRndSet(L6PUDDLE2, 90);
+		// DRLG_L3PlaceRndSet(L6PUDDLE3, 90); - commented out because it does not make much difference
 		DRLG_L3PlaceRndSet(L6VERTLPOOL1, 10);
 		DRLG_L3PlaceRndSet(L6VERTLPOOL2, 15);
 		DRLG_L3PlaceRndSet(L6VERTLPOOL3, 15);
@@ -2311,58 +2534,7 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L6SPOOL3, 25);
 		DRLG_L3PlaceRndSet(L6SPOOL4, 30);
 		DRLG_L3PlaceRndSet(L6SPOOL5, 50);
-		/** Miniset: Use random floor tile 1. */
-		DRLG_PlaceRndTile(7, 29, 25);
-		/** Miniset: Use random floor tile 2. */
-		DRLG_PlaceRndTile(7, 30, 25);
-		/** Miniset: Use random floor tile 3. */
-		DRLG_PlaceRndTile(7, 31, 25);
-		/** Miniset: Use random floor tile 4. */
-		DRLG_PlaceRndTile(7, 32, 25);
-		/** Miniset: Use random external connection 1. */
-		DRLG_PlaceRndTile(8, 25, 20);
-		/** Miniset: Use random external connection 2. */
-		DRLG_PlaceRndTile(8, 26, 20);
-		/** Miniset: Use random external connection 3. */
-		DRLG_PlaceRndTile(8, 27, 20);
-		/** Miniset: Use random external connection 4. */
-		DRLG_PlaceRndTile(8, 28, 20);
-		/** Miniset: Use random vertical wall tile 1. */
-		DRLG_PlaceRndTile(9, 33, 25);
-		/** Miniset: Use random vertical wall tile 2. */
-		DRLG_PlaceRndTile(9, 34, 25);
-		/** Miniset: Use random vertical wall tile 3. */
-		DRLG_PlaceRndTile(9, 35, 25);
-		/** Miniset: Use random vertical wall tile 4. */
-		DRLG_PlaceRndTile(9, 36, 25);
-		/** Miniset: Use random vertical wall tile 5. */
-		DRLG_PlaceRndTile(9, 37, 25);
-		/** Miniset: Use random horizontal wall tile 1. */
-		DRLG_PlaceRndTile(10, 39, 25);
-		/** Miniset: Use random horizontal wall tile 2. */
-		DRLG_PlaceRndTile(10, 40, 25);
-		/** Miniset: Use random horizontal wall tile 3. */
-		DRLG_PlaceRndTile(10, 41, 25);
-		/** Miniset: Use random horizontal wall tile 4. */
-		DRLG_PlaceRndTile(10, 42, 25);
-		/** Miniset: Use random horizontal wall tile 5. */
-		DRLG_PlaceRndTile(10, 43, 25);
-		/** Miniset: Use random vertical wall tile 6. */
-		DRLG_PlaceRndTile(9, 45, 25);
-		/** Miniset: Use random vertical wall tile 7. */
-		DRLG_PlaceRndTile(9, 46, 25);
-		/** Miniset: Use random horizontal wall tile 6. */
-		DRLG_PlaceRndTile(10, 47, 25);
-		/** Miniset: Use random horizontal wall tile 7. */
-		DRLG_PlaceRndTile(10, 48, 25);
-		/** Miniset: Use random corner wall tile. north 1. */
-		DRLG_PlaceRndTile(11, 38, 25);
-		/** Miniset: Use random corner wall tile. north 2. */
-		DRLG_PlaceRndTile(11, 44, 25);
-		/** Miniset: Use random corner wall tile. north 3. */
-		DRLG_PlaceRndTile(11, 49, 25);
-		/** Miniset: Use random corner wall tile. north 4. */
-		DRLG_PlaceRndTile(11, 50, 25);
+		DRLG_L6Subs();
 	} else
 #endif
 	{
@@ -2372,38 +2544,27 @@ static void DRLG_L3()
 		DRLG_PlaceThemeRooms(5, 10, DEFAULT_MEGATILE_L3, 0, false);
 
 		DRLG_L3Wood();
-		DRLG_L3PlaceRndSet(L3TITE1, 10);
-		DRLG_L3PlaceRndSet(L3TITE2, 10);
-		DRLG_L3PlaceRndSet(L3TITE3, 10);
-		DRLG_L3PlaceRndSet(L3TITE6, 20);
-		DRLG_L3PlaceRndSet(L3TITE7, 20);
+		//DRLG_L3PlaceRndSet(L3LTITE1, 20); - commented out because of a graphical glitch
+		//DRLG_L3PlaceRndSet(L3LTITE2, 20);
+		DRLG_L3PlaceRndSet(L3TITEBASE, 75);
+		DRLG_L3PlaceRndSet(L3TITE2, 14);
+		DRLG_L3PlaceRndSet(L3TITE3, 16);
 		DRLG_L3PlaceRndSet(L3TITE8, 20);
-		DRLG_L3PlaceRndSet(L3TITE9, 20);
-		DRLG_L3PlaceRndSet(L3TITE10, 20);
-		DRLG_L3PlaceRndSet(L3TITE11, 30);
-		DRLG_L3PlaceRndSet(L3TITE12, 20);
-		DRLG_L3PlaceRndSet(L3TITE13, 20);
-		DRLG_L3PlaceRndSet(L3CREV1, 30);
-		DRLG_L3PlaceRndSet(L3CREV2, 30);
-		DRLG_L3PlaceRndSet(L3CREV3, 30);
-		DRLG_L3PlaceRndSet(L3CREV4, 30);
-		DRLG_L3PlaceRndSet(L3CREV5, 30);
-		DRLG_L3PlaceRndSet(L3CREV6, 30);
-		DRLG_L3PlaceRndSet(L3CREV7, 30);
+		DRLG_L3PlaceRndSet(L3TITE9, 25);
+		DRLG_L3PlaceRndSet(L3TITE10, 33);
+		DRLG_L3PlaceRndSet(L3TITE11, 50);
+		DRLG_L3PlaceRndSet(L3CREV1, 30); // protected 1,4,7
+		DRLG_L3PlaceRndSet(L3CREV2, 30); // protected 2,5
+		DRLG_L3PlaceRndSet(L3CREV3, 30); // protected 3,6
+		DRLG_L3PlaceRndSet(L3CREV4, 30); // protected
+		DRLG_L3PlaceRndSet(L3CREV5, 30); // protected
+		DRLG_L3PlaceRndSet(L3CREV6, 30); // protected
+		DRLG_L3PlaceRndSet(L3CREV7, 30); // protected against similar features
 		DRLG_L3PlaceRndSet(L3CREV8, 30);
 		DRLG_L3PlaceRndSet(L3CREV9, 30);
 		DRLG_L3PlaceRndSet(L3CREV10, 30);
 		DRLG_L3PlaceRndSet(L3CREV11, 30);
-		/** Miniset: Use random floor tile 1. */
-		DRLG_PlaceRndTile(7, 106, 25);
-		/** Miniset: Use random floor tile 2. */
-		DRLG_PlaceRndTile(7, 107, 25);
-		/** Miniset: Use random floor tile 3. */
-		DRLG_PlaceRndTile(7, 108, 25);
-		/** Miniset: Use random horizontal wall tile. */
-		DRLG_PlaceRndTile(9, 109, 25);
-		/** Miniset: Use random vertical wall tile. */
-		DRLG_PlaceRndTile(10, 110, 25);
+		DRLG_L3Subs();
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
