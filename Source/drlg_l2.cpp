@@ -57,27 +57,27 @@ const BYTE L2BTYPES[161] = {
 	// clang-format on
 };
 /*
- * Specifies whether the given tile ID should spread the room ID (transval).
+ * Specifies where the given tile ID should spread the room ID (transval).
  */
-const bool L2FTYPES[161] = {
+const BYTE L2FTYPES[161] = {
 	// clang-format off
-	false, false, false,  true, false, false, false, false, false, false,
-	false, false, false, false, false, false, false, false, false, false, // 10..
-	false, false, false, false, false, false, false, false, false, false, // 20..
-	false, false, false, false, false, false, false, false, false, false, // 30..
-	false, false, false, false,  true,  true,  true,  true,  true,  true, // 40..
-	 true,  true, false, false, false, false, false, false, false,  true, // 50..
-	 true,  true,  true,  true,  true,  true,  true,  true, false, false, // 60..
-	false,  true,  true, false, false, false,  true, false, false, false, // 70..
-	false, false, false, false, false, false, false, false,  true,  true, // 80..
-	 true,  true,  true,  true,  true, false,  true,  true,  true,  true, // 90..
-	 true,  true,  true,  true,  true,  true,  true,  true,  true,  true, //100..
-	 true,  true,  true,  true,  true,  true, false, false, false, false, //110..
-	 true,  true,  true,  true, false, false, false, false,  true,  true, //120..
-	 true,  true, false, false,  true,  true, false, false,  true,  true, //130..
-	false, false, false, false, false, false, false, false, false, false, //140..
-	false, false, false, false, false, false, false, false,  true,  true, //150..
-	false
+	 0, 10, 12, 15, 10, 12, 14, 10,  8, 12,
+	 0,  0,  0,  0,  0,  0,  0,  0,  0, 10, // 10..
+	10, 12, 12, 10, 10, 10, 10, 10, 10, 12, // 20..
+	12, 12, 12, 12, 10, 10, 12, 12,  8, 10, // 30..
+	12,  8,  8,  8, 15, 15, 15, 15, 15, 15, // 40..
+	15, 15, 10, 10, 10,  8, 12, 12, 12, 15, // 50..
+	15, 15, 15, 15, 15, 15, 15, 15, 10, 10, // 60..
+	10,  7, 15, 12, 12, 12, 15, 10,  0, 10, // 70..
+	10, 10, 10, 14, 12, 12, 12,  8, 15, 15, // 80..
+	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 90..
+	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, //100..
+	15, 15, 15, 15, 15, 15, 10, 10, 12, 12, //110..
+	15, 15, 15, 15, 10, 10, 12, 12, 15, 15, //120..
+	15, 15, 10, 10, 15, 15, 12, 12, 15, 15, //130..
+	10, 12, 12,  0,  0,  0,  0,  0,  0,  0, //140..
+	10, 12, 10, 12, 10, 12, 10, 12, 15, 15, //150..
+	10
 	// clang-format on
 };
 /** Miniset: Stairs up. */
@@ -1963,7 +1963,6 @@ static void DRLG_L2InitTransVals()
 		}
 	}
 
-	DRLG_InitTrans();
 	DRLG_FloodTVal(L2FTYPES);
 	DRLG_L2TransFix();
 }
