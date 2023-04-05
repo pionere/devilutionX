@@ -2068,44 +2068,41 @@ static void FixL3HallofHeroes()
 	}*/
 }
 
-static void DRLG_L3LockRec(int x, int y)
+static void DRLG_L3LockRec(unsigned offset)
 {
-	if (!drlg.lockoutMap[x][y]) {
+	BYTE* pTmp = &drlg.lockoutMap[0][0];
+	if (pTmp[offset] == 0) {
 		return;
 	}
 
-	drlg.lockoutMap[x][y] = 0;
-	DRLG_L3LockRec(x, y - 1);
-	DRLG_L3LockRec(x, y + 1);
-	DRLG_L3LockRec(x - 1, y);
-	DRLG_L3LockRec(x + 1, y);
+	pTmp[offset] = 0;
+	DRLG_L3LockRec(offset + 1);
+	DRLG_L3LockRec(offset - 1);
+	DRLG_L3LockRec(offset - DMAXY);
+	DRLG_L3LockRec(offset + DMAXY);
 }
 
 /*
  * Check if every non-empty tile is reachable from the others
  * using only the four basic directions.
+ * Assumes the border of dungeon is empty.
  */
 static bool DRLG_L3Lockout()
 {
-	int i, j;
-	BYTE* pTmp;
+	int i;
+	BYTE* pTmp = &drlg.lockoutMap[0][0];
 
 	static_assert(sizeof(dungeon) == sizeof(drlg.lockoutMap), "lockoutMap vs dungeon mismatch.");
 	memcpy(drlg.lockoutMap, dungeon, sizeof(dungeon));
 
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			if (drlg.lockoutMap[i][j] != 0) {
-				// assert(i > 0 && i < DMAXX - 1 && j > 0 && j < DMAXY - 1);
-				DRLG_L3LockRec(i, j);
-				i = DMAXX;
-				break;
-			}
+	for (i = DMAXX; i < DMAXX * DMAXY; i++) {
+		if (pTmp[i] != 0) {
+			DRLG_L3LockRec(i);
+			break;
 		}
 	}
 
 	static_assert(sizeof(drlg.lockoutMap) == DMAXX * DMAXY, "Linear traverse of lockoutMap does not work in DRLG_L3Lockout.");
-	pTmp = &drlg.lockoutMap[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
 		if (*pTmp != 0) {
 			return false;
