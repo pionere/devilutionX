@@ -356,7 +356,7 @@ static void DRLG_L4MakeMegas()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1 && dungeon[i + 1][j] == 1 && dungeon[i][j + 1] == 1 && dungeon[i + 1][j + 1] == 1);
 			v = dungeon[i][j]
 			 | (dungeon[i + 1][j] << 1)
 			 | (dungeon[i][j + 1] << 2)
@@ -1007,7 +1007,7 @@ static void DRLG_L4Subs()
 			}
 		}
 	}
-	// TODO: second round of replacement? why not merge with the first one?
+	// TODO: use DRLG_PlaceRndTile instead?
 	for (x = 0; x < DMAXX; x++) {
 		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 10) == 0) {
@@ -1371,18 +1371,33 @@ static void DRLG_L4TransFix()
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;*/
 			// fix transVals of corners
-			case 122: // 24:
+			// case 20:
+			// case 24:
+			// case 118:
+			case 122:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 116: // 18:
-			case 123: // 25:
+			// case 25:
+			// case 18:
+			case 123:
+				//if (dungeon[i][j - 1] != 116) {
+				//	break;
+				//}
+				/* fall-through */
+			case 116:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 117: // 19:
-			case 124: // 26:
+			// case 26:
+			// case 19:
+			case 124:
+				//if (dungeon[i + 1][j] != 117) {
+				//	break;
+				//}
+				/* fall-through */
+			case 117:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;

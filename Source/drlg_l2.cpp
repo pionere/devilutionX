@@ -1900,28 +1900,33 @@ static void DRLG_L2TransFix()
 		for (i = 0; i < DMAXX; i++) {
 			switch (dungeon[i][j]) {
 			// fix transVals of corners
-			case 143: // 10:
+			// case 12:
+			// case 16:
+			// case 145:
+			case 149:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
-				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-				break;
-			case 144: // 11:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 147: // 14:
-				if (dungeon[i][j - 1] == 10) {
-					DRLG_CopyTrans(xx, yy, xx + 1, yy);
-					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
-				}
-				break;
-			case 148: // 15:
-				//if (dungeon[i + 1][j] == 11) {
-					DRLG_CopyTrans(xx, yy, xx, yy + 1);
-					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+			// case 14:
+			// case 10:
+			case 147:
+				//if (dungeon[i][j - 1] != 143) {
+				//	break;
 				//}
-				break;
-			case 149: // 16:
+				/* fall-through */
+			case 143:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			// case 15:
+			// case 11:
+			case 148:
+				//if (dungeon[i + 1][j] != 144) {
+				//	break;
+				//}
+				/* fall-through */
+			case 144:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;

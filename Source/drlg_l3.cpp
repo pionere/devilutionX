@@ -2021,23 +2021,6 @@ static void DRLG_L3SetRoom(int idx)
 	DRLG_LoadSP(idx, DEFAULT_MEGATILE_L3);
 }
 
-static void FixL3Warp()
-{
-	int i, j;
-
-	for (j = 0; j < DMAXY - 1; j++) {
-		for (i = 0; i < DMAXX - 1; i++) {
-			if (dungeon[i][j] == 125 && dungeon[i + 1][j] == 125 && dungeon[i][j + 1] == 125 && dungeon[i + 1][j + 1] == 125) {
-				dungeon[i][j] = 156;
-				dungeon[i + 1][j] = 155;
-				dungeon[i][j + 1] = 153;
-				dungeon[i + 1][j + 1] = 154;
-				return;
-			}
-		}
-	}
-}
-
 static void FixL3HallofHeroes()
 {
 	/* Commented out because the checked values are impossible to occur at the moment.
