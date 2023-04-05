@@ -615,7 +615,7 @@ const BYTE L1ConvTbl[16] = { BASE_MEGATILE_L1 + 1, 13, 1, 13, 2, 13, 13, 13, 4, 
  * Place doors on the marked places.
  * New dungeon values: 25, 26
  */
-static void DRLG_L1PlaceDoors()
+/*static void DRLG_L1PlaceDoors()
 {
 	int i, j;
 	BYTE df, c;
@@ -635,19 +635,19 @@ static void DRLG_L1PlaceDoors()
 						df = 0;
 					else //if (j != 1 && c == 2)
 						c = 26;
-					/* commented out because this is not possible with the current implementation
-					if (j != 1 && c == 7)
-						c = 31; -- slightly different 26
-					if (j != 1 && c == 14)
-						c = 42; -- edge with arch on the other side
-					if (j != 1 && c == 4)
-						c = 43; -- edge with wall on the other side
-					if (i != 1 && c == 1)
-						c = 25; ?
-					if (i != 1 && c == 10)
-						c = 40; ?
-					if (i != 1 && c == 6)
-						c = 30; ? */
+					// commented out because this is not possible with the current implementation
+					//if (j != 1 && c == 7)
+					//	c = 31; -- slightly different 26
+					//if (j != 1 && c == 14)
+					//	c = 42; -- edge with arch on the other side
+					//if (j != 1 && c == 4)
+					//	c = 43; -- edge with wall on the other side
+					//if (i != 1 && c == 1)
+					//	c = 25; ?
+					//if (i != 1 && c == 10)
+					//	c = 40; ?
+					//if (i != 1 && c == 6)
+					//	c = 30; ?
 				} else {
 					assert(df == DRLG_L1_VDOOR);
 					assert(c == 1);
@@ -655,43 +655,44 @@ static void DRLG_L1PlaceDoors()
 						df = 0;
 					else // if (i != 1 && c == 1)
 						c = 25;
-					/* commented out because this is not possible with the current implementation
-					if (i != 1 && c == 6)
-						c = 30; -- slightly different 25
-					if (i != 1 && c == 10)
-						c = 40; -- edge with arch on the other side
-					if (i != 1 && c == 4)
-						c = 41; -- edge with wall on the other side
-					if (j != 1 && c == 2)
-						c = 26; ?
-					if (j != 1 && c == 14)
-						c = 42; ?
-					if (j != 1 && c == 7)
-						c = 31; ? */
-				} /* commented out because this is not possible with the current implementation
-				  else if (df == (DRLG_L1_HDOOR | DRLG_L1_VDOOR)) {
-					if (i != 1 && j != 1 && c == 4)
-						c = 28; -- edge with double door
-					if (i != 1 && c == 10)
-						c = 40;
-					if (j != 1 && c == 14)
-						c = 42;
-					if (j != 1 && c == 2)
-						c = 26;
-					if (i != 1 && c == 1)
-						c = 25;
-					if (j != 1 && c == 7)
-						c = 31;
-					if (i != 1 && c == 6)
-						c = 30;
-				}*/
+					// commented out because this is not possible with the current implementation
+					//if (i != 1 && c == 6)
+					//	c = 30; -- slightly different 25
+					//if (i != 1 && c == 10)
+					//	c = 40; -- edge with arch on the other side
+					//if (i != 1 && c == 4)
+					//	c = 41; -- edge with wall on the other side
+					//if (j != 1 && c == 2)
+					//	c = 26; ?
+					//if (j != 1 && c == 14)
+					//	c = 42; ?
+					//if (j != 1 && c == 7)
+					//	c = 31; ?
+				}
+				// commented out because this is not possible with the current implementation
+				//else if (df == (DRLG_L1_HDOOR | DRLG_L1_VDOOR)) {
+				//	if (i != 1 && j != 1 && c == 4)
+				//		c = 28; -- edge with double door
+				//	if (i != 1 && c == 10)
+				//		c = 40;
+				//	if (j != 1 && c == 14)
+				//		c = 42;
+				//	if (j != 1 && c == 2)
+				//		c = 26;
+				//	if (i != 1 && c == 1)
+				//		c = 25;
+				//	if (j != 1 && c == 7)
+				//		c = 31;
+				//	if (i != 1 && c == 6)
+				//		c = 30;
+				//}
 				dungeon[i][j] = c;
 			//}
 			// TODO: might want to convert DRLG_L1_VDOOR and DRLG_L1_HDOOR to DRLG_PROTECTED
 			drlgFlags[i][j] = df;
 		}
 	}
-}
+}*/
 
 #ifdef HELLFIRE
 static void DRLG_L5Shadows()
@@ -1291,8 +1292,9 @@ static void L1HorizWall(int i, int j, int dx)
 	wt = (dt == 12 || random_(0, 6) == 5) ? 12 : 2;
 	dungeon[i + xx][j] = wt;
 	if (wt != 12) {
-		assert(drlgFlags[i + xx][j] == 0);
-		drlgFlags[i + xx][j] = DRLG_L1_HDOOR;
+		// assert(drlgFlags[i + xx][j] == 0);
+		// drlgFlags[i + xx][j] = DRLG_L1_HDOOR;
+		dungeon[i + xx][j] = 26;
 	}
 }
 
@@ -1373,8 +1375,9 @@ static void L1VertWall(int i, int j, int dy)
 	wt = (dt == 11 || random_(0, 6) == 5) ? 11 : 1;
 	dungeon[i][j + yy] = wt;
 	if (wt != 11) {
-		assert(drlgFlags[i][j + yy] == 0);
-		drlgFlags[i][j + yy] = DRLG_L1_VDOOR;
+		// assert(drlgFlags[i][j + yy] == 0);
+		// drlgFlags[i][j + yy] = DRLG_L1_VDOOR;
+		dungeon[i][j + yy] = 25;
 	}
 }
 
@@ -2621,7 +2624,7 @@ static void DRLG_L1()
 	DRLG_L1Corners();
 	// DRLG_L1CornerFix(); - commented out because this is no longer necessary
 
-	DRLG_L1PlaceDoors();
+	// DRLG_L1PlaceDoors(); - commented out because this is no longer necessary
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
