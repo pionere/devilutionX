@@ -180,7 +180,7 @@ const BYTE L6FTYPES[167] = {
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  8, //130..
 	 0, 15, 15, 15, 15,  0,  0, 15, 15, 15, //140..
 	 15, 0,  8,  0,  8,  8,  0,  0, 10,  0, //150..
-	 8,  8,  0,  0,  0,  0,  0,    //160..
+	 8,  8,  0,  0,  0,  0,  0,             //160..
 	// clang-format on
 };
 #endif
@@ -1369,6 +1369,10 @@ static int DRLG_L3GetFloorArea()
 	return rv;
 }
 
+/*
+ * Transform dungeon by replacing values using 2x2 block patterns defined in L3ConvTbl
+ * New dungeon values: 1..14
+ */
 static void DRLG_L3MakeMegas()
 {
 	int i, j;
@@ -2272,14 +2276,6 @@ static void DRLG_L3()
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_NEST) {
-		/** Miniset: Use random external connection 1. */
-		DRLG_PlaceRndTile(8, 25, 20);
-		/** Miniset: Use random external connection 2. */
-		DRLG_PlaceRndTile(8, 26, 20);
-		/** Miniset: Use random external connection 3. */
-		DRLG_PlaceRndTile(8, 27, 20);
-		/** Miniset: Use random external connection 4. */
-		DRLG_PlaceRndTile(8, 28, 20);
 		DRLG_L3PlaceRndSet(L6WALLLPOOL1, 10);
 		DRLG_L3PlaceRndSet(L6WALLLPOOL2, 10);
 		DRLG_L3PlaceRndSet(L6WALLSPOOL1, 10);
@@ -2323,6 +2319,14 @@ static void DRLG_L3()
 		DRLG_PlaceRndTile(7, 31, 25);
 		/** Miniset: Use random floor tile 4. */
 		DRLG_PlaceRndTile(7, 32, 25);
+		/** Miniset: Use random external connection 1. */
+		DRLG_PlaceRndTile(8, 25, 20);
+		/** Miniset: Use random external connection 2. */
+		DRLG_PlaceRndTile(8, 26, 20);
+		/** Miniset: Use random external connection 3. */
+		DRLG_PlaceRndTile(8, 27, 20);
+		/** Miniset: Use random external connection 4. */
+		DRLG_PlaceRndTile(8, 28, 20);
 		/** Miniset: Use random vertical wall tile 1. */
 		DRLG_PlaceRndTile(9, 33, 25);
 		/** Miniset: Use random vertical wall tile 2. */
