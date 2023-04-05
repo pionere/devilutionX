@@ -300,7 +300,7 @@ const BYTE L3CREV1[] = {
 	// clang-format off
 	2, 1, // width, height
 
-	8, 7, // search
+	8, 9, // search
 
 	84, 85, // replace
 	// clang-format on
@@ -332,7 +332,7 @@ const BYTE L3CREV4[] = {
 	// clang-format off
 	2, 1, // width, height
 
-	8, 7, // search
+	8, 9, // search
 
 	90, 91, // replace
 	// clang-format on
@@ -366,9 +366,9 @@ const BYTE L3CREV7[] = {
 	// clang-format off
 	2, 1, // width, height
 
-	8, 7, // search
+	8, 9, // search
 
-	96, 101, // replace
+	96, 91, // replace
 	// clang-format on
 };
 /** Miniset: Cracked horizontal wall - north. */
