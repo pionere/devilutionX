@@ -106,8 +106,8 @@ const BYTE L3TWARP[] = {
 	10, 10, 0,
 	 7,  7, 0,
 
-	125, 125, 0, // replace
-	125, 125, 0,
+	156, 155, 0, // replace
+	153, 154, 0,
 	  0,   0, 0,
 /*  559,182    556,557,     0,  0,	// MegaTiles
 	560, 31    558, 31,     0,  0,
@@ -1652,20 +1652,18 @@ static int lavaarea;
 static bool DRLG_L3SpawnLava(int x, int y, int dir)
 {
 	BYTE i; //                        0     1     2     3     4    ?5    ?6     7     8     9    10   ?11    12    13    14
-	static BYTE spawntable[15] = { 0x00, 0x0A, 0x08, 0x05, 0x01, 0x00, 0x00, 0xFF, 0x00, 0x02, 0x04, 0x00, 0x06, 0x05, 0x0A };
+	//                                  NW|SW    SW SE|NE    SE               ALL          NW    NE       NW|NE SE|NE NW|SW
+	static BYTE blocktable[15] = { 0x00, 0x0A, 0x08, 0x05, 0x01, 0x00, 0x00, 0xFF, 0x00, 0x02, 0x04, 0x00, 0x06, 0x05, 0x0A };
 
 	if (x < 0 || x >= DMAXX || y < 0 || y >= DMAXY) {
 		return true;
 	}
 	i = dungeon[x][y];
-	if (i & 0x80) {
-		return false;
-	}
-	if (i > 15) {
+	if (i >= 15) {
 		return true;
 	}
 
-	i = spawntable[i];
+	i = blocktable[i];
 	/*switch (dir) {
 	case 3: // DIR_S
 		if (i & 8)
@@ -1687,25 +1685,28 @@ static bool DRLG_L3SpawnLava(int x, int y, int dir)
 		ASSUME_UNREACHABLE
 		break;
 	}*/
-	if (i & (1 << dir))
+	if (i & dir)
 		return false;
 
-	dungeon[x][y] |= 0x80;
+	if (drlgFlags[x][y] & (DRLG_L3_LAVA | DRLG_PROTECTED)) {
+		return false;
+	}
+	drlgFlags[x][y] |= DRLG_L3_LAVA;
 	lavaarea += 1;
 	if (lavaarea > 40) {
 		return true;
 	}
 
-	if (DRLG_L3SpawnLava(x + 1, y, 0)) {
+	if (DRLG_L3SpawnLava(x + 1, y, (1 << 0))) { // SE
 		return true;
 	}
-	if (DRLG_L3SpawnLava(x - 1, y, 1)) {
+	if (DRLG_L3SpawnLava(x - 1, y, (1 << 1))) { // NW
 		return true;
 	}
-	if (DRLG_L3SpawnLava(x, y + 1, 3)) {
+	if (DRLG_L3SpawnLava(x, y + 1, (1 << 3))) { // SW
 		return true;
 	}
-	if (DRLG_L3SpawnLava(x, y - 1, 2)) {
+	if (DRLG_L3SpawnLava(x, y - 1, (1 << 2))) { // NE
 		return true;
 	}
 
@@ -1720,13 +1721,12 @@ static void DRLG_L3DrawLava(int x, int y)
 	if (x < 0 || x >= DMAXX || y < 0 || y >= DMAXY) {
 		return;
 	}
-
-	i = dungeon[x][y];
-	if (!(i & 0x80)) {
+	if (!(drlgFlags[x][y] & DRLG_L3_LAVA)) {
 		return;
 	}
+	drlgFlags[x][y] &= ~DRLG_L3_LAVA;
 
-	i &= ~0x80;
+	i = dungeon[x][y];
 	if (lavaarea != 0) {
 		i = poolsub[i];
 	}
@@ -1751,7 +1751,7 @@ static void DRLG_L3Pool()
 
 	for (i = 3; i < DMAXY - 3; i++) {
 		for (j = 3; j < DMAXY - 3; j++) {
-			if (dungeon[i][j] != 8 || random_(0, 2) != 0) {
+			if (dungeon[i][j] != 8 || dungeon[i][j + 1] == 8 || random_(0, 2) != 0) {
 				continue;
 			}
 			lavaarea = 0;
@@ -2334,8 +2334,6 @@ static void DRLG_L3()
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CAVES);
-		if (currLvl._dLevelIdx == DLV_CAVES1)
-			FixL3Warp();
 		FixL3HallofHeroes();
 		DRLG_L3River();
 		DRLG_PlaceThemeRooms(5, 10, DEFAULT_MEGATILE_L3, 0, false);
