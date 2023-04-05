@@ -135,6 +135,55 @@ const BYTE L6TWARP[] = {
 	// clang-format on
 };
 #endif*/
+/*
+ * Specifies where the given tile ID should spread the room ID (transval).
+ */
+const BYTE L3FTYPES[157] = {
+	// clang-format off
+	 0,  2,  3,  4,  5,  7,  1, 15,  0, 10,
+	12,  8, 14, 13, 11,  3,  3,  5,  5,  7, // 10..
+	 3, 13, 10,  2,  0,  5,  3, 12,  8,  7, // 20..
+	11,  5, 12,  0,  1,  0,  0,  8,  0,  0, // 30..
+	 0,  0,  0,  0,  0,  0, 10, 10, 12, 12, // 40..
+	 0,  0, 15, 15, 15, 15, 15, 15, 15, 15, // 50..
+	15, 15, 15, 15, 15, 15, 15, 15,  8, 12, // 60..
+	12, 12, 12, 10,  8, 10, 15, 15, 15,  8, // 70..
+	10, 15, 15, 15,  0, 10,  0,  8, 12,  0, // 80..
+	 0, 10,  0,  8, 12,  0,  0,  0,  0,  0, // 90..
+	 0,  2,  3,  4,  5,  1, 15, 15, 15, 10, //100..
+	12,  0,  4, 15, 15, 15, 15, 15, 15, 15, //110..
+	 3, 10, 10, 10, 10,  8, 12, 12, 12, 12, //120..
+	 0,  0,  0,  0,  3,  5,  3,  5,  1,  1, //130..
+	 1,  1,  1,  1,  5,  3,  3,  5,  3,  5, //140..
+	 7,  3,  5, 12, 12,  0,  0              //150..
+	// clang-format on
+};
+#ifdef HELLFIRE
+/*
+ * Specifies where the given tile ID should spread the room ID (transval).
+ */
+const BYTE L6FTYPES[167] = {
+	// clang-format off
+	 0,  2,  3,  4,  5,  7,  1, 15,  0, 10,
+	12,  8, 14, 13, 11, 10, 10, 12, 12,  0, // 10..
+	 0, 12, 12,  0,  0,  0,  0,  0,  0, 15, // 20..
+	15, 15, 15, 10, 10, 10, 10, 10,  8, 12, // 30..
+	12, 12, 12, 12,  8, 10, 10, 12, 12,  8, // 40..
+	 8, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 50..
+	15, 12, 15, 15,  0, 15, 15, 15, 15, 15, // 60..
+	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 70..
+	15, 15, 15, 15, 15, 15, 15, 15, 15,  0, // 80..
+	 0,  0,  0,  8,  8,  8,  0,  0,  0, 15, // 90..
+	15, 15, 15,  0,  1,  0,  0,  1,  7, 13, //100..
+	15,  5,  8,  1,  2,  2,  5,  7,  0,  0, //110..
+	 0,  8,  8,  8, 15,  0,  2,  0,  0,  0, //120..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  8, //130..
+	 0, 15, 15, 15, 15,  0,  0, 15, 15, 15, //140..
+	 15, 0,  8,  0,  8,  8,  0,  0, 10,  0, //150..
+	 8,  8,  0,  0,  0,  0,  0,    //160..
+	// clang-format on
+};
+#endif
 /** Miniset: Stalagmite white stalactite 1. */
 const BYTE L3TITE1[] = {
 	// clang-format off
@@ -2096,19 +2145,16 @@ static bool DRLG_L3Lockout()
 
 static void DRLG_L3InitTransVals()
 {
-	DRLG_InitTrans();
-	DRLG_L3FloodTVal();
-	for (int i = 0; i < numthemes; i++) {
-		int x = themes[i]._tsx - 1;
-		int y = themes[i]._tsy - 1;
-		int themeW = themes[i]._tsWidth;
-		int themeH = themes[i]._tsHeight;
-		int x1 = 2 * x + DBORDERX + 4;
-		int y1 = 2 * y + DBORDERY + 4;
-		int x2 = 2 * (x + themeW) + DBORDERX - 1;
-		int y2 = 2 * (y + themeH) + DBORDERY - 1;
-		DRLG_RectTrans(x1, y1, x2, y2);
+	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
+	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
+
+	const BYTE *floorTypes = L3FTYPES;
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_NEST) {
+		floorTypes = L6FTYPES;
 	}
+#endif
+	DRLG_FloodTVal(floorTypes);
 }
 
 static void DRLG_L3()
