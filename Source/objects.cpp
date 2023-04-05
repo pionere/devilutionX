@@ -1531,8 +1531,8 @@ static void Obj_Circle(int oi)
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
 				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CENTRALOPEN;
-				// ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, true*/); // LEVER_EFFECT
-				ObjChangeMap(7, 11, 13, 18/*, true*/);
+				// DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, true*/); // LEVER_EFFECT
+				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 			AddMissile(0, 0, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
@@ -1792,27 +1792,6 @@ void ProcessObjects()
 			i++;
 		}
 	}*/
-}
-
-static void ObjSetMini(int x, int y, int mt)
-{
-	int xx, yy;
-	long v1, v2, v3, v4;
-	uint16_t* Tiles;
-
-	xx = 2 * x + DBORDERX;
-	yy = 2 * y + DBORDERY;
-
-	Tiles = &pMegaTiles[(mt - 1) * 4];
-	v1 = SwapLE16(Tiles[0]) + 1;
-	v2 = SwapLE16(Tiles[1]) + 1;
-	v3 = SwapLE16(Tiles[2]) + 1;
-	v4 = SwapLE16(Tiles[3]) + 1;
-
-	dPiece[xx][yy] = v1;
-	dPiece[xx + 1][yy] = v2;
-	dPiece[xx][yy + 1] = v3;
-	dPiece[xx + 1][yy + 1] = v4;
 }
 
 #ifdef HELLFIRE
@@ -2103,28 +2082,8 @@ void MonstCheckDoors(int mx, int my)
 
 void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
-	int i, j;
+	int i;
 
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			dungeon[i][j] = pdungeon[i][j];
-			ObjSetMini(i, j, pdungeon[i][j]);
-		}
-	}
-	x1 = 2 * x1 + DBORDERX;
-	y1 = 2 * y1 + DBORDERY;
-	x2 = 2 * x2 + DBORDERX + 1;
-	y2 = 2 * y2 + DBORDERY + 1;
-	// init special pieces
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		DRLG_InitL1Specials(x1, y1, x2, y2);
-	} else if (currLvl._dType == DTYPE_CATACOMBS) {
-		DRLG_InitL2Specials(x1, y1, x2, y2);
-#ifdef HELLFIRE
-	} else if (currLvl._dType == DTYPE_CRYPT) {
-		DRLG_InitL5Specials(x1, y1, x2, y2);
-#endif
-	}
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
 		int oi = i; // objectactive[i];
@@ -2140,9 +2099,6 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	}
 	// add new objects (doors + light)
 	AddDunObjs(x1, y1, x2, y2);
-	// activate monsters
-	MonChangeMap();
-	RedoLightAndVision();
 }
 
 static bool CheckLeverGroup(int type, int lvrIdx)
@@ -2195,7 +2151,7 @@ static void OperateLever(int oi, bool sendmsg)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 	if (!CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
 		return;
-	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
@@ -2229,7 +2185,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 	os->_oAnimFrame++; // 5
 
-	ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 	//for (i = 0; i < numobjects; i++)
 	//	SyncObjectAnim(objectactive[i]);
 }
@@ -2280,7 +2236,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
 		os->_oAnimFrame = os->_oVar6;    // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
-			ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
+			DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
 		if (qn == Q_BLIND) {
 			if (!deltaload)
 				SpawnUnique(UITEM_OPTAMULET, 2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5, sendmsg ? ICM_SEND : ICM_DUMMY);
@@ -2514,14 +2470,14 @@ static void SyncPedestal(/*int oi*/)
 	case QV_BLOOD_BOOK:
 		break;
 	case QV_BLOOD_STONE2:
-		ObjChangeMap(pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 9/*setpc_w*/, pSetPieces[0]._spy + 7/*, false*/);
+		DRLG_ChangeMap(pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 9/*setpc_w*/, pSetPieces[0]._spy + 7/*, false*/);
 		/* fall-through */
 	case QV_BLOOD_STONE1:
-		ObjChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
+		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
 		break;
 	case QV_BLOOD_STONE3: {
-		//ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
-		ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+		//DRLG_ChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
+		DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
 		// patch transvals to prevent transparency glitch
 		int x = DBORDERX + 2 * pSetPieces[0]._spx;
 		int y = DBORDERY + 2 * pSetPieces[0]._spy;
@@ -3325,7 +3281,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 #ifdef HELLFIRE
 void OpenNakrulRoom()
 {
-	ObjChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
+	DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
 }
 
 static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
@@ -3428,7 +3384,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 
 	triggered = CheckCrux(os->_oVar8); // LEVER_EFFECT
 	if (triggered)
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/);
+		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/);
 
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
@@ -3832,7 +3788,7 @@ static void SyncLever(int oi)
 
 	os = &objects[oi];
 	if (CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 static void SyncBookLever(int oi)
@@ -3841,7 +3797,7 @@ static void SyncBookLever(int oi)
 
 	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
+		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
 			//DRLG_MRectTrans(os->_oVar1 + 2, os->_oVar2 + 2, os->_oVar1 + 4, os->_oVar2 + 4, tv); // LEVER_EFFECT
@@ -3856,7 +3812,7 @@ static void SyncCrux(int oi)
 
 	os = &objects[oi];
 	if (CheckCrux(os->_oVar8)) // LEVER_EFFECT
-		ObjChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 #ifdef HELLFIRE

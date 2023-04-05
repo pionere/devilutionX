@@ -257,7 +257,7 @@ void LoadPWaterPalette()
 void ResyncBanner()
 {
 	if (quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
-		ObjChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 6/*, false*/);
+		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 6/*, false*/);
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 		// BYTE tv = dTransVal[2 * setpc_x + 1 + DBORDERX][2 * (setpc_y + 6) + 1 + DBORDERY];
@@ -274,24 +274,24 @@ void ResyncQuests()
 	if (QuestStatus(Q_BANNER)) {
 		ResyncBanner();
 		/*if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK1)
-			ObjChangeMap(
+			DRLG_ChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
 			    setpc_h + setpc_y + 1, false);
 		if (quests[Q_BANNER]._qvar1 == QV_BANNER_GIVEN) {
-			ObjChangeMap(
+			DRLG_ChangeMap(
 			    setpc_w + setpc_x - 2,
 			    setpc_h + setpc_y - 2,
 			    setpc_w + setpc_x + 1,
 			    setpc_h + setpc_y + 1, false);
-			ObjChangeMap(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2, false);
+			DRLG_ChangeMap(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 2, (setpc_h >> 1) + setpc_y - 2, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
 		}
 		if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK2) {
-			ObjChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1, false);
+			DRLG_ChangeMap(setpc_x, setpc_y, setpc_x + setpc_w + 1, setpc_y + setpc_h + 1, false);
 			for (i = 0; i < numobjects; i++)
 				SyncObjectAnim(objectactive[i]);
 			DRLG_MRectTrans(setpc_x, setpc_y, (setpc_w >> 1) + setpc_x + 4, setpc_y + (setpc_h >> 1), 9);
@@ -321,9 +321,9 @@ void ResyncQuests()
 	} else {
 		if (lvl == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_CENTRALOPEN)
-				ObjChangeMap(7, 11, 13, 18/*, true*/);
+				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_TALK1)
-				ObjChangeMap(7, 20, 11, 22/*, false*/);
+				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD)
 				InitVPReturnTrigger(true);
 			//for (i = 0; i < numobjects; i++)

@@ -1235,4 +1235,55 @@ bool NearThemeRoom(int x, int y)
 	return false;
 }
 
+static void SetMini(int x, int y, int mt)
+{
+	int xx, yy;
+	long v1, v2, v3, v4;
+	uint16_t* Tiles;
+
+	xx = 2 * x + DBORDERX;
+	yy = 2 * y + DBORDERY;
+
+	Tiles = &pMegaTiles[(mt - 1) * 4];
+	v1 = SwapLE16(Tiles[0]) + 1;
+	v2 = SwapLE16(Tiles[1]) + 1;
+	v3 = SwapLE16(Tiles[2]) + 1;
+	v4 = SwapLE16(Tiles[3]) + 1;
+
+	dPiece[xx][yy] = v1;
+	dPiece[xx + 1][yy] = v2;
+	dPiece[xx][yy + 1] = v3;
+	dPiece[xx + 1][yy + 1] = v4;
+}
+
+void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
+{
+	int i, j;
+
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
+			dungeon[i][j] = pdungeon[i][j];
+			SetMini(i, j, pdungeon[i][j]);
+		}
+	}
+	x1 = 2 * x1 + DBORDERX;
+	y1 = 2 * y1 + DBORDERY;
+	x2 = 2 * x2 + DBORDERX + 1;
+	y2 = 2 * y2 + DBORDERY + 1;
+	// init special pieces
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
+		DRLG_InitL1Specials(x1, y1, x2, y2);
+	} else if (currLvl._dType == DTYPE_CATACOMBS) {
+		DRLG_InitL2Specials(x1, y1, x2, y2);
+#ifdef HELLFIRE
+	} else if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_InitL5Specials(x1, y1, x2, y2);
+#endif
+	}
+	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
+	// activate monsters
+	MonChangeMap();
+	RedoLightAndVision();
+}
+
 DEVILUTION_END_NAMESPACE

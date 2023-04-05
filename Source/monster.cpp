@@ -4165,7 +4165,7 @@ void MAI_Lazarus(int mnum)
 			} else { // TALK_SPEAKING
 				if (IsSFXPlaying(USFX_LAZ1) && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
 					return;
-				ObjChangeMap(7, 20, 11, 22/*, false*/);
+				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
 				//RedoLightAndVision();
 				// mon->_msquelch = SQUELCH_MAX;
 				mon->_mgoal = MGOAL_NORMAL;
