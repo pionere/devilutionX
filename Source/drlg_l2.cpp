@@ -2526,6 +2526,8 @@ static void DRLG_L2SetMapFix()
 	dungeon[12][15] = 51;
 	dungeon[16][14] = 47;
 	dungeon[16][15] = 51;
+	// fix corners
+	DRLG_L2Corners();
 }
 
 static void LoadL2DungeonData(const char* sFileName)

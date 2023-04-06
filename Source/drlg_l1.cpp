@@ -2796,6 +2796,10 @@ static void DRLG_L1SetMapFix()
 		// assert(lm[2 + 14 + 22 * 21] == 0);
 		// assert(dungeon[14][22] == 13);
 		dungeon[14][22] = 203;
+		for (int i = 1; i < 23; i++) {
+			// assert(dungeon[20][i] == 13);
+			dungeon[20][i] = 203;
+		}
 		// - add monsters
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 24 + 29 * 21 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
