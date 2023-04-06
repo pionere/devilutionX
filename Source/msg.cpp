@@ -1386,14 +1386,7 @@ void LevelDeltaLoad()
 	WORD wLen;
 	LDLevel* lvlData;
 
-	geBufferMsgs = MSG_NORMAL;
-	assert(currLvl._dLevelIdx == DLV_INVALID);
-	currLvl._dLevelIdx = myplr._pDunLevel;
-
 	// assert(IsMultiGame);
-	ResyncQuests();
-	DeltaLoadLevel();
-	//SyncPortals();
 	// reset squelch set from delta, the message should contain more up-to-date info
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		monsters[mnum]._msquelch = 0;
@@ -1769,7 +1762,7 @@ void LevelDeltaLoad()
 	}
 
 	// ProcessLightList();
-	ProcessVisionList();
+	// ProcessVisionList();
 }
 
 static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)

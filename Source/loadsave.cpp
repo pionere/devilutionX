@@ -832,6 +832,7 @@ void LoadGame()
 	LoadGameLevel(ENTRY_LOAD);
 	ViewX = _ViewX;
 	ViewY = _ViewY;
+	ResyncQuests();
 	tbuff = LoadLevelData(tbuff, true);
 
 	// load meta-data III. (modified by LoadGameLevel)

@@ -119,15 +119,14 @@ static void DrawProgress()
 		"Monsters", // 9
 		"Objects/Items", // 10
 		"Missiles/Light", // 11
-		"Quest/Load", // 12
-		"Music start", // 13
-		"Network - Pending Turns", // 14
-		"Network - Msg Queue", // 15
-		"Network - Join Level", // 16
-		"Network - Sync delta", // 17
-		"Fadeout", // 18
+		"Music start", // 12
+		"Network - Pending Turns", // 13
+		"Network - Msg Queue", // 14
+		"Network - Join Level", // 15
+		"Network - Sync delta", // 16
+		"Fadeout", // 17
 	};
-	unsigned progress = sgdwProgress / ((BAR_WIDTH + 18) / 19);
+	unsigned progress = sgdwProgress / ((BAR_WIDTH + 17) / 18);
 	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
 #endif
 }
@@ -158,7 +157,7 @@ void interface_msg_pump()
 void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += (BAR_WIDTH + 18) / 19;
+	sgdwProgress += (BAR_WIDTH + 17) / 18;
 	if (sgdwProgress > BAR_WIDTH)
 		sgdwProgress = BAR_WIDTH;
 	// do not draw in case of quick-load
@@ -273,19 +272,6 @@ void LoadGameLevel(int lvldir)
 
 	IncProgress();
 
-	if (!IsMultiGame) {
-		ResyncQuests();
-		if (lvldir != ENTRY_LOAD && IsLvlVisited(currLvl._dLevelIdx)) {
-			LoadLevel();
-		}
-		//SyncPortals();
-	}
-	IncProgress();
-	InitSync();
-	PlayDungMsgs();
-
-	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
-
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 }
 
@@ -316,6 +302,19 @@ static void SwitchGameLevel(int lvldir)
 	LoadGameLevel(lvldir);
 }
 
+/*
+ * Load Game          Load In-Game             Single Game               Multi Game
+ *
+ * LoadGame           LoadGame                 LoadGameLevel             LoadGameLevel
+ *  LoadGameLevel      LoadGameLevel           nthread_finish            nthread_finish
+ *  Resync             Resync                   Resync                    Resync
+ *   ChangeMap          ChangeMap                ChangeMap                 ChangeMap
+ *  LoadLevelData      LoadLevelData            LoadLevel                 DeltaLoadLevel
+ *   ChangeMap     	    ChangeMap                LoadLevelData             ChangeMap
+ *                                                ChangeMap               LevelDeltaLoad
+ *                                              ProcessLightList          ProcessLightList
+ *                                              ProcessVisionList         ProcessVisionList
+ */
 void ShowCutscene(unsigned uMsg)
 {
 	WNDPROC saveProc;

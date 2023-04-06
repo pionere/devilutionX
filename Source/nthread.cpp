@@ -487,6 +487,13 @@ void nthread_finish(UINT uMsg)
 			goto done;
 		// phase 11 - load received level-delta
 		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
+		geBufferMsgs = MSG_NORMAL;
+		assert(currLvl._dLevelIdx == DLV_INVALID);
+		currLvl._dLevelIdx = myplr._pDunLevel;
+		// assert(IsMultiGame);
+		ResyncQuests();
+		DeltaLoadLevel();
+		//SyncPortals();
 		LevelDeltaLoad();
 		assert(geBufferMsgs == MSG_NORMAL);
 		assert(currLvl._dLevelIdx == myplr._pDunLevel);
@@ -507,9 +514,11 @@ void nthread_finish(UINT uMsg)
 		// phase 11-12b
 		assert(currLvl._dLevelIdx == DLV_INVALID);
 		currLvl._dLevelIdx = myplr._pDunLevel;
+		ResyncQuests();
 		if (IsMultiGame) {
-			ResyncQuests();
 			DeltaLoadLevel();
+		} else if (IsLvlVisited(currLvl._dLevelIdx)) {
+			LoadLevel();
 		}
 		SyncPortals();
 		InitLvlPlayer(mypnum, true);
@@ -528,6 +537,20 @@ done:
 	// reset geBufferMsgs to normal
 	geBufferMsgs = MSG_NORMAL;
 	plrmsg_delay(false);
+	InitSync();
+	// finalize the light/vision calculations
+	ProcessLightList();
+	ProcessVisionList();
+	// enter the dungeon level
+	PlayDungMsgs();
+	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
+#ifdef HELLFIRE
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_DEFILER]._qdlvl) {
+		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
+		quests[Q_DEFILER]._qlog = TRUE;
+		NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
+	}
+#endif
 #if DEV_MODE
 	if (gbActivePlayers > 1 && plx(0)._pDunLevel == plx(1)._pDunLevel) {
 		NetSendCmd(CMD_REQUEST_ITEMCHECK);

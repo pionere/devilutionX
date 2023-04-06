@@ -341,11 +341,11 @@ void ResyncQuests()
 		}
 	}
 #ifdef HELLFIRE
-	if (quests[Q_DEFILER]._qactive == QUEST_INIT && lvl == questlist[Q_DEFILER]._qdlvl) {
-		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
-		quests[Q_DEFILER]._qlog = TRUE;
-		NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
-	}
+	//if (quests[Q_DEFILER]._qactive == QUEST_INIT && lvl == questlist[Q_DEFILER]._qdlvl) {
+	//	quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
+	//	quests[Q_DEFILER]._qlog = TRUE;
+	//	NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
+	//}
 	//if (quests[Q_NAKRUL]._qactive == QUEST_INIT && lvl == questlist[Q_NAKRUL]._qdlvl - 1) {
 	//	quests[Q_NAKRUL]._qactive = QUEST_ACTIVE;
 	//	NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
