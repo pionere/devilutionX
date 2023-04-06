@@ -156,25 +156,24 @@ const BYTE L4PENTA2[] = {
 	// clang-format on
 };
 /*
- * Maps tile IDs to their corresponding undecorated tile ID.
- * Values with a single entry are commented out, because pointless to randomize a single option.
+ * Maps tile IDs to their corresponding undecorated tile type.
  */
 const BYTE L4BTYPES[138] = {
 	// clang-format off
-	0, 1, 2, 0 /*3*/, 4, 5, 6, 7, 0/*8*/, 9,
-	0/*10*/, 0/*11*/, 12, 0/*13*/, 0/*14*/, 15, 16, 0/*17*/, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 6,
-	6, 6, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 1, 2, 1, 2, 1, 2, 1, 1, 2,
-	2, 0, 0, 0, 0, 0, 0, 15, 16, 9,
-	12, 4, 5, 7, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0
+	 0,  1,  2,  0,  3,  4,  5,  6,  0,  7,
+	 0,  0,  8,  0,  0,  9, 10,  0,  0,  0, // 10..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 20..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 30..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  5, // 40..
+	 5,  5,  0,  0,  0,  0,  0,  0,  0,  0, // 50..
+	 0,  1,  2,  1,  2,  1,  2,  1,  1,  2, // 60..
+	 2,  0,  0,  0,  0,  0,  0,  9, 10,  7, // 70..
+	 8,  3,  4,  6,  0,  0,  0,  0,  0,  0, // 80..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 90..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //100..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //110..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //120..
+	 0,  0,  0,  0,  0,  0,  0,  0          //130..
 	// clang-format on
 };
 /*
@@ -956,7 +955,7 @@ static void L4TileFix()
 
 /*
  * Replace undecorated tiles with matching decorated tiles.
- * New dungeon values: 49 50 51 61..70 77..83 95 96 97
+ * New dungeon values: 49 50 51 (49..51)   61 62 63 64 65 66 67 68 69 70 (61..70)  77 78 79 80 81 82 83 (77..83)
  */
 static void DRLG_L4Subs()
 {
@@ -1003,16 +1002,6 @@ static void DRLG_L4Subs()
 							i = 0;
 					}
 					dungeon[x][y] = i;
-				}
-			}
-		}
-	}
-	// TODO: use DRLG_PlaceRndTile instead?
-	for (x = 0; x < DMAXX; x++) {
-		for (y = 0; y < DMAXY; y++) {
-			if (random_(0, 10) == 0) {
-				if (L4BTYPES[dungeon[x][y]] == 6 && !drlgFlags[x][y]) {
-					dungeon[x][y] = RandRange(95, 97);
 				}
 			}
 		}
@@ -1871,6 +1860,9 @@ static void DRLG_L4()
 
 	DRLG_L4Shadows();
 	DRLG_L4Corners();
+	DRLG_PlaceRndTile(6, 95, 3);
+	DRLG_PlaceRndTile(6, 96, 4);
+	DRLG_PlaceRndTile(6, 97, 4);
 	DRLG_L4Subs();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));

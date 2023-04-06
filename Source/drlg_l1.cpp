@@ -181,35 +181,31 @@ const BYTE BSTYPES[] = {
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
-
 /*
- * Maps tile IDs to their corresponding undecorated tile ID.
- * Values with a single entry are commented out, because pointless to randomize a single option.
- * Values 79 and 80 are not used at the moment
- * BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
+ * Maps tile IDs to their corresponding undecorated tile type.
  */
-const BYTE L1BTYPES[] = {
+const BYTE L1BTYPES[207] = {
 	// clang-format off
-	0, 1, 2, 0/*3*/, 0/*4*/, 0/*5*/, 0/*6*/, 0/*7*/, 0/*8*/, 0/*9*/,
-	0/*10*/, 11, 12, 13, 0/*14*/, 0/*15*/, 0/*16*/, 0/*17*/, 0, 0,
-	0, 0, 0, 0, 0, 25, 0/*26*/, 0, 0/*28*/, 0,
-	0/*30*/, 0/*31*/, 0, 0, 0, 0, 0, 0, 0, 0,
-	0/*40*/, 0/*41*/, 0/*42*/, 0/*43*/, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 79,
-	80, 0, 0/*82*/, 0, 0, 0, 0, 0, 0, 79,
-	0, 80, 0, 0, 79, 80, 0, 2, 2, 2,
-	1, 1, 11, 25, 13, 13, 13, 1, 2, 1,
-	2, 1, 2, 1, 2, 2, 2, 2, 12, 0,
-	0, 11, 1, 11, 1, 13, 0, 0, 0, 0,
-	0, 0, 0, 13, 13, 13, 13, 13, 13, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+	0, 3, 4, 5, 0, 0, 0, 0, 0, 0, // 10..
+	0, 0, 0, 0, 0, 6, 0, 0, 0, 0, // 20..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 40..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 50..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 70..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80..
+	0, 0, 0, 0, 0, 0, 0, 2, 2, 2, // 90..
+	1, 1, 3, 6, 5, 5, 5, 1, 2, 1, //100..
+	2, 1, 2, 1, 2, 2, 2, 2, 4, 0, //110..
+	0, 3, 1, 3, 1, 5, 0, 0, 0, 0, //120..
+	0, 0, 0, 5, 5, 5, 5, 5, 5, 0, //130..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //150..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //160..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //170..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //180..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //190..
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
@@ -907,7 +903,7 @@ static void DRLG_LoadL1SP()
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
 		// patch set-piece to use common tiles - SKngDO.DUN
 		pSetPieces[0]._spData[(2 + 5 + 3 * 7) * 2] = 203;
-		pSetPieces[0]._spData[(2 + 5 + 4 * 7) * 2] = 22;
+		pSetPieces[0]._spData[(2 + 5 + 4 * 7) * 2] = 203;
 		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
 		pSetPieces[0]._spData[(2 + 5 + 2 * 7) * 2] = 203;
 		pSetPieces[0]._sptype = SPT_SKELKING;
@@ -1946,6 +1942,10 @@ static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 }
 #endif
 
+/*
+ * Replace undecorated tiles with matching decorated tiles.
+ * New dungeon values: 97 98 99 100 101 102 103 104 105 106 107 108 (97..108)  121 122 123 124 125 (121..125)  133 134 135 136 137 138 (133..138)
+ */
 static void DRLG_L1Subs()
 {
 	int x, y;
@@ -1983,8 +1983,6 @@ static void DRLG_L1Subs()
 				c = L1BTYPES[dungeon[x][y]];
 
 				if (c != 0 && drlgFlags[x][y] == 0) {
-					assert(c != 79);
-					assert(c != 80);
 					rv = random_(0, MAX_MATCH);
 					i = 0;
 					while (TRUE) {
@@ -1994,23 +1992,6 @@ static void DRLG_L1Subs()
 						if (++i == NUM_L1TYPES)
 							i = 0;
 					}
-
-					assert(i != 89);
-					// BUGFIX: Add `&& y > 0` to the if statement. (fixed)
-					/*if (i == 89 && y > 0) {
-						if (L1BTYPES[dungeon[x][y - 1]] != 79 || drlgFlags[x][y - 1] != 0)
-							i = 79;
-						else
-							dungeon[x][y - 1] = 90;
-					}*/
-					assert(i != 91);
-					// BUGFIX: Add `&& x + 1 < DMAXX` to the if statement. (fixed)
-					/*if (i == 91 && x + 1 < DMAXX) {
-						if (L1BTYPES[dungeon[x + 1][y]] != 80 || drlgFlags[x + 1][y] != 0)
-							i = 80;
-						else
-							dungeon[x + 1][y] = 92;
-					}*/
 					dungeon[x][y] = i;
 				}
 			}
