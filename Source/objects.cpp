@@ -2476,8 +2476,10 @@ static void SyncPedestal(/*int oi*/)
 		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
 		break;
 	case QV_BLOOD_STONE3: {
-		//DRLG_ChangeMap(setpc_x, setpc_y, setpc_x + setpc_w, setpc_y + setpc_h/*, false*/);
-		DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+		// if (!deltaload)
+		//  DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+		// else
+		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 9, pSetPieces[0]._spy + 8/*, false*/);
 		// patch transvals to prevent transparency glitch
 		int x = DBORDERX + 2 * pSetPieces[0]._spx;
 		int y = DBORDERY + 2 * pSetPieces[0]._spy;
