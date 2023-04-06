@@ -2432,7 +2432,7 @@ static void DRLG_L5TransFix()
 }
 #endif
 
-static void DRLG_L1InitTransVals()
+void DRLG_L1InitTransVals()
 {
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
@@ -2720,10 +2720,6 @@ static void DRLG_L1()
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
-	DRLG_L1InitTransVals();
-
-	DRLG_Init_Globals();
-
 	if (pSetPieces[0]._sptype == SPT_BANNER) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
@@ -2732,10 +2728,6 @@ static void DRLG_L1()
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// - replace the wall with door
 		lm[2 + 7 + 6 * 8] = SwapLE16(193);
-		// fix transVal behind the stairs
-		// - uncommented since the set-map is 'populated' -> monsters are not spawn there
-		//DRLG_MRectTrans(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx, pSetPieces[0]._spy + 5,
-		//	dTransVal[2 * pSetPieces[0]._spx + DBORDERX + 1][2 * pSetPieces[0]._spy + DBORDERY + 11]);
 		// - replace monsters
 		for (int y = 7; y <= 9; y++) {
 			for (int x = 7; x <= 13; x++) {
@@ -2752,28 +2744,9 @@ static void DRLG_L1()
 		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = SwapLE16(90);
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_SKELKING) {
-		/*int x, y;
-
-		x = 2 * pSetPieces[0]._spx + DBORDERX;
-		y = 2 * pSetPieces[0]._spy + DBORDERY;
-		// fix transVal on the bottom left corner of the box
-		DRLG_CopyTrans(x, y + 11, x + 1, y + 11);
-		DRLG_CopyTrans(x, y + 12, x + 1, y + 12);*/
-		// fix transVal at the entrance - commented out because it makes the wall transparent
-		//DRLG_CopyTrans(x + 13, y + 7, x + 12, y + 7);
-		//DRLG_CopyTrans(x + 13, y + 8, x + 12, y + 8);
 		// patch dSolidTable - L1.SOL - commented out because 299 is used elsewhere
 		//nSolidTable[299] = true;
 	} else if (pSetPieces[0]._sptype == SPT_BUTCHER) {
-		/*int x, y;
-
-		x = 2 * pSetPieces[0]._spx + DBORDERX;
-		y = 2 * pSetPieces[0]._spy + DBORDERY;
-		// fix transVal on the bottom left corner of the room
-		DRLG_CopyTrans(x, y + 9, x + 1, y + 9);
-		DRLG_CopyTrans(x, y + 10, x + 1, y + 10);
-		// set transVal in the room
-		DRLG_RectTrans(x + 3, y + 3, x + 10, y + 10);*/
 #ifdef HELLFIRE
 	} else if (pSetPieces[0]._sptype == SPT_NAKRUL) {
 		// load pre-map
@@ -2782,6 +2755,9 @@ static void DRLG_L1()
 		DRLG_DrawMap(0);
 #endif
 	}
+
+	DRLG_L1InitTransVals();
+	DRLG_Init_Globals();
 }
 
 void CreateL1Dungeon()
@@ -2861,16 +2837,14 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
-	DRLG_L1InitTransVals();
-
 	// load dungeon
 	LoadL1DungeonData(lds->dSetLvlDun);
-
 	DRLG_L1SetMapFix();
-
 	//DRLG_L1Floor();
 
+	DRLG_L1InitTransVals();
 	DRLG_Init_Globals();
+
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);

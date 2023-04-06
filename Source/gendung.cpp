@@ -61,6 +61,8 @@ LevelStruct currLvl;
 int MicroTileLen;
 /** Specifies the number of transparency blocks on the map. */
 BYTE numtrans;
+/* Specifies whether the transvals should be re-processed. */
+static bool gbDoTransVals;
 /** Specifies the active transparency indices. */
 bool TransList[256];
 /** Contains the tile IDs of each square on the map. */
@@ -780,8 +782,9 @@ void DRLG_DrawMap(int idx)
 void DRLG_InitTrans()
 {
 	memset(dTransVal, 0, sizeof(dTransVal));
-	//memset(TransList, 0, sizeof(TransList));
+	//memset(TransList, 0, sizeof(TransList)); - LoadGame() needs this preserved
 	numtrans = 1;
+	gbDoTransVals = false;
 }
 
 /*void DRLG_MRectTrans(int x1, int y1, int x2, int y2, int tv)
@@ -1283,6 +1286,36 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
 	// activate monsters
 	MonChangeMap();
+	gbDoTransVals = true;
+	if (!deltaload) {
+		DRLG_RedoTrans();
+	}
+	// RedoLightAndVision();
+}
+
+void DRLG_RedoTrans()
+{
+	if (!gbDoTransVals) {
+		return;
+	}
+	switch (currLvl._dType) {
+	case DTYPE_CATHEDRAL:
+		DRLG_L1InitTransVals();
+		break;
+	case DTYPE_CATACOMBS:
+		DRLG_L2InitTransVals();
+		break;
+	case DTYPE_CAVES:
+		DRLG_L3InitTransVals();
+		break;
+	case DTYPE_HELL:
+		DRLG_L4InitTransVals();
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	// assert(!gbDoTransVals);
 	RedoLightAndVision();
 }
 

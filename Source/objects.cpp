@@ -2471,26 +2471,17 @@ static void SyncPedestal(/*int oi*/)
 		break;
 	case QV_BLOOD_STONE2:
 		DRLG_ChangeMap(pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 9/*setpc_w*/, pSetPieces[0]._spy + 7/*, false*/);
+		if (!deltaload)
+			break;
 		/* fall-through */
 	case QV_BLOOD_STONE1:
 		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
 		break;
 	case QV_BLOOD_STONE3: {
-		// if (!deltaload)
-		//  DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
-		// else
-		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 9, pSetPieces[0]._spy + 8/*, false*/);
-		// patch transvals to prevent transparency glitch
-		int x = DBORDERX + 2 * pSetPieces[0]._spx;
-		int y = DBORDERY + 2 * pSetPieces[0]._spy;
-		BYTE tv0 = dTransVal[x + 7][y + 15];
-		BYTE tv1 = dTransVal[x + 7][y + 14];
-		for (int i = x + 4; i < x + 16; i++) {
-			for (int j = y + 15; j < y + 24; j++) {
-				if (dTransVal[i][j] == tv0)
-					dTransVal[i][j] = tv1;
-			}
-		}
+		if (!deltaload)
+			DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+		else
+			DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 9, pSetPieces[0]._spy + 8/*, false*/);
 		// load the torches
 		LoadPreLighting();
 		BYTE* setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");

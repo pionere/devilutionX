@@ -16,6 +16,7 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2);
 #ifdef HELLFIRE
 void DRLG_InitL5Specials(int x1, int y1, int x2, int y2);
 #endif
+void DRLG_L1InitTransVals();
 void LoadL1Dungeon(const LevelData* lds);
 void CreateL1Dungeon();
 

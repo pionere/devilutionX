@@ -666,6 +666,7 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 	int i, ii;
 	LSaveGameLvlMetaStruct* lms;
 
+	deltaload = true;
 	if (currLvl._dType != DTYPE_TOWN) {
 		lms = (LSaveGameLvlMetaStruct*)src;
 		nummonsters = lms->vvnummonsters;
@@ -752,6 +753,7 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		}
 	}
 
+	deltaload = false;
 	return src;
 }
 
@@ -876,6 +878,8 @@ void LoadGame()
 	InitAutomapScale();
 	//ResyncQuests();
 
+	DRLG_RedoTrans();
+	LightAndVisionDone();
 	//RedoLightAndVision();
 	//ProcessLightList();
 	//ProcessVisionList();

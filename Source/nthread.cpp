@@ -539,6 +539,7 @@ done:
 	plrmsg_delay(false);
 	InitSync();
 	// finalize the light/vision calculations
+	DRLG_RedoTrans();
 	ProcessLightList();
 	ProcessVisionList();
 	// enter the dungeon level

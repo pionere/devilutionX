@@ -60,6 +60,7 @@ inline void LoadPreLighting()
 }
 void InitVision();
 void RedoLightAndVision();
+void LightAndVisionDone();
 int AddVision(int x, int y, int r, bool mine);
 void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);

@@ -857,25 +857,25 @@ void MakeLightTable()
 				*tbl++ = blood[j];
 			}
 			*tbl++ = 1;
-			tbl += 224;
+			tbl += NUM_COLORS - 32;
 		}
 		/**tbl++ = 0;
 		for (j = 0; j < 31; j++) {
 			*tbl++ = 1;
 		}
-		tbl += 224;*/
+		tbl += NUM_COLORS - 32;*/
 #ifdef HELLFIRE
 	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
 		for (i = 0; i < MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
 				*tbl++ = j;
-			tbl += 240;
+			tbl += NUM_COLORS - 16;
 		}
 		/**tbl++ = 0;
 		for (j = 1; j < 16; j++)
 			*tbl++ = 1;
-		tbl += 240;*/
+		tbl += NUM_COLORS - 16;*/
 #endif
 	}
 }
@@ -1263,6 +1263,12 @@ void RedoLightAndVision()
 
 	gbDolighting = true;
 	_gbDovision = true;
+}
+
+void LightAndVisionDone()
+{
+	gbDolighting = false;
+	_gbDovision = false;
 }
 
 int AddVision(int x, int y, int r, bool mine)
