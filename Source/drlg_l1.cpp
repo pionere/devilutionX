@@ -1949,14 +1949,14 @@ static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 static void DRLG_L1Subs()
 {
 	int x, y;
-	BYTE i, c;
+	BYTE c, k;
 	int8_t rv;
 	const unsigned MAX_MATCH = 11;
 	const unsigned NUM_L1TYPES = 139;
 	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L1Subs.");
 	static_assert(NUM_L1TYPES <= UCHAR_MAX, "NUM_L1TYPES does not fit to i(BYTE) in DRLG_L1Subs.");
 #if DEBUG_MODE
-	for (i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
+	for (int i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
 		if (L1BTYPES[i] != 0) {
 			if (i >= NUM_L1TYPES)
 				app_fatal("Value %d is ignored in L1BTYPES at %d", L1BTYPES[i], i);
@@ -1964,7 +1964,7 @@ static void DRLG_L1Subs()
 		}
 	}
 
-	for (i = 0; i < sizeof(L1BTYPES); i++) {
+	for (int i = 0; i < sizeof(L1BTYPES); i++) {
 		c = L1BTYPES[i];
 		if (c == 0)
 			continue;
@@ -1977,22 +1977,21 @@ static void DRLG_L1Subs()
 			app_fatal("Too many(%d) matching('%d') values in L1BTYPES", x, c);
 	}
 #endif
-	for (y = 0; y < DMAXY; y++) {
-		for (x = 0; x < DMAXX; x++) {
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 4) == 0) {
 				c = L1BTYPES[dungeon[x][y]];
-
 				if (c != 0 && drlgFlags[x][y] == 0) {
 					rv = random_(0, MAX_MATCH);
-					i = 0;
+					k = 0;
 					while (TRUE) {
-						if (c == L1BTYPES[i] && --rv < 0) {
+						if (c == L1BTYPES[k] && --rv < 0) {
 							break;
 						}
-						if (++i == NUM_L1TYPES)
-							i = 0;
+						if (++k == NUM_L1TYPES)
+							k = 0;
 					}
-					dungeon[x][y] = i;
+					dungeon[x][y] = k;
 				}
 			}
 		}

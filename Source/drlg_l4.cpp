@@ -960,14 +960,14 @@ static void L4TileFix()
 static void DRLG_L4Subs()
 {
 	int x, y;
-	BYTE c, i;
+	BYTE c, k;
 	int8_t rv;
 	const unsigned MAX_MATCH = 8; // 6;
 	const unsigned NUM_L4TYPES = 84;
 	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L4Subs.");
 	static_assert(NUM_L4TYPES <= UCHAR_MAX, "NUM_L4TYPES does not fit to i(BYTE) in DRLG_L4Subs.");
 #if DEBUG_MODE
-	for (i = sizeof(L4BTYPES) - 1; i >= 0; i--) {
+	for (int i = sizeof(L4BTYPES) - 1; i >= 0; i--) {
 		if (L4BTYPES[i] != 0) {
 			if (i >= NUM_L4TYPES)
 				app_fatal("Value %d is ignored in L4BTYPES at %d", L4BTYPES[i], i);
@@ -975,7 +975,7 @@ static void DRLG_L4Subs()
 		}
 	}
 
-	for (i = 0; i < sizeof(L4BTYPES); i++) {
+	for (int i = 0; i < sizeof(L4BTYPES); i++) {
 		c = L4BTYPES[i];
 		if (c == 0)
 			continue;
@@ -992,16 +992,16 @@ static void DRLG_L4Subs()
 		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 3) == 0) {
 				c = L4BTYPES[dungeon[x][y]];
-				if (c != 0 && !drlgFlags[x][y]) {
+				if (c != 0 && drlgFlags[x][y] == 0) {
 					rv = random_(0, MAX_MATCH);
-					i = 0;
+					k = 0;
 					while (TRUE) {
-						if (c == L4BTYPES[i] && --rv < 0)
+						if (c == L4BTYPES[k] && --rv < 0)
 							break;
-						if (++i == NUM_L4TYPES)
-							i = 0;
+						if (++k == NUM_L4TYPES)
+							k = 0;
 					}
-					dungeon[x][y] = i;
+					dungeon[x][y] = k;
 				}
 			}
 		}
@@ -1852,7 +1852,7 @@ static void DRLG_L4()
 		break;
 	}
 
-	// DRLG_L4GeneralFix(); - commented out because this is no longer necessary
+	// DRLG_L4GeneralFix(); - commented out, because this is no longer necessary
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
 		DRLG_PlaceThemeRooms(7, 10, DEFAULT_MEGATILE_L4, 8, true);

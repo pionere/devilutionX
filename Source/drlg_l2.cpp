@@ -32,7 +32,7 @@ static int nRoomCnt;
 const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
 /*
- * Maps tile IDs to their corresponding undecorated tile ID.
+ * Maps tile IDs to their corresponding undecorated tile type.
  */
 const BYTE L2BTYPES[161] = {
 	// clang-format off
@@ -551,11 +551,9 @@ static void DRLG_L2Subs()
 #endif
 	for (x = 0; x < DMAXX; x++) {
 		for (y = 0; y < DMAXY; y++) {
-			if (drlgFlags[x][y])
-				continue;
 			if (random_(0, 4) == 0) {
 				c = L2BTYPES[dungeon[x][y]];
-				if (c != 0) {
+				if (c != 0 && drlgFlags[x][y] == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
 					while (TRUE) {
@@ -1450,9 +1448,8 @@ static void DRLG_L2MakeMegas()
 	}
 }
 
-static void L2TileFix()
+/*static void L2TileFix()
 {
-	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 0; j < DMAXY; j++) {
@@ -1473,8 +1470,8 @@ static void L2TileFix()
 				dungeon[i + 1][j] = 16;
 			}
 		}
-	}*/
-}
+	}
+}*/
 
 static int DL2_NumNoChar()
 {
@@ -2319,7 +2316,7 @@ static void DRLG_L2()
 
 		DRLG_L2MakeMegas();
 
-		L2TileFix();
+		// L2TileFix(); - commented out, because this is no longer necessary
 		memset(drlgFlags, 0, sizeof(drlgFlags));
 		if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
 			DRLG_L2SetRoom(0);

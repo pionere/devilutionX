@@ -1994,11 +1994,9 @@ static void DRLG_L3Subs()
 #endif
 	for (x = 0; x < DMAXX; x++) {
 		for (y = 0; y < DMAXY; y++) {
-			if (drlgFlags[x][y])
-				continue;
 			if (random_(0, 4) == 0) {
 				c = L3BTYPES[dungeon[x][y]];
-				if (c != 0) {
+				if (c != 0 && drlgFlags[x][y] == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
 					while (TRUE) {
@@ -2645,8 +2643,6 @@ void LoadL3Dungeon(const LevelData* lds)
 	MemFreeDbg(pSetPieces[0]._spData);
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	// assert(numthemes == 0);
 
 	// load dungeon
 	LoadL3DungeonData(lds->dSetLvlDun);
