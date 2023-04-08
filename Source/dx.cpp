@@ -239,13 +239,16 @@ void ToggleFullscreen()
  */
 void ClearScreenBuffer()
 {
-	lock_buf(3);
+	//lock_buf(3);
 
-	assert(back_surface != NULL);
+	//assert(back_surface != NULL);
 
-	SDL_FillRect(back_surface, NULL, 0x000000);
+	//SDL_FillRect(back_surface, NULL, 0x000000);
+	BYTE *dst = &gpBuffer[SCREENXY(0, 0)];
+	BYTE *dstEnd = &gpBuffer[SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)];
+	memset(dst, 0, (size_t)dstEnd - (size_t)dst);
 
-	unlock_buf(3);
+	//unlock_buf(3);
 }
 
 void RedBack()
