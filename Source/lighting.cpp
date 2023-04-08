@@ -445,12 +445,9 @@ const int8_t CrawlTable[2749] = {
 /** Indices of CrawlTable to select the entries at a given distance. */
 const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
-static void RotateRadius(int* x, int* y, int* dx, int* dy, int* lx, int* ly, int* bx, int* by)
+static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* lx, int* ly, int* bx, int* by)
 {
-	int swap;
-
-	*bx = 0;
-	*by = 0;
+	int swap, nx, ny;
 
 	swap = *dx;
 	*dx = 7 - *dy;
@@ -459,17 +456,19 @@ static void RotateRadius(int* x, int* y, int* dx, int* dy, int* lx, int* ly, int
 	*lx = 7 - *ly;
 	*ly = swap;
 
-	*x = *dx - *lx;
-	*y = *dy - *ly;
+	nx = *dx - *lx;
+	ny = *dy - *ly;
 
-	if (*x < 0) {
-		*x += 8;
-		*bx = 1;
+	*bx = nx < 0 ? 1 : 0;
+	if (*bx == 1) {
+		nx += 8;
 	}
-	if (*y < 0) {
-		*y += 8;
-		*by = 1;
+	*by = ny < 0 ? 1 : 0;
+	if (*by == 1) {
+		ny += 8;
 	}
+	*ox = nx;
+	*oy = ny;
 }
 
 void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
