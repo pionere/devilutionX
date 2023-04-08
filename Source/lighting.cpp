@@ -932,8 +932,8 @@ void InitLightGFX()
 #endif*/
 	LoadFileWithMem("Meta\\Dark.tbl", &darkTable[0][0]);
 	/*{
-		memset(darkTable[0], MAXDARKNESS, MAX_LIGHT_DIST);
-		for (i = 1, k = 2 * MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
+		memset(darkTable[0], MAXDARKNESS, lengthof(darkTable[0]));
+		for (i = 1, k = MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
 			for (j = 0; j <= MAX_LIGHT_DIST; j++) {
 				if (j >= k) {
 					darkTable[i][j] = MAXDARKNESS;
