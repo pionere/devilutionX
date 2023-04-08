@@ -803,7 +803,7 @@ void DRLG_InitTrans()
 	}
 }*/
 
-void DRLG_RectTrans(int x1, int y1, int x2, int y2)
+/*void DRLG_RectTrans(int x1, int y1, int x2, int y2)
 {
 	int i, j;
 
@@ -813,7 +813,7 @@ void DRLG_RectTrans(int x1, int y1, int x2, int y2)
 		}
 	}
 	numtrans++;
-}
+}*/
 
 /*void DRLG_ListTrans(int num, const BYTE* List)
 {
@@ -968,20 +968,28 @@ void DRLG_FloodTVal(const BYTE *floorTypes)
 
 void DRLG_LoadSP(int idx, BYTE bv)
 {
-	int rx1, ry1, rx2, ry2, i, j;
+	int rx1, ry1, rw, rh, i, j;
 	BYTE* sp;
 	SetPieceStruct* pSetPiece = &pSetPieces[idx];
 
 	rx1 = pSetPiece->_spx;
 	ry1 = pSetPiece->_spy;
-	rx2 = rx1 + SwapLE16(*(uint16_t*)&pSetPiece->_spData[0]);
-	ry2 = ry1 + SwapLE16(*(uint16_t*)&pSetPiece->_spData[2]);
+	rw = SwapLE16(*(uint16_t*)&pSetPiece->_spData[0]);
+	rh = SwapLE16(*(uint16_t*)&pSetPiece->_spData[2]);
 	sp = &pSetPiece->_spData[4];
-
-	for (j = ry1; j < ry2; j++) {
-		for (i = rx1; i < rx2; i++) {
+	// load tiles
+	for (j = ry1; j < ry1 + rh; j++) {
+		for (i = rx1; i < rx1 + rw; i++) {
 			dungeon[i][j] = *sp != 0 ? *sp : bv;
-			drlgFlags[i][j] = *sp != 0 ? DRLG_PROTECTED : 0; // FIXME |= DRLG_PROTECTED
+			sp += 2;
+		}
+	}
+	// load flags
+	for (j = ry1; j < ry1 + rh; j++) {
+		for (i = rx1; i < rx1 + rw; i++) {
+			static_assert((int)DRLG_PROTECTED == 1 << 6, "DRLG_LoadSP sets the protection flags with a simple bit-shift I.");
+			static_assert((int)DRLG_FROZEN == 1 << 7, "DRLG_LoadSP sets the protection flags with a simple bit-shift II.");
+			drlgFlags[i][j] |= (*sp & 3) << 6;
 			sp += 2;
 		}
 	}
@@ -989,23 +997,36 @@ void DRLG_LoadSP(int idx, BYTE bv)
 
 void DRLG_SetPC()
 {
-	int x, y, w, h, i, j, x0, x1, y0, y1;
-
 	for (int n = lengthof(pSetPieces) - 1; n >= 0; n--) {
 		if (pSetPieces[n]._spData != NULL) { // pSetPieces[n]._sptype != SPT_NONE
-			x = pSetPieces[n]._spx;
-			y = pSetPieces[n]._spy;
-			w = SwapLE16(*(uint16_t*)&pSetPieces[n]._spData[0]);
-			h = SwapLE16(*(uint16_t*)&pSetPieces[n]._spData[2]);
+			int x = pSetPieces[n]._spx;
+			int y = pSetPieces[n]._spy;
+			int w = SwapLE16(*(uint16_t*)&pSetPieces[n]._spData[0]);
+			int h = SwapLE16(*(uint16_t*)&pSetPieces[n]._spData[2]);
 
-			x0 = 2 * x + DBORDERX;
-			y0 = 2 * y + DBORDERY;
-			x1 = 2 * w + x0;
-			y1 = 2 * h + y0;
+			x = 2 * x + DBORDERX;
+			y = 2 * y + DBORDERY;
 
-			for (j = y0; j < y1; j++) {
-				for (i = x0; i < x1; i++) {
-					dFlags[i][j] |= BFLAG_POPULATED;
+			BYTE* sp = &pSetPieces[n]._spData[4];
+			sp += 2 * w * h; // skip tiles
+
+			sp++;
+			for (int j = 0; j < h; j++) {
+				for (int i = 0; i < w; i++) {
+					BYTE flags = *sp;
+					if (flags & (1 << 0)) {
+						dFlags[x + 2 * i][y + 2 * j] |= BFLAG_POPULATED;
+					}
+					if (flags & (1 << 2)) {
+						dFlags[x + 2 * i + 1][y + 2 * j] |= BFLAG_POPULATED;
+					}
+					if (flags & (1 << 4)) {
+						dFlags[x + 2 * i][y + 2 * j  + 1] |= BFLAG_POPULATED;
+					}
+					if (flags & (1 << 6)) {
+						dFlags[x + 2 * i + 1][y + 2 * j + 1] |= BFLAG_POPULATED;
+					}
+					sp += 2;
 				}
 			}
 		}

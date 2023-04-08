@@ -257,7 +257,7 @@ void LoadPWaterPalette()
 void ResyncBanner()
 {
 	if (quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
-		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 6/*, false*/);
+		DRLG_ChangeMap(pSetPieces[0]._spx + 3, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 6/*, false*/);
 		//for (i = 0; i < numobjects; i++)
 		//	SyncObjectAnim(objectactive[i]);
 	}

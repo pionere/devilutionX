@@ -553,7 +553,7 @@ static void DRLG_L2Subs()
 		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 4) == 0) {
 				c = L2BTYPES[dungeon[x][y]];
-				if (c != 0 && drlgFlags[x][y] == 0) {
+				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
 					while (TRUE) {
@@ -806,27 +806,49 @@ static void DRLG_LoadL2SP()
 	if (QuestStatus(Q_BLIND)) {
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
 		// patch the map - Blind1.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// place pieces with closed doors
-		pSetPieces[0]._spData[(2 + 4 + 3 * 11) * 2] = 150;
-		pSetPieces[0]._spData[(2 + 6 + 7 * 11) * 2] = 150;
-		// ensure the changing tiles are reserved
-		for (int y = 0; y < 11; y++) {
-			for (int x = 0; x < 11; x++) {
-				if (pSetPieces[0]._spData[(2 + x + y * 11) * 2] == 0)
-					pSetPieces[0]._spData[(2 + x + y * 11) * 2] = DEFAULT_MEGATILE_L2;
+		lm[2 + 4 + 3 * 11] = SwapLE16(150);
+		lm[2 + 6 + 7 * 11] = SwapLE16(150);
+		// protect the main structure
+		for (int y = 0; y < 7; y++) {
+			for (int x = 0; x < 7; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
+			}
+		}
+		for (int y = 4; y < 11; y++) {
+			for (int x = 4; x < 11; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
 			}
 		}
 		pSetPieces[0]._sptype = SPT_BLIND;
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
-		// ensure the inner tiles are reserved
-		pSetPieces[0]._spData[(2 + 5 + 12 * 10) * 2] = 3;
+		// patch the map - Blood1.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// protect the main structure
+		for (int y = 0; y <= 15; y++) {
+			for (int x = 2; x <= 7; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
+			}
+		}
+		for (int y = 3; y <= 8; y++) {
+			for (int x = 0; x <= 9; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
+			}
+		}
 		pSetPieces[0]._sptype = SPT_BLOOD;
 	} else if (QuestStatus(Q_BCHAMB)) {
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
-		// patch the map - Bonestr2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// - remove tile to leave space for shadow
-		pSetPieces[0]._spData[(2 + 2 + 4 * 7) * 2] = 0;
+		lm[2 + 2 + 4 * 7] = 0;
+		// protect the main structure
+		for (int y = 1; y < 6; y++) {
+			for (int x = 1; x < 6; x++) {
+				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
+			}
+		}
 		pSetPieces[0]._sptype = SPT_BCHAMB;
 	}
 }
@@ -2403,8 +2425,20 @@ static void DRLG_L2()
 		MemFreeDbg(pSetPieces[0]._spData);
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blind2.DUN");
 		// patch the map - Blind2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// replace the door with wall
-		pSetPieces[0]._spData[(2 + 4 + 3 * 11) * 2] = 25;
+		lm[2 + 4 + 3 * 11] = SwapLE16(25);
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 0; y < 6; y++) {
+			for (int x = 0; x < 6; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
+		for (int y = 4; y < 11; y++) {
+			for (int x = 4; x < 11; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_BLOOD) {
 		// load pre-map
@@ -2435,15 +2469,28 @@ static void DRLG_L2()
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 8 * 10 * 2] = 0;
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 7; y < 15; y++) {
+			for (int x = 2; x <= 6; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
 		DRLG_DrawMap(0);
 	} else if (pSetPieces[0]._sptype == SPT_BCHAMB) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr1.DUN");
 		// patch the map - Bonestr1.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// shadow of the external-left column
-		pSetPieces[0]._spData[(2 + 0 + 4 * 7) * 2] = 48;
-		pSetPieces[0]._spData[(2 + 0 + 5 * 7) * 2] = 50;
+		lm[2 + 0 + 4 * 7] = SwapLE16(48);
+		lm[2 + 0 + 5 * 7] = SwapLE16(50);
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 1; y < 6; y++) {
+			for (int x = 1; x < 6; x++) {
+				lm[2 + 7 * 7 + x + y * 7] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
 		DRLG_DrawMap(0);
 	}
 

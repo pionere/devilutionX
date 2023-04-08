@@ -1573,7 +1573,7 @@ static void DRLG_L3River()
 		do {
 			rx = random_(0, DMAXX);
 			ry = random_(0, DMAXY);
-			while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28) {
+			while (dungeon[rx][ry] < 25 || dungeon[rx][ry] > 28 || drlgFlags[rx][ry] != 0) {
 				if (++rx == DMAXX) {
 					rx = 0;
 					if (++ry == DMAXY)
@@ -1617,7 +1617,7 @@ static void DRLG_L3River()
 				py = ry + diroff_y[dir];
 				assert(px >= 0 && px < DMAXX);
 				assert(py >= 0 && py < DMAXY);
-				if (dungeon[px][py] == 7)
+				if (dungeon[px][py] == 7 && drlgFlags[rx][ry] == 0)
 					break;
 			}
 
@@ -1830,7 +1830,8 @@ static bool DRLG_L3SpawnLava(int x, int y, int dir)
 	if (i & dir)
 		return false;
 
-	if (drlgFlags[x][y] & (DRLG_L3_LAVA | DRLG_PROTECTED)) {
+	//if (drlgFlags[x][y] & (DRLG_L3_LAVA | DRLG_PROTECTED)) {
+	if (drlgFlags[x][y]) {
 		return false;
 	}
 	drlgFlags[x][y] |= DRLG_L3_LAVA;
@@ -1996,7 +1997,7 @@ static void DRLG_L3Subs()
 		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 4) == 0) {
 				c = L3BTYPES[dungeon[x][y]];
-				if (c != 0 && drlgFlags[x][y] == 0) {
+				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
 					while (TRUE) {
