@@ -458,8 +458,8 @@ const BYTE PWATERIN[] = {
 	13, 13, 13, 13, 13, 13,
 
 	 0,   0,   0,   0,   0, 0, // replace
-	 0, 202, 200, 200,  84, 0,
-	 0, 199, 203, 203,  83, 0,
+	 0,  21,  19,  19,  84, 0,
+	 0,  18,  22,  22,  83, 0,
 	 0,  85, 206,  88,  81, 0, // in vanilla tile 80 was used instead of 88
 	 0,   0, 134, 135,   0, 0,
 	 0,   0,   0,   0,   0, 0,
@@ -2241,33 +2241,33 @@ static void DRLG_L1TransFix()
 				}
 				break;*/
 			// fix transVals of corners
-			// case 22:
-			// case 20:
-			case 203:
-			case 201:
+			case 22:
+			case 20:
+			// case 203:
+			// case 201:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// case 23:
-			// case 18:
-			case 204:
+			case 23:
+			//case 204:
 				//if (dungeon[i][j - 1] != 199) {
 				//	break;
 				//}
 				/* fall-through */
-			case 199:
+			case 18:
+			//case 199:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// case 24:
-			// case 19:
-			case 205:
+			case 24:
+			//case 205:
 				//if (dungeon[i + 1][j] != 200) {
 				//	break;
 				//}
 				/* fall-through */
-			case 200:
+			case 19:
+			//case 200:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
@@ -2349,33 +2349,33 @@ static void DRLG_L5TransFix()
 				}
 				break;*/
 			// fix transVals of corners
-			// case 22:
-			// case 20:
-			case 86:
-			case 84:
+			case 22:
+			case 20:
+			//case 86:
+			//case 84:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// case 23:
-			// case 18:
-			case 87:
+			case 23:
+			//case 87:
 				//if (dungeon[i][j - 1] != 82) {
 				//	break;
 				//}
 				/* fall-through */
-			case 82:
+			case 18:
+			//case 82:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// case 24:
-			// case 19:
-			case 88:
+			case 24:
+			//case 88:
 				//if (dungeon[i + 1][j] != 83) {
 				//	break;
 				//}
 				/* fall-through */
-			case 83:
+			case 19:
+			//case 83:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
@@ -2628,10 +2628,10 @@ static void DRLG_L1()
 		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 1);
 		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 1);
 	}*/
-	DRLG_L1Corners();
-	// DRLG_L1CornerFix(); - commented out because this is no longer necessary
+	// DRLG_L1Corners(); - commented out, because this is no longer necessary
+	// DRLG_L1CornerFix(); - commented out, because this is no longer necessary
 
-	// DRLG_L1PlaceDoors(); - commented out because this is no longer necessary
+	// DRLG_L1PlaceDoors(); - commented out, because this is no longer necessary
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {

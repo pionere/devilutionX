@@ -1394,32 +1394,32 @@ static void DRLG_L4TransFix()
 				break;*/
 			// fix transVals of corners
 			// case 20:
-			// case 24:
 			// case 118:
-			case 122:
+			case 24:
+			//case 122:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// case 25:
-			// case 18:
-			case 123:
+			case 25:
+			//case 123:
 				//if (dungeon[i][j - 1] != 116) {
 				//	break;
 				//}
 				/* fall-through */
-			case 116:
+			case 18:
+			//case 116:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// case 26:
-			// case 19:
-			case 124:
+			case 26:
+			//case 124:
 				//if (dungeon[i + 1][j] != 117) {
 				//	break;
 				//}
 				/* fall-through */
-			case 117:
+			case 19:
+			//case 117:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
@@ -1892,7 +1892,7 @@ static void DRLG_L4()
 	}
 
 	DRLG_L4Shadows();
-	DRLG_L4Corners();
+	// DRLG_L4Corners(); - commented out, because this is no longer necessary
 	DRLG_PlaceRndTile(6, 95, 3);
 	DRLG_PlaceRndTile(6, 96, 4);
 	DRLG_PlaceRndTile(6, 97, 4);

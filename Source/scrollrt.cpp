@@ -1170,8 +1170,8 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 				//} else {
 				//	world_draw_black_tile(sx, sy);
 				//}
-			} else {
-				world_draw_black_tile(sx, sy);
+			//} else {
+			//	world_draw_black_tile(sx, sy);
 			}
 			SHIFT_GRID(x, y, 1, 0);
 			sx += TILE_WIDTH;
@@ -1414,6 +1414,8 @@ void CalcViewportGeometry()
 static void DrawGame()
 {
 	int x, y, sx, sy, columns, rows;
+
+	ClearScreenBuffer();
 
 	// Limit rendering to the view area
 	//if (!gbZoomInFlag)
