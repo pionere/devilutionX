@@ -273,33 +273,23 @@ static bool SpecialThemeFit(BYTE tv, int theme)
 		break;
 	case THEME_BLOODFOUNTAIN:
 		rv = TFit_Obj5(tv);
-		if (rv) {
-			_gbBFountainFlag = false;
-		}
+		_gbBFountainFlag = false;
 		break;
 	case THEME_PURIFYINGFOUNTAIN:
 		rv = TFit_Obj5(tv);
-		if (rv) {
-			_gbPFountainFlag = false;
-		}
+		_gbPFountainFlag = false;
 		break;
 	case THEME_MURKYFOUNTAIN:
 		rv = TFit_Obj5(tv);
-		if (rv) {
-			_gbMFountainFlag = false;
-		}
+		_gbMFountainFlag = false;
 		break;
 	case THEME_TEARFOUNTAIN:
 		rv = TFit_Obj5(tv);
-		if (rv) {
-			_gbTFountainFlag = false;
-		}
+		_gbTFountainFlag = false;
 		break;
 	case THEME_CAULDRON:
 		rv = TFit_Obj5(tv);
-		if (rv) {
-			_gbCauldronFlag = false;
-		}
+		_gbCauldronFlag = false;
 		break;
 	case THEME_GOATSHRINE:
 		rv = TFit_GoatShrine(tv);
