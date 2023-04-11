@@ -1624,6 +1624,7 @@ void LevelDeltaLoad()
 		mis->_miVar8 = tmis->smiVar8;
 
 		if (tmis->smiLidRadius != 0) {
+			net_assert(tmis->smiLidRadius <= MAX_LIGHT_RAD);
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, tmis->smiLidRadius);
 		} else {
 			mis->_miLid = NO_LIGHT;
