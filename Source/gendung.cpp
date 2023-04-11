@@ -903,7 +903,7 @@ void DRLG_FloodTVal(const BYTE *floorTypes)
 			} else {
 				tpm = 0;
 			}
-			tdp[2 * i * DSIZEY + 2 * j] = tpm;
+			drlg.transDirMap[2 * i + 0][2 * j + 0] = tpm;
 			// 3. subtile
 			if (tvm & (1 << 2)) {
 				tpm = (1 << 3) | (1 << 4) | (1 << 0); // DIR_NE, DIR_E, DIR_SE
@@ -914,7 +914,7 @@ void DRLG_FloodTVal(const BYTE *floorTypes)
 			} else {
 				tpm = 0;
 			}
-			tdp[2 * i * DSIZEY + 2 * j + 1] = tpm;
+			drlg.transDirMap[2 * i + 0][2 * j + 1] = tpm;
 			// 2. subtile
 			if (tvm & (1 << 1)) {
 				tpm = (1 << 6) | (1 << 5) | (1 << 1); // DIR_SW, DIR_W, DIR_NW
@@ -925,7 +925,7 @@ void DRLG_FloodTVal(const BYTE *floorTypes)
 			} else {
 				tpm = 0;
 			}
-			tdp[(2 * i + 1) * DSIZEY + 2 * j] = tpm;
+			drlg.transDirMap[2 * i + 1][2 * j + 0] = tpm;
 			// 4. subtile
 			if (tvm & (1 << 3)) {
 				tpm = (1 << 0) | (1 << 7) | (1 << 6); // DIR_SE, DIR_S, DIR_SW
@@ -936,7 +936,7 @@ void DRLG_FloodTVal(const BYTE *floorTypes)
 			} else {
 				tpm = 0;
 			}
-			tdp[(2 * i + 1) * DSIZEY + 2 * j + 1] = tpm;
+			drlg.transDirMap[2 * i + 1][2 * j + 1] = tpm;
 		}
 	}
 	// create the rooms
