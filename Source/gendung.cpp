@@ -956,13 +956,12 @@ void DRLG_FloodTVal(const BYTE *floorTypes)
 		memcpy(tvpDst, tvpSrc, DSIZEY);
 	}
 	// clear the borders
-	memset(tvp, 0, MAXDUNY * DBORDERX);
-	tvp += MAXDUNY * DBORDERX;
+	memset(tvp, 0, MAXDUNY * DBORDERX + DBORDERY);
+	tvp += MAXDUNY * DBORDERX + DBORDERY + DSIZEY;
 	while (tvp < (BYTE*)&dTransVal[0][0] + DSIZEX * DSIZEY) {
-		memset(tvp, 0, DBORDERY);
-		tvp += DBORDERY + DSIZEY;
-		memset(tvp, 0, DBORDERY);
-		tvp += DBORDERY;
+		static_assert(DBORDERX != 0, "DRLG_FloodTVal requires large enough border(x) to use merged memset.");
+		memset(tvp, 0, 2 * DBORDERY);
+		tvp += 2 * DBORDERY + DSIZEY;
 	}
 }
 
