@@ -105,31 +105,33 @@ const BYTE shrineavail[NUM_SHRINETYPE] = {
 #endif
 };
 /** Maps from book_id to book name. */
-const char StoryBookName[][28] = {
-	"The Great Conflict",
-	"The Wages of Sin are War",
-	"The Tale of the Horadrim",
-	"The Dark Exile",
-	"The Sin War",
-	"The Binding of the Three",
-	"The Realms Beyond",
-	"Tale of the Three",
-	"The Black King",
+const char* BookName[NUM_BOOKS] = {
+/*BK_STORY_MAINA_1*/  "The Great Conflict",
+/*BK_STORY_MAINA_2*/  "The Wages of Sin are War",
+/*BK_STORY_MAINA_3*/  "The Tale of the Horadrim",
+/*BK_STORY_MAINB_1*/  "The Dark Exile",
+/*BK_STORY_MAINB_2*/  "The Sin War",
+/*BK_STORY_MAINB_3*/  "The Binding of the Three",
+/*BK_STORY_MAINC_1*/  "The Realms Beyond",
+/*BK_STORY_MAINC_2*/  "Tale of the Three",
+/*BK_STORY_MAINC_3*/  "The Black King",
+/*BK_BLOOD*/          "Book of Blood",
+/*BK_ANCIENT*/        "Ancient Book",
+/*BK_STEEL*/          "Steel Tome",
+/*BK_BLIND*/          "Book of the Blind",
+/*BK_MYTHIC*/         "Mythical Book",
+/*BK_VILENESS*/       "Book of Vileness",
 #ifdef HELLFIRE
 	//"Journal: The Ensorcellment",
-	"Journal: The Meeting",
-	"Journal: The Tirade",
-	"Journal: His Power Grows",
-	"Journal: NA-KRUL",
-	"Journal: The End",
+/*BK_STORY_NAKRUL_1*/ "Journal: The Meeting",
+/*BK_STORY_NAKRUL_2*/ "Journal: The Tirade",
+/*BK_STORY_NAKRUL_3*/ "Journal: His Power Grows",
+/*BK_STORY_NAKRUL_4*/ "Journal: NA-KRUL",
+/*BK_STORY_NAKRUL_5*/ "Journal: The End",
+/*BK_NAKRUL_SPELL*/   "Spellbook",
 #endif
 };
-/** Specifies the speech IDs of each dungeon type narrator book. */
-const int StoryText[3][3] = {
-	{ TEXT_BOOK11, TEXT_BOOK12, TEXT_BOOK13 },
-	{ TEXT_BOOK21, TEXT_BOOK22, TEXT_BOOK23 },
-	{ TEXT_BOOK31, TEXT_BOOK32, TEXT_BOOK33 }
-};
+
 #if FLICKER_LIGHT
 const int flickers[32] = {
 	1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1
@@ -726,7 +728,7 @@ static void AddL5StoryBook(int bookidx, int ox, int oy)
 	// assert(os->_oAnimFrame == objectdata[OBJ_L5BOOK].oAnimBaseFrame);
 	os->_oVar4 = objectdata[OBJ_L5BOOK].oAnimBaseFrame + 1; // STORY_BOOK_READ_FRAME
 	os->_oVar2 = TEXT_BOOK4 + bookidx;                      // STORY_BOOK_MSG
-	os->_oVar3 = 9 + bookidx;                               // STORY_BOOK_NAME
+	os->_oVar5 = BK_STORY_NAKRUL_1 + bookidx;               // STORY_BOOK_NAME
 }
 
 static void AddNakrulBook(int oi)
@@ -756,6 +758,7 @@ static void AddNakrulBook(int oi)
 	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oAnimBaseFrame + 1; // STORY_BOOK_READ_FRAME
 	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;             // STORY_BOOK_MSG
 	os->_oVar3 = bookidx;                                       // STORY_BOOK_NAKRUL_IDX
+	os->_oVar5 = BK_NAKRUL_SPELL;                               // STORY_BOOK_NAME
 }
 
 static void AddLvl2xBooks(int bookidx)
@@ -1188,10 +1191,19 @@ static void ObjAddBloodBook(int oi)
 
 	os = &objects[oi];
 	os->_oRndSeed = NextRndSeed();
-	os->_oVar6 = os->_oAnimFrame + 1; // LEVER_BOOK_ANIM
-	os->_oVar7 = Q_BLOOD; // LEVER_BOOK_QUEST
+	os->_oVar5 = BK_BLOOD;                   // STORY_BOOK_NAME
+	os->_oVar6 = os->_oAnimFrame + 1;        // LEVER_BOOK_ANIM
+	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
 	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
 	leverid++;
+}
+
+static void ObjAddBook(int oi, int bookidx)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	os->_oVar5 = bookidx; // STORY_BOOK_NAME
 }
 
 static void AddArmorStand(int oi)
@@ -1241,10 +1253,10 @@ static void AddStoryBook(int oi)
 
 	os = &objects[oi];
 	// os->_oVar1 = bookframe;
-	os->_oVar2 = StoryText[bookframe][idx]; // STORY_BOOK_MSG
-	os->_oVar3 = 3 * bookframe + idx;       // STORY_BOOK_NAME
-	os->_oAnimFrame = 5 - 2 * bookframe;    //
-	os->_oVar4 = os->_oAnimFrame + 1;       // STORY_BOOK_READ_FRAME
+	os->_oVar2 = 3 * bookframe + idx + TEXT_BOOK11;      // STORY_BOOK_MSG
+	os->_oVar5 = 3 * bookframe + idx + BK_STORY_MAINA_1; // STORY_BOOK_NAME
+	os->_oAnimFrame = 5 - 2 * bookframe;                 //
+	os->_oVar4 = os->_oAnimFrame + 1;                    // STORY_BOOK_READ_FRAME
 }
 
 static void AddWeaponRack(int oi)
@@ -1400,8 +1412,8 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_URNEX:
 	case OBJ_PODEX:
 #endif
-	case OBJ_BOOKSTAND:
-	case OBJ_SKELBOOK:
+	case OBJ_BOOK2L:
+	case OBJ_BOOK2R:
 	case OBJ_PEDESTAL:
 	case OBJ_ARMORSTAND:
 	case OBJ_WEAPONRACKL:
@@ -1411,6 +1423,21 @@ int AddObject(int type, int ox, int oy)
 		break;
 	case OBJ_BLOODBOOK:
 		ObjAddBloodBook(oi);
+		break;
+	case OBJ_ANCIENTBOOK:
+		ObjAddBook(oi, BK_ANCIENT);
+		break;
+	case OBJ_STEELTOME:
+		ObjAddBook(oi, BK_STEEL);
+		break;
+	case OBJ_BLINDBOOK:
+		ObjAddBook(oi, BK_BLIND);
+		break;
+	case OBJ_MYTHICBOOK:
+		ObjAddBook(oi, BK_MYTHIC);
+		break;
+	case OBJ_VILEBOOK:
+		ObjAddBook(oi, BK_VILENESS);
 		break;
 	case OBJ_ARMORSTANDN:
 		AddArmorStand(oi);
@@ -3494,7 +3521,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, sendmsg);
 		break;
-	case OBJ_ANCIENTTOME:
+	case OBJ_ANCIENTBOOK:
 		OperateAncientTome(pnum, oi, sendmsg);
 		break;
 	case OBJ_VILEBOOK:
@@ -3543,8 +3570,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_SHRINER:
 		OperateShrine(pnum, oi, sendmsg);
 		break;
-	case OBJ_SKELBOOK:
-	case OBJ_BOOKSTAND:
+	case OBJ_BOOK2R:
+	case OBJ_BOOK2L:
 		OperateSkelBook(oi, sendmsg);
 		break;
 	case OBJ_BOOKCASEL:
@@ -3663,7 +3690,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
-	case OBJ_ANCIENTTOME:
+	case OBJ_ANCIENTBOOK:
 		OperateAncientTome(pnum, oi, false);
 		break;
 	case OBJ_VILEBOOK:
@@ -3712,8 +3739,8 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_SHRINER:
 		OperateShrine(pnum, oi, false);
 		break;
-	case OBJ_SKELBOOK:
-	case OBJ_BOOKSTAND:
+	case OBJ_BOOK2R:
+	case OBJ_BOOK2L:
 		OperateSkelBook(oi, false);
 		break;
 	case OBJ_BOOKCASEL:
@@ -4023,17 +4050,8 @@ void GetObjectStr(int oi)
 		else // if (os->_oVar4 == DOOR_BLOCKED)
 			copy_cstr(infostr, "Blocked Door");
 		break;
-	case OBJ_ANCIENTTOME:
-		copy_cstr(infostr, "Ancient Tome");
-		break;
-	case OBJ_VILEBOOK:
-		copy_cstr(infostr, "Book of Vileness");
-		break;
 	case OBJ_SWITCHSKL:
 		copy_cstr(infostr, "Skull Lever");
-		break;
-	case OBJ_MYTHICBOOK:
-		copy_cstr(infostr, "Mythical Book");
 		break;
 	case OBJ_CHEST2:
 	case OBJ_TCHEST2:
@@ -4072,9 +4090,6 @@ void GetObjectStr(int oi)
 	case OBJ_BARRELEX:
 		copy_cstr(infostr, "Barrel");
 		break;
-	case OBJ_SKELBOOK:
-		copy_cstr(infostr, "Skeleton Tome");
-		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
 		snprintf(infostr, sizeof(infostr), "%s Shrine", shrinestrs[os->_oVar1]); // SHRINE_TYPE
@@ -4083,20 +4098,15 @@ void GetObjectStr(int oi)
 	case OBJ_BOOKCASER:
 		copy_cstr(infostr, "Bookcase");
 		break;
-	case OBJ_BOOKSTAND:
-		copy_cstr(infostr, "Library Book");
+	case OBJ_BOOK2L:
+	case OBJ_BOOK2R:
+		copy_cstr(infostr, "Lectern");
 		break;
 	case OBJ_BLOODFTN:
 		copy_cstr(infostr, "Blood Fountain");
 		break;
 	case OBJ_DECAP:
 		copy_cstr(infostr, "Decapitated Body");
-		break;
-	case OBJ_BLINDBOOK:
-		copy_cstr(infostr, "Book of the Blind");
-		break;
-	case OBJ_BLOODBOOK:
-		copy_cstr(infostr, "Book of Blood");
 		break;
 	case OBJ_PEDESTAL:
 		copy_cstr(infostr, "Pedestal of Blood");
@@ -4119,20 +4129,19 @@ void GetObjectStr(int oi)
 	case OBJ_TEARFTN:
 		copy_cstr(infostr, "Fountain of Tears");
 		break;
+	case OBJ_ANCIENTBOOK:
+	case OBJ_VILEBOOK:
+	case OBJ_MYTHICBOOK:
+	case OBJ_BLOODBOOK:
+	case OBJ_BLINDBOOK:
 	case OBJ_STEELTOME:
-		copy_cstr(infostr, "Steel Tome");
-		break;
 	case OBJ_STORYBOOK:
 #ifdef HELLFIRE
 	case OBJ_L5BOOK:
-#endif
-		copy_cstr(infostr, StoryBookName[os->_oVar3]); // STORY_BOOK_NAME
-		break;
-#ifdef HELLFIRE
 	case OBJ_NAKRULBOOK:
-		copy_cstr(infostr, "A Spellbook");
-		break;
 #endif
+		SStrCopy(infostr, BookName[os->_oVar5], sizeof(infostr)); // STORY_BOOK_NAME
+		break;
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		copy_cstr(infostr, "Weapon Rack");
