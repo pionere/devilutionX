@@ -8,6 +8,9 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 int numthemes;
+static bool _gbShrineFlag;
+static bool _gbSkelRoomFlag;
+static bool _gbGoatFlag;
 static bool _gbArmorFlag;
 static bool _gbWeaponFlag;
 static bool _gbTreasureFlag;
@@ -166,16 +169,6 @@ static bool TFit_Obj5(BYTE tv)
 	return true;
 }
 
-static bool TFit_SkelRoom(BYTE tv)
-{
-	return numSkelTypes != 0 && TFit_Obj5(tv);
-}
-
-static bool TFit_GoatShrine(BYTE tv)
-{
-	return numGoatTypes != 0 && TFit_Obj5(tv);
-}
-
 static bool CheckThemeObj3(int x, int y, BYTE tv, int rndfrq)
 {
 	int i, xx, yy;
@@ -216,98 +209,97 @@ static bool TFit_Obj3(BYTE tv)
 	return false;
 }
 
-static bool CheckThemeReqs(int theme)
-{
-	switch (theme) {
-	case THEME_BARREL:
-	case THEME_MONSTPIT:
-	case THEME_TORTURE:
-	case THEME_DECAPITATED:
-	case THEME_GOATSHRINE:
-	case THEME_BRNCROSS:
-		return true;
-	case THEME_SHRINE:
-	case THEME_SKELROOM:
-	case THEME_LIBRARY:
-		return currLvl._dDunType != DTYPE_CAVES && currLvl._dDunType != DTYPE_HELL; // TODO: use dType instead
-	case THEME_BLOODFOUNTAIN:
-		return _gbBFountainFlag;
-	case THEME_PURIFYINGFOUNTAIN:
-		return _gbPFountainFlag;
-	case THEME_ARMORSTAND:
-		return currLvl._dDunType != DTYPE_CATHEDRAL; // TODO: use dType instead
-	case THEME_CAULDRON:
-		return currLvl._dDunType == DTYPE_HELL && _gbCauldronFlag; // TODO: use dType instead
-	case THEME_MURKYFOUNTAIN:
-		return _gbMFountainFlag;
-	case THEME_TEARFOUNTAIN:
-		return _gbTFountainFlag;
-	case THEME_WEAPONRACK:
-		return currLvl._dDunType != DTYPE_CATHEDRAL; // TODO: use dType instead
-	case THEME_TREASURE:
-		return _gbTreasureFlag;
-	default:
-		ASSUME_UNREACHABLE
-		return true;
-	}
-}
-
 static bool SpecialThemeFit(BYTE tv, int theme)
 {
 	bool rv;
-
-	if (!CheckThemeReqs(theme))
-		return false;
+	BYTE req;
 
 	switch (theme) {
 	case THEME_BARREL:
 	case THEME_MONSTPIT:
 		rv = true;
+		req = 0;
 		break;
 	case THEME_SHRINE:
 	case THEME_LIBRARY:
-		rv = TFit_Shrine(tv);
+		rv = _gbShrineFlag;
+		req = 1;
 		break;
 	case THEME_SKELROOM:
-		rv = TFit_SkelRoom(tv);
+		rv = _gbSkelRoomFlag;
+		req = 3;
 		break;
 	case THEME_BLOODFOUNTAIN:
-		rv = TFit_Obj5(tv);
+		rv = _gbBFountainFlag;
+		req = 3;
 		_gbBFountainFlag = false;
 		break;
 	case THEME_PURIFYINGFOUNTAIN:
-		rv = TFit_Obj5(tv);
+		rv = _gbPFountainFlag;
+		req = 3;
 		_gbPFountainFlag = false;
 		break;
 	case THEME_MURKYFOUNTAIN:
-		rv = TFit_Obj5(tv);
+		rv = _gbMFountainFlag;
+		req = 3;
 		_gbMFountainFlag = false;
 		break;
 	case THEME_TEARFOUNTAIN:
-		rv = TFit_Obj5(tv);
+		rv = _gbTFountainFlag;
+		req = 3;
 		_gbTFountainFlag = false;
 		break;
 	case THEME_CAULDRON:
-		rv = TFit_Obj5(tv);
+		rv = _gbCauldronFlag;
+		req = 3;
 		_gbCauldronFlag = false;
 		break;
 	case THEME_GOATSHRINE:
-		rv = TFit_GoatShrine(tv);
+		rv = _gbGoatFlag;
+		req = 3;
+		break;
+	case THEME_WEAPONRACK:
+		rv = _gbWeaponFlag;
+		req = 2;
+		break;
+	case THEME_ARMORSTAND:
+		rv = _gbArmorFlag;
+		req = 2;
 		break;
 	case THEME_TORTURE:
 	case THEME_DECAPITATED:
-	case THEME_ARMORSTAND:
 	case THEME_BRNCROSS:
-	case THEME_WEAPONRACK:
-		rv = TFit_Obj3(tv);
+		rv = true;
+		req = 2;
 		break;
 	case THEME_TREASURE:
-		rv = true;
+		rv = _gbTreasureFlag;
+		req = 0;
 		_gbTreasureFlag = false;
 		break;
 	default:
 		ASSUME_UNREACHABLE
+		rv = false;
+		req = 0;
 		break;
+	}
+
+	if (rv) {
+		switch (req) {
+		case 0:
+			break;
+		case 1:
+			rv = TFit_Shrine(tv);
+			break;
+		case 2:
+			rv = TFit_Obj3(tv);
+			break;
+		case 3:
+			rv = TFit_Obj5(tv);
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
 	}
 
 	return rv;
@@ -370,14 +362,18 @@ void InitThemes()
 	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
-	_gbArmorFlag = true;
+	// TODO: use dType instead
+	_gbShrineFlag = currLvl._dDunType != DTYPE_CAVES && currLvl._dDunType != DTYPE_HELL;
+	_gbSkelRoomFlag = _gbShrineFlag && numSkelTypes != 0;
+	_gbGoatFlag = numGoatTypes != 0;
+	_gbArmorFlag = currLvl._dDunType != DTYPE_CATHEDRAL;
 	_gbBFountainFlag = true;
-	_gbCauldronFlag = true;
+	_gbCauldronFlag = currLvl._dDunType == DTYPE_HELL;
 	_gbMFountainFlag = true;
 	_gbPFountainFlag = true;
 	_gbTFountainFlag = true;
 	_gbTreasureFlag = true;
-	_gbWeaponFlag = true;
+	_gbWeaponFlag = currLvl._dDunType != DTYPE_CATHEDRAL;
 
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
 		for (i = 0; i < numtrans && numthemes < MAXTHEMES; i++) {
@@ -596,8 +592,7 @@ static void Theme_SkelRoom(BYTE tv)
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	BYTE monstrnd;
 
-	// assert(numSkelTypes != 0);
-	//if (!TFit_SkelRoom(tv))
+	// assert(_gbSkelRoomFlag && numSkelTypes != 0);
 	if (!TFit_Obj5(tv))
 		return;
 
@@ -816,7 +811,8 @@ static void Theme_GoatShrine(BYTE tv)
 {
 	int i, xx, yy;
 
-	if (!TFit_GoatShrine(tv))
+	// assert(_gbGoatFlag && numGoatTypes != 0);
+	if (!TFit_Obj5(tv))
 		return;
 	AddObject(OBJ_GOATSHRINE, themex, themey);
 	for (i = 0; i < lengthof(offset_x); i++) {
