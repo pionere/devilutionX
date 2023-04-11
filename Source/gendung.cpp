@@ -1318,7 +1318,7 @@ void DRLG_RedoTrans()
 	if (!gbDoTransVals) {
 		return;
 	}
-	switch (currLvl._dType) {
+	switch (currLvl._dDunType) {
 	case DTYPE_CATHEDRAL:
 		DRLG_L1InitTransVals();
 		break;
