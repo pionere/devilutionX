@@ -671,7 +671,7 @@ void CheckCursMove()
 	// select an object
 	if (!flipflag) {
 		bv = dObject[mx + 1][my];
-		if (bv != 0) {
+		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (objects[bv]._oSelFlag & 2) {
 				pcurspos.x = mx + 1;
@@ -681,7 +681,7 @@ void CheckCursMove()
 		}
 	} else {
 		bv = dObject[mx][my + 1];
-		if (bv != 0) {
+		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 			bv = bv >= 0 ? bv - 1 : -(bv + 1);
 			if (objects[bv]._oSelFlag & 2) {
 				pcurspos.x = mx;
@@ -691,7 +691,7 @@ void CheckCursMove()
 		}
 	}
 	bv = dObject[mx][my];
-	if (bv != 0) {
+	if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
 		if (objects[bv]._oSelFlag & 1) {
 			pcurspos.x = mx;
@@ -700,7 +700,7 @@ void CheckCursMove()
 		}
 	}
 	bv = dObject[mx + 1][my + 1];
-	if (bv != 0) {
+	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
 		bv = bv >= 0 ? bv - 1 : -(bv + 1);
 		if (objects[bv]._oSelFlag & 2) {
 			pcurspos.x = mx + 1;
@@ -714,7 +714,7 @@ void CheckCursMove()
 	// select an item
 	if (!flipflag) {
 		ii = dItem[mx + 1][my];
-		if (ii > 0) {
+		if (ii > 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
 			ii--;
 			if (items[ii]._iSelFlag & 2) {
 				pcurspos.x = mx + 1;
@@ -724,7 +724,7 @@ void CheckCursMove()
 		}
 	} else {
 		ii = dItem[mx][my + 1];
-		if (ii > 0) {
+		if (ii > 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
 			ii--;
 			if (items[ii]._iSelFlag & 2) {
 				pcurspos.x = mx;
@@ -734,7 +734,7 @@ void CheckCursMove()
 		}
 	}
 	ii = dItem[mx][my];
-	if (ii > 0) {
+	if (ii > 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
 		ii--;
 		if (items[ii]._iSelFlag & 1) {
 			pcurspos.x = mx;
@@ -743,7 +743,7 @@ void CheckCursMove()
 		}
 	}
 	ii = dItem[mx + 1][my + 1];
-	if (ii > 0) {
+	if (ii > 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
 		ii--;
 		if (items[ii]._iSelFlag & 2) {
 			pcurspos.x = mx + 1;
