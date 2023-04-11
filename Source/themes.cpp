@@ -20,156 +20,139 @@ static bool _gbTFountainFlag;
 static bool _gbPFountainFlag;
 static bool _gbBFountainFlag;
 int zharlib;
-static int themex;
-static int themey;
-static int themeVar1;
 ThemeStruct themes[MAXTHEMES];
 
 /** Specifies the set of special theme IDs from which one will be selected at random. */
 static const int ThemeGood[4] = { THEME_GOATSHRINE, THEME_SHRINE, THEME_SKELROOM, THEME_LIBRARY };
 /** Specifies a 5x5 area to fit theme objects. */
 static const int trm5x[] = {
+	0, 0, 0, 0, 0,
+	-1, -1, -1, -1, -1,
+	-2, -2, -2, -2, -2,
+	1, 1, 1, 1, 1,
+	2, 2, 2, 2, 2
+};
+/** Specifies a 5x5 area to fit theme objects. */
+static const int trm5y[] = {
 	-2, -1, 0, 1, 2,
 	-2, -1, 0, 1, 2,
 	-2, -1, 0, 1, 2,
 	-2, -1, 0, 1, 2,
 	-2, -1, 0, 1, 2
 };
-/** Specifies a 5x5 area to fit theme objects. */
-static const int trm5y[] = {
-	-2, -2, -2, -2, -2,
-	-1, -1, -1, -1, -1,
-	0, 0, 0, 0, 0,
-	1, 1, 1, 1, 1,
-	2, 2, 2, 2, 2
-};
 /** Specifies a 3x3 area to fit theme objects. */
 static const int trm3x[] = {
+	0, 0, 0,
+	-1, -1, -1,
+	1, 1, 1
+};
+/** Specifies a 3x3 area to fit theme objects. */
+static const int trm3y[] = {
 	-1, 0, 1,
 	-1, 0, 1,
 	-1, 0, 1
 };
-/** Specifies a 3x3 area to fit theme objects. */
-static const int trm3y[] = {
-	-1, -1, -1,
-	0, 0, 0,
-	1, 1, 1
-};
 
-typedef struct PosDir {
-	int x;
-	int y;
-	int dir;
-} PosDir;
-
-static bool TFit_Shrine(BYTE tv)
+static int TFit_Shrine(BYTE tv)
 {
 	int xx, yy, i, numMatches;
-	PosDir matches[5];
 
-	xx = DBORDERX;
-	yy = DBORDERY;
 	numMatches = 0;
-	while (TRUE) {
-		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			if (nTrapTable[dPiece[xx][yy - 1]] != PTT_NONE
-			 // make sure the place is wide enough
-			 // - on the inside
-			 && !nSolidTable[dPiece[xx - 1][yy]]
-			 && !nSolidTable[dPiece[xx + 1][yy]]
-			 // - on the wall (to avoid doors)
-			 && nSolidTable[dPiece[xx - 1][yy - 1]]
-			 && nSolidTable[dPiece[xx + 1][yy - 1]]
-			 // make sure it is in the same room
-			 && dTransVal[xx - 1][yy] == tv
-			 && dTransVal[xx + 1][yy] == tv) {
-				// assert(dObject[xx][yy] == 0);
-				// assert(dObject[xx - 1][yy] == 0);
-				// assert(dObject[xx + 1][yy] == 0);
-				matches[numMatches] = { xx, yy, 1 };
-				if (++numMatches == lengthof(matches))
-					break;
+	for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
+		for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+				if (nTrapTable[dPiece[xx][yy - 1]] != PTT_NONE
+				 // make sure the place is wide enough
+				 // - on the inside
+				 && !nSolidTable[dPiece[xx - 1][yy]]
+				 && !nSolidTable[dPiece[xx + 1][yy]]
+				 // - on the wall (to avoid doors)
+				 && nSolidTable[dPiece[xx - 1][yy - 1]]
+				 && nSolidTable[dPiece[xx + 1][yy - 1]]
+				 // make sure it is in the same room
+				 && dTransVal[xx - 1][yy] == tv
+				 && dTransVal[xx + 1][yy] == tv) {
+					// assert(dObject[xx][yy] == 0);
+					// assert(dObject[xx - 1][yy] == 0);
+					// assert(dObject[xx + 1][yy] == 0);
+					drlg.thLocs[numMatches].tpdx = xx;
+					drlg.thLocs[numMatches].tpdy = yy;
+					drlg.thLocs[numMatches].tpdvar1 = 1;
+					drlg.thLocs[numMatches].tpdvar2 = 0;
+					numMatches++;
+					// if (numMatches == lengthof(drlg.thLocs))
+					//	goto done;
+				}
+				if (nTrapTable[dPiece[xx - 1][yy]] != PTT_NONE
+				 // make sure the place is wide enough
+				 // - on the inside
+				 && !nSolidTable[dPiece[xx][yy - 1]]
+				 && !nSolidTable[dPiece[xx][yy + 1]]
+				 // - on the wall (to avoid doors)
+				 && nSolidTable[dPiece[xx - 1][yy - 1]]
+				 && nSolidTable[dPiece[xx - 1][yy + 1]]
+				 // make sure it is in the same room
+				 && dTransVal[xx][yy - 1] == tv
+				 && dTransVal[xx][yy + 1] == tv) {
+					// assert(dObject[xx][yy] == 0);
+					// assert(dObject[xx][yy - 1] == 0);
+					// assert(dObject[xx][yy + 1] == 0);
+					drlg.thLocs[numMatches].tpdx = xx;
+					drlg.thLocs[numMatches].tpdy = yy;
+					drlg.thLocs[numMatches].tpdvar1 = 0;
+					drlg.thLocs[numMatches].tpdvar2 = 0;
+					numMatches++;
+					// if (numMatches == lengthof(drlg.thLocs))
+					//	goto done;
+				}
 			}
-			if (nTrapTable[dPiece[xx - 1][yy]] != PTT_NONE
-			 // make sure the place is wide enough
-			 // - on the inside
-			 && !nSolidTable[dPiece[xx][yy - 1]]
-			 && !nSolidTable[dPiece[xx][yy + 1]]
-			 // - on the wall (to avoid doors)
-			 && nSolidTable[dPiece[xx - 1][yy - 1]]
-			 && nSolidTable[dPiece[xx - 1][yy + 1]]
-			 // make sure it is in the same room
-			 && dTransVal[xx][yy - 1] == tv
-			 && dTransVal[xx][yy + 1] == tv) {
-				// assert(dObject[xx][yy] == 0);
-				// assert(dObject[xx][yy - 1] == 0);
-				// assert(dObject[xx][yy + 1] == 0);
-				matches[numMatches] = { xx, yy, 2 };
-				if (++numMatches == lengthof(matches))
-					break;
-			}
-		}
-		if (++xx == DBORDERX + DSIZEX) {
-			xx = DBORDERX;
-			if (++yy == DBORDERY + DSIZEY)
-				break;
 		}
 	}
+// done:
 	if (numMatches == 0)
-		return false;
-
-	i = random_low(0, numMatches);
-
-	themex = matches[i].x;
-	themey = matches[i].y;
-	themeVar1 = matches[i].dir;
-	return true;
+		return -1;
+	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
+	return random_low(0, numMatches);
 }
 
-static bool TFit_Obj5(BYTE tv)
+static int TFit_Obj5(BYTE tv)
 {
 	int xx, yy, i, numMatches;
-	POS32 matches[5];
 
-	xx = DBORDERX;
-	yy = DBORDERY;
 	numMatches = 0;
-	while (TRUE) {
-		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
-			for (i = 0; i < lengthof(trm5x); i++) {
-				if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
-					break;
+	for (xx = DBORDERX + 2; xx < DBORDERX + DSIZEX - 2; xx++) {
+		for (yy = DBORDERY + 2; yy < DBORDERY + DSIZEY - 2; yy++) {
+			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+				static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
+				for (i = 0; i < lengthof(trm5x); i++) {
+					if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
+						break;
+					}
+					if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
+						break;
+					}
 				}
-				if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
-					break;
+				if (i == lengthof(trm5x)) {
+					drlg.thLocs[numMatches].tpdx = xx;
+					drlg.thLocs[numMatches].tpdy = yy;
+					drlg.thLocs[numMatches].tpdvar1 = 0;
+					drlg.thLocs[numMatches].tpdvar2 = 0;
+					numMatches++;
+					// if (numMatches == lengthof(drlg.thLocs))
+					//	goto done;
 				}
 			}
-			if (i == lengthof(trm5x)) {
-				matches[numMatches] = { xx, yy };
-				if (++numMatches == lengthof(matches))
-					break;
-			}
-		}
-
-		if (++xx == DBORDERX + DSIZEX) {
-			xx = DBORDERX;
-			if (++yy == DBORDERY + DSIZEY)
-				break;
 		}
 	}
-
+// done:
 	if (numMatches == 0)
-		return false;
+		return -1;
 
-	i = random_low(0, numMatches);
-
-	themex = matches[i].x;
-	themey = matches[i].y;
-	return true;
+	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
+	return random_low(0, numMatches);
 }
 
-static bool CheckThemeObj3(int x, int y, BYTE tv, int rndfrq)
+static bool CheckThemeObj3(int x, int y, BYTE tv)
 {
 	int i, xx, yy;
 
@@ -179,34 +162,38 @@ static bool CheckThemeObj3(int x, int y, BYTE tv, int rndfrq)
 		yy = y + trm3y[i];
 		//if (xx < 0 || yy < 0)
 		//	return false;
-		if ((nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) != 0)
-			return false;
 		if (dTransVal[xx][yy] != tv)
 			return false;
-		if (rndfrq != -1 && random_low(0, rndfrq) == 0)
+		if ((nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) != 0)
 			return false;
 	}
 
 	return true;
 }
 
-static bool TFit_Obj3(BYTE tv)
+static int TFit_Obj3(BYTE tv)
 {
-	int xx, yy;
-	const BYTE objrnds[4] = { 4, 4, 3, 5 };
-	const BYTE objrnd = objrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	int xx, yy, i, numMatches;
 
-	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
-		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (CheckThemeObj3(xx, yy, tv, objrnd)) {
-				themex = xx;
-				themey = yy;
-				return true;
+	numMatches = 0;
+	for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
+		for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+			if (CheckThemeObj3(xx, yy, tv)) {
+				drlg.thLocs[numMatches].tpdx = xx;
+				drlg.thLocs[numMatches].tpdy = yy;
+				drlg.thLocs[numMatches].tpdvar1 = 0;
+				drlg.thLocs[numMatches].tpdvar2 = 0;
+				numMatches++;
+				// if (numMatches == lengthof(drlg.thLocs))
+				//	goto done;
 			}
 		}
 	}
-
-	return false;
+// done:
+	if (numMatches == 0)
+		return -1;
+	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
+	return random_low(0, numMatches);
 }
 
 static bool SpecialThemeFit(int themeId, int themeType)
@@ -214,6 +201,7 @@ static bool SpecialThemeFit(int themeId, int themeType)
 	bool rv;
 	BYTE req;
 	BYTE tv = themes[themeId]._tsTransVal;
+	int loc;
 
 	switch (themeType) {
 	case THEME_BARREL:
@@ -284,32 +272,34 @@ static bool SpecialThemeFit(int themeId, int themeType)
 		req = 0;
 		break;
 	}
-
+	loc = -1;
 	if (rv) {
 		switch (req) {
 		case 0:
+			loc = 0;
 			break;
 		case 1:
-			rv = TFit_Shrine(tv);
+			loc = TFit_Shrine(tv);
 			break;
 		case 2:
-			rv = TFit_Obj3(tv);
+			loc = TFit_Obj3(tv);
 			break;
 		case 3:
-			rv = TFit_Obj5(tv);
+			loc = TFit_Obj5(tv);
 			break;
 		default:
 			ASSUME_UNREACHABLE
 		}
 	}
-	if (rv) {
-		themes[themeId]._tsType = themeType;
-		themes[themeId]._tsObjX = themex;
-		themes[themeId]._tsObjY = themey;
-		themes[themeId]._tsObjVar1 = themeVar1;
+	if (loc < 0) {
+		return false;
 	}
-
-	return rv;
+	themes[themeId]._tsType = themeType;
+	themes[themeId]._tsObjX = drlg.thLocs[loc].tpdx;
+	themes[themeId]._tsObjY = drlg.thLocs[loc].tpdy;
+	themes[themeId]._tsObjVar1 = drlg.thLocs[loc].tpdvar1;
+	// themes[themeId]._tsObjVar2 = drlg.thLocs[loc].tpdvar2;
+	return true;
 }
 
 static bool CheckThemeRoom(BYTE tv)
@@ -457,12 +447,8 @@ static void Place_Obj3(BYTE tv, int type, int rndfrq)
 	// assert(rndfrq > 0);
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (CheckThemeObj3(xx, yy, tv, -1)) {
-					if (random_low(0, rndfrq) == 0) {
-						AddObject(type, xx, yy);
-					}
-				}
+			if (CheckThemeObj3(xx, yy, tv) && random_low(0, rndfrq) == 0) {
+				AddObject(type, xx, yy);
 			}
 		}
 	}
@@ -538,7 +524,7 @@ static void Theme_Shrine(int themeId, BYTE tv)
 
 	xx = themes[themeId]._tsObjX;
 	yy = themes[themeId]._tsObjY;
-	if (themes[themeId]._tsObjVar1 == 1) {
+	if (themes[themeId]._tsObjVar1 != 0) {
 		AddObject(OBJ_CANDLE2, xx - 1, yy);
 		AddObject(OBJ_SHRINER, xx, yy);
 		AddObject(OBJ_CANDLE2, xx + 1, yy);
@@ -696,7 +682,7 @@ static void Theme_Library(int themeId, BYTE tv)
 
 	xx = themes[themeId]._tsObjX;
 	yy = themes[themeId]._tsObjY;
-	if (themes[themeId]._tsObjVar1 == 1) {
+	if (themes[themeId]._tsObjVar1 != 0) {
 		AddObject(OBJ_BOOKCANDLE, xx - 1, yy);
 		AddObject(OBJ_BOOKCASER, xx, yy);
 		AddObject(OBJ_BOOKCANDLE, xx + 1, yy);
@@ -710,7 +696,7 @@ static void Theme_Library(int themeId, BYTE tv)
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
 		for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-			if (CheckThemeObj3(xx, yy, tv, -1) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
+			if (CheckThemeObj3(xx, yy, tv) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
 				oi = AddObject(OBJ_BOOKSTAND, xx, yy);
 				if (random_low(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
 					objects[oi]._oSelFlag = 0;
