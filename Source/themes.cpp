@@ -729,15 +729,17 @@ static void Theme_Library(int themeId, BYTE tv)
 /**
  * Theme_Torture initializes the torture theme.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param themeId: theme id.
+ * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Torture(BYTE tv)
+static void Theme_Torture(int themeId, BYTE tv)
 {
 	const BYTE tortrnds[4] = { 6 * 2, 8 * 2, 3 * 2, 8 * 2 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
+	AddObject(random_(46, 2) ? OBJ_TNUDEW : OBJ_TNUDEM, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	Place_Obj3(tv, OBJ_TNUDEM, tortrnd);
 	Place_Obj3(tv, OBJ_TNUDEW, tortrnd);
 	PlaceThemeMonsts(tv, monstrnd);
@@ -760,15 +762,17 @@ static void Theme_BloodFountain(int themeId, BYTE tv)
 /**
  * Theme_Decap initializes the decapitated theme.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param themeId: theme id.
+ * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Decap(BYTE tv)
+static void Theme_Decap(int themeId, BYTE tv)
 {
 	const BYTE decaprnds[4] = { 6, 8, 3, 8 };
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE decaprnd = decaprnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
+	AddObject(OBJ_DECAP, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	Place_Obj3(tv, OBJ_DECAP, decaprnd);
 	PlaceThemeMonsts(tv, monstrnd);
 }
@@ -800,10 +804,8 @@ static void Theme_ArmorStand(int themeId, BYTE tv)
 	const BYTE armorrnd = armorrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
-	if (_gbArmorFlag) {
-		_gbArmorFlag = false;
-		AddObject(OBJ_ARMORSTAND, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	}
+	AddObject(_gbArmorFlag ? OBJ_ARMORSTAND : OBJ_ARMORSTANDN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
+	_gbArmorFlag = false;
 	Place_Obj3(tv, OBJ_ARMORSTANDN, armorrnd);
 	PlaceThemeMonsts(tv, monstrnd);
 }
@@ -874,15 +876,17 @@ static void Theme_TearFountain(int themeId, BYTE tv)
 /**
  * Theme_BrnCross initializes the burning cross theme.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param themeId: theme id.
+ * @param tv: room id in the dungeon matrix.
  */
-static void Theme_BrnCross(BYTE tv)
+static void Theme_BrnCross(int themeId, BYTE tv)
 {
 	const BYTE monstrnds[4] = { 6, 8, 3, 9 };
 	const BYTE bcrossrnds[4] = { 5, 7, 3, 8 };
 	const BYTE bcrossrnd = bcrossrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const BYTE monstrnd = monstrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 
+	AddObject(OBJ_TBCROSS, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	Place_Obj3(tv, OBJ_TBCROSS, bcrossrnd);
 	PlaceThemeMonsts(tv, monstrnd);
 }
@@ -903,12 +907,10 @@ static void Theme_WeaponRack(int themeId, BYTE tv)
 
 	static_assert(OBJ_WEAPONRACKL + 2 == OBJ_WEAPONRACKR, "Theme_WeaponRack depends on the order of WEAPONRACKL/R");
 	type = OBJ_WEAPONRACKL + 2 * random_(0, 2);
-	if (_gbWeaponFlag) {
-		_gbWeaponFlag = false;
-		AddObject(type, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	}
 	static_assert(OBJ_WEAPONRACKL + 1 == OBJ_WEAPONRACKLN, "Theme_WeaponRack depends on the order of WEAPONRACKL(N)");
 	static_assert(OBJ_WEAPONRACKR + 1 == OBJ_WEAPONRACKRN, "Theme_WeaponRack depends on the order of WEAPONRACKR(N)");
+	AddObject(type + (_gbWeaponFlag ? 0 : 1), themes[themeId]._tsObjX, themes[themeId]._tsObjY);
+	_gbWeaponFlag = false;
 	type += 1;
 	Place_Obj3(tv, type, weaponrnd);
 	PlaceThemeMonsts(tv, monstrnd);
@@ -960,13 +962,13 @@ void CreateThemeRooms()
 			Theme_Library(i, tv);
 			break;
 		case THEME_TORTURE:
-			Theme_Torture(tv);
+			Theme_Torture(i, tv);
 			break;
 		case THEME_BLOODFOUNTAIN:
 			Theme_BloodFountain(i, tv);
 			break;
 		case THEME_DECAPITATED:
-			Theme_Decap(tv);
+			Theme_Decap(i, tv);
 			break;
 		case THEME_PURIFYINGFOUNTAIN:
 			Theme_PurifyingFountain(i, tv);
@@ -987,7 +989,7 @@ void CreateThemeRooms()
 			Theme_TearFountain(i, tv);
 			break;
 		case THEME_BRNCROSS:
-			Theme_BrnCross(tv);
+			Theme_BrnCross(i, tv);
 			break;
 		case THEME_WEAPONRACK:
 			Theme_WeaponRack(i, tv);
