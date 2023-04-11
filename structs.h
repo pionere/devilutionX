@@ -2226,10 +2226,14 @@ typedef struct DrlgMem {
 typedef struct ThemeStruct {
 	int _tsx;
 	int _tsy;
-	BYTE _tsType;
-	BYTE _tsTransVal;
 	int _tsWidth;
 	int _tsHeight;
+	BYTE _tsType;
+	BYTE _tsTransVal;
+	BYTE _tsObjVar1;
+	BYTE _tsObjVar2; // unused
+	int _tsObjX;
+	int _tsObjY;
 } ThemeStruct;
 
 //#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
