@@ -2049,6 +2049,7 @@ typedef struct LevelData {
 	BYTE dSetLvlDunX;
 	BYTE dSetLvlDunY;
 	BYTE dSetLvlWarp; // dungeon_warp_type
+	BYTE dSetLvlPiece; // _setpiece_type
 	BYTE dMonTypes[32];
 	ALIGNMENT32(7)
 } LevelData;

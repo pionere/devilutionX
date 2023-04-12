@@ -936,7 +936,7 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 				dSpecial[i][j] = pn;
 			}
 		}
-	} else 
+	} else
 #endif
 	{
 		// add special arches
@@ -2241,9 +2241,9 @@ static void DRLG_L1TransFix()
 				break;*/
 			// fix transVals of corners
 			case 22:
+			//case 203:
 			case 20:
-			// case 203:
-			// case 201:
+			//case 201:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
@@ -2349,8 +2349,8 @@ static void DRLG_L5TransFix()
 				break;*/
 			// fix transVals of corners
 			case 22:
-			case 20:
 			//case 86:
+			case 20:
 			//case 84:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
@@ -2786,19 +2786,6 @@ static void DRLG_L1SetMapFix()
 	}
 }
 
-static void LoadL1DungeonData(const char* sFileName)
-{
-	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
-
-	pSetPieces[0]._spx = 0;
-	pSetPieces[0]._spy = 0;
-	pSetPieces[0]._spData = LoadFileInMem(sFileName);
-
-	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
-}
-
 void LoadL1Dungeon(const LevelData* lds)
 {
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
@@ -2806,7 +2793,16 @@ void LoadL1Dungeon(const LevelData* lds)
 	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
 	// load pre-dungeon
-	LoadL1DungeonData(lds->dSetLvlPreDun);
+	pSetPieces[0]._spx = 0;
+	pSetPieces[0]._spy = 0;
+	pSetPieces[0]._sptype = lds->dSetLvlPiece;
+	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlPreDun);
+
+	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
+	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
+
+	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
 
 	MemFreeDbg(pSetPieces[0]._spData);
 
@@ -2815,7 +2811,9 @@ void LoadL1Dungeon(const LevelData* lds)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	LoadL1DungeonData(lds->dSetLvlDun);
+	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+
+	DRLG_DrawMap(0);
 	//DRLG_L1SetMapFix();
 	//DRLG_L1Floor();
 
@@ -2827,8 +2825,6 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
 	SetMapObjects(pSetPieces[0]._spData);
-
-	MemFreeDbg(pSetPieces[0]._spData);
 }
 
 DEVILUTION_END_NAMESPACE

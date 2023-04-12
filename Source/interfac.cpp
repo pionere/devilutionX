@@ -253,7 +253,6 @@ void LoadGameLevel(int lvldir)
 			IncProgress();
 			InitItems();
 		}
-		FreeSetPieces();
 	} else {
 		LoadSetMap();
 		IncProgress();
@@ -265,6 +264,7 @@ void LoadGameLevel(int lvldir)
 
 		InitItems();
 	}
+	FreeSetPieces();
 	IncProgress();
 	InitMissiles();
 	SavePreLighting();
