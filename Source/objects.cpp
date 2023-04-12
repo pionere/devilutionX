@@ -105,7 +105,7 @@ const BYTE shrineavail[NUM_SHRINETYPE] = {
 #endif
 };
 /** Maps from book_id to book name. */
-const char* BookName[NUM_BOOKS] = {
+const char* const BookName[NUM_BOOKS] = {
 /*BK_STORY_MAINA_1*/  "The Great Conflict",
 /*BK_STORY_MAINA_2*/  "The Wages of Sin are War",
 /*BK_STORY_MAINA_3*/  "The Tale of the Horadrim",
@@ -383,6 +383,7 @@ static void InitRndBarrels(int otype)
 	int t; // number of tries of placing next barrel in current group
 	int c; // number of barrels in current group
 
+	// assert(otype == OBJ_BARREL || otype == OBJ_URN || otype == OBJ_POD);
 	static_assert((int)OBJ_BARREL + 1 == (int)OBJ_BARRELEX, "InitRndBarrels expects ordered BARREL enum I.");
 #ifdef HELLFIRE
 	static_assert((int)OBJ_URN + 1 == (int)OBJ_URNEX, "InitRndBarrels expects ordered BARREL enum II.");
@@ -763,18 +764,14 @@ static void AddNakrulBook(int oi)
 
 static void AddLvl2xBooks(int bookidx)
 {
-	POS32 pos = RndLoc7x5();
+	POS32 pos = RndLoc5x5();
 
 	if (pos.x == 0)
 		return;
 
 	AddL5StoryBook(bookidx, pos.x, pos.y);
-	AddObject(OBJ_L5CANDLE, pos.x - 2, pos.y + 1);
-	AddObject(OBJ_L5CANDLE, pos.x - 2, pos.y);
 	AddObject(OBJ_L5CANDLE, pos.x - 1, pos.y - 1);
-	AddObject(OBJ_L5CANDLE, pos.x + 1, pos.y - 1);
-	AddObject(OBJ_L5CANDLE, pos.x + 2, pos.y);
-	AddObject(OBJ_L5CANDLE, pos.x + 2, pos.y + 1);
+	AddObject(OBJ_L5CANDLE, pos.x - 1, pos.y + 1);
 }
 
 static int ProgressUberLever(int bookidx, int status)
