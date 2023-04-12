@@ -240,13 +240,15 @@ void LoadGameLevel(int lvldir)
 		IncProgress();
 
 		if (currLvl._dType != DTYPE_TOWN) {
-			HoldThemeRooms();
-			InitMonsters();
-			IncProgress();
-			if (IsMultiGame || lvldir == ENTRY_LOAD || !IsLvlVisited(currLvl._dLevelIdx)) {
+			if (IsMultiGame /*|| lvldir == ENTRY_LOAD */|| !IsLvlVisited(currLvl._dLevelIdx)) {
+				HoldThemeRooms();
+				InitMonsters();
+				IncProgress();
 				InitObjects();
 				InitItems();
 				CreateThemeRooms();
+			} else {
+				IncProgress();
 			}
 		} else {
 			InitTowners();
