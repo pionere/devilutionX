@@ -167,7 +167,7 @@ const BYTE L3FTYPES[157] = {
 	12,  8, 14, 13, 11,  3,  3,  5,  5,  7, // 10..
 	 3, 13, 10,  2,  0,  5,  3, 12,  8,  7, // 20..
 	11,  5, 12,  0,  1,  0,  0,  8,  0,  0, // 30..
-	 0,  0,  0,  0,  0,  0, 10, 10, 12, 12, // 40..
+	 0,  0,  0,  0,  3,  5, 10, 10, 12, 12, // 40..
 	 0,  0, 15, 15, 15, 15, 15, 15, 15, 15, // 50..
 	15, 15, 15, 15, 15, 15, 15, 15, 10, 12, // 60..
 	12, 12, 12, 10,  8, 10, 15, 15, 15,  8, // 70..
@@ -2560,13 +2560,13 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L3TITE9, 25);
 		DRLG_L3PlaceRndSet(L3TITE10, 33);
 		DRLG_L3PlaceRndSet(L3TITE11, 50);
-		DRLG_L3PlaceRndSet(L3CREV1, 30); // protected 1,4,7
-		DRLG_L3PlaceRndSet(L3CREV2, 30); // protected 2,5
-		DRLG_L3PlaceRndSet(L3CREV3, 30); // protected 3,6
-		DRLG_L3PlaceRndSet(L3CREV4, 30); // protected
-		DRLG_L3PlaceRndSet(L3CREV5, 30); // protected
-		DRLG_L3PlaceRndSet(L3CREV6, 30); // protected
-		DRLG_L3PlaceRndSet(L3CREV7, 30); // protected against similar features
+		DRLG_L3PlaceRndSet(L3CREV1, 30);
+		DRLG_L3PlaceRndSet(L3CREV2, 30);
+		DRLG_L3PlaceRndSet(L3CREV3, 30);
+		DRLG_L3PlaceRndSet(L3CREV4, 30);
+		DRLG_L3PlaceRndSet(L3CREV5, 30);
+		DRLG_L3PlaceRndSet(L3CREV6, 30);
+		DRLG_L3PlaceRndSet(L3CREV7, 30);
 		DRLG_L3PlaceRndSet(L3CREV8, 30);
 		DRLG_L3PlaceRndSet(L3CREV9, 30);
 		DRLG_L3PlaceRndSet(L3CREV10, 30);
