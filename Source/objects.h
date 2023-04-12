@@ -22,7 +22,7 @@ void InitLevelObjects();
 void InitObjectGFX();
 void FreeObjectGFX();
 void InitObjects();
-void SetMapObjects(BYTE* pMap);
+void SetMapObjects();
 void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v);
 int AddObject(int type, int ox, int oy);
 void ProcessObjects();

@@ -2821,8 +2821,8 @@ void LoadL1Dungeon(const LevelData* lds)
 	DRLG_Init_Globals();
 	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
-	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
-	SetMapObjects(pSetPieces[0]._spData);
+	SetMapMonsters(0);
+	SetMapObjects();
 }
 
 DEVILUTION_END_NAMESPACE

@@ -2652,8 +2652,8 @@ void LoadL3Dungeon(const LevelData* lds)
 	DRLG_Init_Globals();
 	DRLG_L3LightTiles();
 
-	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
-	SetMapObjects(pSetPieces[0]._spData);
+	SetMapMonsters(0);
+	SetMapObjects();
 }
 
 DEVILUTION_END_NAMESPACE

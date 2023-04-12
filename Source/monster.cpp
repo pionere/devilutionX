@@ -996,7 +996,7 @@ static void PlaceSetMapMonsters()
 {
 	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
 		if (pSetPieces[i]._spData != NULL) { // pSetPieces[i]._sptype != SPT_NONE
-			SetMapMonsters(pSetPieces[i]._spData, pSetPieces[i]._spx, pSetPieces[i]._spy);
+			SetMapMonsters(i);
 		}
 	}
 }
@@ -1083,8 +1083,11 @@ void InitMonsters()
 	// }
 }
 
-void SetMapMonsters(BYTE* pMap, int startx, int starty)
+void SetMapMonsters(int idx)
 {
+	int startx = DBORDERX + pSetPieces[idx]._spx * 2;
+	int starty = DBORDERY + pSetPieces[idx]._spy * 2;
+	const BYTE* pMap = pSetPieces[idx]._spData;
 	uint16_t rw, rh, *lm, mtype;
 	int i, j;
 	int mtidx, mnum;
@@ -1100,10 +1103,6 @@ void SetMapMonsters(BYTE* pMap, int startx, int starty)
 	rh <<= 1;
 	lm += rw * rh; // skip items?
 
-	startx *= 2;
-	startx += DBORDERX;
-	starty *= 2;
-	starty += DBORDERY;
 	rw += startx;
 	rh += starty;
 	for (j = starty; j < rh; j++) {

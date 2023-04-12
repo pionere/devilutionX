@@ -616,9 +616,11 @@ static void AddChestTraps()
 	}
 }
 
-static void LoadMapSetObjects(const BYTE* map, int startx, int starty)
+static void LoadMapSetObjects(int idx)
 {
-	const BYTE* pMap = map;
+	int startx = DBORDERX + pSetPieces[idx]._spx * 2;
+	int starty = DBORDERY + pSetPieces[idx]._spy * 2;
+	const BYTE* pMap = pSetPieces[idx]._spData;
 	int i, j;
 	uint16_t rw, rh, *lm, oidx;
 
@@ -633,8 +635,6 @@ static void LoadMapSetObjects(const BYTE* map, int startx, int starty)
 	rh <<= 1;
 	lm += 2 * rw * rh; // skip items?, monsters
 
-	startx += DBORDERX;
-	starty += DBORDERY;
 	rw += startx;
 	rh += starty;
 	for (j = starty; j < rh; j++) {
@@ -651,11 +651,6 @@ static void LoadMapSetObjects(const BYTE* map, int startx, int starty)
 		}
 	}
 	//gbInitObjFlag = false; -- setpieces, setmap levers?
-}
-
-static void LoadMapSetObjs(const BYTE* map)
-{
-	LoadMapSetObjects(map, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy);
 }
 
 static void SetupObject(int oi, int type)
@@ -709,11 +704,8 @@ static int ObjIndex(int x, int y)
 
 static void AddDiabObjs()
 {
-	LoadMapSetObjects(pSetPieces[0]._spData, 2 * pSetPieces[0]._spx, 2 * pSetPieces[0]._spy);
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[0]._spx + 5, DBORDERY + 2 * pSetPieces[0]._spy + 5), pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1);
-	LoadMapSetObjects(pSetPieces[1]._spData, 2 * pSetPieces[1]._spx, 2 * pSetPieces[1]._spy);
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[1]._spx + 13, DBORDERY + 2 * pSetPieces[1]._spy + 10), pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2);
-	LoadMapSetObjects(pSetPieces[2]._spData, 2 * pSetPieces[2]._spx, 2 * pSetPieces[2]._spy);
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 2), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 14), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
 }
@@ -866,16 +858,12 @@ void InitObjects()
 		AddCandles();
 	if (QuestStatus(Q_MUSHROOM))
 		InitRndLocObj5x5(OBJ_MUSHPATCH);
-	if (pSetPieces[0]._sptype == SPT_BUTCHER) // QuestStatus(Q_BUTCHER)
-		LoadMapSetObjs(pSetPieces[0]._spData);
-	if (pSetPieces[0]._sptype == SPT_BANNER) // QuestStatus(Q_BANNER)
-		LoadMapSetObjs(pSetPieces[0]._spData);
-	if (pSetPieces[0]._sptype == SPT_BLOOD) // QuestStatus(Q_BLOOD)
-		LoadMapSetObjs(pSetPieces[0]._spData);
-	if (pSetPieces[0]._sptype == SPT_BETRAYER) // QuestStatus(Q_BLOOD)
-		LoadMapSetObjs(pSetPieces[0]._spData);
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._spData != NULL) { // pSetPieces[i]._sptype != SPT_NONE
+			LoadMapSetObjects(i);
+		}
+	}
 	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-		LoadMapSetObjs(pSetPieces[0]._spData);
 		AddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
 	}
 	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
@@ -884,10 +872,6 @@ void InitObjects()
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
 		AddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
 	}
-#ifdef HELLFIRE
-	if (pSetPieces[0]._sptype == SPT_NAKRUL) // QuestStatus(Q_NAKRUL)
-		LoadMapSetObjs(pSetPieces[0]._spData);
-#endif
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL4:
 		AddStoryBook();
@@ -974,7 +958,7 @@ void InitObjects()
 	//gbInitObjFlag = false;
 }
 
-void SetMapObjects(BYTE* pMap)
+void SetMapObjects()
 {
 	int i;
 	//gbInitObjFlag = true;
@@ -986,7 +970,7 @@ void SetMapObjects(BYTE* pMap)
 
 	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
-	LoadMapSetObjects(pMap, 0, 0);
+	LoadMapSetObjects(0);
 	//gbInitObjFlag = false; -- setmap levers?
 }
 
@@ -2508,9 +2492,9 @@ static void SyncPedestal(/*int oi*/)
 			DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 9, pSetPieces[0]._spy + 8/*, false*/);
 		// load the torches
 		LoadPreLighting();
-		BYTE* setp = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
-		LoadMapSetObjs(setp);
-		mem_free_dbg(setp);
+		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
+		LoadMapSetObjects(0);
+		MemFreeDbg(pSetPieces[0]._spData);
 		SavePreLighting();
 		//RedoLightAndVision();
 	} break;
