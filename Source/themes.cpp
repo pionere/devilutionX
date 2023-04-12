@@ -55,7 +55,7 @@ static const int trm3y[] = {
 
 static int TFit_Shrine(BYTE tv)
 {
-	int xx, yy, i, numMatches;
+	int xx, yy, numMatches;
 
 	numMatches = 0;
 	for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
@@ -373,7 +373,7 @@ void InitThemes()
 	_gbTreasureFlag = true;
 
 	if (currLvl._dDunType == DTYPE_CATHEDRAL) { // TODO: use dType instead?
-		for (i = 0; i < numtrans && numthemes < MAXTHEMES; i++) {
+		for (i = 1; i < numtrans && numthemes < MAXTHEMES; i++) {
 			if (CheckThemeRoom(i)) {
 				themes[numthemes]._tsTransVal = i;
 				numthemes++;
@@ -382,6 +382,7 @@ void InitThemes()
 	} else {
 		for (i = 0; i < numthemes; i++) {
 			themes[i]._tsTransVal = dTransVal[DBORDERX + 2 * themes[i]._tsx + themes[i]._tsWidth][DBORDERY + 2 * themes[i]._tsy + themes[i]._tsHeight];
+			assert(themes[i]._tsTransVal != 0);
 		}
 	}
 	if (QuestStatus(Q_ZHAR)) {
