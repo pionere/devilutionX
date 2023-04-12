@@ -1955,16 +1955,17 @@ static void DRLG_L4()
 		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
 		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
 	}
-
-	DRLG_L4InitTransVals();
-	DRLG_Init_Globals();
 }
 
 void CreateL4Dungeon()
 {
 	DRLG_LoadL4SP();
 	DRLG_L4();
+
+	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
+	DRLG_Init_Globals();
+
 	DRLG_SetPC();
 }
 
@@ -1996,9 +1997,8 @@ void CreateL4Dungeon()
 	DRLG_DrawMap(0);
 
 	DRLG_L4InitTransVals();
-	DRLG_Init_Globals();
-
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
+	DRLG_Init_Globals();
 
 	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
 	SetMapObjects(pSetPieces[0]._spData);

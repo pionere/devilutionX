@@ -2734,17 +2734,16 @@ static void DRLG_L1()
 		DRLG_DrawMap(0);
 #endif
 	}
-
-	DRLG_L1InitTransVals();
-	DRLG_Init_Globals();
 }
 
 void CreateL1Dungeon()
 {
 	DRLG_LoadL1SP();
 	DRLG_L1();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 
+	DRLG_L1InitTransVals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
+	DRLG_Init_Globals();
 	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	DRLG_SetPC();
@@ -2818,9 +2817,8 @@ void LoadL1Dungeon(const LevelData* lds)
 	//DRLG_L1Floor();
 
 	DRLG_L1InitTransVals();
-	DRLG_Init_Globals();
-
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
+	DRLG_Init_Globals();
 	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pSetPieces[0]._spData, 0, 0);

@@ -2493,9 +2493,6 @@ static void DRLG_L2()
 		}
 		DRLG_DrawMap(0);
 	}
-
-	DRLG_L2InitTransVals();
-	DRLG_Init_Globals();
 }
 
 void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
@@ -2541,40 +2538,44 @@ void CreateL2Dungeon()
 	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
 	DRLG_LoadL2SP();
 	DRLG_L2();
+
+	DRLG_L2InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
+	DRLG_Init_Globals();
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+
 	DRLG_SetPC();
 }
 
 static void DRLG_L2SetMapFix()
 {
-	// this logic should not be applied to 'proper' set-levels.
-	assert(currLvl._dLevelIdx == SL_BONECHAMB);
-	// patch the map - Bonecha1.DUN
-	// place pieces with closed doors
-	dungeon[17][11] = 150;
-	// place shadows
-	// - right corridor
-	dungeon[12][6] = 47;
-	dungeon[12][7] = 51;
-	dungeon[16][6] = 47;
-	dungeon[16][7] = 51;
-	dungeon[16][8] = 47;
-	// - central room (top)
-	dungeon[17][8] = 49;
-	dungeon[18][8] = 46;
-	dungeon[19][8] = 49;
-	dungeon[20][8] = 46;
-	// - central room (bottom)
-	dungeon[18][12] = 46;
-	dungeon[19][12] = 49;
-	// - left corridor
-	dungeon[12][14] = 47;
-	dungeon[12][15] = 51;
-	dungeon[16][14] = 47;
-	dungeon[16][15] = 51;
-	// fix corners
-	// DRLG_L2Corners(); - commented out, because this is no longer necessary
+	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
+		// patch the map - Bonecha1.DUN
+		// place pieces with closed doors
+		dungeon[17][11] = 150;
+		// place shadows
+		// - right corridor
+		dungeon[12][6] = 47;
+		dungeon[12][7] = 51;
+		dungeon[16][6] = 47;
+		dungeon[16][7] = 51;
+		dungeon[16][8] = 47;
+		// - central room (top)
+		dungeon[17][8] = 49;
+		dungeon[18][8] = 46;
+		dungeon[19][8] = 49;
+		dungeon[20][8] = 46;
+		// - central room (bottom)
+		dungeon[18][12] = 46;
+		dungeon[19][12] = 49;
+		// - left corridor
+		dungeon[12][14] = 47;
+		dungeon[12][15] = 51;
+		dungeon[16][14] = 47;
+		dungeon[16][15] = 51;
+		// fix corners
+		// DRLG_L2Corners(); - commented out, because this is no longer necessary
+	}
 }
 
 void LoadL2Dungeon(const LevelData* lds)
@@ -2606,9 +2607,8 @@ void LoadL2Dungeon(const LevelData* lds)
 	DRLG_L2SetMapFix();
 
 	DRLG_L2InitTransVals();
-	DRLG_Init_Globals();
-
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
+	DRLG_Init_Globals();
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pSetPieces[0]._spData, 0, 0);

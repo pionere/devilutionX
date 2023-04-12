@@ -2575,9 +2575,6 @@ static void DRLG_L3()
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	DRLG_L3InitTransVals();
-	DRLG_Init_Globals();
 }
 
 static void DRLG_L3LightTiles()
@@ -2614,8 +2611,12 @@ void CreateL3Dungeon()
 {
 	DRLG_LoadL3SP();
 	DRLG_L3();
+
+	DRLG_L3InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
+	DRLG_Init_Globals();
 	DRLG_L3LightTiles();
+
 	DRLG_SetPC();
 }
 
@@ -2647,14 +2648,12 @@ void LoadL3Dungeon(const LevelData* lds)
 	DRLG_DrawMap(0);
 
 	DRLG_L3InitTransVals();
-	DRLG_Init_Globals();
-
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
+	DRLG_Init_Globals();
+	DRLG_L3LightTiles();
 
 	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
 	SetMapObjects(pSetPieces[0]._spData);
-
-	DRLG_L3LightTiles();
 }
 
 DEVILUTION_END_NAMESPACE
