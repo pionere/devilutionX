@@ -2429,8 +2429,8 @@ static void DRLG_L2()
 		// replace the door with wall
 		lm[2 + 4 + 3 * 11] = SwapLE16(25);
 		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 0; y < 6; y++) {
-			for (int x = 0; x < 6; x++) {
+		for (int y = 0; y <= 6; y++) {
+			for (int x = 0; x <= 6; x++) {
 				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
 			}
 		}
@@ -2470,8 +2470,13 @@ static void DRLG_L2()
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
 		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 7; y < 15; y++) {
-			for (int x = 2; x <= 6; x++) {
+		for (int y = 0; y < 15; y++) {
+			for (int x = 2; x <= 7; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
+		for (int y = 3; y < 9; y++) {
+			for (int x = 0; x <= 10; x++) {
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
 			}
 		}
