@@ -1294,14 +1294,10 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
 	// init special pieces
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
+	if (currLvl._dDunType == DTYPE_CATHEDRAL) {
 		DRLG_InitL1Specials(x1, y1, x2, y2);
-	} else if (currLvl._dType == DTYPE_CATACOMBS) {
+	} else if (currLvl._dDunType == DTYPE_CATACOMBS) {
 		DRLG_InitL2Specials(x1, y1, x2, y2);
-#ifdef HELLFIRE
-	} else if (currLvl._dType == DTYPE_CRYPT) {
-		DRLG_InitL5Specials(x1, y1, x2, y2);
-#endif
 	}
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
 	// activate monsters

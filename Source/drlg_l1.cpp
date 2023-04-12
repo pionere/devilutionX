@@ -921,61 +921,60 @@ static void DRLG_LoadL1SP()
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
-	// add special arches
-	for (i = x1; i <= x2; ++i) {
-		for (j = y1; j <= y2; ++j) {
-			pn = dPiece[i][j];
-			if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341 || pn == 418)
-				pn = 1;
-			else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344 || pn == 421)
-				pn = 2;
-			else if (pn == 253)
-				pn = 3;
-			else if (pn == 255)
-				pn = 4;
-			else if (pn == 259)
-				pn = 5;
-			else if (pn == 267)
-				pn = 6;
-			else
-				pn = 0;
-			dSpecial[i][j] = pn;
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		// add rims above doors
+		for (i = x1; i <= x2; ++i) {
+			for (j = y1; j <= y2; ++j) {
+				pn = dPiece[i][j];
+				if (pn == 77)
+					pn = 1;
+				else if (pn == 80)
+					pn = 2;
+				else
+					pn = 0;
+				dSpecial[i][j] = pn;
+			}
 		}
-	}
-	// add rims to stone doors
-	for (i = x1; i <= x2; i++) {
-		for (j = y1; j <= y2; j++) {
-			pn = dPiece[i][j];
-			// 417 is stone L-door
-			// 420 is stone R-door -- unused at the moment
-			if (pn == 417) {
-				dSpecial[i][j + 1] = 7;
-			} else if (pn == 420) {
-				dSpecial[i + 1][j] = 8;
+	} else 
+#endif
+	{
+		// add special arches
+		for (i = x1; i <= x2; ++i) {
+			for (j = y1; j <= y2; ++j) {
+				pn = dPiece[i][j];
+				if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341 || pn == 418)
+					pn = 1;
+				else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344 || pn == 421)
+					pn = 2;
+				else if (pn == 253)
+					pn = 3;
+				else if (pn == 255)
+					pn = 4;
+				else if (pn == 259)
+					pn = 5;
+				else if (pn == 267)
+					pn = 6;
+				else
+					pn = 0;
+				dSpecial[i][j] = pn;
+			}
+		}
+		// add rims to stone doors
+		for (i = x1; i <= x2; i++) {
+			for (j = y1; j <= y2; j++) {
+				pn = dPiece[i][j];
+				// 417 is stone L-door
+				// 420 is stone R-door -- unused at the moment
+				if (pn == 417) {
+					dSpecial[i][j + 1] = 7;
+				} else if (pn == 420) {
+					dSpecial[i + 1][j] = 8;
+				}
 			}
 		}
 	}
 }
-
-#ifdef HELLFIRE
-void DRLG_InitL5Specials(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (i = x1; i <= x2; ++i) {
-		for (j = y1; j <= y2; ++j) {
-			pn = dPiece[i][j];
-			if (pn == 77)
-				pn = 1;
-			else if (pn == 80)
-				pn = 2;
-			else
-				pn = 0;
-			dSpecial[i][j] = pn;
-		}
-	}
-}
-#endif
 
 static void L1ClearChamberFlags()
 {
@@ -2746,13 +2745,7 @@ void CreateL1Dungeon()
 	DRLG_L1();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT)
-		DRLG_InitL5Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-	else
-#endif
-		// assert(currLvl._dType == DTYPE_CATHEDRAL);
-		DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	DRLG_SetPC();
 }
@@ -2830,7 +2823,6 @@ void LoadL1Dungeon(const LevelData* lds)
 	DRLG_Init_Globals();
 
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	SetMapMonsters(pSetPieces[0]._spData, 0, 0);
