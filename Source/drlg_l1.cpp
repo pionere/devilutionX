@@ -1255,7 +1255,7 @@ static void DRLG_L1MakeMegas()
 static void L1HorizWall(int i, int j, int dx)
 {
 	int xx;
-	BYTE pn, dt, wt;
+	BYTE pn, dt;
 	// convert the first tile / select the internal replacement
 	pn = dungeon[i][j] == 6 ? 4 : 2;
 
@@ -1283,13 +1283,12 @@ static void L1HorizWall(int i, int j, int dx)
 		dungeon[i + xx][j] = dt;
 	}
 	// add 'door'
-	xx = RandRange(1, dx - 1);
-	wt = (dt == 12 || random_(0, 6) == 5) ? 12 : 2;
-	dungeon[i + xx][j] = wt;
-	if (wt != 12) {
+	if (dt != 12) {
+		xx = RandRange(1, dx - 1);
+		dt = random_(0, 6) == 0 ? 12 : 26;
+		dungeon[i + xx][j] = dt;
 		// assert(drlgFlags[i + xx][j] == 0);
-		// drlgFlags[i + xx][j] = DRLG_L1_HDOOR;
-		dungeon[i + xx][j] = 26;
+		// drlgFlags[i + xx][j] = dt == 26 ? DRLG_L1_HDOOR : 0;
 	}
 }
 
@@ -1339,7 +1338,7 @@ static bool L1AddHWall(int x, int y)
 static void L1VertWall(int i, int j, int dy)
 {
 	int yy;
-	BYTE pn, wt, dt;
+	BYTE pn, dt;
 	// convert the first tile / select the internal replacement
 	pn = dungeon[i][j] == 7 ? 4 : 1;
 	switch (random_(0, 4)) {
@@ -1366,13 +1365,12 @@ static void L1VertWall(int i, int j, int dy)
 		dungeon[i][j + yy] = dt;
 	}
 	// add 'door'
-	yy = RandRange(1, dy - 1);
-	wt = (dt == 11 || random_(0, 6) == 5) ? 11 : 1;
-	dungeon[i][j + yy] = wt;
-	if (wt != 11) {
+	if (dt != 11) {
+		yy = RandRange(1, dy - 1);
+		dt = random_(0, 6) == 0 ? 11 : 25;
+		dungeon[i][j + yy] = dt;
 		// assert(drlgFlags[i][j + yy] == 0);
-		// drlgFlags[i][j + yy] = DRLG_L1_VDOOR;
-		dungeon[i][j + yy] = 25;
+		// drlgFlags[i][j + yy] = dt == 25 ? DRLG_L1_VDOOR : 0;
 	}
 }
 
