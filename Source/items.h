@@ -28,6 +28,8 @@ extern ItemStruct items[MAXITEMS + 1];
 extern int numitems;
 
 void InitItemGFX();
+void FreeItemGFX();
+void InitLvlItems();
 void InitItems();
 void CalcPlrItemVals(int pnum, bool Loadgfx);
 void CalcPlrSpells(int pnum);
@@ -57,7 +59,6 @@ void SpawnAmulet(uint16_t wCI, int x, int y /*, bool sendmsg*/);
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItems(int ii);
 void ProcessItems();
-void FreeItemGFX();
 void SyncItemAnim(int ii);
 ItemStruct* PlrItem(int pnum, int cii);
 void DoAbility(int pnum, int8_t from, BYTE cii);

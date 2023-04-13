@@ -190,6 +190,22 @@ void FreeObjectGFX()
 	}
 }
 
+void InitLevelObjects()
+{
+//	int i;
+
+	numobjects = 0;
+
+	//memset(objects, 0, sizeof(objects));
+	//memset(objectactive, 0, sizeof(objectactive));
+
+//	for (i = 0; i < MAXOBJECTS; i++)
+//		objectavail[i] = i;
+
+	trapid = 1;
+	leverid = 1;
+}
+
 /**
  * Check the location if an object can be placed there in the init phase.
  * Must not consider the player's position, since it could change the dungeon
@@ -330,22 +346,6 @@ static void InitRndLocObj5x5(int objtype)
 
 	if (pos.x != 0)
 		AddObject(objtype, pos.x, pos.y);
-}
-
-void InitLevelObjects()
-{
-//	int i;
-
-	numobjects = 0;
-
-	//memset(objects, 0, sizeof(objects));
-	//memset(objectactive, 0, sizeof(objectactive));
-
-//	for (i = 0; i < MAXOBJECTS; i++)
-//		objectavail[i] = i;
-
-	trapid = 1;
-	leverid = 1;
 }
 
 static void AddCandles()

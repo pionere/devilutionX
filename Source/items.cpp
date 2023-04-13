@@ -122,6 +122,27 @@ void InitItemGFX()
 	}
 }
 
+void FreeItemGFX()
+{
+	int i;
+
+	for (i = 0; i < NUM_IFILE; i++) {
+		MemFreeDbg(itemanims[i]);
+	}
+}
+
+void InitLvlItems()
+{
+	int i;
+
+	numitems = 0;
+
+	//memset(items, 0, sizeof(items));
+	for (i = 0; i < MAXITEMS; i++) {
+		itemactive[i] = i;
+	}
+}
+
 static void PlaceInitItems()
 {
 	int ii, i, seed;
@@ -149,16 +170,7 @@ static void PlaceInitItems()
 
 void InitItems()
 {
-	int i;
-
-	numitems = 0;
-
-	//memset(items, 0, sizeof(items));
-	for (i = 0; i < MAXITEMS; i++) {
-		itemactive[i] = i;
-	}
-
-	if (!currLvl._dSetLvl) {
+	// if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_ROCK))
 			PlaceRock();
 		if (QuestStatus(Q_ANVIL))
@@ -182,7 +194,7 @@ void InitItems()
 		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
 			PlaceNote();
 #endif
-	}
+	// }
 }
 
 /*
@@ -2465,15 +2477,6 @@ void ProcessItems()
 		}
 	}
 	ItemDoppel();
-}
-
-void FreeItemGFX()
-{
-	int i;
-
-	for (i = 0; i < NUM_IFILE; i++) {
-		MemFreeDbg(itemanims[i]);
-	}
 }
 
 void SyncItemAnim(int ii)
