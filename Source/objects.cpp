@@ -310,15 +310,12 @@ fail:
 	return { 0, 0 };
 }
 
-static void InitRndLocObj(int min, int max, int objtype)
+static void InitRndLocObj(int numobjs, int objtype)
 {
-	int i, numobjs;
+	int i;
 	POS32 pos;
 
-	//assert(max >= min);
-	//assert(max - min < 0x7FFF);
-	numobjs = RandRangeLow(min, max);
-	for (i = 0; i < numobjs; i++) {
+	for (i = numobjs; i > 0; i--) {
 		pos = RndLoc3x3();
 		if (pos.x == 0)
 			break;
@@ -326,13 +323,12 @@ static void InitRndLocObj(int min, int max, int objtype)
 	}
 }
 
-static void InitRndSarcs(int objtype)
+static void InitRndSarcs(int numobjs, int objtype)
 {
-	int i, numobjs;
+	int i;
 	POS32 pos;
 
-	numobjs = RandRange(10, 15);
-	for (i = 0; i < numobjs; i++) {
+	for (i = numobjs; i > 0; i--) {
 		pos = RndLoc3x4();
 		if (pos.x == 0)
 			break;
@@ -376,7 +372,8 @@ static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
-static void InitRndBarrels(int otype)
+// generate numobjs groups of barrels
+static void InitRndBarrels(int numobjs, int otype)
 {
 	int i, xp, yp;
 	int dir;
@@ -390,8 +387,7 @@ static void InitRndBarrels(int otype)
 	static_assert((int)OBJ_POD + 1 == (int)OBJ_PODEX, "InitRndBarrels expects ordered BARREL enum III.");
 #endif
 
-	// generate i number of groups of barrels
-	for (i = RandRange(3, 7); i != 0; i--) {
+	for (i = numobjs; i > 0; i--) {
 		do {
 			xp = random_(143, DSIZEX) + DBORDERX;
 			yp = random_(143, DSIZEY) + DBORDERY;
@@ -897,11 +893,11 @@ void InitObjects()
 	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	BYTE lvlMask = 1 << currLvl._dType;
 	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
-		InitRndSarcs(OBJ_SARC);
+		InitRndSarcs(RandRange(10, 15), OBJ_SARC);
 	}
 #ifdef HELLFIRE
 	if (lvlMask & objectdata[OBJ_L5SARC].oLvlTypes) {
-		InitRndSarcs(OBJ_L5SARC);
+		InitRndSarcs(RandRange(10, 15), OBJ_L5SARC);
 	}
 #endif
 	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHR1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes);
@@ -917,35 +913,35 @@ void InitObjects()
 		AddHookedBodies();
 	}
 	if (lvlMask & objectdata[OBJ_TNUDEM].oLvlTypes) {
-		InitRndLocObj(8, 24, OBJ_TNUDEM);
+		InitRndLocObj(RandRange(8, 24), OBJ_TNUDEM);
 	}
 	if (lvlMask & objectdata[OBJ_TNUDEW].oLvlTypes) {
-		InitRndLocObj(6, 18, OBJ_TNUDEW);
+		InitRndLocObj(RandRange(6, 18), OBJ_TNUDEW);
 	}
 	if (lvlMask & objectdata[OBJ_DECAP].oLvlTypes) {
-		InitRndLocObj(2, 6, OBJ_DECAP);
+		InitRndLocObj(RandRange(2, 6), OBJ_DECAP);
 	}
 	if (lvlMask & objectdata[OBJ_CAULDRON].oLvlTypes) {
-		InitRndLocObj(1, 3, OBJ_CAULDRON);
+		InitRndLocObj(RandRange(1, 3), OBJ_CAULDRON);
 	}
 	assert(objectdata[OBJ_BARREL].oLvlTypes == objectdata[OBJ_BARRELEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_BARREL].oLvlTypes) {
-		InitRndBarrels(OBJ_BARREL);
+		InitRndBarrels(RandRange(3, 7), OBJ_BARREL);
 	}
 #ifdef HELLFIRE
 	assert(objectdata[OBJ_URN].oLvlTypes == objectdata[OBJ_URNEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_URN].oLvlTypes) {
-		InitRndBarrels(OBJ_URN);
+		InitRndBarrels(RandRange(3, 7), OBJ_URN);
 	}
 	assert(objectdata[OBJ_POD].oLvlTypes == objectdata[OBJ_PODEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_POD].oLvlTypes) {
-		InitRndBarrels(OBJ_POD);
+		InitRndBarrels(RandRange(3, 7), OBJ_POD);
 	}
 #endif
 	assert(objectdata[OBJ_CHEST1].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST2].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST3].oLvlTypes == DTM_ANY);
-	InitRndLocObj(5, 10, OBJ_CHEST1);
-	InitRndLocObj(3, 6, OBJ_CHEST2);
-	InitRndLocObj(1, 5, OBJ_CHEST3);
+	InitRndLocObj(RandRange(5, 10), OBJ_CHEST1);
+	InitRndLocObj(RandRange(3, 6), OBJ_CHEST2);
+	InitRndLocObj(RandRange(1, 5), OBJ_CHEST3);
 	assert(objectdata[OBJ_TRAPL].oLvlTypes == objectdata[OBJ_TRAPR].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
 		AddObjTraps();
