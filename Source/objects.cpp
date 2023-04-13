@@ -840,15 +840,6 @@ static void AddHookedBodies()
 	}
 }
 
-static void AddL4Goodies()
-{
-	AddHookedBodies();
-	InitRndLocObj(2 * 4, 6 * 4, OBJ_TNUDEM);
-	InitRndLocObj(2 * 3, 6 * 3, OBJ_TNUDEW);
-	InitRndLocObj(2, 6, OBJ_DECAP);
-	InitRndLocObj(1, 3, OBJ_CAULDRON);
-}
-
 void InitObjects()
 {
 	//gbInitObjFlag = true;
@@ -917,17 +908,25 @@ void InitObjects()
 	if (lvlMask & objectdata[OBJ_TORCHL1].oLvlTypes) {
 		AddL2Torches();
 	}
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TNUDEW].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_DECAP].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_CAULDRON].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTUREL1].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTUREL2].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTUREL3].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTURER1].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTURER2].oLvlTypes);
-	assert(objectdata[OBJ_TNUDEM].oLvlTypes == objectdata[OBJ_TORTURER3].oLvlTypes);
+	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTUREL2].oLvlTypes);
+	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTUREL3].oLvlTypes);
+	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTURER1].oLvlTypes);
+	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTURER2].oLvlTypes);
+	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTURER3].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_TORTUREL1].oLvlTypes) {
+		AddHookedBodies();
+	}
 	if (lvlMask & objectdata[OBJ_TNUDEM].oLvlTypes) {
-		AddL4Goodies();
+		InitRndLocObj(8, 24, OBJ_TNUDEM);
+	}
+	if (lvlMask & objectdata[OBJ_TNUDEW].oLvlTypes) {
+		InitRndLocObj(6, 18, OBJ_TNUDEW);
+	}
+	if (lvlMask & objectdata[OBJ_DECAP].oLvlTypes) {
+		InitRndLocObj(2, 6, OBJ_DECAP);
+	}
+	if (lvlMask & objectdata[OBJ_CAULDRON].oLvlTypes) {
+		InitRndLocObj(1, 3, OBJ_CAULDRON);
 	}
 	assert(objectdata[OBJ_BARREL].oLvlTypes == objectdata[OBJ_BARRELEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_BARREL].oLvlTypes) {
