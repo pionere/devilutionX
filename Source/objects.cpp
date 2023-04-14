@@ -540,74 +540,65 @@ static void AddL2Torches()
 
 static void AddObjTraps()
 {
-	int i, j, tx, ty, on, rndv;
-	int8_t oi;
+	int i, ox, oy, tx, ty, on, rndv;
 
 	rndv = 10 + (currLvl._dLevel >> 1);
-	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
-		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			oi = dObject[i][j];
-			oi--;
-			if (oi < 0)
-				continue;
-			if (!objectdata[objects[oi]._otype].oTrapFlag)
+	for (i = numobjects - 1; i >= 0; i--) {
+		int oi = i; // objectactive[i];
+		ObjectStruct* os = &objects[oi];
+		if (!objectdata[os->_otype].oTrapFlag)
+			continue;
+		if (random_(144, 128) >= rndv)
+			continue;
+		ox = os->_ox;
+		oy = os->_oy;
+		if (random_(144, 2) == 0) {
+			tx = ox - 1;
+			while (!nSolidTable[dPiece[tx][oy]])
+				tx--;
+
+			if (ox - tx <= 1)
 				continue;
 
-			if (random_(144, 128) >= rndv)
-				continue;
-			if (random_(144, 2) == 0) {
-				tx = i - 1;
-				while (!nSolidTable[dPiece[tx][j]])
-					tx--;
+			ty = oy;
+			on = OBJ_TRAPL;
+		} else {
+			ty = oy - 1;
+			while (!nSolidTable[dPiece[ox][ty]])
+				ty--;
 
-				if (i - tx <= 1)
-					continue;
-
-				ty = j;
-				on = OBJ_TRAPL;
-			} else {
-				ty = j - 1;
-				while (!nSolidTable[dPiece[i][ty]])
-					ty--;
-
-				if (j - ty <= 1)
-					continue;
-
-				tx = i;
-				on = OBJ_TRAPR;
-			}
-			if (dFlags[tx][ty] & BFLAG_POPULATED)
+			if (oy - ty <= 1)
 				continue;
-			if (dObject[tx][ty] != 0)
-				continue;
-			if (nTrapTable[dPiece[tx][ty]] == PTT_NONE)
-				continue;
-			on = AddObject(on, tx, ty);
-			if (on == -1)
-				return;
-			objects[on]._oVar1 = oi; // TRAP_OI_REF
-			objects[oi]._oTrapChance = RandRange(1, 64);
-			objects[oi]._oVar5 = on + 1; // TRAP_OI_BACKREF
+
+			tx = ox;
+			on = OBJ_TRAPR;
 		}
+		if (dFlags[tx][ty] & BFLAG_POPULATED)
+			continue;
+		if (dObject[tx][ty] != 0)
+			continue;
+		if (nTrapTable[dPiece[tx][ty]] == PTT_NONE)
+			continue;
+		on = AddObject(on, tx, ty);
+		if (on == -1)
+			return;
+		objects[on]._oVar1 = oi; // TRAP_OI_REF
+		objects[oi]._oTrapChance = RandRange(1, 64);
+		objects[oi]._oVar5 = on + 1; // TRAP_OI_BACKREF
 	}
 }
 
 static void AddChestTraps()
 {
-	int i, j;
-	int8_t oi;
+	int i;
 
-	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
-		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			oi = dObject[i][j];
-			if (oi > 0) {
-				oi--;
-				if (objects[oi]._otype >= OBJ_CHEST1 && objects[oi]._otype <= OBJ_CHEST3 && objects[oi]._oTrapChance == 0 && random_(0, 100) < 10) {
-					objects[oi]._otype += OBJ_TCHEST1 - OBJ_CHEST1;
-					objects[oi]._oTrapChance = RandRange(1, 64);
-					objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
-				}
-			}
+	for (i = numobjects - 1; i >= 0; i--) {
+		int oi = i; // objectactive[i];
+		ObjectStruct* os = &objects[oi];
+		if (os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3 && os->_oTrapChance == 0 && random_(0, 100) < 10) {
+			os->_otype += OBJ_TCHEST1 - OBJ_CHEST1;
+			os->_oTrapChance = RandRange(1, 64);
+			os->_oVar5 = 0; // TRAP_OI_BACKREF
 		}
 	}
 }
