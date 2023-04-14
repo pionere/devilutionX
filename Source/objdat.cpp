@@ -253,7 +253,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_WEAPONRACKRN*/{ OFILE_WEAPSTND, 0,                                         0,               THEME_WEAPONRACK,        Q_INVALID,             4, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
 /*OBJ_MUSHPATCH*/   { OFILE_MUSHPTCH, 0,                                         0,               THEME_NONE,              Q_MUSHROOM,            1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
 /*OBJ_LAZSTAND*/    { OFILE_LZSTAND,  0,                                         0,               THEME_NONE,              Q_BETRAYER,            1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         3, FALSE     , ALIGN },
-/*OBJ_SLAINHERO*/   { OFILE_DECAP,    DTM_CAVES,                                 0,               THEME_NONE,              Q_INVALID,             2, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
+/*OBJ_SLAINHERO*/// { OFILE_DECAP,    DTM_CAVES,                                 0,               THEME_NONE,              Q_INVALID,             2, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
 /*OBJ_SIGNCHEST*/   { OFILE_CHEST3,   0,                                         0,               THEME_NONE,              Q_BANNER,              1, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, ODT_NONE,         1, FALSE     , ALIGN },
 /*OBJ_BOOKSHELFR*///{ OFILE_BCASE,    0,                                         0,               THEME_NONE,              Q_INVALID,             2, OPF_NONE,   OMF_FLOOR,              ODT_NONE,         0, FALSE     , ALIGN },
 #ifdef HELLFIRE

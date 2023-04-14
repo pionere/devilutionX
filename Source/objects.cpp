@@ -857,10 +857,6 @@ void InitObjects()
 	case DLV_CATACOMBS4:
 		AddStoryBook();
 		break;
-	case DLV_CAVES1:
-		if (!IsMultiGame)
-			InitRndLocObj5x5(OBJ_SLAINHERO);
-		break;
 	case DLV_CAVES4:
 		AddStoryBook();
 		break;
@@ -1385,7 +1381,6 @@ int AddObject(int type, int ox, int oy)
 	case OBJ_ARMORSTAND:
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
-	case OBJ_SLAINHERO:
 		ObjAddRndSeed(oi);
 		break;
 	case OBJ_BLOODBOOK:
@@ -2373,38 +2368,6 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
 	SpawnQuestItemAt(IDI_BANNER, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-}
-
-static void OperateSlainHero(int pnum, int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-	BYTE pc;
-
-	os = &objects[oi];
-	// assert(os->_oModeFlags & OMF_ACTIVE);
-	os->_oModeFlags &= ~OMF_ACTIVE;
-	os->_oSelFlag = 0;
-
-	if (deltaload)
-		return;
-
-	if (sendmsg)
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-
-	pc = plr._pClass;
-	const int typeCurs[NUM_CLASSES][2] = {
-		{ ITYPE_SWORD, ICURS_BASTARD_SWORD },
-		{ ITYPE_BOW, ICURS_LONG_WAR_BOW },
-		{ ITYPE_STAFF, ICURS_LONG_STAFF },
-#ifdef HELLFIRE
-		{ ITYPE_STAFF, ICURS_WAR_STAFF },
-		{ ITYPE_SWORD, ICURS_KATAR }, // TODO: better ICURS?
-		{ ITYPE_AXE, ICURS_BATTLE_AXE },
-#endif
-	};
-	SetRndSeed(os->_oRndSeed);
-	SpawnMagicItem(typeCurs[pc][0], typeCurs[pc][1], os->_ox, os->_oy, sendmsg);
-	PlaySfxLoc(sgSFXSets[SFXS_PLR_09][pc], plr._px, plr._py);
 }
 
 /*static void OperateFlameTrapLever(int oi, bool sendmsg)
@@ -3588,9 +3551,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_LAZSTAND:
 		OperateLazStand(oi, sendmsg);
 		break;
-	case OBJ_SLAINHERO:
-		OperateSlainHero(pnum, oi, sendmsg);
-		break;
 	case OBJ_SIGNCHEST:
 		OperateInnSignChest(pnum, oi, sendmsg);
 		break;
@@ -3756,9 +3716,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_LAZSTAND:
 		OperateLazStand(oi, false);
-		break;
-	case OBJ_SLAINHERO:
-		OperateSlainHero(pnum, oi, false);
 		break;
 	case OBJ_SIGNCHEST:
 		OperateInnSignChest(pnum, oi, false);
@@ -4118,9 +4075,6 @@ void GetObjectStr(int oi)
 		break;
 	case OBJ_LAZSTAND:
 		copy_cstr(infostr, "Vile Stand");
-		break;
-	case OBJ_SLAINHERO:
-		copy_cstr(infostr, "Slain Hero");
 		break;
 	default:
 		ASSUME_UNREACHABLE
