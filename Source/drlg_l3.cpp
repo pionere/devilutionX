@@ -153,7 +153,7 @@ const BYTE L3BTYPES[157] = {
 	0, 0, 0, 0, 0, 0, 1, 1, 1, 2, //100..
 	3, 0, 3, 0, 0, 0, 0, 0, 0, 0, //110..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //120..
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130..
+	0, 0, 0, 0, 4, 5, 4, 5, 0, 0, //130..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
 	0, 0, 0, 0, 0, 0, 0           //150..
 	// clang-format on
@@ -1960,7 +1960,7 @@ static void DRLG_L3PlaceRndSet(const BYTE* miniset, int rndper)
 
 /*
  * Replace undecorated tiles with matching decorated tiles.
- * New dungeon values: 68 69 106 107 108 109 110 112
+ * New dungeon values: 68 69 106 107 108 109 110 112 136 137
  */
 static void DRLG_L3Subs()
 {
@@ -1968,7 +1968,7 @@ static void DRLG_L3Subs()
 	BYTE c, k;
 	int8_t rv;
 	const unsigned MAX_MATCH = 4;
-	const unsigned NUM_L3TYPES = 113;
+	const unsigned NUM_L3TYPES = 138;
 	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L3Subs.");
 	static_assert(NUM_L3TYPES <= UCHAR_MAX, "NUM_L3TYPES does not fit to i(BYTE) in DRLG_L3Subs.");
 #if DEBUG_MODE
@@ -2215,14 +2215,28 @@ static void DRLG_L3Wood()
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			bv = dungeon[i][j];
-			if ((bv == 2 || bv == 134 || bv == 136) && random_(0, 4) != 0) {
+			if ((bv == 2 || bv == 134 || bv == 150 || bv == 151) && random_(0, 4) != 0) {
+				if (InThemeRoom(i, j - 1))
+					continue; // in a theme room -> skip
 				y1 = j;
 				while (TRUE) {
 					y1--;
 					bv = dungeon[i][y1];
-					if (bv == 10 || bv == 126 || bv == 129 // other wall reached
-					 || bv == 134 || bv == 136)            // or crossing fence -> done
+					if (bv == 10) { // normal wall
+						bv = 131;
 						break;
+					}
+					if (bv == 126 || bv == 129) { // wall with fence inlay
+						bv = 133;
+						break;
+					}
+					if (bv == 134) { // crossing fence
+						bv = 151;
+						break;
+					}
+					if (bv == 138 || bv == 152) { // fence corner
+						break;
+					}
 					if (bv != 7) {
 						bv = 7; // mismatching tile -> stop
 						break;
@@ -2238,26 +2252,42 @@ static void DRLG_L3Wood()
 				}
 				if (bv == 7 || j - y1 <= 1)
 					continue;
-				if ((bv == 134 || bv == 136 || dungeon[i][j] != 2)
-				 && (NearThemeRoom(i, j) && NearThemeRoom(i, y1)))
-					continue; // in a theme room (or between theme rooms) -> skip
-				// replace first/last tile
-				dungeon[i][y1] = bv == 10 ? 131 : (bv == 126 || bv == 129 ? 133 : 151);
-				dungeon[i][j] = dungeon[i][j] == 2 ? 139 : 142;
+
+				// replace last tile
+				dungeon[i][y1] = bv;
 				// replace inner tiles
 				for (y = y1 + 1; y < j; y++) {
-					dungeon[i][y] = random_(0, 2) != 0 ? 135 : 137;
+					dungeon[i][y] = 135;
 				}
 				// add door
 				dungeon[i][RandRange(y1 + 1, j - 1)] = 147;
-			} else if ((bv == 4 || bv == 135 || bv == 137) && random_(0, 4) != 0) {
+				// replace first tile
+				if (dungeon[i][j] == 2)
+					dungeon[i][j] = 139;
+				else if (dungeon[i][j] == 134)
+					dungeon[i][j] = 142;
+			} else if ((bv == 4 || bv == 135 || bv == 138 || bv == 152) && random_(0, 4) != 0) {
+				if (InThemeRoom(i - 1, j))
+					continue; // in a theme room -> skip
 				x1 = i;
 				while (TRUE) {
 					x1--;
 					bv = dungeon[x1][j];
-					if (bv == 9 || bv == 121 || bv == 124 // other wall reached
-					 || bv == 135 || bv == 137)           // or crossing fence -> done
+					if (bv == 9) { // normal wall
+						bv = 130;
 						break;
+					}
+					if (bv == 121 || bv == 124) { // wall with fence inlay
+						bv = 132;
+						break;
+					}
+					if (bv == 135) { // crossing fence
+						bv = 152;
+						break;
+					}
+					if (bv == 150 || bv == 151) { // fence corner
+						break;
+					}
 					if (bv != 7) {
 						bv = 7;
 						break; // mismatching tile -> stop
@@ -2271,22 +2301,22 @@ static void DRLG_L3Wood()
 					bv = 7;
 					break; // too close to other obstacles -> stop
 				}
-
 				if (bv == 7 || i - x1 <= 1)
 					continue;
 
-				if ((bv == 135 || bv == 137 || dungeon[i][j] != 4)
-				 && (NearThemeRoom(i, j) && NearThemeRoom(x1, j)))
-					continue; // in a theme room (or between theme rooms) -> skip
-				// replace first/last tile
-				dungeon[x1][j] = bv == 9 ? 130 : (bv == 121 || bv == 124 ? 132 : 152);
-				dungeon[i][j] = dungeon[i][j] == 4 ? 140 : 143;
+				// replace last tile
+				dungeon[x1][j] = bv;
 				// replace inner tiles
 				for (x = x1 + 1; x < i; x++) {
-					dungeon[x][j] = random_(0, 2) != 0 ? 134 : 136;
+					dungeon[x][j] = 134;
 				}
 				// add door
 				dungeon[RandRange(x1 + 1, i - 1)][j] = 146;
+				// replace first tile
+				if (dungeon[i][j] == 4)
+					dungeon[i][j] = 140;
+				else if (dungeon[i][j] == 135)
+					dungeon[i][j] = 143;
 			}
 		}
 	}

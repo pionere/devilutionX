@@ -63,7 +63,7 @@ void DRLG_FloodTVal(const BYTE *floorTypes);
 void DRLG_LoadSP(int idx, BYTE bv);
 void DRLG_SetPC();
 void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rndSize);
-bool NearThemeRoom(int x, int y);
+bool InThemeRoom(int x, int y);
 void DRLG_ChangeMap(int x1, int y1, int x2, int y2 /*, bool hasNewObjPiece*/);
 
 inline void DRLG_CopyTrans(int sx, int sy, int dx, int dy)
