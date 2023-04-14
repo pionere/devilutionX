@@ -609,7 +609,7 @@ static void Theme_Library(int themeId, BYTE tv)
 {
 	int xx, yy, oi;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
-	BYTE librnd, monstrnd;
+	BYTE librnd;
 
 	xx = themes[themeId]._tsObjX;
 	yy = themes[themeId]._tsObjY;

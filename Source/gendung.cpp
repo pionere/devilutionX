@@ -1222,25 +1222,19 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, bool rn
 				tArea.y = RandRangeLow(min, tArea.y);
 			}
 			// ensure there is no overlapping with previous themes
-			int n = numthemes - 1;
-			for ( ; n >= 0; n--) {
-				if (themes[n]._tsx <= i + tArea.x && themes[n]._tsx + themes[n]._tsWidth >= i) {
-					break;
-				}
-				if (themes[n]._tsy <= j + tArea.y && themes[n]._tsy + themes[n]._tsHeight >= j) {
-					break;
-				}
+			if (!InThemeRoom(i + 1, j + 1)) {
+				// create the room
+				themes[numthemes]._tsx = i + 1;
+				themes[numthemes]._tsy = j + 1;
+				themes[numthemes]._tsWidth = tArea.x;
+				themes[numthemes]._tsHeight = tArea.y;
+				DRLG_CreateThemeRoom(numthemes);
+				numthemes++;
+				if (numthemes == lengthof(themes))
+					return;
 			}
-			if (n >= 0) {
-				continue;
-			}
-			// create the room
-			themes[numthemes]._tsx = i + 1;
-			themes[numthemes]._tsy = j + 1;
-			themes[numthemes]._tsWidth = tArea.x;
-			themes[numthemes]._tsHeight = tArea.y;
-			DRLG_CreateThemeRoom(numthemes);
-			numthemes++;
+
+			j += tArea.x + 2;
 		}
 	}
 }
