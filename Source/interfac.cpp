@@ -223,48 +223,30 @@ void LoadGameLevel(int lvldir)
 	IncProgress();
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-
-	if (!currLvl._dSetLvl) {
-		CreateLevel();
+	CreateLevel();
+	IncProgress();
+	if (currLvl._dType != DTYPE_TOWN) {
+		GetLevelMTypes();
+		InitThemes();
 		IncProgress();
-		if (currLvl._dType != DTYPE_TOWN) {
-			GetLevelMTypes();
-			InitThemes();
-			IncProgress();
-			InitObjectGFX();
-			IncProgress();
-
-			if (IsMultiGame /*|| lvldir == ENTRY_LOAD */|| !IsLvlVisited(currLvl._dLevelIdx)) {
-				HoldThemeRooms();
-				InitMonsters();
-				IncProgress();
-				InitObjects();
-				InitItems();
-				CreateThemeRooms();
-			} else {
-				IncProgress();
-			}
-		} else {
-			InitLvlStores();
-			// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
-			// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-			IncProgress();
-			IncProgress();
-
-			InitTowners();
-			IncProgress();
-			InitItems();
-		}
+		InitObjectGFX();
+		IncProgress();
+		HoldThemeRooms();
+		InitMonsters();
+		IncProgress();
+		InitObjects();
+		InitItems();
+		CreateThemeRooms();
 	} else {
-		LoadSetMap();
+		InitLvlStores();
+		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
+		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 		IncProgress();
-		// GetLevelMTypes();
-		IncProgress();
-		IncProgress();
-		// InitMonsters();
 		IncProgress();
 
-		// InitItems();
+		InitTowners();
+		IncProgress();
+		InitItems();
 	}
 	FreeSetPieces();
 	IncProgress();

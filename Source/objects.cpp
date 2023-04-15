@@ -166,9 +166,10 @@ void InitObjectGFX()
 		themeload[themes[i]._tsType] = true;
 
 	BYTE lvlMask = 1 << currLvl._dType;
-	for (i = 0; i < NUM_OBJECTS; i++) {
+	for (i = NUM_OBJECTS - 1; i >= 0; i--) {
 		ods = &objectdata[i];
-		if (!(ods->oLvlTypes & lvlMask)
+		if ((currLvl._dSetLvl || !(ods->oLvlTypes & lvlMask))
+		 && (!currLvl._dSetLvl || currLvl._dType != objectdata[i].oSetLvlType)
 		 && (ods->otheme == THEME_NONE || !themeload[ods->otheme])
 		 && (ods->oquest == Q_INVALID || !QuestStatus(ods->oquest))) {
 			continue;
@@ -204,6 +205,20 @@ void InitLevelObjects()
 
 	trapid = 1;
 	leverid = 1;
+}
+
+static void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	// LEVER_EFFECT
+	os->_oVar1 = x1;
+	os->_oVar2 = y1;
+	os->_oVar3 = x2;
+	os->_oVar4 = y2;
+	// LEVER_INDEX
+	os->_oVar8 = v;
 }
 
 /**
@@ -689,6 +704,38 @@ static int ObjIndex(int x, int y)
 	return oi;
 }
 
+static void AddSKingObjs()
+{
+	SetObjMapRange(ObjIndex(DBORDERX + 48, DBORDERY + 18), 20, 7, 23, 10, 1);
+	SetObjMapRange(ObjIndex(DBORDERX + 48, DBORDERY + 43), 20, 14, 21, 16, 2);
+	SetObjMapRange(ObjIndex(DBORDERX + 11, DBORDERY + 21), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjIndex(DBORDERX + 30, DBORDERY + 19), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 37), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjIndex(DBORDERX + 11, DBORDERY + 37), 8, 1, 15, 11, 3);
+}
+
+static void AddBChamObjs()
+{
+	SetObjMapRange(ObjIndex(DBORDERX + 21, DBORDERY + 14), 17, 0, 21, 5, 1);
+	SetObjMapRange(ObjIndex(DBORDERX + 21, DBORDERY + 30), 13, 0, 16, 5, 2);
+}
+
+static void AddVileObjs()
+{
+	SetObjMapRange(ObjIndex(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
+	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
+	//SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
+}
+
+/*static void AddMazeObjs()
+{
+	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 25), 0?, 0?, 45?, ?, 1);
+	SetObjMapRange(ObjIndex(DBORDERX + 15, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjIndex(DBORDERX + 27, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 57), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjIndex(DBORDERX + 79, DBORDERY + 51), ?, ?, ?, ?, ?);
+}*/
+
 static void AddDiabObjs()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[0]._spx + 5, DBORDERY + 2 * pSetPieces[0]._spy + 5), pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1);
@@ -850,6 +897,15 @@ void InitObjects()
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
 		AddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
 	}
+	if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
+		AddSKingObjs();
+	}
+	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
+		AddBChamObjs();
+	}
+	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
+		AddVileObjs();
+	}
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL4:
 		AddStoryBook();
@@ -971,22 +1027,6 @@ void InitObjects()
 	//gbInitObjFlag = false;
 }
 
-void SetMapObjects()
-{
-	int i;
-	//gbInitObjFlag = true;
-
-	for (i = 0; i < NUM_OBJECTS; i++) {
-		if (currLvl._dType == objectdata[i].oSetLvlType)
-			AddObjectType(objectdata[i].ofindex);
-	}
-
-	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	LoadMapSetObjects(0);
-	//gbInitObjFlag = false; -- setmap levers?
-}
-
 /*static void DeleteObject_(int oi, int idx)
 {
 	//objectavail[MAXOBJECTS - numobjects] = oi;
@@ -996,20 +1036,6 @@ void SetMapObjects()
 	if (numobjects > 0 && idx != numobjects)
 		objectactive[idx] = objectactive[numobjects];
 }*/
-
-void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	// LEVER_EFFECT
-	os->_oVar1 = x1;
-	os->_oVar2 = y1;
-	os->_oVar3 = x2;
-	os->_oVar4 = y2;
-	// LEVER_INDEX
-	os->_oVar8 = v;
-}
 
 static void AddChest(int oi)
 {

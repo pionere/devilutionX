@@ -432,7 +432,6 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
-  Source/setmaps.cpp
   Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp

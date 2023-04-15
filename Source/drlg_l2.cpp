@@ -2609,9 +2609,6 @@ static void LoadL2Dungeon(const LevelData* lds)
 	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	DRLG_SetPC();
-
-	SetMapMonsters(0);
-	SetMapObjects();
 }
 
 void CreateL2Dungeon()

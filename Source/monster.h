@@ -40,7 +40,6 @@ void GetLevelMTypes();
 void WakeNakrul();
 #endif
 void InitMonsters();
-void SetMapMonsters(int idx);
 void MonChangeMap();
 void InitMonster(int mnum, int dir, int mtidx, int x, int y);
 void AddMonster(int mtidx, int x, int y);

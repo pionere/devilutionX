@@ -2686,9 +2686,6 @@ static void LoadL3Dungeon(const LevelData* lds)
 	DRLG_L3LightTiles();
 
 	DRLG_SetPC();
-
-	SetMapMonsters(0);
-	SetMapObjects();
 }
 
 void CreateL3Dungeon()

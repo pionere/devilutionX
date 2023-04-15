@@ -89,7 +89,6 @@
 #include "questdat.h"
 #include "quests.h"
 #include "scrollrt.h"
-#include "setmaps.h"
 #include "sha.h"
 #include "spelldat.h"
 #include "spells.h"
