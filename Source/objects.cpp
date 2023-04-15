@@ -879,14 +879,6 @@ void InitObjects()
 	}
 	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	BYTE lvlMask = 1 << currLvl._dType;
-	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
-		InitRndSarcs(RandRange(10, 15), OBJ_SARC);
-	}
-#ifdef HELLFIRE
-	if (lvlMask & objectdata[OBJ_L5SARC].oLvlTypes) {
-		InitRndSarcs(RandRange(10, 15), OBJ_L5SARC);
-	}
-#endif
 	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHR1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TORCHL1].oLvlTypes) {
 		AddL2Torches();
@@ -899,36 +891,75 @@ void InitObjects()
 	if (lvlMask & objectdata[OBJ_TORTUREL1].oLvlTypes) {
 		AddHookedBodies();
 	}
+
+	unsigned na = 0;
+	for (int xx = DBORDERX; xx < DSIZEX + DBORDERX; xx++)
+		for (int yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
+			if ((nSolidTable[dPiece[xx][yy]] | (dFlags[xx][yy] & BFLAG_POPULATED)) == 0)
+				na++;
+
+	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow I.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndSarcs(num / 512, OBJ_SARC);
+	}
+#ifdef HELLFIRE
+	if (lvlMask & objectdata[OBJ_L5SARC].oLvlTypes) {
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow II.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndSarcs(num / 512, OBJ_L5SARC);
+	}
+#endif
 	if (lvlMask & objectdata[OBJ_TNUDEM].oLvlTypes) {
-		InitRndLocObj(RandRange(8, 24), OBJ_TNUDEM);
+		static_assert(DSIZEX * DSIZEY * 2 < 0x7FFF, "InitObjects uses RandRangeLow III.");
+		unsigned num = RandRangeLow(na, na * 3 + 1);
+		InitRndLocObj(num / 512, OBJ_TNUDEM);
 	}
 	if (lvlMask & objectdata[OBJ_TNUDEW].oLvlTypes) {
-		InitRndLocObj(RandRange(6, 18), OBJ_TNUDEW);
+		static_assert(DSIZEX * DSIZEY * 2 < 0x7FFF, "InitObjects uses RandRangeLow IV.");
+		unsigned num = RandRangeLow(na, na * 3 + 1);
+		InitRndLocObj(num / 768, OBJ_TNUDEW);
 	}
 	if (lvlMask & objectdata[OBJ_DECAP].oLvlTypes) {
-		InitRndLocObj(RandRange(2, 6), OBJ_DECAP);
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow V.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndLocObj(num / 1024, OBJ_DECAP);
 	}
 	if (lvlMask & objectdata[OBJ_CAULDRON].oLvlTypes) {
-		InitRndLocObj(RandRange(1, 3), OBJ_CAULDRON);
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow VI.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndLocObj(num / 2048, OBJ_CAULDRON);
 	}
 	assert(objectdata[OBJ_BARREL].oLvlTypes == objectdata[OBJ_BARRELEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_BARREL].oLvlTypes) {
-		InitRndBarrels(RandRange(3, 7), OBJ_BARREL);
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow VII.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndBarrels(num / 1024, OBJ_BARREL);
 	}
 #ifdef HELLFIRE
 	assert(objectdata[OBJ_URN].oLvlTypes == objectdata[OBJ_URNEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_URN].oLvlTypes) {
-		InitRndBarrels(RandRange(3, 7), OBJ_URN);
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow VIII.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndBarrels(num / 1024, OBJ_URN);
 	}
 	assert(objectdata[OBJ_POD].oLvlTypes == objectdata[OBJ_PODEX].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_POD].oLvlTypes) {
-		InitRndBarrels(RandRange(3, 7), OBJ_POD);
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow IX.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndBarrels(num / 1024, OBJ_POD);
 	}
 #endif
 	assert(objectdata[OBJ_CHEST1].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST2].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST3].oLvlTypes == DTM_ANY);
-	InitRndLocObj(RandRange(5, 10), OBJ_CHEST1);
-	InitRndLocObj(RandRange(3, 6), OBJ_CHEST2);
-	InitRndLocObj(RandRange(1, 5), OBJ_CHEST3);
+	{
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow X.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndLocObj(num / 512, OBJ_CHEST1);
+		num = RandRangeLow(na, na * 2 + 1);
+		InitRndLocObj(num / 1024, OBJ_CHEST2);
+		num = RandRangeLow(na, na * 2 + 1);
+		InitRndLocObj(num / 2048, OBJ_CHEST3);
+	}
 	assert(objectdata[OBJ_TRAPL].oLvlTypes == objectdata[OBJ_TRAPR].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
 		AddObjTraps();
