@@ -2637,20 +2637,7 @@ static void DRLG_L3LightTiles()
 	}
 }
 
-void CreateL3Dungeon()
-{
-	DRLG_LoadL3SP();
-	DRLG_L3();
-
-	DRLG_L3InitTransVals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
-	DRLG_Init_Globals();
-	DRLG_L3LightTiles();
-
-	DRLG_SetPC();
-}
-
-void LoadL3Dungeon(const LevelData* lds)
+static void LoadL3Dungeon(const LevelData* lds)
 {
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
@@ -2685,6 +2672,26 @@ void LoadL3Dungeon(const LevelData* lds)
 
 	SetMapMonsters(0);
 	SetMapObjects();
+}
+
+void CreateL3Dungeon()
+{
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+
+	if (lds->dSetLvl) {
+		LoadL3Dungeon(lds);
+		return;
+	}
+
+	DRLG_LoadL3SP();
+	DRLG_L3();
+
+	DRLG_L3InitTransVals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
+	DRLG_Init_Globals();
+	DRLG_L3LightTiles();
+
+	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE

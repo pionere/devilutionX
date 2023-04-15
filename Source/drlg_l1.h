@@ -14,7 +14,6 @@ extern "C" {
 
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2);
 void DRLG_L1InitTransVals();
-void LoadL1Dungeon(const LevelData* lds);
 void CreateL1Dungeon();
 
 #ifdef __cplusplus

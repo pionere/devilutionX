@@ -1962,19 +1962,7 @@ static void DRLG_L4()
 	}
 }
 
-void CreateL4Dungeon()
-{
-	DRLG_LoadL4SP();
-	DRLG_L4();
-
-	DRLG_L4InitTransVals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
-	DRLG_Init_Globals();
-
-	DRLG_SetPC();
-}
-
-/*void LoadL4Dungeon(const LevelData* lds)
+static void LoadL4Dungeon(const LevelData* lds)
 {
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
@@ -2008,6 +1996,25 @@ void CreateL4Dungeon()
 
 	SetMapMonsters(0);
 	SetMapObjects();
-}*/
+}
+
+void CreateL4Dungeon()
+{
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+
+	if (lds->dSetLvl) {
+		LoadL4Dungeon(lds);
+		return;
+	}
+
+	DRLG_LoadL4SP();
+	DRLG_L4();
+
+	DRLG_L4InitTransVals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
+	DRLG_Init_Globals();
+
+	DRLG_SetPC();
+}
 
 DEVILUTION_END_NAMESPACE

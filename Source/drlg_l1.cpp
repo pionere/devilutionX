@@ -2815,19 +2815,6 @@ static void DRLG_L1()
 	}
 }
 
-void CreateL1Dungeon()
-{
-	DRLG_LoadL1SP();
-	DRLG_L1();
-
-	DRLG_L1InitTransVals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	DRLG_Init_Globals();
-	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	DRLG_SetPC();
-}
-
 static void DRLG_L1SetMapFix()
 {
 	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
@@ -2864,7 +2851,7 @@ static void DRLG_L1SetMapFix()
 	}
 }
 
-void LoadL1Dungeon(const LevelData* lds)
+static void LoadL1Dungeon(const LevelData* lds)
 {
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
@@ -2903,6 +2890,26 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	SetMapMonsters(0);
 	SetMapObjects();
+}
+
+void CreateL1Dungeon()
+{
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+
+	if (lds->dSetLvl) {
+		LoadL1Dungeon(lds);
+		return;
+	}
+
+	DRLG_LoadL1SP();
+	DRLG_L1();
+
+	DRLG_L1InitTransVals();
+	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
+	DRLG_Init_Globals();
+	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+
+	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE
