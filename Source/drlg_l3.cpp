@@ -2637,6 +2637,20 @@ static void DRLG_L3LightTiles()
 	}
 }
 
+static void DRLG_L3SetMapFix()
+{
+	if (pSetPieces[0]._sptype == SPT_LVL_PWATER) {
+		// patch the map - Foulwatr.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 1; y < 36; y++) {
+			for (int x = 1; x < 18; x++) {
+				lm[2 + 19 * 37 + x + y * 19] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+	}
+}
+
 static void LoadL3Dungeon(const LevelData* lds)
 {
 	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
@@ -2648,6 +2662,7 @@ static void LoadL3Dungeon(const LevelData* lds)
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+	DRLG_L3SetMapFix();
 
 	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
@@ -2669,6 +2684,8 @@ static void LoadL3Dungeon(const LevelData* lds)
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 	DRLG_Init_Globals();
 	DRLG_L3LightTiles();
+
+	DRLG_SetPC();
 
 	SetMapMonsters(0);
 	SetMapObjects();

@@ -292,29 +292,29 @@ static void DRGL_L4PatchSetPiece(BYTE *pMap)
 			}
 			// - tiles with monsters
 			if (lm[w * h + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 0) * w * 2] != 0) {
-				modp |= 1 | (1 << 8);
+				modp |= 1 | (3 << 8);
 			}
 			if (lm[w * h + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 0) * w * 2] != 0) {
-				modp |= 1 | (1 << 10);
+				modp |= 1 | (3 << 10);
 			}
 			if (lm[w * h + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 1) * w * 2] != 0) {
-				modp |= 1 | (1 << 12);
+				modp |= 1 | (3 << 12);
 			}
 			if (lm[w * h + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 1) * w * 2] != 0) {
-				modp |= 1 | (1 << 14);
+				modp |= 1 | (3 << 14);
 			}
 			// - tiles with objects
 			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 0) * w * 2] != 0) {
-				modp |= 1 | (1 << 8);
+				modp |= 1 | (3 << 8);
 			}
 			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 0) * w * 2] != 0) {
-				modp |= 1 | (1 << 10);
+				modp |= 1 | (3 << 10);
 			}
 			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 1) * w * 2] != 0) {
-				modp |= 1 | (1 << 12);
+				modp |= 1 | (3 << 12);
 			}
 			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 1) * w * 2] != 0) {
-				modp |= 1 | (1 << 14);
+				modp |= 1 | (3 << 14);
 			}
 			lm[w * h + x + y * w] |= SwapLE16(modp);
 		}
@@ -349,7 +349,7 @@ static void DRLG_LoadL4SP()
 			// protect inner tiles from spawning additional monsters/objects
 			for (int y = 0; y <= 5; y++) {
 				for (int x = 0; x <= 5; x++) {
-					lm[7 * 7 + x + y * 7] |= SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+					lm[7 * 7 + x + y * 7] |= SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 				}
 			}
 		}
@@ -1949,7 +1949,7 @@ static void DRLG_L4()
 		// protect inner tiles from spawning additional monsters/objects
 		/*for (int y = 0; y <= 5; y++) {
 			for (int x = 0; x <= 6; x++) {
-				lm[8 * 7 + x + y * 8] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+				lm[8 * 7 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
 		}*/
 		DRLG_DrawMap(0);
@@ -1993,6 +1993,8 @@ static void LoadL4Dungeon(const LevelData* lds)
 	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
 	DRLG_Init_Globals();
+
+	DRLG_SetPC();
 
 	SetMapMonsters(0);
 	SetMapObjects();
