@@ -1143,8 +1143,8 @@ static void DRLG_LoadL3SP()
 {
 	// assert(pSetPieces[0]._spData == NULL);
 	if (QuestStatus(Q_ANVIL)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L3Data\\Anvil.DUN");
 		pSetPieces[0]._sptype = SPT_ANVIL;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 	}
 }
 
@@ -2660,7 +2660,7 @@ void LoadL3Dungeon(const LevelData* lds)
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
-	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlPreDun);
+	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
 	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
@@ -2671,9 +2671,9 @@ void LoadL3Dungeon(const LevelData* lds)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	if (lds->dSetLvlDun != NULL) {
+	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 
 		DRLG_DrawMap(0);
 	}

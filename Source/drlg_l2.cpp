@@ -804,7 +804,8 @@ static void DRLG_LoadL2SP()
 {
 	// assert(pSetPieces[0]._spData == NULL);
 	if (QuestStatus(Q_BLIND)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blind1.DUN");
+		pSetPieces[0]._sptype = SPT_BLIND;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		// patch the map - Blind1.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// place pieces with closed doors
@@ -821,9 +822,9 @@ static void DRLG_LoadL2SP()
 				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
 			}
 		}
-		pSetPieces[0]._sptype = SPT_BLIND;
 	} else if (QuestStatus(Q_BLOOD)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood1.DUN");
+		pSetPieces[0]._sptype = SPT_BLOOD;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		// patch the map - Blood1.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// protect the main structure
@@ -837,9 +838,10 @@ static void DRLG_LoadL2SP()
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
 			}
 		}
-		pSetPieces[0]._sptype = SPT_BLOOD;
 	} else if (QuestStatus(Q_BCHAMB)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr2.DUN");
+		pSetPieces[0]._sptype = SPT_BCHAMB;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+		// patch the map - Bonestr2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// - remove tile to leave space for shadow
 		lm[2 + 2 + 4 * 7] = 0;
@@ -849,7 +851,6 @@ static void DRLG_LoadL2SP()
 				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
 			}
 		}
-		pSetPieces[0]._sptype = SPT_BCHAMB;
 	}
 }
 
@@ -2423,7 +2424,7 @@ static void DRLG_L2()
 	if (pSetPieces[0]._sptype == SPT_BLIND) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blind2.DUN");
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		// patch the map - Blind2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// replace the door with wall
@@ -2443,7 +2444,7 @@ static void DRLG_L2()
 	} else if (pSetPieces[0]._sptype == SPT_BLOOD) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		// patch the map - Blood2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// - place pieces with closed doors
@@ -2484,7 +2485,7 @@ static void DRLG_L2()
 	} else if (pSetPieces[0]._sptype == SPT_BCHAMB) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Bonestr1.DUN");
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		// patch the map - Bonestr1.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// shadow of the external-left column
@@ -2593,7 +2594,7 @@ void LoadL2Dungeon(const LevelData* lds)
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
-	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlPreDun);
+	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
 	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
@@ -2604,9 +2605,9 @@ void LoadL2Dungeon(const LevelData* lds)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	if (lds->dSetLvlDun != NULL) {
+	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 
 		DRLG_DrawMap(0);
 		DRLG_L2SetMapFix();

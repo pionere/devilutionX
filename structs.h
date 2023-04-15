@@ -2044,14 +2044,12 @@ typedef struct LevelData {
 	const char* dLoadPal;
 	BOOLEAN dLoadBarOnTop;
 	BYTE dLoadBarColor;
-	const char* dSetLvlPreDun;
-	const char* dSetLvlDun;
 	BYTE dSetLvlDunX;
 	BYTE dSetLvlDunY;
 	BYTE dSetLvlWarp; // dungeon_warp_type
 	BYTE dSetLvlPiece; // _setpiece_type
 	BYTE dMonTypes[32];
-	ALIGNMENT32(7)
+	ALIGNMENT(9, 2)
 } LevelData;
 
 #ifdef X86_32bit_COMP
@@ -2073,6 +2071,11 @@ typedef struct SetPieceStruct {
 	int _sptype; // _setpiece_type
 } SetPieceStruct;
 
+typedef struct SetPieceData {
+	const char* _spdDunFile;
+	const char* _spdPreDunFile;
+} SetPieceData;
+
 //////////////////////////////////////////////////
 // quests
 //////////////////////////////////////////////////
@@ -2090,10 +2093,11 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 #endif
 
 typedef struct QuestData {
-	BYTE _qdlvl;
-	BYTE _qslvl;
-	int _qdmsg;
-	const char* _qlstr;
+	BYTE _qdlvl; // dungeon level
+	BYTE _qslvl; // setmap level
+	BYTE _qssp;  // setpiece type
+	int _qdmsg;  // _speech_id
+	const char* _qlstr; // quest title
 } QuestData;
 
 //////////////////////////////////////////////////

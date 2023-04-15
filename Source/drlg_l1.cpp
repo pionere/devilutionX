@@ -899,23 +899,23 @@ static void DRLG_LoadL1SP()
 {
 	// assert(pSetPieces[0]._spData == NULL);
 	if (QuestStatus(Q_BANNER)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\Banner1.DUN");
 		pSetPieces[0]._sptype = SPT_BANNER;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 	} else if (QuestStatus(Q_SKELKING)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
+		pSetPieces[0]._sptype = SPT_SKELKING;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		/*// patch set-piece to use common tiles - SKngDO.DUN
 		pSetPieces[0]._spData[(2 + 5 + 3 * 7) * 2] = 203;
 		pSetPieces[0]._spData[(2 + 5 + 4 * 7) * 2] = 203;
 		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
 		pSetPieces[0]._spData[(2 + 5 + 2 * 7) * 2] = 203;*/
-		pSetPieces[0]._sptype = SPT_SKELKING;
 	} else if (QuestStatus(Q_BUTCHER)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
 		pSetPieces[0]._sptype = SPT_BUTCHER;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 #ifdef HELLFIRE
 	} else if (QuestStatus(Q_NAKRUL)) {
-		pSetPieces[0]._spData = LoadFileInMem("NLevels\\L5Data\\Nakrul2.DUN");
 		pSetPieces[0]._sptype = SPT_NAKRUL;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 #endif
 	}
 }
@@ -2781,7 +2781,7 @@ static void DRLG_L1()
 	if (pSetPieces[0]._sptype == SPT_BANNER) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		/*// patch the map - Banner2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// - replace the wall with door
@@ -2809,7 +2809,7 @@ static void DRLG_L1()
 	} else if (pSetPieces[0]._sptype == SPT_NAKRUL) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN");
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		DRLG_DrawMap(0);
 #endif
 	}
@@ -2832,7 +2832,7 @@ static void DRLG_L1SetMapFix()
 {
 	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 
-	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
+	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
 		// patch set-piece - Vile2.DUN
 		// - fix empty tiles
 		// assert(lm[2 + 8 + 16 * 21] == 0);
@@ -2858,7 +2858,7 @@ static void DRLG_L1SetMapFix()
 		// - replace the books
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
-	} else if (currLvl._dLevelIdx == SL_SKELKING) {
+	} else if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
 		// patch set-piece to add monsters - SklKng2.DUN
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
 	}
@@ -2874,7 +2874,7 @@ void LoadL1Dungeon(const LevelData* lds)
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
-	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlPreDun);
+	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
 	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
@@ -2887,9 +2887,9 @@ void LoadL1Dungeon(const LevelData* lds)
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	if (lds->dSetLvlDun != NULL) {
+	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 
 		DRLG_DrawMap(0);
 		//DRLG_L1SetMapFix();

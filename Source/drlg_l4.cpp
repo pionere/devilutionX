@@ -326,19 +326,20 @@ static void DRLG_LoadL4SP()
 	// assert(pSetPieces[0]._spData == NULL && ...);
 	if (currLvl._dLevelIdx == DLV_HELL4) {
 		pSetPieces[0]._sptype = SPT_DIAB_QUAD_1;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		pSetPieces[1]._sptype = SPT_DIAB_QUAD_2;
+		pSetPieces[1]._spData = LoadFileInMem(setpiecedata[pSetPieces[1]._sptype]._spdDunFile);
 		pSetPieces[2]._sptype = SPT_DIAB_QUAD_3;
+		pSetPieces[2]._spData = LoadFileInMem(setpiecedata[pSetPieces[2]._sptype]._spdDunFile);
 		pSetPieces[3]._sptype = SPT_DIAB_QUAD_4;
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
-		pSetPieces[1]._spData = LoadFileInMem("Levels\\L4Data\\diab2b.DUN");
-		pSetPieces[2]._spData = LoadFileInMem("Levels\\L4Data\\diab3b.DUN");
-		pSetPieces[3]._spData = LoadFileInMem("Levels\\L4Data\\diab4b.DUN");
+		pSetPieces[3]._spData = LoadFileInMem(setpiecedata[pSetPieces[3]._sptype]._spdDunFile);
 		// patch set-piece - diab1.DUN
 		// - fix shadow of the bottom right corner
 		pSetPieces[0]._spData[(2 + 0 + 4 * 6) * 2] = 75;
 		pSetPieces[0]._spData[(2 + 0 + 5 * 6) * 2] = 74;
 	} else if (QuestStatus(Q_BETRAYER)) {
-		pSetPieces[0]._spData = LoadFileInMem(IsMultiGame ? "Levels\\L4Data\\Vile1.DUN" : "Levels\\L4Data\\Viles.DUN");
+		pSetPieces[0]._sptype = IsMultiGame ? SPT_BETRAY_M : SPT_BETRAY_S;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		if (IsMultiGame) {
 			// patch set-piece to add monsters - Vile1.DUN
 			uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
@@ -352,10 +353,9 @@ static void DRLG_LoadL4SP()
 				}
 			}
 		}
-		pSetPieces[0]._sptype = SPT_BETRAYER;
 	} else if (QuestStatus(Q_WARLORD)) {
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
 		pSetPieces[0]._sptype = SPT_WARLORD;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		// patch set-piece - Warlord.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// ensure the changing tiles are protected
@@ -1902,15 +1902,16 @@ static void DRLG_L4()
 
 	if (pSetPieces[0]._sptype == SPT_DIAB_QUAD_1) {
 		// MemFreeDbg(pSetPieces[0]._spData);
-		// pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
+		// pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		MemFreeDbg(pSetPieces[1]._spData);
-		pSetPieces[1]._spData = LoadFileInMem("Levels\\L4Data\\diab2a.DUN");
+		pSetPieces[1]._spData = LoadFileInMem(setpiecedata[pSetPieces[1]._sptype]._spdPreDunFile);
 		MemFreeDbg(pSetPieces[2]._spData);
-		pSetPieces[2]._spData = LoadFileInMem("Levels\\L4Data\\diab3a.DUN");
+		pSetPieces[2]._spData = LoadFileInMem(setpiecedata[pSetPieces[2]._sptype]._spdPreDunFile);
 		MemFreeDbg(pSetPieces[3]._spData);
-		pSetPieces[3]._spData = LoadFileInMem("Levels\\L4Data\\diab4a.DUN");
-		// patch set-piece to replace diablo - Diab4a.DUN
+		pSetPieces[3]._spData = LoadFileInMem(setpiecedata[pSetPieces[3]._sptype]._spdPreDunFile);
+		// patch set-piece - Diab4a.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[3]._spData;
+		// - replace diablo
 		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
 		// - replace the only black knight
 		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 4 + 6 * 9 * 2] = SwapLE16(101);
@@ -1921,7 +1922,7 @@ static void DRLG_L4()
 	} else if (pSetPieces[0]._sptype == SPT_WARLORD) {
 		// load pre-map
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\Warlord2.DUN");
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 		// patch set-piece - Warlord2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// replace monsters
@@ -1952,7 +1953,7 @@ static void DRLG_L4()
 			}
 		}*/
 		DRLG_DrawMap(0);
-	} else if (pSetPieces[0]._sptype == SPT_BETRAYER) {
+	} else if (pSetPieces[0]._sptype == SPT_BETRAY_M) {
 		// patch set-piece - Vile1.DUN - done in DRLG_LoadL4SP
 		//uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
@@ -1983,7 +1984,7 @@ void CreateL4Dungeon()
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
-	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlPreDun);
+	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
 	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
@@ -1994,9 +1995,9 @@ void CreateL4Dungeon()
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	if (lds->dSetLvlDun != NULL) {
+	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
 		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
 
 		DRLG_DrawMap(0);
 	}

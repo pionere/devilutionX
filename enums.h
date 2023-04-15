@@ -3220,11 +3220,13 @@ typedef enum _setpiece_type {
 	SPT_BANNER,
 	SPT_SKELKING,
 	SPT_BUTCHER,
+	//SPT_MAZE,
 	SPT_BLIND,
 	SPT_BLOOD,
 	SPT_BCHAMB,
 	SPT_ANVIL,
-	SPT_BETRAYER,
+	SPT_BETRAY_S,
+	SPT_BETRAY_M,
 	SPT_WARLORD,
 	SPT_DIAB_QUAD_1,
 	SPT_DIAB_QUAD_2,
@@ -3237,6 +3239,7 @@ typedef enum _setpiece_type {
 #ifdef HELLFIRE
 	SPT_NAKRUL,
 #endif
+	NUM_SPT_TYPES
 } _setpiece_type;
 
 typedef enum piece_flag {
