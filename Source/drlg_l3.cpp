@@ -2679,13 +2679,6 @@ static void LoadL3Dungeon(const LevelData* lds)
 
 		DRLG_DrawMap(0);
 	}
-
-	DRLG_L3InitTransVals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
-	DRLG_Init_Globals();
-	DRLG_L3LightTiles();
-
-	DRLG_SetPC();
 }
 
 void CreateL3Dungeon()
@@ -2694,11 +2687,10 @@ void CreateL3Dungeon()
 
 	if (lds->dSetLvl) {
 		LoadL3Dungeon(lds);
-		return;
+	} else {
+		DRLG_LoadL3SP();
+		DRLG_L3();
 	}
-
-	DRLG_LoadL3SP();
-	DRLG_L3();
 
 	DRLG_L3InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);

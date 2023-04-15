@@ -2095,7 +2095,6 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 typedef struct QuestData {
 	BYTE _qdlvl; // dungeon level
 	BYTE _qslvl; // setmap level
-	BYTE _qssp;  // setpiece type
 	int _qdmsg;  // _speech_id
 	const char* _qlstr; // quest title
 } QuestData;

@@ -2602,13 +2602,6 @@ static void LoadL2Dungeon(const LevelData* lds)
 
 		DRLG_DrawMap(0);
 	}
-
-	DRLG_L2InitTransVals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-	DRLG_Init_Globals();
-	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	DRLG_SetPC();
 }
 
 void CreateL2Dungeon()
@@ -2617,16 +2610,15 @@ void CreateL2Dungeon()
 
 	if (lds->dSetLvl) {
 		LoadL2Dungeon(lds);
-		return;
+	} else {
+		// in the original version the function was executed twice in case the quest of the
+		// current level was not available (only in single player mode). The point of this
+		// could have been to share the same layout between levels, but that does not make too
+		// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
+		// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
+		DRLG_LoadL2SP();
+		DRLG_L2();
 	}
-
-	// in the original version the function was executed twice in case the quest of the
-	// current level was not available (only in single player mode). The point of this
-	// could have been to share the same layout between levels, but that does not make too
-	// much sense due to the stairs placement are 'wrong' anyway. Just to have a reasonable
-	// sized main room, changing DRLG_L2CreateDungeon would have been much cheaper solution.
-	DRLG_LoadL2SP();
-	DRLG_L2();
 
 	DRLG_L2InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);

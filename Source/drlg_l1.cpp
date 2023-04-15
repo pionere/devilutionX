@@ -2882,13 +2882,6 @@ static void LoadL1Dungeon(const LevelData* lds)
 		//DRLG_L1SetMapFix();
 		//DRLG_L1Floor();
 	}
-
-	DRLG_L1InitTransVals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	DRLG_Init_Globals();
-	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	DRLG_SetPC();
 }
 
 void CreateL1Dungeon()
@@ -2897,11 +2890,10 @@ void CreateL1Dungeon()
 
 	if (lds->dSetLvl) {
 		LoadL1Dungeon(lds);
-		return;
+	} else {
+		DRLG_LoadL1SP();
+		DRLG_L1();
 	}
-
-	DRLG_LoadL1SP();
-	DRLG_L1();
 
 	DRLG_L1InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
