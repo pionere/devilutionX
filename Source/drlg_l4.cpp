@@ -1900,11 +1900,15 @@ static void DRLG_L4()
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		// LoadFileWithMem("Levels\\L4Data\\diab1.DUN", pSetPieces[0]._spData);
-		LoadFileWithMem("Levels\\L4Data\\diab2a.DUN", pSetPieces[1]._spData);
-		LoadFileWithMem("Levels\\L4Data\\diab3a.DUN", pSetPieces[2]._spData);
-		LoadFileWithMem("Levels\\L4Data\\diab4a.DUN", pSetPieces[3]._spData);
+	if (pSetPieces[0]._sptype == SPT_DIAB_QUAD_1) {
+		// MemFreeDbg(pSetPieces[0]._spData);
+		// pSetPieces[0]._spData = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
+		MemFreeDbg(pSetPieces[1]._spData);
+		pSetPieces[1]._spData = LoadFileInMem("Levels\\L4Data\\diab2a.DUN");
+		MemFreeDbg(pSetPieces[2]._spData);
+		pSetPieces[2]._spData = LoadFileInMem("Levels\\L4Data\\diab3a.DUN");
+		MemFreeDbg(pSetPieces[3]._spData);
+		pSetPieces[3]._spData = LoadFileInMem("Levels\\L4Data\\diab4a.DUN");
 		// patch set-piece to replace diablo - Diab4a.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[3]._spData;
 		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
@@ -1987,14 +1991,15 @@ void CreateL4Dungeon()
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L4);
 
-	MemFreeDbg(pSetPieces[0]._spData);
-
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+	if (lds->dSetLvlDun != NULL) {
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
 
-	DRLG_DrawMap(0);
+		DRLG_DrawMap(0);
+	}
 
 	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);

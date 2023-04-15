@@ -2882,18 +2882,19 @@ void LoadL1Dungeon(const LevelData* lds)
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
 
-	MemFreeDbg(pSetPieces[0]._spData);
-
 	//DRLG_L1Floor();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 	// load dungeon
-	pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
+	if (lds->dSetLvlDun != NULL) {
+		MemFreeDbg(pSetPieces[0]._spData);
+		pSetPieces[0]._spData = LoadFileInMem(lds->dSetLvlDun);
 
-	DRLG_DrawMap(0);
-	//DRLG_L1SetMapFix();
-	//DRLG_L1Floor();
+		DRLG_DrawMap(0);
+		//DRLG_L1SetMapFix();
+		//DRLG_L1Floor();
+	}
 
 	DRLG_L1InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
