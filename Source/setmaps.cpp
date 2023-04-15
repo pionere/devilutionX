@@ -104,8 +104,8 @@ void LoadSetMap()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	LoadPalette(lds->dPalName);
 	InitTriggers();
+	LoadRndLvlPal();
 }
 
 DEVILUTION_END_NAMESPACE
