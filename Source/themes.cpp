@@ -330,7 +330,13 @@ void InitThemes()
 	_gbTreasureFlag = true;
 
 	for (i = 0; i < numthemes; i++) {
-		themes[i]._tsTransVal = dTransVal[DBORDERX + 2 * (themes[i]._tsx1 + 1)][DBORDERY + 2 * (themes[i]._tsy1 + 1)];
+		// convert to subtile-coordinates
+		themes[i]._tsx1 = DBORDERX + 2 * themes[i]._tsx1;
+		themes[i]._tsy1 = DBORDERY + 2 * themes[i]._tsy1;
+		themes[i]._tsx2 = DBORDERX + 2 * themes[i]._tsx2 + 1;
+		themes[i]._tsy2 = DBORDERY + 2 * themes[i]._tsy2 + 1;
+		// select transval
+		themes[i]._tsTransVal = dTransVal[themes[i]._tsx1 + 2][themes[i]._tsy1 + 2];
 		assert(themes[i]._tsTransVal != 0);
 	}
 	if (QuestStatus(Q_ZHAR)) {
@@ -354,16 +360,16 @@ void HoldThemeRooms()
 {
 	int i, x, y, x1, y1, x2, y2;
 	// assert(currLvl._dType != DTYPE_TOWN);
-	assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
+	// assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
 
 	for (i = numthemes - 1; i >= 0; i--) {
-		x1 = 2 * themes[i]._tsx1 + DBORDERX + 1;
-		y1 = 2 * themes[i]._tsy1 + DBORDERY + 1;
-		x2 = 2 * themes[i]._tsx2 + DBORDERX + 1;
-		y2 = 2 * themes[i]._tsy2 + DBORDERY + 1;
+		x1 = themes[i]._tsx1;
+		y1 = themes[i]._tsy1;
+		x2 = themes[i]._tsx2;
+		y2 = themes[i]._tsy2;
 		// v = themes[i]._tsTransVal;
-		for (x = x1; x < x2; x++) {
-			for (y = y1; y < y2; y++) {
+		for (x = x1 + 1; x < x2; x++) {
+			for (y = y1 + 1; y < y2; y++) {
 				// if (dTransVal[x][y] == v) { -- wall
 					dFlags[x][y] |= BFLAG_POPULATED;
 				// }
@@ -474,31 +480,27 @@ static void Theme_Shrine(int themeId, BYTE tv)
 /**
  * Theme_MonstPit initializes the monster pit theme.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param themeId: theme id.
+ * @param tv: room id in the dungeon matrix.
  */
-static void Theme_MonstPit(BYTE tv)
+static void Theme_MonstPit(int themeId, BYTE tv)
 {
 	int r, xx, yy;
+	bool done = false;
 
-	r = RandRange(1, 100);
-	xx = DBORDERX;
-	yy = DBORDERY;
-	while (TRUE) {
-		if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-			--r;
-			if (r <= 0)
-				break;
-		}
-		xx++;
-		if (xx == DBORDERX + DSIZEX) {
-			xx = DBORDERX;
-			yy++;
-			if (yy == DBORDERY + DSIZEY) {
-				yy = DBORDERY;
+	r = random_(11, (themes[themeId]._tsx2 - themes[themeId]._tsx1 - 1) * (themes[themeId]._tsy2 - themes[themeId]._tsy1 - 1));
+restart:
+	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 && !done; xx++) {
+		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 && !done; yy++) {
+			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && --r < 0) {
+				CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
+				done = true;
 			}
 		}
 	}
-	CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
+	if (!done)
+		goto restart;
+
 	PlaceThemeMonsts(tv);
 }
 
@@ -832,8 +834,7 @@ void CreateThemeRooms()
 	int i;
 	BYTE tv;
 	// assert(currLvl._dType != DTYPE_TOWN);
-	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
-		return;
+	// assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
 
 	//gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
@@ -846,7 +847,7 @@ void CreateThemeRooms()
 			Theme_Shrine(i, tv);
 			break;
 		case THEME_MONSTPIT:
-			Theme_MonstPit(tv);
+			Theme_MonstPit(i, tv);
 			break;
 		case THEME_SKELROOM:
 			Theme_SkelRoom(i, tv);

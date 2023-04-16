@@ -1135,8 +1135,8 @@ static void DRLG_CreateThemeRoom(int themeIndex)
 	}
 	// inner tiles
 	v = currLvl._dDunType == DTYPE_CATACOMBS ? 3 : (currLvl._dDunType == DTYPE_CAVES ? 7 : 6);
-	for (yy = y1 + 1; yy < y2; yy++) {
-		for (xx = x1 + 1; xx < x2; xx++) {
+	for (xx = x1 + 1; xx < x2; xx++) {
+		for (yy = y1 + 1; yy < y2; yy++) {
 			dungeon[xx][yy] = v;
 		}
 	}
