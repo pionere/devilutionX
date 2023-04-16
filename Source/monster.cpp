@@ -931,7 +931,6 @@ static void PlaceUniqueMonst(int uniqindex, int mtidx)
 
 	switch (uniqindex) {
 	case UMT_ZHAR:
-		assert(nummonsters == MAX_MINIONS);
 		if (zharlib == -1)
 			return;
 		xp = 2 * themes[zharlib]._tsx1 + DBORDERX + 4;
@@ -4054,18 +4053,28 @@ void MAI_Zhar(int mnum)
 
 	mon->_mdir = MonEnemyLastDir(mnum);
 	if (mon->_mgoal == MGOAL_TALKING) {
-		if (mon->_mgoalvar1) { // TALK_SPEAKING
-			if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_TALK1) {
-				mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
+		if (quests[Q_ZHAR]._qvar1 < QV_ZHAR_ATTACK) {
+			// assert(zharlib != -1);
+			int oi = dObject[themes[zharlib]._tsObjX][themes[zharlib]._tsObjY];
+			// assert(oi != 0);
+			if (oi != 0) {
+				ObjectStruct* os = &objects[oi - 1];
+				if (os->_oSelFlag == 0) {
+					quests[Q_ZHAR]._qvar1 = QV_ZHAR_ATTACK;
+					mon->_mgoalvar2 = TEXT_ZHAR2; // TALK_MESSAGE
+					mon->_mmode = MM_TALK;
+					NetSendCmdQuest(Q_ZHAR, true);
+					return;
+				}
 			}
-			//if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && mon->_mVar8++ >= gnTicksRate * 4/*!IsSFXPlaying(USFX_ZHAR2)*/) { // MON_TIMER - also set in objects.cpp
-			if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && (IsMultiGame || !IsSFXPlaying(USFX_ZHAR2))) {
-				// mon->_msquelch = SQUELCH_MAX;
-				mon->_mgoal = MGOAL_NORMAL;
-			}
-		} else if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK) {
-			// TODO: does not work when a player enters the level and the timer is running
+		}
+		//if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && mon->_mVar8++ >= gnTicksRate * 4/*!IsSFXPlaying(USFX_ZHAR2)*/) {
+		if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && (IsMultiGame || !IsSFXPlaying(USFX_ZHAR2))) {
+			// mon->_msquelch = SQUELCH_MAX;
 			mon->_mgoal = MGOAL_NORMAL;
+		}
+		if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_TALK1 && mon->_mgoalvar1) { // TALK_SPEAKING
+			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		}
 	}
 

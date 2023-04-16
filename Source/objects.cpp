@@ -3118,19 +3118,6 @@ static void OperateBookCase(int oi, bool sendmsg)
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-	if (zharlib != -1 && themes[zharlib]._tsTransVal == dTransVal[os->_ox][os->_oy]
-	 && quests[Q_ZHAR]._qvar1 < QV_ZHAR_ATTACK) {
-		assert((monsters[MAX_MINIONS]._muniqtype - 1) == UMT_ZHAR);
-		//assert(monsters[MAX_MINIONS]._mgoal == MGOAL_TALKING);
-		monsters[MAX_MINIONS]._mgoalvar2 = TEXT_ZHAR2; // TALK_MESSAGE
-		//MonStartStand(MAX_MINIONS);
-		//monsters[MAX_MINIONS]._mgoal = MGOAL_ATTACK2;
-		monsters[MAX_MINIONS]._mmode = MM_TALK;
-		//monsters[MAX_MINIONS]._mVar8 = 0; // MON_TIMER
-		quests[Q_ZHAR]._qvar1 = QV_ZHAR_ATTACK;
-		if (sendmsg)
-			NetSendCmdQuest(Q_ZHAR, true);
-	}
 }
 
 static void OperateDecap(int oi, bool sendmsg)
