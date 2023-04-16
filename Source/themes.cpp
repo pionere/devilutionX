@@ -330,7 +330,7 @@ void InitThemes()
 	_gbTreasureFlag = true;
 
 	for (i = 0; i < numthemes; i++) {
-		themes[i]._tsTransVal = dTransVal[DBORDERX + 2 * (themes[i]._tsx + 1)][DBORDERY + 2 * (themes[i]._tsy + 1)];
+		themes[i]._tsTransVal = dTransVal[DBORDERX + 2 * (themes[i]._tsx1 + 1)][DBORDERY + 2 * (themes[i]._tsy1 + 1)];
 		assert(themes[i]._tsTransVal != 0);
 	}
 	if (QuestStatus(Q_ZHAR)) {
@@ -352,18 +352,18 @@ void InitThemes()
 
 void HoldThemeRooms()
 {
-	int i, x, y, xx, yy, w, h;
+	int i, x, y, x1, y1, x2, y2;
 	// assert(currLvl._dType != DTYPE_TOWN);
-	// assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
+	assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
 
 	for (i = numthemes - 1; i >= 0; i--) {
-		xx = 2 * themes[i]._tsx + DBORDERX + 1;
-		yy = 2 * themes[i]._tsy + DBORDERY + 1;
-		w = 2 * (themes[i]._tsWidth - 1);
-		h = 2 * (themes[i]._tsHeight - 1);
+		x1 = 2 * themes[i]._tsx1 + DBORDERX + 1;
+		y1 = 2 * themes[i]._tsy1 + DBORDERY + 1;
+		x2 = 2 * themes[i]._tsx2 + DBORDERX + 1;
+		y2 = 2 * themes[i]._tsy2 + DBORDERY + 1;
 		// v = themes[i]._tsTransVal;
-		for (x = xx; x < xx + w; x++) {
-			for (y = yy; y < yy + h; y++) {
+		for (x = x1; x < x2; x++) {
+			for (y = y1; y < y2; y++) {
 				// if (dTransVal[x][y] == v) { -- wall
 					dFlags[x][y] |= BFLAG_POPULATED;
 				// }

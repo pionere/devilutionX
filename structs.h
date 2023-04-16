@@ -2251,10 +2251,10 @@ typedef struct DrlgMem {
 //////////////////////////////////////////////////
 
 typedef struct ThemeStruct {
-	int _tsx;
-	int _tsy;
-	int _tsWidth;
-	int _tsHeight;
+	int _tsx1; // top-left corner of the theme-room
+	int _tsy1;
+	int _tsx2; // bottom-right corner of the theme-room
+	int _tsy2;
 	BYTE _tsType;
 	BYTE _tsTransVal;
 	BYTE _tsObjVar1;
