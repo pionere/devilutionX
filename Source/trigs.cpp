@@ -555,7 +555,7 @@ static void Freeupstairs()
 		r = 2 * r + 1;
 		for (xx = 0; xx < r; xx++) {
 			for (yy = 0; yy < r; yy++) {
-				dFlags[tx + xx][ty + yy] |= BFLAG_POPULATED;
+				dFlags[tx + xx][ty + yy] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
 			}
 		}
 	}

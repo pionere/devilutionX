@@ -3303,10 +3303,13 @@ typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
 	BFLAG_ALERT       = 0x02, // alert flag, used by monsters to set squelch
 	BFLAG_DEAD_PLAYER = 0x04,
-	BFLAG_POPULATED   = 0x08, // protection flag used during dungeon generation
-	BFLAG_HAZARD      = 0x10, // fire hazard flag, used by monsters to avoid tiles
+	BFLAG_MON_PROTECT = 0x08, // protection flag used during dungeon generation
+	BFLAG_OBJ_PROTECT = 0x10, // protection flag used during dungeon generation
+	BFLAG_HAZARD      = 0x20, // fire hazard flag, used by monsters to avoid tiles
 	BFLAG_VISIBLE     = 0x40, // visibility flag, used by the local player to check if monsters/players are visible
 	BFLAG_EXPLORED    = 0x80, // whether the automapview is set (not in sync after load/deltaload/shrine-effect)
+
+	BFLAG_MON_PROTECT_SHL = 3, // left shift to create BFLAG_MON_PROTECT
 } dflag;
 
 typedef enum placeflag {

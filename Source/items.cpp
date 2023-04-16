@@ -47,7 +47,7 @@ static void SetItemLoc(int ii, int x, int y)
 static bool RandomItemPlace(int x, int y)
 {
 	return (dMonster[x][y] | /*dPlayer[x][y] |*/ dItem[x][y] | dObject[x][y]
-	 | (dFlags[x][y] & BFLAG_POPULATED) | nSolidTable[dPiece[x][y]]) == 0;
+	 | (dFlags[x][y] & BFLAG_OBJ_PROTECT) | nSolidTable[dPiece[x][y]]) == 0;
 }
 
 static void GetRandomItemSpace(int ii)

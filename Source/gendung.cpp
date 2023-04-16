@@ -1013,18 +1013,14 @@ void DRLG_SetPC()
 			for (int j = 0; j < h; j++) {
 				for (int i = 0; i < w; i++) {
 					BYTE flags = *sp;
-					if (flags & (1 << 0)) {
-						dFlags[x + 2 * i][y + 2 * j] |= BFLAG_POPULATED;
-					}
-					if (flags & (1 << 2)) {
-						dFlags[x + 2 * i + 1][y + 2 * j] |= BFLAG_POPULATED;
-					}
-					if (flags & (1 << 4)) {
-						dFlags[x + 2 * i][y + 2 * j  + 1] |= BFLAG_POPULATED;
-					}
-					if (flags & (1 << 6)) {
-						dFlags[x + 2 * i + 1][y + 2 * j + 1] |= BFLAG_POPULATED;
-					}
+					static_assert((1 << (BFLAG_MON_PROTECT_SHL + 1)) == (int)BFLAG_OBJ_PROTECT, "DRLG_SetPC uses bitshift to populate dFlags");
+					dFlags[x + 2 * i][y + 2 * j] |= (flags & 3) << BFLAG_MON_PROTECT_SHL;
+					flags >>= 2;
+					dFlags[x + 2 * i + 1][y + 2 * j] |= (flags & 3) << BFLAG_MON_PROTECT_SHL;
+					flags >>= 2;
+					dFlags[x + 2 * i][y + 2 * j  + 1] |= (flags & 3) << BFLAG_MON_PROTECT_SHL;
+					flags >>= 2;
+					dFlags[x + 2 * i + 1][y + 2 * j + 1] |= (flags & 3) << BFLAG_MON_PROTECT_SHL;
 					sp += 2;
 				}
 			}
