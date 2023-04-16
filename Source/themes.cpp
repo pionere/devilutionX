@@ -53,13 +53,14 @@ static const int trm3y[] = {
 	-1, 0, 1
 };
 
-static int TFit_Shrine(BYTE tv)
+static int TFit_Shrine(int themeId)
 {
 	int xx, yy, numMatches;
+	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
-		for (yy = DBORDERY; yy < DBORDERY + DSIZEY; yy++) {
+	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2; xx++) {
+		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if (nTrapTable[dPiece[xx][yy - 1]] != PTT_NONE
 				 // make sure the place is wide enough
@@ -115,13 +116,14 @@ static int TFit_Shrine(BYTE tv)
 	return random_low(0, numMatches);
 }
 
-static int TFit_Obj5(BYTE tv)
+static int TFit_Obj5(int themeId)
 {
 	int xx, yy, i, numMatches;
+	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = DBORDERX + 2; xx < DBORDERX + DSIZEX - 2; xx++) {
-		for (yy = DBORDERY + 2; yy < DBORDERY + DSIZEY - 2; yy++) {
+	for (xx = themes[themeId]._tsx1 + 3; xx < themes[themeId]._tsx2 - 2; xx++) {
+		for (yy = themes[themeId]._tsy1 + 3; yy < themes[themeId]._tsy2 - 2; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
 				for (i = 0; i < lengthof(trm5x); i++) {
@@ -147,7 +149,6 @@ static int TFit_Obj5(BYTE tv)
 // done:
 	if (numMatches == 0)
 		return -1;
-
 	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
 	return random_low(0, numMatches);
 }
@@ -171,13 +172,14 @@ static bool CheckThemeObj3(int x, int y, BYTE tv)
 	return true;
 }
 
-static int TFit_Obj3(BYTE tv)
+static int TFit_Obj3(int themeId)
 {
 	int xx, yy, numMatches;
+	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = DBORDERX + 1; xx < DBORDERX + DSIZEX - 1; xx++) {
-		for (yy = DBORDERY + 1; yy < DBORDERY + DSIZEY - 1; yy++) {
+	for (xx = themes[themeId]._tsx1 + 2; xx < themes[themeId]._tsx2 - 1; xx++) {
+		for (yy = themes[themeId]._tsy1 + 2; yy < themes[themeId]._tsy2 - 1; yy++) {
 			if (CheckThemeObj3(xx, yy, tv)) {
 				drlg.thLocs[numMatches].tpdx = xx;
 				drlg.thLocs[numMatches].tpdy = yy;
@@ -200,7 +202,6 @@ static bool SpecialThemeFit(int themeId, int themeType)
 {
 	bool rv;
 	BYTE req;
-	BYTE tv = themes[themeId]._tsTransVal;
 	int loc;
 
 	switch (themeType) {
@@ -279,21 +280,20 @@ static bool SpecialThemeFit(int themeId, int themeType)
 			loc = 0;
 			break;
 		case 1:
-			loc = TFit_Shrine(tv);
+			loc = TFit_Shrine(themeId);
 			break;
 		case 2:
-			loc = TFit_Obj3(tv);
+			loc = TFit_Obj3(themeId);
 			break;
 		case 3:
-			loc = TFit_Obj5(tv);
+			loc = TFit_Obj5(themeId);
 			break;
 		default:
 			ASSUME_UNREACHABLE
 		}
 	}
-	if (loc < 0) {
+	if (loc < 0)
 		return false;
-	}
 	themes[themeId]._tsType = themeType;
 	themes[themeId]._tsObjX = drlg.thLocs[loc].tpdx;
 	themes[themeId]._tsObjY = drlg.thLocs[loc].tpdy;
@@ -370,7 +370,7 @@ void HoldThemeRooms()
 		// v = themes[i]._tsTransVal;
 		for (x = x1 + 1; x < x2; x++) {
 			for (y = y1 + 1; y < y2; y++) {
-				// if (dTransVal[x][y] == v) { -- wall
+				// if (dTransVal[x][y] == v) { -- wall?
 					dFlags[x][y] |= BFLAG_POPULATED;
 				// }
 			}
