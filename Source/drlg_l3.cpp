@@ -2603,8 +2603,6 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L3CREV11, 30);
 		DRLG_L3Subs();
 	}
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 }
 
 static void DRLG_L3LightTiles()
@@ -2639,14 +2637,28 @@ static void DRLG_L3LightTiles()
 
 static void DRLG_L3SetMapFix()
 {
+	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+
 	if (pSetPieces[0]._sptype == SPT_LVL_PWATER) {
 		// patch the map - Foulwatr.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// protect inner tiles from spawning additional monsters/objects
 		for (int y = 1; y < 36; y++) {
 			for (int x = 1; x < 18; x++) {
 				lm[2 + 19 * 37 + x + y * 19] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
+		}
+	}
+}
+
+static void DRLG_L3DrawPreMaps()
+{
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._sptype == SPT_NONE)
+			continue;
+		if (setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile != NULL) {
+			MemFreeDbg(pSetPieces[i]._spData);
+			pSetPieces[i]._spData = LoadFileInMem(setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile);
+			DRLG_DrawMap(i);
 		}
 	}
 }
@@ -2669,16 +2681,6 @@ static void LoadL3Dungeon(const LevelData* lds)
 	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L3);
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	// load dungeon
-	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
-		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
-
-		DRLG_DrawMap(0);
-	}
 }
 
 void CreateL3Dungeon()
@@ -2691,6 +2693,9 @@ void CreateL3Dungeon()
 		DRLG_LoadL3SP();
 		DRLG_L3();
 	}
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+	DRLG_L3DrawPreMaps();
 
 	DRLG_L3InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);

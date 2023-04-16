@@ -1897,34 +1897,20 @@ static void DRLG_L4()
 	DRLG_PlaceRndTile(6, 96, 4);
 	DRLG_PlaceRndTile(6, 97, 4);
 	DRLG_L4Subs();
+}
 
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+static void DRLG_L4FixPreMap(int idx)
+{
+	uint16_t* lm = (uint16_t*)pSetPieces[idx]._spData;
 
-	if (pSetPieces[0]._sptype == SPT_DIAB_QUAD_1) {
-		// MemFreeDbg(pSetPieces[0]._spData);
-		// pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
-		MemFreeDbg(pSetPieces[1]._spData);
-		pSetPieces[1]._spData = LoadFileInMem(setpiecedata[pSetPieces[1]._sptype]._spdPreDunFile);
-		MemFreeDbg(pSetPieces[2]._spData);
-		pSetPieces[2]._spData = LoadFileInMem(setpiecedata[pSetPieces[2]._sptype]._spdPreDunFile);
-		MemFreeDbg(pSetPieces[3]._spData);
-		pSetPieces[3]._spData = LoadFileInMem(setpiecedata[pSetPieces[3]._sptype]._spdPreDunFile);
+	if (pSetPieces[idx]._sptype == SPT_DIAB_QUAD_4) {
 		// patch set-piece - Diab4a.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[3]._spData;
 		// - replace diablo
 		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
 		// - replace the only black knight
 		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 4 + 6 * 9 * 2] = SwapLE16(101);
-		// DRLG_DrawMap(0);
-		DRLG_DrawMap(1);
-		DRLG_DrawMap(2);
-		DRLG_DrawMap(3);
-	} else if (pSetPieces[0]._sptype == SPT_WARLORD) {
-		// load pre-map
-		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
+	} else if (pSetPieces[idx]._sptype == SPT_WARLORD) {
 		// patch set-piece - Warlord2.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// replace monsters
 		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 2 * 8 * 2] = SwapLE16(100);
 		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 10 * 8 * 2] = SwapLE16(100);
@@ -1952,13 +1938,20 @@ static void DRLG_L4()
 				lm[8 * 7 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
 		}*/
-		DRLG_DrawMap(0);
-	} else if (pSetPieces[0]._sptype == SPT_BETRAY_M) {
-		// patch set-piece - Vile1.DUN - done in DRLG_LoadL4SP
-		//uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
-		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
-		//lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+	}
+}
+
+static void DRLG_L4DrawPreMaps()
+{
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._sptype == SPT_NONE)
+			continue;
+		if (setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile != NULL) {
+			MemFreeDbg(pSetPieces[i]._spData);
+			pSetPieces[i]._spData = LoadFileInMem(setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile);
+			DRLG_L4FixPreMap(i);
+			DRLG_DrawMap(i);
+		}
 	}
 }
 
@@ -1968,7 +1961,7 @@ static void LoadL4Dungeon(const LevelData* lds)
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
 	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
-	// load pre-dungeon
+	// load dungeon
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
@@ -1979,16 +1972,6 @@ static void LoadL4Dungeon(const LevelData* lds)
 	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L4);
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	// load dungeon
-	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
-		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
-
-		DRLG_DrawMap(0);
-	}
 }
 
 void CreateL4Dungeon()
@@ -2001,6 +1984,9 @@ void CreateL4Dungeon()
 		DRLG_LoadL4SP();
 		DRLG_L4();
 	}
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+	DRLG_L4DrawPreMaps();
 
 	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);

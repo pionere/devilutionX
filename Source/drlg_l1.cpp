@@ -2775,15 +2775,14 @@ static void DRLG_L1()
 			DRLG_PlaceMiniSet(LAMPS);
 		DRLG_L1Floor();
 	}
+}
 
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+/*static void DRLG_L1FixPreMap(int idx)
+{
+	uint16_t* lm = (uint16_t*)pSetPieces[idx]._spData;
 
-	if (pSetPieces[0]._sptype == SPT_BANNER) {
-		// load pre-map
-		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
-		/*// patch the map - Banner2.DUN
-		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+	if (pSetPieces[idx]._sptype == SPT_BANNER) {
+		// patch the map - Banner2.DUN
 		// - replace the wall with door
 		lm[2 + 7 + 6 * 8] = SwapLE16(193);
 		// - replace monsters
@@ -2799,44 +2798,16 @@ static void DRLG_L1()
 		// - add unique
 		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 + 12 * 8 * 2] = SwapLE16((UMT_SNOTSPIL + 1) | (1 << 15));
 		// - add sign-chest
-		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = SwapLE16(90);*/
-		DRLG_DrawMap(0);
-	} else if (pSetPieces[0]._sptype == SPT_SKELKING) {
-		// patch dSolidTable - L1.SOL - commented out because 299 is used elsewhere
-		//nSolidTable[299] = true;
-	} else if (pSetPieces[0]._sptype == SPT_BUTCHER) {
-#ifdef HELLFIRE
-	} else if (pSetPieces[0]._sptype == SPT_NAKRUL) {
-		// load pre-map
-		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
-		DRLG_DrawMap(0);
-#endif
-	}
-}
-
-static void DRLG_L1SetMapFix()
-{
-	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-
-	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = SwapLE16(90);
+	} else if (pSetPieces[idx]._sptype == SPT_LVL_BETRAYER) {
 		// patch set-piece - Vile2.DUN
 		// - fix empty tiles
-		// assert(lm[2 + 8 + 16 * 21] == 0);
-		// assert(dungeon[8][16] == 13);
-		dungeon[8][16] = 203;
-		// assert(lm[2 + 12 + 22 * 21] == 0);
-		// assert(dungeon[12][22] == 13);
-		dungeon[12][22] = 203;
-		// assert(lm[2 + 13 + 22 * 21] == 0);
-		// assert(dungeon[13][22] == 13);
-		dungeon[13][22] = 203;
-		// assert(lm[2 + 14 + 22 * 21] == 0);
-		// assert(dungeon[14][22] == 13);
-		dungeon[14][22] = 203;
+		lm[2 + 8 + 16 * 21] = SwapLE16(203);
+		lm[2 + 12 + 22 * 21] = SwapLE16(203);
+		lm[2 + 13 + 22 * 21] = SwapLE16(203);
+		lm[2 + 14 + 22 * 21] = SwapLE16(203);
 		for (int i = 1; i < 23; i++) {
-			// assert(dungeon[20][i] == 13);
-			dungeon[20][i] = 203;
+			lm[2 + 20 + i * 21] = SwapLE16(203);
 		}
 		// - add monsters
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
@@ -2845,9 +2816,23 @@ static void DRLG_L1SetMapFix()
 		// - replace the books
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
-	} else if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
+	} else if (pSetPieces[idx]._sptype == SPT_LVL_SKELKING) {
 		// patch set-piece to add monsters - SklKng2.DUN
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
+	}
+}*/
+
+static void DRLG_L1DrawPreMaps()
+{
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._sptype == SPT_NONE)
+			continue;
+		if (setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile != NULL) {
+			MemFreeDbg(pSetPieces[i]._spData);
+			pSetPieces[i]._spData = LoadFileInMem(setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile);
+			// DRLG_L1FixPreMap(i);
+			DRLG_DrawMap(i);
+		}
 	}
 }
 
@@ -2857,7 +2842,7 @@ static void LoadL1Dungeon(const LevelData* lds)
 	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
 	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
-	// load pre-dungeon
+	// load dungeon
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
@@ -2870,18 +2855,6 @@ static void LoadL1Dungeon(const LevelData* lds)
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
 
 	//DRLG_L1Floor();
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	// load dungeon
-	if (setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile != NULL) {
-		MemFreeDbg(pSetPieces[0]._spData);
-		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdPreDunFile);
-
-		DRLG_DrawMap(0);
-		//DRLG_L1SetMapFix();
-		//DRLG_L1Floor();
-	}
 }
 
 void CreateL1Dungeon()
@@ -2894,6 +2867,9 @@ void CreateL1Dungeon()
 		DRLG_LoadL1SP();
 		DRLG_L1();
 	}
+
+	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+	DRLG_L1DrawPreMaps();
 
 	DRLG_L1InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
