@@ -3172,6 +3172,19 @@ typedef enum dungeon_warp_type {
 	WRPT_CIRCLE,
 } dungeon_warp_type;
 
+typedef enum dungeon_theme_room_tiles {
+	DRT_FLOOR,
+	DRT_WALL_VERT,
+	DRT_WALL_HORIZ,
+	DRT_DOOR_VERT,
+	DRT_DOOR_HORIZ,
+	DRT_TOP_LEFT,
+	DRT_TOP_RIGHT,
+	DRT_BOTTOM_LEFT,
+	DRT_BOTTOM_RIGHT,
+	NUM_DRT_TYPES,
+} dungeon_theme_room_tiles;
+
 typedef enum dungeon_level {
 	DLV_TOWN,
 	DLV_CATHEDRAL1,

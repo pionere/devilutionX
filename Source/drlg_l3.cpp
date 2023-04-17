@@ -18,6 +18,8 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Helper variable to check if sufficient number of lava pools have been generated */
 unsigned _guLavapools;
 
+/* Tiles to build the theme rooms. */
+const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146, 150, 151, 152, 138 };
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
@@ -2578,7 +2580,7 @@ static void DRLG_L3()
 		// assert(currLvl._dType == DTYPE_CAVES);
 		FixL3HallofHeroes();
 		DRLG_L3River();
-		DRLG_PlaceThemeRooms(5, 10, DEFAULT_MEGATILE_L3, 0, false);
+		DRLG_PlaceThemeRooms(5, 10, themeTiles, 0, false);
 
 		DRLG_L3Wood();
 		//DRLG_L3PlaceRndSet(L3LTITE1, 20); - commented out because of a graphical glitch

@@ -31,6 +31,9 @@ enum HALL_DIR {
 static int nRoomCnt;
 const int Dir_Xadd[5] = { 0, 0, 1, 0, -1 };
 const int Dir_Yadd[5] = { 0, -1, 0, 1, 0 };
+/* Tiles to build the theme rooms. */
+const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L2, 1, 2, 4, 5, 8, 7, 9, 6 };
+
 /*
  * Maps tile IDs to their corresponding undecorated tile type.
  */
@@ -2388,7 +2391,7 @@ static void DRLG_L2()
 	L2LockoutFix();
 	// L2DoorFix(); - commented out, because this is no longer necessary
 
-	DRLG_PlaceThemeRooms(6, 10, DEFAULT_MEGATILE_L2, 0, false);
+	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0, false);
 
 	L2CreateArches();
 	L2DoorFix2();
