@@ -772,7 +772,6 @@ static_assert((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align Uni
 typedef struct ObjectData {
 	BYTE ofindex;     // object_graphic_id
 	BYTE oLvlTypes;   // dungeon_type_mask
-	BYTE oSetLvlType; // dungeon_type
 	BYTE otheme;      // theme_id
 	BYTE oquest;      // quest_id
 	//BYTE oAnimFlag;

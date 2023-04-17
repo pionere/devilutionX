@@ -168,8 +168,7 @@ void InitObjectGFX()
 	BYTE lvlMask = 1 << currLvl._dType;
 	for (i = NUM_OBJECTS - 1; i >= 0; i--) {
 		ods = &objectdata[i];
-		if ((currLvl._dSetLvl || !(ods->oLvlTypes & lvlMask))
-		 && (!currLvl._dSetLvl || currLvl._dType != objectdata[i].oSetLvlType)
+		if (!(ods->oLvlTypes & lvlMask)
 		 && (ods->otheme == THEME_NONE || !themeload[ods->otheme])
 		 && (ods->oquest == Q_INVALID || !QuestStatus(ods->oquest))) {
 			continue;
@@ -430,14 +429,10 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 	int i, j, pn;
 
 	assert((objectdata[OBJ_L1LDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1RDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1LIGHT].oLvlTypes & DTM_CATHEDRAL));
-	assert(objectdata[OBJ_L1LDOOR].oSetLvlType == DTYPE_CATHEDRAL && objectdata[OBJ_L1RDOOR].oSetLvlType == DTYPE_CATHEDRAL && objectdata[OBJ_L1LIGHT].oSetLvlType == DTYPE_CATHEDRAL);
 	assert((objectdata[OBJ_L2LDOOR].oLvlTypes & DTM_CATACOMBS) && (objectdata[OBJ_L2RDOOR].oLvlTypes & DTM_CATACOMBS));
-	assert(objectdata[OBJ_L2LDOOR].oSetLvlType == DTYPE_CATACOMBS && objectdata[OBJ_L2RDOOR].oSetLvlType == DTYPE_CATACOMBS);
 	assert((objectdata[OBJ_L3LDOOR].oLvlTypes & DTM_CAVES) && (objectdata[OBJ_L3RDOOR].oLvlTypes & DTM_CAVES));
-	assert(objectdata[OBJ_L3LDOOR].oSetLvlType == DTYPE_CAVES && objectdata[OBJ_L3RDOOR].oSetLvlType == DTYPE_CAVES);
 #ifdef HELLFIRE
 	assert((objectdata[OBJ_L5LDOOR].oLvlTypes & DTM_CRYPT) && (objectdata[OBJ_L5RDOOR].oLvlTypes & DTM_CRYPT));
-	assert(objectdata[OBJ_L5LDOOR].oSetLvlType == DTYPE_CRYPT && objectdata[OBJ_L5RDOOR].oSetLvlType == DTYPE_CRYPT);
 #endif
 	switch (currLvl._dType) {
 	case DTYPE_CATHEDRAL:
