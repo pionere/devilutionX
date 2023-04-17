@@ -2263,11 +2263,12 @@ typedef struct ThemeStruct {
 	BYTE _tsObjVar2; // unused
 	int _tsObjX;
 	int _tsObjY;
+	ALIGNMENT(1, 1)
 } ThemeStruct;
 
-//#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-//static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
-//#endif
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
+#endif
 
 //////////////////////////////////////////////////
 // inv
