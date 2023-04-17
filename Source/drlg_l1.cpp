@@ -2769,11 +2769,9 @@ static void DRLG_L1()
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
 		DRLG_L1PlaceThemeRooms();
 
-		DRLG_L1Subs();
 		DRLG_L1Shadows();
 		for (i = RandRange(5, 9); i > 0; i--)
 			DRLG_PlaceMiniSet(LAMPS);
-		DRLG_L1Floor();
 	}
 }
 
@@ -2848,13 +2846,11 @@ static void LoadL1Dungeon(const LevelData* lds)
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
-	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
-
-	//DRLG_L1Floor();
 }
 
 void CreateL1Dungeon()
@@ -2866,6 +2862,16 @@ void CreateL1Dungeon()
 	} else {
 		DRLG_LoadL1SP();
 		DRLG_L1();
+	}
+
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		;
+	} else
+#endif
+	{
+		DRLG_L1Subs();
+		DRLG_L1Floor();
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));

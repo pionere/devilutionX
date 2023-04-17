@@ -7,7 +7,6 @@
  */
 
 #include "all.h"
-#include <vector>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -2419,7 +2418,6 @@ static void DRLG_L2()
 	DRLG_L2PlaceRndSet(BIG8, 3);
 	DRLG_L2PlaceRndSet(BIG9, 20);
 	DRLG_L2PlaceRndSet(BIG10, 20);
-	DRLG_L2Subs();
 	DRLG_L2DoorSubs();
 }
 
@@ -2550,11 +2548,11 @@ static void DRLG_L2FixPreMap(int idx)
 		// fix corners
 		// DRLG_L2Corners(); - commented out, because this is no longer necessary
 		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 5; y < 17; y++) {
+		/*for (int y = 5; y < 17; y++) {
 			for (int x = 1; x < 31; x++) {
 				lm[2 + 32 * 18 + x + y * 32] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
-		}
+		}*/
 	}
 }
 
@@ -2584,7 +2582,7 @@ static void LoadL2Dungeon(const LevelData* lds)
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
-	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
 
@@ -2606,6 +2604,8 @@ void CreateL2Dungeon()
 		DRLG_LoadL2SP();
 		DRLG_L2();
 	}
+
+	DRLG_L2Subs();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 	DRLG_L2DrawPreMaps();

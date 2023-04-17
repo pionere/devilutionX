@@ -2573,7 +2573,6 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L6SPOOL3, 25);
 		DRLG_L3PlaceRndSet(L6SPOOL4, 30);
 		DRLG_L3PlaceRndSet(L6SPOOL5, 50);
-		DRLG_L6Subs();
 	} else
 #endif
 	{
@@ -2603,7 +2602,6 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L3CREV9, 30);
 		DRLG_L3PlaceRndSet(L3CREV10, 30);
 		DRLG_L3PlaceRndSet(L3CREV11, 30);
-		DRLG_L3Subs();
 	}
 }
 
@@ -2678,7 +2676,7 @@ static void LoadL3Dungeon(const LevelData* lds)
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 	DRLG_L3SetMapFix();
 
-	// memset(drlgFlags, 0, sizeof(drlgFlags)); - unused on setmaps
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
 
@@ -2694,6 +2692,15 @@ void CreateL3Dungeon()
 	} else {
 		DRLG_LoadL3SP();
 		DRLG_L3();
+	}
+
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_NEST) {
+		DRLG_L6Subs();
+	} else 
+#endif
+	{
+		DRLG_L3Subs();
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));

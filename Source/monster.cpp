@@ -1065,7 +1065,7 @@ void InitMonsters()
 	// reserve the entry/exit area
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
-		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
+		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL || ts->_tmsg == DVL_DWM_RTNLVL
 		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
 			static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
 			for (j = 0; j < lengthof(tdx); j++)
@@ -1121,7 +1121,7 @@ void InitMonsters()
 	// revert entry/exit area reservation
 	for (i = 0; i < numtrigs; i++) {
 		ts = &trigs[i];
-		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL
+		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL || ts->_tmsg == DVL_DWM_RTNLVL
 		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
 			for (j = 0; j < lengthof(tdx); j++)
 				DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
