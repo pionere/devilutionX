@@ -2044,6 +2044,8 @@ typedef struct LevelData {
 	const char* dLoadPal;
 	BOOLEAN dLoadBarOnTop;
 	BYTE dLoadBarColor;
+	BYTE dMonDensity;
+	BYTE dObjDensity;
 	BYTE dSetLvlDunX;
 	BYTE dSetLvlDunY;
 	BYTE dSetLvlWarp; // dungeon_warp_type

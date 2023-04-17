@@ -953,6 +953,7 @@ void InitObjects()
 		for (int yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
 			if ((nSolidTable[dPiece[xx][yy]] | (dFlags[xx][yy] & BFLAG_OBJ_PROTECT)) == 0)
 				na++;
+	na = na * AllLevels[currLvl._dLevelIdx].dObjDensity / 32;
 
 	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
 		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow I.");

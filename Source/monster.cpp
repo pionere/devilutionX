@@ -1084,7 +1084,9 @@ void InitMonsters()
 			for (yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
 				if ((nSolidTable[dPiece[xx][yy]] | (dFlags[xx][yy] & (BFLAG_ALERT | BFLAG_MON_PROTECT))) == 0)
 					na++;
-		numplacemonsters = na / 30;
+		na = na * AllLevels[currLvl._dLevelIdx].dMonDensity / 32;
+
+		numplacemonsters = na / 32;
 		if (IsMultiGame)
 			numplacemonsters += numplacemonsters >> 1;
 		totalmonsters = nummonsters + numplacemonsters;
