@@ -559,7 +559,24 @@ void InitLvlDungeon()
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
 #if ASSET_MPL == 1
+		// patch dMegaTiles - L5.TIL
+		// use common subtiles of doors
+		pMegaTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
+		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
 		// patch dMiniTiles - L5.MIN
+		// pointless door micros (re-drawn by dSpecial)
+		pMicroPieces[77][6] = 0;
+		pMicroPieces[77][8] = 0;
+		pMicroPieces[80][7] = 0;
+		pMicroPieces[80][9] = 0;
+		pMicroPieces[206][6] = 0;
+		pMicroPieces[206][8] = 0;
+		pMicroPieces[209][7] = 0;
+		pMicroPieces[209][9] = 0;
+		//pMicroPieces[213][6] = 0;
+		//pMicroPieces[213][8] = 0;
+		//pMicroPieces[216][6] = 0;
+		//pMicroPieces[216][8] = 0;
 		// useless black micros
 		pMicroPieces[130][0] = 0;
 		pMicroPieces[130][1] = 0;
