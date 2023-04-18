@@ -469,11 +469,11 @@ const BYTE PWATERIN[] = {
 };
 #ifdef HELLFIRE
 /** Miniset: Column on the northern side of a vertical wall 1. */
-const BYTE L5VERTCOL1[4] = { 1, 1, 11, 95 };
+const BYTE L5VERTCOL1[] = { 1, 1, 11, 95 };
 /** Miniset: Column on the northern side of a horizontal wall 1. */
-const BYTE L5HORIZCOL1[4] = { 1, 1, 12, 96 };
+const BYTE L5HORIZCOL1[] = { 1, 1, 12, 96 };
 /** Miniset: Prepare random large vertical wall tile */
-const BYTE L5PREVERTWALL[8] = {
+const BYTE L5PREVERTWALL[] = {
 	// clang-format off
 	1, 3, // width, height
 
@@ -487,7 +487,7 @@ const BYTE L5PREVERTWALL[8] = {
 	// clang-format on
 };
 /** Miniset: Prepare random large horizontal wall tile */
-const BYTE L5PREHORIZWALL[8] = {
+const BYTE L5PREHORIZWALL[] = {
 	// clang-format off
 	3, 1, // width, height
 
@@ -497,15 +497,15 @@ const BYTE L5PREHORIZWALL[8] = {
 	// clang-format on
 };
 /** Miniset: Use random floor tile 1. */
-const BYTE L5RNDFLOOR1[4] = { 1, 1, 13, 97 };
+const BYTE L5RNDFLOOR1[] = { 1, 1, 13, 97 };
 /** Miniset: Use random floor tile 2. */
-const BYTE L5RNDFLOOR2[4] = { 1, 1, 13, 98 };
+const BYTE L5RNDFLOOR2[] = { 1, 1, 13, 98 };
 /** Miniset: Use random floor tile 3. */
-const BYTE L5RNDFLOOR3[4] = { 1, 1, 13, 99 };
+const BYTE L5RNDFLOOR3[] = { 1, 1, 13, 99 };
 /** Miniset: Use random floor tile 4. */
-const BYTE L5RNDFLOOR4[4] = { 1, 1, 13, 100 };
+const BYTE L5RNDFLOOR4[] = { 1, 1, 13, 100 };
 /** Miniset: Use random large floor tile. */
-const BYTE L5RNDLFLOOR1[20] = {
+const BYTE L5RNDLFLOOR1[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -519,7 +519,7 @@ const BYTE L5RNDLFLOOR1[20] = {
 	// clang-format on
 };
 /** Miniset: Lava fountain bowl. */
-const BYTE L5RNDLFLOOR2[20] = {
+const BYTE L5RNDLFLOOR2[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -533,7 +533,7 @@ const BYTE L5RNDLFLOOR2[20] = {
 	// clang-format on
 };
 /** Miniset: Mooring on a stone. */
-const BYTE L5RNDLFLOOR3[20] = {
+const BYTE L5RNDLFLOOR3[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -547,7 +547,7 @@ const BYTE L5RNDLFLOOR3[20] = {
 	// clang-format on
 };
 /** Miniset: A stone coffin(?). */
-const BYTE L5RNDLFLOOR4[20] = {
+const BYTE L5RNDLFLOOR4[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -560,7 +560,7 @@ const BYTE L5RNDLFLOOR4[20] = {
 	0,   0, 0,
 };
 /** Miniset: A stone. */
-const BYTE L5RNDLFLOOR5[20] = {
+const BYTE L5RNDLFLOOR5[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -574,7 +574,7 @@ const BYTE L5RNDLFLOOR5[20] = {
 	// clang-format on
 };
 /** Miniset: A broken head of a stone-column. */
-const BYTE L5RNDLFLOOR6[20] = {
+const BYTE L5RNDLFLOOR6[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -588,7 +588,7 @@ const BYTE L5RNDLFLOOR6[20] = {
 	// clang-format on
 };
 /** Miniset: A leaf on the floor. */
-const BYTE L5RNDLFLOOR7[20] = {
+const BYTE L5RNDLFLOOR7[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -599,6 +599,105 @@ const BYTE L5RNDLFLOOR7[20] = {
 	 0,   0, 0, // replace
 	 0, 172, 0,
 	 0,   0, 0,
+	// clang-format on
+};
+const BYTE L5RNDCOL1[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	204,  0, // search
+	203, 11,
+
+	212,   0, // replace
+	211, 122,
+	// clang-format on
+};
+const BYTE L5RNDCOL2[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	207, 0, // search
+	206, 9,
+
+	214,   0, // replace
+	213, 137,
+	// clang-format on
+};
+const BYTE L5RNDCOL3[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	204,  0, // search
+	203, 11,
+
+	216,   0, // replace
+	215, 139,
+	// clang-format on
+};
+const BYTE L5RNDCOL4[] = {
+	// clang-format off
+	1, 2, // width, height
+
+	205, // search
+	 12,
+
+	217, // replace
+	140,
+	// clang-format on
+};
+const BYTE L5RNDCOL5[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	207,  0, // search
+	206, 15,
+
+	214,   0, // replace
+	213, 143,
+	// clang-format on
+};
+const BYTE L5RNDCOL6[] = {
+	// clang-format off
+	1, 2, // width, height
+
+	205, // search
+	  5,
+
+	217, // replace
+	150,
+	// clang-format on
+};
+const BYTE L5RNDCOL7[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	207,  0, // search
+	206, 15,
+
+	210,   0, // replace
+	209, 160,
+	// clang-format on
+};
+const BYTE L5RNDCOL8[] = {
+	// clang-format off
+	1, 2, // width, height
+
+	205, // search
+	 12,
+
+	208, // replace
+	188,
+	// clang-format on
+};
+const BYTE L5RNDCOL9[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	207,  0, // search
+	206, 15,
+
+	210,   0, // replace
+	209, 192,
 	// clang-format on
 };
 #endif
@@ -711,14 +810,12 @@ static void DRLG_L5Shadows()
 			case 5:
 			//case 116: 5
 			//case 133: 5
-				//if (dungeon[i - 1][j] == 13)
-				assert(dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 203 || dungeon[i - 1][j] == 204);
+				if ((dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 204)
+				 && (dungeon[i - 1][j - 1] == 13/* || dungeon[i - 1][j - 1] == 203*/)) {
 					dungeon[i - 1][j] = 203;
-				//if (dungeon[i - 1][j - 1] == 13)
-				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 204);
 					dungeon[i - 1][j - 1] = 204;
-				//if (dungeon[i][j - 1] == 13)
-				assert(dungeon[i][j - 1] == 13 || dungeon[i][j - 1] == 205);
+				}
+				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 205;
 				break;
 			case 7:
@@ -741,17 +838,20 @@ static void DRLG_L5Shadows()
 				}
 				break;
 			case 8:
-				//assert(dungeon[i - 1][j] == 12); -- or its decorated one
-				//	dungeon[i - 1][j] = 203;
-				//if (dungeon[i - 1][j - 1] == 13)
-				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 204);
-					dungeon[i - 1][j - 1] = 204;
+				if (dungeon[i - 1][j - 1] == 13) {
+					if (dungeon[i - 1][j] == 12) {
+						dungeon[i - 1][j - 1] = 204;
+					//} else if (dungeon[i - 1][j] == 13) {
+					//	dungeon[i - 1][j] = 203;
+					//	dungeon[i - 1][j - 1] = 204;
+					}
+				}
 				break;
 			case 11:
 			case 35:
 			case 14:
 			case 37:
-			case 95: // necessary because of DRLG_L5PlaceRndSet(L5VERTCOL1)
+			//case 95: // necessary because of DRLG_L5PlaceRndSet(L5VERTCOL1)
 			//case 119: 8
 			//case 125: 14
 			//case 136: 8
@@ -761,20 +861,23 @@ static void DRLG_L5Shadows()
 			//case 159: 14
 			//case 185: 11
 			//case 186: 11
-				if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
-					dungeon[i - 1][j] = 203;
-					dungeon[i - 1][j - 1] = 204;
+				if (dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 204 || dungeon[i - 1][j] == 205) {
+					if (dungeon[i - 1][j - 1] == 13/* || dungeon[i - 1][j - 1] == 203*/) {
+						dungeon[i - 1][j] = 203;
+						dungeon[i - 1][j - 1] = 204;
+					} else if (dungeon[i - 1][j - 1] == 2 || dungeon[i - 1][j - 1] == 12) {
+						dungeon[i - 1][j] = 203;
+					}
 				}
 				break;
 			case 9:
 			//case 120: 9
 			//case 154: 9
-				//if (dungeon[i - 1][j] == 13)
-				assert(dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 206);
+				if (dungeon[i - 1][j] == 13
+				 && (dungeon[i - 1][j - 1] == 13/* || dungeon[i - 1][j - 1] == 203 || dungeon[i - 1][j - 1] == 206*/)) {
 					dungeon[i - 1][j] = 206;
-				//if (dungeon[i - 1][j - 1] == 13)
-				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j - 1] = 207;
+				}
 				//assert(dungeon[i][j - 1] == 11); -- or its decorated one
 				//if (dungeon[i][j - 1] == 13)
 				//	dungeon[i][j - 1] = 205;
@@ -791,7 +894,7 @@ static void DRLG_L5Shadows()
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 205;
 				break;
-			case 96: // 12
+			/*case 96: // 12
 			case 188: // 12
 				if (dungeon[i][j - 1] == 13)
 					dungeon[i][j - 1] = 208;
@@ -828,7 +931,7 @@ static void DRLG_L5Shadows()
 			case 143: // 15
 			//case 145: // 17
 				//if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j] == 206 /*&& dungeon[i - 1][j - 1] == 207*/) {
+				if (dungeon[i - 1][j] == 206 / * && dungeon[i - 1][j - 1] == 207 * /) {
 					assert(dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j] = 213;
 					dungeon[i - 1][j - 1] = 214;
@@ -849,12 +952,12 @@ static void DRLG_L5Shadows()
 			case 160: // 15
 			case 192: // 15
 				//if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j] == 206 /*&& dungeon[i - 1][j - 1] == 207*/) {
+				if (dungeon[i - 1][j] == 206 / * && dungeon[i - 1][j - 1] == 207 * /) {
 					assert(dungeon[i - 1][j - 1] == 207);
 					dungeon[i - 1][j] = 209;
 					dungeon[i - 1][j - 1] = 210;
 				}
-				break;
+				break;*/
 			}
 		}
 	}
@@ -2098,7 +2201,7 @@ static void DRLG_L5Crypt_pattern2(BYTE rndper)
 	/** Miniset: Use random vertical wall tile C1. */
 	DRLG_PlaceRndTile(10, 121, rndper);
 	/** Miniset: Column on the northern side of a vertical wall 4. */
-	DRLG_PlaceRndTile(11, 122, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL1, rndper); // 11 -> 122
 	/** Miniset: Column on the northern side of a horizontal wall 4. */
 	DRLG_PlaceRndTile(12, 123, rndper);
 	/** Miniset: Use random floor tile 9. */
@@ -2132,19 +2235,19 @@ static void DRLG_L5Crypt_pattern3(BYTE rndper)
 	/** Miniset: East-Edge column on the northern side 2. */
 	DRLG_PlaceRndTile(8, 136, rndper);
 	/** Miniset: West-Edge column on the northern side 2. */
-	DRLG_PlaceRndTile(9, 137, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL2, rndper); // 9 -> 137
 	/** Miniset: Use random vertical wall tile C2. */
 	DRLG_PlaceRndTile(10, 138, rndper);
 	/** Miniset: Column on the northern side of a vertical wall 5. */
-	DRLG_PlaceRndTile(11, 139, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL3, rndper); // 11 -> 139
 	/** Miniset: Column on the northern side of a horizontal wall 5. */
-	DRLG_PlaceRndTile(12, 140, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL4, rndper); // 12 -> 140
 	/** Miniset: Use random floor tile 10. */
 	DRLG_PlaceRndTile(13, 141, rndper);
 	/** Miniset: Use random concave corner east B2. */
 	DRLG_PlaceRndTile(14, 142, rndper);
 	/** Miniset: Use random column 3. (cracked column) */
-	DRLG_PlaceRndTile(15, 143, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL5, rndper); // 15 -> 143
 	/** Miniset: Use random concave corner north A2. */
 	DRLG_PlaceRndTile(16, 144, rndper);
 	/** Miniset: Use random concave corner north B2. */
@@ -2162,7 +2265,7 @@ static void DRLG_L5Crypt_pattern4(BYTE rndper)
 	/** Miniset: Use random corner north 3. */
 	DRLG_PlaceRndTile(4, 149, rndper);
 	/** Miniset: North-Edge column on the northern side 3. */
-	DRLG_PlaceRndTile(5, 150, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL6, rndper); // 5 -> 150
 	/** Miniset: Use random vertical wall tile B3. */
 	DRLG_PlaceRndTile(6, 151, rndper);
 	/** Miniset: Use random concave corner east A3. */
@@ -2182,7 +2285,7 @@ static void DRLG_L5Crypt_pattern4(BYTE rndper)
 	/** Miniset: Use random concave corner east B3. */
 	DRLG_PlaceRndTile(14, 159, rndper);
 	/** Miniset: Use random column 4. (Lava fountain) */
-	DRLG_PlaceRndTile(15, 160, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL7, rndper); // 15 -> 160
 	/** Miniset: Use random concave corner north A3. */
 	DRLG_PlaceRndTile(16, 161, rndper);
 	/** Miniset: Use random concave corner north B3. */
@@ -2209,16 +2312,16 @@ static void DRLG_L5Crypt_pattern5(BYTE rndper)
 
 static void DRLG_L5Crypt_pattern6(BYTE rndper)
 {
-	/** Miniset: Column on the northern side of a vertical wall 2. pointless? same as 95 */
+	/** Miniset: Column on the northern side of a vertical wall 2. */
 	DRLG_PlaceRndTile(11, 185, rndper);
-	/** Miniset: Column on the northern side of a horizontal wall 2. pointless? same as 96 */
+	/** Miniset: Column on the northern side of a horizontal wall 2. */
 	DRLG_PlaceRndTile(12, 187, rndper);
-	/** Miniset: Column on the northern side of a vertical wall 3. pointless? same as 95 */
+	/** Miniset: Column on the northern side of a vertical wall 3. */
 	DRLG_PlaceRndTile(11, 186, rndper);
-	/** Miniset: Column on the northern side of a horizontal wall 3. pointless? same as 96 */
-	DRLG_PlaceRndTile(12, 188, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 3. */
+	DRLG_L5PlaceRndSet(L5RNDCOL8, rndper); // 12 -> 188
 	/** Miniset: Use random column 1. (Cracked) */
-	DRLG_PlaceRndTile(15, 192, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL9, rndper); // 15 -> 192
 	/** Miniset: Replace vertical wall tile on the bottom 1. */
 	DRLG_PlaceRndTile(89, 173, rndper);
 	/** Miniset: Replace vertical wall tile on the bottom 2. */
@@ -2711,6 +2814,7 @@ static void DRLG_L1()
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_L5Shadows();
 		/** Miniset: Use random vertical wall 4. (Statue). */
 		DRLG_PlaceRndTile(1, 199, 10);
 		/** Miniset: Use random vertical wall 5. (Succubus statue) */
@@ -2724,7 +2828,6 @@ static void DRLG_L1()
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
 		DRLG_L5PlaceRndSet(L5PREHORIZWALL, 100);
 		DRLG_L5PlaceRndSet(L5RNDLFLOOR1, 60);
-		DRLG_L5Shadows();
 		switch (currLvl._dLevelIdx) {
 		case DLV_CRYPT1:
 			DRLG_L5Crypt_pattern2(30);
@@ -2762,7 +2865,6 @@ static void DRLG_L1()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		DRLG_L5Shadows();
 	} else
 #endif
 	{
