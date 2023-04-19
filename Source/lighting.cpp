@@ -19,9 +19,9 @@ BYTE visionactive[MAXVISION];
 /* The list of visions/views in the game. */
 LightListStruct VisionList[MAXVISION];
 /* The list of the indices of the active light-sources. */
-BYTE lightactive[MAXLIGHTS];
-/* The list of light-sources in the game. */
-LightListStruct LightList[MAXLIGHTS];
+BYTE lightactive[MAXLIGHTS + 1];
+/* The list of light-sources in the game + one for temporary use. */
+LightListStruct LightList[MAXLIGHTS + 1];
 /* The number of visions/views in the game. */
 int numvision;
 /* The number of light-sources in the game. */
@@ -471,41 +471,41 @@ static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* lx, int* ly, i
 	*oy = ny;
 }
 
-void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
+void DoLighting(unsigned lnum)
 {
+	LightListStruct* lis = &LightList[lnum];
 	int x, y, xoff, yoff;
 	int min_x, max_x, min_y, max_y;
 	int dist_x, dist_y, light_x, light_y, block_x, block_y, temp_x, temp_y;
+	int nXPos = lis->_lx;
+	int nYPos = lis->_ly;
+	int nRadius = lis->_lradius;
 	BYTE (&dark)[128] = darkTable[nRadius];
 	BYTE v, radius_block;
 
-	xoff = 0;
-	yoff = 0;
 	light_x = 0;
 	light_y = 0;
 	block_x = 0;
 	block_y = 0;
 
-	if (lnum < MAXLIGHTS) {
-		xoff = LightList[lnum]._xoff;
-		yoff = LightList[lnum]._yoff;
-		if (xoff < 0) {
-			xoff += 8;
-			nXPos--;
-		} else if (xoff >= 8) {
-			xoff -= 8;
-			nXPos++;
-		}
-		if (yoff < 0) {
-			yoff += 8;
-			nYPos--;
-		} else if (yoff >= 8) {
-			yoff -= 8;
-			nYPos++;
-		}
-		assert((unsigned)xoff < 8);
-		assert((unsigned)yoff < 8);
+	xoff = lis->_lxoff;
+	yoff = lis->_lyoff;
+	if (xoff < 0) {
+		xoff += 8;
+		nXPos--;
+	} else if (xoff >= 8) {
+		xoff -= 8;
+		nXPos++;
 	}
+	if (yoff < 0) {
+		yoff += 8;
+		nYPos--;
+	} else if (yoff >= 8) {
+		yoff -= 8;
+		nYPos++;
+	}
+	assert((unsigned)xoff < 8);
+	assert((unsigned)yoff < 8);
 
 	dist_x = xoff;
 	dist_y = yoff;
@@ -601,9 +601,12 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	}
 }
 
-static void DoUnLight(int nXPos, int nYPos, int nRadius)
+static void DoUnLight(LightListStruct* lis)
 {
-	int x, y, min_x, min_y, max_x, max_y;
+	int x, y, xoff, yoff, min_x, min_y, max_x, max_y;
+	int nXPos = lis->_lunx + lis->_lunxoff;
+	int nYPos = lis->_luny + lis->_lunyoff;
+	int nRadius = lis->_lunr;
 
 	nRadius++;
 	min_y = nYPos - nRadius;
@@ -622,6 +625,25 @@ static void DoUnLight(int nXPos, int nYPos, int nRadius)
 			dLight[x][y] = dPreLight[x][y];
 		}
 	}
+
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	xoff = lis->_lxoff;
+	yoff = lis->_lyoff;
+	lis->_lunxoff = 0;
+	if (xoff < 0) {
+		lis->_lunxoff = -1;
+	} else if (xoff >= 8) {
+		lis->_lunxoff = 1;
+	}
+	lis->_lunyoff = 0;
+	if (yoff < 0) {
+		lis->_lunyoff = -1;
+	} else if (yoff >= 8) {
+		lis->_lunyoff = 1;
+	}
+	lis->_lunflag = false;
 }
 
 void DoUnVision(int nXPos, int nYPos, int nRadius)
@@ -1019,8 +1041,10 @@ unsigned AddLight(int x, int y, int r)
 		lis->_lunx = lis->_lx = x;
 		lis->_luny = lis->_ly = y;
 		lis->_lunr = lis->_lradius = r;
-		lis->_xoff = 0;
-		lis->_yoff = 0;
+		lis->_lunxoff = 0;
+		lis->_lunyoff = 0;
+		lis->_lxoff = 0;
+		lis->_lyoff = 0;
 		lis->_ldel = false;
 		lis->_lunflag = false;
 		gbDolighting = true;
@@ -1097,8 +1121,8 @@ void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 
 	lis = &LightList[lnum];
 	lis->_lunflag = true;
-	lis->_xoff = xoff;
-	lis->_yoff = yoff;
+	lis->_lxoff = xoff;
+	lis->_lyoff = yoff;
 	gbDolighting = true;
 }
 
@@ -1120,8 +1144,8 @@ void ChangeLightXYOff(unsigned lnum, int x, int y)
 	lis->_lunflag = true;
 	lis->_lx = x;
 	lis->_ly = y;
-	lis->_xoff = 0;
-	lis->_yoff = 0;
+	lis->_lxoff = 0;
+	lis->_lyoff = 0;
 	gbDolighting = true;
 }
 
@@ -1169,15 +1193,15 @@ void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	// check if offset-change is meaningful
 	lx = xoff + (lis->_lx << 3);
 	ly = yoff + (lis->_ly << 3);
-	offx = lis->_xoff + (lis->_lx << 3);
-	offy = lis->_yoff + (lis->_ly << 3);
+	offx = lis->_lxoff + (lis->_lx << 3);
+	offy = lis->_lyoff + (lis->_ly << 3);
 
 	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
 		return;
 
 	lis->_lunflag = true;
-	lis->_xoff = xoff;
-	lis->_yoff = yoff;
+	lis->_lxoff = xoff;
+	lis->_lyoff = yoff;
 	gbDolighting = true;
 }
 
@@ -1215,11 +1239,7 @@ void ProcessLightList()
 		for (i = 0; i < numlights; i++) {
 			lis = &LightList[lightactive[i]];
 			if (lis->_ldel | lis->_lunflag) {
-				DoUnLight(lis->_lunx, lis->_luny, lis->_lunr);
-				lis->_lunflag = false;
-				lis->_lunx = lis->_lx;
-				lis->_luny = lis->_ly;
-				lis->_lunr = lis->_lradius;
+				DoUnLight(lis);
 			}
 		}
 		for (i = 0; i < numlights; ) {
@@ -1234,7 +1254,7 @@ void ProcessLightList()
 		}
 		for (i = 0; i < numlights; i++) {
 			j = lightactive[i];
-			DoLighting(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius, j);
+			DoLighting(j);
 		}
 
 		gbDolighting = false;

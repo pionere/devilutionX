@@ -1459,14 +1459,14 @@ typedef struct LSaveLightListStruct {
 	LE_INT32 vluny;
 	BYTE vlradius;
 	BYTE vlunr;
+	int8_t vlunxoff;
+	int8_t vlunyoff;
 	BOOLEAN vldel;
 	BOOLEAN vlunflag;
 	BOOLEAN vlmine;
-	BYTE vlAlign0;
-	BYTE vlAlign1;
 	BYTE vlAlign2;
-	LE_INT32 vxoff;
-	LE_INT32 vyoff;
+	LE_INT32 vlxoff;
+	LE_INT32 vlyoff;
 } LSaveLightListStruct;
 
 typedef struct LSavePortalStruct {
@@ -2289,14 +2289,14 @@ typedef struct LightListStruct {
 	int _luny;
 	BYTE _lradius;
 	BYTE _lunr;
+	int8_t _lunxoff;
+	int8_t _lunyoff;
 	BOOLEAN _ldel;
 	BOOLEAN _lunflag;
 	BOOLEAN _lmine;
-	BYTE _lAlign0;
-	BYTE _lAlign1;
 	BYTE _lAlign2;
-	int _xoff;
-	int _yoff;
+	int _lxoff;
+	int _lyoff;
 } LightListStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

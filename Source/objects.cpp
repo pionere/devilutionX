@@ -1140,11 +1140,18 @@ static void AddObjLight(int oi, int diffr, int dx, int dy)
 	os = &objects[oi];
 	//if (gbInitObjFlag) {
 #if FLICKER_LIGHT
-		if (diffr == 0)
+		if (diffr == 0) {
 			os->_olid = NO_LIGHT;
-		else
+		} else
 #endif
-			DoLighting(os->_ox + dx, os->_oy + dy, diffr, NO_LIGHT);
+		{
+			assert(LightList[MAXLIGHTS]._lxoff == 0);
+			assert(LightList[MAXLIGHTS]._lyoff == 0);
+			LightList[MAXLIGHTS]._lradius = diffr;
+			LightList[MAXLIGHTS]._lx = os->_ox;
+			LightList[MAXLIGHTS]._ly = os->_oy;
+			DoLighting(MAXLIGHTS);
+		}
 	//}
 }
 
