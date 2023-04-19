@@ -458,7 +458,7 @@ typedef enum item_special_effect {
 	ISPL_LIFETOMANA     = 0x00200000,
 	ISPL_MANATOLIFE     = 0x00400000,
 	ISPL_PENETRATE_PHYS = 0x00800000,
-	ISPL_NO_BLEED       = 0x20000000, // immune to bleeding
+	ISPL_NO_BLEED       = 0x10000000, // immune to bleeding
 	ISPL_BLEED          = 0x20000000, // increased chance to bleed
 	ISPL_STUN           = 0x40000000, // increased chance to stun
 	ISPL_NOMANA         = 0x80000000,
