@@ -874,13 +874,17 @@ void MakeLightTable()
 			tbl += NUM_COLORS - 32;
 		}
 #ifdef HELLFIRE
-	} else if (currLvl._dType == DTYPE_CRYPT) {
+	} else if (currLvl._dType == DTYPE_CAVES || currLvl._dType == DTYPE_CRYPT) {
+#else
+	} else if (currLvl._dType == DTYPE_CAVES) {
+#endif
 		for (i = 0; i <= MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 32; j++)
 				*tbl++ = j;
 			tbl += NUM_COLORS - 32;
 		}
+#ifdef HELLFIRE
 	} else if (currLvl._dType == DTYPE_NEST) {
 		for (i = 0; i <= MAXDARKNESS; i++) {
 			*tbl++ = 0;
