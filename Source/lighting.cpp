@@ -847,7 +847,7 @@ void MakeLightTable()
 	memset(ColorTrns[MAXDARKNESS], 0, sizeof(ColorTrns[MAXDARKNESS]));
 
 	if (currLvl._dType == DTYPE_HELL) {
-		for (i = 0; i < MAXDARKNESS; i++) {
+		for (i = 0; i <= MAXDARKNESS; i++) {
 			shade = i;
 			col = 1;
 			*tbl++ = 0;
@@ -873,30 +873,21 @@ void MakeLightTable()
 			}
 			tbl += NUM_COLORS - 32;
 		}
-		/**tbl++ = 0;
-		for (j = 0; j < 31; j++) {
-			*tbl++ = 1;
-		}
-		tbl += NUM_COLORS - 32;*/
 #ifdef HELLFIRE
 	} else if (currLvl._dType == DTYPE_CRYPT) {
-		for (i = 0; i < MAXDARKNESS; i++) {
+		for (i = 0; i <= MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 32; j++)
 				*tbl++ = j;
 			tbl += NUM_COLORS - 32;
 		}
 	} else if (currLvl._dType == DTYPE_NEST) {
-		for (i = 0; i < MAXDARKNESS; i++) {
+		for (i = 0; i <= MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
 				*tbl++ = j;
 			tbl += NUM_COLORS - 16;
 		}
-		/**tbl++ = 0;
-		for (j = 1; j < 16; j++)
-			*tbl++ = 1;
-		tbl += NUM_COLORS - 16;*/
 #endif
 	}
 }
