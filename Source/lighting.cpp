@@ -826,15 +826,14 @@ void MakeLightTable()
 		for (j = 10; j < 16; j++) {
 			col = 16 * j + shade;
 			max = 16 * j + 15;
+			if (max == 255) {
+				max = 254;
+			}
 			for (k = 0; k < 16; k++) {
 				*tbl++ = col;
 				if (col < max) {
 					col++;
 				} else {
-					max = 0;
-					col = 0;
-				}
-				if (col == 255) {
 					max = 0;
 					col = 0;
 				}
