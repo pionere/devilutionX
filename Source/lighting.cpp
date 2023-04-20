@@ -886,7 +886,14 @@ void MakeLightTable()
 		}
 		tbl += NUM_COLORS - 32;*/
 #ifdef HELLFIRE
-	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
+	} else if (currLvl._dType == DTYPE_CRYPT) {
+		for (i = 0; i < MAXDARKNESS; i++) {
+			*tbl++ = 0;
+			for (j = 1; j < 32; j++)
+				*tbl++ = j;
+			tbl += NUM_COLORS - 32;
+		}
+	} else if (currLvl._dType == DTYPE_NEST) {
 		for (i = 0; i < MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
