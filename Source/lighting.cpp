@@ -445,19 +445,15 @@ const int8_t CrawlTable[2749] = {
 /** Indices of CrawlTable to select the entries at a given distance. */
 const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
-static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* lx, int* ly, int* bx, int* by)
+static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* bx, int* by)
 {
-	int swap, nx, ny;
+	int nx, ny;
 
-	swap = *dx;
-	*dx = 7 - *dy;
-	*dy = swap;
-	swap = *lx;
-	*lx = 7 - *ly;
-	*ly = swap;
+	nx = - *dy;
+	ny = *dx;
 
-	nx = *dx - *lx;
-	ny = *dy - *ly;
+	*dx = nx;
+	*dy = ny;
 
 	*bx = nx < 0 ? 1 : 0;
 	if (*bx == 1) {
@@ -476,39 +472,34 @@ void DoLighting(unsigned lnum)
 	LightListStruct* lis = &LightList[lnum];
 	int x, y, xoff, yoff;
 	int min_x, max_x, min_y, max_y;
-	int dist_x, dist_y, light_x, light_y, block_x, block_y, temp_x, temp_y;
+	int baseOffX, baseOffY, block_x, block_y, temp_x, temp_y;
 	int nXPos = lis->_lx;
 	int nYPos = lis->_ly;
 	int nRadius = lis->_lradius;
 	BYTE (&dark)[128] = darkTable[nRadius];
 	BYTE v, radius_block;
 
-	light_x = 0;
-	light_y = 0;
-	block_x = 0;
-	block_y = 0;
-
 	xoff = lis->_lxoff;
 	yoff = lis->_lyoff;
 	if (xoff < 0) {
-		xoff += 8;
+		xoff += MAX_OFFSET;
 		nXPos--;
-	} else if (xoff >= 8) {
-		xoff -= 8;
+	} else if (xoff >= MAX_OFFSET) {
+		xoff -= MAX_OFFSET;
 		nXPos++;
 	}
 	if (yoff < 0) {
-		yoff += 8;
+		yoff += MAX_OFFSET;
 		nYPos--;
-	} else if (yoff >= 8) {
-		yoff -= 8;
+	} else if (yoff >= MAX_OFFSET) {
+		yoff -= MAX_OFFSET;
 		nYPos++;
 	}
-	assert((unsigned)xoff < 8);
-	assert((unsigned)yoff < 8);
+	assert((unsigned)xoff < MAX_OFFSET);
+	assert((unsigned)yoff < MAX_OFFSET);
 
-	dist_x = xoff;
-	dist_y = yoff;
+	baseOffX = xoff;
+	baseOffY = yoff;
 
 	static_assert(DBORDERX >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border I.");
 	static_assert(DBORDERY >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border II.");
@@ -551,7 +542,7 @@ void DoLighting(unsigned lnum)
 			//}
 		}
 	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	RotateRadius(&xoff, &yoff, &baseOffX, &baseOffY, &block_x, &block_y);
 	// Add light to the II. (+;-) quadrant
 	BYTE (&dist1)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < max_x; y++) {
@@ -567,7 +558,7 @@ void DoLighting(unsigned lnum)
 			//}
 		}
 	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	RotateRadius(&xoff, &yoff, &baseOffX, &baseOffY, &block_x, &block_y);
 	// Add light to the III. (-;-) quadrant
 	BYTE (&dist2)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < min_y; y++) {
@@ -583,7 +574,7 @@ void DoLighting(unsigned lnum)
 			//}
 		}
 	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	RotateRadius(&xoff, &yoff, &baseOffX, &baseOffY, &block_x, &block_y);
 	// Add light to the IV. (-;+) quadrant
 	BYTE (&dist3)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < min_x; y++) {
