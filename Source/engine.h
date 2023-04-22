@@ -240,6 +240,34 @@ inline constexpr int lengthof(T (&array)[N])
 	return N;
 }
 
+typedef struct CCritSect {
+	SDL_mutex* m_critsect;
+
+	CCritSect()
+	{
+		m_critsect = SDL_CreateMutex();
+		if (m_critsect == NULL) {
+			sdl_error(ERR_SDL_MUTEX_CREATE);
+		}
+	}
+	~CCritSect()
+	{
+		SDL_DestroyMutex(m_critsect);
+	}
+	void Enter()
+	{
+		if (SDL_LockMutex(m_critsect) < 0) {
+			sdl_error(ERR_SDL_MUTEX_LOCK);
+		}
+	}
+	void Leave()
+	{
+		if (SDL_UnlockMutex(m_critsect) < 0) {
+			sdl_error(ERR_SDL_MUTEX_UNLOCK);
+		}
+	}
+} CCritSect;
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __ENGINE_H__ */

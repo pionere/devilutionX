@@ -3,8 +3,6 @@
 #include <cerrno>
 #include <limits>
 #include <string>
-#include <SDL.h>
-#include "appfat.h"
 #include "miniwin/miniwin.h"
 
 namespace dvl {
@@ -17,36 +15,6 @@ namespace dvl {
 #define WINAPI __stdcall
 #else
 #define WINAPI
-#endif
-
-#ifdef __cplusplus
-struct CCritSect {
-	SDL_mutex* m_critsect;
-
-	CCritSect()
-	{
-		m_critsect = SDL_CreateMutex();
-		if (m_critsect == NULL) {
-			sdl_error(ERR_SDL_MUTEX_CREATE);
-		}
-	}
-	~CCritSect()
-	{
-		SDL_DestroyMutex(m_critsect);
-	}
-	void Enter()
-	{
-		if (SDL_LockMutex(m_critsect) < 0) {
-			sdl_error(ERR_SDL_MUTEX_LOCK);
-		}
-	}
-	void Leave()
-	{
-		if (SDL_UnlockMutex(m_critsect) < 0) {
-			sdl_error(ERR_SDL_MUTEX_UNLOCK);
-		}
-	}
-};
 #endif
 
 // Game states
