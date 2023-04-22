@@ -20,7 +20,7 @@
 
 #include "all.h"
 
-#if !defined(__APPLE__)
+#if DEBUG_MODE && !defined(__APPLE__)
 extern "C" const char* __asan_default_options() // NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
 {
 	return "halt_on_error=0";
