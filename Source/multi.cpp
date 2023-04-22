@@ -681,6 +681,8 @@ static void SetupLocalPlr()
 	//	p->_pAtkSkill = SPL_RATTACK;
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	CalcPlrInv(mypnum, false);
+	if (p->_pHitPoints < (1 << 6))
+		PlrSetHp(mypnum, (1 << 6));
 
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;

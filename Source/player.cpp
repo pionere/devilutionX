@@ -787,8 +787,6 @@ void InitLvlPlayer(int pnum, bool entering)
 	}
 
 	CalcPlrItemVals(pnum, false);
-	if (currLvl._dType == DTYPE_TOWN && plr._pHitPoints < (1 << 6))
-		PlrSetHp(pnum, (1 << 6));
 
 	InitPlayerGFX(pnum); // for the local player this is necessary only if switching from or to town
 	SetPlrAnims(pnum);
@@ -1015,11 +1013,6 @@ static bool PlrDirOK(int pnum, int dir)
 
 static void StartPlrKill(int pnum, int dmgtype)
 {
-	if (currLvl._dType == DTYPE_TOWN) {
-		PlrSetHp(pnum, (1 << 6));
-		return;
-	}
-
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
 		return;
 
