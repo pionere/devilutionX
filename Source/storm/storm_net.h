@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../types.h"
 #ifdef ZEROTIER
 #include <vector>
 #include <string>
 #endif
+
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

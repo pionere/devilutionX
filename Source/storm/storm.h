@@ -3,7 +3,7 @@
 #include <cerrno>
 #include <limits>
 #include <string>
-#include "miniwin/miniwin.h"
+#include "all.h"
 
 namespace dvl {
 

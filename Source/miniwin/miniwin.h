@@ -4,33 +4,6 @@
 
 namespace dvl {
 
-typedef int32_t INT;
-typedef uint8_t BOOLEAN;
-
-typedef uint32_t DWORD;
-typedef int BOOL;
-typedef unsigned char BYTE;
-typedef uint16_t WORD;
-
-typedef unsigned int UINT;
-
-typedef int32_t WPARAM;
-typedef int32_t LPARAM;
-
-//
-// Handles
-//
-typedef void* HANDLE;
-
-typedef HANDLE HMODULE, HDC, HINSTANCE;
-
-typedef void (*WNDPROC)(UINT, WPARAM);
-
-typedef struct tagMSG {
-	UINT message;
-	WPARAM wParam;
-} MSG, *LPMSG;
-
 //
 // Everything else
 //
@@ -46,21 +19,6 @@ int TranslateKey2Char(int vkey);
 void DispatchMessage(const MSG* lpMsg);
 void PostMessage(UINT Msg /*, WPARAM wParam*/);
 WNDPROC SetWindowProc(WNDPROC NewProc);
-
-#ifndef TRUE
-#define TRUE true
-#endif
-#ifndef FALSE
-#define FALSE false
-#endif
-
-//
-// MSCVRT emulation
-//
-
-#define DVL_FILE_BEGIN   0
-#define DVL_FILE_CURRENT 1
-#define DVL_FILE_END     2
 
 //
 // Events

@@ -4,7 +4,7 @@
 #include <vector>
 #include <SDL.h>
 
-#include "DiabloUI/ui_item.h"
+#include "ui_item.h"
 #include "utils/display.h"
 #include "../diabloui.h"
 

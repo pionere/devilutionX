@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../types.h"
-
 #if HAS_JOYSTICK
 // Joystick mappings for SDL1 and additional buttons on SDL2.
 
@@ -12,6 +10,8 @@
 #ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
 #endif
+
+#include "../defs.h"
 
 #include "../controller_buttons.h"
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../types.h"
-
 #if HAS_TOUCHPAD
 #ifdef USE_SDL1
-static_assert(FALSE, "Touchpad is not supported in SDL1.");
+static_assert(false, "Touchpad is not supported in SDL1.");
 #endif
 #include <SDL.h>
+
+#include "../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

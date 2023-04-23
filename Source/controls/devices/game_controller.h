@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../types.h"
-
 #if HAS_GAMECTRL
 #ifdef USE_SDL1
-static_assert(FALSE, "GameController is not supported in SDL1.");
+static_assert(false, "GameController is not supported in SDL1.");
 #endif
 
 #include <vector>
 
 #include <SDL.h>
+
+#include "../defs.h"
 
 #include "../controller_buttons.h"
 

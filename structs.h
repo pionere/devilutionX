@@ -6,6 +6,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifndef _STRUCTS_H
+#define _STRUCTS_H
+
 #if INT_MAX == INT32_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
 #define ALIGNMENT(x86, x64) int alignment[x86];
@@ -30,6 +33,38 @@ DEVILUTION_BEGIN_NAMESPACE
 #define ALIGN32
 #define ALIGN64
 #endif
+
+//////////////////////////////////////////////////
+// miniwin
+//////////////////////////////////////////////////
+
+typedef int32_t INT;
+typedef uint8_t BOOLEAN;
+
+typedef uint32_t DWORD;
+typedef int BOOL;
+typedef unsigned char BYTE;
+typedef uint16_t WORD;
+
+typedef unsigned int UINT;
+
+typedef int32_t WPARAM;
+typedef int32_t LPARAM;
+
+//
+// Handles
+//
+typedef void* HANDLE;
+
+typedef HANDLE HMODULE, HDC, HINSTANCE;
+
+typedef void (*WNDPROC)(UINT, WPARAM);
+
+typedef struct tagMSG {
+	UINT message;
+	WPARAM wParam;
+} MSG, *LPMSG;
+
 //////////////////////////////////////////////////
 // control
 //////////////////////////////////////////////////
@@ -2627,3 +2662,5 @@ typedef struct FileTrn {
 */
 
 DEVILUTION_END_NAMESPACE
+
+#endif /* _STRUCTS_H */

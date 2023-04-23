@@ -3,6 +3,8 @@
  *
  * Global definitions and Macros.
  */
+#ifndef _DEFS_H
+#define _DEFS_H
 
 #ifndef ASSET_MPL
 #define ASSET_MPL				1
@@ -185,6 +187,13 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 	&& y >= 0                 \
 	&& y < MAXDUNY)
 
+#ifndef TRUE
+#define TRUE true
+#endif
+#ifndef FALSE
+#define FALSE false
+#endif
+
 #undef assert
 
 #if DEBUG_MODE || DEV_MODE
@@ -272,3 +281,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define EX_SOFTWARE 1
 #endif
 #endif
+
+#define DEVILUTION_BEGIN_NAMESPACE namespace dvl {
+#define DEVILUTION_END_NAMESPACE }
+
+#endif /* _DEFS_H */

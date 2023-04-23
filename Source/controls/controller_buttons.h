@@ -1,7 +1,7 @@
 #pragma once
 // Unifies joystick, gamepad, and keyboard controller APIs.
 
-#include "../types.h"
+#include "../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

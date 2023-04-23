@@ -6,7 +6,7 @@
 #ifndef __CEL_RENDER_H__
 #define __CEL_RENDER_H__
 
-#include "../types.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

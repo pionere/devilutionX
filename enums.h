@@ -3,6 +3,8 @@
  *
  * Various global enumerators.
  */
+#ifndef _ENUMS_H
+#define _ENUMS_H
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -4640,3 +4642,5 @@ typedef enum SDL_LogPriority
 } SDL_LogPriority;
 
 DEVILUTION_END_NAMESPACE
+
+#endif /* _ENUMS_H */

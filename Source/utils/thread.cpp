@@ -1,8 +1,7 @@
 #include "thread.h"
 
-#include "../types.h"
-#include "appfat.h"
-#include <SDL.h>
+//#include <SDL.h>
+//#include "appfat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

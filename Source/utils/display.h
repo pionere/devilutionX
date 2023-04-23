@@ -3,9 +3,11 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "../types.h"
-#include "../gameui.h"
-#include <SDL.h>
+//#include <SDL.h>
+
+//#include "../defs.h"
+//#include "../gameui.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

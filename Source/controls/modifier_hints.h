@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../types.h"
-#include "controller.h"
-
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
+#include "../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

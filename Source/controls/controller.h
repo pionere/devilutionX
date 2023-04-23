@@ -2,8 +2,9 @@
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
-#include "../types.h"
 #include <SDL.h>
+
+#include "../defs.h"
 
 #include "devices/kbcontroller.h"
 #include "devices/joystick.h"

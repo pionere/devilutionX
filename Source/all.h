@@ -8,6 +8,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <climits>
+#include <cstring>
 
 // We include `cinttypes` here so that it is included before `inttypes.h`
 // to work around a bug in older GCC versions on some platforms,
@@ -27,7 +29,12 @@
 #include "utils/sdl_compat.h"
 #include "utils/log.h"
 
-#include "../types.h"
+#include "../defs.h"
+#include "../enums.h"
+#include "../structs.h"
+
+#include "miniwin/miniwin.h"
+#include "utils/thread.h"
 
 //#include "diabloui.h"
 #include "gameui.h"

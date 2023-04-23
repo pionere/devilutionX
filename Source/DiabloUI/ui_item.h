@@ -5,10 +5,13 @@
 #include <string>
 #include <vector>
 
-#include "../types.h"
-#include "../appfat.h"
+/*#include "../defs.h"
+#include "../enums.h"
+#include "../structs.h"
+#include "../appfat.h"*/
+#include "all.h"
 
-#include "DiabloUI/text_draw.h"
+#include "text_draw.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
