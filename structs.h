@@ -816,6 +816,9 @@ typedef struct ObjectData {
 	//int oAnimWidth;
 	//int oSFX;
 	//BYTE oSFXCnt;
+	BYTE oLightRadius;
+	int8_t oLightOffX;
+	int8_t oLightOffY;
 	BYTE oProc;       // object_proc_func
 	BYTE oModeFlags;  // object_mode_flags
 	//BOOL oSolidFlag;
@@ -825,7 +828,7 @@ typedef struct ObjectData {
 	BYTE oDoorFlag;   // object_door_type
 	BYTE oSelFlag;
 	BOOLEAN oTrapFlag;
-	ALIGNMENT(1, 1)
+	BYTE oAlign[3];
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

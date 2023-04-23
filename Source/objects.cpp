@@ -650,11 +650,21 @@ static void LoadMapSetObjects(int idx)
 	//gbInitObjFlag = false; -- setpieces, setmap levers?
 }
 
-static void SetupObject(int oi, int type)
+static int SetupObject(int type, int ox, int oy)
 {
+	int oi;
 	ObjectStruct* os;
 	const ObjectData* ods;
 	const ObjFileData* ofd;
+
+	if (numobjects >= MAXOBJECTS)
+		return -1;
+
+//	oi = objectavail[0];
+	oi = numobjects;
+	// objectactive[numobjects] = oi;
+	numobjects++;
+//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
 
 	os = &objects[oi];
 	os->_otype = type;
@@ -685,6 +695,32 @@ static void SetupObject(int oi, int type)
 	// os->_oDelFlag = FALSE; - unused
 	os->_oPreFlag = FALSE;
 	os->_oTrapChance = 0;
+	// place object
+	os->_ox = ox;
+	os->_oy = oy;
+	assert(dObject[ox][oy] == 0);
+	dObject[ox][oy] = oi + 1;
+	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
+	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
+		dObject[ox][oy] = 0;
+		os->_oModeFlags |= OMF_RESERVED;
+		os->_oSelFlag = 0;
+	} else if (ods->oLightRadius != 0) {
+#if FLICKER_LIGHT
+		if (type == OBJ_L1LIGHT) {
+			os->_olid = NO_LIGHT;
+		} else
+#endif
+		{
+			assert(LightList[MAXLIGHTS]._lxoff == 0);
+			assert(LightList[MAXLIGHTS]._lyoff == 0);
+			LightList[MAXLIGHTS]._lradius = ods->oLightRadius;
+			LightList[MAXLIGHTS]._lx = ox + ods->oLightOffX;
+			LightList[MAXLIGHTS]._ly = oy + ods->oLightOffY;
+			DoLighting(MAXLIGHTS);
+		}
+	}
+	return oi;
 }
 
 static int ObjIndex(int x, int y)
@@ -1133,28 +1169,6 @@ static void AddTrap(int oi)
 	os->_oVar4 = TRAP_ACTIVE; // TRAP_LIVE
 }
 
-static void AddObjLight(int oi, int diffr, int dx, int dy)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	//if (gbInitObjFlag) {
-#if FLICKER_LIGHT
-		if (diffr == 0) {
-			os->_olid = NO_LIGHT;
-		} else
-#endif
-		{
-			assert(LightList[MAXLIGHTS]._lxoff == 0);
-			assert(LightList[MAXLIGHTS]._lyoff == 0);
-			LightList[MAXLIGHTS]._lradius = diffr;
-			LightList[MAXLIGHTS]._lx = os->_ox;
-			LightList[MAXLIGHTS]._ly = os->_oy;
-			DoLighting(MAXLIGHTS);
-		}
-	//}
-}
-
 static void AddBarrel(int oi)
 {
 	ObjectStruct* os;
@@ -1315,193 +1329,140 @@ static void SyncL5Doors(int oi);
 #endif
 int AddObject(int type, int ox, int oy)
 {
-	int oi;
-
-	if (numobjects >= MAXOBJECTS)
-		return -1;
-
-//	oi = objectavail[0];
-	oi = numobjects;
-	// objectactive[numobjects] = oi;
-	numobjects++;
-//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
-	SetupObject(oi, type);
-	// place object
-	ObjectStruct* os = &objects[oi];
-	os->_ox = ox;
-	os->_oy = oy;
-	assert(dObject[ox][oy] == 0);
-	dObject[ox][oy] = oi + 1;
-	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
-	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
-		dObject[ox][oy] = 0;
-		os->_oModeFlags |= OMF_RESERVED;
-		os->_oSelFlag = 0;
-	}
-	// init object
-	switch (type) {
-	case OBJ_L1LIGHT:
-#if FLICKER_LIGHT
-		AddObjLight(oi, 0, 0, 0);
-#else
-		AddObjLight(oi, 10, 0, 0);
-#endif
-		break;
-	case OBJ_SKFIRE:
-	//case OBJ_CANDLE1:
-	case OBJ_CANDLE2:
-	case OBJ_BOOKCANDLE:
-		AddObjLight(oi, 5, 0, 0);
-		break;
-	case OBJ_STORYCANDLE:
+	int oi = SetupObject(type, ox, oy);
+	if (oi >= 0) {
+		// init object
+		switch (type) {
+		case OBJ_L1LDOOR:
+		case OBJ_L1RDOOR:
+		case OBJ_L2LDOOR:
+		case OBJ_L2RDOOR:
+		case OBJ_L3LDOOR:
+		case OBJ_L3RDOOR:
 #ifdef HELLFIRE
-	case OBJ_L5CANDLE:
+		case OBJ_L5LDOOR:
+		case OBJ_L5RDOOR:
 #endif
-		AddObjLight(oi, 3, 0, 0);
-		break;
-	case OBJ_TORCHL1:
-		AddObjLight(oi, 8, 1, 0);
-		break;
-	case OBJ_TORCHR1:
-		AddObjLight(oi, 8, 0, 1);
-		break;
-	case OBJ_TORCHR2:
-	case OBJ_TORCHL2:
-		AddObjLight(oi, 8, 0, 0);
-		break;
-	case OBJ_L1LDOOR:
-	case OBJ_L1RDOOR:
-	case OBJ_L2LDOOR:
-	case OBJ_L2RDOOR:
-	case OBJ_L3LDOOR:
-	case OBJ_L3RDOOR:
+			AddDoor(oi);
+			break;
+		case OBJ_CHEST1:
+		case OBJ_CHEST2:
+		case OBJ_CHEST3:
+			AddChest(oi);
+			break;
+		case OBJ_TCHEST1:
+		case OBJ_TCHEST2:
+		case OBJ_TCHEST3:
+			AddChest(oi);
+			objects[oi]._oTrapChance = RandRange(1, 64);
+			objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
+			break;
+		case OBJ_SARC:
 #ifdef HELLFIRE
-	case OBJ_L5LDOOR:
-	case OBJ_L5RDOOR:
+		case OBJ_L5SARC:
 #endif
-		AddDoor(oi);
-		break;
-	case OBJ_CHEST1:
-	case OBJ_CHEST2:
-	case OBJ_CHEST3:
-		AddChest(oi);
-		break;
-	case OBJ_TCHEST1:
-	case OBJ_TCHEST2:
-	case OBJ_TCHEST3:
-		AddChest(oi);
-		objects[oi]._oTrapChance = RandRange(1, 64);
-		objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
-		break;
-	case OBJ_SARC:
+			AddSarc(oi);
+			break;
+			/*case OBJ_FLAMEHOLE:
+				AddFlameTrap(oi);
+				break;
+			case OBJ_FLAMELVR:
+				AddFlameLever(oi);
+				break;
+			case OBJ_WATER:
+				objects[oi]._oAnimFrame = 1;
+				break;*/
+		case OBJ_TRAPL:
+		case OBJ_TRAPR:
+			AddTrap(oi);
+			break;
+		case OBJ_BARREL:
 #ifdef HELLFIRE
-	case OBJ_L5SARC:
+		case OBJ_URN:
+		case OBJ_POD:
 #endif
-		AddSarc(oi);
-		break;
-	/*case OBJ_FLAMEHOLE:
-		AddFlameTrap(oi);
-		break;
-	case OBJ_FLAMELVR:
-		AddFlameLever(oi);
-		break;
-	case OBJ_WATER:
-		objects[oi]._oAnimFrame = 1;
-		break;*/
-	case OBJ_TRAPL:
-	case OBJ_TRAPR:
-		AddTrap(oi);
-		break;
-	case OBJ_BARREL:
+			AddBarrel(oi);
+			break;
+		case OBJ_SHRINEL:
+		case OBJ_SHRINER:
+			AddShrine(oi);
+			break;
+		case OBJ_BOOKCASEL:
+		case OBJ_BOOKCASER:
+			AddBookcase(oi);
+			break;
+		case OBJ_DECAP:
+			AddDecap(oi);
+			break;
+		case OBJ_BARRELEX:
 #ifdef HELLFIRE
-	case OBJ_URN:
-	case OBJ_POD:
+		case OBJ_URNEX:
+		case OBJ_PODEX:
 #endif
-		AddBarrel(oi);
-		break;
-	case OBJ_SHRINEL:
-	case OBJ_SHRINER:
-		AddShrine(oi);
-		break;
-	case OBJ_BOOKCASEL:
-	case OBJ_BOOKCASER:
-		AddBookcase(oi);
-		break;
-	case OBJ_DECAP:
-		AddDecap(oi);
-		break;
-	case OBJ_BARRELEX:
+		case OBJ_BOOK2L:
+		case OBJ_BOOK2R:
+		case OBJ_PEDESTAL:
+		case OBJ_ARMORSTAND:
+		case OBJ_WEAPONRACKL:
+		case OBJ_WEAPONRACKR:
+			ObjAddRndSeed(oi);
+			break;
+		case OBJ_BLOODBOOK:
+			ObjAddBloodBook(oi);
+			break;
+		case OBJ_ANCIENTBOOK:
+			ObjAddBook(oi, BK_ANCIENT);
+			break;
+		case OBJ_STEELTOME:
+			ObjAddBook(oi, BK_STEEL);
+			break;
+		case OBJ_BLINDBOOK:
+			ObjAddBook(oi, BK_BLIND);
+			break;
+		case OBJ_MYTHICBOOK:
+			ObjAddBook(oi, BK_MYTHIC);
+			break;
+		case OBJ_VILEBOOK:
+			ObjAddBook(oi, BK_VILENESS);
+			break;
+		case OBJ_ARMORSTANDN:
+			AddArmorStand(oi);
+			break;
+		case OBJ_WEAPONRACKLN:
+		case OBJ_WEAPONRACKRN:
+			AddWeaponRack(oi);
+			break;
+		case OBJ_GOATSHRINE:
+		case OBJ_CAULDRON:
+			AddCauldronGoatShrine(oi);
+			break;
+		case OBJ_PURIFYINGFTN:
+		case OBJ_MURKYFTN:
+		case OBJ_MUSHPATCH:
+			Alloc2x2Obj(oi);
+			break;
+			//case OBJ_TEARFTN:
+			//	ObjAddRndSeed(oi);
+			//	break;
+		case OBJ_MCIRCLE1:
+		case OBJ_MCIRCLE2:
+			AddMagicCircle(oi);
+			break;
+		case OBJ_STORYBOOK:
+			AddStoryBook(oi);
+			break;
+		case OBJ_TNUDEM:
+			AddTorturedMaleBody(oi);
+			break;
+		case OBJ_TNUDEW:
+			AddTorturedFemaleBody(oi);
+			break;
 #ifdef HELLFIRE
-	case OBJ_URNEX:
-	case OBJ_PODEX:
+		case OBJ_NAKRULBOOK:
+			AddNakrulBook(oi);
+			break;
 #endif
-	case OBJ_BOOK2L:
-	case OBJ_BOOK2R:
-	case OBJ_PEDESTAL:
-	case OBJ_ARMORSTAND:
-	case OBJ_WEAPONRACKL:
-	case OBJ_WEAPONRACKR:
-		ObjAddRndSeed(oi);
-		break;
-	case OBJ_BLOODBOOK:
-		ObjAddBloodBook(oi);
-		break;
-	case OBJ_ANCIENTBOOK:
-		ObjAddBook(oi, BK_ANCIENT);
-		break;
-	case OBJ_STEELTOME:
-		ObjAddBook(oi, BK_STEEL);
-		break;
-	case OBJ_BLINDBOOK:
-		ObjAddBook(oi, BK_BLIND);
-		break;
-	case OBJ_MYTHICBOOK:
-		ObjAddBook(oi, BK_MYTHIC);
-		break;
-	case OBJ_VILEBOOK:
-		ObjAddBook(oi, BK_VILENESS);
-		break;
-	case OBJ_ARMORSTANDN:
-		AddArmorStand(oi);
-		break;
-	case OBJ_WEAPONRACKLN:
-	case OBJ_WEAPONRACKRN:
-		AddWeaponRack(oi);
-		break;
-	case OBJ_GOATSHRINE:
-	case OBJ_CAULDRON:
-		AddCauldronGoatShrine(oi);
-		break;
-	case OBJ_PURIFYINGFTN:
-	case OBJ_MURKYFTN:
-	case OBJ_MUSHPATCH:
-		Alloc2x2Obj(oi);
-		break;
-	//case OBJ_TEARFTN:
-	//	ObjAddRndSeed(oi);
-	//	break;
-	case OBJ_MCIRCLE1:
-	case OBJ_MCIRCLE2:
-		AddMagicCircle(oi);
-		break;
-	case OBJ_STORYBOOK:
-		AddStoryBook(oi);
-		break;
-	case OBJ_TBCROSS:
-		// ObjAddRndSeed(oi);
-		AddObjLight(oi, 10, 0, 0);
-		break;
-	case OBJ_TNUDEM:
-		AddTorturedMaleBody(oi);
-		break;
-	case OBJ_TNUDEW:
-		AddTorturedFemaleBody(oi);
-		break;
-#ifdef HELLFIRE
-	case OBJ_NAKRULBOOK:
-		AddNakrulBook(oi);
-		break;
-#endif
+		}
 	}
 	return oi;
 }
