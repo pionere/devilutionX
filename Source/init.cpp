@@ -60,8 +60,6 @@ static HANDLE init_test_access(const char* mpq_name)
 
 void FreeArchives()
 {
-	pfile_flush(true);
-
 #ifdef MPQONE
 	SFileCloseArchive(diabdat_mpq);
 	diabdat_mpq = NULL;

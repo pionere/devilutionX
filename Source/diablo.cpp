@@ -322,6 +322,7 @@ static bool diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
+	pfile_flush(true);
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
 		StopSFX(); // stop click-effect
