@@ -6,7 +6,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-namespace dvl {
+#include "../defs.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 void printInConsole(const char* fmt, ...)
 {
@@ -29,7 +31,7 @@ void printInConsole(const char* fmt, ...)
 	WriteConsole(stderrHandle, message, strlen(message), NULL, NULL);
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
 #else
 #define printInConsole printf
 #endif

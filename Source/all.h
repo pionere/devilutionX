@@ -34,7 +34,7 @@
 #include "../structs.h"
 
 #include "miniwin/miniwin.h"
-#include "utils/thread.h"
+//#include "utils/thread.h"
 
 //#include "diabloui.h"
 #include "gameui.h"

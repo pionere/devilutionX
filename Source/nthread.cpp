@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "storm/storm_net.h"
+#include "utils/thread.h"
 #include <deque>
 
 DEVILUTION_BEGIN_NAMESPACE

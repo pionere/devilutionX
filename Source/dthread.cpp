@@ -4,6 +4,8 @@
  * Implementation of functions for updating game state from network commands.
  */
 #include "all.h"
+#include "utils/thread.h"
+
 #ifndef NONET
 DEVILUTION_BEGIN_NAMESPACE
 

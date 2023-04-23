@@ -5,7 +5,7 @@
 #include <string>
 #include "all.h"
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 // Note to self: Linker error => forgot a return value in cpp
 
@@ -123,4 +123,4 @@ void SLoadKeyMap(BYTE (&map)[256]);
 }
 #endif
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

@@ -13,7 +13,9 @@
 #include "utils/sdl2_backports.h"
 #endif
 
-namespace dvl {
+#include "../defs.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 /**
  * @brief Deletes the SDL surface using `SDL_FreeSurface`.
@@ -78,4 +80,4 @@ struct SDLFreeDeleter {
 template <typename T>
 using SDLUniquePtr = std::unique_ptr<T, SDLFreeDeleter<T>>;
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

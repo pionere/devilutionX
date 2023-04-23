@@ -8,7 +8,9 @@
 #include <SDL_video.h>
 #endif
 
-namespace devilution {
+#include "../defs.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 /**
  * @brief Bilinear 32-bit scaling.
@@ -16,4 +18,4 @@ namespace devilution {
  */
 void BilinearScale32(SDL_Surface* src, SDL_Surface* dst);
 
-} // namespace devilution
+DEVILUTION_END_NAMESPACE

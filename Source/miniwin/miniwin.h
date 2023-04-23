@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
 //
 // Everything else
@@ -231,4 +231,4 @@ typedef enum window_messages {
 #define DVL_MK_LBUTTON 0x0001
 #define DVL_MK_RBUTTON 0x0002
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
