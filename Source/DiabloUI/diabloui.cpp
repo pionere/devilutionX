@@ -675,27 +675,6 @@ void UiHandleEvents(SDL_Event* event)
 	if (HandleMenuAction(GetMenuAction(*event)))
 		return;
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	if (event->type == SDL_MOUSEWHEEL) {
-		if (event->wheel.y > 0) {
-			UiFocusUp();
-		} else if (event->wheel.y < 0) {
-			UiFocusDown();
-		}
-		return;
-	}
-#else
-	if (event->type == SDL_MOUSEBUTTONDOWN) {
-		switch (event->button.button) {
-		case SDL_BUTTON_WHEELUP:
-			UiFocusUp();
-			return;
-		case SDL_BUTTON_WHEELDOWN:
-			UiFocusDown();
-			return;
-		}
-	}
-#endif
 	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
 		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
 			UiFocusNavigationEsc();

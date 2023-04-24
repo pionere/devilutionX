@@ -140,6 +140,25 @@ MenuAction GetMenuAction(SDL_Event& event)
 		}
 	}
 
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	if (event.type == SDL_MOUSEWHEEL) {
+		if (event.wheel.y > 0) {
+			return MenuAction_UP;
+		} else if (event.wheel.y < 0) {
+			return MenuAction_DOWN;
+		}
+	}
+#else
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		switch (event.button.button) {
+		case SDL_BUTTON_WHEELUP:
+			return MenuAction_UP;
+		case SDL_BUTTON_WHEELDOWN:
+			return MenuAction_DOWN;
+		}
+	}
+#endif
+
 	return MenuAction_NONE;
 }
 
