@@ -13,6 +13,11 @@ std::vector<Joystick> Joystick::joysticks_;
 
 ControllerButton Joystick::ToControllerButton(const SDL_Event& event)
 {
+	Joystick* joystick = Joystick::Get(event);
+	if (joystick == NULL) {
+		return ControllerButton_NONE;
+	}
+
 	switch (event.type) {
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:

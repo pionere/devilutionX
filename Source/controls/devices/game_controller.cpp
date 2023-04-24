@@ -13,24 +13,29 @@ std::vector<GameController> GameController::controllers_;
 
 ControllerButton GameController::ToControllerButton(const SDL_Event& event)
 {
+	GameController* controller = GameController::Get(event);
+	if (controller == NULL) {
+		return ControllerButton_NONE;
+	}
+
 	switch (event.type) {
 	case SDL_CONTROLLERAXISMOTION:
 		switch (event.caxis.axis) {
 		case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
 			if (event.caxis.value < 8192) { // 25% pressed
-				trigger_left_is_down_ = false;
+				controller->trigger_left_is_down_ = false;
 			}
-			if (event.caxis.value > 16384 && !trigger_left_is_down_) { // 50% pressed
-				trigger_left_is_down_ = true;
+			if (event.caxis.value > 16384 && !controller->trigger_left_is_down_) { // 50% pressed
+				controller->trigger_left_is_down_ = true;
 				return ControllerButton_AXIS_TRIGGERLEFT;
 			}
 			return ControllerButton_NONE;
 		case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
 			if (event.caxis.value < 8192) { // 25% pressed
-				trigger_right_is_down_ = false;
+				controller->trigger_right_is_down_ = false;
 			}
-			if (event.caxis.value > 16384 && !trigger_right_is_down_) { // 50% pressed
-				trigger_right_is_down_ = true;
+			if (event.caxis.value > 16384 && !controller->trigger_right_is_down_) { // 50% pressed
+				controller->trigger_right_is_down_ = true;
 				return ControllerButton_AXIS_TRIGGERRIGHT;
 			}
 			return ControllerButton_NONE;
