@@ -347,7 +347,7 @@ int DiabloMain(int argc, char** argv)
 
 	diablo_init();
 #ifndef HOSTONLY
-	if (!_gbSkipIntro && diablo_splash())
+	if (_gbSkipIntro || diablo_splash())
 #endif
 		mainmenu_loop();
 	diablo_deinit();
