@@ -50,7 +50,7 @@ static unsigned ListViewportSize;
 unsigned ListOffset;
 /** The edit field on the current screen (if exists) */
 UiEdit* gUiEditField;
-/** Specifies whether the cursor should be shown on the current screen */
+/** Specifies whether the cursor should be shown on the current screen + controlls key/mouse-press events if set to false. TODO: better solution? */
 bool gUiDrawCursor;
 
 static Uint32 _gdwFadeTc;
@@ -248,7 +248,8 @@ static bool HandleMenuAction(MenuAction menuAction)
 
 void UiFocusNavigationSelect()
 {
-	UiPlaySelectSound();
+	if (gUiDrawCursor)
+		UiPlaySelectSound();
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	if (gUiEditField != NULL) {
 		if (gUiEditField->m_value[0] == '\0') {
@@ -267,7 +268,8 @@ void UiFocusNavigationSelect()
 
 void UiFocusNavigationEsc()
 {
-	UiPlaySelectSound();
+	if (gUiDrawCursor)
+		UiPlayMoveSound();
 	if (gfnListEsc != NULL)
 		gfnListEsc();
 }
@@ -695,6 +697,10 @@ void UiHandleEvents(SDL_Event* event)
 	}
 #endif
 	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
+		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
+			UiFocusNavigationEsc();
+			return;
+		}
 		if (event->button.button != SDL_BUTTON_LEFT)
 			return; // false;
 
@@ -786,8 +792,11 @@ void UiHandleEvents(SDL_Event* event)
 	}
 
 	if (event->type == SDL_KEYDOWN) {
-		if (event->key.keysym.sym == SDLK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
+		SDL_Keymod modState = SDL_GetModState();
+		if (event->key.keysym.sym == SDLK_RETURN && (modState & KMOD_ALT)) {
 			ToggleFullscreen();
+		} else if (!gUiDrawCursor && !modState) {
+			UiFocusNavigationEsc();
 		}
 		return;
 	}
