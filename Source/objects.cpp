@@ -669,8 +669,9 @@ static int SetupObject(int type, int ox, int oy)
 	os = &objects[oi];
 	os->_otype = type;
 	ods = &objectdata[type];
-	os->_oSelFlag = ods->oSelFlag;
+	os->_oMissFlag = ods->oMissFlag;
 	os->_oDoorFlag = ods->oDoorFlag;
+	os->_oSelFlag = ods->oSelFlag;
 	os->_oProc = ods->oProc;
 	os->_oModeFlags = ods->oModeFlags;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
@@ -689,7 +690,6 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
-	os->_oMissFlag = ofd->oMissFlag;
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
 	os->_oPreFlag = FALSE;
@@ -1235,11 +1235,6 @@ static void ObjAddBook(int oi, int bookidx)
 	os->_oVar5 = bookidx; // STORY_BOOK_NAME
 }
 
-static void AddArmorStand(int oi)
-{
-	objects[oi]._oMissFlag = TRUE;
-}
-
 static void AddCauldronGoatShrine(int oi)
 {
 	ObjectStruct* os;
@@ -1286,11 +1281,6 @@ static void AddStoryBook(int oi)
 	os->_oVar5 = 3 * bookframe + idx + BK_STORY_MAINA_1; // STORY_BOOK_NAME
 	os->_oAnimFrame = 5 - 2 * bookframe;                 //
 	os->_oVar4 = os->_oAnimFrame + 1;                    // STORY_BOOK_READ_FRAME
-}
-
-static void AddWeaponRack(int oi)
-{
-	objects[oi]._oMissFlag = TRUE;
 }
 
 static void AddTorturedMaleBody(int oi)
@@ -1404,13 +1394,6 @@ int AddObject(int type, int ox, int oy)
 			break;
 		case OBJ_VILEBOOK:
 			ObjAddBook(oi, BK_VILENESS);
-			break;
-		case OBJ_ARMORSTANDN:
-			AddArmorStand(oi);
-			break;
-		case OBJ_WEAPONRACKLN:
-		case OBJ_WEAPONRACKRN:
-			AddWeaponRack(oi);
 			break;
 		case OBJ_GOATSHRINE:
 		case OBJ_CAULDRON:
