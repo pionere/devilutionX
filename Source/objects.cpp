@@ -704,19 +704,38 @@ static int SetupObject(int type, int ox, int oy)
 		dObject[ox][oy] = 0;
 		os->_oModeFlags |= OMF_RESERVED;
 		os->_oSelFlag = 0;
-	} else if (ods->oLightRadius != 0) {
+	} else {
+		if (ods->oLightRadius != 0) {
 #if FLICKER_LIGHT
-		if (type == OBJ_L1LIGHT) {
-			os->_olid = NO_LIGHT;
-		} else
+			if (type == OBJ_L1LIGHT) {
+				os->_olid = NO_LIGHT;
+			} else
 #endif
-		{
-			assert(LightList[MAXLIGHTS]._lxoff == 0);
-			assert(LightList[MAXLIGHTS]._lyoff == 0);
-			LightList[MAXLIGHTS]._lradius = ods->oLightRadius;
-			LightList[MAXLIGHTS]._lx = ox + ods->oLightOffX;
-			LightList[MAXLIGHTS]._ly = oy + ods->oLightOffY;
-			DoLighting(MAXLIGHTS);
+			{
+				assert(LightList[MAXLIGHTS]._lxoff == 0);
+				assert(LightList[MAXLIGHTS]._lyoff == 0);
+				LightList[MAXLIGHTS]._lradius = ods->oLightRadius;
+				LightList[MAXLIGHTS]._lx = ox + ods->oLightOffX;
+				LightList[MAXLIGHTS]._ly = oy + ods->oLightOffY;
+				DoLighting(MAXLIGHTS);
+			}
+		}
+		if (ods->oDoorFlag != ODT_NONE) {
+			os->_oVar4 = DOOR_CLOSED;
+			//os->_oPreFlag = FALSE;
+			//os->_oSelFlag = 3;
+			//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
+			//os->_oMissFlag = FALSE;
+			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
+			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
+			// DOOR_SIDE_PIECE_CLOSED
+			int bx = ox;
+			int by = oy;
+			if (os->_oDoorFlag == ODT_LEFT)
+				by--;
+			else
+				bx--;
+			os->_oVar2 = dPiece[bx][by];
 		}
 	}
 	return oi;
@@ -1092,32 +1111,6 @@ static void AddChest(int oi)
 	//assert(num <= 3); otherwise the seeds are not 'reserved'
 }
 
-static void OpenDoor(int oi);
-static void AddDoor(int oi)
-{
-	ObjectStruct* os;
-	int x, y, bx, by;
-
-	os = &objects[oi];
-	x = os->_ox;
-	y = os->_oy;
-	os->_oVar4 = DOOR_CLOSED;
-	//os->_oPreFlag = FALSE;
-	//os->_oSelFlag = 3;
-	//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
-	//os->_oMissFlag = FALSE;
-	//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
-	os->_oVar1 = dPiece[x][y]; // DOOR_PIECE_CLOSED
-	// DOOR_SIDE_PIECE_CLOSED
-	bx = x;
-	by = y;
-	if (os->_oDoorFlag == ODT_LEFT)
-		by--;
-	else
-		bx--;
-	os->_oVar2 = dPiece[bx][by];
-}
-
 static void AddSarc(int oi)
 {
 	ObjectStruct* os;
@@ -1332,18 +1325,6 @@ int AddObject(int type, int ox, int oy)
 	if (oi >= 0) {
 		// init object
 		switch (type) {
-		case OBJ_L1LDOOR:
-		case OBJ_L1RDOOR:
-		case OBJ_L2LDOOR:
-		case OBJ_L2RDOOR:
-		case OBJ_L3LDOOR:
-		case OBJ_L3RDOOR:
-#ifdef HELLFIRE
-		case OBJ_L5LDOOR:
-		case OBJ_L5RDOOR:
-#endif
-			AddDoor(oi);
-			break;
 		case OBJ_CHEST1:
 		case OBJ_CHEST2:
 		case OBJ_CHEST3:
