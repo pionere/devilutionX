@@ -1,11 +1,10 @@
 #include "menu_controls.h"
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include "controls/controller.h"
 #include "controls/controller_motion.h"
 #include "controls/axis_direction.h"
 #include "controls/plrctrls.h"
-#endif
+#include "controls/touch.h"
 
 #include "DiabloUI/diabloui.h"
 #include "controls/remap_keyboard.h"
@@ -28,8 +27,12 @@ MenuAction GetMenuHeldUpDownAction()
 }
 #endif
 
-MenuAction GetMenuAction(const SDL_Event& event)
+MenuAction GetMenuAction(SDL_Event& event)
 {
+#if HAS_TOUCHPAD
+	handle_touch(&event);
+#endif
+
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleControllerAddedOrRemovedEvent(event);
 
@@ -74,8 +77,14 @@ MenuAction GetMenuAction(const SDL_Event& event)
 
 #if !HAS_KBCTRL
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (event.type >= SDL_KEYDOWN && event.type < SDL_JOYAXISMOTION)
+#if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
+	if ((e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+#else
+	if (e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) {
+#endif
+		// Keyboard or Mouse (or Touch) events -> switch to standard input
 		sgbControllerActive = false;
+	}
 #endif
 
 	if (event.type == SDL_KEYDOWN) {
