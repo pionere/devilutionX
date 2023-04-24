@@ -41,7 +41,6 @@ inline T clip(T v, T amin, T amax)
 // duration of a simulated mouse click (ms)
 #define SIMULATED_CLICK_DURATION 50
 
-static bool touch_initialized = false;
 // initiation time of last simulated left or right click (zero if no click)
 static unsigned int simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
 // pointer jumps to finger
@@ -88,7 +87,7 @@ static void SetMouseMotionEvent(SDL_Event* event, int32_t x, int32_t y, int32_t 
 	event->motion.yrel = yrel;
 }
 
-static void InitTouch()
+void InitTouch()
 {
 	for (int port = 0; port < TOUCH_PORT_MAX_NUM; port++) {
 		for (int i = 0; i < MAX_NUM_FINGERS; i++) {
@@ -426,10 +425,6 @@ static void PreprocessEvents(SDL_Event* event)
 
 void handle_touch(SDL_Event* event)
 {
-	if (!touch_initialized) {
-		InitTouch();
-		touch_initialized = true;
-	}
 	PreprocessEvents(event);
 	if (event->type == SDL_FINGERDOWN || event->type == SDL_FINGERUP || event->type == SDL_FINGERMOTION) {
 		event->type = SDL_USEREVENT;

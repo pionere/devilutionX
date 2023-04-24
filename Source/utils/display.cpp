@@ -15,6 +15,7 @@
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
+#include "controls/touch.h"
 
 #ifdef USE_SDL1
 #ifndef SDL1_VIDEO_MODE_BPP
@@ -320,6 +321,9 @@ void SpawnWindow()
 
 	AdjustToScreenGeometry(width, height);
 
+#if HAS_TOUCHPAD
+	InitTouch();
+#endif
 	int refreshRate = 60;
 #ifndef USE_SDL1
 	SDL_DisplayMode mode;

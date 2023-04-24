@@ -14,6 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+void InitTouch();
 void handle_touch(SDL_Event* event);
 void finish_simulated_mouse_clicks();
 
