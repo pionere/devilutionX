@@ -557,7 +557,6 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	ObjectStruct* os;
 	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
-	BYTE trans;
 	BYTE* pCelBuff;
 
 	if (light_trn_index >= MAXDARKNESS)
@@ -594,8 +593,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	if (oi == pcursobj) {
 		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
 	}
-	trans = os->_oLightFlag ? light_trn_index : 0;
-	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, trans);
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
 /**

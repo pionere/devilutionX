@@ -690,7 +690,6 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oMissFlag = ofd->oMissFlag;
-	os->_oLightFlag = ofd->oLightFlag;
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
 	os->_oPreFlag = FALSE;

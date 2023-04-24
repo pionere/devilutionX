@@ -539,7 +539,7 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 
 	os->_oSolidFlag = savedObj->voSolidFlag;
 	os->_oMissFlag = savedObj->voMissFlag;
-	os->_oLightFlag = savedObj->voLightFlag;
+	os->_oAlign = savedObj->voAlign;
 	os->_oBreak = savedObj->voBreak;
 
 	os->_oDoorFlag = savedObj->voDoorFlag;
@@ -1392,7 +1392,7 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 
 	objSave->voSolidFlag = os->_oSolidFlag;
 	objSave->voMissFlag = os->_oMissFlag;
-	objSave->voLightFlag = os->_oLightFlag;
+	objSave->voAlign = os->_oAlign;
 	objSave->voBreak = os->_oBreak;
 
 	objSave->voDoorFlag = os->_oDoorFlag;

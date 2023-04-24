@@ -823,7 +823,6 @@ typedef struct ObjectData {
 	BYTE oModeFlags;  // object_mode_flags
 	//BOOL oSolidFlag;
 	//BOOL oMissFlag;
-	//BOOL oLightFlag;
 	//BYTE oBreak;
 	BYTE oDoorFlag;   // object_door_type
 	BYTE oSelFlag;
@@ -845,7 +844,6 @@ typedef struct ObjFileData {
 	int oAnimWidth;
 	BOOLEAN oSolidFlag;
 	BOOLEAN oMissFlag;
-	BOOLEAN oLightFlag;
 	BYTE oBreak; // object_break_mode
 	ALIGNMENT32(1)
 } ObjFileData;
@@ -873,7 +871,7 @@ typedef struct ObjectStruct {
 	//BOOL _oDelFlag;
 	BOOLEAN _oSolidFlag;
 	BOOLEAN _oMissFlag;
-	BOOLEAN _oLightFlag;
+	BYTE _oAlign;
 	BYTE _oBreak; // object_break_mode
 	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag;
@@ -1464,7 +1462,7 @@ typedef struct LSaveObjectStruct {
 	INT voAnimXOffsetAlign;
 	BOOLEAN voSolidFlag;
 	BOOLEAN voMissFlag;
-	BOOLEAN voLightFlag;
+	BYTE voAlign;
 	BYTE voBreak; // object_break_mode
 	BYTE voDoorFlag; // object_door_type
 	BYTE voSelFlag;
