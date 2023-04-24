@@ -426,10 +426,6 @@ static void PreprocessEvents(SDL_Event* event)
 void handle_touch(SDL_Event* event)
 {
 	PreprocessEvents(event);
-	if (event->type == SDL_FINGERDOWN || event->type == SDL_FINGERUP || event->type == SDL_FINGERMOTION) {
-		event->type = SDL_USEREVENT;
-		event->user.code = -1; // ensure this event is ignored;
-	}
 }
 
 void finish_simulated_mouse_clicks()
