@@ -672,6 +672,7 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oMissFlag = ods->oMissFlag;
 	os->_oDoorFlag = ods->oDoorFlag;
 	os->_oSelFlag = ods->oSelFlag;
+	os->_oPreFlag = ods->oPreFlag;
 	os->_oProc = ods->oProc;
 	os->_oModeFlags = ods->oModeFlags;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
@@ -692,7 +693,6 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
-	os->_oPreFlag = FALSE;
 	os->_oTrapChance = 0;
 	// place object
 	os->_ox = ox;
@@ -1191,22 +1191,12 @@ static void AddShrine(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oPreFlag = TRUE;
 	os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
 	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
 	}
-}
-
-static void AddBookcase(int oi)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
-	os->_oPreFlag = TRUE;
 }
 
 static void ObjAddRndSeed(int oi)
@@ -1251,7 +1241,6 @@ static void AddDecap(int oi)
 	os = &objects[oi];
 	os->_oRndSeed = NextRndSeed();
 	os->_oAnimFrame = RandRange(1, 8);
-	os->_oPreFlag = TRUE;
 }
 
 static void AddMagicCircle(int oi)
@@ -1260,7 +1249,6 @@ static void AddMagicCircle(int oi)
 
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
-	os->_oPreFlag = TRUE;
 	os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
 }
 
@@ -1290,7 +1278,6 @@ static void AddTorturedMaleBody(int oi)
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
 	os->_oAnimFrame = RandRange(1, 4);
-	//os->_oPreFlag = TRUE;
 }
 
 static void AddTorturedFemaleBody(int oi)
@@ -1300,7 +1287,6 @@ static void AddTorturedFemaleBody(int oi)
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
 	os->_oAnimFrame = RandRange(1, 3);
-	//os->_oPreFlag = TRUE;
 }
 
 static void SyncL1Doors(int oi);
@@ -1357,13 +1343,11 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_SHRINER:
 			AddShrine(oi);
 			break;
-		case OBJ_BOOKCASEL:
-		case OBJ_BOOKCASER:
-			AddBookcase(oi);
-			break;
 		case OBJ_DECAP:
 			AddDecap(oi);
 			break;
+		case OBJ_BOOKCASEL:
+		case OBJ_BOOKCASER:
 		case OBJ_BARRELEX:
 #ifdef HELLFIRE
 		case OBJ_URNEX:

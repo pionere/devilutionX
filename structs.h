@@ -826,8 +826,9 @@ typedef struct ObjectData {
 	BOOLEAN oMissFlag;
 	BYTE oDoorFlag;   // object_door_type
 	BYTE oSelFlag;
+	BYTE oPreFlag;
 	BOOLEAN oTrapFlag;
-	BYTE oAlign[2];
+	BYTE oAlign[1];
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
