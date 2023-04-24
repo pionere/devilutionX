@@ -16,7 +16,7 @@ static bool _gbYNValue;
 
 static void SelyesnoFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	UiClearListItems();
 
 	UiClearItems(gUiItems);

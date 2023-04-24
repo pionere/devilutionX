@@ -51,7 +51,7 @@ static void MainmenuLoad()
 
 static void MainmenuFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 
 	UiClearItems(gUiItems);
 

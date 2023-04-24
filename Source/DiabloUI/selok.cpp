@@ -15,7 +15,7 @@ static bool _gbSelokEndMenu;
 
 static void SelokFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 
 	UiClearListItems();
 

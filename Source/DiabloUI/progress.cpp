@@ -80,7 +80,7 @@ static void ProgressLoad(const char* msg)
 
 static void ProgressFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	MemFreeDbg(gbSmlButtonCel);
 	MemFreeDbg(gbProgBackCel);
 	MemFreeDbg(gbProgEmptyCel);

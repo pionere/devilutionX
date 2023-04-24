@@ -77,7 +77,7 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	SelgameFreeDlgItems();
 }
 

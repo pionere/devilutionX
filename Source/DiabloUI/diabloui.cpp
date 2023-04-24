@@ -329,8 +329,7 @@ void UiDestroy()
 void LoadBackgroundArt(const char* pszFile, const char* palette)
 {
 	assert(gbBackCel == NULL);
-	//if (gbBackCel != NULL)
-	//	MemFreeDbg(gbBackCel);
+	//FreeBackgroundArt();
 	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
 
 	LoadPalette(palette);
@@ -347,6 +346,11 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 		BltFast();
 //#endif
 	RenderPresent();*/
+}
+
+void FreeBackgroundArt()
+{
+	MemFreeDbg(gbBackCel);
 }
 
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog)

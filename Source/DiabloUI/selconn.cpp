@@ -125,7 +125,7 @@ static void SelconnLoad()
 
 static void SelconnFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	UiClearListItems();
 
 	UiClearItems(gUiItems);

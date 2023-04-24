@@ -92,7 +92,7 @@ void UiSettingsDialog()
 	gmenu_set_items(NULL, 0, NULL);
 	FreeGMenu();
 	// free the UI
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	UiClearItems(gUiItems);
 }
 

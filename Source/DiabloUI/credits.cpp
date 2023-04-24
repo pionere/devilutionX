@@ -89,7 +89,7 @@ void UiCreditsDialog()
 		}
 	} while (!_gbCreditsEnd);
 
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	UiClearItems(gUiItems);
 	MemFreeTxtFile(CREDITS_LINES);
 }
