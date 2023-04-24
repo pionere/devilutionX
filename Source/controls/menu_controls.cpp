@@ -31,6 +31,8 @@ MenuAction GetMenuHeldUpDownAction()
 MenuAction GetMenuAction(const SDL_Event& event)
 {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	HandleControllerAddedOrRemovedEvent(event);
+
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
 	if (ProcessControllerMotion(event, ctrlEvent)) {

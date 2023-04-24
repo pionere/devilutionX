@@ -805,10 +805,6 @@ void UiHandleEvents(SDL_Event* event)
 			gbWndActive = false;
 		return;
 	}
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleControllerAddedOrRemovedEvent(*event);
-#endif
 #endif // !USE_SDL1
 }
 
