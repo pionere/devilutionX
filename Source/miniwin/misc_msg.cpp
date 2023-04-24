@@ -1,3 +1,8 @@
+/**
+ * @file misc_msg.cpp
+ *
+ * Windows message handling and keyboard event conversion for SDL.
+ */
 #include <SDL.h>
 #include <cstdint>
 #include "utils/utf8.h"
@@ -16,11 +21,6 @@
 #include "platform/switch/docking.h"
 #include <switch.h>
 #endif
-
-/** @file
- * *
- * Windows message handling and keyboard event conversion for SDL.
- */
 
 DEVILUTION_BEGIN_NAMESPACE
 
