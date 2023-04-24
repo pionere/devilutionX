@@ -1503,24 +1503,12 @@ static void DRLG_L3MakeMegas()
 		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L3 + 1;
 }
 
-static void DRLG_L3FloodTVal()
+/*static void DRLG_L3FloodTVal()
 {
-	//const POS32 offs[12] = { { 0, -1}, { 1, -1 },
-	//	{ -1, 0 }, { 0, 0 }, { 1, 0 }, { 2, 0 },
-	//	{ -1, 1 }, { 0, 1 }, { 1, 1 }, { 2, 1 },
-	//	{ 0, 2 }, { 1, 2 } };
-	//const BYTE L3ConvTbl[16] =     { 8, 11,  3, 10,  1,  9, 12, 12,  6, 13,  4, 13,  2, 14,  5,  7 };
-	//                                 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-	//const BYTE L3BackConvTbl[16] = { 0, 10,  3, 12,  5, 15,  1, 15,  0, 10, 12,  8, 15, 15, 15,  0 };
-	//int i, j, k;
 	int i, j;
 
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
-			/*if (dungeon[i][j] == 7) {
-				for (k = 0; k < lengthof(offs); k++)
-					dTransVal[DBORDERX + i * 2 + offs[k].x][DBORDERY + j * 2 + offs[k].y] = 1;
-			}*/
 			if (dungeon[i][j] != 8) {
 				dTransVal[DBORDERX + i * 2 + 0][DBORDERY + j * 2 + 0] = 1;
 				dTransVal[DBORDERX + i * 2 + 1][DBORDERY + j * 2 + 0] = 1;
@@ -1532,7 +1520,7 @@ static void DRLG_L3FloodTVal()
 
 	assert(numtrans == 1);
 	numtrans = 2;
-}
+}*/
 
 typedef enum DIR4 {
 	DR4_UP,

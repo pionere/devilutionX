@@ -1781,7 +1781,7 @@ void DRLG_L4InitTransVals()
  * New dungeon values: 116..128
  * Obsolete dungeon values: 18..29
  */
-static void DRLG_L4Corners()
+/*static void DRLG_L4Corners()
 {
 	int i;
 	BYTE* pTmp;
@@ -1789,10 +1789,10 @@ static void DRLG_L4Corners()
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4Corners.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp <= 29 /*&& *pTmp != 20 && *pTmp != 24*/)
+		if (*pTmp >= 18 && *pTmp <= 29) // && *pTmp != 20 && *pTmp != 24
 			*pTmp += 98;
 	}
-}
+}*/
 
 /*
  * Miniset replacement of corner tiles.

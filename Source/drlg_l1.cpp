@@ -2618,7 +2618,7 @@ void DRLG_L1InitTransVals()
  * New dungeon values: 199..205 / 82..88
  * Obsolete dungeon values: 18..24
  */
-static void DRLG_L1Corners()
+/*static void DRLG_L1Corners()
 {
 	int i;
 	BYTE dv = 181, *pTmp;
@@ -2632,36 +2632,36 @@ static void DRLG_L1Corners()
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 #endif
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp <= 24 /*&& *pTmp != 22 && *pTmp != 20*/)
+		if (*pTmp >= 18 && *pTmp <= 24) // && *pTmp != 22 && *pTmp != 20
 			*pTmp += dv;
 	}
-	/*for (j = 0; j < DMAXY - 1; j++) {
-		for (i = 0; i < DMAXX - 1; i++) {
-			switch (dungeon[i][j]) {
-			case 18:
-				if (dungeon[i][j + 1] != 18)
-					dungeon[i][j] = 199;
-				break;
-			case 19:
-				if (dungeon[i + 1][j] != 19)
-					dungeon[i][j] = 200;
-				break;
-			case 21:
-				if (dungeon[i + 1][j] != 19 || dungeon[i][j + 1] != 18)
-					dungeon[i][j] = 202;
-				break;
-			case 23:
-				if (dungeon[i][j + 1] != 18)
-					dungeon[i][j] = 204;
-				break;
-			case 24:
-				if (dungeon[i + 1][j] != 19)
-					dungeon[i][j] = 205;
-				break;
-			}
-		}
-	}*/
-}
+	//for (j = 0; j < DMAXY - 1; j++) {
+	//	for (i = 0; i < DMAXX - 1; i++) {
+	//		switch (dungeon[i][j]) {
+	//		case 18:
+	//			if (dungeon[i][j + 1] != 18)
+	//				dungeon[i][j] = 199;
+	//			break;
+	//		case 19:
+	//			if (dungeon[i + 1][j] != 19)
+	//				dungeon[i][j] = 200;
+	//			break;
+	//		case 21:
+	//			if (dungeon[i + 1][j] != 19 || dungeon[i][j + 1] != 18)
+	//				dungeon[i][j] = 202;
+	//			break;
+	//		case 23:
+	//			if (dungeon[i][j + 1] != 18)
+	//				dungeon[i][j] = 204;
+	//			break;
+	//		case 24:
+	//			if (dungeon[i + 1][j] != 19)
+	//				dungeon[i][j] = 205;
+	//			break;
+	//		}
+	//	}
+	//}
+}*/
 
 /*
  * Miniset replacement of corner tiles.
