@@ -34,7 +34,7 @@ static void SelyesnoEsc()
 	_gbYNEndMenu = true;
 }
 
-bool UiSelHeroYesNoDialog(const char* title, const char* body)
+bool UiSelYesNoDialog(const char* title, const char* body)
 {
 	char selyesno_confirmationMessage[256];
 

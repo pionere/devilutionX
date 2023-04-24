@@ -495,7 +495,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
 		snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 		snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.hiName);
 
-		if (UiSelHeroYesNoDialog(dialogTitle, dialogText))
+		if (UiSelYesNoDialog(dialogTitle, dialogText))
 			fnremove(&selhero_heroInfo);
 	}
 

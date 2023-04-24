@@ -8,7 +8,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-bool UiSelHeroYesNoDialog(const char* title, const char* body);
+bool UiSelYesNoDialog(const char* title, const char* body);
 
 #ifdef __cplusplus
 }
