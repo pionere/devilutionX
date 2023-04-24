@@ -870,12 +870,12 @@ typedef struct ObjectStruct {
 	int _oAnimXOffset;
 	//BOOL _oDelFlag;
 	BOOLEAN _oSolidFlag;
-	BOOLEAN _oMissFlag;
-	BYTE _oAlign;
 	BYTE _oBreak; // object_break_mode
+	BYTE _oTrapChance;
+	BYTE _oAlign;
+	BOOLEAN _oMissFlag;
 	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag;
-	BYTE _oTrapChance;
 	BOOLEAN _oPreFlag;
 	unsigned _olid; // light id of the object
 	int _oRndSeed;
@@ -1461,12 +1461,12 @@ typedef struct LSaveObjectStruct {
 	INT voAnimWidthAlign;
 	INT voAnimXOffsetAlign;
 	BOOLEAN voSolidFlag;
-	BOOLEAN voMissFlag;
-	BYTE voAlign;
 	BYTE voBreak; // object_break_mode
+	BYTE voTrapChance;
+	BYTE voAlign;
+	BOOLEAN voMissFlag;
 	BYTE voDoorFlag; // object_door_type
 	BYTE voSelFlag;
-	BYTE voTrapChance;
 	BOOLEAN voPreFlag;
 	LE_UINT32 volid; // light id of the object
 	LE_INT32 voRndSeed;

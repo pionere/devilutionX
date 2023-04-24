@@ -538,13 +538,13 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oAnimXOffset = savedObj->voAnimXOffsetAlign;
 
 	os->_oSolidFlag = savedObj->voSolidFlag;
-	os->_oMissFlag = savedObj->voMissFlag;
-	os->_oAlign = savedObj->voAlign;
 	os->_oBreak = savedObj->voBreak;
+	os->_oTrapChance = savedObj->voTrapChance;
+	os->_oAlign = savedObj->voAlign;
 
+	os->_oMissFlag = savedObj->voMissFlag;
 	os->_oDoorFlag = savedObj->voDoorFlag;
 	os->_oSelFlag = savedObj->voSelFlag;
-	os->_oTrapChance = savedObj->voTrapChance;
 	os->_oPreFlag = savedObj->voPreFlag;
 
 	os->_olid = savedObj->volid;
@@ -1391,13 +1391,13 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voAnimXOffsetAlign = os->_oAnimXOffset;
 
 	objSave->voSolidFlag = os->_oSolidFlag;
-	objSave->voMissFlag = os->_oMissFlag;
-	objSave->voAlign = os->_oAlign;
 	objSave->voBreak = os->_oBreak;
+	objSave->voTrapChance = os->_oTrapChance;
+	objSave->voAlign = os->_oAlign;
 
+	objSave->voMissFlag = os->_oMissFlag;
 	objSave->voDoorFlag = os->_oDoorFlag;
 	objSave->voSelFlag = os->_oSelFlag;
-	objSave->voTrapChance = os->_oTrapChance;
 	objSave->voPreFlag = os->_oPreFlag;
 
 	objSave->volid = os->_olid;
