@@ -1,7 +1,5 @@
 
-#include "utils/display.h"
-
-#include "DiabloUI/diabloui.h"
+#include "diabloui.h"
 #include "../gameui.h"
 #include "../engine.h"
 

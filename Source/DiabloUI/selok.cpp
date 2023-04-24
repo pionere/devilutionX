@@ -2,8 +2,8 @@
 
 #include "storm/storm.h"
 
-#include "DiabloUI/diabloui.h"
-#include "DiabloUI/text.h"
+#include "diabloui.h"
+#include "text.h"
 #include "../gameui.h"
 #include "../engine.h"
 

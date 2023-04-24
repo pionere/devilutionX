@@ -1,7 +1,7 @@
 
 #include "controls/menu_controls.h"
-#include "DiabloUI/diabloui.h"
-#include "all.h"
+#include "diabloui.h"
+//#include "all.h"
 #include "engine/render/cel_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
