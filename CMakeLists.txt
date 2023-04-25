@@ -84,6 +84,7 @@ if(WIN32)
   if(_WIN32_WINNT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
   endif()
+  set(USE_PATCH ON)
 endif()
 
 if(HAIKU)
@@ -155,6 +156,7 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
+option(USE_PATCH "Create executable to patch assets" OFF)
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
@@ -460,7 +462,7 @@ set(devilutionx_SRCS
   #Source/DiabloUI/credits_lines.cpp
   Source/DiabloUI/diabloui.cpp
   Source/DiabloUI/dialogs.cpp
-  Source/DiabloUI/errorart.cpp
+  #Source/DiabloUI/errorart.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
   Source/DiabloUI/scrollbar.cpp
@@ -595,6 +597,100 @@ else()
     ${devilutionx_SRCS}
     Packaging/windows/devilutionx.exe.manifest
     Packaging/windows/devilutionx.rc)
+endif()
+
+if(USE_PATCH)
+  set(DEVIL_PATCHER devil_patcher)
+  set(devil_patcher_SRCS
+    tools/patcher/appfat.cpp
+    tools/patcher/control.cpp
+    tools/patcher/cursor.cpp
+    tools/patcher/diablo.cpp
+    tools/patcher/dx.cpp
+    tools/patcher/effects.cpp
+    tools/patcher/encrypt.cpp
+    tools/patcher/engine.cpp
+    tools/patcher/init.cpp
+    tools/patcher/lighting.cpp
+    tools/patcher/main.cpp
+    tools/patcher/mainmenu.cpp
+    tools/patcher/mpqapi.cpp
+    tools/patcher/palette.cpp
+    tools/patcher/scrollrt.cpp
+    tools/patcher/sound.cpp
+    tools/patcher/controls/axis_direction.cpp
+    tools/patcher/controls/controller.cpp
+    tools/patcher/controls/controller_motion.cpp
+    tools/patcher/controls/devices/game_controller.cpp
+    tools/patcher/controls/devices/joystick.cpp
+    tools/patcher/controls/devices/kbcontroller.cpp
+    tools/patcher/controls/game_controls.cpp
+    tools/patcher/controls/menu_controls.cpp
+    tools/patcher/controls/modifier_hints.cpp
+    tools/patcher/controls/touch.cpp
+    tools/patcher/DiabloUI/diabloui.cpp
+    tools/patcher/DiabloUI/dialogs.cpp
+    tools/patcher/DiabloUI/mainmenu.cpp
+    tools/patcher/DiabloUI/merger.cpp
+    tools/patcher/DiabloUI/patcher.cpp
+    tools/patcher/DiabloUI/progress.cpp
+    tools/patcher/DiabloUI/scrollbar.cpp
+    tools/patcher/DiabloUI/selok.cpp
+    tools/patcher/DiabloUI/selyesno.cpp
+    tools/patcher/DiabloUI/text.cpp
+    tools/patcher/DiabloUI/text_draw.cpp
+    tools/patcher/DiabloUI/title.cpp
+    tools/patcher/engine/render/cel_render.cpp
+    tools/patcher/engine/render/text_render.cpp
+    tools/patcher/miniwin/misc_msg.cpp
+    tools/patcher/storm/storm.cpp
+    tools/patcher/utils/display.cpp
+    tools/patcher/utils/paths.cpp
+    tools/patcher/utils/soundsample.cpp
+    tools/patcher/utils/thread.cpp)
+
+  if(APPLE)
+    add_executable(${DEVIL_PATCHER}
+      MACOSX_BUNDLE
+      ${devil_patcher_SRCS}
+      Packaging/apple/AppIcon.icns
+      Packaging/apple/LaunchScreen.storyboard)
+  elseif(WIN32)
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      ${devil_patcher_SRCS}
+      Packaging/windows/devilutionx.exe.manifest
+      Packaging/windows/devilutionx.rc)
+  else()
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      MACOSX_BUNDLE
+      ${devil_patcher_SRCS}
+      Packaging/windows/devilutionx.exe.manifest
+      Packaging/windows/devilutionx.rc)
+  endif()
+
+  target_link_libraries(${DEVIL_PATCHER} PRIVATE
+    PKWare
+    StormLib
+    #smacker
+    Radon)
+  if(USE_SDL1)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      ${SDL_LIBRARY})
+  else()
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      ${SDL2_MAIN}
+      SDL2::SDL2)
+  endif()
+
+  if(NOT NOSOUND)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${SDL_MIXER_LIBRARY})
+  endif()
+
+  target_include_directories(${DEVIL_PATCHER} PRIVATE
+    tools/patcher
+    ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 # Copy devilx.mpq to the build directory
@@ -778,6 +874,9 @@ endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 target_compile_definitions(smacker PRIVATE ${def_list})
+if(USE_PATCH)
+  target_compile_definitions(${DEVIL_PATCHER} PRIVATE ${def_list})
+endif()
 
 if(UBSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
@@ -1103,6 +1202,14 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
+    if(USE_PATCH)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
     #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
     #  DESTINATION "LICENSE"
     #)
@@ -1189,6 +1296,14 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )
+    if(USE_PATCH)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "share/diasurgical/${project_name}"
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "share/diasurgical/${project_name}"
+      )
+    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
       DESTINATION "share/icons/hicolor/512x512/apps"
       RENAME "${project_name}.png"
@@ -1199,7 +1314,7 @@ if(CPACK)
     )
 
     # -G DEB
-    set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
+    set(CPACK_PACKAGE_CONTACT "DevilutionX https://github.com/pionere/devilutionX")
     if(USE_SDL1)
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
     else()
@@ -1248,6 +1363,7 @@ message(STATUS "Defines:")
 foreach(
   def_name
   HELLFIRE
+  USE_PATCH
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
