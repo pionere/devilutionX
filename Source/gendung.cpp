@@ -239,138 +239,10 @@ void InitLvlDungeon()
 		// nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
 		// nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
 		// nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
-
-		// patch dMiniTiles - Town.MIN
-		// pointless tree micros (re-drawn by dSpecial)
-#if ASSET_MPL == 1
-		pMicroPieces[117][3] = 0;
-		pMicroPieces[117][5] = 0;
-		pMicroPieces[128][2] = 0;
-		pMicroPieces[128][3] = 0;
-		pMicroPieces[128][4] = 0;
-		pMicroPieces[128][5] = 0;
-		pMicroPieces[128][6] = 0;
-		pMicroPieces[128][7] = 0;
-		pMicroPieces[129][3] = 0;
-		pMicroPieces[129][5] = 0;
-		pMicroPieces[129][7] = 0;
-		pMicroPieces[130][2] = 0;
-		pMicroPieces[130][4] = 0;
-		pMicroPieces[130][6] = 0;
-		pMicroPieces[156][2] = 0;
-		pMicroPieces[156][3] = 0;
-		pMicroPieces[156][4] = 0;
-		pMicroPieces[156][5] = 0;
-		pMicroPieces[156][6] = 0;
-		pMicroPieces[156][7] = 0;
-		pMicroPieces[156][8] = 0;
-		pMicroPieces[156][9] = 0;
-		pMicroPieces[156][10] = 0;
-		pMicroPieces[156][11] = 0;
-		pMicroPieces[157][3] = 0;
-		pMicroPieces[157][5] = 0;
-		pMicroPieces[157][7] = 0;
-		pMicroPieces[157][9] = 0;
-		pMicroPieces[157][11] = 0;
-		pMicroPieces[158][2] = 0;
-		pMicroPieces[158][4] = 0;
-		pMicroPieces[160][2] = 0;
-		pMicroPieces[160][3] = 0;
-		pMicroPieces[160][4] = 0;
-		pMicroPieces[160][5] = 0;
-		pMicroPieces[160][6] = 0;
-		pMicroPieces[160][7] = 0;
-		pMicroPieces[160][8] = 0;
-		pMicroPieces[160][9] = 0;
-		pMicroPieces[162][2] = 0;
-		pMicroPieces[162][4] = 0;
-		pMicroPieces[162][6] = 0;
-		pMicroPieces[162][8] = 0;
-		pMicroPieces[162][10] = 0;
-		pMicroPieces[212][3] = 0;
-		pMicroPieces[212][4] = 0;
-		pMicroPieces[212][5] = 0;
-		pMicroPieces[212][6] = 0;
-		pMicroPieces[212][7] = 0;
-		pMicroPieces[212][8] = 0;
-		pMicroPieces[212][9] = 0;
-		pMicroPieces[212][10] = 0;
-		pMicroPieces[212][11] = 0;
-		//pMicroPieces[214][4] = 0;
-		//pMicroPieces[214][6] = 0;
-		pMicroPieces[216][2] = 0;
-		pMicroPieces[216][4] = 0;
-		pMicroPieces[216][6] = 0;
-		//pMicroPieces[217][4] = 0;
-		//pMicroPieces[217][6] = 0;
-		//pMicroPieces[217][8] = 0;
-		//pMicroPieces[358][4] = 0;
-		//pMicroPieces[358][5] = 0;
-		//pMicroPieces[358][6] = 0;
-		//pMicroPieces[358][7] = 0;
-		//pMicroPieces[358][8] = 0;
-		//pMicroPieces[358][9] = 0;
-		//pMicroPieces[358][10] = 0;
-		//pMicroPieces[358][11] = 0;
-		//pMicroPieces[358][12] = 0;
-		//pMicroPieces[358][13] = 0;
-		//pMicroPieces[360][4] = 0;
-		//pMicroPieces[360][6] = 0;
-		//pMicroPieces[360][8] = 0;
-		//pMicroPieces[360][10] = 0;
-		// fix bad artifact
-		pMicroPieces[233][6] = 0;
-		// useless black micros
-		pMicroPieces[426][1] = 0;
-		pMicroPieces[427][0] = 0;
-		pMicroPieces[427][1] = 0;
-		pMicroPieces[429][1] = 0;
-		// fix bad artifacts
-		pMicroPieces[828][12] = 0;
-		pMicroPieces[828][13] = 0;
-		pMicroPieces[1018][2] = 0;
-		// useless black micros
-		pMicroPieces[1143][0] = 0;
-		pMicroPieces[1145][0] = 0;
-		pMicroPieces[1145][1] = 0;
-		pMicroPieces[1146][0] = 0;
-		pMicroPieces[1153][0] = 0;
-		pMicroPieces[1155][1] = 0;
-		pMicroPieces[1156][0] = 0;
-		pMicroPieces[1169][1] = 0;
-		pMicroPieces[1170][0] = 0;
-		pMicroPieces[1170][1] = 0;
-		pMicroPieces[1172][1] = 0;
-		pMicroPieces[1176][1] = 0;
-		pMicroPieces[1199][1] = 0;
-		pMicroPieces[1200][0] = 0;
-		pMicroPieces[1200][1] = 0;
-		pMicroPieces[1202][1] = 0;
-		pMicroPieces[1203][1] = 0;
-		pMicroPieces[1205][1] = 0;
-		pMicroPieces[1212][0] = 0;
-		pMicroPieces[1219][0] = 0;
-#ifdef HELLFIRE
-		// fix bad artifacts
-		pMicroPieces[1273][7] = 0;
-		//pMicroPieces[1303][7] = 0; - unused
-#endif
-#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CATHEDRAL:
 		// patch dSolidTable - L1.SOL
 		nMissileTable[8] = false; // the only column which was blocking missiles
-#if ASSET_MPL == 1
-		// patch dMiniTiles - L1.MIN
-		// useless black micros
-		pMicroPieces[107][0] = 0;
-		pMicroPieces[107][1] = 0;
-		pMicroPieces[109][1] = 0;
-		pMicroPieces[137][1] = 0;
-		pMicroPieces[138][0] = 0;
-		pMicroPieces[138][1] = 0;
-		pMicroPieces[140][1] = 0;
-#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CATACOMBS:
 		// patch dSolidTable - L2.SOL
@@ -490,11 +362,6 @@ void InitLvlDungeon()
 		break;
 	case DTYPE_CAVES:
 		nSolidTable[249] = false; // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
-#if ASSET_MPL == 1
-		// patch dMiniTiles - L3.MIN
-		// fix bad artifact
-		pMicroPieces[82][4] = 0;
-#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
@@ -526,15 +393,6 @@ void InitLvlDungeon()
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
-#if ASSET_MPL == 1
-		// patch dMiniTiles - L6.MIN
-		// useless black micros
-		pMicroPieces[21][0] = 0;
-		pMicroPieces[21][1] = 0;
-		// fix bad artifacts
-		pMicroPieces[132][7] = 0;
-		pMicroPieces[366][1] = 0;
-#endif /* ASSET_MPL == 1 */
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
@@ -558,73 +416,10 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
-#if ASSET_MPL == 1
 		// patch dMegaTiles - L5.TIL
 		// use common subtiles of doors
 		pMegaTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
 		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
-		// patch dMiniTiles - L5.MIN
-		// pointless door micros (re-drawn by dSpecial)
-		pMicroPieces[77][6] = 0;
-		pMicroPieces[77][8] = 0;
-		pMicroPieces[80][7] = 0;
-		pMicroPieces[80][9] = 0;
-		pMicroPieces[206][6] = 0;
-		pMicroPieces[206][8] = 0;
-		pMicroPieces[209][7] = 0;
-		pMicroPieces[209][9] = 0;
-		//pMicroPieces[213][6] = 0;
-		//pMicroPieces[213][8] = 0;
-		//pMicroPieces[216][6] = 0;
-		//pMicroPieces[216][8] = 0;
-		// useless black micros
-		pMicroPieces[130][0] = 0;
-		pMicroPieces[130][1] = 0;
-		pMicroPieces[132][1] = 0;
-		pMicroPieces[134][0] = 0;
-		pMicroPieces[134][1] = 0;
-		pMicroPieces[149][0] = 0;
-		pMicroPieces[149][1] = 0;
-		pMicroPieces[149][2] = 0;
-		pMicroPieces[150][0] = 0;
-		pMicroPieces[150][1] = 0;
-		pMicroPieces[150][2] = 0;
-		pMicroPieces[150][4] = 0;
-		pMicroPieces[151][0] = 0;
-		pMicroPieces[151][1] = 0;
-		pMicroPieces[151][3] = 0;
-		pMicroPieces[152][0] = 0;
-		pMicroPieces[152][1] = 0;
-		pMicroPieces[152][3] = 0;
-		pMicroPieces[152][5] = 0;
-		pMicroPieces[153][0] = 0;
-		pMicroPieces[153][1] = 0;
-		// fix bad artifact
-		pMicroPieces[156][2] = 0;
-		// useless black micros
-		pMicroPieces[172][0] = 0;
-		pMicroPieces[172][1] = 0;
-		pMicroPieces[172][2] = 0;
-		pMicroPieces[173][0] = 0;
-		pMicroPieces[173][1] = 0;
-		pMicroPieces[174][0] = 0;
-		pMicroPieces[174][1] = 0;
-		pMicroPieces[174][2] = 0;
-		pMicroPieces[174][4] = 0;
-		pMicroPieces[175][0] = 0;
-		pMicroPieces[175][1] = 0;
-		pMicroPieces[176][0] = 0;
-		pMicroPieces[176][1] = 0;
-		pMicroPieces[176][3] = 0;
-		pMicroPieces[177][0] = 0;
-		pMicroPieces[177][1] = 0;
-		pMicroPieces[177][3] = 0;
-		pMicroPieces[177][5] = 0;
-		pMicroPieces[178][0] = 0;
-		pMicroPieces[178][1] = 0;
-		pMicroPieces[179][0] = 0;
-		pMicroPieces[179][1] = 0;
-#endif /* ASSET_MPL == 1 */
 		break;
 #endif /* HELLFIRE */
 	default:

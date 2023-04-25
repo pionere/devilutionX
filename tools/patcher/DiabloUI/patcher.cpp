@@ -14,12 +14,28 @@ static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
-static const char* const filesToPatch[] = {
-	"Levels\\TownData\\Town.MIN",
+typedef enum filenames {
+	FILE_TOWN_MIN,
+	FILE_CAVES_MIN,
+	FILE_CATHEDRAL_MIN,
 #ifdef HELLFIRE
-	"NLevels\\TownData\\Town.MIN",
-	"NLevels\\L5Data\\L5.TIL",
-	"NLevels\\L5Data\\L5.MIN",
+	FILE_NTOWN_MIN,
+	FILE_CRYPT_TIL,
+	FILE_CRYPT_MIN,
+	FILE_NEST_MIN,
+#endif
+	NUM_FILENAMES
+} filenames;
+
+static const char* const filesToPatch[NUM_FILENAMES] = {
+/*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
+/*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
+/*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
+#ifdef HELLFIRE
+/*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
+/*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
+/*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
+/*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
 };
 
@@ -159,18 +175,55 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	}
 
 	switch (index) {
-	case 0:
+	case FILE_TOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
+#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(1219 - 1, 16, 0) * 2) {
 			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1219 - 1, 16, 0) * 2);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		patchTownFile(buf);
+#endif
+	} break;
+	case FILE_CATHEDRAL_MIN:
+	{	// patch dMiniTiles - L1.MIN
+#if ASSET_MPL == 1
+		if (*dwLen < MICRO_IDX(140 - 1, 10, 1) * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *pMicroPieces = (uint16_t*)buf;
+		constexpr int blockSize = 10;
+		// useless black micros
+		blkMicro(107, 0);
+		blkMicro(107, 1);
+		blkMicro(109, 1);
+		blkMicro(137, 1);
+		blkMicro(138, 0);
+		blkMicro(138, 1);
+		blkMicro(140, 1);
+#endif /* ASSET_MPL == 1 */
+	} break;
+	case FILE_CAVES_MIN:
+	{	// patch dMiniTiles - L3.MIN
+#if ASSET_MPL == 1
+		if (*dwLen < MICRO_IDX(82 - 1, 10, 4) * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *pMicroPieces = (uint16_t*)buf;
+		constexpr int blockSize = 10;
+		// fix bad artifact
+		blkMicro(82, 4);
+#endif /* ASSET_MPL == 1 */
 	} break;
 #ifdef HELLFIRE
-	case 1:
+	case FILE_NTOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
+#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(1303 - 1, 16, 7) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1303 - 1, 16, 7) * 2);
@@ -182,8 +235,27 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// fix bad artifacts
 		blkMicro(1273, 7);
 		blkMicro(1303, 7);
+#endif // ASSET_MPL
 	} break;
-	case 2:
+	case FILE_NEST_MIN:
+	{	// patch dMiniTiles - L6.MIN
+#if ASSET_MPL == 1
+		if (*dwLen < MICRO_IDX(366 - 1, 10, 1) * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *pMicroPieces = (uint16_t*)buf;
+		constexpr int blockSize = 10;
+		// useless black micros
+		blkMicro(21, 0);
+		blkMicro(21, 1);
+		// fix bad artifacts
+		blkMicro(132, 7);
+		blkMicro(366, 1);
+#endif /* ASSET_MPL == 1 */
+	} break;
+	case FILE_CRYPT_TIL:
 	{	// patch dMegaTiles - L5.TIL
 		if (*dwLen < (4 * (72 - 1) + 2) * 2) {
 			mem_free_dbg(buf);
@@ -197,9 +269,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		assert(pMegaTiles[4 * (72 - 1) + 2] == SwapLE16(216 - 1) || pMegaTiles[4 * (72 - 1) + 2] ==  SwapLE16(206 - 1));
 		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
 	} break;
-	case 3:
-	{   // patch dMiniTiles - L5.MIN
-		if (*dwLen < MICRO_IDX(77 - 1, 10, 8) * 2) {
+	case FILE_CRYPT_MIN:
+	{	// patch dMiniTiles - L5.MIN
+#if ASSET_MPL == 1
+		if (*dwLen < MICRO_IDX(197 - 1, 10, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
@@ -207,67 +280,68 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// pointless door micros (re-drawn by dSpecial)
 		uint16_t *pMicroPieces = (uint16_t*)buf;
 		constexpr int blockSize = 10;
-        blkMicro(77, 6);
-        blkMicro(77, 8);
-        blkMicro(80, 7);
-        blkMicro(80, 9);
-        blkMicro(206, 6);
-        blkMicro(206, 8);
-        blkMicro(209, 7);
-        blkMicro(209, 9);
-        blkMicro(213, 6);
-        blkMicro(213, 8);
-        blkMicro(216, 6);
-        blkMicro(216, 8);
-        // useless black micros
-        blkMicro(130, 0);
-        blkMicro(130, 1);
-        blkMicro(132, 1);
-        blkMicro(134, 0);
-        blkMicro(134, 1);
-        blkMicro(149, 0);
-        blkMicro(149, 1);
-        blkMicro(149, 2);
-        blkMicro(150, 0);
-        blkMicro(150, 1);
-        blkMicro(150, 2);
-        blkMicro(150, 4);
-        blkMicro(151, 0);
-        blkMicro(151, 1);
-        blkMicro(151, 3);
-        blkMicro(152, 0);
-        blkMicro(152, 1);
-        blkMicro(152, 3);
-        blkMicro(152, 5);
-        blkMicro(153, 0);
-        blkMicro(153, 1);
-        // fix bad artifact
-        blkMicro(156, 2);
-        // useless black micros
-        blkMicro(172, 0);
-        blkMicro(172, 1);
-        blkMicro(172, 2);
-        blkMicro(173, 0);
-        blkMicro(173, 1);
-        blkMicro(174, 0);
-        blkMicro(174, 1);
-        blkMicro(174, 2);
-        blkMicro(174, 4);
-        blkMicro(175, 0);
-        blkMicro(175, 1);
-        blkMicro(176, 0);
-        blkMicro(176, 1);
-        blkMicro(176, 3);
-        blkMicro(177, 0);
-        blkMicro(177, 1);
-        blkMicro(177, 3);
-        blkMicro(177, 5);
-        blkMicro(178, 0);
-        blkMicro(178, 1);
-        blkMicro(179, 0);
-        blkMicro(179, 1);
+		blkMicro(77, 6);
+		blkMicro(77, 8);
+		blkMicro(80, 7);
+		blkMicro(80, 9);
+		blkMicro(206, 6);
+		blkMicro(206, 8);
+		blkMicro(209, 7);
+		blkMicro(209, 9);
+		blkMicro(213, 6);
+		blkMicro(213, 8);
+		blkMicro(216, 6);
+		blkMicro(216, 8);
+		// useless black micros
+		blkMicro(130, 0);
+		blkMicro(130, 1);
+		blkMicro(132, 1);
+		blkMicro(134, 0);
+		blkMicro(134, 1);
+		blkMicro(149, 0);
+		blkMicro(149, 1);
+		blkMicro(149, 2);
+		blkMicro(150, 0);
+		blkMicro(150, 1);
+		blkMicro(150, 2);
+		blkMicro(150, 4);
+		blkMicro(151, 0);
+		blkMicro(151, 1);
+		blkMicro(151, 3);
+		blkMicro(152, 0);
+		blkMicro(152, 1);
+		blkMicro(152, 3);
+		blkMicro(152, 5);
+		blkMicro(153, 0);
+		blkMicro(153, 1);
+		// fix bad artifact
+		blkMicro(156, 2);
+		// useless black micros
+		blkMicro(172, 0);
+		blkMicro(172, 1);
+		blkMicro(172, 2);
+		blkMicro(173, 0);
+		blkMicro(173, 1);
+		blkMicro(174, 0);
+		blkMicro(174, 1);
+		blkMicro(174, 2);
+		blkMicro(174, 4);
+		blkMicro(175, 0);
+		blkMicro(175, 1);
+		blkMicro(176, 0);
+		blkMicro(176, 1);
+		blkMicro(176, 3);
+		blkMicro(177, 0);
+		blkMicro(177, 1);
+		blkMicro(177, 3);
+		blkMicro(177, 5);
+		blkMicro(178, 0);
+		blkMicro(178, 1);
+		blkMicro(179, 0);
+		blkMicro(179, 1);
+#endif // ASSET_MPL
 	} break;
-#endif
+#endif // HELLFIRE
 	default:
 		ASSUME_UNREACHABLE
 		break;
