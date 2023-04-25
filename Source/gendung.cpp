@@ -236,9 +236,9 @@ void InitLvlDungeon()
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
 		// patch dSolidTable - Town.SOL
-		nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
-		nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
-		nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
+		// nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
+		// nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
+		// nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
 
 		// patch dMiniTiles - Town.MIN
 		// pointless tree micros (re-drawn by dSpecial)
