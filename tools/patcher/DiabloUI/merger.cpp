@@ -5,6 +5,7 @@
 #include "selok.h"
 #include "selyesno.h"
 #include "utils/paths.h"
+#include "utils/file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -216,6 +217,8 @@ void UiMergerDialog()
 
 		SFileCloseArchive(diabdat_mpqs[NUM_MPQS]);
 		diabdat_mpqs[NUM_MPQS] = NULL;
+		std::string path = std::string(GetBasePath()) + MPQONE;
+		RemoveFile(path.c_str());
 	}
 
 	// do the actual merge
