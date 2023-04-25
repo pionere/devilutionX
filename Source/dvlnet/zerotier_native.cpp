@@ -12,7 +12,7 @@
 #include <ZeroTierSockets.h>
 #include <cstdlib>
 
-#include "utils/log.h
+#include "utils/log.h"
 #include "utils/paths.h"
 
 #include "dvlnet/zerotier_lwip.h"

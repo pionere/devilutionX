@@ -1045,7 +1045,7 @@ if(NINTENDO_3DS)
   set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template.rsf")
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
   set(APP_ROMFS_FILES
-    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
+    #"${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(HELLFIRE)
     set(APP_TITLE       "DevilutionX: Hellfire")
@@ -1199,7 +1199,7 @@ if(CPACK)
     )
 
     # -G DEB
-    #set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
+    set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
     if(USE_SDL1)
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
     else()
