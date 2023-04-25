@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#ifdef MPQONE
+#if USE_MPQONE
 extern HANDLE diabdat_mpq;
 #else
 extern HANDLE diabdat_mpqs[NUM_MPQS];

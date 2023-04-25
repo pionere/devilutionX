@@ -70,7 +70,7 @@ HANDLE SFileOpenFile(const char* filename)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
 		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
 	}
-#ifdef MPQONE
+#if USE_MPQONE
 	if (result == NULL)
 		SFileOpenFileEx(diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, &result);
 #else

@@ -16,11 +16,13 @@
 #define DATA_ARCHIVE_MAX_PATH	128
 
 #ifdef HELLFIRE
+#define MPQONE					"hellone.mpq"
 #define INTRO_ARCHIVE			"gendata\\Hellfire.smk"
 #define GAME_ID					((int)'HRTL')
 #define GAME_VERSION			34
 #define HELP_TITLE				"Hellfire Help"
 #else
+#define MPQONE					"diablone.mpq"
 #define INTRO_ARCHIVE			"gendata\\diablo1.smk"
 #define GAME_ID					((int)'DRTL')
 #define GAME_VERSION			42

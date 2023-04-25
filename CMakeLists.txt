@@ -157,6 +157,7 @@ cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 option(USE_PATCH "Create executable to patch assets" OFF)
+option(USE_MPQONE "Force the use of merged assets" OFF)
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
@@ -778,6 +779,8 @@ foreach(
   def_name
   USE_SDL1
   HELLFIRE
+  USE_PATCH
+  USE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
@@ -809,6 +812,7 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
+  MPQONE
   ASSET_MPL
   DEFAULT_WIDTH
   DEFAULT_HEIGHT
@@ -1364,6 +1368,7 @@ foreach(
   def_name
   HELLFIRE
   USE_PATCH
+  USE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN

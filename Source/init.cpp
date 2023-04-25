@@ -25,7 +25,7 @@ int _newlib_heap_size_user = 100 * 1024 * 1024;
 DEVILUTION_BEGIN_NAMESPACE
 
 /** A handle to the mpq archives. */
-#ifdef MPQONE
+#if USE_MPQONE
 HANDLE diabdat_mpq;
 #else
 HANDLE diabdat_mpqs[NUM_MPQS];
@@ -60,7 +60,7 @@ static HANDLE init_test_access(const char* mpq_name)
 
 void FreeArchives()
 {
-#ifdef MPQONE
+#if USE_MPQONE
 	SFileCloseArchive(diabdat_mpq);
 	diabdat_mpq = NULL;
 #else
@@ -147,7 +147,7 @@ void InitArchives()
 
 	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
 	//CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
-#ifdef MPQONE
+#if USE_MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
 		return;
@@ -160,6 +160,12 @@ void InitArchives()
 		paths.emplace_back(std::string(gogpath) + "/");
 		paths.emplace_back(std::string(gogpath) + "/hellfire/");
 	}*/
+#else
+	HANDLE diabdat_mpq = init_test_access(MPQONE);
+	if (diabdat_mpq != NULL) {
+		diabdat_mpqs[0] = diabdat_mpq;
+		return;
+	}
 #endif
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
@@ -191,7 +197,7 @@ void InitArchives()
 		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif
 
-#ifdef MPQONE
+#if USE_MPQONE
 	int i;
 	// first round - read the content and prepare the metadata
 	std::string listpath = std::string(GetBasePath()) + "listfiles.txt";

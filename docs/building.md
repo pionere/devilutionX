@@ -570,7 +570,9 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 - `-DASSET_MPL=2` use upscaled assets, requires devilx_hdX.mpq (e.g. devilx_hd2.mpq)
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
 - `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
-- `-DMPQONE="hellone.mpq"` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
+- `-DMPQONE="hellone.mpq"` The name of the merged MPQ file. ("diablone.mpq" in case of non-hellfire game)
+- `-DUSE_MPQONE=OFF` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
+- `-DUSE_PATCH=OFF` build a separate binary to manipulate MPQ files (expect it to be used before the game is launched).
 
 ### Debug builds
 
