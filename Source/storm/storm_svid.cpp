@@ -349,7 +349,7 @@ static bool SVidLoadNextFrame()
 
 	result = smk_next(SVidSMK);
 	if (result != SMK_MORE /* && result != SMK_LAST*/) {
-		if (result == SMK_ERROR || !SVidLoop) {
+		if (SMK_ERR(result) || !SVidLoop) {
 			return false;
 		}
 

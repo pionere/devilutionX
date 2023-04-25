@@ -31,8 +31,12 @@ typedef struct smk_t * smk;
 /** a few defines as return codes from smk_next() */
 #define SMK_DONE	0x00
 #define SMK_MORE	0x01
+#ifdef FULL
 #define SMK_LAST	0x02
 #define SMK_ERROR	-1
+#else
+#define SMK_ERR(x)	((x) < 0)
+#endif
 
 /** file-processing mode, pass to smk_open_file */
 #define SMK_MODE_DISK	0x00
