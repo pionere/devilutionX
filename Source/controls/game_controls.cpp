@@ -3,10 +3,10 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include <cstdint>
 
-#include "controls/controller_motion.h"
-#include "controls/menu_controls.h"
-#include "controls/modifier_hints.h"
-#include "controls/plrctrls.h"
+#include "controller_motion.h"
+#include "menu_controls.h"
+#include "modifier_hints.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

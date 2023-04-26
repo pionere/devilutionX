@@ -1,8 +1,12 @@
 #include "axis_direction.h"
 
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
 #include <SDL.h>
 
 DEVILUTION_BEGIN_NAMESPACE
+
+AxisDirectionRepeater axisDirRepeater;
 
 AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 {
@@ -53,3 +57,4 @@ AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 }
 
 DEVILUTION_END_NAMESPACE
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

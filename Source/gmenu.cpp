@@ -172,8 +172,7 @@ static void gmenu_draw_menu_item(int i, int y)
 static void GameMenuMove()
 {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	static AxisDirectionRepeater repeater;
-	const AxisDirection move_dir = repeater.Get(GetLeftStickOrDpadDirection());
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection());
 	if (move_dir.x != AxisDirectionX_NONE)
 		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
 	if (move_dir.y != AxisDirectionY_NONE)

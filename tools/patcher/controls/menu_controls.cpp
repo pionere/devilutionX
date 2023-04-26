@@ -1,21 +1,20 @@
 #include "menu_controls.h"
 
-#include "controls/controller.h"
-#include "controls/controller_motion.h"
-#include "controls/axis_direction.h"
-//#include "controls/plrctrls.h"
-#include "controls/touch.h"
+#include "controller.h"
+#include "controller_motion.h"
+#include "axis_direction.h"
+//#include "game_controls.h"
+#include "touch.h"
 
 #include "DiabloUI/diabloui.h"
-#include "controls/remap_keyboard.h"
+#include "remap_keyboard.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 MenuAction GetMenuHeldUpDownAction()
 {
-	static AxisDirectionRepeater repeater;
-	const AxisDirection dir = repeater.Get(GetLeftStickOrDpadDirection());
+	const AxisDirection dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection());
 	switch (dir.y) {
 	case AxisDirectionY_UP:
 		return MenuAction_UP;
@@ -38,10 +37,16 @@ MenuAction GetMenuAction(SDL_Event& event)
 
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
-	if (ProcessControllerMotion(event, ctrlEvent)) {
+	if (ProcessControllerMotion(event)) {
 		sgbControllerActive = true;
 		return GetMenuHeldUpDownAction();
 	}
+#if HAS_DPAD
+	if (/*!dpad_hotkeys &&*/ SimulateRightStickWithDpad(ctrlEvent)) {
+		sgbControllerActive = true;
+		return GetMenuHeldUpDownAction();
+	}
+#endif
 
 	if (ctrlEvent.button != ControllerButton_NONE)
 		sgbControllerActive = true;
