@@ -14,13 +14,10 @@
 #define __ENGINE_H__
 
 //#include "appfat.h"
-#include "display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define CEL_FRAME_HEADER_SIZE 0x0A
 #define CEL_BLOCK_HEIGHT      32
-#define CEL_BLOCK_MAX         (CEL_FRAME_HEADER_SIZE / 2 - 1)
 
 inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
 {
@@ -42,42 +39,15 @@ inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 	return &pCelBuff[nCellStart];
 }
 
-inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, int* sy)
+inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize)
 {
-	int height, startblock, endblock;
 	const WORD* pFrameTable;
-	WORD nDataStart, nDataEnd;
+	WORD nDataStart;
 	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
-	// check if it is too high on the screen
-	height = *sy - SCREEN_Y;
-	if (height < 0) {
-		*nDataSize = 0;
-		return pRLEBytes;
-	}
-	// limit blocks to the top of the screen
-	endblock = (unsigned)(height + (CEL_BLOCK_HEIGHT - 1)) / CEL_BLOCK_HEIGHT;
-	// limit blocks to the bottom of the screen
-	startblock = 0;
-	while (*sy >= (SCREEN_Y + SCREEN_HEIGHT + CEL_BLOCK_HEIGHT) && startblock < CEL_BLOCK_MAX) {
-		startblock++;
-		*sy -= CEL_BLOCK_HEIGHT;
-	}
-	// check if it is too down on the screen
-	if (*sy >= SCREEN_Y + SCREEN_HEIGHT + BORDER_BOTTOM) {
-		*nDataSize = 0;
-		return pRLEBytes;
-	}
 
 	pFrameTable = (const WORD*)&pRLEBytes[0];
-	nDataStart = SwapLE16(pFrameTable[startblock]);
-	nDataEnd = endblock <= CEL_BLOCK_MAX ? SwapLE16(pFrameTable[endblock]) : 0;
-	if (nDataEnd != 0) {
-		*nDataSize = nDataEnd - nDataStart;
-	} else if (nDataStart != 0) {
-		*nDataSize -= nDataStart;
-	} else {
-		*nDataSize = 0;
-	}
+	nDataStart = SwapLE16(pFrameTable[0]);
+	*nDataSize -= nDataStart;
 
 	return &pRLEBytes[nDataStart];
 }
