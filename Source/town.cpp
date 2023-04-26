@@ -11,18 +11,18 @@ DEVILUTION_BEGIN_NAMESPACE
  * @brief Load a tile in to dPiece
  * @param xx upper left destination
  * @param yy upper left destination
- * @param t tile id (-1)
+ * @param mt mega tile id (-1)
  */
-static void T_FillTile(int xx, int yy, int t)
+static void T_FillTile(int xx, int yy, int mt)
 {
 	int v1, v2, v3, v4;
 	uint16_t* Tiles;
 
-	Tiles = ((uint16_t*)&pMegaTiles[t * 8]);
-	v1 = SwapLE16(*(Tiles + 0)) + 1;
-	v2 = SwapLE16(*(Tiles + 1)) + 1;
-	v3 = SwapLE16(*(Tiles + 2)) + 1;
-	v4 = SwapLE16(*(Tiles + 3)) + 1;
+	Tiles = &pMegaTiles[mt * 4];
+	v1 = SwapLE16(Tiles[0]) + 1;
+	v2 = SwapLE16(Tiles[1]) + 1;
+	v3 = SwapLE16(Tiles[2]) + 1;
+	v4 = SwapLE16(Tiles[3]) + 1;
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;
@@ -238,7 +238,7 @@ static void T_Pass3()
 	mem_free_dbg(pBuf);
 #endif
 
-	if (quests[Q_PWATER]._qvar1 != 2) {
+	if (quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN) {
 		T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
 	}
 
@@ -269,60 +269,14 @@ static void T_Pass3()
 
 /**
  * @brief Initialize town level
- * @param entry Methode of entry
  */
-void CreateTown(int entry)
+void CreateTown()
 {
 	int i, *dp;
 	BYTE pc, *dsp;
 
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
-
-	if (entry == ENTRY_MAIN) {
-		// New game
-		ViewX = 65 + DBORDERX;
-		ViewY = 58 + DBORDERY;
-	/*} else if (entry == ENTRY_PREV) { // Cathedral
-		ViewX = 15 + DBORDERX;
-		ViewY = 21 + DBORDERY;*/
-	} else if (entry == ENTRY_TWARPUP) {
-		switch (gbTWarpFrom) {
-		case TWARP_CATHEDRAL:
-			ViewX = 15 + DBORDERX;
-			ViewY = 21 + DBORDERY;
-			break;
-		case TWARP_CATACOMB:
-			ViewX = 39 + DBORDERX;
-			ViewY = 12 + DBORDERY;
-			break;
-		case TWARP_CAVES:
-			ViewX = 8 + DBORDERX;
-			ViewY = 59 + DBORDERY;
-			break;
-		case TWARP_HELL:
-			ViewX = 31 + DBORDERX;
-			ViewY = 71 + DBORDERY;
-			break;
-#ifdef HELLFIRE
-		case TWARP_CRYPT:
-			ViewX = 26 + DBORDERX;
-			ViewY = 15 + DBORDERY;
-			break;
-		case TWARP_NEST:
-			ViewX = 69 + DBORDERX;
-			ViewY = 52 + DBORDERY;
-			break;
-#endif
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-	} else if (entry == ENTRY_RETOWN) {
-		// Restart in Town
-		ViewX = 63 + DBORDERX;
-		ViewY = 70 + DBORDERY;
-	}
 
 	T_Pass3();
 

@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "storm/storm_net.h"
+#include "utils/thread.h"
 #include <deque>
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -16,12 +17,12 @@ uint32_t sgbSentThisCycle;
 Uint32 guNextTick;
 /* The number of game-logic cycles between turns. */
 BYTE gbNetUpdateRate;
-#if !NONET
+#ifndef NONET
 /* The number of extra turns to be queued to ensure fluent gameplay. */
 BYTE gbEmptyTurns;
 #ifdef ADAPTIVE_NETUPDATE
 /* The 'health' of the connection. Incremented on timeout, decremented if a turn is received on time. */
-char gbNetUpdateWeight;
+int8_t gbNetUpdateWeight;
 #endif // ADAPTIVE_NETUPDATE
 /* The thread to handle turns while connecting or loading a level. */
 static SDL_Thread* sghThread = NULL;
@@ -38,22 +39,22 @@ static bool _gbTickInSync;
 static bool _gbThreadLive;
 static bool _gbRunThread;
 
-void nthread_send_turn(BYTE *data, unsigned len)
+void nthread_send_turn(BYTE* data, unsigned len)
 {
 	uint32_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts
 //#ifdef ADAPTIVE_NETUPDATE
-#if !NONET
+#ifndef NONET
 restart:
 #endif
-	SNetSendTurn(SwapLE32(turn), data, len);
+	SNetSendTurn(turn, data, len);
 	turn++;
 	// commented out to raise the possible up-time of a game
 	// minor hickup might occur around overflow, but ignore it for the moment
 	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
 	//	turn &= 0xFFFF;
 //#ifdef ADAPTIVE_NETUPDATE
-#if !NONET
+#ifndef NONET
 	if (gbEmptyTurns != 0 && SNetGetTurnsInTransit() <= gbEmptyTurns) {
 		len = 0;
 		goto restart;
@@ -111,7 +112,7 @@ int nthread_recv_turns()
 		return TS_ACTIVE;
 	}
 }
-#if !NONET
+#ifndef NONET
 static void nthread_parse_turns()
 {
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
@@ -182,7 +183,7 @@ static int SDLCALL nthread_handler(void* data)
 
 		switch (nthread_recv_turns()) {
 		case TS_DESYNC: {
-			uint32_t turn = /*SwapLE32(*/SNetLastTurn(player_state);//);
+			uint32_t turn = SNetLastTurn(player_state);
 			if (!(player_state[mypnum] & PCS_TURN_ARRIVED))
 				sgbSentThisCycle = turn;
 			nthread_parse_turns();
@@ -217,7 +218,7 @@ void nthread_start()
 	_gbTickInSync = true;
 	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
-#if !NONET
+#ifndef NONET
 	gbEmptyTurns = 0;
 #ifdef ADAPTIVE_NETUPDATE
 	gbNetUpdateWeight = 0;
@@ -240,7 +241,7 @@ void nthread_start()
 void nthread_cleanup()
 {
 	SNetTurnPkt* tmp;
-#if !NONET
+#ifndef NONET
 	_gbThreadLive = false;
 	if (sghThread != NULL && SDL_GetThreadID(sghThread) != SDL_GetThreadID(NULL)) {
 		if (!_gbRunThread)
@@ -259,7 +260,7 @@ void nthread_cleanup()
 void nthread_run()
 {
 	gbLvlLoad = 10;
-#if !NONET
+#ifndef NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
 		sgThreadMutex.Leave();
@@ -310,7 +311,7 @@ bool nthread_level_turn()
 			}
 			continue;
 		}
-#if !NONET
+#ifndef NONET
 		case TS_TIMEOUT:
 			if (gbEmptyTurns < 50) {
 				SDL_Delay(1);
@@ -403,12 +404,15 @@ void nthread_finish(UINT uMsg)
 	unsigned tmp;
 
 	if (uMsg == DVL_DWM_NEWGAME) {
-		if (gbLoadGame/*&& gbValidSaveFile*/) {
-#if !NONET
+		if (gbLoadGame /*&& gbValidSaveFile*/) {
+#ifndef NONET
 			assert(sghThread == NULL);
 #endif
 			assert(geBufferMsgs == MSG_NORMAL);
 			assert(sgbPacketCountdown == 1);
+			// IncProgress();
+			// IncProgress();
+			// IncProgress();
 			return;
 		}
 	}
@@ -418,7 +422,7 @@ void nthread_finish(UINT uMsg)
 	//  so the localized messages are considered external
 	assert(currLvl._dLevelIdx == myplr._pDunLevel);
 	currLvl._dLevelIdx = DLV_INVALID;
-#if !NONET
+#ifndef NONET
 	// process messages arrived during level-load
 	if (sghThread != NULL) {
 		nthread_process_pending_turns();
@@ -434,8 +438,11 @@ void nthread_finish(UINT uMsg)
 	// phase 6 end
 	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
 	for (int i = SNetGetTurnsInTransit(); i > 0; i--) {
-		if (!nthread_level_turn())
+		if (!nthread_level_turn()) {
+			// IncProgress();
+			// IncProgress();
 			goto done;
+		}
 	}
 	IncProgress();
 	// phase 7 end
@@ -453,8 +460,10 @@ void nthread_finish(UINT uMsg)
 	assert((gdwLastGameTurn * gbNetUpdateRate) == gdwGameLogicTurn);
 	lastGameTurn = gdwLastGameTurn;
 	while (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
-		if (!nthread_level_turn())
+		if (!nthread_level_turn()) {
+			// IncProgress();
 			goto done;
+		}
 		unsigned allPlayers = 0;
 		for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 			if (plr._pActive)
@@ -465,13 +474,13 @@ void nthread_finish(UINT uMsg)
 		}
 	}
 	IncProgress();
-	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT ||
-		(gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn));	// TODO: overflow hickup
+	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT
+	 || (gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn)); // TODO: overflow hickup
 	gdwLastGameTurn = lastGameTurn;
 	gdwGameLogicTurn = lastGameTurn * gbNetUpdateRate;
 	tmp = guSendLevelData; // preserve this mask, requests of the pending turns are supposed to be handled
 	// phase 9 end
-#if !NONET
+#ifndef NONET
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT) {
 		// phase 10a - level-delta received
 		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
@@ -479,6 +488,13 @@ void nthread_finish(UINT uMsg)
 			goto done;
 		// phase 11 - load received level-delta
 		assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
+		geBufferMsgs = MSG_NORMAL;
+		assert(currLvl._dLevelIdx == DLV_INVALID);
+		currLvl._dLevelIdx = myplr._pDunLevel;
+		// assert(IsMultiGame);
+		ResyncQuests();
+		DeltaLoadLevel();
+		//SyncPortals();
 		LevelDeltaLoad();
 		assert(geBufferMsgs == MSG_NORMAL);
 		assert(currLvl._dLevelIdx == myplr._pDunLevel);
@@ -499,9 +515,11 @@ void nthread_finish(UINT uMsg)
 		// phase 11-12b
 		assert(currLvl._dLevelIdx == DLV_INVALID);
 		currLvl._dLevelIdx = myplr._pDunLevel;
+		ResyncQuests();
 		if (IsMultiGame) {
-			ResyncQuests();
 			DeltaLoadLevel();
+		} else if (IsLvlVisited(currLvl._dLevelIdx)) {
+			LoadLevel();
 		}
 		SyncPortals();
 		InitLvlPlayer(mypnum, true);
@@ -520,6 +538,21 @@ done:
 	// reset geBufferMsgs to normal
 	geBufferMsgs = MSG_NORMAL;
 	plrmsg_delay(false);
+	InitSync();
+	// finalize the light/vision calculations
+	DRLG_RedoTrans();
+	ProcessLightList();
+	ProcessVisionList();
+	// enter the dungeon level
+	PlayDungMsgs();
+	guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
+#ifdef HELLFIRE
+	if (quests[Q_DEFILER]._qactive == QUEST_INIT && currLvl._dLevelIdx == questlist[Q_DEFILER]._qdlvl) {
+		quests[Q_DEFILER]._qactive = QUEST_ACTIVE;
+		quests[Q_DEFILER]._qlog = TRUE;
+		NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
+	}
+#endif
 #if DEV_MODE
 	if (gbActivePlayers > 1 && plx(0)._pDunLevel == plx(1)._pDunLevel) {
 		NetSendCmd(CMD_REQUEST_ITEMCHECK);

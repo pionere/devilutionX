@@ -13,7 +13,7 @@ namespace net {
 
 class tcp_client : public base {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
 	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void SNetLeaveGame(int reason);
@@ -24,7 +24,7 @@ public:
 
 protected:
 	virtual void poll();
-	virtual void send_packet(packet &pkt);
+	virtual void send_packet(packet& pkt);
 
 private:
 	frame_queue recv_queue;
@@ -34,7 +34,7 @@ private:
 	asio::ip::tcp::socket sock = asio::ip::tcp::socket(ioc);
 	tcp_server* local_server = NULL;
 
-	void handle_recv(const asio::error_code &ec, size_t bytesRead);
+	void handle_recv(const asio::error_code& ec, size_t bytesRead);
 	void start_recv();
 	void close();
 };

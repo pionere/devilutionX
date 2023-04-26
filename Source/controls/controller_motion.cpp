@@ -12,8 +12,30 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void ScaleJoystickAxes(float *x, float *y)
+float leftStickX, leftStickY, rightStickX, rightStickY;
+float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
+
+bool IsMovingMouseCursorWithController()
 {
+	return rightStickX != 0 || rightStickY != 0;
+}
+
+void ScaleJoystickAxes(bool rightAxes)
+{
+	float *x, *y;
+
+	if (rightAxes) {
+		rightStickX = rightStickXUnscaled;
+		rightStickY = rightStickYUnscaled;
+		x = &rightStickX;
+		y = &rightStickY;
+	} else {
+		leftStickX = leftStickXUnscaled;
+		leftStickY = leftStickYUnscaled;
+		x = &leftStickX;
+		y = &leftStickY;
+	}
+
 	// radial and scaled dead-zone
 	// https://web.archive.org/web/20200130014626/www.third-helix.com:80/2013/04/12/doing-thumbstick-dead-zones-right.html
 	// input values go from -32767.0...+32767.0, output values are from -1.0 to 1.0;
@@ -93,43 +115,16 @@ static bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent)
 	return true;
 }
 
-float leftStickX, leftStickY, rightStickX, rightStickY;
-float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
-bool leftStickNeedsScaling, rightStickNeedsScaling;
-
-static void ScaleJoysticks()
-{
-	if (leftStickNeedsScaling) {
-		leftStickX = (float)leftStickXUnscaled;
-		leftStickY = (float)leftStickYUnscaled;
-		ScaleJoystickAxes(&leftStickX, &leftStickY);
-		leftStickNeedsScaling = false;
-	}
-
-	if (rightStickNeedsScaling) {
-		rightStickX = (float)rightStickXUnscaled;
-		rightStickY = (float)rightStickYUnscaled;
-		ScaleJoystickAxes(&rightStickX, &rightStickY);
-		rightStickNeedsScaling = false;
-	}
-}
-
 // Updates motion state for mouse and joystick sticks.
-bool ProcessControllerMotion(const SDL_Event &event, ControllerButtonEvent ctrlEvent)
+bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlEvent)
 {
 #if HAS_GAMECTRL
-	GameController *const controller = GameController::Get(event);
-	if (controller != NULL && GameController::ProcessAxisMotion(event)) {
-		ScaleJoysticks();
+	if (GameController::ProcessAxisMotion(event))
 		return true;
-	}
 #endif
 #if HAS_JOYSTICK
-	Joystick *const joystick = Joystick::Get(event);
-	if (joystick != NULL && Joystick::ProcessAxisMotion(event)) {
-		ScaleJoysticks();
+	if (Joystick::ProcessAxisMotion(event))
 		return true;
-	}
 #endif
 #if HAS_KBCTRL
 	if (ProcessKbCtrlAxisMotion(event))
@@ -167,5 +162,4 @@ AxisDirection GetLeftStickOrDpadDirection(bool allowDpad)
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

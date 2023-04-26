@@ -17,6 +17,7 @@ extern TriggerStruct trigs[MAXTRIGGERS];
 extern BYTE gbOpenWarps;
 extern BYTE gbTWarpFrom;
 
+void InitView(int entry);
 void InitTriggers();
 void InitVPEntryTrigger(bool recreate);
 void InitVPReturnTrigger(bool recreate);

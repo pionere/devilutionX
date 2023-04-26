@@ -7,11 +7,11 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static TMsgHdr *sgpTimedMsgHead;
+static TMsgHdr* sgpTimedMsgHead;
 
-bool tmsg_get(TCmdGItem *pMsg)
+bool tmsg_get(TCmdGItem* pMsg)
 {
-	TMsgHdr *head;
+	TMsgHdr* head;
 
 	head = sgpTimedMsgHead;
 	if (head == NULL)
@@ -27,11 +27,11 @@ bool tmsg_get(TCmdGItem *pMsg)
 	return true;
 }
 
-void tmsg_add(TCmdGItem *pMsg)
+void tmsg_add(TCmdGItem* pMsg)
 {
-	TMsgHdr **tail;
+	TMsgHdr** tail;
 
-	TMsgHdr *msg = (TMsgHdr *)DiabloAllocPtr(sizeof(TCmdGItem) + sizeof(TMsgHdr));
+	TMsgHdr* msg = (TMsgHdr*)DiabloAllocPtr(sizeof(TCmdGItem) + sizeof(TMsgHdr));
 	msg->pNext = NULL;
 	msg->dwTime = SDL_GetTicks() + gnTickDelay * 10;
 	//msg->hdr.bLen = sizeof(TCmdGItem);
@@ -49,7 +49,7 @@ void tmsg_start()
 
 void tmsg_cleanup()
 {
-	TMsgHdr *next;
+	TMsgHdr* next;
 
 	while (sgpTimedMsgHead != NULL) {
 		next = sgpTimedMsgHead->pNext;

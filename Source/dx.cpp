@@ -23,7 +23,6 @@
  *   video_surface    -- RenderPresent/SDL_Flip --> window
  */
 #include "all.h"
-#include <config.h>
 #include "utils/display.h"
 #include <SDL.h>
 #if HAS_GAMECTRL
@@ -39,11 +38,11 @@ DEVILUTION_BEGIN_NAMESPACE
 unsigned _guLockCount;
 #endif
 /** Back buffer */
-BYTE *gpBuffer;
+BYTE* gpBuffer;
 /** Upper bound of back buffer. */
-BYTE *gpBufStart;
+BYTE* gpBufStart;
 /** Lower bound of back buffer. */
-BYTE *gpBufEnd;
+BYTE* gpBufEnd;
 /** The width of the back buffer. */
 int gnBufferWidth;
 
@@ -64,14 +63,14 @@ static void dx_create_back_buffer()
 		sdl_error(ERR_SDL_BACK_PALETTE_CREATE);
 	}
 	assert(back_surface->pitch == gnBufferWidth);
-	gpBuffer = (BYTE *)back_surface->pixels;
+	gpBuffer = (BYTE*)back_surface->pixels;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
-	//gpBufEnd = (BYTE *)(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
+	//gpBufEnd = (BYTE )(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
-	back_palette = SDL_AllocPalette(256);
+	back_palette = SDL_AllocPalette(NUM_COLORS);
 	if (back_palette == NULL)
 		sdl_error(ERR_SDL_BACK_PALETTE_ALLOC);
 	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)
@@ -104,7 +103,7 @@ static void dx_create_primary_surface()
 
 void dx_init()
 {
-	SpawnWindow(PROJECT_NAME);
+	SpawnWindow();
 #ifndef USE_SDL1
 	SDL_RaiseWindow(ghMainWnd);
 	SDL_ShowWindow(ghMainWnd);
@@ -127,7 +126,7 @@ static void lock_buf_priv()
 		return;
 	}
 	assert(gpBuffer == back_surface->pixels);
-	//gpBuffer = (BYTE *)back_surface->pixels;
+	//gpBuffer = (BYTE*)back_surface->pixels;
 	//gpBufEnd += (uintptr_t)gpBuffer;
 	_guLockCount++;
 #elif DEV_MODE
@@ -175,12 +174,8 @@ void unlock_buf(BYTE idx)
 
 void dx_cleanup()
 {
-#if HAS_GAMECTRL
-	GameController::ReleaseAll();
-#endif
 #ifndef USE_SDL1
-	if (ghMainWnd != NULL)
-		SDL_HideWindow(ghMainWnd);
+	SDL_HideWindow(ghMainWnd);
 #endif
 #if DEBUG_MODE
 	sgMemCrit.Enter();
@@ -194,8 +189,6 @@ void dx_cleanup()
 	gpBuffer = NULL;
 #endif
 
-	if (back_surface == NULL)
-		return;
 	SDL_FreeSurface(back_surface);
 	back_surface = NULL;
 #ifndef USE_SDL1
@@ -209,6 +202,16 @@ void dx_cleanup()
 	}
 #endif
 	SDL_DestroyWindow(ghMainWnd);
+
+	/* commented out, because SDL_Quit should do this
+#if HAS_GAMECTRL
+	GameController::ReleaseAll();
+#endif
+#if HAS_JOYSTICK
+	Joystick::ReleaseAll();
+#endif*/
+
+	SDL_Quit();
 }
 
 void ToggleFullscreen()
@@ -236,13 +239,16 @@ void ToggleFullscreen()
  */
 void ClearScreenBuffer()
 {
-	lock_buf(3);
+	//lock_buf(3);
 
-	assert(back_surface != NULL);
+	//assert(back_surface != NULL);
 
-	SDL_FillRect(back_surface, NULL, 0x000000);
+	//SDL_FillRect(back_surface, NULL, 0x000000);
+	BYTE *dst = &gpBuffer[SCREENXY(0, 0)];
+	BYTE *dstEnd = &gpBuffer[SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)];
+	memset(dst, 0, (size_t)dstEnd - (size_t)dst);
 
-	unlock_buf(3);
+	//unlock_buf(3);
 }
 
 void RedBack()
@@ -261,30 +267,6 @@ void RedBack()
 				*dst = tbl[*dst];
 			dst++;
 		}
-	}
-}
-
-/**
- * Draws a half-transparent rectangle by blacking out odd pixels on odd lines,
- * even pixels on even lines.
- * @brief Render a transparent black rectangle
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param width Rectangle width
- * @param height Rectangle height
- */
-void trans_rect(int sx, int sy, int width, int height)
-{
-	int row, col;
-	BYTE *pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
-	// TODO: use SSE2?
-	for (row = 0; row < height; row++) {
-		for (col = 0; col < width; col++) {
-			if (((row ^ col) & 1) == 0)
-				*pix = 0;
-			pix++;
-		}
-		pix += BUFFER_WIDTH - width;
 	}
 }
 
@@ -317,7 +299,7 @@ static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 
 	// If the surface has a color key, we must stretch first and can then call BlitSurface.
 	if (SDL_HasColorKey(src)) {
-		SDL_Surface *stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect->w, dst_rect->h, src->format->BitsPerPixel,
+		SDL_Surface* stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect->w, dst_rect->h, src->format->BitsPerPixel,
 		    src->format->Rmask, src->format->Gmask, src->format->BitsPerPixel, src->format->Amask);
 		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
 		if (src->format->palette != NULL)
@@ -334,7 +316,7 @@ static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 
 	// A surface with a non-output pixel format but without a color key needs scaling.
 	// We can convert the format and then call BlitScaled.
-	SDL_Surface *converted = SDL_ConvertSurface(src, dst->format, 0);
+	SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
 	if (SDL_BlitScaled(converted, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0) {
 		SDL_FreeSurface(converted);
 		sdl_error(ERR_SDL_DX_BLIT_CONVERTED);

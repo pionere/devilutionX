@@ -1,14 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
 
-if(POLICY CMP0092)
-  cmake_policy(SET CMP0092 NEW)
-endif()
-if(POLICY CMP0083)
-  cmake_policy(SET CMP0083 NEW)
-endif()
-if(POLICY CMP0111)
-  cmake_policy(SET CMP0111 NEW)
-endif()
+foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135)
+  if(POLICY ${_policy})
+    cmake_policy(SET ${_policy} NEW)
+    set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
+  endif()
+endforeach()
 
 # Projects added via `add_subdirectory` or `FetchContent` may have a lower
 # `cmake_minimum_required` than we set here. Set policies that we require
@@ -87,6 +84,7 @@ if(WIN32)
   if(_WIN32_WINNT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
   endif()
+  set(USE_PATCH ON)
 endif()
 
 if(HAIKU)
@@ -158,6 +156,9 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
+option(USE_PATCH "Create executable to patch assets" OFF)
+option(CREATE_MPQONE "Merge assets if necessary" OFF)
+cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
@@ -174,6 +175,12 @@ if(NOT USE_SDL1)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
+if(HELLFIRE)
+  set(MPQONE \"hellone.mpq\")
+else()
+  set(MPQONE \"diablone.mpq\")
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
@@ -186,22 +193,18 @@ endif()
 
 # Remove unused symbols in non-debug mode.
 # This is useful even with LTO (-84 KiB with MinSizeRel).
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+#
+# PS4 toolchain crashes in `create-fself` when linking with these flags, so we exclude it:
+# https://github.com/PacBrew/ps4-openorbis/issues/8
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT PS4)
   # For some reason, adding to CMAKE_CXX_FLAGS results in a slightly smaller
   # binary than using `add_compile/link_options`
-  set(_extra_flags "-ffunction-sections -fdata-sections")
+  add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-ffunction-sections;-fdata-sections>")
   if(APPLE)
-    set(_extra_flags "${_extra_flags} -Wl,-dead_strip")
+    add_link_options("$<$<NOT:$<CONFIG:Debug>>:LINKER:-dead_strip>")
   else()
-    set(_extra_flags "${_extra_flags} -Wl,--gc-sections,--as-needed")
+    add_link_options("$<$<NOT:$<CONFIG:Debug>>:LINKER:--gc-sections,--as-needed>")
   endif()
-
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${_extra_flags}")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${_extra_flags}")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${_extra_flags}")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${_extra_flags}")
-  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${_extra_flags}")
 
   if(USE_LD_MOLD)
     if(NOT CMAKE_CROSSCOMPILING)
@@ -223,13 +226,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         endif()
       else()
       #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=mold")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=mold")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=mold")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=mold")
       endif()
     else()
       message(WARNING "-- Mold linker is disabled due to CMAKE_CROSSCOMPILING")
     endif()
   endif()
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  # -fipa-pta and -fdevirtualize-at-ltrans improve performance.
+  add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-fipa-pta;-fdevirtualize-at-ltrans>")
 endif()
 
 # Not a genexp because CMake doesn't support it
@@ -248,16 +256,16 @@ endif()
 find_package(Threads REQUIRED)
 if(NINTENDO_3DS)
   find_package(CITRO3D REQUIRED)
-  find_package(FREETYPE REQUIRED)
-  find_package(BZIP2 REQUIRED)
-  find_package(Tremor REQUIRED)
-  find_package(OGG REQUIRED)
-  find_package(MIKMOD REQUIRED)
-  find_package(MAD REQUIRED)
-  find_package(PNG REQUIRED)
+  #find_package(FREETYPE REQUIRED)
+  #find_package(BZIP2 REQUIRED)
+  #find_package(Tremor REQUIRED)
+  #find_package(OGG REQUIRED)
+  #find_package(MIKMOD REQUIRED)
+  #find_package(MAD REQUIRED)
+  #find_package(PNG REQUIRED)
 endif()
 if(AMIGA)
-  find_package(Freetype REQUIRED)
+  #find_package(Freetype REQUIRED)
   find_package(ZLIB REQUIRED)
 endif()
 
@@ -271,7 +279,7 @@ if(NOT NONET)
 endif()
 
 if(USE_SDL1)
-  find_package(SDL REQUIRED)
+  find_package(SDL 1.2.10 REQUIRED)
   include_directories(${SDL_INCLUDE_DIR})
 elseif(DEVILUTIONX_SYSTEM_SDL2)
   find_package(SDL2 REQUIRED)
@@ -392,7 +400,7 @@ set(devilutionx_SRCS
   Source/drlg_l2.cpp
   Source/drlg_l3.cpp
   Source/drlg_l4.cpp
-  Source/dthread.cpp
+  #Source/dthread.cpp
   Source/dx.cpp
   Source/effects.cpp
   Source/encrypt.cpp
@@ -434,7 +442,6 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
-  Source/setmaps.cpp
   Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
@@ -443,9 +450,10 @@ set(devilutionx_SRCS
   Source/sync.cpp
   Source/textdat.cpp
   Source/themes.cpp
-  Source/tmsg.cpp
+  #Source/tmsg.cpp
   Source/town.cpp
   Source/towners.cpp
+  #Source/track.cpp
   Source/trigs.cpp
   Source/controls/axis_direction.cpp
   Source/controls/controller.cpp
@@ -458,20 +466,11 @@ set(devilutionx_SRCS
   Source/controls/modifier_hints.cpp
   Source/controls/plrctrls.cpp
   Source/controls/touch.cpp
-  Source/engine/render/automap_render.cpp
-  Source/engine/render/cel_render.cpp
-  Source/engine/render/cl2_render.cpp
-  Source/engine/render/dun_render.cpp
-  Source/engine/render/text_render.cpp
-  Source/utils/display.cpp
-  Source/utils/paths.cpp
-  Source/utils/soundsample.cpp
-  Source/utils/thread.cpp
   Source/DiabloUI/credits.cpp
-  Source/DiabloUI/credits_lines.cpp
+  #Source/DiabloUI/credits_lines.cpp
   Source/DiabloUI/diabloui.cpp
   Source/DiabloUI/dialogs.cpp
-  Source/DiabloUI/errorart.cpp
+  #Source/DiabloUI/errorart.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
   Source/DiabloUI/scrollbar.cpp
@@ -490,10 +489,19 @@ set(devilutionx_SRCS
   Source/dvlnet/frame_queue.cpp
   Source/dvlnet/loopback.cpp
   Source/dvlnet/packet.cpp
+  Source/engine/render/cel_render.cpp
+  Source/engine/render/cl2_render.cpp
+  Source/engine/render/dun_render.cpp
+  Source/engine/render/raw_render.cpp
+  Source/engine/render/text_render.cpp
+  Source/miniwin/misc_msg.cpp
   Source/storm/storm.cpp
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
-  Source/miniwin/misc_msg.cpp)
+  Source/utils/display.cpp
+  Source/utils/paths.cpp
+  Source/utils/soundsample.cpp
+  Source/utils/thread.cpp)
 
 if(IOS)
   list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
@@ -556,9 +564,9 @@ if(RUN_TESTS)
   list(APPEND devilutionx_SRCS
     test/appfat_test.cpp
     test/automap_test.cpp
+    test/codec_test.cpp
     test/control_test.cpp
     test/cursor_test.cpp
-    test/codec_test.cpp
     test/diablo_test.cpp
     test/doom_test.cpp
     test/drlg_l1_test.cpp
@@ -567,9 +575,11 @@ if(RUN_TESTS)
     test/drlg_l4_test.cpp
     test/effects_test.cpp
     test/file_util_test.cpp
+    test/gfx_test.cpp
     test/lighting_test.cpp
     test/missiles_test.cpp
     test/player_test.cpp
+    test/projectile_test.cpp
     test/scrollrt_test.cpp
     test/stores_test.cpp)
 endif()
@@ -595,6 +605,100 @@ else()
     ${devilutionx_SRCS}
     Packaging/windows/devilutionx.exe.manifest
     Packaging/windows/devilutionx.rc)
+endif()
+
+if(USE_PATCH)
+  set(DEVIL_PATCHER devil_patcher)
+  set(devil_patcher_SRCS
+    tools/patcher/appfat.cpp
+    tools/patcher/control.cpp
+    tools/patcher/cursor.cpp
+    tools/patcher/diablo.cpp
+    tools/patcher/dx.cpp
+    tools/patcher/effects.cpp
+    tools/patcher/encrypt.cpp
+    tools/patcher/engine.cpp
+    tools/patcher/init.cpp
+    tools/patcher/lighting.cpp
+    tools/patcher/main.cpp
+    tools/patcher/mainmenu.cpp
+    tools/patcher/mpqapi.cpp
+    tools/patcher/palette.cpp
+    tools/patcher/scrollrt.cpp
+    tools/patcher/sound.cpp
+    tools/patcher/controls/axis_direction.cpp
+    tools/patcher/controls/controller.cpp
+    tools/patcher/controls/controller_motion.cpp
+    tools/patcher/controls/devices/game_controller.cpp
+    tools/patcher/controls/devices/joystick.cpp
+    tools/patcher/controls/devices/kbcontroller.cpp
+    tools/patcher/controls/game_controls.cpp
+    tools/patcher/controls/menu_controls.cpp
+    tools/patcher/controls/modifier_hints.cpp
+    tools/patcher/controls/touch.cpp
+    tools/patcher/DiabloUI/diabloui.cpp
+    tools/patcher/DiabloUI/dialogs.cpp
+    tools/patcher/DiabloUI/mainmenu.cpp
+    tools/patcher/DiabloUI/merger.cpp
+    tools/patcher/DiabloUI/patcher.cpp
+    tools/patcher/DiabloUI/progress.cpp
+    tools/patcher/DiabloUI/scrollbar.cpp
+    tools/patcher/DiabloUI/selok.cpp
+    tools/patcher/DiabloUI/selyesno.cpp
+    tools/patcher/DiabloUI/text.cpp
+    tools/patcher/DiabloUI/text_draw.cpp
+    tools/patcher/DiabloUI/title.cpp
+    tools/patcher/engine/render/cel_render.cpp
+    tools/patcher/engine/render/text_render.cpp
+    tools/patcher/miniwin/misc_msg.cpp
+    tools/patcher/storm/storm.cpp
+    tools/patcher/utils/display.cpp
+    tools/patcher/utils/paths.cpp
+    tools/patcher/utils/soundsample.cpp
+    tools/patcher/utils/thread.cpp)
+
+  if(APPLE)
+    add_executable(${DEVIL_PATCHER}
+      MACOSX_BUNDLE
+      ${devil_patcher_SRCS}
+      Packaging/apple/AppIcon.icns
+      Packaging/apple/LaunchScreen.storyboard)
+  elseif(WIN32)
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      ${devil_patcher_SRCS}
+      Packaging/windows/devilutionx.exe.manifest
+      Packaging/windows/devilutionx.rc)
+  else()
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      MACOSX_BUNDLE
+      ${devil_patcher_SRCS}
+      Packaging/windows/devilutionx.exe.manifest
+      Packaging/windows/devilutionx.rc)
+  endif()
+
+  target_link_libraries(${DEVIL_PATCHER} PRIVATE
+    PKWare
+    StormLib
+    #smacker
+    Radon)
+  if(USE_SDL1)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      ${SDL_LIBRARY})
+  else()
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      ${SDL2_MAIN}
+      SDL2::SDL2)
+  endif()
+
+  if(NOT NOSOUND)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${SDL_MIXER_LIBRARY})
+  endif()
+
+  target_include_directories(${DEVIL_PATCHER} PRIVATE
+    tools/patcher
+    ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 # Copy devilx.mpq to the build directory
@@ -670,7 +774,11 @@ if(TCPIP)
   target_link_libraries(${BIN_TARGET} PRIVATE asio)
 endif()
 if(ZEROTIER)
-  target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
+  if(NOT ANDROID)
+    target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
+  else()
+    target_link_libraries(${BIN_TARGET} PRIVATE zt-shared)
+  endif()
 endif()
 
 # Defines without value
@@ -678,6 +786,9 @@ foreach(
   def_name
   USE_SDL1
   HELLFIRE
+  USE_PATCH
+  USE_MPQONE
+  CREATE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
@@ -709,6 +820,7 @@ endforeach(def_name)
 # Defines with value
 foreach(
   def_name
+  MPQONE
   ASSET_MPL
   DEFAULT_WIDTH
   DEFAULT_HEIGHT
@@ -774,6 +886,9 @@ endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 target_compile_definitions(smacker PRIVATE ${def_list})
+if(USE_PATCH)
+  target_compile_definitions(${DEVIL_PATCHER} PRIVATE ${def_list})
+endif()
 
 if(UBSAN)
   target_compile_options(${BIN_TARGET} PUBLIC -fsanitize=undefined)
@@ -803,7 +918,7 @@ endif()
 
 if(AMIGA)
   target_link_libraries(${BIN_TARGET} PRIVATE
-    ${FREETYPE_LIBRARY}
+    #${FREETYPE_LIBRARY}
     ${ZLIB_LIBRARY})
   if(NOT WARPOS)
     target_link_libraries(${BIN_TARGET} PRIVATE -ldebug)
@@ -851,9 +966,9 @@ if(VITA)
 endif()
 
 if(NINTENDO_3DS)
-  target_link_libraries(${BIN_TARGET} PRIVATE ${TREMOR_LIBRARIES})
-  target_include_directories(${BIN_TARGET} PRIVATE ${TREMOR_INCLUDE_DIRS})
-  target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
+  #target_link_libraries(${BIN_TARGET} PRIVATE ${TREMOR_LIBRARIES})
+  #target_include_directories(${BIN_TARGET} PRIVATE ${TREMOR_INCLUDE_DIRS})
+  #target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::citro3d 3ds::ctrulib)
 endif()
 
@@ -919,9 +1034,6 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
   # Warnings for devilutionX
   target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wno-missing-braces)
-
-  # For ARM and other default unsigned char platforms
-  target_compile_options(${BIN_TARGET} PRIVATE -fsigned-char)
 
   # Disable Run-Time Type Information
   target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
@@ -1057,13 +1169,13 @@ if(NINTENDO_3DS)
   set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template.rsf")
   set(APP_ROMFS       "${CMAKE_BINARY_DIR}/romfs")
   set(APP_ROMFS_FILES
-    "${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
+    #"${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(HELLFIRE)
-	  set(APP_TITLE       "DevilutionX: Hellfire")
-	  set(APP_ICON        "${PROJECT_SOURCE_DIR}/Packaging/ctr/icon_hellfire.png")
-	  set(APP_BANNER      "${PROJECT_SOURCE_DIR}/Packaging/ctr/banner_hellfire.png")
-	  set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template_hellfire.rsf")
+    set(APP_TITLE       "DevilutionX: Hellfire")
+    set(APP_ICON        "${PROJECT_SOURCE_DIR}/Packaging/ctr/icon_hellfire.png")
+    set(APP_BANNER      "${PROJECT_SOURCE_DIR}/Packaging/ctr/banner_hellfire.png")
+    set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template_hellfire.rsf")
   endif()
   set(APP_VERSION ${PROJECT_VERSION})
 
@@ -1115,6 +1227,14 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
+    if(USE_PATCH)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
     #install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.CharisSILB.txt"
     #  DESTINATION "LICENSE"
     #)
@@ -1201,6 +1321,14 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )
+    if(USE_PATCH)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "share/diasurgical/${project_name}"
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "share/diasurgical/${project_name}"
+      )
+    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
       DESTINATION "share/icons/hicolor/512x512/apps"
       RENAME "${project_name}.png"
@@ -1211,10 +1339,10 @@ if(CPACK)
     )
 
     # -G DEB
-    #set(CPACK_PACKAGE_CONTACT "anders@jenbo.dk")
+    set(CPACK_PACKAGE_CONTACT "DevilutionX https://github.com/pionere/devilutionX")
     if(USE_SDL1)
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
-    else()
+    elseif(NOT DEVILUTIONX_STATIC_SDL2)
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl2-2.0-0")
     endif()
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
@@ -1260,6 +1388,9 @@ message(STATUS "Defines:")
 foreach(
   def_name
   HELLFIRE
+  USE_PATCH
+  USE_MPQONE
+  CREATE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN

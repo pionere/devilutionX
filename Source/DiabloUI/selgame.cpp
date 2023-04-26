@@ -24,9 +24,9 @@ static int selgame_mode;
 static bool selgame_endMenu;
 //int selgame_heroLevel;
 
-static SNetGameData* selgame_gameData;
+static _uigamedata* selgame_gameData;
 
-#define DESCRIPTION_WIDTH	(SELGAME_LPANEL_WIDTH - 2 * 10)
+#define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelgameModeSelect(unsigned index);
@@ -41,20 +41,22 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	assert(pEvt->databytes == sizeof(SNetGameData));
 	gameData = (SNetGameData*)pEvt->_eData;
-	assert(gameData->dwVersionId == GAME_VERSION);
+	assert(gameData->ngVersionId == GAME_VERSION);
 
 	playerId = pEvt->playerid;
 	assert((DWORD)playerId < MAX_PLRS);
 
-	copy_pod(*selgame_gameData, *gameData);
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	selgame_gameData->dwSeed = SwapLE32(selgame_gameData->dwSeed);
-	selgame_gameData->dwVersionId = SwapLE32(selgame_gameData->dwVersionId);
-#endif
-	selgame_gameData->bPlayerId = playerId;
+	selgame_gameData->aeVersionId = gameData->ngVersionId;
+	selgame_gameData->aeSeed = gameData->ngSeed;
+	selgame_gameData->aeDifficulty = gameData->ngDifficulty;
+	selgame_gameData->aeTickRate = gameData->ngTickRate;
+	selgame_gameData->aeNetUpdateRate = gameData->ngNetUpdateRate;
+	selgame_gameData->aeMaxPlayers = gameData->ngMaxPlayers;
+
+	selgame_gameData->aePlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
+static void selgame_add_event_handlers(void (*event_handler)(SNetEvent* pEvt))
 {
 	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
@@ -75,10 +77,8 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	SelgameFreeDlgItems();
-
-	//UiInitList_clear();
 }
 
 static void SelgameModeEsc()
@@ -192,7 +192,7 @@ static void SelgameSpeedInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 4);
-	UiInitList(4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc);
+	UiInitScreen(4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc);
 }
 
 static void SelgamePasswordEsc()
@@ -249,7 +249,7 @@ static void SelgameModeInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 2);
-	UiInitList(2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
+	UiInitScreen(2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
 }
 
 /**
@@ -292,7 +292,7 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
+	UiInitScreen(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
 }
 
 static void SelgamePortInit(unsigned index)
@@ -320,7 +320,7 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
+	UiInitScreen(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
 }
 
 static void SelgameDiffEsc()
@@ -341,17 +341,17 @@ static void SelgameDiffSelect(unsigned index)
 {
 	int value = gUIListItems[index]->m_value;
 
-	selgame_gameData->bDifficulty = value;
+	selgame_gameData->aeDifficulty = value;
 
 	if (!selconn_bMulti) {
-		selgame_gameData->bMaxPlayers = 1;
-		selgame_gameData->bTickRate = gnTicksRate;
-		selgame_gameData->bNetUpdateRate = 1;
+		selgame_gameData->aeMaxPlayers = 1;
+		selgame_gameData->aeTickRate = gnTicksRate;
+		selgame_gameData->aeNetUpdateRate = 1;
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
 	}
-	selgame_gameData->bMaxPlayers = MAX_PLRS;
+	selgame_gameData->aeMaxPlayers = MAX_PLRS;
 
 	SelgameSpeedInit();
 }
@@ -395,7 +395,7 @@ static void SelgameModeSelect(unsigned index)
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == 3);
-		UiInitList(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
+		UiInitScreen(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
 	} break;
 	case SELGAME_JOIN: {
 		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -410,7 +410,7 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(0, NULL, SelgamePortInit, SelgameModeInit);
+		UiInitScreen(0, NULL, SelgamePortInit, SelgameModeInit);
 	} break;
 	default:
 		ASSUME_UNREACHABLE
@@ -420,16 +420,16 @@ static void SelgameModeSelect(unsigned index)
 
 static void SelgameSpeedSelect(unsigned index)
 {
-	selgame_gameData->bTickRate = gUIListItems[index]->m_value;
+	selgame_gameData->aeTickRate = gUIListItems[index]->m_value;
 #ifdef ADAPTIVE_NETUPDATE
-	selgame_gameData->bNetUpdateRate = 1;
+	selgame_gameData->aeNetUpdateRate = 1;
 #else
 	int latency = 80;
 	getIniInt("Network", "Latency", &latency);
-	selgame_gameData->bNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->bTickRate));
+	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
 #endif
 	if (provider == SELCONN_LOOPBACK) {
-		selgame_gameData->bNetUpdateRate = 1;
+		selgame_gameData->aeNetUpdateRate = 1;
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
@@ -465,7 +465,7 @@ static void SelgamePasswordSelect(unsigned index)
 	SelgamePasswordInit(0);
 }
 
-int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt))
+int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 {
 	selgame_gameData = game_data;
 
@@ -476,8 +476,7 @@ int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt)
 
 	selgame_endMenu = false;
 	do {
-		UiClearScreen();
-		UiPollAndRender();
+		UiRenderAndPoll(NULL);
 	} while (!selgame_endMenu);
 	SelgameFree();
 
@@ -487,7 +486,7 @@ int UiSelectGame(SNetGameData* game_data, void (*event_handler)(SNetEvent* pEvt)
 void UIDisconnectGame()
 {
 	selgame_remove_event_handlers();
-	SNetLeaveGame(LEAVE_UNKNOWN);
+	SNetLeaveGame(LEAVE_DROP);
 }
 
 DEVILUTION_END_NAMESPACE

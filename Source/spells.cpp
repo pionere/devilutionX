@@ -32,7 +32,7 @@ int GetManaAmount(int pnum, int sn)
 	return ma;
 }
 
-char SpellSourceInv(int sn)
+int8_t SpellSourceInv(int sn)
 {
 	ItemStruct* pi;
 	int i;
@@ -59,7 +59,7 @@ char SpellSourceInv(int sn)
 	return SPLFROM_INVALID_SOURCE;
 }
 
-char SpellSourceEquipment(int sn)
+int8_t SpellSourceEquipment(int sn)
 {
 	ItemStruct* pi;
 	int i;
@@ -78,11 +78,6 @@ char SpellSourceEquipment(int sn)
 
 bool CheckSpell(int pnum, int sn)
 {
-#if DEBUG_MODE
-	if (debug_mode_key_inverted_v)
-		return true;
-#endif
-
 	return plr._pSkillLvl[sn] > 0 && plr._pMana >= GetManaAmount(pnum, sn);
 }
 
