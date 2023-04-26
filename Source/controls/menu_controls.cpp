@@ -14,8 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 MenuAction GetMenuHeldUpDownAction()
 {
-	static AxisDirectionRepeater repeater;
-	const AxisDirection dir = repeater.Get(GetLeftStickOrDpadDirection());
+	const AxisDirection dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection());
 	switch (dir.y) {
 	case AxisDirectionY_UP:
 		return MenuAction_UP;
