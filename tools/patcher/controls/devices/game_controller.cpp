@@ -3,7 +3,7 @@
 #if HAS_GAMECTRL
 #include <cstddef>
 
-#include "../appfat.h"
+#include "appfat.h"
 #include "../controller_motion.h"
 #include "../controller.h"
 #include "utils/log.h"
