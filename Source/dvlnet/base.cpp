@@ -6,9 +6,19 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-void base::setup_gameinfo(buffer_t info)
+void base::setup_gameinfo(_uigamedata* gameData)
 {
-	game_init_info = std::move(info);
+	SNetGameData* netData;
+
+	game_init_info = buffer_t(sizeof(SNetGameData));
+
+	netData = (SNetGameData*)game_init_info.data();
+	netData->ngVersionId = gameData->aeVersionId;
+	netData->ngSeed = gameData->aeSeed;
+	netData->ngDifficulty = gameData->aeDifficulty;
+	netData->ngTickRate = gameData->aeTickRate;
+	netData->ngNetUpdateRate = gameData->aeNetUpdateRate;
+	netData->ngMaxPlayers = gameData->aeMaxPlayers;
 }
 
 void base::setup_password(const char* passwd)
@@ -16,7 +26,7 @@ void base::setup_password(const char* passwd)
 	pktfty.setup_password(passwd);
 }
 
-void base::run_event_handler(SNetEvent &ev)
+void base::run_event_handler(SNetEvent& ev)
 {
 	auto f = registered_handlers[ev.eventid];
 	if (f != NULL) {
@@ -28,12 +38,12 @@ void base::disconnect_net(plr_t pnum)
 {
 }
 
-void base::recv_connect(packet &pkt)
+void base::recv_connect(packet& pkt)
 {
 	//	connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
 }
 
-void base::recv_accept(packet &pkt)
+void base::recv_accept(packet& pkt)
 {
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
 		// ignore the packet if player id is set or the cookie does not match
@@ -46,10 +56,10 @@ void base::recv_accept(packet &pkt)
 		plr_self = PLR_BROADCAST;
 		return;
 	}
-	auto &pkt_info = pkt.pktJoinAccInfo();
-	if (GAME_VERSION != SwapLE32(pkt_info.dwVersionId)) {
+	auto& pkt_info = pkt.pktJoinAccInfo();
+	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
-		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, SwapLE32(pkt_info.dwVersionId), pkt.pktSrc(), GAME_VERSION);
+		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, pkt_info.ngVersionId, pkt.pktSrc(), GAME_VERSION);
 		plr_self = PLR_BROADCAST;
 		return;
 	}
@@ -69,11 +79,14 @@ void base::recv_accept(packet &pkt)
 void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 {
 	SNetEvent ev;
+
 	ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 	ev.playerid = pnum;
 	ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
 	ev.databytes = sizeof(leaveinfo);
+
 	run_event_handler(ev);
+
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] = false;
 		turn_queue[pnum].clear();
@@ -81,13 +94,13 @@ void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
 	}
 	message_queue.erase(std::remove_if(message_queue.begin(),
 	                        message_queue.end(),
-	                        [&](SNetMessage &msg) {
+	                        [&](SNetMessage& msg) {
 		                        return msg.sender == pnum;
 	                        }),
 	    message_queue.end());
 }
 
-void base::recv_disconnect(packet &pkt)
+void base::recv_disconnect(packet& pkt)
 {
 	plr_t pkt_src = pkt.pktSrc();
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
@@ -110,10 +123,11 @@ void base::recv_disconnect(packet &pkt)
 	}
 }
 
-void base::recv_local(packet &pkt)
+void base::recv_local(packet& pkt)
 {
 	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
+
 	if (pkt_plr < MAX_PLRS) {
 		connected_table[pkt_plr] = true;
 	}
@@ -162,9 +176,9 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 			return;
 	}
 	plr_t dest;
-	if (receiver == SNPLAYER_ALL/* || receiver == SNPLAYER_OTHERS*/)
+	if (receiver == SNPLAYER_ALL /* || receiver == SNPLAYER_OTHERS*/) {
 		dest = PLR_BROADCAST;
-	else {
+	} else {
 		assert((unsigned)receiver < MAX_PLRS);
 		dest = receiver;
 	}
@@ -220,7 +234,7 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue[plr_self].emplace_back(turn, buffer_t(data, data + size));
+	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
 	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);
@@ -294,8 +308,9 @@ turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 				for (j = 0; j < i; j++)
 					if (!(status[j] & PCS_JOINED))
 						status[j] &= ~PCS_TURN_ARRIVED;
-			} else 
+			} else {
 				status[i] &= ~PCS_TURN_ARRIVED;
+			}
 		}
 	}
 	return result;
@@ -304,8 +319,8 @@ turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 	int i;
-
 	turn_t minturn = 0, turn;
+
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (status[i] & PCS_TURN_ARRIVED) {
 			turn = SwapLE32(turn_queue[i].front().turn_id);
@@ -361,8 +376,7 @@ void base::SNetLeaveGame(int reason)
 {
 	int i;
 
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST,
-	    plr_self, (leaveinfo_t)reason);
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self, (leaveinfo_t)reason);
 	send_packet(*pkt);
 
 	message_last.payload.clear();
@@ -373,10 +387,7 @@ void base::SNetLeaveGame(int reason)
 
 void base::SNetDropPlayer(int playerid)
 {
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self,
-	    PLR_BROADCAST,
-	    (plr_t)playerid,
-	    (leaveinfo_t)LEAVE_DROP);
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid, (leaveinfo_t)LEAVE_DROP);
 	send_packet(*pkt);
 	recv_local(*pkt);
 }

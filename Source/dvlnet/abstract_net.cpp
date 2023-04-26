@@ -21,7 +21,7 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 	case SELCONN_TCPD:
 		return std::make_unique<tcpd_client>();
 #endif // HOSTONLY
-#ifndef NOHOSTING 
+#ifndef NOHOSTING
 	case SELCONN_TCPS:
 		return std::make_unique<tcp_host_client>(SRV_BASIC);
 	case SELCONN_TCPDS:

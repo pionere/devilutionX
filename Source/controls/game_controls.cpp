@@ -3,10 +3,10 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include <cstdint>
 
-#include "controls/controller_motion.h"
-#include "controls/menu_controls.h"
-#include "controls/modifier_hints.h"
-#include "controls/plrctrls.h"
+#include "controller_motion.h"
+#include "menu_controls.h"
+#include "modifier_hints.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -45,10 +45,8 @@ static uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton
 	}
 }
 
-static bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAction *action)
+static bool HandleStartAndSelect(bool inGameMenu, const ControllerButtonEvent& ctrlEvent, GameAction* action)
 {
-	const bool inGameMenu = InGameMenu();
-
 	const bool startIsDown = IsControllerButtonPressed(ControllerButton_BUTTON_START);
 	const bool selectIsDown = IsControllerButtonPressed(ControllerButton_BUTTON_BACK);
 	start_modifier_active = !inGameMenu && startIsDown;
@@ -88,11 +86,11 @@ static bool HandleStartAndSelect(const ControllerButtonEvent &ctrlEvent, GameAct
 	return false;
 }
 
-bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, GameAction *action)
+bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, GameAction* action)
 {
 	const bool inGameMenu = InGameMenu();
 
-	if (HandleStartAndSelect(ctrlEvent, action))
+	if (HandleStartAndSelect(inGameMenu, ctrlEvent, action))
 		return true;
 
 	// Stick clicks simulate the mouse both in menus and in-game.
@@ -304,18 +302,18 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 	}
 
 #ifndef USE_SDL1
- #if HAS_JOYSTICK && HAS_GAMECTRL
+#if HAS_JOYSTICK && HAS_GAMECTRL
 	// Ignore unhandled joystick events where a GameController is open for this joystick.
 	// This is because SDL sends both game controller and joystick events in this case.
-	const Joystick *const joystick = Joystick::Get(event);
+	Joystick* joystick = Joystick::Get(event);
 	if (joystick != NULL && GameController::Get(joystick->instance_id()) != NULL) {
 		return true;
 	}
-#endif
+#endif // HAS_JOYSTICK && HAS_GAMECTRL
 	if (event.type == SDL_CONTROLLERAXISMOTION) {
 		return true; // Ignore releasing the trigger buttons
 	}
-#endif
+#endif // !USE_SDL1
 
 	return false;
 }
@@ -326,5 +324,4 @@ AxisDirection GetMoveDirection()
 }
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

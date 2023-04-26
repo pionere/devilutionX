@@ -20,12 +20,12 @@ private:
 	void reset();
 
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256]);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned int size);
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn, const BYTE *data, unsigned size);
+	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 	unsigned SNetGetTurnsInTransit();
@@ -57,10 +57,10 @@ void cdwrap<T>::reset()
 }
 
 template <class T>
-bool cdwrap<T>::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
+bool cdwrap<T>::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
 	reset();
-	return dvlnet_wrap->create_game(addrstr, port, passwd, std::move(info), errorText);
+	return dvlnet_wrap->create_game(addrstr, port, passwd, gameData, errorText);
 }
 
 template <class T>

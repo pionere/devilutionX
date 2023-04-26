@@ -1,12 +1,12 @@
 #pragma once
 
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
 #include <cstdint>
 #include <SDL.h>
 
 #include "./axis_direction.h"
 #include "./controller.h"
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -70,7 +70,7 @@ typedef struct GameAction {
 	};
 } GameAction;
 
-bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, GameAction *action);
+bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, GameAction* action);
 
 AxisDirection GetMoveDirection();
 
@@ -84,5 +84,4 @@ extern bool switch_potions_and_clicks;
 #endif
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

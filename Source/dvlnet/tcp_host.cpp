@@ -4,14 +4,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_host_server::tcp_host_server(tcp_host_client* client, asio::io_context &ioc,
-	buffer_t info, unsigned srvType)
-	: tcp_server(ioc, info, srvType),
-	local_client(client)
+tcp_host_server::tcp_host_server(tcp_host_client* client, asio::io_context& ioc, buffer_t info, unsigned srvType)
+    : tcp_server(ioc, info, srvType)
+    , local_client(client)
 {
 }
 
-bool tcp_host_server::send_packet(packet &pkt)
+bool tcp_host_server::send_packet(packet& pkt)
 {
 	if (!tcp_server::send_packet(pkt)) {
 		return false;
@@ -25,9 +24,9 @@ tcp_host_client::tcp_host_client(int srvType)
 	serverType = srvType;
 }
 
-bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, buffer_t info, char (&errorText)[256])
+bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
 {
-	setup_gameinfo(std::move(info));
+	setup_gameinfo(gameData);
 	local_server = new tcp_host_server(this, ioc, game_init_info, serverType);
 	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
 		plr_self = PLR_MASTER;
@@ -55,20 +54,18 @@ void tcp_host_client::poll()
 void tcp_host_client::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 	plr_t dest;
-	if (receiver == SNPLAYER_ALL/* || receiver == SNPLAYER_OTHERS*/)
+	if (receiver == SNPLAYER_ALL /* || receiver == SNPLAYER_OTHERS*/) {
 		dest = PLR_BROADCAST;
-	else {
+	} else {
 		assert((unsigned)receiver < MAX_PLRS);
 		dest = receiver;
 	}
-	//if (dest != plr_self) {
-		auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
-		send_packet(*pkt);
-	//}
-
+	// assert(dest != plr_self);
+	auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
+	send_packet(*pkt);
 }
 
-void tcp_host_client::send_packet(packet &pkt)
+void tcp_host_client::send_packet(packet& pkt)
 {
 	local_server->send_packet(pkt);
 }
@@ -171,7 +168,7 @@ void tcp_host_client::make_default_gamename(char (&gamename)[128])
 	tcp_server::make_default_gamename(gamename);
 }
 
-void tcp_host_client::receive_packet(packet &pkt)
+void tcp_host_client::receive_packet(packet& pkt)
 {
 	recv_local(pkt);
 }

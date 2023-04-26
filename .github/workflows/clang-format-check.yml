@@ -12,11 +12,13 @@ jobs:
           - 'Source'
           - 'test'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+
     - name: Run clang-format style check for C/C++ programs.
-      uses: jidicula/clang-format-action@v4.3.1
+      uses: pionere/clang-format-action@v1
       continue-on-error: true
       with:
         clang-format-version: '11'
         check-path: ${{ matrix.path }}
+        exclude-regex: 'platform'
         fallback-style: 'webkit'

@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
 <img width="554" src="https://user-images.githubusercontent.com/204594/113575181-c946a400-961d-11eb-8347-a8829fa3830c.png">
 </p>
 
@@ -17,7 +17,7 @@
 
 # What is DevilutionX
 
-DevilutionX is a source port of Diablo and Hellfire that strives to make it simple to run the game while providing engine improvements, bugfixes and some  quality of life features.
+DevilutionX is a port of Diablo and Hellfire that strives to make it simple to run the game while providing engine improvements, bugfixes and some  quality of life features.
 
 Check out the [manual](https://github.com/pionere/devilutionX/wiki) for what features are available and how best to take advantage of them.
 

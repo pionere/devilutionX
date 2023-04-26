@@ -141,6 +141,9 @@ public class HIDDeviceManager {
 
     private void initializeUSB() {
         mUsbManager = (UsbManager)mContext.getSystemService(Context.USB_SERVICE);
+        if (mUsbManager == null) {
+            return;
+        }
 
         /*
         // Logging
@@ -245,7 +248,9 @@ public class HIDDeviceManager {
             0x1689, // Razer Onza
             0x1949, // Lab126, Inc.
             0x1bad, // Harmonix
+            0x20d6, // PowerA
             0x24c6, // PowerA
+            0x2c22, // Qanba
         };
 
         if (usbInterface.getInterfaceClass() == UsbConstants.USB_CLASS_VENDOR_SPEC &&
@@ -271,7 +276,9 @@ public class HIDDeviceManager {
             0x0e6f, // PDP
             0x0f0d, // Hori
             0x1532, // Razer Wildcat
+            0x20d6, // PowerA
             0x24c6, // PowerA
+            0x2dc8, /* 8BitDo */
             0x2e24, // Hyperkin
         };
 

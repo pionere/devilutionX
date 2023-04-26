@@ -45,6 +45,7 @@ android {
 			cmake {
 				path '../../CMakeLists.txt'
 				version "3.13.0+"
+				buildStagingDirectory System.env.DevilutionX_Android_StagingDirectory
 			}
 		}
 

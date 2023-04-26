@@ -32,6 +32,24 @@ cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
+### Cross-compiling for arm64 (aarch64) on Debian or Ubuntu
+
+First, set up the dependencies for cross-compilation:
+
+```bash
+Packaging/nix/debian-cross-aarch64-prep.sh
+```
+
+Then, build DevilutionX using the cross-compilation CMake toolchain file:
+
+```bash
+cmake -S. -Bbuild-aarch64-rel \
+  -DCMAKE_TOOLCHAIN_FILE=../CMake/platforms/aarch64-linux-gnu.toolchain.cmake \
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON \
+  -DDEVILUTIONX_SYSTEM_LIBFMT=OFF
+cmake --build build-aarch64-rel -j $(getconf _NPROCESSORS_ONLN) --target package
+```
+
 </details>
 
 <details><summary>macOS</summary>
@@ -132,7 +150,7 @@ sudo apt-get install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-ming
 
 ### 64-bit
 
-Download and place the 64bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/usr/x86_64-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep64.sh`.
+Download and place the 64bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/usr/x86_64-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep.sh`.
 
 ```
 sudo apt-get install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64
@@ -149,14 +167,14 @@ cd devilutionx
 ### 32-bit
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.cmake -DCMAKE_BUILD_TYPE=Release
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
 ### 64-bit
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.cmake -DCMAKE_BUILD_TYPE=Release
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 ```
 
@@ -369,27 +387,30 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 
 <details><summary>OpenDingux / RetroFW</summary>
 
-DevilutionX uses buildroot to build packages for OpenDingux and RetroFW.
+DevilutionX uses buildroot-based toolchains to build packages for OpenDingux and RetroFW.
 
-The build script does the following:
+For OpenDingux / RetroFW builds, `mksquashfs` needs to be installed on your machine.
 
-1. Downloads and configures the buildroot if necessary.
-2. Builds the executable (using CMake).
-3. Packages the executable and all related resources into an `.ipk` or `.opk` package.
-
-The buildroot uses ~2.5 GiB of disk space and can take 20 minutes to build.
-
-For OpenDingux builds `mksquashfs` needs to be installed.
-
-To build, run the following command
+To build, run the following command:
 
 ~~~ bash
-Packaging/OpenDingux/build.sh <platform>
+TOOLCHAIN=<path/to/toolchain> Packaging/OpenDingux/build.sh <platform>
 ~~~
 
-Replace `<platform>` with one of: `retrofw`, `rg350`, or `gkd350h`.
+Replace `<platform>` with one of: `lepus`, `retrofw`, `rg99`, `rg350`, or `gkd350h`.
 
-This prepares and uses the buildroot at `$HOME/buildroot-$PLATFORM-devilutionx`.
+For example:
+
+~~~ bash
+TOOLCHAIN=/opt/gcw0-toolchain Packaging/OpenDingux/build.sh rg350
+~~~
+
+You can download the prebuilt toolchains for `x86_64` hosts here:
+
+* OpenDingux: https://github.com/OpenDingux/buildroot/releases
+* RetroFW: https://github.com/Poligraf/retrofw_buildroot_gcc11/releases
+
+Remember to run `./relocate-sdk.sh` in the toolchain directory after unpacking it.
 
 End-user manuals are available here:
 
@@ -549,7 +570,10 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 - `-DASSET_MPL=2` use upscaled assets, requires devilx_hdX.mpq (e.g. devilx_hd2.mpq)
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
 - `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
-- `-DMPQONE="hellone.mpq"` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
+- `-DMPQONE="hellone.mpq"` The name of the merged MPQ file. ("diablone.mpq" in case of non-hellfire game)
+- `-DCREATE_MPQONE=OFF` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
+- `-DUSE_MPQONE=OFF` Force the use of a merged .mpq file.
+- `-DUSE_PATCH=OFF` build a separate binary to manipulate MPQ files (expect it to be used before the game is launched).
 
 ### Debug builds
 

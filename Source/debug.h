@@ -14,7 +14,7 @@ extern "C" {
 
 #if DEBUG_MODE
 void CheckDungeonClear();
-extern BYTE *pSquareCel;
+extern BYTE* pSquareCel;
 
 void LoadDebugGFX();
 void FreeDebugGFX();

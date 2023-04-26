@@ -227,6 +227,7 @@ Levels\L4Data\L4_3.PAL
 Levels\L4Data\L4_4.PAL
 Levels\L4Data\L4_5.PAL
 Levels\L4Data\Vile1.DUN
+Levels\L4Data\Viles.DUN
 Levels\L4Data\Warlord.DUN
 Levels\L4Data\Warlord2.DUN
 _Levels\TownData\Sector1s.DUN
@@ -241,8 +242,11 @@ Levels\TownData\Town.SOL
 Levels\TownData\Town.TIL
 Levels\TownData\Town.TMI
 Levels\TownData\TownS.CEL
+Meta\credits.txt
+Meta\credits_hf.txt
 Meta\Dark.tbl
 Meta\Dist.tbl
+Meta\help.txt
 Missiles\Acidbf1.CL2
 Missiles\Acidbf10.CL2
 Missiles\Acidbf11.CL2
@@ -266,7 +270,7 @@ Missiles\Arrows.CL2
 Missiles\Bigexp.CL2
 _Missiles\Blodbur1.CL2
 _Missiles\Blodbur2.CL2
-_Missiles\Blodburs.CL2
+Missiles\Blodburs.CL2
 _Missiles\Blood1.CL2
 _Missiles\Blood2.CL2
 _Missiles\Blood3.CL2
@@ -488,6 +492,8 @@ Missiles\Scubmisb.CL2
 Missiles\Scubmisc.CL2
 Missiles\Scubmisd.CL2
 Missiles\Shatter1.CL2
+Missiles\Shroud1.CL2
+Missiles\Shroud2.CL2
 _Missiles\Sklball1.CL2
 _Missiles\Sklball2.CL2
 _Missiles\Sklball3.CL2
@@ -506,6 +512,8 @@ Missiles\spawns6.CL2
 Missiles\spawns7.CL2
 Missiles\spawns8.CL2
 Missiles\Thinlght.CL2
+Missiles\Wind1.CL2
+Missiles\Wind2.CL2
 Monsters\Acid\Acida.CL2
 Monsters\Acid\Acida1.WAV
 Monsters\Acid\Acida2.WAV
@@ -997,8 +1005,8 @@ Monsters\newsfx\Lichd1.WAV
 Monsters\newsfx\Lichd2.WAV
 Monsters\newsfx\Lichh1.WAV
 Monsters\newsfx\Lichh2.WAV
-Monsters\newsfx\Lichs1.WAV
-Monsters\newsfx\Lichs2.WAV
+_Monsters\newsfx\Lichs1.WAV
+_Monsters\newsfx\Lichs2.WAV
 Monsters\newsfx\Lworma1.WAV
 Monsters\newsfx\Lworma2.WAV
 Monsters\newsfx\Lwormd1.WAV
@@ -1011,8 +1019,8 @@ Monsters\newsfx\Nakruld1.WAV
 Monsters\newsfx\Nakruld2.WAV
 Monsters\newsfx\Nakrulh1.WAV
 Monsters\newsfx\Nakrulh2.WAV
-Monsters\newsfx\Nakruls1.WAV
-Monsters\newsfx\Nakruls2.WAV
+_Monsters\newsfx\Nakruls1.WAV
+_Monsters\newsfx\Nakruls2.WAV
 Monsters\newsfx\Psycoa1.WAV
 Monsters\newsfx\Psycoa2.WAV
 Monsters\newsfx\Psycod1.WAV
@@ -1077,7 +1085,7 @@ Monsters\Nkr\Nkra.CL2
 Monsters\Nkr\Nkrd.CL2
 Monsters\Nkr\Nkrh.CL2
 Monsters\Nkr\Nkrn.CL2
-Monsters\Nkr\Nkrs.CL2
+_Monsters\Nkr\Nkrs.CL2
 Monsters\Nkr\Nkrw.CL2
 Monsters\Rat\Rata.CL2
 Monsters\Rat\Ratd.CL2
@@ -1349,7 +1357,7 @@ NLevels\L6Data\L6Base5.PAL
 NLevels\L6Data\L6Base6.PAL
 NLevels\TownData\Town.CEL
 NLevels\TownData\Town.MIN
-_NLevels\TownData\Town.SOL
+NLevels\TownData\Town.SOL
 NLevels\TownData\Town.TIL
 NLevels\TownData\Town.TMI
 Objects\Altboy.CEL
@@ -4191,6 +4199,7 @@ ui_art\focus16.CEL
 ui_art\focus42.CEL
 ui_art\heros.CEL
 ui_art\logo.CEL
+ui_art\lpopup.CEL
 ui_art\lrpopup.CEL
 ui_art\mainmenu.CEL
 ui_art\menu.pal

@@ -18,14 +18,11 @@ import android.widget.Toast;
 import java.io.File;
 
 public class DataActivity extends Activity {
-	private String externalDir;
 	//private DownloadReceiver mReceiver;
 	//private boolean isDownloading = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		externalDir = getExternalFilesDir(null).getAbsolutePath();
-
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data);
 
@@ -43,12 +40,6 @@ public class DataActivity extends Activity {
 	}
 
 	private void startGame() {
-		if (missingGameData(externalDir)) {
-			Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
-			toast.show();
-			return;
-		}
-
 		Intent intent = new Intent(this, DevilutionXSDLActivity.class);
 		startActivity(intent);
 		this.finish();
@@ -59,21 +50,6 @@ public class DataActivity extends Activity {
 		//	unregisterReceiver(mReceiver);
 
 		super.onDestroy();
-	}
-
-	/**
-	 * Check if the game data is present
-	 */
-	/* package */ static boolean missingGameData(String dir) {
-		File fileDev = new File(dir + "/devilx.mpq");
-		if (!fileDev.exists())
-			return true;
-
-		File fileLower = new File(dir + "/diabdat.mpq");
-		File fileUpper = new File(dir + "/DIABDAT.MPQ");
-		//File spawnFile = new File(dir + "/spawn.mpq");
-
-		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
 
 	/**

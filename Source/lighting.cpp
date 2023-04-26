@@ -8,20 +8,20 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /* Maximum offset in a tile */
-#define MAX_OFFSET		8
+#define MAX_OFFSET 8
 /* Maximum tile-distance till the precalculated tables are maintained. */
-#define MAX_TILE_DIST	(MAX_LIGHT_RAD + 1)
+#define MAX_TILE_DIST (MAX_LIGHT_RAD + 1)
 /* Maximum light-distance till the precalculated tables are maintained. */
-#define MAX_LIGHT_DIST	(MAX_TILE_DIST * MAX_OFFSET - 1)
+#define MAX_LIGHT_DIST (MAX_TILE_DIST * MAX_OFFSET - 1)
 
 /* The list of the indices of the active visions. */
 BYTE visionactive[MAXVISION];
 /* The list of visions/views in the game. */
 LightListStruct VisionList[MAXVISION];
 /* The list of the indices of the active light-sources. */
-BYTE lightactive[MAXLIGHTS];
-/* The list of light-sources in the game. */
-LightListStruct LightList[MAXLIGHTS];
+BYTE lightactive[MAXLIGHTS + 1];
+/* The list of light-sources in the game + one for temporary use. */
+LightListStruct LightList[MAXLIGHTS + 1];
 /* The number of visions/views in the game. */
 int numvision;
 /* The number of light-sources in the game. */
@@ -51,7 +51,7 @@ static BYTE distMatrix[MAX_OFFSET][MAX_OFFSET][MAX_TILE_DIST][MAX_TILE_DIST];
  * MAXDARKNESS+3: CORAL color translation.
  * MAXDARKNESS+4.. translations of unique monsters.
  */
-BYTE ColorTrns[NUM_COLOR_TRNS][256];
+BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
 /**
  * CrawlTable specifies X- and Y-coordinate deltas from a missile target coordinate.
@@ -76,7 +76,7 @@ BYTE ColorTrns[NUM_COLOR_TRNS][256];
  *    |  526
  *    +-------> x
  */
-const char CrawlTable[2749] = {
+const int8_t CrawlTable[2749] = {
 	// clang-format off
 	1,										//  0 - 0
 	  0,  0,
@@ -334,7 +334,7 @@ const char CrawlTable[2749] = {
 	-15, -3,   15, -3,  -15,  2,   15,  2,
 	-15, -2,   15, -2,  -15,  1,   15,  1,
 	-15, -1,   15, -1,  -15,  0,   15,  0,
-	(char)128,								// 16 - 1930
+	(int8_t)128,							// 16 - 1930
 	0, 16, 0, -16, -1, 16, 1, 16,
 	-1, -16, 1, -16, -2, 16, 2, 16,
 	-2, -16, 2, -16, -3, 16, 3, 16,
@@ -367,7 +367,7 @@ const char CrawlTable[2749] = {
 	-16, -3, 16, -3, -16, 2, 16, 2,
 	-16, -2, 16, -2, -16, 1, 16, 1,
 	-16, -1, 16, -1, -16, 0, 16, 0,
-	(char)136,								// 17 - 2187
+	(int8_t)136,							// 17 - 2187
 	0, 17, 0, -17, -1, 17, 1, 17,
 	-1, -17, 1, -17, -2, 17, 2, 17,
 	-2, -17, 2, -17, -3, 17, 3, 17,
@@ -402,7 +402,7 @@ const char CrawlTable[2749] = {
 	-17, -3, 17, -3, -17, 2, 17, 2,
 	-17, -2, 17, -2, -17, 1, 17, 1,
 	-17, -1, 17, -1, -17, 0, 17, 0,
-	(char)144,								// 18 - 2460
+	(int8_t)144,							// 18 - 2460
 	0, 18, 0, -18, -1, 18, 1, 18,
 	-1, -18, 1, -18, -2, 18, 2, 18,
 	-2, -18, 2, -18, -3, 18, 3, 18,
@@ -445,71 +445,61 @@ const char CrawlTable[2749] = {
 /** Indices of CrawlTable to select the entries at a given distance. */
 const int CrawlNum[19] = { 0, 3, 12, 45, 94, 159, 240, 337, 450, 579, 724, 885, 1062, 1255, 1464, 1689, 1930, 2187, 2460 };
 
-static void RotateRadius(int *x, int *y, int *dx, int *dy, int *lx, int *ly, int *bx, int *by)
+static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* bx, int* by)
 {
-	int swap;
+	int nx, ny;
 
-	*bx = 0;
-	*by = 0;
+	nx = - *dy;
+	ny = *dx;
 
-	swap = *dx;
-	*dx = 7 - *dy;
-	*dy = swap;
-	swap = *lx;
-	*lx = 7 - *ly;
-	*ly = swap;
+	*dx = nx;
+	*dy = ny;
 
-	*x = *dx - *lx;
-	*y = *dy - *ly;
-
-	if (*x < 0) {
-		*x += 8;
-		*bx = 1;
+	*bx = nx < 0 ? 1 : 0;
+	if (*bx == 1) {
+		nx += 8;
 	}
-	if (*y < 0) {
-		*y += 8;
-		*by = 1;
+	*by = ny < 0 ? 1 : 0;
+	if (*by == 1) {
+		ny += 8;
 	}
+	*ox = nx;
+	*oy = ny;
 }
 
-void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
+void DoLighting(unsigned lnum)
 {
+	LightListStruct* lis = &LightList[lnum];
 	int x, y, xoff, yoff;
 	int min_x, max_x, min_y, max_y;
-	int dist_x, dist_y, light_x, light_y, block_x, block_y, temp_x, temp_y;
+	int baseOffX, baseOffY, block_x, block_y, temp_x, temp_y;
+	int nXPos = lis->_lx;
+	int nYPos = lis->_ly;
+	int nRadius = lis->_lradius;
 	BYTE (&dark)[128] = darkTable[nRadius];
 	BYTE v, radius_block;
 
-	xoff = 0;
-	yoff = 0;
-	light_x = 0;
-	light_y = 0;
-	block_x = 0;
-	block_y = 0;
-
-	if (lnum < MAXLIGHTS) {
-		xoff = LightList[lnum]._xoff;
-		yoff = LightList[lnum]._yoff;
-		if (xoff < 0) {
-			xoff += 8;
-			nXPos--;
-		} else if (xoff >= 8) {
-			xoff -= 8;
-			nXPos++;
-		}
-		if (yoff < 0) {
-			yoff += 8;
-			nYPos--;
-		} else if (yoff >= 8) {
-			yoff -= 8;
-			nYPos++;
-		}
-		assert((unsigned)xoff < 8);
-		assert((unsigned)yoff < 8);
+	xoff = lis->_lxoff;
+	yoff = lis->_lyoff;
+	if (xoff < 0) {
+		xoff += MAX_OFFSET;
+		nXPos--;
+	} else if (xoff >= MAX_OFFSET) {
+		xoff -= MAX_OFFSET;
+		nXPos++;
 	}
+	if (yoff < 0) {
+		yoff += MAX_OFFSET;
+		nYPos--;
+	} else if (yoff >= MAX_OFFSET) {
+		yoff -= MAX_OFFSET;
+		nYPos++;
+	}
+	assert((unsigned)xoff < MAX_OFFSET);
+	assert((unsigned)yoff < MAX_OFFSET);
 
-	dist_x = xoff;
-	dist_y = yoff;
+	baseOffX = xoff;
+	baseOffY = yoff;
 
 	static_assert(DBORDERX >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border I.");
 	static_assert(DBORDERY >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border II.");
@@ -552,7 +542,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 			//}
 		}
 	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	RotateRadius(&xoff, &yoff, &baseOffX, &baseOffY, &block_x, &block_y);
 	// Add light to the II. (+;-) quadrant
 	BYTE (&dist1)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < max_x; y++) {
@@ -568,7 +558,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 			//}
 		}
 	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	RotateRadius(&xoff, &yoff, &baseOffX, &baseOffY, &block_x, &block_y);
 	// Add light to the III. (-;-) quadrant
 	BYTE (&dist2)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < min_y; y++) {
@@ -584,7 +574,7 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 			//}
 		}
 	}
-	RotateRadius(&xoff, &yoff, &dist_x, &dist_y, &light_x, &light_y, &block_x, &block_y);
+	RotateRadius(&xoff, &yoff, &baseOffX, &baseOffY, &block_x, &block_y);
 	// Add light to the IV. (-;+) quadrant
 	BYTE (&dist3)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	for (y = 0; y < min_x; y++) {
@@ -602,9 +592,12 @@ void DoLighting(int nXPos, int nYPos, int nRadius, unsigned lnum)
 	}
 }
 
-static void DoUnLight(int nXPos, int nYPos, int nRadius)
+static void DoUnLight(LightListStruct* lis)
 {
-	int x, y, min_x, min_y, max_x, max_y;
+	int x, y, xoff, yoff, min_x, min_y, max_x, max_y;
+	int nXPos = lis->_lunx + lis->_lunxoff;
+	int nYPos = lis->_luny + lis->_lunyoff;
+	int nRadius = lis->_lunr;
 
 	nRadius++;
 	min_y = nYPos - nRadius;
@@ -623,6 +616,25 @@ static void DoUnLight(int nXPos, int nYPos, int nRadius)
 			dLight[x][y] = dPreLight[x][y];
 		}
 	}
+
+	lis->_lunx = lis->_lx;
+	lis->_luny = lis->_ly;
+	lis->_lunr = lis->_lradius;
+	xoff = lis->_lxoff;
+	yoff = lis->_lyoff;
+	lis->_lunxoff = 0;
+	if (xoff < 0) {
+		lis->_lunxoff = -1;
+	} else if (xoff >= 8) {
+		lis->_lunxoff = 1;
+	}
+	lis->_lunyoff = 0;
+	if (yoff < 0) {
+		lis->_lunyoff = -1;
+	} else if (yoff >= 8) {
+		lis->_lunyoff = 1;
+	}
+	lis->_lunflag = false;
 }
 
 void DoUnVision(int nXPos, int nYPos, int nRadius)
@@ -685,7 +697,7 @@ static bool LightPos(int x1, int y1)
  */
 void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 {
-	const char* cr;
+	const int8_t* cr;
 	int i, x1, y1, limit;
 	int d, dx, dy, xinc, yinc;
 	vFlags = local ? BFLAG_VISIBLE | BFLAG_ALERT : BFLAG_ALERT;
@@ -758,10 +770,9 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 
 void MakeLightTable()
 {
-	unsigned i, j, k, shade, l1, l2, cnt, rem, div;
+	unsigned i, j, k, shade;
 	BYTE col, max;
 	BYTE* tbl;
-	BYTE blood[16];
 
 	tbl = ColorTrns[0];
 	for (i = 0; i < MAXDARKNESS; i++) {
@@ -806,15 +817,14 @@ void MakeLightTable()
 		for (j = 10; j < 16; j++) {
 			col = 16 * j + shade;
 			max = 16 * j + 15;
+			if (max == 255) {
+				max = 254;
+			}
 			for (k = 0; k < 16; k++) {
 				*tbl++ = col;
 				if (col < max) {
 					col++;
 				} else {
-					max = 0;
-					col = 0;
-				}
-				if (col == 255) {
 					max = 0;
 					col = 0;
 				}
@@ -824,58 +834,54 @@ void MakeLightTable()
 
 	// assert(tbl == ColorTrns[MAXDARKNESS]);
 	tbl = ColorTrns[0];
-	memset(ColorTrns[MAXDARKNESS], 0, 256);
+	memset(ColorTrns[MAXDARKNESS], 0, sizeof(ColorTrns[MAXDARKNESS]));
 
 	if (currLvl._dType == DTYPE_HELL) {
-		for (i = 0; i < MAXDARKNESS; i++) {
-			l1 = MAXDARKNESS - i;
-			l2 = l1;
-			div = 15 / l1;
-			rem = 15 % l1;
-			cnt = 0;
-			blood[0] = 0;
+		for (i = 0; i <= MAXDARKNESS; i++) {
+			shade = i;
 			col = 1;
-			for (j = 1; j < 16; j++) {
-				blood[j] = col;
-				l2 += rem;
-				if (l2 > l1 && j < 15) {
-					j++;
-					blood[j] = col;
-					l2 -= l1;
-				}
-				cnt++;
-				if (cnt == div) {
-					col++;
-					cnt = 0;
-				}
-			}
 			*tbl++ = 0;
-			for (j = 1; j <= 15; j++) {
-				*tbl++ = blood[j];
+			for (k = 1; k < 16; k++) {
+				*tbl++ = col;
+				if (shade > 0) {
+					shade--;
+				} else {
+					col++;
+				}
 			}
-			for (j = 15; j > 0; j--) {
-				*tbl++ = blood[j];
+			shade = i;
+			col = 16 * 1 + shade;
+			max = 16 * 1 + 15;
+			for (k = 0; k < 16; k++) {
+				*tbl++ = col;
+				if (col < max) {
+					col++;
+				} else {
+					max = 1;
+					col = 1;
+				}
 			}
-			*tbl++ = 1;
-			tbl += 224;
+			tbl += NUM_COLORS - 32;
 		}
-		/**tbl++ = 0;
-		for (j = 0; j < 31; j++) {
-			*tbl++ = 1;
-		}
-		tbl += 224;*/
 #ifdef HELLFIRE
-	} else if (currLvl._dType == DTYPE_NEST || currLvl._dType == DTYPE_CRYPT) {
-		for (i = 0; i < MAXDARKNESS; i++) {
+	} else if (currLvl._dType == DTYPE_CAVES || currLvl._dType == DTYPE_CRYPT) {
+#else
+	} else if (currLvl._dType == DTYPE_CAVES) {
+#endif
+		for (i = 0; i <= MAXDARKNESS; i++) {
+			*tbl++ = 0;
+			for (j = 1; j < 32; j++)
+				*tbl++ = j;
+			tbl += NUM_COLORS - 32;
+		}
+#ifdef HELLFIRE
+	} else if (currLvl._dType == DTYPE_NEST) {
+		for (i = 0; i <= MAXDARKNESS; i++) {
 			*tbl++ = 0;
 			for (j = 1; j < 16; j++)
 				*tbl++ = j;
-			tbl += 240;
+			tbl += NUM_COLORS - 16;
 		}
-		/**tbl++ = 0;
-		for (j = 1; j < 16; j++)
-			*tbl++ = 1;
-		tbl += 240;*/
 #endif
 	}
 }
@@ -933,8 +939,8 @@ void InitLightGFX()
 #endif*/
 	LoadFileWithMem("Meta\\Dark.tbl", &darkTable[0][0]);
 	/*{
-		memset(darkTable[0], MAXDARKNESS, MAX_LIGHT_DIST);
-		for (i = 1, k = 2 * MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
+		memset(darkTable[0], MAXDARKNESS, lengthof(darkTable[0]));
+		for (i = 1, k = MAX_OFFSET; i <= MAX_LIGHT_RAD; i++, k += MAX_OFFSET) {
 			for (j = 0; j <= MAX_LIGHT_DIST; j++) {
 				if (j >= k) {
 					darkTable[i][j] = MAXDARKNESS;
@@ -948,10 +954,10 @@ void InitLightGFX()
 	/*for (j = 0; j < MAX_OFFSET; j++) {
 		for (i = 0; i < MAX_OFFSET; i++) {
 			for (k = 0; k < MAX_TILE_DIST; k++) {
-				fa = (MAX_OFFSET * k - i);
+				fa = (MAX_OFFSET * k - j);
 				fa *= fa;
 				for (l = 0; l < MAX_TILE_DIST; l++) {
-					fs = (MAX_OFFSET * l - j);
+					fs = (MAX_OFFSET * l - i);
 					fs *= fs;
 					fs = sqrt(fs + fa);
 					// round to nearest int
@@ -1004,7 +1010,7 @@ void InitLighting()
 
 unsigned AddLight(int x, int y, int r)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 	int lnum;
 
 #if DEBUG_MODE
@@ -1020,8 +1026,10 @@ unsigned AddLight(int x, int y, int r)
 		lis->_lunx = lis->_lx = x;
 		lis->_luny = lis->_ly = y;
 		lis->_lunr = lis->_lradius = r;
-		lis->_xoff = 0;
-		lis->_yoff = 0;
+		lis->_lunxoff = 0;
+		lis->_lunyoff = 0;
+		lis->_lxoff = 0;
+		lis->_lyoff = 0;
 		lis->_ldel = false;
 		lis->_lunflag = false;
 		gbDolighting = true;
@@ -1045,7 +1053,7 @@ void AddUnLight(unsigned lnum)
 
 void ChangeLightRadius(unsigned lnum, int r)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1062,7 +1070,7 @@ void ChangeLightRadius(unsigned lnum, int r)
 
 void ChangeLightXY(unsigned lnum, int x, int y)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1078,9 +1086,10 @@ void ChangeLightXY(unsigned lnum, int x, int y)
 	gbDolighting = true;
 }
 
-void ChangeLightOff(unsigned lnum, int xoff, int yoff)
+void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
+	int xoff, yoff;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1088,11 +1097,17 @@ void ChangeLightOff(unsigned lnum, int xoff, int yoff)
 #endif
 	if (lnum >= MAXLIGHTS)
 		return;
+	// convert screen-offset to tile-offset
+	xoff = xsoff + 2 * ysoff;
+	yoff = 2 * ysoff - xsoff;
+
+	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
+	yoff = yoff / (TILE_WIDTH / 8);
 
 	lis = &LightList[lnum];
 	lis->_lunflag = true;
-	lis->_xoff = xoff;
-	lis->_yoff = yoff;
+	lis->_lxoff = xoff;
+	lis->_lyoff = yoff;
 	gbDolighting = true;
 }
 
@@ -1101,7 +1116,7 @@ void ChangeLightOff(unsigned lnum, int xoff, int yoff)
  */
 void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1114,14 +1129,36 @@ void ChangeLightXYOff(unsigned lnum, int x, int y)
 	lis->_lunflag = true;
 	lis->_lx = x;
 	lis->_ly = y;
-	lis->_xoff = 0;
-	lis->_yoff = 0;
+	lis->_lxoff = 0;
+	lis->_lyoff = 0;
 	gbDolighting = true;
 }
 
-void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
+void CondChangeLightXY(unsigned lnum, int x, int y)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
+
+#if DEBUG_MODE
+	if (lightflag)
+		return;
+#endif
+	if (lnum >= MAXLIGHTS)
+		return;
+
+	lis = &LightList[lnum];
+	if (lis->_lx == x && lis->_ly == y)
+		return;
+
+	lis->_lunflag = true;
+	lis->_lx = x;
+	lis->_ly = y;
+	gbDolighting = true;
+}
+
+void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
+{
+	LightListStruct* lis;
+	int xoff, yoff;
 	int lx, ly;
 	int offx, offy;
 
@@ -1131,25 +1168,31 @@ void CondChangeLightOff(unsigned lnum, int xoff, int yoff)
 #endif
 	if (lnum >= MAXLIGHTS)
 		return;
-
 	lis = &LightList[lnum];
+	// convert screen-offset to tile-offset
+	xoff = xsoff + 2 * ysoff;
+	yoff = 2 * ysoff - xsoff;
+
+	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
+	yoff = yoff / (TILE_WIDTH / 8);
+	// check if offset-change is meaningful
 	lx = xoff + (lis->_lx << 3);
 	ly = yoff + (lis->_ly << 3);
-	offx = lis->_xoff + (lis->_lx << 3);
-	offy = lis->_yoff + (lis->_ly << 3);
+	offx = lis->_lxoff + (lis->_lx << 3);
+	offy = lis->_lyoff + (lis->_ly << 3);
 
 	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
 		return;
 
 	lis->_lunflag = true;
-	lis->_xoff = xoff;
-	lis->_yoff = yoff;
+	lis->_lxoff = xoff;
+	lis->_lyoff = yoff;
 	gbDolighting = true;
 }
 
 void ChangeLight(unsigned lnum, int x, int y, int r)
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 
 #if DEBUG_MODE
 	if (lightflag)
@@ -1168,7 +1211,7 @@ void ChangeLight(unsigned lnum, int x, int y, int r)
 
 void ProcessLightList()
 {
-	LightListStruct *lis;
+	LightListStruct* lis;
 	int i, j;
 	BYTE temp;
 
@@ -1181,11 +1224,7 @@ void ProcessLightList()
 		for (i = 0; i < numlights; i++) {
 			lis = &LightList[lightactive[i]];
 			if (lis->_ldel | lis->_lunflag) {
-				DoUnLight(lis->_lunx, lis->_luny, lis->_lunr);
-				lis->_lunflag = false;
-				lis->_lunx = lis->_lx;
-				lis->_luny = lis->_ly;
-				lis->_lunr = lis->_lradius;
+				DoUnLight(lis);
 			}
 		}
 		for (i = 0; i < numlights; ) {
@@ -1200,7 +1239,7 @@ void ProcessLightList()
 		}
 		for (i = 0; i < numlights; i++) {
 			j = lightactive[i];
-			DoLighting(LightList[j]._lx, LightList[j]._ly, LightList[j]._lradius, j);
+			DoLighting(j);
 		}
 
 		gbDolighting = false;
@@ -1230,9 +1269,15 @@ void RedoLightAndVision()
 	_gbDovision = true;
 }
 
+void LightAndVisionDone()
+{
+	gbDolighting = false;
+	_gbDovision = false;
+}
+
 int AddVision(int x, int y, int r, bool mine)
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 	int vnum;
 
 	assert(numvision < MAXVISION);
@@ -1259,7 +1304,7 @@ void AddUnVision(unsigned vnum)
 
 void ChangeVisionRadius(unsigned vnum, int r)
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 
 	if (vnum >= MAXVISION)
 		return;
@@ -1272,7 +1317,7 @@ void ChangeVisionRadius(unsigned vnum, int r)
 
 void ChangeVisionXY(unsigned vnum, int x, int y)
 {
-	LightListStruct *vis;
+	LightListStruct* vis;
 
 	if (vnum >= MAXVISION)
 		return;
@@ -1333,11 +1378,11 @@ void lighting_color_cycling()
 {
 	int i, j, l;
 	BYTE col;
-	BYTE *tbl;
+	BYTE* tbl;
 
 	// assert(currLvl._dType == DTYPE_HELL);
 
-	l = MAXDARKNESS;// + 1;
+	l = MAXDARKNESS; // + 1;
 	tbl = ColorTrns[0];
 
 	for (j = 0; j < l; j++) {
@@ -1348,7 +1393,7 @@ void lighting_color_cycling()
 			tbl++;
 		}
 		*tbl = col;
-		tbl += 225;
+		tbl += NUM_COLORS - 31;
 	}
 }
 
