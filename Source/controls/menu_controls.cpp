@@ -3,7 +3,7 @@
 #include "controller.h"
 #include "controller_motion.h"
 #include "axis_direction.h"
-#include "game_controls.h"
+//#include "game_controls.h"
 #include "touch.h"
 
 #include "DiabloUI/diabloui.h"
@@ -42,7 +42,7 @@ MenuAction GetMenuAction(SDL_Event& event)
 		return GetMenuHeldUpDownAction();
 	}
 #if HAS_DPAD
-	if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent)) {
+	if (/*!dpad_hotkeys &&*/ SimulateRightStickWithDpad(ctrlEvent)) {
 		sgbControllerActive = true;
 		return GetMenuHeldUpDownAction();
 	}
