@@ -5,7 +5,7 @@
  */
 #include "all.h"
 #include "utils/display.h"
-//#include "plrctrls.h"
+#include "plrctrls.h"
 #include "engine/render/cel_render.h"
 #if GAME
 #include "engine/render/cl2_render.h"
@@ -14,12 +14,6 @@
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
-
-/** Specifies the player viewpoint X-coordinate of the map. */
-int ViewX;
-/** Specifies the player viewpoint Y-coordinate of the map. */
-int ViewY;
-ScrollStruct ScrollInfo;
 
 /**
  * Specifies the current light entry.
