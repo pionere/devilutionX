@@ -696,13 +696,7 @@ if(USE_PATCH)
 
   target_include_directories(${DEVIL_PATCHER} PRIVATE
     tools/patcher
-    ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-# Copy devilx.mpq to the build directory
-file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-if(AMIGA)
-  file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+    ${CMAKE_BINARY_DIR})
 endif()
 
 # Use file GENERATE instead of configure_file because configure_file
@@ -711,6 +705,9 @@ get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(is_multi_config)
   set(CONFIG_PATH $<CONFIG>/config.h)
   target_include_directories(${BIN_TARGET} PRIVATE ${CMAKE_BINARY_DIR}/$<CONFIG>)
+  if(USE_PATCH)
+    target_include_directories(${DEVIL_PATCHER} PRIVATE ${CMAKE_BINARY_DIR}/$<CONFIG>)
+  endif()
 else()
   set(CONFIG_PATH config.h)
 endif()
@@ -751,7 +748,7 @@ endif()
 
 target_include_directories(${BIN_TARGET} PRIVATE
   Source
-  ${CMAKE_CURRENT_BINARY_DIR})
+  ${CMAKE_BINARY_DIR})
 
 target_link_libraries(${BIN_TARGET} PUBLIC Threads::Threads)
 
@@ -1042,6 +1039,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_HAS_EXCEPTIONS=0")
   endif()
+endif()
+
+# Copy devilx.mpq to the build directory
+file(COPY "Packaging/resources/devilx.mpq" DESTINATION "${CMAKE_BINARY_DIR}")
+if(AMIGA)
+  file(COPY "Packaging/amiga/devilutionx.info" DESTINATION "${CMAKE_BINARY_DIR}")
 endif()
 
 if(APPLE)
