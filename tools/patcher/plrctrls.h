@@ -15,7 +15,7 @@ extern "C" {
 // defined in controller.cpp
 extern bool sgbControllerActive;
 
-// Whether the mouse cursor is being moved with the controller. (defined in controller_motion.cpp)
+// defined in controller_motion.cpp
 bool IsMovingMouseCursorWithController();
 
 // defined in touch.cpp

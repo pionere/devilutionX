@@ -27,18 +27,14 @@ extern "C" {
 extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
-extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
 void ClearCursor();
-void CalcViewportGeometry();
 #if DEBUG_MODE
 void ScrollView();
 #endif
-void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 void scrollrt_draw_screen(bool draw_cursor);
-void scrollrt_draw_game();
 
 #ifdef __cplusplus
 }

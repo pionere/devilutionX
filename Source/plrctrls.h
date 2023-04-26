@@ -26,7 +26,7 @@ void plrctrls_after_game_logic();
 // Handles menu movement.
 void plrctrls_every_frame();
 
-// Whether the mouse cursor is being moved with the controller. (defined in controller_motion.cpp)
+// defined in controller_motion.cpp
 bool IsMovingMouseCursorWithController();
 
 void FocusOnInventory();

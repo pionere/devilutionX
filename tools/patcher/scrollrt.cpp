@@ -22,26 +22,9 @@ int ViewY;
 ScrollStruct ScrollInfo;
 
 /**
-  * Container to hold the cached properties of the viewport.
-  *
-  * _vColumns: the number of columns to draw to ensure the screen is covered. 
-  * _vRows: the number of rows to draw to ensure the screen is covered.
-  * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
-  * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to ViewX.
-  * _vShiftY: the base offset to ViewY.
-*/
-ViewportStruct gsTileVp;
-
-/**
  * Specifies the current light entry.
  */
 int light_trn_index;
-
-/**
- * Specifies the current draw mode.
- */
-static BOOLEAN gbPreFlag;
 
 /**
  * Cursor-size
@@ -63,7 +46,6 @@ int sgCursYOld;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-void (*DrawPlrProc)(int, int, int, int, int, BYTE*, int, int, int, int);
 /**
  * Buffer to store the cursor image.
  */
@@ -150,25 +132,6 @@ static void scrollrt_remove_back_buffer_cursor()
 	sgCursWdt = 0;
 }
 
-void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
-{
-	BYTE col, trans;
-
-	col = ICOL_YELLOW;
-	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-		col = ICOL_BLUE;
-	}
-	if (!is->_iStatFlag) {
-		col = ICOL_RED;
-	}
-
-	if (outline) {
-		CelClippedDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
-	}
-	trans = col != ICOL_RED ? 0 : COLOR_TRN_RED;
-	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, trans);
-}
-
 /**
  * @brief Draw the cursor on the back buffer
  */
@@ -185,8 +148,7 @@ static void scrollrt_draw_cursor()
 	assert(cursW != 0 && cursH != 0);
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
-	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
+	if (sgbControllerActive && !IsMovingMouseCursorWithController())
 		return;
 #endif
 
@@ -239,13 +201,8 @@ static void scrollrt_draw_cursor()
 
 	frame = pcursicon;
 	cCels = pCursCels;
-	if (frame < CURSOR_FIRSTITEM) {
-		CelClippedDrawLightTbl(mx, my, cCels, frame, cursW, 0);
-#if GAME
-	} else {
-		scrollrt_draw_item(&myplr._pHoldItem, true, mx, my, cCels, frame, cursW);
-#endif // GAME
-	}
+
+	CelClippedDrawLightTbl(mx, my, cCels, frame, cursW, 0);
 }
 
 /**

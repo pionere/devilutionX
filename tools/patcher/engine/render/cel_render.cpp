@@ -270,34 +270,6 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 }
 
 /**
- * @brief Blit CEL sprite, and optionally use stippled-transparency or light trn, to the given buffer at the given coordinates
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
-{
-	int nDataSize;
-	const BYTE* pRLEBytes;
-	BYTE* pDecodeTo;
-
-	assert(gpBuffer != NULL);
-	assert(pCelBuff != NULL);
-
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
-
-	if (gbCelTransparencyActive)
-		CelBlitLightTrans(pDecodeTo, pRLEBytes, nDataSize, nWidth);
-	else if (light_trn_index != 0)
-		CelBlitTrnTbl(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
-	else
-		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
-}
-
-/**
  * @brief Blit CEL sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -363,70 +335,5 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 		}
 	}
 }*/
-
-/**
- * @brief Blit CEL sprite with an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates
- * @param col color of the sprite and the outline (Color index from current palette)
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff CEL buffer
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
-{
-	int nDataSize, i;
-	const BYTE *src, *end;
-	BYTE* dst;
-	int8_t width;
-
-	assert(pCelBuff != NULL);
-	assert(gpBuffer != NULL);
-
-	src = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
-	end = &src[nDataSize];
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
-
-	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
-		for (i = nWidth; i != 0; ) {
-			width = *src++;
-			if (width >= 0) {
-				i -= width;
-				assert(dst < gpBufEnd + (gpBufStart - gpBuffer) && dst >= gpBuffer);
-				//if (dst < gpBufEnd && dst >= gpBufStart) {
-					assert(dst + BUFFER_WIDTH < gpBufEnd + (gpBufStart - gpBuffer));
-					//if (dst < gpBufEnd - BUFFER_WIDTH) {
-						while (width != 0) {
-							if (*src++) {
-								dst[-BUFFER_WIDTH] = col;
-								dst[-1] = col;
-								dst[1] = col;
-								dst[BUFFER_WIDTH] = col;
-							}
-							dst++;
-							width--;
-						}
-					//} else {
-					//	while (width != 0) {
-					//		if (*src++) {
-					//			dst[-BUFFER_WIDTH] = col;
-					//			dst[-1] = col;
-					//			dst[1] = col;
-					//		}
-					//		dst++;
-					//		width--;
-					//	}
-					//}
-				//} else {
-				//	src += width;
-				//	dst += width;
-				//}
-			} else {
-				dst -= width;
-				i += width;
-			}
-		}
-	}
-}
 
 DEVILUTION_END_NAMESPACE

@@ -61,7 +61,6 @@ int sgCursYOld;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-void (*DrawPlrProc)(int, int, int, int, int, BYTE*, int, int, int, int);
 /**
  * Buffer to store the cursor image.
  */

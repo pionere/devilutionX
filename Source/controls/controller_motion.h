@@ -21,6 +21,7 @@ extern float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightS
 // Axis values scaled to [-1, 1] range and clamped to a deadzone.
 extern float leftStickX, leftStickY, rightStickX, rightStickY;
 
+// Whether the mouse cursor is being moved with the controller.
 bool IsMovingMouseCursorWithController();
 
 // update left/rightStickX/Y values from the *Unscaled values
