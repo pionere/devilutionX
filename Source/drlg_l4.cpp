@@ -10,15 +10,15 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
-#define BASE_MEGATILE_L4	(30 - 1)
+#define BASE_MEGATILE_L4 (30 - 1)
+/** Default megatile if the tile is zero. */
+#define DEFAULT_MEGATILE_L4 6
 
-static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
-#define L4BLOCKX		(DMAXX / 2)
-static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even height.");
-#define L4BLOCKY		(DMAXY / 2)
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKX, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 I.");
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKY, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 II.");
-static BYTE dungBlock[L4BLOCKX][L4BLOCKY];
+
+/* Tiles to build the theme rooms. */
+const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L4, 1, 2, 1, 2, 9, 16, 15, 12 };
 
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
@@ -158,31 +158,51 @@ const BYTE L4PENTA2[] = {
 	0,   0,   0,   0, 0,
 	// clang-format on
 };
-
 /*
- * Maps tile IDs to their corresponding undecorated tile ID.
- * Values with a single entry are commented out, because pointless to randomize a single option.
+ * Maps tile IDs to their corresponding undecorated tile type.
  */
-const BYTE L4BTYPES[140] = {
-	0, 1, 2, 0 /*3*/, 4, 5, 6, 7, 0/*8*/, 9,
-	0/*10*/, 0/*11*/, 12, 0/*13*/, 0/*14*/, 15, 16, 0/*17*/, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 6,
-	6, 6, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 1, 2, 1, 2, 1, 2, 1, 1, 2,
-	2, 0, 0, 0, 0, 0, 0, 15, 16, 9,
-	12, 4, 5, 7, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+const BYTE L4BTYPES[138] = {
+	// clang-format off
+	 0,  1,  2,  0,  3,  4,  5,  6,  0,  7,
+	 0,  0,  8,  0,  0,  9, 10,  0,  0,  0, // 10..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 20..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 30..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  5, // 40..
+	 5,  5,  0,  0,  0,  0,  0,  0,  0,  0, // 50..
+	 0,  1,  2,  1,  2,  1,  2,  1,  1,  2, // 60..
+	 2,  0,  0,  0,  0,  0,  0,  9, 10,  7, // 70..
+	 8,  3,  4,  6,  0,  0,  0,  0,  0,  0, // 80..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 90..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //100..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //110..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, //120..
+	 0,  0,  0,  0,  0,  0,  0,  0          //130..
+	// clang-format on
 };
-
+/*
+ * Specifies where the given tile ID should spread the room ID (transval).
+ */
+const BYTE L4FTYPES[138] = {
+	// clang-format off
+	 0, 10, 12,  8, 10, 12, 15, 10, 12,  8,
+	 8,  8,  8, 10, 12,  8,  8,  8,  0,  0, // 10..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 20..
+	 0, 15, 15,  0,  0,  0,  0, 15,  0, 15, // 30..
+	15, 15, 12,  0,  0,  3, 13, 15, 15, 15, // 40..
+	15, 15, 10, 10, 15, 15, 12, 12, 15, 15, // 50..
+	15, 10, 12, 10, 12, 10, 12, 10, 10, 12, // 60..
+	12, 15, 15, 15, 15, 15,  8,  8,  8,  8, // 70..
+	 8, 10, 12, 10, 15, 15, 15, 15, 15, 15, // 80..
+	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 90..
+	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, //100..
+	15, 15, 15, 15, 15, 15,  0,  0,  0,  0, //110..
+	 0,  0,  0,  0,  0,  0,  0,  0,  0, 15, //120..
+	15,  0,  0,  0,  0, 15,  0,  0,         //130..
+	// clang-format on
+};
 /*
  * Miniset replacement to add shadows.
- * New dungeon values: 47 48
+ * New dungeon values: 47 48   54 55   58 59 60  71 72   74 75
  * TODO: use DRLG_PlaceMiniSet instead?
  */
 static void DRLG_L4Shadows()
@@ -190,68 +210,174 @@ static void DRLG_L4Shadows()
 	int x, y;
 	BYTE bv;
 
-	for (y = 1; y < DMAXY; y++) {
-		for (x = 1; x < DMAXY; x++) {
+	for (x = 1; x < DMAXY; x++) {
+		for (y = 1; y < DMAXY; y++) {
 			bv = dungeon[x][y];
-			if (bv != 3 && bv != 4 && bv != 8 && bv != 15)
-				continue;
-			//6, 3/4/8/15,  search
+			if (bv == 3 || bv == 4 || bv == 8 || bv == 15 || bv == 81) { // 81 only to support setpieces
+				// 6, 0,
+				// 6, 3/4/8/15/81,  search
 
-			//47, 0, replace
-			if (dungeon[x - 1][y] == 6) {
-				dungeon[x - 1][y] = 47;
-			}
-			//6,  0, search
-			//0, 3/4/8/15,
+				//48, 0, replace
+				//47, 0,
+				if (dungeon[x - 1][y] == 6 && dungeon[x - 1][y - 1] == 6) {
+					dungeon[x - 1][y] = 47;
+					dungeon[x - 1][y - 1] = 48;
+				}
+			} else if (bv == 53) {
+				// 6, 0,
+				// 6, 53,  search
 
-			//48, 0, replace
-			// 0, 0,
-			if (dungeon[x - 1][y - 1] == 6) {
-				dungeon[x - 1][y - 1] = 48;
+				//55, 0, replace
+				//54, 0,
+				if (dungeon[x - 1][y] == 6) {
+					dungeon[x - 1][y] = 54;
+				}
+				if (dungeon[x - 1][y - 1] == 6) {
+					dungeon[x - 1][y - 1] = 55;
+				}
+			} else if (bv == 56) {
+				// 6, 6, 0,
+				// 0, 6/50, 56,  search
+
+				//58, 59, 0, replace
+				// 0, 60, 0,
+				if ((dungeon[x - 1][y] == 6 || (dungeon[x - 1][y] == 50 && !drlgFlags[x - 1][y]))
+				 && dungeon[x - 1][y - 1] == 6 && dungeon[x - 2][y - 1] == 6) {
+					dungeon[x - 1][y] = 60;
+					dungeon[x - 1][y - 1] = 59;
+					dungeon[x - 2][y - 1] = 58;
+				}
+			} else if (bv == 73) { // support setpieces
+				// 6, 0,
+				// 6, 73,  search
+
+				//72, 0, replace
+				//71, 0,
+				if (dungeon[x - 1][y] == 6 && dungeon[x - 1][y - 1] == 6) {
+					dungeon[x - 1][y] = 71;
+					dungeon[x - 1][y - 1] = 72;
+				}
+			} else if (bv == 76 || bv == 77) { // support setpieces
+				// 6, 0,
+				// 6, 76/77,  search
+
+				//75, 0, replace
+				//74, 0,
+				if (dungeon[x - 1][y] == 6 && dungeon[x - 1][y - 1] == 6) {
+					dungeon[x - 1][y] = 74;
+					dungeon[x - 1][y - 1] = 75;
+				}
+			//} else if (bv == 78 || bv == 16) { -- not really necessary
+			//	if (dungeon[x - 1][y - 1] == 6) {
+			//		dungeon[x - 1][y - 1] = 72;
+			//	}
 			}
+		}
+	}
+}
+
+static void DRGL_L4PatchSetPiece(BYTE *pMap)
+{
+	// patch setpieces - *.DUN in HELL
+	uint16_t* lm = (uint16_t*)pMap;
+	int w = lm[0];
+	int h = lm[1];
+
+	lm += 2;
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			int pn = lm[x + y * w];
+			
+			// protect tiles
+			uint16_t modp = 0;
+			if (pn != 0) {
+				modp |= 3;
+			}
+			// - tiles with monsters
+			if (lm[w * h + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 0) * w * 2] != 0) {
+				modp |= 1 | (3 << 8);
+			}
+			if (lm[w * h + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 0) * w * 2] != 0) {
+				modp |= 1 | (3 << 10);
+			}
+			if (lm[w * h + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 1) * w * 2] != 0) {
+				modp |= 1 | (3 << 12);
+			}
+			if (lm[w * h + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 1) * w * 2] != 0) {
+				modp |= 1 | (3 << 14);
+			}
+			// - tiles with objects
+			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 0) * w * 2] != 0) {
+				modp |= 1 | (3 << 8);
+			}
+			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 0) * w * 2] != 0) {
+				modp |= 1 | (3 << 10);
+			}
+			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 0) + (2 * y + 1) * w * 2] != 0) {
+				modp |= 1 | (3 << 12);
+			}
+			if (lm[w * h + w * h * 2 * 2 + w * h * 2 * 2 + (2 * x + 1) + (2 * y + 1) * w * 2] != 0) {
+				modp |= 1 | (3 << 14);
+			}
+			lm[w * h + x + y * w] |= SwapLE16(modp);
 		}
 	}
 }
 
 static void DRLG_LoadL4SP()
 {
-	assert(pSetPiece == NULL);
-	if (IsMultiGame && QuestStatus(Q_BETRAYER)) {
-		pSetPiece = LoadFileInMem("Levels\\L4Data\\Vile1.DUN");
+	// assert(pSetPieces[0]._spData == NULL && ...);
+	if (currLvl._dLevelIdx == DLV_HELL4) {
+		pSetPieces[0]._sptype = SPT_DIAB_QUAD_1;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+		pSetPieces[1]._sptype = SPT_DIAB_QUAD_2;
+		pSetPieces[1]._spData = LoadFileInMem(setpiecedata[pSetPieces[1]._sptype]._spdDunFile);
+		pSetPieces[2]._sptype = SPT_DIAB_QUAD_3;
+		pSetPieces[2]._spData = LoadFileInMem(setpiecedata[pSetPieces[2]._sptype]._spdDunFile);
+		pSetPieces[3]._sptype = SPT_DIAB_QUAD_4;
+		pSetPieces[3]._spData = LoadFileInMem(setpiecedata[pSetPieces[3]._sptype]._spdDunFile);
+		// patch set-piece - diab1.DUN
+		// - fix shadow of the bottom right corner
+		pSetPieces[0]._spData[(2 + 0 + 4 * 6) * 2] = 75;
+		pSetPieces[0]._spData[(2 + 0 + 5 * 6) * 2] = 74;
+	} else if (QuestStatus(Q_BETRAYER)) {
+		pSetPieces[0]._sptype = IsMultiGame ? SPT_BETRAY_M : SPT_BETRAY_S;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+		if (IsMultiGame) {
+			// patch set-piece to add monsters - Vile1.DUN
+			uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+			lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+			// protect inner tiles from spawning additional monsters/objects
+			for (int y = 0; y <= 5; y++) {
+				for (int x = 0; x <= 5; x++) {
+					lm[7 * 7 + x + y * 7] |= SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+				}
+			}
+		}
 	} else if (QuestStatus(Q_WARLORD)) {
-		pSetPiece = LoadFileInMem("Levels\\L4Data\\Warlord.DUN");
+		pSetPieces[0]._sptype = SPT_WARLORD;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+		// patch set-piece - Warlord.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// ensure the changing tiles are protected
+		lm[2 + 8 * 7 + 7 + 1 * 8] = SwapLE16(3);
+		lm[2 + 8 * 7 + 7 + 2 * 8] = SwapLE16(3);
+		lm[2 + 8 * 7 + 7 + 3 * 8] = SwapLE16(3);
+		lm[2 + 8 * 7 + 7 + 4 * 8] = SwapLE16(3);
+		lm[2 + 8 * 7 + 7 + 5 * 8] = SwapLE16(3);
 	}
-}
-
-static void DRLG_FreeL4SP()
-{
-	MemFreeDbg(pSetPiece);
-}
-
-static void DRLG_L4SetSPRoom(int rx1, int ry1)
-{
-	int rw, rh, i, j;
-	BYTE *sp;
-
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
-
-	// assert(setpc_x == rx1);
-	// assert(setpc_y == ry1);
-	setpc_w = rw;
-	setpc_h = rh;
-
-	sp = &pSetPiece[4];
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 6;
-			drlgFlags[i][j] = TRUE; //|= DLRG_PROTECTED;
-			sp += 2;
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
+			DRGL_L4PatchSetPiece(pSetPieces[i]._spData);
 		}
 	}
+}
+
+static void DRLG_L4SetRoom(int idx)
+{
+	DRLG_LoadSP(idx, DEFAULT_MEGATILE_L4);
 }
 
 /*
@@ -265,7 +391,7 @@ static void DRLG_L4MakeMegas()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1 && dungeon[i + 1][j] == 1 && dungeon[i][j + 1] == 1 && dungeon[i + 1][j + 1] == 1);
 			v = dungeon[i][j]
 			 | (dungeon[i + 1][j] << 1)
 			 | (dungeon[i][j + 1] << 2)
@@ -288,7 +414,7 @@ static void DRLG_L4MakeMegas()
  * @param dx: the length of the wall
  * @return true if after the change a check for vertical wall is necessary.
  */
-static bool L4HorizWall(int i, int j, int dx)
+static void L4HorizWall(int i, int j, int dx)
 {
 	int xx;
 	BYTE bv;
@@ -299,16 +425,17 @@ static bool L4HorizWall(int i, int j, int dx)
 	// convert the last tile
 	bv = dungeon[i + dx][j];
 	switch (bv) {
+	case 7:
+		bv = 16;
+		break;
+	case 9:
+		bv = 11;
+		break;
 	case 10:
 		bv = 17;
 		break;
-	case 12:
-	case 13:
-		break;
 	case 15:
 		bv = 14;
-		break;
-	case 16:
 		break;
 	case 21:
 		bv = 23;
@@ -325,36 +452,27 @@ static bool L4HorizWall(int i, int j, int dx)
 	xx = RandRange(1, dx - 3);
 	dungeon[i + xx][j] = 57;
 	dungeon[i + xx + 2][j] = 56;
-	dungeon[i + xx + 1][j] = 60;
+	dungeon[i + xx + 1][j] = 50;
 
-	if (dungeon[i + xx][j - 1] == 6) {
-		dungeon[i + xx][j - 1] = 58;
-	}
-	if (dungeon[i + xx + 1][j - 1] == 6) {
-		dungeon[i + xx + 1][j - 1] = 59;
-	}
 	// convert the first tile
-	if (dungeon[i][j] == 13) {
+	if (dungeon[i][j] == 13)
 		dungeon[i][j] = 17;
-	} else if (dungeon[i][j] == 16) {
+	else if (dungeon[i][j] == 7)
+		dungeon[i][j] = 9;
+	else if (dungeon[i][j] == 16)
 		dungeon[i][j] = 11;
-		return true;
-	} else if (dungeon[i][j] == 12) {
+	else // if (dungeon[i][j] == 12)
 		dungeon[i][j] = 14;
-		return true;
-	}
-	return false;
 }
 
 static constexpr uint32_t HORIZ_WALL_ENDS =
-	  (1 << 10)
-	| (1 << 12)
-	| (1 << 13)
+	  (1 << 7)
+	| (1 << 9)
+	| (1 << 10)
 	| (1 << 15)
-	| (1 << 16)
 	| (1 << 21)
 	| (1 << 22);
-static bool L4AddHWall(int x, int y)
+static void L4AddHWall(int x, int y)
 {
 	int i;
 	BYTE bv;
@@ -375,12 +493,10 @@ static bool L4AddHWall(int x, int y)
 
 	i -= x;
 	if (i > 3
-	// && (bv == 10 || bv == 12 || bv == 13 || bv == 15 || bv == 16 || bv == 21 || bv == 22)) {
+	// && (bv == 7 || bv == 9 || bv == 10 || bv == 15 || bv == 21 || bv == 22)) {
 	 && (bv < 23 && (HORIZ_WALL_ENDS & (1 << bv)))) {
-		return L4HorizWall(x, y, i);
+		L4HorizWall(x, y, i);
 	}
-
-	return false;
 }
 
 /*
@@ -401,6 +517,8 @@ static void L4VertWall(int i, int j, int dy)
 		dungeon[i][j] = 9;
 	else if (dungeon[i][j] == 15)
 		dungeon[i][j] = 10;
+	else // if (dungeon[i][j] == 12)
+		dungeon[i][j] = 13;
 	// convert the internal tiles
 	for (yy = 1; yy < dy; yy++) {
 		dungeon[i][j + yy] = 1;
@@ -409,15 +527,13 @@ static void L4VertWall(int i, int j, int dy)
 	bv = dungeon[i][j + dy];
 	switch (bv) {
 	case 8:
+		bv = 15;
 		break;
 	case 9:
 		bv = 10;
 		break;
 	case 11:
 		bv = 17;
-		break;
-	case 14:
-	case 15:
 		break;
 	case 16:
 		bv = 13;
@@ -437,22 +553,13 @@ static void L4VertWall(int i, int j, int dy)
 	yy = RandRange(1, dy - 3);
 	dungeon[i][j + yy] = 53;
 	dungeon[i][j + yy + 2] = 52;
-	dungeon[i][j + yy + 1] = 60;
-
-	if (dungeon[i - 1][j + yy] == 6) {
-		dungeon[i - 1][j + yy] = 54;
-	}
-	if (dungeon[i - 1][j + yy - 1] == 6) {
-		dungeon[i - 1][j + yy - 1] = 55;
-	}
+	dungeon[i][j + yy + 1] = 50;
 }
 
 static constexpr uint32_t VERT_WALL_ENDS =
 	  (1 << 8)
 	| (1 << 9)
 	| (1 << 11)
-	| (1 << 14)
-	| (1 << 15)
 	| (1 << 16)
 	| (1 << 21)
 	| (1 << 23);
@@ -477,12 +584,10 @@ static void L4AddVWall(int x, int y)
 
 	j -= y;
 	if (j > 3
-	 //&& (bv == 8 || bv == 9 || bv == 11 || bv == 14 || bv == 15 || bv == 16 || bv == 21 || bv == 23)) {
+	 //&& (bv == 8 || bv == 9 || bv == 11 || bv == 16 || bv == 21 || bv == 23)) {
 	 && (bv < 24 && (VERT_WALL_ENDS & (1 << bv)))) {
-		/*return*/ L4VertWall(x, y, j);
+		L4VertWall(x, y, j);
 	}
-
-	//return false;
 }
 
 /*
@@ -493,35 +598,36 @@ static void L4AddVWall(int x, int y)
 static void L4AddWall()
 {
 	int i, j;
-	bool checkVert;
+	bool checkHoriz, checkVert;
 
-	for (j = 0; j < DMAXY; j++) {
-		for (i = 0; i < DMAXX; i++) {
+	for (i = 0; i < DMAXX; i++) {
+		for (j = 0; j < DMAXY; j++) {
 			if (drlgFlags[i][j]) {
 				continue;
 			}
+			checkHoriz = false;
 			checkVert = false;
 			switch (dungeon[i][j]) {
-			case 15:
-			case 16:
-			case 21:
-				checkVert = true;
-				/* fall-through */
-			case 10:
 			case 12:
-			case 13:
-			case 22:
-				checkVert |= L4AddHWall(i, j);
-				if (!checkVert)
-					break;
-				/* fall-through */
-			case 8:
-			case 9:
-			case 11:
-			case 14:
-			case 23:
-				L4AddVWall(i, j);
+				checkHoriz = true;
+				checkVert = true;
 				break;
+			case 7:
+			case 13:
+			case 16:
+				checkHoriz = true;
+				break;
+			case 8:
+			case 14:
+			case 15:
+				checkVert = true;
+				break;
+			}
+			if (checkHoriz) {
+				L4AddHWall(i, j);
+			}
+			if (checkVert) {
+				L4AddVWall(i, j);
 			}
 		}
 	}
@@ -885,40 +991,53 @@ static void L4TileFix()
 
 /*
  * Replace undecorated tiles with matching decorated tiles.
- * New dungeon values: 51 52 61..70 77..83 95 96 97
+ * New dungeon values: 49 50 51 (49..51)   61 62 63 64 65 66 67 68 69 70 (61..70)  77 78 79 80 81 82 83 (77..83)
  */
 static void DRLG_L4Subs()
 {
-	int x, y, i, rv;
-	BYTE c;
-
-	for (y = 0; y < DMAXY; y++) {
-		for (x = 0; x < DMAXX; x++) {
-			if (random_(0, 3) == 0) {
-				c = L4BTYPES[dungeon[x][y]];
-				if (c != 0 && !drlgFlags[x][y]) {
-					rv = random_(0, 16);
-					i = -1;
-					while (rv >= 0) {
-						i++;
-						if (i == sizeof(L4BTYPES)) {
-							i = 0;
-						}
-						if (c == L4BTYPES[i]) {
-							rv--;
-						}
-					}
-					dungeon[x][y] = i;
-				}
-			}
+	int x, y;
+	BYTE c, k;
+	int8_t rv;
+	const unsigned MAX_MATCH = 8; // 6;
+	const unsigned NUM_L4TYPES = 84;
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L4Subs.");
+	static_assert(NUM_L4TYPES <= UCHAR_MAX, "NUM_L4TYPES does not fit to i(BYTE) in DRLG_L4Subs.");
+#if DEBUG_MODE
+	for (int i = sizeof(L4BTYPES) - 1; i >= 0; i--) {
+		if (L4BTYPES[i] != 0) {
+			if (i >= NUM_L4TYPES)
+				app_fatal("Value %d is ignored in L4BTYPES at %d", L4BTYPES[i], i);
+			break;
 		}
 	}
-	// TODO: second round of replacement? why not merge with the first one?
-	for (y = 0; y < DMAXY; y++) {
-		for (x = 0; x < DMAXX; x++) {
-			if (random_(0, 10) == 0) {
-				if (L4BTYPES[dungeon[x][y]] == 6 && !drlgFlags[x][y]) {
-					dungeon[x][y] = RandRange(95, 97);
+
+	for (int i = 0; i < sizeof(L4BTYPES); i++) {
+		c = L4BTYPES[i];
+		if (c == 0)
+			continue;
+		x = 0;
+		for (int j = 0; j < sizeof(L4BTYPES); j++) {
+			if (c == L4BTYPES[j])
+				x++;
+		}
+		if (x > MAX_MATCH)
+			app_fatal("Too many(%d) matching('%d') values in L4BTYPES", x, c);
+	}
+#endif
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
+			if (random_(0, 3) == 0) {
+				c = L4BTYPES[dungeon[x][y]];
+				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
+					rv = random_(0, MAX_MATCH);
+					k = 0;
+					while (TRUE) {
+						if (c == L4BTYPES[k] && --rv < 0)
+							break;
+						if (++k == NUM_L4TYPES)
+							k = 0;
+					}
+					dungeon[x][y] = k;
 				}
 			}
 		}
@@ -931,22 +1050,22 @@ static void L4Block2Dungeon()
 	int i, j;
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i][j] = dungBlock[i][j];
+			dungeon[i][j] = drlg.dungBlock[i][j];
 		}
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i][j + L4BLOCKY] = dungBlock[i][L4BLOCKY - 1 - j];
+			dungeon[i][j + L4BLOCKY] = drlg.dungBlock[i][L4BLOCKY - 1 - j];
 		}
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i + L4BLOCKX][j] = dungBlock[L4BLOCKX - 1 - i][j];
+			dungeon[i + L4BLOCKX][j] = drlg.dungBlock[L4BLOCKX - 1 - i][j];
 		}
 	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
-			dungeon[i + L4BLOCKX][j + L4BLOCKY] = dungBlock[L4BLOCKX - 1 - i][L4BLOCKY - 1 - j];
+			dungeon[i + L4BLOCKX][j + L4BLOCKY] = drlg.dungBlock[L4BLOCKX - 1 - i][L4BLOCKY - 1 - j];
 		}
 	}
 }
@@ -963,9 +1082,9 @@ static void L4ConnectBlock()
 	memset(hallok, 0, sizeof(hallok));
 	for (j = L4BLOCKY - 2; j >= 0; j--) {
 		for (i = L4BLOCKX - 2; i >= 0; i--) {
-			if (dungBlock[i][j] == 1) {
+			if (drlg.dungBlock[i][j] == 1) {
 				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (dungBlock[i][j + 1] == 1 && dungBlock[i + 1][j + 1] == 0) {
+				if (drlg.dungBlock[i][j + 1] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
 					hallok[j] = i;
 				}
 				i = 0;
@@ -977,8 +1096,8 @@ static void L4ConnectBlock()
 	while (TRUE) {
 		if (hallok[rv] != 0) {
 			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
-				dungBlock[i][rv] = 1;
-				dungBlock[i][rv + 1] = 1;
+				drlg.dungBlock[i][rv] = 1;
+				drlg.dungBlock[i][rv + 1] = 1;
 			}
 			break;
 		} else {
@@ -992,9 +1111,9 @@ static void L4ConnectBlock()
 	memset(hallok, 0, sizeof(hallok));
 	for (i = L4BLOCKX - 2; i >= 0; i--) {
 		for (j = L4BLOCKY - 2; j >= 0; j--) {
-			if (dungBlock[i][j] == 1) {
+			if (drlg.dungBlock[i][j] == 1) {
 				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (dungBlock[i + 1][j] == 1 && dungBlock[i + 1][j + 1] == 0) {
+				if (drlg.dungBlock[i + 1][j] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
 					hallok[i] = j;
 				}
 				j = 0;
@@ -1006,8 +1125,8 @@ static void L4ConnectBlock()
 	while (TRUE) {
 		if (hallok[rv] != 0) {
 			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
-				dungBlock[rv][j] = 1;
-				dungBlock[rv + 1][j] = 1;
+				drlg.dungBlock[rv][j] = 1;
+				drlg.dungBlock[rv + 1][j] = 1;
 			}
 			break;
 		} else {
@@ -1022,11 +1141,11 @@ static void L4ConnectBlock()
 static int GetArea()
 {
 	int i, rv;
-	BYTE *pTmp;
+	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
-	pTmp = &dungBlock[0][0];
+	static_assert(sizeof(drlg.dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
+	pTmp = &drlg.dungBlock[0][0];
 	for (i = 0; i < L4BLOCKX * L4BLOCKY; i++, pTmp++) {
 		assert(*pTmp <= 1);
 		rv += *pTmp;
@@ -1043,7 +1162,7 @@ static void L4DrawRoom(int x, int y, int width, int height)
 	y2 = y + height;
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			dungBlock[i][j] = 1;
+			drlg.dungBlock[i][j] = 1;
 		}
 	}
 }
@@ -1062,7 +1181,7 @@ static bool L4CheckRoom(int x, int y, int width, int height)
 
 	for (j = y; j < y2; j++) {
 		for (i = x; i < x2; i++) {
-			if (dungBlock[i][j] != 0) {
+			if (drlg.dungBlock[i][j] != 0) {
 				return false;
 			}
 		}
@@ -1084,11 +1203,11 @@ static bool L4CheckVHall(int x, int top, int h)
 	bottom = j + h;
 	if (bottom >= L4BLOCKY)
 		return false;
-	while (j < bottom && dungBlock[x][j] == 0)
+	while (j < bottom && drlg.dungBlock[x][j] == 0)
 		j++;
-	while (j < bottom && dungBlock[x][j] == 1)
+	while (j < bottom && drlg.dungBlock[x][j] == 1)
 		j++;
-	while (j < bottom && dungBlock[x][j] == 0)
+	while (j < bottom && drlg.dungBlock[x][j] == 0)
 		j++;
 	return j == bottom;
 }
@@ -1103,11 +1222,11 @@ static bool L4CheckHHall(int y, int left, int w)
 	right = i + w;
 	if (right >= L4BLOCKX)
 		return false;
-	while (i < right && dungBlock[i][y] == 0)
+	while (i < right && drlg.dungBlock[i][y] == 0)
 		i++;
-	while (i < right && dungBlock[i][y] == 1)
+	while (i < right && drlg.dungBlock[i][y] == 1)
 		i++;
-	while (i < right && dungBlock[i][y] == 0)
+	while (i < right && drlg.dungBlock[i][y] == 0)
 		i++;
 	return i == right;
 }
@@ -1183,10 +1302,10 @@ static void L4FirstRoom()
 	int x, y, w, h, xmin, xmax, ymin, ymax;
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		if (pSetPiece != NULL) {
-			w = pSetPiece[0] + 4; // TODO: add border to the setmaps
-			h = pSetPiece[0] + 2;
-			if (QuestStatus(Q_WARLORD))
+		if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
+			w = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[0]) + 4; // TODO: add border to the setmaps
+			h = SwapLE16(*(uint16_t*)&pSetPieces[0]._spData[2]) + 4;
+			if (pSetPieces[0]._sptype == SPT_WARLORD)
 				w--;
 		} else {
 			w = RandRange(2, 6) & ~1;
@@ -1205,13 +1324,22 @@ static void L4FirstRoom()
 	ymin = (ymax + 1) >> 1;
 	y = RandRange(ymin, ymax);
 
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		setpc_x = x + 1;
-		setpc_y = y + 1;
-	}
-	if (pSetPiece != NULL) {
-		setpc_x = x + 1;
-		setpc_y = y + 1;
+	if (currLvl._dLevelIdx != DLV_HELL4) {
+		if (pSetPieces[0]._sptype != SPT_NONE) {
+			pSetPieces[0]._spx = x + 1;
+			pSetPieces[0]._spy = y + 1;
+		}
+	} else {
+		int setpc_x = x + 1;
+		int setpc_y = y + 1;
+		pSetPieces[0]._spx = DIAB_QUAD_1X;
+		pSetPieces[0]._spy = DIAB_QUAD_1Y;
+		pSetPieces[1]._spx = DIAB_QUAD_2X;
+		pSetPieces[1]._spy = DIAB_QUAD_2Y;
+		pSetPieces[2]._spx = DIAB_QUAD_3X;
+		pSetPieces[2]._spy = DIAB_QUAD_3Y;
+		pSetPieces[3]._spx = DIAB_QUAD_4X;
+		pSetPieces[3]._spy = DIAB_QUAD_4Y;
 	}
 
 	L4DrawRoom(x, y, w, h);
@@ -1219,60 +1347,12 @@ static void L4FirstRoom()
 	L4RoomGen(x, y, w, h, random_(0, 2));
 }
 
-/*static void L4SaveQuads()
+static void DRLG_LoadDiabQuads()
 {
-	int i, j, x, y;
-
-	x = setpc_x - 1;
-	y = setpc_y - 1;
-
-	for (j = y; j < y + DQUAD_ROOM_SIZE; j++) {
-		for (i = x; i < x + DQUAD_ROOM_SIZE; i++) {
-			drlgFlags[i][j] = TRUE;
-			drlgFlags[DMAXX - 1 - i][j] = TRUE;
-			drlgFlags[i][DMAXY - 1 - j] = TRUE;
-			drlgFlags[DMAXX - 1 - i][DMAXY - 1 - j] = TRUE;
-		}
-	}
-}*/
-
-static void DRLG_L4SetRoom(int rx1, int ry1)
-{
-	int rx2, ry2, i, j;
-	BYTE *sp;
-
-	rx2 = pSetPiece[0] + rx1;
-	ry2 = pSetPiece[2] + ry1;
-	sp = &pSetPiece[4];
-
-	for (j = ry1; j < ry2; j++) {
-		for (i = rx1; i < rx2; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 6;
-			drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
-}
-
-static void DRLG_LoadDiabQuads(bool preflag)
-{
-	assert(pSetPiece == NULL);
-
-	pSetPiece = LoadFileInMem("Levels\\L4Data\\diab1.DUN");
-	DRLG_L4SetRoom(DIAB_QUAD_1X, DIAB_QUAD_1Y);
-	MemFreeDbg(pSetPiece);
-
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab2b.DUN" : "Levels\\L4Data\\diab2a.DUN");
-	DRLG_L4SetRoom(DIAB_QUAD_2X, DIAB_QUAD_2Y);
-	MemFreeDbg(pSetPiece);
-
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab3b.DUN" : "Levels\\L4Data\\diab3a.DUN");
-	DRLG_L4SetRoom(DIAB_QUAD_3X, DIAB_QUAD_3Y);
-	MemFreeDbg(pSetPiece);
-
-	pSetPiece = LoadFileInMem(preflag ? "Levels\\L4Data\\diab4b.DUN" : "Levels\\L4Data\\diab4a.DUN");
-	DRLG_L4SetRoom(DIAB_QUAD_4X, DIAB_QUAD_4Y);
-	MemFreeDbg(pSetPiece);
+	DRLG_L4SetRoom(0);
+	DRLG_L4SetRoom(1);
+	DRLG_L4SetRoom(2);
+	DRLG_L4SetRoom(3);
 }
 
 /*
@@ -1283,7 +1363,7 @@ static void DRLG_LoadDiabQuads(bool preflag)
 static void DRLG_L4TransFix()
 {
 	int i, j, xx, yy;
-	BYTE tv;
+	// BYTE tv;
 
 	yy = DBORDERY;
 	for (j = 0; j < DMAXY; j++) {
@@ -1316,22 +1396,37 @@ static void DRLG_L4TransFix()
 				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;*/
 			// fix transVals of corners
+			// case 20:
+			// case 118:
 			case 24:
+			//case 122:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 18:
 			case 25:
+			//case 123:
+				//if (dungeon[i][j - 1] != 116) {
+				//	break;
+				//}
+				/* fall-through */
+			case 18:
+			//case 116:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 19:
 			case 26:
+			//case 124:
+				//if (dungeon[i + 1][j] != 117) {
+				//	break;
+				//}
+				/* fall-through */
+			case 19:
+			//case 117:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			// fix transVals of 'doors'
+			/*// fix transVals of 'doors'
 			case 52:
 				DRLG_CopyTrans(xx + 1, yy + 1, xx, yy);
 				break;
@@ -1613,7 +1708,7 @@ static void DRLG_L4TransFix()
 				// fix the corner on south-east
 				if (dTransVal[xx + 1][yy + 2] == 0)
 					dTransVal[xx + 1][yy + 2] = tv;
-				break;
+				break;*/
 			// fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
 			// - due to complex cases with the horizontal/vertical 'doors', this is not really feasible
 			/*case 36:
@@ -1658,101 +1753,35 @@ static void DRLG_L4TransFix()
 		}
 		yy += 2;
 	}
+}
 
-	/* fix transVals of the diablo-level
-	   - commented out because it does not really matter. The tiles with zero value are contained
-	     in the quads. the few random monsters are not bothered by them.
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		xx = DBORDERX + 2 * DIAB_QUAD_1X;
-		yy = DBORDERY + 2 * DIAB_QUAD_1Y;
-		tv = dTransVal[xx][yy];
-		assert(tv != 0);
-		// middle tiles of the 1. quad
-		const POS32 mm_offs[] = {
-			{  1,  9 }, {  1, 10 },
-			{  3,  9 }, {  4,  9 }, {  9,  3 },
-		};
-		for (i = 0; i < lengthof(mm_offs); i++)
-			dTransVal[xx + mm_offs[i].x][yy + mm_offs[i].y] = tv;
+void DRLG_L4InitTransVals()
+{
+	int i, j;
 
-		xx = DBORDERX + 2 * DIAB_QUAD_2X;
-		yy = DBORDERY + 2 * DIAB_QUAD_2Y;
-		tv = dTransVal[xx][yy];
-		assert(tv != 0);
-		// many tiles of the 2. quad
-		for (i = xx; i <= xx + 22; i++) {
-			for (j = yy; j <= yy + 22; j++) {
-				if (dTransVal[i][j] == 0)
-					dTransVal[i][j] = tv;
+	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
+	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
+	// block arches with walls to stop the spread of transVals
+	for (i = 0; i < DMAXX - 1; i++) {
+		for (j = 0; j < DMAXY; j++) {
+			if (drlg.transvalMap[i][j] == 53) {
+				drlg.transvalMap[i][j + 1] = 1;
+			} else if (drlg.transvalMap[i][j] == 57) {
+				drlg.transvalMap[i + 1][j] = 2;
 			}
 		}
+	}
 
-		// outer tiles of the 3. quad
-		xx = DBORDERX + 2 * DIAB_QUAD_3X;
-		yy = DBORDERY + 2 * DIAB_QUAD_3Y;
-		tv = dTransVal[xx][yy];
-		assert(tv != 0);
-		const POS32 oo_offs[] = {
-			{  1,  1 }, {  1,  2 }, {  1,  3 },
-			{  2,  1 }, {  2,  2 }, {  2,  3 },
-			{  3,  1 }, {  3,  2 }, {  3,  3 },
-
-			{  1, 17 }, {  1, 18 }, {  1, 19 }, {  1, 20 },
-			{  2, 17 }, {  2, 18 }, {  2, 19 }, {  2, 20 },
-			{  3, 17 }, {  3, 18 }, {  3, 19 }, {  3, 20 },
-
-			{ 17,  1 }, { 17,  2 }, { 17,  3 },
-			{ 18,  1 }, { 18,  2 }, { 18,  3 },
-			{ 19,  1 }, { 19,  2 }, { 19,  3 },
-			{ 20,  1 }, { 20,  2 }, { 20,  3 },
-		
-			{ 17, 17 }, { 17, 18 }, { 17, 19 }, { 17, 20 },
-			{ 18, 17 }, { 18, 18 }, { 18, 19 }, { 18, 20 },
-			{ 19, 17 }, { 19, 18 }, { 19, 19 }, { 19, 20 },
-			{ 20, 17 }, { 20, 18 }, { 20, 19 }, { 20, 20 },
-		};
-
-		for (i = 0; i < lengthof(oo_offs); i++)
-			dTransVal[xx + oo_offs[i].x][yy + oo_offs[i].y] = tv;
-
-		// inner tiles of the 3. quad
-		tv = dTransVal[xx + 6][yy + 6];
-		assert(tv != 0);
-		const POS32 ii_offs[] = {
-			{  1,  5 }, {  1,  6 }, {  1,  7 }, {  1,  8 },
-			{  2,  5 }, {  2,  6 }, {  2,  7 }, {  2,  8 },
-			{  5,  1 }, {  5,  2 }, {  5,  3 }, {  5,  4 },
-			{  6,  1 }, {  6,  2 }, {  6,  3 }, {  6,  4 },
-			{  7, 11 }, {  7, 12 }, 
-
-			{ 13,  9 }, { 13, 10 }, { 13, 11 }, { 13, 12 },
-			{ 14,  9 }, { 14, 10 }, { 14, 11 }, { 14, 12 },
-
-			{ 15,  1 }, { 15,  2 }, { 15,  3 }, { 15,  4 },
-			{ 19,  5 }, { 19,  6 },
-		};
-		for (i = 0; i < lengthof(ii_offs); i++)
-			dTransVal[xx + ii_offs[i].x][yy + ii_offs[i].y] = tv;
-
-		xx = DBORDERX + 2 * DIAB_QUAD_4X;
-		yy = DBORDERY + 2 * DIAB_QUAD_4Y;
-		tv = dTransVal[xx][yy];
-		assert(tv != 0);
-		// inner tiles of the 4. quad
-		for (i = xx; i <= xx + 16; i++) {
-			for (j = yy; j <= yy + 16; j++) {
-				if (dTransVal[i][j] == 0)
-					dTransVal[i][j] = tv;
-			}
-		}
-	}*/
+	DRLG_FloodTVal(L4FTYPES);
+	DRLG_L4TransFix();
 }
 
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
  * New dungeon values: 116..128
+ * Obsolete dungeon values: 18..29
  */
-static void DRLG_L4Corners()
+/*static void DRLG_L4Corners()
 {
 	int i;
 	BYTE* pTmp;
@@ -1760,19 +1789,18 @@ static void DRLG_L4Corners()
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4Corners.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp < 30 /*&& *pTmp != 20 && *pTmp != 24*/)
+		if (*pTmp >= 18 && *pTmp <= 29) // && *pTmp != 20 && *pTmp != 24
 			*pTmp += 98;
 	}
-}
+}*/
 
 /*
  * Miniset replacement of corner tiles.
  * New dungeon values: (17)
  * TODO: use DRLG_PlaceMiniSet instead?
  */
-static void DRLG_L4GeneralFix()
+/*static void DRLG_L4GeneralFix()
 {
-	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 0; j < DMAXY - 1; j++) {
@@ -1786,40 +1814,58 @@ static void DRLG_L4GeneralFix()
 				dungeon[i][j] = 17;
 			}
 		}
-	}*/
-}
+	}
+}*/
 
-struct mini_set {
-	const BYTE* data;
-	bool setview;
-};
-static bool DRLG_L4PlaceMiniSets(mini_set* minisets, int n)
+static void DRLG_L4ThemeExitFix()
 {
-	int i;
-	POS32 mpos;
+	int i, x1, y1, x2, y2, xx, yy;
 
-	for (i = 0; i < n; i++) {
-		if (minisets[i].data == NULL)
-			continue;
-		mpos = DRLG_PlaceMiniSet(minisets[i].data);
-		if (mpos.x == DMAXX)
-			return false;
-		if (minisets[i].setview) {
-			ViewX = 2 * mpos.x + DBORDERX + 5;
-			ViewY = 2 * mpos.y + DBORDERY + 6;
+	for (i = numthemes - 1; i >= 0; i--) {
+		x1 = themes[i]._tsx1;
+		y1 = themes[i]._tsy1;
+		x2 = themes[i]._tsx2;
+		y2 = themes[i]._tsy2;
+		switch (random_(0, 4)) {
+		case 0:
+			yy = (y1 + y2 + 1) / 2;
+			dungeon[x1][yy - 1] = 53;
+			dungeon[x1][yy + 0] = 6;
+			dungeon[x1][yy + 1] = 52;
+			//dungeon[x2 - 1][yy - 1] = 54;
+			break;
+		case 1:
+			yy = (y1 + y2 + 1) / 2;
+			dungeon[x2][yy - 1] = 53;
+			dungeon[x2][yy + 0] = 6;
+			dungeon[x2][yy + 1] = 52;
+			//dungeon[x2 - 1][yy - 1] = 54;
+			break;
+		case 2:
+			xx = (x1 + x2 + 1) / 2;
+			dungeon[xx - 1][y1] = 57;
+			dungeon[xx + 0][y1] = 6;
+			dungeon[xx + 1][y1] = 56;
+			//dungeon[xx + 0][y2 - 1] = 59;
+			//dungeon[xx - 1][y2 - 1] = 58;
+			break;
+		case 3:
+			xx = (x1 + x2 + 1) / 2;
+			dungeon[xx - 1][y2] = 57;
+			dungeon[xx + 0][y2] = 6;
+			dungeon[xx + 1][y2] = 56;
+			//dungeon[xx + 0][y2 - 1] = 59;
+			//dungeon[xx - 1][y2 - 1] = 58;
+			break;
 		}
 	}
-	return true;
 }
 
-static void DRLG_L4(int entry)
+static void DRLG_L4()
 {
-	int i, j;
-	bool doneflag;
-
-	do {
+	while (true) {
 		do {
-			memset(dungBlock, 0, sizeof(dungBlock));
+			memset(drlg.dungBlock, 0, sizeof(drlg.dungBlock));
 
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
@@ -1831,153 +1877,171 @@ static void DRLG_L4(int entry)
 		DRLG_L4MakeMegas();
 		L4TileFix();
 		memset(drlgFlags, 0, sizeof(drlgFlags));
-		if (pSetPiece != NULL) {
-			DRLG_L4SetSPRoom(setpc_x, setpc_y);
-		}
 		if (currLvl._dLevelIdx == DLV_HELL4) {
-			// L4SaveQuads();
-			DRLG_LoadDiabQuads(true);
+			DRLG_LoadDiabQuads();
+		} else if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
+			DRLG_L4SetRoom(0);
 		}
 		L4AddWall();
-		DRLG_InitTrans();
-		DRLG_FloodTVal(6);
-		if (QuestStatus(Q_WARLORD)) {
-			mini_set stairs[2] = {
-				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
-			};
-			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_PREV) {
-				ViewX = 2 * setpc_x + DBORDERX + 6;
-				ViewY = 2 * setpc_y + DBORDERY + 6;
-			}
-		} else if (currLvl._dLevelIdx != DLV_HELL3) {
-			mini_set stairs[3] = {
-				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ currLvl._dLevelIdx != DLV_HELL4 ? L4DSTAIRS : NULL, entry == ENTRY_PREV },
-				{ currLvl._dLevelIdx != DLV_HELL1 ? NULL : L4TWARP, entry != ENTRY_MAIN  && entry != ENTRY_PREV }
-			};
-			doneflag = DRLG_L4PlaceMiniSets(stairs, 3);
-			if (entry == ENTRY_PREV) {
-				ViewX++;
-				ViewY -= 2;
-			}
-		} else {
-			mini_set stairs[2] = {
-				{ L4USTAIRS, entry == ENTRY_MAIN },
-				{ (!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ?
-					L4PENTA : L4PENTA2, entry != ENTRY_MAIN }
-			};
-			doneflag = DRLG_L4PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_MAIN)
-				ViewY++;
-		}
-	} while (!doneflag);
 
-	DRLG_L4GeneralFix();
-	DRLG_L4TransFix();
+		POS32 warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4USTAIRS (5, 6)
+		if (warpPos.x < 0) {
+			continue;
+		}
+		pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
+		pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
+		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		pWarps[DWARP_ENTRY]._wtype = WRPT_L4_UP;
+		if (currLvl._dLevelIdx != DLV_HELL4) {
+			if (currLvl._dLevelIdx == DLV_HELL1) {
+				warpPos = DRLG_PlaceMiniSet(L4TWARP); // L4TWARP (5, 6)
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_TOWN]._wx = warpPos.x + 1;
+				pWarps[DWARP_TOWN]._wy = warpPos.y + 2;
+				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+				pWarps[DWARP_TOWN]._wtype = WRPT_L4_UP;
+			}
+			if (currLvl._dLevelIdx == DLV_HELL3) {
+				warpPos = DRLG_PlaceMiniSet((!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ? L4PENTA : L4PENTA2); // L4PENTA (5, 6)
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 2;
+				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L4_PENTA;
+			} else if (pSetPieces[0]._sptype == SPT_WARLORD) {
+				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 3; // L4DSTAIRS (6, 4)
+				pWarps[DWARP_EXIT]._wy = pSetPieces[0]._spy + 3;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
+			} else {
+				warpPos = DRLG_PlaceMiniSet(L4DSTAIRS); // L4DSTAIRS (6, 4)
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 3;
+				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
+			}
+			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
+			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+		}
+		break;
+	}
+
+	// DRLG_L4GeneralFix(); - commented out, because this is no longer necessary
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		DRLG_PlaceThemeRooms(7, 10, 6, 8, true);
+		DRLG_PlaceThemeRooms(7, 10, themeTiles, 112, true);
+		DRLG_L4ThemeExitFix();
 	}
 
 	DRLG_L4Shadows();
-	DRLG_L4Corners();
-	DRLG_L4Subs();
+	// DRLG_L4Corners(); - commented out, because this is no longer necessary
+	DRLG_PlaceRndTile(6, 95, 3);
+	DRLG_PlaceRndTile(6, 96, 4);
+	DRLG_PlaceRndTile(6, 97, 4);
+}
 
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+static void DRLG_L4FixPreMap(int idx)
+{
+	uint16_t* lm = (uint16_t*)pSetPieces[idx]._spData;
 
-	DRLG_Init_Globals();
-
-	DRLG_CheckQuests();
-
-	if (currLvl._dLevelIdx == DLV_HELL3) {
-		for (j = 0; j < DMAXY; j++) {
-			for (i = 0; i < DMAXX; i++) {
-				if (dungeon[i][j] == 98 || dungeon[i][j] == 107) {
-					// set the rportal position of Q_BETRAYER
-					quests[Q_BETRAYER]._qtx = 2 * i + DBORDERX;
-					quests[Q_BETRAYER]._qty = 2 * j + DBORDERY;
-					// prevent monsters from spawning around the pentagram
-					Make_SetPC(i - 1, j - 1, 5, 5);
-				}
+	if (pSetPieces[idx]._sptype == SPT_DIAB_QUAD_4) {
+		// patch set-piece - Diab4a.DUN
+		// - replace diablo
+		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
+		// - replace the only black knight
+		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 4 + 6 * 9 * 2] = SwapLE16(101);
+	} else if (pSetPieces[idx]._sptype == SPT_WARLORD) {
+		// patch set-piece - Warlord2.DUN
+		// replace monsters
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 10 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 13 + 4 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 13 + 9 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 10 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 10 + 10 * 8 * 2] = SwapLE16(100);
+		// add monsters
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 10 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 11 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 11 + 10 * 8 * 2] = SwapLE16(100);
+		// - add unique
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 7 * 8 * 2] = SwapLE16((UMT_WARLORD + 1) | (1 << 15));
+		// add objects
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = SwapLE16(108);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 9 * 8 * 2] = SwapLE16(108);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 2 * 8 * 2] = SwapLE16(109);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 2 * 8 * 2] = SwapLE16(109);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 10 * 8 * 2] = SwapLE16(109);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = SwapLE16(109);
+		// protect inner tiles from spawning additional monsters/objects
+		/*for (int y = 0; y <= 5; y++) {
+			for (int x = 0; x <= 6; x++) {
+				lm[8 * 7 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
+		}*/
+	}
+}
+
+static void DRLG_L4DrawPreMaps()
+{
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._sptype == SPT_NONE)
+			continue;
+		if (setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile != NULL) {
+			MemFreeDbg(pSetPieces[i]._spData);
+			pSetPieces[i]._spData = LoadFileInMem(setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile);
+			DRLG_L4FixPreMap(i);
+			DRLG_DrawMap(i);
 		}
 	}
-	if (currLvl._dLevelIdx == DLV_HELL4) {
-		DRLG_LoadDiabQuads(false);
-	}
 }
 
-void CreateL4Dungeon(int entry)
+static void LoadL4Dungeon(const LevelData* lds)
 {
-	DRLG_InitSetPC();
-	DRLG_LoadL4SP();
-	DRLG_L4(entry);
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
-	DRLG_FreeL4SP();
-	DRLG_SetPC();
-}
+	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
+	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
 
-/*static BYTE *LoadL4DungeonData(const char *sFileName)
-{
-	int i, j;
-	BYTE *pMap;
-	uint16_t rw, rh, *lm;
+	// load dungeon
+	pSetPieces[0]._spx = 0;
+	pSetPieces[0]._spy = 0;
+	pSetPieces[0]._sptype = lds->dSetLvlPiece;
+	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 
-	pMap = LoadFileInMem(sFileName);
-
+	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
 
-	lm = (uint16_t *)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = SwapLE16(*lm);
-				//drlgFlags[i][j] = TRUE; // |= DLRG_PROTECTED; - unused on setmaps
-			} else {
-				dungeon[i][j] = 6;
-			}
-			lm++;
-		}
-	}
-
-	return pMap;
+	DRLG_LoadSP(0, DEFAULT_MEGATILE_L4);
 }
 
-void LoadL4Dungeon(const LevelData* lds)
+void CreateL4Dungeon()
 {
-	BYTE* pMap;
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
 
-	ViewX = lds->dSetLvlDunX;
-	ViewY = lds->dSetLvlDunY;
+	if (lds->dSetLvl) {
+		LoadL4Dungeon(lds);
+	} else {
+		DRLG_LoadL4SP();
+		DRLG_L4();
+	}
 
-	// load pre-dungeon
-	pMap = LoadL4DungeonData(lds->dSetLvlPreDun);
-
-	mem_free_dbg(pMap);
+	DRLG_L4Subs();
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+	DRLG_L4DrawPreMaps();
 
-	// load dungeon
-	pMap = LoadL4DungeonData(lds->dSetLvlDun);
-
-	// TODO: should be done on (loaded from) pre-dungeon...
-	DRLG_InitTrans();
-
-	DRLG_Init_Globals();
+	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
+	DRLG_Init_Globals();
 
-	SetMapMonsters(pMap, 0, 0);
-	SetMapObjects(pMap);
-
-	mem_free_dbg(pMap);
-}*/
+	DRLG_SetPC();
+}
 
 DEVILUTION_END_NAMESPACE

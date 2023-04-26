@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void PackItem(PkItemStruct *pis, const ItemStruct *is)
+static void PackItem(PkItemStruct* pis, const ItemStruct* is)
 {
 	if (is->_itype == ITYPE_NONE) {
 		pis->wIndx = static_cast<uint16_t>(IDI_NONE);
@@ -19,12 +19,12 @@ static void PackItem(PkItemStruct *pis, const ItemStruct *is)
 	}
 }
 
-void PackPlayer(PkPlayerStruct *pPack, int pnum)
+void PackPlayer(PkPlayerStruct* pPack, int pnum)
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 	int i;
-	ItemStruct *pi;
-	PkItemStruct *pki;
+	ItemStruct* pi;
+	PkItemStruct* pki;
 
 	memset(pPack, 0, sizeof(*pPack));
 	p = &plr;
@@ -211,9 +211,10 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	// reset fields which are used even by non-local players, but not part of pPack
 	// TODO: move these to SetupLocalPlr
 	ClrPlrPath(pnum);
-	plr.destAction = ACTION_NONE;
+	plr._pDestAction = ACTION_NONE;
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;
+	plr._pGFXLoad = 0;
 	// commented out, because these should not matter
 	//plr._plid = NO_LIGHT;
 	//plr._pvid = NO_VISION;
@@ -227,7 +228,7 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 	net_assert(plr._pExperience < PlrExpLvlsTbl[plr._pLevel]);
 	net_assert(plr._pDunLevel < NUM_LEVELS);
 	net_assert(plr._pTeam < MAX_PLRS);
-	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);	
+	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);
 	for (i = 0; i < NUM_SPELLS; i++) {
 		if (plr._pMemSkills & SPELL_MASK(i))
 			net_assert(spelldata[i].sBookLvl != SPELL_NA);
@@ -271,8 +272,8 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 		} else {
 			// - allow only shield or one handed weapon in right hand with weapon in the left hand
 			pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
-			net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD ||
-			 (pi->_iClass == ICLASS_WEAPON && !TWOHAND_WIELD(&plr, pi)));
+			net_assert(pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_SHIELD
+			 || (pi->_iClass == ICLASS_WEAPON && !TWOHAND_WIELD(&plr, pi)));
 		}
 	}
 #endif /* INET_MODE */

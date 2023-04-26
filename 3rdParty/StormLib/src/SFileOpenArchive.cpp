@@ -156,7 +156,7 @@ static DWORD VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
 
 //-----------------------------------------------------------------------------
 // Support for alternate markers. Call before opening an archive
-
+#ifdef FULL
 #define SFILE_MARKERS_MIN_SIZE   (sizeof(DWORD) + sizeof(DWORD) + sizeof(const char *) + sizeof(const char *))
 
 bool WINAPI SFileSetArchiveMarkers(PSFILE_MARKERS pMarkers)
@@ -201,7 +201,7 @@ LCID WINAPI SFileSetLocale(LCID lcNewLocale)
     g_lcFileLocale = lcNewLocale;
     return g_lcFileLocale;
 }*/
-
+#endif
 //-----------------------------------------------------------------------------
 // SFileOpenArchive
 //

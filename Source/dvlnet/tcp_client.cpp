@@ -35,7 +35,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	setup_password(passwd);
 	plr_self = PLR_BROADCAST;
 	memset(connected_table, 0, sizeof(connected_table));
-	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
+	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
 	    sizeof(cookie_t));
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
@@ -46,8 +46,7 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	}
 	start_recv();
 
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-	    PLR_MASTER, cookie_self);
+	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
 		poll();
@@ -68,7 +67,7 @@ void tcp_client::poll()
 	assert(!err);
 }
 
-void tcp_client::handle_recv(const asio::error_code &ec, size_t bytesRead)
+void tcp_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
 {
 	if (ec || bytesRead == 0) {
 		// error in recv from server
@@ -95,11 +94,11 @@ void tcp_client::start_recv()
 	        std::placeholders::_1, std::placeholders::_2));
 }
 
-void tcp_client::send_packet(packet &pkt)
+void tcp_client::send_packet(packet& pkt)
 {
-	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
+	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
-	asio::async_write(sock, buf, [frame](const asio::error_code &ec, size_t bytesSent) {
+	asio::async_write(sock, buf, [frame](const asio::error_code& ec, size_t bytesSent) {
 		delete frame;
 	});
 }

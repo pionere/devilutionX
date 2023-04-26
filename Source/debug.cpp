@@ -6,6 +6,7 @@
 #include <chrono>
 #include "all.h"
 #include "misproc.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -16,7 +17,7 @@ int seed_index;
 int level_seeds[NUM_LEVELS + 1];
 int seed_table[DEBUGSEEDS];
 
-BYTE *pSquareCel;
+BYTE* pSquareCel;
 int dbgplr;
 int dbgqst;
 int dbgmon;
@@ -46,14 +47,14 @@ void CheckDungeonClear()
 				app_fatal("Players not cleared");
 
 			dMonsDbg[currLvl._dLevelIdx][i][j] = dFlags[i][j] & BFLAG_ALERT;
-			dFlagDbg[currLvl._dLevelIdx][i][j] = dFlags[i][j] & BFLAG_POPULATED;
+			dFlagDbg[currLvl._dLevelIdx][i][j] = dFlags[i][j] & (BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT);
 		}
 	}
 }
 
 void GiveGoldCheat()
 {
-	ItemStruct *pi;
+	ItemStruct* pi;
 	int i;
 
 	pi = myplr._pInvList;
@@ -114,7 +115,7 @@ void MaxSpellsCheat()
 	CalcPlrItemVals(mypnum, false);
 }
 
-static void SetSpellLevelCheat(char spl, int spllvl)
+static void SetSpellLevelCheat(BYTE spl, int spllvl)
 {
 	myplr._pMemSkills |= SPELL_MASK(spl);
 	myplr._pSkillLvlBase[spl] = spllvl;
@@ -162,7 +163,7 @@ void PrintDebugPlayer(bool bNextPlayer)
 		NetSendCmdString(1 << mypnum);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  x = %d, y = %d : fx = %d, fy = %d", players[dbgplr]._px, players[dbgplr]._py, players[dbgplr]._pfutx, players[dbgplr]._pfuty);
 		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %d : daction = %d : walk[0] = %d", players[dbgplr]._pmode, players[dbgplr].destAction, players[dbgplr].walkpath[0]);
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "  mode = %d : daction = %d : walk[0] = %d", players[dbgplr]._pmode, players[dbgplr]._pDestAction, players[dbgplr]._pWalkpath[0]);
 		NetSendCmdString(1 << mypnum);
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "  inv = %d : hp = %d", players[dbgplr]._pInvincible, players[dbgplr]._pHitPoints);
 		NetSendCmdString(1 << mypnum);
@@ -184,7 +185,7 @@ void PrintDebugMonster(int m)
 	bool bActive;
 	int i;
 
-	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %d = %s", m, monsters[m].mName);
+	snprintf(gbNetMsg, sizeof(gbNetMsg), "Monster %d = %s", m, monsters[m]._mName);
 	NetSendCmdString(1 << mypnum);
 	snprintf(gbNetMsg, sizeof(gbNetMsg), "X = %d, Y = %d", monsters[m]._mx, monsters[m]._my);
 	NetSendCmdString(1 << mypnum);
@@ -205,7 +206,7 @@ void GetDebugMonster()
 
 	mi1 = pcursmonst;
 	if (mi1 == -1) {
-		mi2 = dMonster[cursmx][cursmy];
+		mi2 = dMonster[pcurspos.x][pcurspos.y];
 		if (mi2 != 0) {
 			mi1 = mi2 - 1;
 			if (mi2 <= 0)
@@ -229,9 +230,9 @@ void NextDebugMonster()
 
 void DumpDungeon()
 {
-	FILE *f0 = fopen("f:\\dundump0.txt", "wb");
-	FILE *f1 = fopen("f:\\dundump1.txt", "wb");
-	FILE *f2 = fopen("f:\\dundump2.txt", "wb");
+	FILE* f0 = fopen("f:\\dundump0.txt", "wb");
+	FILE* f1 = fopen("f:\\dundump1.txt", "wb");
+	FILE* f2 = fopen("f:\\dundump2.txt", "wb");
 	for (int j = 0; j < 48; j++)
 		for (int i = 0; i < 48; i++) {
 			BYTE v;
@@ -253,11 +254,67 @@ void DumpDungeon()
 #endif /* DEBUG_MODE */
 
 #if DEBUG_MODE || DEV_MODE
+static const char* ReadTextLine(const char* str, char lineSep, int limit)
+{
+	int w;
+	BYTE c;
+
+	c = 0;
+	w = 0;
+	while (*str != lineSep && w < limit) {
+		tempstr[c] = *str;
+		w += smallFontWidth[gbStdFontFrame[(BYTE)tempstr[c]]] + FONT_KERN_SMALL;
+		c++;
+		str++;
+	}
+	if (w >= limit) {
+		c--;
+		while (tempstr[c] != ' ') {
+			str--;
+			c--;
+		}
+	}
+	tempstr[c] = '\0';
+	return str;
+}
+
+static void PrintText(const char* text, char lineSep, int limit)
+{
+	const char* s = text;
+	int i = 0, w;
+	BYTE col;
+	FILE* textFile = fopen("f:\\sample.txt", "wb");
+
+	while (*s != '\0') {
+		if (*s == '$') {
+			s++;
+			col = COL_RED;
+		} else {
+			col = COL_WHITE;
+		}
+		s = ReadTextLine(s, lineSep, limit);
+		w = GetSmallStringWidth(tempstr);
+
+		// LogErrorF("TXT", "%03d(%04d):%s", i++, w, tempstr);
+		if (col == COL_RED)
+			fputc('$', textFile);
+		fputs(tempstr, textFile);
+		fputc('\n', textFile);
+		if (*s == lineSep) {
+			s++;
+		}
+	}
+
+	fclose(textFile);
+}
+
 void ValidateData()
 {
 	int i;
 
 	// text
+	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
+
 	if (GetHugeStringWidth("Pause") != 135)
 		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
 
@@ -325,6 +382,8 @@ void ValidateData()
 	}
 
 	// monsters
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonStartMonHit
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
 		// check RETREAT_DISTANCE for MonFallenFear
@@ -408,14 +467,14 @@ void ValidateData()
 #endif
 	assert(uniqMonData[UMT_BUTCHER].mtype == MT_CLEAVER);
 	assert(uniqMonData[UMT_GARBUD].mtype == MT_NGOATMC);
-	assert(uniqMonData[UMT_ZHAR].mtype == MT_COUNSLR);
+	assert(uniqMonData[UMT_ZHAR].mtype == MT_NMAGE);
 	assert(uniqMonData[UMT_SNOTSPIL].mtype == MT_BFALLSP);
-	assert(uniqMonData[UMT_LACHDAN].mtype == MT_RBLACK);
-	assert(uniqMonData[UMT_WARLORD].mtype == MT_BTBLACK);
+	assert(uniqMonData[UMT_LACHDAN].mtype == MT_GBLACK);
+	assert(uniqMonData[UMT_WARLORD].mtype == MT_BBLACK);
 	// umt checks for PlaceQuestMonsters
-	assert(uniqMonData[UMT_LAZARUS].mtype == MT_ADVOCATE);
-	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_HLSPWN);
-	assert(uniqMonData[UMT_RED_VEX].mtype == MT_HLSPWN);
+	assert(uniqMonData[UMT_LAZARUS].mtype == MT_BMAGE);
+	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_RSUCC);
+	assert(uniqMonData[UMT_RED_VEX].mtype == MT_RSUCC);
 
 	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
@@ -428,7 +487,7 @@ void ValidateData()
 		if (lvl != 0 && um.mQuestId != Q_INVALID && lvl != questlist[um.mQuestId]._qdlvl)
 			app_fatal("Inconsistent unique monster %s (%d). Has a quest, but its level-idx (%d) does not match the quest-level (%d).", um.mName, i, lvl, questlist[um.mQuestId]._qdlvl);
 		if (lvl != 0 && um.mQuestId == Q_INVALID
-		 && (lvl != DLV_HELL4 || (um.mtype != MT_ADVOCATE && um.mtype != MT_RBLACK))
+		 && (lvl != DLV_HELL4 || (um.mtype != MT_BMAGE && um.mtype != MT_GBLACK))
 #ifdef HELLFIRE
 		 && ((lvl != DLV_NEST2 && lvl != DLV_NEST3) || (um.mtype != MT_HORKSPWN))
 		 && (lvl != DLV_CRYPT4 || (um.mtype != MT_ARCHLICH))
@@ -619,10 +678,12 @@ void ValidateData()
 		app_fatal("No medium armor for OperateArmorStand. Current minimum is level %d", minMediumArmor);
 	if (minHeavyArmor > 24)
 		app_fatal("No heavy armor for OperateArmorStand. Current minimum is level %d", minHeavyArmor);
+#ifdef HELLFIRE
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
+#endif
 	rnddrops = 0; i = 0;
-	for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
+	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		rnddrops += pres->PLDouble ? 2 : 1;
 		if (pres->PLParam2 < pres->PLParam1) {
 			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -697,7 +758,7 @@ void ValidateData()
 				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
-		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((sufs->PLIType & pres->PLIType) == 0)
 				continue;
 			if (sufs->PLPower == pres->PLPower) {
@@ -737,7 +798,7 @@ void ValidateData()
 #if 0
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
-		for (const AffixData *pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if (pres->PLMinLvl > i) {
 				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
 					c++;
@@ -754,7 +815,7 @@ void ValidateData()
 			}
 		}
 		int as = 0, bs = 0, cs = 0, ws = 0;
-		for (const AffixData *pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
 			if (pres->PLMinLvl > i) {
 				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
 					cs++;
@@ -1028,10 +1089,13 @@ void ValidateData()
 			}
 		}
 	}
+	assert(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].iAnimLen == 10); // required by ProcessItems
 	// objects
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		const ObjFileData& od = objfiledata[i];
-		if (od.oAnimFlag) {
+		if (od.oAnimFlag != OAM_NONE) {
+			if (od.oAnimFlag == OAM_SINGLE)
+				app_fatal("Incorrect oAnimFlag %d for %s (%d)", od.oAnimFlag, od.ofName, i);
 			if (od.oAnimFrameLen <= 0)
 				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
 			if (od.oAnimLen <= 1) // required by SetupObject
@@ -1040,24 +1104,59 @@ void ValidateData()
 				app_fatal("Too high oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
 		}
 	}
+	for (i = 0; i < NUM_OBJECTS; i++) {
+		const ObjectData& od = objectdata[i];
+		if (od.oModeFlags & OMF_RESERVED) {
+			app_fatal("Invalid oModeFlags for %d.", i);
+		}
+		if (((od.oModeFlags & OMF_ACTIVE) != 0) != (od.oSelFlag != 0)) {
+			app_fatal("Inconsistent oModeFlags and oSelFlag for %d.", i);
+		}
+	}
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
+#define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
+	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs
+	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].spCurs)); // required by TryIconCurs
+#define PLR_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_HEALOTHER || (x) == CURSOR_RESURRECT)
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_HEALOTHER].scCurs)); // required by TryIconCurs
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_HEALOTHER].spCurs)); // required by TryIconCurs
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_RESURRECT].scCurs)); // required by TryIconCurs
+	assert(PLR_TARGETING_CURSOR(spelldata[SPL_RESURRECT].spCurs)); // required by TryIconCurs
+#define ITEM_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_IDENTIFY || (x) == CURSOR_REPAIR || (x) == CURSOR_RECHARGE || (x) == CURSOR_OIL)
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_IDENTIFY].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_IDENTIFY].spCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].scCurs));      // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_OIL].spCurs));      // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].scCurs));   // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_REPAIR].spCurs));   // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_RECHARGE].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_RECHARGE].spCurs)); // required by TryIconCurs and CheckCursMove
+#ifdef HELLFIRE
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].scCurs));  // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_BUCKLE].spCurs));  // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_WHITTLE].scCurs)); // required by TryIconCurs and CheckCursMove
+	assert(ITEM_TARGETING_CURSOR(spelldata[SPL_WHITTLE].spCurs)); // required by TryIconCurs and CheckCursMove
+#endif
+#define SPEC_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_TELEKINESIS)
+	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].scCurs)); // required by TryIconCurs
+	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].spCurs)); // required by TryIconCurs
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
-		if (i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE
+		if (i == SPL_DISARM
+		 || i == SPL_HEALOTHER || i == SPL_RESURRECT
+		 || i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE
 #ifdef HELLFIRE
 			|| i == SPL_BUCKLE || i == SPL_WHITTLE
 #endif
+		 || i == SPL_TELEKINESIS
 		) {
-			if (sd.scCurs > CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
-			if (sd.spCurs > CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+			; // should have been tested above -> skip
 		} else {
-			if (sd.scCurs != CURSOR_NONE && sd.scCurs <= CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i);
-			if (sd.spCurs != CURSOR_NONE && sd.spCurs <= CURSOR_LAST_ITEMTGT)
-				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i);
+			if (sd.scCurs != CURSOR_NONE && sd.scCurs != CURSOR_TELEPORT)
+				app_fatal("Invalid scCurs %d for %s (%d)", sd.scCurs, sd.sNameText, i); // required by TryIconCurs
+			if (sd.spCurs != CURSOR_NONE && sd.spCurs != CURSOR_TELEPORT)
+				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i); // required by TryIconCurs
 		}
 		ItemStruct* is = NULL;
 		if (SPELL_RUNE(i)) {
@@ -1110,6 +1209,8 @@ void ValidateData()
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			hasScrollSpell = true;
 		}
+		//if (!(sd.sUseFlags & SFLAG_DUNGEON) && sd.sType != STYPE_NONE && sd.sType != STYPE_MAGIC && i != SPL_NULL)
+		//	app_fatal("GFX is not loaded in town for skill %s (%d).", sd.sNameText, i); // required by InitPlayerGFX
 	}
 	if (!hasBookSpell)
 		app_fatal("No book spell for GetBookSpell.");
@@ -1122,7 +1223,7 @@ void ValidateData()
 
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {
-		const MissileData &md = missiledata[i];
+		const MissileData& md = missiledata[i];
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
 		if (md.mAddProc == AddMisexp) {
@@ -1155,28 +1256,37 @@ void ValidateData()
 				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
 		}
 	}
+	for (i = 0; i < NUM_MFILE; i++) {
+		const MisFileData& mfd = misfiledata[i];
+		if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
+			app_fatal("Missile %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
+	}
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_Firewall
-	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_Firewall
-	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP); // required by MI_Firewall
-	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1); // required by MI_Firewall
-	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */); // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */); // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]); // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1); // required by MI_Portal
-	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1); // required by MI_Portal
-	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1); // required by MI_Flash
-	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1); // required by MI_Flash2
-	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */); // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1); // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1); // required by MI_Meteor
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1); // required by MI_Guardian
-	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD); // required by MI_Guardian
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1); // required by MI_Guardian
-	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24); // required by MI_Inferno
-	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS); // required by MI_Acidsplat
-	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13); // required by MI_Rhino
-	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1); // required by MI_Rhino
+	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
+	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
+	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);                                      // required by MI_Firewall
+	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);                                             // required by MI_Firewall
+	assert(misfiledata[MFILE_WIND].mfAnimFrameLen[0] == 1);                                      // required by MI_Wind
+	assert(misfiledata[MFILE_WIND].mfAnimLen[0] == 12);                                          // required by AddWind + GetDamageAmt to set/calculate damage
+	assert(misfiledata[MFILE_SHROUD].mfAnimFrameLen[0] == 1);                                    // required by MI_Shroud
+	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);               // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);                // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);   // required by MI_Portal
+	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1);                                    // required by MI_Portal
+	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Portal
+	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash
+	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash2
+	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_FireWave
+	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_FireWave
+	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);                                    // required by MI_Meteor
+	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1);                                     // required by MI_Guardian
+	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);                 // required by MI_Guardian
+	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1);                                     // required by MI_Guardian
+	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);                                        // required by MI_Inferno
+	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acidsplat
+	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
+	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
+	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
 
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
@@ -1198,7 +1308,7 @@ void LogErrorF(const char* type, const char* msg, ...)
 	char tmp[256];
 	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
 	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
-	FILE *f0 = fopen(tmp, "a+");
+	FILE* f0 = fopen(tmp, "a+");
 	if (f0 == NULL)
 		return;
 
@@ -1213,7 +1323,7 @@ void LogErrorF(const char* type, const char* msg, ...)
 	fputs(tmp, f0);
 
 	using namespace std::chrono;
-	milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
 	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
 	fputs(tmp, f0);

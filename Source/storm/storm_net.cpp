@@ -96,7 +96,7 @@ void SNetDropPlayer(int playerid)
 	dvlnet_inst->SNetDropPlayer(playerid);
 }
 
-void SNetGetGameInfo(const char** name, const char **password)
+void SNetGetGameInfo(const char** name, const char** password)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -138,8 +138,6 @@ bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&e
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-
-
 	dvlnet_inst->make_default_gamename(gpszGameName);
 	int port = NET_DEFAULT_PORT;
 	getIniInt("Network", "Port", &port);
@@ -149,7 +147,7 @@ bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&e
 	return result;
 }
 
-bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePassword, char (&errorText)[256])
+bool SNetJoinGame(const char* pszGameName, unsigned port, const char* pszGamePassword, char (&errorText)[256])
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);

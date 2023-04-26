@@ -26,7 +26,7 @@ static bool selgame_endMenu;
 
 static _uigamedata* selgame_gameData;
 
-#define DESCRIPTION_WIDTH	(SELGAME_LPANEL_WIDTH - 2 * 10)
+#define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelgameModeSelect(unsigned index);
@@ -56,7 +56,7 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	selgame_gameData->aePlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
+static void selgame_add_event_handlers(void (*event_handler)(SNetEvent* pEvt))
 {
 	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
@@ -77,10 +77,8 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	SelgameFreeDlgItems();
-
-	//UiInitList_clear();
 }
 
 static void SelgameModeEsc()
@@ -194,7 +192,7 @@ static void SelgameSpeedInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 4);
-	UiInitList(4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc);
+	UiInitScreen(4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc);
 }
 
 static void SelgamePasswordEsc()
@@ -251,7 +249,7 @@ static void SelgameModeInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 2);
-	UiInitList(2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
+	UiInitScreen(2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
 }
 
 /**
@@ -294,7 +292,7 @@ static void SelgamePasswordInit(unsigned index)
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
+	UiInitScreen(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
 }
 
 static void SelgamePortInit(unsigned index)
@@ -322,7 +320,7 @@ static void SelgamePortInit(unsigned index)
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
+	UiInitScreen(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
 }
 
 static void SelgameDiffEsc()
@@ -397,7 +395,7 @@ static void SelgameModeSelect(unsigned index)
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == 3);
-		UiInitList(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
+		UiInitScreen(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
 	} break;
 	case SELGAME_JOIN: {
 		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -412,7 +410,7 @@ static void SelgameModeSelect(unsigned index)
 		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-		UiInitList(0, NULL, SelgamePortInit, SelgameModeInit);
+		UiInitScreen(0, NULL, SelgamePortInit, SelgameModeInit);
 	} break;
 	default:
 		ASSUME_UNREACHABLE
@@ -478,8 +476,7 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 
 	selgame_endMenu = false;
 	do {
-		UiClearScreen();
-		UiPollAndRender();
+		UiRenderAndPoll(NULL);
 	} while (!selgame_endMenu);
 	SelgameFree();
 
@@ -489,7 +486,7 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 void UIDisconnectGame()
 {
 	selgame_remove_event_handlers();
-	SNetLeaveGame(LEAVE_UNKNOWN);
+	SNetLeaveGame(LEAVE_DROP);
 }
 
 DEVILUTION_END_NAMESPACE

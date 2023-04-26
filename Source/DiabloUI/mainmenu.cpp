@@ -1,14 +1,9 @@
 
-#include "utils/display.h"
-
-#include "DiabloUI/diabloui.h"
+#include "diabloui.h"
 #include "../gameui.h"
 #include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
-
-static const int ATTRACT_TIMEOUT = 30; //seconds
-static Uint32 guAttractTc;
 
 static int _gnMainMenuResult;
 
@@ -25,11 +20,6 @@ static void MainmenuEsc()
 	} else {
 		SelectedItem = last;
 	}
-}
-
-void mainmenu_restart_repintro()
-{
-	guAttractTc = SDL_GetTicks() + ATTRACT_TIMEOUT * 1000;
 }
 
 static void MainmenuLoad()
@@ -56,18 +46,16 @@ static void MainmenuLoad()
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_CENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
-	UiInitList(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
+	UiInitScreen(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
 }
 
 static void MainmenuFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 
 	UiClearItems(gUiItems);
 
 	UiClearListItems();
-
-	//UiInitList_clear();
 }
 
 int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
@@ -76,15 +64,9 @@ int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
 
 	MainmenuLoad();
 
-	mainmenu_restart_repintro(); // for automatic starts
-
 	_gnMainMenuResult = NUM_MAINMENU;
 	do {
-		UiClearScreen();
-		UiPollAndRender();
-		if (SDL_GetTicks() >= guAttractTc) {
-			_gnMainMenuResult = MAINMENU_ATTRACT_MODE;
-		}
+		UiRenderAndPoll(NULL);
 	} while (_gnMainMenuResult == NUM_MAINMENU);
 
 	MainmenuFree();

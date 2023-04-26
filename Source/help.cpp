@@ -8,10 +8,13 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbHelpflag;
-int helpFirstLine;
-int HelpTop;
+static char** gbHelpLines;
+static int helpFirstLine;
 
-const char gszHelpText[] = {
+#define HELP_LINES_SIZE 62
+#define HELP_TXT        "Meta\\help.txt"
+/*static const char gszHelpText[] = {
+	// clang-format off
 	"$Default Keyboard Shortcuts|"
 	"F1:  Open Help Screen|"
 	"Esc: Display Main Menu|"
@@ -40,15 +43,15 @@ const char gszHelpText[] = {
 	"You can attack without moving by holding down the shift key.|"
 	"|"
 	"$Auto-map|"
-	"Besides the hotkey, auto-map can be accessed in the menu."
-	"You can zoom in and out of the map or scroll "
-	"it with the configured keys (arrows by default).|"
+	"Besides the hotkey, auto-map can be accessed in the menu. You "
+	"can zoom in and out of the map or scroll it with the "
+	"configured keys (arrows by default).|"
 	"|"
 	"$Picking up Objects|"
-	"Useable items such as potions or scrolls are automatically placed "
-	"in your 'belt' located on the left side above the menu button. "
-	"Items in belt may be used by either pressing "
-	"the corresponding number or right-clicking on the item.|"
+	"Useable items such as potions or scrolls are automatically "
+	"placed in your 'belt' located on the left side above the menu "
+	"button. Items in belt may be used by either pressing the "
+	"corresponding number or right-clicking on the item.|"
 	"|"
 	"$Gold|"
 	"You can select a specific amount of gold to drop by "
@@ -56,109 +59,73 @@ const char gszHelpText[] = {
 	"|"
 	"$Skills & Spells|"
 	"You can access your list of skills in the menu as well. Learned "
-	"skills and those available through staff, scrolls or runes are listed here. "
-	"Left- or right-clicking on the icon of the skill will select it for "
-	"the corresponing mouse button. By holding the SHIFT the skill is added "
-	"(one movement skill and one attack skill can be selected for each action button) "
-	"otherwise it is set.|"
+	"skills and those available through staff, scrolls or runes are "
+	"listed here. Left- or right-clicking on the icon of the skill will "
+	"select it for the corresponing mouse button. By holding the SHIFT "
+	"the skill is added (one movement skill and one attack skill can be "
+	"selected for each action button) otherwise it is set.|"
 	"|"
 	"$Using the SkillList|"
-	"This is the complete list of available skills and spells to the character. "
-	"Select one as described in the section above.|"
+	"This is the complete list of available skills and spells to the "
+	"character. Select one as described in the section above.|"
 	"|"
 	"$Setting Skill Hotkeys|"
-	"You can assign up to four Hotkeys for skills/spells for both action buttons. "
-	"Open the SkillList then press the Hotkey you wish "
+	"You can assign up to four Hotkeys for skills/spells for both "
+	"action buttons. Open the SkillList then press the Hotkey you wish "
 	"to assign after highlighting the skill.|"
 	"|"
 	"$Skill Books|"
 	"Reading more than one book increases your knowledge of that "
-	"skill, allowing you to use it more effectively.|" };
+	"skill, allowing you to use it more effectively."
+	// clang-format on
+};*/
 
-void InitHelp()
-{
-	gbHelpflag = false;
-}
-
-static const char* ReadHelpLine(const char* str)
-{
-	const int limit = LTPANEL_WIDTH - 2 * 7;
-	int w;
-	BYTE c;
-
-	c = 0;
-	w = 0;
-	while (*str != '|' && w < limit) {
-		tempstr[c] = *str;
-		w += smallFontWidth[gbStdFontFrame[(BYTE)tempstr[c]]] + FONT_KERN_SMALL;
-		c++;
-		str++;
-	}
-	if (w >= limit) {
-		c--;
-		while (tempstr[c] != ' ') {
-			str--;
-			c--;
-		}
-	}
-	tempstr[c] = '\0';
-	return str;
-}
+//void InitHelp()
+//{
+//	gbHelpflag = false;
+//}
 
 void DrawHelp()
 {
 	int i;
 	BYTE col;
-	const char *s;
+	const char* s;
 
 	DrawTextBox();
 
 	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
 	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 5 * 12 + 14, true);
 
-	s = &gszHelpText[0];
-
-	for (i = 0; i < helpFirstLine; i++) {
-		if (*s == '\0') {
-			break;
-		}
-		if (*s == '$') {
-			s++;
-		}
-		s = ReadHelpLine(s);
-		if (*s == '|') {
-			s++;
-		}
-	}
 	for (i = 7; i < 22; i++) {
-		if (*s == '\0') {
-			HelpTop = helpFirstLine;
-			break;
-		}
+		s = gbHelpLines[helpFirstLine + i - 7];
 		if (*s == '$') {
 			s++;
 			col = COL_RED;
 		} else {
 			col = COL_WHITE;
 		}
-		s = ReadHelpLine(s);
-		PrintSString(0, i, false, tempstr, col);
-		if (*s == '|') {
-			s++;
-		}
+		PrintSString(0, i, false, s, col);
 	}
 	static_assert(STORE_LINES > 23, "Help text must fit to the store lines.");
 	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD);
 }
 
-void DisplayHelp()
+void StartHelp()
 {
 	gbHelpflag = true;
-
 	helpFirstLine = 0;
-	HelpTop = 5000;
+	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINES_SIZE);
 
 	InitSTextHelp();
+}
+
+void StopHelp()
+{
+	if (!gbHelpflag)
+		return;
+
+	gbHelpflag = false;
+	MemFreeTxtFile(gbHelpLines);
 }
 
 void HelpScrollUp()
@@ -169,7 +136,7 @@ void HelpScrollUp()
 
 void HelpScrollDown()
 {
-	if (helpFirstLine < HelpTop)
+	if (helpFirstLine < (HELP_LINES_SIZE - (22 - 7)))
 		helpFirstLine++;
 }
 

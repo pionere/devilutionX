@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-unsigned _guCowMsg;
+int _guCowMsg;
 int numtowners;
 unsigned _guCowClicks;
 BYTE* pCowCels;
@@ -34,7 +34,7 @@ const int snSFX[3][NUM_CLASSES] = {
 };
 
 /** Specifies the animation frame sequence of a given NPC. */
-const char AnimOrder[6][144] = {
+const int8_t AnimOrder[6][144] = {
 	// clang-format off
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
@@ -117,37 +117,35 @@ const int GossipList[STORE_TOWNERS][2] = {
 	// clang-format on
 };
 
-#define TPOS_SMITH		52 + DBORDERX, 53 + DBORDERY
-#define TPOS_TAVERN		45 + DBORDERX, 52 + DBORDERY
-#define TPOS_HEALER		45 + DBORDERX, 69 + DBORDERY
-#define TPOS_COWFARM	51 + DBORDERX, 12 + DBORDERY
-#define TPOS_FARMER		52 + DBORDERX, 6 + DBORDERY
-#define TPOS_GIRL		67 + DBORDERX, 33 + DBORDERY
+#define TPOS_SMITH   52 + DBORDERX, 53 + DBORDERY
+#define TPOS_TAVERN  45 + DBORDERX, 52 + DBORDERY
+#define TPOS_HEALER  45 + DBORDERX, 69 + DBORDERY
+#define TPOS_COWFARM 51 + DBORDERX, 12 + DBORDERY
+#define TPOS_FARMER  52 + DBORDERX, 6 + DBORDERY
+#define TPOS_GIRL    67 + DBORDERX, 33 + DBORDERY
 
 /** Specifies the active sound effect ID for interacting with cows. */
-static int CowPlaying = -1;
+static int CowPlaying = SFX_NONE;
 
-static void CowSFX(int pnum)
+static void CowSFX(MonsterStruct* cow, int pnum)
 {
-	PlayerStruct* p;
-	if (CowPlaying != -1 && effect_is_playing(CowPlaying))
+	if (CowPlaying != SFX_NONE && IsSFXPlaying(CowPlaying))
 		return;
 
 	_guCowClicks++;
 
-	p = &plr;
-	if (_guCowClicks >= 8) {
-		PlaySfxLoc(TSFX_COW1, p->_px, p->_py + 5);
-		_guCowClicks = 4;
-		CowPlaying = snSFX[_guCowMsg][p->_pClass]; /* snSFX is local */
-		_guCowMsg++;
-		if (_guCowMsg >= 3)
-			_guCowMsg = 0;
-	} else {
+	if (_guCowClicks < 8) {
 		CowPlaying = _guCowClicks == 4 ? TSFX_COW2 : TSFX_COW1;
+		PlaySfxLoc(CowPlaying, cow->_mx, cow->_my);
+		return;
 	}
 
-	PlaySfxLoc(CowPlaying, p->_px, p->_py);
+	_guCowClicks = 4;
+	CowPlaying = snSFX[_guCowMsg][plr._pClass];
+	PlaySfxLoc(CowPlaying, plr._px, plr._py);
+	_guCowMsg++;
+	if (_guCowMsg >= lengthof(snSFX))
+		_guCowMsg = 0;
 }
 
 static void InitCowAnim(int tnum, int dir)
@@ -157,13 +155,13 @@ static void InitCowAnim(int tnum, int dir)
 	tw = &monsters[tnum];
 
 	tw->_mAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir)); // TNR_ANIM_DATA
-	tw->_mAnimFrameLen = 3;             // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = 12;                 // TNR_ANIM_LEN
-	tw->_mVar1 = -1;                    // TNR_ANIM_ORDER
-	tw->_mAnimCnt = 0;                  // TNR_ANIM_CNT
-	tw->_mAnimFrame = RandRange(1, 11); // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 128 * ASSET_MPL;  // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
+	tw->_mAnimFrameLen = 3;                                              // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = 12;                                                  // TNR_ANIM_LEN
+	tw->_mVar1 = -1;                                                     // TNR_ANIM_ORDER
+	tw->_mAnimCnt = 0;                                                   // TNR_ANIM_CNT
+	tw->_mAnimFrame = RandRange(1, 11);                                  // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 128 * ASSET_MPL;                                   // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1;             // TNR_ANIM_X_OFFSET
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
@@ -173,15 +171,15 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFr
 	tw = &monsters[tnum];
 
 	// commented out, because it might be populated by InitMonster
-	// assert(tw->_mAnimData == NULL);	
-	tw->_mAnimData = LoadFileInMem(pAnimFile); // TNR_ANIM_DATA
-	tw->_mAnimFrameLen = Delay;        // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = numFrames;         // TNR_ANIM_LEN
-	tw->_mVar1 = ao;                   // TNR_ANIM_ORDER
-	tw->_mVar2 = 0;                    // TNR_ANIM_FRAME_CNT
-	tw->_mAnimCnt = 0;                 // TNR_ANIM_CNT
-	tw->_mAnimFrame = 1;               // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 96 * ASSET_MPL;  // TNR_ANIM_WIDTH
+	// assert(tw->_mAnimData == NULL);
+	tw->_mAnimData = LoadFileInMem(pAnimFile);               // TNR_ANIM_DATA
+	tw->_mAnimFrameLen = Delay;                              // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = numFrames;                               // TNR_ANIM_LEN
+	tw->_mVar1 = ao;                                         // TNR_ANIM_ORDER
+	tw->_mVar2 = 0;                                          // TNR_ANIM_FRAME_CNT
+	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
+	tw->_mAnimFrame = 1;                                     // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 96 * ASSET_MPL;                        // TNR_ANIM_WIDTH
 	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
@@ -223,17 +221,17 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	tw->_mFlags = 0;
 	// _mmaxhp for DrawInfoStr
 	tw->_mmaxhp = 0;
-	// set mName, _uniqtype for DrawInfoStr
-	tw->mName = name; // TNR_NAME
-	// tw->_uniqtype = 0;
+	// set _mName, _muniqtype for DrawInfoStr
+	tw->_mName = name; // TNR_NAME
+	// tw->_muniqtype = 0;
 	// set _mRndSeed for S_TalkEnter
-	tw->_mRndSeed = GetRndSeed(); // TNR_SEED
+	tw->_mRndSeed = NextRndSeed(); // TNR_SEED
 	// tw->_mListener = MAX_PLRS; // TNR_LISTENER
 }
 
 static void InitTownerTalk(int tnum, int store_id, int store_talk)
 {
-	monsters[tnum]._mgoalvar1 = store_id; // TNR_STORE
+	monsters[tnum]._mgoalvar1 = store_id;   // TNR_STORE
 	monsters[tnum]._mgoalvar2 = store_talk; // TNR_TALK, TALK_MESSAGE
 }
 
@@ -332,15 +330,15 @@ static void InitCows()
 	 * placing cows in Tristram. A single cow may require space of up
 	 * to four tiles when being placed on the map.
 	 */
-	const char cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
+	const int8_t cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
 	/** Maps from direction to Y-coordinate delta, which is used when
 	 * placing cows in Tristram. A single cow may require space of up
 	 * to four tiles when being placed on the map.
 	 */
-	const char cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
+	const int8_t cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
 	/** Specifies the offsets from the cows to reserve space on the map. */
-	const char TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]]};
-	const char TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]]};
+	const int8_t TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]] };
+	const int8_t TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]] };
 	int i, dir;
 	int x, y, xo, yo;
 
@@ -394,7 +392,7 @@ static void InitGirl()
 	const char* pAnimFile;
 
 	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL, 3);
-	pAnimFile = quests[Q_GIRL]._qactive == QUEST_ACTIVE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
+	pAnimFile = quests[Q_GIRL]._qactive != QUEST_DONE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
 	InitTownerAnim(numtowners, pAnimFile, 6, 20, -1);
 	numtowners++;
 }
@@ -436,7 +434,7 @@ void FreeTownerGFX()
 
 	for (i = MAX_MINIONS; i < numtowners; i++) {
 		if (monsters[i]._mType == TOWN_COW) { // TNR_TYPE
-			monsters[i]._mAnimData = NULL; // TNR_ANIM_DATA
+			monsters[i]._mAnimData = NULL;    // TNR_ANIM_DATA
 		} else {
 			MemFreeDbg(monsters[i]._mAnimData);
 		}
@@ -458,8 +456,8 @@ void ProcessTowners()
 				//if (quests[Q_BUTCHER]._qactive != QUEST_ACTIVE || quests[Q_BUTCHER]._qlog) {
 					if (!gbQtextflag) {
 						//tw->_mAnimFrameLen = 1000;
-						tw->_mAnimFrame = 1; // TNR_ANIM_FRAME
-						tw->mName = "Slain Townsman"; // TNR_NAME
+						tw->_mAnimFrame = 1;           // TNR_ANIM_FRAME
+						tw->_mName = "Slain Townsman"; // TNR_NAME
 					}
 					continue; //tw->_tAnimCnt = 0;
 				/*} else {
@@ -481,7 +479,7 @@ void ProcessTowners()
 
 				tw->_mAnimFrame = AnimOrder[ao][tw->_mVar2]; // TNR_ANIM_FRAME, TNR_ANIM_FRAME_CNT
 			} else {
-				tw->_mAnimFrame++; // TNR_ANIM_FRAME
+				tw->_mAnimFrame++;                   // TNR_ANIM_FRAME
 				if (tw->_mAnimFrame > tw->_mAnimLen) // TNR_ANIM_LEN
 					tw->_mAnimFrame = 1;
 			}
@@ -520,18 +518,6 @@ static bool PlrHasBeltItem(int pnum, int item)
 	return false;
 }
 
-static void TownerTalk(int store, int talk)
-{
-	if (gbQtextflag)
-		return;
-
-	_guCowClicks = 0;
-	_guCowMsg = 0;
-	ClearPanels();
-	InitQTextMsg(talk);
-	StartStore(store);
-}
-
 void SyncTownerQ(int pnum, int idx)
 {
 	int i;
@@ -544,10 +530,10 @@ void SyncTownerQ(int pnum, int idx)
 
 	switch (idx) {
 	case IDI_BANNER:
-		if (quests[Q_LTBANNER]._qvar1 >= 2)
+		if (quests[Q_BANNER]._qvar1 >= QV_BANNER_GIVEN)
 			return;
-		quests[Q_LTBANNER]._qlog = FALSE;
-		quests[Q_LTBANNER]._qvar1 = 2;
+		quests[Q_BANNER]._qlog = FALSE;
+		quests[Q_BANNER]._qvar1 = QV_BANNER_GIVEN;
 		if (pnum == mypnum)
 			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, ICM_SEND_FLIP);
 		break;
@@ -572,26 +558,26 @@ void SyncTownerQ(int pnum, int idx)
 			return;
 		quests[Q_MUSHROOM]._qactive = QUEST_ACTIVE;
 		quests[Q_MUSHROOM]._qlog = TRUE;
-		quests[Q_MUSHROOM]._qvar1 = QS_TOMEGIVEN;
+		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_TOMEGIVEN;
 		break;
 	case IDI_MUSHROOM:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
 			return;
-		quests[Q_MUSHROOM]._qvar1 = QS_MUSHGIVEN;
+		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_MUSHGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 		break;
 	case IDI_BRAIN:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
 			return;
-		quests[Q_MUSHROOM]._qvar1 = QS_BRAINGIVEN;
+		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 		if (pnum == mypnum)
 			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER + 1, ICM_SEND_FLIP);
 		break;
 	case IDI_LAZSTAFF:
-		if (quests[Q_BETRAYER]._qvar1 >= 2 /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
+		if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
 			return;
-		quests[Q_BETRAYER]._qvar1 = 2;
+		quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_STAFFGIVEN;
 		quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 		quests[Q_BETRAYER]._qlog = TRUE;
 		break;
@@ -615,8 +601,8 @@ void SyncTownerQ(int pnum, int idx)
 		// quests[Q_GIRL]._qlog = FALSE;
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			if (pnum == mypnum) {
-				WORD wCI = plr._pInvList[i]._iCreateInfo;  // the amulet inherits the level of THEODORE
-				SetRndSeed(plr._pInvList[i]._iSeed); // and uses its seed
+				uint16_t wCI = plr._pInvList[i]._iCreateInfo; // the amulet inherits the level of THEODORE
+				SetRndSeed(plr._pInvList[i]._iSeed);          // and uses its seed
 				SpawnAmulet(wCI, TPOS_GIRL/*, true*/);
 			}
 			ReInitTownerAnim(TOWN_GIRL, "Towners\\Girl\\Girls1.CEL");
@@ -676,7 +662,7 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_HEALER:
-		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != 2 && IsLvlVisited(DLV_CATHEDRAL2)) {
+		if (quests[Q_PWATER]._qactive == QUEST_INIT && quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN && IsLvlVisited(DLV_CATHEDRAL2)) {
 			quests[Q_PWATER]._qactive = QUEST_ACTIVE;
 			quests[Q_PWATER]._qlog = TRUE;
 			// quests[Q_PWATER]._qmsg = TEXT_POISON3;
@@ -684,17 +670,17 @@ void TalkToTowner(int tnum)
 			qn = Q_PWATER;
 			qt = TEXT_POISON3;
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
-		 && quests[Q_PWATER]._qvar1 == 2) {
+		 && quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
 			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
-		 && quests[Q_MUSHROOM]._qvar1 < QS_BRAINGIVEN) {
+		 && quests[Q_MUSHROOM]._qvar1 < QV_MUSHROOM_BRAINGIVEN) {
 			if (PlrHasStorageItem(pnum, IDI_BRAIN, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_BRAIN);
 				qt = TEXT_MUSH4;
-			} else if (quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
+			} else if (quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN && quests[Q_MUSHROOM]._qvar2 != TEXT_MUSH3) {
 				quests[Q_MUSHROOM]._qvar2 = TEXT_MUSH3;
 				qt = TEXT_MUSH3;
 			}
@@ -721,13 +707,13 @@ void TalkToTowner(int tnum)
 				break;
 			}
 		}
-		if (IsLvlVisited(DLV_CATHEDRAL4) && quests[Q_LTBANNER]._qactive != QUEST_NOTAVAIL) {
-			if (quests[Q_LTBANNER]._qactive == QUEST_INIT) {
-				quests[Q_LTBANNER]._qactive = QUEST_ACTIVE;
-				quests[Q_LTBANNER]._qlog = TRUE;
-				qn = Q_LTBANNER;
+		if (IsLvlVisited(DLV_CATHEDRAL4) && quests[Q_BANNER]._qactive != QUEST_NOTAVAIL) {
+			if (quests[Q_BANNER]._qactive == QUEST_INIT) {
+				quests[Q_BANNER]._qactive = QUEST_ACTIVE;
+				quests[Q_BANNER]._qlog = TRUE;
+				qn = Q_BANNER;
 				qt = TEXT_BANNER2;
-			} else if (quests[Q_LTBANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
+			} else if (quests[Q_BANNER]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_BANNER, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_BANNER);
 				qt = TEXT_BANNER3;
 			}
@@ -738,18 +724,19 @@ void TalkToTowner(int tnum)
 			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && PlrHasStorageItem(pnum, IDI_LAZSTAFF, &i)) {
 				NetSendCmdParam1(CMD_QTOWNER, IDI_LAZSTAFF);
 				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_DEAD) {
+				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CAIN;
 				quests[Q_DIABLO]._qlog = TRUE;
 				qt = TEXT_VILE3;
 			}
 		} else {
-			if (quests[Q_BETRAYER]._qactive == QUEST_ACTIVE && !quests[Q_BETRAYER]._qlog) {
+			if (quests[Q_BETRAYER]._qactive == QUEST_INIT && IsLvlVisited(DLV_HELL2)) {
+				quests[Q_BETRAYER]._qactive = QUEST_ACTIVE;
 				quests[Q_BETRAYER]._qlog = TRUE;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE1;
-			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == 7) {
-				quests[Q_BETRAYER]._qvar1 = 8;
+			} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE && quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_DEAD) {
+				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CAIN;
 				qn = Q_BETRAYER;
 				qt = TEXT_VILE3;
 				quests[Q_DIABLO]._qlog = TRUE;
@@ -764,7 +751,7 @@ void TalkToTowner(int tnum)
 			NetSendCmdParam1(CMD_QTOWNER, IDI_FUNGALTM);
 			qt = TEXT_MUSH8;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE) {
-			if (quests[Q_MUSHROOM]._qvar1 < QS_MUSHGIVEN) {
+			if (quests[Q_MUSHROOM]._qvar1 < QV_MUSHROOM_MUSHGIVEN) {
 				if (PlrHasStorageItem(pnum, IDI_MUSHROOM, &i)) {
 					NetSendCmdParam1(CMD_QTOWNER, IDI_MUSHROOM);
 					qt = TEXT_MUSH10;
@@ -813,14 +800,14 @@ void TalkToTowner(int tnum)
 			break;
 		case QUEST_ACTIVE:
 			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!effect_is_playing(i)) {
+			if (!IsSFXPlaying(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
 				PlaySFX(i);
 			}
 			break;
 		case QUEST_DONE:
 			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
-			if (!effect_is_playing(i)) {
+			if (!IsSFXPlaying(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
 				PlaySFX(i);
 			}
@@ -835,7 +822,7 @@ void TalkToTowner(int tnum)
 		case QUEST_INIT:
 			if (PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i)) {
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
-				quests[Q_FARMER]._qvar1 = 1;
+				quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBGIVEN;
 				quests[Q_FARMER]._qlog = TRUE;
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
@@ -851,7 +838,7 @@ void TalkToTowner(int tnum)
 					qt = TEXT_FARMER8;
 			} else {
 				quests[Q_FARMER]._qactive = QUEST_ACTIVE;
-				quests[Q_FARMER]._qvar1 = 1;
+				quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBGIVEN;
 				quests[Q_FARMER]._qlog = TRUE;
 				// quests[Q_FARMER]._qmsg = TEXT_FARMER1;
 				qn = Q_FARMER;
@@ -863,9 +850,9 @@ void TalkToTowner(int tnum)
 			qt = PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i) ? TEXT_FARMER2 : TEXT_FARMER3;
 			break;
 		case QUEST_DONE:
-			if (quests[Q_FARMER]._qlog && quests[Q_FARMER]._qvar1 == pnum + 2) {
+			if (quests[Q_FARMER]._qlog && quests[Q_FARMER]._qvar1 == pnum + QV_FARMER_BOMBUSED) {
 				quests[Q_FARMER]._qlog = FALSE;
-				qn = Q_FARMER;
+				qn = Q_FARMER; // not necessary...
 				qt = TEXT_FARMER4;
 				SpawnQuestItemAt(IDI_MANA, TPOS_FARMER, ICM_SEND_FLIP);
 			}
@@ -882,7 +869,7 @@ void TalkToTowner(int tnum)
 		case QUEST_INIT:
 			if (PlrHasStorageItem(pnum, IDI_RUNEBOMB, &i)) {
 				quests[Q_JERSEY]._qactive = QUEST_ACTIVE;
-				quests[Q_JERSEY]._qvar1 = 1;
+				quests[Q_JERSEY]._qvar1 = QV_JERSEY_BOMBGIVEN;
 				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 				quests[Q_JERSEY]._qlog = TRUE;
 				qn = Q_JERSEY;
@@ -909,7 +896,7 @@ void TalkToTowner(int tnum)
 				qt = TEXT_JERSEY8;
 				break;
 			}
-			if (quests[Q_JERSEY]._qvar1 != 0) {
+			if (quests[Q_JERSEY]._qvar1 != QV_INIT) {
 				qt = TEXT_JERSEY5;
 			} else if (!IsLvlVisited(DLV_CAVES1) && plr._pLevel < 15) {
 				switch (random_(0, 4)) {
@@ -927,7 +914,7 @@ void TalkToTowner(int tnum)
 					break;
 				}
 			} else {
-				quests[Q_JERSEY]._qvar1 = 1;
+				quests[Q_JERSEY]._qvar1 = QV_JERSEY_BOMBGIVEN;
 				// quests[Q_JERSEY]._qmsg = TEXT_JERSEY4;
 				quests[Q_JERSEY]._qlog = TRUE;
 				qn = Q_JERSEY;
@@ -944,16 +931,17 @@ void TalkToTowner(int tnum)
 		}
 		break;
 	case TOWN_GIRL:
-		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE) {
-			if (PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
-				NetSendCmdParam1(CMD_QTOWNER, IDI_THEODORE);
-				qt = TEXT_GIRL4;
-			} else if (quests[Q_GIRL]._qvar1 == 0) {
+		if (quests[Q_GIRL]._qactive == QUEST_ACTIVE && PlrHasStorageItem(pnum, IDI_THEODORE, &i)) {
+			NetSendCmdParam1(CMD_QTOWNER, IDI_THEODORE);
+			qt = TEXT_GIRL4;
+		} else if (quests[Q_GIRL]._qactive != QUEST_DONE) {
+			if (quests[Q_GIRL]._qvar1 == QV_INIT) {
 				if (quests[Q_GIRL]._qvar2++ == 0) {
 					qt = TEXT_GIRL1;
 				} else {
 					qt = TEXT_GIRL2;
-					quests[Q_GIRL]._qvar1 = 1;
+					quests[Q_GIRL]._qactive = QUEST_ACTIVE;
+					quests[Q_GIRL]._qvar1 = QV_GIRL_TALK1;
 					quests[Q_GIRL]._qlog = TRUE;
 					// quests[Q_GIRL]._qmsg = TEXT_GIRL2;
 					qn = Q_GIRL;
@@ -965,8 +953,8 @@ void TalkToTowner(int tnum)
 		break;
 #endif
 	case TOWN_COW:
-		CowSFX(pnum);
-		break;
+		CowSFX(tw, pnum);
+		return;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -975,10 +963,16 @@ void TalkToTowner(int tnum)
 		NetSendCmdQuest(qn, false);
 	if (qt != TEXT_NONE) {
 		// tw->_mListener = pnum; // TNR_LISTENER
-		InitQTextMsg(qt);
+		StartQTextMsg(qt);
 	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
-		TownerTalk(tw->_mgoalvar1, tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
+		// assert(!gbQtextflag);
+		ClearPanels();
+		// gamemenu_off();
+		StartQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
+		StartStore(tw->_mgoalvar1);    // TNR_STORE
 	}
+	_guCowClicks = 0;
+	_guCowMsg = 0;
 }
 
 DEVILUTION_END_NAMESPACE

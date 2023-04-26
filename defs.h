@@ -3,6 +3,8 @@
  *
  * Global definitions and Macros.
  */
+#ifndef _DEFS_H
+#define _DEFS_H
 
 #ifndef ASSET_MPL
 #define ASSET_MPL				1
@@ -35,6 +37,11 @@
 #define DSIZEY					80
 #define MAXDUNX					112
 #define MAXDUNY					112
+/** The size of the quads in hell. */
+static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
+#define L4BLOCKX (DMAXX / 2)
+static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even height.");
+#define L4BLOCKY (DMAXY / 2)
 
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS				4
@@ -53,10 +60,14 @@
 #define MAXTRIGGERS				5
 #endif
 
-// the maximum size of normal (cmd) message
+// the maximum size of the turn packets
+#define NET_TURN_MSG_SIZE		512
+// the maximum size of a normal (nmsg) message
 #define NET_NORMAL_MSG_SIZE		512
-// the maximum size of a large (nmsg) message
-#define NET_LARGE_MSG_SIZE		512
+// the maximum size of a large (nmsg) message used during delta-load
+#define NET_LARGE_MSG_SIZE		0x8000
+// the minimum size of a large message which needs to be compressed
+#define NET_COMP_MSG_SIZE		256
 #define NET_DEFAULT_PORT		6112
 #define MAX_SEND_STR_LEN		80
 
@@ -64,7 +75,7 @@
 #define MAXITEMS				127
 #define ITEM_NONE				0xFF
 #define MAXBELTITEMS			8
-#define MAXLIGHTS				32
+#define MAXLIGHTS				31
 #define MAXMISSILES				125
 #define MIS_MULTI				0xFF
 #define MAXMONSTERS				200
@@ -72,7 +83,7 @@
 #define MAXOBJECTS				127
 #define OBJ_NONE				0xFF
 #define MAXPORTAL				MAX_PLRS
-#define MAXTHEMES				50
+#define MAXTHEMES				32
 #define MAXTILES				2047
 #define MAXVISION				(MAX_PLRS + MAX_MINIONS)
 #define MDMAXX					40
@@ -129,6 +140,7 @@
 // Diablo uses a 256 color palette
 // Entry 0-127 (0x00-0x7F) are level specific
 // Entry 128-255 (0x80-0xFF) are global
+#define NUM_COLORS		256
 
 // standard palette for all levels
 // 8 or 16 shades per color
@@ -175,13 +187,12 @@
 	&& y >= 0                 \
 	&& y < MAXDUNY)
 
-#define MemFreeDbg(p)       \
-	{                       \
-		void *p__p;         \
-		p__p = p;           \
-		p = NULL;           \
-		mem_free_dbg(p__p); \
-	}
+#ifndef TRUE
+#define TRUE true
+#endif
+#ifndef FALSE
+#define FALSE false
+#endif
 
 #undef assert
 
@@ -242,3 +253,36 @@
 #else
 #define DVL_ATTRIBUTE_HOT
 #endif
+
+#ifdef _MSC_VER
+#define DVL_RESTRICT __restrict
+#else
+#define DVL_RESTRICT __restrict__
+#endif
+
+#ifndef M_SQRT2
+#define M_SQRT2    1.41421356237309504880   // sqrt(2)
+#endif
+
+#ifndef EX_OK
+#define EX_OK 0
+#endif
+#ifndef EX_USAGE
+#if __linux__
+#define EX_USAGE 64
+#else
+#define EX_USAGE 2
+#endif
+#endif
+#ifndef EX_SOFTWARE
+#if __linux__
+#define EX_SOFTWARE 71
+#else
+#define EX_SOFTWARE 1
+#endif
+#endif
+
+#define DEVILUTION_BEGIN_NAMESPACE namespace dvl {
+#define DEVILUTION_END_NAMESPACE }
+
+#endif /* _DEFS_H */

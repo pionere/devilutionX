@@ -7,14 +7,15 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SS_SCROLL	10
-#define SS_OIL		3
-#define SS_POTION	3
-#define SS_BOOK		1
-#define SS_RUNE		8
+#define SS_SCROLL 10
+#define SS_OIL    3
+#define SS_POTION 3
+#define SS_BOOK   1
+#define SS_RUNE   8
 
 /** Maps from item_cursor_graphic to item_gfx_id. */
 const BYTE ItemCAnimTbl[NUM_ICURS] = {
+	// clang-format off
 	IFILE_FBTTLEBB, IFILE_SCROLL, IFILE_SCROLL, IFILE_SCROLL, IFILE_GOLDFLIP, IFILE_GOLDFLIP, IFILE_GOLDFLIP, IFILE_RING, IFILE_RING, IFILE_RING,
 	IFILE_RING, IFILE_RING, IFILE_RING, IFILE_RING, IFILE_RING, IFILE_FBTTLEDY, IFILE_FBTTLEDY, IFILE_FBTTLEBY, IFILE_RING, IFILE_FEAR,
 	IFILE_FEAR, IFILE_FEAR, 0, 0, 0, IFILE_BLDSTN, 0, 0, 0, IFILE_FBTTLEBL,
@@ -41,6 +42,7 @@ const BYTE ItemCAnimTbl[NUM_ICURS] = {
 	IFILE_BOW, IFILE_AXE, IFILE_MACE, IFILE_MACE, IFILE_MACE, IFILE_AXE, IFILE_SWRDFLIP, IFILE_MACE, IFILE_STAFF, IFILE_BOW,
 	IFILE_MACE, IFILE_SWRDFLIP, IFILE_AXE, IFILE_MACE, IFILE_MACE, IFILE_FPLATEAR, IFILE_COWS1
 #endif
+	// clang-format on
 };
 
 /** Contains the data related to each item ID. */
@@ -438,6 +440,7 @@ const AffixData PL_Suffix[] = {
 /*thieves*///     { IPL_ABSHALFTRAP,      0,        0,       11, PLT_ARMO | PLT_SHLD |                                   PLT_MISC,     FALSE,    TRUE,      1500,     1500,         2 },
 /*the bear*/      { IPL_KNOCKBACK,        0,        0,       18,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     FALSE,    TRUE,       750,      750,         2 },
 /*bashing*/       { IPL_STUN,             0,        0,       24,                       PLT_MELEE | PLT_STAFF | PLT_BOW           ,     FALSE,    TRUE,      1500,     1500,         2 },
+/*bloodlust*/     { IPL_BLEED,            0,        0,       24,                       PLT_MELEE             | PLT_BOW           ,     FALSE,    TRUE,      3000,     3000,         3 },
 /*mosquito*/      { IPL_STEALMANA,        1,        2,        4,                       PLT_MELEE                                 ,     FALSE,    TRUE,      4000,     7500,         3 },
 /*the bat*/       { IPL_STEALMANA,        2,        4,       10,                       PLT_MELEE                                 ,     FALSE,    TRUE,      7500,    15000,         3 },
 /*vampires*/      { IPL_STEALMANA,        4,        6,       20,                       PLT_MELEE                                 ,     FALSE,    TRUE,     15000,    22500,         3 },
@@ -552,7 +555,8 @@ const UniqItemData UniqueItemList[NUM_UITEM] = {
 /*UITEM_SPIRITSHLD*/  { "Spirit Ward",             UITYPE_TOWERSHIELD, 24,   39200, IPL_ACMOD,          10,        10, IPL_FASTRECOVER,                 2,         2, IPL_ALLRES,                        6,        12, IPL_VIT,                        4,        10, IPL_INVCURS,      ICURS_SPIRIT_SHIELD,         0, IPL_INVALID,                     0,         0, ALIGN },
 /*UITEM_STORMSHLD*/   { "Stormshield",             UITYPE_GOTHSHIELD,  24,   49000, IPL_SETAC,          40,        40, IPL_GETHIT,                     -4,        -4, IPL_STR,                          10,        10, IPL_INDESTRUCTIBLE,             0,         0, IPL_FASTBLOCK,                      1,         1, IPL_INVCURS,     ICURS_STORMSHIELD,         0, ALIGN },
 /*UITEM_BRAMBLE*/     { "Bramble",                 UITYPE_RING,         1,    1000, IPL_ATTRIBS,        -2,        -2, IPL_DAMMOD,                      3,         3, IPL_MANA,                         10,        10, IPL_INVCURS,   ICURS_RING_BRAMBLE,         0, IPL_INVALID,                        0,         0, IPL_INVALID,                     0,         0, ALIGN },
-/*UITEM_REGHA*/       { "Ring of Regha",           UITYPE_RING,         1,    4175, IPL_MAG,            10,        10, IPL_MAGICRES,                   10,        10, IPL_LIGHT,                         1,         1, IPL_STR,                       -3,        -3, IPL_DEX,                           -3,        -3, IPL_INVCURS,      ICURS_RING_REGHA,         0, ALIGN },
+/*UITEM_TYRAELGIFT*/  { "Tyrael's Gift",           UITYPE_AMULET,      44,   46105, IPL_VIT,            10,        10, IPL_LIFE,                       30,        30, IPL_GETHIT,                        8,         8, IPL_NO_BLEED,                   0,         0, IPL_INVCURS,      ICURS_AMULET_TYRAEL,         0, IPL_INVALID,                     0,         0, ALIGN },
+/*UITEM_LILITHCOLLAR*/{ "Collar of Lilith",        UITYPE_AMULET,      48,   54175, IPL_LIFE,           40,        40, IPL_STEALLIFE,                   3,         3, IPL_BLEED,                         0,         0, IPL_INVCURS,  ICURS_AMULET_LILITH,         0, IPL_INVALID,                        0,         0, IPL_INVALID,                     0,         0, ALIGN },
 /*UITEM_BLEEDER*/     { "The Bleeder",             UITYPE_RING,         2,    8500, IPL_MAGICRES,       20,        20, IPL_MANA,                       30,        30, IPL_LIFE,                        -10,       -10, IPL_INVCURS,   ICURS_RING_BLEEDER,         0, IPL_INVALID,                        0,         0, IPL_INVALID,                     0,         0, ALIGN },
 /*UITEM_CONSTRICT*/   { "Constricting Ring",       UITYPE_RING,         5,   62000, IPL_ALLRES,         95,        95, IPL_DRAINLIFE,                   0,         0, IPL_INVCURS, ICURS_RING_CONSTRICTING,         0, IPL_INVALID,                    0,         0, IPL_INVALID,                        0,         0, IPL_INVALID,                     0,         0, ALIGN },
 /*UITEM_ENGAGERING*/  { "Ring of Engagement",      UITYPE_RING,        11,   12476, IPL_GETHIT,          1,         2, IPL_STR,                         5,        10, IPL_SETAC,                         5,         5, IPL_PENETRATE_PHYS,             0,         0, IPL_INVCURS,          ICURS_GOLD_RING,         0, IPL_INVALID,                     0,         0, ALIGN },

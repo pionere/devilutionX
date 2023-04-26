@@ -11,6 +11,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PCX_COLORS 256
+
 /**
  * @brief Write the PCX-file header
  * @param width Image width
@@ -18,23 +20,23 @@ DEVILUTION_BEGIN_NAMESPACE
  * @param out File stream to write to
  * @return True on success
  */
-static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream *out)
+static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream* out)
 {
-	PCXHEADER Buffer;
+	FilePcxHeader Buffer;
 
 	memset(&Buffer, 0, sizeof(Buffer));
 	Buffer.Manufacturer = 10;
 	Buffer.Version = 5;
 	Buffer.Encoding = 1;
 	Buffer.BitsPerPixel = 8;
-	Buffer.Xmax = SwapLE16(width - 1);
-	Buffer.Ymax = SwapLE16(height - 1);
-	Buffer.HDpi = SwapLE16(width);
-	Buffer.VDpi = SwapLE16(height);
+	Buffer.Xmax = static_cast<uint16_t>(width - 1);
+	Buffer.Ymax = static_cast<uint16_t>(height - 1);
+	Buffer.HDpi = width;
+	Buffer.VDpi = height;
 	Buffer.NPlanes = 1;
-	Buffer.BytesPerLine = SwapLE16(width);
+	Buffer.BytesPerLine = width;
 
-	out->write(reinterpret_cast<const char *>(&Buffer), sizeof(Buffer));
+	out->write(reinterpret_cast<const char*>(&Buffer), sizeof(Buffer));
 	return !out->fail();
 }
 
@@ -44,19 +46,19 @@ static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream *out)
  * @param out File stream for the PCX file.
  * @return True if successful, else false
  */
-static bool CapturePal(SDL_Color *palette, std::ofstream *out)
+static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], std::ofstream* out)
 {
-	BYTE pcx_palette[1 + 256 * 3];
+	BYTE pcx_palette[1 + PCX_COLORS * 3];
 	int i;
-
+	static_assert(NUM_COLORS == PCX_COLORS, "Mismatching PCX and game palette.");
 	pcx_palette[0] = 12;
-	for (i = 0; i < 256; i++) {
+	for (i = 0; i < PCX_COLORS; i++) {
 		pcx_palette[1 + 3 * i + 0] = palette[i].r;
 		pcx_palette[1 + 3 * i + 1] = palette[i].g;
 		pcx_palette[1 + 3 * i + 2] = palette[i].b;
 	}
 
-	out->write(reinterpret_cast<const char *>(pcx_palette), sizeof(pcx_palette));
+	out->write(reinterpret_cast<const char*>(pcx_palette), sizeof(pcx_palette));
 	return !out->fail();
 }
 
@@ -68,7 +70,7 @@ static bool CapturePal(SDL_Color *palette, std::ofstream *out)
 
  * @return Output buffer
  */
-static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
+static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
 {
 	int rleLength;
 
@@ -110,17 +112,17 @@ static BYTE *CaptureEnc(BYTE *src, BYTE *dst, int width)
  * @param pixels Raw pixel buffer
  * @return True if successful, else false
  */
-static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE *pixels, std::ofstream *out)
+static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* pixels, std::ofstream* out)
 {
 	int i, writeSize;
 	BYTE *pBuffer, *pBufferEnd;
 
-	pBuffer = (BYTE *)DiabloAllocPtr(2 * width);
+	pBuffer = (BYTE*)DiabloAllocPtr(2 * width);
 	for (i = height; i > 0; i--) {
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
 		writeSize = pBufferEnd - pBuffer;
-		out->write(reinterpret_cast<const char *>(pBuffer), writeSize);
+		out->write(reinterpret_cast<const char*>(pBuffer), writeSize);
 		if (out->fail())
 			break;
 	}
@@ -131,7 +133,7 @@ static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE *p
 /**
  * Returns a pointer because in GCC < 5 ofstream itself is not moveable due to a bug.
  */
-static std::ofstream *CaptureFile(std::string *dst_path)
+static std::ofstream* CaptureFile(std::string* dst_path)
 {
 	char filename[sizeof("screen00.PCX")];
 	for (int i = 0; i <= 99; ++i) {
@@ -150,7 +152,7 @@ static std::ofstream *CaptureFile(std::string *dst_path)
  */
 static void RedPalette()
 {
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < NUM_COLORS; i++) {
 		system_palette[i].g = 0;
 		system_palette[i].b = 0;
 	}
@@ -165,7 +167,7 @@ void CaptureScreen()
 	std::string FileName;
 	bool success;
 
-	std::ofstream *out = CaptureFile(&FileName);
+	std::ofstream* out = CaptureFile(&FileName);
 	if (out == NULL)
 		return;
 	scrollrt_draw_game();

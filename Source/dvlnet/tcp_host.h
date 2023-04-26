@@ -15,9 +15,10 @@ class tcp_host_client;
 
 class tcp_host_server : public tcp_server {
 public:
-	tcp_host_server(tcp_host_client* client, asio::io_context &ioc, buffer_t info, unsigned serverType);
+	tcp_host_server(tcp_host_client* client, asio::io_context& ioc, buffer_t info, unsigned serverType);
 
-	bool send_packet(packet &pkt);
+	bool send_packet(packet& pkt);
+
 private:
 	tcp_host_client* local_client;
 };
@@ -40,11 +41,12 @@ public:
 
 	virtual void make_default_gamename(char (&gamename)[128]);
 
-	void receive_packet(packet &pkt);
+	void receive_packet(packet& pkt);
 
 protected:
-	virtual void send_packet(packet &pkt);
+	virtual void send_packet(packet& pkt);
 	virtual void poll();
+
 private:
 	asio::io_context ioc;
 	tcp_host_server* local_server = NULL;

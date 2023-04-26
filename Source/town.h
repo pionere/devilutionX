@@ -16,7 +16,7 @@ extern "C" {
 void T_HiveOpen();
 void T_CryptOpen();
 #endif
-void CreateTown(int entry);
+void CreateTown();
 
 #ifdef __cplusplus
 }

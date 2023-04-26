@@ -8,9 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define myplr					players[mypnum]
-#define plr						players[pnum]
-#define plx(x)					players[x]
+#define myplr          players[mypnum]
+#define plr            players[pnum]
+#define plx(x)         players[x]
 #define PLR_WALK_SHIFT 8
 
 #ifdef __cplusplus
@@ -21,12 +21,11 @@ extern int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern BYTE gbLvlLoad;
 
-void LoadPlrGFX(int pnum, unsigned gfxflag);
 void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
 void FreePlayerGFX(int pnum);
 void SetPlrAnims(int pnum);
-void CreatePlayer(const _uiheroinfo &heroinfo);
+void CreatePlayer(const _uiheroinfo& heroinfo);
 #if DEBUG_MODE
 void NextPlrLevel(int pnum);
 #endif
@@ -38,10 +37,9 @@ void RemoveLvlPlayer(int pnum);
 //void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
-void PlrStartBlock(int pnum, int dir);
-void KnockbackPlr(int pnum, int dir);
+void PlrStartBlock(int pnum, int sx, int sy);
 void RemovePlrFromMap(int pnum);
-void StartPlrHit(int pnum, int dam, bool forcehit, int dir);
+void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy);
 void SyncPlrKill(int pnum, int dmgtype);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
@@ -79,13 +77,13 @@ inline void SetPlayerLoc(PlayerStruct* p, int x, int y)
 
 /* data */
 
-extern const BYTE PlrAnimFrameLens[NUM_PFIDXs];
+extern const BYTE PlrAnimFrameLens[NUM_PGXS];
 extern const int StrengthTbl[NUM_CLASSES];
 extern const int MagicTbl[NUM_CLASSES];
 extern const int DexterityTbl[NUM_CLASSES];
 extern const int VitalityTbl[NUM_CLASSES];
 extern const BYTE Abilities[NUM_CLASSES];
-extern const char *const ClassStrTbl[NUM_CLASSES];
+extern const char* const ClassStrTbl[NUM_CLASSES];
 extern const unsigned PlrExpLvlsTbl[MAXCHARLEVEL + 1];
 extern const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1];
 

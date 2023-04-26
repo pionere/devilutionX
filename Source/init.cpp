@@ -25,7 +25,7 @@ int _newlib_heap_size_user = 100 * 1024 * 1024;
 DEVILUTION_BEGIN_NAMESPACE
 
 /** A handle to the mpq archives. */
-#ifdef MPQONE
+#if USE_MPQONE
 HANDLE diabdat_mpq;
 #else
 HANDLE diabdat_mpqs[NUM_MPQS];
@@ -44,7 +44,7 @@ static HANDLE init_test_access(const char* mpq_name)
 	const char* paths[2] = { GetBasePath(), GetPrefPath() };
 #endif
 	std::string mpq_abspath;
-	for (int i = 0; i < lengthof(paths); i++) { 
+	for (int i = 0; i < lengthof(paths); i++) {
 		mpq_abspath = paths[i];
 		mpq_abspath += mpq_name;
 		archive = SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY);
@@ -60,9 +60,7 @@ static HANDLE init_test_access(const char* mpq_name)
 
 void FreeArchives()
 {
-	pfile_flush(true);
-
-#ifdef MPQONE
+#if USE_MPQONE
 	SFileCloseArchive(diabdat_mpq);
 	diabdat_mpq = NULL;
 #else
@@ -75,58 +73,6 @@ void FreeArchives()
 	}
 #endif
 }
-
-#if DEV_MODE
-static void CreateMpq(const char* destMpqName, const char* folder, const char* files)
-{
-	if (FileExists(destMpqName))
-		return;
-
-	std::string basePath = std::string(GetBasePath()) + folder;
-	std::ifstream input(std::string(GetBasePath()) + files);
-
-	int entryCount = 0;
-	std::string line;
-	while (std::getline(input, line)) {
-		if (line[0] == '_')
-			continue;
-		std::string path = basePath + line.c_str();
-		FILE* fp = fopen(path.c_str(), "r");
-		if (fp == NULL)
-			app_fatal("Missing file: %s", path.c_str());
-		fclose(fp);
-		entryCount++;
-	}
-	input.close();
-	// TODO: use GetNearestPowerOfTwo of StormCommon.h?
-	int hashCount = 1;
-	while (hashCount < entryCount) {
-		hashCount <<= 1;
-	}
-	
-	std::string path = std::string(GetBasePath()) + destMpqName;
-	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
-		app_fatal("Unable to open MPQ file %s.", path.c_str());
-	
-	input = std::ifstream(std::string(GetBasePath()) + files);
-	while (std::getline(input, line)) {
-		std::string path = basePath + line.c_str();
-		FILE* fp = fopen(path.c_str(), "rb");
-		if (fp != NULL) {
-			struct stat st;
-			stat(path.c_str(), &st);
-			BYTE* buf = DiabloAllocPtr(st.st_size);
-			int readBytes = fread(buf, 1, st.st_size, fp);
-			fclose(fp);
-			if (!mpqapi_write_file(line.c_str(), buf, st.st_size))
-				app_fatal("Unable to write %s to the MPQ.", line.c_str());
-			mem_free_dbg(buf);
-		}
-	}
-	input.close();
-	mpqapi_flush_and_close(true);
-}
-#endif
 
 static void ReadOnlyTest()
 {
@@ -147,13 +93,14 @@ void InitArchives()
 	ReadOnlyTest();
 	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
 
-	//CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
-	//CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
-#ifdef MPQONE
+#if USE_MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
 		return;
-
+#if !CREATE_MPQONE
+	app_fatal("Can not find/access '%s' in the game folder.", MPQONE);
+	return;
+#endif
 	HANDLE diabdat_mpqs[NUM_MPQS];
 /*#elif defined(_WIN64) || defined(_WIN32)
 	char gogpath[_FSG_PATH_MAX];
@@ -162,6 +109,12 @@ void InitArchives()
 		paths.emplace_back(std::string(gogpath) + "/");
 		paths.emplace_back(std::string(gogpath) + "/hellfire/");
 	}*/
+#else
+	HANDLE diabdat_mpq = init_test_access(MPQONE);
+	if (diabdat_mpq != NULL) {
+		diabdat_mpqs[0] = diabdat_mpq;
+		return;
+	}
 #endif
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
@@ -193,7 +146,7 @@ void InitArchives()
 		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif
 
-#ifdef MPQONE
+#if CREATE_MPQONE
 	int i;
 	// first round - read the content and prepare the metadata
 	std::string listpath = std::string(GetBasePath()) + "listfiles.txt";
@@ -237,7 +190,7 @@ void InitArchives()
 				BYTE* buf = DiabloAllocPtr(dwLen);
 				if (!SFileReadFile(hFile, buf, dwLen))
 					app_fatal("Unable to open file archive");
-				if (!mpqapi_write_file(line.c_str(), buf, dwLen))
+				if (!mpqapi_write_entry(line.c_str(), buf, dwLen))
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());
 				mem_free_dbg(buf);
 				SFileCloseFile(hFile);

@@ -25,7 +25,7 @@ public:
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned int size);
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn, const BYTE *data, unsigned size);
+	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 	unsigned SNetGetTurnsInTransit();

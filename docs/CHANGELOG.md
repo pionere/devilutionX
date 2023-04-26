@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - block only if standing or actively using the Block skill
 - separate resistance against acid
 - added Whiplash/Wallop/Swipe/Multi Shot/Pierce Shot/Far Shot/Point Blank/Charge skills
-- added Attract/Meteor spells
+- added Attract/Meteor/Bloodboil/Poison/Wind/Shroud spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
 - rebalanced spells (some spells removed, others damage modified, runes fire multiple times, etc...)
@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - D2-style chain lightning
 - added splash damage to disbanded golems
 - added special effect (trn) to arrows with elemental damage
+- added bleeding ailment
 - altered damage calculations
 - altered hit checks for hand-to-hand attacks of monsters (directional + advanced collision check)
 - added faster walk/cast affixes
@@ -46,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - altered the functions of oils
 - consumable items are stackable
 - added base items: Katar(a), Poingard, Winged Helm
-- added unique items: Ring of Destruction, Spirit Ward
+- added unique items: Ring of Destruction, Spirit Ward, Tyrael's Gift, Collar of Lilith (replacement for Ring of Regha)
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games
 - The Defiler drops a fang instead of the Cathedral Map (the fang acts the same way as the Cathedral Map)
