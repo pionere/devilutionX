@@ -1,5 +1,7 @@
 #pragma once
 
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
 #include "../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -47,4 +49,8 @@ private:
 	int min_interval_ms_;
 };
 
+extern AxisDirectionRepeater axisDirRepeater;
+
 DEVILUTION_END_NAMESPACE
+
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

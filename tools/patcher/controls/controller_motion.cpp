@@ -4,16 +4,21 @@
 
 #include <cmath>
 
-#include "controls/controller.h"
-#include "controls/devices/game_controller.h"
-#include "controls/devices/joystick.h"
-#include "controls/devices/kbcontroller.h"
-#include "controls/game_controls.h"
+#include "controller.h"
+#include "devices/game_controller.h"
+#include "devices/joystick.h"
+#include "devices/kbcontroller.h"
+#include "game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 float leftStickX, leftStickY, rightStickX, rightStickY;
 float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
+
+bool IsMovingMouseCursorWithController()
+{
+	return rightStickX != 0 || rightStickY != 0;
+}
 
 void ScaleJoystickAxes(bool rightAxes)
 {
@@ -75,10 +80,8 @@ void ScaleJoystickAxes(bool rightAxes)
 }
 
 // SELECT + D-Pad to simulate right stick movement.
-static bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent)
+bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent)
 {
-	if (dpad_hotkeys)
-		return false;
 	static bool simulating = false;
 	if (ctrlEvent.button == ControllerButton_BUTTON_BACK) {
 		if (ctrlEvent.up && simulating) {
@@ -111,7 +114,7 @@ static bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent)
 }
 
 // Updates motion state for mouse and joystick sticks.
-bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlEvent)
+bool ProcessControllerMotion(const SDL_Event& event)
 {
 #if HAS_GAMECTRL
 	if (GameController::ProcessAxisMotion(event))
@@ -123,10 +126,6 @@ bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlE
 #endif
 #if HAS_KBCTRL
 	if (ProcessKbCtrlAxisMotion(event))
-		return true;
-#endif
-#if HAS_DPAD
-	if (SimulateRightStickWithDpad(ctrlEvent))
 		return true;
 #endif
 	return false;

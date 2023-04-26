@@ -632,9 +632,7 @@ if(USE_PATCH)
     tools/patcher/controls/devices/game_controller.cpp
     tools/patcher/controls/devices/joystick.cpp
     tools/patcher/controls/devices/kbcontroller.cpp
-    tools/patcher/controls/game_controls.cpp
     tools/patcher/controls/menu_controls.cpp
-    tools/patcher/controls/modifier_hints.cpp
     tools/patcher/controls/touch.cpp
     tools/patcher/DiabloUI/diabloui.cpp
     tools/patcher/DiabloUI/dialogs.cpp
