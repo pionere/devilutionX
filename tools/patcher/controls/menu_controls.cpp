@@ -1,10 +1,10 @@
 #include "menu_controls.h"
 
-#include "controls/controller.h"
-#include "controls/controller_motion.h"
-#include "controls/axis_direction.h"
-//#include "controls/plrctrls.h"
-#include "controls/touch.h"
+#include "controller.h"
+#include "controller_motion.h"
+#include "axis_direction.h"
+#include "game_controls.h"
+#include "touch.h"
 
 #include "DiabloUI/diabloui.h"
 #include "controls/remap_keyboard.h"

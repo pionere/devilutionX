@@ -4,16 +4,21 @@
 
 #include <cmath>
 
-#include "controls/controller.h"
-#include "controls/devices/game_controller.h"
-#include "controls/devices/joystick.h"
-#include "controls/devices/kbcontroller.h"
-#include "controls/game_controls.h"
+#include "controller.h"
+#include "devices/game_controller.h"
+#include "devices/joystick.h"
+#include "devices/kbcontroller.h"
+#include "game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 float leftStickX, leftStickY, rightStickX, rightStickY;
 float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
+
+bool IsMovingMouseCursorWithController()
+{
+	return rightStickX != 0 || rightStickY != 0;
+}
 
 void ScaleJoystickAxes(bool rightAxes)
 {
