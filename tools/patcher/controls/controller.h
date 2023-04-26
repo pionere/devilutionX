@@ -18,6 +18,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern bool sgbControllerActive;
+
 struct ControllerButtonEvent {
 	ControllerButton button;
 	bool up;

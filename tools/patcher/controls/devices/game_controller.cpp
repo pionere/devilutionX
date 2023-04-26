@@ -3,8 +3,8 @@
 #if HAS_GAMECTRL
 #include <cstddef>
 
-#include "controls/controller_motion.h"
-#include "controls/plrctrls.h"
+#include "../controller_motion.h"
+#include "../controller.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE

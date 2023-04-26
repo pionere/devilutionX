@@ -21,6 +21,8 @@ extern float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightS
 // Axis values scaled to [-1, 1] range and clamped to a deadzone.
 extern float leftStickX, leftStickY, rightStickX, rightStickY;
 
+bool IsMovingMouseCursorWithController();
+
 // update left/rightStickX/Y values from the *Unscaled values
 void ScaleJoystickAxes(bool rightAxes);
 

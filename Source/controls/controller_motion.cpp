@@ -15,6 +15,11 @@ DEVILUTION_BEGIN_NAMESPACE
 float leftStickX, leftStickY, rightStickX, rightStickY;
 float leftStickXUnscaled, leftStickYUnscaled, rightStickXUnscaled, rightStickYUnscaled;
 
+bool IsMovingMouseCursorWithController()
+{
+	return rightStickX != 0 || rightStickY != 0;
+}
+
 void ScaleJoystickAxes(bool rightAxes)
 {
 	float *x, *y;

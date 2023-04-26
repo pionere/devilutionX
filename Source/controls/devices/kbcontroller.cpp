@@ -2,7 +2,7 @@
 
 #if HAS_KBCTRL
 
-#include "controls/controller_motion.h"
+#include "../controller_motion.h"
 #include "utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE

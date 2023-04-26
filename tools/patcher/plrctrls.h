@@ -15,39 +15,14 @@ extern "C" {
 // defined in controller.cpp
 extern bool sgbControllerActive;
 
-// Runs at the end of CheckCursMove()
-// Handles item, object, and monster auto-aim.
-void plrctrls_after_check_curs_move();
-
-// Run after every game logic iteration.
-// Handles player movement.
-void plrctrls_after_game_logic();
-// Runs every frame.
-// Handles menu movement.
-void plrctrls_every_frame();
-
 // Whether the mouse cursor is being moved with the controller. (defined in controller_motion.cpp)
 bool IsMovingMouseCursorWithController();
-
-void FocusOnInventory();
-
-void FocusOnCharInfo();
 
 // defined in touch.cpp
 void finish_simulated_mouse_clicks();
 
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
-
-void UseBeltItem(int type);
-
-// Talk to towners, click on inv items, attack, etc.
-void PerformPrimaryAction();
-
-// Open chests, doors, pickup items.
-void PerformSecondaryAction();
-void PerformSpellAction();
-void StoreSpellCoords();
 
 #ifdef __cplusplus
 }

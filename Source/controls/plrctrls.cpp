@@ -9,7 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-bool sgbControllerActive = false;
 static POS32 speedspellscoords[50];
 int speedspellcount = 0;
 
@@ -1001,11 +1000,6 @@ void StoreSpellCoords()
 			yo -= SPLICON_HEIGHT;
 		}
 	}
-}
-
-bool IsMovingMouseCursorWithController()
-{
-	return rightStickX != 0 || rightStickY != 0;
 }
 
 // Moves the map if active, the cursor otherwise.

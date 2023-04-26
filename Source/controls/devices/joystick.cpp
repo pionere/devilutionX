@@ -3,8 +3,8 @@
 #if HAS_JOYSTICK
 #include <cstddef>
 
-#include "controls/controller_motion.h"
-#include "controls/plrctrls.h"
+#include "../controller.h"
+#include "../controller_motion.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE

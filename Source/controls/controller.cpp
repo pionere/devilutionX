@@ -4,6 +4,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+bool sgbControllerActive = false;
+
 ControllerButtonEvent ToControllerButtonEvent(const SDL_Event& event)
 {
 	ControllerButtonEvent result { ControllerButton_NONE, false };
