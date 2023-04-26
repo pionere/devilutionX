@@ -236,13 +236,17 @@ void InitLvlDungeon()
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
 		// patch dSolidTable - Town.SOL
+#if !USE_PATCH
 		// nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
 		// nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
 		// nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
+#endif
 		break;
 	case DTYPE_CATHEDRAL:
 		// patch dSolidTable - L1.SOL
+#if !USE_PATCH
 		nMissileTable[8] = false; // the only column which was blocking missiles
+#endif
 		break;
 	case DTYPE_CATACOMBS:
 		// patch dSolidTable - L2.SOL
@@ -365,6 +369,7 @@ void InitLvlDungeon()
 		break;
 	case DTYPE_HELL:
 		// patch dSolidTable - L4.SOL
+#if !USE_PATCH
 		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
 		// nMissileTable[137] = false; // fix missile-blocking tile of down-stairs. - skip to keep in sync with the nSolidTable
 		// nSolidTable[137] = false;   // fix non-walkable tile of down-stairs. - skip, because it causes a graphic glitch
@@ -376,6 +381,7 @@ void InitLvlDungeon()
 		nSolidTable[211] = false;
 		nMissileTable[211] = false;
 		nBlockTable[211] = false;
+#endif
 		// enable hooked bodies on  walls
 		nTrapTable[2] = PTT_LEFT;
 		nTrapTable[189] = PTT_LEFT;
@@ -390,12 +396,15 @@ void InitLvlDungeon()
 #ifdef HELLFIRE
 	case DTYPE_NEST:
 		// patch dSolidTable - L6.SOL
+#if !USE_PATCH
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
+#endif
 		break;
 	case DTYPE_CRYPT:
 		// patch dSolidTable - L5.SOL
+#if !USE_PATCH
 		nSolidTable[143] = false; // make right side of down-stairs consistent (walkable)
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		// make collision-checks more reasonable
@@ -416,10 +425,7 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
-		// patch dMegaTiles - L5.TIL
-		// use common subtiles of doors
-		pMegaTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
-		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
+#endif
 		break;
 #endif /* HELLFIRE */
 	default:

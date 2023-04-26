@@ -16,13 +16,18 @@ static constexpr int RETURN_DONE = 100;
 
 typedef enum filenames {
 	FILE_TOWN_MIN,
-	FILE_CAVES_MIN,
 	FILE_CATHEDRAL_MIN,
+	FILE_CATHEDRAL_SOL,
+	FILE_CAVES_MIN,
+	FILE_CAVES_SOL,
+	FILE_HELL_SOL,
 #ifdef HELLFIRE
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
 	FILE_CRYPT_MIN,
+	FILE_CRYPT_SOL,
 	FILE_NEST_MIN,
+	FILE_NEST_SOL,
 #endif
 	NUM_FILENAMES
 } filenames;
@@ -30,12 +35,17 @@ typedef enum filenames {
 static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
+/*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
+/*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
+/*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
 #ifdef HELLFIRE
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
+/*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
+/*FILE_NEST_SOL*/      "NLevels\\L6Data\\L6.SOL",
 #endif
 };
 
@@ -50,6 +60,27 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #define blkMicro(subtileRef, microIndex) \
 { \
 	pMicroPieces[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
+}
+
+#define nSolidTable(pn, v) \
+if (v) { \
+   buf[pn - 1] |= PFLAG_BLOCK_PATH; \
+} else { \
+   buf[pn - 1] &= ~PFLAG_BLOCK_PATH; \
+}
+
+#define nMissileTable(pn, v) \
+if (v) { \
+   buf[pn - 1] |= PFLAG_BLOCK_MISSILE; \
+} else { \
+   buf[pn - 1] &= ~PFLAG_BLOCK_MISSILE; \
+}
+
+#define nBlockTable(pn, v) \
+if (v) { \
+   buf[pn - 1] |= PFLAG_BLOCK_LIGHT; \
+} else { \
+   buf[pn - 1] &= ~PFLAG_BLOCK_LIGHT; \
 }
 
 static void patchTownFile(BYTE* buf)
@@ -206,6 +237,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(140, 1);
 #endif /* ASSET_MPL == 1 */
 	} break;
+	case FILE_CATHEDRAL_SOL:
+	{	// patch dSolidTable - L1.SOL
+		if (*dwLen <= 8) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nMissileTable(8, false); // the only column which was blocking missiles
+	} break;
 	case FILE_CAVES_MIN:
 	{	// patch dMiniTiles - L3.MIN
 #if ASSET_MPL == 1
@@ -219,6 +259,34 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// fix bad artifact
 		blkMicro(82, 4);
 #endif /* ASSET_MPL == 1 */
+	} break;
+	case FILE_CAVES_SOL:
+	{	// patch dSolidTable - L3.SOL
+		if (*dwLen <= 249) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nSolidTable(249, false); // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+	} break;
+	case FILE_HELL_SOL:
+	{	// patch dSolidTable - L4.SOL
+		if (*dwLen <= 211) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nMissileTable(141, false); // fix missile-blocking tile of down-stairs.
+		// nMissileTable(137, false); // fix missile-blocking tile of down-stairs. - skip to keep in sync with the nSolidTable
+		// nSolidTable(137, false);   // fix non-walkable tile of down-stairs. - skip, because it causes a graphic glitch
+		nSolidTable(130, true);    // make the inner tiles of the down-stairs non-walkable I.
+		nSolidTable(132, true);    // make the inner tiles of the down-stairs non-walkable II.
+		nSolidTable(131, true);    // make the inner tiles of the down-stairs non-walkable III.
+		nSolidTable(133, true);    // make the inner tiles of the down-stairs non-walkable IV.
+		// fix all-blocking tile on the diablo-level
+		nSolidTable(211, false);
+		nMissileTable(211, false);
+		nBlockTable(211, false);
 	} break;
 #ifdef HELLFIRE
 	case FILE_NTOWN_MIN:
@@ -254,6 +322,17 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(132, 7);
 		blkMicro(366, 1);
 #endif /* ASSET_MPL == 1 */
+	} break;
+	case FILE_NEST_SOL:
+	{	// patch dSolidTable - L6.SOL
+		if (*dwLen <= 416) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nSolidTable(390, false); // make a pool tile walkable I.
+		nSolidTable(413, false); // make a pool tile walkable II.
+		nSolidTable(416, false); // make a pool tile walkable III.
 	} break;
 	case FILE_CRYPT_TIL:
 	{	// patch dMegaTiles - L5.TIL
@@ -340,6 +419,34 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(179, 0);
 		blkMicro(179, 1);
 #endif // ASSET_MPL
+	} break;
+	case FILE_CRYPT_SOL:
+	{ // patch dSolidTable - L5.SOL
+		if (*dwLen <= 600) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nSolidTable(143, false); // make right side of down-stairs consistent (walkable)
+		nSolidTable(148, false); // make the back of down-stairs consistent (walkable)
+		// make collision-checks more reasonable
+		//  - prevent non-crossable floor-tile configurations I.
+		nSolidTable(461, false);
+		//  - set top right tile of an arch non-walkable (full of lava)
+		//nSolidTable(471, true);
+		//  - set top right tile of a pillar walkable (just a small obstacle)
+		nSolidTable(481, false);
+		//  - tile 491 is the same as tile 594 which is not solid
+		//  - prevents non-crossable floor-tile configurations
+		nSolidTable(491, false);
+		//  - set bottom left tile of a rock non-walkable (rather large obstacle, feet of the hero does not fit)
+		//  - prevents non-crossable floor-tile configurations
+		nSolidTable(523, true);
+		//  - set the top right tile of a floor mega walkable (similar to 594 which is not solid)
+		nSolidTable(570, false);
+		//  - prevent non-crossable floor-tile configurations II.
+		nSolidTable(598, false);
+		nSolidTable(600, false);
 	} break;
 #endif // HELLFIRE
 	default:
