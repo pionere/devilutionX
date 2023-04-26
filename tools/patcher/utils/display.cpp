@@ -14,7 +14,6 @@
 #include "controls/controller.h"
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
-#include "controls/game_controls.h"
 #include "controls/touch.h"
 
 #ifdef USE_SDL1
@@ -199,9 +198,6 @@ void SpawnWindow()
 	}
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	dpad_hotkeys = getIniBool("Controller", "dpad_hotkeys", false);
-	switch_potions_and_clicks = getIniBool("Controller", "switch_potions_and_clicks", false);
-
 #ifndef USE_SDL1
 	char mapping[1024];
 	if (getIniValue("Controller", "sdl2_controller_mapping", mapping, 1024)) {

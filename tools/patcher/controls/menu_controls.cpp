@@ -7,7 +7,7 @@
 #include "touch.h"
 
 #include "DiabloUI/diabloui.h"
-#include "controls/remap_keyboard.h"
+#include "remap_keyboard.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
