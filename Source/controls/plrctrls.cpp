@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <queue>
 
-#include "controls/controller_motion.h"
-#include "controls/game_controls.h"
+#include "controller_motion.h"
+#include "game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

@@ -3,6 +3,7 @@
 #if HAS_JOYSTICK
 #include <cstddef>
 
+#include "appfat.h"
 #include "../controller.h"
 #include "../controller_motion.h"
 #include "utils/log.h"
