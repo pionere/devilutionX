@@ -4,22 +4,16 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
-#include <config.h>
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "plrctrls.h"
-//#include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
-
 /** The X/Y-coordinate of the mouse on the screen. */
 POS32 MousePos;
-/** Specifies whether the intro should be skipped at startup. */
-static bool _gbSkipIntro = false;
 /** To know if ui has been initialized or not */
 bool gbWasUiInit = false;
 bool gbSndInited = false;

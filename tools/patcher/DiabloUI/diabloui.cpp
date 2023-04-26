@@ -34,7 +34,6 @@ static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
-CelImageBuf* gbHerosCel;
 CelImageBuf* gbSmlButtonCel;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
