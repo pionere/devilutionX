@@ -571,7 +571,8 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 - `-DSCREEN_WIDTH=640` hardcode screen width to 640 pixel
 - `-DSCREEN_HEIGHT=480` hardcode screen height to 480 pixel
 - `-DMPQONE="hellone.mpq"` The name of the merged MPQ file. ("diablone.mpq" in case of non-hellfire game)
-- `-DUSE_MPQONE=OFF` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
+- `-DCREATE_MPQONE=OFF` Merge the .mpq files to "hellone.mpq". Takes a few minutes, but required to be done only once.
+- `-DUSE_MPQONE=OFF` Force the use of a merged .mpq file.
 - `-DUSE_PATCH=OFF` build a separate binary to manipulate MPQ files (expect it to be used before the game is launched).
 
 ### Debug builds

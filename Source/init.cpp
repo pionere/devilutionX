@@ -197,7 +197,7 @@ void InitArchives()
 		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif
 
-#if USE_MPQONE
+#if CREATE_MPQONE
 	int i;
 	// first round - read the content and prepare the metadata
 	std::string listpath = std::string(GetBasePath()) + "listfiles.txt";

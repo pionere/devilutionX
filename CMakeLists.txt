@@ -157,7 +157,8 @@ cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
 option(USE_PATCH "Create executable to patch assets" OFF)
-option(USE_MPQONE "Force the use of merged assets" OFF)
+option(CREATE_MPQONE "Merge assets if necessary" OFF)
+cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
@@ -172,6 +173,12 @@ endif()
 if(NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
+endif()
+
+if(HELLFIRE)
+  set(MPQONE \"hellone.mpq\")
+else()
+  set(MPQONE \"diablone.mpq\")
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
@@ -781,6 +788,7 @@ foreach(
   HELLFIRE
   USE_PATCH
   USE_MPQONE
+  CREATE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
@@ -1369,6 +1377,7 @@ foreach(
   HELLFIRE
   USE_PATCH
   USE_MPQONE
+  CREATE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
