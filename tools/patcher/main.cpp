@@ -1,8 +1,6 @@
 #include <SDL.h>
 #include <SDL_main.h>
 #ifdef __SWITCH__
-#include "platform/switch/network.h"
-#include "platform/switch/random.hpp"
 #include "platform/switch/romfs.hpp"
 #endif
 #ifdef __3DS__
@@ -23,7 +21,6 @@ extern "C" int main(int argc, char** argv)
 {
 #ifdef __SWITCH__
 	switch_romfs_init();
-	randombytes_switchrandom_init();
 #endif
 #ifdef __3DS__
 	ctr_sys_init();
