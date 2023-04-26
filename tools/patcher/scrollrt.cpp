@@ -7,11 +7,6 @@
 #include "utils/display.h"
 #include "plrctrls.h"
 #include "engine/render/cel_render.h"
-#if GAME
-#include "engine/render/cl2_render.h"
-#include "engine/render/dun_render.h"
-#include "engine/render/text_render.h"
-#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -44,50 +39,6 @@ bool gbCelTransparencyActive;
  * Buffer to store the cursor image.
  */
 BYTE sgSaveBack[MAX_CURSOR_AREA];
-
-//bool dRendered[MAXDUNX][MAXDUNY];
-static unsigned guFrameCnt;
-static unsigned guFrameRate;
-static Uint32 guFpsStartTc;
-
-#if DEBUG_MODE
-const char* const szMonModeAssert[NUM_MON_MODES] = {
-	"standing",
-	"walking (1)",
-	"walking (2)",
-	"attacking",
-	"getting hit",
-	"dying",
-	"attacking (special)",
-	"fading in",
-	"fading out",
-	"attacking (ranged)",
-	"standing (special)",
-	"attacking (special ranged)",
-	"delaying",
-	"charging",
-	"stoned",
-	"healing",
-	"talking",
-	"dead",
-	"unused",
-	"reserved",
-};
-
-const char* const szPlrModeAssert[NUM_PLR_MODES] = {
-	"standing",
-	"walking (1)",
-	"walking (2)",
-	"charging",
-	"attacking (melee)",
-	"attacking (ranged)",
-	"blocking",
-	"getting hit",
-	"dying",
-	"casting a spell",
-	"changing levels"
-};
-#endif
 
 /**
  * @brief Clear cursor state
