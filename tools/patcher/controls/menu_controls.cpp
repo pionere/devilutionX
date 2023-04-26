@@ -37,10 +37,16 @@ MenuAction GetMenuAction(SDL_Event& event)
 
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
-	if (ProcessControllerMotion(event, ctrlEvent)) {
+	if (ProcessControllerMotion(event)) {
 		sgbControllerActive = true;
 		return GetMenuHeldUpDownAction();
 	}
+#if HAS_DPAD
+	if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent)) {
+		sgbControllerActive = true;
+		return GetMenuHeldUpDownAction();
+	}
+#endif
 
 	if (ctrlEvent.button != ControllerButton_NONE)
 		sgbControllerActive = true;

@@ -3,6 +3,7 @@
 #include "controls/controller.h"
 #include "controls/controller_motion.h"
 #include "controls/axis_direction.h"
+#include "controls/game_controls.h"
 #include "controls/plrctrls.h"
 #include "controls/touch.h"
 
@@ -37,10 +38,16 @@ MenuAction GetMenuAction(SDL_Event& event)
 
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
-	if (ProcessControllerMotion(event, ctrlEvent)) {
+	if (ProcessControllerMotion(event)) {
 		sgbControllerActive = true;
 		return GetMenuHeldUpDownAction();
 	}
+#if HAS_DPAD
+	if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent)) {
+		sgbControllerActive = true;
+		return GetMenuHeldUpDownAction();
+	}
+#endif
 
 	if (ctrlEvent.button != ControllerButton_NONE)
 		sgbControllerActive = true;

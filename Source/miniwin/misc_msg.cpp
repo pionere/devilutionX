@@ -831,9 +831,12 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
-	if (ProcessControllerMotion(e, ctrlEvent))
+	if (ProcessControllerMotion(e))
 		return true;
-
+#if HAS_DPAD
+	if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent))
+		return true;
+#endif
 	GameAction action = GameAction(GameActionType_NONE);
 	if (GetGameAction(e, ctrlEvent, &action)) {
 		if (action.type != GameActionType_NONE) {

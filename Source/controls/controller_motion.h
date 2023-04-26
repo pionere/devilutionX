@@ -28,7 +28,10 @@ bool IsMovingMouseCursorWithController();
 void ScaleJoystickAxes(bool rightAxes);
 
 // Updates motion state for mouse and joystick sticks.
-bool ProcessControllerMotion(const SDL_Event& event, ControllerButtonEvent ctrlEvent);
+bool ProcessControllerMotion(const SDL_Event& event);
+
+// Updates motion state for dpads.
+bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent);
 
 // Returns direction of the left thumb stick or DPad (if allow_dpad = true).
 AxisDirection GetLeftStickOrDpadDirection(bool allow_dpad = true);
