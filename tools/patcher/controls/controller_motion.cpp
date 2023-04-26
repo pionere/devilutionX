@@ -8,7 +8,6 @@
 #include "devices/game_controller.h"
 #include "devices/joystick.h"
 #include "devices/kbcontroller.h"
-#include "game_controls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
