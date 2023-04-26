@@ -14,13 +14,24 @@ static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
+// base mapflags set in the corresponding .AMP file (only the lower byte is used)
+#define MAPFLAG_TYPE      0x00FF
+#define MAPFLAG_VERTDOOR  0x0100
+#define MAPFLAG_HORZDOOR  0x0200
+#define MAPFLAG_VERTARCH  0x0400
+#define MAPFLAG_HORZARCH  0x0800
+#define MAPFLAG_VERTGRATE 0x1000
+#define MAPFLAG_HORZGRATE 0x2000
+
 typedef enum filenames {
 	FILE_TOWN_MIN,
 	FILE_CATHEDRAL_MIN,
 	FILE_CATHEDRAL_SOL,
+	FILE_CATACOMBS_AMP,
 	FILE_CAVES_MIN,
 	FILE_CAVES_SOL,
 	FILE_HELL_SOL,
+	FILE_HELL_AMP,
 #ifdef HELLFIRE
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
@@ -36,9 +47,11 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
+/*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
 /*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
+/*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
 #ifdef HELLFIRE
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
@@ -246,6 +259,18 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		nMissileTable(8, false); // the only column which was blocking missiles
 	} break;
+	case FILE_CATACOMBS_AMP:
+	{	// patch dAutomapData - L2.AMP
+		if (*dwLen < 157 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *automaptype = (uint16_t*)buf;
+		automaptype[42 - 1] &= SwapLE16(~MAPFLAG_HORZARCH);
+		automaptype[156 - 1] &= SwapLE16(~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE));
+		automaptype[157 - 1] &= SwapLE16(~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE));
+	} break;
 	case FILE_CAVES_MIN:
 	{	// patch dMiniTiles - L3.MIN
 #if ASSET_MPL == 1
@@ -287,6 +312,17 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(211, false);
 		nMissileTable(211, false);
 		nBlockTable(211, false);
+	} break;
+	case FILE_HELL_AMP:
+	{	// patch dAutomapData - L4.AMP
+		if (*dwLen < 56 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *automaptype = (uint16_t*)buf;
+		automaptype[52 - 1] |= SwapLE16(MAPFLAG_VERTGRATE);
+		automaptype[56 - 1] |= SwapLE16(MAPFLAG_HORZGRATE);
 	} break;
 #ifdef HELLFIRE
 	case FILE_NTOWN_MIN:
