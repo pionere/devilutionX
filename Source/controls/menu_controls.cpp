@@ -1,11 +1,13 @@
 #include "menu_controls.h"
 
-#include "DiabloUI/diabloui.h"
+#include "controls/controller.h"
+#include "controls/controller_motion.h"
 #include "controls/axis_direction.h"
 #include "controls/plrctrls.h"
-#include "controls/controller_motion.h"
+#include "controls/touch.h"
+
+#include "DiabloUI/diabloui.h"
 #include "controls/remap_keyboard.h"
-#include "utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -25,9 +27,15 @@ MenuAction GetMenuHeldUpDownAction()
 }
 #endif
 
-MenuAction GetMenuAction(const SDL_Event &event)
+MenuAction GetMenuAction(SDL_Event& event)
 {
+#if HAS_TOUCHPAD
+	handle_touch(&event);
+#endif
+
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	HandleControllerAddedOrRemovedEvent(event);
+
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
 	if (ProcessControllerMotion(event, ctrlEvent)) {
@@ -69,8 +77,14 @@ MenuAction GetMenuAction(const SDL_Event &event)
 
 #if !HAS_KBCTRL
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (event.type >= SDL_KEYDOWN && event.type < SDL_JOYAXISMOTION)
+#if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
+	if ((e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+#else
+	if (e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) {
+#endif
+		// Keyboard or Mouse (or Touch) events -> switch to standard input
 		sgbControllerActive = false;
+	}
 #endif
 
 	if (event.type == SDL_KEYDOWN) {
@@ -88,7 +102,7 @@ MenuAction GetMenuAction(const SDL_Event &event)
 		case SDLK_PAGEDOWN:
 			return MenuAction_PAGE_DOWN;
 		case SDLK_RETURN: {
-			if (!GetAsyncKeyState(DVL_VK_MENU)) {
+			if (!(SDL_GetModState() & KMOD_ALT)) {
 				return MenuAction_SELECT;
 			}
 			break;
@@ -125,6 +139,25 @@ MenuAction GetMenuAction(const SDL_Event &event)
 			break;
 		}
 	}
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	if (event.type == SDL_MOUSEWHEEL) {
+		if (event.wheel.y > 0) {
+			return MenuAction_UP;
+		} else if (event.wheel.y < 0) {
+			return MenuAction_DOWN;
+		}
+	}
+#else
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		switch (event.button.button) {
+		case SDL_BUTTON_WHEELUP:
+			return MenuAction_UP;
+		case SDL_BUTTON_WHEELDOWN:
+			return MenuAction_DOWN;
+		}
+	}
+#endif
 
 	return MenuAction_NONE;
 }

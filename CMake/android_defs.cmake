@@ -2,6 +2,8 @@
 set(ASAN OFF)
 set(UBSAN OFF)
 
+set(PIE ON)
+
 # General build options.
 #set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)

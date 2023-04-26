@@ -10,14 +10,14 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
+// #define PKT_HDR_CHECK	SDL_SwapBE16(*((WORD*)"ip"))
 
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
 /* Buffer to hold the received player-info. */
 static PkPlayerStruct netplr[MAX_PLRS];
-/* Current offset in netplr. */
-static WORD sgwPackPlrOffsetTbl[MAX_PLRS];
+/* Specifies whether the player-info is received. */
+static bool sgbPackPlrTbl[MAX_PLRS];
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
 /* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */
@@ -56,9 +56,9 @@ static bool _gbTimeout;
 uint32_t guDeltaTurn;
 static bool _gbNetInited;
 /* The name/address of the current game. (multiplayer games) */
-const char *szGameName;
+const char* szGameName;
 /* The password of the current game. (multiplayer games) */
-const char *szGamePassword;
+const char* szGamePassword;
 /* The network-state of the players. (PCS_) */
 unsigned player_state[MAX_PLRS];
 
@@ -74,9 +74,9 @@ static void multi_init_buffers()
  * @param pbMsg: the content of the turn-chunk
  * @param bLen: the length of the turn-chunk
  */
-void NetSendChunk(BYTE* pbMsg, BYTE bLen)
+void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 {
-	BYTE *p;
+	BYTE* p;
 
 	if (sgTurnChunkBuf.dwDataSize + bLen + 1 >= sizeof(sgTurnChunkBuf.bData)) {
 		// TODO: should this be fatal?
@@ -93,7 +93,7 @@ void NetSendChunk(BYTE* pbMsg, BYTE bLen)
 
 static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 {
-	BYTE *src_ptr;
+	BYTE* src_ptr;
 	size_t chunk_size;
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
@@ -114,19 +114,19 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 	return dest;
 }
 
-static void multi_init_pkt_header(TurnPktHdr &pktHdr, unsigned len)
+static void multi_init_pkt_header(TurnPktHdr& pktHdr, unsigned len)
 {
-	PlayerStruct* p;
+	// PlayerStruct* p;
 
-	pktHdr.wLen = SwapLE16(len);
+	pktHdr.wLen = static_cast<uint16_t>(len);
 	// pktHdr.wCheck = PKT_HDR_CHECK;
-	p = &myplr;
-	pktHdr.px = p->_px;
-	pktHdr.py = p->_py;
-	pktHdr.php = SwapLE32(p->_pHitPoints);
-	// pktHdr.pmhp = SwapLE32(p->_pMaxHP);
-	pktHdr.pmp = SwapLE32(p->_pMana);
-	// pktHdr.pmmp = SwapLE32(p->_pMaxMana);
+	// p = &myplr;
+	// pktHdr.px = p->_px;
+	// pktHdr.py = p->_py;
+	// pktHdr.php = p->_pHitPoints;
+	// pktHdr.pmhp = p->_pMaxHP;
+	// pktHdr.pmp = p->_pMana;
+	// pktHdr.pmmp = p->_pMaxMana;
 }
 
 void multi_send_turn_packet()
@@ -135,7 +135,7 @@ void multi_send_turn_packet()
 	unsigned remsize, len;
 	TurnPkt pkt;
 
-	remsize = NET_NORMAL_MSG_SIZE - sizeof(TurnPktHdr);
+	remsize = NET_TURN_MSG_SIZE - sizeof(TurnPktHdr);
 	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
 	dstEnd = sync_all_monsters(dstEnd, remsize);
 	len = (size_t)dstEnd - (size_t)&pkt;
@@ -147,17 +147,17 @@ void multi_send_turn_packet()
  * Send a packet to the target player(s) selected by the pmask without using the queue.
  *
  * @param pmask: The mask of the player indices to receive the data. Or SNPLAYER_ALL to send to everyone.
- * @param src: the content of the message
+ * @param pbSrc: the content of the message
  * @param bLen: the length of the message
  */
-void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE bLen)
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 {
 	unsigned i, len = bLen;
-	MsgPkt pkt;
+	NormalMsgPkt pkt;
 
-	memcpy(&pkt.body[0], src, len);
+	memcpy(&pkt.body[0], pbSrc, len);
 	len += sizeof(pkt.hdr);
-	pkt.hdr.wLen = SwapLE16(len);
+	pkt.hdr.wLen = static_cast<uint16_t>(len);
 	// pkt.hdr.wCheck = PKT_HDR_CHECK;
 	static_assert(sizeof(pmask) * CHAR_BIT > MAX_PLRS, "Sending packets with unsigned int mask does not work.");
 	if (pmask == SNPLAYER_ALL) {
@@ -188,7 +188,6 @@ void multi_rnd_seeds()
 
 static void multi_parse_turns()
 {
-	int pnum;
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 	multi_process_turn(turn);
@@ -196,17 +195,13 @@ static void multi_parse_turns()
 
 	if (guSendGameDelta != 0) {
 		if (!gbJoinGame) {
-			for (pnum = 0; pnum < MAX_PLRS; pnum++, guSendGameDelta >>= 1) {
-				if (guSendGameDelta & 1) {
-					DeltaExportData(pnum);
-				}
-			}
+			DeltaExportData(guSendGameDelta);
 		}
 		guSendGameDelta = 0;
 	}
 
 	if (guSendLevelData != 0) {
-#ifndef  NOHOSTING
+#ifndef NOHOSTING
 		if (mypnum < MAX_PLRS)
 			LevelDeltaExport();
 		else
@@ -248,17 +243,16 @@ void multi_deactivate_player(int pnum, int reason)
 		if (reason != LEAVE_NONE) {
 			pszFmt = "Player '%s' left the game";
 			switch (reason) {
-			//case LEAVE_UNKNOWN:
+			//case LEAVE_NORMAL:
 			//	break;
 			case LEAVE_DROP:
-				pszFmt = "Player '%s' dropped due to timeout";
+				pszFmt = "Player '%s' is disconnected";
 				break;
 			}
 			EventPlrMsg(pszFmt, plr._pName);
 		}
-		sgwPackPlrOffsetTbl[pnum] = 0;
+		sgbPackPlrTbl[pnum] = false;
 		plr._pActive = FALSE;
-		plr._pName[0] = '\0';
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
 		guReceivedLevelDelta &= ~(1 << pnum);
@@ -391,12 +385,12 @@ bool multi_handle_turn()
 	return true;
 }
 
-static void multi_process_turn_packet(int pnum, BYTE *pData, int nSize)
+static void multi_process_turn_packet(int pnum, BYTE* pData, int nSize)
 {
 	int nLen;
 
 	while (nSize > 0) {
-		nLen = ParseCmd(pnum, (TCmd *)pData);
+		nLen = ParseCmd(pnum, (TCmd*)pData);
 		// assert(nLen != 0);
 		pData += nLen;
 		nSize -= nLen;
@@ -420,24 +414,27 @@ void multi_process_turn(SNetTurnPkt* turn)
 		data += sizeof(unsigned);
 		pkt = (TurnPktHdr*)data;
 		data += dwMsgSize;
-		if (dwMsgSize < sizeof(TurnPktHdr))
+		if (dwMsgSize <= sizeof(TurnPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
-		if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
-		 currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
+		dwMsgSize -= sizeof(TurnPktHdr);
+		//if (pnum != mypnum && // prevent empty turns during level load to overwrite JOINLEVEL
+		// currLvl._dLevelIdx != plr._pDunLevel) { // ignore players on the same level (should be calculated by ourself)
 			// ASSERT: assert(geBufferMsgs != MSG_RUN_DELTA);
-			plr._pHitPoints = SwapLE32(pkt->php);
-			//plr._pMaxHP = SwapLE32(pkt->pmhp);
-			plr._pMana = SwapLE32(pkt->pmp);
-			plr._px = pkt->px;
-			plr._py = pkt->py;
-		}
-		net_assert(plr._pActive || dwMsgSize == sizeof(TurnPktHdr) || ((TCmd*)(pkt + 1))->bCmd == CMD_JOINLEVEL);
-		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize - sizeof(TurnPktHdr));
+		//	plr._pHitPoints = pkt->php;
+			// plr._pMaxHP = pkt->pmhp;
+		//	plr._pMana = pkt->pmp;
+			// plr._pMaxMana = pkt->pmmp;
+		//	plr._px = pkt->px;
+		//	plr._py = pkt->py;
+		//}
+		if (!plr._pActive && ((TCmd*)(pkt + 1))->bCmd != CMD_JOINLEVEL)
+			continue; // player is disconnected -> ignore the turn
+		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
 		//multi_check_left_plrs();
 	}
 	gdwLastGameTurn = turn->nmpTurn;
@@ -466,7 +463,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		// assert((unsigned)pnum < MAX_PLRS);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (cmd->bCmd == CMD_JOINLEVEL) {
@@ -486,14 +483,14 @@ void multi_process_msgs()
 
 	multi_check_left_plrs();
 	//multi_process_tmsgs();
-	while (SNetReceiveMessage(&pnum, (BYTE **)&pkt, &dwMsgSize)) {
+	while (SNetReceiveMessage(&pnum, (BYTE**)&pkt, &dwMsgSize)) {
 		multi_check_left_plrs();
 		if (dwMsgSize < sizeof(MsgPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
 		//if (pkt->wCheck != PKT_HDR_CHECK)
 		//	continue;
-		if (SwapLE16(pkt->wLen) != dwMsgSize)
+		if (pkt->wLen != dwMsgSize)
 			continue;
 		dwMsgSize -= sizeof(MsgPktHdr);
 		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
@@ -570,18 +567,18 @@ static void RunGameServer()
 #endif // !NOHOSTING
 
 /**
- * Send a (possible) large packet to the target player using TCmdPlrInfoHdr without using the queue.
+ * Send a (possible) large packet to the target player using TMsgLargeHdr without using the queue.
  *
  * @param pnum: The player index of the player to receive the data.
  * @param bCmd: the message type (CMD_*)
  * @param pbSrc: the content of the message
  * @param dwLen: the length of the message
  */
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen)
+/*void multi_send_large_direct_msg(int pnum, BYTE bCmd, const BYTE* pbSrc, unsigned dwLen)
 {
 	unsigned dwOffset, dwBody, dwMsg;
-	MsgPkt pkt;
-	TCmdPlrInfoHdr* p;
+	NormalMsgPkt pkt;
+	TMsgLargeHdr* p;
 
 	/// ASSERT: assert(pnum != mypnum);
 	/// ASSERT: assert(pbSrc != NULL);
@@ -591,36 +588,71 @@ void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLe
 	dwOffset = 0;
 
 	while (dwLen != 0) {
-		p = (TCmdPlrInfoHdr*)pkt.body;
+		p = (TMsgLargeHdr*)pkt.body;
 		p->bCmd = bCmd;
-		p->wOffset = SwapLE16(dwOffset);
-		dwBody = NET_LARGE_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
+		p->wOffset = static_cast<uint16_t>(dwOffset);
+		dwBody = NET_NORMAL_MSG_SIZE - sizeof(pkt.hdr) - sizeof(*p);
 		if (dwLen < dwBody) {
 			dwBody = dwLen;
 		}
 		/// ASSERT: assert(dwBody <= 0x0ffff);
-		p->wBytes = SwapLE16(dwBody);
+		p->wBytes = static_cast<uint16_t>(dwBody);
 		memcpy(&pkt.body[sizeof(*p)], pbSrc, dwBody);
 		dwMsg = dwBody + sizeof(pkt.hdr) + sizeof(*p);
-		pkt.hdr.wLen = SwapLE16(dwMsg);
+		pkt.hdr.wLen = static_cast<uint16_t>(dwMsg);
 		SNetSendMessage(pnum, (BYTE*)&pkt, dwMsg);
 		pbSrc += dwBody;
 		dwLen -= dwBody;
 		dwOffset += dwBody;
 	}
+}*/
+
+void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize)
+{
+	LargeMsgPkt* pkt = &gsDeltaData.ddSendRecvPkt;
+	unsigned i, dwTotalLen;
+	// DeltaCompressData
+	DWORD dwBodySize;
+
+	if (bodySize >= NET_COMP_MSG_SIZE) {
+		dwBodySize = PkwareCompress(pkt->apMsg.tpData.content, bodySize);
+	} else {
+		dwBodySize = bodySize;
+	}
+	pkt->apMsg.tpData.compressed = bodySize != dwBodySize;
+	dwBodySize += sizeof(pkt->apMsg.tpData.compressed);
+
+	dwTotalLen = dwBodySize + sizeof(pkt->apHdr) + sizeof(pkt->apMsg.tpHdr);
+
+	pkt->apMsg.tpHdr.bCmd = bCmd;
+	pkt->apMsg.tpHdr.wBytes = static_cast<uint16_t>(dwBodySize);
+	pkt->apHdr.wLen = static_cast<uint16_t>(dwTotalLen);
+
+	if (pmask == SNPLAYER_ALL) {
+		static_assert(SNPLAYER_ALL >= (1 << MAX_PLRS), "SNPLAYER_ALL does not work with pnum masks.");
+		SNetSendMessage(SNPLAYER_ALL, (BYTE*)pkt, dwTotalLen);
+	} else {
+		for (i = 0; i < MAX_PLRS; i++, pmask >>= 1) {
+			if (pmask & 1) {
+				SNetSendMessage(i, (BYTE*)pkt, dwTotalLen);
+			}
+		}
+	}
 }
 
-static void multi_send_plrinfo_msg(int pnum, BYTE cmd)
+static void multi_broadcast_plrinfo_msg()
 {
-	PkPlayerStruct pkplr;
+	DBuffer* buff = &gsDeltaData.ddSendRecvPkt.apMsg.tpData;
 
-	PackPlayer(&pkplr, mypnum);
-	dthread_send_delta(pnum, cmd, &pkplr, sizeof(pkplr));
+	static_assert(sizeof(PkPlayerStruct) <= sizeof(buff->content), "Plrinfo does not fit to the buffer in multi_broadcast_plrinfo_msg.");
+	PackPlayer((PkPlayerStruct*)buff->content, mypnum);
+
+	multi_send_large_msg(SNPLAYER_ALL, NMSG_PLRINFO, sizeof(PkPlayerStruct));
 }
 
 static void SetupLocalPlr()
 {
-	PlayerStruct *p;
+	PlayerStruct* p;
 
 #if DEBUG_MODE
 	if (!leveldebug || !IsLocalGame) {
@@ -649,27 +681,20 @@ static void SetupLocalPlr()
 	//	p->_pAtkSkill = SPL_RATTACK;
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	CalcPlrInv(mypnum, false);
+	if (p->_pHitPoints < (1 << 6))
+		PlrSetHp(mypnum, (1 << 6));
 
-#if DEBUG_MODE
-	if (debug_mode_key_inverted_v) {
-		p->_pMemSkills = SPL_INVALID;
-	} else if (debug_mode_god_mode) {
-		if (p->_pSkillLvlBase[SPL_TELEPORT] == 0) {
-			p->_pMemSkills |= SPELL_MASK(SPL_TELEPORT);
-			p->_pSkillLvlBase[SPL_TELEPORT] = 1;
-		}
-	}
-#endif
-	assert(p->destAction == ACTION_NONE);
+	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
 	assert(p->_pmode == PM_NEWLVL);
+	assert(p->_pGFXLoad == 0);
 
 	gbActivePlayers = 1;
 	p->_pActive = TRUE;
 }
 
-static void multi_handle_events(SNetEvent *pEvt)
+static void multi_handle_events(SNetEvent* pEvt)
 {
 	unsigned pnum, LeftReason;
 
@@ -685,7 +710,7 @@ static void multi_handle_events(SNetEvent *pEvt)
 		EventPlrMsg("Server is down");
 	}
 
-	dthread_remove_player(pnum);
+	// dthread_remove_player(pnum);
 
 	if (gsDeltaData.ddDeltaSender == pnum)
 		gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
@@ -699,11 +724,11 @@ void NetClose()
 
 	_gbNetInited = false;
 	nthread_cleanup();
-	dthread_cleanup();
+	// dthread_cleanup();
 	UIDisconnectGame();
 }
 
-static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
+static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
 	int i, dlgresult, pnum;
 	uint32_t seed;
@@ -746,21 +771,21 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
 			mypnum = SNPLAYER_MASTER;
-			sgGameInitInfo.bPlayerId = SNPLAYER_MASTER;
+			gameData.aePlayerId = SNPLAYER_MASTER;
 		} else
 			pfile_read_hero_from_save();
 
 		if (gbLoadGame) {
 			// mypnum = 0;
-			sgGameInitInfo.bMaxPlayers = 1;
-			sgGameInitInfo.bTickRate = gnTicksRate;
-			sgGameInitInfo.bNetUpdateRate = 1;
+			gameData.aeMaxPlayers = 1;
+			gameData.aeTickRate = gnTicksRate;
+			gameData.aeNetUpdateRate = 1;
 			break;
 		}
 
 		// select game
-		//  sets sgGameInitInfo except for bPlayerId, dwSeed (if not joining a game) and dwVersionId
-		dlgresult = UiSelectGame(&sgGameInitInfo, multi_handle_events);
+		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
+		dlgresult = UiSelectGame(&gameData, multi_handle_events);
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
 				gbSelectProvider = true;
@@ -771,7 +796,7 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		}
 
 		if (dlgresult == SELGAME_JOIN) {
-			pnum = sgGameInitInfo.bPlayerId;
+			pnum = gameData.aePlayerId;
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
@@ -782,15 +807,15 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 		break;
 	}
 
-	gnTicksRate = sgGameInitInfo.bTickRate;
+	gnTicksRate = gameData.aeTickRate;
 	gnTickDelay = 1000 / gnTicksRate;
-	gbNetUpdateRate = sgGameInitInfo.bNetUpdateRate;
-	assert(mypnum == sgGameInitInfo.bPlayerId);
-	gnDifficulty = sgGameInitInfo.bDifficulty;
-	SetRndSeed(sgGameInitInfo.dwSeed);
+	gbNetUpdateRate = gameData.aeNetUpdateRate;
+	assert(mypnum == gameData.aePlayerId);
+	gnDifficulty = gameData.aeDifficulty;
+	SetRndSeed(gameData.aeSeed);
 
 	for (i = 0; i < NUM_LEVELS; i++) {
-		seed = GetRndSeed();
+		seed = NextRndSeed();
 		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
@@ -804,24 +829,24 @@ static bool multi_init_game(bool bSinglePlayer, SNetGameData &sgGameInitInfo)
 
 bool NetInit(bool bSinglePlayer)
 {
-	SNetGameData sgGameInitInfo;
+	_uigamedata gameData;
 
 	while (TRUE) {
 		SetRndSeed(0);
-		sgGameInitInfo.dwSeed = time(NULL);
-		sgGameInitInfo.dwVersionId = GAME_VERSION;
-		sgGameInitInfo.bPlayerId = 0;
-		//sgGameInitInfo.bDifficulty = DIFF_NORMAL;
-		//sgGameInitInfo.bTickRate = SPEED_NORMAL;
-		//sgGameInitInfo.bNetUpdateRate = 1;
-		//sgGameInitInfo.bMaxPlayers = MAX_PLRS;
+		gameData.aeSeed = time(NULL);
+		gameData.aeVersionId = GAME_VERSION;
+		gameData.aePlayerId = 0;
+		//gameData.aeDifficulty = DIFF_NORMAL;
+		//gameData.aeTickRate = SPEED_NORMAL;
+		//gameData.aeNetUpdateRate = 1;
+		//gameData.aeMaxPlayers = MAX_PLRS;
 		gbJoinGame = false;
 		memset(players, 0, sizeof(players));
-		if (!multi_init_game(bSinglePlayer, sgGameInitInfo))
+		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
 		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
 		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
-		memset(sgwPackPlrOffsetTbl, 0, sizeof(sgwPackPlrOffsetTbl));
+		memset(sgbPackPlrTbl, false, sizeof(sgbPackPlrTbl));
 		memset(player_state, 0, sizeof(player_state));
 		guSendGameDelta = 0;
 		guSendLevelData = 0;
@@ -832,7 +857,7 @@ bool NetInit(bool bSinglePlayer)
 		InitPlrMsg();
 		multi_init_buffers();
 		nthread_start();
-		dthread_start();
+		// dthread_start();
 		gdwLastGameTurn = 0;
 		gdwGameLogicTurn = 0;
 		nthread_send_turn();
@@ -845,43 +870,70 @@ bool NetInit(bool bSinglePlayer)
 		SetupLocalPlr();
 		if (!gbJoinGame)
 			break;
-		multi_send_plrinfo_msg(SNPLAYER_ALL, NMSG_PLRINFO);
+		multi_broadcast_plrinfo_msg();
 		if (DownloadDeltaInfo()) {
 			//nthread_finish(); - do not, because it would send a join-level message
 			break;
 		}
 		NetClose();
 	}
-	assert(mypnum == sgGameInitInfo.bPlayerId);
-	assert(gnTicksRate == sgGameInitInfo.bTickRate);
-	assert(gnTickDelay == 1000 / gnTicksRate);
-	assert(gbNetUpdateRate == sgGameInitInfo.bNetUpdateRate);
-	assert(gnDifficulty == sgGameInitInfo.bDifficulty);
+	assert(mypnum == gameData.aePlayerId);
+	assert(gnTicksRate == gameData.aeTickRate);
+	assert(gnTickDelay == 1000u / gnTicksRate);
+	assert(gbNetUpdateRate == gameData.aeNetUpdateRate);
+	assert(gnDifficulty == gameData.aeDifficulty);
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr)
+void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
-	if (sgwPackPlrOffsetTbl[pnum] != piHdr->wOffset) {
+	if (sgbPackPlrTbl[pnum]) {
+		// invalid data -> drop
+		return;
+	}
+	if (plr._pActive) {
+		return; // player was imported during delta-load -> skip
+	}
+
+	DWORD size = piMsg->tpHdr.wBytes - sizeof(piMsg->tpData.compressed);
+
+	if (size > sizeof(PkPlayerStruct)) {
 		// invalid data -> drop
 		return;
 	}
 
-	//if (piHdr->wBytes == 0)
-	//	return; // 'invalid' data -> skip to prevent reactivation of a player
-	memcpy((char *)&netplr[pnum] + piHdr->wOffset, &piHdr[1], piHdr->wBytes); /* todo: cast? */
-	sgwPackPlrOffsetTbl[pnum] += piHdr->wBytes;
-	if (sgwPackPlrOffsetTbl[pnum] != sizeof(*netplr)) {
+	memcpy(&netplr[pnum], piMsg->tpData.content, size);
+	// DeltaDecompressData
+	if (piMsg->tpData.compressed) {
+		PkwareDecompress((BYTE*)&netplr[pnum], size, sizeof(PkPlayerStruct));
+	}
+	// TODO: check (decompressed) size ?
+	//if (size != sizeof(PkPlayerStruct)) {
+	//	// invalid data -> drop
+	//	return;
+	//}
+#if INET_MODE
+	// TODO: extend validation of PkPlayerStruct?
+	if (netplr[pnum].pName[0] == '\0'
+	 || netplr[pnum].pTeam != pnum
+	 || netplr[pnum].pDunLevel != DLV_TOWN
+	 //|| !netplr[pnum].pLvlChanging
+	 || netplr[pnum].pLevel > MAXCHARLEVEL
+	 || netplr[pnum].pClass >= NUM_CLASSES) {
+		// invalid data -> drop
 		return;
 	}
-
-	//sgwPackPlrOffsetTbl[pnum] = 0; - do NOT reset the offset to prevent reactivation of a player
-	if (plr._pActive)
-		return; // player was imported during delta-load -> skip
-	// TODO: validate PkPlayerStruct coming from internet?
+	netplr[pnum].pName[lengthof(netplr[pnum].pName) - 1] = '\0'; // ensure the name is null terminated
+#endif
+	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
 	UnPackPlayer(&netplr[pnum], pnum);
+}
+
+bool multi_plrinfo_received(int pnum)
+{
+	return sgbPackPlrTbl[pnum];
 }
 
 DEVILUTION_END_NAMESPACE

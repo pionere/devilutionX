@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 extern uint32_t glSeedTbl[NUM_LEVELS];
-extern int MouseX;
-extern int MouseY;
+// current mouse position
+extern POS32 MousePos;
 extern bool gbWasUiInit;
 extern bool gbSndInited;
 extern bool gbRunGame;
@@ -35,7 +35,7 @@ extern int gnTimeoutCurs;
 void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);
 void diablo_quit(int exitStatus);
-int DiabloMain(int argc, char **argv);
+int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 void ActionBtnCmd(bool bShift);
 void AltActionBtnCmd(bool bShift);
@@ -60,8 +60,6 @@ extern int debugmonsttypes;
 extern bool allquests;
 extern int questdebug;
 extern int debug_mode_key_w;
-extern int debug_mode_key_inverted_v;
-extern BOOL debug_mode_god_mode;
 extern int debug_mode_key_i;
 #endif
 

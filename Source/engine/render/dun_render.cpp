@@ -3,7 +3,7 @@
  *
  * Implementation of functionality for rendering the level tiles.
  */
-#include "dun_render.hpp"
+#include "dun_render.h"
 
 #include "all.h"
 
@@ -395,9 +395,6 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 	//(*dst) += n;
 }
 
-#if defined(__clang__) || defined(__GNUC__)
-__attribute__((no_sanitize("shift-base")))
-#endif
 /**
  * @brief Blit a micro CEL to the given buffer
  * @param pBuff Output buffer
@@ -410,7 +407,7 @@ __attribute__((no_sanitize("shift-base")))
 void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 {
 	int i, j, light;
-	char v;
+	int8_t v;
 	BYTE *src, *dst, encoding;
 	uint32_t m, *mask, *pFrameTable;
 
@@ -484,11 +481,11 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	default:
 		ASSUME_UNREACHABLE;
 		mask = &SolidMask[MICRO_HEIGHT - 1];
-		break; 
+		break;
 	}
 
 #if DEBUG_MODE
-	if (GetAsyncKeyState(DVL_VK_MENU)) {
+	if (SDL_GetModState() & KMOD_ALT) {
 		mask = &SolidMask[MICRO_HEIGHT - 1];
 	}
 #endif

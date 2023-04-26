@@ -1143,7 +1143,7 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	// clang-format on
 };
 
-bool effect_is_playing(int nSFX)
+bool IsSFXPlaying(int nSFX)
 {
 	SFXStruct* sfx = &sgSFX[nSFX];
 
@@ -1152,7 +1152,7 @@ bool effect_is_playing(int nSFX)
 	return sfx->pSnd.IsPlaying();
 }
 
-void stream_stop()
+void StopStreamSFX()
 {
 	if (sgpStreamSFX != NULL) {
 		Mix_HaltChannel(SFX_STREAM_CHANNEL);
@@ -1161,23 +1161,29 @@ void stream_stop()
 	}
 }
 
-static void stream_play(SFXStruct* pSFX, int lVolume, int lPan)
+void StopSFX()
+{
+	StopStreamSFX();
+	sound_stop();
+}
+
+static void StartStreamSFX(SFXStruct* pSFX, int lVolume, int lPan)
 {
 	// assert(pSFX != NULL);
 	// assert(pSFX->bFlags & sfx_STREAM);
 	// assert(pSFX->pSnd != NULL);
 	if (pSFX == sgpStreamSFX)
 		return;
-	stream_stop();
+	StopStreamSFX();
 	sgpStreamSFX = pSFX;
 
 	sound_stream(pSFX->pszName, &pSFX->pSnd, lVolume, lPan);
 }
 
-static void stream_update()
+void CheckStreamSFX()
 {
 	if (sgpStreamSFX != NULL && !sgpStreamSFX->pSnd.IsPlaying()) {
-		stream_stop();
+		StopStreamSFX();
 	}
 }
 
@@ -1263,13 +1269,13 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 
 	pSFX = &sgSFX[psfx];
 	/* not necessary, since non-streamed sfx should be loaded at this time
-	   streams are loaded in stream_play
+	   streams are loaded in StartStreamSFX
 	if (!pSFX->pSnd.IsLoaded()) {
 		sound_file_load(pSFX->pszName, &pSFX->pSnd);
 		// assert(pSFX->pSnd.IsLoaded());
 	}*/
 	if (pSFX->bFlags & sfx_STREAM) {
-		stream_play(pSFX, lVolume, lPan);
+		StartStreamSFX(pSFX, lVolume, lPan);
 		return;
 	}
 	assert(pSFX->pSnd.IsLoaded());
@@ -1280,7 +1286,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	sound_play(&pSFX->pSnd, lVolume, lPan);
 }
 
-void PlayEffect(int mnum, int mode)
+void PlayMonSFX(int mnum, int mode)
 {
 	MonsterStruct* mon;
 	int sndIdx, lVolume, lPan;
@@ -1325,26 +1331,6 @@ void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
 	}
 
 	PlaySFX_priv(psfx, true, x, y);
-}
-
-void sound_stop()
-{
-	Mix_HaltChannel(-1);
-}
-
-void sound_pause(bool pause)
-{
-	if (pause)
-		Mix_Pause(-1);
-	else
-		Mix_Resume(-1);
-}
-
-void sound_update()
-{
-	assert(gbSndInited);
-
-	stream_update();
 }
 
 static void priv_sound_free(BYTE bLoadMask)

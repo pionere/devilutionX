@@ -12,7 +12,7 @@ PATHNODE path_nodes[MAXPATHNODES];
 /** The index of last used node in path_nodes. */
 static unsigned gnLastNodeIdx;
 /** Container for reconstructing the path after the A* search is done. */
-static char reversePathDirs[MAX_PATH_LENGTH];
+static int8_t reversePathDirs[MAX_PATH_LENGTH];
 /** A linked list of all visited nodes. */
 static PATHNODE* pathVisitedNodes;
 /** A stack for recursively update nodes. */
@@ -23,9 +23,9 @@ static PATHNODE* pathFrontNodes;
 static int gnTx, gnTy;
 
 /** For iterating over the 8 possible movement directions. */
-//                     PDIR_N   W   E   S  NW  NE  SE  SW
-const char pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
-const char pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
+//                       PDIR_N   W   E   S  NW  NE  SE  SW
+const int8_t pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
+const int8_t pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
 /** Maps from facing direction to path-direction. */
 const BYTE dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
 
@@ -38,8 +38,8 @@ const BYTE dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR
  * dy 0|2 0 3
  *    1|8 4 7
  */
-//char path_directions[9] = { WALK_N, WALK_NE, WALK_E, WALK_NW, 0, WALK_SE, WALK_W, WALK_SW, WALK_S };
-char path_directions[9] = { DIR_N, DIR_NE, DIR_E, DIR_NW, DIR_NONE, DIR_SE, DIR_W, DIR_SW, DIR_S };
+//int8_t path_directions[9] = { WALK_N, WALK_NE, WALK_E, WALK_NW, 0, WALK_SE, WALK_W, WALK_SW, WALK_S };
+int8_t path_directions[9] = { DIR_N, DIR_NE, DIR_E, DIR_NW, DIR_NONE, DIR_SE, DIR_W, DIR_SW, DIR_S };
 
 /**
  * @brief return a node for (dx,dy) on the frontier, or NULL if not found
@@ -263,7 +263,7 @@ static PATHNODE* PathPopNode()
  * path_directions) in path, which must have room for MAX_PATH_LENGTH steps
  * @return the length of the path or -1 if there is none
  */
-int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char* path)
+int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, int8_t* path)
 {
 	PATHNODE* currNode;
 	int path_length, i;

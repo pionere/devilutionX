@@ -1269,7 +1269,6 @@ void WritePNG2Min(png_image_data* imagedata, int numtiles, min_image_data* minda
 	// create SOL
 	snprintf(filename, sizeof(filename), "%s%s.SOL", destFolder, prefix);
 	f = fopen(filename, "wb");
-	fputc(0, f);
 	for (int n = 0; n < pn; n++) {
 		PieceMetaData* cpd = &pieceData[n];
 		BYTE bv = 0;
@@ -1829,7 +1828,6 @@ int PNG2Min(const char* megatiles[][4], int nummegas, int blocks,
 	// create SOL
 	snprintf(filename, sizeof(filename), "%s%s.SOL", destFolder, prefix);
 	f0 = fopen(filename, "wb");
-	fputc(0, f0);
 	for (int n = 0; n < pn; n++) {
 		PieceMetaData* cpd = &pieceData[n];
 		BYTE bv = 0;

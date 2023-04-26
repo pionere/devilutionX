@@ -31,7 +31,9 @@ typedef DWORD cookie_t;
 typedef uint32_t turn_t;
 typedef uint8_t leaveinfo_t;
 #ifdef NETENCRYPT
-typedef struct key_t { BYTE data[crypto_secretbox_KEYBYTES]; } key_t;
+typedef struct key_t {
+	BYTE data[crypto_secretbox_KEYBYTES];
+} key_t;
 #else
 // Stub out the key_t definition as we're not doing any encryption.
 using key_t = uint8_t;
@@ -92,92 +94,115 @@ typedef struct NetPktInfoReply {
 
 class packet {
 protected:
-	const key_t &key;
+	const key_t& key;
 	buffer_t encrypted_buffer;
 	buffer_t decrypted_buffer;
 
 public:
-	packet(const key_t &k)
+	packet(const key_t& k)
 	    : key(k) {};
 
-	const buffer_t &encrypted_data();
+	const buffer_t& encrypted_data();
 
-	packet_type pktType() const {
+	packet_type pktType() const
+	{
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type;
 	}
-	plr_t pktSrc() const {
+	plr_t pktSrc() const
+	{
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_src;
 	}
-	plr_t pktDest() const {
+	plr_t pktDest() const
+	{
 		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_dest;
 	}
 	// PT_MESSAGE
-	buffer_t::const_iterator pktMessageBegin() const {
+	buffer_t::const_iterator pktMessageBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktHdr);
 	}
-	buffer_t::const_iterator pktMessageEnd() const {
+	buffer_t::const_iterator pktMessageEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_TURN
-	turn_t pktTurn() const {
+	turn_t pktTurn() const
+	{
 		return reinterpret_cast<const NetPktTurn*>(decrypted_buffer.data())->m_turn;
 	}
-	buffer_t::const_iterator pktTurnBegin() const {
+	buffer_t::const_iterator pktTurnBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktTurn);
 	}
-	buffer_t::const_iterator pktTurnEnd() const {
+	buffer_t::const_iterator pktTurnEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_JOIN_REQUEST
-	cookie_t pktJoinReqCookie() const {
+	cookie_t pktJoinReqCookie() const
+	{
 		return reinterpret_cast<const NetPktJoinRequest*>(decrypted_buffer.data())->m_cookie;
 	}
 	// PT_JOIN_ACCEPT
-	plr_t pktJoinAccPlr() const {
+	plr_t pktJoinAccPlr() const
+	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_newplr;
 	}
-	cookie_t pktJoinAccCookie() const {
+	cookie_t pktJoinAccCookie() const
+	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_cookie;
 	}
-	SNetGameData &pktJoinAccInfo() {
+	SNetGameData& pktJoinAccInfo()
+	{
 		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
 	}
 	// PT_INFO_REPLY
-	buffer_t::const_iterator pktInfoReplyNameBegin() const {
+	buffer_t::const_iterator pktInfoReplyNameBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktHdr);
 	}
-	buffer_t::const_iterator pktInfoReplyNameEnd() const {
+	buffer_t::const_iterator pktInfoReplyNameEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_CONNECT
-	plr_t pktConnectPlr() const {
+	plr_t pktConnectPlr() const
+	{
 		return reinterpret_cast<const NetPktConnect*>(decrypted_buffer.data())->m_newplr;
 	}
-	buffer_t::const_iterator pktConnectAddrBegin() const {
+	buffer_t::const_iterator pktConnectAddrBegin() const
+	{
 		return decrypted_buffer.begin() + sizeof(NetPktConnect);
 	}
-	buffer_t::const_iterator pktConnectAddrEnd() const {
+	buffer_t::const_iterator pktConnectAddrEnd() const
+	{
 		return decrypted_buffer.end();
 	}
 	// PT_DISCONNECT
-	plr_t pktDisconnectPlr() const {
+	plr_t pktDisconnectPlr() const
+	{
 		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_newplr;
 	}
-	leaveinfo_t pktDisconnectInfo() const {
+	leaveinfo_t pktDisconnectInfo() const
+	{
 		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_leaveinfo;
 	}
 };
 
 class packet_in : public packet {
-public:
+	friend class packet_factory;
 	using packet::packet;
+
+protected:
 	void create(buffer_t buf);
 	bool decrypt();
 };
 
 class packet_out : public packet {
-public:
+	friend class packet_factory;
 	using packet::packet;
+
+protected:
 	template <packet_type t, typename... Args>
 	void create(Args... args);
 	void encrypt();
@@ -295,13 +320,6 @@ public:
 	std::unique_ptr<packet> make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	std::unique_ptr<packet> make_out_packet(Args... args);
-	template <packet_type t, typename... Args>
-	std::unique_ptr<packet> make_fake_out_packet(Args... args);
-
-	template <class T>
-	static const BYTE* begin(const T &x);
-	template <class T>
-	static const BYTE* end(const T &x);
 };
 
 inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
@@ -320,26 +338,6 @@ std::unique_ptr<packet> packet_factory::make_out_packet(Args... args)
 	ret->create<t>(args...);
 	ret->encrypt();
 	return ret;
-}
-
-template <packet_type t, typename... Args>
-std::unique_ptr<packet> packet_factory::make_fake_out_packet(Args... args)
-{
-	std::unique_ptr<packet_out> ret(new packet_out(key));
-	ret->create<t>(args...);
-	return std::unique_ptr<packet>(std::move(ret));
-}
-
-template <class T>
-const BYTE* packet_factory::begin(const T &x)
-{
-	return reinterpret_cast<const BYTE*>(&x);
-}
-
-template <class T>
-const BYTE* packet_factory::end(const T &x)
-{
-	return reinterpret_cast<const BYTE*>(&x) + sizeof(T);
 }
 
 } // namespace net

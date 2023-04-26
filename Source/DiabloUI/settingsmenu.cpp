@@ -20,6 +20,10 @@ void UiSettingsDialog()
 		else if (gnTicksRate > SPEED_FASTEST)
 			gnTicksRate = SPEED_FASTEST;
 	}
+	// initialize the UI
+	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+	UiAddBackground(&gUiItems);
+	UiInitScreen(0);
 	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);
@@ -27,27 +31,29 @@ void UiSettingsDialog()
 
 	SDL_Event event;
 	while (settingsMenu == gpCurrentMenu) {
-		ClearScreenBuffer();
+		UiClearScreen();
+		UiRenderItems(gUiItems);
 		gmenu_draw();
-		scrollrt_draw_screen(true);
+		UiFadeIn();
 		while (SDL_PollEvent(&event) != 0) {
 			UiHandleEvents(&event);
 
-			keypress = DVL_VK_NONAME;
 			switch (GetMenuAction(event)) {
 			case MenuAction_NONE:
 				switch (event.type) {
 				case SDL_MOUSEMOTION:
 					gmenu_on_mouse_move();
-					break;
+					continue;
 				case SDL_MOUSEBUTTONDOWN:
+					if (event.button.button != SDL_BUTTON_LEFT)
+						continue;
 					keypress = DVL_VK_LBUTTON;
 					break;
 				case SDL_MOUSEBUTTONUP:
 					gmenu_left_mouse(false);
-					break;
+					continue;
 				default:
-					break;
+					continue;
 				}
 				break;
 			case MenuAction_SELECT:
@@ -57,7 +63,7 @@ void UiSettingsDialog()
 				keypress = DVL_VK_ESCAPE;
 				break;
 			case MenuAction_DELETE:
-				break;
+				continue;
 			case MenuAction_UP:
 				keypress = DVL_VK_UP;
 				break;
@@ -72,20 +78,22 @@ void UiSettingsDialog()
 				break;
 			case MenuAction_PAGE_UP:
 			case MenuAction_PAGE_DOWN:
-				break;
+				continue;
 			default:
 				ASSUME_UNREACHABLE
-				break;
+				continue;
 			}
-			if (keypress != DVL_VK_NONAME)
-				gmenu_presskey(keypress);
+			gmenu_presskey(keypress);
 		}
 	}
-	PlaySFX(IS_TITLSLCT); // UiFocusNavigationSelect(); -- needs UiInitList...
+	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
-
+	// free gamemenu
 	gmenu_set_items(NULL, 0, NULL);
 	FreeGMenu();
+	// free the UI
+	FreeBackgroundArt();
+	UiClearItems(gUiItems);
 }
 
 DEVILUTION_END_NAMESPACE

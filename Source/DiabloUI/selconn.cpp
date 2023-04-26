@@ -18,7 +18,7 @@ static char selconn_Description[64];
 static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
-#define DESCRIPTION_WIDTH	(SELCONN_LPANEL_WIDTH - 2 * 10)
+#define DESCRIPTION_WIDTH (SELCONN_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelconnSelect(unsigned index);
@@ -120,17 +120,15 @@ static void SelconnLoad()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());
-	UiInitList(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
+	UiInitScreen(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
 }
 
 static void SelconnFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	UiClearListItems();
 
 	UiClearItems(gUiItems);
-
-	//UiInitList_clear();
 }
 
 static void SelconnSelect(unsigned index)
@@ -155,8 +153,7 @@ bool UiSelectProvider(bool bMulti)
 	}
 
 	while (!selconn_EndMenu) {
-		UiClearScreen();
-		UiPollAndRender();
+		UiRenderAndPoll(NULL);
 	}
 	SelconnFree();
 

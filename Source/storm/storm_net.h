@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../types.h"
 #ifdef ZEROTIER
 #include <vector>
 #include <string>
 #endif
+
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -12,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-bool SNetCreateGame(const char* pszGamePassword, SNetGameData* gameData, char (&errorText)[256]);
+bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256]);
 
 /*  SNetDropPlayer @ 106
  *
@@ -28,9 +29,9 @@ void SNetDropPlayer(int playerid);
  *  @param name:         The address and port of the game
  *  @param password:     The password of the game
  */
-void SNetGetGameInfo(const char **name, const char **password);
+void SNetGetGameInfo(const char** name, const char** password);
 
-bool SNetJoinGame(const char *gameName, unsigned port, const char *gamePassword, char (&errorText)[256]);
+bool SNetJoinGame(const char* gameName, unsigned port, const char* gamePassword, char (&errorText)[256]);
 
 /*  SNetLeaveGame @ 119
  *
@@ -64,7 +65,7 @@ uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
  */
 unsigned SNetGetTurnsInTransit();
 
-typedef void (*SEVTHANDLER)(SNetEvent* );
+typedef void (*SEVTHANDLER)(SNetEvent*);
 
 /*  SNetSendMessage @ 127
  *

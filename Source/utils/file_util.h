@@ -26,7 +26,9 @@
 #include <cstdio>
 #endif
 
-namespace dvl {
+#include "../defs.h"
+
+DEVILUTION_BEGIN_NAMESPACE
 
 inline FILE* FileOpen(const char* path, const char* mode)
 {
@@ -131,4 +133,4 @@ inline void RemoveFile(const char* lpFileName)
 	}
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE

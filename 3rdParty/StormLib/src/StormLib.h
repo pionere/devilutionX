@@ -974,13 +974,13 @@ struct TStreamBitmap
 //TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
 TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
 const TCHAR * FileStream_GetFileName(TFileStream * pStream);
+#ifdef FULL
 size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
 
-#ifdef FULL
 bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData);
-#endif
 
-//bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
+bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
+#endif
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);

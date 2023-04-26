@@ -124,6 +124,7 @@ typedef struct _FILE_BITMAP_FOOTER
 
 union TBaseProviderData
 {
+#ifdef FULL
     struct
     {
         ULONGLONG FileSize;                 // Size of the file
@@ -148,10 +149,19 @@ union TBaseProviderData
         HANDLE hInternet;                   // Internet handle
         HANDLE hConnect;                    // Connection to the internet server
     } Http;
+#else
+    struct
+    {
+        ULONGLONG FileSize;                 // Size of the file
+        ULONGLONG FilePos;                  // Current file position
+        HANDLE hFile;                       // File handle
+    } File;
+#endif // FULL
 };
 
 struct TFileStream
 {
+#ifdef FULL
     // Stream provider functions
     STREAM_READ    StreamRead;              // Pointer to stream read function for this archive. Do not use directly.
     STREAM_WRITE   StreamWrite;             // Pointer to stream write function for this archive. Do not use directly.
@@ -173,17 +183,19 @@ struct TFileStream
     STREAM_GETSIZE BaseGetSize;             // Pointer to function returning file size
     STREAM_GETPOS  BaseGetPos;              // Pointer to function that returns current file position
     STREAM_CLOSE   BaseClose;               // Pointer to function closing the stream
-
+#endif // FULL
     // Base provider data (file size, file position)
     TBaseProviderData Base;
-
+#ifdef FULL
     // Stream provider data
     TFileStream * pMaster;                  // Master stream (e.g. MPQ on a web server)
+#endif
     TCHAR * szFileName;                     // File name (self-relative pointer)
-
+#ifdef FULL
     ULONGLONG StreamSize;                   // Stream size (can be less than file size)
     ULONGLONG StreamPos;                    // Stream position
     DWORD BuildNumber;                      // Game build number
+#endif
     DWORD dwFlags;                          // Stream flags
 
     // Followed by stream provider data, with variable length
@@ -191,7 +203,7 @@ struct TFileStream
 
 //-----------------------------------------------------------------------------
 // Structures for block-oriented stream
-
+#ifdef FULL
 struct TBlockStream : public TFileStream
 {
     SFILE_DOWNLOAD_CALLBACK pfnCallback;    // Callback for downloading
@@ -213,5 +225,5 @@ struct TEncryptedStream : public TBlockStream
 {
     BYTE Key[MPQE_CHUNK_SIZE];              // File key
 };
-
+#endif // FULL
 #endif // __FILESTREAM_H__

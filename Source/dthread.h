@@ -14,12 +14,12 @@ extern "C" {
 
 #ifndef NONET
 void dthread_remove_player(int pnum);
-void dthread_send_delta(int pnum, BYTE cmd, void* pbSrc, int dwLen);
+void dthread_send_delta(int pnum, BYTE cmd, const BYTE* pbSrc, int dwLen);
 void dthread_start();
 void dthread_cleanup();
 #else
 inline void dthread_remove_player(int pnum) { };
-inline void dthread_send_delta(int pnum, BYTE cmd, void* pbSrc, int dwLen) { };
+inline void dthread_send_delta(int pnum, BYTE cmd, const BYTE* pbSrc, int dwLen) { };
 inline void dthread_start() { };
 inline void dthread_cleanup() { };
 #endif // NONET

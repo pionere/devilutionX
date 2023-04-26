@@ -27,38 +27,39 @@ extern uint32_t gdwLastGameTurn;
 extern uint32_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 
-void NetSendChunk(BYTE* pbMsg, BYTE bLen);
-void multi_send_direct_msg(unsigned pmask, BYTE* src, BYTE len);
-void multi_send_large_direct_msg(int pnum, BYTE bCmd, BYTE* pbSrc, unsigned dwLen);
+void NetSendChunk(const BYTE* pbMsg, BYTE bLen);
+void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize);
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE len);
 void multi_process_msgs();
 bool multi_handle_turn();
 void multi_send_turn_packet();
 void multi_pre_process_turn(SNetTurnPkt* turn);
-void multi_process_turn(SNetTurnPkt *turn);
+void multi_process_turn(SNetTurnPkt* turn);
 void multi_deactivate_player(int pnum, int reason);
 void multi_disband_team(int pnum);
 bool multi_check_timeout();
 void multi_rnd_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void multi_recv_plrinfo_msg(int pnum, TCmdPlrInfoHdr* piHdr);
+void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg);
+bool multi_plrinfo_received(int pnum);
 
 #ifdef NONET
-#define IsLocalGame	true
-#define IsMultiGame	(gbGameMode >= 1)
-#define IsGameSrv	false
+#define IsLocalGame true
+#define IsMultiGame (gbGameMode >= 1)
+#define IsGameSrv   false
 #elif defined(HOSTONLY)
-#define IsLocalGame	false
-#define IsMultiGame	true
-#define IsGameSrv	true
+#define IsLocalGame false
+#define IsMultiGame true
+#define IsGameSrv   true
 #elif defined(NOHOSTING)
-#define IsLocalGame	(gbGameMode <= 1)
-#define IsMultiGame	(gbGameMode >= 1)
-#define IsGameSrv	false
+#define IsLocalGame (gbGameMode <= 1)
+#define IsMultiGame (gbGameMode >= 1)
+#define IsGameSrv   false
 #else
-#define IsLocalGame	(gbGameMode <= 1)
-#define IsMultiGame	(gbGameMode >= 1)
-#define IsGameSrv	(gbGameMode == 3)
+#define IsLocalGame (gbGameMode <= 1)
+#define IsMultiGame (gbGameMode >= 1)
+#define IsGameSrv   (gbGameMode == 3)
 #endif
 
 #ifdef __cplusplus
