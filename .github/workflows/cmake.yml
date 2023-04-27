@@ -40,12 +40,12 @@ jobs:
     #  working-directory: ${{ env.buildDir }}
     #  run: cmake --version
 
-    - name: Cache CMake build folder
-      uses: actions/cache@v3
-      with:
-        path: android-project/app/.cxx
-        key: android-cmake-${{ github.sha }}
-        restore-keys: android-cmake-
+    #- name: Cache CMake build folder
+    #  uses: actions/cache@v3
+    #  with:
+    #    path: android-project/app/.cxx
+    #    key: android-cmake-${{ github.sha }}
+    #    restore-keys: android-cmake-
 
     - name: Build
       working-directory: ${{github.workspace}}
