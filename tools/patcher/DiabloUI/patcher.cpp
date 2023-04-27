@@ -34,6 +34,24 @@ typedef enum filenames {
 	FILE_HELL_AMP,
 	FILE_BHSM_TRN,
 	FILE_BSM_TRN,
+	FILE_ACIDB_TRN,
+	FILE_ACIDBLK_TRN,
+	FILE_BLKKNTBE_TRN,
+	FILE_DARK_TRN,
+	FILE_BLUE_TRN,
+	FILE_FATB_TRN,
+	FILE_GARGB_TRN,
+	FILE_GARGBR_TRN,
+	FILE_GRAY_TRN,
+	FILE_CNSELBK_TRN,
+	FILE_CNSELG_TRN,
+	FILE_GUARD_TRN,
+	FILE_VTEXL_TRN,
+	FILE_RHINOB_TRN,
+	FILE_BLACK_TRN,
+	FILE_WHITE_TRN,
+	FILE_THINV1_TRN,
+	FILE_GREY_TRN,
 #ifdef HELLFIRE
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
@@ -57,6 +75,24 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
 /*FILE_BHSM_TRN*/      "Monsters\\Monsters\\BHSM.TRN",
 /*FILE_BSM_TRN*/       "Monsters\\Monsters\\BSM.TRN",
+/*FILE_ACIDB_TRN*/     "Monsters\\Acid\\AcidB.TRN",
+/*FILE_ACIDBLK_TRN*/   "Monsters\\Acid\\AcidBlk.TRN",
+/*FILE_BLKKNTBE_TRN*/  "Monsters\\Black\\BlkKntBe.TRN",
+/*FILE_DARK_TRN*/      "Monsters\\FalSpear\\Dark.TRN",
+/*FILE_BLUE_TRN*/      "Monsters\\Fat\\Blue.TRN",
+/*FILE_FATB_TRN*/      "Monsters\\Fat\\FatB.TRN",
+/*FILE_GARGB_TRN*/     "Monsters\\Gargoyle\\GargB.TRN",
+/*FILE_GARGBR_TRN*/    "Monsters\\Gargoyle\\GargBr.TRN",
+/*FILE_GRAY_TRN*/      "Monsters\\GoatMace\\Gray.TRN",
+/*FILE_CNSELBK_TRN*/   "Monsters\\Mage\\Cnselbk.TRN",
+/*FILE_CNSELG_TRN*/    "Monsters\\Mage\\Cnselg.TRN",
+/*FILE_GUARD_TRN*/     "Monsters\\Mega\\Guard.TRN",
+/*FILE_VTEXL_TRN*/     "Monsters\\Mega\\Vtexl.TRN",
+/*FILE_RHINOB_TRN*/    "Monsters\\Rhino\\RhinoB.TRN",
+/*FILE_BLACK_TRN*/     "Monsters\\SkelSd\\Black.TRN",
+/*FILE_WHITE_TRN*/     "Monsters\\SkelSd\\White.TRN",
+/*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
+/*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #ifdef HELLFIRE
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
@@ -349,6 +385,35 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		// assert(buf[241] == 255 || buf[241] == 0);
 		buf[241] = 0;
+	} break;
+	case FILE_ACIDB_TRN:
+	case FILE_ACIDBLK_TRN:
+	case FILE_BLKKNTBE_TRN:
+	case FILE_DARK_TRN:
+	case FILE_BLUE_TRN:
+	case FILE_FATB_TRN:
+	case FILE_GARGB_TRN:
+	case FILE_GARGBR_TRN:
+	case FILE_GRAY_TRN:
+	case FILE_CNSELBK_TRN:
+	case FILE_CNSELG_TRN:
+	case FILE_GUARD_TRN:
+	case FILE_VTEXL_TRN:
+	case FILE_RHINOB_TRN:
+	case FILE_BLACK_TRN:
+	case FILE_WHITE_TRN:
+	case FILE_THINV1_TRN:
+	case FILE_GREY_TRN:
+	{	// patch TRN for normal monsters - ...TRN
+		if (*dwLen != 256) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		for (int i = 0; i < NUM_COLORS - 1; i++) {
+			if (buf[i] == 255)
+				buf[i] = 0;
+		}
 	} break;
 #ifdef HELLFIRE
 	case FILE_NTOWN_MIN:

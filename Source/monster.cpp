@@ -150,7 +150,6 @@ static void (*const AiProc[])(int i) = {
 
 static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
 {
-	BYTE* cf;
 	int i, j;
 	const MonAnimStruct* as;
 	BYTE trn[NUM_COLORS];
@@ -158,15 +157,16 @@ static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const ch
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
 	LoadFileWithMem(transFile, trn);
+#if !USE_PATCH
 	// patch TRN files - Monsters/*.TRN
-	cf = trn;
+	BYTE *cf = trn;
 	for (i = 0; i < NUM_COLORS; i++) {
 		if (*cf == 255) {
 			*cf = 0;
 		}
 		cf++;
 	}
-
+#endif
 	for (i = 0; i < NUM_MON_ANIM; i++) {
 		as = &anims[i];
 		if (as->maFrames > 1) {
