@@ -68,32 +68,6 @@ static int mainmenu_play_intro()
 #endif
 	return result;
 }
-#else
-
-void LogErrorF(const char* type, const char* msg, ...)
-{
-	char tmp[256];
-	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
-	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", 0);
-	FILE* f0 = fopen(tmp, "a+");
-	if (f0 == NULL)
-		return;
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
-
 #endif // GAME
 
 void mainmenu_loop()

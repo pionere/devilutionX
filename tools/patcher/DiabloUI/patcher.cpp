@@ -744,6 +744,10 @@ static int patcher_callback()
 		}
 		std::string pathFrom = std::string(GetBasePath()) + "devilx.mpq.foo";
 		RenameFile(pathFrom.c_str(), pathTo.c_str());
+		if (FileExists(pathFrom.c_str())) {
+			app_warn("Failed to rename %s to %s.", pathFrom.c_str(), pathTo.c_str());
+			return RETURN_ERROR;
+		}
 		workPhase++;
 	} break;
 	case 5:
