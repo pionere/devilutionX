@@ -32,6 +32,8 @@ typedef enum filenames {
 	FILE_CAVES_SOL,
 	FILE_HELL_SOL,
 	FILE_HELL_AMP,
+	FILE_BHSM_TRN,
+	FILE_BSM_TRN,
 #ifdef HELLFIRE
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
@@ -53,6 +55,8 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
 /*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
 /*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
+/*FILE_BHSM_TRN*/      "Monsters\\Monsters\\BHSM.TRN",
+/*FILE_BSM_TRN*/       "Monsters\\Monsters\\BSM.TRN",
 #ifdef HELLFIRE
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
@@ -325,6 +329,26 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *automaptype = (uint16_t*)buf;
 		automaptype[52 - 1] |= SwapLE16(MAPFLAG_VERTGRATE);
 		automaptype[56 - 1] |= SwapLE16(MAPFLAG_HORZGRATE);
+	} break;
+	case FILE_BHSM_TRN:
+	{	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
+		if (*dwLen != 256) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		// assert(buf[188] == 255 || buf[188] == 0);
+		buf[188] = 0;
+	} break;
+	case FILE_BSM_TRN:
+	{	// patch TRN for 'Baron Sludge' - BSM.TRN
+		if (*dwLen != 256) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		// assert(buf[241] == 255 || buf[241] == 0);
+		buf[241] = 0;
 	} break;
 #ifdef HELLFIRE
 	case FILE_NTOWN_MIN:

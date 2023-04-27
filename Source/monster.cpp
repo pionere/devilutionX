@@ -872,16 +872,6 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 
 	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
-	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
-	if (uniqindex == UMT_STEELMACE) {
-		// assert(ColorTrns[uniquetrans][188] == 255);
-		ColorTrns[uniquetrans][188] = 0;
-	}
-	// patch TRN for 'Baron Sludge' - BSM.TRN
-	if (uniqindex == UMT_BARON) {
-		// assert(ColorTrns[uniquetrans][241] == 255);
-		ColorTrns[uniquetrans][241] = 0;
-	}
 
 	mon->_muniqtrans = uniquetrans++;
 
