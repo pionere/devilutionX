@@ -19,7 +19,7 @@ BYTE gbTWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the catacombs from town. */
 #define TOWN_L2_WARP     (PIECE >= 1175 && PIECE <= 1178)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the caves from town. */
-#define TOWN_L3_WARP     (PIECE >= 1199 && PIECE <= 1220)
+#define TOWN_L3_WARP     (PIECE >= 1210 && PIECE <= 1213)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to hell from town. */
 #define TOWN_L4_WARP     (PIECE >= 1240 && PIECE <= 1255)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the hive from town. */

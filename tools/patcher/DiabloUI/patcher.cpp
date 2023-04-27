@@ -25,6 +25,7 @@ static constexpr int RETURN_DONE = 100;
 
 typedef enum filenames {
 	FILE_TOWN_MIN,
+	FILE_TOWN_CEL,
 	FILE_CATHEDRAL_MIN,
 	FILE_CATHEDRAL_SOL,
 	FILE_CATACOMBS_AMP,
@@ -53,6 +54,7 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #ifdef HELLFIRE
+	FILE_NTOWN_CEL,
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
 	FILE_CRYPT_MIN,
@@ -66,6 +68,7 @@ typedef enum filenames {
 
 static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
+/*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
@@ -94,6 +97,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #ifdef HELLFIRE
+/*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
@@ -270,6 +274,24 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		patchTownFile(buf);
+#endif
+	} break;
+	case FILE_TOWN_CEL:
+#ifdef HELLFIRE
+	case FILE_NTOWN_CEL:
+#endif
+	{
+#if ASSET_MPL == 1
+		if (*dwLen < 3547 * 4) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		// patch dMicroCels - TOWN.CEL
+		// - overwrite subtile 557 and 558 with subtile 939 and 940 to make the inner tile of Griswold's house non-walkable
+		BYTE *pMicroCels = buf;
+		memcpy(&pMicroCels[SwapLE32(((DWORD*)pMicroCels)[557])], &pMicroCels[SwapLE32(((DWORD*)pMicroCels)[939])], SwapLE32(((DWORD*)pMicroCels)[940]) - SwapLE32(((DWORD*)pMicroCels)[939]));
+		memcpy(&pMicroCels[SwapLE32(((DWORD*)pMicroCels)[558])], &pMicroCels[SwapLE32(((DWORD*)pMicroCels)[940])], SwapLE32(((DWORD*)pMicroCels)[941]) - SwapLE32(((DWORD*)pMicroCels)[940]));
 #endif
 	} break;
 	case FILE_CATHEDRAL_MIN:

@@ -235,16 +235,22 @@ void InitLvlDungeon()
 
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
-		// patch dSolidTable - Town.SOL
 #if !USE_PATCH
+		// patch dSolidTable - Town.SOL
 		// nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
 		// nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
 		// nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
+#if ASSET_MPL == 1
+		// patch dMicroCels - TOWN.CEL
+		// - overwrite subtile 557 and 558 with subtile 939 and 940 to make the inner tile of Griswold's house non-walkable
+		memcpy(&pMicroCels[SwapLE32(((DWORD*)pMicroCels)[557])], &pMicroCels[SwapLE32(((DWORD*)pMicroCels)[939])], SwapLE32(((DWORD*)pMicroCels)[940]) - SwapLE32(((DWORD*)pMicroCels)[939]));
+		memcpy(&pMicroCels[SwapLE32(((DWORD*)pMicroCels)[558])], &pMicroCels[SwapLE32(((DWORD*)pMicroCels)[940])], SwapLE32(((DWORD*)pMicroCels)[941]) - SwapLE32(((DWORD*)pMicroCels)[940]));
+#endif
 #endif
 		break;
 	case DTYPE_CATHEDRAL:
-		// patch dSolidTable - L1.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L1.SOL
 		nMissileTable[8] = false; // the only column which was blocking missiles
 #endif
 		break;
@@ -365,11 +371,14 @@ void InitLvlDungeon()
 		nTrapTable[534] = PTT_RIGHT;
 		break;
 	case DTYPE_CAVES:
+#if !USE_PATCH
+		// patch dSolidTable - L3.SOL
 		nSolidTable[249] = false; // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+#endif
 		break;
 	case DTYPE_HELL:
-		// patch dSolidTable - L4.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L4.SOL
 		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
 		// nMissileTable[137] = false; // fix missile-blocking tile of down-stairs. - skip to keep in sync with the nSolidTable
 		// nSolidTable[137] = false;   // fix non-walkable tile of down-stairs. - skip, because it causes a graphic glitch
@@ -395,16 +404,16 @@ void InitLvlDungeon()
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:
-		// patch dSolidTable - L6.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L6.SOL
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
 #endif
 		break;
 	case DTYPE_CRYPT:
-		// patch dSolidTable - L5.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L5.SOL
 		nSolidTable[143] = false; // make right side of down-stairs consistent (walkable)
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		// make collision-checks more reasonable
