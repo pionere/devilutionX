@@ -15,7 +15,6 @@ extern "C" {
 #endif
 
 extern CelImageBuf* gbBackCel;
-extern CelImageBuf* gbHerosCel;
 extern CelImageBuf* gbSmlButtonCel;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);

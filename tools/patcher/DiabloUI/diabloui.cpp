@@ -34,7 +34,6 @@ static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
-CelImageBuf* gbHerosCel;
 CelImageBuf* gbSmlButtonCel;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
@@ -576,7 +575,7 @@ static void RenderItem(UiItemBase* item)
 static bool HandleMouseEventArtTextButton(const SDL_Event& event, const UiTxtButton* uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return false;
+		return true;
 	uiButton->m_action();
 	return true;
 }
@@ -585,7 +584,7 @@ static bool HandleMouseEventButton(const SDL_Event& event, UiButton* button)
 {
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		button->m_pressed = true;
-	} else {
+	} else if (button->m_pressed) {
 		// assert(event.type == SDL_MOUSEBUTTONUP);
 		button->m_action();
 	}
@@ -599,7 +598,7 @@ Uint32 dbClickTimer;
 static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return false;
+		return true;
 
 	const unsigned index = uiList->indexAt(event.button.y) + ListOffset;
 
@@ -625,7 +624,7 @@ static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
 static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar* uiSb)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return false;
+		return true;
 
 	int y = event.button.y - uiSb->m_rect.y;
 	if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
@@ -680,7 +679,7 @@ void UiHandleEvents(SDL_Event* event)
 		return;
 
 	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
+		if (!gUiDrawCursor) {
 			UiFocusNavigationEsc();
 			return;
 		}

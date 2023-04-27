@@ -14,15 +14,32 @@ static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
+// base mapflags set in the corresponding .AMP file (only the lower byte is used)
+#define MAPFLAG_TYPE      0x00FF
+#define MAPFLAG_VERTDOOR  0x0100
+#define MAPFLAG_HORZDOOR  0x0200
+#define MAPFLAG_VERTARCH  0x0400
+#define MAPFLAG_HORZARCH  0x0800
+#define MAPFLAG_VERTGRATE 0x1000
+#define MAPFLAG_HORZGRATE 0x2000
+
 typedef enum filenames {
 	FILE_TOWN_MIN,
-	FILE_CAVES_MIN,
 	FILE_CATHEDRAL_MIN,
+	FILE_CATHEDRAL_SOL,
+	FILE_CATACOMBS_AMP,
+	FILE_CAVES_MIN,
+	FILE_CAVES_SOL,
+	FILE_HELL_SOL,
+	FILE_HELL_AMP,
 #ifdef HELLFIRE
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
 	FILE_CRYPT_MIN,
+	FILE_CRYPT_SOL,
 	FILE_NEST_MIN,
+	FILE_NEST_SOL,
+	FILE_OBJCURS_CEL,
 #endif
 	NUM_FILENAMES
 } filenames;
@@ -30,12 +47,20 @@ typedef enum filenames {
 static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
+/*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
+/*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
+/*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
+/*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
+/*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
 #ifdef HELLFIRE
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
+/*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
+/*FILE_NEST_SOL*/      "NLevels\\L6Data\\L6.SOL",
+/*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
 };
 
@@ -50,6 +75,27 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #define blkMicro(subtileRef, microIndex) \
 { \
 	pMicroPieces[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
+}
+
+#define nSolidTable(pn, v) \
+if (v) { \
+   buf[pn - 1] |= PFLAG_BLOCK_PATH; \
+} else { \
+   buf[pn - 1] &= ~PFLAG_BLOCK_PATH; \
+}
+
+#define nMissileTable(pn, v) \
+if (v) { \
+   buf[pn - 1] |= PFLAG_BLOCK_MISSILE; \
+} else { \
+   buf[pn - 1] &= ~PFLAG_BLOCK_MISSILE; \
+}
+
+#define nBlockTable(pn, v) \
+if (v) { \
+   buf[pn - 1] |= PFLAG_BLOCK_LIGHT; \
+} else { \
+   buf[pn - 1] &= ~PFLAG_BLOCK_LIGHT; \
 }
 
 static void patchTownFile(BYTE* buf)
@@ -206,6 +252,27 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(140, 1);
 #endif /* ASSET_MPL == 1 */
 	} break;
+	case FILE_CATHEDRAL_SOL:
+	{	// patch dSolidTable - L1.SOL
+		if (*dwLen <= 8) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nMissileTable(8, false); // the only column which was blocking missiles
+	} break;
+	case FILE_CATACOMBS_AMP:
+	{	// patch dAutomapData - L2.AMP
+		if (*dwLen < 157 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *automaptype = (uint16_t*)buf;
+		automaptype[42 - 1] &= SwapLE16(~MAPFLAG_HORZARCH);
+		automaptype[156 - 1] &= SwapLE16(~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE));
+		automaptype[157 - 1] &= SwapLE16(~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE));
+	} break;
 	case FILE_CAVES_MIN:
 	{	// patch dMiniTiles - L3.MIN
 #if ASSET_MPL == 1
@@ -219,6 +286,45 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// fix bad artifact
 		blkMicro(82, 4);
 #endif /* ASSET_MPL == 1 */
+	} break;
+	case FILE_CAVES_SOL:
+	{	// patch dSolidTable - L3.SOL
+		if (*dwLen <= 249) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nSolidTable(249, false); // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+	} break;
+	case FILE_HELL_SOL:
+	{	// patch dSolidTable - L4.SOL
+		if (*dwLen <= 211) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nMissileTable(141, false); // fix missile-blocking tile of down-stairs.
+		// nMissileTable(137, false); // fix missile-blocking tile of down-stairs. - skip to keep in sync with the nSolidTable
+		// nSolidTable(137, false);   // fix non-walkable tile of down-stairs. - skip, because it causes a graphic glitch
+		nSolidTable(130, true);    // make the inner tiles of the down-stairs non-walkable I.
+		nSolidTable(132, true);    // make the inner tiles of the down-stairs non-walkable II.
+		nSolidTable(131, true);    // make the inner tiles of the down-stairs non-walkable III.
+		nSolidTable(133, true);    // make the inner tiles of the down-stairs non-walkable IV.
+		// fix all-blocking tile on the diablo-level
+		nSolidTable(211, false);
+		nMissileTable(211, false);
+		nBlockTable(211, false);
+	} break;
+	case FILE_HELL_AMP:
+	{	// patch dAutomapData - L4.AMP
+		if (*dwLen < 56 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		uint16_t *automaptype = (uint16_t*)buf;
+		automaptype[52 - 1] |= SwapLE16(MAPFLAG_VERTGRATE);
+		automaptype[56 - 1] |= SwapLE16(MAPFLAG_HORZGRATE);
 	} break;
 #ifdef HELLFIRE
 	case FILE_NTOWN_MIN:
@@ -254,6 +360,17 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(132, 7);
 		blkMicro(366, 1);
 #endif /* ASSET_MPL == 1 */
+	} break;
+	case FILE_NEST_SOL:
+	{	// patch dSolidTable - L6.SOL
+		if (*dwLen <= 416) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nSolidTable(390, false); // make a pool tile walkable I.
+		nSolidTable(413, false); // make a pool tile walkable II.
+		nSolidTable(416, false); // make a pool tile walkable III.
 	} break;
 	case FILE_CRYPT_TIL:
 	{	// patch dMegaTiles - L5.TIL
@@ -341,6 +458,72 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(179, 1);
 #endif // ASSET_MPL
 	} break;
+	case FILE_CRYPT_SOL:
+	{ // patch dSolidTable - L5.SOL
+		if (*dwLen <= 600) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		nSolidTable(143, false); // make right side of down-stairs consistent (walkable)
+		nSolidTable(148, false); // make the back of down-stairs consistent (walkable)
+		// make collision-checks more reasonable
+		//  - prevent non-crossable floor-tile configurations I.
+		nSolidTable(461, false);
+		//  - set top right tile of an arch non-walkable (full of lava)
+		//nSolidTable(471, true);
+		//  - set top right tile of a pillar walkable (just a small obstacle)
+		nSolidTable(481, false);
+		//  - tile 491 is the same as tile 594 which is not solid
+		//  - prevents non-crossable floor-tile configurations
+		nSolidTable(491, false);
+		//  - set bottom left tile of a rock non-walkable (rather large obstacle, feet of the hero does not fit)
+		//  - prevents non-crossable floor-tile configurations
+		nSolidTable(523, true);
+		//  - set the top right tile of a floor mega walkable (similar to 594 which is not solid)
+		nSolidTable(570, false);
+		//  - prevent non-crossable floor-tile configurations II.
+		nSolidTable(598, false);
+		nSolidTable(600, false);
+	} break;
+	case FILE_OBJCURS_CEL:
+	{
+		size_t sizeB, sizeAB;
+		BYTE *aCursCels, *bCursCels;
+		DWORD numA, numAB;
+
+		numA = SwapLE32(((DWORD*)buf)[0]);
+		if (numA != 179) {
+			mem_free_dbg(buf);
+			if (numA != 179 + 61 - 2) {
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			}
+			return NULL;
+		}
+		bCursCels = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", &sizeB);
+		// merge the two cel files
+		aCursCels = buf;
+		buf = CelMerge(aCursCels, *dwLen, bCursCels, sizeB);
+
+		*dwLen += sizeB - 4 * 2;
+
+		mem_free_dbg(aCursCels);
+		mem_free_dbg(bCursCels);
+
+		// remove the last two entries
+		numAB = SwapLE32(((DWORD*)buf)[0]) - 2;
+		sizeAB = SwapLE32(((DWORD*)buf)[numAB + 1]) - 4 * 2;
+		aCursCels = DiabloAllocPtr(sizeAB);
+		*(DWORD*)aCursCels = SwapLE32(numAB);
+		for (unsigned i = 0; i < numAB + 1; i++) {
+			((DWORD*)aCursCels)[i + 1] = SwapLE32(((DWORD*)buf)[i + 1]) - 4 * 2;
+		}
+		memcpy(aCursCels + (numAB + 2) * 4, buf + (numAB + 2 + 2) * 4 , sizeAB - (numAB + 2) * 4);
+
+		mem_free_dbg(buf);
+		buf = aCursCels;
+		*dwLen = sizeAB;
+	} break;
 #endif // HELLFIRE
 	default:
 		ASSUME_UNREACHABLE
@@ -373,7 +556,7 @@ static int patcher_callback()
 		}
 
 		if (entryCount == 0) {
-			// app_warn("Can not find/access '%s' in the game folder.", "listfiles.txt");
+			// app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
 			return RETURN_ERROR;
 		}
 

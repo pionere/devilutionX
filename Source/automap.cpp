@@ -123,7 +123,7 @@ void InitLvlAutomap()
 	}
 
 	mem_free_dbg(pAFile);
-
+#if !USE_PATCH
 	// patch dAutomapData - L2.AMP
 	if (currLvl._dType == DTYPE_CATACOMBS) {
 		automaptype[42] &= ~MAPFLAG_HORZARCH;
@@ -135,7 +135,7 @@ void InitLvlAutomap()
 		automaptype[52] |= MAPFLAG_VERTGRATE;
 		automaptype[56] |= MAPFLAG_HORZGRATE;
 	}
-
+#endif
 	memset(automapview, 0, sizeof(automapview));
 
 	AutoMapXOfs = 0;
