@@ -39,6 +39,7 @@ typedef enum filenames {
 	FILE_CRYPT_SOL,
 	FILE_NEST_MIN,
 	FILE_NEST_SOL,
+	FILE_OBJCURS_CEL,
 #endif
 	NUM_FILENAMES
 } filenames;
@@ -59,6 +60,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 /*FILE_NEST_SOL*/      "NLevels\\L6Data\\L6.SOL",
+/*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
 };
 
@@ -484,6 +486,44 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(598, false);
 		nSolidTable(600, false);
 	} break;
+	case FILE_OBJCURS_CEL:
+	{
+		size_t sizeB, sizeAB;
+		BYTE *aCursCels, *bCursCels;
+		DWORD numA, numAB;
+
+		numA = SwapLE32(((DWORD*)buf)[0]);
+		if (numA != 179) {
+			mem_free_dbg(buf);
+			if (numA != 179 + 61 - 2) {
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			}
+			return NULL;
+		}
+		bCursCels = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", &sizeB);
+		// merge the two cel files
+		aCursCels = buf;
+		buf = CelMerge(aCursCels, *dwLen, bCursCels, sizeB);
+
+		*dwLen += sizeB - 4 * 2;
+
+		mem_free_dbg(aCursCels);
+		mem_free_dbg(bCursCels);
+
+		// remove the last two entries
+		numAB = SwapLE32(((DWORD*)buf)[0]) - 2;
+		sizeAB = SwapLE32(((DWORD*)buf)[numAB + 1]) - 4 * 2;
+		aCursCels = DiabloAllocPtr(sizeAB);
+		*(DWORD*)aCursCels = SwapLE32(numAB);
+		for (unsigned i = 0; i < numAB + 1; i++) {
+			((DWORD*)aCursCels)[i + 1] = SwapLE32(((DWORD*)buf)[i + 1]) - 4 * 2;
+		}
+		memcpy(aCursCels + (numAB + 2) * 4, buf + (numAB + 2 + 2) * 4 , sizeAB - (numAB + 2) * 4);
+
+		mem_free_dbg(buf);
+		buf = aCursCels;
+		*dwLen = sizeAB;
+	} break;
 #endif // HELLFIRE
 	default:
 		ASSUME_UNREACHABLE
@@ -516,7 +556,7 @@ static int patcher_callback()
 		}
 
 		if (entryCount == 0) {
-			// app_warn("Can not find/access '%s' in the game folder.", "listfiles.txt");
+			// app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
 			return RETURN_ERROR;
 		}
 

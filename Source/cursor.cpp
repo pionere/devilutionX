@@ -140,6 +140,12 @@ void InitCursorGFX()
 {
 	assert(pCursCels == NULL);
 
+#if USE_PATCH
+	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
+	if (SwapLE32(*(DWORD*)pCursCels) != lengthof(InvItemWidth) - 1) {
+		app_fatal("Invalid file %s in the mpq.", "Data\\Inv\\Objcurs.CEL");
+	}
+#else
 #ifdef HELLFIRE
 	size_t sizeA, sizeB;
 	BYTE *aCursCels, *bCursCels;
@@ -153,7 +159,8 @@ void InitCursorGFX()
 	mem_free_dbg(bCursCels);
 #else
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
-#endif
+#endif // HELLFIRE
+#endif // USE_PATCH
 	ClearCursor();
 }
 
