@@ -239,15 +239,30 @@ static void T_Pass3()
 #endif
 
 	if (quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN) {
-		T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
+		// T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342 - 1);
+		dPiece[50 + DBORDERX][60 + DBORDERY] = 1257;
+		dPiece[50 + DBORDERX + 1][60 + DBORDERY] = 259;
+		dPiece[50 + DBORDERX][60 + DBORDERY + 1] = 1258;
+		dPiece[50 + DBORDERX + 1][60 + DBORDERY + 1] = 261;
 	}
 
 	gbOpenWarps = GetOpenWarps();
-	if (!(gbOpenWarps & (1 << TWARP_CATACOMB)))
-		T_FillTile(38 + DBORDERX, 10 + DBORDERY, 320 - 1);
+	if (!(gbOpenWarps & (1 << TWARP_CATACOMB))) {
+		// T_FillTile(38 + DBORDERX, 10 + DBORDERY, 320 - 1);
+		dPiece[38 + DBORDERX][10 + DBORDERY] = 1171;
+		dPiece[38 + DBORDERX + 1][10 + DBORDERY] = 1172;
+		dPiece[38 + DBORDERX][10 + DBORDERY + 1] = 1173;
+		dPiece[38 + DBORDERX + 1][10 + DBORDERY + 1] = 1174;
+	}
 	if (!(gbOpenWarps & (1 << TWARP_CAVES))) {
-		T_FillTile(6 + DBORDERX, 58 + DBORDERY, 332 - 1);
-		T_FillTile(6 + DBORDERX, 60 + DBORDERY, 331 - 1);
+		// T_FillTile(6 + DBORDERX, 58 + DBORDERY, 332 - 1);
+		dPiece[6 + DBORDERX][58 + DBORDERY] = 1217;
+		dPiece[6 + DBORDERX + 1][58 + DBORDERY] = 1218;
+		dPiece[6 + DBORDERX][58 + DBORDERY + 1] = 1219;
+		dPiece[6 + DBORDERX + 1][58 + DBORDERY + 1] = 1220;
+		dPiece[4 + DBORDERX + 1][58 + DBORDERY] = 427;
+		dPiece[6 + DBORDERX + 1][58 + DBORDERY + 2] = 1215;
+		// T_FillTile(6 + DBORDERX, 60 + DBORDERY, 331 - 1);
 	}
 	if (!(gbOpenWarps & (1 << TWARP_HELL))) {
 		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x += 2) {
