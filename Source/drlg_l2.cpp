@@ -10,9 +10,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
+/** The default external tile. */
 #define BASE_MEGATILE_L2 12
-/** Default megatile if the tile is zero. */
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L2 3
 /** Shadow type of the base floor(3). */
 #define SF 3

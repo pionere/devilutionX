@@ -7,9 +7,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the base megatiles. */
+/** The default external tile. */
 #define BASE_MEGATILE_L1 22
-/** Default megatile if the tile is zero. */
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L1 13
 /** Size of the main chambers in the dungeon. */
 #define CHAMBER_SIZE 10

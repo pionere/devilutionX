@@ -9,9 +9,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
+/** The default external tile. */
 #define BASE_MEGATILE_L3 8
-/** Default megatile if the tile is zero. */
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L3 7
 /** The required number of lava pools.*/
 #define MIN_LAVA_POOL 3

@@ -9,9 +9,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
+/** The default external tile. */
 #define BASE_MEGATILE_L4 30
-/** Default megatile if the tile is zero. */
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L4 6
 
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKX, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 I.");
