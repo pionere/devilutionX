@@ -909,20 +909,20 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mTreasure = NO_DROP;
 }
 
-static void PlaceUniqueMonst(int uniqindex, int mtidx)
+static bool PlaceUniqueMonst(int uniqindex, int mtidx)
 {
 	int xp, yp, x, y;
 	int count2;
 	int mnum, count;
 	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 	if (uniquetrans >= NUM_COLOR_TRNS) {
-		return;
+		return false;
 	}
 
 	switch (uniqindex) {
 	case UMT_ZHAR:
 		if (zharlib == -1)
-			return;
+			return false;
 		xp = themes[zharlib]._tsx1 + 4;
 		yp = themes[zharlib]._tsy1 + 4;
 		break;
@@ -955,6 +955,7 @@ static void PlaceUniqueMonst(int uniqindex, int mtidx)
 	// assert(nummonsters < MAXMONSTERS);
 	mnum = PlaceMonster(mtidx, xp, yp);
 	InitUniqueMonster(mnum, uniqindex);
+	return true;
 }
 
 static void PlaceUniques()
@@ -969,8 +970,7 @@ static void PlaceUniques()
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
-				PlaceUniqueMonst(u, mt);
-				if (uniqMonData[u].mUnqFlags & UMF_GROUP) {
+				if (PlaceUniqueMonst(u, mt) && uniqMonData[u].mUnqFlags & UMF_GROUP) {
 					// assert(mnum == nummonsters - 1);
 					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqFlags, nummonsters - 1);
 				}
