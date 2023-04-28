@@ -19,10 +19,10 @@ static void T_FillTile(int xx, int yy, int mt)
 	uint16_t* pTile;
 
 	pTile = &pTiles[mt][0];
-	v1 = SwapLE16(pTile[0]) + 1;
-	v2 = SwapLE16(pTile[1]) + 1;
-	v3 = SwapLE16(pTile[2]) + 1;
-	v4 = SwapLE16(pTile[3]) + 1;
+	v1 = pTile[0] + 1;
+	v2 = pTile[1] + 1;
+	v3 = pTile[2] + 1;
+	v4 = pTile[3] + 1;
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;
