@@ -113,12 +113,12 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #define MICRO_IDX(subtile, blockSize, microIndex) ((subtile) * (blockSize) + (blockSize) - (2 + ((microIndex) & ~1)) + ((microIndex) & 1))
 /*#define blkMicro(subtileRef, blockSize, microIndex, value) \
 { \
-	assert((pMicroPieces[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == SwapLE16(value) || pMicroPieces[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] == SwapLE16(0)); \
-	pMicroPieces[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
+	assert((pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == SwapLE16(value) || pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] == SwapLE16(0)); \
+	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
 }*/
 #define blkMicro(subtileRef, microIndex) \
 { \
-	pMicroPieces[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
+	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
 }
 
 #define nSolidTable(pn, v) \
@@ -145,7 +145,7 @@ if (v) { \
 static void patchTownFile(BYTE* buf)
 {
 	// pointless tree micros (re-drawn by dSpecial)
-	uint16_t *pMicroPieces = (uint16_t*)buf;
+	uint16_t *pSubtiles = (uint16_t*)buf;
 	constexpr int blockSize = 16;
 	blkMicro(117, 3);
 	blkMicro(117, 5);
@@ -289,9 +289,9 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		// patch dMicroCels - TOWN.CEL
 		// - overwrite subtile 557 and 558 with subtile 939 and 940 to make the inner tile of Griswold's house non-walkable
-		BYTE *pMicroCels = buf;
-		memcpy(&pMicroCels[SwapLE32(((DWORD*)pMicroCels)[557])], &pMicroCels[SwapLE32(((DWORD*)pMicroCels)[939])], SwapLE32(((DWORD*)pMicroCels)[940]) - SwapLE32(((DWORD*)pMicroCels)[939]));
-		memcpy(&pMicroCels[SwapLE32(((DWORD*)pMicroCels)[558])], &pMicroCels[SwapLE32(((DWORD*)pMicroCels)[940])], SwapLE32(((DWORD*)pMicroCels)[941]) - SwapLE32(((DWORD*)pMicroCels)[940]));
+		BYTE *pMicrosCel = buf;
+		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[557])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[939])], SwapLE32(((DWORD*)pMicrosCel)[940]) - SwapLE32(((DWORD*)pMicrosCel)[939]));
+		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[558])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[940])], SwapLE32(((DWORD*)pMicrosCel)[941]) - SwapLE32(((DWORD*)pMicrosCel)[940]));
 #endif
 	} break;
 	case FILE_CATHEDRAL_MIN:
@@ -302,7 +302,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		uint16_t *pMicroPieces = (uint16_t*)buf;
+		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = 10;
 		// useless black micros
 		blkMicro(107, 0);
@@ -343,7 +343,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		uint16_t *pMicroPieces = (uint16_t*)buf;
+		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = 10;
 		// fix bad artifact
 		blkMicro(82, 4);
@@ -447,7 +447,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		patchTownFile(buf);
-		uint16_t *pMicroPieces = (uint16_t*)buf;
+		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = 16;
 		// fix bad artifacts
 		blkMicro(1273, 7);
@@ -462,7 +462,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		uint16_t *pMicroPieces = (uint16_t*)buf;
+		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = 10;
 		// useless black micros
 		blkMicro(21, 0);
@@ -506,7 +506,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		// pointless door micros (re-drawn by dSpecial)
-		uint16_t *pMicroPieces = (uint16_t*)buf;
+		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = 10;
 		blkMicro(77, 6);
 		blkMicro(77, 8);

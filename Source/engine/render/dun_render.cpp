@@ -412,13 +412,13 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	uint32_t m, *mask, *pFrameTable;
 
 	dst = pBuff;
-	pFrameTable = (uint32_t*)pMicroCels;
+	pFrameTable = (uint32_t*)pMicrosCel;
 
 #if ASSET_MPL == 1
-	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+	src = &pMicrosCel[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	encoding = levelCelBlock >> 12;
 #else
-	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock])];
+	src = &pMicrosCel[SwapLE32(pFrameTable[levelCelBlock])];
 	encoding = *src;
 	src++;
 #endif

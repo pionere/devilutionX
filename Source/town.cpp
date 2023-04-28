@@ -16,13 +16,13 @@ DEVILUTION_BEGIN_NAMESPACE
 static void T_FillTile(int xx, int yy, int mt)
 {
 	int v1, v2, v3, v4;
-	uint16_t* Tiles;
+	uint16_t* pTile;
 
-	Tiles = &pMegaTiles[mt * 4];
-	v1 = SwapLE16(Tiles[0]) + 1;
-	v2 = SwapLE16(Tiles[1]) + 1;
-	v3 = SwapLE16(Tiles[2]) + 1;
-	v4 = SwapLE16(Tiles[3]) + 1;
+	pTile = &pTiles[mt * 4];
+	v1 = SwapLE16(pTile[0]) + 1;
+	v2 = SwapLE16(pTile[1]) + 1;
+	v3 = SwapLE16(pTile[2]) + 1;
+	v4 = SwapLE16(pTile[3]) + 1;
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;

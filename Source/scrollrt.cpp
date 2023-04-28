@@ -638,7 +638,7 @@ static void drawCell(int pn, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][i];
+	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
@@ -975,7 +975,7 @@ static void drawFloor(int pn, int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][0];
+	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];
 
 	if ((tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
@@ -1124,7 +1124,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = dSpecial[sx][sy];
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
+			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
@@ -1133,7 +1133,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		if (sx > 0 && sy > 0) {
 			bv = dSpecial[sx - 1][sy - 1];
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), (CelImageBuf*)pSpecialCels, bv);
+				CelDraw(dx, (dy - TILE_HEIGHT), (CelImageBuf*)pSpecialsCel, bv);
 			}
 		}
 	}
