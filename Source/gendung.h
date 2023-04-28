@@ -19,7 +19,7 @@ extern DrlgMem drlg;
 extern SetPieceStruct pSetPieces[4];
 extern WarpStruct pWarps[NUM_DWARP];
 extern BYTE* pSpecialsCel;
-extern uint16_t* pTiles;
+extern uint16_t pTiles[MAXTILES + 1][4];
 extern uint16_t pSubtiles[MAXSUBTILES + 1][16 * ASSET_MPL * ASSET_MPL];
 extern BYTE* pMicrosCel;
 extern BYTE microFlags[MAXSUBTILES + 1];

@@ -11,7 +11,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
-#define BASE_MEGATILE_L2 (12 - 1)
+#define BASE_MEGATILE_L2 12
 /** Default megatile if the tile is zero. */
 #define DEFAULT_MEGATILE_L2 3
 /** Shadow type of the base floor(3). */
@@ -2584,7 +2584,7 @@ static void LoadL2Dungeon(const LevelData* lds)
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L2, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L2);
 }

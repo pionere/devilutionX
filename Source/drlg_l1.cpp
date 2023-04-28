@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the base megatiles. */
-#define BASE_MEGATILE_L1 (22 - 1)
+#define BASE_MEGATILE_L1 22
 /** Default megatile if the tile is zero. */
 #define DEFAULT_MEGATILE_L1 13
 /** Size of the main chambers in the dungeon. */
@@ -706,7 +706,7 @@ const BYTE L5RNDCOL9[] = {
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L1ConvTbl[16] = { BASE_MEGATILE_L1 + 1, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
+const BYTE L1ConvTbl[16] = { BASE_MEGATILE_L1, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
 
 /*
  * Place doors on the marked places.
@@ -1350,9 +1350,9 @@ static void DRLG_L1MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L1 + 1;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L1;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L1 + 1;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L1;
 }
 
 static void L1HorizWall(int i, int j, int dx)
@@ -2941,7 +2941,7 @@ static void LoadL1Dungeon(const LevelData* lds)
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L1, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
 }

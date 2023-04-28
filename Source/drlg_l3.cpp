@@ -10,7 +10,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Starting position of the megatiles. */
-#define BASE_MEGATILE_L3 (8 - 1)
+#define BASE_MEGATILE_L3 8
 /** Default megatile if the tile is zero. */
 #define DEFAULT_MEGATILE_L3 7
 /** The required number of lava pools.*/
@@ -24,7 +24,7 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L3ConvTbl[16] = { BASE_MEGATILE_L3 + 1, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
+const BYTE L3ConvTbl[16] = { BASE_MEGATILE_L3, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
 /** Miniset: Stairs up. */
 const BYTE L3USTAIRS[] = {
 	// clang-format off
@@ -1498,9 +1498,9 @@ static void DRLG_L3MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L3 + 1;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L3;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L3 + 1;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L3;
 }
 
 /*static void DRLG_L3FloodTVal()
@@ -2681,7 +2681,7 @@ static void LoadL3Dungeon(const LevelData* lds)
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L3, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L3);
 }
