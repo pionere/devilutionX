@@ -1048,9 +1048,9 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 		for (i = x1; i <= x2; ++i) {
 			for (j = y1; j <= y2; ++j) {
 				pn = dPiece[i][j];
-				if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341 || pn == 418)
+				if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341)
 					pn = 1;
-				else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344 || pn == 421)
+				else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344)
 					pn = 2;
 				else if (pn == 253)
 					pn = 3;
@@ -1060,22 +1060,13 @@ void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 					pn = 5;
 				else if (pn == 267)
 					pn = 6;
+				else if (pn == 418)
+					pn = 7;
+				else if (pn == 421)
+					pn = 8;
 				else
 					pn = 0;
 				dSpecial[i][j] = pn;
-			}
-		}
-		// add rims to stone doors
-		for (i = x1; i <= x2; i++) {
-			for (j = y1; j <= y2; j++) {
-				pn = dPiece[i][j];
-				// 417 is stone L-door
-				// 420 is stone R-door -- unused at the moment
-				if (pn == 417) {
-					dSpecial[i][j + 1] = 7;
-				} else if (pn == 420) {
-					dSpecial[i + 1][j] = 8;
-				}
 			}
 		}
 	}
