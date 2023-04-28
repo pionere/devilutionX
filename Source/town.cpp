@@ -19,10 +19,10 @@ static void T_FillTile(int xx, int yy, int mt)
 	uint16_t* pTile;
 
 	pTile = &pTiles[mt][0];
-	v1 = pTile[0] + 1;
-	v2 = pTile[1] + 1;
-	v3 = pTile[2] + 1;
-	v4 = pTile[3] + 1;
+	v1 = pTile[0];
+	v2 = pTile[1];
+	v3 = pTile[2];
+	v4 = pTile[3];
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;
@@ -266,6 +266,7 @@ static void T_Pass3()
 	}
 	if (!(gbOpenWarps & (1 << TWARP_HELL))) {
 		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x += 2) {
+			// T_FillTile(x, 68 + DBORDERY, random_(0, 4));
 			T_FillTile(x, 68 + DBORDERY, RandRangeLow(1, 4));
 		}
 	}
