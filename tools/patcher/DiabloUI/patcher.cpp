@@ -28,6 +28,8 @@ typedef enum filenames {
 //	FILE_TOWN_CEL,
 	FILE_CATHEDRAL_MIN,
 	FILE_CATHEDRAL_SOL,
+	FILE_CATACOMBS_TIL,
+	FILE_CATACOMBS_MIN,
 	FILE_CATACOMBS_AMP,
 	FILE_CAVES_MIN,
 	FILE_CAVES_SOL,
@@ -71,6 +73,8 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_CEL*///    "Levels\\TownData\\Town.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
+/*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
+/*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
@@ -325,6 +329,82 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		nMissileTable(8, false); // the only column which was blocking missiles
+	} break;
+	case FILE_CATACOMBS_TIL:
+	{	// patch dMegaTiles - L2.TIL
+		uint16_t *pTiles = (uint16_t*)buf;
+		// reuse subtiles
+		assert(pTiles[(41 - 1) * 4 + 1] == SwapLE16(139 - 1) || pTiles[(41 - 1) * 4 + 1] == SwapLE16(135 - 1));
+		pTiles[(41 - 1) * 4 + 1] = SwapLE16(135 - 1);
+		// add separate tiles and subtiles for the arches I.
+		if (*dwLen < 164 * 4 * 2) {
+			if (*dwLen != 160 * 4 * 2) {
+				mem_free_dbg(buf);
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+				return NULL;
+			}
+			pTiles = (uint16_t*)DiabloAllocPtr(*dwLen + 4 * 4 * 2);
+			memcpy(pTiles, buf, *dwLen);
+			mem_free_dbg(buf);
+			buf = (BYTE*)pTiles;
+			*dwLen += 4 * 4 * 2;
+		}
+
+		// - floor tile(3) with vertical arch
+		pTiles[(161 - 1) * 4 + 0] = SwapLE16(560 - 1);
+		pTiles[(161 - 1) * 4 + 1] = SwapLE16(10 - 1);
+		pTiles[(161 - 1) * 4 + 2] = SwapLE16(561 - 1);
+		pTiles[(161 - 1) * 4 + 3] = SwapLE16(12 - 1);
+		// - floor tile(3) with horizontal arch
+		pTiles[(162 - 1) * 4 + 0] = SwapLE16(562 - 1);
+		pTiles[(162 - 1) * 4 + 1] = SwapLE16(563 - 1);
+		pTiles[(162 - 1) * 4 + 2] = SwapLE16(11 - 1);
+		pTiles[(162 - 1) * 4 + 3] = SwapLE16(12 - 1);
+		// - floor tile with shadow(49) with vertical arch
+		pTiles[(163 - 1) * 4 + 0] = SwapLE16(564 - 1); // - 159
+		pTiles[(163 - 1) * 4 + 1] = SwapLE16(160 - 1);
+		pTiles[(163 - 1) * 4 + 2] = SwapLE16(565 - 1); // - 161
+		pTiles[(163 - 1) * 4 + 3] = SwapLE16(162 - 1);
+		// - floor tile with shadow(51) with horizontal arch
+		pTiles[(164 - 1) * 4 + 0] = SwapLE16(566 - 1); // - 166
+		pTiles[(164 - 1) * 4 + 1] = SwapLE16(567 - 1); // - 167
+		pTiles[(164 - 1) * 4 + 2] = SwapLE16(168 - 1);
+		pTiles[(164 - 1) * 4 + 3] = SwapLE16(169 - 1);
+	} break;
+	case FILE_CATACOMBS_MIN:
+	{	// patch dMiniTiles - L2.MIN
+		// add separate tiles and subtiles for the arches II.
+		constexpr int blockSize = 10;
+		uint16_t *pSubtiles = (uint16_t*)buf;
+		if (*dwLen < 567 * blockSize * 2) {
+			if (*dwLen != 559 * blockSize * 2) {
+				mem_free_dbg(buf);
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+				return NULL;
+			}
+			pSubtiles = (uint16_t*)DiabloAllocPtr(*dwLen + 8 * blockSize * 2);
+			memcpy(pSubtiles, buf, *dwLen);
+			mem_free_dbg(buf);
+			buf = (BYTE*)pSubtiles;
+			*dwLen += 8 * blockSize * 2;
+		}
+
+		pSubtiles[MICRO_IDX(560 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(560 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(561 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(11 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(561 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(11 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(562 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(562 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(563 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(10 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(563 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(10 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(564 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(159 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(564 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(159 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(565 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(161 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(565 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(161 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(566 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(566 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(567 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(567 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 1)];
 	} break;
 	case FILE_CATACOMBS_AMP:
 	{	// patch dAutomapData - L2.AMP

@@ -36,7 +36,7 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L2, 1, 2, 4, 5, 8, 7, 
 /*
  * Maps tile IDs to their corresponding undecorated tile type.
  */
-const BYTE L2BTYPES[161] = {
+const BYTE L2BTYPES[165] = {
 	// clang-format off
 	0, 1, 2, 3, 0, 0, 0, 0, 4, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // 10..
@@ -54,13 +54,13 @@ const BYTE L2BTYPES[161] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //150..
-	0
+	0, 0, 0, 0, 0
 	// clang-format on
 };
 /*
  * Specifies where the given tile ID should spread the room ID (transval).
  */
-const BYTE L2FTYPES[161] = {
+const BYTE L2FTYPES[165] = {
 	// clang-format off
 	 0, 10, 12, 15, 10, 12, 14, 10,  8, 12,
 	 0,  0,  0,  0,  0,  0,  0,  0,  0, 10, // 10..
@@ -78,7 +78,7 @@ const BYTE L2FTYPES[161] = {
 	15, 15, 10, 10, 15, 15, 12, 12, 15, 15, //130..
 	10, 12, 12,  0,  0,  0,  0,  0,  0,  0, //140..
 	10, 12, 10, 12, 10, 12, 10, 12, 15, 15, //150..
-	10
+	10, 10, 12, 10, 12
 	// clang-format on
 };
 /** Miniset: Stairs up. */
@@ -674,41 +674,41 @@ static void DRLG_L2Shadows()
 				break;
 			}
 			if (varch) {
-				if (dungeon[x - 1][y] == 3) {
+				if (dungeon[x - 1][y] == 3 || dungeon[x - 1][y] == 162) {
 					if (dungeon[x - 1][y + 1] == 3 || dungeon[x - 1][y + 1] == 46) { // overlapping shadows (missing tile to match the other part)
 						if (dungeon[x - 1][y - 1] == 3) {
 							// 3, 0,  search
-							// 3, 39/41/42,
+							// 3/162, 39/41/42,
 							// 3/46, 0,
 
 							//48, 0, replace
-							//51, 0,
+							//51/164, 0,
 							//47, 0,
 							dungeon[x - 1][y - 1] = 48;
-							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y] = dungeon[x - 1][y] == 3 ? 51 : 164;
 							dungeon[x - 1][y + 1] = 47;
 							pillar = false;
 						} else if (dungeon[x - 1][y - 1] == 2) {
 							// 2, 0,  search
-							// 3, 39/41/42,
+							// 3/162, 39/41/42,
 							// 3/46, 0,
 
 							//142, 0, replace
-							//51, 0,
+							//51/164, 0,
 							//47, 0,
 							dungeon[x - 1][y - 1] = 142;
-							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y] = dungeon[x - 1][y] == 3 ? 51 : 164;
 							dungeon[x - 1][y + 1] = 47;
 							pillar = false;
 						} else if (dungeon[x - 1][y - 1] == 47 || dungeon[x - 1][y - 1] == 46) { // overlapping shadows
 							// 46/47, 0,  search
-							// 3, 39/41/42,
+							// 3/162, 39/41/42,
 							// 3/46, 0,
 
 							// 0, 0, replace
-							//51, 0,
+							//51/164, 0,
 							//47, 0,
-							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y] = dungeon[x - 1][y] == 3 ? 51 : 164;
 							dungeon[x - 1][y + 1] = 47;
 							pillar = false;
 						}
@@ -736,14 +736,14 @@ static void DRLG_L2Shadows()
 			}
 			if (harch) {
 				// - horizontal arch
-				if (dungeon[x][y - 1] == 3) {
+				if (dungeon[x][y - 1] == 3 || dungeon[x][y - 1] == 161) {
 					if (dungeon[x + 1][y - 1] == 3) {
-						// 3, 3,  search
+						// 3/161, 3,  search
 						// 40/41/43, 0
 
-						//49,46, replace
+						//49/163,46, replace
 						// 0, 0,
-						dungeon[x][y - 1] = 49;
+						dungeon[x][y - 1] = dungeon[x][y - 1] == 3 ? 49 : 163;
 						dungeon[x + 1][y - 1] = 46;
 					//} else if (dungeon[x + 1][y - 1] == 47) { // overlapping shadows (missing tile to match the other part)
 					//	dungeon[x][y - 1] = 49;
@@ -845,6 +845,15 @@ static void DRLG_LoadL2SP()
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		// patch the map - Bonestr2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// add tiles with subtiles for arches
+		lm[2 + 2 + 1 * 7] = SwapLE16(162);
+		lm[2 + 4 + 1 * 7] = SwapLE16(162);
+		lm[2 + 2 + 5 * 7] = SwapLE16(162);
+		lm[2 + 4 + 5 * 7] = SwapLE16(162);
+		lm[2 + 1 + 2 * 7] = SwapLE16(161);
+		lm[2 + 1 + 4 * 7] = SwapLE16(161);
+		lm[2 + 5 + 2 * 7] = SwapLE16(161);
+		lm[2 + 5 + 4 * 7] = SwapLE16(161);
 		// - remove tile to leave space for shadow
 		lm[2 + 2 + 4 * 7] = 0;
 		// protect the main structure
@@ -1964,29 +1973,8 @@ static void DRLG_L2TransFix()
 
 void DRLG_L2InitTransVals()
 {
-	int i, j;
-
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
-	// block arches with walls to stop the spread of transVals
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			switch (drlg.transvalMap[i][j]) {
-			case 39:
-			case 42:
-				drlg.transvalMap[i][j + 1] = 1;
-				break;
-			case 41:
-				drlg.transvalMap[i][j + 1] = 1;
-				drlg.transvalMap[i + 1][j] = 2;
-				break;
-			case 40:
-			case 43:
-				drlg.transvalMap[i + 1][j] = 2;
-				break;
-			}
-		}
-	}
 
 	DRLG_FloodTVal(L2FTYPES);
 	DRLG_L2TransFix();
@@ -2232,7 +2220,7 @@ static void L2DoorFix2()
 /*
  * Replace doors with arches.
  * TODO: skip if there is no corresponding shadow?
- * New dungeon values: (3) 39 40 41 42 43
+ * New dungeon values: (3) 39 40 41 42 43   161 162
  */
 static void L2CreateArches()
 {
@@ -2256,30 +2244,30 @@ static void L2CreateArches()
 						// P,
 
 						//39, replace
-						//3,
+						//161,
 						//0,
 						dungeon[x][y - 1] = 39;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 161;
 					} else if (pn == 8) {
 						// 8,  search
 						// 4,
 						// P,
 
 						//42, replace
-						//3,
+						//161,
 						//0,
 						dungeon[x][y - 1] = 42;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 161;
 					} else if (pn == 43) {
 						// 43,  search
 						// 4,
 						// P,
 
 						//41, replace
-						//3,
+						//161,
 						//0,
 						dungeon[x][y - 1] = 41;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 161;
 					}
 				} else if (pn == 1 && y < DMAXY - 2) {
 					if (IsPillar(dungeon[x][y + 2])) {
@@ -2288,10 +2276,10 @@ static void L2CreateArches()
 						// P,
 
 						//39, replace
-						//3,
+						//161,
 						//0,
 						// assert(!drlgFlags[x][y + 1]);
-						dungeon[x][y + 1] = 3;
+						dungeon[x][y + 1] = 161;
 						dungeon[x][y] = 39;
 					}
 				}
@@ -2305,23 +2293,23 @@ static void L2CreateArches()
 					if (pn == 2 || pn == 9) {
 						// 2/9, 5, P,  search
 
-						//40, 3, 0, replace
+						//40, 162, 0, replace
 						dungeon[x - 1][y] = 40;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 162;
 					} else if (pn == 8) {
 						// 8, 5, P,  search
 
-						//43, 3, 0, replace
+						//43, 162, 0, replace
 						dungeon[x - 1][y] = 43;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 162;
 					}
 				} else if (pn == 2 && x < DMAXX - 2) {
 					if (IsPillar(dungeon[x + 2][y])) {
 						// 5, 2, P,  search
 
-						//40, 3, 0, replace
+						//40, 162, 0, replace
 						// assert(!drlgFlags[x + 1][y]);
-						dungeon[x + 1][y] = 3;
+						dungeon[x + 1][y] = 162;
 						dungeon[x][y] = 40;
 					}
 				}
@@ -2434,24 +2422,41 @@ void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
 				pn = 5;
 			else if (pn == 17 || pn == 553)
 				pn = 6;
+			else if (pn == 560 || pn == 564)
+				pn = 2;
+			else if (pn == 561 || pn == 565)
+				pn = 1;
+			else if (pn == 562 || pn == 566)
+				pn = 3;
+			else if (pn == 563 || pn == 567)
+				pn = 4;
 			else
 				pn = 0;
 			dSpecial[i][j] = pn;
 		}
 	}
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			pn = dPiece[i][j];
-			// 132 is L-arch
-			// 135 and 139 are R-arch
-			if (pn == 132) {
-				dSpecial[i][j + 1] = 2;
-				dSpecial[i][j + 2] = 1;
-			} else if (pn == 135 || pn == 139) {
-				dSpecial[i + 1][j] = 3;
-				dSpecial[i + 2][j] = 4;
-			}
-		}
+}
+
+static void DRLG_L2FixMap()
+{
+	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
+		// patch the map - Bonecha2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// add tiles with subtiles for arches
+		lm[2 + 13 + 6 * 32] = SwapLE16(161);
+		lm[2 + 13 + 8 * 32] = SwapLE16(161);
+		lm[2 + 17 + 6 * 32] = SwapLE16(161);
+		lm[2 + 17 + 8 * 32] = SwapLE16(163);
+
+		lm[2 + 13 + 14 * 32] = SwapLE16(161);
+		lm[2 + 13 + 16 * 32] = SwapLE16(161);
+		lm[2 + 17 + 14 * 32] = SwapLE16(161);
+		lm[2 + 17 + 16 * 32] = SwapLE16(161);
+
+		lm[2 + 18 + 9 * 32] = SwapLE16(162);
+		lm[2 + 20 + 9 * 32] = SwapLE16(162);
+		lm[2 + 18 + 13 * 32] = SwapLE16(162);
+		lm[2 + 20 + 13 * 32] = SwapLE16(162);
 	}
 }
 
@@ -2586,6 +2591,7 @@ static void LoadL2Dungeon(const LevelData* lds)
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L2, sizeof(dungeon));
 
+	DRLG_L2FixMap();
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L2);
 }
 
