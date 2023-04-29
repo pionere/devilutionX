@@ -44,6 +44,7 @@ else()
     VERSION ${VERSION_NUM}
     LANGUAGES C CXX)
 endif()
+string(TOLOWER ${PROJECT_NAME} project_name)
 
 if(NINTENDO_SWITCH)
   include(switch_defs)
@@ -522,8 +523,6 @@ if(NOT NONET)
     Source/dvlnet/zerotier_lwip.cpp)
 endif()
 
-set(BIN_TARGET devilutionx)
-
 if(NINTENDO_SWITCH)
   list(APPEND devilutionx_SRCS
     Source/platform/switch/docking.cpp
@@ -554,10 +553,6 @@ if(NINTENDO_3DS)
     Source/platform/ctr/asio/net/if.c
     Source/platform/ctr/asio/sys/socket.c
     Source/platform/ctr/asio/sys/uio.c)
-  if(HELLFIRE)
-    set(BIN_TARGET hellfire)
-  endif()
-  set(BIN_TARGET ${BIN_TARGET}.elf)
 endif()
 
 if(RUN_TESTS)
@@ -582,6 +577,11 @@ if(RUN_TESTS)
     test/projectile_test.cpp
     test/scrollrt_test.cpp
     test/stores_test.cpp)
+endif()
+
+set(BIN_TARGET ${project_name})
+if(NINTENDO_3DS)
+  set(BIN_TARGET ${BIN_TARGET}.elf)
 endif()
 
 if(ANDROID)
@@ -1051,8 +1051,8 @@ if(APPLE)
   set_source_files_properties("./Packaging/apple/AppIcon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
   set(MACOSX_BUNDLE_GUI_IDENTIFIER com.diasurgical.devilutionx)
   set(MACOSX_BUNDLE_COPYRIGHT Unlicense)
-  set(MACOSX_BUNDLE_BUNDLE_NAME devilutionx)
-  set(MACOSX_BUNDLE_DISPLAY_NAME DevilutionX)
+  set(MACOSX_BUNDLE_BUNDLE_NAME ${project_name})
+  set(MACOSX_BUNDLE_DISPLAY_NAME ${PROJECT_NAME})
   set(MACOSX_BUNDLE_INFO_STRING ${PROJECT_VERSION})
   set(MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION})
@@ -1098,7 +1098,7 @@ if(NINTENDO_SWITCH)
   file(MAKE_DIRECTORY ${APP_ROMFS})
 
   nx_generate_nacp (${BIN_TARGET}.nacp
-    NAME    "DevilutionX"
+    NAME    "${PROJECT_NAME}"
     AUTHOR  "Devilution Team"
     VERSION "${PROJECT_VERSION}"
   )
@@ -1112,13 +1112,13 @@ if(NINTENDO_SWITCH)
 endif()
 
 if(VITA)
-  set(VITA_APP_NAME "devilutionX")
+  set(VITA_APP_NAME "${PROJECT_NAME}")
   set(VITA_TITLEID  "DVLX00001")
   set(VITA_VERSION  "01.00")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
-  vita_create_self(devilutionx.self devilutionx UNSAFE)
-  vita_create_vpk(devilutionx.vpk ${VITA_TITLEID} devilutionx.self
+  vita_create_self(${BIN_TARGET}.self ${BIN_TARGET} UNSAFE)
+  vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
     FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
@@ -1132,24 +1132,27 @@ if(VITA)
 endif()
 
 if(PS4)
+  set(PS4_APP_NAME "${PROJECT_NAME}")
+  set(PS4_TITLEID  "DVLX00001")
+  set(PS4_VERSION  "${PROJECT_VERSION}")
+  if(NOT PS4_VERSION)
+    set(PS4_VERSION "01.00")
+  endif()
   set(APP_MPQ_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
   set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   add_custom_target(mpq_files
     COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
-  if(NOT PROJECT_VERSION)
-    set(PROJECT_VERSION "01.00")
-  endif()
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
-    "DVLX00001" "DevilutionX" "${PROJECT_VERSION}")
+    "${PS4_TITLEID}" "${PS4_APP_NAME}" "${PS4_VERSION}")
   #get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
   #add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
   add_dependencies(${BIN_TARGET} mpq_files)
 endif()
 
 if(NINTENDO_3DS)
-  set(APP_TITLE       "DevilutionX")
-  set(APP_DESCRIPTION "DevilutionX port for 3DS")
+  set(APP_TITLE       "${PROJECT_NAME}")
+  set(APP_DESCRIPTION "${PROJECT_NAME} port for 3DS")
   set(APP_AUTHOR      "Diasurgical Team")
   set(APP_ICON        "${PROJECT_SOURCE_DIR}/Packaging/ctr/icon.png")
   set(APP_BANNER      "${PROJECT_SOURCE_DIR}/Packaging/ctr/banner.png")
@@ -1160,7 +1163,7 @@ if(NINTENDO_3DS)
     #"${PROJECT_SOURCE_DIR}/Packaging/resources/devilutionx.mpq"
     "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
   if(HELLFIRE)
-    set(APP_TITLE       "DevilutionX: Hellfire")
+    set(APP_TITLE       "${PROJECT_NAME}: Hellfire")
     set(APP_ICON        "${PROJECT_SOURCE_DIR}/Packaging/ctr/icon_hellfire.png")
     set(APP_BANNER      "${PROJECT_SOURCE_DIR}/Packaging/ctr/banner_hellfire.png")
     set(APP_RSF         "${PROJECT_SOURCE_DIR}/Packaging/ctr/template_hellfire.rsf")
@@ -1198,8 +1201,8 @@ endif()
 
 if(CPACK)
   if(WIN32)
-    set(CPACK_PACKAGE_FILE_NAME "devilutionx")
     set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
@@ -1280,7 +1283,6 @@ if(CPACK)
     #endif()
 
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    string(TOLOWER ${PROJECT_NAME} project_name)
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_GENERATOR "7Z")
     # Common *nix files
@@ -1327,7 +1329,7 @@ if(CPACK)
     )
 
     # -G DEB
-    set(CPACK_PACKAGE_CONTACT "DevilutionX https://github.com/pionere/devilutionX")
+    set(CPACK_PACKAGE_CONTACT "${PROJECT_NAME} https://github.com/pionere/devilutionX")
     if(USE_SDL1)
       set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian")
     elseif(NOT DEVILUTIONX_STATIC_SDL2)
@@ -1348,7 +1350,8 @@ if(CPACK)
     endif()
 
   elseif(APPLE)
-    set(CPACK_PACKAGE_FILE_NAME "devilutionx")
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
     set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
     set(CPACK_STRIP_FILES TRUE)
     set(CPACK_GENERATOR "DragNDrop")
