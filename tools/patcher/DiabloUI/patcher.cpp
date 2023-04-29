@@ -25,7 +25,7 @@ static constexpr int RETURN_DONE = 100;
 
 typedef enum filenames {
 	FILE_TOWN_MIN,
-	FILE_TOWN_CEL,
+//	FILE_TOWN_CEL,
 	FILE_CATHEDRAL_MIN,
 	FILE_CATHEDRAL_SOL,
 	FILE_CATACOMBS_AMP,
@@ -54,7 +54,7 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #ifdef HELLFIRE
-	FILE_NTOWN_CEL,
+//	FILE_NTOWN_CEL,
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
 	FILE_CRYPT_MIN,
@@ -68,7 +68,7 @@ typedef enum filenames {
 
 static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
-/*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
+/*FILE_TOWN_CEL*///    "Levels\\TownData\\Town.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
@@ -97,7 +97,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #ifdef HELLFIRE
-/*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
+/*FILE_NTOWN_CEL*///   "NLevels\\TownData\\Town.CEL",
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
@@ -254,6 +254,9 @@ static void patchTownFile(BYTE* buf)
 	blkMicro(1205, 1);
 	blkMicro(1212, 0);
 	blkMicro(1219, 0);
+
+	pSubtiles[MICRO_IDX(237 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 0)];
+	pSubtiles[MICRO_IDX(237 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 1)];
 }
 
 static BYTE* patchFile(int index, size_t *dwLen)
@@ -276,7 +279,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		patchTownFile(buf);
 #endif
 	} break;
-	case FILE_TOWN_CEL:
+/*	case FILE_TOWN_CEL:
 #ifdef HELLFIRE
 	case FILE_NTOWN_CEL:
 #endif
@@ -293,7 +296,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[557])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[939])], SwapLE32(((DWORD*)pMicrosCel)[940]) - SwapLE32(((DWORD*)pMicrosCel)[939]));
 		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[558])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[940])], SwapLE32(((DWORD*)pMicrosCel)[941]) - SwapLE32(((DWORD*)pMicrosCel)[940]));
 #endif
-	} break;
+	} break;*/
 	case FILE_CATHEDRAL_MIN:
 	{	// patch dMiniTiles - L1.MIN
 #if ASSET_MPL == 1

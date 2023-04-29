@@ -253,9 +253,9 @@ void InitLvlDungeon()
 		// nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
 #if ASSET_MPL == 1
 		// patch dMicroCels - TOWN.CEL
-		// - overwrite subtile 557 and 558 with subtile 939 and 940 to make the inner tile of Griswold's house non-walkable
-		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[557])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[939])], SwapLE32(((DWORD*)pMicrosCel)[940]) - SwapLE32(((DWORD*)pMicrosCel)[939]));
-		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[558])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[940])], SwapLE32(((DWORD*)pMicrosCel)[941]) - SwapLE32(((DWORD*)pMicrosCel)[940]));
+		// - overwrite subtile 237 with subtile 402 to make the inner tile of Griswold's house non-walkable
+		pSubtiles[237][0] = pSubtiles[402][0];
+		pSubtiles[237][1] = pSubtiles[402][1];
 #endif
 #endif
 		break;
