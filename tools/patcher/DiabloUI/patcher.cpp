@@ -605,11 +605,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 
 		numA = SwapLE32(((DWORD*)buf)[0]);
 		if (numA != 179) {
-			mem_free_dbg(buf);
 			if (numA != 179 + 61 - 2) {
+				mem_free_dbg(buf);
 				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+				buf = NULL;
 			}
-			return NULL;
+			return buf;
 		}
 		bCursCels = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", &sizeB);
 		// merge the two cel files
