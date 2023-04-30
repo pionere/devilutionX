@@ -25,7 +25,7 @@ SetPieceStruct pSetPieces[4];
 /** List of the warp-points on the current level */
 WarpStruct pWarps[NUM_DWARP];
 /** Specifies the tiles (groups of four subtiles). */
-uint16_t pTiles[MAXTILES + 1][4];
+static uint16_t pTiles[MAXTILES + 1][4];
 /*
  * The micros of the subtiles
  */
@@ -164,17 +164,19 @@ void InitLvlDungeon()
 	memset(pSetPieces, 0, sizeof(pSetPieces));
 
 	pMicrosCel = LoadFileInMem(lds->dMicroCels); // .CEL
-	LoadFileWithMem(lds->dMegaTiles, (BYTE*)&pTiles[1][0]); // .TIL
+	if (lds->dMegaTiles != NULL) { 
+		LoadFileWithMem(lds->dMegaTiles, (BYTE*)&pTiles[1][0]); // .TIL
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	for (int i = 1; i < lengthof(pTiles); i++) {
-		for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
-			pTiles[i][bv] = SwapLE16(pTiles[i][bv]);
+		for (int i = 1; i < lengthof(pTiles); i++) {
+			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
+				pTiles[i][bv] = SwapLE16(pTiles[i][bv]);
+			}
 		}
-	}
 #endif
-	for (int i = 1; i < lengthof(pTiles); i++) {
-		for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
-			pTiles[i][bv] = pTiles[i][bv] + 1;
+		for (int i = 1; i < lengthof(pTiles); i++) {
+			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
+				pTiles[i][bv] = pTiles[i][bv] + 1;
+			}
 		}
 	}
 	assert(pSpecialsCel == NULL);

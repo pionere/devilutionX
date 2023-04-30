@@ -13,9 +13,9 @@ const LevelData AllLevels[NUM_LEVELS] = {
 /*DLV_TOWN*/		{       0, FALSE,   DTYPE_TOWN,      DTYPE_TOWN,      TMUSIC_TOWN,            16,      16, "Tristram",
 					//  dAutomapData,             dSolidTable,                   dMicroFlags,                   dMicroCels,                    dMegaTiles,                    dMiniTiles,                    dSpecCels,                     dPalName,                        dLoadCels,               dLoadPal,                dLoadBarOnTop, dLoadBarColor, dMonDensity, dObjDensity, dSetLvlDunX,   dSetLvlDunY,              dSetLvlWarp,  dSetLvlPiece,
 #ifdef HELLFIRE
-						NULL,                     "NLevels\\TownData\\Town.SOL", "NLevels\\TownData\\Town.TMI", "NLevels\\TownData\\Town.CEL", "NLevels\\TownData\\Town.TIL", "NLevels\\TownData\\Town.MIN", "Levels\\TownData\\TownS.CEL", "Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",    "Gendata\\Cuttt.pal",            FALSE,            43, 0,           0,           0,             0,                        WRPT_NONE,    SPT_NONE,
+						NULL,                     "NLevels\\TownData\\Town.SOL", "NLevels\\TownData\\Town.TMI", "NLevels\\TownData\\Town.CEL", NULL,                          "NLevels\\TownData\\Town.MIN", "Levels\\TownData\\TownS.CEL", "Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",    "Gendata\\Cuttt.pal",            FALSE,            43, 0,           0,           0,             0,                        WRPT_NONE,    SPT_NONE,
 #else
-						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",    "Gendata\\Cuttt.pal",            FALSE,            43, 0,           0,           0,             0,                        WRPT_NONE,    SPT_NONE,
+						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  NULL,                          "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",    "Gendata\\Cuttt.pal",            FALSE,            43, 0,           0,           0,             0,                        WRPT_NONE,    SPT_NONE,
 #endif
 					//  dMonTypes,
 						{ MT_INVALID }, ALIGN
