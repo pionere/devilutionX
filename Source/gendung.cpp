@@ -180,10 +180,12 @@ void InitLvlDungeon()
 		}
 	}
 	assert(pSpecialsCel == NULL);
-	if (currLvl._dLevelIdx != DLV_TOWN)
-		pSpecialsCel = LoadFileInMem(lds->dSpecCels); // s.CEL
-	else
-		pSpecialsCel = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
+	if (lds->dSpecCels != NULL) {
+		if (currLvl._dLevelIdx != DLV_TOWN)
+			pSpecialsCel = LoadFileInMem(lds->dSpecCels); // s.CEL
+		else
+			pSpecialsCel = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
+	}
 	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
 	LoadFileWithMem(lds->dMicroFlags, microFlags); // .TMI
 #if ASSET_MPL == 1
