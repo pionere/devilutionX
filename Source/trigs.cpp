@@ -21,7 +21,7 @@ BYTE gbTWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the caves from town. */
 #define TOWN_L3_WARP     (PIECE >= 1210 && PIECE <= 1213)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to hell from town. */
-#define TOWN_L4_WARP     (PIECE >= 1240 && PIECE <= 1255)
+#define TOWN_L4_WARP     (PIECE >= 1244 && PIECE <= 1252)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the hive from town. */
 #define TOWN_L5_WARP     (PIECE >= 1307 && PIECE <= 1310)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the crypt from town. */
@@ -103,8 +103,8 @@ static void InitTownTriggers()
 		trigs[TWARP_CAVES]._tlvl = DLV_CAVES1;
 	}
 	if (gbOpenWarps & (1 << TWARP_HELL)) {
-		trigs[TWARP_HELL]._tx = 31 + DBORDERX;
-		trigs[TWARP_HELL]._ty = 70 + DBORDERY;
+		trigs[TWARP_HELL]._tx = 30 + DBORDERX;
+		trigs[TWARP_HELL]._ty = 69 + DBORDERY;
 		trigs[TWARP_HELL]._tmsg = DVL_DWM_TWARPDN;
 		trigs[TWARP_HELL]._tlvl = DLV_HELL1;
 	}
@@ -626,8 +626,8 @@ void InitView(int entry)
 				ViewY = 59 + DBORDERY;
 				break;
 			case TWARP_HELL:
-				ViewX = 31 + DBORDERX;
-				ViewY = 71 + DBORDERY;
+				ViewX = 30 + DBORDERX;
+				ViewY = 70 + DBORDERY;
 				break;
 #ifdef HELLFIRE
 			case TWARP_CRYPT:
