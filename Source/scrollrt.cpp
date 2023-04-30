@@ -1133,7 +1133,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		if (sx > 0 && sy > 0) {
 			bv = dSpecial[sx - 1][sy - 1];
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), (CelImageBuf*)pSpecialsCel, bv);
+				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
 		}
 	}

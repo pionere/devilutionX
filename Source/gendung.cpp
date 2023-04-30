@@ -181,10 +181,7 @@ void InitLvlDungeon()
 	}
 	assert(pSpecialsCel == NULL);
 	if (lds->dSpecCels != NULL) {
-		if (currLvl._dLevelIdx != DLV_TOWN)
-			pSpecialsCel = LoadFileInMem(lds->dSpecCels); // s.CEL
-		else
-			pSpecialsCel = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
+		pSpecialsCel = LoadFileInMem(lds->dSpecCels); // s.CEL
 	}
 	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
 	LoadFileWithMem(lds->dMicroFlags, microFlags); // .TMI

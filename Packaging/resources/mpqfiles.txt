@@ -25,6 +25,7 @@ Levels\L4Data\Viles.DUN
 Levels\TownData\Town.RDUN
 Levels\TownData\Town.SOL
 Levels\TownData\Town.TMI
+Levels\TownData\TownS.CEL
 Meta\credits.txt
 Meta\credits_hf.txt
 Meta\Dark.tbl
