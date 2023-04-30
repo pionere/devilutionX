@@ -1122,8 +1122,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bv = dSpecial[sx][sy];
+		bv = nSpecTrapTable[dPiece[sx][sy]] & ((1 << 6) - 1);
 		if (bv != 0) {
+			assert(currLvl._dDunType == DTYPE_CATHEDRAL || currLvl._dDunType == DTYPE_CATACOMBS);
 			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
@@ -1131,7 +1132,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0) {
-			bv = dSpecial[sx - 1][sy - 1];
+			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & ((1 << 6) - 1);
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
 				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
@@ -1191,7 +1192,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & ((1 << 6) - 1)) != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**

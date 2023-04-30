@@ -119,30 +119,10 @@ static_assert(MAXITEMS <= UCHAR_MAX, "Index of an item might not fit to dItem.")
 BYTE dMissile[MAXDUNX][MAXDUNY];
 static_assert(MAXMISSILES <= UCHAR_MAX, "Index of a missile might not fit to dMissile.");
 static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
-/**
- * Contains the arch frame numbers of the map from the special tileset
- * (e.g. "levels/l1data/l1s.cel"). Note, the special tileset of Tristram (i.e.
- * "levels/towndata/towns.cel") contains trees rather than arches.
- */
-BYTE dSpecial[MAXDUNX][MAXDUNY];
-
-static void DRLG_InitSpecials(int x1, int y1, int x2, int y2)
-{
-	int i, j;
-
-	for (i = x1; i <= x2; i++) {
-		for (j = y1; j <= y2; j++) {
-			dSpecial[i][j] = nSpecTrapTable[dPiece[i][j]] & ((1 << 6) - 1);
-			assert(dSpecial[i][j] == 0 || currLvl._dDunType == DTYPE_TOWN || currLvl._dDunType == DTYPE_CATHEDRAL || currLvl._dDunType == DTYPE_CATACOMBS);
-		}
-	}
-}
 
 void DRLG_Init_Globals()
 {
 	BYTE c;
-
-	DRLG_InitSpecials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	memset(dFlags, 0, sizeof(dFlags));
 	memset(dPlayer, 0, sizeof(dPlayer));
@@ -1012,8 +992,6 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-	// init special pieces
-	DRLG_InitSpecials(x1, y1, x2, y2);
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
 	// activate monsters
 	MonChangeMap();
