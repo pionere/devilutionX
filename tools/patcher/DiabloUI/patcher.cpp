@@ -30,6 +30,7 @@ typedef enum filenames {
 	FILE_CATHEDRAL_SOL,
 	FILE_CATACOMBS_TIL,
 	FILE_CATACOMBS_MIN,
+	FILE_CATACOMBS_SOL,
 	FILE_CATACOMBS_AMP,
 	FILE_CAVES_MIN,
 	FILE_CAVES_SOL,
@@ -75,6 +76,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
+/*FILE_CATACOMBS_SOL*/ "Levels\\L2Data\\L2.SOL",
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
@@ -386,6 +388,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			memcpy(pSubtiles, buf, *dwLen);
 			mem_free_dbg(buf);
 			buf = (BYTE*)pSubtiles;
+			memset(buf + *dwLen, 0, 8 * blockSize * 2);
 			*dwLen += 8 * blockSize * 2;
 		}
 
@@ -406,6 +409,24 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pSubtiles[MICRO_IDX(567 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 0)];
 		pSubtiles[MICRO_IDX(567 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 1)];
 	} break;
+	case FILE_CATACOMBS_SOL:
+	{	// patch dAutomapData - L2.SOL
+		// add separate tiles and subtiles for the arches III.
+		if (*dwLen < 567) {
+			if (*dwLen != 559) {
+				mem_free_dbg(buf);
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+				return NULL;
+			}
+			BYTE *tmp = DiabloAllocPtr(*dwLen + 8);
+			memcpy(tmp, buf, *dwLen);
+			mem_free_dbg(buf);
+			buf = (BYTE*)tmp;
+			*dwLen += 8;
+		}
+		// reset flags of the 'new' floor tiles with arches
+		memset(buf + 559, 0, 8);
+	} break;
 	case FILE_CATACOMBS_AMP:
 	{	// patch dAutomapData - L2.AMP
 		if (*dwLen < 157 * 2) {
@@ -417,6 +438,28 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		automaptype[42 - 1] &= SwapLE16(~MAPFLAG_HORZARCH);
 		automaptype[156 - 1] &= SwapLE16(~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE));
 		automaptype[157 - 1] &= SwapLE16(~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE));
+		// add separate tiles and subtiles for the arches IV.
+		if (*dwLen < 164 * 2) {
+			if (*dwLen != 160 * 2) {
+				mem_free_dbg(buf);
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+				return NULL;
+			}
+			automaptype = (uint16_t*)DiabloAllocPtr(*dwLen + 4 * 2);
+			memcpy(automaptype, buf, *dwLen);
+			mem_free_dbg(buf);
+			buf = (BYTE*)automaptype;
+			// memset(buf + *dwLen, 0, 4 * 2);
+			*dwLen += 4 * 2;
+		}
+		// - floor tile(3) with vertical arch
+		automaptype[161 - 1] = automaptype[(3 - 1)];
+		// - floor tile(3) with horizontal arch
+		automaptype[162 - 1] = automaptype[(3 - 1)];
+		// - floor tile with shadow(49) with vertical arch
+		automaptype[163 - 1] = automaptype[(3 - 1)];
+		// - floor tile with shadow(51) with horizontal arch
+		automaptype[164 - 1] = automaptype[(3 - 1)];
 	} break;
 	case FILE_CAVES_MIN:
 	{	// patch dMiniTiles - L3.MIN
