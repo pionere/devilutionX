@@ -7,29 +7,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/**
- * @brief Load a tile in to dPiece
- * @param xx upper left destination
- * @param yy upper left destination
- * @param mt mega tile id (-1)
- */
-static void T_FillTile(int xx, int yy, int mt)
-{
-	int v1, v2, v3, v4;
-	uint16_t* pTile;
-
-	pTile = &pTiles[mt][0];
-	v1 = pTile[0];
-	v2 = pTile[1];
-	v3 = pTile[2];
-	v4 = pTile[3];
-
-	dPiece[xx][yy] = v1;
-	dPiece[xx + 1][yy] = v2;
-	dPiece[xx][yy + 1] = v3;
-	dPiece[xx + 1][yy + 1] = v4;
-}
-
 #ifdef HELLFIRE
 void T_HiveOpen()
 {
@@ -223,7 +200,7 @@ static BYTE GetOpenWarps()
 /**
  * @brief Initialize all of the levels data
  */
-static void T_Pass3()
+static void LoadTown()
 {
 	int x;
 #if INT_MAX == INT32_MAX && SDL_BYTEORDER != SDL_BIG_ENDIAN
@@ -239,7 +216,6 @@ static void T_Pass3()
 #endif
 
 	if (quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN) {
-		// T_FillTile(50 + DBORDERX, 60 + DBORDERY, 342);
 		dPiece[50 + DBORDERX][60 + DBORDERY] = 1257;
 		dPiece[50 + DBORDERX + 1][60 + DBORDERY] = 259;
 		dPiece[50 + DBORDERX][60 + DBORDERY + 1] = 1258;
@@ -248,26 +224,23 @@ static void T_Pass3()
 
 	gbOpenWarps = GetOpenWarps();
 	if (!(gbOpenWarps & (1 << TWARP_CATACOMB))) {
-		// T_FillTile(38 + DBORDERX, 10 + DBORDERY, 320);
 		dPiece[38 + DBORDERX][10 + DBORDERY] = 1171;
 		dPiece[38 + DBORDERX + 1][10 + DBORDERY] = 1172;
 		dPiece[38 + DBORDERX][10 + DBORDERY + 1] = 1173;
 		dPiece[38 + DBORDERX + 1][10 + DBORDERY + 1] = 1174;
 	}
 	if (!(gbOpenWarps & (1 << TWARP_CAVES))) {
-		// T_FillTile(6 + DBORDERX, 58 + DBORDERY, 332);
 		dPiece[6 + DBORDERX][58 + DBORDERY] = 1217;
 		dPiece[6 + DBORDERX + 1][58 + DBORDERY] = 1218;
 		dPiece[6 + DBORDERX][58 + DBORDERY + 1] = 1219;
 		dPiece[6 + DBORDERX + 1][58 + DBORDERY + 1] = 1220;
 		dPiece[4 + DBORDERX + 1][58 + DBORDERY] = 427;
 		dPiece[6 + DBORDERX + 1][58 + DBORDERY + 2] = 1215;
-		// T_FillTile(6 + DBORDERX, 60 + DBORDERY, 331);
 	}
 	if (!(gbOpenWarps & (1 << TWARP_HELL))) {
-		for (x = 26 + DBORDERX; x < 36 + DBORDERX; x += 2) {
-			// T_FillTile(x, 68 + DBORDERY, random_(0, 4));
-			T_FillTile(x, 68 + DBORDERY, RandRangeLow(1, 4));
+		for (x = 0; x < 10; x++) {
+			dPiece[26 + DBORDERX + x][68 + DBORDERY + 0] = dPiece[40 + DBORDERX + x][18 + DBORDERY + 0];
+			dPiece[26 + DBORDERX + x][68 + DBORDERY + 1] = dPiece[40 + DBORDERX + x][18 + DBORDERY + 1];
 		}
 	}
 
@@ -294,7 +267,7 @@ void CreateTown()
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
 
-	T_Pass3();
+	LoadTown();
 
 	// make the whole town lit
 	memset(dLight, 0, sizeof(dLight));
