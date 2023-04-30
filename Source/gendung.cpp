@@ -47,9 +47,9 @@ bool nBlockTable[MAXSUBTILES + 1];
  */
 bool nSolidTable[MAXSUBTILES + 1];
 /**
- * List of trap-source dPieces (_piece_trap_type)
+ * Flags of subtiles to specify trap-sources (_piece_trap_type) and special cel-frames
  */
-BYTE nTrapTable[MAXSUBTILES + 1];
+BYTE nSpecTrapTable[MAXSUBTILES + 1];
 /**
  * List of missile blocking dPieces
  */
@@ -218,12 +218,11 @@ void InitLvlDungeon()
 	}
 #endif
 #endif /* ASSET_MPL == 1 */
-
+	LoadFileWithMem(lds->dSpecFlags, &nSpecTrapTable[0]); // .SPT
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
-	memset(nTrapTable, 0, sizeof(nTrapTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
 	solFile = LoadFileInMem(lds->dSolidTable, &dwSubtiles); // .SOL
@@ -240,7 +239,6 @@ void InitLvlDungeon()
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
-		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0 ? PTT_ANY : PTT_NONE;
 	}
 
 	mem_free_dbg(solFile);
@@ -310,120 +308,6 @@ void InitLvlDungeon()
 		pSubtiles[567][0] = pSubtiles[167][0];
 		pSubtiles[567][1] = pSubtiles[167][1];
 #endif // !USE_PATCH
-		// patch dSolidTable - L2.SOL
-		// specify direction for torches
-		nTrapTable[1] = PTT_LEFT;
-		nTrapTable[3] = PTT_LEFT;
-		nTrapTable[5] = PTT_RIGHT;
-		nTrapTable[6] = PTT_RIGHT;
-		nTrapTable[15] = PTT_LEFT;
-		nTrapTable[18] = PTT_RIGHT;
-		nTrapTable[27] = PTT_LEFT;
-		nTrapTable[30] = PTT_RIGHT;
-		nTrapTable[31] = PTT_LEFT;
-		nTrapTable[34] = PTT_RIGHT;
-		nTrapTable[57] = PTT_LEFT;  // added
-		nTrapTable[59] = PTT_RIGHT; // added
-		nTrapTable[60] = PTT_LEFT;
-		nTrapTable[62] = PTT_LEFT;
-		nTrapTable[64] = PTT_LEFT;
-		nTrapTable[66] = PTT_LEFT;
-		nTrapTable[68] = PTT_RIGHT;
-		nTrapTable[69] = PTT_RIGHT;
-		nTrapTable[72] = PTT_RIGHT;
-		nTrapTable[73] = PTT_RIGHT;
-		nTrapTable[78] = PTT_LEFT;
-		nTrapTable[82] = PTT_LEFT;
-		nTrapTable[85] = PTT_LEFT;
-		nTrapTable[88] = PTT_LEFT;
-		nTrapTable[92] = PTT_LEFT;
-		nTrapTable[94] = PTT_LEFT;
-		nTrapTable[96] = PTT_LEFT;
-		nTrapTable[99] = PTT_RIGHT;
-		nTrapTable[104] = PTT_RIGHT;
-		nTrapTable[108] = PTT_RIGHT;
-		nTrapTable[111] = PTT_RIGHT; // added
-		nTrapTable[112] = PTT_RIGHT;
-		nTrapTable[115] = PTT_LEFT; // added
-		nTrapTable[117] = PTT_LEFT;
-		nTrapTable[119] = PTT_LEFT;
-		nTrapTable[120] = PTT_LEFT;
-		nTrapTable[121] = PTT_RIGHT; // added
-		nTrapTable[122] = PTT_RIGHT;
-		nTrapTable[125] = PTT_RIGHT;
-		nTrapTable[126] = PTT_RIGHT;
-		nTrapTable[128] = PTT_RIGHT;
-		nTrapTable[129] = PTT_LEFT;
-		nTrapTable[144] = PTT_LEFT;
-		//nTrapTable[170] = PTT_LEFT; // added
-		//nTrapTable[172] = PTT_LEFT; // added
-		//nTrapTable[174] = PTT_LEFT; // added
-		//nTrapTable[176] = PTT_LEFT; // added
-		//nTrapTable[180] = PTT_LEFT; // added
-		//nTrapTable[183] = PTT_RIGHT; // added
-		//nTrapTable[186] = PTT_RIGHT; // added
-		//nTrapTable[187] = PTT_RIGHT; // added
-		//nTrapTable[190] = PTT_RIGHT; // added
-		//nTrapTable[191] = PTT_RIGHT; // added
-		//nTrapTable[194] = PTT_RIGHT; // added
-		//nTrapTable[195] = PTT_RIGHT; // added
-		nTrapTable[234] = PTT_LEFT;
-		nTrapTable[236] = PTT_LEFT;
-		nTrapTable[238] = PTT_LEFT; // added
-		nTrapTable[240] = PTT_LEFT;
-		nTrapTable[242] = PTT_LEFT; // added
-		nTrapTable[244] = PTT_LEFT;
-		nTrapTable[253] = PTT_RIGHT; // added
-		nTrapTable[254] = PTT_RIGHT;
-		nTrapTable[257] = PTT_RIGHT;
-		nTrapTable[258] = PTT_RIGHT; // added
-		nTrapTable[261] = PTT_RIGHT; // added
-		nTrapTable[262] = PTT_RIGHT;
-		nTrapTable[277] = PTT_LEFT;
-		nTrapTable[281] = PTT_LEFT;
-		nTrapTable[285] = PTT_LEFT;
-		nTrapTable[292] = PTT_RIGHT;
-		nTrapTable[296] = PTT_RIGHT;
-		nTrapTable[300] = PTT_RIGHT;
-		nTrapTable[304] = PTT_RIGHT;
-		nTrapTable[305] = PTT_LEFT;
-		nTrapTable[446] = PTT_LEFT;
-		nTrapTable[448] = PTT_LEFT;
-		nTrapTable[450] = PTT_LEFT;
-		nTrapTable[452] = PTT_LEFT;
-		nTrapTable[454] = PTT_RIGHT;
-		nTrapTable[455] = PTT_RIGHT;
-		nTrapTable[458] = PTT_RIGHT;
-		nTrapTable[459] = PTT_RIGHT;
-		nTrapTable[480] = PTT_LEFT;
-		nTrapTable[499] = PTT_RIGHT;
-		nTrapTable[510] = PTT_LEFT;
-		nTrapTable[512] = PTT_LEFT;
-		nTrapTable[514] = PTT_RIGHT;
-		nTrapTable[515] = PTT_RIGHT;
-		nTrapTable[539] = PTT_LEFT;  // added
-		nTrapTable[543] = PTT_LEFT;  // added
-		nTrapTable[545] = PTT_LEFT;  // added
-		nTrapTable[547] = PTT_RIGHT; // added
-		nTrapTable[548] = PTT_RIGHT; // added
-		nTrapTable[552] = PTT_LEFT;  // added
-		// enable torches on (southern) walls
-		// nTrapTable[37] = PTT_LEFT;
-		// nTrapTable[39] = PTT_LEFT;
-		// nTrapTable[41] = PTT_RIGHT;
-		// nTrapTable[42] = PTT_RIGHT;
-		// nTrapTable[46] = PTT_RIGHT;
-		// nTrapTable[47] = PTT_LEFT;
-		// nTrapTable[49] = PTT_LEFT;
-		// nTrapTable[51] = PTT_RIGHT;
-		nTrapTable[520] = PTT_LEFT;
-		nTrapTable[522] = PTT_LEFT;
-		nTrapTable[524] = PTT_RIGHT;
-		nTrapTable[525] = PTT_RIGHT;
-		nTrapTable[529] = PTT_RIGHT;
-		nTrapTable[530] = PTT_LEFT;
-		nTrapTable[532] = PTT_LEFT;
-		nTrapTable[534] = PTT_RIGHT;
 		break;
 	case DTYPE_CAVES:
 #if !USE_PATCH
@@ -446,16 +330,6 @@ void InitLvlDungeon()
 		nMissileTable[211] = false;
 		nBlockTable[211] = false;
 #endif
-		// enable hooked bodies on  walls
-		nTrapTable[2] = PTT_LEFT;
-		nTrapTable[189] = PTT_LEFT;
-		nTrapTable[197] = PTT_LEFT;
-		nTrapTable[205] = PTT_LEFT;
-		nTrapTable[209] = PTT_LEFT;
-		nTrapTable[5] = PTT_RIGHT;
-		nTrapTable[192] = PTT_RIGHT;
-		nTrapTable[212] = PTT_RIGHT;
-		nTrapTable[216] = PTT_RIGHT;
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:

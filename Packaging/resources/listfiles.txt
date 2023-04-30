@@ -152,6 +152,7 @@ Levels\L1Data\L1.AMP
 Levels\L1Data\L1.CEL
 Levels\L1Data\L1.MIN
 Levels\L1Data\L1.SOL
+Levels\L1Data\L1.SPT
 Levels\L1Data\L1.TIL
 Levels\L1Data\L1.TMI
 Levels\L1Data\L1_0.PAL
@@ -181,6 +182,7 @@ Levels\L2Data\L2.AMP
 Levels\L2Data\L2.CEL
 Levels\L2Data\L2.MIN
 Levels\L2Data\L2.SOL
+Levels\L2Data\L2.SPT
 Levels\L2Data\L2.TIL
 Levels\L2Data\L2.TMI
 Levels\L2Data\L2_0.PAL
@@ -197,6 +199,7 @@ Levels\L3Data\L3.AMP
 Levels\L3Data\L3.CEL
 Levels\L3Data\L3.MIN
 Levels\L3Data\L3.SOL
+Levels\L3Data\L3.SPT
 Levels\L3Data\L3.TIL
 Levels\L3Data\L3.TMI
 Levels\L3Data\L3_0.PAL
@@ -218,6 +221,7 @@ Levels\L4Data\L4.AMP
 Levels\L4Data\L4.CEL
 Levels\L4Data\L4.MIN
 Levels\L4Data\L4.SOL
+Levels\L4Data\L4.SPT
 Levels\L4Data\L4.TIL
 Levels\L4Data\L4.TMI
 Levels\L4Data\L4_0.PAL
@@ -239,6 +243,7 @@ Levels\TownData\Town.MIN
 Levels\TownData\Town.pal
 Levels\TownData\Town.RDUN
 Levels\TownData\Town.SOL
+Levels\TownData\Town.SPT
 Levels\TownData\Town.TIL
 Levels\TownData\Town.TMI
 Levels\TownData\TownS.CEL
@@ -1336,6 +1341,7 @@ NLevels\L5Data\L5.AMP
 NLevels\L5Data\L5.CEL
 NLevels\L5Data\L5.MIN
 NLevels\L5Data\L5.SOL
+NLevels\L5Data\L5.SPT
 NLevels\L5Data\L5.TIL
 NLevels\L5Data\L5.TMI
 NLevels\L5Data\L5Base.PAL
@@ -1346,6 +1352,7 @@ NLevels\L6Data\L6.AMP
 NLevels\L6Data\L6.CEL
 NLevels\L6Data\L6.MIN
 NLevels\L6Data\L6.SOL
+NLevels\L6Data\L6.SPT
 NLevels\L6Data\L6.TIL
 NLevels\L6Data\L6.TMI
 NLevels\L6Data\L6Base0.PAL
@@ -1358,6 +1365,7 @@ NLevels\L6Data\L6Base6.PAL
 NLevels\TownData\Town.CEL
 NLevels\TownData\Town.MIN
 NLevels\TownData\Town.SOL
+NLevels\TownData\Town.SPT
 NLevels\TownData\Town.TIL
 NLevels\TownData\Town.TMI
 Objects\Altboy.CEL

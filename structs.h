@@ -2073,6 +2073,7 @@ typedef struct LevelData {
 	const char* dMicroCels;
 	const char* dMegaTiles;
 	const char* dMiniTiles;
+	const char* dSpecFlags;
 	const char* dSpecCels;
 	const char* dPalName;
 	const char* dLoadCels;
@@ -2086,7 +2087,7 @@ typedef struct LevelData {
 	BYTE dSetLvlWarp; // dungeon_warp_type
 	BYTE dSetLvlPiece; // _setpiece_type
 	BYTE dMonTypes[32];
-	ALIGNMENT(9, 2)
+	ALIGNMENT32(8)
 } LevelData;
 
 #ifdef X86_32bit_COMP

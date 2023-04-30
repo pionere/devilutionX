@@ -206,28 +206,28 @@ static void patchTownFile(BYTE* buf)
 	blkMicro(212, 9);
 	blkMicro(212, 10);
 	blkMicro(212, 11);
-	// blkMicro(214, 4);
-	// blkMicro(214, 6);
+	blkMicro(214, 4); // optional
+	blkMicro(214, 6); // optional
 	blkMicro(216, 2);
 	blkMicro(216, 4);
 	blkMicro(216, 6);
-	// blkMicro(217, 4);
-	// blkMicro(217, 6);
-	// blkMicro(217, 8);
-	// blkMicro(358, 4);
-	// blkMicro(358, 5);
-	// blkMicro(358, 6);
-	// blkMicro(358, 7);
-	// blkMicro(358, 8);
-	// blkMicro(358, 9);
-	// blkMicro(358, 10);
-	// blkMicro(358, 11);
-	// blkMicro(358, 12);
-	// blkMicro(358, 13);
-	// blkMicro(360, 4);
-	// blkMicro(360, 6);
-	// blkMicro(360, 8);
-	// blkMicro(360, 10);
+	blkMicro(217, 4);  // optional
+	blkMicro(217, 6);  // optional
+	blkMicro(217, 8);  // optional
+	blkMicro(358, 4);  // optional
+	blkMicro(358, 5);  // optional
+	blkMicro(358, 6);  // optional
+	blkMicro(358, 7);  // optional
+	blkMicro(358, 8);  // optional
+	blkMicro(358, 9);  // optional
+	blkMicro(358, 10); // optional
+	blkMicro(358, 11); // optional
+	blkMicro(358, 12); // optional
+	blkMicro(358, 13); // optional
+	blkMicro(360, 4);  // optional
+	blkMicro(360, 6);  // optional
+	blkMicro(360, 8);  // optional
+	blkMicro(360, 10); // optional
 	// fix bad artifact
 	blkMicro(233, 6);
 	// useless black micros

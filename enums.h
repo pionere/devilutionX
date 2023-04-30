@@ -3270,7 +3270,6 @@ typedef enum piece_flag {
 
 typedef enum _piece_trap_type {
 	PTT_NONE,
-	PTT_ANY,
 	PTT_LEFT,
 	PTT_RIGHT,
 } _piece_trap_type;

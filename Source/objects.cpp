@@ -510,7 +510,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] != PTT_LEFT)
+			if (((nSpecTrapTable[dPiece[i][j]] >> 6) & 3) != PTT_LEFT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -531,7 +531,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] != PTT_RIGHT)
+			if (((nSpecTrapTable[dPiece[i][j]] >> 6) & 3) != PTT_RIGHT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -587,7 +587,7 @@ static void AddObjTraps()
 			continue;
 		if (dObject[tx][ty] != 0)
 			continue;
-		if (nTrapTable[dPiece[tx][ty]] == PTT_NONE)
+		if (((nSpecTrapTable[dPiece[tx][ty]] >> 6) & 3) == PTT_NONE)
 			continue;
 		on = AddObject(on, tx, ty);
 		if (on == -1)
@@ -904,7 +904,7 @@ static void AddHookedBodies()
 	// TODO: straight loop (in dlrgs)?
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			ttv = nTrapTable[dPiece[i][j]];
+			ttv = (nSpecTrapTable[dPiece[i][j]] >> 6) & 3;
 			if (ttv == PTT_NONE)
 				continue;
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)

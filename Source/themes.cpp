@@ -62,7 +62,7 @@ static int TFit_Shrine(int themeId)
 	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2; xx++) {
 		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
-				if (nTrapTable[dPiece[xx][yy - 1]] != PTT_NONE
+				if (((nSpecTrapTable[dPiece[xx][yy - 1]] >> 6) & 3) != PTT_NONE
 				 // make sure the place is wide enough
 				 // - on the inside
 				 && !nSolidTable[dPiece[xx - 1][yy]]
@@ -84,7 +84,7 @@ static int TFit_Shrine(int themeId)
 					// if (numMatches == lengthof(drlg.thLocs))
 					//	goto done;
 				}
-				if (nTrapTable[dPiece[xx - 1][yy]] != PTT_NONE
+				if (((nSpecTrapTable[dPiece[xx - 1][yy]] >> 6) & 3) != PTT_NONE
 				 // make sure the place is wide enough
 				 // - on the inside
 				 && !nSolidTable[dPiece[xx][yy - 1]]

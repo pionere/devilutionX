@@ -1026,48 +1026,10 @@ static void DRLG_LoadL1SP()
 void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn;
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
-		// add rims above doors
-		for (i = x1; i <= x2; ++i) {
-			for (j = y1; j <= y2; ++j) {
-				pn = dPiece[i][j];
-				if (pn == 77)
-					pn = 1;
-				else if (pn == 80)
-					pn = 2;
-				else
-					pn = 0;
-				dSpecial[i][j] = pn;
-			}
-		}
-	} else
-#endif
-	{
-		// add special arches
-		for (i = x1; i <= x2; ++i) {
-			for (j = y1; j <= y2; ++j) {
-				pn = dPiece[i][j];
-				if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341)
-					pn = 1;
-				else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344)
-					pn = 2;
-				else if (pn == 253)
-					pn = 3;
-				else if (pn == 255)
-					pn = 4;
-				else if (pn == 259)
-					pn = 5;
-				else if (pn == 267)
-					pn = 6;
-				else if (pn == 418)
-					pn = 7;
-				else if (pn == 421)
-					pn = 8;
-				else
-					pn = 0;
-				dSpecial[i][j] = pn;
-			}
+
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
+			dSpecial[i][j] = nSpecTrapTable[dPiece[i][j]] & ((1 << 6) - 1);
 		}
 	}
 }
