@@ -2409,17 +2409,6 @@ static void DRLG_L2()
 	DRLG_L2DoorSubs();
 }
 
-void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
-{
-	int i, j;
-
-	for (i = x1; i <= x2; i++) {
-		for (j = y1; j <= y2; j++) {
-			dSpecial[i][j] = nSpecTrapTable[dPiece[i][j]] & ((1 << 6) - 1);
-		}
-	}
-}
-
 static void DRLG_L2FixMap()
 {
 	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
@@ -2602,7 +2591,6 @@ void CreateL2Dungeon()
 	DRLG_L2InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
 	DRLG_Init_Globals();
-	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	DRLG_SetPC();
 }

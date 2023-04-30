@@ -197,9 +197,6 @@ static BYTE GetOpenWarps()
 	return twarps;
 }
 
-/**
- * @brief Initialize all of the levels data
- */
 static void LoadTown()
 {
 	int x;
@@ -264,55 +261,15 @@ void CreateTown()
 	int i, *dp;
 	BYTE pc, *dsp;
 
+	LoadTown();
+
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
-
-	LoadTown();
 
 	// make the whole town lit
 	memset(dLight, 0, sizeof(dLight));
 	// make the whole town visible
 	memset(dFlags, BFLAG_VISIBLE, sizeof(dFlags));
-
-	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in CreateTown.");
-	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in CreateTown.");
-	dsp = &dSpecial[0][0];
-	dp = &dPiece[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		/*if (*dp == 360)
-			pc = 1;
-		else if (*dp == 358)
-			pc = 2;
-		else*/ if (*dp == 129)
-			pc = 6;
-		else if (*dp == 130)
-			pc = 7;
-		else if (*dp == 128)
-			pc = 8;
-		else if (*dp == 117)
-			pc = 9;
-		else if (*dp == 157)
-			pc = 10;
-		else if (*dp == 158)
-			pc = 11;
-		else if (*dp == 156)
-			pc = 12;
-		else if (*dp == 162)
-			pc = 13;
-		else if (*dp == 160)
-			pc = 14;
-		//else if (*dp == 214)
-		//	pc = 15;
-		else if (*dp == 212)
-			pc = 16;
-		//else if (*dp == 217)
-		//	pc = 17;
-		else if (*dp == 216)
-			pc = 18;
-		else
-			continue;
-		*dsp = pc;
-	}
 }
 
 DEVILUTION_END_NAMESPACE

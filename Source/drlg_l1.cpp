@@ -1023,17 +1023,6 @@ static void DRLG_LoadL1SP()
 	}
 }
 
-void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-
-	for (i = x1; i <= x2; i++) {
-		for (j = y1; j <= y2; j++) {
-			dSpecial[i][j] = nSpecTrapTable[dPiece[i][j]] & ((1 << 6) - 1);
-		}
-	}
-}
-
 static void L1ClearChamberFlags()
 {
 	int i;
@@ -2935,7 +2924,6 @@ void CreateL1Dungeon()
 	DRLG_L1InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
 	DRLG_Init_Globals();
-	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	DRLG_SetPC();
 }

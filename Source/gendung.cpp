@@ -126,9 +126,23 @@ static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMiss
  */
 BYTE dSpecial[MAXDUNX][MAXDUNY];
 
+static void DRLG_InitSpecials(int x1, int y1, int x2, int y2)
+{
+	int i, j;
+
+	for (i = x1; i <= x2; i++) {
+		for (j = y1; j <= y2; j++) {
+			dSpecial[i][j] = nSpecTrapTable[dPiece[i][j]] & ((1 << 6) - 1);
+			assert(dSpecial[i][j] == 0 || currLvl._dDunType == DTYPE_TOWN || currLvl._dDunType == DTYPE_CATHEDRAL || currLvl._dDunType == DTYPE_CATACOMBS);
+		}
+	}
+}
+
 void DRLG_Init_Globals()
 {
 	BYTE c;
+
+	DRLG_InitSpecials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 
 	memset(dFlags, 0, sizeof(dFlags));
 	memset(dPlayer, 0, sizeof(dPlayer));
@@ -137,7 +151,6 @@ void DRLG_Init_Globals()
 	memset(dObject, 0, sizeof(dObject));
 	memset(dItem, 0, sizeof(dItem));
 	memset(dMissile, 0, sizeof(dMissile));
-	memset(dSpecial, 0, sizeof(dSpecial));
 	c = MAXDARKNESS;
 #if DEBUG_MODE
 	if (lightflag)
@@ -1000,11 +1013,7 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
 	// init special pieces
-	if (currLvl._dDunType == DTYPE_CATHEDRAL) {
-		DRLG_InitL1Specials(x1, y1, x2, y2);
-	} else if (currLvl._dDunType == DTYPE_CATACOMBS) {
-		DRLG_InitL2Specials(x1, y1, x2, y2);
-	}
+	DRLG_InitSpecials(x1, y1, x2, y2);
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
 	// activate monsters
 	MonChangeMap();
