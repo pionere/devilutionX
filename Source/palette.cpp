@@ -76,7 +76,7 @@ void LoadPalette(const char* pszFileName)
 	palette_create_sdl_colors(orig_palette, PalData);
 }
 
-void LoadRndLvlPal()
+void LoadLvlPalette()
 {
 	int rv;
 	char szFileName[DATA_ARCHIVE_MAX_PATH];

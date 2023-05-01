@@ -166,7 +166,7 @@ void IncProgress()
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
-static void CreateLevel()
+static void CreateDungeon()
 {
 	switch (currLvl._dDunType) {
 	case DTYPE_TOWN:
@@ -189,7 +189,7 @@ static void CreateLevel()
 		break;
 	}
 	InitTriggers();
-	LoadRndLvlPal();
+	LoadLvlPalette();
 }
 
 void LoadGameLevel(int lvldir)
@@ -223,7 +223,7 @@ void LoadGameLevel(int lvldir)
 	IncProgress();
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	CreateLevel();
+	CreateDungeon();
 	IncProgress();
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes();
