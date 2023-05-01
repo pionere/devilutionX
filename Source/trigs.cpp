@@ -15,7 +15,7 @@ BYTE gbTWarpFrom;
 
 #define PIECE dPiece[pcurspos.x][pcurspos.y]
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the cathedral from town. */
-#define TOWN_L1_WARP     (PIECE == 716 || (PIECE >= 723 && PIECE <= 728))
+#define TOWN_L1_WARP     (PIECE == 716 || (PIECE >= 723 && PIECE <= 726) || PIECE == 728)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the catacombs from town. */
 #define TOWN_L2_WARP     (PIECE >= 1175 && PIECE <= 1178)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the caves from town. */
@@ -25,12 +25,11 @@ BYTE gbTWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the hive from town. */
 #define TOWN_L5_WARP     (PIECE >= 1307 && PIECE <= 1310)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to the crypt from town. */
-#define TOWN_L6_WARP     (PIECE >= 1331 && PIECE <= 1338)
+#define TOWN_L6_WARP     (PIECE >= 1333 && PIECE <= 1338)
 /** Specifies the dungeon piece IDs which constitute stairways leading up from the cathedral. */
-#define L1_UP_WARP       (PIECE >= 129 && PIECE <= 140 && PIECE != 134 && PIECE != 136)
+#define L1_UP_WARP       (PIECE == 129 || PIECE == 130 || PIECE == 137 || PIECE == 139)
 /** Specifies the dungeon piece IDs which constitute stairways leading down from the cathedral. */
-//							{ 106, 107, 108, 109, 110, /*111,*/ 112, /*113,*/ 114, 115, /*116, 117,*/ 118, }
-#define L1_DOWN_WARP     ((PIECE >= 106 && PIECE <= 115 && PIECE != 111 && PIECE != 113) || PIECE == 118)
+#define L1_DOWN_WARP     (PIECE >= 106 && PIECE <= 115 && (PIECE <= 109 || PIECE >= 114))
 /** Specifies the dungeon piece IDs which constitute stairways leading up from the catacombs. */
 #define L2_UP_WARP       (PIECE >= 266 && PIECE <= 267)
 /** Specifies the dungeon piece IDs which constitute stairways leading down from the catacombs. */
@@ -44,7 +43,6 @@ BYTE gbTWarpFrom;
 #define L3_DOWN_WARP     (PIECE == 168)
 #define L3_DOWN_WARPx(x) (x == 168)
 /** Specifies the dungeon piece IDs which constitute stairways leading up to town from the caves. */
-//#define L3_TOWN_WARP     (PIECE == 548 || PIECE == 549 || PIECE == 559 || PIECE == 560)
 #define L3_TOWN_WARP     (PIECE == 548 || PIECE == 549)
 #define L3_TOWN_WARPx(x) (x == 548 || x == 549)
 /** Specifies the dungeon piece IDs which constitute stairways leading up from hell. */
@@ -56,16 +54,11 @@ BYTE gbTWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading down to Diablo from hell. */
 #define L4_PENTA_WARP    (PIECE >= 367 && PIECE <= 370)
 #ifdef HELLFIRE
-/** Specifies the dungeon piece IDs which constitute stairways leading up to town from crypt. */
-//#define L5_TOWN_WARP		(PIECE >= 172 && PIECE <= 185 && (PIECE <= 179 || PIECE >= 184))
 /** Specifies the dungeon piece IDs which constitute stairways leading up from crypt. */
-#define L5_UP_WARP       (PIECE >= 149 && PIECE <= 159 && (PIECE <= 153 || PIECE >= 158))
+#define L5_UP_WARP       (PIECE >= 149 && PIECE <= 159 && (PIECE <= 150 || PIECE >= 158))
 /** Specifies the dungeon piece IDs which constitute stairways leading down from crypt. */
 #define L5_DOWN_WARP     (PIECE >= 125 && PIECE <= 126)
 #define L5_DOWN_WARPx(x) (x >= 125 && x <= 126)
-/** Specifies the dungeon piece IDs which constitute stairways leading up to town from nest. */
-//#define L6_TOWN_WARP     (PIECE >= 79 && PIECE <= 80)
-//#define L6_TOWN_WARPx(x) (x >= 79 && x <= 80)
 /** Specifies the dungeon piece IDs which constitute stairways leading up from nest. */
 #define L6_UP_WARP       (PIECE >= 65 && PIECE <= 66)
 #define L6_UP_WARPx(x)   (x >= 65 && x <= 66)
