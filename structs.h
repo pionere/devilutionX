@@ -2499,10 +2499,6 @@ typedef struct FileMpqBlockEntry {
 } FileMpqBlockEntry;
 #pragma pack(pop)
 
-// TPDEF PTR FCN UCHAR TGetNameFcn
-
-// TPDEF PTR FCN VOID TCrypt
-
 //////////////////////////////////////////////////
 // trigs
 //////////////////////////////////////////////////
@@ -2510,8 +2506,9 @@ typedef struct FileMpqBlockEntry {
 typedef struct TriggerStruct {
 	int _tx;
 	int _ty;
-	int _tmsg;
-	int _tlvl;
+	int _tmsg;  // window_messages
+	int _tlvl;  // dungeon_level
+	int _ttype; // trig_type
 } TriggerStruct;
 
 //////////////////////////////////////////////////

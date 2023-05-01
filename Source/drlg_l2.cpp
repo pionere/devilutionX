@@ -114,7 +114,7 @@ const BYTE L2DSTAIRS[] = {
 	// clang-format on
 };
 /** Miniset: Stairs to town. */
-const BYTE L2TWARP[] = {
+/*const BYTE L2TWARP[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -128,7 +128,7 @@ const BYTE L2TWARP[] = {
 	0, 159,   0, 0,
 	0,   0,   0, 0,
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled south pillar. */
 const BYTE CRUSHCOL[] = {
 	// clang-format off
@@ -2354,7 +2354,7 @@ static void DRLG_L2()
 		pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
 		pWarps[DWARP_EXIT]._wtype = WRPT_L2_DOWN;
 		if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
-			warpPos = DRLG_PlaceMiniSet(L2TWARP); // L2TWARP (5, 3)
+			warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2TWARP (5, 3)
 			if (warpPos.x < 0) {
 				continue;
 			}

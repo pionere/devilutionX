@@ -3174,6 +3174,44 @@ typedef enum dungeon_warp_type {
 	WRPT_CIRCLE,
 } dungeon_warp_type;
 
+typedef enum trig_type {
+	TRT_TOWN_L1,
+	TRT_L1_UP,
+	TRT_L1_TOWN,
+	TRT_L1_DOWN,
+	TRT_L1_SKING,
+	TRT_SKING_L1,
+	TRT_L1_PWATER,
+	TRT_PWATER_L1,
+	TRT_TOWN_L2,
+	TRT_L2_UP,
+	TRT_L2_TOWN,
+	TRT_L2_DOWN,
+	TRT_L2_BCHAMB,
+	TRT_BCHAMB_L2,
+	TRT_TOWN_L3,
+	TRT_L3_UP,
+	TRT_L3_TOWN,
+	TRT_L3_DOWN,
+	TRT_TOWN_L4,
+	TRT_L4_UP,
+	TRT_L4_TOWN,
+	TRT_L4_DOWN,
+	TRT_L4_PENTA,
+	TRT_L4_BETR,
+	TRT_BETR_L4,
+#ifdef HELLFIRE
+	TRT_TOWN_L5,
+	TRT_L5_UP,
+	TRT_L5_TOWN,
+	TRT_L5_DOWN,
+	TRT_TOWN_L6,
+	TRT_L6_UP,
+	TRT_L6_TOWN,
+	TRT_L6_DOWN,
+#endif
+} trig_type;
+
 typedef enum dungeon_theme_room_tiles {
 	DRT_FLOOR,
 	DRT_WALL_VERT,
