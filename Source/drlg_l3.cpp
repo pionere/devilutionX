@@ -2139,7 +2139,7 @@ static void DRLG_L6PlaceRndPool(const BYTE* miniset, int rndper)
 /*
  * Add fences and planks to the dungeon.
  * New dungeon values: 121, 122, 123, 124, 125, 126, 127, 128, 129, 130,
- *                     131, 132, 133, 134, 135, 136, 137, 139, 140, 142, 143, 151, 152
+ *                     131, 132, 133, 134, 135, 139, 140, 142, 143, 151, 152
  */
 static void DRLG_L3Wood()
 {
