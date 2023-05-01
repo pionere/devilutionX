@@ -725,7 +725,10 @@ void DRLG_LoadSP(int idx, BYTE bv)
 
 static void DRLG_SetPC()
 {
-	memset(dFlags, 0, sizeof(dFlags));
+	BYTE c;
+
+	c = currLvl._dType == DTYPE_TOWN ? BFLAG_VISIBLE : 0;
+	memset(dFlags, c, sizeof(dFlags));
 
 	for (int n = lengthof(pSetPieces) - 1; n >= 0; n--) {
 		if (pSetPieces[n]._spData != NULL) { // pSetPieces[n]._sptype != SPT_NONE
@@ -764,7 +767,7 @@ static void DRLG_LightSubtiles()
 	BYTE c;
 	int i, j, pn;
 
-	c = MAXDARKNESS;
+	c = currLvl._dType == DTYPE_TOWN ? 0 : MAXDARKNESS;
 #if DEBUG_MODE
 	if (lightflag)
 		c = 0;

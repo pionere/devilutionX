@@ -258,18 +258,10 @@ static void LoadTown()
  */
 void CreateTown()
 {
-	int i, *dp;
-	BYTE pc, *dsp;
-
 	LoadTown();
 
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
-
-	// make the whole town lit (DRLG_LightSubtiles)
-	memset(dLight, 0, sizeof(dLight));
-	// make the whole town visible (DRLG_SetPC)
-	memset(dFlags, BFLAG_VISIBLE, sizeof(dFlags));
 }
 
 DEVILUTION_END_NAMESPACE
