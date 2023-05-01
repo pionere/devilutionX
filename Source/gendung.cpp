@@ -730,6 +730,26 @@ static void DRLG_InitFlags()
 	c = currLvl._dType == DTYPE_TOWN ? BFLAG_VISIBLE : 0;
 	memset(dFlags, c, sizeof(dFlags));
 
+	if (!currLvl._dSetLvl) {
+		for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
+			int tx = pWarps[i]._wx;
+			int ty = pWarps[i]._wy;
+
+			if (tx == 0) {
+				continue;
+			}
+			int r = pWarps[i]._wtype == WRPT_L4_PENTA ? 4 : 2;
+			tx -= r;
+			ty -= r;
+			r = 2 * r + 1;
+			for (int xx = 0; xx < r; xx++) {
+				for (int yy = 0; yy < r; yy++) {
+					dFlags[tx + xx][ty + yy] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
+				}
+			}
+		}
+	}
+
 	for (int n = lengthof(pSetPieces) - 1; n >= 0; n--) {
 		if (pSetPieces[n]._spData != NULL) { // pSetPieces[n]._sptype != SPT_NONE
 			int x = pSetPieces[n]._spx;

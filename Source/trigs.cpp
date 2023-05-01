@@ -324,7 +324,7 @@ void InitVPReturnTrigger(bool recreate)
 	trigs[0]._ty = pWarps[DWARP_ENTRY]._wy - 4; // DBORDERX + 16
 	trigs[0]._tmsg = DVL_DWM_RTNLVL;
 	trigs[0]._tlvl = questlist[Q_BETRAYER]._qdlvl;
-
+	// TODO: set BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT?
 	AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
@@ -537,29 +537,6 @@ static int ForceL6Trig()
 	return -1;
 }
 #endif
-
-static void Freeupstairs()
-{
-	int i, tx, ty, xx, yy;
-
-	for (i = 0; i < NUM_DWARP; i++) {
-		tx = pWarps[i]._wx;
-		ty = pWarps[i]._wy;
-
-		if (tx == 0) {
-			continue;
-		}
-		int r = (currLvl._dLevelIdx == DLV_HELL3 && i == DWARP_EXIT) ? 4 : 2;
-		tx -= r;
-		ty -= r;
-		r = 2 * r + 1;
-		for (xx = 0; xx < r; xx++) {
-			for (yy = 0; yy < r; yy++) {
-				dFlags[tx + xx][ty + yy] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
-			}
-		}
-	}
-}
 
 static int ForceSKingTrig()
 {
@@ -777,7 +754,6 @@ void InitTriggers()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		Freeupstairs();
 	} else {
 		switch (currLvl._dLevelIdx) {
 		case SL_SKELKING:
