@@ -120,24 +120,6 @@ BYTE dMissile[MAXDUNX][MAXDUNY];
 static_assert(MAXMISSILES <= UCHAR_MAX, "Index of a missile might not fit to dMissile.");
 static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
 
-void DRLG_Init_Globals()
-{
-	BYTE c;
-
-	memset(dPlayer, 0, sizeof(dPlayer));
-	memset(dMonster, 0, sizeof(dMonster));
-	memset(dDead, 0, sizeof(dDead));
-	memset(dObject, 0, sizeof(dObject));
-	memset(dItem, 0, sizeof(dItem));
-	memset(dMissile, 0, sizeof(dMissile));
-	c = MAXDARKNESS;
-#if DEBUG_MODE
-	if (lightflag)
-		c = 0;
-#endif
-	memset(dLight, c, sizeof(dLight));
-}
-
 void InitLvlDungeon()
 {
 	uint16_t bv;
@@ -775,6 +757,62 @@ void DRLG_SetPC()
 			}
 		}
 	}
+}
+
+static void DRLG_LightSubtiles()
+{
+	int i, j, pn;
+
+	assert(LightList[MAXLIGHTS]._lxoff == 0);
+	assert(LightList[MAXLIGHTS]._lyoff == 0);
+	if (currLvl._dType == DTYPE_CAVES) {
+		LightList[MAXLIGHTS]._lradius = 7;
+		for (i = 0; i < MAXDUNX; i++) {
+			for (j = 0; j < MAXDUNY; j++) {
+				pn = dPiece[i][j];
+				if (pn >= 56 && pn <= 161
+				 && (pn <= 147 || pn >= 154 || pn == 150 || pn == 152)) {
+					LightList[MAXLIGHTS]._lx = i;
+					LightList[MAXLIGHTS]._ly = j;
+					DoLighting(MAXLIGHTS);
+				}
+			}
+		}
+#ifdef HELLFIRE
+	} else if (currLvl._dType == DTYPE_NEST) {
+		LightList[MAXLIGHTS]._lradius = 6; // 9
+		for (i = 0; i < MAXDUNX; i++) {
+			for (j = 0; j < MAXDUNY; j++) {
+				pn = dPiece[i][j];
+				if ((pn >= 386 && pn <= 496) || (pn >= 534 && pn <= 537)) {
+					LightList[MAXLIGHTS]._lx = i;
+					LightList[MAXLIGHTS]._ly = j;
+					DoLighting(MAXLIGHTS);
+				}
+			}
+		}
+#endif
+	}
+}
+
+void DRLG_Init_Globals()
+{
+	BYTE c;
+
+	memset(dPlayer, 0, sizeof(dPlayer));
+	memset(dMonster, 0, sizeof(dMonster));
+	memset(dDead, 0, sizeof(dDead));
+	memset(dObject, 0, sizeof(dObject));
+	memset(dItem, 0, sizeof(dItem));
+	memset(dMissile, 0, sizeof(dMissile));
+	c = MAXDARKNESS;
+#if DEBUG_MODE
+	if (lightflag)
+		c = 0;
+#endif
+	memset(dLight, c, sizeof(dLight));
+
+	DRLG_LightSubtiles();
 }
 
 /**

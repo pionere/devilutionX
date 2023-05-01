@@ -2593,44 +2593,6 @@ static void DRLG_L3()
 	}
 }
 
-static void DRLG_L3LightTiles()
-{
-	int i, j, pn;
-
-	assert(LightList[MAXLIGHTS]._lxoff == 0);
-	assert(LightList[MAXLIGHTS]._lyoff == 0);
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_NEST) {
-		LightList[MAXLIGHTS]._lradius = 6; // 9
-		for (i = 0; i < MAXDUNX; i++) {
-			for (j = 0; j < MAXDUNY; j++) {
-				pn = dPiece[i][j];
-				if ((pn >= 386 && pn <= 496) || (pn >= 534 && pn <= 537)) {
-					LightList[MAXLIGHTS]._lx = i;
-					LightList[MAXLIGHTS]._ly = j;
-					DoLighting(MAXLIGHTS);
-				}
-			}
-		}
-	} else
-#endif
-	{
-		// assert(currLvl._dType == DTYPE_CAVES);
-		LightList[MAXLIGHTS]._lradius = 7;
-		for (i = 0; i < MAXDUNX; i++) {
-			for (j = 0; j < MAXDUNY; j++) {
-				pn = dPiece[i][j];
-				if (pn >= 56 && pn <= 161
-				 && (pn <= 147 || pn >= 154 || pn == 150 || pn == 152)) {
-					LightList[MAXLIGHTS]._lx = i;
-					LightList[MAXLIGHTS]._ly = j;
-					DoLighting(MAXLIGHTS);
-				}
-			}
-		}
-	}
-}
-
 static void DRLG_L3SetMapFix()
 {
 	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
@@ -2712,7 +2674,6 @@ void CreateL3Dungeon()
 	DRLG_L3InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
 	DRLG_Init_Globals();
-	DRLG_L3LightTiles();
 
 	DRLG_SetPC();
 }
