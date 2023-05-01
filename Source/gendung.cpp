@@ -761,7 +761,15 @@ void DRLG_SetPC()
 
 static void DRLG_LightSubtiles()
 {
+	BYTE c;
 	int i, j, pn;
+
+	c = MAXDARKNESS;
+#if DEBUG_MODE
+	if (lightflag)
+		c = 0;
+#endif
+	memset(dLight, c, sizeof(dLight));
 
 	assert(LightList[MAXLIGHTS]._lxoff == 0);
 	assert(LightList[MAXLIGHTS]._lyoff == 0);
@@ -797,7 +805,7 @@ static void DRLG_LightSubtiles()
 
 void DRLG_Init_Globals()
 {
-	BYTE c;
+	DRLG_LightSubtiles();
 
 	memset(dPlayer, 0, sizeof(dPlayer));
 	memset(dMonster, 0, sizeof(dMonster));
@@ -805,14 +813,6 @@ void DRLG_Init_Globals()
 	memset(dObject, 0, sizeof(dObject));
 	memset(dItem, 0, sizeof(dItem));
 	memset(dMissile, 0, sizeof(dMissile));
-	c = MAXDARKNESS;
-#if DEBUG_MODE
-	if (lightflag)
-		c = 0;
-#endif
-	memset(dLight, c, sizeof(dLight));
-
-	DRLG_LightSubtiles();
 }
 
 /**

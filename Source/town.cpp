@@ -266,7 +266,7 @@ void CreateTown()
 	DRLG_InitTrans();
 	DRLG_Init_Globals();
 
-	// make the whole town lit
+	// make the whole town lit (DRLG_LightSubtiles)
 	memset(dLight, 0, sizeof(dLight));
 	// make the whole town visible (DRLG_SetPC)
 	memset(dFlags, BFLAG_VISIBLE, sizeof(dFlags));
