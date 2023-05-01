@@ -430,7 +430,7 @@ static int AddMonsterType(int type, BOOL scatter)
 	return i;
 }
 
-void InitLevelMonsters()
+void InitLvlMonsters()
 {
 	int i;
 

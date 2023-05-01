@@ -723,7 +723,7 @@ void DRLG_LoadSP(int idx, BYTE bv)
 	}
 }
 
-static void DRLG_SetPC()
+static void DRLG_InitFlags()
 {
 	BYTE c;
 
@@ -806,10 +806,10 @@ static void DRLG_LightSubtiles()
 	}
 }
 
-void DRLG_Init_Globals()
+void InitLvlMap()
 {
 	DRLG_LightSubtiles();
-	DRLG_SetPC();
+	DRLG_InitFlags();
 
 	memset(dPlayer, 0, sizeof(dPlayer));
 	memset(dMonster, 0, sizeof(dMonster));

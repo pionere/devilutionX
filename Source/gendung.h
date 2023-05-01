@@ -46,7 +46,7 @@ extern BYTE dMissile[MAXDUNX][MAXDUNY];
 void InitLvlDungeon();
 void FreeSetPieces();
 void FreeLvlDungeon();
-void DRLG_Init_Globals();
+void InitLvlMap();
 void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper);
 POS32 DRLG_PlaceMiniSet(const BYTE* miniset);
 void DRLG_PlaceMegaTiles(int idx);
