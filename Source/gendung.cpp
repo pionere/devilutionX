@@ -124,7 +124,6 @@ void DRLG_Init_Globals()
 {
 	BYTE c;
 
-	memset(dFlags, 0, sizeof(dFlags));
 	memset(dPlayer, 0, sizeof(dPlayer));
 	memset(dMonster, 0, sizeof(dMonster));
 	memset(dDead, 0, sizeof(dDead));
@@ -744,6 +743,8 @@ void DRLG_LoadSP(int idx, BYTE bv)
 
 void DRLG_SetPC()
 {
+	memset(dFlags, 0, sizeof(dFlags));
+
 	for (int n = lengthof(pSetPieces) - 1; n >= 0; n--) {
 		if (pSetPieces[n]._spData != NULL) { // pSetPieces[n]._sptype != SPT_NONE
 			int x = pSetPieces[n]._spx;

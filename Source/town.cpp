@@ -268,7 +268,7 @@ void CreateTown()
 
 	// make the whole town lit
 	memset(dLight, 0, sizeof(dLight));
-	// make the whole town visible
+	// make the whole town visible (DRLG_SetPC)
 	memset(dFlags, BFLAG_VISIBLE, sizeof(dFlags));
 }
 
