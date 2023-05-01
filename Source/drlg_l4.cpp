@@ -1914,15 +1914,15 @@ static void DRLG_L4()
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_PENTA;
 			} else if (pSetPieces[0]._sptype == SPT_WARLORD) {
-				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 3; // L4DSTAIRS (6, 4)
+				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 2; // L4DSTAIRS (4, 4)
 				pWarps[DWARP_EXIT]._wy = pSetPieces[0]._spy + 3;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			} else {
-				warpPos = DRLG_PlaceMiniSet(L4DSTAIRS); // L4DSTAIRS (6, 4)
+				warpPos = DRLG_PlaceMiniSet(L4DSTAIRS); // L4DSTAIRS (4, 4)
 				if (warpPos.x < 0) {
 					continue;
 				}
-				pWarps[DWARP_EXIT]._wx = warpPos.x + 3;
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 2;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			}

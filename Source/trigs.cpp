@@ -50,7 +50,7 @@ BYTE gbTWarpFrom;
 /** Specifies the dungeon piece IDs which constitute stairways leading up from hell. */
 #define L4_UP_WARP       (PIECE >= 94 && PIECE <= 97)
 /** Specifies the dungeon piece IDs which constitute stairways leading down from hell. */
-#define L4_DOWN_WARP     ((PIECE >= 130 && PIECE <= 133) || PIECE == 120)
+#define L4_DOWN_WARP     (PIECE >= 130 && PIECE <= 133)
 /** Specifies the dungeon piece IDs which constitute stairways leading up to town from hell. */
 #define L4_TOWN_WARP     (PIECE >= 433 && PIECE <= 436)
 /** Specifies the dungeon piece IDs which constitute stairways leading down to Diablo from hell. */
@@ -220,8 +220,8 @@ static void InitL4Triggers()
 	// }
 	if (pWarps[DWARP_EXIT]._wx != 0) {
 		if (currLvl._dLevelIdx != DLV_HELL3) {
-			trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx;
-			trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy;
+			trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx + 1;
+			trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy + 1;
 			trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 			numtrigs++;
 		} else if (quests[Q_BETRAYER]._qactive == QUEST_DONE) {
@@ -733,7 +733,7 @@ void InitView(int entry)
 		ViewY += 2;
 		break;
 	case WRPT_L4_DOWN:
-		ViewX += 1;
+		ViewX += 2;
 		ViewY += 1;
 		break;
 	case WRPT_L4_PENTA:

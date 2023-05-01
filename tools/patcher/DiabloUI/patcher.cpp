@@ -497,7 +497,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(130, true);    // make the inner tiles of the down-stairs non-walkable I.
 		nSolidTable(132, true);    // make the inner tiles of the down-stairs non-walkable II.
 		nSolidTable(131, true);    // make the inner tiles of the down-stairs non-walkable III.
-		nSolidTable(133, true);    // make the inner tiles of the down-stairs non-walkable IV.
 		// fix all-blocking tile on the diablo-level
 		nSolidTable(211, false);
 		nMissileTable(211, false);
