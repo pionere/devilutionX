@@ -26,7 +26,6 @@ void InitQuests();
 void InitQuestGFX();
 void FreeQuestGFX();
 void CheckQuests();
-int ForceQuests();
 bool QuestStatus(int qn);
 void CheckQuestKill(int mnum, bool sendmsg);
 void DRLG_CheckQuests();

@@ -538,6 +538,31 @@ static int ForceL6Trig()
 }
 #endif
 
+static int ForceQuests()
+{
+	int i;
+
+	for (i = numtrigs - 1; i >= 0; i--) {
+		if (trigs[i]._tmsg == DVL_DWM_SETLVL) {
+			/*      ^
+			 *      |
+			 * ----++------>
+			 *    +++
+			 *    ++|
+			 *      |
+			 */
+			int dx = pcurspos.x - (trigs[i]._tx - 1);
+			int dy = pcurspos.y - (trigs[i]._ty - 1);
+			if (abs(dx) <= 1 && abs(dy) <= 1 // select the 3x3 square around (-1;-1)
+			 && abs(dx - dy) < 2) {          // exclude the top left and bottom right positions
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
 static int ForceSKingTrig()
 {
 	if (L1_UP_WARP) {
