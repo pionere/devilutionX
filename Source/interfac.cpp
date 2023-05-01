@@ -189,7 +189,6 @@ static void CreateDungeon()
 		break;
 	}
 	InitTriggers();
-	LoadLvlPalette();
 }
 
 void LoadGameLevel(int lvldir)
@@ -224,6 +223,8 @@ void LoadGameLevel(int lvldir)
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	CreateDungeon();
+	LoadLvlPalette();
+	DRLG_Init_Globals();
 	IncProgress();
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes();

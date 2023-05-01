@@ -2039,7 +2039,6 @@ void CreateL4Dungeon()
 
 	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
-	DRLG_Init_Globals();
 }
 
 DEVILUTION_END_NAMESPACE

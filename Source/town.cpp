@@ -261,7 +261,6 @@ void CreateTown()
 	LoadTown();
 
 	DRLG_InitTrans();
-	DRLG_Init_Globals();
 }
 
 DEVILUTION_END_NAMESPACE
