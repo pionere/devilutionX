@@ -2100,6 +2100,7 @@ typedef struct WarpStruct {
 	int _wx;
 	int _wy;
 	int _wtype; // dungeon_warp_type
+	int _wlvl;  // dungeon_level / _setlevels
 } WarpStruct;
 
 typedef struct SetPieceStruct {
@@ -2131,8 +2132,8 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 #endif
 
 typedef struct QuestData {
-	BYTE _qdlvl; // dungeon level
-	BYTE _qslvl; // setmap level
+	BYTE _qdlvl; // dungeon_level
+	BYTE _qslvl; // _setlevels
 	int _qdmsg;  // _speech_id
 	const char* _qlstr; // quest title
 } QuestData;

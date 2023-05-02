@@ -99,11 +99,10 @@ static void InitL1Triggers()
 	if (pWarps[DWARP_SIDE]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_SIDE]._wx;
 		trigs[numtrigs]._ty = pWarps[DWARP_SIDE]._wy;
+		trigs[numtrigs]._tlvl = pWarps[DWARP_SIDE]._wlvl;
 		if (currLvl._dLevelIdx == questlist[Q_SKELKING]._qdlvl) { // TODO: add qn to pWarps?
-			trigs[numtrigs]._tlvl = questlist[Q_SKELKING]._qslvl;
 			trigs[numtrigs]._ttype = TRT_L1_SKING;
 		} else {
-			trigs[numtrigs]._tlvl = questlist[Q_PWATER]._qslvl;
 			trigs[numtrigs]._ttype = TRT_L1_PWATER;
 		}
 		trigs[numtrigs]._tmsg = DVL_DWM_SETLVL;
@@ -138,7 +137,7 @@ static void InitL2Triggers()
 	if (pWarps[DWARP_SIDE]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_SIDE]._wx;
 		trigs[numtrigs]._ty = pWarps[DWARP_SIDE]._wy;
-		trigs[numtrigs]._tlvl = questlist[Q_BCHAMB]._qslvl;
+		trigs[numtrigs]._tlvl = pWarps[DWARP_SIDE]._wlvl;
 		trigs[numtrigs]._tmsg = DVL_DWM_SETLVL;
 		trigs[numtrigs]._ttype = TRT_L2_BCHAMB;
 		numtrigs++;

@@ -2371,6 +2371,7 @@ static void DRLG_L2()
 			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY + 1;
 			pWarps[DWARP_SIDE]._wtype = WRPT_L2_UP;
+			pWarps[DWARP_SIDE]._wlvl = questlist[Q_BCHAMB]._qslvl;
 		}
 		break;
 	}

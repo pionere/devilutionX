@@ -2677,6 +2677,7 @@ static void DRLG_L1()
 			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX + 1;
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 			pWarps[DWARP_SIDE]._wtype = WRPT_L1_PWATER;
+			pWarps[DWARP_SIDE]._wlvl = questlist[Q_PWATER]._qslvl;
 		}
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {
@@ -2735,6 +2736,7 @@ static void DRLG_L1()
 				pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
 				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY + 1;
 				pWarps[DWARP_SIDE]._wtype = WRPT_L1_SKING;
+				pWarps[DWARP_SIDE]._wlvl = questlist[Q_SKELKING]._qslvl;
 			}
 			if (pSetPieces[0]._sptype == SPT_BANNER) {
 				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 1; // L1DSTAIRS (3, 5)
