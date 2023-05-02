@@ -2674,7 +2674,7 @@ static void DRLG_L1()
 			}
 			pWarps[DWARP_SIDE]._wx = warpPos.x + 2;
 			pWarps[DWARP_SIDE]._wy = warpPos.y + 3;
-			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
+			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX + 1;
 			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
 			pWarps[DWARP_SIDE]._wtype = WRPT_L1_PWATER;
 		}
@@ -2704,7 +2704,7 @@ static void DRLG_L1()
 				}
 				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 3;
-				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
+				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX + 1;
 				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L1_DOWN;
 			}
@@ -2733,7 +2733,7 @@ static void DRLG_L1()
 				pWarps[DWARP_SIDE]._wx = pSetPieces[0]._spx + 6; // L1DSTAIRS (3, 5)
 				pWarps[DWARP_SIDE]._wy = pSetPieces[0]._spy + 3;
 				pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
-				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY + 1;
 				pWarps[DWARP_SIDE]._wtype = WRPT_L1_SKING;
 			}
 			if (pSetPieces[0]._sptype == SPT_BANNER) {
@@ -2747,7 +2747,7 @@ static void DRLG_L1()
 				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 			}
-			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
+			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX + 1;
 			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
 			pWarps[DWARP_EXIT]._wtype = WRPT_L1_DOWN;
 		}

@@ -126,23 +126,23 @@ const LevelData AllLevels[NUM_LEVELS] = {
 						{ MT_INVALID }, ALIGN32
 					},*/
 /*SL_SKELKING*/		{       6, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_L1,              10,      10, "Skeleton King's Lair",
-						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",      "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1.SPT",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, 81,          0,           DBORDERX + 2 * 33, DBORDERY + 2 * 13,    WRPT_L1_UP,   SPT_LVL_SKELKING,
+						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",      "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1.SPT",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, 81,          0,           DBORDERX+2*33, DBORDERY+2*13,            WRPT_L1_UP,   SPT_LVL_SKELKING,
 						{ MT_RSKELAX, MT_TSKELBW, MT_RSKELBW, MT_XSKELBW, MT_RSKELSD, MT_INVALID }, ALIGN32
 					},
 /*SL_BONECHAMB*/	{      12, TRUE,    DTYPE_CATACOMBS, DTYPE_CATACOMBS, TMUSIC_L2,              10,      10, "Chamber of Bone",
-						"Levels\\L2Data\\L2.AMP", "Levels\\L2Data\\L2.SOL",      "Levels\\L2Data\\L2.TMI",      "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2.SPT",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L2Data\\L2_2.pal",      "Gendata\\Cut2.CEL",     "Gendata\\Cut2.pal",              TRUE,           254, 0,           0,           DBORDERX + 2 * 27, DBORDERY + 2 * 11,    WRPT_L2_DOWN, SPT_LVL_BCHAMB,
+						"Levels\\L2Data\\L2.AMP", "Levels\\L2Data\\L2.SOL",      "Levels\\L2Data\\L2.TMI",      "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2.SPT",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L2Data\\L2_2.pal",      "Gendata\\Cut2.CEL",     "Gendata\\Cut2.pal",              TRUE,           254, 0,           0,           DBORDERX+2*27, DBORDERY+2*11+1,          WRPT_L2_DOWN, SPT_LVL_BCHAMB,
 						{ MT_INVALID }, /* MT_XSKELSD, MT_BSNEAK, MT_NRHINO */ ALIGN32
 					},
 /*SL_MAZE*//*		{       0, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_TOWN,            16,      16, "Maze",
-						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\L1Data\\L1.SPT",      "Levels\\TownData\\TownS.CEL", "Levels\\L1Data\\L1_5.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, 0,           0,           DBORDERX +  4, DBORDERY + 34,            WRPT_NONE,    SPT_MAZE,
+						NULL,                     "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\L1Data\\L1.SPT",      "Levels\\TownData\\TownS.CEL", "Levels\\L1Data\\L1_5.pal",      "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, 0,           0,           DBORDERX+4,    DBORDERY+34,              WRPT_NONE,    SPT_MAZE,
 						{ MT_INVALID }, / * MT_XRHINO * / ALIGN32
 					},*/
 /*SL_POISONWATER*/	{       4, TRUE,    DTYPE_CAVES,     DTYPE_CAVES,     TMUSIC_L3,              10,      10, "Poisoned Water Supply",
-						"Levels\\L3Data\\L3.AMP", "Levels\\L3Data\\L3.SOL",      "Levels\\L3Data\\L3.TMI",      "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      "Levels\\L3Data\\L3.SPT",      NULL,                          "Levels\\L3Data\\L3pfoul.pal",   "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, 70,          0,           DBORDERX + 2 * 7, DBORDERY + 2 * 33,     WRPT_L3_DOWN, SPT_LVL_PWATER,
+						"Levels\\L3Data\\L3.AMP", "Levels\\L3Data\\L3.SOL",      "Levels\\L3Data\\L3.TMI",      "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      "Levels\\L3Data\\L3.SPT",      NULL,                          "Levels\\L3Data\\L3pfoul.pal",   "Gendata\\Cutl1d.CEL",   "Gendata\\Cutl1d.pal",            TRUE,           138, 70,          0,           DBORDERX+2*7,  DBORDERY+2*33+1,          WRPT_L3_DOWN, SPT_LVL_PWATER,
 						{ MT_DFALLSP, MT_YFALLSD, MT_INVALID }, /* , MT_NGOATMC, MT_NGOATBW */ ALIGN32
 					},
 /*SL_VILEBETRAYER*/	{      30, TRUE,    DTYPE_CATHEDRAL, DTYPE_CATHEDRAL, TMUSIC_L1,              10,      10, "Archbishop Lazarus' Lair",
-						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",      "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1.SPT",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutportr.CEL", "Gendata\\Cutportr.pal",         FALSE,            43, 0,           0,           DBORDERX + 2 * 9 + 1, DBORDERY + 2 * 10, WRPT_CIRCLE,  SPT_LVL_BETRAYER,
+						"Levels\\L1Data\\L1.AMP", "Levels\\L1Data\\L1.SOL",      "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1.SPT",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1_2.pal",      "Gendata\\Cutportr.CEL", "Gendata\\Cutportr.pal",         FALSE,            43, 0,           0,           DBORDERX+2*9+1, DBORDERY+2*10,           WRPT_CIRCLE,  SPT_LVL_BETRAYER,
 						{ MT_INVALID }, /* MT_RSUCC, MT_BMAGE */ ALIGN32
 					},
 	// clang-format on

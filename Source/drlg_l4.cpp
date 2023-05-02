@@ -1862,8 +1862,8 @@ static void DRLG_L4()
 		}
 		pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
 		pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
-		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
-		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
 		pWarps[DWARP_ENTRY]._wtype = WRPT_L4_UP;
 		if (currLvl._dLevelIdx != DLV_HELL4) {
 			if (currLvl._dLevelIdx == DLV_HELL1) {
@@ -1873,8 +1873,8 @@ static void DRLG_L4()
 				}
 				pWarps[DWARP_TOWN]._wx = warpPos.x + 1;
 				pWarps[DWARP_TOWN]._wy = warpPos.y + 2;
-				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
-				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX + 1;
+				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY + 1;
 				pWarps[DWARP_TOWN]._wtype = WRPT_L4_UP;
 			}
 			if (currLvl._dLevelIdx == DLV_HELL3) {
@@ -1898,8 +1898,8 @@ static void DRLG_L4()
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			}
-			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX + 1;
+			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 		}
 		break;
 	}

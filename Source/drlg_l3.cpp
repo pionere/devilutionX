@@ -2429,13 +2429,13 @@ static void DRLG_L3()
 				if (currLvl._dLevelIdx == DLV_NEST1) {
 					pWarps[DWARP_TOWN]._wx = warpPos.x + 0;
 					pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
-					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX + 1;
 					pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
 					pWarps[DWARP_TOWN]._wtype = WRPT_L3_UP;
 				} else {
 					pWarps[DWARP_ENTRY]._wx = warpPos.x + 0;
 					pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
-					pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+					pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
 					pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
 					pWarps[DWARP_ENTRY]._wtype = WRPT_L3_UP;
 				}
@@ -2447,7 +2447,7 @@ static void DRLG_L3()
 					pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
 					pWarps[DWARP_EXIT]._wy = warpPos.y + 0;
 					pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-					pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+					pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 					pWarps[DWARP_EXIT]._wtype = WRPT_L3_DOWN;
 				}
 			} else
@@ -2460,7 +2460,7 @@ static void DRLG_L3()
 				}
 				pWarps[DWARP_ENTRY]._wx = warpPos.x + 0;
 				pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
-				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
 				pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
 				pWarps[DWARP_ENTRY]._wtype = WRPT_L3_UP;
 				warpPos = DRLG_PlaceMiniSet(L3DSTAIRS); // L3DSTAIRS(3, 1)
@@ -2470,7 +2470,7 @@ static void DRLG_L3()
 				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 0;
 				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L3_DOWN;
 				if (currLvl._dLevelIdx == DLV_CAVES1) {
 					warpPos = DRLG_PlaceMiniSet(L3USTAIRS); // L3TWARP(1, 3)
@@ -2479,7 +2479,7 @@ static void DRLG_L3()
 					}
 					pWarps[DWARP_TOWN]._wx = warpPos.x + 0;
 					pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
-					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX + 1;
 					pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
 					pWarps[DWARP_TOWN]._wtype = WRPT_L3_UP;
 				}
