@@ -75,13 +75,13 @@ static void InitTownTriggers()
 static void InitL1Triggers()
 {
 	numtrigs = 0;
-	// if (pWarps[DWARP_ENTRY]._wx != 0) {
+	if (pWarps[DWARP_ENTRY]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_ENTRY]._wx;
 		trigs[numtrigs]._ty = pWarps[DWARP_ENTRY]._wy;
-		trigs[numtrigs]._tmsg = currLvl._dLevelIdx == DLV_CATHEDRAL1 ? DVL_DWM_TWARPUP : DVL_DWM_PREVLVL;
-		trigs[numtrigs]._ttype = currLvl._dLevelIdx == DLV_CATHEDRAL1 ? TRT_L1_TOWN : TRT_L1_UP;
+		trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
+		trigs[numtrigs]._ttype = TRT_L1_UP;
 		numtrigs++;
-	// }
+	}
 	// if (pWarps[DWARP_EXIT]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx + 1;
 		trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy;
@@ -89,6 +89,13 @@ static void InitL1Triggers()
 		trigs[numtrigs]._ttype = TRT_L1_DOWN;
 		numtrigs++;
 	// }
+	if (pWarps[DWARP_TOWN]._wx != 0) {
+		trigs[numtrigs]._tx = pWarps[DWARP_TOWN]._wx;
+		trigs[numtrigs]._ty = pWarps[DWARP_TOWN]._wy;
+		trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
+		trigs[numtrigs]._ttype = TRT_L1_TOWN;
+		numtrigs++;
+	}
 	if (pWarps[DWARP_SIDE]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_SIDE]._wx;
 		trigs[numtrigs]._ty = pWarps[DWARP_SIDE]._wy;
@@ -204,13 +211,13 @@ static void InitL4Triggers()
 static void InitL5Triggers()
 {
 	numtrigs = 0;
-	// if (pWarps[DWARP_ENTRY]._wx != 0) {
+	if (pWarps[DWARP_ENTRY]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_ENTRY]._wx;
 		trigs[numtrigs]._ty = pWarps[DWARP_ENTRY]._wy;
-		trigs[numtrigs]._tmsg = currLvl._dLevelIdx == DLV_CRYPT1 ? DVL_DWM_TWARPUP : DVL_DWM_PREVLVL;
-		trigs[numtrigs]._ttype = currLvl._dLevelIdx == DLV_CRYPT1 ? TRT_L5_TOWN : TRT_L5_UP;
+		trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
+		trigs[numtrigs]._ttype = TRT_L5_UP;
 		numtrigs++;
-	// }
+	}
 	if (pWarps[DWARP_EXIT]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx + 1;
 		trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy;
@@ -218,23 +225,37 @@ static void InitL5Triggers()
 		trigs[numtrigs]._ttype = TRT_L5_DOWN;
 		numtrigs++;
 	}
+	if (pWarps[DWARP_TOWN]._wx != 0) {
+		trigs[numtrigs]._tx = pWarps[DWARP_TOWN]._wx;
+		trigs[numtrigs]._ty = pWarps[DWARP_TOWN]._wy;
+		trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
+		trigs[numtrigs]._ttype = TRT_L5_TOWN;
+		numtrigs++;
+	}
 }
 
 static void InitL6Triggers()
 {
 	numtrigs = 0;
-	// if (pWarps[DWARP_ENTRY]._wx != 0) {
+	if (pWarps[DWARP_ENTRY]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_ENTRY]._wx + 1;
 		trigs[numtrigs]._ty = pWarps[DWARP_ENTRY]._wy;
-		trigs[numtrigs]._tmsg = currLvl._dLevelIdx == DLV_NEST1 ? DVL_DWM_TWARPUP : DVL_DWM_PREVLVL;
-		trigs[numtrigs]._ttype = currLvl._dLevelIdx == DLV_NEST1 ? TRT_L6_TOWN : TRT_L6_UP;
+		trigs[numtrigs]._tmsg = DVL_DWM_PREVLVL;
+		trigs[numtrigs]._ttype = TRT_L6_UP;
 		numtrigs++;
-	// }
+	}
 	if (pWarps[DWARP_EXIT]._wx != 0) {
 		trigs[numtrigs]._tx = pWarps[DWARP_EXIT]._wx;
 		trigs[numtrigs]._ty = pWarps[DWARP_EXIT]._wy + 1;
 		trigs[numtrigs]._tmsg = DVL_DWM_NEXTLVL;
 		trigs[numtrigs]._ttype = TRT_L6_DOWN;
+		numtrigs++;
+	}
+	if (pWarps[DWARP_TOWN]._wx != 0) {
+		trigs[numtrigs]._tx = pWarps[DWARP_TOWN]._wx + 1;
+		trigs[numtrigs]._ty = pWarps[DWARP_TOWN]._wy;
+		trigs[numtrigs]._tmsg = DVL_DWM_TWARPUP;
+		trigs[numtrigs]._ttype = TRT_L6_TOWN;
 		numtrigs++;
 	}
 }
@@ -384,8 +405,8 @@ void InitView(int entry)
 		return;
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;
-		if (pWarps[type]._wtype == WRPT_NONE)
-			type = DWARP_ENTRY; // MAIN vs TWARPDN from town
+		// if (pWarps[type]._wtype == WRPT_NONE)
+		//	type = DWARP_ENTRY; // MAIN vs TWARPDN from town
 		break;
 	case ENTRY_TWARPUP: // should not happen
 	case ENTRY_RETOWN:  // should not happen
