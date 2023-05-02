@@ -128,18 +128,18 @@ void InitLvlDungeon()
 #if ASSET_MPL == 1
 	uint16_t blocks, *minFile, *pSubtile, *pPTmp;
 #endif
-	const LevelData* lds;
-	assert(pMicrosCel == NULL);
-	lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelFileData* lfd = &levelfiledata[lds->dfindex];
 
 	static_assert((int)WRPT_NONE == 0, "InitLvlDungeon fills pWarps with 0 instead of WRPT_NONE values.");
 	memset(pWarps, 0, sizeof(pWarps));
 	static_assert((int)SPT_NONE == 0, "InitLvlDungeon fills pSetPieces with 0 instead of SPT_NONE values.");
 	memset(pSetPieces, 0, sizeof(pSetPieces));
 
-	pMicrosCel = LoadFileInMem(lds->dMicroCels); // .CEL
-	if (lds->dMegaTiles != NULL) { 
-		LoadFileWithMem(lds->dMegaTiles, (BYTE*)&pTiles[1][0]); // .TIL
+	assert(pMicrosCel == NULL);
+	pMicrosCel = LoadFileInMem(lfd->dMicroCels); // .CEL
+	if (lfd->dMegaTiles != NULL) { 
+		LoadFileWithMem(lfd->dMegaTiles, (BYTE*)&pTiles[1][0]); // .TIL
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		for (int i = 1; i < lengthof(pTiles); i++) {
 			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
@@ -154,13 +154,13 @@ void InitLvlDungeon()
 		}
 	}
 	assert(pSpecialsCel == NULL);
-	if (lds->dSpecCels != NULL) {
-		pSpecialsCel = LoadFileInMem(lds->dSpecCels); // s.CEL
+	if (lfd->dSpecCels != NULL) {
+		pSpecialsCel = LoadFileInMem(lfd->dSpecCels); // s.CEL
 	}
 	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
-	LoadFileWithMem(lds->dMicroFlags, microFlags); // .TMI
+	LoadFileWithMem(lfd->dMicroFlags, microFlags); // .TMI
 #if ASSET_MPL == 1
-	minFile = (uint16_t*)LoadFileInMem(lds->dMiniTiles, &dwSubtiles); // .MIN
+	minFile = (uint16_t*)LoadFileInMem(lfd->dMiniTiles, &dwSubtiles); // .MIN
 
 	blocks = lds->dBlocks;
 	dwSubtiles /= (2 * blocks);
@@ -183,7 +183,7 @@ void InitLvlDungeon()
 
 	mem_free_dbg(minFile);
 #else
-	LoadFileWithMem(lds->dMiniTiles, (BYTE*)&pSubtiles[1][0]);
+	LoadFileWithMem(lfd->dMiniTiles, (BYTE*)&pSubtiles[1][0]);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	for (int i = 1; i < lengthof(pSubtiles); i++) {
 		for (bv = 0; bv < lengthof(pSubtiles[0]); bv++) {
@@ -192,14 +192,14 @@ void InitLvlDungeon()
 	}
 #endif
 #endif /* ASSET_MPL == 1 */
-	LoadFileWithMem(lds->dSpecFlags, &nSpecTrapTable[0]); // .SPT
+	LoadFileWithMem(lfd->dSpecFlags, &nSpecTrapTable[0]); // .SPT
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
-	solFile = LoadFileInMem(lds->dSolidTable, &dwSubtiles); // .SOL
+	solFile = LoadFileInMem(lfd->dSolidTable, &dwSubtiles); // .SOL
 
 	assert(dwSubtiles <= MAXSUBTILES);
 	pTmp = solFile;
@@ -1072,16 +1072,16 @@ void DRLG_RedoTrans()
 		return;
 	}
 	switch (currLvl._dDunType) {
-	case DTYPE_CATHEDRAL:
+	case DGT_CATHEDRAL:
 		DRLG_L1InitTransVals();
 		break;
-	case DTYPE_CATACOMBS:
+	case DGT_CATACOMBS:
 		DRLG_L2InitTransVals();
 		break;
-	case DTYPE_CAVES:
+	case DGT_CAVES:
 		DRLG_L3InitTransVals();
 		break;
-	case DTYPE_HELL:
+	case DGT_HELL:
 		DRLG_L4InitTransVals();
 		break;
 	default:

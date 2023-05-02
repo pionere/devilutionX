@@ -2058,15 +2058,7 @@ typedef struct LevelStruct {
 	BYTE _dDunType;   // cached type of the dungeon
 } LevelStruct;
 
-typedef struct LevelData {
-	BYTE dLevel;
-	BOOLEAN dSetLvl;
-	BYTE dType;
-	BYTE dDunType;
-	BYTE dMusic;
-	BYTE dMicroTileLen;
-	BYTE dBlocks;
-	const char* dLevelName;
+typedef struct LevelFileData {
 	const char* dAutomapData;
 	const char* dSolidTable;
 	const char* dMicroFlags;
@@ -2075,6 +2067,18 @@ typedef struct LevelData {
 	const char* dMiniTiles;
 	const char* dSpecFlags;
 	const char* dSpecCels;
+} LevelFileData;
+
+typedef struct LevelData {
+	BYTE dLevel;
+	BOOLEAN dSetLvl;
+	BYTE dType;    // dungeon_type
+	BYTE dDunType; // dungeon_gen_type
+	BYTE dMusic;   // _music_id
+	BYTE dfindex;  // level_graphic_id
+	BYTE dMicroTileLen;
+	BYTE dBlocks;
+	const char* dLevelName;
 	const char* dPalName;
 	const char* dLoadCels;
 	const char* dLoadPal;
@@ -2087,13 +2091,12 @@ typedef struct LevelData {
 	BYTE dSetLvlWarp; // dungeon_warp_type
 	BYTE dSetLvlPiece; // _setpiece_type
 	BYTE dMonTypes[32];
-	ALIGNMENT32(8)
 } LevelData;
 
 #ifdef X86_32bit_COMP
 static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelData to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 128, "Align LevelData to power of 2 for better performance.");
+static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 64, "Align LevelData to power of 2 for better performance.");
 #endif
 
 typedef struct WarpStruct {

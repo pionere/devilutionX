@@ -3126,6 +3126,14 @@ typedef enum dungeon_type {
 	DTYPE_NEST,
 } dungeon_type;
 
+typedef enum dungeon_gen_type {
+	DGT_TOWN,
+	DGT_CATHEDRAL,
+	DGT_CATACOMBS,
+	DGT_CAVES,
+	DGT_HELL,
+} dungeon_gen_type;
+
 typedef enum dungeon_type_mask {
 	DTM_TOWN      = 1 << DTYPE_TOWN,
 	DTM_CATHEDRAL = 1 << DTYPE_CATHEDRAL,
@@ -3229,8 +3237,19 @@ typedef enum dungeon_theme_room_tiles {
 	DRT_TOP_RIGHT,
 	DRT_BOTTOM_LEFT,
 	DRT_BOTTOM_RIGHT,
-	NUM_DRT_TYPES,
+	NUM_DRT_TYPES
 } dungeon_theme_room_tiles;
+
+typedef enum level_graphic_id {
+	LFILE_TOWN,
+	LFILE_L1,
+	LFILE_L2,
+	LFILE_L3,
+	LFILE_L4,
+	LFILE_L5,
+	LFILE_L6,
+	NUM_LFILE_TYPES
+} level_graphic_id;
 
 typedef enum dungeon_level {
 	DLV_TOWN,

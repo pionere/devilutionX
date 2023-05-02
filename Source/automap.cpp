@@ -103,7 +103,7 @@ void InitLvlAutomap()
 		*pTmp &= ~BFLAG_EXPLORED;
 	}*/
 
-	mapData = AllLevels[currLvl._dLevelIdx].dAutomapData;
+	mapData = levelfiledata[AllLevels[currLvl._dLevelIdx].dfindex].dAutomapData;
 	_gbAutomapData = mapData != NULL;
 	if (!_gbAutomapData) {
 		memset(automaptype, 0, sizeof(automaptype));

@@ -169,19 +169,19 @@ void IncProgress()
 static void CreateDungeon()
 {
 	switch (currLvl._dDunType) {
-	case DTYPE_TOWN:
+	case DGT_TOWN:
 		CreateTown();
 		break;
-	case DTYPE_CATHEDRAL:
+	case DGT_CATHEDRAL:
 		CreateL1Dungeon();
 		break;
-	case DTYPE_CATACOMBS:
+	case DGT_CATACOMBS:
 		CreateL2Dungeon();
 		break;
-	case DTYPE_CAVES:
+	case DGT_CAVES:
 		CreateL3Dungeon();
 		break;
-	case DTYPE_HELL:
+	case DGT_HELL:
 		CreateL4Dungeon();
 		break;
 	default:

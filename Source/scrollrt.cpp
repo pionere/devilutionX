@@ -1124,7 +1124,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = nSpecTrapTable[dPiece[sx][sy]] & ((1 << 6) - 1);
 		if (bv != 0) {
-			assert(currLvl._dDunType == DTYPE_CATHEDRAL || currLvl._dDunType == DTYPE_CATACOMBS);
+			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
 			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
