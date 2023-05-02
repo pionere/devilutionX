@@ -18,5 +18,4 @@ fi
 
 cp ./Packaging/nix/README.txt "${BUILD_DIR}/package/README.txt"
 cp ./Packaging/resources/LICENSE.CC-BY.txt "${BUILD_DIR}/package/LICENSE.CC-BY.txt"
-cp ./Packaging/resources/LICENSE.OFL.txt "${BUILD_DIR}/package/LICENSE.OFL.txt"
 cd "${BUILD_DIR}/package/" && tar -cavf ../../devilutionx.tar.xz *
