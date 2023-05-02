@@ -188,7 +188,6 @@ static void CreateDungeon()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	InitTriggers();
 }
 
 void LoadGameLevel(int lvldir)

@@ -241,9 +241,12 @@ void ResyncBanner()
 void ResyncQuests()
 {
 	//int i;
-	BYTE lvl = currLvl._dLevelIdx;
+	//BYTE lvl = currLvl._dLevelIdx;
 
 	deltaload = true;
+
+	InitTriggers();
+
 	if (QuestStatus(Q_BANNER)) {
 		ResyncBanner();
 		/*if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK1)
@@ -292,7 +295,7 @@ void ResyncQuests()
 		//	NetSendCmdQuest(Q_BETRAYER, false); // recipient should not matter
 		//}
 	} else {
-		if (lvl == SL_VILEBETRAYER) {
+		if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_CENTRALOPEN)
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_TALK1)
@@ -301,8 +304,7 @@ void ResyncQuests()
 				InitVPReturnTrigger();
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
-		}
-		if (lvl == questlist[Q_BETRAYER]._qdlvl) {
+		} else if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN) {
 				if (quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_STAFFGIVEN) {
 					quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_PORTALOPEN;
