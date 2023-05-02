@@ -174,7 +174,6 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 
-			InitTriggers();
 			if (sendmsg) {
 				NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
 			}
@@ -182,8 +181,9 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
-			InitVPReturnTrigger();
 		}
+		InitTriggers();
+
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_QM_LAZARUS;
 		qn = Q_BETRAYER;
@@ -300,8 +300,6 @@ void ResyncQuests()
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_TALK1)
 				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
-			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD)
-				InitVPReturnTrigger();
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		} else if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {

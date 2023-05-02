@@ -118,6 +118,18 @@ static void InitSetDunTriggers()
 		tlvl = questlist[Q_PWATER]._qdlvl;
 		break;
 	case SL_VILEBETRAYER:
+		if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD) {
+			tlvl = questlist[Q_BETRAYER]._qdlvl;
+
+			trigs[numtrigs]._tx = pWarps[DWARP_ENTRY]._wx;     // DBORDERX + 19
+			trigs[numtrigs]._ty = pWarps[DWARP_ENTRY]._wy - 4; // DBORDERX + 16
+			trigs[numtrigs]._tlvl = tlvl;
+			trigs[numtrigs]._ttype = WRPT_RPORTAL;
+			trigs[numtrigs]._tmsg = DVL_DWM_RTNLVL;
+			numtrigs++;
+			// TODO: set BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT? test if the missile exists?
+			AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, deltaload ? -1 : 0);
+		}
 		return;
 	default:
 		ASSUME_UNREACHABLE
@@ -146,18 +158,6 @@ void InitVPEntryTrigger(bool recreate)
 	numtrigs = i + 1;
 
 	AddMissile(0, 0, trigs[i]._tx, trigs[i]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
-}
-
-void InitVPReturnTrigger()
-{
-	numtrigs = 1;
-	trigs[0]._tx = pWarps[DWARP_ENTRY]._wx;     // DBORDERX + 19
-	trigs[0]._ty = pWarps[DWARP_ENTRY]._wy - 4; // DBORDERX + 16
-	trigs[0]._tmsg = DVL_DWM_RTNLVL;
-	trigs[0]._tlvl = questlist[Q_BETRAYER]._qdlvl;
-	trigs[0]._ttype = WRPT_RPORTAL;
-	// TODO: set BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT?
-	AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, deltaload ? 0 : -1);
 }
 
 void InitView(int entry)
