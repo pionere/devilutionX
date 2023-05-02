@@ -798,7 +798,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Release
-      uses: softprops/action-gh-release@v0.1.14
+      uses: softprops/action-gh-release@v0.1.15
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
