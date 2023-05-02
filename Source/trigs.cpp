@@ -13,10 +13,24 @@ TriggerStruct trigs[MAXTRIGGERS];
 BYTE gbOpenWarps;
 BYTE gbTWarpFrom;
 
-static void InitNoTriggers()
-{
-	numtrigs = 0;
-}
+typedef struct TownTriggerStruct {
+	BYTE tox;
+	BYTE toy;
+	BYTE tolvl;
+	BYTE totype;
+} TownTriggerStruct;
+static const TownTriggerStruct townTrigs[NUM_TWARP] = {
+	// clang-format off
+/*TWARP_CATHEDRAL*/ { 15 + DBORDERX, 19 + DBORDERY, DLV_CATHEDRAL1, WRPT_TOWN_L1 },
+/*TWARP_CATACOMB*/  { 39 + DBORDERX, 11 + DBORDERY, DLV_CATACOMBS1, WRPT_TOWN_L2 },
+/*TWARP_CAVES*/     {  7 + DBORDERX, 59 + DBORDERY, DLV_CAVES1, WRPT_TOWN_L3 },
+/*TWARP_HELL*/      { 30 + DBORDERX, 69 + DBORDERY, DLV_HELL1, WRPT_TOWN_L4 },
+#ifdef HELLFIRE
+/*TWARP_CRYPT*/     { 26 + DBORDERX, 14 + DBORDERY, DLV_CRYPT1, WRPT_TOWN_L5 },
+/*TWARP_NEST*/      { 70 + DBORDERX, 52 + DBORDERY, DLV_NEST1, WRPT_TOWN_L6 },
+#endif
+	// clang-format on
+};
 
 /*
  * Initialize the triggers in town.
@@ -24,52 +38,20 @@ static void InitNoTriggers()
  */
 static void InitTownTriggers()
 {
-	assert(gbOpenWarps & (1 << TWARP_CATHEDRAL));
-	trigs[TWARP_CATHEDRAL]._tx = 15 + DBORDERX;
-	trigs[TWARP_CATHEDRAL]._ty = 19 + DBORDERY;
-	trigs[TWARP_CATHEDRAL]._tmsg = DVL_DWM_TWARPDN;
-	trigs[TWARP_CATHEDRAL]._tlvl = DLV_CATHEDRAL1;
-	trigs[TWARP_CATHEDRAL]._ttype = WRPT_TOWN_L1;
+	BYTE ow = gbOpenWarps;
 
-	if (gbOpenWarps & (1 << TWARP_CATACOMB)) {
-		trigs[TWARP_CATACOMB]._tx = 39 + DBORDERX;
-		trigs[TWARP_CATACOMB]._ty = 11 + DBORDERY;
-		trigs[TWARP_CATACOMB]._tmsg = DVL_DWM_TWARPDN;
-		trigs[TWARP_CATACOMB]._tlvl = DLV_CATACOMBS1;
-		trigs[TWARP_CATACOMB]._ttype = WRPT_TOWN_L2;
-	}
-	if (gbOpenWarps & (1 << TWARP_CAVES)) {
-		trigs[TWARP_CAVES]._tx = 7 + DBORDERX;
-		trigs[TWARP_CAVES]._ty = 59 + DBORDERY;
-		trigs[TWARP_CAVES]._tmsg = DVL_DWM_TWARPDN;
-		trigs[TWARP_CAVES]._tlvl = DLV_CAVES1;
-		trigs[TWARP_CAVES]._ttype = WRPT_TOWN_L3;
-	}
-	if (gbOpenWarps & (1 << TWARP_HELL)) {
-		trigs[TWARP_HELL]._tx = 30 + DBORDERX;
-		trigs[TWARP_HELL]._ty = 69 + DBORDERY;
-		trigs[TWARP_HELL]._tmsg = DVL_DWM_TWARPDN;
-		trigs[TWARP_HELL]._tlvl = DLV_HELL1;
-		trigs[TWARP_HELL]._ttype = WRPT_TOWN_L4;
-	}
-#ifdef HELLFIRE
-	if (gbOpenWarps & (1 << TWARP_NEST)) {
-		trigs[TWARP_NEST]._tx = 70 + DBORDERX;
-		trigs[TWARP_NEST]._ty = 52 + DBORDERY;
-		trigs[TWARP_NEST]._tmsg = DVL_DWM_TWARPDN;
-		trigs[TWARP_NEST]._tlvl = DLV_NEST1;
-		trigs[TWARP_NEST]._ttype = WRPT_TOWN_L6;
-	}
-	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
-		trigs[TWARP_CRYPT]._tx = 26 + DBORDERX;
-		trigs[TWARP_CRYPT]._ty = 14 + DBORDERY;
-		trigs[TWARP_CRYPT]._tmsg = DVL_DWM_TWARPDN;
-		trigs[TWARP_CRYPT]._tlvl = DLV_CRYPT1;
-		trigs[TWARP_CRYPT]._ttype = WRPT_TOWN_L5;
-	}
-#endif
 	static_assert(NUM_TWARP <= lengthof(trigs), "Too many trigger in town.");
-	numtrigs = NUM_TWARP;
+	numtrigs = 0;
+	for (int i = 0; i < NUM_TWARP; i++, ow >>= 1) {
+		if (ow & 1) {
+			trigs[numtrigs]._tx = townTrigs[i].tox;
+			trigs[numtrigs]._ty = townTrigs[i].toy;
+			trigs[numtrigs]._tmsg = DVL_DWM_TWARPDN;
+			trigs[numtrigs]._tlvl = townTrigs[i].tolvl;
+			trigs[numtrigs]._ttype = townTrigs[i].totype;
+			numtrigs++;
+		}
+	}
 }
 
 static void InitDunTriggers()
@@ -544,8 +526,6 @@ void CheckTriggers()
 			lvl = trigs[i]._tlvl;
 			break;
 		case DVL_DWM_TWARPDN:
-			if (!(gbOpenWarps & (1 << i)))
-				continue;
 			lvl = trigs[i]._tlvl;
 			break;
 		case DVL_DWM_TWARPUP:
