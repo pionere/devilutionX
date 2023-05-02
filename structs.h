@@ -455,9 +455,6 @@ typedef struct TextData {
 // missiles
 //////////////////////////////////////////////////
 
-// TPDEF PTR FCN VOID MIADDPRC
-// TPDEF PTR FCN VOID MIPROC
-
 typedef struct MissileData {
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
@@ -2145,8 +2142,6 @@ typedef struct QuestData {
 // gamemenu/gmenu
 //////////////////////////////////////////////////
 
-// TPDEF PTR FCN VOID TMenuFcn
-
 typedef struct TMenuItem {
 	const char* pszStr;
 	void (*fnMenu)(bool); /* fix, should have one arg */
@@ -2159,8 +2154,6 @@ typedef struct TMenuItem {
 	//	};
 	//};
 } TMenuItem;
-
-// TPDEF PTR FCN VOID TMenuUpdateFcn
 
 //////////////////////////////////////////////////
 // spells
@@ -2348,8 +2341,6 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 // diabloui
 //////////////////////////////////////////////////
 
-// TPDEF PTR FCN VOID PLAYSND
-
 typedef struct _uidefaultstats {
 	uint16_t dsStrength;
 	uint16_t dsMagic;
@@ -2440,10 +2431,6 @@ typedef struct PATHNODE {
 static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE closer to power of 2 for better performance.");
 #endif
 
-// TPDEF PTR FCN UCHAR CHECKFUNC1
-
-// TPDEF PTR FCN UCHAR CHECKFUNC
-
 //////////////////////////////////////////////////
 // sha
 //////////////////////////////////////////////////
@@ -2510,9 +2497,9 @@ typedef struct FileMpqBlockEntry {
 typedef struct TriggerStruct {
 	int _tx;
 	int _ty;
-	int _tmsg;  // window_messages
-	int _tlvl;  // dungeon_level
 	int _ttype; // dungeon_warp_type
+	int _tlvl;  // dungeon_level
+	int _tmsg;  // window_messages
 } TriggerStruct;
 
 //////////////////////////////////////////////////
