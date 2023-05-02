@@ -2509,7 +2509,7 @@ typedef struct TriggerStruct {
 	int _ty;
 	int _tmsg;  // window_messages
 	int _tlvl;  // dungeon_level
-	int _ttype; // trig_type
+	int _ttype; // dungeon_warp_type
 } TriggerStruct;
 
 //////////////////////////////////////////////////

@@ -3172,6 +3172,13 @@ typedef enum dungeon_warp_type {
 	WRPT_L4_DOWN,
 	WRPT_L4_PENTA,
 	WRPT_CIRCLE,
+	WRPT_RPORTAL,
+	WRPT_TOWN_L1,
+	WRPT_TOWN_L2,
+	WRPT_TOWN_L3,
+	WRPT_TOWN_L4,
+	WRPT_TOWN_L5,
+	WRPT_TOWN_L6,
 } dungeon_warp_type;
 
 typedef enum trig_type {
