@@ -182,7 +182,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
-			InitVPReturnTrigger(false);
+			InitVPReturnTrigger();
 		}
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_QM_LAZARUS;
@@ -298,7 +298,7 @@ void ResyncQuests()
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_TALK1)
 				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD)
-				InitVPReturnTrigger(true);
+				InitVPReturnTrigger();
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		}

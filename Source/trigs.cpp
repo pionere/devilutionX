@@ -148,7 +148,7 @@ void InitVPEntryTrigger(bool recreate)
 	AddMissile(0, 0, trigs[i]._tx, trigs[i]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
-void InitVPReturnTrigger(bool recreate)
+void InitVPReturnTrigger()
 {
 	numtrigs = 1;
 	trigs[0]._tx = pWarps[DWARP_ENTRY]._wx;     // DBORDERX + 19
@@ -157,7 +157,7 @@ void InitVPReturnTrigger(bool recreate)
 	trigs[0]._tlvl = questlist[Q_BETRAYER]._qdlvl;
 	trigs[0]._ttype = WRPT_RPORTAL;
 	// TODO: set BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT?
-	AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
+	AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, deltaload ? 0 : -1);
 }
 
 void InitView(int entry)
