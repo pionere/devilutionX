@@ -75,7 +75,7 @@ static void InitTownTriggers()
 static void InitDunTriggers()
 {
 	numtrigs = 0;
-	for (int i = lengthof(pWarps) -1; i >= 0; i--) {
+	for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0) {
 			continue;
 		}

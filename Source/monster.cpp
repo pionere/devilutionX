@@ -1040,7 +1040,6 @@ static void PlaceSetMapMonsters()
 
 void InitMonsters()
 {
-	TriggerStruct* ts;
 	unsigned na, numplacemonsters, numscattypes;
 	int i, j, xx, yy;
 	int mtidx;
@@ -1053,14 +1052,14 @@ void InitMonsters()
 		CheckDungeonClear();
 #endif
 	// reserve the entry/exit area
-	for (i = 0; i < numtrigs; i++) {
-		ts = &trigs[i];
-		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL || ts->_tmsg == DVL_DWM_RTNLVL
-		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
-			static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
-			for (j = 0; j < lengthof(tdx); j++)
-				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false);
-		}
+	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
+		if (pWarps[i]._wx == 0)
+			continue;
+		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
+		for (j = lengthof(tdx) - 1; j >= 0; j--)
+			DoVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15, false);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
@@ -1109,13 +1108,13 @@ void InitMonsters()
 		}
 	// }
 	// revert entry/exit area reservation
-	for (i = 0; i < numtrigs; i++) {
-		ts = &trigs[i];
-		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL || ts->_tmsg == DVL_DWM_RTNLVL
-		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
-			for (j = 0; j < lengthof(tdx); j++)
-				DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
-		}
+	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
+		if (pWarps[i]._wx == 0)
+			continue;
+		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		for (j = lengthof(tdx) - 1; j >= 0; j--)
+			DoUnVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoUnVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
