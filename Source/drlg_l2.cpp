@@ -17,6 +17,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Shadow type of the base floor(3). */
 #define SF 3
 
+#if DEBUG_MODE
 #define PRE_EXTERN    32
 #define PRE_FLOOR     46
 #define PRE_HALLWAY   44
@@ -27,6 +28,18 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PRE_CORNER_NW 67
 #define PRE_CORNER_SW 69
 #define PRE_IS_CORNER(x) ((x) == PRE_CORNER_NW || (x) == PRE_CORNER_NE || (x) == PRE_CORNER_SW || (x) == PRE_CORNER_SE)
+#else
+#define PRE_EXTERN    0
+#define PRE_FLOOR     1
+#define PRE_HALLWAY   2
+#define PRE_WALL      3
+#define PRE_DOOR      4
+#define PRE_CORNER_SE 5
+#define PRE_CORNER_NE 6
+#define PRE_CORNER_NW 7
+#define PRE_CORNER_SW 8
+#define PRE_IS_CORNER(x) (x >= 5)
+#endif
 
 #define AREA_MIN    2
 #define ROOM_MAX    10
@@ -1381,13 +1394,13 @@ static void DRLG_L2MakeMegas()
 	int x, y, i, j, xx, yy;
 	BYTE bv;
 
-	memset(dungeon, DEFAULT_MEGATILE_L2, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L2, sizeof(dungeon));
 
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
 			bv = pdungeon[x][y];
 			if (bv == PRE_EXTERN) {
-				dungeon[x][y] = BASE_MEGATILE_L2;
+				// dungeon[x][y] = BASE_MEGATILE_L2;
 				continue;
 			}
 			if (bv == PRE_FLOOR) {
