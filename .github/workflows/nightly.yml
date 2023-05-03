@@ -861,6 +861,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    # Sleep a bit to let GitHub recover from the shock of tag-delete
+    #  run: Start-Sleep -s 60
+    #  shell: powershell
+    - name: Sleep for 60 seconds
+      run: sleep 60s
+      shell: bash
+
     - name: Release
       uses: softprops/action-gh-release@v0.1.15
       with:
