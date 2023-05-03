@@ -1436,13 +1436,13 @@ static BYTE DRLG_L3FillStraights()
 	}
 }*/
 
-static int DRLG_L3GetFloorArea()
+static int DRLG_L3GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetFloorArea.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetArea.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
 		assert(*pTmp <= 1);
@@ -2414,7 +2414,7 @@ static void DRLG_L3()
 				} while (!doneflag);
 				DRLG_L3FillSingles();
 				// DRLG_L3Edges(); - Commented out because it is no longer necessary
-			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
+			} while (DRLG_L3GetArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 			memset(drlgFlags, 0, sizeof(drlgFlags));
 			if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE

@@ -1507,16 +1507,16 @@ static void DRLG_L2MakeMegas()
 	}
 }*/
 
-static int DL2_NumNoChar()
+static int DRLG_L2GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DL2_NumNoChar.");
+	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2GetArea.");
 	pTmp = &pdungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		if (*pTmp == 32)
+		if (*pTmp != 32)
 			rv++;
 
 	return rv;
@@ -1632,7 +1632,7 @@ static bool DL2_FillVoids()
 
 	tries = 0;
 	while (TRUE) {
-		if (DL2_NumNoChar() <= DMAXX * DMAXY / 2)
+		if (DRLG_L2GetArea() >= 800)
 			return true;
 next_try:
 		if (++tries > 200)

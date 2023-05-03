@@ -1264,13 +1264,13 @@ static void DRLG_L1CreateDungeon()
 	}
 }
 
-static int L1GetArea()
+static int DRLG_L1GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L1GetArea.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L1GetArea.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
 		assert(*pTmp <= 1);
@@ -2659,7 +2659,7 @@ static void DRLG_L1()
 		do {
 			memset(dungeon, 0, sizeof(dungeon));
 			DRLG_L1CreateDungeon();
-		} while (L1GetArea() < minarea);
+		} while (DRLG_L1GetArea() < minarea);
 
 		DRLG_L1MakeMegas();
 		L1TileFix();

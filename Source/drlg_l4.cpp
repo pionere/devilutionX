@@ -1110,13 +1110,13 @@ static void L4ConnectBlock()
 	}
 }
 
-static int GetArea()
+static int DRLG_L4GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(drlg.dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
+	static_assert(sizeof(drlg.dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in DRLG_L4GetArea.");
 	pTmp = &drlg.dungBlock[0][0];
 	for (i = 0; i < L4BLOCKX * L4BLOCKY; i++, pTmp++) {
 		assert(*pTmp <= 1);
@@ -1842,7 +1842,7 @@ static void DRLG_L4()
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
 			L4FirstRoom();
-		} while (GetArea() < 173);
+		} while (DRLG_L4GetArea() < 173);
 		L4ConnectBlock();
 
 		L4Block2Dungeon();
