@@ -177,6 +177,7 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			if (sendmsg) {
 				NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
 			}
+			ResyncDiablo();
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
@@ -231,11 +232,18 @@ void LoadPWaterPalette()
 
 void ResyncBanner()
 {
-	if (quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
-		DRLG_ChangeMap(pSetPieces[0]._spx + 3, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 6/*, false*/);
-		//for (i = 0; i < numobjects; i++)
-		//	SyncObjectAnim(objectactive[i]);
-	}
+	// assert(currLvl._dLevelIdx == questlist[Q_BANNER]._qdlvl && quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK);
+	int sx = pSetPieces[0]._spx + 3;
+	int sy = pSetPieces[0]._spy + 3;
+	DRLG_ChangeMap(sx, sy, sx + 3, sy + 3/*, false*/);
+}
+
+void ResyncDiablo()
+{
+	// assert(currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD);
+	int sx = (pWarps[DWARP_EXIT]._wx - (1 + 2 + DBORDERX)) >> 1;
+	int sy = (pWarps[DWARP_EXIT]._wy - (1 + 2 + DBORDERY)) >> 1;
+	DRLG_ChangeMap(sx, sy, sx + 2, sy + 2);
 }
 
 void ResyncQuests()
@@ -247,7 +255,7 @@ void ResyncQuests()
 
 	InitTriggers();
 
-	if (QuestStatus(Q_BANNER)) {
+	if (QuestStatus(Q_BANNER) && quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
 		ResyncBanner();
 		/*if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK1)
 			DRLG_ChangeMap(
@@ -276,6 +284,10 @@ void ResyncQuests()
 	// do not activate the quest, otherwise the healer won't give a quest-log entry if visited before the level is cleared
 	//if (lvl == SL_POISONWATER && quests[Q_PWATER]._qactive == QUEST_INIT)
 	//	quests[Q_PWATER]._qactive = QUEST_ACTIVE;
+	if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD) {
+		ResyncDiablo();
+	}
+
 	if (IsMultiGame) {
 		// TODO: eliminate relative level-indices?
 		//if (quests[Q_SKELKING]._qactive == QUEST_INIT
@@ -303,6 +315,7 @@ void ResyncQuests()
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
 		} else if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
+			// TODO: merge with InitDunTriggers?
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN) {
 				if (quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_STAFFGIVEN) {
 					quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_PORTALOPEN;

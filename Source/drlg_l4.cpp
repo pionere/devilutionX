@@ -1878,7 +1878,7 @@ static void DRLG_L4()
 				pWarps[DWARP_TOWN]._wtype = WRPT_L4_UP;
 			}
 			if (currLvl._dLevelIdx == DLV_HELL3) {
-				warpPos = DRLG_PlaceMiniSet((!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ? L4PENTA : L4PENTA2); // L4PENTA (5, 6)
+				warpPos = DRLG_PlaceMiniSet(L4PENTA2); // L4PENTA (5, 6)
 				if (warpPos.x < 0) {
 					continue;
 				}
@@ -1971,6 +1971,12 @@ static void DRLG_L4DrawPreMaps()
 			DRLG_L4FixPreMap(i);
 			DRLG_DrawMap(i);
 		}
+	}
+	// TODO: add setpiece?
+	if (currLvl._dLevelIdx == DLV_HELL3) {
+		int sx = (pWarps[DWARP_EXIT]._wx - (1 + 4 + DBORDERX)) >> 1;
+		int sy = (pWarps[DWARP_EXIT]._wy - (1 + 4 + DBORDERY)) >> 1;
+		DRLG_DrawMiniSet(L4PENTA, sx, sy);
 	}
 }
 

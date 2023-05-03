@@ -481,6 +481,25 @@ void DRLG_PlaceMegaTiles(int mt)
 	}
 }
 
+void DRLG_DrawMiniSet(const BYTE* miniset, int sx, int sy)
+{
+	int xx, yy, sh, sw, ii;
+
+	sw = miniset[0];
+	sh = miniset[1];
+
+	ii = sw * sh + 2;
+
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
+			if (miniset[ii] != 0) {
+				dungeon[xx][yy] = miniset[ii];
+			}
+			ii++;
+		}
+	}
+}
+
 void DRLG_DrawMap(int idx)
 {
 	int x, y, rw, rh, i, j;

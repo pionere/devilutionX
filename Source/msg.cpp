@@ -2398,6 +2398,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 			for (i = sx; i <= dx; i++)
 				for (j = sy; j <= dy; j++)
 					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_NEST);
 			T_HiveOpen();
 			InitTriggers();
@@ -2411,6 +2412,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		// open crypt
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			PlaySFX(IS_SARC);
+			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_CRYPT);
 			T_CryptOpen();
 			InitTriggers();
@@ -4324,6 +4326,7 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 
 	//if (QuestStatus(Q_BANNER))
 	if (currLvl._dLevelIdx == questlist[Q_BANNER]._qdlvl) {
+		// TODO: ResyncQuests?
 		ResyncBanner();
 		//RedoLightAndVision();
 	}
