@@ -5,6 +5,7 @@
 #include "selok.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
+#include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -57,6 +58,9 @@ typedef enum filenames {
 	FILE_WHITE_TRN,
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
+	FILE_PLR_WHBAT,
+	FILE_PLR_WLBAT,
+	FILE_PLR_WMBAT,
 #ifdef HELLFIRE
 	FILE_NTOWN_CEL,
 	FILE_NTOWN_MIN,
@@ -103,6 +107,9 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_WHITE_TRN*/     "Monsters\\SkelSd\\White.TRN",
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
+/*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
+/*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
+/*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
 #ifdef HELLFIRE
 /*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
@@ -757,6 +764,147 @@ static void patchTownFile(BYTE* buf)
 	patchTownPotMin(pSubtiles, 553, 554);
 }
 
+static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
+{
+	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
+
+	int subHeaderSize = CEL_FRAME_HEADER_SIZE;
+	int hs = (height - 1) / CEL_BLOCK_HEIGHT;
+	hs = (hs + 1) * sizeof(WORD);
+	subHeaderSize = std::max(subHeaderSize, hs);
+
+	bool clipped = true; // frame->isClipped();
+	// convert one image to cl2-data
+	BYTE* pHeader = pBuf;
+	if (clipped) {
+		// add CL2 FRAME HEADER
+		*(WORD*)&pBuf[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
+		*(DWORD*)&pBuf[2] = 0;
+		*(DWORD*)&pBuf[6] = 0;
+		pBuf += subHeaderSize;
+	}
+
+	BYTE* pHead = pBuf;
+	BYTE col, lastCol;
+	BYTE colMatches = 0;
+	bool alpha = false;
+	bool first = true;
+	for (int i = 1; i <= height; i++) {
+		if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+			pHead = pBuf;
+			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader); // pHead - buf - SUB_HEADER_SIZE;
+
+			colMatches = 0;
+			alpha = false;
+			// first = true;
+		}
+		first = true;
+		for (int j = 0; j < width; j++, pSrc++) {
+			BYTE pixel = *pSrc; // frame->getPixel(j, height - i);
+			if (pixel != transparentPixel) {
+				// add opaque pixel
+				col = pixel;
+				if (alpha || first || col != lastCol)
+					colMatches = 1;
+				else
+					colMatches++;
+				if (colMatches < RLE_LEN || (char)*pHead <= -127) {
+					// bmp encoding
+					if (alpha || (char)*pHead <= -65 || first) {
+						pHead = pBuf;
+						pBuf++;
+						colMatches = 1;
+					}
+					*pBuf = col;
+					pBuf++;
+				} else {
+					// RLE encoding
+					if (colMatches == RLE_LEN) {
+						memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
+						*pHead += RLE_LEN - 1;
+						if (*pHead != 0) {
+							pHead = pBuf - (RLE_LEN - 1);
+						}
+						*pHead = -65 - (RLE_LEN - 1);
+						pBuf = pHead + 1;
+						*pBuf = col;
+						pBuf++;
+					}
+				}
+				--*pHead;
+
+				lastCol = col;
+				alpha = false;
+			} else {
+				// add transparent pixel
+				if (!alpha || (char)*pHead >= 127) {
+					pHead = pBuf;
+					pBuf++;
+				}
+				++*pHead;
+				alpha = true;
+			}
+			first = false;
+		}
+		pSrc -= BUFFER_WIDTH + width;
+	}
+	return pBuf;
+}
+
+
+static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCount, int height, int width)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	bool groupped = true;
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+
+			Cl2DrawLightTbl(0, height - 1, frameBuf, n, width, 0);
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	return resCl2Buf;
+}
+
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -1055,6 +1203,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			if (buf[i] == 255)
 				buf[i] = 0;
 		}
+	} break;
+	case FILE_PLR_WHBAT:
+	case FILE_PLR_WLBAT:
+	case FILE_PLR_WMBAT:
+	{	// reencode player gfx files - W*BAT.CL2
+		buf = ReEncodeCL2(buf, dwLen, NUM_DIRS, 16, 128, 96);
 	} break;
 #ifdef HELLFIRE
 	case FILE_NTOWN_MIN:
