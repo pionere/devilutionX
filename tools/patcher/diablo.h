@@ -17,6 +17,8 @@ extern POS32 MousePos;
 extern bool gbWasUiInit;
 extern bool gbSndInited;
 
+extern BYTE* pMicrosCel;
+
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 bool PressEscKey();

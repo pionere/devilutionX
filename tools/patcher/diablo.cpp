@@ -18,6 +18,8 @@ POS32 MousePos;
 bool gbWasUiInit = false;
 bool gbSndInited = false;
 
+BYTE* pMicrosCel;
+
 static void diablo_init_screen()
 {
 	MousePos.x = SCREEN_WIDTH / 2;

@@ -5,6 +5,7 @@
 #include "selok.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
+#include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -25,7 +26,7 @@ static constexpr int RETURN_DONE = 100;
 
 typedef enum filenames {
 	FILE_TOWN_MIN,
-//	FILE_TOWN_CEL,
+	FILE_TOWN_CEL,
 	FILE_CATHEDRAL_MIN,
 	FILE_CATHEDRAL_SOL,
 	FILE_CATACOMBS_TIL,
@@ -57,7 +58,7 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #ifdef HELLFIRE
-//	FILE_NTOWN_CEL,
+	FILE_NTOWN_CEL,
 	FILE_NTOWN_MIN,
 	FILE_CRYPT_TIL,
 	FILE_CRYPT_MIN,
@@ -71,7 +72,7 @@ typedef enum filenames {
 
 static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
-/*FILE_TOWN_CEL*///    "Levels\\TownData\\Town.CEL",
+/*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
@@ -103,7 +104,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #ifdef HELLFIRE
-/*FILE_NTOWN_CEL*///   "NLevels\\TownData\\Town.CEL",
+/*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
@@ -146,6 +147,495 @@ if (v) { \
    buf[pn - 1] |= PFLAG_BLOCK_LIGHT; \
 } else { \
    buf[pn - 1] &= ~PFLAG_BLOCK_LIGHT; \
+}
+
+BYTE* WriteSquare(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
+{
+	int x, y;
+	// int length = MICRO_WIDTH * MICRO_HEIGHT;
+
+	// add opaque pixels
+	for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
+		for (x = 0; x < MICRO_WIDTH; ++x, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	return pDst;
+}
+
+BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
+{
+	int x, y;
+	// int length = MICRO_WIDTH * MICRO_HEIGHT;
+	bool hasColor = false;
+	BYTE* pStart = pDst;
+	BYTE* pHead = pDst;
+	pDst++;
+	for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
+		bool alpha = false;
+		for (x = 0; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				// add transparent pixel
+				if ((char)(*pHead) > 0) {
+					pHead = pDst;
+					pDst++;
+				}
+				--*pHead;
+				alpha = true;
+			} else {
+				// add opaque pixel
+				if (alpha) {
+					alpha = false;
+					pHead = pDst;
+					pDst++;
+				}
+				*pDst = pixel;
+				pDst++;
+				++*pHead;
+				hasColor = true;
+			}
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+		pHead = pDst;
+		pDst++;
+	}
+	// if (!hasColor) {
+	//     qDebug() << "Empty transparent frame"; -- TODO: log empty frame?
+	// }
+	// preserve 4-byte alignment
+	pHead = pStart + (((size_t)pHead - (size_t)pStart + 3) & ~3);
+	return pHead;
+}
+
+BYTE* WriteLeftTriangle(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
+{
+	int i, x, y;
+	// int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
+
+	// memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
+	y = MICRO_HEIGHT - 1;
+	for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
+		// check transparent pixels
+		for (x = 0; x < i; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			/*if (pixel != transparentPixel) {
+				dProgressErr() << QApplication::tr("Invalid non-transparent pixel in the bottom part of the Left Triangle frame.");
+				// return pDst;
+			}*/
+		}
+		pDst += i & 2;
+		// add opaque pixels
+		for (x = i; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+
+	for (i = 2; i != MICRO_HEIGHT; i += 2, y--) {
+		// check transparent pixels
+		for (x = 0; x < i; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			/*if (pixel != transparentPixel) {
+				dProgressErr() << QApplication::tr("Invalid non-transparent pixel in the top part of the Left Triangle frame.");
+				// return pDst;
+			}*/
+		}
+		pDst += i & 2;
+		// add opaque pixels
+		for (x = i; x < MICRO_WIDTH; ++x, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	return pDst;
+}
+
+BYTE* WriteRightTriangle(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
+{
+	int i, x, y;
+	// int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
+
+	// memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
+	y = MICRO_HEIGHT - 1;
+	for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
+		// add opaque pixels
+		for (x = 0; x < (MICRO_WIDTH - i); x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pDst += i & 2;
+		// check transparent pixels
+		for (x = MICRO_WIDTH - i; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			/*if (pixel != transparentPixel) {
+				dProgressErr() << QApplication::tr("Invalid non-transparent pixel in the bottom part of the Right Triangle frame.");
+				// return pDst;
+			}*/
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+
+	for (i = 2; i != MICRO_HEIGHT; i += 2, y--) {
+		// add opaque pixels
+		for (x = 0; x < (MICRO_WIDTH - i); x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pDst += i & 2;
+		// check transparent pixels
+		for (x = MICRO_WIDTH - i; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			/*if (pixel != transparentPixel) {
+				dProgressErr() << QApplication::tr("Invalid non-transparent pixel in the top part of the Right Triangle frame.");
+				// return pDst;
+			}*/
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	return pDst;
+}
+
+BYTE* WriteLeftTrapezoid(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
+{
+	int i, x, y;
+	// int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
+
+	// memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
+	y = MICRO_HEIGHT - 1;
+	for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
+		// check transparent pixels
+		for (x = 0; x < i; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			/*if (pixel != transparentPixel) {
+				dProgressErr() << QApplication::tr("Invalid non-transparent pixel in the bottom part of the Left Trapezoid frame.");
+				// return pDst;
+			}*/
+		}
+		pDst += i & 2;
+		// add opaque pixels
+		for (x = i; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	// add opaque pixels
+	for (i = MICRO_HEIGHT / 2; i != 0; i--, y--) {
+		for (x = 0; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	return pDst;
+}
+
+BYTE* WriteRightTrapezoid(BYTE* pDst, BYTE* pSrc, BYTE transparentPixel)
+{
+	int i, x, y;
+	// int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
+
+	// memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
+	y = MICRO_HEIGHT - 1;
+	for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
+		// add opaque pixels
+		for (x = 0; x < (MICRO_WIDTH - i); x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pDst += i & 2;
+		// check transparent pixels
+		for (x = MICRO_WIDTH - i; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			/*if (!pixel.isTransparent()) {
+				dProgressErr() << QApplication::tr("Invalid non-transparent pixel in the bottom part of the Right Trapezoid frame.");
+				// return pDst;
+			}*/
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	// add opaque pixels
+	for (i = MICRO_HEIGHT / 2; i != 0; i--, y--) {
+		for (x = 0; x < MICRO_WIDTH; x++, pSrc++) {
+			BYTE pixel = *pSrc;
+			if (pixel == transparentPixel) {
+				pixel = 0;
+			}
+			*pDst = pixel;
+			++pDst;
+		}
+		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
+	}
+	return pDst;
+}
+
+BYTE* EncodeMicro(int encoding, BYTE* pDst, BYTE* pSrc, BYTE transparentPixel)
+{
+	switch (encoding) {
+	case MET_LTRIANGLE:
+		pDst = WriteLeftTriangle(pDst, pSrc, transparentPixel);
+		break;
+	case MET_RTRIANGLE:
+		pDst = WriteRightTriangle(pDst, pSrc, transparentPixel);
+		break;
+	case MET_LTRAPEZOID:
+		pDst = WriteLeftTrapezoid(pDst, pSrc, transparentPixel);
+		break;
+	case MET_RTRAPEZOID:
+		pDst = WriteRightTrapezoid(pDst, pSrc, transparentPixel);
+		break;
+	case MET_SQUARE:
+		pDst = WriteSquare(pDst, pSrc, transparentPixel);
+		break;
+	case MET_TRANSPARENT:
+		pDst = WriteTransparentSquare(pDst, pSrc, transparentPixel);
+		break;
+	}
+	return pDst;
+}
+
+static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
+{
+    const unsigned blockSize = 16;
+	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
+    unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
+    unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
+    unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
+    unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
+    unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
+
+    if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
+        return; // left frames are empty -> assume it is already done
+    }
+    if (leftFrameRef0 == 0) {
+        return; // something is wrong
+    }
+
+    unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
+    unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
+    unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
+    unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
+    unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
+    unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
+
+    if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
+        return; // right frames are not empty -> assume it is already done
+    }
+    if (rightFrameRef0 == 0) {
+        return; // something is wrong
+    }
+
+    // move the frames to the right side
+    pSubtiles[rightIndex1] = pSubtiles[leftIndex1];
+    pSubtiles[rightIndex2] = pSubtiles[leftIndex2];
+    pSubtiles[leftIndex1] = 0;
+    pSubtiles[leftIndex2] = 0;
+    // convert the left floor to triangle
+	pSubtiles[leftIndex0] = (pSubtiles[leftIndex0] & 0xFFF) | (MET_RTRIANGLE << 12);
+    // convert the right floor to transparent
+	pSubtiles[rightIndex0] = (pSubtiles[rightIndex0] & 0xFFF) | (MET_TRANSPARENT << 12);
+}
+
+static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int potLeftSubtileRef, int potRightSubtileRef)
+{
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+	pMicrosCel = celBuf;
+
+    const unsigned blockSize = 16;
+	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
+    unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
+    unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
+    unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
+    unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
+    unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
+
+    if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
+        // TODO: report error if not empty both? + additional checks
+        return celBuf; // left frames are empty -> assume it is already done
+    }
+    if (leftFrameRef0 == 0) {
+		mem_free_dbg(celBuf);
+        app_warn("Invalid (empty) pot floor subtile (%1).", potLeftSubtileRef);
+        return NULL;
+    }
+
+    unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
+    unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
+    unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
+    unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
+    unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
+    unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
+
+    if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
+        // TODO: report error if not empty both? + additional checks
+        return celBuf; // right frames are not empty -> assume it is already done
+    }
+    if (rightFrameRef0 == 0) {
+		mem_free_dbg(celBuf);
+        app_warn("Invalid (empty) pot floor subtile (%1).", potRightSubtileRef);
+        return NULL;
+    }
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	constexpr BYTE TRANS_COLOR = 128;
+	memset(&gpBuffer[0], TRANS_COLOR, 3 * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[leftIndex0], DMT_NONE);
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH], pSubtiles[leftIndex1], DMT_NONE);
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH], pSubtiles[leftIndex2], DMT_NONE);
+
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[rightIndex0], DMT_NONE);
+
+	// move the image from left to the right 'subtile'
+    for (int x = MICRO_WIDTH / 2; x < MICRO_WIDTH; x++) {
+        for (int y = MICRO_HEIGHT / 2; y < 2 * MICRO_HEIGHT; y++) {
+			gpBuffer[x + MICRO_WIDTH + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+		}
+	}
+    for (int x = MICRO_WIDTH / 2 + 2; x < MICRO_WIDTH - 4; x++) {
+        for (int y = 2 * MICRO_HEIGHT; y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2 + 8; y++) {
+			if (gpBuffer[x + y * BUFFER_WIDTH] == TRANS_COLOR)
+				continue;
+			gpBuffer[x + MICRO_WIDTH + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+		}
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 4 * MICRO_WIDTH * MICRO_HEIGHT);
+
+	typedef struct {
+		int type;
+		unsigned frameRef;
+	} CelFrameEntry;
+	CelFrameEntry entries[4];
+	entries[0].type = 0; // left 0
+	entries[0].frameRef = leftFrameRef0;
+	entries[1].type = 1; // left 1
+	entries[1].frameRef = leftFrameRef1;
+	entries[2].type = 2; // left 2
+	entries[2].frameRef = leftFrameRef2;
+	entries[3].type = 3; // right 0
+	entries[3].frameRef = rightFrameRef0;
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(celEntries);
+	dstHeaderCursor++;
+	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
+	while (entries[0].frameRef != 0) {
+		// select the next frame
+		int next = 0;
+		for (int i = 1; i < lengthof(entries); i++) {
+			if (entries[i].frameRef != 0 && entries[i].frameRef < entries[next].frameRef) {
+				next = i;
+			}
+		}
+
+		// copy entries till the next frame
+		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (int i = 0; i < numEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+		// add the next frame
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		
+		BYTE* frameSrc;
+		int encoding = MET_TRANSPARENT;
+		switch (entries[next].type) {
+		case 0: // left 0
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			encoding = MET_RTRIANGLE;
+			break;
+		case 1: // left -> right 1
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
+			break;
+		case 2: // left -> right 2
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH];
+			break;
+		case 3: // right 0
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			break;
+		}
+		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+
+		// remove entry
+		entries[next].frameRef = 0;
+		for (int i = lengthof(entries) - 1; i >= 0; i--) {
+			if (entries[i].frameRef != 0) {
+				entries[next] = entries[i];
+				entries[i].frameRef = 0;
+				break;
+			}
+		}
+	}
+	// add remaining entries
+	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (int i = 0; i < numEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+	}
+	// add file-size
+	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+
+	*celLen = SwapLE32(dstHeaderCursor[0]);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
 }
 
 static void patchTownFile(BYTE* buf)
@@ -263,6 +753,8 @@ static void patchTownFile(BYTE* buf)
 
 	pSubtiles[MICRO_IDX(237 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 0)];
 	pSubtiles[MICRO_IDX(237 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 1)];
+	// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it I.
+	patchTownPotMin(pSubtiles, 553, 554);
 }
 
 static BYTE* patchFile(int index, size_t *dwLen)
@@ -285,24 +777,26 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		patchTownFile(buf);
 #endif
 	} break;
-/*	case FILE_TOWN_CEL:
+	case FILE_TOWN_CEL:
 #ifdef HELLFIRE
 	case FILE_NTOWN_CEL:
 #endif
 	{
 #if ASSET_MPL == 1
-		if (*dwLen < 3547 * 4) {
+		// patch dMicroCels - TOWN.CEL
+		// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it II.
+		index = index == FILE_TOWN_CEL ? FILE_TOWN_MIN : FILE_NTOWN_MIN;
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[index], &minLen);
+		if (minBuf == NULL) {
 			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		// patch dMicroCels - TOWN.CEL
-		// - overwrite subtile 557 and 558 with subtile 939 and 940 to make the inner tile of Griswold's house non-walkable
-		BYTE *pMicrosCel = buf;
-		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[557])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[939])], SwapLE32(((DWORD*)pMicrosCel)[940]) - SwapLE32(((DWORD*)pMicrosCel)[939]));
-		memcpy(&pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[558])], &pMicrosCel[SwapLE32(((DWORD*)pMicrosCel)[940])], SwapLE32(((DWORD*)pMicrosCel)[941]) - SwapLE32(((DWORD*)pMicrosCel)[940]));
+		buf = patchTownPotCel(minBuf, minLen, buf, dwLen, 553, 554);
+		mem_free_dbg(minBuf);
 #endif
-	} break;*/
+	} break;
 	case FILE_CATHEDRAL_MIN:
 	{	// patch dMiniTiles - L1.MIN
 #if ASSET_MPL == 1
