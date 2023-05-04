@@ -2629,16 +2629,21 @@ typedef struct FileCelGroup {
 	FileCel dcgCelData[dcNumCels];
 } FileCelGroup;
 
-typedef struct FileCl2 {
+typedef struct FileCl2Hdr {
 	int32_t dlNumFrames;
-	int32_t dlOffsets[dcNumFrames]; // address of an entry in dcCelFrames
-	int32_t dcFileSize/NextOffset;
-	FileCelFrame dcCelFrames[dcNumFrames];
+	int32_t dlOffsets[dlNumFrames]; // address of an entry in dlCelFrames/dlgCelFrames
+	int32_t dlFileSize/NextOffset;
+} FileCl2Hdr;
+
+typedef struct FileCl2 {
+	FileCl2Hdr dlCl2Hdr;
+	FileCelFrame dlCelFrames[dlNumFrames];
 } FileCl2;
 
 typedef struct FileCl2Group {
-	int32_t dlgCelOffsets[dcNumCels]; // address of an entry in dlgCl2Data
-	FileCl2 dlgCl2Data[dcNumCels];
+	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Data
+	FileCl2Hdr dlgCl2Hdr[dlgNumGroups];
+	FileCelFrame dlgCelFrames[dlgNumGroups * dlNumFrames];
 } FileCl2Group;
 
 typedef struct FilePal {
