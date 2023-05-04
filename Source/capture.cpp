@@ -25,7 +25,7 @@ static bool CaptureHdr(uint16_t width, uint16_t height, FILE* out)
 	FilePcxHeader Buffer;
 
 	memset(&Buffer, 0, sizeof(Buffer));
-	Buffer.Manufacturer = 10;
+	Buffer.Manufacturer = 0x0A;
 	Buffer.Version = 5;
 	Buffer.Encoding = 1;
 	Buffer.BitsPerPixel = 8;
@@ -36,7 +36,7 @@ static bool CaptureHdr(uint16_t width, uint16_t height, FILE* out)
 	Buffer.NPlanes = 1;
 	Buffer.BytesPerLine = width;
 
-	return std::fwrite(&Buffer, sizeof(Buffer), 1, out) == 1;
+	return WriteFile(&Buffer, sizeof(Buffer), out);
 }
 
 /**
@@ -50,14 +50,14 @@ static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], FILE* out)
 	BYTE pcx_palette[1 + PCX_COLORS * 3];
 	int i;
 	static_assert(NUM_COLORS == PCX_COLORS, "Mismatching PCX and game palette.");
-	pcx_palette[0] = 12;
+	pcx_palette[0] = 0x0C;
 	for (i = 0; i < PCX_COLORS; i++) {
 		pcx_palette[1 + 3 * i + 0] = palette[i].r;
 		pcx_palette[1 + 3 * i + 1] = palette[i].g;
 		pcx_palette[1 + 3 * i + 2] = palette[i].b;
 	}
 
-	return std::fwrite(pcx_palette, sizeof(pcx_palette), 1, out) == 1;
+	return WriteFile(pcx_palette, sizeof(pcx_palette), out);
 }
 
 /**
@@ -70,24 +70,23 @@ static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], FILE* out)
  */
 static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
 {
-	int rleLength;
+	BYTE rleLength;
+	BYTE rlePixel;
 
-	do {
-		BYTE rlePixel = *src;
+	while (width != 0) {
+		rlePixel = *src;
 		src++;
 		rleLength = 1;
 
 		width--;
 
-		while (rlePixel == *src) {
-			if (rleLength >= 63)
-				break;
-			if (width == 0)
+		while (width != 0 && rlePixel == *src) {
+			if (rleLength >= 0x3F)
 				break;
 			rleLength++;
 
-			width--;
 			src++;
+			width--;
 		}
 
 		if (rleLength > 1 || rlePixel > 0xBF) {
@@ -97,7 +96,7 @@ static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
 
 		*dst = rlePixel;
 		dst++;
-	} while (width);
+	}
 
 	return dst;
 }
@@ -120,7 +119,7 @@ static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* p
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
 		writeSize = pBufferEnd - pBuffer;
-		if (std::fwrite(pBuffer, writeSize, 1, out) != 1)
+		if (!WriteFile(pBuffer, writeSize, out))
 			break;
 	}
 	mem_free_dbg(pBuffer);

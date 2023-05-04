@@ -120,7 +120,7 @@ public:
 #endif // !CAN_SEEKP_BEYOND_EOF
 	bool write(const char* data, size_t size)
 	{
-		if (std::fwrite(data, size, 1, s_) == 1) {
+		if (WriteFile(data, size, s_)) {
 #if DEBUG_MODE
 			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
@@ -130,9 +130,9 @@ public:
 		return false;
 	}
 
-	bool read(char* out, size_t size)
+	bool read(void* out, size_t size)
 	{
-		if (std::fread(out, size, 1, s_) == 1) {
+		if (ReadFile(out, size, s_) == 1) {
 #if DEBUG_MODE
 			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
@@ -366,7 +366,7 @@ static bool ReadMPQHeader(Archive* archive, FileMpqHeader* hdr)
 {
 	const bool has_hdr = archive->archiveSize >= sizeof(*hdr);
 	if (has_hdr) {
-		if (!archive->stream.read(reinterpret_cast<char*>(hdr), sizeof(*hdr)))
+		if (!archive->stream.read(hdr, sizeof(*hdr)))
 			return false;
 		ByteSwapHdr(hdr);
 	}
@@ -700,7 +700,7 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		blockSize = blockCount * sizeof(FileMpqBlockEntry);
 		cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
 		if (fhdr.pqBlockCount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char*>(cur_archive.sgpBlockTbl), blockSize))
+			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
 				goto on_error;
 			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
@@ -711,7 +711,7 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		hashSize = hashCount * sizeof(FileMpqHashEntry);
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (fhdr.pqHashCount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char*>(cur_archive.sgpHashTbl), hashSize))
+			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
 				goto on_error;
 			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
