@@ -933,7 +933,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 		// patch dMicroCels - TOWN.CEL
 		// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it II.
+#ifdef HELLFIRE
 		index = index == FILE_TOWN_CEL ? FILE_TOWN_MIN : FILE_NTOWN_MIN;
+#else
+		index = FILE_TOWN_MIN;
+#endif
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[index], &minLen);
 		if (minBuf == NULL) {
