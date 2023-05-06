@@ -21,13 +21,12 @@ endif()
 if(NOT VERSION_NUM)
   include(git)
   get_git_tag(VERSION_NUM)
-  string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
-  if("${VERSION_NUM}" STREQUAL "")
-    set(VERSION_NUM untagged)
-  endif()
   if(NOT VERSION_SUFFIX)
     get_git_commit_hash(GIT_COMMIT_HASH)
     set(VERSION_SUFFIX "$<$<NOT:$<CONFIG:Release>>:-${GIT_COMMIT_HASH}>")
+    if(VERSION_SUFFIX AND NOT VERSION_NUM)
+      set(VERSION_NUM untagged)
+    endif()
   endif()
 endif()
 
@@ -36,12 +35,13 @@ if(CCACHE_PROGRAM)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
-if(VERSION_NUM MATCHES untagged)
+string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_VERSION_NUM ${VERSION_NUM} )
+if(PROJECT_VERSION_NUM)
   project(DevilutionX
+    VERSION ${PROJECT_VERSION_NUM}
     LANGUAGES C CXX)
 else()
   project(DevilutionX
-    VERSION ${VERSION_NUM}
     LANGUAGES C CXX)
 endif()
 string(TOLOWER ${PROJECT_NAME} project_name)
@@ -716,7 +716,7 @@ endif()
 file(GENERATE OUTPUT ${CONFIG_PATH} CONTENT
 "#pragma once
 #define PROJECT_NAME \"${PROJECT_NAME}\"
-#define PROJECT_VERSION \"$<IF:$<OR:$<BOOL:${PROJECT_VERSION}>,$<BOOL:${VERSION_SUFFIX}>>,${PROJECT_VERSION}${VERSION_SUFFIX},?>\"
+#define PROJECT_VERSION \"$<IF:$<OR:$<BOOL:${VERSION_NUM}>,$<BOOL:${VERSION_SUFFIX}>>,${VERSION_NUM}${VERSION_SUFFIX},?>\"
 ")
 
 if(RUN_TESTS)
@@ -1377,7 +1377,7 @@ message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
 message(STATUS "Target platform: ${TARGET_PLATFORM}")
 message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
-message(STATUS "Revision: ${VERSION_NUM}")
+message(STATUS "Revision: ${PROJECT_VERSION} .. ${VERSION_NUM}")
 message(STATUS "")
 message(STATUS "Defines:")
 # Defines without value
