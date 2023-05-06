@@ -143,23 +143,23 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 
 #define nSolidTable(pn, v) \
 if (v) { \
-   buf[pn - 1] |= PFLAG_BLOCK_PATH; \
+	buf[pn - 1] |= PFLAG_BLOCK_PATH; \
 } else { \
-   buf[pn - 1] &= ~PFLAG_BLOCK_PATH; \
+	buf[pn - 1] &= ~PFLAG_BLOCK_PATH; \
 }
 
 #define nMissileTable(pn, v) \
 if (v) { \
-   buf[pn - 1] |= PFLAG_BLOCK_MISSILE; \
+	buf[pn - 1] |= PFLAG_BLOCK_MISSILE; \
 } else { \
-   buf[pn - 1] &= ~PFLAG_BLOCK_MISSILE; \
+	buf[pn - 1] &= ~PFLAG_BLOCK_MISSILE; \
 }
 
 #define nBlockTable(pn, v) \
 if (v) { \
-   buf[pn - 1] |= PFLAG_BLOCK_LIGHT; \
+	buf[pn - 1] |= PFLAG_BLOCK_LIGHT; \
 } else { \
-   buf[pn - 1] &= ~PFLAG_BLOCK_LIGHT; \
+	buf[pn - 1] &= ~PFLAG_BLOCK_LIGHT; \
 }
 
 BYTE* WriteSquare(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
@@ -446,43 +446,43 @@ BYTE* EncodeMicro(int encoding, BYTE* pDst, BYTE* pSrc, BYTE transparentPixel)
 
 static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
 {
-    const unsigned blockSize = 16;
+	const unsigned blockSize = 16;
 	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
-    unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
-    unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
-    unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
-    unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
-    unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
+	unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
+	unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
+	unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
+	unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
+	unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
 
-    if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
-        return; // left frames are empty -> assume it is already done
-    }
-    if (leftFrameRef0 == 0) {
-        return; // something is wrong
-    }
+	if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
+		return; // left frames are empty -> assume it is already done
+	}
+	if (leftFrameRef0 == 0) {
+		return; // something is wrong
+	}
 
-    unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
-    unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
-    unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
-    unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
-    unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
-    unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
+	unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
+	unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
+	unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
+	unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
+	unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
+	unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
 
-    if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
-        return; // right frames are not empty -> assume it is already done
-    }
-    if (rightFrameRef0 == 0) {
-        return; // something is wrong
-    }
+	if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
+		return; // right frames are not empty -> assume it is already done
+	}
+	if (rightFrameRef0 == 0) {
+		return; // something is wrong
+	}
 
-    // move the frames to the right side
-    pSubtiles[rightIndex1] = pSubtiles[leftIndex1];
-    pSubtiles[rightIndex2] = pSubtiles[leftIndex2];
-    pSubtiles[leftIndex1] = 0;
-    pSubtiles[leftIndex2] = 0;
-    // convert the left floor to triangle
+	// move the frames to the right side
+	pSubtiles[rightIndex1] = pSubtiles[leftIndex1];
+	pSubtiles[rightIndex2] = pSubtiles[leftIndex2];
+	pSubtiles[leftIndex1] = 0;
+	pSubtiles[leftIndex2] = 0;
+	// convert the left floor to triangle
 	pSubtiles[leftIndex0] = (pSubtiles[leftIndex0] & 0xFFF) | (MET_RTRIANGLE << 12);
-    // convert the right floor to transparent
+	// convert the right floor to transparent
 	pSubtiles[rightIndex0] = (pSubtiles[rightIndex0] & 0xFFF) | (MET_TRANSPARENT << 12);
 }
 
@@ -491,40 +491,40 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
 
 	// TODO: check minLen
-    const unsigned blockSize = 16;
+	const unsigned blockSize = 16;
 	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
-    unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
-    unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
-    unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
-    unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
-    unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
+	unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
+	unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
+	unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
+	unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
+	unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
 
-    if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
-        // TODO: report error if not empty both? + additional checks
-        return celBuf; // left frames are empty -> assume it is already done
-    }
-    if (leftFrameRef0 == 0) {
+	if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
+		// TODO: report error if not empty both? + additional checks
+		return celBuf; // left frames are empty -> assume it is already done
+	}
+	if (leftFrameRef0 == 0) {
 		mem_free_dbg(celBuf);
-        app_warn("Invalid (empty) pot floor subtile (%1).", potLeftSubtileRef);
-        return NULL;
-    }
+		app_warn("Invalid (empty) pot floor subtile (%1).", potLeftSubtileRef);
+		return NULL;
+	}
 
-    unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
-    unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
-    unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
-    unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
-    unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
-    unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
+	unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
+	unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
+	unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
+	unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
+	unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
+	unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
 
-    if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
-        // TODO: report error if not empty both? + additional checks
-        return celBuf; // right frames are not empty -> assume it is already done
-    }
-    if (rightFrameRef0 == 0) {
+	if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
+		// TODO: report error if not empty both? + additional checks
+		return celBuf; // right frames are not empty -> assume it is already done
+	}
+	if (rightFrameRef0 == 0) {
 		mem_free_dbg(celBuf);
-        app_warn("Invalid (empty) pot floor subtile (%1).", potRightSubtileRef);
-        return NULL;
-    }
+		app_warn("Invalid (empty) pot floor subtile (%1).", potRightSubtileRef);
+		return NULL;
+	}
 
 	// TODO: check celLen
 	// draw the micros to the back-buffer
@@ -539,14 +539,14 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[rightIndex0], DMT_NONE);
 
 	// move the image from left to the right 'subtile'
-    for (int x = MICRO_WIDTH / 2; x < MICRO_WIDTH; x++) {
-        for (int y = MICRO_HEIGHT / 2; y < 2 * MICRO_HEIGHT; y++) {
+	for (int x = MICRO_WIDTH / 2; x < MICRO_WIDTH; x++) {
+		for (int y = MICRO_HEIGHT / 2; y < 2 * MICRO_HEIGHT; y++) {
 			gpBuffer[x + MICRO_WIDTH + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
 			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
 		}
 	}
-    for (int x = MICRO_WIDTH / 2 + 2; x < MICRO_WIDTH - 4; x++) {
-        for (int y = 2 * MICRO_HEIGHT; y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2 + 8; y++) {
+	for (int x = MICRO_WIDTH / 2 + 2; x < MICRO_WIDTH - 4; x++) {
+		for (int y = 2 * MICRO_HEIGHT; y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2 + 8; y++) {
 			if (gpBuffer[x + y * BUFFER_WIDTH] == TRANS_COLOR)
 				continue;
 			gpBuffer[x + MICRO_WIDTH + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
@@ -1396,8 +1396,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		nMissileTable(141, false); // fix missile-blocking tile of down-stairs.
-		// nMissileTable(137, false); // fix missile-blocking tile of down-stairs. - skip to keep in sync with the nSolidTable
-		// nSolidTable(137, false);   // fix non-walkable tile of down-stairs. - skip, because it causes a graphic glitch
+		// nMissileTable(137, false); // fix missile-blocking tile of down-stairs.
+		// nSolidTable(137, false);   // fix non-walkable tile of down-stairs. - the subtile is not used any more
 		nSolidTable(130, true);    // make the inner tiles of the down-stairs non-walkable I.
 		nSolidTable(132, true);    // make the inner tiles of the down-stairs non-walkable II.
 		nSolidTable(131, true);    // make the inner tiles of the down-stairs non-walkable III.
