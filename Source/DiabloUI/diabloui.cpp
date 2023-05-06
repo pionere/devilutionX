@@ -791,9 +791,9 @@ void UiHandleEvents(SDL_Event* event)
 
 #ifndef USE_SDL1
 	if (event->type == SDL_WINDOWEVENT) {
-		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
+		if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_EXPOSED)
 			gbWndActive = true;
-		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
+		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN || event->window.event == SDL_WINDOWEVENT_MINIMIZED)
 			gbWndActive = false;
 		return;
 	}
