@@ -36,6 +36,9 @@ typedef enum filenames {
 	FILE_CATACOMBS_AMP,
 	FILE_CAVES_MIN,
 	FILE_CAVES_SOL,
+	FILE_HELL_CEL,
+	FILE_HELL_MIN,
+	FILE_HELL_TIL,
 	FILE_HELL_SOL,
 	FILE_HELL_AMP,
 	FILE_BHSM_TRN,
@@ -85,6 +88,9 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
+/*FILE_HELL_CEL*/      "Levels\\L4Data\\L4.CEL",
+/*FILE_HELL_MIN*/      "Levels\\L4Data\\L4.MIN",
+/*FILE_HELL_TIL*/      "Levels\\L4Data\\L4.TIL",
 /*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
 /*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
 /*FILE_BHSM_TRN*/      "Monsters\\Monsters\\BHSM.TRN",
@@ -483,8 +489,8 @@ static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potR
 static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int potLeftSubtileRef, int potRightSubtileRef)
 {
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
-	pMicrosCel = celBuf;
 
+	// TODO: check minLen
     const unsigned blockSize = 16;
 	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
     unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
@@ -522,6 +528,7 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 
 	// TODO: check celLen
 	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
 	constexpr BYTE TRANS_COLOR = 128;
 	memset(&gpBuffer[0], TRANS_COLOR, 3 * BUFFER_WIDTH * MICRO_HEIGHT);
 
@@ -570,14 +577,16 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	dstHeaderCursor[0] = SwapLE32(celEntries);
 	dstHeaderCursor++;
 	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
-	while (entries[0].frameRef != 0) {
+	while (true) {
 		// select the next frame
-		int next = 0;
-		for (int i = 1; i < lengthof(entries); i++) {
-			if (entries[i].frameRef != 0 && entries[i].frameRef < entries[next].frameRef) {
+		int next = -1;
+		for (int i = 0; i < lengthof(entries); i++) {
+			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
 				next = i;
 			}
 		}
+		if (next == -1)
+			break;
 
 		// copy entries till the next frame
 		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
@@ -617,13 +626,6 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 
 		// remove entry
 		entries[next].frameRef = 0;
-		for (int i = lengthof(entries) - 1; i >= 0; i--) {
-			if (entries[i].frameRef != 0) {
-				entries[next] = entries[i];
-				entries[i].frameRef = 0;
-				break;
-			}
-		}
 	}
 	// add remaining entries
 	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
@@ -762,6 +764,207 @@ static void patchTownFile(BYTE* buf)
 	pSubtiles[MICRO_IDX(237 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 1)];
 	// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it I.
 	patchTownPotMin(pSubtiles, 553, 554);
+}
+
+static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int exitTileRef)
+{
+	const uint16_t* pTiles = (const uint16_t*)tilBuf;
+	// TODO: check tilLen
+	int topLeftSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 0]);
+	int topRightSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 1]);
+	int bottomLeftSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 2]);
+	int bottomRightSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 3]);
+
+	if (topLeftSubtileIndex != (137 - 1) || topRightSubtileIndex != (138 - 1) || bottomLeftSubtileIndex != (139 - 1) || bottomRightSubtileIndex != (140 - 1)) {
+		return celBuf; // non-original subtiles -> assume it is already done
+	}
+
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+
+	// TODO: check minLen
+	const unsigned blockSize = 16;
+	unsigned topLeft_LeftIndex0 = MICRO_IDX(topLeftSubtileIndex, blockSize, 0);
+	unsigned topLeft_LeftFrameRef0 = pSubtiles[topLeft_LeftIndex0] & 0xFFF; // 368
+	unsigned topLeft_RightIndex0 = MICRO_IDX(topLeftSubtileIndex, blockSize, 1);
+	unsigned topLeft_RightFrameRef0 = pSubtiles[topLeft_RightIndex0] & 0xFFF; // 369
+	unsigned topLeft_LeftIndex1 = MICRO_IDX(topLeftSubtileIndex, blockSize, 2);
+	unsigned topLeft_LeftFrameRef1 = pSubtiles[topLeft_LeftIndex1] & 0xFFF; // 367
+	unsigned topRight_LeftIndex0 = MICRO_IDX(topRightSubtileIndex, blockSize, 0);
+	unsigned topRight_LeftFrameRef0 = pSubtiles[topRight_LeftIndex0] & 0xFFF; // 370
+	unsigned bottomLeft_RightIndex0 = MICRO_IDX(bottomLeftSubtileIndex, blockSize, 1);
+	unsigned bottomLeft_RightFrameRef0 = pSubtiles[bottomLeft_RightIndex0] & 0xFFF; // 375
+	unsigned bottomRight_RightIndex0 = MICRO_IDX(bottomRightSubtileIndex, blockSize, 1);
+	unsigned bottomRight_RightFrameRef0 = pSubtiles[bottomRight_RightIndex0] & 0xFFF; // 377
+	unsigned bottomRight_LeftIndex0 = MICRO_IDX(bottomRightSubtileIndex, blockSize, 0);
+	unsigned bottomRight_LeftFrameRef0 = pSubtiles[bottomRight_LeftIndex0] & 0xFFF; // 376
+
+	if (topLeft_LeftFrameRef0 == 0 || topLeft_RightFrameRef0 == 0 || topLeft_LeftFrameRef1 == 0 || topRight_LeftFrameRef0 == 0 || bottomLeft_RightFrameRef0 == 0) {
+		// TODO: report error if not empty both? + additional checks
+		return celBuf; // left frames are empty -> assume it is already done
+	}
+	if (bottomRight_RightFrameRef0 == 0 || bottomRight_LeftFrameRef0 == 0) {
+		mem_free_dbg(celBuf);
+		app_warn("Invalid (empty) floor on tile (%1).", exitTileRef);
+		return NULL;
+	}
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	memset(&gpBuffer[0], TRANS_COLOR, 3 * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH], pSubtiles[topLeft_LeftIndex1], DMT_NONE); // 367
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH], pSubtiles[topLeft_LeftIndex0], DMT_NONE); // 368
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH], pSubtiles[topLeft_RightIndex0], DMT_NONE); // 369
+	RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[topRight_LeftIndex0], DMT_NONE); // 370
+	// RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 3 - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[topRight_LeftIndex0], DMT_NONE); // 370
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[bottomLeft_RightIndex0], DMT_NONE); // 375
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[bottomRight_LeftIndex0], DMT_NONE); // 376
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[bottomRight_RightIndex0], DMT_NONE); // 377
+
+	// mask floor bits of 369, 370
+	// - 369
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 2 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR)
+				continue;
+			if (x >= 15 || gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 2 - y - 1) * BUFFER_WIDTH] < 80) {
+				gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR;
+			}
+		}
+	}
+	// - 370
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR)
+				continue;
+			if (x >= 15 || gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] < 96) {
+				gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR;
+			}
+		}
+	}
+
+	// fix bad artifacts
+	gpBuffer[MICRO_WIDTH + 13 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT -1 - 22) - 1) * BUFFER_WIDTH] = TRANS_COLOR;     // 369
+	gpBuffer[MICRO_WIDTH + 7 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT - 1 - 7) - 1) * BUFFER_WIDTH] = TRANS_COLOR;      // 369
+	gpBuffer[2 * MICRO_WIDTH + 12 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT / 2 + 2) - 1) * BUFFER_WIDTH] = 122;         // 370
+	gpBuffer[2 * MICRO_WIDTH + 14 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT / 2 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 370
+
+	// copy the frame 370 to its position
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR)
+				continue;
+			gpBuffer[x + MICRO_WIDTH + (MICRO_HEIGHT * 3 - y - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH] = pixel;
+		}
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 4 * MICRO_WIDTH * MICRO_HEIGHT);
+
+	typedef struct {
+		int type;
+		unsigned frameRef;
+	} CelFrameEntry;
+	CelFrameEntry entries[5];
+	entries[0].type = 0; // 367
+	// assert(topLeft_LeftFrameRef1 == 367);
+	entries[0].frameRef = topLeft_LeftFrameRef1;
+	entries[1].type = 1; // 368
+	// assert(topLeft_LeftFrameRef0 == 368);
+	entries[1].frameRef = topLeft_LeftFrameRef0;
+	entries[2].type = 2; // 369
+	// assert(topLeft_RightFrameRef0 == 369);
+	entries[2].frameRef = topLeft_RightFrameRef0;
+	entries[3].type = 3; // 376
+	// assert(bottomRight_LeftFrameRef0 == 376);
+	entries[3].frameRef = bottomRight_LeftFrameRef0;
+	entries[4].type = 4; // 377
+	// assert(bottomRight_RightFrameRef0 == 377);
+	entries[4].frameRef = bottomRight_RightFrameRef0;
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(celEntries);
+	dstHeaderCursor++;
+	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
+	while (true) {
+		// select the next frame
+		int next = -1;
+		for (int i = 0; i < lengthof(entries); i++) {
+			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
+				next = i;
+			}
+		}
+		if (next == -1)
+			break;
+
+		// copy entries till the next frame
+		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (int i = 0; i < numEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+		// add the next frame
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		
+		BYTE* frameSrc;
+		int encoding = MET_TRANSPARENT;
+		switch (entries[next].type) {
+		case 0: // 367
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH];
+			break;
+		case 1: // 368
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
+			encoding = MET_SQUARE;
+			break;
+		case 2: // 369
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
+			break;
+		case 3: // 376
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			encoding = MET_LTRAPEZOID;
+			break;
+		case 4: // 377
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			break;
+		}
+		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+
+		// remove entry
+		entries[next].frameRef = 0;
+	}
+	// add remaining entries
+	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (int i = 0; i < numEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+	}
+	// add file-size
+	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+
+	*celLen = SwapLE32(dstHeaderCursor[0]);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
 }
 
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
@@ -1018,6 +1221,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(164 - 1) * 4 + 1] = SwapLE16(567 - 1); // - 167
 		pTiles[(164 - 1) * 4 + 2] = SwapLE16(168 - 1);
 		pTiles[(164 - 1) * 4 + 3] = SwapLE16(169 - 1);
+		// make the back of the stairs non-walkable I.
+		pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1);
 	} break;
 	case FILE_CATACOMBS_MIN:
 	{	// patch dMiniTiles - L2.MIN
@@ -1056,7 +1261,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pSubtiles[MICRO_IDX(567 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 1)];
 	} break;
 	case FILE_CATACOMBS_SOL:
-	{	// patch dAutomapData - L2.SOL
+	{	// patch dSolidTable - L2.SOL
 		// add separate tiles and subtiles for the arches III.
 		if (*dwLen < 567) {
 			if (*dwLen != 559) {
@@ -1072,6 +1277,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		// reset flags of the 'new' floor tiles with arches
 		memset(buf + 559, 0, 8);
+		// make the back of the stairs non-walkable II.
+		nSolidTable(252, true);
+		nBlockTable(252, true);
+		nMissileTable(252, true);
 	} break;
 	case FILE_CATACOMBS_AMP:
 	{	// patch dAutomapData - L2.AMP
@@ -1129,6 +1338,55 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		nSolidTable(249, false); // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+	} break;
+	case FILE_HELL_CEL:
+	{	// patch dMicroCels - L4.CEL
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_HELL_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_HELL_MIN]);
+			return NULL;
+		}
+		size_t tilLen;
+		BYTE* tilBuf = LoadFileInMem(filesToPatch[FILE_HELL_TIL], &tilLen);
+		if (tilBuf == NULL) {
+			mem_free_dbg(minBuf);
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_HELL_TIL]);
+			return NULL;
+		}
+		buf = patchHellCel(tilBuf, tilLen, minBuf, minLen, buf, dwLen, 45);
+		mem_free_dbg(minBuf);
+		mem_free_dbg(tilBuf);
+	} break;
+	case FILE_HELL_MIN:
+	{	// patch dMiniTiles - L4.MIN
+		constexpr int blockSize = 16;
+		uint16_t *pSubtiles = (uint16_t*)buf;
+		// patch exit tile II.
+		// - move the frames to the bottom right subtile
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 3)] = (pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] & 0xFFF) | (MET_TRANSPARENT << 12); // 369
+		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] = 0;
+
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 2)] = (pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)] & 0xFFF) | (MET_SQUARE << 12);      // 368
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 4)] = (pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)] & 0xFFF) | (MET_TRANSPARENT << 12); // 367
+		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)] = 0;
+		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)] = 0;
+
+		// - eliminate right frame of the bottom left subtile
+		pSubtiles[MICRO_IDX(139 - 1, blockSize, 1)] = 0;
+
+		// - adjust the frame types
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(140 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRAPEZOID << 12);  // 376
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(140 - 1, blockSize, 1)] & 0xFFF) | (MET_TRANSPARENT << 12); // 377
+	} break;
+	case FILE_HELL_TIL:
+	{	// patch dMegaTiles - L4.TIL
+		uint16_t *pTiles = (uint16_t*)buf;
+		// patch exit tile III.
+		pTiles[(45 - 1) * 4 + 0] = SwapLE16(17 - 1);
+		pTiles[(45 - 1) * 4 + 1] = SwapLE16(18 - 1);
 	} break;
 	case FILE_HELL_SOL:
 	{	// patch dSolidTable - L4.SOL
