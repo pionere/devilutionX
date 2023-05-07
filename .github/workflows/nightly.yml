@@ -325,10 +325,10 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            cmakeargs: ''
             artifact: 'diablo-nightly-mac.dmg'
           - name: hellfire
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
+            cmakeargs: '-D HELLFIRE=ON'
             artifact: 'hellfire-nightly-mac.dmg'
     runs-on: macos-latest
     steps:
@@ -342,7 +342,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF -D MACOSX_STANDALONE_APP_BUNDLE=ON ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
