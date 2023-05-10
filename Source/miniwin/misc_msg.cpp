@@ -3,9 +3,8 @@
  *
  * Windows message handling and keyboard event conversion for SDL.
  */
-#include <SDL.h>
-#include <cstdint>
-#include "utils/utf8.h"
+//#include <SDL.h>
+//#include <cstdint>
 
 #include "all.h"
 #include "controls/controller.h"
@@ -15,7 +14,8 @@
 #include "controls/remap_keyboard.h"
 #include "controls/touch.h"
 #include "utils/display.h"
-#include "utils/sdl_compat.h"
+//#include "utils/sdl_compat.h"
+#include "utils/utf8.h"
 
 #ifdef __SWITCH__
 #include "platform/switch/docking.h"
