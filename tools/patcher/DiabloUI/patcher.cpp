@@ -34,6 +34,7 @@ typedef enum filenames {
 #endif
 	FILE_CATHEDRAL_SOL,
 #if ASSET_MPL == 1
+	FILE_CATACOMBS_CEL,
 	FILE_CATACOMBS_MIN,
 #endif
 	FILE_CATACOMBS_TIL,
@@ -100,6 +101,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 #if ASSET_MPL == 1
+/*FILE_CATACOMBS_CEL*/ "Levels\\L2Data\\L2.CEL",
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
 #endif
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
@@ -793,14 +795,14 @@ static void patchTownMin(BYTE* buf)
 	patchTownPotMin(pSubtiles, 553, 554);
 }
 
-static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int exitTileRef)
+static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int exitTileIndex)
 {
 	const uint16_t* pTiles = (const uint16_t*)tilBuf;
 	// TODO: check tilLen
-	int topLeftSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 0]);
-	int topRightSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 1]);
-	int bottomLeftSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 2]);
-	int bottomRightSubtileIndex = SwapLE16(pTiles[(exitTileRef - 1) * 4 + 3]);
+	int topLeftSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 0]);
+	int topRightSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 1]);
+	int bottomLeftSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 2]);
+	int bottomRightSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 3]);
 
 	if (topLeftSubtileIndex != (137 - 1) || topRightSubtileIndex != (138 - 1) || bottomLeftSubtileIndex != (139 - 1) || bottomRightSubtileIndex != (140 - 1)) {
 		return celBuf; // non-original subtiles -> assume it is already done
@@ -831,7 +833,7 @@ static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf,
 	}
 	if (bottomRight_RightFrameRef0 == 0 || bottomRight_LeftFrameRef0 == 0) {
 		mem_free_dbg(celBuf);
-		app_warn("Invalid (empty) floor on tile (%d).", exitTileRef);
+		app_warn("Invalid (empty) floor on tile (%d).", exitTileIndex + 1);
 		return NULL;
 	}
 
@@ -1135,6 +1137,318 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	return resCl2Buf;
 }
 
+static BYTE* patchCatacombsStairs(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t *celLen, int backTileIndex1, int backTileIndex2, int stairsSubtileRef1, int stairsSubtileRef2, int stairsExtSubtileRef1, int stairsExtSubtileRef2)
+{
+	const uint16_t* pTiles = (const uint16_t*)tilBuf;
+	// TODO: check tilLen
+	int topLeftSubtileIndex = SwapLE16(pTiles[backTileIndex1 * 4 + 0]);
+	int bottomLeftSubtileIndex = SwapLE16(pTiles[backTileIndex1 * 4 + 2]);
+	int bottomRightSubtileIndex = SwapLE16(pTiles[backTileIndex1 * 4 + 3]);
+
+	constexpr int backSubtileRef0 = 250;
+	constexpr int backSubtileRef2 = 251;
+	constexpr int backSubtileRef3 = 252;
+	constexpr int backSubtileRef0Replacement = 9;
+	constexpr int backSubtileRef2Replacement = 11;
+	if (topLeftSubtileIndex != (backSubtileRef0 - 1) || bottomLeftSubtileIndex != (backSubtileRef2 - 1) || bottomRightSubtileIndex != (backSubtileRef3 - 1)) {
+		return celBuf; // non-original subtiles -> assume it is already done
+	}
+
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+
+	// TODO: check minLen
+	constexpr unsigned blockSize = 10;
+	unsigned back3_FrameIndex0 = MICRO_IDX((backSubtileRef3 - 1), blockSize, 0);
+	unsigned back3_FrameRef0 = pSubtiles[back3_FrameIndex0] & 0xFFF; // 719
+	unsigned back2_FrameIndex1 = MICRO_IDX((backSubtileRef2 - 1), blockSize, 1);
+	unsigned back2_FrameRef1 = pSubtiles[back2_FrameIndex1] & 0xFFF; // 718
+	unsigned back0_FrameIndex0 = MICRO_IDX((backSubtileRef0 - 1), blockSize, 0);
+	unsigned back0_FrameRef0 = pSubtiles[back0_FrameIndex0] & 0xFFF; // 716
+
+	unsigned stairs_FrameIndex0 = MICRO_IDX((stairsSubtileRef1 - 1), blockSize, 0);
+	unsigned stairs_FrameRef0 = pSubtiles[stairs_FrameIndex0] & 0xFFF; // 770
+	unsigned stairs_FrameIndex2 = MICRO_IDX((stairsSubtileRef1 - 1), blockSize, 2);
+	unsigned stairs_FrameRef2 = pSubtiles[stairs_FrameIndex2] & 0xFFF; // 769
+	unsigned stairs_FrameIndex4 = MICRO_IDX((stairsSubtileRef1 - 1), blockSize, 4);
+	unsigned stairs_FrameRef4 = pSubtiles[stairs_FrameIndex4] & 0xFFF; // 768
+	unsigned stairs_FrameIndex6 = MICRO_IDX((stairsSubtileRef1 - 1), blockSize, 6);
+	unsigned stairs_FrameRef6 = pSubtiles[stairs_FrameIndex6] & 0xFFF; // 767
+
+	unsigned stairsExt_FrameIndex1 = MICRO_IDX((stairsExtSubtileRef1 - 1), blockSize, 1);
+	unsigned stairsExt_FrameRef1 = pSubtiles[stairsExt_FrameIndex1] & 0xFFF; // 762
+	unsigned stairsExt_FrameIndex3 = MICRO_IDX((stairsExtSubtileRef1 - 1), blockSize, 3);
+	unsigned stairsExt_FrameRef3 = pSubtiles[stairsExt_FrameIndex3] & 0xFFF; // 761
+	unsigned stairsExt_FrameIndex5 = MICRO_IDX((stairsExtSubtileRef1 - 1), blockSize, 5);
+	unsigned stairsExt_FrameRef5 = pSubtiles[stairsExt_FrameIndex5] & 0xFFF; // 760
+
+	if (back3_FrameRef0 == 0 || back2_FrameRef1 == 0 || back0_FrameRef0 == 0) {
+		mem_free_dbg(celBuf);
+		app_warn("The back-stairs tile (%d) has invalid (missing) frames.", backTileIndex1 + 1);
+		return NULL;
+	}
+
+	if (stairs_FrameRef0 == 0 || stairs_FrameRef2 == 0 || stairs_FrameRef4 == 0 || stairs_FrameRef6 == 0
+		|| stairsExt_FrameRef1 == 0 || stairsExt_FrameRef3 == 0 || stairsExt_FrameRef5 == 0) {
+		return celBuf;
+	}
+
+	unsigned stairs2_FrameIndex0 = MICRO_IDX((stairsSubtileRef2 - 1), blockSize, 0);
+	unsigned stairs2_FrameRef0 = pSubtiles[stairs2_FrameIndex0] & 0xFFF; // 770
+	unsigned stairs2_FrameIndex2 = MICRO_IDX((stairsSubtileRef2 - 1), blockSize, 2);
+	unsigned stairs2_FrameRef2 = pSubtiles[stairs2_FrameIndex2] & 0xFFF; // 769
+	unsigned stairs2_FrameIndex4 = MICRO_IDX((stairsSubtileRef2 - 1), blockSize, 4);
+	unsigned stairs2_FrameRef4 = pSubtiles[stairs2_FrameIndex4] & 0xFFF; // 768
+	unsigned stairs2_FrameIndex6 = MICRO_IDX((stairsSubtileRef2 - 1), blockSize, 6);
+	unsigned stairs2_FrameRef6 = pSubtiles[stairs2_FrameIndex6] & 0xFFF; // 767
+	if (stairs2_FrameRef0 != stairs_FrameRef0) {
+		mem_free_dbg(celBuf);
+		app_warn("The stairs subtiles (%d, %d) have invalid (mismatching) floor frames.", stairsSubtileRef1, stairsSubtileRef2);
+		return NULL;
+	}
+	unsigned stairsExt2_FrameIndex1 = MICRO_IDX((stairsExtSubtileRef2 - 1), blockSize, 1);
+	unsigned stairsExt2_FrameRef1 = pSubtiles[stairsExt2_FrameIndex1] & 0xFFF; // 762
+	unsigned stairsExt2_FrameIndex3 = MICRO_IDX((stairsExtSubtileRef2 - 1), blockSize, 3);
+	unsigned stairsExt2_FrameRef3 = pSubtiles[stairsExt2_FrameIndex3] & 0xFFF; // 761
+	unsigned stairsExt2_FrameIndex5 = MICRO_IDX((stairsExtSubtileRef2 - 1), blockSize, 5);
+	unsigned stairsExt2_FrameRef5 = pSubtiles[stairsExt2_FrameIndex5] & 0xFFF; // 760
+	if (stairsExt2_FrameRef1 != stairsExt_FrameRef1
+		|| stairsExt2_FrameRef3 != stairsExt_FrameRef3
+		|| stairsExt2_FrameRef5 != stairsExt_FrameRef5) {
+		mem_free_dbg(celBuf);
+		app_warn("The stairs external subtiles (%d, %d) have invalid (mismatching) frames.", stairsExtSubtileRef1, stairsExtSubtileRef2);
+		return NULL;
+	}
+
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	memset(&gpBuffer[0], TRANS_COLOR, 5 * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[back0_FrameIndex0], DMT_NONE); // 716
+	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 4 - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back2_FrameIndex1], DMT_NONE); // 718
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 4 - 1) * BUFFER_WIDTH], pSubtiles[back3_FrameIndex0], DMT_NONE); // 719
+
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairsExt_FrameIndex5], DMT_NONE); // 760
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairsExt_FrameIndex3], DMT_NONE); // 761
+	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairsExt_FrameIndex1], DMT_NONE); // 762
+
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairs_FrameIndex6], DMT_NONE); // 767
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairs_FrameIndex4], DMT_NONE); // 768
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairs_FrameIndex2], DMT_NONE); // 769
+	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairs_FrameIndex0], DMT_NONE); // 770
+
+	RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back0_FrameIndex0], DMT_NONE);     // 716
+	RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back2_FrameIndex1], DMT_NONE);     // 718
+	RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairsExt_FrameIndex1], DMT_NONE); // 762
+	RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairs_FrameIndex0], DMT_NONE);    // 770
+
+	RenderMicro(&gpBuffer[3 * MICRO_WIDTH + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[stairsExt_FrameIndex1], DMT_NONE); // 762
+
+	// add micros to be used as masks
+	RenderMicro(&gpBuffer[3 * MICRO_WIDTH + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back3_FrameIndex0], DMT_NONE); // 719
+	RenderMicro(&gpBuffer[3 * MICRO_WIDTH + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back2_FrameIndex1], DMT_NONE); // 718
+
+	// mask the drawing
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[3 * MICRO_WIDTH + x + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR) {
+				gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR; // mask the stair-floor with 719
+			} else {
+				gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR;// mask the stairs with ~719
+			}
+		}
+	}
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[3 * MICRO_WIDTH + x + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR) {
+				gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR; // mask the external back-subtile floor with 718
+			} else {
+				gpBuffer[3 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR; // mask the external back-subtile with ~718
+			}
+		}
+	}
+	// mask the shadows
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR)
+				continue;
+			if (x < 22 || y >= MICRO_HEIGHT - 20 || (pixel % 16) < 11) {
+				gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 716
+			}
+		}
+	}
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH];
+			if (pixel == TRANS_COLOR)
+				continue;
+			if (x < 22 || y >= MICRO_HEIGHT - 12 || y < MICRO_HEIGHT - 20 || (pixel % 16) < 11) {
+				gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 718
+			}
+		}
+	}
+	// copy the stair of back-subtile to its position
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[3 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH]; // 762
+			if (pixel == TRANS_COLOR)
+				continue;
+			// if (gpBuffer[0 + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] == TRANS_COLOR)
+				gpBuffer[0 + x + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = pixel;
+		}
+	}
+	// copy the shadows to their position
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 1 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH]; // 716
+			if (pixel == TRANS_COLOR)
+				continue;
+			if (gpBuffer[0 + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] == TRANS_COLOR)
+				gpBuffer[0 + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] = pixel;
+		}
+	}
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH]; // 718
+			if (pixel == TRANS_COLOR)
+				continue;
+			if (gpBuffer[0 + x + (MICRO_HEIGHT * 4 - MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] == TRANS_COLOR)
+				gpBuffer[0 + x + (MICRO_HEIGHT * 4 - MICRO_HEIGHT / 2 - y - 1) * BUFFER_WIDTH] = pixel;
+		}
+	}
+
+	// fix bad artifacts
+	gpBuffer[0 + 23 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 20 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 761
+	gpBuffer[0 + 24 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 20 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 761
+	gpBuffer[0 + 22 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 21 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 761
+	gpBuffer[0 + 23 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 21 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 761
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 8 * MICRO_WIDTH * MICRO_HEIGHT);
+
+	typedef struct {
+		int type;
+		unsigned frameRef;
+	} CelFrameEntry;
+	CelFrameEntry entries[8];
+	entries[0].type = 0; // 762
+	// assert(stairsExt_FrameRef1 == 762);
+	entries[0].frameRef = stairsExt_FrameRef1;
+	entries[1].type = 1; // 770
+	// assert(stairs_FrameRef0 == 770);
+	entries[1].frameRef = stairs_FrameRef0;
+	entries[2].type = 2; // 767
+	// assert(stairs_FrameRef6 == 767);
+	entries[2].frameRef = stairs_FrameRef6;
+	entries[3].type = 3; // 768
+	// assert(stairs_FrameRef4 == 768);
+	entries[3].frameRef = stairs_FrameRef4;
+	entries[4].type = 4; // 769
+	// assert(stairs_FrameRef2 == 769);
+	entries[4].frameRef = stairs_FrameRef2;
+	entries[5].type = 5; // 760
+	// assert(stairsExt_FrameRef5 == 760);
+	entries[5].frameRef = stairsExt_FrameRef5;
+	entries[6].type = 6; // 719
+	// assert(back3_FrameRef0 == 719);
+	entries[6].frameRef = back3_FrameRef0;
+	entries[7].type = 7; // 761
+	// assert(stairsExt_FrameRef3 == 761);
+	entries[7].frameRef = stairsExt_FrameRef3;
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(celEntries);
+	dstHeaderCursor++;
+	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
+	while (true) {
+		// select the next frame
+		int next = -1;
+		for (int i = 0; i < lengthof(entries); i++) {
+			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
+				next = i;
+			}
+		}
+		if (next == -1)
+			break;
+
+		// copy entries till the next frame
+		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (int i = 0; i < numEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+		// add the next frame
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		
+		BYTE* frameSrc;
+		int encoding = MET_TRANSPARENT;
+		switch (entries[next].type) {
+		case 0: // 762
+			frameSrc = &gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 3 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH];
+			encoding = MET_RTRIANGLE;
+			break;
+		case 1: // 770
+			frameSrc = &gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 4 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH];
+			encoding = MET_LTRIANGLE;
+			break;
+		case 2: // 767
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH];
+			break;
+		case 3: // 768
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
+			break;
+		case 4: // 769
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			break;
+		case 5: // 760
+			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 4 - 1) * BUFFER_WIDTH];
+			encoding = MET_RTRAPEZOID;
+			break;
+		case 6: // 719
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 4 - 1) * BUFFER_WIDTH];
+			break;
+		case 7: // 761
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			break;
+		}
+		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+
+		// remove entry
+		entries[next].frameRef = 0;
+	}
+	// add remaining entries
+	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (int i = 0; i < numEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+	}
+	// add file-size
+	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+
+	*celLen = SwapLE32(dstHeaderCursor[0]);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -1205,6 +1519,28 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nMissileTable(8, false); // the only column which was blocking missiles
 	} break;
 #if ASSET_MPL == 1
+	case FILE_CATACOMBS_CEL:
+	{	// patch dMicroCels - L2.CEL
+		// fix the upstairs I.
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATACOMBS_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATACOMBS_MIN]);
+			return NULL;
+		}
+		size_t tilLen;
+		BYTE* tilBuf = LoadFileInMem(filesToPatch[FILE_CATACOMBS_TIL], &tilLen);
+		if (tilBuf == NULL) {
+			mem_free_dbg(minBuf);
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATACOMBS_TIL]);
+			return NULL;
+		}
+		buf = patchCatacombsStairs(tilBuf, tilLen, minBuf, minLen, buf, dwLen, 72 - 1, 158 - 1, 267, 559, 265, 556);
+		mem_free_dbg(minBuf);
+		mem_free_dbg(tilBuf);
+	} break;
 	case FILE_CATACOMBS_MIN:
 	{	// patch dMiniTiles - L2.MIN
 		// add separate tiles and subtiles for the arches II.
@@ -1240,6 +1576,40 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pSubtiles[MICRO_IDX(566 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 1)];
 		pSubtiles[MICRO_IDX(567 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 0)];
 		pSubtiles[MICRO_IDX(567 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 1)];
+		// fix the upstairs III.
+		if (pSubtiles[MICRO_IDX(265 - 1, blockSize, 3)] != 0) {
+			// move the frames to the back subtile
+			// - left side
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 2)] = pSubtiles[MICRO_IDX(265 - 1, blockSize, 3)]; // 761
+			pSubtiles[MICRO_IDX(265 - 1, blockSize, 3)] = 0;
+			pSubtiles[MICRO_IDX(556 - 1, blockSize, 3)] = 0;
+
+			// - right side
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(265 - 1, blockSize, 5)]; // 760
+			pSubtiles[MICRO_IDX(265 - 1, blockSize, 5)] = 0;
+			pSubtiles[MICRO_IDX(556 - 1, blockSize, 5)] = 0;
+
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 3)] = pSubtiles[MICRO_IDX(267 - 1, blockSize, 2)]; // 769
+			pSubtiles[MICRO_IDX(267 - 1, blockSize, 2)] = 0;
+			pSubtiles[MICRO_IDX(559 - 1, blockSize, 2)] = 0;
+
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 5)] = pSubtiles[MICRO_IDX(267 - 1, blockSize, 4)]; // 768
+			pSubtiles[MICRO_IDX(267 - 1, blockSize, 4)] = 0;
+			pSubtiles[MICRO_IDX(559 - 1, blockSize, 4)] = 0;
+
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 7)] = pSubtiles[MICRO_IDX(267 - 1, blockSize, 6)]; // 767
+			pSubtiles[MICRO_IDX(267 - 1, blockSize, 6)] = 0;
+			pSubtiles[MICRO_IDX(559 - 1, blockSize, 6)] = 0;
+
+			// - adjust the frame types
+			pSubtiles[MICRO_IDX(267 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(267 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRIANGLE << 12); // 770
+			pSubtiles[MICRO_IDX(559 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(559 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRIANGLE << 12);
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 3)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 3)] & 0xFFF) | (MET_TRANSPARENT << 12); // 769
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRAPEZOID << 12); // 760
+			pSubtiles[MICRO_IDX(265 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(265 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRIANGLE << 12); // 762
+			pSubtiles[MICRO_IDX(556 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(556 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRIANGLE << 12);
+			pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] & 0xFFF) | (MET_TRANSPARENT << 12); // 719
+		}
 	} break;
 #endif
 	case FILE_CATACOMBS_TIL:
@@ -1282,8 +1652,17 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(164 - 1) * 4 + 1] = SwapLE16(567 - 1); // - 167
 		pTiles[(164 - 1) * 4 + 2] = SwapLE16(168 - 1);
 		pTiles[(164 - 1) * 4 + 3] = SwapLE16(169 - 1);
-		// make the back of the stairs non-walkable I.
-		pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1);
+		// fix the upstairs II.
+		pTiles[(72 - 1) * 4 + 0] = SwapLE16(9 - 1);   // use common subtile
+		pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1);  // make the back of the stairs non-walkable
+		pTiles[(72 - 1) * 4 + 2] = SwapLE16(11 - 1);  // use common subtile
+		pTiles[(76 - 1) * 4 + 1] = SwapLE16(10 - 1);  // use common subtile
+		pTiles[(158 - 1) * 4 + 0] = SwapLE16(9 - 1);  // use common subtile
+		pTiles[(158 - 1) * 4 + 1] = SwapLE16(56 - 1); // make the back of the stairs non-walkable
+		pTiles[(158 - 1) * 4 + 2] = SwapLE16(11 - 1); // use common subtile
+		pTiles[(159 - 1) * 4 + 0] = SwapLE16(9 - 1);  // use common subtile
+		pTiles[(159 - 1) * 4 + 1] = SwapLE16(10 - 1); // use common subtile
+		pTiles[(159 - 1) * 4 + 2] = SwapLE16(11 - 1); // use common subtile
 	} break;
 	case FILE_CATACOMBS_SOL:
 	{	// patch dSolidTable - L2.SOL
@@ -1302,10 +1681,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		// reset flags of the 'new' floor tiles with arches
 		memset(buf + 559, 0, 8);
-		// make the back of the stairs non-walkable II.
+		// fix the upstairs IV.
+		// - make the back of the stairs non-walkable
 		nSolidTable(252, true);
 		nBlockTable(252, true);
 		nMissileTable(252, true);
+		// - make the stair-floor non light-blocker
+		nBlockTable(267, false);
+		nBlockTable(559, false);
 	} break;
 	case FILE_CATACOMBS_AMP:
 	{	// patch dAutomapData - L2.AMP
@@ -1382,7 +1765,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_HELL_TIL]);
 			return NULL;
 		}
-		buf = patchHellCel(tilBuf, tilLen, minBuf, minLen, buf, dwLen, 45);
+		buf = patchHellCel(tilBuf, tilLen, minBuf, minLen, buf, dwLen, 45 - 1);
 		mem_free_dbg(minBuf);
 		mem_free_dbg(tilBuf);
 	} break;

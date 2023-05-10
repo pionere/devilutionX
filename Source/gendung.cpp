@@ -287,11 +287,15 @@ void InitLvlDungeon()
 			nBlockTable[559 + ii] = false;
 			nMissileTable[559 + ii] = false;
 		}
-		// make the back of the stairs non-walkable
+		// fix the upstairs
+		// - make the back of the stairs non-walkable
 		pTiles[72][1] = 56;
 		nSolidTable[252] = true;
 		nBlockTable[252] = true;
 		nMissileTable[252] = true;
+		// - make the stair-floor non light-blocker
+		nBlockTable[267] = false;
+		nBlockTable[559] = false;
 #endif // !USE_PATCH
 		break;
 	case DTYPE_CAVES:

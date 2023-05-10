@@ -351,6 +351,7 @@ static int ForceTrig()
 		case WRPT_L3_UP:
 		case WRPT_L1_PWATER:
 		case WRPT_L1_SKING:
+		case WRPT_L2_UP:
 		case WRPT_L4_DOWN:
 		case WRPT_L4_PENTA:
 			/*
@@ -360,18 +361,6 @@ static int ForceTrig()
 			dx += 1;
 			dy += 1;
 			if (dx < 0 || dx > 1)
-				continue;
-			if (dy < 0 || dy > 1)
-				continue;
-			break;
-		case WRPT_L2_UP:
-			/*
-				 +
-				 x
-			 */
-			dx += 0;
-			dy += 1;
-			if (dx < 0 || dx > 0)
 				continue;
 			if (dy < 0 || dy > 1)
 				continue;
