@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static unsigned workProgress;
 static unsigned workPhase;
+static HANDLE mpqone;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
@@ -804,7 +805,7 @@ static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf,
 	}
 	if (bottomRight_RightFrameRef0 == 0 || bottomRight_LeftFrameRef0 == 0) {
 		mem_free_dbg(celBuf);
-		app_warn("Invalid (empty) floor on tile (%1).", exitTileRef);
+		app_warn("Invalid (empty) floor on tile (%d).", exitTileRef);
 		return NULL;
 	}
 
@@ -1828,8 +1829,13 @@ void UiPatcherDialog()
 {
 	workProgress = 0;
 	workPhase = 0;
-	bool result = UiProgressDialog("...Patch in progress...", patcher_callback);
 
+	// ignore the merged mpq during the patch
+	mpqone = diabdat_mpqs[NUM_MPQS];
+	diabdat_mpqs[NUM_MPQS] = NULL;
+	bool result = UiProgressDialog("...Patch in progress...", patcher_callback);
+	// restore the merged mpq
+	diabdat_mpqs[NUM_MPQS] = mpqone;
 	if (!result) {
 		return;
 	}
