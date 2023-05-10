@@ -27,18 +27,26 @@ static constexpr int RETURN_DONE = 100;
 #define MAPFLAG_HORZGRATE 0x2000
 
 typedef enum filenames {
-	FILE_TOWN_MIN,
+#if ASSET_MPL == 1
 	FILE_TOWN_CEL,
+	FILE_TOWN_MIN,
 	FILE_CATHEDRAL_MIN,
+#endif
 	FILE_CATHEDRAL_SOL,
-	FILE_CATACOMBS_TIL,
+#if ASSET_MPL == 1
 	FILE_CATACOMBS_MIN,
+#endif
+	FILE_CATACOMBS_TIL,
 	FILE_CATACOMBS_SOL,
 	FILE_CATACOMBS_AMP,
+#if ASSET_MPL == 1
 	FILE_CAVES_MIN,
+#endif
 	FILE_CAVES_SOL,
+#if ASSET_MPL == 1
 	FILE_HELL_CEL,
 	FILE_HELL_MIN,
+#endif
 	FILE_HELL_TIL,
 	FILE_HELL_SOL,
 	FILE_HELL_AMP,
@@ -66,12 +74,18 @@ typedef enum filenames {
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
 #ifdef HELLFIRE
+#if ASSET_MPL == 1
 	FILE_NTOWN_CEL,
 	FILE_NTOWN_MIN,
-	FILE_CRYPT_TIL,
+#endif
+#if ASSET_MPL == 1
 	FILE_CRYPT_MIN,
+#endif
+	FILE_CRYPT_TIL,
 	FILE_CRYPT_SOL,
+#if ASSET_MPL == 1
 	FILE_NEST_MIN,
+#endif
 	FILE_NEST_SOL,
 	FILE_OBJCURS_CEL,
 #endif
@@ -79,18 +93,24 @@ typedef enum filenames {
 } filenames;
 
 static const char* const filesToPatch[NUM_FILENAMES] = {
-/*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
+#if ASSET_MPL == 1
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
+/*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
+#endif
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
-/*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
+#if ASSET_MPL == 1
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
+#endif
+/*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
 /*FILE_CATACOMBS_SOL*/ "Levels\\L2Data\\L2.SOL",
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
+#if ASSET_MPL == 1
 /*FILE_HELL_CEL*/      "Levels\\L4Data\\L4.CEL",
 /*FILE_HELL_MIN*/      "Levels\\L4Data\\L4.MIN",
+#endif
 /*FILE_HELL_TIL*/      "Levels\\L4Data\\L4.TIL",
 /*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
 /*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
@@ -118,12 +138,18 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
 #ifdef HELLFIRE
+#if ASSET_MPL == 1
 /*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
-/*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
+#endif
+#if ASSET_MPL == 1
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
+#endif
+/*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
+#if ASSET_MPL == 1
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
+#endif
 /*FILE_NEST_SOL*/      "NLevels\\L6Data\\L6.SOL",
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
@@ -648,7 +674,7 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	return resCelBuf;
 }
 
-static void patchTownFile(BYTE* buf)
+static void patchTownMin(BYTE* buf)
 {
 	// pointless tree micros (re-drawn by dSpecial)
 	uint16_t *pSubtiles = (uint16_t*)buf;
@@ -1118,23 +1144,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	}
 
 	switch (index) {
-	case FILE_TOWN_MIN:
-	{	// patch dMiniTiles - Town.MIN
 #if ASSET_MPL == 1
-		if (*dwLen < MICRO_IDX(1219 - 1, 16, 0) * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		patchTownFile(buf);
-#endif
-	} break;
 	case FILE_TOWN_CEL:
 #ifdef HELLFIRE
 	case FILE_NTOWN_CEL:
 #endif
 	{
-#if ASSET_MPL == 1
 		// patch dMicroCels - TOWN.CEL
 		// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it II.
 #ifdef HELLFIRE
@@ -1151,11 +1166,18 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		buf = patchTownPotCel(minBuf, minLen, buf, dwLen, 553, 554);
 		mem_free_dbg(minBuf);
-#endif
+	} break;
+	case FILE_TOWN_MIN:
+	{	// patch dMiniTiles - Town.MIN
+		if (*dwLen < MICRO_IDX(1219 - 1, 16, 0) * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		patchTownMin(buf);
 	} break;
 	case FILE_CATHEDRAL_MIN:
 	{	// patch dMiniTiles - L1.MIN
-#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(140 - 1, 10, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
@@ -1171,8 +1193,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(138, 0);
 		blkMicro(138, 1);
 		blkMicro(140, 1);
-#endif /* ASSET_MPL == 1 */
 	} break;
+#endif /* ASSET_MPL == 1 */
 	case FILE_CATHEDRAL_SOL:
 	{	// patch dSolidTable - L1.SOL
 		if (*dwLen <= 8) {
@@ -1182,6 +1204,44 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		nMissileTable(8, false); // the only column which was blocking missiles
 	} break;
+#if ASSET_MPL == 1
+	case FILE_CATACOMBS_MIN:
+	{	// patch dMiniTiles - L2.MIN
+		// add separate tiles and subtiles for the arches II.
+		constexpr int blockSize = 10;
+		uint16_t *pSubtiles = (uint16_t*)buf;
+		if (*dwLen < 567 * blockSize * 2) {
+			if (*dwLen != 559 * blockSize * 2) {
+				mem_free_dbg(buf);
+				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+				return NULL;
+			}
+			pSubtiles = (uint16_t*)DiabloAllocPtr(*dwLen + 8 * blockSize * 2);
+			memcpy(pSubtiles, buf, *dwLen);
+			mem_free_dbg(buf);
+			buf = (BYTE*)pSubtiles;
+			memset(buf + *dwLen, 0, 8 * blockSize * 2);
+			*dwLen += 8 * blockSize * 2;
+		}
+
+		pSubtiles[MICRO_IDX(560 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(560 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(561 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(11 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(561 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(11 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(562 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(562 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(563 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(10 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(563 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(10 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(564 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(159 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(564 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(159 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(565 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(161 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(565 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(161 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(566 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(566 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 1)];
+		pSubtiles[MICRO_IDX(567 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 0)];
+		pSubtiles[MICRO_IDX(567 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 1)];
+	} break;
+#endif
 	case FILE_CATACOMBS_TIL:
 	{	// patch dMegaTiles - L2.TIL
 		uint16_t *pTiles = (uint16_t*)buf;
@@ -1224,42 +1284,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(164 - 1) * 4 + 3] = SwapLE16(169 - 1);
 		// make the back of the stairs non-walkable I.
 		pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1);
-	} break;
-	case FILE_CATACOMBS_MIN:
-	{	// patch dMiniTiles - L2.MIN
-		// add separate tiles and subtiles for the arches II.
-		constexpr int blockSize = 10;
-		uint16_t *pSubtiles = (uint16_t*)buf;
-		if (*dwLen < 567 * blockSize * 2) {
-			if (*dwLen != 559 * blockSize * 2) {
-				mem_free_dbg(buf);
-				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-				return NULL;
-			}
-			pSubtiles = (uint16_t*)DiabloAllocPtr(*dwLen + 8 * blockSize * 2);
-			memcpy(pSubtiles, buf, *dwLen);
-			mem_free_dbg(buf);
-			buf = (BYTE*)pSubtiles;
-			memset(buf + *dwLen, 0, 8 * blockSize * 2);
-			*dwLen += 8 * blockSize * 2;
-		}
-
-		pSubtiles[MICRO_IDX(560 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(560 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(561 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(11 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(561 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(11 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(562 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(562 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(9 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(563 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(10 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(563 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(10 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(564 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(159 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(564 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(159 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(565 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(161 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(565 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(161 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(566 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(566 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(166 - 1, blockSize, 1)];
-		pSubtiles[MICRO_IDX(567 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 0)];
-		pSubtiles[MICRO_IDX(567 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(167 - 1, blockSize, 1)];
 	} break;
 	case FILE_CATACOMBS_SOL:
 	{	// patch dSolidTable - L2.SOL
@@ -1317,9 +1341,9 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// - floor tile with shadow(51) with horizontal arch
 		automaptype[164 - 1] = automaptype[(3 - 1)];
 	} break;
+#if ASSET_MPL == 1
 	case FILE_CAVES_MIN:
 	{	// patch dMiniTiles - L3.MIN
-#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(82 - 1, 10, 4) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
@@ -1329,8 +1353,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		constexpr int blockSize = 10;
 		// fix bad artifact
 		blkMicro(82, 4);
-#endif /* ASSET_MPL == 1 */
 	} break;
+#endif /* ASSET_MPL == 1 */
 	case FILE_CAVES_SOL:
 	{	// patch dSolidTable - L3.SOL
 		if (*dwLen <= 249) {
@@ -1340,6 +1364,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		nSolidTable(249, false); // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
 	} break;
+#if ASSET_MPL == 1
 	case FILE_HELL_CEL:
 	{	// patch dMicroCels - L4.CEL
 		size_t minLen;
@@ -1382,6 +1407,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pSubtiles[MICRO_IDX(140 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(140 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRAPEZOID << 12);  // 376
 		pSubtiles[MICRO_IDX(140 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(140 - 1, blockSize, 1)] & 0xFFF) | (MET_TRANSPARENT << 12); // 377
 	} break;
+#endif
 	case FILE_HELL_TIL:
 	{	// patch dMegaTiles - L4.TIL
 		uint16_t *pTiles = (uint16_t*)buf;
@@ -1474,25 +1500,23 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = ReEncodeCL2(buf, dwLen, NUM_DIRS, 16, 128, 96);
 	} break;
 #ifdef HELLFIRE
+#if ASSET_MPL == 1
 	case FILE_NTOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
-#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(1303 - 1, 16, 7) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1303 - 1, 16, 7) * 2);
 			return NULL;
 		}
-		patchTownFile(buf);
+		patchTownMin(buf);
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = 16;
 		// fix bad artifacts
 		blkMicro(1273, 7);
 		blkMicro(1303, 7);
-#endif // ASSET_MPL
 	} break;
 	case FILE_NEST_MIN:
 	{	// patch dMiniTiles - L6.MIN
-#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(366 - 1, 10, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
@@ -1506,8 +1530,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// fix bad artifacts
 		blkMicro(132, 7);
 		blkMicro(366, 1);
-#endif /* ASSET_MPL == 1 */
 	} break;
+#endif /* ASSET_MPL == 1 */
 	case FILE_NEST_SOL:
 	{	// patch dSolidTable - L6.SOL
 		if (*dwLen <= 416) {
@@ -1519,23 +1543,9 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(413, false); // make a pool tile walkable II.
 		nSolidTable(416, false); // make a pool tile walkable III.
 	} break;
-	case FILE_CRYPT_TIL:
-	{	// patch dMegaTiles - L5.TIL
-		if (*dwLen < (4 * (72 - 1) + 2) * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		// use common subtiles of doors
-		uint16_t *pMegaTiles = (uint16_t*)buf;
-		assert(pMegaTiles[4 * (71 - 1) + 2] == SwapLE16(213 - 1) || pMegaTiles[4 * (71 - 1) + 2] ==  SwapLE16(206 - 1));
-		pMegaTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
-		assert(pMegaTiles[4 * (72 - 1) + 2] == SwapLE16(216 - 1) || pMegaTiles[4 * (72 - 1) + 2] ==  SwapLE16(206 - 1));
-		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
-	} break;
+#if ASSET_MPL == 1
 	case FILE_CRYPT_MIN:
 	{	// patch dMiniTiles - L5.MIN
-#if ASSET_MPL == 1
 		if (*dwLen < MICRO_IDX(197 - 1, 10, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
@@ -1603,7 +1613,21 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		blkMicro(178, 1);
 		blkMicro(179, 0);
 		blkMicro(179, 1);
+	} break;
 #endif // ASSET_MPL
+	case FILE_CRYPT_TIL:
+	{	// patch dMegaTiles - L5.TIL
+		if (*dwLen < (4 * (72 - 1) + 2) * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		// use common subtiles of doors
+		uint16_t *pMegaTiles = (uint16_t*)buf;
+		assert(pMegaTiles[4 * (71 - 1) + 2] == SwapLE16(213 - 1) || pMegaTiles[4 * (71 - 1) + 2] ==  SwapLE16(206 - 1));
+		pMegaTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
+		assert(pMegaTiles[4 * (72 - 1) + 2] == SwapLE16(216 - 1) || pMegaTiles[4 * (72 - 1) + 2] ==  SwapLE16(206 - 1));
+		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
 	} break;
 	case FILE_CRYPT_SOL:
 	{ // patch dSolidTable - L5.SOL
