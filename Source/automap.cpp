@@ -41,22 +41,6 @@ unsigned AmLine16;
 #define MAP_SCALE_MAX 128
 #define MAP_SCALE_MIN 64
 
-// base mapflags set in the corresponding .AMP file (only the lower byte is used)
-#define MAPFLAG_TYPE      0x00FF
-#define MAPFLAG_VERTDOOR  0x0100
-#define MAPFLAG_HORZDOOR  0x0200
-#define MAPFLAG_VERTARCH  0x0400
-#define MAPFLAG_HORZARCH  0x0800
-#define MAPFLAG_VERTGRATE 0x1000
-#define MAPFLAG_HORZGRATE 0x2000
-#define MAPFLAG_DIRT      0x4000
-#define MAPFLAG_STAIRS    0x8000
-// calculated mapflags
-#define MAPFLAG_DOVERT      0x0010
-#define MAPFLAG_DOHORZ      0x0020
-#define MAPFLAG_DOVERT_CAVE 0x0040
-#define MAPFLAG_DOHORZ_CAVE 0x0080
-
 /**
  * @brief Initializes the automap configuration.
  */
