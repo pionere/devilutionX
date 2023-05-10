@@ -1601,6 +1601,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			pSubtiles[MICRO_IDX(556 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(556 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRIANGLE << 12);
 			pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] & 0xFFF) | (MET_TRANSPARENT << 12); // 719
 		}
+		// fix bad artifact
+		blkMicro(288, 7);
 	} break;
 #endif
 	case FILE_CATACOMBS_TIL:
