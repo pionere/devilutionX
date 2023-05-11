@@ -15,7 +15,7 @@ void T_HiveOpen()
 		{0x48a, 0x48b, 0x4ee, 0x4f0, 0x11a, 0x11c}, // 68
 		{0x48c, 0x50e, 0x510, 0x511, 0x512, 0x11d}, // 69
 		{0x513, 0x515, 0x51b, 0x51d, 0x51f, 0x521}, // 70
-		{    0, 0x516, 0x51c, 0x51e, 0x520, 0x522}, // 71
+		{0x514, 0x516, 0x51c, 0x51e, 0x520, 0x522}, // 71
 		{0x517, 0x519, 0x523, 0x525, 0x527, 0x529}, // 72
 		{0x518, 0x51a, 0x524, 0x526, 0x528, 0x52a}, // 73
 		{0x008, 0x118, 0x118, 0x118, 0x118,     0}, // 74
@@ -27,14 +27,15 @@ void T_HiveOpen()
 	dPiece[68 + DBORDERX][51 + DBORDERY] = 0x48c;
 	dPiece[69 + DBORDERX][51 + DBORDERY] = 0x50e;
 	dPiece[68 + DBORDERX][52 + DBORDERY] = 0x4ee;
-	dPiece[68 + DBORDERX][53 + DBORDERY] = 0x4f0;
 	dPiece[69 + DBORDERX][52 + DBORDERY] = 0x510;
+	dPiece[68 + DBORDERX][53 + DBORDERY] = 0x4f0;
 	dPiece[69 + DBORDERX][53 + DBORDERY] = 0x511;
-	dPiece[69 + DBORDERX][54 + DBORDERY] = 0x512;
 	dPiece[68 + DBORDERX][54 + DBORDERY] = 0x11a;
+	dPiece[69 + DBORDERX][54 + DBORDERY] = 0x512;
 	dPiece[68 + DBORDERX][55 + DBORDERY] = 0x11c;
 	dPiece[69 + DBORDERX][55 + DBORDERY] = 0x11d;
 	dPiece[70 + DBORDERX][50 + DBORDERY] = 0x513;
+	dPiece[71 + DBORDERX][50 + DBORDERY] = 0x514;
 	dPiece[70 + DBORDERX][51 + DBORDERY] = 0x515;
 	dPiece[71 + DBORDERX][51 + DBORDERY] = 0x516;
 	dPiece[72 + DBORDERX][50 + DBORDERY] = 0x517;
@@ -214,9 +215,9 @@ static void LoadTown()
 
 	if (quests[Q_PWATER]._qvar1 != QV_PWATER_CLEAN) {
 		dPiece[50 + DBORDERX][60 + DBORDERY] = 1257;
-		dPiece[50 + DBORDERX + 1][60 + DBORDERY] = 259;
-		dPiece[50 + DBORDERX][60 + DBORDERY + 1] = 1258;
-		dPiece[50 + DBORDERX + 1][60 + DBORDERY + 1] = 261;
+		// dPiece[50 + DBORDERX + 1][60 + DBORDERY] = 259;
+		// dPiece[50 + DBORDERX][60 + DBORDERY + 1] = 260;
+		// dPiece[50 + DBORDERX + 1][60 + DBORDERY + 1] = 261;
 	}
 
 	gbOpenWarps = GetOpenWarps();
