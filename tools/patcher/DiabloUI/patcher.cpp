@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <set>
 
 #include "diabloui.h"
 #include "selok.h"
@@ -16,6 +17,15 @@ static HANDLE mpqone;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
+static std::set<unsigned> removeMicros;
+
+static constexpr int BLOCK_SIZE_TOWN = 16;
+static constexpr int BLOCK_SIZE_L1 = 10;
+static constexpr int BLOCK_SIZE_L2 = 10;
+static constexpr int BLOCK_SIZE_L3 = 10;
+static constexpr int BLOCK_SIZE_L4 = 16;
+static constexpr int BLOCK_SIZE_L5 = 10;
+static constexpr int BLOCK_SIZE_L6 = 10;
 
 typedef enum filenames {
 #if ASSET_MPL == 1
@@ -151,14 +161,23 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 #define MICRO_IDX(subtile, blockSize, microIndex) ((subtile) * (blockSize) + (blockSize) - (2 + ((microIndex) & ~1)) + ((microIndex) & 1))
-/*#define blkMicro(subtileRef, blockSize, microIndex, value) \
+// if ((pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == 101) { app_fatal("Ref%d, bs:%d, idx:%d", subtileRef, blockSize, microIndex); } ; \
+
+#define Blk2Mcr(subtileRef, microIndex) \
 { \
-	assert((pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == SwapLE16(value) || pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] == SwapLE16(0)); \
+	removeMicros.insert(pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF); \
 	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
-}*/
-#define blkMicro(subtileRef, microIndex) \
+}
+
+#define ReplaceMcr(dstSubtileRef, dstMicroIndex, srcSubtileRef, srcMicroIndex) \
 { \
-	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
+	unsigned dstMicro = MICRO_IDX(dstSubtileRef - 1, blockSize, dstMicroIndex); \
+	uint16_t dstValue = pSubtiles[dstMicro]; \
+	uint16_t srcValue = pSubtiles[MICRO_IDX(srcSubtileRef - 1, blockSize, srcMicroIndex)]; \
+	if (dstValue != srcValue) { \
+		removeMicros.insert(dstValue & 0xFFF); \
+		pSubtiles[dstMicro] = srcValue; \
+	} \
 }
 
 #define nSolidTable(pn, v) \
@@ -464,9 +483,98 @@ BYTE* EncodeMicro(int encoding, BYTE* pDst, BYTE* pSrc, BYTE transparentPixel)
 	return pDst;
 }
 
+static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
+{
+	removeMicros.erase(0);
+
+	if (removeMicros.empty()) {
+		return celBuf;
+	}
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen);
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	DWORD srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	DWORD dstCelEntries = srcCelEntries - removeMicros.size();
+	dstHeaderCursor[0] = SwapLE32(dstCelEntries);
+	dstHeaderCursor++;
+	BYTE* dstDataCursor = resCelBuf + 4 * (dstCelEntries + 2);
+	while (!removeMicros.empty()) {
+		// select the next frame
+		unsigned nextRef = *removeMicros.begin();
+		removeMicros.erase(nextRef);
+
+		// copy entries till the next frame
+		int numEntries = nextRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (int i = 0; i < numEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+	// add remaining entries
+	int numEntries = srcCelEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (int i = 0; i < numEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+	}
+	// add file-size
+	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+
+	*celLen = SwapLE32(dstHeaderCursor[0]);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+static BYTE* buildBlkMin(BYTE* minBuf, size_t *minLen, unsigned blockSize)
+{
+	removeMicros.erase(0);
+
+	if (removeMicros.empty()) {
+		return minBuf;
+	}
+
+	uint16_t* pSubtiles = (uint16_t*)minBuf;
+
+	for (unsigned i = 0; i < *minLen / 2; i++) {
+		if (pSubtiles[i] == 0) {
+			continue;
+		}
+		unsigned frameRef = pSubtiles[i] & 0xFFF;
+		unsigned newFrameRef = frameRef;
+		for (unsigned removedRef : removeMicros) {
+			if (removedRef > frameRef)
+				continue;
+			if (removedRef == frameRef) {
+				removeMicros.clear();
+				mem_free_dbg(minBuf);
+				app_warn("Frame %d is removed, but it is still used by subtile (%d).", frameRef, (i / blockSize) + 1);
+				return NULL;
+			}
+			newFrameRef--;
+		}
+		pSubtiles[i] = (pSubtiles[i] & ~0xFFF) | newFrameRef;
+	}
+	removeMicros.clear();
+	return minBuf;
+}
+
 static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
 {
-	const unsigned blockSize = 16;
+	const unsigned blockSize = BLOCK_SIZE_TOWN;
 	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
 	unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
 	unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
@@ -511,7 +619,7 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
 
 	// TODO: check minLen
-	const unsigned blockSize = 16;
+	const unsigned blockSize = BLOCK_SIZE_TOWN;
 	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
 	unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
 	unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
@@ -525,7 +633,7 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	}
 	if (leftFrameRef0 == 0) {
 		mem_free_dbg(celBuf);
-		app_warn("Invalid (empty) pot floor subtile (%1).", potLeftSubtileRef);
+		app_warn("Invalid (empty) pot floor subtile (%d).", potLeftSubtileRef);
 		return NULL;
 	}
 
@@ -542,7 +650,7 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	}
 	if (rightFrameRef0 == 0) {
 		mem_free_dbg(celBuf);
-		app_warn("Invalid (empty) pot floor subtile (%1).", potRightSubtileRef);
+		app_warn("Invalid (empty) pot floor subtile (%d).", potRightSubtileRef);
 		return NULL;
 	}
 
@@ -667,123 +775,196 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	return resCelBuf;
 }
 
-static void patchTownMin(BYTE* buf)
+static void patchTownMin(BYTE* buf, bool isHellfireTown)
 {
 	// pointless tree micros (re-drawn by dSpecial)
 	uint16_t *pSubtiles = (uint16_t*)buf;
-	constexpr int blockSize = 16;
-	blkMicro(117, 3);
-	blkMicro(117, 5);
-	blkMicro(128, 2);
-	blkMicro(128, 3);
-	blkMicro(128, 4);
-	blkMicro(128, 5);
-	blkMicro(128, 6);
-	blkMicro(128, 7);
-	blkMicro(129, 3);
-	blkMicro(129, 5);
-	blkMicro(129, 7);
-	blkMicro(130, 2);
-	blkMicro(130, 4);
-	blkMicro(130, 6);
-	blkMicro(156, 2);
-	blkMicro(156, 3);
-	blkMicro(156, 4);
-	blkMicro(156, 5);
-	blkMicro(156, 6);
-	blkMicro(156, 7);
-	blkMicro(156, 8);
-	blkMicro(156, 9);
-	blkMicro(156, 10);
-	blkMicro(156, 11);
-	blkMicro(157, 3);
-	blkMicro(157, 5);
-	blkMicro(157, 7);
-	blkMicro(157, 9);
-	blkMicro(157, 11);
-	blkMicro(158, 2);
-	blkMicro(158, 4);
-	blkMicro(160, 2);
-	blkMicro(160, 3);
-	blkMicro(160, 4);
-	blkMicro(160, 5);
-	blkMicro(160, 6);
-	blkMicro(160, 7);
-	blkMicro(160, 8);
-	blkMicro(160, 9);
-	blkMicro(162, 2);
-	blkMicro(162, 4);
-	blkMicro(162, 6);
-	blkMicro(162, 8);
-	blkMicro(162, 10);
-	blkMicro(212, 3);
-	blkMicro(212, 4);
-	blkMicro(212, 5);
-	blkMicro(212, 6);
-	blkMicro(212, 7);
-	blkMicro(212, 8);
-	blkMicro(212, 9);
-	blkMicro(212, 10);
-	blkMicro(212, 11);
-	blkMicro(214, 4); // optional
-	blkMicro(214, 6); // optional
-	blkMicro(216, 2);
-	blkMicro(216, 4);
-	blkMicro(216, 6);
-	blkMicro(217, 4);  // optional
-	blkMicro(217, 6);  // optional
-	blkMicro(217, 8);  // optional
-	blkMicro(358, 4);  // optional
-	blkMicro(358, 5);  // optional
-	blkMicro(358, 6);  // optional
-	blkMicro(358, 7);  // optional
-	blkMicro(358, 8);  // optional
-	blkMicro(358, 9);  // optional
-	blkMicro(358, 10); // optional
-	blkMicro(358, 11); // optional
-	blkMicro(358, 12); // optional
-	blkMicro(358, 13); // optional
-	blkMicro(360, 4);  // optional
-	blkMicro(360, 6);  // optional
-	blkMicro(360, 8);  // optional
-	blkMicro(360, 10); // optional
+	constexpr int blockSize = BLOCK_SIZE_TOWN;
+	Blk2Mcr(117, 3);
+	Blk2Mcr(117, 5);
+	Blk2Mcr(128, 2);
+	Blk2Mcr(128, 3);
+	Blk2Mcr(128, 4);
+	Blk2Mcr(128, 5);
+	Blk2Mcr(128, 6);
+	Blk2Mcr(128, 7);
+	Blk2Mcr(129, 3);
+	Blk2Mcr(129, 5);
+	Blk2Mcr(129, 7);
+	Blk2Mcr(130, 2);
+	Blk2Mcr(130, 4);
+	Blk2Mcr(130, 6);
+	Blk2Mcr(156, 2);
+	Blk2Mcr(156, 3);
+	Blk2Mcr(156, 4);
+	Blk2Mcr(156, 5);
+	Blk2Mcr(156, 6);
+	Blk2Mcr(156, 7);
+	Blk2Mcr(156, 8);
+	Blk2Mcr(156, 9);
+	Blk2Mcr(156, 10);
+	Blk2Mcr(156, 11);
+	Blk2Mcr(157, 3);
+	Blk2Mcr(157, 5);
+	Blk2Mcr(157, 7);
+	Blk2Mcr(157, 9);
+	Blk2Mcr(157, 11);
+	Blk2Mcr(158, 2);
+	Blk2Mcr(158, 4);
+	Blk2Mcr(160, 2);
+	Blk2Mcr(160, 3);
+	Blk2Mcr(160, 4);
+	Blk2Mcr(160, 5);
+	Blk2Mcr(160, 6);
+	Blk2Mcr(160, 7);
+	Blk2Mcr(160, 8);
+	Blk2Mcr(160, 9);
+	Blk2Mcr(162, 2);
+	Blk2Mcr(162, 4);
+	Blk2Mcr(162, 6);
+	Blk2Mcr(162, 8);
+	Blk2Mcr(162, 10);
+	Blk2Mcr(212, 3);
+	Blk2Mcr(212, 4);
+	Blk2Mcr(212, 5);
+	Blk2Mcr(212, 6);
+	Blk2Mcr(212, 7);
+	Blk2Mcr(212, 8);
+	Blk2Mcr(212, 9);
+	Blk2Mcr(212, 10);
+	Blk2Mcr(212, 11);
+	Blk2Mcr(214, 4); // optional
+	Blk2Mcr(214, 6); // optional
+	Blk2Mcr(216, 2);
+	Blk2Mcr(216, 4);
+	Blk2Mcr(216, 6);
+	Blk2Mcr(217, 4);  // optional
+	Blk2Mcr(217, 6);  // optional
+	Blk2Mcr(217, 8);  // optional
+	Blk2Mcr(358, 4);  // optional
+	Blk2Mcr(358, 5);  // optional
+	Blk2Mcr(358, 6);  // optional
+	Blk2Mcr(358, 7);  // optional
+	Blk2Mcr(358, 8);  // optional
+	Blk2Mcr(358, 9);  // optional
+	Blk2Mcr(358, 10); // optional
+	Blk2Mcr(358, 11); // optional
+	Blk2Mcr(358, 12); // optional
+	Blk2Mcr(358, 13); // optional
+	Blk2Mcr(360, 4);  // optional
+	Blk2Mcr(360, 6);  // optional
+	Blk2Mcr(360, 8);  // optional
+	Blk2Mcr(360, 10); // optional
 	// fix bad artifact
-	blkMicro(233, 6);
+	Blk2Mcr(233, 6);
 	// useless black micros
-	blkMicro(426, 1);
-	blkMicro(427, 0);
-	blkMicro(427, 1);
-	blkMicro(429, 1);
+	Blk2Mcr(426, 1);
+	Blk2Mcr(427, 0);
+	Blk2Mcr(427, 1);
+	Blk2Mcr(429, 1);
 	// fix bad artifacts
-	blkMicro(828, 12);
-	blkMicro(828, 13);
-	blkMicro(1018, 2);
+	Blk2Mcr(828, 12);
+	Blk2Mcr(828, 13);
+	Blk2Mcr(1018, 2);
 	// useless black micros
-	blkMicro(1143, 0);
-	blkMicro(1145, 0);
-	blkMicro(1145, 1);
-	blkMicro(1146, 0);
-	blkMicro(1153, 0);
-	blkMicro(1155, 1);
-	blkMicro(1156, 0);
-	blkMicro(1169, 1);
-	blkMicro(1170, 0);
-	blkMicro(1170, 1);
-	blkMicro(1172, 1);
-	blkMicro(1176, 1);
-	blkMicro(1199, 1);
-	blkMicro(1200, 0);
-	blkMicro(1200, 1);
-	blkMicro(1202, 1);
-	blkMicro(1203, 1);
-	blkMicro(1205, 1);
-	blkMicro(1212, 0);
-	blkMicro(1219, 0);
-
-	pSubtiles[MICRO_IDX(237 - 1, blockSize, 0)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 0)];
-	pSubtiles[MICRO_IDX(237 - 1, blockSize, 1)] = pSubtiles[MICRO_IDX(402 - 1, blockSize, 1)];
+	//Blk2Mcr(1143, 0);
+	//Blk2Mcr(1145, 0);
+	//Blk2Mcr(1145, 1);
+	//Blk2Mcr(1146, 0);
+	//Blk2Mcr(1153, 0);
+	Blk2Mcr(1155, 1);
+	Blk2Mcr(1156, 0);
+	Blk2Mcr(1169, 1);
+	Blk2Mcr(1170, 0);
+	Blk2Mcr(1170, 1);
+	Blk2Mcr(1172, 1);
+	Blk2Mcr(1176, 1);
+	Blk2Mcr(1199, 1);
+	Blk2Mcr(1200, 0);
+	Blk2Mcr(1200, 1);
+	Blk2Mcr(1202, 1);
+	Blk2Mcr(1203, 1);
+	Blk2Mcr(1205, 1);
+	Blk2Mcr(1212, 0);
+	Blk2Mcr(1219, 0);
+	if (isHellfireTown) {
+		// fix bad artifacts
+		Blk2Mcr(1273, 7);
+		Blk2Mcr(1303, 7);
+	}
+	// - overwrite subtile 237 with subtile 402 to make the inner tile of Griswold's house non-walkable
+	ReplaceMcr(237, 0, 402, 0);
+	ReplaceMcr(237, 1, 402, 1);
 	// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it I.
 	patchTownPotMin(pSubtiles, 553, 554);
+	// eliminate micros of unused subtiles
+	ReplaceMcr(169, 1, 129, 1);
+	ReplaceMcr(178, 1, 118, 1);
+	ReplaceMcr(181, 1, 129, 1);
+	ReplaceMcr(1159, 1, 291, 1);
+	// ReplaceMcr(871, 11, 358, 12);
+	Blk2Mcr(358, 12);
+	ReplaceMcr(947, 15, 946, 15);
+	ReplaceMcr(1175, 4, 1171, 4);
+	ReplaceMcr(1218, 3, 1211, 3);
+	ReplaceMcr(1218, 5, 1211, 5);
+	Blk2Mcr(110, 0);
+	Blk2Mcr(113, 0);
+	Blk2Mcr(183, 0);
+	Blk2Mcr(235, 0);
+	Blk2Mcr(239, 0);
+	Blk2Mcr(240, 0);
+	Blk2Mcr(243, 0);
+	Blk2Mcr(244, 0);
+	Blk2Mcr(1132, 2);
+	Blk2Mcr(1132, 3);
+	Blk2Mcr(1132, 4);
+	Blk2Mcr(1132, 5);
+	Blk2Mcr(1152, 0);
+	Blk2Mcr(1139, 0);
+	Blk2Mcr(1139, 1);
+	Blk2Mcr(1139, 2);
+	Blk2Mcr(1139, 3);
+	Blk2Mcr(1139, 4);
+	Blk2Mcr(1139, 5);
+	Blk2Mcr(1139, 6);
+	Blk2Mcr(1140, 0);
+	Blk2Mcr(1164, 1);
+	Blk2Mcr(1258, 0);
+	Blk2Mcr(1258, 1);
+	Blk2Mcr(1214, 1);
+	Blk2Mcr(1214, 2);
+	Blk2Mcr(1214, 3);
+	Blk2Mcr(1214, 4);
+	Blk2Mcr(1214, 5);
+	Blk2Mcr(1214, 6);
+	Blk2Mcr(1214, 7);
+	Blk2Mcr(1214, 8);
+	Blk2Mcr(1214, 9);
+	Blk2Mcr(1216, 8);
+	int unusedSubtiles[] = {
+		71, 79, 80, 166, 176, 228, 230, 236, 238, 241, 242, 245, 246, 247, 248, 249, 250, 251, 252, 253, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 577, 578, 579, 580, 750, 751, 752, 753, 1064, 1115, 1116, 1117, 1118, 1135, 1136, 1137, 1138, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1153, 1199, 1200, 1201, 1202, 1221, 1222, 1223, 1224, 1225, 1226, 1227, 1228, 1229, 1230, 1231, 1232, 1233, 1234, 1235, 1236
+	};
+	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
+		for (int i = 0; i < blockSize; i++) {
+			Blk2Mcr(unusedSubtiles[n], i);
+		}
+	}
+	if (isHellfireTown) {
+		Blk2Mcr(1344, 1);
+		Blk2Mcr(1360, 0);
+		Blk2Mcr(1370, 0);
+		Blk2Mcr(1376, 0);
+		Blk2Mcr(1295, 1);
+		int unusedSubtilesHellfire[] = {
+			1293, 1341, 1342, 1343, 1345, 1346, 1347, 1348, 1349, 1350, 1351, 1352, 1353, 1354, 1355, 1356, 1357, 1358, 1359, 1361, 1362, 1363, 1364, 1365, 1366, 1367, 1368, 1369, 1371, 1372, 1373, 1374, 1375, 1377, 1378, 1379
+		};
+		for (int n = 0; n < lengthof(unusedSubtilesHellfire); n++) {
+			for (int i = 0; i < blockSize; i++) {
+				Blk2Mcr(unusedSubtilesHellfire[n], i);
+			}
+		}
+	}
 }
 
 static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int exitTileIndex)
@@ -802,7 +983,7 @@ static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf,
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
 
 	// TODO: check minLen
-	const unsigned blockSize = 16;
+	const unsigned blockSize = BLOCK_SIZE_L4;
 	unsigned topLeft_LeftIndex0 = MICRO_IDX(topLeftSubtileIndex, blockSize, 0);
 	unsigned topLeft_LeftFrameRef0 = pSubtiles[topLeft_LeftIndex0] & 0xFFF; // 368
 	unsigned topLeft_RightIndex0 = MICRO_IDX(topLeftSubtileIndex, blockSize, 1);
@@ -1148,7 +1329,7 @@ static BYTE* patchCatacombsStairs(const BYTE* tilBuf, size_t tilLen, const BYTE*
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
 
 	// TODO: check minLen
-	constexpr unsigned blockSize = 10;
+	constexpr unsigned blockSize = BLOCK_SIZE_L2;
 	unsigned back3_FrameIndex0 = MICRO_IDX((backSubtileRef3 - 1), blockSize, 0);
 	unsigned back3_FrameRef0 = pSubtiles[back3_FrameIndex0] & 0xFFF; // 719
 	unsigned back2_FrameIndex1 = MICRO_IDX((backSubtileRef2 - 1), blockSize, 1);
@@ -1470,26 +1651,31 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		buf = patchTownPotCel(minBuf, minLen, buf, dwLen, 553, 554);
+		if (buf != NULL) {
+			patchTownMin(minBuf, index != FILE_TOWN_MIN);
+			buf = buildBlkCel(buf, dwLen);
+		}
 		mem_free_dbg(minBuf);
 	} break;
 	case FILE_TOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
-		if (*dwLen < MICRO_IDX(1219 - 1, 16, 0) * 2) {
+		if (*dwLen < MICRO_IDX(1219 - 1, BLOCK_SIZE_TOWN, 0) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		patchTownMin(buf);
+		patchTownMin(buf, false);
+		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_TOWN);
 	} break;
 	case FILE_CATHEDRAL_MIN:
 	{	// patch dMiniTiles - L1.MIN
-		if (*dwLen < MICRO_IDX(140 - 1, 10, 1) * 2) {
+		if (*dwLen < MICRO_IDX(140 - 1, BLOCK_SIZE_L1, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		uint16_t *pSubtiles = (uint16_t*)buf;
-		constexpr int blockSize = 10;
+		constexpr int blockSize = BLOCK_SIZE_L1;
 		// useless black micros
 		blkMicro(107, 0);
 		blkMicro(107, 1);
@@ -1535,7 +1721,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_CATACOMBS_MIN:
 	{	// patch dMiniTiles - L2.MIN
 		// add separate tiles and subtiles for the arches II.
-		constexpr int blockSize = 10;
+		constexpr int blockSize = BLOCK_SIZE_L2;
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		if (*dwLen < 567 * blockSize * 2) {
 			if (*dwLen != 559 * blockSize * 2) {
@@ -1720,13 +1906,13 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 	case FILE_CAVES_MIN:
 	{	// patch dMiniTiles - L3.MIN
-		if (*dwLen < MICRO_IDX(82 - 1, 10, 4) * 2) {
+		if (*dwLen < MICRO_IDX(82 - 1, BLOCK_SIZE_L3, 4) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		uint16_t *pSubtiles = (uint16_t*)buf;
-		constexpr int blockSize = 10;
+		constexpr int blockSize = BLOCK_SIZE_L3;
 		// fix bad artifact
 		blkMicro(82, 4);
 	} break;
@@ -1764,7 +1950,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_HELL_MIN:
 	{	// patch dMiniTiles - L4.MIN
-		constexpr int blockSize = 16;
+		constexpr int blockSize = BLOCK_SIZE_L4;
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		// patch exit tile II.
 		// - move the frames to the bottom right subtile
@@ -1879,27 +2065,23 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 	case FILE_NTOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
-		if (*dwLen < MICRO_IDX(1303 - 1, 16, 7) * 2) {
+		if (*dwLen < MICRO_IDX(1303 - 1, BLOCK_SIZE_TOWN, 7) * 2) {
 			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1303 - 1, 16, 7) * 2);
+			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1303 - 1, BLOCK_SIZE_TOWN, 7) * 2);
 			return NULL;
 		}
-		patchTownMin(buf);
-		uint16_t *pSubtiles = (uint16_t*)buf;
-		constexpr int blockSize = 16;
-		// fix bad artifacts
-		blkMicro(1273, 7);
-		blkMicro(1303, 7);
+		patchTownMin(buf, true);
+		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_TOWN);
 	} break;
 	case FILE_NEST_MIN:
 	{	// patch dMiniTiles - L6.MIN
-		if (*dwLen < MICRO_IDX(366 - 1, 10, 1) * 2) {
+		if (*dwLen < MICRO_IDX(366 - 1, BLOCK_SIZE_L6, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		uint16_t *pSubtiles = (uint16_t*)buf;
-		constexpr int blockSize = 10;
+		constexpr int blockSize = BLOCK_SIZE_L6;
 		// useless black micros
 		blkMicro(21, 0);
 		blkMicro(21, 1);
@@ -1922,14 +2104,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 	case FILE_CRYPT_MIN:
 	{	// patch dMiniTiles - L5.MIN
-		if (*dwLen < MICRO_IDX(197 - 1, 10, 1) * 2) {
+		if (*dwLen < MICRO_IDX(197 - 1, BLOCK_SIZE_L5, 1) * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		// pointless door micros (re-drawn by dSpecial)
 		uint16_t *pSubtiles = (uint16_t*)buf;
-		constexpr int blockSize = 10;
+		constexpr int blockSize = BLOCK_SIZE_L5;
 		blkMicro(77, 6);
 		blkMicro(77, 8);
 		blkMicro(80, 7);
