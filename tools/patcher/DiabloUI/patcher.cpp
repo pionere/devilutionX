@@ -775,6 +775,156 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	return resCelBuf;
 }
 
+static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int cathedralTopLeftRef, int cathedralTopRightRef, int cathedralBottomLeftRef)
+{
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_TOWN;
+	unsigned leftIndex0 = MICRO_IDX(cathedralBottomLeftRef - 1, blockSize, 12); // 2145
+	unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
+	unsigned leftIndex1 = MICRO_IDX(cathedralTopLeftRef - 1, blockSize, 12);
+	unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
+	unsigned rightIndex0 = MICRO_IDX(cathedralTopLeftRef - 1, blockSize, 13);
+	unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
+	unsigned rightIndex1 = MICRO_IDX(cathedralTopRightRef - 1, blockSize, 13);
+	unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
+
+	if (leftFrameRef0 == 0 || leftFrameRef1 == 0 || rightFrameRef0 == 0 || rightFrameRef1 == 0) {
+		mem_free_dbg(celBuf);
+		app_warn("Invalid (empty) cathedral subtiles (%d).", leftFrameRef0 == 0 ? cathedralBottomLeftRef : (rightFrameRef1 == 0 ? cathedralTopRightRef : cathedralTopLeftRef));
+		return NULL;
+	}
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	memset(&gpBuffer[0], TRANS_COLOR, 4 * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH], pSubtiles[leftIndex0], DMT_NONE);  // 2145
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH], pSubtiles[leftIndex1], DMT_NONE);  // 2123
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[rightIndex0], DMT_NONE); // 2124
+	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 4 - 1) * BUFFER_WIDTH], pSubtiles[rightIndex1], DMT_NONE); // 2137
+
+	// draw extra line to each frame
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		int y = MICRO_HEIGHT / 2 - x / 2 + 0 * MICRO_HEIGHT;
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 6) * BUFFER_WIDTH]; // 2145
+	}
+	for (int x = 0; x < MICRO_WIDTH - 4; x++) {
+		int y = MICRO_HEIGHT / 2 - x / 2 + 1 * MICRO_HEIGHT;
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + 4 + (y + 4) * BUFFER_WIDTH]; // 2123 I.
+	}
+	for (int x = MICRO_WIDTH - 4; x < MICRO_WIDTH; x++) {
+		int y = MICRO_HEIGHT / 2 - x / 2 + 1 * MICRO_HEIGHT;
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 2) * BUFFER_WIDTH]; // 2123 II.
+	}
+	for (int x = 0; x < 20; x++) {
+		int y = 1 + x / 2 + 2 * MICRO_HEIGHT;
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 1) * BUFFER_WIDTH]; // 2124 I.
+	}
+	for (int x = 20; x < MICRO_WIDTH; x++) {
+		int y = 1 + x / 2 + 2 * MICRO_HEIGHT;
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x - 12 + (y - 6) * BUFFER_WIDTH]; // 2124 II.
+	}
+	for (int x = 0; x < MICRO_WIDTH; x++) {
+		int y = 1 + x / 2 + 3 * MICRO_HEIGHT;
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y - MICRO_HEIGHT) * BUFFER_WIDTH]; // 2137
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 4 * MICRO_WIDTH * MICRO_HEIGHT);
+
+	typedef struct {
+		int type;
+		unsigned frameRef;
+	} CelFrameEntry;
+	CelFrameEntry entries[4];
+	entries[0].type = 0; // 2145
+	entries[0].frameRef = leftFrameRef0;
+	entries[1].type = 1; // 2123
+	entries[1].frameRef = leftFrameRef1;
+	entries[2].type = 2; // 2124
+	entries[2].frameRef = rightFrameRef0;
+	entries[3].type = 3; // 2137
+	entries[3].frameRef = rightFrameRef1;
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(celEntries);
+	dstHeaderCursor++;
+	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
+	while (true) {
+		// select the next frame
+		int next = -1;
+		for (int i = 0; i < lengthof(entries); i++) {
+			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
+				next = i;
+			}
+		}
+		if (next == -1)
+			break;
+
+		// copy entries till the next frame
+		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (int i = 0; i < numEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+		// add the next frame
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		
+		BYTE* frameSrc;
+		int encoding = MET_TRANSPARENT;
+		switch (entries[next].type) {
+		case 0: // 2145
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH];
+			break;
+		case 1: // 2123
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
+			break;
+		case 2: // 2124
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			break;
+		case 3: // 2137
+			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 4 - 1) * BUFFER_WIDTH];
+			break;
+		}
+		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+
+		// remove entry
+		entries[next].frameRef = 0;
+	}
+	// add remaining entries
+	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (int i = 0; i < numEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+	}
+	// add file-size
+	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+
+	*celLen = SwapLE32(dstHeaderCursor[0]);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+
 static void patchTownMin(BYTE* buf, bool isHellfireTown)
 {
 	// pointless tree micros (re-drawn by dSpecial)
@@ -1637,7 +1787,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #endif
 	{
 		// patch dMicroCels - TOWN.CEL
-		// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it II.
 #ifdef HELLFIRE
 		index = index == FILE_TOWN_CEL ? FILE_TOWN_MIN : FILE_NTOWN_MIN;
 #else
@@ -1650,10 +1799,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
+		// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it II.
 		buf = patchTownPotCel(minBuf, minLen, buf, dwLen, 553, 554);
 		if (buf != NULL) {
-			patchTownMin(minBuf, index != FILE_TOWN_MIN);
-			buf = buildBlkCel(buf, dwLen);
+			// patch subtiles of the cathedral to fix graphical glitch
+			buf = patchTownCathedralCel(minBuf, minLen, buf, dwLen, 805, 806, 807);
+			if (buf != NULL) {
+				patchTownMin(minBuf, index != FILE_TOWN_MIN);
+				buf = buildBlkCel(buf, dwLen);
+			}
 		}
 		mem_free_dbg(minBuf);
 	} break;
