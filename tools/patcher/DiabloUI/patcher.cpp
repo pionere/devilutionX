@@ -168,6 +168,10 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 	removeMicros.insert(pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF); \
 	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
 }
+#define blkMicro(subtileRef, microIndex) \
+{ \
+	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
+}
 
 #define ReplaceMcr(dstSubtileRef, dstMicroIndex, srcSubtileRef, srcMicroIndex) \
 { \
