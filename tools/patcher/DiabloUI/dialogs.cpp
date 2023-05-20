@@ -204,7 +204,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
 	//if (renderBehind == NULL) {
-		MemFreeDbg(gbBackCel);
+		FreeBackgroundArt();
 	//}
 	MemFreeDbg(gbDialogBackCel);
 	MemFreeDbg(gbSmlButtonCel)
