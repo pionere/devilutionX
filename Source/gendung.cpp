@@ -360,7 +360,26 @@ void InitLvlDungeon()
 		nSolidTable[242] = false;
 		nMissileTable[242] = false;
 		nBlockTable[242] = false;
-		// adjust TIL after patchCryptMin
+		// - fix automap of the entrance I.
+		nMissileTable[158] = false;
+		nBlockTable[158] = false;
+		nSolidTable[159] = false;
+		nMissileTable[159] = false;
+		nBlockTable[159] = false;
+		nMissileTable[148] = true;
+		nBlockTable[148] = true;
+		nSolidTable[148] = true;
+		// patch dMegaTiles - L5.TIL
+		// - fix automap of the entrance II.
+		pTiles[52][0] = pTiles[23][0];
+		pTiles[52][1] = pTiles[23][1];
+		pTiles[52][2] = pTiles[23][2];
+		pTiles[52][3] = pTiles[23][3];
+		pTiles[58][0] = pTiles[18][0];
+		pTiles[58][1] = pTiles[18][1];
+		pTiles[58][2] = pTiles[18][2];
+		pTiles[58][3] = pTiles[18][3];
+		// - adjust TIL after patchCryptMin
 		pTiles[109][0] = pTiles[1][0];
 		pTiles[109][1] = pTiles[1][1];
 		pTiles[109][2] = pTiles[1][2];

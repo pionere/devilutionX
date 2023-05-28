@@ -4193,8 +4193,19 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		// use common subtiles of doors
 		uint16_t *pMegaTiles = (uint16_t*)buf;
+		// fix automap of the entrance I.
+		pMegaTiles[4 * (52 - 1) + 0] = SwapLE16(73 - 1); // 45 - copy from 23
+		pMegaTiles[4 * (52 - 1) + 1] = SwapLE16(64 - 1); // 46
+		pMegaTiles[4 * (52 - 1) + 2] = SwapLE16(65 - 1); // 148
+		pMegaTiles[4 * (52 - 1) + 3] = SwapLE16(66 - 1); // 48
+		pMegaTiles[4 * (58 - 1) + 0] = SwapLE16(63 - 1); // 166 - copy from 18
+		pMegaTiles[4 * (58 - 1) + 1] = SwapLE16(64 - 1); // 167
+		pMegaTiles[4 * (58 - 1) + 2] = SwapLE16(65 - 1); // 47
+		pMegaTiles[4 * (58 - 1) + 3] = SwapLE16(66 - 1); // 48
+		pMegaTiles[4 * (53 - 1) + 1] = SwapLE16(148 - 1); // 130
+		pMegaTiles[4 * (53 - 1) + 3] = SwapLE16(148 - 1); // 130
+		// use common subtiles of doors
 		pMegaTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
 		pMegaTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
 		// use common subtiles
@@ -4458,7 +4469,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		nSolidTable(143, false); // make right side of down-stairs consistent (walkable)
-		nSolidTable(148, false); // make the back of down-stairs consistent (walkable)
 		// make collision-checks more reasonable
 		//  - prevent non-crossable floor-tile configurations I.
 		nSolidTable(461, false);
@@ -4486,6 +4496,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(242, false);
 		nMissileTable(242, false);
 		nBlockTable(242, false);
+		// fix automap of the entrance II.
+		nMissileTable(158, false);
+		nBlockTable(158, false);
+		nSolidTable(159, false);
+		nMissileTable(159, false);
+		nBlockTable(159, false);
+		nMissileTable(148, true);
+		nBlockTable(148, true);
+		nSolidTable(148, true);
 	} break;
 	case FILE_CRYPT_AMP:
 	{	// patch dAutomapData - L5.AMP
@@ -4495,6 +4514,16 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
+		// fix automap of the entrance III.
+		automaptype[47 - 1] = SwapLE16(MAPFLAG_STAIRS | 2);
+		automaptype[50 - 1] = SwapLE16(2);
+		automaptype[48 - 1] = SwapLE16(MAPFLAG_STAIRS | 4);
+		automaptype[51 - 1] = SwapLE16(5);
+		automaptype[52 - 1] = SwapLE16(MAPFLAG_DIRT);
+		automaptype[53 - 1] = SwapLE16(MAPFLAG_STAIRS | 4);
+		automaptype[54 - 1] = SwapLE16(MAPFLAG_DIRT);
+		automaptype[56 - 1] = SwapLE16(0);
+		automaptype[58 - 1] = SwapLE16(MAPFLAG_DIRT | 5);
 		// adjust AMP after patchCryptMin
 		// - use the shadows created by fixCryptShadows
 		automaptype[109 - 1] = SwapLE16(2);
