@@ -351,6 +351,77 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
+		// - adjust SOL after patchCryptMin
+		nSolidTable[238] = false;
+		nMissileTable[238] = false;
+		nBlockTable[238] = false;
+		nMissileTable[178] = false;
+		nBlockTable[178] = false;
+		nSolidTable[242] = false;
+		nMissileTable[242] = false;
+		nBlockTable[242] = false;
+		// adjust TIL after patchCryptMin
+		pTiles[109][0] = pTiles[1][0];
+		pTiles[109][1] = pTiles[1][1];
+		pTiles[109][2] = pTiles[1][2];
+		pTiles[109][3] = pTiles[1][3];
+		pTiles[110][0] = pTiles[6][0];
+		pTiles[110][1] = pTiles[6][1];
+		pTiles[110][2] = pTiles[6][2];
+		pTiles[110][3] = pTiles[6][3];
+		pTiles[111][0] = pTiles[11][0];
+		pTiles[111][1] = pTiles[11][1];
+		pTiles[111][2] = pTiles[11][2];
+		pTiles[111][3] = pTiles[11][3];
+
+		pTiles[71][0] = pTiles[2][0];
+		pTiles[71][1] = pTiles[2][1];
+		pTiles[71][2] = pTiles[2][2];
+		pTiles[71][3] = pTiles[2][3];
+		pTiles[80][0] = pTiles[2][0];
+		pTiles[80][1] = pTiles[2][1];
+		pTiles[80][2] = pTiles[2][2];
+		pTiles[80][3] = pTiles[2][3];
+		pTiles[81][0] = pTiles[12][0];
+		pTiles[81][1] = pTiles[12][1];
+		pTiles[81][2] = pTiles[12][2];
+		pTiles[81][3] = pTiles[12][3];
+		pTiles[82][0] = pTiles[12][0];
+		pTiles[82][1] = pTiles[12][1];
+		pTiles[82][2] = pTiles[12][2];
+		pTiles[82][3] = pTiles[12][3];
+		pTiles[83][0] = pTiles[36][0];
+		pTiles[83][1] = pTiles[36][1];
+		pTiles[83][2] = pTiles[36][2];
+		pTiles[83][3] = pTiles[36][3];
+		pTiles[84][0] = pTiles[36][0];
+		pTiles[84][1] = pTiles[36][1];
+		pTiles[84][2] = pTiles[36][2];
+		pTiles[84][3] = pTiles[36][3];
+		pTiles[85][0] = pTiles[7][0];
+		pTiles[85][1] = pTiles[7][1];
+		pTiles[85][2] = pTiles[7][2];
+		pTiles[85][3] = pTiles[7][3];
+		pTiles[86][0] = pTiles[7][0];
+		pTiles[86][1] = pTiles[7][1];
+		pTiles[86][2] = pTiles[7][2];
+		pTiles[86][3] = pTiles[7][3];
+		pTiles[87][0] = pTiles[26][0];
+		pTiles[87][1] = pTiles[26][1];
+		pTiles[87][2] = pTiles[26][2];
+		pTiles[87][3] = pTiles[26][3];
+		pTiles[88][0] = pTiles[26][0];
+		pTiles[88][1] = pTiles[26][1];
+		pTiles[88][2] = pTiles[26][2];
+		pTiles[88][3] = pTiles[26][3];
+		pTiles[215][0] = pTiles[35][0];
+		pTiles[215][1] = pTiles[35][1];
+		pTiles[215][2] = pTiles[35][2];
+		pTiles[215][3] = pTiles[35][3];
+		pTiles[216][0] = pTiles[11][0];
+		pTiles[216][1] = pTiles[11][1];
+		pTiles[216][2] = pTiles[11][2];
+		pTiles[216][3] = pTiles[11][3];
 #endif
 		break;
 #endif /* HELLFIRE */
