@@ -3728,13 +3728,13 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = BLOCK_SIZE_L1;
 		// useless black micros
-		blkMicro(107, 0);
-		blkMicro(107, 1);
-		blkMicro(109, 1);
-		blkMicro(137, 1);
-		blkMicro(138, 0);
-		blkMicro(138, 1);
-		blkMicro(140, 1);
+		blk2Mkr(107, 0);
+		Blk2Mcr(107, 1);
+		Blk2Mcr(109, 1);
+		Blk2Mcr(137, 1);
+		Blk2Mcr(138, 0);
+		Blk2Mcr(138, 1);
+		Blk2Mcr(140, 1);
 	} break;
 #endif /* ASSET_MPL == 1 */
 	case FILE_CATHEDRAL_SOL:
@@ -3839,7 +3839,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] & 0xFFF) | (MET_TRANSPARENT << 12); // 719
 		}
 		// fix bad artifact
-		blkMicro(288, 7);
+		Blk2Mcr(288, 7);
 	} break;
 #endif
 	case FILE_CATACOMBS_TIL:
@@ -3965,7 +3965,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = BLOCK_SIZE_L3;
 		// fix bad artifact
-		blkMicro(82, 4);
+		Blk2Mcr(82, 4);
 	} break;
 #endif /* ASSET_MPL == 1 */
 	case FILE_CAVES_SOL:
@@ -4134,11 +4134,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = BLOCK_SIZE_L6;
 		// useless black micros
-		blkMicro(21, 0);
-		blkMicro(21, 1);
+		Blk2Mcr(21, 0);
+		Blk2Mcr(21, 1);
 		// fix bad artifacts
-		blkMicro(132, 7);
-		blkMicro(366, 1);
+		Blk2Mcr(132, 7);
+		Blk2Mcr(366, 1);
 	} break;
 #endif /* ASSET_MPL == 1 */
 	case FILE_NEST_SOL:
