@@ -3728,7 +3728,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		constexpr int blockSize = BLOCK_SIZE_L1;
 		// useless black micros
-		blk2Mkr(107, 0);
+		Blk2Mcr(107, 0);
 		Blk2Mcr(107, 1);
 		Blk2Mcr(109, 1);
 		Blk2Mcr(137, 1);
