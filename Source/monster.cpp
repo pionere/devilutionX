@@ -494,13 +494,13 @@ void GetLevelMTypes()
 		}
 
 #ifdef HELLFIRE
-		if (lvl == DLV_NEST2)
+		if (lvl == uniqMonData[UMT_HORKDMN].muLevelIdx - 1)
 			AddMonsterType(MT_HORKSPWN, TRUE);
-		if (lvl == DLV_NEST3) {
+		if (lvl == uniqMonData[UMT_HORKDMN].muLevelIdx) {
 			AddMonsterType(MT_HORKSPWN, TRUE);
 			AddMonsterType(uniqMonData[UMT_HORKDMN].mtype, FALSE);
 		}
-		if (lvl == DLV_NEST4)
+		if (lvl == uniqMonData[UMT_DEFILER].muLevelIdx)
 			AddMonsterType(uniqMonData[UMT_DEFILER].mtype, FALSE);
 		if (lvl == DLV_CRYPT4) {
 			AddMonsterType(MT_ARCHLICH, TRUE);
@@ -509,9 +509,9 @@ void GetLevelMTypes()
 #endif
 		//if (QuestStatus(Q_BUTCHER))
 		//	AddMonsterType(uniqMonData[UMT_BUTCHER].mtype, FALSE);
-		if (QuestStatus(Q_GARBUD))
+		if (lvl == uniqMonData[UMT_GARBUD].muLevelIdx && quests[Q_GARBUD]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_GARBUD].mtype, FALSE);
-		if (QuestStatus(Q_ZHAR))
+		if (lvl == uniqMonData[UMT_ZHAR].muLevelIdx && quests[Q_ZHAR]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_ZHAR].mtype, FALSE);
 		//if (QuestStatus(Q_BANNER)) {
 		//	AddMonsterType(uniqMonData[UMT_SNOTSPIL].mtype, FALSE);
@@ -527,9 +527,9 @@ void GetLevelMTypes()
 		//if (QuestStatus(Q_BLOOD)) {
 		//	AddMonsterType(MT_NRHINO, FALSE);
 		//}
-		if (QuestStatus(Q_VEIL))
+		if (lvl == uniqMonData[UMT_LACHDAN].muLevelIdx && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_LACHDAN].mtype, TRUE);
-		if (QuestStatus(Q_WARLORD))
+		if (lvl == questlist[Q_WARLORD]._qdlvl && quests[Q_WARLORD]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_WARLORD].mtype, TRUE);
 		//if (QuestStatus(Q_BETRAYER) && IsMultiGame) {
 		//if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
