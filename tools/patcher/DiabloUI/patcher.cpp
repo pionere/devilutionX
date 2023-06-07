@@ -193,8 +193,8 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 	pSubtiles[dstMicro] = srcValue; \
 }
 
-#define SetFrameType(subtile, microIndex, frameType) \
-pSubtiles[MICRO_IDX(subtile, blockSize, microIndex)] = (pSubtiles[MICRO_IDX(subtile, blockSize, microIndex)] & 0xFFF) | (frameType << 12);
+#define SetFrameType(srcSubtileRef, microIndex, frameType) \
+pSubtiles[MICRO_IDX(srcSubtileRef - 1, blockSize, microIndex)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(srcSubtileRef - 1, blockSize, microIndex)]) & 0xFFF) | (frameType << 12));
 
 #define nSolidTable(pn, v) \
 if (v) { \
@@ -555,6 +555,7 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 
 	return resCelBuf;
 }
+
 static BYTE* buildBlkMin(BYTE* minBuf, size_t *minLen, unsigned blockSize)
 {
 	removeMicros.erase(0);
@@ -569,7 +570,7 @@ static BYTE* buildBlkMin(BYTE* minBuf, size_t *minLen, unsigned blockSize)
 		if (pSubtiles[i] == 0) {
 			continue;
 		}
-		unsigned frameRef = pSubtiles[i] & 0xFFF;
+		unsigned frameRef = SwapLE16(pSubtiles[i]) & 0xFFF;
 		unsigned newFrameRef = frameRef;
 		for (unsigned removedRef : removeMicros) {
 			if (removedRef > frameRef)
@@ -582,10 +583,75 @@ static BYTE* buildBlkMin(BYTE* minBuf, size_t *minLen, unsigned blockSize)
 			}
 			newFrameRef--;
 		}
-		pSubtiles[i] = (pSubtiles[i] & ~0xFFF) | newFrameRef;
+		pSubtiles[i] = SwapLE16((SwapLE16(pSubtiles[i]) & ~0xFFF) | newFrameRef);
 	}
 	removeMicros.clear();
 	return minBuf;
+}
+
+typedef struct {
+	int type;
+	unsigned frameRef;
+	int encoding;
+	BYTE *frameSrc;
+} CelFrameEntry;
+static int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, const BYTE* celBuf, BYTE TRANS_COLOR)
+{
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(celEntries);
+	dstHeaderCursor++;
+	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
+	while (true) {
+		// select the next frame
+		int next = -1;
+		for (int i = 0; i < numEntries; i++) {
+			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
+				next = i;
+			}
+		}
+		if (next == -1)
+			break;
+		// copy entries till the next frame
+		int midEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (int i = 0; i < midEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+		// add the next frame
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		
+		BYTE* frameSrc = entries[next].frameSrc;
+		int encoding = entries[next].encoding;
+		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+
+		// remove entry
+		entries[next].frameRef = 0;
+	}
+	// add remaining entries
+	int remEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (int i = 0; i < remEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+	}
+	// add file-size
+	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+
+	return SwapLE32(dstHeaderCursor[0]);
 }
 
 static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
@@ -1140,46 +1206,46 @@ static void patchCryptMin(BYTE *buf)
 	constexpr int blockSize = BLOCK_SIZE_L5;
 	// adjust the frame types
 	// - after fillCryptShapes
-	SetFrameType(159 - 1, 3, MET_SQUARE);  // 473
-	SetFrameType(185 - 1, 3, MET_SQUARE);  // 473
-	// SetFrameType(159 - 1, 1, MET_RTRAPEZOID); // 475
-	SetFrameType(336 - 1, 0, MET_LTRIANGLE); // 907
-	SetFrameType(409 - 1, 0, MET_LTRIANGLE); // 1168
-	SetFrameType(481 - 1, 1, MET_RTRIANGLE); // 1406
-	SetFrameType(492 - 1, 0, MET_LTRIANGLE); // 1436
-	SetFrameType(519 - 1, 0, MET_LTRIANGLE); // 1493
-	SetFrameType(595 - 1, 1, MET_RTRIANGLE); // 1710
+	SetFrameType(159, 3, MET_SQUARE);  // 473
+	SetFrameType(185, 3, MET_SQUARE);  // 473
+	// SetFrameType(159, 1, MET_RTRAPEZOID); // 475
+	SetFrameType(336, 0, MET_LTRIANGLE); // 907
+	SetFrameType(409, 0, MET_LTRIANGLE); // 1168
+	SetFrameType(481, 1, MET_RTRIANGLE); // 1406
+	SetFrameType(492, 0, MET_LTRIANGLE); // 1436
+	SetFrameType(519, 0, MET_LTRIANGLE); // 1493
+	SetFrameType(595, 1, MET_RTRIANGLE); // 1710
 	// - after maskCryptBlacks
-	SetFrameType(126 - 1, 1, MET_TRANSPARENT); // 347
-	SetFrameType(129 - 1, 0, MET_TRANSPARENT); // 356
-	SetFrameType(129 - 1, 1, MET_TRANSPARENT); // 357
-	SetFrameType(131 - 1, 0, MET_TRANSPARENT); // 362
-	SetFrameType(131 - 1, 1, MET_TRANSPARENT); // 363
-	SetFrameType(132 - 1, 0, MET_TRANSPARENT); // 364
-	SetFrameType(133 - 1, 0, MET_TRANSPARENT); // 371
-	SetFrameType(133 - 1, 1, MET_TRANSPARENT); // 372
-	SetFrameType(134 - 1, 3, MET_TRANSPARENT); // 375
-	SetFrameType(135 - 1, 0, MET_TRANSPARENT); // 379
-	SetFrameType(135 - 1, 1, MET_TRANSPARENT); // 380
-	SetFrameType(142 - 1, 0, MET_TRANSPARENT); // 403
-//	SetFrameType(146 - 1, 0, MET_TRANSPARENT); // 356
-//	SetFrameType(149 - 1, 4, MET_TRANSPARENT); // 356
-//	SetFrameType(150 - 1, 6, MET_TRANSPARENT); // 356
-	SetFrameType(151 - 1, 2, MET_TRANSPARENT); // 438
-	SetFrameType(151 - 1, 4, MET_TRANSPARENT); // 436
-	SetFrameType(151 - 1, 5, MET_TRANSPARENT); // 437
-	SetFrameType(152 - 1, 7, MET_TRANSPARENT); // 439
-	SetFrameType(153 - 1, 2, MET_TRANSPARENT); // 442
-	SetFrameType(153 - 1, 4, MET_TRANSPARENT); // 441
-	SetFrameType(159 - 1, 1, MET_TRANSPARENT); // 475
-//	SetFrameType(178 - 1, 2, MET_TRANSPARENT); // 442
+	SetFrameType(126, 1, MET_TRANSPARENT); // 347
+	SetFrameType(129, 0, MET_TRANSPARENT); // 356
+	SetFrameType(129, 1, MET_TRANSPARENT); // 357
+	SetFrameType(131, 0, MET_TRANSPARENT); // 362
+	SetFrameType(131, 1, MET_TRANSPARENT); // 363
+	SetFrameType(132, 0, MET_TRANSPARENT); // 364
+	SetFrameType(133, 0, MET_TRANSPARENT); // 371
+	SetFrameType(133, 1, MET_TRANSPARENT); // 372
+	SetFrameType(134, 3, MET_TRANSPARENT); // 375
+	SetFrameType(135, 0, MET_TRANSPARENT); // 379
+	SetFrameType(135, 1, MET_TRANSPARENT); // 380
+	SetFrameType(142, 0, MET_TRANSPARENT); // 403
+//	SetFrameType(146, 0, MET_TRANSPARENT); // 356
+//	SetFrameType(149, 4, MET_TRANSPARENT); // 356
+//	SetFrameType(150, 6, MET_TRANSPARENT); // 356
+	SetFrameType(151, 2, MET_TRANSPARENT); // 438
+	SetFrameType(151, 4, MET_TRANSPARENT); // 436
+	SetFrameType(151, 5, MET_TRANSPARENT); // 437
+	SetFrameType(152, 7, MET_TRANSPARENT); // 439
+	SetFrameType(153, 2, MET_TRANSPARENT); // 442
+	SetFrameType(153, 4, MET_TRANSPARENT); // 441
+	SetFrameType(159, 1, MET_TRANSPARENT); // 475
+//	SetFrameType(178, 2, MET_TRANSPARENT); // 442
 	// - after fixCryptShadows
-	// SetFrameType(630 - 1, 0, MET_TRANSPARENT); // 1804
-	SetFrameType(620 - 1, 0, MET_RTRIANGLE);   // 1798
-	SetFrameType(621 - 1, 1, MET_SQUARE);      // 1800
-	SetFrameType(625 - 1, 0, MET_RTRIANGLE);   // 1805
-	SetFrameType(624 - 1, 0, MET_TRANSPARENT); // 1813
-	SetFrameType(619 - 1, 1, MET_LTRAPEZOID);  // 1797
+	// SetFrameType(630, 0, MET_TRANSPARENT); // 1804
+	SetFrameType(620, 0, MET_RTRIANGLE);   // 1798
+	SetFrameType(621, 1, MET_SQUARE);      // 1800
+	SetFrameType(625, 0, MET_RTRIANGLE);   // 1805
+	SetFrameType(624, 0, MET_TRANSPARENT); // 1813
+	SetFrameType(619, 1, MET_LTRAPEZOID);  // 1797
 	// prepare subtiles after fixCryptShadows
 	ReplaceMcr(3, 0, 619, 1);
 	ReplaceMcr(3, 1, 620, 0);
@@ -2428,71 +2494,6 @@ static void patchCryptMin(BYTE *buf)
 	}
 }
 
-typedef struct {
-	int type;
-	unsigned frameRef;
-	int encoding;
-	BYTE *frameSrc;
-} CelFrameEntry;
-static int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, const BYTE* celBuf, BYTE TRANS_COLOR)
-{
-	DWORD* srcHeaderCursor = (DWORD*)celBuf;
-	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
-	srcHeaderCursor++;
-	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(celEntries);
-	dstHeaderCursor++;
-	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
-	while (true) {
-		// select the next frame
-		int next = -1;
-		for (int i = 0; i < numEntries; i++) {
-			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
-				next = i;
-			}
-		}
-		if (next == -1)
-			break;
-		// copy entries till the next frame
-		int midEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
-		for (int i = 0; i < midEntries; i++) {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-			dstHeaderCursor++;
-			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
-			dstDataCursor += len;
-			srcHeaderCursor++;
-		}
-		// add the next frame
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-		dstHeaderCursor++;
-		
-		BYTE* frameSrc = entries[next].frameSrc;
-		int encoding = entries[next].encoding;
-		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
-
-		// skip the original frame
-		srcHeaderCursor++;
-
-		// remove entry
-		entries[next].frameRef = 0;
-	}
-	// add remaining entries
-	int remEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
-	for (int i = 0; i < remEntries; i++) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-		dstHeaderCursor++;
-		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
-		dstDataCursor += len;
-		srcHeaderCursor++;
-	}
-	// add file-size
-	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-
-	return SwapLE32(dstHeaderCursor[0]);
-}
-
 static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	typedef struct {
@@ -2523,7 +2524,7 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		if ((pSubtiles[index] & 0xFFF) == 0) {
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
 			mem_free_dbg(celBuf);
 			app_warn("Invalid (empty) crypt on subtile (%d).", micro.subtileIndex + 1);
 			return NULL;
@@ -2540,7 +2541,7 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], pSubtiles[index], DMT_NONE);
+		RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
 		yy += MICRO_HEIGHT;
 		if (yy == 4 * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
@@ -2596,7 +2597,7 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		entries[i].type = i;
 		entries[i].encoding = micro.res_encoding;
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		entries[i].frameRef = pSubtiles[index] & 0xFFF;
+		entries[i].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
 		entries[i].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
 		yy += MICRO_HEIGHT;
 		if (yy == 4 * MICRO_HEIGHT - 1) {
@@ -2650,7 +2651,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		if ((pSubtiles[index] & 0xFFF) == 0) {
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
 			mem_free_dbg(celBuf);
 			app_warn("Invalid (empty) crypt on subtile (%d).", micro.subtileIndex + 1);
 			return NULL;
@@ -2667,7 +2668,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], pSubtiles[index], DMT_NONE);
+		RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
 		yy += MICRO_HEIGHT;
 		if (yy == 5 * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
@@ -2730,7 +2731,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		entries[i].type = i;
 		entries[i].encoding = MET_TRANSPARENT;
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		entries[i].frameRef = pSubtiles[index] & 0xFFF;
+		entries[i].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
 		entries[i].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
 		yy += MICRO_HEIGHT;
 		if (yy == 5 * MICRO_HEIGHT - 1) {
@@ -2791,7 +2792,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			continue;
 		}
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-		if ((pSubtiles[index] & 0xFFF) == 0) {
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
 			mem_free_dbg(celBuf);
 			app_warn("Invalid (empty) crypt on subtile (%d).", micro.subtileIndex + 1);
 			return NULL;
@@ -2810,7 +2811,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		const CelMicro &micro = micros[i];
 		if (micro.subtileIndex >= 0) {
 			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], pSubtiles[index], DMT_NONE);
+			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
 		}
 		yy += MICRO_HEIGHT;
 		if (yy == 4 * MICRO_HEIGHT - 1) {
@@ -2995,7 +2996,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			entries[idx].type = idx;
 			entries[idx].encoding = micro.res_encoding;
 			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
-			entries[idx].frameRef = pSubtiles[index] & 0xFFF;
+			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
 			entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
 			idx++;
 		}
@@ -3830,13 +3831,13 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			pSubtiles[MICRO_IDX(559 - 1, blockSize, 6)] = 0;
 
 			// - adjust the frame types
-			pSubtiles[MICRO_IDX(267 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(267 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRIANGLE << 12); // 770
-			pSubtiles[MICRO_IDX(559 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(559 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRIANGLE << 12);
-			pSubtiles[MICRO_IDX(252 - 1, blockSize, 3)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 3)] & 0xFFF) | (MET_TRANSPARENT << 12); // 769
-			pSubtiles[MICRO_IDX(252 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRAPEZOID << 12); // 760
-			pSubtiles[MICRO_IDX(265 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(265 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRIANGLE << 12); // 762
-			pSubtiles[MICRO_IDX(556 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(556 - 1, blockSize, 1)] & 0xFFF) | (MET_RTRIANGLE << 12);
-			pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(252 - 1, blockSize, 0)] & 0xFFF) | (MET_TRANSPARENT << 12); // 719
+			SetFrameType(267, 0, MET_LTRIANGLE);
+			SetFrameType(559, 0, MET_LTRIANGLE);
+			SetFrameType(252, 3, MET_TRANSPARENT);
+			SetFrameType(252, 1, MET_RTRAPEZOID);
+			SetFrameType(265, 1, MET_RTRIANGLE);
+			SetFrameType(556, 1, MET_RTRIANGLE);
+			SetFrameType(252, 0, MET_TRANSPARENT);
 		}
 		// fix bad artifact
 		Blk2Mcr(288, 7);
@@ -4005,11 +4006,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *pSubtiles = (uint16_t*)buf;
 		// patch exit tile II.
 		// - move the frames to the bottom right subtile
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 3)] = (pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] & 0xFFF) | (MET_TRANSPARENT << 12); // 369
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 3)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)]) & 0xFFF) | (MET_TRANSPARENT << 12)); // 369
 		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] = 0;
 
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 2)] = (pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)] & 0xFFF) | (MET_SQUARE << 12);      // 368
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 4)] = (pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)] & 0xFFF) | (MET_TRANSPARENT << 12); // 367
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 2)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)]) & 0xFFF) | (MET_SQUARE << 12));      // 368
+		pSubtiles[MICRO_IDX(140 - 1, blockSize, 4)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)]) & 0xFFF) | (MET_TRANSPARENT << 12)); // 367
 		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)] = 0;
 		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)] = 0;
 
@@ -4017,8 +4018,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pSubtiles[MICRO_IDX(139 - 1, blockSize, 1)] = 0;
 
 		// - adjust the frame types after patchHellCel
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 0)] = (pSubtiles[MICRO_IDX(140 - 1, blockSize, 0)] & 0xFFF) | (MET_LTRAPEZOID << 12);  // 376
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 1)] = (pSubtiles[MICRO_IDX(140 - 1, blockSize, 1)] & 0xFFF) | (MET_TRANSPARENT << 12); // 377
+		SetFrameType(140, 0, MET_LTRAPEZOID);
+		SetFrameType(140, 1, MET_TRANSPARENT);
 	} break;
 #endif
 	case FILE_HELL_TIL:
