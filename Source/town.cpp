@@ -12,8 +12,8 @@ void T_HiveOpen()
 {
 	/*int miniset[9][6] = {
 		//  50    51    52    53    54    55
-		{ 1162, 1163, 1262, 1264,  282,  284}, // 68
-		{ 1164, 1294, 1296, 1297, 1298,  285}, // 69
+		{  286,  288, 1262, 1264,  282,  284}, // 68
+		{  295, 1294, 1296, 1297, 1298,  285}, // 69
 		{ 1299, 1301, 1307, 1309, 1311, 1313}, // 70
 		{ 1300, 1302, 1308, 1310, 1312, 1314}, // 71
 		{ 1303, 1305, 1315, 1317, 1319, 1321}, // 72
@@ -22,17 +22,17 @@ void T_HiveOpen()
 		{  280,  280,   19,    8,    8,    0}, // 75
 		{  217,   24,    0,    0,    0,    0}, // 76
 	};*/
-	dPiece[68 + DBORDERX][50 + DBORDERY] = 1162;
-	dPiece[69 + DBORDERX][50 + DBORDERY] = 1163;
-	dPiece[68 + DBORDERX][51 + DBORDERY] = 1164;
+	// dPiece[68 + DBORDERX][50 + DBORDERY] = 286;
+	dPiece[69 + DBORDERX][50 + DBORDERY] = 295;
+	// dPiece[68 + DBORDERX][51 + DBORDERY] = 288;
 	dPiece[69 + DBORDERX][51 + DBORDERY] = 1294;
 	dPiece[68 + DBORDERX][52 + DBORDERY] = 1262;
 	dPiece[69 + DBORDERX][52 + DBORDERY] = 1296;
 	dPiece[68 + DBORDERX][53 + DBORDERY] = 1264;
 	dPiece[69 + DBORDERX][53 + DBORDERY] = 1297;
-	dPiece[68 + DBORDERX][54 + DBORDERY] = 282;
-	dPiece[69 + DBORDERX][54 + DBORDERY] = 1298;
-	dPiece[68 + DBORDERX][55 + DBORDERY] = 284;
+	// dPiece[68 + DBORDERX][54 + DBORDERY] = 282;
+	// dPiece[69 + DBORDERX][54 + DBORDERY] = 1298;
+	// dPiece[68 + DBORDERX][55 + DBORDERY] = 284;
 	dPiece[69 + DBORDERX][55 + DBORDERY] = 285;
 	dPiece[70 + DBORDERX][50 + DBORDERY] = 1299;
 	dPiece[71 + DBORDERX][50 + DBORDERY] = 1300;
@@ -53,15 +53,15 @@ void T_HiveOpen()
 	dPiece[72 + DBORDERX][54 + DBORDERY] = 1319;
 	dPiece[73 + DBORDERX][54 + DBORDERY] = 1320;
 	dPiece[72 + DBORDERX][55 + DBORDERY] = 1321;
-	dPiece[73 + DBORDERX][55 + DBORDERY] = 1322;
+	// dPiece[73 + DBORDERX][55 + DBORDERY] = 1322;
 	dPiece[72 + DBORDERX][52 + DBORDERY] = 1315;
 	dPiece[73 + DBORDERX][52 + DBORDERY] = 1316;
 	dPiece[72 + DBORDERX][53 + DBORDERY] = 1317;
 	dPiece[73 + DBORDERX][53 + DBORDERY] = 1318;
 	dPiece[74 + DBORDERX][50 + DBORDERY] = 8; // new
-	dPiece[74 + DBORDERX][51 + DBORDERY] = 280;
-	dPiece[74 + DBORDERX][52 + DBORDERY] = 280;
-	dPiece[74 + DBORDERX][53 + DBORDERY] = 280;
+	dPiece[74 + DBORDERX][51 + DBORDERY] = 1;
+	dPiece[74 + DBORDERX][52 + DBORDERY] = 489;
+	dPiece[74 + DBORDERX][53 + DBORDERY] = 1;
 	//dPiece[75 + DBORDERX][50 + DBORDERY] = 280;
 	//dPiece[75 + DBORDERX][51 + DBORDERY] = 280;
 	//dPiece[75 + DBORDERX][53 + DBORDERY] = 8;
@@ -69,7 +69,7 @@ void T_HiveOpen()
 	//dPiece[76 + DBORDERX][50 + DBORDERY] = 217;
 	//dPiece[76 + DBORDERX][51 + DBORDERY] = 24;
 	//dPiece[75 + DBORDERX][52 + DBORDERY] = 19;
-	dPiece[74 + DBORDERX][54 + DBORDERY] = 280;
+	dPiece[74 + DBORDERX][54 + DBORDERY] = 489;
 }
 
 static void T_HiveClosed()
@@ -86,23 +86,23 @@ static void T_HiveClosed()
 		{  280,  280,   19,    8,    8,    0}, // 75
 		{  217,   24,    0,    0,    0,    0}, // 76
 	};*/
-	dPiece[68 + DBORDERX][50 + DBORDERY] = 1162;
+	// dPiece[68 + DBORDERX][50 + DBORDERY] = 1162;
 	dPiece[69 + DBORDERX][50 + DBORDERY] = 1259;
-	dPiece[68 + DBORDERX][51 + DBORDERY] = 1260;
+	// dPiece[68 + DBORDERX][51 + DBORDERY] = 1260;
 	dPiece[69 + DBORDERX][51 + DBORDERY] = 1261;
 	dPiece[68 + DBORDERX][52 + DBORDERY] = 1262;
 	dPiece[69 + DBORDERX][52 + DBORDERY] = 1263;
 	dPiece[68 + DBORDERX][53 + DBORDERY] = 1264;
 	dPiece[69 + DBORDERX][53 + DBORDERY] = 1265;
-	dPiece[68 + DBORDERX][54 + DBORDERY] = 1266;
-	dPiece[69 + DBORDERX][54 + DBORDERY] = 1267;
-	dPiece[68 + DBORDERX][55 + DBORDERY] = 1268;
+	// dPiece[68 + DBORDERX][54 + DBORDERY] = 1266;
+	// dPiece[69 + DBORDERX][54 + DBORDERY] = 1267;
+	// dPiece[68 + DBORDERX][55 + DBORDERY] = 1268;
 	dPiece[70 + DBORDERX][50 + DBORDERY] = 1269;
 	dPiece[71 + DBORDERX][50 + DBORDERY] = 1270;
 	dPiece[70 + DBORDERX][51 + DBORDERY] = 1271;
 	dPiece[71 + DBORDERX][51 + DBORDERY] = 1272;
 	dPiece[72 + DBORDERX][50 + DBORDERY] = 1273;
-	dPiece[73 + DBORDERX][50 + DBORDERY] = 1274;
+	dPiece[73 + DBORDERX][50 + DBORDERY] = 4;
 	dPiece[72 + DBORDERX][51 + DBORDERY] = 1275;
 	dPiece[73 + DBORDERX][51 + DBORDERY] = 1276;
 	dPiece[70 + DBORDERX][52 + DBORDERY] = 1277;
@@ -111,20 +111,20 @@ static void T_HiveClosed()
 	dPiece[71 + DBORDERX][53 + DBORDERY] = 1280;
 	dPiece[70 + DBORDERX][54 + DBORDERY] = 1281;
 	dPiece[71 + DBORDERX][54 + DBORDERY] = 1282;
-	dPiece[70 + DBORDERX][55 + DBORDERY] = 1283;
-	dPiece[71 + DBORDERX][55 + DBORDERY] = 1284;
+	// dPiece[70 + DBORDERX][55 + DBORDERY] = 1283;
+	// dPiece[71 + DBORDERX][55 + DBORDERY] = 1284;
 	dPiece[72 + DBORDERX][54 + DBORDERY] = 1289;
 	dPiece[73 + DBORDERX][54 + DBORDERY] = 1290;
-	dPiece[72 + DBORDERX][55 + DBORDERY] = 1291;
-	dPiece[73 + DBORDERX][55 + DBORDERY] = 1292;
+	// dPiece[72 + DBORDERX][55 + DBORDERY] = 1291;
+	// dPiece[73 + DBORDERX][55 + DBORDERY] = 1292;
 	dPiece[72 + DBORDERX][52 + DBORDERY] = 1285;
 	dPiece[73 + DBORDERX][52 + DBORDERY] = 1286;
 	dPiece[72 + DBORDERX][53 + DBORDERY] = 1287;
 	dPiece[73 + DBORDERX][53 + DBORDERY] = 1288;
 	dPiece[74 + DBORDERX][50 + DBORDERY] = 8; // new
-	dPiece[74 + DBORDERX][51 + DBORDERY] = 280
-	dPiece[74 + DBORDERX][52 + DBORDERY] = 280
-	dPiece[74 + DBORDERX][53 + DBORDERY] = 280
+	dPiece[74 + DBORDERX][51 + DBORDERY] = 1;
+	dPiece[74 + DBORDERX][52 + DBORDERY] = 489;
+	dPiece[74 + DBORDERX][53 + DBORDERY] = 1;
 	//dPiece[75 + DBORDERX][50 + DBORDERY] = 280;
 	//dPiece[75 + DBORDERX][51 + DBORDERY] = 280;
 	//dPiece[75 + DBORDERX][53 + DBORDERY] = 8;
@@ -132,7 +132,7 @@ static void T_HiveClosed()
 	//dPiece[76 + DBORDERX][50 + DBORDERY] = 217;
 	//dPiece[76 + DBORDERX][51 + DBORDERY] = 24;
 	//dPiece[75 + DBORDERX][52 + DBORDERY] = 19;
-	dPiece[74 + DBORDERX][54 + DBORDERY] = 280
+	dPiece[74 + DBORDERX][54 + DBORDERY] = 489;
 }
 
 static void T_CryptClosed()
