@@ -986,6 +986,7 @@ bool PeekMessage(LPMSG lpMsg)
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
 		case SDL_WINDOWEVENT_EXPOSED:
+		case SDL_WINDOWEVENT_RESTORED:
 			gbWndActive = true;
 			lpMsg->message = DVL_WM_PAINT;
 			break;
@@ -1000,7 +1001,6 @@ bool PeekMessage(LPMSG lpMsg)
 		case SDL_WINDOWEVENT_RESIZED:
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
 		case SDL_WINDOWEVENT_MAXIMIZED:
-		case SDL_WINDOWEVENT_RESTORED:
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 #if SDL_VERSION_ATLEAST(2, 0, 5)
