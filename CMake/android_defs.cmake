@@ -5,6 +5,7 @@ set(UBSAN OFF)
 set(PIE ON)
 
 # General build options.
+set(DISABLE_STRIP ON)
 #set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)
 # Disable system dependencies.
