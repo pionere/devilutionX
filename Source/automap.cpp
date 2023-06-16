@@ -106,6 +106,36 @@ void InitLvlAutomap()
 
 	mem_free_dbg(pAFile);
 #if !USE_PATCH
+	// patch dAutomapData - L1.AMP
+	if (currLvl._dType == DTYPE_CATACOMBS) {
+		// adjust AMP after fixCathedralShadows
+		automaptype[145] = automaptype[11];
+		automaptype[147] = automaptype[6];
+		automaptype[149] = automaptype[12];
+		automaptype[149] = automaptype[12];
+		automaptype[150] = automaptype[2];
+		automaptype[151] = automaptype[12];
+		automaptype[152] = automaptype[36];
+		automaptype[154] = automaptype[7];
+		automaptype[155] = automaptype[2];
+		automaptype[157] = automaptype[35];
+		automaptype[159] = automaptype[13];
+		automaptype[164] = automaptype[13];
+		automaptype[165] = automaptype[13];
+		// - shadows for the banner setpiece
+		automaptype[56] = automaptype[1];
+		automaptype[55] = automaptype[1];
+		automaptype[54] = automaptype[60];
+		automaptype[53] = automaptype[58];
+		// - shadows for the vile setmap
+		automaptype[52] = automaptype[2];
+		automaptype[51] = automaptype[2];
+		automaptype[50] = automaptype[1];
+		automaptype[49] = automaptype[17];
+		automaptype[48] = automaptype[11];
+		automaptype[47] = automaptype[2];
+		automaptype[46] = automaptype[7];
+	}
 	// patch dAutomapData - L2.AMP
 	if (currLvl._dType == DTYPE_CATACOMBS) {
 		automaptype[42] &= ~MAPFLAG_HORZARCH;

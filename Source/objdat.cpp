@@ -20,7 +20,7 @@ const BYTE ObjConvTbl[128] = {
 	OBJ_CRUXM, // SklKng2.DUN
 	OBJ_CRUXR, // SklKng2.DUN
 	OBJ_CRUXL, // SklKng2.DUN
-	0, //OBJ_ANGEL,
+	OBJ_SARC,  // SklKng2.DUN
 	0, //OBJ_BANNERL,
 	0, //OBJ_BANNERM,
 	0, //OBJ_BANNERR,
