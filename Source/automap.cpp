@@ -9,10 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/**
- * Maps from tile_id to automap type.
- */
-uint16_t automaptype[256];
+/* Maps from tile_id to automap type. */
+uint16_t automaptype[MAXTILES + 1];
 /** Specifies whether the automap is enabled. */
 bool gbAutomapflag;
 /** Specifies whether the automap-data is valid. */
@@ -40,22 +38,6 @@ unsigned AmLine16;
 
 #define MAP_SCALE_MAX 128
 #define MAP_SCALE_MIN 64
-
-// base mapflags set in the corresponding .AMP file (only the lower byte is used)
-#define MAPFLAG_TYPE      0x00FF
-#define MAPFLAG_VERTDOOR  0x0100
-#define MAPFLAG_HORZDOOR  0x0200
-#define MAPFLAG_VERTARCH  0x0400
-#define MAPFLAG_HORZARCH  0x0800
-#define MAPFLAG_VERTGRATE 0x1000
-#define MAPFLAG_HORZGRATE 0x2000
-#define MAPFLAG_DIRT      0x4000
-#define MAPFLAG_STAIRS    0x8000
-// calculated mapflags
-#define MAPFLAG_DOVERT      0x0010
-#define MAPFLAG_DOHORZ      0x0020
-#define MAPFLAG_DOVERT_CAVE 0x0040
-#define MAPFLAG_DOHORZ_CAVE 0x0080
 
 /**
  * @brief Initializes the automap configuration.
@@ -103,7 +85,7 @@ void InitLvlAutomap()
 		*pTmp &= ~BFLAG_EXPLORED;
 	}*/
 
-	mapData = AllLevels[currLvl._dLevelIdx].dAutomapData;
+	mapData = levelfiledata[AllLevels[currLvl._dLevelIdx].dfindex].dAutomapData;
 	_gbAutomapData = mapData != NULL;
 	if (!_gbAutomapData) {
 		memset(automaptype, 0, sizeof(automaptype));
@@ -135,7 +117,41 @@ void InitLvlAutomap()
 		automaptype[52] |= MAPFLAG_VERTGRATE;
 		automaptype[56] |= MAPFLAG_HORZGRATE;
 	}
-#endif
+#ifdef HELLFIRE
+	// patch dAutomapData - L5.AMP
+	if (currLvl._dType == DTYPE_CRYPT) {
+		// fix automap of the entrance
+		automaptype[47] = MAPFLAG_STAIRS | 2;
+		automaptype[50] = 2;
+		automaptype[48] = MAPFLAG_STAIRS | 4;
+		automaptype[51] = 5;
+		automaptype[52] = MAPFLAG_DIRT;
+		automaptype[53] = MAPFLAG_STAIRS | 4;
+		automaptype[54] = MAPFLAG_DIRT;
+		automaptype[56] = 0;
+		automaptype[58] = MAPFLAG_DIRT | 5;
+		// adjust AMP after cleanupCrypt
+		// - use the shadows created by fixCryptShadows
+		automaptype[109] = 2;
+		automaptype[110] = 2;
+		automaptype[111] = MAPFLAG_VERTARCH | 2;
+		automaptype[215] = MAPFLAG_VERTGRATE | 2;
+		// - 'add' new shadow-types with glow
+		automaptype[216] = MAPFLAG_VERTARCH | 2;
+		// - 'add' new shadow-types with horizontal arches
+		automaptype[71] = 3;
+		automaptype[80] = 3;
+		automaptype[81] = MAPFLAG_HORZARCH | 3;
+		automaptype[82] = MAPFLAG_HORZARCH | 3;
+		automaptype[83] = MAPFLAG_HORZGRATE | 3;
+		automaptype[84] = MAPFLAG_HORZGRATE | 3;
+		automaptype[85] = 3;
+		automaptype[86] = 3;
+		automaptype[87] = MAPFLAG_HORZDOOR | 3;
+		automaptype[88] = MAPFLAG_HORZDOOR | 3;
+	}
+#endif // HELLFIRE
+#endif // !USE_PATCH
 	memset(automapview, 0, sizeof(automapview));
 
 	AutoMapXOfs = 0;

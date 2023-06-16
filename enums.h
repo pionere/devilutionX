@@ -3126,6 +3126,14 @@ typedef enum dungeon_type {
 	DTYPE_NEST,
 } dungeon_type;
 
+typedef enum dungeon_gen_type {
+	DGT_TOWN,
+	DGT_CATHEDRAL,
+	DGT_CATACOMBS,
+	DGT_CAVES,
+	DGT_HELL,
+} dungeon_gen_type;
+
 typedef enum dungeon_type_mask {
 	DTM_TOWN      = 1 << DTYPE_TOWN,
 	DTM_CATHEDRAL = 1 << DTYPE_CATHEDRAL,
@@ -3151,8 +3159,8 @@ typedef enum townwarp_dest {
 } townwarp_dest;
 
 typedef enum dungeon_warp {
-	DWARP_ENTRY,
 	DWARP_EXIT,
+	DWARP_ENTRY,
 	DWARP_TOWN,
 	DWARP_SIDE,
 	NUM_DWARP
@@ -3172,7 +3180,52 @@ typedef enum dungeon_warp_type {
 	WRPT_L4_DOWN,
 	WRPT_L4_PENTA,
 	WRPT_CIRCLE,
+	WRPT_RPORTAL,
+	WRPT_TOWN_L1,
+	WRPT_TOWN_L2,
+	WRPT_TOWN_L3,
+	WRPT_TOWN_L4,
+	WRPT_TOWN_L5,
+	WRPT_TOWN_L6,
 } dungeon_warp_type;
+
+typedef enum trig_type {
+	TRT_TOWN_L1,
+	TRT_L1_UP,
+	TRT_L1_TOWN,
+	TRT_L1_DOWN,
+	TRT_L1_SKING,
+	TRT_SKING_L1,
+	TRT_L1_PWATER,
+	TRT_PWATER_L1,
+	TRT_TOWN_L2,
+	TRT_L2_UP,
+	TRT_L2_TOWN,
+	TRT_L2_DOWN,
+	TRT_L2_BCHAMB,
+	TRT_BCHAMB_L2,
+	TRT_TOWN_L3,
+	TRT_L3_UP,
+	TRT_L3_TOWN,
+	TRT_L3_DOWN,
+	TRT_TOWN_L4,
+	TRT_L4_UP,
+	TRT_L4_TOWN,
+	TRT_L4_DOWN,
+	TRT_L4_PENTA,
+	TRT_L4_BETR,
+	TRT_BETR_L4,
+#ifdef HELLFIRE
+	TRT_TOWN_L5,
+	TRT_L5_UP,
+	TRT_L5_TOWN,
+	TRT_L5_DOWN,
+	TRT_TOWN_L6,
+	TRT_L6_UP,
+	TRT_L6_TOWN,
+	TRT_L6_DOWN,
+#endif
+} trig_type;
 
 typedef enum dungeon_theme_room_tiles {
 	DRT_FLOOR,
@@ -3184,8 +3237,19 @@ typedef enum dungeon_theme_room_tiles {
 	DRT_TOP_RIGHT,
 	DRT_BOTTOM_LEFT,
 	DRT_BOTTOM_RIGHT,
-	NUM_DRT_TYPES,
+	NUM_DRT_TYPES
 } dungeon_theme_room_tiles;
+
+typedef enum level_graphic_id {
+	LFILE_TOWN,
+	LFILE_L1,
+	LFILE_L2,
+	LFILE_L3,
+	LFILE_L4,
+	LFILE_L5,
+	LFILE_L6,
+	NUM_LFILE_TYPES
+} level_graphic_id;
 
 typedef enum dungeon_level {
 	DLV_TOWN,
@@ -3270,7 +3334,6 @@ typedef enum piece_flag {
 
 typedef enum _piece_trap_type {
 	PTT_NONE,
-	PTT_ANY,
 	PTT_LEFT,
 	PTT_RIGHT,
 } _piece_trap_type;
@@ -3313,6 +3376,23 @@ typedef enum _draw_mask_type {
 	DMT_FLOOR_TRN_UP_RIGHT,		// UpperRightMask
 	DMT_EMPTY,
 } _draw_mask_type;
+
+typedef enum _automap_flags {
+	MAPFLAG_TYPE      = 0x00FF,
+	MAPFLAG_VERTDOOR  = 0x0100,
+	MAPFLAG_HORZDOOR  = 0x0200,
+	MAPFLAG_VERTARCH  = 0x0400,
+	MAPFLAG_HORZARCH  = 0x0800,
+	MAPFLAG_VERTGRATE = 0x1000,
+	MAPFLAG_HORZGRATE = 0x2000,
+	MAPFLAG_DIRT      = 0x4000,
+	MAPFLAG_STAIRS    = 0x8000,
+	// calculated mapflags
+	MAPFLAG_DOVERT      = 0x0010,
+	MAPFLAG_DOHORZ      = 0x0020,
+	MAPFLAG_DOVERT_CAVE = 0x0040,
+	MAPFLAG_DOHORZ_CAVE = 0x0080,
+} _automap_flags;
 
 typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
@@ -3890,6 +3970,14 @@ typedef enum _selhero_selections {
 	SELHERO_CONTINUE    = 2,
 	SELHERO_PREVIOUS    = 3
 } _selhero_selections;
+
+typedef enum _selhero_status {
+	SHS_ACTIVE,
+	SHS_NEW_DUNGEON = SELHERO_NEW_DUNGEON,
+	SHS_CONTINUE = SELHERO_CONTINUE,
+	SHS_PREVIOUS = SELHERO_PREVIOUS,
+	SHS_DEL_HERO,
+} _selhero_status;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,

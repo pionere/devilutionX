@@ -192,10 +192,10 @@ static int merger_callback()
 void UiMergerDialog()
 {
 	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
+	workPhase = 0;
 	MergerInit();
 
 	workProgress = RETURN_DONE;
-	workPhase = 0;
 	do {
 		UiRenderAndPoll(NULL);
 	} while (workProgress == RETURN_DONE);

@@ -3,7 +3,7 @@
  *
  * Implementation of the screenshot function.
  */
-#include <fstream>
+#include <cstdio>
 
 #include "all.h"
 #include "utils/paths.h"
@@ -20,12 +20,12 @@ DEVILUTION_BEGIN_NAMESPACE
  * @param out File stream to write to
  * @return True on success
  */
-static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream* out)
+static bool CaptureHdr(uint16_t width, uint16_t height, FILE* out)
 {
 	FilePcxHeader Buffer;
 
 	memset(&Buffer, 0, sizeof(Buffer));
-	Buffer.Manufacturer = 10;
+	Buffer.Manufacturer = 0x0A;
 	Buffer.Version = 5;
 	Buffer.Encoding = 1;
 	Buffer.BitsPerPixel = 8;
@@ -36,8 +36,7 @@ static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream* out)
 	Buffer.NPlanes = 1;
 	Buffer.BytesPerLine = width;
 
-	out->write(reinterpret_cast<const char*>(&Buffer), sizeof(Buffer));
-	return !out->fail();
+	return WriteFile(&Buffer, sizeof(Buffer), out);
 }
 
 /**
@@ -46,20 +45,19 @@ static bool CaptureHdr(uint16_t width, uint16_t height, std::ofstream* out)
  * @param out File stream for the PCX file.
  * @return True if successful, else false
  */
-static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], std::ofstream* out)
+static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], FILE* out)
 {
 	BYTE pcx_palette[1 + PCX_COLORS * 3];
 	int i;
 	static_assert(NUM_COLORS == PCX_COLORS, "Mismatching PCX and game palette.");
-	pcx_palette[0] = 12;
+	pcx_palette[0] = 0x0C;
 	for (i = 0; i < PCX_COLORS; i++) {
 		pcx_palette[1 + 3 * i + 0] = palette[i].r;
 		pcx_palette[1 + 3 * i + 1] = palette[i].g;
 		pcx_palette[1 + 3 * i + 2] = palette[i].b;
 	}
 
-	out->write(reinterpret_cast<const char*>(pcx_palette), sizeof(pcx_palette));
-	return !out->fail();
+	return WriteFile(pcx_palette, sizeof(pcx_palette), out);
 }
 
 /**
@@ -72,24 +70,23 @@ static bool CapturePal(SDL_Color (&palette)[NUM_COLORS], std::ofstream* out)
  */
 static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
 {
-	int rleLength;
+	BYTE rleLength;
+	BYTE rlePixel;
 
-	do {
-		BYTE rlePixel = *src;
+	while (width != 0) {
+		rlePixel = *src;
 		src++;
 		rleLength = 1;
 
 		width--;
 
-		while (rlePixel == *src) {
-			if (rleLength >= 63)
-				break;
-			if (width == 0)
+		while (width != 0 && rlePixel == *src) {
+			if (rleLength >= 0x3F)
 				break;
 			rleLength++;
 
-			width--;
 			src++;
+			width--;
 		}
 
 		if (rleLength > 1 || rlePixel > 0xBF) {
@@ -99,7 +96,7 @@ static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
 
 		*dst = rlePixel;
 		dst++;
-	} while (width);
+	}
 
 	return dst;
 }
@@ -112,7 +109,7 @@ static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
  * @param pixels Raw pixel buffer
  * @return True if successful, else false
  */
-static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* pixels, std::ofstream* out)
+static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* pixels, FILE* out)
 {
 	int i, writeSize;
 	BYTE *pBuffer, *pBufferEnd;
@@ -122,18 +119,14 @@ static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* p
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
 		writeSize = pBufferEnd - pBuffer;
-		out->write(reinterpret_cast<const char*>(pBuffer), writeSize);
-		if (out->fail())
+		if (!WriteFile(pBuffer, writeSize, out))
 			break;
 	}
 	mem_free_dbg(pBuffer);
 	return i == 0;
 }
 
-/**
- * Returns a pointer because in GCC < 5 ofstream itself is not moveable due to a bug.
- */
-static std::ofstream* CaptureFile(std::string* dst_path)
+static FILE* CaptureFile(std::string* dst_path)
 {
 	char filename[sizeof("screen00.PCX")];
 	for (int i = 0; i <= 99; ++i) {
@@ -141,7 +134,7 @@ static std::ofstream* CaptureFile(std::string* dst_path)
 		*dst_path = GetPrefPath();
 		*dst_path += filename;
 		if (!FileExists(dst_path->c_str())) {
-			return new std::ofstream(*dst_path, std::ios::binary | std::ios::trunc);
+			return FileOpen(dst_path->c_str(), "wb");
 		}
 	}
 	return NULL;
@@ -167,7 +160,7 @@ void CaptureScreen()
 	std::string FileName;
 	bool success;
 
-	std::ofstream* out = CaptureFile(&FileName);
+	FILE* out = CaptureFile(&FileName);
 	if (out == NULL)
 		return;
 	scrollrt_draw_game();
@@ -183,7 +176,7 @@ void CaptureScreen()
 		success = CapturePal(bkp_palette, out);
 	}
 	unlock_buf(2);
-	out->close();
+	std::fclose(out);
 
 	if (!success) {
 		DoLog("Failed to save screenshot at %s", FileName.c_str());

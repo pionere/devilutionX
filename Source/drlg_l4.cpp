@@ -9,9 +9,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
-#define BASE_MEGATILE_L4 (30 - 1)
-/** Default megatile if the tile is zero. */
+/** The default external tile. */
+#define BASE_MEGATILE_L4 30
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L4 6
 
 static_assert(DQUAD_ROOM_SIZE <= L4BLOCKX, "Rooms of diablo-quads must fit to the dungeon blocks of DRLG_L4 I.");
@@ -24,7 +24,7 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L4, 1, 2, 1, 2, 9, 16,
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L4ConvTbl[16] = { BASE_MEGATILE_L4 + 1, 6, 1, 6, 2, 6, 6, 6, 9, 6, 1, 6, 2, 6, 3, 6 };
+const BYTE L4ConvTbl[16] = { BASE_MEGATILE_L4, 6, 1, 6, 2, 6, 6, 6, 9, 6, 1, 6, 2, 6, 3, 6 };
 
 /** Miniset: Stairs up. */
 const BYTE L4USTAIRS[] = {
@@ -42,24 +42,10 @@ const BYTE L4USTAIRS[] = {
 	37, 34, 33, 32,
 	 0,  0, 31,  0,
 	 0,  0,  0,  0,
-/*    0,  0,     0,  0,     0,  0,     0,  0,	// MegaTiles
-	  0,  0,     0,  0,     0,  0,     0,  0,
-
-	102,103,   110,111,    98, 99,     0,  0,
-	104,105,   112,113,   100,101,     0,  0,
-
-	106,107,    94, 95,    90, 91,    86, 87,
-	108,109,    96, 97,    92, 93,    88, 89 
-
-	  0,  0,     0,  0,    82, 83,     0,  0,
-	  0,  0,     0,  0,    84, 85,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 /** Miniset: Stairs up to town. */
-const BYTE L4TWARP[] = {
+/*const BYTE L4TWARP[] = {
 	// clang-format off
 	4, 5, // width, height
 
@@ -74,22 +60,8 @@ const BYTE L4TWARP[] = {
 	135, 132, 131, 130,
 	  0,   0, 129,   0,
 	  0,   0,   0,   0,
-/*    0,  0,     0,  0,     0,  0,     0,  0,	// MegaTiles
-	  0,  0,     0,  0,     0,  0,     0,  0,
-
-	441,442,   449,450,   437,438,     0,  0,
-	443,444,   451,452,   439,440,     0,  0,
-
-	445,446,   433,434,   429,430,   425,426,
-	447,448,   435,436,   431,432,   427,428,
-
-	  0,  0,     0,  0,   421,422,     0,  0,
-	  0,  0,     0,  0,   423,424,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0,     0,  0, */
 	// clang-format on
-};
+};*/
 /** Miniset: Stairs down. */
 const BYTE L4DSTAIRS[] = {
 	// clang-format off
@@ -401,9 +373,9 @@ static void DRLG_L4MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L4 + 1;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L4;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L4 + 1;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L4;
 }
 
 /*
@@ -1138,13 +1110,13 @@ static void L4ConnectBlock()
 	}
 }
 
-static int GetArea()
+static int DRLG_L4GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(drlg.dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in GetArea.");
+	static_assert(sizeof(drlg.dungBlock) == L4BLOCKX * L4BLOCKY, "Linear traverse of dungBlock does not work in DRLG_L4GetArea.");
 	pTmp = &drlg.dungBlock[0][0];
 	for (i = 0; i < L4BLOCKX * L4BLOCKY; i++, pTmp++) {
 		assert(*pTmp <= 1);
@@ -1870,7 +1842,7 @@ static void DRLG_L4()
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
 			L4FirstRoom();
-		} while (GetArea() < 173);
+		} while (DRLG_L4GetArea() < 173);
 		L4ConnectBlock();
 
 		L4Block2Dungeon();
@@ -1890,23 +1862,23 @@ static void DRLG_L4()
 		}
 		pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
 		pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
-		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
-		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
 		pWarps[DWARP_ENTRY]._wtype = WRPT_L4_UP;
 		if (currLvl._dLevelIdx != DLV_HELL4) {
 			if (currLvl._dLevelIdx == DLV_HELL1) {
-				warpPos = DRLG_PlaceMiniSet(L4TWARP); // L4TWARP (5, 6)
+				warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4TWARP (5, 6)
 				if (warpPos.x < 0) {
 					continue;
 				}
 				pWarps[DWARP_TOWN]._wx = warpPos.x + 1;
 				pWarps[DWARP_TOWN]._wy = warpPos.y + 2;
-				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
-				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX + 1;
+				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY + 1;
 				pWarps[DWARP_TOWN]._wtype = WRPT_L4_UP;
 			}
 			if (currLvl._dLevelIdx == DLV_HELL3) {
-				warpPos = DRLG_PlaceMiniSet((!IsMultiGame && quests[Q_DIABLO]._qactive != QUEST_ACTIVE) ? L4PENTA : L4PENTA2); // L4PENTA (5, 6)
+				warpPos = DRLG_PlaceMiniSet(L4PENTA2); // L4PENTA (5, 6)
 				if (warpPos.x < 0) {
 					continue;
 				}
@@ -1914,20 +1886,20 @@ static void DRLG_L4()
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_PENTA;
 			} else if (pSetPieces[0]._sptype == SPT_WARLORD) {
-				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 3; // L4DSTAIRS (6, 4)
+				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 2; // L4DSTAIRS (4, 4)
 				pWarps[DWARP_EXIT]._wy = pSetPieces[0]._spy + 3;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			} else {
-				warpPos = DRLG_PlaceMiniSet(L4DSTAIRS); // L4DSTAIRS (6, 4)
+				warpPos = DRLG_PlaceMiniSet(L4DSTAIRS); // L4DSTAIRS (4, 4)
 				if (warpPos.x < 0) {
 					continue;
 				}
-				pWarps[DWARP_EXIT]._wx = warpPos.x + 3;
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 2;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L4_DOWN;
 			}
-			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX + 1;
+			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 		}
 		break;
 	}
@@ -2000,6 +1972,12 @@ static void DRLG_L4DrawPreMaps()
 			DRLG_DrawMap(i);
 		}
 	}
+	// TODO: add setpiece?
+	if (currLvl._dLevelIdx == DLV_HELL3) {
+		int sx = (pWarps[DWARP_EXIT]._wx - (1 + 4 + DBORDERX)) >> 1;
+		int sy = (pWarps[DWARP_EXIT]._wy - (1 + 4 + DBORDERY)) >> 1;
+		DRLG_DrawMiniSet(L4PENTA, sx, sy);
+	}
 }
 
 static void LoadL4Dungeon(const LevelData* lds)
@@ -2016,7 +1994,7 @@ static void LoadL4Dungeon(const LevelData* lds)
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL4DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L4 + 1, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L4, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L4);
 }
@@ -2039,9 +2017,6 @@ void CreateL4Dungeon()
 
 	DRLG_L4InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L4);
-	DRLG_Init_Globals();
-
-	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE

@@ -357,10 +357,18 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 		if (mask == 0xFFFFFFFF) {
 			if (light == MAXDARKNESS) {
 				memset(dst, 0, n);
+				// DUFFS_LOOP4 ?
+				//for (i = 0; i < n; i++) {
+				//	dst[i] = 0;
+				//}
 			} else if (light == 0) {
-				memcpy(dst, src, n);
+				// DUFFS_LOOP4 ?
+				for (i = 0; i < n; i++) {
+					dst[i] = src[i];
+				}
 			} else {
 				tbl = ColorTrns[light];
+				// DUFFS_LOOP4 ?
 				for (i = 0; i < n; i++) {
 					dst[i] = tbl[src[i]];
 				}
@@ -495,6 +503,7 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	static_assert(MICRO_WIDTH <= sizeof(*mask) * CHAR_BIT, "Mask is too small to cover the tile.");
 	switch (encoding) {
 	case MET_SQUARE:
+		// assert(mask == &SolidMask[MICRO_HEIGHT - 1] || mask == &WallMask[MICRO_HEIGHT - 1]);
 		for (i = MICRO_HEIGHT; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			RenderLine(dst, src, MICRO_WIDTH, *mask, light);
 			src += MICRO_WIDTH;
@@ -519,14 +528,15 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 		}
 		break;
 	case MET_LTRIANGLE:
-		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+		// assert(mask == &SolidMask[MICRO_HEIGHT - 1] || mask == &WallMask[MICRO_HEIGHT - 1]);
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--/*, mask--*/) {
 			src += i & 2;
 			dst += i;
 			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 		}
-		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--/*, mask--*/) {
 			src += i & 2;
 			dst += i;
 			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
@@ -535,14 +545,15 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 		}
 		break;
 	case MET_RTRIANGLE:
-		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+		// assert(mask == &SolidMask[MICRO_HEIGHT - 1] || mask == &WallMask[MICRO_HEIGHT - 1]);
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--/*, mask--*/) {
 			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
-		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+		for (i = 2; i != MICRO_HEIGHT; i += 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--/*, mask--*/) {
 			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
@@ -551,13 +562,15 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 		}
 		break;
 	case MET_LTRAPEZOID:
-		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+		// assert(mask == &SolidMask[MICRO_HEIGHT - 1] || mask == &WallMask[MICRO_HEIGHT - 1] || mask == &LeftMask[MICRO_HEIGHT - 1]);
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--/*, mask--*/) {
 			src += i & 2;
 			dst += i;
 			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 		}
+		// mask -= MICRO_HEIGHT / 2;
 		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			RenderLine(dst, src, MICRO_WIDTH, *mask, light);
 			src += MICRO_WIDTH;
@@ -565,13 +578,15 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 		}
 		break;
 	case MET_RTRAPEZOID:
-		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
+		// assert(mask == &SolidMask[MICRO_HEIGHT - 1] || mask == &WallMask[MICRO_HEIGHT - 1] || mask == &RightMask[MICRO_HEIGHT - 1]);
+		for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--/*, mask--*/) {
 			RenderLine(dst, src, MICRO_WIDTH - i, *mask, light);
 			src += MICRO_WIDTH - i;
 			dst += MICRO_WIDTH - i;
 			src += i & 2;
 			dst += i;
 		}
+		//mask -= MICRO_HEIGHT / 2;
 		for (i = MICRO_HEIGHT / 2; i != 0; i--, dst -= BUFFER_WIDTH + MICRO_WIDTH, mask--) {
 			RenderLine(dst, src, MICRO_WIDTH, *mask, light);
 			src += MICRO_WIDTH;
@@ -593,11 +608,13 @@ void world_draw_black_tile(int sx, int sy)
 {
 	int i;
 	BYTE* dst;
-
-	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
+	// MBUGFIX: KEEP_IN_PANEL
+	//if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
+	if (sx <= PANEL_X - TILE_WIDTH || sx >= SCREEN_X + PANEL_RIGHT)
 		return;
 
-	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
+	//if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
+	if (sy < PANEL_Y || sy >= SCREEN_Y + PANEL_BOTTOM + TILE_HEIGHT - 1)
 		return;
 
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "world_draw_black_tile relies on fix width/height ratio of the floor-tile.");

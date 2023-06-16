@@ -83,6 +83,16 @@ inline bool GetFileSize(const char* path, std::uintmax_t* size)
 #endif
 }
 
+inline bool ReadFile(void* out, size_t size, FILE* f)
+{
+	return fread(out, size, 1, f) == 1;
+}
+
+inline bool WriteFile(const void* data, size_t size, FILE* f)
+{
+	return fwrite(data, size, 1, f) == 1;
+}
+
 inline bool ResizeFile(const char* path, std::uintmax_t size)
 {
 #if defined(_WIN64) || defined(_WIN32)
@@ -108,10 +118,8 @@ inline bool ResizeFile(const char* path, std::uintmax_t size)
 	}
 	::CloseHandle(file);
 	return true;
-#elif _POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)
-	return ::truncate(path, static_cast<off_t>(size)) == 0;
 #else
-	static_assert(false, "truncate not implemented for the current platform");
+	return ::truncate(path, static_cast<off_t>(size)) == 0;
 #endif
 }
 

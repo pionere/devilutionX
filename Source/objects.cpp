@@ -190,7 +190,7 @@ void FreeObjectGFX()
 	}
 }
 
-void InitLevelObjects()
+void InitLvlObjects()
 {
 //	int i;
 
@@ -231,7 +231,7 @@ static bool RndLocOk(int xp, int yp)
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_OBJ_PROTECT)) != 0)
 		return false;
 	// should be covered by Freeupstairs.
-	//if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
+	//if (currLvl._dDunType != DGT_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
 		return true;
 	//return false;
 }
@@ -510,7 +510,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] != PTT_LEFT)
+			if (((nSpecTrapTable[dPiece[i][j]] >> 6) & 3) != PTT_LEFT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -531,7 +531,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] != PTT_RIGHT)
+			if (((nSpecTrapTable[dPiece[i][j]] >> 6) & 3) != PTT_RIGHT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -587,7 +587,7 @@ static void AddObjTraps()
 			continue;
 		if (dObject[tx][ty] != 0)
 			continue;
-		if (nTrapTable[dPiece[tx][ty]] == PTT_NONE)
+		if (((nSpecTrapTable[dPiece[tx][ty]] >> 6) & 3) == PTT_NONE)
 			continue;
 		on = AddObject(on, tx, ty);
 		if (on == -1)
@@ -904,7 +904,7 @@ static void AddHookedBodies()
 	// TODO: straight loop (in dlrgs)?
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			ttv = nTrapTable[dPiece[i][j]];
+			ttv = (nSpecTrapTable[dPiece[i][j]] >> 6) & 3;
 			if (ttv == PTT_NONE)
 				continue;
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
@@ -3737,7 +3737,6 @@ static void SyncL1Doors(int oi)
 	y = os->_oy;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
-		dSpecial[x][y] = 0;
 		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
 
 		if (os->_otype == OBJ_L1LDOOR)
@@ -3753,11 +3752,9 @@ static void SyncL1Doors(int oi)
 
 	if (os->_otype == OBJ_L1LDOOR) {
 		dPiece[x][y] = os->_oVar1 == 214 ? 408 : 393; // DOOR_PIECE_CLOSED
-		dSpecial[x][y] = 7;
 		y--;
 	} else {
 		dPiece[x][y] = 395;
-		dSpecial[x][y] = 8;
 		x--;
 	}
 	//ObjSetDoorSidePiece(x, y/*, os->_otype*/);
@@ -3790,11 +3787,9 @@ static void SyncL5Doors(int oi)
 
 	if (os->_otype == OBJ_L5LDOOR) {
 		dPiece[x][y] = 206;
-		//dSpecial[x][y] = 1;
 		y--;
 	} else {
 		dPiece[x][y] = 209;
-		//dSpecial[x][y] = 2;
 		x--;
 	}
 	ObjSetDoorSidePiece(x, y/*, os->_otype*/);
@@ -3806,21 +3801,17 @@ static void SyncL2Doors(int oi)
 	ObjectStruct* os;
 	int pn, x, y;
 	bool ldoor;
-	BYTE sn;
 
 	os = &objects[oi];
 	ldoor = os->_otype == OBJ_L2LDOOR;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		pn = ldoor ? 538 : 540;
-		sn = 0;
 	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
 		pn = ldoor ? 13 : 17;
-		sn = ldoor ? 5 : 6;
 	}
 	x = os->_ox;
 	y = os->_oy;
 	dPiece[x][y] = pn;
-	dSpecial[x][y] = sn;
 }
 
 static void SyncL3Doors(int oi)

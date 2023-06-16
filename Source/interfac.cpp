@@ -166,30 +166,28 @@ void IncProgress()
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
-static void CreateLevel()
+static void CreateDungeon()
 {
 	switch (currLvl._dDunType) {
-	case DTYPE_TOWN:
+	case DGT_TOWN:
 		CreateTown();
 		break;
-	case DTYPE_CATHEDRAL:
+	case DGT_CATHEDRAL:
 		CreateL1Dungeon();
 		break;
-	case DTYPE_CATACOMBS:
+	case DGT_CATACOMBS:
 		CreateL2Dungeon();
 		break;
-	case DTYPE_CAVES:
+	case DGT_CAVES:
 		CreateL3Dungeon();
 		break;
-	case DTYPE_HELL:
+	case DGT_HELL:
 		CreateL4Dungeon();
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	InitTriggers();
-	LoadRndLvlPal();
 }
 
 void LoadGameLevel(int lvldir)
@@ -216,27 +214,33 @@ void LoadGameLevel(int lvldir)
 		InitVision();
 	//}
 
-	InitLevelMonsters();
-	InitLevelObjects();
-	InitLvlThemes();
-	InitLvlItems();
+	InitLvlMonsters(); // reset monsters
+	InitLvlObjects();  // reset objects
+	InitLvlThemes();   // reset themes
+	InitLvlItems();    // reset items
 	IncProgress();
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	CreateLevel();
+	// fill pre: pSetPieces
+	// fill in loop: dungeon, pWarps, uses drlgFlags, dungBlock
+	// fill post: themeLoc, pdungeon, dPiece, dTransVal
+	CreateDungeon();
+	LoadLvlPalette();
+	// reset: dMonster, dObject, dPlayer, dItem, dMissile, dFlags+, dLight+
+	InitLvlMap();
 	IncProgress();
 	if (currLvl._dType != DTYPE_TOWN) {
-		GetLevelMTypes();
-		InitThemes();
+		GetLevelMTypes(); // select monster types and load their fx
+		InitThemes();     // select theme types
 		IncProgress();
-		InitObjectGFX();
+		InitObjectGFX();  // load object graphics
 		IncProgress();
-		HoldThemeRooms();
-		InitMonsters();
+		HoldThemeRooms(); // protect themes with dFlags
+		InitMonsters();   // place monsters
 		IncProgress();
-		InitObjects();
-		InitItems();
-		CreateThemeRooms();
+		InitObjects();      // place objects
+		InitItems();        // place items
+		CreateThemeRooms(); // populate theme rooms
 	} else {
 		InitLvlStores();
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment

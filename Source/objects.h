@@ -20,7 +20,7 @@ extern ObjectStruct objects[MAXOBJECTS];
 
 void InitObjectGFX();
 void FreeObjectGFX();
-void InitLevelObjects();
+void InitLvlObjects();
 void InitObjects();
 int AddObject(int type, int ox, int oy);
 void ProcessObjects();

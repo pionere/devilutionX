@@ -638,7 +638,7 @@ static void drawCell(int pn, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][i];
+	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
@@ -975,7 +975,7 @@ static void drawFloor(int pn, int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][0];
+	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];
 
 	if ((tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
@@ -1122,18 +1122,19 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bv = dSpecial[sx][sy];
+		bv = nSpecTrapTable[dPiece[sx][sy]] & ((1 << 6) - 1);
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
+			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
+			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0) {
-			bv = dSpecial[sx - 1][sy - 1];
+			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & ((1 << 6) - 1);
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), (CelImageBuf*)pSpecialCels, bv);
+				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
 		}
 	}
@@ -1191,7 +1192,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & ((1 << 6) - 1)) != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**

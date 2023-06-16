@@ -135,31 +135,6 @@ void CheckQuests()
 	}
 }
 
-int ForceQuests()
-{
-	int i;
-
-	for (i = 0; i < numtrigs; i++) {
-		if (trigs[i]._tmsg == DVL_DWM_SETLVL) {
-			/*      ^
-			 *      |
-			 * ----++------>
-			 *    +++
-			 *    ++|
-			 *      |
-			 */
-			int dx = pcurspos.x - (trigs[i]._tx - 1);
-			int dy = pcurspos.y - (trigs[i]._ty - 1);
-			if (abs(dx) <= 1 && abs(dy) <= 1 // select the 3x3 square around (-1;-1)
-			 && abs(dx - dy) < 2) {          // exclude the top left and bottom right positions
-				return i;
-			}
-		}
-	}
-
-	return -1;
-}
-
 bool QuestStatus(int qn)
 {
 	if (currLvl._dLevelIdx == questlist[qn]._qdlvl
@@ -199,16 +174,17 @@ void CheckQuestKill(int mnum, bool sendmsg)
 			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
 
-			InitTriggers();
 			if (sendmsg) {
 				NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
 			}
+			ResyncDiablo();
 		} else { //"Arch-Bishop Lazarus" - single
 			quests[Q_BETRAYER]._qactive = QUEST_DONE;
 			quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_DEAD;
 			quests[Q_DIABLO]._qactive = QUEST_ACTIVE;
-			InitVPReturnTrigger(false);
 		}
+		InitTriggers();
+
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_QM_LAZARUS;
 		qn = Q_BETRAYER;
@@ -256,20 +232,30 @@ void LoadPWaterPalette()
 
 void ResyncBanner()
 {
-	if (quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
-		DRLG_ChangeMap(pSetPieces[0]._spx + 3, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 6/*, false*/);
-		//for (i = 0; i < numobjects; i++)
-		//	SyncObjectAnim(objectactive[i]);
-	}
+	// assert(currLvl._dLevelIdx == questlist[Q_BANNER]._qdlvl && quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK);
+	int sx = pSetPieces[0]._spx + 3;
+	int sy = pSetPieces[0]._spy + 3;
+	DRLG_ChangeMap(sx, sy, sx + 3, sy + 3/*, false*/);
+}
+
+void ResyncDiablo()
+{
+	// assert(currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD);
+	int sx = (pWarps[DWARP_EXIT]._wx - (1 + 2 + DBORDERX)) >> 1;
+	int sy = (pWarps[DWARP_EXIT]._wy - (1 + 2 + DBORDERY)) >> 1;
+	DRLG_ChangeMap(sx, sy, sx + 2, sy + 2);
 }
 
 void ResyncQuests()
 {
 	//int i;
-	BYTE lvl = currLvl._dLevelIdx;
+	//BYTE lvl = currLvl._dLevelIdx;
 
 	deltaload = true;
-	if (QuestStatus(Q_BANNER)) {
+
+	InitTriggers();
+
+	if (QuestStatus(Q_BANNER) && quests[Q_BANNER]._qvar1 == QV_BANNER_ATTACK) {
 		ResyncBanner();
 		/*if (quests[Q_BANNER]._qvar1 == QV_BANNER_TALK1)
 			DRLG_ChangeMap(
@@ -298,6 +284,10 @@ void ResyncQuests()
 	// do not activate the quest, otherwise the healer won't give a quest-log entry if visited before the level is cleared
 	//if (lvl == SL_POISONWATER && quests[Q_PWATER]._qactive == QUEST_INIT)
 	//	quests[Q_PWATER]._qactive = QUEST_ACTIVE;
+	if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD) {
+		ResyncDiablo();
+	}
+
 	if (IsMultiGame) {
 		// TODO: eliminate relative level-indices?
 		//if (quests[Q_SKELKING]._qactive == QUEST_INIT
@@ -317,17 +307,15 @@ void ResyncQuests()
 		//	NetSendCmdQuest(Q_BETRAYER, false); // recipient should not matter
 		//}
 	} else {
-		if (lvl == SL_VILEBETRAYER) {
+		if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_CENTRALOPEN)
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_TALK1)
 				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
-			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_DEAD)
-				InitVPReturnTrigger(true);
 			//for (i = 0; i < numobjects; i++)
 			//	SyncObjectAnim(objectactive[i]);
-		}
-		if (lvl == questlist[Q_BETRAYER]._qdlvl) {
+		} else if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl) {
+			// TODO: merge with InitDunTriggers?
 			if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN) {
 				if (quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_STAFFGIVEN) {
 					quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_PORTALOPEN;

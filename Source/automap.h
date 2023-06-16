@@ -16,6 +16,8 @@ extern "C" {
 extern bool gbAutomapflag;
 /** Tracks the explored areas of the map. */
 extern BOOLEAN automapview[DMAXX][DMAXY];
+/* Maps from tile_id to automap type. */
+extern uint16_t automaptype[MAXTILES + 1];
 /** Specifies the scale of the automap. */
 extern unsigned AutoMapScale;
 extern int AutoMapXOfs;

@@ -455,9 +455,6 @@ typedef struct TextData {
 // missiles
 //////////////////////////////////////////////////
 
-// TPDEF PTR FCN VOID MIADDPRC
-// TPDEF PTR FCN VOID MIPROC
-
 typedef struct MissileData {
 	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
 	void (*mProc)(int);
@@ -2058,22 +2055,27 @@ typedef struct LevelStruct {
 	BYTE _dDunType;   // cached type of the dungeon
 } LevelStruct;
 
-typedef struct LevelData {
-	BYTE dLevel;
-	BOOLEAN dSetLvl;
-	BYTE dType;
-	BYTE dDunType;
-	BYTE dMusic;
-	BYTE dMicroTileLen;
-	BYTE dBlocks;
-	const char* dLevelName;
+typedef struct LevelFileData {
 	const char* dAutomapData;
 	const char* dSolidTable;
 	const char* dMicroFlags;
 	const char* dMicroCels;
 	const char* dMegaTiles;
 	const char* dMiniTiles;
+	const char* dSpecFlags;
 	const char* dSpecCels;
+} LevelFileData;
+
+typedef struct LevelData {
+	BYTE dLevel;
+	BOOLEAN dSetLvl;
+	BYTE dType;    // dungeon_type
+	BYTE dDunType; // dungeon_gen_type
+	BYTE dMusic;   // _music_id
+	BYTE dfindex;  // level_graphic_id
+	BYTE dMicroTileLen;
+	BYTE dBlocks;
+	const char* dLevelName;
 	const char* dPalName;
 	const char* dLoadCels;
 	const char* dLoadPal;
@@ -2086,19 +2088,19 @@ typedef struct LevelData {
 	BYTE dSetLvlWarp; // dungeon_warp_type
 	BYTE dSetLvlPiece; // _setpiece_type
 	BYTE dMonTypes[32];
-	ALIGNMENT(9, 2)
 } LevelData;
 
 #ifdef X86_32bit_COMP
 static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelData to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 128, "Align LevelData to power of 2 for better performance.");
+static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 64, "Align LevelData to power of 2 for better performance.");
 #endif
 
 typedef struct WarpStruct {
 	int _wx;
 	int _wy;
 	int _wtype; // dungeon_warp_type
+	int _wlvl;  // dungeon_level / _setlevels
 } WarpStruct;
 
 typedef struct SetPieceStruct {
@@ -2130,8 +2132,8 @@ static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align Que
 #endif
 
 typedef struct QuestData {
-	BYTE _qdlvl; // dungeon level
-	BYTE _qslvl; // setmap level
+	BYTE _qdlvl; // dungeon_level
+	BYTE _qslvl; // _setlevels
 	int _qdmsg;  // _speech_id
 	const char* _qlstr; // quest title
 } QuestData;
@@ -2139,8 +2141,6 @@ typedef struct QuestData {
 //////////////////////////////////////////////////
 // gamemenu/gmenu
 //////////////////////////////////////////////////
-
-// TPDEF PTR FCN VOID TMenuFcn
 
 typedef struct TMenuItem {
 	const char* pszStr;
@@ -2154,8 +2154,6 @@ typedef struct TMenuItem {
 	//	};
 	//};
 } TMenuItem;
-
-// TPDEF PTR FCN VOID TMenuUpdateFcn
 
 //////////////////////////////////////////////////
 // spells
@@ -2343,8 +2341,6 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 // diabloui
 //////////////////////////////////////////////////
 
-// TPDEF PTR FCN VOID PLAYSND
-
 typedef struct _uidefaultstats {
 	uint16_t dsStrength;
 	uint16_t dsMagic;
@@ -2435,10 +2431,6 @@ typedef struct PATHNODE {
 static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE closer to power of 2 for better performance.");
 #endif
 
-// TPDEF PTR FCN UCHAR CHECKFUNC1
-
-// TPDEF PTR FCN UCHAR CHECKFUNC
-
 //////////////////////////////////////////////////
 // sha
 //////////////////////////////////////////////////
@@ -2498,10 +2490,6 @@ typedef struct FileMpqBlockEntry {
 } FileMpqBlockEntry;
 #pragma pack(pop)
 
-// TPDEF PTR FCN UCHAR TGetNameFcn
-
-// TPDEF PTR FCN VOID TCrypt
-
 //////////////////////////////////////////////////
 // trigs
 //////////////////////////////////////////////////
@@ -2509,8 +2497,9 @@ typedef struct FileMpqBlockEntry {
 typedef struct TriggerStruct {
 	int _tx;
 	int _ty;
-	int _tmsg;
-	int _tlvl;
+	int _ttype; // dungeon_warp_type
+	int _tlvl;  // dungeon_level
+	int _tmsg;  // window_messages
 } TriggerStruct;
 
 //////////////////////////////////////////////////
@@ -2640,16 +2629,21 @@ typedef struct FileCelGroup {
 	FileCel dcgCelData[dcNumCels];
 } FileCelGroup;
 
-typedef struct FileCl2 {
+typedef struct FileCl2Hdr {
 	int32_t dlNumFrames;
-	int32_t dlOffsets[dcNumFrames]; // address of an entry in dcCelFrames
-	int32_t dcFileSize/NextOffset;
-	FileCelFrame dcCelFrames[dcNumFrames];
+	int32_t dlOffsets[dlNumFrames]; // address of an entry in dlCelFrames/dlgCelFrames
+	int32_t dlFileSize/NextOffset;
+} FileCl2Hdr;
+
+typedef struct FileCl2 {
+	FileCl2Hdr dlCl2Hdr;
+	FileCelFrame dlCelFrames[dlNumFrames];
 } FileCl2;
 
 typedef struct FileCl2Group {
-	int32_t dlgCelOffsets[dcNumCels]; // address of an entry in dlgCl2Data
-	FileCl2 dlgCl2Data[dcNumCels];
+	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Data
+	FileCl2Hdr dlgCl2Hdr[dlgNumGroups];
+	FileCelFrame dlgCelFrames[dlgNumGroups * dlNumFrames];
 } FileCl2Group;
 
 typedef struct FilePal {

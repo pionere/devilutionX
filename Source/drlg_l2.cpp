@@ -10,12 +10,36 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
-#define BASE_MEGATILE_L2 (12 - 1)
-/** Default megatile if the tile is zero. */
+/** The default external tile. */
+#define BASE_MEGATILE_L2 12
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L2 3
 /** Shadow type of the base floor(3). */
 #define SF 3
+
+#if DEBUG_MODE
+#define PRE_EXTERN    32
+#define PRE_FLOOR     46
+#define PRE_HALLWAY   44
+#define PRE_WALL      35
+#define PRE_DOOR      68
+#define PRE_CORNER_SE 65
+#define PRE_CORNER_NE 66
+#define PRE_CORNER_NW 67
+#define PRE_CORNER_SW 69
+#define PRE_IS_CORNER(x) ((x) == PRE_CORNER_NW || (x) == PRE_CORNER_NE || (x) == PRE_CORNER_SW || (x) == PRE_CORNER_SE)
+#else
+#define PRE_EXTERN    0
+#define PRE_FLOOR     1
+#define PRE_HALLWAY   2
+#define PRE_WALL      3
+#define PRE_DOOR      4
+#define PRE_CORNER_SE 5
+#define PRE_CORNER_NE 6
+#define PRE_CORNER_NW 7
+#define PRE_CORNER_SW 8
+#define PRE_IS_CORNER(x) (x >= 5)
+#endif
 
 #define AREA_MIN    2
 #define ROOM_MAX    10
@@ -36,7 +60,7 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L2, 1, 2, 4, 5, 8, 7, 
 /*
  * Maps tile IDs to their corresponding undecorated tile type.
  */
-const BYTE L2BTYPES[161] = {
+const BYTE L2BTYPES[165] = {
 	// clang-format off
 	0, 1, 2, 3, 0, 0, 0, 0, 4, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // 10..
@@ -54,13 +78,13 @@ const BYTE L2BTYPES[161] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //150..
-	0
+	0, 0, 0, 0, 0
 	// clang-format on
 };
 /*
  * Specifies where the given tile ID should spread the room ID (transval).
  */
-const BYTE L2FTYPES[161] = {
+const BYTE L2FTYPES[165] = {
 	// clang-format off
 	 0, 10, 12, 15, 10, 12, 14, 10,  8, 12,
 	 0,  0,  0,  0,  0,  0,  0,  0,  0, 10, // 10..
@@ -78,7 +102,7 @@ const BYTE L2FTYPES[161] = {
 	15, 15, 10, 10, 15, 15, 12, 12, 15, 15, //130..
 	10, 12, 12,  0,  0,  0,  0,  0,  0,  0, //140..
 	10, 12, 10, 12, 10, 12, 10, 12, 15, 15, //150..
-	10
+	10, 10, 12, 10, 12
 	// clang-format on
 };
 /** Miniset: Stairs up. */
@@ -114,7 +138,7 @@ const BYTE L2DSTAIRS[] = {
 	// clang-format on
 };
 /** Miniset: Stairs to town. */
-const BYTE L2TWARP[] = {
+/*const BYTE L2TWARP[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -128,7 +152,7 @@ const BYTE L2TWARP[] = {
 	0, 159,   0, 0,
 	0,   0,   0, 0,
 	// clang-format on
-};
+};*/
 /** Miniset: Crumbled south pillar. */
 const BYTE CRUSHCOL[] = {
 	// clang-format off
@@ -674,41 +698,41 @@ static void DRLG_L2Shadows()
 				break;
 			}
 			if (varch) {
-				if (dungeon[x - 1][y] == 3) {
+				if (dungeon[x - 1][y] == 3 || dungeon[x - 1][y] == 162) {
 					if (dungeon[x - 1][y + 1] == 3 || dungeon[x - 1][y + 1] == 46) { // overlapping shadows (missing tile to match the other part)
 						if (dungeon[x - 1][y - 1] == 3) {
 							// 3, 0,  search
-							// 3, 39/41/42,
+							// 3/162, 39/41/42,
 							// 3/46, 0,
 
 							//48, 0, replace
-							//51, 0,
+							//51/164, 0,
 							//47, 0,
 							dungeon[x - 1][y - 1] = 48;
-							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y] = dungeon[x - 1][y] == 3 ? 51 : 164;
 							dungeon[x - 1][y + 1] = 47;
 							pillar = false;
 						} else if (dungeon[x - 1][y - 1] == 2) {
 							// 2, 0,  search
-							// 3, 39/41/42,
+							// 3/162, 39/41/42,
 							// 3/46, 0,
 
 							//142, 0, replace
-							//51, 0,
+							//51/164, 0,
 							//47, 0,
 							dungeon[x - 1][y - 1] = 142;
-							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y] = dungeon[x - 1][y] == 3 ? 51 : 164;
 							dungeon[x - 1][y + 1] = 47;
 							pillar = false;
 						} else if (dungeon[x - 1][y - 1] == 47 || dungeon[x - 1][y - 1] == 46) { // overlapping shadows
 							// 46/47, 0,  search
-							// 3, 39/41/42,
+							// 3/162, 39/41/42,
 							// 3/46, 0,
 
 							// 0, 0, replace
-							//51, 0,
+							//51/164, 0,
 							//47, 0,
-							dungeon[x - 1][y] = 51;
+							dungeon[x - 1][y] = dungeon[x - 1][y] == 3 ? 51 : 164;
 							dungeon[x - 1][y + 1] = 47;
 							pillar = false;
 						}
@@ -736,14 +760,14 @@ static void DRLG_L2Shadows()
 			}
 			if (harch) {
 				// - horizontal arch
-				if (dungeon[x][y - 1] == 3) {
+				if (dungeon[x][y - 1] == 3 || dungeon[x][y - 1] == 161) {
 					if (dungeon[x + 1][y - 1] == 3) {
-						// 3, 3,  search
+						// 3/161, 3,  search
 						// 40/41/43, 0
 
-						//49,46, replace
+						//49/163,46, replace
 						// 0, 0,
-						dungeon[x][y - 1] = 49;
+						dungeon[x][y - 1] = dungeon[x][y - 1] == 3 ? 49 : 163;
 						dungeon[x + 1][y - 1] = 46;
 					//} else if (dungeon[x + 1][y - 1] == 47) { // overlapping shadows (missing tile to match the other part)
 					//	dungeon[x][y - 1] = 49;
@@ -845,6 +869,15 @@ static void DRLG_LoadL2SP()
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 		// patch the map - Bonestr2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// add tiles with subtiles for arches
+		lm[2 + 2 + 1 * 7] = SwapLE16(162);
+		lm[2 + 4 + 1 * 7] = SwapLE16(162);
+		lm[2 + 2 + 5 * 7] = SwapLE16(162);
+		lm[2 + 4 + 5 * 7] = SwapLE16(162);
+		lm[2 + 1 + 2 * 7] = SwapLE16(161);
+		lm[2 + 1 + 4 * 7] = SwapLE16(161);
+		lm[2 + 5 + 2 * 7] = SwapLE16(161);
+		lm[2 + 5 + 4 * 7] = SwapLE16(161);
 		// - remove tile to leave space for shadow
 		lm[2 + 2 + 4 * 7] = 0;
 		// protect the main structure
@@ -870,28 +903,28 @@ static void DL2_DrawRoom(int x1, int y1, int x2, int y2)
 
 	//assert(x1 >= 0 && x2 < DMAXX && y1 >= 0 && y2 < DMAXY);
 	for (j = y1; j <= y2; j++) {
-		pdungeon[x1][j] = 35;
-		pdungeon[x2][j] = 35;
+		pdungeon[x1][j] = PRE_WALL;
+		pdungeon[x2][j] = PRE_WALL;
 	}
 	for (i = x1; i <= x2; i++) {
-		pdungeon[i][y1] = 35;
-		pdungeon[i][y2] = 35;
+		pdungeon[i][y1] = PRE_WALL;
+		pdungeon[i][y2] = PRE_WALL;
 	}
 	for (i = x1 + 1; i < x2; i++) {
 		for (j = y1 + 1; j < y2; j++) {
-			pdungeon[i][j] = 46;
+			pdungeon[i][j] = PRE_FLOOR;
 		}
 	}
 }
 
 /*static void CreateDoorType(int nX, int nY)
 {
-	if (pdungeon[nX - 1][nY] != 68
-	 && pdungeon[nX + 1][nY] != 68
-	 && pdungeon[nX][nY - 1] != 68
-	 && pdungeon[nX][nY + 1] != 68
-	 && (pdungeon[nX][nY] < 65 || pdungeon[nX][nY] > 69)) {
-		pdungeon[nX][nY] = 68;
+	if (pdungeon[nX - 1][nY] != PRE_DOOR
+	 && pdungeon[nX + 1][nY] != PRE_DOOR
+	 && pdungeon[nX][nY - 1] != PRE_DOOR
+	 && pdungeon[nX][nY + 1] != PRE_DOOR
+	 && !PRE_IS_CORNER(pdungeon[nX][nY])) {
+		pdungeon[nX][nY] = PRE_DOOR;
 	}
 }*/
 
@@ -959,10 +992,10 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 
 	// draw the room
 	DL2_DrawRoom(nRx1, nRy1, nRx2, nRy2);
-	pdungeon[nRx1][nRy1] = 67; // 67    66
-	pdungeon[nRx1][nRy2] = 69; //
-	pdungeon[nRx2][nRy1] = 66; //
-	pdungeon[nRx2][nRy2] = 65; // 69    65
+	pdungeon[nRx1][nRy1] = PRE_CORNER_NW;
+	pdungeon[nRx1][nRy2] = PRE_CORNER_SW;
+	pdungeon[nRx2][nRy1] = PRE_CORNER_NE;
+	pdungeon[nRx2][nRy2] = PRE_CORNER_SE;
 
 	// add entry to RoomList
 	drlg.RoomList[nRoomCnt].nRoomParent = nRDest;
@@ -1088,7 +1121,7 @@ static void CreateRoom(int nX1, int nY1, int nX2, int nY2, int nRDest, int nHDir
 	}
 }
 
-static void PlaceHallExt(int extDir, int hallDir, int nX, int nY)
+static void PlaceHallExt(unsigned extDir, int hallDir, int nX, int nY)
 {
 	int xx, yy;
 
@@ -1101,8 +1134,8 @@ static void PlaceHallExt(int extDir, int hallDir, int nX, int nY)
 			xx--;
 		}
 		//assert(xx >= 0 && xx < DMAXX && yy >= 0 && yy < DMAXY);
-		if (pdungeon[xx][yy] == 32) {
-			pdungeon[xx][yy] = 44;
+		if (pdungeon[xx][yy] == PRE_EXTERN) {
+			pdungeon[xx][yy] = PRE_HALLWAY;
 		}
 	}
 	if (extDir >= 2) {
@@ -1112,8 +1145,8 @@ static void PlaceHallExt(int extDir, int hallDir, int nX, int nY)
 			nX++;
 		}
 		//assert(nX >= 0 && nX < DMAXX && nY >= 0 && nY < DMAXY);
-		if (pdungeon[nX][nY] == 32) {
-			pdungeon[nX][nY] = 44;
+		if (pdungeon[nX][nY] == PRE_EXTERN) {
+			pdungeon[nX][nY] = PRE_HALLWAY;
 		}
 	}
 }
@@ -1122,10 +1155,10 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 {
 	int nCurrd, nDx, nDy, nRp, extDir;
 
-	//assert(pdungeon[nX1][nY1] == 35 || pdungeon[nX1][nY1] == 68);
-	pdungeon[nX1][nY1] = 68; // CreateDoorType(nX1, nY1);
-	//assert(pdungeon[nX2][nY2] == 35 || pdungeon[nX2][nY2] == 68);
-	pdungeon[nX2][nY2] = 68; // CreateDoorType(nX2, nY2);
+	//assert(pdungeon[nX1][nY1] == PRE_WALL || pdungeon[nX1][nY1] == PRE_DOOR);
+	pdungeon[nX1][nY1] = PRE_DOOR; // CreateDoorType(nX1, nY1);
+	//assert(pdungeon[nX2][nY2] == PRE_WALL || pdungeon[nX2][nY2] == PRE_DOOR);
+	pdungeon[nX2][nY2] = PRE_DOOR; // CreateDoorType(nX2, nY2);
 
 	extDir = random_(0, 4);
 	nCurrd = nHd;
@@ -1133,7 +1166,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	nY2 -= Dir_Yadd[nCurrd];
 	PlaceHallExt(extDir, nCurrd, nX2, nY2);
 	//assert(nX2 >= 0 && nX2 < DMAXX && nY2 >= 0 && nY2 < DMAXY);
-	pdungeon[nX2][nY2] = 44;
+	pdungeon[nX2][nY2] = PRE_HALLWAY;
 
 	while (TRUE) {
 		//assert(nX1 < DMAXX - 2 || nCurrd != HDIR_RIGHT);
@@ -1154,88 +1187,88 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 		}*/
 		nX1 += Dir_Xadd[nCurrd];
 		nY1 += Dir_Yadd[nCurrd];
-		if (pdungeon[nX1][nY1] == 32) {
+		if (pdungeon[nX1][nY1] == PRE_EXTERN) {
 			PlaceHallExt(extDir, nCurrd, nX1, nY1);
-			pdungeon[nX1][nY1] = 44;
-		} else if (pdungeon[nX1][nY1] != 44) {
-			if (pdungeon[nX1][nY1] == 67) {
+			pdungeon[nX1][nY1] = PRE_HALLWAY;
+		} else if (pdungeon[nX1][nY1] != PRE_HALLWAY) {
+			if (pdungeon[nX1][nY1] == PRE_CORNER_NW) {
 			// top left corner of a room
 				if (nCurrd == HDIR_RIGHT) {
-					//assert(pdungeon[nX1 - 1][nY1 + 1] == 44 || pdungeon[nX1 - 1][nY1 + 1] == 32);
-					pdungeon[nX1 - 1][nY1 + 1] = 44;
+					//assert(pdungeon[nX1 - 1][nY1 + 1] == PRE_HALLWAY || pdungeon[nX1 - 1][nY1 + 1] == PRE_EXTERN);
+					pdungeon[nX1 - 1][nY1 + 1] = PRE_HALLWAY;
 					nY1++;
 				} else {
 					//assert(nCurrd == HDIR_DOWN);
-					//assert(pdungeon[nX1 + 1][nY1 - 1] == 44 || pdungeon[nX1 + 1][nY1 - 1] == 32);
-					pdungeon[nX1 + 1][nY1 - 1] = 44;
+					//assert(pdungeon[nX1 + 1][nY1 - 1] == PRE_HALLWAY || pdungeon[nX1 + 1][nY1 - 1] == PRE_EXTERN);
+					pdungeon[nX1 + 1][nY1 - 1] = PRE_HALLWAY;
 					nX1++;
 				}
-			} else if (pdungeon[nX1][nY1] == 66) {
+			} else if (pdungeon[nX1][nY1] == PRE_CORNER_NE) {
 			// top right corner of a room
 				if (nCurrd == HDIR_LEFT) {
-					//assert(pdungeon[nX1 + 1][nY1 + 1] == 44 || pdungeon[nX1 + 1][nY1 + 1] == 32);
-					pdungeon[nX1 + 1][nY1 + 1] = 44;
+					//assert(pdungeon[nX1 + 1][nY1 + 1] == PRE_HALLWAY || pdungeon[nX1 + 1][nY1 + 1] == PRE_EXTERN);
+					pdungeon[nX1 + 1][nY1 + 1] = PRE_HALLWAY;
 					nY1++;
 				} else {
 					//assert(nCurrd == HDIR_DOWN);
-					//assert(pdungeon[nX1 - 1][nY1 - 1] == 44 || pdungeon[nX1 - 1][nY1 - 1] == 32);
-					pdungeon[nX1 - 1][nY1 - 1] = 44;
+					//assert(pdungeon[nX1 - 1][nY1 - 1] == PRE_HALLWAY || pdungeon[nX1 - 1][nY1 - 1] == PRE_EXTERN);
+					pdungeon[nX1 - 1][nY1 - 1] = PRE_HALLWAY;
 					nX1--;
 				}
-			} else if (pdungeon[nX1][nY1] == 69) {
+			} else if (pdungeon[nX1][nY1] == PRE_CORNER_SW) {
 			// bottom left corner of a room
 				if (nCurrd == HDIR_RIGHT) {
-					//assert(pdungeon[nX1 - 1][nY1 - 1] == 44 || pdungeon[nX1 - 1][nY1 - 1] == 32);
-					pdungeon[nX1 - 1][nY1 - 1] = 44;
+					//assert(pdungeon[nX1 - 1][nY1 - 1] == PRE_HALLWAY || pdungeon[nX1 - 1][nY1 - 1] == PRE_EXTERN);
+					pdungeon[nX1 - 1][nY1 - 1] = PRE_HALLWAY;
 					nY1--;
 				} else {
 					//assert(nCurrd == HDIR_UP);
-					//assert(pdungeon[nX1 + 1][nY1 + 1] == 44 || pdungeon[nX1 + 1][nY1 + 1] == 32);
-					pdungeon[nX1 + 1][nY1 + 1] = 44;
+					//assert(pdungeon[nX1 + 1][nY1 + 1] == PRE_HALLWAY || pdungeon[nX1 + 1][nY1 + 1] == PRE_EXTERN);
+					pdungeon[nX1 + 1][nY1 + 1] = PRE_HALLWAY;
 					nX1++;
 				}
-			} else if (pdungeon[nX1][nY1] == 65) {
+			} else if (pdungeon[nX1][nY1] == PRE_CORNER_SE) {
 			// bottom right corner of a room
 				if (nCurrd == HDIR_LEFT) {
-					//assert(pdungeon[nX1 + 1][nY1 - 1] == 44 || pdungeon[nX1 + 1][nY1 - 1] == 32);
-					pdungeon[nX1 + 1][nY1 - 1] = 44;
+					//assert(pdungeon[nX1 + 1][nY1 - 1] == PRE_HALLWAY || pdungeon[nX1 + 1][nY1 - 1] == PRE_EXTERN);
+					pdungeon[nX1 + 1][nY1 - 1] = PRE_HALLWAY;
 					nY1--;
 				} else {
 					//assert(nCurrd == HDIR_UP);
-					//assert(pdungeon[nX1 - 1][nY1 + 1] == 44 || pdungeon[nX1 - 1][nY1 + 1] == 32);
-					pdungeon[nX1 - 1][nY1 + 1] = 44;
+					//assert(pdungeon[nX1 - 1][nY1 + 1] == PRE_HALLWAY || pdungeon[nX1 - 1][nY1 + 1] == PRE_EXTERN);
+					pdungeon[nX1 - 1][nY1 + 1] = PRE_HALLWAY;
 					nX1--;
 				}
 			}
 
 			// add entry door to the room
-			//assert(pdungeon[nX1][nY1] == 35 || pdungeon[nX1][nY1] == 68);
-			pdungeon[nX1][nY1] = 68; // CreateDoorType(nX1, nY1);
+			//assert(pdungeon[nX1][nY1] == PRE_WALL || pdungeon[nX1][nY1] == PRE_DOOR);
+			pdungeon[nX1][nY1] = PRE_DOOR; // CreateDoorType(nX1, nY1);
 			// find exit from the room
 			switch (nCurrd) {
 			case HDIR_UP:
 				// proceed up till a wall is hit
 				do {
 					nY1--;
-				} while (pdungeon[nX1][nY1] == 46);
+				} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 				if (nY1 <= nY2) {
 					// the room is too large -> walk back and left/right
-					if (pdungeon[nX1][nY2] != 46) {
+					if (pdungeon[nX1][nY2] != PRE_FLOOR) {
 						// the path should be on the wall -> proceed next to the wall
 						nY1 = nY1 == nY2 ? nY2 + 1 : nY2 - 1;
 					} else {
 						nY1 = nY2;
 					}
-					//assert(pdungeon[nX1][nY1] == 46);
+					//assert(pdungeon[nX1][nY1] == PRE_FLOOR);
 					if (nX1 > nX2) {
 						do {
 							nX1--;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_LEFT;
 					} else {
 						do {
 							nX1++;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_RIGHT;
 					}
 				}
@@ -1244,25 +1277,25 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				// proceed up till a wall is hit
 				do {
 					nX1++;
-				} while (pdungeon[nX1][nY1] == 46);
+				} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 				if (nX1 >= nX2) {
 					// the room is too large -> walk back and up/down
-					if (pdungeon[nX2][nY1] != 46) {
+					if (pdungeon[nX2][nY1] != PRE_FLOOR) {
 						// the path should be on the wall -> proceed next to the wall
 						nX1 = nX1 == nX2 ? nX2 - 1 : nX2 + 1;
 					} else {
 						nX1 = nX2;
 					}
-					//assert(pdungeon[nX1][nY1] == 46);
+					//assert(pdungeon[nX1][nY1] == PRE_FLOOR);
 					if (nY1 > nY2) {
 						do {
 							nY1--;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_UP;
 					} else {
 						do {
 							nY1++;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_DOWN;
 					}
 				}
@@ -1271,25 +1304,25 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				// proceed up till a wall is hit
 				do {
 					nY1++;
-				} while (pdungeon[nX1][nY1] == 46);
+				} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 				if (nY1 >= nY2) {
 					// the room is too large -> walk back and left/right
-					if (pdungeon[nX1][nY2] != 46) {
+					if (pdungeon[nX1][nY2] != PRE_FLOOR) {
 						// the path should be on the wall -> proceed next to the wall
 						nY1 = nY1 == nY2 ? nY2 - 1 : nY2 + 1;
 					} else {
 						nY1 = nY2;
 					}
-					//assert(pdungeon[nX1][nY1] == 46);
+					//assert(pdungeon[nX1][nY1] == PRE_FLOOR);
 					if (nX1 > nX2) {
 						do {
 							nX1--;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_LEFT;
 					} else {
 						do {
 							nX1++;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_RIGHT;
 					}
 				}
@@ -1298,25 +1331,25 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				// proceed up till a wall is hit
 				do {
 					nX1--;
-				} while (pdungeon[nX1][nY1] == 46);
+				} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 				if (nX1 <= nX2) {
 					// the room is too large -> walk back and up/down
-					if (pdungeon[nX2][nY1] != 46) {
+					if (pdungeon[nX2][nY1] != PRE_FLOOR) {
 						// the path should be on the wall -> proceed next to the wall
 						nX1 = nX1 == nX2 ? nX2 + 1 : nX2 - 1;
 					} else {
 						nX1 = nX2;
 					}
-					//assert(pdungeon[nX1][nY1] == 46);
+					//assert(pdungeon[nX1][nY1] == PRE_FLOOR);
 					if (nY1 > nY2) {
 						do {
 							nY1--;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_UP;
 					} else {
 						do {
 							nY1++;
-						} while (pdungeon[nX1][nY1] == 46);
+						} while (pdungeon[nX1][nY1] == PRE_FLOOR);
 						nCurrd = HDIR_DOWN;
 					}
 				}
@@ -1325,8 +1358,8 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 				ASSUME_UNREACHABLE;
 			}
 			// add exit door to the room
-			//assert(pdungeon[nX1][nY1] == 35 || pdungeon[nX1][nY1] == 68);
-			pdungeon[nX1][nY1] = 68; // CreateDoorType(nX1, nY1);
+			//assert(pdungeon[nX1][nY1] == PRE_WALL || pdungeon[nX1][nY1] == PRE_DOOR);
+			pdungeon[nX1][nY1] = PRE_DOOR; // CreateDoorType(nX1, nY1);
 			continue;
 		}
 		nDx = abs(nX2 - nX1);
@@ -1361,32 +1394,32 @@ static void DRLG_L2MakeMegas()
 	int x, y, i, j, xx, yy;
 	BYTE bv;
 
-	memset(dungeon, 3, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L2, sizeof(dungeon));
 
 	for (y = 0; y < DMAXY; y++) {
 		for (x = 0; x < DMAXX; x++) {
 			bv = pdungeon[x][y];
-			if (bv == 32) { // void
-				dungeon[x][y] = 12;
+			if (bv == PRE_EXTERN) {
+				// dungeon[x][y] = BASE_MEGATILE_L2;
 				continue;
 			}
-			if (bv == 46) { // room
-				dungeon[x][y] = 3;
+			if (bv == PRE_FLOOR) {
+				dungeon[x][y] = DEFAULT_MEGATILE_L2;
 				continue;
 			}
-			if (bv == 68) { // door
-				/*if (pdungeon[x + 1][y] == 46) {
-					assert(pdungeon[x - 1][y] == 46);
+			if (bv == PRE_DOOR) {
+				/*if (pdungeon[x + 1][y] == PRE_FLOOR) {
+					assert(pdungeon[x - 1][y] == PRE_FLOOR);
 					dungeon[x][y] = 4; // vertical door
 				} else {
-					assert(pdungeon[x][y + 1] == 46);
-					assert(pdungeon[x][y - 1] == 46);
+					assert(pdungeon[x][y + 1] == PRE_FLOOR);
+					assert(pdungeon[x][y - 1] == PRE_FLOOR);
 					dungeon[x][y] = 5; // horizontal door
 				}*/
-				dungeon[x][y] = pdungeon[x + 1][y] == 46 ? 4 : 5; // vertical : horizontal door
+				dungeon[x][y] = pdungeon[x + 1][y] == PRE_FLOOR ? 4 : 5; // vertical : horizontal door
 				continue;
 			}
-			//assert(bv == 35); // wall
+			//assert(bv == PRE_WALL);
 			for (i = lengthof(Patterns) - 1; i >= 0; i--) {
 				xx = x - 1;
 				yy = y - 1;
@@ -1398,62 +1431,53 @@ static void DRLG_L2MakeMegas()
 					if (xx >= 0 && xx < DMAXX && yy >= 0 && yy < DMAXY)
 						bv = pdungeon[xx][yy];
 					else
-						bv = 32;
+						bv = PRE_EXTERN;
 					switch (Patterns[i][j]) {
 					case 0:
 						continue;
 					case 1:
-						// border of a room
-						if (bv == 35) {
+						if (bv == PRE_WALL) {
 							continue;
 						}
 						break;
 					case 2:
-						// inside of a room
-						if (bv == 46) {
+						if (bv == PRE_FLOOR) {
 							continue;
 						}
 						break;
 					case 3:
-						// door
-						if (bv == 68) {
+						if (bv == PRE_DOOR) {
 							continue;
 						}
 						break;
 					case 4:
-						// empty tile
-						if (bv == 32) {
+						if (bv == PRE_EXTERN) {
 							continue;
 						}
 						break;
 					/*case 5:
-						// door or inside of a room
-						if (bv == 68 || bv == 46) {
+						if (bv == PRE_DOOR || bv == PRE_FLOOR) {
 							continue;
 						}
 						break;*/
 					case 5:
-						// border or empty tile
-						if (bv == 35 || bv == 32) {
+						if (bv == PRE_WALL || bv == PRE_EXTERN) {
 							continue;
 						}
 						break;
 					case 6:
-						// door or border of a room
-						if (bv == 68 || bv == 35) {
+						if (bv == PRE_DOOR || bv == PRE_WALL) {
 							continue;
 						}
 						break;
 					case 7:
-						// empty tile or inside of a room
-						if (bv == 32 || bv == 46) {
+						if (bv == PRE_EXTERN || bv == PRE_FLOOR) {
 							continue;
 						}
 						break;
 					case 8:
-						// not empty (door or border of a room or inside of a room)
-						if (bv != 32) {
-							//assert(bv == 68 || bv == 35 || bv == 46);
+						if (bv != PRE_EXTERN) {
+							//assert(bv == PRE_DOOR || bv == PRE_WALL || bv == PRE_FLOOR);
 							continue;
 						}
 						break;
@@ -1498,16 +1522,16 @@ static void DRLG_L2MakeMegas()
 	}
 }*/
 
-static int DL2_NumNoChar()
+static int DRLG_L2GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DL2_NumNoChar.");
+	static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2GetArea.");
 	pTmp = &pdungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		if (*pTmp == 32)
+		if (*pTmp != PRE_EXTERN)
 			rv++;
 
 	return rv;
@@ -1523,8 +1547,8 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 	//assert(y1 >= 1 && y2 <= DMAXY - 2);
 	currLenA = currLenB = 0;
 	for (i = x1 + 1; i < x2; i++) {
-		if (pdungeon[i][y1 - 1] == 46) {
-			//assert(pdungeon[i][y1 + 1] == 46);
+		if (pdungeon[i][y1 - 1] == PRE_FLOOR) {
+			//assert(pdungeon[i][y1 + 1] == PRE_FLOOR);
 			currLenA++;
 		} else {
 			if (currLenA > bestLen) {
@@ -1534,8 +1558,8 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 			}
 			currLenA = 0;
 		}
-		if (pdungeon[i][y2 + 1] == 46) {
-			//assert(pdungeon[i][y2 - 1] == 46);
+		if (pdungeon[i][y2 + 1] == PRE_FLOOR) {
+			//assert(pdungeon[i][y2 - 1] == PRE_FLOOR);
 			currLenB++;
 		} else {
 			if (currLenB > bestLen) {
@@ -1559,8 +1583,8 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 	//assert(x1 >= 1 && x2 <= DMAXX - 2);
 	currLenA = currLenB = 0;
 	for (j = y1 + 1; j < y2; j++) {
-		if (pdungeon[x1 - 1][j] == 46) {
-			//assert(pdungeon[x1 + 1][j] == 46);
+		if (pdungeon[x1 - 1][j] == PRE_FLOOR) {
+			//assert(pdungeon[x1 + 1][j] == PRE_FLOOR);
 			currLenA++;
 		} else {
 			if (currLenA > bestLen) {
@@ -1570,8 +1594,8 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 			}
 			currLenA = 0;
 		}
-		if (pdungeon[x2 + 1][j] == 46) {
-			//assert(pdungeon[x2 - 1][j] == 46);
+		if (pdungeon[x2 + 1][j] == PRE_FLOOR) {
+			//assert(pdungeon[x2 - 1][j] == PRE_FLOOR);
 			currLenB++;
 		} else {
 			if (currLenB > bestLen) {
@@ -1595,19 +1619,19 @@ static void DL2_KnockWalls(int x1, int y1, int x2, int y2)
 	switch (bestDir) {
 	case HDIR_UP:
 		for (i = 0; i < bestLen; i++)
-			pdungeon[bestPos - i][y1] = 46;
+			pdungeon[bestPos - i][y1] = PRE_FLOOR;
 		break;
 	case HDIR_RIGHT:
 		for (i = 0; i < bestLen; i++)
-			pdungeon[x2][bestPos - i] = 46;
+			pdungeon[x2][bestPos - i] = PRE_FLOOR;
 		break;
 	case HDIR_DOWN:
 		for (i = 0; i < bestLen; i++)
-			pdungeon[bestPos - i][y2] = 46;
+			pdungeon[bestPos - i][y2] = PRE_FLOOR;
 		break;
 	case HDIR_LEFT:
 		for (i = 0; i < bestLen; i++)
-			pdungeon[x1][bestPos - i] = 46;
+			pdungeon[x1][bestPos - i] = PRE_FLOOR;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1623,7 +1647,7 @@ static bool DL2_FillVoids()
 
 	tries = 0;
 	while (TRUE) {
-		if (DL2_NumNoChar() <= DMAXX * DMAXY / 2)
+		if (DRLG_L2GetArea() >= 800)
 			return true;
 next_try:
 		if (++tries > 200)
@@ -1632,36 +1656,36 @@ next_try:
 		do {
 			xx = RandRange(2, DMAXX - 3);
 			yy = RandRange(2, DMAXY - 3);
-		} while (pdungeon[xx][yy] != 35);
-		if (pdungeon[xx - 1][yy] == 32 && pdungeon[xx + 1][yy] == 46) {
-			if (pdungeon[xx + 1][yy - 1] != 46
-			 || pdungeon[xx + 1][yy + 1] != 46
-			 || pdungeon[xx - 1][yy - 1] != 32
-			 || pdungeon[xx - 1][yy + 1] != 32)
+		} while (pdungeon[xx][yy] != PRE_WALL);
+		if (pdungeon[xx - 1][yy] == PRE_EXTERN && pdungeon[xx + 1][yy] == PRE_FLOOR) {
+			if (pdungeon[xx + 1][yy - 1] != PRE_FLOOR
+			 || pdungeon[xx + 1][yy + 1] != PRE_FLOOR
+			 || pdungeon[xx - 1][yy - 1] != PRE_EXTERN
+			 || pdungeon[xx - 1][yy + 1] != PRE_EXTERN)
 				goto next_try;
 			xRight = false;
 			xLeft = xUp = xDown = true;
-		} else if (pdungeon[xx + 1][yy] == 32 && pdungeon[xx - 1][yy] == 46) {
-			if (pdungeon[xx - 1][yy - 1] != 46
-			 || pdungeon[xx - 1][yy + 1] != 46
-			 || pdungeon[xx + 1][yy - 1] != 32
-			 || pdungeon[xx + 1][yy + 1] != 32)
+		} else if (pdungeon[xx + 1][yy] == PRE_EXTERN && pdungeon[xx - 1][yy] == PRE_FLOOR) {
+			if (pdungeon[xx - 1][yy - 1] != PRE_FLOOR
+			 || pdungeon[xx - 1][yy + 1] != PRE_FLOOR
+			 || pdungeon[xx + 1][yy - 1] != PRE_EXTERN
+			 || pdungeon[xx + 1][yy + 1] != PRE_EXTERN)
 				goto next_try;
 			xLeft = false;
 			xRight = xUp = xDown = true;
-		} else if (pdungeon[xx][yy - 1] == 32 && pdungeon[xx][yy + 1] == 46) {
-			if (pdungeon[xx - 1][yy + 1] != 46
-			 || pdungeon[xx + 1][yy + 1] != 46
-			 || pdungeon[xx - 1][yy - 1] != 32
-			 || pdungeon[xx + 1][yy - 1] != 32)
+		} else if (pdungeon[xx][yy - 1] == PRE_EXTERN && pdungeon[xx][yy + 1] == PRE_FLOOR) {
+			if (pdungeon[xx - 1][yy + 1] != PRE_FLOOR
+			 || pdungeon[xx + 1][yy + 1] != PRE_FLOOR
+			 || pdungeon[xx - 1][yy - 1] != PRE_EXTERN
+			 || pdungeon[xx + 1][yy - 1] != PRE_EXTERN)
 				goto next_try;
 			xDown = false;
 			xUp = xLeft = xRight = true;
-		} else if (pdungeon[xx][yy + 1] == 32 && pdungeon[xx][yy - 1] == 46) {
-			if (pdungeon[xx - 1][yy - 1] != 46
-			 || pdungeon[xx + 1][yy - 1] != 46
-			 || pdungeon[xx - 1][yy + 1] != 32
-			 || pdungeon[xx + 1][yy + 1] != 32)
+		} else if (pdungeon[xx][yy + 1] == PRE_EXTERN && pdungeon[xx][yy - 1] == PRE_FLOOR) {
+			if (pdungeon[xx - 1][yy - 1] != PRE_FLOOR
+			 || pdungeon[xx + 1][yy - 1] != PRE_FLOOR
+			 || pdungeon[xx - 1][yy + 1] != PRE_EXTERN
+			 || pdungeon[xx + 1][yy + 1] != PRE_EXTERN)
 				goto next_try;
 			xUp = false;
 			xDown = xLeft = xRight = true;
@@ -1690,10 +1714,10 @@ next_try:
 				if (xDown) {
 					y2++;
 				}
-				if (pdungeon[x2][y1] != 32) {
+				if (pdungeon[x2][y1] != PRE_EXTERN) {
 					xUp = false;
 				}
-				if (pdungeon[x2][y2] != 32) {
+				if (pdungeon[x2][y2] != PRE_EXTERN) {
 					xDown = false;
 				}
 			}
@@ -1710,7 +1734,7 @@ next_try:
 						break;
 					}
 					for (j = y1; j <= y2; j++) {
-						if (pdungeon[x2][j] != 32) {
+						if (pdungeon[x2][j] != PRE_EXTERN) {
 							break;
 						}
 					}
@@ -1729,7 +1753,7 @@ next_try:
 						break;
 					}
 					for (j = y1; j <= y2; j++) {
-						if (pdungeon[x1][j] != 32) {
+						if (pdungeon[x1][j] != PRE_EXTERN) {
 							break;
 						}
 					}
@@ -1762,10 +1786,10 @@ next_try:
 				if (xRight) {
 					x2++;
 				}
-				if (pdungeon[x1][y2] != 32) {
+				if (pdungeon[x1][y2] != PRE_EXTERN) {
 					xLeft = false;
 				}
-				if (pdungeon[x2][y2] != 32) {
+				if (pdungeon[x2][y2] != PRE_EXTERN) {
 					xRight = false;
 				}
 			}
@@ -1782,7 +1806,7 @@ next_try:
 						break;
 					}
 					for (i = x1; i <= x2; i++) {
-						if (pdungeon[i][y2] != 32) {
+						if (pdungeon[i][y2] != PRE_EXTERN) {
 							break;
 						}
 					}
@@ -1802,7 +1826,7 @@ next_try:
 						break;
 					}
 					for (i = x1; i <= x2; i++) {
-						if (pdungeon[i][y1] != 32) {
+						if (pdungeon[i][y1] != PRE_EXTERN) {
 							break;
 						}
 					}
@@ -1850,13 +1874,13 @@ static void DRLG_L2CreateDungeon()
 	// prevent standalone walls between the hallway-tiles
 	for (i = 1; i < DMAXX - 1; i++) {
 		for (j = 1; j < DMAXY - 1; j++) {
-			if (pdungeon[i][j] == 32) {
-				k = pdungeon[i + 1][j] == 44 ? 1 : 0;
-				k += pdungeon[i - 1][j] == 44 ? 1 : 0;
-				k += pdungeon[i][j + 1] == 44 ? 1 : 0;
-				k += pdungeon[i][j - 1] == 44 ? 1 : 0;
+			if (pdungeon[i][j] == PRE_EXTERN) {
+				k = pdungeon[i + 1][j] == PRE_HALLWAY ? 1 : 0;
+				k += pdungeon[i - 1][j] == PRE_HALLWAY ? 1 : 0;
+				k += pdungeon[i][j + 1] == PRE_HALLWAY ? 1 : 0;
+				k += pdungeon[i][j - 1] == PRE_HALLWAY ? 1 : 0;
 				if (k >= 3) {
-					pdungeon[i][j] = 44;
+					pdungeon[i][j] = PRE_HALLWAY;
 					i--;
 					j--;
 					if (i == 0)
@@ -1869,42 +1893,39 @@ static void DRLG_L2CreateDungeon()
 	for (i = 0; i < DMAXX; i++) {     /// BUGFIX: change '<=' to '<' (fixed)
 		for (j = 0; j < DMAXY; j++) { /// BUGFIX: change '<=' to '<' (fixed)
 			// convert room corners to walls
-			if (pdungeon[i][j] == 67
-			 || pdungeon[i][j] == 66
-			 || pdungeon[i][j] == 69
-			 || pdungeon[i][j] == 65) {
-				pdungeon[i][j] = 35;
-			} else if (pdungeon[i][j] == 44) {
+			if (PRE_IS_CORNER(pdungeon[i][j])) {
+				pdungeon[i][j] = PRE_WALL;
+			} else if (pdungeon[i][j] == PRE_HALLWAY) {
 				// convert hallways to rooms
-				pdungeon[i][j] = 46;
+				pdungeon[i][j] = PRE_FLOOR;
 				//assert(i > 0 && i < DMAXX - 1 && j > 0 && j < DMAXY - 1);
 				// add walls to hallways
 				//for (k = 0; k < lengthof(offset_x); k++)
-				//	if (pdungeon[i + offset_x[k]][j + offset_y[k]] == 32)
-				//		pdungeon[i + offset_x[k]][j + offset_y[k]] = 35;
-				if (pdungeon[i - 1][j - 1] == 32) {
-					pdungeon[i - 1][j - 1] = 35;
+				//	if (pdungeon[i + offset_x[k]][j + offset_y[k]] == PRE_EXTERN)
+				//		pdungeon[i + offset_x[k]][j + offset_y[k]] = PRE_WALL;
+				if (pdungeon[i - 1][j - 1] == PRE_EXTERN) {
+					pdungeon[i - 1][j - 1] = PRE_WALL;
 				}
-				if (pdungeon[i - 1][j] == 32) {
-					pdungeon[i - 1][j] = 35;
+				if (pdungeon[i - 1][j] == PRE_EXTERN) {
+					pdungeon[i - 1][j] = PRE_WALL;
 				}
-				if (pdungeon[i - 1][1 + j] == 32) {
-					pdungeon[i - 1][1 + j] = 35;
+				if (pdungeon[i - 1][1 + j] == PRE_EXTERN) {
+					pdungeon[i - 1][1 + j] = PRE_WALL;
 				}
-				if (pdungeon[i + 1][j - 1] == 32) {
-					pdungeon[i + 1][j - 1] = 35;
+				if (pdungeon[i + 1][j - 1] == PRE_EXTERN) {
+					pdungeon[i + 1][j - 1] = PRE_WALL;
 				}
-				if (pdungeon[i + 1][j] == 32) {
-					pdungeon[i + 1][j] = 35;
+				if (pdungeon[i + 1][j] == PRE_EXTERN) {
+					pdungeon[i + 1][j] = PRE_WALL;
 				}
-				if (pdungeon[i + 1][1 + j] == 32) {
-					pdungeon[i + 1][1 + j] = 35;
+				if (pdungeon[i + 1][1 + j] == PRE_EXTERN) {
+					pdungeon[i + 1][1 + j] = PRE_WALL;
 				}
-				if (pdungeon[i][j - 1] == 32) {
-					pdungeon[i][j - 1] = 35;
+				if (pdungeon[i][j - 1] == PRE_EXTERN) {
+					pdungeon[i][j - 1] = PRE_WALL;
 				}
-				if (pdungeon[i][j + 1] == 32) {
-					pdungeon[i][j + 1] = 35;
+				if (pdungeon[i][j + 1] == PRE_EXTERN) {
+					pdungeon[i][j + 1] = PRE_WALL;
 				}
 			}
 		}
@@ -1964,29 +1985,8 @@ static void DRLG_L2TransFix()
 
 void DRLG_L2InitTransVals()
 {
-	int i, j;
-
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
-	// block arches with walls to stop the spread of transVals
-	for (i = 0; i < DMAXX; i++) {
-		for (j = 0; j < DMAXY; j++) {
-			switch (drlg.transvalMap[i][j]) {
-			case 39:
-			case 42:
-				drlg.transvalMap[i][j + 1] = 1;
-				break;
-			case 41:
-				drlg.transvalMap[i][j + 1] = 1;
-				drlg.transvalMap[i + 1][j] = 2;
-				break;
-			case 40:
-			case 43:
-				drlg.transvalMap[i + 1][j] = 2;
-				break;
-			}
-		}
-	}
 
 	DRLG_FloodTVal(L2FTYPES);
 	DRLG_L2TransFix();
@@ -2232,7 +2232,7 @@ static void L2DoorFix2()
 /*
  * Replace doors with arches.
  * TODO: skip if there is no corresponding shadow?
- * New dungeon values: (3) 39 40 41 42 43
+ * New dungeon values: (3) 39 40 41 42 43   161 162
  */
 static void L2CreateArches()
 {
@@ -2256,30 +2256,30 @@ static void L2CreateArches()
 						// P,
 
 						//39, replace
-						//3,
+						//161,
 						//0,
 						dungeon[x][y - 1] = 39;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 161;
 					} else if (pn == 8) {
 						// 8,  search
 						// 4,
 						// P,
 
 						//42, replace
-						//3,
+						//161,
 						//0,
 						dungeon[x][y - 1] = 42;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 161;
 					} else if (pn == 43) {
 						// 43,  search
 						// 4,
 						// P,
 
 						//41, replace
-						//3,
+						//161,
 						//0,
 						dungeon[x][y - 1] = 41;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 161;
 					}
 				} else if (pn == 1 && y < DMAXY - 2) {
 					if (IsPillar(dungeon[x][y + 2])) {
@@ -2288,10 +2288,10 @@ static void L2CreateArches()
 						// P,
 
 						//39, replace
-						//3,
+						//161,
 						//0,
 						// assert(!drlgFlags[x][y + 1]);
-						dungeon[x][y + 1] = 3;
+						dungeon[x][y + 1] = 161;
 						dungeon[x][y] = 39;
 					}
 				}
@@ -2305,23 +2305,23 @@ static void L2CreateArches()
 					if (pn == 2 || pn == 9) {
 						// 2/9, 5, P,  search
 
-						//40, 3, 0, replace
+						//40, 162, 0, replace
 						dungeon[x - 1][y] = 40;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 162;
 					} else if (pn == 8) {
 						// 8, 5, P,  search
 
-						//43, 3, 0, replace
+						//43, 162, 0, replace
 						dungeon[x - 1][y] = 43;
-						dungeon[x][y] = 3;
+						dungeon[x][y] = 162;
 					}
 				} else if (pn == 2 && x < DMAXX - 2) {
 					if (IsPillar(dungeon[x + 2][y])) {
 						// 5, 2, P,  search
 
-						//40, 3, 0, replace
+						//40, 162, 0, replace
 						// assert(!drlgFlags[x + 1][y]);
-						dungeon[x + 1][y] = 3;
+						dungeon[x + 1][y] = 162;
 						dungeon[x][y] = 40;
 					}
 				}
@@ -2335,7 +2335,7 @@ static void DRLG_L2()
 	while (true) {
 		do {
 			static_assert(sizeof(pdungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L2.");
-			memset(pdungeon, 32, sizeof(pdungeon));
+			memset(pdungeon, PRE_EXTERN, sizeof(pdungeon));
 			DRLG_L2CreateDungeon();
 		} while (!DL2_FillVoids());
 
@@ -2354,7 +2354,7 @@ static void DRLG_L2()
 		pWarps[DWARP_ENTRY]._wx = warpPos.x + 2;
 		pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
 		pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
-		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+		pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
 		pWarps[DWARP_ENTRY]._wtype = WRPT_L2_UP;
 		warpPos = DRLG_PlaceMiniSet(L2DSTAIRS); // L2DSTAIRS (3, 5)
 		if (warpPos.x < 0) {
@@ -2363,17 +2363,17 @@ static void DRLG_L2()
 		pWarps[DWARP_EXIT]._wx = warpPos.x + 2;
 		pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
 		pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-		pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+		pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 		pWarps[DWARP_EXIT]._wtype = WRPT_L2_DOWN;
 		if (currLvl._dLevelIdx == DLV_CATACOMBS1) {
-			warpPos = DRLG_PlaceMiniSet(L2TWARP); // L2TWARP (5, 3)
+			warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2TWARP (5, 3)
 			if (warpPos.x < 0) {
 				continue;
 			}
 			pWarps[DWARP_TOWN]._wx = warpPos.x + 2;
 			pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
 			pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
-			pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+			pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY + 1;
 			pWarps[DWARP_TOWN]._wtype = WRPT_L2_UP;
 		}
 
@@ -2381,8 +2381,9 @@ static void DRLG_L2()
 			pWarps[DWARP_SIDE]._wx = pSetPieces[0]._spx + 3; // L2USTAIRS (5, 3)
 			pWarps[DWARP_SIDE]._wy = pSetPieces[0]._spy + 3;
 			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
-			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY + 1;
 			pWarps[DWARP_SIDE]._wtype = WRPT_L2_UP;
+			pWarps[DWARP_SIDE]._wlvl = questlist[Q_BCHAMB]._qslvl;
 		}
 		break;
 	}
@@ -2421,37 +2422,26 @@ static void DRLG_L2()
 	DRLG_L2DoorSubs();
 }
 
-void DRLG_InitL2Specials(int x1, int y1, int x2, int y2)
+static void DRLG_L2FixMap()
 {
-	int i, j, pn;
+	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
+		// patch the map - Bonecha2.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// add tiles with subtiles for arches
+		lm[2 + 13 + 6 * 32] = SwapLE16(161);
+		lm[2 + 13 + 8 * 32] = SwapLE16(161);
+		lm[2 + 17 + 6 * 32] = SwapLE16(161);
+		lm[2 + 17 + 8 * 32] = SwapLE16(163);
 
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			pn = dPiece[i][j];
-			// 13 and 17 are open doors
-			// 178, 551 and 553 are doorways (TODO: add 541 and 542?)
-			if (pn == 13 || pn == 178 || pn == 551)
-				pn = 5;
-			else if (pn == 17 || pn == 553)
-				pn = 6;
-			else
-				pn = 0;
-			dSpecial[i][j] = pn;
-		}
-	}
-	for (j = y1; j <= y2; j++) {
-		for (i = x1; i <= x2; i++) {
-			pn = dPiece[i][j];
-			// 132 is L-arch
-			// 135 and 139 are R-arch
-			if (pn == 132) {
-				dSpecial[i][j + 1] = 2;
-				dSpecial[i][j + 2] = 1;
-			} else if (pn == 135 || pn == 139) {
-				dSpecial[i + 1][j] = 3;
-				dSpecial[i + 2][j] = 4;
-			}
-		}
+		lm[2 + 13 + 14 * 32] = SwapLE16(161);
+		lm[2 + 13 + 16 * 32] = SwapLE16(161);
+		lm[2 + 17 + 14 * 32] = SwapLE16(161);
+		lm[2 + 17 + 16 * 32] = SwapLE16(161);
+
+		lm[2 + 18 + 9 * 32] = SwapLE16(162);
+		lm[2 + 20 + 9 * 32] = SwapLE16(162);
+		lm[2 + 18 + 13 * 32] = SwapLE16(162);
+		lm[2 + 20 + 13 * 32] = SwapLE16(162);
 	}
 }
 
@@ -2584,8 +2574,9 @@ static void LoadL2Dungeon(const LevelData* lds)
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L2 + 1, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L2, sizeof(dungeon));
 
+	DRLG_L2FixMap();
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L2);
 }
 
@@ -2612,10 +2603,6 @@ void CreateL2Dungeon()
 
 	DRLG_L2InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L2);
-	DRLG_Init_Globals();
-	DRLG_InitL2Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE

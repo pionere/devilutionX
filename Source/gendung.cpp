@@ -24,36 +24,36 @@ DrlgMem drlg;
 SetPieceStruct pSetPieces[4];
 /** List of the warp-points on the current level */
 WarpStruct pWarps[NUM_DWARP];
-/** Specifies the mega tiles (groups of four tiles). */
-uint16_t* pMegaTiles;
+/** Specifies the tiles (groups of four subtiles). */
+static uint16_t pTiles[MAXTILES + 1][4];
 /*
- * The micros of the dPieces
+ * The micros of the subtiles
  */
-uint16_t pMicroPieces[MAXTILES + 1][16 * ASSET_MPL * ASSET_MPL];
-/** Images of the micros of normal tiles. */
-BYTE* pMicroCels;
-/** Images of the special tiles. */
-BYTE* pSpecialCels;
+uint16_t pSubtiles[MAXSUBTILES + 1][16 * ASSET_MPL * ASSET_MPL];
+/** Images of the subtile-micros. */
+BYTE* pMicrosCel;
+/** Images of the special subtiles. */
+BYTE* pSpecialsCel;
 /**
- * Flags to control the drawing of dPieces (piece_micro_flag)
+ * Flags to control the drawing of a subtile (piece_micro_flag)
  */
-BYTE microFlags[MAXTILES + 1];
+BYTE microFlags[MAXSUBTILES + 1];
 /**
  * List of light blocking dPieces
  */
-bool nBlockTable[MAXTILES + 1];
+bool nBlockTable[MAXSUBTILES + 1];
 /**
  * List of path blocking dPieces
  */
-bool nSolidTable[MAXTILES + 1];
+bool nSolidTable[MAXSUBTILES + 1];
 /**
- * List of trap-source dPieces (_piece_trap_type)
+ * Flags of subtiles to specify trap-sources (_piece_trap_type) and special cel-frames
  */
-BYTE nTrapTable[MAXTILES + 1];
+BYTE nSpecTrapTable[MAXSUBTILES + 1];
 /**
  * List of missile blocking dPieces
  */
-bool nMissileTable[MAXTILES + 1];
+bool nMissileTable[MAXSUBTILES + 1];
 /** The difficuly level of the current game (_difficulty) */
 int gnDifficulty;
 /** Contains the data of the active dungeon level. */
@@ -65,15 +65,15 @@ BYTE numtrans;
 static bool gbDoTransVals;
 /** Specifies the active transparency indices. */
 bool TransList[256];
-/** Contains the tile IDs of each square on the map. */
+/** Contains the subtile IDs of each square on the map. */
 int dPiece[MAXDUNX][MAXDUNY];
-/** Specifies the transparency index at each coordinate of the map. */
+/** Specifies the transparency index of each square on the map. */
 BYTE dTransVal[MAXDUNX][MAXDUNY];
-/** Specifies the base darkness levels of each tile on the map. */
+/** Specifies the base darkness levels of each square on the map. */
 BYTE dPreLight[MAXDUNX][MAXDUNY];
-/** Specifies the current darkness levels of each tile on the map. */
+/** Specifies the current darkness levels of each square on the map. */
 BYTE dLight[MAXDUNX][MAXDUNY];
-/** Specifies the (runtime) flags of each tile on the map (dflag) */
+/** Specifies the (runtime) flags of each square on the map (dflag) */
 BYTE dFlags[MAXDUNX][MAXDUNY];
 /**
  * Contains the player numbers (players array indices) of the map.
@@ -119,292 +119,218 @@ static_assert(MAXITEMS <= UCHAR_MAX, "Index of an item might not fit to dItem.")
 BYTE dMissile[MAXDUNX][MAXDUNY];
 static_assert(MAXMISSILES <= UCHAR_MAX, "Index of a missile might not fit to dMissile.");
 static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
-/**
- * Contains the arch frame numbers of the map from the special tileset
- * (e.g. "levels/l1data/l1s.cel"). Note, the special tileset of Tristram (i.e.
- * "levels/towndata/towns.cel") contains trees rather than arches.
- */
-BYTE dSpecial[MAXDUNX][MAXDUNY];
-
-void DRLG_Init_Globals()
-{
-	BYTE c;
-
-	memset(dFlags, 0, sizeof(dFlags));
-	memset(dPlayer, 0, sizeof(dPlayer));
-	memset(dMonster, 0, sizeof(dMonster));
-	memset(dDead, 0, sizeof(dDead));
-	memset(dObject, 0, sizeof(dObject));
-	memset(dItem, 0, sizeof(dItem));
-	memset(dMissile, 0, sizeof(dMissile));
-	memset(dSpecial, 0, sizeof(dSpecial));
-	c = MAXDARKNESS;
-#if DEBUG_MODE
-	if (lightflag)
-		c = 0;
-#endif
-	memset(dLight, c, sizeof(dLight));
-}
 
 void InitLvlDungeon()
 {
 	uint16_t bv;
-	size_t i, dwTiles;
-	BYTE *pSBFile, *pTmp;
+	size_t dwSubtiles;
+	BYTE *solFile, *pTmp;
 #if ASSET_MPL == 1
-	uint16_t blocks, *pLPFile, *pPiece, *pPTmp;
+	uint16_t blocks, *minFile, *pSubtile, *pPTmp;
 #endif
-	const LevelData* lds;
-	assert(pMicroCels == NULL);
-	lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelFileData* lfd = &levelfiledata[lds->dfindex];
 
 	static_assert((int)WRPT_NONE == 0, "InitLvlDungeon fills pWarps with 0 instead of WRPT_NONE values.");
 	memset(pWarps, 0, sizeof(pWarps));
 	static_assert((int)SPT_NONE == 0, "InitLvlDungeon fills pSetPieces with 0 instead of SPT_NONE values.");
 	memset(pSetPieces, 0, sizeof(pSetPieces));
 
-	pMicroCels = LoadFileInMem(lds->dMicroCels);
-	assert(pMegaTiles == NULL);
-	pMegaTiles = (uint16_t*)LoadFileInMem(lds->dMegaTiles);
-	assert(pSpecialCels == NULL);
-	if (currLvl._dLevelIdx != DLV_TOWN)
-		pSpecialCels = LoadFileInMem(lds->dSpecCels);
-	else
-		pSpecialCels = (BYTE*)CelLoadImage(lds->dSpecCels, TILE_WIDTH);
+	assert(pMicrosCel == NULL);
+	pMicrosCel = LoadFileInMem(lfd->dMicroCels); // .CEL
+	if (lfd->dMegaTiles != NULL) { 
+		LoadFileWithMem(lfd->dMegaTiles, (BYTE*)&pTiles[1][0]); // .TIL
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		for (int i = 1; i < lengthof(pTiles); i++) {
+			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
+				pTiles[i][bv] = SwapLE16(pTiles[i][bv]);
+			}
+		}
+#endif
+		for (int i = 1; i < lengthof(pTiles); i++) {
+			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
+				pTiles[i][bv] = pTiles[i][bv] + 1;
+			}
+		}
+	}
+	assert(pSpecialsCel == NULL);
+	if (lfd->dSpecCels != NULL) {
+		pSpecialsCel = LoadFileInMem(lfd->dSpecCels); // s.CEL
+	}
 	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
-	LoadFileWithMem(lds->dMicroFlags, microFlags);
+	LoadFileWithMem(lfd->dMicroFlags, microFlags); // .TMI
 #if ASSET_MPL == 1
-	pLPFile = (uint16_t*)LoadFileInMem(lds->dMiniTiles, &dwTiles);
+	minFile = (uint16_t*)LoadFileInMem(lfd->dMiniTiles, &dwSubtiles); // .MIN
 
 	blocks = lds->dBlocks;
-	dwTiles /= (2 * blocks);
-	assert(dwTiles <= MAXTILES);
+	dwSubtiles /= (2 * blocks);
+	assert(dwSubtiles <= MAXSUBTILES);
 
-	for (i = 1; i <= dwTiles; i++) {
-		pPTmp = &pMicroPieces[i][0];
-		pPiece = &pLPFile[blocks * i];
+	for (unsigned i = 1; i <= dwSubtiles; i++) {
+		pPTmp = &pSubtiles[i][0];
+		pSubtile = &minFile[blocks * i];
 		for (bv = 0; bv < blocks; bv += 2) {
-			pPiece -= 2;
+			pSubtile -= 2;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-			pPTmp[0] = SwapLE16(pPiece[0]);
-			pPTmp[1] = SwapLE16(pPiece[1]);
+			pPTmp[0] = SwapLE16(pSubtile[0]);
+			pPTmp[1] = SwapLE16(pSubtile[1]);
 #else
-			*((uint32_t*)pPTmp) = *((uint32_t*)pPiece);
+			*((uint32_t*)pPTmp) = *((uint32_t*)pSubtile);
 #endif
 			pPTmp += 2;
 		}
 	}
 
-	mem_free_dbg(pLPFile);
+	mem_free_dbg(minFile);
 #else
-	LoadFileWithMem(lds->dMiniTiles, (BYTE*)&pMicroPieces[1][0]);
+	LoadFileWithMem(lfd->dMiniTiles, (BYTE*)&pSubtiles[1][0]);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	for (i = 1; i < lengthof(pMicroPieces); i++) {
-		for (bv = 0; bv < lengthof(pMicroPieces[0]); bv++) {
-			pMicroPieces[i][bv] = SwapLE16(pMicroPieces[i][bv]);
+	for (int i = 1; i < lengthof(pSubtiles); i++) {
+		for (bv = 0; bv < lengthof(pSubtiles[0]); bv++) {
+			pSubtiles[i][bv] = SwapLE16(pSubtiles[i][bv]);
 		}
 	}
 #endif
 #endif /* ASSET_MPL == 1 */
-
+	LoadFileWithMem(lfd->dSpecFlags, &nSpecTrapTable[0]); // .SPT
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
-	memset(nTrapTable, 0, sizeof(nTrapTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
-	pSBFile = LoadFileInMem(lds->dSolidTable, &dwTiles);
+	solFile = LoadFileInMem(lfd->dSolidTable, &dwSubtiles); // .SOL
 
-	assert(dwTiles <= MAXTILES);
-	pTmp = pSBFile;
+	assert(dwSubtiles <= MAXSUBTILES);
+	pTmp = solFile;
 
 	// dpiece 0 is always black/void -> make it non-passable to reduce the necessary checks
 	// no longer necessary, because dPiece is never zero
 	//nSolidTable[0] = true;
 
-	for (i = 1; i <= dwTiles; i++) {
+	for (unsigned i = 1; i <= dwSubtiles; i++) {
 		bv = *pTmp++;
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
-		nTrapTable[i] = (bv & PFLAG_TRAP_SOURCE) != 0 ? PTT_ANY : PTT_NONE;
 	}
 
-	mem_free_dbg(pSBFile);
+	mem_free_dbg(solFile);
 
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
-		// patch dSolidTable - Town.SOL
 #if !USE_PATCH
+		// patch dSolidTable - Town.SOL
 		// nSolidTable[553] = false; // allow walking on the left side of the pot at Adria
 		// nSolidTable[761] = true;  // make the tile of the southern window of the church non-walkable
 		// nSolidTable[945] = true;  // make the eastern side of Griswold's house consistent (non-walkable)
+#if ASSET_MPL == 1
+		// patch dMicroCels - TOWN.CEL
+		// - overwrite subtile 237 with subtile 402 to make the inner tile of Griswold's house non-walkable
+		pSubtiles[237][0] = pSubtiles[402][0];
+		pSubtiles[237][1] = pSubtiles[402][1];
+#endif
 #endif
 		break;
 	case DTYPE_CATHEDRAL:
-		// patch dSolidTable - L1.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L1.SOL
 		nMissileTable[8] = false; // the only column which was blocking missiles
 #endif
 		break;
 	case DTYPE_CATACOMBS:
-		// patch dSolidTable - L2.SOL
-		// specify direction for torches
-		nTrapTable[1] = PTT_LEFT;
-		nTrapTable[3] = PTT_LEFT;
-		nTrapTable[5] = PTT_RIGHT;
-		nTrapTable[6] = PTT_RIGHT;
-		nTrapTable[15] = PTT_LEFT;
-		nTrapTable[18] = PTT_RIGHT;
-		nTrapTable[27] = PTT_LEFT;
-		nTrapTable[30] = PTT_RIGHT;
-		nTrapTable[31] = PTT_LEFT;
-		nTrapTable[34] = PTT_RIGHT;
-		nTrapTable[57] = PTT_LEFT;  // added
-		nTrapTable[59] = PTT_RIGHT; // added
-		nTrapTable[60] = PTT_LEFT;
-		nTrapTable[62] = PTT_LEFT;
-		nTrapTable[64] = PTT_LEFT;
-		nTrapTable[66] = PTT_LEFT;
-		nTrapTable[68] = PTT_RIGHT;
-		nTrapTable[69] = PTT_RIGHT;
-		nTrapTable[72] = PTT_RIGHT;
-		nTrapTable[73] = PTT_RIGHT;
-		nTrapTable[78] = PTT_LEFT;
-		nTrapTable[82] = PTT_LEFT;
-		nTrapTable[85] = PTT_LEFT;
-		nTrapTable[88] = PTT_LEFT;
-		nTrapTable[92] = PTT_LEFT;
-		nTrapTable[94] = PTT_LEFT;
-		nTrapTable[96] = PTT_LEFT;
-		nTrapTable[99] = PTT_RIGHT;
-		nTrapTable[104] = PTT_RIGHT;
-		nTrapTable[108] = PTT_RIGHT;
-		nTrapTable[111] = PTT_RIGHT; // added
-		nTrapTable[112] = PTT_RIGHT;
-		nTrapTable[115] = PTT_LEFT; // added
-		nTrapTable[117] = PTT_LEFT;
-		nTrapTable[119] = PTT_LEFT;
-		nTrapTable[120] = PTT_LEFT;
-		nTrapTable[121] = PTT_RIGHT; // added
-		nTrapTable[122] = PTT_RIGHT;
-		nTrapTable[125] = PTT_RIGHT;
-		nTrapTable[126] = PTT_RIGHT;
-		nTrapTable[128] = PTT_RIGHT;
-		nTrapTable[129] = PTT_LEFT;
-		nTrapTable[144] = PTT_LEFT;
-		//nTrapTable[170] = PTT_LEFT; // added
-		//nTrapTable[172] = PTT_LEFT; // added
-		//nTrapTable[174] = PTT_LEFT; // added
-		//nTrapTable[176] = PTT_LEFT; // added
-		//nTrapTable[180] = PTT_LEFT; // added
-		//nTrapTable[183] = PTT_RIGHT; // added
-		//nTrapTable[186] = PTT_RIGHT; // added
-		//nTrapTable[187] = PTT_RIGHT; // added
-		//nTrapTable[190] = PTT_RIGHT; // added
-		//nTrapTable[191] = PTT_RIGHT; // added
-		//nTrapTable[194] = PTT_RIGHT; // added
-		//nTrapTable[195] = PTT_RIGHT; // added
-		nTrapTable[234] = PTT_LEFT;
-		nTrapTable[236] = PTT_LEFT;
-		nTrapTable[238] = PTT_LEFT; // added
-		nTrapTable[240] = PTT_LEFT;
-		nTrapTable[242] = PTT_LEFT; // added
-		nTrapTable[244] = PTT_LEFT;
-		nTrapTable[253] = PTT_RIGHT; // added
-		nTrapTable[254] = PTT_RIGHT;
-		nTrapTable[257] = PTT_RIGHT;
-		nTrapTable[258] = PTT_RIGHT; // added
-		nTrapTable[261] = PTT_RIGHT; // added
-		nTrapTable[262] = PTT_RIGHT;
-		nTrapTable[277] = PTT_LEFT;
-		nTrapTable[281] = PTT_LEFT;
-		nTrapTable[285] = PTT_LEFT;
-		nTrapTable[292] = PTT_RIGHT;
-		nTrapTable[296] = PTT_RIGHT;
-		nTrapTable[300] = PTT_RIGHT;
-		nTrapTable[304] = PTT_RIGHT;
-		nTrapTable[305] = PTT_LEFT;
-		nTrapTable[446] = PTT_LEFT;
-		nTrapTable[448] = PTT_LEFT;
-		nTrapTable[450] = PTT_LEFT;
-		nTrapTable[452] = PTT_LEFT;
-		nTrapTable[454] = PTT_RIGHT;
-		nTrapTable[455] = PTT_RIGHT;
-		nTrapTable[458] = PTT_RIGHT;
-		nTrapTable[459] = PTT_RIGHT;
-		nTrapTable[480] = PTT_LEFT;
-		nTrapTable[499] = PTT_RIGHT;
-		nTrapTable[510] = PTT_LEFT;
-		nTrapTable[512] = PTT_LEFT;
-		nTrapTable[514] = PTT_RIGHT;
-		nTrapTable[515] = PTT_RIGHT;
-		nTrapTable[539] = PTT_LEFT;  // added
-		nTrapTable[543] = PTT_LEFT;  // added
-		nTrapTable[545] = PTT_LEFT;  // added
-		nTrapTable[547] = PTT_RIGHT; // added
-		nTrapTable[548] = PTT_RIGHT; // added
-		nTrapTable[552] = PTT_LEFT;  // added
-		// enable torches on (southern) walls
-		// nTrapTable[37] = PTT_LEFT;
-		// nTrapTable[39] = PTT_LEFT;
-		// nTrapTable[41] = PTT_RIGHT;
-		// nTrapTable[42] = PTT_RIGHT;
-		// nTrapTable[46] = PTT_RIGHT;
-		// nTrapTable[47] = PTT_LEFT;
-		// nTrapTable[49] = PTT_LEFT;
-		// nTrapTable[51] = PTT_RIGHT;
-		nTrapTable[520] = PTT_LEFT;
-		nTrapTable[522] = PTT_LEFT;
-		nTrapTable[524] = PTT_RIGHT;
-		nTrapTable[525] = PTT_RIGHT;
-		nTrapTable[529] = PTT_RIGHT;
-		nTrapTable[530] = PTT_LEFT;
-		nTrapTable[532] = PTT_LEFT;
-		nTrapTable[534] = PTT_RIGHT;
+#if !USE_PATCH
+		// patch dMegaTiles, dMiniTiles and dSolidTable - L2.TIL, L2.MIN, L2.SOL
+		// reuse subtiles
+		assert(pTiles[41][1] == 139 || pTiles[41][1] == 135);
+		pTiles[41][1] = 135;
+		// add separate tiles and subtiles for the arches
+		// - floor tile(3) with vertical arch
+		pTiles[161][0] = 560;
+		pTiles[161][1] = 10;
+		pTiles[161][2] = 561;
+		pTiles[161][3] = 12;
+		// - floor tile(3) with horizontal arch
+		pTiles[162][0] = 562;
+		pTiles[162][1] = 563;
+		pTiles[162][2] = 11;
+		pTiles[162][3] = 12;
+		// - floor tile with shadow(49) with vertical arch
+		pTiles[163][0] = 564; // - 159
+		pTiles[163][1] = 160;
+		pTiles[163][2] = 565; // - 161
+		pTiles[163][3] = 162;
+		// - floor tile with shadow(51) with horizontal arch
+		pTiles[164][0] = 566; // - 166
+		pTiles[164][1] = 567; // - 167
+		pTiles[164][2] = 168;
+		pTiles[164][3] = 169;
+		pSubtiles[560][0] = pSubtiles[9][0];
+		pSubtiles[560][1] = pSubtiles[9][1];
+		pSubtiles[561][0] = pSubtiles[11][0];
+		pSubtiles[561][1] = pSubtiles[11][1];
+		pSubtiles[562][0] = pSubtiles[9][0];
+		pSubtiles[562][1] = pSubtiles[9][1];
+		pSubtiles[563][0] = pSubtiles[10][0];
+		pSubtiles[563][1] = pSubtiles[10][1];
+		pSubtiles[564][0] = pSubtiles[159][0];
+		pSubtiles[564][1] = pSubtiles[159][1];
+		pSubtiles[565][0] = pSubtiles[161][0];
+		pSubtiles[565][1] = pSubtiles[161][1];
+		pSubtiles[566][0] = pSubtiles[166][0];
+		pSubtiles[566][1] = pSubtiles[166][1];
+		pSubtiles[567][0] = pSubtiles[167][0];
+		pSubtiles[567][1] = pSubtiles[167][1];
+		// - reset flags of the 'new' floor tiles with arches
+		for (int ii = 0; ii < 8; ii++) {
+			nSolidTable[559 + ii] = false;
+			nBlockTable[559 + ii] = false;
+			nMissileTable[559 + ii] = false;
+		}
+		// fix the upstairs
+		// - make the back of the stairs non-walkable
+		pTiles[72][1] = 56;
+		nSolidTable[252] = true;
+		nBlockTable[252] = true;
+		nMissileTable[252] = true;
+		// - make the stair-floor non light-blocker
+		nBlockTable[267] = false;
+		nBlockTable[559] = false;
+#endif // !USE_PATCH
 		break;
 	case DTYPE_CAVES:
+#if !USE_PATCH
+		// patch dSolidTable - L3.SOL
 		nSolidTable[249] = false; // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+#endif
 		break;
 	case DTYPE_HELL:
-		// patch dSolidTable - L4.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L4.SOL
 		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
-		// nMissileTable[137] = false; // fix missile-blocking tile of down-stairs. - skip to keep in sync with the nSolidTable
-		// nSolidTable[137] = false;   // fix non-walkable tile of down-stairs. - skip, because it causes a graphic glitch
+		nMissileTable[137] = false; // fix missile-blocking tile of down-stairs.
+		nSolidTable[137] = false;   // fix non-walkable tile of down-stairs. - causes a graphic glitch, but keep in sync with patch users
 		nSolidTable[130] = true;    // make the inner tiles of the down-stairs non-walkable I.
 		nSolidTable[132] = true;    // make the inner tiles of the down-stairs non-walkable II.
 		nSolidTable[131] = true;    // make the inner tiles of the down-stairs non-walkable III.
-		nSolidTable[133] = true;    // make the inner tiles of the down-stairs non-walkable IV.
 		// fix all-blocking tile on the diablo-level
 		nSolidTable[211] = false;
 		nMissileTable[211] = false;
 		nBlockTable[211] = false;
 #endif
-		// enable hooked bodies on  walls
-		nTrapTable[2] = PTT_LEFT;
-		nTrapTable[189] = PTT_LEFT;
-		nTrapTable[197] = PTT_LEFT;
-		nTrapTable[205] = PTT_LEFT;
-		nTrapTable[209] = PTT_LEFT;
-		nTrapTable[5] = PTT_RIGHT;
-		nTrapTable[192] = PTT_RIGHT;
-		nTrapTable[212] = PTT_RIGHT;
-		nTrapTable[216] = PTT_RIGHT;
 		break;
 #ifdef HELLFIRE
 	case DTYPE_NEST:
-		// patch dSolidTable - L6.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L6.SOL
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
 #endif
 		break;
 	case DTYPE_CRYPT:
-		// patch dSolidTable - L5.SOL
 #if !USE_PATCH
+		// patch dSolidTable - L5.SOL
 		nSolidTable[143] = false; // make right side of down-stairs consistent (walkable)
 		nSolidTable[148] = false; // make the back of down-stairs consistent (walkable)
 		// make collision-checks more reasonable
@@ -425,6 +351,96 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
+		// - adjust SOL after patchCryptMin
+		nSolidTable[238] = false;
+		nMissileTable[238] = false;
+		nBlockTable[238] = false;
+		nMissileTable[178] = false;
+		nBlockTable[178] = false;
+		nSolidTable[242] = false;
+		nMissileTable[242] = false;
+		nBlockTable[242] = false;
+		// - fix automap of the entrance I.
+		nMissileTable[158] = false;
+		nBlockTable[158] = false;
+		nSolidTable[159] = false;
+		nMissileTable[159] = false;
+		nBlockTable[159] = false;
+		nMissileTable[148] = true;
+		nBlockTable[148] = true;
+		nSolidTable[148] = true;
+		// patch dMegaTiles - L5.TIL
+		// - fix automap of the entrance II.
+		pTiles[52][0] = pTiles[23][0];
+		pTiles[52][1] = pTiles[23][1];
+		pTiles[52][2] = pTiles[23][2];
+		pTiles[52][3] = pTiles[23][3];
+		pTiles[58][0] = pTiles[18][0];
+		pTiles[58][1] = pTiles[18][1];
+		pTiles[58][2] = pTiles[18][2];
+		pTiles[58][3] = pTiles[18][3];
+		// - adjust TIL after patchCryptMin
+		pTiles[109][0] = pTiles[1][0];
+		pTiles[109][1] = pTiles[1][1];
+		pTiles[109][2] = pTiles[1][2];
+		pTiles[109][3] = pTiles[1][3];
+		pTiles[110][0] = pTiles[6][0];
+		pTiles[110][1] = pTiles[6][1];
+		pTiles[110][2] = pTiles[6][2];
+		pTiles[110][3] = pTiles[6][3];
+		pTiles[111][0] = pTiles[11][0];
+		pTiles[111][1] = pTiles[11][1];
+		pTiles[111][2] = pTiles[11][2];
+		pTiles[111][3] = pTiles[11][3];
+
+		pTiles[71][0] = pTiles[2][0];
+		pTiles[71][1] = pTiles[2][1];
+		pTiles[71][2] = pTiles[2][2];
+		pTiles[71][3] = pTiles[2][3];
+		pTiles[80][0] = pTiles[2][0];
+		pTiles[80][1] = pTiles[2][1];
+		pTiles[80][2] = pTiles[2][2];
+		pTiles[80][3] = pTiles[2][3];
+		pTiles[81][0] = pTiles[12][0];
+		pTiles[81][1] = pTiles[12][1];
+		pTiles[81][2] = pTiles[12][2];
+		pTiles[81][3] = pTiles[12][3];
+		pTiles[82][0] = pTiles[12][0];
+		pTiles[82][1] = pTiles[12][1];
+		pTiles[82][2] = pTiles[12][2];
+		pTiles[82][3] = pTiles[12][3];
+		pTiles[83][0] = pTiles[36][0];
+		pTiles[83][1] = pTiles[36][1];
+		pTiles[83][2] = pTiles[36][2];
+		pTiles[83][3] = pTiles[36][3];
+		pTiles[84][0] = pTiles[36][0];
+		pTiles[84][1] = pTiles[36][1];
+		pTiles[84][2] = pTiles[36][2];
+		pTiles[84][3] = pTiles[36][3];
+		pTiles[85][0] = pTiles[7][0];
+		pTiles[85][1] = pTiles[7][1];
+		pTiles[85][2] = pTiles[7][2];
+		pTiles[85][3] = pTiles[7][3];
+		pTiles[86][0] = pTiles[7][0];
+		pTiles[86][1] = pTiles[7][1];
+		pTiles[86][2] = pTiles[7][2];
+		pTiles[86][3] = pTiles[7][3];
+		pTiles[87][0] = pTiles[26][0];
+		pTiles[87][1] = pTiles[26][1];
+		pTiles[87][2] = pTiles[26][2];
+		pTiles[87][3] = pTiles[26][3];
+		pTiles[88][0] = pTiles[26][0];
+		pTiles[88][1] = pTiles[26][1];
+		pTiles[88][2] = pTiles[26][2];
+		pTiles[88][3] = pTiles[26][3];
+		pTiles[215][0] = pTiles[35][0];
+		pTiles[215][1] = pTiles[35][1];
+		pTiles[215][2] = pTiles[35][2];
+		pTiles[215][3] = pTiles[35][3];
+		pTiles[216][0] = pTiles[11][0];
+		pTiles[216][1] = pTiles[11][1];
+		pTiles[216][2] = pTiles[11][2];
+		pTiles[216][3] = pTiles[11][3];
 #endif
 		break;
 #endif /* HELLFIRE */
@@ -443,9 +459,8 @@ void FreeSetPieces()
 
 void FreeLvlDungeon()
 {
-	MemFreeDbg(pMicroCels);
-	MemFreeDbg(pMegaTiles);
-	MemFreeDbg(pSpecialCels);
+	MemFreeDbg(pMicrosCel);
+	MemFreeDbg(pSpecialsCel);
 }
 
 void DRLG_PlaceRndTile(BYTE search, BYTE replace, BYTE rndper)
@@ -519,27 +534,27 @@ void DRLG_PlaceMegaTiles(int mt)
 {
 	int i, j, xx, yy;
 	int v1, v2, v3, v4;
-	uint16_t* Tiles;
+	uint16_t* pTile;
 
 	/*int cursor = 0;
 	char tmpstr[1024];
 	long lvs[] = { 22, 56, 57, 58, 59, 60, 61 };
 	for (i = 0; i < lengthof(lvs); i++) {
 		lv = lvs[i];
-		Tiles = &pMegaTiles[mt * 4];
-		v1 = SwapLE16(Tiles[0]) + 1;
-		v2 = SwapLE16(Tiles[1]) + 1;
-		v3 = SwapLE16(Tiles[2]) + 1;
-		v4 = SwapLE16(Tiles[3]) + 1;
+		pTile = &pTiles[mt][0];
+		v1 = pTile[0];
+		v2 = pTile[1];
+		v3 = pTile[2];
+		v4 = pTile[3];
 		cat_str(tmpstr, cursor, "- %d: %d, %d, %d, %d", lv, v1, v2, v3, v4);
 	}
 	app_fatal(tmpstr);*/
 
-	Tiles = &pMegaTiles[mt * 4];
-	v1 = SwapLE16(Tiles[0]) + 1;
-	v2 = SwapLE16(Tiles[1]) + 1;
-	v3 = SwapLE16(Tiles[2]) + 1;
-	v4 = SwapLE16(Tiles[3]) + 1;
+	pTile = &pTiles[mt][0];
+	v1 = pTile[0];
+	v2 = pTile[1];
+	v3 = pTile[2];
+	v4 = pTile[3];
 
 	for (j = 0; j < MAXDUNY; j += 2) {
 		for (i = 0; i < MAXDUNX; i += 2) {
@@ -554,13 +569,13 @@ void DRLG_PlaceMegaTiles(int mt)
 	for (j = 0; j < DMAXY; j++) {
 		xx = DBORDERX;
 		for (i = 0; i < DMAXX; i++) {
-			mt = dungeon[i][j] - 1;
-			assert(mt >= 0);
-			Tiles = &pMegaTiles[mt * 4];
-			v1 = SwapLE16(Tiles[0]) + 1;
-			v2 = SwapLE16(Tiles[1]) + 1;
-			v3 = SwapLE16(Tiles[2]) + 1;
-			v4 = SwapLE16(Tiles[3]) + 1;
+			mt = dungeon[i][j];
+			assert(mt > 0);
+			pTile = &pTiles[mt][0];
+			v1 = pTile[0];
+			v2 = pTile[1];
+			v3 = pTile[2];
+			v4 = pTile[3];
 			dPiece[xx][yy] = v1;
 			dPiece[xx + 1][yy] = v2;
 			dPiece[xx][yy + 1] = v3;
@@ -568,6 +583,25 @@ void DRLG_PlaceMegaTiles(int mt)
 			xx += 2;
 		}
 		yy += 2;
+	}
+}
+
+void DRLG_DrawMiniSet(const BYTE* miniset, int sx, int sy)
+{
+	int xx, yy, sh, sw, ii;
+
+	sw = miniset[0];
+	sh = miniset[1];
+
+	ii = sw * sh + 2;
+
+	for (yy = sy; yy < sy + sh; yy++) {
+		for (xx = sx; xx < sx + sw; xx++) {
+			if (miniset[ii] != 0) {
+				dungeon[xx][yy] = miniset[ii];
+			}
+			ii++;
+		}
 	}
 }
 
@@ -812,8 +846,33 @@ void DRLG_LoadSP(int idx, BYTE bv)
 	}
 }
 
-void DRLG_SetPC()
+static void DRLG_InitFlags()
 {
+	BYTE c;
+
+	c = currLvl._dType == DTYPE_TOWN ? BFLAG_VISIBLE : 0;
+	memset(dFlags, c, sizeof(dFlags));
+
+	if (!currLvl._dSetLvl) {
+		for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
+			int tx = pWarps[i]._wx;
+			int ty = pWarps[i]._wy;
+
+			if (tx == 0) {
+				continue;
+			}
+			int r = pWarps[i]._wtype == WRPT_L4_PENTA ? 4 : 2;
+			tx -= r;
+			ty -= r;
+			r = 2 * r + 1;
+			for (int xx = 0; xx < r; xx++) {
+				for (int yy = 0; yy < r; yy++) {
+					dFlags[tx + xx][ty + yy] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
+				}
+			}
+		}
+	}
+
 	for (int n = lengthof(pSetPieces) - 1; n >= 0; n--) {
 		if (pSetPieces[n]._spData != NULL) { // pSetPieces[n]._sptype != SPT_NONE
 			int x = pSetPieces[n]._spx;
@@ -844,6 +903,63 @@ void DRLG_SetPC()
 			}
 		}
 	}
+}
+
+static void DRLG_LightSubtiles()
+{
+	BYTE c;
+	int i, j, pn;
+
+	c = currLvl._dType == DTYPE_TOWN ? 0 : MAXDARKNESS;
+#if DEBUG_MODE
+	if (lightflag)
+		c = 0;
+#endif
+	memset(dLight, c, sizeof(dLight));
+
+	assert(LightList[MAXLIGHTS]._lxoff == 0);
+	assert(LightList[MAXLIGHTS]._lyoff == 0);
+	if (currLvl._dType == DTYPE_CAVES) {
+		LightList[MAXLIGHTS]._lradius = 7;
+		for (i = 0; i < MAXDUNX; i++) {
+			for (j = 0; j < MAXDUNY; j++) {
+				pn = dPiece[i][j];
+				if (pn >= 56 && pn <= 161
+				 && (pn <= 147 || pn >= 154 || pn == 150 || pn == 152)) {
+					LightList[MAXLIGHTS]._lx = i;
+					LightList[MAXLIGHTS]._ly = j;
+					DoLighting(MAXLIGHTS);
+				}
+			}
+		}
+#ifdef HELLFIRE
+	} else if (currLvl._dType == DTYPE_NEST) {
+		LightList[MAXLIGHTS]._lradius = 6; // 9
+		for (i = 0; i < MAXDUNX; i++) {
+			for (j = 0; j < MAXDUNY; j++) {
+				pn = dPiece[i][j];
+				if ((pn >= 386 && pn <= 496) || (pn >= 534 && pn <= 537)) {
+					LightList[MAXLIGHTS]._lx = i;
+					LightList[MAXLIGHTS]._ly = j;
+					DoLighting(MAXLIGHTS);
+				}
+			}
+		}
+#endif
+	}
+}
+
+void InitLvlMap()
+{
+	DRLG_LightSubtiles();
+	DRLG_InitFlags();
+
+	memset(dPlayer, 0, sizeof(dPlayer));
+	memset(dMonster, 0, sizeof(dMonster));
+	memset(dDead, 0, sizeof(dDead));
+	memset(dObject, 0, sizeof(dObject));
+	memset(dItem, 0, sizeof(dItem));
+	memset(dMissile, 0, sizeof(dMissile));
 }
 
 /**
@@ -1031,16 +1147,16 @@ static void SetMini(int x, int y, int mt)
 {
 	int xx, yy;
 	long v1, v2, v3, v4;
-	uint16_t* Tiles;
+	uint16_t* pTile;
 
 	xx = 2 * x + DBORDERX;
 	yy = 2 * y + DBORDERY;
 
-	Tiles = &pMegaTiles[(mt - 1) * 4];
-	v1 = SwapLE16(Tiles[0]) + 1;
-	v2 = SwapLE16(Tiles[1]) + 1;
-	v3 = SwapLE16(Tiles[2]) + 1;
-	v4 = SwapLE16(Tiles[3]) + 1;
+	pTile = &pTiles[mt][0];
+	v1 = pTile[0];
+	v2 = pTile[1];
+	v3 = pTile[2];
+	v4 = pTile[3];
 
 	dPiece[xx][yy] = v1;
 	dPiece[xx + 1][yy] = v2;
@@ -1062,12 +1178,7 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-	// init special pieces
-	if (currLvl._dDunType == DTYPE_CATHEDRAL) {
-		DRLG_InitL1Specials(x1, y1, x2, y2);
-	} else if (currLvl._dDunType == DTYPE_CATACOMBS) {
-		DRLG_InitL2Specials(x1, y1, x2, y2);
-	}
+	// TODO: LoadPreLighting, DRLG_LightSubtiles?
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
 	// activate monsters
 	MonChangeMap();
@@ -1076,6 +1187,7 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		DRLG_RedoTrans();
 	}
 	// RedoLightAndVision();
+	// TODO: SavePreLighting?
 }
 
 void DRLG_RedoTrans()
@@ -1084,16 +1196,16 @@ void DRLG_RedoTrans()
 		return;
 	}
 	switch (currLvl._dDunType) {
-	case DTYPE_CATHEDRAL:
+	case DGT_CATHEDRAL:
 		DRLG_L1InitTransVals();
 		break;
-	case DTYPE_CATACOMBS:
+	case DGT_CATACOMBS:
 		DRLG_L2InitTransVals();
 		break;
-	case DTYPE_CAVES:
+	case DGT_CAVES:
 		DRLG_L3InitTransVals();
 		break;
-	case DTYPE_HELL:
+	case DGT_HELL:
 		DRLG_L4InitTransVals();
 		break;
 	default:

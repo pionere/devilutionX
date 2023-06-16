@@ -18,10 +18,7 @@ static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
 static char selhero_title[32];
-static int selhero_result;
-static bool selhero_endMenu;
-static bool selhero_navigateYesNo;
-static bool selhero_deleteEnabled;
+static int selhero_result; // _selhero_status
 
 static int (*gfnHeroCreate)(_uiheroinfo*);
 //static void (*gfnHeroStats)(unsigned int, _uidefaultstats*);
@@ -123,12 +120,6 @@ static const char* SelheroGenerateName(BYTE hero_class)
 }
 #endif
 
-static void SelheroUiFocusNavigationYesNo()
-{
-	if (selhero_deleteEnabled)
-		UiFocusNavigationYesNo();
-}
-
 static void SelheroFreeDlgItems()
 {
 	UiClearListItems();
@@ -218,19 +209,17 @@ static void SelheroInit()
 
 static void SelheroListEsc()
 {
-	selhero_endMenu = true;
 	selhero_result = SELHERO_PREVIOUS;
 }
 
 static void SelheroListFocus(unsigned index)
 {
 	SelheroUpdateViewportItems();
-	int baseFlags = UIS_CENTER | UIS_BIG;
+	int baseFlags = UIS_CENTER | UIS_VCENTER | UIS_BIG;
 	if (index < selhero_SaveCount) {
 		memcpy(&selhero_heroInfo, &selhero_heros[index], sizeof(selhero_heroInfo));
 		SelheroSetStats();
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
-		selhero_deleteEnabled = true;
 		return;
 	}
 
@@ -241,14 +230,15 @@ static void SelheroListFocus(unsigned index)
 	copy_cstr(textStats[3], "--");
 	copy_cstr(textStats[4], "--");
 	SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
-	selhero_deleteEnabled = false;
 }
 
-static bool SelheroListDeleteYesNo()
+static bool SelheroListDelete()
 {
-	selhero_navigateYesNo = selhero_deleteEnabled;
-
-	return selhero_navigateYesNo;
+	// if (SELLIST_DIALOG_DELETE_BUTTON->m_iFlags & UIS_DISABLED)
+	if (SelectedItem == selhero_SaveCount)
+		return false;
+	selhero_result = SHS_DEL_HERO;
+	return true;
 }
 
 static void SelheroListInit()
@@ -272,24 +262,22 @@ static void SelheroListInit()
 	gUiItems.push_back(scrollBar);
 
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 3, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
-	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &SelheroUiFocusNavigationYesNo, rect5, UIS_CENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
+	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &UiFocusNavigationDelete, rect5, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
 	gUiItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
 
 	SDL_Rect rect6 = { SELHERO_RPANEL_LEFT + 2 * SELHERO_RPANEL_WIDTH / 3, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitScreen(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDeleteYesNo);
+	UiInitScreen(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDelete);
 	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
 	snprintf(selhero_title, sizeof(selhero_title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
 }
 
 static void SelheroClassSelectorEsc()
 {
-	SelheroFreeDlgItems();
-
 	if (selhero_SaveCount != 0) {
 		SelheroListInit();
 		return;
@@ -323,7 +311,6 @@ static void SelheroClassSelectorFocus(unsigned index)
 
 static void SelheroLoadSelect(unsigned index)
 {
-	selhero_endMenu = true;
 	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
 }
 
@@ -348,10 +335,10 @@ static void SelheroListSelect(unsigned index)
 		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
+		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 		//assert(gUIListItems.size() == NUM_CLASSES);
 		UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
@@ -410,10 +397,10 @@ static void SelheroClassSelectorSelect(unsigned index)
 	gUiItems.push_back(new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName) - 1, rect2));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitScreen(0, NULL, SelheroNameSelect, SelheroNameEsc);
 }
@@ -468,9 +455,6 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
 		SelheroInit();
 
 		//gfnHeroStats = fnstats;
-		//selhero_result = 0;
-
-		selhero_navigateYesNo = false;
 
 		selhero_SaveCount = 0;
 		fninfo(SelHeroGetHeroInfo);
@@ -482,13 +466,13 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
 			SelheroListSelect(0);
 		}
 
-		selhero_endMenu = false;
+		selhero_result = SHS_ACTIVE;
 		do {
 			UiRenderAndPoll(&vecSelHeroDialog);
-		} while (!selhero_endMenu && !selhero_navigateYesNo);
+		} while (selhero_result == SHS_ACTIVE);
 		SelheroFree();
 
-		if (selhero_endMenu)
+		if (selhero_result != SHS_DEL_HERO)
 			break;
 		char dialogTitle[32];
 		char dialogText[256];

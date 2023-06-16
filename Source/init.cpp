@@ -12,9 +12,8 @@
 #include "utils/file_util.h"
 #include <SDL.h>
 #include <string>
+#if CREATE_MPQONE
 #include <fstream>
-#if DEV_MODE
-#include <sys/stat.h>
 #endif
 
 #ifdef __vita__
@@ -81,7 +80,7 @@ static void ReadOnlyTest()
 	FILE* f = FileOpen(path.c_str(), "w");
 	if (f != NULL) {
 		fclose(f);
-		remove(path.c_str());
+		RemoveFile(path.c_str());
 	} else {
 		app_fatal("Unable to write to location:\n%s", GetPrefPath());
 	}

@@ -1602,38 +1602,38 @@ static void DrawTrigInfo()
 			case SL_BONECHAMB:
 				copy_cstr(infostr, "To The Chamber of Bone");
 				break;
-			/*case SL_MAZE:
-				copy_cstr(infostr, "To Maze");
-				break;*/
+			//case SL_MAZE:
+			//	copy_cstr(infostr, "To Maze");
+			//	break;
 			case SL_POISONWATER:
 				copy_cstr(infostr, "To A Dark Passage");
 				break;
-			case SL_VILEBETRAYER:
-				copy_cstr(infostr, "To The Unholy Altar");
-				break;
+			//case SL_VILEBETRAYER:
+			//	copy_cstr(infostr, "To The Unholy Altar");
+			//	break;
 			default:
 				ASSUME_UNREACHABLE
 			}
 			break;
 		case DVL_DWM_TWARPDN:
-			switch (pcurstrig) {
-			case TWARP_CATHEDRAL:
+			switch (trigs[pcurstrig]._ttype) {
+			case WRPT_TOWN_L1:
 				copy_cstr(infostr, "Down to dungeon");
 				break;
-			case TWARP_CATACOMB:
+			case WRPT_TOWN_L2:
 				copy_cstr(infostr, "Down to catacombs");
 				break;
-			case TWARP_CAVES:
+			case WRPT_TOWN_L3:
 				copy_cstr(infostr, "Down to caves");
 				break;
-			case TWARP_HELL:
+			case WRPT_TOWN_L4:
 				copy_cstr(infostr, "Down to hell");
 				break;
 #ifdef HELLFIRE
-			case TWARP_NEST:
+			case WRPT_TOWN_L6:
 				copy_cstr(infostr, "Down to nest");
 				break;
-			case TWARP_CRYPT:
+			case WRPT_TOWN_L5:
 				copy_cstr(infostr, "Down to crypt");
 				break;
 #endif

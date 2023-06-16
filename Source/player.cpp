@@ -1588,8 +1588,9 @@ void RemovePlrFromMap(int pnum)
 
 	dx = plr._poldx;
 	dy = plr._poldy;
-	assert(dx >= DBORDERX && dx < DBORDERX + DSIZEX);
-	assert(dy >= DBORDERY && dy < DBORDERY + DSIZEY);
+	assert(dx >= 1 && dx < MAXDUNX - 1);
+	assert(dy >= 1 && dy < MAXDUNY - 1);
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "RemovePlrFromMap expects a large enough border.");
 
 	pp = pnum + 1;
 	for (x = dx - 1; x <= dx + 1; x++) {
