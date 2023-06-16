@@ -608,14 +608,14 @@ else()
     Packaging/windows/devilutionx.rc)
 endif()
 
-if(CMAKE_STRIP AND NOT DISABLE_STRIP)
-  add_custom_command(
-    TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
-    COMMAND $<$<CONFIG:Release>:${CMAKE_STRIP}>
-            $<$<CONFIG:MinSizeRel>:${CMAKE_STRIP}>
-    ARGS $<TARGET_FILE:${BIN_TARGET}>)
-endif()
+#if(CMAKE_STRIP AND NOT DISABLE_STRIP)
+#  add_custom_command(
+#    TARGET ${BIN_TARGET} POST_BUILD
+#    DEPENDS ${BIN_TARGET}
+#    COMMAND $<$<CONFIG:Release>:${CMAKE_STRIP}>
+#            $<$<CONFIG:MinSizeRel>:${CMAKE_STRIP}>
+#    ARGS $<TARGET_FILE:${BIN_TARGET}>)
+#endif()
 
 if(USE_PATCH)
   set(DEVIL_PATCHER devil_patcher)
