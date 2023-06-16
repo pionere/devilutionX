@@ -818,6 +818,8 @@ static void DRLG_L5Shadows()
 			case 16:
 			case 17:
 			// case 31:
+			case 85:
+			case 86:
 				pillar = true;
 				break;
 			case 8:
@@ -881,14 +883,14 @@ static void DRLG_L5Shadows()
 					continue;
 				}
 				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4;
+				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 5;
 				switch (dungeon[i - 1][j - 1]) {
 				case 13: replaceB = pillar ? 207 : 203; break;
-				case 2:  replaceB = pillar ? 71 : 80;  break;
-				case 7:  replaceB = pillar ? 85 : 86;  break;
-				case 12: replaceB = pillar ? 81 : 82;  break;
-				case 26: replaceB = pillar ? 87 : 88;  break;
-				case 36: replaceB = pillar ? 83 : 84;  break;
+				case 2:  replaceB = pillar ? 71 : 80;   break;
+				case 7:  replaceB = pillar ? 85 : 86;   break;
+				case 12: replaceB = pillar ? 81 : 82;   break;
+				case 26: replaceB = pillar ? 87 : 88;   break;
+				case 36: replaceB = pillar ? 83 : 84;   break;
 				default:
 					dungeon[i - 1][j] = replaceB; // restore original value
 					continue; // TODO: what else?
@@ -898,20 +900,20 @@ static void DRLG_L5Shadows()
 			}
 			if (pillar) {
 				if (dungeon[i - 1][j] == 13) {
-					BYTE replace;
+					BYTE replace = dungeon[i - 1][j - 1];
 					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-					pillar = (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4;
-					if (dungeon[i - 1][j - 1] == 13) {
+					pillar = (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 5;
+					if (replace == 13) {
 						replace = pillar ? 207 : 203;
-					} else if (dungeon[i - 1][j - 1] == 2) {
+					} else if (replace == 2) {
 						replace = pillar ? 71 : 80;
-					} else if (dungeon[i - 1][j - 1] == 7) {
+					} else if (replace == 7) {
 						replace = pillar ? 85 : 86;
-					} else if (dungeon[i - 1][j - 1] == 12) {
+					} else if (replace == 12) {
 						replace = pillar ? 81 : 82;
-					} else if (dungeon[i - 1][j - 1] == 26) {
+					} else if (replace == 26) {
 						replace = pillar ? 87 : 88;
-					} else if (dungeon[i - 1][j - 1] == 36) {
+					} else if (replace == 36) {
 						replace = pillar ? 83 : 84;
 					} else {
 						continue; // TODO: what else?
