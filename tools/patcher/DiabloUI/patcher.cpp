@@ -722,10 +722,10 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		int res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-		{ 553 - 1, 5, MET_TRANSPARENT }, // 1470
-		{ 553 - 1, 3, MET_TRANSPARENT }, // 1471
-		{ 553 - 1, 1, MET_RTRIANGLE },   // 1473
-		{ 554 - 1, 0, MET_TRANSPARENT }, // 1475
+		{ 553 - 1, 5, MET_TRANSPARENT },
+		{ 553 - 1, 3, MET_TRANSPARENT },
+		{ 553 - 1, 1, MET_RTRIANGLE },
+		{ 554 - 1, 0, MET_TRANSPARENT },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -764,23 +764,23 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		}
 	}
 
-	// move the image up 553[5] (1470) and 553[3] (1471)
+	// move the image up 553[5] and 553[3]
 	for (int x = MICRO_WIDTH / 2; x < MICRO_WIDTH; x++) {
 		for (int y = MICRO_HEIGHT / 2; y < 2 * MICRO_HEIGHT; y++) {
 			gpBuffer[x + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
 			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
 		}
 	}
-	// copy image to the other micros 553[1] (1473) -> 553[3] 1471, 554[0] 1475
+	// copy image to the other micros 553[1] -> 553[3], 554[0]
 	for (int x = MICRO_WIDTH / 2 + 2; x < MICRO_WIDTH - 4; x++) {
 		for (int y = 2 * MICRO_HEIGHT; y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2 + 8; y++) {
 			BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
 			if (color == TRANS_COLOR)
 				continue;
 			if (y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2) {
-				gpBuffer[x + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color; // 1471
+				gpBuffer[x + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color; // 553[3]
 			} else {
-				gpBuffer[x + MICRO_WIDTH + (y - 2 * MICRO_HEIGHT - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color; // 1475
+				gpBuffer[x + MICRO_WIDTH + (y - 2 * MICRO_HEIGHT - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color; // 554[0]75
 			}
 			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
 		}
@@ -824,10 +824,10 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 		// int res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-		{ 807 - 1, 12 }, // 2145
-		{ 805 - 1, 12 }, // 2123
-		{ 805 - 1, 13 }, // 2124
-		{ 806 - 1, 13 }, // 2137
+		{ 807 - 1, 12 },
+		{ 805 - 1, 12 },
+		{ 805 - 1, 13 },
+		{ 806 - 1, 13 },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -870,27 +870,27 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	// draw extra line to each frame
 	for (int x = 0; x < MICRO_WIDTH; x++) {
 		int y = MICRO_HEIGHT / 2 - x / 2 + 0 * MICRO_HEIGHT;
-		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 6) * BUFFER_WIDTH]; // 2145
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 6) * BUFFER_WIDTH]; // 807[12]
 	}
 	for (int x = 0; x < MICRO_WIDTH - 4; x++) {
 		int y = MICRO_HEIGHT / 2 - x / 2 + 1 * MICRO_HEIGHT;
-		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + 4 + (y + 4) * BUFFER_WIDTH]; // 2123 I.
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + 4 + (y + 4) * BUFFER_WIDTH]; // 805[12]
 	}
 	for (int x = MICRO_WIDTH - 4; x < MICRO_WIDTH; x++) {
 		int y = MICRO_HEIGHT / 2 - x / 2 + 1 * MICRO_HEIGHT;
-		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 2) * BUFFER_WIDTH]; // 2123 II.
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 2) * BUFFER_WIDTH]; // 805[12]
 	}
 	for (int x = 0; x < 20; x++) {
 		int y = 1 + x / 2 + 2 * MICRO_HEIGHT;
-		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 1) * BUFFER_WIDTH]; // 2124 I.
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + 1) * BUFFER_WIDTH]; // 805[13]
 	}
 	for (int x = 20; x < MICRO_WIDTH; x++) {
 		int y = 1 + x / 2 + 2 * MICRO_HEIGHT;
-		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x - 12 + (y - 6) * BUFFER_WIDTH]; // 2124 II.
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x - 12 + (y - 6) * BUFFER_WIDTH]; // 805[13]
 	}
 	for (int x = 0; x < MICRO_WIDTH; x++) {
 		int y = 1 + x / 2 + 3 * MICRO_HEIGHT;
-		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y - MICRO_HEIGHT) * BUFFER_WIDTH]; // 2137
+		gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y - MICRO_HEIGHT) * BUFFER_WIDTH]; // 806[13]
 	}
 
 	// create the new CEL file
@@ -931,27 +931,27 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		int res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-		{ 731 - 1, 9, MET_TRANSPARENT }, // 1923 move micro
-		{ 755 - 1, 0, MET_LTRIANGLE },   // 1975 change type
-		{ 974 - 1, 0, MET_LTRIANGLE },   // 2805 change type
-		{ 1030 - 1, 0, MET_LTRIANGLE },  // 2943 change type
-		{ 220 - 1, 1, MET_TRANSPARENT }, // 514  move micro
-		{ 221 - 1, 0, MET_TRANSPARENT }, // 516
-		{ 962 - 1, 1, MET_TRANSPARENT }, // 2775
-		{ 218 - 1, 0, MET_TRANSPARENT }, // 511 move micro
-		{ 219 - 1, 1, MET_TRANSPARENT }, // 513
-		{ 1166 - 1, 0, MET_TRANSPARENT }, // 3289 move micro
-		{ 1167 - 1, 1, MET_TRANSPARENT }, // 3292
-		{ 1171 - 1, 1, MET_TRANSPARENT }, // 3302
-		{ 1172 - 1, 0, MET_TRANSPARENT }, // 3303
-		{ 1175 - 1, 1, MET_TRANSPARENT }, // 3311
-		{ 1176 - 1, 0, MET_TRANSPARENT }, // 3317
-		{ 845 - 1, 4, MET_TRANSPARENT }, // 2358
-		//{ 493 - 1, 0, MET_LTRIANGLE },   // 866 TODO: fix light?
-		//{ 290 - 1, 0, MET_LTRIANGLE },   // 662 TODO: fix grass?
-		//{ 290 - 1, 1, MET_RTRIANGLE },   // 663
-		//{ 334 - 1, 0, MET_LTRIANGLE },   // 750 TODO: fix grass? + (349 & nest)
-		//{ 334 - 1, 1, MET_RTRIANGLE },   // 751
+		{ 731 - 1, 9, MET_TRANSPARENT }, // move micro
+		{ 755 - 1, 0, MET_LTRIANGLE },   // change type
+		{ 974 - 1, 0, MET_LTRIANGLE },   // change type
+		{ 1030 - 1, 0, MET_LTRIANGLE },  // change type
+		{ 220 - 1, 1, MET_TRANSPARENT }, // move micro
+		{ 221 - 1, 0, MET_TRANSPARENT },
+		{ 962 - 1, 1, MET_TRANSPARENT },
+		{ 218 - 1, 0, MET_TRANSPARENT }, // move micro
+		{ 219 - 1, 1, MET_TRANSPARENT },
+		{ 1166 - 1, 0, MET_TRANSPARENT }, // move micro
+		{ 1167 - 1, 1, MET_TRANSPARENT },
+		{ 1171 - 1, 1, MET_TRANSPARENT },
+		{ 1172 - 1, 0, MET_TRANSPARENT },
+		{ 1175 - 1, 1, MET_TRANSPARENT },
+		{ 1176 - 1, 0, MET_TRANSPARENT },
+		{ 845 - 1, 4, MET_TRANSPARENT },
+		//{ 493 - 1, 0, MET_LTRIANGLE },   // TODO: fix light?
+		//{ 290 - 1, 0, MET_LTRIANGLE },   // TODO: fix grass?
+		//{ 290 - 1, 1, MET_RTRIANGLE },
+		//{ 334 - 1, 0, MET_LTRIANGLE },   // TODO: fix grass? + (349 & nest)
+		//{ 334 - 1, 1, MET_RTRIANGLE },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -990,7 +990,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		}
 	}
 
-	// move the image up - 1923
+	// move the image up - 731[9]
 	for (int i = 0; i < 1; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
@@ -1006,7 +1006,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		}
 	}
 
-	// mask and move down the image - 514, 516
+	// mask and move down the image - 220[1], 220[0]
 	for (int i = 4; i < 5; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			// - mask
@@ -1038,7 +1038,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 			}
 		}
 	}
-	// mask and move down the image - 2775
+	// mask and move down the image - 962[1]
 	for (int i = 6; i < 7; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			// - mask
@@ -1059,7 +1059,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 			}
 		}
 	}
-	// mask and move down the image - 511, 513
+	// mask and move down the image - 218[0], 219[1]
 	for (int i = 7; i < 8; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			// - mask
@@ -1070,13 +1070,13 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 					gpBuffer[addr] = TRANS_COLOR;
 				}
 			}
-			// - move to 513
+			// - move to 219[1]
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 				BYTE color = gpBuffer[addr];
 				if (color != TRANS_COLOR) {
 					unsigned addr2 = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr2] = color; // 513
+					gpBuffer[addr2] = color; // 219[1]
 					gpBuffer[addr] = TRANS_COLOR;
 				}
 			}
@@ -1089,7 +1089,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 			}
 		}
 	}
-	// mask and move down the image 1166[0] (3289), 1167[1] (3292)
+	// mask and move down the image 1166[0], 1167[1]
 	for (int i = 9; i < 10; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			// - mask
@@ -1119,7 +1119,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 			}
 		}
 	}
-	// mask the image 1171[1] (3302), 1172[0] (3303), 1175[1] (3311) and 1176[0] (3317)
+	// mask the image 1171[1], 1172[0], 1175[1] and 1176[0]
 	for (int i = 11; i < 15; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1131,7 +1131,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 			}
 		}
 	}
-	// mask the image 845[4] (2358)
+	// mask the image 845[4]
 	for (int i = 15; i < 16; i++) {
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1199,101 +1199,101 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	} CelMicro;
 
 	const CelMicro micros[] = {
-/*  0 */{ 724 - 1, 0, -1 }, // 1903 move micro
-/*  1 */{ 724 - 1, 1, -1 }, // 1904
-/*  2 */{ 724 - 1, 3, -1 }, // 1902
-/*  3 */{ 723 - 1, 1, -1 }, // 1901
-/*  4 */{ 715 - 1, 11, -1 }, // 1848
-/*  5 */{ 715 - 1, 9, -1 }, // 1849
-/*  6 */{ 715 - 1, 7, -1 }, // 1850 - unused
-/*  7 */{ 715 - 1, 5, -1 }, // 1851 - unused
-/*  8 */{ 715 - 1, 3, -1 }, // 1852
-/*  9 */{ 715 - 1, 1, MET_RTRIANGLE }, // 1854
-/* 10 */{ 721 - 1, 4, MET_SQUARE }, // 1893
-/* 11 */{ 721 - 1, 2, MET_SQUARE }, // 1894
-/* 12 */{ 719 - 1, 4, MET_SQUARE }, // 1875
-/* 13 */{ 719 - 1, 2, MET_SQUARE }, // 1877
-/* 14 */{ 727 - 1, 7, MET_SQUARE }, // 1911
-/* 15 */{ 727 - 1, 5, MET_SQUARE }, // 1912
-/* 16 */{ 725 - 1, 4, MET_TRANSPARENT }, // 1905
-/* 17 */{ 725 - 1, 2, MET_TRANSPARENT }, // 1906
-/* 18 */{ 725 - 1, 0, MET_TRANSPARENT }, // 1907
+/*  0 */{ 724 - 1, 0, -1 }, // move micro
+/*  1 */{ 724 - 1, 1, -1 },
+/*  2 */{ 724 - 1, 3, -1 },
+/*  3 */{ 723 - 1, 1, -1 },
+/*  4 */{ 715 - 1, 11, -1 },
+/*  5 */{ 715 - 1, 9, -1 },
+/*  6 */{ 715 - 1, 7, -1 }, // - unused
+/*  7 */{ 715 - 1, 5, -1 }, // - unused
+/*  8 */{ 715 - 1, 3, -1 },
+/*  9 */{ 715 - 1, 1, MET_RTRIANGLE },
+/* 10 */{ 721 - 1, 4, MET_SQUARE },
+/* 11 */{ 721 - 1, 2, MET_SQUARE },
+/* 12 */{ 719 - 1, 4, MET_SQUARE },
+/* 13 */{ 719 - 1, 2, MET_SQUARE },
+/* 14 */{ 727 - 1, 7, MET_SQUARE },
+/* 15 */{ 727 - 1, 5, MET_SQUARE },
+/* 16 */{ 725 - 1, 4, MET_TRANSPARENT },
+/* 17 */{ 725 - 1, 2, MET_TRANSPARENT },
+/* 18 */{ 725 - 1, 0, MET_TRANSPARENT },
 
-/* 19 */{ 428 - 1, 4, -1 }, // 1049
-/* 20 */{ 428 - 1, 2, -1 }, // 1050
-/* 21 */{ 428 - 1, 0, -1 }, // 1051
-/* 22 */{ 418 - 1, 5, MET_SQUARE }, // 1005
-/* 23 */{ 418 - 1, 3, MET_SQUARE }, // 1006
-/* 24 */{ 418 - 1, 1, MET_RTRAPEZOID }, // 1008
-/* 25 */{ 426 - 1, 2, -1 }, // 1045
-/* 26 */{ 426 - 1, 0, -1 }, // 1046
-/* 27 */{ 428 - 1, 1, -1 }, // 1052
-/* 28 */{ 429 - 1, 0, -1 }, // 1053
-/* 29 */{ 419 - 1, 5, MET_SQUARE }, // 1013
-/* 30 */{ 419 - 1, 3, MET_SQUARE }, // 1014
-/* 31 */{ 419 - 1, 1, MET_RTRAPEZOID }, // 1016
+/* 19 */{ 428 - 1, 4, -1 },
+/* 20 */{ 428 - 1, 2, -1 },
+/* 21 */{ 428 - 1, 0, -1 },
+/* 22 */{ 418 - 1, 5, MET_SQUARE },
+/* 23 */{ 418 - 1, 3, MET_SQUARE },
+/* 24 */{ 418 - 1, 1, MET_RTRAPEZOID },
+/* 25 */{ 426 - 1, 2, -1 },
+/* 26 */{ 426 - 1, 0, -1 },
+/* 27 */{ 428 - 1, 1, -1 },
+/* 28 */{ 429 - 1, 0, -1 },
+/* 29 */{ 419 - 1, 5, MET_SQUARE },
+/* 30 */{ 419 - 1, 3, MET_SQUARE },
+/* 31 */{ 419 - 1, 1, MET_RTRAPEZOID },
 
-/* 32 */{ 911 - 1, 9, -1 }, // 2560
-/* 33 */{ 911 - 1, 7, -1 }, // 2561
-/* 34 */{ 911 - 1, 5, -1 }, // 2562
-/* 35 */{ 931 - 1, 5, MET_SQUARE }, // 2643
-/* 36 */{ 931 - 1, 3, MET_SQUARE }, // 2644
-/* 37 */{ 931 - 1, 1, MET_RTRAPEZOID }, // 2646
-/* 38 */{ 402 - 1, 0, -1 }, // 939
-/* 39 */{ 954 - 1, 2, -1 }, // 2746
-/* 40 */{ 919 - 1, 9, -1 }, // 2587
-/* 41 */{ 919 - 1, 5, -1 }, // 2589
-/* 42 */{ 927 - 1, 5, MET_SQUARE }, // 2625
-/* 43 */{ 927 - 1, 1, MET_RTRAPEZOID }, // 2627
-/* 44 */{ 956 - 1, 0, MET_LTRIANGLE }, // 2760 - unused
-		// { 956 - 1, 2, -1 }, // 2759
-/* 45 */{ 954 - 1, 0, MET_LTRIANGLE }, // 2748 - unused
-/* 46 */{ 919 - 1, 7, MET_SQUARE }, // 2588
-/* 47 */{ 918 - 1, 9, -1 }, // 2578
-/* 48 */{ 926 - 1, 5, MET_SQUARE }, // 2619
-/* 49 */{ 927 - 1, 0, -1 }, // 2626
-/* 50 */{ 918 - 1, 3, -1 }, // 2584
-/* 51 */{ 918 - 1, 2, -1 }, // 2583
-/* 52 */{ 918 - 1, 5, MET_SQUARE }, // 2582
-/* 53 */{ 929 - 1, 0, MET_LTRAPEZOID }, // 2632
-/* 54 */{ 929 - 1, 1, MET_RTRAPEZOID }, // 2633
-/* 55 */{ 918 - 1, 8, -1 }, // 2577
-/* 56 */{ 926 - 1, 4, MET_SQUARE }, // 2618
-/* 57 */{ 928 - 1, 4, -1 }, // 2631
-/* 58 */{ 920 - 1, 8, MET_SQUARE }, // 2592
-/* 59 */{ 551 - 1, 0, -1 }, // 1467
-/* 60 */{ 552 - 1, 1, -1 }, // 1469
-/* 61 */{ 519 - 1, 0, -1 }, // 1342
-/* 62 */{ 509 - 1, 5, MET_SQUARE }, // 1315
-/* 63 */{ 509 - 1, 3, MET_SQUARE }, // 1317
-/* 64 */{ 509 - 1, 1, MET_RTRAPEZOID }, // 1319
+/* 32 */{ 911 - 1, 9, -1 },
+/* 33 */{ 911 - 1, 7, -1 },
+/* 34 */{ 911 - 1, 5, -1 },
+/* 35 */{ 931 - 1, 5, MET_SQUARE },
+/* 36 */{ 931 - 1, 3, MET_SQUARE },
+/* 37 */{ 931 - 1, 1, MET_RTRAPEZOID },
+/* 38 */{ 402 - 1, 0, -1 },
+/* 39 */{ 954 - 1, 2, -1 },
+/* 40 */{ 919 - 1, 9, -1 },
+/* 41 */{ 919 - 1, 5, -1 },
+/* 42 */{ 927 - 1, 5, MET_SQUARE },
+/* 43 */{ 927 - 1, 1, MET_RTRAPEZOID },
+/* 44 */{ 956 - 1, 0, MET_LTRIANGLE }, // - unused
+		// { 956 - 1, 2, -1 },
+/* 45 */{ 954 - 1, 0, MET_LTRIANGLE }, // - unused
+/* 46 */{ 919 - 1, 7, MET_SQUARE },
+/* 47 */{ 918 - 1, 9, -1 },
+/* 48 */{ 926 - 1, 5, MET_SQUARE },
+/* 49 */{ 927 - 1, 0, -1 },
+/* 50 */{ 918 - 1, 3, -1 },
+/* 51 */{ 918 - 1, 2, -1 },
+/* 52 */{ 918 - 1, 5, MET_SQUARE },
+/* 53 */{ 929 - 1, 0, MET_LTRAPEZOID },
+/* 54 */{ 929 - 1, 1, MET_RTRAPEZOID },
+/* 55 */{ 918 - 1, 8, -1 },
+/* 56 */{ 926 - 1, 4, MET_SQUARE },
+/* 57 */{ 928 - 1, 4, -1 },
+/* 58 */{ 920 - 1, 8, MET_SQUARE },
+/* 59 */{ 551 - 1, 0, -1 },
+/* 60 */{ 552 - 1, 1, -1 },
+/* 61 */{ 519 - 1, 0, -1 },
+/* 62 */{ 509 - 1, 5, MET_SQUARE },
+/* 63 */{ 509 - 1, 3, MET_SQUARE },
+/* 64 */{ 509 - 1, 1, MET_RTRAPEZOID },
 
-/* 65 */{ 510 - 1, 7, -1 }, // 1321
-/* 66 */{ 510 - 1, 5, -1 }, // 1322
-/* 67 */{ 551 - 1, 3, MET_SQUARE }, // 1466
-/* 68 */{ 551 - 1, 1, MET_RTRAPEZOID }, // 1468
+/* 65 */{ 510 - 1, 7, -1 },
+/* 66 */{ 510 - 1, 5, -1 },
+/* 67 */{ 551 - 1, 3, MET_SQUARE },
+/* 68 */{ 551 - 1, 1, MET_RTRAPEZOID },
 
-/* 69 */{ 728 - 1, 9, -1 }, // 1916
-/* 70 */{ 728 - 1, 7, -1 }, // 1917
-/* 71 */{ 716 - 1, 13, MET_TRANSPARENT }, // 1855
-/* 72 */{ 716 - 1, 11, MET_SQUARE }, // 1856
+/* 69 */{ 728 - 1, 9, -1 },
+/* 70 */{ 728 - 1, 7, -1 },
+/* 71 */{ 716 - 1, 13, MET_TRANSPARENT },
+/* 72 */{ 716 - 1, 11, MET_SQUARE },
 
-/* 73 */{ 910 - 1, 9, -1 }, // 2556
-/* 74 */{ 910 - 1, 7, -1 }, // 2557
-/* 75 */{ 930 - 1, 5, MET_TRANSPARENT }, // 2636
-/* 76 */{ 930 - 1, 3, MET_TRANSPARENT }, // 2638
+/* 73 */{ 910 - 1, 9, -1 },
+/* 74 */{ 910 - 1, 7, -1 },
+/* 75 */{ 930 - 1, 5, MET_TRANSPARENT },
+/* 76 */{ 930 - 1, 3, MET_TRANSPARENT },
 
-/* 77 */{ 537 - 1, 0, -1 }, // 1429
-/* 78 */{ 539 - 1, 0, -1 }, // 1435
-/* 79 */{ 529 - 1, 4, MET_SQUARE }, // 1394
-/* 80 */{ 531 - 1, 4, MET_SQUARE }, // 1400
+/* 77 */{ 537 - 1, 0, -1 },
+/* 78 */{ 539 - 1, 0, -1 },
+/* 79 */{ 529 - 1, 4, MET_SQUARE },
+/* 80 */{ 531 - 1, 4, MET_SQUARE },
 
-/* 81 */{ 478 - 1, 0, -1 }, // 1230
-/* 82 */{ 477 - 1, 1, MET_SQUARE }, // 1226
-/* 83 */{ 480 - 1, 1, MET_RTRAPEZOID }, // 1240
-/* 84 */{ 479 - 1, 1, -1 }, // 1231
-/* 85 */{ 477 - 1, 0, MET_SQUARE }, // 1225
-/* 86 */{ 480 - 1, 0, MET_LTRAPEZOID }, // 1239
+/* 81 */{ 478 - 1, 0, -1 },
+/* 82 */{ 477 - 1, 1, MET_SQUARE },
+/* 83 */{ 480 - 1, 1, MET_RTRAPEZOID },
+/* 84 */{ 479 - 1, 1, -1 },
+/* 85 */{ 477 - 1, 0, MET_SQUARE },
+/* 86 */{ 480 - 1, 0, MET_LTRAPEZOID },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -1331,107 +1331,107 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 			xx += MICRO_WIDTH;
 		}
 	}
-	// copy 724[0] (1903) to 721[2] (1894)
+	// copy 724[0] to 721[2]
 	for (int i = 0; i < 1; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
-					gpBuffer[x + MICRO_WIDTH * ((i + 11) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 11) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color;
+					gpBuffer[x + MICRO_WIDTH * ((i + 11) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 11) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 721[2]
 				}
 			}
 		}
 	}
-	// copy 724[1] (1903) to 719[2] (1875)
+	// copy 724[1] to 719[2]
 	for (int i = 1; i < 2; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
-					gpBuffer[x + MICRO_WIDTH * ((i + 12) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 12) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1875
+					gpBuffer[x + MICRO_WIDTH * ((i + 12) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 12) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 719[2]
 				}
 			}
 		}
 	}
-	// copy 724[3] (1903) to 719[4] (1877) and 719[2] (1875)
+	// copy 724[3] to 719[4] and 719[2]
 	for (int i = 2; i < 3; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					if (y < MICRO_HEIGHT / 2) {
-						gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1877
+						gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 719[4]
 					} else {
-						gpBuffer[x + MICRO_WIDTH * ((i + 11) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 11) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1875
+						gpBuffer[x + MICRO_WIDTH * ((i + 11) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 11) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 719[2]
 					}
 				}
 			}
 		}
 	}
-	// copy 723[1] (1901) to 721[2] (1894) and 721[4] (1893)
+	// copy 723[1] to 721[2] and 721[4]
 	for (int i = 3; i < 4; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					if (y < MICRO_HEIGHT / 2) {
-						gpBuffer[x + MICRO_WIDTH * ((i + 7) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 7) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1877
+						gpBuffer[x + MICRO_WIDTH * ((i + 7) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 7) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 721[2]
 					} else {
-						gpBuffer[x + MICRO_WIDTH * ((i + 8) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 8) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1875
+						gpBuffer[x + MICRO_WIDTH * ((i + 8) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 8) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 721[4]
 					}
 				}
 			}
 		}
 	}
-	// copy 715[11] (1848) to 727[7] (1911)
+	// copy 715[11] to 727[7]
 	for (int i = 4; i < 5; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
-					gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1911
+					gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 727[7]
 				}
 			}
 		}
 	}
-	// copy 715[9] (1849) to 727[5] (1912)
+	// copy 715[9] to 727[5]
 	for (int i = 5; i < 6; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
-					gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1912
+					gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 727[5]
 				}
 			}
 		}
 	}
-	// copy 715[3] (1849) to 725[2] (1912) and 725[0] (1912)
+	// copy 715[3] to 725[2] and 725[0]
 	for (int i = 8; i < 9; i++) {
 		for (int x = 9; x < 24; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					if (y < MICRO_HEIGHT / 2) {
-						gpBuffer[x + MICRO_WIDTH * ((i + 9) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 9) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1877
+						gpBuffer[x + MICRO_WIDTH * ((i + 9) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 9) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 725[2]
 					} else {
-						gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1875
+						gpBuffer[x + MICRO_WIDTH * ((i + 10) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 10) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 725[0]
 					}
 				}
 			}
 		}
 	}
-	// copy 715[1] (1849) to 725[0] (1912)
+	// copy 715[1] to 725[0]
 	for (int i = 9; i < 10; i++) {
 		for (int x = 9; x < 24; x++) {
 			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR && y <= x / 2) {
-					gpBuffer[x + MICRO_WIDTH * ((i + 9) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 9) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 1877
+					gpBuffer[x + MICRO_WIDTH * ((i + 9) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 9) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color; // 725[0]
 				}
 			}
 		}
 	}
-	// copy 428[4] (1849) to 418[5] (1912)
+	// copy 428[4] to 418[5]
 	for (int i = 19; i < 20; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
@@ -1439,13 +1439,13 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH;
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color; // 418[5]
 					}
 				}
 			}
 		}
 	}
-	// copy 428[2] (1849) to 418[5] (1912) and 418[3] (1912)
+	// copy 428[2] to 418[5] and 418[3]
 	for (int i = 20; i < 21; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1453,18 +1453,18 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 418[5]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 418[3]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 428[0] (1849) to 418[3] (1912) and 418[1] (1912)
+	// copy 428[0] to 418[3] and 418[1]
 	for (int i = 21; i < 22; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1472,18 +1472,18 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 418[3]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 418[1]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 426[2] (1849) to 419[5] (1912)
+	// copy 426[2] to 419[5]
 	for (int i = 25; i < 26; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
@@ -1491,13 +1491,13 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH;
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color; // 419[5]
 					}
 				}
 			}
 		}
 	}
-	// copy 426[0] (1849) to 419[5] (1912) and 419[3] (1912)
+	// copy 426[0] to 419[5] and 419[3]
 	for (int i = 26; i < 27; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1505,18 +1505,18 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 419[5]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 419[3]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 428[1] (1849) to 419[3] (1912)
+	// copy 428[1] to 419[3]
 	for (int i = 27; i < 28; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1524,13 +1524,13 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH;
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color; // 419[3]
 					}
 				}
 			}
 		}
 	}
-	// copy 429[0] (1849) to 419[3] (1912) and 419[1] (1912)
+	// copy 429[0] to 419[3] and 419[1]
 	for (int i = 28; i < 29; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1538,45 +1538,45 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 419[3]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 419[1]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 911[9] (1849) to 931[5] (1912)
-	// copy 911[7] (1849) to 931[3] (1912)
-	// copy 911[5] (1849) to 931[1] (1912)
+	// copy 911[9] to 931[5]
+	// copy 911[7] to 931[3]
+	// copy 911[5] to 931[1]
 	for (int i = 32; i < 35; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 919[9] (1849) to 927[5] (1912)
-	// copy 919[5] (1849) to 927[1] (1912)
+	// copy 919[9] to 927[5]
+	// copy 919[5] to 927[1]
 	for (int i = 40; i < 42; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 402[0] (1849) to 927[1] (1912)
+	// copy 402[0] to 927[1]
 	for (int i = 38; i < 39; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
@@ -1584,13 +1584,13 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 5) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 5) % DRAW_HEIGHT)) * BUFFER_WIDTH;
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 954[2] (1849) to 919[7] (1912 -> 927[3]) and 927[1] (1912)
+	// copy 954[2] to 919[7] (-> 927[3]) and 927[1]
 	for (int i = 39; i < 40; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1598,28 +1598,28 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 7) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 7) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 7) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 7) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 919[7]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 927[1]
 					}
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 918[9] (1849) to 926[5] (1912)
+	// copy 918[9] to 926[5]
 	for (int i = 47; i < 48; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color; // 926[5]
 				}
 			}
 		}
 	}
-	// copy 927[0] (1849) to 918[5] (1912) and 929[1] (1912)
+	// copy 927[0] to 918[5] and 929[1]
 	for (int i = 49; i < 50; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1627,66 +1627,66 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 918[5]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 5) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 5) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 5) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 5) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 929[1]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 918[3] (1849) to 929[1] (1912)
+	// copy 918[3] to 929[1]
 	for (int i = 50; i < 51; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color; // 929[1]
 				}
 			}
 		}
 	}
-	// copy 918[2] (1849) to 929[0] (1912)
+	// copy 918[2] to 929[0]
 	for (int i = 51; i < 52; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color; // 929[0]
 				}
 			}
 		}
 	}
-	// copy 918[8] (1849) to 926[4] (1912)
+	// copy 918[8] to 926[4]
 	for (int i = 55; i < 56; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color; // 926[4]
 				}
 			}
 		}
 	}
-	// copy 928[4] (1849) to 920[8] (1912)
+	// copy 928[4] to 920[8]
 	for (int i = 57; i < 58; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color; // 920[8]
 				}
 			}
 		}
 	}
-	// copy 551[0] (1849) to 509[5] (1912) and 509[3] (1912)
+	// copy 551[0] to 509[5] and 509[3]
 	for (int i = 59; i < 60; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1694,30 +1694,30 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 509[5]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 509[3]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 552[1] (1849) to 509[3] (1912)
+	// copy 552[1] to 509[3]
 	for (int i = 60; i < 61; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color; // 509[3]
 				}
 			}
 		}
 	}
-	// copy 519[0] (1849) to 509[3] (1912) and 509[1] (1912)
+	// copy 519[0] to 509[3] and 509[1]
 	for (int i = 61; i < 62; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1725,70 +1725,70 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				if (color != TRANS_COLOR) {
 					unsigned addr;
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 509[3]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1877
+						addr = x + MICRO_WIDTH * ((i + 3) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 3) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 509[1]
 					}
 					if (gpBuffer[addr] == TRANS_COLOR) {
-						gpBuffer[addr] = color; // 1877
+						gpBuffer[addr] = color;
 					}
 				}
 			}
 		}
 	}
-	// copy 510[7] (1849) to 551[3] (1912)
-	// copy 510[5] (1849) to 551[1] (1912)
+	// copy 510[7] to 551[3]
+	// copy 510[5] to 551[1]
 	for (int i = 65; i < 67; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 728[9] (1849) to 716[13] (1912)
-	// copy 728[7] (1849) to 716[11] (1912)
+	// copy 728[9] to 716[13]
+	// copy 728[7] to 716[11]
 	for (int i = 69; i < 71; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 910[9] (1849) to 930[5] (1912)
-	// copy 910[7] (1849) to 930[3] (1912)
+	// copy 910[9] to 930[5]
+	// copy 910[7] to 930[3]
 	for (int i = 73; i < 75; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 537[0] (1849) to 529[4] (1912)
-	// copy 539[0] (1849) to 531[4] (1912)
+	// copy 537[0] to 529[4]
+	// copy 539[0] to 531[4]
 	for (int i = 77; i < 79; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				BYTE color = gpBuffer[x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH];
 				if (color != TRANS_COLOR) {
 					unsigned addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH;
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 478[0] (1849) to 477[1] (1912) and 480[1] (1912)
+	// copy 478[0] to 477[1] and 480[1]
 	for (int i = 81; i < 82; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1796,16 +1796,16 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				BYTE color = gpBuffer[addr];
 				if (color != TRANS_COLOR) {
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 477[1]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 480[1]
 					}
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
 	}
-	// copy 479[1] (1849) to 477[0] (1912) and 480[0] (1912)
+	// copy 479[1] to 477[0] and 480[0]
 	for (int i = 84; i < 85; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -1813,11 +1813,11 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 				BYTE color = gpBuffer[addr];
 				if (color != TRANS_COLOR) {
 					if (y < MICRO_HEIGHT / 2) {
-						addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 477[0]
 					} else {
-						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1875
+						addr = x + MICRO_WIDTH * ((i + 2) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 2) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 480[0]
 					}
-					gpBuffer[addr] = color; // 1877
+					gpBuffer[addr] = color;
 				}
 			}
 		}
@@ -1863,45 +1863,45 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	} CelMicro;
 
 	const CelMicro micros[] = {
-/*  0 */{ 180 - 1, 1, MET_RTRIANGLE }, // 1854
-/*  1 */{ 180 - 1, 3, MET_TRANSPARENT }, // 1854
+/*  0 */{ 180 - 1, 1, MET_RTRIANGLE },
+/*  1 */{ 180 - 1, 3, MET_TRANSPARENT },
 
-/*  2 */{ 224 - 1, 0, MET_LTRAPEZOID }, // 1854
-/*  3 */{ 224 - 1, 2, MET_TRANSPARENT }, // 1854
-/*  4 */{ 225 - 1, 2, MET_TRANSPARENT }, // 1854
+/*  2 */{ 224 - 1, 0, MET_LTRAPEZOID },
+/*  3 */{ 224 - 1, 2, MET_TRANSPARENT },
+/*  4 */{ 225 - 1, 2, MET_TRANSPARENT },
 
-/*  5 */{ 362 - 1, 9, MET_TRANSPARENT }, // 1854
-/*  6 */{ 383 - 1, 3, MET_SQUARE }, // 1854
+/*  5 */{ 362 - 1, 9, MET_TRANSPARENT },
+/*  6 */{ 383 - 1, 3, MET_SQUARE },
 
-/*  7 */{ 632 - 1, 11, MET_SQUARE }, // 1854
-/*  8 */{ 632 - 1, 13, MET_TRANSPARENT }, // 1854
-/*  9 */{ 631 - 1, 11, MET_TRANSPARENT }, // 1854
+/*  7 */{ 632 - 1, 11, MET_SQUARE },
+/*  8 */{ 632 - 1, 13, MET_TRANSPARENT },
+/*  9 */{ 631 - 1, 11, MET_TRANSPARENT },
 
-/* 10 */{ 832 - 1, 10, MET_TRANSPARENT }, // 1854
+/* 10 */{ 832 - 1, 10, MET_TRANSPARENT },
 
-/* 11 */{ 834 - 1, 10, MET_SQUARE }, // 1854
-/* 12 */{ 834 - 1, 12, MET_TRANSPARENT }, // 1854
-/* 13 */{ 828 - 1, 12, MET_TRANSPARENT }, // 1854
+/* 11 */{ 834 - 1, 10, MET_SQUARE },
+/* 12 */{ 834 - 1, 12, MET_TRANSPARENT },
+/* 13 */{ 828 - 1, 12, MET_TRANSPARENT },
 
-/* 14 */{ 864 - 1, 12, MET_SQUARE }, // 1854
-/* 15 */{ 864 - 1, 14, MET_TRANSPARENT }, // 1854
+/* 14 */{ 864 - 1, 12, MET_SQUARE },
+/* 15 */{ 864 - 1, 14, MET_TRANSPARENT },
 
-/* 16 */{ 926 - 1, 12, MET_TRANSPARENT }, // 1854
-/* 17 */{ 926 - 1, 13, MET_TRANSPARENT }, // 1854
+/* 16 */{ 926 - 1, 12, MET_TRANSPARENT },
+/* 17 */{ 926 - 1, 13, MET_TRANSPARENT },
 
-/* 18 */{ 944 - 1, 6, MET_SQUARE }, // 1854
-/* 19 */{ 944 - 1, 8, MET_TRANSPARENT }, // 1854
-/* 20 */{ 942 - 1, 6, MET_TRANSPARENT }, // 1854
+/* 18 */{ 944 - 1, 6, MET_SQUARE },
+/* 19 */{ 944 - 1, 8, MET_TRANSPARENT },
+/* 20 */{ 942 - 1, 6, MET_TRANSPARENT },
 
-/* 21 */{ 955 - 1, 13, MET_TRANSPARENT }, // 1854
-/* 22 */{ 950 - 1, 13, MET_TRANSPARENT }, // 1854
-/* 23 */{ 951 - 1, 13, MET_TRANSPARENT }, // 1854
-/* 24 */{ 946 - 1, 13, MET_TRANSPARENT }, // 1854
-/* 25 */{ 947 - 1, 13, MET_TRANSPARENT }, // 1854
-/* 26 */{ 940 - 1, 12, MET_TRANSPARENT }, // 1854
+/* 21 */{ 955 - 1, 13, MET_TRANSPARENT },
+/* 22 */{ 950 - 1, 13, MET_TRANSPARENT },
+/* 23 */{ 951 - 1, 13, MET_TRANSPARENT },
+/* 24 */{ 946 - 1, 13, MET_TRANSPARENT },
+/* 25 */{ 947 - 1, 13, MET_TRANSPARENT },
+/* 26 */{ 940 - 1, 12, MET_TRANSPARENT },
 
-/* 27 */{ 383 - 1, 5, MET_SQUARE }, // 1854
-/* 28 */{ 383 - 1, 7, MET_SQUARE }, // 1854
+/* 27 */{ 383 - 1, 5, MET_SQUARE },
+/* 28 */{ 383 - 1, 7, MET_SQUARE },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -1942,13 +1942,13 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	}
 
 	// fix bad artifacts
-	{ // 828[12] (1854)
+	{ // 828[12]
 		int i = 13;
 		unsigned addr = 30 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
 		gpBuffer[addr + 1] = TRANS_COLOR;
 	}
-	{ // 180[3] (1854)
+	{ // 180[3]
 		int i = 1;
 		unsigned addr =  1 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (23 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr + 0 * BUFFER_WIDTH] = TRANS_COLOR;
@@ -1960,12 +1960,12 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr2 + 0 * BUFFER_WIDTH] = TRANS_COLOR;
 		gpBuffer[addr2 + 1 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
-	{ // 224[0] (1854)
+	{ // 224[0]
 		int i = 2;
 		unsigned addr =  0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr + 2];
 	}
-	{ // + 225[2] (1854)
+	{ // + 225[2]
 		int i = 4;
 		unsigned addr = 31 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (17 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 = 29 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (20 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -1973,7 +1973,7 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr + 1 * BUFFER_WIDTH] = gpBuffer[addr2 + 1 * BUFFER_WIDTH];
 		gpBuffer[addr - 1 + 1 * BUFFER_WIDTH] = gpBuffer[addr2 - 1 + 1 * BUFFER_WIDTH];
 	}
-	{ // 362[9] (1854)
+	{ // 362[9]
 		int i = 5;
 		unsigned addr = 12 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr +  0 + 0 * BUFFER_WIDTH] = TRANS_COLOR;
@@ -1981,27 +1981,27 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr -  1 + 1 * BUFFER_WIDTH] = TRANS_COLOR;
 		gpBuffer[addr +  1 + 1 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
-	{ // 383[3] (1854)
+	{ // 383[3]
 		int i = 6;
 		unsigned addr  =  0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 3 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 =  5 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (18 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr2];
 	}
-	{ // 632[11] (1854)
+	{ // 632[11]
 		int i = 7;
 		unsigned addr  =  0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 =  7 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 2 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr2];
 		gpBuffer[addr + 1] = gpBuffer[addr2 + 1];
 	}
-	{ // + 632[13] (1854)
+	{ // + 632[13]
 		int i = 8;
 		unsigned addr  =  8 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (30 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 =  4 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (31 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr + 2];
 		gpBuffer[addr2] = gpBuffer[addr2 + 2];
 	}
-	{ // 832[10] (1854)
+	{ // 832[10]
 		int i = 10;
 		unsigned addr  = 22 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
@@ -2014,14 +2014,14 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr - 2] = gpBuffer[addr - 2 + 1 * BUFFER_WIDTH];
 		gpBuffer[addr - 3] = gpBuffer[addr - 5];
 	}
-	{ // 834[10] (1854)
+	{ // 834[10]
 		int i = 11;
 		unsigned addr  =  0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 =  1 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 1 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr2];
 		gpBuffer[addr + 1] = gpBuffer[addr2 + 1];
 	}
-	{ // + 834[12] (1854)
+	{ // + 834[12]
 		int i = 12;
 		unsigned addr  =  3 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (31 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 =  6 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (30 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -2029,7 +2029,7 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr + 1] = gpBuffer[addr + 3];
 		gpBuffer[addr2] = gpBuffer[addr2 + 2];
 	}
-	{ // + 828[12] (1854)
+	{ // + 828[12]
 		int i = 13;
 		unsigned addr  = 29 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (17 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		unsigned addr2 = 27 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (18 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -2038,18 +2038,18 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr2] = gpBuffer[addr2 + 3];
 		gpBuffer[addr2 - 3 + 1 * BUFFER_WIDTH] = gpBuffer[addr2 + 3];
 	}
-	{ // 864[12] (1854)
+	{ // 864[12]
 		int i = 14;
 		unsigned addr  =  0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr + 2];
 	}
-	{ // + 864[14] (1854)
+	{ // + 864[14]
 		int i = 15;
 		unsigned addr  =  4 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 30 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr + 1];
 		gpBuffer[addr - 2 + 1 * BUFFER_WIDTH] = gpBuffer[addr + 1];
 	}
-	{ // . 926[12] (1854)
+	{ // . 926[12]
 		int i = 16;
 		unsigned addr  =  26 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
@@ -2058,30 +2058,30 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr + 0 + 1 * BUFFER_WIDTH] = TRANS_COLOR;
 		gpBuffer[addr - 1 + 2 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
-	{ // . 926[13] (1854)
+	{ // . 926[13]
 		int i = 17;
 		unsigned addr  =  7 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
 		gpBuffer[addr - 1] = TRANS_COLOR;
 		gpBuffer[addr + 7 + 3 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
-	{ // 944[6] (1854)
+	{ // 944[6]
 		int i = 18;
 		unsigned addr  = 31 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr - 2];
 	}
-	{ // + 944[8] (1854)
+	{ // + 944[8]
 		int i = 19;
 		unsigned addr  = 30 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 31 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr - 2];
 		gpBuffer[addr - 1 - 1 * BUFFER_WIDTH] = gpBuffer[addr - 2];
 	}
-	{ // + 942[6] (1854)
+	{ // + 942[6]
 		int i = 20;
 		unsigned addr  = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 17 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = gpBuffer[addr + BUFFER_WIDTH];
 	}
-	{ // . 955[13] (1854)
+	{ // . 955[13]
 		int i = 21;
 		unsigned addr  = 31 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 14 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
@@ -2089,7 +2089,7 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr - 1 - 1 * BUFFER_WIDTH] = TRANS_COLOR;
 		gpBuffer[addr - 2 - 1 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
-	{ // . 950[13] (1854)
+	{ // . 950[13]
 		int i = 22;
 		unsigned addr  = 3 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
@@ -2097,27 +2097,27 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr2] = TRANS_COLOR;
 		gpBuffer[addr2 - 2 - 1 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
-	{ // . 951[13] (1854)
+	{ // . 951[13]
 		int i = 23;
 		unsigned addr  = 3 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
 	}
-	{ // . 946[13] (1854)
+	{ // . 946[13]
 		int i = 24;
 		unsigned addr  = 2 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
 	}
-	{ // . 947[13] (1854)
+	{ // . 947[13]
 		int i = 25;
 		unsigned addr  = 3 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
 	}
-	{ // . 940[12] (1854)
+	{ // . 940[12]
 		int i = 26;
 		unsigned addr  = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 14 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr] = TRANS_COLOR;
 	}
-	{ // 383[5] (1854) <- 180[1]
+	{ // 383[5] <- 180[1]
 		int i = 27;
 		int j = 0;
 		unsigned addr  = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -2128,7 +2128,7 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 		gpBuffer[addr + 20 * BUFFER_WIDTH] = color;
 		gpBuffer[addr + 30 * BUFFER_WIDTH] = color;
 	}
-	{ // 383[7] (1854) <- 180[1]
+	{ // 383[7] <- 180[1]
 		int i = 28;
 		int j = 0;
 		unsigned addr  = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -4437,52 +4437,53 @@ static void patchCathedralMin(BYTE *buf)
 	}
 }
 
+#ifdef HELLFIRE
 static void patchCryptMin(BYTE *buf)
 {
 	uint16_t *pSubtiles = (uint16_t*)buf;
 	constexpr int blockSize = BLOCK_SIZE_L5;
 	// adjust the frame types
 	// - after fillCryptShapes
-	SetFrameType(159, 3, MET_SQUARE);  // 473
-	SetFrameType(185, 3, MET_SQUARE);  // 473
-	// SetFrameType(159, 1, MET_RTRAPEZOID); // 475
-	SetFrameType(336, 0, MET_LTRIANGLE); // 907
-	SetFrameType(409, 0, MET_LTRIANGLE); // 1168
-	SetFrameType(481, 1, MET_RTRIANGLE); // 1406
-	SetFrameType(492, 0, MET_LTRIANGLE); // 1436
-	SetFrameType(519, 0, MET_LTRIANGLE); // 1493
-	SetFrameType(595, 1, MET_RTRIANGLE); // 1710
+	SetFrameType(159, 3, MET_SQUARE);
+	SetFrameType(185, 3, MET_SQUARE);
+	// SetFrameType(159, 1, MET_RTRAPEZOID);
+	SetFrameType(336, 0, MET_LTRIANGLE);
+	SetFrameType(409, 0, MET_LTRIANGLE);
+	SetFrameType(481, 1, MET_RTRIANGLE);
+	SetFrameType(492, 0, MET_LTRIANGLE);
+	SetFrameType(519, 0, MET_LTRIANGLE);
+	SetFrameType(595, 1, MET_RTRIANGLE);
 	// - after maskCryptBlacks
-	SetFrameType(126, 1, MET_TRANSPARENT); // 347
-	SetFrameType(129, 0, MET_TRANSPARENT); // 356
-	SetFrameType(129, 1, MET_TRANSPARENT); // 357
-	SetFrameType(131, 0, MET_TRANSPARENT); // 362
-	SetFrameType(131, 1, MET_TRANSPARENT); // 363
-	SetFrameType(132, 0, MET_TRANSPARENT); // 364
-	SetFrameType(133, 0, MET_TRANSPARENT); // 371
-	SetFrameType(133, 1, MET_TRANSPARENT); // 372
-	SetFrameType(134, 3, MET_TRANSPARENT); // 375
-	SetFrameType(135, 0, MET_TRANSPARENT); // 379
-	SetFrameType(135, 1, MET_TRANSPARENT); // 380
-	SetFrameType(142, 0, MET_TRANSPARENT); // 403
-//	SetFrameType(146, 0, MET_TRANSPARENT); // 356
-//	SetFrameType(149, 4, MET_TRANSPARENT); // 356
-//	SetFrameType(150, 6, MET_TRANSPARENT); // 356
-	SetFrameType(151, 2, MET_TRANSPARENT); // 438
-	SetFrameType(151, 4, MET_TRANSPARENT); // 436
-	SetFrameType(151, 5, MET_TRANSPARENT); // 437
-	SetFrameType(152, 7, MET_TRANSPARENT); // 439
-	SetFrameType(153, 2, MET_TRANSPARENT); // 442
-	SetFrameType(153, 4, MET_TRANSPARENT); // 441
-	SetFrameType(159, 1, MET_TRANSPARENT); // 475
-//	SetFrameType(178, 2, MET_TRANSPARENT); // 442
+	SetFrameType(126, 1, MET_TRANSPARENT);
+	SetFrameType(129, 0, MET_TRANSPARENT);
+	SetFrameType(129, 1, MET_TRANSPARENT);
+	SetFrameType(131, 0, MET_TRANSPARENT);
+	SetFrameType(131, 1, MET_TRANSPARENT);
+	SetFrameType(132, 0, MET_TRANSPARENT);
+	SetFrameType(133, 0, MET_TRANSPARENT);
+	SetFrameType(133, 1, MET_TRANSPARENT);
+	SetFrameType(134, 3, MET_TRANSPARENT);
+	SetFrameType(135, 0, MET_TRANSPARENT);
+	SetFrameType(135, 1, MET_TRANSPARENT);
+	SetFrameType(142, 0, MET_TRANSPARENT);
+//	SetFrameType(146, 0, MET_TRANSPARENT);
+//	SetFrameType(149, 4, MET_TRANSPARENT);
+//	SetFrameType(150, 6, MET_TRANSPARENT);
+	SetFrameType(151, 2, MET_TRANSPARENT);
+	SetFrameType(151, 4, MET_TRANSPARENT);
+	SetFrameType(151, 5, MET_TRANSPARENT);
+	SetFrameType(152, 7, MET_TRANSPARENT);
+	SetFrameType(153, 2, MET_TRANSPARENT);
+	SetFrameType(153, 4, MET_TRANSPARENT);
+	SetFrameType(159, 1, MET_TRANSPARENT);
+//	SetFrameType(178, 2, MET_TRANSPARENT);
 	// - after fixCryptShadows
-	// SetFrameType(630, 0, MET_TRANSPARENT); // 1804
-	SetFrameType(620, 0, MET_RTRIANGLE);   // 1798
-	SetFrameType(621, 1, MET_SQUARE);      // 1800
-	SetFrameType(625, 0, MET_RTRIANGLE);   // 1805
-	SetFrameType(624, 0, MET_TRANSPARENT); // 1813
-	SetFrameType(619, 1, MET_LTRAPEZOID);  // 1797
+	// SetFrameType(630, 0, MET_TRANSPARENT);
+	SetFrameType(620, 0, MET_RTRIANGLE);
+	SetFrameType(621, 1, MET_SQUARE);
+	SetFrameType(625, 0, MET_RTRIANGLE);
+	SetFrameType(624, 0, MET_TRANSPARENT);
+	SetFrameType(619, 1, MET_LTRAPEZOID);
 	// prepare subtiles after fixCryptShadows
 	ReplaceMcr(3, 0, 619, 1);
 	ReplaceMcr(3, 1, 620, 0);
@@ -5739,19 +5740,19 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		unsigned res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-		{ 159 - 1, 3, MET_SQUARE },      // 473
-//		{ 159 - 1, 3, MET_RTRAPEZOID },  // 475
-		{ 336 - 1, 0, MET_LTRIANGLE },   // 907
-		{ 409 - 1, 0, MET_LTRIANGLE },   // 1168
-		{ 481 - 1, 1, MET_RTRIANGLE },   // 1406
-		{ 492 - 1, 0, MET_LTRIANGLE },   // 1436
-		{ 519 - 1, 0, MET_LTRIANGLE },   // 1493
-		{ 595 - 1, 1, MET_RTRIANGLE },   // 1710
-		{ 368 - 1, 1, MET_RTRIANGLE },   // 1034
-		{ 162 - 1, 2, MET_TRANSPARENT }, // 483
-		{  63 - 1, 4, MET_SQUARE },      // 239
-		{ 450 - 1, 0, MET_TRANSPARENT }, // 1315
-		{ 206 - 1, 0, MET_TRANSPARENT }, // 571
+		{ 159 - 1, 3, MET_SQUARE },
+//		{ 159 - 1, 3, MET_RTRAPEZOID },
+		{ 336 - 1, 0, MET_LTRIANGLE },
+		{ 409 - 1, 0, MET_LTRIANGLE },
+		{ 481 - 1, 1, MET_RTRIANGLE },
+		{ 492 - 1, 0, MET_LTRIANGLE },
+		{ 519 - 1, 0, MET_LTRIANGLE },
+		{ 595 - 1, 1, MET_RTRIANGLE },
+		{ 368 - 1, 1, MET_RTRIANGLE },
+		{ 162 - 1, 2, MET_TRANSPARENT },
+		{  63 - 1, 4, MET_SQUARE },
+		{ 450 - 1, 0, MET_TRANSPARENT },
+		{ 206 - 1, 0, MET_TRANSPARENT },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -5786,15 +5787,15 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		}
 	}
 
-	gpBuffer[0 * MICRO_WIDTH + 30 + (MICRO_HEIGHT * 1 +  1) * BUFFER_WIDTH] = 46; // 907
+	gpBuffer[0 * MICRO_WIDTH + 30 + (MICRO_HEIGHT * 1 +  1) * BUFFER_WIDTH] = 46; // 336[0]
 	gpBuffer[0 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 1 +  1) * BUFFER_WIDTH] = 76;
 
-	gpBuffer[1 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 2 + 16) * BUFFER_WIDTH] = 43; // 1493
+	gpBuffer[1 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 2 + 16) * BUFFER_WIDTH] = 43; // 519[0]
 
-	gpBuffer[2 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 1 +  7) * BUFFER_WIDTH] = 43; // 1043
+	gpBuffer[2 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 1 +  7) * BUFFER_WIDTH] = 43; // 368[1]
 	gpBuffer[2 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 1 +  9) * BUFFER_WIDTH] = 41;
 
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 13) * BUFFER_WIDTH] = 41; // 483
+	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 13) * BUFFER_WIDTH] = 41; // 162[2]
 	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 14) * BUFFER_WIDTH] = 36;
 	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 18) * BUFFER_WIDTH] = 36;
 	gpBuffer[2 * MICRO_WIDTH + 30 + (MICRO_HEIGHT * 2 + 19) * BUFFER_WIDTH] = 35;
@@ -5803,10 +5804,10 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 22) * BUFFER_WIDTH] = 40;
 	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 29) * BUFFER_WIDTH] = 36;
 
-	gpBuffer[3 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 0 + 19) * BUFFER_WIDTH] = 91; // 239
+	gpBuffer[3 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 0 + 19) * BUFFER_WIDTH] = 91; // 63[4]
 	gpBuffer[3 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 0 + 20) * BUFFER_WIDTH] = 93;
 
-	gpBuffer[3 * MICRO_WIDTH +  26 + (MICRO_HEIGHT * 2 + 4) * BUFFER_WIDTH] = 45; // 571
+	gpBuffer[3 * MICRO_WIDTH +  26 + (MICRO_HEIGHT * 2 + 4) * BUFFER_WIDTH] = 45; // 206[0]
 
 	for (yy = 13; yy < 16; yy++) {
 		for (xx = 2; xx < 8; xx++) {
@@ -5819,7 +5820,7 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 						color = 77;
 					}
 				}
-				gpBuffer[3 * MICRO_WIDTH + xx + (MICRO_HEIGHT * 1 + yy) * BUFFER_WIDTH] = color; // 1315
+				gpBuffer[3 * MICRO_WIDTH + xx + (MICRO_HEIGHT * 1 + yy) * BUFFER_WIDTH] = color; // 450[0]
 			}
 		}
 	}
@@ -5857,28 +5858,28 @@ typedef struct {
 static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	const CelMicro micros[] = {
-		{ 126 - 1, 1 }, // 347
-		{ 129 - 1, 0 }, // 356
-		{ 129 - 1, 1 }, // 357
-		{ 131 - 1, 0 }, // 362
-		{ 131 - 1, 1 }, // 363
-		{ 132 - 1, 0 }, // 364
-		{ 133 - 1, 0 }, // 371
-		{ 133 - 1, 1 }, // 372
-		{ 134 - 1, 3 }, // 375
-		{ 135 - 1, 0 }, // 379
-		{ 135 - 1, 1 }, // 380
-		{ 142 - 1, 0 }, // 403
-//		{ 146 - 1, 0 }, // 356
-//		{ 149 - 1, 4 }, // 356
-//		{ 150 - 1, 6 }, // 356
-//		{ 151 - 1, 2 }, // 438
-		{ 151 - 1, 4 }, // 436
-		{ 151 - 1, 5 }, // 437
-		{ 152 - 1, 7 }, // 439
-		{ 153 - 1, 2 }, // 442
-		{ 153 - 1, 4 }, // 441
-		{ 159 - 1, 1 }, // 475
+		{ 126 - 1, 1 },
+		{ 129 - 1, 0 },
+		{ 129 - 1, 1 },
+		{ 131 - 1, 0 },
+		{ 131 - 1, 1 },
+		{ 132 - 1, 0 },
+		{ 133 - 1, 0 },
+		{ 133 - 1, 1 },
+		{ 134 - 1, 3 },
+		{ 135 - 1, 0 },
+		{ 135 - 1, 1 },
+		{ 142 - 1, 0 },
+//		{ 146 - 1, 0 },
+//		{ 149 - 1, 4 },
+//		{ 150 - 1, 6 },
+//		{ 151 - 1, 2 },
+		{ 151 - 1, 4 },
+		{ 151 - 1, 5 },
+		{ 152 - 1, 7 },
+		{ 153 - 1, 2 },
+		{ 153 - 1, 4 },
+		{ 159 - 1, 1 },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -5920,31 +5921,31 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			for (int x = 0; x < MICRO_WIDTH; x++) {
 				BYTE *pixel = &gpBuffer[xx + x + (yy + y) * BUFFER_WIDTH];
 				if (*pixel == 79) {
-					if (i == 0 && x < 9) { // 126, 1
+					if (i == 0 && x < 9) { // 126[1]
 						continue;
 					}
-					if (i == 1 && y < 10) { // 129, 0
+					if (i == 1 && y < 10) { // 129[0]
 						continue;
 					}
-					if (i == 6 && y < 10) { // 133, 0
+					if (i == 6 && y < 10) { // 133[0]
 						continue;
 					}
-					if (i == 7 && y == 0) { // 133, 1
+					if (i == 7 && y == 0) { // 133[1]
 						continue;
 					}
-					if (i == 12 && (y < MICRO_HEIGHT - (x - 4) / 2)) { // 151, 4
+					if (i == 12 && (y < MICRO_HEIGHT - (x - 4) / 2)) { // 151[4]
 						continue;
 					}
-					if (i == 13 && ((x < 6 && y < 18) || (x >= 6 && y < 18 - (x - 6) / 2))) { // 151, 5
+					if (i == 13 && ((x < 6 && y < 18) || (x >= 6 && y < 18 - (x - 6) / 2))) { // 151[5]
 						continue;
 					}
-					if (i == 14 && (y < 16 - (x - 3) / 2)) { // 152, 7
+					if (i == 14 && (y < 16 - (x - 3) / 2)) { // 152[7]
 						continue;
 					}
-					if (i == 16 && y < 21) { // 153, 4
+					if (i == 16 && y < 21) { // 153[4]
 						continue;
 					}
-					if (i == 17 && x < 10 && y < 3) { // 159, 1
+					if (i == 17 && x < 10 && y < 3) { // 159[1]
 						continue;
 					}
 					*pixel = TRANS_COLOR;
@@ -5983,6 +5984,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 
 	return resCelBuf;
 }
+
 static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	typedef struct {
