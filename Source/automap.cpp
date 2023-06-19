@@ -107,7 +107,7 @@ void InitLvlAutomap()
 	mem_free_dbg(pAFile);
 #if !USE_PATCH
 	// patch dAutomapData - L1.AMP
-	if (currLvl._dType == DTYPE_CATACOMBS) {
+	if (currLvl._dType == DTYPE_CATHEDRAL) {
 		// adjust AMP after fixCathedralShadows
 		automaptype[145] = automaptype[11];
 		automaptype[147] = automaptype[6];
