@@ -404,7 +404,7 @@ jobs:
         name: ${{ matrix.artifact }}
   # Android-builds
   build_android:
-    #needs: build_check
+    needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-Android
     strategy:
