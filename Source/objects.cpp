@@ -537,7 +537,8 @@ static void AddL2Torches()
 				continue;
 			// assert(nSolidTable[dPiece[i - 1][j]] | nSolidTable[dPiece[i + 1][j]]);
 			if (!nSolidTable[dPiece[i][j + 1]]) {
-				AddObject(OBJ_TORCHR1, i, j);
+				if (dObject[i][j] == 0) // check torches from the previous loop
+					AddObject(OBJ_TORCHR1, i, j);
 			} else {
 				if (dObject[i][j - 1] == 0) // check torches from the previous loop
 					AddObject(OBJ_TORCHR2, i, j - 1);
