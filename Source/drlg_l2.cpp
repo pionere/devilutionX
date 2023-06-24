@@ -685,32 +685,30 @@ static void DRLG_L2Shadows()
 				break;
 			}
 			if (horizArch) {
-				BYTE replaceA; bool okB;
+				BYTE replaceA;
 				BYTE replaceB = dungeon[i][j - 1];
 				switch (replaceB) {
-				case 1:  replaceA = 140; okB = true;  break;
-				case 3:  replaceA = 49;  okB = false; break;
-				case 7:  replaceA = 35;  okB = true;  break;
-				// case 9:  replaceA = 37;  okB = true;  break;
-				case 44: replaceA = 96;  okB = false; break;
-				case 46: replaceA = 46;  okB = false; break;
+				case 1:  replaceA = 140; break;
+				case 3:  replaceA = 49;  break;
+				case 7:  replaceA = 35;  break;
+				// case 9:  replaceA = 37; break;
+				case 44: replaceA = 96;  break;
+				case 46: replaceA = 46;  break;
 				default:
 					// TODO: what else?
 					continue;
 				}
 				dungeon[i][j - 1] = replaceA;
-				// if (!okB) {
-					switch (dungeon[i + 1][j - 1]) {
-					case 3:  replaceB = 49; break;
-					case 47: replaceB = 46; break;
-					case 48: replaceB = 49; break;
-					default:
-						// TODO: what else?
-						dungeon[i][j - 1] = replaceB; // restore original value
-						continue;
-					}
-					dungeon[i + 1][j - 1] = replaceB;
-				// }
+				switch (dungeon[i + 1][j - 1]) {
+				case 3:  replaceB = 49; break;
+				case 47: replaceB = 46; break;
+				case 48: replaceB = 49; break;
+				default:
+					// TODO: what else?
+					dungeon[i][j - 1] = replaceB; // restore original value
+					continue;
+				}
+				dungeon[i + 1][j - 1] = replaceB;
 			}
 			if (vertArch) {
 				BYTE replaceA, replaceC; bool okB;
@@ -2544,7 +2542,7 @@ static void DRLG_L2FixPreMap(int idx)
 					continue;
 				}
 				// keep the doors
-				if (x == 0 && y == 1/* || x == 4 && y == 3*/ || x == 10 && y == 8) {
+				if ((x == 0 && y == 1)/* || (x == 4 && y == 3)*/ || (x == 10 && y == 8)) {
 					continue;
 				}
 				lm[2 + x + y * 11] = 0;
