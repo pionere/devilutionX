@@ -966,14 +966,73 @@ static void DRLG_LoadL1SP()
 	if (QuestStatus(Q_BANNER)) {
 		pSetPieces[0]._sptype = SPT_BANNER;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if 0
+		// patch set-piece - Banner1.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// fix the shadows
+		lm[2 + 0 + 1 * 8] = SwapLE16(11);
+		lm[2 + 3 + 1 * 8] = SwapLE16(11);
+		// - protect the main structure
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 8; x++) {
+				if (x >= 1 && y >= 3 && x <= 6 && y <= 5) {
+					bool skip = true;
+					if (x == 1 && y == 3) {
+						skip = false;
+					}
+					if (x == 2 && y == 3) {
+						skip = false;
+					}
+					if (x >= 4 && y == 4) {
+						skip = false;
+					}
+					if (skip) {
+						continue;
+					}
+				}
+				if (x == 3 && y == 6) {
+					continue;
+				}
+				lm[2 + 8 * 8 + x + y * 8] = SwapLE16(1);
+			}
+		}
+		// ensure the changing tiles are reserved
+		lm[2 + 8 * 8 + 3 + 6 * 8] = SwapLE16(3);
+		for (int y = 3; y <= 5; y++) {
+			for (int x = 1; x <= 6; x++) {
+				if (x == 1 && y == 3) {
+					continue;
+				}
+				if (x == 2 && y == 3) {
+					continue;
+				}
+				if (x >= 4 && y == 4) {
+					continue;
+				}
+				lm[2 + 8 * 8 + x + y * 8] = SwapLE16(3);
+			}
+		}
+#endif
 	} else if (QuestStatus(Q_SKELKING)) {
 		pSetPieces[0]._sptype = SPT_SKELKING;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
-		/*// patch set-piece to use common tiles - SKngDO.DUN
-		pSetPieces[0]._spData[(2 + 5 + 3 * 7) * 2] = 203;
-		pSetPieces[0]._spData[(2 + 5 + 4 * 7) * 2] = 203;
+#if 0
+		// patch set-piece to use common tiles - SKngDO.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// lm[2 + 5 + 3 * 7] =  SwapLE16(203 - 181);
+		lm[2 + 5 + 4 * 7] =  SwapLE16(203 - 181);
 		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
-		pSetPieces[0]._spData[(2 + 5 + 2 * 7) * 2] = 203;*/
+		lm[2 + 5 + 2 * 7] =  SwapLE16(203 - 181);
+		// let the game generate the shadow
+		lm[2 + 0 + 5 * 7] = 0;
+		lm[2 + 0 + 6 * 7] = 0;
+		// protect the main structure
+		for (int y = 1; y < 7; y++) {
+			for (int x = 1; x < 7; x++) {
+				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
+			}
+		}
+#endif
 	} else if (QuestStatus(Q_BUTCHER)) {
 		pSetPieces[0]._sptype = SPT_BUTCHER;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
@@ -2800,15 +2859,170 @@ static void DRLG_L1()
 			DRLG_PlaceMiniSet(LAMPS);
 	}
 }
+#if 0
+static void DRLG_L1FixMap()
+{
+	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 
-/*static void DRLG_L1FixPreMap(int idx)
+	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
+		// patch the map - Vile1.DUN
+		// external tiles
+		for (int y = 0; y < 23; y++) {
+			for (int x = 0; x < 21; x++) {
+				uint16_t currTileRef = SwapLE16(lm[2 + x + y * 21]);
+				if (currTileRef >= 181 + 18 && currTileRef <= 181 + 24) {
+					lm[2 + x + y * 21] = SwapLE16(currTileRef - 181);
+				}
+			}
+		}
+		// replace default tiles with external piece
+		// - SW in the middle
+		lm[2 + 12 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 13 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 14 + 22 * 21] = SwapLE16(203 - 181);
+		// - SE
+		for (int i = 1; i < 23; i++) {
+			lm[2 + 20 + i * 21] = SwapLE16(203 - 181);
+		}
+		// use common tiles
+		lm[2 + 11 +  3 * 21] = SwapLE16(18);
+		// ensure the changing tiles are reserved
+		lm[2 + 21 * 23 +  4 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  4 +  6 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  4 +  7 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  5 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  6 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 12 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 13 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 14 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 15 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 15 +  6 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 15 +  7 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  7 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  8 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  9 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 10 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 11 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 12 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 14 + 15 * 21] = SwapLE16(3);
+	} else if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
+		// patch the map - SklKng1.DUN
+		// external tiles
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 37; x++) {
+				uint16_t currTileRef = SwapLE16(lm[2 + x + y * 37]);
+				if (currTileRef >= 181 + 18 && currTileRef <= 181 + 24) {
+					lm[2 + x + y * 37] = SwapLE16(currTileRef - 181);
+				}
+			}
+		}
+		// useless tiles
+		lm[2 + 15 + 12 * 37] = 0;
+		lm[2 + 15 + 16 * 37] = 0;
+		lm[2 + 25 + 11 * 37] = 0;
+		lm[2 + 24 + 23 * 37] = 0;
+		// fix the shadows
+		lm[2 +  9 + 2 * 37] = SwapLE16(143);
+		lm[2 + 12 + 2 * 37] = SwapLE16(143);
+		lm[2 + 10 + 5 * 37] = SwapLE16(157);
+		lm[2 + 24, 18 * 37] = SwapLE16(140);
+		// use common tiles
+		lm[2 +  7 + 14 * 37] = SwapLE16(84);
+		// remove fix decorations
+		lm[2 +  3 + 15 * 37] = SwapLE16(2);
+		lm[2 +  5 + 20 * 37] = SwapLE16(1);
+		lm[2 +  6 +  9 * 37] = SwapLE16(2);
+		lm[2 + 10 +  1 * 37] = SwapLE16(2);
+		lm[2 + 13 +  1 * 37] = SwapLE16(2);
+		lm[2 + 15 +  9 * 37] = SwapLE16(2);
+		lm[2 + 17 + 14 * 37] = SwapLE16(2);
+		lm[2 + 22 + 12 * 37] = SwapLE16(2);
+		lm[2 + 20 +  8 * 37] = SwapLE16(1);
+		lm[2 + 21 +  7 * 37] = SwapLE16(2);
+		lm[2 + 24 +  7 * 37] = SwapLE16(2);
+		lm[2 + 25 + 12 * 37] = SwapLE16(2);
+		lm[2 + 26 + 12 * 37] = SwapLE16(2);
+		lm[2 + 29 + 14 * 37] = SwapLE16(2);
+		lm[2 + 16 + 15 * 37] = SwapLE16(11);
+		lm[2 +  8 +  3 * 37] = SwapLE16(1);
+		lm[2 +  8 +  4 * 37] = SwapLE16(1);
+		lm[2 + 10 +  7 * 37] = SwapLE16(1);
+		lm[2 + 10 +  9 * 37] = SwapLE16(1);
+		lm[2 + 21 + 13 * 37] = SwapLE16(1);
+		lm[2 + 21 + 17 * 37] = SwapLE16(1);
+		lm[2 + 23 +  9 * 37] = SwapLE16(1);
+		lm[2 + 23 + 10 * 37] = SwapLE16(1);
+		lm[2 + 23 + 20 * 37] = SwapLE16(1);
+		lm[2 + 23 + 21 * 37] = SwapLE16(1);
+		lm[2 + 31 + 15 * 37] = SwapLE16(11);
+		lm[2 + 31 + 16 * 37] = SwapLE16(11);
+		lm[2 + 32 + 16 * 37] = 0;
+		lm[2 + 33 + 16 * 37] = 0;
+		// - remove sarcophagi tiles
+		lm[2 +  6 + 11 * 37] = 0;
+		lm[2 +  7 + 11 * 37] = 0;
+		lm[2 + 15 + 11 * 37] = 0;
+		lm[2 + 16 + 11 * 37] = 0;
+		lm[2 +  6 + 20 * 37] = 0;
+		lm[2 +  7 + 20 * 37] = 0;
+		lm[2 + 15 + 20 * 37] = 0;
+		lm[2 + 16 + 20 * 37] = 0;
+		lm[2 + 24 +  8 * 37] = 0;
+		lm[2 + 24 + 22 * 37] = 0;
+		// ensure the changing tiles are reserved
+		lm[2 + 25 * 37 + 10 + 11 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 11 + 11 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 12 + 11 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 20 + 14 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 20 + 15 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 20 + 16 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 21 + 14 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 21 + 15 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 21 + 16 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 23 +  8 * 37] = SwapLE16(3);
+	}
+}
+
+static void DRLG_L1FixPreMap(int idx)
 {
 	uint16_t* lm = (uint16_t*)pSetPieces[idx]._spData;
 
 	if (pSetPieces[idx]._sptype == SPT_BANNER) {
-		// patch the map - Banner2.DUN
-		// - replace the wall with door
-		lm[2 + 7 + 6 * 8] = SwapLE16(193);
+		// patch set-piece - Banner2.DUN
+		// useless tiles
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 8; x++) {
+				if (x >= 3 && y >= 3 && x <= 3 && y <= 6) {
+					continue;
+				}
+				if (x >= 3 && y >= 5 && x <= 6 && y <= 5) {
+					continue;
+				}
+				lm[2 + x + y * 8] = 0;
+			}
+		}
+		// protect subtiles from spawning monsters/objects
+		// - protect objects from monsters/objects
+		lm[2 + 8 * 8 + (10 / 2) + ( 2 / 2) * 8] = SwapLE16(3 << 12);
+		// - protect monsters from monsters/objects
+		lm[2 + 8 * 8 + ( 0 / 2) + ( 0 / 2) * 8] = SwapLE16(3 << 14);
+		lm[2 + 8 * 8 + ( 2 / 2) + ( 2 / 2) * 8] = SwapLE16(3 << 10);
+		lm[2 + 8 * 8 + ( 8 / 2) + ( 0 / 2) * 8] = SwapLE16(3 << 12);
+		lm[2 + 8 * 8 + ( 8 / 2) + ( 4 / 2) * 8] = SwapLE16(3 << 10);
+		lm[2 + 8 * 8 + (10 / 2) + ( 2 / 2) * 8] = SwapLE16(3 << 10);
+		// - protect area from monsters/objects
+		lm[2 + 8 * 8 + ( 0 / 2) + ( 6 / 2) * 8] = SwapLE16(3 << 14);
+		lm[2 + 8 * 8 + ( 0 / 2) + ( 8 / 2) * 8] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 8 * 8 + ( 0 / 2) + (10 / 2) * 8] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 8 * 8 + ( 0 / 2) + (12 / 2) * 8] = SwapLE16((3 << 10) | (3 << 14));
+		for (int x = 2 / 2; x <= 12 / 2; x++) {
+			lm[2 + 8 * 8 + x + (6 / 2) * 8] = SwapLE16((3 << 12) | (3 << 14));
+		}
+		for (int y = 8 / 2; y <= 12 / 2; y++) {
+			for (int x = 2 / 2; x <= 12 / 2; x++) {
+				lm[2 + 8 * 8 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
 		// - replace monsters
 		for (int y = 7; y <= 9; y++) {
 			for (int x = 7; x <= 13; x++) {
@@ -2824,15 +3038,50 @@ static void DRLG_L1()
 		// - add sign-chest
 		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = SwapLE16(90);
 	} else if (pSetPieces[idx]._sptype == SPT_LVL_BETRAYER) {
-		// patch set-piece - Vile2.DUN
-		// - fix empty tiles
-		lm[2 + 8 + 16 * 21] = SwapLE16(203);
-		lm[2 + 12 + 22 * 21] = SwapLE16(203);
-		lm[2 + 13 + 22 * 21] = SwapLE16(203);
-		lm[2 + 14 + 22 * 21] = SwapLE16(203);
-		for (int i = 1; i < 23; i++) {
-			lm[2 + 20 + i * 21] = SwapLE16(203);
+		// patch the map - Vile2.DUN
+		// useless tiles
+		for (int y = 0; y < 23; y++) {
+			for (int x = 0; x < 21; x++) {
+				// room on the left side
+				if (x >= 4 && y >= 5 && x <= 6 && y <= 7) {
+					continue;
+				}
+				if (x >= 4 && y >= 8 && x <= 7 && y <= 10) {
+					continue;
+				}
+				// room on the right side
+				if (x == 12 && y == 5) {
+					continue;
+				}
+				if (x >= 13 && y >= 5 && x <= 15 && y <= 7) {
+					continue;
+				}
+				if (x >= 12 && y >= 8 && x <= 14 && y <= 10) {
+					continue;
+				}
+				// main room
+				if (x >= 7 && y >= 13 && x <= 13 && y <= 17) {
+					continue;
+				}
+				if (x >= 7 && y >= 18 && x <= 12 && y <= 18) {
+					continue;
+				}
+				if (x >= 8 && y >= 20 && x <= 11 && y <= 22) {
+					continue;
+				}
+				lm[2 + x + y * 21] = 0;
+			}
 		}
+		// - fix empty tiles
+		lm[2 + 8 + 16 * 21] = SwapLE16(203 - 181);
+		/*lm[2 + 12 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 13 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 14 + 22 * 21] = SwapLE16(203 - 181);
+		for (int i = 1; i < 23; i++) {
+			lm[2 + 20 + i * 21] = SwapLE16(203 - 181);
+		}*/
+		// use the new shadows
+		lm[2 + 14 + 5 * 21] = SwapLE16(152);
 		// - add monsters
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 24 + 29 * 21 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
@@ -2841,10 +3090,116 @@ static void DRLG_L1()
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
 	} else if (pSetPieces[idx]._sptype == SPT_LVL_SKELKING) {
-		// patch set-piece to add monsters - SklKng2.DUN
+		// patch the map - SklKng2.DUN
+		// external tiles
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 37; x++) {
+				uint16_t currTileRef = SwapLE16(lm[2 + x + y * 37]);
+				if (currTileRef >= 181 + 18 && currTileRef <= 181 + 24) {
+					lm[2 + x + y * 37] = SwapLE16(currTileRef - 181);
+				}
+			}
+		}
+		// useless tiles
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 37; x++) {
+				// large hidden room
+				if (x >= 8 && y >= 1 && x <= 15 && y <= 6) {
+					continue;
+				}
+				if (x >= 10 && y >= 7 && x <= 13 && y <= 10) {
+					continue;
+				}
+				if (x == 11 && y == 11) {
+					continue;
+				}
+				// small hidden room
+				if (x >= 20 && y >= 7 && x <= 22 && y <= 10) {
+					continue;
+				}
+				if (x == 23 && y == 8) {
+					continue;
+				}
+				// grate
+				if (x >= 20 && y >= 14 && x <= 21 && y <= 16) {
+					continue;
+				}
+				lm[2 + x + y * 37] = 0;
+			}
+		}
+		// add sarcophagi
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 14 + 23 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 14 + 41 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 32 + 23 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 32 + 41 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 48 + 45 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 48 + 17 * 37 * 2] = SwapLE16(5);
+		// add the skeleton king
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
+		// remove monsters
+		for (int y = 21; y <= 41; y++) {
+			for (int x = 13; x <= 39; x++) {
+				if (x >= 18 && y >= 30 && x <= 20 && y <= 32) {
+					continue;
+				}
+				lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + x + y * 37 * 2] = 0;
+			}
+		}
+		for (int y = 21; y <= 36; y++) {
+			for (int x = 43; x <= 59; x++) {
+				lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + x + y * 37 * 2] = 0;
+			}
+		}
+		// protect subtiles from spawning additional monsters/objects
+		// - protect objects from monsters
+		lm[2 + 37 * 25 + (10 / 2) + (20 / 2) * 37] = SwapLE16(1 << 14);
+		lm[2 + 37 * 25 + (10 / 2) + (36 / 2) * 37] = SwapLE16(1 << 14);
+		lm[2 + 37 * 25 + (30 / 2) + (18 / 2) * 37] = SwapLE16(1 << 12);
+		lm[2 + 37 * 25 + (32 / 2) + (36 / 2) * 37] = SwapLE16(1 << 14);
+		lm[2 + 37 * 25 + (14 / 2) + (22 / 2) * 37] = SwapLE16((1 << 8) | (1 << 12));
+		lm[2 + 37 * 25 + (14 / 2) + (40 / 2) * 37] = SwapLE16((1 << 8) | (1 << 12));
+		lm[2 + 37 * 25 + (32 / 2) + (22 / 2) * 37] = SwapLE16((1 << 8) | (1 << 12));
+		lm[2 + 37 * 25 + (32 / 2) + (40 / 2) * 37] = SwapLE16((1 << 8) | (1 << 12));
+		lm[2 + 37 * 25 + (48 / 2) + (16 / 2) * 37] = SwapLE16((1 << 8) | (1 << 12));
+		lm[2 + 37 * 25 + (48 / 2) + (18 / 2) * 37] = SwapLE16(1 << 8);
+		lm[2 + 37 * 25 + (48 / 2) + (42 / 2) * 37] = SwapLE16(1 << 12);
+		lm[2 + 37 * 25 + (48 / 2) + (44 / 2) * 37] = SwapLE16((1 << 8) | (1 << 12));
+		// - protect the back-room from additional monsters
+		lm[2 + 37 * 25 + ( 2 / 2) + (30 / 2) * 37] = SwapLE16(1 << 14);
+		lm[2 + 37 * 25 + ( 2 / 2) + (32 / 2) * 37] = SwapLE16((1 << 10) | (1 << 14));
+		lm[2 + 37 * 25 + ( 2 / 2) + (34 / 2) * 37] = SwapLE16((1 << 10) | (1 << 14));
+		lm[2 + 37 * 25 + ( 2 / 2) + (36 / 2) * 37] = SwapLE16((1 << 10) | (1 << 14));
+		lm[2 + 37 * 25 + ( 4 / 2) + (30 / 2) * 37] = SwapLE16((1 << 12) | (1 << 14));
+		lm[2 + 37 * 25 + ( 6 / 2) + (30 / 2) * 37] = SwapLE16((1 << 12) | (1 << 14));
+		lm[2 + 37 * 25 + ( 8 / 2) + (30 / 2) * 37] = SwapLE16((1 << 12) | (1 << 14));
+		lm[2 + 37 * 25 + (10 / 2) + (32 / 2) * 37] = SwapLE16((1 << 12) | (1 << 14));
+		lm[2 + 37 * 25 + (12 / 2) + (32 / 2) * 37] = SwapLE16((1 << 12) | (1 << 14));
+		lm[2 + 37 * 25 + (10 / 2) + (34 / 2) * 37] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+		lm[2 + 37 * 25 + (12 / 2) + (34 / 2) * 37] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+		for (int y = 32 / 2; y <= 36 / 2; y++) {
+			for (int x = 4 / 2; x <= 8 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
+		// - add empty space after the grate
+		for (int y = 28 / 2; y <= 32 / 2; y++) {
+			for (int x = 32 / 2; x <= 32 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
+		for (int y = 30 / 2; y <= 32 / 2; y++) {
+			for (int x = 34 / 2; x <= 40 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((1 << 8) | (1 << 10) | (1 << 12) | (1 << 14));
+			}
+		}
+		for (int y = 28 / 2; y <= 28 / 2; y++) {
+			for (int x = 32 / 2; x <= 40 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((1 << 12) | (1 << 14));
+			}
+		}
 	}
-}*/
+}
+#endif // 0
 
 static void DRLG_L1DrawPreMaps()
 {
@@ -2871,6 +3226,7 @@ static void LoadL1Dungeon(const LevelData* lds)
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+	// DRLG_L1FixMap();
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
