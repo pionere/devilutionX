@@ -380,7 +380,11 @@ void ValidateData()
 		if ((AllLevels[i].dLevel * 8 - AllLevels[i].dLevel * 2) >= 0x7FFF) // required by GetItemAttrs
 			app_fatal("Too high dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
 	}
-
+	{
+	BYTE lvlMask = 1 << AllLevels[questlist[Q_BLOOD]._qdlvl].dType;
+	assert(objectdata[OBJ_TORCHL1].oLvlTypes & lvlMask); // required by SyncPedestal
+	assert(objectdata[OBJ_TORCHL2].oLvlTypes & lvlMask); // required by SyncPedestal
+	}
 	// monsters
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonStartMonHit
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit

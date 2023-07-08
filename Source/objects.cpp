@@ -2391,28 +2391,48 @@ static void OperateSarc(int oi, bool sendmsg)
 
 static void SyncPedestal(/*int oi*/)
 {
+	int sx = pSetPieces[0]._spx;
+	int sy = pSetPieces[0]._spy;
+
 	switch (quests[Q_BLOOD]._qvar1) {
 	case QV_INIT:
 	case QV_BLOOD_BOOK:
 		break;
 	case QV_BLOOD_STONE2:
-		DRLG_ChangeMap(pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 9/*setpc_w*/, pSetPieces[0]._spy + 7/*, false*/);
+		DRLG_ChangeMap(sx + 6, sy + 3, sx + 9/*setpc_w*/, sy + 7/*, false*/);
 		if (!deltaload)
 			break;
 		/* fall-through */
 	case QV_BLOOD_STONE1:
-		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
+		DRLG_ChangeMap(sx, sy + 3, sx + 2, sy + 7/*, false*/);
 		break;
 	case QV_BLOOD_STONE3: {
 		if (!deltaload)
-			DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+			DRLG_ChangeMap(sx + 2, sy, sx + 6, sy + 8/*, false*/);
 		else
-			DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 9, pSetPieces[0]._spy + 8/*, false*/);
-		// load the torches
+			DRLG_ChangeMap(sx, sy, sx + 9, sy + 8/*, false*/);
+		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches + always reload lighting)?
 		LoadPreLighting();
+#if 1
+		{
+		// BYTE lvlMask = 1 << currLvl._dType;
+		// assert(objectdata[OBJ_TORCHR1].oLvlTypes & lvlMask);
+		// assert(objectdata[OBJ_TORCHR2].oLvlTypes & lvlMask);
+		sx = 2 * sx + DBORDERX + 6;
+		sy = 2 * sy + DBORDERX + 8;
+		AddObject(OBJ_TORCHL1, sx, sy + 0);
+		AddObject(OBJ_TORCHL1, sx, sy + 2);
+		AddObject(OBJ_TORCHL1, sx, sy + 4);
+		sx += 5;
+		AddObject(OBJ_TORCHL2, sx, sy + 0);
+		AddObject(OBJ_TORCHL2, sx, sy + 2);
+		AddObject(OBJ_TORCHL2, sx, sy + 4);
+		}
+#else
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 		LoadMapSetObjects(0);
 		MemFreeDbg(pSetPieces[0]._spData);
+#endif
 		SavePreLighting();
 		//RedoLightAndVision();
 	} break;

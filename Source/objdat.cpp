@@ -125,8 +125,8 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	OBJ_ARMORSTANDN, //OBJ_ARMORSTAND, // Warlord2.DUN (Q_WARLORD) - changed to inactive versions to eliminate farming potential
 	OBJ_WEAPONRACKLN, //OBJ_WEAPONRACKL, // Warlord2.DUN (Q_WARLORD)
-	OBJ_TORCHR1, // Blood2.DUN (Q_BLOOD)
-	OBJ_TORCHL1, // Blood2.DUN (Q_BLOOD)
+	0, //OBJ_TORCHR1 (should be OBJ_TORCHL2), // Blood2.DUN (Q_BLOOD)
+	0, //OBJ_TORCHL1, // Blood2.DUN (Q_BLOOD)
 	0, //OBJ_MUSHPATCH,
 	0, //OBJ_STAND,
 	0, //OBJ_TORCHL2,
