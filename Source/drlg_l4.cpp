@@ -310,8 +310,9 @@ static void DRLG_LoadL4SP()
 		pSetPieces[3]._spData = LoadFileInMem(setpiecedata[pSetPieces[3]._sptype]._spdDunFile);
 		// patch set-piece - diab1.DUN
 		// - fix shadow of the bottom right corner
-		pSetPieces[0]._spData[(2 + 0 + 4 * 6) * 2] = 75;
-		pSetPieces[0]._spData[(2 + 0 + 5 * 6) * 2] = 74;
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		lm[2 + 0 + 4 * 6] = SwapLE16(75);
+		lm[2 + 0 + 5 * 6] = SwapLE16(74);
 	} else if (QuestStatus(Q_BETRAYER)) {
 		pSetPieces[0]._sptype = IsMultiGame ? SPT_BETRAY_M : SPT_BETRAY_S;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);

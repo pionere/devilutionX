@@ -2711,12 +2711,12 @@ static void LoadL2Dungeon(const LevelData* lds)
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+	DRLG_L2FixMap();
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
 	memset(dungeon, BASE_MEGATILE_L2, sizeof(dungeon));
 
-	DRLG_L2FixMap();
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L2);
 }
 
