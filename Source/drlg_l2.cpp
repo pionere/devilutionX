@@ -787,11 +787,14 @@ static void DRLG_LoadL2SP()
 	if (QuestStatus(Q_BLIND)) {
 		pSetPieces[0]._sptype = SPT_BLIND;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if !USE_PATCH
 		// patch the map - Blind1.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// place pieces with closed doors
 		lm[2 + 4 + 3 * 11] = SwapLE16(150);
 		lm[2 + 6 + 7 * 11] = SwapLE16(150);
+		// remove 'items'
+		// lm[2 + 11 * 11 + 5 + 10 * 11] = 0;
 		// protect the main structure
 		for (int y = 0; y < 7; y++) {
 			for (int x = 0; x < 7; x++) {
@@ -803,13 +806,15 @@ static void DRLG_LoadL2SP()
 				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
 			}
 		}
+#endif
 	} else if (QuestStatus(Q_BLOOD)) {
 		pSetPieces[0]._sptype = SPT_BLOOD;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if !USE_PATCH
 		// patch the map - Blood1.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 		// eliminate invisible 'fancy' tile to leave space for shadow
-		lm[2 + 3 + 9 * 10] = SwapLE16(3);
+		lm[2 + 3 + 9 * 10] = 0;
 		// - place pieces with closed doors
 		lm[2 + 4 + 10 * 10] = SwapLE16(151);
 		lm[2 + 4 + 15 * 10] = SwapLE16(151);
@@ -825,11 +830,18 @@ static void DRLG_LoadL2SP()
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
 			}
 		}
+#endif
 	} else if (QuestStatus(Q_BCHAMB)) {
 		pSetPieces[0]._sptype = SPT_BCHAMB;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if !USE_PATCH
 		// patch the map - Bonestr2.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// useless tiles
+		lm[2 + 0 + 0 * 7] = 0;
+		lm[2 + 0 + 6 * 7] = 0;
+		lm[2 + 6 + 6 * 7] = 0;
+		lm[2 + 6 + 0 * 7] = 0;
 		// add tiles with subtiles for arches
 		lm[2 + 2 + 1 * 7] = SwapLE16(45);
 		lm[2 + 4 + 1 * 7] = SwapLE16(45);
@@ -847,6 +859,7 @@ static void DRLG_LoadL2SP()
 				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
 			}
 		}
+#endif
 	}
 }
 
@@ -2384,7 +2397,7 @@ static void DRLG_L2()
 	DRLG_L2PlaceRndSet(BIG10, 20);
 	DRLG_L2DoorSubs();
 }
-
+#if !USE_PATCH
 static void DRLG_L2FixMap()
 {
 	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
@@ -2506,7 +2519,7 @@ static void DRLG_L2FixMap()
 		lm[2 + 20 + 8 * 32] = SwapLE16(49);
 		// - central room (bottom)
 		lm[2 + 18 + 12 * 32] = SwapLE16(46);
-		lm[2 + 19 + 12 * 32] = SwapLE16(49);
+		// lm[2 + 19 + 12 * 32] = SwapLE16(49); -- ugly with the candle
 		// - left corridor
 		lm[2 + 12 + 14 * 32] = SwapLE16(47);
 		lm[2 + 12 + 15 * 32] = SwapLE16(51);
@@ -2550,6 +2563,8 @@ static void DRLG_L2FixPreMap(int idx)
 		}
 		// replace the door with wall
 		lm[2 + 4 + 3 * 11] = SwapLE16(25);
+		// remove 'items'
+		// lm[2 + 11 * 11 + 5 + 10 * 11] = 0;
 		// protect inner tiles from spawning additional monsters/objects
 		for (int y = 0; y <= 6; y++) {
 			for (int x = 0; x <= 6; x++) {
@@ -2591,6 +2606,8 @@ static void DRLG_L2FixPreMap(int idx)
 		// - shadow of the internal column next to the pedistal
 		lm[2 + 5 + 7 * 10] = SwapLE16(142);
 		lm[2 + 5 + 8 * 10] = SwapLE16(50);
+		// remove 'items'
+		lm[2 + 10 * 16 + 9 + 2 * 10 * 2] = 0;
 		// - add book and pedistal
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = SwapLE16(15);
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = SwapLE16(91);
@@ -2602,19 +2619,23 @@ static void DRLG_L2FixPreMap(int idx)
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
 		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 0; y < 15; y++) {
-			for (int x = 2; x <= 7; x++) {
-				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
-			}
-		}
-		for (int y = 3; y < 9; y++) {
-			for (int x = 0; x <= 10; x++) {
+		for (int y = 7; y < 15; y++) {
+			for (int x = 2; x <= 6; x++) {
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
 		}
 	} else if (pSetPieces[idx]._sptype == SPT_BCHAMB) {
 		// patch the map - Bonestr1.DUN
-		// eliminate obsolete stair-tile
+		// useless tiles
+		lm[2 + 0 + 0 * 7] = 0;
+		lm[2 + 0 + 4 * 7] = 0;
+		lm[2 + 0 + 5 * 7] = 0;
+		lm[2 + 0 + 6 * 7] = 0;
+		lm[2 + 6 + 6 * 7] = 0;
+		lm[2 + 6 + 0 * 7] = 0;
+		lm[2 + 2 + 3 * 7] = 0;
+		lm[2 + 3 + 3 * 7] = 0;
+		// + eliminate obsolete stair-tile
 		lm[2 + 2 + 4 * 7] = 0;
 		// shadow of the external-left column
 		lm[2 + 0 + 4 * 7] = SwapLE16(48);
@@ -2685,6 +2706,7 @@ static void DRLG_L2FixPreMap(int idx)
 		}*/
 	}
 }
+#endif // !USE_PATCH
 
 static void DRLG_L2DrawPreMaps()
 {
@@ -2694,7 +2716,9 @@ static void DRLG_L2DrawPreMaps()
 		if (setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile != NULL) {
 			MemFreeDbg(pSetPieces[i]._spData);
 			pSetPieces[i]._spData = LoadFileInMem(setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile);
+#if !USE_PATCH
 			DRLG_L2FixPreMap(i);
+#endif
 			DRLG_DrawMap(i);
 		}
 	}
@@ -2711,7 +2735,9 @@ static void LoadL2Dungeon(const LevelData* lds)
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if !USE_PATCH
 	DRLG_L2FixMap();
+#endif
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL2DungeonData.");
