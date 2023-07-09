@@ -6151,7 +6151,7 @@ static void patchCatacombsMin(BYTE *buf)
 		// - adjust the frame types
 		SetFrameType(267, 0, MET_LTRIANGLE);
 		SetFrameType(559, 0, MET_LTRIANGLE);
-		SetFrameType(252, 3, MET_TRANSPARENT);
+		SetFrameType(252, 3, MET_SQUARE);
 		SetFrameType(252, 1, MET_RTRAPEZOID);
 		SetFrameType(265, 1, MET_RTRIANGLE);
 		SetFrameType(556, 1, MET_RTRIANGLE);
@@ -6638,6 +6638,8 @@ static void patchCatacombsMin(BYTE *buf)
 	Blk2Mcr(269, 7);
 	Blk2Mcr(365, 1);
 	Blk2Mcr(395, 1);
+	Blk2Mcr(513, 0);
+	Blk2Mcr(517, 1);
 	Blk2Mcr(519, 0);
 	Blk2Mcr(520, 0);
 	Blk2Mcr(520, 1);
@@ -6731,7 +6733,7 @@ static void patchCatacombsMin(BYTE *buf)
 	Blk2Mcr(559, 2);
 	Blk2Mcr(559, 4);
 	int unusedSubtiles[] = {
-		2, 7, 14, 19, 20, 48, 50, 53, 55, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 172, 173, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541, 
+		2, 7, 14, 19, 20, 48, 50, 53, 55, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 172, 173, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 397, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541, 
 	};
 
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -9058,11 +9060,22 @@ static BYTE* patchCatacombsStairs(const BYTE* tilBuf, size_t tilLen, const BYTE*
 		}
 	}
 
+	// complete stairs-micro to square
+	gpBuffer[MICRO_WIDTH + 0 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 0 - 1) - 1) * BUFFER_WIDTH] = 40; // 267[2]
+
 	// fix bad artifacts
 	gpBuffer[          0 + 23 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 20 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 265[3]
 	gpBuffer[          0 + 24 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 20 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 265[3]
 	gpBuffer[          0 + 22 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 21 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 265[3]
 	gpBuffer[          0 + 23 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 21 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 265[3]
+	gpBuffer[          0 + 22 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT - 30 - 1) - 1) * BUFFER_WIDTH] = 78;          // 265[3]
+
+	gpBuffer[MICRO_WIDTH +  5 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT - 22 - 1) - 1) * BUFFER_WIDTH] = 55; // 267[4]
+	gpBuffer[MICRO_WIDTH + 19 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT -  7 - 1) - 1) * BUFFER_WIDTH] = 71; // 267[4]
+	gpBuffer[MICRO_WIDTH + 19 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT -  9 - 1) - 1) * BUFFER_WIDTH] = 36; // 267[4]
+
+	gpBuffer[          0 + 22 + (MICRO_HEIGHT * 4 - (MICRO_HEIGHT -  4 - 1) - 1) * BUFFER_WIDTH] = 78; // 252[0]
+	gpBuffer[          0 + 23 + (MICRO_HEIGHT * 4 - (MICRO_HEIGHT -  4 - 1) - 1) * BUFFER_WIDTH] = 31; // 252[0]
 
 	// create the new CEL file
 	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 8 * MICRO_WIDTH * MICRO_HEIGHT);
@@ -9147,6 +9160,7 @@ static BYTE* patchCatacombsStairs(const BYTE* tilBuf, size_t tilLen, const BYTE*
 			break;
 		case 4: // 267[2]
 			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
+			encoding = MET_SQUARE;
 			break;
 		case 5: // 265[5]
 			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 4 - 1) * BUFFER_WIDTH];
@@ -9696,6 +9710,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(71 - 1) * 4 + 1] = SwapLE16(10 - 1); // 247
 		pTiles[(77 - 1) * 4 + 3] = SwapLE16(12 - 1); // 268
 		pTiles[(140 - 1) * 4 + 1] = SwapLE16(10 - 1); // 511
+		pTiles[(140 - 1) * 4 + 3] = SwapLE16(162 - 1); // 513
 		pTiles[(142 - 1) * 4 + 3] = SwapLE16(162 - 1); // 519
 		
 		// use common subtiles instead of minor alterations
@@ -9724,6 +9739,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(106 - 1) * 4 + 1] = SwapLE16(10 - 1); // 376
 		pTiles[(110 - 1) * 4 + 0] = SwapLE16(9 - 1); // 391
 		pTiles[(111 - 1) * 4 + 0] = SwapLE16(9 - 1); // 395
+		pTiles[(111 - 1) * 4 + 3] = SwapLE16(12 - 1); // 397
 		pTiles[(121 - 1) * 4 + 0] = SwapLE16(9 - 1); // 434
 		pTiles[(112 - 1) * 4 + 2] = SwapLE16(11 - 1); // 400
 		pTiles[(138 - 1) * 4 + 2] = SwapLE16(11 - 1); // 504
@@ -9736,6 +9752,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(135 - 1) * 4 + 3] = SwapLE16(12 - 1); // 493
 		pTiles[(51 - 1) * 4 + 2] = SwapLE16(155 - 1); // 168
 		pTiles[(141 - 1) * 4 + 2] = SwapLE16(155 - 1); // 516
+		pTiles[(141 - 1) * 4 + 3] = SwapLE16(169 - 1); // 517
 		pTiles[(142 - 1) * 4 + 2] = SwapLE16(155 - 1); // 518
 
 		// - reduce pointless bone-chamber complexity II.
@@ -9793,12 +9810,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(34 - 1) * 4 + 0] = SwapLE16(21 - 1);
 		pTiles[(34 - 1) * 4 + 1] = SwapLE16(26 - 1);
 		pTiles[(34 - 1) * 4 + 2] = SwapLE16(148 - 1);
-		pTiles[(34 - 1) * 4 + 3] = SwapLE16(517 - 1);
+		pTiles[(34 - 1) * 4 + 3] = SwapLE16(169 - 1);
 		// - vertical wall end for a horizontal arch
 		pTiles[(35 - 1) * 4 + 0] = SwapLE16(25 - 1);
 		pTiles[(35 - 1) * 4 + 1] = SwapLE16(26 - 1);
 		pTiles[(35 - 1) * 4 + 2] = SwapLE16(512 - 1);
-		pTiles[(35 - 1) * 4 + 3] = SwapLE16(513 - 1);
+		pTiles[(35 - 1) * 4 + 3] = SwapLE16(162 - 1);
 		// - horizontal wall end for a pillar
 		pTiles[(36 - 1) * 4 + 0] = SwapLE16(33 - 1);
 		pTiles[(36 - 1) * 4 + 1] = SwapLE16(34 - 1);
@@ -9808,7 +9825,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		pTiles[(37 - 1) * 4 + 0] = SwapLE16(268 - 1);
 		pTiles[(37 - 1) * 4 + 1] = SwapLE16(515 - 1);
 		pTiles[(37 - 1) * 4 + 2] = SwapLE16(148 - 1);
-		pTiles[(37 - 1) * 4 + 3] = SwapLE16(517 - 1);
+		pTiles[(37 - 1) * 4 + 3] = SwapLE16(169 - 1);
 		// - floor tile with vertical arch
 		pTiles[(44 - 1) * 4 + 0] = SwapLE16(150 - 1);
 		pTiles[(44 - 1) * 4 + 1] = SwapLE16(10 - 1);

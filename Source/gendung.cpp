@@ -390,12 +390,12 @@ void InitLvlDungeon()
 		pTiles[34][0] = 21;
 		pTiles[34][1] = 26;
 		pTiles[34][2] = 148;
-		pTiles[34][3] = 517;
+		pTiles[34][3] = 169;
 		// - vertical wall end for a horizontal arch
 		pTiles[35][0] = 25;
 		pTiles[35][1] = 26;
 		pTiles[35][2] = 512;
-		pTiles[35][3] = 513;
+		pTiles[35][3] = 162;
 		// - horizontal wall end for a pillar
 		pTiles[36][0] = 33;
 		pTiles[36][1] = 34;
@@ -405,7 +405,7 @@ void InitLvlDungeon()
 		pTiles[37][0] = 33; // 268
 		pTiles[37][1] = 515;
 		pTiles[37][2] = 148;
-		pTiles[37][3] = 517;
+		pTiles[37][3] = 169;
 		// - floor tile with vertical arch
 		pTiles[44][0] = 150;
 		pTiles[44][1] = 10;
