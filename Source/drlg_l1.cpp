@@ -2805,7 +2805,7 @@ static void DRLG_L1()
 		/** Miniset: Use random horizontal wall 5. (Succubus statue) */
 		DRLG_PlaceRndTile(2, 202, 10);
 		DRLG_L5PlaceRndSet(L5VERTCOL1, 95);
-		DRLG_L5PlaceRndSet(L5HORIZCOL1a, 95); //  12 -> 96
+		DRLG_L5PlaceRndSet(L5HORIZCOL1a, 95); // 12 -> 96
 		DRLG_L5PlaceRndSet(L5HORIZCOL1b, 95);
 		// DRLG_L5PlaceRndSet(L5HORIZCOL1c, 95);
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
