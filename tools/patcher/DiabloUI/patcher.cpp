@@ -693,6 +693,386 @@ static int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelB
 	return SwapLE32(dstHeaderCursor[0]);
 }
 
+static BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE transparentPixel)
+{
+	// add optional {CEL FRAME HEADER}
+	BYTE *pHeader = pBuf;
+	if (subHeaderSize != 0) {
+		*(WORD*)&pBuf[0] = SwapLE16(subHeaderSize);
+		memset(pBuf + 2, 0, subHeaderSize - 2);
+		pBuf += subHeaderSize;
+	}
+	// write the pixels
+	BYTE *pHead;
+	for (int i = 1; i <= height; i++) {
+		pHead = pBuf;
+		pBuf++;
+		bool alpha = false;
+		BYTE* data = &gpBuffer[(height - i) * BUFFER_WIDTH];
+		if (/*subHeaderSize != 0 &&*/ (i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < subHeaderSize) {
+			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+		}
+		for (int j = 0; j < width; j++) {
+			if (data[j] != transparentPixel) {
+				// add opaque pixel
+				if (alpha || *pHead > 126) {
+					pHead = pBuf;
+					pBuf++;
+				}
+				++*pHead;
+				*pBuf = data[j];
+				pBuf++;
+				alpha = false;
+			} else {
+				// add transparent pixel
+				if (j != 0 && (!alpha || (char)*pHead == -128)) {
+					pHead = pBuf;
+					pBuf++;
+				}
+				--*pHead;
+				alpha = true;
+			}
+		}
+	}
+
+	return pBuf;
+}
+
+static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
+{
+	uint16_t* lm = (uint16_t*)fileBuf;
+
+	// TODO: validate file-size
+	switch (fileIndex) {
+	case FILE_BONESTR1_DUN:
+	{	// patch premap - Bonestr1.DUN
+		// useless tiles
+		lm[2 + 0 + 0 * 7] = 0;
+		lm[2 + 0 + 4 * 7] = 0;
+		lm[2 + 0 + 5 * 7] = 0;
+		lm[2 + 0 + 6 * 7] = 0;
+		lm[2 + 6 + 6 * 7] = 0;
+		lm[2 + 6 + 0 * 7] = 0;
+		lm[2 + 2 + 3 * 7] = 0;
+		lm[2 + 3 + 3 * 7] = 0;
+		// + eliminate obsolete stair-tile
+		lm[2 + 2 + 4 * 7] = 0;
+		// shadow of the external-left column
+		lm[2 + 0 + 4 * 7] = SwapLE16(48);
+		lm[2 + 0 + 5 * 7] = SwapLE16(50);
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 1; y < 6; y++) {
+			for (int x = 1; x < 6; x++) {
+				lm[2 + 7 * 7 + x + y * 7] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+	} break;
+	case FILE_BONESTR2_DUN:
+	{	// patch the map - Bonestr2.DUN
+		// useless tiles
+		lm[2 + 0 + 0 * 7] = 0;
+		lm[2 + 0 + 6 * 7] = 0;
+		lm[2 + 6 + 6 * 7] = 0;
+		lm[2 + 6 + 0 * 7] = 0;
+		// add tiles with subtiles for arches
+		lm[2 + 2 + 1 * 7] = SwapLE16(45);
+		lm[2 + 4 + 1 * 7] = SwapLE16(45);
+		lm[2 + 2 + 5 * 7] = SwapLE16(45);
+		lm[2 + 4 + 5 * 7] = SwapLE16(45);
+		lm[2 + 1 + 2 * 7] = SwapLE16(44);
+		lm[2 + 1 + 4 * 7] = SwapLE16(44);
+		lm[2 + 5 + 2 * 7] = SwapLE16(44);
+		lm[2 + 5 + 4 * 7] = SwapLE16(44);
+		// - remove tile to leave space for shadow
+		lm[2 + 2 + 4 * 7] = 0;
+		// protect the main structure
+		for (int y = 1; y < 6; y++) {
+			for (int x = 1; x < 6; x++) {
+				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
+			}
+		}
+		// remove monsters, objects, items
+		*fileSize = (2 + 7 * 7 + 7 * 7 * 2 * 2) * 2;
+	} break;
+	case FILE_BONECHA1_DUN:
+	{	// patch premap - Bonecha1.DUN
+		// external tiles
+		lm[2 + 20 +  4 * 32] = 12;
+		lm[2 + 21 +  4 * 32] = 12;
+		// useless tiles
+		for (int y = 0; y < 18; y++) {
+			for (int x = 0; x < 32; x++) {
+				if (x >= 13 && x <= 21 && y >= 1 && y <= 4) {
+					continue;
+				}
+				if (x == 18 && y == 5) {
+					continue;
+				}
+				if (x == 14 && y == 5) {
+					continue;
+				}
+				lm[2 + x + y * 32] = 0;
+			}
+		}
+		// remove rooms
+		*fileSize = (2 + 32 * 18 + 32 * 18 * 2 * 2 + 32 * 18 * 2 * 2 + 32 * 18 * 2 * 2) * 2;
+	} break;
+	case FILE_BONECHA2_DUN:
+	{	// patch the map - Bonecha2.DUN
+		// reduce pointless bone-chamber complexity
+		lm[2 + 16 + 9 * 32] = SwapLE16(57);
+		lm[2 + 16 + 10 * 32] = SwapLE16(62);
+		lm[2 + 16 + 11 * 32] = SwapLE16(62);
+		lm[2 + 16 + 12 * 32] = SwapLE16(62);
+		lm[2 + 13 + 12 * 32] = SwapLE16(53);
+		lm[2 + 14 + 12 * 32] = SwapLE16(62);
+		lm[2 + 15 + 12 * 32] = SwapLE16(62);
+		// external tiles
+		lm[2 + 2 + 15 * 32] = SwapLE16(11);
+		lm[2 + 3 + 15 * 32] = SwapLE16(11);
+		lm[2 + 4 + 15 * 32] = SwapLE16(11);
+		lm[2 + 5 + 15 * 32] = SwapLE16(11);
+		lm[2 + 6 + 15 * 32] = SwapLE16(11);
+		lm[2 + 7 + 15 * 32] = SwapLE16(11);
+		lm[2 + 8 + 15 * 32] = SwapLE16(11);
+
+		lm[2 + 10 + 17 * 32] = SwapLE16(11);
+		lm[2 + 11 + 17 * 32] = SwapLE16(11);
+		lm[2 + 12 + 17 * 32] = SwapLE16(11);
+		lm[2 + 13 + 17 * 32] = SwapLE16(15);
+		lm[2 + 14 + 17 * 32] = SwapLE16(11);
+		lm[2 + 15 + 17 * 32] = SwapLE16(11);
+		lm[2 + 16 + 17 * 32] = SwapLE16(11);
+		lm[2 + 17 + 17 * 32] = SwapLE16(15);
+		lm[2 + 18 + 17 * 32] = SwapLE16(11);
+		lm[2 + 19 + 17 * 32] = SwapLE16(11);
+		lm[2 + 20 + 17 * 32] = SwapLE16(11);
+		lm[2 + 21 + 17 * 32] = SwapLE16(16);
+		lm[2 + 21 + 16 * 32] = SwapLE16(10);
+		lm[2 + 21 + 15 * 32] = SwapLE16(10);
+		lm[2 + 21 + 14 * 32] = SwapLE16(10);
+
+		lm[2 + 20 + 0 * 32] = SwapLE16(12);
+		lm[2 + 21 + 0 * 32] = SwapLE16(12);
+		lm[2 + 21 + 1 * 32] = SwapLE16(14);
+		lm[2 + 21 + 2 * 32] = SwapLE16(10);
+		lm[2 + 21 + 3 * 32] = SwapLE16(10);
+		lm[2 + 21 + 4 * 32] = SwapLE16(10);
+		lm[2 + 21 + 5 * 32] = SwapLE16(14);
+		lm[2 + 21 + 6 * 32] = SwapLE16(10);
+		lm[2 + 21 + 7 * 32] = SwapLE16(10);
+		lm[2 + 21 + 8 * 32] = SwapLE16(10);
+
+		lm[2 + 31 + 8 * 32] = SwapLE16(10);
+		lm[2 + 31 + 9 * 32] = SwapLE16(10);
+		lm[2 + 31 + 10 * 32] = SwapLE16(10);
+		lm[2 + 31 + 11 * 32] = SwapLE16(10);
+		lm[2 + 31 + 12 * 32] = SwapLE16(10);
+		lm[2 + 31 + 13 * 32] = SwapLE16(10);
+		lm[2 + 31 + 14 * 32] = SwapLE16(10);
+		lm[2 + 31 + 15 * 32] = SwapLE16(16);
+		lm[2 + 24 + 15 * 32] = SwapLE16(11);
+		lm[2 + 25 + 15 * 32] = SwapLE16(11);
+		lm[2 + 26 + 15 * 32] = SwapLE16(11);
+		lm[2 + 27 + 15 * 32] = SwapLE16(11);
+		lm[2 + 28 + 15 * 32] = SwapLE16(11);
+		lm[2 + 29 + 15 * 32] = SwapLE16(11);
+		lm[2 + 30 + 15 * 32] = SwapLE16(11);
+
+		lm[2 + 21 + 13 * 32] = SwapLE16(13);
+		lm[2 + 22 + 13 * 32] = SwapLE16(11);
+
+		lm[2 + 8 + 15 * 32] = SwapLE16(11);
+		lm[2 + 8 + 16 * 32] = SwapLE16(12);
+		lm[2 + 8 + 17 * 32] = SwapLE16(12);
+		lm[2 + 9 + 17 * 32] = SwapLE16(15);
+
+		// add tiles with subtiles for arches
+		lm[2 + 13 + 6 * 32] = SwapLE16(44);
+		lm[2 + 13 + 8 * 32] = SwapLE16(44);
+		lm[2 + 17 + 6 * 32] = SwapLE16(44);
+		lm[2 + 17 + 8 * 32] = SwapLE16(96);
+
+		lm[2 + 13 + 14 * 32] = SwapLE16(44);
+		lm[2 + 13 + 16 * 32] = SwapLE16(44);
+		lm[2 + 17 + 14 * 32] = SwapLE16(44);
+		lm[2 + 17 + 16 * 32] = SwapLE16(44);
+
+		lm[2 + 18 + 9 * 32] = SwapLE16(45);
+		lm[2 + 20 + 9 * 32] = SwapLE16(45);
+		lm[2 + 18 + 13 * 32] = SwapLE16(45);
+		lm[2 + 20 + 13 * 32] = SwapLE16(45);
+
+		// place pieces with closed doors
+		lm[2 + 17 + 11 * 32] = SwapLE16(150);
+		// place shadows
+		// - right corridor
+		lm[2 + 12 + 6 * 32] = SwapLE16(47);
+		lm[2 + 12 + 7 * 32] = SwapLE16(51);
+		lm[2 + 16 + 6 * 32] = SwapLE16(47);
+		lm[2 + 16 + 7 * 32] = SwapLE16(51);
+		lm[2 + 16 + 8 * 32] = SwapLE16(47);
+		// - central room (top)
+		// lm[2 + 17 + 8 * 32] = SwapLE16(96);
+		lm[2 + 18 + 8 * 32] = SwapLE16(49);
+		lm[2 + 19 + 8 * 32] = SwapLE16(49);
+		lm[2 + 20 + 8 * 32] = SwapLE16(49);
+		// - central room (bottom)
+		lm[2 + 18 + 12 * 32] = SwapLE16(46);
+		// lm[2 + 19 + 12 * 32] = SwapLE16(49); -- ugly with the candle
+		// - left corridor
+		lm[2 + 12 + 14 * 32] = SwapLE16(47);
+		lm[2 + 12 + 15 * 32] = SwapLE16(51);
+		lm[2 + 16 + 14 * 32] = SwapLE16(47);
+		lm[2 + 16 + 15 * 32] = SwapLE16(51);
+		// remove monsters, objects, items
+		*fileSize = (2 + 32 * 18 + 32 * 18 * 2 * 2) * 2;
+	} break;
+	case FILE_BLIND1_DUN:
+	{	// patch the map - Blind1.DUN
+		// place pieces with closed doors
+		lm[2 + 4 + 3 * 11] = SwapLE16(150);
+		lm[2 + 6 + 7 * 11] = SwapLE16(150);
+		// remove obsolete 'protection' (item)
+		// lm[2 + 11 * 11 + 5 + 10 * 11] = 0;
+		// protect the main structure
+		for (int y = 0; y < 7; y++) {
+			for (int x = 0; x < 7; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
+			}
+		}
+		for (int y = 4; y < 11; y++) {
+			for (int x = 4; x < 11; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
+			}
+		}
+		// remove monsters, objects, items
+		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2) * 2;
+	} break;
+	case FILE_BLIND2_DUN:
+	{	// patch premap - Blind2.DUN
+		// external tiles
+		lm[2 + 2 + 2 * 11] = SwapLE16(13);
+		lm[2 + 2 + 3 * 11] = SwapLE16(10);
+		lm[2 + 3 + 2 * 11] = SwapLE16(11);
+		lm[2 + 3 + 3 * 11] = SwapLE16(12);
+
+		lm[2 + 6 + 6 * 11] = SwapLE16(13);
+		lm[2 + 6 + 7 * 11] = SwapLE16(10);
+		lm[2 + 7 + 6 * 11] = SwapLE16(11);
+		lm[2 + 7 + 7 * 11] = SwapLE16(12);
+		// useless tiles
+		for (int y = 0; y < 11; y++) {
+			for (int x = 0; x < 11; x++) {
+				// keep the boxes
+				if (x >= 2 && y >= 2 && x < 4 && y < 4) {
+					continue;
+				}
+				if (x >= 6 && y >= 6 && x < 8 && y < 8) {
+					continue;
+				}
+				// keep the doors
+				if (x == 0 && y == 1/* || x == 4 && y == 3*/ || x == 10 && y == 8) {
+					continue;
+				}
+				lm[2 + x + y * 11] = 0;
+			}
+		}
+		// replace the door with wall
+		lm[2 + 4 + 3 * 11] = SwapLE16(25);
+		// remove obsolete 'protection' (item)
+		// lm[2 + 11 * 11 + 5 + 10 * 11] = 0;
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 0; y < 6; y++) {
+			for (int x = 0; x < 6; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		for (int y = 4; y < 11; y++) {
+			for (int x = 4; x < 11; x++) {
+				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// remove rooms
+		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2 + 11 * 11 * 2 * 2 + 11 * 11 * 2 * 2) * 2;
+	} break;
+	case FILE_BLOOD1_DUN:
+	{	// patch the map - Blood1.DUN
+		// eliminate invisible 'fancy' tile to leave space for shadow
+		lm[2 + 3 + 9 * 10] = 0;
+		// - place pieces with closed doors
+		lm[2 + 4 + 10 * 10] = SwapLE16(151);
+		lm[2 + 4 + 15 * 10] = SwapLE16(151);
+		lm[2 + 5 + 15 * 10] = SwapLE16(151);
+		// protect the main structure
+		for (int y = 0; y <= 15; y++) {
+			for (int x = 2; x <= 7; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
+			}
+		}
+		for (int y = 3; y <= 8; y++) {
+			for (int x = 0; x <= 9; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
+			}
+		}
+		// remove monsters, objects, items
+		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2) * 2;
+	} break;
+	case FILE_BLOOD2_DUN:
+	{	// patch premap - Blood2.DUN
+		// external tiles
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 10; x++) {
+				uint16_t wv = SwapLE16(lm[2 + x + y * 10]);
+				if (wv >= 143 && wv <= 149) {
+					lm[2 + x + y * 10] = SwapLE16(wv - 133);
+				}
+			}
+		}
+		// useless tiles
+		for (int y = 8; y < 16; y++) {
+			for (int x = 0; x < 10; x++) {
+				lm[2 + x + y * 10] = 0;
+			}
+		}
+		// - place pieces with closed doors
+		// lm[2 + 4 + 10 * 10] = SwapLE16(151);
+		// lm[2 + 4 + 15 * 10] = SwapLE16(151);
+		// lm[2 + 5 + 15 * 10] = SwapLE16(151);
+		// shadow of the external-left column -- do not place to prevent overwriting large decorations
+		//dungeon[pSetPieces[0]._spx - 1][pSetPieces[0]._spy + 7] = 48;
+		//dungeon[pSetPieces[0]._spx - 1][pSetPieces[0]._spy + 8] = 50;
+		// - shadow of the bottom-left column(s) -- one is missing
+		// lm[2 + 1 + 13 * 10] = SwapLE16(48);
+		// lm[2 + 1 + 14 * 10] = SwapLE16(50);
+		// - shadow of the internal column next to the pedistal
+		lm[2 + 5 + 7 * 10] = SwapLE16(142);
+		lm[2 + 5 + 8 * 10] = SwapLE16(50);
+		// remove 'items'
+		lm[2 + 10 * 16 + 9 + 2 * 10 * 2] = 0;
+		// adjust objects
+		// - add book and pedistal
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = SwapLE16(15);
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = SwapLE16(91);
+		// - remove torches
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 8 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 10 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 12 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 8 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
+		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 7; y < 15; y++) {
+			for (int x = 2; x <= 6; x++) {
+				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// remove rooms
+		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2) * 2;
+	} break;
+	}
+}
+
 static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
 {
 	const unsigned blockSize = BLOCK_SIZE_TOWN;
@@ -4669,387 +5049,6 @@ static void patchCathedralTil(BYTE* buf)
 		pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
 		pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
 		pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
-	}
-}
-
-static BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE transparentPixel)
-{
-	// add optional {CEL FRAME HEADER}
-	BYTE *pHeader = pBuf;
-	if (subHeaderSize != 0) {
-		*(WORD*)&pBuf[0] = SwapLE16(subHeaderSize);
-		memset(pBuf + 2, 0, subHeaderSize - 2);
-		pBuf += subHeaderSize;
-	}
-	// write the pixels
-	BYTE *pHead;
-	for (int i = 1; i <= height; i++) {
-		pHead = pBuf;
-		pBuf++;
-		bool alpha = false;
-		BYTE* data = &gpBuffer[(height - i) * BUFFER_WIDTH];
-		if (/*subHeaderSize != 0 &&*/ (i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < subHeaderSize) {
-			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
-		}
-		for (int j = 0; j < width; j++) {
-			if (data[j] != transparentPixel) {
-				// add opaque pixel
-				if (alpha || *pHead > 126) {
-					pHead = pBuf;
-					pBuf++;
-				}
-				++*pHead;
-				*pBuf = data[j];
-				pBuf++;
-				alpha = false;
-			} else {
-				// add transparent pixel
-				if (j != 0 && (!alpha || (char)*pHead == -128)) {
-					pHead = pBuf;
-					pBuf++;
-				}
-				--*pHead;
-				alpha = true;
-			}
-		}
-	}
-
-	return pBuf;
-}
-
-static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
-{
-	uint16_t* lm = (uint16_t*)fileBuf;
-
-	// TODO: validate file-size
-	switch (fileIndex) {
-	case FILE_BONESTR1_DUN:
-	{	// patch premap - Bonestr1.DUN
-		// useless tiles
-		lm[2 + 0 + 0 * 7] = 0;
-		lm[2 + 0 + 4 * 7] = 0;
-		lm[2 + 0 + 5 * 7] = 0;
-		lm[2 + 0 + 6 * 7] = 0;
-		lm[2 + 6 + 6 * 7] = 0;
-		lm[2 + 6 + 0 * 7] = 0;
-		lm[2 + 2 + 3 * 7] = 0;
-		lm[2 + 3 + 3 * 7] = 0;
-		// + eliminate obsolete stair-tile
-		lm[2 + 2 + 4 * 7] = 0;
-		// shadow of the external-left column
-		lm[2 + 0 + 4 * 7] = SwapLE16(48);
-		lm[2 + 0 + 5 * 7] = SwapLE16(50);
-		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 1; y < 6; y++) {
-			for (int x = 1; x < 6; x++) {
-				lm[2 + 7 * 7 + x + y * 7] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
-			}
-		}
-	} break;
-	case FILE_BONESTR2_DUN:
-	{	// patch the map - Bonestr2.DUN
-		// useless tiles
-		lm[2 + 0 + 0 * 7] = 0;
-		lm[2 + 0 + 6 * 7] = 0;
-		lm[2 + 6 + 6 * 7] = 0;
-		lm[2 + 6 + 0 * 7] = 0;
-		// add tiles with subtiles for arches
-		lm[2 + 2 + 1 * 7] = SwapLE16(45);
-		lm[2 + 4 + 1 * 7] = SwapLE16(45);
-		lm[2 + 2 + 5 * 7] = SwapLE16(45);
-		lm[2 + 4 + 5 * 7] = SwapLE16(45);
-		lm[2 + 1 + 2 * 7] = SwapLE16(44);
-		lm[2 + 1 + 4 * 7] = SwapLE16(44);
-		lm[2 + 5 + 2 * 7] = SwapLE16(44);
-		lm[2 + 5 + 4 * 7] = SwapLE16(44);
-		// - remove tile to leave space for shadow
-		lm[2 + 2 + 4 * 7] = 0;
-		// protect the main structure
-		for (int y = 1; y < 6; y++) {
-			for (int x = 1; x < 6; x++) {
-				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
-			}
-		}
-		// remove monsters, objects, items
-		*fileSize = (2 + 7 * 7 + 7 * 7 * 2 * 2) * 2;
-	} break;
-	case FILE_BONECHA1_DUN:
-	{	// patch premap - Bonecha1.DUN
-		// external tiles
-		lm[2 + 20 +  4 * 32] = 12;
-		lm[2 + 21 +  4 * 32] = 12;
-		// useless tiles
-		for (int y = 0; y < 18; y++) {
-			for (int x = 0; x < 32; x++) {
-				if (x >= 13 && x <= 21 && y >= 1 && y <= 4) {
-					continue;
-				}
-				if (x == 18 && y == 5) {
-					continue;
-				}
-				if (x == 14 && y == 5) {
-					continue;
-				}
-				lm[2 + x + y * 32] = 0;
-			}
-		}
-		// remove rooms
-		*fileSize = (2 + 32 * 18 + 32 * 18 * 2 * 2 + 32 * 18 * 2 * 2 + 32 * 18 * 2 * 2) * 2;
-	} break;
-	case FILE_BONECHA2_DUN:
-	{	// patch the map - Bonecha2.DUN
-		// reduce pointless bone-chamber complexity
-		lm[2 + 16 + 9 * 32] = SwapLE16(57);
-		lm[2 + 16 + 10 * 32] = SwapLE16(62);
-		lm[2 + 16 + 11 * 32] = SwapLE16(62);
-		lm[2 + 16 + 12 * 32] = SwapLE16(62);
-		lm[2 + 13 + 12 * 32] = SwapLE16(53);
-		lm[2 + 14 + 12 * 32] = SwapLE16(62);
-		lm[2 + 15 + 12 * 32] = SwapLE16(62);
-		// external tiles
-		lm[2 + 2 + 15 * 32] = SwapLE16(11);
-		lm[2 + 3 + 15 * 32] = SwapLE16(11);
-		lm[2 + 4 + 15 * 32] = SwapLE16(11);
-		lm[2 + 5 + 15 * 32] = SwapLE16(11);
-		lm[2 + 6 + 15 * 32] = SwapLE16(11);
-		lm[2 + 7 + 15 * 32] = SwapLE16(11);
-		lm[2 + 8 + 15 * 32] = SwapLE16(11);
-
-		lm[2 + 10 + 17 * 32] = SwapLE16(11);
-		lm[2 + 11 + 17 * 32] = SwapLE16(11);
-		lm[2 + 12 + 17 * 32] = SwapLE16(11);
-		lm[2 + 13 + 17 * 32] = SwapLE16(15);
-		lm[2 + 14 + 17 * 32] = SwapLE16(11);
-		lm[2 + 15 + 17 * 32] = SwapLE16(11);
-		lm[2 + 16 + 17 * 32] = SwapLE16(11);
-		lm[2 + 17 + 17 * 32] = SwapLE16(15);
-		lm[2 + 18 + 17 * 32] = SwapLE16(11);
-		lm[2 + 19 + 17 * 32] = SwapLE16(11);
-		lm[2 + 20 + 17 * 32] = SwapLE16(11);
-		lm[2 + 21 + 17 * 32] = SwapLE16(16);
-		lm[2 + 21 + 16 * 32] = SwapLE16(10);
-		lm[2 + 21 + 15 * 32] = SwapLE16(10);
-		lm[2 + 21 + 14 * 32] = SwapLE16(10);
-
-		lm[2 + 20 + 0 * 32] = SwapLE16(12);
-		lm[2 + 21 + 0 * 32] = SwapLE16(12);
-		lm[2 + 21 + 1 * 32] = SwapLE16(14);
-		lm[2 + 21 + 2 * 32] = SwapLE16(10);
-		lm[2 + 21 + 3 * 32] = SwapLE16(10);
-		lm[2 + 21 + 4 * 32] = SwapLE16(10);
-		lm[2 + 21 + 5 * 32] = SwapLE16(14);
-		lm[2 + 21 + 6 * 32] = SwapLE16(10);
-		lm[2 + 21 + 7 * 32] = SwapLE16(10);
-		lm[2 + 21 + 8 * 32] = SwapLE16(10);
-
-		lm[2 + 31 + 8 * 32] = SwapLE16(10);
-		lm[2 + 31 + 9 * 32] = SwapLE16(10);
-		lm[2 + 31 + 10 * 32] = SwapLE16(10);
-		lm[2 + 31 + 11 * 32] = SwapLE16(10);
-		lm[2 + 31 + 12 * 32] = SwapLE16(10);
-		lm[2 + 31 + 13 * 32] = SwapLE16(10);
-		lm[2 + 31 + 14 * 32] = SwapLE16(10);
-		lm[2 + 31 + 15 * 32] = SwapLE16(16);
-		lm[2 + 24 + 15 * 32] = SwapLE16(11);
-		lm[2 + 25 + 15 * 32] = SwapLE16(11);
-		lm[2 + 26 + 15 * 32] = SwapLE16(11);
-		lm[2 + 27 + 15 * 32] = SwapLE16(11);
-		lm[2 + 28 + 15 * 32] = SwapLE16(11);
-		lm[2 + 29 + 15 * 32] = SwapLE16(11);
-		lm[2 + 30 + 15 * 32] = SwapLE16(11);
-
-		lm[2 + 21 + 13 * 32] = SwapLE16(13);
-		lm[2 + 22 + 13 * 32] = SwapLE16(11);
-
-		lm[2 + 8 + 15 * 32] = SwapLE16(11);
-		lm[2 + 8 + 16 * 32] = SwapLE16(12);
-		lm[2 + 8 + 17 * 32] = SwapLE16(12);
-		lm[2 + 9 + 17 * 32] = SwapLE16(15);
-
-		// add tiles with subtiles for arches
-		lm[2 + 13 + 6 * 32] = SwapLE16(44);
-		lm[2 + 13 + 8 * 32] = SwapLE16(44);
-		lm[2 + 17 + 6 * 32] = SwapLE16(44);
-		lm[2 + 17 + 8 * 32] = SwapLE16(96);
-
-		lm[2 + 13 + 14 * 32] = SwapLE16(44);
-		lm[2 + 13 + 16 * 32] = SwapLE16(44);
-		lm[2 + 17 + 14 * 32] = SwapLE16(44);
-		lm[2 + 17 + 16 * 32] = SwapLE16(44);
-
-		lm[2 + 18 + 9 * 32] = SwapLE16(45);
-		lm[2 + 20 + 9 * 32] = SwapLE16(45);
-		lm[2 + 18 + 13 * 32] = SwapLE16(45);
-		lm[2 + 20 + 13 * 32] = SwapLE16(45);
-
-		// place pieces with closed doors
-		lm[2 + 17 + 11 * 32] = SwapLE16(150);
-		// place shadows
-		// - right corridor
-		lm[2 + 12 + 6 * 32] = SwapLE16(47);
-		lm[2 + 12 + 7 * 32] = SwapLE16(51);
-		lm[2 + 16 + 6 * 32] = SwapLE16(47);
-		lm[2 + 16 + 7 * 32] = SwapLE16(51);
-		lm[2 + 16 + 8 * 32] = SwapLE16(47);
-		// - central room (top)
-		// lm[2 + 17 + 8 * 32] = SwapLE16(96);
-		lm[2 + 18 + 8 * 32] = SwapLE16(49);
-		lm[2 + 19 + 8 * 32] = SwapLE16(49);
-		lm[2 + 20 + 8 * 32] = SwapLE16(49);
-		// - central room (bottom)
-		lm[2 + 18 + 12 * 32] = SwapLE16(46);
-		// lm[2 + 19 + 12 * 32] = SwapLE16(49); -- ugly with the candle
-		// - left corridor
-		lm[2 + 12 + 14 * 32] = SwapLE16(47);
-		lm[2 + 12 + 15 * 32] = SwapLE16(51);
-		lm[2 + 16 + 14 * 32] = SwapLE16(47);
-		lm[2 + 16 + 15 * 32] = SwapLE16(51);
-		// remove monsters, objects, items
-		*fileSize = (2 + 32 * 18 + 32 * 18 * 2 * 2) * 2;
-	} break;
-	case FILE_BLIND1_DUN:
-	{	// patch the map - Blind1.DUN
-		// place pieces with closed doors
-		lm[2 + 4 + 3 * 11] = SwapLE16(150);
-		lm[2 + 6 + 7 * 11] = SwapLE16(150);
-		// remove obsolete 'protection' (item)
-		// lm[2 + 11 * 11 + 5 + 10 * 11] = 0;
-		// protect the main structure
-		for (int y = 0; y < 7; y++) {
-			for (int x = 0; x < 7; x++) {
-				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
-			}
-		}
-		for (int y = 4; y < 11; y++) {
-			for (int x = 4; x < 11; x++) {
-				lm[2 + 11 * 11 + x + y * 11] = SwapLE16(3);
-			}
-		}
-		// remove monsters, objects, items
-		size_t wasSize = *fileSize;
-		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2) * 2;
-	} break;
-	case FILE_BLIND2_DUN:
-	{	// patch premap - Blind2.DUN
-		// external tiles
-		lm[2 + 2 + 2 * 11] = SwapLE16(13);
-		lm[2 + 2 + 3 * 11] = SwapLE16(10);
-		lm[2 + 3 + 2 * 11] = SwapLE16(11);
-		lm[2 + 3 + 3 * 11] = SwapLE16(12);
-
-		lm[2 + 6 + 6 * 11] = SwapLE16(13);
-		lm[2 + 6 + 7 * 11] = SwapLE16(10);
-		lm[2 + 7 + 6 * 11] = SwapLE16(11);
-		lm[2 + 7 + 7 * 11] = SwapLE16(12);
-		// useless tiles
-		for (int y = 0; y < 11; y++) {
-			for (int x = 0; x < 11; x++) {
-				// keep the boxes
-				if (x >= 2 && y >= 2 && x < 4 && y < 4) {
-					continue;
-				}
-				if (x >= 6 && y >= 6 && x < 8 && y < 8) {
-					continue;
-				}
-				// keep the doors
-				if (x == 0 && y == 1/* || x == 4 && y == 3*/ || x == 10 && y == 8) {
-					continue;
-				}
-				lm[2 + x + y * 11] = 0;
-			}
-		}
-		// replace the door with wall
-		lm[2 + 4 + 3 * 11] = SwapLE16(25);
-		// remove obsolete 'protection' (item)
-		// lm[2 + 11 * 11 + 5 + 10 * 11] = 0;
-		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 0; y < 6; y++) {
-			for (int x = 0; x < 6; x++) {
-				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
-			}
-		}
-		for (int y = 4; y < 11; y++) {
-			for (int x = 4; x < 11; x++) {
-				lm[2 + 11 * 11 + x + y * 11] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
-			}
-		}
-		// remove rooms
-		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2 + 11 * 11 * 2 * 2 + 11 * 11 * 2 * 2) * 2;
-	} break;
-	case FILE_BLOOD1_DUN:
-	{	// patch the map - Blood1.DUN
-		// eliminate invisible 'fancy' tile to leave space for shadow
-		lm[2 + 3 + 9 * 10] = 0;
-		// - place pieces with closed doors
-		lm[2 + 4 + 10 * 10] = SwapLE16(151);
-		lm[2 + 4 + 15 * 10] = SwapLE16(151);
-		lm[2 + 5 + 15 * 10] = SwapLE16(151);
-		// protect the main structure
-		for (int y = 0; y <= 15; y++) {
-			for (int x = 2; x <= 7; x++) {
-				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
-			}
-		}
-		for (int y = 3; y <= 8; y++) {
-			for (int x = 0; x <= 9; x++) {
-				lm[2 + 10 * 16 + x + y * 10] = SwapLE16(3);
-			}
-		}
-		// remove monsters, objects, items
-		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2) * 2;
-	} break;
-	case FILE_BLOOD2_DUN:
-	{	// patch premap - Blood2.DUN
-		// external tiles
-		for (int y = 0; y < 8; y++) {
-			for (int x = 0; x < 10; x++) {
-				uint16_t wv = SwapLE16(lm[2 + x + y * 10]);
-				if (wv >= 143 && wv <= 149) {
-					lm[2 + x + y * 10] = SwapLE16(wv - 133);
-				}
-			}
-		}
-		// useless tiles
-		for (int y = 8; y < 16; y++) {
-			for (int x = 0; x < 10; x++) {
-				lm[2 + x + y * 10] = 0;
-			}
-		}
-		// - place pieces with closed doors
-		// lm[2 + 4 + 10 * 10] = SwapLE16(151);
-		// lm[2 + 4 + 15 * 10] = SwapLE16(151);
-		// lm[2 + 5 + 15 * 10] = SwapLE16(151);
-		// shadow of the external-left column -- do not place to prevent overwriting large decorations
-		//dungeon[pSetPieces[0]._spx - 1][pSetPieces[0]._spy + 7] = 48;
-		//dungeon[pSetPieces[0]._spx - 1][pSetPieces[0]._spy + 8] = 50;
-		// - shadow of the bottom-left column(s) -- one is missing
-		// lm[2 + 1 + 13 * 10] = SwapLE16(48);
-		// lm[2 + 1 + 14 * 10] = SwapLE16(50);
-		// - shadow of the internal column next to the pedistal
-		lm[2 + 5 + 7 * 10] = SwapLE16(142);
-		lm[2 + 5 + 8 * 10] = SwapLE16(50);
-		// remove 'items'
-		lm[2 + 10 * 16 + 9 + 2 * 10 * 2] = 0;
-		// adjust objects
-		// - add book and pedistal
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = SwapLE16(15);
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = SwapLE16(91);
-		// - remove torches
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 8 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 10 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 11 + 12 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 8 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 10 * 10 * 2] = 0;
-		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 6 + 12 * 10 * 2] = 0;
-		// protect inner tiles from spawning additional monsters/objects
-		for (int y = 7; y < 15; y++) {
-			for (int x = 2; x <= 6; x++) {
-				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
-			}
-		}
-		// remove rooms
-		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2) * 2;
-	} break;
 	}
 }
 
