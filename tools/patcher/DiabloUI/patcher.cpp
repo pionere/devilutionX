@@ -4714,7 +4714,6 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 		// remove monsters, objects, items
 		size_t wasSize = *fileSize;
 		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2) * 2;
-		LogErrorF("", "Blind1.DUN Resized from %d to %d", wasSize, *fileSize);
 	} break;
 	case FILE_BLIND2_DUN:
 	{	// patch premap - Blind2.DUN
