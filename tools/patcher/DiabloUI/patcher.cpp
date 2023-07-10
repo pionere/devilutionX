@@ -4458,6 +4458,220 @@ static void patchCathedralMin(BYTE *buf)
 	}
 }
 
+static void patchCathedralTil(BYTE* buf)
+{
+	uint16_t *pTiles = (uint16_t*)buf;
+	// reuse subtiles
+	pTiles[(43 - 1) * 4 + 2] = SwapLE16(3 - 1);
+	pTiles[(61 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(62 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(73 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(74 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(75 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(77 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(129 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(136 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(105 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(137 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(130 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(133 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(58 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(60 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(103 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(186 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(128 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(134 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(136 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	// pTiles[(42 - 1) * 4 + 2] = SwapLE16(12 - 1);
+	pTiles[(44 - 1) * 4 + 2] = SwapLE16(12 - 1);
+	// pTiles[(159 - 1) * 4 + 2] = SwapLE16(12 - 1);
+	pTiles[(9 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(59 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(60 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(62 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(128 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(129 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(136 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(9 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(58 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(59 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(60 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(74 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(76 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(97 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(130 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(137 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(193 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	// create the new shadows
+	// - use the shadows created by fixCathedralShadows
+	pTiles[(131 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(131 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(131 - 1) * 4 + 2] = SwapLE16(301 - 1);
+	pTiles[(131 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(132 - 1) * 4 + 0] = SwapLE16(296 - 1);
+	pTiles[(132 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(132 - 1) * 4 + 2] = SwapLE16(310 - 1);
+	pTiles[(132 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	// pTiles[(139 - 1) * 4 + 0] = SwapLE16(296 - 1);
+	// pTiles[(139 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(139 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	// pTiles[(139 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(140 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	// pTiles[(140 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	// pTiles[(140 - 1) * 4 + 2] = SwapLE16(301 - 1);
+	pTiles[(140 - 1) * 4 + 3] = SwapLE16(330 - 1);
+	pTiles[(141 - 1) * 4 + 0] = SwapLE16(296 - 1);
+	pTiles[(141 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(141 - 1) * 4 + 2] = SwapLE16(310 - 1);
+	pTiles[(141 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	// pTiles[(142 - 1) * 4 + 0] = SwapLE16(307 - 1);
+	// pTiles[(142 - 1) * 4 + 1] = SwapLE16(308 - 1);
+	// pTiles[(142 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	// pTiles[(142 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(143 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	// pTiles[(143 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(143 - 1) * 4 + 2] = SwapLE16(313 - 1);
+	pTiles[(143 - 1) * 4 + 3] = SwapLE16(330 - 1);
+	pTiles[(144 - 1) * 4 + 0] = SwapLE16(315 - 1);
+	// pTiles[(144 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(144 - 1) * 4 + 2] = SwapLE16(317 - 1);
+	pTiles[(144 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(145 - 1) * 4 + 0] = SwapLE16(21 - 1);
+	pTiles[(145 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(145 - 1) * 4 + 2] = SwapLE16(321 - 1);
+	pTiles[(145 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(146 - 1) * 4 + 0] = SwapLE16(1 - 1);
+	// pTiles[(146 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	// pTiles[(146 - 1) * 4 + 2] = SwapLE16(320 - 1);
+	// pTiles[(146 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(147 - 1) * 4 + 0] = SwapLE16(13 - 1);
+	// pTiles[(147 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(147 - 1) * 4 + 2] = SwapLE16(320 - 1);
+	// pTiles[(147 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	// pTiles[(148 - 1) * 4 + 0] = SwapLE16(322 - 1);
+	// pTiles[(148 - 1) * 4 + 1] = SwapLE16(323 - 1);
+	pTiles[(148 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	// pTiles[(148 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	// pTiles[(149 - 1) * 4 + 0] = SwapLE16(324 - 1);
+	// pTiles[(149 - 1) * 4 + 1] = SwapLE16(325 - 1);
+	pTiles[(149 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	// pTiles[(149 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(150 - 1) * 4 + 0] = SwapLE16(5 - 1);
+	pTiles[(150 - 1) * 4 + 1] = SwapLE16(6 - 1);
+	pTiles[(150 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(150 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(151 - 1) * 4 + 0] = SwapLE16(22 - 1);
+	pTiles[(151 - 1) * 4 + 1] = SwapLE16(11 - 1);
+	// pTiles[(151 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(151 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(152 - 1) * 4 + 0] = SwapLE16(64 - 1);
+	pTiles[(152 - 1) * 4 + 1] = SwapLE16(48 - 1);
+	// pTiles[(152 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(152 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(153 - 1) * 4 + 0] = SwapLE16(304 - 1);
+	pTiles[(153 - 1) * 4 + 1] = SwapLE16(298 - 1);
+	pTiles[(153 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(153 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(154 - 1) * 4 + 0] = SwapLE16(14 - 1);
+	pTiles[(154 - 1) * 4 + 1] = SwapLE16(15 - 1);
+	pTiles[(154 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(154 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(155 - 1) * 4 + 0] = SwapLE16(340 - 1);
+	pTiles[(155 - 1) * 4 + 1] = SwapLE16(323 - 1);
+	pTiles[(155 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(155 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(156 - 1) * 4 + 0] = SwapLE16(45 - 1);
+	pTiles[(156 - 1) * 4 + 1] = SwapLE16(46 - 1);
+	pTiles[(156 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	// pTiles[(156 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(157 - 1) * 4 + 0] = SwapLE16(62 - 1);
+	pTiles[(157 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(157 - 1) * 4 + 2] = SwapLE16(334 - 1);
+	pTiles[(157 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	// pTiles[(158 - 1) * 4 + 0] = SwapLE16(339 - 1);
+	pTiles[(158 - 1) * 4 + 1] = SwapLE16(323 - 1);
+	// pTiles[(158 - 1) * 4 + 2] = SwapLE16(3 - 1);
+	// pTiles[(158 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(159 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(159 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(159 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(159 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	// pTiles[(160 - 1) * 4 + 0] = SwapLE16(342 - 1);
+	pTiles[(160 - 1) * 4 + 1] = SwapLE16(323 - 1);
+	pTiles[(160 - 1) * 4 + 2] = SwapLE16(12 - 1);
+	// pTiles[(160 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	// pTiles[(161 - 1) * 4 + 0] = SwapLE16(343 - 1);
+	pTiles[(161 - 1) * 4 + 1] = SwapLE16(323 - 1);
+	pTiles[(161 - 1) * 4 + 2] = SwapLE16(58 - 1);
+	// pTiles[(161 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(164 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(164 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(164 - 1) * 4 + 2] = SwapLE16(313 - 1);
+	pTiles[(164 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(165 - 1) * 4 + 0] = SwapLE16(296 - 1);
+	pTiles[(165 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(165 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(165 - 1) * 4 + 3] = SwapLE16(344 - 1);
+	// - shadows for the banner setpiece
+	pTiles[(56 - 1) * 4 + 0] = SwapLE16(1 - 1);
+	pTiles[(56 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(56 - 1) * 4 + 2] = SwapLE16(3 - 1);
+	pTiles[(56 - 1) * 4 + 3] = SwapLE16(126 - 1);
+	pTiles[(55 - 1) * 4 + 0] = SwapLE16(1 - 1);
+	pTiles[(55 - 1) * 4 + 1] = SwapLE16(123 - 1);
+	pTiles[(55 - 1) * 4 + 2] = SwapLE16(3 - 1);
+	// pTiles[(55 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(54 - 1) * 4 + 0] = SwapLE16(338 - 1);
+	pTiles[(54 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(54 - 1) * 4 + 2] = SwapLE16(328 - 1);
+	pTiles[(54 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(53 - 1) * 4 + 0] = SwapLE16(337 - 1);
+	pTiles[(53 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(53 - 1) * 4 + 2] = SwapLE16(336 - 1);
+	pTiles[(53 - 1) * 4 + 3] = SwapLE16(344 - 1);
+	// - shadows for the vile setmap
+	pTiles[(52 - 1) * 4 + 0] = SwapLE16(5 - 1);
+	pTiles[(52 - 1) * 4 + 1] = SwapLE16(6 - 1);
+	pTiles[(52 - 1) * 4 + 2] = SwapLE16(313 - 1);
+	pTiles[(52 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(51 - 1) * 4 + 0] = SwapLE16(5 - 1);
+	pTiles[(51 - 1) * 4 + 1] = SwapLE16(6 - 1);
+	pTiles[(51 - 1) * 4 + 2] = SwapLE16(301 - 1);
+	pTiles[(51 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(50 - 1) * 4 + 0] = SwapLE16(1 - 1);
+	// pTiles[(50 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(50 - 1) * 4 + 2] = SwapLE16(320 - 1);
+	pTiles[(50 - 1) * 4 + 3] = SwapLE16(330 - 1);
+	pTiles[(49 - 1) * 4 + 0] = SwapLE16(335 - 1);
+	pTiles[(49 - 1) * 4 + 1] = SwapLE16(308 - 1);
+	pTiles[(49 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(49 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(48 - 1) * 4 + 0] = SwapLE16(21 - 1);
+	pTiles[(48 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(48 - 1) * 4 + 2] = SwapLE16(321 - 1);
+	pTiles[(48 - 1) * 4 + 3] = SwapLE16(330 - 1);
+	pTiles[(47 - 1) * 4 + 0] = SwapLE16(5 - 1);
+	pTiles[(47 - 1) * 4 + 1] = SwapLE16(6 - 1);
+	pTiles[(47 - 1) * 4 + 2] = SwapLE16(301 - 1);
+	pTiles[(47 - 1) * 4 + 3] = SwapLE16(330 - 1);
+	pTiles[(46 - 1) * 4 + 0] = SwapLE16(14 - 1);
+	pTiles[(46 - 1) * 4 + 1] = SwapLE16(15 - 1);
+	pTiles[(46 - 1) * 4 + 2] = SwapLE16(301 - 1);
+	pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	// eliminate subtiles of unused tiles
+	const int unusedTiles[] = {
+		28, 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 95, 96, 119, 120, 126, 127, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
+	};
+	constexpr int blankSubtile = 74;
+	for (int n = 0; n < lengthof(unusedTiles); n++) {
+		int tileId = unusedTiles[n];
+		pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
+	}
+}
+
 static BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE transparentPixel)
 {
 	// add optional {CEL FRAME HEADER}
@@ -6742,6 +6956,238 @@ static void patchCatacombsMin(BYTE *buf)
 	}
 }
 
+static void patchCatacombsTil(BYTE* buf)
+{
+	uint16_t *pTiles = (uint16_t*)buf;
+	// reuse subtiles
+	// unified columns
+	pTiles[(6 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 22
+	pTiles[(6 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 24
+	pTiles[(39 - 1) * 4 + 1] = SwapLE16(26 - 1); // 22
+	pTiles[(39 - 1) * 4 + 3] = SwapLE16(12 - 1); // 133
+	pTiles[(40 - 1) * 4 + 3] = SwapLE16(12 - 1); // 137
+	pTiles[(41 - 1) * 4 + 3] = SwapLE16(12 - 1); // 140
+	pTiles[(77 - 1) * 4 + 1] = SwapLE16(26 - 1); // 22
+	pTiles[(9 - 1) * 4 + 2] = SwapLE16(23 - 1);  // 35
+	pTiles[(50 - 1) * 4 + 3] = SwapLE16(12 - 1); // 165
+
+	// use common subtile
+	pTiles[(13 - 1) * 4 + 1] = SwapLE16(42 - 1); // 46
+	pTiles[(13 - 1) * 4 + 2] = SwapLE16(39 - 1); // 47
+	pTiles[(14 - 1) * 4 + 0] = SwapLE16(45 - 1); // 48
+	pTiles[(14 - 1) * 4 + 2] = SwapLE16(39 - 1); // 49
+	pTiles[(15 - 1) * 4 + 0] = SwapLE16(45 - 1); // 50
+	pTiles[(15 - 1) * 4 + 1] = SwapLE16(42 - 1); // 51
+	pTiles[(15 - 1) * 4 + 2] = SwapLE16(43 - 1); // 52
+	pTiles[(16 - 1) * 4 + 0] = SwapLE16(45 - 1); // 53
+	pTiles[(16 - 1) * 4 + 1] = SwapLE16(38 - 1); // 54
+	pTiles[(16 - 1) * 4 + 2] = SwapLE16(43 - 1); // 52
+	pTiles[(24 - 1) * 4 + 1] = SwapLE16(77 - 1); // 81
+	pTiles[(25 - 1) * 4 + 1] = SwapLE16(77 - 1);
+	pTiles[(27 - 1) * 4 + 2] = SwapLE16(78 - 1); // 92
+	pTiles[(40 - 1) * 4 + 2] = SwapLE16(23 - 1); // 136
+	pTiles[(41 - 1) * 4 + 1] = SwapLE16(135 - 1); // 139
+	// pTiles[(41 - 1) * 4 + 3] = SwapLE16(137 - 1); // 140
+	pTiles[(43 - 1) * 4 + 2] = SwapLE16(27 - 1); // 144
+	pTiles[(43 - 1) * 4 + 3] = SwapLE16(28 - 1); // 145
+	pTiles[(150 - 1) * 4 + 2] = SwapLE16(15 - 1); // 539
+	pTiles[(45 - 1) * 4 + 2] = SwapLE16(11 - 1); // 148
+	pTiles[(45 - 1) * 4 + 3] = SwapLE16(12 - 1); // 149
+	pTiles[(46 - 1) * 4 + 0] = SwapLE16(9 - 1); // 150
+	//pTiles[(47 - 1) * 4 + 0] = SwapLE16(9 - 1); // 153
+	//pTiles[(47 - 1) * 4 + 3] = SwapLE16(152 - 1); // 156
+	//pTiles[(48 - 1) * 4 + 2] = SwapLE16(155 - 1); // 157
+	//pTiles[(48 - 1) * 4 + 3] = SwapLE16(156 - 1); // 158
+	//pTiles[(49 - 1) * 4 + 0] = SwapLE16(9 - 1); // 159
+	//pTiles[(49 - 1) * 4 + 1] = SwapLE16(10 - 1); // 160
+	pTiles[(68 - 1) * 4 + 1] = SwapLE16(10 - 1); // 235
+	pTiles[(70 - 1) * 4 + 1] = SwapLE16(10 - 1); // 243
+	pTiles[(71 - 1) * 4 + 0] = SwapLE16(9 - 1); // 246
+	pTiles[(71 - 1) * 4 + 1] = SwapLE16(10 - 1); // 247
+	pTiles[(77 - 1) * 4 + 3] = SwapLE16(12 - 1); // 268
+	pTiles[(140 - 1) * 4 + 1] = SwapLE16(10 - 1); // 511
+	pTiles[(140 - 1) * 4 + 3] = SwapLE16(162 - 1); // 513
+	pTiles[(142 - 1) * 4 + 3] = SwapLE16(162 - 1); // 519
+
+	// use common subtiles instead of minor alterations
+	pTiles[(1 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 2
+	pTiles[(2 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 7
+	pTiles[(4 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 14
+	pTiles[(150 - 1) * 4 + 1] = SwapLE16(10 - 1);
+	// pTiles[(152 - 1) * 4 + 1] = SwapLE16(10 - 1);
+	pTiles[(5 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 19
+	pTiles[(151 - 1) * 4 + 2] = SwapLE16(11 - 1);
+	// pTiles[(153 - 1) * 4 + 2] = SwapLE16(11 - 1);
+	pTiles[(5 - 1) * 4 + 3] = SwapLE16(12 - 1); // 20
+	pTiles[(151 - 1) * 4 + 3] = SwapLE16(12 - 1);
+	// pTiles[(153 - 1) * 4 + 3] = SwapLE16(12 - 1);
+	pTiles[(21 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 70
+	pTiles[(21 - 1) * 4 + 3] = SwapLE16(12 - 1); // 71
+	pTiles[(31 - 1) * 4 + 3] = SwapLE16(12 - 1); // 106
+	pTiles[(32 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 109
+	pTiles[(32 - 1) * 4 + 3] = SwapLE16(12 - 1); // 110
+	pTiles[(42 - 1) * 4 + 3] = SwapLE16(12 - 1); // 142
+	pTiles[(8 - 1) * 4 + 2] = SwapLE16(15 - 1);  // 31
+	pTiles[(73 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 255
+	pTiles[(73 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 256
+	pTiles[(75 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 264
+	pTiles[(78 - 1) * 4 + 0] = SwapLE16(21 - 1); // 269
+	pTiles[(106 - 1) * 4 + 1] = SwapLE16(10 - 1); // 376
+	pTiles[(110 - 1) * 4 + 0] = SwapLE16(9 - 1); // 391
+	pTiles[(111 - 1) * 4 + 0] = SwapLE16(9 - 1); // 395
+	pTiles[(111 - 1) * 4 + 3] = SwapLE16(12 - 1); // 397
+	pTiles[(121 - 1) * 4 + 0] = SwapLE16(9 - 1); // 434
+	pTiles[(112 - 1) * 4 + 2] = SwapLE16(11 - 1); // 400
+	pTiles[(138 - 1) * 4 + 2] = SwapLE16(11 - 1); // 504
+	pTiles[(138 - 1) * 4 + 3] = SwapLE16(12 - 1); // 505
+	pTiles[(139 - 1) * 4 + 1] = SwapLE16(10 - 1); // 507
+	pTiles[(139 - 1) * 4 + 3] = SwapLE16(12 - 1); // 509
+	pTiles[(134 - 1) * 4 + 1] = SwapLE16(10 - 1); // 487
+	pTiles[(134 - 1) * 4 + 3] = SwapLE16(12 - 1); // 489
+	pTiles[(135 - 1) * 4 + 1] = SwapLE16(10 - 1); // 491
+	pTiles[(135 - 1) * 4 + 3] = SwapLE16(12 - 1); // 493
+	pTiles[(51 - 1) * 4 + 2] = SwapLE16(155 - 1); // 168
+	pTiles[(141 - 1) * 4 + 2] = SwapLE16(155 - 1); // 516
+	pTiles[(141 - 1) * 4 + 3] = SwapLE16(169 - 1); // 517
+	pTiles[(142 - 1) * 4 + 2] = SwapLE16(155 - 1); // 518
+
+	// - reduce pointless bone-chamber complexity II.
+	// -- bones
+	pTiles[(54 - 1) * 4 + 1] = SwapLE16(181 - 1); // '179'
+	pTiles[(54 - 1) * 4 + 3] = SwapLE16(185 - 1); // '181'
+	pTiles[(53 - 1) * 4 + 1] = SwapLE16(179 - 1); // '175'
+	pTiles[(53 - 1) * 4 + 3] = SwapLE16(189 - 1); // '177'
+	pTiles[(56 - 1) * 4 + 2] = SwapLE16(179 - 1); // '188'
+	pTiles[(56 - 1) * 4 + 3] = SwapLE16(181 - 1); // '189'
+	pTiles[(57 - 1) * 4 + 2] = SwapLE16(177 - 1); // 192
+	pTiles[(57 - 1) * 4 + 3] = SwapLE16(179 - 1); // 193
+
+	pTiles[(59 - 1) * 4 + 0] = SwapLE16(177 - 1); // 198
+	pTiles[(59 - 1) * 4 + 1] = SwapLE16(185 - 1); // 199
+	pTiles[(59 - 1) * 4 + 2] = SwapLE16(199 - 1); // 200
+	pTiles[(59 - 1) * 4 + 3] = SwapLE16(185 - 1); // 201
+
+	pTiles[(60 - 1) * 4 + 0] = SwapLE16(188 - 1); // 202
+	pTiles[(60 - 1) * 4 + 1] = SwapLE16(185 - 1); // 203
+	pTiles[(60 - 1) * 4 + 2] = SwapLE16(185 - 1); // 204
+	pTiles[(60 - 1) * 4 + 3] = SwapLE16(189 - 1); // 205
+
+	pTiles[(62 - 1) * 4 + 0] = SwapLE16(175 - 1); // 210
+	pTiles[(62 - 1) * 4 + 1] = SwapLE16(199 - 1); // 211
+	pTiles[(62 - 1) * 4 + 2] = SwapLE16(179 - 1); // 212
+	pTiles[(62 - 1) * 4 + 3] = SwapLE16(177 - 1); // 213
+
+	pTiles[(63 - 1) * 4 + 0] = SwapLE16(189 - 1); // 214
+	pTiles[(63 - 1) * 4 + 1] = SwapLE16(177 - 1); // 215
+	pTiles[(63 - 1) * 4 + 2] = SwapLE16(185 - 1); // 216
+	pTiles[(63 - 1) * 4 + 3] = SwapLE16(189 - 1); // 217
+	// -- flat floor
+	pTiles[(92 - 1) * 4 + 3] = SwapLE16(332 - 1); // 326
+	pTiles[(94 - 1) * 4 + 2] = SwapLE16(323 - 1); // 333
+	pTiles[(94 - 1) * 4 + 3] = SwapLE16(324 - 1); // 334
+	pTiles[(97 - 1) * 4 + 0] = SwapLE16(324 - 1); // 339
+	pTiles[(97 - 1) * 4 + 1] = SwapLE16(323 - 1); // 340
+	pTiles[(97 - 1) * 4 + 2] = SwapLE16(332 - 1); // 341
+	pTiles[(99 - 1) * 4 + 0] = SwapLE16(332 - 1); // 347
+	pTiles[(99 - 1) * 4 + 2] = SwapLE16(324 - 1); // 349
+	pTiles[(99 - 1) * 4 + 3] = SwapLE16(323 - 1); // 350
+	// create the new shadows
+	// - horizontal door for a pillar
+	pTiles[(17 - 1) * 4 + 0] = SwapLE16(540 - 1); // TODO: use 17 and update DRLG_L2DoorSubs?
+	pTiles[(17 - 1) * 4 + 1] = SwapLE16(18 - 1);
+	pTiles[(17 - 1) * 4 + 2] = SwapLE16(155 - 1);
+	pTiles[(17 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - horizontal hallway for a pillar
+	pTiles[(18 - 1) * 4 + 0] = SwapLE16(553 - 1);
+	pTiles[(18 - 1) * 4 + 1] = SwapLE16(99 - 1);
+	pTiles[(18 - 1) * 4 + 2] = SwapLE16(155 - 1);
+	pTiles[(18 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - pillar tile for a pillar
+	pTiles[(34 - 1) * 4 + 0] = SwapLE16(21 - 1);
+	pTiles[(34 - 1) * 4 + 1] = SwapLE16(26 - 1);
+	pTiles[(34 - 1) * 4 + 2] = SwapLE16(148 - 1);
+	pTiles[(34 - 1) * 4 + 3] = SwapLE16(169 - 1);
+	// - vertical wall end for a horizontal arch
+	pTiles[(35 - 1) * 4 + 0] = SwapLE16(25 - 1);
+	pTiles[(35 - 1) * 4 + 1] = SwapLE16(26 - 1);
+	pTiles[(35 - 1) * 4 + 2] = SwapLE16(512 - 1);
+	pTiles[(35 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - horizontal wall end for a pillar
+	pTiles[(36 - 1) * 4 + 0] = SwapLE16(33 - 1);
+	pTiles[(36 - 1) * 4 + 1] = SwapLE16(34 - 1);
+	pTiles[(36 - 1) * 4 + 2] = SwapLE16(148 - 1);
+	pTiles[(36 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - horizontal wall end for a horizontal arch
+	pTiles[(37 - 1) * 4 + 0] = SwapLE16(268 - 1);
+	pTiles[(37 - 1) * 4 + 1] = SwapLE16(515 - 1);
+	pTiles[(37 - 1) * 4 + 2] = SwapLE16(148 - 1);
+	pTiles[(37 - 1) * 4 + 3] = SwapLE16(169 - 1);
+	// - floor tile with vertical arch
+	pTiles[(44 - 1) * 4 + 0] = SwapLE16(150 - 1);
+	pTiles[(44 - 1) * 4 + 1] = SwapLE16(10 - 1);
+	pTiles[(44 - 1) * 4 + 2] = SwapLE16(153 - 1);
+	pTiles[(44 - 1) * 4 + 3] = SwapLE16(12 - 1);
+	// - floor tile with shadow of a vertical arch + horizontal arch
+	pTiles[(46 - 1) * 4 + 0] = SwapLE16(9 - 1);   // 150
+	pTiles[(46 - 1) * 4 + 1] = SwapLE16(154 - 1);
+	pTiles[(46 - 1) * 4 + 2] = SwapLE16(161 - 1); // '151'
+	pTiles[(46 - 1) * 4 + 3] = SwapLE16(162 - 1); // 152
+	// - floor tile with shadow of a pillar + vertical arch
+	pTiles[(47 - 1) * 4 + 0] = SwapLE16(9 - 1);   // 153
+	// pTiles[(47 - 1) * 4 + 1] = SwapLE16(154 - 1);
+	// pTiles[(47 - 1) * 4 + 2] = SwapLE16(155 - 1);
+	pTiles[(47 - 1) * 4 + 3] = SwapLE16(162 - 1); // 156
+	// - floor tile with shadow of a pillar
+	// pTiles[(48 - 1) * 4 + 0] = SwapLE16(9 - 1);
+	// pTiles[(48 - 1) * 4 + 1] = SwapLE16(10 - 1);
+	pTiles[(48 - 1) * 4 + 2] = SwapLE16(155 - 1); // 157
+	pTiles[(48 - 1) * 4 + 3] = SwapLE16(162 - 1); // 158
+	// - floor tile with shadow of a horizontal arch
+	pTiles[(49 - 1) * 4 + 0] = SwapLE16(9 - 1);   // 159
+	pTiles[(49 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 160
+	// pTiles[(49 - 1) * 4 + 2] = SwapLE16(161 - 1);
+	// pTiles[(49 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - floor tile with shadow(45) with vertical arch
+	pTiles[(95 - 1) * 4 + 0] = SwapLE16(158 - 1);
+	pTiles[(95 - 1) * 4 + 1] = SwapLE16(165 - 1);
+	pTiles[(95 - 1) * 4 + 2] = SwapLE16(155 - 1);
+	pTiles[(95 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - floor tile with shadow(49) with vertical arch
+	pTiles[(96 - 1) * 4 + 0] = SwapLE16(150 - 1);
+	pTiles[(96 - 1) * 4 + 1] = SwapLE16(10 - 1);
+	pTiles[(96 - 1) * 4 + 2] = SwapLE16(156 - 1);
+	pTiles[(96 - 1) * 4 + 3] = SwapLE16(162 - 1);
+	// - floor tile with shadow(51) with horizontal arch
+	pTiles[(100 - 1) * 4 + 0] = SwapLE16(158 - 1);
+	pTiles[(100 - 1) * 4 + 1] = SwapLE16(165 - 1);
+	pTiles[(100 - 1) * 4 + 2] = SwapLE16(155 - 1);
+	pTiles[(100 - 1) * 4 + 3] = SwapLE16(169 - 1);
+	// fix graphical glitch
+	pTiles[(157 - 1) * 4 + 1] = SwapLE16(99 - 1); // 548
+	// fix the upstairs II.
+	pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1); // 10 make the back of the stairs non-walkable
+	pTiles[(72 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 250
+	pTiles[(72 - 1) * 4 + 2] = SwapLE16(11 - 1); // 251
+	pTiles[(76 - 1) * 4 + 1] = SwapLE16(10 - 1); // 265
+	// pTiles[(158 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 250
+	// pTiles[(158 - 1) * 4 + 1] = SwapLE16(56 - 1); // 10 make the back of the stairs non-walkable
+	// pTiles[(158 - 1) * 4 + 2] = SwapLE16(11 - 1); // 554
+	// pTiles[(159 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 555
+	// pTiles[(159 - 1) * 4 + 1] = SwapLE16(10 - 1); // 556
+	// pTiles[(159 - 1) * 4 + 2] = SwapLE16(11 - 1); // 557
+	// eliminate subtiles of unused tiles
+	const int unusedTiles[] = {
+		52, 58, 61, 64, 65, 66, 67, 76, 93, 98, 101, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
+	};
+	constexpr int blankSubtile = 2;
+	for (int n = 0; n < lengthof(unusedTiles); n++) {
+		int tileId = unusedTiles[n];
+		pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
+	}
+}
 
 #ifdef HELLFIRE
 static void patchCryptMin(BYTE *buf)
@@ -8559,6 +9005,289 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 
 	return resCelBuf;
 }
+
+static void patchCryptTil(BYTE* buf)
+{
+	uint16_t *pTiles = (uint16_t*)buf;
+	// fix automap of the entrance I.
+	pTiles[4 * (52 - 1) + 0] = SwapLE16(73 - 1); // 45 - copy from 23
+	pTiles[4 * (52 - 1) + 1] = SwapLE16(64 - 1); // 46
+	pTiles[4 * (52 - 1) + 2] = SwapLE16(65 - 1); // 148
+	pTiles[4 * (52 - 1) + 3] = SwapLE16(66 - 1); // 48
+	pTiles[4 * (58 - 1) + 0] = SwapLE16(63 - 1); // 166 - copy from 18
+	pTiles[4 * (58 - 1) + 1] = SwapLE16(64 - 1); // 167
+	pTiles[4 * (58 - 1) + 2] = SwapLE16(65 - 1); // 47
+	pTiles[4 * (58 - 1) + 3] = SwapLE16(66 - 1); // 48
+	pTiles[4 * (53 - 1) + 1] = SwapLE16(148 - 1); // 130
+	pTiles[4 * (53 - 1) + 3] = SwapLE16(148 - 1); // 130
+	// use common subtiles of doors
+	pTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
+	pTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
+	// use common subtiles
+	pTiles[4 * (4 - 1) + 1] = SwapLE16(6 - 1); // 14
+	pTiles[4 * (14 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (115 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (132 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (1 - 1) + 2] = SwapLE16(15 - 1); // 3
+	pTiles[4 * (27 - 1) + 2] = SwapLE16(15 - 1);
+	pTiles[4 * (43 - 1) + 2] = SwapLE16(15 - 1);
+	pTiles[4 * (79 - 1) + 2] = SwapLE16(15 - 1);
+	pTiles[4 * (6 - 1) + 2] = SwapLE16(15 - 1);  // 23
+	pTiles[4 * (127 - 1) + 2] = SwapLE16(4 - 1); // 372
+	pTiles[4 * (132 - 1) + 2] = SwapLE16(15 - 1); // 388
+	pTiles[4 * (156 - 1) + 2] = SwapLE16(31 - 1); // 468
+	// use better subtiles
+	// - increase glow
+	pTiles[4 * (96 - 1) + 3] = SwapLE16(293 - 1); // 279
+	pTiles[4 * (187 - 1) + 3] = SwapLE16(293 - 1);
+	pTiles[4 * (188 - 1) + 3] = SwapLE16(293 - 1);
+	pTiles[4 * (90 - 1) + 1] = SwapLE16(297 - 1); // 253
+	pTiles[4 * (175 - 1) + 1] = SwapLE16(297 - 1);
+	// - reduce glow
+	pTiles[4 * (162 - 1) + 1] = SwapLE16(297 - 1); // 489
+	pTiles[4 * (162 - 1) + 2] = SwapLE16(266 - 1); // 490
+	// create the new shadows
+	// - use the shadows created by fixCryptShadows
+	pTiles[4 * (203 - 1) + 0] = SwapLE16(638 - 1); // 619
+	pTiles[4 * (203 - 1) + 1] = SwapLE16(639 - 1); // 620
+	pTiles[4 * (203 - 1) + 2] = SwapLE16(623 - 1); // 47
+	pTiles[4 * (203 - 1) + 3] = SwapLE16(627 - 1); // 621
+	pTiles[4 * (204 - 1) + 0] = SwapLE16(638 - 1); // 622
+	pTiles[4 * (204 - 1) + 1] = SwapLE16(639 - 1); // 46
+	pTiles[4 * (204 - 1) + 2] = SwapLE16(636 - 1); // 623
+	pTiles[4 * (204 - 1) + 3] = SwapLE16(627 - 1); // 624
+	pTiles[4 * (108 - 1) + 2] = SwapLE16(631 - 1); // 810
+	pTiles[4 * (108 - 1) + 3] = SwapLE16(626 - 1); // 811
+	pTiles[4 * (210 - 1) + 3] = SwapLE16(371 - 1); // 637
+
+	pTiles[4 * (109 - 1) + 0] = SwapLE16(1 - 1);   // 312
+	pTiles[4 * (109 - 1) + 1] = SwapLE16(2 - 1);   // 313
+	pTiles[4 * (109 - 1) + 2] = SwapLE16(3 - 1);   // 314
+	pTiles[4 * (109 - 1) + 3] = SwapLE16(627 - 1); // 315
+	pTiles[4 * (110 - 1) + 0] = SwapLE16(21 - 1);  // 316
+	pTiles[4 * (110 - 1) + 1] = SwapLE16(22 - 1);  // 313
+	pTiles[4 * (110 - 1) + 2] = SwapLE16(3 - 1);   // 314
+	pTiles[4 * (110 - 1) + 3] = SwapLE16(627 - 1); // 315
+	pTiles[4 * (111 - 1) + 0] = SwapLE16(39 - 1);  // 317
+	pTiles[4 * (111 - 1) + 1] = SwapLE16(4 - 1);   // 318
+	pTiles[4 * (111 - 1) + 2] = SwapLE16(242 - 1); // 319
+	pTiles[4 * (111 - 1) + 3] = SwapLE16(627 - 1); // 320
+	pTiles[4 * (215 - 1) + 0] = SwapLE16(101 - 1); // 645
+	pTiles[4 * (215 - 1) + 1] = SwapLE16(4 - 1);   // 646
+	pTiles[4 * (215 - 1) + 2] = SwapLE16(178 - 1); // 45
+	pTiles[4 * (215 - 1) + 3] = SwapLE16(627 - 1); // 647
+	// - 'add' new shadow-types with glow TODO: add wall/grate+glow
+	pTiles[4 * (216 - 1) + 0] = SwapLE16(39 - 1);  // 622
+	pTiles[4 * (216 - 1) + 1] = SwapLE16(4 - 1);   // 46
+	pTiles[4 * (216 - 1) + 2] = SwapLE16(238 - 1); // 648
+	pTiles[4 * (216 - 1) + 3] = SwapLE16(635 - 1); // 624
+	pTiles[4 * (217 - 1) + 0] = SwapLE16(638 - 1); // 625
+	pTiles[4 * (217 - 1) + 1] = SwapLE16(639 - 1); // 46
+	pTiles[4 * (217 - 1) + 2] = SwapLE16(634 - 1); // 649 TODO: could be better
+	pTiles[4 * (217 - 1) + 3] = SwapLE16(635 - 1); // 650
+	// - 'add' new shadow-types with horizontal arches
+	pTiles[4 * (71 - 1) + 0] = SwapLE16(5 - 1); // copy from tile 2
+	pTiles[4 * (71 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (71 - 1) + 2] = SwapLE16(631 - 1);
+	pTiles[4 * (71 - 1) + 3] = SwapLE16(627 - 1);
+	pTiles[4 * (80 - 1) + 0] = SwapLE16(5 - 1); // copy from tile 2
+	pTiles[4 * (80 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (80 - 1) + 2] = SwapLE16(623 - 1);
+	pTiles[4 * (80 - 1) + 3] = SwapLE16(627 - 1);
+
+	pTiles[4 * (81 - 1) + 0] = SwapLE16(42 - 1); // copy from tile 12
+	pTiles[4 * (81 - 1) + 1] = SwapLE16(34 - 1);
+	pTiles[4 * (81 - 1) + 2] = SwapLE16(631 - 1);
+	pTiles[4 * (81 - 1) + 3] = SwapLE16(627 - 1);
+	pTiles[4 * (82 - 1) + 0] = SwapLE16(42 - 1); // copy from tile 12
+	pTiles[4 * (82 - 1) + 1] = SwapLE16(34 - 1);
+	pTiles[4 * (82 - 1) + 2] = SwapLE16(623 - 1);
+	pTiles[4 * (82 - 1) + 3] = SwapLE16(627 - 1);
+
+	pTiles[4 * (83 - 1) + 0] = SwapLE16(104 - 1); // copy from tile 36
+	pTiles[4 * (83 - 1) + 1] = SwapLE16(84 - 1);
+	pTiles[4 * (83 - 1) + 2] = SwapLE16(631 - 1);
+	pTiles[4 * (83 - 1) + 3] = SwapLE16(627 - 1);
+	pTiles[4 * (84 - 1) + 0] = SwapLE16(104 - 1); // copy from tile 36
+	pTiles[4 * (84 - 1) + 1] = SwapLE16(84 - 1);
+	pTiles[4 * (84 - 1) + 2] = SwapLE16(623 - 1);
+	pTiles[4 * (84 - 1) + 3] = SwapLE16(627 - 1);
+
+	pTiles[4 * (85 - 1) + 0] = SwapLE16(25 - 1); // copy from tile 7
+	pTiles[4 * (85 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (85 - 1) + 2] = SwapLE16(631 - 1);
+	pTiles[4 * (85 - 1) + 3] = SwapLE16(627 - 1);
+	pTiles[4 * (86 - 1) + 0] = SwapLE16(25 - 1); // copy from tile 7
+	pTiles[4 * (86 - 1) + 1] = SwapLE16(6 - 1);
+	pTiles[4 * (86 - 1) + 2] = SwapLE16(623 - 1);
+	pTiles[4 * (86 - 1) + 3] = SwapLE16(627 - 1);
+
+	pTiles[4 * (87 - 1) + 0] = SwapLE16(79 - 1); // copy from tile 26
+	pTiles[4 * (87 - 1) + 1] = SwapLE16(80 - 1);
+	pTiles[4 * (87 - 1) + 2] = SwapLE16(623 - 1);
+	pTiles[4 * (87 - 1) + 3] = SwapLE16(627 - 1);
+	pTiles[4 * (88 - 1) + 0] = SwapLE16(79 - 1); // copy from tile 26
+	pTiles[4 * (88 - 1) + 1] = SwapLE16(80 - 1);
+	pTiles[4 * (88 - 1) + 2] = SwapLE16(631 - 1);
+	pTiles[4 * (88 - 1) + 3] = SwapLE16(627 - 1);
+
+	// use common subtiles instead of minor alterations
+	pTiles[4 * (7 - 1) + 1] = SwapLE16(6 - 1); // 26
+	pTiles[4 * (159 - 1) + 1] = SwapLE16(6 - 1); // 479
+	pTiles[4 * (133 - 1) + 2] = SwapLE16(31 - 1); // 390
+	pTiles[4 * (10 - 1) + 1] = SwapLE16(18 - 1); // 37
+	pTiles[4 * (138 - 1) + 1] = SwapLE16(18 - 1);
+	pTiles[4 * (188 - 1) + 1] = SwapLE16(277 - 1); // 564
+	pTiles[4 * (178 - 1) + 2] = SwapLE16(258 - 1); // 543
+	pTiles[4 * (5 - 1) + 2] = SwapLE16(31 - 1); // 19
+	pTiles[4 * (14 - 1) + 2] = SwapLE16(31 - 1);
+	pTiles[4 * (159 - 1) + 2] = SwapLE16(31 - 1);
+	pTiles[4 * (185 - 1) + 2] = SwapLE16(274 - 1); // 558
+	pTiles[4 * (186 - 1) + 2] = SwapLE16(274 - 1); // 560
+	pTiles[4 * (139 - 1) + 0] = SwapLE16(39 - 1); // 402
+
+	pTiles[4 * (2 - 1) + 3] = SwapLE16(4 - 1); // 8
+	pTiles[4 * (3 - 1) + 1] = SwapLE16(60 - 1); // 10
+	pTiles[4 * (114 - 1) + 1] = SwapLE16(32 - 1);
+	pTiles[4 * (3 - 1) + 2] = SwapLE16(4 - 1); // 11
+	pTiles[4 * (114 - 1) + 2] = SwapLE16(4 - 1);
+	pTiles[4 * (5 - 1) + 3] = SwapLE16(7 - 1); // 20
+	pTiles[4 * (14 - 1) + 3] = SwapLE16(4 - 1);
+	pTiles[4 * (133 - 1) + 3] = SwapLE16(4 - 1);
+	pTiles[4 * (125 - 1) + 3] = SwapLE16(7 - 1); // 50
+	pTiles[4 * (159 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (4 - 1) + 3] = SwapLE16(7 - 1); // 16
+	pTiles[4 * (132 - 1) + 3] = SwapLE16(4 - 1);
+	pTiles[4 * (10 - 1) + 3] = SwapLE16(7 - 1); // 38
+	pTiles[4 * (138 - 1) + 3] = SwapLE16(4 - 1);
+	pTiles[4 * (121 - 1) + 3] = SwapLE16(4 - 1); // 354
+	pTiles[4 * (8 - 1) + 3] = SwapLE16(4 - 1); // 32
+	pTiles[4 * (136 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (91 - 1) + 1] = SwapLE16(47 - 1); // 257
+	pTiles[4 * (178 - 1) + 1] = SwapLE16(47 - 1);
+	pTiles[4 * (91 - 1) + 3] = SwapLE16(48 - 1); // 259
+	pTiles[4 * (177 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (178 - 1) + 3] = SwapLE16(48 - 1);
+	pTiles[4 * (130 - 1) + 2] = SwapLE16(395 - 1); // 381
+	pTiles[4 * (157 - 1) + 2] = SwapLE16(4 - 1);   // 472
+	pTiles[4 * (177 - 1) + 1] = SwapLE16(4 - 1);   // 540
+	pTiles[4 * (211 - 1) + 3] = SwapLE16(48 - 1);  // 621
+	pTiles[4 * (205 - 1) + 0] = SwapLE16(45 - 1);  // 625
+	pTiles[4 * (207 - 1) + 0] = SwapLE16(45 - 1);  // 630
+	pTiles[4 * (207 - 1) + 3] = SwapLE16(627 - 1); // 632
+	pTiles[4 * (208 - 1) + 0] = SwapLE16(45 - 1);  // 633
+
+	pTiles[4 * (27 - 1) + 3] = SwapLE16(4 - 1); // 85
+	// pTiles[4 * (28 - 1) + 3] = SwapLE16(4 - 1); // 87
+	pTiles[4 * (29 - 1) + 3] = SwapLE16(4 - 1); // 90
+	pTiles[4 * (30 - 1) + 3] = SwapLE16(4 - 1); // 92
+	pTiles[4 * (31 - 1) + 3] = SwapLE16(4 - 1); // 94
+	pTiles[4 * (32 - 1) + 3] = SwapLE16(4 - 1); // 96
+	pTiles[4 * (33 - 1) + 3] = SwapLE16(4 - 1); // 98
+	pTiles[4 * (34 - 1) + 3] = SwapLE16(4 - 1); // 100
+	pTiles[4 * (37 - 1) + 3] = SwapLE16(4 - 1); // 108
+	pTiles[4 * (38 - 1) + 3] = SwapLE16(4 - 1); // 110
+	pTiles[4 * (39 - 1) + 3] = SwapLE16(4 - 1); // 112
+	pTiles[4 * (40 - 1) + 3] = SwapLE16(4 - 1); // 114
+	pTiles[4 * (41 - 1) + 3] = SwapLE16(4 - 1); // 116
+	pTiles[4 * (42 - 1) + 3] = SwapLE16(4 - 1); // 118
+	pTiles[4 * (43 - 1) + 3] = SwapLE16(4 - 1); // 120
+	pTiles[4 * (44 - 1) + 3] = SwapLE16(4 - 1); // 122
+	pTiles[4 * (45 - 1) + 3] = SwapLE16(4 - 1); // 124
+	// pTiles[4 * (71 - 1) + 3] = SwapLE16(4 - 1); // 214
+	pTiles[4 * (72 - 1) + 3] = SwapLE16(4 - 1); // 217
+	pTiles[4 * (73 - 1) + 3] = SwapLE16(4 - 1); // 219
+	pTiles[4 * (74 - 1) + 3] = SwapLE16(4 - 1); // 221
+	pTiles[4 * (75 - 1) + 3] = SwapLE16(4 - 1); // 223
+	pTiles[4 * (76 - 1) + 3] = SwapLE16(4 - 1); // 225
+	pTiles[4 * (77 - 1) + 3] = SwapLE16(4 - 1); // 227
+	pTiles[4 * (78 - 1) + 3] = SwapLE16(4 - 1); // 229
+	pTiles[4 * (79 - 1) + 3] = SwapLE16(4 - 1); // 231
+	// pTiles[4 * (80 - 1) + 3] = SwapLE16(4 - 1); // 233
+	// pTiles[4 * (81 - 1) + 3] = SwapLE16(4 - 1); // 235
+	pTiles[4 * (15 - 1) + 1] = SwapLE16(4 - 1); // 52
+	pTiles[4 * (15 - 1) + 2] = SwapLE16(4 - 1); // 53
+	pTiles[4 * (15 - 1) + 3] = SwapLE16(4 - 1); // 54
+	pTiles[4 * (16 - 1) + 1] = SwapLE16(4 - 1); // 56
+	pTiles[4 * (144 - 1) + 1] = SwapLE16(4 - 1);
+	pTiles[4 * (16 - 1) + 2] = SwapLE16(4 - 1); // 57
+	pTiles[4 * (16 - 1) + 3] = SwapLE16(4 - 1); // 58
+	pTiles[4 * (144 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (94 - 1) + 2] = SwapLE16(60 - 1); // 270
+	pTiles[4 * (183 - 1) + 2] = SwapLE16(60 - 1);
+	pTiles[4 * (184 - 1) + 2] = SwapLE16(60 - 1);
+	pTiles[4 * (17 - 1) + 2] = SwapLE16(4 - 1); // 61
+	pTiles[4 * (128 - 1) + 2] = SwapLE16(4 - 1);
+	pTiles[4 * (92 - 1) + 2] = SwapLE16(62 - 1); // 262
+	pTiles[4 * (179 - 1) + 2] = SwapLE16(62 - 1);
+	pTiles[4 * (25 - 1) + 1] = SwapLE16(4 - 1); // 76
+	pTiles[4 * (25 - 1) + 3] = SwapLE16(4 - 1); // 78
+	pTiles[4 * (35 - 1) + 1] = SwapLE16(4 - 1); // 102
+	pTiles[4 * (35 - 1) + 3] = SwapLE16(4 - 1); // 103
+	pTiles[4 * (69 - 1) + 1] = SwapLE16(4 - 1); // 205
+	pTiles[4 * (69 - 1) + 3] = SwapLE16(4 - 1); // 207
+	pTiles[4 * (26 - 1) + 2] = SwapLE16(4 - 1); // 81
+	pTiles[4 * (26 - 1) + 3] = SwapLE16(4 - 1); // 82
+	pTiles[4 * (36 - 1) + 2] = SwapLE16(4 - 1); // 105
+	pTiles[4 * (36 - 1) + 3] = SwapLE16(4 - 1); // 106
+	pTiles[4 * (46 - 1) + 2] = SwapLE16(4 - 1); // 127
+	pTiles[4 * (46 - 1) + 3] = SwapLE16(4 - 1); // 128
+	pTiles[4 * (70 - 1) + 2] = SwapLE16(4 - 1); // 210
+	pTiles[4 * (70 - 1) + 3] = SwapLE16(4 - 1); // 211
+	pTiles[4 * (49 - 1) + 1] = SwapLE16(4 - 1); // 137
+	pTiles[4 * (167 - 1) + 1] = SwapLE16(4 - 1);
+	pTiles[4 * (49 - 1) + 2] = SwapLE16(4 - 1); // 138
+	pTiles[4 * (167 - 1) + 2] = SwapLE16(4 - 1);
+	pTiles[4 * (49 - 1) + 3] = SwapLE16(4 - 1); // 139
+	pTiles[4 * (167 - 1) + 3] = SwapLE16(4 - 1);
+	pTiles[4 * (50 - 1) + 1] = SwapLE16(4 - 1); // 141
+	pTiles[4 * (50 - 1) + 3] = SwapLE16(4 - 1); // 143
+	pTiles[4 * (51 - 1) + 3] = SwapLE16(4 - 1); // 147
+	pTiles[4 * (103 - 1) + 1] = SwapLE16(4 - 1); // 295
+	pTiles[4 * (105 - 1) + 1] = SwapLE16(4 - 1);
+	pTiles[4 * (127 - 1) + 3] = SwapLE16(4 - 1); // 373
+	pTiles[4 * (89 - 1) + 3] = SwapLE16(4 - 1); // 251
+	pTiles[4 * (173 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (174 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (6 - 1) + 3] = SwapLE16(4 - 1); // 24
+	pTiles[4 * (134 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (7 - 1) + 3] = SwapLE16(7 - 1); // 28
+	pTiles[4 * (8 - 1) + 1] = SwapLE16(2 - 1); // 30
+	pTiles[4 * (30 - 1) + 1] = SwapLE16(2 - 1);
+	pTiles[4 * (32 - 1) + 1] = SwapLE16(2 - 1);
+	pTiles[4 * (72 - 1) + 1] = SwapLE16(2 - 1);
+	pTiles[4 * (9 - 1) + 3] = SwapLE16(4 - 1); // 35
+	pTiles[4 * (137 - 1) + 3] = SwapLE16(4 - 1);
+	pTiles[4 * (11 - 1) + 1] = SwapLE16(4 - 1); // 40
+	pTiles[4 * (122 - 1) + 1] = SwapLE16(4 - 1);
+	pTiles[4 * (12 - 1) + 2] = SwapLE16(4 - 1); // 43
+	pTiles[4 * (123 - 1) + 2] = SwapLE16(4 - 1);
+	pTiles[4 * (12 - 1) + 3] = SwapLE16(4 - 1); // 44
+	pTiles[4 * (123 - 1) + 3] = SwapLE16(7 - 1);
+	pTiles[4 * (95 - 1) + 1] = SwapLE16(4 - 1); // 273
+	pTiles[4 * (185 - 1) + 1] = SwapLE16(7 - 1);
+	pTiles[4 * (186 - 1) + 1] = SwapLE16(4 - 1);
+	pTiles[4 * (89 - 1) + 1] = SwapLE16(293 - 1); // 249
+	pTiles[4 * (173 - 1) + 1] = SwapLE16(293 - 1);
+	pTiles[4 * (174 - 1) + 1] = SwapLE16(293 - 1);
+	pTiles[4 * (92 - 1) + 3] = SwapLE16(271 - 1); // 263
+	pTiles[4 * (179 - 1) + 3] = SwapLE16(271 - 1);
+	pTiles[4 * (96 - 1) + 2] = SwapLE16(12 - 1); // 278
+	pTiles[4 * (187 - 1) + 2] = SwapLE16(12 - 1);
+	pTiles[4 * (188 - 1) + 2] = SwapLE16(12 - 1);
+	// eliminate subtiles of unused tiles
+	const int unusedTiles[] = {
+		28,/* 29,*/ 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 43, 44, */ 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 79, 212, 213, 214
+	};
+	constexpr int blankSubtile = 8;
+	for (int n = 0; n < lengthof(unusedTiles); n++) {
+		int tileId = unusedTiles[n];
+		pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
+	}
+}
 #endif // HELLFIRE
 
 static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int exitTileIndex)
@@ -9291,221 +10020,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #endif /* ASSET_MPL == 1 */
 	case FILE_CATHEDRAL_TIL:
 	{	// patch dMegaTiles - L1.TIL
-		uint16_t *pTiles = (uint16_t*)buf;
 		if (*dwLen < 206 * 4 * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		// reuse subtiles
-		pTiles[(43 - 1) * 4 + 2] = SwapLE16(3 - 1);
-		pTiles[(61 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(62 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(73 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(74 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(75 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(77 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(129 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(136 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(105 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(137 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(130 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(133 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(58 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(60 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(103 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(186 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(128 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(134 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(136 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		// pTiles[(42 - 1) * 4 + 2] = SwapLE16(12 - 1);
-		pTiles[(44 - 1) * 4 + 2] = SwapLE16(12 - 1);
-		// pTiles[(159 - 1) * 4 + 2] = SwapLE16(12 - 1);
-		pTiles[(9 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(59 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(60 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(62 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(128 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(129 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(136 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(9 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(58 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(59 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(60 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(74 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(76 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(97 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(130 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(137 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(193 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		// create the new shadows
-		// - use the shadows created by fixCathedralShadows
-		pTiles[(131 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(131 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(131 - 1) * 4 + 2] = SwapLE16(301 - 1);
-		pTiles[(131 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		pTiles[(132 - 1) * 4 + 0] = SwapLE16(296 - 1);
-		pTiles[(132 - 1) * 4 + 1] = SwapLE16(297 - 1);
-		pTiles[(132 - 1) * 4 + 2] = SwapLE16(310 - 1);
-		pTiles[(132 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		// pTiles[(139 - 1) * 4 + 0] = SwapLE16(296 - 1);
-		// pTiles[(139 - 1) * 4 + 1] = SwapLE16(297 - 1);
-		pTiles[(139 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		// pTiles[(139 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(140 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		// pTiles[(140 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		// pTiles[(140 - 1) * 4 + 2] = SwapLE16(301 - 1);
-		pTiles[(140 - 1) * 4 + 3] = SwapLE16(330 - 1);
-		pTiles[(141 - 1) * 4 + 0] = SwapLE16(296 - 1);
-		pTiles[(141 - 1) * 4 + 1] = SwapLE16(297 - 1);
-		pTiles[(141 - 1) * 4 + 2] = SwapLE16(310 - 1);
-		pTiles[(141 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		// pTiles[(142 - 1) * 4 + 0] = SwapLE16(307 - 1);
-		// pTiles[(142 - 1) * 4 + 1] = SwapLE16(308 - 1);
-		// pTiles[(142 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		// pTiles[(142 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(143 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		// pTiles[(143 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(143 - 1) * 4 + 2] = SwapLE16(313 - 1);
-		pTiles[(143 - 1) * 4 + 3] = SwapLE16(330 - 1);
-		pTiles[(144 - 1) * 4 + 0] = SwapLE16(315 - 1);
-		// pTiles[(144 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(144 - 1) * 4 + 2] = SwapLE16(317 - 1);
-		pTiles[(144 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(145 - 1) * 4 + 0] = SwapLE16(21 - 1);
-		pTiles[(145 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(145 - 1) * 4 + 2] = SwapLE16(321 - 1);
-		pTiles[(145 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		pTiles[(146 - 1) * 4 + 0] = SwapLE16(1 - 1);
-		// pTiles[(146 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		// pTiles[(146 - 1) * 4 + 2] = SwapLE16(320 - 1);
-		// pTiles[(146 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		pTiles[(147 - 1) * 4 + 0] = SwapLE16(13 - 1);
-		// pTiles[(147 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(147 - 1) * 4 + 2] = SwapLE16(320 - 1);
-		// pTiles[(147 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		// pTiles[(148 - 1) * 4 + 0] = SwapLE16(322 - 1);
-		// pTiles[(148 - 1) * 4 + 1] = SwapLE16(323 - 1);
-		pTiles[(148 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		// pTiles[(148 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		// pTiles[(149 - 1) * 4 + 0] = SwapLE16(324 - 1);
-		// pTiles[(149 - 1) * 4 + 1] = SwapLE16(325 - 1);
-		pTiles[(149 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		// pTiles[(149 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(150 - 1) * 4 + 0] = SwapLE16(5 - 1);
-		pTiles[(150 - 1) * 4 + 1] = SwapLE16(6 - 1);
-		pTiles[(150 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(150 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(151 - 1) * 4 + 0] = SwapLE16(22 - 1);
-		pTiles[(151 - 1) * 4 + 1] = SwapLE16(11 - 1);
-		// pTiles[(151 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(151 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(152 - 1) * 4 + 0] = SwapLE16(64 - 1);
-		pTiles[(152 - 1) * 4 + 1] = SwapLE16(48 - 1);
-		// pTiles[(152 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(152 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(153 - 1) * 4 + 0] = SwapLE16(304 - 1);
-		pTiles[(153 - 1) * 4 + 1] = SwapLE16(298 - 1);
-		pTiles[(153 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(153 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(154 - 1) * 4 + 0] = SwapLE16(14 - 1);
-		pTiles[(154 - 1) * 4 + 1] = SwapLE16(15 - 1);
-		pTiles[(154 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(154 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(155 - 1) * 4 + 0] = SwapLE16(340 - 1);
-		pTiles[(155 - 1) * 4 + 1] = SwapLE16(323 - 1);
-		pTiles[(155 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(155 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(156 - 1) * 4 + 0] = SwapLE16(45 - 1);
-		pTiles[(156 - 1) * 4 + 1] = SwapLE16(46 - 1);
-		pTiles[(156 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		// pTiles[(156 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(157 - 1) * 4 + 0] = SwapLE16(62 - 1);
-		pTiles[(157 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(157 - 1) * 4 + 2] = SwapLE16(334 - 1);
-		pTiles[(157 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		// pTiles[(158 - 1) * 4 + 0] = SwapLE16(339 - 1);
-		pTiles[(158 - 1) * 4 + 1] = SwapLE16(323 - 1);
-		// pTiles[(158 - 1) * 4 + 2] = SwapLE16(3 - 1);
-		// pTiles[(158 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(159 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(159 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(159 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(159 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		// pTiles[(160 - 1) * 4 + 0] = SwapLE16(342 - 1);
-		pTiles[(160 - 1) * 4 + 1] = SwapLE16(323 - 1);
-		pTiles[(160 - 1) * 4 + 2] = SwapLE16(12 - 1);
-		// pTiles[(160 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		// pTiles[(161 - 1) * 4 + 0] = SwapLE16(343 - 1);
-		pTiles[(161 - 1) * 4 + 1] = SwapLE16(323 - 1);
-		pTiles[(161 - 1) * 4 + 2] = SwapLE16(58 - 1);
-		// pTiles[(161 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(164 - 1) * 4 + 0] = SwapLE16(23 - 1);
-		pTiles[(164 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(164 - 1) * 4 + 2] = SwapLE16(313 - 1);
-		pTiles[(164 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		pTiles[(165 - 1) * 4 + 0] = SwapLE16(296 - 1);
-		pTiles[(165 - 1) * 4 + 1] = SwapLE16(297 - 1);
-		pTiles[(165 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(165 - 1) * 4 + 3] = SwapLE16(344 - 1);
-		// - shadows for the banner setpiece
-		pTiles[(56 - 1) * 4 + 0] = SwapLE16(1 - 1);
-		pTiles[(56 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(56 - 1) * 4 + 2] = SwapLE16(3 - 1);
-		pTiles[(56 - 1) * 4 + 3] = SwapLE16(126 - 1);
-		pTiles[(55 - 1) * 4 + 0] = SwapLE16(1 - 1);
-		pTiles[(55 - 1) * 4 + 1] = SwapLE16(123 - 1);
-		pTiles[(55 - 1) * 4 + 2] = SwapLE16(3 - 1);
-		// pTiles[(55 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(54 - 1) * 4 + 0] = SwapLE16(338 - 1);
-		pTiles[(54 - 1) * 4 + 1] = SwapLE16(297 - 1);
-		pTiles[(54 - 1) * 4 + 2] = SwapLE16(328 - 1);
-		pTiles[(54 - 1) * 4 + 3] = SwapLE16(299 - 1);
-		pTiles[(53 - 1) * 4 + 0] = SwapLE16(337 - 1);
-		pTiles[(53 - 1) * 4 + 1] = SwapLE16(297 - 1);
-		pTiles[(53 - 1) * 4 + 2] = SwapLE16(336 - 1);
-		pTiles[(53 - 1) * 4 + 3] = SwapLE16(344 - 1);
-		// - shadows for the vile setmap
-		pTiles[(52 - 1) * 4 + 0] = SwapLE16(5 - 1);
-		pTiles[(52 - 1) * 4 + 1] = SwapLE16(6 - 1);
-		pTiles[(52 - 1) * 4 + 2] = SwapLE16(313 - 1);
-		pTiles[(52 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		pTiles[(51 - 1) * 4 + 0] = SwapLE16(5 - 1);
-		pTiles[(51 - 1) * 4 + 1] = SwapLE16(6 - 1);
-		pTiles[(51 - 1) * 4 + 2] = SwapLE16(301 - 1);
-		pTiles[(51 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		pTiles[(50 - 1) * 4 + 0] = SwapLE16(1 - 1);
-		// pTiles[(50 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(50 - 1) * 4 + 2] = SwapLE16(320 - 1);
-		pTiles[(50 - 1) * 4 + 3] = SwapLE16(330 - 1);
-		pTiles[(49 - 1) * 4 + 0] = SwapLE16(335 - 1);
-		pTiles[(49 - 1) * 4 + 1] = SwapLE16(308 - 1);
-		pTiles[(49 - 1) * 4 + 2] = SwapLE16(7 - 1);
-		pTiles[(49 - 1) * 4 + 3] = SwapLE16(4 - 1);
-		pTiles[(48 - 1) * 4 + 0] = SwapLE16(21 - 1);
-		pTiles[(48 - 1) * 4 + 1] = SwapLE16(2 - 1);
-		pTiles[(48 - 1) * 4 + 2] = SwapLE16(321 - 1);
-		pTiles[(48 - 1) * 4 + 3] = SwapLE16(330 - 1);
-		pTiles[(47 - 1) * 4 + 0] = SwapLE16(5 - 1);
-		pTiles[(47 - 1) * 4 + 1] = SwapLE16(6 - 1);
-		pTiles[(47 - 1) * 4 + 2] = SwapLE16(301 - 1);
-		pTiles[(47 - 1) * 4 + 3] = SwapLE16(330 - 1);
-		pTiles[(46 - 1) * 4 + 0] = SwapLE16(14 - 1);
-		pTiles[(46 - 1) * 4 + 1] = SwapLE16(15 - 1);
-		pTiles[(46 - 1) * 4 + 2] = SwapLE16(301 - 1);
-		pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
-		// eliminate subtiles of unused tiles
-		const int unusedTiles[] = {
-			28, 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 95, 96, 119, 120, 126, 127, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
-		};
-		constexpr int blankSubtile = 74;
-		for (int n = 0; n < lengthof(unusedTiles); n++) {
-			int tileId = unusedTiles[n];
-			pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
-		}
+		patchCathedralTil(buf);
 	} break;
 	case FILE_CATHEDRAL_SOL:
 	{	// patch dSolidTable - L1.SOL
@@ -9661,235 +10181,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		uint16_t *pTiles = (uint16_t*)buf;
-		// reuse subtiles
-		// unified columns
-		pTiles[(6 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 22
-		pTiles[(6 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 24
-		pTiles[(39 - 1) * 4 + 1] = SwapLE16(26 - 1); // 22
-		pTiles[(39 - 1) * 4 + 3] = SwapLE16(12 - 1); // 133
-		pTiles[(40 - 1) * 4 + 3] = SwapLE16(12 - 1); // 137
-		pTiles[(41 - 1) * 4 + 3] = SwapLE16(12 - 1); // 140
-		pTiles[(77 - 1) * 4 + 1] = SwapLE16(26 - 1); // 22
-		pTiles[(9 - 1) * 4 + 2] = SwapLE16(23 - 1);  // 35
-		pTiles[(50 - 1) * 4 + 3] = SwapLE16(12 - 1); // 165
-
-		// use common subtile
-		pTiles[(13 - 1) * 4 + 1] = SwapLE16(42 - 1); // 46
-		pTiles[(13 - 1) * 4 + 2] = SwapLE16(39 - 1); // 47
-		pTiles[(14 - 1) * 4 + 0] = SwapLE16(45 - 1); // 48
-		pTiles[(14 - 1) * 4 + 2] = SwapLE16(39 - 1); // 49
-		pTiles[(15 - 1) * 4 + 0] = SwapLE16(45 - 1); // 50
-		pTiles[(15 - 1) * 4 + 1] = SwapLE16(42 - 1); // 51
-		pTiles[(15 - 1) * 4 + 2] = SwapLE16(43 - 1); // 52
-		pTiles[(16 - 1) * 4 + 0] = SwapLE16(45 - 1); // 53
-		pTiles[(16 - 1) * 4 + 1] = SwapLE16(38 - 1); // 54
-		pTiles[(16 - 1) * 4 + 2] = SwapLE16(43 - 1); // 52
-		pTiles[(24 - 1) * 4 + 1] = SwapLE16(77 - 1); // 81
-		pTiles[(25 - 1) * 4 + 1] = SwapLE16(77 - 1);
-		pTiles[(27 - 1) * 4 + 2] = SwapLE16(78 - 1); // 92
-		pTiles[(40 - 1) * 4 + 2] = SwapLE16(23 - 1); // 136
-		pTiles[(41 - 1) * 4 + 1] = SwapLE16(135 - 1); // 139
-		// pTiles[(41 - 1) * 4 + 3] = SwapLE16(137 - 1); // 140
-		pTiles[(43 - 1) * 4 + 2] = SwapLE16(27 - 1); // 144
-		pTiles[(43 - 1) * 4 + 3] = SwapLE16(28 - 1); // 145
-		pTiles[(150 - 1) * 4 + 2] = SwapLE16(15 - 1); // 539
-		pTiles[(45 - 1) * 4 + 2] = SwapLE16(11 - 1); // 148
-		pTiles[(45 - 1) * 4 + 3] = SwapLE16(12 - 1); // 149
-		pTiles[(46 - 1) * 4 + 0] = SwapLE16(9 - 1); // 150
-		//pTiles[(47 - 1) * 4 + 0] = SwapLE16(9 - 1); // 153
-		//pTiles[(47 - 1) * 4 + 3] = SwapLE16(152 - 1); // 156
-		//pTiles[(48 - 1) * 4 + 2] = SwapLE16(155 - 1); // 157
-		//pTiles[(48 - 1) * 4 + 3] = SwapLE16(156 - 1); // 158
-		//pTiles[(49 - 1) * 4 + 0] = SwapLE16(9 - 1); // 159
-		//pTiles[(49 - 1) * 4 + 1] = SwapLE16(10 - 1); // 160
-		pTiles[(68 - 1) * 4 + 1] = SwapLE16(10 - 1); // 235
-		pTiles[(70 - 1) * 4 + 1] = SwapLE16(10 - 1); // 243
-		pTiles[(71 - 1) * 4 + 0] = SwapLE16(9 - 1); // 246
-		pTiles[(71 - 1) * 4 + 1] = SwapLE16(10 - 1); // 247
-		pTiles[(77 - 1) * 4 + 3] = SwapLE16(12 - 1); // 268
-		pTiles[(140 - 1) * 4 + 1] = SwapLE16(10 - 1); // 511
-		pTiles[(140 - 1) * 4 + 3] = SwapLE16(162 - 1); // 513
-		pTiles[(142 - 1) * 4 + 3] = SwapLE16(162 - 1); // 519
-		
-		// use common subtiles instead of minor alterations
-		pTiles[(1 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 2
-		pTiles[(2 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 7
-		pTiles[(4 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 14
-		pTiles[(150 - 1) * 4 + 1] = SwapLE16(10 - 1);
-		// pTiles[(152 - 1) * 4 + 1] = SwapLE16(10 - 1);
-		pTiles[(5 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 19
-		pTiles[(151 - 1) * 4 + 2] = SwapLE16(11 - 1);
-		// pTiles[(153 - 1) * 4 + 2] = SwapLE16(11 - 1);
-		pTiles[(5 - 1) * 4 + 3] = SwapLE16(12 - 1); // 20
-		pTiles[(151 - 1) * 4 + 3] = SwapLE16(12 - 1);
-		// pTiles[(153 - 1) * 4 + 3] = SwapLE16(12 - 1);
-		pTiles[(21 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 70
-		pTiles[(21 - 1) * 4 + 3] = SwapLE16(12 - 1); // 71
-		pTiles[(31 - 1) * 4 + 3] = SwapLE16(12 - 1); // 106
-		pTiles[(32 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 109
-		pTiles[(32 - 1) * 4 + 3] = SwapLE16(12 - 1); // 110
-		pTiles[(42 - 1) * 4 + 3] = SwapLE16(12 - 1); // 142
-		pTiles[(8 - 1) * 4 + 2] = SwapLE16(15 - 1);  // 31
-		pTiles[(73 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 255
-		pTiles[(73 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 256
-		pTiles[(75 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 264
-		pTiles[(78 - 1) * 4 + 0] = SwapLE16(21 - 1); // 269
-		pTiles[(106 - 1) * 4 + 1] = SwapLE16(10 - 1); // 376
-		pTiles[(110 - 1) * 4 + 0] = SwapLE16(9 - 1); // 391
-		pTiles[(111 - 1) * 4 + 0] = SwapLE16(9 - 1); // 395
-		pTiles[(111 - 1) * 4 + 3] = SwapLE16(12 - 1); // 397
-		pTiles[(121 - 1) * 4 + 0] = SwapLE16(9 - 1); // 434
-		pTiles[(112 - 1) * 4 + 2] = SwapLE16(11 - 1); // 400
-		pTiles[(138 - 1) * 4 + 2] = SwapLE16(11 - 1); // 504
-		pTiles[(138 - 1) * 4 + 3] = SwapLE16(12 - 1); // 505
-		pTiles[(139 - 1) * 4 + 1] = SwapLE16(10 - 1); // 507
-		pTiles[(139 - 1) * 4 + 3] = SwapLE16(12 - 1); // 509
-		pTiles[(134 - 1) * 4 + 1] = SwapLE16(10 - 1); // 487
-		pTiles[(134 - 1) * 4 + 3] = SwapLE16(12 - 1); // 489
-		pTiles[(135 - 1) * 4 + 1] = SwapLE16(10 - 1); // 491
-		pTiles[(135 - 1) * 4 + 3] = SwapLE16(12 - 1); // 493
-		pTiles[(51 - 1) * 4 + 2] = SwapLE16(155 - 1); // 168
-		pTiles[(141 - 1) * 4 + 2] = SwapLE16(155 - 1); // 516
-		pTiles[(141 - 1) * 4 + 3] = SwapLE16(169 - 1); // 517
-		pTiles[(142 - 1) * 4 + 2] = SwapLE16(155 - 1); // 518
-
-		// - reduce pointless bone-chamber complexity II.
-		// -- bones
-		pTiles[(54 - 1) * 4 + 1] = SwapLE16(181 - 1); // '179'
-		pTiles[(54 - 1) * 4 + 3] = SwapLE16(185 - 1); // '181'
-		pTiles[(53 - 1) * 4 + 1] = SwapLE16(179 - 1); // '175'
-		pTiles[(53 - 1) * 4 + 3] = SwapLE16(189 - 1); // '177'
-		pTiles[(56 - 1) * 4 + 2] = SwapLE16(179 - 1); // '188'
-		pTiles[(56 - 1) * 4 + 3] = SwapLE16(181 - 1); // '189'
-		pTiles[(57 - 1) * 4 + 2] = SwapLE16(177 - 1); // 192
-		pTiles[(57 - 1) * 4 + 3] = SwapLE16(179 - 1); // 193
-
-		pTiles[(59 - 1) * 4 + 0] = SwapLE16(177 - 1); // 198
-		pTiles[(59 - 1) * 4 + 1] = SwapLE16(185 - 1); // 199
-		pTiles[(59 - 1) * 4 + 2] = SwapLE16(199 - 1); // 200
-		pTiles[(59 - 1) * 4 + 3] = SwapLE16(185 - 1); // 201
-
-		pTiles[(60 - 1) * 4 + 0] = SwapLE16(188 - 1); // 202
-		pTiles[(60 - 1) * 4 + 1] = SwapLE16(185 - 1); // 203
-		pTiles[(60 - 1) * 4 + 2] = SwapLE16(185 - 1); // 204
-		pTiles[(60 - 1) * 4 + 3] = SwapLE16(189 - 1); // 205
-
-		pTiles[(62 - 1) * 4 + 0] = SwapLE16(175 - 1); // 210
-		pTiles[(62 - 1) * 4 + 1] = SwapLE16(199 - 1); // 211
-		pTiles[(62 - 1) * 4 + 2] = SwapLE16(179 - 1); // 212
-		pTiles[(62 - 1) * 4 + 3] = SwapLE16(177 - 1); // 213
-
-		pTiles[(63 - 1) * 4 + 0] = SwapLE16(189 - 1); // 214
-		pTiles[(63 - 1) * 4 + 1] = SwapLE16(177 - 1); // 215
-		pTiles[(63 - 1) * 4 + 2] = SwapLE16(185 - 1); // 216
-		pTiles[(63 - 1) * 4 + 3] = SwapLE16(189 - 1); // 217
-		// -- flat floor
-		pTiles[(92 - 1) * 4 + 3] = SwapLE16(332 - 1); // 326
-		pTiles[(94 - 1) * 4 + 2] = SwapLE16(323 - 1); // 333
-		pTiles[(94 - 1) * 4 + 3] = SwapLE16(324 - 1); // 334
-		pTiles[(97 - 1) * 4 + 0] = SwapLE16(324 - 1); // 339
-		pTiles[(97 - 1) * 4 + 1] = SwapLE16(323 - 1); // 340
-		pTiles[(97 - 1) * 4 + 2] = SwapLE16(332 - 1); // 341
-		pTiles[(99 - 1) * 4 + 0] = SwapLE16(332 - 1); // 347
-		pTiles[(99 - 1) * 4 + 2] = SwapLE16(324 - 1); // 349
-		pTiles[(99 - 1) * 4 + 3] = SwapLE16(323 - 1); // 350
-		// create the new shadows
-		// - horizontal door for a pillar
-		pTiles[(17 - 1) * 4 + 0] = SwapLE16(540 - 1); // TODO: use 17 and update DRLG_L2DoorSubs?
-		pTiles[(17 - 1) * 4 + 1] = SwapLE16(18 - 1);
-		pTiles[(17 - 1) * 4 + 2] = SwapLE16(155 - 1);
-		pTiles[(17 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - horizontal hallway for a pillar
-		pTiles[(18 - 1) * 4 + 0] = SwapLE16(553 - 1);
-		pTiles[(18 - 1) * 4 + 1] = SwapLE16(99 - 1);
-		pTiles[(18 - 1) * 4 + 2] = SwapLE16(155 - 1);
-		pTiles[(18 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - pillar tile for a pillar
-		pTiles[(34 - 1) * 4 + 0] = SwapLE16(21 - 1);
-		pTiles[(34 - 1) * 4 + 1] = SwapLE16(26 - 1);
-		pTiles[(34 - 1) * 4 + 2] = SwapLE16(148 - 1);
-		pTiles[(34 - 1) * 4 + 3] = SwapLE16(169 - 1);
-		// - vertical wall end for a horizontal arch
-		pTiles[(35 - 1) * 4 + 0] = SwapLE16(25 - 1);
-		pTiles[(35 - 1) * 4 + 1] = SwapLE16(26 - 1);
-		pTiles[(35 - 1) * 4 + 2] = SwapLE16(512 - 1);
-		pTiles[(35 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - horizontal wall end for a pillar
-		pTiles[(36 - 1) * 4 + 0] = SwapLE16(33 - 1);
-		pTiles[(36 - 1) * 4 + 1] = SwapLE16(34 - 1);
-		pTiles[(36 - 1) * 4 + 2] = SwapLE16(148 - 1);
-		pTiles[(36 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - horizontal wall end for a horizontal arch
-		pTiles[(37 - 1) * 4 + 0] = SwapLE16(268 - 1);
-		pTiles[(37 - 1) * 4 + 1] = SwapLE16(515 - 1);
-		pTiles[(37 - 1) * 4 + 2] = SwapLE16(148 - 1);
-		pTiles[(37 - 1) * 4 + 3] = SwapLE16(169 - 1);
-		// - floor tile with vertical arch
-		pTiles[(44 - 1) * 4 + 0] = SwapLE16(150 - 1);
-		pTiles[(44 - 1) * 4 + 1] = SwapLE16(10 - 1);
-		pTiles[(44 - 1) * 4 + 2] = SwapLE16(153 - 1);
-		pTiles[(44 - 1) * 4 + 3] = SwapLE16(12 - 1);
-		// - floor tile with shadow of a vertical arch + horizontal arch
-		pTiles[(46 - 1) * 4 + 0] = SwapLE16(9 - 1);   // 150
-		pTiles[(46 - 1) * 4 + 1] = SwapLE16(154 - 1);
-		pTiles[(46 - 1) * 4 + 2] = SwapLE16(161 - 1); // '151'
-		pTiles[(46 - 1) * 4 + 3] = SwapLE16(162 - 1); // 152
-		// - floor tile with shadow of a pillar + vertical arch
-		pTiles[(47 - 1) * 4 + 0] = SwapLE16(9 - 1);   // 153
-		// pTiles[(47 - 1) * 4 + 1] = SwapLE16(154 - 1);
-		// pTiles[(47 - 1) * 4 + 2] = SwapLE16(155 - 1);
-		pTiles[(47 - 1) * 4 + 3] = SwapLE16(162 - 1); // 156
-		// - floor tile with shadow of a pillar
-		// pTiles[(48 - 1) * 4 + 0] = SwapLE16(9 - 1);
-		// pTiles[(48 - 1) * 4 + 1] = SwapLE16(10 - 1);
-		pTiles[(48 - 1) * 4 + 2] = SwapLE16(155 - 1); // 157
-		pTiles[(48 - 1) * 4 + 3] = SwapLE16(162 - 1); // 158
-		// - floor tile with shadow of a horizontal arch
-		pTiles[(49 - 1) * 4 + 0] = SwapLE16(9 - 1);   // 159
-		pTiles[(49 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 160
-		// pTiles[(49 - 1) * 4 + 2] = SwapLE16(161 - 1);
-		// pTiles[(49 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - floor tile with shadow(45) with vertical arch
-		pTiles[(95 - 1) * 4 + 0] = SwapLE16(158 - 1);
-		pTiles[(95 - 1) * 4 + 1] = SwapLE16(165 - 1);
-		pTiles[(95 - 1) * 4 + 2] = SwapLE16(155 - 1);
-		pTiles[(95 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - floor tile with shadow(49) with vertical arch
-		pTiles[(96 - 1) * 4 + 0] = SwapLE16(150 - 1);
-		pTiles[(96 - 1) * 4 + 1] = SwapLE16(10 - 1);
-		pTiles[(96 - 1) * 4 + 2] = SwapLE16(156 - 1);
-		pTiles[(96 - 1) * 4 + 3] = SwapLE16(162 - 1);
-		// - floor tile with shadow(51) with horizontal arch
-		pTiles[(100 - 1) * 4 + 0] = SwapLE16(158 - 1);
-		pTiles[(100 - 1) * 4 + 1] = SwapLE16(165 - 1);
-		pTiles[(100 - 1) * 4 + 2] = SwapLE16(155 - 1);
-		pTiles[(100 - 1) * 4 + 3] = SwapLE16(169 - 1);
-		// fix graphical glitch
-		pTiles[(157 - 1) * 4 + 1] = SwapLE16(99 - 1); // 548
-		// fix the upstairs II.
-		pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1); // 10 make the back of the stairs non-walkable
-		pTiles[(72 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 250
-		pTiles[(72 - 1) * 4 + 2] = SwapLE16(11 - 1); // 251
-		pTiles[(76 - 1) * 4 + 1] = SwapLE16(10 - 1); // 265
-		// pTiles[(158 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 250
-		// pTiles[(158 - 1) * 4 + 1] = SwapLE16(56 - 1); // 10 make the back of the stairs non-walkable
-		// pTiles[(158 - 1) * 4 + 2] = SwapLE16(11 - 1); // 554
-		// pTiles[(159 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 555
-		// pTiles[(159 - 1) * 4 + 1] = SwapLE16(10 - 1); // 556
-		// pTiles[(159 - 1) * 4 + 2] = SwapLE16(11 - 1); // 557
-		// eliminate subtiles of unused tiles
-		const int unusedTiles[] = {
-			52, 58, 61, 64, 65, 66, 67, 76, 93, 98, 101, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
-		};
-		constexpr int blankSubtile = 2;
-		for (int n = 0; n < lengthof(unusedTiles); n++) {
-			int tileId = unusedTiles[n];
-			pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
-		}
+		patchCatacombsTil(buf);
 	} break;
 	case FILE_CATACOMBS_SOL:
 	{	// patch dSolidTable - L2.SOL
@@ -10177,285 +10469,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		uint16_t *pTiles = (uint16_t*)buf;
-		// fix automap of the entrance I.
-		pTiles[4 * (52 - 1) + 0] = SwapLE16(73 - 1); // 45 - copy from 23
-		pTiles[4 * (52 - 1) + 1] = SwapLE16(64 - 1); // 46
-		pTiles[4 * (52 - 1) + 2] = SwapLE16(65 - 1); // 148
-		pTiles[4 * (52 - 1) + 3] = SwapLE16(66 - 1); // 48
-		pTiles[4 * (58 - 1) + 0] = SwapLE16(63 - 1); // 166 - copy from 18
-		pTiles[4 * (58 - 1) + 1] = SwapLE16(64 - 1); // 167
-		pTiles[4 * (58 - 1) + 2] = SwapLE16(65 - 1); // 47
-		pTiles[4 * (58 - 1) + 3] = SwapLE16(66 - 1); // 48
-		pTiles[4 * (53 - 1) + 1] = SwapLE16(148 - 1); // 130
-		pTiles[4 * (53 - 1) + 3] = SwapLE16(148 - 1); // 130
-		// use common subtiles of doors
-		pTiles[4 * (71 - 1) + 2] = SwapLE16(206 - 1);
-		pTiles[4 * (72 - 1) + 2] = SwapLE16(206 - 1);
-		// use common subtiles
-		pTiles[4 * (4 - 1) + 1] = SwapLE16(6 - 1); // 14
-		pTiles[4 * (14 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (115 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (132 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (1 - 1) + 2] = SwapLE16(15 - 1); // 3
-		pTiles[4 * (27 - 1) + 2] = SwapLE16(15 - 1);
-		pTiles[4 * (43 - 1) + 2] = SwapLE16(15 - 1);
-		pTiles[4 * (79 - 1) + 2] = SwapLE16(15 - 1);
-		pTiles[4 * (6 - 1) + 2] = SwapLE16(15 - 1);  // 23
-		pTiles[4 * (127 - 1) + 2] = SwapLE16(4 - 1); // 372
-		pTiles[4 * (132 - 1) + 2] = SwapLE16(15 - 1); // 388
-		pTiles[4 * (156 - 1) + 2] = SwapLE16(31 - 1); // 468
-		// use better subtiles
-		// - increase glow
-		pTiles[4 * (96 - 1) + 3] = SwapLE16(293 - 1); // 279
-		pTiles[4 * (187 - 1) + 3] = SwapLE16(293 - 1);
-		pTiles[4 * (188 - 1) + 3] = SwapLE16(293 - 1);
-		pTiles[4 * (90 - 1) + 1] = SwapLE16(297 - 1); // 253
-		pTiles[4 * (175 - 1) + 1] = SwapLE16(297 - 1);
-		// - reduce glow
-		pTiles[4 * (162 - 1) + 1] = SwapLE16(297 - 1); // 489
-		pTiles[4 * (162 - 1) + 2] = SwapLE16(266 - 1); // 490
-		// create the new shadows
-		// - use the shadows created by fixCryptShadows
-		pTiles[4 * (203 - 1) + 0] = SwapLE16(638 - 1); // 619
-		pTiles[4 * (203 - 1) + 1] = SwapLE16(639 - 1); // 620
-		pTiles[4 * (203 - 1) + 2] = SwapLE16(623 - 1); // 47
-		pTiles[4 * (203 - 1) + 3] = SwapLE16(627 - 1); // 621
-		pTiles[4 * (204 - 1) + 0] = SwapLE16(638 - 1); // 622
-		pTiles[4 * (204 - 1) + 1] = SwapLE16(639 - 1); // 46
-		pTiles[4 * (204 - 1) + 2] = SwapLE16(636 - 1); // 623
-		pTiles[4 * (204 - 1) + 3] = SwapLE16(627 - 1); // 624
-		pTiles[4 * (108 - 1) + 2] = SwapLE16(631 - 1); // 810
-		pTiles[4 * (108 - 1) + 3] = SwapLE16(626 - 1); // 811
-		pTiles[4 * (210 - 1) + 3] = SwapLE16(371 - 1); // 637
-
-		pTiles[4 * (109 - 1) + 0] = SwapLE16(1 - 1);   // 312
-		pTiles[4 * (109 - 1) + 1] = SwapLE16(2 - 1);   // 313
-		pTiles[4 * (109 - 1) + 2] = SwapLE16(3 - 1);   // 314
-		pTiles[4 * (109 - 1) + 3] = SwapLE16(627 - 1); // 315
-		pTiles[4 * (110 - 1) + 0] = SwapLE16(21 - 1);  // 316
-		pTiles[4 * (110 - 1) + 1] = SwapLE16(22 - 1);  // 313
-		pTiles[4 * (110 - 1) + 2] = SwapLE16(3 - 1);   // 314
-		pTiles[4 * (110 - 1) + 3] = SwapLE16(627 - 1); // 315
-		pTiles[4 * (111 - 1) + 0] = SwapLE16(39 - 1);  // 317
-		pTiles[4 * (111 - 1) + 1] = SwapLE16(4 - 1);   // 318
-		pTiles[4 * (111 - 1) + 2] = SwapLE16(242 - 1); // 319
-		pTiles[4 * (111 - 1) + 3] = SwapLE16(627 - 1); // 320
-		pTiles[4 * (215 - 1) + 0] = SwapLE16(101 - 1); // 645
-		pTiles[4 * (215 - 1) + 1] = SwapLE16(4 - 1);   // 646
-		pTiles[4 * (215 - 1) + 2] = SwapLE16(178 - 1); // 45
-		pTiles[4 * (215 - 1) + 3] = SwapLE16(627 - 1); // 647
-		// - 'add' new shadow-types with glow TODO: add wall/grate+glow
-		pTiles[4 * (216 - 1) + 0] = SwapLE16(39 - 1);  // 622
-		pTiles[4 * (216 - 1) + 1] = SwapLE16(4 - 1);   // 46
-		pTiles[4 * (216 - 1) + 2] = SwapLE16(238 - 1); // 648
-		pTiles[4 * (216 - 1) + 3] = SwapLE16(635 - 1); // 624
-		pTiles[4 * (217 - 1) + 0] = SwapLE16(638 - 1); // 625
-		pTiles[4 * (217 - 1) + 1] = SwapLE16(639 - 1); // 46
-		pTiles[4 * (217 - 1) + 2] = SwapLE16(634 - 1); // 649 TODO: could be better
-		pTiles[4 * (217 - 1) + 3] = SwapLE16(635 - 1); // 650
-		// - 'add' new shadow-types with horizontal arches
-		pTiles[4 * (71 - 1) + 0] = SwapLE16(5 - 1); // copy from tile 2
-		pTiles[4 * (71 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (71 - 1) + 2] = SwapLE16(631 - 1);
-		pTiles[4 * (71 - 1) + 3] = SwapLE16(627 - 1);
-		pTiles[4 * (80 - 1) + 0] = SwapLE16(5 - 1); // copy from tile 2
-		pTiles[4 * (80 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (80 - 1) + 2] = SwapLE16(623 - 1);
-		pTiles[4 * (80 - 1) + 3] = SwapLE16(627 - 1);
-
-		pTiles[4 * (81 - 1) + 0] = SwapLE16(42 - 1); // copy from tile 12
-		pTiles[4 * (81 - 1) + 1] = SwapLE16(34 - 1);
-		pTiles[4 * (81 - 1) + 2] = SwapLE16(631 - 1);
-		pTiles[4 * (81 - 1) + 3] = SwapLE16(627 - 1);
-		pTiles[4 * (82 - 1) + 0] = SwapLE16(42 - 1); // copy from tile 12
-		pTiles[4 * (82 - 1) + 1] = SwapLE16(34 - 1);
-		pTiles[4 * (82 - 1) + 2] = SwapLE16(623 - 1);
-		pTiles[4 * (82 - 1) + 3] = SwapLE16(627 - 1);
-
-		pTiles[4 * (83 - 1) + 0] = SwapLE16(104 - 1); // copy from tile 36
-		pTiles[4 * (83 - 1) + 1] = SwapLE16(84 - 1);
-		pTiles[4 * (83 - 1) + 2] = SwapLE16(631 - 1);
-		pTiles[4 * (83 - 1) + 3] = SwapLE16(627 - 1);
-		pTiles[4 * (84 - 1) + 0] = SwapLE16(104 - 1); // copy from tile 36
-		pTiles[4 * (84 - 1) + 1] = SwapLE16(84 - 1);
-		pTiles[4 * (84 - 1) + 2] = SwapLE16(623 - 1);
-		pTiles[4 * (84 - 1) + 3] = SwapLE16(627 - 1);
-
-		pTiles[4 * (85 - 1) + 0] = SwapLE16(25 - 1); // copy from tile 7
-		pTiles[4 * (85 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (85 - 1) + 2] = SwapLE16(631 - 1);
-		pTiles[4 * (85 - 1) + 3] = SwapLE16(627 - 1);
-		pTiles[4 * (86 - 1) + 0] = SwapLE16(25 - 1); // copy from tile 7
-		pTiles[4 * (86 - 1) + 1] = SwapLE16(6 - 1);
-		pTiles[4 * (86 - 1) + 2] = SwapLE16(623 - 1);
-		pTiles[4 * (86 - 1) + 3] = SwapLE16(627 - 1);
-
-		pTiles[4 * (87 - 1) + 0] = SwapLE16(79 - 1); // copy from tile 26
-		pTiles[4 * (87 - 1) + 1] = SwapLE16(80 - 1);
-		pTiles[4 * (87 - 1) + 2] = SwapLE16(623 - 1);
-		pTiles[4 * (87 - 1) + 3] = SwapLE16(627 - 1);
-		pTiles[4 * (88 - 1) + 0] = SwapLE16(79 - 1); // copy from tile 26
-		pTiles[4 * (88 - 1) + 1] = SwapLE16(80 - 1);
-		pTiles[4 * (88 - 1) + 2] = SwapLE16(631 - 1);
-		pTiles[4 * (88 - 1) + 3] = SwapLE16(627 - 1);
-
-		// use common subtiles instead of minor alterations
-		pTiles[4 * (7 - 1) + 1] = SwapLE16(6 - 1); // 26
-		pTiles[4 * (159 - 1) + 1] = SwapLE16(6 - 1); // 479
-		pTiles[4 * (133 - 1) + 2] = SwapLE16(31 - 1); // 390
-		pTiles[4 * (10 - 1) + 1] = SwapLE16(18 - 1); // 37
-		pTiles[4 * (138 - 1) + 1] = SwapLE16(18 - 1);
-		pTiles[4 * (188 - 1) + 1] = SwapLE16(277 - 1); // 564
-		pTiles[4 * (178 - 1) + 2] = SwapLE16(258 - 1); // 543
-		pTiles[4 * (5 - 1) + 2] = SwapLE16(31 - 1); // 19
-		pTiles[4 * (14 - 1) + 2] = SwapLE16(31 - 1);
-		pTiles[4 * (159 - 1) + 2] = SwapLE16(31 - 1);
-		pTiles[4 * (185 - 1) + 2] = SwapLE16(274 - 1); // 558
-		pTiles[4 * (186 - 1) + 2] = SwapLE16(274 - 1); // 560
-		pTiles[4 * (139 - 1) + 0] = SwapLE16(39 - 1); // 402
-
-		pTiles[4 * (2 - 1) + 3] = SwapLE16(4 - 1); // 8
-		pTiles[4 * (3 - 1) + 1] = SwapLE16(60 - 1); // 10
-		pTiles[4 * (114 - 1) + 1] = SwapLE16(32 - 1);
-		pTiles[4 * (3 - 1) + 2] = SwapLE16(4 - 1); // 11
-		pTiles[4 * (114 - 1) + 2] = SwapLE16(4 - 1);
-		pTiles[4 * (5 - 1) + 3] = SwapLE16(7 - 1); // 20
-		pTiles[4 * (14 - 1) + 3] = SwapLE16(4 - 1);
-		pTiles[4 * (133 - 1) + 3] = SwapLE16(4 - 1);
-		pTiles[4 * (125 - 1) + 3] = SwapLE16(7 - 1); // 50
-		pTiles[4 * (159 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (4 - 1) + 3] = SwapLE16(7 - 1); // 16
-		pTiles[4 * (132 - 1) + 3] = SwapLE16(4 - 1);
-		pTiles[4 * (10 - 1) + 3] = SwapLE16(7 - 1); // 38
-		pTiles[4 * (138 - 1) + 3] = SwapLE16(4 - 1);
-		pTiles[4 * (121 - 1) + 3] = SwapLE16(4 - 1); // 354
-		pTiles[4 * (8 - 1) + 3] = SwapLE16(4 - 1); // 32
-		pTiles[4 * (136 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (91 - 1) + 1] = SwapLE16(47 - 1); // 257
-		pTiles[4 * (178 - 1) + 1] = SwapLE16(47 - 1);
-		pTiles[4 * (91 - 1) + 3] = SwapLE16(48 - 1); // 259
-		pTiles[4 * (177 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (178 - 1) + 3] = SwapLE16(48 - 1);
-		pTiles[4 * (130 - 1) + 2] = SwapLE16(395 - 1); // 381
-		pTiles[4 * (157 - 1) + 2] = SwapLE16(4 - 1);   // 472
-		pTiles[4 * (177 - 1) + 1] = SwapLE16(4 - 1);   // 540
-		pTiles[4 * (211 - 1) + 3] = SwapLE16(48 - 1);  // 621
-		pTiles[4 * (205 - 1) + 0] = SwapLE16(45 - 1);  // 625
-		pTiles[4 * (207 - 1) + 0] = SwapLE16(45 - 1);  // 630
-		pTiles[4 * (207 - 1) + 3] = SwapLE16(627 - 1); // 632
-		pTiles[4 * (208 - 1) + 0] = SwapLE16(45 - 1);  // 633
-
-		pTiles[4 * (27 - 1) + 3] = SwapLE16(4 - 1); // 85
-		// pTiles[4 * (28 - 1) + 3] = SwapLE16(4 - 1); // 87
-		pTiles[4 * (29 - 1) + 3] = SwapLE16(4 - 1); // 90
-		pTiles[4 * (30 - 1) + 3] = SwapLE16(4 - 1); // 92
-		pTiles[4 * (31 - 1) + 3] = SwapLE16(4 - 1); // 94
-		pTiles[4 * (32 - 1) + 3] = SwapLE16(4 - 1); // 96
-		pTiles[4 * (33 - 1) + 3] = SwapLE16(4 - 1); // 98
-		pTiles[4 * (34 - 1) + 3] = SwapLE16(4 - 1); // 100
-		pTiles[4 * (37 - 1) + 3] = SwapLE16(4 - 1); // 108
-		pTiles[4 * (38 - 1) + 3] = SwapLE16(4 - 1); // 110
-		pTiles[4 * (39 - 1) + 3] = SwapLE16(4 - 1); // 112
-		pTiles[4 * (40 - 1) + 3] = SwapLE16(4 - 1); // 114
-		pTiles[4 * (41 - 1) + 3] = SwapLE16(4 - 1); // 116
-		pTiles[4 * (42 - 1) + 3] = SwapLE16(4 - 1); // 118
-		pTiles[4 * (43 - 1) + 3] = SwapLE16(4 - 1); // 120
-		pTiles[4 * (44 - 1) + 3] = SwapLE16(4 - 1); // 122
-		pTiles[4 * (45 - 1) + 3] = SwapLE16(4 - 1); // 124
-		// pTiles[4 * (71 - 1) + 3] = SwapLE16(4 - 1); // 214
-		pTiles[4 * (72 - 1) + 3] = SwapLE16(4 - 1); // 217
-		pTiles[4 * (73 - 1) + 3] = SwapLE16(4 - 1); // 219
-		pTiles[4 * (74 - 1) + 3] = SwapLE16(4 - 1); // 221
-		pTiles[4 * (75 - 1) + 3] = SwapLE16(4 - 1); // 223
-		pTiles[4 * (76 - 1) + 3] = SwapLE16(4 - 1); // 225
-		pTiles[4 * (77 - 1) + 3] = SwapLE16(4 - 1); // 227
-		pTiles[4 * (78 - 1) + 3] = SwapLE16(4 - 1); // 229
-		pTiles[4 * (79 - 1) + 3] = SwapLE16(4 - 1); // 231
-		// pTiles[4 * (80 - 1) + 3] = SwapLE16(4 - 1); // 233
-		// pTiles[4 * (81 - 1) + 3] = SwapLE16(4 - 1); // 235
-		pTiles[4 * (15 - 1) + 1] = SwapLE16(4 - 1); // 52
-		pTiles[4 * (15 - 1) + 2] = SwapLE16(4 - 1); // 53
-		pTiles[4 * (15 - 1) + 3] = SwapLE16(4 - 1); // 54
-		pTiles[4 * (16 - 1) + 1] = SwapLE16(4 - 1); // 56
-		pTiles[4 * (144 - 1) + 1] = SwapLE16(4 - 1);
-		pTiles[4 * (16 - 1) + 2] = SwapLE16(4 - 1); // 57
-		pTiles[4 * (16 - 1) + 3] = SwapLE16(4 - 1); // 58
-		pTiles[4 * (144 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (94 - 1) + 2] = SwapLE16(60 - 1); // 270
-		pTiles[4 * (183 - 1) + 2] = SwapLE16(60 - 1);
-		pTiles[4 * (184 - 1) + 2] = SwapLE16(60 - 1);
-		pTiles[4 * (17 - 1) + 2] = SwapLE16(4 - 1); // 61
-		pTiles[4 * (128 - 1) + 2] = SwapLE16(4 - 1);
-		pTiles[4 * (92 - 1) + 2] = SwapLE16(62 - 1); // 262
-		pTiles[4 * (179 - 1) + 2] = SwapLE16(62 - 1);
-		pTiles[4 * (25 - 1) + 1] = SwapLE16(4 - 1); // 76
-		pTiles[4 * (25 - 1) + 3] = SwapLE16(4 - 1); // 78
-		pTiles[4 * (35 - 1) + 1] = SwapLE16(4 - 1); // 102
-		pTiles[4 * (35 - 1) + 3] = SwapLE16(4 - 1); // 103
-		pTiles[4 * (69 - 1) + 1] = SwapLE16(4 - 1); // 205
-		pTiles[4 * (69 - 1) + 3] = SwapLE16(4 - 1); // 207
-		pTiles[4 * (26 - 1) + 2] = SwapLE16(4 - 1); // 81
-		pTiles[4 * (26 - 1) + 3] = SwapLE16(4 - 1); // 82
-		pTiles[4 * (36 - 1) + 2] = SwapLE16(4 - 1); // 105
-		pTiles[4 * (36 - 1) + 3] = SwapLE16(4 - 1); // 106
-		pTiles[4 * (46 - 1) + 2] = SwapLE16(4 - 1); // 127
-		pTiles[4 * (46 - 1) + 3] = SwapLE16(4 - 1); // 128
-		pTiles[4 * (70 - 1) + 2] = SwapLE16(4 - 1); // 210
-		pTiles[4 * (70 - 1) + 3] = SwapLE16(4 - 1); // 211
-		pTiles[4 * (49 - 1) + 1] = SwapLE16(4 - 1); // 137
-		pTiles[4 * (167 - 1) + 1] = SwapLE16(4 - 1);
-		pTiles[4 * (49 - 1) + 2] = SwapLE16(4 - 1); // 138
-		pTiles[4 * (167 - 1) + 2] = SwapLE16(4 - 1);
-		pTiles[4 * (49 - 1) + 3] = SwapLE16(4 - 1); // 139
-		pTiles[4 * (167 - 1) + 3] = SwapLE16(4 - 1);
-		pTiles[4 * (50 - 1) + 1] = SwapLE16(4 - 1); // 141
-		pTiles[4 * (50 - 1) + 3] = SwapLE16(4 - 1); // 143
-		pTiles[4 * (51 - 1) + 3] = SwapLE16(4 - 1); // 147
-		pTiles[4 * (103 - 1) + 1] = SwapLE16(4 - 1); // 295
-		pTiles[4 * (105 - 1) + 1] = SwapLE16(4 - 1);
-		pTiles[4 * (127 - 1) + 3] = SwapLE16(4 - 1); // 373
-		pTiles[4 * (89 - 1) + 3] = SwapLE16(4 - 1); // 251
-		pTiles[4 * (173 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (174 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (6 - 1) + 3] = SwapLE16(4 - 1); // 24
-		pTiles[4 * (134 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (7 - 1) + 3] = SwapLE16(7 - 1); // 28
-		pTiles[4 * (8 - 1) + 1] = SwapLE16(2 - 1); // 30
-		pTiles[4 * (30 - 1) + 1] = SwapLE16(2 - 1);
-		pTiles[4 * (32 - 1) + 1] = SwapLE16(2 - 1);
-		pTiles[4 * (72 - 1) + 1] = SwapLE16(2 - 1);
-		pTiles[4 * (9 - 1) + 3] = SwapLE16(4 - 1); // 35
-		pTiles[4 * (137 - 1) + 3] = SwapLE16(4 - 1);
-		pTiles[4 * (11 - 1) + 1] = SwapLE16(4 - 1); // 40
-		pTiles[4 * (122 - 1) + 1] = SwapLE16(4 - 1);
-		pTiles[4 * (12 - 1) + 2] = SwapLE16(4 - 1); // 43
-		pTiles[4 * (123 - 1) + 2] = SwapLE16(4 - 1);
-		pTiles[4 * (12 - 1) + 3] = SwapLE16(4 - 1); // 44
-		pTiles[4 * (123 - 1) + 3] = SwapLE16(7 - 1);
-		pTiles[4 * (95 - 1) + 1] = SwapLE16(4 - 1); // 273
-		pTiles[4 * (185 - 1) + 1] = SwapLE16(7 - 1);
-		pTiles[4 * (186 - 1) + 1] = SwapLE16(4 - 1);
-		pTiles[4 * (89 - 1) + 1] = SwapLE16(293 - 1); // 249
-		pTiles[4 * (173 - 1) + 1] = SwapLE16(293 - 1);
-		pTiles[4 * (174 - 1) + 1] = SwapLE16(293 - 1);
-		pTiles[4 * (92 - 1) + 3] = SwapLE16(271 - 1); // 263
-		pTiles[4 * (179 - 1) + 3] = SwapLE16(271 - 1);
-		pTiles[4 * (96 - 1) + 2] = SwapLE16(12 - 1); // 278
-		pTiles[4 * (187 - 1) + 2] = SwapLE16(12 - 1);
-		pTiles[4 * (188 - 1) + 2] = SwapLE16(12 - 1);
-		// eliminate subtiles of unused tiles
-		const int unusedTiles[] = {
-			28,/* 29,*/ 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 43, 44, */ 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 79, 212, 213, 214
-		};
-		constexpr int blankSubtile = 8;
-		for (int n = 0; n < lengthof(unusedTiles); n++) {
-			int tileId = unusedTiles[n];
-			pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
-			pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
-		}
+		patchCryptTil(buf);
 	} break;
 	case FILE_CRYPT_SOL:
 	{ // patch dSolidTable - L5.SOL
