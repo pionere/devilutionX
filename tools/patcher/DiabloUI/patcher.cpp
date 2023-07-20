@@ -47,7 +47,7 @@ typedef enum filenames {
 	FILE_BLOOD1_DUN,
 	FILE_BLOOD2_DUN,
 #if ASSET_MPL == 1
-	FILE_L2DOORS_SCEL,
+	FILE_L2DOORS_CEL,
 	FILE_CATACOMBS_SCEL,
 	FILE_CATACOMBS_CEL,
 	FILE_CATACOMBS_MIN,
@@ -129,7 +129,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_BLOOD1_DUN*/    "Levels\\L2Data\\Blood1.DUN",
 /*FILE_BLOOD2_DUN*/    "Levels\\L2Data\\Blood2.DUN",
 #if ASSET_MPL == 1
-/*FILE_L2DOORS_SCEL*/  "Objects\\L2Doors.CEL",
+/*FILE_L2DOORS_CEL*/   "Objects\\L2Doors.CEL",
 /*FILE_CATACOMBS_SCEL*/"Levels\\L2Data\\L2S.CEL",
 /*FILE_CATACOMBS_CEL*/ "Levels\\L2Data\\L2.CEL",
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
@@ -192,7 +192,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 #define MICRO_IDX(subtile, blockSize, microIndex) ((subtile) * (blockSize) + (blockSize) - (2 + ((microIndex) & ~1)) + ((microIndex) & 1))
-// if ((currIndex == FILE_CRYPT_CEL || currIndex == FILE_CRYPT_MIN) && (pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == 101) { app_fatal("Ref%d, bs:%d, idx:%d", subtileRef, blockSize, microIndex, currIndex); } ; \
+// if ((currIndex == FILE_CRYPT_CEL || currIndex == FILE_CRYPT_MIN) && (pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == 101) { app_fatal("Ref%d, bs:%d, idx:%d", subtileRef, blockSize, microIndex); } ; \
 
 #define HideMcr(subtileRef, microIndex) \
 { \
@@ -200,11 +200,11 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 }
 #define Blk2Mcr(subtileRef, microIndex) \
 { \
-	removeMicros.insert(pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF); \
+	removeMicros.insert(SwapLE16(pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)]) & 0xFFF); \
 	pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] = 0; \
 }
 
-// if ((currIndex == FILE_CRYPT_CEL || currIndex == FILE_CRYPT_MIN) && (dstValue & 0xFFF) == 270) { app_fatal("Ref%d, bs:%d, idx:%d from %d@%d", dstSubtileRef, blockSize, dstMicroIndex, srcSubtileRef, dstMicroIndex, currIndex); } ; \
+// if ((currIndex == FILE_CRYPT_CEL || currIndex == FILE_CRYPT_MIN) && (dstValue & 0xFFF) == 270) { app_fatal("Ref%d, bs:%d, idx:%d from %d@%d", dstSubtileRef, blockSize, dstMicroIndex, srcSubtileRef, srcMicroIndex); } ; \
 
 #define ReplaceMcr(dstSubtileRef, dstMicroIndex, srcSubtileRef, srcMicroIndex) \
 { \
@@ -212,7 +212,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 	uint16_t dstValue = pSubtiles[dstMicro]; \
 	uint16_t srcValue = pSubtiles[MICRO_IDX(srcSubtileRef - 1, blockSize, srcMicroIndex)]; \
 	if (dstValue != srcValue) { \
-		removeMicros.insert(dstValue & 0xFFF); \
+		removeMicros.insert(SwapLE16(dstValue) & 0xFFF); \
 		pSubtiles[dstMicro] = srcValue; \
 	} \
 }
@@ -3007,7 +3007,7 @@ static void patchTownMin(BYTE* buf, bool isHellfireTown)
 	Blk2Mcr(1218, 5);
 	Blk2Mcr(1239, 1);
 	Blk2Mcr(1254, 0);
-	int unusedSubtiles[] = {
+	const int unusedSubtiles[] = {
 		40, 43, 49, 50, 51, 52, 66, 67, 69, 70, 71, 72, 73, 74, 75, 76, 77, 79, 80, 81, 83, 85, 86, 89, 90, 91, 93, 94, 95, 97, 99, 100, 101, 102, 103, 122, 123, 124, 136, 137, 140, 141, 142, 145, 147, 150, 151, 155, 161, 163, 164, 166, 167, 171, 176, 179, 183, 190, 191, 193, 194, 195, 196, 197, 199, 204, 205, 206, 208, 209, 228, 230, 236, 238, 241, 242, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 256, 278, 280, 291, 298, 299, 304, 305, 314, 316, 318, 320, 321, 328, 329, 335, 336, 337, 342, 350, 351, 352, 353, 354, 355, 356, 357, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 380, 392, 411, 413, 415, 417, 442, 444, 446, 447, 448, 449, 450, 451, 452, 453, 455, 456, 457, 460, 461, 462, 464, 467, 490, 491, 492, 497, 499, 500, 505, 506, 508, 534, 536, 544, 546, 548, 549, 558, 560, 565, 566, 567, 568, 570, 572, 573, 574, 575, 576, 577, 578, 579, 580, 581, 582, 583, 584, 585, 589, 591, 594, 595, 597, 598, 599, 600, 602, 609, 615, 622, 625, 648, 650, 654, 662, 664, 666, 667, 679, 680, 681, 682, 688, 690, 691, 693, 695, 696, 698, 699, 700, 701, 702, 703, 705, 730, 735, 737, 741, 742, 747, 748, 749, 750, 751, 752, 753, 756, 758, 760, 765, 766, 769, 790, 792, 796, 798, 800, 801, 802, 804, 851, 857, 859, 860, 861, 863, 865, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 887, 888, 889, 890, 891, 893, 894, 895, 896, 897, 901, 903, 937, 960, 961, 964, 965, 967, 968, 969, 972, 973, 976, 977, 979, 980, 981, 984, 985, 988, 989, 991, 992, 993, 996, 997, 1000, 1001, 1003, 1004, 1005, 1008, 1009, 1012, 1013, 1016, 1017, 1019, 1020, 1021, 1022, 1024, 1029, 1032, 1033, 1035, 1036, 1037, 1039, 1040, 1041, 1044, 1045, 1047, 1048, 1049, 1050, 1051, 1064, 1066, 1067, 1068, 1069, 1070, 1071, 1072, 1073, 1075, 1076, 1077, 1078, 1079, 1080, 1081, 1084, 1085, 1088, 1092, 1093, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1121, 1123, 1135, 1136, 1137, 1138, 1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1161, 1163, 1165, 1169, 1170, 1184, 1186, 1189, 1190, 1193, 1194, 1198, 1199, 1200, 1201, 1202, 1221, 1222, 1223, 1224, 1225, 1226, 1227, 1228, 1229, 1230, 1231, 1232, 1233, 1234, 1235, 1236, 1237, 1256
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -3033,7 +3033,7 @@ static void patchTownMin(BYTE* buf, bool isHellfireTown)
 		Blk2Mcr(1360, 0);
 		Blk2Mcr(1370, 0);
 		Blk2Mcr(1376, 0);
-		int unusedSubtilesHellfire[] = {
+		const int unusedSubtilesHellfire[] = {
 			1260, 1268, 1274, 1283, 1284, 1291, 1292, 1293, 1322, 1341, 1342, 1343, 1344, 1345, 1346, 1347, 1348, 1349, 1350, 1351, 1352, 1353, 1354, 1355, 1356, 1357, 1358, 1359, 1361, 1362, 1363, 1364, 1365, 1366, 1367, 1368, 1369, 1371, 1372, 1373, 1374, 1375, 1377, 1378, 1379
 		};
 		for (int n = 0; n < lengthof(unusedSubtilesHellfire); n++) {
@@ -4828,7 +4828,7 @@ static void patchCathedralMin(BYTE *buf)
 	Blk2Mcr(449, 5);
 	Blk2Mcr(449, 7);
 
-	int unusedSubtiles[] = {
+	const int unusedSubtiles[] = {
 		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 220, 250, 253, 267, 268, 273, 275, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 425, 430, 432, 435, 436, 440
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -6524,7 +6524,7 @@ static void patchCatacombsMin(BYTE *buf)
 	ReplaceMcr(455, 5, 6, 5);
 	ReplaceMcr(459, 5, 6, 5);
 	ReplaceMcr(499, 5, 6, 5);
-	// ReplaceMcr(548, 5, 6, 5); // Frame 159 is used by subtiles 46, 529.
+	// ReplaceMcr(548, 5, 6, 5);
 
 	ReplaceMcr(30, 3, 6, 3);
 	ReplaceMcr(34, 3, 6, 3);
@@ -6944,7 +6944,7 @@ static void patchCatacombsMin(BYTE *buf)
 	Blk2Mcr(558, 7);
 	Blk2Mcr(559, 2);
 	Blk2Mcr(559, 4);
-	int unusedSubtiles[] = {
+	const int unusedSubtiles[] = {
 		2, 7, 14, 19, 20, 48, 50, 53, 55, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 172, 173, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 397, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541, 
 	};
 
@@ -8473,7 +8473,7 @@ static void patchCryptMin(BYTE *buf)
 	Blk2Mcr(646, 0);
 	Blk2Mcr(649, 1);
 	Blk2Mcr(650, 0);
-	int unusedSubtiles[] = {
+	const int unusedSubtiles[] = {
 		8, 10, 11, 16, 19, 20, 23, 24, 26, 28, 30, 35, 38, 40, 43, 44, 50, 52, 56, 76, 78, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 148, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 373, 381, 390, 472, 489, 490, 540, 560, 564, 640, 643, 648
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -10118,7 +10118,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		patchDungeon(index, buf, dwLen);
 	} break;
 #if ASSET_MPL == 1
-	case FILE_L2DOORS_SCEL:
+	case FILE_L2DOORS_CEL:
 	{	// patch L2Doors.CEL
 		buf = patchCatacombsDoors(buf, dwLen);
 	} break;
@@ -10160,9 +10160,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATACOMBS_MIN:
 	{	// patch dMiniTiles - L2.MIN
-		// add separate tiles and subtiles for the arches II.
 		constexpr int blockSize = BLOCK_SIZE_L2;
-		uint16_t *pSubtiles = (uint16_t*)buf;
 		if (*dwLen < 559 * blockSize * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
