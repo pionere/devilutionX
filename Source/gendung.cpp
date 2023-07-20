@@ -461,6 +461,38 @@ void InitLvlDungeon()
 #if !USE_PATCH
 		// patch dSolidTable - L3.SOL
 		nSolidTable[249] = false; // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+		nBlockTable[146] = false; // fix unreasonable light-blocker
+		nBlockTable[150] = false; // fix unreasonable light-blocker
+		// fix fence subtiles
+		nSolidTable[474] = false;
+		nSolidTable[479] = false;
+		nSolidTable[487] = false; // unused after patch
+		nSolidTable[488] = true;
+		nSolidTable[540] = false; // unused in base game
+		//nSolidTable[273] = true;
+		//nSolidTable[297] = true;
+		// create new fences
+		pTiles[144][0] = 505;
+		pTiles[144][1] = 25;
+		pTiles[144][2] = 516;
+		pTiles[144][3] = 520;
+		pTiles[145][0] = 505;
+		pTiles[145][1] = 519;
+		pTiles[145][2] = 202;
+		pTiles[145][3] = 547;
+		// TODO:
+		//   20: 78, 79 solid? 76 not solid?
+		//   24: 94 solid?
+		//   28: 108 solid?
+		//   31: 121 solid?
+		//   32: 123 solid?
+		//   35: 129 solid?
+		//   38: 135 solid?
+		//   41: 144 solid?
+		//   69: 254 not solid?
+		//   112: 409 solid? (unused)
+		//   113-119: 421-434 solid + blocks? (unused)
+		//   148: 537 solid? (unused)
 #endif
 		break;
 	case DTYPE_HELL:

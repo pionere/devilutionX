@@ -19,7 +19,7 @@ DEVILUTION_BEGIN_NAMESPACE
 unsigned _guLavapools;
 
 /* Tiles to build the theme rooms. */
-const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146, 150, 151, 152, 138 };
+const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146, 150, 144, 145, 138 };
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
@@ -145,7 +145,7 @@ const BYTE L3BTYPES[157] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 90..
 	0, 0, 0, 0, 0, 0, 1, 1, 1, 2, //100..
-	3, 0, 3, 0, 0, 0, 0, 0, 0, 0, //110..
+	3, 0, 0, 0, 0, 0, 0, 0, 0, 0, //110..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //120..
 	0, 0, 0, 0, 4, 5, 4, 5, 0, 0, //130..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
@@ -171,7 +171,7 @@ const BYTE L3FTYPES[157] = {
 	12,  0,  4, 15, 15, 15, 15, 15, 15, 15, //110..
 	 3, 10, 10, 10, 10,  8, 12, 12, 12, 12, //120..
 	 0,  0,  0,  0,  3,  5,  3,  5,  1,  1, //130..
-	 1,  1,  1,  1,  5,  3,  3,  5,  3,  5, //140..
+	 1,  1,  1,  1, 11,  2,  3,  5,  3,  5, //140..
 	 7,  3,  5, 12, 12,  0,  0              //150..
 	// clang-format on
 };
@@ -2198,7 +2198,7 @@ static void DRLG_L3Wood()
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			bv = dungeon[i][j];
-			if ((bv == 2 || bv == 134 || bv == 150 || bv == 151) && random_(0, 4) != 0) {
+			if ((bv == 2 || bv == 134 || bv == 150 || bv == 144) && random_(0, 4) != 0) {
 				if (InThemeRoom(i, j - 1))
 					continue; // in a theme room -> skip
 				y1 = j;
@@ -2249,7 +2249,11 @@ static void DRLG_L3Wood()
 					dungeon[i][j] = 139;
 				else if (dungeon[i][j] == 134)
 					dungeon[i][j] = 142;
-			} else if ((bv == 4 || bv == 135 || bv == 138 || bv == 152) && random_(0, 4) != 0) {
+				else if (dungeon[i][j] == 150)
+					dungeon[i][j] = 152;
+				else if (dungeon[i][j] == 144)
+					dungeon[i][j] = 143;
+			} else if ((bv == 4 || bv == 135 || bv == 145 || bv == 150) && random_(0, 4) != 0) {
 				if (InThemeRoom(i - 1, j))
 					continue; // in a theme room -> skip
 				x1 = i;
@@ -2300,6 +2304,10 @@ static void DRLG_L3Wood()
 					dungeon[i][j] = 140;
 				else if (dungeon[i][j] == 135)
 					dungeon[i][j] = 143;
+				else if (dungeon[i][j] == 145)
+					dungeon[i][j] = 142;
+				else if (dungeon[i][j] == 150)
+					dungeon[i][j] = 151;
 			}
 		}
 	}

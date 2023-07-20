@@ -156,6 +156,11 @@ void InitLvlAutomap()
 		automaptype[156] &= ~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE);
 		automaptype[157] &= ~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE);
 	}
+	// patch dAutomapData - L3.AMP
+	if (currLvl._dType == DTYPE_CAVES) {
+		automaptype[144] = automaptype[151];
+		automaptype[145] = automaptype[152];
+	}
 	// patch dAutomapData - L4.AMP
 	if (currLvl._dType == DTYPE_HELL) {
 		automaptype[52] |= MAPFLAG_VERTGRATE;
