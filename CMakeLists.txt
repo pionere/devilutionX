@@ -624,6 +624,10 @@ if(USE_PATCH)
     tools/patcher/control.cpp
     tools/patcher/cursor.cpp
     tools/patcher/diablo.cpp
+    tools/patcher/drlp_l1.cpp
+    tools/patcher/drlp_l2.cpp
+    tools/patcher/drlp_l3.cpp
+    tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
     tools/patcher/effects.cpp
     tools/patcher/encrypt.cpp
@@ -634,8 +638,10 @@ if(USE_PATCH)
     tools/patcher/mainmenu.cpp
     tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
+    tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
     tools/patcher/sound.cpp
+    tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
     tools/patcher/controls/controller.cpp
     tools/patcher/controls/controller_motion.cpp
