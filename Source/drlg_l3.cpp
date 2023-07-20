@@ -1531,7 +1531,7 @@ typedef struct RiverTile {
 /*
  * Draw lava rivers.
  * Assumes the border of dungeon was empty.
- * New dungeon values: 19 20 21 22 23 24 38 39 40 41 42 43 44 45
+ * New dungeon values: 15 16 17 18 19 20 21 22 23 24 38 39 40 41 42 43 44 45
  */
 static void DRLG_L3River()
 {
@@ -1840,8 +1840,8 @@ static bool DRLG_L3SpawnLava(int x, int y, int dir)
 
 static void DRLG_L3DrawLava(int x, int y)
 {
-	BYTE i;                 //     0     1     2     3     4     5     6     7     8     9    10    11    12    13    14 
-	static BYTE poolsub[15] = { 0x00, 0x23, 0x1A, 0x24, 0x19, 0x1D, 0x22, 0x07, 0x21, 0x1C, 0x1B, 0x25, 0x20, 0x1F, 0x1E };
+	BYTE i;                 //   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14 
+	static BYTE poolsub[15] = {  0, 35, 26, 36, 25, 29, 34,  7, 33, 28, 27, 37, 32, 31, 30 };
 
 	if (x < 0 || x >= DMAXX || y < 0 || y >= DMAXY) {
 		return;
@@ -1868,6 +1868,7 @@ static void DRLG_L3DrawLava(int x, int y)
  * Flood fills dirt and wall tiles looking for
  * an area of at most 40 tiles and disconnected from the map edge.
  * If it finds one, converts it to lava tiles and sets lavapool to TRUE.
+ * New dungeon values: 25 26 27 28 29 30 31 32 33 34 35 36 37
  */
 static void DRLG_L3Pool()
 {
@@ -2131,7 +2132,7 @@ static void DRLG_L6PlaceRndPool(const BYTE* miniset, int rndper)
 /*
  * Add fences and planks to the dungeon.
  * New dungeon values: 121, 122, 123, 124, 125, 126, 127, 128, 129, 130,
- *                     131, 132, 133, 134, 135, 139, 140, 142, 143, 151, 152
+ *                     131, 132, 133, 134, 135, 139, 140, 142, 143, 146, 147, 151, 152
  */
 static void DRLG_L3Wood()
 {
