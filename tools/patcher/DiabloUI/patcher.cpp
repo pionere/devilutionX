@@ -20,7 +20,6 @@ static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
 static constexpr int BLOCK_SIZE_L4 = 16;
-static constexpr int BLOCK_SIZE_L6 = 10;
 
 typedef enum filenames {
 #if ASSET_MPL == 1
@@ -100,8 +99,10 @@ typedef enum filenames {
 	FILE_CRYPT_SOL,
 	FILE_CRYPT_AMP,
 #if ASSET_MPL == 1
+	FILE_NEST_CEL,
 	FILE_NEST_MIN,
 #endif
+	FILE_NEST_TIL,
 	FILE_NEST_SOL,
 	FILE_OBJCURS_CEL,
 #endif
@@ -186,8 +187,10 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
 /*FILE_CRYPT_AMP*/     "NLevels\\L5Data\\L5.AMP",
 #if ASSET_MPL == 1
+/*FILE_NEST_CEL*/      "NLevels\\L6Data\\L6.CEL",
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
+/*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
 /*FILE_NEST_SOL*/      "NLevels\\L6Data\\L6.SOL",
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
@@ -1744,7 +1747,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATACOMBS_CEL:
 	{	// patch dMicroCels - L2.CEL
-		// fix the upstairs I.
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATACOMBS_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -2045,6 +2047,22 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		Town_PatchMin(buf, true);
 		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_TOWN);
 	} break;
+	case FILE_NEST_CEL:
+	{	// patch dMicroCels - L6.CEL
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_NEST_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_NEST_MIN]);
+			return NULL;
+		}
+		buf = DRLP_L6_PatchCel(minBuf, minLen, buf, dwLen);
+		if (buf != NULL) {
+			DRLP_L6_PatchMin(minBuf);
+			buf = buildBlkCel(buf, dwLen);
+		}
+		mem_free_dbg(minBuf);
+	} break;
 	case FILE_NEST_MIN:
 	{	// patch dMiniTiles - L6.MIN
 		if (*dwLen < MICRO_IDX(366 - 1, BLOCK_SIZE_L6, 1) * 2) {
@@ -2052,16 +2070,19 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		uint16_t *pSubtiles = (uint16_t*)buf;
-		constexpr int blockSize = BLOCK_SIZE_L6;
-		// useless black micros
-		Blk2Mcr(21, 0);
-		Blk2Mcr(21, 1);
-		// fix bad artifacts
-		Blk2Mcr(132, 7);
-		Blk2Mcr(366, 1);
+		DRLP_L6_PatchMin(buf);
+		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_L6);
 	} break;
 #endif /* ASSET_MPL == 1 */
+	case FILE_NEST_TIL:
+	{	// patch dMegaTiles - L6.TIL
+		if (*dwLen < 4 * 166 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		DRLP_L6_PatchTil(buf);
+	} break;
 	case FILE_NEST_SOL:
 	{	// patch dSolidTable - L6.SOL
 		if (*dwLen <= 416) {

@@ -184,7 +184,7 @@ const BYTE L6BTYPES[167] = {
 	0, 0, 0, 0, 0, 0, 0, 1, 2, 3,
 	4, 5, 0, 0, 0, 0, 0, 0, 0, 0, // 10..
 	0, 0, 0, 0, 0, 2, 2, 2, 2, 1, // 20..
-	1, 1, 1, 3, 3, 3, 3, 3, 5, 4, // 30..
+	0, 0, 0, 3, 3, 3, 3, 3, 5, 4, // 30..
 	4, 4, 4, 4, 5, 3, 3, 4, 4, 5, // 40..
 	5, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 50..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60..
@@ -589,7 +589,7 @@ const BYTE L6MITE2[] = {
 	67,  0, // search
 	66, 51,
 
-	69,  0, // replace
+	 7,  0, // replace
 	68, 52,
 	// clang-format on
 };
@@ -613,7 +613,7 @@ const BYTE L6MITE4[] = {
 	67,  0, // search
 	66, 51,
 
-	73,  0, // replace
+	 7,  0, // replace
 	72, 54,
 	// clang-format on
 };
@@ -625,8 +625,8 @@ const BYTE L6MITE5[] = {
 	67,  0, // search
 	66, 51,
 
-	75,  0, // replace
-	74, 55,
+	 7,  0, // replace
+	 7, 55,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 6. */
@@ -637,7 +637,7 @@ const BYTE L6MITE6[] = {
 	67,  0, // search
 	66, 51,
 
-	77,  0, // replace
+	 7,  0, // replace
 	76, 56,
 	// clang-format on
 };
@@ -649,7 +649,7 @@ const BYTE L6MITE7[] = {
 	67,  0, // search
 	66, 51,
 
-	79,  0, // replace
+	 7,  0, // replace
 	78, 57,
 	// clang-format on
 };
@@ -661,7 +661,7 @@ const BYTE L6MITE8[] = {
 	67,  0, // search
 	66, 51,
 
-	81,  0, // replace
+	 7,  0, // replace
 	80, 58,
 	// clang-format on
 };
@@ -684,7 +684,7 @@ const BYTE L6MITE10[] = {
 	67,  0, // search
 	66, 51,
 
-	84,  0, // replace
+	 7,  0, // replace
 	85, 60,
 	// clang-format on
 };

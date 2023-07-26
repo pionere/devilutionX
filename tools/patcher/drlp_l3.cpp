@@ -3830,4 +3830,2023 @@ void DRLP_L3_PatchTil(BYTE* buf)
 	}
 }
 
+#ifdef HELLFIRE
+static BYTE* patchNestFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int subtileIndex;
+		unsigned microIndex;
+		int res_encoding;
+	} CelMicro;
+
+	const CelMicro micros[] = {
+/*  0 */{   1 - 1, 4, -1 },              // merge subtiles (used to block subsequent calls)
+/*  1 */{   3 - 1, 7, -1 },
+/*  2 */{   3 - 1, 5, -1 },
+/*  3 */{   4 - 1, 6, MET_TRANSPARENT },
+
+/*  4 */{ 296 - 1, 1, MET_RTRIANGLE }, // change types
+/*  5 */{ 224 - 1, 1, MET_RTRIANGLE },
+/*  6 */{ 223 - 1, 0, MET_LTRIANGLE },
+/*  7 */{ 209 - 1, 0, MET_LTRIANGLE },
+
+/*  8 */{  61 - 1, 7, MET_TRANSPARENT }, // fix glitch
+/*  9 */{ 195 - 1, 0, MET_TRANSPARENT },
+/* 10 */{ 195 - 1, 1, MET_TRANSPARENT },
+/* 11 */{ 203 - 1, 0, MET_TRANSPARENT },
+/* 12 */{ 221 - 1, 0, MET_TRANSPARENT },
+
+/* 13 */{  25 - 1, 0, -1 }, // fix shadows
+/* 14 */{  25 - 1, 1, -1 },
+/* 15 */{  26 - 1, 0, -1 },
+/* 16 */{  26 - 1, 1, -1 },
+/* 17 */{  27 - 1, 0, -1 },
+/* 18 */{  27 - 1, 1, -1 },
+/* 19 */{  28 - 1, 0, -1 },
+/* 20 */{  28 - 1, 1, -1 },
+
+/* 21 */{ 103 - 1, 0, -1 },
+/* 22 */{ 103 - 1, 1, -1 },
+/* 23 */{ 104 - 1, 0, -1 },
+/* 24 */{ 104 - 1, 1, -1 },
+/* 25 */{ 105 - 1, 0, -1 },
+/* 26 */{ 105 - 1, 1, -1 },
+/* 27 */{ 106 - 1, 0, -1 },
+/* 28 */{ 106 - 1, 1, -1 },
+
+/* 29 */{ 261 - 1, 1, MET_RTRIANGLE },
+/* 30 */{ 274 - 1, 1, MET_RTRIANGLE },
+/* 31 */{ 287 - 1, 0, MET_LTRIANGLE },
+/* 32 */{ 288 - 1, 1, MET_RTRIANGLE },
+/* 33 */{ 251 - 1, 1, MET_RTRIANGLE },
+/* 34 */{ 272 - 1, 1, MET_RTRIANGLE },
+/* 35 */{ 271 - 1, 1, MET_RTRIANGLE },
+/* 36 */{ 269 - 1, 0, MET_LTRIANGLE },
+/* 37 */{ 302 - 1, 0, MET_LTRIANGLE },
+/* 38 */{ 302 - 1, 1, MET_RTRIANGLE },
+/* 39 */{ 311 - 1, 1, MET_RTRIANGLE },
+/* 40 */{ 310 - 1, 1, MET_RTRIANGLE },
+/* 41 */{ 314 - 1, 0, MET_LTRIANGLE },
+/* 42 */{ 319 - 1, 1, MET_RTRIANGLE },
+/* 43 */{ 320 - 1, 0, MET_LTRIANGLE },
+/* 44 */{ 320 - 1, 1, MET_RTRIANGLE },
+
+/* 45 */{ 334 - 1, 0, MET_TRANSPARENT }, // fix glitch
+/* 46 */{ 217 - 1, 0, MET_TRANSPARENT },
+/* 47 */{ 207 - 1, 0, MET_TRANSPARENT },
+	};
+
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_L6;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		// if (micro.subtileIndex < 0) {
+		//	continue;
+		// }
+		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
+			return celBuf; // frame is empty -> assume it is already done
+		}
+	}
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int DRAW_HEIGHT = 8;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		// if (micro.subtileIndex >= 0) {
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+		// }
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	// move pixels to 4[6] from 1[4], 3[7], 3[5]
+	for (int i = 3; i < 4; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color1, color2, color3;
+				color1 = color2 = color3 = TRANS_COLOR;
+				color1 = gpBuffer[x + MICRO_WIDTH * (0 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (0 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 1[4]
+				if (y < MICRO_HEIGHT / 2) {
+					color2 = gpBuffer[x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 3[7]
+				} else {
+					color3 = gpBuffer[x + MICRO_WIDTH * (2 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (2 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 3[5]
+				}
+				if (color1 != TRANS_COLOR) {
+					gpBuffer[addr] = color1;
+				}
+				if (color2 != TRANS_COLOR) {
+					gpBuffer[addr] = color2;
+				}
+				if (color3 != TRANS_COLOR) {
+					gpBuffer[addr] = color3;
+				}
+			}
+		}
+	}
+
+	{ // 61[7] - fix glitch
+		int i = 8;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  7 + 12 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr +  8 + 12 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  8 + 13 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  9 + 13 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr + 10 + 13 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr + 11 + 13 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr +  8 + 14 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr +  9 + 14 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr + 10 + 14 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr + 11 + 14 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr + 12 + 14 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 10 + 15 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr + 11 + 15 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 12 + 15 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  8 + 16 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  9 + 16 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr + 10 + 16 * BUFFER_WIDTH] = 63;
+		gpBuffer[addr + 11 + 16 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 12 + 16 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 13 + 16 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr +  6 + 17 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  7 + 17 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  8 + 17 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  9 + 17 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr + 10 + 17 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr + 11 + 17 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr + 12 + 17 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 13 + 17 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr +  6 + 18 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  7 + 18 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  8 + 18 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  9 + 18 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr + 10 + 18 * BUFFER_WIDTH] = 63;
+		gpBuffer[addr + 11 + 18 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 12 + 18 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 13 + 18 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  7 + 19 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr +  8 + 19 * BUFFER_WIDTH] = 46;
+		gpBuffer[addr +  9 + 19 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr + 10 + 19 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr + 11 + 19 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 12 + 19 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 13 + 19 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  7 + 20 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  8 + 20 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr +  9 + 20 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr + 10 + 20 * BUFFER_WIDTH] = 57;
+		gpBuffer[addr + 11 + 20 * BUFFER_WIDTH] = 40;
+		gpBuffer[addr + 12 + 20 * BUFFER_WIDTH] = 57;
+		gpBuffer[addr + 13 + 20 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr +  7 + 21 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  8 + 21 * BUFFER_WIDTH] = 58;
+		gpBuffer[addr +  9 + 21 * BUFFER_WIDTH] = 57;
+		gpBuffer[addr + 10 + 21 * BUFFER_WIDTH] = 55;
+		gpBuffer[addr + 11 + 21 * BUFFER_WIDTH] = 51;
+		gpBuffer[addr + 12 + 21 * BUFFER_WIDTH] = 58;
+		gpBuffer[addr + 13 + 21 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr +  7 + 22 * BUFFER_WIDTH] = 59;
+		gpBuffer[addr +  8 + 22 * BUFFER_WIDTH] = 56;
+		gpBuffer[addr +  9 + 22 * BUFFER_WIDTH] = 55;
+		gpBuffer[addr + 10 + 22 * BUFFER_WIDTH] = 70;
+		gpBuffer[addr + 11 + 22 * BUFFER_WIDTH] = 71;
+		gpBuffer[addr + 12 + 22 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  7 + 23 * BUFFER_WIDTH] = 58;
+		gpBuffer[addr +  8 + 23 * BUFFER_WIDTH] = 58;
+		gpBuffer[addr +  9 + 23 * BUFFER_WIDTH] = 57;
+		gpBuffer[addr + 10 + 23 * BUFFER_WIDTH] = 72;
+		gpBuffer[addr + 11 + 23 * BUFFER_WIDTH] = 74;
+		gpBuffer[addr + 12 + 23 * BUFFER_WIDTH] = 60;
+		gpBuffer[addr +  7 + 24 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr +  8 + 24 * BUFFER_WIDTH] = 76;
+		gpBuffer[addr +  9 + 24 * BUFFER_WIDTH] = 74;
+		gpBuffer[addr + 10 + 24 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 11 + 24 * BUFFER_WIDTH] = 76;
+		gpBuffer[addr + 12 + 24 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr +  7 + 25 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr +  8 + 25 * BUFFER_WIDTH] = 79;
+		gpBuffer[addr +  9 + 25 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 10 + 25 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 11 + 25 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr +  7 + 26 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr +  8 + 26 * BUFFER_WIDTH] = 30;
+		gpBuffer[addr +  9 + 26 * BUFFER_WIDTH] = 30;
+		gpBuffer[addr + 10 + 26 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr +  7 + 27 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr +  8 + 27 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr +  9 + 27 * BUFFER_WIDTH] = 62;
+
+		gpBuffer[addr +  7 + 28 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr +  8 + 28 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr +  7 + 29 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr +  8 + 29 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr +  7 + 30 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr +  7 + 31 * BUFFER_WIDTH] = 29;
+	}
+	{ // 195[0] - fix glitch
+		int i = 9;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 30 +  1 * BUFFER_WIDTH] = 88;
+		gpBuffer[addr + 31 +  1 * BUFFER_WIDTH] = 89;
+		gpBuffer[addr + 28 +  2 * BUFFER_WIDTH] = 91;
+		gpBuffer[addr + 29 +  2 * BUFFER_WIDTH] = 91;
+		gpBuffer[addr + 30 +  2 * BUFFER_WIDTH] = 93;
+		gpBuffer[addr + 31 +  2 * BUFFER_WIDTH] = 95;
+	}
+	{ // 195[1] - fix glitch
+		int i = 10;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  5 +  4 * BUFFER_WIDTH] = 120;
+		gpBuffer[addr +  6 +  4 * BUFFER_WIDTH] = 84;
+		gpBuffer[addr +  7 +  4 * BUFFER_WIDTH] = 85;
+		gpBuffer[addr + 21 +  3 * BUFFER_WIDTH] = TRANS_COLOR;
+	}
+	{ // 203[0] - fix glitch
+		int i = 11;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 18 +  7 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 +  7 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 20 +  6 * BUFFER_WIDTH] = 127;
+	}
+	{ // 221[0] - fix glitch
+		int i = 12;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 14 +  9 * BUFFER_WIDTH] = 106;
+	}
+	{ // 334[0] - fix glitch
+		int i = 45;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 17 +  8 * BUFFER_WIDTH] = 90;
+	}
+	{ // 217[0] - fix glitch + shadow
+		int i = 46;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 14 +  9 * BUFFER_WIDTH] = 125;
+
+		gpBuffer[addr + 15 +  9 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 16 +  8 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 16 +  9 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 12 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 13 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 14 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 12 + 11 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 13 + 11 * BUFFER_WIDTH] = 125;
+	}
+	{ // 207[0] - fix glitch
+		int i = 47;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 24 +  4 * BUFFER_WIDTH] = 45;
+	}
+
+	// create 'new' shadow 261[1] using 106[1]
+	for (int i = 29; i < 30; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case 11: useShadow = x >= 15 && x <= 18; break;
+				case 12: useShadow = x >= 12 && x <= 19; break;
+				case 13: useShadow = x >= 12 && x <= 20; break;
+				case 14: useShadow = x >= 13 && x <= 20; break;
+				case 15: useShadow = x >= 13 && x <= 20; break;
+				case 16: useShadow = x >= 14 && x <= 20; break;
+				case 17: useShadow = x >= 14 && x <= 20; break;
+				case 18: useShadow = x >= 15 && x <= 19; break;
+				case 19: useShadow = x >= 15 && x <= 19; break;
+				case 20: useShadow = x >= 16 && x <= 18; break;
+				case 21: useShadow = x >= 16 && x <= 18; break;
+				case 22: useShadow = x >= 17 && x <= 18; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (28 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (28 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 106[1]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 274[1] using 104[1]
+	for (int i = 30; i < 31; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case 12: useShadow = x >= 22 && x <= 23; break;
+				case 13: useShadow = x >= 21 && x <= 25; break;
+				case 14: useShadow = x >= 20 && x <= 25; break;
+				case 15: useShadow = x >= 18 && x <= 24; break;
+				case 16: useShadow = x >= 18 && x <= 24; break;
+				case 17: useShadow = x >= 17 && x <= 23; break;
+				case 18: useShadow = x >= 16 && x <= 23; break;
+				case 19: useShadow = x >= 16 && x <= 22 && (x < 18 || x > 20); break;
+				case 20: useShadow = x >= 15 && x <= 21 && (x < 17 || x > 19); break;
+				case 21: useShadow = x >= 14 && x <= 21 && (x < 16 || x > 18); break;
+				case 22: useShadow = x >= 14 && x <= 14; break;
+				case 23: useShadow = x >= 14 && x <= 14; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (24 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (24 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[1]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 11 +  8 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 12 +  8 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 +  9 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 11 +  9 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 + 11 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 11 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 11 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  8 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  8 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  7 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  8 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  6 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  7 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  5 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  6 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  5 + 17 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  4 + 18 * BUFFER_WIDTH] = 125;
+	}
+	// create 'new' shadow 287[0] using 104[0]
+	for (int i = 31; i < 32; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case  9: useShadow = x >= 28 && x <= 29; break;
+				case 10: useShadow = x >= 27 && x <= 29; break;
+				case 11: useShadow = x >= 27 && x <= 28; break;
+				case 12: useShadow = x >= 28 && x <= 28; break;
+				case 13: useShadow = x >= 23 && x <= 24; break;
+				case 14: useShadow = x >= 22 && x <= 25; break;
+				case 15: useShadow = x >= 22 && x <= 24; break;
+				case 16: useShadow = x >= 21 && x <= 25; break;
+				case 17: useShadow = x >= 20 && x <= 25; break;
+				case 18: useShadow = x >= 20 && x <= 25; break;
+				case 19: useShadow = x >= 19 && x <= 23; break;
+				case 20: useShadow = x >= 18 && x <= 22; break;
+				case 21: useShadow = x >= 18 && x <= 23; break;
+				case 22: useShadow = x >= 18 && x <= 23; break;
+				case 23: useShadow = x >= 18 && x <= 23; break;
+				case 24: useShadow = x >= 21 && x <= 23; break;
+				case 25: useShadow = x >= 21 && x <= 23; break;
+				case 26: useShadow = x >= 20 && x <= 22; break;
+				case 27: useShadow = x >= 22 && x <= 22; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (23 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (23 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[0]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 288[1] using 106[1]
+	for (int i = 32; i < 33; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (28 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (28 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 106[1]
+				gpBuffer[addr] = color;
+			}
+		}
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 17 + 20 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 17 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 18 + 19 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 18 + 18 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 18 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 18 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 + 17 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 19 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 20 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 20 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 20 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 20 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 20 + 11 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 21 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 21 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 21 + 11 * BUFFER_WIDTH] = 125;
+	}
+	// create 'new' shadow 251[1] using 104[1]
+	for (int i = 33; i < 34; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case 10: useShadow = x >= 4 && x <= 17; break;
+				case 11: useShadow = x >= 4 && x <= 19; break;
+				case 12: useShadow = x >= 2 && x <= 19; break;
+				case 13: useShadow = x >= 1 && x <= 20; break;
+				case 14: useShadow = x >= 1 && x <= 21; break;
+				case 15: useShadow = x >= 0 && x <= 22; break;
+				case 16: useShadow = x >= 0 && x <= 15; break;
+				case 17: useShadow = x >= 1 && x <= 10; break;
+				case 18: useShadow = x >= 3 && x <=  7; break;
+				case 19: useShadow = x >= 3 && x <=  5; break;
+				case 20: useShadow = x >= 3 && x <=  5; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (24 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (24 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[1]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 272[1] using 28[1]
+	for (int i = 34; i < 35; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (20 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (20 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 28[1]
+				gpBuffer[addr] = color;
+			}
+		}
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 10 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 11 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 11 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 11 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 24 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 + 24 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  8 + 25 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 25 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 10 + 25 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  8 + 26 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 26 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  7 + 27 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  8 + 27 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  9 + 27 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  7 + 28 * BUFFER_WIDTH] = 125;
+	}
+	// create 'new' shadow 271[1] using 26[1]
+	for (int i = 35; i < 36; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case  5: useShadow = x >= 8 && x <= 9; break;
+				case  6: useShadow = x >= 7 && x <= 11; break;
+				case  7: useShadow = x >= 5 && x <= 13; break;
+				case  8: useShadow = x >= 4 && x <= 15; break;
+				case  9: useShadow = x >= 3 && x <= 17; break;
+				case 10: useShadow = x >= 3 && x <= 16; break;
+				case 11: useShadow = x >= 2 && x <= 16; break;
+				case 12: useShadow = x >= 2 && x <= 15; break;
+				case 13: useShadow = x >= 2 && x <= 15; break;
+				case 14: useShadow = x >= 2 && x <= 13; break;
+				case 15: useShadow = x >= 2 && x <= 11; break;
+				case 16: useShadow = x >= 3 && x <= 11; break;
+				case 17: useShadow = x >= 3 && x <= 11; break;
+				case 18: useShadow = x >= 3 && x <= 10; break;
+				case 19: useShadow = x >= 4 && x <=  9; break;
+				case 20: useShadow = x >= 4 && x <=  7; break;
+				case 21: useShadow = x >= 5 && x <=  6; break;
+				case 22: useShadow = x >= 5 && x <=  5; break;
+				case 23: useShadow = x >= 5 && x <=  5; break;
+				case 24: useShadow = x >= 4 && x <=  5; break;
+				case 25: useShadow = x >= 4 && x <=  5; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (16 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (16 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 26[1]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 269[0] using 104[0]
+	for (int i = 36; i < 37; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (23 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (23 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[0]
+				gpBuffer[addr] = color;
+			}
+		}
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 10 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 11 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 12 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 13 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 15 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 16 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 17 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 12 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 13 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 14 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 15 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 17 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 14 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 15 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 16 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 17 + 23 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 16 + 24 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr + 17 + 24 * BUFFER_WIDTH] = 125;
+	}
+	// create 'new' shadow 302[0] using 104[0]
+	for (int i = 37; i < 38; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case  3: useShadow = x >= 28 && x <= 31; break;
+				case  4: useShadow = x >= 25 && x <= 31; break;
+				case  5: useShadow = x >= 24 && x <= 31; break;
+				case  6: useShadow = x >= 21 && x <= 31; break;
+				case  7: useShadow = x >= 21 && x <= 31; break;
+				case  8: useShadow = x >= 22 && x <= 31; break;
+				case  9: useShadow = x >= 23 && x <= 31; break;
+				case 10: useShadow = x >= 24 && x <= 31; break;
+				case 11: useShadow = x >= 24 && x <= 31; break;
+				case 12: useShadow = x >= 24 && x <= 31; break;
+				case 13: useShadow = x >= 24 && x <= 31; break;
+				case 14: useShadow = x >= 25 && x <= 31; break;
+				case 15: useShadow = x >= 25 && x <= 31; break;
+				case 16: useShadow = x >= 26 && x <= 31; break;
+				case 17: useShadow = x >= 26 && x <= 31; break;
+				case 18: useShadow = x >= 27 && x <= 31; break;
+				case 19: useShadow = x >= 27 && x <= 31; break;
+				case 20: useShadow = x >= 28 && x <= 31; break;
+				case 21: useShadow = x >= 28 && x <= 31; break;
+				case 22: useShadow = x >= 29 && x <= 31; break;
+				case 23: useShadow = x >= 29 && x <= 31; break;
+				case 24: useShadow = x >= 29 && x <= 31; break;
+				case 25: useShadow = x >= 29 && x <= 31; break;
+				case 26: useShadow = x >= 28 && x <= 30; break;
+				case 27: useShadow = x >= 28 && x <= 29; break;
+				case 28: useShadow = x >= 28 && x <= 28; break;
+				case 29: useShadow = x >= 28 && x <= 28; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (23 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (23 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[0]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 302[1] using 104[1]
+	for (int i = 38; i < 39; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (24 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (24 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[1]
+				gpBuffer[addr] = color;
+			}
+		}
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  1 +  4 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 +  4 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  3 +  4 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 +  5 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 +  5 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 +  5 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  3 +  5 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  4 +  5 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 +  6 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 +  6 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 +  6 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  3 +  6 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 +  7 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 +  7 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 +  8 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 +  8 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 +  9 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 10 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 11 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 11 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  3 + 12 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  3 + 13 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 + 14 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 + 15 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 17 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 17 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  2 + 17 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 18 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 18 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 19 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 19 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 20 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 20 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 22 * BUFFER_WIDTH] = 125;
+	}
+	// create 'new' shadow 311[1] using 106[1]
+	for (int i = 39; i < 40; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case 14: useShadow = x >= 10 && x <= 12; break;
+				case 15: useShadow = x >=  9 && x <= 15; break;
+				case 16: useShadow = x >=  9 && x <= 17; break;
+				case 17: useShadow = x >=  9 && x <= 20; break;
+				case 18: useShadow = x >= 11 && x <= 19; break;
+				case 19: useShadow = x >= 15 && x <= 19; break;
+				case 20: useShadow = x >= 17 && x <= 19; break;
+				case 21: useShadow = x >= 17 && x <= 18; break;
+				case 22: useShadow = x >= 16 && x <= 17; break;
+				case 23: useShadow = x >= 15 && x <= 15; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (28 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (28 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 106[1]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 310[1] using 104[1]
+	for (int i = 40; i < 41; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case 13: useShadow = x >= 24 && x <= 25; break;
+				case 14: useShadow = x >= 25 && x <= 27; break;
+				case 15: useShadow = x >= 25 && x <= 29; break;
+				case 16: useShadow = x >= 25 && x <= 31; break;
+				case 17: useShadow = x >= 26 && x <= 29; break;
+				case 18: useShadow = x >= 26 && x <= 27; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (24 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (24 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 104[1]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// create 'new' shadow 314[0] using 28[0]
+	for (int i = 41; i < 42; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				bool useShadow = false;
+				switch (y) {
+				case 18: useShadow = x >= 20 && x <= 28; break;
+				case 19: useShadow = x >= 20 && x <= 29; break;
+				case 20: useShadow = x >= 21 && x <= 29; break;
+				case 21: useShadow = x >= 21 && x <= 30; break;
+				case 22: useShadow = x >= 21 && x <= 31; break;
+				case 23: useShadow = x >= 22 && x <= 31; break;
+				case 24: useShadow = x >= 22 && x <= 31; break;
+				case 25: useShadow = x >= 23 && x <= 31; break;
+				case 26: useShadow = x >= 23 && x <= 31; break;
+				case 27: useShadow = x >= 23 && x <= 31; break;
+				case 28: useShadow = x >= 24 && x <= 31; break;
+				case 29: useShadow = x >= 26 && x <= 31; break;
+				case 30: useShadow = x >= 28 && x <= 31; break;
+				case 31: useShadow = x >= 30 && x <= 31; break;
+				}
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (19 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (19 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 28[0]
+				if (useShadow) {
+					color = 125;
+				}
+				gpBuffer[addr] = color;
+			}
+		}
+	}
+	// fix shadow 319[1] using 25[1]
+	for (int i = 42; i < 43; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (14 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (14 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 25[1]
+				if (x > 14 && y > 13 && y < 22) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// fix shadow 320[0] using 26[0]
+	for (int i = 43; i < 44; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (15 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (15 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 26[0]
+				if (x > 19 && y < 13) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// fix shadow 320[1] using 26[1]
+	for (int i = 44; i < 45; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[x + MICRO_WIDTH * (16 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (16 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 26[1]
+				gpBuffer[addr] = color;
+			}
+		}
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  0 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 17 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 18 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 19 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 20 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 21 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  0 + 22 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 16 * BUFFER_WIDTH] = 125;
+		gpBuffer[addr +  1 + 17 * BUFFER_WIDTH] = 125;
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+
+	CelFrameEntry entries[lengthof(micros)];
+	xx = 0, yy = MICRO_HEIGHT - 1;
+	int idx = 0;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.res_encoding >= 0) {
+			entries[idx].encoding = micro.res_encoding;
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
+			entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
+			idx++;
+		}
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+
+static BYTE* patchNestStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int subtileIndex;
+		unsigned microIndex;
+		int res_encoding;
+	} CelMicro;
+
+	const CelMicro micros[] = {
+/*  0 */{ 75 - 1, 2, -1 },              // redraw stairs (used to block subsequent calls)
+/*  1 */{ 75 - 1, 4, -1 },
+
+/*  2 */{ 66 - 1, 0, MET_LTRIANGLE },
+/*  3 */{ 66 - 1, 1, MET_RTRAPEZOID },
+/*  4 */{ 66 - 1, 3, MET_SQUARE },
+/*  5 */{ 68 - 1, 1, MET_RTRIANGLE },
+/*  6 */{ 69 - 1, 0, MET_LTRIANGLE },
+/*  7 */{ 69 - 1, 2, -1 },
+/*  8 */{ 69 - 1, 5, MET_SQUARE },
+/*  9 */{ 69 - 1, 7, MET_TRANSPARENT },
+/* 10 */{ 71 - 1, 0, MET_LTRIANGLE },
+/* 11 */{ 71 - 1, 2, -1 },
+
+/* 12 */{ 64 - 1, 0, MET_LTRIANGLE },
+/* 13 */{ 63 - 1, 1, MET_RTRIANGLE },
+
+/* 14 */{ 58 - 1, 1, MET_RTRIANGLE },
+/* 15 */{ 58 - 1, 3, -1 },
+	};
+
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_L6;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		// if (micro.subtileIndex < 0) {
+		//	continue;
+		// }
+		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
+			return celBuf; // frame is empty -> assume it is already done
+		}
+	}
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int DRAW_HEIGHT = 8;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		// if (micro.subtileIndex >= 0) {
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+		// }
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	// move pixels to 66[0] from 71[2]
+	for (int i = 2; i < 3; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > 16 + x / 2 || y < 16 - x / 2) {
+					continue;
+				}
+				unsigned addr2 = x + MICRO_WIDTH * (11 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (11 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 71[2]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+
+	// move pixels to 66[1] from 69[0] and 69[2]
+	for (int i = 3; i < 4; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y > 31 - x / 2) {
+					continue;
+				}
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (7 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (7 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 69[2]
+				} else {
+					addr2 = x + MICRO_WIDTH * (6 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (6 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 69[0]
+				}
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 66[3] from 69[2]
+	for (int i = 4; i < 5; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (7 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (7 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 69[2]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 68[1] from 71[0] and 71[2]
+	for (int i = 5; i < 6; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y > 31 - x / 2 || y < 1 + x / 2) {
+					continue;
+				}
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (11 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (11 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 71[2]
+				} else {
+					addr2 = x + MICRO_WIDTH * (10 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (10 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 71[0]
+				}
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 69[5] from 75[4] and 75[2]
+	for (int i = 8; i < 9; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 75[4]
+				} else {
+					addr2 = x + MICRO_WIDTH * (0 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (0 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 75[2]
+				}
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 69[7] from 75[4]
+	for (int i = 9; i < 10; i++) {
+		for (int x = 0; x < MICRO_WIDTH / 2; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 75[4]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+
+	// move pixels to 64[0] from 58[1] and 58[3]
+	for (int i = 12; i < 13; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (15 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (15 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 58[3]
+				} else {
+					addr2 = x + MICRO_WIDTH * (14 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (14 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 58[1]
+				}
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 63[1] from 58[3]
+	for (int i = 13; i < 14; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (15 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (15 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 58[3]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+
+	CelFrameEntry entries[lengthof(micros)];
+	xx = 0, yy = MICRO_HEIGHT - 1;
+	int idx = 0;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.res_encoding >= 0) {
+			entries[idx].encoding = micro.res_encoding;
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
+			entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
+			idx++;
+		}
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+
+static BYTE* patchNestWall1Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int subtileIndex;
+		unsigned microIndex;
+		int res_encoding;
+	} CelMicro;
+
+	const CelMicro micros[] = {
+/*  0 */{   49 - 1, 1, -1 },               // mask walls leading to north east
+/*  1 */{   49 - 1, 3, -1 },
+/*  2 */{   50 - 1, 3, -1 },
+/*  3 */{   50 - 1, 5, -1 },
+/*  4 */{   50 - 1, 7, -1 },
+
+/*  5 */{   11 - 1, 0, MET_TRANSPARENT },
+/*  6 */{   11 - 1, 1, MET_TRANSPARENT },
+/*  7 */{   11 - 1, 2, MET_TRANSPARENT },
+/*  8 */{   15 - 1, 0, MET_TRANSPARENT },
+/*  9 */{   15 - 1, 1, MET_TRANSPARENT },
+/* 10 */{   -1, 2, -1 },
+
+/* 11 */{    9 - 1, 0, MET_TRANSPARENT },
+/* 12 */{   13 - 1, 0, MET_TRANSPARENT },
+/* 13 */{ /*17*/ - 1, 0, -1 },
+/* 14 */{    9 - 1, 2, MET_TRANSPARENT },
+	};
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_L6;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.subtileIndex < 0) {
+			continue;
+		}
+		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
+			mem_free_dbg(celBuf);
+			app_warn("Invalid (empty) nest subtile (%d:%d).", micro.subtileIndex + 1, micro.microIndex);
+			return NULL; // frame is empty -> abort
+		}
+	}
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int DRAW_HEIGHT = 8;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.subtileIndex >= 0) {
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+		}
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	// mask 11[0], 15[0] using 49[1] and 49[3]
+	for (int i = 5; i < 11; i += 3) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 49[3]
+				} else {
+					addr2 = x + MICRO_WIDTH * (0 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (0 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 49[1]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 11[1], 15[1] using 50[3]
+	for (int i = 6; i < 11; i += 3) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (2 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (2 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 50[3]
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 11[2], 15[2] using 49[3]
+	for (int i = 7; i < 11; i += 3) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 49[3]
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+
+	// mask 9[0], 13[0], 17[0] using 50[3] and 50[5]
+	for (int i = 11; i < 14; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (3 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (3 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 50[5]
+				} else {
+					addr2 = x + MICRO_WIDTH * (2 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (2 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 50[3]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 9[2] using 50[5] and 50[7]
+	for (int i = 14; i < 15; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (4 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (4 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 50[7]
+				} else {
+					addr2 = x + MICRO_WIDTH * (3 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (3 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 50[5]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+
+	CelFrameEntry entries[lengthof(micros)];
+	xx = 0, yy = MICRO_HEIGHT - 1;
+	int idx = 0;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.res_encoding >= 0) {
+			entries[idx].encoding = micro.res_encoding;
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
+			entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
+			idx++;
+		}
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+
+static BYTE* patchNestWall2Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int subtileIndex;
+		unsigned microIndex;
+		int res_encoding;
+	} CelMicro;
+
+	const CelMicro micros[] = {
+/*  0 */{  67 - 1, 0, -1 },               // mask walls leading to north west
+/*  1 */{  67 - 1, 2, -1 },
+/*  2 */{  38 - 1, 0, MET_TRANSPARENT },
+/*  3 */{  40 - 1, 1, MET_TRANSPARENT },
+/*  4 */{  42 - 1, 0, MET_TRANSPARENT },
+/*  5 */{  44 - 1, 1, MET_TRANSPARENT },
+/*  6 */{  50 - 1, 0, MET_TRANSPARENT },
+/*  7 */{  52 - 1, 1, MET_TRANSPARENT },
+/*  8 */{  70 - 1, 0, MET_TRANSPARENT },
+/*  9 */{  72 - 1, 1, MET_TRANSPARENT },
+/* 10 */{ 140 - 1, 0, MET_TRANSPARENT },
+/* 11 */{ 142 - 1, 1, MET_TRANSPARENT },
+/* 12 */{ 144 - 1, 0, MET_TRANSPARENT },
+/* 13 */{ 146 - 1, 1, MET_TRANSPARENT },
+/* 14 */{ 148 - 1, 0, MET_TRANSPARENT },
+/* 15 */{ 150 - 1, 1, MET_TRANSPARENT },
+/* 16 */{ 152 - 1, 0, MET_TRANSPARENT },
+/* 17 */{ 154 - 1, 1, MET_TRANSPARENT },
+/* 18 */{ 156 - 1, 0, MET_TRANSPARENT },
+/* 19 */{ 158 - 1, 1, MET_TRANSPARENT },
+/* 20 */{ 160 - 1, 0, MET_TRANSPARENT },
+/* 21 */{ 162 - 1, 1, MET_TRANSPARENT },
+/* 22 */{ 164 - 1, 0, MET_TRANSPARENT },
+/* 23 */{ 166 - 1, 1, MET_TRANSPARENT },
+/* 24 */{ 176 - 1, 0, MET_TRANSPARENT },
+/* 25 */{ 178 - 1, 1, MET_TRANSPARENT },
+/* 26 */{ 180 - 1, 0, MET_TRANSPARENT },
+/* 27 */{ 182 - 1, 1, MET_TRANSPARENT },
+/* 28 */{ 184 - 1, 0, MET_TRANSPARENT },
+/* 29 */{ 186 - 1, 1, MET_TRANSPARENT },
+/* 30 */{ 188 - 1, 0, MET_TRANSPARENT },
+/* 31 */{ 190 - 1, 1, MET_TRANSPARENT },
+/* 32 */{ 502 - 1, 0, MET_TRANSPARENT },
+/* 33 */{ 504 - 1, 1, MET_TRANSPARENT },
+
+/* 34 */{  65 - 1, 0, -1 },
+/* 35 */{  65 - 1, 2, -1 },
+/* 36 */{  65 - 1, 4, -1 },
+/* 37 */{  65 - 1, 6, -1 },
+/* 38 */{  38 - 1, 1, MET_TRANSPARENT },
+/* 39 */{  38 - 1, 3, MET_TRANSPARENT },
+/* 40 */{  38 - 1, 5, MET_TRANSPARENT },
+/* 41 */{  42 - 1, 1, MET_TRANSPARENT },
+/* 42 */{  42 - 1, 3, MET_TRANSPARENT },
+/* 43 */{  42 - 1, 5, MET_TRANSPARENT },
+/* 44 */{  50 - 1, 1, MET_TRANSPARENT },
+/* 45 */{  50 - 1, 3, MET_TRANSPARENT },
+/* 46 */{  50 - 1, 5, MET_TRANSPARENT },
+/* 47 */{  70 - 1, 1, MET_TRANSPARENT },
+/* 48 */{  70 - 1, 3, MET_TRANSPARENT },
+/* 49 */{  70 - 1, 5, MET_TRANSPARENT },
+/* 50 */{ 140 - 1, 1, MET_TRANSPARENT },
+/* 51 */{ 140 - 1, 3, MET_TRANSPARENT },
+/* 52 */{ 140 - 1, 5, MET_TRANSPARENT },
+/* 53 */{ 144 - 1, 1, MET_TRANSPARENT },
+/* 54 */{ 144 - 1, 3, MET_TRANSPARENT },
+/* 55 */{ 144 - 1, 5, MET_TRANSPARENT },
+/* 56 */{ 148 - 1, 1, MET_TRANSPARENT },
+/* 57 */{ 148 - 1, 3, MET_TRANSPARENT },
+/* 58 */{ 148 - 1, 5, MET_TRANSPARENT },
+/* 59 */{ 152 - 1, 1, MET_TRANSPARENT },
+/* 60 */{ 152 - 1, 3, MET_TRANSPARENT },
+/* 61 */{ 152 - 1, 5, MET_TRANSPARENT },
+/* 62 */{ 156 - 1, 1, MET_TRANSPARENT },
+/* 63 */{ 156 - 1, 3, MET_TRANSPARENT },
+/* 64 */{ 156 - 1, 5, MET_TRANSPARENT },
+/* 65 */{ 160 - 1, 1, MET_TRANSPARENT },
+/* 66 */{ 160 - 1, 3, MET_TRANSPARENT },
+/* 67 */{ 160 - 1, 5, MET_TRANSPARENT },
+/* 68 */{ 164 - 1, 1, MET_TRANSPARENT },
+/* 69 */{ 164 - 1, 3, MET_TRANSPARENT },
+/* 70 */{ 164 - 1, 5, MET_TRANSPARENT },
+/* 71 */{ 176 - 1, 1, MET_TRANSPARENT },
+/* 72 */{ 176 - 1, 3, MET_TRANSPARENT },
+/* 73 */{ 176 - 1, 5, MET_TRANSPARENT },
+/* 74 */{ 180 - 1, 1, MET_TRANSPARENT },
+/* 75 */{ 180 - 1, 3, MET_TRANSPARENT },
+/* 76 */{ 180 - 1, 5, MET_TRANSPARENT },
+/* 77 */{ 184 - 1, 1, MET_TRANSPARENT },
+/* 78 */{ 184 - 1, 3, MET_TRANSPARENT },
+/* 79 */{ 184 - 1, 5, MET_TRANSPARENT },
+/* 80 */{ 188 - 1, 1, MET_TRANSPARENT },
+/* 81 */{ 188 - 1, 3, MET_TRANSPARENT },
+/* 82 */{ 188 - 1, 5, MET_TRANSPARENT },
+/* 83 */{ /*502*/ - 1, 1, -1 },
+/* 84 */{ /*502*/ - 1, 3, -1 },
+/* 85 */{ /*502*/ - 1, 5, -1 },
+
+/* 86 */{  53 - 1, 0, -1 },               // mask walls leading to north east
+/* 87 */{  53 - 1, 2, -1 },
+/* 88 */{  55 - 1, 2, -1 },
+/* 89 */{  55 - 1, 4, -1 },
+/* 90 */{  55 - 1, 6, MET_TRANSPARENT }, // fix glitch
+
+/* 91 */{   2 - 1, 0, MET_TRANSPARENT },
+/* 92 */{   2 - 1, 1, MET_TRANSPARENT },
+/* 93 */{   6 - 1, 0, MET_TRANSPARENT },
+/* 94 */{   6 - 1, 1, MET_TRANSPARENT },
+
+/* 95 */{   1 - 1, 1, MET_TRANSPARENT },
+/* 96 */{   5 - 1, 1, MET_TRANSPARENT },
+/* 97 */{ /*17*/ - 1, 1, -1 },
+/* 98 */{   1 - 1, 3, MET_TRANSPARENT },
+
+/* 99 */{  37 - 1, 6, MET_TRANSPARENT }, // fix micros after masking
+/*100 */{ 159 - 1, 6, MET_TRANSPARENT },
+
+/*101 */{   4 - 1, 5, MET_TRANSPARENT }, // move pixels to enable fix
+	};
+
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_L6;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.subtileIndex < 0) {
+			continue;
+		}
+		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
+			mem_free_dbg(celBuf);
+			app_warn("Invalid (empty) nest subtile (%d:%d).", micro.subtileIndex + 1, micro.microIndex);
+			return NULL; // frame is empty -> abort
+		}
+	}
+
+	// TODO: check celLen
+	// draw the micros to the back-buffer
+	pMicrosCel = celBuf;
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int DRAW_HEIGHT = 8;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
+
+	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.subtileIndex >= 0) {
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+		}
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	// mask walls leading to north west
+	// mask 38[0], 42[0], 50[0], 70[0], 140[0], 144[0], 148[0], 152[0], 156[0], 160[0], 164[0], 176[0], 180[0], 184[0], 188[0], 502[0] using 67[1]
+	for (int i = 2; i < 34; i += 2) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 67[1]
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 40[1], 44[1], 52[1], 72[1], 142[1], 146[1], 150[1], 154[1], 158[1], 162[1], 166[1], 178[1], 182[1], 186[1], 190[1], 504[1] using 67[1] and 67[0]
+	for (int i = 3; i < 34; i += 2) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 67[1]
+				} else {
+					addr2 = x + MICRO_WIDTH * (0 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (0 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 67[0]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 38[1], 42[1], 50[1], 70[1], 140[1], 144[1], 148[1], 152[1], 156[1], 160[1], 164[1], 176[1], 180[1], 184[1], 188[1], 502[1] using 65[0] and 65[2]
+	for (int i = 38; i < 86; i += 3) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (35 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (35 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 65[2]
+				} else {
+					addr2 = x + MICRO_WIDTH * (34 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (34 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 65[0]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 38[3], 42[3], 50[3], 70[3], 140[3], 144[3], 148[3], 152[3], 156[3], 160[3], 164[3], 176[3], 180[3], 184[3], 188[3], 502[3] using 65[2] and 65[4]
+	for (int i = 39; i < 86; i += 3) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (36 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (36 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 65[4]
+				} else {
+					addr2 = x + MICRO_WIDTH * (35 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (35 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 65[2]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 38[5], 42[5], 50[5], 70[5], 140[5], 144[5], 148[5], 152[5], 156[5], 160[5], 164[5], 176[5], 180[5], 184[5], 188[5], 502[5] using 65[4] and 65[6]
+	for (int i = 40; i < 86; i += 3) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (37 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (37 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 65[6]
+				} else {
+					addr2 = x + MICRO_WIDTH * (36 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (36 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 65[4]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	{ // 55[6] - fix glitch (prepare mask)
+		int i = 90;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 20 + 25 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 20 + 26 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 20 + 27 * BUFFER_WIDTH] = 61;
+		gpBuffer[addr + 20 + 28 * BUFFER_WIDTH] = 61;
+	}
+	// mask 2[0], 6[0] with 55[2]
+	for (int i = 91; i < 95; i += 2) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (88 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (88 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 55[2]
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 2[1], 6[1] with 53[0] and 53[2]
+	for (int i = 92; i < 95; i += 2) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (87 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (87 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 53[2]
+				} else {
+					addr2 = x + MICRO_WIDTH * (86 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (86 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 53[0]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 1[1], 5[1], 17[1] with 55[4] and 55[2]
+	for (int i = 95; i < 98; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (89 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (89 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 55[4]
+				} else {
+					addr2 = x + MICRO_WIDTH * (88 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (88 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 55[2]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask 1[3] with 55[6] and 55[4]
+	for (int i = 98; i < 99; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (90 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (90 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 55[6]
+				} else {
+					addr2 = x + MICRO_WIDTH * (89 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (89 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 55[4]
+				}
+				if (gpBuffer[addr2] != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+
+	// fix micros after masking
+	for (int i = 99; i < 101; i++) {
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 26 + 25 * BUFFER_WIDTH] = 30;
+		gpBuffer[addr + 26 + 26 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr + 25 + 24 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr + 25 + 25 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr + 25 + 26 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr + 25 + 27 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr + 25 + 28 * BUFFER_WIDTH] = 31;
+		gpBuffer[addr + 24 + 26 * BUFFER_WIDTH] = 46;
+		gpBuffer[addr + 24 + 27 * BUFFER_WIDTH] = 62;
+		gpBuffer[addr + 24 + 28 * BUFFER_WIDTH] = 46;
+		gpBuffer[addr + 24 + 29 * BUFFER_WIDTH] = 46;
+	}
+
+	// move pixels to 4[5] from 1[3]
+	for (int i = 101; i < 102; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (98 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (98 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 1[3]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+					gpBuffer[addr2] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+
+	CelFrameEntry entries[lengthof(micros)];
+	xx = 0, yy = MICRO_HEIGHT - 1;
+	int idx = 0;
+	for (int i = 0; i < lengthof(micros); i++) {
+		const CelMicro &micro = micros[i];
+		if (micro.res_encoding >= 0) {
+			entries[idx].encoding = micro.res_encoding;
+			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
+			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
+			entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
+			idx++;
+		}
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+
+	*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+	mem_free_dbg(celBuf);
+
+	return resCelBuf;
+}
+
+BYTE* DRLP_L6_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+{
+	celBuf = patchNestFloorCel(minBuf, minLen, celBuf, celLen);
+	if (celBuf == NULL) {
+		return NULL;
+	}
+	celBuf = patchNestStairsCel(minBuf, minLen, celBuf, celLen);
+	if (celBuf == NULL) {
+		return NULL;
+	}
+	celBuf = patchNestWall1Cel(minBuf, minLen, celBuf, celLen);
+	if (celBuf == NULL) {
+		return NULL;
+	}
+	celBuf = patchNestWall2Cel(minBuf, minLen, celBuf, celLen);
+	return celBuf;
+}
+
+void DRLP_L6_PatchMin(BYTE* buf)
+{
+	uint16_t* pSubtiles = (uint16_t*)buf;
+	constexpr int blockSize = BLOCK_SIZE_L6;
+
+	// adjust the frame types
+	// - after patchNestFloorCel
+	SetFrameType(296, 1, MET_RTRIANGLE);
+	SetFrameType(288, 1, MET_RTRIANGLE);
+	SetFrameType(224, 1, MET_RTRIANGLE);
+	SetFrameType(223, 0, MET_LTRIANGLE);
+	SetFrameType(209, 0, MET_LTRIANGLE);
+
+	// - after patchNestStairsCel
+	SetFrameType(66, 0, MET_LTRIANGLE);
+	SetFrameType(66, 1, MET_RTRAPEZOID);
+	SetFrameType(66, 3, MET_SQUARE);
+	SetFrameType(68, 1, MET_RTRIANGLE);
+	SetFrameType(69, 0, MET_LTRIANGLE);
+	SetFrameType(69, 5, MET_SQUARE);
+	SetFrameType(71, 0, MET_LTRIANGLE);
+
+	SetFrameType(58, 1, MET_RTRIANGLE);
+	SetFrameType(64, 0, MET_LTRIANGLE);
+	SetFrameType(63, 1, MET_RTRIANGLE);
+
+	// useless black micros
+	Blk2Mcr(21, 0);
+	Blk2Mcr(21, 1);
+	// useless pixels
+	Blk2Mcr(334, 2);
+	// -  by patchNestStairsCel
+	Blk2Mcr(75, 2);
+	ReplaceMcr(75, 4, 31, 4);
+	Blk2Mcr(71, 2);
+	Blk2Mcr(69, 2);
+	Blk2Mcr(69, 4);
+	Blk2Mcr(58, 3);
+
+	// fix glitch
+	ReplaceMcr(155, 6, 159, 6);
+	ReplaceMcr(175, 6, 159, 6);
+	// - by patchNestWall2Cel
+	ReplaceMcr(8, 5, 4, 5);
+
+	// new shadows
+	ReplaceMcr(261, 0, 106, 0);
+	ReplaceMcr(287, 1, 104, 1);
+	ReplaceMcr(294, 1, 104, 1);
+	ReplaceMcr(251, 0, 104, 0);
+	ReplaceMcr(274, 0, 104, 0);
+	ReplaceMcr(271, 0, 26, 0);
+
+	// fix bad artifacts
+	Blk2Mcr(132, 7);
+	// Blk2Mcr(366, 1);
+
+	// redraw corner tile
+	ReplaceMcr(1, 6, 100, 6);
+	ReplaceMcr(12, 4, 29, 2);
+	ReplaceMcr(12, 5, 29, 3);
+	ReplaceMcr(12, 7, 29, 5);
+	ReplaceMcr(9, 5, 29, 5);
+	ReplaceMcr(9, 7, 29, 7);
+	// - after patchNestFloorCel
+	Blk2Mcr(1, 4);
+	Blk2Mcr(3, 7);
+	Blk2Mcr(3, 5);
+	ReplaceMcr(4, 4, 29, 2);
+
+	ReplaceMcr(17, 0, 13, 0); // mostly invisible
+	ReplaceMcr(17, 1, 5, 1);
+
+	ReplaceMcr(431, 1, 26, 1);
+	ReplaceMcr(474, 1, 26, 1);
+
+	ReplaceMcr(501, 2, 179, 2); // lost details
+	ReplaceMcr(501, 4, 179, 4);
+	ReplaceMcr(501, 5, 179, 5);
+	ReplaceMcr(501, 6, 179, 6);
+	ReplaceMcr(501, 7, 29, 7);
+
+	ReplaceMcr(38, 7, 176, 7); // lost details
+	ReplaceMcr(42, 7, 176, 7); // lost details
+	ReplaceMcr(70, 7, 176, 7); // lost details
+	ReplaceMcr(140, 7, 176, 7); // lost details
+	ReplaceMcr(144, 7, 176, 7); // lost details
+	ReplaceMcr(148, 7, 176, 7); // lost details
+	ReplaceMcr(152, 7, 176, 7); // lost details
+	ReplaceMcr(156, 7, 176, 7); // lost details
+	ReplaceMcr(160, 7, 176, 7); // lost details
+	ReplaceMcr(180, 7, 176, 7);
+	ReplaceMcr(184, 7, 176, 7); // lost details
+	ReplaceMcr(188, 7, 176, 7); // lost details
+	ReplaceMcr(502, 7, 176, 7); // lost details
+
+	ReplaceMcr(41, 6, 29, 6);
+	ReplaceMcr(41, 7, 29, 7);
+	ReplaceMcr(139, 6, 29, 6);
+	ReplaceMcr(139, 7, 29, 7);
+	ReplaceMcr(143, 7, 29, 7);
+	ReplaceMcr(147, 7, 29, 7);
+	ReplaceMcr(151, 7, 29, 7);
+	ReplaceMcr(155, 7, 29, 7);
+	ReplaceMcr(159, 7, 29, 7);
+	ReplaceMcr(163, 6, 29, 6);
+	ReplaceMcr(163, 7, 29, 7);
+	ReplaceMcr(175, 7, 29, 7);
+	ReplaceMcr(179, 7, 29, 7);
+	ReplaceMcr(183, 6, 29, 6);
+	ReplaceMcr(183, 7, 29, 7);
+	ReplaceMcr(187, 6, 29, 6);
+	ReplaceMcr(187, 7, 29, 7);
+
+	ReplaceMcr(167, 6, 131, 6); // lost details
+	ReplaceMcr(131, 7, 45, 7);
+	ReplaceMcr(167, 7, 45, 7);
+
+	ReplaceMcr(171, 7, 119, 7);
+
+	ReplaceMcr(127, 6, 57, 6);
+	ReplaceMcr(127, 7, 57, 7);
+	ReplaceMcr(129, 6, 59, 6);
+
+	ReplaceMcr(189, 6, 173, 6);
+
+	ReplaceMcr(3, 4, 31, 4);
+	ReplaceMcr(3, 6, 31, 6);
+	ReplaceMcr(7, 4, 31, 4);
+
+	ReplaceMcr(8, 4, 29, 2);
+	// ReplaceMcr(8, 5, 29, 3);
+
+	ReplaceMcr(14, 4, 29, 2);
+	ReplaceMcr(14, 5, 29, 3);
+	ReplaceMcr(16, 5, 30, 5);
+	ReplaceMcr(16, 7, 30, 7);
+
+	ReplaceMcr(22, 4, 16, 4);
+	ReplaceMcr(22, 5, 30, 5);
+	ReplaceMcr(23, 4, 29, 2);
+	ReplaceMcr(24, 4, 29, 2);
+	ReplaceMcr(24, 5, 29, 3);
+
+	ReplaceMcr(73, 5, 29, 5); // lost details
+	ReplaceMcr(73, 4, 29, 4); // lost details
+	ReplaceMcr(73, 3, 29, 3);
+	ReplaceMcr(73, 2, 29, 2);
+
+	ReplaceMcr(76, 6, 100, 6); // lost details
+	ReplaceMcr(78, 4, 31, 4);
+
+	ReplaceMcr(93, 4, 31, 4);
+	ReplaceMcr(91, 2, 29, 2); // lost details
+	ReplaceMcr(91, 3, 29, 3);
+	ReplaceMcr(92, 5, 30, 5);
+
+	ReplaceMcr(96, 4, 31, 4);
+	ReplaceMcr(94, 2, 29, 2); // lost details
+	ReplaceMcr(94, 3, 29, 3);
+	ReplaceMcr(94, 7, 29, 7); // lost details
+
+	ReplaceMcr(97, 2, 29, 2);
+	ReplaceMcr(97, 3, 29, 3);
+	ReplaceMcr(97, 6, 29, 6); // lost details
+	ReplaceMcr(97, 7, 29, 7); // lost details
+
+	ReplaceMcr(100, 2, 29, 2);
+
+	ReplaceMcr(260, 0, 105, 0);
+	ReplaceMcr(295, 0, 105, 0);
+	// ReplaceMcr(303, 0, 105, 0);
+	// ReplaceMcr(317, 0, 105, 0);
+	ReplaceMcr(412, 0, 105, 0);
+
+	ReplaceMcr(253, 0, 106, 0);
+	ReplaceMcr(275, 0, 106, 0);
+	ReplaceMcr(282, 0, 106, 0);
+	ReplaceMcr(288, 0, 106, 0);
+	ReplaceMcr(304, 0, 106, 0);
+	ReplaceMcr(311, 0, 106, 0);
+	ReplaceMcr(324, 0, 106, 0);
+	ReplaceMcr(373, 0, 106, 0);
+
+	ReplaceMcr(321, 0, 28, 0);
+	// ReplaceMcr(385, 0, 28, 0);
+
+	ReplaceMcr(257, 1, 28, 1);
+	ReplaceMcr(269, 1, 106, 1);
+	ReplaceMcr(279, 1, 28, 1);
+	ReplaceMcr(285, 1, 28, 1);
+	// ReplaceMcr(302, 1, 104, 1);
+	ReplaceMcr(314, 1, 28, 1);
+	ReplaceMcr(377, 1, 28, 1);
+
+	ReplaceMcr(250, 0, 103, 0);
+	// ReplaceMcr(266, 0, 103, 0);
+	ReplaceMcr(273, 0, 103, 0);
+	ReplaceMcr(280, 0, 103, 0);
+	ReplaceMcr(309, 0, 103, 0);
+	ReplaceMcr(322, 0, 103, 0);
+
+	// ReplaceMcr(262, 0, 25, 0);
+	ReplaceMcr(270, 0, 25, 0);
+	// ReplaceMcr(276, 0, 25, 0);
+
+	ReplaceMcr(435, 1, 104, 1);
+
+	ReplaceMcr(497, 4, 119, 4);
+	ReplaceMcr(497, 6, 119, 6);
+	ReplaceMcr(497, 7, 119, 7);
+	ReplaceMcr(498, 3, 120, 3);
+	ReplaceMcr(499, 0, 121, 0);
+	ReplaceMcr(499, 2, 121, 2);
+	ReplaceMcr(499, 4, 121, 4);
+	ReplaceMcr(499, 6, 121, 6);
+
+	// ReplaceMcr(501, 7, 29, 7);
+	ReplaceMcr(502, 1, 152, 1);
+	ReplaceMcr(502, 3, 152, 3);
+	ReplaceMcr(502, 5, 180, 5);
+	ReplaceMcr(503, 2, 153, 2);
+	ReplaceMcr(503, 6, 181, 6);
+
+	// - one-subtile islands
+	ReplaceMcr(419, 0, 447, 0);
+
+	// eliminate micros of unused subtiles
+	// Blk2Mcr(560,  ...),
+	Blk2Mcr(78, 6);
+	Blk2Mcr(79, 0);
+	Blk2Mcr(79, 1);
+	Blk2Mcr(79, 2);
+	Blk2Mcr(79, 3);
+	Blk2Mcr(79, 4);
+	Blk2Mcr(79, 5);
+	Blk2Mcr(79, 7);
+	Blk2Mcr(88, 4);
+	Blk2Mcr(88, 5);
+	Blk2Mcr(88, 6);
+	Blk2Mcr(88, 7);
+	Blk2Mcr(89, 7);
+	Blk2Mcr(95, 7);
+	Blk2Mcr(99, 6);
+	Blk2Mcr(250, 1);
+	Blk2Mcr(253, 1);
+	Blk2Mcr(257, 0);
+	Blk2Mcr(260, 1);
+	Blk2Mcr(270, 1);
+	Blk2Mcr(273, 1);
+	Blk2Mcr(275, 1);
+	Blk2Mcr(279, 0);
+	Blk2Mcr(280, 1);
+	Blk2Mcr(282, 1);
+	Blk2Mcr(285, 0);
+	Blk2Mcr(304, 1);
+	Blk2Mcr(322, 1);
+	Blk2Mcr(324, 1);
+	Blk2Mcr(370, 6);
+	Blk2Mcr(436, 1);
+	Blk2Mcr(457, 1);
+	Blk2Mcr(472, 0);
+	Blk2Mcr(479, 1);
+	Blk2Mcr(481, 1);
+	Blk2Mcr(482, 0);
+	Blk2Mcr(485, 1);
+	Blk2Mcr(493, 0);
+	Blk2Mcr(494, 1);
+	Blk2Mcr(496, 1);
+	Blk2Mcr(558, 6);
+	Blk2Mcr(559, 1);
+	Blk2Mcr(559, 2);
+	Blk2Mcr(559, 3);
+	Blk2Mcr(559, 4);
+	Blk2Mcr(559, 5);
+	Blk2Mcr(559, 6);
+	Blk2Mcr(559, 7);
+	Blk2Mcr(561, 4);
+	Blk2Mcr(561, 6);
+	Blk2Mcr(562, 0);
+	Blk2Mcr(565, 6);
+	Blk2Mcr(566, 4);
+	Blk2Mcr(566, 5);
+	Blk2Mcr(566, 6);
+	Blk2Mcr(566, 7);
+	Blk2Mcr(567, 5);
+	Blk2Mcr(567, 7);
+	Blk2Mcr(568, 0);
+	Blk2Mcr(568, 4);
+	Blk2Mcr(568, 6);
+	Blk2Mcr(570, 2);
+	Blk2Mcr(570, 3);
+	Blk2Mcr(570, 4);
+	Blk2Mcr(570, 5);
+	Blk2Mcr(570, 6);
+	Blk2Mcr(570, 7);
+	Blk2Mcr(571, 3);
+	Blk2Mcr(571, 5);
+	Blk2Mcr(571, 7);
+	Blk2Mcr(572, 1);
+	Blk2Mcr(579, 1);
+	Blk2Mcr(579, 2);
+	Blk2Mcr(579, 4);
+	Blk2Mcr(579, 6);
+	Blk2Mcr(579, 7);
+	Blk2Mcr(580, 2);
+	Blk2Mcr(580, 4);
+	Blk2Mcr(580, 6);
+	Blk2Mcr(581, 0);
+	Blk2Mcr(585, 2);
+	Blk2Mcr(585, 3);
+	Blk2Mcr(585, 4);
+	Blk2Mcr(585, 5);
+	Blk2Mcr(585, 6);
+	Blk2Mcr(585, 7);
+	Blk2Mcr(586, 5);
+	Blk2Mcr(586, 7);
+	Blk2Mcr(587, 6);
+	Blk2Mcr(588, 0);
+	Blk2Mcr(589, 2);
+	Blk2Mcr(589, 3);
+	Blk2Mcr(589, 4);
+	Blk2Mcr(589, 5);
+	Blk2Mcr(589, 6);
+	Blk2Mcr(589, 7);
+	Blk2Mcr(590, 5);
+	Blk2Mcr(590, 7);
+	Blk2Mcr(591, 0);
+	Blk2Mcr(592, 1);
+	Blk2Mcr(599, 2);
+	Blk2Mcr(599, 3);
+	Blk2Mcr(599, 4);
+	Blk2Mcr(599, 5);
+	Blk2Mcr(599, 7);
+
+	const int unusedSubtiles[] = {
+		10, 18, 19, 74, 80, 81, 82, 83, 84, 85, 86, 87, 90, 98, 101, 102, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 252, 254, 255, 256, 258, 259, 262, 263, 264, 265, 266, 267, 268, 276, 277, 278, 281, 283, 284, 286, 289, 290, 291, 292, 297, 298, 299, 300, 301, 303, 305, 306, 307, 308, 312, 313, 315, 316, 317, 318, 323, 325, 326, 327, 328, 329, 330, 331, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 374, 375, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 448, 449, 471, 477, 478, 480, 483, 484, 486, 487, 488, 492, 495, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 563, 564, 569, 573, 574, 575, 576, 577, 578, 582, 583, 584, 593, 594, 595, 596, 597, 598, 600, 601, 602, 603, 604, 605, 606
+	};
+
+	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
+		for (int i = 0; i < blockSize; i++) {
+			Blk2Mcr(unusedSubtiles[n], i);
+		}
+	}
+}
+
+void DRLP_L6_PatchTil(BYTE* buf)
+{
+	uint16_t* pTiles = (uint16_t*)buf;
+
+	// redraw corner tile
+	pTiles[(3 - 1) * 4 + 1] = SwapLE16(30 - 1); // 10
+
+	// use common subtiles
+	pTiles[(5 - 1) * 4 + 1] = SwapLE16(6 - 1);     // 18
+	pTiles[(5 - 1) * 4 + 2] = SwapLE16(15 - 1);    // 19
+	pTiles[(121 - 1) * 4 + 0] = SwapLE16(446 - 1); // 457
+
+	// use common subtiles instead of minor alterations
+	pTiles[(19 - 1) * 4 + 1] = SwapLE16(30 - 1);  // 74
+	pTiles[(20 - 1) * 4 + 2] = SwapLE16(31 - 1);  // 78
+	pTiles[(26 - 1) * 4 + 1] = SwapLE16(30 - 1);  // 95
+	pTiles[(27 - 1) * 4 + 1] = SwapLE16(30 - 1);  // 98
+	pTiles[(27 - 1) * 4 + 2] = SwapLE16(31 - 1);  // 99
+	pTiles[(28 - 1) * 4 + 1] = SwapLE16(30 - 1);  // 101
+	pTiles[(28 - 1) * 4 + 2] = SwapLE16(96 - 1);  // 102
+	// - shadows
+	pTiles[(66 - 1) * 4 + 2] = SwapLE16(105 - 1); // 252
+	pTiles[(72 - 1) * 4 + 2] = SwapLE16(105 - 1);
+	// pTiles[(74 - 1) * 4 + 2] = SwapLE16(105 - 1);
+	pTiles[(76 - 1) * 4 + 2] = SwapLE16(105 - 1);
+	pTiles[(82 - 1) * 4 + 2] = SwapLE16(105 - 1);
+	pTiles[(99 - 1) * 4 + 2] = SwapLE16(105 - 1);
+	pTiles[(80 - 1) * 4 + 2] = SwapLE16(105 - 1); // 303
+	// pTiles[(79 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 297
+	// pTiles[(79 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 298
+	// pTiles[(79 - 1) * 4 + 2] = SwapLE16(27 - 1);  // 299
+	pTiles[(70 - 1) * 4 + 0] = SwapLE16(103 - 1); // 266
+	pTiles[(70 - 1) * 4 + 1] = SwapLE16(104 - 1); // 267
+	pTiles[(71 - 1) * 4 + 2] = SwapLE16(27 - 1);  // 264
+	pTiles[(85 - 1) * 4 + 2] = SwapLE16(27 - 1);
+	// pTiles[(77 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 289
+	// pTiles[(77 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 290
+	// pTiles[(77 - 1) * 4 + 3] = SwapLE16(28 - 1);  // 292
+	// pTiles[(73 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 276
+	// pTiles[(73 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 277
+	// pTiles[(67 - 1) * 4 + 0] = SwapLE16(25 - 1); // 254
+	// pTiles[(67 - 1) * 4 + 1] = SwapLE16(26 - 1); // 255
+	// pTiles[(75 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 262
+	pTiles[(83 - 1) * 4 + 0] = SwapLE16(25 - 1);
+	// pTiles[(75 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 283
+	pTiles[(83 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 312
+	// pTiles[(84 - 1) * 4 + 0] = SwapLE16(103 - 1); // 315
+	// pTiles[(84 - 1) * 4 + 1] = SwapLE16(104 - 1); // 316
+	// pTiles[(84 - 1) * 4 + 2] = SwapLE16(105 - 1); // 317
+	pTiles[(100 - 1) * 4 + 0] = SwapLE16(25 - 1); // 374
+	pTiles[(100 - 1) * 4 + 1] = SwapLE16(26 - 1); // 375
+	// - new shadows
+	pTiles[(66 - 1) * 4 + 0] = SwapLE16(103 - 1); // 250
+	pTiles[(66 - 1) * 4 + 3] = SwapLE16(106 - 1); // 253
+	pTiles[(67 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 254 same as tile 7, but needed for L6MITE-placements
+	pTiles[(67 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 255
+	pTiles[(67 - 1) * 4 + 2] = SwapLE16(27 - 1);  // 256
+	pTiles[(67 - 1) * 4 + 3] = SwapLE16(28 - 1);  // 257
+	pTiles[(68 - 1) * 4 + 0] = SwapLE16(103 - 1); // 258
+	pTiles[(68 - 1) * 4 + 1] = SwapLE16(104 - 1); // 259
+	pTiles[(68 - 1) * 4 + 2] = SwapLE16(105 - 1); // 260
+	pTiles[(70 - 1) * 4 + 2] = SwapLE16(105 - 1); // 268
+	pTiles[(71 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 270
+	pTiles[(72 - 1) * 4 + 0] = SwapLE16(103 - 1); // 273
+	pTiles[(72 - 1) * 4 + 3] = SwapLE16(106 - 1); // 275
+	pTiles[(76 - 1) * 4 + 0] = SwapLE16(103 - 1); // 286
+	pTiles[(80 - 1) * 4 + 0] = SwapLE16(103 - 1); // 301
+	pTiles[(80 - 1) * 4 + 3] = SwapLE16(106 - 1); // 304
+	pTiles[(83 - 1) * 4 + 2] = SwapLE16(27 - 1);  // 313
+	// - one-subtile islands
+	pTiles[(115 - 1) * 4 + 2] = SwapLE16(455 - 1); // 436
+
+	// eliminate subtiles of unused tiles
+	const int unusedTiles[] = {
+		21, 22, 23, 24, 30, 31, 32, 61, 62, 63, 64, 65, 69, 73, 74, 75, 77, 79, 81, 84, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 101, 102, 103, 118, 125, 127, 128, 129, 130, 132, 133, 134, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166
+	};
+	constexpr int blankSubtile = 10;
+	for (int n = 0; n < lengthof(unusedTiles); n++) {
+		int tileId = unusedTiles[n];
+		pTiles[(tileId - 1) * 4 + 0] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 1] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 2] = SwapLE16(blankSubtile - 1);
+		pTiles[(tileId - 1) * 4 + 3] = SwapLE16(blankSubtile - 1);
+	}
+}
+#endif // HELLFIRE
+
 DEVILUTION_END_NAMESPACE
