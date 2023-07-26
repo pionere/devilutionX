@@ -1859,16 +1859,19 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 
 	const CelMicro micros[] = {
 /*  0 */{ 180 - 1, 2, -1 },              // sync stairs (used to block subsequent calls)
-/*  1 */{ 171 - 1, 0, MET_LTRIANGLE },
-/*  2 */{ 171 - 1, 1, MET_RTRAPEZOID },
-/*  3 */{ 171 - 1, 3, MET_SQUARE },
-/*  4 */{ 173 - 1, 1, MET_RTRIANGLE },
-/*  5 */{ 174 - 1, 0, MET_LTRIANGLE },
-/*  6 */{ 174 - 1, 2, -1 },
-/*  7 */{ 174 - 1, 5, MET_TRANSPARENT },
-/*  8 */{ 176 - 1, 0, MET_LTRIANGLE },
-/*  9 */{ 176 - 1, 2, -1 },
-/* 10 */{ 163 - 1, 1, MET_RTRIANGLE },
+/*  1 */{ 180 - 1, 4, -1 },
+/*  2 */{ 171 - 1, 0, MET_LTRIANGLE },
+/*  3 */{ 171 - 1, 1, MET_RTRAPEZOID },
+/*  4 */{ 171 - 1, 3, MET_SQUARE },
+/*  5 */{ 173 - 1, 1, MET_RTRIANGLE },
+/*  6 */{ 174 - 1, 0, MET_LTRIANGLE },
+/*  7 */{ 174 - 1, 2, -1 },
+/*  8 */{ 174 - 1, 5, MET_TRANSPARENT },
+/*  9 */{ 174 - 1, 7, MET_TRANSPARENT },
+/* 10 */{ 176 - 1, 0, MET_LTRIANGLE },
+/* 11 */{ 176 - 1, 2, -1 },
+
+/* 12 */{ 163 - 1, 1, MET_RTRIANGLE },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -1907,14 +1910,14 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// move pixels to 171[0] from 176[2]
-	for (int i = 1; i < 2; i++) {
+	for (int i = 2; i < 3; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 				if (y > 16 + x / 2 || y < 16 - x / 2) {
 					continue;
 				}
-				unsigned addr2 = x + MICRO_WIDTH * (9 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (9 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 176[2]
+				unsigned addr2 = x + MICRO_WIDTH * (11 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (11 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 176[2]
 				BYTE color = gpBuffer[addr2];
 				if (color != TRANS_COLOR) {
 					gpBuffer[addr] = color;
@@ -1924,7 +1927,7 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// move pixels to 171[1] from 174[0] and 174[2]
-	for (int i = 2; i < 3; i++) {
+	for (int i = 3; i < 4; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -1933,9 +1936,9 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 					continue;
 				}
 				if (y < MICRO_HEIGHT / 2) {
-					addr2 = x + MICRO_WIDTH * (6 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (6 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 174[2]
+					addr2 = x + MICRO_WIDTH * (7 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (7 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 174[2]
 				} else {
-					addr2 = x + MICRO_WIDTH * (5 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (5 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 174[0]
+					addr2 = x + MICRO_WIDTH * (6 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (6 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 174[0]
 				}
 				BYTE color = gpBuffer[addr2];
 				if (color != TRANS_COLOR) {
@@ -1945,11 +1948,11 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 		}
 	}
 	// move pixels to 171[3] from 174[2]
-	for (int i = 3; i < 4; i++) {
+	for (int i = 4; i < 5; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-				unsigned addr2 = x + MICRO_WIDTH * (6 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (6 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 174[2]
+				unsigned addr2 = x + MICRO_WIDTH * (7 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (7 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 174[2]
 				BYTE color = gpBuffer[addr2];
 				if (color != TRANS_COLOR) {
 					gpBuffer[addr] = color;
@@ -1958,7 +1961,7 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 		}
 	}
 	// move pixels to 173[1] from 176[0] and 176[2]
-	for (int i = 4; i < 5; i++) {
+	for (int i = 5; i < 6; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
 			for (int y = 0; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -1967,9 +1970,9 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 					continue;
 				}
 				if (y < MICRO_HEIGHT / 2) {
-					addr2 = x + MICRO_WIDTH * (9 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (9 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 176[2]
+					addr2 = x + MICRO_WIDTH * (11 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (11 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 176[2]
 				} else {
-					addr2 = x + MICRO_WIDTH * (8 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (8 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 176[0]
+					addr2 = x + MICRO_WIDTH * (10 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (10 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 176[0]
 				}
 				BYTE color = gpBuffer[addr2];
 				if (color != TRANS_COLOR) {
@@ -1978,12 +1981,30 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 			}
 		}
 	}
-	// move pixels to 174[5] from 180[2]
-	for (int i = 7; i < 8; i++) {
+	// move pixels to 174[5] from 180[4] and 180[2]
+	for (int i = 8; i < 9; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 180[4]
+				} else {
+					addr2 = x + MICRO_WIDTH * (0 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (0 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 180[2]
+				}
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 174[7] from 180[4]
+	for (int i = 9; i < 10; i++) {
+		for (int x = 0; x < MICRO_WIDTH / 2; x++) {
 			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-				unsigned addr2 = x + MICRO_WIDTH * (0 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (0 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 180[2]
+				unsigned addr2 = x + MICRO_WIDTH * (1 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (1 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 180[4]
 				BYTE color = gpBuffer[addr2];
 				if (color != TRANS_COLOR) {
 					gpBuffer[addr] = color;
@@ -3242,12 +3263,12 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	SetFrameType(551, 1, MET_RTRIANGLE);
 
 	// - after patchCavesStairsCel
-	SetFrameType(174, 0, MET_LTRIANGLE);
-	SetFrameType(176, 0, MET_LTRIANGLE);
 	SetFrameType(171, 0, MET_LTRIANGLE);
 	SetFrameType(171, 1, MET_RTRAPEZOID);
 	SetFrameType(171, 3, MET_SQUARE);
 	SetFrameType(173, 1, MET_RTRIANGLE);
+	SetFrameType(174, 0, MET_LTRIANGLE);
+	SetFrameType(176, 0, MET_LTRIANGLE);
 	SetFrameType(163, 1, MET_RTRIANGLE);
 
 	// use the new shadows
@@ -3340,6 +3361,7 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(174, 4);
 	// -  by patchCavesStairsCel
 	Blk2Mcr(180, 2);
+	ReplaceMcr(180, 4, 30, 4);
 	Blk2Mcr(174, 2);
 	Blk2Mcr(176, 2);
 	Blk2Mcr(163, 3);
@@ -3674,15 +3696,13 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(556, 3);
 	Blk2Mcr(556, 5);
 	Blk2Mcr(556, 6);
-	Blk2Mcr(558, 2);
-	Blk2Mcr(558, 6);
 	Blk2Mcr(559, 4);
 	Blk2Mcr(559, 5);
 	Blk2Mcr(559, 6);
 	Blk2Mcr(559, 7);
 
 	const int unusedSubtiles[] = {
-		2, 6, 15, 18, 21, 147, 149, 152, 153, 155, 157, 160, 161, 179, 195, 204, 205, 208, 209, 211, 218, 220, 221, 222, 224, 225, 226, 227, 240, 241, 243, 250, 251, 253, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 312, 314, 328, 332, 338, 339, 349, 356, 358, 361, 364, 365, 366, 367, 368, 369, 371, 380, 406, 407, 408, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 442, 448, 487, 503, 521, 522, 523, 524, 525, 526, 527, 529, 533, 537, 550, 554, 557, 560
+		2, 6, 15, 18, 21, 147, 149, 152, 153, 155, 157, 160, 161, 179, 195, 204, 205, 208, 209, 211, 218, 220, 221, 222, 224, 225, 226, 227, 240, 241, 243, 250, 251, 253, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 312, 314, 328, 332, 338, 339, 349, 356, 358, 361, 364, 365, 366, 367, 368, 369, 371, 380, 406, 407, 408, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 442, 448, 487, 503, 521, 522, 523, 524, 525, 526, 527, 529, 533, 537, 550, 554, 557, 558, 560
 	};
 
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
