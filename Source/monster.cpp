@@ -2990,7 +2990,7 @@ void MAI_Bat(int mnum)
 			MonUpdateLeader(mnum);
 		}
 	} else if (dist >= 2) {
-		if ((mon->_mVar2 > MON_WALK_DELAY && v < mon->_mAI.aiInt + 13) // STAND_TICK
+		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < mon->_mAI.aiInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mAI.aiInt + 63)) {
 			MonDestWalk(mnum);
 		}
@@ -3051,7 +3051,7 @@ void MAI_Fat(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 	v = random_(111, 100);
 	if (currEnemyInfo._meRealDist >= 2) {
-		if ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 20) // STAND_TICK
+		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 20) // STAND_TICK
 		 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 70)) {
 			MonDestWalk(mnum);
 		}
@@ -3121,7 +3121,7 @@ void MAI_Sneak(int mnum)
 			if (MonCallWalk(mnum, mon->_mdir))
 				return;
 		} else if (dist >= 2) {
-			if (((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
+			if ((((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 64)))
 				MonDestWalk(mnum);
 			return;
@@ -3314,7 +3314,7 @@ void MAI_Round(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 2) {
-			if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mAI.aiInt + 28) // STAND_TICK
+			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mAI.aiInt + 28) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 78)) {
 				MonDestWalk(mnum);
 			}
