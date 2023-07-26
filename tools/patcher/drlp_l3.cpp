@@ -37,12 +37,6 @@ static BYTE shadowColorCaves(BYTE color)
 }
 static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{ 537 - 1, 2, -1 },              // used to block subsequent calls
 /*  1 */{ 537 - 1, 0, MET_LTRIANGLE },   // fix/mask door
@@ -1851,12 +1845,6 @@ static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 
 static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{ 180 - 1, 2, -1 },              // sync stairs (used to block subsequent calls)
 /*  1 */{ 180 - 1, 4, -1 },
@@ -2044,12 +2032,6 @@ static BYTE* patchCavesStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 
 static BYTE* patchCavesWall1Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{ 446 - 1, 1, -1 },              // mask walls leading to north east
 /*  1 */{ 446 - 1, 3, -1 },
@@ -2736,12 +2718,6 @@ static BYTE* patchCavesWall1Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 
 static BYTE* patchCavesWall2Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{   38 - 1, 0, -1 },               // mask walls leading to north west
 /*  1 */{   38 - 1, 2, -1 },
@@ -3833,12 +3809,6 @@ void DRLP_L3_PatchTil(BYTE* buf)
 #ifdef HELLFIRE
 static BYTE* patchNestFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{   1 - 1, 4, -1 },              // merge subtiles (used to block subsequent calls)
 /*  1 */{   3 - 1, 7, -1 },
@@ -4631,12 +4601,6 @@ static BYTE* patchNestFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 
 static BYTE* patchNestStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{ 75 - 1, 2, -1 },              // redraw stairs (used to block subsequent calls)
 /*  1 */{ 75 - 1, 4, -1 },
@@ -4861,12 +4825,6 @@ static BYTE* patchNestStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 
 static BYTE* patchNestWall1Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{   49 - 1, 1, -1 },               // mask walls leading to north east
 /*  1 */{   49 - 1, 3, -1 },
@@ -5031,12 +4989,6 @@ static BYTE* patchNestWall1Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 
 static BYTE* patchNestWall2Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
-
 	const CelMicro micros[] = {
 /*  0 */{  67 - 1, 0, -1 },               // mask walls leading to north west
 /*  1 */{  67 - 1, 2, -1 },

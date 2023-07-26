@@ -14,10 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define BAD_CELFILE_IDX 100
-#define BAD_MINFILE_IDX 100
-#define BAD_FRAME_IDX 0
-
 #define MICRO_IDX(subtile, blockSize, microIndex) ((subtile) * (blockSize) + (blockSize) - (2 + ((microIndex) & ~1)) + ((microIndex) & 1))
 
 // if ((currIndex == BAD_CELFILE_IDX || currIndex == BAD_MINFILE_IDX) && (pSubtiles[MICRO_IDX(subtileRef - 1, blockSize, microIndex)] & 0xFFF) == BAD_FRAME_IDX) { app_fatal("Ref%d, bs:%d, idx:%d", subtileRef, blockSize, microIndex); } ; \
@@ -62,6 +58,12 @@ extern "C" {
 
 #define SetFrameType(srcSubtileRef, microIndex, frameType) \
 pSubtiles[MICRO_IDX(srcSubtileRef - 1, blockSize, microIndex)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(srcSubtileRef - 1, blockSize, microIndex)]) & 0xFFF) | (frameType << 12));
+
+typedef struct {
+	int subtileIndex;
+	unsigned microIndex;
+	int res_encoding;
+} CelMicro;
 
 typedef struct {
 	unsigned frameRef;

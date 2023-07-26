@@ -10,11 +10,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
 	const CelMicro micros[] = {
 /*  0 */{ 137 - 1, 5, MET_SQUARE },     // change type
 		// { 250 - 1, 0, MET_LTRAPEZOID }, // change type
@@ -364,11 +359,6 @@ static BYTE shadowColorCathedral(BYTE color)
 }
 static BYTE* fixCathedralShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
 	const CelMicro micros[] = {
 		// add shadow of the grate
 /*  0 */{ 306 - 1, 1, -1 },
@@ -2027,11 +2017,6 @@ void DRLP_L1_PatchTil(BYTE* buf)
 #ifdef HELLFIRE
 static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		unsigned subtileIndex;
-		unsigned microIndex;
-		unsigned res_encoding;
-	} CelMicro;
 	const CelMicro micros[] = {
 		{ 159 - 1, 3, MET_SQUARE },
 //		{ 159 - 1, 3, MET_RTRAPEZOID },
@@ -2144,10 +2129,6 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	return resCelBuf;
 }
 
-typedef struct {
-	unsigned subtileIndex;
-	unsigned microIndex;
-} CelMicro;
 static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	const CelMicro micros[] = {
@@ -2279,11 +2260,6 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 
 static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		unsigned res_encoding;
-	} CelMicro;
 	const CelMicro micros[] = {
 		{ 626 - 1, 0, MET_LTRIANGLE },   // 1806 - 205
 		{ 626 - 1, 1, MET_RTRIANGLE },   // 1807

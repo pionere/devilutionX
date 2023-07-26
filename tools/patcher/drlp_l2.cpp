@@ -334,11 +334,6 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 
 static BYTE* fixCatacombsShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
 	const CelMicro micros[] = {
 /*  0 */{ 151 - 1, 0, -1 }, // used to block subsequent calls
 /*  1 */{  33 - 1, 0, -1 },
@@ -547,11 +542,6 @@ static BYTE* fixCatacombsShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 
 static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int subtileIndex;
-		unsigned microIndex;
-		int res_encoding;
-	} CelMicro;
 	const CelMicro micros[] = {
 /*  0 */{ 323 - 1, 2, MET_TRANSPARENT }, // used to block subsequent calls
 /*  1 */{ 134 - 1, 5, MET_SQUARE },     // change type
