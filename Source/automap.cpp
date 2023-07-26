@@ -9,7 +9,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/* Maps from tile_id to automap type. */
+/* Maps from tile_id to automap type (_automap_types + _automap_flags). */
 uint16_t automaptype[MAXTILES + 1];
 /** Specifies whether the automap is enabled. */
 bool gbAutomapflag;
@@ -170,34 +170,34 @@ void InitLvlAutomap()
 	// patch dAutomapData - L5.AMP
 	if (currLvl._dType == DTYPE_CRYPT) {
 		// fix automap of the entrance
-		automaptype[47] = MAPFLAG_STAIRS | 2;
-		automaptype[50] = 2;
-		automaptype[48] = MAPFLAG_STAIRS | 4;
-		automaptype[51] = 5;
+		automaptype[47] = MAPFLAG_STAIRS | MWT_NORTH_WEST;
+		automaptype[50] = MWT_NORTH_WEST;
+		automaptype[48] = MAPFLAG_STAIRS | MWT_NORTH;
+		automaptype[51] = MWT_NORTH_WEST_END;
 		automaptype[52] = MAPFLAG_DIRT;
-		automaptype[53] = MAPFLAG_STAIRS | 4;
+		automaptype[53] = MAPFLAG_STAIRS | MWT_NORTH;
 		automaptype[54] = MAPFLAG_DIRT;
-		automaptype[56] = 0;
-		automaptype[58] = MAPFLAG_DIRT | 5;
+		automaptype[56] = MWT_NONE;
+		automaptype[58] = MAPFLAG_DIRT | MWT_NORTH_WEST_END;
 		// adjust AMP after cleanupCrypt
 		// - use the shadows created by fixCryptShadows
-		automaptype[109] = 2;
-		automaptype[110] = 2;
-		automaptype[111] = MAPFLAG_VERTARCH | 2;
-		automaptype[215] = MAPFLAG_VERTGRATE | 2;
+		automaptype[109] = MWT_NORTH_WEST;
+		automaptype[110] = MWT_NORTH_WEST;
+		automaptype[111] = MAPFLAG_VERTARCH | MWT_NORTH_WEST;
+		automaptype[215] = MAPFLAG_VERTGRATE | MWT_NORTH_WEST;
 		// - 'add' new shadow-types with glow
-		automaptype[216] = MAPFLAG_VERTARCH | 2;
+		automaptype[216] = MAPFLAG_VERTARCH | MWT_NORTH_WEST;
 		// - 'add' new shadow-types with horizontal arches
-		automaptype[71] = 3;
-		automaptype[80] = 3;
-		automaptype[81] = MAPFLAG_HORZARCH | 3;
-		automaptype[82] = MAPFLAG_HORZARCH | 3;
-		automaptype[83] = MAPFLAG_HORZGRATE | 3;
-		automaptype[84] = MAPFLAG_HORZGRATE | 3;
-		automaptype[85] = 3;
-		automaptype[86] = 3;
-		automaptype[87] = MAPFLAG_HORZDOOR | 3;
-		automaptype[88] = MAPFLAG_HORZDOOR | 3;
+		automaptype[71] = MWT_NORTH_EAST;
+		automaptype[80] = MWT_NORTH_EAST;
+		automaptype[81] = MAPFLAG_HORZARCH | MWT_NORTH_EAST;
+		automaptype[82] = MAPFLAG_HORZARCH | MWT_NORTH_EAST;
+		automaptype[83] = MAPFLAG_HORZGRATE | MWT_NORTH_EAST;
+		automaptype[84] = MAPFLAG_HORZGRATE | MWT_NORTH_EAST;
+		automaptype[85] = MWT_NORTH_EAST;
+		automaptype[86] = MWT_NORTH_EAST;
+		automaptype[87] = MAPFLAG_HORZDOOR | MWT_NORTH_EAST;
+		automaptype[88] = MAPFLAG_HORZDOOR | MWT_NORTH_EAST;
 	}
 #endif // HELLFIRE
 #endif // !USE_PATCH
@@ -388,36 +388,36 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 	type = automap_type & MAPFLAG_TYPE;
 	automap_type &= ~MAPFLAG_TYPE;
 	switch (type) {
-	case 0:
-	case 7:
+	case MWT_NONE:
+	case MWT_CORNER:
 		break;
-	case 1: // stand-alone column or other unpassable object
+	case MWT_PILLAR: // stand-alone column or other unpassable object
 		DrawAutomapDiamond(sx, sy);
 		break;
-	case 2:
-	case 5:
+	case MWT_NORTH_WEST:
+	case MWT_NORTH_WEST_END:
 		automap_type |= MAPFLAG_DOVERT;
 		break;
-	case 3:
-	case 6:
+	case MWT_NORTH_EAST:
+	case MWT_NORTH_EAST_END:
 		automap_type |= MAPFLAG_DOHORZ;
 		break;
-	case 4:
+	case MWT_NORTH:
 		automap_type |= MAPFLAG_DOHORZ | MAPFLAG_DOVERT;
 		break;
-	case 8:
+	case MWT_WEST:
 		automap_type |= MAPFLAG_DOVERT | MAPFLAG_DOHORZ_CAVE;
 		break;
-	case 9:
+	case MWT_EAST:
 		automap_type |= MAPFLAG_DOHORZ | MAPFLAG_DOVERT_CAVE;
 		break;
-	case 10:
+	case MWT_SOUTH_WEST:
 		automap_type |= MAPFLAG_DOHORZ_CAVE;
 		break;
-	case 11:
+	case MWT_SOUTH_EAST:
 		automap_type |= MAPFLAG_DOVERT_CAVE;
 		break;
-	case 12:
+	case MWT_SOUTH:
 		automap_type |= MAPFLAG_DOHORZ_CAVE | MAPFLAG_DOVERT_CAVE;
 		break;
 	default:
@@ -642,11 +642,11 @@ static uint16_t GetAutomapType(int x, int y, bool view)
 
 	if ((unsigned)x >= DMAXX) {
 		return x == -1 && view
-			&& (unsigned)y < DMAXY && automapview[0][y] ? MAPFLAG_DIRT : 0;
+			&& (unsigned)y < DMAXY && automapview[0][y] ? MAPFLAG_DIRT : MWT_NONE;
 	}
 	if ((unsigned)y >= DMAXY) {
 		return y == -1 && view
-			&& (unsigned)x < DMAXX && automapview[x][0] ? MAPFLAG_DIRT : 0;
+			&& (unsigned)x < DMAXX && automapview[x][0] ? MAPFLAG_DIRT : MWT_NONE;
 	}
 
 	if (!automapview[x][y] && view) {
@@ -654,7 +654,7 @@ static uint16_t GetAutomapType(int x, int y, bool view)
 	}
 
 	rv = automaptype[dungeon[x][y]];
-	if (rv == 7) { // TODO: check for (rv & 7) == 7 instead to ignore the high bits?
+	if (rv == MWT_CORNER) { // TODO: check for (rv & 7) == 7 instead to ignore the high bits?
 		// TODO: this feels like a hack. A better logic would be to check around
 		//  the tile and see if there is a wall. That way the automaptype of the 
 		//  pillars of the BONECHAMBER-stairs (39/40/41+42) could be set to 7 as well.
@@ -663,11 +663,11 @@ static uint16_t GetAutomapType(int x, int y, bool view)
 		//if (x >= 1 && y >= 1) {
 		//	if ((automaptype[dungeon[x - 1][y]] & MAPFLAG_HORZARCH)
 		//	 && (automaptype[dungeon[x][y - 1]] & MAPFLAG_VERTARCH))
-		//		rv = 1;
+		//		rv = MWT_PILLAR;
 			if (x >= 2 && y >= 2) {
 				if ((automaptype[dungeon[x - 2][y]] & MAPFLAG_HORZARCH)
 				 && (automaptype[dungeon[x][y - 2]] & MAPFLAG_VERTARCH))
-					rv = 1;
+					rv = MWT_PILLAR;
 			}
 		//}
 	}
@@ -772,7 +772,7 @@ void DrawAutomap()
 
 		for (j = 0; j < cells; j++) { // foreach xcells 1.
 			uint16_t maptype = GetAutomapType(mapx, mapy, true);
-			if (maptype != 0)
+			if (maptype != MWT_NONE)
 				DrawAutomapTile(x, sy, maptype);
 			SHIFT_GRID(mapx, mapy, 1, 0);
 			x += d64;
@@ -786,7 +786,7 @@ void DrawAutomap()
 		for (j = 1; j < cells; j++) { // foreach xcells 2.
 			SHIFT_GRID(mapx, mapy, 1, 0);
 			uint16_t maptype = GetAutomapType(mapx, mapy, true);
-			if (maptype != 0)
+			if (maptype != MWT_NONE)
 				DrawAutomapTile(x, sy, maptype);
 			x += d64;
 		}
@@ -834,33 +834,33 @@ void SetAutomapView(int x, int y)
 	maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy, false);
 
 	switch (maptype & MAPFLAG_TYPE) {
-	case 0:
-	case 1:
+	case MWT_NONE:
+	case MWT_PILLAR:
 		break;
-	case 2:
+	case MWT_NORTH_WEST:
 		//if (solid) {
 		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | MWT_CORNER))
 				automapview[xx][yy + 1] = TRUE;
 		} else if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
-	case 3:
+	case MWT_NORTH_EAST:
 		//if (solid) {
 		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | MWT_CORNER))
 				automapview[xx + 1][yy] = TRUE;
 		} else if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
-	case 4:
+	case MWT_NORTH:
 		//if (solid) {
 		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | MWT_CORNER))
 				automapview[xx][yy + 1] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | MWT_CORNER))
 				automapview[xx + 1][yy] = TRUE;
 		} else {
 			if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT)
@@ -871,34 +871,34 @@ void SetAutomapView(int x, int y)
 				automapview[xx - 1][yy - 1] = TRUE;
 		}
 		break;
-	case 5:
+	case MWT_NORTH_WEST_END:
 		//if (solid) {
 		if (maptype & MAPFLAG_DIRT) {
 			if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT)
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | 0x07))
+			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | MWT_CORNER))
 				automapview[xx][yy + 1] = TRUE;
 		} else if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
-	case 6:
+	case MWT_NORTH_EAST_END:
 		//if (solid) {
 		if (maptype & MAPFLAG_DIRT) {
 			if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT)
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | 0x07))
+			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | MWT_CORNER))
 				automapview[xx + 1][yy] = TRUE;
 		} else if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
+	case MWT_CORNER:
+	case MWT_WEST:
+	case MWT_EAST:
+	case MWT_SOUTH_WEST:
+	case MWT_SOUTH_EAST:
+	case MWT_SOUTH:
 		break;
 	default:
 		ASSUME_UNREACHABLE

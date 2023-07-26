@@ -773,7 +773,7 @@ static void DRLG_L2Shadows()
 					dungeon[i - 1][j - 1] = replace;
 					dungeon[i - 1][j] = 50;
 				} else {
-					// automaptype 3, 4, tile 9, 45, 50 -> ok
+					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 9, 45, 50 -> ok
 					// TODO: what else?
 				}
 			}

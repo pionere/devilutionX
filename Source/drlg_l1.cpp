@@ -727,7 +727,7 @@ static void DRLG_L5Shadows()
 					continue;
 				}
 				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 5;
+				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST_END;
 				switch (dungeon[i - 1][j - 1]) {
 				case 13: replaceB = pillar ? 207 : 203; break;
 				case 2:  replaceB = pillar ? 71 : 80;   break;
@@ -746,7 +746,7 @@ static void DRLG_L5Shadows()
 				if (dungeon[i - 1][j] == 13) {
 					BYTE replace = dungeon[i - 1][j - 1];
 					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-					pillar = (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 5;
+					pillar = (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST_END;
 					if (replace == 13) {
 						replace = pillar ? 207 : 203;
 					} else if (replace == 2) {
@@ -821,7 +821,7 @@ static void DRLG_L1Shadows()
 			if (horizArch) {
 				BYTE replaceA; bool okB;
 				replaceA = dungeon[i][j - 1];
-				bool pillarC = i == DMAXX - 1 || ((automaptype[dungeon[i + 1][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i + 1][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i + 1][j - 1]] & MAPFLAG_TYPE) != 5);
+				bool pillarC = i == DMAXX - 1 || ((automaptype[dungeon[i + 1][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i + 1][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH && (automaptype[dungeon[i + 1][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST_END);
 				// TODO: handle !pillarC
 				switch (replaceA) {
 				case 13:  replaceA = pillarC ? 140 : 141; okB = false; break;
@@ -898,7 +898,7 @@ static void DRLG_L1Shadows()
 					continue;
 				}
 				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 5;
+				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST_END;
 				switch (dungeon[i - 1][j - 1]) {
 				case 13: replaceB = pillar ? 143 : 159; break;
 				case 2:  replaceB = pillar ? 150 : 148; break;
@@ -918,7 +918,7 @@ static void DRLG_L1Shadows()
 				if (dungeon[i - 1][j] == 13) {
 					BYTE replace = dungeon[i - 1][j - 1];
 					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-					pillar = (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 2 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 4 && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != 5;
+					pillar = (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAPFLAG_TYPE) != MWT_NORTH_WEST_END;
 					if (replace == 13) {
 						replace = pillar ? 143 : 159;
 					} else if (replace == 2) {

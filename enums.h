@@ -3377,6 +3377,22 @@ typedef enum _draw_mask_type {
 	DMT_EMPTY,
 } _draw_mask_type;
 
+typedef enum _automap_types {
+	MWT_NONE,
+	MWT_PILLAR,         // standalone pillar
+	MWT_NORTH_WEST,     // 'vertical' wall on the north side
+	MWT_NORTH_EAST,     // 'horizontal' wall on the north side
+	MWT_NORTH,          // 'vertical' + 'horizontal' walls on the north side
+	MWT_NORTH_WEST_END, // 'vertical' wall ends on the north side
+	MWT_NORTH_EAST_END, // 'horizontal' wall ends on the north side
+	MWT_CORNER,         // 
+	MWT_WEST,           // 'vertical' wall on the north side + 'horizontal' wall on the south side
+	MWT_EAST,           // 'vertical' wall on the south side + 'horizontal' wall on the north side
+	MWT_SOUTH_WEST,     // 'horizontal' wall on the south side
+	MWT_SOUTH_EAST,     // 'vertical' wall on the south side
+	MWT_SOUTH,          // 'vertical' + 'horizontal' walls on the south side
+} _automap_types;
+
 typedef enum _automap_flags {
 	MAPFLAG_TYPE      = 0x00FF,
 	MAPFLAG_VERTDOOR  = 0x0100,
