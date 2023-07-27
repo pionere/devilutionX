@@ -18,6 +18,14 @@ BYTE* DRLP_L3_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* 
 void DRLP_L3_PatchMin(BYTE* minBuf);
 void DRLP_L3_PatchTil(BYTE* tilBuf);
 
+#ifdef HELLFIRE
+#define BLOCK_SIZE_L6 10
+
+BYTE* DRLP_L6_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen);
+void DRLP_L6_PatchMin(BYTE* minBuf);
+void DRLP_L6_PatchTil(BYTE* tilBuf);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
