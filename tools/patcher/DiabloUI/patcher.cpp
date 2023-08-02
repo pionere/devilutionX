@@ -2185,34 +2185,34 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
 		// fix automap of the entrance III.
-		automaptype[47 - 1] = SwapLE16(MAPFLAG_STAIRS | 2);
-		automaptype[50 - 1] = SwapLE16(2);
-		automaptype[48 - 1] = SwapLE16(MAPFLAG_STAIRS | 4);
-		automaptype[51 - 1] = SwapLE16(5);
+		automaptype[47 - 1] = SwapLE16(MAPFLAG_STAIRS | MWT_NORTH_WEST);
+		automaptype[50 - 1] = SwapLE16(MWT_NORTH_WEST);
+		automaptype[48 - 1] = SwapLE16(MAPFLAG_STAIRS | MWT_NORTH);
+		automaptype[51 - 1] = SwapLE16(MWT_NORTH_WEST_END);
 		automaptype[52 - 1] = SwapLE16(MAPFLAG_DIRT);
-		automaptype[53 - 1] = SwapLE16(MAPFLAG_STAIRS | 4);
+		automaptype[53 - 1] = SwapLE16(MAPFLAG_STAIRS | MWT_NORTH);
 		automaptype[54 - 1] = SwapLE16(MAPFLAG_DIRT);
-		automaptype[56 - 1] = SwapLE16(0);
-		automaptype[58 - 1] = SwapLE16(MAPFLAG_DIRT | 5);
+		automaptype[56 - 1] = SwapLE16(MWT_NONE);
+		automaptype[58 - 1] = SwapLE16(MAPFLAG_DIRT | MWT_NORTH_WEST_END);
 		// adjust AMP after DRLP_L5_PatchMin
 		// - use the shadows created by fixCryptShadows
-		automaptype[109 - 1] = SwapLE16(2);
-		automaptype[110 - 1] = SwapLE16(2);
-		automaptype[111 - 1] = SwapLE16(MAPFLAG_VERTARCH | 2);
-		automaptype[215 - 1] = SwapLE16(MAPFLAG_VERTGRATE | 2);
+		automaptype[109 - 1] = SwapLE16(MWT_NORTH_WEST);
+		automaptype[110 - 1] = SwapLE16(MWT_NORTH_WEST);
+		automaptype[111 - 1] = SwapLE16(MAPFLAG_VERTARCH | MWT_NORTH_WEST);
+		automaptype[215 - 1] = SwapLE16(MAPFLAG_VERTGRATE | MWT_NORTH_WEST);
 		// - 'add' new shadow-types with glow
-		automaptype[216 - 1] = SwapLE16(MAPFLAG_VERTARCH | 2);
+		automaptype[216 - 1] = SwapLE16(MAPFLAG_VERTARCH | MWT_NORTH_WEST);
 		// - 'add' new shadow-types with horizontal arches
-		automaptype[71 - 1] = SwapLE16(3);
-		automaptype[80 - 1] = SwapLE16(3);
-		automaptype[81 - 1] = SwapLE16(MAPFLAG_HORZARCH | 3);
-		automaptype[82 - 1] = SwapLE16(MAPFLAG_HORZARCH | 3);
-		automaptype[83 - 1] = SwapLE16(MAPFLAG_HORZGRATE | 3);
-		automaptype[84 - 1] = SwapLE16(MAPFLAG_HORZGRATE | 3);
-		automaptype[85 - 1] = SwapLE16(3);
-		automaptype[86 - 1] = SwapLE16(3);
-		automaptype[87 - 1] = SwapLE16(MAPFLAG_HORZDOOR | 3);
-		automaptype[88 - 1] = SwapLE16(MAPFLAG_HORZDOOR | 3);
+		automaptype[71 - 1] = SwapLE16(MWT_NORTH_EAST);
+		automaptype[80 - 1] = SwapLE16(MWT_NORTH_EAST);
+		automaptype[81 - 1] = SwapLE16(MAPFLAG_HORZARCH | MWT_NORTH_EAST);
+		automaptype[82 - 1] = SwapLE16(MAPFLAG_HORZARCH | MWT_NORTH_EAST);
+		automaptype[83 - 1] = SwapLE16(MAPFLAG_HORZGRATE | MWT_NORTH_EAST);
+		automaptype[84 - 1] = SwapLE16(MAPFLAG_HORZGRATE | MWT_NORTH_EAST);
+		automaptype[85 - 1] = SwapLE16(MWT_NORTH_EAST);
+		automaptype[86 - 1] = SwapLE16(MWT_NORTH_EAST);
+		automaptype[87 - 1] = SwapLE16(MAPFLAG_HORZDOOR | MWT_NORTH_EAST);
+		automaptype[88 - 1] = SwapLE16(MAPFLAG_HORZDOOR | MWT_NORTH_EAST);
 	} break;
 	case FILE_OBJCURS_CEL:
 	{
