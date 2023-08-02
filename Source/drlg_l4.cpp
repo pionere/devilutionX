@@ -325,7 +325,7 @@ static void DRLG_LoadL4SP()
 			// protect inner tiles from spawning additional monsters/objects
 			for (int y = 0; y <= 5; y++) {
 				for (int x = 0; x <= 5; x++) {
-					lm[7 * 7 + x + y * 7] |= SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+					lm[2 + 7 * 7 + x + y * 7] |= SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 				}
 			}
 		}
@@ -1955,7 +1955,7 @@ static void DRLG_L4FixPreMap(int idx)
 		// protect inner tiles from spawning additional monsters/objects
 		/*for (int y = 0; y <= 5; y++) {
 			for (int x = 0; x <= 6; x++) {
-				lm[8 * 7 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+				lm[2 + 8 * 7 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
 		}*/
 	}
