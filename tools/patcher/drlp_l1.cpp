@@ -302,7 +302,9 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -761,7 +763,9 @@ static BYTE* fixCathedralShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -2105,7 +2109,9 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -2234,7 +2240,9 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -2492,7 +2500,9 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	gpBuffer[2 * MICRO_WIDTH + 22 + (MICRO_HEIGHT * 1 + 20) * BUFFER_WIDTH] = TRANS_COLOR;     // 1818
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros) - (5 + 4)];
 	xx = 0, yy = MICRO_HEIGHT - 1;

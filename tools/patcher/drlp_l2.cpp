@@ -209,7 +209,9 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 	gpBuffer[          0 + 23 + (MICRO_HEIGHT * 4 - (MICRO_HEIGHT -  4 - 1) - 1) * BUFFER_WIDTH] = 31; // 252[0]
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 8 * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + 8 * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	typedef struct {
 		int type;
@@ -512,7 +514,9 @@ static BYTE* fixCatacombsShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -1228,7 +1232,9 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
