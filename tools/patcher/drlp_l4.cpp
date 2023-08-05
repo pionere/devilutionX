@@ -1485,7 +1485,7 @@ static BYTE* patchHellWall1Cel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 			}
 		}
 	}
-	// remove shadow 254[5] using 8[5]
+	// remove shadow from 254[5] using 8[5]
 	for (int i = 43; i < 44; i++) {
 		for (int x = 0; x < 5; x++) {
 			for (int y = 24; y < MICRO_HEIGHT; y++) {
@@ -2414,7 +2414,7 @@ void DRLP_L4_PatchMin(BYTE* buf)
 	ReplaceMcr(65, 2, 53, 2);
 	ReplaceMcr(65, 3, 53, 3);
 
-	ReplaceMcr(70, 2, 55, 2);
+	// ReplaceMcr(70, 2, 55, 2);
 	ReplaceMcr(70, 4, 48, 4);
 	ReplaceMcr(68, 2, 53, 2);
 	ReplaceMcr(68, 3, 53, 3);
@@ -2980,46 +2980,46 @@ void DRLP_L4_PatchTil(BYTE* buf)
 	pTiles[(55 - 1) * 4 + 2] = SwapLE16(154 - 1); // 175
 
 	// create the new shadows
-	pTiles[4 * (61 - 1) + 0] = SwapLE16(5 - 1); // copy from tile 2
-	pTiles[4 * (61 - 1) + 1] = SwapLE16(6 - 1);
-	pTiles[4 * (61 - 1) + 2] = SwapLE16(35 - 1);
-	pTiles[4 * (61 - 1) + 3] = SwapLE16(239 - 1);
-	pTiles[4 * (62 - 1) + 0] = SwapLE16(5 - 1); // copy from tile 2
-	pTiles[4 * (62 - 1) + 1] = SwapLE16(6 - 1);
-	pTiles[4 * (62 - 1) + 2] = SwapLE16(7 - 1);
-	pTiles[4 * (62 - 1) + 3] = SwapLE16(176 - 1);
-	pTiles[4 * (76 - 1) + 0] = SwapLE16(41 - 1); // copy from tile 15
-	pTiles[4 * (76 - 1) + 1] = SwapLE16(31 - 1);
-	pTiles[4 * (76 - 1) + 2] = SwapLE16(13 - 1);
-	pTiles[4 * (76 - 1) + 3] = SwapLE16(239 - 1);
-	pTiles[4 * (129 - 1) + 0] = SwapLE16(41 - 1); // copy from tile 15
-	pTiles[4 * (129 - 1) + 1] = SwapLE16(31 - 1);
-	pTiles[4 * (129 - 1) + 2] = SwapLE16(10 - 1);
-	pTiles[4 * (129 - 1) + 3] = SwapLE16(176 - 1);
-	pTiles[4 * (130 - 1) + 0] = SwapLE16(177 - 1); // copy from tile 56
-	pTiles[4 * (130 - 1) + 1] = SwapLE16(31 - 1);
-	pTiles[4 * (130 - 1) + 2] = SwapLE16(37 - 1);
-	pTiles[4 * (130 - 1) + 3] = SwapLE16(239 - 1);
-	pTiles[4 * (131 - 1) + 0] = SwapLE16(177 - 1); // copy from tile 56
-	pTiles[4 * (131 - 1) + 1] = SwapLE16(31 - 1);
-	pTiles[4 * (131 - 1) + 2] = SwapLE16(179 - 1);
-	pTiles[4 * (131 - 1) + 3] = SwapLE16(176 - 1);
-	pTiles[4 * (132 - 1) + 0] = SwapLE16(24 - 1); // copy from tile 8
-	pTiles[4 * (132 - 1) + 1] = SwapLE16(25 - 1);
-	pTiles[4 * (132 - 1) + 2] = SwapLE16(13 - 1);
-	pTiles[4 * (132 - 1) + 3] = SwapLE16(239 - 1);
-	pTiles[4 * (133 - 1) + 0] = SwapLE16(24 - 1); // copy from tile 8
-	pTiles[4 * (133 - 1) + 1] = SwapLE16(25 - 1);
-	pTiles[4 * (133 - 1) + 2] = SwapLE16(10 - 1);
-	pTiles[4 * (133 - 1) + 3] = SwapLE16(176 - 1);
-	pTiles[4 * (134 - 1) + 0] = SwapLE16(38 - 1); // copy from tile 14
-	pTiles[4 * (134 - 1) + 1] = SwapLE16(31 - 1);
-	pTiles[4 * (134 - 1) + 2] = SwapLE16(26 - 1);
-	pTiles[4 * (134 - 1) + 3] = SwapLE16(239 - 1);
-	pTiles[4 * (135 - 1) + 0] = SwapLE16(38 - 1); // copy from tile 14
-	pTiles[4 * (135 - 1) + 1] = SwapLE16(31 - 1);
-	pTiles[4 * (135 - 1) + 2] = SwapLE16(16 - 1);
-	pTiles[4 * (135 - 1) + 3] = SwapLE16(176 - 1);
+	pTiles[(61 - 1) * 4 + 0] = SwapLE16(5 - 1); // copy from tile 2
+	pTiles[(61 - 1) * 4 + 1] = SwapLE16(6 - 1);
+	pTiles[(61 - 1) * 4 + 2] = SwapLE16(35 - 1);
+	pTiles[(61 - 1) * 4 + 3] = SwapLE16(239 - 1);
+	pTiles[(62 - 1) * 4 + 0] = SwapLE16(5 - 1); // copy from tile 2
+	pTiles[(62 - 1) * 4 + 1] = SwapLE16(6 - 1);
+	pTiles[(62 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(62 - 1) * 4 + 3] = SwapLE16(176 - 1);
+	pTiles[(76 - 1) * 4 + 0] = SwapLE16(41 - 1); // copy from tile 15
+	pTiles[(76 - 1) * 4 + 1] = SwapLE16(31 - 1);
+	pTiles[(76 - 1) * 4 + 2] = SwapLE16(13 - 1);
+	pTiles[(76 - 1) * 4 + 3] = SwapLE16(239 - 1);
+	pTiles[(129 - 1) * 4 + 0] = SwapLE16(41 - 1); // copy from tile 15
+	pTiles[(129 - 1) * 4 + 1] = SwapLE16(31 - 1);
+	pTiles[(129 - 1) * 4 + 2] = SwapLE16(10 - 1);
+	pTiles[(129 - 1) * 4 + 3] = SwapLE16(176 - 1);
+	pTiles[(130 - 1) * 4 + 0] = SwapLE16(177 - 1); // copy from tile 56
+	pTiles[(130 - 1) * 4 + 1] = SwapLE16(31 - 1);
+	pTiles[(130 - 1) * 4 + 2] = SwapLE16(37 - 1);
+	pTiles[(130 - 1) * 4 + 3] = SwapLE16(239 - 1);
+	pTiles[(131 - 1) * 4 + 0] = SwapLE16(177 - 1); // copy from tile 56
+	pTiles[(131 - 1) * 4 + 1] = SwapLE16(31 - 1);
+	pTiles[(131 - 1) * 4 + 2] = SwapLE16(179 - 1);
+	pTiles[(131 - 1) * 4 + 3] = SwapLE16(176 - 1);
+	pTiles[(132 - 1) * 4 + 0] = SwapLE16(24 - 1); // copy from tile 8
+	pTiles[(132 - 1) * 4 + 1] = SwapLE16(25 - 1);
+	pTiles[(132 - 1) * 4 + 2] = SwapLE16(13 - 1);
+	pTiles[(132 - 1) * 4 + 3] = SwapLE16(239 - 1);
+	pTiles[(133 - 1) * 4 + 0] = SwapLE16(24 - 1); // copy from tile 8
+	pTiles[(133 - 1) * 4 + 1] = SwapLE16(25 - 1);
+	pTiles[(133 - 1) * 4 + 2] = SwapLE16(10 - 1);
+	pTiles[(133 - 1) * 4 + 3] = SwapLE16(176 - 1);
+	pTiles[(134 - 1) * 4 + 0] = SwapLE16(38 - 1); // copy from tile 14
+	pTiles[(134 - 1) * 4 + 1] = SwapLE16(31 - 1);
+	pTiles[(134 - 1) * 4 + 2] = SwapLE16(26 - 1);
+	pTiles[(134 - 1) * 4 + 3] = SwapLE16(239 - 1);
+	pTiles[(135 - 1) * 4 + 0] = SwapLE16(38 - 1); // copy from tile 14
+	pTiles[(135 - 1) * 4 + 1] = SwapLE16(31 - 1);
+	pTiles[(135 - 1) * 4 + 2] = SwapLE16(16 - 1);
+	pTiles[(135 - 1) * 4 + 3] = SwapLE16(176 - 1);
 
 	// use common subtiles
 	pTiles[( 4 - 1) * 4 + 2] = SwapLE16(10 - 1);  // 13

@@ -227,8 +227,8 @@ void InitLvlDungeon()
 #if ASSET_MPL == 1
 		// patch dMicroCels - TOWN.CEL
 		// - overwrite subtile 237 with subtile 402 to make the inner tile of Griswold's house non-walkable
-		pSubtiles[237][0] = pSubtiles[402][0];
-		pSubtiles[237][1] = pSubtiles[402][1];
+		// pSubtiles[237][0] = pSubtiles[402][0];
+		// pSubtiles[237][1] = pSubtiles[402][1];
 #endif
 #endif
 		break;
