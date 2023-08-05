@@ -12,6 +12,11 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+#define BLOCK_SIZE_L4 16
+
+BYTE* DRLP_L4_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen);
+void DRLP_L4_PatchMin(BYTE* minBuf);
+void DRLP_L4_PatchTil(BYTE* tilBuf);
 
 #ifdef __cplusplus
 }

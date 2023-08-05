@@ -19,8 +19,6 @@ static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
-static constexpr int BLOCK_SIZE_L4 = 16;
-
 typedef enum filenames {
 #if ASSET_MPL == 1
 	FILE_TOWN_CEL,
@@ -56,6 +54,16 @@ typedef enum filenames {
 	FILE_CAVES_TIL,
 	FILE_CAVES_SOL,
 	FILE_CAVES_AMP,
+	FILE_DIAB1_DUN,
+	FILE_DIAB2A_DUN,
+	FILE_DIAB2B_DUN,
+	FILE_DIAB3A_DUN,
+	FILE_DIAB3B_DUN,
+	FILE_DIAB4A_DUN,
+	FILE_DIAB4B_DUN,
+	FILE_VILE1_DUN,
+	FILE_WARLORD_DUN,
+	FILE_WARLORD2_DUN,
 #if ASSET_MPL == 1
 	FILE_HELL_CEL,
 	FILE_HELL_MIN,
@@ -144,6 +152,16 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CAVES_TIL*/     "Levels\\L3Data\\L3.TIL",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
 /*FILE_CAVES_AMP*/     "Levels\\L3Data\\L3.AMP",
+/*FILE_DIAB1_DUN*/     "Levels\\L4Data\\Diab1.DUN",
+/*FILE_DIAB2A_DUN*/    "Levels\\L4Data\\Diab2a.DUN",
+/*FILE_DIAB2B_DUN*/    "Levels\\L4Data\\Diab2b.DUN",
+/*FILE_DIAB3A_DUN*/    "Levels\\L4Data\\Diab3a.DUN",
+/*FILE_DIAB3B_DUN*/    "Levels\\L4Data\\Diab3b.DUN",
+/*FILE_DIAB4A_DUN*/    "Levels\\L4Data\\Diab4a.DUN",
+/*FILE_DIAB4B_DUN*/    "Levels\\L4Data\\Diab4b.DUN",
+/*FILE_VILE1_DUN*/     "Levels\\L4Data\\Vile1.DUN",
+/*FILE_WARLORD_DUN*/   "Levels\\L4Data\\Warlord.DUN",
+/*FILE_WARLORD2_DUN*/  "Levels\\L4Data\\Warlord2.DUN",
 #if ASSET_MPL == 1
 /*FILE_HELL_CEL*/      "Levels\\L4Data\\L4.CEL",
 /*FILE_HELL_MIN*/      "Levels\\L4Data\\L4.MIN",
@@ -684,6 +702,499 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 		// remove rooms
 		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2) * 2;
 	} break;
+	case FILE_DIAB1_DUN:
+	{	// patch the map - Diab1.DUN
+		// - fix shadow of the left corner
+		lm[2 + 0 + 4 * 6] = SwapLE16(75);
+		lm[2 + 0 + 5 * 6] = SwapLE16(74);
+		// - fix shadow of the right corner
+		lm[2 + 4 + 1 * 6] = SwapLE16(131);
+		// protect tiles with monsters/objects from spawning additional monsters/objects
+		lm[2 + 6 * 6 + 1 + 1 * 6] = SwapLE16((3 << 14));
+		lm[2 + 6 * 6 + 1 + 4 * 6] = SwapLE16((3 << 14));
+		lm[2 + 6 * 6 + 2 + 3 * 6] = SwapLE16((3 << 12));
+		lm[2 + 6 * 6 + 3 + 3 * 6] = SwapLE16((3 << 14));
+		lm[2 + 6 * 6 + 3 + 2 * 6] = SwapLE16((3 << 10));
+		lm[2 + 6 * 6 + 4 + 1 * 6] = SwapLE16((3 << 14));
+		lm[2 + 6 * 6 + 4 + 4 * 6] = SwapLE16((3 << 14));
+		lm[2 + 6 * 6 + 2 + 2 * 6] = SwapLE16((3 << 14));
+		// protect tiles with monsters/objects from decoration
+		lm[2 + 6 * 6 + 1 + 4 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 2 + 3 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 1 + 1 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 3 + 2 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 3 + 3 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 4 + 4 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 4 + 1 * 6] |= SwapLE16(3);
+		lm[2 + 6 * 6 + 2 + 2 * 6] |= SwapLE16(3);
+		// remove rooms
+		*fileSize = (2 + 6 * 6 + 6 * 6 * 2 * 2 + 6 * 6 * 2 * 2 + 6 * 6 * 2 * 2) * 2;
+	} break;
+	case FILE_DIAB2A_DUN:
+	{	// patch premap - Diab2a.DUN
+		// external tiles
+		for (int y = 1; y <= 3; y++) {
+			for (int x = 9; x <= 10; x++) {
+				uint16_t wv = SwapLE16(lm[2 + x + y * 11]);
+				if (wv >= 116 && wv <= 128) {
+					// if (wv == 118) {
+					//	wv = 128;
+					// }
+					lm[2 + x + y * 11] = SwapLE16(wv - 98);
+				}
+			}
+		}
+		// useless tiles
+		for (int y = 0; y < 12; y++) {
+			for (int x = 0; x < 11; x++) {
+				if (x >= 9 && x <= 10 && y >= 1 && y <= 3) {
+					continue;
+				}
+				lm[2 + x + y * 11] = 0;
+			}
+		}
+		// protect changing tiles from objects
+		lm[2 + 11 * 12 + 10 + 1 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 12 + 10 + 1 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 10 + 2 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 12 + 10 + 2 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 10 + 3 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 12 + 10 + 3 * 11] |= SwapLE16((3 << 14));
+		// protect tiles with monsters/objects from spawning additional monsters/objects
+		lm[2 + 11 * 12 + 2 + 1 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 2 + 9 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 5 + 4 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 5 + 6 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 6 + 6 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 12 + 7 + 5 * 11] = SwapLE16((3 << 8));
+		lm[2 + 11 * 12 + 8 + 4 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 8 + 6 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 7 + 8 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 12 + 8 + 1 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 12 + 8 + 2 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 12 + 6 + 5 * 11] = SwapLE16((3 << 10));
+		// remove rooms
+		*fileSize = (2 + 11 * 12 + 11 * 12 * 2 * 2 + 11 * 12 * 2 * 2 + 11 * 12 * 2 * 2) * 2;
+	} break;
+	case FILE_DIAB2B_DUN:
+	{	// patch the map - Diab2b.DUN
+		// external tiles
+		for (int y = 0; y < 12; y++) {
+			for (int x = 0; x < 11; x++) {
+				uint16_t wv = SwapLE16(lm[2 + x + y * 11]);
+				if (wv >= 116 && wv <= 128) {
+					// if (wv == 118) {
+					//	wv = 128;
+					// }
+					lm[2 + x + y * 11] = SwapLE16(wv - 98);
+				}
+			}
+		}
+		// ensure the changing tiles are reserved
+		lm[2 + 11 * 12 + 9 + 1 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 9 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 9 + 3 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 10 + 1 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 10 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 10 + 3 * 11] = SwapLE16(3);
+		// protect tiles with monsters/objects from decoration
+		lm[2 + 11 * 12 + 2 + 1 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 2 + 9 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 5 + 4 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 5 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 6 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 7 + 5 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 8 + 4 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 8 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 7 + 8 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 8 + 1 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 8 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 12 + 6 + 5 * 11] = SwapLE16(3);
+		// remove monsters, objects, items
+		*fileSize = (2 + 11 * 12 + 11 * 12 * 2 * 2) * 2;
+	} break;
+	case FILE_DIAB3A_DUN:
+	{	// patch premap - Diab3a.DUN
+		// useless tiles
+		for (int y = 0; y < 11; y++) {
+			for (int x = 0; x < 11; x++) {
+				if (x >= 4 && x <= 6 && y >= 10 && y <= 10) {
+					continue; // SW-wall
+				}
+				if (x >= 0 && x <= 0 && y >= 4 && y <= 6) {
+					continue; // NW-wall
+				}
+				if (x >= 4 && x <= 6 && y >= 0 && y <= 0) {
+					continue; // NE-wall
+				}
+				if (x >= 10 && x <= 10 && y >= 4 && y <= 6) {
+					continue; // SE-wall
+				}
+				lm[2 + x + y * 11] = 0;
+			}
+		}
+		// protect changing tiles from objects
+		// - SW-wall
+		lm[2 + 11 * 11 + 4 + 10 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 4 + 10 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 5 + 10 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 5 + 10 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 6 + 10 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 6 + 10 * 11] |= SwapLE16((3 << 14));
+		// - NE-wall
+		lm[2 + 11 * 11 + 4 + 0 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 4 + 0 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 5 + 0 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 5 + 0 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 6 + 0 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 6 + 0 * 11] |= SwapLE16((3 << 14));
+		// - NW-wall
+		lm[2 + 11 * 11 + 0 + 4 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 0 + 4 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 0 + 5 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 0 + 5 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 0 + 6 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 0 + 6 * 11] |= SwapLE16((3 << 14));
+		// - SE-wall
+		lm[2 + 11 * 11 + 10 + 4 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 10 + 4 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 10 + 5 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 10 + 5 * 11] |= SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 10 + 6 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 10 + 6 * 11] |= SwapLE16((3 << 14));
+		// protect tiles with monsters/objects from spawning additional monsters/objects
+		lm[2 + 11 * 11 + 0 + 2 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 0 + 7 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 2 + 0 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 2 + 4 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 2 + 6 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 2 + 9 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 3 + 3 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 3 + 6 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 4 + 1 * 11] = SwapLE16((3 << 8));
+		lm[2 + 11 * 11 + 4 + 2 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 4 + 7 * 11] = SwapLE16((3 << 8));
+		lm[2 + 11 * 11 + 4 + 7 * 11] |= SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 6 + 2 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 6 + 7 * 11] = SwapLE16((3 << 12));
+		lm[2 + 11 * 11 + 6 + 3 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 6 + 6 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 7 + 0 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 7 + 4 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 7 + 6 * 11] = SwapLE16((3 << 10));
+		lm[2 + 11 * 11 + 7 + 9 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 9 + 2 * 11] = SwapLE16((3 << 14));
+		lm[2 + 11 * 11 + 9 + 7 * 11] = SwapLE16((3 << 14));
+		// remove rooms
+		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2 + 11 * 11 * 2 * 2 + 11 * 11 * 2 * 2) * 2;
+	} break;
+	case FILE_DIAB3B_DUN:
+	{	// patch the map - Diab3b.DUN
+		// external tiles
+		lm[2 + 4 + 4 * 11] = SwapLE16(21);
+		lm[2 + 4 + 5 * 11] = SwapLE16(18);
+		lm[2 + 5 + 4 * 11] = SwapLE16(19);
+		lm[2 + 5 + 5 * 11] = SwapLE16(30);
+		// remove partial shadow
+		lm[2 + 5 + 0 * 11] = SwapLE16(50);
+		// ensure the changing tiles are reserved
+		// - SW-wall
+		lm[2 + 11 * 11 + 4 + 10 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 5 + 10 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 6 + 10 * 11] = SwapLE16(3);
+		// - NE-wall
+		lm[2 + 11 * 11 + 4 + 0 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 5 + 0 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 6 + 0 * 11] = SwapLE16(3);
+		// - NW-wall
+		lm[2 + 11 * 11 + 0 + 4 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 0 + 5 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 0 + 6 * 11] = SwapLE16(3);
+		// - SE-wall
+		lm[2 + 11 * 11 + 10 + 4 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 10 + 5 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 10 + 6 * 11] = SwapLE16(3);
+		// protect tiles with monsters/objects from decoration
+		lm[2 + 11 * 11 + 0 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 0 + 7 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 2 + 0 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 2 + 4 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 2 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 2 + 9 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 3 + 3 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 3 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 4 + 1 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 4 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 4 + 7 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 4 + 7 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 6 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 6 + 7 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 6 + 3 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 6 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 7 + 0 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 7 + 4 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 7 + 6 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 7 + 9 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 9 + 2 * 11] = SwapLE16(3);
+		lm[2 + 11 * 11 + 9 + 7 * 11] = SwapLE16(3);
+		// remove monsters, objects, items
+		*fileSize = (2 + 11 * 11 + 11 * 11 * 2 * 2) * 2;
+	} break;
+	case FILE_DIAB4A_DUN:
+	{	// patch premap - Diab4a.DUN
+		for (int y = 0; y < 9; y++) {
+			for (int x = 0; x < 9; x++) {
+				// external tiles
+				uint16_t wv = SwapLE16(lm[2 + x + y * 9]);
+				if (wv >= 116 && wv <= 128) {
+					// if (wv == 118) {
+					//	wv = 128;
+					// }
+					lm[2 + x + y * 9] = SwapLE16(wv - 98);
+				}
+				// useless tiles
+				if (x >= 2 && x <= 6 && y >= 7 && y <= 8) {
+					continue; // SW-wall
+				}
+				if (x >= 0 && x <= 1 && y >= 2 && y <= 6) {
+					continue; // NW-wall
+				}
+				if (x >= 2 && x <= 6 && y >= 0 && y <= 1) {
+					continue; // NE-wall
+				}
+				if (x >= 7 && x <= 8 && y >= 2 && y <= 6) {
+					continue; // SE-wall
+				}
+				lm[2 + x + y * 9] = 0;
+			}
+		}
+		// - replace diablo
+		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 8 + 8 * 9 * 2] = SwapLE16((UMT_DIABLO + 1) | (1 << 15));
+		// - replace the only black knight
+		lm[2 + 9 * 9 + 9 * 9 * 2 * 2 + 4 + 6 * 9 * 2] = SwapLE16(101);
+		// protect changing tiles from objects
+		// - SW-wall
+		for (int y = 2; y < 7; y++) {
+			lm[2 + 9 * 9 + 8 + y * 9] = SwapLE16((3 << 10) | (3 << 14));
+		}
+		// - NE-wall
+		for (int x = 2; x < 7; x++) {
+			lm[2 + 9 * 9 + x + 1 * 9] = SwapLE16((3 << 12) | (3 << 14));
+		}
+		// - NW-wall
+		for (int y = 2; y < 7; y++) {
+			lm[2 + 9 * 9 + 1 + y * 9] = SwapLE16((3 << 10) | (3 << 14));
+		}
+		// - SE-wall
+		for (int x = 2; x < 7; x++) {
+			lm[2 + 9 * 9 + x + 8 * 9] = SwapLE16((3 << 12) | (3 << 14));
+		}
+		// protect tiles with monsters/objects from spawning additional monsters/objects
+		lm[2 + 9 * 9 + 2 + 2 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 2 + 3 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 2 + 4 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 2 + 6 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 3 + 3 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 3 + 4 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 3 + 5 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 3 + 6 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 4 + 2 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 4 + 3 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 4 + 4 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 4 + 5 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 4 + 6 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 5 + 2 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 5 + 3 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 5 + 4 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 5 + 5 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 6 + 2 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 6 + 4 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 6 + 5 * 9] = SwapLE16((3 << 8));
+		lm[2 + 9 * 9 + 6 + 6 * 9] = SwapLE16((3 << 8));
+		// remove rooms
+		*fileSize = (2 + 9 * 9 + 9 * 9 * 2 * 2 + 9 * 9 * 2 * 2 + 9 * 9 * 2 * 2) * 2;
+	} break;
+	case FILE_DIAB4B_DUN:
+	{	// patch the map - Diab4b.DUN
+		// external tiles
+		for (int y = 0; y < 9; y++) {
+			for (int x = 0; x < 9; x++) {
+				uint16_t wv = SwapLE16(lm[2 + x + y * 9]);
+				if (wv >= 116 && wv <= 128) {
+					// if (wv == 118) {
+					//	wv = 128;
+					// }
+					lm[2 + x + y * 9] = SwapLE16(wv - 98);
+				}
+			}
+		}
+		// ensure the changing tiles are reserved
+		// - SW-wall
+		for (int y = 7; y < 9; y++) {
+			for (int x = 2; x < 7; x++) {
+				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
+			}
+		}
+		// - NE-wall
+		for (int y = 2; y < 7; y++) {
+			for (int x = 0; x < 2; x++) {
+				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
+			}
+		}
+		// - NW-wall
+		for (int y = 0; y < 2; y++) {
+			for (int x = 2; x < 7; x++) {
+				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
+			}
+		}
+		// - SE-wall
+		for (int y = 2; y < 7; y++) {
+			for (int x = 7; x < 9; x++) {
+				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
+			}
+		}
+		// protect tiles with monsters/objects from decoration
+		lm[2 + 9 * 9 + 2 + 2 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 2 + 3 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 2 + 4 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 2 + 6 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 3 + 3 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 3 + 4 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 3 + 5 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 3 + 6 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 4 + 2 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 4 + 3 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 4 + 4 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 4 + 5 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 4 + 6 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 5 + 2 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 5 + 3 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 5 + 4 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 5 + 5 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 6 + 2 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 6 + 4 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 6 + 5 * 9] = SwapLE16(3);
+		lm[2 + 9 * 9 + 6 + 6 * 9] = SwapLE16(3);
+		// remove monsters, objects, items
+		*fileSize = (2 + 9 * 9 + 9 * 9 * 2 * 2) * 2;
+	} break;
+	case FILE_VILE1_DUN:
+	{	// patch the map - Vile1.DUN (L4Data)
+		// fix corner
+		lm[2 + 5 + 0 * 7] = SwapLE16(16);
+		lm[2 + 6 + 1 * 7] = SwapLE16(16);
+		lm[2 + 5 + 1 * 7] = SwapLE16(15);
+		// use base tiles and decorate the walls randomly
+		lm[2 + 0 + 0 * 7] = SwapLE16(9);
+		lm[2 + 0 + 6 * 7] = SwapLE16(15);
+		lm[2 + 1 + 0 * 7] = SwapLE16(2);
+		lm[2 + 2 + 0 * 7] = SwapLE16(2);
+		lm[2 + 3 + 0 * 7] = SwapLE16(2);
+		lm[2 + 4 + 0 * 7] = SwapLE16(2);
+		lm[2 + 1 + 6 * 7] = SwapLE16(2);
+		lm[2 + 2 + 6 * 7] = SwapLE16(2);
+		lm[2 + 4 + 6 * 7] = SwapLE16(2);
+		// lm[2 + 6 + 3 * 7] = SwapLE16(50);
+		// add unique monsters
+		lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 3 + 6 * 7 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+		lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 3 * 7 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+		lm[2 + 7 * 7 + 7 * 7 * 2 * 2 + 5 + 9 * 7 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 0; y <= 5; y++) {
+			for (int x = 0; x <= 5; x++) {
+				lm[2 + 7 * 7 + x + y * 7] |= SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// ensure the box is not connected to the rest of the dungeon + protect inner tiles from decoration
+		for (int y = 0; y <= 6; y++) {
+			for (int x = 0; x <= 6; x++) {
+				if (x == 6 && (y == 0 || y == 6)) {
+					continue;
+				}
+				if (x == 0 || y == 0 || x == 6 || y == 6) {
+					lm[2 + 7 * 7 + x + y * 7] |= SwapLE16(1);
+				} else {
+					lm[2 + 7 * 7 + x + y * 7] |= SwapLE16(3);
+				}
+			}
+		}
+		// remove rooms
+		*fileSize = (2 + 7 * 7 + 7 * 7 * 2 * 2 + 7 * 7 * 2 * 2 + 7 * 7 * 2 * 2) * 2;
+	} break;
+	case FILE_WARLORD_DUN:
+	{	// patch the map - Warlord.DUN
+		// fix corner
+		lm[2 + 6 + 1 * 8] = SwapLE16(10);
+		lm[2 + 6 + 5 * 8] = SwapLE16(10);
+		// use base tiles and decorate the walls randomly
+		lm[2 + 0 + 0 * 8] = SwapLE16(9);
+		lm[2 + 0 + 6 * 8] = SwapLE16(15);
+		lm[2 + 1 + 0 * 8] = SwapLE16(2);
+		lm[2 + 2 + 0 * 8] = SwapLE16(2);
+		lm[2 + 3 + 0 * 8] = SwapLE16(2);
+		lm[2 + 4 + 0 * 8] = SwapLE16(2);
+		lm[2 + 5 + 0 * 8] = SwapLE16(2);
+		lm[2 + 1 + 6 * 8] = SwapLE16(2);
+		lm[2 + 2 + 6 * 8] = SwapLE16(2);
+		lm[2 + 3 + 6 * 8] = SwapLE16(2);
+		lm[2 + 4 + 6 * 8] = SwapLE16(2);
+		lm[2 + 5 + 6 * 8] = SwapLE16(2);
+		// lm[2 + 6 + 3 * 8] = SwapLE16(50);
+		// ensure the changing tiles are protected + protect inner tiles from decoration
+		for (int y = 1; y <= 5; y++) {
+			for (int x = 1; x <= 7; x++) {
+				lm[2 + 8 * 7 + x + y * 8] = SwapLE16(3);
+			}
+		}
+		// remove monsters, objects, items
+		*fileSize = (2 + 8 * 7 + 8 * 7 * 2 * 2) * 2;
+	} break;
+	case FILE_WARLORD2_DUN:
+	{	// patch premap - Warlord2.DUN
+		// useless tiles
+		for (int y = 0; y < 7; y++) {
+			for (int x = 0; x < 8; x++) {
+				if (x >= 7 && y >= 1 && x <= 7 && y <= 5) {
+					continue;
+				}
+				lm[2 + x + y * 8] = 0;
+			}
+		}
+		// replace monsters
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 2 + 10 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 13 + 4 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 13 + 9 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 10 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 10 + 10 * 8 * 2] = SwapLE16(100);
+		// add monsters
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 10 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 11 + 2 * 8 * 2] = SwapLE16(100);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 11 + 10 * 8 * 2] = SwapLE16(100);
+		// - add unique
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 6 + 7 * 8 * 2] = SwapLE16((UMT_WARLORD + 1) | (1 << 15));
+		// add objects
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 3 * 8 * 2] = SwapLE16(108);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 2 + 9 * 8 * 2] = SwapLE16(108);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 2 * 8 * 2] = SwapLE16(109);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 2 * 8 * 2] = SwapLE16(109);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 5 + 10 * 8 * 2] = SwapLE16(109);
+		lm[2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 + 10 * 8 * 2] = SwapLE16(109);
+		// protect inner tiles from spawning additional monsters/objects
+		for (int y = 0; y <= 5; y++) {
+			for (int x = 0; x <= 6; x++) {
+				lm[2 + 8 * 7 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// eliminate 'items'
+		lm[2 + 8 * 7 + 2 + 6 * 8] = 0;
+		lm[2 + 8 * 7 + 8 * 7 + 90] = 0;
+		lm[2 + 8 * 7 + 8 * 7 + 109] = 0;
+		lm[2 + 8 * 7 + 8 * 7 + 112] = 0;
+		// remove rooms
+		*fileSize = (2 + 8 * 7 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2 + 8 * 7 * 2 * 2) * 2;
+	} break;
 	}
 }
 
@@ -1222,207 +1733,6 @@ static BYTE *patchCavesDoors(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 
-static BYTE* patchHellCel(const BYTE* tilBuf, size_t tilLen, const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen, int exitTileIndex)
-{
-	const uint16_t* pTiles = (const uint16_t*)tilBuf;
-	// TODO: check tilLen
-	int topLeftSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 0]);
-	int topRightSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 1]);
-	int bottomLeftSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 2]);
-	int bottomRightSubtileIndex = SwapLE16(pTiles[exitTileIndex * 4 + 3]);
-
-	if (topLeftSubtileIndex != (137 - 1) || topRightSubtileIndex != (138 - 1) || bottomLeftSubtileIndex != (139 - 1) || bottomRightSubtileIndex != (140 - 1)) {
-		return celBuf; // non-original subtiles -> assume it is already done
-	}
-
-	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
-
-	// TODO: check minLen
-	const unsigned blockSize = BLOCK_SIZE_L4;
-	unsigned topLeft_LeftIndex0 = MICRO_IDX(topLeftSubtileIndex, blockSize, 0);
-	unsigned topLeft_LeftFrameRef0 = pSubtiles[topLeft_LeftIndex0] & 0xFFF; // 368
-	unsigned topLeft_RightIndex0 = MICRO_IDX(topLeftSubtileIndex, blockSize, 1);
-	unsigned topLeft_RightFrameRef0 = pSubtiles[topLeft_RightIndex0] & 0xFFF; // 369
-	unsigned topLeft_LeftIndex1 = MICRO_IDX(topLeftSubtileIndex, blockSize, 2);
-	unsigned topLeft_LeftFrameRef1 = pSubtiles[topLeft_LeftIndex1] & 0xFFF; // 367
-	unsigned topRight_LeftIndex0 = MICRO_IDX(topRightSubtileIndex, blockSize, 0);
-	unsigned topRight_LeftFrameRef0 = pSubtiles[topRight_LeftIndex0] & 0xFFF; // 370
-	unsigned bottomLeft_RightIndex0 = MICRO_IDX(bottomLeftSubtileIndex, blockSize, 1);
-	unsigned bottomLeft_RightFrameRef0 = pSubtiles[bottomLeft_RightIndex0] & 0xFFF; // 375
-	unsigned bottomRight_RightIndex0 = MICRO_IDX(bottomRightSubtileIndex, blockSize, 1);
-	unsigned bottomRight_RightFrameRef0 = pSubtiles[bottomRight_RightIndex0] & 0xFFF; // 377
-	unsigned bottomRight_LeftIndex0 = MICRO_IDX(bottomRightSubtileIndex, blockSize, 0);
-	unsigned bottomRight_LeftFrameRef0 = pSubtiles[bottomRight_LeftIndex0] & 0xFFF; // 376
-
-	if (topLeft_LeftFrameRef0 == 0 || topLeft_RightFrameRef0 == 0 || topLeft_LeftFrameRef1 == 0 || topRight_LeftFrameRef0 == 0 || bottomLeft_RightFrameRef0 == 0) {
-		// TODO: report error if not empty both? + additional checks
-		return celBuf; // left frames are empty -> assume it is already done
-	}
-	if (bottomRight_RightFrameRef0 == 0 || bottomRight_LeftFrameRef0 == 0) {
-		mem_free_dbg(celBuf);
-		app_warn("Invalid (empty) floor on tile (%d).", exitTileIndex + 1);
-		return NULL;
-	}
-
-	// TODO: check celLen
-	// draw the micros to the back-buffer
-	pMicrosCel = celBuf;
-	constexpr BYTE TRANS_COLOR = 128;
-	memset(&gpBuffer[0], TRANS_COLOR, 3 * BUFFER_WIDTH * MICRO_HEIGHT);
-
-	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH], pSubtiles[topLeft_LeftIndex1], DMT_NONE); // 367
-	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH], pSubtiles[topLeft_LeftIndex0], DMT_NONE); // 368
-	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH], pSubtiles[topLeft_RightIndex0], DMT_NONE); // 369
-	RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[topRight_LeftIndex0], DMT_NONE); // 370
-	// RenderMicro(&gpBuffer[2 * MICRO_WIDTH + (MICRO_HEIGHT * 3 - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[topRight_LeftIndex0], DMT_NONE); // 370
-	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 2 + MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[bottomLeft_RightIndex0], DMT_NONE); // 375
-	RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[bottomRight_LeftIndex0], DMT_NONE); // 376
-	RenderMicro(&gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[bottomRight_RightIndex0], DMT_NONE); // 377
-
-	// mask floor bits of 369, 370
-	// - 369
-	for (int x = 0; x < MICRO_WIDTH; x++) {
-		for (int y = 0; y < MICRO_HEIGHT; y++) {
-			BYTE pixel = gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 2 - y - 1) * BUFFER_WIDTH];
-			if (pixel == TRANS_COLOR)
-				continue;
-			if (x >= 15 || gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 2 - y - 1) * BUFFER_WIDTH] < 80) {
-				gpBuffer[MICRO_WIDTH + x + (MICRO_HEIGHT * 2 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR;
-			}
-		}
-	}
-	// - 370
-	for (int x = 0; x < MICRO_WIDTH; x++) {
-		for (int y = 0; y < MICRO_HEIGHT; y++) {
-			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH];
-			if (pixel == TRANS_COLOR)
-				continue;
-			if (x >= 15 || gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] < 96) {
-				gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH] = TRANS_COLOR;
-			}
-		}
-	}
-
-	// fix bad artifacts
-	gpBuffer[MICRO_WIDTH + 13 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT -1 - 22) - 1) * BUFFER_WIDTH] = TRANS_COLOR;     // 369
-	gpBuffer[MICRO_WIDTH + 7 + (MICRO_HEIGHT * 2 - (MICRO_HEIGHT - 1 - 7) - 1) * BUFFER_WIDTH] = TRANS_COLOR;      // 369
-	gpBuffer[2 * MICRO_WIDTH + 12 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT / 2 + 2) - 1) * BUFFER_WIDTH] = 122;         // 370
-	gpBuffer[2 * MICRO_WIDTH + 14 + (MICRO_HEIGHT * 3 - (MICRO_HEIGHT / 2 - 1) - 1) * BUFFER_WIDTH] = TRANS_COLOR; // 370
-
-	// copy the frame 370 to its position
-	for (int x = 0; x < MICRO_WIDTH; x++) {
-		for (int y = 0; y < MICRO_HEIGHT; y++) {
-			BYTE pixel = gpBuffer[2 * MICRO_WIDTH + x + (MICRO_HEIGHT * 3 - y - 1) * BUFFER_WIDTH];
-			if (pixel == TRANS_COLOR)
-				continue;
-			gpBuffer[x + MICRO_WIDTH + (MICRO_HEIGHT * 3 - y - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH] = pixel;
-		}
-	}
-
-	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 4 * MICRO_WIDTH * MICRO_HEIGHT);
-
-	typedef struct {
-		int type;
-		unsigned frameRef;
-	} CelFrameEntry;
-	CelFrameEntry entries[5];
-	entries[0].type = 0; // 367
-	// assert(topLeft_LeftFrameRef1 == 367);
-	entries[0].frameRef = topLeft_LeftFrameRef1;
-	entries[1].type = 1; // 368
-	// assert(topLeft_LeftFrameRef0 == 368);
-	entries[1].frameRef = topLeft_LeftFrameRef0;
-	entries[2].type = 2; // 369
-	// assert(topLeft_RightFrameRef0 == 369);
-	entries[2].frameRef = topLeft_RightFrameRef0;
-	entries[3].type = 3; // 376
-	// assert(bottomRight_LeftFrameRef0 == 376);
-	entries[3].frameRef = bottomRight_LeftFrameRef0;
-	entries[4].type = 4; // 377
-	// assert(bottomRight_RightFrameRef0 == 377);
-	entries[4].frameRef = bottomRight_RightFrameRef0;
-	DWORD* srcHeaderCursor = (DWORD*)celBuf;
-	DWORD celEntries = SwapLE32(srcHeaderCursor[0]);
-	srcHeaderCursor++;
-	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(celEntries);
-	dstHeaderCursor++;
-	BYTE* dstDataCursor = resCelBuf + 4 * (celEntries + 2);
-	while (true) {
-		// select the next frame
-		int next = -1;
-		for (int i = 0; i < lengthof(entries); i++) {
-			if (entries[i].frameRef != 0 && (next == -1 || entries[i].frameRef < entries[next].frameRef)) {
-				next = i;
-			}
-		}
-		if (next == -1)
-			break;
-
-		// copy entries till the next frame
-		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
-		for (int i = 0; i < numEntries; i++) {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-			dstHeaderCursor++;
-			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
-			dstDataCursor += len;
-			srcHeaderCursor++;
-		}
-		// add the next frame
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-		dstHeaderCursor++;
-		
-		BYTE* frameSrc;
-		int encoding = MET_TRANSPARENT;
-		switch (entries[next].type) {
-		case 0: // 367
-			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 1 - 1) * BUFFER_WIDTH];
-			break;
-		case 1: // 368
-			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
-			encoding = MET_SQUARE;
-			break;
-		case 2: // 369
-			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 2 - 1) * BUFFER_WIDTH];
-			break;
-		case 3: // 376
-			frameSrc = &gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
-			encoding = MET_LTRAPEZOID;
-			break;
-		case 4: // 377
-			frameSrc = &gpBuffer[MICRO_WIDTH + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH];
-			break;
-		}
-		dstDataCursor = EncodeMicro(encoding, dstDataCursor, frameSrc, TRANS_COLOR);
-
-		// skip the original frame
-		srcHeaderCursor++;
-
-		// remove entry
-		entries[next].frameRef = 0;
-	}
-	// add remaining entries
-	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
-	for (int i = 0; i < numEntries; i++) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-		dstHeaderCursor++;
-		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
-		dstDataCursor += len;
-		srcHeaderCursor++;
-	}
-	// add file-size
-	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
-
-	*celLen = SwapLE32(dstHeaderCursor[0]);
-
-	mem_free_dbg(celBuf);
-
-	return resCelBuf;
-}
-
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
@@ -1733,6 +2043,16 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_BLIND2_DUN:
 	case FILE_BLOOD1_DUN:
 	case FILE_BLOOD2_DUN:
+	case FILE_DIAB1_DUN:
+	case FILE_DIAB2A_DUN:
+	case FILE_DIAB2B_DUN:
+	case FILE_DIAB3A_DUN:
+	case FILE_DIAB3B_DUN:
+	case FILE_DIAB4A_DUN:
+	case FILE_DIAB4B_DUN:
+	case FILE_VILE1_DUN:
+	case FILE_WARLORD_DUN:
+	case FILE_WARLORD2_DUN:
 	{	// patch .DUN
 		patchDungeon(index, buf, dwLen);
 	} break;
@@ -1910,46 +2230,33 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_HELL_MIN]);
 			return NULL;
 		}
-		size_t tilLen;
-		BYTE* tilBuf = LoadFileInMem(filesToPatch[FILE_HELL_TIL], &tilLen);
-		if (tilBuf == NULL) {
-			mem_free_dbg(minBuf);
-			mem_free_dbg(buf);
-			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_HELL_TIL]);
-			return NULL;
+		buf = DRLP_L4_PatchCel(minBuf, minLen, buf, dwLen);
+		if (buf != NULL) {
+			DRLP_L4_PatchMin(minBuf);
+			buf = buildBlkCel(buf, dwLen);
 		}
-		buf = patchHellCel(tilBuf, tilLen, minBuf, minLen, buf, dwLen, 45 - 1);
 		mem_free_dbg(minBuf);
-		mem_free_dbg(tilBuf);
 	} break;
 	case FILE_HELL_MIN:
 	{	// patch dMiniTiles - L4.MIN
 		constexpr int blockSize = BLOCK_SIZE_L4;
-		uint16_t *pSubtiles = (uint16_t*)buf;
-		// patch exit tile II.
-		// - move the frames to the bottom right subtile
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 3)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)]) & 0xFFF) | (MET_TRANSPARENT << 12)); // 369
-		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] = 0;
-
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 2)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)]) & 0xFFF) | (MET_SQUARE << 12));      // 368
-		pSubtiles[MICRO_IDX(140 - 1, blockSize, 4)] = SwapLE16((SwapLE16(pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)]) & 0xFFF) | (MET_TRANSPARENT << 12)); // 367
-		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 0)] = 0;
-		// pSubtiles[MICRO_IDX(137 - 1, blockSize, 2)] = 0;
-
-		// - eliminate right frame of the bottom left subtile
-		pSubtiles[MICRO_IDX(139 - 1, blockSize, 1)] = 0;
-
-		// - adjust the frame types after patchHellCel
-		SetFrameType(140, 0, MET_LTRAPEZOID);
-		SetFrameType(140, 1, MET_TRANSPARENT);
+		if (*dwLen < 456 * blockSize * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		DRLP_L4_PatchMin(buf);
+		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
-#endif
+#endif /* ASSET_MPL == 1 */
 	case FILE_HELL_TIL:
 	{	// patch dMegaTiles - L4.TIL
-		uint16_t *pTiles = (uint16_t*)buf;
-		// patch exit tile III.
-		pTiles[(45 - 1) * 4 + 0] = SwapLE16(17 - 1);
-		pTiles[(45 - 1) * 4 + 1] = SwapLE16(18 - 1);
+		if (*dwLen < 137 * 4 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			return NULL;
+		}
+		DRLP_L4_PatchTil(buf);
 	} break;
 	case FILE_HELL_SOL:
 	{	// patch dSolidTable - L4.SOL
@@ -1971,7 +2278,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_HELL_AMP:
 	{	// patch dAutomapData - L4.AMP
-		if (*dwLen < 56 * 2) {
+		if (*dwLen < 137 * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
@@ -1979,6 +2286,20 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		uint16_t *automaptype = (uint16_t*)buf;
 		automaptype[52 - 1] |= SwapLE16(MAPFLAG_VERTGRATE);
 		automaptype[56 - 1] |= SwapLE16(MAPFLAG_HORZGRATE);
+		automaptype[7 - 1] = SwapLE16(MWT_NORTH_WEST_END);
+		automaptype[8 - 1] = SwapLE16(MWT_NORTH_EAST_END);
+		automaptype[83 - 1] = SwapLE16(MWT_NORTH_WEST_END);
+		// new shadow-types
+		automaptype[61 - 1] = automaptype[2 - 1];
+		automaptype[62 - 1] = automaptype[2 - 1];
+		automaptype[76 - 1] = automaptype[15 - 1];
+		automaptype[129 - 1] = automaptype[15 - 1];
+		automaptype[130 - 1] = automaptype[56 - 1];
+		automaptype[131 - 1] = automaptype[56 - 1];
+		automaptype[132 - 1] = automaptype[8 - 1];
+		automaptype[133 - 1] = automaptype[8 - 1];
+		automaptype[134 - 1] = automaptype[14 - 1];
+		automaptype[135 - 1] = automaptype[14 - 1];
 	} break;
 	case FILE_BHSM_TRN:
 	{	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
