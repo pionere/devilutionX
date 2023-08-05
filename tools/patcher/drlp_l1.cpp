@@ -1848,6 +1848,11 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(130 - 1) * 4 + 3] = SwapLE16(4 - 1);
 	pTiles[(137 - 1) * 4 + 3] = SwapLE16(4 - 1);
 	pTiles[(193 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	// create separate pillar tile
+	pTiles[(28 - 1) * 4 + 0] = SwapLE16(8 - 1);
+	pTiles[(28 - 1) * 4 + 1] = SwapLE16(2 - 1);
+	pTiles[(28 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(28 - 1) * 4 + 3] = SwapLE16(4 - 1);
 	// create the new shadows
 	// - use the shadows created by fixCathedralShadows
 	pTiles[(131 - 1) * 4 + 0] = SwapLE16(23 - 1);
@@ -2006,7 +2011,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		28, 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 95, 96, 119, 120, 126, 127, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
+		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 95, 96, 119, 120, 126, 127, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
 	};
 	constexpr int blankSubtile = 74;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {
@@ -3878,6 +3883,11 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	// - reduce glow
 	pTiles[4 * (162 - 1) + 1] = SwapLE16(297 - 1); // 489
 	pTiles[4 * (162 - 1) + 2] = SwapLE16(266 - 1); // 490
+	// create separate pillar tile
+	pTiles[(28 - 1) * 4 + 0] = SwapLE16(9 - 1);
+	pTiles[(28 - 1) * 4 + 1] = SwapLE16(60 - 1);
+	pTiles[(28 - 1) * 4 + 2] = SwapLE16(4 - 1);
+	pTiles[(28 - 1) * 4 + 3] = SwapLE16(12 - 1);
 	// create the new shadows
 	// - use the shadows created by fixCryptShadows
 	pTiles[4 * (203 - 1) + 0] = SwapLE16(638 - 1); // 619
@@ -4109,7 +4119,7 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[4 * (188 - 1) + 2] = SwapLE16(12 - 1);
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		28,/* 29,*/ 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 43, 44, */ 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 79, 212, 213, 214
+		/* 29,*/ 30, 31, 34,/* 38,*/ 39, 40, 41, 42,/* 43, 44, */ 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 79, 212, 213, 214
 	};
 	constexpr int blankSubtile = 8;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {

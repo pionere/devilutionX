@@ -250,6 +250,11 @@ void InitLvlDungeon()
 		nMissileTable[338] = false;
 		// - special subtile for the vile setmap
 		nMissileTable[335] = false;
+		// create separate pillar tile
+		pTiles[28][0] = pTiles[3][0];
+		pTiles[28][1] = pTiles[3][1];
+		pTiles[28][2] = pTiles[3][2];
+		pTiles[28][3] = pTiles[3][3];
 		// create the new shadows
 		// - use the shadows created by fixCathedralShadows
 		pTiles[131][0] = pTiles[140][0];
@@ -375,6 +380,11 @@ void InitLvlDungeon()
 	case DTYPE_CATACOMBS:
 #if !USE_PATCH
 		// patch dMegaTiles, dMiniTiles and dSolidTable - L2.TIL, L2.MIN, L2.SOL
+		// create separate pillar tile
+		pTiles[52][0] = pTiles[6][0];
+		pTiles[52][1] = pTiles[6][1];
+		pTiles[52][2] = pTiles[6][2];
+		pTiles[52][3] = pTiles[6][3];
 		// create the new shadows
 		// - horizontal door for a pillar
 		pTiles[17][0] = 540; // TODO: use 17 and update DRLG_L2DoorSubs?
@@ -611,7 +621,13 @@ void InitLvlDungeon()
 		pTiles[58][1] = pTiles[18][1];
 		pTiles[58][2] = pTiles[18][2];
 		pTiles[58][3] = pTiles[18][3];
-		// - adjust TIL after patchCryptMin
+		// create separate pillar tile
+		pTiles[28][0] = pTiles[3][0];
+		pTiles[28][1] = pTiles[3][1];
+		pTiles[28][2] = pTiles[3][2];
+		pTiles[28][3] = pTiles[3][3];
+		// create the new shadows
+		// - shadows created by fixCryptShadows
 		pTiles[109][0] = pTiles[1][0];
 		pTiles[109][1] = pTiles[1][1];
 		pTiles[109][2] = pTiles[1][2];

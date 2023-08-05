@@ -90,7 +90,7 @@ const BYTE L2FTYPES[159] = {
 	10, 12, 12, 10, 10, 10, 10, 10, 10, 12, // 20..
 	12, 12, 12, 12, 14, 10, 12, 12,  8, 10, // 30..
 	12,  8,  8,  8, 10, 12, 15, 15, 15, 15, // 40..
-	15, 15, 10, 10, 10,  8, 12, 12, 12, 15, // 50..
+	15, 15, 14, 10, 10,  8, 12, 12, 12, 15, // 50..
 	15, 15, 15, 15, 15, 15, 15, 15, 10, 10, // 60..
 	10,  7, 15, 12, 12, 12, 15, 10,  0, 10, // 70..
 	10, 10, 10, 14, 12, 12, 12,  8, 15, 15, // 80..
@@ -666,7 +666,7 @@ static void DRLG_L2Shadows()
 				continue;
 			}
 			switch (dungeon[i][j]) {
-			case 6:
+			case 52:
 			case 9:
 			case 36:
 			case 37:
@@ -2202,7 +2202,7 @@ static bool IsPillar(BYTE bv)
 /*
  * Replace doors with arches.
  * TODO: skip if there is no corresponding shadow?
- * New dungeon values: (3) 39 40 41 42 43 44 45
+ * New dungeon values: (3) 39 40 41 42 43 44 45 52
  */
 static void L2CreateArches()
 {
@@ -2250,6 +2250,12 @@ static void L2CreateArches()
 						//0,
 						dungeon[x][y - 1] = 41;
 						dungeon[x][y] = 44;
+					} else {
+						continue;
+					}
+					// convert corner tile to standalone pillar
+					if (dungeon[x][y + 1] == 6 && dungeon[x - 1][y + 1] == 45) {
+						dungeon[x][y + 1] = 52;
 					}
 				} else if (pn == 1 && y < DMAXY - 2) {
 					if (IsPillar(dungeon[x][y + 2])) {
@@ -2263,6 +2269,10 @@ static void L2CreateArches()
 						// assert(!drlgFlags[x][y + 1]);
 						dungeon[x][y + 1] = 44;
 						dungeon[x][y] = 39;
+						// convert corner tile to standalone pillar
+						if (dungeon[x][y + 2] == 6 && dungeon[x - 1][y + 2] == 45) {
+							dungeon[x][y + 2] = 52;
+						}
 					}
 				}
 			} else if (dungeon[x][y] == 5) {

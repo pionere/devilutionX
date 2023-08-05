@@ -406,6 +406,8 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 		lm[2 + 0 + 6 * 7] = 0;
 		lm[2 + 6 + 6 * 7] = 0;
 		lm[2 + 6 + 0 * 7] = 0;
+		// add the separate pillar tile
+		lm[2 + 5 + 5 * 7] = SwapLE16(52);
 		// add tiles with subtiles for arches
 		lm[2 + 2 + 1 * 7] = SwapLE16(45);
 		lm[2 + 4 + 1 * 7] = SwapLE16(45);
@@ -1993,7 +1995,9 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 
 		uint16_t *automaptype = (uint16_t*)buf;
-		// adjust AMP after fixCathedralShadows
+		// create separate pillar tile
+		automaptype[28 - 1] = MWT_PILLAR;
+		// create the new shadows
 		// automaptype[131 - 1] = automaptype[13 - 1];
 		// automaptype[132 - 1] = automaptype[13 - 1];
 		// automaptype[139 - 1] = automaptype[13 - 1];
@@ -2132,6 +2136,9 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
+		// create separate pillar tile
+		automaptype[52 - 1] = MWT_PILLAR;
+		// create the new shadows
 		automaptype[17 - 1] = automaptype[5 - 1];
 		// automaptype[18 - 1] = automaptype[5 - 1];
 		automaptype[34 - 1] = automaptype[6 - 1];
@@ -2515,8 +2522,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		automaptype[54 - 1] = SwapLE16(MAPFLAG_DIRT);
 		automaptype[56 - 1] = SwapLE16(MWT_NONE);
 		automaptype[58 - 1] = SwapLE16(MAPFLAG_DIRT | MWT_NORTH_WEST_END);
-		// adjust AMP after DRLP_L5_PatchMin
-		// - use the shadows created by fixCryptShadows
+		// create separate pillar tile
+		automaptype[28 - 1] = MWT_PILLAR;
+		// create the new shadows
+		// - shadows created by fixCryptShadows
 		automaptype[109 - 1] = SwapLE16(MWT_NORTH_WEST);
 		automaptype[110 - 1] = SwapLE16(MWT_NORTH_WEST);
 		automaptype[111 - 1] = SwapLE16(MAPFLAG_VERTARCH | MWT_NORTH_WEST);

@@ -108,7 +108,10 @@ void InitLvlAutomap()
 #if !USE_PATCH
 	// patch dAutomapData - L1.AMP
 	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		// adjust AMP after fixCathedralShadows
+		// separate pillar tile
+		automaptype[28] = MWT_PILLAR; // automaptype[15]
+		// new shadows
+		// - shadows created by fixCathedralShadows
 		automaptype[145] = automaptype[11];
 		automaptype[147] = automaptype[6];
 		automaptype[149] = automaptype[12];
@@ -138,6 +141,9 @@ void InitLvlAutomap()
 	}
 	// patch dAutomapData - L2.AMP
 	if (currLvl._dType == DTYPE_CATACOMBS) {
+		// separate pillar tile
+		automaptype[52] = MWT_PILLAR;
+		// new shadows
 		automaptype[17] = automaptype[5];
 		// automaptype[18] = automaptype[5];
 		automaptype[34] = automaptype[6];
@@ -193,8 +199,10 @@ void InitLvlAutomap()
 		automaptype[54] = MAPFLAG_DIRT;
 		automaptype[56] = MWT_NONE;
 		automaptype[58] = MAPFLAG_DIRT | MWT_NORTH_WEST_END;
-		// adjust AMP after cleanupCrypt
-		// - use the shadows created by fixCryptShadows
+		// separate pillar tile
+		automaptype[28] = MWT_PILLAR; // automaptype[15]
+		// new shadows
+		// - shadows created by fixCryptShadows
 		automaptype[109] = MWT_NORTH_WEST;
 		automaptype[110] = MWT_NORTH_WEST;
 		automaptype[111] = MAPFLAG_VERTARCH | MWT_NORTH_WEST;
@@ -668,23 +676,6 @@ static uint16_t GetAutomapType(int x, int y, bool view)
 	}
 
 	rv = automaptype[dungeon[x][y]];
-	if (rv == MWT_CORNER) { // TODO: check for (rv & 7) == 7 instead to ignore the high bits?
-		// TODO: this feels like a hack. A better logic would be to check around
-		//  the tile and see if there is a wall. That way the automaptype of the 
-		//  pillars of the BONECHAMBER-stairs (39/40/41+42) could be set to 7 as well.
-		//  Which would eliminate the ugly corners in the catacombs.
-		// The check would be more 'expensive' though.
-		//if (x >= 1 && y >= 1) {
-		//	if ((automaptype[dungeon[x - 1][y]] & MAPFLAG_HORZARCH)
-		//	 && (automaptype[dungeon[x][y - 1]] & MAPFLAG_VERTARCH))
-		//		rv = MWT_PILLAR;
-			if (x >= 2 && y >= 2) {
-				if ((automaptype[dungeon[x - 2][y]] & MAPFLAG_HORZARCH)
-				 && (automaptype[dungeon[x][y - 2]] & MAPFLAG_VERTARCH))
-					rv = MWT_PILLAR;
-			}
-		//}
-	}
 	return rv;
 }
 

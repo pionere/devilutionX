@@ -60,9 +60,9 @@ static const BYTE L1BTYPES[207] = {
  */
 static const BYTE L1FTYPES[207] = {
 	// clang-format off
-	 0, 10, 12, 14,  8,  8, 10, 12, 10, 12,
+	 0, 10, 12,  8,  8,  8, 10, 12, 10, 12,
 	 8, 10, 12, 15,  8, 14, 14, 14,  0,  0, // 10..
-	 0,  0,  0,  0,  0, 10, 12,  8,  8,  8, // 20..
+	 0,  0,  0,  0,  0, 10, 12,  8, 14,  8, // 20..
 	10, 12, 10, 12,  8, 10, 12,  8,  8,  8, // 30..
 	 8,  8,  8,  8,  8, 15, 12, 12, 10, 14, // 40..
 	10, 12, 12, 10, 14, 10, 10,  0, 10, 12, // 50..
@@ -91,7 +91,7 @@ static const BYTE L5FTYPES[218] = {
 	// clang-format off
 	 0, 10, 12,  8,  8,  8, 10, 12, 10, 12,
 	 8, 10, 12, 15,  8,  8,  8,  8,  0,  0, // 10..
-	 0,  0,  0,  0,  0, 10, 12,  8,  8,  8, // 20..
+	 0,  0,  0,  0,  0, 10, 12,  8, 14,  8, // 20..
 	10, 12, 10, 12,  8, 10, 12,  8,  8,  8, // 30..
 	 8,  8,  8,  8,  8, 15, 15, 15, 15, 15, // 40..
 	15, 15, 15,  0,  0,  0,  0,  0, 15, 15, // 50..
@@ -656,11 +656,11 @@ static void DRLG_L5Shadows()
 			case 5:
 				pillar = true;
 				break;
-			case 3:
+			case 28:
 			case 7:
 			case 15:
 			case 16:
-			case 17:
+			// case 17:
 			// case 31:
 			case 85:
 			case 86:
@@ -793,11 +793,11 @@ static void DRLG_L1Shadows()
 			case 15:
 				largePillar = true;
 				break;
-			case 3:
+			case 28:
 			case 7:
 			// case 15:
 			case 16:
-			case 17:
+			// case 17:
 			// case 31:
 			case 154:
 			case 155:
@@ -1566,7 +1566,7 @@ static void DRLG_L1GHallHoriz(int x1, int y1, int x2)
 	//else //if (dungeon[i][y1 - 2] == 3)
 		dungeon[i][y1 - 2] = 11;
 	dungeon[i][y1 - 1] = 11;
-	dungeon[i][y1 + 0] = 3;
+	dungeon[i][y1 + 0] = 28;
 	dungeon[i][y1 + 3] = 8;
 	dungeon[i][y1 + 4] = 11;
 	//assert(dungeon[i][y1 + 5] == 6 || dungeon[i][y1 + 5] == 17);
@@ -1603,7 +1603,7 @@ static void DRLG_L1GHallVert(int x1, int y1, int y2)
 	//else //if (dungeon[x1 - 2][i] == 3)
 		dungeon[x1 - 2][i] = 12;
 	dungeon[x1 - 1][i] = 12;
-	dungeon[x1 + 0][i] = 3;
+	dungeon[x1 + 0][i] = 28;
 	dungeon[x1 + 3][i] = 9;
 	dungeon[x1 + 4][i] = 12;
 	//assert(dungeon[x1 + 5][i] == 7 || dungeon[x1 + 5][i] == 16);
@@ -1623,7 +1623,7 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
 
 /*
  * Add pillars to the chambers.
- * New dungeon values: [2] (1) 3 5 8 9 10 11 12 14 15
+ * New dungeon values: [2] (1) 5 8 9 10 11 12 14 15 28
  */
 static void L1FillChambers()
 {
@@ -2149,6 +2149,7 @@ static void DRLG_L5Crypt_pattern2(BYTE rndper)
 	DRLG_PlaceRndTile(2, 113, rndper);
 	/** Miniset: South-Edge column on the northern side 1. */
 	DRLG_PlaceRndTile(3, 114, rndper);
+	DRLG_PlaceRndTile(28, 126, rndper);
 	/** Miniset: Use random corner north 1. */
 	DRLG_PlaceRndTile(4, 115, rndper);
 	/** Miniset: North-Edge column on the northern side 1. */
@@ -2187,6 +2188,7 @@ static void DRLG_L5Crypt_pattern3(BYTE rndper)
 	DRLG_PlaceRndTile(2, 130, rndper);
 	/** Miniset: South-Edge column on the northern side 2. */
 	DRLG_PlaceRndTile(3, 131, rndper);
+	DRLG_PlaceRndTile(28, 143, rndper);
 	/** Miniset: Use random corner north 2. */
 	DRLG_PlaceRndTile(4, 132, rndper);
 	/** Miniset: North-Edge column on the northern side 2. */
@@ -2225,6 +2227,7 @@ static void DRLG_L5Crypt_pattern4(BYTE rndper)
 	DRLG_PlaceRndTile(2, 147, rndper);
 	/** Miniset: South-Edge column on the northern side 3. */
 	DRLG_PlaceRndTile(3, 148, rndper);
+	// DRLG_PlaceRndTile(28, 160, rndper);
 	/** Miniset: Use random corner north 3. */
 	DRLG_PlaceRndTile(4, 149, rndper);
 	/** Miniset: North-Edge column on the northern side 3. */
@@ -2804,7 +2807,7 @@ static void DRLG_L1()
 		DRLG_PlaceRndTile(2, 200, 10);
 		/** Miniset: Use random horizontal wall 5. (Succubus statue) */
 		DRLG_PlaceRndTile(2, 202, 10);
-		DRLG_L5PlaceRndSet(L5VERTCOL1, 95);
+		DRLG_L5PlaceRndSet(L5VERTCOL1, 95); // 11 -> 95
 		DRLG_L5PlaceRndSet(L5HORIZCOL1a, 95); // 12 -> 96
 		DRLG_L5PlaceRndSet(L5HORIZCOL1b, 95);
 		// DRLG_L5PlaceRndSet(L5HORIZCOL1c, 95);

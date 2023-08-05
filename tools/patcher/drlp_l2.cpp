@@ -2188,6 +2188,11 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(99 - 1) * 4 + 0] = SwapLE16(332 - 1); // 347
 	pTiles[(99 - 1) * 4 + 2] = SwapLE16(324 - 1); // 349
 	pTiles[(99 - 1) * 4 + 3] = SwapLE16(323 - 1); // 350
+	// create separate pillar tile
+	pTiles[(52 - 1) * 4 + 0] = SwapLE16(21 - 1);
+	pTiles[(52 - 1) * 4 + 1] = SwapLE16(26 - 1);
+	pTiles[(52 - 1) * 4 + 2] = SwapLE16(23 - 1);
+	pTiles[(52 - 1) * 4 + 3] = SwapLE16(12 - 1);
 	// create the new shadows
 	// - horizontal door for a pillar
 	pTiles[(17 - 1) * 4 + 0] = SwapLE16(540 - 1); // TODO: use 17 and update DRLG_L2DoorSubs?
@@ -2274,7 +2279,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	// pTiles[(159 - 1) * 4 + 2] = SwapLE16(11 - 1); // 557
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		52, 58, 61, 64, 65, 66, 67, 76, 93, 98, 101, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
+		58, 61, 64, 65, 66, 67, 76, 93, 98, 101, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
 	};
 	constexpr int blankSubtile = 2;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {
