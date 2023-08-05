@@ -100,7 +100,7 @@ void InitLvlAutomap()
 	lm = (uint16_t*)pAFile;
 	for (i = 1; i <= dwTiles; i++) {
 		automaptype[i] = SwapLE16(*lm);
-		// assert((automaptype[i] & MAPFLAG_TYPE) < 13); required by DrawAutomapTile and SetAutomapView
+		// assert((automaptype[i] & MAF_TYPE) < 13); required by DrawAutomapTile and SetAutomapView
 		lm++;
 	}
 
@@ -141,6 +141,10 @@ void InitLvlAutomap()
 	}
 	// patch dAutomapData - L2.AMP
 	if (currLvl._dType == DTYPE_CATACOMBS) {
+		// fix automap type
+		automaptype[42] &= ~MAF_EAST_ARCH; // not a horizontal arch
+		automaptype[156] = MWT_NONE; // no door is placed
+		automaptype[157] = MWT_NONE;
 		// separate pillar tile
 		automaptype[52] = MWT_PILLAR;
 		// new shadows
@@ -158,19 +162,17 @@ void InitLvlAutomap()
 		// automaptype[95] = automaptype[3];
 		// automaptype[96] = automaptype[3];
 		// automaptype[100] = automaptype[3];
-		automaptype[42] &= ~MAPFLAG_HORZARCH;
-		automaptype[156] &= ~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE);
-		automaptype[157] &= ~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE);
 	}
 	// patch dAutomapData - L3.AMP
 	if (currLvl._dType == DTYPE_CAVES) {
+		// new shadows
 		automaptype[144] = automaptype[151];
 		automaptype[145] = automaptype[152];
 	}
 	// patch dAutomapData - L4.AMP
 	if (currLvl._dType == DTYPE_HELL) {
-		automaptype[52] |= MAPFLAG_VERTGRATE;
-		automaptype[56] |= MAPFLAG_HORZGRATE;
+		automaptype[52] |= MAF_WEST_GRATE;
+		automaptype[56] |= MAF_EAST_GRATE;
 		automaptype[7] = MWT_NORTH_WEST_END;
 		automaptype[8] = MWT_NORTH_EAST_END;
 		automaptype[83] = MWT_NORTH_WEST_END;
@@ -190,36 +192,36 @@ void InitLvlAutomap()
 	// patch dAutomapData - L5.AMP
 	if (currLvl._dType == DTYPE_CRYPT) {
 		// fix automap of the entrance
-		automaptype[47] = MAPFLAG_STAIRS | MWT_NORTH_WEST;
+		automaptype[47] = MAF_STAIRS | MWT_NORTH_WEST;
 		automaptype[50] = MWT_NORTH_WEST;
-		automaptype[48] = MAPFLAG_STAIRS | MWT_NORTH;
+		automaptype[48] = MAF_STAIRS | MWT_NORTH;
 		automaptype[51] = MWT_NORTH_WEST_END;
-		automaptype[52] = MAPFLAG_DIRT;
-		automaptype[53] = MAPFLAG_STAIRS | MWT_NORTH;
-		automaptype[54] = MAPFLAG_DIRT;
+		automaptype[52] = MAF_EXTERN;
+		automaptype[53] = MAF_STAIRS | MWT_NORTH;
+		automaptype[54] = MAF_EXTERN;
 		automaptype[56] = MWT_NONE;
-		automaptype[58] = MAPFLAG_DIRT | MWT_NORTH_WEST_END;
+		automaptype[58] = MAF_EXTERN | MWT_NORTH_WEST_END;
 		// separate pillar tile
 		automaptype[28] = MWT_PILLAR; // automaptype[15]
 		// new shadows
 		// - shadows created by fixCryptShadows
 		automaptype[109] = MWT_NORTH_WEST;
 		automaptype[110] = MWT_NORTH_WEST;
-		automaptype[111] = MAPFLAG_VERTARCH | MWT_NORTH_WEST;
-		automaptype[215] = MAPFLAG_VERTGRATE | MWT_NORTH_WEST;
+		automaptype[111] = MAF_WEST_ARCH | MWT_NORTH_WEST;
+		automaptype[215] = MAF_WEST_GRATE | MWT_NORTH_WEST;
 		// - 'add' new shadow-types with glow
-		automaptype[216] = MAPFLAG_VERTARCH | MWT_NORTH_WEST;
+		automaptype[216] = MAF_WEST_ARCH | MWT_NORTH_WEST;
 		// - 'add' new shadow-types with horizontal arches
 		automaptype[71] = MWT_NORTH_EAST;
 		automaptype[80] = MWT_NORTH_EAST;
-		automaptype[81] = MAPFLAG_HORZARCH | MWT_NORTH_EAST;
-		automaptype[82] = MAPFLAG_HORZARCH | MWT_NORTH_EAST;
-		automaptype[83] = MAPFLAG_HORZGRATE | MWT_NORTH_EAST;
-		automaptype[84] = MAPFLAG_HORZGRATE | MWT_NORTH_EAST;
+		automaptype[81] = MAF_EAST_ARCH | MWT_NORTH_EAST;
+		automaptype[82] = MAF_EAST_ARCH | MWT_NORTH_EAST;
+		automaptype[83] = MAF_EAST_GRATE | MWT_NORTH_EAST;
+		automaptype[84] = MAF_EAST_GRATE | MWT_NORTH_EAST;
 		automaptype[85] = MWT_NORTH_EAST;
 		automaptype[86] = MWT_NORTH_EAST;
-		automaptype[87] = MAPFLAG_HORZDOOR | MWT_NORTH_EAST;
-		automaptype[88] = MAPFLAG_HORZDOOR | MWT_NORTH_EAST;
+		automaptype[87] = MAF_EAST_DOOR | MWT_NORTH_EAST;
+		automaptype[88] = MAF_EAST_DOOR | MWT_NORTH_EAST;
 	}
 #endif // HELLFIRE
 #endif // !USE_PATCH
@@ -399,16 +401,16 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 {
 	uint8_t type;
 
-	if (automap_type & MAPFLAG_DIRT) {
+	if (automap_type & MAF_EXTERN) {
 		DrawAutomapDirt(sx, sy);
 	}
 
-	if (automap_type & MAPFLAG_STAIRS) {
+	if (automap_type & MAF_STAIRS) {
 		DrawAutomapStairs(sx, sy);
 	}
 
-	type = automap_type & MAPFLAG_TYPE;
-	automap_type &= ~MAPFLAG_TYPE;
+	type = automap_type & MAF_TYPE;
+	automap_type &= ~MAF_TYPE;
 	switch (type) {
 	case MWT_NONE:
 	case MWT_CORNER:
@@ -418,82 +420,81 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 		break;
 	case MWT_NORTH_WEST:
 	case MWT_NORTH_WEST_END:
-		automap_type |= MAPFLAG_DOVERT;
+		automap_type |= MAF_DO_NORTH_WEST;
 		break;
 	case MWT_NORTH_EAST:
 	case MWT_NORTH_EAST_END:
-		automap_type |= MAPFLAG_DOHORZ;
+		automap_type |= MAF_DO_NORTH_EAST;
 		break;
 	case MWT_NORTH:
-		automap_type |= MAPFLAG_DOHORZ | MAPFLAG_DOVERT;
+		automap_type |= MAF_DO_NORTH_EAST | MAF_DO_NORTH_WEST;
 		break;
 	case MWT_WEST:
-		automap_type |= MAPFLAG_DOVERT | MAPFLAG_DOHORZ_CAVE;
+		automap_type |= MAF_DO_NORTH_WEST | MAF_DO_SOUTH_WEST;
 		break;
 	case MWT_EAST:
-		automap_type |= MAPFLAG_DOHORZ | MAPFLAG_DOVERT_CAVE;
+		automap_type |= MAF_DO_NORTH_EAST | MAF_DO_SOUTH_EAST;
 		break;
 	case MWT_SOUTH_WEST:
-		automap_type |= MAPFLAG_DOHORZ_CAVE;
+		automap_type |= MAF_DO_SOUTH_WEST;
 		break;
 	case MWT_SOUTH_EAST:
-		automap_type |= MAPFLAG_DOVERT_CAVE;
+		automap_type |= MAF_DO_SOUTH_EAST;
 		break;
 	case MWT_SOUTH:
-		automap_type |= MAPFLAG_DOHORZ_CAVE | MAPFLAG_DOVERT_CAVE;
+		automap_type |= MAF_DO_SOUTH_WEST | MAF_DO_SOUTH_EAST;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
 
-	if (automap_type & MAPFLAG_DOVERT) { // right-facing obstacle
-		if (automap_type & MAPFLAG_VERTDOOR) { // two wall segments with a door in the middle
+	if (automap_type & MAF_DO_NORTH_WEST) {
+		if (automap_type & MAF_WEST_DOOR) {
 			unsigned d16 = AmLine16;
 			unsigned d8 = (d16 >> 1);
 			DrawAutomapVertDoor(sx - d16, sy - d8);
 		}
-		if (automap_type & MAPFLAG_VERTGRATE) { // right-facing half-wall
+		if (automap_type & MAF_WEST_GRATE) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
 			DrawLine(sx - d16, sy - d8, sx - d32, sy, COLOR_DIM);
 		}
-		if (automap_type & (MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) { // window or passable column
+		if (automap_type & (MAF_WEST_GRATE | MAF_WEST_ARCH)) {
 			DrawAutomapDiamond(sx, sy);
 		}
-		if ((automap_type & (MAPFLAG_VERTDOOR | MAPFLAG_VERTGRATE | MAPFLAG_VERTARCH)) == 0) {
+		if ((automap_type & (MAF_WEST_DOOR | MAF_WEST_GRATE | MAF_WEST_ARCH)) == 0) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1);
 			DrawLine(sx, sy - d16, sx - d32, sy, COLOR_DIM);
 		}
 	}
 
-	if (automap_type & MAPFLAG_DOHORZ) { // left-facing obstacle
-		if (automap_type & MAPFLAG_HORZDOOR) {
+	if (automap_type & MAF_DO_NORTH_EAST) {
+		if (automap_type & MAF_EAST_DOOR) {
 			unsigned d16 = AmLine16;
 			unsigned d8 = (d16 >> 1);
 			DrawAutomapHorzDoor(sx + d16, sy - d8);
 		}
-		if (automap_type & MAPFLAG_HORZGRATE) {
+		if (automap_type & MAF_EAST_GRATE) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
 			DrawLine(sx + d16, sy - d8, sx + d32, sy, COLOR_DIM);
 		}
-		if (automap_type & (MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) {
+		if (automap_type & (MAF_EAST_GRATE | MAF_EAST_ARCH)) {
 			DrawAutomapDiamond(sx, sy);
 		}
-		if ((automap_type & (MAPFLAG_HORZDOOR | MAPFLAG_HORZGRATE | MAPFLAG_HORZARCH)) == 0) {
+		if ((automap_type & (MAF_EAST_DOOR | MAF_EAST_GRATE | MAF_EAST_ARCH)) == 0) {
 			unsigned d32 = AmLine32;
 			unsigned d16 = (d32 >> 1);
 			DrawLine(sx, sy - d16, sx + d32, sy, COLOR_DIM);
 		}
 	}
 
-	// for caves the horz/vert flags are switched
-	if (automap_type & MAPFLAG_DOHORZ_CAVE) {
+	if (automap_type & MAF_DO_SOUTH_WEST) {
 		unsigned d32 = AmLine32;
 		unsigned d16 = (d32 >> 1);
-		if (automap_type & MAPFLAG_VERTDOOR) {
+		if (automap_type & MAF_WEST_DOOR) {
 			unsigned d8 = (d32 >> 2);
 			DrawAutomapHorzDoor(sx - d16, sy + d8);
 		} else {
@@ -501,10 +502,10 @@ static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
 		}
 	}
 
-	if (automap_type & MAPFLAG_DOVERT_CAVE) {
+	if (automap_type & MAF_DO_SOUTH_EAST) {
 		unsigned d32 = AmLine32;
 		unsigned d16 = (d32 >> 1);
-		if (automap_type & MAPFLAG_HORZDOOR) {
+		if (automap_type & MAF_EAST_DOOR) {
 			unsigned d8 = (d32 >> 2);
 			DrawAutomapVertDoor(sx + d16, sy + d8);
 		} else {
@@ -660,23 +661,20 @@ static void DrawAutomapPlr(int pnum, int playerColor)
  */
 static uint16_t GetAutomapType(int x, int y, bool view)
 {
-	uint16_t rv;
-
 	if ((unsigned)x >= DMAXX) {
 		return x == -1 && view
-			&& (unsigned)y < DMAXY && automapview[0][y] ? MAPFLAG_DIRT : MWT_NONE;
+			&& (unsigned)y < DMAXY && automapview[0][y] ? MAF_EXTERN : MWT_NONE;
 	}
 	if ((unsigned)y >= DMAXY) {
 		return y == -1 && view
-			&& (unsigned)x < DMAXX && automapview[x][0] ? MAPFLAG_DIRT : MWT_NONE;
+			&& (unsigned)x < DMAXX && automapview[x][0] ? MAF_EXTERN : MWT_NONE;
 	}
 
 	if (!automapview[x][y] && view) {
 		return 0;
 	}
 
-	rv = automaptype[dungeon[x][y]];
-	return rv;
+	return automaptype[dungeon[x][y]];
 }
 
 /**
@@ -838,63 +836,63 @@ void SetAutomapView(int x, int y)
 
 	maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy, false);
 
-	switch (maptype & MAPFLAG_TYPE) {
+	switch (maptype & MAF_TYPE) {
 	case MWT_NONE:
 	case MWT_PILLAR:
 		break;
 	case MWT_NORTH_WEST:
 		//if (solid) {
-		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | MWT_CORNER))
+		if (maptype & MAF_EXTERN) {
+			if (GetAutomapType(xx, yy + 1, false) == (MAF_EXTERN | MWT_CORNER))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT) {
+		} else if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case MWT_NORTH_EAST:
 		//if (solid) {
-		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | MWT_CORNER))
+		if (maptype & MAF_EXTERN) {
+			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT) {
+		} else if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;
 	case MWT_NORTH:
 		//if (solid) {
-		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | MWT_CORNER))
+		if (maptype & MAF_EXTERN) {
+			if (GetAutomapType(xx, yy + 1, false) == (MAF_EXTERN | MWT_CORNER))
 				automapview[xx][yy + 1] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | MWT_CORNER))
+			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
 				automapview[xx + 1][yy] = TRUE;
 		} else {
-			if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT)
+			if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN)
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT)
+			if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN)
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx - 1, yy - 1, false) & MAPFLAG_DIRT)
+			if (GetAutomapType(xx - 1, yy - 1, false) & MAF_EXTERN)
 				automapview[xx - 1][yy - 1] = TRUE;
 		}
 		break;
 	case MWT_NORTH_WEST_END:
 		//if (solid) {
-		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT)
+		if (maptype & MAF_EXTERN) {
+			if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN)
 				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, false) == (MAPFLAG_DIRT | MWT_CORNER))
+			if (GetAutomapType(xx, yy + 1, false) == (MAF_EXTERN | MWT_CORNER))
 				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT) {
+		} else if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN) {
 			automapview[xx - 1][yy] = TRUE;
 		}
 		break;
 	case MWT_NORTH_EAST_END:
 		//if (solid) {
-		if (maptype & MAPFLAG_DIRT) {
-			if (GetAutomapType(xx - 1, yy, false) & MAPFLAG_DIRT)
+		if (maptype & MAF_EXTERN) {
+			if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN)
 				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == (MAPFLAG_DIRT | MWT_CORNER))
+			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
 				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, false) & MAPFLAG_DIRT) {
+		} else if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN) {
 			automapview[xx][yy - 1] = TRUE;
 		}
 		break;

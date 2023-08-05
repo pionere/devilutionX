@@ -640,9 +640,9 @@ static void DRLG_L2Shadows()
 			bool pillar = false;
 			bool horizArch = false;
 			bool vertArch = false;
-			horizArch = (automaptype[dungeon[i][j]] & MAPFLAG_HORZARCH) != 0;
-			vertArch = (automaptype[dungeon[i][j]] & MAPFLAG_VERTARCH) != 0;
-			if (automaptype[dungeon[i][j]] & MAPFLAG_HORZDOOR) {
+			horizArch = (automaptype[dungeon[i][j]] & MAF_EAST_ARCH) != 0;
+			vertArch = (automaptype[dungeon[i][j]] & MAF_WEST_ARCH) != 0;
+			if (automaptype[dungeon[i][j]] & MAF_EAST_DOOR) {
 				// shadow of the horizontal doors
 				BYTE replaceB = dungeon[i][j - 1];
 				if (replaceB == 3 || replaceB == 49) {

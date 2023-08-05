@@ -2136,6 +2136,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
+		// fix automap type
+		automaptype[42 - 1] &= SwapLE16(~MAF_EAST_ARCH); // not a horizontal arch
+		automaptype[156 - 1] = MWT_NONE; // no door is placed
+		automaptype[157 - 1] = MWT_NONE;
 		// create separate pillar tile
 		automaptype[52 - 1] = MWT_PILLAR;
 		// create the new shadows
@@ -2153,9 +2157,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// automaptype[95 - 1] = automaptype[3 - 1];
 		// automaptype[96 - 1] = automaptype[3 - 1];
 		// automaptype[100 - 1] = automaptype[3 - 1];
-		automaptype[42 - 1] &= SwapLE16(~MAPFLAG_HORZARCH);
-		automaptype[156 - 1] &= SwapLE16(~(MAPFLAG_VERTDOOR | MAPFLAG_TYPE));
-		automaptype[157 - 1] &= SwapLE16(~(MAPFLAG_HORZDOOR | MAPFLAG_TYPE));
 	} break;
 #if ASSET_MPL == 1
 	case FILE_L3DOORS_CEL:
@@ -2291,8 +2292,8 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
-		automaptype[52 - 1] |= SwapLE16(MAPFLAG_VERTGRATE);
-		automaptype[56 - 1] |= SwapLE16(MAPFLAG_HORZGRATE);
+		automaptype[52 - 1] |= SwapLE16(MAF_WEST_GRATE);
+		automaptype[56 - 1] |= SwapLE16(MAF_EAST_GRATE);
 		automaptype[7 - 1] = SwapLE16(MWT_NORTH_WEST_END);
 		automaptype[8 - 1] = SwapLE16(MWT_NORTH_EAST_END);
 		automaptype[83 - 1] = SwapLE16(MWT_NORTH_WEST_END);
@@ -2513,36 +2514,36 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
 		// fix automap of the entrance III.
-		automaptype[47 - 1] = SwapLE16(MAPFLAG_STAIRS | MWT_NORTH_WEST);
+		automaptype[47 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH_WEST);
 		automaptype[50 - 1] = SwapLE16(MWT_NORTH_WEST);
-		automaptype[48 - 1] = SwapLE16(MAPFLAG_STAIRS | MWT_NORTH);
+		automaptype[48 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH);
 		automaptype[51 - 1] = SwapLE16(MWT_NORTH_WEST_END);
-		automaptype[52 - 1] = SwapLE16(MAPFLAG_DIRT);
-		automaptype[53 - 1] = SwapLE16(MAPFLAG_STAIRS | MWT_NORTH);
-		automaptype[54 - 1] = SwapLE16(MAPFLAG_DIRT);
+		automaptype[52 - 1] = SwapLE16(MAF_EXTERN);
+		automaptype[53 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH);
+		automaptype[54 - 1] = SwapLE16(MAF_EXTERN);
 		automaptype[56 - 1] = SwapLE16(MWT_NONE);
-		automaptype[58 - 1] = SwapLE16(MAPFLAG_DIRT | MWT_NORTH_WEST_END);
+		automaptype[58 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_WEST_END);
 		// create separate pillar tile
 		automaptype[28 - 1] = MWT_PILLAR;
 		// create the new shadows
 		// - shadows created by fixCryptShadows
 		automaptype[109 - 1] = SwapLE16(MWT_NORTH_WEST);
 		automaptype[110 - 1] = SwapLE16(MWT_NORTH_WEST);
-		automaptype[111 - 1] = SwapLE16(MAPFLAG_VERTARCH | MWT_NORTH_WEST);
-		automaptype[215 - 1] = SwapLE16(MAPFLAG_VERTGRATE | MWT_NORTH_WEST);
+		automaptype[111 - 1] = SwapLE16(MAF_WEST_ARCH | MWT_NORTH_WEST);
+		automaptype[215 - 1] = SwapLE16(MAF_WEST_GRATE | MWT_NORTH_WEST);
 		// - 'add' new shadow-types with glow
-		automaptype[216 - 1] = SwapLE16(MAPFLAG_VERTARCH | MWT_NORTH_WEST);
+		automaptype[216 - 1] = SwapLE16(MAF_WEST_ARCH | MWT_NORTH_WEST);
 		// - 'add' new shadow-types with horizontal arches
 		automaptype[71 - 1] = SwapLE16(MWT_NORTH_EAST);
 		automaptype[80 - 1] = SwapLE16(MWT_NORTH_EAST);
-		automaptype[81 - 1] = SwapLE16(MAPFLAG_HORZARCH | MWT_NORTH_EAST);
-		automaptype[82 - 1] = SwapLE16(MAPFLAG_HORZARCH | MWT_NORTH_EAST);
-		automaptype[83 - 1] = SwapLE16(MAPFLAG_HORZGRATE | MWT_NORTH_EAST);
-		automaptype[84 - 1] = SwapLE16(MAPFLAG_HORZGRATE | MWT_NORTH_EAST);
+		automaptype[81 - 1] = SwapLE16(MAF_EAST_ARCH | MWT_NORTH_EAST);
+		automaptype[82 - 1] = SwapLE16(MAF_EAST_ARCH | MWT_NORTH_EAST);
+		automaptype[83 - 1] = SwapLE16(MAF_EAST_GRATE | MWT_NORTH_EAST);
+		automaptype[84 - 1] = SwapLE16(MAF_EAST_GRATE | MWT_NORTH_EAST);
 		automaptype[85 - 1] = SwapLE16(MWT_NORTH_EAST);
 		automaptype[86 - 1] = SwapLE16(MWT_NORTH_EAST);
-		automaptype[87 - 1] = SwapLE16(MAPFLAG_HORZDOOR | MWT_NORTH_EAST);
-		automaptype[88 - 1] = SwapLE16(MAPFLAG_HORZDOOR | MWT_NORTH_EAST);
+		automaptype[87 - 1] = SwapLE16(MAF_EAST_DOOR | MWT_NORTH_EAST);
+		automaptype[88 - 1] = SwapLE16(MAF_EAST_DOOR | MWT_NORTH_EAST);
 	} break;
 	case FILE_OBJCURS_CEL:
 	{
