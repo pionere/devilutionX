@@ -1612,10 +1612,10 @@ static BYTE *patchCavesDoors(BYTE* celBuf, size_t* celLen)
 				gpBuffer[39 + 79 * BUFFER_WIDTH] = 124;
 
 				// fix outline
-				for (int y = 83; y < 91; y++) {
-					gpBuffer[58 + y * BUFFER_WIDTH] = gpBuffer[58 + (y - 20) * BUFFER_WIDTH];
-				}
-				gpBuffer[57 + 91 * BUFFER_WIDTH] = 126;
+				// for (int y = 83; y < 91; y++) {
+				//	gpBuffer[58 + y * BUFFER_WIDTH] = gpBuffer[58 + (y - 20) * BUFFER_WIDTH];
+				// }
+				// gpBuffer[57 + 91 * BUFFER_WIDTH] = 126;
 				gpBuffer[56 + 91 * BUFFER_WIDTH] = 126;
 				gpBuffer[55 + 92 * BUFFER_WIDTH] = 126;
 				gpBuffer[54 + 92 * BUFFER_WIDTH] = 126;
@@ -1624,14 +1624,14 @@ static BYTE *patchCavesDoors(BYTE* celBuf, size_t* celLen)
 				gpBuffer[51 + 93 * BUFFER_WIDTH] = 126;
 				gpBuffer[50 + 93 * BUFFER_WIDTH] = 126;
 				gpBuffer[49 + 94 * BUFFER_WIDTH] = 126;
-				gpBuffer[48 + 94 * BUFFER_WIDTH] = 126;
+				// gpBuffer[48 + 94 * BUFFER_WIDTH] = 126;
 				gpBuffer[47 + 95 * BUFFER_WIDTH] = 126;
 				gpBuffer[46 + 95 * BUFFER_WIDTH] = 126;
 				gpBuffer[45 + 96 * BUFFER_WIDTH] = 126;
 				gpBuffer[44 + 96 * BUFFER_WIDTH] = 126;
 				gpBuffer[43 + 97 * BUFFER_WIDTH] = 126;
-				gpBuffer[42 + 97 * BUFFER_WIDTH] = 126;
-				gpBuffer[41 + 98 * BUFFER_WIDTH] = 126;
+				// gpBuffer[42 + 97 * BUFFER_WIDTH] = 126;
+				// gpBuffer[41 + 98 * BUFFER_WIDTH] = 126;
 
 				gpBuffer[21 + 107 * BUFFER_WIDTH] = 126;
 				gpBuffer[22 + 108 * BUFFER_WIDTH] = 126;
@@ -1683,7 +1683,6 @@ static BYTE *patchCavesDoors(BYTE* celBuf, size_t* celLen)
 				gpBuffer[32 + 103 * BUFFER_WIDTH] = 94;
 				gpBuffer[33 + 104 * BUFFER_WIDTH] = 62;
 				gpBuffer[34 + 104 * BUFFER_WIDTH] = 126;
-				gpBuffer[35 + 106 * BUFFER_WIDTH] = 124;
 				gpBuffer[35 + 106 * BUFFER_WIDTH] = 125;
 				gpBuffer[37 + 107 * BUFFER_WIDTH] = 126;
 
