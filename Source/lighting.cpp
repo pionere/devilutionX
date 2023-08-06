@@ -668,13 +668,13 @@ static bool LightPos(int x1, int y1)
 	//int nTrans;
 	assert(IN_DUNGEON_AREA(x1, y1));
 	dFlags[x1][y1] |= vFlags;
+	bool result = !nBlockTable[dPiece[x1][y1]];
 	if (doautomap) {
 		if (!(dFlags[x1][y1] & BFLAG_EXPLORED)) {
-			dFlags[x1][y1] |= BFLAG_EXPLORED;
 			SetAutomapView(x1, y1);
 		}
 	}
-	return !nBlockTable[dPiece[x1][y1]];
+	return result;
 	/* skip this to not make tiles transparent based on visible tv values. only the tv of the player's tile should matter.
 	if (nBlockTable[dPiece[x1][y1]])
 		return false;
@@ -705,11 +705,10 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 
 	assert(IN_DUNGEON_AREA(nXPos, nYPos));
 	dFlags[nXPos][nYPos] |= vFlags;
-	if (doautomap) {
-		if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
-			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
+	if (local) {
+		/*if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) { -- not necessary, because the same tile is going to be checked by one of the other subtiles
 			SetAutomapView(nXPos, nYPos);
-		}
+		}*/
 		i = dTransVal[nXPos][nYPos];
 		if (i != 0) {
 			TransList[i] = true;

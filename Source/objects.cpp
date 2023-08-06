@@ -2940,14 +2940,17 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		NetSendShrineCmd(SHRINE_SPIRITUAL, os->_oRndSeed);
 		InitDiabloMsg(EMSG_SHRINE_SPIRITUAL);
 		break;
-	case SHRINE_SECLUDED:
+	case SHRINE_SECLUDED: {
 		if (pnum != mypnum)
 			return;
-		static_assert(sizeof(automapview) == DMAXY * DMAXX, "Linear traverse of automapview does not work in OperateShrine.");
-		memset(automapview, TRUE, DMAXX * DMAXY);
-		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
+		BYTE* pTmp;
+		static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in OperateShrine.");
+		pTmp = &dFlags[0][0];
+		for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++) {
+			*pTmp |= BFLAG_EXPLORED;
+		}
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
-		break;
+	} break;
 	case SHRINE_GLIMMERING:
 		if (pnum != mypnum)
 			return;

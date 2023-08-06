@@ -680,7 +680,9 @@ static void delta_leave_sync(BYTE bLevel)
 		glSeedTbl[DLV_TOWN] = NextRndSeed();
 		return;
 	}
-	memcpy(&gsDeltaData.ddLocal[bLevel].automapsv, automapview, sizeof(automapview));
+	static_assert(sizeof(gsDeltaData.ddLocal[bLevel].automapsv) == sizeof(dFlags), "Automap info can not be stored in the allocated space.");
+
+	memcpy(&gsDeltaData.ddLocal[bLevel].automapsv, dFlags, sizeof(dFlags));
 }
 
 static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
@@ -935,6 +937,22 @@ static void UpdateLeader(int mnum, BYTE prevFlag, BYTE newFlag)
 	monsters[monsters[mnum]._mleader]._mpacksize--;
 }
 
+static void DeltaLoadAutomap(LocalLevel &level)
+{
+	int i;
+	BYTE* pMapFlags;
+	BYTE* pDunFlags;
+
+	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in DeltaLoadAutomap.");
+	static_assert(sizeof(level.automapsv) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in DeltaLoadAutomap.");
+	pDunFlags = &dFlags[0][0];
+	pMapFlags = &level.automapsv[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pDunFlags++, pMapFlags++) {
+		assert((*pDunFlags & BFLAG_EXPLORED) == 0);
+		*pDunFlags |= *pMapFlags & BFLAG_EXPLORED;
+	}
+}
+
 void DeltaLoadLevel()
 {
 	DMonsterStr* mstr;
@@ -950,6 +968,7 @@ void DeltaLoadLevel()
 
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
+		// load monsters
 		for (i = 0; i < MAX_MINIONS; i++)
 			InitGolemStats(i, gsDeltaData.ddJunk.jGolems[i]);
 
@@ -1026,9 +1045,9 @@ void DeltaLoadLevel()
 		}
 		// SyncMonsterLight();
 
-		memcpy(automapview, gsDeltaData.ddLocal[currLvl._dLevelIdx].automapsv, sizeof(automapview));
-		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
+		DeltaLoadAutomap(gsDeltaData.ddLocal[currLvl._dLevelIdx]);
 
+		// load objects
 		dstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
 			if (dstr->bCmd != DCMD_INVALID) {

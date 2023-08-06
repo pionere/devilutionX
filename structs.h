@@ -1951,7 +1951,7 @@ typedef struct DLevel {
 } DLevel;
 
 typedef struct LocalLevel {
-	BOOLEAN automapsv[DMAXX][DMAXY];
+	BYTE automapsv[MAXDUNX][MAXDUNY]; // TODO: compress the data?
 } LocalLevel;
 
 typedef struct DPortal {
@@ -2008,9 +2008,9 @@ typedef struct LargeMsgPkt {
 typedef struct DeltaData {
 	union {
 		struct {
-			DJunk ddJunk;					// portals and quests
-			DLevel ddLevel[NUM_LEVELS];		// items/monsters/objects
-			LocalLevel ddLocal[NUM_LEVELS];	// automap
+			LocalLevel ddLocal[NUM_LEVELS]; // automap
+			DJunk ddJunk;                   // portals and quests
+			DLevel ddLevel[NUM_LEVELS];     // items/monsters/objects
 			bool ddLevelChanged[NUM_LEVELS];
 			bool ddJunkChanged;
 

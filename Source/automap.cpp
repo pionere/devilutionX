@@ -15,8 +15,6 @@ uint16_t automaptype[MAXTILES + 1];
 bool gbAutomapflag;
 /** Specifies whether the automap-data is valid. */
 bool _gbAutomapData;
-/** Tracks the explored areas of the map. */
-BOOLEAN automapview[DMAXX][DMAXY];
 /** Specifies the scale of the automap. */
 unsigned AutoMapScale;
 int AutoMapXOfs;
@@ -50,7 +48,6 @@ void InitAutomapOnce()
 	// these values are initialized by InitAutomap
 	//_gbAutomapData = false;
 	//memset(automaptype, 0, sizeof(automaptype));
-	//memset(automapview, 0, sizeof(automapview));
 	//AutoMapXOfs = 0;
 	//AutoMapYOfs = 0;
 }
@@ -232,8 +229,6 @@ void InitLvlAutomap()
 	}
 #endif // HELLFIRE
 #endif // !USE_PATCH
-	memset(automapview, 0, sizeof(automapview));
-
 	AutoMapXOfs = 0;
 	AutoMapYOfs = 0;
 }
@@ -260,8 +255,7 @@ void ToggleAutomap()
  */
 void AutomapUp()
 {
-	AutoMapXOfs--;
-	AutoMapYOfs--;
+	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 0, -2);
 }
 
 /**
@@ -269,8 +263,7 @@ void AutomapUp()
  */
 void AutomapDown()
 {
-	AutoMapXOfs++;
-	AutoMapYOfs++;
+	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 0, 2);
 }
 
 /**
@@ -278,8 +271,7 @@ void AutomapDown()
  */
 void AutomapLeft()
 {
-	AutoMapXOfs--;
-	AutoMapYOfs++;
+	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, -2, 0);
 }
 
 /**
@@ -287,8 +279,7 @@ void AutomapLeft()
  */
 void AutomapRight()
 {
-	AutoMapXOfs++;
-	AutoMapYOfs--;
+	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 2, 0);
 }
 
 /**
@@ -543,8 +534,8 @@ static void SearchAutomapItem()
 	int i, j;
 	unsigned d16 = AmLine16;
 
-	x = 2 * AutoMapXOfs + ViewX;
-	y = 2 * AutoMapYOfs + ViewY;
+	x = AutoMapXOfs + ViewX;
+	y = AutoMapYOfs + ViewY;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
@@ -597,8 +588,8 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	p = &plr;
 	px = p->_px;
 	py = p->_py;
-	px -= 2 * AutoMapXOfs + ViewX;
-	py -= 2 * AutoMapYOfs + ViewY;
+	px -= AutoMapXOfs + ViewX;
+	py -= AutoMapYOfs + ViewY;
 
 	//x = (p->_pxoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + (px - py) * d16 + SCREEN_WIDTH / 2 + SCREEN_X;
 	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
@@ -668,19 +659,19 @@ static void DrawAutomapPlr(int pnum, int playerColor)
  */
 static uint16_t GetAutomapType(int x, int y, bool view)
 {
-	if ((unsigned)x >= DMAXX) {
-		return x == -1 && view
-			&& (unsigned)y < DMAXY && automapview[0][y] ? MAF_EXTERN : MWT_NONE;
+	if ((unsigned)x >= MAXDUNX || (unsigned)y >= MAXDUNY) {
+		return MWT_NONE;
 	}
-	if ((unsigned)y >= DMAXY) {
-		return y == -1 && view
-			&& (unsigned)x < DMAXX && automapview[x][0] ? MAF_EXTERN : MWT_NONE;
+	if (view && !(dFlags[x][y] & BFLAG_EXPLORED)) {
+		return MWT_NONE;
 	}
-
-	if (!automapview[x][y] && view) {
-		return 0;
+	x -= DBORDERX;
+	y -= DBORDERY;
+	if ((unsigned)x >= 2 * DMAXX || (unsigned)y >= 2 * DMAXY) {
+		return MAF_EXTERN;
 	}
-
+	x >>= 1;
+	y >>= 1;
 	return automaptype[dungeon[x][y]];
 }
 
@@ -709,24 +700,24 @@ void DrawAutomap()
 	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
-	mapx = (ViewX - DBORDERX) >> 1;
+	mapx = ViewX & ~1;
 	mapx += AutoMapXOfs;
-	if (mapx < 0) {
-		AutoMapXOfs -= mapx;
-		mapx = 0;
-	} else if (mapx > (DMAXX - 1)) {
-		AutoMapXOfs -= mapx - (DMAXX - 1);
-		mapx = DMAXX - 1;
+	if (mapx < DBORDERX) {
+		AutoMapXOfs -= mapx - DBORDERX;
+		mapx = DBORDERX;
+	} else if (mapx > DBORDERX + (DSIZEX - 2)) {
+		AutoMapXOfs -= mapx - (DBORDERX + (DSIZEX - 2));
+		mapx = DBORDERX + (DSIZEX - 2);
 	}
 
-	mapy = (ViewY - DBORDERY) >> 1;
+	mapy = ViewY & ~1;
 	mapy += AutoMapYOfs;
-	if (mapy < 0) {
-		AutoMapYOfs -= mapy;
-		mapy = 0;
-	} else if (mapy > (DMAXY - 1)) {
-		AutoMapYOfs -= mapy - (DMAXY - 1);
-		mapy = DMAXY - 1;
+	if (mapy < DBORDERY) {
+		AutoMapYOfs -= mapy - DBORDERY;
+		mapy = DBORDERY;
+	} else if (mapy > DBORDERY + (DSIZEY - 2)) {
+		AutoMapYOfs -= mapy - (DBORDERY + (DSIZEY - 2));
+		mapy = DBORDERY + (DSIZEY - 2);
 	}
 
 	// assert(d64 <= (MAP_SCALE_MAX * TILE_WIDTH) / 128);
@@ -749,7 +740,7 @@ void DrawAutomap()
 		cells++;*/
 
 	// find the starting dungeon coordinates
-	mapx -= (cells & ~1); // mapx - (xcells / 2 + ycells / 2);
+	mapx -= (cells & ~1) * 2; // mapx - (xcells / 2 + ycells / 2);
 	//mapy -= 1;          // mapy - (ycells / 2 - xcells / 2);
 
 	// calculate the center of the tile on the screen
@@ -784,25 +775,26 @@ void DrawAutomap()
 			uint16_t maptype = GetAutomapType(mapx, mapy, true);
 			if (maptype != MWT_NONE)
 				DrawAutomapTile(x, sy, maptype);
-			SHIFT_GRID(mapx, mapy, 1, 0);
+			SHIFT_GRID(mapx, mapy, 2, 0);
 			x += d64;
 		}
 		// Return to start of row
-		SHIFT_GRID(mapx, mapy, -cells, 0);
+		SHIFT_GRID(mapx, mapy, 2 * -cells, 0);
 
-		mapy++;
+		mapy += 2;
 		x = sx + (d64 >> 1);
 		sy += (d64 >> 2);
 		for (j = 1; j < cells; j++) { // foreach xcells 2.
-			SHIFT_GRID(mapx, mapy, 1, 0);
+			SHIFT_GRID(mapx, mapy, 2, 0);
 			uint16_t maptype = GetAutomapType(mapx, mapy, true);
 			if (maptype != MWT_NONE)
 				DrawAutomapTile(x, sy, maptype);
 			x += d64;
 		}
 		// Return to start of row
-		SHIFT_GRID(mapx, mapy, -(cells - 1), 0);
-		mapx++;
+		SHIFT_GRID(mapx, mapy, 2 * -(cells - 1), 0);
+
+		mapx += 2;
 		sy += (d64 >> 2);
 	}
 
@@ -827,80 +819,73 @@ void DrawAutomap()
 /**
  * @brief Marks the given coordinate as within view on the automap.
  */
-void SetAutomapView(int x, int y)
+void SetAutomapView(int xx, int yy)
 {
 	uint16_t maptype;
-	int xx, yy;
 
-	xx = (x - DBORDERX) >> 1;
-	yy = (y - DBORDERY) >> 1;
+	// assert(IN_DUNGEON_AREA(xx, yy));
+	xx &= ~1;
+	yy &= ~1;
+	dFlags[xx][yy] |= BFLAG_EXPLORED;
+	dFlags[xx + 1][yy] |= BFLAG_EXPLORED;
+	dFlags[xx][yy + 1] |= BFLAG_EXPLORED;
+	dFlags[xx + 1][yy + 1] |= BFLAG_EXPLORED;
 
-	if (xx < 0 || xx >= DMAXX || yy < 0 || yy >= DMAXY) {
-		return;
-	}
-
-	automapview[xx][yy] = TRUE;
-
-	maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy, false);
+	maptype = GetAutomapType(xx, yy, false);
 
 	switch (maptype & MAF_TYPE) {
 	case MWT_NONE:
 	case MWT_PILLAR:
 		break;
 	case MWT_NORTH_WEST:
-		//if (solid) {
 		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx, yy + 1, false) == (MAF_EXTERN | MWT_CORNER))
-				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN) {
-			automapview[xx - 1][yy] = TRUE;
+			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
+				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile to from NE to south
+		} else if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN) {
+			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
 		}
 		break;
 	case MWT_NORTH_EAST:
-		//if (solid) {
 		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
-				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN) {
-			automapview[xx][yy - 1] = TRUE;
+			if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER))
+				dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
+		} else if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN) {
+			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
 		}
 		break;
 	case MWT_NORTH:
-		//if (solid) {
 		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx, yy + 1, false) == (MAF_EXTERN | MWT_CORNER))
-				automapview[xx][yy + 1] = TRUE;
+			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
+				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
 			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
-				automapview[xx + 1][yy] = TRUE;
+				dFlags[xx + 1][yy] = TRUE; // reveal corner-tile from NW to south
 		} else {
-			if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN)
-				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN)
-				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx - 1, yy - 1, false) & MAF_EXTERN)
-				automapview[xx - 1][yy - 1] = TRUE;
+			if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
+				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
+			if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
+				dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
+			if (GetAutomapType(xx - 2, yy - 2, false) & MAF_EXTERN)
+				dFlags[xx - 2][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to N
 		}
 		break;
 	case MWT_NORTH_WEST_END:
-		//if (solid) {
 		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN)
-				automapview[xx][yy - 1] = TRUE;
-			if (GetAutomapType(xx, yy + 1, false) == (MAF_EXTERN | MWT_CORNER))
-				automapview[xx][yy + 1] = TRUE;
-		} else if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN) {
-			automapview[xx - 1][yy] = TRUE;
+			if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
+				dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal corner-tile to north
+			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
+				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
+		} else if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN) {
+			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
 		}
 		break;
 	case MWT_NORTH_EAST_END:
-		//if (solid) {
 		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx - 1, yy, false) & MAF_EXTERN)
-				automapview[xx - 1][yy] = TRUE;
-			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
-				automapview[xx + 1][yy] = TRUE;
-		} else if (GetAutomapType(xx, yy - 1, false) & MAF_EXTERN) {
-			automapview[xx][yy - 1] = TRUE;
+			if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
+				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from SE to north
+			if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER))
+				dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
+		} else if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN) {
+			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
 		}
 		break;
 	case MWT_CORNER:

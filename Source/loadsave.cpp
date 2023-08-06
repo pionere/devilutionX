@@ -743,9 +743,6 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src += MAXDUNX * MAXDUNY;
 		memcpy(dObject, src, MAXDUNX * MAXDUNY);
 		src += MAXDUNX * MAXDUNY;
-		memcpy(automapview, src, DMAXX * DMAXY);
-		src += DMAXX * DMAXY;
-		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
 
 		if (full) {
 			memcpy(dMissile, src, MAXDUNX * MAXDUNY);
@@ -1574,8 +1571,6 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 		dest += MAXDUNX * MAXDUNY;
 		memcpy(dest, dObject, MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY;
-		memcpy(dest, automapview, DMAXX * DMAXY);
-		dest += DMAXX * DMAXY;
 
 		if (full) {
 			memcpy(dest, dMissile, MAXDUNX * MAXDUNY);
@@ -1648,10 +1643,10 @@ void SaveGame()
 	// save level-data
 	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + (MAX_MINIONS + MAX_TOWNERS) * sizeof(LSaveMonsterStruct) /*+ MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))*/ + MAXITEMS * (4 + sizeof(LSaveItemStruct))
-	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY*/;
+	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY*/;
 	constexpr size_t sld = (MAXDUNX * MAXDUNY) + sizeof(LSaveGameLvlMetaStruct) + (MAXMONSTERS * sizeof(LSaveMonsterStruct) + MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))) + MAXITEMS * (4 + sizeof(LSaveItemStruct))
-	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4 + MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY);
+	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4 + MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY);
 	tbuff = SaveLevelData(tbuff, true);
 
 	// save meta-data II. (modified by LoadGameLevel)
