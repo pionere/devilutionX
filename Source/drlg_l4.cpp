@@ -38,7 +38,7 @@ const BYTE L4USTAIRS[] = {
 	 6, 6, 6, 6,
 
 	 0,  0,  0,  0, // replace
-	49, 38, 35,  0,
+	36, 38, 35,  0,
 	37, 34, 33, 32,
 	 0,  0, 31,  0,
 	 0,  0,  0,  0,
@@ -160,8 +160,7 @@ const BYTE L4FTYPES[138] = {
 };
 /*
  * Miniset replacement to add shadows.
- * New dungeon values: 47 48   54 55   58 59 60  71 72   74 75
- * TODO: use DRLG_PlaceMiniSet instead?
+ * New dungeon values: 47 48   54 55   58 59 60   61 62 76 129 130 131 132 133 134 135
  */
 static void DRLG_L4Shadows()
 {
@@ -498,7 +497,7 @@ static void DRLG_LoadL4SP()
 		// lm[2 + 6 + 3 * 8] = SwapLE16(50);
 		// ensure the changing tiles are protected + protect inner tiles from decoration
 		for (int y = 1; y <= 5; y++) {
-			for (int x = 1; x <= 6; x++) {
+			for (int x = 1; x <= 7; x++) {
 				lm[2 + 8 * 7 + x + y * 8] = SwapLE16(3);
 			}
 		}
