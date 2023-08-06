@@ -2292,6 +2292,9 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
+		// fix automap types
+		automaptype[27 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_EAST_END);
+		automaptype[28 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_WEST_END);
 		automaptype[52 - 1] |= SwapLE16(MAF_WEST_GRATE);
 		automaptype[56 - 1] |= SwapLE16(MAF_EAST_GRATE);
 		automaptype[7 - 1] = SwapLE16(MWT_NORTH_WEST_END);
@@ -2513,6 +2516,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		uint16_t *automaptype = (uint16_t*)buf;
+		// fix automap types
+		automaptype[20 - 1] = SwapLE16(MAF_EXTERN | MWT_CORNER);
+		automaptype[23 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_WEST_END);
+		automaptype[24 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_EAST_END);
 		// fix automap of the entrance III.
 		automaptype[47 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH_WEST);
 		automaptype[50 - 1] = SwapLE16(MWT_NORTH_WEST);
