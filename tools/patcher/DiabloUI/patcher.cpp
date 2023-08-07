@@ -94,6 +94,7 @@ typedef enum filenames {
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
+	FILE_PLR_WMHAS,
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
 	FILE_NTOWN_CEL,
@@ -192,6 +193,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
+/*FILE_PLR_WMHAS*/     "PlrGFX\\Warrior\\WMH\\WMHAS.CL2",
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
 /*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
@@ -1872,6 +1874,161 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 
 	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
 
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const BYTE* stdBuf)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 10;
+	constexpr bool groupped = true;
+	constexpr int height = 96;
+	constexpr int width = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+
+			if (ii == 1) {
+				// draw the stand frame
+				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+				// for (int y = 0; y < height; y++) {
+				//	memset(&gpBuffer[0 + BUFFER_WIDTH * y], TRANS_COLOR, width);
+				// }
+				Cl2DrawLightTbl(0, height - 1, stdFrameBuf, n, width, 0);
+				// draw the attack frame
+				constexpr int atkWidth = 128;
+				const BYTE* atkFrameBuf = CelGetFrameStart(atkBuf, ii);
+				// for (int y = 0; y < height; y++) {
+				//	memset(&gpBuffer[0 + width + BUFFER_WIDTH * y], TRANS_COLOR, atkWidth);
+				// }
+				Cl2DrawLightTbl(width, height - 1, atkFrameBuf, 1, atkWidth, 0);
+
+				// copy the shield to the stand frame
+				unsigned addr = 0 + BUFFER_WIDTH * 0;
+				unsigned addr2 = 0 + width + BUFFER_WIDTH * 0;
+				int dy = 0;
+				switch (n) {
+				case 1: dy = 0; break;
+				case 2: dy = 1; break;
+				case 3: dy = 2; break;
+				case 4: dy = 2; break;
+				case 5: dy = 3; break;
+				case 6: dy = 3; break;
+				case 7: dy = 3; break;
+				case 8: dy = 2; break;
+				case 9: dy = 2; break;
+				case 10: dy = 1; break;
+				}
+				for (int y = 38; y < 66; y++) {
+					for (int x = 19; x < 32; x++) {
+						if (x == 31 && y >= 60) {
+							break;
+						}
+						BYTE color = gpBuffer[addr2 + x + 17 + y * BUFFER_WIDTH];
+						if (color == TRANS_COLOR || color == 0) {
+							continue;
+						}
+						gpBuffer[addr + x + (y + dy) * BUFFER_WIDTH] = color;
+					}
+				}
+				// fix the shadow
+				// - main shield
+				for (int y = 72; y < 80; y++) {
+					for (int x = 12; x < 31; x++) {
+						unsigned addr = x + BUFFER_WIDTH * y;
+						if (gpBuffer[addr] != TRANS_COLOR) {
+							continue;
+						}
+						if (y < 67 + x / 2 && y > x + 48) {
+							gpBuffer[addr] = 0;
+						}
+					}
+				}
+				// -  sink effect on the top-left side
+				//if (n > 2 && n < 10) {
+				if (dy > 1) {
+					// if (n >= 5 && n <= 7) {
+					if (dy == 3) {
+						gpBuffer[addr + 17 + 75 * BUFFER_WIDTH] = 0;
+					} else {
+						gpBuffer[addr + 15 + 74 * BUFFER_WIDTH] = 0;
+					}
+				}
+				// - sink effect on the top-right side
+				// if (n > 2 && n < 10) {
+				if (dy > 1) {
+					gpBuffer[addr + 27 + 75 * BUFFER_WIDTH] = 0;
+					// if (n > 4 && n < 8) {
+					if (dy == 3) {
+						gpBuffer[addr + 26 + 74 * BUFFER_WIDTH] = 0;
+					}
+				}
+				// - sink effect on the bottom
+				// if (n > 1) {
+				if (dy != 0) {
+					gpBuffer[addr + 28 + 80 * BUFFER_WIDTH] = 0;
+				}
+				// if (n > 2 && n < 6) {
+				if (dy > 1) {
+					gpBuffer[addr + 29 + 80 * BUFFER_WIDTH] = 0;
+				}
+				// if (n > 4 && n < 8) {
+				if (dy == 3) {
+					gpBuffer[addr + 27 + 80 * BUFFER_WIDTH] = 0;
+				}
+
+				// copy the result to the target
+				// for (int y = 0; y < height; y++) {
+				//	memcpy(&gpBuffer[0 + BUFFER_WIDTH * y], &gpBuffer[0 + width + BUFFER_WIDTH * y], width);
+				// }
+			} else {
+				Cl2DrawLightTbl(0, height - 1, frameBuf, n, width, 0);
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
 
@@ -2365,6 +2522,29 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_PLR_WMBAT:
 	{	// reencode player gfx files - W*BAT.CL2
 		buf = ReEncodeCL2(buf, dwLen, NUM_DIRS, 16, 128, 96);
+	} break;
+	case FILE_PLR_WMHAS:
+	{	// fix player gfx file - WMHAS.CL2
+		size_t atkLen;
+		const char* atkFileName = "PlrGFX\\Warrior\\WMH\\WMHAT.CL2";
+		BYTE* atkBuf = LoadFileInMem(atkFileName, &atkLen);
+		if (atkBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", atkFileName);
+			return NULL;
+		}
+		size_t stdLen;
+		const char* stdFileName = "PlrGFX\\Warrior\\WMM\\WMMAS.CL2";
+		BYTE* stdBuf = LoadFileInMem(stdFileName, &stdLen);
+		if (stdBuf == NULL) {
+			mem_free_dbg(atkBuf);
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", stdFileName);
+			return NULL;
+		}
+		buf = createWarriorAnim(buf, dwLen, atkBuf, stdBuf);
+		mem_free_dbg(atkBuf);
+		mem_free_dbg(stdBuf);
 	} break;
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
