@@ -12,7 +12,6 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 {
 	const CelMicro micros[] = {
 /*  0 */{ 137 - 1, 5, MET_SQUARE },     // change type
-		// { 250 - 1, 0, MET_LTRAPEZOID }, // change type
 /*  1 */{ 286 - 1, 1, MET_RTRIANGLE },  // change type
 /*  2 */{ 408 - 1, 0, MET_LTRIANGLE },  // change type
 /*  3 */{ 248 - 1, 0, MET_LTRIANGLE },  // change type
@@ -22,13 +21,14 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /*  6 */{ 394 - 1, 1, MET_TRANSPARENT },
 /*  7 */{ 394 - 1, 3, MET_TRANSPARENT },
 
-/*  8 */{ 108 - 1, 1, -1 },
+/*  8 */{ 108 - 1, 1, -1 },              // used to block subsequent calls
 /*  9 */{ 106 - 1, 0, MET_TRANSPARENT },
 /* 10 */{ 109 - 1, 0, MET_TRANSPARENT },
 /* 11 */{ 106 - 1, 1, MET_TRANSPARENT },
 
 /* 12 */{ 178 - 1, 2, MET_TRANSPARENT },
-/* 13 */{ 450 - 1, 1, MET_RTRAPEZOID }, // unused
+
+/* 13 */{ 152 - 1, 5, MET_TRANSPARENT }, // blocks subsequent calls
 
 /* 14 */{ 2 - 1, 1, -1 },
 /* 15 */{ 276 - 1, 1, MET_RTRIANGLE },
@@ -45,7 +45,7 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 
 /* 22 */{ 137 - 1, 0, MET_TRANSPARENT },
 
-/* 23 */{ 171 - 1, 3, MET_TRANSPARENT }, // unused
+/* 23 */{ 176 - 1, 1, MET_TRANSPARENT },
 /* 24 */{ 171 - 1, 1, MET_RTRIANGLE },
 
 /* 25 */{ 153 - 1, 0, MET_LTRIANGLE },
@@ -61,7 +61,6 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 		// }
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
-			// TODO: report error if not empty both? + additional checks
 			return celBuf; // frame is empty -> assume it is already done
 		}
 	}
@@ -146,6 +145,19 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 				BYTE color = gpBuffer[addr];
 				if (color == 46 && (y > 8 || i != 11) && (x > 22 || y < 22 || i != 10)) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// move pixels of 152[5] down to enable reuse as 153[6]
+	for (int i = 13; i < 14; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr + (MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color;
 					gpBuffer[addr] = TRANS_COLOR;
 				}
 			}
@@ -273,6 +285,20 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr + 0 + 26 * BUFFER_WIDTH] = 110;
 	}
+	{ // 176[1] - fix connection
+		int i = 23;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  8 +  5 * BUFFER_WIDTH] = 20;
+		gpBuffer[addr +  9 +  5 * BUFFER_WIDTH] = 20;
+		gpBuffer[addr + 10 +  6 * BUFFER_WIDTH] = 19;
+		gpBuffer[addr + 11 +  6 * BUFFER_WIDTH] = 5;
+		gpBuffer[addr + 12 +  7 * BUFFER_WIDTH] = 2;
+		gpBuffer[addr + 13 +  7 * BUFFER_WIDTH] = 4;
+		gpBuffer[addr + 14 +  8 * BUFFER_WIDTH] = 17;
+		gpBuffer[addr + 15 +  8 * BUFFER_WIDTH] = 6;
+		gpBuffer[addr + 16 +  9 * BUFFER_WIDTH] = 3;
+		gpBuffer[addr + 17 +  9 * BUFFER_WIDTH] = 41;
+	}	
 	{ // 171[1]
 		int i = 24;
 		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -363,7 +389,7 @@ static BYTE* fixCathedralShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 {
 	const CelMicro micros[] = {
 		// add shadow of the grate
-/*  0 */{ 306 - 1, 1, -1 },
+/*  0 */{ 306 - 1, 1, -1 },             // used to block subsequent calls
 /*  1 */{ 304 - 1, 0, -1 },
 /*  2 */{ 304 - 1, 1, -1 },
 /*  3 */{ 57 - 1, 0, MET_TRANSPARENT },
@@ -446,7 +472,6 @@ static BYTE* fixCathedralShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 		}
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
-			// TODO: report error if not empty both? + additional checks
 			return celBuf; // frame is empty -> assume it is already done
 		}
 	}
@@ -795,6 +820,8 @@ static BYTE* fixCathedralShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 
 BYTE* DRLP_L1_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
+	// TODO: fix connection of tile 83 and tile 25 in Skng1.dun
+
 	celBuf = patchCathedralFloorCel(minBuf, minLen, celBuf, celLen);
 	if (celBuf == NULL) {
 		return NULL;
@@ -807,61 +834,57 @@ void DRLP_L1_PatchMin(BYTE* buf)
 {
 	uint16_t* pSubtiles = (uint16_t*)buf;
 	constexpr int blockSize = BLOCK_SIZE_L1;
-	// adjust the frame types
-	// - after patchCathedralFloorCel
-	SetFrameType(137, 5, MET_SQUARE);
-	SetFrameType(286, 1, MET_RTRIANGLE);
-	SetFrameType(408, 0, MET_LTRIANGLE);
-	SetFrameType(248, 0, MET_LTRIANGLE);
-
-	SetFrameType(392, 0, MET_TRANSPARENT);
-	SetFrameType(43, 0, MET_TRANSPARENT);
-	SetFrameType(396, 0, MET_TRANSPARENT);
-	SetFrameType(397, 0, MET_TRANSPARENT);
-	SetFrameType(399, 0, MET_TRANSPARENT);
-	SetFrameType(401, 0, MET_TRANSPARENT);
-	SetFrameType(403, 0, MET_TRANSPARENT);
-	SetFrameType(409, 0, MET_TRANSPARENT);
-	SetFrameType(411, 0, MET_TRANSPARENT);
-	SetFrameType(392, 2, MET_TRANSPARENT);
-	SetFrameType(43, 2, MET_TRANSPARENT);
-	SetFrameType(212, 2, MET_TRANSPARENT);
-	SetFrameType(396, 2, MET_TRANSPARENT);
-	SetFrameType(397, 2, MET_TRANSPARENT);
-	SetFrameType(399, 2, MET_TRANSPARENT);
-	SetFrameType(401, 2, MET_TRANSPARENT);
-	SetFrameType(403, 2, MET_TRANSPARENT);
-	SetFrameType(409, 2, MET_TRANSPARENT);
-	SetFrameType(407, 2, MET_TRANSPARENT);
-	SetFrameType(411, 2, MET_TRANSPARENT);
-	SetFrameType(394, 1, MET_TRANSPARENT);
-	SetFrameType(45, 1, MET_TRANSPARENT);
-	SetFrameType(396, 1, MET_TRANSPARENT);
-	SetFrameType(398, 1, MET_TRANSPARENT);
-	SetFrameType(400, 1, MET_TRANSPARENT);
-	SetFrameType(404, 1, MET_TRANSPARENT);
-	SetFrameType(406, 1, MET_TRANSPARENT);
-	SetFrameType(410, 1, MET_TRANSPARENT);
-	SetFrameType(412, 1, MET_TRANSPARENT);
-	SetFrameType(394, 3, MET_TRANSPARENT);
-	SetFrameType(45, 3, MET_TRANSPARENT);
-	SetFrameType(396, 3, MET_TRANSPARENT);
-	SetFrameType(398, 3, MET_TRANSPARENT);
-	SetFrameType(400, 3, MET_TRANSPARENT);
-	SetFrameType(404, 3, MET_TRANSPARENT);
-	SetFrameType(406, 3, MET_TRANSPARENT);
-	SetFrameType(410, 3, MET_TRANSPARENT);
-	SetFrameType(412, 3, MET_TRANSPARENT);
-	SetFrameType(407, 0, MET_TRANSPARENT);
-	SetFrameType(212, 0, MET_TRANSPARENT);
-	SetFrameType(171, 1, MET_RTRIANGLE);
-
-	Blk2Mcr(108, 1);
-	SetFrameType(106, 0, MET_TRANSPARENT);
-	SetFrameType(109, 0, MET_TRANSPARENT); // TODO: ==  110[0] ?
-	SetFrameType(106, 1, MET_TRANSPARENT);
 	// use micros created by patchCathedralFloorCel
-	ReplaceMcr(160, 0, 23, 0);
+	if (pSubtiles[MICRO_IDX(108 - 1, blockSize, 1)] != NULL) {
+		Blk2Mcr(108, 1);
+		SetFrameType(137, 5, MET_SQUARE);
+		SetFrameType(286, 1, MET_RTRIANGLE);
+		SetFrameType(408, 0, MET_LTRIANGLE);
+		SetFrameType(248, 0, MET_LTRIANGLE);
+
+		SetFrameType(392, 0, MET_TRANSPARENT);
+		SetFrameType(396, 0, MET_TRANSPARENT);
+		SetFrameType(397, 0, MET_TRANSPARENT);
+		SetFrameType(399, 0, MET_TRANSPARENT);
+		SetFrameType(401, 0, MET_TRANSPARENT);
+		SetFrameType(403, 0, MET_TRANSPARENT);
+		SetFrameType(409, 0, MET_TRANSPARENT);
+		SetFrameType(411, 0, MET_TRANSPARENT);
+		SetFrameType(392, 2, MET_TRANSPARENT);
+		SetFrameType(396, 2, MET_TRANSPARENT);
+		SetFrameType(397, 2, MET_TRANSPARENT);
+		SetFrameType(399, 2, MET_TRANSPARENT);
+		SetFrameType(401, 2, MET_TRANSPARENT);
+		SetFrameType(403, 2, MET_TRANSPARENT);
+		SetFrameType(407, 2, MET_TRANSPARENT);
+		SetFrameType(409, 2, MET_TRANSPARENT);
+		SetFrameType(411, 2, MET_TRANSPARENT);
+		SetFrameType(394, 1, MET_TRANSPARENT);
+		SetFrameType(396, 1, MET_TRANSPARENT);
+		SetFrameType(398, 1, MET_TRANSPARENT);
+		SetFrameType(400, 1, MET_TRANSPARENT);
+		SetFrameType(404, 1, MET_TRANSPARENT);
+		SetFrameType(406, 1, MET_TRANSPARENT);
+		SetFrameType(410, 1, MET_TRANSPARENT);
+		SetFrameType(412, 1, MET_TRANSPARENT);
+		SetFrameType(394, 3, MET_TRANSPARENT);
+		SetFrameType(396, 3, MET_TRANSPARENT);
+		SetFrameType(398, 3, MET_TRANSPARENT);
+		SetFrameType(400, 3, MET_TRANSPARENT);
+		SetFrameType(404, 3, MET_TRANSPARENT);
+		SetFrameType(406, 3, MET_TRANSPARENT);
+		SetFrameType(410, 3, MET_TRANSPARENT);
+		SetFrameType(412, 3, MET_TRANSPARENT);
+
+		SetFrameType(407, 0, MET_TRANSPARENT);
+		SetFrameType(171, 1, MET_RTRIANGLE);
+		SetFrameType(106, 0, MET_TRANSPARENT);
+		SetFrameType(109, 0, MET_TRANSPARENT);
+		SetFrameType(106, 1, MET_TRANSPARENT);
+
+		MoveMcr(153, 6, 152, 5);
+		ReplaceMcr(160, 0, 23, 0);
+	}
 	// use micros created by fixCathedralShadows
 	Blk2Mcr(306, 1);
 	ReplaceMcr(298, 0, 297, 0);
@@ -1003,7 +1026,6 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(138, 1);
 	Blk2Mcr(140, 1);
 	// pointless pixels
-	// Blk2Mcr(152, 5); - TODO: Chop?
 	// Blk2Mcr(241, 0);
 	// // Blk2Mcr(250, 3);
 	Blk2Mcr(148, 4);
