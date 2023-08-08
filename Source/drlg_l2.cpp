@@ -481,7 +481,7 @@ const BYTE Patterns[][16] = {
 	// obsolete { 4, 1, 1, 1, 1, 1, 2, 1, 1, 14 },
 /*47*/	{ 5, 1, 1, 1, 1, 1, 2, 1, 1, 14 },
 /*48*/	{ 4, 1, 2, 1, 1, 3, 1, 1, 2, 8 }, // new
-/*49*/	{ 5, 1, 2, 1, 1, 1, 2, 1, 5, 15 }, // new - not an exact replacement. A mirror of 8 would be better, but does not exist yet.
+/*49*/	{ 5, 1, 2, 1, 1, 1, 2, 1, 5, 13 }, // new
 	// useless { 1, 1, 1, 1, 1, 1, 1, 1, 2, 8 },
 	//{ 0, 1, 0, 0, 3, 0, 0, 1, 0, 4 }, // vertical door
 	//{ 0, 0, 0, 1, 3, 1, 0, 0, 0, 5 }, // horizontal door
