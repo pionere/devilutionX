@@ -729,14 +729,6 @@ static int SetupObject(int type, int ox, int oy)
 			//os->_oMissFlag = FALSE;
 			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
-			// DOOR_SIDE_PIECE_CLOSED
-			int bx = ox;
-			int by = oy;
-			if (os->_oDoorFlag == ODT_LEFT)
-				by--;
-			else
-				bx--;
-			os->_oVar2 = dPiece[bx][by];
 		}
 	}
 	return oi;
@@ -3753,103 +3745,61 @@ static void SyncNakrulLever(int oi)
 static void SyncL1Doors(int oi)
 {
 	ObjectStruct* os;
-	int x, y, pn;
+	int pn;
 
 	os = &objects[oi];
-
-	x = os->_ox;
-	y = os->_oy;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
-		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
-
-		if (os->_otype == OBJ_L1LDOOR)
-			y--;
-		else
-			x--;
-		// commented out because this is not possible with the current implementation
-		//if (pn == 50 && dPiece[x][y] == 396)
-		//	pn = os->_otype == OBJ_L1LDOOR ? 412 : 411;
-		dPiece[x][y] = pn;
-		return;
+	pn = os->_oVar1; // DOOR_PIECE_CLOSED
+	if (os->_oVar4 != DOOR_CLOSED) {
+		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
+		if (pn == 46) { // OBJ_L1RDOOR
+			pn = 395;
+		} else {
+			pn = pn == 214 ? 408 : 393;
+		}
 	}
-
-	if (os->_otype == OBJ_L1LDOOR) {
-		dPiece[x][y] = os->_oVar1 == 214 ? 408 : 393; // DOOR_PIECE_CLOSED
-		y--;
-	} else {
-		dPiece[x][y] = 395;
-		x--;
-	}
-	//ObjSetDoorSidePiece(x, y/*, os->_otype*/);
+	dPiece[os->_ox][os->_oy] = pn;
 }
 
 #ifdef HELLFIRE
 static void SyncL5Doors(int oi)
 {
 	ObjectStruct* os;
-	int x, y, pn;
+	int pn;
 
 	os = &objects[oi];
-
-	x = os->_ox;
-	y = os->_oy;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
-		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
-
-		if (os->_otype == OBJ_L5LDOOR)
-			y--;
-		else
-			x--;
-		// commented out because this is not possible with the current implementation
-		//if (pn == 86 && dPiece[x][y] == 212)
-		//	pn = os->_otype == OBJ_L5LDOOR ? 234 : 232;
-		dPiece[x][y] = pn;
-		return;
+	pn = os->_oVar1; // DOOR_PIECE_CLOSED
+	if (os->_oVar4 != DOOR_CLOSED) {
+		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
+		pn = pn == 80 ? 209 : 206; // OBJ_L5RDOOR
 	}
-
-	if (os->_otype == OBJ_L5LDOOR) {
-		dPiece[x][y] = 206;
-		y--;
-	} else {
-		dPiece[x][y] = 209;
-		x--;
-	}
-	ObjSetDoorSidePiece(x, y/*, os->_otype*/);
+	dPiece[os->_ox][os->_oy] = pn;
 }
 #endif
 
 static void SyncL2Doors(int oi)
 {
 	ObjectStruct* os;
-	int pn, x, y;
-	bool ldoor;
+	int pn;
 
 	os = &objects[oi];
-	ldoor = os->_otype == OBJ_L2LDOOR;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		pn = ldoor ? 538 : 540;
-	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
-		pn = ldoor ? 13 : 17;
+	pn = os->_oVar1; // DOOR_PIECE_CLOSED
+	if (os->_oVar4 != DOOR_CLOSED) {
+		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
+		pn = pn == 540 ? 17 : 13;
 	}
-	x = os->_ox;
-	y = os->_oy;
-	dPiece[x][y] = pn;
+	dPiece[os->_ox][os->_oy] = pn;
 }
 
 static void SyncL3Doors(int oi)
 {
 	ObjectStruct* os;
 	int pn;
-	bool ldoor;
 
 	os = &objects[oi];
-	ldoor = os->_otype == OBJ_L3LDOOR;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		pn = ldoor ? 534 : 531;
-	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
-		pn = ldoor ? 541 : 538;
+	pn = os->_oVar1; // DOOR_PIECE_CLOSED
+	if (os->_oVar4 != DOOR_CLOSED) {
+		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
+		pn = pn == 531 ? 538 : 541; // OBJ_L3RDOOR
 	}
 	dPiece[os->_ox][os->_oy] = pn;
 }
