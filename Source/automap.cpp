@@ -840,15 +840,15 @@ void SetAutomapView(int xx, int yy)
 	case MWT_NORTH_WEST:
 		if (maptype & MAF_EXTERN) {
 			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile to from NE to south
+				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
 		} else if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN) {
 			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
 		}
 		break;
 	case MWT_NORTH_EAST:
 		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
+			// if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER)) - should be covered from the other direction (NE)
+			//	dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
 		} else if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN) {
 			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
 		}
@@ -857,8 +857,8 @@ void SetAutomapView(int xx, int yy)
 		if (maptype & MAF_EXTERN) {
 			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
 				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
-			if (GetAutomapType(xx + 1, yy, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx + 1][yy] = TRUE; // reveal corner-tile from NW to south
+			//if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER)) - should be covered from the other direction (NE)
+			//	dFlags[xx + 2][yy] = TRUE; // reveal corner-tile from NW to south
 		} else {
 			if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
 				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
@@ -871,29 +871,57 @@ void SetAutomapView(int xx, int yy)
 	case MWT_NORTH_WEST_END:
 		if (maptype & MAF_EXTERN) {
 			if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
-				dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal corner-tile to north
+				dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal corner-tile from SW to east
 			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
 				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
-		} else if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN) {
-			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
 		}
 		break;
 	case MWT_NORTH_EAST_END:
 		if (maptype & MAF_EXTERN) {
 			if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
-				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from SE to north
-			if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
-		} else if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN) {
-			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
+				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from SE to west
+			// if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER)) - should be covered from the other direction (NE)
+			//	dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
 		}
 		break;
 	case MWT_CORNER:
+		break;
 	case MWT_WEST:
+		// assert(!(maptype & MAF_EXTERN));
+		if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
+			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
+		if (GetAutomapType(xx, yy + 2, false) & MAF_EXTERN)
+			dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to SW
+		if (GetAutomapType(xx - 2, yy + 2, false) & MAF_EXTERN)
+			dFlags[xx - 2][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to W
+		break;
 	case MWT_EAST:
+		// assert(!(maptype & MAF_EXTERN));
+		if (GetAutomapType(xx + 2, yy, false) & MAF_EXTERN)
+			dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
+		if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
+			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
+		if (GetAutomapType(xx + 2, yy - 2, false) & MAF_EXTERN)
+			dFlags[xx + 2][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to E
+		break;
 	case MWT_SOUTH_WEST:
+		// assert(!(maptype & MAF_EXTERN));
+		if (GetAutomapType(xx, yy + 2, false) & MAF_EXTERN)
+			dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to SW
+		break;
 	case MWT_SOUTH_EAST:
+		// assert(!(maptype & MAF_EXTERN));
+		if (GetAutomapType(xx + 2, yy, false) & MAF_EXTERN)
+			dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
+		break;
 	case MWT_SOUTH:
+		// assert(!(maptype & MAF_EXTERN));
+		if (GetAutomapType(xx + 2, yy, false) & MAF_EXTERN)
+			dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
+		if (GetAutomapType(xx, yy + 2, false) & MAF_EXTERN)
+			dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to SW
+		if (GetAutomapType(xx + 2, yy + 2, false) & MAF_EXTERN)
+			dFlags[xx + 2][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to S
 		break;
 	default:
 		ASSUME_UNREACHABLE
