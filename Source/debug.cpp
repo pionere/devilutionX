@@ -1117,6 +1117,16 @@ void ValidateData()
 			app_fatal("Inconsistent oModeFlags and oSelFlag for %d.", i);
 		}
 	}
+	assert(objectdata[OBJ_L1RDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+	assert(objectdata[OBJ_L2LDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+	assert(objectdata[OBJ_L2RDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+	assert(objectdata[OBJ_L3LDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+	assert(objectdata[OBJ_L3RDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+#ifdef HELLFIRE
+	assert(objectdata[OBJ_L5LDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+	assert(objectdata[OBJ_L5RDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
+#endif
+
 	// spells
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 #define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)

@@ -1835,7 +1835,7 @@ static void OpenDoor(int oi)
 	os = &objects[oi];
 	os->_oVar4 = DOOR_OPEN;
 	os->_oPreFlag = TRUE;
-	os->_oSelFlag = 2;
+	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag & ~1;
 	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
 	os->_oAnimFrame += 2;
@@ -1852,7 +1852,7 @@ static bool CloseDoor(int oi)
 	os->_oVar4 = (dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0 ? DOOR_CLOSED : DOOR_BLOCKED;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
+		os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
 		// TODO: set os->_oSolidFlag = TRUE;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
