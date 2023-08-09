@@ -234,10 +234,11 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 {
 	BYTE nCel = gbStdFontFrame[text];
-	BYTE* tbl;
+	// BYTE* tbl;
 
 	if (nCel != 0) {
-		switch (col) {
+		PrintChar(sx, sy, nCel, col);
+		/*switch (col) {
 		case COL_WHITE:
 			CelDraw(sx, sy, pSmallTextCels, nCel);
 			return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -257,7 +258,7 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
+		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);*/
 	}
 
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
