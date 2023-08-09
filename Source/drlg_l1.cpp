@@ -1017,11 +1017,11 @@ static void DRLG_LoadL1SP()
 		pSetPieces[0]._sptype = SPT_SKELKING;
 		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 #if 0
-		// patch set-piece to use common tiles - SKngDO.DUN
+		// patch set-piece - SKngDO.DUN
 		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
-		// lm[2 + 5 + 3 * 7] =  SwapLE16(203 - 181);
+		// use common tiles
 		lm[2 + 5 + 4 * 7] =  SwapLE16(203 - 181);
-		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
+		// use common tile and make the inner tile at the entrance non-walkable
 		lm[2 + 5 + 2 * 7] =  SwapLE16(203 - 181);
 		// let the game generate the shadow
 		lm[2 + 0 + 5 * 7] = 0;

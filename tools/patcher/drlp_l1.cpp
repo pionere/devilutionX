@@ -972,6 +972,9 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	SetMcr(335, 3, 29, 3);
 	SetMcr(335, 5, 29, 5);
 	SetMcr(335, 7, 29, 7);
+	// subtile to make the inner tile at the entrance non-walkable II.
+	Blk2Mcr(425, 0);
+	ReplaceMcr(425, 1, 299, 1);
 	// pointless door micros (re-drawn by dSpecial or the object)
 	// - vertical doors	
 	ReplaceMcr(392, 4, 231, 4);
@@ -1817,7 +1820,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(449, 7);
 
 	const int unusedSubtiles[] = {
-		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 220, 250, 253, 267, 268, 273, 275, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 425, 430, 432, 435, 436, 440
+		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 220, 250, 253, 267, 268, 273, 275, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -1829,6 +1832,8 @@ void DRLP_L1_PatchMin(BYTE* buf)
 void DRLP_L1_PatchTil(BYTE* buf)
 {
 	uint16_t* pTiles = (uint16_t*)buf;
+	// make the inner tile at the entrance non-walkable II.
+	pTiles[(196 - 1) * 4 + 3] = SwapLE16(425 - 1);
 	// reuse subtiles
 	pTiles[(43 - 1) * 4 + 2] = SwapLE16(3 - 1);
 	pTiles[(61 - 1) * 4 + 0] = SwapLE16(23 - 1);

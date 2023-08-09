@@ -250,6 +250,8 @@ void InitLvlDungeon()
 		nMissileTable[338] = false;
 		// - special subtile for the vile setmap
 		nMissileTable[335] = false;
+		// make the inner tile at the entrance non-walkable II.
+		pTiles[196][3] = 425;
 		// create separate pillar tile
 		pTiles[28][0] = pTiles[3][0];
 		pTiles[28][1] = pTiles[3][1];
