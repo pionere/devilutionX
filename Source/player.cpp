@@ -1216,7 +1216,7 @@ static void PlrChangeOffset(int pnum)
 }
 
 /**
- * @brief Starting a move action towards NW, N, NE or W
+ * @brief Start a move action
  */
 static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 {
@@ -1246,7 +1246,7 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 }
 
 /**
- * @brief Starting a move action towards SW, S, SE or E
+ * @brief Start a move action and shift to the future position
  */
 static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir)
 {

@@ -271,8 +271,6 @@ void CheckCursMove()
 {
 	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
 	int pcurstemp; // Previously highlighted monster
-	int8_t bv;
-	BYTE ii;
 	bool flipflag, flipx, flipy;
 
 	pcurstemp = pcursmonst;
@@ -522,6 +520,8 @@ void CheckCursMove()
 		return;
 	case TGT_NONE:
 		return;
+	default:
+		ASSUME_UNREACHABLE
 	}
 	// select the previous monster/npc
 	if (pcursmonst != MON_NONE) {

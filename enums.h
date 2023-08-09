@@ -4602,9 +4602,9 @@ typedef enum redraw_flags {
 
 typedef enum input_key {
 	ACT_NONE,
-	ACT_ACT,
-	ACT_ALTACT,
-	ACT_SKL0,
+	ACT_ACT,    // base action (LMB)
+	ACT_ALTACT, // alt action (RMB)
+	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,
 	ACT_SKL3,
@@ -4612,13 +4612,13 @@ typedef enum input_key {
 	ACT_SKL5,
 	ACT_SKL6,
 	ACT_SKL7,
-	ACT_SWAP,
-	ACT_TGT,
-	ACT_INV,
-	ACT_CHAR,
-	ACT_SKLBOOK,
-	ACT_SKLLIST,
-	ACT_ITEM0,
+	ACT_SWAP,    // skill-set swap
+	ACT_TGT,     // change target mode
+	ACT_INV,     // toggle inventory
+	ACT_CHAR,    // toggle character sheet
+	ACT_SKLBOOK, // toggle skill book
+	ACT_SKLLIST, // toggle skill list
+	ACT_ITEM0, // use item
 	ACT_ITEM1,
 	ACT_ITEM2,
 	ACT_ITEM3,
@@ -4626,31 +4626,31 @@ typedef enum input_key {
 	ACT_ITEM5,
 	ACT_ITEM6,
 	ACT_ITEM7,
-	ACT_AUTOMAP,
-	ACT_MAPZ_IN,
-	ACT_MAPZ_OUT,
-	ACT_CLEARUI,
-	ACT_UP,
+	ACT_AUTOMAP,   // toggle automap
+	ACT_MAPZ_IN,   // zoom in the automap
+	ACT_MAPZ_OUT,  // zoom out the automap
+	ACT_CLEARUI,   // close the 'windows'
+	ACT_UP,    // navigate in the current context
 	ACT_DOWN,
 	ACT_LEFT,
 	ACT_RIGHT,
 	ACT_PGUP,
 	ACT_PGDOWN,
 	ACT_RETURN,
-	ACT_TEAM,
-	ACT_QUESTS,
-	ACT_MSG0,
+	ACT_TEAM,   // toggle team book
+	ACT_QUESTS, // toggle quest book
+	ACT_MSG0, // send quick message
 	ACT_MSG1,
 	ACT_MSG2,
 	ACT_MSG3,
-	ACT_GAMMA_DEC,
-	ACT_GAMMA_INC,
-	ACT_ZOOM,
-	ACT_VER,
-	ACT_HELP,
-	ACT_PAUSE,
+	ACT_GAMMA_DEC, // decrease the gamma
+	ACT_GAMMA_INC, // increase the gamma
+	ACT_ZOOM,  // toggle the zoom
+	ACT_VER,   // print the game version
+	ACT_HELP,  // open the help text
+	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
-	ACT_TOOLTIP,
+	ACT_TOOLTIP, // toggle the permanency of the tooltips
 	NUM_ACTS
 } input_key;
 
