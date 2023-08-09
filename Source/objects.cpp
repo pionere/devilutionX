@@ -1827,7 +1827,7 @@ static void OpenDoor(int oi)
 	os = &objects[oi];
 	os->_oVar4 = DOOR_OPEN;
 	os->_oPreFlag = TRUE;
-	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag & ~1;
+	os->_oSelFlag = (objectdata[OBJ_L1LDOOR].oSelFlag & ~1) | 4;
 	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
 	os->_oAnimFrame += 2;

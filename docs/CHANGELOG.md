@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - configurable starting positions for modal windows (in diablo.ini)
 - multiple modal windows might be open at a time
 - control-click to move between belt and inventory
+- added 'target mode' to select items or objects exclusively
 ### Gameplay
 - SAVE-files are NOT backwards compatible
 - altered abilities (hellfire)

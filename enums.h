@@ -3682,6 +3682,15 @@ typedef enum cursor_id {
 	CURSOR_FIRSTITEM,
 } cursor_id;
 
+typedef enum _target_mode {
+	TGT_NORMAL,
+	TGT_ITEM,
+	TGT_OBJECT,
+	TGT_PLAYER,
+	TGT_DEAD,
+	TGT_NONE
+} _target_mode;
+
 typedef enum direction {
 	DIR_S,
 	DIR_SW,
@@ -4603,6 +4612,7 @@ typedef enum input_key {
 	ACT_SKL5,
 	ACT_SKL6,
 	ACT_SKL7,
+	ACT_TGT,
 	ACT_INV,
 	ACT_CHAR,
 	ACT_SKLBOOK,

@@ -363,6 +363,43 @@ void DrawSkillIcons()
 		type = plr._pAltAtkSkillType;
 	}
 	DrawSkillIcon(pnum, spl, type, SPLICON_WIDTH);
+
+	const char* str;
+	unsigned numchar;
+	switch (pcurstgt) {
+	case TGT_NORMAL:
+		return;
+	case TGT_ITEM:
+		str = "Item";
+		numchar = lengthof("Item") - 1;
+		break;
+	case TGT_OBJECT:
+		str = "Object";
+		numchar = lengthof("Object") - 1;
+		break;
+	case TGT_PLAYER:
+		str = "Player";
+		numchar = lengthof("Player") - 1;
+		break;
+	case TGT_DEAD:
+		str = "Dead";
+		numchar = lengthof("Dead") - 1;
+		break;
+	case TGT_NONE:
+		str = "X";
+		numchar = lengthof("X") - 1;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+
+	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
+	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2;
+	for (unsigned i = 0; i < numchar; i++) {
+		sy += SMALL_FONT_HEIGHT;
+		BYTE nCel = gbStdFontFrame[str[i]];
+		PrintChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
+	}
 }
 
 static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
