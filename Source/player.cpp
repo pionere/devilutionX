@@ -689,6 +689,22 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 		plr._pAltMoveSkillHotKey[i] = SPL_INVALID;
 	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
 		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pAtkSkillSwapKey); i++)
+		plr._pAtkSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pAtkSkillTypeSwapKey); i++)
+		plr._pAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pMoveSkillSwapKey); i++)
+		plr._pMoveSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pMoveSkillTypeSwapKey); i++)
+		plr._pMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pAltAtkSkillSwapKey); i++)
+		plr._pAltAtkSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeSwapKey); i++)
+		plr._pAltAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pAltMoveSkillSwapKey); i++)
+		plr._pAltMoveSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeSwapKey); i++)
+		plr._pAltMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;

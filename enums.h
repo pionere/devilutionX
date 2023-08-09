@@ -4612,6 +4612,7 @@ typedef enum input_key {
 	ACT_SKL5,
 	ACT_SKL6,
 	ACT_SKL7,
+	ACT_SWAP,
 	ACT_TGT,
 	ACT_INV,
 	ACT_CHAR,
