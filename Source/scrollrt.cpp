@@ -1482,11 +1482,11 @@ static void DrawView()
 	if (gbAutomapflag) {
 		DrawAutomap();
 	}
+	DrawLifeFlask();
+	DrawManaFlask();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
-	DrawLifeFlask();
-	DrawManaFlask();
 	DrawDurIcon();
 
 	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
