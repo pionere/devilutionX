@@ -2069,13 +2069,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_TOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
-		if (*dwLen < MICRO_IDX(1219 - 1, BLOCK_SIZE_TOWN, 0) * 2) {
+		constexpr int blockSize = BLOCK_SIZE_TOWN;
+		if (*dwLen < 1258 * blockSize * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		Town_PatchMin(buf, false);
-		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_TOWN);
+		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 	case FILE_CATHEDRAL_CEL:
 	{	// patch dMicroCels - L1.CEL
@@ -2095,13 +2096,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATHEDRAL_MIN:
 	{	// patch dMiniTiles - L1.MIN
-		if (*dwLen < MICRO_IDX(140 - 1, BLOCK_SIZE_L1, 1) * 2) {
+		constexpr int blockSize = BLOCK_SIZE_L1;
+		if (*dwLen < 453 * blockSize * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		DRLP_L1_PatchMin(buf);
-		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_L1);
+		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 #endif /* ASSET_MPL == 1 */
 	case FILE_CATHEDRAL_TIL:
@@ -2550,13 +2552,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 	case FILE_NTOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
-		if (*dwLen < MICRO_IDX(1303 - 1, BLOCK_SIZE_TOWN, 7) * 2) {
+		constexpr int blockSize = BLOCK_SIZE_TOWN;
+		if (*dwLen < 1379 * blockSize * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1303 - 1, BLOCK_SIZE_TOWN, 7) * 2);
 			return NULL;
 		}
 		Town_PatchMin(buf, true);
-		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_TOWN);
+		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 	case FILE_NEST_CEL:
 	{	// patch dMicroCels - L6.CEL
@@ -2576,13 +2579,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_NEST_MIN:
 	{	// patch dMiniTiles - L6.MIN
-		if (*dwLen < MICRO_IDX(366 - 1, BLOCK_SIZE_L6, 1) * 2) {
+		constexpr int blockSize = BLOCK_SIZE_L6;
+		if (*dwLen < 606 * blockSize * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		DRLP_L6_PatchMin(buf);
-		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_L6);
+		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 #endif /* ASSET_MPL == 1 */
 	case FILE_NEST_TIL:
@@ -2624,13 +2628,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CRYPT_MIN:
 	{	// patch dMiniTiles - L5.MIN
-		if (*dwLen < MICRO_IDX(197 - 1, BLOCK_SIZE_L5, 1) * 2) {
+		constexpr int blockSize = BLOCK_SIZE_L5;
+		if (*dwLen < 650 * blockSize * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		DRLP_L5_PatchMin(buf);
-		buf = buildBlkMin(buf, dwLen, BLOCK_SIZE_L5);
+		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 #endif // ASSET_MPL
 	case FILE_CRYPT_TIL:
