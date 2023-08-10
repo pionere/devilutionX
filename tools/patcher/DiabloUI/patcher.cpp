@@ -2051,6 +2051,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
 			return NULL;
 		}
+		if (minLen < 1258 * BLOCK_SIZE_TOWN * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
+			return NULL;
+		}
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			Town_PatchMin(minBuf, index != FILE_TOWN_MIN);
@@ -2076,6 +2081,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		if (minBuf == NULL) {
 			mem_free_dbg(buf);
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATHEDRAL_MIN]);
+			return NULL;
+		}
+		if (minLen < 453 * BLOCK_SIZE_L1 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_CATHEDRAL_MIN]);
 			return NULL;
 		}
 		buf = DRLP_L1_PatchCel(minBuf, minLen, buf, dwLen);
@@ -2227,6 +2237,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATACOMBS_MIN]);
 			return NULL;
 		}
+		if (minLen < 559 * BLOCK_SIZE_L2 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_CATACOMBS_MIN]);
+			return NULL;
+		}
 		buf = DRLP_L2_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			DRLP_L2_PatchMin(minBuf);
@@ -2321,6 +2336,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CAVES_MIN]);
 			return NULL;
 		}
+		if (minLen < 560 * BLOCK_SIZE_L3 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_CAVES_MIN]);
+			return NULL;
+		}
 		buf = DRLP_L3_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			DRLP_L3_PatchMin(minBuf);
@@ -2385,6 +2405,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		if (minBuf == NULL) {
 			mem_free_dbg(buf);
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_HELL_MIN]);
+			return NULL;
+		}
+		if (minLen < 456 * BLOCK_SIZE_L4 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_HELL_MIN]);
 			return NULL;
 		}
 		buf = DRLP_L4_PatchCel(minBuf, minLen, buf, dwLen);
@@ -2550,6 +2575,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_NTOWN_MIN]);
 			return NULL;
 		}
+		if (minLen < 1379 * BLOCK_SIZE_TOWN * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_NTOWN_MIN]);
+			return NULL;
+		}
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			Town_PatchMin(minBuf, true);
@@ -2562,7 +2592,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		constexpr int blockSize = BLOCK_SIZE_TOWN;
 		if (*dwLen < 1379 * blockSize * 2) {
 			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq. File len: %d vs %d", filesToPatch[index], *dwLen, MICRO_IDX(1303 - 1, BLOCK_SIZE_TOWN, 7) * 2);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
 		Town_PatchMin(buf, true);
@@ -2575,6 +2605,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		if (minBuf == NULL) {
 			mem_free_dbg(buf);
 			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_NEST_MIN]);
+			return NULL;
+		}
+		if (*dwLen < 606 * BLOCK_SIZE_L6 * 2) {
+			mem_free_dbg(buf);
+			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_NEST_MIN]);
 			return NULL;
 		}
 		buf = DRLP_L6_PatchCel(minBuf, minLen, buf, dwLen);
