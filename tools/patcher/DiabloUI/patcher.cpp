@@ -2052,13 +2052,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		if (minLen < 1258 * BLOCK_SIZE_TOWN * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
-			return NULL;
+			// mem_free_dbg(buf);
+			// app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
+			// return NULL;
+			return buf; // -- assume it is already done
 		}
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
-			Town_PatchMin(minBuf, index != FILE_TOWN_MIN);
+			minBuf = Town_PatchMin(minBuf, &minLen, false);
 			buf = buildBlkCel(buf, dwLen);
 		}
 		mem_free_dbg(minBuf);
@@ -2067,11 +2068,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// patch dMiniTiles - Town.MIN
 		constexpr int blockSize = BLOCK_SIZE_TOWN;
 		if (*dwLen < 1258 * blockSize * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
+			// mem_free_dbg(buf);
+			// app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			// return NULL;
+			return buf; // -- assume it is already done
 		}
-		Town_PatchMin(buf, false);
+		buf = Town_PatchMin(buf, dwLen, false);
 		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 	case FILE_CATHEDRAL_CEL:
@@ -2576,13 +2578,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		if (minLen < 1379 * BLOCK_SIZE_TOWN * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_NTOWN_MIN]);
-			return NULL;
+			// mem_free_dbg(buf);
+			// app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_NTOWN_MIN]);
+			// return NULL;
+			return buf; // -- assume it is already done
 		}
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
-			Town_PatchMin(minBuf, true);
+			minBuf = Town_PatchMin(minBuf, &minLen, true);
 			buf = buildBlkCel(buf, dwLen);
 		}
 		mem_free_dbg(minBuf);
@@ -2591,11 +2594,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// patch dMiniTiles - Town.MIN
 		constexpr int blockSize = BLOCK_SIZE_TOWN;
 		if (*dwLen < 1379 * blockSize * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
+			// mem_free_dbg(buf);
+			// app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
+			// return NULL;
+			return buf; // -- assume it is already done
 		}
-		Town_PatchMin(buf, true);
+		buf = Town_PatchMin(buf, dwLen, true);
 		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
 	case FILE_NEST_CEL:
