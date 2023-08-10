@@ -2043,21 +2043,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	switch (index) {
 #if ASSET_MPL == 1
 	case FILE_TOWN_CEL:
-#ifdef HELLFIRE
-	case FILE_NTOWN_CEL:
-#endif
-	{
-		// patch dMicroCels - TOWN.CEL
-#ifdef HELLFIRE
-		index = index == FILE_TOWN_CEL ? FILE_TOWN_MIN : FILE_NTOWN_MIN;
-#else
-		index = FILE_TOWN_MIN;
-#endif
+	{	// patch dMicroCels - TOWN.CEL
 		size_t minLen;
-		BYTE* minBuf = LoadFileInMem(filesToPatch[index], &minLen);
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_TOWN_MIN], &minLen);
 		if (minBuf == NULL) {
 			mem_free_dbg(buf);
-			app_warn("Unable to open file %s in the mpq.", filesToPatch[index]);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
 			return NULL;
 		}
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
@@ -2550,6 +2541,22 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
+	case FILE_NTOWN_CEL:
+	{	// patch dMicroCels - TOWN.CEL
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_NTOWN_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_NTOWN_MIN]);
+			return NULL;
+		}
+		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
+		if (buf != NULL) {
+			Town_PatchMin(minBuf, true);
+			buf = buildBlkCel(buf, dwLen);
+		}
+		mem_free_dbg(minBuf);
+	} break;
 	case FILE_NTOWN_MIN:
 	{	// patch dMiniTiles - Town.MIN
 		constexpr int blockSize = BLOCK_SIZE_TOWN;
