@@ -170,8 +170,8 @@ const BYTE L3FTYPES[157] = {
 	 0,  2,  3,  4,  5,  1, 15, 15, 15, 10, //100..
 	12,  0,  4, 15, 15, 15, 15, 15, 15, 15, //110..
 	 3, 10, 10, 10, 10,  8, 12, 12, 12, 12, //120..
-	 0,  0,  0,  0,  3,  5,  3,  5,  1,  1, //130..
-	 1,  1,  1,  1, 11,  2,  3,  5,  3,  5, //140..
+	 2,  4,  2,  4,  3,  5,  3,  5,  1,  1, //130..
+	 1,  1,  1,  1,  3,  5,  3,  5,  3,  5, //140..
 	 7,  3,  5, 12, 12,  0,  0              //150..
 	// clang-format on
 };
@@ -340,7 +340,7 @@ const BYTE L3TITE11[] = {
 	 0,  0, 0,
 	// clang-format on
 };*/
-/** Miniset: Cracked vertical wall 1. */
+/** Miniset: Cracked vertical wall - north-west I. */
 const BYTE L3CREV1[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -350,7 +350,7 @@ const BYTE L3CREV1[] = {
 	84, 85, // replace
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - north corner. */
+/** Miniset: Cracked vertical wall - north I. */
 const BYTE L3CREV2[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -360,7 +360,7 @@ const BYTE L3CREV2[] = {
 	86, 87, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall 1. */
+/** Miniset: Cracked horizontal wall - north-east I. */
 const BYTE L3CREV3[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -372,7 +372,7 @@ const BYTE L3CREV3[] = {
 	88,
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall 2. */
+/** Miniset: Cracked vertical wall - north-west II. */
 const BYTE L3CREV4[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -382,7 +382,7 @@ const BYTE L3CREV4[] = {
 	90, 91, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall - north corner. */
+/** Miniset: Cracked horizontal wall - north II. */
 const BYTE L3CREV5[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -394,7 +394,7 @@ const BYTE L3CREV5[] = {
 	93,
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall 2. */
+/** Miniset: Cracked horizontal wall - north-east II. */
 const BYTE L3CREV6[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -406,17 +406,17 @@ const BYTE L3CREV6[] = {
 	94,
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - west corner. */
+/** Miniset: Cracked vertical wall - west */
 const BYTE L3CREV7[] = {
 	// clang-format off
 	2, 1, // width, height
 
-	8, 9, // search
+	8, 1, // search
 
-	96, 91, // replace
+	96, 101, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall - north. */
+/** Miniset: Cracked horizontal wall - south-west */
 const BYTE L3CREV8[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -428,7 +428,7 @@ const BYTE L3CREV8[] = {
 	 97,
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - east corner. */
+/** Miniset: Cracked vertical wall - east */
 const BYTE L3CREV9[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -438,7 +438,7 @@ const BYTE L3CREV9[] = {
 	103, 98, // replace
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - west. */
+/** Miniset: Cracked vertical wall - south-east */
 const BYTE L3CREV10[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -448,7 +448,7 @@ const BYTE L3CREV10[] = {
 	104, 99, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall - south corner. */
+/** Miniset: Cracked horizontal wall - south */
 const BYTE L3CREV11[] = {
 	// clang-format off
 	1, 2, // width, height

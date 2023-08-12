@@ -3316,8 +3316,12 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(382, 6);
 	Blk2Mcr(4, 1);
 	Blk2Mcr(4, 3);
+	Blk2Mcr(4, 4);
+	Blk2Mcr(4, 6);
 	Blk2Mcr(8, 1);
 	Blk2Mcr(8, 3);
+	Blk2Mcr(8, 4);
+	Blk2Mcr(8, 6);
 	Blk2Mcr(12, 1);
 	Blk2Mcr(12, 3);
 	Blk2Mcr(20, 1);
@@ -3325,6 +3329,8 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(373, 1);
 	Blk2Mcr(373, 3);
 	Blk2Mcr(511, 1);
+	Blk2Mcr(511, 4);
+	Blk2Mcr(511, 6);
 	Blk2Mcr(16, 0);
 	Blk2Mcr(16, 2);
 	Blk2Mcr(20, 0);
@@ -3516,7 +3522,7 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	// ReplaceMcr(150, 2, 8, 5);
 	ReplaceMcr(150, 0, 56, 0); // or 140
 
-	ReplaceMcr(4, 5, 8, 5);
+	ReplaceMcr(4, 5, 8, 5); // lost details
 
 	ReplaceMcr(511, 3, 496, 3);
 	ReplaceMcr(509, 1, 493, 1);
@@ -3539,6 +3545,8 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	ReplaceMcr(24, 5, 28, 3);
 	ReplaceMcr(3, 4, 30, 4);
 	ReplaceMcr(3, 6, 30, 6);
+	ReplaceMcr(368, 4, 30, 4);
+	ReplaceMcr(368, 6, 30, 6);
 	ReplaceMcr(183, 6, 30, 6);
 	ReplaceMcr(350, 6, 30, 6);
 	ReplaceMcr(359, 4, 30, 4);
@@ -3628,6 +3636,8 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	// ignore invisible parts
 	ReplaceMcr(1, 1, 333, 1); // lost details
 	ReplaceMcr(1, 3, 333, 3); // lost details
+	ReplaceMcr(366, 1, 333, 1); // lost details
+	ReplaceMcr(366, 3, 333, 3); // lost details
 	ReplaceMcr(5, 1, 52, 1); // lost details
 	ReplaceMcr(17, 1, 52, 1); // lost details
 	// ReplaceMcr(370, 1, 52, 1); // lost details
@@ -3648,7 +3658,9 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(409, 1);
 	Blk2Mcr(436, 1);
 	Blk2Mcr(436, 3);
+	Blk2Mcr(436, 4);
 	Blk2Mcr(436, 5);
+	Blk2Mcr(436, 6);
 	Blk2Mcr(519, 0);
 	Blk2Mcr(548, 2);
 	Blk2Mcr(548, 5);
@@ -3686,7 +3698,7 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(559, 7);
 
 	const int unusedSubtiles[] = {
-		2, 6, 15, 18, 21, 147, 149, 152, 153, 155, 157, 160, 161, 179, 195, 204, 205, 208, 209, 211, 218, 220, 221, 222, 224, 225, 226, 227, 240, 241, 243, 250, 251, 253, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 312, 314, 328, 332, 338, 339, 349, 356, 358, 361, 364, 365, 366, 367, 368, 369, 371, 380, 406, 407, 408, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 442, 448, 487, 503, 521, 522, 523, 524, 525, 526, 527, 529, 533, 537, 550, 554, 557, 558, 560
+		2, 6, 15, 18, 21, 147, 149, 152, 153, 155, 157, 160, 161, 179, 195, 204, 205, 208, 209, 211, 218, 220, 221, 222, 224, 225, 226, 227, 240, 241, 243, 250, 251, 253, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 312, 314, 328, 332, 338, 339, 349, 356, 358, 361, 364, 365, 367, 369, 371, 380, 406, 407, 408, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 442, 448, 487, 503, 521, 522, 523, 524, 525, 526, 527, 529, 533, 537, 550, 554, 557, 558, 560
 	};
 
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -3715,6 +3727,8 @@ void DRLP_L3_PatchTil(BYTE* buf)
 	pTiles[(42 - 1) * 4 + 2] = SwapLE16(7 - 1); // 148
 	pTiles[(43 - 1) * 4 + 1] = SwapLE16(14 - 1); // 151
 	pTiles[(57 - 1) * 4 + 0] = SwapLE16(393 - 1); // 204
+	// pTiles[(101 - 1) * 4 + 1] = SwapLE16(2 - 1); // 367
+	pTiles[(101 - 1) * 4 + 3] = SwapLE16(4 - 1); // 369
 	pTiles[(102 - 1) * 4 + 0] = SwapLE16(5 - 1); // 370
 	// pTiles[(102 - 1) * 4 + 1] = SwapLE16(6 - 1); // 371
 	pTiles[(143 - 1) * 4 + 1] = SwapLE16(506 - 1); // 519
@@ -3758,7 +3772,7 @@ void DRLP_L3_PatchTil(BYTE* buf)
 	pTiles[(123 - 1) * 4 + 3] = SwapLE16(440 - 1); // 448
 	// ignore invisible parts
 	pTiles[(1 - 1) * 4 + 1] = SwapLE16(334 - 1); // 2
-	// pTiles[(101 - 1) * 4 + 1] = SwapLE16(334 - 1); // 367
+	pTiles[(101 - 1) * 4 + 1] = SwapLE16(334 - 1); // 367
 	pTiles[(2 - 1) * 4 + 1] = SwapLE16(53 - 1); // 6
 	pTiles[(5 - 1) * 4 + 1] = SwapLE16(53 - 1); // 18
 	pTiles[(102 - 1) * 4 + 1] = SwapLE16(53 - 1); // 371
@@ -3802,7 +3816,7 @@ void DRLP_L3_PatchTil(BYTE* buf)
 
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 101, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 153, 154, 155, 156,
+		70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 153, 154, 155, 156,
 	};
 	constexpr int blankSubtile = 2;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {
@@ -5781,7 +5795,7 @@ void DRLP_L6_PatchTil(BYTE* buf)
 	// pTiles[(84 - 1) * 4 + 2] = SwapLE16(105 - 1); // 317
 	pTiles[(100 - 1) * 4 + 0] = SwapLE16(25 - 1); // 374
 	pTiles[(100 - 1) * 4 + 1] = SwapLE16(26 - 1); // 375
-	// - new shadows
+	// - adjusted shadows
 	pTiles[(66 - 1) * 4 + 0] = SwapLE16(103 - 1); // 250
 	pTiles[(66 - 1) * 4 + 3] = SwapLE16(106 - 1); // 253
 	pTiles[(67 - 1) * 4 + 0] = SwapLE16(25 - 1);  // 254 same as tile 7, but needed for L6MITE-placements
