@@ -470,6 +470,11 @@ void InitLvlDungeon()
 		pTiles[100][1] = 165;
 		pTiles[100][2] = 155;
 		pTiles[100][3] = 169;
+		// - shadow for the separate pillar
+		pTiles[101][0] = 21;
+		pTiles[101][1] = 26;
+		pTiles[101][2] = 148;
+		pTiles[101][3] = 169;
 		// fix the upstairs
 		// - make the back of the stairs non-walkable
 		pTiles[72][1] = 56;

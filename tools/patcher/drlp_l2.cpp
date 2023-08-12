@@ -2264,6 +2264,11 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(100 - 1) * 4 + 1] = SwapLE16(165 - 1);
 	pTiles[(100 - 1) * 4 + 2] = SwapLE16(155 - 1);
 	pTiles[(100 - 1) * 4 + 3] = SwapLE16(169 - 1);
+	// - shadow for the separate pillar
+	pTiles[(101 - 1) * 4 + 0] = SwapLE16(21 - 1);
+	pTiles[(101 - 1) * 4 + 1] = SwapLE16(26 - 1);
+	pTiles[(101 - 1) * 4 + 2] = SwapLE16(148 - 1);
+	pTiles[(101 - 1) * 4 + 3] = SwapLE16(169 - 1);
 	// fix graphical glitch
 	pTiles[(157 - 1) * 4 + 1] = SwapLE16(99 - 1); // 548
 	// fix the upstairs II.
@@ -2279,7 +2284,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	// pTiles[(159 - 1) * 4 + 2] = SwapLE16(11 - 1); // 557
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		58, 61, 64, 65, 66, 67, 76, 93, 98, 101, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
+		58, 61, 64, 65, 66, 67, 76, 93, 98, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
 	};
 	constexpr int blankSubtile = 2;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {

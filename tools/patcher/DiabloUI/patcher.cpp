@@ -2296,7 +2296,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATACOMBS_AMP:
 	{	// patch dAutomapData - L2.AMP
-		if (*dwLen < 157 * 2) {
+		if (*dwLen < 160 * 2) {
 			mem_free_dbg(buf);
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
@@ -2323,6 +2323,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// automaptype[95 - 1] = automaptype[3 - 1];
 		// automaptype[96 - 1] = automaptype[3 - 1];
 		// automaptype[100 - 1] = automaptype[3 - 1];
+		automaptype[101 - 1] = MWT_PILLAR;
 	} break;
 #if ASSET_MPL == 1
 	case FILE_L3DOORS_CEL:

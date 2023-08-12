@@ -146,19 +146,11 @@ void InitLvlAutomap()
 		automaptype[52] = MWT_PILLAR;
 		// new shadows
 		automaptype[17] = automaptype[5];
-		// automaptype[18] = automaptype[5];
 		automaptype[34] = automaptype[6];
 		automaptype[35] = automaptype[7];
 		automaptype[36] = automaptype[9];
 		automaptype[37] = automaptype[9];
-		// automaptype[44] = automaptype[3];
-		// automaptype[46] = automaptype[3];
-		// automaptype[47] = automaptype[3];
-		// automaptype[48] = automaptype[3];
-		// automaptype[49] = automaptype[3];
-		// automaptype[95] = automaptype[3];
-		// automaptype[96] = automaptype[3];
-		// automaptype[100] = automaptype[3];
+		automaptype[101] = MWT_PILLAR;
 	}
 	// patch dAutomapData - L3.AMP
 	if (currLvl._dType == DTYPE_CAVES) {
