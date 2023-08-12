@@ -29,9 +29,6 @@ static void MsgBox(const char* pszFmt, va_list va)
  */
 static void FreeDlg()
 {
-#if GAME
-	NetClose();
-#endif
 }
 
 void app_fatal(const char* pszFmt, ...)

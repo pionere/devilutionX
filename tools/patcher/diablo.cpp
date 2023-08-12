@@ -43,11 +43,7 @@ static void diablo_init()
 	dx_init(); // inititalize SDL + create the window
 
 	InitArchives();
-#if GAME
-#if DEBUG_MODE || DEV_MODE
-	ValidateData();
-#endif
-#endif // GAME
+
 	MakeLightTable();
 	InitText();
 	InitCursorGFX();
@@ -64,10 +60,6 @@ static void diablo_init()
 
 static void diablo_deinit()
 {
-#if GAME
-	NetClose();
-	pfile_flush(true);
-#endif
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
 		StopSFX(); // stop click-effect
