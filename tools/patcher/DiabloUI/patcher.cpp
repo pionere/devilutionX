@@ -2175,15 +2175,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		automaptype[150 - 1] = automaptype[2 - 1];
 		automaptype[151 - 1] = automaptype[12 - 1];
 		automaptype[152 - 1] = automaptype[36 - 1];
-		// automaptype[153 - 1] = automaptype[36 - 1];
+		automaptype[153 - 1] = automaptype[36 - 1];
 		automaptype[154 - 1] = automaptype[7 - 1];
 		automaptype[155 - 1] = automaptype[2 - 1];
-		// automaptype[156 - 1] = automaptype[26 - 1];
+		automaptype[156 - 1] = automaptype[26 - 1];
 		automaptype[157 - 1] = automaptype[35 - 1];
 		// automaptype[158 - 1] = automaptype[4 - 1];
 		automaptype[159 - 1] = automaptype[13 - 1];
-		// automaptype[160 - 1] = automaptype[14 - 1];
-		// automaptype[161 - 1] = automaptype[37 - 1];
+		automaptype[160 - 1] = automaptype[14 - 1];
+		automaptype[161 - 1] = automaptype[37 - 1];
 		automaptype[164 - 1] = automaptype[13 - 1];
 		automaptype[165 - 1] = automaptype[13 - 1];
 		// - shadows for the banner setpiece
