@@ -80,29 +80,6 @@ const BYTE L2BTYPES[159] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0,    //150..
 	// clang-format on
 };
-/*
- * Specifies where the given tile ID should spread the room ID (transval).
- */
-const BYTE L2FTYPES[159] = {
-	// clang-format off
-	 0, 10, 12, 15, 10, 12,  8, 10,  8, 12,
-	 0,  0,  0,  0,  0,  0,  0, 12, 12, 10, // 10..
-	10, 12, 12, 10, 10, 10, 10, 10, 10, 12, // 20..
-	12, 12, 12, 12,  8, 10, 12, 12,  8, 10, // 30..
-	12,  8,  8,  8, 10, 12, 15, 15, 15, 15, // 40..
-	15, 15, 14, 10, 10,  8, 12, 12, 12, 15, // 50..
-	15, 15, 15, 15, 15, 15, 15, 15, 10, 10, // 60..
-	10,  7,  5, 12, 12, 12, 15, 10,  0, 10, // 70..
-	10, 10, 10,  8, 12, 12, 12,  8, 15, 15, // 80..
-	15, 15, 15, 15, 15, 12, 10, 15, 15, 15, // 90..
-	12, 14, 15, 15, 15, 15, 15, 15, 15, 15, //100..
-	15, 15, 15, 15, 15, 15, 10, 10, 12, 12, //110..
-	15, 15, 15, 15, 10, 10, 12, 12, 15, 15, //120..
-	15, 15, 10, 10, 15, 15, 12, 12, 15, 15, //130..
-	10, 12, 12,  0,  0,  0,  0,  0,  0,  0, //140..
-	10, 12, 10, 12, 10, 12, 10, 12, 15,     //150..
-	// clang-format on
-};
 /** Miniset: Stairs up. */
 const BYTE L2USTAIRS[] = {
 	// clang-format off
@@ -637,12 +614,13 @@ static void DRLG_L2Shadows()
 
 	for (j = DMAXY - 1; j > 0; j--) {
 		for (i = DMAXX - 1; i > 0; i--) {
+			BYTE bv = dungeon[i][j];
 			bool pillar = false;
 			bool horizArch = false;
 			bool vertArch = false;
-			horizArch = (automaptype[dungeon[i][j]] & MAF_EAST_ARCH) != 0;
-			vertArch = (automaptype[dungeon[i][j]] & MAF_WEST_ARCH) != 0;
-			if (automaptype[dungeon[i][j]] & MAF_EAST_DOOR) {
+			horizArch = (nTrnShadowTable[bv] & TIF_L2_EAST_ARCH) != 0;
+			vertArch = (nTrnShadowTable[bv] & TIF_L2_WEST_ARCH) != 0;
+			if (nTrnShadowTable[bv] & TIF_L2_EAST_DOOR) {
 				// shadow of the horizontal doors
 				BYTE replaceB = dungeon[i][j - 1];
 				if (replaceB == 3 || replaceB == 49) {
@@ -665,7 +643,7 @@ static void DRLG_L2Shadows()
 				dungeon[i - 1][j - 1] = replaceB;
 				continue;
 			}
-			switch (dungeon[i][j]) {
+			/*switch (bv) {
 			case 52:
 			case 101:
 			case 9:
@@ -684,7 +662,8 @@ static void DRLG_L2Shadows()
 			case 40:
 				pillar = true;
 				break;
-			}
+			}*/
+			pillar = (nTrnShadowTable[bv] & TIF_L2_PILLAR) != 0;
 			if (horizArch) {
 				BYTE replaceA;
 				BYTE replaceB = dungeon[i][j - 1];
@@ -1960,7 +1939,7 @@ void DRLG_L2InitTransVals()
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
 
-	DRLG_FloodTVal(L2FTYPES);
+	DRLG_FloodTVal();
 	DRLG_L2TransFix();
 }
 

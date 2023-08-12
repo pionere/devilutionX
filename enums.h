@@ -3410,6 +3410,39 @@ typedef enum _automap_flags {
 	MAF_DO_SOUTH_WEST = 0x0080,
 } _automap_flags;
 
+typedef enum _tile_flags {
+	TIF_FLOOR_00  = 1 << 0,
+	TIF_FLOOR_01  = 1 << 1,
+	TIF_FLOOR_10  = 1 << 2,
+	TIF_FLOOR_11  = 1 << 3,
+
+	TIF_SHADOW_00 = 1 << 4,
+	TIF_SHADOW_01 = 1 << 5,
+	TIF_SHADOW_02 = 1 << 6,
+	TIF_SHADOW_03 = 1 << 7,
+
+	TIF_L1_WEST_ARCH_GRATE = 1 << 4,
+	TIF_L1_EAST_ARCH_GRATE = 1 << 5,
+	TIF_L1_PILLAR  = 1 << 6,
+	TIF_L1_WEST_WALL = 1 << 7,
+
+	TIF_L2_WEST_ARCH = 1 << 4,
+	TIF_L2_EAST_ARCH = 1 << 5,
+	TIF_L2_PILLAR    = 1 << 6,
+	TIF_L2_EAST_DOOR = 1 << 7,
+
+	TIF_L4_WEST_ARCH = 1 << 4,
+	TIF_L4_EAST_ARCH = 1 << 5,
+	TIF_L4_PILLAR    = 1 << 6,
+
+	TIF_L5_WEST_ARCH_GRATE = 1 << 4,
+	TIF_L5_EAST_ARCH_GRATE = 1 << 5,
+	TIF_L5_PILLAR  = 1 << 6,
+	TIF_L5_WEST_WALL = 1 << 7,
+
+	TIF_FLOOR_TYPE = TIF_FLOOR_00 | TIF_FLOOR_01 | TIF_FLOOR_10 | TIF_FLOOR_11,
+} _tile_flags;
+
 typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
 	BFLAG_ALERT       = 0x02, // alert flag, used by monsters to set squelch

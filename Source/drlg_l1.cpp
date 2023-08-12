@@ -55,65 +55,6 @@ static const BYTE L1BTYPES[207] = {
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
-/*
- * Specifies where the given tile ID should spread the room ID (transval).
- */
-static const BYTE L1FTYPES[207] = {
-	// clang-format off
-	 0, 10, 12,  8,  8,  8, 10, 12, 10, 12,
-	 8, 10, 12, 15,  8, 14, 14, 14,  0,  0, // 10..
-	 0,  0,  0,  0,  0, 10, 12,  8, 14,  8, // 20..
-	10, 12, 10, 12,  8, 10, 12,  8,  8,  8, // 30..
-	 8,  8,  8,  8,  8, 15, 12, 12, 10, 14, // 40..
-	10, 12, 12, 10, 14, 10, 10,  0, 10, 12, // 50..
-	14, 15, 15,  4,  0,  8,  0, 15, 15, 15, // 60..
-	15,  0,  0, 15, 15, 15, 15, 15, 15, 10, // 70..
-	12, 14,  8, 10, 10, 12, 14, 14, 12, 10, // 80..
-	10, 12, 12, 10, 10, 12, 12, 12, 12, 12, // 90..
-	10, 10, 10, 10, 15, 15, 15, 10, 12, 10, //100..
-	12, 10, 12, 10, 12, 12, 12, 12, 12, 12, //110..
-	12, 10, 10, 10, 10, 15, 10, 10, 15, 15, //120..
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, //130..
-	15, 15, 15, 15, 15, 10, 10, 10, 12, 12, //140..
-	12, 12, 12, 12, 12, 12, 12, 10,  8, 15, //150..
-	 8,  8, 15, 15, 15, 15, 10, 10,  8, 12, //160..
-	12, 15, 15, 15, 15, 10, 12,  8, 10, 12, //170..
-	 8,  8,  8,  8,  8,  8, 10,  8,  8,  8, //180..
-	 8, 10, 12, 10, 12,  0,  0, 10, 12,  0, //190..
-	 0,  0,  0,  0,  0,  0, 12
-	// clang-format on
-};
-#ifdef HELLFIRE
-/*
- * Specifies where the given tile ID should spread the room ID (transval).
- */
-static const BYTE L5FTYPES[218] = {
-	// clang-format off
-	 0, 10, 12,  8,  8,  8, 10, 12, 10, 12,
-	 8, 10, 12, 15,  8, 14,  8,  8,  0,  0, // 10..
-	 0,  0,  0,  0,  0, 10, 12,  8, 14,  8, // 20..
-	10, 12, 10, 12,  8, 10, 12,  8,  8,  8, // 30..
-	 8,  8,  8,  8,  8, 15, 12,  0,  0, 14, // 40..
-	10, 10,  0,  0,  0,  4,  0,  0,  0, 15, // 50..
-	15,  0,  0,  0,  0,  0, 15, 15, 15, 10, // 60..
-	12, 12,  8,  8,  8,  8,  8,  8,  8,  8, // 70..
-	12, 12, 12, 12, 12, 12, 12, 12, 12, 10, // 80..
-	10, 10, 12, 12, 12, 10, 12, 15, 15, 15, // 90..
-	15, 15, 10, 10, 10, 10, 15, 15, 15, 10, //100..
-	10, 10, 10, 12,  8,  8,  8, 10, 12, 10, //110..
-	12,  8, 10, 12, 15,  8, 14,  8,  8, 10, //120..
-	12,  8,  8,  8, 10, 12, 10, 12,  8, 10, //130..
-	12, 15,  8, 14,  8,  8, 10, 12,  8,  8, //140..
-	 8, 10, 12, 10, 12,  8, 10, 12, 15,  8, //150..
-	14,  8,  8, 15, 15, 15, 15, 15, 15, 15, //160..
-	15, 15, 15, 10, 10, 10, 10, 10, 10, 12, //170..
-	12, 12, 12, 12, 12, 10, 10, 12, 12, 15, //180..
-	15, 15, 14, 15, 15, 15, 15, 15, 15, 10, //190..
-	12, 10, 12, 15, 15, 15, 15, 15, 15, 15, //200..
-	15, 15, 15, 15, 15, 10, 10, 15,         //210..
-	// clang-format on
-};
-#endif
 /** Miniset: stairs up on a corner wall. */
 //const BYTE STAIRSUP[] = {
 //	// clang-format off
@@ -602,8 +543,6 @@ static void DRLG_L5Shadows()
 			bool horizArch = false;
 			bool vertArch = false;
 			bool pillar = false;
-			horizArch = (automaptype[bv] & (MAF_EAST_ARCH | MAF_EAST_GRATE)) != 0;
-			vertArch = (automaptype[bv] & (MAF_WEST_ARCH | MAF_WEST_GRATE)) != 0;
 			/*switch (bv) {
 			case 5:
 			// case 116:
@@ -660,8 +599,10 @@ static void DRLG_L5Shadows()
 			// case 154:
 				pillar = true;
 				break;
-			}
-
+			}*/
+			pillar = (nTrnShadowTable[bv] & TIF_L5_PILLAR) != 0;
+			horizArch = (nTrnShadowTable[bv] & TIF_L5_EAST_ARCH_GRATE) != 0;
+			vertArch = (nTrnShadowTable[bv] & TIF_L5_WEST_ARCH_GRATE) != 0;
 			if (horizArch) {
 				if (dungeon[i][j - 1] == 13) {
 					dungeon[i][j - 1] = 205;
@@ -709,7 +650,7 @@ static void DRLG_L5Shadows()
 					continue;
 				}
 				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST_END;
+				pillar = pillar && (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L5_WEST_WALL) == 0;
 				switch (dungeon[i - 1][j - 1]) {
 				case 13: replaceB = pillar ? 207 : 203; break;
 				case 2:  replaceB = pillar ? 71 : 80;   break;
@@ -728,7 +669,7 @@ static void DRLG_L5Shadows()
 				if (dungeon[i - 1][j] == 13) {
 					BYTE replace = dungeon[i - 1][j - 1];
 					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-					pillar = (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST_END;
+					pillar = (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L5_WEST_WALL) == 0;
 					if (replace == 13) {
 						replace = pillar ? 207 : 203;
 					} else if (replace == 2) {
@@ -767,9 +708,7 @@ static void DRLG_L1Shadows()
 			bool vertArch = false;
 			bool pillar = false;
 			bool largePillar = false;
-			horizArch = (automaptype[bv] & (MAF_EAST_ARCH | MAF_EAST_GRATE | MAF_EAST_DOOR)) != 0;
-			vertArch = (automaptype[bv] & (MAF_WEST_ARCH | MAF_WEST_GRATE)) != 0; // MAF_WEST_DOOR - not visible
-			switch (bv) {
+			/*switch (bv) {
 			case 5:
 				pillar = true;
 				break;
@@ -805,11 +744,15 @@ static void DRLG_L1Shadows()
 			// case 33:
 				pillar = true;
 				break;
-			}
+			}*/
+			largePillar = bv == 15;
+			pillar = (nTrnShadowTable[bv] & TIF_L1_PILLAR) != 0;
+			horizArch = (nTrnShadowTable[bv] & TIF_L1_EAST_ARCH_GRATE) != 0;
+			vertArch = (nTrnShadowTable[bv] & TIF_L1_WEST_ARCH_GRATE) != 0;
 			if (horizArch) {
 				BYTE replaceA; bool okB;
 				replaceA = dungeon[i][j - 1];
-				bool pillarC = i == DMAXX - 1 || ((automaptype[dungeon[i + 1][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i + 1][j - 1]] & MAF_TYPE) != MWT_NORTH && (automaptype[dungeon[i + 1][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST_END);
+				bool pillarC = i == DMAXX - 1 || (nTrnShadowTable[dungeon[i + 1][j - 1]] & TIF_L1_WEST_WALL) == 0;
 				// TODO: handle !pillarC
 				switch (replaceA) {
 				case 13:  replaceA = pillarC ? 140 : 141; okB = false; break;
@@ -886,7 +829,7 @@ static void DRLG_L1Shadows()
 					continue;
 				}
 				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-				pillar = pillar && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST_END;
+				pillar = pillar && (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L1_WEST_WALL) == 0;
 				switch (dungeon[i - 1][j - 1]) {
 				case 13: replaceB = pillar ? 143 : 159; break;
 				case 2:  replaceB = pillar ? 150 : 148; break;
@@ -906,7 +849,7 @@ static void DRLG_L1Shadows()
 				if (dungeon[i - 1][j] == 13) {
 					BYTE replace = dungeon[i - 1][j - 1];
 					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
-					pillar = (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH && (automaptype[dungeon[i][j - 1]] & MAF_TYPE) != MWT_NORTH_WEST_END;
+					pillar = (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L1_WEST_WALL) == 0;
 					if (replace == 13) {
 						replace = pillar ? 143 : 159;
 					} else if (replace == 2) {
@@ -2550,13 +2493,7 @@ void DRLG_L1InitTransVals()
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
 
-	const BYTE *floorTypes = L1FTYPES;
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT) {
-		floorTypes = L5FTYPES;
-	}
-#endif
-	DRLG_FloodTVal(floorTypes);
+	DRLG_FloodTVal();
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
 		DRLG_L5TransFix();

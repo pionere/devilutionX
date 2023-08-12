@@ -2081,6 +2081,7 @@ typedef struct LevelStruct {
 
 typedef struct LevelFileData {
 	const char* dAutomapData;
+	const char* dTileFlags;
 	const char* dSolidTable;
 	const char* dMicroFlags;
 	const char* dMicroCels;

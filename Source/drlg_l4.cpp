@@ -138,27 +138,6 @@ const BYTE L4BTYPES[138] = {
 	// clang-format on
 };
 /*
- * Specifies where the given tile ID should spread the room ID (transval).
- */
-const BYTE L4FTYPES[138] = {
-	// clang-format off
-	 0, 10, 12, 14, 10, 12, 15, 10, 12,  8,
-	 8,  8,  8, 10, 12,  8,  8,  8,  0,  0, // 10..
-	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 20..
-	 0, 15, 15,  0,  0,  0, 15, 15,  0, 15, // 30..
-	15, 15, 12,  0,  0,  3, 13, 15, 15, 15, // 40..
-	15, 15, 10, 10, 15, 15, 12, 12, 15, 15, // 50..
-	12, 12, 12, 10, 12, 10, 12, 10, 10, 12, // 60..
-	12, 15, 15, 14, 15, 15,  8,  8,  8,  8, // 70..
-	 8, 10, 12, 10, 15, 15, 15, 15, 15, 15, // 80..
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 90..
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, //100..
-	15, 15, 15, 15, 15, 15,  0,  0,  0,  0, //110..
-	 0,  0,  0,  0,  0,  0,  0,  0,  8,  8, //120..
-	12, 12, 12, 12, 12, 12,  0,  0,         //130..
-	// clang-format on
-};
-/*
  * Miniset replacement to add shadows.
  * New dungeon values: 47 48   54 55   58 59 60   61 62 76 129 130 131 132 133 134 135
  */
@@ -170,7 +149,7 @@ static void DRLG_L4Shadows()
 	for (x = 1; x < DMAXY; x++) {
 		for (y = 1; y < DMAXY; y++) {
 			bv = dungeon[x][y];
-			if (bv == 3 || bv == 4 || bv == 8 || bv == 15) {
+			if (nTrnShadowTable[bv] & TIF_L4_PILLAR) {
 				// 6, 0,
 				// 6, 3/4/8/15,  search
 
@@ -194,7 +173,7 @@ static void DRLG_L4Shadows()
 					continue;
 				}
 				dungeon[x - 1][y - 1] = replaceB;
-			} else if (bv == 53) {
+			} else if (nTrnShadowTable[bv] & TIF_L4_WEST_ARCH) {
 				// 6, 0,
 				// 6, 53,  search
 
@@ -218,7 +197,7 @@ static void DRLG_L4Shadows()
 					continue;
 				}
 				dungeon[x - 1][y - 1] = replaceB;
-			} else if (bv == 56) {
+			} else if (nTrnShadowTable[bv] & TIF_L4_EAST_ARCH) {
 				// 6, 6, 0,
 				// 0, 50, 56,  search
 
@@ -1895,7 +1874,7 @@ void DRLG_L4InitTransVals()
 		}
 	}
 
-	DRLG_FloodTVal(L4FTYPES);
+	DRLG_FloodTVal();
 	DRLG_L4TransFix();
 }
 
