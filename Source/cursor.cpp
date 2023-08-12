@@ -270,10 +270,8 @@ void CheckTownPortal()
 void CheckCursMove()
 {
 	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
-	int pcurstemp; // Previously highlighted monster
 	bool flipflag, flipx, flipy;
 
-	pcurstemp = pcursmonst;
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
