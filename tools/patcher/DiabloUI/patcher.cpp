@@ -794,6 +794,26 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 				}
 			}
 		}
+		// use base tiles and let the engine decorate the walls
+		for (int y = 0; y < 12; y++) {
+			for (int x = 0; x < 11; x++) {
+				if (y == 1 && (x == 8 || x == 9)) {
+					continue; // skip protected tiles
+				}
+				uint16_t wv = SwapLE16(lm[2 + x + y * 11]);
+				if (wv >= 63 && wv <= 70) {
+					if (wv == 63 || wv == 65 || wv == 67 || wv == 68) {
+						wv = 1;
+					} else {
+						wv = 2;
+					}
+					lm[2 + x + y * 11] = SwapLE16(wv);
+				}
+			}
+		}
+		// remove shadow to enable optional connection
+		lm[2 + 0 + 10 * 11] = 0;
+		lm[2 + 0 + 11 * 11] = 0;
 		// ensure the changing tiles are reserved
 		lm[2 + 11 * 12 + 9 + 1 * 11] = SwapLE16(3);
 		lm[2 + 11 * 12 + 9 + 2 * 11] = SwapLE16(3);
@@ -901,6 +921,20 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 		lm[2 + 5 + 5 * 11] = SwapLE16(30);
 		// remove partial shadow
 		lm[2 + 5 + 0 * 11] = SwapLE16(50);
+		// remove shadow to enable optional connection
+		lm[2 + 1 + 9 * 11] = 0;
+		lm[2 + 1 + 10 * 11] = 0;
+		// use base tiles and let the engine decorate the walls
+		lm[2 + 3 + 10 * 11] = SwapLE16(2);
+		lm[2 + 9 + 8 * 11] = SwapLE16(2);
+		lm[2 + 8 + 9 * 11] = SwapLE16(1);
+		lm[2 + 6 + 5 * 11] = SwapLE16(1);
+		lm[2 + 5 + 6 * 11] = SwapLE16(2);
+		lm[2 + 10 + 7 * 11] = SwapLE16(1);
+		lm[2 + 2 + 1 * 11] = SwapLE16(1);
+		lm[2 + 1 + 2 * 11] = SwapLE16(2);
+		lm[2 + 0 + 3 * 11] = SwapLE16(1);
+		lm[2 + 10 + 3 * 11] = SwapLE16(1);
 		// ensure the changing tiles are reserved
 		// - SW-wall
 		lm[2 + 11 * 11 + 4 + 10 * 11] = SwapLE16(3);
@@ -1032,53 +1066,12 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 				}
 			}
 		}
-		// ensure the changing tiles are reserved
-		// - SW-wall
-		for (int y = 7; y < 9; y++) {
-			for (int x = 2; x < 7; x++) {
+		// ensure the box is not connected to the rest of the dungeon and the changing tiles are reserved + protect inner tiles from decoration
+		for (int y = 0; y < 9; y++) {
+			for (int x = 0; x < 9; x++) {
 				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
 			}
 		}
-		// - NE-wall
-		for (int y = 2; y < 7; y++) {
-			for (int x = 0; x < 2; x++) {
-				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
-			}
-		}
-		// - NW-wall
-		for (int y = 0; y < 2; y++) {
-			for (int x = 2; x < 7; x++) {
-				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
-			}
-		}
-		// - SE-wall
-		for (int y = 2; y < 7; y++) {
-			for (int x = 7; x < 9; x++) {
-				lm[2 + 9 * 9 + x + y * 9] = SwapLE16(3);
-			}
-		}
-		// protect tiles with monsters/objects from decoration
-		lm[2 + 9 * 9 + 2 + 2 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 2 + 3 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 2 + 4 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 2 + 6 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 3 + 3 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 3 + 4 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 3 + 5 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 3 + 6 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 4 + 2 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 4 + 3 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 4 + 4 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 4 + 5 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 4 + 6 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 5 + 2 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 5 + 3 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 5 + 4 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 5 + 5 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 6 + 2 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 6 + 4 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 6 + 5 * 9] = SwapLE16(3);
-		lm[2 + 9 * 9 + 6 + 6 * 9] = SwapLE16(3);
 		// remove monsters, objects, items
 		*fileSize = (2 + 9 * 9 + 9 * 9 * 2 * 2) * 2;
 	} break;
