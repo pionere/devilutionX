@@ -681,16 +681,11 @@ static void DrawAutomapText()
 /**
  * @brief Renders the automap on screen.
  */
-void DrawAutomap()
+static void DrawAutomapContent()
 {
 	int sx, sy, mapx, mapy;
 	int i, j, cells;
 	unsigned d64 = AmLine64;
-
-	if (!_gbAutomapData) {
-		DrawAutomapText();
-		return;
-	}
 
 	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
 
@@ -807,8 +802,16 @@ void DrawAutomap()
 	}
 	//if (AutoMapShowItems)
 	//	SearchAutomapItem();
-	DrawAutomapText();
 	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
+}
+
+void DrawAutomap()
+{
+	if (_gbAutomapData) {
+		DrawAutomapContent();
+	}
+
+	DrawAutomapText();
 }
 
 /**

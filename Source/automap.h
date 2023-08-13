@@ -75,6 +75,9 @@ void AutomapZoomIn();
  * @brief Decreases the zoom level of the automap.
  */
 void AutomapZoomOut();
+/**
+ * @brief Renders the automap and the info text on screen.
+ */
 void DrawAutomap();
 /**
  * @brief Marks the given coordinate as within view on the automap.
