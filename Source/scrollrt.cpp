@@ -1479,7 +1479,7 @@ static void DrawGame()
 static void DrawView()
 {
 	DrawGame();
-	if (gbAutomapflag) {
+	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}
 	DrawLifeFlask();

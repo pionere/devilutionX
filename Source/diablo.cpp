@@ -821,7 +821,7 @@ static void ClearUI()
 	ClearPanels();
 	//gamemenu_off();
 	assert(!gbQtextflag);
-	gbAutomapflag = false;
+	gbAutomapflag = AMM_NONE;
 	msgdelay = 0;
 	gabPanbtn[PANBTN_MAINMENU] = false;
 	//doom_close();
@@ -1078,12 +1078,12 @@ static void PressKey(int vkey)
 		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapZoomIn();
 		}
 		break;
 	case ACT_MAPZ_OUT:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapZoomOut();
 		}
 		break;
@@ -1097,7 +1097,7 @@ static void PressKey(int vkey)
 			QuestlogUp();
 		} else if (gbHelpflag) {
 			HelpScrollUp();
-		} else if (gbAutomapflag) {
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapUp();
 		}
 		break;
@@ -1108,17 +1108,17 @@ static void PressKey(int vkey)
 			QuestlogDown();
 		} else if (gbHelpflag) {
 			HelpScrollDown();
-		} else if (gbAutomapflag) {
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapDown();
 		}
 		break;
 	case ACT_LEFT:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapLeft();
 		}
 		break;
 	case ACT_RIGHT:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
 		}
 		break;

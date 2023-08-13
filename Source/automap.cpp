@@ -13,10 +13,18 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MAP_SCALE_NORMAL 64
 #define MAP_SCALE_MIN 32
 
+#define MAP_MINI_WIDTH 160
+#define MAP_MINI_HEIGHT 120
+
+static_assert(MAP_SCALE_MAX <= UCHAR_MAX, "Mapscale values are stored in one byte.");
 /* Maps from tile_id to automap type (_automap_types + _automap_flags). */
 uint16_t automaptype[MAXTILES + 1];
-/** Specifies whether the automap is enabled. */
-bool gbAutomapflag;
+/** Specifies whether the automap is enabled (_automap_mode). */
+BYTE gbAutomapflag = AMM_NONE;
+/* The scale of the mini-automap. */
+BYTE MiniMapScale = MAP_SCALE_MIN;
+/* The scale of the normal-automap. */
+BYTE NormalMapScale = MAP_SCALE_NORMAL;
 /** Specifies whether the automap-data is valid. */
 bool _gbAutomapData;
 /** Specifies the scale of the automap. */
@@ -43,7 +51,7 @@ unsigned AmLine16;
  */
 void InitAutomapOnce()
 {
-	gbAutomapflag = false;
+	gbAutomapflag = AMM_NONE;
 	AutoMapScale = MAP_SCALE_NORMAL;
 	InitAutomapScale();
 	// these values are initialized by InitAutomap
@@ -231,7 +239,7 @@ void InitLvlAutomap()
 
 bool IsAutomapActive()
 {
-	return gbAutomapflag && _gbAutomapData;
+	return gbAutomapflag != AMM_NONE && _gbAutomapData;
 }
 
 /**
@@ -239,8 +247,18 @@ bool IsAutomapActive()
  */
 void ToggleAutomap()
 {
-	gbAutomapflag = !gbAutomapflag;
-	//if (gbAutomapflag) {
+	gbAutomapflag++;
+	if (gbAutomapflag == NUM_AMMS) {
+		gbAutomapflag = AMM_NONE;
+	} else if (gbAutomapflag == AMM_MINI) {
+		AutoMapScale = MiniMapScale;
+	} else {
+		AutoMapScale = NormalMapScale;
+	}
+	//if (gbAutomapflag != AMM_NONE) {
+		InitAutomapScale();
+	//}
+	//if (gbAutomapflag != AMM_NONE) {
 		AutoMapXOfs = 0;
 		AutoMapYOfs = 0;
 	//}
@@ -288,6 +306,12 @@ void AutomapZoomIn()
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
 		AmLine16 = AmLine32 >> 1;
+		if (gbAutomapflag == AMM_MINI) {
+			MiniMapScale = AutoMapScale;
+		} else { // if (gbAutomapflag == AMM_NORMAL) {
+			// assert(gbAutomapflag != AMM_NONE);
+			NormalMapScale = AutoMapScale;
+		}
 	}
 }
 
@@ -301,6 +325,12 @@ void AutomapZoomOut()
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
 		AmLine16 = AmLine32 >> 1;
+		if (gbAutomapflag == AMM_MINI) {
+			MiniMapScale = AutoMapScale;
+		} else { // if (gbAutomapflag == AMM_NORMAL) {
+			// assert(gbAutomapflag != AMM_NONE);
+			NormalMapScale = AutoMapScale;
+		}
 	}
 }
 
@@ -590,8 +620,15 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	//x = (p->_pxoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + (px - py) * d16 + SCREEN_WIDTH / 2 + SCREEN_X;
 	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
 
-	x = ((p->_pxoff + ScrollInfo._sxoff) * (int)AutoMapScale / 128 >> 1) + (px - py) * d16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	y = ((p->_pyoff + ScrollInfo._syoff) * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
+	if (gbAutomapflag == AMM_NORMAL) {
+		x = PANEL_CENTERX(0);
+		y = PANEL_CENTERY(0);
+	} else {
+		x = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
+		y = SCREEN_Y + MAP_MINI_HEIGHT / 2;
+	}
+	x += ((p->_pxoff + ScrollInfo._sxoff) * (int)AutoMapScale / 128 >> 1) + (px - py) * d16;
+	y += ((p->_pyoff + ScrollInfo._syoff) * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1);
 
 	//y -= (d16 >> 1);
 
@@ -718,7 +755,11 @@ static void DrawAutomapContent()
 
 	// find an odd number of tiles which fits to the width
 	// assert(SCREEN_WIDTH >= d64);
-	cells = 2 * ((SCREEN_WIDTH - d64) / (2 * d64)) + 1;
+	if (gbAutomapflag == AMM_NORMAL)
+		cells = SCREEN_WIDTH;
+	else
+		cells = MAP_MINI_WIDTH;
+	cells = 2 * ((cells - d64) / (2 * d64)) + 1;
 	// make sure it fits to height as well
 	// assert(cells < 2 * (VIEWPORT_HEIGHT - (d64 >> 1)) / (2 * (d64 >> 1))) + 1);
 
@@ -735,8 +776,15 @@ static void DrawAutomapContent()
 	//mapy -= 1;          // mapy - (ycells / 2 - xcells / 2);
 
 	// calculate the center of the tile on the screen
-	sx = SCREEN_WIDTH / 2 + SCREEN_X - d64 * (cells >> 1);
-	sy = VIEWPORT_HEIGHT / 2 + SCREEN_Y - (d64 >> 1) * (cells >> 1);
+	if (gbAutomapflag == AMM_NORMAL) {
+		sx = PANEL_CENTERX(0);
+		sy = PANEL_CENTERY(0);
+	} else {
+		sx = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
+		sy = SCREEN_Y + MAP_MINI_HEIGHT / 2;
+	}
+	sx -= d64 * (cells >> 1);
+	sy -= (d64 >> 1) * (cells >> 1);
 	/*if (cells & 1) {
 		sy -= (d64 >> 1);
 	} else {

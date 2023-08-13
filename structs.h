@@ -1146,7 +1146,10 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhActiveWindows[NUM_WNDS];
 	BYTE vhTownWarps;
 	BYTE vhWaterDone;
-	LE_UINT32 vhAutoMapScale;
+	BYTE vhAutoMapScale;
+	BYTE vhMiniMapScale;
+	BYTE vhNormalMapScale;
+	BYTE vhAlign;
 	LE_INT32 vhAutoMapXOfs;
 	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;

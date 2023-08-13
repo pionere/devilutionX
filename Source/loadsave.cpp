@@ -818,6 +818,8 @@ void LoadGame()
 	gbWaterDone = ghs->vhWaterDone;
 
 	AutoMapScale = ghs->vhAutoMapScale;
+	MiniMapScale = ghs->vhMiniMapScale;
+	NormalMapScale = ghs->vhNormalMapScale;
 	AutoMapXOfs = ghs->vhAutoMapXOfs;
 	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
@@ -1636,6 +1638,8 @@ void SaveGame()
 	ghs->vhWaterDone = gbWaterDone;
 
 	ghs->vhAutoMapScale = AutoMapScale;
+	ghs->vhMiniMapScale = MiniMapScale;
+	ghs->vhNormalMapScale = NormalMapScale;
 	ghs->vhAutoMapXOfs = AutoMapXOfs;
 	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
