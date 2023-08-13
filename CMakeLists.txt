@@ -506,10 +506,6 @@ set(devilutionx_SRCS
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp)
 
-if(IOS)
-  list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
-endif()
-
 if(NOT NONET)
   list(APPEND devilutionx_SRCS
     Source/dvlnet/tcp_client.cpp
@@ -519,6 +515,10 @@ if(NOT NONET)
     Source/dvlnet/protocol_zt.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
+endif()
+
+if(IOS)
+  list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
 endif()
 
 if(NINTENDO_SWITCH)
@@ -670,6 +670,23 @@ if(USE_PATCH)
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
     tools/patcher/utils/soundsample.cpp
     tools/patcher/utils/thread.cpp)
+
+  if(IOS)
+    list(APPEND devil_patcher_SRCS tools/patcher/platform/ios/ios_paths.m)
+  endif()
+
+  if(NINTENDO_SWITCH)
+    list(APPEND devilutionx_SRCS
+      Source/platform/switch/docking.cpp
+      Source/platform/switch/romfs.cpp)
+  endif()
+
+  if(NINTENDO_3DS)
+    list(APPEND devilutionx_SRCS
+      Source/platform/ctr/system.cpp
+      Source/platform/ctr/display.cpp
+      Source/platform/ctr/messagebox.cpp)
+  endif()
 
   if(APPLE)
     add_executable(${DEVIL_PATCHER}

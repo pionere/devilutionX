@@ -2,8 +2,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include "platform/ctr/cfgu_service.hpp
-#include "platform/ctr/random.hpp"
-#include "platform/ctr/sockets.hpp"
 #include "platform/ctr/system.h"
 
 bool shouldDisableBacklight;
@@ -111,7 +109,7 @@ void ctr_sys_init()
 	n3ds_socInit();
 	atexit([]() { n3ds_socExit(); });
 
-	randombytes_ctrrandom_init();
+	// randombytes_ctrrandom_init();
 	atexit([]() {
 		if (psGetSessionHandle())
 			psExit();
