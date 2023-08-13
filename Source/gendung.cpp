@@ -1017,7 +1017,7 @@ void DRLG_FloodTVal()
 	// prepare the propagation-directions
 	for (i = DMAXX - 1; i >= 0; i--) {
 		for (j = DMAXY - 1; j >= 0; j--) {
-			BYTE tvm = nTrnShadowTable[drlg.transvalMap[i][j]] & TIF_FLOOR_TYPE;
+			BYTE tvm = nTrnShadowTable[drlg.transvalMap[i][j]];
 			BYTE tpm;
 			// 1. subtile
 			if (tvm & TIF_FLOOR_00) {
