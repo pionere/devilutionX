@@ -775,7 +775,7 @@ static void DrawAutomapContent()
 		mapy += 2;
 		x = sx + (d64 >> 1);
 		sy += (d64 >> 2);
-		for (j = 1; j < cells; j++) { // foreach xcells 2.
+		for (j = 0; j < cells; j++) { // foreach xcells 2.
 			SHIFT_GRID(mapx, mapy, 2, 0);
 			uint16_t maptype = GetAutomapType(mapx, mapy, true);
 			if (maptype != MWT_NONE)
@@ -783,7 +783,7 @@ static void DrawAutomapContent()
 			x += d64;
 		}
 		// Return to start of row
-		SHIFT_GRID(mapx, mapy, 2 * -(cells - 1), 0);
+		SHIFT_GRID(mapx, mapy, 2 * -cells, 0);
 
 		mapx += 2;
 		sy += (d64 >> 2);
