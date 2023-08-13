@@ -9,6 +9,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MAP_SCALE_MAX 128
+#define MAP_SCALE_NORMAL 64
+#define MAP_SCALE_MIN 32
+
 /* Maps from tile_id to automap type (_automap_types + _automap_flags). */
 uint16_t automaptype[MAXTILES + 1];
 /** Specifies whether the automap is enabled. */
@@ -34,16 +38,13 @@ unsigned AmLine16;
 // color for items on automap
 #define COLOR_ITEM (PAL8_BLUE + 1)
 
-#define MAP_SCALE_MAX 128
-#define MAP_SCALE_MIN 64
-
 /**
  * @brief Initializes the automap configuration.
  */
 void InitAutomapOnce()
 {
 	gbAutomapflag = false;
-	AutoMapScale = MAP_SCALE_MIN;
+	AutoMapScale = MAP_SCALE_NORMAL;
 	InitAutomapScale();
 	// these values are initialized by InitAutomap
 	//_gbAutomapData = false;
