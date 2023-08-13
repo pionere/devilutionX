@@ -502,15 +502,12 @@ set(devilutionx_SRCS
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp
+  Source/utils/sdl2_to_1_2_backports.cpp
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp)
 
 if(IOS)
   list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
-endif()
-
-if(USE_SDL1)
-  list(APPEND devilutionx_SRCS Source/utils/sdl2_to_1_2_backports.cpp)
 endif()
 
 if(NOT NONET)
@@ -670,6 +667,7 @@ if(USE_PATCH)
     tools/patcher/storm/storm.cpp
     tools/patcher/utils/display.cpp
     tools/patcher/utils/paths.cpp
+    tools/patcher/utils/sdl2_to_1_2_backports.cpp
     tools/patcher/utils/soundsample.cpp
     tools/patcher/utils/thread.cpp)
 
