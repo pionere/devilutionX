@@ -981,6 +981,38 @@ jobs:
         echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
         echo '[hellmini-nightly-x86.zip](../../releases/download/devilx-nightly/hellmini-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support'                                         >> RELEASE_NOTE.md
         echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                     >> RELEASE_NOTE.md
+        echo ''                                    >> RELEASE_NOTE.md
+        echo '### **Diablo** using patched assets' >> RELEASE_NOTE.md
+        echo '_Filename_ | _Description_'          >> RELEASE_NOTE.md
+        echo '------------ | -------------'        >> RELEASE_NOTE.md
+        echo '[diablo-nightly-androidp.apk](../../releases/download/devilx-nightly/diablo-nightly-androidp.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
+        echo '[diablo-nightly-lepusp.opk](../../releases/download/devilx-nightly/diablo-nightly-lepusp.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-retrofwp.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofwp.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
+        echo '[diablo-nightly-rg350p.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350p.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-ps4p.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4p.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-macp.dmg](../../releases/download/devilx-nightly/diablo-nightly-macp.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-iosp.ipa](../../releases/download/devilx-nightly/diablo-nightly-iosp.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
+        echo ''                                              >> RELEASE_NOTE.md
+        echo '### **Diablo: Hellfire** using patched assets' >> RELEASE_NOTE.md
+        echo '_Filename_ | _Description_'                    >> RELEASE_NOTE.md
+        echo '------------ | -------------'                  >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-androidp.apk](../../releases/download/devilx-nightly/hellfire-nightly-androidp.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-lepusp.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepusp.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-retrofwp.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofwp.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-rg350p.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350p.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-ps4p.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4p.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-macp.dmg](../../releases/download/devilx-nightly/hellfire-nightly-macp.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-iosp.ipa](../../releases/download/devilx-nightly/hellfire-nightly-iosp.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
+        echo '[hellmini-nightly-x86.zip](../../releases/download/devilx-nightly/hellmini-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support'                                         >> RELEASE_NOTE.md
+        echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                     >> RELEASE_NOTE.md
 
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
@@ -1034,6 +1066,20 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
           ${{github.workspace}}/hellmini-nightly-x86.zip
           ${{github.workspace}}/hellsrv-nightly-x86.zip
+          ${{github.workspace}}/diablo-nightly-androidp.apk
+          ${{github.workspace}}/diablo-nightly-lepusp.opk
+          ${{github.workspace}}/diablo-nightly-retrofwp.opk
+          ${{github.workspace}}/diablo-nightly-rg350p.opk
+          ${{github.workspace}}/diablo-nightly-ps4p.pkg
+          ${{github.workspace}}/diablo-nightly-macp.dmg
+          ${{github.workspace}}/diablo-nightly-iosp.ipa
+          ${{github.workspace}}/hellfire-nightly-androidp.apk
+          ${{github.workspace}}/hellfire-nightly-lepusp.opk
+          ${{github.workspace}}/hellfire-nightly-retrofwp.opk
+          ${{github.workspace}}/hellfire-nightly-rg350p.opk
+          ${{github.workspace}}/hellfire-nightly-ps4p.pkg
+          ${{github.workspace}}/hellfire-nightly-macp.dmg
+          ${{github.workspace}}/hellfire-nightly-iosp.ipa
         fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
