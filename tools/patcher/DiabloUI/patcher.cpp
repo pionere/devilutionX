@@ -2774,7 +2774,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nBlockTable(159, false);
 		nMissileTable(148, true);
 		nBlockTable(148, true);
-		nSolidTable(148, true);
 	} break;
 	case FILE_CRYPT_AMP:
 	{	// patch dAutomapData - L5.AMP

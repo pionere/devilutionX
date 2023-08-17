@@ -2067,7 +2067,6 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(77 - 1) * 4 + 1] = SwapLE16(26 - 1); // 22
 	pTiles[(9 - 1) * 4 + 2] = SwapLE16(23 - 1);  // 35
 	pTiles[(50 - 1) * 4 + 3] = SwapLE16(12 - 1); // 165
-
 	// use common subtile
 	pTiles[(13 - 1) * 4 + 1] = SwapLE16(42 - 1); // 46
 	pTiles[(13 - 1) * 4 + 2] = SwapLE16(39 - 1); // 47
@@ -2204,7 +2203,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(18 - 1) * 4 + 1] = SwapLE16(99 - 1);
 	pTiles[(18 - 1) * 4 + 2] = SwapLE16(155 - 1);
 	pTiles[(18 - 1) * 4 + 3] = SwapLE16(162 - 1);
-	// - pillar tile for a pillar
+	// - corner tile for a pillar
 	pTiles[(34 - 1) * 4 + 0] = SwapLE16(21 - 1);
 	pTiles[(34 - 1) * 4 + 1] = SwapLE16(26 - 1);
 	pTiles[(34 - 1) * 4 + 2] = SwapLE16(148 - 1);
@@ -2275,7 +2274,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(72 - 1) * 4 + 1] = SwapLE16(56 - 1); // 10 make the back of the stairs non-walkable
 	pTiles[(72 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 250
 	pTiles[(72 - 1) * 4 + 2] = SwapLE16(11 - 1); // 251
-	pTiles[(76 - 1) * 4 + 1] = SwapLE16(10 - 1); // 265
+	// pTiles[(76 - 1) * 4 + 1] = SwapLE16(10 - 1); // 265
 	// pTiles[(158 - 1) * 4 + 0] = SwapLE16(9 - 1);  // 250
 	// pTiles[(158 - 1) * 4 + 1] = SwapLE16(56 - 1); // 10 make the back of the stairs non-walkable
 	// pTiles[(158 - 1) * 4 + 2] = SwapLE16(11 - 1); // 554

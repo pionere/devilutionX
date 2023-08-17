@@ -2696,10 +2696,10 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(77, 8);
 	ReplaceMcr(77, 0, 206, 0);
 	ReplaceMcr(77, 1, 206, 1);
-	ReplaceMcr(75, 0, 204, 0);
-	ReplaceMcr(75, 1, 204, 1);
-	ReplaceMcr(75, 2, 204, 2);
-	ReplaceMcr(75, 4, 204, 4);
+	// ReplaceMcr(75, 0, 204, 0);
+	// ReplaceMcr(75, 1, 204, 1);
+	// ReplaceMcr(75, 2, 204, 2);
+	// ReplaceMcr(75, 4, 204, 4);
 	ReplaceMcr(91, 0, 204, 0);
 	ReplaceMcr(91, 2, 204, 2);
 	ReplaceMcr(91, 4, 204, 4);
@@ -2718,10 +2718,10 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(80, 1, 209, 1);
 	ReplaceMcr(80, 3, 209, 3);
 	ReplaceMcr(80, 5, 209, 5);
-	ReplaceMcr(79, 0, 208, 0);
-	ReplaceMcr(79, 1, 208, 1);
-	ReplaceMcr(79, 3, 208, 3);
-	ReplaceMcr(79, 5, 208, 5);
+	// ReplaceMcr(79, 0, 208, 0);
+	// ReplaceMcr(79, 1, 208, 1);
+	// ReplaceMcr(79, 3, 208, 3);
+	// ReplaceMcr(79, 5, 208, 5);
 	ReplaceMcr(93, 1, 208, 1);
 	ReplaceMcr(93, 3, 208, 3);
 	ReplaceMcr(93, 5, 208, 5);
@@ -2820,6 +2820,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(623, 1, 638, 1);
 	ReplaceMcr(636, 0, 626, 0);
 	ReplaceMcr(636, 1, 638, 1);
+	// fix automap of the entrance I.
+	Blk2Mcr(148, 0);
+	Blk2Mcr(148, 1);
 	// reuse subtiles
 	ReplaceMcr(631, 1, 626, 1);
 	ReplaceMcr(149, 4, 1, 4);
@@ -3242,7 +3245,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(1, 8, 95, 8);  // lost details
 	ReplaceMcr(21, 8, 95, 8); // lost details
 	ReplaceMcr(36, 8, 95, 8); // lost details
-	ReplaceMcr(75, 8, 95, 8);
+	// ReplaceMcr(75, 8, 95, 8);
 	ReplaceMcr(83, 8, 95, 8); // lost details
 	ReplaceMcr(91, 8, 95, 8);
 	ReplaceMcr(99, 8, 95, 8);  // lost details
@@ -3297,7 +3300,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(462, 6, 119, 6); // lost details
 	ReplaceMcr(603, 6, 119, 6); // lost details
 	ReplaceMcr(611, 6, 119, 6); // lost details
-	ReplaceMcr(75, 6, 99, 6);   // lost details
+	// ReplaceMcr(75, 6, 99, 6);   // lost details
 	ReplaceMcr(91, 6, 99, 6);   // lost details
 	ReplaceMcr(115, 6, 99, 6);  // lost details
 	ReplaceMcr(204, 6, 99, 6);  // lost details
@@ -3518,7 +3521,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(559, 0, 272, 0); // lost details
 	ReplaceMcr(5, 9, 13, 9);    // lost details
 	ReplaceMcr(25, 9, 13, 9);   // lost details
-	ReplaceMcr(79, 9, 13, 9);
+	// ReplaceMcr(79, 9, 13, 9);
 	ReplaceMcr(93, 9, 13, 9);
 	ReplaceMcr(151, 9, 13, 9);
 	ReplaceMcr(208, 9, 13, 9);
@@ -3546,7 +3549,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(5, 7, 13, 7);
 	ReplaceMcr(25, 7, 13, 7); // 25 would be better?
 	ReplaceMcr(49, 7, 13, 7);
-	ReplaceMcr(79, 7, 13, 7);
+	// ReplaceMcr(79, 7, 13, 7);
 	ReplaceMcr(93, 7, 13, 7);
 	ReplaceMcr(107, 7, 13, 7);
 	ReplaceMcr(111, 7, 13, 7);
@@ -3904,7 +3907,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(649, 1);
 	Blk2Mcr(650, 0);
 	const int unusedSubtiles[] = {
-		8, 10, 11, 16, 19, 20, 23, 24, 26, 28, 30, 35, 38, 40, 43, 44, 50, 52, 56, 76, 78, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 148, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 373, 381, 390, 472, 489, 490, 540, 560, 564, 640, 643, 648
+		8, 10, 11, 16, 19, 20, 23, 24, 26, 28, 30, 35, 38, 40, 43, 44, 50, 52, 56, 75, 76, 78, 79, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 373, 381, 390, 472, 489, 490, 540, 560, 564, 640, 643, 648
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -3927,9 +3930,6 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(58 - 1) * 4 + 3] = SwapLE16(66 - 1); // 48
 	pTiles[(53 - 1) * 4 + 1] = SwapLE16(148 - 1); // 130
 	pTiles[(53 - 1) * 4 + 3] = SwapLE16(148 - 1); // 130
-	// use common subtiles of doors
-	pTiles[(71 - 1) * 4 + 2] = SwapLE16(206 - 1);
-	pTiles[(72 - 1) * 4 + 2] = SwapLE16(206 - 1);
 	// use common subtiles
 	pTiles[(4 - 1) * 4 + 1] = SwapLE16(6 - 1); // 14
 	pTiles[(14 - 1) * 4 + 1] = SwapLE16(6 - 1);
@@ -3943,6 +3943,11 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(127 - 1) * 4 + 2] = SwapLE16(4 - 1);  // 372
 	pTiles[(132 - 1) * 4 + 2] = SwapLE16(15 - 1); // 388
 	pTiles[(156 - 1) * 4 + 2] = SwapLE16(31 - 1); // 468
+	// - doors
+	pTiles[(25 - 1) * 4 + 0] = SwapLE16(204 - 1); // 75
+	pTiles[(26 - 1) * 4 + 0] = SwapLE16(208 - 1); // 79
+	// pTiles[(71 - 1) * 4 + 2] = SwapLE16(206 - 1);
+	// pTiles[(72 - 1) * 4 + 2] = SwapLE16(206 - 1);
 	// use better subtiles
 	// - increase glow
 	pTiles[(96 - 1) * 4 + 3] = SwapLE16(293 - 1); // 279
@@ -4034,11 +4039,11 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(86 - 1) * 4 + 2] = SwapLE16(623 - 1);
 	pTiles[(86 - 1) * 4 + 3] = SwapLE16(627 - 1);
 
-	pTiles[(87 - 1) * 4 + 0] = SwapLE16(79 - 1); // copy from tile 26
+	pTiles[(87 - 1) * 4 + 0] = SwapLE16(208 - 1); // copy from tile 26
 	pTiles[(87 - 1) * 4 + 1] = SwapLE16(80 - 1);
 	pTiles[(87 - 1) * 4 + 2] = SwapLE16(623 - 1);
 	pTiles[(87 - 1) * 4 + 3] = SwapLE16(627 - 1);
-	pTiles[(88 - 1) * 4 + 0] = SwapLE16(79 - 1); // copy from tile 26
+	pTiles[(88 - 1) * 4 + 0] = SwapLE16(208 - 1); // copy from tile 26
 	pTiles[(88 - 1) * 4 + 1] = SwapLE16(80 - 1);
 	pTiles[(88 - 1) * 4 + 2] = SwapLE16(631 - 1);
 	pTiles[(88 - 1) * 4 + 3] = SwapLE16(627 - 1);

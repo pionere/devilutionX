@@ -656,7 +656,6 @@ void InitLvlDungeon()
 		nBlockTable[159] = false;
 		nMissileTable[148] = true;
 		nBlockTable[148] = true;
-		nSolidTable[148] = true;
 		// patch dMegaTiles - L5.TIL
 		// - fix automap of the entrance II.
 		pTiles[52][0] = pTiles[23][0];
