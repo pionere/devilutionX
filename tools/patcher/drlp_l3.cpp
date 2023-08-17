@@ -3886,6 +3886,19 @@ static BYTE* patchNestFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 /* 45 */{ 334 - 1, 0, MET_TRANSPARENT }, // fix glitch
 /* 46 */{ 217 - 1, 0, MET_TRANSPARENT },
 /* 47 */{ 207 - 1, 0, MET_TRANSPARENT },
+
+/* 48 */{ 24 - 1, 7, -1 },               // merge subtiles
+/* 49 */{ 22 - 1, 4, MET_TRANSPARENT },
+/* 50 */{ 22 - 1, 6, MET_TRANSPARENT },
+/* 51 */{ 24 - 1, 6, -1 },
+/* 52 */{ 23 - 1, 5, MET_TRANSPARENT },
+/* 53 */{ 23 - 1, 7, MET_TRANSPARENT },
+/* 54 */{ 16 - 1, 7, -1 },
+/* 55 */{ 14 - 1, 4, MET_TRANSPARENT },
+/* 56 */{ 14 - 1, 6, MET_TRANSPARENT },
+/* 57 */{  8 - 1, 6, -1 },
+/* 58 */{  7 - 1, 5, MET_TRANSPARENT },
+/* 59 */{  7 - 1, 7, MET_TRANSPARENT },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -4590,6 +4603,114 @@ static BYTE* patchNestFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		gpBuffer[addr +  0 + 22 * BUFFER_WIDTH] = 125;
 		gpBuffer[addr +  1 + 16 * BUFFER_WIDTH] = 125;
 		gpBuffer[addr +  1 + 17 * BUFFER_WIDTH] = 125;
+	}
+
+	// move pixels to 22[4] from 24[7]
+	for (int i = 49; i < 50; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (48 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (48 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 24[7]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 22[6] from 24[7]
+	for (int i = 50; i < 51; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (48 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (48 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 24[7]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+
+	// move pixels to 23[5] from 24[6]
+	for (int i = 52; i < 53; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (51 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (51 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 24[6]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 23[7] from 24[6]
+	for (int i = 53; i < 54; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (51 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (51 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 24[6]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+
+	// move pixels to 23[5] from 16[7]
+	for (int i = 55; i < 56; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (54 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (54 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 16[7]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 23[7] from 16[7]
+	for (int i = 56; i < 57; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (54 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (54 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 16[7]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+
+	// move pixels to 7[5] from 8[6]
+	for (int i = 58; i < 59; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (57 / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * (57 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 8[6]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
+	}
+	// move pixels to 7[7] from 8[6]
+	for (int i = 59; i < 60; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * (57 / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * (57 % DRAW_HEIGHT)) * BUFFER_WIDTH; // 8[6]
+				BYTE color = gpBuffer[addr2];
+				if (color != TRANS_COLOR) {
+					gpBuffer[addr] = color;
+				}
+			}
+		}
 	}
 
 	// create the new CEL file
@@ -5440,6 +5561,8 @@ void DRLP_L6_PatchMin(BYTE* buf)
 	// fix glitch
 	ReplaceMcr(155, 6, 159, 6);
 	ReplaceMcr(175, 6, 159, 6);
+	ReplaceMcr(14, 6, 22, 6);
+	ReplaceMcr(14, 7, 22, 7);
 	// - by patchNestWall2Cel
 	ReplaceMcr(8, 5, 4, 5);
 
@@ -5457,16 +5580,20 @@ void DRLP_L6_PatchMin(BYTE* buf)
 
 	// redraw corner tile
 	ReplaceMcr(1, 6, 100, 6);
+	ReplaceMcr(4, 4, 29, 2);
 	ReplaceMcr(12, 4, 29, 2);
 	ReplaceMcr(12, 5, 29, 3);
-	ReplaceMcr(12, 7, 29, 5);
+	Blk2Mcr(12, 7);
 	ReplaceMcr(9, 5, 29, 5);
 	ReplaceMcr(9, 7, 29, 7);
 	// - after patchNestFloorCel
 	Blk2Mcr(1, 4);
 	Blk2Mcr(3, 7);
 	Blk2Mcr(3, 5);
-	ReplaceMcr(4, 4, 29, 2);
+	Blk2Mcr(24, 7);
+	Blk2Mcr(24, 6);
+	Blk2Mcr(16, 7);
+	Blk2Mcr(8, 6);
 
 	ReplaceMcr(17, 0, 13, 0); // mostly invisible
 	ReplaceMcr(17, 1, 5, 1);
@@ -5531,12 +5658,12 @@ void DRLP_L6_PatchMin(BYTE* buf)
 	ReplaceMcr(8, 4, 29, 2);
 	// ReplaceMcr(8, 5, 29, 3);
 
-	ReplaceMcr(14, 4, 29, 2);
+	// ReplaceMcr(14, 4, 29, 2);
 	ReplaceMcr(14, 5, 29, 3);
 	ReplaceMcr(16, 5, 30, 5);
-	ReplaceMcr(16, 7, 30, 7);
+	// ReplaceMcr(16, 7, 30, 7);
 
-	ReplaceMcr(22, 4, 16, 4);
+	// ReplaceMcr(22, 4, 16, 4);
 	ReplaceMcr(22, 5, 30, 5);
 	ReplaceMcr(23, 4, 29, 2);
 	ReplaceMcr(24, 4, 29, 2);
