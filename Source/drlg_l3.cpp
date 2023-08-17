@@ -37,14 +37,6 @@ const BYTE L3USTAIRS[] = {
 	51, 50, 0, // replace
 	48, 49, 0,
 	 0,  0, 0,
-/*  181,182    178,179,     0,  0,	// MegaTiles
-	183, 31    180, 31,     0,  0,
-
-	170,171    174,175,     0,  0,
-	172,173    176,177,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 #ifdef HELLFIRE
@@ -74,14 +66,6 @@ const BYTE L3DSTAIRS[] = {
 	0, 47, 0, // replace
 	0, 46, 0,
 	0,  0, 0,
-	/*0,  0,   166,167,     0,  0,	// MegaTiles
-	  0,  0,   168,169,     0,  0,
-
-	  0,  0,   162,163,     0,  0,
-	  0,  0,   164,165,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 #ifdef HELLFIRE
@@ -2548,7 +2532,7 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L3CREV11, 30);
 	}
 }
-
+#if !USE_PATCH
 static void DRLG_L3FixMap()
 {
 	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
@@ -2564,13 +2548,15 @@ static void DRLG_L3FixMap()
 		// remove most of the monsters
 		for (int y = 13; y < 61; y++) {
 			for (int x = 4; x < 30; x++) {
+				if (x == 6 && y == 33) {
+					continue;
+				}
 				lm[2 + 19 * 37 + 19 * 37 * 2 * 2 + x + y * 19 * 2] = 0;
 			}
 		}
-		lm[2 + 19 * 37 + 19 * 37 * 2 * 2 + 6 + 33 * 19 * 2] = SwapLE16(33);
 	}
 }
-
+#endif
 static void DRLG_L3DrawPreMaps()
 {
 	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
@@ -2595,7 +2581,9 @@ static void LoadL3Dungeon(const LevelData* lds)
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if !USE_PATCH
 	DRLG_L3FixMap();
+#endif
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");

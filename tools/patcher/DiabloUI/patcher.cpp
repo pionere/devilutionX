@@ -46,6 +46,7 @@ typedef enum filenames {
 	FILE_CATACOMBS_TIL,
 	FILE_CATACOMBS_SOL,
 	FILE_CATACOMBS_AMP,
+	FILE_FOULWATR_DUN,
 #if ASSET_MPL == 1
 	FILE_L3DOORS_CEL,
 	FILE_CAVES_CEL,
@@ -145,6 +146,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
 /*FILE_CATACOMBS_SOL*/ "Levels\\L2Data\\L2.SOL",
 /*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
+/*FILE_FOULWATR_DUN*/  "Levels\\L3Data\\Foulwatr.DUN",
 #if ASSET_MPL == 1
 /*FILE_L3DOORS_CEL*/   "Objects\\L3Doors.CEL",
 /*FILE_CAVES_CEL*/     "Levels\\L3Data\\L3.CEL",
@@ -705,6 +707,28 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 		}
 		// remove rooms
 		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2) * 2;
+	} break;
+	case FILE_FOULWATR_DUN:
+	{	// patch the map - Foulwatr.DUN
+		// - separate subtiles for the automap
+		lm[2 + 6 + 33 * 19] = SwapLE16(111);
+		// protect island tiles from spawning additional monsters
+		for (int y = 1; y < 7; y++) {
+			for (int x = 7; x < 14; x++) {
+				lm[2 + 19 * 37 + x + y * 19] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// remove most of the monsters
+		for (int y = 13; y < 61; y++) {
+			for (int x = 4; x < 30; x++) {
+				if (x == 6 && y == 33) {
+					continue;
+				}
+				lm[2 + 19 * 37 + 19 * 37 * 2 * 2 + x + y * 19 * 2] = 0;
+			}
+		}
+		// remove rooms
+		*fileSize = (2 + 19 * 37 + 19 * 37 * 2 * 2 + 19 * 37 * 2 * 2 + 19 * 37 * 2 * 2) * 2;
 	} break;
 	case FILE_DIAB1_DUN:
 	{	// patch the map - Diab1.DUN
@@ -2201,6 +2225,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_BLIND2_DUN:
 	case FILE_BLOOD1_DUN:
 	case FILE_BLOOD2_DUN:
+	case FILE_FOULWATR_DUN:
 	case FILE_DIAB1_DUN:
 	case FILE_DIAB2A_DUN:
 	case FILE_DIAB2B_DUN:
