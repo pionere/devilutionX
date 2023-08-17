@@ -7,7 +7,7 @@ if (buildAsApplication) {
 }
 
 android {
-	compileSdkVersion 32
+	compileSdk 32
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
 	}
