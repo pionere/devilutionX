@@ -2713,6 +2713,21 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable(598, false);
 		nSolidTable(600, false);
+		//  - fix inconsistent arches
+		nBlockTable(33, false);
+		nBlockTable(39, false);
+		nBlockTable(42, false);
+		nBlockTable(91, false);
+		nBlockTable(466, false);
+		nBlockTable(470, false);
+		nBlockTable(557, false);
+		nBlockTable(559, false);
+		nBlockTable(561, false);
+		nBlockTable(563, false);
+		nMissileTable(101, true);
+		nMissileTable(104, true);
+		nMissileTable(355, true);
+		nMissileTable(357, true);
 		// - adjust SOL after DRLP_L5_PatchMin
 		nSolidTable(238, false);
 		nMissileTable(238, false);
@@ -2722,7 +2737,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(242, false);
 		nMissileTable(242, false);
 		nBlockTable(242, false);
-		// fix automap of the entrance II.
+		// - fix automap of the entrance II.
 		nMissileTable(158, false);
 		nBlockTable(158, false);
 		nSolidTable(159, false);

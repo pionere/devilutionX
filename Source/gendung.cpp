@@ -244,7 +244,7 @@ void InitLvlDungeon()
 		// nSolidTable[1253] = false; // make the western side of hell-entrance consistent (walkable)
 		// nSolidTable[1255] = false; // make the western side of hell-entrance consistent (walkable)
 #if ASSET_MPL == 1
-		// patch dMicroCels - TOWN.CEL
+		// patch dMiniTiles - TOWN.MIN
 		// - overwrite subtile 237 with subtile 402 to make the inner tile of Griswold's house non-walkable
 		// pSubtiles[237][0] = pSubtiles[402][0];
 		// pSubtiles[237][1] = pSubtiles[402][1];
@@ -619,6 +619,21 @@ void InitLvlDungeon()
 		//  - prevent non-crossable floor-tile configurations II.
 		nSolidTable[598] = false;
 		nSolidTable[600] = false;
+		//  - fix inconsistent arches
+		nBlockTable[33] = false;
+		nBlockTable[39] = false;
+		nBlockTable[42] = false;
+		nBlockTable[91] = false;
+		nBlockTable[466] = false;
+		nBlockTable[470] = false;
+		nBlockTable[557] = false;
+		nBlockTable[559] = false;
+		nBlockTable[561] = false;
+		nBlockTable[563] = false;
+		nMissileTable[101] = true;
+		nMissileTable[104] = true;
+		nMissileTable[355] = true;
+		nMissileTable[357] = true;
 		// - adjust SOL after patchCryptMin
 		nSolidTable[238] = false;
 		nMissileTable[238] = false;
