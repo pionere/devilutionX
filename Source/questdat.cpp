@@ -157,13 +157,13 @@ const LevelFileData levelfiledata[NUM_LFILE_TYPES] = {
 #else
 /*LFILE_TOWN*/ { NULL,                      NULL,                      "Levels\\TownData\\Town.SOL",  "Levels\\TownData\\Town.TMI",  "Levels\\TownData\\Town.CEL",  NULL,                          "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\Town.SPT",  "Levels\\TownData\\TownS.CEL" },
 #endif
-/*LFILE_L1*/   { "Levels\\L1Data\\L1.AMP",  "Levels\\L1Data\\L1.TLA",  "Levels\\L1Data\\L1.SOL",      "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1.SPT",      "Levels\\L1Data\\L1S.CEL"     },
-/*LFILE_L2*/   { "Levels\\L2Data\\L2.AMP",  "Levels\\L2Data\\L2.TLA",  "Levels\\L2Data\\L2.SOL",      "Levels\\L2Data\\L2.TMI",      "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2.SPT",      "Levels\\L2Data\\L2S.CEL"     },
-/*LFILE_L3*/   { "Levels\\L3Data\\L3.AMP",  "Levels\\L3Data\\L3.TLA",  "Levels\\L3Data\\L3.SOL",      "Levels\\L3Data\\L3.TMI",      "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      "Levels\\L3Data\\L3.SPT",      NULL,                         },
-/*LFILE_L4*/   { "Levels\\L4Data\\L4.AMP",  "Levels\\L4Data\\L4.TLA",  "Levels\\L4Data\\L4.SOL",      "Levels\\L4Data\\L4.TMI",      "Levels\\L4Data\\L4.CEL",      "Levels\\L4Data\\L4.TIL",      "Levels\\L4Data\\L4.MIN",      "Levels\\L4Data\\L4.SPT",      NULL,                         },
+/*LFILE_L1*/   { "Levels\\L1Data\\L1.SMP",  "Levels\\L1Data\\L1.TLA",  "Levels\\L1Data\\L1.SOL",      "Levels\\L1Data\\L1.TMI",      "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1.SPT",      "Levels\\L1Data\\L1S.CEL"     },
+/*LFILE_L2*/   { "Levels\\L2Data\\L2.SMP",  "Levels\\L2Data\\L2.TLA",  "Levels\\L2Data\\L2.SOL",      "Levels\\L2Data\\L2.TMI",      "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2.SPT",      "Levels\\L2Data\\L2S.CEL"     },
+/*LFILE_L3*/   { "Levels\\L3Data\\L3.SMP",  "Levels\\L3Data\\L3.TLA",  "Levels\\L3Data\\L3.SOL",      "Levels\\L3Data\\L3.TMI",      "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      "Levels\\L3Data\\L3.SPT",      NULL,                         },
+/*LFILE_L4*/   { "Levels\\L4Data\\L4.SMP",  "Levels\\L4Data\\L4.TLA",  "Levels\\L4Data\\L4.SOL",      "Levels\\L4Data\\L4.TMI",      "Levels\\L4Data\\L4.CEL",      "Levels\\L4Data\\L4.TIL",      "Levels\\L4Data\\L4.MIN",      "Levels\\L4Data\\L4.SPT",      NULL,                         },
 #ifdef HELLFIRE
-/*LFILE_L5*/   { "NLevels\\L5Data\\L5.AMP", "NLevels\\L5Data\\L5.TLA", "NLevels\\L5Data\\L5.SOL",     "NLevels\\L5Data\\L5.TMI",     "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5.SPT",     "NLevels\\L5Data\\L5S.CEL"    },
-/*LFILE_L6*/   { "NLevels\\L6Data\\L6.AMP", "NLevels\\L6Data\\L6.TLA", "NLevels\\L6Data\\L6.SOL",     "NLevels\\L6Data\\L6.TMI",     "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "NLevels\\L6Data\\L6.SPT",     NULL,                         },
+/*LFILE_L5*/   { "NLevels\\L5Data\\L5.SMP", "NLevels\\L5Data\\L5.TLA", "NLevels\\L5Data\\L5.SOL",     "NLevels\\L5Data\\L5.TMI",     "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5.SPT",     "NLevels\\L5Data\\L5S.CEL"    },
+/*LFILE_L6*/   { "NLevels\\L6Data\\L6.SMP", "NLevels\\L6Data\\L6.TLA", "NLevels\\L6Data\\L6.SOL",     "NLevels\\L6Data\\L6.TMI",     "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     "NLevels\\L6Data\\L6.SPT",     NULL,                         },
 #endif
 	// clang-format on
 };

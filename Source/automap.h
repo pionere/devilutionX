@@ -12,10 +12,10 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+/* Maps from subtile_id to automap type (_automap_subtypes). */
+extern BYTE automaptype[MAXSUBTILES + 1];
 /** Specifies whether the automap is enabled (_automap_mode). */
 extern BYTE gbAutomapflag;
-/* Maps from tile_id to automap type (_automap_types + _automap_flags). */
-extern uint16_t automaptype[MAXTILES + 1];
 /** Specifies the scale of the automap. */
 extern unsigned AutoMapScale;
 /* The scale of the normal-automap. */

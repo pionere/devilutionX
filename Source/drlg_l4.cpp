@@ -74,7 +74,7 @@ const BYTE L4DSTAIRS[] = {
 	6, 6, 6, 6, 6,
 
 	0,  0,  0,  0, 0, // replace
-	0,  0, 45, 41, 0,
+	0,136, 45, 41, 0,
 	0, 44, 43, 40, 0,
 	0, 46, 42, 39, 0,
 	0,  0,  0,  0, 0,
@@ -453,6 +453,8 @@ static void DRLG_LoadL4SP()
 		// fix corner
 		lm[2 + 6 + 1 * 8] = SwapLE16(10);
 		lm[2 + 6 + 5 * 8] = SwapLE16(10);
+		// separate subtiles for the automap
+		lm[2 + 1 + 2 * 8] = SwapLE16(136);
 		// use base tiles and decorate the walls randomly
 		lm[2 + 0 + 0 * 8] = SwapLE16(9);
 		lm[2 + 0 + 6 * 8] = SwapLE16(15);

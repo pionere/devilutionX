@@ -3384,38 +3384,18 @@ typedef enum _automap_mode {
 	NUM_AMMS
 } _automap_mode;
 
-typedef enum _automap_types {
-	MWT_NONE,
-	MWT_PILLAR,         // standalone pillar
-	MWT_NORTH_WEST,     // 'vertical' wall on the north side
-	MWT_NORTH_EAST,     // 'horizontal' wall on the north side
-	MWT_NORTH,          // 'vertical' + 'horizontal' walls on the north side
-	MWT_NORTH_WEST_END, // 'vertical' wall ends on the north side
-	MWT_NORTH_EAST_END, // 'horizontal' wall ends on the north side
-	MWT_CORNER,         // 
-	MWT_WEST,           // 'vertical' wall on the north side + 'horizontal' wall on the south side
-	MWT_EAST,           // 'vertical' wall on the south side + 'horizontal' wall on the north side
-	MWT_SOUTH_WEST,     // 'horizontal' wall on the south side
-	MWT_SOUTH_EAST,     // 'vertical' wall on the south side
-	MWT_SOUTH,          // 'vertical' + 'horizontal' walls on the south side
-} _automap_types;
-
-typedef enum _automap_flags {
-	MAF_TYPE       = 0x00FF,
-	MAF_WEST_DOOR  = 0x0100,
-	MAF_EAST_DOOR  = 0x0200,
-	MAF_WEST_ARCH  = 0x0400,
-	MAF_EAST_ARCH  = 0x0800,
-	MAF_WEST_GRATE = 0x1000,
-	MAF_EAST_GRATE = 0x2000,
-	MAF_EXTERN     = 0x4000,
-	MAF_STAIRS     = 0x8000,
-	// calculated mapflags
-	MAF_DO_NORTH_WEST = 0x0010,
-	MAF_DO_NORTH_EAST = 0x0020,
-	MAF_DO_SOUTH_EAST = 0x0040,
-	MAF_DO_SOUTH_WEST = 0x0080,
-} _automap_flags;
+typedef enum _automap_subtypes {
+	MAT_NONE,
+	MAT_EXTERN,
+	MAT_STAIRS,
+	MAT_DOOR_WEST,
+	MAT_DOOR_EAST,
+	MAT_TYPE       = 0xF,
+	MAT_WALL_NW = 1 << 4,
+	MAT_WALL_NE = 1 << 5,
+	MAT_WALL_SW = 1 << 6,
+	MAT_WALL_SE = 1 << 7,
+} _automap_subtypes;
 
 typedef enum _tile_flags {
 	TIF_FLOOR_00  = 1 << 0,

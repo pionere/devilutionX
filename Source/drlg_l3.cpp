@@ -63,9 +63,9 @@ const BYTE L3DSTAIRS[] = {
 	8, 9, 7,
 	0, 0, 0,
 
-	0, 47, 0, // replace
-	0, 46, 0,
-	0,  0, 0,
+	111, 47, 0, // replace
+	  0, 46, 0,
+	  0,  0, 0,
 	// clang-format on
 };
 #ifdef HELLFIRE
@@ -77,9 +77,9 @@ const BYTE L6DSTAIRS[] = {
 	8, 9, 7,
 	0, 0, 0,
 
-	0, 16, 0, // replace
-	0, 15, 0,
-	0,  0, 0,
+	23, 16, 0, // replace
+	 0, 15, 0,
+	 0,  0, 0,
 	// clang-format on
 };
 #endif
@@ -2539,6 +2539,8 @@ static void DRLG_L3FixMap()
 
 	if (pSetPieces[0]._sptype == SPT_LVL_PWATER) {
 		// patch the map - Foulwatr.DUN
+		// - separate subtiles for the automap
+		lm[2 + 7 + 33 * 19] = SwapLE16(111);
 		// protect island tiles from spawning additional monsters
 		for (int y = 1; y < 7; y++) {
 			for (int x = 7; x < 14; x++) {

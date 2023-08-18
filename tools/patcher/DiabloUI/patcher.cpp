@@ -28,7 +28,6 @@ typedef enum filenames {
 #endif
 	FILE_CATHEDRAL_TIL,
 	FILE_CATHEDRAL_SOL,
-	FILE_CATHEDRAL_AMP,
 	FILE_BONESTR1_DUN,
 	FILE_BONESTR2_DUN,
 	FILE_BONECHA1_DUN,
@@ -45,7 +44,6 @@ typedef enum filenames {
 #endif
 	FILE_CATACOMBS_TIL,
 	FILE_CATACOMBS_SOL,
-	FILE_CATACOMBS_AMP,
 	FILE_FOULWATR_DUN,
 #if ASSET_MPL == 1
 	FILE_L3DOORS_CEL,
@@ -54,7 +52,6 @@ typedef enum filenames {
 #endif
 	FILE_CAVES_TIL,
 	FILE_CAVES_SOL,
-	FILE_CAVES_AMP,
 	FILE_DIAB1_DUN,
 	FILE_DIAB2A_DUN,
 	FILE_DIAB2B_DUN,
@@ -71,7 +68,6 @@ typedef enum filenames {
 #endif
 	FILE_HELL_TIL,
 	FILE_HELL_SOL,
-	FILE_HELL_AMP,
 	FILE_BHSM_TRN,
 	FILE_BSM_TRN,
 	FILE_ACIDB_TRN,
@@ -107,7 +103,6 @@ typedef enum filenames {
 #endif
 	FILE_CRYPT_TIL,
 	FILE_CRYPT_SOL,
-	FILE_CRYPT_AMP,
 #if ASSET_MPL == 1
 	FILE_NEST_CEL,
 	FILE_NEST_MIN,
@@ -128,7 +123,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_CATHEDRAL_TIL*/ "Levels\\L1Data\\L1.TIL",
 /*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
-/*FILE_CATHEDRAL_AMP*/ "Levels\\L1Data\\L1.AMP",
 /*FILE_BONESTR1_DUN*/  "Levels\\L2Data\\Bonestr1.DUN",
 /*FILE_BONESTR2_DUN*/  "Levels\\L2Data\\Bonestr2.DUN",
 /*FILE_BONECHA1_DUN*/  "Levels\\L2Data\\Bonecha1.DUN",
@@ -145,7 +139,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
 /*FILE_CATACOMBS_SOL*/ "Levels\\L2Data\\L2.SOL",
-/*FILE_CATACOMBS_AMP*/ "Levels\\L2Data\\L2.AMP",
 /*FILE_FOULWATR_DUN*/  "Levels\\L3Data\\Foulwatr.DUN",
 #if ASSET_MPL == 1
 /*FILE_L3DOORS_CEL*/   "Objects\\L3Doors.CEL",
@@ -154,7 +147,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_CAVES_TIL*/     "Levels\\L3Data\\L3.TIL",
 /*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
-/*FILE_CAVES_AMP*/     "Levels\\L3Data\\L3.AMP",
 /*FILE_DIAB1_DUN*/     "Levels\\L4Data\\Diab1.DUN",
 /*FILE_DIAB2A_DUN*/    "Levels\\L4Data\\Diab2a.DUN",
 /*FILE_DIAB2B_DUN*/    "Levels\\L4Data\\Diab2b.DUN",
@@ -171,7 +163,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_HELL_TIL*/      "Levels\\L4Data\\L4.TIL",
 /*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
-/*FILE_HELL_AMP*/      "Levels\\L4Data\\L4.AMP",
 /*FILE_BHSM_TRN*/      "Monsters\\Monsters\\BHSM.TRN",
 /*FILE_BSM_TRN*/       "Monsters\\Monsters\\BSM.TRN",
 /*FILE_ACIDB_TRN*/     "Monsters\\Acid\\AcidB.TRN",
@@ -207,7 +198,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
 /*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
-/*FILE_CRYPT_AMP*/     "NLevels\\L5Data\\L5.AMP",
 #if ASSET_MPL == 1
 /*FILE_NEST_CEL*/      "NLevels\\L6Data\\L6.CEL",
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
@@ -1147,6 +1137,8 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 		// fix corner
 		lm[2 + 6 + 1 * 8] = SwapLE16(10);
 		lm[2 + 6 + 5 * 8] = SwapLE16(10);
+		// separate subtiles for the automap
+		lm[2 + 1 + 2 * 8] = SwapLE16(136);
 		// use base tiles and decorate the walls randomly
 		lm[2 + 0 + 0 * 8] = SwapLE16(9);
 		lm[2 + 0 + 6 * 8] = SwapLE16(15);
@@ -2142,7 +2134,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 			return NULL;
 		}
-		nMissileTable(8, false); // the only column which was blocking missiles
 		// adjust SOL after fixCathedralShadows
 		nSolidTable(298, true);
 		nSolidTable(304, true);
@@ -2163,59 +2154,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nMissileTable(338, false);
 		// - special subtile for the vile setmap
 		nMissileTable(335, false);
-	} break;
-	case FILE_CATHEDRAL_AMP:
-	{	// patch dAutomapData - L1.AMP
-		if (*dwLen < 206 * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-
-		uint16_t *automaptype = (uint16_t*)buf;
-		// create separate pillar tile
-		automaptype[28 - 1] = MWT_PILLAR;
-		// create the new shadows
-		// automaptype[131 - 1] = automaptype[13 - 1];
-		// automaptype[132 - 1] = automaptype[13 - 1];
-		// automaptype[139 - 1] = automaptype[13 - 1];
-		// automaptype[140 - 1] = automaptype[13 - 1];
-		// automaptype[141 - 1] = automaptype[13 - 1];
-		// automaptype[142 - 1] = automaptype[13 - 1];
-		// automaptype[143 - 1] = automaptype[13 - 1];
-		// automaptype[144 - 1] = automaptype[13 - 1];
-		automaptype[145 - 1] = automaptype[11 - 1];
-		// automaptype[146 - 1] = automaptype[1 - 1];
-		automaptype[147 - 1] = automaptype[6 - 1];
-		// automaptype[148 - 1] = automaptype[2 - 1];
-		automaptype[149 - 1] = automaptype[12 - 1];
-		automaptype[150 - 1] = automaptype[2 - 1];
-		automaptype[151 - 1] = automaptype[12 - 1];
-		automaptype[152 - 1] = automaptype[36 - 1];
-		automaptype[153 - 1] = automaptype[36 - 1];
-		automaptype[154 - 1] = automaptype[7 - 1];
-		automaptype[155 - 1] = automaptype[2 - 1];
-		automaptype[156 - 1] = automaptype[26 - 1];
-		automaptype[157 - 1] = automaptype[35 - 1];
-		// automaptype[158 - 1] = automaptype[4 - 1];
-		automaptype[159 - 1] = automaptype[13 - 1];
-		automaptype[160 - 1] = automaptype[14 - 1];
-		automaptype[161 - 1] = automaptype[37 - 1];
-		automaptype[164 - 1] = automaptype[13 - 1];
-		automaptype[165 - 1] = automaptype[13 - 1];
-		// - shadows for the banner setpiece
-		automaptype[56 - 1] = automaptype[1 - 1];
-		automaptype[55 - 1] = automaptype[1 - 1];
-		automaptype[54 - 1] = automaptype[60 - 1];
-		automaptype[53 - 1] = automaptype[58 - 1];
-		// - shadows for the vile setmap
-		automaptype[52 - 1] = automaptype[2 - 1];
-		automaptype[51 - 1] = automaptype[2 - 1];
-		automaptype[50 - 1] = automaptype[1 - 1];
-		automaptype[49 - 1] = automaptype[17 - 1];
-		automaptype[48 - 1] = automaptype[11 - 1];
-		automaptype[47 - 1] = automaptype[2 - 1];
-		automaptype[46 - 1] = automaptype[7 - 1];
+		// - with subtile-based automap
+		nBlockTable(139, false);
+		nBlockTable(140, false);
+		// - subtile for the separate pillar tile
+		nBlockTable(61, false);
+		nMissileTable(61, false);
 	} break;
 	case FILE_BONESTR1_DUN:
 	case FILE_BONESTR2_DUN:
@@ -2312,37 +2256,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nBlockTable(268, true);
 		nMissileTable(268, true);
 	} break;
-	case FILE_CATACOMBS_AMP:
-	{	// patch dAutomapData - L2.AMP
-		if (*dwLen < 160 * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		uint16_t *automaptype = (uint16_t*)buf;
-		// fix automap type
-		automaptype[42 - 1] &= SwapLE16(~MAF_EAST_ARCH); // not a horizontal arch
-		automaptype[156 - 1] = MWT_NONE; // no door is placed
-		automaptype[157 - 1] = MWT_NONE;
-		// create separate pillar tile
-		automaptype[52 - 1] = MWT_PILLAR;
-		// create the new shadows
-		automaptype[17 - 1] = automaptype[5 - 1];
-		// automaptype[18 - 1] = automaptype[5 - 1];
-		automaptype[34 - 1] = automaptype[6 - 1];
-		automaptype[35 - 1] = automaptype[7 - 1];
-		automaptype[36 - 1] = automaptype[9 - 1];
-		automaptype[37 - 1] = automaptype[9 - 1];
-		// automaptype[44 - 1] = automaptype[3 - 1];
-		// automaptype[46 - 1] = automaptype[3 - 1];
-		// automaptype[47 - 1] = automaptype[3 - 1];
-		// automaptype[48 - 1] = automaptype[3 - 1];
-		// automaptype[49 - 1] = automaptype[3 - 1];
-		// automaptype[95 - 1] = automaptype[3 - 1];
-		// automaptype[96 - 1] = automaptype[3 - 1];
-		// automaptype[100 - 1] = automaptype[3 - 1];
-		automaptype[101 - 1] = MWT_PILLAR;
-	} break;
 #if ASSET_MPL == 1
 	case FILE_L3DOORS_CEL:
 	{	// patch L3Doors.CEL
@@ -2406,17 +2319,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		// nSolidTable(487, false); // unused after patch
 		nSolidTable(488, true);
 		nSolidTable(540, false); // unused in base game
-	} break;
-	case FILE_CAVES_AMP:
-	{	// patch dAutomapData - L3.AMP
-		if (*dwLen < 156 * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		uint16_t *automaptype = (uint16_t*)buf;
-		automaptype[144 - 1] = automaptype[151 - 1];
-		automaptype[145 - 1] = automaptype[152 - 1];
+		// - with subtile-based automap
+		nBlockTable(166, false);
+		nBlockTable(168, false);
+		// - separate subtiles for the automap
+		nSolidTable(258, true);
+		nMissileTable(258, true);
 	} break;
 #if ASSET_MPL == 1
 	case FILE_HELL_CEL:
@@ -2478,34 +2386,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(211, false);
 		nMissileTable(211, false);
 		nBlockTable(211, false);
-	} break;
-	case FILE_HELL_AMP:
-	{	// patch dAutomapData - L4.AMP
-		if (*dwLen < 137 * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		uint16_t *automaptype = (uint16_t*)buf;
-		// fix automap types
-		automaptype[27 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_EAST_END);
-		automaptype[28 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_WEST_END);
-		automaptype[52 - 1] |= SwapLE16(MAF_WEST_GRATE);
-		automaptype[56 - 1] |= SwapLE16(MAF_EAST_GRATE);
-		automaptype[7 - 1] = SwapLE16(MWT_NORTH_WEST_END);
-		automaptype[8 - 1] = SwapLE16(MWT_NORTH_EAST_END);
-		automaptype[83 - 1] = SwapLE16(MWT_NORTH_WEST_END);
-		// new shadow-types
-		automaptype[61 - 1] = automaptype[2 - 1];
-		automaptype[62 - 1] = automaptype[2 - 1];
-		automaptype[76 - 1] = automaptype[15 - 1];
-		automaptype[129 - 1] = automaptype[15 - 1];
-		automaptype[130 - 1] = automaptype[56 - 1];
-		automaptype[131 - 1] = automaptype[56 - 1];
-		automaptype[132 - 1] = automaptype[8 - 1];
-		automaptype[133 - 1] = automaptype[8 - 1];
-		automaptype[134 - 1] = automaptype[14 - 1];
-		automaptype[135 - 1] = automaptype[14 - 1];
 	} break;
 	case FILE_BHSM_TRN:
 	{	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
@@ -2673,6 +2553,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nSolidTable(390, false); // make a pool tile walkable I.
 		nSolidTable(413, false); // make a pool tile walkable II.
 		nSolidTable(416, false); // make a pool tile walkable III.
+		// - with subtile-based automap
+		nBlockTable(61, false);
+		nBlockTable(63, false);
+		nBlockTable(65, false);
+		nBlockTable(66, false);
 	} break;
 #if ASSET_MPL == 1
 	case FILE_CRYPT_CEL:
@@ -2773,51 +2658,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nMissileTable(159, false);
 		nBlockTable(159, false);
 		nMissileTable(148, true);
-		nBlockTable(148, true);
-	} break;
-	case FILE_CRYPT_AMP:
-	{	// patch dAutomapData - L5.AMP
-		if (*dwLen < 216 * 2) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		uint16_t *automaptype = (uint16_t*)buf;
-		// fix automap types
-		automaptype[20 - 1] = SwapLE16(MAF_EXTERN | MWT_CORNER);
-		automaptype[23 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_WEST_END);
-		automaptype[24 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_EAST_END);
-		// fix automap of the entrance III.
-		automaptype[47 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH_WEST);
-		automaptype[50 - 1] = SwapLE16(MWT_NORTH_WEST);
-		automaptype[48 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH);
-		automaptype[51 - 1] = SwapLE16(MWT_NORTH_WEST_END);
-		automaptype[52 - 1] = SwapLE16(MAF_EXTERN);
-		automaptype[53 - 1] = SwapLE16(MAF_STAIRS | MWT_NORTH);
-		automaptype[54 - 1] = SwapLE16(MAF_EXTERN);
-		automaptype[56 - 1] = SwapLE16(MWT_NONE);
-		automaptype[58 - 1] = SwapLE16(MAF_EXTERN | MWT_NORTH_WEST_END);
-		// create separate pillar tile
-		automaptype[28 - 1] = MWT_PILLAR;
-		// create the new shadows
-		// - shadows created by fixCryptShadows
-		automaptype[109 - 1] = SwapLE16(MWT_NORTH_WEST);
-		automaptype[110 - 1] = SwapLE16(MWT_NORTH_WEST);
-		automaptype[111 - 1] = SwapLE16(MAF_WEST_ARCH | MWT_NORTH_WEST);
-		automaptype[215 - 1] = SwapLE16(MAF_WEST_GRATE | MWT_NORTH_WEST);
-		// - 'add' new shadow-types with glow
-		automaptype[216 - 1] = SwapLE16(MAF_WEST_ARCH | MWT_NORTH_WEST);
-		// - 'add' new shadow-types with horizontal arches
-		automaptype[71 - 1] = SwapLE16(MWT_NORTH_EAST);
-		automaptype[80 - 1] = SwapLE16(MWT_NORTH_EAST);
-		automaptype[81 - 1] = SwapLE16(MAF_EAST_ARCH | MWT_NORTH_EAST);
-		automaptype[82 - 1] = SwapLE16(MAF_EAST_ARCH | MWT_NORTH_EAST);
-		automaptype[83 - 1] = SwapLE16(MAF_EAST_GRATE | MWT_NORTH_EAST);
-		automaptype[84 - 1] = SwapLE16(MAF_EAST_GRATE | MWT_NORTH_EAST);
-		automaptype[85 - 1] = SwapLE16(MWT_NORTH_EAST);
-		automaptype[86 - 1] = SwapLE16(MWT_NORTH_EAST);
-		automaptype[87 - 1] = SwapLE16(MAF_EAST_DOOR | MWT_NORTH_EAST);
-		automaptype[88 - 1] = SwapLE16(MAF_EAST_DOOR | MWT_NORTH_EAST);
+		// nBlockTable(148, true);
+		// - with subtile-based automap
+		// nBlockTable(148, false);
+		nBlockTable(149, false);
+		nBlockTable(150, false);
+		nBlockTable(153, false);
 	} break;
 	case FILE_OBJCURS_CEL:
 	{

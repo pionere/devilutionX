@@ -10,19 +10,20 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define MAP_SCALE_MAX 128
+#define MAP_SCALE_MIN 16
 #define MAP_SCALE_NORMAL 64
-#define MAP_SCALE_MIN 32
+#define MAP_SCALE_MINI 32
 
 #define MAP_MINI_WIDTH 160
 #define MAP_MINI_HEIGHT 120
 
 static_assert(MAP_SCALE_MAX <= UCHAR_MAX, "Mapscale values are stored in one byte.");
-/* Maps from tile_id to automap type (_automap_types + _automap_flags). */
-uint16_t automaptype[MAXTILES + 1];
+/* Maps from subtile_id to automap type (_automap_subtypes). */
+BYTE automaptype[MAXSUBTILES + 1];
 /** Specifies whether the automap is enabled (_automap_mode). */
 BYTE gbAutomapflag = AMM_NONE;
 /* The scale of the mini-automap. */
-BYTE MiniMapScale = MAP_SCALE_MIN;
+BYTE MiniMapScale = MAP_SCALE_MINI;
 /* The scale of the normal-automap. */
 BYTE NormalMapScale = MAP_SCALE_NORMAL;
 /** Specifies whether the automap-data is valid. */
@@ -78,9 +79,6 @@ void InitAutomapScale()
  */
 void InitLvlAutomap()
 {
-	size_t dwTiles, i;
-	BYTE* pAFile;
-	uint16_t* lm;
 	const char* mapData;
 
 	/* commented out because the flags are reset in gendung.cpp anyway
@@ -98,141 +96,7 @@ void InitLvlAutomap()
 		return;
 	}
 
-	pAFile = LoadFileInMem(mapData, &dwTiles);
-
-	dwTiles /= 2;
-	assert(dwTiles < (size_t)lengthof(automaptype));
-
-	lm = (uint16_t*)pAFile;
-	for (i = 1; i <= dwTiles; i++) {
-		automaptype[i] = SwapLE16(*lm);
-		// assert((automaptype[i] & MAF_TYPE) < 13); required by DrawAutomapTile and SetAutomapView
-		lm++;
-	}
-
-	mem_free_dbg(pAFile);
-#if !USE_PATCH
-	// patch dAutomapData - L1.AMP
-	if (currLvl._dType == DTYPE_CATHEDRAL) {
-		// separate pillar tile
-		automaptype[28] = MWT_PILLAR; // automaptype[15]
-		// new shadows
-		// - shadows created by fixCathedralShadows
-		automaptype[145] = automaptype[11];
-		automaptype[147] = automaptype[6];
-		automaptype[149] = automaptype[12];
-		automaptype[150] = automaptype[2];
-		automaptype[151] = automaptype[12];
-		automaptype[152] = automaptype[36];
-		automaptype[153] = automaptype[36];
-		automaptype[154] = automaptype[7];
-		automaptype[155] = automaptype[2];
-		automaptype[156] = automaptype[26];
-		automaptype[157] = automaptype[35];
-		automaptype[159] = automaptype[13];
-		automaptype[160] = automaptype[14];
-		automaptype[161] = automaptype[37];
-		automaptype[164] = automaptype[13];
-		automaptype[165] = automaptype[13];
-		// - shadows for the banner setpiece
-		automaptype[56] = automaptype[1];
-		automaptype[55] = automaptype[1];
-		automaptype[54] = automaptype[60];
-		automaptype[53] = automaptype[58];
-		// - shadows for the vile setmap
-		automaptype[52] = automaptype[2];
-		automaptype[51] = automaptype[2];
-		automaptype[50] = automaptype[1];
-		automaptype[49] = automaptype[17];
-		automaptype[48] = automaptype[11];
-		automaptype[47] = automaptype[2];
-		automaptype[46] = automaptype[7];
-	}
-	// patch dAutomapData - L2.AMP
-	if (currLvl._dType == DTYPE_CATACOMBS) {
-		// fix automap type
-		automaptype[42] &= ~MAF_EAST_ARCH; // not a horizontal arch
-		automaptype[156] = MWT_NONE; // no door is placed
-		automaptype[157] = MWT_NONE;
-		// separate pillar tile
-		automaptype[52] = MWT_PILLAR;
-		// new shadows
-		automaptype[17] = automaptype[5];
-		automaptype[34] = automaptype[6];
-		automaptype[35] = automaptype[7];
-		automaptype[36] = automaptype[9];
-		automaptype[37] = automaptype[9];
-		automaptype[101] = MWT_PILLAR;
-	}
-	// patch dAutomapData - L3.AMP
-	if (currLvl._dType == DTYPE_CAVES) {
-		// new shadows
-		automaptype[144] = automaptype[151];
-		automaptype[145] = automaptype[152];
-	}
-	// patch dAutomapData - L4.AMP
-	if (currLvl._dType == DTYPE_HELL) {
-		// fix automap types
-		automaptype[27] = MAF_EXTERN | MWT_NORTH_EAST_END;
-		automaptype[28] = MAF_EXTERN | MWT_NORTH_WEST_END;
-		automaptype[52] |= MAF_WEST_GRATE;
-		automaptype[56] |= MAF_EAST_GRATE;
-		automaptype[7] = MWT_NORTH_WEST_END;
-		automaptype[8] = MWT_NORTH_EAST_END;
-		automaptype[83] = MWT_NORTH_WEST_END;
-		// new shadow-types
-		automaptype[61] = automaptype[2];
-		automaptype[62] = automaptype[2];
-		automaptype[76] = automaptype[15];
-		automaptype[129] = automaptype[15];
-		automaptype[130] = automaptype[56];
-		automaptype[131] = automaptype[56];
-		automaptype[132] = automaptype[8];
-		automaptype[133] = automaptype[8];
-		automaptype[134] = automaptype[14];
-		automaptype[135] = automaptype[14];
-	}
-#ifdef HELLFIRE
-	// patch dAutomapData - L5.AMP
-	if (currLvl._dType == DTYPE_CRYPT) {
-		// fix automap types
-		automaptype[20] = MAF_EXTERN | MWT_CORNER;
-		automaptype[23] = MAF_EXTERN | MWT_NORTH_WEST_END;
-		automaptype[24] = MAF_EXTERN | MWT_NORTH_EAST_END;
-		// fix automap of the entrance
-		automaptype[47] = MAF_STAIRS | MWT_NORTH_WEST;
-		automaptype[50] = MWT_NORTH_WEST;
-		automaptype[48] = MAF_STAIRS | MWT_NORTH;
-		automaptype[51] = MWT_NORTH_WEST_END;
-		automaptype[52] = MAF_EXTERN;
-		automaptype[53] = MAF_STAIRS | MWT_NORTH;
-		automaptype[54] = MAF_EXTERN;
-		automaptype[56] = MWT_NONE;
-		automaptype[58] = MAF_EXTERN | MWT_NORTH_WEST_END;
-		// separate pillar tile
-		automaptype[28] = MWT_PILLAR; // automaptype[15]
-		// new shadows
-		// - shadows created by fixCryptShadows
-		automaptype[109] = MWT_NORTH_WEST;
-		automaptype[110] = MWT_NORTH_WEST;
-		automaptype[111] = MAF_WEST_ARCH | MWT_NORTH_WEST;
-		automaptype[215] = MAF_WEST_GRATE | MWT_NORTH_WEST;
-		// - 'add' new shadow-types with glow
-		automaptype[216] = MAF_WEST_ARCH | MWT_NORTH_WEST;
-		// - 'add' new shadow-types with horizontal arches
-		automaptype[71] = MWT_NORTH_EAST;
-		automaptype[80] = MWT_NORTH_EAST;
-		automaptype[81] = MAF_EAST_ARCH | MWT_NORTH_EAST;
-		automaptype[82] = MAF_EAST_ARCH | MWT_NORTH_EAST;
-		automaptype[83] = MAF_EAST_GRATE | MWT_NORTH_EAST;
-		automaptype[84] = MAF_EAST_GRATE | MWT_NORTH_EAST;
-		automaptype[85] = MWT_NORTH_EAST;
-		automaptype[86] = MWT_NORTH_EAST;
-		automaptype[87] = MAF_EAST_DOOR | MWT_NORTH_EAST;
-		automaptype[88] = MAF_EAST_DOOR | MWT_NORTH_EAST;
-	}
-#endif // HELLFIRE
-#endif // !USE_PATCH
+	LoadFileWithMem(mapData, automaptype);
 	AutoMapXOfs = 0;
 	AutoMapYOfs = 0;
 }
@@ -334,207 +198,79 @@ void AutomapZoomOut()
 	}
 }
 
-static void DrawAutomapDirt(int x, int y)
+static void DrawAutomapExtern(int sx, int sy)
+{
+	unsigned d32 = AmLine32;
+	unsigned d8 = (d32 >> 2);
+
+	DrawPixel(sx, sy - d8, COLOR_DIM);
+}
+
+static void DrawAutomapStairs(int sx, int sy)
 {
 	unsigned d32 = AmLine32;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
-	/*            07
-	          01      03
-	      05      00      06
-	  09      02      04      10
-	      11      08      12
-	          13      14
-	              15
-	*/
-	DrawPixel(x, y, COLOR_DIM);                 // 00
-	DrawPixel(x - d8, y - d4, COLOR_DIM);       // 01
-	DrawPixel(x - d8, y + d4, COLOR_DIM);       // 02
-	DrawPixel(x + d8, y - d4, COLOR_DIM);       // 03
-	DrawPixel(x + d8, y + d4, COLOR_DIM);       // 04
-	DrawPixel(x - d16, y, COLOR_DIM);           // 05
-	DrawPixel(x + d16, y, COLOR_DIM);           // 06
-	DrawPixel(x, y - d8, COLOR_DIM);            // 07
-	DrawPixel(x, y + d8, COLOR_DIM);            // 08
-	DrawPixel(x - d32 + d8, y + d4, COLOR_DIM); // 09
-	DrawPixel(x + d32 - d8, y + d4, COLOR_DIM); // 10
-	DrawPixel(x - d16, y + d8, COLOR_DIM);      // 11
-	DrawPixel(x + d16, y + d8, COLOR_DIM);      // 12
-	DrawPixel(x - d8, y + d16 - d4, COLOR_DIM); // 13
-	DrawPixel(x + d8, y + d16 - d4, COLOR_DIM); // 14
-	DrawPixel(x, y + d16, COLOR_DIM);           // 15
+	DrawLine(sx - d16 + d8, sy - d16 + d4, sx + d8, sy - d16 + d4 + d8, COLOR_BRIGHT);
+	DrawLine(sx - d16, sy - d8, sx, sy, COLOR_BRIGHT);
 }
 
-static void DrawAutomapStairs(int x, int y)
+static void DrawAutomapDoorDiamond(int dir, int sx, int sy)
 {
+	// int y2;
 	unsigned d32 = AmLine32;
-	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
+	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3), d2 = (d32 >> 4);
 
-	DrawLine(x - d8, y - d16 + d4, x + d32 - d8, y + d4, COLOR_BRIGHT);
-	DrawLine(x - d16, y - d8, x + d16, y + d8, COLOR_BRIGHT);
-	DrawLine(x - d32 + d8, y - d4, x + d8, y + d16 - d4, COLOR_BRIGHT);
-	DrawLine(x - d32, y, x, y + d16, COLOR_BRIGHT);
-}
+	if (dir == 0) { // WEST
+		sx -= d8;
+		sy -= d4;
+	} else {        // EAST
+		sx += d8;
+		sy -= d4;
+	}
 
-static void DrawAutomapHorzDoor(int x, int y)
-{
-	unsigned d16 = AmLine16;
-	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
-
-	DrawLine(x - d16, y - d8, x - d8, y - d4, COLOR_DIM); // left wall
-	DrawLine(x + d8, y + d4, x + d16, y + d8, COLOR_DIM); // right wall
-
-	// DrawAutomapDiamond(x, y + d8, COLOR_BRIGHT)
-	DrawLine(x - d16, y, x, y + d8, COLOR_BRIGHT); // top left
-	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT); // top right
-	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT); // bottom right
-	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT); // bottom left
-}
-
-static void DrawAutomapVertDoor(int x, int y)
-{
-	unsigned d16 = AmLine16;
-	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
-
-	DrawLine(x - d16, y + d8, x - d8, y + d4, COLOR_DIM); // left wall
-	DrawLine(x + d8, y - d4, x + d16, y - d8, COLOR_DIM); // right wall
-
-	// DrawAutomapDiamond(x, y + d8, COLOR_BRIGHT)
-	DrawLine(x - d16, y, x, y + d8, COLOR_BRIGHT); // top left
-	DrawLine(x, y + d8, x + d16, y, COLOR_BRIGHT); // top right
-	DrawLine(x, y - d8, x + d16, y, COLOR_BRIGHT); // bottom right
-	DrawLine(x - d16, y, x, y - d8, COLOR_BRIGHT); // bottom left
-}
-
-static void DrawAutomapDiamond(int x, int y)
-{
-	int d16 = AmLine16, y2;
-
-	y2 = y - (d16 >> 1);
-
-	DrawLine(x - d16, y2, x, y, COLOR_DIM);       // top left
-	DrawLine(x, y, x + d16, y2, COLOR_DIM);       // top right
-	DrawLine(x, y - d16, x + d16, y2, COLOR_DIM); // bottom right
-	DrawLine(x - d16, y2, x, y - d16, COLOR_DIM); // bottom left
+	DrawLine(sx - d16 + 2, sy - d8, sx - 1, sy - d16 + 2, COLOR_BRIGHT); // top left
+	DrawLine(sx, sy - d16 + 2, sx + d16 - 3, sy - d8, COLOR_BRIGHT);     // top right
+	DrawLine(sx - d16 + 2, sy - d8 + 1, sx - 1, sy - 1, COLOR_BRIGHT);   // bottom left
+	DrawLine(sx, sy - 1, sx + d16 - 3, sy - d8 + 1, COLOR_BRIGHT);       // bottom right
 }
 
 /**
  * @brief Renders the given automap shape at the specified screen coordinates.
  */
-static void DrawAutomapTile(int sx, int sy, uint16_t automap_type)
+void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 {
-	uint8_t type;
-
-	if (automap_type & MAF_EXTERN) {
-		DrawAutomapDirt(sx, sy);
-	}
-
-	if (automap_type & MAF_STAIRS) {
+	switch (automap_type & MAT_TYPE) {
+	case MAT_NONE:
+		break;
+	case MAT_EXTERN:
+		DrawAutomapExtern(sx, sy);
+		break;
+	case MAT_STAIRS:
 		DrawAutomapStairs(sx, sy);
-	}
-
-	type = automap_type & MAF_TYPE;
-	automap_type &= ~MAF_TYPE;
-	switch (type) {
-	case MWT_NONE:
-	case MWT_CORNER:
 		break;
-	case MWT_PILLAR: // stand-alone column or other unpassable object
-		DrawAutomapDiamond(sx, sy);
+	case MAT_DOOR_WEST:
+		DrawAutomapDoorDiamond(0, sx, sy);
 		break;
-	case MWT_NORTH_WEST:
-	case MWT_NORTH_WEST_END:
-		automap_type |= MAF_DO_NORTH_WEST;
-		break;
-	case MWT_NORTH_EAST:
-	case MWT_NORTH_EAST_END:
-		automap_type |= MAF_DO_NORTH_EAST;
-		break;
-	case MWT_NORTH:
-		automap_type |= MAF_DO_NORTH_EAST | MAF_DO_NORTH_WEST;
-		break;
-	case MWT_WEST:
-		automap_type |= MAF_DO_NORTH_WEST | MAF_DO_SOUTH_WEST;
-		break;
-	case MWT_EAST:
-		automap_type |= MAF_DO_NORTH_EAST | MAF_DO_SOUTH_EAST;
-		break;
-	case MWT_SOUTH_WEST:
-		automap_type |= MAF_DO_SOUTH_WEST;
-		break;
-	case MWT_SOUTH_EAST:
-		automap_type |= MAF_DO_SOUTH_EAST;
-		break;
-	case MWT_SOUTH:
-		automap_type |= MAF_DO_SOUTH_WEST | MAF_DO_SOUTH_EAST;
-		break;
-	default:
-		ASSUME_UNREACHABLE
+	case MAT_DOOR_EAST:
+		DrawAutomapDoorDiamond(1, sx, sy);
 		break;
 	}
 
-	if (automap_type & MAF_DO_NORTH_WEST) {
-		if (automap_type & MAF_WEST_DOOR) {
-			unsigned d16 = AmLine16;
-			unsigned d8 = (d16 >> 1);
-			DrawAutomapVertDoor(sx - d16, sy - d8);
-		}
-		if (automap_type & MAF_WEST_GRATE) {
-			unsigned d32 = AmLine32;
-			unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
-			DrawLine(sx - d16, sy - d8, sx - d32, sy, COLOR_DIM);
-		}
-		if (automap_type & (MAF_WEST_GRATE | MAF_WEST_ARCH)) {
-			DrawAutomapDiamond(sx, sy);
-		}
-		if ((automap_type & (MAF_WEST_DOOR | MAF_WEST_GRATE | MAF_WEST_ARCH)) == 0) {
-			unsigned d32 = AmLine32;
-			unsigned d16 = (d32 >> 1);
-			DrawLine(sx, sy - d16, sx - d32, sy, COLOR_DIM);
-		}
+	unsigned d32 = AmLine32;
+	unsigned d16 = (d32 >> 1);
+	unsigned d8 = (d32 >> 2);
+	if (automap_type & MAT_WALL_NW) {
+		DrawLine(sx - d16, sy - d8, sx - 1, sy - d16 + 1, COLOR_DIM);
 	}
-
-	if (automap_type & MAF_DO_NORTH_EAST) {
-		if (automap_type & MAF_EAST_DOOR) {
-			unsigned d16 = AmLine16;
-			unsigned d8 = (d16 >> 1);
-			DrawAutomapHorzDoor(sx + d16, sy - d8);
-		}
-		if (automap_type & MAF_EAST_GRATE) {
-			unsigned d32 = AmLine32;
-			unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
-			DrawLine(sx + d16, sy - d8, sx + d32, sy, COLOR_DIM);
-		}
-		if (automap_type & (MAF_EAST_GRATE | MAF_EAST_ARCH)) {
-			DrawAutomapDiamond(sx, sy);
-		}
-		if ((automap_type & (MAF_EAST_DOOR | MAF_EAST_GRATE | MAF_EAST_ARCH)) == 0) {
-			unsigned d32 = AmLine32;
-			unsigned d16 = (d32 >> 1);
-			DrawLine(sx, sy - d16, sx + d32, sy, COLOR_DIM);
-		}
+	if (automap_type & MAT_WALL_NE) {
+		DrawLine(sx, sy - d16 + 1, sx + d16 - 1, sy - d8, COLOR_DIM);
 	}
-
-	if (automap_type & MAF_DO_SOUTH_WEST) {
-		unsigned d32 = AmLine32;
-		unsigned d16 = (d32 >> 1);
-		if (automap_type & MAF_WEST_DOOR) {
-			unsigned d8 = (d32 >> 2);
-			DrawAutomapHorzDoor(sx - d16, sy + d8);
-		} else {
-			DrawLine(sx, sy + d16, sx - d32, sy, COLOR_DIM);
-		}
+	if (automap_type & MAT_WALL_SW) {
+		DrawLine(sx - d16, sy - d8 + 1, sx - 1, sy, COLOR_DIM);
 	}
-
-	if (automap_type & MAF_DO_SOUTH_EAST) {
-		unsigned d32 = AmLine32;
-		unsigned d16 = (d32 >> 1);
-		if (automap_type & MAF_EAST_DOOR) {
-			unsigned d8 = (d32 >> 2);
-			DrawAutomapVertDoor(sx + d16, sy + d8);
-		} else {
-			DrawLine(sx, sy + d16, sx + d32, sy, COLOR_DIM);
-		}
+	if (automap_type & MAT_WALL_SE) {
+		DrawLine(sx, sy, sx + d16 - 1, sy - d8 + 1, COLOR_DIM);
 	}
 }
 
@@ -690,22 +426,16 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 /**
  * @brief Returns the automap shape at the given coordinate.
  */
-static uint16_t GetAutomapType(int x, int y, bool view)
+static BYTE GetAutomapType(int x, int y, bool view)
 {
 	if ((unsigned)x >= MAXDUNX || (unsigned)y >= MAXDUNY) {
-		return MWT_NONE;
+		return MAT_NONE;
 	}
 	if (view && !(dFlags[x][y] & BFLAG_EXPLORED)) {
-		return MWT_NONE;
+		return MAT_NONE;
 	}
-	x -= DBORDERX;
-	y -= DBORDERY;
-	if ((unsigned)x >= 2 * DMAXX || (unsigned)y >= 2 * DMAXY) {
-		return MAF_EXTERN;
-	}
-	x >>= 1;
-	y >>= 1;
-	return automaptype[dungeon[x][y]];
+
+	return automaptype[dPiece[x][y]];
 }
 
 /**
@@ -806,35 +536,34 @@ static void DrawAutomapContent()
 	// select the bottom edge of the tile
 	sy += (d64 >> 2);
 
-	// draw the tiles, two rows at a time
-	for (i = 0; i < cells; i++) { // foreach ycells
+	// draw the subtiles
+	cells *= 2;
+	unsigned d32 = d64 >> 1;
+	for (i = 0; i < 2 * cells; i++) { // foreach ycells
 		int x = sx;
 
-		for (j = 0; j < cells; j++) { // foreach xcells 1.
-			uint16_t maptype = GetAutomapType(mapx, mapy, true);
-			if (maptype != MWT_NONE)
+		for (j = 0; j < cells; j++) { // foreach xcells
+			BYTE maptype = GetAutomapType(mapx, mapy, true);
+			if (maptype != MAT_NONE)
 				DrawAutomapTile(x, sy, maptype);
-			SHIFT_GRID(mapx, mapy, 2, 0);
-			x += d64;
+			SHIFT_GRID(mapx, mapy, 1, 0);
+			x += d32;
 		}
 		// Return to start of row
-		SHIFT_GRID(mapx, mapy, 2 * -cells, 0);
+		SHIFT_GRID(mapx, mapy, -cells, 0);
 
-		mapy += 2;
-		x = sx + (d64 >> 1);
-		sy += (d64 >> 2);
-		for (j = 0; j < cells; j++) { // foreach xcells 2.
-			SHIFT_GRID(mapx, mapy, 2, 0);
-			uint16_t maptype = GetAutomapType(mapx, mapy, true);
-			if (maptype != MWT_NONE)
-				DrawAutomapTile(x, sy, maptype);
-			x += d64;
+		// move to the next row
+		if (i & 1) {
+			mapy++;
+
+			sx -= (d32 >> 1);
+			sy += (d32 >> 2);
+		} else {
+			mapx++;
+
+			sx += (d32 >> 1);
+			sy += (d32 >> 2);
 		}
-		// Return to start of row
-		SHIFT_GRID(mapx, mapy, 2 * -cells, 0);
-
-		mapx += 2;
-		sy += (d64 >> 2);
 	}
 
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
@@ -868,111 +597,52 @@ void DrawAutomap()
  */
 void SetAutomapView(int xx, int yy)
 {
-	uint16_t maptype;
-
 	// assert(IN_DUNGEON_AREA(xx, yy));
-	xx &= ~1;
-	yy &= ~1;
 	dFlags[xx][yy] |= BFLAG_EXPLORED;
-	dFlags[xx + 1][yy] |= BFLAG_EXPLORED;
-	dFlags[xx][yy + 1] |= BFLAG_EXPLORED;
-	dFlags[xx + 1][yy + 1] |= BFLAG_EXPLORED;
 
-	maptype = GetAutomapType(xx, yy, false);
+	BYTE maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy, false);
 
-	switch (maptype & MAF_TYPE) {
-	case MWT_NONE:
-	case MWT_PILLAR:
-		break;
-	case MWT_NORTH_WEST:
-		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
-		} else if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN) {
-			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
+	static_assert(DBORDERX != 0 && DBORDERY != 0, "SetAutomapView skips border checks.");
+	BYTE mapftr = maptype & MAT_TYPE;
+	if (maptype & MAT_WALL_NW) {
+		if (mapftr == MAT_EXTERN) {
+			if ((automaptype[dungeon[xx - 1][yy + 1]] & MAT_TYPE) == MAT_EXTERN)
+				dFlags[xx][yy + 1] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
+		} else if ((automaptype[dungeon[xx - 1][yy]] & MAT_TYPE) == MAT_EXTERN) {
+			dFlags[xx - 1][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
+			if ((automaptype[dungeon[xx][yy + 1]] & MAT_TYPE) == MAT_EXTERN) {
+				dFlags[xx - 1][yy + 1] |= BFLAG_EXPLORED; // reveal corner-tile to W
+			}
+			if ((maptype & MAT_WALL_NE) && (automaptype[dungeon[xx][yy - 1]] & MAT_TYPE) == MAT_EXTERN) {
+				dFlags[xx - 1][yy - 1] |= BFLAG_EXPLORED; // reveal extern-tile to N
+			}
 		}
-		break;
-	case MWT_NORTH_EAST:
-		if (maptype & MAF_EXTERN) {
-			// if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER)) - should be covered from the other direction (NE)
-			//	dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
-		} else if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN) {
-			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
+	}
+	if (maptype & MAT_WALL_NE) {
+		if (mapftr == MAT_EXTERN) {
+			// if ((automaptype[dungeon[xx + 1][yy]] & MAT_TYPE) == MAT_EXTERN) - should be covered from the other direction (NE)
+			//	dFlags[xx + 1][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
+		} else if ((automaptype[dungeon[xx][yy - 1]] & MAT_TYPE) == MAT_EXTERN) {
+			dFlags[xx][yy - 1] |= BFLAG_EXPLORED; // reveal extern-tile to NE
+			if ((automaptype[dungeon[xx + 1][yy]] & MAT_TYPE) == MAT_EXTERN) {
+				dFlags[xx + 1][yy - 1] |= BFLAG_EXPLORED; // reveal corner-tile to E
+			}
 		}
-		break;
-	case MWT_NORTH:
-		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
-			//if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER)) - should be covered from the other direction (NE)
-			//	dFlags[xx + 2][yy] = TRUE; // reveal corner-tile from NW to south
-		} else {
-			if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
-				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
-			if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
-				dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
-			if (GetAutomapType(xx - 2, yy - 2, false) & MAF_EXTERN)
-				dFlags[xx - 2][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to N
+	}
+	if (maptype & MAT_WALL_SW) {
+		// assert(mapftr != MAT_EXTERN);
+		if ((automaptype[dungeon[xx][yy + 1]] & MAT_TYPE) == MAT_EXTERN) {
+			dFlags[xx][yy + 1] |= BFLAG_EXPLORED; // reveal extern-tile to SW
+			if ((maptype & MAT_WALL_SE) && (automaptype[dungeon[xx + 1][yy]] & MAT_TYPE) == MAT_EXTERN) {
+				dFlags[xx + 1][yy + 1] |= BFLAG_EXPLORED; // reveal corner-tile to S
+			}
 		}
-		break;
-	case MWT_NORTH_WEST_END:
-		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
-				dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal corner-tile from SW to east
-			if (GetAutomapType(xx, yy + 2, false) == (MAF_EXTERN | MWT_CORNER))
-				dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal corner-tile from NE to south
+	}
+	if (maptype & MAT_WALL_SE) {
+		// assert(mapftr != MAT_EXTERN);
+		if ((automaptype[dungeon[xx + 1][yy]] & MAT_TYPE) == MAT_EXTERN) {
+			dFlags[xx + 1][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
 		}
-		break;
-	case MWT_NORTH_EAST_END:
-		if (maptype & MAF_EXTERN) {
-			if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
-				dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from SE to west
-			// if (GetAutomapType(xx + 2, yy, false) == (MAF_EXTERN | MWT_CORNER)) - should be covered from the other direction (NE)
-			//	dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal corner-tile from NW to south
-		}
-		break;
-	case MWT_CORNER:
-		break;
-	case MWT_WEST:
-		// assert(!(maptype & MAF_EXTERN));
-		if (GetAutomapType(xx - 2, yy, false) & MAF_EXTERN)
-			dFlags[xx - 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to NW
-		if (GetAutomapType(xx, yy + 2, false) & MAF_EXTERN)
-			dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to SW
-		if (GetAutomapType(xx - 2, yy + 2, false) & MAF_EXTERN)
-			dFlags[xx - 2][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to W
-		break;
-	case MWT_EAST:
-		// assert(!(maptype & MAF_EXTERN));
-		if (GetAutomapType(xx + 2, yy, false) & MAF_EXTERN)
-			dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
-		if (GetAutomapType(xx, yy - 2, false) & MAF_EXTERN)
-			dFlags[xx][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to NE
-		if (GetAutomapType(xx + 2, yy - 2, false) & MAF_EXTERN)
-			dFlags[xx + 2][yy - 2] |= BFLAG_EXPLORED; // reveal extern-tile to E
-		break;
-	case MWT_SOUTH_WEST:
-		// assert(!(maptype & MAF_EXTERN));
-		if (GetAutomapType(xx, yy + 2, false) & MAF_EXTERN)
-			dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to SW
-		break;
-	case MWT_SOUTH_EAST:
-		// assert(!(maptype & MAF_EXTERN));
-		if (GetAutomapType(xx + 2, yy, false) & MAF_EXTERN)
-			dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
-		break;
-	case MWT_SOUTH:
-		// assert(!(maptype & MAF_EXTERN));
-		if (GetAutomapType(xx + 2, yy, false) & MAF_EXTERN)
-			dFlags[xx + 2][yy] |= BFLAG_EXPLORED; // reveal extern-tile to SE
-		if (GetAutomapType(xx, yy + 2, false) & MAF_EXTERN)
-			dFlags[xx][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to SW
-		if (GetAutomapType(xx + 2, yy + 2, false) & MAF_EXTERN)
-			dFlags[xx + 2][yy + 2] |= BFLAG_EXPLORED; // reveal extern-tile to S
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
 	}
 }
 

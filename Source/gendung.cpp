@@ -254,7 +254,6 @@ void InitLvlDungeon()
 	case DTYPE_CATHEDRAL:
 #if !USE_PATCH
 		// patch dSolidTable - L1.SOL
-		nMissileTable[8] = false; // the only column which was blocking missiles
 		// adjust SOL after fixCathedralShadows
 		nSolidTable[298] = true;
 		nSolidTable[304] = true;
@@ -269,10 +268,27 @@ void InitLvlDungeon()
 		nMissileTable[338] = false;
 		// - special subtile for the vile setmap
 		nMissileTable[335] = false;
+		// - with subtile-based automap
+		nBlockTable[139] = false;
+		nBlockTable[140] = false;
+		// - separate subtiles for the automap
+		nBlockTable[61] = false;
+		nMissileTable[61] = false;
+		// patch dMiniTiles - L1.MIN
+		// - separate subtiles for the automap
+		pSubtiles[61][0] = pSubtiles[8][0];
+		pSubtiles[61][1] = pSubtiles[8][1];
+		pSubtiles[61][2] = pSubtiles[8][2];
+		pSubtiles[61][3] = pSubtiles[8][3];
+		pSubtiles[61][4] = pSubtiles[8][4];
+		pSubtiles[61][5] = pSubtiles[8][5];
+		pSubtiles[61][6] = pSubtiles[8][6];
+		pSubtiles[61][7] = pSubtiles[8][7];
+		// patch dMegaTiles - L1.TIL
 		// make the inner tile at the entrance non-walkable II.
 		pTiles[196][3] = 425;
 		// create separate pillar tile
-		pTiles[28][0] = pTiles[3][0];
+		pTiles[28][0] = pTiles[3][0]; // 61
 		pTiles[28][1] = pTiles[3][1];
 		pTiles[28][2] = pTiles[3][2];
 		pTiles[28][3] = pTiles[3][3];
@@ -507,7 +523,25 @@ void InitLvlDungeon()
 		nSolidTable[540] = false; // unused in base game
 		//nSolidTable[273] = true;
 		//nSolidTable[297] = true;
+		// - with subtile-based automap
+		nBlockTable[166] = false;
+		nBlockTable[168] = false;
+		// - separate subtiles for the automap
+		nSolidTable[258] = true;
+		nMissileTable[258] = true;
+		// patch dMiniTiles - L3.MIN
+		// - separate subtiles for the automap
+		pSubtiles[258][0] = 0;
+		pSubtiles[406][0] = 0;
+		pSubtiles[406][1] = 0;
+		pSubtiles[406][3] = 0;
+		pSubtiles[406][5] = 101 | (MET_TRANSPARENT << 12);
+		pSubtiles[406][7] = 100 | (MET_TRANSPARENT << 12);
+		pSubtiles[407][1] = 0;
 		// patch dMegaTiles - L3.TIL
+		// - separate subtiles for the automap
+		pTiles[111][0] = 28;
+		pTiles[111][2] = 30;
 		// - create new fences
 		pTiles[144][0] = 505;
 		pTiles[144][1] = 25;
@@ -546,6 +580,12 @@ void InitLvlDungeon()
 		nMissileTable[211] = false;
 		nBlockTable[211] = false;
 		// patch dMegaTiles - L4.TIL
+		// - separate subtiles for the automap
+		pTiles[44][2] = 136;
+		pTiles[136][0] = 149;
+		pTiles[136][1] = 153;
+		pTiles[136][2] = 97;
+		pTiles[136][3] = 136;
 		// - new shadow-types
 		pTiles[61][0] = 5;
 		pTiles[61][1] = 6;
@@ -596,6 +636,15 @@ void InitLvlDungeon()
 		nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
+		// - with subtile-based automap
+		nBlockTable[61] = false;
+		nBlockTable[63] = false;
+		nBlockTable[65] = false;
+		nBlockTable[66] = false;
+		// patch dMegaTiles - L6.TIL
+		// - separate subtiles for the automap
+		pTiles[23][0] = 29;
+		pTiles[23][2] = 31;
 #endif
 		break;
 	case DTYPE_CRYPT:
@@ -655,17 +704,22 @@ void InitLvlDungeon()
 		nMissileTable[159] = false;
 		nBlockTable[159] = false;
 		nMissileTable[148] = true;
-		nBlockTable[148] = true;
+		// nBlockTable[148] = true;
+		// -- with subtile-based automap
+		// nBlockTable[148] = false;
+		nBlockTable[149] = false;
+		nBlockTable[150] = false;
+		nBlockTable[153] = false;
 		// patch dMegaTiles - L5.TIL
 		// - fix automap of the entrance II.
-		pTiles[52][0] = pTiles[23][0];
-		pTiles[52][1] = pTiles[23][1];
-		pTiles[52][2] = pTiles[23][2];
-		pTiles[52][3] = pTiles[23][3];
-		pTiles[58][0] = pTiles[18][0];
-		pTiles[58][1] = pTiles[18][1];
-		pTiles[58][2] = pTiles[18][2];
-		pTiles[58][3] = pTiles[18][3];
+		// pTiles[52][0] = pTiles[23][0];
+		// pTiles[52][1] = pTiles[23][1];
+		// pTiles[52][2] = pTiles[23][2];
+		// pTiles[52][3] = pTiles[23][3];
+		// pTiles[58][0] = pTiles[18][0];
+		// pTiles[58][1] = pTiles[18][1];
+		// pTiles[58][2] = pTiles[18][2];
+		// pTiles[58][3] = pTiles[18][3];
 		// create separate pillar tile
 		pTiles[28][0] = pTiles[3][0];
 		pTiles[28][1] = pTiles[3][1];

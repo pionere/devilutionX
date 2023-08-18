@@ -3020,7 +3020,12 @@ void DRLP_L4_PatchTil(BYTE* buf)
 	pTiles[(135 - 1) * 4 + 1] = SwapLE16(31 - 1);
 	pTiles[(135 - 1) * 4 + 2] = SwapLE16(16 - 1);
 	pTiles[(135 - 1) * 4 + 3] = SwapLE16(176 - 1);
-
+	// separate subtiles for the automap
+	pTiles[(44 - 1) * 4 + 2] = SwapLE16(136 - 1);
+	pTiles[(136 - 1) * 4 + 0] = SwapLE16(149 - 1);
+	pTiles[(136 - 1) * 4 + 1] = SwapLE16(153 - 1);
+	pTiles[(136 - 1) * 4 + 2] = SwapLE16(97 - 1);
+	pTiles[(136 - 1) * 4 + 3] = SwapLE16(136 - 1);
 	// use common subtiles
 	pTiles[( 4 - 1) * 4 + 2] = SwapLE16(10 - 1);  // 13
 	pTiles[(81 - 1) * 4 + 2] = SwapLE16(10 - 1);
@@ -3126,7 +3131,7 @@ void DRLP_L4_PatchTil(BYTE* buf)
 
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		20, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 136, 137
+		20, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 137
 	};
 	constexpr int blankSubtile = 14;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {

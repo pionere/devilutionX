@@ -975,6 +975,15 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	// subtile to make the inner tile at the entrance non-walkable II.
 	Blk2Mcr(425, 0);
 	ReplaceMcr(425, 1, 299, 1);
+	// subtile for the separate pillar tile
+	ReplaceMcr(61, 0, 8, 0);
+	SetMcr(61, 1, 8, 1);
+	ReplaceMcr(61, 2, 8, 2);
+	SetMcr(61, 3, 8, 3);
+	ReplaceMcr(61, 4, 8, 4);
+	SetMcr(61, 5, 8, 5);
+	SetMcr(61, 6, 8, 6);
+	SetMcr(61, 7, 8, 7);
 	// pointless door micros (re-drawn by dSpecial or the object)
 	// - vertical doors	
 	ReplaceMcr(392, 4, 231, 4);
@@ -1525,9 +1534,9 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(56, 7);
 	Blk2Mcr(58, 1);
 	Blk2Mcr(60, 7);
-	Blk2Mcr(61, 0);
-	Blk2Mcr(61, 2);
-	Blk2Mcr(61, 4);
+	// Blk2Mcr(61, 0);
+	// Blk2Mcr(61, 2);
+	// Blk2Mcr(61, 4);
 	Blk2Mcr(63, 0);
 	Blk2Mcr(63, 1);
 	Blk2Mcr(67, 0);
@@ -1919,7 +1928,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(25 - 1) * 4 + 0] = SwapLE16(392 - 1); // 43
 	pTiles[(26 - 1) * 4 + 0] = SwapLE16(394 - 1); // 45
 	// create separate pillar tile
-	pTiles[(28 - 1) * 4 + 0] = SwapLE16(8 - 1);
+	pTiles[(28 - 1) * 4 + 0] = SwapLE16(61 - 1);
 	pTiles[(28 - 1) * 4 + 1] = SwapLE16(2 - 1);
 	pTiles[(28 - 1) * 4 + 2] = SwapLE16(7 - 1);
 	pTiles[(28 - 1) * 4 + 3] = SwapLE16(4 - 1);
@@ -2700,9 +2709,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(75, 1, 204, 1);
 	// ReplaceMcr(75, 2, 204, 2);
 	// ReplaceMcr(75, 4, 204, 4);
-	ReplaceMcr(91, 0, 204, 0);
-	ReplaceMcr(91, 2, 204, 2);
-	ReplaceMcr(91, 4, 204, 4);
+	// ReplaceMcr(91, 0, 204, 0);
+	// ReplaceMcr(91, 2, 204, 2);
+	// ReplaceMcr(91, 4, 204, 4);
 	ReplaceMcr(99, 0, 204, 0);
 	ReplaceMcr(99, 2, 204, 2);
 	ReplaceMcr(99, 4, 204, 4);
@@ -2823,6 +2832,18 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// fix automap of the entrance I.
 	Blk2Mcr(148, 0);
 	Blk2Mcr(148, 1);
+	// subtile for the separate pillar tile
+	// - 91 == 9
+	ReplaceMcr(91, 0, 33, 0);
+	ReplaceMcr(91, 1, 55, 1);
+	ReplaceMcr(91, 2, 29, 2);
+	SetMcr(91, 3, 21, 3);
+	ReplaceMcr(91, 4, 25, 4);
+	SetMcr(91, 5, 21, 5);
+	ReplaceMcr(91, 6, 25, 6);
+	SetMcr(91, 7, 21, 7);
+	ReplaceMcr(91, 8, 9, 8);
+	ReplaceMcr(91, 9, 9, 9);
 	// reuse subtiles
 	ReplaceMcr(631, 1, 626, 1);
 	ReplaceMcr(149, 4, 1, 4);
@@ -3247,7 +3268,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(36, 8, 95, 8); // lost details
 	// ReplaceMcr(75, 8, 95, 8);
 	ReplaceMcr(83, 8, 95, 8); // lost details
-	ReplaceMcr(91, 8, 95, 8);
+	// ReplaceMcr(91, 8, 95, 8);
 	ReplaceMcr(99, 8, 95, 8);  // lost details
 	ReplaceMcr(113, 8, 95, 8); // lost details
 	ReplaceMcr(115, 8, 95, 8); // lost details
@@ -3301,7 +3322,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(603, 6, 119, 6); // lost details
 	ReplaceMcr(611, 6, 119, 6); // lost details
 	// ReplaceMcr(75, 6, 99, 6);   // lost details
-	ReplaceMcr(91, 6, 99, 6);   // lost details
+	// ReplaceMcr(91, 6, 99, 6);   // lost details
 	ReplaceMcr(115, 6, 99, 6);  // lost details
 	ReplaceMcr(204, 6, 99, 6);  // lost details
 	ReplaceMcr(215, 6, 99, 6);  // lost details
@@ -3617,7 +3638,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(59, 9, 13, 9); // lost details
 	ReplaceMcr(83, 9, 13, 9); // lost details
 	ReplaceMcr(88, 9, 13, 9); // lost details
-	ReplaceMcr(91, 9, 13, 9); // lost details
+	// ReplaceMcr(91, 9, 13, 9); // lost details
 	ReplaceMcr(95, 9, 13, 9);
 	ReplaceMcr(97, 9, 13, 9);  // lost details
 	ReplaceMcr(99, 9, 13, 9);  // lost details
@@ -3736,7 +3757,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(29, 1, 55, 1);   // lost details
 	ReplaceMcr(51, 1, 55, 1);   // lost details
 	ReplaceMcr(59, 1, 55, 1);   // lost details
-	ReplaceMcr(91, 1, 55, 1);   // lost details
+	// ReplaceMcr(91, 1, 55, 1);   // lost details
 	ReplaceMcr(95, 1, 55, 1);   // lost details
 	ReplaceMcr(215, 1, 55, 1);  // lost details
 	ReplaceMcr(335, 1, 55, 1);  // lost details
@@ -3920,16 +3941,9 @@ void DRLP_L5_PatchTil(BYTE* buf)
 {
 	uint16_t* pTiles = (uint16_t*)buf;
 	// fix automap of the entrance I.
-	pTiles[(52 - 1) * 4 + 0] = SwapLE16(73 - 1); // 45 - copy from 23
-	pTiles[(52 - 1) * 4 + 1] = SwapLE16(64 - 1); // 46
-	pTiles[(52 - 1) * 4 + 2] = SwapLE16(65 - 1); // 148
-	pTiles[(52 - 1) * 4 + 3] = SwapLE16(66 - 1); // 48
-	pTiles[(58 - 1) * 4 + 0] = SwapLE16(63 - 1); // 166 - copy from 18
-	pTiles[(58 - 1) * 4 + 1] = SwapLE16(64 - 1); // 167
-	pTiles[(58 - 1) * 4 + 2] = SwapLE16(65 - 1); // 47
-	pTiles[(58 - 1) * 4 + 3] = SwapLE16(66 - 1); // 48
-	pTiles[(53 - 1) * 4 + 1] = SwapLE16(148 - 1); // 130
-	pTiles[(53 - 1) * 4 + 3] = SwapLE16(148 - 1); // 130
+	pTiles[(53 - 1) * 4 + 1] = SwapLE16(148 - 1);
+	pTiles[(53 - 1) * 4 + 3] = SwapLE16(148 - 1);
+	pTiles[(54 - 1) * 4 + 3] = SwapLE16(148 - 1);
 	// use common subtiles
 	pTiles[(4 - 1) * 4 + 1] = SwapLE16(6 - 1); // 14
 	pTiles[(14 - 1) * 4 + 1] = SwapLE16(6 - 1);
@@ -3959,7 +3973,7 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(162 - 1) * 4 + 1] = SwapLE16(297 - 1); // 489
 	pTiles[(162 - 1) * 4 + 2] = SwapLE16(266 - 1); // 490
 	// create separate pillar tile
-	pTiles[(28 - 1) * 4 + 0] = SwapLE16(9 - 1);
+	pTiles[(28 - 1) * 4 + 0] = SwapLE16(91 - 1);
 	pTiles[(28 - 1) * 4 + 1] = SwapLE16(60 - 1);
 	pTiles[(28 - 1) * 4 + 2] = SwapLE16(4 - 1);
 	pTiles[(28 - 1) * 4 + 3] = SwapLE16(12 - 1);
@@ -4194,7 +4208,7 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(188 - 1) * 4 + 2] = SwapLE16(12 - 1);
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		/* 29,*/ 30, 31,/* 32,*/ 34,/* 38,*/ 39, 40, 41, 42,/* 43, 44,*/ 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 79, 212, 213, 214
+		/* 29,*/ 30, 31,/* 32,*/ 34,/* 38,*/ 39, 40, 41, 42,/* 43, 44,*/ 52, 58, 61, 62, 63, 64, 65, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 79, 212, 213, 214
 	};
 	constexpr int blankSubtile = 8;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {
