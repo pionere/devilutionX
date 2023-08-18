@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - control-click to move between belt and inventory
 - added 'target mode' to select items or objects exclusively
 - support swapping of hotkey-sets
+- (subtile based) minimap
 ### Gameplay
 - SAVE-files are NOT backwards compatible
 - altered abilities (hellfire)
