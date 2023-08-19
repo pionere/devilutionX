@@ -2111,22 +2111,21 @@ void DRLP_L1_PatchTil(BYTE* buf)
 }
 
 #ifdef HELLFIRE
-static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+static BYTE* patchCryptFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	const CelMicro micros[] = {
-		{ 159 - 1, 3, MET_SQUARE },
-//		{ 159 - 1, 3, MET_RTRAPEZOID },
-		{ 336 - 1, 0, MET_LTRIANGLE },
-		{ 409 - 1, 0, MET_LTRIANGLE },
-		{ 481 - 1, 1, MET_RTRIANGLE },
-		{ 492 - 1, 0, MET_LTRIANGLE },
-		{ 519 - 1, 0, MET_LTRIANGLE },
-		{ 595 - 1, 1, MET_RTRIANGLE },
-		{ 368 - 1, 1, MET_RTRIANGLE },
-		{ 162 - 1, 2, MET_TRANSPARENT },
-		{  63 - 1, 4, MET_SQUARE },
-		{ 450 - 1, 0, MET_TRANSPARENT },
-		{ 206 - 1, 0, MET_TRANSPARENT },
+/*  0 */{ 159 - 1, 3, MET_SQUARE },
+/*  1 */{ 336 - 1, 0, MET_LTRIANGLE },
+/*  2 */{ 409 - 1, 0, MET_LTRIANGLE },
+/*  3 */{ 481 - 1, 1, MET_RTRIANGLE },
+/*  4 */{ 492 - 1, 0, MET_LTRIANGLE },
+/*  5 */{ 519 - 1, 0, MET_LTRIANGLE },
+/*  6 */{ 595 - 1, 1, MET_RTRIANGLE },
+/*  7 */{ 368 - 1, 1, MET_RTRIANGLE },
+/*  8 */{ 162 - 1, 2, MET_TRANSPARENT },
+/*  9 */{  63 - 1, 4, MET_SQUARE },
+/* 10 */{ 450 - 1, 0, MET_TRANSPARENT },
+/* 11 */{ 206 - 1, 0, MET_TRANSPARENT },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -2162,42 +2161,65 @@ static BYTE* fillCryptShapes(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		}
 	}
 
-	gpBuffer[0 * MICRO_WIDTH + 30 + (MICRO_HEIGHT * 1 +  1) * BUFFER_WIDTH] = 46; // 336[0]
-	gpBuffer[0 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 1 +  1) * BUFFER_WIDTH] = 76;
-
-	gpBuffer[1 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 2 + 16) * BUFFER_WIDTH] = 43; // 519[0]
-
-	gpBuffer[2 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 1 +  7) * BUFFER_WIDTH] = 43; // 368[1]
-	gpBuffer[2 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 1 +  9) * BUFFER_WIDTH] = 41;
-
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 13) * BUFFER_WIDTH] = 41; // 162[2]
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 14) * BUFFER_WIDTH] = 36;
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 18) * BUFFER_WIDTH] = 36;
-	gpBuffer[2 * MICRO_WIDTH + 30 + (MICRO_HEIGHT * 2 + 19) * BUFFER_WIDTH] = 35;
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 20) * BUFFER_WIDTH] = 45;
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 21) * BUFFER_WIDTH] = 63;
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 22) * BUFFER_WIDTH] = 40;
-	gpBuffer[2 * MICRO_WIDTH + 31 + (MICRO_HEIGHT * 2 + 29) * BUFFER_WIDTH] = 36;
-
-	gpBuffer[3 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 0 + 19) * BUFFER_WIDTH] = 91; // 63[4]
-	gpBuffer[3 * MICRO_WIDTH +  0 + (MICRO_HEIGHT * 0 + 20) * BUFFER_WIDTH] = 93;
-
-	gpBuffer[3 * MICRO_WIDTH +  26 + (MICRO_HEIGHT * 2 + 4) * BUFFER_WIDTH] = 45; // 206[0]
-
-	for (yy = 13; yy < 16; yy++) {
-		for (xx = 2; xx < 8; xx++) {
-			if (yy > 14 - (xx - 2) / 2) {
+	{ // 336[0] - add missing pixels
+		int i = 1;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 30 + 1 * BUFFER_WIDTH] = 46;
+		gpBuffer[addr + 31 + 1 * BUFFER_WIDTH] = 76;
+	}
+	{ // 519[0] - add missing pixels
+		int i = 5;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 0 + 16 * BUFFER_WIDTH] = 43;
+	}
+	{ // 368[1] - make the edge of the oil(?) smoother
+		int i = 7;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 0 + 7 * BUFFER_WIDTH] = 43;
+		gpBuffer[addr + 0 + 9 * BUFFER_WIDTH] = 41;
+	}
+	{ // 162[2] - adjust the shadow to enable 'fix crack in the chair'
+		int i = 8;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 31 + 13 * BUFFER_WIDTH] = 41;
+		gpBuffer[addr + 31 + 14 * BUFFER_WIDTH] = 36;
+		gpBuffer[addr + 31 + 18 * BUFFER_WIDTH] = 36;
+		gpBuffer[addr + 30 + 19 * BUFFER_WIDTH] = 35;
+		gpBuffer[addr + 31 + 20 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr + 31 + 21 * BUFFER_WIDTH] = 63;
+		gpBuffer[addr + 31 + 22 * BUFFER_WIDTH] = 40;
+		gpBuffer[addr + 31 + 29 * BUFFER_WIDTH] = 36;
+	}
+	{ // 63[4] - adjust pixels to make the connections better
+		int i = 9;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 0 + 19 * BUFFER_WIDTH] = 91;
+		gpBuffer[addr + 0 + 20 * BUFFER_WIDTH] = 93;
+	}
+	// 450[0] - add missing pixels
+	for (int i = 10; i < 11; i++) {
+	for (int y = 13; y < 16; y++) {
+		for (int x = 2; x < 8; x++) {
+			if (y > 14 - (x - 2) / 2) {
 				BYTE color = 43;
-				if (yy == 14 - (xx - 2) / 2) {
-					if ((xx & 1) == 0) {
+				if (y == 14 - (x - 2) / 2) {
+					if ((x & 1) == 0) {
 						color = 44;
-					} else if (xx == 7) {
+					} else if (x == 7) {
 						color = 77;
 					}
 				}
-				gpBuffer[3 * MICRO_WIDTH + xx + (MICRO_HEIGHT * 1 + yy) * BUFFER_WIDTH] = color; // 450[0]
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				gpBuffer[addr] = color; // 450[0]
+				// gpBuffer[3 * MICRO_WIDTH + xx + (MICRO_HEIGHT * 1 + yy) * BUFFER_WIDTH] = color; // 450[0]
 			}
 		}
+	}
+	}
+	{ // 206[0] - fix bad artifact
+		int i = 11;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 26 + 4 * BUFFER_WIDTH] = 45;
 	}
 
 	// create the new CEL file
@@ -2361,32 +2383,29 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	const CelMicro micros[] = {
-		{ 626 - 1, 0, MET_LTRIANGLE },   // 1806 - 205
-		{ 626 - 1, 1, MET_RTRIANGLE },   // 1807
-		{ -1, 0, 0 }, // { 627 - 1, 0, MET_LTRIANGLE },   // 1808
-		{ 638 - 1, 1, MET_RTRIANGLE },   // 1824 - 211
-		{ 639 - 1, 0, MET_LTRIANGLE },   // 1825
-		{ 639 - 1, 1, MET_RTRIANGLE },   // 1799
-		{ -1, 0, 0 }, // { 631 - 1, 1, MET_RTRIANGLE },   // 1815 - 207
-		{ 634 - 1, 0, MET_LTRIANGLE },   // 1818 - 208
-		{ 634 - 1, 1, MET_RTRIANGLE },   // 1819
+/*  0 */{ 626 - 1, 0, MET_LTRIANGLE },
+/*  1 */{ 626 - 1, 1, MET_RTRIANGLE },
+/*  2 */{ /*627*/ - 1, 0, -1 },
+/*  3 */{ 638 - 1, 1, MET_RTRIANGLE },
+/*  4 */{ 639 - 1, 0, MET_LTRIANGLE },
+/*  5 */{ 639 - 1, 1, MET_RTRIANGLE },
+/*  6 */{ /*631*/ - 1, 0, -1 },
+/*  7 */{ 634 - 1, 0, MET_LTRIANGLE },
+/*  8 */{ 634 - 1, 1, MET_RTRIANGLE },
 
-		{ 277 - 1, 1, MET_TRANSPARENT }, // 722 - 96
-		{ 303 - 1, 1, MET_RTRIANGLE },   // 797
-		{ -1, 0, 0 },
+/*  9 */{ 277 - 1, 1, MET_TRANSPARENT },
+/* 10 */{ 303 - 1, 1, MET_RTRIANGLE },
 
-		{ -1, 0, 0 }, // { 630 - 1, 0, MET_TRANSPARENT }, // 1804 - '111'
-		{ 620 - 1, 0, MET_RTRIANGLE },   // 1798 - '109'
-		{ 621 - 1, 1, MET_SQUARE },      // 1800
-		{ 625 - 1, 0, MET_RTRIANGLE },   // 1805 - '215'
-		{ 624 - 1, 0, MET_TRANSPARENT }, // 1804
-		{ 619 - 1, 1, MET_LTRAPEZOID },  // 1797 - '109' + '215'
+/* 11 */{ 620 - 1, 0, MET_RTRIANGLE },
+/* 12 */{ 621 - 1, 1, MET_SQUARE },
+/* 13 */{ 625 - 1, 0, MET_RTRIANGLE },
+/* 14 */{ 624 - 1, 0, MET_TRANSPARENT },
+/* 15 */{ 15 - 1, 1, -1 },
+/* 16 */{ 15 - 1, 2, -1 },
+/* 17 */{ 89 - 1, 1, -1 },
+/* 18 */{ 89 - 1, 2, -1 },
 
-		{ 31 - 1, 0, 0 },                // 152
-		{ 15 - 1, 1, 0 },                // 14
-		{ 15 - 1, 2, 0 },                // 12
-		{ 89 - 1, 1, 0 },                // 311
-		{ 89 - 1, 2, 0 },                // 309
+/* 19 */{ 619 - 1, 1, MET_LTRAPEZOID },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -2411,7 +2430,8 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	pMicrosCel = celBuf;
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SHADOW_COLOR = 0;
-	memset(&gpBuffer[0], TRANS_COLOR, 3 * BUFFER_WIDTH * MICRO_HEIGHT);
+	constexpr BYTE DRAW_HEIGHT = 3;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
 
 	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
 	for (int i = 0; i < lengthof(micros); i++) {
@@ -2421,134 +2441,126 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
 		}
 		yy += MICRO_HEIGHT;
-		if (yy == 4 * MICRO_HEIGHT - 1) {
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
 			xx += MICRO_WIDTH;
 		}
 	}
 
-	// extend the shadows to NE: 205[2][0, 1], 205[3][0]
+	// extend the shadows to NE: 626[0], 626[1]
 	for (int i = 0; i < 2; i++) {
 		for (int y = 0; y < MICRO_HEIGHT; y++) {
 			for (int x = 0; x < MICRO_WIDTH; x++) {
-				BYTE* pixel = &gpBuffer[0 * MICRO_WIDTH + x + (i * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				if (*pixel == TRANS_COLOR) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				if (color == TRANS_COLOR) {
 					continue;
 				}
-				if (i == 0 && *pixel != 79 && y <= (x / 2) + 13 - MICRO_HEIGHT / 2) { // 1806
+				if (i == 0 && color != 79 && y <= (x / 2) + 13 - MICRO_HEIGHT / 2) { // 626[0]
 					continue;
 				}
-				if (i == 1 && *pixel != 79 && y <= (x / 2) + 13) { // 1807
+				if (i == 1 && color != 79 && y <= (x / 2) + 13) { // 626[1]
 					continue;
 				}
-				//if (i == 2 && *pixel != 79 && y <= (x / 2) + 13 - MICRO_HEIGHT / 2) { // 1808
+				//if (i == 2 && color != 79 && y <= (x / 2) + 13 - MICRO_HEIGHT / 2) { // 627[0]
 				//	continue;
 				//}
-				*pixel = SHADOW_COLOR;
+				gpBuffer[addr] = SHADOW_COLOR;
 			}
 		}
 	}
-	// extend the shadows to NW: 211[0][1], 211[1][0]
-	for (int i = 0; i < 3; i++) {
+	// extend the shadows to NW: 638[0], 639[0], 639[1]
+	for (int i = 3; i < 6; i++) {
 		for (int y = 0; y < MICRO_HEIGHT; y++) {
 			for (int x = 0; x < MICRO_WIDTH; x++) {
-				BYTE* pixel = &gpBuffer[1 * MICRO_WIDTH + x + (i * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				if (*pixel == TRANS_COLOR) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				if (color == TRANS_COLOR) {
 					continue;
 				}
-				if (i == 0 && *pixel != 79 && y <= 13 - (x / 2)) { // 1824
+				if (i == 3 && color != 79 && y <= 13 - (x / 2)) { // 638[1]
 					continue;
 				}
-				if (i == 1 && *pixel != 79 && (x > 19 || y > 23) && (x != 16 || y != 24)) { // 1825
+				if (i == 4 && color != 79 && (x > 19 || y > 23) && (x != 16 || y != 24)) { // 639[0]
 					continue;
 				}
-				if (i == 2 && *pixel != 79 && x <= 7) { // 1799
+				if (i == 5 && color != 79 && x <= 7) { // 639[1]
 					continue;
 				}
-				*pixel = SHADOW_COLOR;
+				gpBuffer[addr] = SHADOW_COLOR;
 			}
 		}
 	}
-	// extend the shadows to NW: 207[2][1]
-	/*for (int i = 0; i < 1; i++) {
+	// extend the shadows to NW: 631[1]
+	/*for (int i = 6; i < 7; i++) {
 		for (int y = 0; y < MICRO_HEIGHT; y++) {
 			for (int x = 0; x < MICRO_WIDTH; x++) {
-				BYTE* pixel = &gpBuffer[2 * MICRO_WIDTH + x + (i * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				if (*pixel == TRANS_COLOR) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				if (color == TRANS_COLOR) {
 					continue;
 				}
-				if (i == 0 && *pixel != 79 && y <= (x / 2) + 15) { // 1815
+				if (i == 6 && color != 79 && y <= (x / 2) + 15) { // 631[1]
 					continue;
 				}
-				*pixel = SHADOW_COLOR;
+				gpBuffer[addr] = SHADOW_COLOR;
 			}
 		}
 	}*/
-	// extend the shadows to NE: 208[2][0, 1]
-	for (int i = 1; i < 3; i++) {
+	// extend the shadows to NE: 634[0], 634[1]
+	for (int i = 7; i < 9; i++) {
 		for (int y = 0; y < MICRO_HEIGHT; y++) {
 			for (int x = 0; x < MICRO_WIDTH; x++) {
-				BYTE* pixel = &gpBuffer[2 * MICRO_WIDTH + x + (i * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				if (*pixel == TRANS_COLOR) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				if (color == TRANS_COLOR) {
 					continue;
 				}
-				if (i == 1 && *pixel != 79
-				&& (y <= (x / 2) - 3 || (x >= 20 && y >= 14 && *pixel >= 59 && *pixel <= 95 && (*pixel >= 77 || *pixel <= 63)))) { // 1818
+				if (i == 7 && color != 79
+				&& (y <= (x / 2) - 3 || (x >= 20 && y >= 14 && color >= 59 && color <= 95 && (color >= 77 || color <= 63)))) { // 634[0]
 					continue;
 				}
-				if (i == 2 && *pixel != 79
-				&& (y <= (x / 2) + 13 || (x <= 8 && y >= 12 && *pixel >= 62 && *pixel <= 95 && (*pixel >= 80 || *pixel <= 63)))) { // 1819
+				if (i == 8 && color != 79
+				&& (y <= (x / 2) + 13 || (x <= 8 && y >= 12 && color >= 62 && color <= 95 && (color >= 80 || color <= 63)))) { // 634[1]
 					continue;
 				}
-				*pixel = SHADOW_COLOR;
+				gpBuffer[addr] = SHADOW_COLOR;
 			}
 		}
 	}
-	// use consistent lava + shadow micro II.
-	for (int i = 0; i < 1; i++) {
+	// use consistent lava + shadow micro II. 277[1]
+	for (int i = 9; i < 10; i++) {
 		for (int y = 0; y < MICRO_HEIGHT; y++) {
 			for (int x = 0; x < MICRO_WIDTH; x++) {
-				BYTE* pixel = &gpBuffer[3 * MICRO_WIDTH + x + (i * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				if (*pixel == TRANS_COLOR) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				if (color == TRANS_COLOR) {
 					continue;
 				}
-				BYTE pixelSrc = gpBuffer[3 * MICRO_WIDTH + x + ((i + 1) * MICRO_HEIGHT + y) * BUFFER_WIDTH];
+				BYTE pixelSrc = gpBuffer[x + MICRO_WIDTH * (10 / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (10 % DRAW_HEIGHT)) * BUFFER_WIDTH]; // 303[1]
 				if (pixelSrc == TRANS_COLOR) {
 					continue;
 				}
-				if (i == 0) { // 722
-					if (x > 11) {
-						continue;
-					}
-					if (x == 11 && (y < 9 || (y >= 17 && y <= 20))) {
-						continue;
-					}
-					if (x == 10 && (y == 18 || y == 19)) {
-						continue;
-					}
+				if (x > 11) {
+					continue;
 				}
-				*pixel = pixelSrc;
+				if (x == 11 && (y < 9 || (y >= 17 && y <= 20))) {
+					continue;
+				}
+				if (x == 10 && (y == 18 || y == 19)) {
+					continue;
+				}
+				gpBuffer[addr] = pixelSrc;
 			}
 		}
 	}
 	// draw the new micros
-	for (int i = 0; i < 6; i++) {
+	for (int i = 11; i < 15; i++) {
 		for (int y = 0; y < MICRO_HEIGHT; y++) {
 			for (int x = 0; x < MICRO_WIDTH; x++) {
-				BYTE* pixel = &gpBuffer[(4 + i / 3) * MICRO_WIDTH + x + ((i % 3) * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				BYTE srcPixel = gpBuffer[(4 + i / 3 + 2) * MICRO_WIDTH + x + ((i % 3) * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-				if (i == 5) { // 1797
-					srcPixel = SHADOW_COLOR;
-				}
-				if (i == 0) { // 1804
-					/*// mask with 626[0]
-					BYTE maskPixel = gpBuffer[0 * MICRO_WIDTH + x + (0 * MICRO_HEIGHT + y) * BUFFER_WIDTH];
-					if (maskPixel == SHADOW_COLOR) {
-						srcPixel = maskPixel;
-					}*/
-					continue;
-				}
-				if (i == 1) { // 1798
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE srcPixel = gpBuffer[x + MICRO_WIDTH * ((i + 4) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 4) % DRAW_HEIGHT)) * BUFFER_WIDTH];
+				if (i == 11) { // 260[0]
 					// wall/floor in shadow
 					if (x <= 1) {
 						if (y >= 4 * x) {
@@ -2568,7 +2580,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 						}
 					}
 				}
-				if (i == 3) { // 1805
+				if (i == 13) { // 625[0]
 					// grate/floor in shadow
 					if (x <= 1 && y >= 7 * x) {
 						srcPixel = SHADOW_COLOR;
@@ -2577,31 +2589,44 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 						srcPixel = SHADOW_COLOR;
 					}
 				}
-				if (i == 2 || i == 4) { // 1800, 1804
+				if (i == 12 || i == 14) { // 621[1], 624[0]
 					// wall/grate in shadow
 					if (y >= 7 * (x - 27) && srcPixel != TRANS_COLOR) {
 						srcPixel = SHADOW_COLOR;
 					}
 				}
-				*pixel = srcPixel;
+				gpBuffer[addr] = srcPixel;
+			}
+		}
+	}
+	// create shadow micro - 619[1]
+	for (int i = 19; i < 20; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				gpBuffer[addr] = SHADOW_COLOR;
 			}
 		}
 	}
 
 	// fix bad artifacts
-	gpBuffer[2 * MICRO_WIDTH + 22 + (MICRO_HEIGHT * 1 + 20) * BUFFER_WIDTH] = TRANS_COLOR;     // 1818
+	{ // 634[0]
+		int i = 7;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 22 + 20 * BUFFER_WIDTH] = TRANS_COLOR;
+	}
 
 	// create the new CEL file
 	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros) - (5 + 4)];
+	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros) - 5; i++) {
+	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
-		if (micro.subtileIndex >= 0) {
+		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
 			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
@@ -2609,7 +2634,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			idx++;
 		}
 		yy += MICRO_HEIGHT;
-		if (yy == 4 * MICRO_HEIGHT - 1) {
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
 			xx += MICRO_WIDTH;
 		}
@@ -2624,7 +2649,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 
 BYTE* DRLP_L5_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
-	celBuf = fillCryptShapes(minBuf, minLen, celBuf, celLen);
+	celBuf = patchCryptFloorCel(minBuf, minLen, celBuf, celLen);
 	if (celBuf == NULL) {
 		return NULL;
 	}
