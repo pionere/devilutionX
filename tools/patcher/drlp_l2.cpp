@@ -1514,7 +1514,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(66, 6, 3, 6);
 	ReplaceMcr(78, 6, 3, 6);
 	ReplaceMcr(82, 6, 3, 6);
-	ReplaceMcr(85, 6, 3, 6);
+	// ReplaceMcr(85, 6, 3, 6);
 	ReplaceMcr(88, 6, 3, 6);
 	// ReplaceMcr(92, 6, 3, 6);
 	ReplaceMcr(96, 6, 3, 6);
@@ -1525,7 +1525,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	// ReplaceMcr(172, 6, 3, 6);
 	ReplaceMcr(176, 6, 3, 6);
 	ReplaceMcr(184, 6, 3, 6);
-	ReplaceMcr(236, 6, 3, 6);
+	// ReplaceMcr(236, 6, 3, 6);
 	ReplaceMcr(240, 6, 3, 6);
 	ReplaceMcr(244, 6, 3, 6);
 	ReplaceMcr(277, 6, 3, 6);
@@ -1540,7 +1540,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(62, 4, 3, 4);
 	ReplaceMcr(78, 4, 3, 4);
 	ReplaceMcr(82, 4, 3, 4);
-	ReplaceMcr(85, 4, 3, 4);
+	// ReplaceMcr(85, 4, 3, 4);
 	ReplaceMcr(88, 4, 3, 4);
 	// ReplaceMcr(92, 4, 3, 4);
 	ReplaceMcr(96, 4, 3, 4);
@@ -1549,7 +1549,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(129, 4, 3, 4);
 	// ReplaceMcr(172, 4, 3, 4);
 	ReplaceMcr(176, 4, 3, 4);
-	ReplaceMcr(236, 4, 66, 4);
+	// ReplaceMcr(236, 4, 66, 4);
 	ReplaceMcr(240, 4, 3, 4);
 	ReplaceMcr(244, 4, 66, 4);
 	ReplaceMcr(277, 4, 66, 4);
@@ -1563,7 +1563,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(62, 2, 3, 2);
 	ReplaceMcr(78, 2, 3, 2);
 	ReplaceMcr(82, 2, 3, 2);
-	ReplaceMcr(85, 2, 3, 2);
+	// ReplaceMcr(85, 2, 3, 2);
 	ReplaceMcr(88, 2, 3, 2);
 	// ReplaceMcr(92, 2, 3, 2);
 	ReplaceMcr(96, 2, 3, 2);
@@ -1572,7 +1572,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	// ReplaceMcr(172, 2, 3, 2);
 	ReplaceMcr(176, 2, 3, 2);
 	ReplaceMcr(180, 2, 3, 2);
-	ReplaceMcr(236, 2, 66, 2);
+	// ReplaceMcr(236, 2, 66, 2);
 	ReplaceMcr(244, 2, 66, 2);
 	ReplaceMcr(277, 2, 66, 2);
 	ReplaceMcr(281, 2, 3, 2);
@@ -1588,7 +1588,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(96, 0, 62, 0);
 	// ReplaceMcr(117, 0, 62, 0);
 	// ReplaceMcr(120, 0, 62, 0);
-	ReplaceMcr(236, 0, 62, 0);
+	// ReplaceMcr(236, 0, 62, 0);
 	ReplaceMcr(240, 0, 62, 0);
 	ReplaceMcr(244, 0, 62, 0);
 	ReplaceMcr(277, 0, 66, 0);
@@ -1599,10 +1599,10 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(480, 0, 62, 0);
 	ReplaceMcr(552, 0, 62, 0);
 
-	ReplaceMcr(85, 1, 82, 1);
+	// ReplaceMcr(85, 1, 82, 1);
 	// ReplaceMcr(117, 1, 244, 1);
 	// ReplaceMcr(120, 1, 244, 1);
-	ReplaceMcr(236, 1, 244, 1);
+	// ReplaceMcr(236, 1, 244, 1);
 	ReplaceMcr(240, 1, 62, 1);
 	ReplaceMcr(452, 1, 244, 1);
 	// ReplaceMcr(539, 1, 15, 1);
@@ -1916,6 +1916,10 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	Blk2Mcr(54, 6);
 	Blk2Mcr(81, 0);
 	Blk2Mcr(81, 1);
+	Blk2Mcr(85, 1);
+	Blk2Mcr(85, 2);
+	Blk2Mcr(85, 4);
+	Blk2Mcr(85, 6);
 	Blk2Mcr(92, 0);
 	Blk2Mcr(92, 1);
 	Blk2Mcr(92, 2);
@@ -2077,7 +2081,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	Blk2Mcr(559, 2);
 	Blk2Mcr(559, 4);
 	const int unusedSubtiles[] = {
-		2, 7, 14, 19, 20, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 172, 173, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 397, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541, 
+		2, 7, 14, 19, 20, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 172, 173, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 236, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 397, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541, 
 	};
 
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -2090,7 +2094,6 @@ void DRLP_L2_PatchMin(BYTE* buf)
 void DRLP_L2_PatchTil(BYTE* buf)
 {
 	uint16_t* pTiles = (uint16_t*)buf;
-	// reuse subtiles
 	// unified columns
 	pTiles[(6 - 1) * 4 + 1] = SwapLE16(26 - 1);  // 22
 	pTiles[(6 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 24
@@ -2114,6 +2117,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(16 - 1) * 4 + 2] = SwapLE16(43 - 1); // 52
 	pTiles[(24 - 1) * 4 + 1] = SwapLE16(77 - 1); // 81
 	pTiles[(25 - 1) * 4 + 1] = SwapLE16(77 - 1);
+	pTiles[(25 - 1) * 4 + 2] = SwapLE16(82 - 1); // 85
 	pTiles[(27 - 1) * 4 + 2] = SwapLE16(78 - 1); // 92
 	pTiles[(40 - 1) * 4 + 2] = SwapLE16(23 - 1); // 136
 	pTiles[(41 - 1) * 4 + 1] = SwapLE16(135 - 1); // 139
@@ -2158,6 +2162,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(32 - 1) * 4 + 3] = SwapLE16(12 - 1); // 110
 	pTiles[(42 - 1) * 4 + 3] = SwapLE16(12 - 1); // 142
 	pTiles[(8 - 1) * 4 + 2] = SwapLE16(15 - 1);  // 31
+	pTiles[(68 - 1) * 4 + 2] = SwapLE16(244 - 1); // 236
 	pTiles[(73 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 255
 	pTiles[(73 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 256
 	pTiles[(75 - 1) * 4 + 3] = SwapLE16(12 - 1);  // 264

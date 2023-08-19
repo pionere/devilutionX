@@ -993,9 +993,9 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(214, 2);
 	ReplaceMcr(214, 0, 408, 0);
 	ReplaceMcr(214, 1, 408, 1);
-	ReplaceMcr(212, 0, 407, 0);
-	ReplaceMcr(212, 2, 392, 2);
-	ReplaceMcr(212, 4, 231, 4);
+	// ReplaceMcr(212, 0, 407, 0);
+	// ReplaceMcr(212, 2, 392, 2);
+	// ReplaceMcr(212, 4, 231, 4);
 	Blk2Mcr(408, 4);
 	Blk2Mcr(408, 2);
 	HideMcr(44, 6);
@@ -1059,7 +1059,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(171, 5);
 	ReplaceMcr(171, 3, 176, 3); // lost details
 	// fix graphical glitch
-	ReplaceMcr(15, 1, 6, 1);
+	// ReplaceMcr(15, 1, 6, 1);
 	ReplaceMcr(134, 1, 6, 1);
 	ReplaceMcr(65, 7, 9, 7);
 	ReplaceMcr(66, 7, 9, 7);
@@ -1103,7 +1103,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	// ReplaceMcr(63, 1, 53, 1);
 	// ReplaceMcr(58, 1, 53, 1);
 	ReplaceMcr(206, 1, 3, 1);
-	ReplaceMcr(15, 7, 6, 7); // lost details
+	// ReplaceMcr(15, 7, 6, 7); // lost details
 	// ReplaceMcr(56, 7, 6, 7); // lost details
 	// ReplaceMcr(60, 7, 6, 7); // lost details
 	ReplaceMcr(127, 7, 6, 7);
@@ -1125,7 +1125,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	ReplaceMcr(369, 7, 6, 7);
 	ReplaceMcr(373, 7, 6, 7);
 
-	ReplaceMcr(15, 5, 6, 5);
+	// ReplaceMcr(15, 5, 6, 5);
 	// ReplaceMcr(46, 5, 6, 5);
 	// ReplaceMcr(56, 5, 6, 5);
 	ReplaceMcr(127, 5, 6, 5);
@@ -1149,13 +1149,13 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	ReplaceMcr(246, 3, 15, 3); // lost details
 	// ReplaceMcr(251, 3, 15, 3);
 	// ReplaceMcr(416, 3, 15, 3);
-	ReplaceMcr(15, 1, 6, 1);
+	// ReplaceMcr(15, 1, 6, 1);
 	ReplaceMcr(134, 1, 6, 1);
 	ReplaceMcr(198, 1, 6, 1);
 	ReplaceMcr(202, 1, 6, 1);
 	ReplaceMcr(323, 1, 6, 1);
 	// ReplaceMcr(416, 1, 6, 1);
-	ReplaceMcr(15, 0, 6, 0);
+	// ReplaceMcr(15, 0, 6, 0);
 
 	ReplaceMcr(249, 1, 11, 1);
 	ReplaceMcr(325, 1, 11, 1);
@@ -1181,7 +1181,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	ReplaceMcr(205, 6, 1, 6);
 	ReplaceMcr(207, 6, 1, 6);
 	ReplaceMcr(209, 6, 1, 6);
-	ReplaceMcr(212, 6, 1, 6);
+	// ReplaceMcr(212, 6, 1, 6);
 	ReplaceMcr(227, 6, 1, 6);
 	ReplaceMcr(231, 6, 1, 6);
 	ReplaceMcr(235, 6, 1, 6);
@@ -1396,7 +1396,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	ReplaceMcr(62, 1, 8, 1);  // lost details
 	ReplaceMcr(205, 1, 8, 1); // lost details
 	ReplaceMcr(207, 1, 8, 1); // lost details
-	ReplaceMcr(212, 1, 8, 1); // lost details 
+	// ReplaceMcr(212, 1, 8, 1); // lost details 
 	ReplaceMcr(407, 1, 8, 1); // lost details 
 	ReplaceMcr(227, 1, 8, 1); // lost details
 	ReplaceMcr(231, 1, 8, 1); // lost details
@@ -1502,6 +1502,10 @@ void DRLP_L1_PatchMin(BYTE* buf)
 
 	// eliminate micros of unused subtiles
 	// Blk2Mcr(39, 311 ...),
+	Blk2Mcr(15, 0);
+	Blk2Mcr(15, 1);
+	Blk2Mcr(15, 5);
+	Blk2Mcr(15, 7);
 	Blk2Mcr(43, 0);
 	Blk2Mcr(43, 1);
 	Blk2Mcr(43, 2);
@@ -1855,7 +1859,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(449, 5);
 	Blk2Mcr(449, 7);
 	const int unusedSubtiles[] = {
-		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 220, 250, 253, 267, 268, 273, 275, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
+		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 212, 220, 250, 253, 267, 268, 273, 275, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -1869,6 +1873,9 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	uint16_t* pTiles = (uint16_t*)buf;
 	// make the inner tile at the entrance non-walkable II.
 	pTiles[(196 - 1) * 4 + 3] = SwapLE16(425 - 1);
+	// fix shadow (use common subtiles)
+	pTiles[(7 - 1) * 4 + 1] = SwapLE16(6 - 1);    // 15
+	pTiles[(37 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	// use common subtiles
 	pTiles[(9 - 1) * 4 + 2] = SwapLE16(7 - 1);    // 18
 	pTiles[(9 - 1) * 4 + 3] = SwapLE16(4 - 1);    // 19
@@ -1925,8 +1932,9 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	// use common subtiles instead of minor alterations
 	// pTiles[(93 - 1) * 4 + 2] = SwapLE16(177 - 1); // 191
 	// simplified door subtiles
-	pTiles[(25 - 1) * 4 + 0] = SwapLE16(392 - 1); // 43
-	pTiles[(26 - 1) * 4 + 0] = SwapLE16(394 - 1); // 45
+	pTiles[(25 - 1) * 4 + 0] = SwapLE16(392 - 1);  // 43
+	pTiles[(26 - 1) * 4 + 0] = SwapLE16(394 - 1);  // 45
+	pTiles[(103 - 1) * 4 + 0] = SwapLE16(407 - 1); // 212
 	// create separate pillar tile
 	pTiles[(28 - 1) * 4 + 0] = SwapLE16(61 - 1);
 	pTiles[(28 - 1) * 4 + 1] = SwapLE16(2 - 1);
@@ -2003,7 +2011,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(153 - 1) * 4 + 2] = SwapLE16(328 - 1);
 	pTiles[(153 - 1) * 4 + 3] = SwapLE16(299 - 1);
 	pTiles[(154 - 1) * 4 + 0] = SwapLE16(14 - 1);
-	pTiles[(154 - 1) * 4 + 1] = SwapLE16(15 - 1);
+	pTiles[(154 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	pTiles[(154 - 1) * 4 + 2] = SwapLE16(328 - 1);
 	pTiles[(154 - 1) * 4 + 3] = SwapLE16(299 - 1);
 	pTiles[(155 - 1) * 4 + 0] = SwapLE16(340 - 1);
@@ -2085,7 +2093,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(47 - 1) * 4 + 2] = SwapLE16(301 - 1);
 	pTiles[(47 - 1) * 4 + 3] = SwapLE16(330 - 1);
 	pTiles[(46 - 1) * 4 + 0] = SwapLE16(14 - 1);
-	pTiles[(46 - 1) * 4 + 1] = SwapLE16(15 - 1);
+	pTiles[(46 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	pTiles[(46 - 1) * 4 + 2] = SwapLE16(301 - 1);
 	pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
 	// eliminate subtiles of unused tiles
@@ -2801,12 +2809,12 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(179, 0);
 	Blk2Mcr(179, 1);
 	// fix 'bad' artifact
-	Blk2Mcr(398, 5);
+	// Blk2Mcr(398, 5);
 	// fix graphical glitch
 	ReplaceMcr(21, 1, 55, 1);
 	ReplaceMcr(25, 0, 33, 0);
-	ReplaceMcr(22, 0, 2, 0);
-	ReplaceMcr(22, 1, 2, 1);
+	// ReplaceMcr(22, 0, 2, 0);
+	// ReplaceMcr(22, 1, 2, 1);
 	ReplaceMcr(336, 1, 4, 1);
 	ReplaceMcr(339, 0, 33, 0);
 	// ReplaceMcr(391, 1, 335, 1); - the whole right side is replaced
@@ -2822,8 +2830,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(564, 0, 303, 0);
 	ReplaceMcr(635, 0, 308, 0);
 	// - extend shadow to make more usable (after fixCryptShadows)
-	ReplaceMcr(627, 0, 626, 0);
-	SetMcr(627, 1, 626, 1);
+	// ReplaceMcr(627, 0, 626, 0);
+	// SetMcr(627, 1, 626, 1);
 	// prepare new subtiles for the shadows
 	ReplaceMcr(623, 0, 631, 0);
 	ReplaceMcr(623, 1, 638, 1);
@@ -2852,17 +2860,17 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(432, 7, 6, 7);
 	ReplaceMcr(440, 7, 6, 7);
 	// ReplaceMcr(26, 9, 6, 9);
-	ReplaceMcr(340, 9, 6, 9);
+	// ReplaceMcr(340, 9, 6, 9);
 	ReplaceMcr(394, 9, 6, 9);
 	ReplaceMcr(451, 9, 6, 9);
 	// ReplaceMcr(14, 7, 6, 7); // lost shine
 	// ReplaceMcr(26, 7, 6, 7); // lost shine
 	// ReplaceMcr(80, 7, 6, 7);
 	ReplaceMcr(451, 7, 6, 7); // lost shine
-	ReplaceMcr(340, 7, 6, 7); // lost shine
+	// ReplaceMcr(340, 7, 6, 7); // lost shine
 	ReplaceMcr(364, 7, 6, 7); // lost crack
 	ReplaceMcr(394, 7, 6, 7); // lost shine
-	ReplaceMcr(554, 7, 269, 7);
+	// ReplaceMcr(554, 7, 269, 7);
 	ReplaceMcr(608, 7, 6, 7);   // lost details
 	ReplaceMcr(616, 7, 6, 7);   // lost details
 	ReplaceMcr(269, 5, 554, 5); // lost details
@@ -2873,7 +2881,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(451, 5, 6, 5); // lost details
 	// ReplaceMcr(80, 5, 6, 5); // lost details
 	ReplaceMcr(324, 5, 432, 5); // lost details
-	ReplaceMcr(340, 5, 432, 5); // lost details
+	// ReplaceMcr(340, 5, 432, 5); // lost details
 	ReplaceMcr(364, 5, 432, 5); // lost details
 	ReplaceMcr(380, 5, 432, 5); // lost details
 	ReplaceMcr(394, 5, 432, 5); // lost details
@@ -2883,19 +2891,19 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(269, 3, 14, 3); // lost details
 	ReplaceMcr(414, 3, 14, 3); // lost details
 	ReplaceMcr(451, 3, 14, 3); // lost details
-	ReplaceMcr(554, 3, 14, 3); // lost details
+	// ReplaceMcr(554, 3, 14, 3); // lost details
 	ReplaceMcr(556, 3, 14, 3); // lost details
 	// ? ReplaceMcr(608, 3, 103, 3); // lost details
 	ReplaceMcr(324, 3, 380, 3); // lost details
-	ReplaceMcr(340, 3, 380, 3); // lost details
+	// ReplaceMcr(340, 3, 380, 3); // lost details
 	ReplaceMcr(364, 3, 380, 3); // lost details
 	ReplaceMcr(432, 3, 380, 3); // lost details
 	ReplaceMcr(440, 3, 380, 3); // lost details
 	ReplaceMcr(6, 0, 14, 0);
 	// ReplaceMcr(26, 0, 14, 0);
 	ReplaceMcr(269, 0, 14, 0);
-	ReplaceMcr(554, 0, 14, 0); // lost details
-	ReplaceMcr(340, 0, 324, 0); // lost details
+	// ReplaceMcr(554, 0, 14, 0); // lost details
+	// ReplaceMcr(340, 0, 324, 0); // lost details
 	ReplaceMcr(364, 0, 324, 0); // lost details
 	ReplaceMcr(451, 0, 324, 0); // lost details
 	// ReplaceMcr(14, 1, 6, 1);
@@ -2904,7 +2912,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(269, 1, 6, 1);
 	ReplaceMcr(380, 1, 6, 1);
 	ReplaceMcr(451, 1, 6, 1);
-	ReplaceMcr(554, 1, 6, 1);
+	// ReplaceMcr(554, 1, 6, 1);
 	ReplaceMcr(556, 1, 6, 1);
 	ReplaceMcr(324, 1, 340, 1);
 	ReplaceMcr(364, 1, 340, 1);
@@ -2914,9 +2922,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(551, 0, 265, 0);
 	ReplaceMcr(551, 1, 265, 1);
 	ReplaceMcr(261, 0, 14, 0); // lost details
-	ReplaceMcr(545, 0, 14, 0); // lost details
+	// ReplaceMcr(545, 0, 14, 0); // lost details
 	ReplaceMcr(18, 9, 6, 9); // lost details
-	ReplaceMcr(34, 9, 6, 9); // lost details
+	// ReplaceMcr(34, 9, 6, 9); // lost details
 	// ReplaceMcr(37, 9, 6, 9);
 	ReplaceMcr(277, 9, 6, 9); // lost details
 	ReplaceMcr(332, 9, 6, 9); // lost details
@@ -2937,12 +2945,12 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(562, 1, 277, 1); // lost details
 	// ReplaceMcr(564, 1, 277, 1); // lost details
 	ReplaceMcr(585, 1, 284, 1);
-	ReplaceMcr(590, 1, 285, 1); // lost details
+	// ReplaceMcr(590, 1, 285, 1); // lost details
 	ReplaceMcr(598, 1, 289, 1); // lost details
 	// ReplaceMcr(564, 7, 18, 7); // lost details
 	// ReplaceMcr(564, 5, 459, 5); // lost details
 	// ReplaceMcr(564, 3, 459, 3); // lost details
-	ReplaceMcr(34, 7, 18, 7); // lost details
+	// ReplaceMcr(34, 7, 18, 7); // lost details
 	// ReplaceMcr(37, 7, 18, 7);
 	ReplaceMcr(84, 7, 18, 7); // lost details
 	ReplaceMcr(406, 7, 18, 7); // lost details
@@ -2953,19 +2961,19 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(352, 7, 18, 7); // lost details
 	ReplaceMcr(358, 7, 18, 7); // lost details
 	ReplaceMcr(459, 7, 18, 7); // lost details
-	ReplaceMcr(34, 5, 18, 5); // lost details
+	// ReplaceMcr(34, 5, 18, 5); // lost details
 	ReplaceMcr(348, 5, 332, 5); // lost details
 	ReplaceMcr(352, 5, 332, 5); // lost details
 	ReplaceMcr(358, 5, 332, 5); // lost details
-	ReplaceMcr(34, 3, 18, 3); // lost details
+	// ReplaceMcr(34, 3, 18, 3); // lost details
 	ReplaceMcr(358, 3, 18, 3); // lost details
 	ReplaceMcr(348, 3, 332, 3); // lost details
 	ReplaceMcr(352, 3, 332, 3); // lost details
-	ReplaceMcr(34, 0, 18, 0);
+	// ReplaceMcr(34, 0, 18, 0);
 	ReplaceMcr(352, 0, 18, 0);
 	ReplaceMcr(358, 0, 18, 0);
 	ReplaceMcr(406, 0, 18, 0); // lost details
-	ReplaceMcr(34, 1, 18, 1);
+	// ReplaceMcr(34, 1, 18, 1);
 	ReplaceMcr(332, 1, 18, 1);
 	ReplaceMcr(348, 1, 352, 1);
 	ReplaceMcr(358, 1, 352, 1);
@@ -2982,7 +2990,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(269, 9, 6, 9); // lost details
 	ReplaceMcr(364, 9, 6, 9); // lost details
 	ReplaceMcr(551, 9, 6, 9); // lost details
-	ReplaceMcr(554, 9, 6, 9); // lost details
+	// ReplaceMcr(554, 9, 6, 9); // lost details
 	ReplaceMcr(556, 9, 6, 9); // lost details
 	ReplaceMcr(608, 9, 6, 9); // lost details
 	ReplaceMcr(15, 8, 3, 8);
@@ -3057,15 +3065,15 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(95, 5, 21, 5);
 	// ReplaceMcr(24, 0, 32, 0); // lost details
 	// ReplaceMcr(354, 0, 32, 0); // lost details
-	ReplaceMcr(398, 0, 2, 0);
-	ReplaceMcr(398, 1, 2, 1); // lost details
+	// ReplaceMcr(398, 0, 2, 0);
+	// ReplaceMcr(398, 1, 2, 1); // lost details
 	// ReplaceMcr(540, 0, 257, 0);
 	// ReplaceMcr(30, 0, 2, 0);
 	// ReplaceMcr(76, 0, 2, 0);
 	// ReplaceMcr(205, 0, 2, 0);
 	ReplaceMcr(407, 0, 2, 0); // lost details
 	ReplaceMcr(379, 0, 5, 0);
-	ReplaceMcr(27, 0, 7, 0);
+	// ReplaceMcr(27, 0, 7, 0);
 	// ReplaceMcr(81, 0, 7, 0);
 	// ReplaceMcr(210, 0, 7, 0);
 	ReplaceMcr(266, 0, 7, 0);
@@ -3091,8 +3099,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(56, 0, 52, 0);
 	// ReplaceMcr(16, 0, 32, 0);
 	// ReplaceMcr(38, 0, 32, 0);
-	ReplaceMcr(275, 0, 32, 0);
-	ReplaceMcr(309, 0, 45, 0);
+	// ReplaceMcr(275, 0, 32, 0);
+	// ReplaceMcr(309, 0, 45, 0);
 	ReplaceMcr(567, 0, 45, 0); // lost details
 	ReplaceMcr(622, 0, 45, 0);
 	// ReplaceMcr(625, 0, 45, 0);
@@ -3132,13 +3140,13 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(76, 1, 2, 1);
 	// ReplaceMcr(205, 1, 2, 1);
 	ReplaceMcr(428, 1, 2, 1);
-	ReplaceMcr(41, 1, 4, 1);
+	// ReplaceMcr(41, 1, 4, 1);
 	// ReplaceMcr(24, 1, 4, 1); // lost details
 	ReplaceMcr(32, 1, 4, 1); // lost details
 	// ReplaceMcr(92, 1, 4, 1); // lost details
 	// ReplaceMcr(96, 1, 4, 1); // lost details
 	// ReplaceMcr(217, 1, 4, 1); // lost details
-	ReplaceMcr(275, 1, 4, 1); // lost details
+	// ReplaceMcr(275, 1, 4, 1); // lost details
 	// ReplaceMcr(78, 1, 4, 1);
 	ReplaceMcr(604, 1, 4, 1); // lost details
 	// ReplaceMcr(85, 0, 4, 0);
@@ -3165,8 +3173,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(50, 1, 85, 1);
 	// ReplaceMcr(103, 1, 24, 1);
 	// ReplaceMcr(275, 1, 24, 1);
-	ReplaceMcr(304, 1, 48, 1);
-	ReplaceMcr(27, 1, 7, 1);
+	// ReplaceMcr(304, 1, 48, 1);
+	// ReplaceMcr(27, 1, 7, 1);
 	// ReplaceMcr(81, 1, 7, 1);
 	// ReplaceMcr(210, 1, 7, 1);
 	// ReplaceMcr(202, 1, 46, 1);
@@ -3211,7 +3219,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(537, 8, 31, 8); // lost details
 	ReplaceMcr(333, 8, 31, 8); // lost details
 	ReplaceMcr(345, 8, 31, 8);
-	ReplaceMcr(365, 8, 31, 8); // lost details
+	// ReplaceMcr(365, 8, 31, 8); // lost details
 	ReplaceMcr(456, 8, 31, 8);
 	ReplaceMcr(274, 8, 31, 8); // lost details
 	// ReplaceMcr(558, 8, 31, 8); // lost details
@@ -3226,24 +3234,24 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(356, 6, 31, 6);  // lost details
 	ReplaceMcr(333, 6, 445, 6); // lost details
 	ReplaceMcr(345, 6, 445, 6); // lost details
-	ReplaceMcr(365, 6, 445, 6); // lost details
+	// ReplaceMcr(365, 6, 445, 6); // lost details
 	ReplaceMcr(274, 4, 31, 4);  // lost details
 	// ReplaceMcr(560, 4, 31, 4); // lost details
 	ReplaceMcr(333, 4, 345, 4); // lost details
-	ReplaceMcr(365, 4, 345, 4); // lost details
+	// ReplaceMcr(365, 4, 345, 4); // lost details
 	ReplaceMcr(445, 4, 345, 4); // lost details
 	ReplaceMcr(299, 2, 274, 2); // lost details
 	// ReplaceMcr(560, 2, 274, 2); // lost details
 	ReplaceMcr(333, 2, 345, 2); // lost details
-	ReplaceMcr(365, 2, 345, 2); // lost details
+	// ReplaceMcr(365, 2, 345, 2); // lost details
 	ReplaceMcr(415, 2, 345, 2); // lost details
 	ReplaceMcr(445, 2, 345, 2); // lost details
 	ReplaceMcr(333, 0, 31, 0);  // lost details
 	ReplaceMcr(345, 0, 31, 0);  // lost details
-	ReplaceMcr(365, 0, 31, 0);  // lost details
+	// ReplaceMcr(365, 0, 31, 0);  // lost details
 	ReplaceMcr(445, 0, 31, 0);  // lost details
 	ReplaceMcr(333, 1, 31, 1);  // lost details
-	ReplaceMcr(365, 1, 31, 1);
+	// ReplaceMcr(365, 1, 31, 1);
 
 	ReplaceMcr(125, 0, 136, 0); // lost details
 	ReplaceMcr(125, 1, 136, 1); // lost details
@@ -3875,6 +3883,14 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(216, 4);
 	Blk2Mcr(216, 6);
 	Blk2Mcr(216, 8);
+	Blk2Mcr(304, 1);
+	Blk2Mcr(309, 0);
+	Blk2Mcr(340, 0);
+	// Blk2Mcr(340, 1); - used in 324...
+	Blk2Mcr(340, 3);
+	Blk2Mcr(340, 5);
+	Blk2Mcr(340, 7);
+	Blk2Mcr(340, 9);
 	Blk2Mcr(388, 2);
 	Blk2Mcr(388, 8);
 	Blk2Mcr(390, 2);
@@ -3892,12 +3908,21 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(543, 2);
 	Blk2Mcr(543, 4);
 	Blk2Mcr(543, 8);
+	Blk2Mcr(545, 0);
+	Blk2Mcr(554, 0);
+	Blk2Mcr(554, 1);
+	Blk2Mcr(554, 3);
+	// Blk2Mcr(554, 5); - used in 269
+	Blk2Mcr(554, 7);
+	Blk2Mcr(554, 9);
 	Blk2Mcr(558, 0);
 	Blk2Mcr(558, 2);
 	Blk2Mcr(558, 4);
 	Blk2Mcr(558, 6);
 	Blk2Mcr(558, 8);
+	Blk2Mcr(590, 1);
 	Blk2Mcr(468, 1);
+	Blk2Mcr(41, 1);
 	Blk2Mcr(53, 1);
 	Blk2Mcr(54, 0);
 	Blk2Mcr(57, 1);
@@ -3917,6 +3942,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// Blk2Mcr(621, 1);
 	// Blk2Mcr(624, 0);
 	// Blk2Mcr(625, 0);
+	Blk2Mcr(627, 0);
 	Blk2Mcr(630, 0);
 	Blk2Mcr(632, 0);
 	Blk2Mcr(633, 0);
@@ -3928,7 +3954,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(649, 1);
 	Blk2Mcr(650, 0);
 	const int unusedSubtiles[] = {
-		8, 10, 11, 16, 19, 20, 23, 24, 26, 28, 30, 35, 38, 40, 43, 44, 50, 52, 56, 75, 76, 78, 79, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 373, 381, 390, 472, 489, 490, 540, 560, 564, 640, 643, 648
+		8, 10, 11, 16, 19, 20, 22, 23, 24, 26, 27, 28, 30, 34, 35, 38, 40, 43, 44, 50, 52, 56, 75, 76, 78, 79, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 275, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 365, 373, 381, 390, 398, 472, 489, 490, 540, 560, 564, 640, 643, 648
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -3944,6 +3970,11 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(53 - 1) * 4 + 1] = SwapLE16(148 - 1);
 	pTiles[(53 - 1) * 4 + 3] = SwapLE16(148 - 1);
 	pTiles[(54 - 1) * 4 + 3] = SwapLE16(148 - 1);
+	// fix 'bad' artifact
+	pTiles[(136 - 1) * 4 + 1] = SwapLE16(2 - 1);   // 398
+	// fix graphical glitch
+	pTiles[(6 - 1) * 4 + 1] = SwapLE16(2 - 1);    // 22
+	pTiles[(134 - 1) * 4 + 1] = SwapLE16(2 - 1);
 	// use common subtiles
 	pTiles[(4 - 1) * 4 + 1] = SwapLE16(6 - 1); // 14
 	pTiles[(14 - 1) * 4 + 1] = SwapLE16(6 - 1);
@@ -3954,9 +3985,18 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(43 - 1) * 4 + 2] = SwapLE16(15 - 1);
 	pTiles[(79 - 1) * 4 + 2] = SwapLE16(15 - 1);
 	pTiles[(6 - 1) * 4 + 2] = SwapLE16(15 - 1);   // 23
-	pTiles[(127 - 1) * 4 + 2] = SwapLE16(4 - 1);  // 372
-	pTiles[(132 - 1) * 4 + 2] = SwapLE16(15 - 1); // 388
-	pTiles[(156 - 1) * 4 + 2] = SwapLE16(31 - 1); // 468
+	pTiles[(7 - 1) * 4 + 2] = SwapLE16(7 - 1);    // 27
+	pTiles[(9 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(33 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(137 - 1) * 4 + 2] = SwapLE16(7 - 1);
+	pTiles[(106 - 1) * 4 + 3] = SwapLE16(48 - 1);  // 304
+	pTiles[(108 - 1) * 4 + 0] = SwapLE16(45 - 1);  // 309
+	pTiles[(127 - 1) * 4 + 2] = SwapLE16(4 - 1);   // 372
+	pTiles[(132 - 1) * 4 + 2] = SwapLE16(15 - 1);  // 388
+	pTiles[(156 - 1) * 4 + 2] = SwapLE16(31 - 1);  // 468
+	pTiles[(179 - 1) * 4 + 1] = SwapLE16(261 - 1); // 545
+	pTiles[(183 - 1) * 4 + 1] = SwapLE16(269 - 1); // 554
+	pTiles[(205 - 1) * 4 + 3] = SwapLE16(626 - 1); // 627
 	// - doors
 	pTiles[(25 - 1) * 4 + 0] = SwapLE16(204 - 1); // 75
 	pTiles[(26 - 1) * 4 + 0] = SwapLE16(208 - 1); // 79
@@ -3982,11 +4022,11 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(203 - 1) * 4 + 0] = SwapLE16(638 - 1); // 619
 	pTiles[(203 - 1) * 4 + 1] = SwapLE16(639 - 1); // 620
 	pTiles[(203 - 1) * 4 + 2] = SwapLE16(623 - 1); // 47
-	pTiles[(203 - 1) * 4 + 3] = SwapLE16(627 - 1); // 621
+	pTiles[(203 - 1) * 4 + 3] = SwapLE16(626 - 1); // 621
 	pTiles[(204 - 1) * 4 + 0] = SwapLE16(638 - 1); // 622
 	pTiles[(204 - 1) * 4 + 1] = SwapLE16(639 - 1); // 46
 	pTiles[(204 - 1) * 4 + 2] = SwapLE16(636 - 1); // 623
-	pTiles[(204 - 1) * 4 + 3] = SwapLE16(627 - 1); // 624
+	pTiles[(204 - 1) * 4 + 3] = SwapLE16(626 - 1); // 624
 	pTiles[(108 - 1) * 4 + 2] = SwapLE16(631 - 1); // 810
 	pTiles[(108 - 1) * 4 + 3] = SwapLE16(626 - 1); // 811
 	pTiles[(210 - 1) * 4 + 3] = SwapLE16(371 - 1); // 637
@@ -3994,19 +4034,19 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(109 - 1) * 4 + 0] = SwapLE16(1 - 1);   // 312
 	pTiles[(109 - 1) * 4 + 1] = SwapLE16(2 - 1);   // 313
 	pTiles[(109 - 1) * 4 + 2] = SwapLE16(3 - 1);   // 314
-	pTiles[(109 - 1) * 4 + 3] = SwapLE16(627 - 1); // 315
+	pTiles[(109 - 1) * 4 + 3] = SwapLE16(626 - 1); // 315
 	pTiles[(110 - 1) * 4 + 0] = SwapLE16(21 - 1);  // 316
-	pTiles[(110 - 1) * 4 + 1] = SwapLE16(22 - 1);  // 313
+	pTiles[(110 - 1) * 4 + 1] = SwapLE16(2 - 1);   // 313
 	pTiles[(110 - 1) * 4 + 2] = SwapLE16(3 - 1);   // 314
-	pTiles[(110 - 1) * 4 + 3] = SwapLE16(627 - 1); // 315
+	pTiles[(110 - 1) * 4 + 3] = SwapLE16(626 - 1); // 315
 	pTiles[(111 - 1) * 4 + 0] = SwapLE16(39 - 1);  // 317
 	pTiles[(111 - 1) * 4 + 1] = SwapLE16(4 - 1);   // 318
 	pTiles[(111 - 1) * 4 + 2] = SwapLE16(242 - 1); // 319
-	pTiles[(111 - 1) * 4 + 3] = SwapLE16(627 - 1); // 320
+	pTiles[(111 - 1) * 4 + 3] = SwapLE16(626 - 1); // 320
 	pTiles[(215 - 1) * 4 + 0] = SwapLE16(101 - 1); // 645
 	pTiles[(215 - 1) * 4 + 1] = SwapLE16(4 - 1);   // 646
 	pTiles[(215 - 1) * 4 + 2] = SwapLE16(178 - 1); // 45
-	pTiles[(215 - 1) * 4 + 3] = SwapLE16(627 - 1); // 647
+	pTiles[(215 - 1) * 4 + 3] = SwapLE16(626 - 1); // 647
 	// - 'add' new shadow-types with glow TODO: add wall/grate+glow
 	pTiles[(216 - 1) * 4 + 0] = SwapLE16(39 - 1);  // 622
 	pTiles[(216 - 1) * 4 + 1] = SwapLE16(4 - 1);   // 46
@@ -4020,47 +4060,47 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(71 - 1) * 4 + 0] = SwapLE16(5 - 1); // copy from tile 2
 	pTiles[(71 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	pTiles[(71 - 1) * 4 + 2] = SwapLE16(631 - 1);
-	pTiles[(71 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(71 - 1) * 4 + 3] = SwapLE16(626 - 1);
 	pTiles[(80 - 1) * 4 + 0] = SwapLE16(5 - 1); // copy from tile 2
 	pTiles[(80 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	pTiles[(80 - 1) * 4 + 2] = SwapLE16(623 - 1);
-	pTiles[(80 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(80 - 1) * 4 + 3] = SwapLE16(626 - 1);
 
 	pTiles[(81 - 1) * 4 + 0] = SwapLE16(42 - 1); // copy from tile 12
-	pTiles[(81 - 1) * 4 + 1] = SwapLE16(34 - 1);
+	pTiles[(81 - 1) * 4 + 1] = SwapLE16(18 - 1);
 	pTiles[(81 - 1) * 4 + 2] = SwapLE16(631 - 1);
-	pTiles[(81 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(81 - 1) * 4 + 3] = SwapLE16(626 - 1);
 	pTiles[(82 - 1) * 4 + 0] = SwapLE16(42 - 1); // copy from tile 12
-	pTiles[(82 - 1) * 4 + 1] = SwapLE16(34 - 1);
+	pTiles[(82 - 1) * 4 + 1] = SwapLE16(18 - 1);
 	pTiles[(82 - 1) * 4 + 2] = SwapLE16(623 - 1);
-	pTiles[(82 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(82 - 1) * 4 + 3] = SwapLE16(626 - 1);
 
 	pTiles[(83 - 1) * 4 + 0] = SwapLE16(104 - 1); // copy from tile 36
 	pTiles[(83 - 1) * 4 + 1] = SwapLE16(84 - 1);
 	pTiles[(83 - 1) * 4 + 2] = SwapLE16(631 - 1);
-	pTiles[(83 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(83 - 1) * 4 + 3] = SwapLE16(626 - 1);
 	pTiles[(84 - 1) * 4 + 0] = SwapLE16(104 - 1); // copy from tile 36
 	pTiles[(84 - 1) * 4 + 1] = SwapLE16(84 - 1);
 	pTiles[(84 - 1) * 4 + 2] = SwapLE16(623 - 1);
-	pTiles[(84 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(84 - 1) * 4 + 3] = SwapLE16(626 - 1);
 
 	pTiles[(85 - 1) * 4 + 0] = SwapLE16(25 - 1); // copy from tile 7
 	pTiles[(85 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	pTiles[(85 - 1) * 4 + 2] = SwapLE16(631 - 1);
-	pTiles[(85 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(85 - 1) * 4 + 3] = SwapLE16(626 - 1);
 	pTiles[(86 - 1) * 4 + 0] = SwapLE16(25 - 1); // copy from tile 7
 	pTiles[(86 - 1) * 4 + 1] = SwapLE16(6 - 1);
 	pTiles[(86 - 1) * 4 + 2] = SwapLE16(623 - 1);
-	pTiles[(86 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(86 - 1) * 4 + 3] = SwapLE16(626 - 1);
 
 	pTiles[(87 - 1) * 4 + 0] = SwapLE16(208 - 1); // copy from tile 26
 	pTiles[(87 - 1) * 4 + 1] = SwapLE16(80 - 1);
 	pTiles[(87 - 1) * 4 + 2] = SwapLE16(623 - 1);
-	pTiles[(87 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(87 - 1) * 4 + 3] = SwapLE16(626 - 1);
 	pTiles[(88 - 1) * 4 + 0] = SwapLE16(208 - 1); // copy from tile 26
 	pTiles[(88 - 1) * 4 + 1] = SwapLE16(80 - 1);
 	pTiles[(88 - 1) * 4 + 2] = SwapLE16(631 - 1);
-	pTiles[(88 - 1) * 4 + 3] = SwapLE16(627 - 1);
+	pTiles[(88 - 1) * 4 + 3] = SwapLE16(626 - 1);
 
 	// use common subtiles instead of minor alterations
 	pTiles[(7 - 1) * 4 + 1] = SwapLE16(6 - 1); // 26
@@ -4079,7 +4119,7 @@ void DRLP_L5_PatchTil(BYTE* buf)
 
 	pTiles[(2 - 1) * 4 + 3] = SwapLE16(4 - 1); // 8
 	pTiles[(3 - 1) * 4 + 1] = SwapLE16(60 - 1); // 10
-	pTiles[(114 - 1) * 4 + 1] = SwapLE16(32 - 1);
+	pTiles[(114 - 1) * 4 + 1] = SwapLE16(7 - 1);
 	pTiles[(3 - 1) * 4 + 2] = SwapLE16(4 - 1); // 11
 	pTiles[(114 - 1) * 4 + 2] = SwapLE16(4 - 1);
 	pTiles[(5 - 1) * 4 + 3] = SwapLE16(7 - 1); // 20
@@ -4089,8 +4129,14 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(159 - 1) * 4 + 3] = SwapLE16(7 - 1);
 	pTiles[(4 - 1) * 4 + 3] = SwapLE16(7 - 1); // 16
 	pTiles[(132 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(9 - 1) * 4 + 1] = SwapLE16(18 - 1);   // 34
+	pTiles[(12 - 1) * 4 + 1] = SwapLE16(18 - 1);
+	pTiles[(38 - 1) * 4 + 1] = SwapLE16(18 - 1);
+	pTiles[(137 - 1) * 4 + 1] = SwapLE16(18 - 1);
 	pTiles[(10 - 1) * 4 + 3] = SwapLE16(7 - 1); // 38
 	pTiles[(138 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(11 - 1) * 4 + 3] = SwapLE16(4 - 1); // 41
+	pTiles[(122 - 1) * 4 + 3] = SwapLE16(7 - 1);
 	pTiles[(121 - 1) * 4 + 3] = SwapLE16(4 - 1); // 354
 	pTiles[(8 - 1) * 4 + 3] = SwapLE16(4 - 1); // 32
 	pTiles[(136 - 1) * 4 + 3] = SwapLE16(7 - 1);
@@ -4099,13 +4145,19 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(91 - 1) * 4 + 3] = SwapLE16(48 - 1); // 259
 	pTiles[(177 - 1) * 4 + 3] = SwapLE16(7 - 1);
 	pTiles[(178 - 1) * 4 + 3] = SwapLE16(48 - 1);
+	pTiles[(95 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 275
+	pTiles[(185 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(186 - 1) * 4 + 3] = SwapLE16(4 - 1);
+	pTiles[(118 - 1) * 4 + 1] = SwapLE16(324 - 1); // 340
+	pTiles[(125 - 1) * 4 + 2] = SwapLE16(333 - 1); // 365
 	pTiles[(130 - 1) * 4 + 2] = SwapLE16(395 - 1); // 381
 	pTiles[(157 - 1) * 4 + 2] = SwapLE16(4 - 1);   // 472
 	pTiles[(177 - 1) * 4 + 1] = SwapLE16(4 - 1);   // 540
+	pTiles[(195 - 1) * 4 + 2] = SwapLE16(285 - 1); // 590
 	pTiles[(211 - 1) * 4 + 3] = SwapLE16(48 - 1);  // 621
 	pTiles[(205 - 1) * 4 + 0] = SwapLE16(45 - 1);  // 625
 	pTiles[(207 - 1) * 4 + 0] = SwapLE16(45 - 1);  // 630
-	pTiles[(207 - 1) * 4 + 3] = SwapLE16(627 - 1); // 632
+	pTiles[(207 - 1) * 4 + 3] = SwapLE16(626 - 1); // 632
 	pTiles[(208 - 1) * 4 + 0] = SwapLE16(45 - 1);  // 633
 
 	pTiles[(27 - 1) * 4 + 3] = SwapLE16(4 - 1); // 85
@@ -4126,14 +4178,14 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(44 - 1) * 4 + 3] = SwapLE16(4 - 1); // 122
 	pTiles[(45 - 1) * 4 + 3] = SwapLE16(4 - 1); // 124
 	// pTiles[(71 - 1) * 4 + 3] = SwapLE16(4 - 1); // 214
-	pTiles[(72 - 1) * 4 + 3] = SwapLE16(4 - 1); // 217
-	pTiles[(73 - 1) * 4 + 3] = SwapLE16(4 - 1); // 219
-	pTiles[(74 - 1) * 4 + 3] = SwapLE16(4 - 1); // 221
-	pTiles[(75 - 1) * 4 + 3] = SwapLE16(4 - 1); // 223
-	pTiles[(76 - 1) * 4 + 3] = SwapLE16(4 - 1); // 225
-	pTiles[(77 - 1) * 4 + 3] = SwapLE16(4 - 1); // 227
-	pTiles[(78 - 1) * 4 + 3] = SwapLE16(4 - 1); // 229
-	pTiles[(79 - 1) * 4 + 3] = SwapLE16(4 - 1); // 231
+	// pTiles[(72 - 1) * 4 + 3] = SwapLE16(4 - 1); // 217
+	// pTiles[(73 - 1) * 4 + 3] = SwapLE16(4 - 1); // 219
+	// pTiles[(74 - 1) * 4 + 3] = SwapLE16(4 - 1); // 221
+	// pTiles[(75 - 1) * 4 + 3] = SwapLE16(4 - 1); // 223
+	// pTiles[(76 - 1) * 4 + 3] = SwapLE16(4 - 1); // 225
+	// pTiles[(77 - 1) * 4 + 3] = SwapLE16(4 - 1); // 227
+	// pTiles[(78 - 1) * 4 + 3] = SwapLE16(4 - 1); // 229
+	// pTiles[(79 - 1) * 4 + 3] = SwapLE16(4 - 1); // 231
 	// pTiles[(80 - 1) * 4 + 3] = SwapLE16(4 - 1); // 233
 	// pTiles[(81 - 1) * 4 + 3] = SwapLE16(4 - 1); // 235
 	pTiles[(15 - 1) * 4 + 1] = SwapLE16(4 - 1); // 52

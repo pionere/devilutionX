@@ -2629,14 +2629,14 @@ void DRLP_L4_PatchMin(BYTE* buf)
 	ReplaceMcr(31, 1, 6, 1);
 	ReplaceMcr(193, 1, 6, 1);
 	ReplaceMcr(201, 1, 6, 1);
-	ReplaceMcr(245, 1, 6, 1);
+	// ReplaceMcr(245, 1, 6, 1);
 
 	ReplaceMcr(217, 1, 213, 1);
 
 	ReplaceMcr(25, 0, 6, 0);
 	ReplaceMcr(31, 0, 6, 0);
 	ReplaceMcr(217, 0, 6, 0);
-	ReplaceMcr(245, 0, 6, 0); // lost details
+	// ReplaceMcr(245, 0, 6, 0); // lost details
 
 	ReplaceMcr(21, 8, 260, 8);
 	ReplaceMcr(27, 8, 260, 8);
@@ -2944,6 +2944,8 @@ void DRLP_L4_PatchMin(BYTE* buf)
 	Blk2Mcr(178, 5);
 	Blk2Mcr(240, 0);
 	Blk2Mcr(240, 1);
+	Blk2Mcr(245, 0);
+	Blk2Mcr(245, 1);
 	Blk2Mcr(249, 0);
 	Blk2Mcr(249, 1);
 	Blk2Mcr(249, 7);
@@ -3071,6 +3073,7 @@ void DRLP_L4_PatchTil(BYTE* buf)
 	pTiles[(74 - 1) * 4 + 2] = SwapLE16(19 - 1);  // 234
 	pTiles[(75 - 1) * 4 + 0] = SwapLE16(156 - 1); // 236
 	pTiles[(75 - 1) * 4 + 1] = SwapLE16(157 - 1); // 237
+	pTiles[(77 - 1) * 4 + 1] = SwapLE16(31 - 1);  // 245
 	pTiles[(79 - 1) * 4 + 2] = SwapLE16(23 - 1);  // 250
 	pTiles[(84 - 1) * 4 + 0] = SwapLE16(159 - 1); // 261
 	pTiles[(85 - 1) * 4 + 2] = SwapLE16(147 - 1); // 267
