@@ -4,9 +4,173 @@
  * Implementation of the catacombs level patching functionality.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int frameIndex;
+		int frameWidth;
+		int frameHeight;
+	} CelFrame;
+	const CelFrame frames[] = {
+		{ 0, 64, 128 },
+		{ 1, 64, 128 },
+	};
+
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	int idx = 0;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 2 * *celLen);
+	memset(resCelBuf, 0, *celLen + 2 * *celLen);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		const CelFrame &frame = frames[idx];
+		if (i == frame.frameIndex) {
+			// draw the frame to the back-buffer
+			memset(&gpBuffer[0], TRANS_COLOR, frame.frameHeight * BUFFER_WIDTH);
+			CelClippedDrawLightTbl(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth, 0);
+
+			if (idx == 0) {
+				for (int y = 44; y < 55; y++) {
+					gpBuffer[41 - (y - 44) * 2 + y * BUFFER_WIDTH] = 62;
+				}
+			}
+			if (idx == 1) {
+				for (int x = 19; x < 40; x++) {
+					gpBuffer[x + (44 + (x / 2 - 10)) * BUFFER_WIDTH] = 62;
+				}
+				for (int y = 55; y < 112; y++) {
+					gpBuffer[40 + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+
+			dstDataCursor = EncodeFrame(dstDataCursor, frame.frameWidth, frame.frameHeight, SUB_HEADER_SIZE, TRANS_COLOR);
+
+			// skip the original frame
+			srcHeaderCursor++;
+
+			idx++;
+		} else {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+	}
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+
+BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int frameIndex;
+		int frameWidth;
+		int frameHeight;
+	} CelFrame;
+	const CelFrame frames[] = {
+		{ 0, 64, 160 },
+		{ 1, 64, 160 },
+		{ 4, 64, 160 },
+	};
+
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	int idx = 0;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 2 * *celLen);
+	memset(resCelBuf, 0, *celLen + 2 * *celLen);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		const CelFrame &frame = frames[idx];
+		if (i == frame.frameIndex) {
+			// draw the frame to the back-buffer
+			memset(&gpBuffer[0], TRANS_COLOR, frame.frameHeight * BUFFER_WIDTH);
+			CelClippedDrawLightTbl(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth, 0);
+
+			if (idx == 0) {
+				gpBuffer[10 + 52 * BUFFER_WIDTH] = 55;
+				gpBuffer[11 + 52 * BUFFER_WIDTH] = 53;
+				gpBuffer[13 + 53 * BUFFER_WIDTH] = 53;
+				gpBuffer[19 + 55 * BUFFER_WIDTH] = 55;
+				gpBuffer[23 + 57 * BUFFER_WIDTH] = 53;
+				gpBuffer[25 + 58 * BUFFER_WIDTH] = 53;
+				gpBuffer[26 + 59 * BUFFER_WIDTH] = 55;
+				gpBuffer[27 + 60 * BUFFER_WIDTH] = 53;
+				gpBuffer[28 + 61 * BUFFER_WIDTH] = 54;
+
+				gpBuffer[29 + 97 * BUFFER_WIDTH] = 76;
+				gpBuffer[30 + 95 * BUFFER_WIDTH] = 60;
+				gpBuffer[30 + 96 * BUFFER_WIDTH] = 61;
+				gpBuffer[31 + 93 * BUFFER_WIDTH] = 57;
+			}
+			if (idx == 1) {
+				gpBuffer[ 2 + 104 * BUFFER_WIDTH] = 76;
+			}
+			if (idx == 2) {
+				gpBuffer[ 9 + 148 * BUFFER_WIDTH] = 39;
+				gpBuffer[10 + 148 * BUFFER_WIDTH] = 66;
+				gpBuffer[10 + 149 * BUFFER_WIDTH] = 50;
+				gpBuffer[11 + 149 * BUFFER_WIDTH] = 36;
+			}
+
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+
+			dstDataCursor = EncodeFrame(dstDataCursor, frame.frameWidth, frame.frameHeight, SUB_HEADER_SIZE, TRANS_COLOR);
+
+			// skip the original frame
+			srcHeaderCursor++;
+
+			idx++;
+		} else {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+	}
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
 
 static BYTE shadowColorCatacombs(BYTE color)
 {

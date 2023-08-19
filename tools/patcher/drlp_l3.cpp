@@ -4,9 +4,381 @@
  * Implementation of the caves level patching functionality.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+BYTE* DRLP_L3_PatchDoors(BYTE* celBuf, size_t* celLen)
+{
+	typedef struct {
+		int frameIndex;
+		int frameWidth;
+		int frameHeight;
+	} CelFrame;
+	const CelFrame frames[] = {
+		{ 0, 64, 128 },
+		{ 1, 64, 128 },
+		{ 2, 64, 128 },
+		{ 3, 64, 128 },
+	};
+
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	int idx = 0;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	// create the new CEL file
+	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 2 * *celLen);
+	memset(resCelBuf, 0, *celLen + 2 * *celLen);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		const CelFrame &frame = frames[idx];
+		if (i == frame.frameIndex) {
+			// draw the frame to the back-buffer
+			memset(&gpBuffer[0], TRANS_COLOR, frame.frameHeight * BUFFER_WIDTH);
+			CelClippedDrawLightTbl(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth, 0);
+
+			if (idx == 0) {
+				// add shadows
+				/*for (int x = 30; x < 52; x++) {
+					for (int y = 91 - 15 + (x + 1) / 2; y < 100 - 15 + (x + 1) / 2; y++) {
+						gpBuffer[x + y * BUFFER_WIDTH] = 0;
+					}
+				}
+				for (int x = 27; x < 47; x++) {
+					gpBuffer[x + (108 - 14 + (x + 1) / 2) * BUFFER_WIDTH] = 0;
+				}*/
+				// add cross section
+				gpBuffer[33 + 101 * BUFFER_WIDTH] = 125;
+				// gpBuffer[34 + 101 * BUFFER_WIDTH] = 124;
+
+				gpBuffer[31 + 100 * BUFFER_WIDTH] = 125;
+				gpBuffer[32 + 100 * BUFFER_WIDTH] = 125;
+				gpBuffer[33 + 100 * BUFFER_WIDTH] = 93;
+				gpBuffer[34 + 100 * BUFFER_WIDTH] = 123;
+				gpBuffer[35 + 100 * BUFFER_WIDTH] = 127;
+				gpBuffer[30 +  99 * BUFFER_WIDTH] = 92;
+				gpBuffer[31 +  99 * BUFFER_WIDTH] = 125;
+				gpBuffer[32 +  99 * BUFFER_WIDTH] = 93;
+				gpBuffer[33 +  99 * BUFFER_WIDTH] = 60;
+				gpBuffer[34 +  99 * BUFFER_WIDTH] = 93;
+				gpBuffer[35 +  99 * BUFFER_WIDTH] = 125;
+				gpBuffer[36 +  99 * BUFFER_WIDTH] = 124;
+				gpBuffer[30 +  98 * BUFFER_WIDTH] = 124;
+				gpBuffer[31 +  98 * BUFFER_WIDTH] = 92;
+				gpBuffer[32 +  98 * BUFFER_WIDTH] = 125;
+				gpBuffer[33 +  98 * BUFFER_WIDTH] = 126;
+				gpBuffer[34 +  98 * BUFFER_WIDTH] = 0;
+				gpBuffer[35 +  98 * BUFFER_WIDTH] = 0;
+				gpBuffer[36 +  98 * BUFFER_WIDTH] = 0;
+				gpBuffer[37 +  98 * BUFFER_WIDTH] = 126;
+				gpBuffer[30 +  97 * BUFFER_WIDTH] = 93;
+				gpBuffer[31 +  97 * BUFFER_WIDTH] = 125;
+				gpBuffer[32 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[33 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[34 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[35 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[36 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[37 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[38 +  97 * BUFFER_WIDTH] = 125;
+
+				gpBuffer[31 +  96 * BUFFER_WIDTH] = 126;
+				gpBuffer[32 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[33 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[34 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[35 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[36 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[37 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[38 +  96 * BUFFER_WIDTH] = 0;
+				gpBuffer[39 +  96 * BUFFER_WIDTH] = 125;
+
+				gpBuffer[32 +  95 * BUFFER_WIDTH] = 125;
+				gpBuffer[33 +  95 * BUFFER_WIDTH] = 0;
+				gpBuffer[34 +  95 * BUFFER_WIDTH] = 0;
+				gpBuffer[35 +  95 * BUFFER_WIDTH] = 0;
+				gpBuffer[36 +  95 * BUFFER_WIDTH] = 0;
+				gpBuffer[37 +  95 * BUFFER_WIDTH] = 0;
+				gpBuffer[38 +  95 * BUFFER_WIDTH] = 0;
+				gpBuffer[39 +  95 * BUFFER_WIDTH] = 125;
+				gpBuffer[40 +  95 * BUFFER_WIDTH] = 125;
+				gpBuffer[41 +  95 * BUFFER_WIDTH] = 124;
+				gpBuffer[33 +  94 * BUFFER_WIDTH] = 60;
+				gpBuffer[34 +  94 * BUFFER_WIDTH] = 127;
+				gpBuffer[35 +  94 * BUFFER_WIDTH] = 0;
+				gpBuffer[36 +  94 * BUFFER_WIDTH] = 0;
+				gpBuffer[37 +  94 * BUFFER_WIDTH] = 126;
+				gpBuffer[38 +  94 * BUFFER_WIDTH] = 126;
+				gpBuffer[39 +  94 * BUFFER_WIDTH] = 127;
+				gpBuffer[40 +  94 * BUFFER_WIDTH] = 126;
+				gpBuffer[41 +  94 * BUFFER_WIDTH] = 125;
+				gpBuffer[34 +  93 * BUFFER_WIDTH] = 60;
+				gpBuffer[35 +  93 * BUFFER_WIDTH] = 126;
+				gpBuffer[36 +  93 * BUFFER_WIDTH] = 125;
+				gpBuffer[37 +  93 * BUFFER_WIDTH] = 126;
+				gpBuffer[38 +  93 * BUFFER_WIDTH] = 126;
+				gpBuffer[39 +  93 * BUFFER_WIDTH] = 127;
+				gpBuffer[35 +  92 * BUFFER_WIDTH] = 125;
+				gpBuffer[36 +  92 * BUFFER_WIDTH] = 126;
+				gpBuffer[37 +  92 * BUFFER_WIDTH] = 126;
+
+				// remove frame
+				gpBuffer[54 + 53 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[55 + 53 * BUFFER_WIDTH] = TRANS_COLOR;
+
+				// fix outline
+				gpBuffer[26 + 107 * BUFFER_WIDTH] = 62;
+				gpBuffer[31 + 109 * BUFFER_WIDTH] = 62;
+				gpBuffer[50 +  88 * BUFFER_WIDTH] = 125;
+
+				// extend to the right
+				for (int y = 58; y < 116; y++) {
+					gpBuffer[56 + y * BUFFER_WIDTH] = gpBuffer[55 + (y - 1) * BUFFER_WIDTH];
+				}
+			}
+
+			if (idx == 1) {
+				// add shadows
+				/*for (int x = 13; x < 31; x++) {
+					for (int y = 106 + 7 - (x + 1) / 2; y < 110 + 7 - (x + 1) / 2; y++) {
+						gpBuffer[x + y * BUFFER_WIDTH] = 0;
+					}
+				}
+				for (int x = 13; x < 26; x++) {
+					for (int y = 93; y < 110; y++) {
+						if (gpBuffer[x + y * BUFFER_WIDTH] == TRANS_COLOR && y < 94 - 3 * (x - 26) / 2) {
+							gpBuffer[x + y * BUFFER_WIDTH] = 0;
+						}
+					}
+				}
+				for (int x = 15; x < 38; x++) {
+					gpBuffer[x + (118 + 8 - (x + 1) / 2) * BUFFER_WIDTH] = 0;
+				}
+				gpBuffer[33 + 110 * BUFFER_WIDTH] = 0;
+				gpBuffer[17 + 118 * BUFFER_WIDTH] = 0;
+				gpBuffer[14 + 119 * BUFFER_WIDTH] = 0;
+				gpBuffer[15 + 119 * BUFFER_WIDTH] = 0;
+				gpBuffer[16 + 119 * BUFFER_WIDTH] = 0;*/
+				// add cross section
+				gpBuffer[34 + 41 * BUFFER_WIDTH] = 70;
+
+				gpBuffer[21 + 76 * BUFFER_WIDTH] = 124;
+
+				gpBuffer[13 + 109 * BUFFER_WIDTH] = 91;
+				gpBuffer[14 + 109 * BUFFER_WIDTH] = 109;
+				gpBuffer[13 + 108 * BUFFER_WIDTH] = 122;
+				gpBuffer[14 + 108 * BUFFER_WIDTH] = 91;
+				gpBuffer[13 + 107 * BUFFER_WIDTH] = 75;
+				gpBuffer[14 + 107 * BUFFER_WIDTH] = 89;
+				gpBuffer[15 + 107 * BUFFER_WIDTH] = 125;
+				gpBuffer[13 + 106 * BUFFER_WIDTH] = 91;
+				gpBuffer[14 + 106 * BUFFER_WIDTH] = 123;
+				gpBuffer[15 + 106 * BUFFER_WIDTH] = 75;
+				gpBuffer[13 + 105 * BUFFER_WIDTH] = 124;
+				gpBuffer[14 + 105 * BUFFER_WIDTH] = 123;
+				gpBuffer[15 + 105 * BUFFER_WIDTH] = 91;
+				gpBuffer[16 + 105 * BUFFER_WIDTH] = 123;
+				gpBuffer[13 + 104 * BUFFER_WIDTH] = 89;
+				gpBuffer[14 + 104 * BUFFER_WIDTH] = 122;
+				gpBuffer[15 + 104 * BUFFER_WIDTH] = 123;
+				gpBuffer[16 + 104 * BUFFER_WIDTH] = 123;
+				gpBuffer[17 + 104 * BUFFER_WIDTH] = 63;
+				gpBuffer[13 + 103 * BUFFER_WIDTH] = 88;
+				gpBuffer[14 + 103 * BUFFER_WIDTH] = 122;
+				gpBuffer[15 + 103 * BUFFER_WIDTH] = 123;
+				gpBuffer[16 + 103 * BUFFER_WIDTH] = 123;
+				gpBuffer[17 + 103 * BUFFER_WIDTH] = 124;
+				gpBuffer[13 + 102 * BUFFER_WIDTH] = 125;
+				gpBuffer[14 + 102 * BUFFER_WIDTH] = 122;
+				gpBuffer[15 + 102 * BUFFER_WIDTH] = 123;
+				gpBuffer[16 + 102 * BUFFER_WIDTH] = 124;
+				gpBuffer[17 + 102 * BUFFER_WIDTH] = 75;
+				gpBuffer[18 + 102 * BUFFER_WIDTH] = 126;
+				gpBuffer[13 + 101 * BUFFER_WIDTH] = 0;
+				gpBuffer[14 + 101 * BUFFER_WIDTH] = 125;
+				gpBuffer[15 + 101 * BUFFER_WIDTH] = 124;
+				gpBuffer[16 + 101 * BUFFER_WIDTH] = 91;
+				gpBuffer[17 + 101 * BUFFER_WIDTH] = 91;
+				gpBuffer[18 + 101 * BUFFER_WIDTH] = 122;
+				gpBuffer[13 + 100 * BUFFER_WIDTH] = 0;
+				gpBuffer[14 + 100 * BUFFER_WIDTH] = 0;
+				gpBuffer[15 + 100 * BUFFER_WIDTH] = 0;
+				gpBuffer[16 + 100 * BUFFER_WIDTH] = 126;
+				gpBuffer[17 + 100 * BUFFER_WIDTH] = 123;
+				gpBuffer[18 + 100 * BUFFER_WIDTH] = 123;
+				gpBuffer[19 + 100 * BUFFER_WIDTH] = 125;
+				gpBuffer[13 +  99 * BUFFER_WIDTH] = 127;
+				gpBuffer[14 +  99 * BUFFER_WIDTH] = 0;
+				gpBuffer[15 +  99 * BUFFER_WIDTH] = 0;
+				gpBuffer[16 +  99 * BUFFER_WIDTH] = 0;
+				gpBuffer[17 +  99 * BUFFER_WIDTH] = 0;
+				gpBuffer[18 +  99 * BUFFER_WIDTH] = 126;
+				gpBuffer[19 +  99 * BUFFER_WIDTH] = 123;
+				gpBuffer[20 +  99 * BUFFER_WIDTH] = 93;
+				gpBuffer[15 +  98 * BUFFER_WIDTH] = 0;
+				gpBuffer[16 +  98 * BUFFER_WIDTH] = 0;
+				gpBuffer[17 +  98 * BUFFER_WIDTH] = 0;
+				gpBuffer[18 +  98 * BUFFER_WIDTH] = 126;
+				gpBuffer[19 +  98 * BUFFER_WIDTH] = 93;
+				gpBuffer[20 +  98 * BUFFER_WIDTH] = 125;
+				gpBuffer[21 +  98 * BUFFER_WIDTH] = 124;
+				gpBuffer[17 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[18 +  97 * BUFFER_WIDTH] = 0;
+				gpBuffer[19 +  97 * BUFFER_WIDTH] = 126;
+				gpBuffer[20 +  97 * BUFFER_WIDTH] = 93;
+				gpBuffer[21 +  97 * BUFFER_WIDTH] = 124;
+				gpBuffer[19 +  96 * BUFFER_WIDTH] = 125;
+				gpBuffer[20 +  96 * BUFFER_WIDTH] = 124;
+				gpBuffer[21 +  96 * BUFFER_WIDTH] = 126;
+				gpBuffer[22 +  96 * BUFFER_WIDTH] = 93;
+				gpBuffer[21 +  95 * BUFFER_WIDTH] = 125;
+				gpBuffer[22 +  95 * BUFFER_WIDTH] = 125;
+				gpBuffer[23 +  94 * BUFFER_WIDTH] = 126;
+
+				// fix outline
+				gpBuffer[36 +  89 * BUFFER_WIDTH] = 93;
+				gpBuffer[37 + 107 * BUFFER_WIDTH] = 62;
+
+				// remove frame
+				gpBuffer[9 + 53 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[8 + 53 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[8 + 54 * BUFFER_WIDTH] = TRANS_COLOR;
+			}
+			if (idx == 2) {
+				// improve cross sections
+				gpBuffer[37 + 61 * BUFFER_WIDTH] = 124;
+				gpBuffer[39 + 79 * BUFFER_WIDTH] = 124;
+
+				// fix outline
+				// for (int y = 83; y < 91; y++) {
+				//	gpBuffer[58 + y * BUFFER_WIDTH] = gpBuffer[58 + (y - 20) * BUFFER_WIDTH];
+				// }
+				// gpBuffer[57 + 91 * BUFFER_WIDTH] = 126;
+				gpBuffer[56 + 91 * BUFFER_WIDTH] = 126;
+				gpBuffer[55 + 92 * BUFFER_WIDTH] = 126;
+				gpBuffer[54 + 92 * BUFFER_WIDTH] = 126;
+				gpBuffer[53 + 92 * BUFFER_WIDTH] = 126;
+				gpBuffer[52 + 92 * BUFFER_WIDTH] = 126;
+				gpBuffer[51 + 93 * BUFFER_WIDTH] = 126;
+				gpBuffer[50 + 93 * BUFFER_WIDTH] = 126;
+				gpBuffer[49 + 94 * BUFFER_WIDTH] = 126;
+				// gpBuffer[48 + 94 * BUFFER_WIDTH] = 126;
+				gpBuffer[47 + 95 * BUFFER_WIDTH] = 126;
+				gpBuffer[46 + 95 * BUFFER_WIDTH] = 126;
+				gpBuffer[45 + 96 * BUFFER_WIDTH] = 126;
+				gpBuffer[44 + 96 * BUFFER_WIDTH] = 126;
+				gpBuffer[43 + 97 * BUFFER_WIDTH] = 126;
+				// gpBuffer[42 + 97 * BUFFER_WIDTH] = 126;
+				// gpBuffer[41 + 98 * BUFFER_WIDTH] = 126;
+
+				gpBuffer[21 + 107 * BUFFER_WIDTH] = 126;
+				gpBuffer[22 + 108 * BUFFER_WIDTH] = 126;
+				gpBuffer[23 + 108 * BUFFER_WIDTH] = 126;
+				gpBuffer[24 + 108 * BUFFER_WIDTH] = 126;
+
+				// remove the shadow
+				for (int y = 88; y < 95; y++) {
+					for (int x = 43; x < 49; x++) {
+						gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[(x + 6) + (y - 3) * BUFFER_WIDTH];
+					}
+				}
+				for (int y = 93; y < 99; y++) {
+					for (int x = 41; x < 43; x++) {
+						gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[(x - 2) + (y + 1) * BUFFER_WIDTH];
+					}
+				}
+				gpBuffer[45 + 87 * BUFFER_WIDTH] = 120;
+				gpBuffer[46 + 87 * BUFFER_WIDTH] = 71;
+				gpBuffer[42 + 89 * BUFFER_WIDTH] = 119;
+				gpBuffer[42 + 90 * BUFFER_WIDTH] = 73;
+				gpBuffer[43 + 95 * BUFFER_WIDTH] = 91;
+				gpBuffer[44 + 95 * BUFFER_WIDTH] = 122;
+				gpBuffer[45 + 95 * BUFFER_WIDTH] = 123;
+				gpBuffer[46 + 96 * BUFFER_WIDTH] = 124;
+
+				// remove hidden pixels
+				// gpBuffer[57 + 42 * BUFFER_WIDTH] = TRANS_COLOR;
+				for (int y = 43; y < 92; y++) {
+					for (int x = 57; x < 59; x++) {
+						gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			if (idx == 3) {
+				// improve cross sections
+				gpBuffer[9 + 53 * BUFFER_WIDTH] = 124;
+				gpBuffer[9 + 54 * BUFFER_WIDTH] = 123;
+				gpBuffer[9 + 60 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[9 + 61 * BUFFER_WIDTH] = TRANS_COLOR;
+
+				// fix outline
+				gpBuffer[ 8 +  91 * BUFFER_WIDTH] = 125;
+				gpBuffer[ 9 +  92 * BUFFER_WIDTH] = 126;
+
+				gpBuffer[27 + 101 * BUFFER_WIDTH] = 62;
+				gpBuffer[29 + 102 * BUFFER_WIDTH] = 62;
+				gpBuffer[31 + 103 * BUFFER_WIDTH] = 62;
+				gpBuffer[32 + 103 * BUFFER_WIDTH] = 94;
+				gpBuffer[33 + 104 * BUFFER_WIDTH] = 62;
+				gpBuffer[34 + 104 * BUFFER_WIDTH] = 126;
+				gpBuffer[35 + 106 * BUFFER_WIDTH] = 125;
+				gpBuffer[37 + 107 * BUFFER_WIDTH] = 126;
+
+				/* add shadow
+				gpBuffer[7 + 92 * BUFFER_WIDTH] = 0;
+				gpBuffer[8 + 92 * BUFFER_WIDTH] = 0;
+				gpBuffer[10 + 93 * BUFFER_WIDTH] = 0;
+				gpBuffer[12 + 94 * BUFFER_WIDTH] = 0;
+				gpBuffer[14 + 95 * BUFFER_WIDTH] = 0;
+				gpBuffer[16 + 96 * BUFFER_WIDTH] = 0;
+				gpBuffer[18 + 97 * BUFFER_WIDTH] = 0;
+				gpBuffer[20 + 98 * BUFFER_WIDTH] = 0;*/
+
+				// remove hidden pixels
+				gpBuffer[ 3 + 40 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[ 4 + 40 * BUFFER_WIDTH] = TRANS_COLOR;
+				for (int y = 41; y < 92; y++) {
+					for (int x = 1; x < 8; x++) {
+						if (x == 7 && y == 41) {
+							continue;
+						}
+						gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+
+			dstDataCursor = EncodeFrame(dstDataCursor, frame.frameWidth, frame.frameHeight, SUB_HEADER_SIZE, TRANS_COLOR);
+
+			// skip the original frame
+			srcHeaderCursor++;
+
+			idx++;
+		} else {
+			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor++;
+			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			dstDataCursor += len;
+			srcHeaderCursor++;
+		}
+	}
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
 
 static BYTE shadowColorCaves(BYTE color)
 {

@@ -75,6 +75,7 @@ extern std::set<unsigned> removeMicros;
 
 int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, const BYTE* celBuf, BYTE TRANS_COLOR);
 BYTE* EncodeMicro(int encoding, BYTE* pDst, BYTE* pSrc, BYTE transparentPixel);
+BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE transparentPixel);
 
 #ifdef __cplusplus
 }

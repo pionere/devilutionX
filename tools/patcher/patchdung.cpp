@@ -354,4 +354,49 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 	return SwapLE32(dstHeaderCursor[0]);
 }
 
+BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE transparentPixel)
+{
+	// add optional {CEL FRAME HEADER}
+	BYTE *pHeader = pBuf;
+	if (subHeaderSize != 0) {
+		*(WORD*)&pBuf[0] = SwapLE16(subHeaderSize);
+		memset(pBuf + 2, 0, subHeaderSize - 2);
+		pBuf += subHeaderSize;
+	}
+	// write the pixels
+	BYTE *pHead;
+	for (int i = 1; i <= height; i++) {
+		pHead = pBuf;
+		pBuf++;
+		bool alpha = false;
+		BYTE* data = &gpBuffer[(height - i) * BUFFER_WIDTH];
+		if (/*subHeaderSize != 0 &&*/ (i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < subHeaderSize) {
+			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+		}
+		for (int j = 0; j < width; j++) {
+			if (data[j] != transparentPixel) {
+				// add opaque pixel
+				if (alpha || *pHead > 126) {
+					pHead = pBuf;
+					pBuf++;
+				}
+				++*pHead;
+				*pBuf = data[j];
+				pBuf++;
+				alpha = false;
+			} else {
+				// add transparent pixel
+				if (j != 0 && (!alpha || (char)*pHead == -128)) {
+					pHead = pBuf;
+					pBuf++;
+				}
+				--*pHead;
+				alpha = true;
+			}
+		}
+	}
+
+	return pBuf;
+}
+
 DEVILUTION_END_NAMESPACE
