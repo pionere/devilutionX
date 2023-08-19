@@ -2,7 +2,15 @@
 set -euo pipefail
 set -x
 
-sudo apt-get update
-sudo apt-get install -y \
-  rpm pkg-config cmake g++ git smpq gettext libsdl2-dev libsodium-dev \
+PACKAGES=(
+  rpm pkg-config cmake git smpq gettext libsdl2-dev libsodium-dev
   libpng-dev libbz2-dev libspeechd-dev
+)
+
+if (( $# < 1 )) || [[ "$1" != --no-gcc ]]; then
+  PACKAGES+=(g++)
+fi
+
+sudo apt-get update
+sudo apt-get install -y "${PACKAGES[@]}"
+
