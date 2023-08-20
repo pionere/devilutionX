@@ -7,7 +7,7 @@ if (buildAsApplication) {
 }
 
 android {
-	ndkVersion '25.2.9519653'
+	ndkVersion '26.0.10792818'
 	compileSdk 34
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
@@ -16,7 +16,7 @@ android {
 	namespace 'org.diasurgical.devilutionx'
 	// }
 	defaultConfig {
-		minSdkVersion 19
+		minSdkVersion 21
 		targetSdkVersion 34
 		versionCode 666
 		versionName "1.0.0"
