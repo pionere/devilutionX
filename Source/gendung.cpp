@@ -51,7 +51,7 @@ bool nBlockTable[MAXSUBTILES + 1];
  */
 bool nSolidTable[MAXSUBTILES + 1];
 /**
- * Flags of subtiles to specify trap-sources (_piece_trap_type) and special cel-frames
+ * Flags of subtiles to specify trap-sources and special cel-frames (_piece_spectrap_flag)
  */
 BYTE nSpecTrapTable[MAXSUBTILES + 1];
 /**

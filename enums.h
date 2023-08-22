@@ -3338,6 +3338,14 @@ typedef enum _piece_trap_type {
 	PTT_RIGHT,
 } _piece_trap_type;
 
+typedef enum _piece_spectrap_flag {
+	PST_NONE      = 0,
+	PST_LEFT      = PTT_LEFT << 6,
+	PST_RIGHT     = PTT_RIGHT << 6,
+	PST_SPEC_TYPE = (1 << 6) - 1,
+	PST_TRAP_TYPE = 3 << 6,
+} _piece_spectrap_flag;
+
 typedef enum piece_micro_flag {
 	TMIF_WALL_TRANS = 1 << 0,
 	TMIF_LEFT_REDRAW = 1 << 1,

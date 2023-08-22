@@ -510,7 +510,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (((nSpecTrapTable[dPiece[i][j]] >> 6) & 3) != PTT_LEFT)
+			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_LEFT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -531,7 +531,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (((nSpecTrapTable[dPiece[i][j]] >> 6) & 3) != PTT_RIGHT)
+			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_RIGHT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -588,7 +588,7 @@ static void AddObjTraps()
 			continue;
 		if (dObject[tx][ty] != 0)
 			continue;
-		if (((nSpecTrapTable[dPiece[tx][ty]] >> 6) & 3) == PTT_NONE)
+		if ((nSpecTrapTable[dPiece[tx][ty]] & PST_TRAP_TYPE) == PST_NONE)
 			continue;
 		on = AddObject(on, tx, ty);
 		if (on == -1)
@@ -897,18 +897,18 @@ static void AddHookedBodies()
 	// TODO: straight loop (in dlrgs)?
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			ttv = (nSpecTrapTable[dPiece[i][j]] >> 6) & 3;
-			if (ttv == PTT_NONE)
+			ttv = nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE;
+			if (ttv == PST_NONE)
 				continue;
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			type = random_(0, 32);
 			if (type >= 3)
 				continue;
-			if (ttv == PTT_LEFT) {
+			if (ttv == PST_LEFT) {
 				type = OBJ_TORTUREL1 + type;
 			} else {
-				// assert(ttv == PTT_RIGHT);
+				// assert(ttv == PST_RIGHT);
 				type = OBJ_TORTURER1 + type;
 			}
 			AddObject(type, i, j);
