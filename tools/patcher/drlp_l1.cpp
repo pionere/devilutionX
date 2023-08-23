@@ -76,6 +76,27 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 			gpBuffer[29 + 81 * BUFFER_WIDTH] = 47;
 			gpBuffer[30 + 80 * BUFFER_WIDTH] = 46;
 			gpBuffer[31 + 79 * BUFFER_WIDTH] = 63;
+			// add pixels for better outline
+			for (int y = 72; y < 99; y++) {
+				for (int x = 18; x < 42; x++) {
+					if (y == 72 && (x < 23 || x > 32)) {
+						continue;
+					}
+					if (y == 73 && (x < 19 || x > 35)) {
+						continue;
+					}
+					if (y == 74 && x > 38) {
+						continue;
+					}
+					if (y == 75 && x > 40) {
+						continue;
+					}
+					if (gpBuffer[x + y * BUFFER_WIDTH] != TRANS_COLOR) {
+						continue;
+					}
+					gpBuffer[x + y * BUFFER_WIDTH] = 47;
+				}
+			}
 		}
 		if (i == 3) {
 			// add missing pixels after DRLP_L1_PatchSpec
@@ -83,6 +104,27 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 			gpBuffer[32 + 79 * BUFFER_WIDTH] = 46;
 			gpBuffer[33 + 80 * BUFFER_WIDTH] = 46;
 			gpBuffer[34 + 81 * BUFFER_WIDTH] = 46;
+			// add pixels for better outline
+			for (int y = 72; y < 102; y++) {
+				for (int x = 23; x < 47; x++) {
+					if (y == 72 && (x < 32 || x > 41)) {
+						continue;
+					}
+					if (y == 73 && (x < 29 || x > 45)) {
+						continue;
+					}
+					if (y == 74 && x < 26) {
+						continue;
+					}
+					if (y == 75 && x < 24) {
+						continue;
+					}
+					if (gpBuffer[x + y * BUFFER_WIDTH] != TRANS_COLOR) {
+						continue;
+					}
+					gpBuffer[x + y * BUFFER_WIDTH] = 47;
+				}
+			}
 		}
 
 		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
