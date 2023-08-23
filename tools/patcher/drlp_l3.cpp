@@ -32,8 +32,9 @@ BYTE* DRLP_L3_PatchDoors(BYTE* celBuf, size_t* celLen)
 	srcHeaderCursor++;
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + 2 * *celLen);
-	memset(resCelBuf, 0, *celLen + 2 * *celLen);
+	size_t maxCelSize = *celLen + 2 * *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
 	*dstHeaderCursor = SwapLE32(srcCelEntries);
