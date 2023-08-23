@@ -23,6 +23,7 @@ typedef enum filenames {
 #if ASSET_MPL == 1
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
+	FILE_L1DOORS_CEL,
 	FILE_CATHEDRAL_CEL,
 	FILE_CATHEDRAL_MIN,
 #endif
@@ -121,6 +122,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #if ASSET_MPL == 1
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
+/*FILE_L1DOORS_CEL*/   "Objects\\L1Doors.CEL",
 /*FILE_CATHEDRAL_CEL*/ "Levels\\L1Data\\L1.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 #endif
@@ -1715,6 +1717,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		buf = Town_PatchMin(buf, dwLen, false);
 		buf = buildBlkMin(buf, dwLen, blockSize);
+	} break;
+	case FILE_L1DOORS_CEL:
+	{	// patch L1Doors.CEL
+		buf = DRLP_L1_PatchDoors(buf, dwLen);
 	} break;
 	case FILE_CATHEDRAL_CEL:
 	{	// patch dMicroCels - L1.CEL

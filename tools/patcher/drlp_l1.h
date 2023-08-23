@@ -14,6 +14,7 @@ extern "C" {
 
 #define BLOCK_SIZE_L1 10
 
+BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen);
 BYTE* DRLP_L1_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen);
 void DRLP_L1_PatchMin(BYTE* minBuf);
 void DRLP_L1_PatchTil(BYTE* tilBuf);

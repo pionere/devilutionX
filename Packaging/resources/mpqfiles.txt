@@ -97,7 +97,6 @@ NLevels\L6Data\L6.TMI
 NLevels\TownData\Town.SOL
 NLevels\TownData\Town.SPT
 NLevels\TownData\Town.TMI
-Objects\L1Doors.CEL
 Objects\Sarc.CEL
 PlrGFX\Coral.TRN
 PlrGFX\SBlue.TRN

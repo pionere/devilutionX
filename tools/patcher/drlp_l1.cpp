@@ -4,9 +4,77 @@
  * Implementation of the cathedral (and crypt) level patching functionality.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
+{
+	constexpr int FRAME_WIDTH = 64;
+	constexpr int FRAME_HEIGHT = 160;
+
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen + 2 * *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+
+		if (i == 1) {
+			// move the door-handle to the right
+			if (gpBuffer[17 + 112 * BUFFER_WIDTH] == 42) {
+				// copy the door-handle to the right
+				for (int y = 108; y < 119; y++) {
+					for (int x = 16; x < 24; x++) {
+						BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
+						if (color == 47) {
+							gpBuffer[x + 21 + (y + 7) * BUFFER_WIDTH] = 0;
+						}
+					}
+				}
+				gpBuffer[22 + 21 + (116 + 7) * BUFFER_WIDTH] = 0;
+				gpBuffer[18 + 21 + (116 + 7) * BUFFER_WIDTH] = 0;
+				gpBuffer[18 + 21 + (117 + 7) * BUFFER_WIDTH] = 0;
+				gpBuffer[17 + 21 + (111 + 7) * BUFFER_WIDTH] = 0;
+				// remove the original door-handle
+				for (int y = 108; y < 120; y++) {
+					for (int x = 16; x < 24; x++) {
+						gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + 8 + (y + 7) * BUFFER_WIDTH];
+					}
+				}
+			}
+		}
+
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
 
 static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
