@@ -280,6 +280,7 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /* 26 */{ 231 - 1, 4, -1 },
 /* 27 */{ 417 - 1, 4, MET_TRANSPARENT },
 /* 28 */{ 418 - 1, 4, MET_TRANSPARENT },
+/* 29 */{ 417 - 1, 2, MET_SQUARE },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -456,6 +457,47 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 				gpBuffer[addr] = gpBuffer[addr2];
 			}
 		}
+
+		// fix glitch
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  5 + 28 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr +  6 + 28 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  7 + 28 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  3 + 29 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  4 + 29 * BUFFER_WIDTH] = 47;
+		gpBuffer[addr +  5 + 29 * BUFFER_WIDTH] = 46;
+		gpBuffer[addr +  6 + 29 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 15 + 27 * BUFFER_WIDTH] = 6;
+
+		// fix shadow
+		gpBuffer[addr +  9 + 26 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 10 + 26 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 12 + 26 * BUFFER_WIDTH] = 11;
+		gpBuffer[addr + 13 + 26 * BUFFER_WIDTH] = 12;
+		gpBuffer[addr + 14 + 26 * BUFFER_WIDTH] = 28;
+
+		gpBuffer[addr +  7 + 29 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  8 + 29 * BUFFER_WIDTH] = 42;
+		gpBuffer[addr +  9 + 29 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  5 + 30 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  6 + 30 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  7 + 30 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  8 + 30 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  9 + 30 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 10 + 30 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 11 + 30 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 12 + 30 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  4 + 31 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  5 + 31 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  6 + 31 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  7 + 31 * BUFFER_WIDTH] = 12;
+		gpBuffer[addr +  8 + 31 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  9 + 31 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 10 + 31 * BUFFER_WIDTH] = 44;
+		gpBuffer[addr + 11 + 31 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 12 + 31 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 13 + 31 * BUFFER_WIDTH] = 12;
+		gpBuffer[addr + 14 + 31 * BUFFER_WIDTH] = 26;
 	}
 	{ // 418[4] - add missing pixels after DRLP_L1_PatchSpec
 		int i = 28;
@@ -463,7 +505,98 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 		gpBuffer[addr + 31 + 15 * BUFFER_WIDTH] = 46;
 		gpBuffer[addr + 30 + 16 * BUFFER_WIDTH] = 30;
 		gpBuffer[addr + 29 + 17 * BUFFER_WIDTH] = 30;
+
+		// fix shadow
+		gpBuffer[addr + 31 + 23 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 30 + 24 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr + 31 + 24 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 30 + 25 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 31 + 25 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 30 + 26 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 31 + 26 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 28 + 27 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr + 29 + 27 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 30 + 27 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 27 + 28 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr + 28 + 28 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 29 + 28 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 27 + 29 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 28 + 29 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 26 + 30 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 27 + 30 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 28 + 30 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr + 29 + 30 * BUFFER_WIDTH] = 28;
 	}
+	{ // 417[2] - fix shadow
+		int i = 29;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  0 +  9 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  0 +  8 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  1 +  8 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  2 +  8 * BUFFER_WIDTH] = 26;
+
+		gpBuffer[addr +  0 +  7 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  1 +  7 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  2 +  7 * BUFFER_WIDTH] = 12;
+		gpBuffer[addr +  4 +  7 * BUFFER_WIDTH] = 27;
+
+		gpBuffer[addr +  0 +  6 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  1 +  6 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  2 +  6 * BUFFER_WIDTH] = 25;
+		gpBuffer[addr +  3 +  6 * BUFFER_WIDTH] = 25;
+		gpBuffer[addr +  4 +  6 * BUFFER_WIDTH] = 11;
+
+		gpBuffer[addr +  0 +  5 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  1 +  5 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  2 +  5 * BUFFER_WIDTH] = 12;
+		gpBuffer[addr +  3 +  5 * BUFFER_WIDTH] = 10;
+		gpBuffer[addr +  4 +  5 * BUFFER_WIDTH] = 10;
+		gpBuffer[addr +  5 +  5 * BUFFER_WIDTH] = 26;
+
+		gpBuffer[addr +  1 +  4 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  2 +  4 * BUFFER_WIDTH] = 11;
+		gpBuffer[addr +  3 +  4 * BUFFER_WIDTH] = 10;
+		gpBuffer[addr +  4 +  4 * BUFFER_WIDTH] = 11;
+		gpBuffer[addr +  5 +  4 * BUFFER_WIDTH] = 10;
+		gpBuffer[addr +  6 +  4 * BUFFER_WIDTH] = 25;
+		gpBuffer[addr +  7 +  4 * BUFFER_WIDTH] = 27;
+
+		gpBuffer[addr +  1 +  3 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  2 +  3 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  3 +  3 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  4 +  3 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  5 +  3 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  6 +  3 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  7 +  3 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  8 +  3 * BUFFER_WIDTH] = 26;
+
+		gpBuffer[addr +  2 +  2 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  3 +  2 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  4 +  2 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  5 +  2 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  6 +  2 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  7 +  2 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  8 +  2 * BUFFER_WIDTH] = 26;
+
+		gpBuffer[addr +  3 +  1 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  4 +  1 * BUFFER_WIDTH] = 27;
+		gpBuffer[addr +  5 +  1 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  6 +  1 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  7 +  1 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  8 +  1 * BUFFER_WIDTH] = 29;
+		gpBuffer[addr +  9 +  1 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr + 10 +  1 * BUFFER_WIDTH] = 26;
+
+		gpBuffer[addr +  4 +  0 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  5 +  0 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  6 +  0 * BUFFER_WIDTH] = 28;
+		gpBuffer[addr +  7 +  0 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  8 +  0 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr +  9 +  0 * BUFFER_WIDTH] = 12;
+		gpBuffer[addr + 10 +  0 * BUFFER_WIDTH] = 26;
+		gpBuffer[addr + 11 +  0 * BUFFER_WIDTH] = 26;
+	}
+
 	// fix artifacts
 	/*{ // 392[0]
 		int i = 4;
