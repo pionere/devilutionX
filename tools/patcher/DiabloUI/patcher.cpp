@@ -24,6 +24,7 @@ typedef enum filenames {
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
 	FILE_L1DOORS_CEL,
+	FILE_CATHEDRAL_SCEL,
 	FILE_CATHEDRAL_CEL,
 	FILE_CATHEDRAL_MIN,
 #endif
@@ -123,6 +124,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
 /*FILE_L1DOORS_CEL*/   "Objects\\L1Doors.CEL",
+/*FILE_CATHEDRAL_SCEL*/"Levels\\L1Data\\L1S.CEL",
 /*FILE_CATHEDRAL_CEL*/ "Levels\\L1Data\\L1.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 #endif
@@ -1721,6 +1723,27 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_L1DOORS_CEL:
 	{	// patch L1Doors.CEL
 		buf = DRLP_L1_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_CATHEDRAL_SCEL:
+	{	// patch pSpecialsCel - L1S.CEL
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATHEDRAL_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATHEDRAL_MIN]);
+			return NULL;
+		}
+		size_t celLen;
+		BYTE* celBuf = LoadFileInMem(filesToPatch[FILE_CATHEDRAL_CEL], &celLen);
+		if (celBuf == NULL) {
+			mem_free_dbg(minBuf);
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATHEDRAL_CEL]);
+			return NULL;
+		}
+		buf = DRLP_L1_PatchSpec(minBuf, minLen, celBuf, celLen, buf, dwLen);
+		mem_free_dbg(celBuf);
+		mem_free_dbg(minBuf);
 	} break;
 	case FILE_CATHEDRAL_CEL:
 	{	// patch dMicroCels - L1.CEL

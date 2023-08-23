@@ -36,7 +36,18 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
 
+		if (i == 0) {
+			// add missing pixels after DRLP_L1_PatchSpec
+			gpBuffer[29 + 81 * BUFFER_WIDTH] = 47;
+			gpBuffer[30 + 80 * BUFFER_WIDTH] = 110;
+			gpBuffer[31 + 79 * BUFFER_WIDTH] = 47;
+		}
 		if (i == 1) {
+			// add missing pixels after DRLP_L1_PatchSpec
+			gpBuffer[31 + 79 * BUFFER_WIDTH] = 46;
+			gpBuffer[32 + 79 * BUFFER_WIDTH] = 47;
+			gpBuffer[33 + 80 * BUFFER_WIDTH] = 47;
+			gpBuffer[34 + 81 * BUFFER_WIDTH] = 47;
 			// move the door-handle to the right
 			if (gpBuffer[17 + 112 * BUFFER_WIDTH] == 42) {
 				// copy the door-handle to the right
@@ -60,6 +71,19 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 				}
 			}
 		}
+		if (i == 2) {
+			// add missing pixels after DRLP_L1_PatchSpec
+			gpBuffer[29 + 81 * BUFFER_WIDTH] = 47;
+			gpBuffer[30 + 80 * BUFFER_WIDTH] = 46;
+			gpBuffer[31 + 79 * BUFFER_WIDTH] = 63;
+		}
+		if (i == 3) {
+			// add missing pixels after DRLP_L1_PatchSpec
+			gpBuffer[31 + 79 * BUFFER_WIDTH] = 46;
+			gpBuffer[32 + 79 * BUFFER_WIDTH] = 46;
+			gpBuffer[33 + 80 * BUFFER_WIDTH] = 46;
+			gpBuffer[34 + 81 * BUFFER_WIDTH] = 46;
+		}
 
 		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
 		dstHeaderCursor++;
@@ -72,6 +96,99 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
 	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+
+BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 64;
+	constexpr int FRAME_HEIGHT = 160;
+
+	DWORD* srcHeaderCursor = (DWORD*)sCelBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	// create the new CEL file
+	size_t maxCelSize = *sCelLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+
+	for (int i = 0; i < srcCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH, 0);
+
+		// eliminate unnecessary pixels on top
+		for (int y = 0; y < 47; y++) {
+			for (int x = 0; x < FRAME_WIDTH; x++) {
+				gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+			}
+		}
+		if (i == 7 - 1) {
+			for (int y = 71; y < 82; y++) {
+				for (int x = 28; x < 44; x++) {
+					BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
+					if (color == 14 || color == 29 || color == 30 || color == 46 || color == 47 || y > 112 - x) {
+						gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			gpBuffer[38 + 74 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[35 + 77 * BUFFER_WIDTH] = TRANS_COLOR;
+
+			gpBuffer[28 + 81 * BUFFER_WIDTH] = 22;
+			gpBuffer[29 + 80 * BUFFER_WIDTH] = 10;
+			gpBuffer[30 + 79 * BUFFER_WIDTH] = 10;
+			gpBuffer[31 + 78 * BUFFER_WIDTH] = 23;
+		}
+		if (i == 8 - 1) {
+			for (int y = 71; y < 82; y++) {
+				for (int x = 19; x < 35; x++) {
+					if (x == 34 && y == 71) {
+						continue;
+					}
+					BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
+					if (color == 14 || color == 29 || color == 30 || color == 46 || color == 47) {
+						gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			// gpBuffer[19 + 70 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[32 + 78 * BUFFER_WIDTH] = 26;
+			gpBuffer[33 + 79 * BUFFER_WIDTH] = 27;
+			gpBuffer[34 + 80 * BUFFER_WIDTH] = 28;
+		}
+		// eliminate pixels of the unused frames
+		if (i == 3 - 1 || i == 6 - 1) {
+			for (int y = 0; y < FRAME_HEIGHT; y++) {
+				for (int x = 0; x < FRAME_WIDTH; x++) {
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+
+		// write to the new SCEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*sCelLen);
 
 	return resCelBuf;
 }
@@ -117,6 +234,10 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /* 24 */{ 171 - 1, 1, MET_RTRIANGLE },
 
 /* 25 */{ 153 - 1, 0, MET_LTRIANGLE },
+
+/* 26 */{ 231 - 1, 4, -1 },
+/* 27 */{ 417 - 1, 4, MET_TRANSPARENT },
+/* 28 */{ 418 - 1, 4, MET_TRANSPARENT },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -269,7 +390,38 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 			}
 		}
 	}
-
+	// add missing pixels after DRLP_L1_PatchSpec to 417[4] using 231[4]
+	for (int i = 27; i < 28; i++) {
+		for (int x = 0; x < 12; x++) {
+			for (int y = 23; y < 31; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2 = x + MICRO_WIDTH * ((i - 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i - 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 231[4]
+				if (y < 29 - x) {
+					continue;
+				}
+				if (x > 1 && y < 30 - x) {
+					continue;
+				}
+				if (x == 6 && y == 24) {
+					continue;
+				}
+				if (y == 23 && (x == 7 || x == 8)) {
+					continue;
+				}
+				if (gpBuffer[addr] != TRANS_COLOR) {
+					continue;
+				}
+				gpBuffer[addr] = gpBuffer[addr2];
+			}
+		}
+	}
+	{ // 418[4] - add missing pixels after DRLP_L1_PatchSpec
+		int i = 28;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 31 + 15 * BUFFER_WIDTH] = 46;
+		gpBuffer[addr + 30 + 16 * BUFFER_WIDTH] = 30;
+		gpBuffer[addr + 29 + 17 * BUFFER_WIDTH] = 30;
+	}
 	// fix artifacts
 	/*{ // 392[0]
 		int i = 4;
