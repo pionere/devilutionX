@@ -88,10 +88,13 @@ typedef enum filenames {
 	FILE_WHITE_TRN,
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
+#if ASSET_MPL == 1
+	FILE_OBJ_MCIRL,
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
 	FILE_PLR_WMHAS,
+#endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
 	FILE_NTOWN_CEL,
@@ -183,10 +186,13 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_WHITE_TRN*/     "Monsters\\SkelSd\\White.TRN",
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
+#if ASSET_MPL == 1
+/*FILE_OBJ_MCIRL*/     "Objects\\Mcirl.CEL",
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
 /*FILE_PLR_WMHAS*/     "PlrGFX\\Warrior\\WMH\\WMHAS.CL2",
+#endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
 /*FILE_NTOWN_CEL*/     "NLevels\\TownData\\Town.CEL",
@@ -1166,6 +1172,210 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 	}
 }
 
+static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 96;
+	constexpr int FRAME_HEIGHT = 96;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	if (srcCelEntries != 4) {
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL]);
+		mem_free_dbg(celBuf);
+		return NULL;
+	}
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+
+		if (i == 0 && gpBuffer[5 + 70 *  BUFFER_WIDTH] == TRANS_COLOR) {
+			mem_free_dbg(resCelBuf);
+			return celBuf; // assume it is already done
+		}
+
+		int sy = 52;
+		int ey = 91;
+		int sx = 5;
+		int ex = 85;
+		int nw = (ex - sx) / 2;
+		int nh = (ey - sy) / 2;
+		// down-scale to half
+		for (int y = sy; y < ey; y += 2) {
+			for (int x = sx; x < ex; x += 2) {
+				gpBuffer[sx + (x - sx) / 2 + (sy + (y - sy) / 2) *  BUFFER_WIDTH] = gpBuffer[x + y *  BUFFER_WIDTH];
+			}
+		}
+		for (int y = sy; y < ey; y++) {
+			memset(&gpBuffer[sx + nw + y * BUFFER_WIDTH], TRANS_COLOR, FRAME_WIDTH - (sx + nw));
+		}
+		for (int y = sy + nh; y < ey; y++) {
+			memset(&gpBuffer[sx + y * BUFFER_WIDTH], TRANS_COLOR, FRAME_WIDTH - sx);
+		}
+		// move to the center
+		constexpr int offx = 4;
+		constexpr int offy = -2;
+		for (int y = ey - 1; y >= sy + nh; y--) {
+			memmove(&gpBuffer[nw / 2 + offx + (y + offy) * BUFFER_WIDTH], &gpBuffer[(y - nh) * BUFFER_WIDTH], FRAME_WIDTH - nw / 2);
+			memset(&gpBuffer[(y - nh) * BUFFER_WIDTH], TRANS_COLOR, FRAME_WIDTH - nw / 2);
+		}
+		// fix colors
+		if (i == 0) {
+			gpBuffer[57 + 70 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[65 + 84 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[58 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[34 + 85 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[40 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+
+			gpBuffer[46 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[47 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[48 + 69 * BUFFER_WIDTH] = 250;
+			gpBuffer[49 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[50 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[51 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[46 + 88 * BUFFER_WIDTH] = 248;
+			gpBuffer[47 + 88 * BUFFER_WIDTH] = 248;
+			gpBuffer[48 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[49 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[50 + 88 * BUFFER_WIDTH] = 250;
+			gpBuffer[51 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[40 + 70 * BUFFER_WIDTH] = 249;
+			gpBuffer[30 + 75 * BUFFER_WIDTH] = 248;
+			gpBuffer[31 + 74 * BUFFER_WIDTH] = 248;
+			gpBuffer[33 + 73 * BUFFER_WIDTH] = 250;
+			gpBuffer[37 + 71 * BUFFER_WIDTH] = 251;
+			gpBuffer[67 + 75 * BUFFER_WIDTH] = 250;
+			gpBuffer[66 + 74 * BUFFER_WIDTH] = 250;
+			gpBuffer[63 + 72 * BUFFER_WIDTH] = 251;
+			gpBuffer[61 + 86 * BUFFER_WIDTH] = 252;
+
+			gpBuffer[29 + 77 * BUFFER_WIDTH] = 249;
+			gpBuffer[29 + 78 * BUFFER_WIDTH] = 250;
+			gpBuffer[29 + 79 * BUFFER_WIDTH] = 251;
+			gpBuffer[29 + 80 * BUFFER_WIDTH] = 249;
+		}
+		if (i == 1) {
+			gpBuffer[57 + 70 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[61 + 71 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[65 + 73 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[68 + 81 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[58 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[65 + 84 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[40 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[46 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[47 + 88 * BUFFER_WIDTH] = 166;
+			gpBuffer[48 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[49 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[50 + 88 * BUFFER_WIDTH] = 169;
+			gpBuffer[51 + 88 * BUFFER_WIDTH] = 248;
+			gpBuffer[30 + 75 * BUFFER_WIDTH] = 248;
+			gpBuffer[31 + 74 * BUFFER_WIDTH] = 248;
+			gpBuffer[30 + 82 * BUFFER_WIDTH] = 166;
+			gpBuffer[31 + 83 * BUFFER_WIDTH] = 166;
+			gpBuffer[51 + 69 * BUFFER_WIDTH] = 250;
+			gpBuffer[46 + 69 * BUFFER_WIDTH] = 250;
+			gpBuffer[29 + 77 * BUFFER_WIDTH] = 249;
+			gpBuffer[29 + 78 * BUFFER_WIDTH] = 250;
+			gpBuffer[29 + 80 * BUFFER_WIDTH] = 248;
+		}
+		if (i == 2) {
+			gpBuffer[37 + 71 * BUFFER_WIDTH] = 250;
+			gpBuffer[40 + 70 * BUFFER_WIDTH] = 250;
+			gpBuffer[40 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[57 + 70 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[63 + 72 * BUFFER_WIDTH] = 250;
+			gpBuffer[58 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[65 + 84 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[67 + 75 * BUFFER_WIDTH] = 251;
+			gpBuffer[66 + 74 * BUFFER_WIDTH] = 251;
+			gpBuffer[29 + 77 * BUFFER_WIDTH] = 249;
+			gpBuffer[29 + 78 * BUFFER_WIDTH] = 250;
+			gpBuffer[29 + 79 * BUFFER_WIDTH] = 251;
+			gpBuffer[29 + 80 * BUFFER_WIDTH] = 250;
+			gpBuffer[30 + 75 * BUFFER_WIDTH] = 249;
+			gpBuffer[31 + 74 * BUFFER_WIDTH] = 249;
+			gpBuffer[30 + 82 * BUFFER_WIDTH] = 250;
+			gpBuffer[31 + 83 * BUFFER_WIDTH] = 250;
+
+			gpBuffer[46 + 88 * BUFFER_WIDTH] = 248;
+			gpBuffer[47 + 88 * BUFFER_WIDTH] = 248;
+			gpBuffer[48 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[49 + 88 * BUFFER_WIDTH] = 250;
+			gpBuffer[50 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[51 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[46 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[47 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[48 + 69 * BUFFER_WIDTH] = 250;
+			gpBuffer[49 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[50 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[51 + 69 * BUFFER_WIDTH] = 249;
+		}
+		if (i == 3) {
+			gpBuffer[30 + 78 * BUFFER_WIDTH] = 167;
+			gpBuffer[29 + 77 * BUFFER_WIDTH] = 249;
+			gpBuffer[29 + 78 * BUFFER_WIDTH] = 250;
+			gpBuffer[29 + 79 * BUFFER_WIDTH] = 251;
+			gpBuffer[29 + 80 * BUFFER_WIDTH] = 250;
+			gpBuffer[40 + 87 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[63 + 85 * BUFFER_WIDTH] = 252;
+			gpBuffer[57 + 70 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[61 + 71 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[30 + 75 * BUFFER_WIDTH] = 249;
+			gpBuffer[31 + 74 * BUFFER_WIDTH] = 248;
+			gpBuffer[30 + 82 * BUFFER_WIDTH] = 249;
+			gpBuffer[31 + 83 * BUFFER_WIDTH] = 250;
+			gpBuffer[47 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[48 + 88 * BUFFER_WIDTH] = 250;
+			gpBuffer[49 + 88 * BUFFER_WIDTH] = 251;
+			gpBuffer[67 + 75 * BUFFER_WIDTH] = 250;
+			gpBuffer[66 + 74 * BUFFER_WIDTH] = 250;
+			gpBuffer[48 + 69 * BUFFER_WIDTH] = 251;
+			gpBuffer[47 + 69 * BUFFER_WIDTH] = 250;
+			gpBuffer[40 + 70 * BUFFER_WIDTH] = 250;
+			gpBuffer[37 + 71 * BUFFER_WIDTH] = 250;
+			gpBuffer[61 + 86 * BUFFER_WIDTH] = 250;
+			gpBuffer[63 + 72 * BUFFER_WIDTH] = 251;
+
+			gpBuffer[46 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[50 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[51 + 88 * BUFFER_WIDTH] = 249;
+			gpBuffer[46 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[50 + 69 * BUFFER_WIDTH] = 249;
+			gpBuffer[51 + 69 * BUFFER_WIDTH] = 249;
+		}
+
+		// write to the new SCEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
@@ -1857,6 +2067,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 				buf[i] = 0;
 		}
 	} break;
+#if ASSET_MPL == 1
+	case FILE_OBJ_MCIRL:
+	{	// fix object gfx file - Mcirls.CEL
+		buf = fixObjCircle(buf, dwLen);
+	} break;
 	case FILE_PLR_WHBAT:
 	case FILE_PLR_WLBAT:
 	case FILE_PLR_WMBAT:
@@ -1886,6 +2101,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		mem_free_dbg(atkBuf);
 		mem_free_dbg(stdBuf);
 	} break;
+#endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
 	case FILE_NTOWN_CEL:
