@@ -2341,10 +2341,14 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(131 - 1) * 4 + 1] = SwapLE16(2 - 1);
 	pTiles[(131 - 1) * 4 + 2] = SwapLE16(301 - 1);
 	pTiles[(131 - 1) * 4 + 3] = SwapLE16(302 - 1);
-	pTiles[(132 - 1) * 4 + 0] = SwapLE16(296 - 1);
-	pTiles[(132 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(132 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(132 - 1) * 4 + 1] = SwapLE16(2 - 1);
 	pTiles[(132 - 1) * 4 + 2] = SwapLE16(310 - 1);
-	pTiles[(132 - 1) * 4 + 3] = SwapLE16(302 - 1);
+	pTiles[(132 - 1) * 4 + 3] = SwapLE16(344 - 1);
+	pTiles[(126 - 1) * 4 + 0] = SwapLE16(296 - 1);
+	pTiles[(126 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(126 - 1) * 4 + 2] = SwapLE16(310 - 1);
+	pTiles[(126 - 1) * 4 + 3] = SwapLE16(344 - 1);
 	// pTiles[(139 - 1) * 4 + 0] = SwapLE16(296 - 1);
 	// pTiles[(139 - 1) * 4 + 1] = SwapLE16(297 - 1);
 	pTiles[(139 - 1) * 4 + 2] = SwapLE16(328 - 1);
@@ -2353,10 +2357,14 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	// pTiles[(140 - 1) * 4 + 1] = SwapLE16(2 - 1);
 	// pTiles[(140 - 1) * 4 + 2] = SwapLE16(301 - 1);
 	pTiles[(140 - 1) * 4 + 3] = SwapLE16(330 - 1);
-	pTiles[(141 - 1) * 4 + 0] = SwapLE16(296 - 1);
-	pTiles[(141 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(141 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	pTiles[(141 - 1) * 4 + 1] = SwapLE16(2 - 1);
 	pTiles[(141 - 1) * 4 + 2] = SwapLE16(310 - 1);
 	pTiles[(141 - 1) * 4 + 3] = SwapLE16(299 - 1);
+	pTiles[(127 - 1) * 4 + 0] = SwapLE16(296 - 1);
+	pTiles[(127 - 1) * 4 + 1] = SwapLE16(297 - 1);
+	pTiles[(127 - 1) * 4 + 2] = SwapLE16(310 - 1);
+	pTiles[(127 - 1) * 4 + 3] = SwapLE16(299 - 1);
 	// pTiles[(142 - 1) * 4 + 0] = SwapLE16(307 - 1);
 	// pTiles[(142 - 1) * 4 + 1] = SwapLE16(308 - 1);
 	// pTiles[(142 - 1) * 4 + 2] = SwapLE16(7 - 1);
@@ -2493,7 +2501,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/*43, 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 119, 120, 126, 127, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
+		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/*43, 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 119, 120, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
 	};
 	constexpr int blankSubtile = 74;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {

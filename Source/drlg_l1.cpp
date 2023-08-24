@@ -797,7 +797,7 @@ static void DRLG_L1Shadows()
 				case 13:
 				case 139: replaceA = 139; okB = false; break;
 				case 143: replaceA = 139; okB = false; break;
-				case 140: replaceA = 141; okB = false; break;
+				// case 140: replaceA = 127; okB = false; break; - should not happen TIF_L1_WEST_ARCH_GRATE implies TIF_L1_WEST_WALL
 				case 148: replaceA = 148; okB = true;  break;
 				case 149: replaceA = 149; okB = true;  break;
 				// case 150: replaceA = 148; okB = true;  break;
@@ -817,8 +817,8 @@ static void DRLG_L1Shadows()
 				case 36:  replaceA = 152; okB = true;  break;
 				case 37:  replaceA = 161; okB = true;  break;
 				case 164: replaceA = 165; okB = false; break;
-				case 132: replaceA = 132; okB = false; break;
-				case 141: replaceA = 141; okB = false; break;
+				case 132: replaceA = 126; okB = false; break;
+				case 141: replaceA = 127; okB = false; break;
 				default:
 					// 25 -> not perfect, but ok and it would require a new door object as well
 					continue;
@@ -2856,6 +2856,23 @@ static void DRLG_L1FixMap()
 		lm[2 + 24, 18 * 37] = SwapLE16(140);
 		// use common tiles
 		lm[2 +  7 + 14 * 37] = SwapLE16(84);
+		// use the new shadows
+		lm[2 +  9 +  3 * 37] = SwapLE16(139);
+		lm[2 +  9 +  4 * 37] = SwapLE16(139);
+		lm[2 +  9 +  5 * 37] = SwapLE16(126);
+		lm[2 + 12 +  3 * 37] = SwapLE16(139);
+		lm[2 + 12 +  4 * 37] = SwapLE16(139);
+		lm[2 + 12 +  5 * 37] = SwapLE16(127);
+		lm[2 +  4 + 15 * 37] = SwapLE16(150);
+		lm[2 +  6 + 16 * 37] = SwapLE16(150);
+		lm[2 + 15 + 17 * 37] = SwapLE16(159);
+		lm[2 + 15 + 13 * 37] = SwapLE16(159);
+		lm[2 + 27 + 13 * 37] = SwapLE16(159);
+		lm[2 +  8 + 10 * 37] = SwapLE16(159);
+		lm[2 +  8 + 12 * 37] = SwapLE16(144);
+		lm[2 + 13 + 12 * 37] = SwapLE16(144);
+		lm[2 +  8 + 17 * 37] = SwapLE16(144);
+		lm[2 + 13 + 17 * 37] = SwapLE16(144);
 		// remove fix decorations
 		lm[2 +  3 + 15 * 37] = SwapLE16(2);
 		lm[2 +  5 + 20 * 37] = SwapLE16(1);
