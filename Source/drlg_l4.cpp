@@ -1152,6 +1152,10 @@ static void DRLG_L4Subs()
 static void L4Block2Dungeon()
 {
 	int i, j;
+	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in L4Block2Dungeon.");
+	if (sizeof(dungeon) != L4BLOCKX * L4BLOCKY * 4 || sizeof(dungeon[0]) != L4BLOCKY * 2) {
+		memset(dungeon, BASE_MEGATILE_L4, sizeof(dungeon));
+	}
 	for (j = 0; j < L4BLOCKY; j++) {
 		for (i = 0; i < L4BLOCKX; i++) {
 			dungeon[i][j] = drlg.dungBlock[i][j];
