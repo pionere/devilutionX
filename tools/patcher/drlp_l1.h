@@ -23,7 +23,7 @@ void DRLP_L1_PatchTil(BYTE* tilBuf);
 #ifdef HELLFIRE
 #define BLOCK_SIZE_L5 10
 
-
+BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen);
 BYTE* DRLP_L5_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen);
 void DRLP_L5_PatchMin(BYTE* minBuf);
 void DRLP_L5_PatchTil(BYTE* tilBuf);

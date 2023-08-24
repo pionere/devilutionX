@@ -103,6 +103,7 @@ typedef enum filenames {
 	FILE_NTOWN_MIN,
 #endif
 #if ASSET_MPL == 1
+	FILE_CRYPT_SCEL,
 	FILE_CRYPT_CEL,
 	FILE_CRYPT_MIN,
 #endif
@@ -203,6 +204,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NTOWN_MIN*/     "NLevels\\TownData\\Town.MIN",
 #endif
 #if ASSET_MPL == 1
+/*FILE_CRYPT_SCEL*/    "NLevels\\L5Data\\L5S.CEL",
 /*FILE_CRYPT_CEL*/     "NLevels\\L5Data\\L5.CEL",
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
 #endif
@@ -2226,6 +2228,27 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		nBlockTable(66, false);
 	} break;
 #if ASSET_MPL == 1
+	case FILE_CRYPT_SCEL:
+	{	// patch pSpecialsCel - L5S.CEL
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CRYPT_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CRYPT_MIN]);
+			return NULL;
+		}
+		size_t celLen;
+		BYTE* celBuf = LoadFileInMem(filesToPatch[FILE_CRYPT_CEL], &celLen);
+		if (celBuf == NULL) {
+			mem_free_dbg(minBuf);
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CRYPT_CEL]);
+			return NULL;
+		}
+		buf = DRLP_L5_PatchSpec(minBuf, minLen, celBuf, celLen, buf, dwLen);
+		mem_free_dbg(celBuf);
+		mem_free_dbg(minBuf);
+	} break;
 	case FILE_CRYPT_CEL:
 	{	// patch dMicroCels - L5.CEL
 		size_t minLen;

@@ -649,6 +649,14 @@ void InitLvlDungeon()
 		break;
 	case DTYPE_CRYPT:
 #if !USE_PATCH
+		// revert 'patched' L5.SPT
+		for (int i = 0; i < lengthof(nSpecTrapTable); i++) {
+			if ((nSpecTrapTable[i] & PST_SPEC_TYPE) <= 2) {
+				continue;
+			}
+			nSpecTrapTable[i] &= PST_TRAP_TYPE;
+			microFlags[i] |= TMIF_WALL_TRANS | TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW;
+		}
 		// patch dSolidTable - L5.SOL
 		// make collision-checks more reasonable
 		//  - fix inconsistent subtile on the right side of down-stairs

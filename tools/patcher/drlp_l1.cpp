@@ -2506,6 +2506,469 @@ void DRLP_L1_PatchTil(BYTE* buf)
 }
 
 #ifdef HELLFIRE
+BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
+{
+	typedef struct {
+		int subtileIndex0;
+		int8_t microIndices0[5];
+		int subtileIndex1;
+		int8_t microIndices1[5];
+	} SCelFrame;
+	const SCelFrame frames[] = {
+/*  0 */{ 206 - 1, {-1,-1, 4,-1,-1 }, /*204*/ - 1, {-1,-1, 4, 6,-1 } },
+/*  1 */{     - 1, { 0 },             /*208*/ - 1, {-1,-1, 5, 7,-1 } },
+/*  2 */{  31 - 1, { 0, 2, 4, 6, 8 },  29 - 1, {-1,-1, 4, 6,-1 } },
+/*  3 */{ 274 - 1, { 0, 2, 4, 6, 8 }, 272 - 1, {-1,-1, 4, 6,-1 } },
+/*  4 */{ 558 - 1, { 0, 2, 4, 6, 8 }, 557 - 1, {-1,-1, 4, 6,-1 } },
+/*  5 */{ 299 - 1, { 0, 2, 4, 6, 8 }, 298 - 1, {-1,-1, 4, 6, 8 } },
+/*  6 */{ 301 - 1, {-1,-1, 4, 6, 8 }, 300 - 1, {-1,-1, 4, 6,-1 } },
+/*  7 */{ 333 - 1, { 0, 2, 4, 6, 8 }, 331 - 1, {-1,-1, 4, 6,-1 } },
+/*  8 */{ 356 - 1, { 0, 2, 4, 6, 8 }, 355 - 1, {-1,-1, 4, 6,-1 } },
+/*  9 */{ 404 - 1, { 0, 2, 4, 6, 8 },  29 - 1, {-1,-1, 4, 6,-1 } },
+/* 10 */{ 415 - 1, { 0, 2, 4, 6, 8 }, 413 - 1, {-1,-1, 4, 6,-1 } },
+/* 11 */{ 456 - 1, { 0, 2, 4, 6, 8 }, 454 - 1, {-1,-1, 4, 6,-1 } },
+
+/* 12 */{  18 - 1, { 1, 3, 5, 7, 9 },  17 - 1, {-1,-1, 5, 7,-1 } },
+/* 13 */{ 459 - 1, { 1, 3, 5, 7, 9 }, 458 - 1, {-1,-1, 5, 7,-1 } },
+/* 14 */{ 352 - 1, { 1, 3, 5, 7, 9 }, 351 - 1, {-1,-1, 5, 7,-1 } },
+/* 15 */{ 348 - 1, { 1, 3, 5, 7, 9 }, 347 - 1, {-1,-1, 5, 7,-1 } },
+/* 16 */{ 406 - 1, { 1, 3, 5, 7, 9 },  17 - 1, {-1,-1, 5, 7,-1 } },
+/* 17 */{ 444 - 1, { 1, 3, 5, 7, 9 },  17 - 1, {-1,-1, 5, 7,-1 } },
+/* 18 */{ 471 - 1, { 1, 3, 5, 7, 9 }, 470 - 1, {-1,-1, 5, 7,-1 } },
+/* 19 */{ 562 - 1, { 1, 3, 5, 7, 9 }, 561 - 1, {-1,-1, 5, 7,-1 } },
+	};
+
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_L5;
+	for (int i = 0; i < lengthof(frames); i++) {
+		const SCelFrame &frame = frames[i];
+		// if (frame.subtileIndex0 < 0) {
+		// 	continue;
+		// }
+		for (int n = 0; n < lengthof(frame.microIndices0); n++) {
+			if (frame.microIndices0[n] < 0) {
+				continue;
+			}
+			unsigned index = MICRO_IDX(frame.subtileIndex0, blockSize, frame.microIndices0[n]);
+			if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
+				return sCelBuf; // frame is empty -> assume it is already done
+			}
+		}
+		if (frame.subtileIndex1 < 0) {
+		 	continue;
+		}
+		for (int n = 0; n < lengthof(frame.microIndices1); n++) {
+			if (frame.microIndices1[n] < 0) {
+				continue;
+			}
+			unsigned index = MICRO_IDX(frame.subtileIndex1, blockSize, frame.microIndices1[n]);
+			if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
+				return sCelBuf; // frame is empty -> assume it is already done
+			}
+		}
+	}
+
+	pMicrosCel = const_cast<BYTE*>(celBuf);
+
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 64;
+	constexpr int FRAME_HEIGHT = 160;
+
+	DWORD* srcHeaderCursor = (DWORD*)sCelBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	if (srcCelEntries != 2) {
+		return sCelBuf; // assume it is already done
+	}
+
+	// calculate the number of frames in the result
+	int resCelEntries = std::max(srcCelEntries, lengthof(frames));
+
+	// create the new CEL file
+	size_t maxCelSize = resCelEntries * FRAME_WIDTH * FRAME_HEIGHT * 2;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+
+	// int idx = 0;
+	for (int i = 0; i < lengthof(frames); i++) {
+		const SCelFrame &frame = frames[i];
+
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		if (i < srcCelEntries) {
+			CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH, 0);
+		}
+
+		if (i < 12 && i != 1) {
+			for (int n = 0; n < lengthof(frame.microIndices0) && frame.subtileIndex0 >= 0; n++) {
+				if (frame.microIndices0[n] < 0) {
+					continue;
+				}
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					memset(&gpBuffer[FRAME_WIDTH + y * BUFFER_WIDTH], TRANS_COLOR, MICRO_WIDTH);
+				}
+				unsigned index = MICRO_IDX(frame.subtileIndex0, blockSize, frame.microIndices0[n]);
+				RenderMicro(&gpBuffer[FRAME_WIDTH + (MICRO_HEIGHT - 1) * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						if (i == 0) { // 206[4]
+							if (y > 14 - x / 2) {
+								continue;
+							}
+						}
+						if ((i == 2 || i == 3 || i == 4 || i == 5 || i == 7 || i == 8 || i == 10 || i == 11) && n == 0) { // 31[0] - mask floor with left column
+							if (x > 23) {
+								continue;
+							}
+							if (x == 23 && (y != 17 && y != 18)) {
+								continue;
+							}
+							if (x == 22 && (y < 16 || y > 19)) {
+								continue;
+							}
+							if (x == 21 && (y == 21 || y == 22)) {
+								continue;
+							}
+						}
+						if (i == 9 && n == 0) { // 404[0] - mask floor with left column
+							if (x > 23) {
+								continue;
+							}
+							if (x == 23 && y > 18) {
+								continue;
+							}
+							if (x == 22 && y > 19) {
+								continue;
+							}
+							if (x == 21 && (y == 21 || y == 22)) {
+								continue;
+							}
+						}
+						if (i == 6 && n == 2) { // 301[4] eliminate 'bad' pixels
+							if (y > 12 - (x + 1) / 2) {
+								continue;
+							}
+						}
+						if (i == 6 && n == 3) { // 301[6] eliminate 'bad' pixels
+							if (y > 44 - (x + 1) / 2) {
+								continue;
+							}
+						}
+						BYTE color = gpBuffer[FRAME_WIDTH + x + y * BUFFER_WIDTH];
+						if (color != TRANS_COLOR) {
+							unsigned addr = x + (FRAME_HEIGHT - MICRO_HEIGHT * (n + 1) + y) * BUFFER_WIDTH;
+							if (gpBuffer[addr] == TRANS_COLOR) {
+								gpBuffer[addr] = color;
+							}
+						}
+					}
+				}
+			}
+			for (int n = 0; n < lengthof(frame.microIndices1) && frame.subtileIndex1 >= 0; n++) {
+				if (frame.microIndices1[n] < 0) {
+					continue;
+				}
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					memset(&gpBuffer[FRAME_WIDTH + y * BUFFER_WIDTH], TRANS_COLOR, MICRO_WIDTH);
+				}
+				unsigned index = MICRO_IDX(frame.subtileIndex1, blockSize, frame.microIndices1[n]);
+				RenderMicro(&gpBuffer[FRAME_WIDTH + (MICRO_HEIGHT - 1) * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						/*if (i == 0 && n == 2) { // 204[4]
+							if (y > 14 - x / 2) {
+								continue;
+							}
+						}*/
+
+						if ((i == 2 || i == 3 || i == 4 || i == 7 || i == 8 || i == 9 || i == 11) && n == 2) { // 29[4]
+							if (y > 16) {
+								continue;
+							}
+							if (y > 25 - x) {
+								continue;
+							}
+							/*if (x > 18 && y > 24 - x) {
+								continue;
+							}*/
+						}
+						if ((i == 2 || i == 3 || i == 4 || i == 7 || i == 8 || i == 9 || i == 11) && n == 3) { // 29[6]
+							if (y > 57 - x) {
+								continue;
+							}
+							if (x > 27) {
+								continue;
+							}
+							if (y < x / 2 - 1) {
+								continue;
+							}
+							if (y < 5 - x / 2) {
+								continue;
+							}
+						}
+						if (i == 10 && n == 2) { // 413[4]
+							if (y > 10 - x) {
+								continue;
+							}
+						}
+						if (i == 10 && n == 3) { // 413[6]
+							if (x > 26) {
+								continue;
+							}
+							if (y > 45 - x) {
+								continue;
+							}
+							if ((x < 19 || x > 21) && y > 44 - x) {
+								continue;
+							}
+							if ((x < 16 || x > 22) && y > 43 - x) {
+								continue;
+							}
+							if (x < 14 && y > 42 - x) {
+								continue;
+							}
+							if (y < x / 2 - 1) {
+								continue;
+							}
+							if (y < 5 - x / 2) {
+								continue;
+							}
+						}
+						if (i == 6 && n == 2) { // 331[4]
+							if (y > 12 - (x + 1) / 2) {
+								continue;
+							}
+						}
+						if (i == 6 && n == 3) { // 331[6]
+							if (x == 27 && y == 31) {
+								continue;
+							}
+							if (x > 27) {
+								continue;
+							}
+							if (y < x / 2 - 1) {
+								continue;
+							}
+							if (y < 5 - x / 2) {
+								continue;
+							}
+						}
+
+						BYTE color = gpBuffer[FRAME_WIDTH + x + y * BUFFER_WIDTH];
+						if ((i == 3 || i == 4) && n == 0 && ((color < 16 && color != 0) /*|| (x == 23 && y == 18)*/)) {
+							continue; // remove bright lava-pixels from 274[0], 558[0]
+						}
+						if (color != TRANS_COLOR) {
+							unsigned addr = MICRO_WIDTH + x + (FRAME_HEIGHT - MICRO_HEIGHT * (n + 1) + y - 16) * BUFFER_WIDTH;
+							if (gpBuffer[addr] == TRANS_COLOR) {
+								gpBuffer[addr] = color;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (i >= 12 || i == 1) {
+			for (int n = 0; n < lengthof(frame.microIndices0) && frame.subtileIndex0 >= 0; n++) {
+				if (frame.microIndices0[n] < 0) {
+					continue;
+				}
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					memset(&gpBuffer[FRAME_WIDTH + y * BUFFER_WIDTH], TRANS_COLOR, MICRO_WIDTH);
+				}
+				unsigned index = MICRO_IDX(frame.subtileIndex0, blockSize, frame.microIndices0[n]);
+				RenderMicro(&gpBuffer[FRAME_WIDTH + (MICRO_HEIGHT - 1) * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						if (i != 18 && i != 17 && i != 1 && n == 0) { // 18[1]
+							if (x < 8) {
+								continue;
+							}
+							if (x == 8 && (y != 18 && y != 19)) {
+								continue;
+							}
+							if (x == 9 && (y < 17 || y > 20)) {
+								continue;
+							}
+							if (x == 10 && (y == 22 || y == 23)) {
+								continue;
+							}
+						}
+
+						if (i == 17 && n == 0) { // 444[1] -- remove additional pixels due to brocken column
+							if (x < 10) {
+								continue;
+							}
+							if (x == 10 && (y < 17 || y > 19)) {
+								continue;
+							}
+							if (x == 11 && (y < 16 || y == 22 || y == 23 || y == 26)) {
+								continue;
+							}
+							if (x == 12 && y < 15) {
+								continue;
+							}
+							if (x == 13 && y < 13) {
+								continue;
+							}
+							if (x == 14 && y < 11) {
+								continue;
+							}
+							if (x == 15 && y < 10) {
+								continue;
+							}
+						}
+
+						if (i == 18 && n == 0) { // 471[1]
+							if (x < 5) {
+								continue;
+							}
+							if (x == 5 && (y < 14 || y > 17)) {
+								continue;
+							}
+							if (x == 6 && (y < 11 || y > 18)) {
+								continue;
+							}
+							if (x == 7 && y > 20) {
+								continue;
+							}
+							if (x == 8 && y > 22) {
+								continue;
+							}
+							if (x == 9 && y > 23) {
+								continue;
+							}
+						}
+
+						if (i == 17 && n == 1) { // 444[3] - remove pixels from the left side of the arch
+							if (x < 2) {
+								continue;
+							}
+						}
+						BYTE color = gpBuffer[FRAME_WIDTH + x + y * BUFFER_WIDTH];
+						if (i == 19 && n == 0 && ((color < 16 && color != 0) /*|| (x == 8 && y == 18)*/)) {
+							continue; // remove bright lava-pixels from 562[1]
+						}
+						if (color != TRANS_COLOR) {
+							unsigned addr = MICRO_WIDTH + x + (FRAME_HEIGHT - MICRO_HEIGHT * (n + 1) + y) * BUFFER_WIDTH;
+							if (gpBuffer[addr] == TRANS_COLOR) {
+								gpBuffer[addr] = color;
+							}
+						}
+					}
+				}
+			}
+			for (int n = 0; n < lengthof(frame.microIndices1) && frame.subtileIndex1 >= 0; n++) {
+				if (frame.microIndices1[n] < 0) {
+					continue;
+				}
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					memset(&gpBuffer[FRAME_WIDTH + y * BUFFER_WIDTH], TRANS_COLOR, MICRO_WIDTH);
+				}
+				unsigned index = MICRO_IDX(frame.subtileIndex1, blockSize, frame.microIndices1[n]);
+				RenderMicro(&gpBuffer[FRAME_WIDTH + (MICRO_HEIGHT - 1) * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						if (i != 1 && n == 2) { // 17[5]
+							if (y > 16) {
+								continue;
+							}
+							if (y > x - 5) {
+								continue;
+							}
+						}
+						if (i != 1 && n == 3) { // 17[7]
+							if (y > x + 27) {
+								continue;
+							}
+							if (x < 4) {
+								continue;
+							}
+							if (y < x / 2 - 10) {
+								continue;
+							}
+							if (y < 14 - x / 2) {
+								continue;
+							}
+						}
+
+						BYTE color = gpBuffer[FRAME_WIDTH + x + y * BUFFER_WIDTH];
+						if (color != TRANS_COLOR) {
+							unsigned addr = x + (FRAME_HEIGHT - MICRO_HEIGHT * (n + 1) + y - 16) * BUFFER_WIDTH;
+							if (gpBuffer[addr] == TRANS_COLOR) {
+								gpBuffer[addr] = color;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (i == 0) {
+			gpBuffer[31 + 63 * BUFFER_WIDTH] = 44;
+			gpBuffer[22 + 155 * BUFFER_WIDTH] = TRANS_COLOR;
+			gpBuffer[59 + 45 * BUFFER_WIDTH] = 44;
+			gpBuffer[58 + 46 * BUFFER_WIDTH] = 42;
+			gpBuffer[58 + 47 * BUFFER_WIDTH] = 41;
+		}
+
+		if (i == 6) {
+			gpBuffer[10 + 32 * BUFFER_WIDTH] = 41;
+			gpBuffer[12 + 31 * BUFFER_WIDTH] = 41;
+			gpBuffer[14 + 30 * BUFFER_WIDTH] = 40;
+			gpBuffer[16 + 29 * BUFFER_WIDTH] = 41;
+			gpBuffer[18 + 28 * BUFFER_WIDTH] = 41;
+			gpBuffer[20 + 27 * BUFFER_WIDTH] = 41;
+			gpBuffer[22 + 26 * BUFFER_WIDTH] = 41;
+			gpBuffer[24 + 25 * BUFFER_WIDTH] = 40;
+			gpBuffer[26 + 24 * BUFFER_WIDTH] = 41;
+			gpBuffer[28 + 23 * BUFFER_WIDTH] = 40;
+			gpBuffer[30 + 22 * BUFFER_WIDTH] = 41;
+			gpBuffer[32 + 21 * BUFFER_WIDTH] = 41;
+			gpBuffer[34 + 20 * BUFFER_WIDTH] = 42;
+		}
+
+		// write to the new SCEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+		// idx++;
+	}
+
+	// copy the remaining content
+	/*while (idx < srcCelEntries) {
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
+		memcpy(dstDataCursor, sCelBuf + srcHeaderCursor[0], len);
+		dstDataCursor += len;
+		srcHeaderCursor++;
+
+		idx++;
+	}*/
+
+	// add file-size
+	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*sCelLen);
+
+	return resCelBuf;
+}
+
 static BYTE* patchCryptFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	const CelMicro micros[] = {
@@ -2520,7 +2983,51 @@ static BYTE* patchCryptFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 /*  8 */{ 162 - 1, 2, MET_TRANSPARENT },
 /*  9 */{  63 - 1, 4, MET_SQUARE },
 /* 10 */{ 450 - 1, 0, MET_TRANSPARENT },
-/* 11 */{ 206 - 1, 0, MET_TRANSPARENT },
+
+/* 11 */{ 206 - 1, 0, MET_LTRIANGLE },   // mask doors
+/* 12 */{ 204 - 1, 0, MET_TRANSPARENT },
+/* 13 */{ 204 - 1, 2, MET_TRANSPARENT },
+/* 14 */{ 204 - 1, 4, MET_TRANSPARENT },
+/* 15 */{ 209 - 1, 1, MET_RTRIANGLE },
+/* 16 */{ 208 - 1, 1, MET_TRANSPARENT },
+/* 17 */{ 208 - 1, 3, MET_TRANSPARENT },
+/* 18 */{ 208 - 1, 5, MET_TRANSPARENT },
+
+/* 19 */{ 290 - 1, 4, MET_TRANSPARENT },
+/* 20 */{ 292 - 1, 0, MET_TRANSPARENT },
+/* 21 */{ 292 - 1, 2, MET_TRANSPARENT },
+/* 22 */{ 292 - 1, 4, MET_TRANSPARENT },
+/* 23 */{ 294 - 1, 4, MET_TRANSPARENT },
+/* 24 */{ 296 - 1, 4, MET_TRANSPARENT },
+/* 25 */{ 296 - 1, 6, MET_TRANSPARENT },
+
+/* 26 */{ 274 - 1, 0, MET_LTRIANGLE }, // with the new special cels
+/* 27 */{ 299 - 1, 0, MET_LTRIANGLE },
+/* 28 */{ 404 - 1, 0, MET_LTRIANGLE },
+/* 29 */{ 415 - 1, 0, MET_LTRIANGLE },
+/* 30 */{ 456 - 1, 0, MET_LTRIANGLE },
+/* 31 */{  18 - 1, 1, MET_RTRIANGLE },
+/*  *///{ 277 - 1, 1, MET_RTRIANGLE }, -- altered in fixCryptShadows
+/* 32 */{ 444 - 1, 1, MET_RTRIANGLE },
+/* 33 */{ 471 - 1, 1, MET_RTRIANGLE },
+
+/* 34 */{  29 - 1, 4, MET_TRANSPARENT },
+/* 35 */{ 272 - 1, 4, MET_TRANSPARENT },
+/* 36 */{ 454 - 1, 4, MET_TRANSPARENT },
+/* 37 */{ 557 - 1, 4, MET_TRANSPARENT },
+/* 38 */{ 559 - 1, 4, MET_TRANSPARENT },
+/* 39 */{ 413 - 1, 4, MET_TRANSPARENT },
+/* 40 */{ 300 - 1, 4, MET_TRANSPARENT },
+/* 41 */{  33 - 1, 5, MET_TRANSPARENT },
+/* 42 */{ 347 - 1, 5, MET_TRANSPARENT },
+/* 43 */{ 357 - 1, 5, MET_TRANSPARENT },
+/* 44 */{ 400 - 1, 5, MET_TRANSPARENT },
+/* 45 */{ 458 - 1, 5, MET_TRANSPARENT },
+/* 46 */{ 563 - 1, 5, MET_TRANSPARENT },
+/* 47 */{ 276 - 1, 5, MET_TRANSPARENT },
+
+/* 48 */{ 258 - 1, 6, MET_TRANSPARENT }, // fix micros after reuse
+/* 49 */{ 256 - 1, 6, MET_TRANSPARENT },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -2611,10 +3118,271 @@ static BYTE* patchCryptFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 		}
 	}
 	}
+
+	// mask doors 204[0]
+	for (int i = 12; i < 13; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < 16; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x < 14 || (x == 14 && y > 4) || (x == 15 && y > 14 && y < 23)) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask doors 204[2]
+	for (int i = 13; i < 14; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < 14; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x < 12 || (x == 12 && y > 12) || (x == 13 && y > 26)) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask doors 204[4]
+	for (int i = 14; i < 15; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < 26; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x > 10 && y > 14 - x / 2) {
+					continue;
+				}
+				if (x == 10 && y > 9 && y < 17) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask doors 208[1]
+	for (int i = 16; i < 17; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 17; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x > 17 || (x == 17 && y > 5 && y < 23)) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask doors 208[3]
+	for (int i = 17; i < 18; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 18; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x > 19 || (x == 19 && y > 0) || (x == 18 && y > 17)) {
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+	// mask doors 208[5]
+	for (int i = 18; i < 19; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 6; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x < 20 && y > x / 2 - 1) {
+					continue;
+				}
+				if (x == 20 && y > 9 && y < 17) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask 'doors' 290[4]
+	for (int i = 19; i < 20; i++) {
+		for (int y = 0; y < 13; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > 13 - (x + 1) / 2) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask 'doors' 294[4], 296[4]
+	for (int i = 23; i < 25; i++) {
+		for (int y = 0; y < 13; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > 12 - (x + 1) / 2) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask 'doors' 296[6]
+	for (int i = 25; i < 26; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > 44 - (x + 1) / 2) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask 'doors' 292[0]
+	for (int i = 20; i < 21; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < 24; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x == 23 && (y < 17 || y > 18)) {
+					continue;
+				}
+				if (x == 22 && (y < 16 || y > 19)) {
+					continue;
+				}
+				if (x == 21 && (y == 21 || y == 22)) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask 'doors' 292[2]
+	for (int i = 21; i < 22; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < 26; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x == 25 && y > 7) {
+					continue;
+				}
+				if (x == 24 && y > 13) {
+					continue;
+				}
+				if (x == 23 && y > 20) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask 'doors' 292[4]
+	for (int i = 22; i < 23; i++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < 30; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x == 29 && (y < 14 || y > 17)) {
+					continue;
+				}
+				if (x == 28 && (y < 13 || y > 18)) {
+					continue;
+				}
+				if (x == 27 && ((y > 1 && y < 13) || y > 18)) {
+					continue;
+				}
+				if (x == 26 && ((y > 2 && y < 10) || y > 30)) {
+					continue;
+				}
+				if (x == 25 && (y > 3 && y < 6)) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask the new special cels 29[4], 272[4], 454[4], 557[4], 559[4]
+	for (int i = 34; i < 39; i++) {
+		for (int y = 0; y < 17; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > 25 - x) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask the new special cels 413[4]
+	for (int i = 39; i < 40; i++) {
+		for (int y = 0; y < 9; y++) {
+			for (int x = 0; x < 11; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > 10 - x) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask the new special cels 300[4]
+	for (int i = 40; i < 41; i++) {
+		for (int y = 0; y < 14; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (x > 3 && y > 12 - ((x + 1) / 2)) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+	// mask the new special cels 33[5]
+	for (int i = 41; i < 48; i++) {
+		for (int y = 0; y < 17; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				if (y > x - 5) {
+					continue;
+				}
+				gpBuffer[addr] = TRANS_COLOR;
+			}
+		}
+	}
+
 	{ // 206[0] - fix bad artifact
 		int i = 11;
 		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr + 26 + 4 * BUFFER_WIDTH] = 45;
+	}
+	{ // 559[4] - fix bad artifact after masking
+		int i = 38;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 15 + 11 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 14 + 12 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 13 + 13 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 12 + 14 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 11 + 15 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 10 + 16 * BUFFER_WIDTH] = TRANS_COLOR;
+	}
+	{ // 563[5] - fix bad artifact after masking
+		int i = 46;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 17 + 13 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 17 + 14 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 18 + 14 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 18 + 15 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 19 + 15 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 19 + 16 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 20 + 16 * BUFFER_WIDTH] = TRANS_COLOR;
+	}
+	{ // 258[6] - fix micros after reuse
+		int i = 48;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr +  3 + 3 * BUFFER_WIDTH] = 42;
+		gpBuffer[addr +  4 + 3 * BUFFER_WIDTH] = 42;
+		gpBuffer[addr +  6 + 2 * BUFFER_WIDTH] = 42;
+		gpBuffer[addr +  8 + 1 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr + 10 + 0 * BUFFER_WIDTH] = 44;
+	}
+	{ // 256[6] - fix micros after reuse
+		int i = 49;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 0 + 5 * BUFFER_WIDTH] = 41;
+		gpBuffer[addr + 1 + 5 * BUFFER_WIDTH] = 41;
+		gpBuffer[addr + 2 + 4 * BUFFER_WIDTH] = 42;
+		gpBuffer[addr + 3 + 4 * BUFFER_WIDTH] = 41;
+		gpBuffer[addr + 3 + 0 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr + 3 + 1 * BUFFER_WIDTH] = 45;
+		gpBuffer[addr + 3 + 2 * BUFFER_WIDTH] = 45;
 	}
 
 	// create the new CEL file
@@ -2788,7 +3556,7 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 /*  7 */{ 634 - 1, 0, MET_LTRIANGLE },
 /*  8 */{ 634 - 1, 1, MET_RTRIANGLE },
 
-/*  9 */{ 277 - 1, 1, MET_TRANSPARENT },
+/*  9 */{ 277 - 1, 1, MET_RTRIANGLE },
 /* 10 */{ 303 - 1, 1, MET_RTRIANGLE },
 
 /* 11 */{ 620 - 1, 0, MET_RTRIANGLE },
@@ -3061,7 +3829,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	uint16_t* pSubtiles = (uint16_t*)buf;
 	constexpr int blockSize = BLOCK_SIZE_L5;
 	// adjust the frame types
-	// - after fillCryptShapes
+	// - after patchCryptFloorCel
 	SetFrameType(159, 3, MET_SQUARE);
 	SetFrameType(185, 3, MET_SQUARE);
 	// SetFrameType(159, 1, MET_RTRAPEZOID);
@@ -3071,6 +3839,68 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	SetFrameType(492, 0, MET_LTRIANGLE);
 	SetFrameType(519, 0, MET_LTRIANGLE);
 	SetFrameType(595, 1, MET_RTRIANGLE);
+	SetFrameType(206, 0, MET_LTRIANGLE);
+	SetFrameType(204, 0, MET_TRANSPARENT);
+	// SetFrameType(212, 0, MET_TRANSPARENT);
+	// SetFrameType(215, 0, MET_TRANSPARENT);
+	// SetFrameType(220, 0, MET_TRANSPARENT);
+	// SetFrameType(224, 0, MET_TRANSPARENT);
+	// SetFrameType(226, 0, MET_TRANSPARENT);
+	// SetFrameType(232, 0, MET_TRANSPARENT);
+	SetFrameType(204, 2, MET_TRANSPARENT);
+	// SetFrameType(212, 2, MET_TRANSPARENT);
+	// SetFrameType(215, 2, MET_TRANSPARENT);
+	// SetFrameType(220, 2, MET_TRANSPARENT);
+	// SetFrameType(224, 2, MET_TRANSPARENT);
+	// SetFrameType(226, 2, MET_TRANSPARENT);
+	// SetFrameType(232, 2, MET_TRANSPARENT);
+	SetFrameType(204, 4, MET_TRANSPARENT);
+	// SetFrameType(212, 4, MET_TRANSPARENT);
+	// SetFrameType(215, 4, MET_TRANSPARENT);
+	// SetFrameType(220, 4, MET_TRANSPARENT);
+	// SetFrameType(224, 4, MET_TRANSPARENT);
+	// SetFrameType(226, 4, MET_TRANSPARENT);
+	// SetFrameType(232, 4, MET_TRANSPARENT);
+	SetFrameType(209, 1, MET_RTRIANGLE);
+	SetFrameType(208, 1, MET_TRANSPARENT);
+	// SetFrameType(212, 1, MET_TRANSPARENT);
+	// SetFrameType(218, 1, MET_TRANSPARENT);
+	// SetFrameType(222, 1, MET_TRANSPARENT);
+	// SetFrameType(228, 1, MET_TRANSPARENT);
+	// SetFrameType(230, 1, MET_TRANSPARENT);
+	// SetFrameType(234, 1, MET_TRANSPARENT);
+	SetFrameType(208, 3, MET_TRANSPARENT);
+	// SetFrameType(212, 3, MET_TRANSPARENT);
+	// SetFrameType(218, 3, MET_TRANSPARENT);
+	// SetFrameType(222, 3, MET_TRANSPARENT);
+	// SetFrameType(228, 3, MET_TRANSPARENT);
+	// SetFrameType(230, 3, MET_TRANSPARENT);
+	// SetFrameType(234, 3, MET_TRANSPARENT);
+	SetFrameType(208, 5, MET_TRANSPARENT);
+	// SetFrameType(212, 5, MET_TRANSPARENT);
+	// SetFrameType(218, 5, MET_TRANSPARENT);
+	// SetFrameType(222, 5, MET_TRANSPARENT);
+	// SetFrameType(228, 5, MET_TRANSPARENT);
+	// SetFrameType(230, 5, MET_TRANSPARENT);
+	// SetFrameType(234, 5, MET_TRANSPARENT);
+	// -- with the new special cels
+	SetFrameType(274, 0, MET_LTRIANGLE);
+	SetFrameType(299, 0, MET_LTRIANGLE);
+	SetFrameType(404, 0, MET_LTRIANGLE);
+	SetFrameType(415, 0, MET_LTRIANGLE);
+	SetFrameType(456, 0, MET_LTRIANGLE);
+	SetFrameType(18, 1, MET_RTRIANGLE);
+	SetFrameType(463, 1, MET_RTRIANGLE);
+	SetFrameType(277, 1, MET_RTRIANGLE);
+	SetFrameType(444, 1, MET_RTRIANGLE);
+	SetFrameType(471, 1, MET_RTRIANGLE);
+	SetFrameType(290, 4, MET_TRANSPARENT);
+	SetFrameType(292, 0, MET_TRANSPARENT);
+	SetFrameType(292, 2, MET_TRANSPARENT);
+	SetFrameType(292, 4, MET_TRANSPARENT);
+	SetFrameType(294, 4, MET_TRANSPARENT);
+	SetFrameType(296, 4, MET_TRANSPARENT);
+	SetFrameType(296, 6, MET_TRANSPARENT);
 	// - after maskCryptBlacks
 	SetFrameType(126, 1, MET_TRANSPARENT);
 	SetFrameType(129, 0, MET_TRANSPARENT);
@@ -3113,19 +3943,23 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(242, 1, 626, 1);
 	// SetMcr(242, 2, 31, 2);
 	Blk2Mcr(242, 4);
-	ReplaceMcr(242, 6, 31, 6);
-	SetMcr(242, 8, 31, 8);
+	// ReplaceMcr(242, 6, 89, 6);
+	// SetMcr(242, 8, 89, 8);
+	Blk2Mcr(242, 6); // - with the new special cels
+	HideMcr(242, 8);
 	ReplaceMcr(178, 0, 619, 1);
 	ReplaceMcr(178, 1, 625, 0);
 	SetMcr(178, 2, 624, 0);
 	Blk2Mcr(178, 4);
-	ReplaceMcr(178, 6, 31, 6);
-	ReplaceMcr(178, 8, 31, 8);
+	ReplaceMcr(178, 6, 89, 6);
+	ReplaceMcr(178, 8, 89, 8);
 	ReplaceMcr(238, 0, 634, 0);
 	ReplaceMcr(238, 1, 634, 1);
 	Blk2Mcr(238, 4);
-	SetMcr(238, 6, 31, 6);
-	SetMcr(238, 8, 31, 8);
+	// SetMcr(238, 6, 89, 6);
+	// SetMcr(238, 8, 89, 8);
+	HideMcr(238, 6); // - with the new special cels
+	HideMcr(238, 8);
 	// pointless door micros (re-drawn by dSpecial or the object)
 	Blk2Mcr(77, 2);
 	Blk2Mcr(77, 4);
@@ -3143,18 +3977,22 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(99, 0, 204, 0);
 	ReplaceMcr(99, 2, 204, 2);
 	ReplaceMcr(99, 4, 204, 4);
+	ReplaceMcr(99, 6, 119, 6);
 	ReplaceMcr(113, 0, 204, 0);
 	ReplaceMcr(113, 2, 204, 2);
 	ReplaceMcr(113, 4, 204, 4);
+	ReplaceMcr(113, 6, 119, 6);
 	ReplaceMcr(115, 0, 204, 0);
 	ReplaceMcr(115, 2, 204, 2);
 	ReplaceMcr(115, 4, 204, 4);
+	ReplaceMcr(115, 6, 119, 6);
+	ReplaceMcr(204, 6, 119, 6);
 	Blk2Mcr(80, 7);
 	Blk2Mcr(80, 9);
 	ReplaceMcr(80, 0, 209, 0);
 	ReplaceMcr(80, 1, 209, 1);
-	ReplaceMcr(80, 3, 209, 3);
-	ReplaceMcr(80, 5, 209, 5);
+	Blk2Mcr(80, 3);
+	Blk2Mcr(80, 5);
 	// ReplaceMcr(79, 0, 208, 0);
 	// ReplaceMcr(79, 1, 208, 1);
 	// ReplaceMcr(79, 3, 208, 3);
@@ -3175,6 +4013,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(206, 4);
 	Blk2Mcr(206, 6);
 	Blk2Mcr(206, 8);
+	Blk2Mcr(209, 3);
+	Blk2Mcr(209, 5);
 	Blk2Mcr(209, 7);
 	Blk2Mcr(209, 9);
 	// Blk2Mcr(213, 6);
@@ -3260,6 +4100,145 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// fix automap of the entrance I.
 	Blk2Mcr(148, 0);
 	Blk2Mcr(148, 1);
+	// with the new special cels
+	ReplaceMcr(31, 0, 4, 0);
+	// ReplaceMcr(468, 0, 4, 0);
+	ReplaceMcr(333, 0, 31, 0); // lost details
+	ReplaceMcr(345, 0, 31, 0); // lost details
+	ReplaceMcr(356, 0, 7, 0);
+	ReplaceMcr(445, 0, 7, 0); // lost details
+	ReplaceMcr(404, 0, 474, 0); // lost details
+	// TODO: 274[0], 277[1] ?
+	Blk2Mcr(31, 2);
+	// Blk2Mcr(468, 2);
+	Blk2Mcr(274, 2);
+	Blk2Mcr(299, 2);
+	Blk2Mcr(333, 2);
+	Blk2Mcr(345, 2);
+	Blk2Mcr(356, 2);
+	Blk2Mcr(404, 2);
+	Blk2Mcr(415, 2);
+	Blk2Mcr(445, 2);
+	Blk2Mcr(456, 2);
+	ReplaceMcr(331, 4, 29, 4);
+	ReplaceMcr(343, 4, 29, 4);
+	ReplaceMcr(355, 4, 29, 4);
+	ReplaceMcr(363, 4, 29, 4);
+	ReplaceMcr(443, 4, 29, 4);
+	Blk2Mcr(31, 4);
+	// Blk2Mcr(468, 4);
+	Blk2Mcr(274, 4);
+	Blk2Mcr(298, 4);
+	Blk2Mcr(299, 4);
+	Blk2Mcr(301, 4);
+	Blk2Mcr(333, 4);
+	Blk2Mcr(345, 4);
+	Blk2Mcr(356, 4);
+	Blk2Mcr(404, 4);
+	Blk2Mcr(415, 4);
+	Blk2Mcr(445, 4);
+	Blk2Mcr(456, 4);
+	Blk2Mcr(31, 6);
+	// Blk2Mcr(468, 6);
+	Blk2Mcr(274, 6);
+	Blk2Mcr(298, 6);
+	Blk2Mcr(299, 6);
+	ReplaceMcr(300, 6, 119, 6); // lost details
+	ReplaceMcr(294, 6, 119, 6); // lost details
+	ReplaceMcr(454, 6, 252, 6); // lost details
+	ReplaceMcr(413, 6, 25, 6); // lost details
+	ReplaceMcr(331, 6, 25, 6); // lost details
+	ReplaceMcr(343, 6, 25, 6); // lost details
+	ReplaceMcr(355, 6, 25, 6); // lost details
+	ReplaceMcr(363, 6, 25, 6); // lost details
+	ReplaceMcr(557, 6, 25, 6); // lost details
+	ReplaceMcr(559, 6, 25, 6); // lost details
+	ReplaceMcr(290, 6, 296, 6);
+	ReplaceMcr(292, 6, 296, 6);
+	Blk2Mcr(301, 6);
+	Blk2Mcr(333, 6);
+	Blk2Mcr(345, 6);
+	Blk2Mcr(356, 6);
+	Blk2Mcr(404, 6);
+	Blk2Mcr(415, 6);
+	Blk2Mcr(445, 6);
+	Blk2Mcr(456, 6);
+	Blk2Mcr(31, 8);
+	// Blk2Mcr(468, 8);
+	Blk2Mcr(274, 8);
+	Blk2Mcr(290, 8);
+	Blk2Mcr(292, 8);
+	Blk2Mcr(296, 8);
+	Blk2Mcr(298, 8);
+	Blk2Mcr(299, 8);
+	Blk2Mcr(301, 8);
+	Blk2Mcr(333, 8);
+	Blk2Mcr(345, 8);
+	Blk2Mcr(356, 8);
+	Blk2Mcr(404, 8);
+	Blk2Mcr(415, 8);
+	Blk2Mcr(445, 8);
+	Blk2Mcr(456, 8);
+
+	ReplaceMcr(348, 1, 18, 1);
+	ReplaceMcr(352, 1, 18, 1);
+	ReplaceMcr(358, 1, 18, 1);
+	ReplaceMcr(406, 1, 18, 1);
+	ReplaceMcr(459, 1, 18, 1);
+	Blk2Mcr(18, 3);
+	Blk2Mcr(277, 3);
+	Blk2Mcr(332, 3);
+	Blk2Mcr(348, 3);
+	Blk2Mcr(352, 3);
+	Blk2Mcr(358, 3);
+	Blk2Mcr(406, 3);
+	Blk2Mcr(444, 3); // lost details
+	Blk2Mcr(459, 3);
+	Blk2Mcr(463, 3);
+	Blk2Mcr(471, 3);
+	Blk2Mcr(562, 3);
+	ReplaceMcr(470, 5, 276, 5);
+	Blk2Mcr(18, 5);
+	Blk2Mcr(277, 5);
+	Blk2Mcr(332, 5);
+	Blk2Mcr(348, 5);
+	Blk2Mcr(352, 5);
+	Blk2Mcr(358, 5);
+	Blk2Mcr(406, 5);
+	Blk2Mcr(444, 5);
+	Blk2Mcr(459, 5);
+	Blk2Mcr(463, 5);
+	Blk2Mcr(471, 5);
+	Blk2Mcr(562, 5);
+	ReplaceMcr(347, 7, 13, 7); // lost details
+	ReplaceMcr(276, 7, 13, 7); // lost details
+	ReplaceMcr(458, 7, 13, 7); // lost details
+	ReplaceMcr(561, 7, 13, 7); // lost details
+	ReplaceMcr(563, 7, 13, 7); // lost details
+	Blk2Mcr(18, 7);
+	Blk2Mcr(277, 7);
+	Blk2Mcr(332, 7);
+	Blk2Mcr(348, 7);
+	Blk2Mcr(352, 7);
+	Blk2Mcr(358, 7);
+	Blk2Mcr(406, 7);
+	Blk2Mcr(444, 7);
+	Blk2Mcr(459, 7);
+	Blk2Mcr(463, 7);
+	Blk2Mcr(471, 7);
+	Blk2Mcr(562, 7);
+	Blk2Mcr(18, 9);
+	Blk2Mcr(277, 9);
+	Blk2Mcr(332, 9);
+	Blk2Mcr(348, 9);
+	Blk2Mcr(352, 9);
+	Blk2Mcr(358, 9);
+	Blk2Mcr(406, 9);
+	Blk2Mcr(444, 9);
+	Blk2Mcr(459, 9);
+	Blk2Mcr(463, 9);
+	Blk2Mcr(471, 9);
+	Blk2Mcr(562, 9);
 	// subtile for the separate pillar tile
 	// - 91 == 9
 	ReplaceMcr(91, 0, 33, 0);
@@ -3343,25 +4322,25 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(551, 1, 265, 1);
 	ReplaceMcr(261, 0, 14, 0); // lost details
 	// ReplaceMcr(545, 0, 14, 0); // lost details
-	ReplaceMcr(18, 9, 6, 9); // lost details
+	// ReplaceMcr(18, 9, 6, 9); // lost details
 	// ReplaceMcr(34, 9, 6, 9); // lost details
 	// ReplaceMcr(37, 9, 6, 9);
-	ReplaceMcr(277, 9, 6, 9); // lost details
-	ReplaceMcr(332, 9, 6, 9); // lost details
-	ReplaceMcr(348, 9, 6, 9); // lost details
-	ReplaceMcr(352, 9, 6, 9); // lost details
-	ReplaceMcr(358, 9, 6, 9); // lost details
-	ReplaceMcr(406, 9, 6, 9); // lost details
-	ReplaceMcr(444, 9, 6, 9); // lost details
-	ReplaceMcr(459, 9, 6, 9); // lost details
-	ReplaceMcr(463, 9, 6, 9); // lost details
-	ReplaceMcr(562, 9, 6, 9); // lost details
+	// ReplaceMcr(277, 9, 6, 9); // lost details
+	// ReplaceMcr(332, 9, 6, 9); // lost details
+	// ReplaceMcr(348, 9, 6, 9); // lost details
+	// ReplaceMcr(352, 9, 6, 9); // lost details
+	// ReplaceMcr(358, 9, 6, 9); // lost details
+	// ReplaceMcr(406, 9, 6, 9); // lost details
+	// ReplaceMcr(444, 9, 6, 9); // lost details
+	// ReplaceMcr(459, 9, 6, 9); // lost details
+	// ReplaceMcr(463, 9, 6, 9); // lost details
+	// ReplaceMcr(562, 9, 6, 9); // lost details
 	// ReplaceMcr(564, 9, 6, 9); // lost details
-	ReplaceMcr(277, 7, 18, 7); // lost details
-	ReplaceMcr(562, 7, 18, 7); // lost details
-	ReplaceMcr(277, 5, 459, 5); // lost details
-	ReplaceMcr(562, 5, 459, 5); // lost details
-	ReplaceMcr(277, 3, 459, 3); // lost details
+	// ReplaceMcr(277, 7, 18, 7); // lost details
+	// ReplaceMcr(562, 7, 18, 7); // lost details
+	// ReplaceMcr(277, 5, 459, 5); // lost details
+	// ReplaceMcr(562, 5, 459, 5); // lost details
+	// ReplaceMcr(277, 3, 459, 3); // lost details
 	ReplaceMcr(562, 1, 277, 1); // lost details
 	// ReplaceMcr(564, 1, 277, 1); // lost details
 	ReplaceMcr(585, 1, 284, 1);
@@ -3372,31 +4351,31 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(564, 3, 459, 3); // lost details
 	// ReplaceMcr(34, 7, 18, 7); // lost details
 	// ReplaceMcr(37, 7, 18, 7);
-	ReplaceMcr(84, 7, 18, 7); // lost details
-	ReplaceMcr(406, 7, 18, 7); // lost details
-	ReplaceMcr(444, 7, 18, 7); // lost details
-	ReplaceMcr(463, 7, 18, 7); // lost details
-	ReplaceMcr(332, 7, 18, 7); // lost details
-	ReplaceMcr(348, 7, 18, 7); // lost details
-	ReplaceMcr(352, 7, 18, 7); // lost details
-	ReplaceMcr(358, 7, 18, 7); // lost details
-	ReplaceMcr(459, 7, 18, 7); // lost details
+	// ReplaceMcr(84, 7, 18, 7); // lost details
+	// ReplaceMcr(406, 7, 18, 7); // lost details
+	// ReplaceMcr(444, 7, 18, 7); // lost details
+	// ReplaceMcr(463, 7, 18, 7); // lost details
+	// ReplaceMcr(332, 7, 18, 7); // lost details
+	// ReplaceMcr(348, 7, 18, 7); // lost details
+	// ReplaceMcr(352, 7, 18, 7); // lost details
+	// ReplaceMcr(358, 7, 18, 7); // lost details
+	// ReplaceMcr(459, 7, 18, 7); // lost details
 	// ReplaceMcr(34, 5, 18, 5); // lost details
-	ReplaceMcr(348, 5, 332, 5); // lost details
-	ReplaceMcr(352, 5, 332, 5); // lost details
-	ReplaceMcr(358, 5, 332, 5); // lost details
+	// ReplaceMcr(348, 5, 332, 5); // lost details
+	// ReplaceMcr(352, 5, 332, 5); // lost details
+	// ReplaceMcr(358, 5, 332, 5); // lost details
 	// ReplaceMcr(34, 3, 18, 3); // lost details
-	ReplaceMcr(358, 3, 18, 3); // lost details
-	ReplaceMcr(348, 3, 332, 3); // lost details
-	ReplaceMcr(352, 3, 332, 3); // lost details
+	// ReplaceMcr(358, 3, 18, 3); // lost details
+	// ReplaceMcr(348, 3, 332, 3); // lost details
+	// ReplaceMcr(352, 3, 332, 3); // lost details
 	// ReplaceMcr(34, 0, 18, 0);
 	ReplaceMcr(352, 0, 18, 0);
 	ReplaceMcr(358, 0, 18, 0);
 	ReplaceMcr(406, 0, 18, 0); // lost details
 	// ReplaceMcr(34, 1, 18, 1);
 	ReplaceMcr(332, 1, 18, 1);
-	ReplaceMcr(348, 1, 352, 1);
-	ReplaceMcr(358, 1, 352, 1);
+	// ReplaceMcr(348, 1, 352, 1);
+	// ReplaceMcr(358, 1, 352, 1);
 	// ReplaceMcr(209, 7, 6, 7);
 	// ReplaceMcr(80, 9, 6, 9);
 	// ReplaceMcr(209, 9, 6, 9);
@@ -3421,8 +4400,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(206, 8, 3, 8);
 	// ReplaceMcr(238, 8, 3, 8);
 	ReplaceMcr(250, 8, 3, 8);
-	ReplaceMcr(292, 8, 3, 8);
-	ReplaceMcr(299, 8, 3, 8);
+	// ReplaceMcr(292, 8, 3, 8);
+	// ReplaceMcr(299, 8, 3, 8);
 	ReplaceMcr(329, 8, 3, 8);
 	ReplaceMcr(337, 8, 3, 8);
 	ReplaceMcr(353, 8, 3, 8);
@@ -3615,9 +4594,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(199, 0, 48, 0);
 	ReplaceMcr(572, 0, 48, 0);
 	ReplaceMcr(507, 1, 48, 1);
-	ReplaceMcr(471, 7, 265, 7);
+	// ReplaceMcr(471, 7, 265, 7);
 	ReplaceMcr(547, 7, 261, 7);
-	ReplaceMcr(471, 9, 6, 9);
+	// ReplaceMcr(471, 9, 6, 9);
 	ReplaceMcr(569, 0, 283, 0);
 	ReplaceMcr(565, 0, 283, 0);
 	// ReplaceMcr(621, 1, 48, 1);
@@ -3631,45 +4610,45 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	// ReplaceMcr(388, 2, 15, 2);
 	// ReplaceMcr(479, 5, 14, 5);
 	ReplaceMcr(389, 6, 17, 6); // lost details
-	// ReplaceMcr(19, 8, 31, 8);  // lost details
-	// ReplaceMcr(390, 8, 31, 8);  // lost details
-	ReplaceMcr(89, 8, 31, 8);
-	ReplaceMcr(254, 8, 31, 8); // lost details
-	ReplaceMcr(534, 8, 31, 8); // lost details
-	ReplaceMcr(537, 8, 31, 8); // lost details
-	ReplaceMcr(333, 8, 31, 8); // lost details
-	ReplaceMcr(345, 8, 31, 8);
-	// ReplaceMcr(365, 8, 31, 8); // lost details
-	ReplaceMcr(456, 8, 31, 8);
-	ReplaceMcr(274, 8, 31, 8); // lost details
-	// ReplaceMcr(558, 8, 31, 8); // lost details
-	// ReplaceMcr(560, 8, 31, 8); // lost details
-	ReplaceMcr(258, 8, 296, 8); // lost details
-	ReplaceMcr(541, 8, 296, 8); // lost details
-	// ReplaceMcr(543, 8, 296, 8); // lost details
-	ReplaceMcr(89, 6, 31, 6);  // lost details
-	ReplaceMcr(274, 6, 31, 6); // lost details
-	// ReplaceMcr(558, 6, 31, 6); // lost details
-	// ReplaceMcr(560, 6, 31, 6); // lost details
-	ReplaceMcr(356, 6, 31, 6);  // lost details
-	ReplaceMcr(333, 6, 445, 6); // lost details
-	ReplaceMcr(345, 6, 445, 6); // lost details
+	// ReplaceMcr(19, 8, 89, 8);  // lost details
+	// ReplaceMcr(390, 8, 89, 8);  // lost details
+	// ReplaceMcr(31, 8, 89, 8);
+	ReplaceMcr(254, 8, 89, 8); // lost details
+	ReplaceMcr(534, 8, 89, 8); // lost details
+	ReplaceMcr(537, 8, 89, 8); // lost details
+	// ReplaceMcr(333, 8, 89, 8); // lost details
+	// ReplaceMcr(345, 8, 89, 8);
+	// ReplaceMcr(365, 8, 89, 8); // lost details
+	// ReplaceMcr(456, 8, 89, 8);
+	// ReplaceMcr(274, 8, 89, 8); // lost details
+	// ReplaceMcr(558, 8, 89, 8); // lost details
+	// ReplaceMcr(560, 8, 89, 8); // lost details
+	ReplaceMcr(258, 8, 3, 8); // lost details
+	ReplaceMcr(541, 8, 3, 8); // lost details
+	// ReplaceMcr(543, 8, 3, 8); // lost details
+	// ReplaceMcr(31, 6, 89, 6);  // lost details
+	// ReplaceMcr(274, 6, 89, 6); // lost details
+	// ReplaceMcr(558, 6, 89, 6); // lost details
+	// ReplaceMcr(560, 6, 89, 6); // lost details
+	// ReplaceMcr(356, 6, 89, 6);  // lost details
+	// ReplaceMcr(333, 6, 445, 6); // lost details
+	// ReplaceMcr(345, 6, 445, 6); // lost details
 	// ReplaceMcr(365, 6, 445, 6); // lost details
-	ReplaceMcr(274, 4, 31, 4);  // lost details
+	// ReplaceMcr(274, 4, 31, 4);  // lost details
 	// ReplaceMcr(560, 4, 31, 4); // lost details
-	ReplaceMcr(333, 4, 345, 4); // lost details
+	// ReplaceMcr(333, 4, 345, 4); // lost details
 	// ReplaceMcr(365, 4, 345, 4); // lost details
-	ReplaceMcr(445, 4, 345, 4); // lost details
-	ReplaceMcr(299, 2, 274, 2); // lost details
+	// ReplaceMcr(445, 4, 345, 4); // lost details
+	// ReplaceMcr(299, 2, 274, 2); // lost details
 	// ReplaceMcr(560, 2, 274, 2); // lost details
-	ReplaceMcr(333, 2, 345, 2); // lost details
+	// ReplaceMcr(333, 2, 345, 2); // lost details
 	// ReplaceMcr(365, 2, 345, 2); // lost details
-	ReplaceMcr(415, 2, 345, 2); // lost details
-	ReplaceMcr(445, 2, 345, 2); // lost details
-	ReplaceMcr(333, 0, 31, 0);  // lost details
-	ReplaceMcr(345, 0, 31, 0);  // lost details
+	// ReplaceMcr(415, 2, 345, 2); // lost details
+	// ReplaceMcr(445, 2, 345, 2); // lost details
+	// ReplaceMcr(333, 0, 31, 0);  // lost details
+	// ReplaceMcr(345, 0, 31, 0);  // lost details
 	// ReplaceMcr(365, 0, 31, 0);  // lost details
-	ReplaceMcr(445, 0, 31, 0);  // lost details
+	// ReplaceMcr(445, 0, 31, 0);  // lost details
 	ReplaceMcr(333, 1, 31, 1);  // lost details
 	// ReplaceMcr(365, 1, 31, 1);
 
@@ -3705,11 +4684,11 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(151, 8, 95, 8); // lost details
 	// ReplaceMcr(172, 8, 95, 8);
 	ReplaceMcr(204, 8, 95, 8);
-	ReplaceMcr(215, 8, 95, 8);
-	ReplaceMcr(220, 8, 95, 8); // lost details
-	ReplaceMcr(224, 8, 95, 8); // lost details
-	ReplaceMcr(226, 8, 95, 8); // lost details
-	ReplaceMcr(230, 8, 95, 8); // lost details
+	// ReplaceMcr(215, 8, 95, 8);
+	// ReplaceMcr(220, 8, 95, 8); // lost details
+	// ReplaceMcr(224, 8, 95, 8); // lost details
+	// ReplaceMcr(226, 8, 95, 8); // lost details
+	// ReplaceMcr(230, 8, 95, 8); // lost details
 	ReplaceMcr(248, 8, 95, 8); // lost details
 	ReplaceMcr(252, 8, 95, 8); // lost details
 	ReplaceMcr(256, 8, 95, 8); // lost details
@@ -3751,9 +4730,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(611, 6, 119, 6); // lost details
 	// ReplaceMcr(75, 6, 99, 6);   // lost details
 	// ReplaceMcr(91, 6, 99, 6);   // lost details
-	ReplaceMcr(115, 6, 99, 6);  // lost details
-	ReplaceMcr(204, 6, 99, 6);  // lost details
-	ReplaceMcr(215, 6, 99, 6);  // lost details
+	// ReplaceMcr(115, 6, 99, 6);  // lost details
+	// ReplaceMcr(204, 6, 99, 6);  // lost details
+	// ReplaceMcr(215, 6, 99, 6);  // lost details
 
 	ReplaceMcr(71, 6, 63, 6);
 	ReplaceMcr(71, 7, 67, 7);
@@ -3777,7 +4756,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 
 	ReplaceMcr(542, 6, 256, 6); // lost details
 
-	ReplaceMcr(300, 6, 294, 6); // lost details
+	// ReplaceMcr(300, 6, 294, 6); // lost details
 	ReplaceMcr(321, 6, 328, 6); // lost details
 	ReplaceMcr(335, 6, 328, 6); // lost details
 	ReplaceMcr(351, 6, 328, 6); // lost details
@@ -3799,7 +4778,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(248, 2, 256, 2); // lost details
 	ReplaceMcr(83, 2, 256, 2);  // lost details
 	ReplaceMcr(119, 2, 256, 2); // lost details
-	ReplaceMcr(230, 2, 256, 2); // lost details
+	// ReplaceMcr(230, 2, 256, 2); // lost details
 
 	ReplaceMcr(13, 0, 1, 0);  // lost details
 	ReplaceMcr(21, 0, 1, 0);  // lost details
@@ -3825,9 +4804,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(111, 8, 95, 8); // lost details
 	ReplaceMcr(117, 8, 95, 8); // lost details
 	ReplaceMcr(121, 8, 95, 8); // lost details
-	ReplaceMcr(218, 8, 95, 8); // lost details
-	ReplaceMcr(222, 8, 95, 8); // lost details
-	ReplaceMcr(228, 8, 95, 8); // lost details
+	// ReplaceMcr(218, 8, 95, 8); // lost details
+	// ReplaceMcr(222, 8, 95, 8); // lost details
+	// ReplaceMcr(228, 8, 95, 8); // lost details
 	ReplaceMcr(272, 8, 95, 8);
 	ReplaceMcr(331, 8, 95, 8); // lost details
 	ReplaceMcr(339, 8, 95, 8); // lost details
@@ -3861,7 +4840,6 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(51, 6, 25, 6);  // lost details
 	ReplaceMcr(93, 6, 25, 6);  // lost details
 	ReplaceMcr(97, 6, 25, 6);  // lost details
-	ReplaceMcr(218, 6, 25, 6); // lost details
 	ReplaceMcr(327, 6, 25, 6); // lost details
 	ReplaceMcr(339, 6, 25, 6); // lost details
 	ReplaceMcr(366, 6, 25, 6); // lost details
@@ -3880,8 +4858,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(111, 6, 95, 6); // lost details
 	ReplaceMcr(117, 6, 95, 6); // lost details
 	ReplaceMcr(121, 6, 95, 6); // lost details
-	ReplaceMcr(222, 6, 95, 6); // lost details
-	ReplaceMcr(228, 6, 95, 6); // lost details
+	// ReplaceMcr(222, 6, 95, 6); // lost details
+	// ReplaceMcr(228, 6, 95, 6); // lost details
 	ReplaceMcr(272, 6, 95, 6); // lost details
 	ReplaceMcr(389, 6, 95, 6); // lost details
 	ReplaceMcr(397, 6, 95, 6); // lost details
@@ -3889,14 +4867,14 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(443, 6, 95, 6);  // lost details
 	ReplaceMcr(466, 6, 95, 6);  // lost details
 	ReplaceMcr(478, 6, 95, 6);  // lost details
-	ReplaceMcr(347, 6, 393, 6); // lost details
+	// ReplaceMcr(347, 6, 393, 6); // lost details
 	ReplaceMcr(399, 6, 393, 6); // lost details
 	ReplaceMcr(417, 6, 393, 6); // lost details
-	ReplaceMcr(331, 6, 343, 6); // lost details
-	ReplaceMcr(355, 6, 343, 6); // lost details
-	ReplaceMcr(363, 6, 343, 6); // lost details
-	ReplaceMcr(557, 6, 343, 6); // lost details
-	ReplaceMcr(559, 6, 343, 6); // lost details
+	// ReplaceMcr(331, 6, 343, 6); // lost details
+	// ReplaceMcr(355, 6, 343, 6); // lost details
+	// ReplaceMcr(363, 6, 343, 6); // lost details
+	// ReplaceMcr(557, 6, 343, 6); // lost details
+	// ReplaceMcr(559, 6, 343, 6); // lost details
 
 	ReplaceMcr(17, 4, 29, 4);   // lost details
 	ReplaceMcr(49, 4, 29, 4);   // lost details
@@ -3911,10 +4889,10 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(374, 4, 25, 4);  // lost details
 	ReplaceMcr(383, 4, 25, 4);  // lost details
 	ReplaceMcr(423, 4, 25, 4);  // lost details
-	ReplaceMcr(331, 4, 343, 4); // lost details
-	ReplaceMcr(355, 4, 343, 4); // lost details
-	ReplaceMcr(363, 4, 343, 4); // lost details
-	ReplaceMcr(443, 4, 343, 4); // lost details
+	// ReplaceMcr(331, 4, 343, 4); // lost details
+	// ReplaceMcr(355, 4, 343, 4); // lost details
+	// ReplaceMcr(363, 4, 343, 4); // lost details
+	// ReplaceMcr(443, 4, 343, 4); // lost details
 	ReplaceMcr(339, 4, 347, 4); // lost details
 
 	ReplaceMcr(393, 4, 347, 4); // lost details
@@ -3934,7 +4912,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(59, 2, 29, 2);   // lost details
 	ReplaceMcr(93, 2, 29, 2);   // lost details
 	ReplaceMcr(97, 2, 29, 2);   // lost details
-	ReplaceMcr(218, 2, 29, 2);  // lost details
+	// ReplaceMcr(218, 2, 29, 2);  // lost details
 	ReplaceMcr(343, 2, 29, 2);  // lost details
 	ReplaceMcr(363, 2, 29, 2);  // lost details
 	ReplaceMcr(366, 2, 29, 2);  // lost details
@@ -3955,8 +4933,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(93, 0, 33, 0);
 	ReplaceMcr(117, 0, 33, 0); // lost details
 	ReplaceMcr(121, 0, 33, 0); // lost details
-	ReplaceMcr(218, 0, 33, 0);
-	ReplaceMcr(228, 0, 33, 0);  // lost details
+	// ReplaceMcr(218, 0, 33, 0);
+	// ReplaceMcr(228, 0, 33, 0);  // lost details
 	ReplaceMcr(397, 0, 33, 0);  // lost details
 	ReplaceMcr(466, 0, 33, 0);  // lost details
 	ReplaceMcr(478, 0, 33, 0);  // lost details
@@ -3974,7 +4952,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(93, 9, 13, 9);
 	ReplaceMcr(151, 9, 13, 9);
 	ReplaceMcr(208, 9, 13, 9);
-	ReplaceMcr(218, 9, 13, 9);
+	// ReplaceMcr(218, 9, 13, 9);
 	ReplaceMcr(260, 9, 13, 9); // lost details
 	ReplaceMcr(264, 9, 13, 9); // lost details
 	ReplaceMcr(268, 9, 13, 9); // lost details
@@ -4006,11 +4984,11 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(117, 7, 13, 7);
 	ReplaceMcr(119, 7, 13, 7);
 	ReplaceMcr(208, 7, 13, 7);
-	ReplaceMcr(218, 7, 13, 7);
-	ReplaceMcr(222, 7, 13, 7);
-	ReplaceMcr(226, 7, 13, 7);
-	ReplaceMcr(228, 7, 13, 7);
-	ReplaceMcr(230, 7, 13, 7);
+	// ReplaceMcr(218, 7, 13, 7);
+	// ReplaceMcr(222, 7, 13, 7);
+	// ReplaceMcr(226, 7, 13, 7);
+	// ReplaceMcr(228, 7, 13, 7);
+	// ReplaceMcr(230, 7, 13, 7);
 	ReplaceMcr(363, 7, 13, 7);
 	ReplaceMcr(393, 7, 13, 7);
 	ReplaceMcr(413, 7, 13, 7);
@@ -4030,7 +5008,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(49, 5, 25, 5);
 	ReplaceMcr(107, 5, 25, 5);
 	ReplaceMcr(115, 5, 25, 5);
-	ReplaceMcr(226, 5, 25, 5);
+	// ReplaceMcr(226, 5, 25, 5);
 	ReplaceMcr(260, 5, 268, 5);
 	ReplaceMcr(546, 5, 268, 5);
 	ReplaceMcr(323, 5, 328, 5);
@@ -4042,7 +5020,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(49, 3, 25, 3);
 	ReplaceMcr(107, 3, 25, 3);
 	ReplaceMcr(115, 3, 25, 3);
-	ReplaceMcr(226, 3, 25, 3);
+	// ReplaceMcr(226, 3, 25, 3);
 	ReplaceMcr(260, 3, 25, 3);
 	ReplaceMcr(268, 3, 25, 3);
 	ReplaceMcr(328, 3, 323, 3);
@@ -4074,9 +5052,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(109, 9, 13, 9); // lost details
 	ReplaceMcr(113, 9, 13, 9); // lost details
 	ReplaceMcr(121, 9, 13, 9); // lost details
-	ReplaceMcr(215, 9, 13, 9); // lost details
-	ReplaceMcr(220, 9, 13, 9); // lost details
-	ReplaceMcr(224, 9, 13, 9); // lost details
+	// ReplaceMcr(215, 9, 13, 9); // lost details
+	// ReplaceMcr(220, 9, 13, 9); // lost details
+	// ReplaceMcr(224, 9, 13, 9); // lost details
 	ReplaceMcr(276, 9, 13, 9); // lost details
 	ReplaceMcr(331, 9, 13, 9); // lost details
 	ReplaceMcr(335, 9, 13, 9); // lost details
@@ -4117,8 +5095,8 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(109, 7, 17, 7);  // lost details
 	ReplaceMcr(113, 7, 17, 7);  // lost details
 	ReplaceMcr(121, 7, 17, 7);  // lost details
-	ReplaceMcr(220, 7, 17, 7);  // lost details
-	ReplaceMcr(224, 7, 17, 7);  // lost details
+	// ReplaceMcr(220, 7, 17, 7);  // lost details
+	// ReplaceMcr(224, 7, 17, 7);  // lost details
 	ReplaceMcr(331, 7, 17, 7);  // lost details
 	ReplaceMcr(351, 7, 17, 7);  // lost details
 	ReplaceMcr(357, 7, 17, 7);  // lost details
@@ -4187,7 +5165,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(59, 1, 55, 1);   // lost details
 	// ReplaceMcr(91, 1, 55, 1);   // lost details
 	ReplaceMcr(95, 1, 55, 1);   // lost details
-	ReplaceMcr(215, 1, 55, 1);  // lost details
+	// ReplaceMcr(215, 1, 55, 1);  // lost details
 	ReplaceMcr(335, 1, 55, 1);  // lost details
 	ReplaceMcr(391, 1, 55, 1);  // lost details
 	ReplaceMcr(331, 1, 357, 1); // lost details
@@ -4204,6 +5182,9 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(14, 5);
 	Blk2Mcr(14, 7);
 	Blk2Mcr(14, 9);
+	HideMcr(37, 1);
+	Blk2Mcr(37, 3);
+	Blk2Mcr(37, 5);
 	Blk2Mcr(37, 7);
 	Blk2Mcr(37, 9);
 	Blk2Mcr(236, 0);
@@ -4278,9 +5259,18 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(86, 6);
 	Blk2Mcr(86, 7);
 	Blk2Mcr(86, 8);
+	HideMcr(212, 0);
+	HideMcr(212, 1);
+	HideMcr(212, 2);
+	HideMcr(212, 3);
+	HideMcr(212, 4);
+	HideMcr(212, 5);
 	Blk2Mcr(212, 6);
 	Blk2Mcr(212, 7);
 	Blk2Mcr(212, 8);
+	HideMcr(232, 0);
+	HideMcr(232, 2);
+	HideMcr(232, 4);
 	Blk2Mcr(232, 1);
 	Blk2Mcr(232, 3);
 	Blk2Mcr(232, 5);
@@ -4293,16 +5283,77 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(234, 6);
 	Blk2Mcr(234, 7);
 	Blk2Mcr(234, 8);
+	HideMcr(234, 1);
+	HideMcr(234, 3);
+	HideMcr(234, 5);
+	HideMcr(234, 9);
 	Blk2Mcr(213, 0);
 	Blk2Mcr(213, 2);
 	Blk2Mcr(213, 4);
 	Blk2Mcr(213, 6);
 	Blk2Mcr(213, 8);
+	HideMcr(215, 0);
+	HideMcr(215, 2);
+	HideMcr(215, 4);
+	Blk2Mcr(215, 1);
+	Blk2Mcr(215, 6);
+	Blk2Mcr(215, 8);
+	Blk2Mcr(215, 9);
 	Blk2Mcr(216, 0);
 	Blk2Mcr(216, 2);
 	Blk2Mcr(216, 4);
 	Blk2Mcr(216, 6);
 	Blk2Mcr(216, 8);
+	HideMcr(218, 1);
+	HideMcr(218, 3);
+	HideMcr(218, 5);
+	HideMcr(218, 6);
+	Blk2Mcr(218, 0);
+	Blk2Mcr(218, 2);
+	Blk2Mcr(218, 7);
+	Blk2Mcr(218, 8);
+	Blk2Mcr(218, 9);
+	HideMcr(220, 0);
+	HideMcr(220, 2);
+	HideMcr(220, 4);
+	Blk2Mcr(220, 6);
+	Blk2Mcr(220, 7);
+	Blk2Mcr(220, 8);
+	Blk2Mcr(220, 9);
+	HideMcr(222, 1);
+	HideMcr(222, 3);
+	HideMcr(222, 5);
+	Blk2Mcr(222, 6);
+	Blk2Mcr(222, 7);
+	Blk2Mcr(222, 8);
+	HideMcr(224, 0);
+	HideMcr(224, 2);
+	HideMcr(224, 4);
+	Blk2Mcr(224, 6);
+	Blk2Mcr(224, 7);
+	Blk2Mcr(224, 8);
+	Blk2Mcr(224, 9);
+	Blk2Mcr(226, 3);
+	Blk2Mcr(226, 5);
+	Blk2Mcr(226, 6);
+	Blk2Mcr(226, 7);
+	Blk2Mcr(226, 8);
+	HideMcr(226, 0);
+	HideMcr(226, 2);
+	HideMcr(226, 4);
+	Blk2Mcr(228, 0);
+	Blk2Mcr(228, 6);
+	Blk2Mcr(228, 7);
+	Blk2Mcr(228, 8);
+	HideMcr(228, 1);
+	HideMcr(228, 3);
+	HideMcr(228, 5);
+	HideMcr(230, 1);
+	HideMcr(230, 3);
+	HideMcr(230, 5);
+	Blk2Mcr(230, 2);
+	Blk2Mcr(230, 7);
+	Blk2Mcr(230, 8);
 	Blk2Mcr(304, 1);
 	Blk2Mcr(309, 0);
 	Blk2Mcr(340, 0);
@@ -4341,7 +5392,6 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(558, 6);
 	Blk2Mcr(558, 8);
 	Blk2Mcr(590, 1);
-	Blk2Mcr(468, 1);
 	Blk2Mcr(41, 1);
 	Blk2Mcr(53, 1);
 	Blk2Mcr(54, 0);
@@ -4374,7 +5424,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(649, 1);
 	Blk2Mcr(650, 0);
 	const int unusedSubtiles[] = {
-		8, 10, 11, 16, 19, 20, 22, 23, 24, 26, 27, 28, 30, 34, 35, 38, 40, 43, 44, 50, 52, 56, 75, 76, 78, 79, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 275, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 365, 373, 381, 390, 398, 472, 489, 490, 540, 560, 564, 640, 643, 648
+		8, 10, 11, 16, 19, 20, 22, 23, 24, 26, 27, 28, 30, 34, 35, 38, 40, 43, 44, 50, 52, 56, 75, 76, 78, 79, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 275, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 365, 373, 381, 390, 398, 468, 472, 489, 490, 540, 560, 564, 640, 643, 648
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
