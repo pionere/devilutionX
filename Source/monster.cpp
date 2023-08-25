@@ -710,11 +710,15 @@ void WakeNakrul()
 		PlayMonSFX(MAX_MINIONS, MS_DEATH);
 	mon = &monsters[MAX_MINIONS];
 	// assert(mon->_mType == MT_NAKRUL);
-	mon->_mArmorClass -= 50;
-	//mon->_mEvasion -= 20;
-	mon->_mLevel /= 2;
-	mon->_mMagicRes = 0;
-	mon->_mmaxhp /= 2;
+	constexpr int targetRes = MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_RESIST | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_RESIST;
+	if (mon->_mMagicRes == targetRes) {
+		return;
+	}
+	mon->_mMagicRes = targetRes;
+	mon->_mArmorClass -= 30;
+	//mon->_mEvasion -= 10;
+	mon->_mLevel -= 16;
+	mon->_mmaxhp -= 400;
 	if (mon->_mhitpoints > mon->_mmaxhp)
 		mon->_mhitpoints = mon->_mmaxhp;
 }

@@ -479,6 +479,20 @@ void ValidateData()
 	assert(uniqMonData[UMT_LAZARUS].mtype == MT_BMAGE);
 	assert(uniqMonData[UMT_BLACKJADE].mtype == MT_RSUCC);
 	assert(uniqMonData[UMT_RED_VEX].mtype == MT_RSUCC);
+#ifdef HELLFIRE
+	{  // umt checks for WakeNakrul
+		constexpr int targetRes = MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_RESIST | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_RESIST;
+		assert(uniqMonData[UMT_NAKRUL].mMagicRes2 != targetRes);
+		assert(uniqMonData[UMT_NAKRUL].mMagicRes != targetRes);
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_SLASH_IMMUNE) >= (targetRes & MORS_SLASH_IMMUNE));
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_BLUNT_IMMUNE) >= (targetRes & MORS_BLUNT_IMMUNE));
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_PUNCTURE_IMMUNE) >= (targetRes & MORS_PUNCTURE_IMMUNE));
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_FIRE_IMMUNE) >= (targetRes & MORS_FIRE_IMMUNE));
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_LIGHTNING_IMMUNE) >= (targetRes & MORS_LIGHTNING_IMMUNE));
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_MAGIC_IMMUNE) >= (targetRes & MORS_MAGIC_IMMUNE));
+		assert((uniqMonData[UMT_NAKRUL].mMagicRes & MORS_ACID_IMMUNE) >= (targetRes & MORS_ACID_IMMUNE));
+	}
+#endif
 
 	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
