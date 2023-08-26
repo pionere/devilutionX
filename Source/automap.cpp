@@ -17,17 +17,15 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MAP_MINI_WIDTH 160
 #define MAP_MINI_HEIGHT 120
 
+#define AUTOMAP_VALID (automaptype[0] == 0)
+
 static_assert(MAP_SCALE_MAX <= UCHAR_MAX, "Mapscale values are stored in one byte.");
-/* Maps from subtile_id to automap type (_automap_subtypes). */
-BYTE automaptype[MAXSUBTILES + 1];
 /** Specifies whether the automap is enabled (_automap_mode). */
 BYTE gbAutomapflag = AMM_NONE;
 /* The scale of the mini-automap. */
 BYTE MiniMapScale = MAP_SCALE_MINI;
 /* The scale of the normal-automap. */
 BYTE NormalMapScale = MAP_SCALE_NORMAL;
-/** Specifies whether the automap-data is valid. */
-bool _gbAutomapData;
 /** Specifies the scale of the automap. */
 unsigned AutoMapScale;
 int AutoMapXOfs;
@@ -79,8 +77,6 @@ void InitAutomapScale()
  */
 void InitLvlAutomap()
 {
-	const char* mapData;
-
 	/* commented out because the flags are reset in gendung.cpp anyway
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in InitAutomap.");
 	pTmp = &dFlags[0][0];
@@ -89,21 +85,13 @@ void InitLvlAutomap()
 		*pTmp &= ~BFLAG_EXPLORED;
 	}*/
 
-	mapData = levelfiledata[AllLevels[currLvl._dLevelIdx].dfindex].dAutomapData;
-	_gbAutomapData = mapData != NULL;
-	if (!_gbAutomapData) {
-		memset(automaptype, 0, sizeof(automaptype));
-		return;
-	}
-
-	LoadFileWithMem(mapData, automaptype);
 	AutoMapXOfs = 0;
 	AutoMapYOfs = 0;
 }
 
 bool IsAutomapActive()
 {
-	return gbAutomapflag != AMM_NONE && _gbAutomapData;
+	return gbAutomapflag != AMM_NONE && AUTOMAP_VALID;
 }
 
 /**
@@ -585,7 +573,7 @@ static void DrawAutomapContent()
 
 void DrawAutomap()
 {
-	if (_gbAutomapData) {
+	if (AUTOMAP_VALID) {
 		DrawAutomapContent();
 	}
 

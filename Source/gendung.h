@@ -19,6 +19,8 @@ extern DrlgMem drlg;
 extern SetPieceStruct pSetPieces[4];
 extern WarpStruct pWarps[NUM_DWARP];
 extern BYTE* pSpecialsCel;
+/* Maps from subtile_id to automap type (_automap_subtypes). */
+extern BYTE automaptype[MAXSUBTILES + 1];
 extern BYTE nTrnShadowTable[MAXTILES + 1];
 extern uint16_t pSubtiles[MAXSUBTILES + 1][16 * ASSET_MPL * ASSET_MPL];
 extern BYTE* pMicrosCel;

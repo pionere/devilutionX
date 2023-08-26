@@ -29,7 +29,6 @@ typedef enum filenames {
 	FILE_CATHEDRAL_MIN,
 #endif
 	FILE_CATHEDRAL_TIL,
-	FILE_CATHEDRAL_SOL,
 	FILE_BONESTR1_DUN,
 	FILE_BONESTR2_DUN,
 	FILE_BONECHA1_DUN,
@@ -45,7 +44,6 @@ typedef enum filenames {
 	FILE_CATACOMBS_MIN,
 #endif
 	FILE_CATACOMBS_TIL,
-	FILE_CATACOMBS_SOL,
 	FILE_FOULWATR_DUN,
 #if ASSET_MPL == 1
 	FILE_L3DOORS_CEL,
@@ -53,7 +51,6 @@ typedef enum filenames {
 	FILE_CAVES_MIN,
 #endif
 	FILE_CAVES_TIL,
-	FILE_CAVES_SOL,
 	FILE_DIAB1_DUN,
 	FILE_DIAB2A_DUN,
 	FILE_DIAB2B_DUN,
@@ -69,7 +66,6 @@ typedef enum filenames {
 	FILE_HELL_MIN,
 #endif
 	FILE_HELL_TIL,
-	FILE_HELL_SOL,
 	FILE_BHSM_TRN,
 	FILE_BSM_TRN,
 	FILE_ACIDB_TRN,
@@ -108,13 +104,11 @@ typedef enum filenames {
 	FILE_CRYPT_MIN,
 #endif
 	FILE_CRYPT_TIL,
-	FILE_CRYPT_SOL,
 #if ASSET_MPL == 1
 	FILE_NEST_CEL,
 	FILE_NEST_MIN,
 #endif
 	FILE_NEST_TIL,
-	FILE_NEST_SOL,
 	FILE_OBJCURS_CEL,
 #endif
 	NUM_FILENAMES
@@ -130,7 +124,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
 #endif
 /*FILE_CATHEDRAL_TIL*/ "Levels\\L1Data\\L1.TIL",
-/*FILE_CATHEDRAL_SOL*/ "Levels\\L1Data\\L1.SOL",
 /*FILE_BONESTR1_DUN*/  "Levels\\L2Data\\Bonestr1.DUN",
 /*FILE_BONESTR2_DUN*/  "Levels\\L2Data\\Bonestr2.DUN",
 /*FILE_BONECHA1_DUN*/  "Levels\\L2Data\\Bonecha1.DUN",
@@ -146,7 +139,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
 #endif
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
-/*FILE_CATACOMBS_SOL*/ "Levels\\L2Data\\L2.SOL",
 /*FILE_FOULWATR_DUN*/  "Levels\\L3Data\\Foulwatr.DUN",
 #if ASSET_MPL == 1
 /*FILE_L3DOORS_CEL*/   "Objects\\L3Doors.CEL",
@@ -154,7 +146,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 #endif
 /*FILE_CAVES_TIL*/     "Levels\\L3Data\\L3.TIL",
-/*FILE_CAVES_SOL*/     "Levels\\L3Data\\L3.SOL",
 /*FILE_DIAB1_DUN*/     "Levels\\L4Data\\Diab1.DUN",
 /*FILE_DIAB2A_DUN*/    "Levels\\L4Data\\Diab2a.DUN",
 /*FILE_DIAB2B_DUN*/    "Levels\\L4Data\\Diab2b.DUN",
@@ -170,7 +161,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_HELL_MIN*/      "Levels\\L4Data\\L4.MIN",
 #endif
 /*FILE_HELL_TIL*/      "Levels\\L4Data\\L4.TIL",
-/*FILE_HELL_SOL*/      "Levels\\L4Data\\L4.SOL",
 /*FILE_BHSM_TRN*/      "Monsters\\Monsters\\BHSM.TRN",
 /*FILE_BSM_TRN*/       "Monsters\\Monsters\\BSM.TRN",
 /*FILE_ACIDB_TRN*/     "Monsters\\Acid\\AcidB.TRN",
@@ -209,13 +199,11 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CRYPT_MIN*/     "NLevels\\L5Data\\L5.MIN",
 #endif
 /*FILE_CRYPT_TIL*/     "NLevels\\L5Data\\L5.TIL",
-/*FILE_CRYPT_SOL*/     "NLevels\\L5Data\\L5.SOL",
 #if ASSET_MPL == 1
 /*FILE_NEST_CEL*/      "NLevels\\L6Data\\L6.CEL",
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
-/*FILE_NEST_SOL*/      "NLevels\\L6Data\\L6.SOL",
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
 };
@@ -1798,40 +1786,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L1_PatchTil(buf);
 	} break;
-	case FILE_CATHEDRAL_SOL:
-	{	// patch dSolidTable - L1.SOL
-		if (*dwLen < 453) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		// adjust SOL after fixCathedralShadows
-		nSolidTable(298, true);
-		nSolidTable(304, true);
-		// nBlockTable(330, false);
-		nBlockTable(334, false);
-		nMissileTable(334, false);
-		// nBlockTable(339, true);
-		// nBlockTable(340, true);
-		// nBlockTable(342, true);
-		// nBlockTable(343, true);
-		// nBlockTable(344, false);
-		// - special subtiles for the banner setpiece
-		nBlockTable(336, false);
-		nMissileTable(336, false);
-		nBlockTable(337, false);
-		nMissileTable(337, false);
-		nBlockTable(338, false);
-		nMissileTable(338, false);
-		// - special subtile for the vile setmap
-		nMissileTable(335, false);
-		// - with subtile-based automap
-		nBlockTable(139, false);
-		nBlockTable(140, false);
-		// - subtile for the separate pillar tile
-		nBlockTable(61, false);
-		nMissileTable(61, false);
-	} break;
 	case FILE_BONESTR1_DUN:
 	case FILE_BONESTR2_DUN:
 	case FILE_BONECHA1_DUN:
@@ -1906,27 +1860,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L2_PatchTil(buf);
 	} break;
-	case FILE_CATACOMBS_SOL:
-	{	// patch dSolidTable - L2.SOL
-		// add separate tiles and subtiles for the arches III.
-		if (*dwLen < 559) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		// fix the upstairs IV.
-		// - make the back of the stairs non-walkable
-		nSolidTable(252, true);
-		nBlockTable(252, true);
-		nMissileTable(252, true);
-		// - make the stair-floor non light-blocker
-		nBlockTable(267, false);
-		// nBlockTable(559, false);
-		// - adjust SOL after patchCatacombsMin
-		nSolidTable(268, true);
-		nBlockTable(268, true);
-		nMissileTable(268, true);
-	} break;
 #if ASSET_MPL == 1
 	case FILE_L3DOORS_CEL:
 	{	// patch L3Doors.CEL
@@ -1974,29 +1907,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L3_PatchTil(buf);
 	} break;
-	case FILE_CAVES_SOL:
-	{	// patch dSolidTable - L3.SOL
-		if (*dwLen < 560) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		nSolidTable(249, false); // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
-		nBlockTable(146, false); // fix unreasonable light-blocker
-		nBlockTable(150, false); // fix unreasonable light-blocker
-		// fix fence subtiles
-		nSolidTable(474, false);
-		nSolidTable(479, false);
-		// nSolidTable(487, false); // unused after patch
-		nSolidTable(488, true);
-		nSolidTable(540, false); // unused in base game
-		// - with subtile-based automap
-		nBlockTable(166, false);
-		nBlockTable(168, false);
-		// - separate subtiles for the automap
-		nSolidTable(258, true);
-		nMissileTable(258, true);
-	} break;
 #if ASSET_MPL == 1
 	case FILE_HELL_CEL:
 	{	// patch dMicroCels - L4.CEL
@@ -2039,24 +1949,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		DRLP_L4_PatchTil(buf);
-	} break;
-	case FILE_HELL_SOL:
-	{	// patch dSolidTable - L4.SOL
-		if (*dwLen <= 211) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		nMissileTable(141, false); // fix missile-blocking tile of down-stairs.
-		// nMissileTable(137, false); // fix missile-blocking tile of down-stairs.
-		// nSolidTable(137, false);   // fix non-walkable tile of down-stairs. - the subtile is not used any more
-		nSolidTable(130, true);    // make the inner tiles of the down-stairs non-walkable I.
-		nSolidTable(132, true);    // make the inner tiles of the down-stairs non-walkable II.
-		nSolidTable(131, true);    // make the inner tiles of the down-stairs non-walkable III.
-		// fix all-blocking tile on the diablo-level
-		nSolidTable(211, false);
-		nMissileTable(211, false);
-		nBlockTable(211, false);
 	} break;
 	case FILE_BHSM_TRN:
 	{	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
@@ -2220,22 +2112,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L6_PatchTil(buf);
 	} break;
-	case FILE_NEST_SOL:
-	{	// patch dSolidTable - L6.SOL
-		if (*dwLen <= 416) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		nSolidTable(390, false); // make a pool tile walkable I.
-		nSolidTable(413, false); // make a pool tile walkable II.
-		nSolidTable(416, false); // make a pool tile walkable III.
-		// - with subtile-based automap
-		nBlockTable(61, false);
-		nBlockTable(63, false);
-		nBlockTable(65, false);
-		nBlockTable(66, false);
-	} break;
 #if ASSET_MPL == 1
 	case FILE_CRYPT_SCEL:
 	{	// patch pSpecialsCel - L5S.CEL
@@ -2294,74 +2170,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		DRLP_L5_PatchTil(buf);
-	} break;
-	case FILE_CRYPT_SOL:
-	{ // patch dSolidTable - L5.SOL
-		if (*dwLen <= 600) {
-			mem_free_dbg(buf);
-			app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
-			return NULL;
-		}
-		// make collision-checks more reasonable
-		// - fix inconsistent subtile on the right side of down-stairs
-		nSolidTable(143, false);
-		//  - fix inconsistent entrance to Na-Krul
-		nSolidTable(299, false);
-		nMissileTable(299, false);
-		//  - prevent non-crossable floor-tile configurations I.
-		nSolidTable(461, false);
-		//  - set top right tile of an arch non-walkable (full of lava)
-		//nSolidTable(471, true);
-		//  - set top right tile of a pillar walkable (just a small obstacle)
-		nSolidTable(481, false);
-		//  - tile 491 is the same as tile 594 which is not solid
-		//  - prevents non-crossable floor-tile configurations
-		nSolidTable(491, false);
-		//  - set bottom left tile of a rock non-walkable (rather large obstacle, feet of the hero does not fit)
-		//  - prevents non-crossable floor-tile configurations
-		nSolidTable(523, true);
-		//  - set the top right tile of a floor mega walkable (similar to 594 which is not solid)
-		nSolidTable(570, false);
-		//  - prevent non-crossable floor-tile configurations II.
-		nSolidTable(598, false);
-		nSolidTable(600, false);
-		//  - fix inconsistent arches
-		nBlockTable(33, false);
-		nBlockTable(39, false);
-		nBlockTable(42, false);
-		nBlockTable(91, false);
-		nBlockTable(466, false);
-		nBlockTable(470, false);
-		nBlockTable(557, false);
-		nBlockTable(559, false);
-		nBlockTable(561, false);
-		nBlockTable(563, false);
-		nMissileTable(101, true);
-		nMissileTable(104, true);
-		nMissileTable(355, true);
-		nMissileTable(357, true);
-		// - adjust SOL after DRLP_L5_PatchMin
-		nSolidTable(238, false);
-		nMissileTable(238, false);
-		nBlockTable(238, false);
-		nMissileTable(178, false);
-		nBlockTable(178, false);
-		nSolidTable(242, false);
-		nMissileTable(242, false);
-		nBlockTable(242, false);
-		// - fix automap of the entrance II.
-		nMissileTable(158, false);
-		nBlockTable(158, false);
-		nSolidTable(159, false);
-		nMissileTable(159, false);
-		nBlockTable(159, false);
-		nMissileTable(148, true);
-		// nBlockTable(148, true);
-		// - with subtile-based automap
-		// nBlockTable(148, false);
-		nBlockTable(149, false);
-		nBlockTable(150, false);
-		nBlockTable(153, false);
 	} break;
 	case FILE_OBJCURS_CEL:
 	{

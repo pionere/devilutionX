@@ -26,6 +26,8 @@ SetPieceStruct pSetPieces[4];
 WarpStruct pWarps[NUM_DWARP];
 /** Specifies the tiles (groups of four subtiles). */
 static uint16_t pTiles[MAXTILES + 1][4];
+/* Maps from subtile_id to automap type (_automap_subtypes). */
+BYTE automaptype[MAXSUBTILES + 1];
 /**
  * Flags of tiles to specify room propagation and shadow-type flags (_tile_flags)
  */
@@ -131,7 +133,7 @@ static void patchTownMin(uint16_t* minFile, size_t* dwSubtiles);
 void InitLvlDungeon()
 {
 	size_t dwSubtiles;
-	BYTE *solFile, *pTmp;
+	BYTE *subFile, *pTmp;
 #if ASSET_MPL == 1
 	uint16_t blocks, *minFile, *pSubtile, *pPTmp;
 #endif
@@ -168,7 +170,6 @@ void InitLvlDungeon()
 		LoadFileWithMem(lfd->dTileFlags, nTrnShadowTable); // .TLA
 	}
 	MicroTileLen = lds->dMicroTileLen * ASSET_MPL * ASSET_MPL;
-	LoadFileWithMem(lfd->dMicroFlags, microFlags); // .TMI
 #if ASSET_MPL == 1
 	minFile = (uint16_t*)LoadFileInMem(lfd->dMiniTiles, &dwSubtiles); // .MIN
 #if !USE_PATCH
@@ -206,30 +207,36 @@ void InitLvlDungeon()
 	}
 #endif
 #endif /* ASSET_MPL == 1 */
-	LoadFileWithMem(lfd->dSpecFlags, &nSpecTrapTable[0]); // .SPT
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
 	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
-	solFile = LoadFileInMem(lfd->dSolidTable, &dwSubtiles); // .SOL
+	subFile = LoadFileInMem(lfd->dSubtileSettings, &dwSubtiles); // .SLA
 
+	dwSubtiles /= 4;
 	assert(dwSubtiles <= MAXSUBTILES);
-	pTmp = solFile;
+	pTmp = subFile;
 
-	// dpiece 0 is always black/void -> make it non-passable to reduce the necessary checks
-	// no longer necessary, because dPiece is never zero
-	//nSolidTable[0] = true;
-
-	for (unsigned i = 1; i <= dwSubtiles; i++) {
-		BYTE bv = *pTmp++;
+	// read sub-properties
+	for (unsigned i = 0; i < dwSubtiles; i++, pTmp++) {
+		BYTE bv = *pTmp;
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
 	}
+	// read the trap/spec-properties
+	memcpy(nSpecTrapTable, pTmp, dwSubtiles);
+	pTmp += dwSubtiles;
+	// read the render-properties
+	memcpy(microFlags, pTmp, dwSubtiles);
+	pTmp += dwSubtiles;
+	// read the map-properties
+	memcpy(automaptype, pTmp, dwSubtiles);
+	pTmp += dwSubtiles;
 
-	mem_free_dbg(solFile);
+	mem_free_dbg(subFile);
 
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
@@ -253,7 +260,7 @@ void InitLvlDungeon()
 	case DTYPE_CATHEDRAL:
 #if !USE_PATCH
 		// patch dSolidTable - L1.SOL
-		// adjust SOL after fixCathedralShadows
+		/*// adjust SOL after fixCathedralShadows
 		nSolidTable[298] = true;
 		nSolidTable[304] = true;
 		nBlockTable[334] = false;
@@ -272,7 +279,7 @@ void InitLvlDungeon()
 		nBlockTable[140] = false;
 		// - separate subtiles for the automap
 		nBlockTable[61] = false;
-		nMissileTable[61] = false;
+		nMissileTable[61] = false;*/
 		// patch dMiniTiles - L1.MIN
 		// - separate subtiles for the automap
 		pSubtiles[61][0] = pSubtiles[8][0];
@@ -508,18 +515,18 @@ void InitLvlDungeon()
 		// fix the upstairs
 		// - make the back of the stairs non-walkable
 		pTiles[72][1] = 56;
-		nSolidTable[252] = true;
+		/*nSolidTable[252] = true;
 		nBlockTable[252] = true;
 		nMissileTable[252] = true;
 		// - make the stair-floor non light-blocker
 		nBlockTable[267] = false;
-		nBlockTable[559] = false;
+		nBlockTable[559] = false;*/
 #endif // !USE_PATCH
 		break;
 	case DTYPE_CAVES:
 #if !USE_PATCH
 		// patch dSolidTable - L3.SOL
-		nSolidTable[249] = false; // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
+		/*nSolidTable[249] = false; // sync tile 68 and 69 by making subtile 249 of tile 68 walkable.
 		nBlockTable[146] = false; // fix unreasonable light-blocker
 		nBlockTable[150] = false; // fix unreasonable light-blocker
 		// fix fence subtiles
@@ -535,7 +542,7 @@ void InitLvlDungeon()
 		nBlockTable[168] = false;
 		// - separate subtiles for the automap
 		nSolidTable[258] = true;
-		nMissileTable[258] = true;
+		nMissileTable[258] = true;*/
 		// patch dMiniTiles - L3.MIN
 		// - separate subtiles for the automap
 		pSubtiles[258][0] = 0;
@@ -576,7 +583,7 @@ void InitLvlDungeon()
 	case DTYPE_HELL:
 #if !USE_PATCH
 		// patch dSolidTable - L4.SOL
-		nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
+		/*nMissileTable[141] = false; // fix missile-blocking tile of down-stairs.
 		nMissileTable[137] = false; // fix missile-blocking tile of down-stairs.
 		nSolidTable[137] = false;   // fix non-walkable tile of down-stairs. - causes a graphic glitch, but keep in sync with patch users
 		nSolidTable[130] = true;    // make the inner tiles of the down-stairs non-walkable I.
@@ -585,7 +592,7 @@ void InitLvlDungeon()
 		// fix all-blocking tile on the diablo-level
 		nSolidTable[211] = false;
 		nMissileTable[211] = false;
-		nBlockTable[211] = false;
+		nBlockTable[211] = false;*/
 		// patch dMegaTiles - L4.TIL
 		// - separate subtiles for the automap
 		pTiles[44][2] = 136;
@@ -640,14 +647,14 @@ void InitLvlDungeon()
 	case DTYPE_NEST:
 #if !USE_PATCH
 		// patch dSolidTable - L6.SOL
-		nSolidTable[390] = false; // make a pool tile walkable I.
+		/*nSolidTable[390] = false; // make a pool tile walkable I.
 		nSolidTable[413] = false; // make a pool tile walkable II.
 		nSolidTable[416] = false; // make a pool tile walkable III.
 		// - with subtile-based automap
 		nBlockTable[61] = false;
 		nBlockTable[63] = false;
 		nBlockTable[65] = false;
-		nBlockTable[66] = false;
+		nBlockTable[66] = false;*/
 		// patch dMegaTiles - L6.TIL
 		// - separate subtiles for the automap
 		pTiles[23][0] = 29;
@@ -656,7 +663,7 @@ void InitLvlDungeon()
 		break;
 	case DTYPE_CRYPT:
 #if !USE_PATCH
-		// revert 'patched' L5.SPT
+		// revert 'patched' L5.SLA
 		for (int i = 0; i < lengthof(nSpecTrapTable); i++) {
 			if ((nSpecTrapTable[i] & PST_SPEC_TYPE) <= 2) {
 				continue;
@@ -664,7 +671,7 @@ void InitLvlDungeon()
 			nSpecTrapTable[i] &= PST_TRAP_TYPE;
 			microFlags[i] |= TMIF_WALL_TRANS | TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW;
 		}
-		// patch dSolidTable - L5.SOL
+		/*// patch dSolidTable - L5.SOL
 		// make collision-checks more reasonable
 		//  - fix inconsistent subtile on the right side of down-stairs
 		nSolidTable[143] = false;
@@ -724,7 +731,7 @@ void InitLvlDungeon()
 		// nBlockTable[148] = false;
 		nBlockTable[149] = false;
 		nBlockTable[150] = false;
-		nBlockTable[153] = false;
+		nBlockTable[153] = false;*/
 		// patch dMegaTiles - L5.TIL
 		// - fix automap of the entrance II.
 		// pTiles[52][0] = pTiles[23][0];

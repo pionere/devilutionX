@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-/* Maps from subtile_id to automap type (_automap_subtypes). */
-extern BYTE automaptype[MAXSUBTILES + 1];
 /** Specifies whether the automap is enabled (_automap_mode). */
 extern BYTE gbAutomapflag;
 /** Specifies the scale of the automap. */

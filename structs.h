@@ -2083,14 +2083,11 @@ typedef struct LevelStruct {
 } LevelStruct;
 
 typedef struct LevelFileData {
-	const char* dAutomapData;
+	const char* dSubtileSettings;
 	const char* dTileFlags;
-	const char* dSolidTable;
-	const char* dMicroFlags;
 	const char* dMicroCels;
 	const char* dMegaTiles;
 	const char* dMiniTiles;
-	const char* dSpecFlags;
 	const char* dSpecCels;
 } LevelFileData;
 
