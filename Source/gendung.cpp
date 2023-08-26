@@ -130,7 +130,6 @@ static void patchTownMin(uint16_t* minFile, size_t* dwSubtiles);
 
 void InitLvlDungeon()
 {
-	uint16_t bv;
 	size_t dwSubtiles;
 	BYTE *solFile, *pTmp;
 #if ASSET_MPL == 1
@@ -150,13 +149,13 @@ void InitLvlDungeon()
 		LoadFileWithMem(lfd->dMegaTiles, (BYTE*)&pTiles[1][0]); // .TIL
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		for (int i = 1; i < lengthof(pTiles); i++) {
-			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
+			for (int bv = 0; bv < lengthof(pTiles[0]); bv++) {
 				pTiles[i][bv] = SwapLE16(pTiles[i][bv]);
 			}
 		}
 #endif
 		for (int i = 1; i < lengthof(pTiles); i++) {
-			for (bv = 0; bv < lengthof(pTiles[0]); bv++) {
+			for (int bv = 0; bv < lengthof(pTiles[0]); bv++) {
 				pTiles[i][bv] = pTiles[i][bv] + 1;
 			}
 		}
@@ -184,7 +183,7 @@ void InitLvlDungeon()
 	for (unsigned i = 1; i <= dwSubtiles; i++) {
 		pPTmp = &pSubtiles[i][0];
 		pSubtile = &minFile[blocks * i];
-		for (bv = 0; bv < blocks; bv += 2) {
+		for (uint16_t bv = 0; bv < blocks; bv += 2) {
 			pSubtile -= 2;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 			pPTmp[0] = SwapLE16(pSubtile[0]);
@@ -201,7 +200,7 @@ void InitLvlDungeon()
 	LoadFileWithMem(lfd->dMiniTiles, (BYTE*)&pSubtiles[1][0]);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	for (int i = 1; i < lengthof(pSubtiles); i++) {
-		for (bv = 0; bv < lengthof(pSubtiles[0]); bv++) {
+		for (int bv = 0; bv < lengthof(pSubtiles[0]); bv++) {
 			pSubtiles[i][bv] = SwapLE16(pSubtiles[i][bv]);
 		}
 	}
@@ -224,7 +223,7 @@ void InitLvlDungeon()
 	//nSolidTable[0] = true;
 
 	for (unsigned i = 1; i <= dwSubtiles; i++) {
-		bv = *pTmp++;
+		BYTE bv = *pTmp++;
 		nSolidTable[i] = (bv & PFLAG_BLOCK_PATH) != 0;
 		nBlockTable[i] = (bv & PFLAG_BLOCK_LIGHT) != 0;
 		nMissileTable[i] = (bv & PFLAG_BLOCK_MISSILE) != 0;
