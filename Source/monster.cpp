@@ -867,10 +867,11 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
 	}
 
-	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
-
-	mon->_muniqtrans = uniquetrans++;
+	if (uniqm->mTrnName != NULL) {
+		snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
+		LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
+		mon->_muniqtrans = uniquetrans++;
+	}
 
 	mon->_mHit += uniqm->mUnqHit;
 	mon->_mHit2 += uniqm->mUnqHit2;
