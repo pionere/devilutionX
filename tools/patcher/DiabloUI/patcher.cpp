@@ -87,7 +87,7 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #if ASSET_MPL == 1
-	FILE_OBJ_MCIRL,
+	FILE_OBJ_MCIRL_CEL,
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
@@ -182,7 +182,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #if ASSET_MPL == 1
-/*FILE_OBJ_MCIRL*/     "Objects\\Mcirl.CEL",
+/*FILE_OBJ_MCIRL_CEL*/ "Objects\\Mcirl.CEL",
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
@@ -1187,7 +1187,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 	srcHeaderCursor++;
 
 	if (srcCelEntries != 4) {
-		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL]);
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL_CEL]);
 		mem_free_dbg(celBuf);
 		return NULL;
 	}
@@ -1362,7 +1362,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 			gpBuffer[51 + 69 * BUFFER_WIDTH] = 249;
 		}
 
-		// write to the new SCEL file
+		// write to the new CEL file
 		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
 		dstHeaderCursor++;
 
@@ -2000,7 +2000,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 	} break;
 #if ASSET_MPL == 1
-	case FILE_OBJ_MCIRL:
+	case FILE_OBJ_MCIRL_CEL:
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
 	} break;
