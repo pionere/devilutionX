@@ -2443,6 +2443,7 @@ typedef enum _uniq_monster_flag {
 	UMF_GROUP   = 1 << 0,
 	UMF_LEADER  = 1 << 1,
 	UMF_NODROP  = 1 << 2,
+	UMF_LIGHT   = 1 << 3,
 	UMF_GANG = UMF_GROUP | UMF_LEADER
 } _uniq_monster_flag;
 
