@@ -88,6 +88,9 @@ typedef enum filenames {
 	FILE_GREY_TRN,
 #if ASSET_MPL == 1
 	FILE_OBJ_MCIRL_CEL,
+	FILE_OBJ_CNDL2_CEL,
+	FILE_OBJ_LSHR_CEL,
+	FILE_OBJ_RSHR_CEL,
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
@@ -109,6 +112,7 @@ typedef enum filenames {
 	FILE_NEST_MIN,
 #endif
 	FILE_NEST_TIL,
+	FILE_L5LIGHT_CEL,
 	FILE_OBJCURS_CEL,
 #endif
 	NUM_FILENAMES
@@ -183,6 +187,9 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #if ASSET_MPL == 1
 /*FILE_OBJ_MCIRL_CEL*/ "Objects\\Mcirl.CEL",
+/*FILE_OBJ_CNDL2_CEL*/ "Objects\\Candle2.CEL",
+/*FILE_OBJ_LSHR_CEL*/  "Objects\\LShrineG.CEL",
+/*FILE_OBJ_RSHR_CEL*/  "Objects\\RShrineG.CEL",
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
@@ -204,6 +211,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
+/*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
 };
@@ -1379,6 +1387,240 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 
+static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 96;
+	constexpr int FRAME_HEIGHT = 96;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	if (srcCelEntries != 4) {
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_CNDL2_CEL]);
+		mem_free_dbg(celBuf);
+		return NULL;
+	}
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+
+		if (i == 0 && gpBuffer[32 + 65 *  BUFFER_WIDTH] == TRANS_COLOR) {
+			mem_free_dbg(resCelBuf);
+			return celBuf; // assume it is already done
+		}
+		// remove shadow
+		for (int y = 63; y < 80; y++) {
+			for (int x = 28; x < 45; x++) {
+				if (gpBuffer[x + y * BUFFER_WIDTH] == 0) {
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+
+static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 128;
+	constexpr int FRAME_HEIGHT = 128;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	if (srcCelEntries != 22) {
+		return celBuf; // assume it is already done
+	}
+
+	const int resCelEntries = 11;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+
+		// use the more rounded shrine-graphics
+		CelClippedDrawLightTbl(FRAME_WIDTH, FRAME_HEIGHT - 1, celBuf, 11 + 1, FRAME_WIDTH, 0);
+		for (int y = 88; y < 110; y++) {
+			for (int x = 28; x < 80; x++) {
+				if (gpBuffer[x + y * BUFFER_WIDTH] == 248) {
+					continue; // preserve the dirt/shine on the floor
+				}
+				gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + 7 + FRAME_WIDTH + (y - 2) * BUFFER_WIDTH];
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+
+static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 128;
+	constexpr int FRAME_HEIGHT = 128;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	if (srcCelEntries != 22) {
+		return celBuf; // assume it is already done
+	}
+
+	const int resCelEntries = 11;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+
+		gpBuffer[85 + 101 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[88 + 100 * BUFFER_WIDTH] = TRANS_COLOR;
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+
+#ifdef HELLFIRE
+static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 96;
+	constexpr int FRAME_HEIGHT = 96;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	if (srcCelEntries != 9) {
+		return celBuf; // assume it is already done
+	}
+
+	const int resCelEntries = 1;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+
+		// remove shadow
+		for (int y = 61; y < 86; y++) {
+			for (int x = 15; x < 63; x++) {
+				if (gpBuffer[x + y * BUFFER_WIDTH] == 0) {
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
+}
+#endif // HELLFIRE
+
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
@@ -2004,6 +2246,18 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
 	} break;
+	case FILE_OBJ_CNDL2_CEL:
+	{	// fix object gfx file - Candle2.CEL
+		buf = fixObjCandle(buf, dwLen);
+	} break;
+	case FILE_OBJ_LSHR_CEL:
+	{	// fix object gfx file - LShrineG.CEL
+		buf = fixObjLShrine(buf, dwLen);
+	} break;
+	case FILE_OBJ_RSHR_CEL:
+	{	// fix object gfx file - RShrineG.CEL
+		buf = fixObjRShrine(buf, dwLen);
+	} break;
 	case FILE_PLR_WHBAT:
 	case FILE_PLR_WLBAT:
 	case FILE_PLR_WMBAT:
@@ -2170,6 +2424,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			return NULL;
 		}
 		DRLP_L5_PatchTil(buf);
+	} break;
+	case FILE_L5LIGHT_CEL:
+	{	// fix object gfx file - L5Light.CEL
+		buf = fixL5Light(buf, dwLen);
 	} break;
 	case FILE_OBJCURS_CEL:
 	{
