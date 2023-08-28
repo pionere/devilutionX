@@ -292,6 +292,16 @@ void InitLvlDungeon()
 		pSubtiles[61][6] = pSubtiles[8][6];
 		pSubtiles[61][7] = pSubtiles[8][7];
 #endif
+		// fix conflict with SPA
+		pTiles[139][2] = 328;
+		pTiles[148][2] = 328;
+		pTiles[149][2] = 328;
+		// pTiles[153][2] = 328;
+		// pTiles[154][2] = 328;
+		// pTiles[156][2] = 328;
+		// pTiles[157][2] = 328;
+		pTiles[141][0] = 23;
+		pTiles[141][1] = 2;
 		// patch dMegaTiles - L1.TIL
 		// make the inner tile at the entrance non-walkable II.
 		pTiles[196][3] = 425;
@@ -432,7 +442,10 @@ void InitLvlDungeon()
 		break;
 	case DTYPE_CATACOMBS:
 #if !USE_PATCH
-		// patch dMegaTiles, dMiniTiles and dSolidTable - L2.TIL, L2.MIN, L2.SOL
+		// patch dMegaTiles, dMiniTiles - L2.TIL, L2.MIN
+		// fix conflict with SPA
+		pTiles[50][3] = 12;
+		pTiles[77][3] = 12;
 		// create separate pillar tile
 		pTiles[52][0] = pTiles[6][0];
 		pTiles[52][1] = pTiles[6][1];
