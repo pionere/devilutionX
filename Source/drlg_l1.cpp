@@ -225,11 +225,11 @@ static const BYTE LAMPS[] = {
 	// clang-format off
 	2, 2, // width, height
 
-	13,  0, // search
+	13, 13, // search
 	13, 13,
 
-	129,   0, // replace
-	130, 128,
+	 0,   0, // replace
+	 0, 128,
 	// clang-format on
 };
 /** Miniset: Poisoned Water Supply entrance. */

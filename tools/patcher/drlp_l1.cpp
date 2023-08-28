@@ -257,8 +257,8 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 
 /* 13 */{ 152 - 1, 5, MET_TRANSPARENT }, // blocks subsequent calls
 
-/* 14 */{ 2 - 1, 1, -1 },
-/* 15 */{ 276 - 1, 1, MET_RTRIANGLE },
+/* 14 */{ 23 - 1, 0, -1 },
+/* 15 */{ 270 - 1, 0, MET_TRANSPARENT },
 
 /* 16 */{ 407 - 1, 0, MET_TRANSPARENT }, // mask door
 
@@ -395,19 +395,16 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 			}
 		}
 	}
-	// copy 2[1] to 276[1]
-	for (int i = 14; i < 15; i++) {
-		for (int x = 0; x < MICRO_WIDTH; x++) {
-			for (int y = 0; y < MICRO_HEIGHT; y++) {
+	// remove shadow from 270[0] using 23[0]
+	for (int i = 15; i < 16; i++) {
+		for (int x = 22; x < 29; x++) {
+			for (int y = 5; y < 12; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-				BYTE color = gpBuffer[addr];
-				if (color != TRANS_COLOR) {
-					addr = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 276[1]
-					BYTE destColor = gpBuffer[addr];
-					if (destColor < 124 && destColor > 21 && (destColor < 44 || destColor > 110 || destColor == 101 || destColor == 107)) {
-						gpBuffer[addr] = color;
-					}
+				if (x == 28 && y == 11) {
+					continue;
 				}
+				unsigned addr2 = x + MICRO_WIDTH * ((i - 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i - 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 23[0]
+				gpBuffer[addr] = gpBuffer[addr2];
 			}
 		}
 	}
@@ -1847,7 +1844,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	// ReplaceMcr(119, 1, 2, 1);
 	// ReplaceMcr(213, 0, 2, 0); // lost details
 	// ReplaceMcr(271, 0, 2, 0);
-	ReplaceMcr(276, 0, 2, 0);
+	// ReplaceMcr(276, 0, 2, 0);
 	// ReplaceMcr(279, 0, 2, 0);
 	// ReplaceMcr(285, 0, 2, 0);
 	// ReplaceMcr(290, 0, 2, 0);
@@ -2143,6 +2140,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(269, 1);
 	Blk2Mcr(269, 2);
 	Blk2Mcr(269, 4);
+	Blk2Mcr(274, 0);
 
 	// Blk2Mcr(306, 1);
 	Blk2Mcr(314, 0);
@@ -2261,7 +2259,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(449, 5);
 	Blk2Mcr(449, 7);
 	const int unusedSubtiles[] = {
-		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 212, 220, 250, 253, 267, 268, 273, 275, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
+		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 212, 220, 250, 253, 267, 268, 273, 275, 276, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -2298,7 +2296,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(74 - 1) * 4 + 0] = SwapLE16(23 - 1);
 	pTiles[(75 - 1) * 4 + 0] = SwapLE16(23 - 1);
 	pTiles[(77 - 1) * 4 + 0] = SwapLE16(23 - 1);
-	pTiles[(129 - 1) * 4 + 0] = SwapLE16(23 - 1);
+	// pTiles[(129 - 1) * 4 + 0] = SwapLE16(23 - 1);
 	pTiles[(136 - 1) * 4 + 0] = SwapLE16(23 - 1);
 	pTiles[(99 - 1) * 4 + 1] = SwapLE16(6 - 1);   // 204
 	pTiles[(103 - 1) * 4 + 1] = SwapLE16(2 - 1);  // 213
@@ -2306,7 +2304,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(105 - 1) * 4 + 0] = SwapLE16(23 - 1); // 220
 	pTiles[(114 - 1) * 4 + 1] = SwapLE16(6 - 1);  // 242
 	pTiles[(117 - 1) * 4 + 1] = SwapLE16(6 - 1);
-	pTiles[(130 - 1) * 4 + 0] = SwapLE16(23 - 1); // 275
+	// pTiles[(130 - 1) * 4 + 0] = SwapLE16(23 - 1); // 275
 	pTiles[(133 - 1) * 4 + 0] = SwapLE16(23 - 1); // 282
 	pTiles[(137 - 1) * 4 + 0] = SwapLE16(23 - 1); // 293
 	pTiles[(128 - 1) * 4 + 1] = SwapLE16(2 - 1);  // 271
@@ -2319,7 +2317,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(60 - 1) * 4 + 2] = SwapLE16(7 - 1);   // 120
 	pTiles[(62 - 1) * 4 + 2] = SwapLE16(7 - 1);   // 125
 	pTiles[(128 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 272
-	pTiles[(129 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 273
+	// pTiles[(129 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 273
 	pTiles[(136 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 291
 	pTiles[(58 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 113
 	pTiles[(59 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 117
@@ -2327,7 +2325,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(74 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 158
 	pTiles[(76 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 161
 	pTiles[(97 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 200
-	pTiles[(130 - 1) * 4 + 3] = SwapLE16(4 - 1);  // 277
+	// pTiles[(130 - 1) * 4 + 3] = SwapLE16(4 - 1);  // 277
 	pTiles[(137 - 1) * 4 + 3] = SwapLE16(4 - 1);  // 295
 	pTiles[(193 - 1) * 4 + 3] = SwapLE16(4 - 1);  // 419
 	pTiles[(196 - 1) * 4 + 2] = SwapLE16(36 - 1); // 428
@@ -2511,7 +2509,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/*43, 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 119, 120, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
+		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/*43, 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 119, 120, 129, 130, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
 	};
 	constexpr int blankSubtile = 74;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {
