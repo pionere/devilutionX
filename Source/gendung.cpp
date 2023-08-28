@@ -281,6 +281,7 @@ void InitLvlDungeon()
 		nBlockTable[61] = false;
 		nMissileTable[61] = false;*/
 		// patch dMiniTiles - L1.MIN
+#if ASSET_MPL == 1
 		// - separate subtiles for the automap
 		pSubtiles[61][0] = pSubtiles[8][0];
 		pSubtiles[61][1] = pSubtiles[8][1];
@@ -290,6 +291,7 @@ void InitLvlDungeon()
 		pSubtiles[61][5] = pSubtiles[8][5];
 		pSubtiles[61][6] = pSubtiles[8][6];
 		pSubtiles[61][7] = pSubtiles[8][7];
+#endif
 		// patch dMegaTiles - L1.TIL
 		// make the inner tile at the entrance non-walkable II.
 		pTiles[196][3] = 425;
@@ -544,6 +546,7 @@ void InitLvlDungeon()
 		nSolidTable[258] = true;
 		nMissileTable[258] = true;*/
 		// patch dMiniTiles - L3.MIN
+#if ASSET_MPL == 1
 		// - separate subtiles for the automap
 		pSubtiles[258][0] = 0;
 		pSubtiles[406][0] = 0;
@@ -552,6 +555,7 @@ void InitLvlDungeon()
 		pSubtiles[406][5] = 101 | (MET_TRANSPARENT << 12);
 		pSubtiles[406][7] = 100 | (MET_TRANSPARENT << 12);
 		pSubtiles[407][1] = 0;
+#endif
 		// patch dMegaTiles - L3.TIL
 		// - separate subtiles for the automap
 		pTiles[111][0] = 28;
