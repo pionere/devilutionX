@@ -411,9 +411,9 @@ static BYTE shadowColorCaves(BYTE color)
 static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	const CelMicro micros[] = {
-/*  0 */{ 537 - 1, 2, -1 },              // used to block subsequent calls
-/*  1 */{ 537 - 1, 0, MET_LTRIANGLE },   // fix/mask door
-/*  2 */{ 537 - 1, 1, MET_RTRIANGLE },
+/*  0 */{ 540 - 1, 3, -1 },              // used to block subsequent calls
+/*  1 */{ /*537*/ - 1, 0, -1 },          // fix/mask door
+/*  2 */{ /*537*/ - 1, 1, -1 },
 /*  3 */{ 538 - 1, 0, MET_TRANSPARENT },
 /*  4 */{ 538 - 1, 1, -1 },              // unused
 /*  5 */{ 538 - 1, 2, MET_TRANSPARENT },
@@ -524,9 +524,9 @@ static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 	const unsigned blockSize = BLOCK_SIZE_L3;
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
-		// if (micro.subtileIndex < 0) {
-		//	continue;
-		// }
+		if (micro.subtileIndex < 0) {
+			continue;
+		}
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
 			return celBuf; // frame is empty -> assume it is already done
@@ -543,10 +543,10 @@ static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
-		// if (micro.subtileIndex >= 0) {
+		if (micro.subtileIndex >= 0) {
 			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
-		// }
+		}
 		yy += MICRO_HEIGHT;
 		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
@@ -555,7 +555,7 @@ static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 	}
 
 	// add shadow 537[1]
-	for (int i = 2; i < 3; i++) {
+	/*for (int i = 2; i < 3; i++) {
 		for (int x = 2; x < 6; x++) {
 			for (int y = 26; y < MICRO_HEIGHT; y++) {
 				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -565,7 +565,7 @@ static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 				}
 			}
 		}
-	}
+	}*/
 
 	// remove door 538[0]
 	for (int i = 3; i < 4; i++) {
@@ -824,12 +824,12 @@ static BYTE* patchCavesFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 	}
 
 	// fix artifacts
-	{ // 537[0]
+	/*{ // 537[0]
 		int i = 1;
 		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
 		gpBuffer[addr + 30 + 0 * BUFFER_WIDTH] = TRANS_COLOR;
 		gpBuffer[addr + 31 + 0 * BUFFER_WIDTH] = TRANS_COLOR;
-	}
+	}*/
 	{ // 538[0]
 		int i = 3;
 		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
@@ -3614,7 +3614,7 @@ void DRLP_L3_PatchMin(BYTE* buf)
 
 	// adjust the frame types
 	// - after patchCavesFloorCel
-	SetFrameType(537, 0, MET_LTRIANGLE);
+	// SetFrameType(537, 0, MET_LTRIANGLE);
 	SetFrameType(540, 1, MET_RTRIANGLE);
 	SetFrameType(197, 1, MET_RTRIANGLE);
 	SetFrameType(551, 1, MET_RTRIANGLE);
@@ -3673,15 +3673,25 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(534, 4);
 	ReplaceMcr(534, 5, 541, 5);
 	ReplaceMcr(534, 7, 541, 7);
+	ReplaceMcr(533, 0, 541, 0);
+	ReplaceMcr(533, 1, 541, 1);
+	SetMcr(533, 3, 541, 3);
+	SetMcr(533, 5, 541, 5);
+	SetMcr(533, 7, 541, 7);
 	// - horizontal doors
-	Blk2Mcr(537, 2);
-	Blk2Mcr(537, 4);
-	ReplaceMcr(531, 0, 538, 0);
-	ReplaceMcr(531, 1, 538, 1);
-	ReplaceMcr(531, 2, 538, 2);
-	Blk2Mcr(531, 3);
-	ReplaceMcr(531, 4, 538, 4);
-	Blk2Mcr(531, 5);
+	// Blk2Mcr(537, 2);
+	// Blk2Mcr(537, 4);
+	// ReplaceMcr(531, 0, 538, 0);
+	// ReplaceMcr(531, 1, 538, 1);
+	// ReplaceMcr(531, 2, 538, 2);
+	// Blk2Mcr(531, 3);
+	// ReplaceMcr(531, 4, 538, 4);
+	// Blk2Mcr(531, 5);
+	ReplaceMcr(537, 0, 538, 0);
+	ReplaceMcr(537, 1, 538, 1);
+	ReplaceMcr(537, 2, 538, 2);
+	ReplaceMcr(537, 4, 538, 4);
+	SetMcr(537, 6, 538, 6);
 	// pointless pixels
 	Blk2Mcr(7, 7);
 	Blk2Mcr(14, 6);
@@ -4058,6 +4068,12 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(436, 5);
 	Blk2Mcr(436, 6);
 	Blk2Mcr(519, 0);
+	Blk2Mcr(531, 0);
+	Blk2Mcr(531, 1);
+	Blk2Mcr(531, 2);
+	Blk2Mcr(531, 3);
+	Blk2Mcr(531, 4);
+	Blk2Mcr(531, 5);
 	Blk2Mcr(548, 2);
 	Blk2Mcr(548, 5);
 	Blk2Mcr(549, 0);
@@ -4094,7 +4110,7 @@ void DRLP_L3_PatchMin(BYTE* buf)
 	Blk2Mcr(559, 7);
 
 	const int unusedSubtiles[] = {
-		2, 6, 15, 18, 21, 147, 149, 152, 153, 155, 157, 160, 161, 179, 195, 204, 205, 208, 209, 211, 218, 220, 221, 222, 224, 225, 226, 227, 240, 241, 243, 250, 251, 253, 255, 256, 257, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 312, 314, 328, 332, 338, 339, 349, 356, 358, 361, 364, 365, 367, 369, 371, 377, 380, 381, 384, 408, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 442, 448, 487, 503, 521, 522, 523, 524, 525, 526, 527, 529, 533, 537, 550, 554, 557, 558, 560
+		2, 6, 15, 18, 21, 147, 149, 152, 153, 155, 157, 160, 161, 179, 195, 204, 205, 208, 209, 211, 218, 220, 221, 222, 224, 225, 226, 227, 240, 241, 243, 250, 251, 253, 255, 256, 257, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 312, 314, 328, 332, 338, 339, 349, 356, 358, 361, 364, 365, 367, 369, 371, 377, 380, 381, 384, 408, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 442, 448, 487, 503, 521, 522, 523, 524, 525, 526, 527, 529, 550, 554, 557, 558, 560
 	};
 
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -4136,13 +4152,13 @@ void DRLP_L3_PatchTil(BYTE* buf)
 	pTiles[(122 - 1) * 4 + 1] = SwapLE16(446 - 1); // 442
 	// - doors
 	pTiles[(146 - 1) * 4 + 0] = SwapLE16(490 - 1); // 529
+	pTiles[(146 - 1) * 4 + 2] = SwapLE16(538 - 1); // 531
 	pTiles[(146 - 1) * 4 + 3] = SwapLE16(539 - 1); // 532
-
 	pTiles[(147 - 1) * 4 + 0] = SwapLE16(540 - 1); // 533
 	pTiles[(147 - 1) * 4 + 3] = SwapLE16(542 - 1); // 536
-
 	pTiles[(148 - 1) * 4 + 0] = SwapLE16(490 - 1); // 537
-
+	pTiles[(148 - 1) * 4 + 2] = SwapLE16(537 - 1); // - to make 537 'accessible'
+	pTiles[(149 - 1) * 4 + 1] = SwapLE16(533 - 1); // (541) - to make 533 'accessible'
 	// use common subtiles instead of minor alterations
 	pTiles[(6 - 1) * 4 + 0] = SwapLE16(393 - 1); // 21 TODO: invisible subtiles(6, 105, 112)?
 	pTiles[(7 - 1) * 4 + 0] = SwapLE16(393 - 1);

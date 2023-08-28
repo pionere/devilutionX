@@ -1586,6 +1586,27 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(538, 5, 13, 5);
 	Blk2Mcr(538, 6);
 	Blk2Mcr(538, 7);
+	ReplaceMcr(537, 0, 13, 0);
+	ReplaceMcr(537, 1, 13, 1);
+	SetMcr(537, 2, 13, 2);
+	SetMcr(537, 3, 13, 3);
+	HideMcr(537, 4);
+	SetMcr(537, 5, 13, 5);
+	Blk2Mcr(537, 6);
+	HideMcr(537, 7);
+	// -- new vertical doors
+	ReplaceMcr(172, 0, 178, 0);
+	ReplaceMcr(172, 1, 178, 1);
+	ReplaceMcr(172, 2, 178, 2);
+	ReplaceMcr(172, 3, 178, 3);
+	Blk2Mcr(172, 4);
+	ReplaceMcr(172, 5, 178, 5);
+	Blk2Mcr(172, 6);
+	ReplaceMcr(173, 0, 178, 0);
+	ReplaceMcr(173, 1, 178, 1);
+	SetMcr(173, 2, 178, 2);
+	SetMcr(173, 3, 178, 3);
+	SetMcr(173, 5, 178, 5);
 	// - horizontal doors
 	// Blk2Mcr(17, 3);
 	ReplaceMcr(540, 0, 17, 0);
@@ -1593,10 +1614,15 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	ReplaceMcr(540, 2, 17, 2);
 	ReplaceMcr(540, 3, 17, 3);
 	ReplaceMcr(540, 4, 17, 4);
-	// Blk2Mcr(540, 3);
 	Blk2Mcr(540, 5);
 	Blk2Mcr(540, 6);
 	Blk2Mcr(540, 7);
+	SetMcr(539, 0, 17, 0);
+	ReplaceMcr(539, 1, 17, 1);
+	SetMcr(539, 2, 17, 2);
+	SetMcr(539, 3, 17, 3);
+	SetMcr(539, 4, 17, 4);
+	HideMcr(539, 6);
 	// - reduce pointless bone-chamber complexity I.
 	Blk2Mcr(323, 2);
 	Blk2Mcr(325, 2);
@@ -2196,10 +2222,6 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	Blk2Mcr(535, 0);
 	Blk2Mcr(535, 1);
 	Blk2Mcr(535, 7);
-	Blk2Mcr(537, 0);
-	Blk2Mcr(537, 1);
-	Blk2Mcr(537, 6);
-	Blk2Mcr(539, 1);
 	Blk2Mcr(542, 0);
 	Blk2Mcr(542, 2);
 	Blk2Mcr(542, 3);
@@ -2247,7 +2269,7 @@ void DRLP_L2_PatchMin(BYTE* buf)
 	Blk2Mcr(559, 2);
 	Blk2Mcr(559, 4);
 	const int unusedSubtiles[] = {
-		2, 7, 14, 19, 20, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 172, 173, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 236, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 397, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541, 
+		2, 7, 14, 19, 20, 56, 57, 58, 59, 70, 71, 106, 109, 110, 116, 117, 118, 120, 122, 123, 124, 126, 137, 140, 145, 149, 157, 159, 160, 168, 170, 171, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 235, 236, 243, 246, 247, 255, 256, 264, 327, 328, 329, 330, 335, 336, 337, 338, 343, 344, 345, 346, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 366, 367, 368, 369, 370, 376, 391, 397, 400, 434, 487, 489, 491, 493, 504, 505, 507, 509, 511, 516, 518, 531, 533, 536, 541,
 	};
 
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
@@ -2308,7 +2330,14 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	pTiles[(140 - 1) * 4 + 1] = SwapLE16(10 - 1); // 511
 	pTiles[(140 - 1) * 4 + 3] = SwapLE16(162 - 1); // 513
 	pTiles[(142 - 1) * 4 + 3] = SwapLE16(162 - 1); // 519
-
+	// - doors
+	pTiles[(4 - 1) * 4 + 0] = SwapLE16(537 - 1); // - to make 537 'accessible'
+	pTiles[(5 - 1) * 4 + 0] = SwapLE16(539 - 1); // - to make 539 'accessible'
+	pTiles[(54 - 1) * 4 + 0] = SwapLE16(173 - 1); // - to make 173 'accessible'
+	pTiles[(58 - 1) * 4 + 0] = SwapLE16(172 - 1); // - to make 172 'accessible'
+	pTiles[(58 - 1) * 4 + 1] = SwapLE16(179 - 1); // - to make 172 'accessible'
+	pTiles[(58 - 1) * 4 + 2] = SwapLE16(180 - 1); // - to make 172 'accessible'
+	pTiles[(58 - 1) * 4 + 3] = SwapLE16(181 - 1); // - to make 172 'accessible'
 	// use common subtiles instead of minor alterations
 	pTiles[(1 - 1) * 4 + 1] = SwapLE16(10 - 1);  // 2
 	pTiles[(2 - 1) * 4 + 2] = SwapLE16(11 - 1);  // 7
@@ -2488,7 +2517,7 @@ void DRLP_L2_PatchTil(BYTE* buf)
 	// pTiles[(159 - 1) * 4 + 2] = SwapLE16(11 - 1); // 557
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		58, 61, 64, 65, 66, 67, 76, 93, 98, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
+		61, 64, 65, 66, 67, 76, 93, 98, 102, 103, 104, 143, 144, 145, 146, 147, 148, 149, 152, 153, 154, 155, 158, 159, 160
 	};
 	constexpr int blankSubtile = 2;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {

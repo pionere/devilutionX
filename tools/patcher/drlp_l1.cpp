@@ -1388,39 +1388,51 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(214, 2);
 	ReplaceMcr(214, 0, 408, 0);
 	ReplaceMcr(214, 1, 408, 1);
+	ReplaceMcr(213, 0, 408, 0);
+	SetMcr(213, 1, 408, 1);
 	// ReplaceMcr(212, 0, 407, 0);
 	// ReplaceMcr(212, 2, 392, 2);
 	// ReplaceMcr(212, 4, 231, 4);
-	Blk2Mcr(408, 4);
 	Blk2Mcr(408, 2);
-	HideMcr(44, 6);
-	Blk2Mcr(44, 4);
-	Blk2Mcr(44, 2);
+	Blk2Mcr(408, 4);
 	ReplaceMcr(44, 0, 7, 0);
 	ReplaceMcr(44, 1, 7, 1);
-	Blk2Mcr(393, 4);
-	Blk2Mcr(393, 2);
+	Blk2Mcr(44, 2);
+	Blk2Mcr(44, 4);
+	HideMcr(44, 6);
+	ReplaceMcr(43, 0, 7, 0);
+	ReplaceMcr(43, 1, 7, 1);
+	Blk2Mcr(43, 2);
+	Blk2Mcr(43, 4);
+	HideMcr(43, 6);
 	ReplaceMcr(393, 0, 7, 0);
 	ReplaceMcr(393, 1, 7, 1);
+	Blk2Mcr(393, 2);
+	Blk2Mcr(393, 4);
 	// ReplaceMcr(43, 0, 392, 0);
 	// ReplaceMcr(43, 2, 392, 2);
 	// ReplaceMcr(43, 4, 231, 4);
-	HideMcr(51, 6);
-	Blk2Mcr(51, 4);
-	Blk2Mcr(51, 2);
-	ReplaceMcr(51, 0, 7, 0);
-	ReplaceMcr(51, 1, 7, 1);
+	// HideMcr(51, 6);
+	// Blk2Mcr(51, 4);
+	// Blk2Mcr(51, 2);
+	// ReplaceMcr(51, 0, 7, 0);
+	// ReplaceMcr(51, 1, 7, 1);
 	// - horizontal doors
 	ReplaceMcr(394, 5, 5, 5);
 	Blk2Mcr(395, 3);
 	Blk2Mcr(395, 5);
 	ReplaceMcr(395, 1, 11, 1);
 	ReplaceMcr(395, 0, 11, 0);
-	HideMcr(46, 7);
-	Blk2Mcr(46, 5);
-	Blk2Mcr(46, 3);
-	ReplaceMcr(46, 1, 11, 1);
 	ReplaceMcr(46, 0, 11, 0);
+	ReplaceMcr(46, 1, 11, 1);
+	Blk2Mcr(46, 3);
+	Blk2Mcr(46, 5);
+	HideMcr(46, 7);
+	ReplaceMcr(45, 0, 11, 0);
+	ReplaceMcr(45, 1, 11, 1);
+	Blk2Mcr(45, 3);
+	Blk2Mcr(45, 5);
+	HideMcr(45, 7);
 	// ReplaceMcr(45, 1, 394, 1); // lost details
 	// ReplaceMcr(45, 3, 394, 3); // lost details
 	// ReplaceMcr(45, 5, 5, 5);
@@ -1901,14 +1913,6 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(15, 1);
 	Blk2Mcr(15, 5);
 	Blk2Mcr(15, 7);
-	Blk2Mcr(43, 0);
-	Blk2Mcr(43, 1);
-	Blk2Mcr(43, 2);
-	Blk2Mcr(43, 4);
-	Blk2Mcr(45, 0);
-	Blk2Mcr(45, 1);
-	Blk2Mcr(45, 3);
-	Blk2Mcr(45, 5);
 	Blk2Mcr(49, 0);
 	Blk2Mcr(50, 0);
 	Blk2Mcr(50, 1);
@@ -1916,6 +1920,10 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(50, 3);
 	Blk2Mcr(50, 4);
 	Blk2Mcr(50, 5);
+	Blk2Mcr(51, 0);
+	Blk2Mcr(51, 1);
+	Blk2Mcr(51, 2);
+	Blk2Mcr(51, 4);
 	Blk2Mcr(54, 0);
 	Blk2Mcr(54, 1);
 	Blk2Mcr(54, 2);
@@ -1985,7 +1993,6 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(116, 1);
 	Blk2Mcr(158, 1);
 	Blk2Mcr(161, 0);
-	Blk2Mcr(213, 0);
 	Blk2Mcr(271, 0);
 	Blk2Mcr(272, 1);
 	Blk2Mcr(277, 1);
@@ -2327,9 +2334,12 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	// use common subtiles instead of minor alterations
 	// pTiles[(93 - 1) * 4 + 2] = SwapLE16(177 - 1); // 191
 	// simplified door subtiles
-	pTiles[(25 - 1) * 4 + 0] = SwapLE16(392 - 1);  // 43
-	pTiles[(26 - 1) * 4 + 0] = SwapLE16(394 - 1);  // 45
+	pTiles[(25 - 1) * 4 + 0] = SwapLE16(392 - 1);  // (43)
+	pTiles[(26 - 1) * 4 + 0] = SwapLE16(394 - 1);  // (45)
 	pTiles[(103 - 1) * 4 + 0] = SwapLE16(407 - 1); // 212
+	pTiles[(186 - 1) * 4 + 2] = SwapLE16(213 - 1); // - to make 213 'accessible'
+	pTiles[(175 - 1) * 4 + 2] = SwapLE16(43 - 1);  // - to make 43 'accessible'
+	pTiles[(176 - 1) * 4 + 1] = SwapLE16(45 - 1);  // - to make 45 'accessible'
 	// create separate pillar tile
 	pTiles[(28 - 1) * 4 + 0] = SwapLE16(61 - 1);
 	pTiles[(28 - 1) * 4 + 1] = SwapLE16(2 - 1);
@@ -3969,12 +3979,14 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	HideMcr(238, 6); // - with the new special cels
 	HideMcr(238, 8);
 	// pointless door micros (re-drawn by dSpecial or the object)
+	ReplaceMcr(77, 0, 206, 0);
+	ReplaceMcr(77, 1, 206, 1);
 	Blk2Mcr(77, 2);
 	Blk2Mcr(77, 4);
 	Blk2Mcr(77, 6);
 	Blk2Mcr(77, 8);
-	ReplaceMcr(77, 0, 206, 0);
-	ReplaceMcr(77, 1, 206, 1);
+	ReplaceMcr(76, 0, 206, 0);
+	ReplaceMcr(76, 1, 206, 1);
 	// ReplaceMcr(75, 0, 204, 0);
 	// ReplaceMcr(75, 1, 204, 1);
 	// ReplaceMcr(75, 2, 204, 2);
@@ -3995,12 +4007,18 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	ReplaceMcr(115, 4, 204, 4);
 	ReplaceMcr(115, 6, 119, 6);
 	ReplaceMcr(204, 6, 119, 6);
-	Blk2Mcr(80, 7);
-	Blk2Mcr(80, 9);
 	ReplaceMcr(80, 0, 209, 0);
 	ReplaceMcr(80, 1, 209, 1);
 	Blk2Mcr(80, 3);
 	Blk2Mcr(80, 5);
+	Blk2Mcr(80, 7);
+	Blk2Mcr(80, 9);
+	ReplaceMcr(79, 0, 209, 0);
+	ReplaceMcr(79, 1, 209, 1);
+	Blk2Mcr(79, 3);
+	Blk2Mcr(79, 5);
+	Blk2Mcr(79, 7);
+	Blk2Mcr(79, 9);
 	// ReplaceMcr(79, 0, 208, 0);
 	// ReplaceMcr(79, 1, 208, 1);
 	// ReplaceMcr(79, 3, 208, 3);
@@ -5432,7 +5450,7 @@ void DRLP_L5_PatchMin(BYTE* buf)
 	Blk2Mcr(649, 1);
 	Blk2Mcr(650, 0);
 	const int unusedSubtiles[] = {
-		8, 10, 11, 16, 19, 20, 22, 23, 24, 26, 27, 28, 30, 34, 35, 38, 40, 43, 44, 50, 52, 56, 75, 76, 78, 79, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 275, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 365, 373, 381, 390, 398, 468, 472, 489, 490, 540, 560, 564, 640, 643, 648
+		8, 10, 11, 16, 19, 20, 22, 23, 24, 26, 27, 28, 30, 34, 35, 38, 40, 43, 44, 50, 52, 56, 75, 78, 81, 82, 87, 90, 92, 94, 96, 98, 100, 102, 103, 105, 106, 108, 110, 112, 114, 116, 124, 127, 128, 137, 138, 139, 141, 143, 147, 167, 172, 174, 176, 177, 193, 202, 205, 207, 210, 211, 214, 217, 219, 221, 223, 225, 227, 233, 235, 239, 249, 251, 253, 257, 259, 262, 263, 270, 273, 275, 278, 279, 295, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 354, 365, 373, 381, 390, 398, 468, 472, 489, 490, 540, 560, 564, 640, 643, 648
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -5477,7 +5495,9 @@ void DRLP_L5_PatchTil(BYTE* buf)
 	pTiles[(205 - 1) * 4 + 3] = SwapLE16(626 - 1); // 627
 	// - doors
 	pTiles[(25 - 1) * 4 + 0] = SwapLE16(204 - 1); // 75
-	pTiles[(26 - 1) * 4 + 0] = SwapLE16(208 - 1); // 79
+	pTiles[(26 - 1) * 4 + 0] = SwapLE16(208 - 1); // (79)
+	pTiles[(69 - 1) * 4 + 2] = SwapLE16(76 - 1);  // 206 - to make 76 'accessible'
+	pTiles[(70 - 1) * 4 + 1] = SwapLE16(79 - 1);  // 209 - to make 79 'accessible'
 	// pTiles[(71 - 1) * 4 + 2] = SwapLE16(206 - 1);
 	// pTiles[(72 - 1) * 4 + 2] = SwapLE16(206 - 1);
 	// use better subtiles

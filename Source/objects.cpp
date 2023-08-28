@@ -426,7 +426,7 @@ static void InitRndBarrels(int numobjs, int otype)
 
 static void AddDunObjs(int x1, int y1, int x2, int y2)
 {
-	int i, j, pn;
+	int i, j, pn, wdoor, edoor, type;
 
 	assert((objectdata[OBJ_L1LDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1RDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1LIGHT].oLvlTypes & DTM_CATHEDRAL));
 	assert((objectdata[OBJ_L2LDOOR].oLvlTypes & DTM_CATACOMBS) && (objectdata[OBJ_L2RDOOR].oLvlTypes & DTM_CATACOMBS));
@@ -442,61 +442,46 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 				if (pn == 270)
 					AddObject(OBJ_L1LIGHT, i, j);
 				// these pieces are closed doors which are placed directly
-				assert(pn != 51 && pn != 56);
-				if (pn == 44 || /*pn == 51 ||*/ pn == 214)
-					AddObject(OBJ_L1LDOOR, i, j);
-				if (pn == 46 /*|| pn == 56*/)
-					AddObject(OBJ_L1RDOOR, i, j);
 			}
 		}
+		wdoor = OBJ_L1LDOOR;
+		edoor = OBJ_L1RDOOR;
 		break;
 	case DTYPE_CATACOMBS:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				// 13 and 17 pieces are open doors and not handled at the moment
-				// 541 and 542 are doorways which are no longer handled as doors
-				// 538 and 540 pieces are closed doors
-				if (/*pn == 13 ||*/ pn == 538 /*|| pn == 541*/)
-					AddObject(OBJ_L2LDOOR, i, j);
-				if (/*pn == 17 ||*/ pn == 540 /*|| pn == 542*/)
-					AddObject(OBJ_L2RDOOR, i, j);
-			}
-		}
+		wdoor = OBJ_L2LDOOR;
+		edoor = OBJ_L2RDOOR;
 		break;
 	case DTYPE_CAVES:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				// 531 and 534 pieces are closed doors which are placed directly
-				if (pn == 534)
-					AddObject(OBJ_L3LDOOR, i, j);
-				if (pn == 531)
-					AddObject(OBJ_L3RDOOR, i, j);
-			}
-		}
+		wdoor = OBJ_L3LDOOR;
+		edoor = OBJ_L3RDOOR;
 		break;
 	case DTYPE_HELL:
-		break;
+		return;
 #ifdef HELLFIRE
 	case DTYPE_CRYPT:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				// 77 and 80 pieces are closed doors which are placed directly
-				if (pn == 77)
-					AddObject(OBJ_L5LDOOR, i, j);
-				if (pn == 80)
-					AddObject(OBJ_L5RDOOR, i, j);
-			}
-		}
+		wdoor = OBJ_L5LDOOR;
+		edoor = OBJ_L5RDOOR;
 		break;
 	case DTYPE_NEST:
-		break;
+		return;
 #endif
 	default:
 		ASSUME_UNREACHABLE
-		break;
+		return;
+	}
+	for (j = y1; j <= y2; j++) {
+		for (i = x1; i <= x2; i++) {
+			pn = dPiece[i][j];
+			type = automaptype[pn] & MAT_TYPE;
+			if ((type == MAT_DOOR_WEST || type == MAT_DOOR_EAST) && !nSolidTable[pn]) {
+				dev_fatal("Non-blocking door pn:%d type:%d tile:%d", pn, type, dungeon[(i - DBORDERX) >> 1][(j - DBORDERY) >> 1]);
+			}
+			if (type == MAT_DOOR_WEST) {
+				AddObject(wdoor, i, j);
+			} else if (type == MAT_DOOR_EAST) {
+				AddObject(edoor, i, j);
+			}
+		}
 	}
 }
 
@@ -1282,12 +1267,6 @@ static void AddTorturedFemaleBody(int oi)
 	os->_oAnimFrame = RandRange(1, 3);
 }
 
-static void SyncL1Doors(int oi);
-static void SyncL2Doors(int oi);
-static void SyncL3Doors(int oi);
-#ifdef HELLFIRE
-static void SyncL5Doors(int oi);
-#endif
 int AddObject(int type, int ox, int oy)
 {
 	int oi = SetupObject(type, ox, oy);
@@ -1796,7 +1775,8 @@ static bool PlrCheckDoor(int oi, int pnum)
 		return dx <= 1 && dy == 1;
 }
 
-static void OperateL1Door(int oi, bool sendmsg)
+static void SyncDoors(int oi);
+static void OperateDoor(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -1806,50 +1786,21 @@ static void OperateL1Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
-			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
+			PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
 		}
 		OpenDoor(oi);
-		SyncL1Doors(oi);
+		SyncDoors(oi);
 		RedoLightAndVision();
 		return;
 	}
 	// try to close the door
 	if (!deltaload) {
-		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
-	}
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if (CloseDoor(oi)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL1Doors(oi);
-		RedoLightAndVision();
-	}
-}
-
+		int sfx = IS_DOORCLOS;
 #ifdef HELLFIRE
-static void OperateL5Door(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-	int sfx;
-
-	os = &objects[oi];
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOOROPEN, oi);
-		if (!deltaload) {
-			PlaySfxLoc(IS_CROPEN, os->_ox, os->_oy);
+		if (currLvl._dType == DTYPE_CRYPT) {
+			sfx = os->_oVar4 == DOOR_BLOCKED ? IS_DOORCLOS : IS_CRCLOS;
 		}
-		OpenDoor(oi);
-		SyncL5Doors(oi);
-		RedoLightAndVision();
-		return;
-	}
-	// try to close the door
-	if (!deltaload) {
-		sfx = os->_oVar4 == DOOR_BLOCKED ? IS_DOORCLOS : IS_CRCLOS;
+#endif
 		PlaySfxLoc(sfx, os->_ox, os->_oy);
 	}
 	if (os->_oVar4 == DOOR_BLOCKED)
@@ -1858,77 +1809,14 @@ static void OperateL5Door(int oi, bool sendmsg)
 	if (CloseDoor(oi)) {
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL5Doors(oi);
-		RedoLightAndVision();
-	}
-}
-#endif
-
-static void OperateL2Door(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOOROPEN, oi);
-		if (!deltaload) {
-			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-		}
-		OpenDoor(oi);
-		SyncL2Doors(oi);
-		RedoLightAndVision();
-		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if (CloseDoor(oi)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL2Doors(oi);
-		RedoLightAndVision();
-	}
-}
-
-static void OperateL3Door(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOOROPEN, oi);
-		if (!deltaload) {
-			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-		}
-		OpenDoor(oi);
-		SyncL3Doors(oi);
-		RedoLightAndVision();
-		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if (CloseDoor(oi)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL3Doors(oi);
+		SyncDoors(oi);
 		RedoLightAndVision();
 	}
 }
 
 void MonstCheckDoors(int mx, int my)
 {
-	int i, oi, type;
+	int i, oi;
 
 	for (i = 0; i < lengthof(offset_x); i++) {
 		oi = dObject[mx + offset_x[i]][my + offset_y[i]];
@@ -1938,19 +1826,7 @@ void MonstCheckDoors(int mx, int my)
 		if (objects[oi]._oDoorFlag == ODT_NONE || objects[oi]._oVar4 != DOOR_CLOSED)
 			continue;
 		// assert(CheckDoor(oi, mnum));
-		type = objects[oi]._otype;
-		if (type == OBJ_L1LDOOR || type == OBJ_L1RDOOR) {
-			OperateL1Door(oi, true);
-#ifdef HELLFIRE
-		} else if (type == OBJ_L5LDOOR || type == OBJ_L5RDOOR) {
-			OperateL5Door(oi, true);
-#endif
-		} else if (type == OBJ_L2LDOOR || type == OBJ_L2RDOOR) {
-			OperateL2Door(oi, true);
-		} else {
-			//assert(type == OBJ_L3LDOOR || type == OBJ_L3RDOOR);
-			OperateL3Door(oi, true);
-		}
+		OperateDoor(oi, true);
 	}
 }
 
@@ -3322,25 +3198,16 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL1Door(oi, sendmsg);
-		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL5Door(oi, sendmsg);
-		break;
 #endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL2Door(oi, sendmsg);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL3Door(oi, sendmsg);
+			OperateDoor(oi, sendmsg);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
@@ -3666,7 +3533,7 @@ static void SyncNakrulLever(int oi)
 }
 #endif
 
-static void SyncL1Doors(int oi)
+static void SyncDoors(int oi)
 {
 	ObjectStruct* os;
 	int pn;
@@ -3675,55 +3542,7 @@ static void SyncL1Doors(int oi)
 	pn = os->_oVar1; // DOOR_PIECE_CLOSED
 	if (os->_oVar4 != DOOR_CLOSED) {
 		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
-		if (pn == 46) { // OBJ_L1RDOOR
-			pn = 395;
-		} else {
-			pn = pn == 214 ? 408 : 393;
-		}
-	}
-	dPiece[os->_ox][os->_oy] = pn;
-}
-
-#ifdef HELLFIRE
-static void SyncL5Doors(int oi)
-{
-	ObjectStruct* os;
-	int pn;
-
-	os = &objects[oi];
-	pn = os->_oVar1; // DOOR_PIECE_CLOSED
-	if (os->_oVar4 != DOOR_CLOSED) {
-		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
-		pn = pn == 80 ? 209 : 206; // OBJ_L5RDOOR
-	}
-	dPiece[os->_ox][os->_oy] = pn;
-}
-#endif
-
-static void SyncL2Doors(int oi)
-{
-	ObjectStruct* os;
-	int pn;
-
-	os = &objects[oi];
-	pn = os->_oVar1; // DOOR_PIECE_CLOSED
-	if (os->_oVar4 != DOOR_CLOSED) {
-		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
-		pn = pn == 540 ? 17 : 13;
-	}
-	dPiece[os->_ox][os->_oy] = pn;
-}
-
-static void SyncL3Doors(int oi)
-{
-	ObjectStruct* os;
-	int pn;
-
-	os = &objects[oi];
-	pn = os->_oVar1; // DOOR_PIECE_CLOSED
-	if (os->_oVar4 != DOOR_CLOSED) {
-		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
-		pn = pn == 531 ? 538 : 541; // OBJ_L3RDOOR
+		pn--;
 	}
 	dPiece[os->_ox][os->_oy] = pn;
 }
@@ -3741,21 +3560,15 @@ void SyncObjectAnim(int oi)
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		SyncL1Doors(oi);
-		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-		SyncL5Doors(oi);
-		break;
 #endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		SyncL2Doors(oi);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		SyncL3Doors(oi);
+		SyncDoors(oi);
 		break;
 	case OBJ_LEVER:
 	case OBJ_VILEBOOK:
