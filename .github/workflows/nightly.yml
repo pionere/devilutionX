@@ -72,9 +72,9 @@ jobs:
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v11
+      uses: lukka/run-vcpkg@v11.1
       with:
-        vcpkgGitCommitId: '78b61582c9e093fda56a01ebb654be15a0033897'
+        vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     - name: Install Required Packages
