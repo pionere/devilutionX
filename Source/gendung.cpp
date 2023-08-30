@@ -45,13 +45,13 @@ BYTE* pSpecialsCel;
  */
 BYTE microFlags[MAXSUBTILES + 1];
 /**
- * List of light blocking dPieces
- */
-bool nBlockTable[MAXSUBTILES + 1];
-/**
  * List of path blocking dPieces
  */
 bool nSolidTable[MAXSUBTILES + 1];
+/**
+ * List of light blocking dPieces
+ */
+bool nBlockTable[MAXSUBTILES + 1];
 /**
  * Flags of subtiles to specify trap-sources and special cel-frames (_piece_spectrap_flag)
  */
@@ -209,8 +209,8 @@ void InitLvlDungeon()
 #endif /* ASSET_MPL == 1 */
 #if DEBUG_MODE
 	static_assert(false == 0, "InitLvlDungeon fills tables with 0 instead of false values.");
-	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nSolidTable, 0, sizeof(nSolidTable));
+	memset(nBlockTable, 0, sizeof(nBlockTable));
 	memset(nMissileTable, 0, sizeof(nMissileTable));
 #endif
 	BYTE* subFile = LoadFileInMem(lfd->dSubtileSettings, &dwSubtiles); // .SLA
