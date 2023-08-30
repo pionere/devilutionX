@@ -3329,18 +3329,12 @@ typedef enum _piece_sol_flag {
 	PSF_BLOCK_PATH       = 1 << 7,
 } _piece_sol_flag;
 
-typedef enum _piece_trap_type {
-	PTT_NONE,
-	PTT_LEFT,
-	PTT_RIGHT,
-} _piece_trap_type;
-
 typedef enum _piece_spectrap_flag {
 	PST_NONE      = 0,
-	PST_LEFT      = PTT_LEFT << 6,
-	PST_RIGHT     = PTT_RIGHT << 6,
+	PST_LEFT      = 1 << 6,
+	PST_RIGHT     = 2 << 6,
 	PST_SPEC_TYPE = (1 << 6) - 1,
-	PST_TRAP_TYPE = 3 << 6,
+	PST_TRAP_TYPE = (PST_LEFT | PST_RIGHT),
 } _piece_spectrap_flag;
 
 typedef enum piece_micro_flag {
