@@ -25,6 +25,7 @@ extern BYTE nTrnShadowTable[MAXTILES + 1];
 extern uint16_t pSubtiles[MAXSUBTILES + 1][16 * ASSET_MPL * ASSET_MPL];
 extern BYTE* pMicrosCel;
 extern BYTE microFlags[MAXSUBTILES + 1];
+extern BYTE nCollLightTable[MAXSUBTILES + 1];
 extern bool nSolidTable[MAXSUBTILES + 1];
 extern bool nBlockTable[MAXSUBTILES + 1];
 extern bool nMissileTable[MAXSUBTILES + 1];
