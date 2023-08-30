@@ -177,9 +177,6 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 	case COL_GOLD:
 		tbl = FONT_TRN_GOLD;
 		break;
-	/*case COL_BLACK:
-		tbl = ColorTrns[MAXDARKNESS];
-		break;*/
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -206,9 +203,6 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -251,9 +245,6 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -283,9 +274,6 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
