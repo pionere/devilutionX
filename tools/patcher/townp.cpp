@@ -477,21 +477,19 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 	// fix artifacts of the new micros
 	{ //  1166[0]
 		int i = 9;
-		unsigned addr = 12 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (28 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-		gpBuffer[addr] = TRANS_COLOR;
-		unsigned addr2 = 19 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (27 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-		gpBuffer[addr2] = TRANS_COLOR;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + (0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 12 + 28 * BUFFER_WIDTH] = TRANS_COLOR;
+		gpBuffer[addr + 19 + 27 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
 	{ //  1167[1]
 		int i = 10;
-		unsigned addr = 17 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 5 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-		gpBuffer[addr] = gpBuffer[addr - 1 + BUFFER_WIDTH];
-		gpBuffer[addr + 1] = gpBuffer[addr - 1];
-		unsigned addr2 = 8 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 4 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-		gpBuffer[addr2] = gpBuffer[addr2 - 3 - 2 * BUFFER_WIDTH];
-		gpBuffer[addr2 - 1 + 0 * BUFFER_WIDTH] = TRANS_COLOR;
-		gpBuffer[addr2 - 1 + 1 * BUFFER_WIDTH] = gpBuffer[addr2 + 1 * BUFFER_WIDTH];
-		gpBuffer[addr2 - 3 - 3 * BUFFER_WIDTH] = TRANS_COLOR;
+		unsigned addr = 0 + MICRO_WIDTH * (i / DRAW_HEIGHT) + ( 0 + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+		gpBuffer[addr + 17 + 5 * BUFFER_WIDTH] = gpBuffer[addr + 16 + 6 * BUFFER_WIDTH];
+		gpBuffer[addr + 18 + 5 * BUFFER_WIDTH] = gpBuffer[addr + 16 + 5 * BUFFER_WIDTH];
+		gpBuffer[addr + 8 + 4 * BUFFER_WIDTH] = gpBuffer[addr + 5 + 2 * BUFFER_WIDTH];
+		gpBuffer[addr + 7 + 4 * BUFFER_WIDTH] = 126;
+		gpBuffer[addr + 7 + 5 * BUFFER_WIDTH] = gpBuffer[addr + 8 + 5 * BUFFER_WIDTH];
+		gpBuffer[addr + 5 + 1 * BUFFER_WIDTH] = TRANS_COLOR;
 	}
 
 	// create the new CEL file
