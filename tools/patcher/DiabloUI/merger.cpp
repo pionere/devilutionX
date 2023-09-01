@@ -22,6 +22,24 @@ static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_CANCEL = 102;
 static constexpr int RETURN_DONE = 100;
 
+static const char* const filesToSkip[] = {
+#ifdef HELLFIRE
+	"Levels\\TownData\\Town.DUN",
+	"Levels\\TownData\\Town.RDUN",
+	"Levels\\TownData\\Town.SLA",
+	"Levels\\TownData\\Town.CEL",
+	"Levels\\TownData\\Town.TIL",
+	"Levels\\TownData\\Town.MIN",
+#else
+	"NLevels\\TownData\\Town.DUN",
+	"NLevels\\TownData\\Town.RDUN",
+	"NLevels\\TownData\\Town.SLA",
+	"NLevels\\TownData\\Town.CEL",
+	"NLevels\\TownData\\Town.TIL",
+	"NLevels\\TownData\\Town.MIN"
+#endif
+};
+
 // Forward-declare UI-handlers, used by other handlers.
 static void MergerSelect(unsigned index);
 
@@ -136,14 +154,27 @@ static int merger_callback()
 		int skip = hashCount;
 		std::string line;
 		while (std::getline(input, line)) {
+			// skip sound files if requested
 			if (noSound && line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
 				continue;
+			// skip hellfire/vanilla files
+			int n = 0;
+			for ( ; n < lengthof(filesToSkip); n++) {
+				if (SDL_strcmp(line.c_str(), filesToSkip[n]) == 0) {
+					break;
+				}
+			}
+			if (n != lengthof(filesToSkip)) {
+				continue;
+			}
+			// process only a bunch of files at a time to be more responsive
 			if (--skip >= 0) {
 				continue;
 			}
 			if (skip <= -10) {
 				break;
 			}
+			// add the file to the mpq
 			for (int i = 0; i < NUM_MPQS; i++) {
 				HANDLE hFile;
 				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
