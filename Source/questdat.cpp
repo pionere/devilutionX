@@ -12,11 +12,7 @@ const LevelData AllLevels[NUM_LEVELS] = {
 					// dLevel, dSetLvl, dType,           dDunType,      dMusic,      dfindex,    dMicroTileLen, dBlocks, dLevelName,
 /*DLV_TOWN*/		{       0, FALSE,   DTYPE_TOWN,      DGT_TOWN,      TMUSIC_TOWN, LFILE_TOWN,           16,      16, "Tristram",
 					//  dPalName,                        dLoadCels,               dLoadPal,                dLoadBarOnTop, dLoadBarColor, dMonDensity, dObjDensity, dSetLvlDunX,   dSetLvlDunY,              dSetLvlWarp,  dSetLvlPiece,
-#ifdef HELLFIRE
 						"Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",    "Gendata\\Cuttt.pal",            FALSE,            43, 0,           0,           0,             0,                        WRPT_NONE,    SPT_NONE,
-#else
-						"Levels\\TownData\\Town.pal",    "Gendata\\Cuttt.CEL",    "Gendata\\Cuttt.pal",            FALSE,            43, 0,           0,           0,             0,                        WRPT_NONE,    SPT_NONE,
-#endif
 					//  dMonTypes,
 						{ MT_INVALID },
 					},
