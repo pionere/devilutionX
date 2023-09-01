@@ -1605,6 +1605,9 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 			SetMini(i, j, pdungeon[i][j]);
 		}
 	}
+	if (currLvl._dType == DTYPE_TOWN) {
+		return;
+	}
 	x1 = 2 * x1 + DBORDERX;
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
@@ -2517,7 +2520,6 @@ static void patchTownMin(uint16_t* minFile, size_t* dwSubtiles)
 /* 862. */ 1337,
 /* 863. */ 1338,
 /* 864. */ 1339,
-/* 865. */ 1379,
 #endif
 	};
 	constexpr int blockSize = 16; // AllLevels[DLV_TOWN].dBlocks

@@ -241,6 +241,7 @@ _Levels\TownData\Sector4s.DUN
 Levels\TownData\Town.CEL
 Levels\TownData\Town.MIN
 Levels\TownData\Town.pal
+Levels\TownData\Town.DUN
 Levels\TownData\Town.RDUN
 Levels\TownData\Town.SLA
 _Levels\TownData\Town.SOL
@@ -1363,6 +1364,8 @@ NLevels\L6Data\L6Base5.PAL
 NLevels\L6Data\L6Base6.PAL
 NLevels\TownData\Town.CEL
 NLevels\TownData\Town.MIN
+NLevels\TownData\Town.DUN
+NLevels\TownData\Town.RDUN
 NLevels\TownData\Town.SLA
 _NLevels\TownData\Town.SOL
 NLevels\TownData\Town.TIL

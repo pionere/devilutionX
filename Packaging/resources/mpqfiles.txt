@@ -26,8 +26,10 @@ Levels\L3Data\L3.TLA
 Levels\L4Data\L4.SLA
 Levels\L4Data\L4.TLA
 Levels\L4Data\Viles.DUN
+Levels\TownData\Town.DUN
 Levels\TownData\Town.RDUN
 Levels\TownData\Town.SLA
+Levels\TownData\Town.TIL
 Levels\TownData\TownS.CEL
 Meta\credits.txt
 Meta\credits_hf.txt
@@ -80,7 +82,10 @@ NLevels\L5Data\Nakrul1.DUN
 NLevels\L5Data\Nakrul2.DUN
 NLevels\L6Data\L6.SLA
 NLevels\L6Data\L6.TLA
+NLevels\TownData\Town.DUN
+NLevels\TownData\Town.RDUN
 NLevels\TownData\Town.SLA
+NLevels\TownData\Town.TIL
 Objects\Sarc.CEL
 PlrGFX\Coral.TRN
 PlrGFX\SBlue.TRN
