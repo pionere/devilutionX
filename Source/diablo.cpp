@@ -1494,7 +1494,7 @@ static void diablo_color_cyc_logic()
 	else if (currLvl._dType == DTYPE_CRYPT)
 		palette_update_crypt();
 	else if (currLvl._dType == DTYPE_NEST)
-		palette_update_hive();
+		palette_update_nest();
 #endif
 }
 

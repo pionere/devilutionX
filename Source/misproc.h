@@ -94,7 +94,6 @@ void MI_Firewall(int mi);
 void MI_HorkSpawn(int mi);
 void MI_Rune(int mi);
 //void MI_Lightwall(int mi);
-//void MI_Hiveexp(int mi);
 #endif
 void MI_LightningC(int mi);
 void MI_Lightning(int mi);

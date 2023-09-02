@@ -41,7 +41,7 @@ extern "C" {
 #define SCREEN_WIDTH   dvl::screenWidth
 #define BUFFER_WIDTH   dvl::gnBufferWidth
 #else
-#define BUFFER_WIDTH	(BORDER_LEFT + SCREEN_WIDTH + BORDER_LEFT)
+#define BUFFER_WIDTH   (BORDER_LEFT + SCREEN_WIDTH + BORDER_LEFT)
 #endif
 #ifndef SCREEN_HEIGHT
 #define SCREEN_HEIGHT  dvl::screenHeight

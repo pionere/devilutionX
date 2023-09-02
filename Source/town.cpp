@@ -15,12 +15,12 @@ DEVILUTION_BEGIN_NAMESPACE
 #define TOWN_DUN    "Levels\\TownData\\Town.DUN"
 #endif
 
-void T_HiveOpen()
+void OpenNest()
 {
 	DRLG_ChangeMap(34, 25, 36, 27);
 }
 
-void T_CryptOpen()
+void OpenCrypt()
 {
 	DRLG_ChangeMap(13, 5, 13, 7);
 }
@@ -89,10 +89,10 @@ static void LoadTown()
 	}
 #ifdef HELLFIRE
 	if (gbOpenWarps & (1 << TWARP_NEST)) {
-		T_HiveOpen();
+		OpenNest();
 	}
 	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
-		T_CryptOpen();
+		OpenCrypt();
 	}
 #endif
 	// release prematurely to counter the incomplete map

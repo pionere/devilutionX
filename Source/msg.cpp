@@ -2409,7 +2409,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		quests[Q_FARMER]._qactive = QUEST_DONE;
 		quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBUSED + pnum;
 		quests[Q_FARMER]._qlog = TRUE;
-		// open hive
+		// open nest
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			sx = 70 + DBORDERX; sy = 52 + DBORDERY;
 			dx = 71 + DBORDERX; dy = 53 + DBORDERY;
@@ -2419,7 +2419,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
 			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_NEST);
-			T_HiveOpen();
+			OpenNest();
 			InitTriggers();
 		}
 		return true;
@@ -2433,7 +2433,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 			PlaySFX(IS_SARC);
 			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_CRYPT);
-			T_CryptOpen();
+			OpenCrypt();
 			InitTriggers();
 		}
 		return true;

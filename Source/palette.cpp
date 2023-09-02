@@ -208,16 +208,16 @@ void palette_update_crypt()
 	palette_update();
 }
 
-static int hiveCycleCounter = 3;
-void palette_update_hive()
+static int nestCycleCounter = 3;
+void palette_update_nest()
 {
 	int i;
 	SDL_Color col;
 
-	if (--hiveCycleCounter != 0) {
+	if (--nestCycleCounter != 0) {
 		return;
 	}
-	hiveCycleCounter = 3;
+	nestCycleCounter = 3;
 
 	col = system_palette[8];
 	for (i = 8; i > 1; i--) {
