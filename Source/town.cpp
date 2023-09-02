@@ -7,6 +7,24 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#ifdef HELLFIRE
+#define TOWN_PREDUN "NLevels\\TownData\\Town.RDUN"
+#define TOWN_DUN    "NLevels\\TownData\\Town.DUN"
+#else
+#define TOWN_PREDUN "Levels\\TownData\\Town.RDUN"
+#define TOWN_DUN    "Levels\\TownData\\Town.DUN"
+#endif
+
+void T_HiveOpen()
+{
+	DRLG_ChangeMap(34, 25, 36, 27);
+}
+
+void T_CryptOpen()
+{
+	DRLG_ChangeMap(13, 5, 13, 7);
+}
+
 /**
  * Return the available town-warps for the current player
  */
@@ -29,18 +47,11 @@ static BYTE GetOpenWarps()
 
 static void LoadTown()
 {
-#ifdef HELLFIRE
-	constexpr char* _spdPreDunFile = "NLevels\\TownData\\Town.RDUN";
-	constexpr char* _spdDunFile = "NLevels\\TownData\\Town.DUN";
-#else
-	constexpr char* _spdPreDunFile = "Levels\\TownData\\Town.RDUN";
-	constexpr char* _spdDunFile = "Levels\\TownData\\Town.DUN";
-#endif
 	// load the changing tiles of the town
 	pSetPieces[0]._spx = 0;
 	pSetPieces[0]._spy = 0;
 	// pSetPieces[0]._sptype = lds->dSetLvlPiece;
-	pSetPieces[0]._spData = LoadFileInMem(_spdDunFile);
+	pSetPieces[0]._spData = LoadFileInMem(TOWN_DUN);
 	// DRLG_L1FixMap();
 	// memset(drlgFlags, 0, sizeof(drlgFlags));
 	// static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
@@ -51,9 +62,9 @@ static void LoadTown()
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
 
 #if INT_MAX == INT32_MAX && SDL_BYTEORDER != SDL_BIG_ENDIAN
-	LoadFileWithMem(_spdPreDunFile, (BYTE*)&dPiece[0][0]);
+	LoadFileWithMem(TOWN_PREDUN, (BYTE*)&dPiece[0][0]);
 #else
-	uint32_t* pBuf = (uint32_t*)LoadFileInMem(_spdPreDunFile);
+	uint32_t* pBuf = (uint32_t*)LoadFileInMem(TOWN_PREDUN);
 	int* dp = &dPiece[0][0];
 	uint32_t* pTmp = pBuf;
 	for (x = 0; x < MAXDUNX * MAXDUNY; x++, dp++, pTmp++)
@@ -78,10 +89,10 @@ static void LoadTown()
 	}
 #ifdef HELLFIRE
 	if (gbOpenWarps & (1 << TWARP_NEST)) {
-		DRLG_ChangeMap(34, 25, 36, 27);
+		T_HiveOpen();
 	}
 	if (gbOpenWarps & (1 << TWARP_CRYPT)) {
-		DRLG_ChangeMap(13, 5, 13, 7);
+		T_CryptOpen();
 	}
 #endif
 	// release prematurely to counter the incomplete map
