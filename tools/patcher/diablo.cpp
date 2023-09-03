@@ -44,7 +44,7 @@ static void diablo_init()
 
 	InitArchives();
 
-	MakeLightTable();
+	InitLighting();
 	InitText();
 	InitCursorGFX();
 	UiInitialize();

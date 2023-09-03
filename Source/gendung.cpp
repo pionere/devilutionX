@@ -170,6 +170,7 @@ void InitLvlDungeon()
 	if (lfd->dSpecCels != NULL) {
 		pSpecialsCel = LoadFileInMem(lfd->dSpecCels); // s.CEL
 	}
+	LoadFileWithMem(lfd->dLightTrns, &ColorTrns[0][0]); // .TRS
 	if (lfd->dTileFlags != NULL) {
 		LoadFileWithMem(lfd->dTileFlags, nTrnShadowTable); // .TLA
 	}

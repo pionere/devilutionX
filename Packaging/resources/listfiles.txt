@@ -145,6 +145,7 @@ Items\SwrdFlip.CEL
 Items\teddys1.CEL
 Items\wholeps1.CEL
 Items\WShield.CEL
+Levels\L0.TRS
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
 Levels\L1Data\Butcher.DUN
@@ -202,6 +203,7 @@ Levels\L3Data\L3.SLA
 _Levels\L3Data\L3.SOL
 Levels\L3Data\L3.TIL
 Levels\L3Data\L3.TLA
+Levels\L3Data\L3.TRS
 Levels\L3Data\L3_0.PAL
 Levels\L3Data\L3_1.PAL
 Levels\L3Data\L3_2.PAL
@@ -224,6 +226,7 @@ Levels\L4Data\L4.SLA
 _Levels\L4Data\L4.SOL
 Levels\L4Data\L4.TIL
 Levels\L4Data\L4.TLA
+Levels\L4Data\L4.TRS
 Levels\L4Data\L4_0.PAL
 Levels\L4Data\L4_1.PAL
 Levels\L4Data\L4_2.PAL
@@ -246,6 +249,7 @@ Levels\TownData\Town.RDUN
 Levels\TownData\Town.SLA
 _Levels\TownData\Town.SOL
 Levels\TownData\Town.TIL
+Levels\TownData\Town.TRS
 Levels\TownData\TownS.CEL
 Meta\credits.txt
 Meta\credits_hf.txt
@@ -1355,6 +1359,7 @@ NLevels\L6Data\L6.SLA
 _NLevels\L6Data\L6.SOL
 NLevels\L6Data\L6.TIL
 NLevels\L6Data\L6.TLA
+NLevels\L6Data\L6.TRS
 NLevels\L6Data\L6Base0.PAL
 NLevels\L6Data\L6Base1.PAL
 NLevels\L6Data\L6Base2.PAL

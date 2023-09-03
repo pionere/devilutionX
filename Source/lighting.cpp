@@ -766,7 +766,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 		}
 	}
 }
-
+#if 0
 void MakeLightTable()
 {
 	unsigned i, j, k, shade;
@@ -884,14 +884,15 @@ void MakeLightTable()
 #endif
 	}
 }
-
-void InitLightGFX()
+#endif 0
+void InitLighting()
 {
 	//BYTE* tbl;
 	//int i, j, k, l;
 	//BYTE col;
 	//double fs, fa;
 
+	LoadFileWithMem("Levels\\TownData\\Town.TRS", ColorTrns[0]);
 	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
 	LoadFileWithMem("PlrGFX\\Coral.TRN", ColorTrns[COLOR_TRN_CORAL]);

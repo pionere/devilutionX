@@ -288,7 +288,7 @@ static void diablo_init()
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
-	MakeLightTable();
+	InitLighting();
 	InitText();
 	InitCursorGFX();
 	UiInitialize();
@@ -1513,7 +1513,6 @@ static WNDPROC InitGameFX()
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX();        // gfx + values (some stored in savefiles)
 	InitGameMissileGFX(); // gfx
-	InitLightGFX();       // 'values'
 	InitGameSFX();        // sfx
 
 	gbDeathflag = MDM_ALIVE;

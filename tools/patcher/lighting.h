@@ -19,7 +19,7 @@ extern "C" {
 #define COLOR_TRN_CORAL MAXDARKNESS + 3
 // #define COLOR_TRN_UNIQ  MAXDARKNESS + 4
 
-inline void MakeLightTable() { }
+inline void InitLighting() { }
 
 #ifdef __cplusplus
 }

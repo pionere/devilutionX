@@ -34,11 +34,10 @@ extern BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 void DoLighting(unsigned lnum);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
 void DoVision(int nXPos, int nYPos, int nRadius, bool local);
-void MakeLightTable();
+void InitLighting();
 #if DEBUG_MODE
 void ToggleLighting();
 #endif
-void InitLightGFX();
 void InitLvlLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);
