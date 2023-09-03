@@ -39,7 +39,7 @@ void MakeLightTable();
 void ToggleLighting();
 #endif
 void InitLightGFX();
-void InitLighting();
+void InitLvlLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
@@ -58,7 +58,7 @@ inline void LoadPreLighting()
 {
 	memcpy(dLight, dPreLight, sizeof(dPreLight));
 }
-void InitVision();
+void InitLvlVision();
 void RedoLightAndVision();
 void LightAndVisionDone();
 int AddVision(int x, int y, int r, bool mine);

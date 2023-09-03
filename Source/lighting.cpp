@@ -992,7 +992,7 @@ void ToggleLighting()
 
 #endif
 
-void InitLighting()
+void InitLvlLighting()
 {
 	int i;
 
@@ -1245,7 +1245,7 @@ void ProcessLightList()
 	}
 }
 
-void InitVision()
+void InitLvlVision()
 {
 	int i;
 
@@ -1255,7 +1255,7 @@ void InitVision()
 	for (i = 0; i < MAXVISION; i++) {
 		visionactive[i] = i;
 	}
-	static_assert(false == 0, "InitVision fills TransList with 0 instead of false values.");
+	static_assert(false == 0, "InitLvlVision fills TransList with 0 instead of false values.");
 	memset(TransList, 0, sizeof(TransList));
 }
 
