@@ -157,7 +157,7 @@ const LevelFileData levelfiledata[NUM_LFILE_TYPES] = {
 /*LFILE_L3*/   { "Levels\\L3Data\\L3.SLA",      "Levels\\L3Data\\L3.TLA",  "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      NULL,                          "Levels\\L3Data\\L3.TRS"     },
 /*LFILE_L4*/   { "Levels\\L4Data\\L4.SLA",      "Levels\\L4Data\\L4.TLA",  "Levels\\L4Data\\L4.CEL",      "Levels\\L4Data\\L4.TIL",      "Levels\\L4Data\\L4.MIN",      NULL,                          "Levels\\L4Data\\L4.TRS"     },
 #ifdef HELLFIRE
-/*LFILE_L5*/   { "NLevels\\L5Data\\L5.SLA",     "NLevels\\L5Data\\L5.TLA", "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "Levels\\L4Data\\L4.TRS"     },
+/*LFILE_L5*/   { "NLevels\\L5Data\\L5.SLA",     "NLevels\\L5Data\\L5.TLA", "NLevels\\L5Data\\L5.CEL",     "NLevels\\L5Data\\L5.TIL",     "NLevels\\L5Data\\L5.MIN",     "NLevels\\L5Data\\L5S.CEL",    "Levels\\L3Data\\L3.TRS"     },
 /*LFILE_L6*/   { "NLevels\\L6Data\\L6.SLA",     "NLevels\\L6Data\\L6.TLA", "NLevels\\L6Data\\L6.CEL",     "NLevels\\L6Data\\L6.TIL",     "NLevels\\L6Data\\L6.MIN",     NULL,                          "NLevels\\L6Data\\L6.TRS"    },
 #endif
 	// clang-format on
