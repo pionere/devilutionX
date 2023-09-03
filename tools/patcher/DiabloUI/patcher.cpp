@@ -1213,7 +1213,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		if (i == 0 && gpBuffer[5 + 70 *  BUFFER_WIDTH] == TRANS_COLOR) {
 			mem_free_dbg(resCelBuf);
@@ -1417,7 +1417,7 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		if (i == 0 && gpBuffer[32 + 65 *  BUFFER_WIDTH] == TRANS_COLOR) {
 			mem_free_dbg(resCelBuf);
@@ -1479,10 +1479,10 @@ static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		// use the more rounded shrine-graphics
-		CelClippedDrawLightTbl(FRAME_WIDTH, FRAME_HEIGHT - 1, celBuf, 11 + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, celBuf, 11 + 1, FRAME_WIDTH);
 		for (int y = 88; y < 110; y++) {
 			for (int x = 28; x < 80; x++) {
 				if (gpBuffer[x + y * BUFFER_WIDTH] == 248) {
@@ -1539,7 +1539,7 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		gpBuffer[85 + 101 * BUFFER_WIDTH] = TRANS_COLOR;
 		gpBuffer[88 + 100 * BUFFER_WIDTH] = TRANS_COLOR;
@@ -1592,7 +1592,7 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		// remove shadow
 		for (int y = 61; y < 86; y++) {
@@ -1748,7 +1748,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 
-			Cl2DrawLightTbl(0, height - 1, frameBuf, n, width, 0);
+			Cl2Draw(0, height - 1, frameBuf, n, width);
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
@@ -1812,14 +1812,14 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[0 + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				// }
-				Cl2DrawLightTbl(0, height - 1, stdFrameBuf, n, width, 0);
+				Cl2Draw(0, height - 1, stdFrameBuf, n, width);
 				// draw the attack frame
 				constexpr int atkWidth = 128;
 				const BYTE* atkFrameBuf = CelGetFrameStart(atkBuf, ii);
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[0 + width + BUFFER_WIDTH * y], TRANS_COLOR, atkWidth);
 				// }
-				Cl2DrawLightTbl(width, height - 1, atkFrameBuf, 1, atkWidth, 0);
+				Cl2Draw(width, height - 1, atkFrameBuf, 1, atkWidth);
 
 				// copy the shield to the stand frame
 				unsigned addr = 0 + BUFFER_WIDTH * 0;
@@ -1900,7 +1900,7 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 				//	memcpy(&gpBuffer[0 + BUFFER_WIDTH * y], &gpBuffer[0 + width + BUFFER_WIDTH * y], width);
 				// }
 			} else {
-				Cl2DrawLightTbl(0, height - 1, frameBuf, n, width, 0);
+				Cl2Draw(0, height - 1, frameBuf, n, width);
 			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];

@@ -18,7 +18,6 @@ extern "C" {
 #define COLOR_TRN_GRAY  MAXDARKNESS + 2
 #define COLOR_TRN_CORAL MAXDARKNESS + 3
 // #define COLOR_TRN_UNIQ  MAXDARKNESS + 4
-extern BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
 inline void MakeLightTable() { }
 

@@ -46,7 +46,7 @@ BYTE* DRLP_L3_PatchDoors(BYTE* celBuf, size_t* celLen)
 		if (i == frame.frameIndex) {
 			// draw the frame to the back-buffer
 			memset(&gpBuffer[0], TRANS_COLOR, frame.frameHeight * BUFFER_WIDTH);
-			CelClippedDrawLightTbl(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth, 0);
+			CelClippedDraw(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth);
 
 			if (idx == 0) {
 				// add shadows

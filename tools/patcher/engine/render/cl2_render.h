@@ -21,9 +21,8 @@ extern "C" {
  * @param pCelBuff CL2 buffer
  * @param nCel CL2 frame number
  * @param nWidth CL2 width of the frame
- * @param light index of the light shade/trn to use
  */
-void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
+void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 #ifdef __cplusplus
 }

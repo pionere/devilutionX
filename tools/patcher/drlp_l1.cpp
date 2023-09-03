@@ -34,7 +34,7 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		if (i == 0) {
 			// add missing pixels after DRLP_L1_PatchSpec
@@ -167,7 +167,7 @@ BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH, 0);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH);
 
 		// eliminate unnecessary pixels on top
 		for (int y = 0; y < 47; y++) {
@@ -2622,7 +2622,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
 		if (i < srcCelEntries) {
-			CelClippedDrawLightTbl(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH, 0);
+			CelClippedDraw(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH);
 		}
 
 		if (i < 12 && i != 1) {
