@@ -30,13 +30,15 @@ static const char* const filesToSkip[] = {
 	"Levels\\TownData\\Town.CEL",
 	"Levels\\TownData\\Town.TIL",
 	"Levels\\TownData\\Town.MIN",
+	"gendata\\diablo1.smk",
 #else
 	"NLevels\\TownData\\Town.DUN",
 	"NLevels\\TownData\\Town.RDUN",
 	"NLevels\\TownData\\Town.SLA",
 	"NLevels\\TownData\\Town.CEL",
 	"NLevels\\TownData\\Town.TIL",
-	"NLevels\\TownData\\Town.MIN"
+	"NLevels\\TownData\\Town.MIN",
+	"gendata\\Hellfire.smk",
 #endif
 };
 
