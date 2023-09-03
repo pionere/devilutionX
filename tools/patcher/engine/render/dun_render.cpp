@@ -599,40 +599,4 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	}
 }
 
-/**
- * @brief Render a black tile
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- */
-void world_draw_black_tile(int sx, int sy)
-{
-	int i;
-	BYTE* dst;
-	// MBUGFIX: KEEP_IN_PANEL
-	//if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-	if (sx <= PANEL_X - TILE_WIDTH || sx >= SCREEN_X + PANEL_RIGHT)
-		return;
-
-	//if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
-	if (sy < PANEL_Y || sy >= SCREEN_Y + PANEL_BOTTOM + TILE_HEIGHT - 1)
-		return;
-
-	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "world_draw_black_tile relies on fix width/height ratio of the floor-tile.");
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy] + TILE_WIDTH / 2 - 2;
-
-	for (i = 1; i <= TILE_HEIGHT / 2; i++, dst -= BUFFER_WIDTH + 2) {
-//#ifdef NO_OVERDRAW
-//		if (dst < gpBufEnd)
-//#endif
-			memset(dst, 0, 4 * i);
-	}
-	dst += 4;
-	for (i = TILE_HEIGHT / 2 - 1; i >= 1; i--, dst -= BUFFER_WIDTH - 2) {
-//#ifdef NO_OVERDRAW
-//		if (dst < gpBufEnd)
-//#endif
-			memset(dst, 0, 4 * i);
-	}
-}
-
 DEVILUTION_END_NAMESPACE

@@ -18,7 +18,6 @@ extern "C" {
 #endif
 
 void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType);
-void world_draw_black_tile(int sx, int sy);
 
 #ifdef __cplusplus
 }
