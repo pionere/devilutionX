@@ -24,21 +24,31 @@ static constexpr int RETURN_DONE = 100;
 
 static const char* const filesToSkip[] = {
 #ifdef HELLFIRE
+	"gendata\\diablo1.smk",
 	"Levels\\TownData\\Town.DUN",
 	"Levels\\TownData\\Town.RDUN",
 	"Levels\\TownData\\Town.SLA",
 	"Levels\\TownData\\Town.CEL",
 	"Levels\\TownData\\Town.TIL",
 	"Levels\\TownData\\Town.MIN",
-	"gendata\\diablo1.smk",
+	"Meta\\credits.txt",
 #else
+	"gendata\\Hellfire.smk",
+	"Meta\\credits_hf.txt",
+	"NLevels\\L5Data\\L5.SLA",
+	"NLevels\\L5Data\\L5.TLA",
+	"NLevels\\L5Data\\Nakrul1.DUN",
+	"NLevels\\L5Data\\Nakrul2.DUN",
+	"NLevels\\L6Data\\L6.SLA",
+	"NLevels\\L6Data\\L6.TLA",
+	"NLevels\\L6Data\\L6.TRS",
 	"NLevels\\TownData\\Town.DUN",
 	"NLevels\\TownData\\Town.RDUN",
 	"NLevels\\TownData\\Town.SLA",
 	"NLevels\\TownData\\Town.CEL",
 	"NLevels\\TownData\\Town.TIL",
+	"NLevels\\TownData\\Town.TRS",
 	"NLevels\\TownData\\Town.MIN",
-	"gendata\\Hellfire.smk",
 #endif
 };
 
