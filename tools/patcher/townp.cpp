@@ -280,7 +280,11 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		{ 1172 - 1, 0, MET_TRANSPARENT },
 		{ 1175 - 1, 1, MET_TRANSPARENT },
 		{ 1176 - 1, 0, MET_TRANSPARENT },
-		{ 845 - 1, 4, MET_TRANSPARENT },
+		{  845 - 1, 4, MET_TRANSPARENT },
+		{  128 - 1, 0, MET_LTRIANGLE },
+		{  128 - 1, 1, MET_RTRIANGLE },
+		{  156 - 1, 1, MET_RTRIANGLE },
+		{  212 - 1, 1, MET_RTRIANGLE },
 		//{ 493 - 1, 0, MET_LTRIANGLE },   // TODO: fix light?
 		//{ 290 - 1, 0, MET_LTRIANGLE },   // TODO: fix grass?
 		//{ 290 - 1, 1, MET_RTRIANGLE },
@@ -1722,6 +1726,10 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		SetFrameType(1172, 0, MET_TRANSPARENT);
 		SetFrameType(1175, 1, MET_TRANSPARENT);
 		SetFrameType(1176, 0, MET_TRANSPARENT);
+		SetFrameType(128, 0, MET_LTRIANGLE);
+		SetFrameType(128, 1, MET_RTRIANGLE);
+		SetFrameType(156, 1, MET_RTRIANGLE);
+		SetFrameType(212, 1, MET_RTRIANGLE);
 	}
 	// use micros created by patchTownDoorCel
 	if (pSubtiles[MICRO_IDX(724 - 1, blockSize, 0)] != 0) {
