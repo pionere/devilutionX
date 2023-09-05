@@ -45,6 +45,10 @@ static BYTE* patchHellStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 /* 27 */{ 134 - 1, 0, MET_TRANSPARENT },
 /* 28 */{ 134 - 1, 1, MET_TRANSPARENT },
 /* 29 */{ 134 - 1, 2, MET_TRANSPARENT },
+
+/* 30 */{ 141 - 1, 5, MET_TRANSPARENT },
+/* 31 */{ 141 - 1, 3, MET_TRANSPARENT },
+/* 32 */{ 141 - 1, 1, MET_RTRIANGLE },
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -229,6 +233,40 @@ static BYTE* patchHellStairsCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 				if (y >= 16 - x / 2 && (color % 16) > 12) {
 					gpBuffer[addr] = TRANS_COLOR;
 				}
+			}
+		}
+	}
+	// 141[5]: move pixels up and move pixels from 141[3]
+	for (int i = 30; i < 31; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = addr + MICRO_HEIGHT / 2 * BUFFER_WIDTH;
+				} else {
+					addr2 = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 141[3]
+				}
+				gpBuffer[addr] = gpBuffer[addr2];
+			}
+		}
+	}
+	// 141[3]: move pixels up and move pixels from 141[1]
+	for (int i = 31; i < 32; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				unsigned addr2;
+				if (y < MICRO_HEIGHT / 2) {
+					addr2 = addr + MICRO_HEIGHT / 2 * BUFFER_WIDTH;
+				} else {
+					if ((y - MICRO_HEIGHT / 2) > x / 2) {
+						gpBuffer[addr] = TRANS_COLOR;
+						continue;
+					}
+					addr2 = x + MICRO_WIDTH * ((i + 1) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i + 1) % DRAW_HEIGHT)) * BUFFER_WIDTH; // 141[1]
+				}
+				gpBuffer[addr] = gpBuffer[addr2];
 			}
 		}
 	}
@@ -2341,6 +2379,14 @@ void DRLP_L4_PatchMin(BYTE* buf)
 		SetFrameType(133, 0, MET_TRANSPARENT);
 
 		ReplaceMcr(111, 0, 131, 0);
+
+		SetFrameType(141, 1, MET_RTRIANGLE);
+		MoveMcr(148, 0, 141, 3);
+		MoveMcr(148, 2, 141, 5);
+		ReplaceMcr(148, 1, 142, 3);
+		HideMcr(142, 3);
+		MoveMcr(148, 3, 142, 5);
+		MoveMcr(148, 5, 142, 7);
 	}
 
 	// useless pixels
@@ -2937,7 +2983,7 @@ void DRLP_L4_PatchMin(BYTE* buf)
 	Blk2Mcr(80, 5);
 	Blk2Mcr(81, 2);
 	Blk2Mcr(81, 4);
-	Blk2Mcr(148, 1);
+	// Blk2Mcr(148, 1); - reused to fix graphical glitch
 	Blk2Mcr(173, 1);
 	Blk2Mcr(178, 1);
 	Blk2Mcr(178, 3);
@@ -2980,6 +3026,8 @@ void DRLP_L4_PatchTil(BYTE* buf)
 	pTiles[(36 - 1) * 4 + 3] = SwapLE16(155 - 1); // 105
 	pTiles[(72 - 1) * 4 + 0] = SwapLE16(17 - 1);  // 224
 	pTiles[(55 - 1) * 4 + 2] = SwapLE16(154 - 1); // 175
+	// fix graphical glitch (on explosion)
+	pTiles[(44 - 1) * 4 + 2] = SwapLE16(148 - 1); // (136)
 
 	// create the new shadows
 	pTiles[(61 - 1) * 4 + 0] = SwapLE16(5 - 1); // copy from tile 2
@@ -3023,7 +3071,7 @@ void DRLP_L4_PatchTil(BYTE* buf)
 	pTiles[(135 - 1) * 4 + 2] = SwapLE16(16 - 1);
 	pTiles[(135 - 1) * 4 + 3] = SwapLE16(176 - 1);
 	// separate subtiles for the automap
-	pTiles[(44 - 1) * 4 + 2] = SwapLE16(136 - 1);
+	// pTiles[(44 - 1) * 4 + 2] = SwapLE16(136 - 1);
 	pTiles[(136 - 1) * 4 + 0] = SwapLE16(149 - 1);
 	pTiles[(136 - 1) * 4 + 1] = SwapLE16(153 - 1);
 	pTiles[(136 - 1) * 4 + 2] = SwapLE16(97 - 1);
