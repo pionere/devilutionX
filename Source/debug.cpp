@@ -1130,6 +1130,9 @@ void ValidateData()
 		if (((od.oModeFlags & OMF_ACTIVE) != 0) != (od.oSelFlag != 0)) {
 			app_fatal("Inconsistent oModeFlags and oSelFlag for %d.", i);
 		}
+		if (od.oLightRadius > MAX_LIGHT_RAD) {
+			app_fatal("Light radius is too high for %d. object.", i);
+		}
 	}
 	assert(objectdata[OBJ_L1RDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
 	assert(objectdata[OBJ_L2LDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor
