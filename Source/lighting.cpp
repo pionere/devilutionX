@@ -884,7 +884,7 @@ void MakeLightTable()
 #endif
 	}
 }
-#endif 0
+#endif // 0
 void InitLighting()
 {
 	//BYTE* tbl;
@@ -1374,7 +1374,7 @@ void ProcessVisionList()
 	_gbDovision = false;
 }
 
-void lighting_color_cycling()
+void lighting_update_hell()
 {
 	int i, j, l;
 	BYTE col;

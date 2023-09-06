@@ -1487,7 +1487,7 @@ static void diablo_color_cyc_logic()
 		return;
 
 	if (currLvl._dType == DTYPE_HELL)
-		lighting_color_cycling();
+		lighting_update_hell();
 	else if (currLvl._dType == DTYPE_CAVES)
 		palette_update_caves();
 #ifdef HELLFIRE

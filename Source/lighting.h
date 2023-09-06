@@ -65,7 +65,7 @@ void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);
 void ChangeVisionXY(unsigned vnum, int x, int y);
 void ProcessVisionList();
-void lighting_color_cycling();
+void lighting_update_hell();
 
 /* rdata */
 
