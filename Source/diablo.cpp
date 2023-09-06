@@ -1492,7 +1492,7 @@ static void diablo_color_cyc_logic()
 		lighting_update_caves();
 #ifdef HELLFIRE
 	else if (currLvl._dType == DTYPE_CRYPT)
-		palette_update_crypt();
+		lighting_update_crypt();
 	else if (currLvl._dType == DTYPE_NEST)
 		lighting_update_nest();
 #endif

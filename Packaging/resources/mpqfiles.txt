@@ -82,6 +82,7 @@ Monsters\Diablo\Diablod1.WAV
 Monsters\Diablo\Diablod2.WAV
 NLevels\L5Data\L5.SLA
 NLevels\L5Data\L5.TLA
+NLevels\L5Data\L5.TRS
 NLevels\L5Data\Nakrul1.DUN
 NLevels\L5Data\Nakrul2.DUN
 NLevels\L6Data\L6.SLA

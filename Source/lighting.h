@@ -68,6 +68,7 @@ void ProcessVisionList();
 void lighting_update_caves();
 void lighting_update_hell();
 #ifdef HELLFIRE
+void lighting_update_crypt();
 void lighting_update_nest();
 #endif
 

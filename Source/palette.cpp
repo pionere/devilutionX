@@ -183,7 +183,7 @@ void PaletteFadeOut()
 }*/
 
 #ifdef HELLFIRE
-static int cryptCycleCounter = 3;
+/*static int cryptCycleCounter = 3;
 void palette_update_crypt()
 {
 	int i;

@@ -1348,6 +1348,7 @@ NLevels\L5Data\L5.SLA
 _NLevels\L5Data\L5.SOL
 NLevels\L5Data\L5.TIL
 NLevels\L5Data\L5.TLA
+NLevels\L5Data\L5.TRS
 NLevels\L5Data\L5Base.PAL
 NLevels\L5Data\L5S.CEL
 NLevels\L5Data\Nakrul1.DUN

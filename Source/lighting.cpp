@@ -1417,6 +1417,42 @@ void lighting_update_hell()
 }
 
 #ifdef HELLFIRE
+static int cryptCycleCounter = 3;
+void lighting_update_crypt()
+{
+	int i, j;
+	BYTE col;
+	BYTE* tbl;
+
+	if (--cryptCycleCounter == 0) {
+		cryptCycleCounter = 3;
+
+		tbl = ColorTrns[0];
+
+		for (j = 0; j <= MAXDARKNESS; j++) {
+			col = tbl[15];
+			for (i = 15; i > 1; i--) {
+				tbl[i] = tbl[i - 1];
+			}
+			tbl[i] = col;
+
+			tbl += NUM_COLORS;
+		}
+	}
+
+	tbl = ColorTrns[0];
+
+	for (j = 0; j <= MAXDARKNESS; j++) {
+		col = tbl[31];
+		for (i = 31; i > 16; i--) {
+			tbl[i] = tbl[i - 1];
+		}
+		tbl[i] = col;
+
+		tbl += NUM_COLORS;
+	}
+}
+
 static int nestCycleCounter = 3;
 void lighting_update_nest()
 {
