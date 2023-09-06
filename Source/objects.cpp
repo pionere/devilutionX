@@ -365,9 +365,9 @@ static void AddCandles()
 	tx = pWarps[DWARP_SIDE]._wx;
 	ty = pWarps[DWARP_SIDE]._wy;
 	AddObject(OBJ_STORYCANDLE, tx - 2, ty + 1);
-	AddObject(OBJ_STORYCANDLE, tx + 3, ty + 1);
+	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 1);
 	AddObject(OBJ_STORYCANDLE, tx - 1, ty + 2);
-	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 2);
+	AddObject(OBJ_STORYCANDLE, tx + 1, ty + 2);
 }
 
 static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
