@@ -1374,6 +1374,25 @@ void ProcessVisionList()
 	_gbDovision = false;
 }
 
+void lighting_update_caves()
+{
+	int i, j;
+	BYTE col;
+	BYTE* tbl;
+
+	tbl = ColorTrns[0];
+
+	for (j = 0; j <= MAXDARKNESS; j++) {
+		col = tbl[1];
+		for (i = 1; i < 31; i++) {
+			tbl[i] = tbl[i + 1];
+		}
+		tbl[i] = col;
+
+		tbl += NUM_COLORS;
+	}
+}
+
 void lighting_update_hell()
 {
 	int i, j, l;

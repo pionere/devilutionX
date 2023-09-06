@@ -168,7 +168,7 @@ void PaletteFadeOut()
 	}
 }
 
-void palette_update_caves()
+/*void palette_update_caves()
 {
 	int i;
 	SDL_Color col;
@@ -180,7 +180,7 @@ void palette_update_caves()
 	system_palette[i] = col;
 
 	palette_update();
-}
+}*/
 
 #ifdef HELLFIRE
 static int cryptCycleCounter = 3;

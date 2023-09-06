@@ -65,6 +65,7 @@ void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);
 void ChangeVisionXY(unsigned vnum, int x, int y);
 void ProcessVisionList();
+void lighting_update_caves();
 void lighting_update_hell();
 #ifdef HELLFIRE
 void lighting_update_nest();
