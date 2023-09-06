@@ -208,7 +208,7 @@ void palette_update_crypt()
 	palette_update();
 }
 
-static int nestCycleCounter = 3;
+/*static int nestCycleCounter = 3;
 void palette_update_nest()
 {
 	int i;
@@ -232,7 +232,7 @@ void palette_update_nest()
 	system_palette[i] = col;
 
 	palette_update();
-}
+}*/
 #endif
 
 void palette_update_quest_palette(int n)

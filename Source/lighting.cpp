@@ -1397,4 +1397,38 @@ void lighting_update_hell()
 	}
 }
 
+#ifdef HELLFIRE
+static int nestCycleCounter = 3;
+void lighting_update_nest()
+{
+	int i, j;
+	BYTE col;
+	BYTE* tbl;
+
+	// assert(currLvl._dType == DTYPE_NEST);
+	if (--nestCycleCounter != 0) {
+		return;
+	}
+	nestCycleCounter = 3;
+
+	tbl = ColorTrns[0];
+
+	for (j = 0; j <= MAXDARKNESS; j++) {
+		col = tbl[8];
+		for (i = 8; i > 1; i--) {
+			tbl[i] = tbl[i - 1];
+		}
+		tbl[i] = col;
+
+		col = tbl[15];
+		for (i = 15; i > 9; i--) {
+			tbl[i] = tbl[i - 1];
+		}
+		tbl[i] = col;
+
+		tbl += NUM_COLORS;
+	}
+}
+#endif
+
 DEVILUTION_END_NAMESPACE
