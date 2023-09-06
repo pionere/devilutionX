@@ -362,7 +362,7 @@ static void AddCandles()
 {
 	int tx, ty;
 
-	tx = pWarps[DWARP_SIDE]._wx + 1;
+	tx = pWarps[DWARP_SIDE]._wx;
 	ty = pWarps[DWARP_SIDE]._wy;
 	AddObject(OBJ_STORYCANDLE, tx - 2, ty + 1);
 	AddObject(OBJ_STORYCANDLE, tx + 3, ty + 1);
