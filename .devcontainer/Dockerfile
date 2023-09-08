@@ -28,7 +28,8 @@ RUN git clone https://github.com/diasurgical/devilutionx-mpq-tools.git /tmp/devi
     rm -rf /tmp/devilutionx-mpq-tools
 
 # Install d1-graphics-tool
-RUN curl -O -L https://github.com/diasurgical/d1-graphics-tool/releases/latest/download/D1GraphicsTool-Linux-x64.deb && \
+RUN curl -O -L https://github.com/pionere/d1-graphics-tool/releases/download/dgt-nightly/D1GraphicsTool-Linux-x64.zip && \
+    unzip D1GraphicsTool-Linux-x64.zip D1GraphicsTool-Linux-x64.deb && \
     dpkg -i D1GraphicsTool-Linux-x64.deb && \
     rm D1GraphicsTool-Linux-x64.deb
 

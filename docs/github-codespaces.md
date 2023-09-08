@@ -2,7 +2,7 @@
 
 A GitHub codespace container with all dependencies and several useful tools preinstalled is configured in the `.devcontainer` directory.
 
-To develop in a codespace, open the in-browser VS Code editor by either pressing the `.` or going to https://github.dev/diasurgical/devilutionX/.
+To develop in a codespace, open the in-browser VS Code editor by either pressing the `.` or going to https://github.dev/pionere/devilutionX/.
 
 Then, focus on the terminal window from the Command Palette menu (<kbd>F1</kbd>):
 
