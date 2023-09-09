@@ -152,8 +152,8 @@ const LevelFileData levelfiledata[NUM_LFILE_TYPES] = {
 #else
 /*LFILE_TOWN*/ { "Levels\\TownData\\Town.SLA",  NULL,                      "Levels\\TownData\\Town.CEL",  "Levels\\TownData\\Town.TIL",  "Levels\\TownData\\Town.MIN",  "Levels\\TownData\\TownS.CEL", "Levels\\TownData\\Town.TRS" },
 #endif
-/*LFILE_L1*/   { "Levels\\L1Data\\L1.SLA",      "Levels\\L1Data\\L1.TLA",  "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L0.TRS"             },
-/*LFILE_L2*/   { "Levels\\L2Data\\L2.SLA",      "Levels\\L2Data\\L2.TLA",  "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L0.TRS"             },
+/*LFILE_L1*/   { "Levels\\L1Data\\L1.SLA",      "Levels\\L1Data\\L1.TLA",  "Levels\\L1Data\\L1.CEL",      "Levels\\L1Data\\L1.TIL",      "Levels\\L1Data\\L1.MIN",      "Levels\\L1Data\\L1S.CEL",     "Levels\\L1Data\\L1.TRS"     },
+/*LFILE_L2*/   { "Levels\\L2Data\\L2.SLA",      "Levels\\L2Data\\L2.TLA",  "Levels\\L2Data\\L2.CEL",      "Levels\\L2Data\\L2.TIL",      "Levels\\L2Data\\L2.MIN",      "Levels\\L2Data\\L2S.CEL",     "Levels\\L2Data\\L2.TRS"     },
 /*LFILE_L3*/   { "Levels\\L3Data\\L3.SLA",      "Levels\\L3Data\\L3.TLA",  "Levels\\L3Data\\L3.CEL",      "Levels\\L3Data\\L3.TIL",      "Levels\\L3Data\\L3.MIN",      NULL,                          "Levels\\L3Data\\L3.TRS"     },
 /*LFILE_L4*/   { "Levels\\L4Data\\L4.SLA",      "Levels\\L4Data\\L4.TLA",  "Levels\\L4Data\\L4.CEL",      "Levels\\L4Data\\L4.TIL",      "Levels\\L4Data\\L4.MIN",      NULL,                          "Levels\\L4Data\\L4.TRS"     },
 #ifdef HELLFIRE

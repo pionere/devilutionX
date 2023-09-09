@@ -145,7 +145,6 @@ Items\SwrdFlip.CEL
 Items\teddys1.CEL
 Items\wholeps1.CEL
 Items\WShield.CEL
-Levels\L0.TRS
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
 Levels\L1Data\Butcher.DUN
@@ -156,6 +155,7 @@ Levels\L1Data\L1.SLA
 _Levels\L1Data\L1.SOL
 Levels\L1Data\L1.TIL
 Levels\L1Data\L1.TLA
+Levels\L1Data\L1.TRS
 Levels\L1Data\L1_0.PAL
 Levels\L1Data\L1_1.PAL
 Levels\L1Data\L1_2.PAL
@@ -186,6 +186,7 @@ Levels\L2Data\L2.SLA
 _Levels\L2Data\L2.SOL
 Levels\L2Data\L2.TIL
 Levels\L2Data\L2.TLA
+Levels\L2Data\L2.TRS
 Levels\L2Data\L2_0.PAL
 Levels\L2Data\L2_1.PAL
 Levels\L2Data\L2_2.pal

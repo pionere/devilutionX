@@ -8,12 +8,12 @@ Data\Inv\Inv.CEL
 Data\MedTextS.CEL
 Data\SpellBk.CEL
 Data\Quest.CEL
-Levels\L0.TRS
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
 Levels\L1Data\Butcher.DUN
 Levels\L1Data\L1.SLA
 Levels\L1Data\L1.TLA
+Levels\L1Data\L1.TRS
 Levels\L1Data\SklKng1.DUN
 Levels\L1Data\SklKng2.DUN
 Levels\L1Data\SKngDO.DUN
@@ -21,6 +21,7 @@ Levels\L1Data\Vile1.DUN
 Levels\L1Data\Vile2.DUN
 Levels\L2Data\L2.SLA
 Levels\L2Data\L2.TLA
+Levels\L2Data\L2.TRS
 Levels\L3Data\Anvil.DUN
 Levels\L3Data\L3.SLA
 Levels\L3Data\L3.TLA
