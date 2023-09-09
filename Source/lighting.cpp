@@ -663,7 +663,7 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 
 static bool doautomap;
 static BYTE vFlags;
-static bool LightPos(int x1, int y1)
+static bool ViewPos(int x1, int y1)
 {
 	//int nTrans;
 	assert(IN_DUNGEON_AREA(x1, y1));
@@ -746,7 +746,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1));
+			} while (ViewPos(x1, y1));
 		} else {
 			// multiply by 2 so we round up
 			dx *= 2;
@@ -762,7 +762,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1));
+			} while (ViewPos(x1, y1));
 		}
 	}
 }
