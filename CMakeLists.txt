@@ -1324,21 +1324,20 @@ if(CPACK)
     # Common *nix files
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION bin)
-    set(desktop_file "${PROJECT_SOURCE_DIR}/Packaging/nix/${project_name}.desktop")
-    set(desktop_file_hellfire "${PROJECT_SOURCE_DIR}/Packaging/nix/${project_name}-hellfire.desktop")
+    if(HELLFIRE)
+      set(desktop_file_name "devilutionx-hellfire.desktop")
+    else()
+      set(desktop_file_name "devilutionx.desktop")
+    endif()
+    set(desktop_file "${PROJECT_SOURCE_DIR}/Packaging/nix/${desktop_file_name}")
 
     find_program(DFI desktop-file-install)
     if(DFI)
       execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} ${desktop_file})
-      set(desktop_file "${CMAKE_BINARY_DIR}/${project_name}.desktop")
-      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} ${desktop_file_hellfire})
-      set(desktop_file_hellfire "${CMAKE_BINARY_DIR}/${project_name}-hellfire.desktop")
+      set(desktop_file "${CMAKE_BINARY_DIR}/${desktop_file_name}")
     endif()
 
     install(FILES "${desktop_file}"
-      DESTINATION "share/applications"
-    )
-    install(FILES "${desktop_file_hellfire}"
       DESTINATION "share/applications"
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/nix/README.txt"
@@ -1355,14 +1354,17 @@ if(CPACK)
         DESTINATION "share/diasurgical/${project_name}"
       )
     endif()
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
-      DESTINATION "share/icons/hicolor/512x512/apps"
-      RENAME "${project_name}.png"
-    )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/hellfire.png"
-      DESTINATION "share/icons/hicolor/512x512/apps"
-      RENAME "${project_name}-hellfire.png"
-    )
+    if(HELLFIRE)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/hellfire.png"
+        DESTINATION "share/icons/hicolor/512x512/apps"
+        RENAME "${project_name}-hellfire.png"
+      )
+    else()
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
+        DESTINATION "share/icons/hicolor/512x512/apps"
+        RENAME "${project_name}.png"
+      )
+    endif()
 
     # -G DEB
     set(CPACK_PACKAGE_CONTACT "${PROJECT_NAME} https://github.com/pionere/devilutionX")
