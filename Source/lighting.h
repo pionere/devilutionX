@@ -18,8 +18,8 @@ extern "C" {
 
 extern BYTE visionactive[MAXVISION];
 extern LightListStruct VisionList[MAXVISION];
-extern BYTE lightactive[MAXLIGHTS + 1];
-extern LightListStruct LightList[MAXLIGHTS + 1];
+extern BYTE lightactive[MAXLIGHTS];
+extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
 
@@ -31,7 +31,7 @@ extern int numvision;
 #define COLOR_TRN_UNIQ  MAXDARKNESS + 4
 extern BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
-void DoLighting(unsigned lnum);
+void TraceLightSource(int x, int y, int r);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
 void DoVision(int nXPos, int nYPos, int nRadius, bool local);
 void InitLighting();

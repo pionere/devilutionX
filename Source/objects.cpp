@@ -698,12 +698,7 @@ static int SetupObject(int type, int ox, int oy)
 			} else
 #endif
 			{
-				assert(LightList[MAXLIGHTS]._lxoff == 0);
-				assert(LightList[MAXLIGHTS]._lyoff == 0);
-				LightList[MAXLIGHTS]._lradius = ods->oLightRadius;
-				LightList[MAXLIGHTS]._lx = ox + ods->oLightOffX;
-				LightList[MAXLIGHTS]._ly = oy + ods->oLightOffY;
-				DoLighting(MAXLIGHTS);
+				TraceLightSource(ox + ods->oLightOffX, oy + ods->oLightOffY, ods->oLightRadius);
 			}
 		}
 		if (ods->oDoorFlag != ODT_NONE) {

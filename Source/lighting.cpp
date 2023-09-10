@@ -19,9 +19,9 @@ BYTE visionactive[MAXVISION];
 /* The list of visions/views in the game. */
 LightListStruct VisionList[MAXVISION];
 /* The list of the indices of the active light-sources. */
-BYTE lightactive[MAXLIGHTS + 1];
+BYTE lightactive[MAXLIGHTS];
 /* The list of light-sources in the game + one for temporary use. */
-LightListStruct LightList[MAXLIGHTS + 1];
+LightListStruct LightList[MAXLIGHTS];
 /* The number of visions/views in the game. */
 int numvision;
 /* The number of light-sources in the game. */
@@ -467,7 +467,7 @@ static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* bx, int* by)
 	*oy = ny;
 }
 
-void DoLighting(unsigned lnum)
+static void DoLighting(unsigned lnum)
 {
 	LightListStruct* lis = &LightList[lnum];
 	int x, y, xoff, yoff;
@@ -635,6 +635,89 @@ static void DoUnLight(LightListStruct* lis)
 		lis->_lunyoff = 1;
 	}
 	lis->_lunflag = false;
+}
+
+BYTE *srcDark;
+static bool LightPos(int x1, int y1, int radius_block)
+{
+	assert(IN_DUNGEON_AREA(x1, y1));
+
+	// int yoff = 0;
+	// int xoff = 0;
+	// BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
+	// BYTE radius_block = dist0[abs(nYPos - y1)][abs(nXPos - x1)];
+	// BYTE v = srcDark[radius_block];
+	BYTE v = srcDark[radius_block];
+	if (v < dLight[x1][y1])
+		dLight[x1][y1] = v;
+
+	return !nBlockTable[dPiece[x1][y1]];
+}
+
+void TraceLightSource(int nXPos, int nYPos, int nRadius)
+{
+	const int8_t* cr;
+	int i, x1, y1, limit;
+	int d, dx, dy, xinc, yinc;
+
+	srcDark = darkTable[nRadius];
+	BYTE v = srcDark[0];
+	if (v < dLight[nXPos][nYPos])
+		dLight[nXPos][nYPos] = v;
+
+	nRadius = 2 * (nRadius + 1) * 8 * 16;
+	static_assert(INT_MAX / (2 * 8 * 16) > MAX_LIGHT_RAD, "Light tracing overflows in TraceLightSource.");
+	static_assert(MAX_OFFSET == 8, "Light tracing shift must be adjusted in TraceLightSource.");
+	cr = &CrawlTable[CrawlNum[15]];
+	for (i = (BYTE)*cr; i > 0; i--) {
+		x1 = nXPos;
+		y1 = nYPos;
+		limit = nRadius;
+		dx = *++cr;
+		dy = *++cr;
+
+		// find out step size and direction on the y coordinate
+		xinc = dx < 0 ? -1 : 1;
+		yinc = dy < 0 ? -1 : 1;
+
+		dy = abs(dy);
+		dx = abs(dx);
+		if (dx >= dy) {
+			assert(dx != 0);
+
+			// multiply by 2 so we round up
+			dy *= 2;
+			d = 0;
+			do {
+				d += dy;
+				if (d >= dx) {
+					d -= 2 * dx; // multiply by 2 to support rounding
+					y1 += yinc;
+					limit -= 1 * 109; // 1 * 7;
+				}
+				x1 += xinc;
+				limit -= 2 * 8 * 16;
+				if (limit <= 0)
+					break;
+			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4))); // * MAX_OFFSET / (2 * 8 * 16)
+		} else {
+			// multiply by 2 so we round up
+			dx *= 2;
+			d = 0;
+			do {
+				d += dx;
+				if (d >= dy) {
+					d -= 2 * dy; // multiply by 2 to support rounding
+					x1 += xinc;
+					limit -= 1 * 109; // 1 * 7;
+				}
+				y1 += yinc;
+				limit -= 2 * 8 * 16;
+				if (limit <= 0)
+					break;
+			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4))); // * MAX_OFFSET / (2 * 8 * 16)
+		}
+	}
 }
 
 void DoUnVision(int nXPos, int nYPos, int nRadius)

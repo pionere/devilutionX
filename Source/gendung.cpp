@@ -1365,18 +1365,13 @@ static void DRLG_LightSubtiles()
 #endif
 	memset(dLight, c, sizeof(dLight));
 
-	assert(LightList[MAXLIGHTS]._lxoff == 0);
-	assert(LightList[MAXLIGHTS]._lyoff == 0);
 	if (!nCollLightTable[0]) {
 		for (i = 0; i < MAXDUNX; i++) {
 			for (j = 0; j < MAXDUNY; j++) {
 				pn = dPiece[i][j];
 				c = nCollLightTable[pn] & PSF_LIGHT_RADIUS;
 				if (c != 0) {
-					LightList[MAXLIGHTS]._lradius = c;
-					LightList[MAXLIGHTS]._lx = i;
-					LightList[MAXLIGHTS]._ly = j;
-					DoLighting(MAXLIGHTS);
+					TraceLightSource(i, j, c);
 				}
 			}
 		}
@@ -1615,7 +1610,7 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-	// TODO: LoadPreLighting, DRLG_LightSubtiles?
+	// TODO: LoadPreLighting, DRLG_LightSubtiles? (see SyncPedestal)
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
 	// activate monsters
 	MonChangeMap();
