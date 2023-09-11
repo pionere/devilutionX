@@ -435,6 +435,8 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 	assert((objectdata[OBJ_L5LDOOR].oLvlTypes & DTM_CRYPT) && (objectdata[OBJ_L5RDOOR].oLvlTypes & DTM_CRYPT));
 #endif
 	switch (currLvl._dType) {
+	case DTYPE_TOWN:
+		return;
 	case DTYPE_CATHEDRAL:
 		for (j = y1; j <= y2; j++) {
 			for (i = x1; i <= x2; i++) {

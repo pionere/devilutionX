@@ -3143,7 +3143,7 @@ typedef enum dungeon_type_mask {
 	DTM_HELL      = 1 << DTYPE_HELL,
 	DTM_CRYPT     = 1 << DTYPE_CRYPT,
 	DTM_NEST      = 1 << DTYPE_NEST,
-	DTM_ANY       = 0xFF,
+	DTM_ANY       = DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES | DTM_HELL | DTM_CRYPT | DTM_NEST,
 	DTM_NONE      = 0,
 } dungeon_type_mask;
 
