@@ -267,7 +267,9 @@ void InitLvlDungeon()
 	case DTYPE_CATHEDRAL:
 #if !USE_PATCH
 		// patch dSolidTable - L1.SOL
-		/*// adjust SOL after fixCathedralShadows
+		/*nMissileTable[28] = true; // fix inconsistent corners
+		nMissileTable[29] = true; // fix inconsistent corners
+		// adjust SOL after fixCathedralShadows
 		nSolidTable[298] = true;
 		nSolidTable[304] = true;
 		nBlockTable[334] = false;
