@@ -198,7 +198,7 @@ jobs:
   build_linux64:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-aarch
+    name: Nightly-Linux-x64
     strategy:
       fail-fast: false
       matrix:
@@ -269,7 +269,7 @@ jobs:
   build_aarch:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
-    name: Nightly-aarch
+    name: Nightly-Aarch-x64
     strategy:
       fail-fast: false
       matrix:
