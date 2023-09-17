@@ -12,7 +12,7 @@ jobs:
           - 'Source'
           - 'test'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Run clang-format style check for C/C++ programs.
       uses: pionere/clang-format-action@v1
