@@ -678,31 +678,21 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 	}
 
 	if (*org) {
-		SDL_snprintf(retval, len, "%s%s%s/%s", envr, append, org, app);
+		SDL_snprintf(retval, len, "%s%s%s/%s/", envr, append, org, app);
 	} else {
-		SDL_snprintf(retval, len, "%s%s%s", envr, append, app);
+		SDL_snprintf(retval, len, "%s%s%s/", envr, append, app);
 	}
 
 	for (ptr = retval + 1; *ptr; ptr++) {
 		if (*ptr == '/') {
 			*ptr = '\0';
-			if (mkdir(retval, 0700) != 0 && errno != EEXIST)
-				goto error;
+			if (mkdir(retval, 0700) != 0 && errno != EEXIST) {
+				SDL_SetError("Couldn't create directory '%s': '%s'", retval, strerror(errno));
+				SDL_free(retval);
+				return NULL;
+			}
 			*ptr = '/';
 		}
-	}
-	if (mkdir(retval, 0700) != 0 && errno != EEXIST) {
-	error:
-		SDL_SetError("Couldn't create directory '%s': '%s'", retval, strerror(errno));
-		SDL_free(retval);
-		return NULL;
-	}
-
-	// Append trailing /
-	size_t final_len = SDL_strlen(retval);
-	if (final_len + 1 < len) {
-		retval[final_len++] = '/';
-		retval[final_len] = '\0';
 	}
 
 	return retval;
