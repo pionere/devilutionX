@@ -1338,9 +1338,12 @@ if(CPACK)
     endif()
 
     # make the desktop file available to AppImage
-    install(FILES "${desktop_file}"
-      DESTINATION "${CMAKE_BINARY_DIR}/devilutionx.desktop"
-    )
+    if(NOT "${desktop_file}" STREQUAL "${CMAKE_BINARY_DIR}/devilutionx.desktop")
+      install(FILES "${desktop_file}"
+        DESTINATION "${CMAKE_BINARY_DIR}"
+        RENAME "devilutionx.desktop"
+      )
+    endif()
     install(FILES "${desktop_file}"
       DESTINATION "share/applications"
     )
