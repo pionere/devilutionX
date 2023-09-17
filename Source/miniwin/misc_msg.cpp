@@ -3,9 +3,8 @@
  *
  * Windows message handling and keyboard event conversion for SDL.
  */
-#include <SDL.h>
-#include <cstdint>
-#include "utils/utf8.h"
+//#include <SDL.h>
+//#include <cstdint>
 
 #include "all.h"
 #include "controls/controller.h"
@@ -15,7 +14,8 @@
 #include "controls/remap_keyboard.h"
 #include "controls/touch.h"
 #include "utils/display.h"
-#include "utils/sdl_compat.h"
+//#include "utils/sdl_compat.h"
+#include "utils/utf8.h"
 
 #ifdef __SWITCH__
 #include "platform/switch/docking.h"
@@ -985,14 +985,14 @@ bool PeekMessage(LPMSG lpMsg)
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
+		case SDL_WINDOWEVENT_EXPOSED:
+		case SDL_WINDOWEVENT_RESTORED:
 			gbWndActive = true;
 			lpMsg->message = DVL_WM_PAINT;
 			break;
 		case SDL_WINDOWEVENT_HIDDEN:
+		case SDL_WINDOWEVENT_MINIMIZED:
 			gbWndActive = false;
-			break;
-		case SDL_WINDOWEVENT_EXPOSED:
-			lpMsg->message = DVL_WM_PAINT;
 			break;
 		case SDL_WINDOWEVENT_LEAVE:
 			lpMsg->message = DVL_WM_CAPTURECHANGED;
@@ -1000,9 +1000,7 @@ bool PeekMessage(LPMSG lpMsg)
 		case SDL_WINDOWEVENT_MOVED:
 		case SDL_WINDOWEVENT_RESIZED:
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
-		case SDL_WINDOWEVENT_MINIMIZED:
 		case SDL_WINDOWEVENT_MAXIMIZED:
-		case SDL_WINDOWEVENT_RESTORED:
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 #if SDL_VERSION_ATLEAST(2, 0, 5)

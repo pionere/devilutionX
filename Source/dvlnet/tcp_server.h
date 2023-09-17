@@ -18,7 +18,7 @@ public:
 	tcp_server(asio::io_context& ioc, buffer_t info, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256]);
 	void close();
-	virtual ~tcp_server() = default;
+	~tcp_server() = default;
 
 	static void make_default_gamename(char (&gamename)[128]);
 	static void connect_acceptor(asio::ip::tcp::acceptor& acceptor, const asio::ip::tcp::endpoint& ep, asio::error_code& ec);

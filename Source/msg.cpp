@@ -680,7 +680,9 @@ static void delta_leave_sync(BYTE bLevel)
 		glSeedTbl[DLV_TOWN] = NextRndSeed();
 		return;
 	}
-	memcpy(&gsDeltaData.ddLocal[bLevel].automapsv, automapview, sizeof(automapview));
+	static_assert(sizeof(gsDeltaData.ddLocal[bLevel].automapsv) == sizeof(dFlags), "Automap info can not be stored in the allocated space.");
+
+	memcpy(&gsDeltaData.ddLocal[bLevel].automapsv, dFlags, sizeof(dFlags));
 }
 
 static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
@@ -935,6 +937,22 @@ static void UpdateLeader(int mnum, BYTE prevFlag, BYTE newFlag)
 	monsters[monsters[mnum]._mleader]._mpacksize--;
 }
 
+static void DeltaLoadAutomap(LocalLevel &level)
+{
+	int i;
+	BYTE* pMapFlags;
+	BYTE* pDunFlags;
+
+	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in DeltaLoadAutomap.");
+	static_assert(sizeof(level.automapsv) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in DeltaLoadAutomap.");
+	pDunFlags = &dFlags[0][0];
+	pMapFlags = &level.automapsv[0][0];
+	for (i = 0; i < MAXDUNX * MAXDUNY; i++, pDunFlags++, pMapFlags++) {
+		assert((*pDunFlags & BFLAG_EXPLORED) == 0);
+		*pDunFlags |= *pMapFlags & BFLAG_EXPLORED;
+	}
+}
+
 void DeltaLoadLevel()
 {
 	DMonsterStr* mstr;
@@ -950,6 +968,7 @@ void DeltaLoadLevel()
 
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
+		// load monsters
 		for (i = 0; i < MAX_MINIONS; i++)
 			InitGolemStats(i, gsDeltaData.ddJunk.jGolems[i]);
 
@@ -1026,9 +1045,9 @@ void DeltaLoadLevel()
 		}
 		// SyncMonsterLight();
 
-		memcpy(automapview, gsDeltaData.ddLocal[currLvl._dLevelIdx].automapsv, sizeof(automapview));
-		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
+		DeltaLoadAutomap(gsDeltaData.ddLocal[currLvl._dLevelIdx]);
 
+		// load objects
 		dstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].object;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
 			if (dstr->bCmd != DCMD_INVALID) {
@@ -2390,7 +2409,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		quests[Q_FARMER]._qactive = QUEST_DONE;
 		quests[Q_FARMER]._qvar1 = QV_FARMER_BOMBUSED + pnum;
 		quests[Q_FARMER]._qlog = TRUE;
-		// open hive
+		// open nest
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			sx = 70 + DBORDERX; sy = 52 + DBORDERY;
 			dx = 71 + DBORDERX; dy = 53 + DBORDERY;
@@ -2398,8 +2417,9 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 			for (i = sx; i <= dx; i++)
 				for (j = sy; j <= dy; j++)
 					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_NEST);
-			T_HiveOpen();
+			OpenNest();
 			InitTriggers();
 		}
 		return true;
@@ -2411,8 +2431,9 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		// open crypt
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			PlaySFX(IS_SARC);
+			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_CRYPT);
-			T_CryptOpen();
+			OpenCrypt();
 			InitTriggers();
 		}
 		return true;
@@ -4324,6 +4345,7 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 
 	//if (QuestStatus(Q_BANNER))
 	if (currLvl._dLevelIdx == questlist[Q_BANNER]._qdlvl) {
+		// TODO: ResyncQuests?
 		ResyncBanner();
 		//RedoLightAndVision();
 	}

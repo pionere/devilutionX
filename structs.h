@@ -348,6 +348,14 @@ typedef struct PlayerStruct {
 	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
+	BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
+	BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
+	BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
+	BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
+	BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
+	BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
+	BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
+	BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
 	BYTE _pSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
@@ -432,7 +440,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(187, 102)
+	ALIGNMENT(179, 94)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1089,7 +1097,15 @@ typedef struct PkPlayerStruct {
 	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
 	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
+	BYTE pAltMoveSkillTypeHotKey[4]; // the movement skill selected by the alt-hotkey
+	BYTE pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
+	BYTE pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
+	BYTE pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
+	BYTE pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
+	BYTE pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
+	BYTE pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
+	BYTE pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
+	BYTE pAltMoveSkillTypeSwapKey[4]; // the movement skill selected by the alt-hotkey after skill-set swap
 	BYTE pSkillLvlBase[64];
 	BYTE pSkillActivity[64];
 	LE_UINT32 pSkillExp[64];
@@ -1130,7 +1146,10 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhActiveWindows[NUM_WNDS];
 	BYTE vhTownWarps;
 	BYTE vhWaterDone;
-	LE_UINT32 vhAutoMapScale;
+	BYTE vhAutoMapScale;
+	BYTE vhMiniMapScale;
+	BYTE vhNormalMapScale;
+	BYTE vhAlign;
 	LE_INT32 vhAutoMapXOfs;
 	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;
@@ -1285,6 +1304,14 @@ typedef struct LSavePlayerStruct {
 	BYTE vpAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
 	BYTE vpAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
 	BYTE vpAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
+	BYTE vpAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
+	BYTE vpAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
+	BYTE vpMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
+	BYTE vpMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
+	BYTE vpAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
+	BYTE vpAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
+	BYTE vpAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
+	BYTE vpAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
 	BYTE vpSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE vpSkillActivity[64];
 	LE_UINT32 vpSkillExp[64];
@@ -1951,7 +1978,7 @@ typedef struct DLevel {
 } DLevel;
 
 typedef struct LocalLevel {
-	BOOLEAN automapsv[DMAXX][DMAXY];
+	BYTE automapsv[MAXDUNX][MAXDUNY]; // TODO: compress the data?
 } LocalLevel;
 
 typedef struct DPortal {
@@ -2008,9 +2035,9 @@ typedef struct LargeMsgPkt {
 typedef struct DeltaData {
 	union {
 		struct {
-			DJunk ddJunk;					// portals and quests
-			DLevel ddLevel[NUM_LEVELS];		// items/monsters/objects
-			LocalLevel ddLocal[NUM_LEVELS];	// automap
+			LocalLevel ddLocal[NUM_LEVELS]; // automap
+			DJunk ddJunk;                   // portals and quests
+			DLevel ddLevel[NUM_LEVELS];     // items/monsters/objects
 			bool ddLevelChanged[NUM_LEVELS];
 			bool ddJunkChanged;
 
@@ -2056,14 +2083,13 @@ typedef struct LevelStruct {
 } LevelStruct;
 
 typedef struct LevelFileData {
-	const char* dAutomapData;
-	const char* dSolidTable;
-	const char* dMicroFlags;
+	const char* dSubtileSettings;
+	const char* dTileFlags;
 	const char* dMicroCels;
 	const char* dMegaTiles;
 	const char* dMiniTiles;
-	const char* dSpecFlags;
 	const char* dSpecCels;
+	const char* dLightTrns;
 } LevelFileData;
 
 typedef struct LevelData {
@@ -2629,16 +2655,21 @@ typedef struct FileCelGroup {
 	FileCel dcgCelData[dcNumCels];
 } FileCelGroup;
 
-typedef struct FileCl2 {
+typedef struct FileCl2Hdr {
 	int32_t dlNumFrames;
-	int32_t dlOffsets[dcNumFrames]; // address of an entry in dcCelFrames
-	int32_t dcFileSize/NextOffset;
-	FileCelFrame dcCelFrames[dcNumFrames];
+	int32_t dlOffsets[dlNumFrames]; // address of an entry in dlCelFrames/dlgCelFrames
+	int32_t dlFileSize/NextOffset;
+} FileCl2Hdr;
+
+typedef struct FileCl2 {
+	FileCl2Hdr dlCl2Hdr;
+	FileCelFrame dlCelFrames[dlNumFrames];
 } FileCl2;
 
 typedef struct FileCl2Group {
-	int32_t dlgCelOffsets[dcNumCels]; // address of an entry in dlgCl2Data
-	FileCl2 dlgCl2Data[dcNumCels];
+	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Data
+	FileCl2Hdr dlgCl2Hdr[dlgNumGroups];
+	FileCelFrame dlgCelFrames[dlgNumGroups * dlNumFrames];
 } FileCl2Group;
 
 typedef struct FilePal {

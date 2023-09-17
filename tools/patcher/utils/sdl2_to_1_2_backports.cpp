@@ -1,5 +1,6 @@
 #include "./sdl2_to_1_2_backports.h"
 
+#ifdef USE_SDL1
 #define DEFAULT_PRIORITY             SDL_LOG_PRIORITY_CRITICAL
 #define DEFAULT_ASSERT_PRIORITY      SDL_LOG_PRIORITY_WARN
 #define DEFAULT_APPLICATION_PRIORITY SDL_LOG_PRIORITY_INFO
@@ -707,3 +708,5 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 	return retval;
 #endif // __3DS__
 }
+
+#endif // USE_SDL1

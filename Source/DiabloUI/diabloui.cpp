@@ -41,7 +41,7 @@ void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
-static bool (*gfnListYesNo)();
+static bool (*gfnListDelete)();
 std::vector<UiListItem*> gUIListItems;
 std::vector<UiItemBase*> gUiItems;
 unsigned SelectedItem;
@@ -62,7 +62,7 @@ typedef struct ScrollBarState {
 } ScrollBarState;
 static ScrollBarState scrollBarState;
 
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnDelete)())
 {
 	gUiDrawCursor = true;
 	SelectedItem = 0;
@@ -72,7 +72,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListFocus = fnFocus;
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
-	gfnListYesNo = fnYesNo;
+	gfnListDelete = fnDelete;
 	if (fnFocus != NULL)
 		fnFocus(0);
 
@@ -223,7 +223,7 @@ static bool HandleMenuAction(MenuAction menuAction)
 		UiFocusNavigationEsc();
 		return true;
 	case MenuAction_DELETE:
-		UiFocusNavigationYesNo();
+		UiFocusNavigationDelete();
 		return true;
 	case MenuAction_UP:
 		UiFocusUp();
@@ -274,12 +274,12 @@ void UiFocusNavigationEsc()
 		gfnListEsc();
 }
 
-void UiFocusNavigationYesNo()
+void UiFocusNavigationDelete()
 {
-	if (gfnListYesNo == NULL)
+	if (gfnListDelete == NULL)
 		return;
 
-	if (gfnListYesNo())
+	if (gfnListDelete())
 		UiPlaySelectSound();
 }
 
@@ -791,9 +791,9 @@ void UiHandleEvents(SDL_Event* event)
 
 #ifndef USE_SDL1
 	if (event->type == SDL_WINDOWEVENT) {
-		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
+		if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_EXPOSED || event->window.event == SDL_WINDOWEVENT_RESTORED)
 			gbWndActive = true;
-		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
+		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN || event->window.event == SDL_WINDOWEVENT_MINIMIZED)
 			gbWndActive = false;
 		return;
 	}

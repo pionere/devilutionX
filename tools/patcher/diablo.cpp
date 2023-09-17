@@ -18,6 +18,8 @@ POS32 MousePos;
 bool gbWasUiInit = false;
 bool gbSndInited = false;
 
+BYTE* pMicrosCel;
+
 static void diablo_init_screen()
 {
 	MousePos.x = SCREEN_WIDTH / 2;
@@ -41,12 +43,8 @@ static void diablo_init()
 	dx_init(); // inititalize SDL + create the window
 
 	InitArchives();
-#if GAME
-#if DEBUG_MODE || DEV_MODE
-	ValidateData();
-#endif
-#endif // GAME
-	MakeLightTable();
+
+	InitLighting();
 	InitText();
 	InitCursorGFX();
 	UiInitialize();
@@ -62,10 +60,6 @@ static void diablo_init()
 
 static void diablo_deinit()
 {
-#if GAME
-	NetClose();
-	pfile_flush(true);
-#endif
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
 		StopSFX(); // stop click-effect

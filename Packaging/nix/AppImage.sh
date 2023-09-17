@@ -20,7 +20,7 @@ cd "$BUILD_DIR"
 LD_LIBRARY_PATH="${PWD}/AppDir/usr/lib" "$APPIMAGE_BUILDER" --appimage-extract-and-run \
 	--appdir=AppDir \
 	--custom-apprun="${SRC_DIR}/Packaging/nix/AppRun" \
-	-d "${SRC_DIR}/Packaging/nix/devilutionx.desktop" \
+	-d "devilutionx.desktop" \
 	-o appimage
 cd -
 

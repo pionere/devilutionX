@@ -1,7 +1,7 @@
 #include "game_controls.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-#include <cstdint>
+//#include <cstdint>
 
 #include "controller_motion.h"
 #include "menu_controls.h"
@@ -21,11 +21,11 @@ bool switch_potions_and_clicks = false;
 static uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton)
 {
 	switch (controllerButton) {
-	case ControllerButton_BUTTON_A: // Bottom button
+	case ControllerButton_BUTTON_FACE_BOTTOM:
 		return DVL_VK_ESCAPE;
-	case ControllerButton_BUTTON_B: // Right button
+	case ControllerButton_BUTTON_FACE_RIGHT:
 		return DVL_VK_RETURN;
-	case ControllerButton_BUTTON_Y: // Top button
+	case ControllerButton_BUTTON_FACE_TOP:
 		return DVL_VK_RETURN;
 	case ControllerButton_BUTTON_LEFTSTICK:
 		return DVL_VK_TAB; // Map
@@ -193,7 +193,7 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 			case ControllerButton_BUTTON_DPAD_LEFT:
 				*action = GameActionSendKey { DVL_VK_C, ctrlEvent.up }; // ACT_CHAR
 				break;
-			case ControllerButton_BUTTON_Y: // Top button
+			case ControllerButton_BUTTON_FACE_TOP:
 #ifdef __3DS__
 				*action = GameActionSendKey { DVL_VK_Z, ctrlEvent.up }; // ACT_ZOOM
 				return true;
@@ -201,13 +201,13 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 				// Not mapped. Reserved for future use.
 				break;
 #endif
-			case ControllerButton_BUTTON_B: // Right button
+			case ControllerButton_BUTTON_FACE_RIGHT:
 				// Not mapped. TODO: map to attack in place.
 				break;
-			case ControllerButton_BUTTON_A: // Bottom button
+			case ControllerButton_BUTTON_FACE_BOTTOM:
 				*action = GameActionSendKey { DVL_VK_B, ctrlEvent.up }; // ACT_SKLBOOK
 				break;
-			case ControllerButton_BUTTON_X: // Left button
+			case ControllerButton_BUTTON_FACE_LEFT:
 				*action = GameActionSendKey { DVL_VK_U, ctrlEvent.up }; // ACT_QUESTS
 				break;
 			case ControllerButton_BUTTON_LEFTSHOULDER:
@@ -223,7 +223,7 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 		}
 
 		switch (ctrlEvent.button) {
-		case ControllerButton_BUTTON_A: // Bottom button
+		case ControllerButton_BUTTON_FACE_BOTTOM:
 			// Activate second quick spell or close menus or opens quick spell book if nothing is open.
 			if (!ctrlEvent.up) {
 				Uint32 vk_code = DVL_VK_L; // ACT_SKLLIST
@@ -244,7 +244,7 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 				*action = GameActionSendKey { vk_code, ctrlEvent.up };
 			}
 			return true;
-		case ControllerButton_BUTTON_B: // Right button
+		case ControllerButton_BUTTON_FACE_RIGHT:
 			if (!ctrlEvent.up) {
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_R, ctrlEvent.up }; // ACT_SKL7
@@ -252,7 +252,7 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 					*action = GameAction(GameActionType_PRIMARY_ACTION);
 			}
 			return true;
-		case ControllerButton_BUTTON_Y: // Top button
+		case ControllerButton_BUTTON_FACE_TOP:
 			if (!ctrlEvent.up) {
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_W, ctrlEvent.up }; // ACT_SKL5
@@ -260,7 +260,7 @@ bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, Game
 					*action = GameAction(GameActionType_SECONDARY_ACTION);
 			}
 			return true;
-		case ControllerButton_BUTTON_X: // Left button
+		case ControllerButton_BUTTON_FACE_LEFT:
 			if (!ctrlEvent.up) {
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_Q, ctrlEvent.up }; // ACT_SKL4

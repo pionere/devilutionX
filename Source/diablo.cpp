@@ -93,9 +93,9 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SKL0, ACT_SKLBOOK, ACT_CHAR, ACT_SKL2, ACT_SKL6, ACT_SKL3,
 // G,            H,                I,       J,        K,        L,        M,        N,        O,        P,
-  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_NONE, ACT_PAUSE,
+  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_VER, ACT_PAUSE,
 // Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
-  ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_VER, ACT_SKL5, ACT_NONE, ACT_NONE, ACT_ZOOM,
+  ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_TGT, ACT_SKL5, ACT_SWAP, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // NUM5,    NUM6,     NUM7,     NUM8,     NUM9,     MULT,     ADD,         SEP,      SUB,          DEC,
@@ -288,7 +288,7 @@ static void diablo_init()
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
-	MakeLightTable();
+	InitLighting();
 	InitText();
 	InitCursorGFX();
 	UiInitialize();
@@ -821,7 +821,7 @@ static void ClearUI()
 	ClearPanels();
 	//gamemenu_off();
 	assert(!gbQtextflag);
-	gbAutomapflag = false;
+	gbAutomapflag = AMM_NONE;
 	msgdelay = 0;
 	gabPanbtn[PANBTN_MAINMENU] = false;
 	//doom_close();
@@ -999,6 +999,26 @@ static void PressKey(int vkey)
 			AltActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
 		}
 		break;
+	case ACT_SWAP: {
+		struct TmpKeys {
+			BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
+			BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
+			BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
+			BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
+			BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
+			BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
+			BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
+			BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+		} tmpKeys;
+		static_assert(offsetof(PlayerStruct, _pAltMoveSkillTypeSwapKey) + sizeof(myplr._pAltMoveSkillTypeSwapKey) == offsetof(PlayerStruct, _pAtkSkillSwapKey) + sizeof(tmpKeys));
+		static_assert(offsetof(PlayerStruct, _pAltMoveSkillTypeHotKey) + sizeof(myplr._pAltMoveSkillTypeHotKey) == offsetof(PlayerStruct, _pAtkSkillHotKey) + sizeof(tmpKeys));
+		memcpy(&tmpKeys, myplr._pAtkSkillSwapKey, sizeof(tmpKeys));
+		memcpy(myplr._pAtkSkillSwapKey, myplr._pAtkSkillHotKey, sizeof(tmpKeys));
+		memcpy(myplr._pAtkSkillHotKey, &tmpKeys, sizeof(tmpKeys));
+	} break;
+	case ACT_TGT:
+		ChangeTarget();
+		break;
 	case ACT_SKL0:
 	case ACT_SKL1:
 	case ACT_SKL2:
@@ -1058,12 +1078,12 @@ static void PressKey(int vkey)
 		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapZoomIn();
 		}
 		break;
 	case ACT_MAPZ_OUT:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapZoomOut();
 		}
 		break;
@@ -1077,7 +1097,7 @@ static void PressKey(int vkey)
 			QuestlogUp();
 		} else if (gbHelpflag) {
 			HelpScrollUp();
-		} else if (gbAutomapflag) {
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapUp();
 		}
 		break;
@@ -1088,17 +1108,17 @@ static void PressKey(int vkey)
 			QuestlogDown();
 		} else if (gbHelpflag) {
 			HelpScrollDown();
-		} else if (gbAutomapflag) {
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapDown();
 		}
 		break;
 	case ACT_LEFT:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapLeft();
 		}
 		break;
 	case ACT_RIGHT:
-		if (gbAutomapflag) {
+		if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
 		}
 		break;
@@ -1467,15 +1487,15 @@ static void diablo_color_cyc_logic()
 		return;
 
 	if (currLvl._dType == DTYPE_HELL)
-		lighting_color_cycling();
+		lighting_update_hell();
+	else if (currLvl._dType == DTYPE_CAVES)
+		lighting_update_caves();
 #ifdef HELLFIRE
 	else if (currLvl._dType == DTYPE_CRYPT)
-		palette_update_crypt();
+		lighting_update_crypt();
 	else if (currLvl._dType == DTYPE_NEST)
-		palette_update_hive();
+		lighting_update_nest();
 #endif
-	else if (currLvl._dType == DTYPE_CAVES)
-		palette_update_caves();
 }
 
 static WNDPROC InitGameFX()
@@ -1493,7 +1513,6 @@ static WNDPROC InitGameFX()
 		InitPlrGFXMem(i); // gfx
 	InitItemGFX();        // gfx + values (some stored in savefiles)
 	InitGameMissileGFX(); // gfx
-	InitLightGFX();       // 'values'
 	InitGameSFX();        // sfx
 
 	gbDeathflag = MDM_ALIVE;

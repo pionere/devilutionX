@@ -3,9 +3,9 @@
  *
  * Implementation of functionality for calculating X-SHA-1 (a flawed implementation of SHA-1).
  */
-#include "all.h"
+//#include <cstdint>
 
-#include <cstdint>
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

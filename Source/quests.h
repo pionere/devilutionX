@@ -33,6 +33,7 @@ void SetReturnLvlPos();
 void GetReturnLvlPos();
 void LoadPWaterPalette();
 void ResyncBanner();
+void ResyncDiablo();
 void ResyncQuests();
 void DrawQuestLog();
 void StartQuestlog();

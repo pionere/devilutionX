@@ -1088,7 +1088,7 @@ void CreatePlrItems(int pnum)
  */
 bool ItemSpaceOk(int x, int y)
 {
-	int oi, oi2;
+	int oi;
 
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
@@ -1103,7 +1103,7 @@ bool ItemSpaceOk(int x, int y)
 			return false;
 	}
 
-	oi = dObject[x + 1][y + 1];
+	/*oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (objects[oi]._oSelFlag != 0)
@@ -1118,9 +1118,9 @@ bool ItemSpaceOk(int x, int y)
 	}
 
 	if (currLvl._dType == DTYPE_TOWN)
-		if ((/*dMonster[x][y] |*/ dMonster[x + 1][y + 1]) != 0)
+		if (dMonster[x + 1][y + 1] != 0)
 			return false;
-
+	*/
 	return true;
 }
 

@@ -274,10 +274,10 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, in
 
 	if (gbCelTransparencyActive)
 		CelBlitLightTrans(pDecodeTo, pRLEBytes, nDataSize, nWidth);
-	else if (light_trn_index != 0)
+	else // if (light_trn_index != 0) - do not bypass the light translations
 		CelBlitTrnTbl(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light_trn_index]);
-	else
-		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
+	// else
+	//	CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
 /**

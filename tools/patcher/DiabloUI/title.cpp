@@ -36,7 +36,7 @@ static void TitleLoad()
 
 static void TitleFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	MemFreeDbg(gbLogoBig);
 	UiClearItems(gUiItems);
 }

@@ -19,9 +19,9 @@ BYTE visionactive[MAXVISION];
 /* The list of visions/views in the game. */
 LightListStruct VisionList[MAXVISION];
 /* The list of the indices of the active light-sources. */
-BYTE lightactive[MAXLIGHTS + 1];
+BYTE lightactive[MAXLIGHTS];
 /* The list of light-sources in the game + one for temporary use. */
-LightListStruct LightList[MAXLIGHTS + 1];
+LightListStruct LightList[MAXLIGHTS];
 /* The number of visions/views in the game. */
 int numvision;
 /* The number of light-sources in the game. */
@@ -467,7 +467,7 @@ static void RotateRadius(int* ox, int* oy, int* dx, int* dy, int* bx, int* by)
 	*oy = ny;
 }
 
-void DoLighting(unsigned lnum)
+static void DoLighting(unsigned lnum)
 {
 	LightListStruct* lis = &LightList[lnum];
 	int x, y, xoff, yoff;
@@ -637,6 +637,89 @@ static void DoUnLight(LightListStruct* lis)
 	lis->_lunflag = false;
 }
 
+BYTE *srcDark;
+static bool LightPos(int x1, int y1, int radius_block)
+{
+	assert(IN_DUNGEON_AREA(x1, y1));
+
+	// int yoff = 0;
+	// int xoff = 0;
+	// BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
+	// BYTE radius_block = dist0[abs(nYPos - y1)][abs(nXPos - x1)];
+	// BYTE v = srcDark[radius_block];
+	BYTE v = srcDark[radius_block];
+	if (v < dLight[x1][y1])
+		dLight[x1][y1] = v;
+
+	return !nBlockTable[dPiece[x1][y1]];
+}
+
+void TraceLightSource(int nXPos, int nYPos, int nRadius)
+{
+	const int8_t* cr;
+	int i, x1, y1, limit;
+	int d, dx, dy, xinc, yinc;
+
+	srcDark = darkTable[nRadius];
+	BYTE v = srcDark[0];
+	if (v < dLight[nXPos][nYPos])
+		dLight[nXPos][nYPos] = v;
+
+	nRadius = 2 * (nRadius + 1) * 8 * 16;
+	static_assert(INT_MAX / (2 * 8 * 16) > MAX_LIGHT_RAD, "Light tracing overflows in TraceLightSource.");
+	static_assert(MAX_OFFSET == 8, "Light tracing shift must be adjusted in TraceLightSource.");
+	cr = &CrawlTable[CrawlNum[15]];
+	for (i = (BYTE)*cr; i > 0; i--) {
+		x1 = nXPos;
+		y1 = nYPos;
+		limit = nRadius;
+		dx = *++cr;
+		dy = *++cr;
+
+		// find out step size and direction on the y coordinate
+		xinc = dx < 0 ? -1 : 1;
+		yinc = dy < 0 ? -1 : 1;
+
+		dy = abs(dy);
+		dx = abs(dx);
+		if (dx >= dy) {
+			assert(dx != 0);
+
+			// multiply by 2 so we round up
+			dy *= 2;
+			d = 0;
+			do {
+				d += dy;
+				if (d >= dx) {
+					d -= 2 * dx; // multiply by 2 to support rounding
+					y1 += yinc;
+					limit -= 1 * 109; // 1 * 7;
+				}
+				x1 += xinc;
+				limit -= 2 * 8 * 16;
+				if (limit <= 0)
+					break;
+			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4))); // * MAX_OFFSET / (2 * 8 * 16)
+		} else {
+			// multiply by 2 so we round up
+			dx *= 2;
+			d = 0;
+			do {
+				d += dx;
+				if (d >= dy) {
+					d -= 2 * dy; // multiply by 2 to support rounding
+					x1 += xinc;
+					limit -= 1 * 109; // 1 * 7;
+				}
+				y1 += yinc;
+				limit -= 2 * 8 * 16;
+				if (limit <= 0)
+					break;
+			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4))); // * MAX_OFFSET / (2 * 8 * 16)
+		}
+	}
+}
+
 void DoUnVision(int nXPos, int nYPos, int nRadius)
 {
 	int i, j, x1, y1, x2, y2;
@@ -663,18 +746,18 @@ void DoUnVision(int nXPos, int nYPos, int nRadius)
 
 static bool doautomap;
 static BYTE vFlags;
-static bool LightPos(int x1, int y1)
+static bool ViewPos(int x1, int y1)
 {
 	//int nTrans;
 	assert(IN_DUNGEON_AREA(x1, y1));
 	dFlags[x1][y1] |= vFlags;
+	bool result = !nBlockTable[dPiece[x1][y1]];
 	if (doautomap) {
 		if (!(dFlags[x1][y1] & BFLAG_EXPLORED)) {
-			dFlags[x1][y1] |= BFLAG_EXPLORED;
 			SetAutomapView(x1, y1);
 		}
 	}
-	return !nBlockTable[dPiece[x1][y1]];
+	return result;
 	/* skip this to not make tiles transparent based on visible tv values. only the tv of the player's tile should matter.
 	if (nBlockTable[dPiece[x1][y1]])
 		return false;
@@ -705,11 +788,10 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 
 	assert(IN_DUNGEON_AREA(nXPos, nYPos));
 	dFlags[nXPos][nYPos] |= vFlags;
-	if (doautomap) {
-		if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) {
-			dFlags[nXPos][nYPos] |= BFLAG_EXPLORED;
+	if (local) {
+		/*if (!(dFlags[nXPos][nYPos] & BFLAG_EXPLORED)) { -- not necessary, because the same tile is going to be checked by one of the other subtiles
 			SetAutomapView(nXPos, nYPos);
-		}
+		}*/
 		i = dTransVal[nXPos][nYPos];
 		if (i != 0) {
 			TransList[i] = true;
@@ -747,7 +829,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1));
+			} while (ViewPos(x1, y1));
 		} else {
 			// multiply by 2 so we round up
 			dx *= 2;
@@ -763,11 +845,11 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 				limit -= 2;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1));
+			} while (ViewPos(x1, y1));
 		}
 	}
 }
-
+#if 0
 void MakeLightTable()
 {
 	unsigned i, j, k, shade;
@@ -885,14 +967,15 @@ void MakeLightTable()
 #endif
 	}
 }
-
-void InitLightGFX()
+#endif // 0
+void InitLighting()
 {
 	//BYTE* tbl;
 	//int i, j, k, l;
 	//BYTE col;
 	//double fs, fa;
 
+	LoadFileWithMem("Levels\\TownData\\Town.TRS", ColorTrns[0]);
 	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
 	LoadFileWithMem("PlrGFX\\Coral.TRN", ColorTrns[COLOR_TRN_CORAL]);
@@ -993,7 +1076,7 @@ void ToggleLighting()
 
 #endif
 
-void InitLighting()
+void InitLvlLighting()
 {
 	int i;
 
@@ -1246,7 +1329,7 @@ void ProcessLightList()
 	}
 }
 
-void InitVision()
+void InitLvlVision()
 {
 	int i;
 
@@ -1256,7 +1339,7 @@ void InitVision()
 	for (i = 0; i < MAXVISION; i++) {
 		visionactive[i] = i;
 	}
-	static_assert(false == 0, "InitVision fills TransList with 0 instead of false values.");
+	static_assert(false == 0, "InitLvlVision fills TransList with 0 instead of false values.");
 	memset(TransList, 0, sizeof(TransList));
 }
 
@@ -1374,7 +1457,26 @@ void ProcessVisionList()
 	_gbDovision = false;
 }
 
-void lighting_color_cycling()
+void lighting_update_caves()
+{
+	int i, j;
+	BYTE col;
+	BYTE* tbl;
+
+	tbl = ColorTrns[0];
+
+	for (j = 0; j <= MAXDARKNESS; j++) {
+		col = tbl[1];
+		for (i = 1; i < 31; i++) {
+			tbl[i] = tbl[i + 1];
+		}
+		tbl[i] = col;
+
+		tbl += NUM_COLORS;
+	}
+}
+
+void lighting_update_hell()
 {
 	int i, j, l;
 	BYTE col;
@@ -1396,5 +1498,75 @@ void lighting_color_cycling()
 		tbl += NUM_COLORS - 31;
 	}
 }
+
+#ifdef HELLFIRE
+static int cryptCycleCounter = 3;
+void lighting_update_crypt()
+{
+	int i, j;
+	BYTE col;
+	BYTE* tbl;
+
+	if (--cryptCycleCounter == 0) {
+		cryptCycleCounter = 3;
+
+		tbl = ColorTrns[0];
+
+		for (j = 0; j <= MAXDARKNESS; j++) {
+			col = tbl[15];
+			for (i = 15; i > 1; i--) {
+				tbl[i] = tbl[i - 1];
+			}
+			tbl[i] = col;
+
+			tbl += NUM_COLORS;
+		}
+	}
+
+	tbl = ColorTrns[0];
+
+	for (j = 0; j <= MAXDARKNESS; j++) {
+		col = tbl[31];
+		for (i = 31; i > 16; i--) {
+			tbl[i] = tbl[i - 1];
+		}
+		tbl[i] = col;
+
+		tbl += NUM_COLORS;
+	}
+}
+
+static int nestCycleCounter = 3;
+void lighting_update_nest()
+{
+	int i, j;
+	BYTE col;
+	BYTE* tbl;
+
+	// assert(currLvl._dType == DTYPE_NEST);
+	if (--nestCycleCounter != 0) {
+		return;
+	}
+	nestCycleCounter = 3;
+
+	tbl = ColorTrns[0];
+
+	for (j = 0; j <= MAXDARKNESS; j++) {
+		col = tbl[8];
+		for (i = 8; i > 1; i--) {
+			tbl[i] = tbl[i - 1];
+		}
+		tbl[i] = col;
+
+		col = tbl[15];
+		for (i = 15; i > 9; i--) {
+			tbl[i] = tbl[i - 1];
+		}
+		tbl[i] = col;
+
+		tbl += NUM_COLORS;
+	}
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

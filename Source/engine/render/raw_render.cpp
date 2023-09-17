@@ -63,7 +63,7 @@ void DrawPixelSafe(int sx, int sy, BYTE col)
 #endif
 
 /**
- * @brief Draw a line on the back buffer
+ * @brief Draw a line on the back buffer from [x0; y0] to [x1; y1] inclusive on both ends
  * @param x0 Back buffer coordinate
  * @param y0 Back buffer coordinate
  * @param x1 Back buffer coordinate
@@ -101,6 +101,8 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		//dy *= 2;
 		d = 0;
 		// draw to the final position as well
+		dx++;
+		dy++;
 		x1++;
 		// initialize the buffer-pointer
 		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
@@ -139,6 +141,8 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		//dx *= 2;
 		d = 0;
 		// draw to the final position as well
+		dx++;
+		dy++;
 		y1++;
 		// initialize the buffer-pointer
 		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];

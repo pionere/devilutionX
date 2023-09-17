@@ -26,10 +26,7 @@ void lock_buf(BYTE idx);
 void unlock_buf(BYTE idx);
 void dx_cleanup();
 void ToggleFullscreen();
-void SuppressVSync();
-void ResetVSync();
 void ClearScreenBuffer();
-void RedBack();
 void BltFast();
 void RenderPresent();
 

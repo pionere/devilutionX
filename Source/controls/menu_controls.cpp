@@ -55,13 +55,13 @@ MenuAction GetMenuAction(SDL_Event& event)
 		switch (ctrlEvent.button) {
 		case ControllerButton_IGNORE:
 			return MenuAction_NONE;
-		case ControllerButton_BUTTON_B: // Right button
+		case ControllerButton_BUTTON_FACE_RIGHT:
 		case ControllerButton_BUTTON_START:
 			return MenuAction_SELECT;
 		case ControllerButton_BUTTON_BACK:
-		case ControllerButton_BUTTON_A: // Bottom button
+		case ControllerButton_BUTTON_FACE_BOTTOM:
 			return MenuAction_BACK;
-		case ControllerButton_BUTTON_X: // Left button
+		case ControllerButton_BUTTON_FACE_LEFT:
 			return MenuAction_DELETE;
 		case ControllerButton_BUTTON_DPAD_UP:
 		case ControllerButton_BUTTON_DPAD_DOWN:

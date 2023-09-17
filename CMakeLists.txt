@@ -21,13 +21,12 @@ endif()
 if(NOT VERSION_NUM)
   include(git)
   get_git_tag(VERSION_NUM)
-  string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" VERSION_NUM ${VERSION_NUM} )
-  if("${VERSION_NUM}" STREQUAL "")
-    set(VERSION_NUM untagged)
-  endif()
   if(NOT VERSION_SUFFIX)
     get_git_commit_hash(GIT_COMMIT_HASH)
     set(VERSION_SUFFIX "$<$<NOT:$<CONFIG:Release>>:-${GIT_COMMIT_HASH}>")
+    if(VERSION_SUFFIX AND NOT VERSION_NUM)
+      set(VERSION_NUM untagged)
+    endif()
   endif()
 endif()
 
@@ -36,12 +35,13 @@ if(CCACHE_PROGRAM)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
-if(VERSION_NUM MATCHES untagged)
+string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_VERSION_NUM ${VERSION_NUM} )
+if(PROJECT_VERSION_NUM)
   project(DevilutionX
+    VERSION ${PROJECT_VERSION_NUM}
     LANGUAGES C CXX)
 else()
   project(DevilutionX
-    VERSION ${VERSION_NUM}
     LANGUAGES C CXX)
 endif()
 string(TOLOWER ${PROJECT_NAME} project_name)
@@ -137,7 +137,8 @@ cmake_debug_option(DEBUG_MODE "Enable debug mode in engine")
 option(DEV_MODE "Enable development mode in engine" OFF)
 option(GPERF "Build with GPerfTools profiler" OFF)
 cmake_dependent_option(GPERF_HEAP_FIRST_GAME_ITERATION "Save heap profile of the first game iteration" OFF "GPERF" OFF)
-option(DISABLE_LTO "Disable link-time optimization (by default enabled in release mode)" OFF)
+option(DISABLE_LTO "Disable link-time optimization" OFF)
+option(DISABLE_STRIP "Disable binary-stripping" OFF)
 option(PIE "Generate position-independent code" OFF)
 option(CPACK "Configure CPack" ON)
 option(USE_LD_MOLD "Use mold linker(GNU|Clang)" OFF)
@@ -501,16 +502,9 @@ set(devilutionx_SRCS
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp
+  Source/utils/sdl2_to_1_2_backports.cpp
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp)
-
-if(IOS)
-  list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
-endif()
-
-if(USE_SDL1)
-  list(APPEND devilutionx_SRCS Source/utils/sdl2_to_1_2_backports.cpp)
-endif()
 
 if(NOT NONET)
   list(APPEND devilutionx_SRCS
@@ -521,6 +515,10 @@ if(NOT NONET)
     Source/dvlnet/protocol_zt.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
+endif()
+
+if(IOS)
+  list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
 endif()
 
 if(NINTENDO_SWITCH)
@@ -607,6 +605,15 @@ else()
     Packaging/windows/devilutionx.rc)
 endif()
 
+if(CMAKE_STRIP AND NOT DISABLE_STRIP)
+  add_custom_command(
+    TARGET ${BIN_TARGET} POST_BUILD
+    DEPENDS ${BIN_TARGET}
+    COMMAND $<$<CONFIG:Release>:${CMAKE_STRIP}>
+            $<$<CONFIG:MinSizeRel>:${CMAKE_STRIP}>
+    ARGS $<TARGET_FILE:${BIN_TARGET}>)
+endif()
+
 if(USE_PATCH)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
@@ -614,6 +621,10 @@ if(USE_PATCH)
     tools/patcher/control.cpp
     tools/patcher/cursor.cpp
     tools/patcher/diablo.cpp
+    tools/patcher/drlp_l1.cpp
+    tools/patcher/drlp_l2.cpp
+    tools/patcher/drlp_l3.cpp
+    tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
     tools/patcher/effects.cpp
     tools/patcher/encrypt.cpp
@@ -624,8 +635,10 @@ if(USE_PATCH)
     tools/patcher/mainmenu.cpp
     tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
+    tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
     tools/patcher/sound.cpp
+    tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
     tools/patcher/controls/controller.cpp
     tools/patcher/controls/controller_motion.cpp
@@ -647,13 +660,33 @@ if(USE_PATCH)
     tools/patcher/DiabloUI/text_draw.cpp
     tools/patcher/DiabloUI/title.cpp
     tools/patcher/engine/render/cel_render.cpp
+    tools/patcher/engine/render/cl2_render.cpp
+    tools/patcher/engine/render/dun_render.cpp
     tools/patcher/engine/render/text_render.cpp
     tools/patcher/miniwin/misc_msg.cpp
     tools/patcher/storm/storm.cpp
     tools/patcher/utils/display.cpp
     tools/patcher/utils/paths.cpp
+    tools/patcher/utils/sdl2_to_1_2_backports.cpp
     tools/patcher/utils/soundsample.cpp
     tools/patcher/utils/thread.cpp)
+
+  if(IOS)
+    list(APPEND devil_patcher_SRCS tools/patcher/platform/ios/ios_paths.m)
+  endif()
+
+  if(NINTENDO_SWITCH)
+    list(APPEND devilutionx_SRCS
+      Source/platform/switch/docking.cpp
+      Source/platform/switch/romfs.cpp)
+  endif()
+
+  if(NINTENDO_3DS)
+    list(APPEND devilutionx_SRCS
+      Source/platform/ctr/system.cpp
+      Source/platform/ctr/display.cpp
+      Source/platform/ctr/messagebox.cpp)
+  endif()
 
   if(APPLE)
     add_executable(${DEVIL_PATCHER}
@@ -714,7 +747,7 @@ endif()
 file(GENERATE OUTPUT ${CONFIG_PATH} CONTENT
 "#pragma once
 #define PROJECT_NAME \"${PROJECT_NAME}\"
-#define PROJECT_VERSION \"$<IF:$<OR:$<BOOL:${PROJECT_VERSION}>,$<BOOL:${VERSION_SUFFIX}>>,${PROJECT_VERSION}${VERSION_SUFFIX},?>\"
+#define PROJECT_VERSION \"$<IF:$<OR:$<BOOL:${VERSION_NUM}>,$<BOOL:${VERSION_SUFFIX}>>,${VERSION_NUM}${VERSION_SUFFIX},?>\"
 ")
 
 if(RUN_TESTS)
@@ -1114,7 +1147,10 @@ endif()
 if(VITA)
   set(VITA_APP_NAME "${PROJECT_NAME}")
   set(VITA_TITLEID  "DVLX00001")
-  set(VITA_VERSION  "01.00")
+  set(VITA_VERSION  "${PROJECT_VERSION}")
+  if(NOT VITA_VERSION)
+    set(VITA_VERSION "01.00")
+  endif()
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
   vita_create_self(${BIN_TARGET}.self ${BIN_TARGET} UNSAFE)
@@ -1288,21 +1324,24 @@ if(CPACK)
     # Common *nix files
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION bin)
-    set(desktop_file "${PROJECT_SOURCE_DIR}/Packaging/nix/${project_name}.desktop")
-    set(desktop_file_hellfire "${PROJECT_SOURCE_DIR}/Packaging/nix/${project_name}-hellfire.desktop")
+    if(HELLFIRE)
+      set(desktop_file_name "devilutionx-hellfire.desktop")
+    else()
+      set(desktop_file_name "devilutionx.desktop")
+    endif()
+    set(desktop_file "${PROJECT_SOURCE_DIR}/Packaging/nix/${desktop_file_name}")
 
     find_program(DFI desktop-file-install)
     if(DFI)
-      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} ${desktop_file})
-      set(desktop_file "${CMAKE_BINARY_DIR}/${project_name}.desktop")
-      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} ${desktop_file_hellfire})
-      set(desktop_file_hellfire "${CMAKE_BINARY_DIR}/${project_name}-hellfire.desktop")
+      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} --set-key=Exec --set-value=${BIN_TARGET} ${desktop_file})
+      set(desktop_file "${CMAKE_BINARY_DIR}/${desktop_file_name}")
     endif()
 
+    # make the desktop file available to AppImage
     install(FILES "${desktop_file}"
-      DESTINATION "share/applications"
+      DESTINATION "${CMAKE_BINARY_DIR}/devilutionx.desktop"
     )
-    install(FILES "${desktop_file_hellfire}"
+    install(FILES "${desktop_file}"
       DESTINATION "share/applications"
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/nix/README.txt"
@@ -1319,14 +1358,17 @@ if(CPACK)
         DESTINATION "share/diasurgical/${project_name}"
       )
     endif()
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
-      DESTINATION "share/icons/hicolor/512x512/apps"
-      RENAME "${project_name}.png"
-    )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/hellfire.png"
-      DESTINATION "share/icons/hicolor/512x512/apps"
-      RENAME "${project_name}-hellfire.png"
-    )
+    if(HELLFIRE)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/hellfire.png"
+        DESTINATION "share/icons/hicolor/512x512/apps"
+        RENAME "${project_name}-hellfire.png"
+      )
+    else()
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
+        DESTINATION "share/icons/hicolor/512x512/apps"
+        RENAME "${project_name}.png"
+      )
+    endif()
 
     # -G DEB
     set(CPACK_PACKAGE_CONTACT "${PROJECT_NAME} https://github.com/pionere/devilutionX")
@@ -1372,7 +1414,7 @@ message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
 message(STATUS "Target platform: ${TARGET_PLATFORM}")
 message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
-message(STATUS "Revision: ${VERSION_NUM}")
+message(STATUS "Revision: ${PROJECT_VERSION} .. ${VERSION_NUM}")
 message(STATUS "")
 message(STATUS "Defines:")
 # Defines without value

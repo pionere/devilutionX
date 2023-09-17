@@ -12,9 +12,8 @@
 #include "utils/file_util.h"
 #include <SDL.h>
 #include <string>
+#if CREATE_MPQONE
 #include <fstream>
-#if DEV_MODE
-#include <sys/stat.h>
 #endif
 
 #ifdef __vita__

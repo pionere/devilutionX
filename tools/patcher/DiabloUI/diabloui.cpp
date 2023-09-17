@@ -11,7 +11,7 @@
 //#include "controls/plrctrls.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
-
+#if FULL_UI
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
 #include "platform/switch/keyboard.h"
@@ -24,7 +24,7 @@
 // for virtual keyboard on 3DS
 #include "platform/ctr/keyboard.h"
 #endif
-
+#endif // FULL_UI
 DEVILUTION_BEGIN_NAMESPACE
 
 #define FOCUS_FRAME_COUNT 8
@@ -40,15 +40,17 @@ void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
-static bool (*gfnListYesNo)();
+static bool (*gfnListDelete)();
 std::vector<UiListItem*> gUIListItems;
 std::vector<UiItemBase*> gUiItems;
 unsigned SelectedItem;
 static unsigned SelectedItemMax;
 static unsigned ListViewportSize;
 unsigned ListOffset;
+#if FULL_UI
 /** The edit field on the current screen (if exists) */
 UiEdit* gUiEditField;
+#endif
 /** Specifies whether the cursor should be shown on the current screen + controlls key/mouse-press events if set to false. TODO: better solution? */
 bool gUiDrawCursor;
 
@@ -61,7 +63,7 @@ typedef struct ScrollBarState {
 } ScrollBarState;
 static ScrollBarState scrollBarState;
 
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnDelete)())
 {
 	gUiDrawCursor = true;
 	SelectedItem = 0;
@@ -71,14 +73,15 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListFocus = fnFocus;
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
-	gfnListYesNo = fnYesNo;
+	gfnListDelete = fnDelete;
 	if (fnFocus != NULL)
 		fnFocus(0);
 
-	gUiEditField = NULL;
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	SDL_StopTextInput(); // input is enabled by default if !SDL_HasScreenKeyboardSupport
 #endif
+#if FULL_UI
+	gUiEditField = NULL;
 	for (unsigned i = 0; i < gUiItems.size(); i++) {
 		if (gUiItems[i]->m_type == UI_EDIT) {
 			gUiEditField = (UiEdit*)gUiItems[i];
@@ -94,8 +97,9 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 #endif
 		}
 	}
+#endif // FULL_UI
 }
-
+#if FULL_UI
 void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
 {
 	ListViewportSize = viewportSize;
@@ -107,7 +111,7 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
 	scrollBarState.upPressCounter = -1;
 	scrollBarState.downPressCounter = -1;
 }
-
+#endif // FULL_UI
 static void UiPlayMoveSound()
 {
 	assert(gfnSoundFunction != NULL);
@@ -194,7 +198,7 @@ static void UiFocusPageDown()
 		newpos = SelectedItemMax;
 	UiFocus(newpos);
 }
-
+#if FULL_UI
 static void UiCatToName(char* inBuf)
 {
 	std::string output = utf8_to_latin1(inBuf);
@@ -209,7 +213,7 @@ static void UiSetName(char* inBuf)
 	strncpy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
 }
 #endif
-
+#endif // FULL_UI
 static bool HandleMenuAction(MenuAction menuAction)
 {
 	switch (menuAction) {
@@ -222,7 +226,7 @@ static bool HandleMenuAction(MenuAction menuAction)
 		UiFocusNavigationEsc();
 		return true;
 	case MenuAction_DELETE:
-		UiFocusNavigationYesNo();
+		UiFocusNavigationDelete();
 		return true;
 	case MenuAction_UP:
 		UiFocusUp();
@@ -249,7 +253,7 @@ void UiFocusNavigationSelect()
 {
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
-#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
+#if FULL_UI && !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	if (gUiEditField != NULL) {
 		if (gUiEditField->m_value[0] == '\0') {
 			return;
@@ -273,12 +277,12 @@ void UiFocusNavigationEsc()
 		gfnListEsc();
 }
 
-void UiFocusNavigationYesNo()
+void UiFocusNavigationDelete()
 {
-	if (gfnListYesNo == NULL)
+	if (gfnListDelete == NULL)
 		return;
 
-	if (gfnListYesNo())
+	if (gfnListDelete())
 		UiPlaySelectSound();
 }
 
@@ -457,12 +461,12 @@ static void Render(const UiImage* uiImage)
 
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
-
+#if FULL_UI
 static void Render(const UiTxtButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
-
+#endif
 static void Render(const UiButton* button)
 {
 	int frame = button->m_pressed ? 2 : 1;
@@ -487,7 +491,7 @@ static void Render(const UiList* uiList)
 		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
 	}
 }
-
+#if FULL_UI
 static void Render(const UiScrollBar* uiSb)
 {
 	// Bar background (tiled):
@@ -535,7 +539,7 @@ static void Render(const UiEdit* uiEdit)
 	rect.w -= 86;
 	DrawArtStr(uiEdit->m_value, rect, UIS_LEFT | UIS_MED | UIS_GOLD, /*drawTextCursor=*/true);
 }
-
+#endif
 static void RenderItem(UiItemBase* item)
 {
 	if (item->m_iFlags & UIS_HIDDEN)
@@ -548,21 +552,25 @@ static void RenderItem(UiItemBase* item)
 	case UI_IMAGE:
 		Render(static_cast<UiImage*>(item));
 		break;
+#if FULL_UI
 	case UI_TXT_BUTTON:
 		Render(static_cast<UiTxtButton*>(item));
 		break;
+#endif
 	case UI_BUTTON:
 		Render(static_cast<UiButton*>(item));
 		break;
 	case UI_LIST:
 		Render(static_cast<UiList*>(item));
 		break;
+#if FULL_UI
 	case UI_SCROLLBAR:
 		Render(static_cast<UiScrollBar*>(item));
 		break;
 	case UI_EDIT:
 		Render(static_cast<UiEdit*>(item));
 		break;
+#endif
 	case UI_CUSTOM:
 		static_cast<UiCustom*>(item)->m_render();
 		break;
@@ -571,7 +579,7 @@ static void RenderItem(UiItemBase* item)
 		break;
 	}
 }
-
+#if FULL_UI
 static bool HandleMouseEventArtTextButton(const SDL_Event& event, const UiTxtButton* uiButton)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
@@ -579,7 +587,7 @@ static bool HandleMouseEventArtTextButton(const SDL_Event& event, const UiTxtBut
 	uiButton->m_action();
 	return true;
 }
-
+#endif
 static bool HandleMouseEventButton(const SDL_Event& event, UiButton* button)
 {
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
@@ -620,7 +628,7 @@ static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
 
 	return true;
 }
-
+#if FULL_UI
 static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar* uiSb)
 {
 	if (event.type != SDL_MOUSEBUTTONDOWN)
@@ -654,20 +662,24 @@ static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar*
 	}
 	return true;
 }
-
+#endif // FULL_UI
 static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
 {
 	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
 	switch (item->m_type) {
+#if FULL_UI
 	case UI_TXT_BUTTON:
 		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
+#endif
 	case UI_BUTTON:
 		return HandleMouseEventButton(event, static_cast<UiButton*>(item));
 	case UI_LIST:
 		return HandleMouseEventList(event, static_cast<UiList*>(item));
+#if FULL_UI
 	case UI_SCROLLBAR:
 		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
+#endif
 	default:
 		return false;
 	}
@@ -709,7 +721,7 @@ void UiHandleEvents(SDL_Event* event)
 		}
 		return; // handled
 	}
-
+#if FULL_UI
 	if (gUiEditField != NULL) {
 		switch (event->type) {
 		case SDL_KEYDOWN: {
@@ -762,7 +774,7 @@ void UiHandleEvents(SDL_Event* event)
 			break;
 		}
 	}
-
+#endif // FULL_UI
 	if (event->type == SDL_MOUSEMOTION) {
 		// In SDL2 mouse events already use logical coordinates
 #ifdef USE_SDL1
@@ -790,9 +802,9 @@ void UiHandleEvents(SDL_Event* event)
 
 #ifndef USE_SDL1
 	if (event->type == SDL_WINDOWEVENT) {
-		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
+		if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_EXPOSED)
 			gbWndActive = true;
-		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
+		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN || event->window.event == SDL_WINDOWEVENT_MINIMIZED)
 			gbWndActive = false;
 		return;
 	}
