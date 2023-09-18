@@ -54,16 +54,6 @@ static _plrmsg* AddPlrMsg(int pnum)
 	return pMsg;
 }
 
-#if DEV_MODE
-void ErrorPlrMsg(const char* pszMsg)
-{
-	_plrmsg* pMsg;
-
-	pMsg = AddPlrMsg(MAX_PLRS);
-	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
-}
-#endif
-
 void EventPlrMsg(const char* pszFmt, ...)
 {
 	_plrmsg* pMsg;

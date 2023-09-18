@@ -2206,25 +2206,6 @@ static void check_update_plr(int pnum)
 	}
 }
 
-#if DEV_MODE
-static void msg_errorf(const char* pszFmt, ...)
-{
-	//static DWORD msg_err_timer;
-	//DWORD ticks;
-	char msg[256];
-	va_list va;
-
-	va_start(va, pszFmt);
-	//ticks = SDL_GetTicks();
-	//if (ticks - msg_err_timer >= 5000) {
-	//	msg_err_timer = ticks;
-		vsnprintf(msg, sizeof(msg), pszFmt, va);
-		ErrorPlrMsg(msg);
-	//}
-	va_end(va);
-}
-#endif
-
 static unsigned On_SYNCDATA(TCmd* pCmd, int pnum)
 {
 	TSyncHeader* pHdr = (TSyncHeader*)pCmd;
@@ -3427,6 +3408,7 @@ static unsigned On_SYNCQUESTEXT(TCmd* pCmd, int pnum)
 }
 
 #if DEV_MODE
+#define msg_errorf(fmt, ...) EventPlrMsg(fmt, __VA_ARGS__);
 static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 {
 	int mnum;
