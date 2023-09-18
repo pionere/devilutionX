@@ -637,42 +637,42 @@ char* SDL_GetPrefPath(const char* org, const char* app)
      */
 	const char* envr = SDL_getenv("XDG_DATA_HOME");
 	const char* append;
-	char* retval = NULL;
-	char* ptr = NULL;
-	size_t len = 0;
+	char *retval, *ptr;
+	size_t len, elen;
 
-	if (!app) {
+	if (app == NULL) {
 		SDL_InvalidParamError("app");
 		return NULL;
 	}
-	if (!org) {
+	if (org == NULL) {
 		org = "";
 	}
 
-	if (!envr) {
+	append = "/";
+	len = sizeof("/") - 1;
+	if (envr == NULL) {
 		/* You end up with "$HOME/.local/share/Game Name 2" */
 		envr = SDL_getenv("HOME");
-		if (!envr) {
+		if (envr == NULL) {
 			/* we could take heroic measures with /etc/passwd, but oh well. */
 			SDL_SetError("neither XDG_DATA_HOME nor HOME environment is set");
 			return NULL;
 		}
 #if defined(__unix__) || defined(__unix)
 		append = "/.local/share/";
-#else
-		append = "/";
+		len = sizeof("/.local/share/") - 1;
 #endif
-	} else {
-		append = "/";
 	}
 
-	len = SDL_strlen(envr);
-	if (envr[len - 1] == '/')
+	elen = SDL_strlen(envr);
+	if (envr[elen - 1] == '/') {
 		append += 1;
+		len--;
+	}
 
-	len += SDL_strlen(append) + SDL_strlen(org) + SDL_strlen(app) + 3;
+	len = elen + len + SDL_strlen(org) + SDL_strlen(app) + 3;
 	retval = (char*)SDL_malloc(len);
-	if (!retval) {
+	if (retval == NULL) {
 		SDL_OutOfMemory();
 		return NULL;
 	}
