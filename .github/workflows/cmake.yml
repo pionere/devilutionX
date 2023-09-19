@@ -1,4 +1,4 @@
-name: CMake
+name: Windows 9x MinGW
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -6,51 +6,44 @@ on: [push, pull_request]
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  buildDir: '${{ github.workspace }}/build'
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-latest
-
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Create Build Environment
-      run: brew bundle install
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw9x-prep.sh
 
     - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
-      working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. -DCMAKE_BUILD_TYPE=Release -DCPACK=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
 
     - name: Build
+      working-directory: ${{ env.buildDir }}
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
-      working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
-    
+      run: cmake --build . -j $(nproc) --target package
+
     #- name: Release
     #  uses: softprops/action-gh-release@v1
     #  if: startsWith(github.ref, 'refs/tags/')
     #  with:
-    #    files: ${{github.workspace}}/build/devilutionx.dmg
+    #    files: ${{github.workspace}}/build/devilutionx.zip
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Upload the created artifact
     - name: Upload
-      if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v3
       with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
-        name: devilutionx.dmg
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: devilutionx-win9x.zip

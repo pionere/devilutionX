@@ -1,6 +1,14 @@
-#include "./sdl2_to_1_2_backports.h"
+#include "sdl2_to_1_2_backports.h"
 
 #ifdef USE_SDL1
+
+#if defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+// Suppress definitions of `min` and `max` macros by <windows.h>:
+#define NOMINMAX 1
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif // WINVER...
+
 #define DEFAULT_PRIORITY             SDL_LOG_PRIORITY_CRITICAL
 #define DEFAULT_ASSERT_PRIORITY      SDL_LOG_PRIORITY_WARN
 #define DEFAULT_APPLICATION_PRIORITY SDL_LOG_PRIORITY_INFO
@@ -485,7 +493,7 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 // = Filesystem
 
-#if !defined(__QNXNTO__) && !defined(__amigaos__)
+#if !defined(__3DS__) && !defined(__QNXNTO__) && !defined(__amigaos__) && !(defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0))
 static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
@@ -524,6 +532,28 @@ char* SDL_GetBasePath()
 	return SDL_strdup("file:sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
+#elif defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+	char buffer[MAX_PATH];
+	::DWORD len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	if (len == 0) {
+		SDL_SetError("SDL_GetBasePath failed.");
+		return NULL;
+	}
+	/* chop off filename. */
+	for ( ; len > 0; len--) {
+		if (buffer[len] == '\\') {
+			break;
+		}
+	}
+	len++;
+	char* retval = static_cast<char *>(SDL_malloc(len + 1));
+	if (retval == NULL) {
+		SDL_OutOfMemory();
+		return NULL;
+	}
+	SDL_memcpy(retval, buffer, len);
+	retval[len] = '\0';
+	return retval;
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 
@@ -540,8 +570,7 @@ char* SDL_GetBasePath()
 			return NULL;
 		}
 	}
-#endif
-#if defined(__OPENBSD__)
+#elif defined(__OPENBSD__)
 	char** retvalargs;
 	size_t len;
 	const int mib[] = { CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV };
@@ -558,8 +587,7 @@ char* SDL_GetBasePath()
 
 		SDL_free(retvalargs);
 	}
-#endif
-#if defined(__SOLARIS__)
+#elif defined(__SOLARIS__)
 	const char* path = getexecname();
 	if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
 		retval = SDL_strdup(path);
@@ -626,6 +654,11 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 	return SDL_strdup("sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
+#elif defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+	// On Windows9x there is no such thing as PrefPath. Simply use the current directory.
+	char *result = (char *)SDL_malloc(1);
+	*result = '\0';
+	return result;
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*

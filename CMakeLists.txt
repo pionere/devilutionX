@@ -56,7 +56,7 @@ if(VITA)
 endif()
 
 set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh)
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh windows9x)
 if(TARGET_PLATFORM STREQUAL "lepus")
   include(lepus_defs)
 elseif(TARGET_PLATFORM STREQUAL "retrofw")
@@ -67,6 +67,8 @@ elseif(TARGET_PLATFORM STREQUAL "gkd350h")
   include(gkd350h_defs)
 elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
   include(cpigamesh_defs)
+elseif(TARGET_PLATFORM STREQUAL "windows9x")
+  include(windows9x_defs)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
@@ -82,8 +84,11 @@ endif()
 if(WIN32)
   set(ASAN OFF)
   set(UBSAN OFF)
-  if(_WIN32_WINNT)
+  if(DEFINED _WIN32_WINNT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
+  endif()
+  if(DEFINED WINVER)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
   endif()
   set(USE_PATCH ON)
 endif()
@@ -856,6 +861,8 @@ foreach(
   SCREEN_HEIGHT
   #TTF_FONT_DIR
   #TTF_FONT_NAME
+  #WINVER
+  #_WIN32_WINNT
   SDL1_VIDEO_MODE_BPP
   SDL1_VIDEO_MODE_FLAGS
   SDL1_VIDEO_MODE_SVID_FLAGS
@@ -1010,7 +1017,7 @@ endif()
 
 if(WIN32)
   if(NOT NONET)
-    #target_link_libraries(${BIN_TARGET} PRIVATE shlwapi wsock32 ws2_32 wininet)
+    ##target_link_libraries(${BIN_TARGET} PRIVATE shlwapi wsock32 ws2_32 wininet)
     target_link_libraries(${BIN_TARGET} PRIVATE wsock32 ws2_32 wininet)
   endif()
   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -1254,6 +1261,13 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
+    if(NOT DEVILUTIONX_STATIC_SDL2)
+      foreach(_SDL2_WIN32_DLL_PATH ${SDL2_WIN32_ALL_DLLS} ${WIN32_INSTALL_DLLS})
+        install(FILES "${_SDL2_WIN32_DLL_PATH}"
+          DESTINATION "."
+        )
+      endforeach()
+    endif()
     if(USE_PATCH)
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "."
@@ -1416,7 +1430,11 @@ message(STATUS "")
 message(STATUS "Devilx was configured with the following options:")
 message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
+if(WIN32)
+message(STATUS "Target platform: ${TARGET_PLATFORM} WinVer: ${WINVER} WinNT: ${_WIN32_WINNT}")
+else()
 message(STATUS "Target platform: ${TARGET_PLATFORM}")
+endif()
 message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
 message(STATUS "Revision: ${PROJECT_VERSION} .. ${VERSION_NUM}")
 message(STATUS "")
