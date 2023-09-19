@@ -56,7 +56,7 @@ if(VITA)
 endif()
 
 set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh)
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh windows9x)
 if(TARGET_PLATFORM STREQUAL "lepus")
   include(lepus_defs)
 elseif(TARGET_PLATFORM STREQUAL "retrofw")
@@ -67,6 +67,8 @@ elseif(TARGET_PLATFORM STREQUAL "gkd350h")
   include(gkd350h_defs)
 elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
   include(cpigamesh_defs)
+elseif(TARGET_PLATFORM STREQUAL "windows9x")
+  include(windows9x_defs)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
@@ -82,8 +84,13 @@ endif()
 if(WIN32)
   set(ASAN OFF)
   set(UBSAN OFF)
-  if(_WIN32_WINNT)
+  if(DEFINED _WIN32_WINNT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
+  endif()
+  if(DEFINED WINVER)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
   set(USE_PATCH ON)
 endif()
@@ -856,6 +863,8 @@ foreach(
   SCREEN_HEIGHT
   #TTF_FONT_DIR
   #TTF_FONT_NAME
+  #WINVER
+  #_WIN32_WINNT
   SDL1_VIDEO_MODE_BPP
   SDL1_VIDEO_MODE_FLAGS
   SDL1_VIDEO_MODE_SVID_FLAGS
@@ -1242,12 +1251,42 @@ if(CPACK)
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
-    #install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
-    #  DESTINATION "."
-    #  PATTERN "*.lib" EXCLUDE
-    #  PATTERN "*.exp" EXCLUDE
-    #  PATTERN "*.h" EXCLUDE
-    #)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+      file(GLOB _WIN32_ALL_DLLS
+        LIST_DIRECTORIES false
+        "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll")
+    else()
+      # find sdl.dll
+      if(USE_SDL1)
+        set(SDL_EXEC_PREFIX "${SDL_INCLUDE_DIRS}/../..")
+      elseif(NOT DEVILUTIONX_STATIC_SDL2)
+        set(SDL_EXEC_PREFIX ${SDL2_EXEC_PREFIX})
+      endif()
+      if(SDL_EXEC_PREFIX)
+        file(GLOB _SDL_WIN32_ALL_DLLS
+          LIST_DIRECTORIES false
+          "${SDL_EXEC_PREFIX}/bin/sdl*.dll" "${SDL_EXEC_PREFIX}/bin/SDL*.dll")
+        list(APPEND _WIN32_ALL_DLLS ${_SDL_WIN32_ALL_DLLS})
+      endif()
+      # find libsodium.dll
+      if(NOT NONET AND NOT DEVILUTIONX_STATIC_LIBSODIUM)
+        if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+          if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(SODIUM_DLL_PATH ${sodium_DLL_DEBUG})
+          else()
+            set(SODIUM_DLL_PATH ${sodium_DLL_RELEASE})
+          endif()
+        else()
+          set(SODIUM_DLL_PATH "${CMAKE_BINARY_DIR}/libsodium.dll")
+        endif()
+        list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
+      endif()
+    endif()
+    foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
+      install(FILES "${_WIN32_DLL_PATH}"
+        DESTINATION "."
+      )
+    endforeach()
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
@@ -1416,7 +1455,11 @@ message(STATUS "")
 message(STATUS "Devilx was configured with the following options:")
 message(STATUS "")
 message(STATUS "Platform: ${CMAKE_SYSTEM}")
+if(WIN32)
+message(STATUS "Target platform: ${TARGET_PLATFORM} WinVer: ${WINVER} WinNT: ${_WIN32_WINNT}")
+else()
 message(STATUS "Target platform: ${TARGET_PLATFORM}")
+endif()
 message(STATUS "Compiler: ${CMAKE_C_COMPILER} .. (${CMAKE_CXX_COMPILER_ID})")
 message(STATUS "Revision: ${PROJECT_VERSION} .. ${VERSION_NUM}")
 message(STATUS "")
