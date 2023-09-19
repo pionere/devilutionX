@@ -1046,7 +1046,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean shouldMinimizeOnFocusLoss() {
 /*
-        if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
+        if (Build.VERSION.SDK_INT >= 24 / * Android 7.0 (N) * /) {
             if (mSingleton == null) {
                 return true;
             }
