@@ -193,6 +193,53 @@ jobs:
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
+  #  MingW Win9x
+  build_w98:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-MingW-Win9x
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo-x86, hellfire-x86]
+        include:
+          # x86 builds
+          - name: diablo-w9x
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D USE_PATCH=ON'
+            artifact: 'diablo-nightly-mingw-w9x.zip'
+          - name: hellfire-w9x
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-mingw-w9x.zip'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw9x-prep.sh
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+
+    - name: Build
+      working-directory: ${{ env.buildDir }}
+      shell: bash
+      run: cmake --build . -j $(nproc) --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: ${{ matrix.artifact }}
   # Linux-builds
   # 64bit
   build_linux64:
