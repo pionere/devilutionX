@@ -12,7 +12,7 @@
 
 #include "log.h"
 
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32)
 // Suppress definitions of `min` and `max` macros by <windows.h>:
 #define NOMINMAX 1
 #define WIN32_LEAN_AND_MEAN
@@ -56,7 +56,7 @@ inline bool FileExists(const char* path)
 
 inline bool GetFileSize(const char* path, std::uintmax_t* size)
 {
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32)
 	WIN32_FILE_ATTRIBUTE_DATA attr;
 	/*int path_utf16_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
 	wchar_t *path_utf16 = new wchar_t[path_utf16_size];
@@ -95,7 +95,7 @@ inline bool WriteFile(const void* data, size_t size, FILE* f)
 
 inline bool ResizeFile(const char* path, std::uintmax_t size)
 {
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32)
 	LARGE_INTEGER lisize;
 	lisize.QuadPart = static_cast<LONGLONG>(size);
 	if (lisize.QuadPart < 0) {
