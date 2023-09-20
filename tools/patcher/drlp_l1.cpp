@@ -1227,7 +1227,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	uint16_t* pSubtiles = (uint16_t*)buf;
 	constexpr int blockSize = BLOCK_SIZE_L1;
 	// use micros created by patchCathedralFloorCel
-	if (pSubtiles[MICRO_IDX(108 - 1, blockSize, 1)] != NULL) {
+	if (pSubtiles[MICRO_IDX(108 - 1, blockSize, 1)] != 0) {
 		Blk2Mcr(108, 1);
 		SetFrameType(137, 5, MET_SQUARE);
 		SetFrameType(286, 1, MET_RTRIANGLE);

@@ -36,8 +36,10 @@ static std::deque<SNetTurnPkt*> sgTurnQueue;
 /* Counter to keep track of the network-update(turn) progress. */
 static BYTE sgbPacketCountdown;
 static bool _gbTickInSync;
+#ifndef NONET
 static bool _gbThreadLive;
 static bool _gbRunThread;
+#endif // NONET
 
 void nthread_send_turn(BYTE* data, unsigned len)
 {

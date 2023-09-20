@@ -2342,7 +2342,7 @@ void DRLP_L4_PatchMin(BYTE* buf)
 
 	// patch stairs II.
 	// - after patchHellStairsCel
-	if (pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] != NULL) {
+	if (pSubtiles[MICRO_IDX(137 - 1, blockSize, 1)] != 0) {
 		MoveMcr(140, 3, 137, 1);
 		MoveMcr(140, 2, 137, 0);
 		MoveMcr(140, 4, 137, 2);
