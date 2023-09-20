@@ -9,7 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-// NOTE: FACE-buttons on a VITA controller:     X O [] /\
+// NOTE: FACE-buttons on a VITA controller:     X O [] A
 //                    on a XBox 360 controller: A, B, X, Y
 //                    on a Nintendo controller: B, A, Y, X
 typedef enum ControllerButton {
