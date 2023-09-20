@@ -1,4 +1,4 @@
-#include "./sdl2_to_1_2_backports.h"
+#include "sdl2_to_1_2_backports.h"
 
 #ifdef USE_SDL1
 #define DEFAULT_PRIORITY             SDL_LOG_PRIORITY_CRITICAL
@@ -540,8 +540,7 @@ char* SDL_GetBasePath()
 			return NULL;
 		}
 	}
-#endif
-#if defined(__OPENBSD__)
+#elif defined(__OPENBSD__)
 	char** retvalargs;
 	size_t len;
 	const int mib[] = { CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV };
@@ -558,8 +557,7 @@ char* SDL_GetBasePath()
 
 		SDL_free(retvalargs);
 	}
-#endif
-#if defined(__SOLARIS__)
+#elif defined(__SOLARIS__)
 	const char* path = getexecname();
 	if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
 		retval = SDL_strdup(path);
