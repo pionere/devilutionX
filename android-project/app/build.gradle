@@ -16,6 +16,9 @@ android {
 	namespace 'org.diasurgical.devilutionx'
 	// }
 	defaultConfig {
+		if (buildAsApplication) {
+			applicationId "org.diasurgical.devilx"
+		}
 		minSdkVersion 21
 		targetSdkVersion 34
 		versionCode 666
