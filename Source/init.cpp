@@ -3,7 +3,7 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-//#if defined(_WIN64) || defined(_WIN32)
+//#if defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
 
@@ -101,7 +101,7 @@ void InitArchives()
 	return;
 #endif
 	HANDLE diabdat_mpqs[NUM_MPQS];
-/*#elif defined(_WIN64) || defined(_WIN32)
+/*#elif defined(_WIN32)
 	char gogpath[_FSG_PATH_MAX];
 	fsg_get_gog_game_path(gogpath, "1412601690");
 	if (strlen(gogpath) > 0) {
