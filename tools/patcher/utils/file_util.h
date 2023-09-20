@@ -137,12 +137,10 @@ inline bool ResizeFile(const char* path, std::uintmax_t size)
 	HANDLE file = ::CreateFileA(path, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (file == INVALID_HANDLE_VALUE) {
 		return false;
-	} else if (::SetFilePointerEx(file, lisize, NULL, FILE_BEGIN) == 0 || ::SetEndOfFile(file) == 0) {
-		::CloseHandle(file);
-		return false;
 	}
+	bool result = ::SetFilePointerEx(file, lisize, NULL, FILE_BEGIN) != 0 && ::SetEndOfFile(file) != 0;
 	::CloseHandle(file);
-	return true;
+	return result;
 #else
 	return ::truncate(path, static_cast<off_t>(size)) == 0;
 #endif
