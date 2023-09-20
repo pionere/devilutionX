@@ -3,7 +3,7 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-//#if defined(_WIN64) || defined(_WIN32)
+//#if defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
 
