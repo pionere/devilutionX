@@ -340,7 +340,7 @@ endif()
 
 if(TCPIP)
   add_subdirectory(3rdParty/asio)
-  target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1)
+  target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1 ASIO_NO_EXCEPTIONS)
   if(NINTENDO_3DS)
     target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON ASIO_HAS_UNISTD_H=ON)
     # Missing headers and declarations provided by DevilutionX

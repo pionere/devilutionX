@@ -53,6 +53,11 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__);        \
 		app_fatal("SDL Error %d: '%s' @ %s:%d", ec, SDL_GetError(), __FILE__, __LINE__); \
 	}
+#define asio_error(ec, msg)                                                        \
+	if (ec == ec) {                                                                \
+		DoLog("ABORT(asio.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("ASIO Error %d: '%s' @ %s:%d", ec, msg, __FILE__, __LINE__);     \
+	}
 #else
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
@@ -63,6 +68,11 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 	if (ec == ec) {                                                               \
 		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("SDL Error %d", ec);                                            \
+	}
+#define asio_error(ec, msg)                                               \
+	if (ec == ec) {                                                       \
+		DoLog("ABORT(asio.%d): %s @ %s:%d", ec, msg, __FILE__, __LINE__); \
+		dvl::app_fatal("ASIO Error");                                     \
 	}
 #endif // DEBUG_MODE
 

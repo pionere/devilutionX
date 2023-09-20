@@ -8,6 +8,20 @@
 #include "packet.h"
 #include "frame_queue.h"
 
+// define throw_exception to compile asio with ASIO_NO_EXCEPTIONS
+#if 1
+#include <asio/detail/throw_exception.hpp>
+
+namespace asio::detail {
+template <typename Exception>
+void throw_exception(Exception const &e)
+{
+	asio_error(dvl::ERR_APP_ASIO, e.what());
+}
+
+} // namespace asio::detail
+#endif
+
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
