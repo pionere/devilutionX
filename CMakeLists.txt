@@ -333,9 +333,9 @@ endif()
 
 if(TCPIP)
   add_subdirectory(3rdParty/asio)
-  target_compile_definitions(asio PUBLIC ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1 ASIO_NO_EXCEPTIONS)
   add_library(asio STATIC ${CMAKE_CURRENT_LIST_DIR}/asio_handle_exception.cpp)
   target_include_directories(asio PUBLIC ${asio_SOURCE_DIR}/asio/include ${CMAKE_CURRENT_LIST_DIR})
+  target_compile_definitions(asio PUBLIC ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1 ASIO_NO_EXCEPTIONS)
   if(NINTENDO_3DS)
     target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON ASIO_HAS_UNISTD_H=ON)
     # Missing headers and declarations provided by DevilutionX
