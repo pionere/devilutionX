@@ -12,4 +12,6 @@ FetchContent_Declare(asio
 #   URL_HASH MD5=bfb3071dff527a6618be8836dc753f0a
 #)
 FetchContent_MakeAvailableExcludeFromAll(asio)
-
+#
+add_library(asio INTERFACE)
+target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
