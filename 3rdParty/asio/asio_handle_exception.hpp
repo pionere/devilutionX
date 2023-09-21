@@ -2,16 +2,22 @@
 
 #include <asio/detail/throw_exception.hpp>
 
-namespace asio::detail {
+#define ErrAsio(message) dvl::app_fatal("ASIO Error: %s", message)
 
-void fatal_exception(const char *message);
+namespace dvl {
+
+extern void app_fatal(const char* pszFmt, ...);
+
+} // namespace dvl
+
+namespace asio::detail {
 
 template <typename Exception>
 void throw_exception(
 	const Exception &e
 	ASIO_SOURCE_LOCATION_PARAM)
 {
-  fatal_exception(e.what());
+  ErrAsio(e.what());
 }
 
 } // namespace asio::detail
