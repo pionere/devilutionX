@@ -1,4 +1,4 @@
-if(NOT DEVILUTIONX_SYSTEM_LIBSODIUM)
+#if(NOT DEVILUTIONX_SYSTEM_LIBSODIUM)
   include(FetchContent_MakeAvailableExcludeFromAll)
 
   set(SODIUM_MINIMAL ON)
@@ -16,4 +16,4 @@ if(NOT DEVILUTIONX_SYSTEM_LIBSODIUM)
       GIT_TAG a8ac4509b22b84d6c2eb7d7448f08678e4a67da6
   )
   FetchContent_MakeAvailableExcludeFromAll(libsodium)
-endif()
+#endif()

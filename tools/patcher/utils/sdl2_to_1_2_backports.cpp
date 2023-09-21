@@ -2,7 +2,7 @@
 
 #ifdef USE_SDL1
 
-#if defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+#if defined(_WIN32)
 // Suppress definitions of `min` and `max` macros by <windows.h>:
 #define NOMINMAX 1
 #define WIN32_LEAN_AND_MEAN
@@ -493,7 +493,7 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 // = Filesystem
 
-#if !defined(__QNXNTO__) && !defined(__amigaos__) && !(defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0))
+#if !defined(__QNXNTO__) && !defined(__amigaos__) && !defined(_WIN32)
 static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
@@ -532,7 +532,7 @@ char* SDL_GetBasePath()
 	return SDL_strdup("file:sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
-#elif defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+#elif defined(_WIN32)
 	::TCHAR buffer[MAX_PATH];
 	::DWORD len = GetModuleFileName(NULL, buffer, MAX_PATH);
 	if (len == 0) {
@@ -654,11 +654,13 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 	return SDL_strdup("sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
-#elif defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+#elif defined(_WIN32)
+// #if defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
 	// On Windows9x there is no such thing as PrefPath. Simply use the current directory.
 	char *result = (char *)SDL_malloc(1);
 	*result = '\0';
 	return result;
+// #endif
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*

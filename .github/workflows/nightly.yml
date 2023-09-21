@@ -93,7 +93,7 @@ jobs:
       working-directory: ${{ env.buildDir }}
       shell: bash
     # Execute the build (-j 2 : with two cores).
-      run: cmake --build . -j $(nproc) --target package --config Release
+      run: cmake --build . -j 2 --target package --config Release
 
     # Upload the created artifact
     - name: Upload

@@ -45,6 +45,7 @@ else()
     LANGUAGES C CXX)
 endif()
 string(TOLOWER ${PROJECT_NAME} project_name)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 if(NINTENDO_SWITCH)
   include(switch_defs)
@@ -86,9 +87,11 @@ if(WIN32)
   set(UBSAN OFF)
   if(DEFINED _WIN32_WINNT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_WIN32_WINNT=${_WIN32_WINNT}")
   endif()
   if(DEFINED WINVER)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
   set(USE_PATCH ON)
 endif()
@@ -1248,7 +1251,45 @@ if(CPACK)
     set(CPACK_PACKAGE_FILE_NAME ${project_name})
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_STRIP_FILES TRUE)
+    #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY .)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
+    #message(STATUS "Runtime libs: ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+      file(GLOB _WIN32_ALL_DLLS
+        LIST_DIRECTORIES false
+        "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll")
+    else()
+      # find sdl.dll
+      if(USE_SDL1)
+        set(SDL_EXEC_PREFIX "${SDL_INCLUDE_DIRS}/../..")
+      elseif(NOT DEVILUTIONX_STATIC_SDL2)
+        set(SDL_EXEC_PREFIX ${SDL2_EXEC_PREFIX})
+      endif()
+      if(SDL_EXEC_PREFIX)
+        file(GLOB _SDL_WIN32_ALL_DLLS
+          LIST_DIRECTORIES false
+          "${SDL_EXEC_PREFIX}/bin/sdl*.dll" "${SDL_EXEC_PREFIX}/bin/SDL*.dll")
+        list(APPEND _WIN32_ALL_DLLS ${_SDL_WIN32_ALL_DLLS})
+      endif()
+      # find libsodium.dll
+      if(NOT NONET AND NOT DEVILUTIONX_STATIC_LIBSODIUM)
+        if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+          if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(SODIUM_DLL_PATH ${sodium_DLL_DEBUG})
+          else()
+            set(SODIUM_DLL_PATH ${sodium_DLL_RELEASE})
+          endif()
+        else()
+          set(SODIUM_DLL_PATH "${CMAKE_BINARY_DIR}/libsodium.dll")
+        endif()
+        list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
+      endif()
+    endif()
+    foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
+      install(FILES "${_WIN32_DLL_PATH}"
+        DESTINATION "."
+      )
+    endforeach()
     #install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
     #  DESTINATION "."
     #  PATTERN "*.lib" EXCLUDE
@@ -1261,13 +1302,6 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    if(NOT DEVILUTIONX_STATIC_SDL2)
-      foreach(_SDL2_WIN32_DLL_PATH ${SDL2_WIN32_ALL_DLLS} ${WIN32_INSTALL_DLLS})
-        install(FILES "${_SDL2_WIN32_DLL_PATH}"
-          DESTINATION "."
-        )
-      endforeach()
-    endif()
     if(USE_PATCH)
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "."

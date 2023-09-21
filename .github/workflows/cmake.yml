@@ -23,15 +23,32 @@ jobs:
         sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
         sudo Packaging/windows/mingw9x-prep.sh
 
+    - name: Show winbaseh
+      run: cat /usr/share/mingw-w64/include/winbase.h
+      shell: bash
+
+    - name: Show minwinbaseh
+      run: cat /usr/share/mingw-w64/include/minwinbase.h
+      shell: bash
+
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. -DCMAKE_BUILD_TYPE=Release -DCPACK=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+      #run: cmake .. -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DNONET=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+      run: cmake .. -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
       run: cmake --build . -j $(nproc) --target package
+
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
+    - name: Show compile commands
+      run: cat ${{ env.buildDir }}/compile_commands.json
+      shell: bash
 
     #- name: Release
     #  uses: softprops/action-gh-release@v1
