@@ -8,25 +8,23 @@
 #include "packet.h"
 #include "frame_queue.h"
 
+// define throw_exception to compile asio with ASIO_NO_EXCEPTIONS
+#if 1
 #include <asio/detail/throw_exception.hpp>
 
-#define ErrAsio(message) dvl::app_fatal("ASIO Error: %s", message)
-
-/*namespace dvl {
-
-extern void app_fatal(const char* pszFmt, ...);
-
-} // namespace dvl*/
+//#define ErrAsio(message) dvl::app_fatal("ASIO Error: %s", message)
 
 namespace asio::detail {
 
 template <typename Exception>
 void throw_exception(Exception const &e)
 {
-  ErrAsio(e.what());
+	// ErrAsio(e.what());
+	dvl::app_fatal("ASIO Error: %s", message);
 }
 
 } // namespace asio::detail
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
