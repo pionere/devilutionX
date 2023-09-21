@@ -502,16 +502,9 @@ set(devilutionx_SRCS
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp
+  Source/utils/sdl2_to_1_2_backports.cpp
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp)
-
-if(IOS)
-  list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
-endif()
-
-if(USE_SDL1)
-  list(APPEND devilutionx_SRCS Source/utils/sdl2_to_1_2_backports.cpp)
-endif()
 
 if(NOT NONET)
   list(APPEND devilutionx_SRCS
@@ -522,6 +515,10 @@ if(NOT NONET)
     Source/dvlnet/protocol_zt.cpp
     Source/dvlnet/zerotier_native.cpp
     Source/dvlnet/zerotier_lwip.cpp)
+endif()
+
+if(IOS)
+  list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
 endif()
 
 if(NINTENDO_SWITCH)
@@ -624,6 +621,10 @@ if(USE_PATCH)
     tools/patcher/control.cpp
     tools/patcher/cursor.cpp
     tools/patcher/diablo.cpp
+    tools/patcher/drlp_l1.cpp
+    tools/patcher/drlp_l2.cpp
+    tools/patcher/drlp_l3.cpp
+    tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
     tools/patcher/effects.cpp
     tools/patcher/encrypt.cpp
@@ -634,8 +635,10 @@ if(USE_PATCH)
     tools/patcher/mainmenu.cpp
     tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
+    tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
     tools/patcher/sound.cpp
+    tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
     tools/patcher/controls/controller.cpp
     tools/patcher/controls/controller_motion.cpp
@@ -664,8 +667,26 @@ if(USE_PATCH)
     tools/patcher/storm/storm.cpp
     tools/patcher/utils/display.cpp
     tools/patcher/utils/paths.cpp
+    tools/patcher/utils/sdl2_to_1_2_backports.cpp
     tools/patcher/utils/soundsample.cpp
     tools/patcher/utils/thread.cpp)
+
+  if(IOS)
+    list(APPEND devil_patcher_SRCS tools/patcher/platform/ios/ios_paths.m)
+  endif()
+
+  if(NINTENDO_SWITCH)
+    list(APPEND devilutionx_SRCS
+      Source/platform/switch/docking.cpp
+      Source/platform/switch/romfs.cpp)
+  endif()
+
+  if(NINTENDO_3DS)
+    list(APPEND devilutionx_SRCS
+      Source/platform/ctr/system.cpp
+      Source/platform/ctr/display.cpp
+      Source/platform/ctr/messagebox.cpp)
+  endif()
 
   if(APPLE)
     add_executable(${DEVIL_PATCHER}
@@ -1303,21 +1324,28 @@ if(CPACK)
     # Common *nix files
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION bin)
-    set(desktop_file "${PROJECT_SOURCE_DIR}/Packaging/nix/${project_name}.desktop")
-    set(desktop_file_hellfire "${PROJECT_SOURCE_DIR}/Packaging/nix/${project_name}-hellfire.desktop")
+    if(HELLFIRE)
+      set(desktop_file_name "devilutionx-hellfire.desktop")
+    else()
+      set(desktop_file_name "devilutionx.desktop")
+    endif()
+    set(desktop_file "${PROJECT_SOURCE_DIR}/Packaging/nix/${desktop_file_name}")
 
     find_program(DFI desktop-file-install)
     if(DFI)
-      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} ${desktop_file})
-      set(desktop_file "${CMAKE_BINARY_DIR}/${project_name}.desktop")
-      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} ${desktop_file_hellfire})
-      set(desktop_file_hellfire "${CMAKE_BINARY_DIR}/${project_name}-hellfire.desktop")
+      execute_process(COMMAND ${DFI} --dir=${CMAKE_BINARY_DIR} --set-key=Exec --set-value=${BIN_TARGET} ${desktop_file})
+      set(desktop_file "${CMAKE_BINARY_DIR}/${desktop_file_name}")
+    endif()
+
+    # make the desktop file available to AppImage
+    if(NOT "${desktop_file}" STREQUAL "${CMAKE_BINARY_DIR}/devilutionx.desktop")
+      install(FILES "${desktop_file}"
+        DESTINATION "${CMAKE_BINARY_DIR}"
+        RENAME "devilutionx.desktop"
+      )
     endif()
 
     install(FILES "${desktop_file}"
-      DESTINATION "share/applications"
-    )
-    install(FILES "${desktop_file_hellfire}"
       DESTINATION "share/applications"
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/nix/README.txt"
@@ -1334,14 +1362,17 @@ if(CPACK)
         DESTINATION "share/diasurgical/${project_name}"
       )
     endif()
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
-      DESTINATION "share/icons/hicolor/512x512/apps"
-      RENAME "${project_name}.png"
-    )
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/hellfire.png"
-      DESTINATION "share/icons/hicolor/512x512/apps"
-      RENAME "${project_name}-hellfire.png"
-    )
+    if(HELLFIRE)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/hellfire.png"
+        DESTINATION "share/icons/hicolor/512x512/apps"
+        RENAME "${project_name}-hellfire.png"
+      )
+    else()
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
+        DESTINATION "share/icons/hicolor/512x512/apps"
+        RENAME "${project_name}.png"
+      )
+    endif()
 
     # -G DEB
     set(CPACK_PACKAGE_CONTACT "${PROJECT_NAME} https://github.com/pionere/devilutionX")

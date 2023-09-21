@@ -5,6 +5,7 @@ set(UBSAN OFF)
 set(PIE ON)
 
 # General build options.
+# The android build gives Permission denied error if stripping is enabled.
 set(DISABLE_STRIP ON)
 #set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)

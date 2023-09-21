@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
+
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -121,14 +123,9 @@ void CheckQuests()
 			NetSendCmdQuest(Q_PWATER, true);
 			PlaySfxLoc(IS_QUESTDN, myplr._px, myplr._py);
 			gbWaterDone = 32;
-			//quests[Q_PWATER]._qvar2 = 1; // LOADWATERPAL
-			LoadPalette("Levels\\L3Data\\L3pwater.pal");
+			LoadPalette(L3_WATER_PAL);
 		}
 		if (gbWaterDone > 0) {
-			//if (quests[Q_PWATER]._qvar2 == 1) { // LOADWATERPAL
-			//	quests[Q_PWATER]._qvar2 = 2;
-			//	LoadPalette("Levels\\L3Data\\L3pwater.pal");
-			//}
 			palette_update_quest_palette(gbWaterDone);
 			gbWaterDone--;
 		}
@@ -214,20 +211,12 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		NetSendCmdQuest(qn, false); // recipient should not matter
 }
 
+// TODO: this is ugly...
 void LoadPWaterPalette()
 {
-	// TODO: this is ugly...
-	if (currLvl._dLevelIdx != SL_POISONWATER)
-		return;
-
-	if (quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN) {
-		//if (gbWaterDone == 0)
-			LoadPalette("Levels\\L3Data\\L3pwater.pal");
-		//else
-		//	quests[Q_PWATER]._qvar2 = 1; // LOADWATERPAL
+	if (currLvl._dLevelIdx == SL_POISONWATER && quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN)  {
+		LoadPalette(L3_WATER_PAL);
 	}
-	//else
-	//	LoadPalette("Levels\\L3Data\\L3pfoul.pal");
 }
 
 void ResyncBanner()

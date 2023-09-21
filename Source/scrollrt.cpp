@@ -1122,7 +1122,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bv = nSpecTrapTable[dPiece[sx][sy]] & ((1 << 6) - 1);
+		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
 		if (bv != 0) {
 			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
 			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
@@ -1132,7 +1132,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0) {
-			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & ((1 << 6) - 1);
+			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & PST_SPEC_TYPE;
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
 				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
@@ -1192,7 +1192,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & ((1 << 6) - 1)) != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE) != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**
@@ -1221,11 +1221,10 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 					// between tiles, from poking through the walls as they exceed the tile bounds.
 					// A proper fix for this would probably be to layout the sceen and render by
 					// sprite screen position rather than tile position.
-					if (IsWall(x, y) && IsWall(x + 1, y)) { // Part of a wall aligned on the x-axis
-						if (IsWalkable(x + 1, y - 1)) {     // Has walkable area behind it (to make sure it matches only the rightmost wall)
-							scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
-							skips |= 2;
-						}
+					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
+					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
+						scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
+						skips |= 2;
 					}
 				}
 				assert(dPiece[x][y] != 0);
@@ -1479,14 +1478,14 @@ static void DrawGame()
 static void DrawView()
 {
 	DrawGame();
-	if (gbAutomapflag) {
+	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}
+	DrawLifeFlask();
+	DrawManaFlask();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
-	DrawLifeFlask();
-	DrawManaFlask();
 	DrawDurIcon();
 
 	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {

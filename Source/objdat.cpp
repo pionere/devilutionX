@@ -20,7 +20,7 @@ const BYTE ObjConvTbl[128] = {
 	OBJ_CRUXM, // SklKng2.DUN
 	OBJ_CRUXR, // SklKng2.DUN
 	OBJ_CRUXL, // SklKng2.DUN
-	0, //OBJ_ANGEL,
+	OBJ_SARC,  // SklKng2.DUN
 	0, //OBJ_BANNERL,
 	0, //OBJ_BANNERM,
 	0, //OBJ_BANNERR,
@@ -125,8 +125,8 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	OBJ_ARMORSTANDN, //OBJ_ARMORSTAND, // Warlord2.DUN (Q_WARLORD) - changed to inactive versions to eliminate farming potential
 	OBJ_WEAPONRACKLN, //OBJ_WEAPONRACKL, // Warlord2.DUN (Q_WARLORD)
-	OBJ_TORCHR1, // Blood2.DUN (Q_BLOOD)
-	OBJ_TORCHL1, // Blood2.DUN (Q_BLOOD)
+	0, //OBJ_TORCHR1 (should be OBJ_TORCHL2), // Blood2.DUN (Q_BLOOD)
+	0, //OBJ_TORCHL1, // Blood2.DUN (Q_BLOOD)
 	0, //OBJ_MUSHPATCH,
 	0, //OBJ_STAND,
 	0, //OBJ_TORCHL2,
@@ -161,16 +161,16 @@ const BYTE ObjConvTbl[128] = {
 const ObjectData objectdata[NUM_OBJECTS] = {
 	// clang-format off
 //_object_id          ofindex,        oLvlTypes,                                 otheme,                  oquest,   oAnimBaseFrame, oLightRadius, oLightOffX, oLightOffY, oProc,      oModeFlags,             oMissFlag, oDoorFlag, oSelFlag, oPreFlag, oTrapFlag,
-/*OBJ_L1LIGHT*/     { OFILE_L1BRAZ,   DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,             0,           10,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT if FLICKER_LIGHT
+/*OBJ_L1LIGHT*/     { OFILE_L1BRAZ,   DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,             0,           14,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT if FLICKER_LIGHT
 /*OBJ_L1LDOOR*/     { OFILE_L1DOORS,  DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_LEFT,         3, FALSE,    TRUE      , ALIGN },
 /*OBJ_L1RDOOR*/     { OFILE_L1DOORS,  DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,             2,            0,          0,          0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_RIGHT,        3, FALSE,    TRUE      , ALIGN },
-/*OBJ_SKFIRE*/      { OFILE_SKULFIRE, 0,                                         THEME_SKELROOM,          Q_INVALID,             0,            5,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_SKFIRE*/      { OFILE_SKULFIRE, 0,                                         THEME_SKELROOM,          Q_INVALID,             0,            8,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
 /*OBJ_LEVER*/       { OFILE_LEVER,    0,                                         THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE     , ALIGN },
 /*OBJ_CHEST1*/      { OFILE_CHEST1,   DTM_ANY,                                   THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    TRUE      , ALIGN },
 /*OBJ_CHEST2*/      { OFILE_CHEST2,   DTM_ANY,                                   THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    TRUE      , ALIGN },
 /*OBJ_CHEST3*/      { OFILE_CHEST3,   DTM_ANY,                                   THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    TRUE      , ALIGN },
-/*OBJ_CANDLE1*/ //  { OFILE_CANDLE,   0,                                         THEME_NONE,              Q_INVALID,             0,            5,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
-/*OBJ_CANDLE2*/     { OFILE_CANDLE2,  0,                                         THEME_SHRINE,            Q_INVALID,             0,            5,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_CANDLE1*/ //  { OFILE_CANDLE,   0,                                         THEME_NONE,              Q_INVALID,             0,            7,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_CANDLE2*/     { OFILE_CANDLE2,  0,                                         THEME_SHRINE,            Q_INVALID,             0,            7,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
 /*OBJ_CANDLEO*/ //  { OFILE_CANDLABR, 0,                                         THEME_NONE,              Q_INVALID,             0,            0,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN },
 /*OBJ_BANNERL*/     { OFILE_BANNER,   0,                                         THEME_SKELROOM,          Q_INVALID,             2,            0,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN },
 /*OBJ_BANNERM*/     { OFILE_BANNER,   0,                                         THEME_SKELROOM,          Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN },
@@ -198,10 +198,10 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_TORTURER3*/   { OFILE_TSOUL,    DTM_HELL,                                  THEME_NONE,              Q_BUTCHER,             6,            0,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN },
 /*OBJ_L2LDOOR*/     { OFILE_L2DOORS,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_LEFT,         3, FALSE,    TRUE      , ALIGN },
 /*OBJ_L2RDOOR*/     { OFILE_L2DOORS,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,             2,            0,          0,          0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_RIGHT,        3, FALSE,    TRUE      , ALIGN },
-/*OBJ_TORCHL1*/     { OFILE_WTORCH1,  DTM_CATACOMBS,                             THEME_NONE,              Q_BLOOD,               0,            8,          1,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
-/*OBJ_TORCHL2*/     { OFILE_WTORCH4,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,             0,            8,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
-/*OBJ_TORCHR1*/     { OFILE_WTORCH2,  DTM_CATACOMBS,                             THEME_NONE,              Q_BLOOD,               0,            8,          0,          1, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
-/*OBJ_TORCHR2*/     { OFILE_WTORCH3,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,             0,            8,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_TORCHL1*/     { OFILE_WTORCH1,  DTM_CATACOMBS,                             THEME_NONE,              Q_BLOOD,               0,           12,          1,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_TORCHL2*/     { OFILE_WTORCH4,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,             0,           12,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_TORCHR1*/     { OFILE_WTORCH2,  DTM_CATACOMBS,                             THEME_NONE,              Q_BLOOD,               0,           12,          0,          1, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_TORCHR2*/     { OFILE_WTORCH3,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,             0,           12,          0,          0, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
 /*OBJ_SARC*/        { OFILE_SARC,     DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    TRUE      , ALIGN },
 /*OBJ_FLAMEHOLE*/// { OFILE_FLAME1,   0,                                         THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_FLTRP,  OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN },
 /*OBJ_FLAMELVR*///  { OFILE_LEVER,    0,                                         THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE     , ALIGN },
@@ -216,7 +216,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_SHRINER*/     { OFILE_RSHRINEG, 0,                                         THEME_SHRINE,            Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, TRUE,     FALSE     , ALIGN },
 /*OBJ_BOOKCASEL*/   { OFILE_BCASE,    0,                                         THEME_LIBRARY,           Q_INVALID,             3,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, TRUE,     FALSE     , ALIGN },
 /*OBJ_BOOKCASER*/   { OFILE_BCASE,    0,                                         THEME_LIBRARY,           Q_INVALID,             4,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, TRUE,     FALSE     , ALIGN },
-/*OBJ_BOOKCANDLE*/  { OFILE_CANDLE2,  0,                                         THEME_LIBRARY,           Q_INVALID,             0,            5,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
+/*OBJ_BOOKCANDLE*/  { OFILE_CANDLE2,  0,                                         THEME_LIBRARY,           Q_INVALID,             0,            7,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT 5
 /*OBJ_BLOODFTN*/    { OFILE_BLOODFNT, 0,                                         THEME_BLOODFOUNTAIN,     Q_INVALID,             0,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
 /*OBJ_DECAP*/       { OFILE_DECAP,    DTM_HELL,                                  THEME_DECAPITATED,       Q_INVALID,             0,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, TRUE,     FALSE     , ALIGN },
 /*OBJ_TCHEST1*/     { OFILE_CHEST1,   DTM_ANY & ~DTM_CATHEDRAL,                  THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE     , ALIGN },
@@ -245,8 +245,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_MCIRCLE1*/    { OFILE_MCIRL,    0,                                         THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     FALSE     , ALIGN },
 /*OBJ_MCIRCLE2*/    { OFILE_MCIRL,    0,                                         THEME_NONE,              Q_INVALID,             3,            0,          0,          0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     FALSE     , ALIGN },
 /*OBJ_STORYBOOK*/   { OFILE_BKSLBRNT, DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE     , ALIGN }, // BUGFIX should only be loaded on level 1-12 (crypt masks as 1-4) (fixed)
-/*OBJ_STORYCANDLE*/ { OFILE_CANDLE2,  DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_BETRAYER,            0,            3,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT
-/*OBJ_TBCROSS*/     { OFILE_BURNCROS, 0,                                         THEME_BRNCROSS,          Q_INVALID,             0,           10,          0,          0, OPF_BCROSS, OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // + OPF_LIGHT 5
+/*OBJ_STORYCANDLE*/ { OFILE_CANDLE2,  DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_BETRAYER,            0,            7,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT
+/*OBJ_TBCROSS*/     { OFILE_BURNCROS, 0,                                         THEME_BRNCROSS,          Q_INVALID,             0,           15,          0,          0, OPF_BCROSS, OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // + OPF_LIGHT 5
 /*OBJ_WEAPONRACKL*/ { OFILE_WEAPSTND, 0,                                         THEME_WEAPONRACK,        Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
 /*OBJ_WEAPONRACKLN*/{ OFILE_WEAPSTND, 0,                                         THEME_WEAPONRACK,        Q_WARLORD,             2,            0,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN },
 /*OBJ_WEAPONRACKR*/ { OFILE_WEAPSTND, 0,                                         THEME_WEAPONRACK,        Q_INVALID,             3,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
@@ -262,7 +262,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_L5SARC*/      { OFILE_L5SARCO,  DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    TRUE      , ALIGN },
 /*OBJ_URN*/         { OFILE_URN,      DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
 /*OBJ_URNEX*/       { OFILE_URNEXPLD, DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,             1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
-/*OBJ_L5CANDLE*/    { OFILE_L5CANDLE, DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,             1,            3,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT
+/*OBJ_L5CANDLE*/    { OFILE_L5CANDLE, DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,             1,           10,          0,          0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE     , ALIGN }, // OPF_LIGHT
 /*OBJ_L5BOOK*/      { OFILE_L5BOOKS,  DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,             3,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
 /*OBJ_NAKRULBOOK*/  { OFILE_L5BOOKS,  0,                                         THEME_NONE,              Q_NAKRUL,              3,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE     , ALIGN },
 /*OBJ_NAKRULLEVER*/ { OFILE_L5LEVER,  0,                                         THEME_NONE,              Q_NAKRUL,              1,            0,          0,          0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE     , ALIGN },
@@ -276,7 +276,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 	// clang-format off
 //object_graphic_id ofName,       oSFX,  oSFXCnt,   oAnimFlag, oAnimFrameLen, oAnimLen, oAnimWidth, oSolidFlag, oBreak,
 /*OFILE_L1BRAZ*/  { "L1Braz",     SFX_NONE,    0,    OAM_LOOP,             1,       26,         64, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
-/*OFILE_L1DOORS*/ { "L1Doors",    IS_DOORCLOS, 2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_L1DOORS*/ { "L1Doors",    IS_DOOROPEN, 2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_LEVER*/   { "Lever",      SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_CHEST1*/  { "Chest1",     SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_CHEST2*/  { "Chest2",     SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
@@ -304,7 +304,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_TNUDEM*/  { "TNudeM",     SFX_NONE,    0,    OAM_NONE,             0,        0,        128, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_TNUDEW*/  { "TNudeW",     SFX_NONE,    0,    OAM_NONE,             0,        0,        128, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_TSOUL*/   { "TSoul",      SFX_NONE,    0,    OAM_NONE,             0,        0,        128, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
-/*OFILE_L2DOORS*/ { "L2Doors",    IS_DOORCLOS, 2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_L2DOORS*/ { "L2Doors",    IS_DOOROPEN, 2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_WTORCH4*/ { "WTorch4",    SFX_NONE,    0,    OAM_LOOP,             1,        9,         96, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_WTORCH3*/ { "WTorch3",    SFX_NONE,    0,    OAM_LOOP,             1,        9,         96, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_SARC*/    { "Sarc",       SFX_NONE,    0,    OAM_NONE,             3,        5,        128, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
@@ -333,7 +333,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_BLOODFNT*/{ "Bloodfnt",   SFX_NONE,    0,    OAM_LOOP,             2,       10,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_DECAP*/   { "Decap",      SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_PEDISTL*/ { "Pedistl",    SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
-/*OFILE_L3DOORS*/ { "L3Doors",    IS_DOORCLOS, 2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_L3DOORS*/ { "L3Doors",    IS_DOOROPEN, 2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_PFOUNTN*/ { "PFountn",    SFX_NONE,    0,    OAM_LOOP,             2,       10,        128, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_ARMSTAND*/{ "Armstand",   SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_GOATSHRN*/{ "Goatshrn",   LS_GSHRINE,  1,    OAM_LOOP,             2,       10,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
@@ -346,7 +346,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_MUSHPTCH*/{ "Mushptch",   SFX_NONE,    0,    OAM_NONE,             0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_LZSTAND*/ { "LzStand",    SFX_NONE,    0,    OAM_NONE,             0,        0,        128, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 #ifdef HELLFIRE
-/*OFILE_L5DOOR*/  { "L5Door",     IS_CRCLOS,   2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_L5DOOR*/  { "L5Door",     IS_CROPEN,   2,    OAM_NONE,             0,        0,         64, FALSE,      OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L5SARCO*/ { "L5Sarco",    SFX_NONE,    0,    OAM_NONE,             3,        5,        128, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_URN*/     { "Urn",        IS_POPPOP2,  1,    OAM_NONE,             1,        9,         96, TRUE,       OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_URNEXPLD*/{ "Urnexpld",   IS_POPPOP3,  1,    OAM_NONE,             1,       10,         96, TRUE,       OBM_BREAKABLE,   ALIGN32 },

@@ -37,9 +37,9 @@ make
 
 ## Options
 
-There's special section `controls` in diablo.ini file, that allows you to adjust controls:
+There's special section `Controller` in diablo.ini file, that allows you to adjust controls:
 ```
-[controls]
+[Controller]
 switch_potions_and_clicks=0
 dpad_hotkeys=0
 enable_second_touchscreen=1
@@ -54,4 +54,4 @@ sdl2_controller_mapping=50535669746120436f6e74726f6c6c65,PSVita Controller,y:b0,
 ## Resources
 
 * Discord: https://discord.gg/YQKCAYQ
-* GitHub: https://github.com/diasurgical/devilutionX
+* GitHub: https://github.com/pionere/devilutionX

@@ -26,10 +26,12 @@ extern BYTE pcursplr;
 extern int pcurstrig;
 extern POS32 pcurspos;
 extern int pcursicon;
+extern int pcurstgt;
 
 void InitCursorGFX();
 void FreeCursorGFX();
 void NewCursor(int i);
+void ChangeTarget();
 void InitLevelCursor();
 void CheckTownPortal();
 void CheckCursMove();

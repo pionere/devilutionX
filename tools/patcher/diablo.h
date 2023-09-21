@@ -24,12 +24,6 @@ int DiabloMain(int argc, char** argv);
 bool PressEscKey();
 void DisableInputWndProc(UINT uMsg, WPARAM wParam);
 
-#if !GAME
-#define IsLocalGame (true)
-#define IsMultiGame (false)
-#define IsGameSrv   (false)
-#endif
-
 #ifdef __cplusplus
 }
 #endif

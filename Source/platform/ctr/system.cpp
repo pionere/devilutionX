@@ -10,6 +10,9 @@ bool shouldDisableBacklight;
 
 aptHookCookie cookie;
 
+static void ctr_lcd_backlight_on();
+static void ctr_lcd_backlight_off();
+
 void aptHookFunc(APT_HookType hookType, void *param)
 {
 	switch (hookType) {
@@ -32,7 +35,7 @@ void aptHookFunc(APT_HookType hookType, void *param)
 	}
 }
 
-void ctr_lcd_backlight_on()
+static void ctr_lcd_backlight_on()
 {
 	if (!shouldDisableBacklight)
 		return;
@@ -41,7 +44,7 @@ void ctr_lcd_backlight_on()
 	gspLcdExit();
 }
 
-void ctr_lcd_backlight_off()
+static void ctr_lcd_backlight_off()
 {
 	if (!shouldDisableBacklight)
 		return;
@@ -50,7 +53,7 @@ void ctr_lcd_backlight_off()
 	gspLcdExit();
 }
 
-bool ctr_check_dsp()
+static bool ctr_check_dsp()
 {
 	FILE *dsp = fopen("sdmc:/3ds/dspfirm.cdc", "r");
 	if (dsp == NULL) {

@@ -32,10 +32,10 @@ int GetGamma();
 void SetFadeLevel(unsigned fadeval);
 void PaletteFadeIn(bool instant);
 void PaletteFadeOut();
-void palette_update_caves();
+// void palette_update_caves();
 #ifdef HELLFIRE
-void palette_update_crypt();
-void palette_update_hive();
+// void palette_update_crypt();
+// void palette_update_nest();
 #endif
 void palette_update_quest_palette(int n);
 
