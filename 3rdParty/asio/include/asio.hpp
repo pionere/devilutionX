@@ -16,6 +16,9 @@
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 //#include "../asio_handle_exception.hpp"
+#define ASIO_NO_EXCEPTIONS
+#include <asio/detail/throw_exception.hpp>
+
 #define ErrAsio(message) dvl::app_fatal("ASIO Error: %s", message)
 
 namespace dvl {
