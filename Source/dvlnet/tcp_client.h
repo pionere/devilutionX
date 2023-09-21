@@ -8,6 +8,26 @@
 #include "base.h"
 #include "tcp_server.h"
 
+#include <asio/detail/throw_exception.hpp>
+
+#define ErrAsio(message) dvl::app_fatal("ASIO Error: %s", message)
+
+/*namespace dvl {
+
+extern void app_fatal(const char* pszFmt, ...);
+
+} // namespace dvl*/
+
+namespace asio::detail {
+
+template <typename Exception>
+void throw_exception(Exception const &e)
+{
+  ErrAsio(e.what());
+}
+
+} // namespace asio::detail
+
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
