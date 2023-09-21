@@ -14,5 +14,5 @@ FetchContent_Declare(asio
 FetchContent_MakeAvailableExcludeFromAll(asio)
 #
 add_library(asio INTERFACE)
-target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
+#target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
 target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio)
