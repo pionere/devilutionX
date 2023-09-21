@@ -20,7 +20,7 @@ template <typename Exception>
 void throw_exception(Exception const &e)
 {
 	// ErrAsio(e.what());
-	dvl::app_fatal("ASIO Error: %s", message);
+	dvl::app_fatal("ASIO Error: %s", e.what());
 }
 
 } // namespace asio::detail
