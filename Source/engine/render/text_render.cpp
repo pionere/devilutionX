@@ -177,9 +177,6 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 	case COL_GOLD:
 		tbl = FONT_TRN_GOLD;
 		break;
-	/*case COL_BLACK:
-		tbl = ColorTrns[MAXDARKNESS];
-		break;*/
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -206,9 +203,6 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -234,10 +228,11 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 {
 	BYTE nCel = gbStdFontFrame[text];
-	BYTE* tbl;
+	// BYTE* tbl;
 
 	if (nCel != 0) {
-		switch (col) {
+		PrintChar(sx, sy, nCel, col);
+		/*switch (col) {
 		case COL_WHITE:
 			CelDraw(sx, sy, pSmallTextCels, nCel);
 			return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -250,14 +245,11 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
+		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);*/
 	}
 
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -282,9 +274,6 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;

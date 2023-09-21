@@ -11,6 +11,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 - Unzip the downloaded file to the desired folder
 - Copy the MPQ files to the folder containing the DevilutionX exe (`devilx.mpq` should be already there)
+- Run `devil_patcher.exe` to patch (and optionally merge) the `.mpq` files.
 - Run `devilutionx.exe`
 
 </details>

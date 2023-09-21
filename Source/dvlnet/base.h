@@ -13,22 +13,24 @@ namespace net {
 
 class base : public abstract_net {
 public:
-	//virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) = 0;
-	//virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) = 0;
+	// bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
+	// bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
-	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
-	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
-	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
-	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-	unsigned SNetGetTurnsInTransit();
-	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func);
-	virtual void SNetUnregisterEventHandler(int evtype);
-	virtual void SNetLeaveGame(int reason);
-	virtual void SNetDropPlayer(int playerid);
+	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) override;
+	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
+	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
+	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) override;
+	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
+	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
+	unsigned SNetGetTurnsInTransit() override;
+	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override;
+	void SNetUnregisterEventHandler(int evtype) override;
+	void SNetLeaveGame(int reason) override;
+	void SNetDropPlayer(int playerid) override;
 
-	virtual ~base() = default;
+	~base() override = default;
+
+	// void make_default_gamename(char (&gamename)[128]) override;
 
 protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };

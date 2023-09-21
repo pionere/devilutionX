@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <string>
+//#include <cstddef>
+//#include <cstdint>
 #include <vector>
 
 /*#include "../defs.h"
@@ -101,7 +100,7 @@ public:
 };
 
 //=============================================================================
-
+#if FULL_UI
 class UiScrollBar : public UiItemBase {
 public:
 	UiScrollBar(SDL_Rect& rect)
@@ -147,7 +146,7 @@ public:
 	char* m_value;
 	unsigned m_max_length;
 };
-
+#endif // FULL_UI
 //=============================================================================
 
 // A button (uses Diablo sprites)

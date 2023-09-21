@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+//#include <cstdint>
 
 DEVILUTION_BEGIN_NAMESPACE
 

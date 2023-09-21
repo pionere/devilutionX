@@ -25,7 +25,7 @@ const MissileData missiledata[] = {
 /*MIS_HLSPWN*/       { &AddFirebolt,               &MI_Firebolt,                           MIF_SHROUD           , MISR_MAGIC,     MFILE_SCUBMISD,  TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_SOLBRNR*/      { &AddFirebolt,               &MI_Firebolt,                           MIF_SHROUD           , MISR_MAGIC,     MFILE_SCUBMISC,  TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_MAGMABALL*/    { &AddMagmaball,              &MI_Firebolt,                           MIF_SHROUD           , MISR_FIRE,      MFILE_MAGBALL,   TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
-/*MIS_ACID*/         { &AddAcid,                   &MI_Firebolt,                           MIF_SHROUD           , MISR_ACID,      MFILE_ACIDBF,    TRUE,      LS_ACID,     SFX_NONE,    2,        1, ALIGN },
+/*MIS_ACID*/         { &AddAcid,                   &MI_Acid,                               MIF_SHROUD           , MISR_ACID,      MFILE_ACIDBF,    TRUE,      LS_ACID,     SFX_NONE,    2,        1, ALIGN },
 /*MIS_ACIDPUD*/      { &AddAcidpud,                &MI_Acidpud,                 MIF_NOBLOCK | MIF_AREA | MIF_DOT, MISR_ACID,      MFILE_ACIDPUD,   TRUE,      LS_PUDDLE,   SFX_NONE,    1,        1, ALIGN },
 /*MIS_EXACIDP*/      { &AddMisexp,                 &MI_Acidsplat,                                              0, MISR_ACID,      MFILE_ACIDSPLA,  TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },
 /*MIS_EXFIRE*/       { &AddMisexp,                 &MI_MiniExp,                                                0, MISR_NONE,      MFILE_MAGBLOS,   TRUE,      SFX_NONE,    SFX_NONE,    1,        1, ALIGN },

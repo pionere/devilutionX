@@ -75,7 +75,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAXITEMS				127
 #define ITEM_NONE				0xFF
 #define MAXBELTITEMS			8
-#define MAXLIGHTS				31
+#define MAXLIGHTS				32
 #define MAXMISSILES				125
 #define MIS_MULTI				0xFF
 #define MAXMONSTERS				200
@@ -84,17 +84,16 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define OBJ_NONE				0xFF
 #define MAXPORTAL				MAX_PLRS
 #define MAXTHEMES				32
-#define MAXTILES				2047
+#define MAXTILES				255
+#define MAXSUBTILES				1023
 #define MAXVISION				(MAX_PLRS + MAX_MINIONS)
 #define MDMAXX					40
 #define MDMAXY					40
 #define MAXCHARLEVEL			50
 #define MAXSPLLEVEL				15
 #ifdef HELLFIRE
-#define ITEMTYPES				43
 #define BASESTAFFCHARGES		18
 #else
-#define ITEMTYPES				35
 #define BASESTAFFCHARGES		40
 #endif
 

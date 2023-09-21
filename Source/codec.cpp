@@ -5,8 +5,8 @@
  */
 #include "all.h"
 
-#include <cstddef>
-#include <cstdint>
+//#include <cstddef>
+//#include <cstdint>
 
 DEVILUTION_BEGIN_NAMESPACE
 

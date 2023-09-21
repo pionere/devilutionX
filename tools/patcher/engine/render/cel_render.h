@@ -40,9 +40,8 @@ void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const 
  * @param pCelBuff CEL buffer
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
- * @param light index of the light shade/trn to use
  */
-void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
+void CelClippedDraw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
 #ifdef __cplusplus
 }

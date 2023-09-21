@@ -15,7 +15,6 @@ extern "C" {
 #endif
 
 extern CelImageBuf* gbBackCel;
-extern CelImageBuf* gbHerosCel;
 extern CelImageBuf* gbSmlButtonCel;
 
 extern void (*gfnSoundFunction)(int gfx, int rndCnt);
@@ -23,7 +22,9 @@ extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
+#if FULL_UI
 extern UiEdit* gUiEditField;
+#endif
 extern bool gUiDrawCursor;
 
 inline SDL_Surface* DiabloUiSurface()
@@ -55,9 +56,11 @@ void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
 void UiFocus(unsigned itemIndex);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
-void UiFocusNavigationYesNo();
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL);
+void UiFocusNavigationDelete();
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnDelete)() = NULL);
+#if FULL_UI
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
+#endif
 void UiClearScreen();
 void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems);
 void UiRenderItems(const std::vector<UiItemBase*>& uiItems);

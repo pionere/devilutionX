@@ -115,9 +115,11 @@ MenuAction GetMenuAction(SDL_Event& event)
 		case SDLK_KP_ENTER:
 			return MenuAction_SELECT;
 		case SDLK_SPACE:
+#if FULL_UI
 			if (gUiEditField == NULL) {
 				return MenuAction_SELECT;
 			}
+#endif
 			break;
 		case SDLK_DELETE:
 			return MenuAction_DELETE;
@@ -131,7 +133,7 @@ MenuAction GetMenuAction(SDL_Event& event)
 			break;
 		}
 	}
-#endif
+#endif // !HAS_KBCTRL
 
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		switch (event.button.button) {

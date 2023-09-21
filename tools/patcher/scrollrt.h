@@ -12,9 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int light_trn_index;
-extern bool gbCelTransparencyActive;
-
 void ClearCursor();
 #if DEBUG_MODE
 void ScrollView();

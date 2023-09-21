@@ -9,9 +9,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the megatiles. */
-#define BASE_MEGATILE_L3 (8 - 1)
-/** Default megatile if the tile is zero. */
+/** The default external tile. */
+#define BASE_MEGATILE_L3 8
+/** The default floor tile. */
 #define DEFAULT_MEGATILE_L3 7
 /** The required number of lava pools.*/
 #define MIN_LAVA_POOL 3
@@ -19,12 +19,12 @@ DEVILUTION_BEGIN_NAMESPACE
 unsigned _guLavapools;
 
 /* Tiles to build the theme rooms. */
-const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146, 150, 151, 152, 138 };
+const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146, 150, 144, 145, 138 };
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L3ConvTbl[16] = { BASE_MEGATILE_L3 + 1, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
+const BYTE L3ConvTbl[16] = { BASE_MEGATILE_L3, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
 /** Miniset: Stairs up. */
 const BYTE L3USTAIRS[] = {
 	// clang-format off
@@ -37,14 +37,6 @@ const BYTE L3USTAIRS[] = {
 	51, 50, 0, // replace
 	48, 49, 0,
 	 0,  0, 0,
-/*  181,182    178,179,     0,  0,	// MegaTiles
-	183, 31    180, 31,     0,  0,
-
-	170,171    174,175,     0,  0,
-	172,173    176,177,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
 };
 #ifdef HELLFIRE
@@ -71,17 +63,9 @@ const BYTE L3DSTAIRS[] = {
 	8, 9, 7,
 	0, 0, 0,
 
-	0, 47, 0, // replace
-	0, 46, 0,
-	0,  0, 0,
-	/*0,  0,   166,167,     0,  0,	// MegaTiles
-	  0,  0,   168,169,     0,  0,
-
-	  0,  0,   162,163,     0,  0,
-	  0,  0,   164,165,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0, */
+	111, 47, 0, // replace
+	  0, 46, 0,
+	  0,  0, 0,
 	// clang-format on
 };
 #ifdef HELLFIRE
@@ -93,14 +77,14 @@ const BYTE L6DSTAIRS[] = {
 	8, 9, 7,
 	0, 0, 0,
 
-	0, 16, 0, // replace
-	0, 15, 0,
-	0,  0, 0,
+	23, 16, 0, // replace
+	 0, 15, 0,
+	 0,  0, 0,
 	// clang-format on
 };
 #endif
 /** Miniset: Stairs up to town. */
-const BYTE L3TWARP[] = {
+/*const BYTE L3TWARP[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -111,16 +95,8 @@ const BYTE L3TWARP[] = {
 	156, 155, 0, // replace
 	153, 154, 0,
 	  0,   0, 0,
-/*  559,182    556,557,     0,  0,	// MegaTiles
-	560, 31    558, 31,     0,  0,
-
-	548,549    552,553,     0,  0,
-	550,551    554,555,     0,  0,
-
-	  0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0, */
 	// clang-format on
-};
+};*/
 /* same look as L6USTAIRS
 #ifdef HELLFIRE
 const BYTE L6TWARP[] = {
@@ -153,34 +129,11 @@ const BYTE L3BTYPES[157] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 90..
 	0, 0, 0, 0, 0, 0, 1, 1, 1, 2, //100..
-	3, 0, 3, 0, 0, 0, 0, 0, 0, 0, //110..
+	3, 0, 0, 0, 0, 0, 0, 0, 0, 0, //110..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //120..
 	0, 0, 0, 0, 4, 5, 4, 5, 0, 0, //130..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
 	0, 0, 0, 0, 0, 0, 0           //150..
-	// clang-format on
-};
-/*
- * Specifies where the given tile ID should spread the room ID (transval).
- */
-const BYTE L3FTYPES[157] = {
-	// clang-format off
-	 0,  2,  3,  4,  5,  7,  1, 15,  0, 10,
-	12,  8, 14, 13, 11,  3,  3,  5,  5,  7, // 10..
-	 3, 13, 10,  2,  0,  5,  3, 12,  8,  7, // 20..
-	11,  5, 12,  0,  1,  0,  0,  8,  0,  0, // 30..
-	 0,  0,  0,  0,  3,  5, 10, 10, 12, 12, // 40..
-	 0,  0, 15, 15, 15, 15, 15, 15, 15, 15, // 50..
-	15, 15, 15, 15, 15, 15, 15, 15, 10, 12, // 60..
-	12, 12, 12, 10,  8, 10, 15, 15, 15,  8, // 70..
-	10, 15, 15, 15,  0, 10,  0,  8, 12,  0, // 80..
-	 0, 10,  0,  8, 12,  0,  0,  0,  0,  0, // 90..
-	 0,  2,  3,  4,  5,  1, 15, 15, 15, 10, //100..
-	12,  0,  4, 15, 15, 15, 15, 15, 15, 15, //110..
-	 3, 10, 10, 10, 10,  8, 12, 12, 12, 12, //120..
-	 0,  0,  0,  0,  3,  5,  3,  5,  1,  1, //130..
-	 1,  1,  1,  1,  5,  3,  3,  5,  3,  5, //140..
-	 7,  3,  5, 12, 12,  0,  0              //150..
 	// clang-format on
 };
 #ifdef HELLFIRE
@@ -192,7 +145,7 @@ const BYTE L6BTYPES[167] = {
 	0, 0, 0, 0, 0, 0, 0, 1, 2, 3,
 	4, 5, 0, 0, 0, 0, 0, 0, 0, 0, // 10..
 	0, 0, 0, 0, 0, 2, 2, 2, 2, 1, // 20..
-	1, 1, 1, 3, 3, 3, 3, 3, 5, 4, // 30..
+	0, 0, 0, 3, 3, 3, 3, 3, 5, 4, // 30..
 	4, 4, 4, 4, 5, 3, 3, 4, 4, 5, // 40..
 	5, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 50..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60..
@@ -205,30 +158,6 @@ const BYTE L6BTYPES[167] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //130..
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
 	0, 0, 0, 0, 0, 0, 0           //150..
-	// clang-format on
-};
-/*
- * Specifies where the given tile ID should spread the room ID (transval).
- */
-const BYTE L6FTYPES[167] = {
-	// clang-format off
-	 0,  2,  3,  4,  5,  7,  1, 15,  0, 10,
-	12,  8, 14, 13, 11, 10, 10, 12, 12,  0, // 10..
-	 0, 12, 12,  0,  0,  0,  0,  0,  0, 15, // 20..
-	15, 15, 15, 10, 10, 10, 10, 10,  8, 12, // 30..
-	12, 12, 12, 12,  8, 10, 10, 12, 12,  8, // 40..
-	 8, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 50..
-	15, 12, 15, 15,  0, 15, 15, 15, 15, 15, // 60..
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15, // 70..
-	15, 15, 15, 15, 15, 15, 15, 15, 15,  0, // 80..
-	 0,  0,  0,  8,  8,  8,  0,  0,  0, 15, // 90..
-	15, 15, 15,  0,  1,  0,  0,  1,  7, 13, //100..
-	15,  5,  8,  1,  2,  2,  5,  7,  0,  0, //110..
-	 0,  8,  8,  8, 15,  0,  2,  0,  0,  0, //120..
-	 0,  0,  0,  0,  0,  0,  0,  0,  0,  8, //130..
-	 0, 15, 15, 15, 15,  0,  0, 15, 15, 15, //140..
-	 15, 0,  8,  0,  8,  8,  0,  0, 10,  0, //150..
-	 8,  8,  0,  0,  0,  0,  0,             //160..
 	// clang-format on
 };
 #endif
@@ -348,7 +277,7 @@ const BYTE L3TITE11[] = {
 	 0,  0, 0,
 	// clang-format on
 };*/
-/** Miniset: Cracked vertical wall 1. */
+/** Miniset: Cracked vertical wall - north-west I. */
 const BYTE L3CREV1[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -358,7 +287,7 @@ const BYTE L3CREV1[] = {
 	84, 85, // replace
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - north corner. */
+/** Miniset: Cracked vertical wall - north I. */
 const BYTE L3CREV2[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -368,7 +297,7 @@ const BYTE L3CREV2[] = {
 	86, 87, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall 1. */
+/** Miniset: Cracked horizontal wall - north-east I. */
 const BYTE L3CREV3[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -380,7 +309,7 @@ const BYTE L3CREV3[] = {
 	88,
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall 2. */
+/** Miniset: Cracked vertical wall - north-west II. */
 const BYTE L3CREV4[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -390,7 +319,7 @@ const BYTE L3CREV4[] = {
 	90, 91, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall - north corner. */
+/** Miniset: Cracked horizontal wall - north II. */
 const BYTE L3CREV5[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -402,7 +331,7 @@ const BYTE L3CREV5[] = {
 	93,
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall 2. */
+/** Miniset: Cracked horizontal wall - north-east II. */
 const BYTE L3CREV6[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -414,17 +343,17 @@ const BYTE L3CREV6[] = {
 	94,
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - west corner. */
+/** Miniset: Cracked vertical wall - west */
 const BYTE L3CREV7[] = {
 	// clang-format off
 	2, 1, // width, height
 
-	8, 9, // search
+	8, 1, // search
 
-	96, 91, // replace
+	96, 101, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall - north. */
+/** Miniset: Cracked horizontal wall - south-west */
 const BYTE L3CREV8[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -436,7 +365,7 @@ const BYTE L3CREV8[] = {
 	 97,
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - east corner. */
+/** Miniset: Cracked vertical wall - east */
 const BYTE L3CREV9[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -446,7 +375,7 @@ const BYTE L3CREV9[] = {
 	103, 98, // replace
 	// clang-format on
 };
-/** Miniset: Cracked vertical wall - west. */
+/** Miniset: Cracked vertical wall - south-east */
 const BYTE L3CREV10[] = {
 	// clang-format off
 	2, 1, // width, height
@@ -456,7 +385,7 @@ const BYTE L3CREV10[] = {
 	104, 99, // replace
 	// clang-format on
 };
-/** Miniset: Cracked horizontal wall - south corner. */
+/** Miniset: Cracked horizontal wall - south */
 const BYTE L3CREV11[] = {
 	// clang-format off
 	1, 2, // width, height
@@ -597,7 +526,7 @@ const BYTE L6MITE2[] = {
 	67,  0, // search
 	66, 51,
 
-	69,  0, // replace
+	 7,  0, // replace
 	68, 52,
 	// clang-format on
 };
@@ -621,7 +550,7 @@ const BYTE L6MITE4[] = {
 	67,  0, // search
 	66, 51,
 
-	73,  0, // replace
+	 7,  0, // replace
 	72, 54,
 	// clang-format on
 };
@@ -633,8 +562,8 @@ const BYTE L6MITE5[] = {
 	67,  0, // search
 	66, 51,
 
-	75,  0, // replace
-	74, 55,
+	 7,  0, // replace
+	 7, 55,
 	// clang-format on
 };
 /** Miniset: Two floor tiles with a vertical wall in the middle 6. */
@@ -645,7 +574,7 @@ const BYTE L6MITE6[] = {
 	67,  0, // search
 	66, 51,
 
-	77,  0, // replace
+	 7,  0, // replace
 	76, 56,
 	// clang-format on
 };
@@ -657,7 +586,7 @@ const BYTE L6MITE7[] = {
 	67,  0, // search
 	66, 51,
 
-	79,  0, // replace
+	 7,  0, // replace
 	78, 57,
 	// clang-format on
 };
@@ -669,7 +598,7 @@ const BYTE L6MITE8[] = {
 	67,  0, // search
 	66, 51,
 
-	81,  0, // replace
+	 7,  0, // replace
 	80, 58,
 	// clang-format on
 };
@@ -692,7 +621,7 @@ const BYTE L6MITE10[] = {
 	67,  0, // search
 	66, 51,
 
-	84,  0, // replace
+	 7,  0, // replace
 	85, 60,
 	// clang-format on
 };
@@ -1444,13 +1373,13 @@ static BYTE DRLG_L3FillStraights()
 	}
 }*/
 
-static int DRLG_L3GetFloorArea()
+static int DRLG_L3GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetFloorArea.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L3GetArea.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
 		assert(*pTmp <= 1);
@@ -1498,9 +1427,9 @@ static void DRLG_L3MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L3 + 1;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L3;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L3 + 1;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L3;
 }
 
 /*static void DRLG_L3FloodTVal()
@@ -1539,7 +1468,7 @@ typedef struct RiverTile {
 /*
  * Draw lava rivers.
  * Assumes the border of dungeon was empty.
- * New dungeon values: 19 20 21 22 23 24 38 39 40 41 42 43 44 45
+ * New dungeon values: 15 16 17 18 19 20 21 22 23 24 38 39 40 41 42 43 44 45
  */
 static void DRLG_L3River()
 {
@@ -1848,8 +1777,8 @@ static bool DRLG_L3SpawnLava(int x, int y, int dir)
 
 static void DRLG_L3DrawLava(int x, int y)
 {
-	BYTE i;                 //     0     1     2     3     4     5     6     7     8     9    10    11    12    13    14 
-	static BYTE poolsub[15] = { 0x00, 0x23, 0x1A, 0x24, 0x19, 0x1D, 0x22, 0x07, 0x21, 0x1C, 0x1B, 0x25, 0x20, 0x1F, 0x1E };
+	BYTE i;                 //   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14 
+	static BYTE poolsub[15] = {  0, 35, 26, 36, 25, 29, 34,  7, 33, 28, 27, 37, 32, 31, 30 };
 
 	if (x < 0 || x >= DMAXX || y < 0 || y >= DMAXY) {
 		return;
@@ -1876,6 +1805,7 @@ static void DRLG_L3DrawLava(int x, int y)
  * Flood fills dirt and wall tiles looking for
  * an area of at most 40 tiles and disconnected from the map edge.
  * If it finds one, converts it to lava tiles and sets lavapool to TRUE.
+ * New dungeon values: 25 26 27 28 29 30 31 32 33 34 35 36 37
  */
 static void DRLG_L3Pool()
 {
@@ -2139,7 +2069,7 @@ static void DRLG_L6PlaceRndPool(const BYTE* miniset, int rndper)
 /*
  * Add fences and planks to the dungeon.
  * New dungeon values: 121, 122, 123, 124, 125, 126, 127, 128, 129, 130,
- *                     131, 132, 133, 134, 135, 136, 137, 139, 140, 142, 143, 151, 152
+ *                     131, 132, 133, 134, 135, 139, 140, 142, 143, 146, 147, 151, 152
  */
 static void DRLG_L3Wood()
 {
@@ -2205,7 +2135,7 @@ static void DRLG_L3Wood()
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			bv = dungeon[i][j];
-			if ((bv == 2 || bv == 134 || bv == 150 || bv == 151) && random_(0, 4) != 0) {
+			if ((bv == 2 || bv == 134 || bv == 150 || bv == 144) && random_(0, 4) != 0) {
 				if (InThemeRoom(i, j - 1))
 					continue; // in a theme room -> skip
 				y1 = j;
@@ -2256,7 +2186,11 @@ static void DRLG_L3Wood()
 					dungeon[i][j] = 139;
 				else if (dungeon[i][j] == 134)
 					dungeon[i][j] = 142;
-			} else if ((bv == 4 || bv == 135 || bv == 138 || bv == 152) && random_(0, 4) != 0) {
+				else if (dungeon[i][j] == 150)
+					dungeon[i][j] = 152;
+				else if (dungeon[i][j] == 144)
+					dungeon[i][j] = 143;
+			} else if ((bv == 4 || bv == 135 || bv == 145 || bv == 150) && random_(0, 4) != 0) {
 				if (InThemeRoom(i - 1, j))
 					continue; // in a theme room -> skip
 				x1 = i;
@@ -2307,6 +2241,10 @@ static void DRLG_L3Wood()
 					dungeon[i][j] = 140;
 				else if (dungeon[i][j] == 135)
 					dungeon[i][j] = 143;
+				else if (dungeon[i][j] == 145)
+					dungeon[i][j] = 142;
+				else if (dungeon[i][j] == 150)
+					dungeon[i][j] = 151;
 			}
 		}
 	}
@@ -2395,13 +2333,7 @@ void DRLG_L3InitTransVals()
 	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
 	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
 
-	const BYTE *floorTypes = L3FTYPES;
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_NEST) {
-		floorTypes = L6FTYPES;
-	}
-#endif
-	DRLG_FloodTVal(floorTypes);
+	DRLG_FloodTVal();
 }
 
 static void DRLG_L3()
@@ -2422,7 +2354,7 @@ static void DRLG_L3()
 				} while (!doneflag);
 				DRLG_L3FillSingles();
 				// DRLG_L3Edges(); - Commented out because it is no longer necessary
-			} while (DRLG_L3GetFloorArea() < 600 || !DRLG_L3Lockout());
+			} while (DRLG_L3GetArea() < 600 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 			memset(drlgFlags, 0, sizeof(drlgFlags));
 			if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
@@ -2434,11 +2366,19 @@ static void DRLG_L3()
 				if (warpPos.x < 0) {
 					continue;
 				}
-				pWarps[DWARP_ENTRY]._wx = warpPos.x + 0;
-				pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
-				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
-				pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
-				pWarps[DWARP_ENTRY]._wtype = WRPT_L3_UP;
+				if (currLvl._dLevelIdx == DLV_NEST1) {
+					pWarps[DWARP_TOWN]._wx = warpPos.x + 0;
+					pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
+					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX + 1;
+					pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+					pWarps[DWARP_TOWN]._wtype = WRPT_L3_UP;
+				} else {
+					pWarps[DWARP_ENTRY]._wx = warpPos.x + 0;
+					pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
+					pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+					pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+					pWarps[DWARP_ENTRY]._wtype = WRPT_L3_UP;
+				}
 				if (currLvl._dLevelIdx != DLV_NEST4) {
 					warpPos = DRLG_PlaceMiniSet(L6DSTAIRS); // L6DSTAIRS(3, 1)
 					if (warpPos.x < 0) {
@@ -2447,7 +2387,7 @@ static void DRLG_L3()
 					pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
 					pWarps[DWARP_EXIT]._wy = warpPos.y + 0;
 					pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-					pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+					pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 					pWarps[DWARP_EXIT]._wtype = WRPT_L3_DOWN;
 				}
 			} else
@@ -2460,7 +2400,7 @@ static void DRLG_L3()
 				}
 				pWarps[DWARP_ENTRY]._wx = warpPos.x + 0;
 				pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
-				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
 				pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
 				pWarps[DWARP_ENTRY]._wtype = WRPT_L3_UP;
 				warpPos = DRLG_PlaceMiniSet(L3DSTAIRS); // L3DSTAIRS(3, 1)
@@ -2470,16 +2410,16 @@ static void DRLG_L3()
 				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
 				pWarps[DWARP_EXIT]._wy = warpPos.y + 0;
 				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX;
-				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY + 1;
 				pWarps[DWARP_EXIT]._wtype = WRPT_L3_DOWN;
 				if (currLvl._dLevelIdx == DLV_CAVES1) {
-					warpPos = DRLG_PlaceMiniSet(L3TWARP); // L3TWARP(1, 3)
+					warpPos = DRLG_PlaceMiniSet(L3USTAIRS); // L3TWARP(1, 3)
 					if (warpPos.x < 0) {
 						continue;
 					}
 					pWarps[DWARP_TOWN]._wx = warpPos.x + 0;
 					pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
-					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+					pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX + 1;
 					pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
 					pWarps[DWARP_TOWN]._wtype = WRPT_L3_UP;
 				}
@@ -2592,51 +2532,15 @@ static void DRLG_L3()
 		DRLG_L3PlaceRndSet(L3CREV11, 30);
 	}
 }
-
-static void DRLG_L3LightTiles()
-{
-	int i, j, pn;
-
-	assert(LightList[MAXLIGHTS]._lxoff == 0);
-	assert(LightList[MAXLIGHTS]._lyoff == 0);
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_NEST) {
-		LightList[MAXLIGHTS]._lradius = 6; // 9
-		for (i = 0; i < MAXDUNX; i++) {
-			for (j = 0; j < MAXDUNY; j++) {
-				pn = dPiece[i][j];
-				if ((pn >= 386 && pn <= 496) || (pn >= 534 && pn <= 537)) {
-					LightList[MAXLIGHTS]._lx = i;
-					LightList[MAXLIGHTS]._ly = j;
-					DoLighting(MAXLIGHTS);
-				}
-			}
-		}
-	} else
-#endif
-	{
-		// assert(currLvl._dType == DTYPE_CAVES);
-		LightList[MAXLIGHTS]._lradius = 7;
-		for (i = 0; i < MAXDUNX; i++) {
-			for (j = 0; j < MAXDUNY; j++) {
-				pn = dPiece[i][j];
-				if (pn >= 56 && pn <= 161
-				 && (pn <= 147 || pn >= 154 || pn == 150 || pn == 152)) {
-					LightList[MAXLIGHTS]._lx = i;
-					LightList[MAXLIGHTS]._ly = j;
-					DoLighting(MAXLIGHTS);
-				}
-			}
-		}
-	}
-}
-
-static void DRLG_L3SetMapFix()
+#if !USE_PATCH
+static void DRLG_L3FixMap()
 {
 	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
 
 	if (pSetPieces[0]._sptype == SPT_LVL_PWATER) {
 		// patch the map - Foulwatr.DUN
+		// - separate subtiles for the automap
+		lm[2 + 7 + 33 * 19] = SwapLE16(111);
 		// protect island tiles from spawning additional monsters
 		for (int y = 1; y < 7; y++) {
 			for (int x = 7; x < 14; x++) {
@@ -2646,13 +2550,15 @@ static void DRLG_L3SetMapFix()
 		// remove most of the monsters
 		for (int y = 13; y < 61; y++) {
 			for (int x = 4; x < 30; x++) {
+				if (x == 6 && y == 33) {
+					continue;
+				}
 				lm[2 + 19 * 37 + 19 * 37 * 2 * 2 + x + y * 19 * 2] = 0;
 			}
 		}
-		lm[2 + 19 * 37 + 19 * 37 * 2 * 2 + 6 + 33 * 19 * 2] = SwapLE16(33);
 	}
 }
-
+#endif
 static void DRLG_L3DrawPreMaps()
 {
 	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
@@ -2677,11 +2583,13 @@ static void LoadL3Dungeon(const LevelData* lds)
 	pSetPieces[0]._spy = 0;
 	pSetPieces[0]._sptype = lds->dSetLvlPiece;
 	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
-	DRLG_L3SetMapFix();
+#if !USE_PATCH
+	DRLG_L3FixMap();
+#endif
 
 	memset(drlgFlags, 0, sizeof(drlgFlags));
 	static_assert(sizeof(dungeon[0][0]) == 1, "memset on dungeon does not work in LoadL3DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L3 + 1, sizeof(dungeon));
+	memset(dungeon, BASE_MEGATILE_L3, sizeof(dungeon));
 
 	DRLG_LoadSP(0, DEFAULT_MEGATILE_L3);
 }
@@ -2711,10 +2619,6 @@ void CreateL3Dungeon()
 
 	DRLG_L3InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L3);
-	DRLG_Init_Globals();
-	DRLG_L3LightTiles();
-
-	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE

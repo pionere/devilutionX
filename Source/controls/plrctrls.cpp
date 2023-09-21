@@ -1,7 +1,7 @@
 #include "plrctrls.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-#include <cstdint>
+//#include <cstdint>
 #include <queue>
 
 #include "controller_motion.h"

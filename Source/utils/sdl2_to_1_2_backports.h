@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef USE_SDL1
 #include <SDL.h>
 #include <unistd.h>
 #include <cerrno>
@@ -323,3 +324,5 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 char* SDL_GetBasePath();
 char* SDL_GetPrefPath(const char* org, const char* app);
+
+#endif // USE_SDL1
