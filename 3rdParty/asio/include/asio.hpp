@@ -15,6 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
+#include "../asio_handle_exception.hpp"
 #include "asio/associated_allocator.hpp"
 #include "asio/associated_executor.hpp"
 #include "asio/async_result.hpp"
