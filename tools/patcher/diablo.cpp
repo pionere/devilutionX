@@ -20,6 +20,24 @@ bool gbSndInited = false;
 
 BYTE* pMicrosCel;
 
+static int diablo_parse_flags(int argc, char** argv)
+{
+	for (int i = 1; i < argc; i++) {
+		if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
+			i++;
+			if (i < argc)
+				SetBasePath(argv[i]);
+		} else if (SDL_strcasecmp("--save-dir", argv[i]) == 0) {
+			i++;
+			if (i < argc)
+				SetPrefPath(argv[i]);
+		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
+			gbFullscreen = false;
+		}
+	}
+	return EX_OK;
+}
+
 static void diablo_init_screen()
 {
 	MousePos.x = SCREEN_WIDTH / 2;
@@ -78,6 +96,10 @@ static void diablo_deinit()
 
 int DiabloMain(int argc, char** argv)
 {
+	int res = diablo_parse_flags(argc, argv);
+	if (res != EX_OK)
+		return res - 1;
+
 	diablo_init();
 	mainmenu_loop();
 	diablo_deinit();
