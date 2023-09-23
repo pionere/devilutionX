@@ -52,7 +52,7 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 #else
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
-		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		DoLog("ABORT(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("App Error %d", ec);                                            \
 	}
 #define sdl_error(ec)                                                             \
@@ -65,7 +65,7 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 #define dev_fatal(msg, ...) ((void)0)
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
-		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		DoLog("ABORT(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("App Error %d", ec);                                            \
 	}
 #define sdl_error(ec)                                                             \
