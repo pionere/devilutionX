@@ -38,6 +38,10 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 	app_fatal(pszFmt, args...);
 }*/
 #define dev_fatal(msg, ...) app_fatal(msg, __VA_ARGS__);
+#else
+#define dev_fatal(msg, ...) ((void)0)
+#endif
+
 #if DEBUG_MODE
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
@@ -61,19 +65,6 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 		app_fatal("SDL Error %d", ec);                                            \
 	}
 #endif // DEBUG_MODE
-#else
-#define dev_fatal(msg, ...) ((void)0)
-#define app_error(ec)                                                             \
-	if (ec == ec) {                                                               \
-		DoLog("ABORT(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
-		app_fatal("App Error %d", ec);                                            \
-	}
-#define sdl_error(ec)                                                             \
-	if (ec == ec) {                                                               \
-		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
-		app_fatal("SDL Error %d", ec);                                            \
-	}
-#endif // DEBUG_MODE || DEV_MODE
 
 #ifdef __cplusplus
 }
