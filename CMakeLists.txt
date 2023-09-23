@@ -598,9 +598,12 @@ else()
       Packaging/apple/AppIcon.icns
       Packaging/apple/LaunchScreen.storyboard)
   elseif(WIN32)
-    list(APPEND BIN_SOURCES
-      Packaging/windows/devilutionx.exe.manifest
-      Packaging/windows/devilutionx.rc)
+    list(APPEND BIN_SOURCES Packaging/windows/devilutionx.exe.manifest)
+    if(HELLFIRE)
+      list(APPEND BIN_SOURCES Packaging/windows/hellfire.rc)
+    else()
+      list(APPEND BIN_SOURCES Packaging/windows/devilutionx.rc)
+    endif()
   endif()
   add_executable(${BIN_TARGET}
     WIN32
@@ -697,9 +700,12 @@ if(USE_PATCH)
       Packaging/apple/AppIcon.icns
       Packaging/apple/LaunchScreen.storyboard)
   elseif(WIN32)
-    list(APPEND PATCHER_SOURCES
-      Packaging/windows/devilutionx.exe.manifest
-      Packaging/windows/devilutionx.rc)
+    list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
+    if(HELLFIRE)
+      list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
+    else()
+      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+    endif()
   endif()
   add_executable(${DEVIL_PATCHER}
     WIN32
