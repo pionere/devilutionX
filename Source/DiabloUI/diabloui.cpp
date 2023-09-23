@@ -680,7 +680,7 @@ void UiHandleEvents(SDL_Event* event)
 		return;
 
 	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		if (!gUiDrawCursor) {
+		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
 			UiFocusNavigationEsc();
 			return;
 		}
