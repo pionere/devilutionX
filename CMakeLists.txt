@@ -683,13 +683,13 @@ if(USE_PATCH)
   endif()
 
   if(NINTENDO_SWITCH)
-    list(APPEND devilutionx_SRCS
+    list(APPEND devil_patcher_SRCS
       Source/platform/switch/docking.cpp
       Source/platform/switch/romfs.cpp)
   endif()
 
   if(NINTENDO_3DS)
-    list(APPEND devilutionx_SRCS
+    list(APPEND devil_patcher_SRCS
       Source/platform/ctr/system.cpp
       Source/platform/ctr/display.cpp
       Source/platform/ctr/messagebox.cpp)
