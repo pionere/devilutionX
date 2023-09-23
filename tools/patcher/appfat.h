@@ -28,9 +28,7 @@ void app_fatal(const char* pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
  * @param ... Additional parameters for message format
  */
 void app_warn(const char* pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
-#if DEBUG_MODE
-void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr);
-#endif
+//void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr);
 //void FileErrDlg(const char* error);
 //void InsertCDDlg();
 
