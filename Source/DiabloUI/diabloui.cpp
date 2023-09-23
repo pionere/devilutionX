@@ -207,7 +207,7 @@ static void UiCatToName(char* inBuf)
 static void UiSetName(char* inBuf)
 {
 	std::string output = utf8_to_latin1(inBuf);
-	strncpy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
+	SStrCopy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
 }
 #endif
 
