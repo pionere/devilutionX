@@ -239,8 +239,6 @@ void LoadGameLevel(int lvldir)
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
 		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 		IncProgress();
-		IncProgress();
-
 		InitTowners();
 	}
 	IncProgress();
