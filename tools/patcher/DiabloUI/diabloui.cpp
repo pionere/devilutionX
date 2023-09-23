@@ -74,8 +74,13 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
 	gfnListDelete = fnDelete;
+#if SCREEN_READER_INTEGRATION
+	if (gUIListItems.size() > SelectedItem) {
+		SpeakText(gUIListItems[SelectedItem]->m_text);
+	}
+#endif
 	if (fnFocus != NULL)
-		fnFocus(0);
+		fnFocus(SelectedItem);
 
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	SDL_StopTextInput(); // input is enabled by default if !SDL_HasScreenKeyboardSupport
@@ -145,7 +150,11 @@ void UiFocus(unsigned itemIndex)
 	SelectedItem = itemIndex;
 
 	UiScrollIntoView();
-
+#if SCREEN_READER_INTEGRATION
+	if (gUIListItems.size() > SelectedItem) {
+		SpeakText(gUIListItems[SelectedItem]->m_text);
+	}
+#endif
 	UiPlayMoveSound();
 
 	if (gfnListFocus != NULL)

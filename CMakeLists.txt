@@ -173,6 +173,7 @@ option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
+option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
@@ -357,6 +358,18 @@ if(ZEROTIER)
   add_subdirectory(3rdParty/libzt)
 endif()
 
+if(SCREEN_READER_INTEGRATION)
+  if(WIN32)
+    add_subdirectory(3rdParty/tolk)
+    #target_compile_definitions(libdevilutionx PRIVATE Tolk)
+    set(SCREEN_READER_LIBRARY Tolk)
+  else()
+    find_package(Speechd REQUIRED)
+    include_directories(PUBLIC ${Speechd_INCLUDE_DIRS})
+    set(SCREEN_READER_LIBRARY Speechd)
+  endif()
+endif()
+
 add_library(smacker STATIC
   3rdParty/libsmacker/smacker.c)
 target_include_directories(smacker PUBLIC 3rdParty/libsmacker)
@@ -509,6 +522,7 @@ set(devilutionx_SRCS
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp
+  Source/utils/screen_reader.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp
@@ -673,6 +687,7 @@ if(USE_PATCH)
     tools/patcher/storm/storm.cpp
     tools/patcher/utils/display.cpp
     tools/patcher/utils/paths.cpp
+    tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
     tools/patcher/utils/soundsample.cpp
     tools/patcher/utils/thread.cpp)
@@ -728,6 +743,10 @@ if(USE_PATCH)
 
   if(NOT NOSOUND)
     target_link_libraries(${DEVIL_PATCHER} PRIVATE ${SDL_MIXER_LIBRARY})
+  endif()
+
+  if(SCREEN_READER_INTEGRATION)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${SCREEN_READER_LIBRARY})
   endif()
 
   target_include_directories(${DEVIL_PATCHER} PRIVATE
@@ -836,6 +855,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   DEBUG_MODE
   DEV_MODE
@@ -947,6 +967,10 @@ endif()
 
 if(NOT NOSOUND)
   target_link_libraries(${BIN_TARGET} PRIVATE ${SDL_MIXER_LIBRARY})
+endif()
+
+if(SCREEN_READER_INTEGRATION)
+  target_link_libraries(${BIN_TARGET} PRIVATE ${SCREEN_READER_LIBRARY})
 endif()
 
 if(AMIGA)
@@ -1352,7 +1376,11 @@ if(CPACK)
     #  #  DESTINATION "LICENSE"
     #  #)
     #endif()
-
+    if(SCREEN_READER_INTEGRATION)
+      install(FILES "${Tolk_BINARY_DIR}/libTolk.dll"
+        DESTINATION "."
+      )
+    endif()
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_GENERATOR "7Z")
@@ -1483,6 +1511,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   ASAN
   UBSAN

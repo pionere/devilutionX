@@ -195,7 +195,9 @@ static void diablo_init()
 	gbWasUiInit = true;
 
 	diablo_init_screen();
-
+#ifdef SCREEN_READER_INTEGRATION
+	InitScreenReader();
+#endif
 	InitSound();
 	gbSndInited = true;
 
@@ -229,6 +231,9 @@ static void diablo_deinit()
 		FreeUiSFX();
 		FreeSound();
 	}
+#ifdef SCREEN_READER_INTEGRATION
+	FreeScreenReader();
+#endif
 	//if (gbWasUiInit)
 		UiDestroy();
 		FreeText();
