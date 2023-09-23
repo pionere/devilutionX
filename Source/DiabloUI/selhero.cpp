@@ -457,6 +457,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
 		//gfnHeroStats = fnstats;
 
 		selhero_SaveCount = 0;
+		selhero_heros.clear();
 		fninfo(SelHeroGetHeroInfo);
 		std::reverse(selhero_heros.begin(), selhero_heros.end());
 
