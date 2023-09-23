@@ -3920,9 +3920,6 @@ typedef enum _cmd_id {
 	CMD_DO_PLRCHECK,       // DEV_MODE
 	CMD_REQUEST_ITEMCHECK, // DEV_MODE
 	CMD_DO_ITEMCHECK,      // DEV_MODE
-	CMD_CHEAT_EXPERIENCE,  // DEBUG_MODE
-	CMD_CHEAT_SPELL_LEVEL, // DEBUG_MODE
-	CMD_DEBUG,             // DEBUG_MODE
 } _cmd_id;
 
 typedef enum _dcmd_item {

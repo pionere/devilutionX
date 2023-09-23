@@ -192,11 +192,6 @@ static void CreateDungeon()
 
 void LoadGameLevel(int lvldir)
 {
-#if DEBUG_MODE
-	if (setseed)
-		glSeedTbl[currLvl._dLevelIdx] = setseed;
-#endif
-
 	music_stop();
 	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);

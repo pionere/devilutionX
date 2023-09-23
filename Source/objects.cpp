@@ -1398,13 +1398,10 @@ static void Obj_Light(int oi)
 	ox = os->_ox;
 	oy = os->_oy;
 	turnon = false;
-#if DEBUG_MODE
-	if (!lightflag)
-#endif
-	{
-		tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
-		turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
-	}
+
+	tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
+	turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
+
 	if (turnon) {
 		assert(objectdata[OBJ_L1LIGHT].ofindex == OFILE_L1BRAZ);
 		assert(objfiledata[OFILE_L1BRAZ].oAnimFrameLen < lengthof(flickers));

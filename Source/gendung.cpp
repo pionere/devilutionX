@@ -1361,10 +1361,6 @@ static void DRLG_LightSubtiles()
 	int i, j, pn;
 
 	c = currLvl._dType == DTYPE_TOWN ? 0 : MAXDARKNESS;
-#if DEBUG_MODE
-	if (lightflag)
-		c = 0;
-#endif
 	memset(dLight, c, sizeof(dLight));
 
 	if (!nCollLightTable[0]) {

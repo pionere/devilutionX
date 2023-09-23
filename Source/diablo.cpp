@@ -56,25 +56,6 @@ int gnTimeoutCurs;
 static bool _gbSkipIntro = false;
 /** Specifies whether the in-game tooltip is always active. */
 bool gbShowTooltip = false;
-#if DEBUG_MODE
-static_assert(MAX_LVLMTYPES >= 10, "DebugMonsters requires 10 slot for monster-types.");
-int DebugMonsters[10];
-BOOL visiondebug;
-/** unused */
-BOOL scrollflag;
-bool lightflag;
-BOOL leveldebug;
-BOOL monstdebug;
-/** unused */
-BOOL trigdebug;
-int setseed;
-int debugmonsttypes;
-bool allquests;
-int questdebug = -1;
-int debug_mode_key_w;
-int debug_mode_key_i;
-int arrowdebug;
-#endif
 /** Default controls. */
 // clang-format off
 BYTE WMButtonInputTransTbl[] = { ACT_NONE,
@@ -146,18 +127,6 @@ static void print_help()
 	printf("    %-20s %-30s\n", "--config-dir", "Specify the location of diablo.ini");
 	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
 	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-#if DEBUG_MODE
-	printf("\nDebug options:\n");
-	printf("    %-20s %-30s\n", "-w", "Enable cheats");
-	printf("    %-20s %-30s\n", "-v", "Highlight visibility");
-	printf("    %-20s %-30s\n", "-i", "Ignore network timeout");
-	printf("    %-20s %-30s\n", "-l <##> <##>", "Start in level as type");
-	printf("    %-20s %-30s\n", "-m <##>", "Add debug monster, up to 10 allowed");
-	printf("    %-20s %-30s\n", "-q <#>", "Force a certain quest");
-	printf("    %-20s %-30s\n", "-r <##########>", "Set map seed");
-	printf("    %-20s %-30s\n", "-t <##>", "Set current quest level");
-	printf("    %-20s %-30s\n", "--allquests", "Force all quests to generate in a singleplayer game");
-#endif
 	printf("\nVersion: %s. Report bugs at https://github.com/pionere/devilutionX/\n", gszProductName);
 }
 
@@ -189,52 +158,6 @@ static int diablo_parse_flags(int argc, char** argv)
 			_gbSkipIntro = true;
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
-#if DEBUG_MODE
-		} else if (SDL_strcasecmp("-i", argv[i]) == 0) {
-			debug_mode_key_i = TRUE;
-			/*
-		} else if (SDL_strcasecmp("-j", argv[i]) == 0) {
-			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			debug_mode_key_J_trigger = argv[i];
-		*/
-		} else if (SDL_strcasecmp("-l", argv[i]) == 0) {
-			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			leveldebug = TRUE;
-			EnterLevel(SDL_atoi(argv[i]));
-			players[0]._pDunLevel = currLvl._dLevelIdx;
-		} else if (SDL_strcasecmp("-m", argv[i]) == 0) {
-			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			monstdebug = TRUE;
-			DebugMonsters[debugmonsttypes++] = SDL_atoi(argv[i]);
-		} else if (SDL_strcasecmp("-q", argv[i]) == 0) {
-			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			questdebug = SDL_atoi(argv[i]);
-		} else if (SDL_strcasecmp("-r", argv[i]) == 0) {
-			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			setseed = SDL_atoi(argv[i]);
-		} else if (SDL_strcasecmp("-t", argv[i]) == 0) {
-			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			leveldebug = TRUE;
-			EnterLevel(SDL_atoi(argv[i]));
-		} else if (SDL_strcasecmp("-v", argv[i]) == 0) {
-			visiondebug = TRUE;
-		} else if (SDL_strcasecmp("-w", argv[i]) == 0) {
-			debug_mode_key_w = TRUE;
-		} else if (SDL_strcasecmp("--allquests", argv[i]) == 0) {
-			allquests = true;
-#endif
 		} else {
 			// printf("unrecognized option '%s'\n", argv[i]);
 			print_help();
@@ -831,64 +754,6 @@ static void ClearUI()
 static void PressDebugChar(int vkey)
 {
 	switch (vkey) {
-/*	case ')':
-	case '0':
-		if (arrowdebug > 2) {
-			arrowdebug = 0;
-		}
-		if (arrowdebug == 0) {
-			myplr._pIFlags &= ~ISPL_FIRE_ARROWS;
-			myplr._pIFlags &= ~ISPL_LIGHT_ARROWS;
-		}
-		if (arrowdebug == 1) {
-			myplr._pIFlags |= ISPL_FIRE_ARROWS;
-		}
-		if (arrowdebug == 2) {
-			myplr._pIFlags |= ISPL_LIGHT_ARROWS;
-		}
-		arrowdebug++;
-		break;*/
-	case '9':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			NetSendCmd(CMD_CHEAT_EXPERIENCE);
-		}
-		break;
-	case ':':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			SetAllSpellsCheat();
-		}
-		break;
-	case '[':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			TakeGoldCheat();
-		}
-		break;
-	case ']':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			MaxSpellsCheat();
-		}
-		break;
-	case 'a':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			NetSendCmd(CMD_CHEAT_SPELL_LEVEL);
-		}
-		break;
-	case 'D':
-		PrintDebugPlayer(true);
-		break;
-	case 'd':
-		PrintDebugPlayer(false);
-		break;
-	case 'L':
-	case 'l':
-		ToggleLighting();
-		break;
-	case 'M':
-		NextDebugMonster();
-		break;
-	case 'm':
-		GetDebugMonster();
-		break;
 	case 'R':
 	case 'r':
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
@@ -901,15 +766,19 @@ static void PressDebugChar(int vkey)
 		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
 		NetSendCmdString(1 << mypnum);
 		break;
-	case '|':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			GiveGoldCheat();
+	case '[':
+		if (pcursitem != ITEM_NONE) {
+			snprintf(
+			    gbNetMsg,
+				sizeof(gbNetMsg),
+			    "IDX = %d  :  Seed = %d  :  CF = %d",
+			    items[pcursitem]._iIdx,
+			    items[pcursitem]._iSeed,
+			    items[pcursitem]._iCreateInfo);
+			NetSendCmdString(1 << mypnum);
 		}
-		break;
-	case '~':
-		if (currLvl._dLevelIdx == DLV_TOWN && debug_mode_key_w) {
-			StoresCheat();
-		}
+		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
+		NetSendCmdString(1 << mypnum);
 		break;
 	}
 }
@@ -1198,26 +1067,6 @@ static void PressKey(int vkey)
 	default:
 		ASSUME_UNREACHABLE
 	}
-
-#if DEBUG_MODE
-	if (vkey == DVL_VK_F2) {
-	} else if (vkey == DVL_VK_F3) {
-		if (pcursitem != ITEM_NONE) {
-			snprintf(
-			    gbNetMsg,
-				sizeof(gbNetMsg),
-			    "IDX = %d  :  Seed = %d  :  CF = %d",
-			    items[pcursitem]._iIdx,
-			    items[pcursitem]._iSeed,
-			    items[pcursitem]._iCreateInfo);
-			NetSendCmdString(1 << mypnum);
-		}
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
-		NetSendCmdString(1 << mypnum);
-	} else if (vkey == DVL_VK_F4) {
-		PrintDebugQuest();
-	}
-#endif
 }
 
 /**
@@ -1524,10 +1373,6 @@ static WNDPROC InitGameFX()
 	ScrollInfo._syoff = 0;
 	ScrollInfo._sdir = SDIR_NONE;
 
-#if DEBUG_MODE
-	LoadDebugGFX();
-#endif
-
 	gnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = false;
 	gbAltActionBtnDown = false;
@@ -1554,9 +1399,6 @@ static void FreeGameFX()
 	FreeItemGFX();
 	FreeGameMissileGFX();
 	FreeGameSFX();
-#if DEBUG_MODE
-	FreeDebugGFX();
-#endif
 
 	//doom_close();
 }
