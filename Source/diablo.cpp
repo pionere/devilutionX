@@ -129,10 +129,6 @@ static int diablo_parse_flags(int argc, char** argv)
 			i++;
 			if (i < argc)
 				SetPrefPath(argv[i]);
-		} else if (SDL_strcasecmp("--config-dir", argv[i]) == 0) {
-			i++;
-			if (i < argc)
-				SetConfigPath(argv[i]);
 		} else if (SDL_strcasecmp("-n", argv[i]) == 0) {
 			_gbSkipIntro = true;
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {

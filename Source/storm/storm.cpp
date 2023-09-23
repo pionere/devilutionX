@@ -28,7 +28,7 @@ static bool directFileAccess = false;
 
 radon::File& getIni()
 {
-	static radon::File ini(std::string(GetConfigPath()) + "diablo.ini");
+	static radon::File ini(std::string(GetPrefPath()) + "diablo.ini");
 	return ini;
 }
 

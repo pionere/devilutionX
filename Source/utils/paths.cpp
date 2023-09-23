@@ -16,7 +16,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static std::string basePath;
 static std::string prefPath;
-static std::string configPath;
 
 #ifdef _WIN32
 #define SLASH '\\'
@@ -59,7 +58,6 @@ void InitPaths()
 {
 	FromSDL(basePath, true);
 	FromSDL(prefPath, false);
-	FromSDL(configPath, false);
 }
 
 const char* GetBasePath()
@@ -70,11 +68,6 @@ const char* GetBasePath()
 const char* GetPrefPath()
 {
 	return prefPath.c_str();
-}
-
-const char* GetConfigPath()
-{
-	return configPath.c_str();
 }
 
 const std::string* GetBasePathStr()
@@ -92,12 +85,6 @@ void SetPrefPath(const char* path)
 {
 	prefPath = path;
 	AddTrailingSlash(prefPath);
-}
-
-void SetConfigPath(const char* path)
-{
-	configPath = path;
-	AddTrailingSlash(configPath);
 }
 
 DEVILUTION_END_NAMESPACE
