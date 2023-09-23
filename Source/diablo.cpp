@@ -118,50 +118,25 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 bool gbWasUiInit = false;
 bool gbSndInited = false;
 
-static void print_help()
-{
-	printf("Options:\n");
-	printf("    %-20s %-30s\n", "-h, --help", "Print this message and exit");
-	printf("    %-20s %-30s\n", "--data-dir", "Specify the folder of diabdat.mpq");
-	printf("    %-20s %-30s\n", "--save-dir", "Specify the folder of save files");
-	printf("    %-20s %-30s\n", "--config-dir", "Specify the location of diablo.ini");
-	printf("    %-20s %-30s\n", "-n", "Skip startup videos");
-	printf("    %-20s %-30s\n", "-x", "Run in windowed mode");
-	printf("\nVersion: %s. Report bugs at https://github.com/pionere/devilutionX/\n", gszProductName);
-}
-
 static int diablo_parse_flags(int argc, char** argv)
 {
-	int i;
-
-	static_assert(EX_USAGE + 1 != EX_OK, "diablo_parse_flags shifts the return values.");
-	for (i = 1; i < argc; i++) {
-		if (SDL_strcasecmp("-h", argv[i]) == 0 || SDL_strcasecmp("--help", argv[i]) == 0) {
-			print_help();
-			return EX_OK + 1;
-		} else if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
+	for (int i = 1; i < argc; i++) {
+		if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
 			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			SetBasePath(argv[i]);
+			if (i < argc)
+				SetBasePath(argv[i]);
 		} else if (SDL_strcasecmp("--save-dir", argv[i]) == 0) {
 			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			SetPrefPath(argv[i]);
+			if (i < argc)
+				SetPrefPath(argv[i]);
 		} else if (SDL_strcasecmp("--config-dir", argv[i]) == 0) {
 			i++;
-			if (i == argc)
-				return EX_USAGE + 1;
-			SetConfigPath(argv[i]);
+			if (i < argc)
+				SetConfigPath(argv[i]);
 		} else if (SDL_strcasecmp("-n", argv[i]) == 0) {
 			_gbSkipIntro = true;
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
-		} else {
-			// printf("unrecognized option '%s'\n", argv[i]);
-			print_help();
-			return EX_USAGE + 1;
 		}
 	}
 	return EX_OK;
