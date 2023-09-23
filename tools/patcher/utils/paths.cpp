@@ -17,27 +17,11 @@ DEVILUTION_BEGIN_NAMESPACE
 static std::string basePath;
 static std::string prefPath;
 
-#ifdef _WIN32
-#define SLASH '\\'
-#else
-#define SLASH '/'
-#endif
-
-static void AddTrailingSlash(std::string& path)
-{
-	if (path.empty())
-		path = " "; // make sure the path is not set during InitPaths
-	else if (path.back() != SLASH)
-		path += SLASH;
-}
-
 static void FromSDL(std::string& path, bool base)
 {
 	char* s;
 
 	if (!path.empty()) {
-		if (path.back() != SLASH)
-			path = ""; // reset path if it was set to empty
 		return;
 	}
 	// the path was not set explicitly -> get it from SDL
@@ -78,13 +62,11 @@ const std::string* GetBasePathStr()
 void SetBasePath(const char* path)
 {
 	basePath = path;
-	AddTrailingSlash(basePath);
 }
 
 void SetPrefPath(const char* path)
 {
 	prefPath = path;
-	AddTrailingSlash(prefPath);
 }
 
 DEVILUTION_END_NAMESPACE
