@@ -591,25 +591,21 @@ endif()
 
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
-elseif(APPLE)
-  add_executable(${BIN_TARGET}
-    MACOSX_BUNDLE
-    ${devilutionx_SRCS}
-    Packaging/apple/AppIcon.icns
-    Packaging/apple/LaunchScreen.storyboard)
-elseif(WIN32)
-  add_executable(${BIN_TARGET}
-    WIN32
-    ${devilutionx_SRCS}
-    Packaging/windows/devilutionx.exe.manifest
-    Packaging/windows/devilutionx.rc)
 else()
+  set(BIN_SOURCES ${devilutionx_SRCS})
+  if(APPLE)
+    list(APPEND BIN_SOURCES
+      Packaging/apple/AppIcon.icns
+      Packaging/apple/LaunchScreen.storyboard)
+  elseif(WIN32)
+    list(APPEND BIN_SOURCES
+      Packaging/windows/devilutionx.exe.manifest
+      Packaging/windows/devilutionx.rc)
+  endif()
   add_executable(${BIN_TARGET}
     WIN32
     MACOSX_BUNDLE
-    ${devilutionx_SRCS}
-    Packaging/windows/devilutionx.exe.manifest
-    Packaging/windows/devilutionx.rc)
+    ${BIN_SOURCES})
 endif()
 
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
@@ -695,26 +691,20 @@ if(USE_PATCH)
       Source/platform/ctr/messagebox.cpp)
   endif()
 
+  set(PATCHER_SOURCES ${devil_patcher_SRCS})
   if(APPLE)
-    add_executable(${DEVIL_PATCHER}
-      MACOSX_BUNDLE
-      ${devil_patcher_SRCS}
+    list(APPEND PATCHER_SOURCES
       Packaging/apple/AppIcon.icns
       Packaging/apple/LaunchScreen.storyboard)
   elseif(WIN32)
-    add_executable(${DEVIL_PATCHER}
-      WIN32
-      ${devil_patcher_SRCS}
-      Packaging/windows/devilutionx.exe.manifest
-      Packaging/windows/devilutionx.rc)
-  else()
-    add_executable(${DEVIL_PATCHER}
-      WIN32
-      MACOSX_BUNDLE
-      ${devil_patcher_SRCS}
+    list(APPEND PATCHER_SOURCES
       Packaging/windows/devilutionx.exe.manifest
       Packaging/windows/devilutionx.rc)
   endif()
+  add_executable(${DEVIL_PATCHER}
+    WIN32
+    MACOSX_BUNDLE
+    ${PATCHER_SOURCES})
 
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
     PKWare
