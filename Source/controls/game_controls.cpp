@@ -86,7 +86,7 @@ static bool HandleStartAndSelect(bool inGameMenu, const ControllerButtonEvent& c
 	return false;
 }
 
-bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, GameAction* action)
+bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEvent, GameAction* action)
 {
 	const bool inGameMenu = InGameMenu();
 
