@@ -781,7 +781,7 @@ void UiHandleEvents(SDL_Event* event)
 		SDL_Keymod modState = SDL_GetModState();
 		if (event->key.keysym.sym == SDLK_RETURN && (modState & KMOD_ALT)) {
 			ToggleFullscreen();
-		} else if (!gUiDrawCursor && !modState) {
+		} else if (!gUiDrawCursor) {
 			UiFocusNavigationEsc();
 		}
 		return;
