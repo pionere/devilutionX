@@ -720,7 +720,7 @@ void UiHandleEvents(SDL_Event* event)
 						SDL_free(clipboard);
 					}
 				}
-				return;
+				break;
 #endif
 			case SDLK_BACKSPACE: {
 				unsigned i = gUiEditField->m_curpos;
@@ -737,7 +737,7 @@ void UiHandleEvents(SDL_Event* event)
 						}
 					}
 				}
-			} return;
+			} break;
 			case SDLK_DELETE: {
 				for (unsigned i = gUiEditField->m_curpos; ; i++) {
 					// assert(gUiEditField->m_max_length != 0);
@@ -748,20 +748,22 @@ void UiHandleEvents(SDL_Event* event)
 						gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
 					}
 				}
-			} return;
+			} break;
 			case SDLK_LEFT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (pos > 0) {
 					gUiEditField->m_curpos = pos - 1;
 				}
-			} return;
+			} break;
 			case SDLK_RIGHT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (gUiEditField->m_value[pos] != '\0' && pos + 1 < gUiEditField->m_max_length) {
 					gUiEditField->m_curpos = pos + 1;
 				}
-			} return;
+			} break;
 			case SDLK_RETURN:
+			case SDLK_KP_ENTER:
+				UiFocusNavigationSelect();
 				break;
 			default:
 #ifdef USE_SDL1
@@ -775,9 +777,9 @@ void UiHandleEvents(SDL_Event* event)
 					}
 				}
 #endif
-				return;
+				break;
 			}
-			break;
+			return;
 		}
 #ifndef USE_SDL1
 		case SDL_TEXTINPUT:
