@@ -1209,6 +1209,9 @@ static bool ProcessInput()
 #endif
 
 	if (gmenu_is_active()) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		CheckMenuMove();
+#endif
 		return IsMultiGame;
 	}
 
@@ -1265,7 +1268,8 @@ void game_logic()
 	CheckTriggers();
 	CheckQuests();
 	pfile_update(false);
-
+	if (gmenu_is_active())
+		gmenu_update();
 	gbGameLogicProgress = GLP_NONE;
 }
 
