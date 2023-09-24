@@ -31,7 +31,7 @@ void ScaleJoystickAxes(bool rightAxes);
 bool ProcessControllerMotion(const SDL_Event& event);
 
 // Updates motion state for dpads.
-bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent);
+bool SimulateRightStickWithDpad(const ControllerButtonEvent& ctrlEvent);
 
 // Returns direction of the left thumb stick or DPad (if allow_dpad = true).
 AxisDirection GetLeftStickOrDpadDirection(bool allow_dpad = true);
