@@ -871,6 +871,9 @@ static void UiHandleEvents(SDL_Event* event)
 
 bool UiPeekAndHandleEvents(SDL_Event* event)
 {
+#ifdef __SWITCH__
+	HandleDocking();
+#endif
 	if (SDL_PollEvent(event) == 0) {
 		return false;
 	}
