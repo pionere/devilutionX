@@ -511,7 +511,8 @@ set(devilutionx_SRCS
   Source/utils/paths.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
   Source/utils/soundsample.cpp
-  Source/utils/thread.cpp)
+  Source/utils/thread.cpp
+  Source/utils/utf8.cpp)
 
 if(NOT NONET)
   list(APPEND devilutionx_SRCS

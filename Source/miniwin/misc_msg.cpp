@@ -975,12 +975,10 @@ bool PeekMessage(LPMSG lpMsg)
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
 #endif // DEBUG_MODE
 	case SDL_TEXTINPUT: {
-		uint32_t inputChar;
-		int err;
-		//lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
-		utf8_decode((unsigned char*)&e.text.text[0], &inputChar, &err);
-		lpMsg->wParam = err ? '?' : inputChar;
+		char* output = utf8_to_latin1(e.text.text);
+		lpMsg->wParam = (unsigned char)output[0];
 		lpMsg->message = DVL_WM_CHAR;
+		mem_free_dbg(output);
 	} break;
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
