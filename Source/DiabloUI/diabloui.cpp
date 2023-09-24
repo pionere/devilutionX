@@ -683,7 +683,7 @@ void UiHandleEvents(SDL_Event* event)
 			switch (event->key.keysym.sym) {
 #ifndef USE_SDL1
 			case SDLK_v:
-				if (SDL_GetModState() & KMOD_CTRL) {
+				if (event->key.keysym.mod & KMOD_CTRL) {
 					char* clipboard = SDL_GetClipboardText();
 					if (clipboard != NULL) {
 						UiCatToName(clipboard);
@@ -778,8 +778,7 @@ void UiHandleEvents(SDL_Event* event)
 	}
 
 	if (event->type == SDL_KEYDOWN) {
-		SDL_Keymod modState = SDL_GetModState();
-		if (event->key.keysym.sym == SDLK_RETURN && (modState & KMOD_ALT)) {
+		if (event->key.keysym.sym == SDLK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 		} else if (!gUiDrawCursor) {
 			UiFocusNavigationEsc();

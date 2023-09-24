@@ -101,13 +101,13 @@ MenuAction GetMenuAction(SDL_Event& event)
 		case SDLK_DOWN:
 			return MenuAction_DOWN;
 		case SDLK_TAB:
-			return (SDL_GetModState() & KMOD_SHIFT) ? MenuAction_UP : MenuAction_DOWN;
+			return (event.key.keysym.mod & KMOD_SHIFT) ? MenuAction_UP : MenuAction_DOWN;
 		case SDLK_PAGEUP:
 			return MenuAction_PAGE_UP;
 		case SDLK_PAGEDOWN:
 			return MenuAction_PAGE_DOWN;
 		case SDLK_RETURN: {
-			if (!(SDL_GetModState() & KMOD_ALT)) {
+			if (!(event.key.keysym.mod & KMOD_ALT)) {
 				return MenuAction_SELECT;
 			}
 			break;
