@@ -16,7 +16,7 @@ static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
 	return 0;
 }
 
-int DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
+void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
 	unsigned size = (flags & UIS_SIZE) >> 0;
 	unsigned color = (flags & UIS_COLOR) >> 7;
@@ -67,7 +67,6 @@ int DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 		}
 		sx += pChar(sx, sy, (BYTE)*text, color);
 	}
-	return sx;
 }
 
 DEVILUTION_END_NAMESPACE

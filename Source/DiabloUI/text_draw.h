@@ -9,7 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-int DrawArtStr(const char* text, const SDL_Rect& rect, int flags);
+void DrawArtStr(const char* text, const SDL_Rect& rect, int flags);
 
 #ifdef __cplusplus
 }

@@ -201,9 +201,15 @@ static void UiFocusPageDown()
 static void UiCatToText(char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
-	int pos = strlen(gUiEditField->m_value);
-	SStrCopy(&gUiEditField->m_value[pos], output, gUiEditField->m_max_length - pos);
+	unsigned pos = gUiEditField->m_curpos;
+	char* text = gUiEditField->m_value;
+	unsigned maxlen = gUiEditField->m_max_length;
+	SStrCopy(tempstr, &text[pos], std::min((unsigned)sizeof(tempstr) - 1, maxlen - pos));
+	SStrCopy(&text[pos], output, maxlen - pos);
 	mem_free_dbg(output);
+	pos = strlen(text);
+	gUiEditField->m_curpos = pos;
+	SStrCopy(&text[pos], tempstr, maxlen - pos);
 }
 
 #ifdef __vita__
@@ -537,13 +543,19 @@ static void Render(const UiEdit* uiEdit)
 	SDL_Rect rect = uiEdit->m_rect;
 	rect.x += 43;
 	rect.y += 1;
-	rect.w -= 86;
+	// rect.w -= 86;
+	char* text = uiEdit->m_value;
 	// render the text
-	int sx = DrawArtStr(uiEdit->m_value, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
+	DrawArtStr(text, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
 	// render the cursor
 	if (GetAnimationFrame(2, 512) != 0) {
+		unsigned curpos = uiEdit->m_curpos;
+		char tmp = text[curpos];
+		text[curpos] = '\0';
+		int w = GetBigStringWidth(text);
 		int h = 22;
-		PrintBigChar(sx, SCREEN_Y + rect.y + h, '|', COL_WHITE);
+		text[curpos] = tmp;
+		PrintBigChar(SCREEN_X + rect.x + w, SCREEN_Y + rect.y + h, '|', COL_WHITE);
 	}
 }
 #endif
@@ -710,14 +722,45 @@ void UiHandleEvents(SDL_Event* event)
 				}
 				return;
 #endif
-			case SDLK_BACKSPACE:
-			case SDLK_LEFT: {
-				int nameLen = strlen(gUiEditField->m_value);
-				if (nameLen > 0) {
-					gUiEditField->m_value[nameLen - 1] = '\0';
+			case SDLK_BACKSPACE: {
+				unsigned i = gUiEditField->m_curpos;
+				if (i > 0) {
+					i--;
+					gUiEditField->m_curpos = i;
+					for ( ; ; i++) {
+						// assert(gUiEditField->m_max_length != 0);
+						if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
+							gUiEditField->m_value[i] = '\0';
+							break;
+						} else {
+							gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
+						}
+					}
 				}
-				return;
-			}
+			} return;
+			case SDLK_DELETE: {
+				for (unsigned i = gUiEditField->m_curpos; ; i++) {
+					// assert(gUiEditField->m_max_length != 0);
+					if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
+						gUiEditField->m_value[i] = '\0';
+						break;
+					} else {
+						gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
+					}
+				}
+			} return;
+			case SDLK_LEFT: {
+				unsigned pos = gUiEditField->m_curpos;
+				if (pos > 0) {
+					gUiEditField->m_curpos = pos - 1;
+				}
+			} return;
+			case SDLK_RIGHT: {
+				unsigned pos = gUiEditField->m_curpos;
+				if (gUiEditField->m_value[pos] != '\0' && pos + 1 < gUiEditField->m_max_length) {
+					gUiEditField->m_curpos = pos + 1;
+				}
+			} return;
 			case SDLK_RETURN:
 				break;
 			default:
