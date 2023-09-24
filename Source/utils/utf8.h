@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include <string.h>
 #include <utility>
 
 /* Branchless UTF-8 decoder
@@ -67,20 +67,24 @@ utf8_decode(const unsigned char* buf, uint32_t* c, int* e)
 	return next;
 }
 
-inline std::string utf8_to_latin1(const char* in)
+inline char* utf8_to_latin1(const char* in)
 {
-	std::string instr(in);
-	instr.resize(instr.size() + 4);
-	const unsigned char* buf = reinterpret_cast<const unsigned char*>(instr.data());
-	std::string ret;
+	int len = strlen(in);
+	char *result = new char[len + 4];
+	memcpy(result, in, len);
+	*((uint32_t*)&result[len]) = 0;
+	const unsigned char* buf = (unsigned char*)&result[0];
+	unsigned cursor = 0;
 	uint32_t next;
 	int error;
-	while (*buf) {
+	while (*buf != '\0') {
 		buf = utf8_decode(buf, &next, &error);
 		if (!error && next <= 255)
-			ret.push_back(static_cast<char>(next));
+			result[cursor] = static_cast<char>(next);
 		else
-			ret.push_back('?');
+			result[cursor] = '?';
+		cursor++;
 	}
-	return ret;
+	result[cursor] = '\0';
+	return result;
 }

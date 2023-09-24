@@ -1,7 +1,6 @@
 #include "diabloui.h"
 
 #include "utils/utf8.h"
-#include <string>
 
 #include "controls/menu_controls.h"
 
@@ -198,16 +197,18 @@ static void UiFocusPageDown()
 
 static void UiCatToName(char* inBuf)
 {
-	std::string output = utf8_to_latin1(inBuf);
+	char* output = utf8_to_latin1(inBuf);
 	int pos = strlen(gUiEditField->m_value);
-	SStrCopy(&gUiEditField->m_value[pos], output.c_str(), gUiEditField->m_max_length - pos);
+	SStrCopy(&gUiEditField->m_value[pos], output, gUiEditField->m_max_length - pos);
+	mem_free_dbg(output);
 }
 
 #ifdef __vita__
 static void UiSetName(char* inBuf)
 {
-	std::string output = utf8_to_latin1(inBuf);
-	SStrCopy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
+	char* output = utf8_to_latin1(inBuf);
+	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
+	mem_free_dbg(output);
 }
 #endif
 

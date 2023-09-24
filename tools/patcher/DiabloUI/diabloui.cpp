@@ -1,8 +1,5 @@
 #include "diabloui.h"
 
-#include "utils/utf8.h"
-#include <string>
-
 #include "controls/menu_controls.h"
 
 #include "DiabloUI/scrollbar.h"
@@ -12,6 +9,7 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #if FULL_UI
+#include "utils/utf8.h"
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
 #include "platform/switch/keyboard.h"
@@ -201,16 +199,18 @@ static void UiFocusPageDown()
 #if FULL_UI
 static void UiCatToName(char* inBuf)
 {
-	std::string output = utf8_to_latin1(inBuf);
+	char* output = utf8_to_latin1(inBuf);
 	int pos = strlen(gUiEditField->m_value);
-	SStrCopy(&gUiEditField->m_value[pos], output.c_str(), gUiEditField->m_max_length - pos);
+	SStrCopy(&gUiEditField->m_value[pos], output, gUiEditField->m_max_length - pos);
+	mem_free_dbg(output);
 }
 
 #ifdef __vita__
 static void UiSetName(char* inBuf)
 {
-	std::string output = utf8_to_latin1(inBuf);
-	SStrCopy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
+	char* output = utf8_to_latin1(inBuf);
+	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
+	mem_free_dbg(output);
 }
 #endif
 #endif // FULL_UI
