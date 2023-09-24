@@ -199,7 +199,7 @@ static void UiFocusPageDown()
 	UiFocus(newpos);
 }
 #if FULL_UI
-static void UiCatToText(char* inBuf)
+static void UiCatToText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
 	unsigned pos = gUiEditField->m_curpos;
@@ -214,7 +214,7 @@ static void UiCatToText(char* inBuf)
 }
 
 #ifdef __vita__
-static void UiSetText(char* inBuf)
+static void UiSetText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
 	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
