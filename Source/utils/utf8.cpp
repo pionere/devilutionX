@@ -1,5 +1,7 @@
 #include "utf8.h"
 
+#ifdef USE_SDL1
+
 #include <cstdint>
 #include <string.h>
 #include <utility>
@@ -88,3 +90,4 @@ char* utf8_to_latin1(const char* in)
 	result[cursor] = '\0';
 	return result;
 }
+#endif // USE_SDL1
