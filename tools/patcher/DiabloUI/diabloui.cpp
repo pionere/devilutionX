@@ -745,20 +745,22 @@ void UiHandleEvents(SDL_Event* event)
 				}
 				return;
 			}
-			default:
+			case SDLK_RETURN:
 				break;
-			}
+			default:
 #ifdef USE_SDL1
-			if ((event->key.keysym.mod & KMOD_CTRL) == 0) {
-				Uint16 unicode = event->key.keysym.unicode;
-				if (unicode && (unicode & 0xFF80) == 0) {
-					char utf8[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-					utf8[0] = (char)unicode;
-					utf8[1] = '\0';
-					UiCatToName(utf8);
+				if ((event->key.keysym.mod & KMOD_CTRL) == 0) {
+					Uint16 unicode = event->key.keysym.unicode;
+					if (unicode && (unicode & 0xFF80) == 0) {
+						char utf8[2];
+						utf8[0] = (char)unicode;
+						utf8[1] = '\0';
+						UiCatToName(utf8);
+					}
 				}
-			}
 #endif
+				return;
+			}
 			break;
 		}
 #ifndef USE_SDL1
