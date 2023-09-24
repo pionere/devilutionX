@@ -9,6 +9,7 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #if FULL_UI
+#include "engine/render/text_render.h"
 #include "utils/utf8.h"
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
@@ -537,7 +538,13 @@ static void Render(const UiEdit* uiEdit)
 	rect.x += 43;
 	rect.y += 1;
 	rect.w -= 86;
-	DrawArtStr(uiEdit->m_value, rect, UIS_LEFT | UIS_MED | UIS_GOLD, /*drawTextCursor=*/true);
+	// render the text
+	int sx = DrawArtStr(uiEdit->m_value, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
+	// render the cursor
+	if (GetAnimationFrame(2, 512) != 0) {
+		int h = 22;
+		PrintBigChar(sx, SCREEN_Y + rect.y + h, '|', COL_WHITE);
+	}
 }
 #endif
 static void RenderItem(UiItemBase* item)

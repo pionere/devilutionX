@@ -16,7 +16,7 @@ static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
 	return 0;
 }
 
-void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawTextCursor)
+int DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
 	unsigned size = (flags & UIS_SIZE) >> 0;
 	unsigned color = (flags & UIS_COLOR) >> 7;
@@ -67,9 +67,7 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawText
 		}
 		sx += pChar(sx, sy, (BYTE)*text, color);
 	}
-	if (drawTextCursor && GetAnimationFrame(2, 512) != 0) {
-		sx += pChar(sx, sy, '|', color);
-	}
+	return sx;
 }
 
 DEVILUTION_END_NAMESPACE
