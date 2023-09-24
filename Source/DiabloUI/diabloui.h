@@ -23,7 +23,6 @@ extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
-extern UiEdit* gUiEditField;
 extern bool gUiDrawCursor;
 
 inline SDL_Surface* DiabloUiSurface()

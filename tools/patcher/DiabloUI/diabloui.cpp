@@ -687,40 +687,6 @@ static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
 
 void UiHandleEvents(SDL_Event* event)
 {
-	if (HandleMenuAction(GetMenuAction(*event)))
-		return;
-
-	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
-			UiFocusNavigationEsc();
-			return;
-		}
-		if (event->button.button != SDL_BUTTON_LEFT)
-			return; // false;
-
-		// In SDL2 mouse events already use logical coordinates.
-#ifdef USE_SDL1
-		OutputToLogical(&event->button.x, &event->button.y);
-#endif
-
-		//bool handled = false;
-		for (unsigned i = 0; i < gUiItems.size(); i++) {
-			if (HandleMouseEvent(*event, gUiItems[i])) {
-				//handled = true;
-				break;
-			}
-		}
-
-		if (event->type == SDL_MOUSEBUTTONUP) {
-			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
-			for (unsigned i = 0; i < gUiItems.size(); i++) {
-				UiItemBase* item = gUiItems[i];
-				if (item->m_type == UI_BUTTON)
-					static_cast<UiButton*>(item)->m_pressed = false;
-			}
-		}
-		return; // handled
-	}
 #if FULL_UI
 	if (gUiEditField != NULL) {
 		switch (event->type) {
@@ -777,6 +743,40 @@ void UiHandleEvents(SDL_Event* event)
 		}
 	}
 #endif // FULL_UI
+	if (HandleMenuAction(GetMenuAction(*event)))
+		return;
+
+	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
+		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
+			UiFocusNavigationEsc();
+			return;
+		}
+		if (event->button.button != SDL_BUTTON_LEFT)
+			return; // false;
+
+		// In SDL2 mouse events already use logical coordinates.
+#ifdef USE_SDL1
+		OutputToLogical(&event->button.x, &event->button.y);
+#endif
+
+		//bool handled = false;
+		for (unsigned i = 0; i < gUiItems.size(); i++) {
+			if (HandleMouseEvent(*event, gUiItems[i])) {
+				//handled = true;
+				break;
+			}
+		}
+
+		if (event->type == SDL_MOUSEBUTTONUP) {
+			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
+			for (unsigned i = 0; i < gUiItems.size(); i++) {
+				UiItemBase* item = gUiItems[i];
+				if (item->m_type == UI_BUTTON)
+					static_cast<UiButton*>(item)->m_pressed = false;
+			}
+		}
+		return; // handled
+	}
 	if (event->type == SDL_MOUSEMOTION) {
 		// In SDL2 mouse events already use logical coordinates
 #ifdef USE_SDL1

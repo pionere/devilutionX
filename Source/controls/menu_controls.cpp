@@ -115,10 +115,7 @@ MenuAction GetMenuAction(SDL_Event& event)
 		case SDLK_KP_ENTER:
 			return MenuAction_SELECT;
 		case SDLK_SPACE:
-			if (gUiEditField == NULL) {
-				return MenuAction_SELECT;
-			}
-			break;
+			return MenuAction_SELECT;
 		case SDLK_DELETE:
 			return MenuAction_DELETE;
 		case SDLK_LEFT:
