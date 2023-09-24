@@ -84,8 +84,8 @@ void UiCreditsDialog()
 		prev_offset_y_ = offsetY;
 
 		UiFadeIn();
-		while (SDL_PollEvent(&event) != 0) {
-			UiHandleEvents(&event);
+		while (UiPeekAndHandleEvents(&event)) {
+			;
 		}
 	} while (!_gbCreditsEnd);
 

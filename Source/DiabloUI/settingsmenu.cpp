@@ -35,9 +35,7 @@ void UiSettingsDialog()
 		UiRenderItems(gUiItems);
 		gmenu_draw();
 		UiFadeIn();
-		while (SDL_PollEvent(&event) != 0) {
-			UiHandleEvents(&event);
-
+		while (UiPeekAndHandleEvents(&event)) {
 			switch (GetMenuAction(event)) {
 			case MenuAction_NONE:
 				switch (event.type) {

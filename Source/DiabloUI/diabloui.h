@@ -46,7 +46,7 @@ inline SDL_Surface* DiabloUiSurface()
 }
 
 void UiFadeIn();
-void UiHandleEvents(SDL_Event* event);
+bool UiPeekAndHandleEvents(SDL_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void FreeBackgroundArt();
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);

@@ -440,8 +440,8 @@ void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems)
 	UiFadeIn();
 
 	SDL_Event event;
-	while (SDL_PollEvent(&event) != 0) {
-		UiHandleEvents(&event);
+	while (UiPeekAndHandleEvents(&event)) {
+		;
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleMenuAction(GetMenuHeldUpDownAction());
@@ -694,7 +694,7 @@ static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
 	}
 }
 
-void UiHandleEvents(SDL_Event* event)
+static void UiHandleEvents(SDL_Event* event)
 {
 #if HAS_TOUCHPAD
 	handle_touch(event);
@@ -856,6 +856,15 @@ void UiHandleEvents(SDL_Event* event)
 		return;
 	}
 #endif // !USE_SDL1
+}
+
+bool UiPeekAndHandleEvents(SDL_Event* event)
+{
+	if (SDL_PollEvent(event) == 0) {
+		return false;
+	}
+	UiHandleEvents(event);
+	return true;
 }
 
 void UiRenderItems(const std::vector<UiItemBase*>& uiItems)
