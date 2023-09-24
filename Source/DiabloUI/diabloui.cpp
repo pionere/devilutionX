@@ -195,7 +195,7 @@ static void UiFocusPageDown()
 	UiFocus(newpos);
 }
 
-static void UiCatToName(char* inBuf)
+static void UiCatToText(char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
 	int pos = strlen(gUiEditField->m_value);
@@ -204,7 +204,7 @@ static void UiCatToName(char* inBuf)
 }
 
 #ifdef __vita__
-static void UiSetName(char* inBuf)
+static void UiSetText(char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
 	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
@@ -692,7 +692,7 @@ void UiHandleEvents(SDL_Event* event)
 				if (event->key.keysym.mod & KMOD_CTRL) {
 					char* clipboard = SDL_GetClipboardText();
 					if (clipboard != NULL) {
-						UiCatToName(clipboard);
+						UiCatToText(clipboard);
 						SDL_free(clipboard);
 					}
 				}
@@ -716,7 +716,7 @@ void UiHandleEvents(SDL_Event* event)
 						char utf8[2];
 						utf8[0] = (char)unicode;
 						utf8[1] = '\0';
-						UiCatToName(utf8);
+						UiCatToText(utf8);
 					}
 				}
 #endif
@@ -727,9 +727,9 @@ void UiHandleEvents(SDL_Event* event)
 #ifndef USE_SDL1
 		case SDL_TEXTINPUT:
 #ifdef __vita__
-			UiSetName(event->text.text);
+			UiSetText(event->text.text);
 #else
-			UiCatToName(event->text.text);
+			UiCatToText(event->text.text);
 #endif
 			return;
 #endif
