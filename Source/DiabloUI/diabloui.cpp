@@ -8,6 +8,7 @@
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/dialogs.h"
 #include "controls/plrctrls.h"
+#include "controls/touch.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
@@ -695,6 +696,10 @@ static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
 
 void UiHandleEvents(SDL_Event* event)
 {
+#if HAS_TOUCHPAD
+	handle_touch(event);
+#endif
+
 	if (gUiEditField != NULL) {
 		switch (event->type) {
 		case SDL_KEYDOWN: {

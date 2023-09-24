@@ -25,7 +25,7 @@ typedef enum MenuAction {
 	MenuAction_PAGE_DOWN,
 } MenuAction;
 
-MenuAction GetMenuAction(SDL_Event& event);
+MenuAction GetMenuAction(const SDL_Event& event);
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 /** Menu action from holding the left stick or DPad. */

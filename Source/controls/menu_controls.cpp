@@ -4,7 +4,6 @@
 #include "controller_motion.h"
 #include "axis_direction.h"
 //#include "game_controls.h"
-#include "touch.h"
 
 #include "DiabloUI/diabloui.h"
 #include "remap_keyboard.h"
@@ -26,12 +25,8 @@ MenuAction GetMenuHeldUpDownAction()
 }
 #endif
 
-MenuAction GetMenuAction(SDL_Event& event)
+MenuAction GetMenuAction(const SDL_Event& event)
 {
-#if HAS_TOUCHPAD
-	handle_touch(&event);
-#endif
-
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleControllerAddedOrRemovedEvent(event);
 
