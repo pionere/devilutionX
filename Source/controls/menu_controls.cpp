@@ -77,9 +77,9 @@ MenuAction GetMenuAction(const SDL_Event& event)
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
-	if ((e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+	if ((event.type >= SDL_KEYDOWN && event.type < SDL_JOYAXISMOTION) || (event.type >= SDL_FINGERDOWN && event.type < SDL_DOLLARGESTURE)) {
 #else
-	if (e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) {
+	if (event.type >= SDL_KEYDOWN && event.type < SDL_JOYAXISMOTION) {
 #endif
 		// Keyboard or Mouse (or Touch) events -> switch to standard input
 		sgbControllerActive = false;
