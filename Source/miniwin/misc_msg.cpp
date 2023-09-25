@@ -857,6 +857,8 @@ bool PeekMessage(Dvl_Event &e)
 		mouseWarping = false;
 #endif
 		e.type = DVL_WM_MOUSEMOVE;
+		MousePos.x = e.motion.x;
+		MousePos.y = e.motion.y;
 		break;
 	case SDL_MOUSEBUTTONDOWN: {
 		int button = e.button.button;
@@ -931,9 +933,9 @@ bool PeekMessage(Dvl_Event &e)
 	case SDL_TEXTEDITING:
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
 #endif // DEBUG_MODE
-	case SDL_TEXTINPUT: {
+	case SDL_TEXTINPUT:
 		e.type = DVL_WM_CHAR;
-	} break;
+		break;
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:

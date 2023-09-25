@@ -1100,8 +1100,6 @@ void DisableInputWndProc(const Dvl_Event* e)
 		gbRunGameResult = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
-		MousePos.x = e->motion.x;
-		MousePos.y = e->motion.y;
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_LBUTTON, true);
@@ -1158,8 +1156,6 @@ static void GameWndProc(const Dvl_Event* e)
 		gbGamePaused = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
-		MousePos.x = e->motion.x;
-		MousePos.y = e->motion.y;
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
 		else if (gbDragWnd != WND_NONE)

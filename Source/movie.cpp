@@ -29,10 +29,6 @@ int play_movie(const char* pszMovie, int movieFlags)
 	while (video_stream != NULL) {
 		while (PeekMessage(e)) {
 			switch (e.type) {
-			case DVL_WM_MOUSEMOVE:
-				MousePos.x = e.motion.x;
-				MousePos.y = e.motion.y;
-				continue;
 			case DVL_WM_KEYDOWN:
 				if (e.key.keysym.sym == DVL_VK_ESCAPE) {
 					result = MPR_CANCEL;
