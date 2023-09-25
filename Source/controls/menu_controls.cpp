@@ -4,6 +4,8 @@
 #include "controller_motion.h"
 #include "axis_direction.h"
 //#include "game_controls.h"
+#include "./devices/game_controller.h"
+#include "./devices/joystick.h"
 
 #include "DiabloUI/diabloui.h"
 #include "remap_keyboard.h"
@@ -28,8 +30,6 @@ MenuAction GetMenuHeldUpDownAction()
 MenuAction GetMenuAction(const SDL_Event& event)
 {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleControllerAddedOrRemovedEvent(event);
-
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(event);
 
 	if (ProcessControllerMotion(event)) {
@@ -156,6 +156,24 @@ MenuAction GetMenuAction(const SDL_Event& event)
 	}
 #endif
 
+#ifndef USE_SDL1
+#if HAS_GAMECTRL
+	if (event.type == SDL_CONTROLLERDEVICEADDED) {
+		GameController::Add(event.cdevice.which);
+	}
+	if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
+		GameController::Remove(event.cdevice.which);
+	}
+#endif
+#if HAS_JOYSTICK
+	if (event.type == SDL_JOYDEVICEADDED) {
+		Joystick::Add(event.jdevice.which);
+	}
+	if (event.type == SDL_JOYDEVICEREMOVED) {
+		Joystick::Remove(event.jdevice.which);
+	}
+#endif
+#endif // USE_SDL1
 	return MenuAction_NONE;
 }
 

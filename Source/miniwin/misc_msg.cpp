@@ -9,6 +9,8 @@
 #include "all.h"
 #include "controls/controller.h"
 #include "controls/controller_motion.h"
+#include "controls/devices/game_controller.h"
+#include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
 #include "controls/plrctrls.h"
 #include "controls/remap_keyboard.h"
@@ -827,9 +829,6 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (HandleControllerAddedOrRemovedEvent(e))
-		return true;
-
 	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
 	if (ProcessControllerMotion(e))
 		return true;
@@ -935,6 +934,22 @@ bool PeekMessage(LPMSG lpMsg)
 			lpMsg->wParam = e.wheel.x >= 0 ? DVL_VK_LEFT : DVL_VK_RIGHT;
 		}
 		break;
+#if HAS_GAMECTRL
+	case SDL_CONTROLLERDEVICEADDED:
+		GameController::Add(e.cdevice.which);
+		break;
+	case SDL_CONTROLLERDEVICEREMOVED:
+		GameController::Remove(e.cdevice.which);
+		break;
+#endif
+#if HAS_JOYSTICK
+	case SDL_JOYDEVICEADDED:
+		Joystick::Add(e.jdevice.which);
+		break;
+	case SDL_JOYDEVICEREMOVED:
+		Joystick::Remove(e.jdevice.which);
+		break;
+#endif
 #if DEBUG_MODE
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_AUDIODEVICEADDED:
