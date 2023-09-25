@@ -41,9 +41,6 @@ void DrawControllerModifierHints();
 
 void UseBeltItem(bool manaItem);
 
-// Talk to towners, click on inv items, attack, etc.
-void PerformPrimaryAction();
-
 // Open chests, doors, pickup items.
 void PerformSecondaryAction();
 void PerformSpellAction();
