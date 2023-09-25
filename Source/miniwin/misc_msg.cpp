@@ -913,6 +913,14 @@ bool PeekMessage(LPMSG lpMsg)
 			lpMsg->message = DVL_WM_RBUTTONDOWN;
 			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
 			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON); -- unused
+#ifdef USE_SDL1
+		} else if (button == SDL_BUTTON_WHEELUP) {
+			lpMsg->message = DVL_WM_KEYDOWN;
+			lpMsg->wParam = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
+		} else if (button == SDL_BUTTON_WHEELDOWN) {
+			lpMsg->message = DVL_WM_KEYDOWN;
+			lpMsg->wParam = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
+#endif
 		}
 	} break;
 	case SDL_MOUSEBUTTONUP: {
