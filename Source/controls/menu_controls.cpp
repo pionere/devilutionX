@@ -86,7 +86,8 @@ MenuAction GetMenuAction(const SDL_Event& event)
 	}
 #endif
 
-	if (event.type == SDL_KEYDOWN) {
+	switch (event.type) {
+	case SDL_KEYDOWN: {
 		auto sym = event.key.keysym.sym;
 		remap_keyboard_key(&sym);
 		switch (sym) {
@@ -100,12 +101,11 @@ MenuAction GetMenuAction(const SDL_Event& event)
 			return MenuAction_PAGE_UP;
 		case SDLK_PAGEDOWN:
 			return MenuAction_PAGE_DOWN;
-		case SDLK_RETURN: {
+		case SDLK_RETURN:
 			if (!(event.key.keysym.mod & KMOD_ALT)) {
 				return MenuAction_SELECT;
 			}
 			break;
-		}
 		case SDLK_KP_ENTER:
 			return MenuAction_SELECT;
 		case SDLK_SPACE:
@@ -121,57 +121,48 @@ MenuAction GetMenuAction(const SDL_Event& event)
 		default:
 			break;
 		}
-	}
-
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
+	} break;
+	case SDL_MOUSEBUTTONDOWN:
 		switch (event.button.button) {
-		case SDL_BUTTON_X1:
-#if !SDL_VERSION_ATLEAST(2, 0, 0)
+#ifdef USE_SDL1
+		case SDL_BUTTON_WHEELUP:
+			return MenuAction_UP;
+		case SDL_BUTTON_WHEELDOWN:
+			return MenuAction_DOWN;
 		case 8:
 #endif
+		case SDL_BUTTON_X1:
 			return MenuAction_BACK;
 		default:
 			break;
 		}
-	}
-
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	if (event.type == SDL_MOUSEWHEEL) {
+		break;
+#ifndef USE_SDL1
+	case SDL_MOUSEWHEEL:
 		if (event.wheel.y > 0) {
 			return MenuAction_UP;
 		} else if (event.wheel.y < 0) {
 			return MenuAction_DOWN;
 		}
-	}
-#else
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
-		switch (event.button.button) {
-		case SDL_BUTTON_WHEELUP:
-			return MenuAction_UP;
-		case SDL_BUTTON_WHEELDOWN:
-			return MenuAction_DOWN;
-		}
-	}
-#endif
-
-#ifndef USE_SDL1
+		break;
 #if HAS_GAMECTRL
-	if (event.type == SDL_CONTROLLERDEVICEADDED) {
+	case SDL_CONTROLLERDEVICEADDED:
 		GameController::Add(event.cdevice.which);
-	}
-	if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
+		break;
+	case SDL_CONTROLLERDEVICEREMOVED:
 		GameController::Remove(event.cdevice.which);
-	}
+		break;
 #endif
 #if HAS_JOYSTICK
-	if (event.type == SDL_JOYDEVICEADDED) {
+	case SDL_JOYDEVICEADDED:
 		Joystick::Add(event.jdevice.which);
-	}
-	if (event.type == SDL_JOYDEVICEREMOVED) {
+		break;
+	case SDL_JOYDEVICEREMOVED:
 		Joystick::Remove(event.jdevice.which);
-	}
+		break;
 #endif
 #endif // USE_SDL1
+	}
 	return MenuAction_NONE;
 }
 
