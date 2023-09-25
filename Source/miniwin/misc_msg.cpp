@@ -839,29 +839,18 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 	GameAction action = GameAction(GameActionType_NONE);
 	if (GetGameAction(ctrlEvent, &action)) {
-		if (action.type != GameActionType_NONE) {
+		if (action.type == GameActionType_SEND_KEY) {
 			sgbControllerActive = true;
-		}
-
-		switch (action.type) {
-		case GameActionType_NONE:
-			break;
-		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
 			lpMsg->wParam = action.send_key.vk_code;
-			break;
-		case GameActionType_SEND_MOUSE_CLICK:
+		} else if (action.type == GameActionType_SEND_MOUSE_CLICK) {
 			sgbControllerActive = false;
-			switch (action.send_mouse_click.button) {
-			case GameActionSendMouseClick::LEFT:
+			if (action.send_mouse_click.button == GameActionSendMouseClick::LEFT) {
 				lpMsg->message = action.send_mouse_click.up ? DVL_WM_LBUTTONUP : DVL_WM_LBUTTONDOWN;
-				break;
-			case GameActionSendMouseClick::RIGHT:
+			} else {
 				lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
-				break;
 			}
 			//lpMsg->wParam = PositionForMouse(MousePos.x, MousePos.y); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
-			break;
 		}
 		return true;
 	}
