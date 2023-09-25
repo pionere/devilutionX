@@ -829,30 +829,6 @@ bool PeekMessage(LPMSG lpMsg)
 #endif
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
-	if (ProcessControllerMotion(e))
-		return true;
-#if HAS_DPAD
-	if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent))
-		return true;
-#endif
-	GameAction action = GameAction(GameActionType_NONE);
-	if (GetGameAction(ctrlEvent, &action)) {
-		if (action.type == GameActionType_SEND_KEY) {
-			sgbControllerActive = true;
-			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
-			lpMsg->wParam = action.send_key.vk_code;
-		} else if (action.type == GameActionType_SEND_MOUSE_CLICK) {
-			sgbControllerActive = false;
-			if (action.send_mouse_click.button == GameActionSendMouseClick::LEFT) {
-				lpMsg->message = action.send_mouse_click.up ? DVL_WM_LBUTTONUP : DVL_WM_LBUTTONDOWN;
-			} else {
-				lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
-			}
-			//lpMsg->wParam = PositionForMouse(MousePos.x, MousePos.y); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
-		}
-		return true;
-	}
 #if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
 	if ((e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
 #else
@@ -1020,10 +996,37 @@ bool PeekMessage(LPMSG lpMsg)
 		// lpMsg->wParam = e.user.data1;
 		lpMsg->message = e.user.code;
 		break;
+	default: {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
+		if (ProcessControllerMotion(e))
+			return true;
+#if HAS_DPAD
+		if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent))
+			return true;
+#endif
+		GameAction action = GameAction(GameActionType_NONE);
+		if (GetGameAction(ctrlEvent, &action)) {
+			if (action.type == GameActionType_SEND_KEY) {
+				sgbControllerActive = true;
+				lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
+				lpMsg->wParam = action.send_key.vk_code;
+			} else if (action.type == GameActionType_SEND_MOUSE_CLICK) {
+				sgbControllerActive = false;
+				if (action.send_mouse_click.button == GameActionSendMouseClick::LEFT) {
+					lpMsg->message = action.send_mouse_click.up ? DVL_WM_LBUTTONUP : DVL_WM_LBUTTONDOWN;
+				} else {
+					lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
+				}
+				//lpMsg->wParam = PositionForMouse(MousePos.x, MousePos.y); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
+			}
+			return true;
+		}
+#endif
 #if DEBUG_MODE
-	default:
 		return FalseAvail("unknown", e.type);
 #endif // DEBUG_MODE
+	} break;
 	}
 	return true;
 }
