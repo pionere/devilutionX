@@ -75,7 +75,6 @@ MenuAction GetMenuAction(const SDL_Event& event)
 	}
 #endif
 
-#if !HAS_KBCTRL
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
 	if ((e.type >= SDL_KEYDOWN && e.type < SDL_JOYAXISMOTION) || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
@@ -123,7 +122,6 @@ MenuAction GetMenuAction(const SDL_Event& event)
 			break;
 		}
 	}
-#endif
 
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		switch (event.button.button) {
