@@ -34,12 +34,12 @@ MenuAction GetMenuAction(const SDL_Event& event)
 
 	if (ProcessControllerMotion(event)) {
 		sgbControllerActive = true;
-		return GetMenuHeldUpDownAction();
+		return MenuAction_NONE;
 	}
 #if HAS_DPAD
 	if (/*!dpad_hotkeys &&*/ SimulateRightStickWithDpad(ctrlEvent)) {
 		sgbControllerActive = true;
-		return GetMenuHeldUpDownAction();
+		return MenuAction_NONE;
 	}
 #endif
 

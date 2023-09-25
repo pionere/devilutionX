@@ -83,6 +83,9 @@ void UiSettingsDialog()
 			}
 			gmenu_presskey(keypress);
 		}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		CheckMenuMove();
+#endif
 	}
 	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
