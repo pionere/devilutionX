@@ -1091,7 +1091,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 	case DVL_WM_KEYUP:
 		UpdateActionBtnState(e->key.keysym.sym, false);
 		return;
-	case DVL_WM_CHAR:
+	case DVL_WM_TEXT:
 	//case DVL_WM_SYSKEYDOWN:
 	//case DVL_WM_SYSCOMMAND:
 		return;
@@ -1134,7 +1134,7 @@ static void GameWndProc(const Dvl_Event* e)
 	case DVL_WM_KEYUP:
 		ReleaseKey(e->key.keysym.sym);
 		return;
-	case DVL_WM_CHAR: {
+	case DVL_WM_TEXT: {
 		char* output = utf8_to_latin1(e->text.text);
 		int key = (unsigned char)output[0];
 		mem_free_dbg(output);

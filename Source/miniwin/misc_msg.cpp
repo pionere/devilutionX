@@ -934,7 +934,7 @@ bool PeekMessage(Dvl_Event &e)
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
 #endif // DEBUG_MODE
 	case SDL_TEXTINPUT:
-		e.type = DVL_WM_CHAR;
+		e.type = DVL_WM_TEXT;
 		break;
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {

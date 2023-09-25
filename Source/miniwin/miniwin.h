@@ -33,7 +33,7 @@ typedef enum window_messages {
 	DVL_WM_KEYUP,   // 0x0101
 	// DVL_WM_SYSKEYDOWN 0x0104
 	// DVL_WM_SYSCOMMAND 0x0112
-	DVL_WM_CHAR, // 0x0102
+	DVL_WM_TEXT, // 0x0102
 
 	DVL_WM_CAPTURECHANGED,  // 0x0215
 	DVL_WM_PAINT,           // 0x000F
