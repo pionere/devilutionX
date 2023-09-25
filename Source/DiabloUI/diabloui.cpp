@@ -835,7 +835,9 @@ static void UiHandleEvents(SDL_Event* event)
 
 	if (event->type == SDL_KEYDOWN) {
 		if (event->key.keysym.sym == SDLK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
+#if !__IPHONEOS__ && !__ANDROID__
 			ToggleFullscreen();
+#endif
 		} else if (!gUiDrawCursor) {
 			UiFocusNavigationEsc();
 		}
