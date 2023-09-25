@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static bool startDownReceived = false;
+static bool selectDownReceived = false;
 bool start_modifier_active = false;
 bool select_modifier_active = false;
 
@@ -45,53 +47,45 @@ static uint32_t TranslateControllerButtonToKey(ControllerButton controllerButton
 	}
 }
 
-static bool HandleStartAndSelect(bool inGameMenu, const ControllerButtonEvent& ctrlEvent, GameAction* action)
+bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action)
 {
+	const bool inGameMenu = InGameMenu();
 	const bool startIsDown = IsControllerButtonPressed(ControllerButton_BUTTON_START);
 	const bool selectIsDown = IsControllerButtonPressed(ControllerButton_BUTTON_BACK);
+
 	start_modifier_active = !inGameMenu && startIsDown;
 	select_modifier_active = !inGameMenu && selectIsDown && !start_modifier_active;
 
+	// Handle start and select
 	// Tracks whether we've received both START and SELECT down events.
 	//
 	// Using `IsControllerButtonPressed()` for this would be incorrect.
 	// If both buttons are pressed simultaneously, SDL sends 2 events for which both buttons are in the pressed state.
 	// This allows us to avoid triggering START+SELECT action twice in this case.
-	static bool startDownReceived = false;
-	static bool selectDownReceived = false;
 	switch (ctrlEvent.button) {
 	case ControllerButton_BUTTON_BACK:
-		selectDownReceived = !ctrlEvent.up;
-		break;
 	case ControllerButton_BUTTON_START:
-		startDownReceived = !ctrlEvent.up;
+		if (ctrlEvent.button == ControllerButton_BUTTON_BACK) {
+			selectDownReceived = !ctrlEvent.up;
+		} else {
+			startDownReceived = !ctrlEvent.up;
+		}
+		if (startDownReceived && selectDownReceived) {
+			*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
+			return true;
+		}
+
+		if (inGameMenu && (startIsDown || selectIsDown) && !ctrlEvent.up) {
+			// If both are down, do nothing because `both_received` will trigger soon.
+			if (startIsDown && selectIsDown)
+				return true;
+			*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
+			return true;
+		}
 		break;
 	default:
-		return false;
+		break;
 	}
-
-	if (startDownReceived && selectDownReceived) {
-		*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
-		return true;
-	}
-
-	if (inGameMenu && (startIsDown || selectIsDown) && !ctrlEvent.up) {
-		// If both are down, do nothing because `both_received` will trigger soon.
-		if (startIsDown && selectIsDown)
-			return true;
-		*action = GameActionSendKey { DVL_VK_ESCAPE, ctrlEvent.up };
-		return true;
-	}
-
-	return false;
-}
-
-bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action)
-{
-	const bool inGameMenu = InGameMenu();
-
-	if (HandleStartAndSelect(inGameMenu, ctrlEvent, action))
-		return true;
 
 	// Stick clicks simulate the mouse both in menus and in-game.
 	switch (ctrlEvent.button) {
