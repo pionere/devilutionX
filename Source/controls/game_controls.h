@@ -65,7 +65,7 @@ typedef struct GameAction {
 	};
 } GameAction;
 
-bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEvent, GameAction* action);
+bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action);
 
 AxisDirection GetMoveDirection();
 

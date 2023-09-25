@@ -838,7 +838,7 @@ bool PeekMessage(LPMSG lpMsg)
 		return true;
 #endif
 	GameAction action = GameAction(GameActionType_NONE);
-	if (GetGameAction(e, ctrlEvent, &action)) {
+	if (GetGameAction(ctrlEvent, &action)) {
 		if (action.type != GameActionType_NONE) {
 			sgbControllerActive = true;
 		}

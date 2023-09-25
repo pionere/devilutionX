@@ -86,7 +86,7 @@ static bool HandleStartAndSelect(bool inGameMenu, const ControllerButtonEvent& c
 	return false;
 }
 
-bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEvent, GameAction* action)
+bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action)
 {
 	const bool inGameMenu = InGameMenu();
 
@@ -300,20 +300,6 @@ bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEven
 			ctrlEvent.up };
 		return true;
 	}
-
-#ifndef USE_SDL1
-#if HAS_JOYSTICK && HAS_GAMECTRL
-	// Ignore unhandled joystick events where a GameController is open for this joystick.
-	// This is because SDL sends both game controller and joystick events in this case.
-	Joystick* joystick = Joystick::Get(event);
-	if (joystick != NULL && GameController::Get(joystick->instance_id()) != NULL) {
-		return true;
-	}
-#endif // HAS_JOYSTICK && HAS_GAMECTRL
-	if (event.type == SDL_CONTROLLERAXISMOTION) {
-		return true; // Ignore releasing the trigger buttons
-	}
-#endif // !USE_SDL1
 
 	return false;
 }
