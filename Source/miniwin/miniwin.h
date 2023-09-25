@@ -4,19 +4,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-//
-// Everything else
-//
 extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
-bool PeekMessage(LPMSG lpMsg);
+bool PeekMessage(Dvl_Event &event);
 
 #if defined(USE_SDL1) || DEBUG_MODE
 int TranslateKey2Char(int vkey);
 #endif
-void DispatchMessage(const MSG* lpMsg);
+void DispatchMessage(const Dvl_Event* event);
 void PostMessage(UINT Msg /*, WPARAM wParam*/);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 

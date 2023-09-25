@@ -9,12 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void GetMousePos(WPARAM wParam)
-{
-	MousePos.x = (int16_t)(wParam & 0xFFFF);
-	MousePos.y = (int16_t)((wParam >> 16) & 0xFFFF);
-}
-
 /**
  * @brief Start playback of a given video.
  * @param pszMovie The file name of the video
@@ -31,15 +25,16 @@ int play_movie(const char* pszMovie, int movieFlags)
 
 	//video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	video_stream = SVidPlayBegin(pszMovie, movieFlags);
-	MSG Msg;
+	Dvl_Event e;
 	while (video_stream != NULL) {
-		while (PeekMessage(&Msg)) {
-			switch (Msg.message) {
+		while (PeekMessage(e)) {
+			switch (e.type) {
 			case DVL_WM_MOUSEMOVE:
-				GetMousePos(Msg.wParam);
+				MousePos.x = e.motion.x;
+				MousePos.y = e.motion.y;
 				continue;
 			case DVL_WM_KEYDOWN:
-				if (Msg.wParam == DVL_VK_ESCAPE) {
+				if (e.key.keysym.sym == DVL_VK_ESCAPE) {
 					result = MPR_CANCEL;
 					break;
 				}

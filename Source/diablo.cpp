@@ -8,6 +8,7 @@
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
+#include "utils/utf8.h"
 #include "diabloui.h"
 #include "plrctrls.h"
 #include "storm/storm_net.h"
@@ -1073,12 +1074,6 @@ static void PressChar(WPARAM vkey)
 	}
 }
 
-static void GetMousePos(WPARAM wParam)
-{
-	MousePos.x = (int16_t)(wParam & 0xFFFF);
-	MousePos.y = (int16_t)((wParam >> 16) & 0xFFFF);
-}
-
 static void UpdateActionBtnState(int vKey, bool dir)
 {
 	if (vKey == actionBtnKey)
@@ -1087,14 +1082,14 @@ static void UpdateActionBtnState(int vKey, bool dir)
 		gbAltActionBtnDown = dir;
 }
 
-void DisableInputWndProc(UINT uMsg, WPARAM wParam)
+void DisableInputWndProc(const Dvl_Event* e)
 {
-	switch (uMsg) {
+	switch (e->type) {
 	case DVL_WM_KEYDOWN:
-		UpdateActionBtnState(wParam, true);
+		UpdateActionBtnState(e->key.keysym.sym, true);
 		return;
 	case DVL_WM_KEYUP:
-		UpdateActionBtnState(wParam, false);
+		UpdateActionBtnState(e->key.keysym.sym, false);
 		return;
 	case DVL_WM_CHAR:
 	//case DVL_WM_SYSKEYDOWN:
@@ -1105,7 +1100,8 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 		gbRunGameResult = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
-		GetMousePos(wParam);
+		MousePos.x = e->motion.x;
+		MousePos.y = e->motion.y;
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_LBUTTON, true);
@@ -1131,18 +1127,21 @@ void DisableInputWndProc(UINT uMsg, WPARAM wParam)
 	// MainWndProc(uMsg);
 }
 
-static void GameWndProc(UINT uMsg, WPARAM wParam)
+static void GameWndProc(const Dvl_Event* e)
 {
-	switch (uMsg) {
+	switch (e->type) {
 	case DVL_WM_KEYDOWN:
-		PressKey(wParam);
+		PressKey(e->key.keysym.sym);
 		return;
 	case DVL_WM_KEYUP:
-		ReleaseKey(wParam);
+		ReleaseKey(e->key.keysym.sym);
 		return;
-	case DVL_WM_CHAR:
-		PressChar(wParam);
-		return;
+	case DVL_WM_CHAR: {
+		char* output = utf8_to_latin1(e->text.text);
+		int key = (unsigned char)output[0];
+		mem_free_dbg(output);
+		PressChar(key);
+	} return;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
 	//		return;
@@ -1159,7 +1158,8 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		gbGamePaused = false;
 		return;
 	case DVL_WM_MOUSEMOVE:
-		GetMousePos(wParam);
+		MousePos.x = e->motion.x;
+		MousePos.y = e->motion.y;
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
 		else if (gbDragWnd != WND_NONE)
@@ -1202,7 +1202,7 @@ static void GameWndProc(UINT uMsg, WPARAM wParam)
 		if (gbQtextflag) {
 			StopQTextMsg();
 		}
-		ShowCutscene(uMsg);
+		ShowCutscene(e->type);
 		if (gbRunGame) {
 			InitLevelCursor();
 			LoadPWaterPalette();
@@ -1399,19 +1399,18 @@ static void FreeGameFX()
 
 static void run_game()
 {
-	WNDPROC saveProc;
-	MSG msg;
+	WNDPROC saveProc = InitGameFX();
+	SDL_Event event;
 
-	saveProc = InitGameFX();
-
-	GameWndProc(DVL_DWM_NEWGAME, 0);
+	event.type = DVL_DWM_NEWGAME;
+	GameWndProc(&event);
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;
 #endif
 	while (TRUE) {
-		while (gbRunGame && PeekMessage(&msg)) {
-			DispatchMessage(&msg);
+		while (gbRunGame && PeekMessage(event)) {
+			DispatchMessage(&event);
 		}
 		if (!gbRunGame)
 			break;

@@ -44,7 +44,7 @@ void AltActionBtnCmd(bool bShift);
 bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(UINT uMsg, WPARAM wParam);
+void DisableInputWndProc(const Dvl_Event *event);
 void game_logic();
 
 #ifdef __cplusplus

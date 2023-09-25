@@ -145,11 +145,11 @@ static void DrawCutscene()
 
 void interface_msg_pump()
 {
-	MSG Msg;
+	Dvl_Event e;
 
-	while (PeekMessage(&Msg)) {
+	while (PeekMessage(e)) {
 		//if (Msg.message != DVL_WM_QUIT) {
-			DispatchMessage(&Msg);
+			DispatchMessage(&e);
 		//}
 	}
 }
