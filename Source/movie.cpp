@@ -9,9 +9,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Should the movie continue playing. */
-bool gbMoviePlaying = false;
-
 static void GetMousePos(WPARAM wParam)
 {
 	MousePos.x = (int16_t)(wParam & 0xFFFF);
@@ -28,8 +25,6 @@ int play_movie(const char* pszMovie, int movieFlags)
 {
 	int result = MPR_DONE;
 	HANDLE video_stream;
-
-	gbMoviePlaying = true;
 
 	sound_disable_music();
 	StopSFX();
@@ -65,18 +60,15 @@ int play_movie(const char* pszMovie, int movieFlags)
 			default:
 				continue;
 			}
-			gbMoviePlaying = false;
 			break;
 		}
-		if (!SVidPlayContinue() || !gbMoviePlaying) {
+		if (!SVidPlayContinue() || result != MPR_DONE) {
 			SVidPlayEnd();
 			break;
 		}
 	}
 
 	sound_restart_music();
-
-	gbMoviePlaying = false;
 
 	return result;
 }
