@@ -841,34 +841,10 @@ bool PeekMessage(LPMSG lpMsg)
 	if (GetGameAction(e, ctrlEvent, &action)) {
 		if (action.type != GameActionType_NONE) {
 			sgbControllerActive = true;
-
-			if (gbMoviePlaying) {
-				lpMsg->message = DVL_WM_KEYDOWN;
-				if (action.type == GameActionType_SEND_KEY)
-					lpMsg->wParam = action.send_key.vk_code;
-				return true;
-			}
 		}
 
 		switch (action.type) {
 		case GameActionType_NONE:
-			break;
-		case GameActionType_USE_HEALTH_POTION:
-			UseBeltItem(BLT_HEALING);
-			break;
-		case GameActionType_USE_MANA_POTION:
-			UseBeltItem(BLT_MANA);
-			break;
-		case GameActionType_PRIMARY_ACTION:
-			PerformPrimaryAction();
-			lpMsg->message = DVL_WM_KEYUP;
-			lpMsg->wParam = DVL_VK_LBUTTON;
-			break;
-		case GameActionType_SECONDARY_ACTION:
-			PerformSecondaryAction();
-			break;
-		case GameActionType_CAST_SPELL:
-			PerformSpellAction();
 			break;
 		case GameActionType_SEND_KEY:
 			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;

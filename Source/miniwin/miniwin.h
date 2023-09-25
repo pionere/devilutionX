@@ -193,6 +193,12 @@ typedef enum window_messages {
 #define DVL_VK_OEM_PERIOD          0xBE // For any country/region, the '.' key
 #define DVL_VK_OEM_2               0xBF // For the US standard keyboard, the '/?' key
 #define DVL_VK_OEM_3               0xC0 // For the US standard keyboard, the '`~' key
+// -- non standard virtual key-codes for the controllers
+#define DVL_VK_CONTROLLER_1        0xC1
+#define DVL_VK_CONTROLLER_2        0xC2
+#define DVL_VK_CONTROLLER_3        0xC3
+#define DVL_VK_CONTROLLER_4        0xC4
+// --
 #define DVL_VK_OEM_4               0xDB // For the US standard keyboard, the '[{' key
 #define DVL_VK_OEM_5               0xDC // For the US standard keyboard, the '\|' key
 #define DVL_VK_OEM_6               0xDD // For the US standard keyboard, the ']}' key

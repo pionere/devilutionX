@@ -249,7 +249,7 @@ bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEven
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_R, ctrlEvent.up }; // ACT_SKL7
 				else
-					*action = GameAction(GameActionType_PRIMARY_ACTION);
+					*action = GameActionSendMouseClick { GameActionSendMouseClick::LEFT, ctrlEvent.up }; // ACT_ACT
 			}
 			return true;
 		case ControllerButton_BUTTON_FACE_TOP:
@@ -257,7 +257,7 @@ bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEven
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_W, ctrlEvent.up }; // ACT_SKL5
 				else
-					*action = GameAction(GameActionType_SECONDARY_ACTION);
+					*action = GameActionSendKey { DVL_VK_CONTROLLER_1, ctrlEvent.up }; // ACT_CTRL_ALTACT
 			}
 			return true;
 		case ControllerButton_BUTTON_FACE_LEFT:
@@ -265,16 +265,16 @@ bool GetGameAction(const SDL_Event& event, const ControllerButtonEvent& ctrlEven
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_Q, ctrlEvent.up }; // ACT_SKL4
 				else
-					*action = GameAction(GameActionType_CAST_SPELL);
+					*action = GameActionSendKey { DVL_VK_CONTROLLER_2, ctrlEvent.up }; // ACT_CTRL_CASTACT
 			}
 			return true;
 		case ControllerButton_BUTTON_LEFTSHOULDER:
 			if (!ctrlEvent.up)
-				*action = GameAction(GameActionType_USE_HEALTH_POTION);
+				*action = GameActionSendKey { DVL_VK_CONTROLLER_3, ctrlEvent.up }; // ACT_CTRL_USE_HP
 			return true;
 		case ControllerButton_BUTTON_RIGHTSHOULDER:
 			if (!ctrlEvent.up)
-				*action = GameAction(GameActionType_USE_MANA_POTION);
+				*action = GameActionSendKey { DVL_VK_CONTROLLER_4, ctrlEvent.up }; // ACT_CTRL_USE_MP
 			return true;
 		default:
 			break;

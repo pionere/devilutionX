@@ -4664,6 +4664,12 @@ typedef enum input_key {
 	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
 	ACT_TOOLTIP, // toggle the permanency of the tooltips
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	ACT_CTRL_ALTACT,
+	ACT_CTRL_CASTACT,
+	ACT_CTRL_USE_HP,
+	ACT_CTRL_USE_MP,
+#endif
 	NUM_ACTS
 } input_key;
 

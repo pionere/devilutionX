@@ -39,7 +39,7 @@ void finish_simulated_mouse_clicks();
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
 
-void UseBeltItem(int type);
+void UseBeltItem(bool manaItem);
 
 // Talk to towners, click on inv items, attack, etc.
 void PerformPrimaryAction();

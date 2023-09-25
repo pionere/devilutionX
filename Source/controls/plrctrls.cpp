@@ -1097,7 +1097,7 @@ void plrctrls_after_game_logic()
 	Movement();
 }
 
-void UseBeltItem(int type)
+void UseBeltItem(bool manaItem)
 {
 	ItemStruct* pi;
 
@@ -1105,8 +1105,8 @@ void UseBeltItem(int type)
 	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
-		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
-		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
+		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
+		    || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
 			if (InvUseItem(INVITEM_BELT_FIRST + i))
 				break;
