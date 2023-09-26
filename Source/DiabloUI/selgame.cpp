@@ -79,6 +79,8 @@ static void SelgameFree()
 {
 	FreeBackgroundArt();
 	SelgameFreeDlgItems();
+
+	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
 }
 
 static void SelgameModeEsc()
@@ -267,7 +269,7 @@ static void SelgameModeInit()
 
 static void SelgamePasswordInit(unsigned index)
 {
-	memset(&selgame_Password, 0, sizeof(selgame_Password));
+	selgame_Password[0] = '\0';
 
 	SelgameFreeDlgItems();
 
