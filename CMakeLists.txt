@@ -930,7 +930,6 @@ foreach(
   JOY_BUTTON_TRIGGERRIGHT
   JOY_BUTTON_START
   JOY_BUTTON_BACK
-  REMAP_KEYBOARD_KEYS
 )
   if(DEFINED ${def_name})
     list(APPEND def_list ${def_name}=${${def_name}})
@@ -1598,7 +1597,6 @@ foreach(
   JOY_BUTTON_TRIGGERRIGHT
   JOY_BUTTON_START
   JOY_BUTTON_BACK
-  REMAP_KEYBOARD_KEYS
 )
   string(LENGTH ${def_name} _OPTLEN)
   math(EXPR _PADLEN "(${LONGESTOPTIONNAME} + 1) - ${_OPTLEN}")

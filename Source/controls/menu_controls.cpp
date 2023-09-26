@@ -8,7 +8,6 @@
 #include "./devices/joystick.h"
 
 #include "DiabloUI/diabloui.h"
-#include "remap_keyboard.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -89,7 +88,6 @@ MenuAction GetMenuAction(const SDL_Event& event)
 	switch (event.type) {
 	case SDL_KEYDOWN: {
 		auto sym = event.key.keysym.sym;
-		remap_keyboard_key(&sym);
 		switch (sym) {
 		case SDLK_UP:
 			return MenuAction_UP;

@@ -13,7 +13,6 @@
 #include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
 #include "controls/plrctrls.h"
-#include "controls/remap_keyboard.h"
 #include "controls/touch.h"
 #include "utils/display.h"
 
