@@ -1135,10 +1135,12 @@ static void GameWndProc(const Dvl_Event* e)
 		ReleaseKey(e->key.keysym.sym);
 		return;
 	case DVL_WM_TEXT: {
+#ifndef USE_SDL1
 		char* output = utf8_to_latin1(e->text.text);
 		int key = (unsigned char)output[0];
 		mem_free_dbg(output);
 		PressChar(key);
+#endif
 	} return;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
