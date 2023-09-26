@@ -73,7 +73,7 @@ void tcp_server::endpoint_to_string(const scc& con, std::string& addr)
 	addr.append(buf);
 }
 
-void tcp_server::make_default_gamename(char (&gamename)[128])
+void tcp_server::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	if (!getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1)) {
 		copy_cstr(gamename, "127.0.0.1");

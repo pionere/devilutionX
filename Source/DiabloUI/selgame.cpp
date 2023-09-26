@@ -16,9 +16,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern int provider;
 
 static char selgame_Label[32];
-static char selgame_Ip[128] = "";
+static char selgame_Ip[NET_MAX_GAMENAME_LEN + 1] = "";
 static char selgame_Port[8] = "";
-static char selgame_Password[16] = "";
+static char selgame_Password[NET_MAX_PASSWD_LEN + 1] = "";
 static char selgame_Description[128];
 static int selgame_mode;
 static bool selgame_endMenu;

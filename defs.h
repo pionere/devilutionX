@@ -69,6 +69,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 // the minimum size of a large message which needs to be compressed
 #define NET_COMP_MSG_SIZE		256
 #define NET_DEFAULT_PORT		6112
+#define NET_MAX_GAMENAME_LEN    31
+#define NET_MAX_PASSWD_LEN      15
 #define MAX_SEND_STR_LEN		80
 
 #define DEAD_MULTI				0xFF

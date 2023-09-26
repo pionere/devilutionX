@@ -34,7 +34,7 @@ public:
 	void close();
 	~tcp_server() = default;
 
-	static void make_default_gamename(char (&gamename)[128]);
+	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	static void connect_acceptor(asio::ip::tcp::acceptor& acceptor, const asio::ip::tcp::endpoint& ep, asio::error_code& ec);
 	static void connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec);
 

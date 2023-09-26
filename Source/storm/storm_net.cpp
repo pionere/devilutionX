@@ -12,8 +12,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static std::unique_ptr<net::abstract_net> dvlnet_inst;
-static char gpszGameName[128] = {};
-static char gpszGamePassword[128] = {};
+static char gpszGameName[NET_MAX_GAMENAME_LEN + 1] = {};
+static char gpszGamePassword[NET_MAX_PASSWD_LEN + 1] = {};
 
 #ifdef ZEROTIER
 static std::mutex storm_net_mutex;
