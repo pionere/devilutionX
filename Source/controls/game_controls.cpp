@@ -4,8 +4,6 @@
 //#include <cstdint>
 
 #include "controller_motion.h"
-#include "menu_controls.h"
-#include "modifier_hints.h"
 #include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
