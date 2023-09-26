@@ -667,6 +667,27 @@ static bool HandleMouseEventScrollBar(const Dvl_Event& event, const UiScrollBar*
 	}
 	return true;
 }
+static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+{
+	if (event.type != DVL_WM_LBUTTONDOWN)
+		return true;
+
+	int x = event.button.x - (uiEdit->m_rect.x + 43);
+	char* text = uiEdit->m_value;
+	unsigned curpos = 1;
+	for ( ; curpos < uiEdit->m_max_length; curpos++) {
+		char tmp = text[curpos];
+		text[curpos] = '\0';
+		int w = GetBigStringWidth(text);
+		text[curpos] = tmp;
+		if (w >= x) {
+			break;
+		}
+	}
+	curpos--;
+	uiEdit->m_curpos = curpos;
+	return true;
+}
 #endif // FULL_UI
 static bool HandleMouseEvent(const Dvl_Event& event, UiItemBase* item)
 {
@@ -684,6 +705,8 @@ static bool HandleMouseEvent(const Dvl_Event& event, UiItemBase* item)
 #if FULL_UI
 	case UI_SCROLLBAR:
 		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
+	case UI_EDIT:
+		return HandleMouseEventEdit(event, static_cast<UiEdit*>(item));
 #endif
 	default:
 		return false;
