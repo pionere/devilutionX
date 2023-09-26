@@ -1,5 +1,4 @@
 
-#include "../controls/menu_controls.h"
 #include "diabloui.h"
 //#include "all.h"
 #include "engine/render/cel_render.h"

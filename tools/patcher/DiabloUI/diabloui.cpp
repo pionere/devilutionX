@@ -1,6 +1,6 @@
 #include "diabloui.h"
 
-#include "controls/menu_controls.h"
+#include "controls/controller_motion.h"
 
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/text_draw.h"
@@ -231,41 +231,17 @@ static void UiSetText(const char* inBuf)
 }
 #endif
 #endif // FULL_UI
-static bool HandleMenuAction(MenuAction menuAction)
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+static void HandleMenuMove()
 {
-	switch (menuAction) {
-	case MenuAction_NONE:
-		break;
-	case MenuAction_SELECT:
-		UiFocusNavigationSelect();
-		return true;
-	case MenuAction_BACK:
-		UiFocusNavigationEsc();
-		return true;
-	case MenuAction_DELETE:
-		UiFocusNavigationDelete();
-		return true;
-	case MenuAction_UP:
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
+	if (move_dir.y == AxisDirectionY_UP) {
 		UiFocusUp();
-		return true;
-	case MenuAction_DOWN:
+	} else if (move_dir.y == AxisDirectionY_DOWN) {
 		UiFocusDown();
-		return true;
-	case MenuAction_LEFT:
-	case MenuAction_RIGHT:
-		break;
-	case MenuAction_PAGE_UP:
-		UiFocusPageUp();
-		return true;
-	case MenuAction_PAGE_DOWN:
-		UiFocusPageDown();
-		return true;
-	default:
-		ASSUME_UNREACHABLE
 	}
-	return false;
 }
-
+#endif
 void UiFocusNavigationSelect()
 {
 	if (gUiDrawCursor)
@@ -303,7 +279,7 @@ void UiFocusNavigationDelete()
 		UiPlaySelectSound();
 }
 
-static SDL_bool IsInsideRect(const SDL_Event& event, const SDL_Rect& rect)
+static SDL_bool IsInsideRect(const Dvl_Event& event, const SDL_Rect& rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
 	return SDL_PointInRect(&point, &rect);
@@ -451,12 +427,12 @@ void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems)
 	UiRenderItems(gUiItems);
 	UiFadeIn();
 
-	SDL_Event event;
+	Dvl_Event event;
 	while (UiPeekAndHandleEvents(&event)) {
 		;
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleMenuAction(GetMenuHeldUpDownAction());
+	HandleMenuMove();
 #endif
 #ifdef __3DS__
 	// Keyboard blocks until input is finished
@@ -609,20 +585,20 @@ static void RenderItem(UiItemBase* item)
 	}
 }
 #if FULL_UI
-static bool HandleMouseEventArtTextButton(const SDL_Event& event, const UiTxtButton* uiButton)
+static bool HandleMouseEventArtTextButton(const Dvl_Event& event, const UiTxtButton* uiButton)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN)
+	if (event.type != DVL_WM_LBUTTONDOWN)
 		return true;
 	uiButton->m_action();
 	return true;
 }
 #endif
-static bool HandleMouseEventButton(const SDL_Event& event, UiButton* button)
+static bool HandleMouseEventButton(const Dvl_Event& event, UiButton* button)
 {
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
+	if (event.type == DVL_WM_LBUTTONDOWN) {
 		button->m_pressed = true;
 	} else if (button->m_pressed) {
-		// assert(event.type == SDL_MOUSEBUTTONUP);
+		// assert(event.type == DVL_WM_LBUTTONUP);
 		button->m_action();
 	}
 	return true;
@@ -632,9 +608,9 @@ static bool HandleMouseEventButton(const SDL_Event& event, UiButton* button)
 Uint32 dbClickTimer;
 #endif
 
-static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
+static bool HandleMouseEventList(const Dvl_Event& event, UiList* uiList)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN)
+	if (event.type != DVL_WM_LBUTTONDOWN)
 		return true;
 
 	const unsigned index = uiList->indexAt(event.button.y) + ListOffset;
@@ -658,9 +634,9 @@ static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
 	return true;
 }
 #if FULL_UI
-static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar* uiSb)
+static bool HandleMouseEventScrollBar(const Dvl_Event& event, const UiScrollBar* uiSb)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN)
+	if (event.type != DVL_WM_LBUTTONDOWN)
 		return true;
 
 	int y = event.button.y - uiSb->m_rect.y;
@@ -692,7 +668,7 @@ static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar*
 	return true;
 }
 #endif // FULL_UI
-static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
+static bool HandleMouseEvent(const Dvl_Event& event, UiItemBase* item)
 {
 	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
@@ -714,19 +690,56 @@ static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
 	}
 }
 
-static void UiHandleEvents(SDL_Event* event)
+bool UiPeekAndHandleEvents(Dvl_Event* event)
 {
-#if HAS_TOUCHPAD
-	handle_touch(event);
-#endif
+	if (!PeekMessage(*event)) {
+		return false;
+	}
 
+	switch (event->type) {
+	case DVL_WM_QUIT:
+		diablo_quit(EX_OK);
+		break;
+	case DVL_WM_LBUTTONDOWN:
+		if (!gUiDrawCursor) {
+			UiFocusNavigationEsc();
+			break;
+		}
+	case DVL_WM_LBUTTONUP:
+		//bool handled = false;
+		for (unsigned i = 0; i < gUiItems.size(); i++) {
+			if (HandleMouseEvent(*event, gUiItems[i])) {
+				//handled = true;
+				break;
+			}
+		}
+
+		if (event->type == DVL_WM_LBUTTONUP) {
+			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
+			for (unsigned i = 0; i < gUiItems.size(); i++) {
+				UiItemBase* item = gUiItems[i];
+				if (item->m_type == UI_BUTTON)
+					static_cast<UiButton*>(item)->m_pressed = false;
+			}
+		}
+		break; // handled
+	case DVL_WM_RBUTTONDOWN:
+		UiFocusNavigationEsc();
+		break;
+	case DVL_WM_KEYDOWN:
+		if (!gUiDrawCursor) {
+			UiFocusNavigationEsc();
+			break;
+		}
+		if (event->key.keysym.sym == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
+			ToggleFullscreen();
+			break;
+		}
 #if FULL_UI
-	if (gUiEditField != NULL) {
-		switch (event->type) {
-		case SDL_KEYDOWN: {
+		if (gUiEditField != NULL) {
 			switch (event->key.keysym.sym) {
 #ifndef USE_SDL1
-			case SDLK_v:
+			case DVL_VK_V:
 				if (event->key.keysym.mod & KMOD_CTRL) {
 					char* clipboard = SDL_GetClipboardText();
 					if (clipboard != NULL) {
@@ -736,7 +749,7 @@ static void UiHandleEvents(SDL_Event* event)
 				}
 				break;
 #endif
-			case SDLK_BACKSPACE: {
+			case DVL_VK_BACK: {
 				unsigned i = gUiEditField->m_curpos;
 				if (i > 0) {
 					i--;
@@ -752,7 +765,7 @@ static void UiHandleEvents(SDL_Event* event)
 					}
 				}
 			} break;
-			case SDLK_DELETE: {
+			case DVL_VK_DELETE: {
 				for (unsigned i = gUiEditField->m_curpos; ; i++) {
 					// assert(gUiEditField->m_max_length != 0);
 					if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
@@ -763,20 +776,19 @@ static void UiHandleEvents(SDL_Event* event)
 					}
 				}
 			} break;
-			case SDLK_LEFT: {
+			case DVL_VK_LEFT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (pos > 0) {
 					gUiEditField->m_curpos = pos - 1;
 				}
 			} break;
-			case SDLK_RIGHT: {
+			case DVL_VK_RIGHT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (gUiEditField->m_value[pos] != '\0' && pos + 1 < gUiEditField->m_max_length) {
 					gUiEditField->m_curpos = pos + 1;
 				}
 			} break;
-			case SDLK_RETURN:
-			case SDLK_KP_ENTER:
+			case DVL_VK_RETURN:
 				UiFocusNavigationSelect();
 				break;
 			default:
@@ -793,100 +805,56 @@ static void UiHandleEvents(SDL_Event* event)
 #endif
 				break;
 			}
-			return;
+			break; // gUiEditField != NULL
 		}
+#endif // FULL_UI
+		switch (event->key.keysym.sym) {
+		case DVL_VK_RETURN:
+			UiFocusNavigationSelect();
+			break;
+		case DVL_VK_ESCAPE:
+			UiFocusNavigationEsc();
+			break;
+		// case DVL_VK_OEM_PLUS:
+		case DVL_VK_UP:
+			UiFocusUp();
+			break;
+		// case DVL_VK_OEM_MINUS:
+		case DVL_VK_DOWN:
+			UiFocusDown();
+			break;
+		case DVL_VK_DELETE:
+			UiFocusNavigationDelete();
+			break;
+		case DVL_VK_PRIOR:
+			UiFocusPageUp();
+			break;
+		case DVL_VK_NEXT:
+			UiFocusPageDown();
+			break;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		case DVL_VK_LBUTTON:
+			UiFocusNavigationSelect();
+			// convert to RETURN for gmenu
+			event->key.keysym.sym = DVL_VK_RETURN;
+			break;
+#endif
+		}
+		break;
+#if FULL_UI
+	case DVL_WM_TEXT:
 #ifndef USE_SDL1
-		case SDL_TEXTINPUT:
+		if (gUiEditField != NULL) {
 #ifdef __vita__
 			UiSetText(event->text.text);
 #else
 			UiCatToText(event->text.text);
 #endif
-			return;
-#endif
-		default:
-			break;
 		}
-	}
-#endif // FULL_UI
-	if (HandleMenuAction(GetMenuAction(*event)))
-		return;
-
-	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
-			UiFocusNavigationEsc();
-			return;
-		}
-		if (event->button.button != SDL_BUTTON_LEFT)
-			return; // false;
-
-		// In SDL2 mouse events already use logical coordinates.
-#ifdef USE_SDL1
-		OutputToLogical(&event->button.x, &event->button.y);
-#endif
-
-		//bool handled = false;
-		for (unsigned i = 0; i < gUiItems.size(); i++) {
-			if (HandleMouseEvent(*event, gUiItems[i])) {
-				//handled = true;
-				break;
-			}
-		}
-
-		if (event->type == SDL_MOUSEBUTTONUP) {
-			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
-			for (unsigned i = 0; i < gUiItems.size(); i++) {
-				UiItemBase* item = gUiItems[i];
-				if (item->m_type == UI_BUTTON)
-					static_cast<UiButton*>(item)->m_pressed = false;
-			}
-		}
-		return; // handled
-	}
-	if (event->type == SDL_MOUSEMOTION) {
-		// In SDL2 mouse events already use logical coordinates
-#ifdef USE_SDL1
-		OutputToLogical(&event->motion.x, &event->motion.y);
-#endif
-		MousePos.x = event->motion.x;
-		MousePos.y = event->motion.y;
-		return;
-	}
-
-	if (event->type == SDL_KEYDOWN) {
-		if (event->key.keysym.sym == SDLK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
-			ToggleFullscreen();
-		} else if (!gUiDrawCursor) {
-			UiFocusNavigationEsc();
-		}
-		return;
-	}
-
-	if (event->type == SDL_QUIT) {
-		diablo_quit(EX_OK);
-		return;
-	}
-
-#ifndef USE_SDL1
-	if (event->type == SDL_WINDOWEVENT) {
-		if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_EXPOSED)
-			gbWndActive = true;
-		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN || event->window.event == SDL_WINDOWEVENT_MINIMIZED)
-			gbWndActive = false;
-		return;
-	}
+		break;
 #endif // !USE_SDL1
-}
-
-bool UiPeekAndHandleEvents(SDL_Event* event)
-{
-#ifdef __SWITCH__
-	HandleDocking();
-#endif
-	if (SDL_PollEvent(event) == 0) {
-		return false;
+#endif // FULL_UI
 	}
-	UiHandleEvents(event);
 	return true;
 }
 

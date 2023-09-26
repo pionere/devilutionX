@@ -11,6 +11,8 @@ extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
+bool PeekMessage(Dvl_Event &event);
+
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
 //

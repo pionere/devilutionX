@@ -241,7 +241,7 @@ bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action)
 				if (select_modifier_active)
 					*action = GameActionSendKey { DVL_VK_R, ctrlEvent.up }; // ACT_SKL7
 				else
-					*action = GameActionSendMouseClick { GameActionSendMouseClick::LEFT, ctrlEvent.up }; // ACT_ACT
+					*action = GameActionSendKey { DVL_VK_LBUTTON, ctrlEvent.up }; // ACT_ACT
 			}
 			return true;
 		case ControllerButton_BUTTON_FACE_TOP:

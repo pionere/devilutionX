@@ -1,6 +1,5 @@
 #include "dialogs.h"
 
-#include "controls/menu_controls.h"
 #include "diabloui.h"
 //#include "errorart.h"
 #include "text.h"
