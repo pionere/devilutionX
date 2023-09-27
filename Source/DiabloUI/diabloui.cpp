@@ -62,7 +62,7 @@ typedef struct ScrollBarState {
 } ScrollBarState;
 static ScrollBarState scrollBarState;
 
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnDelete)())
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
 	gUiDrawCursor = true;
 	SelectedItem = 0;
@@ -72,7 +72,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListFocus = fnFocus;
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
-	gfnListDelete = fnDelete;
+	gfnListDelete = NULL;
 #if SCREEN_READER_INTEGRATION
 	if (gUIListItems.size() > SelectedItem) {
 		SpeakText(gUIListItems[SelectedItem]->m_text);
@@ -87,8 +87,9 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 #endif
 }
 
-void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
+void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, bool (*fnDelete)())
 {
+	gfnListDelete = fnDelete;
 	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
 		uiSb->m_iFlags |= UIS_HIDDEN;

@@ -274,8 +274,8 @@ static void SelheroListInit()
 	SDL_Rect rect6 = { SELHERO_RPANEL_LEFT + 2 * SELHERO_RPANEL_WIDTH / 3, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 3, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitScreen(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc, SelheroListDelete);
-	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS);
+	UiInitScreen(selhero_SaveCount + 1, SelheroListFocus, SelheroListSelect, SelheroListEsc);
+	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS, SelheroListDelete);
 }
 
 static void SelheroClassSelectorEsc()
