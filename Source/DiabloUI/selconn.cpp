@@ -16,7 +16,6 @@ int provider;
 static_assert(MAX_PLRS < 100, "Not enough space to print the info message.");
 static char selconn_MaxPlayers[22];
 static char selconn_Description[64];
-static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
 #define DESCRIPTION_WIDTH (SELCONN_LPANEL_WIDTH - 2 * 10)
@@ -26,7 +25,6 @@ static void SelconnSelect(unsigned index);
 
 static void SelconnEsc()
 {
-	selconn_ReturnValue = false;
 	selconn_EndMenu = true;
 }
 
@@ -136,29 +134,32 @@ static void SelconnSelect(unsigned index)
 {
 	provider = gUIListItems[index]->m_value;
 
-	SNetInitializeProvider(provider);
 	selconn_EndMenu = true;
 }
 
 bool UiSelectProvider(bool bMulti)
 {
 	selconn_bMulti = bMulti;
-	SelconnLoad();
 
-	selconn_ReturnValue = true;
-	selconn_EndMenu = false;
+	if (selconn_bMulti) {
+		SelconnLoad();
 
-	if (!selconn_bMulti) {
-		assert(gUIListItems[0]->m_value == SELCONN_LOOPBACK);
-		SelconnSelect(0);
+		provider = -1;
+		selconn_EndMenu = false;
+		do {
+			UiRenderAndPoll();
+		} while (!selconn_EndMenu);
+		SelconnFree();
+
+		if (provider == -1) {
+			return false;
+		}
+	} else {
+		provider = SELCONN_LOOPBACK;
 	}
 
-	while (!selconn_EndMenu) {
-		UiRenderAndPoll();
-	}
-	SelconnFree();
-
-	return selconn_ReturnValue;
+	SNetInitializeProvider(provider);
+	return true;
 }
 
 DEVILUTION_END_NAMESPACE
