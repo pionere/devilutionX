@@ -3,11 +3,20 @@
  *
  * Windows message handling and keyboard event conversion for SDL.
  */
-#include <SDL.h>
 
 #include "all.h"
+#include "controls/controller.h"
+#include "controls/controller_motion.h"
+#include "controls/devices/game_controller.h"
+#include "controls/devices/joystick.h"
+#include "controls/game_controls.h"
+#include "controls/touch.h"
 #include "utils/display.h"
-#include "utils/sdl_compat.h"
+
+#ifdef __SWITCH__
+#include "platform/switch/docking.h"
+#include <switch.h>
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -976,15 +985,6 @@ bool PeekMessage(Dvl_Event &e)
 	} break;
 	}
 	return true;
-}
-
-WNDPROC SetWindowProc(WNDPROC newWndProc)
-{
-	WNDPROC oldWndProc;
-
-	oldWndProc = CurrentWndProc;
-	CurrentWndProc = newWndProc;
-	return oldWndProc;
 }
 
 DEVILUTION_END_NAMESPACE

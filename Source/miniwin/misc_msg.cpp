@@ -3,8 +3,6 @@
  *
  * Windows message handling and keyboard event conversion for SDL.
  */
-//#include <SDL.h>
-//#include <cstdint>
 
 #include "all.h"
 #include "controls/controller.h"
@@ -12,7 +10,6 @@
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
-#include "controls/plrctrls.h"
 #include "controls/touch.h"
 #include "utils/display.h"
 
@@ -775,12 +772,12 @@ static int TranslateSdlKey(SDL_Keysym key)
 	}*/
 }
 
-static WPARAM PositionForMouse(Sint32 x, Sint32 y)
+/*static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 {
 	return (((uint16_t)(y & 0xFFFF)) << 16) | (uint16_t)(x & 0xFFFF);
 }
 
-/*static WPARAM KeystateForMouse(WPARAM ret)
+static WPARAM KeystateForMouse(WPARAM ret)
 {
 	ret |= (SDL_GetModState() & KMOD_SHIFT) ? DVL_MK_SHIFT : 0;
 	// XXX: other DVL_MK_* codes not implemented
