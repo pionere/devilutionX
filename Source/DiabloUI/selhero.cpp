@@ -29,7 +29,7 @@ static UiImage* SELHERO_DIALOG_HERO_IMG;
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelheroListSelect(unsigned index);
-static void SelheroClassSelectorSelect(unsigned index);
+static void SelheroNameInit(unsigned index);
 static void SelheroNameSelect(unsigned index);
 
 #if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -340,7 +340,7 @@ static void SelheroClassSelectorInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == NUM_CLASSES);
-	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
+	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroNameInit, SelheroClassSelectorEsc);
 	memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
 	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
 }
@@ -388,7 +388,7 @@ static void SelheroNameEsc()
 	SelheroListSelect(selhero_SaveCount);
 }
 
-static void SelheroClassSelectorSelect(unsigned index)
+static void SelheroNameInit(unsigned index)
 {
 	SelheroFreeDlgItems();
 
@@ -445,7 +445,7 @@ static void SelheroNameSelect(unsigned index)
 	SelheroFreeDlgItems();
 	UiSelOkDialog(selhero_title, err);
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
-	SelheroClassSelectorSelect(0);
+	SelheroNameInit(0);
 }
 
 static void SelHeroGetHeroInfo(_uiheroinfo* pInfo)
