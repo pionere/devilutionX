@@ -261,7 +261,7 @@ static void SelgamePasswordInit(unsigned index)
 	SelgameNoFocus();
 	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Password");
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
@@ -278,7 +278,7 @@ static void SelgamePortInit(unsigned index)
 	SelgameNoFocus();
 	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Port");
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
@@ -295,7 +295,7 @@ static void SelgameAddressInit()
 	SelgameNoFocus();
 	SelgameResetScreen("Join Game", "Enter Address");
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
