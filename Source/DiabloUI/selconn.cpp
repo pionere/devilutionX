@@ -13,7 +13,8 @@ DEVILUTION_BEGIN_NAMESPACE
 bool selconn_bMulti = false;
 int provider;
 
-static char selconn_MaxPlayers[21];
+static_assert(MAX_PLRS < 100, "Not enough space to print the info message.");
+static char selconn_MaxPlayers[22];
 static char selconn_Description[64];
 static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
