@@ -246,6 +246,7 @@ void UiFocusNavigationSelect()
 {
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
+#if FULL_UI
 	if (gUiEditField != NULL) {
 		if (gUiEditField->m_value[0] == '\0') {
 			return;
@@ -258,6 +259,7 @@ void UiFocusNavigationSelect()
 		//}
 #endif
 	}
+#endif // FULL_UI
 	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
 }
@@ -684,7 +686,7 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 		BYTE w = bigFontWidth[gbStdFontFrame[tmp]];
 		x -= w + FONT_KERN_BIG;
 		if (x <= 0) {
-			if ((unsigned)(-x) < (w + FONT_KERN_BIG) / 2) {
+			if (-x < (w + FONT_KERN_BIG) / 2) {
 				curpos++;
 			}
 			break;

@@ -676,7 +676,7 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 		BYTE w = bigFontWidth[gbStdFontFrame[tmp]];
 		x -= w + FONT_KERN_BIG;
 		if (x <= 0) {
-			if ((unsigned)(-x) < (w + FONT_KERN_BIG) / 2) {
+			if (-x < (w + FONT_KERN_BIG) / 2) {
 				curpos++;
 			}
 			break;
