@@ -17,7 +17,6 @@ static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
-static char selhero_title[32];
 static int selhero_result; // _selhero_status
 
 static int (*gfnHeroCreate)(_uiheroinfo*);
@@ -250,8 +249,7 @@ static bool SelheroListDelete()
 
 static void SelheroListInit()
 {
-	snprintf(selhero_title, sizeof(selhero_title), "%s Player Characters", selconn_bMulti ? "Multi" : "Single");
-	SelheroResetScreen(selhero_title, "Select Hero");
+	SelheroResetScreen(selconn_bMulti ? "Multi Player Characters" : "Single Player Characters", "Select Hero");
 
 	unsigned num_viewport_heroes = std::min(selhero_SaveCount + 1, MAX_VIEWPORT_ITEMS);
 	for (unsigned i = 0; i < num_viewport_heroes; i++) {
@@ -320,8 +318,7 @@ static void SelheroLoadSelect(unsigned index)
 
 static void SelheroClassSelectorInit()
 {
-	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
-	SelheroResetScreen(selhero_title, "Choose Class");
+	SelheroResetScreen(selconn_bMulti ? "New Multi Player Hero" : "New Single Player Hero", "Choose Class");
 
 	gUIListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
 	gUIListItems.push_back(new UiListItem("Rogue", PC_ROGUE));
@@ -348,8 +345,7 @@ static void SelheroClassSelectorInit()
 
 static void SelheroLoadInit()
 {
-	copy_cstr(selhero_title, "Single Player Characters");
-	SelheroResetScreen(selhero_title, "Save File Exists");
+	SelheroResetScreen("Single Player Characters", "Save File Exists");
 
 	gUIListItems.push_back(new UiListItem("Load Game", 0));
 	gUIListItems.push_back(new UiListItem("New Game", 1));
@@ -388,8 +384,7 @@ static void SelheroNameEsc()
 
 static void SelheroNameInit(unsigned index)
 {
-	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
-	SelheroResetScreen(selhero_title, "Enter Name");
+	SelheroResetScreen(selconn_bMulti ? "New Multi Player Hero" : "New Single Player Hero", "Enter Name");
 
 	memset(selhero_heroInfo.hiName, '\0', sizeof(selhero_heroInfo.hiName));
 #if defined(PREFILL_PLAYER_NAME) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -427,7 +422,7 @@ static void SelheroNameSelect(unsigned index)
 		err = "Hero count limit reached.\nDelete a hero before creating a new one.";
 		break;
 	case NEWHERO_FAIL:
-		err = "Unable to create hero.\nStorage device is full or read-only.";
+		err = "Storage device is full or read-only.";
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -436,7 +431,7 @@ static void SelheroNameSelect(unsigned index)
 
 	MemFreeDbg(gbBackCel);
 	SelheroFreeDlgItems();
-	UiSelOkDialog(selhero_title, err);
+	UiSelOkDialog("Unable to create hero", err);
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 	SelheroNameInit(0);
 }
