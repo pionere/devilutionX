@@ -215,12 +215,6 @@ static void SelgameModeInit()
 		return;
 	}
 
-	getIniValue("Phone Book", "Entry1", selgame_GameName, sizeof(selgame_GameName) - 1);
-	int port = NET_DEFAULT_PORT;
-	getIniInt("Network", "Port", &port);
-	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
-	getIniValue("Phone Book", "Entry1Port", selgame_GamePort, sizeof(selgame_GamePort) - 1);
-
 	SelgameResetScreen("Multi Player Game", "Select Action");
 
 	static_assert(0 == (int)SELGAME_CREATE, "SelgameModeSelect expects the index and its value to match I.");
@@ -377,9 +371,15 @@ static void SelgameModeSelect(unsigned index)
 	selgame_mode = index;
 
 	//gfnHeroInfo(UpdateHeroLevel);
+	int port = NET_DEFAULT_PORT;
+	getIniInt("Network", "Port", &port);
+	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
 	if (index == SELGAME_CREATE) {
 		SelgameDiffInit();
 	} else {
+		getIniValue("Phone Book", "Entry1", selgame_GameName, sizeof(selgame_GameName) - 1);
+		getIniValue("Phone Book", "Entry1Port", selgame_GamePort, sizeof(selgame_GamePort) - 1);
+
 		SelgameAddressInit();
 	}
 }
