@@ -114,7 +114,7 @@ static void SelgameModeEsc()
 
 static void SelgameModeFocus(unsigned index)
 {
-	copy_cstr(selgame_Label, "");
+	selgame_Label[0] = '\0';
 	switch (gUIListItems[index]->m_value) {
 	case SELGAME_CREATE:
 		copy_cstr(selgame_Description, "Create a new game with a difficulty setting of your choice.");
