@@ -820,8 +820,14 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 					gUiEditField->m_curpos = pos + 1;
 				}
 			} break;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+			case DVL_VK_LBUTTON:
+#endif
 			case DVL_VK_RETURN:
 				UiFocusNavigationSelect();
+				break;
+			case DVL_VK_ESCAPE:
+				UiFocusNavigationEsc();
 				break;
 			default:
 #ifdef USE_SDL1
