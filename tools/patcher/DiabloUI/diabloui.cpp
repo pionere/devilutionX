@@ -869,8 +869,6 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		case DVL_VK_LBUTTON:
 			UiFocusNavigationSelect();
-			// convert to RETURN for gmenu
-			event->key.keysym.sym = DVL_VK_RETURN;
 			break;
 #endif
 		}

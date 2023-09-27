@@ -207,6 +207,13 @@ void gmenu_draw()
 		gmenu_draw_menu_item(i, y);
 }
 
+static void gmenu_enter()
+{
+	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
+		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
+	}
+}
+
 void gmenu_presskey(int vkey)
 {
 	// assert(gmenu_is_active());
@@ -215,9 +222,7 @@ void gmenu_presskey(int vkey)
 		gmenu_left_mouse(true);
 		break;
 	case DVL_VK_RETURN:
-		if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
-			gpCurrentMenu[guCurrItemIdx].fnMenu(true);
-		}
+		gmenu_enter();
 		break;
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
@@ -280,7 +285,12 @@ void gmenu_left_mouse(bool isDown)
 		//}
 		return;
 	}
-
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive) {
+		gmenu_enter();
+		return;
+	}
+#endif
 	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return;
