@@ -377,11 +377,6 @@ static void SelheroListSelect(unsigned index)
 	SelheroLoadSelect(1);
 }
 
-static void SelheroNameEsc()
-{
-	SelheroClassSelectorInit();
-}
-
 static void SelheroNameInit(unsigned index)
 {
 	SelheroResetScreen(selconn_bMulti ? "New Multi Player Hero" : "New Single Player Hero", "Enter Name");
@@ -403,7 +398,7 @@ static void SelheroNameInit(unsigned index)
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitScreen(0, NULL, SelheroNameSelect, SelheroNameEsc);
+	UiInitScreen(0, NULL, SelheroNameSelect, SelheroClassSelectorInit);
 }
 
 static void SelheroNameSelect(unsigned index)
@@ -468,7 +463,7 @@ int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
 		if (selhero_SaveCount != 0) {
 			SelheroListInit();
 		} else {
-			SelheroListSelect(0);
+			SelheroClassSelectorInit();
 		}
 
 		selhero_result = SHS_ACTIVE;
