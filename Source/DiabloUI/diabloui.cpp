@@ -242,18 +242,18 @@ void UiFocusNavigationSelect()
 {
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
-#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	if (gUiEditField != NULL) {
 		if (gUiEditField->m_value[0] == '\0') {
 			return;
 		}
 		gUiEditField = NULL;
+#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 		//if (SDL_IsTextInputShown()) {
 			SDL_StopTextInput();
 		//	return;
 		//}
-	}
 #endif
+	}
 	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
 }
