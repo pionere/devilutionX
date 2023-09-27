@@ -177,6 +177,12 @@ static void SelgameSpeedFocus(unsigned index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
+static void SelgameNoFocus()
+{
+	selgame_Label[0] = '\0';
+	selgame_Description[0] = '\0';
+}
+
 static void SelgameDiffInit()
 {
 	SelgameResetScreen("Create Game", "Select Difficulty");
@@ -252,6 +258,7 @@ static void SelgamePasswordInit(unsigned index)
 {
 	selgame_Password[0] = '\0';
 
+	SelgameNoFocus();
 	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Password");
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
@@ -268,6 +275,7 @@ static void SelgamePasswordInit(unsigned index)
 
 static void SelgamePortInit(unsigned index)
 {
+	SelgameNoFocus();
 	SelgameResetScreen("Join Game", "Enter Port");
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
@@ -284,6 +292,7 @@ static void SelgamePortInit(unsigned index)
 
 static void SelgameAddressInit()
 {
+	SelgameNoFocus();
 	SelgameResetScreen("Join Game", "Enter Address");
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
