@@ -4024,12 +4024,12 @@ typedef enum _selgame_selections {
 } _selgame_selections;
 
 typedef enum conn_type {
-	SELCONN_ZT,       // zerotier (p2p)
+	SELCONN_LOOPBACK, // local
 	SELCONN_TCP,      // tcp/ip server-client
 	SELCONN_TCPD,     // tcp/ip server-client + p2p
 	SELCONN_TCPS,     // tcp/ip server
 	SELCONN_TCPDS,    // tcp/ip server + p2p
-	SELCONN_LOOPBACK, // local
+	SELCONN_ZT,       // zerotier (p2p)
 } conn_type;
 
 typedef enum _create_hero {
