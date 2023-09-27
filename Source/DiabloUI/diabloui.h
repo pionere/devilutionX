@@ -56,6 +56,7 @@ void UiFocusNavigationEsc();
 void UiFocusNavigationDelete();
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnDelete)() = NULL);
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
+void UiInitEdit(UiEdit* ui_edit);
 void UiClearScreen();
 void UiRenderAndPoll();
 void UiRenderItems(const std::vector<UiItemBase*>& uiItems);

@@ -82,27 +82,12 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	if (fnFocus != NULL)
 		fnFocus(SelectedItem);
 
+#if FULL_UI
+	gUiEditField = NULL;
+#endif // FULL_UI
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	SDL_StopTextInput(); // input is enabled by default if !SDL_HasScreenKeyboardSupport
 #endif
-#if FULL_UI
-	gUiEditField = NULL;
-	for (unsigned i = 0; i < gUiItems.size(); i++) {
-		if (gUiItems[i]->m_type == UI_EDIT) {
-			gUiEditField = (UiEdit*)gUiItems[i];
-#ifdef __SWITCH__
-			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
-#elif defined(__vita__)
-			vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
-#elif defined(__3DS__)
-			ctr_vkbdInput(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_value, gUiEditField->m_max_length);
-#else
-			SDL_SetTextInputRect(&gUiEditField->m_rect);
-			SDL_StartTextInput();
-#endif
-		}
-	}
-#endif // FULL_UI
 }
 #if FULL_UI
 void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
@@ -115,6 +100,21 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
 	}
 	scrollBarState.upPressCounter = -1;
 	scrollBarState.downPressCounter = -1;
+}
+
+void UiInitEdit(UiEdit* uiEdit)
+{
+	gUiEditField = uiEdit;
+#ifdef __SWITCH__
+	switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
+#elif defined(__vita__)
+	vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
+#elif defined(__3DS__)
+	ctr_vkbdInput(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_value, gUiEditField->m_max_length);
+#else
+	SDL_SetTextInputRect(&gUiEditField->m_rect);
+	SDL_StartTextInput();
+#endif
 }
 #endif // FULL_UI
 static void UiPlayMoveSound()

@@ -57,6 +57,7 @@ void UiFocusNavigationDelete();
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnDelete)() = NULL);
 #if FULL_UI
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
+void UiInitEdit(UiEdit* ui_edit);
 #endif
 void UiClearScreen();
 void UiRenderAndPoll();
