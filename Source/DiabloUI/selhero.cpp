@@ -314,59 +314,69 @@ static void SelheroLoadSelect(unsigned index)
 	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
 }
 
+static void SelheroClassSelectorInit()
+{
+	SelheroFreeDlgItems();
+
+	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT, SELHERO_PNL_TOP, SELHERO_RPANEL_WIDTH, SELHERO_RHEADER_HEIGHT };
+	gUiItems.push_back(new UiText("Choose Class", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	gUIListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
+	gUIListItems.push_back(new UiListItem("Rogue", PC_ROGUE));
+	gUIListItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
+#ifdef HELLFIRE
+	gUIListItems.push_back(new UiListItem("Monk", PC_MONK));
+	gUIListItems.push_back(new UiListItem("Bard", PC_BARD));
+	gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
+#endif
+	//assert(gUIListItems.size() == NUM_CLASSES);
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELCONN_LIST_TOP, 270, 26 * NUM_CLASSES };
+	gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+
+	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	//assert(gUIListItems.size() == NUM_CLASSES);
+	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
+	memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
+	snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
+}
+
+static void SelheroLoadInit()
+{
+	SelheroFreeDlgItems();
+
+	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT, SELHERO_PNL_TOP, SELHERO_RPANEL_WIDTH, SELHERO_RHEADER_HEIGHT };
+	gUiItems.push_back(new UiText("Save File Exists", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	gUIListItems.push_back(new UiListItem("Load Game", 0));
+	gUIListItems.push_back(new UiListItem("New Game", 1));
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELCONN_LIST_TOP, 280, 26 * 2 };
+	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+
+	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	//assert(gUIListItems.size() == 2);
+	UiInitScreen(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
+	copy_cstr(selhero_title, "Single Player Characters");
+}
+
 static void SelheroListSelect(unsigned index)
 {
 	if (index == selhero_SaveCount) {
-		SelheroFreeDlgItems();
-
-		SDL_Rect rect1 = { SELHERO_RPANEL_LEFT, SELHERO_PNL_TOP, SELHERO_RPANEL_WIDTH, SELHERO_RHEADER_HEIGHT };
-		gUiItems.push_back(new UiText("Choose Class", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-		gUIListItems.push_back(new UiListItem("Warrior", PC_WARRIOR));
-		gUIListItems.push_back(new UiListItem("Rogue", PC_ROGUE));
-		gUIListItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
-#ifdef HELLFIRE
-		gUIListItems.push_back(new UiListItem("Monk", PC_MONK));
-		gUIListItems.push_back(new UiListItem("Bard", PC_BARD));
-		gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
-#endif
-		//assert(gUIListItems.size() == NUM_CLASSES);
-		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELCONN_LIST_TOP, 270, 26 * NUM_CLASSES };
-		gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
-
-		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		//assert(gUIListItems.size() == NUM_CLASSES);
-		UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelectorSelect, SelheroClassSelectorEsc);
-		memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
-		snprintf(selhero_title, sizeof(selhero_title), "New %s Player Hero", selconn_bMulti ? "Multi" : "Single");
+		SelheroClassSelectorInit();
 		return;
 	}
 
 	if (selhero_heroInfo.hiHasSaved) {
-		SelheroFreeDlgItems();
-
-		SDL_Rect rect1 = { SELHERO_RPANEL_LEFT, SELHERO_PNL_TOP, SELHERO_RPANEL_WIDTH, SELHERO_RHEADER_HEIGHT };
-		gUiItems.push_back(new UiText("Save File Exists", rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-		gUIListItems.push_back(new UiListItem("Load Game", 0));
-		gUIListItems.push_back(new UiListItem("New Game", 1));
-		SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELCONN_LIST_TOP, 280, 26 * 2 };
-		gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
-
-		SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		//assert(gUIListItems.size() == 2);
-		UiInitScreen(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
-		copy_cstr(selhero_title, "Single Player Characters");
+		SelheroLoadInit();
 		return;
 	}
 
