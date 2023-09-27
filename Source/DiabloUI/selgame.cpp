@@ -276,7 +276,7 @@ static void SelgamePasswordInit(unsigned index)
 static void SelgamePortInit(unsigned index)
 {
 	SelgameNoFocus();
-	SelgameResetScreen("Join Game", "Enter Port");
+	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Port");
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	gUiItems.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
@@ -399,7 +399,7 @@ static void SelgameSpeedSelect(unsigned index)
 	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
 #endif
 
-	SelgamePasswordInit(0);
+	SelgamePortInit(0);
 }
 
 static void SelgamePasswordSelect(unsigned index)
@@ -407,7 +407,10 @@ static void SelgamePasswordSelect(unsigned index)
 	char dialogText[256];
 
 	if (selgame_mode == SELGAME_CREATE) {
-		if (SNetCreateGame(selgame_Password, selgame_gameData, dialogText)) {
+		setIniValue("Network", "Port", selgame_Port);
+		int port;
+		getIniInt("Network", "Port", &port);
+		if (SNetCreateGame(port, selgame_Password, selgame_gameData, dialogText)) {
 			selgame_endMenu = true;
 			return;
 		}

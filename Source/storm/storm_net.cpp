@@ -130,7 +130,7 @@ void SNetInitializeProvider(unsigned provider)
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
+bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
 {
 	bool result;
 
@@ -139,8 +139,6 @@ bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&e
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
 	dvlnet_inst->make_default_gamename(gpszGameName);
-	int port = NET_DEFAULT_PORT;
-	getIniInt("Network", "Port", &port);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	result = dvlnet_inst->create_game(gpszGameName, port, pszGamePassword, gameData, errorText);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
