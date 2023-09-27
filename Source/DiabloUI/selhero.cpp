@@ -340,7 +340,6 @@ static void SelheroClassSelectorInit()
 
 	//assert(gUIListItems.size() == NUM_CLASSES);
 	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroNameInit, SelheroClassSelectorEsc);
-	memset(&selhero_heroInfo.hiName, 0, sizeof(selhero_heroInfo.hiName));
 }
 
 static void SelheroLoadInit()
