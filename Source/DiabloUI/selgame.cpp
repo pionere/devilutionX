@@ -16,8 +16,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern int provider;
 
 static char selgame_Label[32];
-static char selgame_Ip[NET_MAX_GAMENAME_LEN + 1] = "";
-static char selgame_Port[8] = "";
+static char selgame_GameName[NET_MAX_GAMENAME_LEN + 1] = "";
+static char selgame_GamePort[8] = "";
 static char selgame_Password[NET_MAX_PASSWD_LEN + 1] = "";
 static char selgame_Description[128];
 static int selgame_mode;
@@ -215,11 +215,11 @@ static void SelgameModeInit()
 		return;
 	}
 
-	getIniValue("Phone Book", "Entry1", selgame_Ip, sizeof(selgame_Ip) - 1);
+	getIniValue("Phone Book", "Entry1", selgame_GameName, sizeof(selgame_GameName) - 1);
 	int port = NET_DEFAULT_PORT;
 	getIniInt("Network", "Port", &port);
-	snprintf(selgame_Port, sizeof(selgame_Port), "%d", port);
-	getIniValue("Phone Book", "Entry1Port", selgame_Port, sizeof(selgame_Port) - 1);
+	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
+	getIniValue("Phone Book", "Entry1Port", selgame_GamePort, sizeof(selgame_GamePort) - 1);
 
 	SelgameResetScreen("Multi Player Game", "Select Action");
 
@@ -279,7 +279,7 @@ static void SelgamePortInit(unsigned index)
 	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Port");
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	gUiItems.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
+	gUiItems.push_back(new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -296,7 +296,7 @@ static void SelgameAddressInit()
 	SelgameResetScreen("Join Game", "Enter Address");
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	gUiItems.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5));
+	gUiItems.push_back(new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName) - 1, rect5));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -407,7 +407,7 @@ static void SelgamePasswordSelect(unsigned index)
 	char dialogText[256];
 
 	if (selgame_mode == SELGAME_CREATE) {
-		setIniValue("Network", "Port", selgame_Port);
+		setIniValue("Network", "Port", selgame_GamePort);
 		int port;
 		getIniInt("Network", "Port", &port);
 		if (SNetCreateGame(port, selgame_Password, selgame_gameData, dialogText)) {
@@ -416,11 +416,11 @@ static void SelgamePasswordSelect(unsigned index)
 		}
 	} else {
 		assert(selgame_mode == SELGAME_JOIN);
-		setIniValue("Phone Book", "Entry1", selgame_Ip);
-		setIniValue("Phone Book", "Entry1Port", selgame_Port);
+		setIniValue("Phone Book", "Entry1", selgame_GameName);
+		setIniValue("Phone Book", "Entry1Port", selgame_GamePort);
 		int port;
 		getIniInt("Phone Book", "Entry1Port", &port);
-		if (SNetJoinGame(selgame_Ip, port, selgame_Password, dialogText)) {
+		if (SNetJoinGame(selgame_GameName, port, selgame_Password, dialogText)) {
 			selgame_endMenu = true;
 			return;
 		}
