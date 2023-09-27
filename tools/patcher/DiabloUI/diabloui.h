@@ -59,7 +59,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, voi
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
 #endif
 void UiClearScreen();
-void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems);
+void UiRenderAndPoll();
 void UiRenderItems(const std::vector<UiItemBase*>& uiItems);
 void UiClearItems(std::vector<UiItemBase*>& uiItems);
 void UiClearListItems();

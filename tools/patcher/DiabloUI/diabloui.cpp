@@ -421,11 +421,9 @@ void UiClearScreen()
 	}
 }
 
-void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems)
+void UiRenderAndPoll()
 {
 	UiClearScreen();
-	if (addUiItems != NULL)
-		UiRenderItems(*addUiItems);
 	UiRenderItems(gUiItems);
 	UiFadeIn();
 

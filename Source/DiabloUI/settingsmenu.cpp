@@ -6,7 +6,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 void UiSettingsDialog()
 {
-	int keypress;
 	TMenuItem* settingsMenu;
 
 	// enable speed setting

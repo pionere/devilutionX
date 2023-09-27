@@ -66,7 +66,7 @@ int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
 
 	_gnMainMenuResult = NUM_MAINMENU;
 	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (_gnMainMenuResult == NUM_MAINMENU);
 
 	MainmenuFree();

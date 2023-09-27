@@ -443,7 +443,7 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 
 	selgame_endMenu = false;
 	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (!selgame_endMenu);
 	SelgameFree();
 

@@ -62,7 +62,7 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 	// _gbYNValue = true;
 	_gbYNEndMenu = false;
 	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (!_gbYNEndMenu);
 
 	SelyesnoFree();

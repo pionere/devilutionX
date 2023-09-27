@@ -47,7 +47,7 @@ bool UiTitleDialog()
 	Uint32 timeOut = SDL_GetTicks() + TITLE_TIMEOUT_SEC * 1000;
 
 	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (!_gbTitleEnd && SDL_GetTicks() < timeOut);
 
 	TitleFree();

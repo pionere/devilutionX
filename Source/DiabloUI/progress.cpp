@@ -95,7 +95,7 @@ bool UiProgressDialog(const char* msg, int (*fnfunc)())
 
 	do {
 		_gnProgress = fnfunc();
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (_gnProgress < 100);
 	ProgressFree();
 

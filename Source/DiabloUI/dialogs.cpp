@@ -216,7 +216,7 @@ static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 
 	_gbDialogEnd = false;
 	do {
-		UiRenderAndPoll(NULL /*renderBehind*/);
+		UiRenderAndPoll();
 	} while (!_gbDialogEnd);
 }
 
