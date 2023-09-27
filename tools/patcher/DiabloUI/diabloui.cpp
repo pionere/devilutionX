@@ -667,6 +667,7 @@ static bool HandleMouseEventScrollBar(const Dvl_Event& event, const UiScrollBar*
 	}
 	return true;
 }
+
 static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 {
 	if (event.type != DVL_WM_LBUTTONDOWN)
@@ -674,17 +675,25 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 
 	int x = event.button.x - (uiEdit->m_rect.x + 43);
 	char* text = uiEdit->m_value;
-	unsigned curpos = 1;
-	for ( ; curpos < uiEdit->m_max_length; curpos++) {
+	unsigned curpos = 0;
+	for ( ; ; curpos++) {
 		char tmp = text[curpos];
-		text[curpos] = '\0';
-		int w = GetBigStringWidth(text);
-		text[curpos] = tmp;
-		if (w >= x) {
+		if (tmp == '\0') {
+			break;
+		}
+		BYTE w = bigFontWidth[gbStdFontFrame[tmp]];
+		x -= w + FONT_KERN_BIG;
+		if (x <= 0) {
+			if ((unsigned)(-x) < (w + FONT_KERN_BIG) / 2) {
+				curpos++;
+			}
 			break;
 		}
 	}
-	curpos--;
+	// assert(uiEdit->m_max_length != 0);
+	if (curpos >= uiEdit->m_max_length - 1) {
+		curpos = uiEdit->m_max_length - 1;
+	}
 	uiEdit->m_curpos = curpos;
 	return true;
 }
