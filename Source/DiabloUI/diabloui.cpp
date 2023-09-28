@@ -104,13 +104,13 @@ void UiInitEdit(UiEdit* uiEdit)
 {
 	gUiEditField = uiEdit;
 #ifdef __SWITCH__
-	switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
+	switch_start_text_input(uiEdit->m_hint, uiEdit->m_value, uiEdit->m_max_length);
 #elif defined(__vita__)
-	vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
+	vita_start_text_input(uiEdit->m_hint, uiEdit->m_value, uiEdit->m_max_length);
 #elif defined(__3DS__)
-	ctr_vkbdInput(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_value, gUiEditField->m_max_length);
+	ctr_vkbdInput(uiEdit->m_hint, uiEdit->m_value, uiEdit->m_value, uiEdit->m_max_length);
 #else
-	SDL_SetTextInputRect(&gUiEditField->m_rect);
+	SDL_SetTextInputRect(&uiEdit->m_rect);
 	SDL_StartTextInput();
 #endif
 }
