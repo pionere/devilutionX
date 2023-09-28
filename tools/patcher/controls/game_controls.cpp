@@ -3,7 +3,7 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 //#include <cstdint>
 
-#include "controller.h"
+#include "controller_motion.h"
 //#include "plrctrls.h"
 #define InGameMenu() true
 #define IsAutomapActive() false
