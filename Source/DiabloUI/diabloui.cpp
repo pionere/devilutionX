@@ -378,6 +378,13 @@ void UiFadeIn()
 	scrollrt_draw_screen(gUiDrawCursor);
 }
 
+void UiRender()
+{
+	UiClearScreen();
+	UiRenderItems(gUiItems);
+	UiFadeIn();
+}
+
 int GetAnimationFrame(int frames, int animFrameLenMs)
 {
 	//assert(frames > 0 && fps > 0);
@@ -418,9 +425,7 @@ void UiClearScreen()
 
 void UiRenderAndPoll()
 {
-	UiClearScreen();
-	UiRenderItems(gUiItems);
-	UiFadeIn();
+	UiRender();
 
 	Dvl_Event event;
 	while (UiPeekAndHandleEvents(&event)) {
@@ -595,10 +600,6 @@ static bool HandleMouseEventButton(const Dvl_Event& event, UiButton* button)
 	return true;
 }
 
-#ifdef USE_SDL1
-Uint32 dbClickTimer;
-#endif
-
 static bool HandleMouseEventList(const Dvl_Event& event, UiList* uiList)
 {
 	if (event.type != DVL_WM_LBUTTONDOWN)
@@ -606,21 +607,9 @@ static bool HandleMouseEventList(const Dvl_Event& event, UiList* uiList)
 
 	const unsigned index = uiList->indexAt(event.button.y) + ListOffset;
 
-	if (gfnListFocus != NULL && SelectedItem != index) {
-		UiFocus(index);
-#ifdef USE_SDL1
-		dbClickTimer = SDL_GetTicks();
-	} else if (gfnListFocus == NULL || dbClickTimer + 500 >= SDL_GetTicks()) {
-#else
-	} else if (gfnListFocus == NULL || event.button.clicks >= 2) {
-#endif
-		SelectedItem = index;
-		UiFocusNavigationSelect();
-#ifdef USE_SDL1
-	} else {
-		dbClickTimer = SDL_GetTicks();
-#endif
-	}
+	UiFocus(index);
+	UiRender();
+	UiFocusNavigationSelect();
 
 	return true;
 }
