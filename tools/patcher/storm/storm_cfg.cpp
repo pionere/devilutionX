@@ -91,37 +91,42 @@ void InitConfig()
 		if (len == 0) {
 			break;
 		}
-
+		if (len < sizeof(tmp)) {
+			tmp[len] = '\r';
+			len++;
+		}
+		cursor = 0;
 		while (true) {
-			if (tmp[cursor] == ';') {
-				goto eol;
-			} else if (tmp[cursor] == '[') {
-				unsigned sp = cursor;
-				while (tmp[cursor] != ']') {
-					cursor++;
-					if (cursor == len) {
-						cursor = sp;
-						goto done;
+			// find the end of the line
+			unsigned sp = cursor;
+			while (tmp[cursor] != '\r' && tmp[cursor] != '\n') {
+				cursor++;
+				if (cursor == len) {
+					cursor = sp;
+					goto done;
+				}
+			}
+
+			if (tmp[sp] == '[') {
+				// add a section
+				unsigned ep = sp;
+				while (tmp[ep] != ']') {
+					ep++;
+					if (ep == cursor) {
+						goto eol;
 					}
 				}
-				tmp[cursor] = '\0';
+				tmp[ep] = '\0';
 				section = addSection(&tmp[sp + 1]);
 				goto eol;
-			} else if (section != NULL) {
-				unsigned sp = cursor;
-				while (tmp[cursor] != '=') {
-					cursor++;
-					if (cursor == len) {
-						cursor = sp;
-						goto done;
-					}
-				}
-				unsigned ep = cursor;
-				while (tmp[cursor] != '\r' && tmp[cursor] != '\n') {
-					cursor++;
-					if (cursor == len) {
-						cursor = sp;
-						goto done;
+			}
+			if (tmp[sp] != ';' && section != NULL && sp != cursor) {
+				// add an entry
+				unsigned ep = sp;
+				while (tmp[ep] != '=') {
+					ep++;
+					if (ep == cursor) {
+						goto eol;
 					}
 				}
 				char ch = tmp[cursor];
@@ -131,12 +136,8 @@ void InitConfig()
 				tmp[cursor] = ch;
 			}
 eol:
-			while (tmp[cursor] != '\r' && tmp[cursor] != '\n') {
-				cursor++;
-				if (cursor == len) {
-					goto done;
-				}
-			}
+			// skip the line-end
+			// assert(tmp[cursor] == '\r' || tmp[cursor] == '\n');
 			cursor++;
 			if (cursor == len) {
 				goto done;
@@ -149,9 +150,13 @@ eol:
 			}
 		}
 done:
+		if (cursor == 0) {
+			DoLog("Failed to parse diablo.ini due to a long line.");
+			break;
+		}
 		memmove(tmp, &tmp[cursor], sizeof(tmp) - cursor);
 		len -= cursor;
-		cursor = 0;
+		cursor = len;
 	}
 
 	fclose(f);
