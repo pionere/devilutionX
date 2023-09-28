@@ -1467,7 +1467,6 @@ bool StartGame(bool bSinglePlayer)
 		// If the player left the game into the main menu,
 		// initialize main menu resources.
 		UiInitialize();
-		pfile_read_hero_from_save();
 #endif
 	}
 }
