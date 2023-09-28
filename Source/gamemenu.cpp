@@ -4,6 +4,7 @@
  * Implementation of the in-game menu functions.
  */
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

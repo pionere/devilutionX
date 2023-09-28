@@ -11,6 +11,7 @@
 #include "utils/utf8.h"
 #include "diabloui.h"
 #include "plrctrls.h"
+#include "storm/storm_cfg.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -181,6 +182,7 @@ static void InitControls()
 static void diablo_init()
 {
 	InitPaths();
+	InitConfig();
 
 	dx_init(); // inititalize SDL + create the window
 
@@ -242,6 +244,7 @@ static void diablo_deinit()
 		FreeArchives();
 	//if (_gbWasWindowInit) {
 		dx_cleanup(); // close the window + SDL
+	FreeConfig();
 }
 
 int DiabloMain(int argc, char** argv)

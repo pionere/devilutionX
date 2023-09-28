@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "diabloui.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

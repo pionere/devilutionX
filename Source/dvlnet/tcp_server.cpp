@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "base.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {

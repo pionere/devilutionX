@@ -4,6 +4,7 @@
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
+#include "storm/storm_cfg.h"
 #include "storm/storm_net.h"
 #include "all.h"
 //#include "../diablo.h"

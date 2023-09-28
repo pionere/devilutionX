@@ -517,6 +517,7 @@ set(devilutionx_SRCS
   Source/engine/render/text_render.cpp
   Source/miniwin/misc_msg.cpp
   Source/storm/storm.cpp
+  Source/storm/storm_cfg.cpp
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
@@ -684,6 +685,7 @@ if(USE_PATCH)
     tools/patcher/engine/render/text_render.cpp
     tools/patcher/miniwin/misc_msg.cpp
     tools/patcher/storm/storm.cpp
+    tools/patcher/storm/storm_cfg.cpp
     tools/patcher/utils/display.cpp
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp

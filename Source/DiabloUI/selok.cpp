@@ -63,7 +63,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	SStrCopy(dialogText, body, sizeof(dialogText));
 	WordWrapArtStr(dialogText, MESSAGE_WIDTH, AFT_MED);
 
-	UiInitScreen(0, NULL, SelokSelect, SelokEsc);
+	UiInitScreen(1, NULL, SelokSelect, SelokEsc);
 
 	_gbSelokEndMenu = false;
 	do {
