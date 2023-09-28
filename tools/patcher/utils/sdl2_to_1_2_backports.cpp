@@ -493,7 +493,7 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 // = Filesystem
 
-#if !defined(__QNXNTO__) && !defined(__amigaos__) && !defined(_WIN32)
+#if !defined(__3DS__) && !defined(__QNXNTO__) && !defined(__amigaos__) && !defined(_WIN32)
 static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
@@ -533,8 +533,8 @@ char* SDL_GetBasePath()
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
 #elif defined(_WIN32)
-	::TCHAR buffer[MAX_PATH];
-	::DWORD len = GetModuleFileName(NULL, buffer, MAX_PATH);
+	char buffer[MAX_PATH];
+	::DWORD len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
 	if (len == 0) {
 		SDL_SetError("SDL_GetBasePath failed.");
 		return NULL;
