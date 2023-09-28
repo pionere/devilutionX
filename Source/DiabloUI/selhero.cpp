@@ -288,6 +288,10 @@ static void SelheroClassSelectorEsc()
 	SelheroListEsc();
 }
 
+static void SelheroLoadFocus(unsigned index)
+{
+}
+
 static void SelheroClassSelectorFocus(unsigned index)
 {
 	//_uidefaultstats defaults;
@@ -354,7 +358,7 @@ static void SelheroLoadInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 2);
-	UiInitScreen(2, NULL, SelheroLoadSelect, SelheroListInit);
+	UiInitScreen(2, SelheroLoadFocus, SelheroLoadSelect, SelheroListInit);
 }
 
 static void SelheroListSelect(unsigned index)
