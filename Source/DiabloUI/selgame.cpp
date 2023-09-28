@@ -82,6 +82,7 @@ static void SelgameFreeDlgItems()
 static void SelgameFree()
 {
 	FreeBackgroundArt();
+	MemFreeDbg(gbHerosCel);
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
@@ -105,6 +106,12 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText(rheader, rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
+	gUiItems.push_back(new UiImage(gbHerosCel, myplr._pClass + 1, rect5, false));
+
+	SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
+	gUiItems.push_back(new UiText(myplr._pName, rect6, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 }
 
 static void SelgameModeEsc()
@@ -445,6 +452,7 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 
 	selgame_add_event_handlers(event_handler);
 
+	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
 	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 	SelgameModeInit();
 
