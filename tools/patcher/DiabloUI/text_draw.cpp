@@ -28,23 +28,24 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 	case AFT_SMALL:
 		w = GetSmallStringWidth(text);
 		dy = 1;
-		h = 11 - dy;
-		//h = 11;
+		h = SMALL_FONT_HEIGHT - dy;
+		//h = SMALL_FONT_HEIGHT;
 		pChar = PrintSmallChar;
 		break;
 	case AFT_MED:
+		static_assert(MED_FONT_HEIGHT == BIG_FONT_HEIGHT, "DrawArtStr handles medium and big characters the same way.");
 	case AFT_BIG:
 		w = GetBigStringWidth(text);
 		dy = 5 - 2;
-		h = 22 - dy;
-		//h = 22;
+		h = BIG_FONT_HEIGHT - dy;
+		//h = BIG_FONT_HEIGHT;
 		pChar = PrintBigChar;
 		break;
 	case AFT_HUGE:
 		w = GetHugeStringWidth(text);
 		dy = 10 - 4;
-		h = 46 - dy;
-		//h = 46;
+		h = HUGE_FONT_HEIGHT - dy;
+		//h = HUGE_FONT_HEIGHT;
 		pChar = PrintHugeChar;
 		break;
 	default:
