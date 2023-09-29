@@ -2,7 +2,6 @@
 
 #include <cerrno>
 #include <limits>
-#include <string>
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -60,11 +59,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, DWORD dwSearchS
 
 bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead);
 
-bool getIniBool(const char* sectionName, const char* keyName, bool defaultValue);
-bool getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize);
-void setIniValue(const char* sectionName, const char* keyName, const char* value);
-bool getIniInt(const char* sectionName, const char* keyName, int* value);
-void setIniInt(const char* sectionName, const char* keyName, int value);
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h
@@ -117,7 +111,6 @@ void EncryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
 void DecryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
 DWORD HashStringSlash(const char* szFileName, unsigned dwHashType);
 void SFileEnableDirectAccess(bool enable);
-void SLoadKeyMap(BYTE (&map)[256]);
 
 #if defined(__GNUC__) || defined(__cplusplus)
 }

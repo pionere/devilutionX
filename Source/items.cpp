@@ -1062,23 +1062,8 @@ void CreatePlrItems(int pnum)
 
 	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
-
-#if DEBUG_MODE
-	if (debug_mode_key_w) {
-		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-		for (int i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (plr._pInvList[i]._itype == ITYPE_NONE) {
-				GetItemSeed(pi);
-				copy_pod(plr._pInvList[i], *pi);
-				plr._pGold += GOLD_MAX_LIMIT;
-			}
-		}
-	} else
-#endif
-	{
-		SetGoldItemValue(pi, 100);
-		plr._pGold = 100;
-	}
+	SetGoldItemValue(pi, 100);
+	plr._pGold = 100;
 
 	CalcPlrItemVals(pnum, false);
 }
@@ -1088,7 +1073,7 @@ void CreatePlrItems(int pnum)
  */
 bool ItemSpaceOk(int x, int y)
 {
-	int oi, oi2;
+	int oi;
 
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
@@ -1103,7 +1088,7 @@ bool ItemSpaceOk(int x, int y)
 			return false;
 	}
 
-	oi = dObject[x + 1][y + 1];
+	/*oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (objects[oi]._oSelFlag != 0)
@@ -1118,9 +1103,9 @@ bool ItemSpaceOk(int x, int y)
 	}
 
 	if (currLvl._dType == DTYPE_TOWN)
-		if ((/*dMonster[x][y] |*/ dMonster[x + 1][y + 1]) != 0)
+		if (dMonster[x + 1][y + 1] != 0)
 			return false;
-
+	*/
 	return true;
 }
 

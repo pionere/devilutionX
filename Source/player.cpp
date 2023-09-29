@@ -689,6 +689,22 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 		plr._pAltMoveSkillHotKey[i] = SPL_INVALID;
 	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
 		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pAtkSkillSwapKey); i++)
+		plr._pAtkSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pAtkSkillTypeSwapKey); i++)
+		plr._pAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pMoveSkillSwapKey); i++)
+		plr._pMoveSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pMoveSkillTypeSwapKey); i++)
+		plr._pMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pAltAtkSkillSwapKey); i++)
+		plr._pAltAtkSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeSwapKey); i++)
+		plr._pAltAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	for (i = 0; i < lengthof(plr._pAltMoveSkillSwapKey); i++)
+		plr._pAltMoveSkillSwapKey[i] = SPL_INVALID;
+	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeSwapKey); i++)
+		plr._pAltMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;
@@ -1200,7 +1216,7 @@ static void PlrChangeOffset(int pnum)
 }
 
 /**
- * @brief Starting a move action towards NW, N, NE or W
+ * @brief Start a move action
  */
 static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 {
@@ -1230,7 +1246,7 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 }
 
 /**
- * @brief Starting a move action towards SW, S, SE or E
+ * @brief Start a move action and shift to the future position
  */
 static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir)
 {
@@ -1588,8 +1604,9 @@ void RemovePlrFromMap(int pnum)
 
 	dx = plr._poldx;
 	dy = plr._poldy;
-	assert(dx >= DBORDERX && dx < DBORDERX + DSIZEX);
-	assert(dy >= DBORDERY && dy < DBORDERY + DSIZEY);
+	assert(dx >= 1 && dx < MAXDUNX - 1);
+	assert(dy >= 1 && dy < MAXDUNY - 1);
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "RemovePlrFromMap expects a large enough border.");
 
 	pp = pnum + 1;
 	for (x = dx - 1; x <= dx + 1; x++) {

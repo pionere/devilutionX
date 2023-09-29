@@ -1,5 +1,6 @@
 #pragma once
 
+#if FULL_UI
 #include "ui_item.h"
 #include "../gameui.h"
 
@@ -80,3 +81,5 @@ void UnloadScrollBar();
 #endif
 
 DEVILUTION_END_NAMESPACE
+
+#endif // FULL_UI

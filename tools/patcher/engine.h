@@ -17,6 +17,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define CEL_FRAME_HEADER_SIZE 0x0A
 #define CEL_BLOCK_HEIGHT      32
 
 inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)

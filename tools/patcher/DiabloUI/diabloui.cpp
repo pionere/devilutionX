@@ -1,17 +1,17 @@
 #include "diabloui.h"
 
-#include "utils/utf8.h"
-#include <string>
-
-#include "controls/menu_controls.h"
+#include "controls/controller_motion.h"
 
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/dialogs.h"
 //#include "controls/plrctrls.h"
+#include "controls/touch.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
-
+#if FULL_UI
+#include "engine/render/text_render.h"
+#include "utils/utf8.h"
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
 #include "platform/switch/keyboard.h"
@@ -24,7 +24,7 @@
 // for virtual keyboard on 3DS
 #include "platform/ctr/keyboard.h"
 #endif
-
+#endif // FULL_UI
 DEVILUTION_BEGIN_NAMESPACE
 
 #define FOCUS_FRAME_COUNT 8
@@ -34,22 +34,23 @@ static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
-CelImageBuf* gbHerosCel;
 CelImageBuf* gbSmlButtonCel;
 
 void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
-static bool (*gfnListYesNo)();
+static bool (*gfnListDelete)();
 std::vector<UiListItem*> gUIListItems;
 std::vector<UiItemBase*> gUiItems;
 unsigned SelectedItem;
 static unsigned SelectedItemMax;
 static unsigned ListViewportSize;
 unsigned ListOffset;
+#if FULL_UI
 /** The edit field on the current screen (if exists) */
 UiEdit* gUiEditField;
+#endif
 /** Specifies whether the cursor should be shown on the current screen + controlls key/mouse-press events if set to false. TODO: better solution? */
 bool gUiDrawCursor;
 
@@ -62,7 +63,7 @@ typedef struct ScrollBarState {
 } ScrollBarState;
 static ScrollBarState scrollBarState;
 
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)(), bool (*fnYesNo)())
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
 	gUiDrawCursor = true;
 	SelectedItem = 0;
@@ -72,33 +73,26 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListFocus = fnFocus;
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
-	gfnListYesNo = fnYesNo;
+	gfnListDelete = NULL;
+#if SCREEN_READER_INTEGRATION
+	if (gUIListItems.size() > SelectedItem) {
+		SpeakText(gUIListItems[SelectedItem]->m_text);
+	}
+#endif
 	if (fnFocus != NULL)
-		fnFocus(0);
+		fnFocus(SelectedItem);
 
+#if FULL_UI
 	gUiEditField = NULL;
+#endif // FULL_UI
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 	SDL_StopTextInput(); // input is enabled by default if !SDL_HasScreenKeyboardSupport
 #endif
-	for (unsigned i = 0; i < gUiItems.size(); i++) {
-		if (gUiItems[i]->m_type == UI_EDIT) {
-			gUiEditField = (UiEdit*)gUiItems[i];
-#ifdef __SWITCH__
-			switch_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
-#elif defined(__vita__)
-			vita_start_text_input(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_max_length);
-#elif defined(__3DS__)
-			ctr_vkbdInput(gUiEditField->m_hint, gUiEditField->m_value, gUiEditField->m_value, gUiEditField->m_max_length);
-#else
-			SDL_SetTextInputRect(&gUiEditField->m_rect);
-			SDL_StartTextInput();
-#endif
-		}
-	}
 }
-
-void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
+#if FULL_UI
+void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, bool (*fnDelete)())
 {
+	gfnListDelete = fnDelete;
 	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
 		uiSb->m_iFlags |= UIS_HIDDEN;
@@ -109,6 +103,21 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize)
 	scrollBarState.downPressCounter = -1;
 }
 
+void UiInitEdit(UiEdit* uiEdit)
+{
+	gUiEditField = uiEdit;
+#ifdef __SWITCH__
+	switch_start_text_input(uiEdit->m_hint, uiEdit->m_value, uiEdit->m_max_length);
+#elif defined(__vita__)
+	vita_start_text_input(uiEdit->m_hint, uiEdit->m_value, uiEdit->m_max_length);
+#elif defined(__3DS__)
+	ctr_vkbdInput(uiEdit->m_hint, uiEdit->m_value, uiEdit->m_value, uiEdit->m_max_length);
+#else
+	SDL_SetTextInputRect(&uiEdit->m_rect);
+	SDL_StartTextInput();
+#endif
+}
+#endif // FULL_UI
 static void UiPlayMoveSound()
 {
 	assert(gfnSoundFunction != NULL);
@@ -142,7 +151,11 @@ void UiFocus(unsigned itemIndex)
 	SelectedItem = itemIndex;
 
 	UiScrollIntoView();
-
+#if SCREEN_READER_INTEGRATION
+	if (gUIListItems.size() > SelectedItem) {
+		SpeakText(gUIListItems[SelectedItem]->m_text);
+	}
+#endif
 	UiPlayMoveSound();
 
 	if (gfnListFocus != NULL)
@@ -195,73 +208,59 @@ static void UiFocusPageDown()
 		newpos = SelectedItemMax;
 	UiFocus(newpos);
 }
-
-static void UiCatToName(char* inBuf)
+#if FULL_UI
+static void UiCatToText(const char* inBuf)
 {
-	std::string output = utf8_to_latin1(inBuf);
-	int pos = strlen(gUiEditField->m_value);
-	SStrCopy(&gUiEditField->m_value[pos], output.c_str(), gUiEditField->m_max_length - pos);
+	char* output = utf8_to_latin1(inBuf);
+	unsigned pos = gUiEditField->m_curpos;
+	char* text = gUiEditField->m_value;
+	unsigned maxlen = gUiEditField->m_max_length;
+	SStrCopy(tempstr, &text[pos], std::min((unsigned)sizeof(tempstr) - 1, maxlen - pos));
+	SStrCopy(&text[pos], output, maxlen - pos);
+	mem_free_dbg(output);
+	pos = strlen(text);
+	gUiEditField->m_curpos = pos;
+	SStrCopy(&text[pos], tempstr, maxlen - pos);
 }
 
 #ifdef __vita__
-static void UiSetName(char* inBuf)
+static void UiSetText(const char* inBuf)
 {
-	std::string output = utf8_to_latin1(inBuf);
-	strncpy(gUiEditField->m_value, output.c_str(), gUiEditField->m_max_length);
+	char* output = utf8_to_latin1(inBuf);
+	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
+	mem_free_dbg(output);
 }
 #endif
-
-static bool HandleMenuAction(MenuAction menuAction)
+#endif // FULL_UI
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+static void HandleMenuMove()
 {
-	switch (menuAction) {
-	case MenuAction_NONE:
-		break;
-	case MenuAction_SELECT:
-		UiFocusNavigationSelect();
-		return true;
-	case MenuAction_BACK:
-		UiFocusNavigationEsc();
-		return true;
-	case MenuAction_DELETE:
-		UiFocusNavigationYesNo();
-		return true;
-	case MenuAction_UP:
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
+	if (move_dir.y == AxisDirectionY_UP) {
 		UiFocusUp();
-		return true;
-	case MenuAction_DOWN:
+	} else if (move_dir.y == AxisDirectionY_DOWN) {
 		UiFocusDown();
-		return true;
-	case MenuAction_LEFT:
-	case MenuAction_RIGHT:
-		break;
-	case MenuAction_PAGE_UP:
-		UiFocusPageUp();
-		return true;
-	case MenuAction_PAGE_DOWN:
-		UiFocusPageDown();
-		return true;
-	default:
-		ASSUME_UNREACHABLE
 	}
-	return false;
 }
-
+#endif
 void UiFocusNavigationSelect()
 {
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
-#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
+#if FULL_UI
 	if (gUiEditField != NULL) {
 		if (gUiEditField->m_value[0] == '\0') {
 			return;
 		}
 		gUiEditField = NULL;
+#if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 		//if (SDL_IsTextInputShown()) {
 			SDL_StopTextInput();
 		//	return;
 		//}
-	}
 #endif
+	}
+#endif // FULL_UI
 	if (gfnListSelect != NULL)
 		gfnListSelect(SelectedItem);
 }
@@ -274,16 +273,16 @@ void UiFocusNavigationEsc()
 		gfnListEsc();
 }
 
-void UiFocusNavigationYesNo()
+void UiFocusNavigationDelete()
 {
-	if (gfnListYesNo == NULL)
+	if (gfnListDelete == NULL)
 		return;
 
-	if (gfnListYesNo())
+	if (gfnListDelete())
 		UiPlaySelectSound();
 }
 
-static SDL_bool IsInsideRect(const SDL_Event& event, const SDL_Rect& rect)
+static SDL_bool IsInsideRect(const Dvl_Event& event, const SDL_Rect& rect)
 {
 	const SDL_Point point = { event.button.x, event.button.y };
 	return SDL_PointInRect(&point, &rect);
@@ -385,6 +384,13 @@ void UiFadeIn()
 	scrollrt_draw_screen(gUiDrawCursor);
 }
 
+void UiRender()
+{
+	UiClearScreen();
+	UiRenderItems(gUiItems);
+	UiFadeIn();
+}
+
 int GetAnimationFrame(int frames, int animFrameLenMs)
 {
 	//assert(frames > 0 && fps > 0);
@@ -423,20 +429,16 @@ void UiClearScreen()
 	}
 }
 
-void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems)
+void UiRenderAndPoll()
 {
-	UiClearScreen();
-	if (addUiItems != NULL)
-		UiRenderItems(*addUiItems);
-	UiRenderItems(gUiItems);
-	UiFadeIn();
+	UiRender();
 
-	SDL_Event event;
-	while (SDL_PollEvent(&event) != 0) {
-		UiHandleEvents(&event);
+	Dvl_Event event;
+	while (UiPeekAndHandleEvents(&event)) {
+		;
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleMenuAction(GetMenuHeldUpDownAction());
+	HandleMenuMove();
 #endif
 #ifdef __3DS__
 	// Keyboard blocks until input is finished
@@ -458,12 +460,12 @@ static void Render(const UiImage* uiImage)
 
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
-
+#if FULL_UI
 static void Render(const UiTxtButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
-
+#endif
 static void Render(const UiButton* button)
 {
 	int frame = button->m_pressed ? 2 : 1;
@@ -488,7 +490,7 @@ static void Render(const UiList* uiList)
 		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
 	}
 }
-
+#if FULL_UI
 static void Render(const UiScrollBar* uiSb)
 {
 	// Bar background (tiled):
@@ -533,10 +535,22 @@ static void Render(const UiEdit* uiEdit)
 	SDL_Rect rect = uiEdit->m_rect;
 	rect.x += 43;
 	rect.y += 1;
-	rect.w -= 86;
-	DrawArtStr(uiEdit->m_value, rect, UIS_LEFT | UIS_MED | UIS_GOLD, /*drawTextCursor=*/true);
+	// rect.w -= 86;
+	char* text = uiEdit->m_value;
+	// render the text
+	DrawArtStr(text, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
+	// render the cursor
+	if (GetAnimationFrame(2, 512) != 0) {
+		unsigned curpos = uiEdit->m_curpos;
+		char tmp = text[curpos];
+		text[curpos] = '\0';
+		int w = GetBigStringWidth(text);
+		int h = 22;
+		text[curpos] = tmp;
+		PrintBigChar(SCREEN_X + rect.x + w, SCREEN_Y + rect.y + h, '|', COL_WHITE);
+	}
 }
-
+#endif
 static void RenderItem(UiItemBase* item)
 {
 	if (item->m_iFlags & UIS_HIDDEN)
@@ -549,21 +563,25 @@ static void RenderItem(UiItemBase* item)
 	case UI_IMAGE:
 		Render(static_cast<UiImage*>(item));
 		break;
+#if FULL_UI
 	case UI_TXT_BUTTON:
 		Render(static_cast<UiTxtButton*>(item));
 		break;
+#endif
 	case UI_BUTTON:
 		Render(static_cast<UiButton*>(item));
 		break;
 	case UI_LIST:
 		Render(static_cast<UiList*>(item));
 		break;
+#if FULL_UI
 	case UI_SCROLLBAR:
 		Render(static_cast<UiScrollBar*>(item));
 		break;
 	case UI_EDIT:
 		Render(static_cast<UiEdit*>(item));
 		break;
+#endif
 	case UI_CUSTOM:
 		static_cast<UiCustom*>(item)->m_render();
 		break;
@@ -572,60 +590,44 @@ static void RenderItem(UiItemBase* item)
 		break;
 	}
 }
-
-static bool HandleMouseEventArtTextButton(const SDL_Event& event, const UiTxtButton* uiButton)
+#if FULL_UI
+static bool HandleMouseEventArtTextButton(const Dvl_Event& event, const UiTxtButton* uiButton)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return false;
+	if (event.type != DVL_WM_LBUTTONDOWN)
+		return true;
 	uiButton->m_action();
 	return true;
 }
-
-static bool HandleMouseEventButton(const SDL_Event& event, UiButton* button)
+#endif
+static bool HandleMouseEventButton(const Dvl_Event& event, UiButton* button)
 {
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
+	if (event.type == DVL_WM_LBUTTONDOWN) {
 		button->m_pressed = true;
-	} else {
-		// assert(event.type == SDL_MOUSEBUTTONUP);
+	} else if (button->m_pressed) {
+		// assert(event.type == DVL_WM_LBUTTONUP);
 		button->m_action();
 	}
 	return true;
 }
 
-#ifdef USE_SDL1
-Uint32 dbClickTimer;
-#endif
-
-static bool HandleMouseEventList(const SDL_Event& event, UiList* uiList)
+static bool HandleMouseEventList(const Dvl_Event& event, UiList* uiList)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return false;
+	if (event.type != DVL_WM_LBUTTONDOWN)
+		return true;
 
 	const unsigned index = uiList->indexAt(event.button.y) + ListOffset;
 
-	if (gfnListFocus != NULL && SelectedItem != index) {
-		UiFocus(index);
-#ifdef USE_SDL1
-		dbClickTimer = SDL_GetTicks();
-	} else if (gfnListFocus == NULL || dbClickTimer + 500 >= SDL_GetTicks()) {
-#else
-	} else if (gfnListFocus == NULL || event.button.clicks >= 2) {
-#endif
-		SelectedItem = index;
-		UiFocusNavigationSelect();
-#ifdef USE_SDL1
-	} else {
-		dbClickTimer = SDL_GetTicks();
-#endif
-	}
+	UiFocus(index);
+	UiRender();
+	UiFocusNavigationSelect();
 
 	return true;
 }
-
-static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar* uiSb)
+#if FULL_UI
+static bool HandleMouseEventScrollBar(const Dvl_Event& event, const UiScrollBar* uiSb)
 {
-	if (event.type != SDL_MOUSEBUTTONDOWN)
-		return false;
+	if (event.type != DVL_WM_LBUTTONDOWN)
+		return true;
 
 	int y = event.button.y - uiSb->m_rect.y;
 	if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
@@ -656,42 +658,76 @@ static bool HandleMouseEventScrollBar(const SDL_Event& event, const UiScrollBar*
 	return true;
 }
 
-static bool HandleMouseEvent(const SDL_Event& event, UiItemBase* item)
+static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+{
+	if (event.type != DVL_WM_LBUTTONDOWN)
+		return true;
+
+	int x = event.button.x - (uiEdit->m_rect.x + 43);
+	char* text = uiEdit->m_value;
+	unsigned curpos = 0;
+	for ( ; ; curpos++) {
+		char tmp = text[curpos];
+		if (tmp == '\0') {
+			break;
+		}
+		BYTE w = bigFontWidth[gbStdFontFrame[tmp]];
+		x -= w + FONT_KERN_BIG;
+		if (x <= 0) {
+			if (-x < (w + FONT_KERN_BIG) / 2) {
+				curpos++;
+			}
+			break;
+		}
+	}
+	// assert(uiEdit->m_max_length != 0);
+	if (curpos >= uiEdit->m_max_length - 1) {
+		curpos = uiEdit->m_max_length - 1;
+	}
+	uiEdit->m_curpos = curpos;
+	return true;
+}
+#endif // FULL_UI
+static bool HandleMouseEvent(const Dvl_Event& event, UiItemBase* item)
 {
 	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 		return false;
 	switch (item->m_type) {
+#if FULL_UI
 	case UI_TXT_BUTTON:
 		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
+#endif
 	case UI_BUTTON:
 		return HandleMouseEventButton(event, static_cast<UiButton*>(item));
 	case UI_LIST:
 		return HandleMouseEventList(event, static_cast<UiList*>(item));
+#if FULL_UI
 	case UI_SCROLLBAR:
 		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
+	case UI_EDIT:
+		return HandleMouseEventEdit(event, static_cast<UiEdit*>(item));
+#endif
 	default:
 		return false;
 	}
 }
 
-void UiHandleEvents(SDL_Event* event)
+bool UiPeekAndHandleEvents(Dvl_Event* event)
 {
-	if (HandleMenuAction(GetMenuAction(*event)))
-		return;
+	if (!PeekMessage(*event)) {
+		return false;
+	}
 
-	if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-		if (event->type == SDL_MOUSEBUTTONDOWN && !gUiDrawCursor) {
+	switch (event->type) {
+	case DVL_WM_QUIT:
+		diablo_quit(EX_OK);
+		break;
+	case DVL_WM_LBUTTONDOWN:
+		if (!gUiDrawCursor) {
 			UiFocusNavigationEsc();
-			return;
+			break;
 		}
-		if (event->button.button != SDL_BUTTON_LEFT)
-			return; // false;
-
-		// In SDL2 mouse events already use logical coordinates.
-#ifdef USE_SDL1
-		OutputToLogical(&event->button.x, &event->button.y);
-#endif
-
+	case DVL_WM_LBUTTONUP:
 		//bool handled = false;
 		for (unsigned i = 0; i < gUiItems.size(); i++) {
 			if (HandleMouseEvent(*event, gUiItems[i])) {
@@ -700,7 +736,7 @@ void UiHandleEvents(SDL_Event* event)
 			}
 		}
 
-		if (event->type == SDL_MOUSEBUTTONUP) {
+		if (event->type == DVL_WM_LBUTTONUP) {
 			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
 			for (unsigned i = 0; i < gUiItems.size(); i++) {
 				UiItemBase* item = gUiItems[i];
@@ -708,96 +744,144 @@ void UiHandleEvents(SDL_Event* event)
 					static_cast<UiButton*>(item)->m_pressed = false;
 			}
 		}
-		return; // handled
-	}
-
-	if (gUiEditField != NULL) {
-		switch (event->type) {
-		case SDL_KEYDOWN: {
+		break; // handled
+	case DVL_WM_RBUTTONDOWN:
+		UiFocusNavigationEsc();
+		break;
+	case DVL_WM_KEYDOWN:
+		if (!gUiDrawCursor) {
+			UiFocusNavigationEsc();
+			break;
+		}
+		if (event->key.keysym.sym == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
+			ToggleFullscreen();
+			break;
+		}
+#if FULL_UI
+		if (gUiEditField != NULL) {
 			switch (event->key.keysym.sym) {
 #ifndef USE_SDL1
-			case SDLK_v:
-				if (SDL_GetModState() & KMOD_CTRL) {
+			case DVL_VK_V:
+				if (event->key.keysym.mod & KMOD_CTRL) {
 					char* clipboard = SDL_GetClipboardText();
 					if (clipboard != NULL) {
-						UiCatToName(clipboard);
+						UiCatToText(clipboard);
 						SDL_free(clipboard);
 					}
 				}
-				return;
+				break;
 #endif
-			case SDLK_BACKSPACE:
-			case SDLK_LEFT: {
-				int nameLen = strlen(gUiEditField->m_value);
-				if (nameLen > 0) {
-					gUiEditField->m_value[nameLen - 1] = '\0';
+			case DVL_VK_BACK: {
+				unsigned i = gUiEditField->m_curpos;
+				if (i > 0) {
+					i--;
+					gUiEditField->m_curpos = i;
+					for ( ; ; i++) {
+						// assert(gUiEditField->m_max_length != 0);
+						if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
+							gUiEditField->m_value[i] = '\0';
+							break;
+						} else {
+							gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
+						}
+					}
 				}
-				return;
-			}
+			} break;
+			case DVL_VK_DELETE: {
+				for (unsigned i = gUiEditField->m_curpos; ; i++) {
+					// assert(gUiEditField->m_max_length != 0);
+					if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
+						gUiEditField->m_value[i] = '\0';
+						break;
+					} else {
+						gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
+					}
+				}
+			} break;
+			case DVL_VK_LEFT: {
+				unsigned pos = gUiEditField->m_curpos;
+				if (pos > 0) {
+					gUiEditField->m_curpos = pos - 1;
+				}
+			} break;
+			case DVL_VK_RIGHT: {
+				unsigned pos = gUiEditField->m_curpos;
+				if (gUiEditField->m_value[pos] != '\0' && pos + 1 < gUiEditField->m_max_length) {
+					gUiEditField->m_curpos = pos + 1;
+				}
+			} break;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+			case DVL_VK_LBUTTON:
+#endif
+			case DVL_VK_RETURN:
+				UiFocusNavigationSelect();
+				break;
+			case DVL_VK_ESCAPE:
+				UiFocusNavigationEsc();
+				break;
 			default:
+#ifdef USE_SDL1
+				if ((event->key.keysym.mod & KMOD_CTRL) == 0) {
+					Uint16 unicode = event->key.keysym.unicode;
+					if (unicode && (unicode & 0xFF80) == 0) {
+						char utf8[2];
+						utf8[0] = (char)unicode;
+						utf8[1] = '\0';
+						UiCatToText(utf8);
+					}
+				}
+#endif
 				break;
 			}
-#ifdef USE_SDL1
-			if ((event->key.keysym.mod & KMOD_CTRL) == 0) {
-				Uint16 unicode = event->key.keysym.unicode;
-				if (unicode && (unicode & 0xFF80) == 0) {
-					char utf8[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-					utf8[0] = (char)unicode;
-					utf8[1] = '\0';
-					UiCatToName(utf8);
-				}
-			}
-#endif
-			break;
+			break; // gUiEditField != NULL
 		}
-#ifndef USE_SDL1
-		case SDL_TEXTINPUT:
-#ifdef __vita__
-			UiSetName(event->text.text);
-#else
-			UiCatToName(event->text.text);
-#endif
-			return;
-#endif
-		default:
+#endif // FULL_UI
+		switch (event->key.keysym.sym) {
+		case DVL_VK_RETURN:
+			UiFocusNavigationSelect();
 			break;
-		}
-	}
-
-	if (event->type == SDL_MOUSEMOTION) {
-		// In SDL2 mouse events already use logical coordinates
-#ifdef USE_SDL1
-		OutputToLogical(&event->motion.x, &event->motion.y);
-#endif
-		MousePos.x = event->motion.x;
-		MousePos.y = event->motion.y;
-		return;
-	}
-
-	if (event->type == SDL_KEYDOWN) {
-		SDL_Keymod modState = SDL_GetModState();
-		if (event->key.keysym.sym == SDLK_RETURN && (modState & KMOD_ALT)) {
-			ToggleFullscreen();
-		} else if (!gUiDrawCursor && !modState) {
+		case DVL_VK_ESCAPE:
 			UiFocusNavigationEsc();
+			break;
+		// case DVL_VK_OEM_PLUS:
+		case DVL_VK_UP:
+			UiFocusUp();
+			break;
+		// case DVL_VK_OEM_MINUS:
+		case DVL_VK_DOWN:
+			UiFocusDown();
+			break;
+		case DVL_VK_DELETE:
+			UiFocusNavigationDelete();
+			break;
+		case DVL_VK_PRIOR:
+			UiFocusPageUp();
+			break;
+		case DVL_VK_NEXT:
+			UiFocusPageDown();
+			break;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		case DVL_VK_LBUTTON:
+			UiFocusNavigationSelect();
+			break;
+#endif
 		}
-		return;
-	}
-
-	if (event->type == SDL_QUIT) {
-		diablo_quit(EX_OK);
-		return;
-	}
-
+		break;
+#if FULL_UI
+	case DVL_WM_TEXT:
 #ifndef USE_SDL1
-	if (event->type == SDL_WINDOWEVENT) {
-		if (event->window.event == SDL_WINDOWEVENT_SHOWN)
-			gbWndActive = true;
-		else if (event->window.event == SDL_WINDOWEVENT_HIDDEN)
-			gbWndActive = false;
-		return;
-	}
+		if (gUiEditField != NULL) {
+#ifdef __vita__
+			UiSetText(event->text.text);
+#else
+			UiCatToText(event->text.text);
+#endif
+		}
+		break;
 #endif // !USE_SDL1
+#endif // FULL_UI
+	}
+	return true;
 }
 
 void UiRenderItems(const std::vector<UiItemBase*>& uiItems)

@@ -1,22 +1,19 @@
 #pragma once
 
-#include <cstdint>
+//#include <cstdint>
 
 DEVILUTION_BEGIN_NAMESPACE
 
-//
-// Everything else
-//
 extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
-bool PeekMessage(LPMSG lpMsg);
+bool PeekMessage(Dvl_Event &event);
 
 #if defined(USE_SDL1) || DEBUG_MODE
 int TranslateKey2Char(int vkey);
 #endif
-void DispatchMessage(const MSG* lpMsg);
+void DispatchMessage(const Dvl_Event* event);
 void PostMessage(UINT Msg /*, WPARAM wParam*/);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
@@ -25,7 +22,7 @@ WNDPROC SetWindowProc(WNDPROC NewProc);
 //
 typedef enum window_messages {
 	DVL_WM_NONE,
-	DVL_WM_QUIT,        // 0x0012,
+	DVL_WM_QUIT,        // 0x0012
 	DVL_WM_MOUSEMOVE,   // 0x0200
 	DVL_WM_LBUTTONDOWN, // 0x0201
 	DVL_WM_LBUTTONUP,   // 0x0202
@@ -36,7 +33,7 @@ typedef enum window_messages {
 	DVL_WM_KEYUP,   // 0x0101
 	// DVL_WM_SYSKEYDOWN 0x0104
 	// DVL_WM_SYSCOMMAND 0x0112
-	DVL_WM_CHAR, // 0x0102
+	DVL_WM_TEXT,    // 0x0102
 
 	DVL_WM_CAPTURECHANGED,  // 0x0215
 	DVL_WM_PAINT,           // 0x000F
@@ -44,12 +41,12 @@ typedef enum window_messages {
 
 	DVL_DWM_NEXTLVL, //  = 0x402, // dungeon -> next level  WM_USER+2
 	DVL_DWM_PREVLVL, //  = 0x403, // dungeon -> previous level
-	DVL_DWM_RTNLVL,  //   = 0x404, // setlevel -> dungeon
-	DVL_DWM_SETLVL,  //   = 0x405, // dungeon -> setlevel
+	DVL_DWM_RTNLVL,  //  = 0x404, // setlevel -> dungeon
+	DVL_DWM_SETLVL,  //  = 0x405, // dungeon -> setlevel
 	DVL_DWM_TWARPDN, //  = 0x407, // town -> dungeon
 	DVL_DWM_TWARPUP, //  = 0x408, // dungeon -> town
 	DVL_DWM_WARPLVL, //  = 0x406, // portal
-	DVL_DWM_RETOWN,  //   = 0x409, // restart in town
+	DVL_DWM_RETOWN,  //  = 0x409, // restart in town
 	DVL_DWM_NEWGAME, //  = 0x40A,
 
 	// WM_LEIGHSKIP = 0x40C, // psx only
@@ -193,6 +190,12 @@ typedef enum window_messages {
 #define DVL_VK_OEM_PERIOD          0xBE // For any country/region, the '.' key
 #define DVL_VK_OEM_2               0xBF // For the US standard keyboard, the '/?' key
 #define DVL_VK_OEM_3               0xC0 // For the US standard keyboard, the '`~' key
+// -- non standard virtual key-codes for the controllers
+#define DVL_VK_CONTROLLER_1        0xC1
+#define DVL_VK_CONTROLLER_2        0xC2
+#define DVL_VK_CONTROLLER_3        0xC3
+#define DVL_VK_CONTROLLER_4        0xC4
+// --
 #define DVL_VK_OEM_4               0xDB // For the US standard keyboard, the '[{' key
 #define DVL_VK_OEM_5               0xDC // For the US standard keyboard, the '\|' key
 #define DVL_VK_OEM_6               0xDD // For the US standard keyboard, the ']}' key

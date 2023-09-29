@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <string>
+//#include <cstddef>
+//#include <cstdint>
 #include <vector>
 
 /*#include "../defs.h"
@@ -138,6 +137,7 @@ public:
 		m_hint = hint;
 		m_value = value;
 		m_max_length = max_length;
+		m_curpos = strlen(value);
 	}
 
 	~UiEdit() = default;
@@ -146,6 +146,7 @@ public:
 	const char* m_hint;
 	char* m_value;
 	unsigned m_max_length;
+	unsigned m_curpos;
 };
 
 //=============================================================================

@@ -12,12 +12,14 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-/** Specifies whether the automap is enabled. */
-extern bool gbAutomapflag;
-/** Tracks the explored areas of the map. */
-extern BOOLEAN automapview[DMAXX][DMAXY];
+/** Specifies whether the automap is enabled (_automap_mode). */
+extern BYTE gbAutomapflag;
 /** Specifies the scale of the automap. */
 extern unsigned AutoMapScale;
+/* The scale of the normal-automap. */
+extern BYTE MiniMapScale;
+/* The scale of the mini-automap. */
+extern BYTE NormalMapScale;
 extern int AutoMapXOfs;
 extern int AutoMapYOfs;
 
@@ -75,6 +77,9 @@ void AutomapZoomIn();
  * @brief Decreases the zoom level of the automap.
  */
 void AutomapZoomOut();
+/**
+ * @brief Renders the automap and the info text on screen.
+ */
 void DrawAutomap();
 /**
  * @brief Marks the given coordinate as within view on the automap.

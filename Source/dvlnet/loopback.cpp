@@ -127,7 +127,7 @@ unsigned loopback::SNetGetTurnsInTransit()
 	return turn_queue.size();
 }
 
-void loopback::make_default_gamename(char (&gamename)[128])
+void loopback::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	copy_cstr(gamename, "loopback");
 }

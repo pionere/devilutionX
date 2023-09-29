@@ -13,18 +13,18 @@ namespace net {
 
 class tcpd_client : public base {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
-	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
+	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	virtual void SNetLeaveGame(int reason);
+	void SNetLeaveGame(int reason) override;
 
-	virtual ~tcpd_client() = default;
+	~tcpd_client() override = default;
 
-	virtual void make_default_gamename(char (&gamename)[128]);
+	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 protected:
-	virtual void poll();
-	virtual void send_packet(packet& pkt);
+	void poll() override;
+	void send_packet(packet& pkt) override;
 	void recv_connect(packet& pkt);
 
 private:

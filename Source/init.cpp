@@ -3,18 +3,17 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-//#if defined(_WIN64) || defined(_WIN32)
+//#if defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
 
 #include "all.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
-#include <SDL.h>
+#include "storm/storm_cfg.h"
 #include <string>
+#if CREATE_MPQONE
 #include <fstream>
-#if DEV_MODE
-#include <sys/stat.h>
 #endif
 
 #ifdef __vita__
@@ -81,7 +80,7 @@ static void ReadOnlyTest()
 	FILE* f = FileOpen(path.c_str(), "w");
 	if (f != NULL) {
 		fclose(f);
-		remove(path.c_str());
+		RemoveFile(path.c_str());
 	} else {
 		app_fatal("Unable to write to location:\n%s", GetPrefPath());
 	}
@@ -102,7 +101,7 @@ void InitArchives()
 	return;
 #endif
 	HANDLE diabdat_mpqs[NUM_MPQS];
-/*#elif defined(_WIN64) || defined(_WIN32)
+/*#elif defined(_WIN32)
 	char gogpath[_FSG_PATH_MAX];
 	fsg_get_gog_game_path(gogpath, "1412601690");
 	if (strlen(gogpath) > 0) {

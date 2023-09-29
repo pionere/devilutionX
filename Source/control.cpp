@@ -363,6 +363,43 @@ void DrawSkillIcons()
 		type = plr._pAltAtkSkillType;
 	}
 	DrawSkillIcon(pnum, spl, type, SPLICON_WIDTH);
+
+	const char* str;
+	unsigned numchar;
+	switch (pcurstgt) {
+	case TGT_NORMAL:
+		return;
+	case TGT_ITEM:
+		str = "Item";
+		numchar = lengthof("Item") - 1;
+		break;
+	case TGT_OBJECT:
+		str = "Object";
+		numchar = lengthof("Object") - 1;
+		break;
+	case TGT_PLAYER:
+		str = "Player";
+		numchar = lengthof("Player") - 1;
+		break;
+	case TGT_DEAD:
+		str = "Dead";
+		numchar = lengthof("Dead") - 1;
+		break;
+	case TGT_NONE:
+		str = "X";
+		numchar = lengthof("X") - 1;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+
+	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
+	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2;
+	for (unsigned i = 0; i < numchar; i++) {
+		sy += SMALL_FONT_HEIGHT;
+		BYTE nCel = gbStdFontFrame[str[i]];
+		PrintChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
+	}
 }
 
 static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
@@ -414,6 +451,9 @@ void DrawSkillList()
 	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
 
+#if SCREEN_READER_INTEGRATION
+	BYTE prevSkill = currSkill;
+#endif
 	currSkill = SPL_INVALID;
 	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
@@ -493,7 +533,7 @@ void DrawSkillList()
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
 					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), 
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX),
 					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
 					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}
@@ -513,6 +553,11 @@ void DrawSkillList()
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	_gbMoveCursor = 0;
+#endif
+#if SCREEN_READER_INTEGRATION
+	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+		SpeakText(spelldata[currSkill].sNameText);
+	}
 #endif
 }
 
@@ -1432,6 +1477,16 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	}
 	PrintGameStr(SCREEN_X + x + border + w1, SCREEN_Y + y + height - 14, text1, col);
 	PrintGameStr(SCREEN_X + x + border + w2, SCREEN_Y + y + height - 3, text2, COL_WHITE);
+#if SCREEN_READER_INTEGRATION
+	unsigned len1 = strlen(text1);
+	unsigned len = len1 + strlen(text2) + 2;
+	char *text = new char[len];
+	memcpy(text, text1, len1);
+	text[len1] = '\n';
+	memcpy(text[len1 + 1], text1, len - len1);
+	SpeakText(text);
+	free(text);
+#endif
 	return result;
 }
 
@@ -1518,6 +1573,9 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	// print the info
 	PrintGameStr(SCREEN_X + x + border, SCREEN_Y + y + TOOLTIP_HEIGHT - 3, text, col);
+#if SCREEN_READER_INTEGRATION
+	SpeakText(text);
+#endif
 	return result;
 }
 
@@ -1602,38 +1660,38 @@ static void DrawTrigInfo()
 			case SL_BONECHAMB:
 				copy_cstr(infostr, "To The Chamber of Bone");
 				break;
-			/*case SL_MAZE:
-				copy_cstr(infostr, "To Maze");
-				break;*/
+			//case SL_MAZE:
+			//	copy_cstr(infostr, "To Maze");
+			//	break;
 			case SL_POISONWATER:
 				copy_cstr(infostr, "To A Dark Passage");
 				break;
-			case SL_VILEBETRAYER:
-				copy_cstr(infostr, "To The Unholy Altar");
-				break;
+			//case SL_VILEBETRAYER:
+			//	copy_cstr(infostr, "To The Unholy Altar");
+			//	break;
 			default:
 				ASSUME_UNREACHABLE
 			}
 			break;
 		case DVL_DWM_TWARPDN:
-			switch (pcurstrig) {
-			case TWARP_CATHEDRAL:
+			switch (trigs[pcurstrig]._ttype) {
+			case WRPT_TOWN_L1:
 				copy_cstr(infostr, "Down to dungeon");
 				break;
-			case TWARP_CATACOMB:
+			case WRPT_TOWN_L2:
 				copy_cstr(infostr, "Down to catacombs");
 				break;
-			case TWARP_CAVES:
+			case WRPT_TOWN_L3:
 				copy_cstr(infostr, "Down to caves");
 				break;
-			case TWARP_HELL:
+			case WRPT_TOWN_L4:
 				copy_cstr(infostr, "Down to hell");
 				break;
 #ifdef HELLFIRE
-			case TWARP_NEST:
+			case WRPT_TOWN_L6:
 				copy_cstr(infostr, "Down to nest");
 				break;
-			case TWARP_CRYPT:
+			case WRPT_TOWN_L5:
 				copy_cstr(infostr, "Down to crypt");
 				break;
 #endif
@@ -1922,6 +1980,9 @@ void DrawSpellBook()
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
 	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
+#if SCREEN_READER_INTEGRATION
+	BYTE prevSkill = currSkill;
+#endif
 	currSkill = SPL_INVALID;
 
 	pnum = mypnum;
@@ -2002,6 +2063,11 @@ void DrawSpellBook()
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
+#if SCREEN_READER_INTEGRATION
+	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+		SpeakText(spelldata[currSkill].sNameText);
+	}
+#endif
 }
 
 void CheckBookClick(bool shift, bool altSkill)

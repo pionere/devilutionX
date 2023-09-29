@@ -1,4 +1,3 @@
-#include "controls/menu_controls.h"
 #include "DiabloUI/diabloui.h"
 #include "../gameui.h"
 #include "../engine.h"
@@ -36,7 +35,7 @@ static void TitleLoad()
 
 static void TitleFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	MemFreeDbg(gbLogoBig);
 	UiClearItems(gUiItems);
 }
@@ -45,38 +44,14 @@ bool UiTitleDialog()
 {
 	TitleLoad();
 
-	//int endMenu = 0;
 	Uint32 timeOut = SDL_GetTicks() + TITLE_TIMEOUT_SEC * 1000;
 
-	/*SDL_Event event;
 	do {
-		// UiClearScreen();
-		UiRenderItems(gUiItems);
-		UiFadeIn();
-
-		while (SDL_PollEvent(&event) != 0) {
-			if (GetMenuAction(event) != MenuAction_NONE) {
-				endMenu = 1;
-				break;
-			}
-			if (event.type == SDL_KEYDOWN || event.type == SDL_MOUSEBUTTONDOWN) {
-				endMenu = 1;
-				break;
-			}
-			if (event.type == SDL_QUIT) {
-				endMenu = 2;
-				break;
-			}
-			UiHandleEvents(&event);
-		}
-	} while (endMenu == 0 && SDL_GetTicks() < timeOut);*/
-	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (!_gbTitleEnd && SDL_GetTicks() < timeOut);
 
 	TitleFree();
 
-	//return endMenu != 2;
 	return true;
 }
 

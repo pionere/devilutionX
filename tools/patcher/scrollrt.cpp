@@ -11,11 +11,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
- * Specifies the current light entry.
- */
-int light_trn_index;
-
-/**
  * Cursor-size
  */
 int sgCursHgt;
@@ -31,10 +26,6 @@ int sgCursY;
 int sgCursXOld;
 int sgCursYOld;
 
-/**
- * Specifies whether transparency is active for the current CEL file being decoded.
- */
-bool gbCelTransparencyActive;
 /**
  * Buffer to store the cursor image.
  */
@@ -147,7 +138,7 @@ static void scrollrt_draw_cursor()
 	frame = pcursicon;
 	cCels = pCursCels;
 
-	CelClippedDrawLightTbl(mx, my, cCels, frame, cursW, 0);
+	CelClippedDraw(mx, my, cCels, frame, cursW);
 }
 
 /**

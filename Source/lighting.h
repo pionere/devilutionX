@@ -18,8 +18,8 @@ extern "C" {
 
 extern BYTE visionactive[MAXVISION];
 extern LightListStruct VisionList[MAXVISION];
-extern BYTE lightactive[MAXLIGHTS + 1];
-extern LightListStruct LightList[MAXLIGHTS + 1];
+extern BYTE lightactive[MAXLIGHTS];
+extern LightListStruct LightList[MAXLIGHTS];
 extern int numlights;
 extern int numvision;
 
@@ -31,15 +31,14 @@ extern int numvision;
 #define COLOR_TRN_UNIQ  MAXDARKNESS + 4
 extern BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
-void DoLighting(unsigned lnum);
+void TraceLightSource(int x, int y, int r);
 void DoUnVision(int nXPos, int nYPos, int nRadius);
 void DoVision(int nXPos, int nYPos, int nRadius, bool local);
-void MakeLightTable();
+void InitLighting();
 #if DEBUG_MODE
 void ToggleLighting();
 #endif
-void InitLightGFX();
-void InitLighting();
+void InitLvlLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
@@ -58,7 +57,7 @@ inline void LoadPreLighting()
 {
 	memcpy(dLight, dPreLight, sizeof(dPreLight));
 }
-void InitVision();
+void InitLvlVision();
 void RedoLightAndVision();
 void LightAndVisionDone();
 int AddVision(int x, int y, int r, bool mine);
@@ -66,7 +65,12 @@ void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);
 void ChangeVisionXY(unsigned vnum, int x, int y);
 void ProcessVisionList();
-void lighting_color_cycling();
+void lighting_update_caves();
+void lighting_update_hell();
+#ifdef HELLFIRE
+void lighting_update_crypt();
+void lighting_update_nest();
+#endif
 
 /* rdata */
 

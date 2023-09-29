@@ -83,21 +83,30 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	private String chooseExternalFilesDir() {
 		if (Build.VERSION.SDK_INT >= 19) {
 			File[] externalDirs = getExternalFilesDirs(null);
+			if (externalDirs != null) {
+				for (File dir : externalDirs) {
+					if (dir == null) {
+						continue;
+					}
+					File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
+					if (iniFiles != null && iniFiles.length > 0) {
+						return dir.getAbsolutePath();
+					}
+				}
 
-			for (int i = 0; i < externalDirs.length; i++) {
-				File dir = externalDirs[i];
-				File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
-				if (iniFiles.length > 0)
-					return dir.getAbsolutePath();
-			}
-
-			for (int i = 0; i < externalDirs.length; i++) {
-				File dir = externalDirs[i];
-				if (dir.listFiles().length > 0)
-					return dir.getAbsolutePath();
+				for (File dir : externalDirs) {
+					if (dir == null) {
+						continue;
+					}
+					File[] anyFiles = dir.listFiles();
+					if (anyFiles != null && anyFiles.length > 0) {
+						return dir.getAbsolutePath();
+					}
+				}
 			}
 		}
 
+		// Fallback to the primary external storage directory
 		return getExternalFilesDir(null).getAbsolutePath();
 	}
 

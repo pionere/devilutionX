@@ -1,19 +1,19 @@
 #include "storm_svid.h"
 
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
+//#include <cstddef>
+//#include <cstdint>
+//#include <cstring>
 
-#include <SDL.h>
+//#include <SDL.h>
+
+//#include "all.h"
+#include "utils/display.h"
+#include "utils/sdl_compat.h"
 #ifndef NOSOUND
 #include <SDL_mixer.h>
 #include "utils/soundsample.h"
 #endif
 #include <smacker.h>
-
-#include "all.h"
-#include "utils/display.h"
-#include "utils/sdl_compat.h"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 #include <queue>

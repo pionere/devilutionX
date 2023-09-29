@@ -7,8 +7,8 @@
 #include <cinttypes>
 #include <cstdint>
 #include <cstring>
-#include <fstream>
 #include <memory>
+#include <cstdio>
 #include <type_traits>
 
 #include "all.h"
@@ -25,38 +25,18 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace {
 
 #if DEBUG_MODE
-const char* DirToString(std::ios::seekdir dir)
+const char* DirToString(int dir)
 {
 	switch (dir) {
-	case std::ios::beg:
-		return "std::ios::beg";
-	case std::ios::end:
-		return "std::ios::end";
-	case std::ios::cur:
-		return "std::ios::cur";
+	case SEEK_SET:
+		return "SEEK_SET";
+	case SEEK_END:
+		return "SEEK_END";
+	case SEEK_CUR:
+		return "SEEK_CUR";
 	default:
 		return "invalid";
 	}
-}
-
-std::string OpenModeToString(std::ios::openmode mode)
-{
-	std::string result;
-	if ((mode & std::ios::app) != 0)
-		result.append("std::ios::app | ");
-	if ((mode & std::ios::ate) != 0)
-		result.append("std::ios::ate | ");
-	if ((mode & std::ios::binary) != 0)
-		result.append("std::ios::binary | ");
-	if ((mode & std::ios::in) != 0)
-		result.append("std::ios::in | ");
-	if ((mode & std::ios::out) != 0)
-		result.append("std::ios::out | ");
-	if ((mode & std::ios::trunc) != 0)
-		result.append("std::ios::trunc | ");
-	if (!result.empty())
-		result.resize(result.size() - 3);
-	return result;
 }
 
 template <typename... PrintFArgs>
@@ -80,15 +60,14 @@ void PrintError(const char* fmt, PrintFArgs... args)
 	DoLog(fmt_with_error.c_str(), args..., errno);
 }*/
 #endif /* DEBUG_MODE */
-// TODO: use TFileStream ?
 struct FStreamWrapper {
 public:
-	bool Open(const char* path, std::ios::openmode mode)
+	bool Open(const char* path, const char* mode)
 	{
-		s_.open(path, mode);
-		if (!s_.fail()) {
+		s_ = FileOpen(path, mode);
+		if (s_ != NULL) {
 #if DEBUG_MODE
-			DoLog("Open(\"%s\", %s)", path, OpenModeToString(mode).c_str());
+			DoLog("Open(\"%s\", %s)", path, mode);
 #endif
 			return true;
 		}
@@ -98,57 +77,25 @@ public:
 
 	void Close()
 	{
-		s_.close();
+		if (s_ != NULL) {
+			std::fclose(s_);
+			s_ = NULL;
+		}
 	}
 
 	bool IsOpen() const
 	{
-		return s_.is_open();
+		return s_ != NULL;
 	}
 #ifdef FULL
-	bool seekg(std::streampos pos)
+	bool seekp(long pos)
 	{
-		s_.seekg(pos);
-		if (!s_.fail()) {
-#if DEBUG_MODE
-			DoLog("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
-#endif
-			return true;
-		}
-		PrintError("seekg(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
-		return false;
-	}
-
-	bool seekg(std::streamoff pos, std::ios::seekdir dir)
-	{
-		s_.seekg(pos, dir);
-		if (!s_.fail()) {
-#if DEBUG_MODE
-			DoLog("seekg(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
-#endif
-			return true;
-		}
-		PrintError("seekg(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), dir);
-		return false;
-	}
-
-	bool seekp(std::streampos pos)
-	{
-		s_.seekp(pos);
-		if (!s_.fail()) {
-#if DEBUG_MODE
-			DoLog("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
-#endif
-			return true;
-		}
-		PrintError("seekp(%" PRIuMAX ")", static_cast<std::uintmax_t>(pos));
-		return false;
+		return seekp(pos, SEEK_SET);
 	}
 #endif
-	bool seekp(std::streamoff pos, std::ios::seekdir dir)
+	bool seekp(long pos, int dir)
 	{
-		s_.seekp(pos, dir);
-		if (!s_.fail()) {
+		if (std::fseek(s_, pos, dir) == 0) {
 #if DEBUG_MODE
 			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
 #endif
@@ -157,25 +104,11 @@ public:
 		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), dir);
 		return false;
 	}
-#ifdef FULL
-	bool tellg(std::streampos* result)
-	{
-		*result = s_.tellg();
-		if (!s_.fail()) {
-#if DEBUG_MODE
-			DoLog("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
-#endif
-			return true;
-		}
-		PrintError("tellg() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
-		return false;
-	}
-#endif // FULL
 #ifndef CAN_SEEKP_BEYOND_EOF
-	bool tellp(std::streampos* result)
+	bool tellp(long* result)
 	{
-		*result = s_.tellp();
-		if (!s_.fail()) {
+		*result = std::ftell(s_);
+		if (*result != -1) {
 #if DEBUG_MODE
 			DoLog("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
 #endif
@@ -185,10 +118,9 @@ public:
 		return false;
 	}
 #endif // !CAN_SEEKP_BEYOND_EOF
-	bool write(const char* data, std::streamsize size)
+	bool write(const char* data, size_t size)
 	{
-		s_.write(data, size);
-		if (!s_.fail()) {
+		if (WriteFile(data, size, s_)) {
 #if DEBUG_MODE
 			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
@@ -198,10 +130,9 @@ public:
 		return false;
 	}
 
-	bool read(char* out, std::streamsize size)
+	bool read(void* out, size_t size)
 	{
-		s_.read(out, size);
-		if (!s_.fail()) {
+		if (ReadFile(out, size, s_) == 1) {
 #if DEBUG_MODE
 			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
@@ -213,7 +144,7 @@ public:
 
 private:
 
-	std::fstream s_;
+	FILE *s_ = nullptr;
 };
 
 //#define MPQ_BLOCK_SIZE			0x8000
@@ -223,7 +154,7 @@ private:
 //constexpr DWORD MPQ_HASH_COUNT = MPQ_HASH_SIZE / sizeof(FileMpqHashEntry);
 constexpr uint32_t MPQ_BLOCK_OFFSET = sizeof(FileMpqHeader);
 constexpr uint32_t MPQ_SECTOR_SIZE = 512 << MPQ_SECTOR_SIZE_SHIFT_V1; // 4096
-//constexpr std::ios::off_type MPQ_HASH_OFFSET = MPQ_BLOCK_OFFSET + MPQ_BLOCK_COUNT * sizeof(FileMpqBlockEntry);
+//constexpr long  MPQ_HASH_OFFSET = MPQ_BLOCK_OFFSET + MPQ_BLOCK_COUNT * sizeof(FileMpqBlockEntry);
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 static void ByteSwapHdr(FileMpqHeader* hdr)
@@ -279,7 +210,7 @@ struct Archive {
 	uint32_t hashCount;
 
 #ifndef CAN_SEEKP_BEYOND_EOF
-	std::streampos stream_begin;
+	long stream_begin;
 #endif
 
 	FileMpqHashEntry* sgpHashTbl;
@@ -292,10 +223,10 @@ struct Archive {
 		DoLog("Opening %s", name);
 #endif
 		exists = FileExists(name);
-		std::ios::openmode mode = std::ios::out | std::ios::binary;
+		const char* mode = "wb";
 		std::uintmax_t size;
 		if (exists) {
-			mode |= std::ios::in;
+			mode = "r+b";
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
@@ -314,7 +245,6 @@ struct Archive {
 			}
 #endif
 		} else {
-			mode |= std::ios::trunc;
 			size = 0;
 		}
 		if (!stream.Open(name, mode)) {
@@ -334,7 +264,7 @@ struct Archive {
 			DoLog("Closing %s", name.c_str());
 #endif
 
-			bool resize = modified && stream.seekp(0, std::ios::beg) && WriteHeaderAndTables();
+			bool resize = modified && stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
 			stream.Close();
 			if (resize && archiveSize != 0) {
 #if DEBUG_MODE
@@ -436,7 +366,7 @@ static bool ReadMPQHeader(Archive* archive, FileMpqHeader* hdr)
 {
 	const bool has_hdr = archive->archiveSize >= sizeof(*hdr);
 	if (has_hdr) {
-		if (!archive->stream.read(reinterpret_cast<char*>(hdr), sizeof(*hdr)))
+		if (!archive->stream.read(hdr, sizeof(*hdr)))
 			return false;
 		ByteSwapHdr(hdr);
 	}
@@ -650,12 +580,12 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 	uint32_t* sectoroffsettable = (uint32_t*)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
 	{
 #ifdef CAN_SEEKP_BEYOND_EOF
-	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, std::ios::beg))
+	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, SEEK_SET))
 		goto on_error;
 #else
 	// Ensure we do not seekp beyond EOF by filling the missing space.
 	std::streampos stream_end;
-	if (!cur_archive.stream.seekp(0, std::ios::end) || !cur_archive.stream.tellp(&stream_end))
+	if (!cur_archive.stream.seekp(0, SEEK_END) || !cur_archive.stream.tellp(&stream_end))
 		goto on_error;
 	std::size_t curSize = stream_end - cur_archive.stream_begin;
 	if (curSize < pBlk->bqOffset + offset_table_bytesize) {
@@ -670,7 +600,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 		if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 			goto on_error;
 	} else {
-		if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, std::ios::beg))
+		if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, SEEK_SET))
 			goto on_error;
 	}
 #endif
@@ -694,11 +624,11 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 	}
 
 	sectoroffsettable[num_sectors] = SwapLE32(destsize);
-	if (!cur_archive.stream.seekp(pBlk->bqOffset, std::ios::beg))
+	if (!cur_archive.stream.seekp(pBlk->bqOffset, SEEK_SET))
 		goto on_error;
 	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 		goto on_error;
-	if (!cur_archive.stream.seekp(destsize - offset_table_bytesize, std::ios::cur))
+	if (!cur_archive.stream.seekp(destsize - offset_table_bytesize, SEEK_CUR))
 		goto on_error;
 
 	if (destsize < pBlk->bqSizeAlloc) {
@@ -770,7 +700,7 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		blockSize = blockCount * sizeof(FileMpqBlockEntry);
 		cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
 		if (fhdr.pqBlockCount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char*>(cur_archive.sgpBlockTbl), blockSize))
+			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
 				goto on_error;
 			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
@@ -781,7 +711,7 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		hashSize = hashCount * sizeof(FileMpqHashEntry);
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (fhdr.pqHashCount != 0) {
-			if (!cur_archive.stream.read(reinterpret_cast<char*>(cur_archive.sgpHashTbl), hashSize))
+			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
 				goto on_error;
 			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
@@ -792,7 +722,7 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		}
 
 #ifndef CAN_SEEKP_BEYOND_EOF
-		if (!cur_archive.stream.seekp(0, std::ios::beg))
+		if (!cur_archive.stream.seekp(0, SEEK_SET))
 			goto on_error;
 
 		// Memorize stream begin, we'll need it for calculations later.

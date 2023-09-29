@@ -1,7 +1,7 @@
 #include "plrctrls.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-#include <cstdint>
+//#include <cstdint>
 #include <queue>
 
 #include "controller_motion.h"
@@ -1097,7 +1097,7 @@ void plrctrls_after_game_logic()
 	Movement();
 }
 
-void UseBeltItem(int type)
+void UseBeltItem(bool manaItem)
 {
 	ItemStruct* pi;
 
@@ -1105,79 +1105,13 @@ void UseBeltItem(int type)
 	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
-		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
-		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
+		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
+		    || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
 			if (InvUseItem(INVITEM_BELT_FIRST + i))
 				break;
 		}
 	}
-}
-// TODO: same as ActionBtnDown(false)
-void PerformPrimaryAction()
-{
-	if (gbSkillListFlag) {
-		SetSkill(false, false);
-		return;
-	}
-
-	if (stextflag != STORE_NONE) {
-		TryStoreBtnClick();
-		return;
-	}
-
-	if (gmenu_is_active()) {
-		TryLimitedPanBtnClick();
-		return;
-	}
-
-	if (TryPanBtnClick()) {
-		return;
-	}
-
-	if (TryIconCurs(false))
-		return;
-
-	if (pcurswnd == WND_BELT) {
-		// in belt
-		// assert(!TryPanBtnClick());
-		CheckBeltClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_INV) {
-		// in inventory
-		CheckInvClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_CHAR) {
-		CheckChrBtnClick();
-		return;
-	}
-
-	if (pcurswnd == WND_QUEST) {
-		CheckQuestlogClick();
-		return;
-	}
-
-	if (pcurswnd == WND_TEAM) {
-		// in team panel
-		CheckTeamClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_BOOK) {
-		CheckBookClick(false, false);
-		return;
-	}
-
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		DropItem();
-		return;
-	}
-
-	ActionBtnCmd(false);
 }
 
 static bool SpellHasActorTarget()

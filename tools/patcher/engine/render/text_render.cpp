@@ -177,9 +177,6 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 	case COL_GOLD:
 		tbl = FONT_TRN_GOLD;
 		break;
-	/*case COL_BLACK:
-		tbl = ColorTrns[MAXDARKNESS];
-		break;*/
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -206,9 +203,6 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -250,9 +244,6 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -282,9 +273,6 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
@@ -334,107 +322,6 @@ int GetSmallStringWidth(const char* text)
 	}
 
 	return i - FONT_KERN_SMALL;
-}
-
-void PrintGameStr(int x, int y, const char* text, BYTE color)
-{
-	while (*text != '\0') {
-		x += PrintSmallChar(x, y, (BYTE)*text++, color);
-	}
-}
-
-/**
- * @brief Render text string to back buffer
- * @param x Screen coordinate
- * @param y Screen coordinate
- * @param endX End of line in screen coordinate
- * @param pszStr String to print, in Windows-1252 encoding
- * @param center 
- * @param col text_color color value
- * @param kern Letter spacing
- */
-void PrintString(int x, int y, int endX, const char* text, bool cjustflag, BYTE col, int kern)
-{
-	BYTE c;
-	const char* tmp;
-	int strEnd;
-	int k;
-
-	if (cjustflag) {
-		strEnd = x;
-		tmp = text;
-		while (*tmp != '\0') {
-			c = gbStdFontFrame[(BYTE)*tmp++];
-			strEnd += smallFontWidth[c] + kern;
-		}
-		if (strEnd < endX) {
-			x += (endX - strEnd) >> 1;
-		}
-	}
-	while (*text != '\0') {
-		c = gbStdFontFrame[(BYTE)*text++];
-		k = smallFontWidth[c] + kern;
-		if (x + k < endX && c != 0) {
-			PrintChar(x, y, c, col);
-		}
-		x += k;
-	}
-}
-
-int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
-{
-	BYTE c;
-
-	while (*text != '\0') {
-		c = gbStdFontFrame[(BYTE)*text++];
-		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
-		if (limit >= 0 && c != 0) {
-			PrintChar(x, y, c, col);
-		}
-		x += smallFontWidth[c] + FONT_KERN_SMALL;
-	}
-	return x;
-}
-
-void PrintHugeString(int x, int y, const char* text, int light)
-{
-	BYTE c, *tbl;
-
-	// TODO: uncomment if performance is required
-	//tbl = light == 0 ? NULL : ColorTrns[light];
-	tbl = ColorTrns[light];
-	while (*text != '\0') {
-		c = gbHugeFontFrame[(BYTE)*text++];
-		if (c != 0) {
-			// if (tbl == NULL)
-			//	CelDraw(x, y, pHugeGoldTextCels, c);
-			// else
-			CelDrawTrnTbl(x, y, pHugeGoldTextCels, c, tbl);
-		}
-		x += hugeFontWidth[c] + FONT_KERN_HUGE;
-	}
-}
-
-static int PentSpn2Spin()
-{
-	return (SDL_GetTicks() / 64) % 8 + 1;
-}
-
-void DrawHugePentSpn(int x1, int x2, int y)
-{
-	CelDraw(x1, y, pHugePentSpinCels, PentSpn2Spin());
-	CelDraw(x2, y, pHugePentSpinCels, PentSpn2Spin());
-}
-
-void DrawSmallPentSpn(int x1, int x2, int y)
-{
-	CelDraw(x1, y, pSmallPentSpinCels, PentSpn2Spin());
-	CelDraw(x2, y, pSmallPentSpinCels, PentSpn2Spin());
-}
-
-void DrawSingleSmallPentSpn(int x, int y)
-{
-	CelDraw(x, y, pSmallPentSpinCels, PentSpn2Spin());
 }
 
 DEVILUTION_END_NAMESPACE

@@ -8,6 +8,20 @@
 #include "packet.h"
 #include "frame_queue.h"
 
+// define throw_exception to compile asio with ASIO_NO_EXCEPTIONS
+#if 1
+#include <asio/detail/throw_exception.hpp>
+
+namespace asio::detail {
+template <typename Exception>
+void throw_exception(Exception const &e)
+{
+	asio_error(dvl::ERR_APP_ASIO, e.what());
+}
+
+} // namespace asio::detail
+#endif
+
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
@@ -18,9 +32,9 @@ public:
 	tcp_server(asio::io_context& ioc, buffer_t info, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256]);
 	void close();
-	virtual ~tcp_server() = default;
+	~tcp_server() = default;
 
-	static void make_default_gamename(char (&gamename)[128]);
+	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	static void connect_acceptor(asio::ip::tcp::acceptor& acceptor, const asio::ip::tcp::endpoint& ep, asio::error_code& ec);
 	static void connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec);
 

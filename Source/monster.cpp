@@ -150,7 +150,6 @@ static void (*const AiProc[])(int i) = {
 
 static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
 {
-	BYTE* cf;
 	int i, j;
 	const MonAnimStruct* as;
 	BYTE trn[NUM_COLORS];
@@ -158,15 +157,16 @@ static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const ch
 	// A TRN file contains a sequence of color transitions, represented
 	// as indexes into a palette. (a 256 byte array of palette indices)
 	LoadFileWithMem(transFile, trn);
+#if !USE_PATCH
 	// patch TRN files - Monsters/*.TRN
-	cf = trn;
+	BYTE *cf = trn;
 	for (i = 0; i < NUM_COLORS; i++) {
 		if (*cf == 255) {
 			*cf = 0;
 		}
 		cf++;
 	}
-
+#endif
 	for (i = 0; i < NUM_MON_ANIM; i++) {
 		as = &anims[i];
 		if (as->maFrames > 1) {
@@ -430,7 +430,7 @@ static int AddMonsterType(int type, BOOL scatter)
 	return i;
 }
 
-void InitLevelMonsters()
+void InitLvlMonsters()
 {
 	int i;
 
@@ -494,13 +494,13 @@ void GetLevelMTypes()
 		}
 
 #ifdef HELLFIRE
-		if (lvl == DLV_NEST2)
+		if (lvl == uniqMonData[UMT_HORKDMN].muLevelIdx - 1)
 			AddMonsterType(MT_HORKSPWN, TRUE);
-		if (lvl == DLV_NEST3) {
+		if (lvl == uniqMonData[UMT_HORKDMN].muLevelIdx) {
 			AddMonsterType(MT_HORKSPWN, TRUE);
 			AddMonsterType(uniqMonData[UMT_HORKDMN].mtype, FALSE);
 		}
-		if (lvl == DLV_NEST4)
+		if (lvl == uniqMonData[UMT_DEFILER].muLevelIdx)
 			AddMonsterType(uniqMonData[UMT_DEFILER].mtype, FALSE);
 		if (lvl == DLV_CRYPT4) {
 			AddMonsterType(MT_ARCHLICH, TRUE);
@@ -509,9 +509,9 @@ void GetLevelMTypes()
 #endif
 		//if (QuestStatus(Q_BUTCHER))
 		//	AddMonsterType(uniqMonData[UMT_BUTCHER].mtype, FALSE);
-		if (QuestStatus(Q_GARBUD))
+		if (lvl == uniqMonData[UMT_GARBUD].muLevelIdx && quests[Q_GARBUD]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_GARBUD].mtype, FALSE);
-		if (QuestStatus(Q_ZHAR))
+		if (lvl == uniqMonData[UMT_ZHAR].muLevelIdx && quests[Q_ZHAR]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_ZHAR].mtype, FALSE);
 		//if (QuestStatus(Q_BANNER)) {
 		//	AddMonsterType(uniqMonData[UMT_SNOTSPIL].mtype, FALSE);
@@ -527,9 +527,9 @@ void GetLevelMTypes()
 		//if (QuestStatus(Q_BLOOD)) {
 		//	AddMonsterType(MT_NRHINO, FALSE);
 		//}
-		if (QuestStatus(Q_VEIL))
+		if (lvl == uniqMonData[UMT_LACHDAN].muLevelIdx && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_LACHDAN].mtype, TRUE);
-		if (QuestStatus(Q_WARLORD))
+		if (lvl == questlist[Q_WARLORD]._qdlvl && quests[Q_WARLORD]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_WARLORD].mtype, TRUE);
 		//if (QuestStatus(Q_BETRAYER) && IsMultiGame) {
 		//if (currLvl._dLevelIdx == questlist[Q_BETRAYER]._qdlvl && IsMultiGame) {
@@ -545,13 +545,6 @@ void GetLevelMTypes()
 			montypes[nt] = mtype;
 		}
 
-#if DEBUG_MODE
-		if (monstdebug) {
-			for (i = 0; i < debugmonsttypes; i++)
-				AddMonsterType(DebugMonsters[i], TRUE);
-			return;
-		}
-#endif
 		while (monstimgtot > 0/* && nummtypes < MAX_LVLMTYPES*/) { // nummtypes test is pointless, because PlaceSetMapMonsters can break it anyway...
 			for (i = 0; i < nt; ) {
 				if (monfiledata[monsterdata[montypes[i]].moFileNum].moImage > monstimgtot) {
@@ -710,11 +703,15 @@ void WakeNakrul()
 		PlayMonSFX(MAX_MINIONS, MS_DEATH);
 	mon = &monsters[MAX_MINIONS];
 	// assert(mon->_mType == MT_NAKRUL);
-	mon->_mArmorClass -= 50;
-	//mon->_mEvasion -= 20;
-	mon->_mLevel /= 2;
-	mon->_mMagicRes = 0;
-	mon->_mmaxhp /= 2;
+	constexpr int targetRes = MORS_SLASH_PROTECTED | MORS_BLUNT_PROTECTED | MORS_PUNCTURE_PROTECTED | MORS_MAGIC_RESIST | MORS_FIRE_RESIST | MORS_LIGHTNING_RESIST | MORS_ACID_RESIST;
+	if (mon->_mMagicRes == targetRes) {
+		return;
+	}
+	mon->_mMagicRes = targetRes;
+	mon->_mArmorClass -= 30;
+	//mon->_mEvasion -= 10;
+	mon->_mLevel -= 16;
+	mon->_mmaxhp -= 400;
 	if (mon->_mhitpoints > mon->_mmaxhp)
 		mon->_mhitpoints = mon->_mmaxhp;
 }
@@ -843,13 +840,6 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
 	mon->_muniqtype = uniqindex + 1;
-	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
-	if (uniqindex != UMT_DIABLO) {
-#ifdef HELLFIRE
-		if (uniqindex != UMT_HORKDMN)
-#endif
-			mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
-	}
 
 	uniqm = &uniqMonData[uniqindex];
 	mon->_mLevel = uniqm->muLevel;
@@ -870,20 +860,11 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
 	}
 
-	snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-	LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
-	// patch TRN for 'Blighthorn Steelmace' - BHSM.TRN
-	if (uniqindex == UMT_STEELMACE) {
-		// assert(ColorTrns[uniquetrans][188] == 255);
-		ColorTrns[uniquetrans][188] = 0;
+	if (uniqm->mTrnName != NULL) {
+		snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
+		LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
+		mon->_muniqtrans = uniquetrans++;
 	}
-	// patch TRN for 'Baron Sludge' - BSM.TRN
-	if (uniqindex == UMT_BARON) {
-		// assert(ColorTrns[uniquetrans][241] == 255);
-		ColorTrns[uniquetrans][241] = 0;
-	}
-
-	mon->_muniqtrans = uniquetrans++;
 
 	mon->_mHit += uniqm->mUnqHit;
 	mon->_mHit2 += uniqm->mUnqHit2;
@@ -917,22 +898,26 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 
 	if (uniqm->mUnqFlags & UMF_NODROP)
 		mon->_mTreasure = NO_DROP;
+	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
+	if (uniqm->mUnqFlags & UMF_LIGHT) {
+		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
+	}
 }
 
-static void PlaceUniqueMonst(int uniqindex, int mtidx)
+static bool PlaceUniqueMonst(int uniqindex, int mtidx)
 {
 	int xp, yp, x, y;
 	int count2;
 	int mnum, count;
 	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 	if (uniquetrans >= NUM_COLOR_TRNS) {
-		return;
+		return false;
 	}
 
 	switch (uniqindex) {
 	case UMT_ZHAR:
 		if (zharlib == -1)
-			return;
+			return false;
 		xp = themes[zharlib]._tsx1 + 4;
 		yp = themes[zharlib]._tsy1 + 4;
 		break;
@@ -965,6 +950,7 @@ static void PlaceUniqueMonst(int uniqindex, int mtidx)
 	// assert(nummonsters < MAXMONSTERS);
 	mnum = PlaceMonster(mtidx, xp, yp);
 	InitUniqueMonster(mnum, uniqindex);
+	return true;
 }
 
 static void PlaceUniques()
@@ -979,8 +965,7 @@ static void PlaceUniques()
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
-				PlaceUniqueMonst(u, mt);
-				if (uniqMonData[u].mUnqFlags & UMF_GROUP) {
+				if (PlaceUniqueMonst(u, mt) && uniqMonData[u].mUnqFlags & UMF_GROUP) {
 					// assert(mnum == nummonsters - 1);
 					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqFlags, nummonsters - 1);
 				}
@@ -1050,7 +1035,6 @@ static void PlaceSetMapMonsters()
 
 void InitMonsters()
 {
-	TriggerStruct* ts;
 	unsigned na, numplacemonsters, numscattypes;
 	int i, j, xx, yy;
 	int mtidx;
@@ -1063,14 +1047,14 @@ void InitMonsters()
 		CheckDungeonClear();
 #endif
 	// reserve the entry/exit area
-	for (i = 0; i < numtrigs; i++) {
-		ts = &trigs[i];
-		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL || ts->_tmsg == DVL_DWM_RTNLVL
-		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
-			static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
-			for (j = 0; j < lengthof(tdx); j++)
-				DoVision(ts->_tx + tdx[j], ts->_ty + tdy[j], 15, false);
-		}
+	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
+		if (pWarps[i]._wx == 0)
+			continue;
+		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
+		for (j = lengthof(tdx) - 1; j >= 0; j--)
+			DoVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15, false);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
@@ -1119,13 +1103,13 @@ void InitMonsters()
 		}
 	// }
 	// revert entry/exit area reservation
-	for (i = 0; i < numtrigs; i++) {
-		ts = &trigs[i];
-		if (ts->_tmsg == DVL_DWM_TWARPUP || ts->_tmsg == DVL_DWM_PREVLVL || ts->_tmsg == DVL_DWM_RTNLVL
-		 || (ts->_tmsg == DVL_DWM_NEXTLVL && currLvl._dLevelIdx != DLV_HELL3)) {
-			for (j = 0; j < lengthof(tdx); j++)
-				DoUnVision(trigs[i]._tx + tdx[j], trigs[i]._ty + tdy[j], 15);
-		}
+	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
+		if (pWarps[i]._wx == 0)
+			continue;
+		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		for (j = lengthof(tdx) - 1; j >= 0; j--)
+			DoUnVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoUnVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
@@ -3001,7 +2985,7 @@ void MAI_Bat(int mnum)
 			MonUpdateLeader(mnum);
 		}
 	} else if (dist >= 2) {
-		if ((mon->_mVar2 > MON_WALK_DELAY && v < mon->_mAI.aiInt + 13) // STAND_TICK
+		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < mon->_mAI.aiInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mAI.aiInt + 63)) {
 			MonDestWalk(mnum);
 		}
@@ -3062,7 +3046,7 @@ void MAI_Fat(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 	v = random_(111, 100);
 	if (currEnemyInfo._meRealDist >= 2) {
-		if ((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 20) // STAND_TICK
+		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 20) // STAND_TICK
 		 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 70)) {
 			MonDestWalk(mnum);
 		}
@@ -3132,7 +3116,7 @@ void MAI_Sneak(int mnum)
 			if (MonCallWalk(mnum, mon->_mdir))
 				return;
 		} else if (dist >= 2) {
-			if (((mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
+			if ((((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 64)))
 				MonDestWalk(mnum);
 			return;
@@ -3325,7 +3309,7 @@ void MAI_Round(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 2) {
-			if ((mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mAI.aiInt + 28) // STAND_TICK
+			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mAI.aiInt + 28) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 78)) {
 				MonDestWalk(mnum);
 			}

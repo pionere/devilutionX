@@ -190,7 +190,7 @@ void FreeObjectGFX()
 	}
 }
 
-void InitLevelObjects()
+void InitLvlObjects()
 {
 //	int i;
 
@@ -231,7 +231,7 @@ static bool RndLocOk(int xp, int yp)
 	 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & BFLAG_OBJ_PROTECT)) != 0)
 		return false;
 	// should be covered by Freeupstairs.
-	//if (currLvl._dDunType != DTYPE_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
+	//if (currLvl._dDunType != DGT_CATHEDRAL || dPiece[xp][yp] <= 126 || dPiece[xp][yp] >= 144)
 		return true;
 	//return false;
 }
@@ -362,12 +362,12 @@ static void AddCandles()
 {
 	int tx, ty;
 
-	tx = pWarps[DWARP_SIDE]._wx + 1;
+	tx = pWarps[DWARP_SIDE]._wx;
 	ty = pWarps[DWARP_SIDE]._wy;
 	AddObject(OBJ_STORYCANDLE, tx - 2, ty + 1);
-	AddObject(OBJ_STORYCANDLE, tx + 3, ty + 1);
+	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 1);
 	AddObject(OBJ_STORYCANDLE, tx - 1, ty + 2);
-	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 2);
+	AddObject(OBJ_STORYCANDLE, tx + 1, ty + 2);
 }
 
 static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
@@ -426,7 +426,7 @@ static void InitRndBarrels(int numobjs, int otype)
 
 static void AddDunObjs(int x1, int y1, int x2, int y2)
 {
-	int i, j, pn;
+	int i, j, pn, wdoor, edoor, type;
 
 	assert((objectdata[OBJ_L1LDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1RDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1LIGHT].oLvlTypes & DTM_CATHEDRAL));
 	assert((objectdata[OBJ_L2LDOOR].oLvlTypes & DTM_CATACOMBS) && (objectdata[OBJ_L2RDOOR].oLvlTypes & DTM_CATACOMBS));
@@ -435,6 +435,8 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 	assert((objectdata[OBJ_L5LDOOR].oLvlTypes & DTM_CRYPT) && (objectdata[OBJ_L5RDOOR].oLvlTypes & DTM_CRYPT));
 #endif
 	switch (currLvl._dType) {
+	case DTYPE_TOWN:
+		return;
 	case DTYPE_CATHEDRAL:
 		for (j = y1; j <= y2; j++) {
 			for (i = x1; i <= x2; i++) {
@@ -442,61 +444,46 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 				if (pn == 270)
 					AddObject(OBJ_L1LIGHT, i, j);
 				// these pieces are closed doors which are placed directly
-				assert(pn != 51 && pn != 56);
-				if (pn == 44 || /*pn == 51 ||*/ pn == 214)
-					AddObject(OBJ_L1LDOOR, i, j);
-				if (pn == 46 /*|| pn == 56*/)
-					AddObject(OBJ_L1RDOOR, i, j);
 			}
 		}
+		wdoor = OBJ_L1LDOOR;
+		edoor = OBJ_L1RDOOR;
 		break;
 	case DTYPE_CATACOMBS:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				// 13 and 17 pieces are open doors and not handled at the moment
-				// 541 and 542 are doorways which are no longer handled as doors
-				// 538 and 540 pieces are closed doors
-				if (/*pn == 13 ||*/ pn == 538 /*|| pn == 541*/)
-					AddObject(OBJ_L2LDOOR, i, j);
-				if (/*pn == 17 ||*/ pn == 540 /*|| pn == 542*/)
-					AddObject(OBJ_L2RDOOR, i, j);
-			}
-		}
+		wdoor = OBJ_L2LDOOR;
+		edoor = OBJ_L2RDOOR;
 		break;
 	case DTYPE_CAVES:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				// 531 and 534 pieces are closed doors which are placed directly
-				if (pn == 534)
-					AddObject(OBJ_L3LDOOR, i, j);
-				if (pn == 531)
-					AddObject(OBJ_L3RDOOR, i, j);
-			}
-		}
+		wdoor = OBJ_L3LDOOR;
+		edoor = OBJ_L3RDOOR;
 		break;
 	case DTYPE_HELL:
-		break;
+		return;
 #ifdef HELLFIRE
 	case DTYPE_CRYPT:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				// 77 and 80 pieces are closed doors which are placed directly
-				if (pn == 77)
-					AddObject(OBJ_L5LDOOR, i, j);
-				if (pn == 80)
-					AddObject(OBJ_L5RDOOR, i, j);
-			}
-		}
+		wdoor = OBJ_L5LDOOR;
+		edoor = OBJ_L5RDOOR;
 		break;
 	case DTYPE_NEST:
-		break;
+		return;
 #endif
 	default:
 		ASSUME_UNREACHABLE
-		break;
+		return;
+	}
+	for (j = y1; j <= y2; j++) {
+		for (i = x1; i <= x2; i++) {
+			pn = dPiece[i][j];
+			type = automaptype[pn] & MAT_TYPE;
+			if ((type == MAT_DOOR_WEST || type == MAT_DOOR_EAST) && !nSolidTable[pn]) {
+				dev_fatal("Non-blocking door pn:%d type:%d tile:%d", pn, type, dungeon[(i - DBORDERX) >> 1][(j - DBORDERY) >> 1]);
+			}
+			if (type == MAT_DOOR_WEST) {
+				AddObject(wdoor, i, j);
+			} else if (type == MAT_DOOR_EAST) {
+				AddObject(edoor, i, j);
+			}
+		}
 	}
 }
 
@@ -510,7 +497,7 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] != PTT_LEFT)
+			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_LEFT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
@@ -531,13 +518,14 @@ static void AddL2Torches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if (nTrapTable[dPiece[i][j]] != PTT_RIGHT)
+			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_RIGHT)
 				continue;
 			if (random_(145, 32) != 0)
 				continue;
 			// assert(nSolidTable[dPiece[i - 1][j]] | nSolidTable[dPiece[i + 1][j]]);
 			if (!nSolidTable[dPiece[i][j + 1]]) {
-				AddObject(OBJ_TORCHR1, i, j);
+				if (dObject[i][j] == 0) // check torches from the previous loop
+					AddObject(OBJ_TORCHR1, i, j);
 			} else {
 				if (dObject[i][j - 1] == 0) // check torches from the previous loop
 					AddObject(OBJ_TORCHR2, i, j - 1);
@@ -587,7 +575,7 @@ static void AddObjTraps()
 			continue;
 		if (dObject[tx][ty] != 0)
 			continue;
-		if (nTrapTable[dPiece[tx][ty]] == PTT_NONE)
+		if ((nSpecTrapTable[dPiece[tx][ty]] & PST_TRAP_TYPE) == PST_NONE)
 			continue;
 		on = AddObject(on, tx, ty);
 		if (on == -1)
@@ -712,12 +700,7 @@ static int SetupObject(int type, int ox, int oy)
 			} else
 #endif
 			{
-				assert(LightList[MAXLIGHTS]._lxoff == 0);
-				assert(LightList[MAXLIGHTS]._lyoff == 0);
-				LightList[MAXLIGHTS]._lradius = ods->oLightRadius;
-				LightList[MAXLIGHTS]._lx = ox + ods->oLightOffX;
-				LightList[MAXLIGHTS]._ly = oy + ods->oLightOffY;
-				DoLighting(MAXLIGHTS);
+				TraceLightSource(ox + ods->oLightOffX, oy + ods->oLightOffY, ods->oLightRadius);
 			}
 		}
 		if (ods->oDoorFlag != ODT_NONE) {
@@ -728,14 +711,6 @@ static int SetupObject(int type, int ox, int oy)
 			//os->_oMissFlag = FALSE;
 			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
-			// DOOR_SIDE_PIECE_CLOSED
-			int bx = ox;
-			int by = oy;
-			if (os->_oDoorFlag == ODT_LEFT)
-				by--;
-			else
-				bx--;
-			os->_oVar2 = dPiece[bx][by];
 		}
 	}
 	return oi;
@@ -904,18 +879,18 @@ static void AddHookedBodies()
 	// TODO: straight loop (in dlrgs)?
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			ttv = nTrapTable[dPiece[i][j]];
-			if (ttv == PTT_NONE)
+			ttv = nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE;
+			if (ttv == PST_NONE)
 				continue;
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			type = random_(0, 32);
 			if (type >= 3)
 				continue;
-			if (ttv == PTT_LEFT) {
+			if (ttv == PST_LEFT) {
 				type = OBJ_TORTUREL1 + type;
 			} else {
-				// assert(ttv == PTT_RIGHT);
+				// assert(ttv == PST_RIGHT);
 				type = OBJ_TORTURER1 + type;
 			}
 			AddObject(type, i, j);
@@ -1056,8 +1031,8 @@ void InitObjects()
 		InitRndBarrels(num / 1024, OBJ_POD);
 	}
 #endif
-	assert(objectdata[OBJ_CHEST1].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST2].oLvlTypes == DTM_ANY && objectdata[OBJ_CHEST3].oLvlTypes == DTM_ANY);
-	{
+	assert(objectdata[OBJ_CHEST1].oLvlTypes == objectdata[OBJ_CHEST2].oLvlTypes && objectdata[OBJ_CHEST1].oLvlTypes == objectdata[OBJ_CHEST3].oLvlTypes);
+	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
 		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow X.");
 		unsigned num = RandRangeLow(na, na * 2 + 1);
 		InitRndLocObj(num / 512, OBJ_CHEST1);
@@ -1070,7 +1045,10 @@ void InitObjects()
 	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
 		AddObjTraps();
 	}
-	assert(objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST2].oLvlTypes && objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST3].oLvlTypes);
+	assert(objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST2].oLvlTypes && objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST3].oLvlTypes); // trapped chest are placed in one place
+	assert((objectdata[OBJ_TCHEST1].oLvlTypes & ~objectdata[OBJ_CHEST1].oLvlTypes) == 0); // no point to place traps if there are not matching chests
+	assert((objectdata[OBJ_TCHEST2].oLvlTypes & ~objectdata[OBJ_CHEST2].oLvlTypes) == 0);
+	assert((objectdata[OBJ_TCHEST3].oLvlTypes & ~objectdata[OBJ_CHEST3].oLvlTypes) == 0);
 	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
 		AddChestTraps();
 	}
@@ -1289,12 +1267,6 @@ static void AddTorturedFemaleBody(int oi)
 	os->_oAnimFrame = RandRange(1, 3);
 }
 
-static void SyncL1Doors(int oi);
-static void SyncL2Doors(int oi);
-static void SyncL3Doors(int oi);
-#ifdef HELLFIRE
-static void SyncL5Doors(int oi);
-#endif
 int AddObject(int type, int ox, int oy)
 {
 	int oi = SetupObject(type, ox, oy);
@@ -1426,13 +1398,10 @@ static void Obj_Light(int oi)
 	ox = os->_ox;
 	oy = os->_oy;
 	turnon = false;
-#if DEBUG_MODE
-	if (!lightflag)
-#endif
-	{
-		tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
-		turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
-	}
+
+	tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
+	turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
+
 	if (turnon) {
 		assert(objectdata[OBJ_L1LIGHT].ofindex == OFILE_L1BRAZ);
 		assert(objfiledata[OFILE_L1BRAZ].oAnimFrameLen < lengthof(flickers));
@@ -1751,82 +1720,6 @@ void ProcessObjects()
 	}*/
 }
 
-#ifdef HELLFIRE
-static void ObjSetDoorSidePiece(int dx, int dy/*, int otype*/)
-{
-	int pn;
-
-	pn = dPiece[dx][dy];
-//#ifdef HELLFIRE
-	//if (currLvl._dType == DTYPE_CRYPT) {
-		if (pn == 75)
-			pn = 204;
-		else if (pn == 79)
-			pn = 208;
-		/* commented out because this is not possible with the current implementation
-		else if (pn == 86)
-			pn = otype == OBJ_L5LDOOR ? 232 : 234;
-		else if (pn == 91)
-			pn = 215;
-		else if (pn == 93)
-			pn = 218;
-		else if (pn == 99)
-			pn = 220;
-		else if (pn == 111)
-			pn = 222;
-		else if (pn == 113)
-			pn = 224;
-		else if (pn == 115)
-			pn = 226;
-		else if (pn == 117)
-			pn = 228;
-		else if (pn == 119)
-			pn = 230;
-		else if (pn == 232 || pn == 234)
-			pn = 212;*/
-		else
-			return;
-	//} else
-//#endif
-	/* commented out because this does not make a visible difference.
-	   the 'new' content is overwritten when the door is drawn.
-		if (pn == 43)
-			pn = 392;
-		else if (pn == 45)
-			pn = 394;
-		/ * commented out because this is not possible with the current implementation
-		else if (pn == 50)
-			pn = otype == OBJ_L1LDOOR ? 411 : 412;
-		else if (pn == 54)
-			pn = 397;
-		else if (pn == 55)
-			pn = 398;
-		else if (pn == 61)
-			pn = 399;
-		else if (pn == 67)
-			pn = 400;
-		else if (pn == 68)
-			pn = 401;
-		else if (pn == 69)
-			pn = 403;
-		else if (pn == 70)
-			pn = 404;
-		else if (pn == 72)
-			pn = 406;
-		else if (pn == 354)
-			pn = 409;
-		else if (pn == 355)
-			pn = 410;
-		else if (pn == 411 || pn == 412)
-			pn = 396;* /
-		else if (pn == 212)
-			pn = 407;
-		else
-			return;*/
-	dPiece[dx][dy] = pn;
-}
-#endif
-
 static void OpenDoor(int oi)
 {
 	ObjectStruct* os;
@@ -1834,7 +1727,7 @@ static void OpenDoor(int oi)
 	os = &objects[oi];
 	os->_oVar4 = DOOR_OPEN;
 	os->_oPreFlag = TRUE;
-	os->_oSelFlag = 2;
+	os->_oSelFlag = (objectdata[OBJ_L1LDOOR].oSelFlag & ~1) | 4;
 	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
 	os->_oAnimFrame += 2;
@@ -1851,7 +1744,7 @@ static bool CloseDoor(int oi)
 	os->_oVar4 = (dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0 ? DOOR_CLOSED : DOOR_BLOCKED;
 	if (os->_oVar4 == DOOR_CLOSED) {
 		os->_oPreFlag = FALSE;
-		os->_oSelFlag = 3;
+		os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
 		// TODO: set os->_oSolidFlag = TRUE;
 		os->_oMissFlag = FALSE;
 		os->_oAnimFrame -= 2;
@@ -1879,7 +1772,8 @@ static bool PlrCheckDoor(int oi, int pnum)
 		return dx <= 1 && dy == 1;
 }
 
-static void OperateL1Door(int oi, bool sendmsg)
+static void SyncDoors(int oi);
+static void OperateDoor(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -1889,50 +1783,21 @@ static void OperateL1Door(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
-			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
+			PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
 		}
 		OpenDoor(oi);
-		SyncL1Doors(oi);
+		SyncDoors(oi);
 		RedoLightAndVision();
 		return;
 	}
 	// try to close the door
 	if (!deltaload) {
-		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
-	}
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if (CloseDoor(oi)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL1Doors(oi);
-		RedoLightAndVision();
-	}
-}
-
+		int sfx = IS_DOORCLOS;
 #ifdef HELLFIRE
-static void OperateL5Door(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-	int sfx;
-
-	os = &objects[oi];
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOOROPEN, oi);
-		if (!deltaload) {
-			PlaySfxLoc(IS_CROPEN, os->_ox, os->_oy);
+		if (currLvl._dType == DTYPE_CRYPT) {
+			sfx = os->_oVar4 == DOOR_BLOCKED ? IS_DOORCLOS : IS_CRCLOS;
 		}
-		OpenDoor(oi);
-		SyncL5Doors(oi);
-		RedoLightAndVision();
-		return;
-	}
-	// try to close the door
-	if (!deltaload) {
-		sfx = os->_oVar4 == DOOR_BLOCKED ? IS_DOORCLOS : IS_CRCLOS;
+#endif
 		PlaySfxLoc(sfx, os->_ox, os->_oy);
 	}
 	if (os->_oVar4 == DOOR_BLOCKED)
@@ -1941,77 +1806,14 @@ static void OperateL5Door(int oi, bool sendmsg)
 	if (CloseDoor(oi)) {
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL5Doors(oi);
-		RedoLightAndVision();
-	}
-}
-#endif
-
-static void OperateL2Door(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOOROPEN, oi);
-		if (!deltaload) {
-			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-		}
-		OpenDoor(oi);
-		SyncL2Doors(oi);
-		RedoLightAndVision();
-		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if (CloseDoor(oi)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL2Doors(oi);
-		RedoLightAndVision();
-	}
-}
-
-static void OperateL3Door(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	// open a closed door
-	if (os->_oVar4 == DOOR_CLOSED) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOOROPEN, oi);
-		if (!deltaload) {
-			PlaySfxLoc(IS_DOOROPEN, os->_ox, os->_oy);
-		}
-		OpenDoor(oi);
-		SyncL3Doors(oi);
-		RedoLightAndVision();
-		return;
-	}
-	// try to close the door
-	if (!deltaload)
-		PlaySfxLoc(IS_DOORCLOS, os->_ox, os->_oy);
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
-
-	if (CloseDoor(oi)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncL3Doors(oi);
+		SyncDoors(oi);
 		RedoLightAndVision();
 	}
 }
 
 void MonstCheckDoors(int mx, int my)
 {
-	int i, oi, type;
+	int i, oi;
 
 	for (i = 0; i < lengthof(offset_x); i++) {
 		oi = dObject[mx + offset_x[i]][my + offset_y[i]];
@@ -2021,19 +1823,7 @@ void MonstCheckDoors(int mx, int my)
 		if (objects[oi]._oDoorFlag == ODT_NONE || objects[oi]._oVar4 != DOOR_CLOSED)
 			continue;
 		// assert(CheckDoor(oi, mnum));
-		type = objects[oi]._otype;
-		if (type == OBJ_L1LDOOR || type == OBJ_L1RDOOR) {
-			OperateL1Door(oi, true);
-#ifdef HELLFIRE
-		} else if (type == OBJ_L5LDOOR || type == OBJ_L5RDOOR) {
-			OperateL5Door(oi, true);
-#endif
-		} else if (type == OBJ_L2LDOOR || type == OBJ_L2RDOOR) {
-			OperateL2Door(oi, true);
-		} else {
-			//assert(type == OBJ_L3LDOOR || type == OBJ_L3RDOOR);
-			OperateL3Door(oi, true);
-		}
+		OperateDoor(oi, true);
 	}
 }
 
@@ -2390,28 +2180,48 @@ static void OperateSarc(int oi, bool sendmsg)
 
 static void SyncPedestal(/*int oi*/)
 {
+	int sx = pSetPieces[0]._spx;
+	int sy = pSetPieces[0]._spy;
+
 	switch (quests[Q_BLOOD]._qvar1) {
 	case QV_INIT:
 	case QV_BLOOD_BOOK:
 		break;
 	case QV_BLOOD_STONE2:
-		DRLG_ChangeMap(pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 9/*setpc_w*/, pSetPieces[0]._spy + 7/*, false*/);
+		DRLG_ChangeMap(sx + 6, sy + 3, sx + 9/*setpc_w*/, sy + 7/*, false*/);
 		if (!deltaload)
 			break;
 		/* fall-through */
 	case QV_BLOOD_STONE1:
-		DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy + 3, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 7/*, false*/);
+		DRLG_ChangeMap(sx, sy + 3, sx + 2, sy + 7/*, false*/);
 		break;
 	case QV_BLOOD_STONE3: {
 		if (!deltaload)
-			DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy, pSetPieces[0]._spx + 6, pSetPieces[0]._spy + 8/*, false*/);
+			DRLG_ChangeMap(sx + 2, sy, sx + 6, sy + 8/*, false*/);
 		else
-			DRLG_ChangeMap(pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 9, pSetPieces[0]._spy + 8/*, false*/);
-		// load the torches
+			DRLG_ChangeMap(sx, sy, sx + 9, sy + 8/*, false*/);
+		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches + always reload lighting)?
 		LoadPreLighting();
+#if 1
+		{
+		// BYTE lvlMask = 1 << currLvl._dType;
+		// assert(objectdata[OBJ_TORCHR1].oLvlTypes & lvlMask);
+		// assert(objectdata[OBJ_TORCHR2].oLvlTypes & lvlMask);
+		sx = 2 * sx + DBORDERX + 6;
+		sy = 2 * sy + DBORDERX + 8;
+		AddObject(OBJ_TORCHL1, sx, sy + 0);
+		AddObject(OBJ_TORCHL1, sx, sy + 2);
+		AddObject(OBJ_TORCHL1, sx, sy + 4);
+		sx += 5;
+		AddObject(OBJ_TORCHL2, sx, sy + 0);
+		AddObject(OBJ_TORCHL2, sx, sy + 2);
+		AddObject(OBJ_TORCHL2, sx, sy + 4);
+		}
+#else
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 		LoadMapSetObjects(0);
 		MemFreeDbg(pSetPieces[0]._spData);
+#endif
 		SavePreLighting();
 		//RedoLightAndVision();
 	} break;
@@ -2919,14 +2729,17 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		NetSendShrineCmd(SHRINE_SPIRITUAL, os->_oRndSeed);
 		InitDiabloMsg(EMSG_SHRINE_SPIRITUAL);
 		break;
-	case SHRINE_SECLUDED:
+	case SHRINE_SECLUDED: {
 		if (pnum != mypnum)
 			return;
-		static_assert(sizeof(automapview) == DMAXY * DMAXX, "Linear traverse of automapview does not work in OperateShrine.");
-		memset(automapview, TRUE, DMAXX * DMAXY);
-		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
+		BYTE* pTmp;
+		static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in OperateShrine.");
+		pTmp = &dFlags[0][0];
+		for (i = 0; i < MAXDUNX * MAXDUNY; i++, pTmp++) {
+			*pTmp |= BFLAG_EXPLORED;
+		}
 		InitDiabloMsg(EMSG_SHRINE_SECLUDED);
-		break;
+	} break;
 	case SHRINE_GLIMMERING:
 		if (pnum != mypnum)
 			return;
@@ -3382,25 +3195,16 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL1Door(oi, sendmsg);
-		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL5Door(oi, sendmsg);
-		break;
 #endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL2Door(oi, sendmsg);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateL3Door(oi, sendmsg);
+			OperateDoor(oi, sendmsg);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
@@ -3726,115 +3530,16 @@ static void SyncNakrulLever(int oi)
 }
 #endif
 
-static void SyncL1Doors(int oi)
-{
-	ObjectStruct* os;
-	int x, y, pn;
-
-	os = &objects[oi];
-
-	x = os->_ox;
-	y = os->_oy;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
-		dSpecial[x][y] = 0;
-		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
-
-		if (os->_otype == OBJ_L1LDOOR)
-			y--;
-		else
-			x--;
-		// commented out because this is not possible with the current implementation
-		//if (pn == 50 && dPiece[x][y] == 396)
-		//	pn = os->_otype == OBJ_L1LDOOR ? 412 : 411;
-		dPiece[x][y] = pn;
-		return;
-	}
-
-	if (os->_otype == OBJ_L1LDOOR) {
-		dPiece[x][y] = os->_oVar1 == 214 ? 408 : 393; // DOOR_PIECE_CLOSED
-		dSpecial[x][y] = 7;
-		y--;
-	} else {
-		dPiece[x][y] = 395;
-		dSpecial[x][y] = 8;
-		x--;
-	}
-	//ObjSetDoorSidePiece(x, y/*, os->_otype*/);
-}
-
-#ifdef HELLFIRE
-static void SyncL5Doors(int oi)
-{
-	ObjectStruct* os;
-	int x, y, pn;
-
-	os = &objects[oi];
-
-	x = os->_ox;
-	y = os->_oy;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		dPiece[x][y] = os->_oVar1; // DOOR_PIECE_CLOSED
-		pn = os->_oVar2;           // DOOR_SIDE_PIECE_CLOSED
-
-		if (os->_otype == OBJ_L5LDOOR)
-			y--;
-		else
-			x--;
-		// commented out because this is not possible with the current implementation
-		//if (pn == 86 && dPiece[x][y] == 212)
-		//	pn = os->_otype == OBJ_L5LDOOR ? 234 : 232;
-		dPiece[x][y] = pn;
-		return;
-	}
-
-	if (os->_otype == OBJ_L5LDOOR) {
-		dPiece[x][y] = 206;
-		//dSpecial[x][y] = 1;
-		y--;
-	} else {
-		dPiece[x][y] = 209;
-		//dSpecial[x][y] = 2;
-		x--;
-	}
-	ObjSetDoorSidePiece(x, y/*, os->_otype*/);
-}
-#endif
-
-static void SyncL2Doors(int oi)
-{
-	ObjectStruct* os;
-	int pn, x, y;
-	bool ldoor;
-	BYTE sn;
-
-	os = &objects[oi];
-	ldoor = os->_otype == OBJ_L2LDOOR;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		pn = ldoor ? 538 : 540;
-		sn = 0;
-	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED) {
-		pn = ldoor ? 13 : 17;
-		sn = ldoor ? 5 : 6;
-	}
-	x = os->_ox;
-	y = os->_oy;
-	dPiece[x][y] = pn;
-	dSpecial[x][y] = sn;
-}
-
-static void SyncL3Doors(int oi)
+static void SyncDoors(int oi)
 {
 	ObjectStruct* os;
 	int pn;
-	bool ldoor;
 
 	os = &objects[oi];
-	ldoor = os->_otype == OBJ_L3LDOOR;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		pn = ldoor ? 534 : 531;
-	} else { // if (os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED)
-		pn = ldoor ? 541 : 538;
+	pn = os->_oVar1; // DOOR_PIECE_CLOSED
+	if (os->_oVar4 != DOOR_CLOSED) {
+		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
+		pn--;
 	}
 	dPiece[os->_ox][os->_oy] = pn;
 }
@@ -3852,21 +3557,15 @@ void SyncObjectAnim(int oi)
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		SyncL1Doors(oi);
-		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-		SyncL5Doors(oi);
-		break;
 #endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		SyncL2Doors(oi);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		SyncL3Doors(oi);
+		SyncDoors(oi);
 		break;
 	case OBJ_LEVER:
 	case OBJ_VILEBOOK:

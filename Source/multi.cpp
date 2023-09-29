@@ -300,11 +300,6 @@ bool multi_check_timeout()
 		sglTimeoutStart = SDL_GetTicks();
 		return false;
 	}
-#if DEBUG_MODE
-	if (debug_mode_key_i) {
-		return false;
-	}
-#endif
 
 	nTicks = SDL_GetTicks() - sglTimeoutStart;
 	if (nTicks > 10000) {
@@ -654,13 +649,8 @@ static void SetupLocalPlr()
 {
 	PlayerStruct* p;
 
-#if DEBUG_MODE
-	if (!leveldebug || !IsLocalGame) {
-		EnterLevel(DLV_TOWN);
-	}
-#else
 	EnterLevel(DLV_TOWN);
-#endif
+
 	p = &myplr;
 	assert(currLvl._dLevelIdx == DLV_TOWN);
 	p->_pDunLevel = DLV_TOWN;

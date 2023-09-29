@@ -145,11 +145,11 @@ static void DrawCutscene()
 
 void interface_msg_pump()
 {
-	MSG Msg;
+	Dvl_Event e;
 
-	while (PeekMessage(&Msg)) {
+	while (PeekMessage(e)) {
 		//if (Msg.message != DVL_WM_QUIT) {
-			DispatchMessage(&Msg);
+			DispatchMessage(&e);
 		//}
 	}
 }
@@ -166,39 +166,32 @@ void IncProgress()
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
-static void CreateLevel()
+static void CreateDungeon()
 {
 	switch (currLvl._dDunType) {
-	case DTYPE_TOWN:
+	case DGT_TOWN:
 		CreateTown();
 		break;
-	case DTYPE_CATHEDRAL:
+	case DGT_CATHEDRAL:
 		CreateL1Dungeon();
 		break;
-	case DTYPE_CATACOMBS:
+	case DGT_CATACOMBS:
 		CreateL2Dungeon();
 		break;
-	case DTYPE_CAVES:
+	case DGT_CAVES:
 		CreateL3Dungeon();
 		break;
-	case DTYPE_HELL:
+	case DGT_HELL:
 		CreateL4Dungeon();
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	InitTriggers();
-	LoadRndLvlPal();
 }
 
 void LoadGameLevel(int lvldir)
 {
-#if DEBUG_MODE
-	if (setseed)
-		glSeedTbl[currLvl._dLevelIdx] = setseed;
-#endif
-
 	music_stop();
 	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
@@ -206,48 +199,49 @@ void LoadGameLevel(int lvldir)
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	IncProgress();
 	InitLvlDungeon();
-	MakeLightTable();
 	IncProgress();
 
 	InitLvlAutomap();
 
 	//if (lvldir != ENTRY_LOAD) {
-		InitLighting();
-		InitVision();
+		InitLvlLighting();
+		InitLvlVision();
 	//}
 
-	InitLevelMonsters();
-	InitLevelObjects();
-	InitLvlThemes();
-	InitLvlItems();
+	InitLvlMonsters(); // reset monsters
+	InitLvlObjects();  // reset objects
+	InitLvlThemes();   // reset themes
+	InitLvlItems();    // reset items
 	IncProgress();
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	CreateLevel();
+	// fill pre: pSetPieces
+	// fill in loop: dungeon, pWarps, uses drlgFlags, dungBlock
+	// fill post: themeLoc, pdungeon, dPiece, dTransVal
+	CreateDungeon();
+	LoadLvlPalette();
+	// reset: dMonster, dObject, dPlayer, dItem, dMissile, dFlags+, dLight+
+	InitLvlMap();
 	IncProgress();
 	if (currLvl._dType != DTYPE_TOWN) {
-		GetLevelMTypes();
-		InitThemes();
+		GetLevelMTypes(); // select monster types and load their fx
+		InitThemes();     // select theme types
 		IncProgress();
-		InitObjectGFX();
-		IncProgress();
-		HoldThemeRooms();
-		InitMonsters();
-		IncProgress();
-		InitObjects();
-		InitItems();
-		CreateThemeRooms();
+		HoldThemeRooms(); // protect themes with dFlags
+		InitMonsters();   // place monsters
 	} else {
 		InitLvlStores();
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
 		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 		IncProgress();
-		IncProgress();
-
 		InitTowners();
-		IncProgress();
-		InitItems();
 	}
+	IncProgress();
+	InitObjectGFX();    // load object graphics
+	IncProgress();
+	InitObjects();      // place objects
+	InitItems();        // place items
+	CreateThemeRooms(); // populate theme rooms
 	FreeSetPieces();
 	IncProgress();
 	InitMissiles();

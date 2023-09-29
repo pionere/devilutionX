@@ -34,7 +34,7 @@ extern BYTE mapSkelTypes[MAX_LVLMTYPES];
 /* Goat-monster types on the current level. */
 extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 
-void InitLevelMonsters();
+void InitLvlMonsters();
 void GetLevelMTypes();
 #ifdef HELLFIRE
 void WakeNakrul();

@@ -62,28 +62,28 @@ bool IsTopActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_UP);
-	return IsControllerButtonPressed(ControllerButton_BUTTON_Y);
+	return IsControllerButtonPressed(ControllerButton_BUTTON_FACE_TOP);
 }
 
 bool IsRightActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_RIGHT);
-	return IsControllerButtonPressed(ControllerButton_BUTTON_B);
+	return IsControllerButtonPressed(ControllerButton_BUTTON_FACE_RIGHT);
 }
 
 bool IsBottomActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_DOWN);
-	return IsControllerButtonPressed(ControllerButton_BUTTON_A);
+	return IsControllerButtonPressed(ControllerButton_BUTTON_FACE_BOTTOM);
 }
 
 bool IsLeftActive(const CircleMenuHint& hint)
 {
 	if (hint.is_dpad)
 		return IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_LEFT);
-	return IsControllerButtonPressed(ControllerButton_BUTTON_X);
+	return IsControllerButtonPressed(ControllerButton_BUTTON_FACE_LEFT);
 }
 
 text_color CircleMenuHintTextColor(bool active)

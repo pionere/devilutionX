@@ -2,7 +2,6 @@
 
 #include <cerrno>
 #include <limits>
-//#include "../miniwin/miniwin.h"
 #include "../all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -59,12 +58,6 @@ HANDLE SFileOpenFile(const char* filename);
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, DWORD dwSearchScope, HANDLE* phFile);
 
 bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead);
-
-bool getIniBool(const char* sectionName, const char* keyName, bool defaultValue);
-bool getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize);
-void setIniValue(const char* sectionName, const char* keyName, const char* value);
-bool getIniInt(const char* sectionName, const char* keyName, int* value);
-void setIniInt(const char* sectionName, const char* keyName, int value);
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h

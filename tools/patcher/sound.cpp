@@ -4,11 +4,11 @@
  * Implementation of functions setting up the audio pipeline.
  */
 #include "all.h"
-#include <SDL.h>
 #ifndef NOSOUND
 #include <SDL_mixer.h>
 #include "utils/soundsample.h"
 #endif
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

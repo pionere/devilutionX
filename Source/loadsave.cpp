@@ -211,6 +211,11 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	memcpy(pr->_pAltMoveSkillHotKey, savedPlr->vpAltMoveSkillHotKey, lengthof(pr->_pAltMoveSkillHotKey));
 	memcpy(pr->_pAltMoveSkillTypeHotKey, savedPlr->vpAltMoveSkillTypeHotKey, lengthof(pr->_pAltMoveSkillTypeHotKey));
 
+	memcpy(pr->_pAltAtkSkillSwapKey, savedPlr->vpAltAtkSkillSwapKey, lengthof(pr->_pAltAtkSkillSwapKey));
+	memcpy(pr->_pAltAtkSkillTypeSwapKey, savedPlr->vpAltAtkSkillTypeSwapKey, lengthof(pr->_pAltAtkSkillTypeSwapKey));
+	memcpy(pr->_pAltMoveSkillSwapKey, savedPlr->vpAltMoveSkillSwapKey, lengthof(pr->_pAltMoveSkillSwapKey));
+	memcpy(pr->_pAltMoveSkillTypeSwapKey, savedPlr->vpAltMoveSkillTypeSwapKey, lengthof(pr->_pAltMoveSkillTypeSwapKey));
+
 	memcpy(pr->_pSkillLvlBase, savedPlr->vpSkillLvlBase, lengthof(pr->_pSkillLvlBase));
 	memcpy(pr->_pSkillActivity, savedPlr->vpSkillActivity, lengthof(pr->_pSkillActivity));
 
@@ -743,9 +748,6 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src += MAXDUNX * MAXDUNY;
 		memcpy(dObject, src, MAXDUNX * MAXDUNY);
 		src += MAXDUNX * MAXDUNY;
-		memcpy(automapview, src, DMAXX * DMAXY);
-		src += DMAXX * DMAXY;
-		// TODO: set dFlags[][] |= BFLAG_EXPLORED ?
 
 		if (full) {
 			memcpy(dMissile, src, MAXDUNX * MAXDUNY);
@@ -816,6 +818,8 @@ void LoadGame()
 	gbWaterDone = ghs->vhWaterDone;
 
 	AutoMapScale = ghs->vhAutoMapScale;
+	MiniMapScale = ghs->vhMiniMapScale;
+	NormalMapScale = ghs->vhNormalMapScale;
 	AutoMapXOfs = ghs->vhAutoMapXOfs;
 	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
@@ -1066,6 +1070,11 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	memcpy(plrSave->vpAltAtkSkillTypeHotKey, pr->_pAltAtkSkillTypeHotKey, lengthof(plrSave->vpAltAtkSkillTypeHotKey));
 	memcpy(plrSave->vpAltMoveSkillHotKey, pr->_pAltMoveSkillHotKey, lengthof(plrSave->vpAltMoveSkillHotKey));
 	memcpy(plrSave->vpAltMoveSkillTypeHotKey, pr->_pAltMoveSkillTypeHotKey, lengthof(plrSave->vpAltMoveSkillTypeHotKey));
+
+	memcpy(plrSave->vpAltAtkSkillSwapKey, pr->_pAltAtkSkillSwapKey, lengthof(plrSave->vpAltAtkSkillSwapKey));
+	memcpy(plrSave->vpAltAtkSkillTypeSwapKey, pr->_pAltAtkSkillTypeSwapKey, lengthof(plrSave->vpAltAtkSkillTypeSwapKey));
+	memcpy(plrSave->vpAltMoveSkillSwapKey, pr->_pAltMoveSkillSwapKey, lengthof(plrSave->vpAltMoveSkillSwapKey));
+	memcpy(plrSave->vpAltMoveSkillTypeSwapKey, pr->_pAltMoveSkillTypeSwapKey, lengthof(plrSave->vpAltMoveSkillTypeSwapKey));
 
 	memcpy(plrSave->vpSkillLvlBase, pr->_pSkillLvlBase, lengthof(plrSave->vpSkillLvlBase));
 	memcpy(plrSave->vpSkillActivity, pr->_pSkillActivity, lengthof(plrSave->vpSkillActivity));
@@ -1574,8 +1583,6 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 		dest += MAXDUNX * MAXDUNY;
 		memcpy(dest, dObject, MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY;
-		memcpy(dest, automapview, DMAXX * DMAXY);
-		dest += DMAXX * DMAXY;
 
 		if (full) {
 			memcpy(dest, dMissile, MAXDUNX * MAXDUNY);
@@ -1631,6 +1638,8 @@ void SaveGame()
 	ghs->vhWaterDone = gbWaterDone;
 
 	ghs->vhAutoMapScale = AutoMapScale;
+	ghs->vhMiniMapScale = MiniMapScale;
+	ghs->vhNormalMapScale = NormalMapScale;
 	ghs->vhAutoMapXOfs = AutoMapXOfs;
 	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
@@ -1648,10 +1657,10 @@ void SaveGame()
 	// save level-data
 	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + (MAX_MINIONS + MAX_TOWNERS) * sizeof(LSaveMonsterStruct) /*+ MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))*/ + MAXITEMS * (4 + sizeof(LSaveItemStruct))
-	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY*/;
+	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY*/;
 	constexpr size_t sld = (MAXDUNX * MAXDUNY) + sizeof(LSaveGameLvlMetaStruct) + (MAXMONSTERS * sizeof(LSaveMonsterStruct) + MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))) + MAXITEMS * (4 + sizeof(LSaveItemStruct))
-	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4 + MAXDUNX * MAXDUNY + DMAXX * DMAXY + MAXDUNX * MAXDUNY);
+	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4 + MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY);
 	tbuff = SaveLevelData(tbuff, true);
 
 	// save meta-data II. (modified by LoadGameLevel)

@@ -3555,9 +3555,6 @@ void MI_Firebolt(int mi)
 	case MIS_SOLBRNR:
 		xptype = MIS_EXSOLBRNR;
 		break;
-	case MIS_ACID:
-		xptype = MIS_EXACIDP;
-		break;
 #ifdef HELLFIRE
 	case MIS_PSYCHORB:
 		xptype = MIS_EXPSYCHORB;
@@ -3579,8 +3576,7 @@ void MI_Firebolt(int mi)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	// SetRndSeed(mis->_miRndSeed); // used by MIS_EXACIDP
-	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, xptype, mis->_miCaster, mis->_miSource, 0);
+	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
 
 	mis->_miDelFlag = TRUE; // + AddUnLight
 }
@@ -3728,6 +3724,29 @@ void MI_Lightball(int mi)
 	}
 	mis->_miDelFlag = TRUE;
 }*/
+
+void MI_Acid(int mi)
+{
+	MissileStruct* mis;
+
+	mis = &missile[mi];
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+	}
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		PutMissile(mi);
+		return;
+	}
+
+	// SetRndSeed(mis->_miRndSeed); // used by MIS_EXACIDP
+	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXACIDP, mis->_miCaster, mis->_miSource, 0);
+
+	mis->_miDelFlag = TRUE; // + AddUnLight
+}
 
 void MI_Acidpud(int mi)
 {

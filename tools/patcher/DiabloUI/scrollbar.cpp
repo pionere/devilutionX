@@ -1,5 +1,6 @@
 #include "scrollbar.h"
 
+#if FULL_UI
 #include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -26,3 +27,5 @@ void UnloadScrollBar()
 }
 
 DEVILUTION_END_NAMESPACE
+
+#endif
