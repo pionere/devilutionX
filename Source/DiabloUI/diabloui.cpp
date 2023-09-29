@@ -824,9 +824,11 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		// TODO: use something like WMButtonInputTransTbl?
 		switch (event->key.keysym.sym) {
 		case DVL_VK_RETURN:
+		case DVL_VK_RIGHT:
 			UiFocusNavigationSelect();
 			break;
 		case DVL_VK_ESCAPE:
+		case DVL_VK_LEFT:
 			UiFocusNavigationEsc();
 			break;
 		// case DVL_VK_OEM_PLUS:

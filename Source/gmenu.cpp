@@ -91,13 +91,29 @@ static void gmenu_up_down(bool isDown)
 	}
 }
 
+static void gmenu_enter()
+{
+	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
+		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
+	}
+}
+
 static void gmenu_left_right(bool isRight)
 {
 	TMenuItem* pItem = &gpCurrentMenu[guCurrItemIdx];
 	int step, steps;
 
-	if ((pItem->dwFlags & (GMF_SLIDER | GMF_ENABLED)) != (GMF_SLIDER | GMF_ENABLED))
+	if (!(pItem->dwFlags & GMF_SLIDER)) {
+		if (isRight) {
+			gmenu_enter();
+		} else {
+			gamemenu_off();
+		}
 		return;
+	}
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
+		return;
+	}
 
 	step = pItem->wMenuParam2;
 	steps = pItem->wMenuParam1;
@@ -205,13 +221,6 @@ void gmenu_draw()
 	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);
-}
-
-static void gmenu_enter()
-{
-	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
-		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
-	}
 }
 
 void gmenu_presskey(int vkey)
