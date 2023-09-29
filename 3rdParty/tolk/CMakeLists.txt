@@ -1,4 +1,4 @@
-include(functions/FetchContent_MakeAvailableExcludeFromAll)
+include(FetchContent_MakeAvailableExcludeFromAll)
 
 include(FetchContent)
 FetchContent_Declare(Tolk

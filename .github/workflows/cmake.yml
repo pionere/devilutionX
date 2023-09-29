@@ -21,9 +21,10 @@ jobs:
     
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v10.5
+      uses: lukka/run-vcpkg@v11.1
       with:
-        vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
+        vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
+        #vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
         #vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
@@ -34,7 +35,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D SCREEN_READER_INTEGRATION=ON -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}

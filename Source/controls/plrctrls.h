@@ -4,7 +4,6 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
 #include "all.h"
-#include "controller.h"
 #include "../plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE

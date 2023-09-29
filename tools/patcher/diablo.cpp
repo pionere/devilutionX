@@ -7,6 +7,7 @@
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
+#include "utils/screen_reader.hpp"
 #include "diabloui.h"
 #include "plrctrls.h"
 #include "storm/storm_cfg.h"

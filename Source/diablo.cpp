@@ -8,6 +8,7 @@
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
+#include "utils/screen_reader.hpp"
 #include "utils/utf8.h"
 #include "diabloui.h"
 #include "plrctrls.h"
