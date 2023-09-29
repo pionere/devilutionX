@@ -3,6 +3,7 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 //#include <cstdint>
 
+#include "../miniwin/miniwin.h"
 #include "controller_motion.h"
 #include "plrctrls.h"
 

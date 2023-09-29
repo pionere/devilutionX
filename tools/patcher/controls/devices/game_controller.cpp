@@ -4,8 +4,8 @@
 #include <cstddef>
 
 #include "appfat.h"
-#include "../controller_motion.h"
 #include "../controller.h"
+#include "../controller_motion.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -46,13 +46,13 @@ ControllerButton GameController::ToControllerButton(const SDL_Event& event)
 	case SDL_CONTROLLERBUTTONUP:
 		switch (event.cbutton.button) {
 		case SDL_CONTROLLER_BUTTON_A:
-			return ControllerButton_BUTTON_A;
+			return ControllerButton_BUTTON_FACE_BOTTOM;
 		case SDL_CONTROLLER_BUTTON_B:
-			return ControllerButton_BUTTON_B;
+			return ControllerButton_BUTTON_FACE_RIGHT;
 		case SDL_CONTROLLER_BUTTON_X:
-			return ControllerButton_BUTTON_X;
+			return ControllerButton_BUTTON_FACE_LEFT;
 		case SDL_CONTROLLER_BUTTON_Y:
-			return ControllerButton_BUTTON_Y;
+			return ControllerButton_BUTTON_FACE_TOP;
 		case SDL_CONTROLLER_BUTTON_LEFTSTICK:
 			return ControllerButton_BUTTON_LEFTSTICK;
 		case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
@@ -88,13 +88,13 @@ SDL_GameControllerButton GameController::ToSdlGameControllerButton(ControllerBut
 	case ControllerButton_NONE:
 	case ControllerButton_IGNORE:
 		break;
-	case ControllerButton_BUTTON_A:
+	case ControllerButton_BUTTON_FACE_BOTTOM:
 		return SDL_CONTROLLER_BUTTON_A;
-	case ControllerButton_BUTTON_B:
+	case ControllerButton_BUTTON_FACE_RIGHT:
 		return SDL_CONTROLLER_BUTTON_B;
-	case ControllerButton_BUTTON_X:
+	case ControllerButton_BUTTON_FACE_LEFT:
 		return SDL_CONTROLLER_BUTTON_X;
-	case ControllerButton_BUTTON_Y:
+	case ControllerButton_BUTTON_FACE_TOP:
 		return SDL_CONTROLLER_BUTTON_Y;
 	case ControllerButton_BUTTON_BACK:
 		return SDL_CONTROLLER_BUTTON_BACK;

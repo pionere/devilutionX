@@ -3,10 +3,14 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 //#include <cstdint>
 
+#include "../miniwin/miniwin.h"
 #include "controller_motion.h"
 //#include "plrctrls.h"
 #define InGameMenu() true
+//#include "../automap.h"
 #define IsAutomapActive() false
+//#include "../control.h"
+#define gnNumActiveWindows 0
 
 DEVILUTION_BEGIN_NAMESPACE
 

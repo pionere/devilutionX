@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "../all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
