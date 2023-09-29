@@ -9,6 +9,7 @@
 #include "controls/touch.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "utils/screen_reader.hpp"
 #if FULL_UI
 #include "engine/render/text_render.h"
 #include "utils/utf8.h"

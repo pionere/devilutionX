@@ -1275,6 +1275,9 @@ if(CPACK)
       file(GLOB _WIN32_ALL_DLLS
         LIST_DIRECTORIES false
         "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll")
+      if(SCREEN_READER_INTEGRATION)
+        list(APPEND _WIN32_ALL_DLLS "${Tolk_BINARY_DIR}/${CMAKE_BUILD_TYPE}/Tolk.dll")
+      endif()
     else()
       # find sdl.dll
       if(USE_SDL1)
@@ -1300,6 +1303,10 @@ if(CPACK)
           set(SODIUM_DLL_PATH "${CMAKE_BINARY_DIR}/libsodium.dll")
         endif()
         list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
+      endif()
+      # find tolk.dll
+      if(SCREEN_READER_INTEGRATION)
+        list(APPEND _WIN32_ALL_DLLS "${Tolk_BINARY_DIR}/libTolk.dll")
       endif()
     endif()
     foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
@@ -1376,11 +1383,6 @@ if(CPACK)
     #  #  DESTINATION "LICENSE"
     #  #)
     #endif()
-    if(SCREEN_READER_INTEGRATION)
-      install(FILES "${Tolk_BINARY_DIR}/libTolk.dll"
-        DESTINATION "."
-      )
-    endif()
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_GENERATOR "7Z")
