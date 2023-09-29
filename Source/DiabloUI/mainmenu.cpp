@@ -38,8 +38,8 @@ static void MainmenuLoad()
 
 	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	//assert(gUIListItems.size() == numOptions);
 	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
@@ -53,7 +53,7 @@ static void MainmenuFree()
 {
 	FreeBackgroundArt();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 
 	UiClearListItems();
 }

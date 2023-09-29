@@ -48,8 +48,8 @@ void UiFadeIn();
 bool UiPeekAndHandleEvents(Dvl_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void FreeBackgroundArt();
-void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
-void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
+void UiAddBackground();
+void UiAddLogo();
 void UiFocus(unsigned itemIndex);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
@@ -61,8 +61,8 @@ void UiInitEdit(UiEdit* ui_edit);
 #endif
 void UiClearScreen();
 void UiRenderAndPoll();
-void UiRenderItems(const std::vector<UiItemBase*>& uiItems);
-void UiClearItems(std::vector<UiItemBase*>& uiItems);
+void UiRenderItems();
+void UiClearItems();
 void UiClearListItems();
 int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 

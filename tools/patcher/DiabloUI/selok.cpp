@@ -19,7 +19,7 @@ static void SelokFree()
 
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelokSelect(unsigned index)
@@ -42,8 +42,8 @@ void UiSelOkDialog(const char* title, const char* body)
 	//	LoadBackgroundArt(background);
 	//}
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	//if (title != NULL) {
 		SDL_Rect rect1 = { PANEL_LEFT + 0, SELYNOK_TITLE_TOP, PANEL_WIDTH, 35 };

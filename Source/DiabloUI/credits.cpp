@@ -39,7 +39,7 @@ static bool CreditsRender(int offsetY)
 		return false;
 
 	UiClearScreen();
-	UiRenderItems(gUiItems);
+	UiRenderItems();
 
 	pStart = gpBufStart;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP)];
@@ -67,7 +67,7 @@ void UiCreditsDialog()
 	CREDITS_LINES = LoadTxtFile(CREDITS_TXT, CREDITS_LINES_SIZE);
 
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
-	UiAddBackground(&gUiItems);
+	UiAddBackground();
 	UiInitScreen(0, NULL, CreditsSelect, CreditsEsc);
 	gUiDrawCursor = false;
 	ticks_begin_ = SDL_GetTicks();
@@ -88,7 +88,7 @@ void UiCreditsDialog()
 	} while (!_gbCreditsEnd);
 
 	FreeBackgroundArt();
-	UiClearItems(gUiItems);
+	UiClearItems();
 	MemFreeTxtFile(CREDITS_LINES);
 }
 

@@ -90,8 +90,8 @@ static void SelconnLoad()
 #endif // NOHOSTING
 #endif // TCPIP
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELCONN_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
@@ -127,7 +127,7 @@ static void SelconnFree()
 	FreeBackgroundArt();
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelconnSelect(unsigned index)

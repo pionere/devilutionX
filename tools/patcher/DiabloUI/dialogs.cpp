@@ -158,11 +158,11 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 {
 	//if (renderBehind == NULL) {
 		UiClearListItems();
-		//UiClearItems(gUiItems);
+		//UiClearItems();
 		//FreeBackgroundArt();
 		if (gbBackCel == NULL) {
 			LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-			UiAddBackground(&gUiItems);
+			UiAddBackground();
 		}
 	//}
 
@@ -208,7 +208,7 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	MemFreeDbg(gbDialogBackCel);
 	MemFreeDbg(gbSmlButtonCel)
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)

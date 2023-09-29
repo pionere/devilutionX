@@ -19,7 +19,7 @@ static void SelyesnoFree()
 	FreeBackgroundArt();
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelyesnoSelect(unsigned index)
@@ -39,8 +39,8 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 	char selyesno_confirmationMessage[256];
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELYNOK_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));

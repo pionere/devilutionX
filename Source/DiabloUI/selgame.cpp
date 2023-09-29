@@ -76,7 +76,7 @@ static void SelgameFreeDlgItems()
 {
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelgameFree()
@@ -92,8 +92,8 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 {
 	SelgameFreeDlgItems();
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));

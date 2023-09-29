@@ -123,7 +123,7 @@ static void SelheroFreeDlgItems()
 {
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelheroFree()
@@ -185,8 +185,8 @@ static void SelheroResetScreen(const char* title, const char* rheader)
 {
 	SelheroFreeDlgItems();
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));

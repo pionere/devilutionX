@@ -63,7 +63,7 @@ static void ProgressLoad(const char* msg)
 	}
 	mem_free_dbg(progFillCel);
 
-	UiAddBackground(&gUiItems);
+	UiAddBackground();
 
 	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
 
@@ -85,7 +85,7 @@ static void ProgressFree()
 	MemFreeDbg(gbProgEmptyCel);
 	MemFreeDbg(gbProgFillBmp);
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 bool UiProgressDialog(const char* msg, int (*fnfunc)())
