@@ -472,7 +472,7 @@ static void Render(const UiButton* button)
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
 		textRect.y++;
-	DrawArtStr(button->m_text, textRect, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
+	DrawArtStr(button->m_text, textRect, UIS_HCENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
 }
 
 static void Render(const UiList* uiList)
