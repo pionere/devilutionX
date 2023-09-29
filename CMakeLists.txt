@@ -92,9 +92,6 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
-  if(DEFINED WINVER)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
-  endif()
   set(USE_PATCH ON)
 endif()
 
@@ -1266,7 +1263,7 @@ if(NINTENDO_3DS)
   add_dependencies(${APP_TARGET_PREFIX}_3dsx romfs_files)
   add_dependencies(${APP_TARGET_PREFIX}_cia romfs_files)
 endif()
-message(STATUS "output: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} lib: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} bin: ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+
 if(CPACK)
   if(WIN32)
     set(CPACK_PACKAGE_NAME ${project_name})
@@ -1274,10 +1271,18 @@ if(CPACK)
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
+
+    # install dlls
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-      file(GLOB _WIN32_ALL_DLLS
-        LIST_DIRECTORIES false
-        "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll")
+      install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
+        DESTINATION "."
+        FILES_MATCHING REGEX "[^\\\\/.]\\.[dD][lL][lL]$"
+      )
+      if(SCREEN_READER_INTEGRATION)
+        install(FILES "${Tolk_BINARY_DIR}/tolk.dll"
+          DESTINATION "."
+        )
+      endif()
     else()
       # find sdl.dll
       if(USE_SDL1)
@@ -1299,30 +1304,29 @@ if(CPACK)
           else()
             set(SODIUM_DLL_PATH ${sodium_DLL_RELEASE})
           endif()
+          list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
         else()
-          set(SODIUM_DLL_PATH "${CMAKE_BINARY_DIR}/libsodium.dll")
+          list(APPEND _WIN32_ALL_DLLS "${sodium_BINARY_DIR}/libsodium.dll")
         endif()
-        list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
       endif()
+      # find tolk.dll
+      if(SCREEN_READER_INTEGRATION)
+        list(APPEND _WIN32_ALL_DLLS "${Tolk_BINARY_DIR}/libTolk.dll")
+      endif()
+      # install the dlls
+      foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
+        install(FILES "${_WIN32_DLL_PATH}"
+          DESTINATION "."
+        )
+      endforeach()
     endif()
-    foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
-      install(FILES "${_WIN32_DLL_PATH}"
-        DESTINATION "."
-      )
-    endforeach()
+
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    if(NOT DEVILUTIONX_STATIC_SDL2)
-      foreach(_SDL2_WIN32_DLL_PATH ${SDL2_WIN32_ALL_DLLS} ${WIN32_INSTALL_DLLS})
-        install(FILES "${_SDL2_WIN32_DLL_PATH}"
-          DESTINATION "."
-        )
-      endforeach()
-    endif()
     if(USE_PATCH)
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "."
@@ -1386,11 +1390,6 @@ if(CPACK)
     #  #  DESTINATION "LICENSE"
     #  #)
     #endif()
-    if(SCREEN_READER_INTEGRATION)
-      install(FILES "${Tolk_BINARY_DIR}/libTolk.dll"
-        DESTINATION "."
-      )
-    endif()
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_GENERATOR "7Z")

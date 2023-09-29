@@ -1,13 +1,13 @@
 #include <time.h>
 
+#include "../all.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
-#include "controls/plrctrls.h"
-#include "../all.h"
+#include "controls/controller.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

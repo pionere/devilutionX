@@ -9,6 +9,7 @@
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 #include "storm/storm_net.h"
+#include "utils/screen_reader.hpp"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1483,7 +1484,7 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	char *text = new char[len];
 	memcpy(text, text1, len1);
 	text[len1] = '\n';
-	memcpy(text[len1 + 1], text1, len - len1);
+	memcpy(&text[len1 + 1], text1, len - (len1 + 1));
 	SpeakText(text);
 	free(text);
 #endif

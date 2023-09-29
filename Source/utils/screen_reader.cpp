@@ -3,6 +3,10 @@
 #ifdef SCREEN_READER_INTEGRATION
 
 #ifdef _WIN32
+#include <stdlib.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <Tolk.h>
 
 namespace dvl {
@@ -11,8 +15,6 @@ void InitScreenReader()
 {
 	Tolk_Load();
 }
-
-} // namespace dvl
 
 void FreeScreenReader()
 {
@@ -34,6 +36,9 @@ void SpeakText(const char* text)
 		Tolk_Output(&wText[0], true);
 	}
 	free(wText);
+}
+
+} // namespace dvl
 
 #else
 #include <speech-dispatcher/libspeechd.h>
@@ -62,6 +67,7 @@ void SpeakText(const char* text)
 	SpokenText = text;
 
 	spd_say(Speechd, SPD_TEXT, SpokenText);
+}
 
 } // namespace dvl
 
