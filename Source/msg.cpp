@@ -4270,28 +4270,6 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 
 #endif
 
-#if DEBUG_MODE
-static unsigned On_CHEAT_EXPERIENCE(TCmd* pCmd, int pnum)
-{
-	if (plr._pLevel < MAXCHARLEVEL) {
-		plr._pExperience = plr._pNextExper;
-		NextPlrLevel(pnum);
-	}
-	return sizeof(*pCmd);
-}
-
-static unsigned On_CHEAT_SPELL_LEVEL(TCmd* pCmd, int pnum)
-{
-	IncreasePlrSkillLvl(pnum, plr._pAltAtkSkill);
-	return sizeof(*pCmd);
-}
-
-static unsigned On_DEBUG(TCmd* pCmd, int pnum)
-{
-	return sizeof(*pCmd);
-}
-#endif
-
 static unsigned On_SETSHIELD(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
@@ -4535,14 +4513,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_REQUEST_ITEMCHECK(pCmd, pnum);
 	case CMD_DO_ITEMCHECK:
 		return On_DO_ITEMCHECK(pCmd, pnum);
-#endif
-#if DEBUG_MODE
-	case CMD_CHEAT_EXPERIENCE:
-		return On_CHEAT_EXPERIENCE(pCmd, pnum);
-	case CMD_CHEAT_SPELL_LEVEL:
-		return On_CHEAT_SPELL_LEVEL(pCmd, pnum);
-	case CMD_DEBUG:
-		return On_DEBUG(pCmd, pnum);
 #endif
 	}
 

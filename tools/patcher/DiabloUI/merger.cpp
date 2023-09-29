@@ -240,7 +240,7 @@ void UiMergerDialog()
 
 	workProgress = RETURN_DONE;
 	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (workProgress == RETURN_DONE);
 	MergerFreeDlgItems();
 	FreeBackgroundArt();

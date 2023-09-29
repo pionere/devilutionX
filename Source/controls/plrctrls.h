@@ -13,11 +13,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-typedef enum belt_item_type {
-	BLT_HEALING,
-	BLT_MANA,
-} belt_item_type;
-
 // Whether we're in a dialog menu that the game handles natively with keyboard controls.
 bool InGameMenu();
 

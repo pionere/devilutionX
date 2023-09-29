@@ -9,6 +9,7 @@
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "plrctrls.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -19,6 +20,24 @@ bool gbWasUiInit = false;
 bool gbSndInited = false;
 
 BYTE* pMicrosCel;
+
+static int diablo_parse_flags(int argc, char** argv)
+{
+	for (int i = 1; i < argc; i++) {
+		if (SDL_strcasecmp("--data-dir", argv[i]) == 0) {
+			i++;
+			if (i < argc)
+				SetBasePath(argv[i]);
+		} else if (SDL_strcasecmp("--save-dir", argv[i]) == 0) {
+			i++;
+			if (i < argc)
+				SetPrefPath(argv[i]);
+		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
+			gbFullscreen = false;
+		}
+	}
+	return EX_OK;
+}
 
 static void diablo_init_screen()
 {
@@ -39,6 +58,7 @@ static void diablo_init_screen()
 static void diablo_init()
 {
 	InitPaths();
+	InitConfig();
 
 	dx_init(); // inititalize SDL + create the window
 
@@ -51,7 +71,9 @@ static void diablo_init()
 	gbWasUiInit = true;
 
 	diablo_init_screen();
-
+#ifdef SCREEN_READER_INTEGRATION
+	InitScreenReader();
+#endif
 	InitSound();
 	gbSndInited = true;
 
@@ -66,6 +88,9 @@ static void diablo_deinit()
 		FreeUiSFX();
 		FreeSound();
 	}
+#ifdef SCREEN_READER_INTEGRATION
+	FreeScreenReader();
+#endif
 	//if (gbWasUiInit)
 		UiDestroy();
 		FreeText();
@@ -74,10 +99,15 @@ static void diablo_deinit()
 		FreeArchives();
 	//if (_gbWasWindowInit) {
 		dx_cleanup(); // close the window + SDL
+	FreeConfig();
 }
 
 int DiabloMain(int argc, char** argv)
 {
+	int res = diablo_parse_flags(argc, argv);
+	if (res != EX_OK)
+		return res - 1;
+
 	diablo_init();
 	mainmenu_loop();
 	diablo_deinit();

@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256]);
+bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256]);
 
 /*  SNetDropPlayer @ 106
  *

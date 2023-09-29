@@ -1,6 +1,5 @@
 #include "dialogs.h"
 
-#include "../controls/menu_controls.h"
 #include "diabloui.h"
 //#include "errorart.h"
 #include "text.h"
@@ -218,7 +217,7 @@ static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 
 	_gbDialogEnd = false;
 	do {
-		UiRenderAndPoll(NULL /*renderBehind*/);
+		UiRenderAndPoll();
 	} while (!_gbDialogEnd);
 }
 

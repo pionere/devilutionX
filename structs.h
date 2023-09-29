@@ -58,7 +58,8 @@ typedef void* HANDLE;
 
 typedef HANDLE HMODULE, HDC, HINSTANCE;
 
-typedef void (*WNDPROC)(UINT, WPARAM);
+typedef SDL_Event Dvl_Event;
+typedef void (*WNDPROC)(const Dvl_Event*);
 
 typedef struct tagMSG {
 	UINT message;

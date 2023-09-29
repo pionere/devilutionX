@@ -1,5 +1,4 @@
 
-#include "controls/menu_controls.h"
 #include "diabloui.h"
 //#include "all.h"
 #include "engine/render/cel_render.h"
@@ -96,7 +95,7 @@ bool UiProgressDialog(const char* msg, int (*fnfunc)())
 
 	do {
 		_gnProgress = fnfunc();
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (_gnProgress < 100);
 	ProgressFree();
 

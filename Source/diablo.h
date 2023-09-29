@@ -31,6 +31,7 @@ extern bool gbAltActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 extern int gnTimeoutCurs;
+extern bool gbShowTooltip;
 
 void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);
@@ -43,25 +44,8 @@ void AltActionBtnCmd(bool bShift);
 bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(UINT uMsg, WPARAM wParam);
+void DisableInputWndProc(const Dvl_Event *event);
 void game_logic();
-
-/* rdata */
-
-extern bool gbShowTooltip;
-#if DEBUG_MODE
-extern int DebugMonsters[10];
-extern BOOL visiondebug;
-extern bool lightflag;
-extern BOOL leveldebug;
-extern BOOL monstdebug;
-extern int setseed;
-extern int debugmonsttypes;
-extern bool allquests;
-extern int questdebug;
-extern int debug_mode_key_w;
-extern int debug_mode_key_i;
-#endif
 
 #ifdef __cplusplus
 }

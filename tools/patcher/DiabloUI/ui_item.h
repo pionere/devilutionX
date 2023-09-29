@@ -137,6 +137,7 @@ public:
 		m_hint = hint;
 		m_value = value;
 		m_max_length = max_length;
+		m_curpos = strlen(value);
 	}
 
 	~UiEdit() = default;
@@ -145,6 +146,7 @@ public:
 	const char* m_hint;
 	char* m_value;
 	unsigned m_max_length;
+	unsigned m_curpos;
 };
 #endif // FULL_UI
 //=============================================================================

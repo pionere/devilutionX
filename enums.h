@@ -3920,9 +3920,6 @@ typedef enum _cmd_id {
 	CMD_DO_PLRCHECK,       // DEV_MODE
 	CMD_REQUEST_ITEMCHECK, // DEV_MODE
 	CMD_DO_ITEMCHECK,      // DEV_MODE
-	CMD_CHEAT_EXPERIENCE,  // DEBUG_MODE
-	CMD_CHEAT_SPELL_LEVEL, // DEBUG_MODE
-	CMD_DEBUG,             // DEBUG_MODE
 } _cmd_id;
 
 typedef enum _dcmd_item {
@@ -4027,12 +4024,12 @@ typedef enum _selgame_selections {
 } _selgame_selections;
 
 typedef enum conn_type {
-	SELCONN_ZT,       // zerotier (p2p)
+	SELCONN_LOOPBACK, // local
 	SELCONN_TCP,      // tcp/ip server-client
 	SELCONN_TCPD,     // tcp/ip server-client + p2p
 	SELCONN_TCPS,     // tcp/ip server
 	SELCONN_TCPDS,    // tcp/ip server + p2p
-	SELCONN_LOOPBACK, // local
+	SELCONN_ZT,       // zerotier (p2p)
 } conn_type;
 
 typedef enum _create_hero {
@@ -4667,6 +4664,12 @@ typedef enum input_key {
 	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
 	ACT_TOOLTIP, // toggle the permanency of the tooltips
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	ACT_CTRL_ALTACT,
+	ACT_CTRL_CASTACT,
+	ACT_CTRL_USE_HP,
+	ACT_CTRL_USE_MP,
+#endif
 	NUM_ACTS
 } input_key;
 
@@ -4682,6 +4685,7 @@ typedef enum application_error {
 	ERR_APP_PACKET_ENCRYPT,
 	ERR_APP_PACKET_SETUP,
 	ERR_APP_PACKET_PASSWD,
+	ERR_APP_ASIO,
 	ERR_APP_SETMAP,
 } application_error;
 

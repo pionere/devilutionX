@@ -5,7 +5,6 @@
  */
 #include "all.h"
 #include <config.h>
-//#include "../config.h"
 #include "diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -70,11 +69,10 @@ void app_warn(const char* pszFmt, ...)
 	UiErrorOkDialog(PROJECT_NAME, text, false);
 }
 
-#if DEBUG_MODE
 /**
  * @brief Terminates the game and displays an error dialog box based on the given dialog_id.
  */
-void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr)
+/*void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr)
 {
 	char text[1024];
 
@@ -84,8 +82,7 @@ void ErrDlg(const char* title, const char* error, const char* log_file_path, int
 
 	UiErrorOkDialog(title, text);
 	diablo_quit(EX_SOFTWARE);
-}
-#endif
+}*/
 
 /**
  * @brief Terminates the game with a file not found error dialog.

@@ -206,10 +206,10 @@ jobs:
         include:
           # x86 builds
           - name: diablo-w9x
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D USE_PATCH=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D USE_PATCH=ON -D NONET=ON'
             artifact: 'diablo-nightly-mingw-w9x.zip'
           - name: hellfire-w9x
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D USE_PATCH=ON -D NONET=ON -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-w9x.zip'
     steps:
     - name: Checkout

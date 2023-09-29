@@ -31,7 +31,7 @@ Data\SpelIcon.CEL
 Data\SpellBk.CEL
 _Data\SpellBkB.CEL
 Data\SpellI2.CEL
-Data\Square.CEL
+_Data\Square.CEL
 Data\TextBox.CEL
 Data\TextBox2.CEL
 Data\TextSlid.CEL

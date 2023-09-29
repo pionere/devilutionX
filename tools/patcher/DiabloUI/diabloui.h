@@ -22,9 +22,6 @@ extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
-#if FULL_UI
-extern UiEdit* gUiEditField;
-#endif
 extern bool gUiDrawCursor;
 
 inline SDL_Surface* DiabloUiSurface()
@@ -48,7 +45,7 @@ inline SDL_Surface* DiabloUiSurface()
 }
 
 void UiFadeIn();
-void UiHandleEvents(SDL_Event* event);
+bool UiPeekAndHandleEvents(Dvl_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void FreeBackgroundArt();
 void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
@@ -57,12 +54,13 @@ void UiFocus(unsigned itemIndex);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationDelete();
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnDelete)() = NULL);
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL);
 #if FULL_UI
-void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
+void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, bool (*fnDelete)());
+void UiInitEdit(UiEdit* ui_edit);
 #endif
 void UiClearScreen();
-void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems);
+void UiRenderAndPoll();
 void UiRenderItems(const std::vector<UiItemBase*>& uiItems);
 void UiClearItems(std::vector<UiItemBase*>& uiItems);
 void UiClearListItems();

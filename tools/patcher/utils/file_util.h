@@ -56,7 +56,7 @@ inline bool FileExists(const char* path)
 
 inline bool GetFileSize(const char* path, std::uintmax_t* size)
 {
-#if defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
 	HANDLE handle = ::CreateFileA(path, GENERIC_READ,
 	    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
 	    FILE_ATTRIBUTE_NORMAL, NULL);
@@ -110,7 +110,7 @@ inline bool WriteFile(const void* data, size_t size, FILE* f)
 
 inline bool ResizeFile(const char* path, std::uintmax_t size)
 {
-#if defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
 	HANDLE file = ::CreateFileA(path, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (file == INVALID_HANDLE_VALUE) {
 		return false;

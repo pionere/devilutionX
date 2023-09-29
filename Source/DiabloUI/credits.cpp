@@ -1,7 +1,5 @@
 #include <algorithm>
 
-#include "controls/menu_controls.h"
-
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text_draw.h"
 #include "../gameui.h"
@@ -76,7 +74,7 @@ void UiCreditsDialog()
 
 	_gbCreditsEnd = false;
 
-	SDL_Event event;
+	Dvl_Event event;
 	do {
 		int offsetY = -CREDITS_HEIGHT + (SDL_GetTicks() - ticks_begin_) / 32;
 		if (offsetY != prev_offset_y_ && !CreditsRender(offsetY))
@@ -84,8 +82,8 @@ void UiCreditsDialog()
 		prev_offset_y_ = offsetY;
 
 		UiFadeIn();
-		while (SDL_PollEvent(&event) != 0) {
-			UiHandleEvents(&event);
+		while (UiPeekAndHandleEvents(&event)) {
+			;
 		}
 	} while (!_gbCreditsEnd);
 

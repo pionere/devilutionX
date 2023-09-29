@@ -127,7 +127,7 @@ void tcp_client::SNetLeaveGame(int reason)
 	close();
 }
 
-void tcp_client::make_default_gamename(char (&gamename)[128])
+void tcp_client::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	tcp_server::make_default_gamename(gamename);
 }

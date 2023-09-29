@@ -307,7 +307,7 @@ uint64_t protocol_zt::current_ms()
 	return 0;
 }
 
-void protocol_zt::make_default_gamename(char (&gamename)[128])
+void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	int i;
 
