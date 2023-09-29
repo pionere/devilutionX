@@ -41,7 +41,7 @@ void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
-static bool (*gfnListDelete)();
+static void (*gfnListDelete)();
 std::vector<UiListItem*> gUIListItems;
 std::vector<UiItemBase*> gUiItems;
 unsigned SelectedItem;
@@ -91,7 +91,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 #endif
 }
 #if FULL_UI
-void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, bool (*fnDelete)())
+void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, void (*fnDelete)())
 {
 	gfnListDelete = fnDelete;
 	ListViewportSize = viewportSize;
@@ -279,8 +279,8 @@ void UiFocusNavigationDelete()
 	if (gfnListDelete == NULL)
 		return;
 
-	if (gfnListDelete())
-		UiPlaySelectSound();
+	UiPlaySelectSound();
+	gfnListDelete();
 }
 
 static SDL_bool IsInsideRect(const Dvl_Event& event, const SDL_Rect& rect)

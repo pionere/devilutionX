@@ -17,9 +17,11 @@ static _uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
-static int selhero_result; // _selhero_status
+static int selhero_result; // _selhero_selections
 
+static void (*gfnHeroInfo)(void (*fninfofunc)(_uiheroinfo*));
 static int (*gfnHeroCreate)(_uiheroinfo*);
+static void (*gfnHeroRemove)(_uiheroinfo*);
 //static void (*gfnHeroStats)(unsigned int, _uidefaultstats*);
 
 static UiTxtButton* SELLIST_DIALOG_DELETE_BUTTON;
@@ -30,6 +32,8 @@ static unsigned selhero_heroFrame;
 static void SelheroListSelect(unsigned index);
 static void SelheroNameInit(unsigned index);
 static void SelheroNameSelect(unsigned index);
+static void SelheroListInit();
+static void SelheroClassSelectorInit();
 
 #if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static const char* SelheroGenerateName(BYTE hero_class)
@@ -181,6 +185,32 @@ static void SelheroInit()
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 }
 
+static void SelHeroGetHeroInfo(_uiheroinfo* pInfo)
+{
+	selhero_heros.emplace_back(*pInfo);
+	selhero_SaveCount++;
+}
+
+static void SelheroInitHeros()
+{
+	selhero_SaveCount = 0;
+	selhero_heros.clear();
+	gfnHeroInfo(SelHeroGetHeroInfo);
+	std::reverse(selhero_heros.begin(), selhero_heros.end());
+	{
+		_uiheroinfo newHero;
+		copy_cstr(newHero.hiName, "New Hero");
+		newHero.hiClass = NUM_CLASSES;
+		selhero_heros.push_back(newHero);
+	}
+
+	if (selhero_SaveCount != 0) {
+		SelheroListInit();
+	} else {
+		SelheroClassSelectorInit();
+	}
+}
+
 static void SelheroResetScreen(const char* title, const char* rheader)
 {
 	SelheroFreeDlgItems();
@@ -238,13 +268,30 @@ static void SelheroListFocus(unsigned index)
 	SelheroSetStats();
 }
 
-static bool SelheroListDelete()
+static void SelheroListDeleteYesNo(unsigned index)
+{
+	if (index == 0)
+		gfnHeroRemove(&selhero_heroInfo);
+	SelheroInitHeros();
+}
+
+static void SelheroListDelete()
 {
 	// if (SELLIST_DIALOG_DELETE_BUTTON->m_iFlags & UIS_DISABLED)
 	if (SelectedItem == selhero_SaveCount)
-		return false;
-	selhero_result = SHS_DEL_HERO;
-	return true;
+		return;
+
+	SelheroResetScreen(selconn_bMulti ? "Multi Player Characters" : "Single Player Characters", "Confirm delete");
+
+	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 30 };
+	gUiItems.push_back(new UiText(selhero_heroInfo.hiName, rect1, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	gUIListItems.push_back(new UiListItem("Yes", 0));
+	gUIListItems.push_back(new UiListItem("No", 1));
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 100) / 2, SELCONN_LIST_TOP + 40, 100, 26 * 2 };
+	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+
+	UiInitScreen(2, NULL, SelheroListDeleteYesNo, SelheroInitHeros);
 }
 
 static void SelheroListInit()
@@ -428,57 +475,24 @@ static void SelheroNameSelect(unsigned index)
 	SelheroNameInit(0);
 }
 
-static void SelHeroGetHeroInfo(_uiheroinfo* pInfo)
-{
-	selhero_heros.emplace_back(*pInfo);
-	selhero_SaveCount++;
-}
-
 int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
 	int (*fncreate)(_uiheroinfo*),
 	void (*fnremove)(_uiheroinfo*),
-	//void (*fnstats)(unsigned int, _uidefaultstats*),
 	unsigned* saveIdx)
 {
+	gfnHeroInfo = fninfo;
 	gfnHeroCreate = fncreate;
-	while (TRUE) {
-		SelheroInit();
+	gfnHeroRemove = fnremove;
 
-		//gfnHeroStats = fnstats;
+	SelheroInit();
 
-		selhero_SaveCount = 0;
-		selhero_heros.clear();
-		fninfo(SelHeroGetHeroInfo);
-		std::reverse(selhero_heros.begin(), selhero_heros.end());
-		{
-			_uiheroinfo newHero;
-			copy_cstr(newHero.hiName, "New Hero");
-			newHero.hiClass = NUM_CLASSES;
-			selhero_heros.push_back(newHero);
-		}
+	SelheroInitHeros();
 
-		if (selhero_SaveCount != 0) {
-			SelheroListInit();
-		} else {
-			SelheroClassSelectorInit();
-		}
-
-		selhero_result = SHS_ACTIVE;
-		do {
-			UiRenderAndPoll();
-		} while (selhero_result == SHS_ACTIVE);
-		SelheroFree();
-
-		if (selhero_result != SHS_DEL_HERO)
-			break;
-		char dialogTitle[32];
-		char dialogText[256];
-		snprintf(dialogTitle, sizeof(dialogTitle), "Delete %s Player Hero", selconn_bMulti ? "Multi" : "Single");
-		snprintf(dialogText, sizeof(dialogText), "Are you sure you want to delete the character \"%s\"?", selhero_heroInfo.hiName);
-
-		if (UiSelYesNoDialog(dialogTitle, dialogText))
-			fnremove(&selhero_heroInfo);
-	}
+	selhero_result = SELHERO_NONE;
+	do {
+		UiRenderAndPoll();
+	} while (selhero_result == SELHERO_NONE);
+	SelheroFree();
 
 	*saveIdx = selhero_heroInfo.hiIdx;
 
