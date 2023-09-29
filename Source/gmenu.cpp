@@ -233,6 +233,7 @@ void gmenu_presskey(int vkey)
 	case DVL_VK_RETURN:
 		gmenu_enter();
 		break;
+	case DVL_VK_XBUTTON1:
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
 		gamemenu_off(); // TODO: add gmCloseFunc?

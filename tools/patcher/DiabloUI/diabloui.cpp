@@ -762,6 +762,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		if (gUiEditField != NULL) {
 			switch (event->key.keysym.sym) {
 #ifndef USE_SDL1
+			case DVL_VK_MBUTTON:
 			case DVL_VK_V:
 				if (event->key.keysym.mod & KMOD_CTRL) {
 					char* clipboard = SDL_GetClipboardText();
@@ -842,6 +843,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		case DVL_VK_RIGHT:
 			UiFocusNavigationSelect();
 			break;
+		case DVL_VK_XBUTTON1:
 		case DVL_VK_ESCAPE:
 		case DVL_VK_LEFT:
 			UiFocusNavigationEsc();
