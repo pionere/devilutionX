@@ -19,7 +19,7 @@ static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
 static int selhero_result; // _selhero_selections
 
-static void (*gfnHeroInfo)(void (*fninfofunc)(_uiheroinfo*));
+static void (*gfnHeroInfo)(std::vector<_uiheroinfo>&);
 static int (*gfnHeroCreate)(_uiheroinfo*);
 static void (*gfnHeroRemove)(_uiheroinfo*);
 //static void (*gfnHeroStats)(unsigned int, _uidefaultstats*);
@@ -185,17 +185,11 @@ static void SelheroInit()
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 }
 
-static void SelHeroGetHeroInfo(_uiheroinfo* pInfo)
-{
-	selhero_heros.emplace_back(*pInfo);
-	selhero_SaveCount++;
-}
-
 static void SelheroInitHeros()
 {
-	selhero_SaveCount = 0;
 	selhero_heros.clear();
-	gfnHeroInfo(SelHeroGetHeroInfo);
+	gfnHeroInfo(selhero_heros);
+	selhero_SaveCount = selhero_heros.size();
 	std::reverse(selhero_heros.begin(), selhero_heros.end());
 	{
 		_uiheroinfo newHero;
@@ -475,7 +469,7 @@ static void SelheroNameSelect(unsigned index)
 	SelheroNameInit(0);
 }
 
-int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)),
+int UiSelHeroDialog(void (*fninfo)(std::vector<_uiheroinfo>&),
 	int (*fncreate)(_uiheroinfo*),
 	void (*fnremove)(_uiheroinfo*),
 	unsigned* saveIdx)

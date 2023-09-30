@@ -6,6 +6,8 @@
 #ifndef __DIABLOUI_H__
 #define __DIABLOUI_H__
 
+#include <vector>
+
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef __cplusplus
@@ -18,7 +20,7 @@ void UiDestroy();
 /* Defined in title.cpp */
 bool UiTitleDialog();
 /* Defined in selhero.cpp */
-int UiSelHeroDialog(void (*fninfo)(void (*fninfofunc)(_uiheroinfo*)), int (*fncreate)(_uiheroinfo*), void (*fnremove)(_uiheroinfo*), unsigned* saveIdx);
+int UiSelHeroDialog(void (*fninfo)(std::vector<_uiheroinfo>&), int (*fncreate)(_uiheroinfo*), void (*fnremove)(_uiheroinfo*), unsigned* saveIdx);
 /* Defined in settingsmenu.cpp */
 void UiSettingsDialog();
 /* Defined in credits.cpp */

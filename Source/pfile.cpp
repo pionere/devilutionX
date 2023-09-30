@@ -177,7 +177,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
-void pfile_ui_load_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*))
+void pfile_ui_load_hero_infos(std::vector<_uiheroinfo> &hero_infos)
 {
 	int i;
 
@@ -189,7 +189,7 @@ void pfile_ui_load_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*))
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
 				pfile_player2hero(&players[0], &uihero, i, pfile_archive_contains_game(archive));
-				ui_add_hero_info(&uihero);
+				hero_infos.push_back(uihero);
 			}
 			SFileCloseArchive(archive);
 		}
