@@ -866,6 +866,12 @@ bool PeekMessage(Dvl_Event &e)
 			e.type = DVL_WM_RBUTTONDOWN;
 			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
 			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON); -- unused
+		} else if (button == SDL_BUTTON_MIDDLE) {
+			e.type = DVL_WM_KEYDOWN;
+			e.key.keysym.sym = DVL_VK_MBUTTON;
+		} else if (button == SDL_BUTTON_X1) {
+			e.type = DVL_WM_KEYDOWN;
+			e.key.keysym.sym = DVL_VK_XBUTTON1;
 #ifdef USE_SDL1
 		} else if (button == SDL_BUTTON_WHEELUP) {
 			e.type = DVL_WM_KEYDOWN;
@@ -886,6 +892,12 @@ bool PeekMessage(Dvl_Event &e)
 			e.type = DVL_WM_RBUTTONUP;
 			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
 			//lpMsg->lParam = KeystateForMouse(0); -- unused
+		} else if (button == SDL_BUTTON_MIDDLE) {
+			e.type = DVL_WM_KEYUP;
+			e.key.keysym.sym = DVL_VK_MBUTTON;
+		} else if (button == SDL_BUTTON_X1) {
+			e.type = DVL_WM_KEYUP;
+			e.key.keysym.sym = DVL_VK_XBUTTON1;
 		}
 	} break;
 #ifndef USE_SDL1
@@ -990,11 +1002,13 @@ bool PeekMessage(Dvl_Event &e)
 		const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
 		if (ProcessControllerMotion(e)) {
 			e.type = DVL_WM_NONE;
+			sgbControllerActive = true;
 			break;
 		}
 		e.type = DVL_WM_NONE;
 #if HAS_DPAD
 		if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent)) {
+			sgbControllerActive = true;
 			break;
 		}
 #endif

@@ -9,7 +9,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
 {
-	if (flags & UIS_CENTER)
+	if (flags & UIS_HCENTER)
 		return (dest.w - w) / 2;
 	if (flags & UIS_RIGHT)
 		return dest.w - w;

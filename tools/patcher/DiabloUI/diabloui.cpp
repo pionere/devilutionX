@@ -41,7 +41,7 @@ void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
-static bool (*gfnListDelete)();
+static void (*gfnListDelete)();
 std::vector<UiListItem*> gUIListItems;
 std::vector<UiItemBase*> gUiItems;
 unsigned SelectedItem;
@@ -91,7 +91,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 #endif
 }
 #if FULL_UI
-void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, bool (*fnDelete)())
+void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, void (*fnDelete)())
 {
 	gfnListDelete = fnDelete;
 	ListViewportSize = viewportSize;
@@ -279,8 +279,8 @@ void UiFocusNavigationDelete()
 	if (gfnListDelete == NULL)
 		return;
 
-	if (gfnListDelete())
-		UiPlaySelectSound();
+	UiPlaySelectSound();
+	gfnListDelete();
 }
 
 static SDL_bool IsInsideRect(const Dvl_Event& event, const SDL_Rect& rect)
@@ -353,18 +353,18 @@ void FreeBackgroundArt()
 	MemFreeDbg(gbBackCel);
 }
 
-void UiAddBackground(std::vector<UiItemBase*>* vecDialog)
+void UiAddBackground()
 {
 	assert(gbBackCel != NULL);
 	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
-	vecDialog->push_back(new UiImage(gbBackCel, 0, rect, false));
+	gUiItems.push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
-void UiAddLogo(std::vector<UiItemBase*>* vecDialog)
+void UiAddLogo()
 {
 	assert(gbLogoCelSmall != NULL);
 	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
-	vecDialog->push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
+	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
 void UiFadeIn()
@@ -388,7 +388,7 @@ void UiFadeIn()
 void UiRender()
 {
 	UiClearScreen();
-	UiRenderItems(gUiItems);
+	UiRenderItems();
 	UiFadeIn();
 }
 
@@ -478,7 +478,7 @@ static void Render(const UiButton* button)
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
 		textRect.y++;
-	DrawArtStr(button->m_text, textRect, UIS_CENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
+	DrawArtStr(button->m_text, textRect, UIS_HCENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
 }
 
 static void Render(const UiList* uiList)
@@ -552,39 +552,39 @@ static void Render(const UiEdit* uiEdit)
 	}
 }
 #endif
-static void RenderItem(UiItemBase* item)
+static void RenderItem(const UiItemBase* item)
 {
 	if (item->m_iFlags & UIS_HIDDEN)
 		return;
 
 	switch (item->m_type) {
 	case UI_TEXT:
-		Render(static_cast<UiText*>(item));
+		Render(static_cast<const UiText*>(item));
 		break;
 	case UI_IMAGE:
-		Render(static_cast<UiImage*>(item));
+		Render(static_cast<const UiImage*>(item));
 		break;
 #if FULL_UI
 	case UI_TXT_BUTTON:
-		Render(static_cast<UiTxtButton*>(item));
+		Render(static_cast<const UiTxtButton*>(item));
 		break;
 #endif
 	case UI_BUTTON:
-		Render(static_cast<UiButton*>(item));
+		Render(static_cast<const UiButton*>(item));
 		break;
 	case UI_LIST:
-		Render(static_cast<UiList*>(item));
+		Render(static_cast<const UiList*>(item));
 		break;
 #if FULL_UI
 	case UI_SCROLLBAR:
-		Render(static_cast<UiScrollBar*>(item));
+		Render(static_cast<const UiScrollBar*>(item));
 		break;
 	case UI_EDIT:
-		Render(static_cast<UiEdit*>(item));
+		Render(static_cast<const UiEdit*>(item));
 		break;
 #endif
 	case UI_CUSTOM:
-		static_cast<UiCustom*>(item)->m_render();
+		static_cast<const UiCustom*>(item)->m_render();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -762,6 +762,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		if (gUiEditField != NULL) {
 			switch (event->key.keysym.sym) {
 #ifndef USE_SDL1
+			case DVL_VK_MBUTTON:
 			case DVL_VK_V:
 				if (event->key.keysym.mod & KMOD_CTRL) {
 					char* clipboard = SDL_GetClipboardText();
@@ -839,9 +840,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 #endif // FULL_UI
 		switch (event->key.keysym.sym) {
 		case DVL_VK_RETURN:
+		case DVL_VK_RIGHT:
 			UiFocusNavigationSelect();
 			break;
+		case DVL_VK_XBUTTON1:
 		case DVL_VK_ESCAPE:
+		case DVL_VK_LEFT:
 			UiFocusNavigationEsc();
 			break;
 		// case DVL_VK_OEM_PLUS:
@@ -885,26 +889,25 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 	return true;
 }
 
-void UiRenderItems(const std::vector<UiItemBase*>& uiItems)
+void UiRenderItems()
 {
-	for (size_t i = 0; i < uiItems.size(); i++)
-		RenderItem(uiItems[i]);
+	for (const UiItemBase* uiItem : gUiItems) {
+		RenderItem(uiItem);
+	}
 }
 
-void UiClearItems(std::vector<UiItemBase*>& uiItems)
+void UiClearItems()
 {
-	for (size_t i = 0; i < uiItems.size(); i++) {
-		UiItemBase* pUIItem = uiItems[i];
-		delete pUIItem;
+	for (UiItemBase* uiItem : gUiItems) {
+		delete uiItem;
 	}
-	uiItems.clear();
+	gUiItems.clear();
 }
 
 void UiClearListItems()
 {
-	for (size_t i = 0; i < gUIListItems.size(); i++) {
-		UiListItem* pUIItem = gUIListItems[i];
-		delete pUIItem;
+	for (UiListItem* uiItem : gUIListItems) {
+		delete uiItem;
 	}
 	gUIListItems.clear();
 }

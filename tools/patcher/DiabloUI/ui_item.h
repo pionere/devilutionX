@@ -38,7 +38,7 @@ enum UiFlags : uint16_t {
 	UIS_BIG         = AFT_BIG << 0,
 	UIS_HUGE        = AFT_HUGE << 0,
 	UIS_LEFT        = UIA_LEFT << 4,
-	UIS_CENTER      = UIA_CENTER << 4,
+	UIS_HCENTER     = UIA_CENTER << 4,
 	UIS_RIGHT       = UIA_RIGHT << 4,
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = AFC_SILVER << 7,

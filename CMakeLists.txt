@@ -1279,7 +1279,7 @@ if(CPACK)
         FILES_MATCHING REGEX "[^\\\\/.]\\.[dD][lL][lL]$"
       )
       if(SCREEN_READER_INTEGRATION)
-        install(FILES "${Tolk_BINARY_DIR}/tolk.dll"
+        install(FILES "${Tolk_BINARY_DIR}/${CMAKE_BUILD_TYPE}/Tolk.dll"
           DESTINATION "."
         )
       endif()
@@ -1306,7 +1306,7 @@ if(CPACK)
           endif()
           list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
         else()
-          list(APPEND _WIN32_ALL_DLLS "${sodium_BINARY_DIR}/libsodium.dll")
+          set(SODIUM_DLL_PATH "${sodium_BINARY_DIR}/libsodium.dll")
         endif()
       endif()
       # find tolk.dll

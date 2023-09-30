@@ -54,6 +54,8 @@ typedef enum window_messages {
 #define DVL_VK_LBUTTON    0x01 // Left-Mouse button
 #define DVL_VK_RBUTTON    0x02 // Right-Mouse button
 #define DVL_VK_CANCEL     0x03 // Cancel key
+#define DVL_VK_MBUTTON    0x04 // Middle-Mouse button
+#define DVL_VK_XBUTTON1   0x05 // X1-Mouse button
 #define DVL_VK_BACK       0x08 // BACKSPACE key
 #define DVL_VK_TAB        0x09 // TAB key
 #define DVL_VK_RETURN     0x0D // ENTER key

@@ -63,14 +63,14 @@ static void ProgressLoad(const char* msg)
 	}
 	mem_free_dbg(progFillCel);
 
-	UiAddBackground(&gUiItems);
+	UiAddBackground();
 
 	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
 
 	SDL_Rect rect0 = { 0, 0, 0, 0 };
 	gUiItems.push_back(new UiCustom(ProgressRender, rect0));
 	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
-	gUiItems.push_back(new UiText(msg, rect1, UIS_CENTER | UIS_SMALL | UIS_GOLD));
+	gUiItems.push_back(new UiText(msg, rect1, UIS_HCENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &ProgressEsc, rect2));
 
@@ -85,7 +85,7 @@ static void ProgressFree()
 	MemFreeDbg(gbProgEmptyCel);
 	MemFreeDbg(gbProgFillBmp);
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 bool UiProgressDialog(const char* msg, int (*fnfunc)())
