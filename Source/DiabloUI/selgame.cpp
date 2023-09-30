@@ -72,6 +72,12 @@ static void selgame_remove_event_handlers()
 	SNetUnregisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED);
 }
 
+static void SelgameInit()
+{
+	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
+	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+}
+
 static void SelgameFreeDlgItems()
 {
 	UiClearListItems();
@@ -442,7 +448,7 @@ static void SelgamePasswordSelect(unsigned index)
 	// assert(provider != SELCONN_LOOPBACK);
 	SelgameFree();
 	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	SelgameInit();
 	SelgamePasswordInit(0);
 }
 
@@ -452,8 +458,7 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 
 	selgame_add_event_handlers(event_handler);
 
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	SelgameInit();
 	SelgameModeInit();
 
 	selgame_endMenu = false;
