@@ -17,7 +17,6 @@ extern "C" {
 extern CelImageBuf* gbBackCel;
 extern CelImageBuf* gbSmlButtonCel;
 
-extern void (*gfnSoundFunction)(int gfx);
 extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
