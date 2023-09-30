@@ -145,11 +145,11 @@ static void DrawCutscene()
 
 void interface_msg_pump()
 {
-	MSG Msg;
+	Dvl_Event e;
 
-	while (PeekMessage(&Msg)) {
+	while (PeekMessage(e)) {
 		//if (Msg.message != DVL_WM_QUIT) {
-			DispatchMessage(&Msg);
+			DispatchMessage(&e);
 		//}
 	}
 }
@@ -192,11 +192,6 @@ static void CreateDungeon()
 
 void LoadGameLevel(int lvldir)
 {
-#if DEBUG_MODE
-	if (setseed)
-		glSeedTbl[currLvl._dLevelIdx] = setseed;
-#endif
-
 	music_stop();
 	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
@@ -239,8 +234,6 @@ void LoadGameLevel(int lvldir)
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
 		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 		IncProgress();
-		IncProgress();
-
 		InitTowners();
 	}
 	IncProgress();

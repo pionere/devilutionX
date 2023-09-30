@@ -1080,12 +1080,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#if DEBUG_MODE
-	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDrawLightTbl(dx, dy, pSquareCel, 1, TILE_WIDTH, 0);
-	}
-#endif
-
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[sx][sy];
 		assert(mpnum != 0);

@@ -59,34 +59,5 @@ bool IsControllerButtonPressed(ControllerButton button)
 	return false;
 }
 
-bool HandleControllerAddedOrRemovedEvent(const SDL_Event& event)
-{
-#ifndef USE_SDL1
-	switch (event.type) {
-#if HAS_GAMECTRL
-	case SDL_CONTROLLERDEVICEADDED:
-		GameController::Add(event.cdevice.which);
-		break;
-	case SDL_CONTROLLERDEVICEREMOVED:
-		GameController::Remove(event.cdevice.which);
-		break;
-#endif
-#if HAS_JOYSTICK
-	case SDL_JOYDEVICEADDED:
-		Joystick::Add(event.jdevice.which);
-		break;
-	case SDL_JOYDEVICEREMOVED:
-		Joystick::Remove(event.jdevice.which);
-		break;
-#endif
-	default:
-		return false;
-	}
-	return true;
-#else
-	return false;
-#endif
-}
-
 DEVILUTION_END_NAMESPACE
 #endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

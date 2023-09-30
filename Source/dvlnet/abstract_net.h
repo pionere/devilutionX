@@ -73,7 +73,7 @@ public:
 	virtual void SNetDropPlayer(int playerid) = 0;
 	virtual ~abstract_net() = default;
 
-	virtual void make_default_gamename(char (&gamename)[128]) = 0;
+	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) = 0;
 #ifdef ZEROTIER
 	virtual void setup_password(std::string passwd)
 	{

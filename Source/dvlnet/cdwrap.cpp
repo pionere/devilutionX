@@ -90,7 +90,7 @@ unsigned cdwrap::SNetGetTurnsInTransit()
 	return dvlnet_wrap->SNetGetTurnsInTransit();
 }
 
-void cdwrap::make_default_gamename(char (&gamename)[128])
+void cdwrap::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	dvlnet_wrap->make_default_gamename(gamename);
 }

@@ -174,6 +174,7 @@ option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" ON)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
+option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
@@ -341,7 +342,7 @@ endif()
 
 if(TCPIP)
   add_subdirectory(3rdParty/asio)
-  target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1)
+  target_compile_definitions(asio INTERFACE ASIO_STANDALONE ASIO_NO_TYPEID ASIO_DISABLE_FILE ASIO_CONCURRENCY_HINT_DEFAULT=1 ASIO_NO_EXCEPTIONS)
   if(NINTENDO_3DS)
     target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON ASIO_HAS_UNISTD_H=ON)
     # Missing headers and declarations provided by DevilutionX
@@ -356,6 +357,18 @@ endif()
 
 if(ZEROTIER)
   add_subdirectory(3rdParty/libzt)
+endif()
+
+if(SCREEN_READER_INTEGRATION)
+  if(WIN32)
+    add_subdirectory(3rdParty/tolk)
+    #target_compile_definitions(libdevilutionx PRIVATE Tolk)
+    set(SCREEN_READER_LIBRARY Tolk)
+  else()
+    find_package(Speechd REQUIRED)
+    include_directories(PUBLIC ${Speechd_INCLUDE_DIRS})
+    set(SCREEN_READER_LIBRARY Speechd)
+  endif()
 endif()
 
 add_library(smacker STATIC
@@ -472,7 +485,6 @@ set(devilutionx_SRCS
   Source/controls/devices/joystick.cpp
   Source/controls/devices/kbcontroller.cpp
   Source/controls/game_controls.cpp
-  Source/controls/menu_controls.cpp
   Source/controls/modifier_hints.cpp
   Source/controls/plrctrls.cpp
   Source/controls/touch.cpp
@@ -506,13 +518,16 @@ set(devilutionx_SRCS
   Source/engine/render/text_render.cpp
   Source/miniwin/misc_msg.cpp
   Source/storm/storm.cpp
+  Source/storm/storm_cfg.cpp
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
   Source/utils/paths.cpp
+  Source/utils/screen_reader.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
   Source/utils/soundsample.cpp
-  Source/utils/thread.cpp)
+  Source/utils/thread.cpp
+  Source/utils/utf8.cpp)
 
 if(NOT NONET)
   list(APPEND devilutionx_SRCS
@@ -592,33 +607,31 @@ endif()
 
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
-elseif(APPLE)
-  add_executable(${BIN_TARGET}
-    MACOSX_BUNDLE
-    ${devilutionx_SRCS}
-    Packaging/apple/AppIcon.icns
-    Packaging/apple/LaunchScreen.storyboard)
-elseif(WIN32)
-  add_executable(${BIN_TARGET}
-    WIN32
-    ${devilutionx_SRCS}
-    Packaging/windows/devilutionx.exe.manifest
-    Packaging/windows/devilutionx.rc)
 else()
+  set(BIN_SOURCES ${devilutionx_SRCS})
+  if(APPLE)
+    list(APPEND BIN_SOURCES
+      Packaging/apple/AppIcon.icns
+      Packaging/apple/LaunchScreen.storyboard)
+  elseif(WIN32)
+    list(APPEND BIN_SOURCES Packaging/windows/devilutionx.exe.manifest)
+    if(HELLFIRE)
+      list(APPEND BIN_SOURCES Packaging/windows/hellfire.rc)
+    else()
+      list(APPEND BIN_SOURCES Packaging/windows/devilutionx.rc)
+    endif()
+  endif()
   add_executable(${BIN_TARGET}
     WIN32
     MACOSX_BUNDLE
-    ${devilutionx_SRCS}
-    Packaging/windows/devilutionx.exe.manifest
-    Packaging/windows/devilutionx.rc)
+    ${BIN_SOURCES})
 endif()
 
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
   add_custom_command(
     TARGET ${BIN_TARGET} POST_BUILD
     DEPENDS ${BIN_TARGET}
-    COMMAND $<$<CONFIG:Release>:${CMAKE_STRIP}>
-            $<$<CONFIG:MinSizeRel>:${CMAKE_STRIP}>
+    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 endif()
 
@@ -653,7 +666,7 @@ if(USE_PATCH)
     tools/patcher/controls/devices/game_controller.cpp
     tools/patcher/controls/devices/joystick.cpp
     tools/patcher/controls/devices/kbcontroller.cpp
-    tools/patcher/controls/menu_controls.cpp
+    tools/patcher/controls/game_controls.cpp
     tools/patcher/controls/touch.cpp
     tools/patcher/DiabloUI/diabloui.cpp
     tools/patcher/DiabloUI/dialogs.cpp
@@ -673,8 +686,10 @@ if(USE_PATCH)
     tools/patcher/engine/render/text_render.cpp
     tools/patcher/miniwin/misc_msg.cpp
     tools/patcher/storm/storm.cpp
+    tools/patcher/storm/storm_cfg.cpp
     tools/patcher/utils/display.cpp
     tools/patcher/utils/paths.cpp
+    tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
     tools/patcher/utils/soundsample.cpp
     tools/patcher/utils/thread.cpp)
@@ -684,38 +699,35 @@ if(USE_PATCH)
   endif()
 
   if(NINTENDO_SWITCH)
-    list(APPEND devilutionx_SRCS
+    list(APPEND devil_patcher_SRCS
       Source/platform/switch/docking.cpp
       Source/platform/switch/romfs.cpp)
   endif()
 
   if(NINTENDO_3DS)
-    list(APPEND devilutionx_SRCS
+    list(APPEND devil_patcher_SRCS
       Source/platform/ctr/system.cpp
       Source/platform/ctr/display.cpp
       Source/platform/ctr/messagebox.cpp)
   endif()
 
+  set(PATCHER_SOURCES ${devil_patcher_SRCS})
   if(APPLE)
-    add_executable(${DEVIL_PATCHER}
-      MACOSX_BUNDLE
-      ${devil_patcher_SRCS}
+    list(APPEND PATCHER_SOURCES
       Packaging/apple/AppIcon.icns
       Packaging/apple/LaunchScreen.storyboard)
   elseif(WIN32)
-    add_executable(${DEVIL_PATCHER}
-      WIN32
-      ${devil_patcher_SRCS}
-      Packaging/windows/devilutionx.exe.manifest
-      Packaging/windows/devilutionx.rc)
-  else()
-    add_executable(${DEVIL_PATCHER}
-      WIN32
-      MACOSX_BUNDLE
-      ${devil_patcher_SRCS}
-      Packaging/windows/devilutionx.exe.manifest
-      Packaging/windows/devilutionx.rc)
+    list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
+    if(HELLFIRE)
+      list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
+    else()
+      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+    endif()
   endif()
+  add_executable(${DEVIL_PATCHER}
+    WIN32
+    MACOSX_BUNDLE
+    ${PATCHER_SOURCES})
 
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
     PKWare
@@ -733,6 +745,10 @@ if(USE_PATCH)
 
   if(NOT NOSOUND)
     target_link_libraries(${DEVIL_PATCHER} PRIVATE ${SDL_MIXER_LIBRARY})
+  endif()
+
+  if(SCREEN_READER_INTEGRATION)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${SCREEN_READER_LIBRARY})
   endif()
 
   target_include_directories(${DEVIL_PATCHER} PRIVATE
@@ -841,6 +857,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   DEBUG_MODE
   DEV_MODE
@@ -915,7 +932,6 @@ foreach(
   JOY_BUTTON_TRIGGERRIGHT
   JOY_BUTTON_START
   JOY_BUTTON_BACK
-  REMAP_KEYBOARD_KEYS
 )
   if(DEFINED ${def_name})
     list(APPEND def_list ${def_name}=${${def_name}})
@@ -952,6 +968,10 @@ endif()
 
 if(NOT NOSOUND)
   target_link_libraries(${BIN_TARGET} PRIVATE ${SDL_MIXER_LIBRARY})
+endif()
+
+if(SCREEN_READER_INTEGRATION)
+  target_link_libraries(${BIN_TARGET} PRIVATE ${SCREEN_READER_LIBRARY})
 endif()
 
 if(AMIGA)
@@ -1253,11 +1273,18 @@ if(CPACK)
     set(CPACK_STRIP_FILES TRUE)
     #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY .)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
-    #message(STATUS "Runtime libs: ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}")
+
+    # install dlls
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-      file(GLOB _WIN32_ALL_DLLS
-        LIST_DIRECTORIES false
-        "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll")
+      install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
+        DESTINATION "."
+        FILES_MATCHING REGEX "[^\\\\/.]\\.[dD][lL][lL]$"
+      )
+      if(SCREEN_READER_INTEGRATION)
+        install(FILES "${Tolk_BINARY_DIR}/${CMAKE_BUILD_TYPE}/Tolk.dll"
+          DESTINATION "."
+        )
+      endif()
     else()
       # find sdl.dll
       if(USE_SDL1)
@@ -1280,22 +1307,22 @@ if(CPACK)
             set(SODIUM_DLL_PATH ${sodium_DLL_RELEASE})
           endif()
         else()
-          set(SODIUM_DLL_PATH "${CMAKE_BINARY_DIR}/libsodium.dll")
+          set(SODIUM_DLL_PATH "${sodium_BINARY_DIR}/libsodium.dll")
         endif()
         list(APPEND _WIN32_ALL_DLLS ${SODIUM_DLL_PATH})
       endif()
+      # find tolk.dll
+      if(SCREEN_READER_INTEGRATION)
+        list(APPEND _WIN32_ALL_DLLS "${Tolk_BINARY_DIR}/libTolk.dll")
+      endif()
+      # install the dlls
+      foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
+        install(FILES "${_WIN32_DLL_PATH}"
+          DESTINATION "."
+        )
+      endforeach()
     endif()
-    foreach(_WIN32_DLL_PATH ${_WIN32_ALL_DLLS})
-      install(FILES "${_WIN32_DLL_PATH}"
-        DESTINATION "."
-      )
-    endforeach()
-    #install(DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/"
-    #  DESTINATION "."
-    #  PATTERN "*.lib" EXCLUDE
-    #  PATTERN "*.exp" EXCLUDE
-    #  PATTERN "*.h" EXCLUDE
-    #)
+
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
       DESTINATION "."
     )
@@ -1365,7 +1392,6 @@ if(CPACK)
     #  #  DESTINATION "LICENSE"
     #  #)
     #endif()
-
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_GENERATOR "7Z")
@@ -1496,6 +1522,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   ASAN
   UBSAN
@@ -1582,7 +1609,6 @@ foreach(
   JOY_BUTTON_TRIGGERRIGHT
   JOY_BUTTON_START
   JOY_BUTTON_BACK
-  REMAP_KEYBOARD_KEYS
 )
   string(LENGTH ${def_name} _OPTLEN)
   math(EXPR _PADLEN "(${LONGESTOPTIONNAME} + 1) - ${_OPTLEN}")

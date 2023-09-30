@@ -545,13 +545,6 @@ void GetLevelMTypes()
 			montypes[nt] = mtype;
 		}
 
-#if DEBUG_MODE
-		if (monstdebug) {
-			for (i = 0; i < debugmonsttypes; i++)
-				AddMonsterType(DebugMonsters[i], TRUE);
-			return;
-		}
-#endif
 		while (monstimgtot > 0/* && nummtypes < MAX_LVLMTYPES*/) { // nummtypes test is pointless, because PlaceSetMapMonsters can break it anyway...
 			for (i = 0; i < nt; ) {
 				if (monfiledata[monsterdata[montypes[i]].moFileNum].moImage > monstimgtot) {

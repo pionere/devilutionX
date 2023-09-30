@@ -7,7 +7,7 @@
 #define NOMINMAX 1
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif // WINVER...
+#endif
 
 #define DEFAULT_PRIORITY             SDL_LOG_PRIORITY_CRITICAL
 #define DEFAULT_ASSERT_PRIORITY      SDL_LOG_PRIORITY_WARN
@@ -655,12 +655,12 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
 #elif defined(_WIN32)
-// #if defined(WINVER) && WINVER <= 0x0500 && (!defined(_WIN32_WINNT) || _WIN32_WINNT == 0)
+//#if (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
 	// On Windows9x there is no such thing as PrefPath. Simply use the current directory.
 	char *result = (char *)SDL_malloc(1);
 	*result = '\0';
 	return result;
-// #endif
+//#endif
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*

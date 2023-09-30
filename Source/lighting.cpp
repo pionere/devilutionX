@@ -1055,36 +1055,12 @@ void InitLighting()
 	}*/
 }
 
-#if DEBUG_MODE
-void ToggleLighting()
-{
-	int pnum;
-
-	lightflag = !lightflag;
-
-	if (lightflag) {
-		memset(dLight, 0, sizeof(dLight));
-	} else {
-		memcpy(dLight, dPreLight, sizeof(dLight));
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
-				DoLighting(plr._px, plr._py, plr._pLightRad, NO_LIGHT);
-			}
-		}
-	}
-}
-
-#endif
-
 void InitLvlLighting()
 {
 	int i;
 
 	numlights = 0;
 	gbDolighting = false;
-#if DEBUG_MODE
-	lightflag = false;
-#endif
 
 	for (i = 0; i < MAXLIGHTS; i++) {
 		lightactive[i] = i;
@@ -1096,10 +1072,6 @@ unsigned AddLight(int x, int y, int r)
 	LightListStruct* lis;
 	int lnum;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return NO_LIGHT;
-#endif
 	static_assert(NO_LIGHT >= MAXLIGHTS, "Handling of lights expects NO_LIGHT out of the [0..MAXLIGHTS) range");
 	lnum = NO_LIGHT;
 
@@ -1123,10 +1095,6 @@ unsigned AddLight(int x, int y, int r)
 
 void AddUnLight(unsigned lnum)
 {
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 
@@ -1138,10 +1106,6 @@ void ChangeLightRadius(unsigned lnum, int r)
 {
 	LightListStruct* lis;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 
@@ -1155,10 +1119,6 @@ void ChangeLightXY(unsigned lnum, int x, int y)
 {
 	LightListStruct* lis;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 
@@ -1174,10 +1134,6 @@ void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	LightListStruct* lis;
 	int xoff, yoff;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 	// convert screen-offset to tile-offset
@@ -1201,10 +1157,6 @@ void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
 	LightListStruct* lis;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 
@@ -1221,10 +1173,6 @@ void CondChangeLightXY(unsigned lnum, int x, int y)
 {
 	LightListStruct* lis;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 
@@ -1245,10 +1193,6 @@ void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	int lx, ly;
 	int offx, offy;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 	lis = &LightList[lnum];
@@ -1277,10 +1221,6 @@ void ChangeLight(unsigned lnum, int x, int y, int r)
 {
 	LightListStruct* lis;
 
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 	if (lnum >= MAXLIGHTS)
 		return;
 
@@ -1297,11 +1237,6 @@ void ProcessLightList()
 	LightListStruct* lis;
 	int i, j;
 	BYTE temp;
-
-#if DEBUG_MODE
-	if (lightflag)
-		return;
-#endif
 
 	if (gbDolighting) {
 		for (i = 0; i < numlights; i++) {

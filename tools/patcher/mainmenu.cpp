@@ -31,7 +31,7 @@ void mainmenu_loop()
 	mainmenu_refresh_music();
 
 	while (TRUE) {
-		switch (UiMainMenuDialog(PlaySFX)) {
+		switch (UiMainMenuDialog()) {
 		case 0:
 			UiPatcherDialog();
 			continue;

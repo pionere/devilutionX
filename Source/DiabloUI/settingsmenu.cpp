@@ -1,13 +1,12 @@
 
 #include "DiabloUI/diabloui.h"
-#include "controls/menu_controls.h"
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 void UiSettingsDialog()
 {
-	int keypress;
 	TMenuItem* settingsMenu;
 
 	// enable speed setting
@@ -22,69 +21,38 @@ void UiSettingsDialog()
 	}
 	// initialize the UI
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	UiAddBackground(&gUiItems);
+	UiAddBackground();
 	UiInitScreen(0);
 	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);
 	settingsMenu = gpCurrentMenu;
 
-	SDL_Event event;
+	Dvl_Event event;
 	while (settingsMenu == gpCurrentMenu) {
 		UiClearScreen();
-		UiRenderItems(gUiItems);
+		UiRenderItems();
 		gmenu_draw();
 		UiFadeIn();
-		while (SDL_PollEvent(&event) != 0) {
-			UiHandleEvents(&event);
-
-			switch (GetMenuAction(event)) {
-			case MenuAction_NONE:
-				switch (event.type) {
-				case SDL_MOUSEMOTION:
-					gmenu_on_mouse_move();
-					continue;
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button != SDL_BUTTON_LEFT)
-						continue;
-					keypress = DVL_VK_LBUTTON;
-					break;
-				case SDL_MOUSEBUTTONUP:
-					gmenu_left_mouse(false);
-					continue;
-				default:
-					continue;
-				}
+		while (UiPeekAndHandleEvents(&event)) {
+			switch (event.type) {
+			case DVL_WM_MOUSEMOVE:
+				gmenu_on_mouse_move();
 				break;
-			case MenuAction_SELECT:
-				keypress = DVL_VK_RETURN;
+			case DVL_WM_LBUTTONDOWN:
+				gmenu_presskey(DVL_VK_LBUTTON);
 				break;
-			case MenuAction_BACK:
-				keypress = DVL_VK_ESCAPE;
+			case DVL_WM_LBUTTONUP:
+				gmenu_left_mouse(false);
 				break;
-			case MenuAction_DELETE:
-				continue;
-			case MenuAction_UP:
-				keypress = DVL_VK_UP;
+			case DVL_WM_KEYDOWN:
+				gmenu_presskey(event.vkcode);
 				break;
-			case MenuAction_DOWN:
-				keypress = DVL_VK_DOWN;
-				break;
-			case MenuAction_LEFT:
-				keypress = DVL_VK_LEFT;
-				break;
-			case MenuAction_RIGHT:
-				keypress = DVL_VK_RIGHT;
-				break;
-			case MenuAction_PAGE_UP:
-			case MenuAction_PAGE_DOWN:
-				continue;
-			default:
-				ASSUME_UNREACHABLE
-				continue;
 			}
-			gmenu_presskey(keypress);
 		}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		CheckMenuMove();
+#endif
 	}
 	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
@@ -93,7 +61,7 @@ void UiSettingsDialog()
 	FreeGMenu();
 	// free the UI
 	FreeBackgroundArt();
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 DEVILUTION_END_NAMESPACE

@@ -15,6 +15,7 @@
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
 #include "controls/touch.h"
+#include "storm/storm_cfg.h"
 
 #ifdef USE_SDL1
 #ifndef SDL1_VIDEO_MODE_BPP

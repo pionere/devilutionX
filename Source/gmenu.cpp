@@ -91,13 +91,29 @@ static void gmenu_up_down(bool isDown)
 	}
 }
 
+static void gmenu_enter()
+{
+	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
+		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
+	}
+}
+
 static void gmenu_left_right(bool isRight)
 {
 	TMenuItem* pItem = &gpCurrentMenu[guCurrItemIdx];
 	int step, steps;
 
-	if ((pItem->dwFlags & (GMF_SLIDER | GMF_ENABLED)) != (GMF_SLIDER | GMF_ENABLED))
+	if (!(pItem->dwFlags & GMF_SLIDER)) {
+		if (isRight) {
+			gmenu_enter();
+		} else {
+			gamemenu_off();
+		}
 		return;
+	}
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
+		return;
+	}
 
 	step = pItem->wMenuParam2;
 	steps = pItem->wMenuParam1;
@@ -123,6 +139,8 @@ void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 	guCurrentMenuSize = nItems;
 	guCurrItemIdx = 0;
 	gmUpdateFunc = gmUpdFunc;
+	if (gmUpdateFunc != NULL)
+		gmUpdateFunc();
 	// play select sfx only in-game
 	if (gbRunGame)
 		PlaySFX(IS_TITLEMOV);
@@ -169,25 +187,29 @@ static void gmenu_draw_menu_item(int i, int y)
 	}
 }
 
-static void GameMenuMove()
-{
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection());
+void CheckMenuMove()
+{
+	// assert(gmenu_is_active());
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
 	if (move_dir.x != AxisDirectionX_NONE)
 		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
 	if (move_dir.y != AxisDirectionY_NONE)
 		gmenu_up_down(move_dir.y == AxisDirectionY_DOWN);
+}
 #endif
+
+void gmenu_update()
+{
+	// assert(gmenu_is_active());
+	assert(gmUpdateFunc != NULL);
+	gmUpdateFunc();
 }
 
 void gmenu_draw()
 {
 	int nCel, i, y;
 
-	assert(gmenu_is_active());
-	assert(gmUpdateFunc != NULL);
-	gmUpdateFunc();
-	GameMenuMove();
 #ifdef HELLFIRE
 	// nCel = GetAnimationFrame(32, 16);
 	nCel = ((SDL_GetTicks() / 32) % 16) + 1;
@@ -203,18 +225,15 @@ void gmenu_draw()
 
 void gmenu_presskey(int vkey)
 {
-	assert(gmUpdateFunc != NULL);
-	gmUpdateFunc();
-
+	// assert(gmenu_is_active());
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
 		gmenu_left_mouse(true);
 		break;
 	case DVL_VK_RETURN:
-		if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
-			gpCurrentMenu[guCurrItemIdx].fnMenu(true);
-		}
+		gmenu_enter();
 		break;
+	case DVL_VK_XBUTTON1:
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
 		gamemenu_off(); // TODO: add gmCloseFunc?
@@ -269,14 +288,19 @@ void gmenu_left_mouse(bool isDown)
 	TMenuItem* pItem;
 	int i, w;
 
-	assert(gmenu_is_active());
+	// assert(gmenu_is_active());
 	if (!isDown) {
 		//if (_gbMouseNavigation) {
 			_gbMouseNavigation = false;
 		//}
 		return;
 	}
-
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive) {
+		gmenu_enter();
+		return;
+	}
+#endif
 	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return;

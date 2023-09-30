@@ -4,6 +4,7 @@
  * Implementation of functions for handling the engines color palette.
  */
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

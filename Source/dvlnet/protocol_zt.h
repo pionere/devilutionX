@@ -73,7 +73,7 @@ public:
 	bool recv(endpoint& peer, buffer_t& data);
 	bool get_disconnected(endpoint& peer);
 	bool network_online();
-	static void make_default_gamename(char (&gamename)[128]);
+	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 
 private:
 	static constexpr uint32_t PKTBUF_LEN = 65536;

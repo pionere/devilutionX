@@ -7,7 +7,8 @@ if (buildAsApplication) {
 }
 
 android {
-	ndkVersion '26.0.10792818'
+	// ndkVersion '26.0.10792818' - asio is not ready for this
+	ndkVersion '25.2.9519653'
 	compileSdk 34
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
