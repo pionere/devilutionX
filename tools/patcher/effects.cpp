@@ -176,7 +176,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	sound_play(&pSFX->pSnd, lVolume, lPan);
 }
 
-void PlaySFX(int psfx, int rndCnt)
+void PlaySFX(int psfx)
 {
 	PlaySFX_priv(psfx, false, 0, 0);
 }

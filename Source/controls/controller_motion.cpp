@@ -79,7 +79,7 @@ void ScaleJoystickAxes(bool rightAxes)
 }
 
 // SELECT + D-Pad to simulate right stick movement.
-bool SimulateRightStickWithDpad(ControllerButtonEvent ctrlEvent)
+bool SimulateRightStickWithDpad(const ControllerButtonEvent& ctrlEvent)
 {
 	static bool simulating = false;
 	if (ctrlEvent.button == ControllerButton_BUTTON_BACK) {

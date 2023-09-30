@@ -3,14 +3,14 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-//#if defined(_WIN64) || defined(_WIN32)
+//#if defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
 
 #include "all.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
-#include <SDL.h>
+#include "storm/storm_cfg.h"
 #include <string>
 #if DEV_MODE
 #include <fstream>

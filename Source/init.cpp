@@ -10,7 +10,7 @@
 #include "all.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
-#include <SDL.h>
+#include "storm/storm_cfg.h"
 #include <string>
 #if CREATE_MPQONE
 #include <fstream>

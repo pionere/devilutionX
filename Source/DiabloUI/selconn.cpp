@@ -13,9 +13,9 @@ DEVILUTION_BEGIN_NAMESPACE
 bool selconn_bMulti = false;
 int provider;
 
-static char selconn_MaxPlayers[21];
+static_assert(MAX_PLRS < 100, "Not enough space to print the info message.");
+static char selconn_MaxPlayers[22];
 static char selconn_Description[64];
-static bool selconn_ReturnValue;
 static bool selconn_EndMenu;
 
 #define DESCRIPTION_WIDTH (SELCONN_LPANEL_WIDTH - 2 * 10)
@@ -25,7 +25,6 @@ static void SelconnSelect(unsigned index);
 
 static void SelconnEsc()
 {
-	selconn_ReturnValue = false;
 	selconn_EndMenu = true;
 }
 
@@ -91,11 +90,11 @@ static void SelconnLoad()
 #endif // NOHOSTING
 #endif // TCPIP
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELCONN_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP, DESCRIPTION_WIDTH, SELCONN_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText(selconn_MaxPlayers, rect2, UIS_LEFT | UIS_VCENTER | UIS_SMALL | UIS_SILVER));
@@ -107,17 +106,17 @@ static void SelconnLoad()
 	gUiItems.push_back(new UiText(selconn_Description, rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER));
 
 	SDL_Rect rect7 = { SELCONN_RPANEL_LEFT, SELCONN_PNL_TOP, SELCONN_RPANEL_WIDTH, SELCONN_HEADER_HEIGHT };
-	gUiItems.push_back(new UiText("Select Connection", rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiText("Select Connection", rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	//assert(numOptions == gUIListItems.size());
 	SDL_Rect rect8 = { SELCONN_RPANEL_LEFT + (SELCONN_RPANEL_WIDTH - 320) / 2, SELCONN_LIST_TOP, 320, 26 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect8, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect9 = { SELCONN_RPANEL_LEFT, SELCONN_RBUTTON_TOP, SELCONN_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect9, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect10 = { SELCONN_RPANEL_LEFT + SELCONN_RPANEL_WIDTH / 2, SELCONN_RBUTTON_TOP, SELCONN_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect10, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(numOptions == gUIListItems.size());
 	UiInitScreen(numOptions, SelconnFocus, SelconnSelect, SelconnEsc);
@@ -128,36 +127,39 @@ static void SelconnFree()
 	FreeBackgroundArt();
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelconnSelect(unsigned index)
 {
 	provider = gUIListItems[index]->m_value;
 
-	SNetInitializeProvider(provider);
 	selconn_EndMenu = true;
 }
 
 bool UiSelectProvider(bool bMulti)
 {
 	selconn_bMulti = bMulti;
-	SelconnLoad();
 
-	selconn_ReturnValue = true;
-	selconn_EndMenu = false;
+	if (selconn_bMulti) {
+		SelconnLoad();
 
-	if (!selconn_bMulti) {
-		assert(gUIListItems[0]->m_value == SELCONN_LOOPBACK);
-		SelconnSelect(0);
+		provider = -1;
+		selconn_EndMenu = false;
+		do {
+			UiRenderAndPoll();
+		} while (!selconn_EndMenu);
+		SelconnFree();
+
+		if (provider == -1) {
+			return false;
+		}
+	} else {
+		provider = SELCONN_LOOPBACK;
 	}
 
-	while (!selconn_EndMenu) {
-		UiRenderAndPoll(NULL);
-	}
-	SelconnFree();
-
-	return selconn_ReturnValue;
+	SNetInitializeProvider(provider);
+	return true;
 }
 
 DEVILUTION_END_NAMESPACE

@@ -20,7 +20,7 @@ public:
 
 	~tcpd_client() override = default;
 
-	void make_default_gamename(char (&gamename)[128]) override;
+	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 protected:
 	void poll() override;

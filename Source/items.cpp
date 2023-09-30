@@ -1062,23 +1062,8 @@ void CreatePlrItems(int pnum)
 
 	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
-
-#if DEBUG_MODE
-	if (debug_mode_key_w) {
-		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-		for (int i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (plr._pInvList[i]._itype == ITYPE_NONE) {
-				GetItemSeed(pi);
-				copy_pod(plr._pInvList[i], *pi);
-				plr._pGold += GOLD_MAX_LIMIT;
-			}
-		}
-	} else
-#endif
-	{
-		SetGoldItemValue(pi, 100);
-		plr._pGold = 100;
-	}
+	SetGoldItemValue(pi, 100);
+	plr._pGold = 100;
 
 	CalcPlrItemVals(pnum, false);
 }

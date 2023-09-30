@@ -9,6 +9,7 @@
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 #include "storm/storm_net.h"
+#include "utils/screen_reader.hpp"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -451,6 +452,9 @@ void DrawSkillList()
 	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
 
+#if SCREEN_READER_INTEGRATION
+	BYTE prevSkill = currSkill;
+#endif
 	currSkill = SPL_INVALID;
 	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
@@ -530,7 +534,7 @@ void DrawSkillList()
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
 					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), 
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX),
 					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
 					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}
@@ -550,6 +554,11 @@ void DrawSkillList()
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	_gbMoveCursor = 0;
+#endif
+#if SCREEN_READER_INTEGRATION
+	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+		SpeakText(spelldata[currSkill].sNameText);
+	}
 #endif
 }
 
@@ -1469,6 +1478,16 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	}
 	PrintGameStr(SCREEN_X + x + border + w1, SCREEN_Y + y + height - 14, text1, col);
 	PrintGameStr(SCREEN_X + x + border + w2, SCREEN_Y + y + height - 3, text2, COL_WHITE);
+#if SCREEN_READER_INTEGRATION
+	unsigned len1 = strlen(text1);
+	unsigned len = len1 + strlen(text2) + 2;
+	char *text = new char[len];
+	memcpy(text, text1, len1);
+	text[len1] = '\n';
+	memcpy(&text[len1 + 1], text1, len - (len1 + 1));
+	SpeakText(text);
+	free(text);
+#endif
 	return result;
 }
 
@@ -1555,6 +1574,9 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	// print the info
 	PrintGameStr(SCREEN_X + x + border, SCREEN_Y + y + TOOLTIP_HEIGHT - 3, text, col);
+#if SCREEN_READER_INTEGRATION
+	SpeakText(text);
+#endif
 	return result;
 }
 
@@ -1959,6 +1981,9 @@ void DrawSpellBook()
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
 	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
+#if SCREEN_READER_INTEGRATION
+	BYTE prevSkill = currSkill;
+#endif
 	currSkill = SPL_INVALID;
 
 	pnum = mypnum;
@@ -2039,6 +2064,11 @@ void DrawSpellBook()
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
+#if SCREEN_READER_INTEGRATION
+	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+		SpeakText(spelldata[currSkill].sNameText);
+	}
+#endif
 }
 
 void CheckBookClick(bool shift, bool altSkill)
