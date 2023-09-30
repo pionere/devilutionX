@@ -901,18 +901,20 @@ bool PeekMessage(Dvl_Event &e)
 		}
 	} break;
 #ifndef USE_SDL1
-	case SDL_MOUSEWHEEL:
+	case SDL_MOUSEWHEEL: {
 		e.type = DVL_WM_KEYDOWN;
 		int key;
+		unsigned mod = SDL_GetModState();
 		if (e.wheel.y > 0) {
-			key = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
+			key = (mod & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
 		} else if (e.wheel.y < 0) {
-			key = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
+			key = (mod & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
 		} else {
 			key = e.wheel.x >= 0 ? DVL_VK_LEFT : DVL_VK_RIGHT;
 		}
 		e.vkcode = key;
-		break;
+		e.key.keysym.mod = mod;
+	} break;
 #if HAS_GAMECTRL
 	case SDL_CONTROLLERDEVICEADDED:
 		GameController::Add(e.cdevice.which);
@@ -1018,6 +1020,7 @@ bool PeekMessage(Dvl_Event &e)
 				sgbControllerActive = true;
 				e.type = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
 				e.vkcode = action.send_key.vk_code;
+				e.key.keysym.mod = SDL_GetModState();
 			} else if (action.type == GameActionType_SEND_MOUSE_CLICK) {
 				sgbControllerActive = false;
 				if (action.send_mouse_click.button == GameActionSendMouseClick::LEFT) {
