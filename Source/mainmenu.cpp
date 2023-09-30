@@ -71,7 +71,7 @@ void mainmenu_loop()
 	mainmenu_refresh_music();
 
 	while (TRUE) {
-		switch (UiMainMenuDialog(PlaySFX)) {
+		switch (UiMainMenuDialog()) {
 		case MAINMENU_SINGLE_PLAYER:
 			if (mainmenu_single_player())
 				continue;
