@@ -6,6 +6,8 @@
 #include "utils/file_util.h"
 #include "utils/paths.h"
 
+#include <SDL.h>
+
 DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_LINE_LEN 1024

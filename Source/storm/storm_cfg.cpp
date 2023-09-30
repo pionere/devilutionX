@@ -1,4 +1,4 @@
-#include "storm_cfg.h"
+#include "./storm_cfg.h"
 
 #include <string>
 #include <vector>
