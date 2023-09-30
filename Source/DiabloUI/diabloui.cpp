@@ -223,8 +223,11 @@ static void UiCatToText(const char* inBuf)
 static void UiSetText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
-	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
+	char* text = gUiEditField->m_value;
+	SStrCopy(text, output, gUiEditField->m_max_length);
 	mem_free_dbg(output);
+	unsigned pos = strlen(text);
+	gUiEditField->m_curpos = pos;
 }
 #endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -677,23 +680,31 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 	return true;
 }
 
-static bool HandleMouseEvent(const Dvl_Event& event, UiItemBase* item)
+static void HandleMouseEvent(const Dvl_Event& event)
 {
-	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
-		return false;
-	switch (item->m_type) {
-	case UI_TXT_BUTTON:
-		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
-	case UI_BUTTON:
-		return HandleMouseEventButton(event, static_cast<UiButton*>(item));
-	case UI_LIST:
-		return HandleMouseEventList(event, static_cast<UiList*>(item));
-	case UI_SCROLLBAR:
-		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
-	case UI_EDIT:
-		return HandleMouseEventEdit(event, static_cast<UiEdit*>(item));
-	default:
-		return false;
+	for (UiItemBase* item : gUiItems) {
+		if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
+			continue;
+		switch (item->m_type) {
+		case UI_TXT_BUTTON:
+			HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
+			break;
+		case UI_BUTTON:
+			HandleMouseEventButton(event, static_cast<UiButton*>(item));
+			break;
+		case UI_LIST:
+			HandleMouseEventList(event, static_cast<UiList*>(item));
+			break;
+		case UI_SCROLLBAR:
+			HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
+			break;
+		case UI_EDIT:
+			HandleMouseEventEdit(event, static_cast<UiEdit*>(item));
+			break;
+		default:
+			continue;
+		}
+		return;
 	}
 }
 
@@ -713,13 +724,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			break;
 		}
 	case DVL_WM_LBUTTONUP:
-		//bool handled = false;
-		for (unsigned i = 0; i < gUiItems.size(); i++) {
-			if (HandleMouseEvent(*event, gUiItems[i])) {
-				//handled = true;
-				break;
-			}
-		}
+		HandleMouseEvent(*event);
 
 		if (event->type == DVL_WM_LBUTTONUP) {
 			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
