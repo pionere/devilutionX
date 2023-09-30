@@ -111,6 +111,19 @@ bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action)
 		break;
 	}
 
+	// DPad navigation is handled separately.
+	// - movement in store and other windows are handled in plrctrls_every_frame
+	// - standard movement is handled in plrctrls_after_game_logic
+	switch (ctrlEvent.button) {
+	case ControllerButton_BUTTON_DPAD_UP:
+	case ControllerButton_BUTTON_DPAD_DOWN:
+	case ControllerButton_BUTTON_DPAD_LEFT:
+	case ControllerButton_BUTTON_DPAD_RIGHT:
+		return true;
+	default:
+		break;
+	}
+
 	// By default, map to a keyboard key.
 	if (ctrlEvent.button != ControllerButton_NONE) {
 		*action = GameActionSendKey { TranslateControllerButtonToKey(ctrlEvent.button),

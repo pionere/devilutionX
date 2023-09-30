@@ -109,6 +109,7 @@ void InitConfig()
 
 			if (tmp[sp] == '[') {
 				// add a section
+				sp++;
 				unsigned ep = sp;
 				while (tmp[ep] != ']') {
 					ep++;
@@ -117,7 +118,7 @@ void InitConfig()
 					}
 				}
 				tmp[ep] = '\0';
-				section = addSection(&tmp[sp + 1]);
+				section = addSection(&tmp[sp]);
 				goto eol;
 			}
 			if (tmp[sp] != ';' && section != NULL && sp != cursor) {
