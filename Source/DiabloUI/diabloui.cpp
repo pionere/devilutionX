@@ -223,8 +223,11 @@ static void UiCatToText(const char* inBuf)
 static void UiSetText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
-	SStrCopy(gUiEditField->m_value, output, gUiEditField->m_max_length);
+	char* text = gUiEditField->m_value;
+	SStrCopy(text, output, gUiEditField->m_max_length);
 	mem_free_dbg(output);
+	unsigned pos = strlen(text);
+	gUiEditField->m_curpos = pos;
 }
 #endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
