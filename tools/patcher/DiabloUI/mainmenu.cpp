@@ -52,7 +52,7 @@ static void MainmenuFree()
 	UiClearListItems();
 }
 
-int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt))
+int UiMainMenuDialog(void (*fnSound)(int sfx))
 {
 	gfnSoundFunction = fnSound;
 

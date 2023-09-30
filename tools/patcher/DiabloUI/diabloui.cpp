@@ -37,7 +37,7 @@ static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
 CelImageBuf* gbSmlButtonCel;
 
-void (*gfnSoundFunction)(int gfx, int rndCnt);
+void (*gfnSoundFunction)(int gfx);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
@@ -122,13 +122,13 @@ void UiInitEdit(UiEdit* uiEdit)
 static void UiPlayMoveSound()
 {
 	assert(gfnSoundFunction != NULL);
-	gfnSoundFunction(IS_TITLEMOV, 1);
+	gfnSoundFunction(IS_TITLEMOV);
 }
 
 static void UiPlaySelectSound()
 {
 	assert(gfnSoundFunction != NULL);
-	gfnSoundFunction(IS_TITLSLCT, 1);
+	gfnSoundFunction(IS_TITLSLCT);
 }
 
 static void UiScrollIntoView()
