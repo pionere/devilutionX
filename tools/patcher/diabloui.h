@@ -18,7 +18,7 @@ void UiDestroy();
 /* Defined in title.cpp */
 bool UiTitleDialog();
 /* Defined in mainmenu.cpp */
-int UiMainMenuDialog(void (*fnSound)(int sfx));
+int UiMainMenuDialog();
 /* Defined in merger.cpp */
 void UiMergerDialog();
 /* Defined in patcher.cpp */

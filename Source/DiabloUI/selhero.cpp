@@ -1,6 +1,7 @@
 #include <time.h>
 
 #include "../all.h"
+#include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/scrollbar.h"
@@ -18,11 +19,6 @@ static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
 static int selhero_result; // _selhero_selections
-
-static void (*gfnHeroInfo)(std::vector<_uiheroinfo>&);
-static int (*gfnHeroCreate)(_uiheroinfo*);
-static void (*gfnHeroRemove)(_uiheroinfo*);
-//static void (*gfnHeroStats)(unsigned int, _uidefaultstats*);
 
 static UiTxtButton* SELLIST_DIALOG_DELETE_BUTTON;
 static UiImage* SELHERO_DIALOG_HERO_IMG;
@@ -188,7 +184,7 @@ static void SelheroInit()
 static void SelheroInitHeros()
 {
 	selhero_heros.clear();
-	gfnHeroInfo(selhero_heros);
+	pfile_ui_load_hero_infos(selhero_heros);
 	selhero_SaveCount = selhero_heros.size();
 	std::reverse(selhero_heros.begin(), selhero_heros.end());
 	{
@@ -265,7 +261,7 @@ static void SelheroListFocus(unsigned index)
 static void SelheroListDeleteYesNo(unsigned index)
 {
 	if (index == 0)
-		gfnHeroRemove(&selhero_heroInfo);
+		pfile_ui_delete_save(&selhero_heroInfo);
 	SelheroInitHeros();
 }
 
@@ -332,7 +328,7 @@ static void SelheroClassSelectorEsc()
 static void SelheroClassSelectorFocus(unsigned index)
 {
 	//_uidefaultstats defaults;
-	//gfnHeroStats(index, &defaults);
+	//pfile_ui_default_stats(index, &defaults);
 	assert((unsigned)gUIListItems[index]->m_value == index);
 
 	selhero_heroInfo.hiIdx = MAX_CHARACTERS;
@@ -442,7 +438,7 @@ static void SelheroNameInit(unsigned index)
 static void SelheroNameSelect(unsigned index)
 {
 	const char* err;
-	int result = gfnHeroCreate(&selhero_heroInfo);
+	int result = pfile_ui_create_save(&selhero_heroInfo);
 
 	switch (result) {
 	case NEWHERO_DONE:
@@ -469,15 +465,8 @@ static void SelheroNameSelect(unsigned index)
 	SelheroNameInit(0);
 }
 
-int UiSelHeroDialog(void (*fninfo)(std::vector<_uiheroinfo>&),
-	int (*fncreate)(_uiheroinfo*),
-	void (*fnremove)(_uiheroinfo*),
-	unsigned* saveIdx)
+int UiSelHeroDialog(unsigned* saveIdx)
 {
-	gfnHeroInfo = fninfo;
-	gfnHeroCreate = fncreate;
-	gfnHeroRemove = fnremove;
-
 	SelheroInit();
 
 	SelheroInitHeros();

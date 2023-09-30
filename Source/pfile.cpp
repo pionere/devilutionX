@@ -9,6 +9,7 @@
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "utils/file_util.h"
+#include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

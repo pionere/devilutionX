@@ -1,4 +1,5 @@
 
+#include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
@@ -60,9 +61,9 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	selgame_gameData->aePlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(SNetEvent* pEvt))
+static void selgame_add_event_handlers()
 {
-	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
+	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, multi_handle_events);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
 }
 
@@ -452,11 +453,9 @@ static void SelgamePasswordSelect(unsigned index)
 	SelgamePasswordInit(0);
 }
 
-int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
+int UiSelectGame(_uigamedata* game_data)
 {
 	selgame_gameData = game_data;
-
-	selgame_add_event_handlers(event_handler);
 
 	SelgameInit();
 	SelgameModeInit();

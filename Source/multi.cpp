@@ -7,6 +7,7 @@
 #include "diabloui.h"
 #include "storm/storm_net.h"
 #include <time.h>
+#include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -684,7 +685,7 @@ static void SetupLocalPlr()
 	p->_pActive = TRUE;
 }
 
-static void multi_handle_events(SNetEvent* pEvt)
+void multi_handle_events(SNetEvent* pEvt)
 {
 	unsigned pnum, LeftReason;
 
@@ -740,12 +741,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			: (provider == SELCONN_LOOPBACK ? 1 : 2);
 		// select hero
 		if (!IsGameSrv && gbSelectHero) {
-			dlgresult = UiSelHeroDialog(
-				pfile_ui_load_hero_infos,
-				pfile_ui_create_save,
-				pfile_ui_delete_save,
-				//pfile_ui_set_class_stats,
-				&mySaveIdx);
+			dlgresult = UiSelHeroDialog(&mySaveIdx);
 
 			if (dlgresult == SELHERO_PREVIOUS) {
 				// SErrSetLastError(1223);
@@ -775,7 +771,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 
 		// select game
 		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
-		dlgresult = UiSelectGame(&gameData, multi_handle_events);
+		dlgresult = UiSelectGame(&gameData);
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
 				gbSelectProvider = true;
