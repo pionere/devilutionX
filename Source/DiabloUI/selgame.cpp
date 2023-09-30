@@ -1,6 +1,8 @@
 
+#include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
+#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
@@ -14,7 +16,20 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
+
 extern int provider;
+
+typedef struct ConnectionInfo {
+	const char *ci_GameName;
+	const char *ci_GamePort;
+} ConnectionInfo;
+
+static std::vector<ConnectionInfo> selgame_coninfos;
+static unsigned selgame_connum;
+static unsigned selgame_conidx;
+
+static UiTxtButton* SELLIST_DIALOG_DELETE_BUTTON;
 
 static char selgame_Label[32];
 static char selgame_GameName[NET_MAX_GAMENAME_LEN + 1] = "";
@@ -60,9 +75,9 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	selgame_gameData->aePlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(SNetEvent* pEvt))
+static void selgame_add_event_handlers()
 {
-	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
+	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, multi_handle_events);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
 }
 
@@ -70,6 +85,13 @@ static void selgame_remove_event_handlers()
 {
 	SNetUnregisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME);
 	SNetUnregisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED);
+}
+
+static void SelgameInit()
+{
+	LoadScrollBar();
+	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
+	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 }
 
 static void SelgameFreeDlgItems()
@@ -83,6 +105,7 @@ static void SelgameFree()
 {
 	FreeBackgroundArt();
 	MemFreeDbg(gbHerosCel);
+	UnloadScrollBar();
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
@@ -261,6 +284,11 @@ static void SelgamePasswordInit(unsigned index)
 	selgame_Password[0] = '\0';
 
 	SelgameNoFocus();
+
+	if (selgame_mode != SELGAME_CREATE) {
+		snprintf(selgame_Description, sizeof(selgame_Description), "Game: %s", selgame_GameName);
+	}
+
 	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Password");
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
@@ -296,6 +324,42 @@ static void SelgamePortInit(unsigned index)
 	UiInitEdit(edit);
 }
 
+static void SelgameUpdateViewportItems()
+{
+	const unsigned numViewportCons = std::min(selgame_connum + 1 - ListOffset, MAX_VIEWPORT_ITEMS);
+	for (unsigned i = 0; i < numViewportCons; i++) {
+		const unsigned index = i + ListOffset;
+		gUIListItems[i]->m_text = selgame_coninfos[index].ci_GameName;
+		//gUIListItems[i]->m_value = index;
+	}
+}
+
+static void SelgameAddressListFocus(unsigned index)
+{
+	SelgameUpdateViewportItems();
+
+	selgame_Label[0] = '\0';
+	selgame_Description[0] = '\0';
+
+	int baseFlags = UIS_HCENTER | UIS_VCENTER | UIS_BIG;
+	if (index != selgame_connum) {
+		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+
+		snprintf(selgame_Description, sizeof(selgame_Description), "Port: %s", selgame_coninfos[index].ci_GamePort);
+	} else {
+		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
+	}
+}
+
+static void SelgameAddressEsc()
+{
+	if (selgame_connum == 0) {
+		SelgameModeInit();
+	} else {
+		SelgameModeSelect(SELGAME_JOIN);
+	}
+}
+
 static void SelgameAddressInit()
 {
 	SelgameNoFocus();
@@ -311,8 +375,81 @@ static void SelgameAddressInit()
 	UiEdit* edit = new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName) - 1, rect5);
 	gUiItems.push_back(edit);
 
-	UiInitScreen(0, NULL, SelgamePortInit, SelgameModeInit);
+	UiInitScreen(0, NULL, SelgamePortInit, SelgameAddressEsc);
 	UiInitEdit(edit);
+}
+
+static void SelgameAddressListSelect(unsigned index)
+{
+	selgame_conidx = index;
+
+	if (index != selgame_connum) {
+		SStrCopy(selgame_GameName, selgame_coninfos[index].ci_GameName, sizeof(selgame_GameName));
+		SStrCopy(selgame_GamePort, selgame_coninfos[index].ci_GamePort, sizeof(selgame_GamePort));
+
+		SelgamePasswordInit(0);
+	} else {
+		selgame_GameName[0] = '\0';
+		// TODO: load NET_DEFAULT_PORT ?
+
+		SelgameAddressInit();
+	}
+}
+
+static void SelgameAddressListDelete()
+{
+	unsigned index = SelectedItem;
+	// if (SELLIST_DIALOG_DELETE_BUTTON->m_iFlags & UIS_DISABLED)
+	if (index == selgame_connum)
+		return;
+	unsigned lastIndex = selgame_connum - 1;
+	for (unsigned i = index; ; i++) {
+		snprintf(tempstr, sizeof(tempstr), "Entry%d", i);
+		if (i < lastIndex) {
+			setIniValue("Phone Book", tempstr, selgame_coninfos[i + 1].ci_GameName);
+		} else {
+			delIniValue("Phone Book", tempstr);
+		}
+		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", i);
+		if (i < lastIndex) {
+			setIniValue("Phone Book", tempstr, selgame_coninfos[i + 1].ci_GamePort);
+		} else {
+			delIniValue("Phone Book", tempstr);
+			break;
+		}
+	}
+	SelgameModeSelect(SELGAME_JOIN);
+}
+
+static void SelgameAddressListInit()
+{
+	SelgameResetScreen("Join Game", "Select Address");
+
+	unsigned num_viewport_cons = std::min(selgame_connum + 1, MAX_VIEWPORT_ITEMS);
+	for (unsigned i = 0; i < num_viewport_cons; i++) {
+		gUIListItems.push_back(new UiListItem("", -1));
+	}
+	SelgameUpdateViewportItems();
+
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELGAME_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_cons };
+	gUiItems.push_back(new UiList(&gUIListItems, num_viewport_cons, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH - SCROLLBAR_BG_WIDTH + 1, SELGAME_CONTENT_TOP - 1, SCROLLBAR_BG_WIDTH, SELGAME_RPANEL_HEIGHT + 1 };
+	UiScrollBar* scrollBar = new UiScrollBar(rect6);
+	gUiItems.push_back(scrollBar);
+
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect8 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 3, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
+	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &UiFocusNavigationDelete, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
+	gUiItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
+
+	SDL_Rect rect9 = { SELGAME_RPANEL_LEFT + 2 * SELGAME_RPANEL_WIDTH / 3, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect9, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	UiInitScreen(selgame_connum + 1, SelgameAddressListFocus, SelgameAddressListSelect, SelgameModeInit);
+	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS, SelgameAddressListDelete);
 }
 
 static void SelgameSpeedInit()
@@ -390,10 +527,34 @@ static void SelgameModeSelect(unsigned index)
 	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
 	if (index == SELGAME_CREATE) {
 		SelgameDiffInit();
-	} else {
-		getIniValue("Phone Book", "Entry1", selgame_GameName, sizeof(selgame_GameName) - 1);
-		getIniValue("Phone Book", "Entry1Port", selgame_GamePort, sizeof(selgame_GamePort) - 1);
+		return;
+	}
 
+	int numEntries = 0;
+	selgame_coninfos.clear();
+	while (true) {
+		snprintf(tempstr, sizeof(tempstr), "Entry%d", numEntries);
+		const char* entryName = getIniStr("Phone Book", tempstr);
+		if (entryName == NULL) {
+			break;
+		}
+		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", numEntries);
+		const char* entryPort = getIniStr("Phone Book", tempstr);
+		if (entryPort == NULL) {
+			break;
+		}
+		ConnectionInfo ci = { entryName, entryPort };
+		selgame_coninfos.push_back(ci);
+		numEntries++;
+	}
+	selgame_connum = numEntries;
+
+	if (numEntries != 0) {
+		ConnectionInfo ci = { "New Address", "" };
+		selgame_coninfos.push_back(ci);
+
+		SelgameAddressListInit();
+	} else {
 		SelgameAddressInit();
 	}
 }
@@ -429,11 +590,16 @@ static void SelgamePasswordSelect(unsigned index)
 			return;
 		}
 	} else {
-		assert(selgame_mode == SELGAME_JOIN);
-		setIniValue("Phone Book", "Entry1", selgame_GameName);
-		setIniValue("Phone Book", "Entry1Port", selgame_GamePort);
+		// assert(selgame_mode == SELGAME_JOIN);
+		if (selgame_conidx == selgame_connum) {
+			selgame_connum++; // ensure SelgamePasswordEsc choose the right path in case SNetJoinGame fails. The clearest solution would be a whole selgame_coninfos-reload, but it's not worth it...
+		}
+		snprintf(tempstr, sizeof(tempstr), "Entry%d", selgame_conidx);
+		setIniValue("Phone Book", tempstr, selgame_GameName);
+		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", selgame_conidx);
+		setIniValue("Phone Book", tempstr, selgame_GamePort);
 		int port;
-		getIniInt("Phone Book", "Entry1Port", &port);
+		getIniInt("Phone Book", tempstr, &port);
 		if (SNetJoinGame(selgame_GameName, port, selgame_Password, dialogText)) {
 			selgame_endMenu = true;
 			return;
@@ -442,18 +608,15 @@ static void SelgamePasswordSelect(unsigned index)
 	// assert(provider != SELCONN_LOOPBACK);
 	SelgameFree();
 	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	SelgameInit();
 	SelgamePasswordInit(0);
 }
 
-int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
+int UiSelectGame(_uigamedata* game_data)
 {
 	selgame_gameData = game_data;
 
-	selgame_add_event_handlers(event_handler);
-
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	SelgameInit();
 	SelgameModeInit();
 
 	selgame_endMenu = false;

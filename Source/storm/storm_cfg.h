@@ -13,6 +13,7 @@ bool getIniValue(const char* sectionName, const char* keyName, char* string, int
 void setIniValue(const char* sectionName, const char* keyName, const char* value);
 bool getIniInt(const char* sectionName, const char* keyName, int* value);
 void setIniInt(const char* sectionName, const char* keyName, int value);
+void delIniValue(const char* sectionName, const char* keyName);
 
 void SLoadKeyMap(BYTE (&map)[256]);
 

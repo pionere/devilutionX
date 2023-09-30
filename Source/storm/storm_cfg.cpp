@@ -27,6 +27,9 @@ typedef struct ConfigSection {
 	}
 	ConfigEntry* getEntry(const char* name);
 	ConfigEntry* addEntry(const char* name, const char* value);
+	void delEntry(const char* name);
+private:
+	int getEntryIndex(const char* name);
 } ConfigSection;
 
 typedef struct DiabloConfig {
@@ -36,14 +39,31 @@ typedef struct DiabloConfig {
 
 DiabloConfig config;
 
-ConfigEntry* ConfigSection::getEntry(const char* name)
+int ConfigSection::getEntryIndex(const char* name)
 {
-	for (ConfigEntry &entry : entries) {
-		if (SDL_strcmp(name, entry.key) == 0) {
-			return &entry;
+	for (unsigned i = 0; i < entries.size(); i++) {
+		if (SDL_strcmp(name, entries[i].key) == 0) {
+			return i;
 		}
 	}
+	return -1;
+}
+
+ConfigEntry* ConfigSection::getEntry(const char* name)
+{
+	int idx = getEntryIndex(name);
+	if (idx >= 0) {
+		return &entries[idx];
+	}
 	return NULL;
+}
+
+void ConfigSection::delEntry(const char* name)
+{
+	int idx = getEntryIndex(name);
+	if (idx >= 0) {
+		entries.erase(entries.begin() + idx);
+	}
 }
 
 ConfigEntry* ConfigSection::addEntry(const char* key, const char* value)
@@ -109,6 +129,7 @@ void InitConfig()
 
 			if (tmp[sp] == '[') {
 				// add a section
+				sp++;
 				unsigned ep = sp;
 				while (tmp[ep] != ']') {
 					ep++;
@@ -117,7 +138,7 @@ void InitConfig()
 					}
 				}
 				tmp[ep] = '\0';
-				section = addSection(&tmp[sp + 1]);
+				section = addSection(&tmp[sp]);
 				goto eol;
 			}
 			if (tmp[sp] != ';' && section != NULL && sp != cursor) {
@@ -268,6 +289,17 @@ void setIniInt(const char* sectionName, const char* keyName, int value)
 	char str[10];
 	snprintf(str, sizeof(str), "%d", value);
 	setIniValue(sectionName, keyName, str);
+}
+
+void delIniValue(const char* sectionName, const char* keyName)
+{
+	ConfigSection* section = getSection(sectionName);
+	if (section == NULL) {
+		return;
+	}
+
+	section->delEntry(keyName);
+	config.modified = true;
 }
 
 void SLoadKeyMap(BYTE (&map)[256])

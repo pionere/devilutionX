@@ -2,6 +2,7 @@
 
 #include "controls/controller_motion.h"
 
+#include "DiabloUI/diablo.h"
 #include "DiabloUI/scrollbar.h"
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/dialogs.h"
@@ -37,7 +38,6 @@ static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
 CelImageBuf* gbSmlButtonCel;
 
-void (*gfnSoundFunction)(int gfx, int rndCnt);
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
 static void (*gfnListEsc)();
@@ -121,14 +121,12 @@ void UiInitEdit(UiEdit* uiEdit)
 #endif // FULL_UI
 static void UiPlayMoveSound()
 {
-	assert(gfnSoundFunction != NULL);
-	gfnSoundFunction(IS_TITLEMOV, 1);
+	PlaySFX(IS_TITLEMOV);
 }
 
 static void UiPlaySelectSound()
 {
-	assert(gfnSoundFunction != NULL);
-	gfnSoundFunction(IS_TITLSLCT, 1);
+	PlaySFX(IS_TITLSLCT);
 }
 
 static void UiScrollIntoView()

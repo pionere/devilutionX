@@ -826,7 +826,7 @@ bool PeekMessage(Dvl_Event &e)
 		//if (key == -1)
 		//	return FalseAvail(type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
 		e.type = type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
-		e.key.keysym.sym = key;
+		e.vkcode = key;
 	} break;
 	case SDL_MOUSEMOTION:
 #if FIX_WARPING
@@ -848,17 +848,17 @@ bool PeekMessage(Dvl_Event &e)
 			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON); -- unused
 		} else if (button == SDL_BUTTON_MIDDLE) {
 			e.type = DVL_WM_KEYDOWN;
-			e.key.keysym.sym = DVL_VK_MBUTTON;
+			e.vkcode = DVL_VK_MBUTTON;
 		} else if (button == SDL_BUTTON_X1) {
 			e.type = DVL_WM_KEYDOWN;
-			e.key.keysym.sym = DVL_VK_XBUTTON1;
+			e.vkcode = DVL_VK_XBUTTON1;
 #ifdef USE_SDL1
 		} else if (button == SDL_BUTTON_WHEELUP) {
 			e.type = DVL_WM_KEYDOWN;
-			e.key.keysym.sym = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
+			e.vkcode = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
 		} else if (button == SDL_BUTTON_WHEELDOWN) {
 			e.type = DVL_WM_KEYDOWN;
-			e.key.keysym.sym = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
+			e.vkcode = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
 #endif
 		}
 	} break;
@@ -874,10 +874,10 @@ bool PeekMessage(Dvl_Event &e)
 			//lpMsg->lParam = KeystateForMouse(0); -- unused
 		} else if (button == SDL_BUTTON_MIDDLE) {
 			e.type = DVL_WM_KEYUP;
-			e.key.keysym.sym = DVL_VK_MBUTTON;
+			e.vkcode = DVL_VK_MBUTTON;
 		} else if (button == SDL_BUTTON_X1) {
 			e.type = DVL_WM_KEYUP;
-			e.key.keysym.sym = DVL_VK_XBUTTON1;
+			e.vkcode = DVL_VK_XBUTTON1;
 		}
 	} break;
 #ifndef USE_SDL1
@@ -891,7 +891,7 @@ bool PeekMessage(Dvl_Event &e)
 		} else {
 			key = e.wheel.x >= 0 ? DVL_VK_LEFT : DVL_VK_RIGHT;
 		}
-		e.key.keysym.sym = key;
+		e.vkcode = key;
 		break;
 #if HAS_GAMECTRL
 	case SDL_CONTROLLERDEVICEADDED:
@@ -981,7 +981,7 @@ bool PeekMessage(Dvl_Event &e)
 			if (action.type == GameActionType_SEND_KEY) {
 				sgbControllerActive = true;
 				e.type = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
-				e.key.keysym.sym = action.send_key.vk_code;
+				e.vkcode = action.send_key.vk_code;
 			} else if (action.type == GameActionType_SEND_MOUSE_CLICK) {
 				sgbControllerActive = false;
 				if (action.send_mouse_click.button == GameActionSendMouseClick::LEFT) {
