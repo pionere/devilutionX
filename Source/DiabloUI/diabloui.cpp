@@ -740,12 +740,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
-		if (event->key.keysym.sym == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
+		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
 		}
 		if (gUiEditField != NULL) {
-			switch (event->key.keysym.sym) {
+			switch (event->vkcode) {
 #ifndef USE_SDL1
 			case DVL_VK_MBUTTON:
 			case DVL_VK_V:
@@ -823,7 +823,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			break; // gUiEditField != NULL
 		}
 		// TODO: use something like WMButtonInputTransTbl?
-		switch (event->key.keysym.sym) {
+		switch (event->vkcode) {
 		case DVL_VK_RETURN:
 		case DVL_VK_RIGHT:
 			UiFocusNavigationSelect();
@@ -857,8 +857,8 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 #endif
 		}
 		break;
-	case DVL_WM_TEXT:
 #ifndef USE_SDL1
+	case DVL_WM_TEXT:
 		if (gUiEditField != NULL) {
 #ifdef __vita__
 			UiSetText(event->text.text);
