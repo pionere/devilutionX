@@ -24,7 +24,7 @@ static void TitleLoad()
 	// assert(gbLogoBig == NULL);
 	gbLogoBig = CelLoadImage("ui_art\\logo.CEL", BIG_LOGO_WIDTH);
 
-	UiAddBackground(&gUiItems);
+	UiAddBackground();
 
 	SDL_Rect rect1 = { PANEL_MIDX(BIG_LOGO_WIDTH), BIG_LOGO_TOP, BIG_LOGO_WIDTH, BIG_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, true));
@@ -37,7 +37,7 @@ static void TitleFree()
 {
 	FreeBackgroundArt();
 	MemFreeDbg(gbLogoBig);
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 bool UiTitleDialog()

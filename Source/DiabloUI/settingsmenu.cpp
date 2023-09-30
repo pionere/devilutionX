@@ -21,7 +21,7 @@ void UiSettingsDialog()
 	}
 	// initialize the UI
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	UiAddBackground(&gUiItems);
+	UiAddBackground();
 	UiInitScreen(0);
 	// initialize gamemenu
 	InitGMenu();
@@ -31,7 +31,7 @@ void UiSettingsDialog()
 	Dvl_Event event;
 	while (settingsMenu == gpCurrentMenu) {
 		UiClearScreen();
-		UiRenderItems(gUiItems);
+		UiRenderItems();
 		gmenu_draw();
 		UiFadeIn();
 		while (UiPeekAndHandleEvents(&event)) {
@@ -46,7 +46,7 @@ void UiSettingsDialog()
 				gmenu_left_mouse(false);
 				break;
 			case DVL_WM_KEYDOWN:
-				gmenu_presskey(event.key.keysym.sym);
+				gmenu_presskey(event.vkcode);
 				break;
 			}
 		}
@@ -61,7 +61,7 @@ void UiSettingsDialog()
 	FreeGMenu();
 	// free the UI
 	FreeBackgroundArt();
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 DEVILUTION_END_NAMESPACE

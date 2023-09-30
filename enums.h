@@ -4004,18 +4004,11 @@ typedef enum _mainmenu_selections {
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {
+	SELHERO_NONE        = 0,
 	SELHERO_NEW_DUNGEON = 1,
 	SELHERO_CONTINUE    = 2,
 	SELHERO_PREVIOUS    = 3
 } _selhero_selections;
-
-typedef enum _selhero_status {
-	SHS_ACTIVE,
-	SHS_NEW_DUNGEON = SELHERO_NEW_DUNGEON,
-	SHS_CONTINUE = SELHERO_CONTINUE,
-	SHS_PREVIOUS = SELHERO_PREVIOUS,
-	SHS_DEL_HERO,
-} _selhero_status;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,

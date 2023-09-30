@@ -1095,10 +1095,10 @@ void DisableInputWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
 	case DVL_WM_KEYDOWN:
-		UpdateActionBtnState(e->key.keysym.sym, true);
+		UpdateActionBtnState(e->vkcode, true);
 		return;
 	case DVL_WM_KEYUP:
-		UpdateActionBtnState(e->key.keysym.sym, false);
+		UpdateActionBtnState(e->vkcode, false);
 		return;
 	case DVL_WM_TEXT:
 	//case DVL_WM_SYSKEYDOWN:
@@ -1138,10 +1138,10 @@ static void GameWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
 	case DVL_WM_KEYDOWN:
-		PressKey(e->key.keysym.sym);
+		PressKey(e->vkcode);
 		return;
 	case DVL_WM_KEYUP:
-		ReleaseKey(e->key.keysym.sym);
+		ReleaseKey(e->vkcode);
 		return;
 	case DVL_WM_TEXT: {
 #ifndef USE_SDL1

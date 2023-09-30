@@ -91,13 +91,29 @@ static void gmenu_up_down(bool isDown)
 	}
 }
 
+static void gmenu_enter()
+{
+	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
+		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
+	}
+}
+
 static void gmenu_left_right(bool isRight)
 {
 	TMenuItem* pItem = &gpCurrentMenu[guCurrItemIdx];
 	int step, steps;
 
-	if ((pItem->dwFlags & (GMF_SLIDER | GMF_ENABLED)) != (GMF_SLIDER | GMF_ENABLED))
+	if (!(pItem->dwFlags & GMF_SLIDER)) {
+		if (isRight) {
+			gmenu_enter();
+		} else {
+			gamemenu_off();
+		}
 		return;
+	}
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
+		return;
+	}
 
 	step = pItem->wMenuParam2;
 	steps = pItem->wMenuParam1;
@@ -207,13 +223,6 @@ void gmenu_draw()
 		gmenu_draw_menu_item(i, y);
 }
 
-static void gmenu_enter()
-{
-	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
-		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
-	}
-}
-
 void gmenu_presskey(int vkey)
 {
 	// assert(gmenu_is_active());
@@ -224,6 +233,7 @@ void gmenu_presskey(int vkey)
 	case DVL_VK_RETURN:
 		gmenu_enter();
 		break;
+	case DVL_VK_XBUTTON1:
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
 		gamemenu_off(); // TODO: add gmCloseFunc?
