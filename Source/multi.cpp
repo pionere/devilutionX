@@ -741,7 +741,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		// select hero
 		if (!IsGameSrv && gbSelectHero) {
 			dlgresult = UiSelHeroDialog(
-				pfile_ui_set_hero_infos,
+				pfile_ui_load_hero_infos,
 				pfile_ui_create_save,
 				pfile_ui_delete_save,
 				//pfile_ui_set_class_stats,

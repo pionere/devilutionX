@@ -177,7 +177,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
-void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*))
+void pfile_ui_load_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*))
 {
 	int i;
 
