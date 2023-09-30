@@ -690,27 +690,35 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 	return true;
 }
 #endif // FULL_UI
-static bool HandleMouseEvent(const Dvl_Event& event, UiItemBase* item)
+static void HandleMouseEvent(const Dvl_Event& event)
 {
-	if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
-		return false;
-	switch (item->m_type) {
+	for (UiItemBase* item : gUiItems) {
+		if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
+			continue;
+		switch (item->m_type) {
 #if FULL_UI
-	case UI_TXT_BUTTON:
-		return HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
+		case UI_TXT_BUTTON:
+			HandleMouseEventArtTextButton(event, static_cast<UiTxtButton*>(item));
+			break;
 #endif
-	case UI_BUTTON:
-		return HandleMouseEventButton(event, static_cast<UiButton*>(item));
-	case UI_LIST:
-		return HandleMouseEventList(event, static_cast<UiList*>(item));
+		case UI_BUTTON:
+			HandleMouseEventButton(event, static_cast<UiButton*>(item));
+			break;
+		case UI_LIST:
+			HandleMouseEventList(event, static_cast<UiList*>(item));
+			break;
 #if FULL_UI
-	case UI_SCROLLBAR:
-		return HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
-	case UI_EDIT:
-		return HandleMouseEventEdit(event, static_cast<UiEdit*>(item));
+		case UI_SCROLLBAR:
+			HandleMouseEventScrollBar(event, static_cast<UiScrollBar*>(item));
+			break;
+		case UI_EDIT:
+			HandleMouseEventEdit(event, static_cast<UiEdit*>(item));
+			break;
 #endif
-	default:
-		return false;
+		default:
+			continue;
+		}
+		return;
 	}
 }
 
@@ -730,13 +738,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			break;
 		}
 	case DVL_WM_LBUTTONUP:
-		//bool handled = false;
-		for (unsigned i = 0; i < gUiItems.size(); i++) {
-			if (HandleMouseEvent(*event, gUiItems[i])) {
-				//handled = true;
-				break;
-			}
-		}
+		HandleMouseEvent(*event);
 
 		if (event->type == DVL_WM_LBUTTONUP) {
 			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
