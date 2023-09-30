@@ -7,18 +7,23 @@ if (buildAsApplication) {
 }
 
 android {
-	compileSdkVersion 32
+	// ndkVersion '26.0.10792818' - asio is not ready for this
+	ndkVersion '25.2.9519653'
+	compileSdk 34
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
 	}
+	// if (buildAsApplication) {
+	namespace 'org.diasurgical.devilutionx'
+	// }
 	defaultConfig {
 		if (buildAsApplication) {
-			applicationId "org.diasurgical.devilutionx"
+			applicationId "org.diasurgical.devilx"
 		}
-		minSdkVersion 18
-		targetSdkVersion 32
-		versionCode 20
-		versionName "1.3.0"
+		minSdkVersion 21
+		targetSdkVersion 34
+		versionCode 666
+		versionName "1.0.0"
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_STL=c++_static", project.findProperty("cmakeargs")

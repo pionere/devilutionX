@@ -7,8 +7,10 @@
 #define __ALL_H__
 
 #include <algorithm>
-#define _USE_MATH_DEFINES
 #include <cmath>
+#include <climits>
+//#include <cstdint>
+#include <cstring>
 
 // We include `cinttypes` here so that it is included before `inttypes.h`
 // to work around a bug in older GCC versions on some platforms,
@@ -28,7 +30,12 @@
 #include "utils/sdl_compat.h"
 #include "utils/log.h"
 
-#include "../types.h"
+#include "../defs.h"
+#include "../enums.h"
+#include "../structs.h"
+
+#include "miniwin/miniwin.h"
+//#include "utils/thread.h"
 
 //#include "diabloui.h"
 #include "gameui.h"
@@ -51,7 +58,7 @@
 #include "drlg_l2.h"
 #include "drlg_l3.h"
 #include "drlg_l4.h"
-#include "dthread.h"
+//#include "dthread.h"
 #include "effects.h"
 #include "encrypt.h"
 #include "engine.h"
@@ -90,7 +97,6 @@
 #include "questdat.h"
 #include "quests.h"
 #include "scrollrt.h"
-#include "setmaps.h"
 #include "sha.h"
 #include "spelldat.h"
 #include "spells.h"
@@ -98,12 +104,11 @@
 #include "sync.h"
 #include "textdat.h" // check file name
 #include "themes.h"
-#include "tmsg.h"
+//#include "tmsg.h"
 #include "town.h"
 #include "towners.h"
+//#include "track.h"
 #include "trigs.h"
-#include "engine/render/cel_render.hpp"
-#include "engine/render/text_render.hpp"
 
 #include "storm/storm.h"
 

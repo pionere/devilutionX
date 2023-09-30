@@ -16,7 +16,7 @@ namespace net {
 
 class protocol_exception : public std::exception {
 public:
-	const char *what() const throw() override
+	const char* what() const throw() override
 	{
 		return "Protocol error";
 	}
@@ -34,17 +34,17 @@ public:
 			return (addr != empty);
 		}
 
-		bool operator==(const endpoint &rhs) const
+		bool operator==(const endpoint& rhs) const
 		{
 			return addr == rhs.addr;
 		}
 
-		bool operator!=(const endpoint &rhs) const
+		bool operator!=(const endpoint& rhs) const
 		{
 			return !(*this == rhs);
 		}
 
-		bool operator<(const endpoint &rhs) const
+		bool operator<(const endpoint& rhs) const
 		{
 			return addr < rhs.addr;
 		}
@@ -54,34 +54,34 @@ public:
 			return buffer_t(addr.begin(), addr.end());
 		}
 
-		void unserialize(const buffer_t &buf)
+		void unserialize(const buffer_t& buf)
 		{
 			if (buf.size() != 16)
 				throw protocol_exception();
 			std::copy(buf.begin(), buf.end(), addr.begin());
 		}
 
-		void from_string(const std::string &str);
+		void from_string(const std::string& str);
 	};
 
 	protocol_zt();
 	~protocol_zt();
-	void disconnect(const endpoint &peer);
-	bool send(const endpoint &peer, const buffer_t &data);
-	bool send_oob(const endpoint &peer, const buffer_t &data) const;
-	bool send_oob_mc(const buffer_t &data) const;
-	bool recv(endpoint &peer, buffer_t &data);
-	bool get_disconnected(endpoint &peer);
+	void disconnect(const endpoint& peer);
+	bool send(const endpoint& peer, const buffer_t& data);
+	bool send_oob(const endpoint& peer, const buffer_t& data) const;
+	bool send_oob_mc(const buffer_t& data) const;
+	bool recv(endpoint& peer, buffer_t& data);
+	bool get_disconnected(endpoint& peer);
 	bool network_online();
-	static void make_default_gamename(char (&gamename)[128]);
+	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 
 private:
 	static constexpr uint32_t PKTBUF_LEN = 65536;
-	static constexpr uint16_t default_port = 6112;
+	static constexpr uint16_t DEFAULT_PORT = 6112;
 
 	struct peer_state {
 		int fd = -1;
-		std::deque<buffer_t> send_queue;
+		std::deque<buffer_t*> send_queue;
 		frame_queue recv_queue;
 	};
 
@@ -99,8 +99,8 @@ private:
 	static void set_nodelay(int fd);
 	static void set_reuseaddr(int fd);
 
-	bool send_queued_peer(const endpoint &peer);
-	bool recv_peer(const endpoint &peer);
+	bool send_queued_peer(const endpoint& peer);
+	bool recv_peer(const endpoint& peer);
 	bool send_queued_all();
 	bool recv_from_peers();
 	bool recv_from_udp();
@@ -109,4 +109,4 @@ private:
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // ZEROTIER

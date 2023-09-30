@@ -9,24 +9,24 @@ namespace net {
 
 class loopback : public abstract_net {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
-	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
-	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size);
-	void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
-	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
-	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
-	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
-	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-	unsigned SNetGetTurnsInTransit();
-	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) { };
-	void SNetUnregisterEventHandler(int evtype) { };
-	void SNetLeaveGame(int reason);
-	void SNetDropPlayer(int playerid);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
+	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
+	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) override;
+	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
+	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
+	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) override;
+	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
+	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
+	unsigned SNetGetTurnsInTransit() override;
+	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override { };
+	void SNetUnregisterEventHandler(int evtype) override { };
+	void SNetLeaveGame(int reason) override;
+	void SNetDropPlayer(int playerid) override;
 
 	loopback() = default;
-	~loopback() = default;
+	~loopback() override = default;
 
-	void make_default_gamename(char (&gamename)[128]);
+	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 private:
 	buffer_t message_last;

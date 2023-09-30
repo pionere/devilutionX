@@ -4,16 +4,13 @@
 #include <memory>
 
 #include "base.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_server::tcp_server(asio::io_context &ioc, buffer_t info, unsigned srvType)
-    : ioc(ioc)
-	, acceptor(ioc)
-	, connTimer(ioc)
-	, game_init_info(info)
-	, serverType(srvType)
+tcp_server::tcp_server(asio::io_context& ioc, buffer_t info, unsigned srvType)
+    : ioc(ioc), acceptor(ioc), connTimer(ioc), game_init_info(info), serverType(srvType)
 {
 	assert(game_init_info.size() == sizeof(SNetGameData));
 }
@@ -38,8 +35,7 @@ bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const c
 	return true;
 }
 
-void tcp_server::connect_acceptor(asio::ip::tcp::acceptor &acceptor,
-	const asio::ip::tcp::endpoint& ep, asio::error_code &ec)
+void tcp_server::connect_acceptor(asio::ip::tcp::acceptor& acceptor, const asio::ip::tcp::endpoint& ep, asio::error_code& ec)
 {
 	acceptor.open(ep.protocol(), ec);
 	if (ec)
@@ -52,9 +48,7 @@ void tcp_server::connect_acceptor(asio::ip::tcp::acceptor &acceptor,
 	acceptor.listen(2 * MAX_PLRS, ec);
 }
 
-void tcp_server::connect_socket(asio::ip::tcp::socket &sock,
-	const char* addrstr, unsigned port, 
-	asio::io_context &ioc, asio::error_code &ec)
+void tcp_server::connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec)
 {
 	std::string strPort = std::to_string(port);
 	auto resolver = asio::ip::tcp::resolver(ioc);
@@ -69,10 +63,10 @@ void tcp_server::connect_socket(asio::ip::tcp::socket &sock,
 	assert(!ec);
 }
 
-void tcp_server::endpoint_to_string(const scc &con, std::string &addr)
+void tcp_server::endpoint_to_string(const scc& con, std::string& addr)
 {
 	asio::error_code err;
-	const auto &ep = con->socket.remote_endpoint(err);
+	const auto& ep = con->socket.remote_endpoint(err);
 	assert(!err);
 	char buf[PORT_LENGTH + 2];
 	snprintf(buf, sizeof(buf), ":%05d", ep.port());
@@ -80,7 +74,7 @@ void tcp_server::endpoint_to_string(const scc &con, std::string &addr)
 	addr.append(buf);
 }
 
-void tcp_server::make_default_gamename(char (&gamename)[128])
+void tcp_server::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	if (!getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1)) {
 		copy_cstr(gamename, "127.0.0.1");
@@ -88,7 +82,7 @@ void tcp_server::make_default_gamename(char (&gamename)[128])
 	}
 }
 
-tcp_server::scc tcp_server::make_connection(asio::io_context &ioc)
+tcp_server::scc tcp_server::make_connection(asio::io_context& ioc)
 {
 	return std::make_shared<client_connection>(ioc);
 }
@@ -113,7 +107,7 @@ plr_t tcp_server::next_free_queue()
 	return i;
 }
 
-void tcp_server::start_recv(const scc &con)
+void tcp_server::start_recv(const scc& con)
 {
 	con->socket.async_receive(asio::buffer(con->recv_buffer),
 	    std::bind(&tcp_server::handle_recv, this, con,
@@ -121,7 +115,7 @@ void tcp_server::start_recv(const scc &con)
 	        std::placeholders::_2));
 }
 
-void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, size_t bytesRead)
+void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t bytesRead)
 {
 	if (ec || bytesRead == 0) {
 		drop_connection(con);
@@ -141,14 +135,13 @@ void tcp_server::handle_recv(const scc &con, const asio::error_code &ec, size_t 
 	start_recv(con);
 }
 
-/*void tcp_server::send_connect(const scc &con)
+/*void tcp_server::send_connect(const scc& con)
 {
-	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
-	    con->pnum);
+	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, con->pnum);
 	send_packet(*pkt);
 }*/
 
-bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
+bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 {
 	plr_t i, pnum;
 
@@ -168,8 +161,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	pending_connections[i] = NULL;
 	connections[pnum] = con;
 	con->pnum = pnum;
-	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-	    pkt.pktJoinReqCookie(), pnum, game_init_info);
+	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
 	start_send(con, *reply);
 	//send_connect(con);
 	if (serverType == SRV_DIRECT) {
@@ -177,8 +169,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (connections[i] != NULL && connections[i] != con) {
 				endpoint_to_string(connections[i], addr);
-				auto oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST,
-					i, buffer_t(addr.begin(), addr.end()));
+				auto oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
 				start_send(con, *oldConPkt);
 			}
 		}
@@ -186,7 +177,7 @@ bool tcp_server::handle_recv_newplr(const scc &con, packet &pkt)
 	return true;
 }
 
-bool tcp_server::handle_recv_packet(const scc &con, packet &pkt)
+bool tcp_server::handle_recv_packet(const scc& con, packet& pkt)
 {
 	if (con->pnum != PLR_BROADCAST) {
 		return con->pnum == pkt.pktSrc() && send_packet(pkt);
@@ -195,7 +186,7 @@ bool tcp_server::handle_recv_packet(const scc &con, packet &pkt)
 	}
 }
 
-bool tcp_server::send_packet(packet &pkt)
+bool tcp_server::send_packet(packet& pkt)
 {
 	plr_t dest = pkt.pktDest();
 	plr_t src = pkt.pktSrc();
@@ -215,13 +206,13 @@ bool tcp_server::send_packet(packet &pkt)
 	return true;
 }
 
-void tcp_server::start_send(const scc &con, packet &pkt)
+void tcp_server::start_send(const scc& con, packet& pkt)
 {
-	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
+	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
 	asio::async_write(con->socket, buf,
-		[frame](const asio::error_code &ec, size_t bytesSent) {
-			delete frame;
+		[frame](const asio::error_code& ec, size_t bytesSent) {
+		    delete frame;
 		});
 }
 
@@ -229,20 +220,15 @@ void tcp_server::start_accept()
 {
 	if (next_free_queue() != MAX_PLRS) {
 		nextcon = make_connection(ioc);
-		acceptor.async_accept(nextcon->socket,
-			std::bind(&tcp_server::handle_accept,
-				this, true,
-				std::placeholders::_1));
+		acceptor.async_accept(nextcon->socket, std::bind(&tcp_server::handle_accept, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
 		connTimer.expires_after(std::chrono::seconds(10));
-		connTimer.async_wait(std::bind(&tcp_server::handle_accept,
-			this, false,
-			std::placeholders::_1));
+		connTimer.async_wait(std::bind(&tcp_server::handle_accept, this, false, std::placeholders::_1));
 	}
 }
 
-void tcp_server::handle_accept(bool valid, const asio::error_code &ec)
+void tcp_server::handle_accept(bool valid, const asio::error_code& ec)
 {
 	if (ec)
 		return;
@@ -261,11 +247,10 @@ void tcp_server::handle_accept(bool valid, const asio::error_code &ec)
 void tcp_server::start_timeout()
 {
 	connTimer.expires_after(std::chrono::seconds(1));
-	connTimer.async_wait(std::bind(&tcp_server::handle_timeout, this,
-		std::placeholders::_1));
+	connTimer.async_wait(std::bind(&tcp_server::handle_timeout, this, std::placeholders::_1));
 }
 
-void tcp_server::handle_timeout(const asio::error_code &ec)
+void tcp_server::handle_timeout(const asio::error_code& ec)
 {
 	int i, n;
 
@@ -299,7 +284,7 @@ void tcp_server::handle_timeout(const asio::error_code &ec)
 	start_timeout();
 }
 
-void tcp_server::drop_connection(const scc &con)
+void tcp_server::drop_connection(const scc& con)
 {
 	plr_t i, pnum = con->pnum;
 
@@ -308,8 +293,7 @@ void tcp_server::drop_connection(const scc &con)
 		if (connections[pnum] == con) {
 			connections[pnum] = NULL;
 			// notify the other clients
-			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
-				pnum, (leaveinfo_t)LEAVE_DROP);
+			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, (leaveinfo_t)LEAVE_DROP);
 			send_packet(*pkt);
 		}
 	} else {
@@ -330,8 +314,7 @@ void tcp_server::close()
 	asio::error_code err;
 
 	if (acceptor.is_open()) {
-		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
-			PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
+		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
 		send_packet(*pkt);
 		ioc.poll(err);
 		err.clear();

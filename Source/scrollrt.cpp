@@ -6,8 +6,10 @@
 #include "all.h"
 #include "utils/display.h"
 #include "plrctrls.h"
-#include "engine/render/cl2_render.hpp"
-#include "engine/render/dun_render.hpp"
+#include "engine/render/cel_render.h"
+#include "engine/render/cl2_render.h"
+#include "engine/render/dun_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -59,7 +61,6 @@ int sgCursYOld;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
 /**
  * Buffer to store the cursor image.
  */
@@ -71,7 +72,7 @@ static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
 #if DEBUG_MODE
-const char *const szMonModeAssert[NUM_MON_MODES] = {
+const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -94,7 +95,7 @@ const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"reserved",
 };
 
-const char *const szPlrModeAssert[NUM_PLR_MODES] = {
+const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -148,7 +149,7 @@ static void scrollrt_remove_back_buffer_cursor()
 
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 {
-	BYTE col;
+	BYTE col, trans;
 
 	col = ICOL_YELLOW;
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -158,13 +159,11 @@ void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, cons
 		col = ICOL_RED;
 	}
 
-	if (outline)
+	if (outline) {
 		CelClippedDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
-	if (col != ICOL_RED) {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
-	} else {
-		CelClippedDrawLightRed(sx, sy, pCelBuff, nCel, nWidth);
 	}
+	trans = col != ICOL_RED ? 0 : COLOR_TRN_RED;
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -188,14 +187,14 @@ static void scrollrt_draw_cursor()
 		return;
 #endif
 
-	mx = MouseX - 1;
+	mx = MousePos.x - 1;
 	if (mx < 0 - cursW - 1) {
 		return;
 	}
 	if (mx > SCREEN_WIDTH - 1) {
 		return;
 	}
-	my = MouseY - 1;
+	my = MousePos.y - 1;
 	if (my < 0 - cursH - 1) {
 		return;
 	}
@@ -221,7 +220,7 @@ static void scrollrt_draw_cursor()
 	sgCursHgt -= sgCursY;
 	sgCursHgt++;
 
-	assert(sgCursWdt * sgCursHgt <= sizeof sgSaveBack);
+	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
 	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
@@ -238,7 +237,7 @@ static void scrollrt_draw_cursor()
 	frame = pcursicon;
 	cCels = pCursCels;
 	if (frame < CURSOR_FIRSTITEM) {
-		CelClippedDraw(mx, my, cCels, frame, cursW);
+		CelClippedDrawLightTbl(mx, my, cCels, frame, cursW, 0);
 	} else {
 		scrollrt_draw_item(&myplr._pHoldItem, true, mx, my, cCels, frame, cursW);
 	}
@@ -252,8 +251,9 @@ static void scrollrt_draw_cursor()
  */
 static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
-	int mx, my, nCel, frames;
-	BYTE *pCelBuff;
+	int mx, my, nCel, frames, nWidth;
+	BYTE trans;
+	BYTE* pCelBuff;
 
 	if (mis->_miPreFlag != gbPreFlag || !mis->_miDrawFlag)
 		return;
@@ -262,19 +262,16 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 	my = sy + mis->_miyoff;
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_miType);
+		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
+	frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
+		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
-	if (mis->_miUniqTrans != 0)
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mis->_miAnimWidth, mis->_miUniqTrans);
-	else if (mis->_miLightFlag)
-		Cl2DrawLight(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
-	else
-		Cl2Draw(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
+	nWidth = mis->_miAnimWidth;
+	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -287,7 +284,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 static void DrawMissile(int mi, int x, int y, int sx, int sy)
 {
 	int i;
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
@@ -313,11 +310,11 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
  */
 static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (!visFlag && !myplr._pInfraFlag)
 		return;
@@ -341,9 +338,9 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t *)pCelBuff);
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		const char *szMode = "unknown action";
+		const char* szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
 			szMode = szMonModeAssert[mon->_mmode];
 		dev_fatal(
@@ -363,12 +360,10 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
-	else if (mon->_uniqtrans != 0)
-		trans = mon->_uniqtrans;
-	else {
-		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
-		return;
-	}
+	else if (mon->_muniqtrans != 0)
+		trans = mon->_muniqtrans;
+	else
+		trans = light_trn_index;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
@@ -381,6 +376,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
+	BYTE trans;
 	BYTE* pCelBuff;
 
 	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
@@ -388,21 +384,18 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Dead body(%s): NULL Cel Buffer", mon->_mName);
+		dev_fatal("Draw Dead Monster \"%s\": NULL Cel Buffer", mon->_mName);
 	}
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t *)pCelBuff);
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("DrawDeadMonster: frame %d of %d, name:%s", nCel, frames, mon->_mName);
+		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
-	if (mon->_uniqtrans != 0) {
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, mon->_uniqtrans);
-	} else {
-		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
-	}
+	trans = mon->_muniqtrans == 0 ? light_trn_index : mon->_muniqtrans;
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
@@ -438,17 +431,20 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
 	MonsterStruct* tw;
 	int tx, nCel, nWidth;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	tw = &monsters[tnum];
 	tx = sx - tw->_mAnimXOffset;
 	pCelBuff = tw->_mAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Towner \"%s\": NULL Cel Buffer", tw->_mName);
+	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
 	if (tnum == pcursmonst) {
 		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
 	}
-	CelClippedDraw(tx, sy, pCelBuff, nCel, nWidth);
+	CelClippedDrawLightTbl(tx, sy, pCelBuff, nCel, nWidth, 0);
 }
 
 /**
@@ -464,26 +460,27 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
  */
 static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
-	int px, py, nCel, nWidth, l;
+	int px, py, nCel, nWidth;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE *pCelBuff;
+	BYTE trans;
+	BYTE* pCelBuff;
 
 	if (visFlag || myplr._pInfraFlag) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
 		pCelBuff = plr._pAnimData;
 		if (pCelBuff == NULL) {
-			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+			dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
 		nCel = plr._pAnimFrame;
 #if DEBUG_MODE
-		int frames = SwapLE32(*(uint32_t *)pCelBuff);
+		int frames = SwapLE32(*(uint32_t*)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
-			const char *szMode = "unknown action";
+			const char* szMode = "unknown action";
 			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
-				"Drawing player %d \"%s\" %s(%d): facing %d, frame %d of %d",
+				"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
 				pnum,
 				plr._pName,
 				szMode,
@@ -497,25 +494,21 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
-			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
+			trans = 0;
 		} else if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8)) {
-			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, COLOR_TRN_RED);
+			trans = COLOR_TRN_RED;
 		} else {
-			l = light_trn_index;
-			if (light_trn_index <= 5)
-				light_trn_index = 0;
-			else
-				light_trn_index -= 5;
-			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
+			trans = light_trn_index;
+			trans = trans <= 5 ? 0 : (trans - 5);
 			/*if (plr.pManaShield != 0)
-				Cl2DrawLight(
+				Cl2DrawLightTbl(
 				    px + plr._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mfAnimWidth);*/
-			light_trn_index = l;
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth, trans);*/
 		}
+		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 	}
 }
 
@@ -534,14 +527,14 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #if DEBUG_MODE
-			BYTE *pCelBuff = plr._pAnimData;
+			BYTE* pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
-			int frames = SwapLE32(*(uint32_t *)pCelBuff);
+			int frames = SwapLE32(*(uint32_t*)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
+				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
@@ -592,17 +585,14 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 #if DEBUG_MODE
 	int frames = pCelBuff->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
+		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
 #endif
 	nWidth = os->_oAnimWidth;
-	if (oi == pcursobj)
+	if (oi == pcursobj) {
 		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
-	if (os->_oLightFlag) {
-		CelClippedDrawLight(sx, sy, pCelBuff, nCel, nWidth);
-	} else {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
 	}
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
 /**
@@ -613,7 +603,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
  */
 static void drawCell(int pn, int sx, int sy)
 {
-	BYTE *dst;
+	BYTE* dst;
 	uint16_t levelCelBlock, i, limit;
 	uint16_t* pMap;
 	int tmp, mask;
@@ -648,7 +638,7 @@ static void drawCell(int pn, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][i];
+	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
@@ -774,11 +764,11 @@ static void drawCell(int pn, int sx, int sy)
 						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
 						// clang-format on
 					};
-					mask = (k & 1)									// odd
-					 | ((j == (ASSET_MPL + k) / 2) << 1)			// onUpperTop
-					 | (((j + 1) == (ASSET_MPL - k + 1) / 2) << 2)	// onLowerBottom
-					 | ((j > (ASSET_MPL + k) / 2) << 3) 			// upperTop
-					 | (((j + 1) < (ASSET_MPL - k + 1) / 2) << 4);	// lowerBottom
+					mask = (k & 1)                                 // odd
+					 | ((j == (ASSET_MPL + k) / 2) << 1)           // onUpperTop
+					 | (((j + 1) == (ASSET_MPL - k + 1) / 2) << 2) // onLowerBottom
+					 | ((j > (ASSET_MPL + k) / 2) << 3)            // upperTop
+					 | (((j + 1) < (ASSET_MPL - k + 1) / 2) << 4); // lowerBottom
 					if (tmp & TMIF_LEFT_WALL_TRANS) {
 						if (ASSET_EVEN)
 							mask = leftTrnMasksEven[mask];
@@ -807,9 +797,9 @@ static void drawCell(int pn, int sx, int sy)
 						mask = DMT_NONE;
 #if ASSET_MPL == 1
 						if (tmp & TMIF_RIGHT_WALL_TRANS) {
-							mask = DMT_RTFLOOR;	// &RightMask[MICRO_HEIGHT - 1];
+							mask = DMT_RTFLOOR; // &RightMask[MICRO_HEIGHT - 1];
 						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
-							mask = DMT_RFLOOR;	// &RightFoliageMask[MICRO_HEIGHT - 1];
+							mask = DMT_RFLOOR; // &RightFoliageMask[MICRO_HEIGHT - 1];
 						}
 #elif ASSET_MPL == 2
 						if (tmp & TMIF_RIGHT_WALL_TRANS) {
@@ -921,11 +911,11 @@ static void drawCell(int pn, int sx, int sy)
 						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
 						// clang-format on
 					};
-					mask = ((ASSET_MPL - 1 - k) & 1)									// odd
-					 | ((j == (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 1)				// onUpperTop
-					 | (((j + 1) == (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 2)	// onLowerBottom
-					 | ((j > (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 3)				// upperTop
-					 | (((j + 1) < (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 4);	// lowerBottom
+					mask = ((ASSET_MPL - 1 - k) & 1)                                 // odd
+					 | ((j == (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 1)           // onUpperTop
+					 | (((j + 1) == (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 2) // onLowerBottom
+					 | ((j > (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 3)            // upperTop
+					 | (((j + 1) < (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 4); // lowerBottom
 					if (tmp & TMIF_RIGHT_WALL_TRANS) {
 						if (ASSET_EVEN)
 							mask = rightTrnMasksEven[mask];
@@ -985,7 +975,7 @@ static void drawFloor(int pn, int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][0];
+	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];
 
 	if ((tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
@@ -1033,20 +1023,20 @@ static void DrawItem(int ii, int sx, int sy)
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iName);
+		dev_fatal("Draw Item \"%s\": NULL Cel Buffer", is->_iName);
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
 	int frames = pCelBuff->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, frames, is->_itype);
+		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
 	}
 #endif
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
 	if (ii == pcursitem) {
 		CelClippedDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
 	}
-	CelClippedDrawLight(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); //is->_iAnimWidth);
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH, light_trn_index); //is->_iAnimWidth);
 }
 
 /**
@@ -1090,12 +1080,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#if DEBUG_MODE
-	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
-	}
-#endif
-
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[sx][sy];
 		assert(mpnum != 0);
@@ -1132,18 +1116,19 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bv = dSpecial[sx][sy];
+		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
+			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
+			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0) {
-			bv = dSpecial[sx - 1][sy - 1];
+			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & PST_SPEC_TYPE;
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), (CelImageBuf*)pSpecialCels, bv);
+				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
 		}
 	}
@@ -1177,8 +1162,8 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 				//} else {
 				//	world_draw_black_tile(sx, sy);
 				//}
-			} else {
-				world_draw_black_tile(sx, sy);
+			//} else {
+			//	world_draw_black_tile(sx, sy);
 			}
 			SHIFT_GRID(x, y, 1, 0);
 			sx += TILE_WIDTH;
@@ -1201,7 +1186,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y) (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE) != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**
@@ -1230,11 +1215,10 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 					// between tiles, from poking through the walls as they exceed the tile bounds.
 					// A proper fix for this would probably be to layout the sceen and render by
 					// sprite screen position rather than tile position.
-					if (IsWall(x, y) && IsWall(x + 1, y)) { // Part of a wall aligned on the x-axis
-						if (IsWalkable(x + 1, y - 1)) {     // Has walkable area behind it (to make sure it matches only the rightmost wall)
-							scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
-							skips |= 2;
-						}
+					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
+					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
+						scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
+						skips |= 2;
 					}
 				}
 				assert(dPiece[x][y] != 0);
@@ -1273,8 +1257,8 @@ static void Zoom()
 	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2 - 1, VIEWPORT_HEIGHT / 2 - 1);
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
-	BYTE *src = &gpBuffer[nSrcOff];
-	BYTE *dst = &gpBuffer[nDstOff];
+	BYTE* src = &gpBuffer[nSrcOff];
+	BYTE* dst = &gpBuffer[nDstOff];
 
 	for (int hgt = 0; hgt < VIEWPORT_HEIGHT / 2; hgt++) {
 		for (int i = 0; i < wdt; i++) {
@@ -1293,7 +1277,7 @@ static void Zoom()
  * @param offsetX Offset in pixels
  * @param offsetY Offset in pixels
  */
-static void CalcTileOffset(int *offsetX, int *offsetY)
+static void CalcTileOffset(int* offsetX, int* offsetY)
 {
 	unsigned x, y;
 
@@ -1422,6 +1406,8 @@ static void DrawGame()
 {
 	int x, y, sx, sy, columns, rows;
 
+	ClearScreenBuffer();
+
 	// Limit rendering to the view area
 	//if (!gbZoomInFlag)
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT)];
@@ -1486,14 +1472,14 @@ static void DrawGame()
 static void DrawView()
 {
 	DrawGame();
-	if (gbAutomapflag) {
+	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}
+	DrawLifeFlask();
+	DrawManaFlask();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
-	DrawLifeFlask();
-	DrawManaFlask();
 	DrawDurIcon();
 
 	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
@@ -1512,12 +1498,12 @@ static void DrawView()
 		}
 		for (int i = 0; i < gnNumActiveWindows; i++) {
 			switch (gaActiveWindows[i]) {
-			case WND_INV:	DrawInv();		break;
-			case WND_CHAR:	DrawChr();		break;
-			case WND_BOOK:	DrawSpellBook();break;
-			case WND_TEAM:	DrawTeamBook();	break;
-			case WND_QUEST:	DrawQuestLog();	break;
-			default: ASSUME_UNREACHABLE;	break;
+			case WND_INV:   DrawInv();       break;
+			case WND_CHAR:  DrawChr();       break;
+			case WND_BOOK:  DrawSpellBook(); break;
+			case WND_TEAM:  DrawTeamBook();  break;
+			case WND_QUEST: DrawQuestLog();  break;
+			default: ASSUME_UNREACHABLE;     break;
 			}
 		}
 		if (gbDropGoldFlag) {
@@ -1526,7 +1512,7 @@ static void DrawView()
 		if (gbSkillListFlag) {
 			DrawSkillList();
 		}
-		if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
+		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
 			DrawInfoStr();
 		}
 		if (gbHelpflag) {
@@ -1568,7 +1554,7 @@ void ScrollView()
 
 	scroll = false;
 
-	if (MouseX < 20) {
+	if (MousePos.x < 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
@@ -1584,7 +1570,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseX > SCREEN_WIDTH - 20) {
+	if (MousePos.x > SCREEN_WIDTH - 20) {
 		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
 			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
@@ -1600,7 +1586,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseY < 20) {
+	if (MousePos.y < 20) {
 		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
 			if (DBORDERY < ViewY) {
 				ViewY--;
@@ -1616,7 +1602,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseY > SCREEN_HEIGHT - 20) {
+	if (MousePos.y > SCREEN_HEIGHT - 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
@@ -1672,6 +1658,10 @@ static void DrawFPS()
  */
 void scrollrt_draw_screen(bool draw_cursor)
 {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive)
+		draw_cursor = false;
+#endif
 	if (draw_cursor) {
 		lock_buf(0);
 		scrollrt_draw_cursor();

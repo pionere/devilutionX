@@ -33,15 +33,14 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 
 	memset(connected_table, 0, sizeof(connected_table));
 	plr_self = PLR_BROADCAST;
-	randombytes_buf(reinterpret_cast<unsigned char *>(&cookie_self),
-		sizeof(cookie_t));
+	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
 	setup_password(passwd);
 	// connect to the server
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
 	if (!err) {
 		// setup acceptor for the direct connection to other players
-		const auto &ep = sock.local_endpoint(err);
+		const auto& ep = sock.local_endpoint(err);
 		assert(!err);
 		tcp_server::connect_acceptor(acceptor, ep, err);
 	}
@@ -55,15 +54,14 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 	start_accept_conn();
 	start_timeout();
 
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST,
-		PLR_MASTER, cookie_self);
+	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
 	for (i = 0; i < NUM_SLEEP; i++) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
-	}	
+	}
 	if (i == NUM_SLEEP)
 		copy_cstr(errorText, "Unable to connect");
 	close();
@@ -80,11 +78,10 @@ void tcpd_client::poll()
 void tcpd_client::start_timeout()
 {
 	connTimer.expires_after(std::chrono::seconds(1));
-	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this,
-		std::placeholders::_1));
+	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this, std::placeholders::_1));
 }
 
-void tcpd_client::handle_timeout(const asio::error_code &ec)
+void tcpd_client::handle_timeout(const asio::error_code& ec)
 {
 	int i, n;
 
@@ -140,7 +137,7 @@ plr_t tcpd_client::next_free_queue()
 	return i;
 }
 
-void tcpd_client::recv_connect(packet &pkt)
+void tcpd_client::recv_connect(packet& pkt)
 {
 	plr_t pnum = pkt.pktConnectPlr();
 	if (pnum == plr_self || pnum >= MAX_PLRS || connections[pnum] != NULL)
@@ -153,7 +150,7 @@ void tcpd_client::recv_connect(packet &pkt)
 
 	auto cliCon = tcp_server::make_connection(ioc);
 	asio::error_code err;
-	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc,  err);
+	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc, err);
 	if (err) {
 		DoLog("Failed to connect %s", err.message().c_str());
 		return;
@@ -162,8 +159,7 @@ void tcpd_client::recv_connect(packet &pkt)
 	cliCon->timeout = tcp_server::TIMEOUT_ACTIVE;
 	connections[pnum] = cliCon;
 	start_recv_conn(cliCon);
-	auto joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self,
-		PLR_BROADCAST, cookie_self);
+	auto joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
 	start_send(cliCon, *joinPkt);
 }
 
@@ -171,18 +167,15 @@ void tcpd_client::start_accept_conn()
 {
 	if (next_free_queue() != MAX_PLRS) {
 		nextcon = tcp_server::make_connection(ioc);
-		acceptor.async_accept(nextcon->socket,
-			std::bind(&tcpd_client::handle_accept_conn,
-				this, true, std::placeholders::_1));
+		acceptor.async_accept(nextcon->socket, std::bind(&tcpd_client::handle_accept_conn, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
 		connTimer.expires_after(std::chrono::seconds(10));
-		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn,
-			this, false, std::placeholders::_1));
+		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn, this, false, std::placeholders::_1));
 	}
 }
 
-void tcpd_client::handle_accept_conn(bool valid, const asio::error_code &ec)
+void tcpd_client::handle_accept_conn(bool valid, const asio::error_code& ec)
 {
 	if (ec)
 		return;
@@ -199,14 +192,14 @@ void tcpd_client::handle_accept_conn(bool valid, const asio::error_code &ec)
 	start_accept_conn();
 }
 
-void tcpd_client::start_recv_conn(const tcp_server::scc &con)
+void tcpd_client::start_recv_conn(const tcp_server::scc& con)
 {
 	con->socket.async_receive(asio::buffer(con->recv_buffer),
 		std::bind(&tcpd_client::handle_recv_conn, this, con,
 			std::placeholders::_1, std::placeholders::_2));
 }
 
-void tcpd_client::handle_recv_conn(const tcp_server::scc &con, const asio::error_code &ec, size_t bytesRead)
+void tcpd_client::handle_recv_conn(const tcp_server::scc& con, const asio::error_code& ec, size_t bytesRead)
 {
 	if (ec || bytesRead == 0) {
 		drop_connection(con);
@@ -226,20 +219,20 @@ void tcpd_client::handle_recv_conn(const tcp_server::scc &con, const asio::error
 	start_recv_conn(con);
 }
 
-void tcpd_client::start_send(const tcp_server::scc &con, packet &pkt)
+void tcpd_client::start_send(const tcp_server::scc& con, packet& pkt)
 {
-	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
+	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
 	asio::async_write(con->socket, buf,
-		[frame](const asio::error_code &ec, size_t bytesSent) {
-			delete frame;
+		[frame](const asio::error_code& ec, size_t bytesSent) {
+		    delete frame;
 		});
 }
 
-bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
+bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 {
 	plr_t i, pnum;
-	
+
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
 		// DoLog("Invalid join packet.");
 		return false;
@@ -263,7 +256,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc &con, packet &pkt)
 	return true;
 }
 
-bool tcpd_client::handle_recv_packet(const tcp_server::scc &con, packet &pkt)
+bool tcpd_client::handle_recv_packet(const tcp_server::scc& con, packet& pkt)
 {
 	if (con->pnum != PLR_BROADCAST) {
 		if (con->pnum != pkt.pktSrc())
@@ -283,7 +276,7 @@ void tcpd_client::disconnect_net(plr_t pnum)
 	}*/
 }
 
-void tcpd_client::drop_connection(const tcp_server::scc &con)
+void tcpd_client::drop_connection(const tcp_server::scc& con)
 {
 	plr_t i, pnum = con->pnum;
 
@@ -308,7 +301,7 @@ void tcpd_client::drop_connection(const tcp_server::scc &con)
 	con->socket.close(err);
 }
 
-void tcpd_client::handle_recv(const asio::error_code &ec, size_t bytesRead)
+void tcpd_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
 {
 	if (ec || bytesRead == 0) {
 		// error in recv from server
@@ -334,7 +327,7 @@ void tcpd_client::start_recv()
 			std::placeholders::_1, std::placeholders::_2));
 }
 
-void tcpd_client::send_packet(packet &pkt)
+void tcpd_client::send_packet(packet& pkt)
 {
 	if (pkt.pktType() == PT_TURN) {
 		//plr_t dest = pkt.pktDest();
@@ -352,11 +345,11 @@ void tcpd_client::send_packet(packet &pkt)
 		}*/
 	}
 
-	const auto *frame = new buffer_t(frame_queue::make_frame(pkt.encrypted_data()));
+	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
 	asio::async_write(sock, buf,
-		[frame](const asio::error_code &ec, size_t bytesSent) {
-			delete frame;
+		[frame](const asio::error_code& ec, size_t bytesSent) {
+		    delete frame;
 		});
 }
 
@@ -415,7 +408,7 @@ void tcpd_client::SNetLeaveGame(int reason)
 	close();
 }
 
-void tcpd_client::make_default_gamename(char (&gamename)[128])
+void tcpd_client::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	tcp_server::make_default_gamename(gamename);
 }

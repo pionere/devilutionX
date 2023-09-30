@@ -12,25 +12,25 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SAVEFILE_GAME				"game"
-#define SAVEFILE_HERO				"hero"
-#define PFILE_SAVE_MPQ_HASHCOUNT	2048
-#define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
-#define PFILE_SAVE_INTERVAL			60000
+#define SAVEFILE_GAME             "game"
+#define SAVEFILE_HERO             "hero"
+#define PFILE_SAVE_MPQ_HASHCOUNT  2048
+#define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
+#define PFILE_SAVE_INTERVAL       60000
 
 unsigned mySaveIdx;
 bool gbValidSaveFile;
 static Uint32 guNextSaveTc;
 
-static const char* PASSWORD_SINGLE = "xrgyrkj1";
-static const char* PASSWORD_MULTI = "szqnlsk1";
+#define PASSWORD_SINGLE "xrgyrkj1"
+#define PASSWORD_MULTI  "szqnlsk1"
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "multi_%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI  "multi_%d.hsv"
 #else
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.sv"
-#define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
+#define SAVE_FILE_FORMAT_MULTI  "multi_%d.sv"
 #endif
 
 static std::string GetSavePath(unsigned save_num)
@@ -86,7 +86,7 @@ static void pfile_encode_hero(int pnum)
 	packed = (BYTE*)DiabloAllocPtr(packed_len);
 	memcpy(packed, &pPack, sizeof(pPack));
 	codec_encode(packed, sizeof(pPack), packed_len, password);
-	mpqapi_write_file(SAVEFILE_HERO, packed, packed_len);
+	mpqapi_write_entry(SAVEFILE_HERO, packed, packed_len);
 	mem_free_dbg(packed);
 }
 
@@ -177,7 +177,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
-void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
+void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*))
 {
 	int i;
 
@@ -224,7 +224,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 		return NEWHERO_FAIL;
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	heroinfo->hiIdx = save_num;
-	//mpqapi_remove_hash_entries(pfile_get_file_name);
+	//mpqapi_remove_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	pfile_encode_hero(0);
 	//pfile_player2hero(&players[0], heroinfo, save_num, false);
@@ -328,10 +328,10 @@ void pfile_rename_temp_to_perm()
 		bResult = GetPermLevelNames(dwIndex, szPerm);
 		assert(bResult);
 		dwIndex++;
-		if (mpqapi_has_file(szTemp)) {
-			if (mpqapi_has_file(szPerm))
-				mpqapi_remove_hash_entry(szPerm);
-			mpqapi_rename(szTemp, szPerm);
+		if (mpqapi_has_entry(szTemp)) {
+			if (mpqapi_has_entry(szPerm))
+				mpqapi_remove_entry(szPerm);
+			mpqapi_rename_entry(szTemp, szPerm);
 		}
 	}
 	assert(!GetPermLevelNames(dwIndex, szPerm));
@@ -356,7 +356,7 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 
 	if (!full)
 		GetTempLevelNames(currLvl._dLevelIdx, pszName);
-	mpqapi_write_file(pszName, pbData, qwLen);
+	mpqapi_write_entry(pszName, pbData, qwLen);
 	pfile_flush(true);
 }
 
@@ -366,9 +366,9 @@ void pfile_delete_save_file(bool full)
 		if (!pfile_open_archive())
 			app_fatal("Unable to open file archive");
 		if (full)
-			mpqapi_remove_hash_entry(SAVEFILE_GAME);
+			mpqapi_remove_entry(SAVEFILE_GAME);
 		else
-			mpqapi_remove_hash_entries(GetTempLevelNames);
+			mpqapi_remove_entries(GetTempLevelNames);
 		pfile_flush(true);
 	}
 }

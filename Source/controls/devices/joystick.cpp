@@ -3,35 +3,41 @@
 #if HAS_JOYSTICK
 #include <cstddef>
 
-#include "controls/controller_motion.h"
-#include "controls/plrctrls.h"
+#include "appfat.h"
+#include "../controller.h"
+#include "../controller_motion.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 std::vector<Joystick> Joystick::joysticks_;
 
-ControllerButton Joystick::ToControllerButton(const SDL_Event &event)
+ControllerButton Joystick::ToControllerButton(const SDL_Event& event)
 {
+	Joystick* joystick = Joystick::Get(event);
+	if (joystick == NULL) {
+		return ControllerButton_NONE;
+	}
+
 	switch (event.type) {
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
 		switch (event.jbutton.button) {
 #ifdef JOY_BUTTON_A
 		case JOY_BUTTON_A:
-			return ControllerButton_BUTTON_A;
+			return ControllerButton_BUTTON_FACE_BOTTOM;
 #endif
 #ifdef JOY_BUTTON_B
 		case JOY_BUTTON_B:
-			return ControllerButton_BUTTON_B;
+			return ControllerButton_BUTTON_FACE_RIGHT;
 #endif
 #ifdef JOY_BUTTON_X
 		case JOY_BUTTON_X:
-			return ControllerButton_BUTTON_X;
+			return ControllerButton_BUTTON_FACE_LEFT;
 #endif
 #ifdef JOY_BUTTON_Y
 		case JOY_BUTTON_Y:
-			return ControllerButton_BUTTON_Y;
+			return ControllerButton_BUTTON_FACE_TOP;
 #endif
 #ifdef JOY_BUTTON_LEFTSTICK
 		case JOY_BUTTON_LEFTSTICK:
@@ -112,19 +118,19 @@ int Joystick::ToSdlJoyButton(ControllerButton button)
 	case ControllerButton_IGNORE:
 		break;
 #ifdef JOY_BUTTON_A
-	case ControllerButton_BUTTON_A:
+	case ControllerButton_BUTTON_FACE_BOTTOM:
 		return JOY_BUTTON_A;
 #endif
 #ifdef JOY_BUTTON_B
-	case ControllerButton_BUTTON_B:
+	case ControllerButton_BUTTON_FACE_RIGHT:
 		return JOY_BUTTON_B;
 #endif
 #ifdef JOY_BUTTON_X
-	case ControllerButton_BUTTON_X:
+	case ControllerButton_BUTTON_FACE_LEFT:
 		return JOY_BUTTON_X;
 #endif
 #ifdef JOY_BUTTON_Y
-	case ControllerButton_BUTTON_Y:
+	case ControllerButton_BUTTON_FACE_TOP:
 		return JOY_BUTTON_Y;
 #endif
 #ifdef JOY_BUTTON_BACK
@@ -218,33 +224,35 @@ bool Joystick::IsPressed(ControllerButton button) const
 	return joyButton != -1 && SDL_JoystickGetButton(sdl_joystick_, joyButton) != 0;
 }
 
-bool Joystick::ProcessAxisMotion(const SDL_Event &event)
+bool Joystick::ProcessAxisMotion(const SDL_Event& event)
 {
 	if (event.type != SDL_JOYAXISMOTION)
+		return false;
+	if (Get(event.jaxis.which) == NULL)
 		return false;
 	switch (event.jaxis.axis) {
 #ifdef JOY_AXIS_LEFTX
 	case JOY_AXIS_LEFTX:
 		leftStickXUnscaled = event.jaxis.value;
-		leftStickNeedsScaling = true;
+		ScaleJoystickAxes(false);
 		break;
 #endif
 #ifdef JOY_AXIS_LEFTY
 	case JOY_AXIS_LEFTY:
 		leftStickYUnscaled = -event.jaxis.value;
-		leftStickNeedsScaling = true;
+		ScaleJoystickAxes(false);
 		break;
 #endif
 #ifdef JOY_AXIS_RIGHTX
 	case JOY_AXIS_RIGHTX:
 		rightStickXUnscaled = event.jaxis.value;
-		rightStickNeedsScaling = true;
+		ScaleJoystickAxes(true);
 		break;
 #endif
 #ifdef JOY_AXIS_RIGHTY
 	case JOY_AXIS_RIGHTY:
 		rightStickYUnscaled = -event.jaxis.value;
-		rightStickNeedsScaling = true;
+		ScaleJoystickAxes(true);
 		break;
 #endif
 	default:
@@ -277,9 +285,10 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 #ifndef USE_SDL1
 	DoLog("Removing joystick (instance id: %d)", instanceId);
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
-		const Joystick &joystick = joysticks_[i];
+		const Joystick& joystick = joysticks_[i];
 		if (joystick.instance_id_ != instanceId)
 			continue;
+		SDL_JoystickClose(joystick.sdl_joystick_);
 		joysticks_.erase(joysticks_.begin() + i);
 		sgbControllerActive = !joysticks_.empty();
 		return;
@@ -288,22 +297,17 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 #endif
 }
 
-const std::vector<Joystick> &Joystick::All()
-{
-	return joysticks_;
-}
-
-Joystick *Joystick::Get(SDL_JoystickID instanceId)
+Joystick* Joystick::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
-		Joystick &joystick = joysticks_[i];
+		Joystick& joystick = joysticks_[i];
 		if (joystick.instance_id_ == instanceId)
 			return &joystick;
 	}
 	return NULL;
 }
 
-Joystick *Joystick::Get(const SDL_Event &event)
+Joystick* Joystick::Get(const SDL_Event& event)
 {
 	switch (event.type) {
 #ifndef USE_SDL1
@@ -328,6 +332,13 @@ Joystick *Joystick::Get(const SDL_Event &event)
 	return NULL;
 }
 
+void Joystick::ReleaseAll()
+{
+	while (!joysticks_.empty()) {
+		Joystick::Remove(joysticks_.front().instance_id_);
+	}
+}
+
 bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i)
@@ -337,4 +348,4 @@ bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
 }
 
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // HAS_JOYSTICK

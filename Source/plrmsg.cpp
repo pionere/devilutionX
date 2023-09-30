@@ -4,6 +4,8 @@
  * Implementation of functionality for printing the ingame chat messages.
  */
 #include "all.h"
+#include "engine/render/raw_render.h"
+#include "engine/render/text_render.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -27,7 +29,7 @@ static _plrmsg plr_msgs[PLRMSG_COUNT + 1];
 void plrmsg_delay(bool delay)
 {
 	/*int i;
-	_plrmsg *pMsg;
+	_plrmsg* pMsg;
 	Uint32 deltaTc;
 
 	deltaTc = SDL_GetTicks();
@@ -52,17 +54,7 @@ static _plrmsg* AddPlrMsg(int pnum)
 	return pMsg;
 }
 
-#if DEV_MODE
-void ErrorPlrMsg(const char *pszMsg)
-{
-	_plrmsg* pMsg;
-	
-	pMsg = AddPlrMsg(MAX_PLRS);
-	SStrCopy(pMsg->str, pszMsg, sizeof(pMsg->str));
-}
-#endif
-
-void EventPlrMsg(const char *pszFmt, ...)
+void EventPlrMsg(const char* pszFmt, ...)
 {
 	_plrmsg* pMsg;
 	va_list va;
@@ -73,7 +65,7 @@ void EventPlrMsg(const char *pszFmt, ...)
 	va_end(va);
 }
 
-void ReceivePlrMsg(int pnum, const char *pszStr)
+void ReceivePlrMsg(int pnum, const char* pszStr)
 {
 	_plrmsg* pMsg;
 
@@ -84,7 +76,7 @@ void ReceivePlrMsg(int pnum, const char *pszStr)
 /*void ClearPlrMsg(int pnum)
 {
 	int i;
-	_plrmsg *pMsg = plr_msgs;
+	_plrmsg* pMsg = plr_msgs;
 
 	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++) {
 		if (pMsg->player == pnum)
@@ -103,18 +95,18 @@ void InitPlrMsg()
 	// plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 }
 
-static int PrintPlrMsg(int x, int y, _plrmsg *pMsg)
+static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 {
 	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
 	int sx, line, len, width = PANEL_WIDTH - 20;
 	const char *sstr, *endstr;
-	const char *str = pMsg->str;
+	const char* str = pMsg->str;
 
 	line = GetSmallStringWidth(str) >= width ? 2 : 1;
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
-	trans_rect(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER);
+	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER);
 
 	line = 0;
 	while (*str != '\0') {
@@ -240,13 +232,13 @@ static void SendPlrMsg()
 				team = myplr._pTeam;
 			} else {
 				// "/tX msg" -> send message to the team N
-				team= strtol(&msg[2], &msg, 10);
+				team = strtol(&msg[2], &msg, 10);
 				if (msg == &plr_msgs[PLRMSG_COUNT].str[2]) {
 					team = -1;
 					msg = &plr_msgs[PLRMSG_COUNT].str[0];
 				}
 			}
-			if (team!= -1) {
+			if (team != -1) {
 				pmask = 0;
 				for (i = 0; i < MAX_PLRS; i++) {
 					if (players[i]._pTeam == team)
@@ -287,10 +279,10 @@ bool plrmsg_presschar(int vkey)
 {
 	unsigned result;
 
-	assert(gbTalkflag);
-	assert(!IsLocalGame);
+	// assert(gbTalkflag);
+	// assert(!IsLocalGame);
 
-	if ((unsigned)vkey < DVL_VK_SPACE)
+	if (vkey < ' ')
 		return false;
 
 	result = strlen(plr_msgs[PLRMSG_COUNT].str);
@@ -321,7 +313,8 @@ bool plrmsg_presskey(int vkey)
 {
 	int len;
 
-	assert(gbTalkflag);
+	// assert(gbTalkflag);
+	// assert(!IsLocalGame);
 
 	if (vkey == DVL_VK_ESCAPE) {
 		StopPlrMsg();
@@ -339,6 +332,12 @@ bool plrmsg_presskey(int vkey)
 		return false;
 	} else if (vkey == DVL_VK_RBUTTON) {
 		return false;
+#ifdef USE_SDL1
+	} else {
+		// SDL1 does not support TEXTINPUT events, so we need to handle them here.
+		vkey = TranslateKey2Char(vkey);
+		plrmsg_presschar(vkey);
+#endif
 	}
 	return true;
 }

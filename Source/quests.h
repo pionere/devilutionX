@@ -12,9 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int gnReturnLvlX;
-extern int gnReturnLvlY;
-extern int gnReturnLvl;
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;
 extern uint32_t guLvlVisited;
@@ -22,14 +19,13 @@ extern int gnSfxDelay;
 extern int gnSfxNum;
 extern QuestStruct quests[NUM_QUESTS];
 
-#define LEVEL_MASK(x)			((uint32_t)1 << (x))
-#define IsLvlVisited(x)			((guLvlVisited & LEVEL_MASK(x)) != 0)
+#define LEVEL_MASK(x)   ((uint32_t)1 << (x))
+#define IsLvlVisited(x) ((guLvlVisited & LEVEL_MASK(x)) != 0)
 
 void InitQuests();
 void InitQuestGFX();
 void FreeQuestGFX();
 void CheckQuests();
-int ForceQuests();
 bool QuestStatus(int qn);
 void CheckQuestKill(int mnum, bool sendmsg);
 void DRLG_CheckQuests();
@@ -37,6 +33,7 @@ void SetReturnLvlPos();
 void GetReturnLvlPos();
 void LoadPWaterPalette();
 void ResyncBanner();
+void ResyncDiablo();
 void ResyncQuests();
 void DrawQuestLog();
 void StartQuestlog();

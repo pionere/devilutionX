@@ -2,12 +2,12 @@
 
 #if HAS_KBCTRL
 
-#include "controls/controller_motion.h"
+#include "../controller_motion.h"
 #include "utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-ControllerButton KbCtrlToControllerButton(const SDL_Event &event)
+ControllerButton KbCtrlToControllerButton(const SDL_Event& event)
 {
 	switch (event.type) {
 	case SDL_KEYDOWN:
@@ -19,19 +19,19 @@ ControllerButton KbCtrlToControllerButton(const SDL_Event &event)
 #endif
 #ifdef KBCTRL_BUTTON_A
 		case KBCTRL_BUTTON_A:
-			return ControllerButton_BUTTON_A;
+			return ControllerButton_BUTTON_FACE_BOTTOM;
 #endif
 #ifdef KBCTRL_BUTTON_B
-		case KBCTRL_BUTTON_B: // Right button
-			return ControllerButton_BUTTON_B;
+		case KBCTRL_BUTTON_B:
+			return ControllerButton_BUTTON_FACE_RIGHT;
 #endif
 #ifdef KBCTRL_BUTTON_X
-		case KBCTRL_BUTTON_X: // Left button
-			return ControllerButton_BUTTON_X;
+		case KBCTRL_BUTTON_X:
+			return ControllerButton_BUTTON_FACE_LEFT;
 #endif
 #ifdef KBCTRL_BUTTON_Y
 		case KBCTRL_BUTTON_Y:
-			return ControllerButton_BUTTON_Y;
+			return ControllerButton_BUTTON_FACE_TOP;
 #endif
 #ifdef KBCTRL_BUTTON_LEFTSTICK
 		case KBCTRL_BUTTON_LEFTSTICK:
@@ -89,25 +89,23 @@ ControllerButton KbCtrlToControllerButton(const SDL_Event &event)
 	}
 }
 
-namespace {
-
-SDL_Keycode ControllerButtonToKbCtrlKeyCode(ControllerButton button)
+static SDL_Keycode ControllerButtonToKbCtrlKeyCode(ControllerButton button)
 {
 	switch (button) {
 #ifdef KBCTRL_BUTTON_A
-	case ControllerButton_BUTTON_A:
+	case ControllerButton_BUTTON_FACE_BOTTOM:
 		return KBCTRL_BUTTON_A;
 #endif
 #ifdef KBCTRL_BUTTON_B
-	case ControllerButton_BUTTON_B:
+	case ControllerButton_BUTTON_FACE_RIGHT:
 		return KBCTRL_BUTTON_B;
 #endif
 #ifdef KBCTRL_BUTTON_X
-	case ControllerButton_BUTTON_X:
+	case ControllerButton_BUTTON_FACE_LEFT:
 		return KBCTRL_BUTTON_X;
 #endif
 #ifdef KBCTRL_BUTTON_Y
-	case ControllerButton_BUTTON_Y:
+	case ControllerButton_BUTTON_FACE_TOP:
 		return KBCTRL_BUTTON_Y;
 #endif
 #ifdef KBCTRL_BUTTON_BACK
@@ -163,8 +161,6 @@ SDL_Keycode ControllerButtonToKbCtrlKeyCode(ControllerButton button)
 	}
 }
 
-} // namespace
-
 bool IsKbCtrlButtonPressed(ControllerButton button)
 {
 	SDL_Keycode key_code = ControllerButtonToKbCtrlKeyCode(button);
@@ -177,11 +173,11 @@ bool IsKbCtrlButtonPressed(ControllerButton button)
 #endif
 }
 
-bool ProcessKbCtrlAxisMotion(const SDL_Event &event)
+bool ProcessKbCtrlAxisMotion(const SDL_Event& event)
 {
 	// Mapping keyboard to right stick axis not implemented.
 	return false;
 }
 
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // HAS_KBCTRL

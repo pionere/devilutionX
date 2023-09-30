@@ -16,17 +16,17 @@ void track_process()
 	if (!_gbIsWalking)
 		return;
 
-	if (cursmx < 0 || cursmx >= MAXDUNX - 1 || cursmy < 0 || cursmy >= MAXDUNY - 1)
+	if (pcurspos.x < 0 || pcurspos.x >= MAXDUNX - 1 || pcurspos.y < 0 || pcurspos.y >= MAXDUNY - 1)
 		return;
 	// WALK_TICK
 	if (myplr._pVar8 <= 6 && myplr._pmode != PM_STAND)
 		return;
 
-	if (cursmx != myplr._ptargx || cursmy != myplr._ptargy) {
+	if (pcurspos.x != myplr._ptargx || pcurspos.y != myplr._ptargy) {
 		DWORD tick = SDL_GetTicks();
 		if ((int)(tick - sgdwLastWalk) >= tick_delay * 6) {
 			sgdwLastWalk = tick;
-			NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
+			NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 			if (!_gbIsScrolling)
 				_gbIsScrolling = true;
 		}
@@ -42,7 +42,7 @@ void track_repeat_walk(bool rep)
 	if (rep) {
 		_gbIsScrolling = false;
 		sgdwLastWalk = SDL_GetTicks() - tick_delay;
-		NetSendCmdLoc(CMD_WALKXY, cursmx, cursmy);
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 	} else if (_gbIsScrolling) {
 		_gbIsScrolling = false;
 	}

@@ -89,8 +89,7 @@ void RemovePortalMissile(int pidx)
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
 		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
-			mis->_miDelFlag = TRUE;
-			AddUnLight(mis->_miLid);
+			mis->_miDelFlag = TRUE; // + AddUnLight
 		}
 	}
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SDLDEV_VERS=2.24.1
+SDLDEV_VERS=2.26.0
 SDLTTF_VERS=2.0.15
 SDLMIXER_VERS=2.0.4
 SODIUM_VERS=1.0.18
@@ -32,6 +32,10 @@ if [ `id -u` -ne 0 ]; then
 else
     SUDO=""
 fi
+
+rm -rf "tmp-mingw-${MINGW_ARCH}-prep"
+mkdir -p "tmp-mingw-${MINGW_ARCH}-prep"
+cd "tmp-mingw-${MINGW_ARCH}-prep"
 
 wget -q https://www.libsdl.org/release/SDL2-devel-${SDLDEV_VERS}-mingw.tar.gz -OSDL2-devel-${SDLDEV_VERS}-mingw.tar.gz
 tar -xzf SDL2-devel-${SDLDEV_VERS}-mingw.tar.gz

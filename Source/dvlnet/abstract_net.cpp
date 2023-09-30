@@ -21,7 +21,7 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 	case SELCONN_TCPD:
 		return std::make_unique<tcpd_client>();
 #endif // HOSTONLY
-#ifndef NOHOSTING 
+#ifndef NOHOSTING
 	case SELCONN_TCPS:
 		return std::make_unique<tcp_host_client>(SRV_BASIC);
 	case SELCONN_TCPDS:
@@ -31,7 +31,9 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 #ifndef HOSTONLY
 #ifdef ZEROTIER
 	case SELCONN_ZT:
-		return std::make_unique<cdwrap<base_protocol<protocol_zt>>>();
+		return std::make_unique<cdwrap>([]() {
+			return std::make_unique<base_protocol<protocol_zt>>();
+		});
 #endif
 	case SELCONN_LOOPBACK:
 		return std::make_unique<loopback>();

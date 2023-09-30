@@ -16,7 +16,8 @@
 #define PNG_TRANSFORM_VFLIP 0x10000
 #define PNG_TRANSFORM_HFLIP 0x20000
 
-#define SUB_HEADER_SIZE		0x0A
+#define SUB_HEADER_SIZE  0x0A
+#define CEL_BLOCK_HEIGHT 32
 
 static bool stringicomp(const char* str1, const char* str2)
 {
@@ -104,12 +105,24 @@ typedef struct cel_image_data {
 } cel_image_data;
 static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data* celdata, bool multi, const char* celname, BYTE* palette, int numcolors, int coloroffset, int numfixcolors)
 {
+	// calculate header size
 	int HEADER_SIZE = 4 + 4 + numimage * 4;
-	int maxsize = HEADER_SIZE;
 
+	// calculate sub header size
+	int subHeaderSize = SUB_HEADER_SIZE;
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		if (celdata[n].clipped) {
+			int hs = (image_data->height - 1) / CEL_BLOCK_HEIGHT;
+			hs = (hs + 1) * sizeof(WORD);
+			subHeaderSize = std::max(subHeaderSize, hs);
+		}
+	}
+	// estimate data size
+	int maxsize = HEADER_SIZE;
 	for (int n = 0; n < numimage; n++) {
 		if (celdata[n].clipped)
-			maxsize += SUB_HEADER_SIZE;
+			maxsize += subHeaderSize; // SUB_HEADER_SIZE
 		png_image_data *image_data = &imagedata[n];
 		maxsize += image_data->height * (2 * image_data->width);
 	}
@@ -123,11 +136,11 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 		// add optional {CEL FRAME HEADER}
 		BYTE *pHeader = pBuf;
 		if (celdata[n].clipped) {
-			pBuf[0] = SUB_HEADER_SIZE;
+			pBuf[0] = subHeaderSize; // SUB_HEADER_SIZE
 			pBuf[1] = 0x00;
 			*(DWORD*)&pBuf[2] = 0;
 			*(DWORD*)&pBuf[6] = 0;
-			pBuf += SUB_HEADER_SIZE;
+			pBuf += subHeaderSize;
 		}
 		// convert to cel
 		png_image_data *image_data = &imagedata[n];
@@ -137,8 +150,8 @@ static bool WritePNG2Cel(png_image_data* imagedata, int numimage, cel_image_data
 			pBuf++;
 			bool alpha = false;
 			RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-			if (i == 32 + 1 && celdata[n].clipped) { // TODO: write more entries if necessary?
-				*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+			if (celdata[n].clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+				*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 			}
 			for (int j = 0; j < image_data->width; j++) {
 				if (data[j].a == 255) {
@@ -255,12 +268,22 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 	//if (groupNum > 1) {
 		headerSize += sizeof(DWORD) * groupNum;
 	//}
+	// calculate sub header size
+	int subHeaderSize = SUB_HEADER_SIZE;
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		if (celdata[n].clipped) {
+			int hs = (image_data->height - 1) / CEL_BLOCK_HEIGHT;
+			hs = (hs + 1) * sizeof(WORD);
+			subHeaderSize = std::max(subHeaderSize, hs);
+		}
+	}
 	// estimate data size
 	int maxsize = headerSize;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
 		if (celdata[n].clipped)
-			maxsize += SUB_HEADER_SIZE;
+			maxsize += subHeaderSize; // SUB_HEADER_SIZE
 		maxsize += image_data->height * (2 * image_data->width);
 	}	
 
@@ -282,11 +305,11 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 			// add optional {CEL FRAME HEADER}
 			BYTE *pHeader = pBuf;
 			if (celdata[idx].clipped) {
-				pBuf[0] = SUB_HEADER_SIZE;
+				pBuf[0] = subHeaderSize; // SUB_HEADER_SIZE
 				pBuf[1] = 0x00;
 				*(DWORD*)&pBuf[2] = 0;
 				*(DWORD*)&pBuf[6] = 0;
-				pBuf += SUB_HEADER_SIZE;
+				pBuf += subHeaderSize;
 			}
 			// convert to cel
 			png_image_data *image_data = &imagedata[idx];
@@ -296,8 +319,8 @@ static bool WritePNG2CelComp(png_image_data* imagedata, int numimage, celcmp_ima
 				pBuf++;
 				bool alpha = false;
 				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-				if (i == 32 + 1 && celdata[idx].clipped) { // TODO: write more entries if necessary?
-					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+				if (celdata[n].clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+					*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 				}
 				for (int j = 0; j < image_data->width; j++) {
 					if (data[j].a == 255) {
@@ -414,11 +437,19 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 	if (groupNum > 1) {
 		headerSize += sizeof(DWORD) * groupNum;
 	}
+	// calculate sub header size
+	int subHeaderSize = SUB_HEADER_SIZE;
+	for (int n = 0; n < numimage; n++) {
+		png_image_data *image_data = &imagedata[n];
+		int hs = (image_data->height - 1) / CEL_BLOCK_HEIGHT;
+		hs = (hs + 1) * sizeof(WORD);
+		subHeaderSize = std::max(subHeaderSize, hs);
+	}
 	// estimate data size
 	int maxsize = headerSize;
 	for (int n = 0; n < numimage; n++) {
 		png_image_data *image_data = &imagedata[n];
-		maxsize += SUB_HEADER_SIZE;
+		maxsize += subHeaderSize; // SUB_HEADER_SIZE
 		maxsize += image_data->height * (2 * image_data->width);
 	}
 
@@ -448,11 +479,11 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 			png_image_data *image_data = &imagedata[idx];
 			BYTE *pHeader = pBuf;
 			// add CL2 FRAME HEADER
-			pBuf[0] = SUB_HEADER_SIZE;
+			pBuf[0] = subHeaderSize; // SUB_HEADER_SIZE
 			pBuf[1] = 0x00;
 			*(DWORD*)&pBuf[2] = 0;
 			*(DWORD*)&pBuf[6] = 0;
-			pBuf += SUB_HEADER_SIZE;
+			pBuf += subHeaderSize;
 
 			BYTE *pHead = pBuf;
 			BYTE col, lastCol;
@@ -461,9 +492,9 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 			bool first = true;
 			for (int i = 1; i <= image_data->height; i++) {
 				RGBA* data = (RGBA*)image_data->row_pointers[image_data->height - i];
-				if (i == 32 + 1) { // TODO: write more entries if necessary?
+				if ((i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
 					pHead = pBuf;
-					*(WORD*)(&pHeader[(i / 32) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+					*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
 
 					colMatches = 0;
 					alpha = false;
@@ -548,8 +579,11 @@ static bool WritePNG2Cl2(png_image_data *imagedata, int numimage, cl2_image_data
 	return result;
 }
 
-bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset)
+bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* celname, BYTE *palette, int numcolors, int coloroffset, int numgroups = 0)
 {
+	if (numgroups != 0 && (numimage % numgroups) != 0)
+		return false;
+
 	png_image_data *imagedata = (png_image_data*)malloc(sizeof(png_image_data) * numimage);
 	for (int n = 0; n < numimage; n++) {
 		if (!ReadPNG(pngnames[n], imagedata[n])) {
@@ -563,8 +597,9 @@ bool PNG2Cl2(const char** pngnames, int numimage, int transform, const char* cel
 	}
 
 	cl2_image_data* celdata = (cl2_image_data*)malloc(sizeof(cl2_image_data) * numimage);
+	int groupSize = numgroups == 0 ? numimage : (numimage / numgroups);
 	for (int n = 0; n < numimage; n++) {
-		celdata[n].groupSize = numimage;
+		celdata[n].groupSize = groupSize;
 	}
 	return WritePNG2Cl2(imagedata, numimage, celdata, celname, palette, numcolors, coloroffset);
 }
@@ -860,12 +895,13 @@ static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
 	int pixels;
 	std::map<int, int> lineBreaks, colorBreaks;
 	if (clipped) {
-		if (!CelCollectLineBreaks(&frameData[SUB_HEADER_SIZE], frameLen - SUB_HEADER_SIZE, lineBreaks, colorBreaks, &pixels)) {
+		WORD hs = SwapLE16(*(WORD*)&frameData[0]); // SUB_HEADER_SIZE
+		if (!CelCollectLineBreaks(&frameData[hs], frameLen - hs, lineBreaks, colorBreaks, &pixels)) {
 			return 0; // failed to parse
 		}
 		int offset = SwapLE16(*(WORD*)&frameData[2]);
-		if (offset != 0 && offset > SUB_HEADER_SIZE) {
-			offset -= SUB_HEADER_SIZE;
+		if (offset != 0 && offset > hs) { // SUB_HEADER_SIZE
+			offset -= hs;
 			int w;
 			auto lit = lineBreaks.find(offset);
 			if (lit != lineBreaks.end()) {
@@ -877,8 +913,8 @@ static int CelGetFrameWidth(bool clipped, BYTE* frameData, int frameLen)
 				else
 					w = 1; // dummy value to skip the further testing
 			}
-			if (w % 32 == 0) {
-				w /= 32;
+			if (w % CEL_BLOCK_HEIGHT == 0) {
+				w /= CEL_BLOCK_HEIGHT;
 				if (CelValidWidth(w, pixels, lineBreaks, colorBreaks))
 					return w;
 			}
@@ -959,9 +995,9 @@ static bool IsCelFrameClipped(BYTE* frameData, int frameLen)
 				return false; // no line break at the specified location
 			w = cit->second;
 		}
-		if (w % (32 * i) != 0)
+		if (w % (CEL_BLOCK_HEIGHT * i) != 0)
 			return false; // line break at a wrong location
-		w /= 32 * i;
+		w /= CEL_BLOCK_HEIGHT * i;
 		if (nWidth != w && nWidth != 0)
 			return false; // mismatching widths
 		if (w == 0 || pixels % w != 0)
@@ -1012,8 +1048,9 @@ static cel_image_data* ReadCelData(const char* celname, int* nImage, BYTE** oBuf
 		celdata[i].width = CelGetFrameWidth(celdata[i].clipped, src, celdata[i].dataSize);
 		// skip optional {CEL FRAME HEADER}
 		if (celdata[i].clipped) {
-			src += SUB_HEADER_SIZE;
-			celdata[i].dataSize -= SUB_HEADER_SIZE;
+			WORD hs = SwapLE16(*(WORD*)src); // SUB_HEADER_SIZE
+			src += hs;
+			celdata[i].dataSize -= hs;
 		}
 		celdata[i].data = src;
 		int pixels = 0;
@@ -1207,8 +1244,9 @@ static celcmp_image_data* ReadCelCompData(const char* celname, int* nImage, BYTE
 			celdata[i].clipped = IsCelFrameClipped(src, celdata[i].dataSize);
 			celdata[i].width = CelGetFrameWidth(celdata[i].clipped, src, celdata[i].dataSize);
 			if (celdata[i].clipped) {
-				src += SUB_HEADER_SIZE;
-				celdata[i].dataSize -= SUB_HEADER_SIZE;
+				WORD hs = SwapLE16(*(WORD*)src); // SUB_HEADER_SIZE
+				src += hs;
+				celdata[i].dataSize -= hs;
 			}
 			celdata[i].data = src;
 			int pixels = 0;
@@ -1532,7 +1570,7 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 		celdata[i].width = 0;
 		celdata[i].groupSize = ni;
 		// skip frame-header
-		WORD subHeaderSize = SwapLE16(*(WORD*)src);
+		WORD subHeaderSize = SwapLE16(*(WORD*)src); // SUB_HEADER_SIZE
 		int blockOffset = SwapLE16(*(WORD*)&src[2]) - subHeaderSize;
 		src += subHeaderSize;
 		celdata[i].data += subHeaderSize;
@@ -1548,7 +1586,7 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 					blockOffset -= 1;
 					if (blockOffset == 0) {
 						// calculate width based on https://github.com/savagesteel/d1-file-formats/blob/master/PC-Mac/CL2.md#41-cl2-frame-header
-						celdata[i].width = pixels / 32;
+						celdata[i].width = pixels / CEL_BLOCK_HEIGHT;
 					}
 				}
 			} else {
@@ -1560,7 +1598,7 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 					if (blockOffset != 0) {
 						blockOffset -= 2;
 						if (blockOffset == 0) {
-							celdata[i].width = pixels / 32;
+							celdata[i].width = pixels / CEL_BLOCK_HEIGHT;
 						}
 					}
 				} else {
@@ -1570,7 +1608,7 @@ static cl2_image_data* ReadCl2Data(const char* celname, int* nImage, BYTE** oBuf
 					if (blockOffset != 0) {
 						blockOffset -= width + 1;
 						if (blockOffset == 0) {
-							celdata[i].width = pixels / 32;
+							celdata[i].width = pixels / CEL_BLOCK_HEIGHT;
 						}
 					}
 				}
@@ -2128,7 +2166,7 @@ int main()
 	}*/
 	/*{ // sample code to convert CEL to PNGs, then convert the PNGs back to CEL
 		BYTE* pal = LoadPal("f:\\L1_1.PAL");
-		Cel2PNG("f:\\L1Doors.CEL", 0, false, "f:\\", pal, 256);
+		Cel2PNG("f:\\L1Doors.CEL", 0, false, "f:\\", pal, 0);
 		const char* doors[] = {
 			"f:\\L1Doors_CEL_frame0000.png",
 			"f:\\L1Doors_CEL_frame0001.png",
@@ -2139,7 +2177,7 @@ int main()
 	}*/
 	/*{ // sample code to convert CEL to a PNG with multiple frames, then convert the PNG back to CEL
 		BYTE* pal = LoadPal("f:\\L1_1.PAL");
-		Cel2PNG("f:\\L1Doors.CEL", 0, true, "f:\\", pal, 256);
+		Cel2PNG("f:\\L1Doors.CEL", 0, true, "f:\\", pal, 0);
 		const char* doors[] = {
 			"f:\\L1Doors.png" };
 		PNG2Cel(doors, 4, true, "f:\\L1Doors_mul.CEL", true, pal, 256, 0);

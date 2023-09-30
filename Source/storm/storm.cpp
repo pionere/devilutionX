@@ -1,13 +1,9 @@
 #include "storm.h"
 
 #include <cstddef>
-#include <SDL_endian.h>
-#include <SDL.h>
 #include <string>
 
-#include "all.h"
-#include "Radon.hpp"
-
+#include "storm_cfg.h"
 #include "utils/paths.h"
 
 // Include Windows headers for Get/SetLastError.
@@ -25,12 +21,6 @@ extern "C" std::uint32_t GetLastError();
 DEVILUTION_BEGIN_NAMESPACE
 
 static bool directFileAccess = false;
-
-radon::File &getIni()
-{
-	static radon::File ini(std::string(GetConfigPath()) + "diablo.ini");
-	return ini;
-}
 
 // Converts ASCII characters to lowercase
 // Converts slash (0x2F) / backslash (0x5C) to system file-separator
@@ -70,7 +60,7 @@ HANDLE SFileOpenFile(const char* filename)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
 		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
 	}
-#ifdef MPQONE
+#if USE_MPQONE
 	if (result == NULL)
 		SFileOpenFileEx(diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, &result);
 #else
@@ -86,77 +76,6 @@ HANDLE SFileOpenFile(const char* filename)
 	return result;
 }
 
-bool getIniBool(const char *sectionName, const char *keyName, bool defaultValue)
-{
-	char string[2];
-
-	if (!getIniValue(sectionName, keyName, string, 2))
-		return defaultValue;
-
-	return strtol(string, NULL, 10) != 0;
-}
-
-bool getIniValue(const char *sectionName, const char *keyName, char *string, int stringSize)
-{
-	radon::Section *section = getIni().getSection(sectionName);
-	if (section == NULL)
-		return false;
-
-	radon::Key *key = section->getKey(keyName);
-	if (key == NULL)
-		return false;
-
-	std::string value = key->getStringValue();
-
-	if (string != NULL)
-		SStrCopy(string, value.c_str(), stringSize);
-
-	return true;
-}
-
-void setIniValue(const char *sectionName, const char *keyName, const char *value)
-{
-	radon::File &ini = getIni();
-
-	const std::string stringSection(sectionName);
-	radon::Section* section = ini.getSection(stringSection);
-	if (section == NULL) {
-		section = ini.addSection(stringSection);
-	}
-
-	const std::string stringKey(keyName);
-	const std::string stringValue(value);
-
-	radon::Key* key = section->getKey(stringKey);
-	if (key == NULL) {
-		section->addKey(stringKey, stringValue);
-	} else {
-		if (key->getStringValue() == stringValue)
-			return;
-		key->setValue(stringValue);
-	}
-
-	ini.saveToFile();
-}
-
-bool getIniInt(const char *sectionName, const char *keyName, int *value)
-{
-	char string[10];
-	if (getIniValue(sectionName, keyName, string, 10)) {
-		*value = strtol(string, NULL, 10);
-		return true;
-	}
-
-	return false;
-}
-
-void setIniInt(const char *sectionName, const char *keyName, int value)
-{
-	char str[10];
-	snprintf(str, 10, "%d", value);
-	setIniValue(sectionName, keyName, str);
-}
-
 DWORD SErrGetLastError()
 {
 	return ::GetLastError();
@@ -167,7 +86,7 @@ void SErrSetLastError(DWORD dwErrCode)
 	::SetLastError(dwErrCode);
 }
 
-void SStrCopy(char *dest, const char *src, int max_length)
+void SStrCopy(char* dest, const char* src, int max_length)
 {
 	if (memccpy(dest, src, '\0', max_length) == NULL)
 		dest[max_length - 1] = '\0';
@@ -177,32 +96,6 @@ void SStrCopy(char *dest, const char *src, int max_length)
 void SFileEnableDirectAccess(bool enable)
 {
 	directFileAccess = enable;
-}
-
-void SLoadKeyMap(BYTE (&map)[256])
-{
-	char entryKey[16];
-	int i;
-	radon::Section *section;
-	radon::Key *key;
-
-	// load controls
-	section = getIni().getSection("Controls");
-	if (section == NULL) {
-		return;
-	}
-
-	for (i = 1; i < lengthof(map); i++) {
-		snprintf(entryKey, sizeof(entryKey), "Button%02X", i);
-		key = section->getKey(entryKey);
-		if (key == NULL) {
-			continue;
-		}
-		std::string value = key->getStringValue();
-		BYTE act = strtol(value.c_str(), NULL, 10);
-		if (act < NUM_ACTS)
-			map[i] = act;
-	}
 }
 
 DEVILUTION_END_NAMESPACE

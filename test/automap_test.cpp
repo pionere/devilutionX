@@ -11,8 +11,6 @@ TEST(Automap, InitAutomap)
 	EXPECT_EQ(dvl::AmLine64, 32);
 	EXPECT_EQ(dvl::AmLine32, 16);
 	EXPECT_EQ(dvl::AmLine16, 8);
-	EXPECT_EQ(dvl::AmLine8, 4);
-	EXPECT_EQ(dvl::AmLine4, 2);
 }
 
 TEST(Automap, StartAutomap)
@@ -67,8 +65,6 @@ TEST(Automap, AutomapZoomIn)
 	EXPECT_EQ(dvl::AmLine64, 38);
 	EXPECT_EQ(dvl::AmLine32, 19);
 	EXPECT_EQ(dvl::AmLine16, 9);
-	EXPECT_EQ(dvl::AmLine8, 4);
-	EXPECT_EQ(dvl::AmLine4, 2);
 }
 
 TEST(Automap, AutomapZoomIn_Max)
@@ -80,8 +76,6 @@ TEST(Automap, AutomapZoomIn_Max)
 	EXPECT_EQ(dvl::AmLine64, 128);
 	EXPECT_EQ(dvl::AmLine32, 64);
 	EXPECT_EQ(dvl::AmLine16, 32);
-	EXPECT_EQ(dvl::AmLine8, 16);
-	EXPECT_EQ(dvl::AmLine4, 8);
 }
 
 TEST(Automap, AutomapZoomOut)
@@ -92,8 +86,6 @@ TEST(Automap, AutomapZoomOut)
 	EXPECT_EQ(dvl::AmLine64, 122);
 	EXPECT_EQ(dvl::AmLine32, 61);
 	EXPECT_EQ(dvl::AmLine16, 30);
-	EXPECT_EQ(dvl::AmLine8, 15);
-	EXPECT_EQ(dvl::AmLine4, 7);
 }
 
 TEST(Automap, AutomapZoomOut_Min)
@@ -105,8 +97,6 @@ TEST(Automap, AutomapZoomOut_Min)
 	EXPECT_EQ(dvl::AmLine64, 32);
 	EXPECT_EQ(dvl::AmLine32, 16);
 	EXPECT_EQ(dvl::AmLine16, 8);
-	EXPECT_EQ(dvl::AmLine8, 4);
-	EXPECT_EQ(dvl::AmLine4, 2);
 }
 
 TEST(Automap, AutomapZoomReset)
@@ -121,6 +111,4 @@ TEST(Automap, AutomapZoomReset)
 	EXPECT_EQ(dvl::AmLine64, 32);
 	EXPECT_EQ(dvl::AmLine32, 16);
 	EXPECT_EQ(dvl::AmLine16, 8);
-	EXPECT_EQ(dvl::AmLine8, 4);
-	EXPECT_EQ(dvl::AmLine4, 2);
 }

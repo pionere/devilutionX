@@ -14,7 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
  * @param pszFmt Error message format
  * @param va Additional parameters for message format
  */
-static void MsgBox(const char *pszFmt, va_list va)
+static void MsgBox(const char* pszFmt, va_list va)
 {
 	char text[256];
 
@@ -31,7 +31,7 @@ static void FreeDlg()
 	NetClose();
 }
 
-void app_fatal(const char *pszFmt, ...)
+void app_fatal(const char* pszFmt, ...)
 {
 	va_list va;
 
@@ -55,10 +55,10 @@ void app_fatal(const char *pszFmt, ...)
 
 	va_end(va);
 
-	diablo_quit(1);
+	diablo_quit(EX_SOFTWARE);
 }
 
-void app_warn(const char *pszFmt, ...)
+void app_warn(const char* pszFmt, ...)
 {
 	char text[256];
 	va_list va;
@@ -70,11 +70,10 @@ void app_warn(const char *pszFmt, ...)
 	UiErrorOkDialog(PROJECT_NAME, text, false);
 }
 
-#if DEBUG_MODE
 /**
  * @brief Terminates the game and displays an error dialog box based on the given dialog_id.
  */
-void ErrDlg(const char *title, const char *error, const char *log_file_path, int log_line_nr)
+/*void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr)
 {
 	char text[1024];
 
@@ -83,14 +82,13 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	snprintf(text, sizeof(text), "%s\n\nThe error occurred at: %s line %d", error, log_file_path, log_line_nr);
 
 	UiErrorOkDialog(title, text);
-	diablo_quit(1);
-}
-#endif
+	diablo_quit(EX_SOFTWARE);
+}*/
 
 /**
  * @brief Terminates the game with a file not found error dialog.
  */
-/*void FileErrDlg(const char *error)
+/*void FileErrDlg(const char* error)
 {
 	char text[1024];
 
@@ -111,7 +109,7 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	    error);
 
 	UiErrorOkDialog("Data File Error", text);
-	diablo_quit(1);
+	diablo_quit(EX_SOFTWARE);
 }*/
 
 /**
@@ -129,7 +127,7 @@ void ErrDlg(const char *title, const char *error, const char *log_file_path, int
 	    DATA_ARCHIVE_MAIN);
 
 	UiErrorOkDialog("Data File Error", text);
-	diablo_quit(1);
+	diablo_quit(EX_SOFTWARE);
 }*/
 
 DEVILUTION_END_NAMESPACE

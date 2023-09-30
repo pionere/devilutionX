@@ -45,7 +45,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			symon->nmx = mon->_mx;
 			symon->nmy = mon->_my;
 			symon->nmdir = mon->_mdir;
-			symon->nmleaderflag = mon->leaderflag;
+			symon->nmleaderflag = mon->_mleaderflag;
 			symon->nmhitpoints = mon->_mhitpoints;
 			symon->nmactive = mon->_msquelch;
 

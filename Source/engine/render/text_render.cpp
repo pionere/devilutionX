@@ -3,9 +3,10 @@
  *
  * Text rendering.
  */
-#include "text_render.hpp"
+#include "text_render.h"
 
 #include "all.h"
+#include "engine/render/cel_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -103,6 +104,7 @@ static CelImageBuf* pHugePentSpinCels;
  * SmalText.CEL uses PAL16_GRAY values, while MedTextS and BigTGold.CEL are using PAL16_YELLOWs
  */
 static BYTE fontColorTrns[16 + 2][16] = {
+	// clang-format off
 	// skip non-generic colors
 	{ 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, },
 	// skip unused colors
@@ -121,11 +123,12 @@ static BYTE fontColorTrns[16 + 2][16] = {
 	{ PAL16_YELLOW + 2, PAL16_YELLOW + 3, PAL16_YELLOW + 4, PAL16_YELLOW + 5, PAL16_YELLOW + 6, PAL16_YELLOW + 7, PAL16_YELLOW + 8, PAL16_YELLOW + 9, PAL16_YELLOW + 10, PAL16_YELLOW + 11, PAL16_YELLOW + 12, PAL16_YELLOW + 13, PAL16_YELLOW + 14, PAL16_YELLOW + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_RED (SmalText)
 	{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
+	// clang-format on
 };
 #define FONT_TRN_SILVER (&fontColorTrns[0][0])
-#define FONT_TRN_BLUE (&fontColorTrns[0][0])
-#define FONT_TRN_GOLD (&fontColorTrns[1][0])
-#define FONT_TRN_RED (&fontColorTrns[2][0])
+#define FONT_TRN_BLUE   (&fontColorTrns[0][0])
+#define FONT_TRN_GOLD   (&fontColorTrns[1][0])
+#define FONT_TRN_RED    (&fontColorTrns[2][0])
 
 void InitText()
 {
@@ -159,7 +162,7 @@ void FreeText()
  */
 void PrintChar(int sx, int sy, int nCel, BYTE col)
 {
-	BYTE *tbl;
+	BYTE* tbl;
 
 	switch (col) {
 	case COL_WHITE:
@@ -174,14 +177,11 @@ void PrintChar(int sx, int sy, int nCel, BYTE col)
 	case COL_GOLD:
 		tbl = FONT_TRN_GOLD;
 		break;
-	/*case COL_BLACK:
-		tbl = ColorTrns[MAXDARKNESS];
-		break;*/
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	CelDrawLight(sx, sy, pSmallTextCels, nCel, tbl);
+	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
 }
 
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
@@ -203,14 +203,11 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pBigTextCels, nCel, tbl);
+		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
 	}
 
 	return bigFontWidth[nCel] + FONT_KERN_BIG;*/
@@ -221,7 +218,7 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 			CelDraw(sx, sy, pBigTextCels, nCel);
 		} else {
 			// assert(col == COL_WHITE);
-			CelDrawLight(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
+			CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
 		}
 	}
 
@@ -231,10 +228,11 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 {
 	BYTE nCel = gbStdFontFrame[text];
-	BYTE* tbl;
+	// BYTE* tbl;
 
 	if (nCel != 0) {
-		switch (col) {
+		PrintChar(sx, sy, nCel, col);
+		/*switch (col) {
 		case COL_WHITE:
 			CelDraw(sx, sy, pSmallTextCels, nCel);
 			return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -247,14 +245,11 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pSmallTextCels, nCel, tbl);
+		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);*/
 	}
 
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -279,14 +274,11 @@ int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 		case COL_GOLD:
 			tbl = FONT_TRN_GOLD;
 			break;
-		//case COL_BLACK:
-		//	tbl = ColorTrns[MAXDARKNESS];
-		//	break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
-		CelDrawLight(sx, sy, pHugeGoldTextCels, nCel, tbl);*/
+		CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);*/
 		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
 	}
 
@@ -333,7 +325,7 @@ int GetSmallStringWidth(const char* text)
 	return i - FONT_KERN_SMALL;
 }
 
-void PrintGameStr(int x, int y, const char *text, BYTE color)
+void PrintGameStr(int x, int y, const char* text, BYTE color)
 {
 	while (*text != '\0') {
 		x += PrintSmallChar(x, y, (BYTE)*text++, color);
@@ -350,10 +342,10 @@ void PrintGameStr(int x, int y, const char *text, BYTE color)
  * @param col text_color color value
  * @param kern Letter spacing
  */
-void PrintString(int x, int y, int endX, const char *text, bool cjustflag, BYTE col, int kern)
+void PrintString(int x, int y, int endX, const char* text, bool cjustflag, BYTE col, int kern)
 {
 	BYTE c;
-	const char *tmp;
+	const char* tmp;
 	int strEnd;
 	int k;
 
@@ -378,7 +370,7 @@ void PrintString(int x, int y, int endX, const char *text, bool cjustflag, BYTE 
 	}
 }
 
-int PrintLimitedString(int x, int y, const char *text, int limit, BYTE col)
+int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
 {
 	BYTE c;
 
@@ -403,10 +395,10 @@ void PrintHugeString(int x, int y, const char* text, int light)
 	while (*text != '\0') {
 		c = gbHugeFontFrame[(BYTE)*text++];
 		if (c != 0) {
-			/*if (tbl == NULL)
-				CelDraw(x, y, pHugeGoldTextCels, c);
-			else*/
-				CelDrawLight(x, y, pHugeGoldTextCels, c, tbl);
+			// if (tbl == NULL)
+			//	CelDraw(x, y, pHugeGoldTextCels, c);
+			// else
+			CelDrawTrnTbl(x, y, pHugeGoldTextCels, c, tbl);
 		}
 		x += hugeFontWidth[c] + FONT_KERN_HUGE;
 	}

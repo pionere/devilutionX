@@ -12,8 +12,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static std::unique_ptr<net::abstract_net> dvlnet_inst;
-static char gpszGameName[128] = {};
-static char gpszGamePassword[128] = {};
+static char gpszGameName[NET_MAX_GAMENAME_LEN + 1] = {};
+static char gpszGamePassword[NET_MAX_PASSWD_LEN + 1] = {};
 
 #ifdef ZEROTIER
 static std::mutex storm_net_mutex;
@@ -96,7 +96,7 @@ void SNetDropPlayer(int playerid)
 	dvlnet_inst->SNetDropPlayer(playerid);
 }
 
-void SNetGetGameInfo(const char** name, const char **password)
+void SNetGetGameInfo(const char** name, const char** password)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -130,7 +130,7 @@ void SNetInitializeProvider(unsigned provider)
 /**
  * @brief Called by engine for single, called by ui for multi
  */
-bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
+bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
 {
 	bool result;
 
@@ -138,18 +138,14 @@ bool SNetCreateGame(const char* pszGamePassword, _uigamedata* gameData, char (&e
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-
-
 	dvlnet_inst->make_default_gamename(gpszGameName);
-	int port = NET_DEFAULT_PORT;
-	getIniInt("Network", "Port", &port);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	result = dvlnet_inst->create_game(gpszGameName, port, pszGamePassword, gameData, errorText);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
 	return result;
 }
 
-bool SNetJoinGame(const char *pszGameName, unsigned port, const char *pszGamePassword, char (&errorText)[256])
+bool SNetJoinGame(const char* pszGameName, unsigned port, const char* pszGamePassword, char (&errorText)[256])
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);

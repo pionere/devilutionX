@@ -15,9 +15,10 @@ class tcp_host_client;
 
 class tcp_host_server : public tcp_server {
 public:
-	tcp_host_server(tcp_host_client* client, asio::io_context &ioc, buffer_t info, unsigned serverType);
+	tcp_host_server(tcp_host_client* client, asio::io_context& ioc, buffer_t info, unsigned serverType);
 
-	bool send_packet(packet &pkt);
+	bool send_packet(packet& pkt);
+
 private:
 	tcp_host_client* local_client;
 };
@@ -26,25 +27,26 @@ class tcp_host_client : public base {
 public:
 	tcp_host_client(int srvType);
 
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
-	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size);
-	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
-	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size);
-	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
-	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
-	virtual unsigned SNetGetTurnsInTransit();
-	virtual void SNetLeaveGame(int reason);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
+	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
+	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
+	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
+	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) override;
+	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
+	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
+	unsigned SNetGetTurnsInTransit() override;
+	void SNetLeaveGame(int reason) override;
 
-	virtual ~tcp_host_client() = default;
+	~tcp_host_client() override = default;
 
-	virtual void make_default_gamename(char (&gamename)[128]);
+	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN+ 1]) override;
 
-	void receive_packet(packet &pkt);
+	void receive_packet(packet& pkt);
 
 protected:
-	virtual void send_packet(packet &pkt);
-	virtual void poll();
+	void send_packet(packet& pkt) override;
+	void poll() override;
+
 private:
 	asio::io_context ioc;
 	tcp_host_server* local_server = NULL;

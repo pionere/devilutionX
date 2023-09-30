@@ -5,27 +5,55 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-buffer_t frame_queue::read(uint32_t s)
+void frame_queue::read(uint32_t s, BYTE* dest)
 {
 	//if (current_size < s)
 	//	throw frame_queue_exception();
-	buffer_t ret;
-	while (s > 0 && s >= buffer_deque.front().size()) {
-		s -= buffer_deque.front().size();
-		current_size -= buffer_deque.front().size();
-		ret.insert(ret.end(),
-		    buffer_deque.front().begin(),
-		    buffer_deque.front().end());
-		buffer_deque.pop_front();
-	}
-	if (s > 0) {
-		ret.insert(ret.end(),
-		    buffer_deque.front().begin(),
-		    buffer_deque.front().begin() + s);
-		buffer_deque.front().erase(buffer_deque.front().begin(),
-		    buffer_deque.front().begin() + s);
+	uint32_t bs;
+	BYTE* src;
+
+	while (s > 0) {
+		auto& next_buf = buffer_deque.front();
+		bs = next_buf.size() - current_offset;
+		src = next_buf.data() + current_offset;
+		if (s >= bs) {
+			// read the whole entry
+			s -= bs;
+			current_size -= bs;
+			memcpy(dest, src, bs);
+			buffer_deque.pop_front();
+			current_offset = 0;
+			continue;
+		}
+		// read part of the entry
+		memcpy(dest, src, s);
 		current_size -= s;
+		current_offset += s;
+		break;
 	}
+}
+
+bool frame_queue::packet_ready()
+{
+	if (next_size == 0) {
+		if (current_size < sizeof(uint32_t))
+			return false;
+		read(sizeof(uint32_t), (BYTE*)&next_size);
+		next_size = SwapLE32(next_size);
+		if (next_size == 0)
+			// should not happen. Ignore the packet to avoid crash
+			return false; // throw frame_queue_exception();
+	}
+	return current_size >= next_size;
+}
+
+buffer_t frame_queue::read_packet()
+{
+	//if (next_size == 0 || current_size < next_size)
+	//	throw frame_queue_exception();
+	buffer_t ret(next_size);
+	read(next_size, ret.data());
+	next_size = 0;
 	return ret;
 }
 
@@ -35,38 +63,26 @@ void frame_queue::write(buffer_t buf)
 	buffer_deque.push_back(std::move(buf));
 }
 
-bool frame_queue::packet_ready()
+void frame_queue::clear()
 {
-	if (nextsize == 0) {
-		if (current_size < sizeof(uint32_t))
-			return false;
-		auto szbuf = read(sizeof(uint32_t));
-		std::memcpy(&nextsize, &szbuf[0], sizeof(uint32_t));
-		nextsize = SwapLE32(nextsize);
-		if (nextsize == 0)
-			// should not happen. Ignore the packet to avoid crash
-			return false; // throw frame_queue_exception();
-	}
-	return current_size >= nextsize;
+	next_size = 0;
+	current_size = 0;
+	current_offset = 0;
+	buffer_deque.clear();
 }
 
-buffer_t frame_queue::read_packet()
+buffer_t* frame_queue::make_frame(buffer_t packetbuf)
 {
-	//if (nextsize == 0 || current_size < nextsize)
-	//	throw frame_queue_exception();
-	auto ret = read(nextsize);
-	nextsize = 0;
-	return ret;
-}
-
-buffer_t frame_queue::make_frame(buffer_t packetbuf)
-{
-	buffer_t ret;
-	if (packetbuf.size() > MAX_FRAME_SIZE)
-		app_error(ERR_APP_FRAME_BUFSIZE);
-	uint32_t size = SwapLE32(packetbuf.size());
-	ret.insert(ret.end(), packet_factory::begin(size), packet_factory::end(size));
-	ret.insert(ret.end(), packetbuf.begin(), packetbuf.end());
+	buffer_t* ret;
+	uint32_t size = packetbuf.size();
+	//if (size > (MAX_FRAME_SIZE - sizeof(uint32_t)))
+	//	app_error(ERR_APP_FRAME_BUFSIZE);
+	ret = new buffer_t(sizeof(uint32_t) + size);
+	//if (ret == NULL)
+	//	app_error(ERR_APP_FRAME_BUFSIZE);
+	BYTE* data = ret->data();
+	*(uint32_t*)data = SwapLE32(size);
+	memcpy(data + sizeof(uint32_t), packetbuf.data(), size);
 	return ret;
 }
 

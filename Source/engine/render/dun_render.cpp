@@ -3,7 +3,7 @@
  *
  * Implementation of functionality for rendering the level tiles.
  */
-#include "dun_render.hpp"
+#include "dun_render.h"
 
 #include "all.h"
 
@@ -355,37 +355,17 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 		// Add the lower bits about we don't care.
 		mask |= (1 << i) - 1;
 		if (mask == 0xFFFFFFFF) {
-			if (light == MAXDARKNESS) {
-				memset(dst, 0, n);
-			} else if (light == 0) {
-				memcpy(dst, src, n);
-			} else {
-				tbl = ColorTrns[light];
-				for (i = 0; i < n; i++) {
-					dst[i] = tbl[src[i]];
-				}
+			tbl = ColorTrns[light];
+			for (i = 0; i < n; i++) {
+				dst[i] = tbl[src[i]];
 			}
 		} else {
 			// Clear the lower bits of the mask to avoid testing i < n in the loops.
 			mask = (mask >> i) << i;
-			if (light == MAXDARKNESS) {
-				for (i = 0; mask != 0; i++, mask <<= 1) {
-					if (mask & 0x80000000) {
-						dst[i] = 0;
-					}
-				}
-			} else if (light == 0) {
-				for (i = 0; mask != 0; i++, mask <<= 1) {
-					if (mask & 0x80000000) {
-						dst[i] = src[i];
-					}
-				}
-			} else {
-				tbl = ColorTrns[light];
-				for (i = 0; mask != 0; i++, mask <<= 1) {
-					if (mask & 0x80000000) {
-						dst[i] = tbl[src[i]];
-					}
+			tbl = ColorTrns[light];
+			for (i = 0; mask != 0; i++, mask <<= 1) {
+				if (mask & 0x80000000) {
+					dst[i] = tbl[src[i]];
 				}
 			}
 		}
@@ -395,9 +375,6 @@ inline static void RenderLine(BYTE* dst, BYTE* src, int n, uint32_t mask, int li
 	//(*dst) += n;
 }
 
-#if defined(__clang__) || defined(__GNUC__)
-__attribute__((no_sanitize("shift-base")))
-#endif
 /**
  * @brief Blit a micro CEL to the given buffer
  * @param pBuff Output buffer
@@ -410,18 +387,18 @@ __attribute__((no_sanitize("shift-base")))
 void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 {
 	int i, j, light;
-	char v;
+	int8_t v;
 	BYTE *src, *dst, encoding;
 	uint32_t m, *mask, *pFrameTable;
 
 	dst = pBuff;
-	pFrameTable = (uint32_t*)pMicroCels;
+	pFrameTable = (uint32_t*)pMicrosCel;
 
 #if ASSET_MPL == 1
-	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
+	src = &pMicrosCel[SwapLE32(pFrameTable[levelCelBlock & 0xFFF])];
 	encoding = levelCelBlock >> 12;
 #else
-	src = &pMicroCels[SwapLE32(pFrameTable[levelCelBlock])];
+	src = &pMicrosCel[SwapLE32(pFrameTable[levelCelBlock])];
 	encoding = *src;
 	src++;
 #endif
@@ -484,11 +461,11 @@ void RenderMicro(BYTE* pBuff, uint16_t levelCelBlock, int maskType)
 	default:
 		ASSUME_UNREACHABLE;
 		mask = &SolidMask[MICRO_HEIGHT - 1];
-		break; 
+		break;
 	}
 
 #if DEBUG_MODE
-	if (GetAsyncKeyState(DVL_VK_MENU)) {
+	if (SDL_GetModState() & KMOD_ALT) {
 		mask = &SolidMask[MICRO_HEIGHT - 1];
 	}
 #endif

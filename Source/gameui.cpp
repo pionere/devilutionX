@@ -4,6 +4,7 @@
  * Implementation of the in-game ui functions.
  */
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,8 +15,8 @@ int gnWndBookX, gnWndBookY;
 int gnWndTeamX, gnWndTeamY;
 int gnWndQuestX, gnWndQuestY;
 
-#define WND_CHECK_X(x, dx, w)	((x + dx) >= SCREEN_WIDTH - w + BORDER_LEFT || (x + dx) < -BORDER_LEFT)
-#define WND_CHECK_Y(y, dy, h)	((y + dy) >= SCREEN_HEIGHT - (h + 1) + BORDER_BOTTOM || (y + dy) < -BORDER_TOP)
+#define WND_CHECK_X(x, dx, w) ((x + dx) >= SCREEN_WIDTH - w + BORDER_LEFT || (x + dx) < -BORDER_LEFT)
+#define WND_CHECK_Y(y, dy, h) ((y + dy) >= SCREEN_HEIGHT - (h + 1) + BORDER_BOTTOM || (y + dy) < -BORDER_TOP)
 
 void InitGameUI()
 {

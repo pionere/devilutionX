@@ -1,49 +1,41 @@
-#include <SDL.h>
-#include <cstdint>
-#include <deque>
-#include "utils/utf8.h"
+/**
+ * @file misc_msg.cpp
+ *
+ * Windows message handling and keyboard event conversion for SDL.
+ */
 
 #include "all.h"
 #include "controls/controller.h"
 #include "controls/controller_motion.h"
+#include "controls/devices/game_controller.h"
+#include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
-#include "controls/plrctrls.h"
-#include "controls/remap_keyboard.h"
 #include "controls/touch.h"
 #include "utils/display.h"
-#include "utils/sdl_compat.h"
 
 #ifdef __SWITCH__
 #include "platform/switch/docking.h"
 #include <switch.h>
 #endif
 
-/** @file
- * *
- * Windows message handling and keyboard event conversion for SDL.
- */
-
 DEVILUTION_BEGIN_NAMESPACE
-
-static std::deque<MSG> message_queue;
 
 /** The current input handler function */
 WNDPROC CurrentWndProc;
 
 #if __linux__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
-#define FIX_WARPING	1
+#define FIX_WARPING 1
 static bool mouseWarping = false;
-static int mouseWarpingX;
-static int mouseWarpingY;
+static POS32 mouseWarpingPos;
 #else
-#define FIX_WARPING	0
+#define FIX_WARPING 0
 #endif
 
 void SetCursorPos(int x, int y)
 {
 #if FIX_WARPING
-	mouseWarpingX = x;
-	mouseWarpingY = y;
+	mouseWarpingPos.x = x;
+	mouseWarpingPos.y = y;
 	mouseWarping = true;
 #endif
 	LogicalToOutput(&x, &y);
@@ -59,7 +51,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 	switch (ksc) {
 	case SDLK_BACKSPACE:
 		return DVL_VK_BACK;
-	case SDLK_TAB:	
+	case SDLK_TAB:
 		return DVL_VK_TAB;
 	case SDLK_CLEAR:
 		return DVL_VK_OEM_CLEAR;
@@ -385,7 +377,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 	case SDL_SCANCODE_SELECT:
 		return DVL_VK_SELECT;
 	case SDL_SCANCODE_STOP:
-		return DVL_VK_ATTN;	// remap?
+		return DVL_VK_ATTN; // remap?
 	case SDL_SCANCODE_AGAIN:
 		return DVL_VK_OEM_12; // remap?
 	case SDL_SCANCODE_UNDO:
@@ -426,24 +418,24 @@ static int TranslateSdlKey(SDL_Keysym key)
 		return DVL_VK_IME_ON; // remap?
 	case SDL_SCANCODE_INTERNATIONAL9:
 		return DVL_VK_IME_ON; // remap?
-	case SDL_SCANCODE_LANG1: /**< Hangul/English toggle */
-		return DVL_VK_HANGUL;
-	case SDL_SCANCODE_LANG2: /**< Hanja conversion */
-		return DVL_VK_HANJA;
-	case SDL_SCANCODE_LANG3: /**< Katakana */
-		return DVL_VK_HANGUL; // remap?
-	case SDL_SCANCODE_LANG4: /**< Hiragana */
-		return DVL_VK_JUNJA; // remap?
-	case SDL_SCANCODE_LANG5: /**< Zenkaku/Hankaku */
-		return DVL_VK_FINAL; // remap?
-	case SDL_SCANCODE_LANG6: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
-	case SDL_SCANCODE_LANG7: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
-	case SDL_SCANCODE_LANG8: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
-	case SDL_SCANCODE_LANG9: /**< reserved */
-		return DVL_VK_IME_OFF; // remap?
+	case SDL_SCANCODE_LANG1:
+		return DVL_VK_HANGUL; /**< Hangul/English toggle */
+	case SDL_SCANCODE_LANG2:
+		return DVL_VK_HANJA; /**< Hanja conversion */
+	case SDL_SCANCODE_LANG3:
+		return DVL_VK_HANGUL; // remap? /**< Katakana */
+	case SDL_SCANCODE_LANG4:
+		return DVL_VK_JUNJA; // remap? /**< Hiragana */
+	case SDL_SCANCODE_LANG5:
+		return DVL_VK_FINAL; // remap? /**< Zenkaku/Hankaku */
+	case SDL_SCANCODE_LANG6:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
+	case SDL_SCANCODE_LANG7:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
+	case SDL_SCANCODE_LANG8:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
+	case SDL_SCANCODE_LANG9:
+		return DVL_VK_IME_OFF; // remap? /**< reserved */
 	case SDL_SCANCODE_ALTERASE:
 		return DVL_VK_EREOF; // remap?
 	case SDL_SCANCODE_SYSREQ:
@@ -780,12 +772,12 @@ static int TranslateSdlKey(SDL_Keysym key)
 	}*/
 }
 
-static WPARAM PositionForMouse(Sint32 x, Sint32 y)
+/*static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 {
 	return (((uint16_t)(y & 0xFFFF)) << 16) | (uint16_t)(x & 0xFFFF);
 }
 
-/*static WPARAM KeystateForMouse(WPARAM ret)
+static WPARAM KeystateForMouse(WPARAM ret)
 {
 	ret |= (SDL_GetModState() & KMOD_SHIFT) ? DVL_MK_SHIFT : 0;
 	// XXX: other DVL_MK_* codes not implemented
@@ -793,191 +785,150 @@ static WPARAM PositionForMouse(Sint32 x, Sint32 y)
 }*/
 
 #if DEBUG_MODE
-static bool FalseAvail(const char *name, int value)
+static bool FalseAvail(const char* name, int value)
 {
 	DoLog("Unhandled SDL event: %s %d", name, value);
 	return true;
 }
 #endif
 
-bool PeekMessage(LPMSG lpMsg)
+bool PeekMessage(Dvl_Event &e)
 {
 #ifdef __SWITCH__
 	HandleDocking();
 #endif
 
-	if (!message_queue.empty()) {
-		*lpMsg = message_queue.front();
-		message_queue.pop_front();
-		return true;
-	}
-
-	SDL_Event e;
 	if (!SDL_PollEvent(&e)) {
 		return false;
 	}
 
-	lpMsg->message = DVL_WM_NONE;
-	lpMsg->wParam = 0;
 
 #if HAS_TOUCHPAD
-	handle_touch(&e, MouseX, MouseY);
+	handle_touch(&e);
 #endif
 
+	Uint32 type = e.type;
+	e.type = DVL_WM_NONE;
+
 #ifdef USE_SDL1
-	if (e.type == SDL_MOUSEMOTION) {
+	if (type == SDL_MOUSEMOTION) {
 		OutputToLogical(&e.motion.x, &e.motion.y);
-	} else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+	} else if (type == SDL_MOUSEBUTTONDOWN || type == SDL_MOUSEBUTTONUP) {
 		OutputToLogical(&e.button.x, &e.button.y);
 	}
-	if ((e.type == SDL_KEYUP || e.type == SDL_KEYDOWN) && e.key.keysym.sym == SDLK_UNKNOWN) {
+	if ((type == SDL_KEYUP || type == SDL_KEYDOWN) && e.key.keysym.sym == SDLK_UNKNOWN) {
 		// Erroneous events generated by RG350 kernel. (Assumes RG350 to use SDL1)
 		return true;
 	}
 #endif
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (e.type == SDL_QUIT) {
-		lpMsg->message = DVL_WM_QUIT;
-		return true;
-	}
-
-	if (HandleControllerAddedOrRemovedEvent(e))
-		return true;
-
-	const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
-	if (ProcessControllerMotion(e, ctrlEvent))
-		return true;
-
-	GameAction action = GameAction(GameActionType_NONE);
-	if (GetGameAction(e, ctrlEvent, &action)) {
-		if (action.type != GameActionType_NONE) {
-			sgbControllerActive = true;
-
-			if (gbMoviePlaying) {
-				lpMsg->message = DVL_WM_KEYDOWN;
-				if (action.type == GameActionType_SEND_KEY)
-					lpMsg->wParam = action.send_key.vk_code;
-				return true;
-			}
-		}
-
-		switch (action.type) {
-		case GameActionType_NONE:
-			break;
-		case GameActionType_USE_HEALTH_POTION:
-			UseBeltItem(BLT_HEALING);
-			break;
-		case GameActionType_USE_MANA_POTION:
-			UseBeltItem(BLT_MANA);
-			break;
-		case GameActionType_PRIMARY_ACTION:
-			PerformPrimaryAction();
-			lpMsg->message = DVL_WM_KEYUP;
-			lpMsg->wParam = DVL_VK_LBUTTON;
-			break;
-		case GameActionType_SECONDARY_ACTION:
-			PerformSecondaryAction();
-			break;
-		case GameActionType_CAST_SPELL:
-			PerformSpellAction();
-			break;
-		case GameActionType_SEND_KEY:
-			lpMsg->message = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
-			lpMsg->wParam = action.send_key.vk_code;
-			break;
-		case GameActionType_SEND_MOUSE_CLICK:
-			sgbControllerActive = false;
-			switch (action.send_mouse_click.button) {
-			case GameActionSendMouseClick::LEFT:
-				lpMsg->message = action.send_mouse_click.up ? DVL_WM_LBUTTONUP : DVL_WM_LBUTTONDOWN;
-				break;
-			case GameActionSendMouseClick::RIGHT:
-				lpMsg->message = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
-				break;
-			}
-			lpMsg->wParam = PositionForMouse(MouseX, MouseY);
-			break;
-		}
-		return true;
-	}
 #if (HAS_TOUCHPAD || HAS_DPAD) && !defined(USE_SDL1)
-	if (e.type < SDL_JOYAXISMOTION || (e.type >= SDL_FINGERDOWN && e.type < SDL_DOLLARGESTURE)) {
+	if ((type >= SDL_KEYDOWN && type < SDL_JOYAXISMOTION) || (type >= SDL_FINGERDOWN && type < SDL_DOLLARGESTURE)) {
 #else
-	if (e.type < SDL_JOYAXISMOTION) {
+	if (type >= SDL_KEYDOWN && type < SDL_JOYAXISMOTION) {
 #endif
+		// Keyboard or Mouse (or Touch) events -> switch to standard input
 #if FIX_WARPING
-		if (!mouseWarping || e.type != SDL_MOUSEMOTION)
-#else
-		if (e.type != SDL_MOUSEMOTION)
-#endif // FIX_WARPING
+		if (!mouseWarping || type != SDL_MOUSEMOTION)
+#endif
 			sgbControllerActive = false;
 	}
 #endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
-	switch (e.type) {
+	switch (type) {
 	case SDL_QUIT:
-		lpMsg->message = DVL_WM_QUIT;
+		e.type = DVL_WM_QUIT;
 		break;
 	case SDL_KEYDOWN:
 	case SDL_KEYUP: {
 		int key = TranslateSdlKey(e.key.keysym);
 		//if (key == -1)
-		//	return FalseAvail(e.type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
-		lpMsg->message = e.type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
-		lpMsg->wParam = (WPARAM)key;
-#if DEBUG_MODE
-//		// HACK: Encode modifier in lParam for TranslateMessage later
-//		lpMsg->lParam = e.key.keysym.mod << 16;
-		lpMsg->wParam |= e.key.keysym.mod << 16;
-#endif
+		//	return FalseAvail(type == SDL_KEYDOWN ? "SDL_KEYDOWN" : "SDL_KEYUP", e.key.keysym.sym);
+		e.type = type == SDL_KEYDOWN ? DVL_WM_KEYDOWN : DVL_WM_KEYUP;
+		e.key.keysym.sym = key;
 	} break;
 	case SDL_MOUSEMOTION:
 #if FIX_WARPING
-		if (mouseWarping)
-			mouseWarping = false;
+		mouseWarping = false;
 #endif
-		lpMsg->message = DVL_WM_MOUSEMOVE;
-		lpMsg->wParam = PositionForMouse(e.motion.x, e.motion.y);
-		//lpMsg->lParam = KeystateForMouse(0);
+		e.type = DVL_WM_MOUSEMOVE;
+		MousePos.x = e.motion.x;
+		MousePos.y = e.motion.y;
 		break;
 	case SDL_MOUSEBUTTONDOWN: {
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
-			lpMsg->message = DVL_WM_LBUTTONDOWN;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(DVL_MK_LBUTTON);
+			e.type = DVL_WM_LBUTTONDOWN;
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(DVL_MK_LBUTTON); -- unused
 		} else if (button == SDL_BUTTON_RIGHT) {
-			lpMsg->message = DVL_WM_RBUTTONDOWN;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON);
+			e.type = DVL_WM_RBUTTONDOWN;
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(DVL_MK_RBUTTON); -- unused
+		} else if (button == SDL_BUTTON_MIDDLE) {
+			e.type = DVL_WM_KEYDOWN;
+			e.key.keysym.sym = DVL_VK_MBUTTON;
+		} else if (button == SDL_BUTTON_X1) {
+			e.type = DVL_WM_KEYDOWN;
+			e.key.keysym.sym = DVL_VK_XBUTTON1;
+#ifdef USE_SDL1
+		} else if (button == SDL_BUTTON_WHEELUP) {
+			e.type = DVL_WM_KEYDOWN;
+			e.key.keysym.sym = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
+		} else if (button == SDL_BUTTON_WHEELDOWN) {
+			e.type = DVL_WM_KEYDOWN;
+			e.key.keysym.sym = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
+#endif
 		}
 	} break;
 	case SDL_MOUSEBUTTONUP: {
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
-			lpMsg->message = DVL_WM_LBUTTONUP;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(0);
+			e.type = DVL_WM_LBUTTONUP;
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(0); -- unused
 		} else if (button == SDL_BUTTON_RIGHT) {
-			lpMsg->message = DVL_WM_RBUTTONUP;
-			lpMsg->wParam = PositionForMouse(e.button.x, e.button.y);
-			//lpMsg->lParam = KeystateForMouse(0);
+			e.type = DVL_WM_RBUTTONUP;
+			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
+			//lpMsg->lParam = KeystateForMouse(0); -- unused
+		} else if (button == SDL_BUTTON_MIDDLE) {
+			e.type = DVL_WM_KEYUP;
+			e.key.keysym.sym = DVL_VK_MBUTTON;
+		} else if (button == SDL_BUTTON_X1) {
+			e.type = DVL_WM_KEYUP;
+			e.key.keysym.sym = DVL_VK_XBUTTON1;
 		}
 	} break;
 #ifndef USE_SDL1
 	case SDL_MOUSEWHEEL:
-		lpMsg->message = DVL_WM_KEYDOWN;
+		e.type = DVL_WM_KEYDOWN;
+		int key;
 		if (e.wheel.y > 0) {
-			lpMsg->wParam = GetAsyncKeyState(DVL_VK_CONTROL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
+			key = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_PLUS : DVL_VK_UP;
 		} else if (e.wheel.y < 0) {
-			lpMsg->wParam = GetAsyncKeyState(DVL_VK_CONTROL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
-		} else if (e.wheel.x > 0) {
-			lpMsg->wParam = DVL_VK_LEFT;
-		} else if (e.wheel.x < 0) {
-			lpMsg->wParam = DVL_VK_RIGHT;
+			key = (SDL_GetModState() & KMOD_CTRL) ? DVL_VK_OEM_MINUS : DVL_VK_DOWN;
+		} else {
+			key = e.wheel.x >= 0 ? DVL_VK_LEFT : DVL_VK_RIGHT;
 		}
+		e.key.keysym.sym = key;
 		break;
+#if HAS_GAMECTRL
+	case SDL_CONTROLLERDEVICEADDED:
+		GameController::Add(e.cdevice.which);
+		break;
+	case SDL_CONTROLLERDEVICEREMOVED:
+		GameController::Remove(e.cdevice.which);
+		break;
+#endif
+#if HAS_JOYSTICK
+	case SDL_JOYDEVICEADDED:
+		Joystick::Add(e.jdevice.which);
+		break;
+	case SDL_JOYDEVICEREMOVED:
+		Joystick::Remove(e.jdevice.which);
+		break;
+#endif
 #if DEBUG_MODE
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	case SDL_AUDIODEVICEADDED:
@@ -990,35 +941,28 @@ bool PeekMessage(LPMSG lpMsg)
 	case SDL_TEXTEDITING:
 		return FalseAvail("SDL_TEXTEDITING", e.edit.length);
 #endif // DEBUG_MODE
-	case SDL_TEXTINPUT: {
-		uint32_t inputChar;
-		int err;
-		//lpMsg->wParam = utf8_to_latin1(e.text.text).c_str()[0];
-		utf8_decode((unsigned char*)&e.text.text[0], &inputChar, &err);
-		lpMsg->wParam = err ? '?' : inputChar;
-		lpMsg->message = DVL_WM_CHAR;
-	} break;
+	case SDL_TEXTINPUT:
+		e.type = DVL_WM_TEXT;
+		break;
 	case SDL_WINDOWEVENT:
 		switch (e.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
+		case SDL_WINDOWEVENT_EXPOSED:
+		case SDL_WINDOWEVENT_RESTORED:
 			gbWndActive = true;
-			lpMsg->message = DVL_WM_PAINT;
+			e.type = DVL_WM_PAINT;
 			break;
 		case SDL_WINDOWEVENT_HIDDEN:
+		case SDL_WINDOWEVENT_MINIMIZED:
 			gbWndActive = false;
 			break;
-		case SDL_WINDOWEVENT_EXPOSED:
-			lpMsg->message = DVL_WM_PAINT;
-			break;
 		case SDL_WINDOWEVENT_LEAVE:
-			lpMsg->message = DVL_WM_CAPTURECHANGED;
+			e.type = DVL_WM_CAPTURECHANGED;
 			break;
 		case SDL_WINDOWEVENT_MOVED:
 		case SDL_WINDOWEVENT_RESIZED:
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
-		case SDL_WINDOWEVENT_MINIMIZED:
 		case SDL_WINDOWEVENT_MAXIMIZED:
-		case SDL_WINDOWEVENT_RESTORED:
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 #if SDL_VERSION_ATLEAST(2, 0, 5)
@@ -1031,15 +975,14 @@ bool PeekMessage(LPMSG lpMsg)
 			// and SDL_GetMouseState gives previous location if mouse was
 			// outside window (observed on Ubuntu 19.04)
 			if (mouseWarping) {
-				MouseX = mouseWarpingX;
-				MouseY = mouseWarpingY;
+				MousePos = mouseWarpingPos;
 				mouseWarping = false;
 			}
 #endif
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
 			// -- no need to handle, wait for the QUIT event
-			// lpMsg->message = DVL_WM_QUERYENDSESSION;
+			// e.type = DVL_WM_QUERYENDSESSION;
 			break;
 #if DEBUG_MODE
 		default:
@@ -1049,167 +992,170 @@ bool PeekMessage(LPMSG lpMsg)
 
 		break;
 #endif // !USE_SDL1
+	case SDL_USEREVENT:
+		// lpMsg->wParam = e.user.data1;
+		e.type = e.user.code;
+		break;
+	default: {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		e.type = type;
+		const ControllerButtonEvent ctrlEvent = ToControllerButtonEvent(e);
+		if (ProcessControllerMotion(e)) {
+			e.type = DVL_WM_NONE;
+			sgbControllerActive = true;
+			break;
+		}
+		e.type = DVL_WM_NONE;
+#if HAS_DPAD
+		if (!dpad_hotkeys && SimulateRightStickWithDpad(ctrlEvent)) {
+			sgbControllerActive = true;
+			break;
+		}
+#endif
+		GameAction action = GameAction(GameActionType_NONE);
+		if (GetGameAction(ctrlEvent, &action)) {
+			if (action.type == GameActionType_SEND_KEY) {
+				sgbControllerActive = true;
+				e.type = action.send_key.up ? DVL_WM_KEYUP : DVL_WM_KEYDOWN;
+				e.key.keysym.sym = action.send_key.vk_code;
+			} else if (action.type == GameActionType_SEND_MOUSE_CLICK) {
+				sgbControllerActive = false;
+				if (action.send_mouse_click.button == GameActionSendMouseClick::LEFT) {
+					e.type = action.send_mouse_click.up ? DVL_WM_LBUTTONUP : DVL_WM_LBUTTONDOWN;
+				} else {
+					e.type = action.send_mouse_click.up ? DVL_WM_RBUTTONUP : DVL_WM_RBUTTONDOWN;
+				}
+				//lpMsg->wParam = PositionForMouse(MousePos.x, MousePos.y); -- BUTTON_POSITION: assume correct order of events (1: MOTION, 2: button down, [3: MOTION], 4: up)
+			}
+			break;
+		}
+#endif
 #if DEBUG_MODE
-	default:
-		return FalseAvail("unknown", e.type);
+		return FalseAvail("unknown", type);
 #endif // DEBUG_MODE
+	} break;
 	}
 	return true;
 }
 
+#if defined(USE_SDL1) || DEBUG_MODE
 /*
- * Translate keydown events to char events only if gbTalkflag is set (or in debug mode).
+ * Translate keys of keydown events to chars.
  *
- * 'Translation' is no longer necessary. The input text is handled using
+ * 'Translation' is necessary in case of SDL1 and to process debug messages.
+ * In case of SDL2, the input text is handled using
  * SDL_StartTextInput/SDL_StopTextInput in case 'gbTalkflag' is set.
- *
- * Remark: HACK in PeekMessage needs to be re-enabled in case TranslateMessage is used
- *  in a non-debug environment.
+ * @param key: the key which was pressed (DVL_VK_*)
+ * @return the char value of the key, or zero if it can not be translated
  */
-void TranslateMessage(const MSG* lpMsg)
+int TranslateKey2Char(int key)
 {
-#if DEBUG_MODE
-	if (lpMsg->message == DVL_WM_KEYDOWN) {
-		int key = lpMsg->wParam;
-		//unsigned mod = lpMsg->lParam >> 16;
-		unsigned mod = lpMsg->wParam >> 16;
+	//unsigned mod = lpMsg->lParam >> 16;
+	SDL_Keymod mod = SDL_GetModState();
 
-		bool shift = (mod & KMOD_SHIFT) != 0;
-		if (key >= 'A' && key <= 'Z') {
-			if (shift == ((mod & KMOD_CAPS) != 0))
-				key = tolower(key);
-		} else if (key >= '0' && key <= '9') {
-			if (shift) {
-				const char shkeys[] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
-				key = shkeys[key - '0'];
-			}
-		} else if (key == DVL_VK_SPACE) {// || key == DVL_VK_BACK || key == DVL_VK_ESCAPE || key == DVL_VK_TAB || key == DVL_VK_RETURN) {
-			// control keys
-			key = ' ';
-		} else if (key >= DVL_VK_NUMPAD0 && key <= DVL_VK_DIVIDE) {
-			// numpad buttons
-			switch (key) {
-			case DVL_VK_MULTIPLY:
-				key = '*';
-				break;
-			case DVL_VK_ADD:
-				key = '+';
-				break;
-			case DVL_VK_SUBTRACT:
-				key = '-';
-				break;
-			case DVL_VK_DECIMAL:
-				key = ',';
-				break;
-			case DVL_VK_DIVIDE:
-				key = '/';
-				break;
-			default:
-				key = '0' + (key - DVL_VK_NUMPAD0);
-				break;
-			}
-		} else if (key >= DVL_VK_OEM_1 && key <= 0xFF) {
-			// oem keys - This probably only supports US keyboard layout
-			switch (key) {
-			case DVL_VK_OEM_1:
-				key = shift ? ':' : ';';
-				break;
-			case DVL_VK_OEM_2:
-				key = shift ? '?' : '/';
-				break;
-			case DVL_VK_OEM_3:
-				key = shift ? '~' : '`';
-				break;
-			case DVL_VK_OEM_4:
-				key = shift ? '{' : '[';
-				break;
-			case DVL_VK_OEM_5:
-				key = shift ? '|' : '\\';
-				break;
-			case DVL_VK_OEM_6:
-				key = shift ? '}' : ']';
-				break;
-			case DVL_VK_OEM_7:
-				key = shift ? '"' : '\'';
-				break;
-			case DVL_VK_OEM_MINUS:
-				key = shift ? '_' : '-';
-				break;
-			case DVL_VK_OEM_PLUS:
-				key = shift ? '+' : '=';
-				break;
-			case DVL_VK_OEM_PERIOD:
-				key = shift ? '>' : '.';
-				break;
-			case DVL_VK_OEM_COMMA:
-				key = shift ? '<' : ',';
-				break;
-			default:
-				key = '?'; // UNIMPLEMENTED();
-			}
-		} else
-			return;
-
-		if (key >= 32) {
-			DoLog("char: %c", key);
+	bool shift = (mod & KMOD_SHIFT) != 0;
+	if (key >= DVL_VK_A && key <= DVL_VK_Z) {
+		static_assert(DVL_VK_A == 'A', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char I.");
+		static_assert(DVL_VK_Z == 'Z', "Translation from DVL_VK_A-Z to A-Z is a NOP in TranslateKey2Char II.");
+		if (shift == ((mod & KMOD_CAPS) != 0))
+			key = tolower(key);
+	} else if (key >= DVL_VK_0 && key <= DVL_VK_9) {
+		static_assert(DVL_VK_0 == '0', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char I.");
+		static_assert(DVL_VK_9 == '9', "Translation from DVL_VK_0-9 to 0-9 is a NOP in TranslateKey2Char II.");
+		if (shift) {
+			const char shkeys[] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
+			key = shkeys[key - '0'];
 		}
-		// XXX: This does not add extended info to lParam
-		PostMessage(DVL_WM_CHAR, key);
-	}
-#endif
-}
-
-BYTE GetAsyncKeyState(int vKey)
-{
-	/*if (vKey == DVL_MK_LBUTTON)
-		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	if (vKey == DVL_MK_RBUTTON)
-		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
-	const Uint8 *state = SDLC_GetKeyState();
-	switch (vKey) {
-	case DVL_VK_CONTROL:
-		return (state[SDLC_KEYSTATE(LCTRL)] || state[SDLC_KEYSTATE(RCTRL)]) ? 0x8000 : 0;
-	case DVL_VK_SHIFT:
-		return (state[SDLC_KEYSTATE(LSHIFT)] || state[SDLC_KEYSTATE(RSHIFT)]) ? 0x8000 : 0;
-	case DVL_VK_MENU:
-		return (state[SDLC_KEYSTATE(LALT)] || state[SDLC_KEYSTATE(RALT)]) ? 0x8000 : 0;
-	case DVL_VK_LEFT:
-		return state[SDLC_KEYSTATE(LEFT)] ? 0x8000 : 0;
-	case DVL_VK_UP:
-		return state[SDLC_KEYSTATE(UP)] ? 0x8000 : 0;
-	case DVL_VK_RIGHT:
-		return state[SDLC_KEYSTATE(RIGHT)] ? 0x8000 : 0;
-	case DVL_VK_DOWN:
-		return state[SDLC_KEYSTATE(DOWN)] ? 0x8000 : 0;
-	default:
+	} else if (key == DVL_VK_SPACE) { // || key == DVL_VK_BACK || key == DVL_VK_ESCAPE || key == DVL_VK_TAB || key == DVL_VK_RETURN) {
+		// control keys
+		key = ' ';
+	} else if (key >= DVL_VK_NUMPAD0 && key <= DVL_VK_DIVIDE) {
+		// numpad buttons
+		switch (key) {
+		case DVL_VK_MULTIPLY:
+			key = '*';
+			break;
+		case DVL_VK_ADD:
+			key = '+';
+			break;
+		case DVL_VK_SUBTRACT:
+			key = '-';
+			break;
+		case DVL_VK_DECIMAL:
+			key = ',';
+			break;
+		case DVL_VK_DIVIDE:
+			key = '/';
+			break;
+		default:
+			key = '0' + (key - DVL_VK_NUMPAD0);
+			break;
+		}
+	} else if (key >= DVL_VK_OEM_1 && key <= 0xFF) {
+		// oem keys - This probably only supports US keyboard layout
+		switch (key) {
+		case DVL_VK_OEM_1:
+			key = shift ? ':' : ';';
+			break;
+		case DVL_VK_OEM_2:
+			key = shift ? '?' : '/';
+			break;
+		case DVL_VK_OEM_3:
+			key = shift ? '~' : '`';
+			break;
+		case DVL_VK_OEM_4:
+			key = shift ? '{' : '[';
+			break;
+		case DVL_VK_OEM_5:
+			key = shift ? '|' : '\\';
+			break;
+		case DVL_VK_OEM_6:
+			key = shift ? '}' : ']';
+			break;
+		case DVL_VK_OEM_7:
+			key = shift ? '"' : '\'';
+			break;
+		case DVL_VK_OEM_MINUS:
+			key = shift ? '_' : '-';
+			break;
+		case DVL_VK_OEM_PLUS:
+			key = shift ? '+' : '=';
+			break;
+		case DVL_VK_OEM_PERIOD:
+			key = shift ? '>' : '.';
+			break;
+		case DVL_VK_OEM_COMMA:
+			key = shift ? '<' : ',';
+			break;
+		default:
+			key = '?'; // UNIMPLEMENTED();
+		}
+	} else
 		return 0;
-	}*/
-	const Uint8 *state = SDLC_GetKeyState();
-	if (vKey == DVL_VK_SHIFT) {
-		return state[SDLC_KEYSTATE(LSHIFT)] | state[SDLC_KEYSTATE(RSHIFT)];
-	}
-	if (vKey == DVL_VK_MENU) {
-		return state[SDLC_KEYSTATE(LALT)] | state[SDLC_KEYSTATE(RALT)];
-	}
-	assert(vKey == DVL_VK_CONTROL);
-	return state[SDLC_KEYSTATE(LCTRL)] | state[SDLC_KEYSTATE(RCTRL)];
-}
 
-void DispatchMessage(const MSG *lpMsg)
+	if (key >= ' ') {
+		DoLog("char: %c", key);
+	}
+	return key;
+}
+#endif
+
+void DispatchMessage(const Dvl_Event* event)
 {
 	assert(CurrentWndProc != NULL);
 
-	CurrentWndProc(lpMsg->message, lpMsg->wParam);
+	CurrentWndProc(event);
 }
 
-void PostMessage(UINT type, WPARAM wParam)
+void PostMessage(UINT type /*, WPARAM wParam*/)
 {
-	MSG message;
+	SDL_Event e;
 
-	message.message = type;
-	message.wParam = wParam;
+	e.user.type = SDL_USEREVENT;
+	e.user.code = type;
+	//e.user.data1 = (void*)wParam;
 
-	message_queue.push_back(message);
+	SDL_PushEvent(&e);
 }
 
 /*void MainWndProc(UINT Msg)
@@ -1219,7 +1165,7 @@ void PostMessage(UINT type, WPARAM wParam)
 		gbRedrawFlags = REDRAW_ALL;
 		break;
 	//case DVL_WM_QUERYENDSESSION:
-	//	diablo_quit(0);
+	//	diablo_quit(EX_OK);
 	//	break;
 	}
 }*/

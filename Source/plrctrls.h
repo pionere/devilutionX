@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+// defined in controller.cpp
 extern bool sgbControllerActive;
 
 // Runs at the end of CheckCursMove()
@@ -25,7 +26,7 @@ void plrctrls_after_game_logic();
 // Handles menu movement.
 void plrctrls_every_frame();
 
-// Whether the mouse cursor is being moved with the controller.
+// defined in controller_motion.cpp
 bool IsMovingMouseCursorWithController();
 
 void FocusOnInventory();
@@ -33,15 +34,12 @@ void FocusOnInventory();
 void FocusOnCharInfo();
 
 // defined in touch.cpp
-void finish_simulated_mouse_clicks(int current_mouse_x, int current_mouse_y);
+void finish_simulated_mouse_clicks();
 
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
 
-void UseBeltItem(int type);
-
-// Talk to towners, click on inv items, attack, etc.
-void PerformPrimaryAction();
+void UseBeltItem(bool manaItem);
 
 // Open chests, doors, pickup items.
 void PerformSecondaryAction();

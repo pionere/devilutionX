@@ -20,10 +20,10 @@ static bool CharacterIsDelimiter(char c)
 }
 
 // Based on SDL 2.0.12 TTF_RenderUTF8_Blended_Wrapped
-SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Color fg, Uint32 wrapLength, const int xAlign)
+SDL_Surface* RenderUTF8_Solid_Wrapped(TTF_Font* font, const char* text, SDL_Color fg, Uint32 wrapLength, const int xAlign)
 {
 	int width, height;
-	SDL_Surface *textbuf;
+	SDL_Surface* textbuf;
 	const int lineSpace = 2;
 	char *str, **strLines;
 
@@ -55,7 +55,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 		tok = str;
 		end = str + strLen;
 		do {
-			strLines = (char **)SDL_realloc(strLines, (numLines + 1) * sizeof(*strLines));
+			strLines = (char**)SDL_realloc(strLines, (numLines + 1) * sizeof(*strLines));
 			if (strLines == NULL) {
 				TTF_SetError("Out of memory");
 				SDL_stack_free(str);
@@ -118,7 +118,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 	}
 
 	/* Fill the palette with the foreground color */
-	SDL_Palette *palette = textbuf->format->palette;
+	SDL_Palette* palette = textbuf->format->palette;
 	palette->colors[0].r = 255 - fg.r;
 	palette->colors[0].g = 255 - fg.g;
 	palette->colors[0].b = 255 - fg.b;
@@ -136,7 +136,7 @@ SDL_Surface *RenderUTF8_Solid_Wrapped(TTF_Font *font, const char *text, SDL_Colo
 			dest.y += lineskip;
 			continue;
 		}
-		SDL_Surface *tmp = TTF_RenderUTF8_Solid(font, text, fg);
+		SDL_Surface* tmp = TTF_RenderUTF8_Solid(font, text, fg);
 		if (tmp == NULL) {
 			DoLog(TTF_GetError());
 			SDL_FreeSurface(textbuf);

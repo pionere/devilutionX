@@ -13,10 +13,10 @@ extern "C" {
 #endif
 
 #ifdef HELLFIRE
-void T_HiveOpen();
-void T_CryptOpen();
+void OpenNest();
+void OpenCrypt();
 #endif
-void CreateTown(int entry);
+void CreateTown();
 
 #ifdef __cplusplus
 }

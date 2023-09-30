@@ -4,6 +4,8 @@
  * Implementation of scrolling dialog text.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -18,7 +20,7 @@ bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 static int scrolltexty;
 
-void InitQTextMsg(int m, bool showText)
+void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
 	int sfxnr;
@@ -26,6 +28,8 @@ void InitQTextMsg(int m, bool showText)
 	tds = &alltext[m];
 	if (tds->scrlltxt && showText) {
 		// ClearPanels();
+		// gamemenu_off();
+		// StopQTextMsg();
 		gbQtextflag = true;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
@@ -37,6 +41,12 @@ void InitQTextMsg(int m, bool showText)
 		sfxnr = sgSFXSets[sfxnr][myplr._pClass];
 	}
 	PlaySFX(sfxnr);
+}
+
+void StopQTextMsg()
+{
+	gbQtextflag = false;
+	StopStreamSFX();
 }
 
 void DrawQText()
@@ -108,6 +118,7 @@ void DrawQText()
 			qtexty += 38;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
+				// StopQTextMsg(); ?
 				gbQtextflag = false;
 			}
 			break;

@@ -4,6 +4,7 @@
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
+#include "storm/storm_cfg.h"
 #include "storm/storm_net.h"
 #include "all.h"
 //#include "../diablo.h"
@@ -16,9 +17,9 @@ DEVILUTION_BEGIN_NAMESPACE
 extern int provider;
 
 static char selgame_Label[32];
-static char selgame_Ip[128] = "";
-static char selgame_Port[8] = "";
-static char selgame_Password[16] = "";
+static char selgame_GameName[NET_MAX_GAMENAME_LEN + 1] = "";
+static char selgame_GamePort[8] = "";
+static char selgame_Password[NET_MAX_PASSWD_LEN + 1] = "";
 static char selgame_Description[128];
 static int selgame_mode;
 static bool selgame_endMenu;
@@ -26,12 +27,15 @@ static bool selgame_endMenu;
 
 static _uigamedata* selgame_gameData;
 
-#define DESCRIPTION_WIDTH	(SELGAME_LPANEL_WIDTH - 2 * 10)
+#define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelgameModeSelect(unsigned index);
+static void SelgameDiffSelect(unsigned index);
 static void SelgameSpeedSelect(unsigned index);
 static void SelgamePasswordSelect(unsigned index);
+static void SelgameDiffEsc();
+static void SelgamePasswordEsc();
 
 static void selgame_handleEvents(SNetEvent* pEvt)
 {
@@ -56,7 +60,7 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 	selgame_gameData->aePlayerId = playerId;
 }
 
-static void selgame_add_event_handlers(void (*event_handler)(SNetEvent *pEvt))
+static void selgame_add_event_handlers(void (*event_handler)(SNetEvent* pEvt))
 {
 	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, event_handler);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
@@ -72,15 +76,42 @@ static void SelgameFreeDlgItems()
 {
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void SelgameFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
+	MemFreeDbg(gbHerosCel);
 	SelgameFreeDlgItems();
 
-	//UiInitList_clear();
+	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
+}
+
+static void SelgameResetScreen(const char* title, const char* rheader)
+{
+	SelgameFreeDlgItems();
+
+	UiAddBackground();
+	UiAddLogo();
+
+	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
+	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
+
+	SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
+	gUiItems.push_back(new UiText(selgame_Label, rect2, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
+	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
+
+	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
+	gUiItems.push_back(new UiText(rheader, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
+	gUiItems.push_back(new UiImage(gbHerosCel, myplr._pClass + 1, rect5, false));
+
+	SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
+	gUiItems.push_back(new UiText(myplr._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 }
 
 static void SelgameModeEsc()
@@ -91,6 +122,7 @@ static void SelgameModeEsc()
 
 static void SelgameModeFocus(unsigned index)
 {
+	selgame_Label[0] = '\0';
 	switch (gUIListItems[index]->m_value) {
 	case SELGAME_CREATE:
 		copy_cstr(selgame_Description, "Create a new game with a difficulty setting of your choice.");
@@ -153,56 +185,31 @@ static void SelgameSpeedFocus(unsigned index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
-static void SelgameSpeedEsc()
+static void SelgameNoFocus()
 {
-	SelgameModeSelect(SELGAME_CREATE);
+	selgame_Label[0] = '\0';
+	selgame_Description[0] = '\0';
 }
 
-static void SelgameSpeedInit()
+static void SelgameDiffInit()
 {
-	// gfnHeroInfo(UpdateHeroLevel);
+	SelgameResetScreen("Create Game", "Select Difficulty");
 
-	SelgameFreeDlgItems();
+	gUIListItems.push_back(new UiListItem("Normal", DIFF_NORMAL));
+	gUIListItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
+	gUIListItems.push_back(new UiListItem("Hell", DIFF_HELL));
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
-
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText("Create Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
-	gUiItems.push_back(new UiText(selgame_Label, rect2, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
-
-	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
-	gUiItems.push_back(new UiText("Select Game Speed", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-	gUIListItems.push_back(new UiListItem("Normal", SPEED_NORMAL));
-	gUIListItems.push_back(new UiListItem("Fast", SPEED_FAST));
-	gUIListItems.push_back(new UiListItem("Faster", SPEED_FASTER));
-	gUIListItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
-
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 240) / 2, SELGAME_LIST_TOP, 240, 26 * 4 };
-	gUiItems.push_back(new UiList(&gUIListItems, 4, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 250) / 2, SELGAME_LIST_TOP, 250, 26 * 3 };
+	gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	//assert(gUIListItems.size() == 4);
-	UiInitList(4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameSpeedEsc);
-}
-
-static void SelgamePasswordEsc()
-{
-	if (selgame_mode == SELGAME_JOIN)
-		SelgameModeSelect(SELGAME_JOIN);
-	else
-		SelgameSpeedInit();
+	//assert(gUIListItems.size() == 3);
+	UiInitScreen(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
 }
 
 static void SelgameModeInit()
@@ -216,25 +223,7 @@ static void SelgameModeInit()
 		return;
 	}
 
-	getIniValue("Phone Book", "Entry1", selgame_Ip, sizeof(selgame_Ip) - 1);
-	int port = NET_DEFAULT_PORT;
-	getIniInt("Network", "Port", &port);
-	snprintf(selgame_Port, sizeof(selgame_Port), "%d", port);
-	getIniValue("Phone Book", "Entry1Port", selgame_Port, sizeof(selgame_Port) - 1);
-
-	SelgameFreeDlgItems();
-
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
-
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
-
-	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
-	gUiItems.push_back(new UiText("Select Action", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+	SelgameResetScreen("Multi Player Game", "Select Action");
 
 	static_assert(0 == (int)SELGAME_CREATE, "SelgameModeSelect expects the index and its value to match I.");
 	static_assert(1 == (int)SELGAME_JOIN, "SelgameModeSelect expects the index and its value to match II.");
@@ -242,16 +231,16 @@ static void SelgameModeInit()
 	gUIListItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 260) / 2, SELGAME_LIST_TOP, 260, 26 * 2 };
-	gUiItems.push_back(new UiList(&gUIListItems, 2, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, 2, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 2);
-	UiInitList(2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
+	UiInitScreen(2, SelgameModeFocus, SelgameModeSelect, SelgameModeEsc);
 }
 
 /**
@@ -269,60 +258,93 @@ static void SelgameModeInit()
 
 static void SelgamePasswordInit(unsigned index)
 {
-	memset(&selgame_Password, 0, sizeof(selgame_Password));
+	selgame_Password[0] = '\0';
 
-	SelgameFreeDlgItems();
-
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
-
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
-
-	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
-	gUiItems.push_back(new UiText("Enter Password", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	gUiItems.push_back(new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5));
+	SelgameNoFocus();
+	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Password");
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	UiEdit* edit = new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5);
+	gUiItems.push_back(edit);
+
+	UiInitScreen(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
+	UiInitEdit(edit);
 }
 
 static void SelgamePortInit(unsigned index)
 {
-	SelgameFreeDlgItems();
-
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
-
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText("Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
-
-	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
-	gUiItems.push_back(new UiText("Enter Port", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	gUiItems.push_back(new UiEdit("Enter Port", selgame_Port, sizeof(selgame_Port) - 1, rect5));
+	SelgameNoFocus();
+	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Port");
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
-	UiInitList(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	UiEdit* edit = new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort) - 1, rect5);
+	gUiItems.push_back(edit);
+
+	UiInitScreen(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
+	UiInitEdit(edit);
+}
+
+static void SelgameAddressInit()
+{
+	SelgameNoFocus();
+	SelgameResetScreen("Join Game", "Enter Address");
+
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	UiEdit* edit = new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName) - 1, rect5);
+	gUiItems.push_back(edit);
+
+	UiInitScreen(0, NULL, SelgamePortInit, SelgameModeInit);
+	UiInitEdit(edit);
+}
+
+static void SelgameSpeedInit()
+{
+	// gfnHeroInfo(UpdateHeroLevel);
+
+	SelgameResetScreen("Create Game", "Select Game Speed");
+
+	gUIListItems.push_back(new UiListItem("Normal", SPEED_NORMAL));
+	gUIListItems.push_back(new UiListItem("Fast", SPEED_FAST));
+	gUIListItems.push_back(new UiListItem("Faster", SPEED_FASTER));
+	gUIListItems.push_back(new UiListItem("Fastest", SPEED_FASTEST));
+
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 240) / 2, SELGAME_LIST_TOP, 240, 26 * 4 };
+	gUiItems.push_back(new UiList(&gUIListItems, 4, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+
+	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	//assert(gUIListItems.size() == 4);
+	UiInitScreen(4, SelgameSpeedFocus, SelgameSpeedSelect, SelgameDiffInit);
+}
+
+static void SelgamePasswordEsc()
+{
+	if (selgame_mode == SELGAME_JOIN)
+		SelgameAddressInit();
+	else
+		SelgameSpeedInit();
 }
 
 static void SelgameDiffEsc()
@@ -363,81 +385,35 @@ static void SelgameModeSelect(unsigned index)
 	selgame_mode = index;
 
 	//gfnHeroInfo(UpdateHeroLevel);
+	int port = NET_DEFAULT_PORT;
+	getIniInt("Network", "Port", &port);
+	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
+	if (index == SELGAME_CREATE) {
+		SelgameDiffInit();
+	} else {
+		getIniValue("Phone Book", "Entry1", selgame_GameName, sizeof(selgame_GameName) - 1);
+		getIniValue("Phone Book", "Entry1Port", selgame_GamePort, sizeof(selgame_GamePort) - 1);
 
-	SelgameFreeDlgItems();
-
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
-
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText(index == SELGAME_CREATE ? "Create Game" : "Join Game", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
-
-	SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP, DESCRIPTION_WIDTH, 192 };
-	gUiItems.push_back(new UiText(selgame_Description, rect3, UIS_LEFT | UIS_SMALL | UIS_SILVER));
-
-	switch (index) {
-	case SELGAME_CREATE: {
-		SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
-		gUiItems.push_back(new UiText(selgame_Label, rect2, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
-		gUiItems.push_back(new UiText("Select Difficulty", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-		gUIListItems.push_back(new UiListItem("Normal", DIFF_NORMAL));
-		gUIListItems.push_back(new UiListItem("Nightmare", DIFF_NIGHTMARE));
-		gUIListItems.push_back(new UiListItem("Hell", DIFF_HELL));
-
-		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 250) / 2, SELGAME_LIST_TOP, 250, 26 * 3 };
-		gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
-
-		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		//assert(gUIListItems.size() == 3);
-		UiInitList(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
-	} break;
-	case SELGAME_JOIN: {
-		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
-		gUiItems.push_back(new UiText("Enter Address", rect4, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
-
-		SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-		gUiItems.push_back(new UiEdit("Enter Address", selgame_Ip, sizeof(selgame_Ip) - 1, rect5));
-
-		SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_CENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-		UiInitList(0, NULL, SelgamePortInit, SelgameModeInit);
-	} break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+		SelgameAddressInit();
 	}
 }
 
 static void SelgameSpeedSelect(unsigned index)
 {
 	selgame_gameData->aeTickRate = gUIListItems[index]->m_value;
-#ifdef ADAPTIVE_NETUPDATE
 	selgame_gameData->aeNetUpdateRate = 1;
-#else
-	int latency = 80;
-	getIniInt("Network", "Latency", &latency);
-	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
-#endif
 	if (provider == SELCONN_LOOPBACK) {
-		selgame_gameData->aeNetUpdateRate = 1;
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
 	}
+#ifndef ADAPTIVE_NETUPDATE
+	int latency = 80;
+	getIniInt("Network", "Latency", &latency);
+	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
+#endif
 
-	SelgamePasswordInit(0);
+	SelgamePortInit(0);
 }
 
 static void SelgamePasswordSelect(unsigned index)
@@ -445,22 +421,25 @@ static void SelgamePasswordSelect(unsigned index)
 	char dialogText[256];
 
 	if (selgame_mode == SELGAME_CREATE) {
-		if (SNetCreateGame(selgame_Password, selgame_gameData, dialogText)) {
+		setIniValue("Network", "Port", selgame_GamePort);
+		int port;
+		getIniInt("Network", "Port", &port);
+		if (SNetCreateGame(port, selgame_Password, selgame_gameData, dialogText)) {
 			selgame_endMenu = true;
 			return;
 		}
 	} else {
 		assert(selgame_mode == SELGAME_JOIN);
-		setIniValue("Phone Book", "Entry1", selgame_Ip);
-		setIniValue("Phone Book", "Entry1Port", selgame_Port);
+		setIniValue("Phone Book", "Entry1", selgame_GameName);
+		setIniValue("Phone Book", "Entry1Port", selgame_GamePort);
 		int port;
 		getIniInt("Phone Book", "Entry1Port", &port);
-		if (SNetJoinGame(selgame_Ip, port, selgame_Password, dialogText)) {
+		if (SNetJoinGame(selgame_GameName, port, selgame_Password, dialogText)) {
 			selgame_endMenu = true;
 			return;
 		}
 	}
-
+	// assert(provider != SELCONN_LOOPBACK);
 	SelgameFree();
 	UiSelOkDialog(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", dialogText);
 	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
@@ -473,13 +452,13 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 
 	selgame_add_event_handlers(event_handler);
 
+	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
 	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 	SelgameModeInit();
 
 	selgame_endMenu = false;
 	do {
-		UiClearScreen();
-		UiPollAndRender();
+		UiRenderAndPoll();
 	} while (!selgame_endMenu);
 	SelgameFree();
 
@@ -489,7 +468,7 @@ int UiSelectGame(_uigamedata* game_data, void (*event_handler)(SNetEvent* pEvt))
 void UIDisconnectGame()
 {
 	selgame_remove_event_handlers();
-	SNetLeaveGame(LEAVE_UNKNOWN);
+	SNetLeaveGame(LEAVE_DROP);
 }
 
 DEVILUTION_END_NAMESPACE

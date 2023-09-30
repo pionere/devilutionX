@@ -13,19 +13,19 @@ namespace net {
 
 class tcpd_client : public base {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
-	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
+	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
+	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	virtual void SNetLeaveGame(int reason);
+	void SNetLeaveGame(int reason) override;
 
-	virtual ~tcpd_client() = default;
+	~tcpd_client() override = default;
 
-	virtual void make_default_gamename(char (&gamename)[128]);
+	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 protected:
-	virtual void poll();
-	virtual void send_packet(packet &pkt);
-	void recv_connect(packet &pkt);
+	void poll() override;
+	void send_packet(packet& pkt) override;
+	void recv_connect(packet& pkt);
 
 private:
 	frame_queue recv_queue;
@@ -42,24 +42,24 @@ private:
 	tcp_server::scc connections[MAX_PLRS] = { };
 
 	void start_timeout();
-	void handle_timeout(const asio::error_code &ec);
+	void handle_timeout(const asio::error_code& ec);
 	plr_t next_free_conn();
 	plr_t next_free_queue();
 	void start_accept_conn();
-	void handle_accept_conn(bool valid, const asio::error_code &ec);
-	void start_recv_conn(const tcp_server::scc &con);
-	void handle_recv_conn(const tcp_server::scc &con, const asio::error_code &ec, size_t bytesRead);
-	void start_send(const tcp_server::scc &con, packet &pkt);
-	bool handle_recv_newplr(const tcp_server::scc &con, packet &pkt);
-	bool handle_recv_packet(const tcp_server::scc &con, packet &pkt);
-	void drop_connection(const tcp_server::scc &con);
+	void handle_accept_conn(bool valid, const asio::error_code& ec);
+	void start_recv_conn(const tcp_server::scc& con);
+	void handle_recv_conn(const tcp_server::scc& con, const asio::error_code& ec, size_t bytesRead);
+	void start_send(const tcp_server::scc& con, packet& pkt);
+	bool handle_recv_newplr(const tcp_server::scc& con, packet& pkt);
+	bool handle_recv_packet(const tcp_server::scc& con, packet& pkt);
+	void drop_connection(const tcp_server::scc& con);
 	void disconnect_net(plr_t pnum);
 
-	void handle_recv(const asio::error_code &ec, size_t bytesRead);
+	void handle_recv(const asio::error_code& ec, size_t bytesRead);
 	void start_recv();
 	void close();
 };
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
-#endif
+#endif // TCPIP

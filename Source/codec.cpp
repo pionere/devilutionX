@@ -5,8 +5,8 @@
  */
 #include "all.h"
 
-#include <cstddef>
-#include <cstdint>
+//#include <cstddef>
+//#include <cstdint>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -19,22 +19,22 @@ typedef struct CodecSignature {
 
 static void CodecInitKey(const char* pszPassword)
 {
-	char key[72 + SHA1BlockSize]; // last 64 bytes are the SHA1
+	BYTE key[72 + SHA1BlockSize]; // last 64 bytes are the SHA1
 	uint32_t rand_state = 0x7058;
 	for (unsigned i = 0; i < sizeof(key); ++i) {
 		rand_state = rand_state * 214013 + 2531011;
-		key[i] = rand_state >> 16; // Downcasting to char keeps the 2 least-significant bytes
+		key[i] = rand_state >> 16; // Downcasting to BYTE keeps the least-significant byte
 	}
 
-	char pw[SHA1BlockSize];
+	BYTE pw[SHA1BlockSize];
 	unsigned password_i = 0;
 	for (unsigned i = 0; i < sizeof(pw); ++i, ++password_i) {
 		if (pszPassword[password_i] == '\0')
 			password_i = 0;
-		pw[i] = pszPassword[password_i];
+		pw[i] = static_cast<BYTE>(pszPassword[password_i]);
 	}
 
-	char digest[SHA1HashSize];
+	BYTE digest[SHA1HashSize];
 	SHA1Reset(0);
 	SHA1Calculate(0, pw, digest);
 	SHA1Clear();
@@ -51,8 +51,8 @@ static void CodecInitKey(const char* pszPassword)
 
 int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 {
-	char buf[SHA1BlockSize];
-	char dst[SHA1HashSize];
+	BYTE buf[SHA1BlockSize];
+	BYTE dst[SHA1HashSize];
 	int i;
 	CodecSignature* sig;
 
@@ -102,8 +102,8 @@ DWORD codec_get_encoded_len(DWORD dwSrcBytes)
 
 void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* pszPassword)
 {
-	char buf[SHA1BlockSize];
-	char dst[SHA1HashSize];
+	BYTE buf[SHA1BlockSize];
+	BYTE dst[SHA1HashSize];
 	DWORD chunk;
 	CodecSignature* sig;
 

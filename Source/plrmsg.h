@@ -15,11 +15,8 @@ extern "C" {
 extern bool gbTalkflag;
 
 void plrmsg_delay(bool delay);
-#if DEV_MODE
-void ErrorPlrMsg(const char *pszMsg);
-#endif
-void EventPlrMsg(const char *pszFmt, ...);
-void ReceivePlrMsg(int pnum, const char *pszStr);
+void EventPlrMsg(const char* pszFmt, ...);
+void ReceivePlrMsg(int pnum, const char* pszStr);
 //void ClearPlrMsg(int pnum);
 void InitPlrMsg();
 void DrawPlrMsg(bool onTop);
