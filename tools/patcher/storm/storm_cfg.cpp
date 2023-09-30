@@ -50,7 +50,7 @@ ConfigEntry* ConfigSection::getEntry(const char* name)
 
 ConfigEntry* ConfigSection::addEntry(const char* key, const char* value)
 {
-	entries.push_back(ConfigEntry(SDL_strdup(key), SDL_strdup(value)));
+	entries.push_back(ConfigEntry(strdup(key), strdup(value)));
 	return &entries.back();
 }
 
@@ -73,7 +73,7 @@ static ConfigSection* getSection(const char* name)
 
 static ConfigSection* addSection(const char* name)
 {
-	config.sections.push_back(ConfigSection(SDL_strdup(name)));
+	config.sections.push_back(ConfigSection(strdup(name)));
 
 	return &config.sections.back();
 }
