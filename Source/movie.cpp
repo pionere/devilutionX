@@ -30,7 +30,7 @@ int play_movie(const char* pszMovie, int movieFlags)
 		while (PeekMessage(e)) {
 			switch (e.type) {
 			case DVL_WM_KEYDOWN:
-				if (e.key.keysym.sym == DVL_VK_ESCAPE) {
+				if (e.vkcode == DVL_VK_ESCAPE) {
 					result = MPR_CANCEL;
 					break;
 				}

@@ -46,7 +46,7 @@ void UiSettingsDialog()
 				gmenu_left_mouse(false);
 				break;
 			case DVL_WM_KEYDOWN:
-				gmenu_presskey(event.key.keysym.sym);
+				gmenu_presskey(event.vkcode);
 				break;
 			}
 		}
