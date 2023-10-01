@@ -32,7 +32,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: Packaging/OpenDingux/build.sh lepus ""
+      run: Packaging/OpenDingux/build.sh lepus -DUSE_PATCH=ON
       env:
         TOOLCHAIN: /opt/lepus-toolchain
 
