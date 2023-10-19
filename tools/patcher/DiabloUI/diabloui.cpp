@@ -748,7 +748,7 @@ static void HandleMouseEvent(const Dvl_Event& event)
 		return;
 	}
 }
-
+#if FULL_UI
 static bool HandleMouseMoveEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 {
 	if (uiEdit->m_selecting) {
@@ -786,7 +786,7 @@ static void UiDelFromText(int w)
 		}
 	}
 }
-
+#endif // FULL_UI
 bool UiPeekAndHandleEvents(Dvl_Event* event)
 {
 	if (!PeekMessage(*event)) {
@@ -794,9 +794,11 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 	}
 
 	switch (event->type) {
+#if FULL_UI
 	case DVL_WM_MOUSEMOVE:
 		HandleMouseMoveEvent(*event);
 		break;
+#endif
 	case DVL_WM_QUIT:
 		diablo_quit(EX_OK);
 		break;
@@ -812,12 +814,14 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			for (UiItemBase* item : gUiItems) {
 				if (item->m_type == UI_BUTTON) {
 					static_cast<UiButton*>(item)->m_pressed = false;
+#if FULL_UI
 				} else if (item->m_type == UI_SCROLLBAR) {
 					static_cast<UiScrollBar*>(item)->m_pressMode = 0;
+#endif
 				}
 			}
 		}
-		break; // handled
+		break;
 	case DVL_WM_RBUTTONDOWN:
 		UiFocusNavigationEsc();
 		break;
