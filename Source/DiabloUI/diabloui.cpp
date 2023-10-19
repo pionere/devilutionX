@@ -30,7 +30,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define FOCUS_FRAME_COUNT 8
+#define FOCUS_FRAME_COUNT   8
+#define EDIT_SELECTOR_WIDTH 43
 
 CelImageBuf* gbBackCel;
 static CelImageBuf* gbLogoCelSmall;
@@ -532,11 +533,11 @@ static void Render(const UiScrollBar* uiSb)
 
 static void Render(const UiEdit* uiEdit)
 {
-	DrawSelector(uiEdit->m_rect);
+	// DrawSelector(uiEdit->m_rect);
 	SDL_Rect rect = uiEdit->m_rect;
-	rect.x += 43;
+	// rect.x += EDIT_SELECTOR_WIDTH;
 	rect.y += 1;
-	// rect.w -= 86;
+	// rect.w -= 2 * EDIT_SELECTOR_WIDTH;
 	char* text = uiEdit->m_value;
 	// render the text
 	DrawArtStr(text, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
@@ -672,7 +673,7 @@ static bool HandleMouseEventScrollBar(const Dvl_Event& event, UiScrollBar* uiSb)
 
 static unsigned EditCursPos(int x, UiEdit* uiEdit)
 {
-	x -= (uiEdit->m_rect.x + 43);
+	x -= (uiEdit->m_rect.x /* + EDIT_SELECTOR_WIDTH */);
 	char* text = uiEdit->m_value;
 	unsigned curpos = 0;
 	for ( ; ; curpos++) {
