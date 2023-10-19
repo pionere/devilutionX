@@ -106,7 +106,7 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
-	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER);
+	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER, PAL_BLACK);
 
 	line = 0;
 	while (*str != '\0') {

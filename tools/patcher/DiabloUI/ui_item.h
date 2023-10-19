@@ -8,7 +8,7 @@
 #include "../enums.h"
 #include "../structs.h"
 #include "../appfat.h"*/
-#include "../all.h"
+#include "all.h"
 
 #include "text_draw.h"
 
@@ -141,6 +141,8 @@ public:
 		m_value = value;
 		m_max_length = max_length;
 		m_curpos = strlen(value);
+		m_selpos = m_curpos;
+		m_selecting = false;
 	}
 
 	~UiEdit() = default;
@@ -150,6 +152,9 @@ public:
 	char* m_value;
 	unsigned m_max_length;
 	unsigned m_curpos;
+	unsigned m_selpos;
+	// State
+	bool m_selecting;
 };
 #endif // FULL_UI
 //=============================================================================

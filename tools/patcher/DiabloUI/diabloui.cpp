@@ -13,6 +13,7 @@
 #include "utils/screen_reader.hpp"
 #if FULL_UI
 #include "engine/render/text_render.h"
+#include "engine/render/raw_render.h"
 #include "utils/utf8.h"
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
@@ -203,15 +204,21 @@ static void UiFocusPageDown()
 static void UiCatToText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
-	unsigned pos = gUiEditField->m_curpos;
+	unsigned sp = gUiEditField->m_curpos;
+	unsigned cp = gUiEditField->m_selpos;
+	if (cp > sp) {
+		std::swap(cp, sp);
+	}
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
-	SStrCopy(tempstr, &text[pos], std::min((unsigned)sizeof(tempstr) - 1, maxlen - pos));
-	SStrCopy(&text[pos], output, maxlen - pos);
+	// assert(maxLen - sp < sizeof(tempstr));
+	SStrCopy(tempstr, &text[sp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - sp));
+	SStrCopy(&text[cp], output, maxlen - cp);
 	mem_free_dbg(output);
-	pos = strlen(text);
-	gUiEditField->m_curpos = pos;
-	SStrCopy(&text[pos], tempstr, maxlen - pos);
+	cp = strlen(text);
+	gUiEditField->m_curpos = cp;
+	gUiEditField->m_selpos = cp;
+	SStrCopy(&text[cp], tempstr, maxlen - cp);
 }
 
 #ifdef __vita__
@@ -223,6 +230,7 @@ static void UiSetText(const char* inBuf)
 	mem_free_dbg(output);
 	unsigned pos = strlen(text);
 	gUiEditField->m_curpos = pos;
+	gUiEditField->m_selpos = pos;
 }
 #endif
 #endif // FULL_UI
@@ -538,6 +546,26 @@ static void Render(const UiEdit* uiEdit)
 	char* text = uiEdit->m_value;
 	// render the text
 	DrawArtStr(text, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
+	{   // render the selection
+		unsigned curpos = uiEdit->m_curpos;
+		unsigned selpos = uiEdit->m_selpos;
+		if (selpos != curpos) {
+			int sp, w;
+			if (selpos > curpos) {
+				std::swap(selpos, curpos);
+			}
+			char tmp = text[selpos];
+			text[selpos] = '\0';
+			sp = GetBigStringWidth(text);
+			text[selpos] = tmp;
+			tmp = text[curpos];
+			text[curpos] = '\0';
+			w = GetBigStringWidth(&text[selpos]);
+			text[curpos] = tmp;
+			int h = 22;
+			DrawRectTrans(SCREEN_X + rect.x + sp + FONT_KERN_BIG, SCREEN_Y + rect.y, w, h, PAL16_GRAY);
+		}
+	}
 	// render the cursor
 	if (GetAnimationFrame(2, 512) != 0) {
 		unsigned curpos = uiEdit->m_curpos;
@@ -652,12 +680,9 @@ static bool HandleMouseEventScrollBar(const Dvl_Event& event, UiScrollBar* uiSb)
 	return true;
 }
 
-static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+static unsigned EditCursPos(int x, UiEdit* uiEdit)
 {
-	if (event.type != DVL_WM_LBUTTONDOWN)
-		return true;
-
-	int x = event.button.x - (uiEdit->m_rect.x + 43);
+	x -= (uiEdit->m_rect.x + 43);
 	char* text = uiEdit->m_value;
 	unsigned curpos = 0;
 	for ( ; ; curpos++) {
@@ -678,7 +703,17 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 	if (curpos >= uiEdit->m_max_length - 1) {
 		curpos = uiEdit->m_max_length - 1;
 	}
-	uiEdit->m_curpos = curpos;
+	return curpos;
+}
+
+static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+{
+	uiEdit->m_selecting = event.type == DVL_WM_LBUTTONDOWN;
+	if (uiEdit->m_selecting) {
+		unsigned curpos = EditCursPos(event.button.x, uiEdit);
+		uiEdit->m_curpos = curpos;
+		uiEdit->m_selpos = curpos;
+	}
 	return true;
 }
 #endif // FULL_UI
@@ -714,6 +749,44 @@ static void HandleMouseEvent(const Dvl_Event& event)
 	}
 }
 
+static bool HandleMouseMoveEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+{
+	if (uiEdit->m_selecting) {
+		unsigned curpos = EditCursPos(event.motion.x, uiEdit);
+		uiEdit->m_curpos = curpos;
+	}
+	return true;
+}
+
+static void HandleMouseMoveEvent(const Dvl_Event& event)
+{
+	for (UiItemBase* item : gUiItems) {
+		if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
+			continue;
+		switch (item->m_type) {
+		case UI_EDIT:
+			HandleMouseMoveEventEdit(event, static_cast<UiEdit*>(item));
+			break;
+		default:
+			continue;
+		}
+		return;
+	}
+}
+
+static void UiDelFromText(int w)
+{
+	for (unsigned i = gUiEditField->m_curpos; ; i++) {
+		// assert(gUiEditField->m_max_length != 0);
+		if (gUiEditField->m_value[i] == '\0' || (i + w) >= gUiEditField->m_max_length) {
+			gUiEditField->m_value[i] = '\0';
+			break;
+		} else {
+			gUiEditField->m_value[i] = gUiEditField->m_value[i + w];
+		}
+	}
+}
+
 bool UiPeekAndHandleEvents(Dvl_Event* event)
 {
 	if (!PeekMessage(*event)) {
@@ -721,6 +794,9 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 	}
 
 	switch (event->type) {
+	case DVL_WM_MOUSEMOVE:
+		HandleMouseMoveEvent(*event);
+		break;
 	case DVL_WM_QUIT:
 		diablo_quit(EX_OK);
 		break;
@@ -768,44 +844,75 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 					}
 				}
 				break;
+			case DVL_VK_X: {
+				if (!(event->key.keysym.mod & KMOD_CTRL)) {
+					break;
+				}
+				unsigned sp = gUiEditField->m_selpos;
+				unsigned cp = gUiEditField->m_curpos;
+				if (sp == cp) {
+					break;
+				}
+				if (sp > cp) {
+					std::swap(sp, cp);
+				}
+				char tmp = gUiEditField->m_value[cp];
+				gUiEditField->m_value[cp] = '\0';
+				SDL_SetClipboardText(&gUiEditField->m_value[sp]);
+				gUiEditField->m_value[cp] = tmp;
+			} // fall-through
 #endif
 			case DVL_VK_BACK: {
-				unsigned i = gUiEditField->m_curpos;
-				if (i > 0) {
+				int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
+				if (w != 0) {
+					if (w < 0) {
+						w = -w;
+						gUiEditField->m_selpos = gUiEditField->m_curpos;
+					} else {
+						gUiEditField->m_curpos = gUiEditField->m_selpos;
+					}
+				} else {
+					w = 1;
+					unsigned i = gUiEditField->m_curpos;
+					if (i == 0) {
+						break;
+					}
 					i--;
 					gUiEditField->m_curpos = i;
-					for ( ; ; i++) {
-						// assert(gUiEditField->m_max_length != 0);
-						if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
-							gUiEditField->m_value[i] = '\0';
-							break;
-						} else {
-							gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
-						}
-					}
+					gUiEditField->m_selpos = i;
 				}
+				UiDelFromText(w);
 			} break;
 			case DVL_VK_DELETE: {
-				for (unsigned i = gUiEditField->m_curpos; ; i++) {
-					// assert(gUiEditField->m_max_length != 0);
-					if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
-						gUiEditField->m_value[i] = '\0';
-						break;
+				int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
+				if (w != 0) {
+					if (w < 0) {
+						w = -w;
+						gUiEditField->m_selpos = gUiEditField->m_curpos;
 					} else {
-						gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
+						gUiEditField->m_curpos = gUiEditField->m_selpos;
 					}
+				} else {
+					w = 1;
 				}
+				UiDelFromText(w);
 			} break;
 			case DVL_VK_LEFT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (pos > 0) {
 					gUiEditField->m_curpos = pos - 1;
+					if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+						gUiEditField->m_selpos = pos - 1;
+					}
 				}
 			} break;
 			case DVL_VK_RIGHT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (gUiEditField->m_value[pos] != '\0' && pos + 1 < gUiEditField->m_max_length) {
 					gUiEditField->m_curpos = pos + 1;
+					if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+						gUiEditField->m_selpos = pos + 1;
+					}
 				}
 			} break;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
