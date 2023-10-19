@@ -760,7 +760,7 @@ static bool HandleMouseMoveEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 
 static void HandleMouseMoveEvent(const Dvl_Event& event)
 {
-	for (UiItemBase* item : gUiItems) {
+	/*for (UiItemBase* item : gUiItems) {
 		if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
 			continue;
 		switch (item->m_type) {
@@ -771,6 +771,9 @@ static void HandleMouseMoveEvent(const Dvl_Event& event)
 			continue;
 		}
 		return;
+	}*/
+	if (gUiEditField != NULL) {
+		HandleMouseMoveEventEdit(event, gUiEditField);
 	}
 }
 
