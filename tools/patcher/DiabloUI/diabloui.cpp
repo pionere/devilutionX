@@ -58,12 +58,6 @@ bool gUiDrawCursor;
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
-typedef struct ScrollBarState {
-	int8_t upPressCounter;
-	int8_t downPressCounter;
-} ScrollBarState;
-static ScrollBarState scrollBarState;
-
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
 	gUiDrawCursor = true;
@@ -100,8 +94,6 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, void (*fnDelete)(
 	} else {
 		uiSb->m_iFlags &= ~UIS_HIDDEN;
 	}
-	scrollBarState.upPressCounter = -1;
-	scrollBarState.downPressCounter = -1;
 }
 
 void UiInitEdit(UiEdit* uiEdit)
@@ -495,39 +487,44 @@ static void Render(const UiList* uiList)
 #if FULL_UI
 static void Render(const UiScrollBar* uiSb)
 {
+	const int sx = SCREEN_X + uiSb->m_rect.x;
+	int sy = SCREEN_Y + uiSb->m_rect.y - 1;
+	// Up Arrow:
+	{
+		const int frame = uiSb->m_pressMode == 1 ? 1 : 2;
+		// assert(scrollBarArrowCel != NULL);
+		sy += SCROLLBAR_ARROW_HEIGHT;
+		CelDraw(sx, sy, scrollBarArrowCel, frame);
+	}
 	// Bar background (tiled):
 	{
-		int bgYEnd = SCREEN_Y + DownArrowRect(uiSb).y - 1;
-		int bgX = SCREEN_X + uiSb->m_rect.x;
-		int bgY = SCREEN_Y + uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT - 1;
-		assert(scrollBarBackCel != NULL);
-		while (bgY < bgYEnd) {
-			bgY += SCROLLBAR_BG_HEIGHT;
-			if (bgYEnd < bgY)
-				bgY = bgYEnd;
-			CelDraw(bgX, bgY, scrollBarBackCel, 1);
-		}
+		int bgYEnd = sy + uiSb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT;
+		// assert(uiSb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT >= SCROLLBAR_BG_HEIGHT);
+		// assert(scrollBarBackCel != NULL);
+		const int frame = 1;
+		do {
+			sy += SCROLLBAR_BG_HEIGHT;
+			if (bgYEnd < sy)
+				sy = bgYEnd;
+			CelDraw(sx, sy, scrollBarBackCel, frame);
+		} while (sy < bgYEnd);
 	}
-	// Arrows:
-	assert(scrollBarArrowCel != NULL);
+	// Down Arrow:
 	{
-		SDL_Rect rect = UpArrowRect(uiSb);
-		rect.y--;
-		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
-	}
-	{
-		SDL_Rect rect = DownArrowRect(uiSb);
-		rect.y--;
-		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
+		// assert(scrollBarArrowCel != NULL);
+		const int frame = uiSb->m_pressMode == 2 ? 3 : 4;
+		sy += SCROLLBAR_ARROW_HEIGHT;
+		CelDraw(sx, sy, scrollBarArrowCel, frame);
 	}
 	// Thumb:
-	assert(scrollBarThumbCel != NULL);
-	if (SelectedItemMax > 0) {
-		SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
-		rect.y--;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarThumbCel, 1);
+	{
+		const int frame = 1;
+		const int thumb_max_y = uiSb->m_rect.h - (2 * SCROLLBAR_ARROW_HEIGHT + SCROLLBAR_THUMB_HEIGHT);
+		const int thumb_y = (SelectedItemMax - SelectedItem) * thumb_max_y / SelectedItemMax;
+		sy -= thumb_y + SCROLLBAR_ARROW_HEIGHT;
+
+		// assert(scrollBarThumbCel != NULL);
+		CelDraw(sx + SCROLLBAR_THUMB_OFFSET_X, sy, scrollBarThumbCel, frame);
 	}
 }
 
@@ -626,37 +623,32 @@ static bool HandleMouseEventList(const Dvl_Event& event, UiList* uiList)
 	return true;
 }
 #if FULL_UI
-static bool HandleMouseEventScrollBar(const Dvl_Event& event, const UiScrollBar* uiSb)
+static bool HandleMouseEventScrollBar(const Dvl_Event& event, UiScrollBar* uiSb)
 {
 	if (event.type != DVL_WM_LBUTTONDOWN)
 		return true;
 
-	int y = event.button.y - uiSb->m_rect.y;
-	if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
-		// down arrow
-		//scrollBarState.downArrowPressed = true;
-		scrollBarState.downPressCounter--;
-		if (scrollBarState.downPressCounter < 0) {
-			scrollBarState.downPressCounter = 2;
-			UiFocusDown();
-		}
-	} else if (y < SCROLLBAR_ARROW_HEIGHT) {
+	int y = event.button.y - (uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT);
+	int mode = 0;
+	if (y < 0) {
 		// up arrow
-		//scrollBarState.upArrowPressed = true;
-		scrollBarState.upPressCounter--;
-		if (scrollBarState.upPressCounter < 0) {
-			scrollBarState.upPressCounter = 2;
-			UiFocusUp();
-		}
+		mode = 1;
+		UiFocusUp();
+	} else if (y >= uiSb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT) {
+		// down arrow
+		mode = 2;
+		UiFocusDown();
 	} else {
 		// Scroll up or down based on thumb position.
-		const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
-		if (event.button.y < thumbRect.y) {
+		const int thumb_max_y = uiSb->m_rect.h - (2 * SCROLLBAR_ARROW_HEIGHT + SCROLLBAR_THUMB_HEIGHT);
+		const int thumb_y = SelectedItem * thumb_max_y / SelectedItemMax;
+		if (y < thumb_y) {
 			UiFocusPageUp();
-		} else if (event.button.y > thumbRect.y + thumbRect.h) {
+		} else if (y >= thumb_y + SCROLLBAR_THUMB_HEIGHT) {
 			UiFocusPageDown();
 		}
 	}
+	uiSb->m_pressMode = mode;
 	return true;
 }
 
@@ -741,11 +733,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		HandleMouseEvent(*event);
 
 		if (event->type == DVL_WM_LBUTTONUP) {
-			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
-			for (unsigned i = 0; i < gUiItems.size(); i++) {
-				UiItemBase* item = gUiItems[i];
-				if (item->m_type == UI_BUTTON)
+			for (UiItemBase* item : gUiItems) {
+				if (item->m_type == UI_BUTTON) {
 					static_cast<UiButton*>(item)->m_pressed = false;
+				} else if (item->m_type == UI_SCROLLBAR) {
+					static_cast<UiScrollBar*>(item)->m_pressMode = 0;
+				}
 			}
 		}
 		break; // handled

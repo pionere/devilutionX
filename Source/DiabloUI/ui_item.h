@@ -106,9 +106,12 @@ public:
 	UiScrollBar(SDL_Rect& rect)
 	    : UiItemBase(UI_SCROLLBAR, rect, 0)
 	{
+		m_pressMode = 0;
 	}
 
 	~UiScrollBar() = default;
+
+	int m_pressMode;
 };
 
 //=============================================================================
