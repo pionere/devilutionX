@@ -259,7 +259,6 @@ void UiFocusNavigationSelect()
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 		//if (SDL_IsTextInputShown()) {
 			SDL_StopTextInput();
-		//	return;
 		//}
 #endif
 	}
@@ -811,18 +810,18 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+		HandleMouseEvent(*event);
+		break;
 	case DVL_WM_LBUTTONUP:
 		HandleMouseEvent(*event);
 
-		if (event->type == DVL_WM_LBUTTONUP) {
-			for (UiItemBase* item : gUiItems) {
-				if (item->m_type == UI_BUTTON) {
-					static_cast<UiButton*>(item)->m_pressed = false;
+		for (UiItemBase* item : gUiItems) {
+			if (item->m_type == UI_BUTTON) {
+				static_cast<UiButton*>(item)->m_pressed = false;
 #if FULL_UI
-				} else if (item->m_type == UI_SCROLLBAR) {
-					static_cast<UiScrollBar*>(item)->m_pressMode = 0;
+			} else if (item->m_type == UI_SCROLLBAR) {
+				static_cast<UiScrollBar*>(item)->m_pressMode = 0;
 #endif
-				}
 			}
 		}
 		break;
