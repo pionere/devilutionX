@@ -907,7 +907,11 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				UiFocusNavigationSelect();
 				break;
 			case DVL_VK_ESCAPE:
-				UiFocusNavigationEsc();
+				if (gUiEditField->m_curpos != gUiEditField->m_selpos) {
+					gUiEditField->m_selpos = gUiEditField->m_curpos;
+				} else {
+					UiFocusNavigationEsc();
+				}
 				break;
 			default:
 #ifdef USE_SDL1
