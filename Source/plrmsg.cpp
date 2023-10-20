@@ -26,6 +26,8 @@ static BYTE plr_msg_slot;
 /** The Chat-History of the received messages. */
 static _plrmsg plr_msgs[PLRMSG_COUNT + 1];
 //static Uint32 guDelayStartTc;
+/** The cursor position. */
+static unsigned sguCursPos;
 
 void plrmsg_delay(bool delay)
 {
@@ -92,6 +94,7 @@ void InitPlrMsg()
 	sgbNextTalkSave = 0;
 	sgbTalkSavePos = 0;
 	plr_msg_slot = 0;
+	// sguCursPos = 0;
 	// plr_msgs[PLRMSG_COUNT].player = mypnum;
 	// plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 }
@@ -111,6 +114,8 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 
 	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER, PAL_BLACK);
 
+	unsigned curPos = (&plr_msgs[PLRMSG_COUNT] == pMsg && ((SDL_GetTicks() / 512) % 2) != 0) ? sguCursPos : 2 * MAX_SEND_STR_LEN; // GetAnimationFrame(2, 512) != 0) {
+	curPos++;
 	while (true) {
 		len = 0;
 		sstr = endstr = str;
@@ -130,6 +135,9 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 
 		sx = x;
 		while (str < endstr) {
+			if (--curPos == 0) {
+				PrintSmallChar(sx - 1, y, '|', col); // - smallFontWidth[gbStdFontFrame['|']] / 2
+			}
 			sx += PrintSmallChar(sx, y, (BYTE)*str++, col);
 		}
 
@@ -137,15 +145,15 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 		if (--line == 0 || *str == '\0')
 			break;
 	}
-	if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
+	// if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
 		if (sx >= x + width) {
 			sx = x;
 			y += PLRMSG_TEXT_HEIGHT;
 		}
-		if ((SDL_GetTicks() / 512) % 2) { // GetAnimationFrame(2, 512) != 0) {
-			PrintSmallChar(sx, y - PLRMSG_TEXT_HEIGHT, '|', col);
+		if (--curPos == 0) {
+			PrintSmallChar(sx - 1, y - PLRMSG_TEXT_HEIGHT, '|', col); // - smallFontWidth[gbStdFontFrame['|']] / 2
 		}
-	}
+	// }
 	return result;
 }
 
@@ -185,6 +193,7 @@ void StartPlrMsg()
 	plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 	// gbRedrawFlags = REDRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
+	sguCursPos = 0;
 }
 
 void SetupPlrMsg(int pnum, bool shift)
@@ -270,6 +279,7 @@ static void SendPlrMsg()
 			}
 		}
 		plr_msgs[PLRMSG_COUNT].str[0] = '\0';
+		sguCursPos = 0;
 		sgbTalkSavePos = sgbNextTalkSave;
 	} else {
 		StopPlrMsg();
@@ -282,16 +292,33 @@ void plrmsg_CatToText(const char* inBuf)
 	// assert(!IsLocalGame);
 
 	char* output = utf8_to_latin1(inBuf);
-	unsigned sp = strlen(plr_msgs[PLRMSG_COUNT].str);
-	unsigned cp = sp;
+	unsigned sp = sguCursPos;
+	unsigned cp = sguCursPos;
 	char* text = plr_msgs[PLRMSG_COUNT].str;
-	unsigned maxlen = MAX_SEND_STR_LEN;
+	const unsigned maxlen = MAX_SEND_STR_LEN;
 	// assert(maxLen - sp < sizeof(tempstr));
 	SStrCopy(tempstr, &text[sp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - sp));
 	SStrCopy(&text[cp], output, maxlen - cp);
 	mem_free_dbg(output);
 	cp = strlen(text);
+	sguCursPos = cp;
 	SStrCopy(&text[cp], tempstr, maxlen - cp);
+}
+
+static void plrmsg_DelFromText(int w)
+{
+	char* text = plr_msgs[PLRMSG_COUNT].str;
+	unsigned max_length = MAX_SEND_STR_LEN;
+
+	for (unsigned i = sguCursPos; ; i++) {
+		// assert(max_length != 0);
+		if (text[i] == '\0' || (i + w) >= max_length) {
+			text[i] = '\0';
+			break;
+		} else {
+			text[i] = text[i + w];
+		}
+	}
 }
 
 static void plrmsg_up_down(int v)
@@ -311,8 +338,6 @@ static void plrmsg_up_down(int v)
 
 bool plrmsg_presskey(int vkey)
 {
-	int len;
-
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
 
@@ -323,11 +348,39 @@ bool plrmsg_presskey(int vkey)
 	case DVL_VK_RETURN:
 		SendPlrMsg();
 		break;
-	case DVL_VK_BACK:
-		len = strlen(plr_msgs[PLRMSG_COUNT].str);
-		if (len > 0)
-			plr_msgs[PLRMSG_COUNT].str[len - 1] = '\0';
-		break;
+	case DVL_VK_LEFT: {
+		unsigned pos = sguCursPos;
+		if (pos > 0) {
+			sguCursPos = pos - 1;
+		}
+	} break;
+	case DVL_VK_RIGHT: {
+		unsigned pos = sguCursPos;
+		if (plr_msgs[PLRMSG_COUNT].str[pos] != '\0' && pos + 1 < MAX_SEND_STR_LEN) {
+			sguCursPos = pos + 1;
+		}
+	} break;
+	case DVL_VK_HOME: {
+		sguCursPos = 0;
+	} break;
+	case DVL_VK_END: {
+		unsigned pos = strlen(plr_msgs[PLRMSG_COUNT].str);
+		sguCursPos = pos;
+	} break;
+	case DVL_VK_BACK: {
+		int w = 1;
+		unsigned i = sguCursPos;
+		if (i == 0) {
+			break;
+		}
+		i--;
+		sguCursPos = i;
+		plrmsg_DelFromText(w);
+	} break;
+	case DVL_VK_DELETE: {
+		int w = 1;
+		plrmsg_DelFromText(w);
+	} break;
 	case DVL_VK_DOWN:
 		plrmsg_up_down(1);
 		break;
