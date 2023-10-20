@@ -1069,20 +1069,6 @@ static void PressKey(int vkey)
 	}
 }
 
-/**
- * @internal `return` must be used instead of `break` to be bin exact as C++
- */
-static void PressChar(WPARAM vkey)
-{
-	if (gmenu_is_active()) {
-		return;
-	}
-	if (gbTalkflag) {
-		if (plrmsg_presschar(vkey))
-			return;
-	}
-}
-
 static void UpdateActionBtnState(int vKey, bool dir)
 {
 	if (vKey == actionBtnKey)
@@ -1143,14 +1129,20 @@ static void GameWndProc(const Dvl_Event* e)
 	case DVL_WM_KEYUP:
 		ReleaseKey(e->vkcode);
 		return;
-	case DVL_WM_TEXT: {
+	case DVL_WM_TEXT:
 #ifndef USE_SDL1
-		char* output = utf8_to_latin1(e->text.text);
-		int key = (unsigned char)output[0];
-		mem_free_dbg(output);
-		PressChar(key);
+		if (gmenu_is_active()) {
+			return;
+		}
+		if (gbTalkflag) {
+			char* output = utf8_to_latin1(e->text.text);
+			int key = (unsigned char)output[0];
+			mem_free_dbg(output);
+			if (plrmsg_presschar(key))
+				return;
+		}
 #endif
-	} return;
+		return;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
 	//		return;
