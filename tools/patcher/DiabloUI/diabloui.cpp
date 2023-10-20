@@ -922,6 +922,19 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 					}
 				}
 			} break;
+			case DVL_VK_HOME: {
+				gUiEditField->m_curpos = 0;
+				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+					gUiEditField->m_selpos = 0;
+				}
+			} break;
+			case DVL_VK_END: {
+				unsigned pos = strlen(gUiEditField->m_value);
+				gUiEditField->m_curpos = pos;
+				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+					gUiEditField->m_selpos = pos;
+				}
+			} break;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			case DVL_VK_LBUTTON:
 #endif
