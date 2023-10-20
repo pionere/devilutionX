@@ -99,18 +99,19 @@ void InitPlrMsg()
 static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 {
 	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
-	int sx, line, len, width = PANEL_WIDTH - 20;
+	int sx, line, len, width = PANEL_WIDTH - 20, result;
 	const char *sstr, *endstr;
 	const char* str = pMsg->str;
 
-	line = GetSmallStringWidth(str) >= width ? 2 : 1;
+	line = (GetSmallStringWidth(str) + FONT_KERN_SMALL) > width ? 2 : 1;
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
+	result = y;
+
 	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER, PAL_BLACK);
 
-	line = 0;
-	while (*str != '\0') {
+	while (true) {
 		len = 0;
 		sstr = endstr = str;
 		while (TRUE) {
@@ -119,7 +120,7 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 				len += smallFontWidth[c] + FONT_KERN_SMALL;
 				if (c == 0) // allow wordwrap on blank glyph
 					endstr = sstr;
-				else if (len >= width)
+				if (len >= width)
 					break;
 			} else {
 				endstr = sstr;
@@ -133,12 +134,11 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 		}
 
 		y += PLRMSG_TEXT_HEIGHT;
-		if (++line == 2)
+		if (--line == 0 || *str == '\0')
 			break;
 	}
 	if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
-		if (line == 0) {
-			line = 1;
+		if (sx >= x + width) {
 			sx = x;
 			y += PLRMSG_TEXT_HEIGHT;
 		}
@@ -146,7 +146,7 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 			PrintSmallChar(sx, y - PLRMSG_TEXT_HEIGHT, '|', col);
 		}
 	}
-	return y - line * PLRMSG_TEXT_HEIGHT;
+	return result;
 }
 
 void DrawPlrMsg(bool onTop)
