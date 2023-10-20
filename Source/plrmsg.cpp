@@ -316,30 +316,37 @@ bool plrmsg_presskey(int vkey)
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
 
-	if (vkey == DVL_VK_ESCAPE) {
+	switch (vkey) {
+	case DVL_VK_ESCAPE:
 		StopPlrMsg();
-	} else if (vkey == DVL_VK_RETURN) {
+		break;
+	case DVL_VK_RETURN:
 		SendPlrMsg();
-	} else if (vkey == DVL_VK_BACK) {
+		break;
+	case DVL_VK_BACK:
 		len = strlen(plr_msgs[PLRMSG_COUNT].str);
 		if (len > 0)
 			plr_msgs[PLRMSG_COUNT].str[len - 1] = '\0';
-	} else if (vkey == DVL_VK_DOWN) {
+		break;
+	case DVL_VK_DOWN:
 		plrmsg_up_down(1);
-	} else if (vkey == DVL_VK_UP) {
+		break;
+	case DVL_VK_UP:
 		plrmsg_up_down(-1);
-	} else if (vkey == DVL_VK_LBUTTON) {
+		break;
+	case DVL_VK_LBUTTON:
 		return false;
-	} else if (vkey == DVL_VK_RBUTTON) {
+	case DVL_VK_RBUTTON:
 		return false;
 #ifdef USE_SDL1
-	} else {
+	default:
 		// SDL1 does not support TEXTINPUT events, so we need to handle them here.
 		vkey = TranslateKey2Char(vkey);
 		char utf8[2];
 		utf8[0] = (char)vkey;
 		utf8[1] = '\0';
 		plrmsg_CatToText(utf8);
+		break;
 #endif
 	}
 	return true;
