@@ -24,7 +24,7 @@ void StartPlrMsg();
 void SetupPlrMsg(int pnum, bool shift);
 void StopPlrMsg();
 bool plrmsg_presskey(int vkey);
-bool plrmsg_presschar(int vkey);
+void plrmsg_CatToText(const char* inBuf);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,7 @@
 #include "all.h"
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
+#include "utils/utf8.h"
 #include "storm/storm_net.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -275,23 +276,22 @@ static void SendPlrMsg()
 	}
 }
 
-bool plrmsg_presschar(int vkey)
+void plrmsg_CatToText(const char* inBuf)
 {
-	unsigned result;
-
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
 
-	if (vkey < ' ')
-		return false;
-
-	result = strlen(plr_msgs[PLRMSG_COUNT].str);
-	static_assert(sizeof(plr_msgs[PLRMSG_COUNT].str) >= MAX_SEND_STR_LEN, "Character does not fit to the container.");
-	if (result < MAX_SEND_STR_LEN - 1) {
-		plr_msgs[PLRMSG_COUNT].str[result] = vkey;
-		plr_msgs[PLRMSG_COUNT].str[result + 1] = '\0';
-	}
-	return true;
+	char* output = utf8_to_latin1(inBuf);
+	unsigned sp = strlen(plr_msgs[PLRMSG_COUNT].str);
+	unsigned cp = sp;
+	char* text = plr_msgs[PLRMSG_COUNT].str;
+	unsigned maxlen = MAX_SEND_STR_LEN;
+	// assert(maxLen - sp < sizeof(tempstr));
+	SStrCopy(tempstr, &text[sp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - sp));
+	SStrCopy(&text[cp], output, maxlen - cp);
+	mem_free_dbg(output);
+	cp = strlen(text);
+	SStrCopy(&text[cp], tempstr, maxlen - cp);
 }
 
 static void plrmsg_up_down(int v)
@@ -336,7 +336,10 @@ bool plrmsg_presskey(int vkey)
 	} else {
 		// SDL1 does not support TEXTINPUT events, so we need to handle them here.
 		vkey = TranslateKey2Char(vkey);
-		plrmsg_presschar(vkey);
+		char utf8[2];
+		utf8[0] = (char)vkey;
+		utf8[1] = '\0';
+		plrmsg_CatToText(utf8);
 #endif
 	}
 	return true;

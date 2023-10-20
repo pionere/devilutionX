@@ -9,7 +9,6 @@
 #include "utils/display.h"
 #include "utils/paths.h"
 #include "utils/screen_reader.hpp"
-#include "utils/utf8.h"
 #include "diabloui.h"
 #include "plrctrls.h"
 #include "storm/storm_cfg.h"
@@ -1135,11 +1134,8 @@ static void GameWndProc(const Dvl_Event* e)
 			return;
 		}
 		if (gbTalkflag) {
-			char* output = utf8_to_latin1(e->text.text);
-			int key = (unsigned char)output[0];
-			mem_free_dbg(output);
-			if (plrmsg_presschar(key))
-				return;
+			plrmsg_CatToText(e->text.text);
+			return;
 		}
 #endif
 		return;
