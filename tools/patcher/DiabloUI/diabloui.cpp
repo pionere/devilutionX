@@ -779,13 +779,16 @@ static void HandleMouseMoveEvent(const Dvl_Event& event)
 
 static void UiDelFromText(int w)
 {
+	char* text = gUiEditField->m_value;
+	unsigned max_length = gUiEditField->m_max_length;
+
 	for (unsigned i = gUiEditField->m_curpos; ; i++) {
-		// assert(gUiEditField->m_max_length != 0);
-		if (gUiEditField->m_value[i] == '\0' || (i + w) >= gUiEditField->m_max_length) {
-			gUiEditField->m_value[i] = '\0';
+		// assert(max_length != 0);
+		if (text[i] == '\0' || (i + w) >= max_length) {
+			text[i] = '\0';
 			break;
 		} else {
-			gUiEditField->m_value[i] = gUiEditField->m_value[i + w];
+			text[i] = text[i + w];
 		}
 	}
 }
