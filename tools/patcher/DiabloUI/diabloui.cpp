@@ -708,7 +708,9 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 	if (uiEdit->m_selecting) {
 		unsigned curpos = EditCursPos(event.button.x, uiEdit);
 		uiEdit->m_curpos = curpos;
-		uiEdit->m_selpos = curpos;
+		if (!(SDL_GetModState() & KMOD_SHIFT)) {
+			uiEdit->m_selpos = curpos;
+		}
 	}
 	return true;
 }
