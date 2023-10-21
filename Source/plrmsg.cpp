@@ -436,12 +436,20 @@ bool plrmsg_presskey(int vkey)
 	// assert(!IsLocalGame);
 
 	switch (vkey) {
-	case DVL_VK_ESCAPE:
-		StopPlrMsg();
-		break;
-	case DVL_VK_RETURN:
-		SendPlrMsg();
-		break;
+	case DVL_VK_BACK: {
+		int w = 1;
+		unsigned i = sguCursPos;
+		if (i == 0) {
+			break;
+		}
+		i--;
+		sguCursPos = i;
+		plrmsg_DelFromText(w);
+	} break;
+	case DVL_VK_DELETE: {
+		int w = 1;
+		plrmsg_DelFromText(w);
+	} break;
 	case DVL_VK_LEFT: {
 		unsigned pos = sguCursPos;
 		if (pos > 0) {
@@ -461,20 +469,6 @@ bool plrmsg_presskey(int vkey)
 		unsigned pos = strlen(plr_msgs[PLRMSG_COUNT].str);
 		sguCursPos = pos;
 	} break;
-	case DVL_VK_BACK: {
-		int w = 1;
-		unsigned i = sguCursPos;
-		if (i == 0) {
-			break;
-		}
-		i--;
-		sguCursPos = i;
-		plrmsg_DelFromText(w);
-	} break;
-	case DVL_VK_DELETE: {
-		int w = 1;
-		plrmsg_DelFromText(w);
-	} break;
 	case DVL_VK_DOWN:
 		plrmsg_up_down(1);
 		break;
@@ -490,14 +484,22 @@ bool plrmsg_presskey(int vkey)
 		return plrmsg_HandleMouseEvent();
 	case DVL_VK_RBUTTON:
 		return false;
+	case DVL_VK_RETURN:
+		SendPlrMsg();
+		break;
+	case DVL_VK_ESCAPE:
+		StopPlrMsg();
+		break;
 #ifdef USE_SDL1
 	default:
 		// SDL1 does not support TEXTINPUT events, so we need to handle them here.
-		vkey = TranslateKey2Char(vkey);
-		char utf8[2];
-		utf8[0] = (char)vkey;
-		utf8[1] = '\0';
-		plrmsg_CatToText(utf8);
+		if ((SDL_GetModState() & KMOD_CTRL) == 0) {
+			vkey = TranslateKey2Char(vkey);
+			char utf8[2];
+			utf8[0] = (char)vkey;
+			utf8[1] = '\0';
+			plrmsg_CatToText(utf8);
+		}
 		break;
 #endif
 	}
