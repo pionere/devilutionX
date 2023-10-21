@@ -436,6 +436,18 @@ bool plrmsg_presskey(int vkey)
 	// assert(!IsLocalGame);
 
 	switch (vkey) {
+#ifndef USE_SDL1
+	case DVL_VK_MBUTTON:
+	case DVL_VK_V:
+		if (SDL_GetModState() & KMOD_CTRL) {
+			char* clipboard = SDL_GetClipboardText();
+			if (clipboard != NULL) {
+				plrmsg_CatToText(clipboard);
+				SDL_free(clipboard);
+			}
+		}
+		break;
+#endif
 	case DVL_VK_BACK: {
 		int w = 1;
 		unsigned i = sguCursPos;
