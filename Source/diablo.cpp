@@ -1023,7 +1023,7 @@ static void PressKey(int vkey)
 			if (!IsLocalGame) {
 				EventPlrMsg(szGameName);
 				if (szGamePassword[0] != '\0') {
-					char desc[128];
+					char desc[sizeof("password: %s") + NET_MAX_PASSWD_LEN];
 					snprintf(desc, sizeof(desc), "password: %s", szGamePassword);
 					EventPlrMsg(desc);
 				}
