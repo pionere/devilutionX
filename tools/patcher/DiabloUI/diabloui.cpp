@@ -699,10 +699,6 @@ static unsigned EditCursPos(int x, UiEdit* uiEdit)
 			break;
 		}
 	}
-	// assert(uiEdit->m_max_length != 0);
-	if (curpos >= uiEdit->m_max_length - 1) {
-		curpos = uiEdit->m_max_length - 1;
-	}
 	return curpos;
 }
 
