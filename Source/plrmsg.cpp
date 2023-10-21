@@ -381,6 +381,55 @@ static void plrmsg_up_down(int v)
 	}
 }
 
+static unsigned plrmsg_CursPos(int x, int y)
+{
+	// x -= (PLRMSG_TEXT_X - SCREEN_X);
+	char* text = plr_msgs[PLRMSG_COUNT].str;
+	unsigned curpos = 0;
+	if (plr_msgs[PLRMSG_COUNT].lineBreak != 0 && y < PLRMSG_TEXT_HEIGHT) {
+		curpos = plr_msgs[PLRMSG_COUNT].lineBreak;
+	}
+	while (true) {
+		char tmp = text[curpos];
+		if (tmp == '\0') {
+			break;
+		}
+		BYTE w = smallFontWidth[gbStdFontFrame[tmp]];
+		x -= w + FONT_KERN_SMALL;
+		if (x <= 0) {
+			if (-x < (w + FONT_KERN_SMALL) / 2) {
+				curpos++;
+			}
+			break;
+		}
+		curpos++;
+		if (curpos == plr_msgs[PLRMSG_COUNT].lineBreak) {
+			curpos--;
+			break;
+		}
+	}
+	return curpos;
+}
+
+static bool plrmsg_HandleMouseEvent()
+{
+	int x = MousePos.x - (PLRMSG_TEXT_X - SCREEN_X);
+	if (x < 0 || x >= PLRMSG_WIDTH) {
+		return false;
+	}
+	int y = (PLRMSG_TEXT_BOTTOM - PLRMSG_TEXT_HEIGHT - SCREEN_Y) - MousePos.y;
+	if (y < 0) {
+		return false;
+	}
+	int textHeight = (plr_msgs[PLRMSG_COUNT].lineBreak != 0 ? 2 : 1) * PLRMSG_TEXT_HEIGHT;
+	if (y >= textHeight) {
+		return false;
+	}
+
+	sguCursPos = plrmsg_CursPos(x, y);
+	return true;
+}
+
 bool plrmsg_presskey(int vkey)
 {
 	// assert(gbTalkflag);
@@ -433,7 +482,12 @@ bool plrmsg_presskey(int vkey)
 		plrmsg_up_down(-1);
 		break;
 	case DVL_VK_LBUTTON:
-		return false;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		if (sgbControllerActive) {
+			return false;
+		}
+#endif
+		return plrmsg_HandleMouseEvent();
 	case DVL_VK_RBUTTON:
 		return false;
 #ifdef USE_SDL1
