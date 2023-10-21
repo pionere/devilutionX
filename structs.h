@@ -2555,7 +2555,8 @@ static_assert((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STe
 typedef struct _plrmsg {
 	Uint32 time;
 	BYTE player;
-	char str[123];
+	BYTE lineBreak;
+	char str[122];
 } _plrmsg;
 
 //////////////////////////////////////////////////

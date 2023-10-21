@@ -12,6 +12,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define PLRMSG_TEXT_TIMEOUT 10000
+#define PLRMSG_WIDTH        (PANEL_WIDTH - 20)
 
 /** Specifies whether the Chat-Panel is displayed. */
 bool gbTalkflag;
@@ -46,6 +47,47 @@ void plrmsg_delay(bool delay)
 		pMsg->time += deltaTc;*/
 }
 
+static void plrmsg_WordWrap(_plrmsg* pMsg)
+{
+	char* text = pMsg->str;
+	int lineStart = 0;
+
+	const int width = PLRMSG_WIDTH;
+	int len = 0;
+	int i = 0;
+	while (text[i] != '\0') {
+		BYTE c = gbStdFontFrame[(BYTE)text[i]];
+		len += smallFontWidth[c] + FONT_KERN_SMALL;
+		i++;
+		if (len <= width) {
+			continue;
+		}
+
+		if (lineStart != 0) {
+			text[i - 1] = '\0';
+			break; // more than one line break -> skip the rest
+		}
+
+		int j = i;
+		while (--j >= 0) {
+			if (gbStdFontFrame[(BYTE)text[j]] == 0) {
+				break; // Scan for previous blank glyph
+			}
+		}
+
+		if (j < 0) {
+			j = i - 2; // the word is longer than one line -> split the word
+		}
+
+		j++;
+		lineStart = j;
+		len = 0;
+		i = j;
+	}
+
+	pMsg->lineBreak = lineStart;
+}
+
 static _plrmsg* AddPlrMsg(int pnum)
 {
 	_plrmsg* pMsg = &plr_msgs[plr_msg_slot];
@@ -66,6 +108,7 @@ void EventPlrMsg(const char* pszFmt, ...)
 	pMsg = AddPlrMsg(MAX_PLRS);
 	vsnprintf(pMsg->str, sizeof(pMsg->str), pszFmt, va);
 	va_end(va);
+	plrmsg_WordWrap(pMsg);
 }
 
 void ReceivePlrMsg(int pnum, const char* pszStr)
@@ -74,6 +117,7 @@ void ReceivePlrMsg(int pnum, const char* pszStr)
 
 	pMsg = AddPlrMsg(pnum);
 	snprintf(pMsg->str, sizeof(pMsg->str), "%s: %s", plr._pName, pszStr);
+	plrmsg_WordWrap(pMsg);
 }
 
 /*void ClearPlrMsg(int pnum)
@@ -101,12 +145,13 @@ void InitPlrMsg()
 
 static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 {
-	BYTE c, col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
-	int sx, line, len, width = PANEL_WIDTH - 20, result;
-	const char *sstr, *endstr;
-	const char* str = pMsg->str;
+	BYTE c, col;
+	int sx, line, result, breakPos;
+	unsigned curPos;
+	const int width = PLRMSG_WIDTH;
+	const char* str;
 
-	line = (GetSmallStringWidth(str) + FONT_KERN_SMALL) > width ? 2 : 1;
+	line = pMsg->lineBreak != 0 ? 2 : 1;
 	line *= PLRMSG_TEXT_HEIGHT;
 	y -= line;
 
@@ -114,46 +159,28 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 
 	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER, PAL_BLACK);
 
-	unsigned curPos = (&plr_msgs[PLRMSG_COUNT] == pMsg && ((SDL_GetTicks() / 512) % 2) != 0) ? sguCursPos : 2 * MAX_SEND_STR_LEN; // GetAnimationFrame(2, 512) != 0) {
+	str = pMsg->str;
+	col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
+	curPos = (&plr_msgs[PLRMSG_COUNT] == pMsg && ((SDL_GetTicks() / 512) % 2) != 0) ? sguCursPos : 2 * MAX_SEND_STR_LEN; // GetAnimationFrame(2, 512) != 0) {
 	curPos++;
+
+	sx = x;
+	breakPos = pMsg->lineBreak;
 	while (true) {
-		len = 0;
-		sstr = endstr = str;
-		while (TRUE) {
-			if (*sstr != '\0') {
-				c = gbStdFontFrame[(BYTE)*sstr++];
-				len += smallFontWidth[c] + FONT_KERN_SMALL;
-				if (c == 0) // allow wordwrap on blank glyph
-					endstr = sstr;
-				if (len >= width)
-					break;
-			} else {
-				endstr = sstr;
-				break;
-			}
-		}
-
-		sx = x;
-		while (str < endstr) {
-			if (--curPos == 0) {
-				PrintSmallChar(sx - 1, y, '|', col); // - smallFontWidth[gbStdFontFrame['|']] / 2
-			}
-			sx += PrintSmallChar(sx, y, (BYTE)*str++, col);
-		}
-
-		y += PLRMSG_TEXT_HEIGHT;
-		if (--line == 0 || *str == '\0')
-			break;
-	}
-	// if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
-		if (sx >= x + width) {
-			sx = x;
-			y += PLRMSG_TEXT_HEIGHT;
-		}
 		if (--curPos == 0) {
-			PrintSmallChar(sx - 1, y - PLRMSG_TEXT_HEIGHT, '|', col); // - smallFontWidth[gbStdFontFrame['|']] / 2
+			PrintSmallChar(sx - 1, y, '|', col); // - smallFontWidth[gbStdFontFrame['|']] / 2
 		}
-	// }
+		c = (BYTE)*str++;
+		if (c == '\0') {
+			break;
+		}
+		sx += PrintSmallChar(sx, y, c, col);
+		if (--breakPos == 0) {
+			y += PLRMSG_TEXT_HEIGHT;
+			sx = x;
+		}
+	}
+
 	return result;
 }
 
@@ -212,6 +239,8 @@ void SetupPlrMsg(int pnum, bool shift)
 	}
 	int len = snprintf(plr_msgs[PLRMSG_COUNT].str, sizeof(plr_msgs[PLRMSG_COUNT].str), text, param);
 	sguCursPos = len;
+	// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
+	plr_msgs[PLRMSG_COUNT].lineBreak = 0;
 }
 
 void StopPlrMsg()
@@ -287,6 +316,8 @@ static void SendPlrMsg()
 		}
 		plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 		sguCursPos = 0;
+		// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
+		plr_msgs[PLRMSG_COUNT].lineBreak = 0;
 		sgbTalkSavePos = sgbNextTalkSave;
 	} else {
 		StopPlrMsg();
@@ -310,6 +341,8 @@ void plrmsg_CatToText(const char* inBuf)
 	cp = strlen(text);
 	sguCursPos = cp;
 	SStrCopy(&text[cp], tempstr, maxlen - cp);
+
+	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
 
 static void plrmsg_DelFromText(int w)
@@ -326,6 +359,8 @@ static void plrmsg_DelFromText(int w)
 			text[i] = text[i + w];
 		}
 	}
+
+	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
 
 static void plrmsg_up_down(int v)
@@ -340,6 +375,7 @@ static void plrmsg_up_down(int v)
 			static_assert(sizeof(plr_msgs[PLRMSG_COUNT].str) >= sizeof(sgszTalkSave[sgbTalkSavePos]), "Message does not fit to the container.");
 			sguCursPos = len;
 			memcpy(plr_msgs[PLRMSG_COUNT].str, sgszTalkSave[sgbTalkSavePos], len + 1);
+			plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 			return;
 		}
 	}
