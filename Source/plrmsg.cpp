@@ -198,13 +198,20 @@ void StartPlrMsg()
 
 void SetupPlrMsg(int pnum, bool shift)
 {
+	const char* text;
+	int param;
+
 	if (!gbTalkflag)
 		StartPlrMsg();
 	if (!shift) {
-		snprintf(plr_msgs[PLRMSG_COUNT].str, sizeof(plr_msgs[PLRMSG_COUNT].str), "/p%d ", pnum);
+		text = "/p%d ";
+		param = pnum;
 	} else {
-		snprintf(plr_msgs[PLRMSG_COUNT].str, sizeof(plr_msgs[PLRMSG_COUNT].str), "/t%d ", plr._pTeam);
+		text = "/t%d ";
+		param = plr._pTeam;
 	}
+	int len = snprintf(plr_msgs[PLRMSG_COUNT].str, sizeof(plr_msgs[PLRMSG_COUNT].str), text, param);
+	sguCursPos = len;
 }
 
 void StopPlrMsg()
@@ -328,9 +335,11 @@ static void plrmsg_up_down(int v)
 	static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in plrmsg_up_down.");
 	for (i = 0; i < lengthof(sgszTalkSave); i++) {
 		sgbTalkSavePos = (v + sgbTalkSavePos) & 7;
-		if (sgszTalkSave[sgbTalkSavePos][0] != '\0') {
+		unsigned len = strlen(sgszTalkSave[sgbTalkSavePos]);
+		if (len != 0) {
 			static_assert(sizeof(plr_msgs[PLRMSG_COUNT].str) >= sizeof(sgszTalkSave[sgbTalkSavePos]), "Message does not fit to the container.");
-			memcpy(plr_msgs[PLRMSG_COUNT].str, sgszTalkSave[sgbTalkSavePos], sizeof(sgszTalkSave[sgbTalkSavePos]));
+			sguCursPos = len;
+			memcpy(plr_msgs[PLRMSG_COUNT].str, sgszTalkSave[sgbTalkSavePos], len + 1);
 			return;
 		}
 	}
