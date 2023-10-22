@@ -6,6 +6,7 @@
 #include "all.h"
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
+#include "plrctrls.h"
 #include "utils/utf8.h"
 #include "storm/storm_net.h"
 
@@ -29,6 +30,10 @@ static _plrmsg plr_msgs[PLRMSG_COUNT + 1];
 //static Uint32 guDelayStartTc;
 /** The cursor position. */
 static unsigned sguCursPos;
+/** The selection position. */
+static unsigned sguSelPos;
+/** Specifies whether the user is selecting a text. */
+static bool sgbSelecting;
 
 void plrmsg_delay(bool delay)
 {
@@ -139,25 +144,32 @@ void InitPlrMsg()
 	sgbTalkSavePos = 0;
 	plr_msg_slot = 0;
 	// sguCursPos = 0;
+	// sguSelPos = 0;
 	// plr_msgs[PLRMSG_COUNT].player = mypnum;
 	// plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 }
 
-static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
+static void plrmsg_DrawSelection(int x, int y, char* text, unsigned basepos, unsigned startpos /* selpos */, unsigned endpos /* lineBreak*/)
+{
+	int sp, w;
+
+	char tmp = text[startpos];
+	text[startpos] = '\0';
+	sp = GetSmallStringWidth(&text[basepos]);
+	text[startpos] = tmp;
+	tmp = text[endpos];
+	text[endpos] = '\0';
+	w = GetSmallStringWidth(&text[startpos]);
+	text[endpos] = tmp;
+	DrawRectTrans(x + sp + FONT_KERN_SMALL, y - PLRMSG_TEXT_HEIGHT, w, PLRMSG_TEXT_HEIGHT, PAL16_GRAY);
+}
+
+static void PrintPlrMsg(int x, int y, _plrmsg* pMsg, int top)
 {
 	BYTE c, col;
-	int sx, line, result, breakPos;
+	int sx, startY, breakPos;
 	unsigned curPos;
-	const int width = PLRMSG_WIDTH;
 	const char* str;
-
-	line = pMsg->lineBreak != 0 ? 2 : 1;
-	line *= PLRMSG_TEXT_HEIGHT;
-	y -= line;
-
-	result = y;
-
-	DrawRectTrans(x - PLRMSG_PANEL_BORDER, y - (PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT), width + 2 * PLRMSG_PANEL_BORDER, line + 2 * PLRMSG_PANEL_BORDER, PAL_BLACK);
 
 	str = pMsg->str;
 	col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
@@ -166,7 +178,19 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 
 	sx = x;
 	breakPos = pMsg->lineBreak;
+	if (breakPos != 0) {
+		y -= PLRMSG_TEXT_HEIGHT;
+		// skip the first line if it does not fit
+		if (y < top) {
+			y += PLRMSG_TEXT_HEIGHT;
+			str = &pMsg->str[breakPos];
+			breakPos = 0;
+		}
+	}
+	startY = y;
+
 	while (true) {
+		// render the cursor
 		if (--curPos == 0) {
 			PrintSmallChar(sx - 1, y, '|', col); // - smallFontWidth[gbStdFontFrame['|']] / 2
 		}
@@ -174,38 +198,106 @@ static int PrintPlrMsg(int x, int y, _plrmsg* pMsg)
 		if (c == '\0') {
 			break;
 		}
+		// render the text
 		sx += PrintSmallChar(sx, y, c, col);
 		if (--breakPos == 0) {
 			y += PLRMSG_TEXT_HEIGHT;
 			sx = x;
 		}
 	}
+	// render the selection
+	if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
+		char* text = pMsg->str;
+		unsigned curpos = sguCursPos;
+		unsigned selpos = sguSelPos;
+		if (selpos != curpos) {
+			if (selpos > curpos) {
+				std::swap(selpos, curpos);
+			}
+			y = startY;
+			unsigned basepos = 0;
+			unsigned lineBreak = pMsg->lineBreak;
+			if (lineBreak != 0) {
+				if (curpos >= lineBreak) {
+					if (selpos < lineBreak) {
+						// selection in two lines
+						plrmsg_DrawSelection(x, y, text, basepos, selpos, lineBreak);
 
-	return result;
+						selpos = lineBreak;
+						basepos = lineBreak;
+						y += PLRMSG_TEXT_HEIGHT;
+					} else {
+						// selection in the second line
+						basepos = lineBreak;
+						y += PLRMSG_TEXT_HEIGHT;
+					}
+				} else {
+					// selection in the first line
+				}
+			}
+
+			plrmsg_DrawSelection(x, y, text, basepos, selpos, curpos);
+		}
+	}
 }
 
 void DrawPlrMsg(bool onTop)
 {
-	int i, n, idx, x, y;
-	Uint32 timeout;
-
 	if (onTop != gbTalkflag)
 		return;
 
-	n = gbTalkflag ? PLRMSG_COUNT : 3;
-	timeout = gbTalkflag ? 0 : SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
-	x = PLRMSG_TEXT_X;
-	y = PLRMSG_TEXT_BOTTOM;
-	if (gbTalkflag) {
-		y = PrintPlrMsg(x, y, &plr_msgs[PLRMSG_COUNT]);
+	int msgs[PLRMSG_COUNT], nummsgs, numlines;
+	int i, idx, x, y, h, linelimit, top;
+	const int width = PLRMSG_WIDTH;
+	Uint32 timeout;
+
+	// collect the messages
+	nummsgs = 0;
+	numlines = 0;
+	if (!gbTalkflag) {
+		timeout = SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
+		linelimit = 3;
+	} else {
+		numlines += plr_msgs[PLRMSG_COUNT].lineBreak != 0 ? 2 : 1;
+		msgs[0] = PLRMSG_COUNT;
+		nummsgs = 1;
+		timeout = 0;
+		linelimit = (PLRMSG_TEXT_BOTTOM - PLRMSG_TEXT_TOP - 2 * PLRMSG_PANEL_BORDER) / PLRMSG_TEXT_HEIGHT;
 	}
+
 	for (i = 1; i <= PLRMSG_COUNT; i++) {
 		idx = (unsigned)(plr_msg_slot - i) % PLRMSG_COUNT;
 		if (plr_msgs[idx].str[0] != '\0' && plr_msgs[idx].time >= timeout) {
-			y = PrintPlrMsg(x, y, &plr_msgs[idx]);
-			if (--n == 0 || y <= PLRMSG_TEXT_TOP)
+			numlines += plr_msgs[idx].lineBreak != 0 ? 2 : 1;
+			msgs[nummsgs] = idx;
+			nummsgs++;
+
+			if (numlines >= linelimit) {
+				numlines = linelimit;
 				break;
+			}
 		}
+	}
+
+	if (nummsgs == 0) {
+		return;
+	}
+
+	x = PLRMSG_TEXT_X;
+	y = PLRMSG_TEXT_BOTTOM;
+	// render the background
+	h = numlines * PLRMSG_TEXT_HEIGHT + 2 * PLRMSG_PANEL_BORDER;
+	top = y - (h - PLRMSG_PANEL_BORDER);
+
+	DrawRectTrans(x - PLRMSG_PANEL_BORDER, top, width + 2 * PLRMSG_PANEL_BORDER, h, PAL_BLACK);
+
+	// render the messages
+	top += PLRMSG_PANEL_BORDER + PLRMSG_TEXT_HEIGHT;
+
+	for (i = 0; i < nummsgs; i++) {
+		_plrmsg* msg = &plr_msgs[msgs[i]];
+		PrintPlrMsg(x, y, msg, top);
+		y -= (msg->lineBreak ? 2 : 1) * PLRMSG_TEXT_HEIGHT;
 	}
 }
 
@@ -221,6 +313,8 @@ void StartPlrMsg()
 	// gbRedrawFlags = REDRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 	sguCursPos = 0;
+	sguSelPos = 0;
+	sgbSelecting = false;
 }
 
 void SetupPlrMsg(int pnum, bool shift)
@@ -239,6 +333,7 @@ void SetupPlrMsg(int pnum, bool shift)
 	}
 	int len = snprintf(plr_msgs[PLRMSG_COUNT].str, sizeof(plr_msgs[PLRMSG_COUNT].str), text, param);
 	sguCursPos = len;
+	sguSelPos = len;
 	// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 	plr_msgs[PLRMSG_COUNT].lineBreak = 0;
 }
@@ -316,6 +411,7 @@ static void SendPlrMsg()
 		}
 		plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 		sguCursPos = 0;
+		sguSelPos = 0;
 		// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 		plr_msgs[PLRMSG_COUNT].lineBreak = 0;
 		sgbTalkSavePos = sgbNextTalkSave;
@@ -324,23 +420,44 @@ static void SendPlrMsg()
 	}
 }
 
+static bool plrmsg_CopyToClipboard()
+{
+	unsigned sp = sguSelPos;
+	unsigned cp = sguCursPos;
+	if (sp == cp) {
+		return false;
+	}
+	if (sp > cp) {
+		std::swap(sp, cp);
+	}
+	char tmp = plr_msgs[PLRMSG_COUNT].str[cp];
+	plr_msgs[PLRMSG_COUNT].str[cp] = '\0';
+	SDL_SetClipboardText(&plr_msgs[PLRMSG_COUNT].str[sp]);
+	plr_msgs[PLRMSG_COUNT].str[cp] = tmp;
+	return true;
+}
+
 void plrmsg_CatToText(const char* inBuf)
 {
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
 
 	char* output = utf8_to_latin1(inBuf);
-	unsigned sp = sguCursPos;
 	unsigned cp = sguCursPos;
+	unsigned sp = sguSelPos;
+	if (sp > cp) {
+		std::swap(sp, cp);
+	}
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	const unsigned maxlen = MAX_SEND_STR_LEN;
-	// assert(maxLen - sp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[sp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - sp));
-	SStrCopy(&text[cp], output, maxlen - cp);
+	// assert(maxLen - cp < sizeof(tempstr));
+	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
+	SStrCopy(&text[sp], output, maxlen - sp);
 	mem_free_dbg(output);
-	cp = strlen(text);
-	sguCursPos = cp;
-	SStrCopy(&text[cp], tempstr, maxlen - cp);
+	sp = strlen(text);
+	sguCursPos = sp;
+	sguSelPos = sp;
+	SStrCopy(&text[sp], tempstr, maxlen - sp);
 
 	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
@@ -374,6 +491,7 @@ static void plrmsg_up_down(int v)
 		if (len != 0) {
 			static_assert(sizeof(plr_msgs[PLRMSG_COUNT].str) >= sizeof(sgszTalkSave[sgbTalkSavePos]), "Message does not fit to the container.");
 			sguCursPos = len;
+			sguSelPos = len;
 			memcpy(plr_msgs[PLRMSG_COUNT].str, sgszTalkSave[sgbTalkSavePos], len + 1);
 			plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 			return;
@@ -384,6 +502,7 @@ static void plrmsg_up_down(int v)
 static unsigned plrmsg_CursPos(int x, int y)
 {
 	// x -= (PLRMSG_TEXT_X - SCREEN_X);
+	// y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - y;
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	unsigned curpos = 0;
 	if (plr_msgs[PLRMSG_COUNT].lineBreak != 0 && y < PLRMSG_TEXT_HEIGHT) {
@@ -411,13 +530,13 @@ static unsigned plrmsg_CursPos(int x, int y)
 	return curpos;
 }
 
-static bool plrmsg_HandleMouseEvent()
+static bool plrmsg_HandleMouseEvent(SDL_Keymod mod)
 {
 	int x = MousePos.x - (PLRMSG_TEXT_X - SCREEN_X);
 	if (x < 0 || x >= PLRMSG_WIDTH) {
 		return false;
 	}
-	int y = (PLRMSG_TEXT_BOTTOM - PLRMSG_TEXT_HEIGHT - SCREEN_Y) - MousePos.y;
+	int y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - MousePos.y;
 	if (y < 0) {
 		return false;
 	}
@@ -427,6 +546,10 @@ static bool plrmsg_HandleMouseEvent()
 	}
 
 	sguCursPos = plrmsg_CursPos(x, y);
+	if (!(mod & KMOD_SHIFT)) {
+		sguSelPos = sguCursPos;
+	}
+	sgbSelecting = true;
 	return true;
 }
 
@@ -435,11 +558,12 @@ bool plrmsg_presskey(int vkey)
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
 
+	SDL_Keymod mod = SDL_GetModState();
 	switch (vkey) {
 #ifndef USE_SDL1
 	case DVL_VK_MBUTTON:
 	case DVL_VK_V:
-		if (SDL_GetModState() & KMOD_CTRL) {
+		if (mod & KMOD_CTRL) {
 			char* clipboard = SDL_GetClipboardText();
 			if (clipboard != NULL) {
 				plrmsg_CatToText(clipboard);
@@ -447,39 +571,84 @@ bool plrmsg_presskey(int vkey)
 			}
 		}
 		break;
-#endif
-	case DVL_VK_BACK: {
-		int w = 1;
-		unsigned i = sguCursPos;
-		if (i == 0) {
+	case DVL_VK_C:
+	case DVL_VK_X:
+		if (!(mod & KMOD_CTRL)) {
 			break;
 		}
-		i--;
-		sguCursPos = i;
+		if (!plrmsg_CopyToClipboard()) {
+			break;
+		}
+		if (vkey == DVL_VK_C) {
+			break;
+		}
+		// fall-through
+#endif
+	case DVL_VK_BACK: {
+		int w = sguCursPos - sguSelPos;
+		if (w != 0) {
+			if (w < 0) {
+				w = -w;
+				sguSelPos = sguCursPos;
+			} else {
+				sguCursPos = sguSelPos;
+			}
+		} else {
+			w = 1;
+			unsigned i = sguCursPos;
+			if (i == 0) {
+				break;
+			}
+			i--;
+			sguCursPos = i;
+			sguSelPos = i;
+		}
 		plrmsg_DelFromText(w);
 	} break;
 	case DVL_VK_DELETE: {
-		int w = 1;
+		int w = sguCursPos - sguSelPos;
+		if (w != 0) {
+			if (w < 0) {
+				w = -w;
+				sguSelPos = sguCursPos;
+			} else {
+				sguCursPos = sguSelPos;
+			}
+		} else {
+			w = 1;
+		}
 		plrmsg_DelFromText(w);
 	} break;
 	case DVL_VK_LEFT: {
 		unsigned pos = sguCursPos;
 		if (pos > 0) {
 			sguCursPos = pos - 1;
+			if (!(mod & KMOD_SHIFT)) {
+				sguSelPos = pos - 1;
+			}
 		}
 	} break;
 	case DVL_VK_RIGHT: {
 		unsigned pos = sguCursPos;
 		if (plr_msgs[PLRMSG_COUNT].str[pos] != '\0' && pos + 1 < MAX_SEND_STR_LEN) {
 			sguCursPos = pos + 1;
+			if (!(mod & KMOD_SHIFT)) {
+				sguSelPos = pos + 1;
+			}
 		}
 	} break;
 	case DVL_VK_HOME: {
 		sguCursPos = 0;
+		if (!(mod & KMOD_SHIFT)) {
+			sguSelPos = 0;
+		}
 	} break;
 	case DVL_VK_END: {
 		unsigned pos = strlen(plr_msgs[PLRMSG_COUNT].str);
 		sguCursPos = pos;
+		if (!(mod & KMOD_SHIFT)) {
+			sguSelPos = pos;
+		}
 	} break;
 	case DVL_VK_DOWN:
 		plrmsg_up_down(1);
@@ -493,19 +662,23 @@ bool plrmsg_presskey(int vkey)
 			return false;
 		}
 #endif
-		return plrmsg_HandleMouseEvent();
+		return plrmsg_HandleMouseEvent(mod);
 	case DVL_VK_RBUTTON:
 		return false;
 	case DVL_VK_RETURN:
 		SendPlrMsg();
 		break;
 	case DVL_VK_ESCAPE:
-		StopPlrMsg();
+		if (sguCursPos != sguSelPos) {
+			sguSelPos = sguCursPos;
+		} else {
+			StopPlrMsg();
+		}
 		break;
 #ifdef USE_SDL1
 	default:
 		// SDL1 does not support TEXTINPUT events, so we need to handle them here.
-		if ((SDL_GetModState() & KMOD_CTRL) == 0) {
+		if ((mod & KMOD_CTRL) == 0) {
 			vkey = TranslateKey2Char(vkey);
 			char utf8[2];
 			utf8[0] = (char)vkey;
@@ -516,6 +689,27 @@ bool plrmsg_presskey(int vkey)
 #endif
 	}
 	return true;
+}
+
+void plrmsg_HandleMouseReleaseEvent()
+{
+	sgbSelecting = false;
+}
+
+void plrmsg_HandleMouseMoveEvent()
+{
+	if (sgbSelecting) {
+		int x = MousePos.x;
+		int y = MousePos.y;
+
+		x -= (PLRMSG_TEXT_X - SCREEN_X);
+		y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - y;
+
+		unsigned curpos = plrmsg_CursPos(x, y);
+		sguCursPos = curpos;
+		// return true;
+	}
+	// return false;
 }
 
 DEVILUTION_END_NAMESPACE

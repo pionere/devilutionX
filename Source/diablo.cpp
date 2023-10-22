@@ -650,6 +650,8 @@ static void ReleaseKey(int vkey)
 			ReleaseLvlBtn();
 		if (stextflag != STORE_NONE)
 			ReleaseStoreBtn();
+		if (gbTalkflag)
+			plrmsg_HandleMouseReleaseEvent();
 		gbDragWnd = WND_NONE;
 	} else if (vkey == DVL_VK_SNAPSHOT) {
 		CaptureScreen();
@@ -1159,6 +1161,8 @@ static void GameWndProc(const Dvl_Event* e)
 			gmenu_on_mouse_move();
 		else if (gbDragWnd != WND_NONE)
 			DoWndDrag();
+		else if (gbTalkflag)
+			plrmsg_HandleMouseMoveEvent();
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		//GetMousePos(wParam); -- disabled to prevent inconsistent MousePos.x/y vs. CheckCursMove state

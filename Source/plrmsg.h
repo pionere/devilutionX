@@ -23,8 +23,10 @@ void DrawPlrMsg(bool onTop);
 void StartPlrMsg();
 void SetupPlrMsg(int pnum, bool shift);
 void StopPlrMsg();
+void plrmsg_HandleMouseReleaseEvent();
 bool plrmsg_presskey(int vkey);
 void plrmsg_CatToText(const char* inBuf);
+void plrmsg_HandleMouseMoveEvent();
 
 #ifdef __cplusplus
 }
