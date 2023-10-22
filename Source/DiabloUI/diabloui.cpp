@@ -202,21 +202,21 @@ static void UiFocusPageDown()
 static void UiCatToText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
-	unsigned sp = gUiEditField->m_curpos;
-	unsigned cp = gUiEditField->m_selpos;
-	if (cp > sp) {
-		std::swap(cp, sp);
+	unsigned cp = gUiEditField->m_curpos;
+	unsigned sp = gUiEditField->m_selpos;
+	if (sp > cp) {
+		std::swap(sp, cp);
 	}
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
-	// assert(maxLen - sp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[sp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - sp));
-	SStrCopy(&text[cp], output, maxlen - cp);
+	// assert(maxLen - cp < sizeof(tempstr));
+	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
+	SStrCopy(&text[sp], output, maxlen - sp);
 	mem_free_dbg(output);
-	cp = strlen(text);
-	gUiEditField->m_curpos = cp;
-	gUiEditField->m_selpos = cp;
-	SStrCopy(&text[cp], tempstr, maxlen - cp);
+	sp = strlen(text);
+	gUiEditField->m_curpos = sp;
+	gUiEditField->m_selpos = sp;
+	SStrCopy(&text[sp], tempstr, maxlen - sp);
 }
 
 #ifdef __vita__
