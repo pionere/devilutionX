@@ -163,8 +163,8 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 
 /**
  * @brief Draw a half-transparent, black rectangle using stippled-transparency
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @param sx left side of the rectangle (back buffer coordinate)
+ * @param sy top of the rectangle (back buffer coordinate)
  * @param width Rectangle width
  * @param height Rectangle height
  */
@@ -195,6 +195,14 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		pix += BUFFER_WIDTH - width;
 	}
 }*/
+/**
+ * @brief Draw a half-transparent, black rectangle using stippled-transparency
+ * @param sx left side of the rectangle (back buffer coordinate)
+ * @param sy top of the rectangle (back buffer coordinate)
+ * @param width Rectangle width
+ * @param height Rectangle height
+ * @param color the color of the rectangle
+ */
 void DrawRectTrans(int sx, int sy, int width, int height, BYTE color)
 {
 	int y, x;
