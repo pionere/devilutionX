@@ -556,7 +556,7 @@ static void Render(const UiEdit* uiEdit)
 			text[curpos] = '\0';
 			w = GetBigStringWidth(&text[selpos]);
 			text[curpos] = tmp;
-			int h = 22;
+			int h = BIG_FONT_HEIGHT;
 			DrawRectTrans(SCREEN_X + rect.x + sp + FONT_KERN_BIG, SCREEN_Y + rect.y, w, h, PAL16_GRAY);
 		}
 	}
@@ -566,7 +566,7 @@ static void Render(const UiEdit* uiEdit)
 		char tmp = text[curpos];
 		text[curpos] = '\0';
 		int w = GetBigStringWidth(text);
-		int h = 22;
+		int h = BIG_FONT_HEIGHT;
 		text[curpos] = tmp;
 		PrintBigChar(SCREEN_X + rect.x + w, SCREEN_Y + rect.y + h, '|', COL_WHITE);
 	}
