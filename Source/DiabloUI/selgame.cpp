@@ -130,11 +130,17 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText(rheader, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
+	bool hosted = false;
+#ifndef NOHOSTING
+	hosted = provider == SELCONN_TCPS || provider == SELCONN_TCPDS;
+#endif
 	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
-	gUiItems.push_back(new UiImage(gbHerosCel, myplr._pClass + 1, rect5, false));
-
-	SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
-	gUiItems.push_back(new UiText(myplr._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	// assert(mypnum == 0 || hosted);
+	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : plx(0)._pClass + 1, rect5, false));
+	if (!hosted) {
+		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
+		gUiItems.push_back(new UiText(plx(0)._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	}
 }
 
 static void SelgameModeEsc()
