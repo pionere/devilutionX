@@ -199,6 +199,23 @@ static void UiFocusPageDown()
 	UiFocus(newpos);
 }
 
+static bool UiCopyToClipboard()
+{
+	unsigned sp = gUiEditField->m_selpos;
+	unsigned cp = gUiEditField->m_curpos;
+	if (sp == cp) {
+		return false;
+	}
+	if (sp > cp) {
+		std::swap(sp, cp);
+	}
+	char tmp = gUiEditField->m_value[cp];
+	gUiEditField->m_value[cp] = '\0';
+	SDL_SetClipboardText(&gUiEditField->m_value[sp]);
+	gUiEditField->m_value[cp] = tmp;
+	return true;
+}
+
 static void UiCatToText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
@@ -833,23 +850,18 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 					}
 				}
 				break;
-			case DVL_VK_X: {
+			case DVL_VK_C:
+			case DVL_VK_X:
 				if (!(event->key.keysym.mod & KMOD_CTRL)) {
 					break;
 				}
-				unsigned sp = gUiEditField->m_selpos;
-				unsigned cp = gUiEditField->m_curpos;
-				if (sp == cp) {
+				if (!UiCopyToClipboard()) {
 					break;
 				}
-				if (sp > cp) {
-					std::swap(sp, cp);
+				if (event->vkcode == DVL_VK_C) {
+					break;
 				}
-				char tmp = gUiEditField->m_value[cp];
-				gUiEditField->m_value[cp] = '\0';
-				SDL_SetClipboardText(&gUiEditField->m_value[sp]);
-				gUiEditField->m_value[cp] = tmp;
-			} // fall-through
+				// fall-through
 #endif
 			case DVL_VK_BACK: {
 				int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
