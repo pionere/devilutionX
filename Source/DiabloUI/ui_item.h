@@ -137,7 +137,9 @@ public:
 	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect& rect)
 	    : UiItemBase(UI_EDIT, rect, 0)
 	{
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 		m_hint = hint;
+#endif
 		m_value = value;
 		m_max_length = max_length;
 		m_curpos = strlen(value);
@@ -148,7 +150,9 @@ public:
 	~UiEdit() = default;
 
 	//private:
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 	const char* m_hint;
+#endif
 	char* m_value;
 	unsigned m_max_length;
 	unsigned m_curpos;
