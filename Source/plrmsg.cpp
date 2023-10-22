@@ -58,31 +58,31 @@ static void plrmsg_WordWrap(_plrmsg* pMsg)
 	while (text[i] != '\0') {
 		BYTE c = gbStdFontFrame[(BYTE)text[i]];
 		len += smallFontWidth[c] + FONT_KERN_SMALL;
-		i++;
 		if (len <= width) {
+			i++;
 			continue;
 		}
 
 		if (lineStart != 0) {
-			text[i - 1] = '\0';
+			text[i] = '\0';
 			break; // more than one line break -> skip the rest
 		}
 
-		int j = i;
-		while (--j >= 0) {
-			if (gbStdFontFrame[(BYTE)text[j]] == 0) {
-				break; // Scan for previous blank glyph
+		// add line-break on blank glyph
+		if (c != 0) {
+			// Scan for previous blank glyph
+			int j = i;
+			while (--j >= 0) {
+				c = gbStdFontFrame[(BYTE)text[j]];
+				if (c == 0) {
+					i = j + 1; // start the new line after the blank glyph
+					break;
+				}
 			}
 		}
 
-		if (j < 0) {
-			j = i - 2; // the word is longer than one line -> split the word
-		}
-
-		j++;
-		lineStart = j;
+		lineStart = i;
 		len = 0;
-		i = j;
 	}
 
 	pMsg->lineBreak = lineStart;
