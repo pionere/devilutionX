@@ -198,7 +198,7 @@ static void UiFocusPageDown()
 		newpos = SelectedItemMax;
 	UiFocus(newpos);
 }
-
+#ifndef USE_SDL1
 static bool UiCopyToClipboard()
 {
 	unsigned sp = gUiEditField->m_selpos;
@@ -215,7 +215,7 @@ static bool UiCopyToClipboard()
 	gUiEditField->m_value[cp] = tmp;
 	return true;
 }
-
+#endif
 static void UiCatToText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);

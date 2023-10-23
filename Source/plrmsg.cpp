@@ -419,7 +419,7 @@ static void SendPlrMsg()
 		StopPlrMsg();
 	}
 }
-
+#ifndef USE_SDL1
 static bool plrmsg_CopyToClipboard()
 {
 	unsigned sp = sguSelPos;
@@ -436,7 +436,7 @@ static bool plrmsg_CopyToClipboard()
 	plr_msgs[PLRMSG_COUNT].str[cp] = tmp;
 	return true;
 }
-
+#endif
 void plrmsg_CatToText(const char* inBuf)
 {
 	// assert(gbTalkflag);
