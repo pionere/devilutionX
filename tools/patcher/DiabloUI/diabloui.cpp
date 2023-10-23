@@ -793,10 +793,31 @@ static void HandleMouseMoveEvent(const Dvl_Event& event)
 	}
 }
 
-static void UiDelFromText(int w)
+static void UiDelFromText(bool back)
 {
 	char* text = gUiEditField->m_value;
 	unsigned max_length = gUiEditField->m_max_length;
+
+	int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
+	if (w != 0) {
+		if (w < 0) {
+			w = -w;
+			gUiEditField->m_selpos = gUiEditField->m_curpos;
+		} else {
+			gUiEditField->m_curpos = gUiEditField->m_selpos;
+		}
+	} else {
+		w = 1;
+		if (back) {
+			unsigned i = gUiEditField->m_curpos;
+			if (i == 0) {
+				return;
+			}
+			i--;
+			gUiEditField->m_curpos = i;
+			gUiEditField->m_selpos = i;
+		}
+	}
 
 	for (unsigned i = gUiEditField->m_curpos; ; i++) {
 		// assert(max_length != 0);
@@ -883,41 +904,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				}
 				// fall-through
 #endif
-			case DVL_VK_BACK: {
-				int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
-				if (w != 0) {
-					if (w < 0) {
-						w = -w;
-						gUiEditField->m_selpos = gUiEditField->m_curpos;
-					} else {
-						gUiEditField->m_curpos = gUiEditField->m_selpos;
-					}
-				} else {
-					w = 1;
-					unsigned i = gUiEditField->m_curpos;
-					if (i == 0) {
-						break;
-					}
-					i--;
-					gUiEditField->m_curpos = i;
-					gUiEditField->m_selpos = i;
-				}
-				UiDelFromText(w);
-			} break;
-			case DVL_VK_DELETE: {
-				int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
-				if (w != 0) {
-					if (w < 0) {
-						w = -w;
-						gUiEditField->m_selpos = gUiEditField->m_curpos;
-					} else {
-						gUiEditField->m_curpos = gUiEditField->m_selpos;
-					}
-				} else {
-					w = 1;
-				}
-				UiDelFromText(w);
-			} break;
+			case DVL_VK_BACK:
+				UiDelFromText(true);
+				break;
+			case DVL_VK_DELETE:
+				UiDelFromText(false);
+				break;
 			case DVL_VK_LEFT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (pos > 0) {

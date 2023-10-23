@@ -485,10 +485,31 @@ void plrmsg_CatToText(const char* inBuf)
 	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
 
-static void plrmsg_DelFromText(int w)
+static void plrmsg_DelFromText(bool back)
 {
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	unsigned max_length = MAX_SEND_STR_LEN;
+
+	int w = sguCursPos - sguSelPos;
+	if (w != 0) {
+		if (w < 0) {
+			w = -w;
+			sguSelPos = sguCursPos;
+		} else {
+			sguCursPos = sguSelPos;
+		}
+	} else {
+		w = 1;
+		if (back) {
+			unsigned i = sguCursPos;
+			if (i == 0) {
+				return;
+			}
+			i--;
+			sguCursPos = i;
+			sguSelPos = i;
+		}
+	}
 
 	for (unsigned i = sguCursPos; ; i++) {
 		// assert(max_length != 0);
@@ -607,41 +628,12 @@ bool plrmsg_presskey(int vkey)
 		}
 		// fall-through
 #endif
-	case DVL_VK_BACK: {
-		int w = sguCursPos - sguSelPos;
-		if (w != 0) {
-			if (w < 0) {
-				w = -w;
-				sguSelPos = sguCursPos;
-			} else {
-				sguCursPos = sguSelPos;
-			}
-		} else {
-			w = 1;
-			unsigned i = sguCursPos;
-			if (i == 0) {
-				break;
-			}
-			i--;
-			sguCursPos = i;
-			sguSelPos = i;
-		}
-		plrmsg_DelFromText(w);
-	} break;
-	case DVL_VK_DELETE: {
-		int w = sguCursPos - sguSelPos;
-		if (w != 0) {
-			if (w < 0) {
-				w = -w;
-				sguSelPos = sguCursPos;
-			} else {
-				sguCursPos = sguSelPos;
-			}
-		} else {
-			w = 1;
-		}
-		plrmsg_DelFromText(w);
-	} break;
+	case DVL_VK_BACK:
+		plrmsg_DelFromText(true);
+		break;
+	case DVL_VK_DELETE:
+		plrmsg_DelFromText(false);
+		break;
 	case DVL_VK_LEFT: {
 		unsigned pos = sguCursPos;
 		if (pos > 0) {
