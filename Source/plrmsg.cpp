@@ -37,6 +37,8 @@ static unsigned sguCursPos;
 static unsigned sguSelPos;
 /** Specifies whether the user is selecting a text. */
 static bool sgbSelecting;
+/** The message where the cursor is at the moment. */
+static _plrmsg* sgpCurMsg;
 
 void plrmsg_delay(bool delay)
 {
@@ -104,6 +106,9 @@ static _plrmsg* AddPlrMsg(int pnum)
 	plr_msg_slot = (unsigned)(plr_msg_slot + 1) % PLRMSG_COUNT;
 	pMsg->player = pnum;
 	pMsg->time = SDL_GetTicks();
+	if (pMsg == sgpCurMsg) {
+		sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
+	}
 	return pMsg;
 }
 
@@ -150,6 +155,7 @@ void InitPlrMsg()
 	// sguSelPos = 0;
 	// plr_msgs[PLRMSG_COUNT].player = mypnum;
 	// plr_msgs[PLRMSG_COUNT].str[0] = '\0';
+	// sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
 static void plrmsg_DrawSelection(int x, int y, char* text, unsigned basepos, unsigned startpos /* selpos */, unsigned endpos /* lineBreak*/)
@@ -176,7 +182,7 @@ static void PrintPlrMsg(int x, int y, _plrmsg* pMsg, int top)
 
 	str = pMsg->str;
 	col = pMsg->player == MAX_PLRS ? COL_GOLD : COL_WHITE;
-	curPos = (&plr_msgs[PLRMSG_COUNT] == pMsg && ((SDL_GetTicks() / 512) % 2) != 0) ? sguCursPos : 2 * MAX_SEND_STR_LEN; // GetAnimationFrame(2, 512) != 0) {
+	curPos = (sgpCurMsg == pMsg && ((SDL_GetTicks() / 512) % 2) != 0) ? sguCursPos : 2 * MAX_SEND_STR_LEN; // GetAnimationFrame(2, 512) != 0) {
 	curPos++;
 
 	sx = x;
@@ -209,7 +215,7 @@ static void PrintPlrMsg(int x, int y, _plrmsg* pMsg, int top)
 		}
 	}
 	// render the selection
-	if (&plr_msgs[PLRMSG_COUNT] == pMsg) {
+	if (sgpCurMsg == pMsg) {
 		char* text = pMsg->str;
 		unsigned curpos = sguCursPos;
 		unsigned selpos = sguSelPos;
@@ -318,6 +324,7 @@ void StartPlrMsg()
 	sguCursPos = 0;
 	sguSelPos = 0;
 	sgbSelecting = false;
+	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
 void SetupPlrMsg(int pnum, bool shift)
@@ -339,6 +346,7 @@ void SetupPlrMsg(int pnum, bool shift)
 	sguSelPos = len;
 	// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 	plr_msgs[PLRMSG_COUNT].lineBreak = 0;
+	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
 void VersionPlrMsg()
@@ -365,6 +373,10 @@ void StopPlrMsg()
 	gbTalkflag = false;
 	SDL_StopTextInput();
 	//gbRedrawFlags = REDRAW_ALL;
+	// sguCursPos = 0;
+	// sguSelPos = 0;
+	// sgbSelecting = false;
+	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
 static void SendPlrMsg()
@@ -437,6 +449,7 @@ static void SendPlrMsg()
 		sguSelPos = 0;
 		// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 		plr_msgs[PLRMSG_COUNT].lineBreak = 0;
+		sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 		sgbTalkSavePos = sgbNextTalkSave;
 	} else {
 		StopPlrMsg();
@@ -453,10 +466,10 @@ static bool plrmsg_CopyToClipboard()
 	if (sp > cp) {
 		std::swap(sp, cp);
 	}
-	char tmp = plr_msgs[PLRMSG_COUNT].str[cp];
-	plr_msgs[PLRMSG_COUNT].str[cp] = '\0';
-	SDL_SetClipboardText(&plr_msgs[PLRMSG_COUNT].str[sp]);
-	plr_msgs[PLRMSG_COUNT].str[cp] = tmp;
+	char tmp = sgpCurMsg->str[cp];
+	sgpCurMsg->str[cp] = '\0';
+	SDL_SetClipboardText(&sgpCurMsg->str[sp]);
+	sgpCurMsg->str[cp] = tmp;
 	return true;
 }
 #endif
@@ -465,6 +478,9 @@ void plrmsg_CatToText(const char* inBuf)
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
 
+	if (sgpCurMsg != &plr_msgs[PLRMSG_COUNT]) {
+		return;
+	}
 	char* output = utf8_to_latin1(inBuf);
 	unsigned cp = sguCursPos;
 	unsigned sp = sguSelPos;
@@ -487,6 +503,10 @@ void plrmsg_CatToText(const char* inBuf)
 
 static void plrmsg_DelFromText(bool back)
 {
+	if (sgpCurMsg != &plr_msgs[PLRMSG_COUNT]) {
+		return;
+	}
+
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	unsigned max_length = MAX_SEND_STR_LEN;
 
@@ -536,6 +556,7 @@ static void plrmsg_up_down(int v)
 			static_assert(sizeof(plr_msgs[PLRMSG_COUNT].str) >= sizeof(sgszTalkSave[sgbTalkSavePos]), "Message does not fit to the container.");
 			sguCursPos = len;
 			sguSelPos = len;
+			sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 			memcpy(plr_msgs[PLRMSG_COUNT].str, sgszTalkSave[sgbTalkSavePos], len + 1);
 			plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 			return;
@@ -547,10 +568,10 @@ static unsigned plrmsg_CursPos(int x, int y)
 {
 	// x -= (PLRMSG_TEXT_X - SCREEN_X);
 	// y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - y;
-	char* text = plr_msgs[PLRMSG_COUNT].str;
+	char* text = sgpCurMsg->str;
 	unsigned curpos = 0;
-	if (plr_msgs[PLRMSG_COUNT].lineBreak != 0 && y < PLRMSG_TEXT_HEIGHT) {
-		curpos = plr_msgs[PLRMSG_COUNT].lineBreak;
+	if (sgpCurMsg->lineBreak != 0 && y < PLRMSG_TEXT_HEIGHT) {
+		curpos = sgpCurMsg->lineBreak;
 	}
 	while (true) {
 		char tmp = text[curpos];
@@ -566,7 +587,7 @@ static unsigned plrmsg_CursPos(int x, int y)
 			break;
 		}
 		curpos++;
-		if (curpos == plr_msgs[PLRMSG_COUNT].lineBreak) {
+		if (curpos == sgpCurMsg->lineBreak) {
 			curpos--;
 			break;
 		}
@@ -574,21 +595,52 @@ static unsigned plrmsg_CursPos(int x, int y)
 	return curpos;
 }
 
+static _plrmsg* plrmsg_msgAt(int& y)
+{
+	int h, i;
+	_plrmsg *result = &plr_msgs[PLRMSG_COUNT];
+
+	h = (result->lineBreak != 0 ? 2 : 1) * PLRMSG_TEXT_HEIGHT;
+	if (y < h) {
+		return result;
+	}
+	y -= h;
+
+	for (i = 1; i <= PLRMSG_COUNT; i++) {
+		int idx = (unsigned)(plr_msg_slot - i) % PLRMSG_COUNT;
+		result = &plr_msgs[idx];
+		if (result->str[0] != '\0' /* && plr_msgs[idx].time >= timeout */) {
+			h = (result->lineBreak != 0 ? 2 : 1) * PLRMSG_TEXT_HEIGHT;
+			if (y < h) {
+				return result;
+			}
+			y -= h;
+		}
+	}
+
+	return NULL;
+}
+
 static bool plrmsg_HandleMouseEvent(SDL_Keymod mod)
 {
-	int x = MousePos.x - (PLRMSG_TEXT_X - SCREEN_X);
+	int x, y;
+	_plrmsg *tMsg;
+
+	x = MousePos.x - (PLRMSG_TEXT_X - SCREEN_X);
 	if (x < 0 || x >= PLRMSG_WIDTH) {
 		return false;
 	}
-	int y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - MousePos.y;
+	y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - MousePos.y;
 	if (y < 0) {
 		return false;
 	}
-	int textHeight = (plr_msgs[PLRMSG_COUNT].lineBreak != 0 ? 2 : 1) * PLRMSG_TEXT_HEIGHT;
-	if (y >= textHeight) {
+
+	tMsg = plrmsg_msgAt(y);
+	if (tMsg == NULL) {
 		return false;
 	}
 
+	sgpCurMsg = tMsg;
 	sguCursPos = plrmsg_CursPos(x, y);
 	if (!(mod & KMOD_SHIFT)) {
 		sguSelPos = sguCursPos;
@@ -645,7 +697,7 @@ bool plrmsg_presskey(int vkey)
 	} break;
 	case DVL_VK_RIGHT: {
 		unsigned pos = sguCursPos;
-		if (plr_msgs[PLRMSG_COUNT].str[pos] != '\0' && pos + 1 < MAX_SEND_STR_LEN) {
+		if (sgpCurMsg->str[pos] != '\0' && pos + 1 < MAX_SEND_STR_LEN) {
 			sguCursPos = pos + 1;
 			if (!(mod & KMOD_SHIFT)) {
 				sguSelPos = pos + 1;
@@ -659,7 +711,7 @@ bool plrmsg_presskey(int vkey)
 		}
 	} break;
 	case DVL_VK_END: {
-		unsigned pos = strlen(plr_msgs[PLRMSG_COUNT].str);
+		unsigned pos = strlen(sgpCurMsg->str);
 		sguCursPos = pos;
 		if (!(mod & KMOD_SHIFT)) {
 			sguSelPos = pos;
@@ -719,6 +771,8 @@ void plrmsg_HandleMouseMoveEvent()
 
 		x -= (PLRMSG_TEXT_X - SCREEN_X);
 		y = (PLRMSG_TEXT_BOTTOM - SCREEN_Y) - y;
+
+		plrmsg_msgAt(y);
 
 		unsigned curpos = plrmsg_CursPos(x, y);
 		sguCursPos = curpos;
