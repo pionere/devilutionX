@@ -532,6 +532,7 @@ static int game_server_callback()
 		delta = guNextTick - SDL_GetTicks();
 		break;
 	case TS_TIMEOUT:
+		gbEmptyTurns = 0;
 		delta = 1; //gnTickDelay;
 		break;
 	default:
