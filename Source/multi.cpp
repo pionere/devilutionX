@@ -686,7 +686,7 @@ static void SetupLocalPlr()
 	p->_pActive = TRUE;
 }
 
-void multi_handle_events(SNetEvent* pEvt)
+void multi_ui_handle_events(SNetEvent* pEvt)
 {
 	unsigned pnum, LeftReason;
 

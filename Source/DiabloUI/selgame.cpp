@@ -77,7 +77,7 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 
 static void selgame_add_event_handlers()
 {
-	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, multi_handle_events);
+	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, multi_ui_handle_events);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
 }
 
