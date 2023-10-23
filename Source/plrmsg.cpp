@@ -4,6 +4,7 @@
  * Implementation of functionality for printing the ingame chat messages.
  */
 #include "all.h"
+#include <config.h>
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 #include "plrctrls.h"
@@ -14,6 +15,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define PLRMSG_TEXT_TIMEOUT 10000
 #define PLRMSG_WIDTH        (PANEL_WIDTH - 20)
+
+static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
 
 /** Specifies whether the Chat-Panel is displayed. */
 bool gbTalkflag;
@@ -336,6 +339,25 @@ void SetupPlrMsg(int pnum, bool shift)
 	sguSelPos = len;
 	// plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 	plr_msgs[PLRMSG_COUNT].lineBreak = 0;
+}
+
+void VersionPlrMsg()
+{
+	EventPlrMsg(gszProductName);
+	if (!(SDL_GetModState() & KMOD_SHIFT)) {
+		if (!IsLocalGame) {
+			EventPlrMsg(szGameName);
+			if (szGamePassword[0] != '\0') {
+				char desc[sizeof("password: %s") + NET_MAX_PASSWD_LEN];
+				snprintf(desc, sizeof(desc), "password: %s", szGamePassword);
+				EventPlrMsg(desc);
+			}
+		}
+	}
+	else {
+		const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
+		EventPlrMsg(difficulties[gnDifficulty]);
+	}
 }
 
 void StopPlrMsg()

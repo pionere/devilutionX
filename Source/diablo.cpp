@@ -4,7 +4,6 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
-#include <config.h>
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -19,7 +18,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 #include <gperftools/heap-profiler.h>
 #endif
-static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
 
 /** The pseudo random seeds to generate the levels. */
 uint32_t glSeedTbl[NUM_LEVELS];
@@ -1020,20 +1018,7 @@ static void PressKey(int vkey)
 		CalcViewportGeometry();
 		break;
 	case ACT_VER:
-		EventPlrMsg(gszProductName);
-		if (!(SDL_GetModState() & KMOD_SHIFT)) {
-			if (!IsLocalGame) {
-				EventPlrMsg(szGameName);
-				if (szGamePassword[0] != '\0') {
-					char desc[sizeof("password: %s") + NET_MAX_PASSWD_LEN];
-					snprintf(desc, sizeof(desc), "password: %s", szGamePassword);
-					EventPlrMsg(desc);
-				}
-			}
-		} else {
-			const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
-			EventPlrMsg(difficulties[gnDifficulty]);
-		}
+		VersionPlrMsg();
 		break;
 	case ACT_HELP:
 		if (gbHelpflag) {

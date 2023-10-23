@@ -497,7 +497,7 @@ void multi_process_msgs()
 #ifndef NOHOSTING
 static unsigned gameProgress;
 extern Uint32 guNextTick;
-static int game_server_callback()
+int multi_ui_handle_turn()
 {
 	int delta, i;
 	bool active;
@@ -555,7 +555,8 @@ static void RunGameServer()
 	currLvl._dLevelIdx = DLV_INVALID;
 	gbActivePlayers = 0;
 	gameProgress = 0;
-	UiProgressDialog("...Server is running...", game_server_callback);
+	InitPlrMsg();
+	UiHostGameDialog();
 }
 #else
 static void RunGameServer()

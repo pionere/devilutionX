@@ -22,6 +22,7 @@ void InitPlrMsg();
 void DrawPlrMsg(bool onTop);
 void StartPlrMsg();
 void SetupPlrMsg(int pnum, bool shift);
+void VersionPlrMsg();
 void StopPlrMsg();
 void plrmsg_HandleMouseReleaseEvent();
 bool plrmsg_presskey(int vkey);
