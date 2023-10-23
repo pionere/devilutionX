@@ -419,6 +419,7 @@ static void SendPlrMsg()
 			if (!strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
 				break;
 		}
+		static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in SendPlrMsg.");
 		if (i == lengthof(sgszTalkSave)) {
 			memcpy(sgszTalkSave[sgbNextTalkSave], plr_msgs[PLRMSG_COUNT].str, sizeof(sgszTalkSave[sgbNextTalkSave]));
 			sgbNextTalkSave++;
