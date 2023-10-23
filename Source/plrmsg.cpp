@@ -492,7 +492,7 @@ void plrmsg_CatToText(const char* inBuf)
 	// assert(maxLen - cp < sizeof(tempstr));
 	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
 	SStrCopy(&text[sp], output, maxlen - sp);
-	mem_free_dbg(output);
+	SDL_free(output);
 	sp = strlen(text);
 	sguCursPos = sp;
 	sguSelPos = sp;
