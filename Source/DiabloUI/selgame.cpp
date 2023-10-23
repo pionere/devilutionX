@@ -622,6 +622,8 @@ int UiSelectGame(_uigamedata* game_data)
 {
 	selgame_gameData = game_data;
 
+	selgame_add_event_handlers();
+
 	SelgameInit();
 	SelgameModeInit();
 
