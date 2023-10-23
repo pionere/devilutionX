@@ -757,10 +757,12 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		gbSelectHero = bSinglePlayer;
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
-			mypnum = SNPLAYER_MASTER;
 			gameData.aePlayerId = SNPLAYER_MASTER;
-		} else
+			mypnum = SNPLAYER_MASTER;
+		} else {
+			gameData.aePlayerId = 0;
 			pfile_read_hero_from_save();
+		}
 
 		if (gbLoadGame) {
 			// mypnum = 0;
@@ -776,7 +778,8 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
 				gbSelectProvider = true;
-				mypnum = 0;
+				// mypnum = 0;
+				// gameData.aePlayerId = 0;
 			}
 			gbSelectHero = true;
 			continue;
@@ -822,7 +825,7 @@ bool NetInit(bool bSinglePlayer)
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;
-		gameData.aePlayerId = 0;
+		//gameData.aePlayerId = 0;
 		//gameData.aeDifficulty = DIFF_NORMAL;
 		//gameData.aeTickRate = SPEED_NORMAL;
 		//gameData.aeNetUpdateRate = 1;
