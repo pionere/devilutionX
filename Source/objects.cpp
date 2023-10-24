@@ -2042,6 +2042,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapChance != 0) {
 		os->_oTrapChance = 0;
+		PlaySfxLoc(IS_TRAP, os->_ox, os->_oy);
 		SetRndSeed(os->_oRndSeed);
 		if (currLvl._dType == DTYPE_CATACOMBS) {
 			mtype = 2;

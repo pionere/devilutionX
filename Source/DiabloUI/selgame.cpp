@@ -77,7 +77,7 @@ static void selgame_handleEvents(SNetEvent* pEvt)
 
 static void selgame_add_event_handlers()
 {
-	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, multi_handle_events);
+	SNetRegisterEventHandler(EVENT_TYPE_PLAYER_LEAVE_GAME, multi_ui_handle_events);
 	SNetRegisterEventHandler(EVENT_TYPE_JOIN_ACCEPTED, selgame_handleEvents);
 }
 
@@ -130,11 +130,17 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 	SDL_Rect rect4 = { SELGAME_RPANEL_LEFT, SELGAME_PNL_TOP, SELGAME_RPANEL_WIDTH, SELGAME_HEADER_HEIGHT };
 	gUiItems.push_back(new UiText(rheader, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
+	bool hosted = false;
+#ifndef NOHOSTING
+	hosted = provider == SELCONN_TCPS || provider == SELCONN_TCPDS;
+#endif
 	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
-	gUiItems.push_back(new UiImage(gbHerosCel, myplr._pClass + 1, rect5, false));
-
-	SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
-	gUiItems.push_back(new UiText(myplr._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	// assert(mypnum == 0 || hosted);
+	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : plx(0)._pClass + 1, rect5, false));
+	if (!hosted) {
+		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
+		gUiItems.push_back(new UiText(plx(0)._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	}
 }
 
 static void SelgameModeEsc()
@@ -298,7 +304,7 @@ static void SelgamePasswordInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	UiEdit* edit = new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password) - 1, rect5);
+	UiEdit* edit = new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password), rect5);
 	gUiItems.push_back(edit);
 
 	UiInitScreen(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
@@ -317,7 +323,7 @@ static void SelgamePortInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	UiEdit* edit = new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort) - 1, rect5);
+	UiEdit* edit = new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort), rect5);
 	gUiItems.push_back(edit);
 
 	UiInitScreen(0, NULL, SelgamePasswordInit, SelgamePasswordEsc);
@@ -372,7 +378,7 @@ static void SelgameAddressInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	UiEdit* edit = new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName) - 1, rect5);
+	UiEdit* edit = new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName), rect5);
 	gUiItems.push_back(edit);
 
 	UiInitScreen(0, NULL, SelgamePortInit, SelgameAddressEsc);
@@ -615,6 +621,8 @@ static void SelgamePasswordSelect(unsigned index)
 int UiSelectGame(_uigamedata* game_data)
 {
 	selgame_gameData = game_data;
+
+	selgame_add_event_handlers();
 
 	SelgameInit();
 	SelgameModeInit();
