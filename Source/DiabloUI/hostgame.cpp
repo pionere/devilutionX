@@ -1,4 +1,4 @@
-
+#ifndef NOHOSTING
 #include "diabloui.h"
 //#include "all.h"
 #include "DiabloUI/diablo.h"
@@ -141,3 +141,4 @@ void UiHostGameDialog()
 }
 
 DEVILUTION_END_NAMESPACE
+#endif // !NOHOSTING

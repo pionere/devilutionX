@@ -29,7 +29,9 @@ void pfile_ui_delete_save(_uiheroinfo* hero_info);
 
 /* Defined in multi.cpp */
 void multi_ui_handle_events(SNetEvent* pEvt);
+#ifndef NOHOSTING
 int multi_ui_handle_turn();
+#endif
 
 /* Defined in plrmsg.cpp */
 /*extern bool gbTalkflag;
