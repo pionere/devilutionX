@@ -211,8 +211,10 @@ static bool UiCopyToClipboard()
 	}
 	char tmp = gUiEditField->m_value[cp];
 	gUiEditField->m_value[cp] = '\0';
-	SDL_SetClipboardText(&gUiEditField->m_value[sp]);
+	char* output = latin1_to_utf8(&gUiEditField->m_value[sp]);
 	gUiEditField->m_value[cp] = tmp;
+	SDL_SetClipboardText(output);
+	SDL_free(output);
 	return true;
 }
 #endif
