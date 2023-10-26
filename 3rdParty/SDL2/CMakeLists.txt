@@ -36,6 +36,7 @@ set(SDL_DISKAUDIO OFF)
 set(SDL_DUMMYAUDIO OFF)
 set(SDL_DUMMYVIDEO OFF)
 #set(SDL_LEAN_AND_MEAN ON) # requires fork of SDL2
+set(SDL_DYN_MEMFUNCS OFF) # requires fork of SDL2
 set(SDL_BLIT_0 OFF) # requires fork of SDL2
 #set(SDL_BLIT_1 OFF) # requires fork of SDL2
 set(SDL_BLIT_A OFF) # requires fork of SDL2
@@ -74,7 +75,7 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 4cd0651d724487d3fc2861de84b28e898df3fbd9
+    GIT_TAG 2f10fc5b4b7e9210d2cd522e8528e2c43d7ac548
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
 
