@@ -399,7 +399,7 @@ void DrawSkillIcons()
 	for (unsigned i = 0; i < numchar; i++) {
 		sy += SMALL_FONT_HEIGHT;
 		BYTE nCel = gbStdFontFrame[str[i]];
-		PrintChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
+		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
 	}
 }
 

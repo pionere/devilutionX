@@ -31,7 +31,7 @@ int GetHugeStringWidth(const char* text);
 int GetBigStringWidth(const char* text);
 int GetSmallStringWidth(const char* text);
 
-void PrintChar(int sx, int sy, int nCel, BYTE col);
+void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col);
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col);
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col);
 int PrintHugeChar(int sx, int sy, BYTE text, BYTE col);

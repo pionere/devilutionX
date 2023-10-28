@@ -160,7 +160,7 @@ void FreeText()
  * @param nCel Number of letter in Windows-1252
  * @param col text_color color value
  */
-void PrintChar(int sx, int sy, int nCel, BYTE col)
+void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 {
 	BYTE* tbl;
 
@@ -231,7 +231,7 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 	// BYTE* tbl;
 
 	if (nCel != 0) {
-		PrintChar(sx, sy, nCel, col);
+		PrintSmallColorChar(sx, sy, nCel, col);
 		/*switch (col) {
 		case COL_WHITE:
 			CelDraw(sx, sy, pSmallTextCels, nCel);
@@ -364,7 +364,7 @@ void PrintString(int x, int y, int endX, const char* text, bool cjustflag, BYTE 
 		c = gbStdFontFrame[(BYTE)*text++];
 		k = smallFontWidth[c] + kern;
 		if (x + k < endX && c != 0) {
-			PrintChar(x, y, c, col);
+			PrintSmallColorChar(x, y, c, col);
 		}
 		x += k;
 	}
@@ -378,7 +378,7 @@ int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
 		c = gbStdFontFrame[(BYTE)*text++];
 		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
 		if (limit >= 0 && c != 0) {
-			PrintChar(x, y, c, col);
+			PrintSmallColorChar(x, y, c, col);
 		}
 		x += smallFontWidth[c] + FONT_KERN_SMALL;
 	}
