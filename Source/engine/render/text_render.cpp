@@ -11,7 +11,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
- * Maps ASCII character code to font frame index as used by the
+ * Maps ASCII character code to font frame number as used by the
  * small (SmalText.CEL) and medium (MedTextS.CEL) sized fonts.
  */
 const BYTE gbStdFontFrame[256] = {
@@ -35,10 +35,10 @@ const BYTE gbStdFontFrame[256] = {
 	// clang-format on
 };
 /**
- * Maps ASCII character code to font frame index as used by the
+ * Maps ASCII character code to font frame number as used by the
  * large (BigTGold.CEL) sized font.
  */
-const BYTE gbHugeFontFrame[128] = {
+static const BYTE gbHugeFontFrame[128] = {
 	// clang-format off
 /*  0-*/      '\0',  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,
 /* 16-*/  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,  0/* ? */,
@@ -157,7 +157,7 @@ void FreeText()
  * @brief Print letter to the back buffer
  * @param sx Backbuffer offset
  * @param sy Backbuffer offset
- * @param nCel Number of letter in Windows-1252
+ * @param nCel frame number in pSmallTextCels
  * @param col text_color color value
  */
 void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
@@ -208,28 +208,9 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 {
 	BYTE nCel = gbStdFontFrame[text];
-	// BYTE* tbl;
 
 	if (nCel != 0) {
 		PrintSmallColorChar(sx, sy, nCel, col);
-		/*switch (col) {
-		case COL_WHITE:
-			CelDraw(sx, sy, pSmallTextCels, nCel);
-			return smallFontWidth[nCel] + FONT_KERN_SMALL;
-		case COL_BLUE:
-			tbl = FONT_TRN_BLUE;
-			break;
-		case COL_RED:
-			tbl = FONT_TRN_RED;
-			break;
-		case COL_GOLD:
-			tbl = FONT_TRN_GOLD;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-		CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);*/
 	}
 
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
@@ -238,27 +219,9 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
 {
 	BYTE nCel = gbHugeFontFrame[text];
-	//BYTE* tbl;
 
 	if (nCel != 0) {
-		/*switch (col) {
-		case COL_WHITE:
-			CelDraw(sx, sy, pHugeGoldTextCels, nCel);
-			return hugeFontWidth[nCel] + FONT_KERN_HUGE;
-		case COL_BLUE:
-			tbl = FONT_TRN_BLUE;
-			break;
-		case COL_RED:
-			tbl = FONT_TRN_RED;
-			break;
-		case COL_GOLD:
-			tbl = FONT_TRN_GOLD;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-		CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);*/
+		// PrintHugeColorChar(sx, sy, nCel, col);
 		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
 	}
 

@@ -393,12 +393,13 @@ void DrawSkillIcons()
 	default:
 		ASSUME_UNREACHABLE
 	}
-
+	// PrintSmallVerticalStr centered
 	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
 	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2;
 	for (unsigned i = 0; i < numchar; i++) {
 		sy += SMALL_FONT_HEIGHT;
 		BYTE nCel = gbStdFontFrame[str[i]];
+		// PrintSmallChar(sx + (SMALL_FONT_WIDTH - smallFontWidth[nCel]) / 2, sy, str[i], COL_GOLD);
 		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
 	}
 }

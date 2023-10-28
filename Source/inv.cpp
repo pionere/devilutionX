@@ -403,7 +403,9 @@ void DrawInvBelt()
 
 		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
+			// PrintSmallChar right adjusted
 			ff = gbStdFontFrame[fi];
+			// PrintSmallChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, fi, COL_WHITE);
 			PrintSmallColorChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, ff, COL_WHITE);
 		}
 	}
