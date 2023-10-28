@@ -112,6 +112,11 @@ void ValidateData()
 	// text
 	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
 
+	for (i = 0; i < lengthof(gbStdFontFrame); i++) {
+		if (gbStdFontFrame[i] >= lengthof(smallFontWidth))
+			app_fatal("Width of the small font %d ('%c') is undefined (frame number: %d).", i, i, gbStdFontFrame[i]);
+	}
+
 	if (GetHugeStringWidth("Pause") != 135)
 		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
 
