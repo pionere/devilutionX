@@ -184,42 +184,22 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
 }
 
+static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
+{
+	if (col == COL_GOLD) {
+		CelDraw(sx, sy, pBigTextCels, nCel);
+	} else {
+		// assert(col == COL_WHITE);
+		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
+	}
+}
+
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 {
-	/*BYTE nCel = gbStdFontFrame[text];
-	BYTE* tbl;
-
-	if (nCel != 0) {
-		switch (col) {
-		case COL_WHITE:
-			CelDraw(sx, sy, pBigTextCels, nCel);
-			return bigFontWidth[nCel] + FONT_KERN_BIG;
-		case COL_BLUE:
-			tbl = FONT_TRN_BLUE;
-			break;
-		case COL_RED:
-			tbl = FONT_TRN_RED;
-			break;
-		case COL_GOLD:
-			tbl = FONT_TRN_GOLD;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
-	}
-
-	return bigFontWidth[nCel] + FONT_KERN_BIG;*/
 	BYTE nCel = gbStdFontFrame[text];
 
 	if (nCel != 0) {
-		if (col == COL_GOLD) {
-			CelDraw(sx, sy, pBigTextCels, nCel);
-		} else {
-			// assert(col == COL_WHITE);
-			CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
-		}
+		PrintBigColorChar(sx, sy, nCel, col);
 	}
 
 	return bigFontWidth[nCel] + FONT_KERN_BIG;
