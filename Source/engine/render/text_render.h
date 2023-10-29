@@ -20,8 +20,8 @@ extern "C" {
 
 extern CelImageBuf* pBigTextCels;
 
-extern const BYTE smallFontWidth[69];
-extern const BYTE bigFontWidth[69];
+extern const BYTE smallFontWidth[107];
+extern const BYTE bigFontWidth[107];
 extern const BYTE gbStdFontFrame[256];
 
 void InitText();
