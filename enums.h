@@ -2428,16 +2428,12 @@ typedef enum _monster_flag {
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
+	MFLAG_NODROP          = 0x1000,
 	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 	MFLAG_KNOCKBACK       = 0x00010000,
 	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
 } _monster_flag;
-
-typedef enum _monster_treasure {
-	NO_DROP = 0x4000,
-	UQ_DROP = 0x8000,
-} _monster_treasure;
 
 typedef enum _uniq_monster_flag {
 	UMF_GROUP   = 1 << 0,

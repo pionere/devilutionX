@@ -2045,16 +2045,6 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 	unsigned quality = CFDQ_NORMAL;
 
 	mon = &monsters[mnum];
-	if ((mon->_mTreasure & UQ_DROP) != 0 && !IsMultiGame) {
-		// fix drop in single player
-		idx = mon->_mTreasure & 0xFFF;
-		SpawnUnique(idx, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-		return;
-	}
-	if (mon->_mTreasure & NO_DROP)
-		// no drop
-		return;
-
 	if (mon->_muniqtype != 0) {
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;

@@ -423,7 +423,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum)
 	mon->_mEvasion = savedMon->vmEvasion;
 
 	mon->_mMagicRes = savedMon->vmMagicRes;
-	mon->_mTreasure = savedMon->vmTreasure;
+	// mon->_mAlign_1 = savedMon->vmAlign_1;
 
 	mon->_mExp = savedMon->vmExp;
 #else
@@ -1289,7 +1289,7 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum, bool full)
 	monSave->vmEvasion = mon->_mEvasion;
 
 	monSave->vmMagicRes = mon->_mMagicRes;
-	monSave->vmTreasure = mon->_mTreasure;
+	// monSave->vmAlign_1 = mon->_mName;
 
 	monSave->vmExp = mon->_mExp;
 #else

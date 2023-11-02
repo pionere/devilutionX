@@ -991,8 +991,7 @@ void DeltaLoadLevel()
 					// TODO: InitSummonedMonster ?
 					SetRndSeed(glSeedTbl[i % NUM_LEVELS]);
 					InitMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mx, mon->_my);
-					mon->_mTreasure = NO_DROP;
-					mon->_mFlags |= MFLAG_NOCORPSE;
+					mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 					if (!monInGame)
 						nummonsters++;
 				}
@@ -3558,7 +3557,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mAFNum,
 	mon->_mAFNum2,
 	mon->_mMagicRes,
-	mon->_mTreasure,
 	mon->_mExp,
 	mon->_mType,
 	mon->_mAnimWidth,

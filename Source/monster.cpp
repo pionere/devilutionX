@@ -333,7 +333,6 @@ static void InitMonsterStats(int midx)
 	cmon->cmArmorClass = mdata->mArmorClass;
 	cmon->cmEvasion = mdata->mEvasion;
 	cmon->cmMagicRes = mdata->mMagicRes;
-	cmon->cmTreasure = mdata->mTreasure;
 	cmon->cmExp = mdata->mExp;
 	cmon->cmMinHP = mdata->mMinHP;
 	cmon->cmMaxHP = mdata->mMaxHP;
@@ -601,7 +600,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mArmorClass = cmon->cmArmorClass;
 	mon->_mEvasion = cmon->cmEvasion;
 	mon->_mMagicRes = cmon->cmMagicRes;
-	mon->_mTreasure = cmon->cmTreasure;
+	mon->_mAlign_1 = cmon->cmAlign_1;
 	mon->_mExp = cmon->cmExp;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
@@ -627,7 +626,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVI.");
 	static_assert(offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVII.");
 	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
-	static_assert(offsetof(MonsterStruct, _mTreasure) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmTreasure) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
+	static_assert(offsetof(MonsterStruct, _mAlign_1) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_1) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
 	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
 	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
 	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
@@ -730,8 +729,7 @@ int SummonMonster(int x, int y, int dir, int mtidx)
 		// TODO: InitSummonedMonster ?
 		SetRndSeed(glSeedTbl[mnum % NUM_LEVELS]);
 		InitMonster(mnum, dir, mtidx, x, y);
-		monsters[mnum]._mTreasure = NO_DROP;
-		monsters[mnum]._mFlags |= MFLAG_NOCORPSE;
+		monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 		NetSendCmdMonstSummon(mnum);
 		return mnum;
 	}
@@ -897,7 +895,7 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	mon->_mhitpoints = mon->_mmaxhp;
 
 	if (uniqm->mUnqFlags & UMF_NODROP)
-		mon->_mTreasure = NO_DROP;
+		mon->_mFlags |= MFLAG_NODROP;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 	if (uniqm->mUnqFlags & UMF_LIGHT) {
 		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
@@ -1897,22 +1895,36 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 static void SpawnLoot(int mnum, bool sendmsg)
 {
 	MonsterStruct* mon;
+	int mx, my;
 
 	mon = &monsters[mnum];
+	if (mon->_mFlags & MFLAG_NODROP) {
+		return;
+	}
 	SetRndSeed(mon->_mRndSeed);
+	mx = mon->_mx;
+	my = mon->_my;
 	switch (mon->_muniqtype - 1) {
 	case UMT_GARBUD:
 		assert(QuestStatus(Q_GARBUD));
-		CreateTypeItem(mon->_mx, mon->_my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		CreateTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
 		//if (IsSFXPlaying(USFX_LAZ1))
 			StopStreamSFX();
 		break;
+	case UMT_SKELKING:
+	case UMT_BUTCHER:
+		if (!IsMultiGame) {
+			int idx = (mon->_muniqtype - 1 == UMT_BUTCHER) ? UITEM_CLEAVER : UITEM_SKCROWN;
+			SpawnUnique(idx, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			return;
+		}
+		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
-			SpawnQuestItemAt(IDI_THEODORE, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			SpawnQuestItemAt(IDI_THEODORE, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
@@ -1923,7 +1935,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
 			NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
-		SpawnQuestItemAt(IDI_FANG, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnQuestItemAt(IDI_FANG, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_NAKRUL:
 		//if (IsSFXPlaying(USFX_NAKRUL4) || IsSFXPlaying(USFX_NAKRUL5) || IsSFXPlaying(USFX_NAKRUL6))
@@ -1935,11 +1947,11 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
 		SpawnMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
 		SpawnMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);*/
-		SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg); // double reward
+		SpawnMonItem(mnum, mx, my, sendmsg); // double reward
 		break;
 #endif
 	}
-	SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg);
+	SpawnMonItem(mnum, mx, my, sendmsg);
 }
 
 static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
