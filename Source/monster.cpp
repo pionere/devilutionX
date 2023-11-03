@@ -512,6 +512,8 @@ void GetLevelMTypes()
 			AddMonsterType(uniqMonData[UMT_GARBUD].mtype, FALSE);
 		if (lvl == uniqMonData[UMT_ZHAR].muLevelIdx && quests[Q_ZHAR]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_ZHAR].mtype, FALSE);
+		if (lvl == uniqMonData[UMT_ZAMPHIR].muLevelIdx && quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL)
+			AddMonsterType(uniqMonData[UMT_ZAMPHIR].mtype, FALSE);
 		//if (QuestStatus(Q_BANNER)) {
 		//	AddMonsterType(uniqMonData[UMT_SNOTSPIL].mtype, FALSE);
 		//	// AddMonsterType(MT_NFAT, FALSE);
@@ -1918,6 +1920,12 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		if (!IsMultiGame) {
 			int idx = (mon->_muniqtype - 1 == UMT_BUTCHER) ? UITEM_CLEAVER : UITEM_SKCROWN;
 			SpawnUnique(idx, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			return;
+		}
+		break;
+	case UMT_ZAMPHIR:
+		if (quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL) {
+			SpawnQuestItemAt(IDI_BRAIN, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
