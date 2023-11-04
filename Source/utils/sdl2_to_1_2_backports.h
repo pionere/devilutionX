@@ -10,6 +10,8 @@
 #include <cmath>
 #include <cstddef>
 
+// SDL1.dll was compiled assuming an strdup function available.
+// Some compilers might have removed it in the meantime -> provide SDL_strdup for backwards compatibility
 #if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
 #ifndef SDL_strdup
 #define SDL_strdup _strdup
