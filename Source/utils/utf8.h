@@ -3,8 +3,7 @@
 #ifdef USE_SDL1
 
 char* utf8_to_latin1(const char* in);
-// TODO: implement latin1_to_utf8 for SDL1
-#define latin1_to_utf8(in) strdup(in)
+char* latin1_to_utf8(const char* in);
 
 #else
 

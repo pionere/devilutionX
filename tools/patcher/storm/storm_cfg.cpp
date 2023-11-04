@@ -6,8 +6,6 @@
 #include "utils/file_util.h"
 #include "utils/paths.h"
 
-#include <SDL.h>
-
 DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_LINE_LEN 1024
@@ -50,7 +48,7 @@ ConfigEntry* ConfigSection::getEntry(const char* name)
 
 ConfigEntry* ConfigSection::addEntry(const char* key, const char* value)
 {
-	entries.push_back(ConfigEntry(strdup(key), strdup(value)));
+	entries.push_back(ConfigEntry(SDL_strdup(key), SDL_strdup(value)));
 	return &entries.back();
 }
 
@@ -73,7 +71,7 @@ static ConfigSection* getSection(const char* name)
 
 static ConfigSection* addSection(const char* name)
 {
-	config.sections.push_back(ConfigSection(strdup(name)));
+	config.sections.push_back(ConfigSection(SDL_strdup(name)));
 
 	return &config.sections.back();
 }
@@ -250,7 +248,7 @@ void setIniValue(const char* sectionName, const char* keyName, const char* value
 		if (SDL_strcmp(value, entry->value) == 0)
 			return;
 		free(const_cast<char*>(entry->value));
-		entry->value = strdup(value);
+		entry->value = SDL_strdup(value);
 	}
 	config.modified = true;
 }

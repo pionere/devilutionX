@@ -24,11 +24,12 @@ jobs:
         sudo Packaging/windows/mingw9x-prep.sh
 
     - name: Show winbaseh
-      run: cat /usr/share/mingw-w64/include/winbase.h
+      #run: cat /usr/share/mingw-w64/include/winbase.h
+      run: cat /usr/i686-w64-mingw32/include/SDL/SDL_stdinc.h
       shell: bash
 
     - name: Show minwinbaseh
-      run: cat /usr/share/mingw-w64/include/minwinbase.h
+      run: cat /usr/i686-w64-mingw32/include/SDL/SDL.h
       shell: bash
 
     - name: Configure CMake
