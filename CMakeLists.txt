@@ -493,6 +493,7 @@ set(devilutionx_SRCS
   Source/DiabloUI/diabloui.cpp
   Source/DiabloUI/dialogs.cpp
   #Source/DiabloUI/errorart.cpp
+  Source/DiabloUI/hostgame.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
   Source/DiabloUI/scrollbar.cpp

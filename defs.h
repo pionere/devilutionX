@@ -148,6 +148,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 // example (dark blue): PAL16_BLUE+14, PAL8_BLUE+7
 // example (light red): PAL16_RED+2, PAL8_RED
 // example (orange): PAL16_ORANGE+8, PAL8_ORANGE+4
+#define PAL_BLACK		0
 #define PAL8_BLUE		128
 #define PAL8_RED		136
 #define PAL8_YELLOW		144

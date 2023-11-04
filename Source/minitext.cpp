@@ -92,6 +92,7 @@ void DrawQText()
 
 		tx = LTPANEL_X + 24;
 		while (str < endstr) {
+			// tx += PrintBigChar(tx, ty, (BYTE)*str++, COL_GOLD);
 			c = gbStdFontFrame[(BYTE)*str++];
 			if (c != 0) {
 				CelDraw(tx, ty, pBigTextCels, c);

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "all.h"
+#include "engine/render/text_render.h"
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "utils/file_util.h"
@@ -147,7 +148,7 @@ static bool ValidPlayerName(const char* name)
 		//	if (*letter == invalidChars[i])
 		//		return false;
 		//}
-		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
+		if (*letter != 0x20 && gbStdFontFrame[*letter] == 0)
 			return false;
 	}
 

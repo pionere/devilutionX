@@ -497,7 +497,7 @@ void multi_process_msgs()
 #ifndef NOHOSTING
 static unsigned gameProgress;
 extern Uint32 guNextTick;
-static int game_server_callback()
+int multi_ui_handle_turn()
 {
 	int delta, i;
 	bool active;
@@ -532,6 +532,7 @@ static int game_server_callback()
 		delta = guNextTick - SDL_GetTicks();
 		break;
 	case TS_TIMEOUT:
+		gbEmptyTurns = 0;
 		delta = 1; //gnTickDelay;
 		break;
 	default:
@@ -554,7 +555,8 @@ static void RunGameServer()
 	currLvl._dLevelIdx = DLV_INVALID;
 	gbActivePlayers = 0;
 	gameProgress = 0;
-	UiProgressDialog("...Server is running...", game_server_callback);
+	InitPlrMsg();
+	UiHostGameDialog();
 }
 #else
 static void RunGameServer()
@@ -685,7 +687,7 @@ static void SetupLocalPlr()
 	p->_pActive = TRUE;
 }
 
-void multi_handle_events(SNetEvent* pEvt)
+void multi_ui_handle_events(SNetEvent* pEvt)
 {
 	unsigned pnum, LeftReason;
 
@@ -756,10 +758,12 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		gbSelectHero = bSinglePlayer;
 		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
-			mypnum = SNPLAYER_MASTER;
 			gameData.aePlayerId = SNPLAYER_MASTER;
-		} else
+			mypnum = SNPLAYER_MASTER;
+		} else {
+			gameData.aePlayerId = 0;
 			pfile_read_hero_from_save();
+		}
 
 		if (gbLoadGame) {
 			// mypnum = 0;
@@ -775,7 +779,8 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		if (dlgresult == SELGAME_PREVIOUS) {
 			if (IsGameSrv) {
 				gbSelectProvider = true;
-				mypnum = 0;
+				// mypnum = 0;
+				// gameData.aePlayerId = 0;
 			}
 			gbSelectHero = true;
 			continue;
@@ -821,7 +826,7 @@ bool NetInit(bool bSinglePlayer)
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;
-		gameData.aePlayerId = 0;
+		//gameData.aePlayerId = 0;
 		//gameData.aeDifficulty = DIFF_NORMAL;
 		//gameData.aeTickRate = SPEED_NORMAL;
 		//gameData.aeNetUpdateRate = 1;

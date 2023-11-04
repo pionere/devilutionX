@@ -248,7 +248,7 @@ void setIniValue(const char* sectionName, const char* keyName, const char* value
 		if (SDL_strcmp(value, entry->value) == 0)
 			return;
 		free(const_cast<char*>(entry->value));
-		entry->value = SDL_strdup(value);
+		entry->value = strdup(value);
 	}
 	config.modified = true;
 }

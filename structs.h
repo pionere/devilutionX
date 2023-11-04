@@ -622,7 +622,6 @@ typedef struct MonsterData {
 	BYTE mEvasion;    // evasion: used against magic-projectile
 	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties (_monster_resistance)
 	uint16_t mMagicRes2; // resistances in hell difficulty (_monster_resistance)
-	uint16_t mTreasure;  // unique drops of monsters + no-drop flag (unique_item_indexes + _monster_treasure)
 	uint16_t mExp;
 	ALIGNMENT(5, 2)
 } MonsterData;
@@ -670,7 +669,7 @@ typedef struct MapMonData {
 	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE cmEvasion;    // evasion: used against magic-projectile
 	uint16_t cmMagicRes;  // resistances of the monster
-	uint16_t cmTreasure;  // unique drops of monsters + no-drop flag
+	uint16_t cmAlign_1; // unused
 	unsigned cmExp;
 	int cmWidth;
 	int cmXOffset;
@@ -755,7 +754,7 @@ typedef struct MonsterStruct {
 	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE _mEvasion;    // evasion: used against magic-projectile
 	uint16_t _mMagicRes;  // resistances of the monster (_monster_resistance)
-	uint16_t _mTreasure;  // unique drops of monsters + no-drop flag (unique_item_indexes + _monster_treasure)
+	uint16_t _mAlign_1; // unused
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
@@ -1418,7 +1417,7 @@ typedef struct LSaveMonsterStruct {
 	BYTE vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	BYTE vmEvasion;    // evasion: used against magic-projectile
 	LE_UINT16 vmMagicRes;  // resistances of the monster
-	LE_UINT16 vmTreasure;  // unique drops of monsters + no-drop flag
+	LE_UINT16 vmAlign_1; // unused
 	LE_UINT32 vmExp;
 } LSaveMonsterStruct;
 
@@ -2555,7 +2554,8 @@ static_assert((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STe
 typedef struct _plrmsg {
 	Uint32 time;
 	BYTE player;
-	char str[123];
+	BYTE lineBreak;
+	char str[122];
 } _plrmsg;
 
 //////////////////////////////////////////////////

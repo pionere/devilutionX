@@ -4,12 +4,10 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
-#include <config.h>
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
 #include "utils/screen_reader.hpp"
-#include "utils/utf8.h"
 #include "diabloui.h"
 #include "plrctrls.h"
 #include "storm/storm_cfg.h"
@@ -20,7 +18,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 #include <gperftools/heap-profiler.h>
 #endif
-static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
 
 /** The pseudo random seeds to generate the levels. */
 uint32_t glSeedTbl[NUM_LEVELS];
@@ -651,6 +648,8 @@ static void ReleaseKey(int vkey)
 			ReleaseLvlBtn();
 		if (stextflag != STORE_NONE)
 			ReleaseStoreBtn();
+		if (gbTalkflag)
+			plrmsg_HandleMouseReleaseEvent();
 		gbDragWnd = WND_NONE;
 	} else if (vkey == DVL_VK_SNAPSHOT) {
 		CaptureScreen();
@@ -1019,20 +1018,7 @@ static void PressKey(int vkey)
 		CalcViewportGeometry();
 		break;
 	case ACT_VER:
-		EventPlrMsg(gszProductName);
-		if (!(SDL_GetModState() & KMOD_SHIFT)) {
-			if (!IsLocalGame) {
-				EventPlrMsg(szGameName);
-				if (szGamePassword[0] != '\0') {
-					char desc[128];
-					snprintf(desc, sizeof(desc), "password: %s", szGamePassword);
-					EventPlrMsg(desc);
-				}
-			}
-		} else {
-			const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
-			EventPlrMsg(difficulties[gnDifficulty]);
-		}
+		VersionPlrMsg();
 		break;
 	case ACT_HELP:
 		if (gbHelpflag) {
@@ -1066,20 +1052,6 @@ static void PressKey(int vkey)
 #endif
 	default:
 		ASSUME_UNREACHABLE
-	}
-}
-
-/**
- * @internal `return` must be used instead of `break` to be bin exact as C++
- */
-static void PressChar(WPARAM vkey)
-{
-	if (gmenu_is_active()) {
-		return;
-	}
-	if (gbTalkflag) {
-		if (plrmsg_presschar(vkey))
-			return;
 	}
 }
 
@@ -1143,14 +1115,17 @@ static void GameWndProc(const Dvl_Event* e)
 	case DVL_WM_KEYUP:
 		ReleaseKey(e->vkcode);
 		return;
-	case DVL_WM_TEXT: {
+	case DVL_WM_TEXT:
 #ifndef USE_SDL1
-		char* output = utf8_to_latin1(e->text.text);
-		int key = (unsigned char)output[0];
-		mem_free_dbg(output);
-		PressChar(key);
+		if (gmenu_is_active()) {
+			return;
+		}
+		if (gbTalkflag) {
+			plrmsg_CatToText(e->text.text);
+			return;
+		}
 #endif
-	} return;
+		return;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
 	//		return;
@@ -1171,6 +1146,8 @@ static void GameWndProc(const Dvl_Event* e)
 			gmenu_on_mouse_move();
 		else if (gbDragWnd != WND_NONE)
 			DoWndDrag();
+		else if (gbTalkflag)
+			plrmsg_HandleMouseMoveEvent();
 		return;
 	case DVL_WM_LBUTTONDOWN:
 		//GetMousePos(wParam); -- disabled to prevent inconsistent MousePos.x/y vs. CheckCursMove state
