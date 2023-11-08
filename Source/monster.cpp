@@ -2107,7 +2107,10 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].maFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 7)); // HEAL_SPEED
+	static_assert((SQUELCH_MAX - SQUELCH_LOW) >= 16 * 8, "MonStartHeal might relax while healing.");
+	// assert(mon->_msquelch == SQUELCH_MAX);
+	// assert(mon->_mmaxhp >= 2 * 64);
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(5, 8)); // HEAL_SPEED
 }
 
 static bool MonDoStand(int mnum)
@@ -3573,6 +3576,7 @@ void MAI_Garg(int mnum)
 #endif
 			mon->_mgoal = MGOAL_RETREAT;
 	if (mon->_mgoal == MGOAL_RETREAT) {
+		mon->_msquelch = SQUELCH_MAX;
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= mon->_mAI.aiInt + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
