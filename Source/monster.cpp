@@ -3298,8 +3298,7 @@ void MAI_Cleaver(int mnum)
 void MAI_Round(int mnum)
 {
 	MonsterStruct* mon;
-	int md;
-	int dist, v;
+	int md, dist, v;
 
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)
@@ -3548,7 +3547,7 @@ void MAI_Garg(int mnum)
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
 			// wake up if the enemy is close
-			static_assert(DBORDERX + DBORDERY > (5 + 2) * 2, "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0).");
+			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0)."); // (_menemyx;_menemyy)
 			if (dist < mon->_mAI.aiInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
