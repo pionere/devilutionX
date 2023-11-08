@@ -2580,7 +2580,7 @@ static bool MonDoDelay(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 	mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 
-	if (mon->_mVar2-- == 0) { // DELAY_TICK
+	if (mon->_mVar2-- <= 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
 		mon->_mVar1 = MM_DELAY; // STAND_PREV_MODE
 		// MonFindEnemy(mnum);
@@ -3104,14 +3104,16 @@ void MAI_Sneak(int mnum)
 	dist = currEnemyInfo._meRealDist;
 	md = currEnemyInfo._meLastDir;
 	range = 7 - mon->_mAI.aiInt;
+	if (range < 4)
+		range = 4;
 	if (mon->_mgoal != MGOAL_RETREAT) {
 		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
 			mon->_mgoal = MGOAL_RETREAT;
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (7 + 2) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-			static_assert(12 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
-			mon->_mgoalvar1 = 9; // RETREAT_DISTANCE
+			static_assert(12 * (7 + 2) < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
+			mon->_mgoalvar1 = range + 2; // RETREAT_DISTANCE
 		}
 	} else {
 		if (dist > range || --mon->_mgoalvar1 == 0) { // RETREAT_DISTANCE
@@ -3128,8 +3130,7 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	v = random_(112, 100);
 	range -= 2;
-	if (range < 2)
-		range = 2;
+	// assert(range >= 2);
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadein(mnum, mon->_mdir, false);
 	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
@@ -3211,19 +3212,22 @@ void MAI_Fallen(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
+			rad = mon->_mAI.aiInt;
 			//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
-				rad = mon->_mhitpoints + 2 * mon->_mAI.aiInt + 2;
-				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
+				amount = mon->_mhitpoints + 2 * rad + 2;
+				mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
 			//}
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 			assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert((2 * 5 + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-			amount = 2 * mon->_mAI.aiInt + 8;
-			rad = 2 * mon->_mAI.aiInt + 4;
+			if (rad > 5) {
+				rad = 5;
+			}
+			amount = 2 * rad + 8;
+			rad = 2 * rad + 4;
 			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 5 + 4, "MAI_Fallen expects a large enough border.");
-			assert(rad <= DBORDERX);
 			mx = mon->_mx;
 			my = mon->_my;
 			for (y = -rad; y <= rad; y++) {
@@ -3370,8 +3374,9 @@ void MAI_Ranged(int mnum)
 				walking = MonCallWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 		if (!walking) {
-			md = random_low(118, 20 - mon->_mAI.aiInt); // STAND_PREV_MODE
-			if (mon->_mVar1 == MM_DELAY || md == 0) {
+			md = std::max(1, 20 - mon->_mAI.aiInt);
+			md = random_low(118, md); // STAND_PREV_MODE
+			if (md == 0 || mon->_mVar1 == MM_DELAY) {
 				if (EnemyInLine(mnum)) {
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
@@ -3547,7 +3552,7 @@ void MAI_Garg(int mnum)
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
 			// wake up if the enemy is close
-			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0)."); // (_menemyx;_menemyy)
+			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is usually 'far' from (0;0)."); // (_menemyx;_menemyy)
 			if (dist < mon->_mAI.aiInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
@@ -3648,7 +3653,8 @@ void MAI_RoundRanged(int mnum)
 			MonStartAttack(mnum);
 		}
 		if (mon->_mmode == MM_STAND) {
-			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+			v = std::max(1, RandRange(6, 13) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
 		}
 	}
 }
@@ -3992,7 +3998,8 @@ void MAI_Counselor(int mnum)
 			}
 		}
 		if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
-			MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
+			v = std::max(1, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		if (--mon->_mgoalvar1 != 0) // RETREAT_DISTANCE
