@@ -609,7 +609,7 @@ typedef struct MonsterData {
 	MonsterAI mAI;
 	uint16_t mMinHP;
 	uint16_t mMaxHP;
-	int mFlags;       // _monster_flag
+	unsigned mFlags;  // _monster_flag
 	uint16_t mHit;    // hit chance (melee+projectile)
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
@@ -657,7 +657,7 @@ typedef struct MapMonData {
 	BYTE cmLevel;
 	BYTE cmSelFlag;
 	MonsterAI cmAI;
-	int cmFlags;
+	unsigned cmFlags;  // _monster_flag
 	uint16_t cmHit;    // hit chance (melee+projectile)
 	BYTE cmMinDamage;
 	BYTE cmMaxDamage;
@@ -742,7 +742,7 @@ typedef struct MonsterStruct {
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	MonsterAI _mAI;
-	int _mFlags;       // _monster_flag
+	unsigned _mFlags;  // _monster_flag
 	uint16_t _mHit;    // hit chance (melee+projectile)
 	BYTE _mMinDamage;
 	BYTE _mMaxDamage;
@@ -788,8 +788,8 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	uint16_t mMagicRes;  // _monster_resistance
-	uint16_t mMagicRes2; // _monster_resistance
+	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties (_monster_resistance)
+	uint16_t mMagicRes2; // resistances in hell difficulty (_monster_resistance)
 	BYTE mUnqFlags;// _uniq_monster_flag
 	BYTE mUnqHit;  // to-hit (melee+projectile) bonus
 	BYTE mUnqHit2; // to-hit (special melee attacks) bonus
@@ -1405,7 +1405,7 @@ typedef struct LSaveMonsterStruct {
 	BYTE vmAI_aiInt;    // MonsterAI.aiInt
 	BYTE vmAI_aiParam1; // MonsterAI.aiParam1
 	BYTE vmAI_aiParam2; // MonsterAI.aiParam2
-	LE_INT32 vmFlags;
+	LE_UINT32 vmFlags;
 	LE_UINT16 vmHit;    // hit chance (melee+projectile)
 	BYTE vmMinDamage;
 	BYTE vmMaxDamage;
@@ -1879,7 +1879,7 @@ typedef struct TSyncLvlMonster {
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
 	//BYTE falign_CB;
-	LE_INT32 smFlags;
+	LE_UINT32 smFlags;
 } TSyncLvlMonster;
 
 typedef struct TSyncLvlMissile {
@@ -2146,7 +2146,7 @@ typedef struct SetPieceData {
 //////////////////////////////////////////////////
 
 typedef struct QuestStruct {
-	BYTE _qactive;
+	BYTE _qactive; // quest_state
 	BYTE _qvar1; // quest parameter which is synchronized with the other players
 	BYTE _qvar2; // quest parameter which is NOT synchronized with the other players
 	BOOLEAN _qlog;
