@@ -418,13 +418,10 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum)
 	mon->_mMaxDamage2 = savedMon->vmMaxDamage2;
 
 	mon->_mMagic = savedMon->vmMagic;
-	mon->_mMagic2 = savedMon->vmMagic2; // unused
 	mon->_mArmorClass = savedMon->vmArmorClass;
 	mon->_mEvasion = savedMon->vmEvasion;
 
 	mon->_mMagicRes = savedMon->vmMagicRes;
-	// mon->_mAlign_1 = savedMon->vmAlign_1;
-
 	mon->_mExp = savedMon->vmExp;
 #else
 	// preserve AnimData, AnimFrameLen and Name members for towners to prevent the need for SyncTownerAnim
@@ -1284,13 +1281,10 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum, bool full)
 	monSave->vmMaxDamage2 = mon->_mMaxDamage2;
 
 	monSave->vmMagic = mon->_mMagic;
-	monSave->vmMagic2 = mon->_mMagic2;
 	monSave->vmArmorClass = mon->_mArmorClass;
 	monSave->vmEvasion = mon->_mEvasion;
 
 	monSave->vmMagicRes = mon->_mMagicRes;
-	// monSave->vmAlign_1 = mon->_mName;
-
 	monSave->vmExp = mon->_mExp;
 #else
 	static_assert(sizeof(LSaveMonsterStruct) == offsetof(LSaveMonsterStruct, vmExp) + sizeof(monSave->vmExp)

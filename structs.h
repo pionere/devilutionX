@@ -657,33 +657,31 @@ typedef struct MapMonData {
 	BYTE cmLevel;
 	BYTE cmSelFlag;
 	MonsterAI cmAI;
-	unsigned cmFlags;  // _monster_flag
-	uint16_t cmHit;    // hit chance (melee+projectile)
-	BYTE cmMinDamage;
-	BYTE cmMaxDamage;
-	uint16_t cmHit2;   // hit chance of special melee attacks
-	BYTE cmMinDamage2;
-	BYTE cmMaxDamage2;
-	BYTE cmMagic;      // hit chance of magic-projectile
-	BYTE cmMagic2;     // unused
-	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE cmEvasion;    // evasion: used against magic-projectile
-	uint16_t cmMagicRes;  // resistances of the monster
-	uint16_t cmAlign_1; // unused
+	unsigned cmFlags;    // _monster_flag
+	int cmHit;           // hit chance (melee+projectile)
+	int cmMinDamage;
+	int cmMaxDamage;
+	int cmHit2;          // hit chance of special melee attacks
+	int cmMinDamage2;
+	int cmMaxDamage2;
+	int cmMagic;         // hit chance of magic-projectile
+	int cmArmorClass;    // AC+evasion: used against physical-hit (melee+projectile)
+	int cmEvasion;       // evasion: used against magic-projectile
+	unsigned cmMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned cmExp;
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	uint16_t cmAlign_0; // unused
-	uint16_t cmMinHP;
-	uint16_t cmMaxHP;
-	ALIGNMENT32(31)
+	int cmMinHP;
+	int cmMaxHP;
+	ALIGNMENT(24, 17);
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 640, "Align MapMonData closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 #pragma pack(pop)
 typedef struct MonsterStruct {
@@ -742,19 +740,17 @@ typedef struct MonsterStruct {
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	MonsterAI _mAI;
-	unsigned _mFlags;  // _monster_flag
-	uint16_t _mHit;    // hit chance (melee+projectile)
-	BYTE _mMinDamage;
-	BYTE _mMaxDamage;
-	uint16_t _mHit2;   // hit chance of special melee attacks
-	BYTE _mMinDamage2;
-	BYTE _mMaxDamage2;
-	BYTE _mMagic;      // hit chance of magic-projectile
-	BYTE _mMagic2;     // unused
-	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE _mEvasion;    // evasion: used against magic-projectile
-	uint16_t _mMagicRes;  // resistances of the monster (_monster_resistance)
-	uint16_t _mAlign_1; // unused
+	unsigned _mFlags;    // _monster_flag
+	int _mHit;           // hit chance (melee+projectile)
+	int _mMinDamage;
+	int _mMaxDamage;
+	int _mHit2;          // hit chance of special melee attacks
+	int _mMinDamage2;
+	int _mMaxDamage2;
+	int _mMagic;         // hit chance of magic-projectile
+	int _mArmorClass;    // AC+evasion: used against physical-hit (melee+projectile)
+	int _mEvasion;       // evasion: used against magic-projectile
+	unsigned _mMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
@@ -763,7 +759,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
-	ALIGNMENT(12, 7)
+	ALIGNMENT(6, 1)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1406,18 +1402,16 @@ typedef struct LSaveMonsterStruct {
 	BYTE vmAI_aiParam1; // MonsterAI.aiParam1
 	BYTE vmAI_aiParam2; // MonsterAI.aiParam2
 	LE_UINT32 vmFlags;
-	LE_UINT16 vmHit;    // hit chance (melee+projectile)
-	BYTE vmMinDamage;
-	BYTE vmMaxDamage;
-	LE_UINT16 vmHit2;   // hit chance of special melee attacks
-	BYTE vmMinDamage2;
-	BYTE vmMaxDamage2;
-	BYTE vmMagic;      // hit chance of magic-projectile
-	BYTE vmMagic2;     // unused
-	BYTE vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE vmEvasion;    // evasion: used against magic-projectile
-	LE_UINT16 vmMagicRes;  // resistances of the monster
-	LE_UINT16 vmAlign_1; // unused
+	LE_INT32 vmHit;    // hit chance (melee+projectile)
+	LE_INT32 vmMinDamage;
+	LE_INT32 vmMaxDamage;
+	LE_INT32 vmHit2;   // hit chance of special melee attacks
+	LE_INT32 vmMinDamage2;
+	LE_INT32 vmMaxDamage2;
+	LE_INT32 vmMagic;      // hit chance of magic-projectile
+	LE_INT32 vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	LE_INT32 vmEvasion;    // evasion: used against magic-projectile
+	LE_UINT32 vmMagicRes;  // resistances of the monster
 	LE_UINT32 vmExp;
 } LSaveMonsterStruct;
 

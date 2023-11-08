@@ -329,7 +329,6 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinDamage2 = mdata->mMinDamage2;
 	cmon->cmMaxDamage2 = mdata->mMaxDamage2;
 	cmon->cmMagic = mdata->mMagic;
-	cmon->cmMagic2 = mdata->mMagic2;
 	cmon->cmArmorClass = mdata->mArmorClass;
 	cmon->cmEvasion = mdata->mEvasion;
 	cmon->cmMagicRes = mdata->mMagicRes;
@@ -348,7 +347,6 @@ static void InitMonsterStats(int midx)
 		cmon->cmMinDamage = 2 * (cmon->cmMinDamage + 2);
 		cmon->cmMaxDamage = 2 * (cmon->cmMaxDamage + 2);
 		cmon->cmHit2 += NIGHTMARE_TO_HIT_BONUS;
-		//cmon->cmMagic2 += NIGHTMARE_MAGIC_BONUS;
 		cmon->cmMinDamage2 = 2 * (cmon->cmMinDamage2 + 2);
 		cmon->cmMaxDamage2 = 2 * (cmon->cmMaxDamage2 + 2);
 		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
@@ -363,7 +361,6 @@ static void InitMonsterStats(int midx)
 		cmon->cmMinDamage = 4 * cmon->cmMinDamage + 6;
 		cmon->cmMaxDamage = 4 * cmon->cmMaxDamage + 6;
 		cmon->cmHit2 += HELL_TO_HIT_BONUS;
-		//cmon->cmMagic2 += HELL_MAGIC_BONUS;
 		cmon->cmMinDamage2 = 4 * cmon->cmMinDamage2 + 6;
 		cmon->cmMaxDamage2 = 4 * cmon->cmMaxDamage2 + 6;
 		cmon->cmArmorClass += HELL_AC_BONUS;
@@ -598,7 +595,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMinDamage2 = cmon->cmMinDamage2;
 	mon->_mMaxDamage2 = cmon->cmMaxDamage2;
 	mon->_mMagic = cmon->cmMagic;
-	mon->_mMagic2 = cmon->cmMagic2;
 	mon->_mArmorClass = cmon->cmArmorClass;
 	mon->_mEvasion = cmon->cmEvasion;
 	mon->_mMagicRes = cmon->cmMagicRes;
@@ -624,11 +620,9 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mMinDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMinDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XII.");
 	static_assert(offsetof(MonsterStruct, _mMaxDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMaxDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIII.");
 	static_assert(offsetof(MonsterStruct, _mMagic) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIV.");
-	static_assert(offsetof(MonsterStruct, _mMagic2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XV.");
 	static_assert(offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVI.");
 	static_assert(offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVII.");
 	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
-	static_assert(offsetof(MonsterStruct, _mAlign_1) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_1) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
 	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
 	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
 	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
@@ -636,7 +630,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
 	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
 	memcpy(&mon->_mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
-	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
+	mon->_mhitpoints = mon->_mmaxhp = RandRange(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].maAnimData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].maFrameLen;

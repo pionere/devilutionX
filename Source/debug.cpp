@@ -210,35 +210,33 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
-		if (md.mHit > UINT16_MAX - HELL_TO_HIT_BONUS)
+#if DEBUG_MODE
+		if (md.mHit > INT_MAX - HELL_TO_HIT_BONUS)
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
-		if (md.mHit2 > UINT16_MAX - HELL_TO_HIT_BONUS)
+		if (md.mHit2 > INT_MAX - HELL_TO_HIT_BONUS)
 			app_fatal("Too high mHit2 %d for %s (%d).", md.mHit2, md.mName, i);
-		if (md.mMagic > UINT8_MAX - HELL_MAGIC_BONUS)
+		if (md.mMagic > INT_MAX - HELL_MAGIC_BONUS)
 			app_fatal("Too high mMagic %d for %s (%d).", md.mMagic, md.mName, i);
 		if (md.mMinDamage > md.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for %s (%d).", md.mMinDamage, md.mName, i);
 		if (md.mMinDamage2 > md.mMaxDamage2)
 			app_fatal("Too high mMinDamage2 %d for %s (%d).", md.mMinDamage2, md.mName, i);
-		if (md.mMaxDamage * 4 > UINT8_MAX - 6)
+		if (md.mMaxDamage * 4 > INT_MAX - 6)
 			app_fatal("Too high mMaxDamage %d for %s (%d).", md.mMaxDamage, md.mName, i);
-		if (md.mMaxDamage2 * 4 > UINT8_MAX - 6)
+		if (md.mMaxDamage2 * 4 > INT_MAX - 6)
 			app_fatal("Too high mMaxDamage2 %d for %s (%d).", md.mMaxDamage2, md.mName, i);
-		if (md.mArmorClass > UINT8_MAX - HELL_AC_BONUS)
+		if (md.mArmorClass > INT_MAX - HELL_AC_BONUS)
 			app_fatal("Too high mArmorClass %d for %s (%d).", md.mArmorClass, md.mName, i);
-		if (md.mEvasion > UINT8_MAX - HELL_EVASION_BONUS)
+		if (md.mEvasion > INT_MAX - HELL_EVASION_BONUS)
 			app_fatal("Too high mEvasion %d for %s (%d).", md.mEvasion, md.mName, i);
 		if (md.mMinHP <= 0)
 			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
 		if (md.mMinHP > md.mMaxHP)
 			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
-		if (md.mMaxHP * 4 > UINT16_MAX - 200) // required by InitMonsterStats
+		if (md.mMaxHP * 4 > INT_MAX - 200) // required by InitMonsterStats
 			app_fatal("Too high mMaxHP %d for %s (%d)", md.mMaxHP, md.mName, i);
-		if ((md.mMaxHP - md.mMinHP) * 4 + 200 >= 0x7FFF) // required by InitMonster
-			app_fatal("Min/MaxHP range (%d-%d) too high for %s (%d)", md.mMinHP, md.mMaxHP, md.mName, i);
 		if ((md.mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / 4))
 			app_fatal("Too high mExp %d for %s (%d)", md.mExp, md.mName, i);
-#if DEBUG_MODE
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
 		for (int j = 0; j < 8; j++, res >>= 2, resH >>= 2) {
@@ -338,29 +336,29 @@ void ValidateData()
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqFlags & UMF_LEADER) != 0 && ((um.mUnqFlags & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
-		if (um.mUnqHit + monsterdata[um.mtype].mHit > UINT16_MAX - HELL_TO_HIT_BONUS) // required by InitUniqueMonster
+#if DEBUG_MODE
+		if (um.mUnqHit + monsterdata[um.mtype].mHit > INT_MAX - HELL_TO_HIT_BONUS) // required by InitUniqueMonster
 			app_fatal("Too high mUnqHit %d for %s (%d).", um.mUnqHit, um.mName, i);
-		if (um.mUnqHit2 + monsterdata[um.mtype].mHit2 > UINT16_MAX - HELL_TO_HIT_BONUS) // required by InitUniqueMonster
+		if (um.mUnqHit2 + monsterdata[um.mtype].mHit2 > INT_MAX - HELL_TO_HIT_BONUS) // required by InitUniqueMonster
 			app_fatal("Too high mUnqHit2 %d for %s (%d).", um.mUnqHit2, um.mName, i);
-		if (um.mUnqMag + monsterdata[um.mtype].mMagic > UINT8_MAX - HELL_MAGIC_BONUS) // required by InitUniqueMonster
+		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX - HELL_MAGIC_BONUS) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
 		if (um.mMinDamage > um.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for unique monster %s (%d).", um.mMinDamage, um.mName, i);
 		if (um.mMinDamage2 > um.mMaxDamage2)
 			app_fatal("Too high mMinDamage2 %d for unique monster %s (%d).", um.mMinDamage2, um.mName, i);
-		if (md.mMaxDamage * 4 > UINT8_MAX - 6) // required by InitUniqueMonster
+		if (md.mMaxDamage * 4 > INT_MAX - 6) // required by InitUniqueMonster
 			app_fatal("Too high mMaxDamage %d for unique monster %s (%d).", um.mMaxDamage, um.mName, i);
-		if (md.mMaxDamage2 * 4 > UINT8_MAX - 6) // required by InitUniqueMonster
+		if (md.mMaxDamage2 * 4 > INT_MAX - 6) // required by InitUniqueMonster
 			app_fatal("Too high mMaxDamage2 %d for unique monster %s (%d).", um.mMaxDamage2, um.mName, i);
-		if (um.mUnqAC + monsterdata[um.mtype].mArmorClass > UINT8_MAX - HELL_AC_BONUS) // required by InitUniqueMonster
+		if (um.mUnqAC + monsterdata[um.mtype].mArmorClass > INT_MAX - HELL_AC_BONUS) // required by InitUniqueMonster
 			app_fatal("Too high mUnqAC %d for %s (%d).", um.mUnqAC, um.mName, i);
-		if (um.mUnqEva + monsterdata[um.mtype].mEvasion > UINT8_MAX - HELL_EVASION_BONUS) // required by InitUniqueMonster
+		if (um.mUnqEva + monsterdata[um.mtype].mEvasion > INT_MAX - HELL_EVASION_BONUS) // required by InitUniqueMonster
 			app_fatal("Too high mUnqEva %d for %s (%d).", um.mUnqEva, um.mName, i);
 		if (um.mmaxhp < 2) // required by InitUniqueMonster
 			app_fatal("Too low mmaxhp %d for unique monster %s (%d).", um.mmaxhp, um.mName, i);
 		if ((monsterdata[um.mtype].mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * 2))) // required by InitUniqueMonster
 			app_fatal("Too high mExp %d for unique monster %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
-#if DEBUG_MODE
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {

@@ -3551,7 +3551,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mMinDamage2,
 	mon->_mMaxDamage2,
 	mon->_mMagic,
-	mon->_mMagic2,     // unused
 	mon->_mArmorClass, // AC+evasion: used against physical-hit (melee+projectile)
 	mon->_mEvasion,    // evasion: used against magic-projectile
 	mon->_mAFNum,
