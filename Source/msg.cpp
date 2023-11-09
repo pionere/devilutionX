@@ -993,10 +993,7 @@ void DeltaLoadLevel()
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
 					assert(mon->_mlid == NO_LIGHT);
-					// TODO: InitSummonedMonster ?
-					SetRndSeed(glSeedTbl[i % NUM_LEVELS]);
-					InitMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mx, mon->_my);
-					mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+					InitSummonedMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mx, mon->_my);
 					if (!monInGame)
 						nummonsters++;
 				}

@@ -708,6 +708,14 @@ void WakeNakrul()
 }
 #endif
 
+void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y)
+{
+	static_assert(DLV_TOWN == 0, "InitSummonedMonster skips the first entry glSeedTbl assuming the 'dynamic' seed is stored there.");
+	SetRndSeed(glSeedTbl[(mnum % NUM_LEVELS) + 1]);
+	InitMonster(mnum, dir, mtidx, x, y);
+	monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+}
+
 int SummonMonster(int x, int y, int dir, int mtidx)
 {
 	unsigned mnum;
@@ -718,10 +726,7 @@ int SummonMonster(int x, int y, int dir, int mtidx)
 
 		nummonsters++;
 		dMonster[x][y] = mnum + 1;
-		// TODO: InitSummonedMonster ?
-		SetRndSeed(glSeedTbl[mnum % NUM_LEVELS]);
-		InitMonster(mnum, dir, mtidx, x, y);
-		monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+		InitSummonedMonster(mnum, dir, mtidx, x, y);
 		NetSendCmdMonstSummon(mnum);
 		return mnum;
 	}
