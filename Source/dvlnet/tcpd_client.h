@@ -39,7 +39,7 @@ private:
 	asio::steady_timer connTimer = asio::steady_timer(ioc);
 	tcp_server::scc nextcon;
 	tcp_server::scc pending_connections[MAX_PLRS] = { };
-	tcp_server::scc connections[MAX_PLRS] = { };
+	tcp_server::scc active_connections[MAX_PLRS] = { };
 
 	void start_timeout();
 	void handle_timeout(const asio::error_code& ec);

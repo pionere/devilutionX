@@ -64,7 +64,7 @@ private:
 	packet_factory pktfty;
 	scc nextcon;
 	scc pending_connections[MAX_PLRS] = { };
-	scc connections[MAX_PLRS] = { };
+	scc active_connections[MAX_PLRS] = { };
 	buffer_t game_init_info;
 	unsigned serverType;
 
