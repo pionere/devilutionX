@@ -233,9 +233,9 @@ void ValidateData()
 			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
 		if (md.mMinHP > md.mMaxHP)
 			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
-		if (md.mMaxHP * 4 > INT_MAX - 200) // required by InitMonsterStats
+		if (md.mMaxHP * 4 > (INT_MAX - 200) / (MAX_PLRS / 2 + 1)) // required by InitMonsterStats
 			app_fatal("Too high mMaxHP %d for %s (%d)", md.mMaxHP, md.mName, i);
-		if ((md.mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / 4))
+		if ((md.mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * (MAX_PLRS / 2 + 1)))) // required by InitMonsterStats
 			app_fatal("Too high mExp %d for %s (%d)", md.mExp, md.mName, i);
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
@@ -355,9 +355,9 @@ void ValidateData()
 			app_fatal("Too high mUnqAC %d for %s (%d).", um.mUnqAC, um.mName, i);
 		if (um.mUnqEva + monsterdata[um.mtype].mEvasion > INT_MAX - HELL_EVASION_BONUS) // required by InitUniqueMonster
 			app_fatal("Too high mUnqEva %d for %s (%d).", um.mUnqEva, um.mName, i);
-		if (um.mmaxhp < 2) // required by InitUniqueMonster
-			app_fatal("Too low mmaxhp %d for unique monster %s (%d).", um.mmaxhp, um.mName, i);
-		if ((monsterdata[um.mtype].mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * 2))) // required by InitUniqueMonster
+		if (md.mmaxhp * 4 > (INT_MAX - 200) / (MAX_PLRS / 2 + 1)) // required by InitUniqueMonster
+			app_fatal("Too high mmaxhp %d for %s (%d)", um.mmaxhp, um.mName, i);
+		if ((monsterdata[um.mtype].mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * (MAX_PLRS / 2 + 1) * 2))) // required by InitUniqueMonster
 			app_fatal("Too high mExp %d for unique monster %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;

@@ -1606,6 +1606,13 @@ typedef struct TCmdBParam2 {
 	BYTE bParam2;
 } TCmdBParam2;
 
+typedef struct TCmdNewLvl {
+	BYTE bCmd;
+	BYTE bPlayers;
+	BYTE bFom;
+	BYTE bLevel;
+} TCmdNewLvl;
+
 typedef struct TCmdItemOp {
 	BYTE bCmd;
 	BYTE ioIdx;
@@ -2032,7 +2039,7 @@ typedef struct DeltaData {
 			LocalLevel ddLocal[NUM_LEVELS]; // automap
 			DJunk ddJunk;                   // portals and quests
 			DLevel ddLevel[NUM_LEVELS];     // items/monsters/objects
-			bool ddLevelChanged[NUM_LEVELS];
+			BYTE ddLevelPlrs[NUM_LEVELS];   // the number of players when the level was 'initialized'
 			bool ddJunkChanged;
 
 			LargeMsgPkt ddSendRecvPkt; // Buffer to send/receive delta info
@@ -2069,11 +2076,12 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 
 typedef struct LevelStruct {
-	BYTE _dLevelIdx;  // index in AllLevels
-	BOOLEAN _dSetLvl; // cached flag if the level is a set-level
-	BYTE _dLevel;     // cached difficulty value of the level
-	BYTE _dType;      // cached type of the level
-	BYTE _dDunType;   // cached type of the dungeon
+	BYTE _dLevelIdx;   // index in AllLevels
+	BOOLEAN _dSetLvl;  // cached flag if the level is a set-level
+	BYTE _dLevel;      // cached difficulty value of the level
+	BYTE _dType;       // cached type of the level
+	BYTE _dDunType;    // cached type of the dungeon
+	BYTE _dLevelPlyrs; // cached number of players when the level was 'initialized'
 } LevelStruct;
 
 typedef struct LevelFileData {

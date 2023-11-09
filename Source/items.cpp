@@ -2049,7 +2049,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;
 	} else {
-		if (random_(24, 128) > 51)
+		if (random_(24, 128) > (47 + currLvl._dLevelPlyrs * 4))
 			return;
 		idx = RndAllItems(mon->_mLevel);
 	}

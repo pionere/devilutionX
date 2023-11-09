@@ -98,6 +98,11 @@ void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);
 void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value);
 void SendStoreCmd2(BYTE bStoreId);
+/** Initiate level change.
+ * @param fom: the type of the level-change (window_messages)
+ * @param bLevel: the destination level
+ */
+void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
 void NetSendCmdString(unsigned int pmask);
 void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel);
 void delta_close_portal(int i);

@@ -238,8 +238,10 @@ static void DeltaImportLevel()
 	// level-index
 	bLvl = *src;
 	src++;
-
-	gsDeltaData.ddLevelChanged[bLvl] = true;
+	// the number of players
+	gsDeltaData.ddLevelPlrs[bLvl] = *src;
+	src++;
+	net_assert(gsDeltaData.ddLevelPlrs[bLvl] != 0);
 
 	// import items
 	item = gsDeltaData.ddLevel[bLvl].item;
@@ -377,7 +379,7 @@ void DeltaExportData(int pmask)
 
 	// levels
 	for (i = 0; i < lengthof(gsDeltaData.ddLevel); i++) {
-		if (!gsDeltaData.ddLevelChanged[i])
+		if (gsDeltaData.ddLevelPlrs[i] == 0)
 			continue;
 		dstEnd = DeltaExportLevel(i, buff->content);
 		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, (size_t)dstEnd - (size_t)buff->content);
@@ -490,7 +492,7 @@ done:
 void delta_init()
 {
 	//gsDeltaData.ddJunkChanged = false;
-	//memset(gsDeltaData.ddLevelChanged, 0, sizeof(gsDeltaData.ddLevelChanged));
+	//memset(gsDeltaData.ddLevelPlrs, 0, sizeof(gsDeltaData.ddLevelPlrs));
 	static_assert((int)DLV_TOWN == 0, "delta_init initializes the portal levels to zero, assuming none of the portals starts from the town.");
 	//memset(&gsDeltaData.ddJunk, 0, sizeof(gsDeltaData.ddJunk));
 	static_assert((int)DCMD_INVALID == 0, "delta_init initializes the items with zero, assuming the invalid command to be zero.");
@@ -500,6 +502,8 @@ void delta_init()
 	//memset(gsDeltaData.ddLocal, 0, sizeof(gsDeltaData.ddLocal));
 	//gsDeltaData.ddSendRecvOffset = 0;
 	memset(&gsDeltaData, 0, sizeof(gsDeltaData));
+	// ensure the entry-level is 'initialized'
+	gsDeltaData.ddLevelPlrs[DLV_TOWN] = 1;
 	assert(!deltaload);
 }
 
@@ -514,7 +518,7 @@ static void delta_monster_corpse(const TCmdBParam2* pCmd)
 	bLevel = pCmd->bParam1;
 	net_assert(bLevel < NUM_LEVELS);
 	// commented out, because dmCmd must be already set at this point
-	//gsDeltaData.ddLevelChanged[bLevel] = true;
+	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	net_assert(pCmd->bParam2 < MAXMONSTERS);
 	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->bParam2];
 	if (mon->dmCmd == DCMD_MON_DEAD)
@@ -536,7 +540,7 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 #else
 	net_assert(bLevel == SL_SKELKING);
 #endif
-	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	net_assert(pCmd->mnMnum >= MAX_MINIONS && pCmd->mnMnum < MAXMONSTERS);
 	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->mnMnum];
 	if (mon->dmCmd == DCMD_MON_ACTIVE)
@@ -571,7 +575,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	net_assert(bLevel < NUM_LEVELS);
 	net_assert(mnum < MAXMONSTERS);
 
-	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
 	static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_kill_monster expects ordered DCMD_MON_ enum I.");
 	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
@@ -599,7 +603,7 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 	net_assert(mon->mdMnum < MAXMONSTERS);
 
 	// commented out, because these changes are ineffective unless dmCmd is already set
-	//gsDeltaData.ddLevelChanged[bLevel] = true;
+	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mon->mdMnum];
 	static_assert(MAX_PLRS < 8, "delta_monster_hp uses BYTE mask for pnum.");
 	pD->dmWhoHit |= 1 << pnum;
@@ -617,13 +621,15 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	uint16_t wLen;
 	const TSyncMonster* pSync;
 	const BYTE* pbBuf;
+	BYTE bLevel;
 
 	assert(IsMultiGame);
 
-	net_assert(pHdr->bLevel < NUM_LEVELS);
+	bLevel = pHdr->bLevel;
+	net_assert(bLevel < NUM_LEVELS);
 
-	gsDeltaData.ddLevelChanged[pHdr->bLevel] = true;
-	pDLvlMons = gsDeltaData.ddLevel[pHdr->bLevel].monster;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	pDLvlMons = gsDeltaData.ddLevel[bLevel].monster;
 
 	pbBuf = (const BYTE*)&pHdr[1];
 	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
@@ -662,7 +668,7 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	bLevel = pG->goDunLevel;
 	net_assert(bLevel < NUM_LEVELS);
 
-	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
 	pD->dmCmd = DCMD_MON_ACTIVE;
 	pD->dmx = pG->goX;
@@ -693,7 +699,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 	net_assert(bLevel < NUM_LEVELS);
 	net_assert(oi < MAXOBJECTS);
 
-	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	gsDeltaData.ddLevel[bLevel].object[oi].bCmd = bCmd;
 }
 
@@ -710,6 +716,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 	net_assert(bLevel < NUM_LEVELS);
 
 	pD = gsDeltaData.ddLevel[bLevel].item;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID || !pI->item.PkItemEq(pD->item))
 			continue;
@@ -718,7 +725,6 @@ static bool delta_get_item(const TCmdGItem* pI)
 		case DCMD_ITM_TAKEN:
 			return false;
 		case DCMD_ITM_SPAWNED:
-			gsDeltaData.ddLevelChanged[bLevel] = true;
 			pD->bCmd = DCMD_ITM_TAKEN;
 			return true;
 		case DCMD_ITM_MOVED:
@@ -734,7 +740,6 @@ static bool delta_get_item(const TCmdGItem* pI)
 	}
 
 	if (pI->fromFloor) {
-		gsDeltaData.ddLevelChanged[bLevel] = true;
 		pD = gsDeltaData.ddLevel[bLevel].item;
 		for (i = 0; i < MAXITEMS; i++, pD++) {
 			if (pD->bCmd == DCMD_INVALID) {
@@ -761,7 +766,7 @@ static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	net_assert(bLevel < NUM_LEVELS);
 	// set out of loop to reduce the number of locals
 	// this might not change the level if there were MAXITEMS number of floor-items
-	gsDeltaData.ddLevelChanged[bLevel] = true;
+	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
@@ -2169,6 +2174,23 @@ void NetSendCmdMonstSummon(int mnum)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
+{
+	TCmdNewLvl cmd;
+
+	cmd.bCmd = CMD_NEWLVL;
+	cmd.bPlayers = 0;
+	cmd.bFom = fom;
+	cmd.bLevel = bLevel;
+	for (int i = 0; i < MAX_PLRS; i++) {
+		if (plx(i)._pActive) {
+			cmd.bPlayers++;
+		}
+	}
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;
@@ -2685,9 +2707,19 @@ static unsigned On_TALKXY(TCmd* pCmd, int pnum)
 
 static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
 {
-	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	TCmdNewLvl* cmd = (TCmdNewLvl*)pCmd;
+	BYTE bLevel, bPlayers;
+	
+	bLevel = cmd->bLevel;
+	bPlayers = cmd->bPlayers;
 
-	StartNewLvl(pnum, cmd->bParam1, cmd->bParam2);
+	net_assert(bLevel < NUM_LEVELS);
+	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
+	if (gsDeltaData.ddLevelPlrs[bLevel] == 0) {
+		gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
+	}
+
+	StartNewLvl(pnum, cmd->bFom, bLevel);
 
 	return sizeof(*cmd);
 }

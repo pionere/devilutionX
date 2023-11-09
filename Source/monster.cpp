@@ -368,16 +368,12 @@ static void InitMonsterStats(int midx)
 		cmon->cmMagicRes = monsterdata[cmon->cmType].mMagicRes2;
 	}
 
-	if (!IsMultiGame) {
-		cmon->cmMinHP >>= 1;
-		cmon->cmMaxHP >>= 1;
-		if (cmon->cmMinHP == 0) {
-			cmon->cmMinHP = 1;
-		}
-		if (cmon->cmMaxHP == 0) {
-			cmon->cmMaxHP = 1;
-		}
-	}
+	int mpl = currLvl._dLevelPlyrs;
+	// assert(mpl != 0);
+	mpl++;
+	cmon->cmMinHP = (cmon->cmMinHP * mpl) >> 1;
+	cmon->cmMaxHP = (cmon->cmMaxHP * mpl) >> 1;
+	cmon->cmExp = (cmon->cmExp * mpl) >> 1;
 }
 
 static bool IsSkel(int mt)
@@ -883,11 +879,15 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
 		mon->_mMagicRes = uniqm->mMagicRes2;
 	}
-	mon->_mmaxhp <<= 6;
-	if (!IsMultiGame) {
-		mon->_mmaxhp >>= 1;
-		// assert(mon->_mmaxhp >= 64);
-	}
+
+	int mpl = currLvl._dLevelPlyrs;
+	// assert(mpl != 0);
+	mpl++;
+	/*mon->_mmaxhp = (mon->_mmaxhp * mpl) >> 1;
+
+	mon->_mmaxhp <<= 6;*/
+	mon->_mmaxhp = (mon->_mmaxhp * mpl) << (6 - 1);
+
 	mon->_mhitpoints = mon->_mmaxhp;
 
 	if (uniqm->mUnqFlags & UMF_NODROP)

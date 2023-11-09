@@ -1786,7 +1786,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		net_assert(0);
 		ASSUME_UNREACHABLE
 	}
-	net_assert(lvl < NUM_LEVELS);
+	// net_assert(lvl < NUM_LEVELS);
 	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
 		PostMessage(fom);
