@@ -39,8 +39,10 @@ public:
 	static void connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec);
 
 private:
-	static constexpr int TIMEOUT_CONNECT = 30;
-	static constexpr int TIMEOUT_ACTIVE = 60;
+	static constexpr int TIMEOUT_BASE = 1;     // seconds between the timeout-checks
+	static constexpr int TIMEOUT_CONNECT = 30; // number of iterations before a pending connection timeouts
+	static constexpr int TIMEOUT_ACTIVE = 60;  // number of iterations before an active connection timeouts
+	static constexpr int WAIT_PENDING = 10;    // seconds to wait if there is no free connection
 	static constexpr int PORT_LENGTH = 5;
 	struct client_connection {
 		frame_queue recv_queue;

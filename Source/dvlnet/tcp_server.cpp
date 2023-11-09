@@ -223,7 +223,7 @@ void tcp_server::start_accept()
 		acceptor.async_accept(nextcon->socket, std::bind(&tcp_server::handle_accept, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
-		connTimer.expires_after(std::chrono::seconds(10));
+		connTimer.expires_after(std::chrono::seconds(WAIT_PENDING));
 		connTimer.async_wait(std::bind(&tcp_server::handle_accept, this, false, std::placeholders::_1));
 	}
 }
@@ -246,7 +246,7 @@ void tcp_server::handle_accept(bool valid, const asio::error_code& ec)
 
 void tcp_server::start_timeout()
 {
-	connTimer.expires_after(std::chrono::seconds(1));
+	connTimer.expires_after(std::chrono::seconds(TIMEOUT_BASE));
 	connTimer.async_wait(std::bind(&tcp_server::handle_timeout, this, std::placeholders::_1));
 }
 

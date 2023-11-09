@@ -77,7 +77,7 @@ void tcpd_client::poll()
 
 void tcpd_client::start_timeout()
 {
-	connTimer.expires_after(std::chrono::seconds(1));
+	connTimer.expires_after(std::chrono::seconds(tcp_server::TIMEOUT_BASE));
 	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this, std::placeholders::_1));
 }
 
@@ -170,7 +170,7 @@ void tcpd_client::start_accept_conn()
 		acceptor.async_accept(nextcon->socket, std::bind(&tcpd_client::handle_accept_conn, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
-		connTimer.expires_after(std::chrono::seconds(10));
+		connTimer.expires_after(std::chrono::seconds(tcp_server::WAIT_PENDING));
 		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn, this, false, std::placeholders::_1));
 	}
 }
