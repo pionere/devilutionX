@@ -193,6 +193,8 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 	// level-index
 	*dst = bLevel;
 	dst++;
+	*dst = gsDeltaData.ddLevelPlrs[bLevel];
+	dst++;
 
 	// export items
 	item = gsDeltaData.ddLevel[bLevel].item;
@@ -2176,14 +2178,9 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
 	TCmdNewLvl cmd;
 
 	cmd.bCmd = CMD_NEWLVL;
-	cmd.bPlayers = 0;
+	cmd.bPlayers = gbActivePlayers;
 	cmd.bFom = fom;
 	cmd.bLevel = bLevel;
-	for (int i = 0; i < MAX_PLRS; i++) {
-		if (plx(i)._pActive) {
-			cmd.bPlayers++;
-		}
-	}
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
