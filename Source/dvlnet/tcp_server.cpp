@@ -92,7 +92,7 @@ plr_t tcp_server::next_free_conn()
 	plr_t i;
 
 	for (i = 0; i < MAX_PLRS; i++)
-		if (active_connections[i] == NULL)
+		if (active_connections[i] == NULL && ghost_connections[i] == 0)
 			break;
 	return i < ((SNetGameData*)game_init_info.data())->ngMaxPlayers ? i : MAX_PLRS;
 }
@@ -257,6 +257,12 @@ void tcp_server::handle_timeout(const asio::error_code& ec)
 	if (ec)
 		return;
 
+	for (i = 0; i < MAX_PLRS; i++) {
+		int gc = ghost_connections[i];
+		if (gc != 0) {
+			ghost_connections[i] = gc - 1;
+		}
+	}
 	scc expired_connections[2 * MAX_PLRS] = { };
 	n = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -292,6 +298,7 @@ void tcp_server::drop_connection(const scc& con)
 		// live connection
 		if (active_connections[pnum] == con) {
 			active_connections[pnum] = NULL;
+			ghost_connections[pnum] = TIMEOUT_GHOST;
 			// notify the other clients
 			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, (leaveinfo_t)LEAVE_DROP);
 			send_packet(*pkt);
