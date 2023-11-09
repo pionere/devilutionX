@@ -2076,12 +2076,12 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 
 typedef struct LevelStruct {
-	BYTE _dLevelIdx;   // index in AllLevels
-	BOOLEAN _dSetLvl;  // cached flag if the level is a set-level
-	BYTE _dLevel;      // cached difficulty value of the level
-	BYTE _dType;       // cached type of the level
-	BYTE _dDunType;    // cached type of the dungeon
-	BYTE _dLevelPlyrs; // cached number of players when the level was 'initialized'
+	int _dLevelIdx;   // index in AllLevels (dungeon_level)
+	bool _dSetLvl;    // cached flag if the level is a set-level
+	int _dLevel;      // cached difficulty value of the level
+	int _dType;       // cached type of the level (dungeon_type)
+	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
+	int _dLevelPlyrs; // cached number of players when the level was 'initialized'
 } LevelStruct;
 
 typedef struct LevelFileData {
