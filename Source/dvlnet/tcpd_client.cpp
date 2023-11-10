@@ -329,7 +329,7 @@ void tcpd_client::start_recv()
 
 void tcpd_client::send_packet(packet& pkt)
 {
-	if (pkt.pktType() == PT_TURN) {
+	if (pkt.pktType() == PT_TURN && pkt.pktTurn() != 0) {
 		//plr_t dest = pkt.pktDest();
 		//plr_t src = plr_self; //pkt.pktSrc();
 
