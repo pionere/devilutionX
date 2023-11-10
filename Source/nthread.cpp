@@ -425,6 +425,7 @@ void nthread_finish(UINT uMsg)
 	assert(currLvl._dLevelIdx == myplr._pDunLevel);
 	currLvl._dLevelIdx = DLV_INVALID;
 #ifndef NONET
+	// "Network - Pending Turns" (13)
 	// process messages arrived during level-load
 	if (sghThread != NULL) {
 		nthread_process_pending_turns();
@@ -435,7 +436,7 @@ void nthread_finish(UINT uMsg)
 
 		nthread_process_pending_turns();
 	}
-	IncProgress();
+	IncProgress(); // "Network - Msg Queue" (14)
 #endif
 	// phase 6 end
 	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
@@ -446,7 +447,7 @@ void nthread_finish(UINT uMsg)
 			goto done;
 		}
 	}
-	IncProgress();
+	IncProgress(); // "Network - Join Level" (15)
 	// phase 7 end
 	// phase 8
 	NetSendCmdJoinLevel();
@@ -475,7 +476,7 @@ void nthread_finish(UINT uMsg)
 			break;
 		}
 	}
-	IncProgress();
+	IncProgress(); // "Network - Sync delta" (16)
 	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT
 	 || (gdwLastGameTurn >= guDeltaTurn && guDeltaTurn > lastGameTurn)); // TODO: overflow hickup
 	gdwLastGameTurn = lastGameTurn;
