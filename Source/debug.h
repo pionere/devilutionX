@@ -22,6 +22,8 @@ void ValidateData();
 
 #if DEV_MODE
 void LogErrorF(const char* type, const char* msg, ...);
+void LogErrorQ(const char* msg, ...);
+void LogDumpQ();
 #endif
 
 #ifdef __cplusplus

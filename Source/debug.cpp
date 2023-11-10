@@ -1176,6 +1176,47 @@ void LogErrorF(const char* type, const char* msg, ...)
 
 	fclose(f0);
 }
+
+std::vector<std::string> errorMsgQueue;
+void LogErrorQ(const char* msg, ...)
+{
+	char tmp[256];
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	errorMsgQueue.push_back(tmp);
+}
+
+void LogDumpQ()
+{
+	char tmp[256];
+	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
+	FILE* f0 = fopen(tmp, "a+");
+	if (f0 == NULL)
+		return;
+
+	for (const std::string &msg : errorMsgQueue) {
+		fputs(msg.c_str(), f0);
+		using namespace std::chrono;
+		milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+		//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+		snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+		fputs(tmp, f0);
+
+		fputc('\n', f0);
+	}
+
+	errorMsgQueue.clear();
+
+	fclose(f0);
+}
+
 #endif /* DEV_MODE */
 
 DEVILUTION_END_NAMESPACE
