@@ -436,8 +436,8 @@ void nthread_finish(UINT uMsg)
 
 		nthread_process_pending_turns();
 	}
-	IncProgress(); // "Network - Msg Queue" (14)
 #endif
+	IncProgress(); // "Network - Msg Queue" (14)
 	// phase 6 end
 	// phase 7 begin - clear queued outgoing messages (e.g. CMD_DEACTIVATEPORTAL)
 	for (int i = SNetGetTurnsInTransit(); i > 0; i--) {
