@@ -292,7 +292,7 @@ bool nthread_level_turn()
 				if (IsLocalGame) {
 					guSendLevelData = 0;
 					assert(mypnum == 0);
-					guReceivedLevelDelta = 1;
+					guOweLevelDelta = 0;
 				} else {
 					assert(mypnum < MAX_PLRS);
 					LevelDeltaExport();
@@ -453,8 +453,12 @@ void nthread_finish(UINT uMsg)
 	NetSendCmdJoinLevel();
 	// phase 9 begin - wait for join level replies
 	//   process only joinlevel commands and deltalevel/leave messages
-	assert(guReceivedLevelDelta == 0);
 	geBufferMsgs = MSG_LVL_DELTA_WAIT;
+	guOweLevelDelta = 1 << mypnum;
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr._pActive)
+			guOweLevelDelta |= 1 << pnum;
+	}
 	// TODO: delta_init_level_data ?
 	//memset(gsDeltaData.ddRecvLastCmd, NMSG_LVL_DELTA_END, sizeof(gsDeltaData.ddRecvLastCmd));
 	gsDeltaData.ddRecvLastCmd = NMSG_LVL_DELTA_END;
@@ -467,12 +471,7 @@ void nthread_finish(UINT uMsg)
 			// IncProgress();
 			goto done;
 		}
-		unsigned allPlayers = 0;
-		for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (plr._pActive)
-				allPlayers |= 1 << pnum;
-		}
-		if (allPlayers == guReceivedLevelDelta) {
+		if (guOweLevelDelta == 0) {
 			break;
 		}
 	}
@@ -536,8 +535,6 @@ done:
 	sgbPacketCountdown = 1; //gbNetUpdateRate;
 	// reset DeltaTurn to prevent turn-skips in case of turn_id-overflow
 	guDeltaTurn = 0;
-	// reset mask of received level-deltas
-	guReceivedLevelDelta = 0;
 	// reset geBufferMsgs to normal
 	geBufferMsgs = MSG_NORMAL;
 	plrmsg_delay(false);

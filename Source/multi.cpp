@@ -28,7 +28,7 @@ unsigned guSendGameDelta;
 /* Mask of pnum values who requested level delta. */
 unsigned guSendLevelData;
 /* Mask of pnum values from whom an (empty) level delta was received. */
-unsigned guReceivedLevelDelta;
+unsigned guOweLevelDelta;
 /* Timestamp of the level-delta requests to decide priority. */
 uint32_t guRequestLevelData[MAX_PLRS];
 /* Specifies whether the provider needs to be selected in the menu. */
@@ -254,7 +254,7 @@ void multi_deactivate_player(int pnum)
 		plr._pActive = FALSE;
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
-		guReceivedLevelDelta &= ~(1 << pnum);
+		guOweLevelDelta &= ~(1 << pnum);
 		guSendLevelData &= ~(1 << pnum);
 		guTeamMute &= ~(1 << pnum);
 		gbActivePlayers--;
@@ -418,7 +418,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
 }
 
-/* Same as multi_process_turn, but process only CMD_JOINLEVEL messages. */
+/* Same as multi_process_turn, but process only CMD_JOINLEVEL/CMD_DISCONNECT messages. */
 void multi_pre_process_turn(SNetTurnPkt* turn)
 {
 	TurnPktHdr* pkt;
@@ -443,7 +443,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		if (pkt->wLen != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
-		if (cmd->bCmd == CMD_JOINLEVEL) {
+		if (cmd->bCmd == CMD_JOINLEVEL || cmd->bCmd == CMD_DISCONNECT) {
 			ParseCmd(pnum, cmd);
 		}
 	}

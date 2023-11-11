@@ -21,7 +21,7 @@ extern BYTE gbGameMode;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;
 extern unsigned guSendLevelData;
-extern unsigned guReceivedLevelDelta;
+extern unsigned guOweLevelDelta;
 extern uint32_t guRequestLevelData[MAX_PLRS];
 extern uint32_t gdwLastGameTurn;
 extern uint32_t gdwGameLogicTurn;

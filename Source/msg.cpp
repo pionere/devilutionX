@@ -1184,7 +1184,7 @@ void LevelDeltaExport()
 #ifndef NONET
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!(guSendLevelData & (1 << pnum)) || // pnum did not request a level-delta
-//		  (guReceivedLevelDelta & (1 << pnum)) ||  // got an (empty) level delta from pnum
+//		  (guOweLevelDelta & (1 << pnum) == 0) || // got an (empty) level delta from pnum
 		  (!validDelta && !myplr._pLvlChanging   // both players are 'actively' loading
 		   && plr._pDunLevel == myplr._pDunLevel // the same level ->
 		   && (guRequestLevelData[pnum] > guRequestLevelData[mypnum] || (guRequestLevelData[pnum] == guRequestLevelData[mypnum] && pnum > mypnum)))) { // ignore lower priority requests 	TODO: overflow hickup
@@ -1781,7 +1781,7 @@ static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)
 {
 	LevelDeltaEnd* buf;
 
-	guReceivedLevelDelta |= 1 << pnum;
+	guOweLevelDelta &= ~(1 << pnum);
 
 	net_assert(cmd->tpHdr.wBytes == sizeof(cmd->tpData.compressed) + sizeof(LevelDeltaEnd));
 	static_assert(NET_COMP_MSG_SIZE > sizeof(LevelDeltaEnd), "LevelDeltaImportEnd does not decompress the final message.");
@@ -1793,7 +1793,7 @@ static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)
 
 	if (gsDeltaData.ddRecvLastCmd == NMSG_LVL_DELTA_END) {
 		//gbGameDeltaChunks = DELTA_ERROR_FAIL_1;
-		guReceivedLevelDelta &= ~(1 << pnum);
+		guOweLevelDelta |= 1 << pnum;
 		return; // lost or duplicated package -> ignore and expect a timeout
 	}
 
@@ -2167,7 +2167,7 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
 	TCmdNewLvl cmd;
 
 	cmd.bCmd = CMD_NEWLVL;
-	cmd.bPlayers = gbActivePlayers;
+	cmd.bPlayers = gbActivePlayers; // TODO: could be done in On_NEWLVL 
 	cmd.bFom = fom;
 	cmd.bLevel = bLevel;
 
@@ -3055,10 +3055,13 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 		guSendLevelData |= (1 << pnum);
 		guRequestLevelData[pnum] = gdwLastGameTurn;
 	//}
+	if (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
+		return sizeof(*cmd);
+	}
 	// should not be the case if priority is respected
 	net_assert(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel);
-	if (geBufferMsgs != MSG_LVL_DELTA_WAIT /*&&
-	 (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)*/) {
+	// if (geBufferMsgs != MSG_LVL_DELTA_WAIT &&
+	//// (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)) {
 		plr._pLvlChanging = FALSE;
 		//if (plr._pmode != PM_DEATH)
 			plr._pInvincible = 40;
@@ -3068,7 +3071,7 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 		plr._pDunLevel = cmd->lLevel;
 		plr._px = cmd->px;
 		plr._py = cmd->py;
-	}
+	// }
 
 	if (pnum != mypnum) {
 		if (!plr._pActive) {
@@ -3115,6 +3118,10 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 {
 	TCmd* cmd = (TCmd*)pCmd;
 
+	if (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
+		guOweLevelDelta &= ~(1 << pnum);
+		return sizeof(*cmd);
+	}
 	multi_deactivate_player(pnum);
 	if (pnum == mypnum)
 		gbRunGame = false;
