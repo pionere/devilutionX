@@ -444,6 +444,7 @@ void nthread_finish(UINT uMsg)
 		if (!nthread_level_turn()) {
 			// IncProgress();
 			// IncProgress();
+			// assert(!gbRunGame);
 			goto done;
 		}
 	}
@@ -466,13 +467,21 @@ void nthread_finish(UINT uMsg)
 	//gsDeltaData.ddSendRecvOffset = 0;
 	assert((gdwLastGameTurn * gbNetUpdateRate) == gdwGameLogicTurn);
 	lastGameTurn = gdwLastGameTurn;
+	tmp = 0;
 	while (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
 		if (!nthread_level_turn()) {
 			// IncProgress();
+			// assert(!gbRunGame);
 			goto done;
 		}
 		if (guOweLevelDelta == 0) {
 			break;
+		}
+		if (++tmp > NET_JOIN_TIMEOUT) {
+			app_warn("Unable to join level.");
+			gbRunGame = false;
+			// IncProgress();
+			goto done;
 		}
 	}
 	IncProgress(); // "Network - Sync delta" (16)
