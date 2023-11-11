@@ -711,7 +711,7 @@ void WakeNakrul()
 void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y)
 {
 	static_assert(DLV_TOWN == 0, "InitSummonedMonster skips the first entry glSeedTbl assuming the 'dynamic' seed is stored there.");
-	SetRndSeed(glSeedTbl[(mnum % NUM_LEVELS) + 1]);
+	SetRndSeed(glSeedTbl[(mnum % (NUM_LEVELS - 1)) + 1]);
 	InitMonster(mnum, dir, mtidx, x, y);
 	monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 }
