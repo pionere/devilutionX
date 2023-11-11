@@ -191,14 +191,14 @@ static void multi_parse_turns()
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 	multi_process_turn(turn);
 	MemFreeDbg(turn);
-
+#ifndef NONET
 	if (guSendGameDelta != 0) {
 		if (!gbJoinGame) {
 			DeltaExportData(guSendGameDelta);
 		}
 		guSendGameDelta = 0;
 	}
-
+#endif // !NONET
 	if (guSendLevelData != 0) {
 #ifndef NOHOSTING
 		if (mypnum < MAX_PLRS)
@@ -207,7 +207,7 @@ static void multi_parse_turns()
 			guSendLevelData = 0;
 #else
 			LevelDeltaExport();
-#endif // ! NOHOSTING
+#endif // !NOHOSTING
 	}
 }
 
@@ -722,7 +722,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 
 			if (dlgresult == SELHERO_PREVIOUS) {
 				// SErrSetLastError(1223);
+#ifndef NONET
 				if (bSinglePlayer)
+#endif
 					return false;
 				gbSelectProvider = true;
 				continue;
@@ -832,7 +834,9 @@ bool NetInit(bool bSinglePlayer)
 		}
 		nthread_run();
 		SetupLocalPlr();
+#ifndef NONET
 		if (!gbJoinGame)
+#endif
 			break;
 		multi_broadcast_plrinfo_msg();
 		if (DownloadDeltaInfo()) {
