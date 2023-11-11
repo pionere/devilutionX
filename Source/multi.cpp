@@ -21,8 +21,6 @@ static PkPlayerStruct netplr[MAX_PLRS];
 static bool sgbPackPlrTbl[MAX_PLRS];
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
-/* A table in which the leaving players are registered with the reason for the leaving. (LEAVE_) */
-static BYTE sgbPlayerLeftGameTbl[MAX_PLRS];
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -30,7 +28,7 @@ unsigned guSendGameDelta;
 /* Mask of pnum values who requested level delta. */
 unsigned guSendLevelData;
 /* Mask of pnum values from whom an (empty) level delta was received. */
-unsigned guReceivedLevelDelta;
+unsigned guOweLevelDelta;
 /* Timestamp of the level-delta requests to decide priority. */
 uint32_t guRequestLevelData[MAX_PLRS];
 /* Specifies whether the provider needs to be selected in the menu. */
@@ -232,7 +230,7 @@ void multi_disband_team(int team)
 	}
 }
 
-void multi_deactivate_player(int pnum, int reason)
+void multi_deactivate_player(int pnum)
 {
 	const char* pszFmt;
 
@@ -241,41 +239,25 @@ void multi_deactivate_player(int pnum, int reason)
 		multi_disband_team(pnum);
 		// ClearPlrMsg(pnum);
 		RemoveLvlPlayer(pnum);
-		if (reason != LEAVE_NONE) {
+		// if (reason != LEAVE_NONE) {
 			pszFmt = "Player '%s' left the game";
-			switch (reason) {
+			//switch (reason) {
 			//case LEAVE_NORMAL:
 			//	break;
-			case LEAVE_DROP:
-				pszFmt = "Player '%s' is disconnected";
-				break;
-			}
+			//case LEAVE_DROP:
+			//	pszFmt = "Player '%s' is disconnected";
+			//	break;
+			//}
 			EventPlrMsg(pszFmt, plr._pName);
-		}
+		// }
 		sgbPackPlrTbl[pnum] = false;
 		plr._pActive = FALSE;
 		guTeamInviteRec &= ~(1 << pnum);
 		guTeamInviteSent &= ~(1 << pnum);
-		guReceivedLevelDelta &= ~(1 << pnum);
+		guOweLevelDelta &= ~(1 << pnum);
 		guSendLevelData &= ~(1 << pnum);
 		guTeamMute &= ~(1 << pnum);
 		gbActivePlayers--;
-	}
-}
-
-static void multi_check_left_plrs()
-{
-	int i;
-
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (sgbPlayerLeftGameTbl[i] != LEAVE_NONE) {
-			if (geBufferMsgs == MSG_GAME_DELTA_LOAD)
-				msg_send_drop_plr(i, sgbPlayerLeftGameTbl[i]);
-			else
-				multi_deactivate_player(i, sgbPlayerLeftGameTbl[i]);
-
-			sgbPlayerLeftGameTbl[i] = LEAVE_NONE;
-		}
 	}
 }
 
@@ -431,13 +413,12 @@ void multi_process_turn(SNetTurnPkt* turn)
 		if (!plr._pActive && ((TCmd*)(pkt + 1))->bCmd != CMD_JOINLEVEL)
 			continue; // player is disconnected -> ignore the turn
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
-		//multi_check_left_plrs();
 	}
 	gdwLastGameTurn = turn->nmpTurn;
 	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
 }
 
-/* Same as multi_process_turn, but process only CMD_JOINLEVEL messages. */
+/* Same as multi_process_turn, but process only CMD_JOINLEVEL/CMD_DISCONNECT messages. */
 void multi_pre_process_turn(SNetTurnPkt* turn)
 {
 	TurnPktHdr* pkt;
@@ -462,7 +443,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		if (pkt->wLen != dwMsgSize)
 			continue;
 		TCmd* cmd = (TCmd*)(pkt + 1);
-		if (cmd->bCmd == CMD_JOINLEVEL) {
+		if (cmd->bCmd == CMD_JOINLEVEL || cmd->bCmd == CMD_DISCONNECT) {
 			ParseCmd(pnum, cmd);
 		}
 	}
@@ -477,10 +458,8 @@ void multi_process_msgs()
 	unsigned dwMsgSize, dwReadSize;
 	int pnum;
 
-	multi_check_left_plrs();
 	//multi_process_tmsgs();
 	while (SNetReceiveMessage(&pnum, (BYTE**)&pkt, &dwMsgSize)) {
-		multi_check_left_plrs();
 		if (dwMsgSize < sizeof(MsgPktHdr))
 			continue;
 		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
@@ -689,17 +668,13 @@ static void SetupLocalPlr()
 
 void multi_ui_handle_events(SNetEvent* pEvt)
 {
-	unsigned pnum, LeftReason;
+	unsigned pnum;
 
 	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
-	assert(pEvt->databytes == 1);
+	// assert(pEvt->databytes == 0);
 
-	LeftReason = pEvt->_eData[0];
 	pnum = pEvt->playerid;
-	if (pnum < MAX_PLRS) {
-		sgbPlayerLeftGameTbl[pnum] = LeftReason;
-	} else {
-		assert(pnum == SNPLAYER_MASTER);
+	if (pnum == SNPLAYER_MASTER) {
 		EventPlrMsg("Server is down");
 	}
 
@@ -835,8 +810,6 @@ bool NetInit(bool bSinglePlayer)
 		memset(players, 0, sizeof(players));
 		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
-		static_assert(LEAVE_NONE == 0, "NetInit uses memset to reset the LEAVE_ enum values.");
-		memset(sgbPlayerLeftGameTbl, 0, sizeof(sgbPlayerLeftGameTbl));
 		memset(sgbPackPlrTbl, false, sizeof(sgbPackPlrTbl));
 		memset(player_state, 0, sizeof(player_state));
 		guSendGameDelta = 0;

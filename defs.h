@@ -72,6 +72,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_MAX_GAMENAME_LEN    31
 #define NET_MAX_PASSWD_LEN      15
 #define MAX_SEND_STR_LEN		80
+// the number of turns to wait for level-deltas
+#define NET_JOIN_TIMEOUT        30
 
 #define DEAD_MULTI				0xFF
 #define MAXITEMS				127

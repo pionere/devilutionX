@@ -40,7 +40,7 @@ void base::disconnect_net(plr_t pnum)
 
 void base::recv_connect(packet& pkt)
 {
-	//	connected_table[pkt.pktConnectPlr()] = true; // this can probably be removed
+	//	connected_table[pkt.pktConnectPlr()] = CON_CONNECTED; // this can probably be removed
 }
 
 void base::recv_accept(packet& pkt)
@@ -63,7 +63,7 @@ void base::recv_accept(packet& pkt)
 		plr_self = PLR_BROADCAST;
 		return;
 	}
-	connected_table[plr_self] = true;
+	connected_table[plr_self] = CON_CONNECTED;
 #ifdef ZEROTIER
 	// we joined and did not create
 	game_init_info = buffer_t((BYTE*)&pkt_info, (BYTE*)&pkt_info + sizeof(SNetGameData));
@@ -76,50 +76,42 @@ void base::recv_accept(packet& pkt)
 	run_event_handler(ev);
 }
 
-void base::disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo)
+void base::disconnect_plr(plr_t pnum)
 {
 	SNetEvent ev;
 
 	ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
 	ev.playerid = pnum;
-	ev._eData = reinterpret_cast<BYTE*>(&leaveinfo);
-	ev.databytes = sizeof(leaveinfo);
+	ev.databytes = 0;
 
 	run_event_handler(ev);
 
 	if (pnum < MAX_PLRS) {
-		connected_table[pnum] = false;
-		turn_queue[pnum].clear();
+		connected_table[pnum] |= CON_LEAVING;
+		turn_queue[pnum].emplace_back(0, buffer_t());
 		disconnect_net(pnum);
 	}
-	message_queue.erase(std::remove_if(message_queue.begin(),
-	                        message_queue.end(),
-	                        [&](SNetMessage& msg) {
-		                        return msg.sender == pnum;
-	                        }),
-	    message_queue.end());
 }
 
 void base::recv_disconnect(packet& pkt)
 {
 	plr_t pkt_src = pkt.pktSrc();
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
-	leaveinfo_t leaveinfo = pkt.pktDisconnectInfo();
 
 	//if (pkt_plr == plr_self)
 	//	return; // ignore self-disconnects of hosts
 	if (pkt_plr != pkt_src && pkt_src != PLR_MASTER)
 		return; // ignore other players attempt to disconnect each other/server
-	if (pkt_plr < MAX_PLRS && connected_table[pkt_plr]) {
-		disconnect_plr(pkt_plr, leaveinfo);
+	if (pkt_plr < MAX_PLRS && connected_table[pkt_plr] == CON_CONNECTED) {
+		disconnect_plr(pkt_plr);
 	} else if (pkt_plr == PLR_MASTER) {
 		// server down
 		for (pkt_plr = 0; pkt_plr < MAX_PLRS; pkt_plr++) {
-			if (pkt_plr != plr_self && connected_table[pkt_plr]) {
-				disconnect_plr(pkt_plr, leaveinfo);
+			if (pkt_plr != plr_self && connected_table[pkt_plr] == CON_CONNECTED) {
+				disconnect_plr(pkt_plr);
 			}
 		}
-		disconnect_plr(SNPLAYER_MASTER, leaveinfo);
+		disconnect_plr(SNPLAYER_MASTER);
 	}
 }
 
@@ -129,7 +121,7 @@ void base::recv_local(packet& pkt)
 	plr_t pkt_plr = pkt.pktSrc();
 
 	if (pkt_plr < MAX_PLRS) {
-		connected_table[pkt_plr] = true;
+		connected_table[pkt_plr] |= CON_CONNECTED;
 	}
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
@@ -186,6 +178,7 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 	send_packet(*pkt);
 }
 
+#define LEAVING_TURN_SIZE (sizeof(TurnPktHdr) + 1)
 SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
 	SNetTurnPkt* pkt;
@@ -204,6 +197,8 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 			if (pt->turn_id != 0) {
 				turn = pt->turn_id;
 				dwLen += pt->payload.size();
+			} else if ((connected_table[i] & CON_LEAVING) && turn_queue[i].size() == 1) {
+				dwLen += LEAVING_TURN_SIZE;
 			}
 		}
 	}
@@ -222,6 +217,14 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 				data += sizeof(unsigned);
 				memcpy(data, pt->payload.data(), dwLen);
 				data += dwLen;
+			} else if ((connected_table[i] & CON_LEAVING) && turn_queue[i].size() == 1) {
+				// assert(pt->payload.size() == 0);
+				*(unsigned*)data = LEAVING_TURN_SIZE;
+				data += sizeof(unsigned);
+				TurnPkt* leaveCmdTurn = (TurnPkt*)data;
+				leaveCmdTurn->hdr.wLen = (uint16_t)LEAVING_TURN_SIZE;
+				leaveCmdTurn->body[0] = CMD_DISCONNECT;
+				data += LEAVING_TURN_SIZE;
 			} else {
 				*(unsigned*)data = 0;
 				data += sizeof(unsigned);
@@ -258,8 +261,12 @@ turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 		if (i == plr_self || !connected_table[i])
 			continue;
 		if (turn_queue[i].empty()) {
-			status[i] = PCS_CONNECTED;
-			result = TS_TIMEOUT;
+			if (connected_table[i] & CON_LEAVING) {
+				connected_table[i] = 0;
+			} else {
+				status[i] = PCS_CONNECTED;
+				result = TS_TIMEOUT;
+			}
 			continue;
 		}
 		status[i] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
@@ -372,11 +379,11 @@ void base::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 	registered_handlers[evtype] = func;
 }
 
-void base::SNetLeaveGame(int reason)
+void base::SNetLeaveGame()
 {
 	int i;
 
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self, (leaveinfo_t)reason);
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
 	send_packet(*pkt);
 
 	message_last.payload.clear();
@@ -387,7 +394,7 @@ void base::SNetLeaveGame(int reason)
 
 void base::SNetDropPlayer(int playerid)
 {
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid, (leaveinfo_t)LEAVE_DROP);
+	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid);
 	send_packet(*pkt);
 	recv_local(*pkt);
 }

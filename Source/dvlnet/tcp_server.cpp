@@ -92,7 +92,7 @@ plr_t tcp_server::next_free_conn()
 	plr_t i;
 
 	for (i = 0; i < MAX_PLRS; i++)
-		if (connections[i] == NULL)
+		if (active_connections[i] == NULL && ghost_connections[i] == 0)
 			break;
 	return i < ((SNetGameData*)game_init_info.data())->ngMaxPlayers ? i : MAX_PLRS;
 }
@@ -159,7 +159,7 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 		return false;
 	}
 	pending_connections[i] = NULL;
-	connections[pnum] = con;
+	active_connections[pnum] = con;
 	con->pnum = pnum;
 	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
 	start_send(con, *reply);
@@ -167,8 +167,8 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 	if (serverType == SRV_DIRECT) {
 		std::string addr;
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (connections[i] != NULL && connections[i] != con) {
-				endpoint_to_string(connections[i], addr);
+			if (active_connections[i] != NULL && active_connections[i] != con) {
+				endpoint_to_string(active_connections[i], addr);
 				auto oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
 				start_send(con, *oldConPkt);
 			}
@@ -193,15 +193,15 @@ bool tcp_server::send_packet(packet& pkt)
 
 	if (dest == PLR_BROADCAST) {
 		for (int i = 0; i < MAX_PLRS; i++)
-			if (i != src && connections[i] != NULL)
-				start_send(connections[i], pkt);
+			if (i != src && active_connections[i] != NULL)
+				start_send(active_connections[i], pkt);
 	} else {
 		if (dest >= MAX_PLRS) {
 			// DoLog("Invalid destination %d", dest);
 			return false;
 		}
-		if ((dest != src) && connections[dest] != NULL)
-			start_send(connections[dest], pkt);
+		if ((dest != src) && active_connections[dest] != NULL)
+			start_send(active_connections[dest], pkt);
 	}
 	return true;
 }
@@ -223,7 +223,7 @@ void tcp_server::start_accept()
 		acceptor.async_accept(nextcon->socket, std::bind(&tcp_server::handle_accept, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
-		connTimer.expires_after(std::chrono::seconds(10));
+		connTimer.expires_after(std::chrono::seconds(WAIT_PENDING));
 		connTimer.async_wait(std::bind(&tcp_server::handle_accept, this, false, std::placeholders::_1));
 	}
 }
@@ -246,7 +246,7 @@ void tcp_server::handle_accept(bool valid, const asio::error_code& ec)
 
 void tcp_server::start_timeout()
 {
-	connTimer.expires_after(std::chrono::seconds(1));
+	connTimer.expires_after(std::chrono::seconds(TIMEOUT_BASE));
 	connTimer.async_wait(std::bind(&tcp_server::handle_timeout, this, std::placeholders::_1));
 }
 
@@ -257,6 +257,12 @@ void tcp_server::handle_timeout(const asio::error_code& ec)
 	if (ec)
 		return;
 
+	for (i = 0; i < MAX_PLRS; i++) {
+		int gc = ghost_connections[i];
+		if (gc != 0) {
+			ghost_connections[i] = gc - 1;
+		}
+	}
 	scc expired_connections[2 * MAX_PLRS] = { };
 	n = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -270,11 +276,11 @@ void tcp_server::handle_timeout(const asio::error_code& ec)
 		}
 	}
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (connections[i] != NULL) {
-			if (connections[i]->timeout > 0) {
-				connections[i]->timeout--;
+		if (active_connections[i] != NULL) {
+			if (active_connections[i]->timeout > 0) {
+				active_connections[i]->timeout--;
 			} else {
-				expired_connections[n] = connections[i];
+				expired_connections[n] = active_connections[i];
 				n++;
 			}
 		}
@@ -290,10 +296,11 @@ void tcp_server::drop_connection(const scc& con)
 
 	if (pnum != PLR_BROADCAST) {
 		// live connection
-		if (connections[pnum] == con) {
-			connections[pnum] = NULL;
+		if (active_connections[pnum] == con) {
+			active_connections[pnum] = NULL;
+			ghost_connections[pnum] = TIMEOUT_GHOST;
 			// notify the other clients
-			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, (leaveinfo_t)LEAVE_DROP);
+			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum);
 			send_packet(*pkt);
 		}
 	} else {
@@ -314,7 +321,7 @@ void tcp_server::close()
 	asio::error_code err;
 
 	if (acceptor.is_open()) {
-		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
+		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER);
 		send_packet(*pkt);
 		ioc.poll(err);
 		err.clear();
@@ -332,10 +339,10 @@ void tcp_server::close()
 		err.clear();
 	}
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (connections[i] != NULL) {
-			connections[i]->socket.shutdown(asio::socket_base::shutdown_both, err);
+		if (active_connections[i] != NULL) {
+			active_connections[i]->socket.shutdown(asio::socket_base::shutdown_both, err);
 			err.clear();
-			connections[i]->socket.close(err);
+			active_connections[i]->socket.close(err);
 			err.clear();
 		}
 	}

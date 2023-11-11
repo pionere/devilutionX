@@ -654,7 +654,7 @@ static void ShiftMissilePos(int mi)
 	}
 }
 
-unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates)
+unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates)
 {
 	unsigned dam;
 	BYTE resist;
@@ -717,9 +717,14 @@ unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxda
 	return dam;
 }
 
-void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam)
+int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam)
 {
+	int dam = fdam + ldam + mdam + adam;
 	int mtype;
+
+	if (dam == 0) {
+		return 0;
+	}
 
 	if ((fdam | ldam) >= (mdam | adam)) {
 		mtype = fdam >= ldam ? MIS_EXFIRE : MIS_EXLGHT;
@@ -735,6 +740,7 @@ void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int ada
 			AddMissile(dx, dy, 0, 0, 0, MIS_WEAPLEXP, MST_NA, 0);
 		}
 	}*/
+	return dam;
 }
 
 static bool MonsterTrapHit(int mnum, int mi)
@@ -882,10 +888,7 @@ static bool MonsterMHit(int mnum, int mi)
 		if (adam != 0) {
 			adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 		}
-		if ((ldam | fdam | mdam | adam) != 0) {
-			dam += fdam + ldam + mdam + adam;
-			AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
-		}
+		dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
@@ -1212,10 +1215,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		if (adam != 0) {
 			adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 		}
-		if ((ldam | fdam | mdam | adam) != 0) {
-			dam += ldam + fdam + mdam + adam;
-			AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
-		}
+		dam += AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
 	} else {
 		dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		dam >>= 1;

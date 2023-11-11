@@ -3541,12 +3541,6 @@ typedef enum turn_status {
 	TS_DESYNC,	// turn is not necessary due, but a higher than current turn arrived
 } turn_status;
 
-typedef enum leave_reason {
-	LEAVE_NONE,
-	LEAVE_NORMAL,
-	LEAVE_DROP,   // was 0x40000006
-} leave_reason;
-
 typedef enum text_color {
 	COL_WHITE,
 	COL_BLUE,
@@ -3842,7 +3836,6 @@ typedef enum _msg_id {
 	NMSG_LVL_DELTA,
 	NMSG_LVL_DELTA_END,
 	NMSG_STRING,
-	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
 
 typedef enum _cmd_id {

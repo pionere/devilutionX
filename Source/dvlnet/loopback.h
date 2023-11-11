@@ -20,7 +20,7 @@ public:
 	unsigned SNetGetTurnsInTransit() override;
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override { };
 	void SNetUnregisterEventHandler(int evtype) override { };
-	void SNetLeaveGame(int reason) override;
+	void SNetLeaveGame() override;
 	void SNetDropPlayer(int playerid) override;
 
 	loopback() = default;

@@ -11,6 +11,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
+typedef enum connection_status {
+	CON_CONNECTED = 0x01, // connection is active
+	CON_LEAVING   = 0x02, // the player initiated a disconnect
+} connection_status;
+
 class base : public abstract_net {
 public:
 	// bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
@@ -25,7 +30,7 @@ public:
 	unsigned SNetGetTurnsInTransit() override;
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override;
 	void SNetUnregisterEventHandler(int evtype) override;
-	void SNetLeaveGame(int reason) override;
+	void SNetLeaveGame() override;
 	void SNetDropPlayer(int playerid) override;
 
 	~base() override = default;
@@ -39,7 +44,7 @@ protected:
 	SNetMessage message_last;
 	std::deque<SNetMessage> message_queue;
 	std::deque<SNetTurn> turn_queue[MAX_PLRS] = { };
-	bool connected_table[MAX_PLRS] = { };
+	int connected_table[MAX_PLRS] = { }; // connection_status
 
 	plr_t plr_self;
 	cookie_t cookie_self;
@@ -58,7 +63,7 @@ private:
 	void recv_accept(packet& pkt);
 	void recv_disconnect(packet& pkt);
 	void run_event_handler(SNetEvent& ev);
-	void disconnect_plr(plr_t pnum, leaveinfo_t leaveinfo);
+	void disconnect_plr(plr_t pnum);
 };
 
 } // namespace net

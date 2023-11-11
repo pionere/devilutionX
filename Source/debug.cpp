@@ -192,11 +192,6 @@ void ValidateData()
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
-		// check RETREAT_DISTANCE for MonFallenFear
-		if (md.mAI.aiType == AI_FALLEN && md.mAI.aiInt > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", md.mAI.aiInt, md.mName, i);
-		if (md.mAI.aiType == AI_COUNSLR && md.mAI.aiInt > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", md.mAI.aiInt, md.mName, i);
 		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
 		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_SNAKE || md.mAI.aiType == AI_SNEAK || md.mAI.aiType == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -207,39 +202,40 @@ void ValidateData()
 #endif
 		if ((md.mAI.aiType == AI_CLEAVER || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
-		if (md.mLevel > UINT8_MAX - HELL_LEVEL_BONUS)
+		if (md.mAI.aiInt > UINT8_MAX - DIFF_HELL) // required by InitMonsterStats
+			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
+		if (md.mLevel > UINT8_MAX - HELL_LEVEL_BONUS) // required by InitMonsterStats
 			app_fatal("Too high mLevel %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel + HELL_LEVEL_BONUS > CF_LEVEL && (md.mFlags & MFLAG_NODROP) == 0)
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
-		if (md.mHit > UINT16_MAX - HELL_TO_HIT_BONUS)
+#if DEBUG_MODE
+		if (md.mHit > INT_MAX - HELL_TO_HIT_BONUS)
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
-		if (md.mHit2 > UINT16_MAX - HELL_TO_HIT_BONUS)
+		if (md.mHit2 > INT_MAX - HELL_TO_HIT_BONUS)
 			app_fatal("Too high mHit2 %d for %s (%d).", md.mHit2, md.mName, i);
-		if (md.mMagic > UINT8_MAX - HELL_MAGIC_BONUS)
+		if (md.mMagic > INT_MAX - HELL_MAGIC_BONUS)
 			app_fatal("Too high mMagic %d for %s (%d).", md.mMagic, md.mName, i);
-		if (md.mMinDamage * 4 > UINT8_MAX - 6)
+		if (md.mMinDamage > md.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for %s (%d).", md.mMinDamage, md.mName, i);
-		if (md.mMinDamage2 * 4 > UINT8_MAX - 6)
+		if (md.mMinDamage2 > md.mMaxDamage2)
 			app_fatal("Too high mMinDamage2 %d for %s (%d).", md.mMinDamage2, md.mName, i);
-		if (md.mMaxDamage * 4 > UINT8_MAX - 6)
+		if (md.mMaxDamage * 4 > INT_MAX - 6)
 			app_fatal("Too high mMaxDamage %d for %s (%d).", md.mMaxDamage, md.mName, i);
-		if (md.mMaxDamage2 * 4 > UINT8_MAX - 6)
+		if (md.mMaxDamage2 * 4 > INT_MAX - 6)
 			app_fatal("Too high mMaxDamage2 %d for %s (%d).", md.mMaxDamage2, md.mName, i);
-		if (md.mArmorClass > UINT8_MAX - HELL_AC_BONUS)
+		if (md.mArmorClass > INT_MAX - HELL_AC_BONUS)
 			app_fatal("Too high mArmorClass %d for %s (%d).", md.mArmorClass, md.mName, i);
-		if (md.mEvasion > UINT8_MAX - HELL_EVASION_BONUS)
+		if (md.mEvasion > INT_MAX - HELL_EVASION_BONUS)
 			app_fatal("Too high mEvasion %d for %s (%d).", md.mEvasion, md.mName, i);
 		if (md.mMinHP <= 0)
 			app_fatal("Invalid mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
 		if (md.mMinHP > md.mMaxHP)
 			app_fatal("Too high mMinHP %d for %s (%d)", md.mMinHP, md.mName, i);
-		if (md.mMaxHP * 4 > UINT16_MAX - 200) // required by InitMonsterStats
+		if (md.mMaxHP * 4 > (INT_MAX - 200) / (MAX_PLRS / 2 + 1)) // required by InitMonsterStats
 			app_fatal("Too high mMaxHP %d for %s (%d)", md.mMaxHP, md.mName, i);
-		if ((md.mMaxHP - md.mMinHP) * 4 + 200 >= 0x7FFF) // required by InitMonster
-			app_fatal("Min/MaxHP range (%d-%d) too high for %s (%d)", md.mMinHP, md.mMaxHP, md.mName, i);
-		if ((md.mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / 4))
+		if ((md.mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * (MAX_PLRS / 2 + 1)))) // required by InitMonsterStats
 			app_fatal("Too high mExp %d for %s (%d)", md.mExp, md.mName, i);
 		uint16_t res = md.mMagicRes;
 		uint16_t resH = md.mMagicRes2;
@@ -248,6 +244,7 @@ void ValidateData()
 				app_fatal("Bad mMagicRes2 %d (%d) for %s (%d): worse than mMagicRes %d.", md.mMagicRes2, j, md.mName, i, md.mMagicRes);
 			}
 		}
+#endif
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
@@ -321,10 +318,6 @@ void ValidateData()
 			if (AllLevels[lvl].dMonTypes[j] == MT_INVALID)
 				app_fatal("Useless unique monster %s (%d)", um.mName, i);
 		}
-		if (um.mAI.aiType == AI_FALLEN && um.mAI.aiInt > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", um.mAI.aiInt, um.mName, i);
-		if (um.mAI.aiType == AI_COUNSLR && um.mAI.aiInt > 3)
-			app_fatal("Invalid mInt %d for %s (%d)", um.mAI.aiInt, um.mName, i);
 		if ((um.mAI.aiType == AI_GOLUM || um.mAI.aiType == AI_SKELKING) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("Unique AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", um.mName, i);
 		if ((um.mAI.aiType == AI_FALLEN || um.mAI.aiType == AI_SNAKE || um.mAI.aiType == AI_SNEAK || um.mAI.aiType == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -335,19 +328,37 @@ void ValidateData()
 #endif
 		if ((um.mAI.aiType == AI_CLEAVER || um.mAI.aiType == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
 			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
+		if (um.mAI.aiInt > UINT8_MAX - DIFF_HELL) // required by InitUniqueMonster
+			app_fatal("Too high aiInt %d for %s (%d).", um.muLevel, um.mName, i);
+		if (um.muLevel > UINT8_MAX - HELL_LEVEL_BONUS) // required by InitUniqueMonster
+			app_fatal("Too high muLevel %d for %s (%d).", um.muLevel, um.mName, i);
 		if (um.muLevel + HELL_LEVEL_BONUS > CF_LEVEL && (monsterdata[um.mtype].mFlags & MFLAG_NODROP) == 0)
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqFlags & UMF_LEADER) != 0 && ((um.mUnqFlags & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
-		if (um.mUnqHit + monsterdata[um.mtype].mHit > UINT16_MAX - HELL_TO_HIT_BONUS) // required by PlaceUniqueMonst
-			app_fatal("Too high mUnqHit %d for unique monster %s (%d).", um.mUnqHit, um.mName, i);
-		if (um.mUnqAC + monsterdata[um.mtype].mArmorClass > UINT8_MAX - HELL_AC_BONUS) // required by PlaceUniqueMonst
-			app_fatal("Too high mUnqAC %d for unique monster %s (%d).", um.mUnqAC, um.mName, i);
-		if (um.mmaxhp < 2) // required by PlaceUniqueMonst
-			app_fatal("Too low mmaxhp %d for unique monster %s (%d).", um.mmaxhp, um.mName, i);
-		if ((monsterdata[um.mtype].mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * 2))) // required by PlaceUniqueMonst
-			app_fatal("Too high mExp %d for %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
 #if DEBUG_MODE
+		if (um.mUnqHit + monsterdata[um.mtype].mHit > INT_MAX - HELL_TO_HIT_BONUS) // required by InitUniqueMonster
+			app_fatal("Too high mUnqHit %d for %s (%d).", um.mUnqHit, um.mName, i);
+		if (um.mUnqHit2 + monsterdata[um.mtype].mHit2 > INT_MAX - HELL_TO_HIT_BONUS) // required by InitUniqueMonster
+			app_fatal("Too high mUnqHit2 %d for %s (%d).", um.mUnqHit2, um.mName, i);
+		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX - HELL_MAGIC_BONUS) // required by InitUniqueMonster
+			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
+		if (um.mMinDamage > um.mMaxDamage)
+			app_fatal("Too high mMinDamage %d for unique monster %s (%d).", um.mMinDamage, um.mName, i);
+		if (um.mMinDamage2 > um.mMaxDamage2)
+			app_fatal("Too high mMinDamage2 %d for unique monster %s (%d).", um.mMinDamage2, um.mName, i);
+		if (md.mMaxDamage * 4 > INT_MAX - 6) // required by InitUniqueMonster
+			app_fatal("Too high mMaxDamage %d for unique monster %s (%d).", um.mMaxDamage, um.mName, i);
+		if (md.mMaxDamage2 * 4 > INT_MAX - 6) // required by InitUniqueMonster
+			app_fatal("Too high mMaxDamage2 %d for unique monster %s (%d).", um.mMaxDamage2, um.mName, i);
+		if (um.mUnqAC + monsterdata[um.mtype].mArmorClass > INT_MAX - HELL_AC_BONUS) // required by InitUniqueMonster
+			app_fatal("Too high mUnqAC %d for %s (%d).", um.mUnqAC, um.mName, i);
+		if (um.mUnqEva + monsterdata[um.mtype].mEvasion > INT_MAX - HELL_EVASION_BONUS) // required by InitUniqueMonster
+			app_fatal("Too high mUnqEva %d for %s (%d).", um.mUnqEva, um.mName, i);
+		if (md.mmaxhp * 4 > (INT_MAX - 200) / (MAX_PLRS / 2 + 1)) // required by InitUniqueMonster
+			app_fatal("Too high mmaxhp %d for %s (%d)", um.mmaxhp, um.mName, i);
+		if ((monsterdata[um.mtype].mExp + DIFFICULTY_EXP_BONUS) > (UINT32_MAX / (4 * (MAX_PLRS / 2 + 1) * 2))) // required by InitUniqueMonster
+			app_fatal("Too high mExp %d for unique monster %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
@@ -1165,6 +1176,47 @@ void LogErrorF(const char* type, const char* msg, ...)
 
 	fclose(f0);
 }
+
+std::vector<std::string> errorMsgQueue;
+void LogErrorQ(const char* msg, ...)
+{
+	char tmp[256];
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	errorMsgQueue.push_back(tmp);
+}
+
+void LogDumpQ()
+{
+	char tmp[256];
+	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
+	FILE* f0 = fopen(tmp, "a+");
+	if (f0 == NULL)
+		return;
+
+	for (const std::string &msg : errorMsgQueue) {
+		fputs(msg.c_str(), f0);
+		using namespace std::chrono;
+		milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+		//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+		snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+		fputs(tmp, f0);
+
+		fputc('\n', f0);
+	}
+
+	errorMsgQueue.clear();
+
+	fclose(f0);
+}
+
 #endif /* DEV_MODE */
 
 DEVILUTION_END_NAMESPACE

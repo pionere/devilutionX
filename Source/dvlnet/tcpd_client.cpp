@@ -77,7 +77,7 @@ void tcpd_client::poll()
 
 void tcpd_client::start_timeout()
 {
-	connTimer.expires_after(std::chrono::seconds(1));
+	connTimer.expires_after(std::chrono::seconds(tcp_server::TIMEOUT_BASE));
 	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this, std::placeholders::_1));
 }
 
@@ -93,11 +93,11 @@ void tcpd_client::handle_timeout(const asio::error_code& ec)
 	tcp_server::scc expired_connections[2 * MAX_PLRS] = { };
 	n = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (connections[i] != NULL) {
-			if (connections[i]->timeout > 0) {
-				connections[i]->timeout--;
+		if (active_connections[i] != NULL) {
+			if (active_connections[i]->timeout > 0) {
+				active_connections[i]->timeout--;
 			} else {
-				expired_connections[n] = connections[i];
+				expired_connections[n] = active_connections[i];
 				n++;
 			}
 		}
@@ -122,7 +122,7 @@ plr_t tcpd_client::next_free_conn()
 	plr_t i;
 
 	for (i = 0; i < MAX_PLRS; i++)
-		if (connections[i] == NULL)
+		if (active_connections[i] == NULL)
 			break;
 	return i;
 }
@@ -140,7 +140,7 @@ plr_t tcpd_client::next_free_queue()
 void tcpd_client::recv_connect(packet& pkt)
 {
 	plr_t pnum = pkt.pktConnectPlr();
-	if (pnum == plr_self || pnum >= MAX_PLRS || connections[pnum] != NULL)
+	if (pnum == plr_self || pnum >= MAX_PLRS || active_connections[pnum] != NULL)
 		return;
 
 	std::string addrstr = std::string(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
@@ -157,7 +157,7 @@ void tcpd_client::recv_connect(packet& pkt)
 	}
 	cliCon->pnum = pnum;
 	cliCon->timeout = tcp_server::TIMEOUT_ACTIVE;
-	connections[pnum] = cliCon;
+	active_connections[pnum] = cliCon;
 	start_recv_conn(cliCon);
 	auto joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
 	start_send(cliCon, *joinPkt);
@@ -170,7 +170,7 @@ void tcpd_client::start_accept_conn()
 		acceptor.async_accept(nextcon->socket, std::bind(&tcpd_client::handle_accept_conn, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
-		connTimer.expires_after(std::chrono::seconds(10));
+		connTimer.expires_after(std::chrono::seconds(tcp_server::WAIT_PENDING));
 		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn, this, false, std::placeholders::_1));
 	}
 }
@@ -242,12 +242,12 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 		if (pending_connections[i] == con)
 			break;
 	}
-	if (pnum >= MAX_PLRS || connections[pnum] != NULL || i == MAX_PLRS) {
+	if (pnum >= MAX_PLRS || active_connections[pnum] != NULL || i == MAX_PLRS) {
 		// DoLog(pnum == MAX_PLRS ? "Server is full." : "Dropped connection.");
 		return false;
 	}
 	pending_connections[i] = NULL;
-	connections[pnum] = con;
+	active_connections[pnum] = con;
 	con->pnum = pnum;
 	/*auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
 		pkt.pktJoinReqCookie(), pnum, game_init_info);
@@ -258,10 +258,27 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 
 bool tcpd_client::handle_recv_packet(const tcp_server::scc& con, packet& pkt)
 {
-	if (con->pnum != PLR_BROADCAST) {
-		if (con->pnum != pkt.pktSrc())
+	plr_t pkt_plr = con->pnum;
+
+	if (pkt_plr != PLR_BROADCAST) {
+		if (pkt_plr != pkt.pktSrc())
 			return false;
 		recv_local(pkt);
+		// ensure the disconnecting turn is the last one
+		if (connected_table[pkt_plr] & CON_LEAVING) {
+			size_t numTurns = turn_queue[pkt_plr].size();
+			if (numTurns > 1) {
+				SNetTurn *turnLast = &turn_queue[pkt_plr][numTurns - 1];
+				SNetTurn *turnPrev = &turn_queue[pkt_plr][numTurns - 2];
+				auto turnId = turnLast->turn_id;
+				if (turnId != 0) {
+					// assert(turnPrev->turn_id == 0);
+					turnLast->turn_id = 0; // turnPrev->turn_id
+					turnPrev->turn_id = turnId;
+					turnPrev->payload.swap(turnLast->payload);
+				}
+			}
+		}
 		return true;
 	} else {
 		return handle_recv_newplr(con, pkt);
@@ -270,9 +287,9 @@ bool tcpd_client::handle_recv_packet(const tcp_server::scc& con, packet& pkt)
 
 void tcpd_client::disconnect_net(plr_t pnum)
 {
-	// TODO: check connections and pending_connections?
-	/*if (connections[pnum] != NULL) {
-		drop_connection(connections[pnum]);
+	// TODO: check active_connections and pending_connections?
+	/*if (active_connections[pnum] != NULL) {
+		drop_connection(active_connections[pnum]);
 	}*/
 }
 
@@ -282,8 +299,8 @@ void tcpd_client::drop_connection(const tcp_server::scc& con)
 
 	if (pnum != PLR_BROADCAST) {
 		// live connection
-		if (connections[pnum] == con) {
-			connections[pnum] = NULL;
+		if (active_connections[pnum] == con) {
+			active_connections[pnum] = NULL;
 			//auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
 			//	pnum, (leaveinfo_t)LEAVE_DROP);
 			//send_packet(*pkt);
@@ -329,7 +346,7 @@ void tcpd_client::start_recv()
 
 void tcpd_client::send_packet(packet& pkt)
 {
-	if (pkt.pktType() == PT_TURN) {
+	if (pkt.pktType() == PT_TURN && pkt.pktTurn() != 0) {
 		//plr_t dest = pkt.pktDest();
 		//plr_t src = plr_self; //pkt.pktSrc();
 
@@ -337,11 +354,11 @@ void tcpd_client::send_packet(packet& pkt)
 		//assert(dest == PLR_BROADCAST);
 		//if (dest == PLR_BROADCAST) {
 			for (int i = 0; i < MAX_PLRS; i++)
-				if (/*i != src &&*/ connections[i] != NULL)
-					start_send(connections[i], pkt);
+				if (/*i != src &&*/ active_connections[i] != NULL)
+					start_send(active_connections[i], pkt);
 		/*} else if (dest < MAX_PLRS) {
-			if ((dest != src) && connections[dest] != NULL)
-				start_send(connections[dest], pkt);
+			if ((dest != src) && active_connections[dest] != NULL)
+				start_send(active_connections[dest], pkt);
 		}*/
 	}
 
@@ -383,10 +400,10 @@ void tcpd_client::close()
 		err.clear();
 	}
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (connections[i] != NULL) {
-			connections[i]->socket.shutdown(asio::socket_base::shutdown_both, err);
+		if (active_connections[i] != NULL) {
+			active_connections[i]->socket.shutdown(asio::socket_base::shutdown_both, err);
 			err.clear();
-			connections[i]->socket.close(err);
+			active_connections[i]->socket.close(err);
 			err.clear();
 		}
 	}
@@ -401,9 +418,9 @@ void tcpd_client::close()
 	ioc.restart();
 }
 
-void tcpd_client::SNetLeaveGame(int reason)
+void tcpd_client::SNetLeaveGame()
 {
-	base::SNetLeaveGame(reason);
+	base::SNetLeaveGame();
 	poll();
 	close();
 }

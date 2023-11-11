@@ -29,7 +29,6 @@ enum packet_type : uint8_t {
 typedef uint8_t plr_t;
 typedef DWORD cookie_t;
 typedef uint32_t turn_t;
-typedef uint8_t leaveinfo_t;
 #ifdef NETENCRYPT
 typedef struct key_t {
 	BYTE data[crypto_secretbox_KEYBYTES];
@@ -79,7 +78,6 @@ typedef struct NetPktConnect {
 typedef struct NetPktDisconnect {
 	NetPktHdr npHdr;
 	plr_t m_newplr;
-	leaveinfo_t m_leaveinfo;
 } NetPktDisconnect;
 
 typedef struct NetPktInfoRequest {
@@ -182,10 +180,6 @@ public:
 	plr_t pktDisconnectPlr() const
 	{
 		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_newplr;
-	}
-	leaveinfo_t pktDisconnectInfo() const
-	{
-		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_leaveinfo;
 	}
 };
 
@@ -301,7 +295,7 @@ inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n)
 }*/
 
 template <>
-inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n, leaveinfo_t l)
+inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n)
 {
 	decrypted_buffer.resize(sizeof(NetPktDisconnect));
 	NetPktDisconnect* data = (NetPktDisconnect*)decrypted_buffer.data();
@@ -309,7 +303,6 @@ inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n, leavein
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
 	data->m_newplr = n;
-	data->m_leaveinfo = l;
 }
 
 class packet_factory {

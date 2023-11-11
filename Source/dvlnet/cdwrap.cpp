@@ -75,9 +75,9 @@ void cdwrap::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 		dvlnet_wrap->SNetRegisterEventHandler(evtype, func);
 }
 
-void cdwrap::SNetLeaveGame(int reason)
+void cdwrap::SNetLeaveGame()
 {
-	dvlnet_wrap->SNetLeaveGame(reason);
+	dvlnet_wrap->SNetLeaveGame();
 }
 
 void cdwrap::SNetDropPlayer(int playerid)

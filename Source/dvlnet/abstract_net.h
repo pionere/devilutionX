@@ -69,7 +69,7 @@ public:
 	virtual unsigned SNetGetTurnsInTransit() = 0;
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;
-	virtual void SNetLeaveGame(int reason) = 0;
+	virtual void SNetLeaveGame() = 0;
 	virtual void SNetDropPlayer(int playerid) = 0;
 	virtual ~abstract_net() = default;
 

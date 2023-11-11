@@ -99,8 +99,12 @@ turn_status tcp_host_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 		if (!connected_table[i])
 			continue;
 		if (turn_queue[i].empty()) {
-			status[i] = PCS_CONNECTED;
-			result = TS_TIMEOUT;
+			if (connected_table[i] & CON_LEAVING) {
+				connected_table[i] = 0;
+			} else {
+				status[i] = PCS_CONNECTED;
+				result = TS_TIMEOUT;
+			}
 			continue;
 		}
 		status[i] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
@@ -151,11 +155,11 @@ void tcp_host_client::close()
 	ioc.restart();
 }
 
-void tcp_host_client::SNetLeaveGame(int reason)
+void tcp_host_client::SNetLeaveGame()
 {
 	int i;
 	// a host does not 'leave' the game -> just clear the queues
-	//base::SNetLeaveGame(reason);
+	//base::SNetLeaveGame();
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();

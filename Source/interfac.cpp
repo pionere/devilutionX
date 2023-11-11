@@ -264,6 +264,7 @@ void EnterLevel(BYTE lvl)
 		currLvl._dLevel += NIGHTMARE_LEVEL_BONUS;
 	else if (gnDifficulty == DIFF_HELL)
 		currLvl._dLevel += HELL_LEVEL_BONUS;
+	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
 }
 
 static void SwitchGameLevel(int lvldir)

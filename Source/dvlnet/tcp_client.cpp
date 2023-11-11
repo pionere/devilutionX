@@ -120,9 +120,9 @@ void tcp_client::close()
 	ioc.restart();
 }
 
-void tcp_client::SNetLeaveGame(int reason)
+void tcp_client::SNetLeaveGame()
 {
-	base::SNetLeaveGame(reason);
+	base::SNetLeaveGame();
 	poll();
 	close();
 }

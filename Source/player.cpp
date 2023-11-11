@@ -1786,7 +1786,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		net_assert(0);
 		ASSUME_UNREACHABLE
 	}
-	net_assert(lvl < NUM_LEVELS);
+	// net_assert(lvl < NUM_LEVELS);
 	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
 		PostMessage(fom);
@@ -2033,10 +2033,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
-	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += fdam + ldam + mdam + adam;
-		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
-	}
+	dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;

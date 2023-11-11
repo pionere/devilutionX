@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - durability is not reduced when an object(barrel/urn/crux) is destroyed
 - items are dropped on death even on diablo-level
 - better rewards on higher difficulties
+- HP/Exp/Loot from monsters are depending on the number of players
 - limited offers in stores/wirt
 ### System
 - Lockstep networking

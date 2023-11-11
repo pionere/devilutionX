@@ -329,7 +329,6 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinDamage2 = mdata->mMinDamage2;
 	cmon->cmMaxDamage2 = mdata->mMaxDamage2;
 	cmon->cmMagic = mdata->mMagic;
-	cmon->cmMagic2 = mdata->mMagic2;
 	cmon->cmArmorClass = mdata->mArmorClass;
 	cmon->cmEvasion = mdata->mEvasion;
 	cmon->cmMagicRes = mdata->mMagicRes;
@@ -348,7 +347,6 @@ static void InitMonsterStats(int midx)
 		cmon->cmMinDamage = 2 * (cmon->cmMinDamage + 2);
 		cmon->cmMaxDamage = 2 * (cmon->cmMaxDamage + 2);
 		cmon->cmHit2 += NIGHTMARE_TO_HIT_BONUS;
-		//cmon->cmMagic2 += NIGHTMARE_MAGIC_BONUS;
 		cmon->cmMinDamage2 = 2 * (cmon->cmMinDamage2 + 2);
 		cmon->cmMaxDamage2 = 2 * (cmon->cmMaxDamage2 + 2);
 		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
@@ -363,7 +361,6 @@ static void InitMonsterStats(int midx)
 		cmon->cmMinDamage = 4 * cmon->cmMinDamage + 6;
 		cmon->cmMaxDamage = 4 * cmon->cmMaxDamage + 6;
 		cmon->cmHit2 += HELL_TO_HIT_BONUS;
-		//cmon->cmMagic2 += HELL_MAGIC_BONUS;
 		cmon->cmMinDamage2 = 4 * cmon->cmMinDamage2 + 6;
 		cmon->cmMaxDamage2 = 4 * cmon->cmMaxDamage2 + 6;
 		cmon->cmArmorClass += HELL_AC_BONUS;
@@ -371,16 +368,12 @@ static void InitMonsterStats(int midx)
 		cmon->cmMagicRes = monsterdata[cmon->cmType].mMagicRes2;
 	}
 
-	if (!IsMultiGame) {
-		cmon->cmMinHP >>= 1;
-		cmon->cmMaxHP >>= 1;
-		if (cmon->cmMinHP == 0) {
-			cmon->cmMinHP = 1;
-		}
-		if (cmon->cmMaxHP == 0) {
-			cmon->cmMaxHP = 1;
-		}
-	}
+	int mpl = currLvl._dLevelPlyrs;
+	// assert(mpl != 0);
+	mpl++;
+	cmon->cmMinHP = (cmon->cmMinHP * mpl) >> 1;
+	cmon->cmMaxHP = (cmon->cmMaxHP * mpl) >> 1;
+	cmon->cmExp = (cmon->cmExp * mpl) >> 1;
 }
 
 static bool IsSkel(int mt)
@@ -598,7 +591,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMinDamage2 = cmon->cmMinDamage2;
 	mon->_mMaxDamage2 = cmon->cmMaxDamage2;
 	mon->_mMagic = cmon->cmMagic;
-	mon->_mMagic2 = cmon->cmMagic2;
 	mon->_mArmorClass = cmon->cmArmorClass;
 	mon->_mEvasion = cmon->cmEvasion;
 	mon->_mMagicRes = cmon->cmMagicRes;
@@ -624,11 +616,9 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mMinDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMinDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XII.");
 	static_assert(offsetof(MonsterStruct, _mMaxDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMaxDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIII.");
 	static_assert(offsetof(MonsterStruct, _mMagic) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIV.");
-	static_assert(offsetof(MonsterStruct, _mMagic2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XV.");
 	static_assert(offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVI.");
 	static_assert(offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVII.");
 	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
-	static_assert(offsetof(MonsterStruct, _mAlign_1) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_1) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
 	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
 	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
 	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
@@ -636,7 +626,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
 	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
 	memcpy(&mon->_mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
-	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
+	mon->_mhitpoints = mon->_mmaxhp = RandRange(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].maAnimData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].maFrameLen;
@@ -718,6 +708,14 @@ void WakeNakrul()
 }
 #endif
 
+void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y)
+{
+	static_assert(DLV_TOWN == 0, "InitSummonedMonster skips the first entry glSeedTbl assuming the 'dynamic' seed is stored there.");
+	SetRndSeed(glSeedTbl[(mnum % NUM_LEVELS) + 1]);
+	InitMonster(mnum, dir, mtidx, x, y);
+	monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+}
+
 int SummonMonster(int x, int y, int dir, int mtidx)
 {
 	unsigned mnum;
@@ -728,10 +726,7 @@ int SummonMonster(int x, int y, int dir, int mtidx)
 
 		nummonsters++;
 		dMonster[x][y] = mnum + 1;
-		// TODO: InitSummonedMonster ?
-		SetRndSeed(glSeedTbl[mnum % NUM_LEVELS]);
-		InitMonster(mnum, dir, mtidx, x, y);
-		monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+		InitSummonedMonster(mnum, dir, mtidx, x, y);
 		NetSendCmdMonstSummon(mnum);
 		return mnum;
 	}
@@ -889,11 +884,15 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
 		mon->_mMagicRes = uniqm->mMagicRes2;
 	}
-	mon->_mmaxhp <<= 6;
-	if (!IsMultiGame) {
-		mon->_mmaxhp >>= 1;
-		// assert(mon->_mmaxhp >= 64);
-	}
+
+	int mpl = currLvl._dLevelPlyrs;
+	// assert(mpl != 0);
+	mpl++;
+	/*mon->_mmaxhp = (mon->_mmaxhp * mpl) >> 1;
+
+	mon->_mmaxhp <<= 6;*/
+	mon->_mmaxhp = (mon->_mmaxhp * mpl) << (6 - 1);
+
 	mon->_mhitpoints = mon->_mmaxhp;
 
 	if (uniqm->mUnqFlags & UMF_NODROP)
@@ -2107,7 +2106,10 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].maFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 7)); // HEAL_SPEED
+	static_assert((SQUELCH_MAX - SQUELCH_LOW) >= 16 * 8, "MonStartHeal might relax while healing.");
+	// assert(mon->_msquelch == SQUELCH_MAX);
+	// assert(mon->_mmaxhp >= 2 * 64);
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(5, 8)); // HEAL_SPEED
 }
 
 static bool MonDoStand(int mnum)
@@ -2577,7 +2579,7 @@ static bool MonDoDelay(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 	mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 
-	if (mon->_mVar2-- == 0) { // DELAY_TICK
+	if (mon->_mVar2-- <= 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
 		mon->_mVar1 = MM_DELAY; // STAND_PREV_MODE
 		// MonFindEnemy(mnum);
@@ -3101,14 +3103,16 @@ void MAI_Sneak(int mnum)
 	dist = currEnemyInfo._meRealDist;
 	md = currEnemyInfo._meLastDir;
 	range = 7 - mon->_mAI.aiInt;
+	if (range < 4)
+		range = 4;
 	if (mon->_mgoal != MGOAL_RETREAT) {
 		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
 			mon->_mgoal = MGOAL_RETREAT;
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (7 + 2) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-			static_assert(12 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
-			mon->_mgoalvar1 = 9; // RETREAT_DISTANCE
+			static_assert(12 * (7 + 2) < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
+			mon->_mgoalvar1 = range + 2; // RETREAT_DISTANCE
 		}
 	} else {
 		if (dist > range || --mon->_mgoalvar1 == 0) { // RETREAT_DISTANCE
@@ -3125,8 +3129,7 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	v = random_(112, 100);
 	range -= 2;
-	if (range < 2)
-		range = 2;
+	// assert(range >= 2);
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadein(mnum, mon->_mdir, false);
 	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
@@ -3208,19 +3211,22 @@ void MAI_Fallen(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
+			rad = mon->_mAI.aiInt;
 			//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
-				rad = mon->_mhitpoints + 2 * mon->_mAI.aiInt + 2;
-				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
+				amount = mon->_mhitpoints + 2 * rad + 2;
+				mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
 			//}
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 			assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert((2 * 5 + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-			amount = 2 * mon->_mAI.aiInt + 8;
-			rad = 2 * mon->_mAI.aiInt + 4;
+			if (rad > 5) {
+				rad = 5;
+			}
+			amount = 2 * rad + 8;
+			rad = 2 * rad + 4;
 			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 5 + 4, "MAI_Fallen expects a large enough border.");
-			assert(rad <= DBORDERX);
 			mx = mon->_mx;
 			my = mon->_my;
 			for (y = -rad; y <= rad; y++) {
@@ -3295,8 +3301,7 @@ void MAI_Cleaver(int mnum)
 void MAI_Round(int mnum)
 {
 	MonsterStruct* mon;
-	int md;
-	int dist, v;
+	int md, dist, v;
 
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)
@@ -3316,9 +3321,7 @@ void MAI_Round(int mnum)
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
-				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3370,8 +3373,9 @@ void MAI_Ranged(int mnum)
 				walking = MonCallWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 		if (!walking) {
-			md = random_low(118, 20 - mon->_mAI.aiInt); // STAND_PREV_MODE
-			if (mon->_mVar1 == MM_DELAY || md == 0) {
+			md = std::max(1, 20 - mon->_mAI.aiInt);
+			md = random_low(118, md); // STAND_PREV_MODE
+			if (md == 0 || mon->_mVar1 == MM_DELAY) {
 				if (EnemyInLine(mnum)) {
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
@@ -3547,7 +3551,7 @@ void MAI_Garg(int mnum)
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
 			// wake up if the enemy is close
-			static_assert(DBORDERX + DBORDERY > (5 + 2) * 2, "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0).");
+			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is usually 'far' from (0;0)."); // (_menemyx;_menemyy)
 			if (dist < mon->_mAI.aiInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
@@ -3573,6 +3577,7 @@ void MAI_Garg(int mnum)
 #endif
 			mon->_mgoal = MGOAL_RETREAT;
 	if (mon->_mgoal == MGOAL_RETREAT) {
+		mon->_msquelch = SQUELCH_MAX;
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= mon->_mAI.aiInt + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
@@ -3646,9 +3651,10 @@ void MAI_RoundRanged(int mnum)
 		} else if (v < 10 * (mon->_mAI.aiInt + 6)) {
 			MonStartAttack(mnum);
 		}
-	}
-	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+		if (mon->_mmode == MM_STAND) {
+			v = std::max(1, RandRange(6, 13) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
+		}
 	}
 }
 
@@ -3715,9 +3721,9 @@ void MAI_RoundRanged2(int mnum)
 					MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			}
 		}
-	}
-	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+		if (mon->_mmode == MM_STAND) {
+			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+		}
 	}
 }
 
@@ -3791,9 +3797,7 @@ void MAI_SkelKing(int mnum)
 				mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
 			}
 			if ((mon->_mgoalvar1++ < 2 * dist && MonDirOK(mnum, md)) /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3853,9 +3857,7 @@ void MAI_Rhino(int mnum)
 				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3909,9 +3911,7 @@ void MAI_Horkdemon(int mnum)
 				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3996,6 +3996,10 @@ void MAI_Counselor(int mnum)
 				MonStartRAttack(mnum, MIS_FLASH);
 			}
 		}
+		if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
+			v = std::max(1, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
+		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		if (--mon->_mgoalvar1 != 0) // RETREAT_DISTANCE
 			MonCallWalk(mnum, OPPOSITE(md));
@@ -4012,9 +4016,6 @@ void MAI_Counselor(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, md, true);
 		}
-	}
-	if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
-		MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
 	}
 }
 

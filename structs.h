@@ -609,7 +609,7 @@ typedef struct MonsterData {
 	MonsterAI mAI;
 	uint16_t mMinHP;
 	uint16_t mMaxHP;
-	int mFlags;       // _monster_flag
+	unsigned mFlags;  // _monster_flag
 	uint16_t mHit;    // hit chance (melee+projectile)
 	BYTE mMinDamage;
 	BYTE mMaxDamage;
@@ -657,33 +657,31 @@ typedef struct MapMonData {
 	BYTE cmLevel;
 	BYTE cmSelFlag;
 	MonsterAI cmAI;
-	int cmFlags;
-	uint16_t cmHit;    // hit chance (melee+projectile)
-	BYTE cmMinDamage;
-	BYTE cmMaxDamage;
-	uint16_t cmHit2;   // hit chance of special melee attacks
-	BYTE cmMinDamage2;
-	BYTE cmMaxDamage2;
-	BYTE cmMagic;      // hit chance of magic-projectile
-	BYTE cmMagic2;     // unused
-	BYTE cmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE cmEvasion;    // evasion: used against magic-projectile
-	uint16_t cmMagicRes;  // resistances of the monster
-	uint16_t cmAlign_1; // unused
+	unsigned cmFlags;    // _monster_flag
+	int cmHit;           // hit chance (melee+projectile)
+	int cmMinDamage;
+	int cmMaxDamage;
+	int cmHit2;          // hit chance of special melee attacks
+	int cmMinDamage2;
+	int cmMaxDamage2;
+	int cmMagic;         // hit chance of magic-projectile
+	int cmArmorClass;    // AC+evasion: used against physical-hit (melee+projectile)
+	int cmEvasion;       // evasion: used against magic-projectile
+	unsigned cmMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned cmExp;
 	int cmWidth;
 	int cmXOffset;
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	uint16_t cmAlign_0; // unused
-	uint16_t cmMinHP;
-	uint16_t cmMaxHP;
-	ALIGNMENT32(31)
+	int cmMinHP;
+	int cmMaxHP;
+	ALIGNMENT(24, 17);
 } MapMonData;
 #ifdef X86_32bit_COMP
 static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 640, "Align MapMonData closer to power of 2 for better performance.");
+static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 #pragma pack(pop)
 typedef struct MonsterStruct {
@@ -742,19 +740,17 @@ typedef struct MonsterStruct {
 	BYTE _mLevel;
 	BYTE _mSelFlag;
 	MonsterAI _mAI;
-	int _mFlags;       // _monster_flag
-	uint16_t _mHit;    // hit chance (melee+projectile)
-	BYTE _mMinDamage;
-	BYTE _mMaxDamage;
-	uint16_t _mHit2;   // hit chance of special melee attacks
-	BYTE _mMinDamage2;
-	BYTE _mMaxDamage2;
-	BYTE _mMagic;      // hit chance of magic-projectile
-	BYTE _mMagic2;     // unused
-	BYTE _mArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE _mEvasion;    // evasion: used against magic-projectile
-	uint16_t _mMagicRes;  // resistances of the monster (_monster_resistance)
-	uint16_t _mAlign_1; // unused
+	unsigned _mFlags;    // _monster_flag
+	int _mHit;           // hit chance (melee+projectile)
+	int _mMinDamage;
+	int _mMaxDamage;
+	int _mHit2;          // hit chance of special melee attacks
+	int _mMinDamage2;
+	int _mMaxDamage2;
+	int _mMagic;         // hit chance of magic-projectile
+	int _mArmorClass;    // AC+evasion: used against physical-hit (melee+projectile)
+	int _mEvasion;       // evasion: used against magic-projectile
+	unsigned _mMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned _mExp;
 	int _mAnimWidth;
 	int _mAnimXOffset;
@@ -763,7 +759,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
-	ALIGNMENT(12, 7)
+	ALIGNMENT(6, 1)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -788,8 +784,8 @@ typedef struct UniqMonData {
 	BYTE mMaxDamage;
 	BYTE mMinDamage2;
 	BYTE mMaxDamage2;
-	uint16_t mMagicRes;  // _monster_resistance
-	uint16_t mMagicRes2; // _monster_resistance
+	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties (_monster_resistance)
+	uint16_t mMagicRes2; // resistances in hell difficulty (_monster_resistance)
 	BYTE mUnqFlags;// _uniq_monster_flag
 	BYTE mUnqHit;  // to-hit (melee+projectile) bonus
 	BYTE mUnqHit2; // to-hit (special melee attacks) bonus
@@ -1405,19 +1401,17 @@ typedef struct LSaveMonsterStruct {
 	BYTE vmAI_aiInt;    // MonsterAI.aiInt
 	BYTE vmAI_aiParam1; // MonsterAI.aiParam1
 	BYTE vmAI_aiParam2; // MonsterAI.aiParam2
-	LE_INT32 vmFlags;
-	LE_UINT16 vmHit;    // hit chance (melee+projectile)
-	BYTE vmMinDamage;
-	BYTE vmMaxDamage;
-	LE_UINT16 vmHit2;   // hit chance of special melee attacks
-	BYTE vmMinDamage2;
-	BYTE vmMaxDamage2;
-	BYTE vmMagic;      // hit chance of magic-projectile
-	BYTE vmMagic2;     // unused
-	BYTE vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
-	BYTE vmEvasion;    // evasion: used against magic-projectile
-	LE_UINT16 vmMagicRes;  // resistances of the monster
-	LE_UINT16 vmAlign_1; // unused
+	LE_UINT32 vmFlags;
+	LE_INT32 vmHit;    // hit chance (melee+projectile)
+	LE_INT32 vmMinDamage;
+	LE_INT32 vmMaxDamage;
+	LE_INT32 vmHit2;   // hit chance of special melee attacks
+	LE_INT32 vmMinDamage2;
+	LE_INT32 vmMaxDamage2;
+	LE_INT32 vmMagic;      // hit chance of magic-projectile
+	LE_INT32 vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
+	LE_INT32 vmEvasion;    // evasion: used against magic-projectile
+	LE_UINT32 vmMagicRes;  // resistances of the monster
 	LE_UINT32 vmExp;
 } LSaveMonsterStruct;
 
@@ -1611,6 +1605,13 @@ typedef struct TCmdBParam2 {
 	BYTE bParam1;
 	BYTE bParam2;
 } TCmdBParam2;
+
+typedef struct TCmdNewLvl {
+	BYTE bCmd;
+	BYTE bPlayers;
+	BYTE bFom;
+	BYTE bLevel;
+} TCmdNewLvl;
 
 typedef struct TCmdItemOp {
 	BYTE bCmd;
@@ -1879,7 +1880,7 @@ typedef struct TSyncLvlMonster {
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
 	//BYTE falign_CB;
-	LE_INT32 smFlags;
+	LE_UINT32 smFlags;
 } TSyncLvlMonster;
 
 typedef struct TSyncLvlMissile {
@@ -2038,7 +2039,7 @@ typedef struct DeltaData {
 			LocalLevel ddLocal[NUM_LEVELS]; // automap
 			DJunk ddJunk;                   // portals and quests
 			DLevel ddLevel[NUM_LEVELS];     // items/monsters/objects
-			bool ddLevelChanged[NUM_LEVELS];
+			BYTE ddLevelPlrs[NUM_LEVELS];   // the number of players when the level was 'initialized'
 			bool ddJunkChanged;
 
 			LargeMsgPkt ddSendRecvPkt; // Buffer to send/receive delta info
@@ -2075,11 +2076,12 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 
 typedef struct LevelStruct {
-	BYTE _dLevelIdx;  // index in AllLevels
-	BOOLEAN _dSetLvl; // cached flag if the level is a set-level
-	BYTE _dLevel;     // cached difficulty value of the level
-	BYTE _dType;      // cached type of the level
-	BYTE _dDunType;   // cached type of the dungeon
+	int _dLevelIdx;   // index in AllLevels (dungeon_level)
+	bool _dSetLvl;    // cached flag if the level is a set-level
+	int _dLevel;      // cached difficulty value of the level
+	int _dType;       // cached type of the level (dungeon_type)
+	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
+	int _dLevelPlyrs; // cached number of players when the level was 'initialized'
 } LevelStruct;
 
 typedef struct LevelFileData {
@@ -2146,7 +2148,7 @@ typedef struct SetPieceData {
 //////////////////////////////////////////////////
 
 typedef struct QuestStruct {
-	BYTE _qactive;
+	BYTE _qactive; // quest_state
 	BYTE _qvar1; // quest parameter which is synchronized with the other players
 	BYTE _qvar2; // quest parameter which is NOT synchronized with the other players
 	BOOLEAN _qlog;

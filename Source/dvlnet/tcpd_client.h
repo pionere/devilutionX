@@ -16,7 +16,7 @@ public:
 	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
 	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	void SNetLeaveGame(int reason) override;
+	void SNetLeaveGame() override;
 
 	~tcpd_client() override = default;
 
@@ -39,7 +39,7 @@ private:
 	asio::steady_timer connTimer = asio::steady_timer(ioc);
 	tcp_server::scc nextcon;
 	tcp_server::scc pending_connections[MAX_PLRS] = { };
-	tcp_server::scc connections[MAX_PLRS] = { };
+	tcp_server::scc active_connections[MAX_PLRS] = { };
 
 	void start_timeout();
 	void handle_timeout(const asio::error_code& ec);
