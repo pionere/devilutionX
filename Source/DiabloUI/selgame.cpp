@@ -639,7 +639,7 @@ int UiSelectGame(_uigamedata* game_data)
 void UIDisconnectGame()
 {
 	selgame_remove_event_handlers();
-	SNetLeaveGame(LEAVE_DROP);
+	SNetLeaveGame();
 }
 
 DEVILUTION_END_NAMESPACE

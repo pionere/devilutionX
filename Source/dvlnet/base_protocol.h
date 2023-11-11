@@ -17,7 +17,7 @@ public:
 	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256]);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
-	virtual void SNetLeaveGame(int reason);
+	virtual void SNetLeaveGame();
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	virtual void send_info_request();
@@ -126,7 +126,7 @@ bool base_protocol<P>::create_game(const char* addrstr, unsigned port, const cha
 	plr_self = PLR_BROADCAST;
 	if (wait_network()) {
 		plr_self = 0;
-		connected_table[plr_self] = true;
+		connected_table[plr_self] = CON_CONNECTED;
 		return true;
 	}
 	snprintf(errorText, 256, "Connection timed out.");
@@ -253,7 +253,7 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 	} else if (pkt_plr == PLR_MASTER && pkt.pktType() == PT_CONNECT) {
 		// addrinfo packets
 		pkt_plr = pkt.pktConnectPlr();
-		connected_table[pkt_plr] = true;
+		connected_table[pkt_plr] |= CON_CONNECTED;
 		//.unserialize(pkt.info());
 		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd()));
 		if (addr.size() == 16)
@@ -266,7 +266,7 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 			return; // drop packet with mismatching sender/source
 		peers[pkt_plr] = sender;
 	}
-	connected_table[pkt_plr] = true;
+	connected_table[pkt_plr] |= CON_CONNECTED;
 	pkt_plr = pkt.pktDest();
 	if (pkt_plr != plr_self && pkt_plr != PLR_BROADCAST)
 		return; // packet not for us, drop
@@ -285,9 +285,9 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 }
 
 template <class P>
-void base_protocol<P>::SNetLeaveGame(int reason)
+void base_protocol<P>::SNetLeaveGame()
 {
-	base::SNetLeaveGame(reason);
+	base::SNetLeaveGame();
 	recv();
 }
 

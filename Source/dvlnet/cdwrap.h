@@ -30,7 +30,7 @@ public:
 	unsigned SNetGetTurnsInTransit() override;
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override;
 	void SNetUnregisterEventHandler(int evtype) override;
-	void SNetLeaveGame(int reason) override;
+	void SNetLeaveGame() override;
 	void SNetDropPlayer(int playerid) override;
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 

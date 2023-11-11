@@ -258,10 +258,27 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 
 bool tcpd_client::handle_recv_packet(const tcp_server::scc& con, packet& pkt)
 {
-	if (con->pnum != PLR_BROADCAST) {
-		if (con->pnum != pkt.pktSrc())
+	plr_t pkt_plr = con->pnum;
+
+	if (pkt_plr != PLR_BROADCAST) {
+		if (pkt_plr != pkt.pktSrc())
 			return false;
 		recv_local(pkt);
+		// ensure the disconnecting turn is the last one
+		if (connected_table[pkt_plr] & CON_LEAVING) {
+			size_t numTurns = turn_queue[pkt_plr].size();
+			if (numTurns > 1) {
+				SNetTurn *turnLast = &turn_queue[pkt_plr][numTurns - 1];
+				SNetTurn *turnPrev = &turn_queue[pkt_plr][numTurns - 2];
+				auto turnId = turnLast->turn_id;
+				if (turnId != 0) {
+					// assert(turnPrev->turn_id == 0);
+					turnLast->turn_id = 0; // turnPrev->turn_id
+					turnPrev->turn_id = turnId;
+					turnPrev->payload.swap(turnLast->payload);
+				}
+			}
+		}
 		return true;
 	} else {
 		return handle_recv_newplr(con, pkt);
@@ -401,9 +418,9 @@ void tcpd_client::close()
 	ioc.restart();
 }
 
-void tcpd_client::SNetLeaveGame(int reason)
+void tcpd_client::SNetLeaveGame()
 {
-	base::SNetLeaveGame(reason);
+	base::SNetLeaveGame();
 	poll();
 	close();
 }

@@ -300,7 +300,7 @@ void tcp_server::drop_connection(const scc& con)
 			active_connections[pnum] = NULL;
 			ghost_connections[pnum] = TIMEOUT_GHOST;
 			// notify the other clients
-			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, (leaveinfo_t)LEAVE_DROP);
+			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum);
 			send_packet(*pkt);
 		}
 	} else {
@@ -321,7 +321,7 @@ void tcp_server::close()
 	asio::error_code err;
 
 	if (acceptor.is_open()) {
-		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER, (leaveinfo_t)LEAVE_DROP);
+		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER);
 		send_packet(*pkt);
 		ioc.poll(err);
 		err.clear();

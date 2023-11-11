@@ -35,7 +35,7 @@ bool multi_handle_turn();
 void multi_send_turn_packet();
 void multi_pre_process_turn(SNetTurnPkt* turn);
 void multi_process_turn(SNetTurnPkt* turn);
-void multi_deactivate_player(int pnum, int reason);
+void multi_deactivate_player(int pnum);
 void multi_disband_team(int pnum);
 bool multi_check_timeout();
 void multi_rnd_seeds();

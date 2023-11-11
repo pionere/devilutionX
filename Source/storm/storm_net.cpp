@@ -105,14 +105,14 @@ void SNetGetGameInfo(const char** name, const char** password)
 	*password = gpszGamePassword;
 }
 
-void SNetLeaveGame(int reason)
+void SNetLeaveGame()
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
 	if (dvlnet_inst == NULL)
 		return;
-	dvlnet_inst->SNetLeaveGame(reason);
+	dvlnet_inst->SNetLeaveGame();
 }
 
 /**

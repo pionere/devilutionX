@@ -35,7 +35,7 @@ public:
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
 	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
 	unsigned SNetGetTurnsInTransit() override;
-	void SNetLeaveGame(int reason) override;
+	void SNetLeaveGame() override;
 
 	~tcp_host_client() override = default;
 

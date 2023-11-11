@@ -102,7 +102,7 @@ void loopback::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 	turn_queue.emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 }
 
-void loopback::SNetLeaveGame(int reason)
+void loopback::SNetLeaveGame()
 {
 	// message_last.clear(); -- not necessary at the moment
 	message_queue.clear();

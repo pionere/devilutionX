@@ -21,7 +21,6 @@ extern char gbNetMsg[MAX_SEND_STR_LEN];
 void LevelDeltaExport();
 // load level info from level-delta
 void LevelDeltaLoad();
-void msg_send_drop_plr(int pnum, BYTE reason);
 // download game-delta
 bool DownloadDeltaInfo();
 // send game-delta

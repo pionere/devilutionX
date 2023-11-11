@@ -99,17 +99,6 @@ static void DeltaQueuePacket(int pnum, const void* packet, unsigned dwSize)
 	sgpCurrPkt->dwSpaceLeft -= dwSize + 1;
 }
 
-void msg_send_drop_plr(int pnum, BYTE reason)
-{
-	TMsgFakeDropPlr cmd;
-
-	cmd.bCmd = NMSG_PLRDROP;
-	cmd.bReason = reason;
-	// FIXME: timestamp?
-
-	DeltaQueuePacket(pnum, &cmd, sizeof(cmd));
-}
-
 static void msg_mask_monhit(int pnum)
 {
 	int i, j;
@@ -3057,17 +3046,6 @@ static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 	return cmd->tpHdr.wBytes + sizeof(cmd->tpHdr);
 }
 
-static unsigned On_PLRDROP(TCmd* pCmd, int pnum)
-{
-	TMsgFakeDropPlr* cmd = (TMsgFakeDropPlr*)pCmd;
-
-	net_assert((unsigned)pnum < MAX_PLRS);
-
-	multi_deactivate_player(pnum, cmd->bReason);
-
-	return sizeof(*cmd);
-}
-
 static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 {
 	TCmdJoinLevel* cmd = (TCmdJoinLevel*)pCmd;
@@ -3137,7 +3115,7 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 {
 	TCmd* cmd = (TCmd*)pCmd;
 
-	multi_deactivate_player(pnum, LEAVE_NORMAL);
+	multi_deactivate_player(pnum);
 	if (pnum == mypnum)
 		gbRunGame = false;
 
@@ -4376,8 +4354,6 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 		return On_LVL_DELTA(pCmd, pnum);
 	case NMSG_STRING:
 		return On_STRING(pCmd, pnum);
-	case NMSG_PLRDROP:
-		return On_PLRDROP(pCmd, pnum);
 	}
 
 	SNetDropPlayer(pnum);

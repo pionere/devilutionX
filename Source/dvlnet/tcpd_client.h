@@ -16,7 +16,7 @@ public:
 	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
 	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	void SNetLeaveGame(int reason) override;
+	void SNetLeaveGame() override;
 
 	~tcpd_client() override = default;
 

@@ -770,7 +770,7 @@ void LoadGame()
 
 	FreeLevelMem();
 	// TODO: UIDisconnectGame() ?
-	SNetLeaveGame(LEAVE_NORMAL);
+	SNetLeaveGame();
 
 	pfile_delete_save_file(false);
 	pfile_read_save_file(true);
