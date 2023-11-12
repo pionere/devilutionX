@@ -1949,7 +1949,7 @@ typedef struct NormalMsgPkt {
 	BYTE body[NET_NORMAL_MSG_SIZE - sizeof(MsgPktHdr)];
 } NormalMsgPkt;
 
-typedef struct DMonsterStr {
+typedef struct DDMonster {
 	BYTE dmCmd;
 	BYTE dmx;
 	BYTE dmy;
@@ -1959,46 +1959,46 @@ typedef struct DMonsterStr {
 	BYTE dmSIdx;
 	LE_UINT32 dmactive;
 	LE_INT32 dmhitpoints;
-} DMonsterStr;
+} DDMonster;
 
-typedef struct DObjectStr {
+typedef struct DDObject {
 	BYTE bCmd;
-} DObjectStr;
+} DDObject;
 
-typedef struct DItemStr {
+typedef struct DDItem {
 	BYTE bCmd;
 	BYTE x;
 	BYTE y;
 	PkItemStruct item;
-} DItemStr;
+} DDItem;
 
-typedef struct DLevel {
-	DItemStr item[MAXITEMS];
-	DObjectStr object[MAXOBJECTS];
-	DMonsterStr monster[MAXMONSTERS];
-} DLevel;
+typedef struct DDLevel {
+	DDItem item[MAXITEMS];
+	DDObject object[MAXOBJECTS];
+	DDMonster monster[MAXMONSTERS];
+} DDLevel;
 
 typedef struct LocalLevel {
 	BYTE automapsv[MAXDUNX][MAXDUNY]; // TODO: compress the data?
 } LocalLevel;
 
-typedef struct DPortal {
+typedef struct DDPortal {
 	BYTE level;
 	BYTE x;
 	BYTE y;
-} DPortal;
+} DDPortal;
 
-typedef struct DQuest {
+typedef struct DDQuest {
 	BYTE qstate;
 	BYTE qlog;
 	BYTE qvar1;
-} DQuest;
+} DDQuest;
 
-typedef struct DJunk {
-	DPortal jPortals[MAXPORTAL];
-	DQuest jQuests[NUM_QUESTS];
+typedef struct DDJunk {
+	DDPortal jPortals[MAXPORTAL];
+	DDQuest jQuests[NUM_QUESTS];
 	BYTE jGolems[MAX_MINIONS];
-} DJunk;
+} DDJunk;
 
 typedef struct LDLevel {
 	BYTE ldNumMonsters;
@@ -2037,8 +2037,8 @@ typedef struct DeltaData {
 	union {
 		struct {
 			LocalLevel ddLocal[NUM_LEVELS]; // automap
-			DJunk ddJunk;                   // portals and quests
-			DLevel ddLevel[NUM_LEVELS];     // items/monsters/objects
+			DDJunk ddJunk;                  // portals and quests
+			DDLevel ddLevel[NUM_LEVELS];    // items/monsters/objects
 			BYTE ddLevelPlrs[NUM_LEVELS];   // the number of players when the level was 'initialized'
 			bool ddJunkChanged;
 

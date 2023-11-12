@@ -173,11 +173,11 @@ bool DownloadDeltaInfo()
 
 static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 {
-	DItemStr* item;
-	DMonsterStr* mon;
+	DDItem* item;
+	DDMonster* mon;
 	int i;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaExportLevel.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(DDLevel) + 1, "DLevel might not fit to the buffer in DeltaExportLevel.");
 
 	// level-index
 	*dst = bLevel;
@@ -192,8 +192,8 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 			*dst = DCMD_INVALID;
 			dst++;
 		} else {
-			copy_pod(*reinterpret_cast<DItemStr*>(dst), *item);
-			dst += sizeof(DItemStr);
+			copy_pod(*reinterpret_cast<DDItem*>(dst), *item);
+			dst += sizeof(DDItem);
 		}
 	}
 
@@ -208,8 +208,8 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 			*dst = DCMD_MON_INVALID;
 			dst++;
 		} else {
-			copy_pod(*reinterpret_cast<DMonsterStr*>(dst), *mon);
-			dst += sizeof(DMonsterStr);
+			copy_pod(*reinterpret_cast<DDMonster*>(dst), *mon);
+			dst += sizeof(DDMonster);
 		}
 	}
 
@@ -218,12 +218,12 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 
 static void DeltaImportLevel()
 {
-	DItemStr* item;
-	DMonsterStr* mon;
+	DDItem* item;
+	DDMonster* mon;
 	int i;
 	BYTE *src, bLvl;
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(DLevel) + 1, "DLevel might not fit to the buffer in DeltaImportLevel.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(DDLevel) + 1, "DLevel might not fit to the buffer in DeltaImportLevel.");
 
 	src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 	// level-index
@@ -240,10 +240,10 @@ static void DeltaImportLevel()
 		if (*src == DCMD_INVALID) {
 			src++;
 		} else {
-			copy_pod(*item, *reinterpret_cast<DItemStr*>(src));
+			copy_pod(*item, *reinterpret_cast<DDItem*>(src));
 			// TODO: validate data from internet
 			// assert(dst->bCmd == DCMD_SPAWNED || dst->bCmd == DCMD_TAKEN || dst->bCmd == DCMD_DROPPED);
-			src += sizeof(DItemStr);
+			src += sizeof(DDItem);
 		}
 	}
 	// import objects
@@ -256,15 +256,15 @@ static void DeltaImportLevel()
 		if (*src == DCMD_MON_INVALID) {
 			src++;
 		} else {
-			copy_pod(*mon, *reinterpret_cast<DMonsterStr*>(src));
-			src += sizeof(DMonsterStr);
+			copy_pod(*mon, *reinterpret_cast<DDMonster*>(src));
+			src += sizeof(DDMonster);
 		}
 	}
 }
 
 static BYTE* DeltaExportJunk(BYTE* dst)
 {
-	DQuest* mq;
+	DDQuest* mq;
 	int i;
 
 	// TODO: add delta_SetMultiQuest instead?
@@ -286,8 +286,8 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 
 static void DeltaImportJunk()
 {
-	DPortal* pD;
-	DQuest* mq;
+	DDPortal* pD;
+	DDQuest* mq;
 	int i;
 	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 
@@ -501,7 +501,7 @@ void delta_init()
 static void delta_monster_corpse(const TCmdBParam2* pCmd)
 {
 	BYTE bLevel;
-	DMonsterStr* mon;
+	DDMonster* mon;
 
 	if (!IsMultiGame)
 		return;
@@ -519,7 +519,7 @@ static void delta_monster_corpse(const TCmdBParam2* pCmd)
 static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 {
 	BYTE bLevel;
-	DMonsterStr* mon;
+	DDMonster* mon;
 
 	if (!IsMultiGame)
 		return;
@@ -550,7 +550,7 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 
 static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 {
-	DMonsterStr* pD;
+	DDMonster* pD;
 	int mnum;
 	BYTE bLevel, whoHit = 0;
 
@@ -583,7 +583,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 
 static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 {
-	DMonsterStr* pD;
+	DDMonster* pD;
 	BYTE bLevel;
 
 	if (!IsMultiGame)
@@ -607,8 +607,8 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 
 static void delta_sync_monster(const TSyncHeader* pHdr)
 {
-	DMonsterStr* pDLvlMons;
-	DMonsterStr* pD;
+	DDMonster* pDLvlMons;
+	DDMonster* pD;
 	uint16_t wLen;
 	const TSyncMonster* pSync;
 	const BYTE* pbBuf;
@@ -645,7 +645,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 
 static void delta_awake_golem(TCmdGolem* pG, int mnum)
 {
-	DMonsterStr* pD;
+	DDMonster* pD;
 	BYTE bLevel;
 
 	if (!IsMultiGame)
@@ -696,7 +696,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 
 static bool delta_get_item(const TCmdGItem* pI)
 {
-	DItemStr* pD;
+	DDItem* pD;
 	int i;
 	BYTE bLevel;
 
@@ -749,7 +749,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 {
 	int i;
-	DItemStr* pD;
+	DDItem* pD;
 
 	if (!IsMultiGame)
 		return true;
@@ -824,7 +824,7 @@ void DeltaAddItem(int ii)
 	ItemStruct* is;
 	// commented out to have a complete sync with other players
 	//int i;
-	//DItemStr* pD;
+	//DDItem* pD;
 
 	//if (!IsMultiGame)
 	//	return;
@@ -951,10 +951,10 @@ static void DeltaLoadAutomap(LocalLevel &level)
 
 void DeltaLoadLevel()
 {
-	DMonsterStr* mstr;
-	DObjectStr* dstr;
+	DDMonster* mstr;
+	DDObject* dstr;
 	MonsterStruct* mon;
-	DItemStr* itm;
+	DDItem* itm;
 	int ii;
 	int i;
 	POS32 pos;
@@ -3572,7 +3572,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_mAnimWidth,
 	mon->_mAnimXOffset);
 		// clang-format on
-		DMonsterStr* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[mnum];
+		DDMonster* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[mnum];
 		if (mstr->dmCmd != DCMD_MON_INVALID) {
 			// clang-format off
 			LogErrorF("D-Mon", "delta ",
