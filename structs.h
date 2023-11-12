@@ -2034,7 +2034,6 @@ typedef struct DeltaData {
 			DDJunk ddJunk;                  // portals and quests
 			DDLevel ddLevel[NUM_LEVELS];    // items/monsters/objects
 			BYTE ddLevelPlrs[NUM_LEVELS];   // the number of players when the level was 'initialized'
-			bool ddJunkChanged;
 
 			LargeMsgPkt ddSendRecvPkt; // Buffer to send/receive delta info
 			unsigned ddSendRecvOffset; // offset in the buffer

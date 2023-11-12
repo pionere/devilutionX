@@ -293,8 +293,6 @@ static void DeltaImportJunk()
 
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
 
-	gsDeltaData.ddJunkChanged = true;
-
 	// import portals + quests + golems
 	memcpy(&gsDeltaData.ddJunk, src, sizeof(gsDeltaData.ddJunk));
 	//src += sizeof(gsDeltaData.ddJunk);
@@ -376,8 +374,7 @@ void DeltaExportData(int pmask)
 		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, (size_t)dstEnd - (size_t)buff->content);
 		numChunks++;
 	}
-	// junk
-	if (gsDeltaData.ddJunkChanged) {
+	{ // junk
 		dstEnd = DeltaExportJunk(buff->content);
 		multi_send_large_msg(pmask, NMSG_DLEVEL_JUNK, (size_t)dstEnd - (size_t)buff->content);
 		numChunks++;
@@ -482,7 +479,6 @@ done:
 
 void delta_init()
 {
-	//gsDeltaData.ddJunkChanged = false;
 	//memset(gsDeltaData.ddLevelPlrs, 0, sizeof(gsDeltaData.ddLevelPlrs));
 	static_assert((int)DLV_TOWN == 0, "delta_init initializes the portal levels to zero, assuming none of the portals starts from the town.");
 	//memset(&gsDeltaData.ddJunk, 0, sizeof(gsDeltaData.ddJunk));
@@ -651,7 +647,6 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	if (!IsMultiGame)
 		return;
 
-	gsDeltaData.ddJunkChanged = true;
 	gsDeltaData.ddJunk.jGolems[mnum] = pG->goMonLevel;
 
 	InitGolemStats(mnum, pG->goMonLevel);
@@ -2190,7 +2185,6 @@ void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel)
 {
 	// net_assert(bLevel < NUM_LEVELS);
 	// net_assert(bLevel != DLV_TOWN);
-	gsDeltaData.ddJunkChanged = true;
 	gsDeltaData.ddJunk.jPortals[i].x = x;
 	gsDeltaData.ddJunk.jPortals[i].y = y;
 	gsDeltaData.ddJunk.jPortals[i].level = bLevel;
@@ -2200,7 +2194,6 @@ void delta_close_portal(int i)
 {
 	//memset(&gsDeltaData.ddJunk.portal[i], 0, sizeof(gsDeltaData.ddJunk.portal[i]));
 	gsDeltaData.ddJunk.jPortals[i].level = DLV_TOWN;
-	// assert(gsDeltaData.ddJunkChanged == true);
 }
 
 static void check_update_plr(int pnum)
@@ -3401,7 +3394,6 @@ static unsigned On_SYNCQUEST(TCmd* pCmd, int pnum)
 
 	if (pnum != mypnum)
 		SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
-	gsDeltaData.ddJunkChanged = true;
 
 	return sizeof(*cmd);
 }
@@ -3415,7 +3407,6 @@ static unsigned On_SYNCQUESTEXT(TCmd* pCmd, int pnum)
 
 	if (currLvl._dLevelIdx != plr._pDunLevel)
 		SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
-	gsDeltaData.ddJunkChanged = true;
 
 	return sizeof(*cmd);
 }
