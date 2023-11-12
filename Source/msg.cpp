@@ -4179,9 +4179,10 @@ static unsigned On_REQUEST_ITEMCHECK(TCmd* pCmd, int pnum)
 
 static void PrintItemMismatch(ItemStruct* is, const char* field, int myval, int extval, int sp, int pnum, int locId, int subloc)
 {
-	const char* loc = locId == 0 ? "belt" : (locId == 1 ? "body" : "inv");
+	const char* loc = locId == 0 ? (subloc < 0 ? "hand" : "body") : (locId == 1 ? "belt" : "inv");
 	int row = locId >= 2 ? locId - 2 : 0;
-	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d %s item at %d:%d", mypnum, field, myval, extval, sp, pnum, loc, row, subloc);
+	if (plx(pnum)._pActive)
+		msg_errorf("%d received %s (%d vs. %d) from %d for plr%d %s item at %d:%d", mypnum, field, myval, extval, sp, pnum, loc, row, subloc);
 }
 
 static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc, int sp)
