@@ -13,25 +13,24 @@ PortalStruct portals[MAXPORTAL];
 int portalindex;
 
 /** X-coordinate of each players portal in town. */
-int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
+const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
 /** Y-coordinate of each players portal in town. */
-int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
+const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
 
 void InitPortals()
 {
 	int i;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		portals[i]._ropen = false;
+		portals[i]._rlevel = DLV_TOWN;
 	}
 }
 
-/*void SetPortalStats(int pidx, bool o, int x, int y, int lvl)
+/*void SetPortalStats(int pidx, int x, int y, int lvl)
 {
-	portals[pidx]._wopen = o;
 	portals[pidx]._rx = x;
 	portals[pidx]._ry = y;
-	portals[pidx].level = lvl;
+	portals[pidx]._rlevel = lvl;
 }*/
 
 void AddWarpMissile(int pidx, int x, int y)
@@ -44,7 +43,7 @@ void SyncPortals()
 	int i, lvl;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (!portals[i]._ropen)
+		if (portals[i]._rlevel == DLV_TOWN)
 			continue;
 		lvl = currLvl._dLevelIdx;
 		if (lvl == DLV_TOWN)
@@ -61,15 +60,15 @@ void AddInTownPortal(int pidx)
 	AddWarpMissile(pidx, WarpDropX[pidx], WarpDropY[pidx]);
 }
 
-void ActivatePortal(int pidx, int x, int y, int lvl)
+void ActivatePortal(int pidx, int x, int y, int bLevel)
 {
-	assert(lvl != DLV_TOWN);
-	portals[pidx]._ropen = true;
+	// assert(bLevel != DLV_TOWN);
+	net_assert(bLevel < NUM_LEVELS);
 	portals[pidx]._rx = x;
 	portals[pidx]._ry = y;
-	portals[pidx]._rlevel = lvl;
+	portals[pidx]._rlevel = bLevel;
 
-	delta_open_portal(pidx, x, y, lvl);
+	delta_open_portal(pidx, x, y, bLevel);
 }
 
 static bool PortalOnLevel(int pidx)
@@ -96,10 +95,10 @@ void RemovePortalMissile(int pidx)
 
 void DeactivatePortal(int pidx)
 {
-	portals[pidx]._ropen = false;
-
 	RemovePortalMissile(pidx);
 	delta_close_portal(pidx);
+
+	portals[pidx]._rlevel = DLV_TOWN;
 }
 
 void UseCurrentPortal(int pidx)
@@ -123,7 +122,7 @@ bool PosOkPortal(int x, int y)
 	int i, lvl = currLvl._dLevelIdx;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (!portals[i]._ropen)
+		if (portals[i]._rlevel == DLV_TOWN)
 			continue;
 		if (lvl == DLV_TOWN) {
 			if (WarpDropX[i] == x && WarpDropY[i] == y)

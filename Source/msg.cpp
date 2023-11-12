@@ -2188,7 +2188,8 @@ void NetSendCmdString(unsigned int pmask)
 
 void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel)
 {
-	net_assert(bLevel < NUM_LEVELS);
+	// net_assert(bLevel < NUM_LEVELS);
+	// net_assert(bLevel != DLV_TOWN);
 	gsDeltaData.ddJunkChanged = true;
 	gsDeltaData.ddJunk.jPortals[i].x = x;
 	gsDeltaData.ddJunk.jPortals[i].y = y;
@@ -3183,16 +3184,18 @@ static unsigned On_TELEKINOID(TCmd* pCmd, int pnum)
 static unsigned On_ACTIVATEPORTAL(TCmd* pCmd, int pnum)
 {
 	TCmdLocBParam1* cmd = (TCmdLocBParam1*)pCmd;
+	BYTE bLevel = cmd->bParam1;
 
-	net_assert(cmd->bParam1 != DLV_TOWN);
+	net_assert(bLevel != DLV_TOWN);
+	// net_assert(bLevel < NUM_LEVELS);
 
 	static_assert(MAXPORTAL == MAX_PLRS, "On_ACTIVATEPORTAL uses pnum as portal-id.");
 	if (currLvl._dLevelIdx == DLV_TOWN)
 		AddInTownPortal(pnum);
-	else if (currLvl._dLevelIdx != cmd->bParam1)
+	else if (currLvl._dLevelIdx != bLevel)
 		RemovePortalMissile(pnum);
 
-	ActivatePortal(pnum, cmd->x, cmd->y, cmd->bParam1);
+	ActivatePortal(pnum, cmd->x, cmd->y, bLevel);
 
 	return sizeof(*cmd);
 }

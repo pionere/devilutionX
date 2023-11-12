@@ -900,13 +900,10 @@ static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align O
 //////////////////////////////////////////////////
 
 typedef struct PortalStruct {
-	BOOLEAN _ropen;
-	BYTE _rAlign0;
-	BYTE _rAlign1;
-	BYTE _rAlign2;
+	int _rlevel; // the destination-level of the portal (dungeon_level). DLV_TOWN if not open.
 	int _rx;
 	int _ry;
-	int _rlevel; // dungeon_level
+	ALIGNMENT(1, 1)
 } PortalStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1524,13 +1521,10 @@ typedef struct LSaveLightListStruct {
 } LSaveLightListStruct;
 
 typedef struct LSavePortalStruct {
-	BOOLEAN vropen;
-	BYTE vrAlign0;
-	BYTE vrAlign1;
-	BYTE vrAlign2;
+	LE_INT32 vrlevel;
 	LE_INT32 vrx;
 	LE_INT32 vry;
-	LE_INT32 vrlevel;
+	LE_INT32 vrAlign0;
 } LSavePortalStruct;
 
 #pragma pack(pop)
