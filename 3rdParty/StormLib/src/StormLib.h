@@ -332,7 +332,11 @@ extern "C" {
 #define MPQ_OPEN_NO_LISTFILE        0x00010000  // Don't load the internal listfile
 #define MPQ_OPEN_NO_ATTRIBUTES      0x00020000  // Don't open the attributes
 #define MPQ_OPEN_NO_HEADER_SEARCH   0x00040000  // Don't search for the MPQ header past the begin of the file
+#ifdef FULL
 #define MPQ_OPEN_FORCE_MPQ_V1       0x00080000  // Always open the archive as MPQ v 1.00, ignore the "wFormatVersion" variable in the header
+#else
+#define MPQ_OPEN_FORCE_MPQ_V1       0x00000000
+#endif
 #define MPQ_OPEN_CHECK_SECTOR_CRC   0x00100000  // On files with MPQ_FILE_SECTOR_CRC, the CRC will be checked when reading file
 #define MPQ_OPEN_PATCH              0x00200000  // This archive is a patch MPQ. Used internally.
 #define MPQ_OPEN_FORCE_LISTFILE     0x00400000  // Force add listfile even if there is none at the moment of opening
