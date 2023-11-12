@@ -34,8 +34,11 @@
 // Local functions - platform-specific functions
 
 #ifndef STORMLIB_WINDOWS
+#ifndef STORMLIB_WIIU
 static thread_local DWORD dwLastError = ERROR_SUCCESS;
-
+#else
+static DWORD dwLastError = ERROR_SUCCESS;
+#endif
 DWORD GetLastError()
 {
     return dwLastError;
