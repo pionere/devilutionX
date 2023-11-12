@@ -311,6 +311,7 @@ static void InitMonsterStats(int midx)
 {
 	MapMonData* cmon;
 	const MonsterData* mdata;
+	unsigned baseLvl, lvlBonus, monLvl;
 
 	cmon = &mapMonTypes[midx];
 
@@ -336,35 +337,55 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinHP = mdata->mMinHP;
 	cmon->cmMaxHP = mdata->mMaxHP;
 
-	cmon->cmAI.aiInt += gnDifficulty;
+	lvlBonus = 0;
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		cmon->cmMinHP = 2 * cmon->cmMinHP + 100;
-		cmon->cmMaxHP = 2 * cmon->cmMaxHP + 100;
-		cmon->cmLevel += NIGHTMARE_LEVEL_BONUS;
-		cmon->cmExp = 2 * (cmon->cmExp + DIFFICULTY_EXP_BONUS);
+		lvlBonus = NIGHTMARE_LEVEL_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		lvlBonus = HELL_LEVEL_BONUS;
+	}
+	cmon->cmAI.aiInt += lvlBonus / 16;
+
+	cmon->cmHit += lvlBonus * 5 / 2;
+	cmon->cmHit2 += lvlBonus * 5 / 2;
+	cmon->cmMagic += lvlBonus * 5 / 2;
+	cmon->cmEvasion += lvlBonus * 5 / 2;
+	cmon->cmArmorClass += lvlBonus * 5 / 2;
+
+	baseLvl = cmon->cmLevel;
+	monLvl = baseLvl + lvlBonus;
+	cmon->cmLevel = monLvl;
+	cmon->cmMinHP = monLvl * cmon->cmMinHP / baseLvl;
+	cmon->cmMaxHP = monLvl * cmon->cmMaxHP / baseLvl;
+	cmon->cmExp = monLvl * cmon->cmExp / baseLvl;
+	cmon->cmMinDamage = monLvl * cmon->cmMinDamage / baseLvl;
+	cmon->cmMaxDamage = monLvl * cmon->cmMaxDamage / baseLvl;
+	cmon->cmMinDamage2 = monLvl * cmon->cmMinDamage2 / baseLvl;
+	cmon->cmMaxDamage2 = monLvl * cmon->cmMaxDamage2 / baseLvl;
+
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		/*cmon->cmMinHP = 3 * cmon->cmMinHP / 2;
+		cmon->cmMaxHP = 3 * cmon->cmMaxHP / 2;
+		cmon->cmExp = 3 * cmon->cmExp / 2;
+		cmon->cmMinDamage = 3 * cmon->cmMinDamage / 2;
+		cmon->cmMaxDamage = 3 * cmon->cmMaxDamage / 2;
+		cmon->cmMinDamage2 = 3 * cmon->cmMinDamage2 / 2;
+		cmon->cmMaxDamage2 = 3 * cmon->cmMaxDamage2 / 2;
 		cmon->cmHit += NIGHTMARE_TO_HIT_BONUS;
 		cmon->cmMagic += NIGHTMARE_MAGIC_BONUS;
-		cmon->cmMinDamage = 2 * (cmon->cmMinDamage + 2);
-		cmon->cmMaxDamage = 2 * (cmon->cmMaxDamage + 2);
 		cmon->cmHit2 += NIGHTMARE_TO_HIT_BONUS;
-		cmon->cmMinDamage2 = 2 * (cmon->cmMinDamage2 + 2);
-		cmon->cmMaxDamage2 = 2 * (cmon->cmMaxDamage2 + 2);
 		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
-		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;
+		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;*/
 	} else if (gnDifficulty == DIFF_HELL) {
-		cmon->cmMinHP = 4 * cmon->cmMinHP + 200;
-		cmon->cmMaxHP = 4 * cmon->cmMaxHP + 200;
-		cmon->cmLevel += HELL_LEVEL_BONUS;
-		cmon->cmExp = 4 * (cmon->cmExp + DIFFICULTY_EXP_BONUS);
+		/*cmon->cmMinHP *= 2;
+		cmon->cmMaxHP *= 2;
+		cmon->cmExp *= 2;
+		cmon->cmMinDamage2 *= 2;
+		cmon->cmMaxDamage2 *= 2;
 		cmon->cmHit += HELL_TO_HIT_BONUS;
 		cmon->cmMagic += HELL_MAGIC_BONUS;
-		cmon->cmMinDamage = 4 * cmon->cmMinDamage + 6;
-		cmon->cmMaxDamage = 4 * cmon->cmMaxDamage + 6;
 		cmon->cmHit2 += HELL_TO_HIT_BONUS;
-		cmon->cmMinDamage2 = 4 * cmon->cmMinDamage2 + 6;
-		cmon->cmMaxDamage2 = 4 * cmon->cmMaxDamage2 + 6;
 		cmon->cmArmorClass += HELL_AC_BONUS;
-		cmon->cmEvasion += HELL_EVASION_BONUS;
+		cmon->cmEvasion += HELL_EVASION_BONUS;*/
 		cmon->cmMagicRes = monsterdata[cmon->cmType].mMagicRes2;
 	}
 
@@ -831,6 +852,7 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
+	unsigned baseLvl, lvlBonus, monLvl;
 
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
@@ -866,22 +888,43 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	mon->_mMagic += uniqm->mUnqMag;
 	mon->_mEvasion += uniqm->mUnqEva;
 	mon->_mArmorClass += uniqm->mUnqAC;
-	mon->_mAI.aiInt += gnDifficulty;
+
+	lvlBonus = 0;
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		lvlBonus = NIGHTMARE_LEVEL_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		lvlBonus = HELL_LEVEL_BONUS;
+	}
+	mon->_mAI.aiInt += lvlBonus / 16;
+
+	/*mon->_mHit += lvlBonus * 5 / 2;
+	mon->_mHit2 += lvlBonus * 5 / 2;
+	mon->_mMagic += lvlBonus * 5 / 2;
+	mon->_mEvasion += lvlBonus * 5 / 2;
+	mon->_mArmorClass += lvlBonus * 5 / 2;*/
+
+	baseLvl = mon->_mLevel;
+	monLvl = baseLvl + lvlBonus;
+	mon->_mLevel = monLvl;
+	mon->_mmaxhp = monLvl * mon->_mmaxhp / baseLvl;
+	// mon->_mExp = monLvl * mon->_mExp / baseLvl;
+	mon->_mMinDamage = monLvl * mon->_mMinDamage / baseLvl;
+	mon->_mMaxDamage = monLvl * mon->_mMaxDamage / baseLvl;
+	mon->_mMinDamage2 = monLvl * mon->_mMinDamage2 / baseLvl;
+	mon->_mMaxDamage2 = monLvl * mon->_mMaxDamage2 / baseLvl;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mmaxhp = 2 * mon->_mmaxhp + 100;
-		mon->_mLevel += NIGHTMARE_LEVEL_BONUS;
-		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
-		mon->_mMaxDamage = 2 * (mon->_mMaxDamage + 2);
-		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
-		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
+		/*mon->_mmaxhp = 3 * mon->_mmaxhp / 2;
+		mon->_mMinDamage = 3 * mon->_mMinDamage / 2;
+		mon->_mMaxDamage = 3 * mon->_mMaxDamage / 2;
+		mon->_mMinDamage2 = 3 * mon->_mMinDamage2 / 2;
+		mon->_mMaxDamage2 = 3 * mon->_mMaxDamage2 / 2;*/
 	} else if (gnDifficulty == DIFF_HELL) {
-		mon->_mmaxhp = 4 * mon->_mmaxhp + 200;
-		mon->_mLevel += HELL_LEVEL_BONUS;
-		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
-		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
-		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
-		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
+		/*mon->_mmaxhp *= 2;
+		mon->_mMinDamage *= 2;
+		mon->_mMaxDamage *= 2;
+		mon->_mMinDamage2 *= 2;
+		mon->_mMaxDamage2 *= 2;*/
 		mon->_mMagicRes = uniqm->mMagicRes2;
 	}
 
@@ -889,6 +932,7 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	// assert(mpl != 0);
 	mpl++;
 	/*mon->_mmaxhp = (mon->_mmaxhp * mpl) >> 1;
+	// mon->_mExp = (mon->_mExp * mpl) >> 1;
 
 	mon->_mmaxhp <<= 6;*/
 	mon->_mmaxhp = (mon->_mmaxhp * mpl) << (6 - 1);

@@ -162,22 +162,20 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define PAL16_RED		224
 #define PAL16_GRAY		240
 
-#define DIFFICULTY_EXP_BONUS   800
-
 #define NIGHTMARE_LEVEL_BONUS   16
 #define HELL_LEVEL_BONUS        32
 
-#define NIGHTMARE_TO_HIT_BONUS  85
-#define HELL_TO_HIT_BONUS      120
+/*#define NIGHTMARE_TO_HIT_BONUS  20
+#define HELL_TO_HIT_BONUS       40
 
-#define NIGHTMARE_AC_BONUS 50
-#define HELL_AC_BONUS      80
+#define NIGHTMARE_AC_BONUS 20
+#define HELL_AC_BONUS      40
 
-#define NIGHTMARE_EVASION_BONUS 35
-#define HELL_EVASION_BONUS      50
+#define NIGHTMARE_EVASION_BONUS 20
+#define HELL_EVASION_BONUS      40
 
-#define NIGHTMARE_MAGIC_BONUS 35
-#define HELL_MAGIC_BONUS      50
+#define NIGHTMARE_MAGIC_BONUS 20
+#define HELL_MAGIC_BONUS      40*/
 
 #define POS_IN_RECT(x, y, rx, ry, rw, rh) \
 	((x) >= (rx)                          \
