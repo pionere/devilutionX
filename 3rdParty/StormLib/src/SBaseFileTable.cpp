@@ -2051,6 +2051,7 @@ TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID l
 
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName)
 {
+#ifdef FULL
     // Sanity check
     assert(pFileEntry != NULL);
 
@@ -2069,7 +2070,9 @@ void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * sz
         if(pFileEntry->szFileName != NULL)
             strcpy(pFileEntry->szFileName, szFileName);
     }
-
+#else
+    pFileEntry->szFileName = szFileName;
+#endif
 #ifdef FULL
     // We also need to create the file name hash
     if(ha->pHetTable != NULL)

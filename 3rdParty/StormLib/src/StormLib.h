@@ -692,15 +692,23 @@ typedef struct _TPatchInfo
 // (attributes) file and from (listfile).
 typedef struct _TFileEntry
 {
+#ifdef FULL
     ULONGLONG FileNameHash;                     // Jenkins hash of the file name. Only used when the MPQ has BET table.
+#endif
     ULONGLONG ByteOffset;                       // Position of the file content in the MPQ, relative to the MPQ header
+#ifdef FULL
     ULONGLONG FileTime;                         // FileTime from the (attributes) file. 0 if not present.
+#endif
     DWORD     dwFileSize;                       // Decompressed size of the file
     DWORD     dwCmpSize;                        // Compressed size of the file (i.e., size of the file data in the MPQ)
     DWORD     dwFlags;                          // File flags (from block table)
     DWORD     dwCrc32;                          // CRC32 from (attributes) file. 0 if not present.
     BYTE      md5[MD5_DIGEST_SIZE];             // File MD5 from the (attributes) file. 0 if not present.
+#ifdef FULL
     char * szFileName;                          // File name. NULL if not known.
+#else
+    const char * szFileName;                    // File name. NULL if not known.
+#endif
 } TFileEntry;
 
 // Common header for HET and BET tables

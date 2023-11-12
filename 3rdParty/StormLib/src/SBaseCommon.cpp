@@ -1665,12 +1665,14 @@ void FreeArchiveHandle(TMPQArchive *& ha)
         // Free the file names from the file table
         if(ha->pFileTable != NULL)
         {
+#ifdef FULL
             for(DWORD i = 0; i < ha->dwFileTableSize; i++)
             {
                 if(ha->pFileTable[i].szFileName != NULL)
                     STORM_FREE(ha->pFileTable[i].szFileName);
                 ha->pFileTable[i].szFileName = NULL;
             }
+#endif
 
             // Then free all buffers allocated in the archive structure
             STORM_FREE(ha->pFileTable);
@@ -1705,6 +1707,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 // Verifies if the file name is a pseudo-name
 bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)
 {
+#ifdef FULL
     DWORD dwFileIndex = 0;
 
     if(szFileName != NULL)
@@ -1729,7 +1732,7 @@ bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)
             }
         }
     }
-
+#endif // FULL
     // Not a pseudo-name
     return false;
 }
