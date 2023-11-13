@@ -111,12 +111,12 @@ static void DrawProgress()
 		"Save", // 1
 		"Memfree", // 2
 		"Music stop", // 3
-		"Light Table", // 4
+		"Init Dungeon", // 4
 		"Init Level", // 5
 		"Create Dungeon", // 6
 		"MonsterFX", // 7
-		"ObjectsGFX", // 8
-		"Monsters", // 9
+		"Monsters", // 8
+		"ObjectsGFX", // 9
 		"Objects/Items", // 10
 		"Missiles/Light", // 11
 		"Music start", // 12
@@ -197,9 +197,9 @@ void LoadGameLevel(int lvldir)
 	//	NewCursor(CURSOR_HAND);
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	IncProgress();
+	IncProgress(); // "Init Dungeon" (4)
 	InitLvlDungeon();
-	IncProgress();
+	IncProgress(); // "Init Level" (5)
 
 	InitLvlAutomap();
 
@@ -212,7 +212,7 @@ void LoadGameLevel(int lvldir)
 	InitLvlObjects();  // reset objects
 	InitLvlThemes();   // reset themes
 	InitLvlItems();    // reset items
-	IncProgress();
+	IncProgress(); // "Create Dungeon" (6)
 
 	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	// fill pre: pSetPieces
@@ -222,33 +222,33 @@ void LoadGameLevel(int lvldir)
 	LoadLvlPalette();
 	// reset: dMonster, dObject, dPlayer, dItem, dMissile, dFlags+, dLight+
 	InitLvlMap();
-	IncProgress();
+	IncProgress(); // "MonsterFX" (7)
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes(); // select monster types and load their fx
 		InitThemes();     // select theme types
-		IncProgress();
+		IncProgress(); // "Monsters" (8)
 		HoldThemeRooms(); // protect themes with dFlags
 		InitMonsters();   // place monsters
 	} else {
 		InitLvlStores();
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
 		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-		IncProgress();
+		IncProgress(); // "Monsters" (8)
 		InitTowners();
 	}
-	IncProgress();
+	IncProgress(); // "ObjectsGFX" (9)
 	InitObjectGFX();    // load object graphics
-	IncProgress();
+	IncProgress(); // "Objects/Items" (10)
 	InitObjects();      // place objects
 	InitItems();        // place items
 	CreateThemeRooms(); // populate theme rooms
 	FreeSetPieces();
-	IncProgress();
+	IncProgress(); // "Missiles/Light" (11)
 	InitMissiles();
 	SavePreLighting();
 	InitView(lvldir);
 
-	IncProgress();
+	IncProgress(); // "Music start" (12)
 
 	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
 }
