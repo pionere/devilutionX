@@ -108,7 +108,7 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 {
 	BYTE* destData;
 	char* ptr;
-	unsigned int destSize, type, dsize;
+	unsigned int destSize;
 
 	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
 
@@ -120,9 +120,9 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 
 	TDataInfo info = TDataInfo(srcData, destData, size);
 
-	type = CMP_BINARY;
-	dsize = CMP_IMPLODE_DICT_SIZE3;
-	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &info, type, dsize);
+	// type = CMP_BINARY;
+	// dsize = CMP_IMPLODE_DICT_SIZE3;
+	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &info);
 
 	// size = info.size;
 	if (info.destOffset < size) {

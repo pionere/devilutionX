@@ -614,46 +614,40 @@ unsigned int PKWAREAPI implode(
     unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param),
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
     char         *work_buf,
-    void         *param,
 #ifdef FULL
+    void         *param,
     unsigned int *type,
     unsigned int *dsize)
 #else
-    unsigned int type,
-    unsigned int dsize)
+    void         *param)
 #endif
 {
     TCmpStruct * pWork = (TCmpStruct *)work_buf;
 #ifdef FULL
     unsigned int nChCode;
+#else
+    const unsigned int type = CMP_BINARY;
 #endif
     unsigned int nCount;
     unsigned int i;
     int nCount2;
 
     // Fill the work buffer information
-#ifdef FULL
-    // Note: The caller must zero the "work_buff" before passing it to implode
-#endif
     pWork->read_buf    = read_buf;
     pWork->write_buf   = write_buf;
 #ifdef FULL
     pWork->dsize_bytes = *dsize;
     pWork->ctype       = *type;
-#else
-    pWork->dsize_bytes = dsize;
-    pWork->ctype       = type;
-#endif
     pWork->param       = param;
     pWork->dsize_bits  = 4;
     pWork->dsize_mask  = 0x0F;
+#else
+    pWork->param       = param;
+#endif
 
     // Test dictionary size
 #ifdef FULL
     switch(*dsize)
-#else
-    switch(dsize)
-#endif
     {
         case CMP_IMPLODE_DICT_SIZE3:    // 0x1000 bytes
             pWork->dsize_bits++;
@@ -671,32 +665,27 @@ unsigned int PKWAREAPI implode(
         default:
             return CMP_INVALID_DICTSIZE;
     }
-
+#endif
     // Test the compression type
 #ifdef FULL
     switch(*type)
-#else
-    switch(type)
-#endif
     {
         case CMP_BINARY: // We will compress data with binary compression type
-#ifdef FULL
             for(nChCode = 0, nCount = 0; nCount < 0x100; nCount++)
             {
                 pWork->nChBits[nCount]  = 9;
                 pWork->nChCodes[nCount] = (unsigned short)nChCode;
                 nChCode = (nChCode & 0x0000FFFF) + 2;
             }
-#else
+#endif
             memset(pWork->nChBits, 9, 0x100);
             for(nCount = 0; nCount < 0x100; nCount++)
             {
                 pWork->nChCodes[nCount] = nCount * 2;
             }
-#endif
+#ifdef FULL
             break;
 
-#ifdef FULL
         case CMP_ASCII: // We will compress data with ASCII compression type
             for(nCount = 0; nCount < 0x100; nCount++)
             {
@@ -704,10 +693,10 @@ unsigned int PKWAREAPI implode(
                 pWork->nChCodes[nCount] = (unsigned short)(ChCodeAsc[nCount] * 2);
             }
             break;
-#endif
         default:
             return CMP_INVALID_MODE;
     }
+#endif
 
     for(i = 0; i < 0x10; i++)
     {

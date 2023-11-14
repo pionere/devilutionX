@@ -42,18 +42,23 @@
 // Internal structures
 
 // Compression structure
-typedef struct
+typedef struct TCmpStruct
 {
     unsigned int   distance;                // 0000: Backward distance of the currently found repetition, decreased by 1
     unsigned int   out_bytes;               // 0004: # bytes available in out_buff            
     unsigned int   out_bits;                // 0008: # of bits available in the last out byte
+#ifdef FULL
     unsigned int   dsize_bits;              // 000C: Number of bits needed for dictionary size. 4 = 0x400, 5 = 0x800, 6 = 0x1000
     unsigned int   dsize_mask;              // 0010: Bit mask for dictionary. 0x0F = 0x400, 0x1F = 0x800, 0x3F = 0x1000
     unsigned int   ctype;                   // 0014: Compression type (CMP_ASCII or CMP_BINARY)
     unsigned int   dsize_bytes;             // 0018: Dictionary size in bytes
-#ifdef FULL
     unsigned char  dist_bits[0x40];         // 001C: Distance bits
     unsigned char  dist_codes[0x40];        // 005C: Distance codes
+#else
+    static const unsigned int dsize_bits = 4 + 2;  // 000C: Number of bits needed for dictionary size. 4 = 0x400, 5 = 0x800, 6 = 0x1000
+    static const unsigned int dsize_mask = 0x0F | 0x20 | 0x10; // 0010: Bit mask for dictionary. 0x0F = 0x400, 0x1F = 0x800, 0x3F = 0x1000
+    static const unsigned int ctype = CMP_BINARY;  // 0014: Compression type (CMP_ASCII or CMP_BINARY)
+    static const unsigned int dsize_bytes = CMP_IMPLODE_DICT_SIZE3; // 0018: Dictionary size in bytes
 #endif
     unsigned char  nChBits[0x306];          // 009C: Table of literal bit lengths to be put to the output stream
     unsigned short nChCodes[0x306];         // 03A2: Table of literal codes to be put to the output stream
@@ -148,13 +153,12 @@ unsigned int PKWAREAPI implode(
    unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param),
    void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
    char         *work_buf,
-   void         *param,
 #if FULL
+   void         *param,
    unsigned int *type,
    unsigned int *dsize);
 #else
-   unsigned int type,
-   unsigned int dsize);
+   void         *param);
 #endif
 
 
