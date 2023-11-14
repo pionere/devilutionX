@@ -264,29 +264,28 @@ static void DeltaImportLevel()
 
 static BYTE* DeltaExportJunk(BYTE* dst)
 {
-	DDPortal* pD;
-	DDQuest* mq;
+	DDPortal* pDPortal;
+	DDQuest* pDQuest;
 	int i;
 	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaExportJunk.");
 
 	// export portals
-	pD = (DDPortal*)dst;
-	for (i = 0; i < MAXPORTAL; i++, pD++) {
-		pD->level = portals[i]._rlevel;
-		pD->x = portals[i]._rx;
-		pD->y = portals[i]._ry;
+	pDPortal = (DDPortal*)dst;
+	for (i = 0; i < MAXPORTAL; i++, pDPortal++) {
+		pDPortal->level = portals[i]._rlevel;
+		pDPortal->x = portals[i]._rx;
+		pDPortal->y = portals[i]._ry;
 	}
-	dst = (BYTE*)pD;
+	dst = (BYTE*)pDPortal;
 	// export quests
-	mq = (DDQuest*)dst;
-	for (i = 0; i < NUM_QUESTS; i++) {
-		mq->qstate = quests[i]._qactive;
-		mq->qlog = quests[i]._qlog;
-		mq->qvar1 = quests[i]._qvar1;
-		mq++;
+	pDQuest = (DDQuest*)dst;
+	for (i = 0; i < NUM_QUESTS; i++, pDQuest++) {
+		pDQuest->qstate = quests[i]._qactive;
+		pDQuest->qlog = quests[i]._qlog;
+		pDQuest->qvar1 = quests[i]._qvar1;
 	}
-	dst = (BYTE*)mq;
+	dst = (BYTE*)pDQuest;
 	// export golems
 	memcpy(dst, &gsDeltaData.ddJunk, sizeof(gsDeltaData.ddJunk));
 	dst += sizeof(gsDeltaData.ddJunk);
@@ -296,8 +295,8 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 
 static void DeltaImportJunk()
 {
-	DDPortal* pD;
-	DDQuest* mq;
+	DDPortal* pDPortal;
+	DDQuest* pDQuest;
 	int i;
 	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
 	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
@@ -305,23 +304,23 @@ static void DeltaImportJunk()
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaImportJunk.");
 
 	// update portals
-	pD = (DDPortal*)src;
-	for (i = 0; i < MAXPORTAL; i++, pD++) {
-		if (pD->level != DLV_TOWN) {
-			ActivatePortal(i, pD->x, pD->y, pD->level);
+	pDPortal = (DDPortal*)src;
+	for (i = 0; i < MAXPORTAL; i++, pDPortal++) {
+		if (pDPortal->level != DLV_TOWN) {
+			ActivatePortal(i, pDPortal->x, pDPortal->y, pDPortal->level);
 		}
 		//else
 		//	SetPortalStats(i, false, 0, 0, 0);
 	}
-	src = (BYTE*)pD;
+	src = (BYTE*)pDPortal;
 	// update quests
-	mq = (DDQuest*)src;
-	for (i = 0; i < NUM_QUESTS; i++, mq++) {
-		quests[i]._qlog = mq->qlog;
-		quests[i]._qactive = mq->qstate;
-		quests[i]._qvar1 = mq->qvar1;
+	pDQuest = (DDQuest*)src;
+	for (i = 0; i < NUM_QUESTS; i++, pDQuest++) {
+		quests[i]._qlog = pDQuest->qlog;
+		quests[i]._qactive = pDQuest->qstate;
+		quests[i]._qvar1 = pDQuest->qvar1;
 	}
-	src = (BYTE*)mq;
+	src = (BYTE*)pDQuest;
 	// update golems
 	memcpy(&gsDeltaData.ddJunk, src, sizeof(gsDeltaData.ddJunk));
 	// src += sizeof(gsDeltaData.ddJunk);
