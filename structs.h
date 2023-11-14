@@ -1121,7 +1121,9 @@ typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhInitial;
 	LE_UINT32 vhLogicTurn;
 	LE_UINT32 vhSentCycle;
-	LE_INT32 vhLvlDifficulty;
+	BYTE vhCurrLevel;
+	BYTE vhDifficulty;
+	BYTE vhAlign0[2];
 	LE_UINT32 vhSeeds[NUM_LEVELS];
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;

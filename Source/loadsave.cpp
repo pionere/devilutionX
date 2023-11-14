@@ -781,10 +781,9 @@ void LoadGame()
 	// assert(gbNetUpdateRate == 1);
 	gdwLastGameTurn = gdwGameLogicTurn;
 	sgbSentThisCycle = ghs->vhSentCycle;
-	i = ghs->vhLvlDifficulty;
-	gnDifficulty = (i >> 8) & 0xFF;
-	currLvl._dLevelIdx = i & 0xFF;
-	EnterLevel(i & 0xFF);
+	gnDifficulty = ghs->vhDifficulty;
+	currLvl._dLevelIdx = ghs->vhCurrLevel;
+	EnterLevel(currLvl._dLevelIdx);
 	for (i = 0; i < NUM_LEVELS; i++) {
 		glSeedTbl[i] = ghs->vhSeeds[i];
 	}
@@ -1587,7 +1586,6 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	BYTE* tbuff = fileBuff;
 
-
 	constexpr size_t ss = sizeof(LSaveGameHeaderStruct) + sizeof(LSavePlayerStruct) + sizeof(LSaveQuestStruct) * NUM_QUESTS + sizeof(LSavePortalStruct) * MAXPORTAL;
 	ghs = (LSaveGameHeaderStruct*)tbuff;
 	ghs->vhInitial = SAVE_INITIAL;
@@ -1596,8 +1594,8 @@ void SaveGame()
 	assert(gdwLastGameTurn == gdwGameLogicTurn
 	 || ((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
 	ghs->vhSentCycle = sgbSentThisCycle;
-	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
-	ghs->vhLvlDifficulty = i;
+	ghs->vhCurrLevel = currLvl._dLevelIdx;
+	ghs->vhDifficulty = gnDifficulty;
 	for (i = 0; i < NUM_LEVELS; i++) {
 		ghs->vhSeeds[i] = glSeedTbl[i];
 	}
