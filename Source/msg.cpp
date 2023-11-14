@@ -264,20 +264,30 @@ static void DeltaImportLevel()
 
 static BYTE* DeltaExportJunk(BYTE* dst)
 {
+	DDPortal* pD;
 	DDQuest* mq;
 	int i;
+	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaExportJunk.");
 
-	// TODO: add delta_SetMultiQuest instead?
-	mq = gsDeltaData.ddJunk.jQuests;
+	// export portals
+	pD = (DDPortal*)dst;
+	for (i = 0; i < MAXPORTAL; i++, pD++) {
+		pD->level = portals[i]._rlevel;
+		pD->x = portals[i]._rx;
+		pD->y = portals[i]._ry;
+	}
+	dst = (BYTE*)pD;
+	// export quests
+	mq = (DDQuest*)dst;
 	for (i = 0; i < NUM_QUESTS; i++) {
 		mq->qstate = quests[i]._qactive;
 		mq->qlog = quests[i]._qlog;
 		mq->qvar1 = quests[i]._qvar1;
 		mq++;
 	}
-
-	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaExportJunk.");
-	// export portals + quests + golems
+	dst = (BYTE*)mq;
+	// export golems
 	memcpy(dst, &gsDeltaData.ddJunk, sizeof(gsDeltaData.ddJunk));
 	dst += sizeof(gsDeltaData.ddJunk);
 
@@ -290,16 +300,12 @@ static void DeltaImportJunk()
 	DDQuest* mq;
 	int i;
 	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
+	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
+	// static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
+	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaImportJunk.");
 
-	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
-
-	// import portals + quests + golems
-	memcpy(&gsDeltaData.ddJunk, src, sizeof(gsDeltaData.ddJunk));
-	//src += sizeof(gsDeltaData.ddJunk);
-
-	// update the game state
-	// portals
-	pD = gsDeltaData.ddJunk.jPortals;
+	// update portals
+	pD = (DDPortal*)src;
 	for (i = 0; i < MAXPORTAL; i++, pD++) {
 		if (pD->level != DLV_TOWN) {
 			ActivatePortal(i, pD->x, pD->y, pD->level);
@@ -307,13 +313,18 @@ static void DeltaImportJunk()
 		//else
 		//	SetPortalStats(i, false, 0, 0, 0);
 	}
-	// quests
-	mq = gsDeltaData.ddJunk.jQuests;
+	src = (BYTE*)pD;
+	// update quests
+	mq = (DDQuest*)src;
 	for (i = 0; i < NUM_QUESTS; i++, mq++) {
 		quests[i]._qlog = mq->qlog;
 		quests[i]._qactive = mq->qstate;
 		quests[i]._qvar1 = mq->qvar1;
 	}
+	src = (BYTE*)mq;
+	// update golems
+	memcpy(&gsDeltaData.ddJunk, src, sizeof(gsDeltaData.ddJunk));
+	// src += sizeof(gsDeltaData.ddJunk);
 }
 
 static BYTE* DeltaExportPlr(int pnum, BYTE* dst)
@@ -2179,21 +2190,6 @@ void NetSendCmdString(unsigned int pmask)
 	cmd.bCmd = NMSG_STRING;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
 	multi_send_direct_msg(pmask, (BYTE*)&cmd, sizeof(cmd.bCmd) + dwStrLen + 1);
-}
-
-void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel)
-{
-	// net_assert(bLevel < NUM_LEVELS);
-	// net_assert(bLevel != DLV_TOWN);
-	gsDeltaData.ddJunk.jPortals[i].x = x;
-	gsDeltaData.ddJunk.jPortals[i].y = y;
-	gsDeltaData.ddJunk.jPortals[i].level = bLevel;
-}
-
-void delta_close_portal(int i)
-{
-	//memset(&gsDeltaData.ddJunk.portal[i], 0, sizeof(gsDeltaData.ddJunk.portal[i]));
-	gsDeltaData.ddJunk.jPortals[i].level = DLV_TOWN;
 }
 
 static void check_update_plr(int pnum)

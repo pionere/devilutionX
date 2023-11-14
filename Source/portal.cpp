@@ -67,8 +67,6 @@ void ActivatePortal(int pidx, int x, int y, int bLevel)
 	portals[pidx]._rx = x;
 	portals[pidx]._ry = y;
 	portals[pidx]._rlevel = bLevel;
-
-	delta_open_portal(pidx, x, y, bLevel);
 }
 
 static bool PortalOnLevel(int pidx)
@@ -96,7 +94,6 @@ void RemovePortalMissile(int pidx)
 void DeactivatePortal(int pidx)
 {
 	RemovePortalMissile(pidx);
-	delta_close_portal(pidx);
 
 	portals[pidx]._rlevel = DLV_TOWN;
 }

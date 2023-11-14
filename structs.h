@@ -1989,8 +1989,8 @@ typedef struct DDQuest {
 } DDQuest;
 
 typedef struct DDJunk {
-	DDPortal jPortals[MAXPORTAL];
-	DDQuest jQuests[NUM_QUESTS];
+	// DDPortal jPortals[MAXPORTAL];
+	// DDQuest jQuests[NUM_QUESTS];
 	BYTE jGolems[MAX_MINIONS];
 } DDJunk;
 
