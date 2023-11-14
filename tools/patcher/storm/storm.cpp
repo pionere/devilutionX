@@ -6,7 +6,7 @@
 #include "storm_cfg.h"
 #include "utils/paths.h"
 
-// Include Windows headers for Get/SetLastError.
+/*// Include Windows headers for Get/SetLastError.
 #if defined(_WIN32)
 // Suppress definitions of `min` and `max` macros by <windows.h>:
 #define NOMINMAX 1
@@ -14,9 +14,9 @@
 #include <windows.h>
 #else // !defined(_WIN32)
 // On non-Windows, these are defined in 3rdParty/StormLib.
-extern "C" void SetLastError(std::uint32_t dwErrCode);
-extern "C" std::uint32_t GetLastError();
-#endif
+//extern "C" void SetLastError(std::uint32_t dwErrCode);
+//extern "C" std::uint32_t GetLastError();
+#endif*/
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -71,15 +71,15 @@ HANDLE SFileOpenFile(const char* filename)
 	return result;
 }
 
-DWORD SErrGetLastError()
-{
-	return ::GetLastError();
-}
+//DWORD SErrGetLastError()
+//{
+//	return ::GetLastError();
+//}
 
-void SErrSetLastError(DWORD dwErrCode)
-{
-	::SetLastError(dwErrCode);
-}
+//void SErrSetLastError(DWORD dwErrCode)
+//{
+//	::SetLastError(dwErrCode);
+//}
 
 void SStrCopy(char* dest, const char* src, int max_length)
 {
