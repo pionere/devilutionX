@@ -405,7 +405,8 @@ add_library(StormLib STATIC
 
 add_library(PKWare STATIC
   3rdParty/PKWare/explode.cpp
-  3rdParty/PKWare/implode.cpp)
+  3rdParty/PKWare/implode.cpp
+  3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
 set(devilutionx_SRCS

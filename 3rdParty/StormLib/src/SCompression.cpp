@@ -18,7 +18,7 @@
 
 //-----------------------------------------------------------------------------
 // Local structures
-
+#ifdef FULL
 // Information about the input and output buffers for pklib
 typedef struct
 {
@@ -27,7 +27,7 @@ typedef struct
     unsigned char * pbOutBuff;          // Pointer to output data buffer
     unsigned char * pbOutBuffEnd;       // Pointer to output data buffer
 } TDataInfo;
-
+#endif
 // Prototype of the compression function
 // Function doesn't return an error. A success means that the size of compressed buffer
 // is lower than size of uncompressed buffer.
@@ -193,7 +193,7 @@ int Decompress_ZLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, i
 //   char * buf          - Pointer to a buffer where to store loaded data
 //   unsigned int * size - Max. number of bytes to read
 //   void * param        - Custom pointer, parameter of implode/explode
-
+#ifdef FULL
 static unsigned int ReadInputData(char * buf, unsigned int * size, void * param)
 {
     TDataInfo * pInfo = (TDataInfo *)param;
@@ -233,7 +233,7 @@ static void WriteOutputData(char * buf, unsigned int * size, void * param)
     pInfo->pbOutBuff += nToWrite;
     assert(pInfo->pbOutBuff <= pInfo->pbOutBuffEnd);
 }
-#ifdef FULL
+
 static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer, int * pCmpType, int nCmpLevel)
 {
     TDataInfo Info;                                      // Data information
@@ -285,8 +285,11 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
 #endif /* FULL */
 static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer)
 {
+#ifdef FULL
     TDataInfo Info;                             // Data information
+#endif
     char * work_buf = STORM_ALLOC(char, EXP_BUFFER_SIZE);// Pklib's work buffer
+    int nResult = 0;
 
     // Handle no-memory condition
     if(work_buf == NULL)
@@ -295,26 +298,25 @@ static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
     // Fill data information structure
 #ifdef FULL
     memset(work_buf, 0, EXP_BUFFER_SIZE);
-#endif
     Info.pbInBuff     = (unsigned char *)pvInBuffer;
     Info.pbInBuffEnd  = (unsigned char *)pvInBuffer + cbInBuffer;
     Info.pbOutBuff    = (unsigned char *)pvOutBuffer;
     Info.pbOutBuffEnd = (unsigned char *)pvOutBuffer + *pcbOutBuffer;
 
     // Do the decompression
-    explode(ReadInputData, WriteOutputData, work_buf, &Info);
-
-    // If PKLIB is unable to decompress the data, return 0;
-    if(Info.pbOutBuff == pvOutBuffer)
-    {
-        STORM_FREE(work_buf);
-        return 0;
-    }
+    if (explode(ReadInputData, WriteOutputData, work_buf, &Info) == CMP_NO_ERROR)
+#else
+    TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer);
+    //TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer, *pcbOutBuffer);
+    // Do the decompression
+    if (explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &Info) == CMP_NO_ERROR)
+#endif
+        nResult = 1;
 
     // Give away the number of decompressed bytes
     *pcbOutBuffer = (int)(Info.pbOutBuff - (unsigned char *)pvOutBuffer);
     STORM_FREE(work_buf);
-    return 1;
+    return nResult;
 }
 
 #ifdef FULL

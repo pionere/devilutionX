@@ -2578,20 +2578,6 @@ typedef struct FilePcxHeader {
 	BYTE Filler[54];
 } FilePcxHeader;
 
-//////////////////////////////////////////////////
-// encrypt
-//////////////////////////////////////////////////
-
-typedef struct TDataInfo {
-	BYTE* const srcData;
-	size_t srcOffset;
-	BYTE* const destData;
-	size_t destOffset;
-	const size_t size;
-	TDataInfo(BYTE* src, BYTE* dst, size_t s) : srcData(src), srcOffset(0), destData(dst), destOffset(0), size(s) {
-	}
-} TDataInfo;
-
 /*
 //////////////////////////////////////////////////
 // data files

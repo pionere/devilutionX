@@ -128,7 +128,23 @@ typedef struct
 
 #define EXP_BUFFER_SIZE sizeof(TDcmpStruct) // Size of decompression structure
                                             // Defined as 12596 in pkware headers
-
+#ifndef FULL
+typedef struct TDataInfo {
+    /*unsigned char * const pbInBuff;
+    size_t srcOffset;
+    unsigned char * const pbOutBuff;
+    size_t destOffset;
+    const size_t size;
+    TDataInfo(unsigned char * src, unsigned char * dst, size_t s) : pbInBuff(src), srcOffset(0), pbOutBuff(dst), destOffset(0), size(s) {*/
+    unsigned char * pbInBuff;
+    unsigned char * const pbInBuffEnd;
+    unsigned char * pbOutBuff;
+    // unsigned char * const pbOutBuffEnd;
+    // TDataInfo(unsigned char * src, size_t inSize, unsigned char * dst, size_t outSize) : pbInBuff(src), pbInBuffEnd(src + inSize), pbOutBuff(dst), pbOutBuffEnd(dst + outSize) {
+    TDataInfo(unsigned char * src, size_t inSize, unsigned char * dst) : pbInBuff(src), pbInBuffEnd(src + inSize), pbOutBuff(dst) {
+    }
+} TDataInfo;
+#endif // !FULL
 //-----------------------------------------------------------------------------
 // Tables (in explode.c)
 
@@ -167,6 +183,11 @@ unsigned int PKWAREAPI explode(
    void         (PKWAREAPI *write_buf)(char *buf, unsigned  int *size, void *param),
    char         *work_buf,
    void         *param);
+
+#ifndef FULL
+unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param);
+void PkwareBufferWrite(char* buf, unsigned int* size, void* param);
+#endif
 
 #ifdef __cplusplus
    }                         // End of 'extern "C"' declaration
