@@ -22,7 +22,7 @@ BYTE gbNetUpdateRate;
 BYTE gbEmptyTurns;
 #ifdef ADAPTIVE_NETUPDATE
 /* The 'health' of the connection. Incremented on timeout, decremented if a turn is received on time. */
-int8_t gbNetUpdateWeight;
+int gbNetUpdateWeight;
 #endif // ADAPTIVE_NETUPDATE
 /* The thread to handle turns while connecting or loading a level. */
 static SDL_Thread* sghThread = NULL;
@@ -80,14 +80,12 @@ int nthread_recv_turns()
 	if (status == TS_TIMEOUT) {
 #ifdef ADAPTIVE_NETUPDATE
 		if (_gbTickInSync) {
-			gbNetUpdateWeight += 10;
-			if (gbNetUpdateWeight > 100) {
+			gbNetUpdateWeight += 200;
+			if (gbNetUpdateWeight > 1000) {
 				if (((gbEmptyTurns * gbNetUpdateRate) * gnTickDelay) < 200) {
 					gbEmptyTurns++;
-					gbNetUpdateWeight = 0;
-				} else {
-					gbNetUpdateWeight = 50;
 				}
+				gbNetUpdateWeight = 0;
 			}
 		}
 #endif
@@ -97,12 +95,12 @@ int nthread_recv_turns()
 	} else {
 #ifdef ADAPTIVE_NETUPDATE
 		gbNetUpdateWeight--;
-		if (gbNetUpdateWeight < -100) {
+		if (gbNetUpdateWeight < -1000) {
 			if (gbEmptyTurns != 0) {
 				gbEmptyTurns--;
 				gbNetUpdateWeight = 0;
 			} else {
-				gbNetUpdateWeight = -50;
+				gbNetUpdateWeight = -500;
 			}
 		}
 #endif
