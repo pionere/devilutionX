@@ -184,8 +184,8 @@ unsigned int PKWAREAPI explode(
    void         *param);
 
 #ifndef FULL
-unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param);
-void PkwareBufferWrite(char* buf, unsigned int* size, void* param);
+unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int* size, void* param);
+void PKWAREAPI PkwareBufferWrite(char* buf, unsigned int* size, void* param);
 #endif
 
 #ifdef __cplusplus

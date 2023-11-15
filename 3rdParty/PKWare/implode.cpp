@@ -47,7 +47,7 @@ static const char CopyrightPkware[] = "PKWARE Data Compression Library for Win32
 // Every element of "hash_to_index" will contain lowest index to the
 // "pair_hash_offsets" table, effectively giving offset of the first
 // occurence of the given PAIR_HASH in the input data.
-static void PKWAREAPI SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begin, unsigned char * buffer_end)
+static void SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begin, unsigned char * buffer_end)
 {
     unsigned short * phash_to_index;
     unsigned char  * buffer_ptr;
@@ -97,7 +97,7 @@ static void PKWAREAPI SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begi
     }
 }
 
-static void PKWAREAPI FlushBuf(TCmpStruct * pWork)
+static void FlushBuf(TCmpStruct * pWork)
 {
     unsigned char save_ch1;
     unsigned char save_ch2;
@@ -117,7 +117,7 @@ static void PKWAREAPI FlushBuf(TCmpStruct * pWork)
         pWork->out_buff[pWork->out_bytes] = save_ch2;
 }
 
-static void PKWAREAPI OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit_buff)
+static void OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit_buff)
 {
     unsigned int out_bits;
 
@@ -159,7 +159,7 @@ static void PKWAREAPI OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigne
 // (a previous occurence of the current byte sequence)
 // Returns length of the repetition, and stores the backward distance 
 // to pWork structure.
-static unsigned int PKWAREAPI FindRep(TCmpStruct * pWork, unsigned char * input_data)
+static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
 {
     unsigned short * phash_to_index;            // Pointer into pWork->phash_to_index table
     unsigned short * phash_offs;                // Pointer to the table containing offsets of each PAIR_HASH
@@ -415,7 +415,7 @@ static unsigned int PKWAREAPI FindRep(TCmpStruct * pWork, unsigned char * input_
     }
 }
 
-static void PKWAREAPI WriteCmpData(TCmpStruct * pWork)
+static void WriteCmpData(TCmpStruct * pWork)
 {
     unsigned char * input_data_end;         // Pointer to the end of the input data
     unsigned char * input_data = pWork->work_buff + pWork->dsize_bytes + 0x204;

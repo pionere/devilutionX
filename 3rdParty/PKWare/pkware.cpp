@@ -18,7 +18,7 @@
 //   char * buf          - Pointer to a buffer where to store loaded data
 //   unsigned int * size - Max. number of bytes to read
 //   void * param        - Custom pointer, parameter of implode/explode
-unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
+unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int* size, void* param)
 {
     /*TDataInfo* pInfo;
     size_t sSize;
@@ -53,7 +53,7 @@ unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
 //   char * buf          - Pointer to data to be written
 //   unsigned int * size - Number of bytes to write
 //   void * param        - Custom pointer, parameter of implode/explode
-void PkwareBufferWrite(char* buf, unsigned int* size, void* param)
+void PKWAREAPI PkwareBufferWrite(char* buf, unsigned int* size, void* param)
 {
     /*TDataInfo* pInfo;
     size_t sSize;
