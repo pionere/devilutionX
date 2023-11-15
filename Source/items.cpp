@@ -2289,13 +2289,12 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	numitems++;
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	// assert(gbLvlLoad != 0);
-	RespawnItem(ii, false);
-	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
 	items[ii]._iSeed = NextRndSeed();               // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
+
+	RespawnItem(ii, false);
 	DeltaAddItem(ii);
 }
 
