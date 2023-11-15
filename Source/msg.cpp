@@ -144,7 +144,7 @@ bool DownloadDeltaInfo()
 	gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 	assert(gsDeltaData.ddSendRecvOffset == 0);
 	// trigger delta-download in nthread
-	geBufferMsgs = MSG_GAME_DELTA_WAIT;
+	// assert(geBufferMsgs == MSG_GAME_DELTA_WAIT);
 	//guDeltaStart = SDL_GetTicks();
 	success = UiProgressDialog("Waiting for game data...", msg_wait_for_delta);
 	assert(geBufferMsgs == MSG_NORMAL || !success || gbGameDeltaChunks != MAX_CHUNKS);

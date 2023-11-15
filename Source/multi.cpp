@@ -832,6 +832,9 @@ bool NetInit(bool bSinglePlayer)
 			NetClose();
 			continue;
 		}
+		if (gbJoinGame) {
+			geBufferMsgs = MSG_GAME_DELTA_WAIT;
+		}
 		nthread_run();
 		SetupLocalPlr();
 #ifndef NONET
