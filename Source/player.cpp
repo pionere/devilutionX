@@ -852,7 +852,11 @@ void InitLvlPlayer(int pnum, bool entering)
 	} else {
 		plr._plid = NO_LIGHT;
 	}
-	plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	if (currLvl._dLevelIdx != DLV_TOWN) {
+		plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	} else {
+		plr._pvid = NO_VISION;
+	}
 }
 
 void RemoveLvlPlayer(int pnum)
