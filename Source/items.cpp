@@ -87,24 +87,6 @@ fail:
 	SetItemLoc(ii, x, y);
 }
 
-#ifdef HELLFIRE
-static void PlaceNote()
-{
-	int x, y, id;
-
-	do {
-		x = random_(12, DSIZEX) + DBORDERX;
-		y = random_(12, DSIZEY) + DBORDERY;
-	} while (!RandomItemPlace(x, y));
-	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "PlaceNote requires ordered IDI_NOTE indices I.");
-	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "PlaceNote requires ordered IDI_NOTE indices II.");
-	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "PlaceNote requires ordered DLV_CRYPT indices I.");
-	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "PlaceNote requires ordered DLV_CRYPT indices II.");
-	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
-	CreateQuestItemAt(id, x, y, ICM_DELTA);
-}
-#endif
-
 static inline unsigned items_get_currlevel()
 {
 	return currLvl._dLevel;
@@ -191,8 +173,13 @@ void InitItems()
 		 || (currLvl._dLevelIdx >= DLV_CATACOMBS1 && currLvl._dLevelIdx <= DLV_CATACOMBS4))
 			PlaceInitItems();
 #ifdef HELLFIRE
-		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
-			PlaceNote();
+		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3) {
+			static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "InitItems requires ordered DLV_CRYPT indices I.");
+			static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "InitItems requires ordered DLV_CRYPT indices II.");
+			static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "InitItems requires ordered IDI_NOTE indices I.");
+			static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "InitItems requires ordered IDI_NOTE indices II.");
+			PlaceQuestItemInArea(IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1), 1);
+		}
 #endif
 	// }
 }
