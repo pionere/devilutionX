@@ -306,8 +306,7 @@ static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
     // Do the decompression
     if (explode(ReadInputData, WriteOutputData, work_buf, &Info) == CMP_NO_ERROR)
 #else
-    TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer);
-    //TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer, *pcbOutBuffer);
+    TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer, *pcbOutBuffer);
     // Do the decompression
     if (explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &Info) == CMP_NO_ERROR)
 #endif

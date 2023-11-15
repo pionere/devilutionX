@@ -64,15 +64,13 @@ void PkwareBufferWrite(char* buf, unsigned int* size, void* param)
     memcpy(pInfo->pbOutBuff + pInfo->destOffset, buf, sSize);
     pInfo->destOffset += sSize;*/
     TDataInfo * pInfo = (TDataInfo *)param;
-#ifdef FULL
     unsigned int nMaxWrite = (unsigned int)(pInfo->pbOutBuffEnd - pInfo->pbOutBuff);
-#endif
     unsigned int nToWrite = *size;
-#ifdef FULL
+
     // Check the case when not enough space in the output buffer
     if(nToWrite > nMaxWrite)
         nToWrite = nMaxWrite;
-#endif
+
     // Write output data and increments offsets
     memcpy(pInfo->pbOutBuff, buf, nToWrite);
     pInfo->pbOutBuff += nToWrite;

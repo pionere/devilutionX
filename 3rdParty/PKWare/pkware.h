@@ -139,9 +139,8 @@ typedef struct TDataInfo {
     unsigned char * pbInBuff;
     unsigned char * const pbInBuffEnd;
     unsigned char * pbOutBuff;
-    // unsigned char * const pbOutBuffEnd;
-    // TDataInfo(unsigned char * src, size_t inSize, unsigned char * dst, size_t outSize) : pbInBuff(src), pbInBuffEnd(src + inSize), pbOutBuff(dst), pbOutBuffEnd(dst + outSize) {
-    TDataInfo(unsigned char * src, size_t inSize, unsigned char * dst) : pbInBuff(src), pbInBuffEnd(src + inSize), pbOutBuff(dst) {
+    unsigned char * const pbOutBuffEnd;
+    TDataInfo(unsigned char * src, size_t inSize, unsigned char * dst, size_t outSize) : pbInBuff(src), pbInBuffEnd(src + inSize), pbOutBuff(dst), pbOutBuffEnd(dst + outSize) {
     }
 } TDataInfo;
 #endif // !FULL
