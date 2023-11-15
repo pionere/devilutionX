@@ -165,8 +165,8 @@ extern const unsigned short ChCodeAsc[0x100];
 #endif
 
 unsigned int PKWAREAPI implode(
-   unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param),
-   void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
+   unsigned int (*read_buf)(char *buf, unsigned int *size, void *param),
+   void         (*write_buf)(char *buf, unsigned int *size, void *param),
    char         *work_buf,
 #if FULL
    void         *param,
@@ -178,14 +178,14 @@ unsigned int PKWAREAPI implode(
 
 
 unsigned int PKWAREAPI explode(
-   unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned  int *size, void *param),
-   void         (PKWAREAPI *write_buf)(char *buf, unsigned  int *size, void *param),
+   unsigned int (*read_buf)(char *buf, unsigned  int *size, void *param),
+   void         (*write_buf)(char *buf, unsigned  int *size, void *param),
    char         *work_buf,
    void         *param);
 
 #ifndef FULL
-unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int* size, void* param);
-void PKWAREAPI PkwareBufferWrite(char* buf, unsigned int* size, void* param);
+unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param);
+void PkwareBufferWrite(char* buf, unsigned int* size, void* param);
 #endif
 
 #ifdef __cplusplus

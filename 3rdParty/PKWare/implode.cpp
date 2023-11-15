@@ -57,7 +57,7 @@ static void SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begin, unsigne
 
     // Zero the entire "phash_to_index" table
     memset(pWork->phash_to_index, 0, sizeof(pWork->phash_to_index));
-    
+
     // Step 1: Count amount of each PAIR_HASH in the input buffer
     // The table will look like this:
     //  offs 0x000: Number of occurences of PAIR_HASH 0
@@ -67,7 +67,7 @@ static void SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begin, unsigne
     for(buffer_ptr = buffer_begin; buffer_ptr < buffer_end; buffer_ptr++)
         pWork->phash_to_index[BYTE_PAIR_HASH(buffer_ptr)]++;
 
-    // Step 2: Convert the table to the array of PAIR_HASH amounts. 
+    // Step 2: Convert the table to the array of PAIR_HASH amounts.
     // Each element contains count of PAIR_HASHes that is less or equal
     // to element index
     // The table will look like this:
@@ -139,7 +139,7 @@ static void OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit
     {
         pWork->out_bytes++;
         bit_buff >>= (8 - out_bits);
-        
+
         pWork->out_buff[pWork->out_bytes] = (unsigned char)bit_buff;
         pWork->out_bits &= 7;
     }
@@ -157,7 +157,7 @@ static void OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit
 
 // This function searches for a repetition
 // (a previous occurence of the current byte sequence)
-// Returns length of the repetition, and stores the backward distance 
+// Returns length of the repetition, and stores the backward distance
 // to pWork structure.
 static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
 {
@@ -198,7 +198,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
     phash_offs = pWork->phash_offs + phash_offs_index;
     prev_repetition = pWork->work_buff + phash_offs[0];
     repetition_limit = input_data - 1;
-    
+
     // If the current PAIR_HASH was not encountered before,
     // we haven't found a repetition.
     if(prev_repetition >= repetition_limit)
@@ -224,7 +224,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
             {
                 prev_repetition++;
                 input_data_ptr++;
-                
+
                 // Are the bytes different ?
                 if(*prev_repetition != *input_data_ptr)
                     break;
@@ -320,7 +320,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
         pWork->offs09BC[++offs_in_rep] = ++di_val;
     }
 
-    // 
+    //
     // Now go through all the repetitions from the first found one
     // to the current input data, and check if any of them migh be
     // a start of a greater sequence match.
@@ -329,7 +329,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
     prev_repetition = pWork->work_buff + phash_offs[0];
     prev_rep_end = prev_repetition + rep_length;
     rep_length2 = rep_length;
-    
+
     for(;;)
     {
         rep_length2 = pWork->offs09BC[rep_length2];
@@ -423,7 +423,7 @@ static void WriteCmpData(TCmpStruct * pWork)
     unsigned int save_rep_length;           // Saved length of current repetition
     unsigned int save_distance = 0;         // Saved distance of current repetition
     unsigned int rep_length;                // Length of the found repetition
-    unsigned int phase = 0;                 // 
+    unsigned int phase = 0;                 //
 
     // Store the compression type and dictionary size
     pWork->out_buff[0] = (char)pWork->ctype;
@@ -463,12 +463,12 @@ static void WriteCmpData(TCmpStruct * pWork)
         input_data_end = pWork->work_buff + pWork->dsize_bytes + total_loaded;
         if(input_data_ended)
             input_data_end += 0x204;
-        
+
         //
         // Warning: The end of the buffer passed to "SortBuffer" is actually 2 bytes beyond
         // valid data. It is questionable if this is actually a bug or not,
         // but it might cause the compressed data output to be dependent on random bytes
-        // that are in the buffer. 
+        // that are in the buffer.
         // To prevent that, the calling application must always zero the compression
         // buffer before passing it to "implode"
         //
@@ -477,7 +477,7 @@ static void WriteCmpData(TCmpStruct * pWork)
         // previously compressed data, if any.
         switch(phase)
         {
-            case 0: 
+            case 0:
                 SortBuffer(pWork, input_data, input_data_end + 1);
                 phase++;
                 if(pWork->dsize_bytes != 0x1000)
@@ -611,8 +611,8 @@ __Exit:
 // Main imploding function
 
 unsigned int PKWAREAPI implode(
-    unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param),
-    void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
+    unsigned int (*read_buf)(char *buf, unsigned int *size, void *param),
+    void         (*write_buf)(char *buf, unsigned int *size, void *param),
     char         *work_buf,
 #ifdef FULL
     void         *param,
@@ -623,11 +623,6 @@ unsigned int PKWAREAPI implode(
 #endif
 {
     TCmpStruct * pWork = (TCmpStruct *)work_buf;
-#ifdef FULL
-    unsigned int nChCode;
-#else
-    const unsigned int type = CMP_BINARY;
-#endif
     unsigned int nCount;
     unsigned int i;
     int nCount2;
@@ -671,20 +666,15 @@ unsigned int PKWAREAPI implode(
     switch(*type)
     {
         case CMP_BINARY: // We will compress data with binary compression type
-            for(nChCode = 0, nCount = 0; nCount < 0x100; nCount++)
-            {
-                pWork->nChBits[nCount]  = 9;
-                pWork->nChCodes[nCount] = (unsigned short)nChCode;
-                nChCode = (nChCode & 0x0000FFFF) + 2;
-            }
 #endif
-            memset(pWork->nChBits, 9, 0x100);
             for(nCount = 0; nCount < 0x100; nCount++)
             {
+                pWork->nChBits[nCount]  = 9;
                 pWork->nChCodes[nCount] = nCount * 2;
             }
 #ifdef FULL
             break;
+
 
         case CMP_ASCII: // We will compress data with ASCII compression type
             for(nCount = 0; nCount < 0x100; nCount++)
@@ -693,6 +683,7 @@ unsigned int PKWAREAPI implode(
                 pWork->nChCodes[nCount] = (unsigned short)(ChCodeAsc[nCount] * 2);
             }
             break;
+
         default:
             return CMP_INVALID_MODE;
     }
