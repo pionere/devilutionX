@@ -19,6 +19,8 @@ static TBuffer sgTurnChunkBuf;
 static PkPlayerStruct netplr[MAX_PLRS];
 /* Specifies whether the player-info is received. */
 static bool sgbPackPlrTbl[MAX_PLRS];
+/** Specifies whether a game should be loaded. */
+bool gbLoadGame;
 /* Specifies whether the player joins an existing game. */
 static bool gbJoinGame;
 /* The number of active players in the game. */

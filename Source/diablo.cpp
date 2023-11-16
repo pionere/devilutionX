@@ -29,8 +29,6 @@ bool gbRunGame;
 bool gbRunGameResult;
 /** Specifies whether the view is zoomed in. */
 bool gbZoomInFlag;
-/** Specifies whether a game should be loaded. */
-bool gbLoadGame;
 /** Specifies whether the ending cinematics should be played before the cutscene. */
 bool gbCineflag;
 /** The state of the game-logic progession. */

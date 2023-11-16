@@ -17,6 +17,7 @@ extern const char* szGamePassword;
 extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
+extern bool gbLoadGame;
 extern BYTE gbGameMode;
 extern uint32_t guDeltaTurn;
 extern unsigned guSendGameDelta;

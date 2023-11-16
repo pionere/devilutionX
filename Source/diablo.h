@@ -20,7 +20,6 @@ extern bool gbSndInited;
 extern bool gbRunGame;
 extern bool gbRunGameResult;
 extern bool gbZoomInFlag;
-extern bool gbLoadGame;
 extern bool gbCineflag;
 extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;
