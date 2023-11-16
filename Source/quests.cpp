@@ -11,6 +11,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
 
+/** The pseudo random seeds to generate the levels. */
+uint32_t glSeedTbl[NUM_LEVELS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */

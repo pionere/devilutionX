@@ -19,8 +19,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #include <gperftools/heap-profiler.h>
 #endif
 
-/** The pseudo random seeds to generate the levels. */
-uint32_t glSeedTbl[NUM_LEVELS];
 /** The X/Y-coordinate of the mouse on the screen. */
 POS32 MousePos;
 /** Controlls whether the main game-loop should run. */
