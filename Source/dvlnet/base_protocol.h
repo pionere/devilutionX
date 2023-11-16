@@ -14,7 +14,7 @@ namespace net {
 template <class P>
 class base_protocol : public base {
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, SNetGameData* gameData, char (&errorText)[256]);
+	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void SNetLeaveGame();

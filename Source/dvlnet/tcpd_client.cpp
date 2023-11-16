@@ -221,12 +221,12 @@ void tcpd_client::handle_recv_conn(const tcp_server::scc& con, const asio::error
 
 void tcpd_client::start_send(const tcp_server::scc& con, packet& pkt)
 {
-	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
+	const buffer_t* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
-	asio::async_write(con->socket, buf,
-		[frame](const asio::error_code& ec, size_t bytesSent) {
-		    delete frame;
-		});
+
+	asio::async_write(con->socket, buf,	[frame](const asio::error_code& ec, size_t bytesSent) {
+	    delete frame;
+	});
 }
 
 bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)

@@ -100,7 +100,7 @@ public:
 	packet(const key_t& k)
 	    : key(k) {};
 
-	const buffer_t& encrypted_data();
+	const buffer_t& encrypted_data() const;
 
 	packet_type pktType() const
 	{

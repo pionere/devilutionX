@@ -94,8 +94,9 @@ void tcp_client::start_recv()
 
 void tcp_client::send_packet(packet& pkt)
 {
-	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
+	const buffer_t* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
+
 	asio::async_write(sock, buf, [frame](const asio::error_code& ec, size_t bytesSent) {
 		delete frame;
 	});

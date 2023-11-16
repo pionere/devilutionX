@@ -5,7 +5,7 @@ namespace net {
 
 #define PKT_META_LEN (crypto_secretbox_NONCEBYTES + crypto_secretbox_MACBYTES + sizeof(NetPktHdr))
 
-const buffer_t& packet::encrypted_data()
+const buffer_t& packet::encrypted_data() const
 {
 	return encrypted_buffer;
 }

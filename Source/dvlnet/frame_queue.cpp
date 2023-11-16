@@ -71,7 +71,7 @@ void frame_queue::clear()
 	buffer_deque.clear();
 }
 
-buffer_t* frame_queue::make_frame(buffer_t packetbuf)
+buffer_t* frame_queue::make_frame(const buffer_t packetbuf)
 {
 	buffer_t* ret;
 	uint32_t size = packetbuf.size();

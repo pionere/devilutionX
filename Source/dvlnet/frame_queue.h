@@ -39,7 +39,7 @@ public:
 	/* Clear the content of the frame. */
 	void clear();
 
-	static buffer_t* make_frame(buffer_t packetbuf);
+	static buffer_t* make_frame(const buffer_t packetbuf);
 };
 
 } // namespace net
