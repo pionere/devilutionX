@@ -50,7 +50,12 @@ void nthread_send_turn(BYTE* data, unsigned len)
 restart:
 #endif
 	SNetSendTurn(turn, data, len);
-	turn++;
+	if (turn != 0) { // keep the initial turn
+		turn++;
+		if (turn == 0) { // skip turn in case of an overflow
+			turn = 1;
+		}
+	}
 	// commented out to raise the possible up-time of a game
 	// minor hickup might occur around overflow, but ignore it for the moment
 	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
@@ -163,14 +168,14 @@ static int SDLCALL nthread_handler(void* data)
 		}
 		if (geBufferMsgs == MSG_GAME_DELTA_LOAD) {
 			multi_process_msgs();
+			// assert(sgbSentThisCycle == 0);
 			if (geBufferMsgs != MSG_GAME_DELTA_LOAD) {
 				// delta-download finished -> jump to 'present'
 				// necessary in case the current player is the only player on a hosted server
-				sgbSentThisCycle = sgbSentThisCycle >= guDeltaTurn ? sgbSentThisCycle : guDeltaTurn;
-			} else
-				sgbSentThisCycle = 0;
+				sgbSentThisCycle = sgTurnQueue.back()->nmpTurn + SNetGetTurnsInTransit() + 1;
+			}
 		} else if (geBufferMsgs == MSG_GAME_DELTA_WAIT) {
-			sgbSentThisCycle = 0;
+			// assert(sgbSentThisCycle == 0);
 			// wait a few turns to stabilize the turn-id
 			if (sgTurnQueue.size() * gbNetUpdateRate * gnTickDelay > 500) {
 				geBufferMsgs = MSG_GAME_DELTA_LOAD;
@@ -184,8 +189,10 @@ static int SDLCALL nthread_handler(void* data)
 		switch (nthread_recv_turns()) {
 		case TS_DESYNC: {
 			uint32_t turn = SNetLastTurn(player_state);
-			if (!(player_state[mypnum] & PCS_TURN_ARRIVED))
+			if (!(player_state[mypnum] & PCS_TURN_ARRIVED)) {
+				// assert(sgbSentThisCycle != 0);
 				sgbSentThisCycle = turn;
+			}
 			nthread_parse_turns();
 			nthread_send_turn();
 			delta = 1; //gnTickDelay;
@@ -214,9 +221,13 @@ static int SDLCALL nthread_handler(void* data)
 void nthread_start()
 {
 	assert(geBufferMsgs == MSG_NORMAL);
+	sgbSentThisCycle = 1;
+	if (gbJoinGame) {
+		sgbSentThisCycle = 0;
+		geBufferMsgs = MSG_GAME_DELTA_WAIT;
+	}
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	_gbTickInSync = true;
-	sgbSentThisCycle = 0;
 	sgbPacketCountdown = 1;
 #ifndef NONET
 	gbEmptyTurns = 0;

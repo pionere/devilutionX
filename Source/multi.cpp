@@ -22,7 +22,7 @@ static bool sgbPackPlrTbl[MAX_PLRS];
 /** Specifies whether a game should be loaded. */
 bool gbLoadGame;
 /* Specifies whether the player joins an existing game. */
-static bool gbJoinGame;
+bool gbJoinGame;
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -824,7 +824,7 @@ bool NetInit(bool bSinglePlayer)
 		delta_init();
 		InitPlrMsg();
 		multi_init_buffers();
-		nthread_start();
+		nthread_start(/*gbJoinGame*/);
 		// dthread_start();
 		gdwLastGameTurn = 0;
 		gdwGameLogicTurn = 0;
@@ -833,9 +833,6 @@ bool NetInit(bool bSinglePlayer)
 			RunGameServer();
 			NetClose();
 			continue;
-		}
-		if (gbJoinGame) {
-			geBufferMsgs = MSG_GAME_DELTA_WAIT;
 		}
 		nthread_run();
 		SetupLocalPlr();
