@@ -13,18 +13,20 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+// Macro values to target specific players
+#define SNPLAYER_ALL    0xFF
+#define SNPLAYER_MASTER 0xFE
+//#define SNPLAYER_OTHERS -2
+
+typedef void (*SEVTHANDLER)(SNetEvent*);
+
+void SNetInitializeProvider(unsigned provider);
+void SNetRegisterEventHandler(int eventType, SEVTHANDLER func);
+void SNetUnregisterEventHandler(int eventType);
+
 bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256]);
 
-/*  SNetDropPlayer @ 106
- *
- *  Drops a player from the current game.
- *
- *  playerid:     The player ID for the player to be dropped.
- *
- */
-void SNetDropPlayer(int playerid);
-
-void SNetDisconnect();
+bool SNetJoinGame(const char* gameName, unsigned port, const char* gamePassword, char (&errorText)[256]);
 
 /*  SNetGetGameInfo @ 107
  *
@@ -33,15 +35,22 @@ void SNetDisconnect();
  */
 void SNetGetGameInfo(const char** name, const char** password);
 
-bool SNetJoinGame(const char* gameName, unsigned port, const char* gamePassword, char (&errorText)[256]);
-
-/*  SNetLeaveGame @ 119
+/*  SNetSendMessage @ 127
  *
- *  Notifies Storm that the player has left the game. Storm will
- *  notify all connected peers through the network provider.
+ *  Sends a message to a player given their player ID. Network message
+ *  is sent using class 01 and is retrieved by the other client using
+ *  SNetReceiveMessage().
+ *
+ *  receiver:   The player index of the player to receive the data.
+ *              Conversely, this field can be one of the following constants:
+ *                  SNPLAYER_ALL      | Sends the message to all players, including oneself.
+ *                  SNPLAYER_OTHERS   | Sends the message to all players, except for oneself.
+ *  data:       A pointer to the data.
+ *  databytes:  The amount of bytes that the data pointer contains.
  *
  */
-void SNetLeaveGame();
+void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes);
+bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes);
 
 /*  SNetSendTurn @ 128
  *
@@ -64,39 +73,30 @@ uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
  *  @return the number of turns
  */
 unsigned SNetGetTurnsInTransit();
-
-typedef void (*SEVTHANDLER)(SNetEvent*);
-
-/*  SNetSendMessage @ 127
- *
- *  Sends a message to a player given their player ID. Network message
- *  is sent using class 01 and is retrieved by the other client using
- *  SNetReceiveMessage().
- *
- *  receiver:   The player index of the player to receive the data.
- *              Conversely, this field can be one of the following constants:
- *                  SNPLAYER_ALL      | Sends the message to all players, including oneself.
- *                  SNPLAYER_OTHERS   | Sends the message to all players, except for oneself.
- *  data:       A pointer to the data.
- *  databytes:  The amount of bytes that the data pointer contains.
- *
- */
-void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes);
-bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes);
-
-void SNetUnregisterEventHandler(int eventType);
-void SNetRegisterEventHandler(int eventType, SEVTHANDLER func);
-void SNetInitializeProvider(unsigned provider);
 #ifdef ZEROTIER
 void SNetSendInfoRequest();
 std::vector<std::string> SNetGetGamelist();
 void SNetSetPassword(std::string pw);
 #endif
 
-// Macro values to target specific players
-#define SNPLAYER_ALL    0xFF
-#define SNPLAYER_MASTER 0xFE
-//#define SNPLAYER_OTHERS -2
+/*  SNetDropPlayer @ 106
+ *
+ *  Drops a player from the current game.
+ *
+ *  playerid:     The player ID for the player to be dropped.
+ *
+ */
+void SNetDropPlayer(int playerid);
+
+/*  SNetLeaveGame @ 119
+ *
+ *  Notifies Storm that the player has left the game. Storm will
+ *  notify all connected peers through the network provider.
+ *
+ */
+void SNetLeaveGame();
+
+void SNetDisconnect();
 
 #if defined(__GNUC__) || defined(__cplusplus)
 }
