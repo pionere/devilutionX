@@ -38,7 +38,7 @@ bool gbSelectProvider;
 /* Specifies whether the hero needs to be selected in the menu. */
 bool gbSelectHero;
 /* The last tick before the timeout happened. */
-static int sglTimeoutStart;
+static Uint32 sglTimeoutStart;
 /* The last processed game turn. gdwGameLogicTurn / gbNetUpdateRate if there is no overflow. */
 uint32_t gdwLastGameTurn;
 /* The current iteration of the game logic. */
@@ -277,23 +277,24 @@ void multi_deactivate_player(int pnum)
 
 bool multi_check_timeout()
 {
-	int nTicks; //i, nState, nLowestActive, nLowestPlayer;
+	// int i, nState, nLowestActive, nLowestPlayer;
 	//BYTE activePlrs, inActivePlrs;
+	Uint32 nTicks, now = SDL_GetTicks();
 
 	if (!_gbTimeout) {
 		_gbTimeout = true;
-		sglTimeoutStart = SDL_GetTicks();
+		sglTimeoutStart = now;
 		return false;
 	}
 
-	nTicks = SDL_GetTicks() - sglTimeoutStart;
+	nTicks = now - sglTimeoutStart;
 	if (nTicks > 10000) {
 		gbRunGame = false;
 		return true;
 	}
 	// commented out because a client should not be authorized to drop players
 	//if (nTicks < 5000) {
-		return false;
+		return nTicks >= 1000;
 	/*}
 
 	nLowestActive = -1;
