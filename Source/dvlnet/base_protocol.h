@@ -41,7 +41,6 @@ private:
 	std::array<endpoint, MAX_PLRS> peers;
 
 	plr_t get_master();
-	void recv();
 	void handle_join_request(packet& pkt, endpoint sender);
 	void recv_decrypted(packet& pkt, endpoint sender);
 
@@ -88,7 +87,7 @@ bool base_protocol<P>::wait_firstpeer()
 			break;
 		}
 		send_info_request();
-		recv();
+		poll();
 		SDL_Delay(10);
 	}
 	return (bool)firstpeer;
@@ -111,7 +110,7 @@ void base_protocol<P>::wait_join()
 	proto.send(firstpeer, pkt->encrypted_data());
 	delete pkt;
 	for (auto i = 0; i < 500; ++i) {
-		recv();
+		poll();
 		if (plr_self != PLR_BROADCAST)
 			break; // join successful
 		SDL_Delay(10);
@@ -154,12 +153,6 @@ bool base_protocol<P>::join_game(const char* addrstr, unsigned port, const char*
 }
 
 template <class P>
-void base_protocol<P>::poll()
-{
-	recv();
-}
-
-template <class P>
 void base_protocol<P>::send_packet(packet& pkt)
 {
 	plr_t pkt_plr = pkt.pktDest();
@@ -181,7 +174,7 @@ void base_protocol<P>::send_packet(packet& pkt)
 }
 
 template <class P>
-void base_protocol<P>::recv()
+void base_protocol<P>::poll()
 {
 	try {
 		buffer_t pkt_buf;
@@ -283,7 +276,7 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 template <class P>
 std::vector<std::string> base_protocol<P>::get_gamelist()
 {
-	recv();
+	poll();
 	std::vector<std::string> ret;
 	for (auto& s : game_list) {
 		ret.push_back(s.first);
@@ -296,14 +289,14 @@ void base_protocol<P>::close()
 {
 	base::close();
 
-	proto.close();
+	// proto.close();
 }
 
 template <class P>
 void base_protocol<P>::SNetLeaveGame()
 {
 	base::SNetLeaveGame();
-	recv();
+	poll();
 	close();
 }
 
