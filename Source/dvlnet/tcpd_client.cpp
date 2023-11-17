@@ -54,8 +54,9 @@ bool tcpd_client::join_game(const char* addrstr, unsigned port, const char* pass
 	start_accept_conn();
 	start_timeout();
 
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
+	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
+	delete pkt;
 	for (i = 0; i < NUM_SLEEP; i++) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
@@ -159,8 +160,9 @@ void tcpd_client::recv_connect(packet& pkt)
 	cliCon->timeout = tcp_server::TIMEOUT_ACTIVE;
 	active_connections[pnum] = cliCon;
 	start_recv_conn(cliCon);
-	auto joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
+	packet* joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
 	start_send(cliCon, *joinPkt);
+	delete joinPkt;
 }
 
 void tcpd_client::start_accept_conn()
@@ -210,11 +212,13 @@ void tcpd_client::handle_recv_conn(const tcp_server::scc& con, const asio::error
 	con->recv_queue.write(std::move(con->recv_buffer));
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (con->recv_queue.packet_ready()) {
-		auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
+		packet* pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
 		if (pkt == NULL || !handle_recv_packet(con, *pkt)) {
+			delete pkt;
 			drop_connection(con);
 			return;
 		}
+		delete pkt;
 	}
 	start_recv_conn(con);
 }
@@ -249,9 +253,9 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 	pending_connections[i] = NULL;
 	active_connections[pnum] = con;
 	con->pnum = pnum;
-	/*auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST,
-		pkt.pktJoinReqCookie(), pnum, game_init_info);
-	start_send(con, *reply);*/
+	/*packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
+	start_send(con, *reply);
+	delete reply;*/
 	//send_connect(con);
 	return true;
 }
@@ -301,9 +305,9 @@ void tcpd_client::drop_connection(const tcp_server::scc& con)
 		// live connection
 		if (active_connections[pnum] == con) {
 			active_connections[pnum] = NULL;
-			//auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST,
-			//	pnum, (leaveinfo_t)LEAVE_DROP);
+			//packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, (leaveinfo_t)LEAVE_DROP);
 			//send_packet(*pkt);
+			//delete pkt;
 		}
 	} else {
 		// pending connection
@@ -330,9 +334,10 @@ void tcpd_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
 	recv_queue.write(std::move(recv_buffer));
 	recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (recv_queue.packet_ready()) {
-		auto pkt = pktfty.make_in_packet(recv_queue.read_packet());
+		packet* pkt = pktfty.make_in_packet(recv_queue.read_packet());
 		assert(pkt != NULL);
 		recv_local(*pkt);
+		delete pkt;
 	}
 	start_recv();
 }

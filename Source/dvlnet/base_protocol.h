@@ -96,8 +96,9 @@ bool base_protocol<P>::wait_firstpeer()
 template <class P>
 void base_protocol<P>::send_info_request()
 {
-	auto pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST, PLR_MASTER);
+	packet* pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST, PLR_MASTER);
 	proto.send_oob_mc(pkt->encrypted_data());
+	delete pkt;
 }
 
 template <class P>
@@ -105,8 +106,9 @@ void base_protocol<P>::wait_join()
 {
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
 	    sizeof(cookie_t));
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
+	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	proto.send(firstpeer, pkt->encrypted_data());
+	delete pkt;
 	for (auto i = 0; i < 500; ++i) {
 		recv();
 		if (plr_self != PLR_BROADCAST)
@@ -184,11 +186,12 @@ void base_protocol<P>::recv()
 		buffer_t pkt_buf;
 		endpoint sender;
 		while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
-			auto pkt = pktfty.make_in_packet(pkt_buf);
+			packet* pkt = pktfty.make_in_packet(pkt_buf);
 			if (pkt != NULL)
 				recv_decrypted(*pkt, sender);
 			else // drop invalid packet
 				proto.disconnect(sender);
+			delete pkt;
 		}
 		while (proto.get_disconnected(sender)) {
 			for (plr_t i = 0; i < MAX_PLRS; ++i) {
@@ -220,12 +223,14 @@ void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 	}
 	for (plr_t j = 0; j < MAX_PLRS; ++j) {
 		if ((j != plr_self) && (j != i) && peers[j]) {
-			auto infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, peers[j].serialize());
+			packet* infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, peers[j].serialize());
 			proto.send(sender, infopkt->encrypted_data());
+			delete infopkt;
 		}
 	}
-	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), i, game_init_info);
+	packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), i, game_init_info);
 	proto.send(sender, reply->encrypted_data());
+	delete reply;
 }
 
 template <class P>
@@ -245,8 +250,9 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 				buffer_t buf;
 				buf.resize(gamename.size());
 				std::memcpy(buf.data(), &gamename[0], gamename.size());
-				auto reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, buf);
+				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, buf);
 				proto.send_oob(sender, reply->encrypted_data());
+				delete reply;
 			}
 		}
 		return;

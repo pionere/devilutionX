@@ -310,24 +310,26 @@ class packet_factory {
 
 public:
 	void setup_password(const char* passwd);
-	std::unique_ptr<packet> make_in_packet(buffer_t buf);
+	packet* make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
-	std::unique_ptr<packet> make_out_packet(Args... args);
+	packet* make_out_packet(Args... args);
 };
 
-inline std::unique_ptr<packet> packet_factory::make_in_packet(buffer_t buf)
+inline packet* packet_factory::make_in_packet(buffer_t buf)
 {
-	auto ret = std::make_unique<packet_in>(key);
+	packet_in* ret = new packet_in(key);
 	ret->create(std::move(buf));
-	if (!ret->decrypt())
+	if (!ret->decrypt()) {
+		delete ret;
 		ret = NULL;
+	}
 	return ret;
 }
 
 template <packet_type t, typename... Args>
-std::unique_ptr<packet> packet_factory::make_out_packet(Args... args)
+packet* packet_factory::make_out_packet(Args... args)
 {
-	auto ret = std::make_unique<packet_out>(key);
+	packet_out* ret = new packet_out(key);
 	ret->create<t>(args...);
 	ret->encrypt();
 	return ret;

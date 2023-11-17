@@ -44,8 +44,9 @@ bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passw
 	}
 	start_recv();
 
-	auto pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
+	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
+	delete pkt;
 	for (i = 0; i < NUM_SLEEP; i++) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
@@ -77,10 +78,11 @@ void tcp_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
 	recv_queue.write(std::move(recv_buffer));
 	recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (recv_queue.packet_ready()) {
-		auto pkt = pktfty.make_in_packet(recv_queue.read_packet());
+		packet* pkt = pktfty.make_in_packet(recv_queue.read_packet());
 		// TODO: validate server-messages? drop server connection?
 		assert(pkt != NULL);
 		recv_local(*pkt);
+		delete pkt;
 	}
 	start_recv();
 }

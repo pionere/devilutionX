@@ -126,19 +126,22 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	con->recv_queue.write(std::move(con->recv_buffer));
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (con->recv_queue.packet_ready()) {
-		auto pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
+		packet* pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
 		if (pkt == NULL || !handle_recv_packet(con, *pkt)) {
+			delete pkt;
 			drop_connection(con);
 			return;
 		}
+		delete pkt;
 	}
 	start_recv(con);
 }
 
 /*void tcp_server::send_connect(const scc& con)
 {
-	auto pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, con->pnum);
+	packet* pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, con->pnum);
 	send_packet(*pkt);
+	delete pkt;
 }*/
 
 bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
@@ -161,16 +164,18 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 	pending_connections[i] = NULL;
 	active_connections[pnum] = con;
 	con->pnum = pnum;
-	auto reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
+	packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
 	start_send(con, *reply);
+	delete reply;
 	//send_connect(con);
 	if (serverType == SRV_DIRECT) {
 		std::string addr;
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (active_connections[i] != NULL && active_connections[i] != con) {
 				endpoint_to_string(active_connections[i], addr);
-				auto oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
+				packet* oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
 				start_send(con, *oldConPkt);
+				delete oldConPkt;
 			}
 		}
 	}
@@ -300,8 +305,9 @@ void tcp_server::drop_connection(const scc& con)
 			active_connections[pnum] = NULL;
 			ghost_connections[pnum] = TIMEOUT_GHOST;
 			// notify the other clients
-			auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum);
+			packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum);
 			send_packet(*pkt);
+			delete pkt;
 		}
 	} else {
 		// pending connection
@@ -321,8 +327,9 @@ void tcp_server::close()
 	asio::error_code err;
 
 	if (acceptor.is_open()) {
-		auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER);
+		packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER);
 		send_packet(*pkt);
+		delete pkt;
 		ioc.poll(err);
 		err.clear();
 	}

@@ -174,8 +174,9 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 		assert((unsigned)receiver < MAX_PLRS);
 		dest = receiver;
 	}
-	auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
+	packet* pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
 	send_packet(*pkt);
+	delete pkt;
 }
 
 #define LEAVING_TURN_SIZE (sizeof(TurnPktHdr) + 1)
@@ -239,8 +240,9 @@ void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
 	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
-	auto pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
+	packet* pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);
+	delete pkt;
 }
 
 turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
@@ -394,9 +396,10 @@ void base::SNetLeaveGame()
 
 void base::SNetDropPlayer(int playerid)
 {
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid);
+	packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid);
 	send_packet(*pkt);
 	recv_local(*pkt);
+	delete pkt;
 }
 
 } // namespace net

@@ -61,8 +61,9 @@ void tcp_host_client::SNetSendMessage(int receiver, const BYTE* data, unsigned s
 		dest = receiver;
 	}
 	// assert(dest != plr_self);
-	auto pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
+	packet* pkt = pktfty.make_out_packet<PT_MESSAGE>(plr_self, dest, data, size);
 	send_packet(*pkt);
+	delete pkt;
 }
 
 void tcp_host_client::send_packet(packet& pkt)
