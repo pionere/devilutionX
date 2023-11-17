@@ -378,6 +378,9 @@ void tcpd_client::send_packet(packet& pkt)
 void tcpd_client::close()
 {
 	int i;
+
+	base::close();
+
 	// close the server
 	if (local_server != NULL) {
 		local_server->close();
@@ -385,8 +388,6 @@ void tcpd_client::close()
 		local_server = NULL;
 	}
 	// close the client
-	recv_queue.clear();
-
 	asio::error_code err;
 	sock.shutdown(asio::socket_base::shutdown_both, err);
 	err.clear();
@@ -419,6 +420,7 @@ void tcpd_client::close()
 		}
 	}
 	ioc.poll(err);
+	recv_queue.clear();
 	// prepare the client for possible re-connection
 	ioc.restart();
 }

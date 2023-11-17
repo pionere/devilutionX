@@ -58,6 +58,7 @@ protected:
 	virtual void disconnect_net(plr_t pnum);
 	void recv_local(packet& pkt);
 	virtual void recv_connect(packet& pkt);
+	virtual void close();
 
 private:
 	void recv_accept(packet& pkt);

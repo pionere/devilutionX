@@ -29,6 +29,7 @@ protected:
 	virtual void poll();
 	virtual void send_packet(packet& pkt);
 	virtual void disconnect_net(plr_t pnum);
+	virtual void close();
 
 private:
 	P proto;
@@ -291,10 +292,19 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 }
 
 template <class P>
+void base_protocol<P>::close()
+{
+	base::close();
+
+	proto.close();
+}
+
+template <class P>
 void base_protocol<P>::SNetLeaveGame()
 {
 	base::SNetLeaveGame();
 	recv();
+	close();
 }
 
 template <class P>

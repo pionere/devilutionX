@@ -146,6 +146,8 @@ unsigned tcp_host_client::SNetGetTurnsInTransit()
 
 void tcp_host_client::close()
 {
+	base::close();
+
 	// close the server
 	if (local_server != NULL) {
 		local_server->close();
@@ -158,12 +160,8 @@ void tcp_host_client::close()
 
 void tcp_host_client::SNetLeaveGame()
 {
-	int i;
 	// a host does not 'leave' the game -> just clear the queues
 	//base::SNetLeaveGame();
-	message_queue.clear();
-	for (i = 0; i < MAX_PLRS; i++)
-		turn_queue[i].clear();
 	poll();
 	close();
 }

@@ -381,17 +381,21 @@ void base::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 	registered_handlers[evtype] = func;
 }
 
-void base::SNetLeaveGame()
+void base::close()
 {
 	int i;
-
-	auto pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
-	send_packet(*pkt);
 
 	message_last.payload.clear();
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();
+}
+
+void base::SNetLeaveGame()
+{
+	packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
+	send_packet(*pkt);
+	delete pkt;
 }
 
 void base::SNetDropPlayer(int playerid)
