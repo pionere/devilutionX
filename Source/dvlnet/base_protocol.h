@@ -17,8 +17,6 @@ public:
 	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
-	virtual void SNetLeaveGame();
-
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	virtual void send_info_request();
 	virtual std::vector<std::string> get_gamelist();
@@ -290,14 +288,6 @@ void base_protocol<P>::close()
 	base::close();
 
 	// proto.close();
-}
-
-template <class P>
-void base_protocol<P>::SNetLeaveGame()
-{
-	base::SNetLeaveGame();
-	poll();
-	close();
 }
 
 template <class P>

@@ -125,13 +125,6 @@ void tcp_client::close()
 	ioc.restart();
 }
 
-void tcp_client::SNetLeaveGame()
-{
-	base::SNetLeaveGame();
-	poll();
-	close();
-}
-
 void tcp_client::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	tcp_server::make_default_gamename(gamename);

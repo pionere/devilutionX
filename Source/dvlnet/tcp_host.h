@@ -35,7 +35,6 @@ public:
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
 	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
 	unsigned SNetGetTurnsInTransit() override;
-	void SNetLeaveGame() override;
 
 	~tcp_host_client() override = default;
 
@@ -46,6 +45,7 @@ public:
 protected:
 	void send_packet(packet& pkt) override;
 	void poll() override;
+	void close() override;
 
 private:
 	asio::io_context ioc;
@@ -53,7 +53,6 @@ private:
 	uint32_t hostTurn;
 	int serverType;
 
-	void close();
 };
 
 } //namespace net

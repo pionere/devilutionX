@@ -393,9 +393,14 @@ void base::close()
 
 void base::SNetLeaveGame()
 {
-	packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
-	send_packet(*pkt);
-	delete pkt;
+	if (plr_self != PLR_MASTER) { // do not send disconnect in case of tcp_host (the server is going to send it)
+		packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
+		send_packet(*pkt);
+		delete pkt;
+	}
+
+	poll();
+	close();
 }
 
 void base::SNetDropPlayer(int playerid)
@@ -414,7 +419,7 @@ void base::SNetDisconnect()
 	send_packet(*pkt);
 	delete pkt;
 
-	pkt = pktfty.make_fake_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, (plr_t)SNPLAYER_MASTER);
+	pkt = pktfty.make_fake_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, PLR_MASTER);
 	recv_local(*pkt);
 	delete pkt;
 }

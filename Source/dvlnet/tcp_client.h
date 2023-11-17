@@ -16,8 +16,6 @@ public:
 	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
 	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	void SNetLeaveGame() override;
-
 	~tcp_client() override = default;
 
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
@@ -25,6 +23,7 @@ public:
 protected:
 	void poll() override;
 	void send_packet(packet& pkt) override;
+	void close() override;
 
 private:
 	frame_queue recv_queue;
@@ -36,7 +35,6 @@ private:
 
 	void handle_recv(const asio::error_code& ec, size_t bytesRead);
 	void start_recv();
-	void close();
 };
 
 } // namespace net
