@@ -406,5 +406,18 @@ void base::SNetDropPlayer(int playerid)
 	delete pkt;
 }
 
+void base::SNetDisconnect()
+{
+	packet* pkt;
+
+	pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
+	send_packet(*pkt);
+	delete pkt;
+
+	pkt = pktfty.make_fake_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, (plr_t)SNPLAYER_MASTER);
+	recv_local(*pkt);
+	delete pkt;
+}
+
 } // namespace net
 DEVILUTION_END_NAMESPACE

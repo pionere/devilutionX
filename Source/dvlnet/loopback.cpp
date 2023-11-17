@@ -116,6 +116,13 @@ void loopback::SNetDropPlayer(int playerid)
 #endif
 }
 
+void loopback::SNetDisconnect()
+{
+#if DEBUG_MODE || DEV_MODE
+	app_error(ERR_APP_LOOPBACK_DROPPLR);
+#endif
+}
+
 unsigned loopback::SNetGetTurnsInTransit()
 {
 #if DEBUG_MODE || DEV_MODE

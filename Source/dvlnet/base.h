@@ -32,6 +32,7 @@ public:
 	void SNetUnregisterEventHandler(int evtype) override;
 	void SNetLeaveGame() override;
 	void SNetDropPlayer(int playerid) override;
+	void SNetDisconnect() override;
 
 	~base() override = default;
 

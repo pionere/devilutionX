@@ -96,6 +96,14 @@ void SNetDropPlayer(int playerid)
 	dvlnet_inst->SNetDropPlayer(playerid);
 }
 
+void SNetDisconnect()
+{
+#ifdef ZEROTIER
+	std::lock_guard<std::mutex> lg(storm_net_mutex);
+#endif
+	dvlnet_inst->SNetDisconnect();
+}
+
 void SNetGetGameInfo(const char** name, const char** password)
 {
 #ifdef ZEROTIER

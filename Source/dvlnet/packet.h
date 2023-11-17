@@ -313,6 +313,8 @@ public:
 	packet* make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	packet* make_out_packet(Args... args);
+	template <packet_type t, typename... Args>
+	packet* make_fake_packet(Args... args);
 };
 
 inline packet* packet_factory::make_in_packet(buffer_t buf)
@@ -332,6 +334,14 @@ packet* packet_factory::make_out_packet(Args... args)
 	packet_out* ret = new packet_out(key);
 	ret->create<t>(args...);
 	ret->encrypt();
+	return ret;
+}
+
+template <packet_type t, typename... Args>
+packet* packet_factory::make_fake_packet(Args... args)
+{
+	packet_out* ret = new packet_out(key);
+	ret->create<t>(args...);
 	return ret;
 }
 

@@ -289,7 +289,8 @@ bool multi_check_timeout()
 
 	nTicks = now - sglTimeoutStart;
 	if (nTicks > 10000) {
-		gbRunGame = false;
+		SNetDisconnect();
+		// gbRunGame = false;
 		return true;
 	}
 	// commented out because a client should not be authorized to drop players

@@ -32,6 +32,7 @@ public:
 	void SNetUnregisterEventHandler(int evtype) override;
 	void SNetLeaveGame() override;
 	void SNetDropPlayer(int playerid) override;
+	void SNetDisconnect() override;
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 	cdwrap();

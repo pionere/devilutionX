@@ -24,6 +24,8 @@ bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gam
  */
 void SNetDropPlayer(int playerid);
 
+void SNetDisconnect();
+
 /*  SNetGetGameInfo @ 107
  *
  *  @param name:         The address and port of the game

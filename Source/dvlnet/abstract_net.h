@@ -71,6 +71,7 @@ public:
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;
 	virtual void SNetLeaveGame() = 0;
 	virtual void SNetDropPlayer(int playerid) = 0;
+	virtual void SNetDisconnect() = 0;
 	virtual ~abstract_net() = default;
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) = 0;

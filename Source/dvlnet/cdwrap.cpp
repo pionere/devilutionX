@@ -85,6 +85,11 @@ void cdwrap::SNetDropPlayer(int playerid)
 	dvlnet_wrap->SNetDropPlayer(playerid);
 }
 
+void cdwrap::SNetDisconnect()
+{
+	dvlnet_wrap->SNetDisconnect();
+}
+
 unsigned cdwrap::SNetGetTurnsInTransit()
 {
 	return dvlnet_wrap->SNetGetTurnsInTransit();

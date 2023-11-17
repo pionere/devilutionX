@@ -22,6 +22,7 @@ public:
 	void SNetUnregisterEventHandler(int evtype) override { };
 	void SNetLeaveGame() override;
 	void SNetDropPlayer(int playerid) override;
+	void SNetDisconnect() override;
 
 	loopback() = default;
 	~loopback() override = default;
