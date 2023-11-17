@@ -19,10 +19,6 @@ static char gpszGamePassword[NET_MAX_PASSWD_LEN + 1] = {};
 static std::mutex storm_net_mutex;
 #endif
 
-/**
- * @brief Called by engine for single, called by ui for multi
- * @param provider BNET, IPXN, MODM, SCBL or UDPN
- */
 void SNetInitializeProvider(unsigned provider)
 {
 #ifdef ZEROTIER
@@ -55,9 +51,6 @@ void SNetUnregisterEventHandler(int evtype)
 	dvlnet_inst->SNetUnregisterEventHandler(evtype);
 }
 
-/**
- * @brief Called by engine for single, called by ui for multi
- */
 bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
 {
 	bool result;
@@ -109,12 +102,12 @@ bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes)
 	return dvlnet_inst->SNetReceiveMessage(sender, data, databytes);
 }
 
-void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
+void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	dvlnet_inst->SNetSendTurn(turn, data, size);
+	dvlnet_inst->SNetSendTurn(turn, data, databytes);
 }
 
 SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
@@ -185,4 +178,5 @@ void SNetDisconnect()
 #endif
 	dvlnet_inst->SNetDisconnect();
 }
+
 DEVILUTION_END_NAMESPACE
