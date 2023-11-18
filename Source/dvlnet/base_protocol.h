@@ -37,6 +37,7 @@ private:
 	std::array<endpoint, MAX_PLRS> peers;
 
 	plr_t get_master();
+	void disconnect_peer(const endpoint& peer);
 	void send_info_request();
 	void handle_join_request(packet& pkt, endpoint sender);
 	void recv_decrypted(packet& pkt, endpoint sender);
@@ -56,6 +57,18 @@ plr_t base_protocol<P>::get_master()
 }
 
 template <class P>
+void base_protocol<P>::disconnect_peer(const endpoint& peer)
+{
+	proto.disconnect(peer);
+
+	for (plr_t i = 0; i < MAX_PLRS; i++) {
+		if (peers[i] == peer) {
+			peers[i] = endpoint();
+		}
+	}
+}
+
+template <class P>
 bool base_protocol<P>::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
@@ -70,8 +83,7 @@ bool base_protocol<P>::wait_network()
 template <class P>
 void base_protocol<P>::disconnect_net(plr_t pnum)
 {
-	proto.disconnect(peers[pnum]);
-	peers[pnum] = endpoint();
+	disconnect_peer(peers[pnum]);
 }
 
 template <class P>
@@ -174,8 +186,8 @@ void base_protocol<P>::poll()
 			packet* pkt = pktfty.make_in_packet(pkt_buf);
 			if (pkt != NULL)
 				recv_decrypted(*pkt, sender);
-			else // drop invalid packet
-				proto.disconnect(sender);
+			else
+				disconnect_peer(sender);
 			delete pkt;
 		}
 		while (proto.get_disconnected(sender)) {

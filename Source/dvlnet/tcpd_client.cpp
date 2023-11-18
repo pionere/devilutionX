@@ -329,8 +329,8 @@ void tcpd_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
 	recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (recv_queue.packet_ready()) {
 		packet* pkt = pktfty.make_in_packet(recv_queue.read_packet());
-		assert(pkt != NULL);
-		recv_local(*pkt);
+		if (pkt != NULL)
+			recv_local(*pkt);
 		delete pkt;
 	}
 	start_recv();
