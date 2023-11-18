@@ -90,9 +90,7 @@ uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
  */
 unsigned SNetGetTurnsInTransit();
 #ifdef ZEROTIER
-void SNetSendInfoRequest();
 std::vector<std::string> SNetGetGamelist();
-void SNetSetPassword(std::string pw);
 #endif
 
 /*

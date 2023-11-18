@@ -17,7 +17,6 @@ public:
 	virtual bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
-	virtual void send_info_request();
 	virtual std::vector<std::string> get_gamelist();
 
 	virtual ~base_protocol() = default;
@@ -38,6 +37,7 @@ private:
 	std::array<endpoint, MAX_PLRS> peers;
 
 	plr_t get_master();
+	void send_info_request();
 	void handle_join_request(packet& pkt, endpoint sender);
 	void recv_decrypted(packet& pkt, endpoint sender);
 

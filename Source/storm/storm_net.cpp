@@ -137,19 +137,9 @@ unsigned SNetGetTurnsInTransit()
 }
 
 #ifdef ZEROTIER
-void SNetSendInfoRequest()
-{
-	dvlnet_inst->send_info_request();
-}
-
 std::vector<std::string> SNetGetGamelist()
 {
 	return dvlnet_inst->get_gamelist();
-}
-
-void SNetSetPassword(std::string pw)
-{
-	dvlnet_inst->setup_password(std::move(pw));
 }
 #endif
 
