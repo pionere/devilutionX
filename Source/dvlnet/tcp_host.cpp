@@ -73,7 +73,7 @@ void tcp_host_client::send_packet(packet& pkt)
 
 SNetTurnPkt* tcp_host_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
-	SNetTurnPkt* result = base::SNetReceiveTurn(status);
+	SNetTurnPkt* result = base_client::SNetReceiveTurn(status);
 
 	if (result->nmpTurn == 0)
 		result->nmpTurn = hostTurn;
@@ -146,7 +146,7 @@ unsigned tcp_host_client::SNetGetTurnsInTransit()
 
 void tcp_host_client::close()
 {
-	base::close();
+	base_client::close();
 
 	// close the server
 	if (local_server != NULL) {

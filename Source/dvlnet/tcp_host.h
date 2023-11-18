@@ -5,7 +5,7 @@
 #include <asio/ts/net.hpp>
 
 #include "frame_queue.h"
-#include "base.h"
+#include "base_client.h"
 #include "dvlnet/tcp_server.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -23,7 +23,7 @@ private:
 	tcp_host_client* local_client;
 };
 
-class tcp_host_client : public base {
+class tcp_host_client : public base_client {
 public:
 	tcp_host_client(int srvType);
 

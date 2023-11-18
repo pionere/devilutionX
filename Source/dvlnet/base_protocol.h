@@ -4,7 +4,7 @@
 #include <map>
 #include <memory>
 
-#include "base.h"
+#include "base_client.h"
 #include "packet.h"
 #include "utils/stubs.h"
 
@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 template <class P>
-class base_protocol : public base {
+class base_protocol : public base_client {
 public:
 	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]);
 	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
@@ -285,7 +285,7 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 template <class P>
 void base_protocol<P>::close()
 {
-	base::close();
+	base_client::close();
 
 	// proto.close();
 }

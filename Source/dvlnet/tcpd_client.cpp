@@ -379,7 +379,7 @@ void tcpd_client::close()
 {
 	int i;
 
-	base::close();
+	base_client::close();
 
 	// close the server
 	if (local_server != NULL) {

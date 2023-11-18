@@ -5,13 +5,13 @@
 #include <asio/ts/net.hpp>
 
 #include "dvlnet/frame_queue.h"
-#include "dvlnet/base.h"
+#include "dvlnet/base_client.h"
 #include "dvlnet/tcp_server.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-class tcpd_client : public base {
+class tcpd_client : public base_client {
 public:
 	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
 	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;

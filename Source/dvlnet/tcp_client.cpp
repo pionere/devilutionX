@@ -106,7 +106,7 @@ void tcp_client::send_packet(packet& pkt)
 
 void tcp_client::close()
 {
-	base::close();
+	base_client::close();
 
 	// close the server
 	if (local_server != NULL) {

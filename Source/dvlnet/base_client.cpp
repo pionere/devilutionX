@@ -1,4 +1,4 @@
-#include "base.h"
+#include "base_client.h"
 
 #include <cstring>
 #include <memory>
@@ -6,7 +6,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-void base::setup_gameinfo(_uigamedata* gameData)
+void base_client::setup_gameinfo(_uigamedata* gameData)
 {
 	SNetGameData* netData;
 
@@ -21,12 +21,12 @@ void base::setup_gameinfo(_uigamedata* gameData)
 	netData->ngMaxPlayers = gameData->aeMaxPlayers;
 }
 
-void base::setup_password(const char* passwd)
+void base_client::setup_password(const char* passwd)
 {
 	pktfty.setup_password(passwd);
 }
 
-void base::run_event_handler(SNetEvent& ev)
+void base_client::run_event_handler(SNetEvent& ev)
 {
 	auto f = registered_handlers[ev.eventid];
 	if (f != NULL) {
@@ -34,16 +34,16 @@ void base::run_event_handler(SNetEvent& ev)
 	}
 }
 
-void base::disconnect_net(plr_t pnum)
+void base_client::disconnect_net(plr_t pnum)
 {
 }
 
-void base::recv_connect(packet& pkt)
+void base_client::recv_connect(packet& pkt)
 {
 	//	connected_table[pkt.pktConnectPlr()] = CON_CONNECTED; // this can probably be removed
 }
 
-void base::recv_accept(packet& pkt)
+void base_client::recv_accept(packet& pkt)
 {
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
 		// ignore the packet if player id is set or the cookie does not match
@@ -76,7 +76,7 @@ void base::recv_accept(packet& pkt)
 	run_event_handler(ev);
 }
 
-void base::disconnect_plr(plr_t pnum)
+void base_client::disconnect_plr(plr_t pnum)
 {
 	SNetEvent ev;
 
@@ -93,7 +93,7 @@ void base::disconnect_plr(plr_t pnum)
 	}
 }
 
-void base::recv_disconnect(packet& pkt)
+void base_client::recv_disconnect(packet& pkt)
 {
 	plr_t pkt_src = pkt.pktSrc();
 	plr_t pkt_plr = pkt.pktDisconnectPlr();
@@ -115,7 +115,7 @@ void base::recv_disconnect(packet& pkt)
 	}
 }
 
-void base::recv_local(packet& pkt)
+void base_client::recv_local(packet& pkt)
 {
 	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
@@ -147,7 +147,7 @@ void base::recv_local(packet& pkt)
 	}
 }
 
-bool base::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
+bool base_client::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 {
 	poll();
 	if (message_queue.empty())
@@ -160,7 +160,7 @@ bool base::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
 	return true;
 }
 
-void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
+void base_client::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 {
 	if (receiver == SNPLAYER_ALL || receiver == plr_self) {
 		message_queue.emplace_back(plr_self, buffer_t(data, data + size));
@@ -180,7 +180,7 @@ void base::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
 }
 
 #define LEAVING_TURN_SIZE (sizeof(TurnPktHdr) + 1)
-SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
+SNetTurnPkt* base_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
 	SNetTurnPkt* pkt;
 	SNetTurn* pt;
@@ -236,7 +236,7 @@ SNetTurnPkt* base::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	return pkt;
 }
 
-void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
+void base_client::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 {
 	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
@@ -245,7 +245,7 @@ void base::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
 	delete pkt;
 }
 
-turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
+turn_status base_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 {
 	constexpr int SPLIT_LIMIT = 100; // the number of turns after the desync is unresolvable
 	turn_status result;
@@ -325,7 +325,7 @@ turn_status base::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	return result;
 }
 
-uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
+uint32_t base_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 	int i;
 	turn_t minturn = 0, turn;
@@ -345,12 +345,12 @@ uint32_t base::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 	return minturn;
 }
 
-unsigned base::SNetGetTurnsInTransit()
+unsigned base_client::SNetGetTurnsInTransit()
 {
 	return turn_queue[plr_self].size();
 }
 
-/*void base::SNetGetProviderCaps(struct _SNETCAPS *caps)
+/*void base_client::SNetGetProviderCaps(struct _SNETCAPS *caps)
 {
 	//caps->size = 0;                  // unused
 	caps->flags = 0;                 // unused
@@ -363,7 +363,7 @@ unsigned base::SNetGetTurnsInTransit()
 	caps->defaultturnsintransit = 1; // maximum acceptable number of turns in queue?
 }*/
 
-void base::SNetUnregisterEventHandler(int evtype)
+void base_client::SNetUnregisterEventHandler(int evtype)
 {
 	registered_handlers[evtype] = NULL;
 }
@@ -376,12 +376,12 @@ void base::SNetUnregisterEventHandler(int evtype)
  *  EVENT_TYPE_PLAYER_MESSAGE:
  *    not implemented
  */
-void base::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
+void base_client::SNetRegisterEventHandler(int evtype, SEVTHANDLER func)
 {
 	registered_handlers[evtype] = func;
 }
 
-void base::close()
+void base_client::close()
 {
 	int i;
 
@@ -391,7 +391,7 @@ void base::close()
 		turn_queue[i].clear();
 }
 
-void base::SNetLeaveGame()
+void base_client::SNetLeaveGame()
 {
 	if (plr_self != PLR_MASTER) { // do not send disconnect in case of tcp_host (the server is going to send it)
 		packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, plr_self);
@@ -403,7 +403,7 @@ void base::SNetLeaveGame()
 	close();
 }
 
-void base::SNetDropPlayer(int playerid)
+void base_client::SNetDropPlayer(int playerid)
 {
 	packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(plr_self, PLR_BROADCAST, (plr_t)playerid);
 	send_packet(*pkt);
@@ -411,7 +411,7 @@ void base::SNetDropPlayer(int playerid)
 	delete pkt;
 }
 
-void base::SNetDisconnect()
+void base_client::SNetDisconnect()
 {
 	packet* pkt;
 

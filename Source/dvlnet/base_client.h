@@ -16,7 +16,7 @@ typedef enum connection_status {
 	CON_LEAVING   = 0x02, // the player initiated a disconnect
 } connection_status;
 
-class base : public abstract_net {
+class base_client : public abstract_net {
 public:
 	// bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
 	// bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
@@ -34,7 +34,7 @@ public:
 	void SNetDropPlayer(int playerid) override;
 	void SNetDisconnect() override;
 
-	~base() override = default;
+	~base_client() override = default;
 
 	// void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
