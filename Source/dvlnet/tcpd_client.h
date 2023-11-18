@@ -20,9 +20,9 @@ protected:
 private:
 	asio::ip::tcp::acceptor acceptor = asio::ip::tcp::acceptor(ioc);
 	asio::steady_timer connTimer = asio::steady_timer(ioc);
-	tcp_server::scc nextcon;
-	tcp_server::scc pending_connections[MAX_PLRS] = { };
-	tcp_server::scc active_connections[MAX_PLRS] = { };
+	scc nextcon;
+	scc pending_connections[MAX_PLRS] = { };
+	scc active_connections[MAX_PLRS] = { };
 
 	void start_timeout();
 	void handle_timeout(const asio::error_code& ec);
@@ -30,12 +30,12 @@ private:
 	plr_t next_free_queue();
 	void start_accept_conn();
 	void handle_accept_conn(bool valid, const asio::error_code& ec);
-	void start_recv_conn(const tcp_server::scc& con);
-	void handle_recv_conn(const tcp_server::scc& con, const asio::error_code& ec, size_t bytesRead);
-	void start_send(const tcp_server::scc& con, packet& pkt);
-	bool handle_recv_newplr(const tcp_server::scc& con, packet& pkt);
-	bool handle_recv_packet(const tcp_server::scc& con, packet& pkt);
-	void drop_connection(const tcp_server::scc& con);
+	void start_recv_conn(const scc& con);
+	void handle_recv_conn(const scc& con, const asio::error_code& ec, size_t bytesRead);
+	void start_send(const scc& con, packet& pkt);
+	bool handle_recv_newplr(const scc& con, packet& pkt);
+	bool handle_recv_packet(const scc& con, packet& pkt);
+	void drop_connection(const scc& con);
 };
 
 } // namespace net

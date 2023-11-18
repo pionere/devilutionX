@@ -66,7 +66,7 @@ void tcpd_client::handle_timeout(const asio::error_code& ec)
 
 	// TODO: add timeout to the server connection?
 
-	tcp_server::scc expired_connections[2 * MAX_PLRS] = { };
+	scc expired_connections[2 * MAX_PLRS] = { };
 	n = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (active_connections[i] != NULL) {
@@ -126,7 +126,7 @@ void tcpd_client::recv_connect(packet& pkt)
 	int port = SDL_atoi(addrstr.data() + offset);
 	addrstr[offset - 1] = '\0';
 
-	auto cliCon = tcp_server::make_connection(ioc);
+	auto cliCon = make_shared_cc(ioc);
 	asio::error_code err;
 	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc, err);
 	if (err) {
@@ -145,7 +145,7 @@ void tcpd_client::recv_connect(packet& pkt)
 void tcpd_client::start_accept_conn()
 {
 	if (next_free_queue() != MAX_PLRS) {
-		nextcon = tcp_server::make_connection(ioc);
+		nextcon = make_shared_cc(ioc);
 		acceptor.async_accept(nextcon->socket, std::bind(&tcpd_client::handle_accept_conn, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
@@ -171,14 +171,14 @@ void tcpd_client::handle_accept_conn(bool valid, const asio::error_code& ec)
 	start_accept_conn();
 }
 
-void tcpd_client::start_recv_conn(const tcp_server::scc& con)
+void tcpd_client::start_recv_conn(const scc& con)
 {
 	con->socket.async_receive(asio::buffer(con->recv_buffer),
 		std::bind(&tcpd_client::handle_recv_conn, this, con,
 			std::placeholders::_1, std::placeholders::_2));
 }
 
-void tcpd_client::handle_recv_conn(const tcp_server::scc& con, const asio::error_code& ec, size_t bytesRead)
+void tcpd_client::handle_recv_conn(const scc& con, const asio::error_code& ec, size_t bytesRead)
 {
 	if (ec || bytesRead == 0) {
 		drop_connection(con);
@@ -200,7 +200,7 @@ void tcpd_client::handle_recv_conn(const tcp_server::scc& con, const asio::error
 	start_recv_conn(con);
 }
 
-void tcpd_client::start_send(const tcp_server::scc& con, packet& pkt)
+void tcpd_client::start_send(const scc& con, packet& pkt)
 {
 	const buffer_t* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);
@@ -210,7 +210,7 @@ void tcpd_client::start_send(const tcp_server::scc& con, packet& pkt)
 	});
 }
 
-bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
+bool tcpd_client::handle_recv_newplr(const scc& con, packet& pkt)
 {
 	plr_t i, pnum;
 
@@ -237,7 +237,7 @@ bool tcpd_client::handle_recv_newplr(const tcp_server::scc& con, packet& pkt)
 	return true;
 }
 
-bool tcpd_client::handle_recv_packet(const tcp_server::scc& con, packet& pkt)
+bool tcpd_client::handle_recv_packet(const scc& con, packet& pkt)
 {
 	plr_t pkt_plr = con->pnum;
 
@@ -274,7 +274,7 @@ void tcpd_client::disconnect_net(plr_t pnum)
 	}*/
 }
 
-void tcpd_client::drop_connection(const tcp_server::scc& con)
+void tcpd_client::drop_connection(const scc& con)
 {
 	plr_t i, pnum = con->pnum;
 

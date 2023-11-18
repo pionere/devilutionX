@@ -8,6 +8,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
+scc make_shared_cc(asio::io_context& ioc)
+{
+	return std::make_shared<client_connection>(ioc);
+}
+
 tcp_server::tcp_server(asio::io_context& ioc, packet_factory& pf, buffer_t& gameinfo, unsigned srvType)
     : ioc(ioc), acceptor(ioc), connTimer(ioc), pktfty(pf), game_init_info(gameinfo), serverType(srvType)
 {
@@ -78,11 +83,6 @@ void tcp_server::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1
 		copy_cstr(gamename, "127.0.0.1");
 		//SStrCopy(gamename, asio::ip::address_v4::loopback().to_string().c_str(), sizeof(gamename));
 	}
-}
-
-tcp_server::scc tcp_server::make_connection(asio::io_context& ioc)
-{
-	return std::make_shared<client_connection>(ioc);
 }
 
 plr_t tcp_server::next_free_conn()
@@ -237,7 +237,7 @@ void tcp_server::start_send(const scc& con, packet& pkt)
 void tcp_server::start_accept()
 {
 	if (next_free_queue() != MAX_PLRS) {
-		nextcon = make_connection(ioc);
+		nextcon = make_shared_cc(ioc);
 		acceptor.async_accept(nextcon->socket, std::bind(&tcp_server::handle_accept, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;

@@ -25,6 +25,20 @@ void throw_exception(Exception const &e)
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
+typedef struct client_connection {
+	frame_queue recv_queue;
+	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
+	plr_t pnum = PLR_BROADCAST;
+	asio::ip::tcp::socket socket;
+	int timeout;
+	client_connection(asio::io_context& ioc)
+		: socket(ioc)
+	{
+	}
+} client_connection;
+typedef std::shared_ptr<client_connection> scc;
+scc make_shared_cc(asio::io_context& ioc);
+
 class tcp_server {
 	friend class tcpd_client;
 
@@ -45,20 +59,6 @@ private:
 	static constexpr int TIMEOUT_GHOST = 30;   // number of iterations before a ghost connection timeouts
 	static constexpr int WAIT_PENDING = 10;    // seconds to wait if there is no free connection
 	static constexpr int PORT_LENGTH = 5;
-	struct client_connection {
-		frame_queue recv_queue;
-		buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
-		plr_t pnum = PLR_BROADCAST;
-		asio::ip::tcp::socket socket;
-		int timeout;
-		client_connection(asio::io_context& ioc)
-		    : socket(ioc)
-		{
-		}
-	};
-
-	typedef std::shared_ptr<client_connection> scc;
-
 	asio::io_context& ioc;
 	asio::ip::tcp::acceptor acceptor;
 	asio::steady_timer connTimer;
@@ -70,7 +70,6 @@ private:
 	buffer_t& game_init_info;
 	unsigned serverType;
 
-	static scc make_connection(asio::io_context& ioc);
 	static void endpoint_to_string(const scc& con, std::string& addr);
 
 	plr_t next_free_conn();
