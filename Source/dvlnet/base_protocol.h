@@ -147,21 +147,20 @@ bool base_protocol<P>::setup_game(_uigamedata* gameData, const char* addrstr, un
 template <class P>
 void base_protocol<P>::send_packet(packet& pkt)
 {
-	plr_t pkt_plr = pkt.pktDest();
+	plr_t dest = pkt.pktDest();
+	plr_t src = pkt.pktSrc();
 
-	if (pkt_plr < MAX_PLRS) {
-		if (pkt_plr == mypnum)
-			return;
-		if (peers[pkt_plr])
-			proto.send(peers[pkt_plr], pkt.encrypted_data());
-	} else if (pkt_plr == PLR_BROADCAST) {
-		for (auto& peer : peers)
-			if (peer)
-				proto.send(peer, pkt.encrypted_data());
-	} else if (pkt_plr == PLR_MASTER) {
-		throw dvlnet_exception();
+	if (dest == PLR_BROADCAST) {
+		for (int i = 0; i < MAX_PLRS; i++)
+			if (i != src && peers[i] != NULL)
+				proto.send(peers[i], pkt.encrypted_data());
 	} else {
-		throw dvlnet_exception();
+		if (dest >= MAX_PLRS) {
+			// DoLog("Invalid destination %d", dest);
+			return;
+		}
+		if ((dest != src) && peers[dest])
+			proto.send(peers[dest], pkt.encrypted_data());
 	}
 }
 

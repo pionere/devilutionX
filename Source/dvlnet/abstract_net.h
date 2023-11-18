@@ -1,6 +1,5 @@
 #pragma once
 
-#include <exception>
 #include <memory>
 #ifdef ZEROTIER
 #include <string>
@@ -47,14 +46,6 @@ struct SNetMessage {
 
 static constexpr uint8_t PLR_MASTER = SNPLAYER_MASTER;
 static constexpr uint8_t PLR_BROADCAST = SNPLAYER_ALL;
-
-class dvlnet_exception : public std::exception {
-public:
-	const char* what() const throw() override
-	{
-		return "Network error";
-	}
-};
 
 class abstract_net {
 public:
