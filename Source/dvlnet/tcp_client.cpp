@@ -2,11 +2,7 @@
 #ifdef TCPIP
 #include <string>
 #include <SDL.h>
-#include <exception>
-#include <functional>
 #include <memory>
-#include <stdexcept>
-#include <system_error>
 
 #include <asio/connect.hpp>
 
@@ -19,16 +15,17 @@ bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned
 	constexpr int MS_SLEEP = 10;
 	constexpr int NUM_SLEEP = 250;
 
+	setup_password(passwd);
+
 	if (gameData != NULL) {
 		setup_gameinfo(gameData);
-		local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
-		if (!local_server->setup_server(addrstr, port, passwd, errorText)) {
+		local_server = new tcp_server(ioc, pktfty, game_init_info, SRV_BASIC);
+		if (!local_server->setup_server(addrstr, port, errorText)) {
 			close();
 			return false;
 		}
 	}
 
-	setup_password(passwd);
 	plr_self = PLR_BROADCAST;
 	memset(connected_table, 0, sizeof(connected_table));
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),

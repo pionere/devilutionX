@@ -29,8 +29,8 @@ class tcp_server {
 	friend class tcpd_client;
 
 public:
-	tcp_server(asio::io_context& ioc, buffer_t info, unsigned serverType);
-	bool setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256]);
+	tcp_server(asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
+	bool setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256]);
 	void close();
 	~tcp_server() = default;
 
@@ -62,12 +62,12 @@ private:
 	asio::io_context& ioc;
 	asio::ip::tcp::acceptor acceptor;
 	asio::steady_timer connTimer;
-	packet_factory pktfty;
+	packet_factory& pktfty;
 	scc nextcon;
 	scc pending_connections[MAX_PLRS] = { };
 	scc active_connections[MAX_PLRS] = { };
 	int ghost_connections[MAX_PLRS] = { };
-	buffer_t game_init_info;
+	buffer_t& game_init_info;
 	unsigned serverType;
 
 	static scc make_connection(asio::io_context& ioc);

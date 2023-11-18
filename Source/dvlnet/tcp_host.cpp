@@ -4,8 +4,8 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_host_server::tcp_host_server(tcp_host_client* client, asio::io_context& ioc, buffer_t info, unsigned srvType)
-    : tcp_server(ioc, info, srvType)
+tcp_host_server::tcp_host_server(tcp_host_client* client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned srvType)
+    : tcp_server(ioc, pktfty, gameinfo, srvType)
     , local_client(client)
 {
 }
@@ -26,12 +26,12 @@ tcp_host_client::tcp_host_client(int srvType)
 
 bool tcp_host_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
+	setup_password(passwd);
 	assert(gameData != NULL);
 	setup_gameinfo(gameData);
-	local_server = new tcp_host_server(this, ioc, game_init_info, serverType);
-	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
+	local_server = new tcp_host_server(this, ioc, pktfty, game_init_info, serverType);
+	if (local_server->setup_server(addrstr, port, errorText)) {
 		plr_self = PLR_MASTER;
-		setup_password(passwd);
 		memset(connected_table, 0, sizeof(connected_table));
 		return true;
 	}

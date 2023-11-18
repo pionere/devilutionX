@@ -1,13 +1,8 @@
 #include "tcpd_client.h"
 #ifdef TCPIP
 #include <SDL.h>
-#include <exception>
-#include <functional>
 #include <memory>
 #include <sodium.h>
-#include <sstream>
-#include <stdexcept>
-#include <system_error>
 
 #include <asio/connect.hpp>
 
@@ -20,10 +15,12 @@ bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigne
 	constexpr int MS_SLEEP = 10;
 	constexpr int NUM_SLEEP = 250;
 
+	setup_password(passwd);
+
 	if (gameData != NULL) {
 		setup_gameinfo(gameData);
-		local_server = new tcp_server(ioc, game_init_info, SRV_DIRECT);
-		if (!local_server->setup_server(addrstr, port, passwd, errorText)) {
+		local_server = new tcp_server(ioc, pktfty, game_init_info, SRV_DIRECT);
+		if (!local_server->setup_server(addrstr, port, errorText)) {
 			close();
 			return false;
 		}
@@ -32,7 +29,6 @@ bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigne
 	memset(connected_table, 0, sizeof(connected_table));
 	plr_self = PLR_BROADCAST;
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
-	setup_password(passwd);
 	// connect to the server
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);

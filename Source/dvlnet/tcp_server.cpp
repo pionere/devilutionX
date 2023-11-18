@@ -8,15 +8,14 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_server::tcp_server(asio::io_context& ioc, buffer_t info, unsigned srvType)
-    : ioc(ioc), acceptor(ioc), connTimer(ioc), game_init_info(info), serverType(srvType)
+tcp_server::tcp_server(asio::io_context& ioc, packet_factory& pf, buffer_t& gameinfo, unsigned srvType)
+    : ioc(ioc), acceptor(ioc), connTimer(ioc), pktfty(pf), game_init_info(gameinfo), serverType(srvType)
 {
 	assert(game_init_info.size() == sizeof(SNetGameData));
 }
 
-bool tcp_server::setup_server(const char* bindAddr, unsigned short port, const char* passwd, char (&errorText)[256])
+bool tcp_server::setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256])
 {
-	pktfty.setup_password(passwd);
 	asio::error_code err;
 	auto addr = asio::ip::address::from_string(bindAddr, err);
 	if (!err) {
