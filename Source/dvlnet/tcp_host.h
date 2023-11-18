@@ -27,8 +27,7 @@ class tcp_host_client : public base_client {
 public:
 	tcp_host_client(int srvType);
 
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
-	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
+	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
 	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) override;

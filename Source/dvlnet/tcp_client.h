@@ -13,8 +13,7 @@ namespace net {
 
 class tcp_client : public base_client {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
-	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
+	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
 	~tcp_client() override = default;
 

@@ -13,22 +13,20 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-bool tcp_client::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
-{
-	setup_gameinfo(gameData);
-	local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
-	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
-		return join_game(addrstr, port, passwd, errorText);
-	}
-	close();
-	return false;
-}
-
-bool tcp_client::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
+bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	int i;
 	constexpr int MS_SLEEP = 10;
 	constexpr int NUM_SLEEP = 250;
+
+	if (gameData != NULL) {
+		setup_gameinfo(gameData);
+		local_server = new tcp_server(ioc, game_init_info, SRV_BASIC);
+		if (!local_server->setup_server(addrstr, port, passwd, errorText)) {
+			close();
+			return false;
+		}
+	}
 
 	setup_password(passwd);
 	plr_self = PLR_BROADCAST;

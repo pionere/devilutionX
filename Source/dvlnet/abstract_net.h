@@ -58,8 +58,7 @@ public:
 
 class abstract_net {
 public:
-	virtual bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) = 0;
-	virtual bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) = 0;
+	virtual bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) = 0;
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) = 0;

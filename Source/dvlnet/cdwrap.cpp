@@ -19,16 +19,10 @@ void cdwrap::reset()
 		dvlnet_wrap->SNetRegisterEventHandler(i, registered_handlers[i]);
 }
 
-bool cdwrap::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
+bool cdwrap::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	reset();
-	return dvlnet_wrap->create_game(addrstr, port, passwd, gameData, errorText);
-}
-
-bool cdwrap::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
-{
-	reset();
-	return dvlnet_wrap->join_game(addrstr, port, passwd, errorText);
+	return dvlnet_wrap->setup_game(gameData, addrstr, port, passwd, errorText);
 }
 
 bool cdwrap::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)

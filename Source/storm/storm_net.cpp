@@ -61,7 +61,7 @@ bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gam
 #endif
 	dvlnet_inst->make_default_gamename(gpszGameName);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	result = dvlnet_inst->create_game(gpszGameName, port, pszGamePassword, gameData, errorText);
+	result = dvlnet_inst->setup_game(gameData, gpszGameName, port, pszGamePassword, errorText);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
 	return result;
 }
@@ -74,7 +74,7 @@ bool SNetJoinGame(const char* pszGameName, unsigned port, const char* pszGamePas
 	// assert(pszGameName != NULL && pszGamePassword != NULL);
 	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
-	return dvlnet_inst->join_game(pszGameName, port, pszGamePassword, errorText);
+	return dvlnet_inst->setup_game(NULL, pszGameName, port, pszGamePassword, errorText);
 }
 
 void SNetGetGameInfo(const char** name, const char** password)

@@ -24,8 +24,9 @@ tcp_host_client::tcp_host_client(int srvType)
 	serverType = srvType;
 }
 
-bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256])
+bool tcp_host_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
+	assert(gameData != NULL);
 	setup_gameinfo(gameData);
 	local_server = new tcp_host_server(this, ioc, game_init_info, serverType);
 	if (local_server->setup_server(addrstr, port, passwd, errorText)) {
@@ -35,12 +36,6 @@ bool tcp_host_client::create_game(const char* addrstr, unsigned port, const char
 		return true;
 	}
 	close();
-	return false;
-}
-
-bool tcp_host_client::join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
-{
-	assert(0);
 	return false;
 }
 

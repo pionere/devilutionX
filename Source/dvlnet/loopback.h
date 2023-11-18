@@ -9,8 +9,7 @@ namespace net {
 
 class loopback : public abstract_net {
 public:
-	bool create_game(const char* addrstr, unsigned port, const char* passwd, _uigamedata* gameData, char (&errorText)[256]) override;
-	bool join_game(const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
+	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) override;
 	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
