@@ -20,11 +20,12 @@ public:
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 protected:
+	bool join_game();
 	void poll() override;
 	void send_packet(packet& pkt) override;
 	void close() override;
 
-private:
+protected:
 	frame_queue recv_queue;
 	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
 

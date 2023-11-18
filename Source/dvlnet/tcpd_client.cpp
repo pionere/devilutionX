@@ -11,10 +11,6 @@ namespace net {
 
 bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
-	int i;
-	constexpr int MS_SLEEP = 10;
-	constexpr int NUM_SLEEP = 250;
-
 	setup_password(passwd);
 
 	if (gameData != NULL) {
@@ -26,8 +22,8 @@ bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigne
 		}
 	}
 
-	memset(connected_table, 0, sizeof(connected_table));
 	plr_self = PLR_BROADCAST;
+	memset(connected_table, 0, sizeof(connected_table));
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
 	// connect to the server
 	asio::error_code err;
@@ -43,30 +39,16 @@ bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigne
 		close();
 		return false;
 	}
-	// start the communication
 	start_recv();
 	start_accept_conn();
 	start_timeout();
 
-	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
-	send_packet(*pkt);
-	delete pkt;
-	for (i = 0; i < NUM_SLEEP; i++) {
-		poll();
-		if (plr_self != PLR_BROADCAST)
-			return true; // join successful
-		SDL_Delay(MS_SLEEP);
+	if (join_game()) {
+		return true;
 	}
 	copy_cstr(errorText, "Unable to connect");
 	close();
 	return false;
-}
-
-void tcpd_client::poll()
-{
-	asio::error_code err;
-	ioc.poll(err);
-	assert(!err);
 }
 
 void tcpd_client::start_timeout()
@@ -317,33 +299,6 @@ void tcpd_client::drop_connection(const tcp_server::scc& con)
 	con->socket.close(err);
 }
 
-void tcpd_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
-{
-	if (ec || bytesRead == 0) {
-		// error in recv from server
-		// returning and doing nothing should be the same
-		// as if all connections to other clients were lost
-		return;
-	}
-	recv_buffer.resize(bytesRead);
-	recv_queue.write(std::move(recv_buffer));
-	recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
-	while (recv_queue.packet_ready()) {
-		packet* pkt = pktfty.make_in_packet(recv_queue.read_packet());
-		if (pkt != NULL)
-			recv_local(*pkt);
-		delete pkt;
-	}
-	start_recv();
-}
-
-void tcpd_client::start_recv()
-{
-	sock.async_receive(asio::buffer(recv_buffer),
-		std::bind(&tcpd_client::handle_recv, this,
-			std::placeholders::_1, std::placeholders::_2));
-}
-
 void tcpd_client::send_packet(packet& pkt)
 {
 	if (pkt.pktType() == PT_TURN && pkt.pktTurn() != 0) {
@@ -362,12 +317,7 @@ void tcpd_client::send_packet(packet& pkt)
 		}*/
 	}
 
-	const auto* frame = frame_queue::make_frame(pkt.encrypted_data());
-	auto buf = asio::buffer(*frame);
-	asio::async_write(sock, buf,
-		[frame](const asio::error_code& ec, size_t bytesSent) {
-		    delete frame;
-		});
+	tcp_client::send_packet(pkt);
 }
 
 void tcpd_client::close()
@@ -418,11 +368,6 @@ void tcpd_client::close()
 	recv_queue.clear();
 	// prepare the client for possible re-connection
 	ioc.restart();
-}
-
-void tcpd_client::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
-{
-	tcp_server::make_default_gamename(gamename);
 }
 
 } // namespace net

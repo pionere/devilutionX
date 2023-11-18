@@ -11,10 +11,6 @@ namespace net {
 
 bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
-	int i;
-	constexpr int MS_SLEEP = 10;
-	constexpr int NUM_SLEEP = 250;
-
 	setup_password(passwd);
 
 	if (gameData != NULL) {
@@ -28,8 +24,8 @@ bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned
 
 	plr_self = PLR_BROADCAST;
 	memset(connected_table, 0, sizeof(connected_table));
-	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
-	    sizeof(cookie_t));
+	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
+	// connect to the server
 	asio::error_code err;
 	tcp_server::connect_socket(sock, addrstr, port, ioc, err);
 	if (err) {
@@ -37,7 +33,22 @@ bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned
 		close();
 		return false;
 	}
+
 	start_recv();
+
+	if (join_game()) {
+		return true;
+	}
+	copy_cstr(errorText, "Unable to connect");
+	close();
+	return false;
+}
+
+bool tcp_client::join_game()
+{
+	int i;
+	constexpr int MS_SLEEP = 10;
+	constexpr int NUM_SLEEP = 250;
 
 	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	send_packet(*pkt);
@@ -48,8 +59,6 @@ bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
 	}
-	copy_cstr(errorText, "Unable to connect");
-	close();
 	return false;
 }
 
