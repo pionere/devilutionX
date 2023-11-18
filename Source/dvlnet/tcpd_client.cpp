@@ -133,6 +133,8 @@ plr_t tcpd_client::next_free_queue()
 
 void tcpd_client::recv_connect(packet& pkt)
 {
+	base_client::recv_connect(pkt);
+
 	plr_t pnum = pkt.pktConnectPlr();
 	if (pnum == plr_self || pnum >= MAX_PLRS || active_connections[pnum] != NULL)
 		return;

@@ -19,7 +19,7 @@ enum packet_type : uint8_t {
 	PT_TURN,
 	PT_JOIN_REQUEST,
 	PT_JOIN_ACCEPT,
-	PT_CONNECT,			// tcpd, zt-only
+	PT_CONNECT,			// tcp, zt-only
 	PT_DISCONNECT,
 	PT_INFO_REQUEST,	// zt-only
 	PT_INFO_REPLY,		// zt-only
@@ -67,6 +67,7 @@ typedef struct NetPktJoinAccept {
 	cookie_t m_cookie;
 	plr_t m_newplr;
 	SNetGameData m_info;
+	plr_t m_plrmask;
 } NetPktJoinAccept;
 
 typedef struct NetPktConnect {
@@ -153,6 +154,10 @@ public:
 	SNetGameData& pktJoinAccInfo()
 	{
 		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
+	}
+	plr_t pktJoinAccMsk() const
+	{
+		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_plrmask;
 	}
 	// PT_INFO_REPLY
 	buffer_t::const_iterator pktInfoReplyNameBegin() const
@@ -259,7 +264,7 @@ inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d, cookie_t c)
 
 template <>
 inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
-    plr_t n, buffer_t i)
+    plr_t n, buffer_t i, plr_t p)
 {
 	decrypted_buffer.resize(sizeof(NetPktJoinAccept));
 	NetPktJoinAccept* data = (NetPktJoinAccept*)decrypted_buffer.data();
@@ -268,6 +273,7 @@ inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
 	data->npHdr.m_dest = d;
 	data->m_cookie = c;
 	data->m_newplr = n;
+	data->m_plrmask = p;
 	memcpy(&data->m_info, i.data(), sizeof(SNetGameData));
 }
 

@@ -209,27 +209,43 @@ void base_protocol<P>::poll()
 template <class P>
 void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 {
-	plr_t i;
-	for (i = 0; i < MAX_PLRS; i++) {
-		if (i != plr_self && !peers[i]) {
-			peers[i] = sender;
+	plr_t i, pnum, pmask;
+	packet* reply;
+
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (pnum != plr_self && !peers[pnum]) {
+			peers[pnum] = sender;
 			break;
 		}
 	}
-	if (i >= MAX_PLRS) {
+	if (pnum >= MAX_PLRS) {
 		//already full
 		return;
 	}
-	for (plr_t j = 0; j < MAX_PLRS; j++) {
-		if ((j != plr_self) && (j != i) && peers[j]) {
-			packet* infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, buffer_t(peers[j].addr.begin(), peers[j].addr.end()));
-			proto.send(sender, infopkt->encrypted_data());
-			delete infopkt;
+	// reply to the new player
+	pmask = 0;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (peers[i]) {
+			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_join_request can not send the active connections to the client.");
+			pmask |= 1 << i;
 		}
 	}
-	packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), i, game_init_info);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info, pmask);
 	proto.send(sender, reply->encrypted_data());
 	delete reply;
+	// notify the old players
+	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, buffer_t());
+	send_packet(*reply);
+	delete reply;
+	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
+	pmask &= ~((1 << pnum) | (1 << plr_self));
+	for (plr_t i = 0; i < MAX_PLRS; i++) {
+		if (pmask & (1 << i)) {
+			reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(peers[i].addr.begin(), peers[i].addr.end()));
+			proto.send(sender, reply->encrypted_data());
+			delete reply;
+		}
+	}
 }
 
 template <class P>

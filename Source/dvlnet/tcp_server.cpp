@@ -144,7 +144,8 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 
 bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 {
-	plr_t i, pnum;
+	plr_t i, pnum, pmask;
+	packet* reply;
 
 	if (pkt.pktType() != PT_JOIN_REQUEST) {
 		// DoLog("Invalid join packet.");
@@ -162,18 +163,32 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 	pending_connections[i] = NULL;
 	active_connections[pnum] = con;
 	con->pnum = pnum;
-	packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
+	// reply to the new player
+	pmask = 0;
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (active_connections[i] != NULL) {
+			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_recv_newplr can not send the active connections to the client.");
+			pmask |= 1 << i;
+		}
+	}
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info, pmask);
 	start_send(con, *reply);
 	delete reply;
+	// notify the old players
+	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, buffer_t());
+	send_packet(*reply);
+	delete reply;
 	//send_connect(con);
+	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
 	if (serverType == SRV_DIRECT) {
+		pmask &= ~(1 << pnum);
 		std::string addr;
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (active_connections[i] != NULL && active_connections[i] != con) {
+			if (pmask & (1 << i)) {
 				endpoint_to_string(active_connections[i], addr);
-				packet* oldConPkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
-				start_send(con, *oldConPkt);
-				delete oldConPkt;
+				reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
+				start_send(con, *reply);
+				delete reply;
 			}
 		}
 	}

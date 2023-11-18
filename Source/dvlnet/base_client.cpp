@@ -40,7 +40,10 @@ void base_client::disconnect_net(plr_t pnum)
 
 void base_client::recv_connect(packet& pkt)
 {
-	//	connected_table[pkt.pktConnectPlr()] = CON_CONNECTED; // this can probably be removed
+	plr_t pkt_src = pkt.pktSrc();
+
+	if (pkt_src < MAX_PLRS)
+		connected_table[pkt_src] = CON_CONNECTED;
 }
 
 void base_client::recv_accept(packet& pkt)
@@ -63,7 +66,13 @@ void base_client::recv_accept(packet& pkt)
 		plr_self = PLR_BROADCAST;
 		return;
 	}
-	connected_table[plr_self] = CON_CONNECTED;
+	plr_t pmask = pkt.pktJoinAccMsk();
+	// assert(pmask & (1 << plr_self));
+	for (int i = 0; i < MAX_PLRS; i++) {
+		if (pmask & (1 << i)) {
+			connected_table[i] = CON_CONNECTED;
+		}
+	}
 #ifdef ZEROTIER
 	// we joined and did not create
 	game_init_info = buffer_t((BYTE*)&pkt_info, (BYTE*)&pkt_info + sizeof(SNetGameData));
@@ -120,9 +129,6 @@ void base_client::recv_local(packet& pkt)
 	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
 
-	if (pkt_plr < MAX_PLRS) {
-		connected_table[pkt_plr] |= CON_CONNECTED;
-	}
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
 		net_assert(pkt_plr < MAX_PLRS || pkt_plr == SNPLAYER_MASTER);
