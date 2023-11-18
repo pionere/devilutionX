@@ -5,7 +5,6 @@
 #include <atomic>
 #include <deque>
 #include <map>
-#include <exception>
 #include <array>
 #include <algorithm>
 
@@ -13,14 +12,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
-
-class protocol_exception : public std::exception {
-public:
-	const char* what() const throw() override
-	{
-		return "Protocol error";
-	}
-};
 
 class protocol_zt {
 public:
@@ -47,18 +38,6 @@ public:
 		bool operator<(const endpoint& rhs) const
 		{
 			return addr < rhs.addr;
-		}
-
-		buffer_t serialize() const
-		{
-			return buffer_t(addr.begin(), addr.end());
-		}
-
-		void unserialize(const buffer_t& buf)
-		{
-			if (buf.size() != 16)
-				throw protocol_exception();
-			std::copy(buf.begin(), buf.end(), addr.begin());
 		}
 
 		void from_string(const std::string& str);

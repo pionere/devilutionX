@@ -215,7 +215,7 @@ void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 	}
 	for (plr_t j = 0; j < MAX_PLRS; ++j) {
 		if ((j != plr_self) && (j != i) && peers[j]) {
-			packet* infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, peers[j].serialize());
+			packet* infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, buffer_t(peers[j].addr.begin(), peers[j].addr.end()));
 			proto.send(sender, infopkt->encrypted_data());
 			delete infopkt;
 		}
@@ -252,7 +252,6 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 		// addrinfo packets
 		pkt_plr = pkt.pktConnectPlr();
 		connected_table[pkt_plr] |= CON_CONNECTED;
-		//.unserialize(pkt.info());
 		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd()));
 		if (addr.size() == 16)
 			memcpy(peers[pkt_plr].addr.data(), addr.data(), 16);
