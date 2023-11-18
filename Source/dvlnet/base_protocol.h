@@ -22,10 +22,10 @@ public:
 	virtual ~base_protocol() = default;
 
 protected:
-	virtual void poll();
-	virtual void send_packet(packet& pkt);
-	virtual void disconnect_net(plr_t pnum);
-	virtual void close();
+	void poll() override;
+	void send_packet(packet& pkt) override;
+	void disconnect_net(plr_t pnum) override;
+	void close() override;
 
 private:
 	P proto;
@@ -50,7 +50,7 @@ private:
 template <class P>
 plr_t base_protocol<P>::get_master()
 {
-	for (plr_t i = 0; i < MAX_PLRS; ++i)
+	for (plr_t i = 0; i < MAX_PLRS; i++)
 		if (peers[i])
 			return i;
 	return plr_self;
@@ -90,7 +90,7 @@ template <class P>
 bool base_protocol<P>::wait_firstpeer()
 {
 	// wait for peer for 5 seconds
-	for (auto i = 0; i < 500; ++i) {
+	for (auto i = 0; i < 500; i++) {
 		if (game_list.count(gamename)) {
 			firstpeer = game_list[gamename];
 			break;
@@ -129,14 +129,16 @@ void base_protocol<P>::wait_join()
 template <class P>
 bool base_protocol<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
-	bool createGame = gameData != NULL;
+	bool createGame;
 
+	setup_password(passwd);
+
+	createGame = gameData != NULL;
 	if (createGame) {
 		setup_gameinfo(gameData);
 	}
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
 	plr_self = PLR_BROADCAST;
-	setup_password(passwd);
 	gamename = std::string(addrstr);
 	if (wait_network()) {
 		if (createGame) {
@@ -191,7 +193,7 @@ void base_protocol<P>::poll()
 			delete pkt;
 		}
 		while (proto.get_disconnected(sender)) {
-			for (plr_t i = 0; i < MAX_PLRS; ++i) {
+			for (plr_t i = 0; i < MAX_PLRS; i++) {
 				if (peers[i] == sender) {
 					disconnect_net(i);
 					break;
@@ -208,7 +210,7 @@ template <class P>
 void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 {
 	plr_t i;
-	for (i = 0; i < MAX_PLRS; ++i) {
+	for (i = 0; i < MAX_PLRS; i++) {
 		if (i != plr_self && !peers[i]) {
 			peers[i] = sender;
 			break;
@@ -218,7 +220,7 @@ void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 		//already full
 		return;
 	}
-	for (plr_t j = 0; j < MAX_PLRS; ++j) {
+	for (plr_t j = 0; j < MAX_PLRS; j++) {
 		if ((j != plr_self) && (j != i) && peers[j]) {
 			packet* infopkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, j, buffer_t(peers[j].addr.begin(), peers[j].addr.end()));
 			proto.send(sender, infopkt->encrypted_data());

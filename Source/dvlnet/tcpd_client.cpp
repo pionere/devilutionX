@@ -57,8 +57,7 @@ bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigne
 			return true; // join successful
 		SDL_Delay(MS_SLEEP);
 	}
-	if (i == NUM_SLEEP)
-		copy_cstr(errorText, "Unable to connect");
+	copy_cstr(errorText, "Unable to connect");
 	close();
 	return false;
 }
@@ -377,7 +376,7 @@ void tcpd_client::close()
 
 	// close the server
 	if (local_server != NULL) {
-		local_server->close();
+		// local_server->close();
 		delete local_server;
 		local_server = NULL;
 	}

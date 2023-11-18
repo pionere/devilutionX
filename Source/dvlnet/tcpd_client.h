@@ -22,7 +22,8 @@ public:
 protected:
 	void poll() override;
 	void send_packet(packet& pkt) override;
-	void recv_connect(packet& pkt);
+	void recv_connect(packet& pkt) override;
+	void disconnect_net(plr_t pnum) override;
 	void close() override;
 
 private:
@@ -51,7 +52,6 @@ private:
 	bool handle_recv_newplr(const tcp_server::scc& con, packet& pkt);
 	bool handle_recv_packet(const tcp_server::scc& con, packet& pkt);
 	void drop_connection(const tcp_server::scc& con);
-	void disconnect_net(plr_t pnum);
 
 	void handle_recv(const asio::error_code& ec, size_t bytesRead);
 	void start_recv();
