@@ -40,8 +40,6 @@ typedef std::shared_ptr<client_connection> scc;
 scc make_shared_cc(asio::io_context& ioc);
 
 class tcp_server {
-	friend class tcpd_client;
-
 public:
 	tcp_server(asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256]);
@@ -53,12 +51,6 @@ public:
 	static void connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec);
 
 private:
-	static constexpr int TIMEOUT_BASE = 1;     // seconds between the timeout-checks
-	static constexpr int TIMEOUT_CONNECT = 30; // number of iterations before a pending connection timeouts
-	static constexpr int TIMEOUT_ACTIVE = 60;  // number of iterations before an active connection timeouts
-	static constexpr int TIMEOUT_GHOST = 30;   // number of iterations before a ghost connection timeouts
-	static constexpr int WAIT_PENDING = 10;    // seconds to wait if there is no free connection
-	static constexpr int PORT_LENGTH = 5;
 	asio::io_context& ioc;
 	asio::ip::tcp::acceptor acceptor;
 	asio::steady_timer connTimer;

@@ -71,7 +71,7 @@ void tcp_server::endpoint_to_string(const scc& con, std::string& addr)
 	asio::error_code err;
 	const auto& ep = con->socket.remote_endpoint(err);
 	assert(!err);
-	char buf[PORT_LENGTH + 2];
+	char buf[NET_TCP_PORT_LENGTH + 2];
 	snprintf(buf, sizeof(buf), ":%05d", ep.port());
 	addr = ep.address().to_string();
 	addr.append(buf);
@@ -119,7 +119,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 		drop_connection(con);
 		return;
 	}
-	con->timeout = TIMEOUT_ACTIVE;
+	con->timeout = NET_TIMEOUT_ACTIVE;
 	con->recv_buffer.resize(bytesRead);
 	con->recv_queue.write(std::move(con->recv_buffer));
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
@@ -241,7 +241,7 @@ void tcp_server::start_accept()
 		acceptor.async_accept(nextcon->socket, std::bind(&tcp_server::handle_accept, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
-		connTimer.expires_after(std::chrono::seconds(WAIT_PENDING));
+		connTimer.expires_after(std::chrono::seconds(NET_WAIT_PENDING));
 		connTimer.async_wait(std::bind(&tcp_server::handle_accept, this, false, std::placeholders::_1));
 	}
 }
@@ -255,7 +255,7 @@ void tcp_server::handle_accept(bool valid, const asio::error_code& ec)
 		asio::ip::tcp::no_delay option(true);
 		nextcon->socket.set_option(option, err);
 		assert(!err);
-		nextcon->timeout = TIMEOUT_CONNECT;
+		nextcon->timeout = NET_TIMEOUT_CONNECT;
 		pending_connections[next_free_queue()] = nextcon;
 		start_recv(nextcon);
 	}
@@ -264,7 +264,7 @@ void tcp_server::handle_accept(bool valid, const asio::error_code& ec)
 
 void tcp_server::start_timeout()
 {
-	connTimer.expires_after(std::chrono::seconds(TIMEOUT_BASE));
+	connTimer.expires_after(std::chrono::seconds(NET_TIMEOUT_BASE));
 	connTimer.async_wait(std::bind(&tcp_server::handle_timeout, this, std::placeholders::_1));
 }
 
@@ -316,7 +316,7 @@ void tcp_server::drop_connection(const scc& con)
 		// live connection
 		if (active_connections[pnum] == con) {
 			active_connections[pnum] = NULL;
-			ghost_connections[pnum] = TIMEOUT_GHOST;
+			ghost_connections[pnum] = NET_TIMEOUT_GHOST;
 			// notify the other clients
 			packet* pkt = pktfty.make_out_packet<PT_DISCONNECT>(PLR_MASTER, PLR_BROADCAST, pnum);
 			send_packet(*pkt);

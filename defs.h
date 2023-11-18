@@ -68,12 +68,28 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_LARGE_MSG_SIZE      0x8000
 // the minimum size of a large message which needs to be compressed
 #define NET_COMP_MSG_SIZE       256
+// the default port if there is no corresponding entry in the .ini (tcp)
 #define NET_DEFAULT_PORT        6112
+// the maximum length of the name of an 'instance'
 #define NET_MAX_GAMENAME_LEN    31
+// the maximum length of the password of an 'instance'
 #define NET_MAX_PASSWD_LEN      15
+// the maximum length of a text-message to other players
 #define MAX_SEND_STR_LEN        80
+// the length of the port-string (tcp)
+#define NET_TCP_PORT_LENGTH     5
 // the number of turns to wait for level-deltas
 #define NET_JOIN_TIMEOUT        30
+// seconds between the timeout-checks (tcp)
+#define NET_TIMEOUT_BASE        1
+// number of iterations before a pending connection timeouts (tcp)
+#define NET_TIMEOUT_CONNECT     30
+// number of iterations before an active connection timeouts (tcp)
+#define NET_TIMEOUT_ACTIVE      60
+// number of iterations before a ghost connection timeouts (tcp)
+#define NET_TIMEOUT_GHOST       30
+// seconds to wait if there is no free connection (tcp)
+#define NET_WAIT_PENDING        10
 
 #define DEAD_MULTI              0xFF
 #define MAXITEMS                127

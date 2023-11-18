@@ -53,7 +53,7 @@ bool tcpd_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigne
 
 void tcpd_client::start_timeout()
 {
-	connTimer.expires_after(std::chrono::seconds(tcp_server::TIMEOUT_BASE));
+	connTimer.expires_after(std::chrono::seconds(NET_TIMEOUT_BASE));
 	connTimer.async_wait(std::bind(&tcpd_client::handle_timeout, this, std::placeholders::_1));
 }
 
@@ -122,7 +122,7 @@ void tcpd_client::recv_connect(packet& pkt)
 		return;
 
 	std::string addrstr = std::string(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
-	int offset = addrstr.length() - tcp_server::PORT_LENGTH;
+	int offset = addrstr.length() - NET_TCP_PORT_LENGTH;
 	int port = SDL_atoi(addrstr.data() + offset);
 	addrstr[offset - 1] = '\0';
 
@@ -134,7 +134,7 @@ void tcpd_client::recv_connect(packet& pkt)
 		return;
 	}
 	cliCon->pnum = pnum;
-	cliCon->timeout = tcp_server::TIMEOUT_ACTIVE;
+	cliCon->timeout = NET_TIMEOUT_ACTIVE;
 	active_connections[pnum] = cliCon;
 	start_recv_conn(cliCon);
 	packet* joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
@@ -149,7 +149,7 @@ void tcpd_client::start_accept_conn()
 		acceptor.async_accept(nextcon->socket, std::bind(&tcpd_client::handle_accept_conn, this, true, std::placeholders::_1));
 	} else {
 		nextcon = NULL;
-		connTimer.expires_after(std::chrono::seconds(tcp_server::WAIT_PENDING));
+		connTimer.expires_after(std::chrono::seconds(NET_WAIT_PENDING));
 		connTimer.async_wait(std::bind(&tcpd_client::handle_accept_conn, this, false, std::placeholders::_1));
 	}
 }
@@ -164,7 +164,7 @@ void tcpd_client::handle_accept_conn(bool valid, const asio::error_code& ec)
 		asio::ip::tcp::no_delay option(true);
 		nextcon->socket.set_option(option, err);
 		assert(!err);
-		nextcon->timeout = tcp_server::TIMEOUT_CONNECT;
+		nextcon->timeout = NET_TIMEOUT_CONNECT;
 		pending_connections[next_free_queue()] = nextcon;
 		start_recv_conn(nextcon);
 	}
@@ -184,7 +184,7 @@ void tcpd_client::handle_recv_conn(const scc& con, const asio::error_code& ec, s
 		drop_connection(con);
 		return;
 	}
-	con->timeout = tcp_server::TIMEOUT_ACTIVE;
+	con->timeout = NET_TIMEOUT_ACTIVE;
 	con->recv_buffer.resize(bytesRead);
 	con->recv_queue.write(std::move(con->recv_buffer));
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
