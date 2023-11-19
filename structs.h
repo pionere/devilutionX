@@ -2433,8 +2433,8 @@ typedef uint32_t cookie_t;
 typedef uint32_t turn_t;
 
 typedef struct SNetTurnPkt {
-	turn_t nmpTurn;
-	unsigned nmpLen;
+	turn_t ntpTurn;
+	unsigned ntpLen;
 	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
 } SNetTurnPkt;
 

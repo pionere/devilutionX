@@ -52,8 +52,8 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	dwLen += pt->payload.size();
 
 	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
-	pkt->nmpTurn = pt->turn_id;
-	pkt->nmpLen = dwLen;
+	pkt->ntpTurn = pt->turn_id;
+	pkt->ntpLen = dwLen;
 	data = pkt->data;
 	*data = PLR_SINGLE;
 	data++;

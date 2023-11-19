@@ -210,8 +210,8 @@ SNetTurnPkt* base_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 		}
 	}
 	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
-	pkt->nmpTurn = turn;
-	pkt->nmpLen = dwLen;
+	pkt->ntpTurn = turn;
+	pkt->ntpLen = dwLen;
 	data = pkt->data;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (status[i] & PCS_TURN_ARRIVED) {

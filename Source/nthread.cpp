@@ -143,12 +143,12 @@ static void nthread_process_pending_turns()
 		sgDataMutex.Leave();
 
 		// skip turns arrived before delta-info
-		if (turn->nmpTurn < guDeltaTurn) {
+		if (turn->ntpTurn < guDeltaTurn) {
 			MemFreeDbg(turn);
 			continue;
 		}
 		// skip turn of the delta-info, but increment the turn-counter
-		if (turn->nmpTurn != guDeltaTurn || guDeltaTurn == 0)
+		if (turn->ntpTurn != guDeltaTurn || guDeltaTurn == 0)
 			multi_process_turn(turn);
 		MemFreeDbg(turn);
 		multi_process_msgs();
@@ -172,7 +172,7 @@ static int SDLCALL nthread_handler(void* data)
 			if (geBufferMsgs != MSG_GAME_DELTA_LOAD) {
 				// delta-download finished -> jump to 'present'
 				// necessary in case the current player is the only player on a hosted server
-				sgbSentThisCycle = sgTurnQueue.back()->nmpTurn + SNetGetTurnsInTransit() + 1;
+				sgbSentThisCycle = sgTurnQueue.back()->ntpTurn + SNetGetTurnsInTransit() + 1;
 			}
 		} else if (geBufferMsgs == MSG_GAME_DELTA_WAIT) {
 			// assert(sgbSentThisCycle == 0);
@@ -362,8 +362,8 @@ static bool nthread_process_pending_delta_turns(bool pre)
 			multi_process_turn(turn);
 		else
 			geBufferMsgs = MSG_NORMAL;
-		if (pre && turn->nmpTurn >= guDeltaTurn) {
-			net_assert(turn->nmpTurn == guDeltaTurn);
+		if (pre && turn->ntpTurn >= guDeltaTurn) {
+			net_assert(turn->ntpTurn == guDeltaTurn);
 			break;
 		}
 		sgTurnQueue.pop_front();

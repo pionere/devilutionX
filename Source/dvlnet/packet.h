@@ -75,7 +75,7 @@ typedef struct NetPktConnect {
 
 typedef struct NetPktDisconnect {
 	NetPktHdr npHdr;
-	BYTE m_newplr; // plr_t
+	BYTE m_plr; // plr_t
 } NetPktDisconnect;
 
 typedef struct NetPktInfoRequest {
@@ -181,7 +181,7 @@ public:
 	// PT_DISCONNECT
 	plr_t pktDisconnectPlr() const
 	{
-		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_newplr;
+		return reinterpret_cast<const NetPktDisconnect*>(decrypted_buffer.data())->m_plr;
 	}
 };
 
@@ -305,7 +305,7 @@ inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n)
 	data->npHdr.m_type = PT_DISCONNECT;
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
-	data->m_newplr = n;
+	data->m_plr = n;
 }
 
 class packet_factory {

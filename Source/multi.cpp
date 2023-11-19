@@ -388,7 +388,7 @@ void multi_process_turn(SNetTurnPkt* turn)
 	BYTE *data, *dataEnd;
 
 	data = turn->data;
-	dataEnd = data + turn->nmpLen;
+	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
 		data++;
@@ -418,8 +418,8 @@ void multi_process_turn(SNetTurnPkt* turn)
 			continue; // player is disconnected -> ignore the turn
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
 	}
-	gdwLastGameTurn = turn->nmpTurn;
-	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
+	gdwLastGameTurn = turn->ntpTurn;
+	gdwGameLogicTurn = turn->ntpTurn * gbNetUpdateRate;
 }
 
 /* Same as multi_process_turn, but process only CMD_JOINLEVEL/CMD_DISCONNECT messages. */
@@ -431,7 +431,7 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 	BYTE *data, *dataEnd;
 
 	data = turn->data;
-	dataEnd = data + turn->nmpLen;
+	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
 		data++;
@@ -452,8 +452,8 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 		}
 	}
 	assert(geBufferMsgs == MSG_LVL_DELTA_WAIT);
-	gdwLastGameTurn = turn->nmpTurn;
-	gdwGameLogicTurn = turn->nmpTurn * gbNetUpdateRate;
+	gdwLastGameTurn = turn->ntpTurn;
+	gdwGameLogicTurn = turn->ntpTurn * gbNetUpdateRate;
 }
 
 void multi_process_msgs()

@@ -70,8 +70,8 @@ SNetTurnPkt* tcp_host_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
 	SNetTurnPkt* result = base_client::SNetReceiveTurn(status);
 
-	if (result->nmpTurn == 0)
-		result->nmpTurn = hostTurn;
+	if (result->ntpTurn == 0)
+		result->ntpTurn = hostTurn;
 	return result;
 }
 
