@@ -75,7 +75,7 @@ SNetTurnPkt* tcp_host_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	return result;
 }
 
-void tcp_host_client::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
+void tcp_host_client::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 {
 	hostTurn = turn;
 }
@@ -127,7 +127,7 @@ turn_status tcp_host_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	return result;
 }
 
-uint32_t tcp_host_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
+turn_t tcp_host_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 	assert(0);
 	return 0;

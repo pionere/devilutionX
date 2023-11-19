@@ -2428,8 +2428,12 @@ typedef struct SNetEvent {
 	unsigned databytes;
 } SNetEvent;
 
+typedef uint8_t plr_t;
+typedef uint32_t cookie_t;
+typedef uint32_t turn_t;
+
 typedef struct SNetTurnPkt {
-	uint32_t nmpTurn;
+	turn_t nmpTurn;
 	unsigned nmpLen;
 	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
 } SNetTurnPkt;

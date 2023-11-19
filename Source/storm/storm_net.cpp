@@ -102,7 +102,7 @@ bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes)
 	return dvlnet_inst->SNetReceiveMessage(sender, data, databytes);
 }
 
-void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned databytes)
+void SNetSendTurn(turn_t turn, const BYTE* data, unsigned databytes)
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
@@ -126,7 +126,7 @@ turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	return dvlnet_inst->SNetPollTurns(status);
 }
 
-uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS])
+turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 	return dvlnet_inst->SNetLastTurn(status);
 }

@@ -22,7 +22,7 @@ struct SNetTurn {
 	    , payload({})
 	{
 	}
-	SNetTurn(uint32_t t, buffer_t p)
+	SNetTurn(turn_t t, buffer_t p)
 	    : turn_id(t)
 	    , payload(p)
 	{
@@ -53,9 +53,9 @@ public:
 	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) = 0;
-	virtual void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) = 0;
+	virtual void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) = 0;
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) = 0;
-	virtual uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) = 0;
+	virtual turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual unsigned SNetGetTurnsInTransit() = 0;
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;

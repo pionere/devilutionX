@@ -71,7 +71,7 @@ bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes);
  *  @param data:       A pointer to the data containing the commands in the turn.
  *  @param databytes:  The amount of bytes that the data pointer contains.
  */
-void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned databytes);
+void SNetSendTurn(turn_t turn, const BYTE* data, unsigned databytes);
 SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
 /*
  *  Checks the status of the turn packets from the connected players.
@@ -81,7 +81,7 @@ SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
  *  @return the status of the next turn (turn_status)
  */
 turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
-uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
+turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
 /*  SNetGetTurnsInTransit @ 115
  *
  *  Retrieves the number of turns that have been sent over the network but not processed yet.

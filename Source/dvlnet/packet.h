@@ -26,9 +26,6 @@ enum packet_type : uint8_t {
 	// clang-format on
 };
 
-typedef uint8_t plr_t;
-typedef DWORD cookie_t;
-typedef uint32_t turn_t;
 #ifdef NETENCRYPT
 typedef struct key_t {
 	BYTE data[crypto_secretbox_KEYBYTES];

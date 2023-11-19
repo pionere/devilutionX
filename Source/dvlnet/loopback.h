@@ -13,9 +13,9 @@ public:
 	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) override;
 	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
-	void SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size) override;
+	void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) override;
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
-	uint32_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
+	turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
 	unsigned SNetGetTurnsInTransit() override;
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override { };
 	void SNetUnregisterEventHandler(int evtype) override { };

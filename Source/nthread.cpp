@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 const unsigned gdwDeltaBytesSec = 0x100000; // TODO: add to SNetGameData ? (was bytessec and 1000000 in vanilla)
 
 /* The id of the next turn. */
-uint32_t sgbSentThisCycle;
+turn_t sgbSentThisCycle;
 Uint32 guNextTick;
 /* The number of game-logic cycles between turns. */
 BYTE gbNetUpdateRate;
@@ -43,7 +43,7 @@ static bool _gbRunThread;
 
 void nthread_send_turn(BYTE* data, unsigned len)
 {
-	uint32_t turn = sgbSentThisCycle;
+	turn_t turn = sgbSentThisCycle;
 // enabled for everyone to allow connection with adaptive hosts
 //#ifdef ADAPTIVE_NETUPDATE
 #ifndef NONET
@@ -188,7 +188,7 @@ static int SDLCALL nthread_handler(void* data)
 
 		switch (nthread_recv_turns()) {
 		case TS_DESYNC: {
-			uint32_t turn = SNetLastTurn(player_state);
+			turn_t turn = SNetLastTurn(player_state);
 			if (!(player_state[mypnum] & PCS_TURN_ARRIVED)) {
 				// assert(sgbSentThisCycle != 0);
 				sgbSentThisCycle = turn;
@@ -411,7 +411,7 @@ static bool nthread_process_pending_delta_turns(bool pre)
  */
 void nthread_finish(UINT uMsg)
 {
-	uint32_t lastGameTurn;
+	turn_t lastGameTurn;
 	unsigned tmp;
 
 	if (uMsg == DVL_DWM_NEWGAME) {

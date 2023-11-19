@@ -193,7 +193,7 @@ SNetTurnPkt* base_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	int i;
 	BYTE* data;
 	unsigned dwLen;
-	uint32_t turn = 0;
+	turn_t turn = 0;
 
 	dwLen = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -242,7 +242,7 @@ SNetTurnPkt* base_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	return pkt;
 }
 
-void base_client::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
+void base_client::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 {
 	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
@@ -331,7 +331,7 @@ turn_status base_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	return result;
 }
 
-uint32_t base_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
+turn_t base_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 	int i;
 	turn_t minturn = 0, turn;

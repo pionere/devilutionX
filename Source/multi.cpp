@@ -32,7 +32,7 @@ unsigned guSendLevelData;
 /* Mask of pnum values from whom an (empty) level delta was received. */
 unsigned guOweLevelDelta;
 /* Timestamp of the level-delta requests to decide priority. */
-uint32_t guRequestLevelData[MAX_PLRS];
+turn_t guRequestLevelData[MAX_PLRS];
 /* Specifies whether the provider needs to be selected in the menu. */
 bool gbSelectProvider;
 /* Specifies whether the hero needs to be selected in the menu. */
@@ -40,9 +40,9 @@ bool gbSelectHero;
 /* The last tick before the timeout happened. */
 static Uint32 sglTimeoutStart;
 /* The last processed game turn. gdwGameLogicTurn / gbNetUpdateRate if there is no overflow. */
-uint32_t gdwLastGameTurn;
+turn_t gdwLastGameTurn;
 /* The current iteration of the game logic. */
-uint32_t gdwGameLogicTurn;
+turn_t gdwGameLogicTurn;
 /**
  * Specifies the type of the current game
  * 0: single player game
@@ -54,7 +54,7 @@ BYTE gbGameMode;
 /* Specifies whether there is a timeout at the moment. */
 static bool _gbTimeout;
 /* Turn-id when the delta was loaded. */
-uint32_t guDeltaTurn;
+turn_t guDeltaTurn;
 static bool _gbNetInited;
 /* The name/address of the current game. (multiplayer games) */
 const char* szGameName;
@@ -352,7 +352,7 @@ bool multi_handle_turn()
 		break;
 	case TS_DESYNC: {
 		InitDiabloMsg(EMSG_DESYNC);
-		uint32_t turn = /*SwapLE32(*/SNetLastTurn(player_state);//);
+		turn_t turn = SNetLastTurn(player_state);
 		if (!(player_state[mypnum] & PCS_TURN_ARRIVED))
 			sgbSentThisCycle = turn;
 		multi_parse_turns();

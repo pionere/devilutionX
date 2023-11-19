@@ -77,7 +77,7 @@ turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	return TS_ACTIVE; // or TS_LIVE
 }
 
-uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
+turn_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 {
 #if DEBUG_MODE || DEV_MODE
 	app_error(ERR_APP_LOOPBACK_LASTTURN);
@@ -85,7 +85,7 @@ uint32_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 	return 0;
 }
 
-void loopback::SNetSendTurn(uint32_t turn, const BYTE* data, unsigned size)
+void loopback::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 {
 	turn_queue.emplace_back(SwapLE32(turn), buffer_t(data, data + size));
 }
