@@ -48,8 +48,8 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	pt = &turn_queue.front();
 	//      pnum           size
 	dwLen = sizeof(BYTE) + sizeof(unsigned);
-	if (pt->turn_id != 0)
-		dwLen += pt->payload.size();
+	assert(pt->turn_id != 0);
+	dwLen += pt->payload.size();
 
 	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
 	pkt->nmpTurn = SwapLE32(pt->turn_id);
@@ -57,17 +57,12 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	data = pkt->data;
 	*data = PLR_SINGLE;
 	data++;
-	if (pt->turn_id != 0) {
-		//       pnum           size
-		dwLen -= sizeof(BYTE) + sizeof(unsigned);
-		*(unsigned*)data = dwLen;
-		data += sizeof(unsigned);
-		memcpy(data, pt->payload.data(), dwLen);
-		//data += dwLen;
-	} else {
-		*(unsigned*)data = 0;
-		//data += sizeof(unsigned);
-	}
+	//       pnum           size
+	dwLen -= sizeof(BYTE) + sizeof(unsigned);
+	*(unsigned*)data = dwLen;
+	data += sizeof(unsigned);
+	memcpy(data, pt->payload.data(), dwLen);
+	//data += dwLen;
 	turn_queue.pop_front();
 	return pkt;
 }
