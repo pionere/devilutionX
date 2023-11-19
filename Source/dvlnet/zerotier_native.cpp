@@ -64,6 +64,11 @@ void zerotier_network_start()
 	zts_node_start();
 }
 
+void zerotier_network_stop()
+{
+	zts_node_stop();
+}
+
 } // namespace net
 DEVILUTION_END_NAMESPACE
 #endif // ZEROTIER

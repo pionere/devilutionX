@@ -289,6 +289,8 @@ void protocol_zt::close_all()
 protocol_zt::~protocol_zt()
 {
 	close_all();
+
+	zerotier_network_stop();
 }
 
 void protocol_zt::endpoint::from_string(const std::string& str)
@@ -309,11 +311,6 @@ void protocol_zt::endpoint::from_addr(const unsigned char* src_addr)
 void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 {
 	memcpy(dest_addr, addr.data(), sizeof(addr)); 
-}
-
-uint64_t protocol_zt::current_ms()
-{
-	return 0;
 }
 
 void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])

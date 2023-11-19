@@ -73,7 +73,6 @@ private:
 	int fd_tcp = -1;
 	int fd_udp = -1;
 
-	static uint64_t current_ms();
 	void close_all();
 
 	static void set_nonblock(int fd);
