@@ -244,8 +244,7 @@ SNetTurnPkt* base_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 
 void base_client::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue[plr_self].emplace_back(SwapLE32(turn), buffer_t(data, data + size));
-	static_assert(sizeof(turn_t) == sizeof(uint32_t), "SNetSendTurn: sizemismatch between turn_t and turn");
+	turn_queue[plr_self].emplace_back(turn, buffer_t(data, data + size));
 	packet* pkt = pktfty.make_out_packet<PT_TURN>(plr_self, PLR_BROADCAST, turn, data, size);
 	send_packet(*pkt);
 	delete pkt;
@@ -262,7 +261,7 @@ turn_status base_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	memset(status, 0, sizeof(status));
 	// TODO: do not assume plr_self has a turn?
 	assert(!turn_queue[plr_self].empty());
-	myturn = SwapLE32(turn_queue[plr_self].front().turn_id);
+	myturn = turn_queue[plr_self].front().turn_id;
 	status[plr_self] = (myturn != 0 ? 0 : PCS_JOINED) | PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
 	result = TS_ACTIVE; // or TS_LIVE
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -278,7 +277,7 @@ turn_status base_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 			continue;
 		}
 		status[i] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
-		turn = SwapLE32(turn_queue[i].front().turn_id);
+		turn = turn_queue[i].front().turn_id;
 		if (turn == myturn) {
 			continue;
 		}
@@ -306,7 +305,7 @@ turn_status base_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!connected_table[i])
 				continue;
-			turn = SwapLE32(turn_queue[i].front().turn_id);
+			turn = turn_queue[i].front().turn_id;
 			if (turn > minturn)
 				minturn = turn;
 		}
@@ -314,7 +313,7 @@ turn_status base_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!connected_table[i])
 				continue;
-			turn = SwapLE32(turn_queue[i].front().turn_id);
+			turn = turn_queue[i].front().turn_id;
 			if (turn == 0 || minturn == turn)
 				continue;
 			result = TS_DESYNC;
@@ -338,7 +337,7 @@ turn_t base_client::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (status[i] & PCS_TURN_ARRIVED) {
-			turn = SwapLE32(turn_queue[i].front().turn_id);
+			turn = turn_queue[i].front().turn_id;
 			if (turn != 0) {
 				minturn = turn;
 				break;

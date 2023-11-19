@@ -15,7 +15,7 @@ namespace net {
 typedef std::vector<BYTE> buffer_t;
 
 struct SNetTurn {
-	uint32_t turn_id;
+	turn_t turn_id;
 	buffer_t payload;
 	SNetTurn()
 	    : turn_id(-1)

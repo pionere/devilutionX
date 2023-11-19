@@ -37,9 +37,9 @@ using key_t = uint8_t;
 
 #pragma pack(push, 1)
 typedef struct NetPktHdr {
-	packet_type m_type;
-	plr_t m_src;
-	plr_t m_dest;
+	BYTE m_type; // packet_type
+	BYTE m_src;  // plr_t
+	BYTE m_dest; // plr_t
 } NetPktHdr;
 
 typedef struct NetPktMessage {
@@ -49,33 +49,33 @@ typedef struct NetPktMessage {
 
 typedef struct NetPktTurn {
 	NetPktHdr npHdr;
-	turn_t m_turn;
+	LE_UINT32 m_turn;
 	//BYTE m_message[0];
 } NetPktTurn;
 
 typedef struct NetPktJoinRequest {
 	NetPktHdr npHdr;
-	cookie_t m_cookie;
+	LE_UINT32 m_cookie;
 	//SNetGameData m_info;
 } NetPktJoinRequest;
 
 typedef struct NetPktJoinAccept {
 	NetPktHdr npHdr;
-	cookie_t m_cookie;
-	plr_t m_newplr;
+	LE_UINT32 m_cookie;
+	BYTE m_newplr; // plr_t
 	SNetGameData m_info;
-	plr_t m_plrmask;
+	BYTE m_plrmask;
 } NetPktJoinAccept;
 
 typedef struct NetPktConnect {
 	NetPktHdr npHdr;
-	plr_t m_newplr;
+	BYTE m_newplr; // plr_t
 	//BYTE m_addr[0]; // 16 in case of zt
 } NetPktConnect;
 
 typedef struct NetPktDisconnect {
 	NetPktHdr npHdr;
-	plr_t m_newplr;
+	BYTE m_newplr; // plr_t
 } NetPktDisconnect;
 
 typedef struct NetPktInfoRequest {
@@ -102,7 +102,7 @@ public:
 
 	packet_type pktType() const
 	{
-		return reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type;
+		return (packet_type)reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type;
 	}
 	plr_t pktSrc() const
 	{

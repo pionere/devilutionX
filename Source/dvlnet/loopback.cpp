@@ -52,7 +52,7 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	dwLen += pt->payload.size();
 
 	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
-	pkt->nmpTurn = SwapLE32(pt->turn_id);
+	pkt->nmpTurn = pt->turn_id;
 	pkt->nmpLen = dwLen;
 	data = pkt->data;
 	*data = PLR_SINGLE;
@@ -87,7 +87,7 @@ turn_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
 
 void loopback::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 {
-	turn_queue.emplace_back(SwapLE32(turn), buffer_t(data, data + size));
+	turn_queue.emplace_back(turn, buffer_t(data, data + size));
 }
 
 void loopback::SNetLeaveGame()

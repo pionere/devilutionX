@@ -104,7 +104,7 @@ turn_status tcp_host_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 			continue;
 		}
 		status[i] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
-		turn = SwapLE32(turn_queue[i].front().turn_id);
+		turn = turn_queue[i].front().turn_id;
 		if (turn == myturn) {
 			continue;
 		}
