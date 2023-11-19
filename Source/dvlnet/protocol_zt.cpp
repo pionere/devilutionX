@@ -97,7 +97,7 @@ bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 	};
 	in6.sin6_port = htons(DEFAULT_PORT);
 	in6.sin6_family = AF_INET6;
-	std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
+	peer.to_addr(reinterpret_cast<unsigned char*>(in6.sin6_addr.s6_addr));
 	lwip_sendto(fd_udp, data.data(), data.size(), 0, (const struct sockaddr*)&in6, sizeof(in6));
 	return true;
 }
@@ -105,7 +105,7 @@ bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 bool protocol_zt::send_oob_mc(const buffer_t& data) const
 {
 	endpoint mc;
-	std::copy(dvl_multicast_addr, dvl_multicast_addr + 16, mc.addr.begin());
+	mc.from_addr(dvl_multicast_addr);
 	return send_oob(mc, data);
 }
 
@@ -119,7 +119,7 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 		};
 		in6.sin6_port = htons(DEFAULT_PORT);
 		in6.sin6_family = AF_INET6;
-		std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
+		peer.to_addr(reinterpret_cast<unsigned char*>(in6.sin6_addr.s6_addr));
 		lwip_connect(peer_list[peer].fd, (const struct sockaddr*)&in6, sizeof(in6));
 	}
 	while (!peer_list[peer].send_queue.empty()) {
@@ -192,7 +192,7 @@ bool protocol_zt::recv_from_udp()
 		return false;
 	buffer_t data(buf, buf + len);
 	endpoint ep;
-	std::copy(in6.sin6_addr.s6_addr, in6.sin6_addr.s6_addr + 16, ep.addr.begin());
+	ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
 	oob_recv_queue.emplace_back(ep, std::move(data));
 	return true;
 }
@@ -207,7 +207,7 @@ bool protocol_zt::accept_all()
 		if (newfd < 0)
 			break;
 		endpoint ep;
-		std::copy(in6.sin6_addr.s6_addr, in6.sin6_addr.s6_addr + 16, ep.addr.begin());
+		ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
 		if (peer_list[ep].fd != -1) {
 			DoLog("protocol_zt::accept_all: WARNING: overwriting connection\n");
 			lwip_close(peer_list[ep].fd);
@@ -298,8 +298,17 @@ void protocol_zt::endpoint::from_string(const std::string& str)
 		return;
 	if (!IP_IS_V6_VAL(a))
 		return;
-	const auto* r = reinterpret_cast<const unsigned char*>(a.u_addr.ip6.addr);
-	std::copy(r, r + 16, addr.begin());
+	from_addr(reinterpret_cast<const unsigned char*>(a.u_addr.ip6.addr));
+}
+
+void protocol_zt::endpoint::from_addr(const unsigned char* src_addr)
+{
+	memcpy(addr.data(), src_addr, sizeof(addr)); 
+}
+
+void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
+{
+	memcpy(dest_addr, addr.data(), sizeof(addr)); 
 }
 
 uint64_t protocol_zt::current_ms()

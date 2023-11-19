@@ -41,6 +41,8 @@ public:
 		}
 
 		void from_string(const std::string& str);
+		void from_addr(const unsigned char* src_addr);
+		void to_addr(unsigned char* dest_addr) const;
 	};
 
 	protocol_zt();
