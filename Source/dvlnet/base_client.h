@@ -37,6 +37,8 @@ public:
 
 	// void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
+	void recv_local(packet& pkt);
+
 protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
 	buffer_t game_init_info;
@@ -56,7 +58,6 @@ protected:
 	virtual void poll() = 0;
 	virtual void send_packet(packet& pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
-	void recv_local(packet& pkt);
 	virtual void recv_connect(packet& pkt);
 	virtual void close();
 

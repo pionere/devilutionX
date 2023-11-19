@@ -39,8 +39,6 @@ public:
 
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN+ 1]) override;
 
-	void receive_packet(packet& pkt);
-
 protected:
 	void send_packet(packet& pkt) override;
 	void poll() override;

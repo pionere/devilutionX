@@ -15,7 +15,7 @@ bool tcp_host_server::send_packet(packet& pkt)
 	if (!tcp_server::send_packet(pkt)) {
 		return false;
 	}
-	local_client->receive_packet(pkt);
+	local_client->recv_local(pkt);
 	return true;
 }
 
@@ -156,11 +156,6 @@ void tcp_host_client::close()
 void tcp_host_client::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	tcp_server::make_default_gamename(gamename);
-}
-
-void tcp_host_client::receive_packet(packet& pkt)
-{
-	recv_local(pkt);
 }
 
 } // namespace net
