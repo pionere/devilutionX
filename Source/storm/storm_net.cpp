@@ -137,9 +137,9 @@ unsigned SNetGetTurnsInTransit()
 }
 
 #ifdef ZEROTIER
-std::vector<std::string> SNetGetGamelist()
+void SNetGetGamelist(std::vector<std::string>& games)
 {
-	return dvlnet_inst->get_gamelist();
+	return dvlnet_inst->get_gamelist(games);
 }
 #endif
 

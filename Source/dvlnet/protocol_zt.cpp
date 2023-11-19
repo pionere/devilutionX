@@ -140,7 +140,7 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 			delete frame;
 			peer_list[peer].send_queue.pop_front();
 		} else {
-			throw protocol_exception();
+			return false;
 		}
 	}
 	return true;
@@ -315,12 +315,10 @@ void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 
 void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
-	int i;
-
 	std::string allowedChars = "abcdefghkopqrstuvwxyz";
 	std::random_device rd;
 	std::uniform_int_distribution<int> dist(0, allowedChars.size() - 1);
-	for (i = 0; i < 5; i++) {
+	for (int i = 0; i < 5; i++) {
 		gamename[i] = allowedChars.at(dist(rd));
 	}
 	gamename[i] = '\0';

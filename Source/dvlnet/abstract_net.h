@@ -17,11 +17,6 @@ typedef std::vector<BYTE> buffer_t;
 struct SNetTurn {
 	turn_t turn_id;
 	buffer_t payload;
-	SNetTurn()
-	    : turn_id(-1)
-	    , payload({})
-	{
-	}
 	SNetTurn(turn_t t, buffer_t p)
 	    : turn_id(t)
 	    , payload(p)
@@ -30,13 +25,8 @@ struct SNetTurn {
 };
 
 struct SNetMessage {
-	int sender; // change int to something else in devilution code later
+	int sender;
 	buffer_t payload;
-	SNetMessage()
-	    : sender(-1)
-	    , payload({})
-	{
-	}
 	SNetMessage(int s, buffer_t p)
 	    : sender(s)
 	    , payload(p)
@@ -66,10 +56,7 @@ public:
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) = 0;
 #ifdef ZEROTIER
-	virtual std::vector<std::string> get_gamelist()
-	{
-		return std::vector<std::string>();
-	}
+	virtual void get_gamelist(std::vector<std::string>& games) { };
 #endif
 	static std::unique_ptr<abstract_net> make_net(unsigned provider);
 };

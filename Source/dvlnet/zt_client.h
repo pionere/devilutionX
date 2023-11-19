@@ -16,7 +16,7 @@ public:
 	virtual bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
-	virtual std::vector<std::string> get_gamelist();
+	virtual void get_gamelist(std::vector<std::string>& games);
 
 	virtual ~zt_client() = default;
 
@@ -70,7 +70,7 @@ template <class P>
 bool zt_client<P>::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
-	for (auto i = 0; i < 500; ++i) {
+	for (int i = 0; i < 500; ++i) {
 		if (proto.network_online())
 			return true;
 		SDL_Delay(10);
@@ -88,7 +88,7 @@ template <class P>
 bool zt_client<P>::wait_firstpeer(endpoint& peer)
 {
 	// wait for peer for 5 seconds
-	for (auto i = 0; i < 500; i++) {
+	for (int i = 0; i < 500; i++) {
 		poll();
 		if (game_list.count(gamename)) {
 			peer = game_list[gamename];
@@ -119,7 +119,7 @@ bool zt_client<P>::wait_join()
 	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	proto.send(peer, pkt->encrypted_data());
 	delete pkt;
-	for (auto i = 0; i < 500; ++i) {
+	for (int i = 0; i < 500; ++i) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
@@ -164,7 +164,7 @@ void zt_client<P>::send_packet(packet& pkt)
 	plr_t src = pkt.pktSrc();
 
 	if (dest == PLR_BROADCAST) {
-		for (int i = 0; i < MAX_PLRS; i++)
+		for (plr_t i = 0; i < MAX_PLRS; i++)
 			if (i != src && peers[i] != NULL)
 				proto.send(peers[i], pkt.encrypted_data());
 	} else {
@@ -180,28 +180,23 @@ void zt_client<P>::send_packet(packet& pkt)
 template <class P>
 void zt_client<P>::poll()
 {
-	try {
-		buffer_t pkt_buf;
-		endpoint sender;
-		while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
-			packet* pkt = pktfty.make_in_packet(pkt_buf);
-			if (pkt != NULL)
-				recv_decrypted(*pkt, sender);
-			else
-				disconnect_peer(sender);
-			delete pkt;
-		}
-		while (proto.get_disconnected(sender)) {
-			for (plr_t i = 0; i < MAX_PLRS; i++) {
-				if (peers[i] == sender) {
-					disconnect_net(i);
-					break;
-				}
+	buffer_t pkt_buf;
+	endpoint sender;
+	while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
+		packet* pkt = pktfty.make_in_packet(pkt_buf);
+		if (pkt != NULL)
+			recv_decrypted(*pkt, sender);
+		else
+			disconnect_peer(sender);
+		delete pkt;
+	}
+	while (proto.get_disconnected(sender)) {
+		for (plr_t i = 0; i < MAX_PLRS; i++) {
+			if (peers[i] == sender) {
+				disconnect_net(i);
+				break;
 			}
 		}
-	} catch (std::exception& e) {
-		DoLog(e.what());
-		return;
 	}
 }
 
@@ -293,14 +288,13 @@ void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 }
 
 template <class P>
-std::vector<std::string> zt_client<P>::get_gamelist()
+void zt_client<P>::get_gamelist(std::vector<std::string>& games)
 {
+	send_info_request();
 	poll();
-	std::vector<std::string> ret;
 	for (auto& s : game_list) {
-		ret.push_back(s.first);
+		games.push_back(s.first);
 	}
-	return ret;
 }
 
 template <class P>

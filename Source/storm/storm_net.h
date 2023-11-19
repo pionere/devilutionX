@@ -90,7 +90,7 @@ turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
  */
 unsigned SNetGetTurnsInTransit();
 #ifdef ZEROTIER
-std::vector<std::string> SNetGetGamelist();
+void SNetGetGamelist(std::vector<std::string>& games);
 #endif
 
 /*

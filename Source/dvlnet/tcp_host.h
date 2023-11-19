@@ -48,7 +48,7 @@ private:
 	asio::io_context ioc;
 	tcp_host_server* local_server = NULL;
 	turn_t hostTurn;
-	int serverType;
+	int serverType; // server_type
 };
 
 } //namespace net
