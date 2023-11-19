@@ -508,7 +508,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base_client.cpp
-  Source/dvlnet/cdwrap.cpp
   Source/dvlnet/frame_queue.cpp
   Source/dvlnet/loopback.cpp
   Source/dvlnet/packet.cpp
