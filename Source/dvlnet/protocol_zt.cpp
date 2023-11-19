@@ -62,7 +62,7 @@ bool protocol_zt::network_online()
 		auto ret = lwip_bind(fd_udp, (struct sockaddr*)&in6, sizeof(in6));
 		if (ret < 0) {
 			DoLog("lwip, (udp) bind: %s\n", strerror(errno));
-			throw protocol_exception();
+			return false;
 		}
 		set_nonblock(fd_udp);
 	}
@@ -72,12 +72,12 @@ bool protocol_zt::network_online()
 		auto r1 = lwip_bind(fd_tcp, (struct sockaddr*)&in6, sizeof(in6));
 		if (r1 < 0) {
 			DoLog("lwip, (tcp) bind: %s\n", strerror(errno));
-			throw protocol_exception();
+			return false;
 		}
 		auto r2 = lwip_listen(fd_tcp, 10);
 		if (r2 < 0) {
 			DoLog("lwip, listen: %s\n", strerror(errno));
-			throw protocol_exception();
+			return false;
 		}
 		set_nonblock(fd_tcp);
 		set_nodelay(fd_tcp);
