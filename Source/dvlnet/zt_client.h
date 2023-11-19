@@ -6,20 +6,19 @@
 
 #include "base_client.h"
 #include "packet.h"
-#include "utils/stubs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 template <class P>
-class base_protocol : public base_client {
+class zt_client : public base_client {
 public:
 	virtual bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	virtual std::vector<std::string> get_gamelist();
 
-	virtual ~base_protocol() = default;
+	virtual ~zt_client() = default;
 
 protected:
 	void poll() override;
@@ -47,7 +46,7 @@ private:
 };
 
 template <class P>
-plr_t base_protocol<P>::get_master()
+plr_t zt_client<P>::get_master()
 {
 	for (plr_t i = 0; i < MAX_PLRS; i++)
 		if (peers[i])
@@ -56,7 +55,7 @@ plr_t base_protocol<P>::get_master()
 }
 
 template <class P>
-void base_protocol<P>::disconnect_peer(const endpoint& peer)
+void zt_client<P>::disconnect_peer(const endpoint& peer)
 {
 	proto.disconnect(peer);
 
@@ -68,7 +67,7 @@ void base_protocol<P>::disconnect_peer(const endpoint& peer)
 }
 
 template <class P>
-bool base_protocol<P>::wait_network()
+bool zt_client<P>::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
 	for (auto i = 0; i < 500; ++i) {
@@ -80,13 +79,13 @@ bool base_protocol<P>::wait_network()
 }
 
 template <class P>
-void base_protocol<P>::disconnect_net(plr_t pnum)
+void zt_client<P>::disconnect_net(plr_t pnum)
 {
 	disconnect_peer(peers[pnum]);
 }
 
 template <class P>
-bool base_protocol<P>::wait_firstpeer(endpoint& peer)
+bool zt_client<P>::wait_firstpeer(endpoint& peer)
 {
 	// wait for peer for 5 seconds
 	for (auto i = 0; i < 500; i++) {
@@ -102,7 +101,7 @@ bool base_protocol<P>::wait_firstpeer(endpoint& peer)
 }
 
 template <class P>
-void base_protocol<P>::send_info_request()
+void zt_client<P>::send_info_request()
 {
 	packet* pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST, PLR_MASTER);
 	proto.send_oob_mc(pkt->encrypted_data());
@@ -110,7 +109,7 @@ void base_protocol<P>::send_info_request()
 }
 
 template <class P>
-bool base_protocol<P>::wait_join()
+bool zt_client<P>::wait_join()
 {
 	endpoint peer;
 	if (!wait_firstpeer(peer))
@@ -130,7 +129,7 @@ bool base_protocol<P>::wait_join()
 }
 
 template <class P>
-bool base_protocol<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
+bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	bool createGame;
 
@@ -159,7 +158,7 @@ bool base_protocol<P>::setup_game(_uigamedata* gameData, const char* addrstr, un
 }
 
 template <class P>
-void base_protocol<P>::send_packet(packet& pkt)
+void zt_client<P>::send_packet(packet& pkt)
 {
 	plr_t dest = pkt.pktDest();
 	plr_t src = pkt.pktSrc();
@@ -179,7 +178,7 @@ void base_protocol<P>::send_packet(packet& pkt)
 }
 
 template <class P>
-void base_protocol<P>::poll()
+void zt_client<P>::poll()
 {
 	try {
 		buffer_t pkt_buf;
@@ -207,7 +206,7 @@ void base_protocol<P>::poll()
 }
 
 template <class P>
-void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
+void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 {
 	plr_t i, pnum, pmask;
 	packet* reply;
@@ -249,7 +248,7 @@ void base_protocol<P>::handle_join_request(packet& pkt, endpoint sender)
 }
 
 template <class P>
-void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
+void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 {
 	plr_t pkt_plr = pkt.pktSrc();
 
@@ -294,7 +293,7 @@ void base_protocol<P>::recv_decrypted(packet& pkt, endpoint sender)
 }
 
 template <class P>
-std::vector<std::string> base_protocol<P>::get_gamelist()
+std::vector<std::string> zt_client<P>::get_gamelist()
 {
 	poll();
 	std::vector<std::string> ret;
@@ -305,7 +304,7 @@ std::vector<std::string> base_protocol<P>::get_gamelist()
 }
 
 template <class P>
-void base_protocol<P>::close()
+void zt_client<P>::close()
 {
 	base_client::close();
 
@@ -313,7 +312,7 @@ void base_protocol<P>::close()
 }
 
 template <class P>
-void base_protocol<P>::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
+void zt_client<P>::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	proto.make_default_gamename(gamename);
 }

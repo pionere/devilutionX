@@ -1,11 +1,11 @@
 #include "abstract_net.h"
 
-#include "dvlnet/base_protocol.h"
+#include "dvlnet/loopback.h"
 #include "dvlnet/protocol_zt.h"
 #include "dvlnet/tcp_client.h"
 #include "dvlnet/tcpd_client.h"
 #include "dvlnet/tcp_host.h"
-#include "dvlnet/loopback.h"
+#include "dvlnet/zt_client.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -30,7 +30,7 @@ std::unique_ptr<abstract_net> abstract_net::make_net(unsigned provider)
 #ifndef HOSTONLY
 #ifdef ZEROTIER
 	case SELCONN_ZT:
-		return std::make_unique<base_protocol<protocol_zt>>();
+		return std::make_unique<zt_client<protocol_zt>>();
 #endif
 	case SELCONN_LOOPBACK:
 		return std::make_unique<loopback>();
