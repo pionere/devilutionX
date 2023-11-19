@@ -10,7 +10,7 @@ namespace net {
 class loopback : public abstract_net {
 public:
 	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
-	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) override;
+	SNetMsgPkt* SNetReceiveMessage() override;
 	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
 	void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) override;
@@ -29,7 +29,6 @@ public:
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 private:
-	buffer_t message_last;
 	std::deque<buffer_t> message_queue;
 	std::deque<SNetTurn> turn_queue;
 };

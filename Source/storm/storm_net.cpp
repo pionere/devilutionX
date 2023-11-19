@@ -94,12 +94,12 @@ void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes)
 	dvlnet_inst->SNetSendMessage(receiver, data, databytes);
 }
 
-bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes)
+SNetMsgPkt* SNetReceiveMessage()
 {
 #ifdef ZEROTIER
 	std::lock_guard<std::mutex> lg(storm_net_mutex);
 #endif
-	return dvlnet_inst->SNetReceiveMessage(sender, data, databytes);
+	return dvlnet_inst->SNetReceiveMessage();
 }
 
 void SNetSendTurn(turn_t turn, const BYTE* data, unsigned databytes)

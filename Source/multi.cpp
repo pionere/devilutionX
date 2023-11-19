@@ -192,7 +192,7 @@ static void multi_parse_turns()
 	// TODO: use pre-allocated space?
 	SNetTurnPkt* turn = SNetReceiveTurn(player_state);
 	multi_process_turn(turn);
-	MemFreeDbg(turn);
+	mem_free_dbg(turn);
 #ifndef NONET
 	if (guSendGameDelta != 0) {
 		if (!gbJoinGame) {
@@ -456,24 +456,35 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 	gdwGameLogicTurn = turn->ntpTurn * gbNetUpdateRate;
 }
 
-void multi_process_msgs()
+static void multi_process_msg(SNetMsgPkt* msg)
 {
 	MsgPktHdr* pkt;
 	unsigned dwMsgSize, dwReadSize;
 	int pnum;
 
+	dwMsgSize = msg->nmpLen;
+	if (dwMsgSize < sizeof(MsgPktHdr))
+		return;
+	//if (pkt->wCheck != PKT_HDR_CHECK)
+	//	continue;
+	pkt = (MsgPktHdr*)msg->data;
+	if (pkt->wLen != dwMsgSize)
+		return;
+	pnum = msg->nmpPlr;
+	// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
+	dwMsgSize -= sizeof(MsgPktHdr);
+	dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
+	assert(dwReadSize == dwMsgSize);
+}
+
+void multi_process_msgs()
+{
+	SNetMsgPkt* msg;
+
 	//multi_process_tmsgs();
-	while (SNetReceiveMessage(&pnum, (BYTE**)&pkt, &dwMsgSize)) {
-		if (dwMsgSize < sizeof(MsgPktHdr))
-			continue;
-		// assert((unsigned)pnum < MAX_PLRS || pnum == SNPLAYER_MASTER);
-		//if (pkt->wCheck != PKT_HDR_CHECK)
-		//	continue;
-		if (pkt->wLen != dwMsgSize)
-			continue;
-		dwMsgSize -= sizeof(MsgPktHdr);
-		dwReadSize = ParseMsg(pnum, (TCmd*)&pkt[1]);
-		assert(dwReadSize == dwMsgSize);
+	while ((msg = SNetReceiveMessage()) != NULL) {
+		multi_process_msg(msg);
+		mem_free_dbg(msg);
 	}
 }
 

@@ -20,7 +20,7 @@ class base_client : public abstract_net {
 public:
 	// bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) override;
+	SNetMsgPkt* SNetReceiveMessage() override;
 	void SNetSendMessage(int receiver, const BYTE* data, unsigned size) override;
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
 	void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) override;
@@ -43,7 +43,6 @@ protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
 	buffer_t game_init_info;
 
-	SNetMessage message_last;
 	std::deque<SNetMessage> message_queue;
 	std::deque<SNetTurn> turn_queue[MAX_PLRS] = { };
 	int connected_table[MAX_PLRS] = { }; // connection_status

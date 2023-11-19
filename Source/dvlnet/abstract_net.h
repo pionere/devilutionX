@@ -50,7 +50,7 @@ static constexpr uint8_t PLR_BROADCAST = SNPLAYER_ALL;
 class abstract_net {
 public:
 	virtual bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) = 0;
-	virtual bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* size) = 0;
+	virtual SNetMsgPkt* SNetReceiveMessage() = 0;
 	virtual void SNetSendMessage(int receiver, const BYTE* data, unsigned size) = 0;
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) = 0;

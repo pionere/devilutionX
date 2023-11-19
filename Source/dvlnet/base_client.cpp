@@ -153,17 +153,25 @@ void base_client::recv_local(packet& pkt)
 	}
 }
 
-bool base_client::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
+SNetMsgPkt* base_client::SNetReceiveMessage()
 {
 	poll();
+
+	SNetMsgPkt* pkt = NULL;
+	SNetMessage* pm;
+	unsigned dwLen;
+
 	if (message_queue.empty())
-		return false;
-	message_last = message_queue.front();
+		return pkt;
+	pm = &message_queue.front();
+
+	dwLen = pm->payload.size();
+	pkt = (SNetMsgPkt*)DiabloAllocPtr(dwLen + sizeof(SNetMsgPkt) - sizeof(pkt->data));
+	pkt->nmpPlr = pm->sender;
+	pkt->nmpLen = dwLen;
+	memcpy(pkt->data, pm->payload.data(), dwLen);
 	message_queue.pop_front();
-	*sender = message_last.sender;
-	*size = message_last.payload.size();
-	*data = message_last.payload.data();
-	return true;
+	return pkt;
 }
 
 void base_client::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
@@ -390,7 +398,6 @@ void base_client::close()
 {
 	int i;
 
-	message_last.payload.clear();
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();

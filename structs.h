@@ -2438,6 +2438,12 @@ typedef struct SNetTurnPkt {
 	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
 } SNetTurnPkt;
 
+typedef struct SNetMsgPkt {
+	int nmpPlr;
+	unsigned nmpLen;
+	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
+} SNetMsgPkt;
+
 //////////////////////////////////////////////////
 // path
 //////////////////////////////////////////////////

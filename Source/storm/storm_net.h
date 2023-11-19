@@ -59,7 +59,7 @@ void SNetGetGameInfo(const char** name, const char** password);
  *
  */
 void SNetSendMessage(int receiver, const BYTE* data, unsigned databytes);
-bool SNetReceiveMessage(int* sender, BYTE** data, unsigned* databytes);
+SNetMsgPkt* SNetReceiveMessage();
 
 /*  SNetSendTurn @ 122
  *

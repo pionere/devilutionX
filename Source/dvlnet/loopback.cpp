@@ -13,16 +13,23 @@ bool loopback::setup_game(_uigamedata* gameData, const char* addrstr, unsigned p
 	return true;
 }
 
-bool loopback::SNetReceiveMessage(int* sender, BYTE** data, unsigned* size)
+SNetMsgPkt* loopback::SNetReceiveMessage()
 {
+	SNetMsgPkt* pkt = NULL;
+	buffer_t* pm;
+	unsigned dwLen;
+
 	if (message_queue.empty())
-		return false;
-	message_last = message_queue.front();
+		return pkt;
+	pm = &message_queue.front();
+
+	dwLen = pm->size();
+	pkt = (SNetMsgPkt*)DiabloAllocPtr(dwLen + sizeof(SNetMsgPkt) - sizeof(pkt->data));
+	pkt->nmpPlr = PLR_SINGLE;
+	pkt->nmpLen = dwLen;
+	memcpy(pkt->data, pm->data(), dwLen);
 	message_queue.pop_front();
-	*sender = PLR_SINGLE;
-	*size = message_last.size();
-	*data = message_last.data();
-	return true;
+	return pkt;
 }
 
 void loopback::SNetSendMessage(int receiver, const BYTE* data, unsigned size)
@@ -92,7 +99,6 @@ void loopback::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 
 void loopback::SNetLeaveGame()
 {
-	// message_last.clear(); -- not necessary at the moment
 	message_queue.clear();
 	turn_queue.clear();
 }
