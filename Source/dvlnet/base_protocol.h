@@ -31,7 +31,6 @@ private:
 	P proto;
 	typedef typename P::endpoint endpoint;
 
-	endpoint firstpeer;
 	std::string gamename;
 	std::map<std::string, endpoint> game_list;
 	std::array<endpoint, MAX_PLRS> peers;
@@ -43,8 +42,8 @@ private:
 	void recv_decrypted(packet& pkt, endpoint sender);
 
 	bool wait_network();
-	bool wait_firstpeer();
-	void wait_join();
+	bool wait_join();
+	bool wait_firstpeer(endpoint& peer);
 };
 
 template <class P>
@@ -73,9 +72,9 @@ bool base_protocol<P>::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
 	for (auto i = 0; i < 500; ++i) {
-		SDL_Delay(10);
 		if (proto.network_online())
 			return true;
+		SDL_Delay(10);
 	}
 	return false;
 }
@@ -87,19 +86,19 @@ void base_protocol<P>::disconnect_net(plr_t pnum)
 }
 
 template <class P>
-bool base_protocol<P>::wait_firstpeer()
+bool base_protocol<P>::wait_firstpeer(endpoint& peer)
 {
 	// wait for peer for 5 seconds
 	for (auto i = 0; i < 500; i++) {
+		poll();
 		if (game_list.count(gamename)) {
-			firstpeer = game_list[gamename];
-			break;
+			peer = game_list[gamename];
+			return true;
 		}
 		send_info_request();
-		poll();
 		SDL_Delay(10);
 	}
-	return (bool)firstpeer;
+	return false;
 }
 
 template <class P>
@@ -111,19 +110,23 @@ void base_protocol<P>::send_info_request()
 }
 
 template <class P>
-void base_protocol<P>::wait_join()
+bool base_protocol<P>::wait_join()
 {
-	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self),
-	    sizeof(cookie_t));
+	endpoint peer;
+	if (!wait_firstpeer(peer))
+		return false;
+
+	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
 	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
-	proto.send(firstpeer, pkt->encrypted_data());
+	proto.send(peer, pkt->encrypted_data());
 	delete pkt;
 	for (auto i = 0; i < 500; ++i) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
-			break; // join successful
+			return true; // join successful
 		SDL_Delay(10);
 	}
+	return false;
 }
 
 template <class P>
@@ -147,11 +150,8 @@ bool base_protocol<P>::setup_game(_uigamedata* gameData, const char* addrstr, un
 			return true;
 		}
 		// join game
-		if (wait_firstpeer()) {
-			wait_join();
-			if (plr_self != PLR_BROADCAST) {
-				return true;
-			}
+		if (wait_join()) {
+			return true;
 		}
 	}
 	snprintf(errorText, 256, "Connection timed out.");
