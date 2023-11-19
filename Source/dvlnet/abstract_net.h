@@ -66,14 +66,6 @@ public:
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) = 0;
 #ifdef ZEROTIER
-	virtual void setup_password(std::string passwd)
-	{
-	}
-
-	virtual void send_info_request()
-	{
-	}
-
 	virtual std::vector<std::string> get_gamelist()
 	{
 		return std::vector<std::string>();
