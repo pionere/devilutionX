@@ -13,8 +13,8 @@ scc make_shared_cc(asio::io_context& ioc)
 	return std::make_shared<client_connection>(ioc);
 }
 
-tcp_server::tcp_server(asio::io_context& ioc, packet_factory& pf, buffer_t& gameinfo, unsigned srvType)
-    : ioc(ioc), acceptor(ioc), connTimer(ioc), pktfty(pf), game_init_info(gameinfo), serverType(srvType)
+tcp_server::tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pf, buffer_t& gameinfo, unsigned srvType)
+    : local_client(client), ioc(ioc), acceptor(ioc), connTimer(ioc), pktfty(pf), game_init_info(gameinfo), serverType(srvType)
 {
 	assert(game_init_info.size() == sizeof(SNetGameData));
 }

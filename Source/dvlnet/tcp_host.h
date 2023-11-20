@@ -11,16 +11,11 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-class tcp_host_client;
-
 class tcp_host_server : public tcp_server {
 public:
-	tcp_host_server(tcp_host_client* client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
+	tcp_host_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
 
 	bool send_packet(packet& pkt) override;
-
-private:
-	tcp_host_client* local_client;
 };
 
 class tcp_host_client : public base_client {

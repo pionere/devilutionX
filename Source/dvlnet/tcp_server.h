@@ -5,6 +5,7 @@
 #include <asio/ts/io_context.hpp>
 #include <asio/ts/net.hpp>
 
+#include "base_client.h"
 #include "packet.h"
 #include "frame_queue.h"
 
@@ -41,7 +42,7 @@ scc make_shared_cc(asio::io_context& ioc);
 
 class tcp_server {
 public:
-	tcp_server(asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
+	tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256]);
 	void close();
 	~tcp_server() = default;
@@ -79,6 +80,8 @@ private:
 	void drop_connection(const scc& con);
 
 protected:
+	base_client& local_client; // TODO: tcp_client would be better, but tcp_host_client is not one...
+
 	virtual bool send_packet(packet& pkt);
 };
 

@@ -15,7 +15,7 @@ bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned
 
 	if (gameData != NULL) {
 		setup_gameinfo(gameData);
-		local_server = new tcp_server(ioc, pktfty, game_init_info, SRV_BASIC);
+		local_server = new tcp_server(*this, ioc, pktfty, game_init_info, SRV_BASIC);
 		if (!local_server->setup_server(addrstr, port, errorText)) {
 			close();
 			return false;
