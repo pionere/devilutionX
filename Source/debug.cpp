@@ -7,6 +7,7 @@
 #include "all.h"
 #include "misproc.h"
 #include "engine/render/text_render.h"
+#include "dvlnet/packet.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -109,6 +110,63 @@ void ValidateData()
 {
 	int i;
 
+#if DEBUG
+	// dvlnet
+	{
+	net::packet_factory pktfty;
+	plr_t plr_self = 0;
+	plr_t plr_other = 1;
+	plr_t plr_mask = (1 << 0) | (1 << 1);
+	net::packet* pkt;
+	turn_t turn = 0;
+	cookie_t cookie = 123456;
+	const BYTE dynData[16] = "lwkejfwip";
+	const BYTE (&addr)[16] = dynData;
+	SNetGameData gameData;	
+	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
+	if (!pkt->validate()) {
+		app_fatal("PT_MESSAGE is invalid");
+	}
+	delete pkt;
+	pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
+	if (!pkt->validate()) {
+		app_fatal("PT_TURN is invalid");
+	}
+	delete pkt;
+	pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
+	if (!pkt->validate()) {
+		app_fatal("PT_JOIN_REQUEST is invalid");
+	}
+	delete pkt;
+	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask);
+	if (!pkt->validate()) {
+		app_fatal("PT_JOIN_ACCEPT is invalid");
+	}
+	delete pkt;
+	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, addr, sizeof(addr));
+	if (!pkt->validate()) {
+		app_fatal("PT_CONNECT is invalid");
+	}
+	delete pkt;
+	pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
+	if (!pkt->validate()) {
+		app_fatal("PT_DISCONNECT is invalid");
+	}
+	delete pkt;
+#if ZEROTIER
+	pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
+	if (!pkt->validate()) {
+		app_fatal("PT_INFO_REQUEST is invalid");
+	}
+	delete pkt;
+	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, dynData, sizeof(dynData));
+	if (!pkt->validate()) {
+		app_fatal("PT_INFO_REPLY is invalid");
+	}
+	delete pkt;
+#endif
+	}
+#endif // DEBUG
 	// text
 	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
 
