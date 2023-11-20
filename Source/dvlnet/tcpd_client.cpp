@@ -230,7 +230,7 @@ bool tcpd_client::handle_recv_newplr(const scc& con, packet& pkt)
 	pending_connections[i] = NULL;
 	active_connections[pnum] = con;
 	con->pnum = pnum;
-	/*packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info);
+	/*packet* reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info.data(), pmask);
 	start_send(con, *reply);
 	delete reply;*/
 	//send_connect(con);

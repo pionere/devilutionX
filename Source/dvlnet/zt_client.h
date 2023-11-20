@@ -224,18 +224,18 @@ void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 			pmask |= 1 << i;
 		}
 	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info, pmask);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info.data(), pmask);
 	proto.send(sender, reply->encrypted_data());
 	delete reply;
 	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, buffer_t());
+	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, NULL, 0);
 	send_packet(*reply);
 	delete reply;
 	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
 	pmask &= ~((1 << pnum) | (1 << plr_self));
 	for (plr_t i = 0; i < MAX_PLRS; i++) {
 		if (pmask & (1 << i)) {
-			reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(peers[i].addr.begin(), peers[i].addr.end()));
+			reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, peers[i].addr.data(), peers[i].addr.size());
 			proto.send(sender, reply->encrypted_data());
 			delete reply;
 		}
@@ -256,10 +256,7 @@ void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 			handle_join_request(pkt, sender);
 		} else if (pkt_type == PT_INFO_REQUEST) {
 			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
-				buffer_t buf;
-				buf.resize(gamename.size());
-				std::memcpy(buf.data(), &gamename[0], gamename.size());
-				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, buf);
+				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, gamename.c_str(), gamename.size());
 				proto.send_oob(sender, reply->encrypted_data());
 				delete reply;
 			}

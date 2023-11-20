@@ -215,14 +215,14 @@ inline void packet_out::create<PT_INFO_REQUEST>(plr_t s, plr_t d)
 }
 
 template <>
-inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, buffer_t i)
+inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, const BYTE* info, unsigned size)
 {
-	decrypted_buffer.resize(sizeof(NetPktHdr) + i.size());
+	decrypted_buffer.resize(sizeof(NetPktHdr) + size);
 	NetPktInfoReply* data = (NetPktInfoReply*)decrypted_buffer.data();
 	data->npHdr.m_type = PT_INFO_REPLY;
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
-	memcpy((BYTE*)data + sizeof(NetPktHdr), i.data(), i.size());
+	memcpy((BYTE*)data + sizeof(NetPktHdr), info, size);
 }
 
 template <>
@@ -261,7 +261,7 @@ inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d, cookie_t c)
 
 template <>
 inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
-    plr_t n, buffer_t i, plr_t p)
+    plr_t n, const BYTE* gamedata, plr_t p)
 {
 	decrypted_buffer.resize(sizeof(NetPktJoinAccept));
 	NetPktJoinAccept* data = (NetPktJoinAccept*)decrypted_buffer.data();
@@ -271,19 +271,19 @@ inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
 	data->m_cookie = c;
 	data->m_newplr = n;
 	data->m_plrmask = p;
-	memcpy(&data->m_info, i.data(), sizeof(SNetGameData));
+	memcpy(&data->m_info, gamedata, sizeof(SNetGameData));
 }
 
 template <>
-inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, buffer_t i)
+inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, const BYTE* addr, unsigned size)
 {
-	decrypted_buffer.resize(sizeof(NetPktConnect) + i.size());
+	decrypted_buffer.resize(sizeof(NetPktConnect) + size);
 	NetPktConnect* data = (NetPktConnect*)decrypted_buffer.data();
 	data->npHdr.m_type = PT_CONNECT;
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
 	data->m_newplr = n;
-	memcpy((BYTE*)data + sizeof(NetPktConnect), i.data(), i.size());
+	memcpy((BYTE*)data + sizeof(NetPktConnect), addr, size);
 }
 
 /*template <>

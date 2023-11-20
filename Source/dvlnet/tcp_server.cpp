@@ -171,11 +171,11 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 			pmask |= 1 << i;
 		}
 	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info, pmask);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)game_init_info.data(), pmask);
 	start_send(con, *reply);
 	delete reply;
 	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, buffer_t());
+	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, (const BYTE*)NULL, 0u);
 	send_packet(*reply);
 	delete reply;
 	//send_connect(con);
@@ -186,7 +186,7 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (pmask & (1 << i)) {
 				endpoint_to_string(active_connections[i], addr);
-				reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, buffer_t(addr.begin(), addr.end()));
+				reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, (const BYTE*)addr.c_str(), (unsigned)addr.size());
 				start_send(con, *reply);
 				delete reply;
 			}
