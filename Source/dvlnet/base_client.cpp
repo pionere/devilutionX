@@ -53,12 +53,7 @@ void base_client::recv_accept(packet& pkt)
 		return;
 	}
 	plr_self = pkt.pktJoinAccPlr();
-	if (plr_self >= MAX_PLRS) {
-		// Invalid player id -> ignore
-		DoLog("Invalid player id (%d) received from %d.", NULL, 0, plr_self, pkt.pktSrc());
-		plr_self = PLR_BROADCAST;
-		return;
-	}
+	// assert(plr_self < MAX_PLRS);
 	auto& pkt_info = pkt.pktJoinAccInfo();
 	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
@@ -131,11 +126,9 @@ void base_client::recv_local(packet& pkt)
 
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
-		net_assert(pkt_plr < MAX_PLRS || pkt_plr == SNPLAYER_MASTER);
 		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
 		break;
 	case PT_TURN:
-		net_assert(pkt_plr < MAX_PLRS);
 		turn_queue[pkt_plr].emplace_back(pkt.pktTurn(), buffer_t(pkt.pktTurnBegin(), pkt.pktTurnEnd()));
 		break;
 	case PT_JOIN_ACCEPT:

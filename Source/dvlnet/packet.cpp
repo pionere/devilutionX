@@ -10,6 +10,54 @@ const buffer_t& packet::encrypted_data() const
 	return encrypted_buffer;
 }
 
+#if DEV_MODE || INET_MODE
+bool packet::validate()
+{
+	size_t size = decrypted_buffer.size();
+	plr_t pkt_plr = pktSrc();
+	// assert(size >= sizeof(NetPktHdr));
+	switch (pktType()) {
+	case PT_MESSAGE:
+		if (pkt_plr >= MAX_PLRS && pkt_plr != PLR_MASTER)
+			return false;
+		break;
+	case PT_TURN:
+		if (pkt_plr >= MAX_PLRS || size < sizeof(NetPktTurn))
+			return false;
+		break;
+	case PT_JOIN_REQUEST:
+		if (size < sizeof(NetPktJoinRequest))
+			return false;
+		break;
+	case PT_JOIN_ACCEPT:
+		if (size < sizeof(NetPktJoinAccept))
+			return false;
+		if (pktJoinAccPlr() >= MAX_PLRS)
+			return false;
+		break;
+	case PT_CONNECT:		// tcp, zt-only
+		if (size < sizeof(NetPktConnect))
+			return false;
+		// if (pkt_plr >= MAX_PLRS && pkt_plr != SNPLAYER_MASTER)
+		//	return false;
+		break;
+	case PT_DISCONNECT:
+		if (size < sizeof(NetPktDisconnect))
+			return false;
+		break;
+#if ZEROTIER
+	case PT_INFO_REQUEST:
+	case PT_INFO_REPLY:
+		return true;
+#endif
+	default:
+		return false;
+	}
+
+	return true;
+}
+#endif
+
 void packet_in::create(buffer_t buf)
 {
 	encrypted_buffer = std::move(buf);
@@ -35,7 +83,12 @@ bool packet_in::decrypt()
 		return false;
 	decrypted_buffer = encrypted_buffer;
 #endif
+
+#if INET_MODE
+	return this->validate();
+#else
 	return true;
+#endif
 }
 
 void packet_out::encrypt()

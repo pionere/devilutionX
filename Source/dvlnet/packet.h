@@ -99,6 +99,10 @@ public:
 
 	const buffer_t& encrypted_data() const;
 
+#if DEV_MODE || INET_MODE
+	bool validate();
+#endif
+
 	packet_type pktType() const
 	{
 		return (packet_type)reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type;
