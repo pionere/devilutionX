@@ -267,8 +267,8 @@ void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 		pkt_plr = pkt.pktConnectPlr();
 		connected_table[pkt_plr] |= CON_CONNECTED;
 		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd()));
-		if (addr.size() == 16)
-			memcpy(peers[pkt_plr].addr.data(), addr.data(), 16);
+		if (addr.size() == peers[pkt_plr].addr.size())
+			memcpy(peers[pkt_plr].addr.data(), addr.data(), peers[pkt_plr].addr.size());
 		return;
 	} else if (pkt_plr >= MAX_PLRS) {
 		return; // drop packet with invalid source

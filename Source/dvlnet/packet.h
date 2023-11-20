@@ -56,7 +56,6 @@ typedef struct NetPktTurn {
 typedef struct NetPktJoinRequest {
 	NetPktHdr npHdr;
 	LE_UINT32 m_cookie;
-	//SNetGameData m_info;
 } NetPktJoinRequest;
 
 typedef struct NetPktJoinAccept {
@@ -189,7 +188,7 @@ class packet_in : public packet {
 	friend class packet_factory;
 	using packet::packet;
 
-protected:
+private:
 	void create(buffer_t buf);
 	bool decrypt();
 };
@@ -198,7 +197,7 @@ class packet_out : public packet {
 	friend class packet_factory;
 	using packet::packet;
 
-protected:
+private:
 	template <packet_type t, typename... Args>
 	void create(Args... args);
 	void encrypt();
@@ -286,17 +285,6 @@ inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, const BYTE
 	memcpy((BYTE*)data + sizeof(NetPktConnect), addr, size);
 }
 
-/*template <>
-inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n)
-{
-	decrypted_buffer.resize(sizeof(NetPktConnect));
-	NetPktConnect* data = (NetPktConnect*)decrypted_buffer.data();
-	data->npHdr.m_type = PT_CONNECT;
-	data->npHdr.m_src = s;
-	data->npHdr.m_dest = d;
-	data->m_newplr = n;
-}*/
-
 template <>
 inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n)
 {
@@ -324,11 +312,11 @@ inline packet* packet_factory::make_in_packet(buffer_t buf)
 {
 	packet_in* ret = new packet_in(key);
 	ret->create(std::move(buf));
-	if (!ret->decrypt()) {
-		delete ret;
-		ret = NULL;
+	if (ret->decrypt()) {
+		return ret;
 	}
-	return ret;
+	delete ret;
+	return NULL;
 }
 
 template <packet_type t, typename... Args>

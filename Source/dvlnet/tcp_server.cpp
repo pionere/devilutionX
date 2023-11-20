@@ -135,13 +135,6 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	start_recv(con);
 }
 
-/*void tcp_server::send_connect(const scc& con)
-{
-	packet* pkt = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, con->pnum);
-	send_packet(*pkt);
-	delete pkt;
-}*/
-
 bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 {
 	plr_t i, pnum, pmask;
