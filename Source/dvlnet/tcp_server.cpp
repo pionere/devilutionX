@@ -13,10 +13,9 @@ scc make_shared_cc(asio::io_context& ioc)
 	return std::make_shared<client_connection>(ioc);
 }
 
-tcp_server::tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pf, buffer_t& gameinfo, unsigned srvType)
+tcp_server::tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pf, SNetGameData& gameinfo, unsigned srvType)
     : local_client(client), ioc(ioc), acceptor(ioc), connTimer(ioc), pktfty(pf), game_init_info(gameinfo), serverType(srvType)
 {
-	assert(game_init_info.size() == sizeof(SNetGameData));
 }
 
 bool tcp_server::setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256])
@@ -92,7 +91,7 @@ plr_t tcp_server::next_free_conn()
 	for (i = 0; i < MAX_PLRS; i++)
 		if (active_connections[i] == NULL && ghost_connections[i] == 0)
 			break;
-	return i < ((SNetGameData*)game_init_info.data())->ngMaxPlayers ? i : MAX_PLRS;
+	return i < game_init_info.ngMaxPlayers ? i : MAX_PLRS;
 }
 
 plr_t tcp_server::next_free_queue()
@@ -164,7 +163,7 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 			pmask |= 1 << i;
 		}
 	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)game_init_info.data(), pmask);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask);
 	start_send(con, *reply);
 	delete reply;
 	// notify the old players

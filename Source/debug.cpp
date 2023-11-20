@@ -110,7 +110,7 @@ void ValidateData()
 {
 	int i;
 
-#if DEBUG
+#if DEBUG_MODE
 	// dvlnet
 	{
 	net::packet_factory pktfty;
@@ -153,7 +153,7 @@ void ValidateData()
 		app_fatal("PT_DISCONNECT is invalid");
 	}
 	delete pkt;
-#if ZEROTIER
+#ifdef ZEROTIER
 	pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
 	if (!pkt->validate()) {
 		app_fatal("PT_INFO_REQUEST is invalid");

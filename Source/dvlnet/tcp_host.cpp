@@ -4,7 +4,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-tcp_host_server::tcp_host_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned srvType)
+tcp_host_server::tcp_host_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, SNetGameData& gameinfo, unsigned srvType)
     : tcp_server(client, ioc, pktfty, gameinfo, srvType)
 {
 }

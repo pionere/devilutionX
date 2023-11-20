@@ -41,7 +41,7 @@ public:
 
 protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
-	buffer_t game_init_info;
+	SNetGameData game_init_info;
 
 	std::deque<SNetMessage> message_queue;
 	std::deque<SNetTurn> turn_queue[MAX_PLRS] = { };

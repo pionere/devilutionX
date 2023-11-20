@@ -8,11 +8,8 @@ namespace net {
 
 void base_client::setup_gameinfo(_uigamedata* gameData)
 {
-	SNetGameData* netData;
+	SNetGameData* netData = &game_init_info;
 
-	game_init_info = buffer_t(sizeof(SNetGameData));
-
-	netData = (SNetGameData*)game_init_info.data();
 	netData->ngVersionId = gameData->aeVersionId;
 	netData->ngSeed = gameData->aeSeed;
 	netData->ngDifficulty = gameData->aeDifficulty;
@@ -70,7 +67,7 @@ void base_client::recv_accept(packet& pkt)
 	}
 #ifdef ZEROTIER
 	// we joined and did not create
-	game_init_info = buffer_t((BYTE*)&pkt_info, (BYTE*)&pkt_info + sizeof(SNetGameData));
+	memcpy(&game_init_info, &pkt_info, sizeof(SNetGameData));
 #endif
 	SNetEvent ev;
 	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;

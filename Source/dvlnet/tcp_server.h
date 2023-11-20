@@ -42,7 +42,7 @@ scc make_shared_cc(asio::io_context& ioc);
 
 class tcp_server {
 public:
-	tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
+	tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, SNetGameData& gameinfo, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256]);
 	void close();
 	~tcp_server() = default;
@@ -60,7 +60,7 @@ private:
 	scc pending_connections[MAX_PLRS] = { };
 	scc active_connections[MAX_PLRS] = { };
 	int ghost_connections[MAX_PLRS] = { };
-	buffer_t& game_init_info;
+	SNetGameData& game_init_info;
 	unsigned serverType;
 
 	static void endpoint_to_string(const scc& con, std::string& addr);

@@ -13,7 +13,7 @@ namespace net {
 
 class tcp_host_server : public tcp_server {
 public:
-	tcp_host_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, buffer_t& gameinfo, unsigned serverType);
+	tcp_host_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, SNetGameData& gameinfo, unsigned serverType);
 
 	bool send_packet(packet& pkt) override;
 };

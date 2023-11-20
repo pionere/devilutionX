@@ -45,7 +45,7 @@ bool packet::validate()
 		if (size < sizeof(NetPktDisconnect))
 			return false;
 		break;
-#if ZEROTIER
+#ifdef ZEROTIER
 	case PT_INFO_REQUEST:
 	case PT_INFO_REPLY:
 		return true;
