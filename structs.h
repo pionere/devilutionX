@@ -2361,6 +2361,56 @@ static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "A
 #endif
 
 //////////////////////////////////////////////////
+// storm-net
+//////////////////////////////////////////////////
+
+typedef uint8_t plr_t;
+typedef uint32_t cookie_t;
+typedef uint32_t turn_t;
+
+#pragma pack(push, 1)
+typedef struct SNetGameData {
+	LE_UINT32 ngVersionId;
+	LE_INT32 ngSeed;
+	BYTE ngDifficulty;
+	BYTE ngTickRate;
+	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
+	BYTE ngMaxPlayers;
+} SNetGameData;
+#pragma pack(pop)
+
+/*typedef struct _SNETCAPS {
+	//DWORD size;
+	DWORD flags;
+	DWORD maxmessagesize;
+	DWORD maxqueuesize;
+	DWORD maxplayers;
+	DWORD bytessec;
+	DWORD latencyms;
+	DWORD defaultturnssec;
+	DWORD defaultturnsintransit;
+} _SNETCAPS;*/
+
+typedef struct SNetEvent {
+	unsigned eventid;
+	unsigned playerid;
+	BYTE* _eData;
+	unsigned databytes;
+} SNetEvent;
+
+typedef struct SNetTurnPkt {
+	turn_t ntpTurn;
+	unsigned ntpLen;
+	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
+} SNetTurnPkt;
+
+typedef struct SNetMsgPkt {
+	int nmpPlr;
+	unsigned nmpLen;
+	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
+} SNetMsgPkt;
+
+//////////////////////////////////////////////////
 // diabloui
 //////////////////////////////////////////////////
 
@@ -2393,56 +2443,6 @@ typedef struct _uigamedata {
 	BYTE aeMaxPlayers;
 	BYTE aePlayerId;
 } _uigamedata;
-
-//////////////////////////////////////////////////
-// storm-net
-//////////////////////////////////////////////////
-
-#pragma pack(push, 1)
-typedef struct SNetGameData {
-	LE_UINT32 ngVersionId;
-	LE_INT32 ngSeed;
-	BYTE ngDifficulty;
-	BYTE ngTickRate;
-	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
-	BYTE ngMaxPlayers;
-} SNetGameData;
-#pragma pack(pop)
-
-/*typedef struct _SNETCAPS {
-	//DWORD size;
-	DWORD flags;
-	DWORD maxmessagesize;
-	DWORD maxqueuesize;
-	DWORD maxplayers;
-	DWORD bytessec;
-	DWORD latencyms;
-	DWORD defaultturnssec;
-	DWORD defaultturnsintransit;
-} _SNETCAPS;*/
-
-typedef struct SNetEvent {
-	unsigned eventid;
-	unsigned playerid;
-	BYTE* _eData;
-	unsigned databytes;
-} SNetEvent;
-
-typedef uint8_t plr_t;
-typedef uint32_t cookie_t;
-typedef uint32_t turn_t;
-
-typedef struct SNetTurnPkt {
-	turn_t ntpTurn;
-	unsigned ntpLen;
-	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
-} SNetTurnPkt;
-
-typedef struct SNetMsgPkt {
-	int nmpPlr;
-	unsigned nmpLen;
-	BYTE data[32000]; // size does not matter, the struct is allocated dynamically
-} SNetMsgPkt;
 
 //////////////////////////////////////////////////
 // path
