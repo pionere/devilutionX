@@ -18,7 +18,7 @@ extern "C" {
 #define SNPLAYER_MASTER 0xFE
 //#define SNPLAYER_OTHERS -2
 
-typedef void (*SEVTHANDLER)(SNetEvent*);
+typedef void (*SEVTHANDLER)(SNetEventHdr*);
 
 /*
  *  @param provider:      the type of the connection (conn_type)

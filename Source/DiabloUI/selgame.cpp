@@ -52,14 +52,14 @@ static void SelgamePasswordSelect(unsigned index);
 static void SelgameDiffEsc();
 static void SelgamePasswordEsc();
 
-static void selgame_handleEvents(SNetEvent* pEvt)
+static void selgame_handleEvents(SNetEventHdr* pEvt)
 {
 	SNetGameData* gameData;
 	unsigned playerId;
+	SNetJoinEvent *ev = (SNetJoinEvent*)pEvt;
 
 	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
-	assert(pEvt->databytes == sizeof(SNetGameData));
-	gameData = (SNetGameData*)pEvt->_eData;
+	gameData = ev->neGameData;
 	assert(gameData->ngVersionId == GAME_VERSION);
 
 	playerId = pEvt->playerid;

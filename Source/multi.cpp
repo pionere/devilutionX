@@ -681,12 +681,11 @@ static void SetupLocalPlr()
 	p->_pActive = TRUE;
 }
 
-void multi_ui_handle_events(SNetEvent* pEvt)
+void multi_ui_handle_events(SNetEventHdr* pEvt)
 {
 	unsigned pnum;
 
 	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
-	// assert(pEvt->databytes == 0);
 
 	pnum = pEvt->playerid;
 	if (pnum == SNPLAYER_MASTER) {

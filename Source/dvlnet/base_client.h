@@ -63,7 +63,7 @@ protected:
 private:
 	void recv_accept(packet& pkt);
 	void recv_disconnect(packet& pkt);
-	void run_event_handler(SNetEvent& ev);
+	void run_event_handler(SNetEventHdr* ev);
 	void disconnect_plr(plr_t pnum);
 };
 

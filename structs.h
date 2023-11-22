@@ -2391,12 +2391,19 @@ typedef struct SNetGameData {
 	DWORD defaultturnsintransit;
 } _SNETCAPS;*/
 
-typedef struct SNetEvent {
+typedef struct SNetEventHdr {
 	unsigned eventid;
 	unsigned playerid;
-	BYTE* _eData;
-	unsigned databytes;
-} SNetEvent;
+} SNetEventHdr;
+
+typedef struct SNetJoinEvent {
+	SNetEventHdr neHdr;
+	SNetGameData* neGameData;
+} SNetJoinEvent;
+
+typedef struct SNetLeaveEvent {
+	SNetEventHdr neHdr;
+} SNetLeaveEvent;
 
 typedef struct SNetTurnPkt {
 	turn_t ntpTurn;

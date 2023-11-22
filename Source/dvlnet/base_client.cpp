@@ -23,11 +23,11 @@ void base_client::setup_password(const char* passwd)
 	pktfty.setup_password(passwd);
 }
 
-void base_client::run_event_handler(SNetEvent& ev)
+void base_client::run_event_handler(SNetEventHdr* ev)
 {
-	auto f = registered_handlers[ev.eventid];
+	auto f = registered_handlers[ev->eventid];
 	if (f != NULL) {
-		f(&ev);
+		f(ev);
 	}
 }
 
@@ -71,23 +71,20 @@ void base_client::recv_accept(packet& pkt)
 	// we joined and did not create
 	memcpy(&game_init_info, &pkt_info, sizeof(SNetGameData));
 #endif
-	SNetEvent ev;
-	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;
-	ev.playerid = pnum;
-	ev._eData = (BYTE*)&pkt_info;
-	ev.databytes = sizeof(SNetGameData);
-	run_event_handler(ev);
+	SNetJoinEvent ev;
+	ev.neHdr.eventid = EVENT_TYPE_JOIN_ACCEPTED;
+	ev.neHdr.playerid = pnum;
+	ev.neGameData = &pkt_info;
+	run_event_handler(&ev.neHdr);
 }
 
 void base_client::disconnect_plr(plr_t pnum)
 {
-	SNetEvent ev;
+	SNetLeaveEvent ev;
 
-	ev.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
-	ev.playerid = pnum;
-	ev.databytes = 0;
-
-	run_event_handler(ev);
+	ev.neHdr.eventid = EVENT_TYPE_PLAYER_LEAVE_GAME;
+	ev.neHdr.playerid = pnum;
+	run_event_handler(&ev.neHdr);
 
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] |= CON_LEAVING;
