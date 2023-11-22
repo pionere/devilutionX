@@ -501,7 +501,14 @@ int multi_ui_handle_turn()
 
 	switch (nthread_recv_turns()) {
 	case TS_DESYNC:
-		// TODO: drop the offending players?
+		EventPlrMsg("Multiplayer sync problem"); // TODO: MsgStrings[EMSG_DESYNC]
+		// drop the offending player(s)
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (player_state[i] & PCS_DESYNC) {
+				EventPlrMsg("Player %d. dropped due to desync.", i);
+				SNetDropPlayer(i);
+			}
+		}
 		multi_parse_turns();
 		multi_process_msgs();
 		nthread_send_turn();
