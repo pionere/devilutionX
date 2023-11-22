@@ -253,7 +253,9 @@ void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 			std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
 			game_list[pname] = sender;
 		} else if (pkt_type == PT_JOIN_REQUEST) {
-			handle_join_request(pkt, sender);
+			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
+				handle_join_request(pkt, sender);
+			}
 		} else if (pkt_type == PT_INFO_REQUEST) {
 			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
 				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, gamename.c_str(), gamename.size());
