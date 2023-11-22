@@ -78,6 +78,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAX_SEND_STR_LEN        80
 // the length of the port-string (tcp)
 #define NET_TCP_PORT_LENGTH     5
+// the number of turns to let the clients sync a joining player
+#define NET_JOIN_WINDOW         30
 // the number of turns to wait for level-deltas
 #define NET_JOIN_TIMEOUT        30
 // seconds between the timeout-checks (tcp)

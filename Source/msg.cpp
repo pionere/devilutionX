@@ -438,7 +438,7 @@ static void DeltaImportEnd(TMsgLarge* cmd)
 		gbGameDeltaChunks = DELTA_ERROR_FAIL_3;
 		return;
 	}
-	guDeltaTurn = buf->turn;
+	guDeltaTurn = buf->turn; // TODO: validate that it is in the near future
 	gbGameDeltaChunks = MAX_CHUNKS - 1;
 }
 
@@ -1806,7 +1806,7 @@ static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)
 	//assert(gsDeltaData.ddRecvLastCmd == NMSG_LVL_DELTA);
 	DeltaDecompressData();
 
-	guDeltaTurn = buf->turn;
+	guDeltaTurn = buf->turn; // TODO: validate that it is in the near future
 	//gbGameDeltaChunks = MAX_CHUNKS - 1;
 	// switch to delta-processing mode
 	geBufferMsgs = MSG_LVL_DELTA_PROC;
@@ -3011,16 +3011,6 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_SEND_GAME_DELTA(TCmd* pCmd, int pnum)
-{
-	net_assert((unsigned)pnum < MAX_PLRS);
-
-	if (pnum != mypnum)
-		guSendGameDelta |= 1 << pnum;
-
-	return sizeof(*pCmd);
-}
-
 static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 {
 	TMsgLarge* cmd = (TMsgLarge*)pCmd;
@@ -3112,6 +3102,15 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 	multi_deactivate_player(pnum);
 	if (pnum == mypnum)
 		gbRunGame = false;
+
+	return sizeof(*pCmd);
+}
+
+static unsigned On_REQDELTA(TCmd* pCmd, int pnum)
+{
+	if (pnum != mypnum) {
+		guSendGameDelta |= 1 << pnum;
+	}
 
 	return sizeof(*pCmd);
 }
@@ -4335,8 +4334,6 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 		dev_fatal("ParseMsg: illegal player %d", pnum);
 	}
 	switch (pCmd->bCmd) {
-	case NMSG_SEND_GAME_DELTA:
-		return On_SEND_GAME_DELTA(pCmd, pnum);
 	case NMSG_PLRINFO:
 		return On_PLRINFO(pCmd, pnum);
 	case NMSG_DLEVEL_DATA:
@@ -4466,6 +4463,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_JOINLEVEL(pCmd, pnum);
 	case CMD_DISCONNECT:
 		return On_DISCONNECT(pCmd, pnum);
+	case CMD_REQDELTA:
+		return On_REQDELTA(pCmd, pnum);
 	case CMD_INVITE:
 		return On_INVITE(pCmd, pnum);
 	case CMD_ACK_INVITE:

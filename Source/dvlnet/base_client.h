@@ -25,7 +25,6 @@ public:
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
 	void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) override;
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
-	turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
 	unsigned SNetGetTurnsInTransit() override;
 	void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) override;
 	void SNetUnregisterEventHandler(int evtype) override;
@@ -38,6 +37,7 @@ public:
 	// void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 
 	void recv_local(packet& pkt);
+	turn_t last_recv_turn() const;
 
 protected:
 	SEVTHANDLER registered_handlers[NUM_EVT_TYPES] = { };
@@ -49,7 +49,7 @@ protected:
 
 	plr_t plr_self = PLR_BROADCAST;
 	cookie_t cookie_self;
-
+	turn_t lastRecvTurn = -1;
 	packet_factory pktfty;
 
 	void setup_password(const char* passwd);

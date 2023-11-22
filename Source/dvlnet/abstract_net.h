@@ -45,7 +45,6 @@ public:
 	virtual SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) = 0;
 	virtual turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) = 0;
-	virtual turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) = 0;
 	virtual unsigned SNetGetTurnsInTransit() = 0;
 	virtual void SNetRegisterEventHandler(int evtype, SEVTHANDLER func) = 0;
 	virtual void SNetUnregisterEventHandler(int evtype) = 0;

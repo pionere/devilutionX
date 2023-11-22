@@ -2399,6 +2399,7 @@ typedef struct SNetEventHdr {
 typedef struct SNetJoinEvent {
 	SNetEventHdr neHdr;
 	SNetGameData* neGameData;
+	turn_t neTurn;
 } SNetJoinEvent;
 
 typedef struct SNetLeaveEvent {
@@ -2448,6 +2449,7 @@ typedef struct _uigamedata {
 	BYTE aeTickRate;
 	BYTE aeNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE aeMaxPlayers;
+	turn_t aeTurn;
 	BYTE aePlayerId;
 } _uigamedata;
 

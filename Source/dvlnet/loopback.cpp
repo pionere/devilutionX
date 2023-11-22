@@ -55,7 +55,6 @@ SNetTurnPkt* loopback::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 	pt = &turn_queue.front();
 	//      pnum           size
 	dwLen = sizeof(BYTE) + sizeof(unsigned);
-	assert(pt->turn_id != 0);
 	dwLen += pt->payload.size();
 
 	pkt = (SNetTurnPkt*)DiabloAllocPtr(dwLen + sizeof(SNetTurnPkt) - sizeof(pkt->data));
@@ -82,14 +81,6 @@ turn_status loopback::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 #endif
 	status[PLR_SINGLE] = PCS_CONNECTED | PCS_ACTIVE | PCS_TURN_ARRIVED;
 	return TS_ACTIVE; // or TS_LIVE
-}
-
-turn_t loopback::SNetLastTurn(unsigned (&status)[MAX_PLRS])
-{
-#if DEBUG_MODE || DEV_MODE
-	app_error(ERR_APP_LOOPBACK_LASTTURN);
-#endif
-	return 0;
 }
 
 void loopback::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)

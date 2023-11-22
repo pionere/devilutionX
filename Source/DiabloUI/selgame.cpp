@@ -56,14 +56,16 @@ static void selgame_handleEvents(SNetEventHdr* pEvt)
 {
 	SNetGameData* gameData;
 	unsigned playerId;
+	turn_t turn;
 	SNetJoinEvent *ev = (SNetJoinEvent*)pEvt;
 
-	assert(pEvt->eventid == EVENT_TYPE_JOIN_ACCEPTED);
+	assert(ev->neHdr.eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	gameData = ev->neGameData;
 	assert(gameData->ngVersionId == GAME_VERSION);
 
-	playerId = pEvt->playerid;
+	playerId = ev->neHdr.playerid;
 	assert((DWORD)playerId < MAX_PLRS);
+	turn = ev->neTurn + 1;
 
 	selgame_gameData->aeVersionId = gameData->ngVersionId;
 	selgame_gameData->aeSeed = gameData->ngSeed;
@@ -73,6 +75,7 @@ static void selgame_handleEvents(SNetEventHdr* pEvt)
 	selgame_gameData->aeMaxPlayers = gameData->ngMaxPlayers;
 
 	selgame_gameData->aePlayerId = playerId;
+	selgame_gameData->aeTurn = turn;
 }
 
 static void selgame_add_event_handlers()

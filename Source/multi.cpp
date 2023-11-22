@@ -350,15 +350,13 @@ bool multi_handle_turn()
 		break;
 	case TS_LIVE:
 		break;
-	case TS_DESYNC: {
+	case TS_DESYNC:
 		InitDiabloMsg(EMSG_DESYNC);
-		turn_t turn = SNetLastTurn(player_state);
-		if (!(player_state[mypnum] & PCS_TURN_ARRIVED))
-			sgbSentThisCycle = turn;
+		// TODO: drop the offending players?
 		multi_parse_turns();
 		multi_process_msgs();
 		multi_send_turn_packet();
-	} break;
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -415,9 +413,9 @@ void multi_process_turn(SNetTurnPkt* turn)
 		//	plr._py = pkt->py;
 		//}
 		if (!plr._pActive) {
-			// player is disconnected -> ignore the turn, but process CMD_JOINLEVEL messages
+			// player is disconnected -> ignore the turn, but process CMD_JOINLEVEL/CMD_REQDELTA messages
 			TCmd* cmd = (TCmd*)(pkt + 1);
-			if (cmd->bCmd == CMD_JOINLEVEL) {
+			if (cmd->bCmd == CMD_JOINLEVEL || cmd->bCmd == CMD_REQDELTA) {
 				ParseCmd(pnum, cmd);
 			}
 			continue;
@@ -500,7 +498,6 @@ extern Uint32 guNextTick;
 int multi_ui_handle_turn()
 {
 	int delta, i;
-	bool active;
 
 	switch (nthread_recv_turns()) {
 	case TS_DESYNC:
@@ -516,17 +513,12 @@ int multi_ui_handle_turn()
 		multi_process_msgs();
 		gdwGameLogicTurn += gbNetUpdateRate;
 		gameProgress++;
-		active = false;
 		for (i = 0; i < MAX_PLRS; i++) {
-			if (!(player_state[i] & PCS_CONNECTED))
-				continue;
-			active = true;
-			if (player_state[i] & PCS_TURN_ARRIVED)
+			if (player_state[i] & PCS_TURN_ARRIVED) {
 				gameProgress++;
+			}
 		}
-		if (active) {
-			nthread_send_turn();
-		}
+		nthread_send_turn();
 		/* fall-through */
 	case TS_LIVE:
 		delta = guNextTick - SDL_GetTicks();
@@ -801,6 +793,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 	assert(mypnum == gameData.aePlayerId);
 	gnDifficulty = gameData.aeDifficulty;
 	SetRndSeed(gameData.aeSeed);
+	sgbSentThisCycle = gameData.aeTurn;
 
 	for (i = 0; i < NUM_LEVELS; i++) {
 		seed = NextRndSeed();
@@ -823,6 +816,7 @@ bool NetInit(bool bSinglePlayer)
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;
+		gameData.aeTurn = 0;
 		//gameData.aePlayerId = 0;
 		//gameData.aeDifficulty = DIFF_NORMAL;
 		//gameData.aeTickRate = SPEED_NORMAL;
@@ -846,7 +840,7 @@ bool NetInit(bool bSinglePlayer)
 		// dthread_start();
 		gdwLastGameTurn = 0;
 		gdwGameLogicTurn = 0;
-		nthread_send_turn();
+		multi_send_turn_packet();
 		if (IsGameSrv) {
 			RunGameServer();
 			NetClose();

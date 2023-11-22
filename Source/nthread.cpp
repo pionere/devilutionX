@@ -50,12 +50,7 @@ void nthread_send_turn(BYTE* data, unsigned len)
 restart:
 #endif
 	SNetSendTurn(turn, data, len);
-	if (turn != 0) { // keep the initial turn
-		turn++;
-		if (turn == 0) { // skip turn in case of an overflow
-			turn = 1;
-		}
-	}
+	turn++;
 	// commented out to raise the possible up-time of a game
 	// minor hickup might occur around overflow, but ignore it for the moment
 	//if (turn >= (UINT32_MAX / gbNetUpdateRate))
@@ -148,7 +143,7 @@ static void nthread_process_pending_turns()
 			continue;
 		}
 		// skip turn of the delta-info, but increment the turn-counter
-		if (turn->ntpTurn != guDeltaTurn || guDeltaTurn == 0)
+		if (turn->ntpTurn != guDeltaTurn)
 			multi_process_turn(turn);
 		MemFreeDbg(turn);
 		multi_process_msgs();
@@ -168,31 +163,16 @@ static int SDLCALL nthread_handler(void* data)
 		}
 		if (geBufferMsgs == MSG_GAME_DELTA_LOAD) {
 			multi_process_msgs();
-			// assert(sgbSentThisCycle == 0);
-			if (geBufferMsgs != MSG_GAME_DELTA_LOAD) {
-				// delta-download finished -> jump to 'present'
-				// necessary in case the current player is the only player on a hosted server
-				sgbSentThisCycle = sgTurnQueue.back()->ntpTurn + SNetGetTurnsInTransit() + 1;
-			}
 		} else if (geBufferMsgs == MSG_GAME_DELTA_WAIT) {
-			// assert(sgbSentThisCycle == 0);
-			// wait a few turns to stabilize the turn-id
-			if (sgTurnQueue.size() * gbNetUpdateRate * gnTickDelay > 500) {
+			if (!sgTurnQueue.empty()) {
 				geBufferMsgs = MSG_GAME_DELTA_LOAD;
-
-				TCmd cmd;
-				cmd.bCmd = NMSG_SEND_GAME_DELTA;
-				multi_send_direct_msg(SNPLAYER_ALL, (BYTE*)&cmd, sizeof(cmd));
 			}
 		}
 
 		switch (nthread_recv_turns()) {
 		case TS_DESYNC: {
-			turn_t turn = SNetLastTurn(player_state);
-			if (!(player_state[mypnum] & PCS_TURN_ARRIVED)) {
-				// assert(sgbSentThisCycle != 0);
-				sgbSentThisCycle = turn;
-			}
+			InitDiabloMsg(EMSG_DESYNC);
+			// TODO: drop the offending player?
 			nthread_parse_turns();
 			nthread_send_turn();
 			delta = 1; //gnTickDelay;
@@ -221,12 +201,12 @@ static int SDLCALL nthread_handler(void* data)
 void nthread_start()
 {
 	assert(geBufferMsgs == MSG_NORMAL);
-	sgbSentThisCycle = 1;
-	if (gbJoinGame) {
-		sgbSentThisCycle = 0;
-		geBufferMsgs = MSG_GAME_DELTA_WAIT;
-	}
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
+	if (gbJoinGame) {
+		geBufferMsgs = MSG_GAME_DELTA_WAIT;
+		guNextTick += NET_JOIN_WINDOW * gnTickDelay * gbNetUpdateRate;
+		NetSendCmd(CMD_REQDELTA);
+	}
 	_gbTickInSync = true;
 	sgbPacketCountdown = 1;
 #ifndef NONET
@@ -362,8 +342,7 @@ static bool nthread_process_pending_delta_turns(bool pre)
 			multi_process_turn(turn);
 		else
 			geBufferMsgs = MSG_NORMAL;
-		if (pre && turn->ntpTurn >= guDeltaTurn) {
-			net_assert(turn->ntpTurn == guDeltaTurn);
+		if (pre && turn->ntpTurn == guDeltaTurn) {
 			break;
 		}
 		sgTurnQueue.pop_front();

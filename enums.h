@@ -3531,7 +3531,7 @@ typedef enum player_status {
 	PCS_CONNECTED    = 0x01, // was 0x10000 - player sent a packet recently 
 	PCS_TURN_ARRIVED = 0x02, // was 0x20000 - the next turn of the player has arrived
 	PCS_ACTIVE       = 0x04, // was 0x40000 - a future turn (next or later) of the player has arrived
-	PCS_JOINED       = 0x08, //             - the player just joined (sent an initial turn)
+	PCS_DESYNC       = 0x08, //             - the player is not in sync
 } player_status;
 
 typedef enum turn_status {
@@ -3827,7 +3827,6 @@ typedef enum spell_id {
 } spell_id;
 
 typedef enum _msg_id {
-	NMSG_SEND_GAME_DELTA,
 	NMSG_PLRINFO,
 	NMSG_DLEVEL_DATA,
 	NMSG_DLEVEL_JUNK,
@@ -3891,6 +3890,7 @@ typedef enum _cmd_id {
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
 	CMD_DISCONNECT,
+	CMD_REQDELTA,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,
@@ -4661,7 +4661,6 @@ typedef enum application_error {
 	ERR_APP_LOOPBACK_SENDMSG,
 	ERR_APP_LOOPBACK_QUEUE_SIZE,
 	ERR_APP_LOOPBACK_POLLTURN,
-	ERR_APP_LOOPBACK_LASTTURN,
 	ERR_APP_LOOPBACK_DROPPLR,
 	ERR_APP_LOOPBACK_TRANSIT,
 	ERR_APP_PACKET_ENCRYPT,

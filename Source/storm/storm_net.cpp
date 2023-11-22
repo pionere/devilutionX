@@ -126,11 +126,6 @@ turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS])
 	return dvlnet_inst->SNetPollTurns(status);
 }
 
-turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS])
-{
-	return dvlnet_inst->SNetLastTurn(status);
-}
-
 unsigned SNetGetTurnsInTransit()
 {
 	return dvlnet_inst->SNetGetTurnsInTransit();

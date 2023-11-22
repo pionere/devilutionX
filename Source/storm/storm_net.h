@@ -81,7 +81,7 @@ SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]);
  *  @return the status of the next turn (turn_status)
  */
 turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
-turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]);
+
 /*  SNetGetTurnsInTransit @ 115
  *
  *  Retrieves the number of turns that have been sent over the network but not processed yet.

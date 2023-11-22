@@ -66,11 +66,25 @@ void tcp_host_client::send_packet(packet& pkt)
 
 SNetTurnPkt* tcp_host_client::SNetReceiveTurn(unsigned (&status)[MAX_PLRS])
 {
-	SNetTurnPkt* result = base_client::SNetReceiveTurn(status);
+	plr_t i = 0;
 
-	if (result->ntpTurn == 0)
-		result->ntpTurn = hostTurn;
-	return result;
+	while (true) {
+		if (status[i] & PCS_TURN_ARRIVED) {
+			break;
+		}
+		if (++i < MAX_PLRS) {
+			continue;
+		}
+		// no active turn
+		lastRecvTurn++;
+
+		SNetTurnPkt* result = (SNetTurnPkt*)DiabloAllocPtr(0 + sizeof(SNetTurnPkt) - sizeof(result->data));
+		result->ntpLen = 0;
+		result->ntpTurn = lastRecvTurn;
+		return result;
+	}
+
+	return base_client::SNetReceiveTurn(status);
 }
 
 void tcp_host_client::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
@@ -80,14 +94,13 @@ void tcp_host_client::SNetSendTurn(turn_t turn, const BYTE* data, unsigned size)
 
 turn_status tcp_host_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 {
-	constexpr int SPLIT_LIMIT = 100; // the number of turns after the desync is unresolvable
 	turn_status result;
 	turn_t myturn, turn;
 	int i;
 
 	poll();
 	memset(status, 0, sizeof(status));
-	myturn = hostTurn;
+	myturn = lastRecvTurn + 1;
 	result = TS_ACTIVE; // or TS_LIVE
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (!connected_table[i])
@@ -107,18 +120,14 @@ turn_status tcp_host_client::SNetPollTurns(unsigned (&status)[MAX_PLRS])
 			continue;
 		}
 		if (turn < myturn) {
-			// drop obsolete turns (except initial turns)
-			if (turn == 0) {
-				status[i] |= PCS_JOINED;
-			} else {
-				// TODO: report the drop (if !payload.empty())
-				turn_queue[i].pop_front();
-				status[i] = 0;
-				i--;
-			}
+			// drop obsolete turns
+			// TODO: report the drop (if !payload.empty())
+			turn_queue[i].pop_front();
+			status[i] = 0;
+			i--;
 			continue;
 		}
-		status[i] &= ~PCS_TURN_ARRIVED;
+		status[i] = PCS_CONNECTED | PCS_ACTIVE | PCS_DESYNC;
 		if (result == TS_ACTIVE) // or TS_LIVE
 			result = TS_DESYNC;
 	}

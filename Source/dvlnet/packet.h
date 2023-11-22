@@ -64,11 +64,13 @@ typedef struct NetPktJoinAccept {
 	BYTE m_newplr; // plr_t
 	SNetGameData m_info;
 	BYTE m_plrmask;
+	LE_UINT32 m_turn;
 } NetPktJoinAccept;
 
 typedef struct NetPktConnect {
 	NetPktHdr npHdr;
 	BYTE m_newplr; // plr_t
+	LE_UINT32 m_turn;
 	//BYTE m_addr[0]; // 16 in case of zt
 } NetPktConnect;
 
@@ -159,6 +161,10 @@ public:
 	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_plrmask;
 	}
+	turn_t pktJoinAccTurn() const
+	{
+		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_turn;
+	}
 	// PT_INFO_REPLY
 	buffer_t::const_iterator pktInfoReplyNameBegin() const
 	{
@@ -172,6 +178,10 @@ public:
 	plr_t pktConnectPlr() const
 	{
 		return reinterpret_cast<const NetPktConnect*>(decrypted_buffer.data())->m_newplr;
+	}
+	turn_t pktConnectTurn() const
+	{
+		return reinterpret_cast<const NetPktConnect*>(decrypted_buffer.data())->m_turn;
 	}
 	buffer_t::const_iterator pktConnectAddrBegin() const
 	{
@@ -264,7 +274,7 @@ inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d, cookie_t c)
 
 template <>
 inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
-    plr_t n, const BYTE* gamedata, plr_t p)
+    plr_t n, const BYTE* gamedata, plr_t p, turn_t t)
 {
 	decrypted_buffer.resize(sizeof(NetPktJoinAccept));
 	NetPktJoinAccept* data = (NetPktJoinAccept*)decrypted_buffer.data();
@@ -274,11 +284,12 @@ inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
 	data->m_cookie = c;
 	data->m_newplr = n;
 	data->m_plrmask = p;
+	data->m_turn = t;
 	memcpy(&data->m_info, gamedata, sizeof(SNetGameData));
 }
 
 template <>
-inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, const BYTE* addr, unsigned size)
+inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, turn_t t, const BYTE* addr, unsigned size)
 {
 	decrypted_buffer.resize(sizeof(NetPktConnect) + size);
 	NetPktConnect* data = (NetPktConnect*)decrypted_buffer.data();
@@ -286,6 +297,7 @@ inline void packet_out::create<PT_CONNECT>(plr_t s, plr_t d, plr_t n, const BYTE
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
 	data->m_newplr = n;
+	data->m_turn = t;
 	memcpy((BYTE*)data + sizeof(NetPktConnect), addr, size);
 }
 
