@@ -6,6 +6,7 @@ on: [push, pull_request]
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  buildDir: '${{ github.workspace }}/build'
 
 jobs:
   build:
@@ -13,32 +14,30 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Create Build Environment
-      run: brew bundle install
+      run: >
+        sudo apt-get update &&
+        sudo apt install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep.sh
 
     - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF
+      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON -D ZEROTIER=ON -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
 
     - name: Build
+      working-directory: ${{ env.buildDir }}
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
-      working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+    # Execute the build (-j 2 : with two cores).
+      run: cmake --build . -j 2 --target package --config Release
     
     #- name: Release
     #  uses: softprops/action-gh-release@v1
@@ -49,8 +48,7 @@ jobs:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Upload the created artifact
     - name: Upload
-      if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v3
       with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
-        name: devilutionx.dmg
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: hellfire-zt-x86.zip
