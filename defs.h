@@ -87,7 +87,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 // number of iterations before an active connection timeouts (tcp)
 #define NET_TIMEOUT_ACTIVE      60
 // number of iterations before a ghost connection timeouts (tcp)
-#define NET_TIMEOUT_GHOST       30
+#define NET_TIMEOUT_GHOST       5
 // seconds to wait if there is no free connection (tcp)
 #define NET_WAIT_PENDING        10
 
