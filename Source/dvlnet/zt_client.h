@@ -13,10 +13,10 @@ namespace net {
 template <class P>
 class zt_client : public base_client {
 public:
-	virtual bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]);
+	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
-	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
-	virtual void get_gamelist(std::vector<std::string>& games);
+	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
+	void get_gamelist(std::vector<std::string>& games) override;
 
 	virtual ~zt_client() = default;
 
@@ -197,12 +197,7 @@ void zt_client<P>::poll()
 		delete pkt;
 	}
 	while (proto.get_disconnected(sender)) {
-		for (plr_t i = 0; i < MAX_PLRS; i++) {
-			if (peers[i] == sender) {
-				disconnect_net(i);
-				break;
-			}
-		}
+		disconnect_peer(sender);
 	}
 }
 
@@ -214,14 +209,14 @@ void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum != plr_self && !peers[pnum]) {
-			peers[pnum] = sender;
 			break;
 		}
 	}
 	if (pnum >= MAX_PLRS) {
-		//already full
+		// already full
 		return;
 	}
+	peers[pnum] = sender;
 	turn_t conTurn = last_recv_turn() + NET_JOIN_WINDOW;
 	// reply to the new player
 	pmask = 0;
