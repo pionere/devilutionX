@@ -414,8 +414,14 @@ void multi_process_turn(SNetTurnPkt* turn)
 		//	plr._px = pkt->px;
 		//	plr._py = pkt->py;
 		//}
-		if (!plr._pActive && ((TCmd*)(pkt + 1))->bCmd != CMD_JOINLEVEL)
-			continue; // player is disconnected -> ignore the turn
+		if (!plr._pActive) {
+			// player is disconnected -> ignore the turn, but process CMD_JOINLEVEL messages
+			TCmd* cmd = (TCmd*)(pkt + 1);
+			if (cmd->bCmd == CMD_JOINLEVEL) {
+				ParseCmd(pnum, cmd);
+			}
+			continue;
+		}
 		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
 	}
 	gdwLastGameTurn = turn->ntpTurn;
@@ -463,7 +469,7 @@ static void multi_process_msg(SNetMsgPkt* msg)
 	int pnum;
 
 	dwMsgSize = msg->nmpLen;
-	if (dwMsgSize < sizeof(MsgPktHdr))
+	if (dwMsgSize <= sizeof(MsgPktHdr))
 		return;
 	//if (pkt->wCheck != PKT_HDR_CHECK)
 	//	continue;
