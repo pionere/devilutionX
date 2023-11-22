@@ -322,8 +322,6 @@ void tcpd_client::close()
 {
 	int i;
 
-	base_client::close();
-
 	// close the server
 	if (local_server != NULL) {
 		// local_server->close();
@@ -364,6 +362,9 @@ void tcpd_client::close()
 	}
 	ioc.poll(err);
 	recv_queue.clear();
+
+	base_client::close();
+
 	// prepare the client for possible re-connection
 	ioc.restart();
 }

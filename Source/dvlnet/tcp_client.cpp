@@ -106,8 +106,6 @@ void tcp_client::send_packet(packet& pkt)
 
 void tcp_client::close()
 {
-	base_client::close();
-
 	// close the server
 	if (local_server != NULL) {
 		local_server->close();
@@ -121,6 +119,9 @@ void tcp_client::close()
 	sock.close(err);
 	poll();
 	recv_queue.clear();
+
+	base_client::close();
+
 	// prepare the client for possible re-connection
 	ioc.restart();
 }
