@@ -3105,17 +3105,15 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 
 static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 {
-	TCmd* cmd = (TCmd*)pCmd;
-
 	if (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
 		guOweLevelDelta &= ~(1 << pnum);
-		return sizeof(*cmd);
+		return sizeof(*pCmd);
 	}
 	multi_deactivate_player(pnum);
 	if (pnum == mypnum)
 		gbRunGame = false;
 
-	return sizeof(*cmd);
+	return sizeof(*pCmd);
 }
 
 static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)

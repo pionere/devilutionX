@@ -370,13 +370,13 @@ bool multi_handle_turn()
 static void multi_process_turn_packet(int pnum, BYTE* pData, int nSize)
 {
 	int nLen;
-
-	while (nSize > 0) {
+	// assert(nSize != 0);
+	do {
 		nLen = ParseCmd(pnum, (TCmd*)pData);
 		// assert(nLen != 0);
 		pData += nLen;
 		nSize -= nLen;
-	}
+	} while (nSize > 0);
 	net_assert(nSize == 0);
 }
 
