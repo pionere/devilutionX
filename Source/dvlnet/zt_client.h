@@ -70,9 +70,11 @@ template <class P>
 bool zt_client<P>::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
-	for (int i = 0; i < 500; ++i) {
+	for (int i = 500; ; ) {
 		if (proto.network_online())
 			return true;
+		if (--i == 0)
+			break;
 		SDL_Delay(10);
 	}
 	return false;
@@ -88,12 +90,14 @@ template <class P>
 bool zt_client<P>::wait_firstpeer(endpoint& peer)
 {
 	// wait for peer for 5 seconds
-	for (int i = 0; i < 500; i++) {
+	for (int i = 500; ; ) {
 		poll();
 		if (game_list.count(gamename)) {
 			peer = game_list[gamename];
 			return true;
 		}
+		if (--i == 0)
+			break;
 		send_info_request();
 		SDL_Delay(10);
 	}
@@ -119,10 +123,13 @@ bool zt_client<P>::wait_join()
 	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	proto.send(peer, pkt->encrypted_data());
 	delete pkt;
-	for (int i = 0; i < 500; ++i) {
+	// wait for reply for 5 seconds
+	for (int i = 500; ; ) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
+		if (--i == 0)
+			break;
 		SDL_Delay(10);
 	}
 	return false;
