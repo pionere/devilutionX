@@ -514,6 +514,7 @@ int multi_ui_handle_turn()
 		nthread_send_turn();
 		gameProgress++;
 		delta = 1;
+		_gbTimeout = false;
 		break;
 	case TS_ACTIVE:
 		multi_parse_turns();
@@ -529,10 +530,20 @@ int multi_ui_handle_turn()
 		/* fall-through */
 	case TS_LIVE:
 		delta = guNextTick - SDL_GetTicks();
+		_gbTimeout = false;
 		break;
 	case TS_TIMEOUT:
 		gbEmptyTurns = 0;
 		delta = 1; //gnTickDelay;
+		if (multi_check_timeout()) {
+			for (i = 0; i < MAX_PLRS; i++) {
+				if ((player_state[i] & (PCS_CONNECTED | PCS_TURN_ARRIVED)) == PCS_CONNECTED) {
+					EventPlrMsg("Player %d. dropped due to timeout.", i);
+					SNetDropPlayer(i);
+				}
+			}
+			_gbTimeout = false;
+		}
 		break;
 	default:
 		ASSUME_UNREACHABLE
