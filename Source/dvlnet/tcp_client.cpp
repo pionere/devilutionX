@@ -22,8 +22,6 @@ bool tcp_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned
 		}
 	}
 
-	plr_self = PLR_BROADCAST;
-	memset(connected_table, 0, sizeof(connected_table));
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
 	// connect to the server
 	asio::error_code err;

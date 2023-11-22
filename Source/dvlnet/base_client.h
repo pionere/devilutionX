@@ -47,7 +47,7 @@ protected:
 	std::deque<SNetTurn> turn_queue[MAX_PLRS] = { };
 	int connected_table[MAX_PLRS] = { }; // connection_status
 
-	plr_t plr_self;
+	plr_t plr_self = PLR_BROADCAST;
 	cookie_t cookie_self;
 
 	packet_factory pktfty;

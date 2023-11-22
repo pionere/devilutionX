@@ -45,21 +45,23 @@ void base_client::recv_connect(packet& pkt)
 
 void base_client::recv_accept(packet& pkt)
 {
+	plr_t pnum, pmask;
+
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
 		// ignore the packet if player id is set or the cookie does not match
 		return;
 	}
-	plr_self = pkt.pktJoinAccPlr();
-	// assert(plr_self < MAX_PLRS);
 	auto& pkt_info = pkt.pktJoinAccInfo();
 	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
 		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, pkt_info.ngVersionId, pkt.pktSrc(), GAME_VERSION);
-		plr_self = PLR_BROADCAST;
 		return;
 	}
-	plr_t pmask = pkt.pktJoinAccMsk();
-	// assert(pmask & (1 << plr_self));
+	pnum = pkt.pktJoinAccPlr();
+	plr_self = pnum;
+	// assert(pnum < MAX_PLRS);
+	pmask = pkt.pktJoinAccMsk();
+	// assert(pmask & (1 << pnum));
 	for (int i = 0; i < MAX_PLRS; i++) {
 		if (pmask & (1 << i)) {
 			connected_table[i] = CON_CONNECTED;
@@ -71,7 +73,7 @@ void base_client::recv_accept(packet& pkt)
 #endif
 	SNetEvent ev;
 	ev.eventid = EVENT_TYPE_JOIN_ACCEPTED;
-	ev.playerid = plr_self;
+	ev.playerid = pnum;
 	ev._eData = (BYTE*)&pkt_info;
 	ev.databytes = sizeof(SNetGameData);
 	run_event_handler(ev);
@@ -391,6 +393,9 @@ void base_client::close()
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();
+	// prepare the client for possible re-connection
+	plr_self = PLR_BROADCAST;
+	memset(connected_table, 0, sizeof(connected_table));
 }
 
 void base_client::SNetLeaveGame()

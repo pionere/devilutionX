@@ -140,7 +140,6 @@ bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsign
 		setup_gameinfo(gameData);
 	}
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
-	plr_self = PLR_BROADCAST;
 	gamename = std::string(addrstr);
 	if (wait_network()) {
 		if (createGame) {

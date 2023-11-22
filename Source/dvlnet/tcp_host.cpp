@@ -31,7 +31,6 @@ bool tcp_host_client::setup_game(_uigamedata* gameData, const char* addrstr, uns
 	local_server = new tcp_host_server(*this, ioc, pktfty, game_init_info, serverType);
 	if (local_server->setup_server(addrstr, port, errorText)) {
 		plr_self = PLR_MASTER;
-		memset(connected_table, 0, sizeof(connected_table));
 		return true;
 	}
 	close();
