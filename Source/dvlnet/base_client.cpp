@@ -120,6 +120,9 @@ void base_client::recv_local(packet& pkt)
 	// FIXME: the server could still impersonate a player...
 	plr_t pkt_plr = pkt.pktSrc();
 
+	if (pkt_plr < MAX_PLRS && connected_table[pkt_plr] & CON_LEAVING)
+		return;
+
 	switch (pkt.pktType()) {
 	case PT_MESSAGE:
 		message_queue.emplace_back(pkt_plr, buffer_t(pkt.pktMessageBegin(), pkt.pktMessageEnd()));
