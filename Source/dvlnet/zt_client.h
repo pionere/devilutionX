@@ -164,7 +164,7 @@ void zt_client<P>::send_packet(packet& pkt)
 
 	if (dest == PLR_BROADCAST) {
 		for (plr_t i = 0; i < MAX_PLRS; i++)
-			if (i != src && peers[i] != NULL)
+			if (i != src && peers[i])
 				proto.send(peers[i], pkt.encrypted_data());
 	} else {
 		if (dest >= MAX_PLRS) {
@@ -215,6 +215,7 @@ void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 		//already full
 		return;
 	}
+	turn_t conTurn = last_recv_turn() + NET_JOIN_WINDOW;
 	// reply to the new player
 	pmask = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
@@ -223,18 +224,18 @@ void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 			pmask |= 1 << i;
 		}
 	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, game_init_info.data(), pmask);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn);
 	proto.send(sender, reply->encrypted_data());
 	delete reply;
 	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, NULL, 0);
+	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
 	send_packet(*reply);
 	delete reply;
 	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
 	pmask &= ~((1 << pnum) | (1 << plr_self));
 	for (plr_t i = 0; i < MAX_PLRS; i++) {
 		if (pmask & (1 << i)) {
-			reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, peers[i].addr.data(), peers[i].addr.size());
+			reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, conTurn, (const BYTE*)peers[i].addr.data(), (unsigned)peers[i].addr.size());
 			proto.send(sender, reply->encrypted_data());
 			delete reply;
 		}
@@ -257,7 +258,7 @@ void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 			}
 		} else if (pkt_type == PT_INFO_REQUEST) {
 			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
-				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, gamename.c_str(), gamename.size());
+				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)gamename.c_str(), (unsigned)gamename.size());
 				proto.send_oob(sender, reply->encrypted_data());
 				delete reply;
 			}
@@ -267,7 +268,7 @@ void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 		// addrinfo packets
 		pkt_plr = pkt.pktConnectPlr();
 		connected_table[pkt_plr] |= CON_CONNECTED;
-		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd()));
+		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
 		if (addr.size() == peers[pkt_plr].addr.size())
 			memcpy(peers[pkt_plr].addr.data(), addr.data(), peers[pkt_plr].addr.size());
 		return;

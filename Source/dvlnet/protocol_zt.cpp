@@ -275,13 +275,13 @@ void protocol_zt::close_all()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
-	for (auto frame : send_queue) {
-		delete frame;
-	}
-	send_queue.clear();
 	for (auto& peer : peer_list) {
 		if (peer.second.fd != -1)
 			lwip_close(peer.second.fd);
+		for (auto frame : peer.second.send_queue) {
+			delete frame;
+		}
+		peer.second.send_queue.clear();
 	}
 	peer_list.clear();
 }
@@ -315,10 +315,12 @@ void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 
 void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
+	int i;
+
 	std::string allowedChars = "abcdefghkopqrstuvwxyz";
 	std::random_device rd;
 	std::uniform_int_distribution<int> dist(0, allowedChars.size() - 1);
-	for (int i = 0; i < 5; i++) {
+	for (i = 0; i < 5; i++) {
 		gamename[i] = allowedChars.at(dist(rd));
 	}
 	gamename[i] = '\0';
