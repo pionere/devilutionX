@@ -27,7 +27,6 @@ public:
 	SNetTurnPkt* SNetReceiveTurn(unsigned (&status)[MAX_PLRS]) override;
 	void SNetSendTurn(turn_t turn, const BYTE* data, unsigned size) override;
 	turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]) override;
-	turn_t SNetLastTurn(unsigned (&status)[MAX_PLRS]) override;
 	unsigned SNetGetTurnsInTransit() override;
 
 	~tcp_host_client() override = default;
@@ -42,7 +41,6 @@ protected:
 private:
 	asio::io_context ioc;
 	tcp_host_server* local_server = NULL;
-	turn_t hostTurn;
 	int serverType; // server_type
 };
 
