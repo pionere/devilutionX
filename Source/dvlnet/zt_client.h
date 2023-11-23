@@ -23,6 +23,7 @@ public:
 protected:
 	void poll() override;
 	void send_packet(packet& pkt) override;
+	bool recv_connect(packet& pkt) override;
 	bool recv_accept(packet& pkt) override;
 	void disconnect_net(plr_t pnum) override;
 	void close() override;
@@ -196,6 +197,20 @@ void zt_client<P>::send_packet(packet& pkt)
 }
 
 template <class P>
+bool zt_client<P>::recv_connect(packet& pkt)
+{ 
+	if (!base_client::recv_connect(pkt))
+		return false;
+
+	plr_t pnum = pkt.pktConnectPlr();
+	// assert(!peers[pnum])
+
+	auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
+	if (addr.size() == peers[pnum].addr.size())
+		memcpy(peers[pnum].addr.data(), addr.data(), peers[pnum].addr.size());
+}
+
+template <class P>
 bool zt_client<P>::recv_accept(packet& pkt)
 {
 	if (!base_client::recv_accept(pkt)) {
@@ -273,7 +288,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	proto.send(sender, reply->encrypted_data());
 	delete reply;
 	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
+	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)sender.addr.data(), (unsigned)sender.addr.size());
 	send_packet(*reply);
 	delete reply;
 }

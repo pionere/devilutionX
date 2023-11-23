@@ -35,23 +35,31 @@ void base_client::disconnect_net(plr_t pnum)
 {
 }
 
-void base_client::recv_connect(packet& pkt)
+bool base_client::recv_connect(packet& pkt)
 {
-	plr_t pkt_src = pkt.pktSrc();
-	turn_t conTurn = pkt.pktConnectTurn();
-	// assert(pkt.pktType() == PT_CONNECT);
-	if (pkt_src < MAX_PLRS) {
-		connected_table[pkt_src] = CON_CONNECTED;
-		assert(turn_queue[pkt_src].empty());
+	if (pkt.pktSrc() != PLR_MASTER)
+		return false;
 
-		unsigned limit = NET_JOIN_WINDOW * 2;
-		for (turn_t turn = lastRecvTurn + 1; turn != conTurn + 1; turn++) {
-			turn_queue[pkt_src].emplace_back(turn, buffer_t());
-			if (--limit == 0) {
-				break;
-			}
+	plr_t pnum = pkt.pktConnectPlr();
+	turn_t conTurn = pkt.pktConnectTurn();
+
+	if (pnum >= MAX_PLRS || pnum == plr_self)
+		return false;
+
+	if (connected_table[pnum])
+		return false;
+	// assert(pkt.pktType() == PT_CONNECT);
+	connected_table[pnum] = CON_CONNECTED;
+	assert(turn_queue[pnum].empty());
+
+	unsigned limit = NET_JOIN_WINDOW * 2;
+	for (turn_t turn = lastRecvTurn + 1; turn != conTurn + 1; turn++) {
+		turn_queue[pnum].emplace_back(turn, buffer_t());
+		if (--limit == 0) {
+			break;
 		}
 	}
+	return true;
 }
 
 bool base_client::recv_accept(packet& pkt)

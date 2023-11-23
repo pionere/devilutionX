@@ -184,7 +184,7 @@ bool tcp_server::recv_ctrl(packet& pkt, const scc& con)
 	start_send(*reply, con);
 	delete reply;
 	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
+	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)NULL, 0u);
 	send_packet(*reply);
 	delete reply;
 	return true;

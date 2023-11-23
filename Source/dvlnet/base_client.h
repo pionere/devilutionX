@@ -57,7 +57,7 @@ protected:
 	virtual void poll() = 0;
 	virtual void send_packet(packet& pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
-	virtual void recv_connect(packet& pkt);
+	virtual bool recv_connect(packet& pkt);
 	virtual bool recv_accept(packet& pkt);
 	virtual void close();
 
