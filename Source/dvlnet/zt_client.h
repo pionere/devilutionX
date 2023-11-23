@@ -270,7 +270,7 @@ void zt_client<P>::recv_decrypted(packet& pkt, const endpoint& sender)
 {
 	plr_t pkt_plr = pkt.pktSrc();
 
-	if (pkt_plr == PLR_BROADCAST && pkt.pktDest() == PLR_MASTER) {
+	if (pkt_plr == PLR_BROADCAST) {
 		recv_ctrl(pkt, sender);
 		return;
 	} else if (pkt_plr == PLR_MASTER && pkt.pktType() == PT_CONNECT) {
