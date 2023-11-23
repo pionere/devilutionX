@@ -1,5 +1,8 @@
 #pragma once
 #ifdef ZEROTIER
+
+#include "../defs.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 

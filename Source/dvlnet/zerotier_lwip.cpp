@@ -13,6 +13,8 @@
 #include "utils/sdl2_backports.h"
 #endif
 
+#include "utils/log.h"
+
 #include "dvlnet/zerotier_native.h"
 
 DEVILUTION_BEGIN_NAMESPACE
