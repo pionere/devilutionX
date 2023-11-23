@@ -104,12 +104,17 @@ void base_client::disconnect_plr(plr_t pnum)
 
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] |= CON_LEAVING;
-
+		// add artificial disconnecting turn against misbehaving clients (TODO: could be out of sync...)
 		BYTE disTurn[sizeof(TurnPktHdr) + 1];
 		TurnPkt* pkt = (TurnPkt*)disTurn;
 		pkt->hdr.wLen = (uint16_t)sizeof(disTurn);
 		pkt->body[0] = CMD_DISCONNECT;
-		turn_t plrLastTurn = lastRecvTurn + turn_queue[pnum].size() + 1; // FIXME: could be out of sync...
+		turn_t plrLastTurn;
+		if (!turn_queue[pnum].empty()) {
+			plrLastTurn = turn_queue[pnum].back().turn_id + 1;
+		} else {
+			plrLastTurn = lastRecvTurn + 1;
+		}
 		turn_queue[pnum].emplace_back(plrLastTurn, buffer_t(&disTurn[0], &disTurn[0] + sizeof(disTurn)));
 		disconnect_net(pnum);
 	}
