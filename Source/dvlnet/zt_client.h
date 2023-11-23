@@ -37,9 +37,9 @@ private:
 	plr_t get_master();
 	void disconnect_peer(const endpoint& peer);
 	void send_info_request();
-	void handle_join_request(packet& pkt, endpoint sender);
-	void recv_decrypted(packet& pkt, endpoint sender);
-	void recv_ctrl(packet& pkt, endpoint sender);
+	void handle_join_request(packet& pkt, const endpoint& sender);
+	void recv_decrypted(packet& pkt, const endpoint& sender);
+	void recv_ctrl(packet& pkt, const endpoint& sender);
 
 	bool wait_network();
 	bool wait_join();
@@ -203,7 +203,7 @@ void zt_client<P>::poll()
 }
 
 template <class P>
-void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
+void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 {
 	plr_t i, pnum, pmask;
 	packet* reply;
@@ -246,7 +246,7 @@ void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 }
 
 template <class P>
-void zt_client<P>::recv_ctrl(packet& pkt, endpoint sender)
+void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 {
 	packet_type pkt_type = pkt.pktType();
 	if (pkt_type == PT_INFO_REPLY) {
@@ -266,7 +266,7 @@ void zt_client<P>::recv_ctrl(packet& pkt, endpoint sender)
 }
 
 template <class P>
-void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
+void zt_client<P>::recv_decrypted(packet& pkt, const endpoint& sender)
 {
 	plr_t pkt_plr = pkt.pktSrc();
 
