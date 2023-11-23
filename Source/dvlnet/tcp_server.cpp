@@ -134,7 +134,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	start_recv(con);
 }
 
-bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
+bool tcp_server::recv_ctrl(const scc& con, packet& pkt)
 {
 	plr_t i, pnum, pmask;
 	packet* reply;
@@ -196,7 +196,7 @@ bool tcp_server::handle_recv_packet(const scc& con, packet& pkt)
 	if (con->pnum != PLR_BROADCAST) {
 		return con->pnum == pkt.pktSrc() && send_packet(pkt);
 	} else {
-		return handle_recv_newplr(con, pkt);
+		return recv_ctrl(con, pkt);
 	}
 }
 

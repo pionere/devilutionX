@@ -71,7 +71,7 @@ private:
 	void handle_accept(bool valid, const asio::error_code& ec);
 	void start_recv(const scc& con);
 	void handle_recv(const scc& con, const asio::error_code& ec, size_t bytesRead);
-	bool handle_recv_newplr(const scc& con, packet& pkt);
+	bool recv_ctrl(const scc& con, packet& pkt);
 	bool handle_recv_packet(const scc& con, packet& pkt);
 	//void send_connect(const scc& con);
 	void start_send(const scc& con, packet& pkt);
