@@ -1329,6 +1329,8 @@ if(CPACK)
       DESTINATION "."
     )
     if(USE_PATCH)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "."
       )
@@ -1428,6 +1430,8 @@ if(CPACK)
       DESTINATION "share/diasurgical/${project_name}"
     )
     if(USE_PATCH)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION bin)
+
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "share/diasurgical/${project_name}"
       )
