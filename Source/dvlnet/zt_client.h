@@ -39,6 +39,7 @@ private:
 	void send_info_request();
 	void handle_join_request(packet& pkt, endpoint sender);
 	void recv_decrypted(packet& pkt, endpoint sender);
+	void recv_ctrl(packet& pkt, endpoint sender);
 
 	bool wait_network();
 	bool wait_join();
@@ -245,26 +246,32 @@ void zt_client<P>::handle_join_request(packet& pkt, endpoint sender)
 }
 
 template <class P>
+void zt_client<P>::recv_ctrl(packet& pkt, endpoint sender)
+{
+	packet_type pkt_type = pkt.pktType();
+	if (pkt_type == PT_INFO_REPLY) {
+		std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
+		game_list[pname] = sender;
+	} else if (pkt_type == PT_JOIN_REQUEST) {
+		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
+			handle_join_request(pkt, sender);
+		}
+	} else if (pkt_type == PT_INFO_REQUEST) {
+		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
+			packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)gamename.c_str(), (unsigned)gamename.size());
+			proto.send_oob(sender, reply->encrypted_data());
+			delete reply;
+		}
+	}
+}
+
+template <class P>
 void zt_client<P>::recv_decrypted(packet& pkt, endpoint sender)
 {
 	plr_t pkt_plr = pkt.pktSrc();
 
 	if (pkt_plr == PLR_BROADCAST && pkt.pktDest() == PLR_MASTER) {
-		packet_type pkt_type = pkt.pktType();
-		if (pkt_type == PT_INFO_REPLY) {
-			std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
-			game_list[pname] = sender;
-		} else if (pkt_type == PT_JOIN_REQUEST) {
-			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
-				handle_join_request(pkt, sender);
-			}
-		} else if (pkt_type == PT_INFO_REQUEST) {
-			if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
-				packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)gamename.c_str(), (unsigned)gamename.size());
-				proto.send_oob(sender, reply->encrypted_data());
-				delete reply;
-			}
-		}
+		recv_ctrl(pkt, sender);
 		return;
 	} else if (pkt_plr == PLR_MASTER && pkt.pktType() == PT_CONNECT) {
 		// addrinfo packets
