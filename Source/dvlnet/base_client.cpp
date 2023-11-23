@@ -161,9 +161,15 @@ void base_client::recv_local(packet& pkt)
 	case PT_DISCONNECT:
 		recv_disconnect(pkt);
 		break;
-	default:
+	case PT_JOIN_REQUEST:
+#ifdef ZEROTIER
+	case PT_INFO_REQUEST:
+	case PT_INFO_REPLY:
+#endif
 		break;
-		// otherwise drop
+	default:
+		ASSUME_UNREACHABLE;
+		break;
 	}
 }
 
