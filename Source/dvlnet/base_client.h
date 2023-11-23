@@ -58,10 +58,10 @@ protected:
 	virtual void send_packet(packet& pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
 	virtual void recv_connect(packet& pkt);
+	virtual bool recv_accept(packet& pkt);
 	virtual void close();
 
 private:
-	void recv_accept(packet& pkt);
 	void recv_disconnect(packet& pkt);
 	void run_event_handler(SNetEventHdr* ev);
 	void disconnect_plr(plr_t pnum);

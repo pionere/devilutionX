@@ -23,6 +23,7 @@ public:
 protected:
 	void poll() override;
 	void send_packet(packet& pkt) override;
+	bool recv_accept(packet& pkt) override;
 	void disconnect_net(plr_t pnum) override;
 	void close() override;
 
@@ -33,6 +34,8 @@ private:
 	std::string gamename;
 	std::map<std::string, endpoint> game_list;
 	std::array<endpoint, MAX_PLRS> peers;
+
+	static void endpoint_to_buffer(const endpoint& peer, buffer_t& buf);
 
 	plr_t get_master();
 	void disconnect_peer(const endpoint& peer);
@@ -45,6 +48,14 @@ private:
 	bool wait_join();
 	bool wait_firstpeer(endpoint& peer);
 };
+
+template <class P>
+void zt_client<P>::endpoint_to_buffer(const endpoint& peer, buffer_t& buf)
+{
+	for (auto it = peer.addr.cbegin(); it != peer.addr.cend(); it++) {
+		buf.push_back(*it);
+	}
+}
 
 template <class P>
 plr_t zt_client<P>::get_master()
@@ -185,6 +196,34 @@ void zt_client<P>::send_packet(packet& pkt)
 }
 
 template <class P>
+bool zt_client<P>::recv_accept(packet& pkt)
+{
+	if (!base_client::recv_accept(pkt)) {
+		return false;
+	}
+
+	// assert(pkt.pktType() == PT_JOIN_ACCEPT);
+	auto it = pkt.pktJoinAccAddrsBegin();
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		auto sit = it;
+		while (true) {
+			if (it == pkt.pktJoinAccAddrsEnd()) {
+				return false; // bad format -> skip
+			}
+			if (*it == ' ') {
+				break;
+			}
+			it++;
+		}
+		if (it - sit == peers[pnum].addr.size()) {
+			memcpy(peers[pnum].addr.data(), &*sit, peers[pnum].addr.size());
+		}
+		it++;
+	}
+	return true;
+}
+
+template <class P>
 void zt_client<P>::poll()
 {
 	buffer_t pkt_buf;
@@ -220,29 +259,23 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	peers[pnum] = sender;
 	turn_t conTurn = last_recv_turn() + NET_JOIN_WINDOW;
 	// reply to the new player
+	buffer_t addrs;
 	pmask = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (peers[i]) {
 			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_join_request can not send the active connections to the client.");
 			pmask |= 1 << i;
+			endpoint_to_buffer(peers[i], addrs);
 		}
+		addrs.push_back(' ');
 	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn, (const BYTE*)addrs.data(), (unsigned)addrs.size());
 	proto.send(sender, reply->encrypted_data());
 	delete reply;
 	// notify the old players
 	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
 	send_packet(*reply);
 	delete reply;
-	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
-	pmask &= ~((1 << pnum) | (1 << plr_self));
-	for (plr_t i = 0; i < MAX_PLRS; i++) {
-		if (pmask & (1 << i)) {
-			reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, conTurn, (const BYTE*)peers[i].addr.data(), (unsigned)peers[i].addr.size());
-			proto.send(sender, reply->encrypted_data());
-			delete reply;
-		}
-	}
 }
 
 template <class P>

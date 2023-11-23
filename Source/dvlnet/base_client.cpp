@@ -39,7 +39,7 @@ void base_client::recv_connect(packet& pkt)
 {
 	plr_t pkt_src = pkt.pktSrc();
 	turn_t conTurn = pkt.pktConnectTurn();
-
+	// assert(pkt.pktType() == PT_CONNECT);
 	if (pkt_src < MAX_PLRS) {
 		connected_table[pkt_src] = CON_CONNECTED;
 		assert(turn_queue[pkt_src].empty());
@@ -51,24 +51,23 @@ void base_client::recv_connect(packet& pkt)
 				break;
 			}
 		}
-
 	}
 }
 
-void base_client::recv_accept(packet& pkt)
+bool base_client::recv_accept(packet& pkt)
 {
 	plr_t pnum, pmask;
 	turn_t turn;
-
+	// assert(pkt.pktType() == PT_JOIN_ACCEPT);
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
 		// ignore the packet if player id is set or the cookie does not match
-		return;
+		return false;
 	}
 	auto& pkt_info = pkt.pktJoinAccInfo();
 	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
 		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, pkt_info.ngVersionId, pkt.pktSrc(), GAME_VERSION);
-		return;
+		return false;
 	}
 	pnum = pkt.pktJoinAccPlr();
 	// assert(pnum < MAX_PLRS);
@@ -92,6 +91,7 @@ void base_client::recv_accept(packet& pkt)
 	ev.neGameData = &pkt_info;
 	ev.neTurn = turn;
 	run_event_handler(&ev.neHdr);
+	return true;
 }
 
 void base_client::disconnect_plr(plr_t pnum)

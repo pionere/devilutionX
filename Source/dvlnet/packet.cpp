@@ -30,7 +30,7 @@ bool packet::validate()
 			return false;
 		break;
 	case PT_JOIN_ACCEPT:
-		if (size != sizeof(NetPktJoinAccept))
+		if (size < sizeof(NetPktJoinAccept))
 			return false;
 		if (pktJoinAccPlr() >= MAX_PLRS)
 			return false;

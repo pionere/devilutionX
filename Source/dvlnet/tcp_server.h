@@ -63,7 +63,7 @@ private:
 	SNetGameData& game_init_info;
 	unsigned serverType;
 
-	static void endpoint_to_string(const scc& con, std::string& addr);
+	static void endpoint_to_buffer(const scc& con, buffer_t& buf);
 
 	plr_t next_free_conn();
 	plr_t next_free_queue();

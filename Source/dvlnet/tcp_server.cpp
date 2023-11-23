@@ -65,15 +65,22 @@ void tcp_server::connect_socket(asio::ip::tcp::socket& sock, const char* addrstr
 	assert(!ec);
 }
 
-void tcp_server::endpoint_to_string(const scc& con, std::string& addr)
+void tcp_server::endpoint_to_buffer(const scc& con, buffer_t& buf)
 {
 	asio::error_code err;
 	const auto& ep = con->socket.remote_endpoint(err);
 	assert(!err);
-	char buf[NET_TCP_PORT_LENGTH + 2];
-	snprintf(buf, sizeof(buf), ":%05d", ep.port());
-	addr = ep.address().to_string();
-	addr.append(buf);
+	std::string addr = ep.address().to_string();
+	for (auto it = addr.cbegin(); it != addr.cend(); it++) {
+		buf.push_back(*it);
+	}
+	buf.push_back(':');
+	char port[NET_TCP_PORT_LENGTH + 1];
+	static_assert(NET_TCP_PORT_LENGTH == 5, "Bad port format in endpoint_to_buffer.");
+	snprintf(port, sizeof(port), "%05d", ep.port());
+	for (int i = 0; i < NET_TCP_PORT_LENGTH; i++) {
+		buf.push_back(port[i]);
+	}
 }
 
 void tcp_server::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
@@ -160,34 +167,26 @@ bool tcp_server::recv_ctrl(packet& pkt, const scc& con)
 	turn_t conTurn = local_client.last_recv_turn() + NET_JOIN_WINDOW;
 
 	// reply to the new player
+	bool sendAddr = serverType == SRV_DIRECT;
+	buffer_t addrs;
 	pmask = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (active_connections[i] != NULL) {
 			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_recv_newplr can not send the active connections to the client.");
 			pmask |= 1 << i;
+			if (sendAddr) {
+				endpoint_to_buffer(active_connections[i], addrs);
+			}
 		}
+		addrs.push_back(' ');
 	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn);
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn, (const BYTE*)addrs.data(), (unsigned)addrs.size());
 	start_send(*reply, con);
 	delete reply;
 	// notify the old players
 	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
 	send_packet(*reply);
 	delete reply;
-	//send_connect(con);
-	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
-	if (serverType == SRV_DIRECT) {
-		pmask &= ~(1 << pnum);
-		std::string addr;
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (pmask & (1 << i)) {
-				endpoint_to_string(active_connections[i], addr);
-				reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, conTurn, (const BYTE*)addr.c_str(), (unsigned)addr.size());
-				start_send(*reply, con);
-				delete reply;
-			}
-		}
-	}
 	return true;
 }
 
