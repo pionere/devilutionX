@@ -16,7 +16,7 @@ bool packet::validate()
 	size_t size = decrypted_buffer.size();
 	plr_t pkt_plr = pktSrc();
 	// assert(size >= sizeof(NetPktHdr));
-	switch (pktType()) {
+	switch (reinterpret_cast<const NetPktHdr*>(decrypted_buffer.data())->m_type) {
 	case PT_MESSAGE:
 		if (pkt_plr >= MAX_PLRS && pkt_plr != PLR_MASTER)
 			return false;
@@ -26,11 +26,11 @@ bool packet::validate()
 			return false;
 		break;
 	case PT_JOIN_REQUEST:
-		if (size < sizeof(NetPktJoinRequest))
+		if (size != sizeof(NetPktJoinRequest))
 			return false;
 		break;
 	case PT_JOIN_ACCEPT:
-		if (size < sizeof(NetPktJoinAccept))
+		if (size != sizeof(NetPktJoinAccept))
 			return false;
 		if (pktJoinAccPlr() >= MAX_PLRS)
 			return false;
@@ -42,7 +42,7 @@ bool packet::validate()
 		//	return false;
 		break;
 	case PT_DISCONNECT:
-		if (size < sizeof(NetPktDisconnect))
+		if (size != sizeof(NetPktDisconnect))
 			return false;
 		break;
 #ifdef ZEROTIER
