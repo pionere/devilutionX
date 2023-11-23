@@ -124,7 +124,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
 	while (con->recv_queue.packet_ready()) {
 		packet* pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
-		if (pkt == NULL || !handle_recv_packet(con, *pkt)) {
+		if (pkt == NULL || !handle_recv_packet(*pkt, con)) {
 			delete pkt;
 			drop_connection(con);
 			return;
@@ -134,7 +134,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	start_recv(con);
 }
 
-bool tcp_server::recv_ctrl(const scc& con, packet& pkt)
+bool tcp_server::recv_ctrl(packet& pkt, const scc& con)
 {
 	plr_t i, pnum, pmask;
 	packet* reply;
@@ -168,7 +168,7 @@ bool tcp_server::recv_ctrl(const scc& con, packet& pkt)
 		}
 	}
 	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn);
-	start_send(con, *reply);
+	start_send(*reply, con);
 	delete reply;
 	// notify the old players
 	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
@@ -183,7 +183,7 @@ bool tcp_server::recv_ctrl(const scc& con, packet& pkt)
 			if (pmask & (1 << i)) {
 				endpoint_to_string(active_connections[i], addr);
 				reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, conTurn, (const BYTE*)addr.c_str(), (unsigned)addr.size());
-				start_send(con, *reply);
+				start_send(*reply, con);
 				delete reply;
 			}
 		}
@@ -191,12 +191,14 @@ bool tcp_server::recv_ctrl(const scc& con, packet& pkt)
 	return true;
 }
 
-bool tcp_server::handle_recv_packet(const scc& con, packet& pkt)
+bool tcp_server::handle_recv_packet(packet& pkt, const scc& con)
 {
-	if (con->pnum != PLR_BROADCAST) {
-		return con->pnum == pkt.pktSrc() && send_packet(pkt);
+	plr_t src = pkt.pktSrc();
+
+	if (src != PLR_BROADCAST) {
+		return src == con->pnum && send_packet(pkt);
 	} else {
-		return recv_ctrl(con, pkt);
+		return recv_ctrl(pkt, con);
 	}
 }
 
@@ -208,19 +210,19 @@ bool tcp_server::send_packet(packet& pkt)
 	if (dest == PLR_BROADCAST) {
 		for (int i = 0; i < MAX_PLRS; i++)
 			if (i != src && active_connections[i] != NULL)
-				start_send(active_connections[i], pkt);
+				start_send(pkt, active_connections[i]);
 	} else {
 		if (dest >= MAX_PLRS) {
 			// DoLog("Invalid destination %d", dest);
 			return false;
 		}
 		if ((dest != src) && active_connections[dest] != NULL)
-			start_send(active_connections[dest], pkt);
+			start_send(pkt, active_connections[dest]);
 	}
 	return true;
 }
 
-void tcp_server::start_send(const scc& con, packet& pkt)
+void tcp_server::start_send(packet& pkt, const scc& con)
 {
 	const buffer_t* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);

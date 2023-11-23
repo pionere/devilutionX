@@ -71,10 +71,10 @@ private:
 	void handle_accept(bool valid, const asio::error_code& ec);
 	void start_recv(const scc& con);
 	void handle_recv(const scc& con, const asio::error_code& ec, size_t bytesRead);
-	bool recv_ctrl(const scc& con, packet& pkt);
-	bool handle_recv_packet(const scc& con, packet& pkt);
+	bool recv_ctrl(packet& pkt, const scc& con);
+	bool handle_recv_packet(packet& pkt, const scc& con);
 	//void send_connect(const scc& con);
-	void start_send(const scc& con, packet& pkt);
+	void start_send(packet& pkt, const scc& con);
 	void start_timeout();
 	void handle_timeout(const asio::error_code& ec);
 	void drop_connection(const scc& con);
