@@ -154,9 +154,9 @@ public:
 	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_cookie;
 	}
-	SNetGameData& pktJoinAccInfo()
+	const SNetGameData& pktJoinAccInfo() const
 	{
-		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
+		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
 	}
 	plr_t pktJoinAccMsk() const
 	{

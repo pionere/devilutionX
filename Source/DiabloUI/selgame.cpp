@@ -54,7 +54,7 @@ static void SelgamePasswordEsc();
 
 static void selgame_handleEvents(SNetEventHdr* pEvt)
 {
-	SNetGameData* gameData;
+	const SNetGameData* gameData;
 	unsigned playerId;
 	turn_t turn;
 	SNetJoinEvent *ev = (SNetJoinEvent*)pEvt;
@@ -62,7 +62,6 @@ static void selgame_handleEvents(SNetEventHdr* pEvt)
 	assert(ev->neHdr.eventid == EVENT_TYPE_JOIN_ACCEPTED);
 	gameData = ev->neGameData;
 	assert(gameData->ngVersionId == GAME_VERSION);
-
 	playerId = ev->neHdr.playerid;
 	assert((DWORD)playerId < MAX_PLRS);
 	turn = ev->neTurn + 1;
@@ -74,8 +73,8 @@ static void selgame_handleEvents(SNetEventHdr* pEvt)
 	selgame_gameData->aeNetUpdateRate = gameData->ngNetUpdateRate;
 	selgame_gameData->aeMaxPlayers = gameData->ngMaxPlayers;
 
-	selgame_gameData->aePlayerId = playerId;
 	selgame_gameData->aeTurn = turn;
+	selgame_gameData->aePlayerId = playerId;
 }
 
 static void selgame_add_event_handlers()

@@ -2398,7 +2398,7 @@ typedef struct SNetEventHdr {
 
 typedef struct SNetJoinEvent {
 	SNetEventHdr neHdr;
-	SNetGameData* neGameData;
+	const SNetGameData* neGameData;
 	turn_t neTurn;
 } SNetJoinEvent;
 
