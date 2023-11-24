@@ -1133,12 +1133,29 @@ if(APPLE)
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 
+  if(USE_PATCH)
+      set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon.icns")
+      set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Packaging/apple/Info.plist")
+
+      install (TARGETS ${DEVIL_PATCHER} DESTINATION ./)
+  endif()
+
   if(MACOSX_STANDALONE_APP_BUNDLE)
-      install(CODE "
+      set(BUNDLE_FIXUP_CODE "
         include(BundleUtilities)
-        fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
-        "
-        COMPONENT Runtime)
+        fixup_bundle(\"${CMAKE_BINARY_DIR}/${BIN_TARGET}.app\" \"\" \"\")
+        ")
+      if(USE_PATCH)
+        set(BUNDLE_FIXUP_CODE "${BUNDLE_FIXUP_CODE}fixup_bundle(\"${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.app\" \"\" \"\")
+        ")
+      endif()
+      install(CODE ${BUNDLE_FIXUP_CODE} COMPONENT Runtime)
+
+      #install(CODE "
+      #  include(BundleUtilities)
+      #  fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
+      #  "
+      #  COMPONENT Runtime)
   endif()
 
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
@@ -1475,9 +1492,14 @@ if(CPACK)
   elseif(APPLE)
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_PACKAGE_FILE_NAME ${project_name})
-    set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
+    #set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
     set(CPACK_STRIP_FILES TRUE)
-    set(CPACK_GENERATOR "DragNDrop")
+    #set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_GENERATOR "Bundle")
+    set(CPACK_BUNDLE_NAME ${project_name})
+    set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
+    set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
+    set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
