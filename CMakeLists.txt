@@ -1036,6 +1036,9 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
   target_link_libraries(${BIN_TARGET} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  if(USE_PATCH)
+    target_link_libraries(${DEVIL_PATCHER} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  endif()
 endif()
 
 if(WIN32)
