@@ -1252,6 +1252,11 @@ void LogErrorQ(const char* msg, ...)
 
 	va_end(va);
 
+	using namespace std::chrono;
+	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+	snprintf(tmp, sizeof(tmp), "%s @ %llu", tmp, ms.count());
+	// snprintf(tmp, sizeof(tmp), "%s @ %u", tmp,gdwGameLogicTurn);
+
 	errorMsgQueue.push_back(tmp);
 }
 
@@ -1265,11 +1270,6 @@ void LogDumpQ()
 
 	for (const std::string &msg : errorMsgQueue) {
 		fputs(msg.c_str(), f0);
-		using namespace std::chrono;
-		milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-		//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
-		snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
-		fputs(tmp, f0);
 
 		fputc('\n', f0);
 	}
