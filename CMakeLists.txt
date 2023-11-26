@@ -627,14 +627,6 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(CMAKE_STRIP AND NOT DISABLE_STRIP)
-  add_custom_command(
-    TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
-    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
-    ARGS $<TARGET_FILE:${BIN_TARGET}>)
-endif()
-
 if(USE_PATCH)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
@@ -754,6 +746,22 @@ if(USE_PATCH)
   target_include_directories(${DEVIL_PATCHER} PRIVATE
     tools/patcher
     ${CMAKE_BINARY_DIR})
+endif()
+
+if(CMAKE_STRIP AND NOT DISABLE_STRIP)
+  add_custom_command(
+    TARGET ${BIN_TARGET} POST_BUILD
+    DEPENDS ${BIN_TARGET}
+    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
+    ARGS $<TARGET_FILE:${BIN_TARGET}>)
+
+  if(USE_PATCH)
+    add_custom_command(
+      TARGET ${DEVIL_PATCHER} POST_BUILD
+      DEPENDS ${DEVIL_PATCHER}
+      COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
+      ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
+  endif()
 endif()
 
 # Use file GENERATE instead of configure_file because configure_file
