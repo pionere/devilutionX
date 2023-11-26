@@ -122,7 +122,8 @@ void ValidateData()
 	cookie_t cookie = 123456;
 	const BYTE dynData[16] = "lwkejfwip";
 	const BYTE (&addr)[16] = dynData;
-	SNetGameData gameData;	
+	const BYTE (&addrs)[16] = dynData;
+	SNetGameData gameData;
 	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
 	if (!pkt->validate()) {
 		app_fatal("PT_MESSAGE is invalid");
@@ -138,12 +139,12 @@ void ValidateData()
 		app_fatal("PT_JOIN_REQUEST is invalid");
 	}
 	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask);
+	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
 	if (!pkt->validate()) {
 		app_fatal("PT_JOIN_ACCEPT is invalid");
 	}
 	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, addr, sizeof(addr));
+	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
 	if (!pkt->validate()) {
 		app_fatal("PT_CONNECT is invalid");
 	}
