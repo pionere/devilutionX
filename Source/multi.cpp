@@ -56,10 +56,6 @@ static bool _gbTimeout;
 /* Turn-id when the delta was loaded. */
 turn_t guDeltaTurn;
 static bool _gbNetInited;
-/* The name/address of the current game. (multiplayer games) */
-const char* szGameName;
-/* The password of the current game. (multiplayer games) */
-const char* szGamePassword;
 /* The network-state of the players. (PCS_) */
 unsigned player_state[MAX_PLRS];
 
@@ -819,7 +815,6 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
-	SNetGetGameInfo(&szGameName, &szGamePassword);
 
 	InitQuests();
 	InitPortals();
