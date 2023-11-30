@@ -26,6 +26,11 @@ typedef struct ConnectionInfo {
 } ConnectionInfo;
 
 static std::vector<ConnectionInfo> selgame_coninfos;
+#ifdef ZEROTIER
+static bool ztProvider;
+#else
+static constexpr bool ztProvider = false;
+#endif // ZEROTIER
 static unsigned selgame_connum;
 static unsigned selgame_conidx;
 
@@ -384,7 +389,7 @@ static void SelgameAddressInit()
 	UiEdit* edit = new UiEdit("Enter Address", selgame_GameName, sizeof(selgame_GameName), rect5);
 	gUiItems.push_back(edit);
 
-	UiInitScreen(0, NULL, SelgamePortInit, SelgameAddressEsc);
+	UiInitScreen(0, NULL, ztProvider ? SelgamePasswordInit : SelgamePortInit, SelgameAddressEsc);
 	UiInitEdit(edit);
 }
 
@@ -583,17 +588,23 @@ static void SelgameSpeedSelect(unsigned index)
 	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
 #endif
 
+	if (ztProvider) {
+		SelgamePasswordInit(0);
+		return;
+	}
 	SelgamePortInit(0);
 }
 
 static void SelgamePasswordSelect(unsigned index)
 {
 	char dialogText[256];
+	int port = 0;
 
 	if (selgame_mode == SELGAME_CREATE) {
+		if (!ztProvider) {
 		setIniValue("Network", "Port", selgame_GamePort);
-		int port;
 		getIniInt("Network", "Port", &port);
+		}
 		if (SNetCreateGame(port, selgame_Password, selgame_gameData, dialogText)) {
 			selgame_endMenu = true;
 			return;
@@ -603,12 +614,13 @@ static void SelgamePasswordSelect(unsigned index)
 		if (selgame_conidx == selgame_connum) {
 			selgame_connum++; // ensure SelgamePasswordEsc choose the right path in case SNetJoinGame fails. The clearest solution would be a whole selgame_coninfos-reload, but it's not worth it...
 		}
+		if (!ztProvider) {
 		snprintf(tempstr, sizeof(tempstr), "Entry%d", selgame_conidx);
 		setIniValue("Phone Book", tempstr, selgame_GameName);
 		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", selgame_conidx);
 		setIniValue("Phone Book", tempstr, selgame_GamePort);
-		int port;
 		getIniInt("Phone Book", tempstr, &port);
+		}
 		if (SNetJoinGame(selgame_GameName, port, selgame_Password, dialogText)) {
 			selgame_endMenu = true;
 			return;
@@ -626,6 +638,9 @@ int UiSelectGame(_uigamedata* game_data)
 	selgame_gameData = game_data;
 
 	selgame_add_event_handlers();
+#ifdef ZEROTIER
+	ztProvider = provider == SELCONN_ZT;
+#endif
 
 	SelgameInit();
 	SelgameModeInit();

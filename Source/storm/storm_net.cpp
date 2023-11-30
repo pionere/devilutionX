@@ -40,14 +40,24 @@ bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gam
 	dvlnet_inst->make_default_gamename(gpszGameName);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	result = dvlnet_inst->setup_game(gameData, gpszGameName, port, pszGamePassword, errorText);
-	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
+#ifdef ZEROTIER
+	if (port == 0)
+		SStrCopy(gpszGameName, gpszGameName, sizeof(gpszGameName));
+	else
+#endif
+		snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
 	return result;
 }
 
 bool SNetJoinGame(const char* pszGameName, unsigned port, const char* pszGamePassword, char (&errorText)[256])
 {
 	// assert(pszGameName != NULL && pszGamePassword != NULL);
-	snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
+#ifdef ZEROTIER
+	if (port == 0)
+		SStrCopy(gpszGameName, gpszGameName, sizeof(gpszGameName));
+	else
+#endif
+		snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", pszGameName, port);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	return dvlnet_inst->setup_game(NULL, pszGameName, port, pszGamePassword, errorText);
 }
