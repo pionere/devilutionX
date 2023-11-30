@@ -93,7 +93,7 @@ static void PrintText(const char* text, char lineSep, int limit)
 		s = ReadTextLine(s, lineSep, limit);
 		w = GetSmallStringWidth(tempstr);
 
-		// LogErrorF("TXT", "%03d(%04d):%s", i++, w, tempstr);
+		// LogErrorF("%03d(%04d):%s", i++, w, tempstr);
 		if (col == COL_RED)
 			fputc('$', textFile);
 		fputs(tempstr, textFile);
@@ -725,7 +725,7 @@ void ValidateData()
 					ws++;
 			}
 		}
-		LogErrorF("ITEMAFF", "Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
+		LogErrorF("Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
 	}
 #endif
 	// unique items
@@ -1210,7 +1210,7 @@ void ValidateData()
 #endif /* DEBUG_MODE || DEV_MODE */
 
 #if DEV_MODE
-void LogErrorF(const char* type, const char* msg, ...)
+void LogErrorF(const char* msg, ...)
 {
 	char tmp[256];
 	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
@@ -1256,7 +1256,7 @@ void LogErrorQ(const char* msg, ...)
 	using namespace std::chrono;
 	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	snprintf(tmp, sizeof(tmp), "%s @ %llu", tmp, ms.count());
-	// snprintf(tmp, sizeof(tmp), "%s @ %u", tmp,gdwGameLogicTurn);
+	// snprintf(tmp, sizeof(tmp), "%s @ %u", tmp, gdwGameLogicTurn);
 
 	errorMsgQueue.push_back(tmp);
 }
