@@ -481,10 +481,10 @@ static void SelgameAddressListInit()
 		return;
 	}
 
-	ConnectionInfo ci = { "New Address", "" };
+	ConnectionInfo ci = { ztProvider ? "Enter manually..." : "New Address", "" };
 	selgame_coninfos.push_back(ci);
 
-	SelgameResetScreen("Join Game", "Select Address");
+	SelgameResetScreen("Join Game", ztProvider ? "Select Game" : "Select Address");
 
 	unsigned num_viewport_cons = std::min(selgame_connum + 1, MAX_VIEWPORT_ITEMS);
 	for (unsigned i = 0; i < num_viewport_cons; i++) {
