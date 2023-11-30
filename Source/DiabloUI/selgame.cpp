@@ -457,6 +457,7 @@ static void SelgameAddressListDelete()
 
 static void SelgameAddressListInit()
 {
+	UiTxtButton* btn;
 	int numEntries = 0;
 	selgame_coninfos.clear();
 	while (true) {
@@ -503,14 +504,18 @@ static void SelgameAddressListInit()
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect8 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 3, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
-	SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &UiFocusNavigationDelete, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
-	gUiItems.push_back(SELLIST_DIALOG_DELETE_BUTTON);
+	if (!ztProvider) {
+		btn = SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &UiFocusNavigationDelete, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
+	} else {
+		btn = new UiTxtButton("Refresh", &SelgameAddressListInit, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD);
+	}
+	gUiItems.push_back(btn);
 
 	SDL_Rect rect9 = { SELGAME_RPANEL_LEFT + 2 * SELGAME_RPANEL_WIDTH / 3, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect9, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	UiInitScreen(selgame_connum + 1, SelgameAddressListFocus, SelgameAddressListSelect, SelgameModeInit);
-	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS, SelgameAddressListDelete);
+	UiInitScrollBar(scrollBar, MAX_VIEWPORT_ITEMS, ztProvider ? NULL : SelgameAddressListDelete);
 }
 
 static void SelgameSpeedInit()
