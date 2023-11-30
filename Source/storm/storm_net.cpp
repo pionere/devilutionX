@@ -1,6 +1,8 @@
 #include "storm_net.h"
 
 #include "dvlnet/abstract_net.h"
+#include "dvlnet/protocol_zt.h"
+#include "dvlnet/zt_client.h"
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -89,7 +91,7 @@ unsigned SNetGetTurnsInTransit()
 #ifdef ZEROTIER
 void SNetGetGamelist(std::vector<std::string>& games)
 {
-	return dvlnet_inst->get_gamelist(games);
+	return (static_cast<net::zt_client<net::protocol_zt>*>(&*dvlnet_inst))->get_gamelist(games);
 }
 #endif
 

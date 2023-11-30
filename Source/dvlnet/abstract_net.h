@@ -54,9 +54,6 @@ public:
 	virtual ~abstract_net() = default;
 
 	virtual void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) = 0;
-#ifdef ZEROTIER
-	virtual void get_gamelist(std::vector<std::string>& games) { };
-#endif
 	static abstract_net* make_net(unsigned provider);
 };
 

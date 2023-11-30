@@ -16,7 +16,7 @@ public:
 	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
-	void get_gamelist(std::vector<std::string>& games) override;
+	void get_gamelist(std::vector<std::string>& games);
 
 	virtual ~zt_client() = default;
 
