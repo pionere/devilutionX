@@ -113,6 +113,11 @@ void SNetLeaveGame();
  */
 void SNetDisconnect();
 
+/*
+ *  Destroy the net-instance.
+ */
+void SNetDestroy();
+
 #if defined(__GNUC__) || defined(__cplusplus)
 }
 #endif

@@ -57,7 +57,7 @@ public:
 #ifdef ZEROTIER
 	virtual void get_gamelist(std::vector<std::string>& games) { };
 #endif
-	static std::unique_ptr<abstract_net> make_net(unsigned provider);
+	static abstract_net* make_net(unsigned provider);
 };
 
 } // namespace net

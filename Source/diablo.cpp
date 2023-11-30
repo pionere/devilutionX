@@ -220,6 +220,7 @@ static bool diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
+	SNetDestroy();
 	pfile_flush(true);
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {

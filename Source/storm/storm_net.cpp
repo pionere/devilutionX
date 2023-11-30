@@ -5,12 +5,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static std::unique_ptr<net::abstract_net> dvlnet_inst;
+static net::abstract_net* dvlnet_inst = NULL;
 static char gpszGameName[NET_MAX_GAMENAME_LEN + 1] = {};
 static char gpszGamePassword[NET_MAX_PASSWD_LEN + 1] = {};
 
 void SNetInitializeProvider(unsigned provider)
 {
+	delete dvlnet_inst;
 	dvlnet_inst = net::abstract_net::make_net(provider);
 }
 
@@ -107,6 +108,12 @@ void SNetLeaveGame()
 void SNetDisconnect()
 {
 	dvlnet_inst->SNetDisconnect();
+}
+
+void SNetDestroy()
+{
+	delete dvlnet_inst;
+	dvlnet_inst = NULL;
 }
 
 DEVILUTION_END_NAMESPACE
