@@ -412,15 +412,15 @@ void multi_process_turn(SNetTurnPkt* turn)
 		//	plr._px = pkt->px;
 		//	plr._py = pkt->py;
 		//}
+		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (!plr._pActive) {
 			// player is disconnected -> ignore the turn, but process CMD_JOINLEVEL/CMD_REQDELTA messages
-			TCmd* cmd = (TCmd*)(pkt + 1);
 			if (cmd->bCmd == CMD_JOINLEVEL || cmd->bCmd == CMD_REQDELTA) {
 				ParseCmd(pnum, cmd);
 			}
 			continue;
 		}
-		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
+		multi_process_turn_packet(pnum, (BYTE*)cmd, dwMsgSize);
 	}
 	gdwLastGameTurn = turn->ntpTurn;
 	gdwGameLogicTurn = turn->ntpTurn * gbNetUpdateRate;

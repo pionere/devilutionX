@@ -443,7 +443,6 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 				pn = dPiece[i][j];
 				if (pn == 270)
 					AddObject(OBJ_L1LIGHT, i, j);
-				// these pieces are closed doors which are placed directly
 			}
 		}
 		wdoor = OBJ_L1LDOOR;
