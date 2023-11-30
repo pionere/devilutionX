@@ -1,17 +1,8 @@
 #include "zerotier_lwip.h"
 #ifdef ZEROTIER
-#include <lwip/igmp.h>
 #include <lwip/mld6.h>
 #include <lwip/sockets.h>
 #include <lwip/tcpip.h>
-
-#include <SDL.h>
-
-#ifdef USE_SDL1
-#include "utils/sdl2_to_1_2_backports.h"
-#else
-#include "utils/sdl2_backports.h"
-#endif
 
 #include "utils/log.h"
 
