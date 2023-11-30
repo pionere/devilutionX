@@ -266,7 +266,7 @@ void UiFocusNavigationSelect()
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
 	if (gUiEditField != NULL) {
-		if (gUiEditField->m_value[0] == '\0') {
+		if (gUiEditField->m_value[0] == '\0' && !(gUiEditField->m_iFlags & UIS_OPTIONAL)) {
 			return;
 		}
 		gUiEditField = NULL;

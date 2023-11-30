@@ -307,6 +307,7 @@ static void SelgamePasswordInit(unsigned index)
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
 	UiEdit* edit = new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password), rect5);
+	edit->m_iFlags |= UIS_OPTIONAL;
 	gUiItems.push_back(edit);
 
 	UiInitScreen(0, NULL, SelgamePasswordSelect, SelgamePasswordEsc);
