@@ -72,6 +72,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_DEFAULT_PORT        6112
 // the maximum length of the name of an 'instance'
 #define NET_MAX_GAMENAME_LEN    31
+// the length of the name of an 'instance' in case of zerotier
+#define NET_ZT_GAMENAME_LEN     6
 // the maximum length of the password of an 'instance'
 #define NET_MAX_PASSWD_LEN      15
 // the maximum length of a text-message to other players

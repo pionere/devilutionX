@@ -311,13 +311,12 @@ void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 
 {
 	int i;
 
-	std::string allowedChars = "abcdefghkopqrstuvwxyz";
 	std::random_device rd;
-	std::uniform_int_distribution<int> dist(0, allowedChars.size() - 1);
-	for (i = 0; i < 5; i++) {
-		gamename[i] = allowedChars.at(dist(rd));
+	std::uniform_int_distribution<int> dist((int)'a', (int)'z');
+	for (i = 0; i < NET_ZT_GAMENAME_LEN; i++) {
+		gamename[i] = dist(rd);
 	}
-	gamename[i] = '\0';
+	gamename[NET_ZT_GAMENAME_LEN] = '\0';
 }
 
 } // namespace net
