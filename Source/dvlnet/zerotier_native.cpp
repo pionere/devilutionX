@@ -93,7 +93,16 @@ void zerotier_network_start()
 
 void zerotier_network_stop()
 {
+	// zt is not designed to be stopped...
+	/*if (zt_status < ZT_CONNECT) {
+		zt_status = ZT_CONNECT;
+		multicast_leave();
+		zts_net_leave(ZtNetwork);
+	}
+	// if (zt_status != ZT_DOWN)
 	zts_node_stop();
+	// zts_free();
+	// zts_node_free();*/
 }
 
 } // namespace net
