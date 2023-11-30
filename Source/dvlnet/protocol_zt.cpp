@@ -2,19 +2,9 @@
 #ifdef ZEROTIER
 #include <random>
 
-#include <SDL.h>
-
-#ifdef USE_SDL1
-#include "utils/sdl2_to_1_2_backports.h"
-#else
-#include "utils/sdl2_backports.h"
-#endif
-
-#include <lwip/igmp.h>
-#include <lwip/mld6.h>
 #include <lwip/sockets.h>
-#include <lwip/tcpip.h>
 
+#include "dvlnet/zerotier_lwip.h"
 #include "dvlnet/zerotier_native.h"
 
 DEVILUTION_BEGIN_NAMESPACE
