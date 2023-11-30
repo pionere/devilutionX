@@ -280,6 +280,7 @@ void protocol_zt::close()
 		peer.second.send_queue.clear();
 	}
 	peer_list.clear();
+	disconnect_queue.clear();
 }
 
 protocol_zt::~protocol_zt()
