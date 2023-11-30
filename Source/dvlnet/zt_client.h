@@ -137,7 +137,7 @@ bool zt_client<P>::wait_join()
 
 	randombytes_buf(reinterpret_cast<unsigned char*>(&cookie_self), sizeof(cookie_t));
 	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
-	proto.send(peer, pkt->encrypted_data());
+	proto.send_oob(peer, pkt->encrypted_data());
 	delete pkt;
 	// wait for reply for 2.5 seconds
 	for (int i = 250; ; ) {
