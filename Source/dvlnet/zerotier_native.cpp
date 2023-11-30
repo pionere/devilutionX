@@ -24,19 +24,18 @@ namespace net {
 static constexpr uint64_t ZtNetwork = 0xaf78bf943649eb12;
 
 static std::atomic_bool zt_network_ready(false);
-static std::atomic_bool zt_node_online(false);
 
 static void zerotier_event_handler(void* ptr)
 {
 	zts_event_msg_t* msg = reinterpret_cast<zts_event_msg_t*>(ptr);
 	switch (msg->event_code) {
 	case ZTS_EVENT_NODE_ONLINE:
-		DoLog("ZeroTier: ZTS_EVENT_NODE_ONLINE, nodeId=%llx", (unsigned long long)msg->node->node_id);
-		zt_node_online = true;
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_ONLINE");
+		// zt_node_online = true; -- don't change, zt-nodes are coming and going...
 		break;
 	case ZTS_EVENT_NODE_OFFLINE:
-		DoLog("ZeroTier: ZTS_EVENT_NODE_OFFLINE");
-		zt_node_online = false;
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_OFFLINE");
+		// zt_node_online = false; -- don't change, they are just joking...
 		break;
 	case ZTS_EVENT_NETWORK_READY_IP6:
 		DoLog("ZeroTier: ZTS_EVENT_NETWORK_READY_IP6, networkId=%llx", (unsigned long long)msg->network->net_id);
@@ -54,7 +53,7 @@ static void zerotier_event_handler(void* ptr)
 
 bool zerotier_network_ready()
 {
-	return zt_network_ready && zt_node_online;
+	return zt_network_ready;
 }
 
 void zerotier_network_start()
