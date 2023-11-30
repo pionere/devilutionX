@@ -31,9 +31,10 @@ protected:
 private:
 	P proto;
 	typedef typename P::endpoint endpoint;
+	typedef std::array<char, NET_MAX_GAMENAME_LEN + 1> gamename_t;
 
-	std::string gamename;
-	std::map<std::string, endpoint> game_list;
+	gamename_t gamename;
+	std::map<gamename_t, endpoint> game_list;
 	std::array<endpoint, MAX_PLRS> peers;
 
 	static void endpoint_to_buffer(const endpoint& peer, buffer_t& buf);
@@ -160,7 +161,7 @@ bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsign
 		setup_gameinfo(gameData);
 	}
 	//addrstr = "fd80:56c2:e21c:0:199:931d:b14:c4d2";
-	gamename = std::string(addrstr);
+	memcpy(gamename.data(), addrstr, gamename.size());
 	if (wait_network()) {
 		if (createGame) {
 			plr_self = 0;
@@ -298,7 +299,8 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 {
 	packet_type pkt_type = pkt.pktType();
 	if (pkt_type == PT_INFO_REPLY) {
-		std::string pname(pkt.pktInfoReplyNameBegin(), pkt.pktInfoReplyNameEnd());
+		gamename_t gname;
+		memcpy(gname.data(), &*pkt.pktInfoReplyNameBegin(), gamename.size());
 		game_list[pname] = sender;
 	} else if (pkt_type == PT_JOIN_REQUEST) {
 		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
@@ -306,7 +308,7 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 		}
 	} else if (pkt_type == PT_INFO_REQUEST) {
 		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
-			packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)gamename.c_str(), (unsigned)gamename.size());
+			packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)gamename.data(), (unsigned)gamename.size());
 			proto.send_oob(sender, reply->encrypted_data());
 			delete reply;
 		}
