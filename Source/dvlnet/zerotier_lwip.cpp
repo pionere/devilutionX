@@ -19,7 +19,7 @@ void print_ip6_addr(void* x)
 	DoLog("ZeroTier: addr=%s", ipstr);
 }
 
-void zt_ip6setup()
+void multicast_join()
 {
 	ip6_addr_t mcaddr;
 	memcpy(mcaddr.addr, dvl_multicast_addr, 16);

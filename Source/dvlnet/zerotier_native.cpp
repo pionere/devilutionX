@@ -27,7 +27,7 @@ static std::atomic_bool zt_network_ready(false);
 static std::atomic_bool zt_node_online(false);
 static std::atomic_bool zt_joined(false);
 
-static void Callback(void* ptr)
+static void zerotier_event_handler(void* ptr)
 {
 	zts_event_msg_t* msg = reinterpret_cast<zts_event_msg_t*>(ptr);
 	// printf("callback %d\n", msg->event_code);
@@ -43,7 +43,7 @@ static void Callback(void* ptr)
 		zt_node_online = false;
 	} else if (msg->event_code == ZTS_EVENT_NETWORK_READY_IP6) {
 		DoLog("ZeroTier: ZTS_EVENT_NETWORK_READY_IP6, networkId=%llx\n", (unsigned long long)msg->network->net_id);
-		zt_ip6setup();
+		multicast_join();
 		zt_network_ready = true;
 	} else if (msg->event_code == ZTS_EVENT_ADDR_ADDED_IP6) {
 		print_ip6_addr(&(msg->addr->addr));
@@ -60,7 +60,7 @@ void zerotier_network_start()
 	std::string ztpath = GetPrefPath();
 	ztpath += "zerotier";
 	zts_init_from_storage(ztpath.c_str());
-	zts_init_set_event_handler(&Callback);
+	zts_init_set_event_handler(&zerotier_event_handler);
 	zts_node_start();
 }
 
