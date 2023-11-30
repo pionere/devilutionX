@@ -105,8 +105,8 @@ bool zt_client<P>::wait_firstpeer(endpoint& peer)
 {
 	send_info_request();
 
-	// wait for peer for 5 seconds
-	for (int i = 500; ; ) {
+	// wait for peer for 2.5 seconds
+	for (int i = 250; ; ) {
 		poll();
 		if (game_list.count(gamename)) {
 			peer = game_list[gamename];
@@ -138,8 +138,8 @@ bool zt_client<P>::wait_join()
 	packet* pkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(PLR_BROADCAST, PLR_MASTER, cookie_self);
 	proto.send(peer, pkt->encrypted_data());
 	delete pkt;
-	// wait for reply for 5 seconds
-	for (int i = 500; ; ) {
+	// wait for reply for 2.5 seconds
+	for (int i = 250; ; ) {
 		poll();
 		if (plr_self != PLR_BROADCAST)
 			return true; // join successful
