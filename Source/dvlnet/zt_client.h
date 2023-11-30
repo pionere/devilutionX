@@ -103,6 +103,8 @@ void zt_client<P>::disconnect_net(plr_t pnum)
 template <class P>
 bool zt_client<P>::wait_firstpeer(endpoint& peer)
 {
+	send_info_request();
+
 	// wait for peer for 5 seconds
 	for (int i = 500; ; ) {
 		poll();
@@ -112,7 +114,6 @@ bool zt_client<P>::wait_firstpeer(endpoint& peer)
 		}
 		if (--i == 0)
 			break;
-		send_info_request();
 		SDL_Delay(10);
 	}
 	return false;
