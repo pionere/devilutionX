@@ -173,19 +173,28 @@ static void SelgameModeFocus(unsigned index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
+static const char* SelgameDiffText(int difficulty)
+{
+	const char* result = "Normal";
+	if (difficulty == DIFF_NIGHTMARE)
+		result = "Nightmare";
+	if (difficulty == DIFF_HELL)
+		result = "Hell";
+	return result;
+}
+
 static void SelgameDiffFocus(unsigned index)
 {
-	switch (gUIListItems[index]->m_value) {
+	int diff = gUIListItems[index]->m_value;
+	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameDiffText(diff));
+	switch (diff) {
 	case DIFF_NORMAL:
-		copy_cstr(selgame_Label, "Normal");
 		copy_cstr(selgame_Description, "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
 	case DIFF_NIGHTMARE:
-		copy_cstr(selgame_Label, "Nightmare");
 		copy_cstr(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge.");
 		break;
 	case DIFF_HELL:
-		copy_cstr(selgame_Label, "Hell");
 		copy_cstr(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell.");
 		break;
 	default:
@@ -195,23 +204,33 @@ static void SelgameDiffFocus(unsigned index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
+static const char* SelgameSpeedText(int speed)
+{
+	const char* result = "Normal";
+	if (speed == SPEED_FAST)
+		result = "Fast";
+	if (speed == SPEED_FASTER)
+		result = "Faster";
+	if (speed == SPEED_FASTEST)
+		result = "Fastest";
+	return result;
+}
+
 static void SelgameSpeedFocus(unsigned index)
 {
-	switch (gUIListItems[index]->m_value) {
+	int speed = gUIListItems[index]->m_value;
+	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameSpeedText(speed));
+	switch (speed) {
 	case SPEED_NORMAL:
-		copy_cstr(selgame_Label, "Normal");
 		copy_cstr(selgame_Description, "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
 		break;
 	case SPEED_FAST:
-		copy_cstr(selgame_Label, "Fast");
 		copy_cstr(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge.");
 		break;
 	case SPEED_FASTER:
-		copy_cstr(selgame_Label, "Faster");
 		copy_cstr(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before.");
 		break;
 	case SPEED_FASTEST:
-		copy_cstr(selgame_Label, "Fastest");
 		copy_cstr(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation.");
 		break;
 	default:
