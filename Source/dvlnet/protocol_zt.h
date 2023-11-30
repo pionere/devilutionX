@@ -55,6 +55,7 @@ public:
 	bool get_disconnected(endpoint& peer);
 	bool network_online();
 	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
+	void close();
 
 private:
 	static constexpr uint32_t PKTBUF_LEN = 65536;
@@ -72,8 +73,6 @@ private:
 	std::map<endpoint, peer_state> peer_list;
 	int fd_tcp = -1;
 	int fd_udp = -1;
-
-	void close_all();
 
 	static void set_nonblock(int fd);
 	static void set_nodelay(int fd);

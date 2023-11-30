@@ -265,7 +265,7 @@ void protocol_zt::disconnect(const endpoint& peer)
 	}
 }
 
-void protocol_zt::close_all()
+void protocol_zt::close()
 {
 	for (auto& peer : peer_list) {
 		if (peer.second.fd != -1)
@@ -288,7 +288,7 @@ protocol_zt::~protocol_zt()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
-	close_all();
+	close();
 	zerotier_network_stop();
 }
 
