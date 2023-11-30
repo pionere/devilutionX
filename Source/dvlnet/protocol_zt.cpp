@@ -111,21 +111,22 @@ bool protocol_zt::send_oob_mc(const buffer_t& data) const
 
 bool protocol_zt::send_queued_peer(const endpoint& peer)
 {
-	if (peer_list[peer].fd == -1) {
-		peer_list[peer].fd = lwip_socket(AF_INET6, SOCK_STREAM, 0);
-		set_nodelay(peer_list[peer].fd);
-		set_nonblock(peer_list[peer].fd);
+	peer_state& ps = peer_list[peer];
+	if (ps.fd == -1) {
+		ps.fd = lwip_socket(AF_INET6, SOCK_STREAM, 0);
+		set_nodelay(ps.fd);
+		set_nonblock(ps.fd);
 		struct sockaddr_in6 in6 {
 		};
 		in6.sin6_port = htons(DEFAULT_PORT);
 		in6.sin6_family = AF_INET6;
 		peer.to_addr(reinterpret_cast<unsigned char*>(in6.sin6_addr.s6_addr));
-		lwip_connect(peer_list[peer].fd, (const struct sockaddr*)&in6, sizeof(in6));
+		lwip_connect(ps.fd, (const struct sockaddr*)&in6, sizeof(in6));
 	}
-	while (!peer_list[peer].send_queue.empty()) {
-		buffer_t* frame = peer_list[peer].send_queue.front();
+	while (!ps.send_queue.empty()) {
+		buffer_t* frame = ps.send_queue.front();
 		size_t len = frame->size();
-		auto r = lwip_send(peer_list[peer].fd, frame->data(), len, 0);
+		auto r = lwip_send(ps.fd, frame->data(), len, 0);
 		if (r < 0) {
 			// handle error
 			return false;
@@ -138,7 +139,7 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 		}
 		if (decltype(len)(r) == len) {
 			delete frame;
-			peer_list[peer].send_queue.pop_front();
+			ps.send_queue.pop_front();
 		} else {
 			return false;
 		}
@@ -149,10 +150,11 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 bool protocol_zt::recv_peer(const endpoint& peer)
 {
 	BYTE buf[PKTBUF_LEN];
+	peer_state& ps = peer_list[peer];
 	while (true) {
-		auto len = lwip_recv(peer_list[peer].fd, buf, sizeof(buf), 0);
+		auto len = lwip_recv(ps.fd, buf, sizeof(buf), 0);
 		if (len >= 0) {
-			peer_list[peer].recv_queue.write(buffer_t(buf, buf + len));
+			ps.recv_queue.write(buffer_t(buf, buf + len));
 		} else {
 			return errno == EAGAIN || errno == EWOULDBLOCK;
 		}
@@ -208,13 +210,14 @@ bool protocol_zt::accept_all()
 			break;
 		endpoint ep;
 		ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
-		if (peer_list[ep].fd != -1) {
+		peer_state& ps = peer_list[ep];
+		if (ps.fd != -1) {
 			DoLog("protocol_zt::accept_all: WARNING: overwriting connection\n");
-			lwip_close(peer_list[ep].fd);
+			lwip_close(ps.fd);
 		}
+		ps.fd = newfd;
 		set_nonblock(newfd);
 		set_nodelay(newfd);
-		peer_list[ep].fd = newfd;
 	}
 	return true;
 }
@@ -255,13 +258,14 @@ bool protocol_zt::get_disconnected(endpoint& peer)
 
 void protocol_zt::disconnect(const endpoint& peer)
 {
-	if (peer_list.count(peer) != 0) {
-		if (peer_list[peer].fd != -1) {
-			if (lwip_close(peer_list[peer].fd) < 0) {
+	auto it = peer_list.find(peer);
+	if (it != peer_list.end()) {
+		if (it->second.fd != -1) {
+			if (lwip_close(it->second.fd) < 0) {
 				DoLog("lwip_close: %s\n", strerror(errno));
 			}
 		}
-		peer_list.erase(peer);
+		peer_list.erase(it);
 	}
 }
 
