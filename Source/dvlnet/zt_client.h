@@ -175,7 +175,8 @@ bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsign
 			return true;
 		}
 	}
-	snprintf(errorText, 256, "Connection timed out.");
+	copy_cstr(errorText, "Unable to connect");
+	close();
 	return false;
 }
 
