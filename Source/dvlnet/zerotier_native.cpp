@@ -41,11 +41,28 @@ static void zerotier_event_handler(void* ptr)
 		// DoLog("ZeroTier: ZTS_EVENT_NODE_OFFLINE");
 		// zt_status = ZT_DOWN; -- don't change, they are just joking...
 		break;
+	case ZTS_EVENT_NODE_DOWN:
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_DOWN");
+		zt_status = ZT_DOWN;
+		break;
 	case ZTS_EVENT_NETWORK_READY_IP6:
 		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_READY_IP6, networkId=%llx", (unsigned long long)msg->network->net_id);
 		// print_ip6_addr(&msg->network->assigned_addrs[0]);
 		multicast_join();
 		zt_status = ZT_READY;
+		break;
+	case ZTS_EVENT_NETWORK_ACCESS_DENIED:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_ACCESS_DENIED"); -- TODO: what now?
+		break;
+	case ZTS_EVENT_NETWORK_CLIENT_TOO_OLD:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_CLIENT_TOO_OLD"); -- TODO: what now?
+		break;
+	case ZTS_EVENT_NETWORK_DOWN:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_DOWN");
+		zt_status = ZT_DOWN;
+		break;
+	case ZTS_EVENT_NETWORK_NOT_FOUND:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_NOT_FOUND"); -- TODO: what now?
 		break;
 	case ZTS_EVENT_NODE_UP:
 		// DoLog("ZeroTier: ZTS_EVENT_NODE_UP");
