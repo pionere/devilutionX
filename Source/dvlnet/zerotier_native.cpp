@@ -25,7 +25,6 @@ static constexpr uint64_t ZtNetwork = 0xaf78bf943649eb12;
 
 static std::atomic_bool zt_network_ready(false);
 static std::atomic_bool zt_node_online(false);
-static std::atomic_bool zt_joined(false);
 
 static void zerotier_event_handler(void* ptr)
 {
@@ -34,10 +33,6 @@ static void zerotier_event_handler(void* ptr)
 	case ZTS_EVENT_NODE_ONLINE:
 		DoLog("ZeroTier: ZTS_EVENT_NODE_ONLINE, nodeId=%llx", (unsigned long long)msg->node->node_id);
 		zt_node_online = true;
-		if (!zt_joined) {
-			zts_net_join(ZtNetwork);
-			zt_joined = true;
-		}
 		break;
 	case ZTS_EVENT_NODE_OFFLINE:
 		DoLog("ZeroTier: ZTS_EVENT_NODE_OFFLINE");
@@ -49,6 +44,10 @@ static void zerotier_event_handler(void* ptr)
 		zt_network_ready = true;
 	case ZTS_EVENT_ADDR_ADDED_IP6:
 		print_ip6_addr(&(msg->addr->addr));
+		break;
+	case ZTS_EVENT_NODE_UP:
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_UP");
+		zts_net_join(ZtNetwork);
 		break;
 	}
 }
