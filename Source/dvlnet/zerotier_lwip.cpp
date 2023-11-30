@@ -23,7 +23,7 @@ void zt_ip6setup()
 {
 	ip6_addr_t mcaddr;
 	memcpy(mcaddr.addr, dvl_multicast_addr, 16);
-	mcaddr.zone = 0;
+	mcaddr.zone = IP6_NO_ZONE;
 	LOCK_TCPIP_CORE();
 	mld6_joingroup(IP6_ADDR_ANY6, &mcaddr);
 	UNLOCK_TCPIP_CORE();
