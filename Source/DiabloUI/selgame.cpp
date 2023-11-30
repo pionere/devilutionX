@@ -51,6 +51,7 @@ static _uigamedata* selgame_gameData;
 
 // Forward-declare UI-handlers, used by other handlers.
 static void SelgameModeSelect(unsigned index);
+static void SelgameAddressListInit();
 static void SelgameDiffSelect(unsigned index);
 static void SelgameSpeedSelect(unsigned index);
 static void SelgamePasswordSelect(unsigned index);
@@ -389,7 +390,7 @@ static void SelgameAddressEsc()
 	if (selgame_connum == 0) {
 		SelgameModeInit();
 	} else {
-		SelgameModeSelect(SELGAME_JOIN);
+		SelgameAddressListInit();
 	}
 }
 
@@ -451,11 +452,38 @@ static void SelgameAddressListDelete()
 			break;
 		}
 	}
-	SelgameModeSelect(SELGAME_JOIN);
+	SelgameAddressListInit();
 }
 
 static void SelgameAddressListInit()
 {
+	int numEntries = 0;
+	selgame_coninfos.clear();
+	while (true) {
+		snprintf(tempstr, sizeof(tempstr), "Entry%d", numEntries);
+		const char* entryName = getIniStr("Phone Book", tempstr);
+		if (entryName == NULL) {
+			break;
+		}
+		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", numEntries);
+		const char* entryPort = getIniStr("Phone Book", tempstr);
+		if (entryPort == NULL) {
+			break;
+		}
+		ConnectionInfo ci = { entryName, entryPort };
+		selgame_coninfos.push_back(ci);
+		numEntries++;
+	}
+	selgame_connum = numEntries;
+
+	if (numEntries == 0) {
+		SelgameAddressInit();
+		return;
+	}
+
+	ConnectionInfo ci = { "New Address", "" };
+	selgame_coninfos.push_back(ci);
+
 	SelgameResetScreen("Join Game", "Select Address");
 
 	unsigned num_viewport_cons = std::min(selgame_connum + 1, MAX_VIEWPORT_ITEMS);
@@ -562,34 +590,7 @@ static void SelgameModeSelect(unsigned index)
 		SelgameDiffInit();
 		return;
 	}
-
-	int numEntries = 0;
-	selgame_coninfos.clear();
-	while (true) {
-		snprintf(tempstr, sizeof(tempstr), "Entry%d", numEntries);
-		const char* entryName = getIniStr("Phone Book", tempstr);
-		if (entryName == NULL) {
-			break;
-		}
-		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", numEntries);
-		const char* entryPort = getIniStr("Phone Book", tempstr);
-		if (entryPort == NULL) {
-			break;
-		}
-		ConnectionInfo ci = { entryName, entryPort };
-		selgame_coninfos.push_back(ci);
-		numEntries++;
-	}
-	selgame_connum = numEntries;
-
-	if (numEntries != 0) {
-		ConnectionInfo ci = { "New Address", "" };
-		selgame_coninfos.push_back(ci);
-
-		SelgameAddressListInit();
-	} else {
-		SelgameAddressInit();
-	}
+	SelgameAddressListInit();
 }
 
 static void SelgameSpeedSelect(unsigned index)
