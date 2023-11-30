@@ -17,6 +17,7 @@ public:
 
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 	void get_gamelist(std::vector<std::string>& games);
+	bool network_ready();
 
 	virtual ~zt_client() = default;
 
@@ -344,6 +345,12 @@ void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 	if (pkt_plr != plr_self && pkt_plr != PLR_BROADCAST)
 		return; // packet not for us, drop
 	recv_local(pkt);
+}
+
+template <class P>
+bool zt_client<P>::network_ready()
+{
+	return proto.network_online();
 }
 
 template <class P>

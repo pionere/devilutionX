@@ -28,9 +28,14 @@ typedef struct ConnectionInfo {
 static std::vector<ConnectionInfo> selgame_coninfos;
 #ifdef ZEROTIER
 static bool ztProvider;
+static UiTxtButton* ztBlOckBtn;
+static UiTxtButton* ztRefreshBtn;
+static Uint32 ztNextRefresh;
 #else
 static constexpr bool ztProvider = false;
-#endif // ZEROTIER
+static constexpr UiTxtButton* ztBlOckBtn = NULL;
+static constexpr Uint32 ztNextRefresh = 0;
+#endif
 static unsigned selgame_connum;
 static unsigned selgame_conidx;
 
@@ -149,6 +154,10 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
 		gUiItems.push_back(new UiText(plx(0)._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 	}
+#ifdef ZEROTIER
+	ztBlOckBtn = NULL;
+	ztRefreshBtn = NULL;
+#endif
 }
 
 static void SelgameModeEsc()
@@ -325,7 +334,13 @@ static void SelgamePasswordInit(unsigned index)
 	SelgameResetScreen(selgame_mode == SELGAME_CREATE ? "Create Game" : "Join Game", "Enter Password");
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	UiTxtButton *btn = new UiTxtButton("OK", &UiFocusNavigationSelect, rect6, UIS_HCENTER | UIS_VCENTER | UIS_BIG | (ztProvider ? UIS_SILVER | UIS_DISABLED : UIS_GOLD));
+#ifdef ZEROTIER
+	if (ztProvider) {
+		ztBlOckBtn = btn;
+	}
+#endif
+	gUiItems.push_back(btn);
 
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -415,6 +430,9 @@ static void SelgameAddressInit()
 
 static void SelgameAddressListSelect(unsigned index)
 {
+	if (ztBlOckBtn != NULL)
+		return;
+
 	selgame_conidx = index;
 
 	if (index != selgame_connum) {
@@ -501,13 +519,22 @@ static void SelgameAddressListInit()
 	gUiItems.push_back(scrollBar);
 
 	SDL_Rect rect7 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+	btn = new UiTxtButton("OK", &UiFocusNavigationSelect, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | (ztProvider ? UIS_SILVER | UIS_DISABLED : UIS_GOLD));
+#ifdef ZEROTIER
+	if (ztProvider) {
+		ztBlOckBtn = btn;
+	}
+#endif
+	gUiItems.push_back(btn);
 
 	SDL_Rect rect8 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 3, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 3, 35 };
 	if (!ztProvider) {
 		btn = SELLIST_DIALOG_DELETE_BUTTON = new UiTxtButton("Delete", &UiFocusNavigationDelete, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
 	} else {
-		btn = new UiTxtButton("Refresh", &SelgameAddressListInit, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD);
+		btn = new UiTxtButton("Refresh", &SelgameAddressListInit, rect8, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER | UIS_DISABLED);
+#ifdef ZEROTIER
+		ztRefreshBtn = btn;
+#endif
 	}
 	gUiItems.push_back(btn);
 
@@ -622,6 +649,9 @@ static void SelgameSpeedSelect(unsigned index)
 
 static void SelgamePasswordSelect(unsigned index)
 {
+	if (ztBlOckBtn != NULL)
+		return;
+
 	char dialogText[256];
 	int port = 0;
 
@@ -672,6 +702,18 @@ int UiSelectGame(_uigamedata* game_data)
 
 	selgame_endMenu = false;
 	do {
+#ifdef ZEROTIER
+		if (ztBlOckBtn != NULL && SNetReady()) {
+			ztBlOckBtn->m_iFlags &= ~(UIS_SILVER | UIS_DISABLED);
+			ztBlOckBtn->m_iFlags |= UIS_GOLD;
+			ztBlOckBtn = NULL;
+		}
+		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && ztNextRefresh < SDL_GetTicks()) {
+			ztRefreshBtn->m_iFlags &= ~(UIS_SILVER | UIS_DISABLED);
+			ztRefreshBtn->m_iFlags |= UIS_GOLD;
+			ztRefreshBtn = NULL;
+		}
+#endif
 		UiRenderAndPoll();
 	} while (!selgame_endMenu);
 	SelgameFree();
