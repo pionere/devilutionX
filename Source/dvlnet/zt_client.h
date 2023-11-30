@@ -43,7 +43,7 @@ private:
 	void disconnect_peer(const endpoint& peer);
 	void send_info_request();
 	void handle_join_request(packet& pkt, const endpoint& sender);
-	void recv_decrypted(packet& pkt, const endpoint& sender);
+	void handle_recv_packet(packet& pkt, const endpoint& sender);
 	void recv_ctrl(packet& pkt, const endpoint& sender);
 
 	bool wait_network();
@@ -247,7 +247,7 @@ void zt_client<P>::poll()
 	while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
 		packet* pkt = pktfty.make_in_packet(pkt_buf);
 		if (pkt != NULL)
-			recv_decrypted(*pkt, sender);
+			handle_recv_packet(*pkt, sender);
 		else
 			disconnect_peer(sender);
 		delete pkt;
@@ -316,7 +316,7 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 }
 
 template <class P>
-void zt_client<P>::recv_decrypted(packet& pkt, const endpoint& sender)
+void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 {
 	plr_t pkt_plr = pkt.pktSrc();
 
