@@ -212,6 +212,7 @@ bool zt_client<P>::recv_connect(packet& pkt)
 	auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
 	if (addr.size() == peers[pnum].addr.size())
 		memcpy(peers[pnum].addr.data(), addr.data(), peers[pnum].addr.size());
+	return true;
 }
 
 template <class P>
