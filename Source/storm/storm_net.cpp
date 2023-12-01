@@ -118,6 +118,7 @@ void SNetDropPlayer(int playerid)
 void SNetLeaveGame()
 {
 	dvlnet_inst->SNetLeaveGame();
+	memset(gpszGamePassword, 0, sizeof(gpszGamePassword));
 }
 
 void SNetDisconnect()

@@ -323,10 +323,12 @@ inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n)
 }
 
 class packet_factory {
-	key_t key = {};
+	key_t key;
 
 public:
+	packet_factory() { clear_password(); };
 	void setup_password(const char* passwd);
+	void clear_password();
 	packet* make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	packet* make_out_packet(Args... args);

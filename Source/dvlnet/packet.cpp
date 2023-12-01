@@ -136,5 +136,10 @@ void packet_factory::setup_password(const char* passwd)
 #endif
 }
 
+void packet_factory::clear_password()
+{
+	setup_password("");
+}
+
 } // namespace net
 DEVILUTION_END_NAMESPACE

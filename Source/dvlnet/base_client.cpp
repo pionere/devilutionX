@@ -365,6 +365,7 @@ void base_client::close()
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();
+	pktfty.clear_password();
 	// prepare the client for possible re-connection
 	lastRecvTurn = -1;
 	plr_self = PLR_BROADCAST;
