@@ -126,9 +126,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 		return;
 	}
 	con->timeout = NET_TIMEOUT_ACTIVE;
-	con->recv_buffer.resize(bytesRead);
-	con->recv_queue.write(std::move(con->recv_buffer));
-	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
+	con->recv_queue.write(con->recv_buffer, bytesRead);
 	while (con->recv_queue.packet_ready()) {
 		packet* pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
 		if (pkt == NULL || !handle_recv_packet(*pkt, con)) {

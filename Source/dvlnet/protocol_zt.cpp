@@ -143,7 +143,7 @@ bool protocol_zt::recv_peer(const endpoint& peer)
 	while (true) {
 		auto len = lwip_recv(ps.fd, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0);
 		if (len >= 0) {
-			ps.recv_queue.write(buffer_t(buf, buf + len));
+			ps.recv_queue.write(recv_buffer, len);
 		} else {
 			return errno == EAGAIN || errno == EWOULDBLOCK;
 		}

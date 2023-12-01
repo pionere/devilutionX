@@ -75,9 +75,7 @@ void tcp_client::handle_recv(const asio::error_code& ec, size_t bytesRead)
 		// as if all connections to other clients were lost
 		return;
 	}
-	recv_buffer.resize(bytesRead);
-	recv_queue.write(std::move(recv_buffer));
-	recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
+	recv_queue.write(recv_buffer, bytesRead);
 	while (recv_queue.packet_ready()) {
 		packet* pkt = pktfty.make_in_packet(recv_queue.read_packet());
 		if (pkt != NULL)
