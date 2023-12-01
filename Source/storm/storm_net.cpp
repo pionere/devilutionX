@@ -117,8 +117,6 @@ void SNetDropPlayer(int playerid)
 
 void SNetLeaveGame()
 {
-	if (dvlnet_inst == NULL)
-		return;
 	dvlnet_inst->SNetLeaveGame();
 }
 
