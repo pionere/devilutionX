@@ -421,7 +421,7 @@ static void SelgameAddressInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
-	UiEdit* edit = new UiEdit(ztProvider ? "Enter Game ID" : "Enter Address", selgame_GameName, sizeof(selgame_GameName), rect5);
+	UiEdit* edit = new UiEdit(ztProvider ? "Enter Game ID" : "Enter Address", selgame_GameName, ztProvider ? NET_ZT_GAMENAME_LEN : (sizeof(selgame_GameName) - (NET_TCP_PORT_LENGTH + 1)), rect5);
 	gUiItems.push_back(edit);
 
 	UiInitScreen(0, NULL, ztProvider ? SelgamePasswordInit : SelgamePortInit, SelgameAddressEsc);
