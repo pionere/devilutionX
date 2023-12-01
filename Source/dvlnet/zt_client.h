@@ -38,8 +38,6 @@ private:
 	std::map<gamename_t, std::tuple<SNetZtGame, endpoint, Uint32>> game_list;
 	std::array<endpoint, MAX_PLRS> peers;
 
-	static void endpoint_to_buffer(const endpoint& peer, buffer_t& buf);
-
 	plr_t get_master();
 	void disconnect_peer(const endpoint& peer);
 	void send_info_request();
@@ -51,14 +49,6 @@ private:
 	bool wait_join();
 	bool wait_firstpeer(endpoint& peer);
 };
-
-template <class P>
-void zt_client<P>::endpoint_to_buffer(const endpoint& peer, buffer_t& buf)
-{
-	for (auto it = peer.addr.cbegin(); it != peer.addr.cend(); it++) {
-		buf.push_back(*it);
-	}
-}
 
 template <class P>
 plr_t zt_client<P>::get_master()
@@ -286,7 +276,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 		if (peers[i]) {
 			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_join_request can not send the active connections to the client.");
 			pmask |= 1 << i;
-			endpoint_to_buffer(peers[i], addrs);
+			peers[i].to_buffer(addrs);
 		}
 		addrs.push_back(' ');
 	}

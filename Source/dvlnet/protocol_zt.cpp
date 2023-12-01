@@ -304,6 +304,11 @@ void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 	memcpy(dest_addr, addr.data(), sizeof(addr)); 
 }
 
+void protocol_zt::endpoint::to_buffer(buffer_t& buf) const
+{
+	buf.insert(buf.end(), addr.cbegin(), addr.cend());
+}
+
 void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	int i;
