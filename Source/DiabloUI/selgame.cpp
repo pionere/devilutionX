@@ -419,13 +419,13 @@ static void SelgameAddressListFocus(unsigned index)
 #ifdef ZEROTIER
 	if (!ztProvider) {
 #endif
-	if (index != selgame_connum) {
-		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		if (index != selgame_connum) {
+			SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
 
-		snprintf(selgame_Description, sizeof(selgame_Description), "Port: %s", selgame_coninfos[index].ci_GamePort);
-	} else {
-		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
-	}
+			snprintf(selgame_Description, sizeof(selgame_Description), "Port: %s", selgame_coninfos[index].ci_GamePort);
+		} else {
+			SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
+		}
 #ifdef ZEROTIER
 	} else {
 		if (index != selgame_connum) {
@@ -557,21 +557,21 @@ static void SelgameAddressListInit()
 	selgame_coninfos.clear();
 
 	if (!ztProvider) {
-	while (true) {
-		snprintf(tempstr, sizeof(tempstr), "Entry%d", numEntries);
-		const char* entryName = getIniStr("Phone Book", tempstr);
-		if (entryName == NULL) {
-			break;
+		while (true) {
+			snprintf(tempstr, sizeof(tempstr), "Entry%d", numEntries);
+			const char* entryName = getIniStr("Phone Book", tempstr);
+			if (entryName == NULL) {
+				break;
+			}
+			snprintf(tempstr, sizeof(tempstr), "Entry%dPort", numEntries);
+			const char* entryPort = getIniStr("Phone Book", tempstr);
+			if (entryPort == NULL) {
+				break;
+			}
+			ConnectionInfo ci = { entryName, entryPort };
+			selgame_coninfos.push_back(ci);
+			numEntries++;
 		}
-		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", numEntries);
-		const char* entryPort = getIniStr("Phone Book", tempstr);
-		if (entryPort == NULL) {
-			break;
-		}
-		ConnectionInfo ci = { entryName, entryPort };
-		selgame_coninfos.push_back(ci);
-		numEntries++;
-	}
 #ifdef ZEROTIER
 	} else {
 		if (SNetReady()) {
@@ -785,8 +785,8 @@ static void SelgamePasswordSelect(unsigned index)
 
 	if (selgame_mode == SELGAME_CREATE) {
 		if (!ztProvider) {
-		setIniValue("Network", "Port", selgame_GamePort);
-		getIniInt("Network", "Port", &port);
+			setIniValue("Network", "Port", selgame_GamePort);
+			getIniInt("Network", "Port", &port);
 		}
 		if (SNetCreateGame(port, selgame_Password, selgame_gameData, dialogText)) {
 			selgame_endMenu = true;
@@ -798,11 +798,11 @@ static void SelgamePasswordSelect(unsigned index)
 			selgame_connum++; // ensure SelgamePasswordEsc choose the right path in case SNetJoinGame fails. The clearest solution would be a whole selgame_coninfos-reload, but it's not worth it...
 		}
 		if (!ztProvider) {
-		snprintf(tempstr, sizeof(tempstr), "Entry%d", selgame_conidx);
-		setIniValue("Phone Book", tempstr, selgame_GameName);
-		snprintf(tempstr, sizeof(tempstr), "Entry%dPort", selgame_conidx);
-		setIniValue("Phone Book", tempstr, selgame_GamePort);
-		getIniInt("Phone Book", tempstr, &port);
+			snprintf(tempstr, sizeof(tempstr), "Entry%d", selgame_conidx);
+			setIniValue("Phone Book", tempstr, selgame_GameName);
+			snprintf(tempstr, sizeof(tempstr), "Entry%dPort", selgame_conidx);
+			setIniValue("Phone Book", tempstr, selgame_GamePort);
+			getIniInt("Phone Book", tempstr, &port);
 		}
 		if (SNetJoinGame(selgame_GameName, port, selgame_Password, dialogText)) {
 			selgame_endMenu = true;

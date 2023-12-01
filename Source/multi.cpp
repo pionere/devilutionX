@@ -698,15 +698,15 @@ void multi_ui_handle_events(SNetEventHdr* pEvt)
 	unsigned pnum;
 
 	if (pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME) {
-	pnum = pEvt->playerid;
-	if (pnum == SNPLAYER_MASTER) {
-		EventPlrMsg("Server is down");
-	}
+		pnum = pEvt->playerid;
+		if (pnum == SNPLAYER_MASTER) {
+			EventPlrMsg("Server is down");
+		}
 
-	// dthread_remove_player(pnum);
+		// dthread_remove_player(pnum);
 
-	if (gsDeltaData.ddDeltaSender == pnum)
-		gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
+		if (gsDeltaData.ddDeltaSender == pnum)
+			gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 #ifdef ZEROTIER
 	} else if (pEvt->eventid == EVENT_TYPE_PLAYER_INFO) {
 		SNetZtPlr *dest = ((SNetPlrInfoEvent*)pEvt)->nePlayers;

@@ -1080,7 +1080,7 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
     if(USE_PATCH)
       get_target_property(devil_patcher_SRCS ${DEVIL_PATCHER} SOURCES)
-      list (APPEND devilutionx_SRCS ${devil_patcher_SRCS})
+      list(APPEND devilutionx_SRCS ${devil_patcher_SRCS})
     endif()
     foreach(SOURCE_FILE ${devilutionx_SRCS})
       set_source_files_properties(${SOURCE_FILE} PROPERTIES
