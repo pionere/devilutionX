@@ -322,30 +322,27 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 template <class P>
 void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 {
-	plr_t pkt_plr = pkt.pktSrc();
+	plr_t src = pkt.pktSrc();
 
-	if (pkt_plr == PLR_BROADCAST) {
+	if (src == PLR_BROADCAST) {
 		recv_ctrl(pkt, sender);
 		return;
-	} else if (pkt_plr == PLR_MASTER && pkt.pktType() == PT_CONNECT) {
-		// addrinfo packets
-		pkt_plr = pkt.pktConnectPlr();
-		connected_table[pkt_plr] |= CON_CONNECTED;
-		auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
-		if (addr.size() == peers[pkt_plr].addr.size())
-			memcpy(peers[pkt_plr].addr.data(), addr.data(), peers[pkt_plr].addr.size());
-		return;
-	} else if (pkt_plr >= MAX_PLRS) {
-		return; // drop packet with invalid source
-	} else if (peers[pkt_plr] != sender) {
-		if (peers[pkt_plr])
-			return; // drop packet with mismatching sender/source
-		peers[pkt_plr] = sender;
 	}
-	connected_table[pkt_plr] |= CON_CONNECTED;
-	pkt_plr = pkt.pktDest();
-	if (pkt_plr != plr_self && pkt_plr != PLR_BROADCAST)
-		return; // packet not for us, drop
+	if (plr_self == PLR_BROADCAST) {
+		if (pkt.pktType() != PT_JOIN_ACCEPT)
+			return; // non-global packet and we are not in game -> drop
+		if (game_list[gamename] != sender)
+			return; // join accept, but from an unknown sender -> drop
+	} else {
+		if (src == PLR_MASTER) {
+			src = get_master();
+		} else if (src >= MAX_PLRS) {
+			return; // packet with invalid source -> drop
+		}
+		if (sender != peers[src]) {
+			return; // packet with mismatching source -> drop
+		}
+	}
 	recv_local(pkt);
 }
 
