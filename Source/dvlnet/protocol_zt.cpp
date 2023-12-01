@@ -139,10 +139,9 @@ bool protocol_zt::send_queued_peer(const endpoint& peer)
 
 bool protocol_zt::recv_peer(const endpoint& peer)
 {
-	BYTE buf[PKTBUF_LEN];
 	peer_state& ps = peer_list[peer];
 	while (true) {
-		auto len = lwip_recv(ps.fd, buf, sizeof(buf), 0);
+		auto len = lwip_recv(ps.fd, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0);
 		if (len >= 0) {
 			ps.recv_queue.write(buffer_t(buf, buf + len));
 		} else {
@@ -175,17 +174,15 @@ bool protocol_zt::recv_from_peers()
 
 bool protocol_zt::recv_from_udp()
 {
-	BYTE buf[PKTBUF_LEN];
 	struct sockaddr_in6 in6 {
 	};
 	socklen_t addrlen = sizeof(in6);
-	auto len = lwip_recvfrom(fd_udp, buf, sizeof(buf), 0, (struct sockaddr*)&in6, &addrlen);
+	auto len = lwip_recvfrom(fd_udp, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0, (struct sockaddr*)&in6, &addrlen);
 	if (len < 0)
 		return false;
-	buffer_t data(buf, buf + len);
 	endpoint ep;
 	ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
-	oob_recv_queue.emplace_back(ep, std::move(data));
+	oob_recv_queue.emplace_back(ep, buffer_t(recv_buffer.begin(), recv_buffer.begin() + len));
 	return true;
 }
 

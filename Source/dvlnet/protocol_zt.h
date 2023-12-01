@@ -58,7 +58,6 @@ public:
 	void close();
 
 private:
-	static constexpr uint32_t PKTBUF_LEN = 65536;
 	static constexpr uint16_t DEFAULT_PORT = 6112;
 
 	struct peer_state {
@@ -66,7 +65,7 @@ private:
 		std::deque<buffer_t*> send_queue;
 		frame_queue recv_queue;
 	};
-
+	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
 	std::deque<std::pair<endpoint, buffer_t>> oob_recv_queue;
 	std::deque<endpoint> disconnect_queue;
 
