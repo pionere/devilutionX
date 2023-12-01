@@ -368,9 +368,13 @@ void zt_client<P>::get_gamelist(std::vector<std::string>& games)
 template <class P>
 void zt_client<P>::close()
 {
-	base_client::close();
+	for (plr_t i = 0; i < MAX_PLRS; i++) {
+		peers[i] = endpoint();
+	}
+	// game_list.clear();
+	proto.close();
 
-	// proto.close();
+	base_client::close();
 }
 
 template <class P>
