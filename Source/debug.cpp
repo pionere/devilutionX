@@ -124,6 +124,9 @@ void ValidateData()
 	const BYTE (&addr)[16] = dynData;
 	const BYTE (&addrs)[16] = dynData;
 	SNetGameData gameData;
+#ifdef ZEROTIER
+	SNetZtGame ztGameData;
+#endif
 	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
 	if (!pkt->validate()) {
 		app_fatal("PT_MESSAGE is invalid");
@@ -160,7 +163,7 @@ void ValidateData()
 		app_fatal("PT_INFO_REQUEST is invalid");
 	}
 	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, dynData, sizeof(dynData));
+	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
 	if (!pkt->validate()) {
 		app_fatal("PT_INFO_REPLY is invalid");
 	}

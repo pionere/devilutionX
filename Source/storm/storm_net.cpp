@@ -104,7 +104,7 @@ bool SNetReady()
 	return (static_cast<net::zt_client<net::protocol_zt>*>(&*dvlnet_inst))->network_ready();
 }
 
-void SNetGetGamelist(std::vector<std::string>& games)
+void SNetGetGamelist(std::vector<SNetZtGame>& games)
 {
 	return (static_cast<net::zt_client<net::protocol_zt>*>(&*dvlnet_inst))->get_gamelist(games);
 }

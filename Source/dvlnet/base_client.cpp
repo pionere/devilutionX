@@ -90,7 +90,7 @@ bool base_client::recv_accept(packet& pkt)
 	}
 	lastRecvTurn = turn;
 #ifdef ZEROTIER
-	// we joined and did not create
+	// preserve game-info in case we become master later
 	memcpy(&game_init_info, &pkt_info, sizeof(SNetGameData));
 #endif
 	SNetJoinEvent ev;

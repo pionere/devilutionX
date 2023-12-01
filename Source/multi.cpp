@@ -697,8 +697,7 @@ void multi_ui_handle_events(SNetEventHdr* pEvt)
 {
 	unsigned pnum;
 
-	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
-
+	if (pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME) {
 	pnum = pEvt->playerid;
 	if (pnum == SNPLAYER_MASTER) {
 		EventPlrMsg("Server is down");
@@ -708,6 +707,23 @@ void multi_ui_handle_events(SNetEventHdr* pEvt)
 
 	if (gsDeltaData.ddDeltaSender == pnum)
 		gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
+#ifdef ZEROTIER
+	} else if (pEvt->eventid == EVENT_TYPE_PLAYER_INFO) {
+		SNetZtPlr *dest = ((SNetPlrInfoEvent*)pEvt)->nePlayers;
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (!plr._pActive) {
+				dest[pnum].npName[0] = '\0';
+				continue;
+			}
+			static_assert(sizeof(dest[pnum].npName) == sizeof(dest[pnum].npName), "multi_ui_handle_events can not copy the player's name.");
+			memcpy(dest[pnum].npName, plr._pName, sizeof(dest[pnum].npName));
+			dest[pnum].npClass = plr._pClass;
+			dest[pnum].npLevel = plr._pLevel;
+			dest[pnum].npRank = plr._pRank;
+			dest[pnum].npTeam = plr._pTeam;
+		}
+#endif
+	}
 }
 
 void NetClose()

@@ -94,6 +94,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_TIMEOUT_GHOST       5
 // seconds to wait if there is no free connection (tcp)
 #define NET_WAIT_PENDING        10
+// seconds after a game-info becomes obsolete (zt)
+#define NET_TIMEOUT_GAME        5
 
 #define DEAD_MULTI              0xFF
 #define MAXITEMS                127

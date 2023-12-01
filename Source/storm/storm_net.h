@@ -91,7 +91,7 @@ turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
 unsigned SNetGetTurnsInTransit();
 #ifdef ZEROTIER
 bool SNetReady();
-void SNetGetGamelist(std::vector<std::string>& games);
+void SNetGetGamelist(std::vector<SNetZtGame>& games);
 #endif
 
 /*

@@ -16,7 +16,7 @@ public:
 	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
-	void get_gamelist(std::vector<std::string>& games);
+	void get_gamelist(std::vector<SNetZtGame>& games);
 	bool network_ready();
 
 	virtual ~zt_client() = default;
@@ -35,7 +35,7 @@ private:
 	typedef std::array<char, NET_MAX_GAMENAME_LEN + 1> gamename_t;
 
 	gamename_t gamename;
-	std::map<gamename_t, endpoint> game_list;
+	std::map<gamename_t, std::tuple<SNetZtGame, endpoint, Uint32>> game_list;
 	std::array<endpoint, MAX_PLRS> peers;
 
 	static void endpoint_to_buffer(const endpoint& peer, buffer_t& buf);
@@ -109,8 +109,9 @@ bool zt_client<P>::wait_firstpeer(endpoint& peer)
 	// wait for peer for 2.5 seconds
 	for (int i = 250; ; ) {
 		poll();
-		if (game_list.count(gamename)) {
-			peer = game_list[gamename];
+		auto git = game_list.find(gamename);
+		if (git != game_list.end()) {
+			peer = std::get<1>(git->second);
 			return true;
 		}
 		if (--i == 0)
@@ -303,16 +304,32 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 {
 	packet_type pkt_type = pkt.pktType();
 	if (pkt_type == PT_INFO_REPLY) {
+		const SNetZtGame& gameInfo = pkt.pktGameInfo();
 		gamename_t gname;
-		memcpy(gname.data(), &*pkt.pktInfoReplyNameBegin(), gamename.size());
-		game_list[pname] = sender;
+		memcpy(gname.data(), &gameInfo.ngName[0], sizeof(gameInfo.ngName));
+		auto git = game_list.find(gamename);
+		if (git == game_list.end()) {
+			git = game_list.insert({ gname, { gameInfo, sender, 0 } }).first;
+		} else {
+			std::get<0>(git->second) = gameInfo;
+			std::get<1>(git->second) = sender;
+		}
+		std::get<2>(git->second) = SDL_GetTicks() + NET_TIMEOUT_GAME * 1000;
 	} else if (pkt_type == PT_JOIN_REQUEST) {
 		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
 			handle_join_request(pkt, sender);
 		}
 	} else if (pkt_type == PT_INFO_REQUEST) {
 		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
-			packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)gamename.data(), (unsigned)gamename.size());
+			SNetZtGame gameInfo;
+			assert(sizeof(gameInfo.ngName) == gamename.size());
+			memcpy(&gameInfo.ngName[0], gamename.data(), sizeof(gameInfo.ngName));
+			memcpy(&gameInfo.ngData, &game_init_info, sizeof(game_init_info));
+			SNetPlrInfoEvent ev;
+			ev.neHdr.eventid = EVENT_TYPE_PLAYER_INFO;
+			ev.nePlayers = &gameInfo.ngPlayers[0];
+			run_event_handler(&ev.neHdr);
+			packet* reply = pktfty.make_out_packet<PT_INFO_REPLY>(PLR_BROADCAST, PLR_MASTER, (const BYTE*)&gameInfo);
 			proto.send_oob(sender, reply->encrypted_data());
 			delete reply;
 		}
@@ -353,12 +370,20 @@ bool zt_client<P>::network_ready()
 }
 
 template <class P>
-void zt_client<P>::get_gamelist(std::vector<std::string>& games)
+void zt_client<P>::get_gamelist(std::vector<SNetZtGame>& games)
 {
-	send_info_request();
+	// assert(network_ready());
 	poll();
-	for (auto& s : game_list) {
-		games.push_back(s.first);
+	send_info_request();
+	games.clear();
+	Uint32 now = SDL_GetTicks();
+	for (auto it = game_list.begin(); it != game_list.end(); ) {
+		if (std::get<2>(it->second) < now) {
+			it = game_list.erase(it);
+		} else {
+			games.push_back(std::get<0>(it->second));
+			it++;
+		}
 	}
 }
 

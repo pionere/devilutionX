@@ -47,8 +47,11 @@ bool packet::validate()
 		break;
 #ifdef ZEROTIER
 	case PT_INFO_REQUEST:
-	case PT_INFO_REPLY:
 		return true;
+	case PT_INFO_REPLY:
+		if (size != sizeof(NetPktInfoReply))
+			return false;
+		break;
 #endif
 	default:
 		return false;

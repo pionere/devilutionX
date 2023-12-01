@@ -86,7 +86,7 @@ typedef struct NetPktInfoRequest {
 
 typedef struct NetPktInfoReply {
 	NetPktHdr npHdr;
-	//BYTE m_gamename[0];
+	SNetZtGame m_info;
 } NetPktInfoReply;
 #pragma pack(pop)
 
@@ -175,13 +175,9 @@ public:
 		return decrypted_buffer.end();
 	}
 	// PT_INFO_REPLY
-	buffer_t::const_iterator pktInfoReplyNameBegin() const
+	const SNetZtGame& pktGameInfo() const
 	{
-		return decrypted_buffer.begin() + sizeof(NetPktHdr);
-	}
-	buffer_t::const_iterator pktInfoReplyNameEnd() const
-	{
-		return decrypted_buffer.end();
+		return reinterpret_cast<const NetPktInfoReply*>(decrypted_buffer.data())->m_info;
 	}
 	// PT_CONNECT
 	plr_t pktConnectPlr() const
@@ -237,14 +233,14 @@ inline void packet_out::create<PT_INFO_REQUEST>(plr_t s, plr_t d)
 }
 
 template <>
-inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, const BYTE* info, unsigned size)
+inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, const BYTE* gameinfo)
 {
-	decrypted_buffer.resize(sizeof(NetPktHdr) + size);
+	decrypted_buffer.resize(sizeof(NetPktInfoReply));
 	NetPktInfoReply* data = (NetPktInfoReply*)decrypted_buffer.data();
 	data->npHdr.m_type = PT_INFO_REPLY;
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
-	memcpy((BYTE*)data + sizeof(NetPktHdr), info, size);
+	memcpy(&data->m_info, gameinfo, sizeof(SNetZtGame));
 }
 
 template <>
