@@ -67,11 +67,10 @@ plr_t zt_client<P>::get_master()
 template <class P>
 void zt_client<P>::disconnect_peer(const endpoint& peer)
 {
-	proto.disconnect(peer);
-
 	for (plr_t i = 0; i < MAX_PLRS; i++) {
 		if (peers[i] == peer) {
 			peers[i] = endpoint();
+			proto.disconnect(i);
 		}
 	}
 }

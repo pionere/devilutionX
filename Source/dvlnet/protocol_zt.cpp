@@ -286,28 +286,25 @@ bool protocol_zt::get_disconnected(endpoint& peer)
 	return false;
 }
 
-void protocol_zt::disconnect(const endpoint& peer)
+void protocol_zt::disconnect(int pnum)
 {
-	for (peer_connection& ap : active_connections) {
-		if (ap.peer == peer) {
-			if (ap.sock != -1) {
-				lwip_close(ap.sock);
-				ap.sock = -1;
-			}
-			for (auto frame : ap.send_frame_queue) {
-				delete frame;
-			}
-			ap.send_frame_queue.clear();
-			ap.status = CS_INACTIVE;
-			ap.recv_queue.clear();
-		}
+	peer_connection& ap = active_connections[pnum];
+	if (ap.sock != -1) {
+		lwip_close(ap.sock);
+		ap.sock = -1;
 	}
+	for (auto frame : ap.send_frame_queue) {
+		delete frame;
+	}
+	ap.send_frame_queue.clear();
+	ap.status = CS_INACTIVE;
+	ap.recv_queue.clear();
 }
 
 void protocol_zt::close()
 {
-	for (peer_connection& ap : active_connections) {
-		disconnect(ap.peer);
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		disconnect(pnum);
 	}
 	disconnect_queue.clear();
 }
