@@ -18,9 +18,10 @@ protocol_zt::protocol_zt()
 void protocol_zt::set_nonblock(int fd)
 {
 	static_assert(O_NONBLOCK == 1, "O_NONBLOCK == 1 not satisfied");
-	auto mode = lwip_fcntl(fd, F_GETFL, 0);
-	mode |= O_NONBLOCK;
-	lwip_fcntl(fd, F_SETFL, mode);
+	// auto mode = lwip_fcntl(fd, F_GETFL, 0);
+	// mode |= O_NONBLOCK;
+	// lwip_fcntl(fd, F_SETFL, mode);
+	lwip_fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
 void protocol_zt::set_nodelay(int fd)
