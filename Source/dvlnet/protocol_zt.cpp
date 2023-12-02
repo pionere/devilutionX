@@ -234,20 +234,20 @@ void protocol_zt::accept_self(int pnum)
 	// assert(active_connections[pnum].sock == -1);
 }
 
-void protocol_zt::accept_ep(const endpoint& peer, int pnum)
+void protocol_zt::accept_ep(const unsigned char* addr, int pnum)
 {
 	// assert(active_connections[pnum].status == CS_INACTIVE);
 	// assert(active_connections[pnum].sock == -1);
 	active_connections[pnum].status = CS_PENDING;
-	active_connections[pnum].peer = peer;
+	active_connections[pnum].peer.from_addr(addr);
 }
 
-void protocol_zt::connect_ep(const endpoint& peer, int pnum)
+void protocol_zt::connect_ep(const unsigned char* addr, int pnum)
 {
 	if (active_connections[pnum].status != CS_INACTIVE)
 		return;
 
-	accept_ep(peer, pnum);
+	accept_ep(addr, pnum);
 
 	auto sock = lwip_socket(AF_INET6, SOCK_STREAM, 0);
 	set_nodelay(sock);
@@ -256,7 +256,7 @@ void protocol_zt::connect_ep(const endpoint& peer, int pnum)
 	};
 	in6.sin6_port = htons(DEFAULT_PORT);
 	in6.sin6_family = AF_INET6;
-	peer.to_addr(reinterpret_cast<unsigned char*>(in6.sin6_addr.s6_addr));
+	memcpy(in6.sin6_addr.s6_addr, addr, sizeof(in6.sin6_addr.s6_addr));
 	// print_ip6_addr(&in6);
 	lwip_connect(sock, (const struct sockaddr*)&in6, sizeof(in6));
 	active_connections[pnum].sock = sock;

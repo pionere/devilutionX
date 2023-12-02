@@ -68,8 +68,8 @@ public:
 	bool send_oob_mc(const buffer_t& data) const;
 	bool recv(endpoint& peer, buffer_t& data);
 	bool get_disconnected(endpoint& peer);
-	void connect_ep(const endpoint& peer, int pnum);
-	void accept_ep(const endpoint& peer, int pnum);
+	void connect_ep(const unsigned char* addr, int pnum);
+	void accept_ep(const unsigned char* addr, int pnum);
 	void accept_self(int pnum);
 	bool network_online();
 	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);

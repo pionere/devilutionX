@@ -41,7 +41,6 @@ private:
 
 	gamename_t gamename;
 	std::map<gamename_t, game_details> game_list;
-	std::array<endpoint, MAX_PLRS> peers;
 
 	plr_t get_master();
 	void disconnect_peer(const endpoint& peer);
@@ -59,7 +58,7 @@ template <class P>
 plr_t zt_client<P>::get_master()
 {
 	for (plr_t i = 0; i < MAX_PLRS; i++)
-		if (peers[i])
+		if (proto.active_connections[i].peer)
 			return i;
 	return plr_self;
 }
@@ -68,8 +67,7 @@ template <class P>
 void zt_client<P>::disconnect_peer(const endpoint& peer)
 {
 	for (plr_t i = 0; i < MAX_PLRS; i++) {
-		if (peers[i] == peer) {
-			peers[i] = endpoint();
+		if (proto.active_connections[i].peer == peer) {
 			proto.disconnect(i);
 		}
 	}
@@ -92,7 +90,7 @@ bool zt_client<P>::wait_network()
 template <class P>
 void zt_client<P>::disconnect_net(plr_t pnum)
 {
-	disconnect_peer(peers[pnum]);
+	proto.disconnect(pnum);
 }
 
 template <class P>
@@ -164,7 +162,6 @@ bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsign
 			plr_self = 0;
 			connected_table[plr_self] = CON_CONNECTED;
 			proto.accept_self(plr_self);
-			peers[plr_self] = proto.active_connections[plr_self].peer;
 			return true;
 		}
 		// join game
@@ -185,14 +182,14 @@ void zt_client<P>::send_packet(packet& pkt)
 
 	if (dest == PLR_BROADCAST) {
 		for (plr_t i = 0; i < MAX_PLRS; i++)
-			if (i != src && peers[i])
+			if (i != src && proto.active_connections[i].peer)
 				proto.send(i, pkt.encrypted_data());
 	} else {
 		if (dest >= MAX_PLRS) {
 			// DoLog("Invalid destination %d", dest);
 			return;
 		}
-		if ((dest != src) && peers[dest])
+		if ((dest != src) && proto.active_connections[dest].peer)
 			proto.send(dest, pkt.encrypted_data());
 	}
 }
@@ -204,12 +201,11 @@ bool zt_client<P>::recv_connect(packet& pkt)
 		return false;
 
 	plr_t pnum = pkt.pktConnectPlr();
-	// assert(!peers[pnum])
+	// assert(!proto.active_connections[pnum].peer)
 
 	auto sit = pkt.pktConnectAddrBegin();
-	if (pkt.pktConnectAddrEnd() - sit == peers[pnum].addr.size()) {
-		peers[pnum].from_addr(&*sit);
-		proto.connect_ep(peers[pnum], pnum);
+	if (pkt.pktConnectAddrEnd() - sit == proto.active_connections[pnum].peer.addr.size()) {
+		proto.connect_ep(&*sit, pnum);
 	}
 	return true;
 }
@@ -234,12 +230,10 @@ bool zt_client<P>::recv_accept(packet& pkt)
 			}
 			it++;
 		}
-		if (it - sit == peers[pnum].addr.size()) {
+		if (it - sit == proto.active_connections[pnum].peer.addr.size()) {
 			if (pnum != plr_self) {
-				peers[pnum].from_addr(&*sit);
-				proto.accept_ep(peers[pnum], pnum);
+				proto.accept_ep(&*sit, pnum);
 			} else {
-				peers[pnum].from_addr(&*sit);
 				proto.accept_self(pnum);
 			}
 		}
@@ -273,7 +267,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	packet* reply;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (pnum != plr_self && !peers[pnum]) {
+		if (pnum != plr_self && !proto.active_connections[pnum].peer) {
 			break;
 		}
 	}
@@ -281,17 +275,16 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 		// already full
 		return;
 	}
-	peers[pnum] = sender;
-	proto.connect_ep(sender, pnum);
+	proto.connect_ep(sender.addr.data(), pnum);
 	turn_t conTurn = last_recv_turn() + NET_JOIN_WINDOW;
 	// reply to the new player
 	buffer_t addrs;
 	pmask = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (peers[i]) {
+		if (proto.active_connections[i].peer) {
 			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_join_request can not send the active connections to the client.");
 			pmask |= 1 << i;
-			peers[i].to_buffer(addrs);
+			proto.active_connections[i].peer.to_buffer(addrs);
 		}
 		addrs.push_back(' ');
 	}
@@ -361,7 +354,7 @@ void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 		} else if (src >= MAX_PLRS) {
 			return; // packet with invalid source -> drop
 		}
-		if (sender != peers[src]) {
+		if (sender != proto.active_connections[src].peer) {
 			return; // packet with mismatching source -> drop
 		}
 	}
@@ -395,9 +388,6 @@ void zt_client<P>::get_gamelist(std::vector<SNetZtGame>& games)
 template <class P>
 void zt_client<P>::close()
 {
-	for (plr_t i = 0; i < MAX_PLRS; i++) {
-		peers[i] = endpoint();
-	}
 	// game_list.clear();
 	proto.close();
 
