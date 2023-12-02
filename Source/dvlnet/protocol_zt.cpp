@@ -76,14 +76,9 @@ bool protocol_zt::network_online()
 	return true;
 }
 
-bool protocol_zt::send(const endpoint& peer, const buffer_t& data)
+void protocol_zt::send(int pnum, const buffer_t& data)
 {
-	for (peer_connection& ap : active_connections) {
-		if (ap.peer == peer) {
-			ap.send_frame_queue.push_back(frame_queue::make_frame(data));
-		}
-	}
-	return true;
+	active_connections[pnum].send_frame_queue.push_back(frame_queue::make_frame(data));
 }
 
 bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
@@ -192,7 +187,8 @@ bool protocol_zt::accept_all()
 		set_nonblock(newfd);
 		set_nodelay(newfd);
 
-		for (int i = 0; i < MAX_PLRS; i++) {
+		int i;
+		for (i = 0; i < MAX_PLRS; i++) {
 			if (pending_connections[i].sock == 0) {
 				pending_connections[i].sock = newfd + 1;
 				pending_connections[i].peer.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
@@ -342,12 +338,12 @@ void protocol_zt::endpoint::from_string(const std::string& str)
 
 void protocol_zt::endpoint::from_addr(const unsigned char* src_addr)
 {
-	memcpy(addr.data(), src_addr, addr.size() * sizeof(decltype(addr)::value_type)); 
+	memcpy(addr.data(), src_addr, addr.size() * sizeof(decltype(addr)::value_type));
 }
 
 void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 {
-	memcpy(dest_addr, addr.data(), addr.size() * sizeof(decltype(addr)::value_type)); 
+	memcpy(dest_addr, addr.data(), addr.size() * sizeof(decltype(addr)::value_type));
 }
 
 void protocol_zt::endpoint::to_buffer(buffer_t& buf) const

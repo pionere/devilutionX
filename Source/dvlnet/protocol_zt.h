@@ -2,7 +2,6 @@
 #ifdef ZEROTIER
 #include <string>
 #include <set>
-#include <atomic>
 #include <deque>
 #include <map>
 #include <array>
@@ -55,7 +54,7 @@ public:
 	protocol_zt();
 	~protocol_zt();
 	void disconnect(const endpoint& peer);
-	bool send(const endpoint& peer, const buffer_t& data);
+	void send(int pnum, const buffer_t& data);
 	bool send_oob(const endpoint& peer, const buffer_t& data) const;
 	bool send_oob_mc(const buffer_t& data) const;
 	bool recv(endpoint& peer, buffer_t& data);

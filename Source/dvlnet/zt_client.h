@@ -185,14 +185,14 @@ void zt_client<P>::send_packet(packet& pkt)
 	if (dest == PLR_BROADCAST) {
 		for (plr_t i = 0; i < MAX_PLRS; i++)
 			if (i != src && peers[i])
-				proto.send(peers[i], pkt.encrypted_data());
+				proto.send(i, pkt.encrypted_data());
 	} else {
 		if (dest >= MAX_PLRS) {
 			// DoLog("Invalid destination %d", dest);
 			return;
 		}
 		if ((dest != src) && peers[dest])
-			proto.send(peers[dest], pkt.encrypted_data());
+			proto.send(dest, pkt.encrypted_data());
 	}
 }
 
@@ -207,7 +207,7 @@ bool zt_client<P>::recv_connect(packet& pkt)
 
 	auto sit = pkt.pktConnectAddrBegin();
 	if (pkt.pktConnectAddrEnd() - sit == peers[pnum].addr.size()) {
-		peers[pnum].from_addr(&*it);
+		peers[pnum].from_addr(&*sit);
 		proto.connect_ep(peers[pnum], pnum);
 	}
 	return true;
