@@ -203,6 +203,7 @@ bool zt_client<P>::recv_connect(packet& pkt)
 	auto sit = pkt.pktConnectAddrBegin();
 	if (pkt.pktConnectAddrEnd() - sit == peers[pnum].addr.size()) {
 		peers[pnum].from_addr(&*it);
+		proto.connect_ep(peers[pnum], pnum);
 	}
 	return true;
 }
@@ -228,7 +229,10 @@ bool zt_client<P>::recv_accept(packet& pkt)
 			it++;
 		}
 		if (it - sit == peers[pnum].addr.size()) {
-			peers[pnum].from_addr(&*sit);
+			if (pnum != plr_self) {
+				peers[pnum].from_addr(&*sit);
+				proto.accept_ep(peers[pnum], pnum);
+			}
 		}
 		it++;
 	}
@@ -269,6 +273,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 		return;
 	}
 	peers[pnum] = sender;
+	proto.connect_ep(sender, pnum);
 	turn_t conTurn = last_recv_turn() + NET_JOIN_WINDOW;
 	// reply to the new player
 	buffer_t addrs;
@@ -282,7 +287,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 		addrs.push_back(' ');
 	}
 	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(plr_self, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn, (const BYTE*)addrs.data(), (unsigned)addrs.size());
-	proto.send(sender, reply->encrypted_data());
+	proto.send_oob(sender, reply->encrypted_data());
 	delete reply;
 	// notify the old players
 	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)sender.addr.data(), (unsigned)sender.addr.size());

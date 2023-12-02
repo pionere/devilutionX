@@ -13,6 +13,12 @@
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
+typedef enum client_status {
+	CS_INACTIVE,
+	CS_ACTIVE,
+	CS_PENDING,
+} client_status;
+
 class protocol_zt {
 public:
 	class endpoint {
@@ -54,6 +60,8 @@ public:
 	bool send_oob_mc(const buffer_t& data) const;
 	bool recv(endpoint& peer, buffer_t& data);
 	bool get_disconnected(endpoint& peer);
+	void connect_ep(const endpoint& peer, int pnum);
+	void accept_ep(const endpoint& peer, int pnum);
 	bool network_online();
 	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	void close();
@@ -61,16 +69,24 @@ public:
 private:
 	static constexpr uint16_t DEFAULT_PORT = 6112;
 
-	struct peer_state {
-		int fd = -1;
-		std::deque<buffer_t*> send_queue;
+	typedef struct peer_connection {
+		int status = CS_INACTIVE; // client_status
+		int sock = -1;  // connected socket-id
+		endpoint peer;
+		std::deque<buffer_t*> send_frame_queue;
 		frame_queue recv_queue;
-	};
+	} peer_connection;
+	typedef struct pending_connection {
+		int sock; // connected socket-id + 1
+		endpoint peer;
+		uint32_t timeout;
+	} pending_connection;
 	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
 	std::deque<std::pair<endpoint, buffer_t>> oob_recv_queue;
 	std::deque<endpoint> disconnect_queue;
 
-	std::map<endpoint, peer_state> peer_list;
+	peer_connection active_connections[MAX_PLRS] = { };
+	pending_connection pending_connections[MAX_PLRS] = { };
 	int fd_tcp = -1;
 	int fd_udp = -1;
 
@@ -78,8 +94,8 @@ private:
 	static void set_nodelay(int fd);
 	static void set_reuseaddr(int fd);
 
-	bool send_queued_peer(const endpoint& peer);
-	bool recv_peer(const endpoint& peer);
+	bool send_queued_peer(peer_connection& pc);
+	bool recv_peer(peer_connection& pc);
 	bool send_queued_all();
 	bool recv_from_peers();
 	bool recv_from_udp();
