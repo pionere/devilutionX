@@ -33,9 +33,14 @@ private:
 	P proto;
 	typedef typename P::endpoint endpoint;
 	typedef std::array<char, NET_MAX_GAMENAME_LEN + 1> gamename_t;
+	typedef struct game_details {
+		SNetZtGame ztGamedata;
+		endpoint master;
+		Uint32 timeout;
+	} game_details;
 
 	gamename_t gamename;
-	std::map<gamename_t, std::tuple<SNetZtGame, endpoint, Uint32>> game_list;
+	std::map<gamename_t, game_details> game_list;
 	std::array<endpoint, MAX_PLRS> peers;
 
 	plr_t get_master();
@@ -101,7 +106,7 @@ bool zt_client<P>::wait_firstpeer(endpoint& peer)
 		poll();
 		auto git = game_list.find(gamename);
 		if (git != game_list.end()) {
-			peer = std::get<1>(git->second);
+			peer = git->second.master;
 			return true;
 		}
 		if (--i == 0)
@@ -307,10 +312,10 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 		if (git == game_list.end()) {
 			git = game_list.insert({ gname, { gameInfo, sender, 0 } }).first;
 		} else {
-			std::get<0>(git->second) = gameInfo;
-			std::get<1>(git->second) = sender;
+			git->second.ztGamedata = gameInfo;
+			git->second.master = sender;
 		}
-		std::get<2>(git->second) = SDL_GetTicks() + NET_TIMEOUT_GAME * 1000;
+		git->second.timeout = SDL_GetTicks() + NET_TIMEOUT_GAME * 1000;
 	} else if (pkt_type == PT_JOIN_REQUEST) {
 		if ((plr_self != PLR_BROADCAST) && (get_master() == plr_self)) {
 			handle_join_request(pkt, sender);
@@ -344,7 +349,7 @@ void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 	if (plr_self == PLR_BROADCAST) {
 		if (pkt.pktType() != PT_JOIN_ACCEPT)
 			return; // non-global packet and we are not in game -> drop
-		if (std::get<1>(game_list[gamename]) != sender)
+		if (game_list[gamename].master != sender)
 			return; // join accept, but from an unknown sender -> drop
 	} else {
 		if (src == PLR_MASTER) {
@@ -374,10 +379,10 @@ void zt_client<P>::get_gamelist(std::vector<SNetZtGame>& games)
 	games.clear();
 	Uint32 now = SDL_GetTicks();
 	for (auto it = game_list.begin(); it != game_list.end(); ) {
-		if (std::get<2>(it->second) < now) {
+		if (it->second.timeout < now) {
 			it = game_list.erase(it);
 		} else {
-			games.push_back(std::get<0>(it->second));
+			games.push_back(it->second.ztGamedata);
 			it++;
 		}
 	}
