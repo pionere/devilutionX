@@ -281,8 +281,8 @@ protocol_zt::~protocol_zt()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
-	close();
 	zerotier_network_stop();
+	close();
 }
 
 void protocol_zt::endpoint::from_string(const std::string& str)
