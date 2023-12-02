@@ -67,7 +67,7 @@ bool protocol_zt::network_online()
 			DoLog("lwip, (tcp) bind: %s", strerror(errno));
 			return false;
 		}
-		auto r2 = lwip_listen(fd_tcp, 10);
+		auto r2 = lwip_listen(fd_tcp, 2 * MAX_PLRS);
 		if (r2 < 0) {
 			DoLog("lwip, listen: %s", strerror(errno));
 			return false;
