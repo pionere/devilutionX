@@ -297,12 +297,12 @@ void protocol_zt::endpoint::from_string(const std::string& str)
 
 void protocol_zt::endpoint::from_addr(const unsigned char* src_addr)
 {
-	memcpy(addr.data(), src_addr, sizeof(addr)); 
+	memcpy(addr.data(), src_addr, addr.size() * sizeof(decltype(addr)::value_type)); 
 }
 
 void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 {
-	memcpy(dest_addr, addr.data(), sizeof(addr)); 
+	memcpy(dest_addr, addr.data(), addr.size() * sizeof(decltype(addr)::value_type)); 
 }
 
 void protocol_zt::endpoint::to_buffer(buffer_t& buf) const
