@@ -49,16 +49,18 @@ bool protocol_zt::network_online()
 	if (fd_udp == -1) {
 		fd_udp = lwip_socket(AF_INET6, SOCK_DGRAM, 0);
 		set_reuseaddr(fd_udp);
+		set_nonblock(fd_udp);
 		auto ret = lwip_bind(fd_udp, (struct sockaddr*)&in6, sizeof(in6));
 		if (ret < 0) {
 			DoLog("lwip, (udp) bind: %s", strerror(errno));
 			return false;
 		}
-		set_nonblock(fd_udp);
 	}
 	if (fd_tcp == -1) {
 		fd_tcp = lwip_socket(AF_INET6, SOCK_STREAM, 0);
 		set_reuseaddr(fd_tcp);
+		set_nonblock(fd_tcp);
+		set_nodelay(fd_tcp);
 		auto r1 = lwip_bind(fd_tcp, (struct sockaddr*)&in6, sizeof(in6));
 		if (r1 < 0) {
 			DoLog("lwip, (tcp) bind: %s", strerror(errno));
@@ -69,8 +71,6 @@ bool protocol_zt::network_online()
 			DoLog("lwip, listen: %s", strerror(errno));
 			return false;
 		}
-		set_nonblock(fd_tcp);
-		set_nodelay(fd_tcp);
 	}
 	return true;
 }
