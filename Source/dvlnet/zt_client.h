@@ -338,7 +338,7 @@ void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 	if (plr_self == PLR_BROADCAST) {
 		if (pkt.pktType() != PT_JOIN_ACCEPT)
 			return; // non-global packet and we are not in game -> drop
-		if (game_list[gamename] != sender)
+		if (std::get<1>(game_list[gamename]) != sender)
 			return; // join accept, but from an unknown sender -> drop
 	} else {
 		if (src == PLR_MASTER) {
