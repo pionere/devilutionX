@@ -163,6 +163,8 @@ bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsign
 		if (createGame) {
 			plr_self = 0;
 			connected_table[plr_self] = CON_CONNECTED;
+			proto.accept_self(plr_self);
+			peers[plr_self] = proto.active_connections[plr_self].peer;
 			return true;
 		}
 		// join game
@@ -236,6 +238,9 @@ bool zt_client<P>::recv_accept(packet& pkt)
 			if (pnum != plr_self) {
 				peers[pnum].from_addr(&*sit);
 				proto.accept_ep(peers[pnum], pnum);
+			} else {
+				peers[pnum].from_addr(&*sit);
+				proto.accept_self(pnum);
 			}
 		}
 		it++;

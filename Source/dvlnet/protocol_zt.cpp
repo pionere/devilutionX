@@ -222,6 +222,17 @@ bool protocol_zt::accept_all()
 	return true;
 }
 
+void protocol_zt::accept_self(int pnum)
+{
+	zts_sockaddr_storage myaddr;
+	if (!zerotier_current_addr(&myaddr)) {
+		DoLog("protocol_zt::get_local_addr zts_addr_get failed: %s", strerror(errno));
+		return;
+	}
+	active_connections[pnum].peer.from_addr(((zts_sockaddr_in6*)&myaddr)->sin6_addr.un.u8_addr);
+	active_connections[pnum].status = CS_ACTIVE;
+	// assert(active_connections[pnum].sock == -1);
+}
 
 void protocol_zt::accept_ep(const endpoint& peer, int pnum)
 {
@@ -296,6 +307,7 @@ void protocol_zt::disconnect(int pnum)
 	for (auto frame : ap.send_frame_queue) {
 		delete frame;
 	}
+	ap.peer = endpoint();
 	ap.send_frame_queue.clear();
 	ap.status = CS_INACTIVE;
 	ap.recv_queue.clear();

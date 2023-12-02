@@ -3,12 +3,15 @@
 
 #include "../defs.h"
 
+#include <ZeroTierSockets.h>
+
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 bool zerotier_network_ready();
 void zerotier_network_start();
 void zerotier_network_stop();
+bool zerotier_current_addr(zts_sockaddr_storage* addr);
 
 // NOTE: We have patched our libzt to have the corresponding multicast
 // MAC hardcoded, since libzt is still missing the proper handling.

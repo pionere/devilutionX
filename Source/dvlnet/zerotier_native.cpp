@@ -95,6 +95,11 @@ void zerotier_network_stop()
 	// zts_node_free();*/
 }
 
+bool zerotier_current_addr(zts_sockaddr_storage* addr)
+{
+	return zts_addr_get(ZtNetwork, ZTS_AF_INET6, addr) == ZTS_ERR_OK;
+}
+
 } // namespace net
 DEVILUTION_END_NAMESPACE
 #endif // ZEROTIER

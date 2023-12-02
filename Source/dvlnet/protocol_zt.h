@@ -50,6 +50,15 @@ public:
 		void to_addr(unsigned char* dest_addr) const;
 		void to_buffer(buffer_t& buf) const;
 	};
+	typedef struct peer_connection {
+		int status = CS_INACTIVE; // client_status
+		int sock = -1;  // connected socket-id
+		endpoint peer;
+		std::deque<buffer_t*> send_frame_queue;
+		frame_queue recv_queue;
+	} peer_connection;
+
+	peer_connection active_connections[MAX_PLRS] = { };
 
 	protocol_zt();
 	~protocol_zt();
@@ -61,6 +70,7 @@ public:
 	bool get_disconnected(endpoint& peer);
 	void connect_ep(const endpoint& peer, int pnum);
 	void accept_ep(const endpoint& peer, int pnum);
+	void accept_self(int pnum);
 	bool network_online();
 	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	void close();
@@ -68,13 +78,6 @@ public:
 private:
 	static constexpr uint16_t DEFAULT_PORT = 6112;
 
-	typedef struct peer_connection {
-		int status = CS_INACTIVE; // client_status
-		int sock = -1;  // connected socket-id
-		endpoint peer;
-		std::deque<buffer_t*> send_frame_queue;
-		frame_queue recv_queue;
-	} peer_connection;
 	typedef struct pending_connection {
 		int sock; // connected socket-id + 1
 		endpoint peer;
@@ -84,7 +87,6 @@ private:
 	std::deque<std::pair<endpoint, buffer_t>> oob_recv_queue;
 	std::deque<endpoint> disconnect_queue;
 
-	peer_connection active_connections[MAX_PLRS] = { };
 	pending_connection pending_connections[MAX_PLRS] = { };
 	int fd_tcp = -1;
 	int fd_udp = -1;
