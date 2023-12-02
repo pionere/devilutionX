@@ -200,9 +200,10 @@ bool zt_client<P>::recv_connect(packet& pkt)
 	plr_t pnum = pkt.pktConnectPlr();
 	// assert(!peers[pnum])
 
-	auto addr = buffer_t(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
-	if (addr.size() == peers[pnum].addr.size())
-		memcpy(peers[pnum].addr.data(), addr.data(), peers[pnum].addr.size());
+	auto sit = pkt.pktConnectAddrBegin();
+	if (pkt.pktConnectAddrEnd() - sit == peers[pnum].addr.size()) {
+		peers[pnum].from_addr(&*it);
+	}
 	return true;
 }
 
@@ -227,7 +228,7 @@ bool zt_client<P>::recv_accept(packet& pkt)
 			it++;
 		}
 		if (it - sit == peers[pnum].addr.size()) {
-			memcpy(peers[pnum].addr.data(), &*sit, peers[pnum].addr.size());
+			peers[pnum].from_addr(&*sit);
 		}
 		it++;
 	}
