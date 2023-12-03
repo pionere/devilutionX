@@ -58,8 +58,10 @@ template <class P>
 plr_t zt_client<P>::get_master()
 {
 	for (plr_t i = 0; i < MAX_PLRS; i++)
-		if (proto.active_connections[i].peer)
+		if (proto.active_connections[i].status != CS_INACTIVE) {
+			// assert(proto.active_connections[i].peer);
 			return i;
+		}
 	return plr_self;
 }
 
@@ -182,15 +184,19 @@ void zt_client<P>::send_packet(packet& pkt)
 
 	if (dest == PLR_BROADCAST) {
 		for (plr_t i = 0; i < MAX_PLRS; i++)
-			if (i != src && proto.active_connections[i].peer)
+			if (i != src && proto.active_connections[i].status != CS_INACTIVE) {
+				// assert(proto.active_connections[i].peer);
 				proto.send(i, pkt.encrypted_data());
+			}
 	} else {
 		if (dest >= MAX_PLRS) {
 			// DoLog("Invalid destination %d", dest);
 			return;
 		}
-		if ((dest != src) && proto.active_connections[dest].peer)
+		if ((dest != src) && proto.active_connections[dest].status != CS_INACTIVE) {
+			// assert(proto.active_connections[dest].peer);
 			proto.send(dest, pkt.encrypted_data());
+		}
 	}
 }
 
@@ -267,7 +273,8 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	packet* reply;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (pnum != plr_self && !proto.active_connections[pnum].peer) {
+		if (pnum != plr_self && proto.active_connections[pnum].status == CS_INACTIVE) {
+			// assert(!proto.active_connections[pnum].peer);
 			break;
 		}
 	}
@@ -281,7 +288,8 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	buffer_t addrs;
 	pmask = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (proto.active_connections[i].peer) {
+		if (proto.active_connections[i].status != CS_INACTIVE) {
+			// assert(proto.active_connections[i].peer);
 			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_join_request can not send the active connections to the client.");
 			pmask |= 1 << i;
 			proto.active_connections[i].peer.to_buffer(addrs);
