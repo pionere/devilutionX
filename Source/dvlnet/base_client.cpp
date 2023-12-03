@@ -1,5 +1,5 @@
 #include "base_client.h"
-
+#ifndef NONET
 #include <cstring>
 #include <memory>
 
@@ -407,3 +407,4 @@ void base_client::SNetDisconnect()
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // !NONET

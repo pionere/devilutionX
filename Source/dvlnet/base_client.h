@@ -1,5 +1,5 @@
 #pragma once
-
+#ifndef NONET
 #include <deque>
 #include <map>
 #include <memory>
@@ -69,3 +69,4 @@ private:
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // !NONET
