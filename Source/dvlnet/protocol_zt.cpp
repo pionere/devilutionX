@@ -230,7 +230,7 @@ void protocol_zt::accept_self(int pnum)
 		return;
 	}
 	active_connections[pnum].peer.from_addr(((zts_sockaddr_in6*)&myaddr)->sin6_addr.un.u8_addr);
-	active_connections[pnum].status = CS_ACTIVE;
+	active_connections[pnum].status = CS_ACTIVE_SELF;
 	// assert(active_connections[pnum].sock == -1);
 }
 

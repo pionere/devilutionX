@@ -1,9 +1,7 @@
 #pragma once
 #ifdef ZEROTIER
 #include <string>
-#include <set>
 #include <deque>
-#include <map>
 #include <array>
 #include <algorithm>
 
@@ -15,6 +13,7 @@ namespace net {
 typedef enum client_status {
 	CS_INACTIVE,
 	CS_ACTIVE,
+	CS_ACTIVE_SELF,
 	CS_PENDING,
 } client_status;
 
