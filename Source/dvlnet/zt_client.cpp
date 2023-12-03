@@ -202,16 +202,17 @@ bool zt_client::recv_accept(packet& pkt)
 
 void zt_client::poll()
 {
-	buffer_t pkt_buf;
-	endpoint sender;
-	while (proto.recv(sender, pkt_buf)) { // read until kernel buffer is empty?
-		packet* pkt = pktfty.make_in_packet(pkt_buf);
-		if (pkt != NULL)
-			handle_recv_packet(*pkt, sender);
-		else
-			disconnect_peer(sender);
-		delete pkt;
-	}
+	proto.poll(this);
+}
+
+void zt_client::handle_recv(endpoint& sender, buffer_t& data)
+{
+	packet* pkt = pktfty.make_in_packet(data);
+	if (pkt != NULL)
+		handle_recv_packet(*pkt, sender);
+	else
+		disconnect_peer(sender);
+	delete pkt;
 }
 
 void zt_client::handle_join_request(packet& pkt, const endpoint& sender)

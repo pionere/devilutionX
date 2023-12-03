@@ -17,6 +17,8 @@ typedef enum client_status {
 	CS_PENDING,
 } client_status;
 
+class zt_client;
+
 class protocol_zt {
 public:
 	class endpoint {
@@ -61,11 +63,11 @@ public:
 
 	protocol_zt();
 	~protocol_zt();
+	void poll(zt_client* client);
 	void disconnect(int pnum);
 	void send(int pnum, const buffer_t& data);
 	bool send_oob(const endpoint& peer, const buffer_t& data) const;
 	bool send_oob_mc(const buffer_t& data) const;
-	bool recv(endpoint& peer, buffer_t& data);
 	void connect_ep(const unsigned char* addr, int pnum);
 	void accept_ep(const unsigned char* addr, int pnum);
 	void accept_self(int pnum);
@@ -98,6 +100,7 @@ private:
 	bool recv_from_peers();
 	bool recv_from_udp();
 	bool accept_all();
+	bool recv(endpoint& peer, buffer_t& data);
 };
 
 } // namespace net

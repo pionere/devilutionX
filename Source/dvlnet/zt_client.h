@@ -9,12 +9,15 @@ DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
 class zt_client : public base_client {
+	typedef typename protocol_zt::endpoint endpoint;
 public:
 	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
 
 	void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]) override;
 	void get_gamelist(std::vector<SNetZtGame>& games);
 	bool network_ready();
+
+	void handle_recv(endpoint& peer, buffer_t& data);
 
 	virtual ~zt_client() = default;
 
@@ -28,7 +31,6 @@ protected:
 
 private:
 	protocol_zt proto;
-	typedef typename protocol_zt::endpoint endpoint;
 	typedef std::array<char, NET_MAX_GAMENAME_LEN + 1> gamename_t;
 	typedef struct game_details {
 		SNetZtGame ztGamedata;

@@ -6,6 +6,7 @@
 
 #include "dvlnet/zerotier_lwip.h"
 #include "dvlnet/zerotier_native.h"
+#include "dvlnet/zt_client.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -285,6 +286,15 @@ bool protocol_zt::recv(endpoint& peer, buffer_t& data)
 		}
 	}
 	return false;
+}
+
+void protocol_zt::poll(zt_client* client)
+{
+	buffer_t pkt_buf;
+	endpoint sender;
+	while (recv(sender, pkt_buf)) { // read until kernel buffer is empty?
+		client->handle_recv(sender, pkt_buf);
+	}
 }
 
 void protocol_zt::disconnect(int pnum)
