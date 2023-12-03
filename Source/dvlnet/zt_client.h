@@ -43,6 +43,7 @@ private:
 	std::map<gamename_t, game_details> game_list;
 
 	plr_t get_master();
+	plr_t next_free_conn();
 	void disconnect_peer(const endpoint& peer);
 	void send_info_request();
 	void handle_join_request(packet& pkt, const endpoint& sender);
@@ -63,6 +64,20 @@ plr_t zt_client<P>::get_master()
 			return i;
 		}
 	return plr_self;
+}
+
+template <class P>
+plr_t zt_client<P>::next_free_conn()
+{
+	int i;
+
+	for (i = 0; i < MAX_PLRS; i++) {
+		if (proto.active_connections[i].status == CS_INACTIVE) {
+			// assert(!proto.active_connections[i].peer);
+			break;
+		}
+	}
+	return i < game_init_info.ngMaxPlayers ? i : MAX_PLRS;
 }
 
 template <class P>
@@ -272,12 +287,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	plr_t i, pnum, pmask;
 	packet* reply;
 
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (pnum != plr_self && proto.active_connections[pnum].status == CS_INACTIVE) {
-			// assert(!proto.active_connections[pnum].peer);
-			break;
-		}
-	}
+	pnum = next_free_conn();
 	if (pnum >= MAX_PLRS) {
 		// already full
 		return;
