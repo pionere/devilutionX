@@ -5,12 +5,11 @@
 #include <memory>
 
 #include "base_client.h"
-#include "packet.h"
+#include "protocol_zt.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
 
-template <class P>
 class zt_client : public base_client {
 public:
 	bool setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256]) override;
@@ -30,8 +29,8 @@ protected:
 	void close() override;
 
 private:
-	P proto;
-	typedef typename P::endpoint endpoint;
+	protocol_zt proto;
+	typedef typename protocol_zt::endpoint endpoint;
 	typedef std::array<char, NET_MAX_GAMENAME_LEN + 1> gamename_t;
 	typedef struct game_details {
 		SNetZtGame ztGamedata;
@@ -55,8 +54,7 @@ private:
 	bool wait_firstpeer(endpoint& peer);
 };
 
-template <class P>
-plr_t zt_client<P>::get_master()
+plr_t zt_client::get_master()
 {
 	for (plr_t i = 0; i < MAX_PLRS; i++)
 		if (proto.active_connections[i].status != CS_INACTIVE) {
@@ -66,8 +64,7 @@ plr_t zt_client<P>::get_master()
 	return plr_self;
 }
 
-template <class P>
-plr_t zt_client<P>::next_free_conn()
+plr_t zt_client::next_free_conn()
 {
 	int i;
 
@@ -80,8 +77,7 @@ plr_t zt_client<P>::next_free_conn()
 	return i < game_init_info.ngMaxPlayers ? i : MAX_PLRS;
 }
 
-template <class P>
-void zt_client<P>::disconnect_peer(const endpoint& peer)
+void zt_client::disconnect_peer(const endpoint& peer)
 {
 	for (plr_t i = 0; i < MAX_PLRS; i++) {
 		if (proto.active_connections[i].peer == peer) {
@@ -90,8 +86,7 @@ void zt_client<P>::disconnect_peer(const endpoint& peer)
 	}
 }
 
-template <class P>
-bool zt_client<P>::wait_network()
+bool zt_client::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
 	for (int i = 500; ; ) {
@@ -104,14 +99,12 @@ bool zt_client<P>::wait_network()
 	return false;
 }
 
-template <class P>
-void zt_client<P>::disconnect_net(plr_t pnum)
+void zt_client::disconnect_net(plr_t pnum)
 {
 	proto.disconnect(pnum);
 }
 
-template <class P>
-bool zt_client<P>::wait_firstpeer(endpoint& peer)
+bool zt_client::wait_firstpeer(endpoint& peer)
 {
 	send_info_request();
 
@@ -130,16 +123,14 @@ bool zt_client<P>::wait_firstpeer(endpoint& peer)
 	return false;
 }
 
-template <class P>
-void zt_client<P>::send_info_request()
+void zt_client::send_info_request()
 {
 	packet* pkt = pktfty.make_out_packet<PT_INFO_REQUEST>(PLR_BROADCAST, PLR_MASTER);
 	proto.send_oob_mc(pkt->encrypted_data());
 	delete pkt;
 }
 
-template <class P>
-bool zt_client<P>::wait_join()
+bool zt_client::wait_join()
 {
 	endpoint peer;
 	if (!wait_firstpeer(peer))
@@ -161,8 +152,7 @@ bool zt_client<P>::wait_join()
 	return false;
 }
 
-template <class P>
-bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
+bool zt_client::setup_game(_uigamedata* gameData, const char* addrstr, unsigned port, const char* passwd, char (&errorText)[256])
 {
 	bool createGame;
 
@@ -191,8 +181,7 @@ bool zt_client<P>::setup_game(_uigamedata* gameData, const char* addrstr, unsign
 	return false;
 }
 
-template <class P>
-void zt_client<P>::send_packet(packet& pkt)
+void zt_client::send_packet(packet& pkt)
 {
 	plr_t dest = pkt.pktDest();
 	plr_t src = pkt.pktSrc();
@@ -215,8 +204,7 @@ void zt_client<P>::send_packet(packet& pkt)
 	}
 }
 
-template <class P>
-bool zt_client<P>::recv_connect(packet& pkt)
+bool zt_client::recv_connect(packet& pkt)
 { 
 	if (!base_client::recv_connect(pkt))
 		return false;
@@ -231,8 +219,7 @@ bool zt_client<P>::recv_connect(packet& pkt)
 	return true;
 }
 
-template <class P>
-bool zt_client<P>::recv_accept(packet& pkt)
+bool zt_client::recv_accept(packet& pkt)
 {
 	if (!base_client::recv_accept(pkt)) {
 		return false;
@@ -263,8 +250,7 @@ bool zt_client<P>::recv_accept(packet& pkt)
 	return true;
 }
 
-template <class P>
-void zt_client<P>::poll()
+void zt_client::poll()
 {
 	buffer_t pkt_buf;
 	endpoint sender;
@@ -281,8 +267,7 @@ void zt_client<P>::poll()
 	}
 }
 
-template <class P>
-void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
+void zt_client::handle_join_request(packet& pkt, const endpoint& sender)
 {
 	plr_t i, pnum, pmask;
 	packet* reply;
@@ -316,8 +301,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	delete reply;
 }
 
-template <class P>
-void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
+void zt_client::recv_ctrl(packet& pkt, const endpoint& sender)
 {
 	packet_type pkt_type = pkt.pktType();
 	if (pkt_type == PT_INFO_REPLY) {
@@ -353,8 +337,7 @@ void zt_client<P>::recv_ctrl(packet& pkt, const endpoint& sender)
 	}
 }
 
-template <class P>
-void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
+void zt_client::handle_recv_packet(packet& pkt, const endpoint& sender)
 {
 	plr_t src = pkt.pktSrc();
 
@@ -380,14 +363,12 @@ void zt_client<P>::handle_recv_packet(packet& pkt, const endpoint& sender)
 	recv_local(pkt);
 }
 
-template <class P>
-bool zt_client<P>::network_ready()
+bool zt_client::network_ready()
 {
 	return proto.network_online();
 }
 
-template <class P>
-void zt_client<P>::get_gamelist(std::vector<SNetZtGame>& games)
+void zt_client::get_gamelist(std::vector<SNetZtGame>& games)
 {
 	// assert(network_ready());
 	poll();
@@ -404,8 +385,7 @@ void zt_client<P>::get_gamelist(std::vector<SNetZtGame>& games)
 	}
 }
 
-template <class P>
-void zt_client<P>::close()
+void zt_client::close()
 {
 	// game_list.clear();
 	proto.close();
@@ -413,8 +393,7 @@ void zt_client<P>::close()
 	base_client::close();
 }
 
-template <class P>
-void zt_client<P>::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
+void zt_client::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	proto.make_default_gamename(gamename);
 }

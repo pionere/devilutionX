@@ -1,7 +1,6 @@
 #include "storm_net.h"
 
 #include "dvlnet/abstract_net.h"
-#include "dvlnet/protocol_zt.h"
 #include "dvlnet/zt_client.h"
 #include "all.h"
 
@@ -101,12 +100,12 @@ unsigned SNetGetTurnsInTransit()
 #ifdef ZEROTIER
 bool SNetReady()
 {
-	return (static_cast<net::zt_client<net::protocol_zt>*>(&*dvlnet_inst))->network_ready();
+	return (static_cast<net::zt_client*>(&*dvlnet_inst))->network_ready();
 }
 
 void SNetGetGamelist(std::vector<SNetZtGame>& games)
 {
-	return (static_cast<net::zt_client<net::protocol_zt>*>(&*dvlnet_inst))->get_gamelist(games);
+	return (static_cast<net::zt_client*>(&*dvlnet_inst))->get_gamelist(games);
 }
 #endif
 

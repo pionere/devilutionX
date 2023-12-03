@@ -1,7 +1,6 @@
 #include "abstract_net.h"
 
 #include "dvlnet/loopback.h"
-#include "dvlnet/protocol_zt.h"
 #include "dvlnet/tcp_client.h"
 #include "dvlnet/tcpd_client.h"
 #include "dvlnet/tcp_host.h"
@@ -30,7 +29,7 @@ abstract_net* abstract_net::make_net(unsigned provider)
 #ifndef HOSTONLY
 #ifdef ZEROTIER
 	case SELCONN_ZT:
-		return new zt_client<protocol_zt>();
+		return new zt_client();
 #endif
 	case SELCONN_LOOPBACK:
 		return new loopback();
