@@ -184,7 +184,7 @@ void zt_client<P>::send_packet(packet& pkt)
 
 	if (dest == PLR_BROADCAST) {
 		for (plr_t i = 0; i < MAX_PLRS; i++)
-			if (i != src && proto.active_connections[i].status != CS_INACTIVE) {
+			if (i != src && proto.active_connections[i].status != CS_INACTIVE && proto.active_connections[i].status != CS_ACTIVE_SELF) {
 				// assert(proto.active_connections[i].peer);
 				proto.send(i, pkt.encrypted_data());
 			}
@@ -302,6 +302,7 @@ void zt_client<P>::handle_join_request(packet& pkt, const endpoint& sender)
 	// notify the old players
 	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)sender.addr.data(), (unsigned)sender.addr.size());
 	send_packet(*reply);
+	recv_local(*reply); // TODO: handle CS_ACTIVE_SELF in proto.send ?
 	delete reply;
 }
 
