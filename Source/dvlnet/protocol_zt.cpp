@@ -287,16 +287,6 @@ bool protocol_zt::recv(endpoint& peer, buffer_t& data)
 	return false;
 }
 
-bool protocol_zt::get_disconnected(endpoint& peer)
-{
-	if (!disconnect_queue.empty()) {
-		peer = disconnect_queue.front();
-		disconnect_queue.pop_front();
-		return true;
-	}
-	return false;
-}
-
 void protocol_zt::disconnect(int pnum)
 {
 	peer_connection& ap = active_connections[pnum];
@@ -318,7 +308,6 @@ void protocol_zt::close()
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		disconnect(pnum);
 	}
-	disconnect_queue.clear();
 }
 
 protocol_zt::~protocol_zt()

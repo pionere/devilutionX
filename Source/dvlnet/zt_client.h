@@ -1,8 +1,6 @@
 #pragma once
 #ifdef ZEROTIER
-#include <string>
 #include <map>
-#include <memory>
 
 #include "base_client.h"
 #include "protocol_zt.h"

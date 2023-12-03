@@ -66,7 +66,6 @@ public:
 	bool send_oob(const endpoint& peer, const buffer_t& data) const;
 	bool send_oob_mc(const buffer_t& data) const;
 	bool recv(endpoint& peer, buffer_t& data);
-	bool get_disconnected(endpoint& peer);
 	void connect_ep(const unsigned char* addr, int pnum);
 	void accept_ep(const unsigned char* addr, int pnum);
 	void accept_self(int pnum);
@@ -84,7 +83,6 @@ private:
 	} pending_connection;
 	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
 	std::deque<std::pair<endpoint, buffer_t>> oob_recv_queue;
-	std::deque<endpoint> disconnect_queue;
 
 	pending_connection pending_connections[MAX_PLRS] = { };
 	int fd_tcp = -1;

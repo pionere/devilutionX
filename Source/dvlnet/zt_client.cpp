@@ -212,9 +212,6 @@ void zt_client::poll()
 			disconnect_peer(sender);
 		delete pkt;
 	}
-	while (proto.get_disconnected(sender)) {
-		disconnect_peer(sender);
-	}
 }
 
 void zt_client::handle_join_request(packet& pkt, const endpoint& sender)
