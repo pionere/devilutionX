@@ -518,6 +518,7 @@ set(devilutionx_SRCS
   Source/dvlnet/tcp_host.cpp
   Source/dvlnet/zerotier_native.cpp
   Source/dvlnet/zerotier_lwip.cpp
+  Source/dvlnet/zt_client.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
