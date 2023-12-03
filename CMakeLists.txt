@@ -511,6 +511,13 @@ set(devilutionx_SRCS
   Source/dvlnet/frame_queue.cpp
   Source/dvlnet/loopback.cpp
   Source/dvlnet/packet.cpp
+  Source/dvlnet/protocol_zt.cpp
+  Source/dvlnet/tcp_client.cpp
+  Source/dvlnet/tcp_server.cpp
+  Source/dvlnet/tcpd_client.cpp
+  Source/dvlnet/tcp_host.cpp
+  Source/dvlnet/zerotier_native.cpp
+  Source/dvlnet/zerotier_lwip.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
@@ -528,17 +535,6 @@ set(devilutionx_SRCS
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp
   Source/utils/utf8.cpp)
-
-if(NOT NONET)
-  list(APPEND devilutionx_SRCS
-    Source/dvlnet/tcp_client.cpp
-    Source/dvlnet/tcp_server.cpp
-    Source/dvlnet/tcpd_client.cpp
-    Source/dvlnet/tcp_host.cpp
-    Source/dvlnet/protocol_zt.cpp
-    Source/dvlnet/zerotier_native.cpp
-    Source/dvlnet/zerotier_lwip.cpp)
-endif()
 
 if(IOS)
   list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
