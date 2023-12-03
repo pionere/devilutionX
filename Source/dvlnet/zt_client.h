@@ -41,6 +41,8 @@ private:
 	gamename_t gamename;
 	std::map<gamename_t, game_details> game_list;
 
+	Uint32 ghost_connections[MAX_PLRS] = { };
+
 	plr_t get_master();
 	plr_t next_free_conn();
 	void disconnect_peer(const endpoint& peer);

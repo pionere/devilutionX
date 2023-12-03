@@ -19,7 +19,7 @@ plr_t zt_client::next_free_conn()
 	int i;
 
 	for (i = 0; i < MAX_PLRS; i++) {
-		if (proto.active_connections[i].status == CS_INACTIVE) {
+		if (proto.active_connections[i].status == CS_INACTIVE && ghost_connections[i] == 0) {
 			// assert(!proto.active_connections[i].peer);
 			break;
 		}
@@ -52,6 +52,10 @@ bool zt_client::wait_network()
 void zt_client::disconnect_net(plr_t pnum)
 {
 	proto.disconnect(pnum);
+
+	if (get_master() == plr_self) {
+		ghost_connections[pnum] = SDL_GetTicks() + NET_TIMEOUT_GHOST * NET_TIMEOUT_BASE * 1000;
+	}
 }
 
 bool zt_client::wait_firstpeer(endpoint& peer)
@@ -203,6 +207,12 @@ bool zt_client::recv_accept(packet& pkt)
 void zt_client::poll()
 {
 	proto.poll(this);
+
+	for (Uint32 &gc : ghost_connections) {
+		if (gc != 0 && gc < SDL_GetTicks()) {
+			gc = 0;
+		}
+	}
 }
 
 void zt_client::handle_recv(endpoint& sender, buffer_t& data)
@@ -337,6 +347,8 @@ void zt_client::close()
 {
 	// game_list.clear();
 	proto.close();
+
+	memset(ghost_connections, 0, sizeof(ghost_connections));
 
 	base_client::close();
 }
