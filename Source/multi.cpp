@@ -191,7 +191,11 @@ static void multi_parse_turns()
 	mem_free_dbg(turn);
 #ifndef NONET
 	if (guSendGameDelta != 0) {
+#ifdef ZEROTIER
+		if (provider == SELCONN_ZT || !gbJoinGame) {
+#else
 		if (!gbJoinGame) {
+#endif
 			DeltaExportData(guSendGameDelta);
 		}
 		guSendGameDelta = 0;
