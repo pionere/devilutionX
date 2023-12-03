@@ -266,11 +266,6 @@ void protocol_zt::connect_ep(const unsigned char* addr, int pnum)
 
 bool protocol_zt::recv(endpoint& peer, buffer_t& data)
 {
-	accept_all();
-	send_queued_all();
-	recv_from_peers();
-	recv_from_udp();
-
 	if (!oob_recv_queue.empty()) {
 		peer = oob_recv_queue.front().first;
 		data = oob_recv_queue.front().second;
@@ -290,11 +285,18 @@ bool protocol_zt::recv(endpoint& peer, buffer_t& data)
 
 void protocol_zt::poll(zt_client* client)
 {
+	accept_all();
+
+	recv_from_peers();
+	recv_from_udp();
+
 	buffer_t pkt_buf;
 	endpoint sender;
 	while (recv(sender, pkt_buf)) { // read until kernel buffer is empty?
 		client->handle_recv(sender, pkt_buf);
 	}
+
+	send_queued_all();
 }
 
 void protocol_zt::disconnect(int pnum)
