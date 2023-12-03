@@ -318,6 +318,7 @@ void protocol_zt::close()
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		disconnect(pnum);
 	}
+	oob_recv_queue.clear();
 }
 
 protocol_zt::~protocol_zt()
