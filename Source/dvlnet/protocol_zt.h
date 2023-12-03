@@ -97,8 +97,8 @@ private:
 	bool send_queued_peer(peer_connection& pc);
 	bool recv_peer(peer_connection& pc);
 	bool send_queued_all();
-	bool recv_from_peers();
-	bool recv_from_udp();
+	void recv_from_peers();
+	void recv_from_udp();
 	bool accept_all();
 	bool recv(endpoint& peer, buffer_t& data);
 };
