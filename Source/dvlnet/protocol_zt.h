@@ -84,7 +84,6 @@ private:
 		uint32_t timeout;
 	} pending_connection;
 	buffer_t recv_buffer = buffer_t(frame_queue::MAX_FRAME_SIZE);
-	std::deque<std::pair<endpoint, buffer_t>> oob_recv_queue;
 
 	pending_connection pending_connections[MAX_PLRS] = { };
 	int fd_tcp = -1;
@@ -97,10 +96,9 @@ private:
 	bool send_queued_peer(peer_connection& pc);
 	void recv_peer(peer_connection& pc);
 	bool send_queued_all();
-	void recv_from_peers();
-	void recv_from_udp();
+	void recv_from_peers(zt_client* client);
+	void recv_from_udp(zt_client* client);
 	bool accept_all();
-	bool recv(endpoint& peer, buffer_t& data);
 };
 
 } // namespace net

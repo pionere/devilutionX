@@ -150,16 +150,20 @@ bool protocol_zt::send_queued_all()
 	return true;
 }
 
-void protocol_zt::recv_from_peers()
+void protocol_zt::recv_from_peers(zt_client* client)
 {
 	for (peer_connection& ap : active_connections) {
 		if (ap.sock != -1) {
 			recv_peer(ap);
+			while (ap.recv_queue.packet_ready()) {
+				buffer_t pkt_buf = ap.recv_queue.read_packet();
+				client->handle_recv(ap.peer, pkt_buf);
+			}
 		}
 	}
 }
 
-void protocol_zt::recv_from_udp()
+void protocol_zt::recv_from_udp(zt_client* client)
 {
 	struct sockaddr_in6 in6 {
 	};
@@ -170,7 +174,8 @@ void protocol_zt::recv_from_udp()
 			break;
 		endpoint ep;
 		ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
-		oob_recv_queue.emplace_back(ep, buffer_t(recv_buffer.begin(), recv_buffer.begin() + len));
+		buffer_t pkt_buf = buffer_t(recv_buffer.begin(), recv_buffer.begin() + len);
+		client->handle_recv(ep, pkt_buf);
 	}
 }
 
@@ -262,37 +267,12 @@ void protocol_zt::connect_ep(const unsigned char* addr, int pnum)
 	active_connections[pnum].status = CS_ACTIVE;
 }
 
-bool protocol_zt::recv(endpoint& peer, buffer_t& data)
-{
-	if (!oob_recv_queue.empty()) {
-		peer = oob_recv_queue.front().first;
-		data = oob_recv_queue.front().second;
-		oob_recv_queue.pop_front();
-		return true;
-	}
-
-	for (peer_connection& ap : active_connections) {
-		if (ap.recv_queue.packet_ready()) {
-			peer = ap.peer;
-			data = ap.recv_queue.read_packet();
-			return true;
-		}
-	}
-	return false;
-}
-
 void protocol_zt::poll(zt_client* client)
 {
 	accept_all();
 
-	recv_from_peers();
-	recv_from_udp();
-
-	buffer_t pkt_buf;
-	endpoint sender;
-	while (recv(sender, pkt_buf)) { // read until kernel buffer is empty?
-		client->handle_recv(sender, pkt_buf);
-	}
+	recv_from_peers(client);
+	recv_from_udp(client);
 
 	send_queued_all();
 }
@@ -303,13 +283,6 @@ void protocol_zt::disconnect(int pnum)
 	if (ap.sock != -1) {
 		lwip_close(ap.sock);
 		ap.sock = -1;
-	}
-	for (auto it = oob_recv_queue.begin(); it != oob_recv_queue.end(); ) {
-		if (it->first == ap.peer) {
-			it = oob_recv_queue.erase(it);
-		} else {
-			it++;
-		}
 	}
 	for (auto frame : ap.send_frame_queue) {
 		delete frame;
@@ -325,7 +298,6 @@ void protocol_zt::close()
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		disconnect(pnum);
 	}
-	oob_recv_queue.clear();
 }
 
 protocol_zt::~protocol_zt()
