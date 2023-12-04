@@ -93,7 +93,7 @@ private:
 	static void set_nodelay(int fd);
 	static void set_reuseaddr(int fd);
 
-	bool send_queued_peer(peer_connection& pc);
+	void send_queued_peer(peer_connection& pc);
 	void recv_peer(peer_connection& pc);
 	bool send_queued_all();
 	void recv_from_peers(zt_client* client);

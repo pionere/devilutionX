@@ -100,30 +100,25 @@ bool protocol_zt::send_oob_mc(const buffer_t& data) const
 	return send_oob(mc, data);
 }
 
-bool protocol_zt::send_queued_peer(peer_connection& pc)
+void protocol_zt::send_queued_peer(peer_connection& pc)
 {
 	while (!pc.send_frame_queue.empty()) {
 		buffer_t* frame = pc.send_frame_queue.front();
 		size_t len = frame->size();
 		auto r = lwip_send(pc.sock, frame->data(), len, 0);
 		if (r < 0) {
-			// handle error
-			return false;
+			break; // handle error?
 		}
 		if (decltype(len)(r) < len) {
 			// partial send
 			auto it = frame->begin();
 			frame->erase(it, it + r);
-			return true;
+			break;
 		}
-		if (decltype(len)(r) == len) {
-			delete frame;
-			pc.send_frame_queue.pop_front();
-		} else {
-			return false;
-		}
+		// assert(decltype(len)(r) == len);
+		delete frame;
+		pc.send_frame_queue.pop_front();
 	}
-	return true;
 }
 
 void protocol_zt::recv_peer(peer_connection& pc)
@@ -142,9 +137,7 @@ bool protocol_zt::send_queued_all()
 {
 	for (peer_connection& ap : active_connections) {
 		if (ap.sock != -1) {
-			if (!send_queued_peer(ap)) {
-				// handle error?
-			}
+			send_queued_peer(ap);
 		}
 	}
 	return true;
