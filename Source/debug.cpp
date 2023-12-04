@@ -93,7 +93,7 @@ static void PrintText(const char* text, char lineSep, int limit)
 		s = ReadTextLine(s, lineSep, limit);
 		w = GetSmallStringWidth(tempstr);
 
-		// LogErrorF("TXT", "%03d(%04d):%s", i++, w, tempstr);
+		// LogErrorF("%03d(%04d):%s", i++, w, tempstr);
 		if (col == COL_RED)
 			fputc('$', textFile);
 		fputs(tempstr, textFile);
@@ -122,7 +122,11 @@ void ValidateData()
 	cookie_t cookie = 123456;
 	const BYTE dynData[16] = "lwkejfwip";
 	const BYTE (&addr)[16] = dynData;
-	SNetGameData gameData;	
+	const BYTE (&addrs)[16] = dynData;
+	SNetGameData gameData;
+#ifdef ZEROTIER
+	SNetZtGame ztGameData;
+#endif
 	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
 	if (!pkt->validate()) {
 		app_fatal("PT_MESSAGE is invalid");
@@ -138,12 +142,12 @@ void ValidateData()
 		app_fatal("PT_JOIN_REQUEST is invalid");
 	}
 	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask);
+	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
 	if (!pkt->validate()) {
 		app_fatal("PT_JOIN_ACCEPT is invalid");
 	}
 	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, addr, sizeof(addr));
+	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
 	if (!pkt->validate()) {
 		app_fatal("PT_CONNECT is invalid");
 	}
@@ -159,7 +163,7 @@ void ValidateData()
 		app_fatal("PT_INFO_REQUEST is invalid");
 	}
 	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, dynData, sizeof(dynData));
+	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
 	if (!pkt->validate()) {
 		app_fatal("PT_INFO_REPLY is invalid");
 	}
@@ -724,7 +728,7 @@ void ValidateData()
 					ws++;
 			}
 		}
-		LogErrorF("ITEMAFF", "Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
+		LogErrorF("Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
 	}
 #endif
 	// unique items
@@ -1209,7 +1213,7 @@ void ValidateData()
 #endif /* DEBUG_MODE || DEV_MODE */
 
 #if DEV_MODE
-void LogErrorF(const char* type, const char* msg, ...)
+void LogErrorF(const char* msg, ...)
 {
 	char tmp[256];
 	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
@@ -1252,6 +1256,11 @@ void LogErrorQ(const char* msg, ...)
 
 	va_end(va);
 
+	using namespace std::chrono;
+	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+	snprintf(tmp, sizeof(tmp), "%s @ %llu", tmp, ms.count());
+	// snprintf(tmp, sizeof(tmp), "%s @ %u", tmp, gdwGameLogicTurn);
+
 	errorMsgQueue.push_back(tmp);
 }
 
@@ -1265,11 +1274,6 @@ void LogDumpQ()
 
 	for (const std::string &msg : errorMsgQueue) {
 		fputs(msg.c_str(), f0);
-		using namespace std::chrono;
-		milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-		//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
-		snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
-		fputs(tmp, f0);
 
 		fputc('\n', f0);
 	}

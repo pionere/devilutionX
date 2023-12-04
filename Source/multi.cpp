@@ -56,10 +56,6 @@ static bool _gbTimeout;
 /* Turn-id when the delta was loaded. */
 turn_t guDeltaTurn;
 static bool _gbNetInited;
-/* The name/address of the current game. (multiplayer games) */
-const char* szGameName;
-/* The password of the current game. (multiplayer games) */
-const char* szGamePassword;
 /* The network-state of the players. (PCS_) */
 unsigned player_state[MAX_PLRS];
 
@@ -195,7 +191,11 @@ static void multi_parse_turns()
 	mem_free_dbg(turn);
 #ifndef NONET
 	if (guSendGameDelta != 0) {
+#ifdef ZEROTIER
+		if (provider == SELCONN_ZT || !gbJoinGame) {
+#else
 		if (!gbJoinGame) {
+#endif
 			DeltaExportData(guSendGameDelta);
 		}
 		guSendGameDelta = 0;
@@ -412,15 +412,15 @@ void multi_process_turn(SNetTurnPkt* turn)
 		//	plr._px = pkt->px;
 		//	plr._py = pkt->py;
 		//}
+		TCmd* cmd = (TCmd*)(pkt + 1);
 		if (!plr._pActive) {
 			// player is disconnected -> ignore the turn, but process CMD_JOINLEVEL/CMD_REQDELTA messages
-			TCmd* cmd = (TCmd*)(pkt + 1);
 			if (cmd->bCmd == CMD_JOINLEVEL || cmd->bCmd == CMD_REQDELTA) {
 				ParseCmd(pnum, cmd);
 			}
 			continue;
 		}
-		multi_process_turn_packet(pnum, (BYTE*)(pkt + 1), dwMsgSize);
+		multi_process_turn_packet(pnum, (BYTE*)cmd, dwMsgSize);
 	}
 	gdwLastGameTurn = turn->ntpTurn;
 	gdwGameLogicTurn = turn->ntpTurn * gbNetUpdateRate;
@@ -701,17 +701,33 @@ void multi_ui_handle_events(SNetEventHdr* pEvt)
 {
 	unsigned pnum;
 
-	assert(pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME);
+	if (pEvt->eventid == EVENT_TYPE_PLAYER_LEAVE_GAME) {
+		pnum = pEvt->playerid;
+		if (pnum == SNPLAYER_MASTER) {
+			EventPlrMsg("Server is down");
+		}
 
-	pnum = pEvt->playerid;
-	if (pnum == SNPLAYER_MASTER) {
-		EventPlrMsg("Server is down");
+		// dthread_remove_player(pnum);
+
+		if (gsDeltaData.ddDeltaSender == pnum)
+			gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
+#ifdef ZEROTIER
+	} else if (pEvt->eventid == EVENT_TYPE_PLAYER_INFO) {
+		SNetZtPlr *dest = ((SNetPlrInfoEvent*)pEvt)->nePlayers;
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (!plr._pActive) {
+				dest[pnum].npName[0] = '\0';
+				continue;
+			}
+			static_assert(sizeof(dest[pnum].npName) == sizeof(dest[pnum].npName), "multi_ui_handle_events can not copy the player's name.");
+			memcpy(dest[pnum].npName, plr._pName, sizeof(dest[pnum].npName));
+			dest[pnum].npClass = plr._pClass;
+			dest[pnum].npLevel = plr._pLevel;
+			dest[pnum].npRank = plr._pRank;
+			dest[pnum].npTeam = plr._pTeam;
+		}
+#endif
 	}
-
-	// dthread_remove_player(pnum);
-
-	if (gsDeltaData.ddDeltaSender == pnum)
-		gsDeltaData.ddDeltaSender = SNPLAYER_ALL;
 }
 
 void NetClose()
@@ -819,7 +835,6 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
-	SNetGetGameInfo(&szGameName, &szGamePassword);
 
 	InitQuests();
 	InitPortals();

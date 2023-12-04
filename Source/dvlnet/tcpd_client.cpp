@@ -111,33 +111,55 @@ plr_t tcpd_client::next_free_queue()
 	return i;
 }
 
-void tcpd_client::recv_connect(packet& pkt)
+bool tcpd_client::recv_accept(packet& pkt)
 {
-	base_client::recv_connect(pkt);
+	if (!tcp_client::recv_accept(pkt))
+		return false;
 
-	plr_t pnum = pkt.pktConnectPlr();
-	if (pnum == plr_self || pnum >= MAX_PLRS || active_connections[pnum] != NULL)
-		return;
-
-	std::string addrstr = std::string(pkt.pktConnectAddrBegin(), pkt.pktConnectAddrEnd());
-	int offset = addrstr.length() - NET_TCP_PORT_LENGTH;
-	int port = SDL_atoi(addrstr.data() + offset);
-	addrstr[offset - 1] = '\0';
-
-	auto cliCon = make_shared_cc(ioc);
-	asio::error_code err;
-	tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc, err);
-	if (err) {
-		DoLog("Failed to connect %s", err.message().c_str());
-		return;
+	// assert(pkt.pktType() == PT_JOIN_ACCEPT);
+	auto it = pkt.pktJoinAccAddrsBegin();
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		auto sit = it;
+		while (true) {
+			if (it == pkt.pktJoinAccAddrsEnd()) {
+				return false; // bad format -> skip
+			}
+			if (*it == ' ') {
+				break;
+			}
+			it++;
+		}
+		if (sit == it) {
+			it++;
+			continue;
+		}
+		std::string addrstr = std::string(sit, it);
+		it++;
+		int offset = addrstr.length() - (NET_TCP_PORT_LENGTH + 1);
+		if (offset <= 0) {
+			continue;
+		}
+		int port = SDL_atoi(addrstr.data() + offset + 1);
+		addrstr[offset] = '\0';
+		if (pnum == plr_self) {
+			continue;
+		}
+		auto cliCon = make_shared_cc(ioc);
+		asio::error_code err;
+		tcp_server::connect_socket(cliCon->socket, addrstr.c_str(), port, ioc, err);
+		if (err) {
+			DoLog("Failed to connect %s", err.message().c_str());
+			continue;
+		}
+		cliCon->pnum = pnum;
+		cliCon->timeout = NET_TIMEOUT_ACTIVE;
+		active_connections[pnum] = cliCon;
+		start_recv_conn(cliCon);
+		packet* joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, (cookie_t)0);
+		start_send(cliCon, *joinPkt);
+		delete joinPkt;
 	}
-	cliCon->pnum = pnum;
-	cliCon->timeout = NET_TIMEOUT_ACTIVE;
-	active_connections[pnum] = cliCon;
-	start_recv_conn(cliCon);
-	packet* joinPkt = pktfty.make_out_packet<PT_JOIN_REQUEST>(plr_self, PLR_BROADCAST, cookie_self);
-	start_send(cliCon, *joinPkt);
-	delete joinPkt;
+	return true;
 }
 
 void tcpd_client::start_accept_conn()
@@ -183,9 +205,7 @@ void tcpd_client::handle_recv_conn(const scc& con, const asio::error_code& ec, s
 		return;
 	}
 	con->timeout = NET_TIMEOUT_ACTIVE;
-	con->recv_buffer.resize(bytesRead);
-	con->recv_queue.write(std::move(con->recv_buffer));
-	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
+	con->recv_queue.write(con->recv_buffer, bytesRead);
 	while (con->recv_queue.packet_ready()) {
 		packet* pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
 		if (pkt == NULL || !handle_recv_packet(con, *pkt)) {

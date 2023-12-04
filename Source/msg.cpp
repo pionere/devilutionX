@@ -3413,7 +3413,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
 		// clang-format off
-		LogErrorF("D-Mon", "mnum:%d "
+		LogErrorF("mnum:%d "
 	"mo:%d "
 	"sq:%d "
 	"idx:%d "
@@ -3561,7 +3561,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 		DDMonster* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[mnum];
 		if (mstr->dmCmd != DCMD_MON_INVALID) {
 			// clang-format off
-			LogErrorF("D-Mon", "delta ",
+			LogErrorF("delta ",
 		"dmCmd:%d "
 		"dmx:%d "
 		"dmy:%d "
@@ -3579,7 +3579,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 		mstr->dmWhoHit);
 			// clang-format on
 		} else {
-			LogErrorF("D-Mon", "delta dmCmd:0");
+			LogErrorF("delta dmCmd:0");
 		}
 	}
 
@@ -3723,7 +3723,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		buf += sizeof(INT);
 		//int _pMaxMana;   // the maximum mana of the player
 
-		// LogErrorF("PLRD", "Player base-data %d", (size_t)buf - (size_t)plrdata);
+		// LogErrorF("Player base-data %d", (size_t)buf - (size_t)plrdata);
 
 		assert((size_t)buf - (size_t)plrdata == 114);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
@@ -3750,7 +3750,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		*(uint64_t*)buf = plx(i)._pInvSkills;
 		buf += sizeof(uint64_t);
 
-		//LogErrorF("PLRD", "Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
+		//LogErrorF("Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 219);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
 
@@ -3765,7 +3765,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		memcpy(buf, plx(i)._pSkillExp, sizeof(plx(i)._pSkillExp) / 2);
 		buf += sizeof(plx(i)._pSkillExp) / 2;
 
-		// LogErrorF("PLRD", "Player skill-data II. %d", (size_t)buf - (size_t)plrdata);
+		// LogErrorF("Player skill-data II. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
 
@@ -3780,7 +3780,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		memcpy(buf, &plx(i)._pSkillExp[32], sizeof(plx(i)._pSkillExp) / 2);
 		buf += sizeof(plx(i)._pSkillExp) / 2;
 
-		//LogErrorF("PLRD", "Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
+		//LogErrorF("Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
 		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
 		/*PlrAnimStruct _pAnims[NUM_PGXS];*/
@@ -3881,7 +3881,7 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 	k = *src;
 	src++;
 
-	// LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+	// LogErrorF("ItemCheck %d. for %d running data from %d.", k, i, pnum);
 	if (!plx(i)._pActive)
 		msg_errorf("%d received inactive plr%d from %d", mypnum, i, pnum);
 
@@ -4237,7 +4237,7 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 	k = *src;
 	src++;
 
-	// LogErrorF("Item", "ItemCheck %d. for %d running data from %d.", k, i, pnum);
+	// LogErrorF("ItemCheck %d. for %d running data from %d.", k, i, pnum);
 
 	switch (k) {
 	case 0: // hold+body items
@@ -4259,7 +4259,7 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 		break;
 	}
 
-	//	LogErrorF("Item", "ItemCheck done. %d", (size_t)src - (size_t)pCmd);
+	//	LogErrorF("ItemCheck done. %d", (size_t)src - (size_t)pCmd);
 	return (size_t)src - (size_t)pCmd;
 }
 

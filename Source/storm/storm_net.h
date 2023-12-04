@@ -90,7 +90,8 @@ turn_status SNetPollTurns(unsigned (&status)[MAX_PLRS]);
  */
 unsigned SNetGetTurnsInTransit();
 #ifdef ZEROTIER
-void SNetGetGamelist(std::vector<std::string>& games);
+bool SNetReady();
+void SNetGetGamelist(std::vector<SNetZtGame>& games);
 #endif
 
 /*
@@ -112,6 +113,11 @@ void SNetLeaveGame();
  *  Disconnect everyone but the local player from the current game.
  */
 void SNetDisconnect();
+
+/*
+ *  Destroy the net-instance.
+ */
+void SNetDestroy();
 
 #if defined(__GNUC__) || defined(__cplusplus)
 }

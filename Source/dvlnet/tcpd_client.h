@@ -13,7 +13,7 @@ public:
 
 protected:
 	void send_packet(packet& pkt) override;
-	void recv_connect(packet& pkt) override;
+	bool recv_accept(packet& pkt) override;
 	void disconnect_net(plr_t pnum) override;
 	void close() override;
 

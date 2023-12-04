@@ -354,6 +354,8 @@ void VersionPlrMsg()
 	EventPlrMsg(gszProductName);
 	if (!(SDL_GetModState() & KMOD_SHIFT)) {
 		if (!IsLocalGame) {
+			const char *szGameName, *szGamePassword;
+			SNetGetGameInfo(&szGameName, &szGamePassword);
 			EventPlrMsg(szGameName);
 			if (szGamePassword[0] != '\0') {
 				char desc[sizeof("password: %s") + NET_MAX_PASSWD_LEN];

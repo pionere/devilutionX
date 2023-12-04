@@ -65,15 +65,22 @@ void tcp_server::connect_socket(asio::ip::tcp::socket& sock, const char* addrstr
 	assert(!ec);
 }
 
-void tcp_server::endpoint_to_string(const scc& con, std::string& addr)
+void tcp_server::endpoint_to_buffer(const scc& con, buffer_t& buf)
 {
 	asio::error_code err;
 	const auto& ep = con->socket.remote_endpoint(err);
 	assert(!err);
-	char buf[NET_TCP_PORT_LENGTH + 2];
-	snprintf(buf, sizeof(buf), ":%05d", ep.port());
-	addr = ep.address().to_string();
-	addr.append(buf);
+	std::string addr = ep.address().to_string();
+	for (auto it = addr.cbegin(); it != addr.cend(); it++) {
+		buf.push_back(*it);
+	}
+	buf.push_back(':');
+	char port[NET_TCP_PORT_LENGTH + 1];
+	static_assert(NET_TCP_PORT_LENGTH == 5, "Bad port format in endpoint_to_buffer.");
+	snprintf(port, sizeof(port), "%05d", ep.port());
+	for (int i = 0; i < NET_TCP_PORT_LENGTH; i++) {
+		buf.push_back(port[i]);
+	}
 }
 
 void tcp_server::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
@@ -119,12 +126,10 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 		return;
 	}
 	con->timeout = NET_TIMEOUT_ACTIVE;
-	con->recv_buffer.resize(bytesRead);
-	con->recv_queue.write(std::move(con->recv_buffer));
-	con->recv_buffer.resize(frame_queue::MAX_FRAME_SIZE);
+	con->recv_queue.write(con->recv_buffer, bytesRead);
 	while (con->recv_queue.packet_ready()) {
 		packet* pkt = pktfty.make_in_packet(con->recv_queue.read_packet());
-		if (pkt == NULL || !handle_recv_packet(con, *pkt)) {
+		if (pkt == NULL || !handle_recv_packet(*pkt, con)) {
 			delete pkt;
 			drop_connection(con);
 			return;
@@ -134,7 +139,7 @@ void tcp_server::handle_recv(const scc& con, const asio::error_code& ec, size_t 
 	start_recv(con);
 }
 
-bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
+bool tcp_server::recv_ctrl(packet& pkt, const scc& con)
 {
 	plr_t i, pnum, pmask;
 	packet* reply;
@@ -160,43 +165,37 @@ bool tcp_server::handle_recv_newplr(const scc& con, packet& pkt)
 	turn_t conTurn = local_client.last_recv_turn() + NET_JOIN_WINDOW;
 
 	// reply to the new player
+	bool sendAddr = serverType == SRV_DIRECT;
+	buffer_t addrs;
 	pmask = 0;
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (active_connections[i] != NULL) {
 			static_assert(sizeof(pmask) * 8 >= MAX_PLRS, "handle_recv_newplr can not send the active connections to the client.");
 			pmask |= 1 << i;
-		}
-	}
-	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn);
-	start_send(con, *reply);
-	delete reply;
-	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(pnum, PLR_BROADCAST, PLR_MASTER, conTurn, (const BYTE*)NULL, 0u);
-	send_packet(*reply);
-	delete reply;
-	//send_connect(con);
-	// send the addresses of the old players to the new player            TODO: send with PT_JOIN_ACCEPT?
-	if (serverType == SRV_DIRECT) {
-		pmask &= ~(1 << pnum);
-		std::string addr;
-		for (i = 0; i < MAX_PLRS; i++) {
-			if (pmask & (1 << i)) {
-				endpoint_to_string(active_connections[i], addr);
-				reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, i, conTurn, (const BYTE*)addr.c_str(), (unsigned)addr.size());
-				start_send(con, *reply);
-				delete reply;
+			if (sendAddr) {
+				endpoint_to_buffer(active_connections[i], addrs);
 			}
 		}
+		addrs.push_back(' ');
 	}
+	reply = pktfty.make_out_packet<PT_JOIN_ACCEPT>(PLR_MASTER, PLR_BROADCAST, pkt.pktJoinReqCookie(), pnum, (const BYTE*)&game_init_info, pmask, conTurn, (const BYTE*)addrs.data(), (unsigned)addrs.size());
+	start_send(*reply, con);
+	delete reply;
+	// notify the old players
+	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)NULL, 0u);
+	send_packet(*reply);
+	delete reply;
 	return true;
 }
 
-bool tcp_server::handle_recv_packet(const scc& con, packet& pkt)
+bool tcp_server::handle_recv_packet(packet& pkt, const scc& con)
 {
-	if (con->pnum != PLR_BROADCAST) {
-		return con->pnum == pkt.pktSrc() && send_packet(pkt);
+	plr_t src = pkt.pktSrc();
+
+	if (src != PLR_BROADCAST) {
+		return src == con->pnum && send_packet(pkt);
 	} else {
-		return handle_recv_newplr(con, pkt);
+		return recv_ctrl(pkt, con);
 	}
 }
 
@@ -208,19 +207,19 @@ bool tcp_server::send_packet(packet& pkt)
 	if (dest == PLR_BROADCAST) {
 		for (int i = 0; i < MAX_PLRS; i++)
 			if (i != src && active_connections[i] != NULL)
-				start_send(active_connections[i], pkt);
+				start_send(pkt, active_connections[i]);
 	} else {
 		if (dest >= MAX_PLRS) {
 			// DoLog("Invalid destination %d", dest);
 			return false;
 		}
 		if ((dest != src) && active_connections[dest] != NULL)
-			start_send(active_connections[dest], pkt);
+			start_send(pkt, active_connections[dest]);
 	}
 	return true;
 }
 
-void tcp_server::start_send(const scc& con, packet& pkt)
+void tcp_server::start_send(packet& pkt, const scc& con)
 {
 	const buffer_t* frame = frame_queue::make_frame(pkt.encrypted_data());
 	auto buf = asio::buffer(*frame);

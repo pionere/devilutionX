@@ -1,5 +1,5 @@
 #include "base_client.h"
-
+#ifndef NONET
 #include <cstring>
 #include <memory>
 
@@ -35,40 +35,47 @@ void base_client::disconnect_net(plr_t pnum)
 {
 }
 
-void base_client::recv_connect(packet& pkt)
+bool base_client::recv_connect(packet& pkt)
 {
-	plr_t pkt_src = pkt.pktSrc();
+	if (pkt.pktSrc() != PLR_MASTER)
+		return false;
+
+	plr_t pnum = pkt.pktConnectPlr();
 	turn_t conTurn = pkt.pktConnectTurn();
 
-	if (pkt_src < MAX_PLRS) {
-		connected_table[pkt_src] = CON_CONNECTED;
-		assert(turn_queue[pkt_src].empty());
+	if (pnum >= MAX_PLRS || pnum == plr_self)
+		return false;
 
-		unsigned limit = NET_JOIN_WINDOW * 2;
-		for (turn_t turn = lastRecvTurn + 1; turn != conTurn + 1; turn++) {
-			turn_queue[pkt_src].emplace_back(turn, buffer_t());
-			if (--limit == 0) {
-				break;
-			}
+	if (connected_table[pnum])
+		return false;
+	// assert(pkt.pktType() == PT_CONNECT);
+	connected_table[pnum] = CON_CONNECTED;
+	assert(turn_queue[pnum].empty());
+
+	unsigned limit = NET_JOIN_WINDOW * 2;
+	for (turn_t turn = lastRecvTurn + 1; turn != conTurn + 1; turn++) {
+		turn_queue[pnum].emplace_back(turn, buffer_t());
+		if (--limit == 0) {
+			break;
 		}
-
 	}
+	return true;
 }
 
-void base_client::recv_accept(packet& pkt)
+bool base_client::recv_accept(packet& pkt)
 {
 	plr_t pnum, pmask;
 	turn_t turn;
-
+	// assert(pkt.pktType() == PT_JOIN_ACCEPT);
 	if (plr_self != PLR_BROADCAST || pkt.pktJoinAccCookie() != cookie_self) {
 		// ignore the packet if player id is set or the cookie does not match
-		return;
+		return false;
 	}
 	auto& pkt_info = pkt.pktJoinAccInfo();
 	if (GAME_VERSION != pkt_info.ngVersionId) {
 		// Invalid game version -> ignore
 		DoLog("Invalid game version (%d) received from %d. (current version: %d)", NULL, 0, pkt_info.ngVersionId, pkt.pktSrc(), GAME_VERSION);
-		return;
+		return false;
 	}
 	pnum = pkt.pktJoinAccPlr();
 	// assert(pnum < MAX_PLRS);
@@ -83,7 +90,7 @@ void base_client::recv_accept(packet& pkt)
 	}
 	lastRecvTurn = turn;
 #ifdef ZEROTIER
-	// we joined and did not create
+	// preserve game-info in case we become master later
 	memcpy(&game_init_info, &pkt_info, sizeof(SNetGameData));
 #endif
 	SNetJoinEvent ev;
@@ -92,6 +99,7 @@ void base_client::recv_accept(packet& pkt)
 	ev.neGameData = &pkt_info;
 	ev.neTurn = turn;
 	run_event_handler(&ev.neHdr);
+	return true;
 }
 
 void base_client::disconnect_plr(plr_t pnum)
@@ -104,12 +112,17 @@ void base_client::disconnect_plr(plr_t pnum)
 
 	if (pnum < MAX_PLRS) {
 		connected_table[pnum] |= CON_LEAVING;
-
+		// add artificial disconnecting turn against misbehaving clients (TODO: could be out of sync...)
 		BYTE disTurn[sizeof(TurnPktHdr) + 1];
 		TurnPkt* pkt = (TurnPkt*)disTurn;
 		pkt->hdr.wLen = (uint16_t)sizeof(disTurn);
 		pkt->body[0] = CMD_DISCONNECT;
-		turn_t plrLastTurn = lastRecvTurn + turn_queue[pnum].size() + 1; // FIXME: could be out of sync...
+		turn_t plrLastTurn;
+		if (!turn_queue[pnum].empty()) {
+			plrLastTurn = turn_queue[pnum].back().turn_id + 1;
+		} else {
+			plrLastTurn = lastRecvTurn + 1;
+		}
 		turn_queue[pnum].emplace_back(plrLastTurn, buffer_t(&disTurn[0], &disTurn[0] + sizeof(disTurn)));
 		disconnect_net(pnum);
 	}
@@ -161,9 +174,15 @@ void base_client::recv_local(packet& pkt)
 	case PT_DISCONNECT:
 		recv_disconnect(pkt);
 		break;
-	default:
+	case PT_JOIN_REQUEST:
+#ifdef ZEROTIER
+	case PT_INFO_REQUEST:
+	case PT_INFO_REPLY:
+#endif
 		break;
-		// otherwise drop
+	default:
+		ASSUME_UNREACHABLE;
+		break;
 	}
 }
 
@@ -346,6 +365,7 @@ void base_client::close()
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();
+	pktfty.clear_password();
 	// prepare the client for possible re-connection
 	lastRecvTurn = -1;
 	plr_self = PLR_BROADCAST;
@@ -387,3 +407,4 @@ void base_client::SNetDisconnect()
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // !NONET

@@ -3524,6 +3524,9 @@ typedef enum theme_id {
 typedef enum event_type {
 	EVENT_TYPE_JOIN_ACCEPTED,
 	EVENT_TYPE_PLAYER_LEAVE_GAME,
+#ifdef ZEROTIER
+	EVENT_TYPE_PLAYER_INFO,
+#endif
 	NUM_EVT_TYPES,
 } event_type;
 

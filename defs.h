@@ -72,6 +72,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_DEFAULT_PORT        6112
 // the maximum length of the name of an 'instance'
 #define NET_MAX_GAMENAME_LEN    31
+// the length of the name of an 'instance' in case of zerotier
+#define NET_ZT_GAMENAME_LEN     6
 // the maximum length of the password of an 'instance'
 #define NET_MAX_PASSWD_LEN      15
 // the maximum length of a text-message to other players
@@ -88,10 +90,14 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_TIMEOUT_CONNECT     30
 // number of iterations before an active connection timeouts (tcp)
 #define NET_TIMEOUT_ACTIVE      60
-// number of iterations before a ghost connection timeouts (tcp)
+// number of iterations before a ghost connection timeouts (tcp + zt)
 #define NET_TIMEOUT_GHOST       5
 // seconds to wait if there is no free connection (tcp)
 #define NET_WAIT_PENDING        10
+// number of milliseconds before a pending connection timeouts (zt)
+#define NET_TIMEOUT_SOCKET      (5 * 1000)
+// seconds after a game-info becomes obsolete (zt)
+#define NET_TIMEOUT_GAME        5
 
 #define DEAD_MULTI              0xFF
 #define MAXITEMS                127

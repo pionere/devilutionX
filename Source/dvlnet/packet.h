@@ -65,6 +65,7 @@ typedef struct NetPktJoinAccept {
 	SNetGameData m_info;
 	BYTE m_plrmask;
 	LE_UINT32 m_turn;
+	// BYTE m_addrs[MAX_PLRS][0]; // 16 in case of zt, host:port text in case of direct-tcp
 } NetPktJoinAccept;
 
 typedef struct NetPktConnect {
@@ -85,7 +86,7 @@ typedef struct NetPktInfoRequest {
 
 typedef struct NetPktInfoReply {
 	NetPktHdr npHdr;
-	//BYTE m_gamename[0];
+	SNetZtGame m_info;
 } NetPktInfoReply;
 #pragma pack(pop)
 
@@ -153,9 +154,9 @@ public:
 	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_cookie;
 	}
-	SNetGameData& pktJoinAccInfo()
+	const SNetGameData& pktJoinAccInfo() const
 	{
-		return reinterpret_cast<NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
+		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_info;
 	}
 	plr_t pktJoinAccMsk() const
 	{
@@ -165,14 +166,18 @@ public:
 	{
 		return reinterpret_cast<const NetPktJoinAccept*>(decrypted_buffer.data())->m_turn;
 	}
-	// PT_INFO_REPLY
-	buffer_t::const_iterator pktInfoReplyNameBegin() const
+	buffer_t::const_iterator pktJoinAccAddrsBegin() const
 	{
-		return decrypted_buffer.begin() + sizeof(NetPktHdr);
+		return decrypted_buffer.begin() + sizeof(NetPktJoinAccept);
 	}
-	buffer_t::const_iterator pktInfoReplyNameEnd() const
+	buffer_t::const_iterator pktJoinAccAddrsEnd() const
 	{
 		return decrypted_buffer.end();
+	}
+	// PT_INFO_REPLY
+	const SNetZtGame& pktGameInfo() const
+	{
+		return reinterpret_cast<const NetPktInfoReply*>(decrypted_buffer.data())->m_info;
 	}
 	// PT_CONNECT
 	plr_t pktConnectPlr() const
@@ -228,14 +233,14 @@ inline void packet_out::create<PT_INFO_REQUEST>(plr_t s, plr_t d)
 }
 
 template <>
-inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, const BYTE* info, unsigned size)
+inline void packet_out::create<PT_INFO_REPLY>(plr_t s, plr_t d, const BYTE* gameinfo)
 {
-	decrypted_buffer.resize(sizeof(NetPktHdr) + size);
+	decrypted_buffer.resize(sizeof(NetPktInfoReply));
 	NetPktInfoReply* data = (NetPktInfoReply*)decrypted_buffer.data();
 	data->npHdr.m_type = PT_INFO_REPLY;
 	data->npHdr.m_src = s;
 	data->npHdr.m_dest = d;
-	memcpy((BYTE*)data + sizeof(NetPktHdr), info, size);
+	memcpy(&data->m_info, gameinfo, sizeof(SNetZtGame));
 }
 
 template <>
@@ -274,9 +279,9 @@ inline void packet_out::create<PT_JOIN_REQUEST>(plr_t s, plr_t d, cookie_t c)
 
 template <>
 inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
-    plr_t n, const BYTE* gamedata, plr_t p, turn_t t)
+    plr_t n, const BYTE* gamedata, plr_t p, turn_t t, const BYTE* addrs, unsigned size)
 {
-	decrypted_buffer.resize(sizeof(NetPktJoinAccept));
+	decrypted_buffer.resize(sizeof(NetPktJoinAccept) + size);
 	NetPktJoinAccept* data = (NetPktJoinAccept*)decrypted_buffer.data();
 	data->npHdr.m_type = PT_JOIN_ACCEPT;
 	data->npHdr.m_src = s;
@@ -286,6 +291,7 @@ inline void packet_out::create<PT_JOIN_ACCEPT>(plr_t s, plr_t d, cookie_t c,
 	data->m_plrmask = p;
 	data->m_turn = t;
 	memcpy(&data->m_info, gamedata, sizeof(SNetGameData));
+	memcpy((BYTE*)data + sizeof(NetPktJoinAccept), addrs, size);
 }
 
 template <>
@@ -313,10 +319,12 @@ inline void packet_out::create<PT_DISCONNECT>(plr_t s, plr_t d, plr_t n)
 }
 
 class packet_factory {
-	key_t key = {};
+	key_t key;
 
 public:
+	packet_factory() { clear_password(); };
 	void setup_password(const char* passwd);
+	void clear_password();
 	packet* make_in_packet(buffer_t buf);
 	template <packet_type t, typename... Args>
 	packet* make_out_packet(Args... args);

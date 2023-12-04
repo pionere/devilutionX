@@ -511,6 +511,14 @@ set(devilutionx_SRCS
   Source/dvlnet/frame_queue.cpp
   Source/dvlnet/loopback.cpp
   Source/dvlnet/packet.cpp
+  Source/dvlnet/protocol_zt.cpp
+  Source/dvlnet/tcp_client.cpp
+  Source/dvlnet/tcp_server.cpp
+  Source/dvlnet/tcpd_client.cpp
+  Source/dvlnet/tcp_host.cpp
+  Source/dvlnet/zerotier_native.cpp
+  Source/dvlnet/zerotier_lwip.cpp
+  Source/dvlnet/zt_client.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
@@ -528,17 +536,6 @@ set(devilutionx_SRCS
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp
   Source/utils/utf8.cpp)
-
-if(NOT NONET)
-  list(APPEND devilutionx_SRCS
-    Source/dvlnet/tcp_client.cpp
-    Source/dvlnet/tcp_server.cpp
-    Source/dvlnet/tcpd_client.cpp
-    Source/dvlnet/tcp_host.cpp
-    Source/dvlnet/protocol_zt.cpp
-    Source/dvlnet/zerotier_native.cpp
-    Source/dvlnet/zerotier_lwip.cpp)
-endif()
 
 if(IOS)
   list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
@@ -625,14 +622,6 @@ else()
     WIN32
     MACOSX_BUNDLE
     ${BIN_SOURCES})
-endif()
-
-if(CMAKE_STRIP AND NOT DISABLE_STRIP)
-  add_custom_command(
-    TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
-    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
-    ARGS $<TARGET_FILE:${BIN_TARGET}>)
 endif()
 
 if(USE_PATCH)
@@ -754,6 +743,22 @@ if(USE_PATCH)
   target_include_directories(${DEVIL_PATCHER} PRIVATE
     tools/patcher
     ${CMAKE_BINARY_DIR})
+endif()
+
+if(CMAKE_STRIP AND NOT DISABLE_STRIP)
+  add_custom_command(
+    TARGET ${BIN_TARGET} POST_BUILD
+    DEPENDS ${BIN_TARGET}
+    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
+    ARGS $<TARGET_FILE:${BIN_TARGET}>)
+
+  if(USE_PATCH)
+    add_custom_command(
+      TARGET ${DEVIL_PATCHER} POST_BUILD
+      DEPENDS ${DEVIL_PATCHER}
+      COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
+      ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
+  endif()
 endif()
 
 # Use file GENERATE instead of configure_file because configure_file
@@ -1036,6 +1041,9 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
   target_link_libraries(${BIN_TARGET} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  if(USE_PATCH)
+    target_link_libraries(${DEVIL_PATCHER} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  endif()
 endif()
 
 if(WIN32)
@@ -1062,8 +1070,15 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
       OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
     target_compile_options(${BIN_TARGET} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
+    if(USE_PATCH)
+      target_compile_options(${DEVIL_PATCHER} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
+    endif()
   else()
     get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
+    if(USE_PATCH)
+      get_target_property(devil_patcher_SRCS ${DEVIL_PATCHER} SOURCES)
+      list(APPEND devilutionx_SRCS ${devil_patcher_SRCS})
+    endif()
     foreach(SOURCE_FILE ${devilutionx_SRCS})
       set_source_files_properties(${SOURCE_FILE} PROPERTIES
         COMPILE_DEFINITIONS __FILE__="${SOURCE_FILE}"
@@ -1133,12 +1148,29 @@ if(APPLE)
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 
+  if(USE_PATCH)
+      set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon.icns")
+      set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Packaging/apple/Info.plist")
+
+      install (TARGETS ${DEVIL_PATCHER} DESTINATION ./)
+  endif()
+
   if(MACOSX_STANDALONE_APP_BUNDLE)
-      install(CODE "
+      set(BUNDLE_FIXUP_CODE "
         include(BundleUtilities)
-        fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
-        "
-        COMPONENT Runtime)
+        fixup_bundle(\"${CMAKE_BINARY_DIR}/${BIN_TARGET}.app\" \"\" \"\")
+        ")
+      if(USE_PATCH)
+        set(BUNDLE_FIXUP_CODE "${BUNDLE_FIXUP_CODE}fixup_bundle(\"${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.app\" \"\" \"\")
+        ")
+      endif()
+      install(CODE ${BUNDLE_FIXUP_CODE} COMPONENT Runtime)
+
+      #install(CODE "
+      #  include(BundleUtilities)
+      #  fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
+      #  "
+      #  COMPONENT Runtime)
   endif()
 
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
@@ -1329,6 +1361,8 @@ if(CPACK)
       DESTINATION "."
     )
     if(USE_PATCH)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "."
       )
@@ -1428,6 +1462,8 @@ if(CPACK)
       DESTINATION "share/diasurgical/${project_name}"
     )
     if(USE_PATCH)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION bin)
+
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "share/diasurgical/${project_name}"
       )
@@ -1471,9 +1507,14 @@ if(CPACK)
   elseif(APPLE)
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_PACKAGE_FILE_NAME ${project_name})
-    set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
+    #set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
     set(CPACK_STRIP_FILES TRUE)
-    set(CPACK_GENERATOR "DragNDrop")
+    #set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_GENERATOR "Bundle")
+    set(CPACK_BUNDLE_NAME ${project_name})
+    set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
+    set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
+    set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})

@@ -2377,7 +2377,6 @@ typedef struct SNetGameData {
 	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE ngMaxPlayers;
 } SNetGameData;
-#pragma pack(pop)
 
 /*typedef struct _SNETCAPS {
 	//DWORD size;
@@ -2391,6 +2390,21 @@ typedef struct SNetGameData {
 	DWORD defaultturnsintransit;
 } _SNETCAPS;*/
 
+typedef struct SNetZtPlr {
+	char npName[PLR_NAME_LEN];
+	BYTE npClass;
+	BYTE npLevel;
+	BYTE npRank;
+	BYTE npTeam;
+} SNetZtPlr;
+
+typedef struct SNetZtGame {
+	char ngName[NET_MAX_GAMENAME_LEN + 1];
+	SNetGameData ngData;
+	SNetZtPlr ngPlayers[MAX_PLRS];
+} SNetZtGame;
+#pragma pack(pop)
+
 typedef struct SNetEventHdr {
 	unsigned eventid;
 	unsigned playerid;
@@ -2398,13 +2412,18 @@ typedef struct SNetEventHdr {
 
 typedef struct SNetJoinEvent {
 	SNetEventHdr neHdr;
-	SNetGameData* neGameData;
+	const SNetGameData* neGameData;
 	turn_t neTurn;
 } SNetJoinEvent;
 
 typedef struct SNetLeaveEvent {
 	SNetEventHdr neHdr;
 } SNetLeaveEvent;
+
+typedef struct SNetPlrInfoEvent {
+	SNetEventHdr neHdr;
+	SNetZtPlr *nePlayers;
+} SNetPlrInfoEvent;
 
 typedef struct SNetTurnPkt {
 	turn_t ntpTurn;
