@@ -88,7 +88,7 @@ bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 	};
 	in6.sin6_port = htons(DEFAULT_PORT);
 	in6.sin6_family = AF_INET6;
-	peer.to_addr(reinterpret_cast<unsigned char*>(in6.sin6_addr.s6_addr));
+	peer.to_addr(in6.sin6_addr.un.u8_addr);
 	lwip_sendto(fd_udp, data.data(), data.size(), 0, (const struct sockaddr*)&in6, sizeof(in6));
 	return true;
 }
@@ -166,7 +166,7 @@ void protocol_zt::recv_from_udp(zt_client* client)
 		if (len < 0)
 			break;
 		endpoint ep;
-		ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
+		ep.from_addr(in6.sin6_addr.un.u8_addr);
 		buffer_t pkt_buf = buffer_t(recv_buffer.begin(), recv_buffer.begin() + len);
 		client->handle_recv(ep, pkt_buf);
 	}
@@ -188,7 +188,7 @@ void protocol_zt::accept_all()
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (pending_connections[i].sock == 0) {
 				pending_connections[i].sock = newfd + 1;
-				pending_connections[i].peer.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
+				pending_connections[i].peer.from_addr(in6.sin6_addr.un.u8_addr);
 				pending_connections[i].timeout = SDL_GetTicks() + NET_TIMEOUT_SOCKET;
 				break;
 			}
