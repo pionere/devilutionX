@@ -98,7 +98,7 @@ private:
 	bool send_queued_all();
 	void recv_from_peers(zt_client* client);
 	void recv_from_udp(zt_client* client);
-	bool accept_all();
+	void accept_all();
 };
 
 } // namespace net

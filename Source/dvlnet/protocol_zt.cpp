@@ -179,7 +179,7 @@ void protocol_zt::recv_from_udp(zt_client* client)
 	}
 }
 
-bool protocol_zt::accept_all()
+void protocol_zt::accept_all()
 {
 	struct sockaddr_in6 in6 {
 	};
@@ -223,7 +223,6 @@ bool protocol_zt::accept_all()
 			pc.sock = 0;
 		}
 	}
-	return true;
 }
 
 void protocol_zt::accept_self(int pnum)
