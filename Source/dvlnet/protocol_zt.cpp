@@ -304,6 +304,13 @@ void protocol_zt::disconnect(int pnum)
 		lwip_close(ap.sock);
 		ap.sock = -1;
 	}
+	for (auto it = oob_recv_queue.begin(); it != oob_recv_queue.end(); ) {
+		if (it->first == ap.peer) {
+			it = oob_recv_queue.erase(it);
+		} else {
+			it++;
+		}
+	}
 	for (auto frame : ap.send_frame_queue) {
 		delete frame;
 	}
