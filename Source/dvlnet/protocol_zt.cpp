@@ -164,12 +164,14 @@ void protocol_zt::recv_from_udp()
 	struct sockaddr_in6 in6 {
 	};
 	socklen_t addrlen = sizeof(in6);
-	auto len = lwip_recvfrom(fd_udp, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0, (struct sockaddr*)&in6, &addrlen);
-	if (len < 0)
-		return;
-	endpoint ep;
-	ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
-	oob_recv_queue.emplace_back(ep, buffer_t(recv_buffer.begin(), recv_buffer.begin() + len));
+	while (true) {
+		auto len = lwip_recvfrom(fd_udp, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0, (struct sockaddr*)&in6, &addrlen);
+		if (len < 0)
+			break;
+		endpoint ep;
+		ep.from_addr(reinterpret_cast<const unsigned char*>(in6.sin6_addr.s6_addr));
+		oob_recv_queue.emplace_back(ep, buffer_t(recv_buffer.begin(), recv_buffer.begin() + len));
+	}
 }
 
 bool protocol_zt::accept_all()
