@@ -167,7 +167,7 @@ bool zt_client::recv_connect(packet& pkt)
 	// assert(!proto.active_connections[pnum].peer)
 
 	auto sit = pkt.pktConnectAddrBegin();
-	if (pkt.pktConnectAddrEnd() - sit == proto.active_connections[pnum].peer.addr.size()) {
+	if (pkt.pktConnectAddrEnd() - sit == endpoint::str_len()) {
 		proto.connect_ep(&*sit, pnum);
 	}
 	return true;
@@ -192,7 +192,7 @@ bool zt_client::recv_accept(packet& pkt)
 			}
 			it++;
 		}
-		if (it - sit == proto.active_connections[pnum].peer.addr.size()) {
+		if (it - sit == endpoint::str_len()) {
 			if (pnum != plr_self) {
 				proto.accept_ep(&*sit, pnum);
 			} else {
@@ -253,7 +253,7 @@ void zt_client::handle_join_request(packet& pkt, const endpoint& sender)
 	proto.send_oob(sender, reply->encrypted_data());
 	delete reply;
 	// notify the old players
-	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)sender.addr.data(), (unsigned)sender.addr.size());
+	reply = pktfty.make_out_packet<PT_CONNECT>(PLR_MASTER, PLR_BROADCAST, pnum, conTurn, (const BYTE*)sender.addr.data(), endpoint::str_len());
 	send_packet(*reply);
 	recv_local(*reply); // TODO: handle CS_ACTIVE_SELF in proto.send ?
 	delete reply;

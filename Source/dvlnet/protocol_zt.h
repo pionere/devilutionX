@@ -3,7 +3,6 @@
 #include <string>
 #include <deque>
 #include <array>
-#include <algorithm>
 
 #include "dvlnet/frame_queue.h"
 
@@ -21,15 +20,9 @@ class zt_client;
 
 class protocol_zt {
 public:
-	class endpoint {
-	public:
-		std::array<unsigned char, 16> addr = {};
-
-		explicit operator bool() const
-		{
-			auto empty = std::array<unsigned char, 16> {};
-			return (addr != empty);
-		}
+	typedef struct endpoint {
+		std::array<unsigned char, 16> addr = { };
+		static constexpr unsigned str_len() { return 16 * sizeof(decltype(addr)::value_type); };
 
 		bool operator==(const endpoint& rhs) const
 		{
@@ -41,16 +34,12 @@ public:
 			return !(*this == rhs);
 		}
 
-		bool operator<(const endpoint& rhs) const
-		{
-			return addr < rhs.addr;
-		}
-
+		void clear_addr();
 		void from_string(const std::string& str);
 		void from_addr(const unsigned char* src_addr);
 		void to_addr(unsigned char* dest_addr) const;
 		void to_buffer(buffer_t& buf) const;
-	};
+	} endpoint;
 	typedef struct peer_connection {
 		int status = CS_INACTIVE; // client_status
 		int sock = -1;  // connected socket-id

@@ -279,7 +279,7 @@ void protocol_zt::disconnect(int pnum)
 	for (auto frame : ap.send_frame_queue) {
 		delete frame;
 	}
-	ap.peer = endpoint();
+	ap.peer.clear_addr();
 	ap.send_frame_queue.clear();
 	ap.status = CS_INACTIVE;
 	ap.recv_queue.clear();
@@ -306,6 +306,11 @@ protocol_zt::~protocol_zt()
 	close();
 }
 
+void protocol_zt::endpoint::clear_addr()
+{
+	memset(addr.data(), 0, endpoint::str_len());
+}
+
 void protocol_zt::endpoint::from_string(const std::string& str)
 {
 	ip_addr_t a;
@@ -318,12 +323,12 @@ void protocol_zt::endpoint::from_string(const std::string& str)
 
 void protocol_zt::endpoint::from_addr(const unsigned char* src_addr)
 {
-	memcpy(addr.data(), src_addr, addr.size() * sizeof(decltype(addr)::value_type));
+	memcpy(addr.data(), src_addr, endpoint::str_len());
 }
 
 void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
 {
-	memcpy(dest_addr, addr.data(), addr.size() * sizeof(decltype(addr)::value_type));
+	memcpy(dest_addr, addr.data(), endpoint::str_len());
 }
 
 void protocol_zt::endpoint::to_buffer(buffer_t& buf) const
