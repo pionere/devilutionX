@@ -126,14 +126,14 @@ bool protocol_zt::send_queued_peer(peer_connection& pc)
 	return true;
 }
 
-bool protocol_zt::recv_peer(peer_connection& pc)
+void protocol_zt::recv_peer(peer_connection& pc)
 {
 	while (true) {
 		auto len = lwip_recv(pc.sock, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0);
 		if (len >= 0) {
 			pc.recv_queue.write(recv_buffer, len);
 		} else {
-			return errno == EAGAIN || errno == EWOULDBLOCK;
+			break; // handle error? errno == EAGAIN || errno == EWOULDBLOCK || errno == ENOTCONN;
 		}
 	}
 }
@@ -154,9 +154,7 @@ void protocol_zt::recv_from_peers()
 {
 	for (peer_connection& ap : active_connections) {
 		if (ap.sock != -1) {
-			if (!recv_peer(ap)) {
-				// handle error?
-			}
+			recv_peer(ap);
 		}
 	}
 }
