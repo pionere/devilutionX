@@ -830,11 +830,7 @@ if(TCPIP)
   target_link_libraries(${BIN_TARGET} PRIVATE asio)
 endif()
 if(ZEROTIER)
-  if(NOT ANDROID)
-    target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
-  else()
-    target_link_libraries(${BIN_TARGET} PRIVATE zt-shared)
-  endif()
+  target_link_libraries(${BIN_TARGET} PRIVATE zt)
 endif()
 
 # Defines without value

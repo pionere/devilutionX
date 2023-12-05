@@ -1,4 +1,4 @@
-name: CMake
+﻿name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -9,7 +9,8 @@ env:
   buildDir: '${{ github.workspace }}/build'
 
 jobs:
-  build:
+  build_mingw:
+    if: true
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
@@ -46,9 +47,156 @@ jobs:
     #    files: ${{github.workspace}}/build/devilutionx.dmg
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    #- name: Show content of workspace
+    #  run: find $RUNNER_WORKSPACE
+    #  shell: bash
+
+    #- name: Show content of builddir
+    #  run: find ${{ env.buildDir }}
+    #  shell: bash
+
     # Upload the created artifact
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: hellfire-zt-x86.zip
+
+  build_msvc:
+    if: true
+    name: MSVC-builds
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo, hellfire]
+        include:
+          # x86 builds
+          #- name: diablo-x86
+          #  packages: 'sdl2:x86-windows libsodium:x86-windows'
+          #  cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D ZEROTIER=ON'
+          #  artifact: 'diablo-nightly-x86.zip'
+          - name: hellfire-x86
+            packages: 'sdl2:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D ZEROTIER=ON -D HELLFIRE=ON'
+            artifact: 'hellfire-nightly-x86.zip'
+          #- name: hellmini-x86
+          #  packages: 'sdl2:x86-windows'
+          #  cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+          #  artifact: 'hellmini-nightly-x86.zip'
+          #- name: hellsrv-x86
+          #  packages: 'sdl2:x86-windows libsodium:x86-windows'
+          #  cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D INET_MODE=ON -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+          #  artifact: 'hellsrv-nightly-x86.zip'
+          # x64 builds
+          #- name: diablo
+          #  packages: 'sdl2:x64-windows libsodium:x64-windows'
+          #  cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          #  artifact: 'diablo-nightly-x64.zip'
+          #- name: hellfire
+          #  packages: 'sdl2:x64-windows libsodium:x64-windows'
+          #  cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          #  artifact: 'hellfire-nightly-x64.zip'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
+    - name: Create Build Environment
+      uses: lukka/run-vcpkg@v11.1
+      with:
+        vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
+        #setupOnly: true
+    # Now that vcpkg is installed, it is being used to run with the desired arguments.
+    - name: Install Required Packages
+      run: |
+        vcpkg install ${{ matrix.packages }}
+      #  Start-Process -Wait -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
+      #  $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
+      #shell: bash
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      working-directory: ${{ env.buildDir }}
+      shell: bash
+    # Execute the build (-j 2 : with two cores).
+      run: cmake --build . -j 2 --target package --config Release
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: ${{ matrix.artifact }}
+
+  build_android:
+    if: true
+    name: Android-builds
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakearg0: '-DZEROTIER=ON'
+            artifact: 'diablo-nightly-android.apk'
+          - name: hellfire
+            cmakearg0: '-DHELLFIRE=ON'
+            cmakearg1: '-DZEROTIER=ON'
+            artifact: 'hellfire-nightly-android.apk'
+          - name: diablo-adrp
+            cmakearg0: '-DUSE_PATCH=ON'
+            cmakearg1: '-DZEROTIER=ON'
+            artifact: 'diablo-nightly-androidp.apk'
+          - name: hellfire-adrp
+            cmakearg0: '-DUSE_PATCH=ON'
+            cmakearg1: '-DHELLFIRE=ON'
+            cmakearg2: '-DZEROTIER=ON'
+            artifact: 'hellfire-nightly-androidp.apk'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install gettext
+      run: sudo apt-get update && sudo apt-get install -y gettext
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
+    # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
+    - name: Remove system CMake
+      run: rm /usr/local/bin/cmake
+
+    #- name: Cache CMake build folder
+    #  uses: actions/cache@v3
+    #  with:
+    #    path: android-project/app/.cxx
+    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v1-
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v3
+      with:
+        #name: devilutionx-debug.apk
+        #path: android-project/app/build/outputs/apk/debug/app-debug.apk
+        name: ${{ matrix.artifact }}
+        path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
