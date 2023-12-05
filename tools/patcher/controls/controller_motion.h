@@ -4,8 +4,6 @@
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
-#include <SDL.h>
-
 #include "./axis_direction.h"
 #include "./controller.h"
 

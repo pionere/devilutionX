@@ -9,8 +9,6 @@ static_assert(false, "GameController is not supported in SDL1.");
 
 #include <SDL.h>
 
-#include "../defs.h"
-
 #include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
