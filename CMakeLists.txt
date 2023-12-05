@@ -680,8 +680,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
-    tools/patcher/utils/soundsample.cpp
-    tools/patcher/utils/thread.cpp)
+    tools/patcher/utils/soundsample.cpp)
 
   if(IOS)
     list(APPEND devil_patcher_SRCS tools/patcher/platform/ios/ios_paths.m)
