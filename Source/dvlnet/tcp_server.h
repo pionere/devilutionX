@@ -45,11 +45,16 @@ public:
 	tcp_server(base_client& client, asio::io_context& ioc, packet_factory& pktfty, SNetGameData& gameinfo, unsigned serverType);
 	bool setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256]);
 	void close();
-	~tcp_server() = default;
+	virtual ~tcp_server() = default;
 
 	static void make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1]);
 	static void connect_acceptor(asio::ip::tcp::acceptor& acceptor, const asio::ip::tcp::endpoint& ep, asio::error_code& ec);
 	static void connect_socket(asio::ip::tcp::socket& sock, const char* addrstr, unsigned port, asio::io_context& ioc, asio::error_code& ec);
+
+protected:
+	base_client& local_client; // TODO: tcp_client would be better, but tcp_host_client is not one...
+
+	virtual bool send_packet(packet& pkt);
 
 private:
 	asio::io_context& ioc;
@@ -78,11 +83,6 @@ private:
 	void start_timeout();
 	void handle_timeout(const asio::error_code& ec);
 	void drop_connection(const scc& con);
-
-protected:
-	base_client& local_client; // TODO: tcp_client would be better, but tcp_host_client is not one...
-
-	virtual bool send_packet(packet& pkt);
 };
 
 } //namespace net

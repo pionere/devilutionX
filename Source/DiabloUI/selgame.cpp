@@ -52,7 +52,6 @@ static Uint32 ztNextRefresh;
 #else
 static constexpr bool ztProvider = false;
 static constexpr UiTxtButton* ztBlOckBtn = NULL;
-static constexpr Uint32 ztNextRefresh = 0;
 #endif
 static unsigned selgame_connum;
 static unsigned selgame_conidx;
