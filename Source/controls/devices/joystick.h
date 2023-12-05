@@ -11,8 +11,6 @@
 #include "utils/sdl2_to_1_2_backports.h"
 #endif
 
-#include "../defs.h"
-
 #include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
