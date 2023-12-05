@@ -133,14 +133,13 @@ void protocol_zt::recv_peer(peer_connection& pc)
 	}
 }
 
-bool protocol_zt::send_queued_all()
+void protocol_zt::send_queued_all()
 {
 	for (peer_connection& ap : active_connections) {
 		if (ap.sock != -1) {
 			send_queued_peer(ap);
 		}
 	}
-	return true;
 }
 
 void protocol_zt::recv_from_peers(zt_client* client)
