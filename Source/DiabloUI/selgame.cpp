@@ -416,9 +416,7 @@ static void SelgameAddressListFocus(unsigned index)
 	selgame_Description[0] = '\0';
 
 	int baseFlags = UIS_HCENTER | UIS_VCENTER | UIS_BIG;
-#ifdef ZEROTIER
 	if (!ztProvider) {
-#endif
 		if (index != selgame_connum) {
 			SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
 
@@ -473,8 +471,8 @@ static void SelgameAddressListFocus(unsigned index)
 				selgame_ztPlrDescription[i].teamTxt->m_text = "";
 			}
 		}
-	}
 #endif
+	}
 }
 
 static void SelgameAddressEsc()
@@ -609,25 +607,25 @@ static void SelgameAddressListInit()
 		gUiItems.push_back(selgame_ztGameLabels.speedTxt);
 		static_assert(SELGAME_LPANEL_HEIGHT >= MAX_PLRS * 2 * (SMALL_FONT_HEIGHT + 2) + 30 + SELHERO_HEROS_HEIGHT, "Not enough space to display the player-list of zerotier games.");
 		for (int i = 0; i < MAX_PLRS; i++) {
-			SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELCONN_LIST_TOP + 2 * i * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH, SMALL_FONT_HEIGHT };
+			SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP + 2 * i * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH, SMALL_FONT_HEIGHT };
 			selgame_ztPlrDescription[i].nameContent[0] = '\0';
 			selgame_ztPlrDescription[i].nameTxt = new UiText(&selgame_ztPlrDescription[i].nameContent[0], rect2, UIS_LEFT | UIS_SMALL | UIS_SILVER);
 			gUiItems.push_back(selgame_ztPlrDescription[i].nameTxt);
 
-			SDL_Rect rect4 = { SELGAME_LPANEL_LEFT + 10, SELCONN_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH / 2, SMALL_FONT_HEIGHT };
+			SDL_Rect rect4 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH / 2, SMALL_FONT_HEIGHT };
 			selgame_ztPlrDescription[i].classTxt = new UiText("", rect4, UIS_LEFT | UIS_SMALL | UIS_SILVER);
 			gUiItems.push_back(selgame_ztPlrDescription[i].classTxt);
 
-			SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELCONN_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH / 2 + 40, SMALL_FONT_HEIGHT };
+			SDL_Rect rect3 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH / 2 + 40, SMALL_FONT_HEIGHT };
 			selgame_ztPlrDescription[i].levelContent[0] = '\0';
 			selgame_ztPlrDescription[i].levelTxt = new UiText(&selgame_ztPlrDescription[i].levelContent[0], rect3, UIS_RIGHT | UIS_SMALL | UIS_SILVER);
 			gUiItems.push_back(selgame_ztPlrDescription[i].levelTxt);
 
-			SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + 10 + DESCRIPTION_WIDTH / 2 + 40, SELCONN_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2) - 3, 10, SMALL_FONT_HEIGHT };
+			SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + 10 + DESCRIPTION_WIDTH / 2 + 40, SELGAME_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2) - 3, 10, SMALL_FONT_HEIGHT };
 			selgame_ztPlrDescription[i].rankTxt = new UiText("", rect5, UIS_LEFT | UIS_SMALL | UIS_SILVER);
 			gUiItems.push_back(selgame_ztPlrDescription[i].rankTxt);
 
-			SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELCONN_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH, SMALL_FONT_HEIGHT };
+			SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LIST_TOP + (2 * i + 1) * (SMALL_FONT_HEIGHT + 2), DESCRIPTION_WIDTH, SMALL_FONT_HEIGHT };
 			selgame_ztPlrDescription[i].teamTxt = new UiText("", rect6, UIS_RIGHT | UIS_SMALL | UIS_SILVER);
 			gUiItems.push_back(selgame_ztPlrDescription[i].teamTxt);
 		}
@@ -639,7 +637,7 @@ static void SelgameAddressListInit()
 	}
 	SelgameUpdateViewportItems();
 
-	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELGAME_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_cons };
+	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 25, SELGAME_LIST_TOP, SELGAME_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_cons };
 	gUiItems.push_back(new UiList(&gUIListItems, num_viewport_cons, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect6 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH - SCROLLBAR_BG_WIDTH + 1, SELGAME_CONTENT_TOP - 1, SCROLLBAR_BG_WIDTH, SELGAME_RPANEL_HEIGHT + 1 };
