@@ -624,7 +624,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH)
+if(USE_PATCH AND NOT ANDROID)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -752,7 +752,7 @@ if(CMAKE_STRIP AND NOT DISABLE_STRIP)
     COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 
-  if(USE_PATCH)
+  if(TARGET ${DEVIL_PATCHER})
     add_custom_command(
       TARGET ${DEVIL_PATCHER} POST_BUILD
       DEPENDS ${DEVIL_PATCHER}
@@ -767,7 +767,7 @@ get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(is_multi_config)
   set(CONFIG_PATH $<CONFIG>/config.h)
   target_include_directories(${BIN_TARGET} PRIVATE ${CMAKE_BINARY_DIR}/$<CONFIG>)
-  if(USE_PATCH)
+  if(TARGET ${DEVIL_PATCHER})
     target_include_directories(${DEVIL_PATCHER} PRIVATE ${CMAKE_BINARY_DIR}/$<CONFIG>)
   endif()
 else()
@@ -945,7 +945,7 @@ endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 target_compile_definitions(smacker PRIVATE ${def_list})
-if(USE_PATCH)
+if(TARGET ${DEVIL_PATCHER})
   target_compile_definitions(${DEVIL_PATCHER} PRIVATE ${def_list})
 endif()
 
@@ -1041,7 +1041,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
   target_link_libraries(${BIN_TARGET} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
-  if(USE_PATCH)
+  if(TARGET ${DEVIL_PATCHER})
     target_link_libraries(${DEVIL_PATCHER} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
   endif()
 endif()
@@ -1070,12 +1070,12 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
       OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
     target_compile_options(${BIN_TARGET} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
-    if(USE_PATCH)
+    if(TARGET ${DEVIL_PATCHER})
       target_compile_options(${DEVIL_PATCHER} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
     endif()
   else()
     get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
-    if(USE_PATCH)
+    if(TARGET ${DEVIL_PATCHER})
       get_target_property(devil_patcher_SRCS ${DEVIL_PATCHER} SOURCES)
       list(APPEND devilutionx_SRCS ${devil_patcher_SRCS})
     endif()
@@ -1148,7 +1148,7 @@ if(APPLE)
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 
-  if(USE_PATCH)
+  if(TARGET ${DEVIL_PATCHER})
       set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon.icns")
       set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Packaging/apple/Info.plist")
 
@@ -1160,7 +1160,7 @@ if(APPLE)
         include(BundleUtilities)
         fixup_bundle(\"${CMAKE_BINARY_DIR}/${BIN_TARGET}.app\" \"\" \"\")
         ")
-      if(USE_PATCH)
+      if(TARGET ${DEVIL_PATCHER})
         set(BUNDLE_FIXUP_CODE "${BUNDLE_FIXUP_CODE}fixup_bundle(\"${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.app\" \"\" \"\")
         ")
       endif()
@@ -1360,7 +1360,7 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    if(USE_PATCH)
+    if(TARGET ${DEVIL_PATCHER})
       install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
 
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
@@ -1461,7 +1461,7 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )
-    if(USE_PATCH)
+    if(TARGET ${DEVIL_PATCHER})
       install(TARGETS ${DEVIL_PATCHER} DESTINATION bin)
 
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
