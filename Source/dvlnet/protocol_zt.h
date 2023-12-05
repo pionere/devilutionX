@@ -84,7 +84,7 @@ private:
 
 	void send_queued_peer(peer_connection& pc);
 	void recv_peer(peer_connection& pc);
-	bool send_queued_all();
+	void send_queued_all();
 	void recv_from_peers(zt_client* client);
 	void recv_from_udp(zt_client* client);
 	void accept_all();
