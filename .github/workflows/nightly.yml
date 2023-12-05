@@ -482,16 +482,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
             artifact: 'diablo-nightly-android.apk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
           - name: diablo-adrp
-            cmakeargs: '-D USE_PATCH=ON'
+            cmakearg0: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-androidp.apk'
           - name: hellfire-adrp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+            cmakearg0: '-DUSE_PATCH=ON'
+            cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
     runs-on: ubuntu-latest
     steps:
@@ -525,7 +525,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakeargs="${{ matrix.cmakeargs }}"
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
     - name: Upload-Package
       uses: actions/upload-artifact@v3
