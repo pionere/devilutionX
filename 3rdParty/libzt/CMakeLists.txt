@@ -1,14 +1,26 @@
 include(FetchContent_MakeAvailableExcludeFromAll)
 
-set(BUILD_HOST_SELFTEST OFF)
+set(BUILD_HOST_SELFTEST FALSE)
+set(BUILD_STATIC_LIB TRUE)
+set(BUILD_SHARED_LIB FALSE)
+set(ALLOW_INSTALL_TARGET FALSE)
+set(OMIT_JSON_SUPPORT TRUE)
 
 include(FetchContent)
 FetchContent_Declare(libzt
-  GIT_REPOSITORY https://github.com/diasurgical/libzt.git
-  GIT_TAG 47e38259e9c99ba2d8e7241515fa1b56cb538c8c)
+  #GIT_REPOSITORY https://github.com/diasurgical/libzt.git
+  #GIT_TAG 47e38259e9c99ba2d8e7241515fa1b56cb538c8c)
+  GIT_REPOSITORY https://github.com/pionere/libzt.git
+  GIT_TAG 9c5e17523dff33e63fef7bb17f667c2d944e6049)
 FetchContent_MakeAvailableExcludeFromAll(libzt)
 
-if(NOT ANDROID)
+#if(NOT ANDROID)
+#  set(libzt_LIB_NAME zt-static)
+#  #set(libzt_LIB_NAME zt-shared)
+#else()
+#  set(libzt_LIB_NAME zt-shared)
+#endif()
+if(TARGET zt-static)
   set(libzt_LIB_NAME zt-static)
 else()
   set(libzt_LIB_NAME zt-shared)
@@ -30,7 +42,7 @@ foreach(
 )
   if(TARGET ${lib_name})
     # External library, ignore all warnings
-    target_compile_options(${lib_name} PRIVATE -w)
+    #target_compile_options(${lib_name} PRIVATE -w)
   endif()
 endforeach(lib_name)
 
@@ -71,8 +83,8 @@ if(MINGW_CROSS)
   target_link_libraries(${libzt_LIB_NAME} mingw_stdthreads)
 endif()
 
-if(MSVC)
-  target_compile_definitions(libnatpmp_obj PRIVATE -DSTATICLIB)
-endif()
+#if(MSVC AND TARGET libnatpmp_obj)
+#  target_compile_definitions(libnatpmp_obj PRIVATE -DSTATICLIB)
+#endif()
 
 add_library(zt ALIAS ${libzt_LIB_NAME})
