@@ -852,7 +852,11 @@ void InitLvlPlayer(int pnum, bool entering)
 	} else {
 		plr._plid = NO_LIGHT;
 	}
-	plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	if (currLvl._dLevelIdx != DLV_TOWN) {
+		plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	} else {
+		plr._pvid = NO_VISION;
+	}
 }
 
 void RemoveLvlPlayer(int pnum)
@@ -1786,7 +1790,7 @@ void StartNewLvl(int pnum, int fom, int lvl)
 		net_assert(0);
 		ASSUME_UNREACHABLE
 	}
-	net_assert(lvl < NUM_LEVELS);
+	// net_assert(lvl < NUM_LEVELS);
 	plr._pDunLevel = lvl;
 	if (pnum == mypnum) {
 		PostMessage(fom);
@@ -2033,10 +2037,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
-	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += fdam + ldam + mdam + adam;
-		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
-	}
+	dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;

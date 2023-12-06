@@ -443,7 +443,6 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 				pn = dPiece[i][j];
 				if (pn == 270)
 					AddObject(OBJ_L1LIGHT, i, j);
-				// these pieces are closed doors which are placed directly
 			}
 		}
 		wdoor = OBJ_L1LDOOR;
@@ -2042,6 +2041,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapChance != 0) {
 		os->_oTrapChance = 0;
+		PlaySfxLoc(IS_TRAP, os->_ox, os->_oy);
 		SetRndSeed(os->_oRndSeed);
 		if (currLvl._dType == DTYPE_CATACOMBS) {
 			mtype = 2;

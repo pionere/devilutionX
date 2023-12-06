@@ -311,6 +311,7 @@ static void InitMonsterStats(int midx)
 {
 	MapMonData* cmon;
 	const MonsterData* mdata;
+	unsigned baseLvl, lvlBonus, monLvl;
 
 	cmon = &mapMonTypes[midx];
 
@@ -329,59 +330,71 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinDamage2 = mdata->mMinDamage2;
 	cmon->cmMaxDamage2 = mdata->mMaxDamage2;
 	cmon->cmMagic = mdata->mMagic;
-	cmon->cmMagic2 = mdata->mMagic2;
 	cmon->cmArmorClass = mdata->mArmorClass;
 	cmon->cmEvasion = mdata->mEvasion;
 	cmon->cmMagicRes = mdata->mMagicRes;
-	cmon->cmTreasure = mdata->mTreasure;
 	cmon->cmExp = mdata->mExp;
 	cmon->cmMinHP = mdata->mMinHP;
 	cmon->cmMaxHP = mdata->mMaxHP;
 
-	cmon->cmAI.aiInt += gnDifficulty;
+	lvlBonus = 0;
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		cmon->cmMinHP = 2 * cmon->cmMinHP + 100;
-		cmon->cmMaxHP = 2 * cmon->cmMaxHP + 100;
-		cmon->cmLevel += NIGHTMARE_LEVEL_BONUS;
-		cmon->cmExp = 2 * (cmon->cmExp + DIFFICULTY_EXP_BONUS);
+		lvlBonus = NIGHTMARE_LEVEL_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		lvlBonus = HELL_LEVEL_BONUS;
+	}
+	cmon->cmAI.aiInt += lvlBonus / 16;
+
+	cmon->cmHit += lvlBonus * 5 / 2;
+	cmon->cmHit2 += lvlBonus * 5 / 2;
+	cmon->cmMagic += lvlBonus * 5 / 2;
+	cmon->cmEvasion += lvlBonus * 5 / 2;
+	cmon->cmArmorClass += lvlBonus * 5 / 2;
+
+	baseLvl = cmon->cmLevel;
+	monLvl = baseLvl + lvlBonus;
+	cmon->cmLevel = monLvl;
+	cmon->cmMinHP = monLvl * cmon->cmMinHP / baseLvl;
+	cmon->cmMaxHP = monLvl * cmon->cmMaxHP / baseLvl;
+	cmon->cmExp = monLvl * cmon->cmExp / baseLvl;
+	cmon->cmMinDamage = monLvl * cmon->cmMinDamage / baseLvl;
+	cmon->cmMaxDamage = monLvl * cmon->cmMaxDamage / baseLvl;
+	cmon->cmMinDamage2 = monLvl * cmon->cmMinDamage2 / baseLvl;
+	cmon->cmMaxDamage2 = monLvl * cmon->cmMaxDamage2 / baseLvl;
+
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		/*cmon->cmMinHP = 3 * cmon->cmMinHP / 2;
+		cmon->cmMaxHP = 3 * cmon->cmMaxHP / 2;
+		cmon->cmExp = 3 * cmon->cmExp / 2;
+		cmon->cmMinDamage = 3 * cmon->cmMinDamage / 2;
+		cmon->cmMaxDamage = 3 * cmon->cmMaxDamage / 2;
+		cmon->cmMinDamage2 = 3 * cmon->cmMinDamage2 / 2;
+		cmon->cmMaxDamage2 = 3 * cmon->cmMaxDamage2 / 2;
 		cmon->cmHit += NIGHTMARE_TO_HIT_BONUS;
 		cmon->cmMagic += NIGHTMARE_MAGIC_BONUS;
-		cmon->cmMinDamage = 2 * (cmon->cmMinDamage + 2);
-		cmon->cmMaxDamage = 2 * (cmon->cmMaxDamage + 2);
 		cmon->cmHit2 += NIGHTMARE_TO_HIT_BONUS;
-		//cmon->cmMagic2 += NIGHTMARE_MAGIC_BONUS;
-		cmon->cmMinDamage2 = 2 * (cmon->cmMinDamage2 + 2);
-		cmon->cmMaxDamage2 = 2 * (cmon->cmMaxDamage2 + 2);
 		cmon->cmArmorClass += NIGHTMARE_AC_BONUS;
-		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;
+		cmon->cmEvasion += NIGHTMARE_EVASION_BONUS;*/
 	} else if (gnDifficulty == DIFF_HELL) {
-		cmon->cmMinHP = 4 * cmon->cmMinHP + 200;
-		cmon->cmMaxHP = 4 * cmon->cmMaxHP + 200;
-		cmon->cmLevel += HELL_LEVEL_BONUS;
-		cmon->cmExp = 4 * (cmon->cmExp + DIFFICULTY_EXP_BONUS);
+		/*cmon->cmMinHP *= 2;
+		cmon->cmMaxHP *= 2;
+		cmon->cmExp *= 2;
+		cmon->cmMinDamage2 *= 2;
+		cmon->cmMaxDamage2 *= 2;
 		cmon->cmHit += HELL_TO_HIT_BONUS;
 		cmon->cmMagic += HELL_MAGIC_BONUS;
-		cmon->cmMinDamage = 4 * cmon->cmMinDamage + 6;
-		cmon->cmMaxDamage = 4 * cmon->cmMaxDamage + 6;
 		cmon->cmHit2 += HELL_TO_HIT_BONUS;
-		//cmon->cmMagic2 += HELL_MAGIC_BONUS;
-		cmon->cmMinDamage2 = 4 * cmon->cmMinDamage2 + 6;
-		cmon->cmMaxDamage2 = 4 * cmon->cmMaxDamage2 + 6;
 		cmon->cmArmorClass += HELL_AC_BONUS;
-		cmon->cmEvasion += HELL_EVASION_BONUS;
+		cmon->cmEvasion += HELL_EVASION_BONUS;*/
 		cmon->cmMagicRes = monsterdata[cmon->cmType].mMagicRes2;
 	}
 
-	if (!IsMultiGame) {
-		cmon->cmMinHP >>= 1;
-		cmon->cmMaxHP >>= 1;
-		if (cmon->cmMinHP == 0) {
-			cmon->cmMinHP = 1;
-		}
-		if (cmon->cmMaxHP == 0) {
-			cmon->cmMaxHP = 1;
-		}
-	}
+	int mpl = currLvl._dLevelPlyrs;
+	// assert(mpl != 0);
+	mpl++;
+	cmon->cmMinHP = (cmon->cmMinHP * mpl) >> 1;
+	cmon->cmMaxHP = (cmon->cmMaxHP * mpl) >> 1;
+	cmon->cmExp = (cmon->cmExp * mpl) >> 1;
 }
 
 static bool IsSkel(int mt)
@@ -513,6 +526,8 @@ void GetLevelMTypes()
 			AddMonsterType(uniqMonData[UMT_GARBUD].mtype, FALSE);
 		if (lvl == uniqMonData[UMT_ZHAR].muLevelIdx && quests[Q_ZHAR]._qactive != QUEST_NOTAVAIL)
 			AddMonsterType(uniqMonData[UMT_ZHAR].mtype, FALSE);
+		if (lvl == uniqMonData[UMT_ZAMPHIR].muLevelIdx && quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL)
+			AddMonsterType(uniqMonData[UMT_ZAMPHIR].mtype, FALSE);
 		//if (QuestStatus(Q_BANNER)) {
 		//	AddMonsterType(uniqMonData[UMT_SNOTSPIL].mtype, FALSE);
 		//	// AddMonsterType(MT_NFAT, FALSE);
@@ -597,11 +612,10 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mMinDamage2 = cmon->cmMinDamage2;
 	mon->_mMaxDamage2 = cmon->cmMaxDamage2;
 	mon->_mMagic = cmon->cmMagic;
-	mon->_mMagic2 = cmon->cmMagic2;
 	mon->_mArmorClass = cmon->cmArmorClass;
 	mon->_mEvasion = cmon->cmEvasion;
 	mon->_mMagicRes = cmon->cmMagicRes;
-	mon->_mTreasure = cmon->cmTreasure;
+	mon->_mAlign_1 = cmon->cmAlign_1;
 	mon->_mExp = cmon->cmExp;
 	mon->_mAnimWidth = cmon->cmWidth;
 	mon->_mAnimXOffset = cmon->cmXOffset;
@@ -623,11 +637,9 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mMinDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMinDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XII.");
 	static_assert(offsetof(MonsterStruct, _mMaxDamage2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMaxDamage2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIII.");
 	static_assert(offsetof(MonsterStruct, _mMagic) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIV.");
-	static_assert(offsetof(MonsterStruct, _mMagic2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagic2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XV.");
 	static_assert(offsetof(MonsterStruct, _mArmorClass) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmArmorClass) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVI.");
 	static_assert(offsetof(MonsterStruct, _mEvasion) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmEvasion) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVII.");
 	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
-	static_assert(offsetof(MonsterStruct, _mTreasure) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmTreasure) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XIX.");
 	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
 	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
 	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
@@ -635,7 +647,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
 	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
 	memcpy(&mon->_mName, &cmon->cmName, offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName) + sizeof(cmon->cmAlign_0));
-	mon->_mhitpoints = mon->_mmaxhp = RandRangeLow(cmon->cmMinHP, cmon->cmMaxHP) << 6;
+	mon->_mhitpoints = mon->_mmaxhp = RandRange(cmon->cmMinHP, cmon->cmMaxHP) << 6;
 	mon->_mAnims = cmon->cmAnims;
 	mon->_mAnimData = cmon->cmAnims[MA_STAND].maAnimData[dir];
 	mon->_mAnimFrameLen = cmon->cmAnims[MA_STAND].maFrameLen;
@@ -717,6 +729,14 @@ void WakeNakrul()
 }
 #endif
 
+void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y)
+{
+	static_assert(DLV_TOWN == 0, "InitSummonedMonster skips the first entry glSeedTbl assuming the 'dynamic' seed is stored there.");
+	SetRndSeed(glSeedTbl[(mnum % (NUM_LEVELS - 1)) + 1]);
+	InitMonster(mnum, dir, mtidx, x, y);
+	monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+}
+
 int SummonMonster(int x, int y, int dir, int mtidx)
 {
 	unsigned mnum;
@@ -727,11 +747,7 @@ int SummonMonster(int x, int y, int dir, int mtidx)
 
 		nummonsters++;
 		dMonster[x][y] = mnum + 1;
-		// TODO: InitSummonedMonster ?
-		SetRndSeed(glSeedTbl[mnum % NUM_LEVELS]);
-		InitMonster(mnum, dir, mtidx, x, y);
-		monsters[mnum]._mTreasure = NO_DROP;
-		monsters[mnum]._mFlags |= MFLAG_NOCORPSE;
+		InitSummonedMonster(mnum, dir, mtidx, x, y);
 		NetSendCmdMonstSummon(mnum);
 		return mnum;
 	}
@@ -836,6 +852,7 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
+	unsigned baseLvl, lvlBonus, monLvl;
 
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
@@ -871,33 +888,59 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	mon->_mMagic += uniqm->mUnqMag;
 	mon->_mEvasion += uniqm->mUnqEva;
 	mon->_mArmorClass += uniqm->mUnqAC;
-	mon->_mAI.aiInt += gnDifficulty;
+
+	lvlBonus = 0;
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		lvlBonus = NIGHTMARE_LEVEL_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		lvlBonus = HELL_LEVEL_BONUS;
+	}
+	mon->_mAI.aiInt += lvlBonus / 16;
+
+	/*mon->_mHit += lvlBonus * 5 / 2;
+	mon->_mHit2 += lvlBonus * 5 / 2;
+	mon->_mMagic += lvlBonus * 5 / 2;
+	mon->_mEvasion += lvlBonus * 5 / 2;
+	mon->_mArmorClass += lvlBonus * 5 / 2;*/
+
+	baseLvl = mon->_mLevel;
+	monLvl = baseLvl + lvlBonus;
+	mon->_mLevel = monLvl;
+	mon->_mmaxhp = monLvl * mon->_mmaxhp / baseLvl;
+	// mon->_mExp = monLvl * mon->_mExp / baseLvl;
+	mon->_mMinDamage = monLvl * mon->_mMinDamage / baseLvl;
+	mon->_mMaxDamage = monLvl * mon->_mMaxDamage / baseLvl;
+	mon->_mMinDamage2 = monLvl * mon->_mMinDamage2 / baseLvl;
+	mon->_mMaxDamage2 = monLvl * mon->_mMaxDamage2 / baseLvl;
 
 	if (gnDifficulty == DIFF_NIGHTMARE) {
-		mon->_mmaxhp = 2 * mon->_mmaxhp + 100;
-		mon->_mLevel += NIGHTMARE_LEVEL_BONUS;
-		mon->_mMinDamage = 2 * (mon->_mMinDamage + 2);
-		mon->_mMaxDamage = 2 * (mon->_mMaxDamage + 2);
-		mon->_mMinDamage2 = 2 * (mon->_mMinDamage2 + 2);
-		mon->_mMaxDamage2 = 2 * (mon->_mMaxDamage2 + 2);
+		/*mon->_mmaxhp = 3 * mon->_mmaxhp / 2;
+		mon->_mMinDamage = 3 * mon->_mMinDamage / 2;
+		mon->_mMaxDamage = 3 * mon->_mMaxDamage / 2;
+		mon->_mMinDamage2 = 3 * mon->_mMinDamage2 / 2;
+		mon->_mMaxDamage2 = 3 * mon->_mMaxDamage2 / 2;*/
 	} else if (gnDifficulty == DIFF_HELL) {
-		mon->_mmaxhp = 4 * mon->_mmaxhp + 200;
-		mon->_mLevel += HELL_LEVEL_BONUS;
-		mon->_mMinDamage = 4 * mon->_mMinDamage + 6;
-		mon->_mMaxDamage = 4 * mon->_mMaxDamage + 6;
-		mon->_mMinDamage2 = 4 * mon->_mMinDamage2 + 6;
-		mon->_mMaxDamage2 = 4 * mon->_mMaxDamage2 + 6;
+		/*mon->_mmaxhp *= 2;
+		mon->_mMinDamage *= 2;
+		mon->_mMaxDamage *= 2;
+		mon->_mMinDamage2 *= 2;
+		mon->_mMaxDamage2 *= 2;*/
 		mon->_mMagicRes = uniqm->mMagicRes2;
 	}
-	mon->_mmaxhp <<= 6;
-	if (!IsMultiGame) {
-		mon->_mmaxhp >>= 1;
-		// assert(mon->_mmaxhp >= 64);
-	}
+
+	int mpl = currLvl._dLevelPlyrs;
+	// assert(mpl != 0);
+	mpl++;
+	/*mon->_mmaxhp = (mon->_mmaxhp * mpl) >> 1;
+	// mon->_mExp = (mon->_mExp * mpl) >> 1;
+
+	mon->_mmaxhp <<= 6;*/
+	mon->_mmaxhp = (mon->_mmaxhp * mpl) << (6 - 1);
+
 	mon->_mhitpoints = mon->_mmaxhp;
 
 	if (uniqm->mUnqFlags & UMF_NODROP)
-		mon->_mTreasure = NO_DROP;
+		mon->_mFlags |= MFLAG_NODROP;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 	if (uniqm->mUnqFlags & UMF_LIGHT) {
 		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
@@ -1897,22 +1940,42 @@ static void MonDiabloDeath(int mnum, bool sendmsg)
 static void SpawnLoot(int mnum, bool sendmsg)
 {
 	MonsterStruct* mon;
+	int mx, my;
 
 	mon = &monsters[mnum];
+	if (mon->_mFlags & MFLAG_NODROP) {
+		return;
+	}
 	SetRndSeed(mon->_mRndSeed);
+	mx = mon->_mx;
+	my = mon->_my;
 	switch (mon->_muniqtype - 1) {
 	case UMT_GARBUD:
 		assert(QuestStatus(Q_GARBUD));
-		CreateTypeItem(mon->_mx, mon->_my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		CreateTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
 		//if (IsSFXPlaying(USFX_LAZ1))
 			StopStreamSFX();
 		break;
+	case UMT_SKELKING:
+	case UMT_BUTCHER:
+		if (!IsMultiGame) {
+			int idx = (mon->_muniqtype - 1 == UMT_BUTCHER) ? UITEM_CLEAVER : UITEM_SKCROWN;
+			SpawnUnique(idx, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			return;
+		}
+		break;
+	case UMT_ZAMPHIR:
+		if (quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL) {
+			SpawnQuestItemAt(IDI_BRAIN, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			return;
+		}
+		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
-			SpawnQuestItemAt(IDI_THEODORE, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			SpawnQuestItemAt(IDI_THEODORE, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
@@ -1923,7 +1986,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
 			NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
-		SpawnQuestItemAt(IDI_FANG, mon->_mx, mon->_my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnQuestItemAt(IDI_FANG, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_NAKRUL:
 		//if (IsSFXPlaying(USFX_NAKRUL4) || IsSFXPlaying(USFX_NAKRUL5) || IsSFXPlaying(USFX_NAKRUL6))
@@ -1935,11 +1998,11 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
 		SpawnMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
 		SpawnMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);*/
-		SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg); // double reward
+		SpawnMonItem(mnum, mx, my, sendmsg); // double reward
 		break;
 #endif
 	}
-	SpawnMonItem(mnum, mon->_mx, mon->_my, sendmsg);
+	SpawnMonItem(mnum, mx, my, sendmsg);
 }
 
 static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
@@ -2087,7 +2150,10 @@ static void MonStartHeal(int mnum)
 	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].maFrames;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(4, 7)); // HEAL_SPEED
+	static_assert((SQUELCH_MAX - SQUELCH_LOW) >= 16 * 8, "MonStartHeal might relax while healing.");
+	// assert(mon->_msquelch == SQUELCH_MAX);
+	// assert(mon->_mmaxhp >= 2 * 64);
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(5, 8)); // HEAL_SPEED
 }
 
 static bool MonDoStand(int mnum)
@@ -2557,7 +2623,7 @@ static bool MonDoDelay(int mnum)
 	mon->_mdir = MonEnemyLastDir(mnum);
 	mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 
-	if (mon->_mVar2-- == 0) { // DELAY_TICK
+	if (mon->_mVar2-- <= 0) { // DELAY_TICK
 		mon->_mmode = MM_STAND;
 		mon->_mVar1 = MM_DELAY; // STAND_PREV_MODE
 		// MonFindEnemy(mnum);
@@ -3081,14 +3147,16 @@ void MAI_Sneak(int mnum)
 	dist = currEnemyInfo._meRealDist;
 	md = currEnemyInfo._meLastDir;
 	range = 7 - mon->_mAI.aiInt;
+	if (range < 4)
+		range = 4;
 	if (mon->_mgoal != MGOAL_RETREAT) {
 		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
 			mon->_mgoal = MGOAL_RETREAT;
 #if DEBUG
-			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (7 + 2) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-			static_assert(12 * 9 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
-			mon->_mgoalvar1 = 9; // RETREAT_DISTANCE
+			static_assert(12 * (7 + 2) < SQUELCH_MAX - SQUELCH_LOW, "MAI_Sneak might relax with retreat goal.");
+			mon->_mgoalvar1 = range + 2; // RETREAT_DISTANCE
 		}
 	} else {
 		if (dist > range || --mon->_mgoalvar1 == 0) { // RETREAT_DISTANCE
@@ -3105,8 +3173,7 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	v = random_(112, 100);
 	range -= 2;
-	if (range < 2)
-		range = 2;
+	// assert(range >= 2);
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadein(mnum, mon->_mdir, false);
 	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
@@ -3188,19 +3255,22 @@ void MAI_Fallen(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
 			MonStartSpStand(mnum, mon->_mdir);
+			rad = mon->_mAI.aiInt;
 			//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
-				rad = mon->_mhitpoints + 2 * mon->_mAI.aiInt + 2;
-				mon->_mhitpoints = std::min(mon->_mmaxhp, rad);
+				amount = mon->_mhitpoints + 2 * rad + 2;
+				mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
 			//}
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 			assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
 			static_assert((2 * 5 + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-			amount = 2 * mon->_mAI.aiInt + 8;
-			rad = 2 * mon->_mAI.aiInt + 4;
+			if (rad > 5) {
+				rad = 5;
+			}
+			amount = 2 * rad + 8;
+			rad = 2 * rad + 4;
 			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 5 + 4, "MAI_Fallen expects a large enough border.");
-			assert(rad <= DBORDERX);
 			mx = mon->_mx;
 			my = mon->_my;
 			for (y = -rad; y <= rad; y++) {
@@ -3275,8 +3345,7 @@ void MAI_Cleaver(int mnum)
 void MAI_Round(int mnum)
 {
 	MonsterStruct* mon;
-	int md;
-	int dist, v;
+	int md, dist, v;
 
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)
@@ -3296,9 +3365,7 @@ void MAI_Round(int mnum)
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
 			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
-				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3350,8 +3417,9 @@ void MAI_Ranged(int mnum)
 				walking = MonCallWalk(mnum, OPPOSITE(mon->_mdir));
 		}
 		if (!walking) {
-			md = random_low(118, 20 - mon->_mAI.aiInt); // STAND_PREV_MODE
-			if (mon->_mVar1 == MM_DELAY || md == 0) {
+			md = std::max(1, 20 - mon->_mAI.aiInt);
+			md = random_low(118, md); // STAND_PREV_MODE
+			if (md == 0 || mon->_mVar1 == MM_DELAY) {
 				if (EnemyInLine(mnum)) {
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
@@ -3527,7 +3595,7 @@ void MAI_Garg(int mnum)
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
 			// wake up if the enemy is close
-			static_assert(DBORDERX + DBORDERY > (5 + 2) * 2, "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is always 'far' from (0;0).");
+			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is usually 'far' from (0;0)."); // (_menemyx;_menemyy)
 			if (dist < mon->_mAI.aiInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
@@ -3553,6 +3621,7 @@ void MAI_Garg(int mnum)
 #endif
 			mon->_mgoal = MGOAL_RETREAT;
 	if (mon->_mgoal == MGOAL_RETREAT) {
+		mon->_msquelch = SQUELCH_MAX;
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= mon->_mAI.aiInt + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
@@ -3626,9 +3695,10 @@ void MAI_RoundRanged(int mnum)
 		} else if (v < 10 * (mon->_mAI.aiInt + 6)) {
 			MonStartAttack(mnum);
 		}
-	}
-	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+		if (mon->_mmode == MM_STAND) {
+			v = std::max(1, RandRange(6, 13) - mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
+		}
 	}
 }
 
@@ -3695,9 +3765,9 @@ void MAI_RoundRanged2(int mnum)
 					MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			}
 		}
-	}
-	if (mon->_mmode == MM_STAND) {
-		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+		if (mon->_mmode == MM_STAND) {
+			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
+		}
 	}
 }
 
@@ -3771,9 +3841,7 @@ void MAI_SkelKing(int mnum)
 				mon->_mgoalvar2 = random_(128, 2); // MOVE_TURN_DIRECTION
 			}
 			if ((mon->_mgoalvar1++ < 2 * dist && MonDirOK(mnum, md)) /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-				if (!MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3833,9 +3901,7 @@ void MAI_Rhino(int mnum)
 				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3889,9 +3955,7 @@ void MAI_Horkdemon(int mnum)
 				mon->_mgoalvar2 = random_(133, 2); // MOVE_TURN_DIRECTION
 			}
 			if (mon->_mgoalvar1++ < 2 * dist /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-				if (!MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
-					MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
-				}
+				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
 			}
@@ -3976,6 +4040,10 @@ void MAI_Counselor(int mnum)
 				MonStartRAttack(mnum, MIS_FLASH);
 			}
 		}
+		if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
+			v = std::max(1, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
+		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		if (--mon->_mgoalvar1 != 0) // RETREAT_DISTANCE
 			MonCallWalk(mnum, OPPOSITE(md));
@@ -3992,9 +4060,6 @@ void MAI_Counselor(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, md, true);
 		}
-	}
-	if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
-		MonStartDelay(mnum, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
 	}
 }
 

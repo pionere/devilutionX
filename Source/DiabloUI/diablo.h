@@ -28,7 +28,21 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo);
 void pfile_ui_delete_save(_uiheroinfo* hero_info);
 
 /* Defined in multi.cpp */
-void multi_handle_events(SNetEvent* pEvt);
+void multi_ui_handle_events(SNetEventHdr* pEvt);
+#ifndef NOHOSTING
+int multi_ui_handle_turn();
+#endif
+
+/* Defined in plrmsg.cpp */
+/*extern bool gbTalkflag;
+void DrawPlrMsg(bool onTop);
+void StartPlrMsg();
+void VersionPlrMsg();
+void StopPlrMsg();
+void plrmsg_HandleMouseReleaseEvent();
+bool plrmsg_presskey(int vkey);
+void plrmsg_CatToText(const char* inBuf);
+void plrmsg_HandleMouseMoveEvent();*/
 
 #ifdef __cplusplus
 }

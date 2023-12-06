@@ -418,13 +418,10 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum)
 	mon->_mMaxDamage2 = savedMon->vmMaxDamage2;
 
 	mon->_mMagic = savedMon->vmMagic;
-	mon->_mMagic2 = savedMon->vmMagic2; // unused
 	mon->_mArmorClass = savedMon->vmArmorClass;
 	mon->_mEvasion = savedMon->vmEvasion;
 
 	mon->_mMagicRes = savedMon->vmMagicRes;
-	mon->_mTreasure = savedMon->vmTreasure;
-
 	mon->_mExp = savedMon->vmExp;
 #else
 	// preserve AnimData, AnimFrameLen and Name members for towners to prevent the need for SyncTownerAnim
@@ -639,16 +636,12 @@ static BYTE* LoadPortal(BYTE* DVL_RESTRICT src, int i)
 
 	LSavePortalStruct* DVL_RESTRICT savedPortal = (LSavePortalStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
-	pPortal->_ropen = savedPortal->vropen;
-	pPortal->_rAlign0 = savedPortal->vrAlign0;
-	pPortal->_rAlign1 = savedPortal->vrAlign1;
-	pPortal->_rAlign2 = savedPortal->vrAlign2;
-
+	pPortal->_rlevel = savedPortal->vrlevel;
 	pPortal->_rx = savedPortal->vrx;
 	pPortal->_ry = savedPortal->vry;
-	pPortal->_rlevel = savedPortal->vrlevel;
+	// pPortal->alignment[0] = savedPortal->vrAlign0;
 #else
-	static_assert(sizeof(LSavePortalStruct) == offsetof(LSavePortalStruct, vrlevel) + sizeof(savedPortal->vrlevel)
+	static_assert(sizeof(LSavePortalStruct) == offsetof(LSavePortalStruct, vrAlign0) + sizeof(savedPortal->vrAlign0)
 	 && offsetof(PortalStruct, _rlevel) == offsetof(LSavePortalStruct, vrlevel), "LoadPortal uses memcpy to load the LSavePortalStruct in PortalStruct.");
 	memcpy(pPortal, savedPortal, sizeof(LSavePortalStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
@@ -773,7 +766,7 @@ void LoadGame()
 
 	FreeLevelMem();
 	// TODO: UIDisconnectGame() ?
-	SNetLeaveGame(LEAVE_NORMAL);
+	SNetLeaveGame();
 
 	pfile_delete_save_file(false);
 	pfile_read_save_file(true);
@@ -788,10 +781,9 @@ void LoadGame()
 	// assert(gbNetUpdateRate == 1);
 	gdwLastGameTurn = gdwGameLogicTurn;
 	sgbSentThisCycle = ghs->vhSentCycle;
-	i = ghs->vhLvlDifficulty;
-	gnDifficulty = (i >> 8) & 0xFF;
-	currLvl._dLevelIdx = i & 0xFF;
-	EnterLevel(i & 0xFF);
+	gnDifficulty = ghs->vhDifficulty;
+	currLvl._dLevelIdx = ghs->vhCurrLevel;
+	EnterLevel(currLvl._dLevelIdx);
 	for (i = 0; i < NUM_LEVELS; i++) {
 		glSeedTbl[i] = ghs->vhSeeds[i];
 	}
@@ -1284,13 +1276,10 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum, bool full)
 	monSave->vmMaxDamage2 = mon->_mMaxDamage2;
 
 	monSave->vmMagic = mon->_mMagic;
-	monSave->vmMagic2 = mon->_mMagic2;
 	monSave->vmArmorClass = mon->_mArmorClass;
 	monSave->vmEvasion = mon->_mEvasion;
 
 	monSave->vmMagicRes = mon->_mMagicRes;
-	monSave->vmTreasure = mon->_mTreasure;
-
 	monSave->vmExp = mon->_mExp;
 #else
 	static_assert(sizeof(LSaveMonsterStruct) == offsetof(LSaveMonsterStruct, vmExp) + sizeof(monSave->vmExp)
@@ -1491,16 +1480,12 @@ static BYTE* SavePortal(BYTE* DVL_RESTRICT dest, int i)
 
 	LSavePortalStruct* DVL_RESTRICT portalSave = (LSavePortalStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
-	portalSave->vropen = pPortal->_ropen;
-	portalSave->vrAlign0 = pPortal->_rAlign0;
-	portalSave->vrAlign1 = pPortal->_rAlign1;
-	portalSave->vrAlign2 = pPortal->_rAlign2;
-
+	portalSave->vrlevel = pPortal->_rlevel;
 	portalSave->vrx = pPortal->_rx;
 	portalSave->vry = pPortal->_ry;
-	portalSave->vrlevel = pPortal->_rlevel;
+	// portalSave->vrAlign0 = pPortal->alignment[0];
 #else
-	static_assert(sizeof(LSavePortalStruct) == offsetof(LSavePortalStruct, vrlevel) + sizeof(portalSave->vrlevel)
+	static_assert(sizeof(LSavePortalStruct) == offsetof(LSavePortalStruct, vrAlign0) + sizeof(portalSave->vrAlign0)
 	 && offsetof(PortalStruct, _rlevel) == offsetof(LSavePortalStruct, vrlevel), "SavePortal uses memcpy to store the PortalStruct in LSavePortalStruct.");
 	memcpy(portalSave, pPortal, sizeof(LSavePortalStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
@@ -1601,7 +1586,6 @@ void SaveGame()
 	BYTE* fileBuff = gsDeltaData.ddBuffer;
 	BYTE* tbuff = fileBuff;
 
-
 	constexpr size_t ss = sizeof(LSaveGameHeaderStruct) + sizeof(LSavePlayerStruct) + sizeof(LSaveQuestStruct) * NUM_QUESTS + sizeof(LSavePortalStruct) * MAXPORTAL;
 	ghs = (LSaveGameHeaderStruct*)tbuff;
 	ghs->vhInitial = SAVE_INITIAL;
@@ -1610,8 +1594,8 @@ void SaveGame()
 	assert(gdwLastGameTurn == gdwGameLogicTurn
 	 || ((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
 	ghs->vhSentCycle = sgbSentThisCycle;
-	i = (gnDifficulty << 8) | currLvl._dLevelIdx;
-	ghs->vhLvlDifficulty = i;
+	ghs->vhCurrLevel = currLvl._dLevelIdx;
+	ghs->vhDifficulty = gnDifficulty;
 	for (i = 0; i < NUM_LEVELS; i++) {
 		ghs->vhSeeds[i] = glSeedTbl[i];
 	}

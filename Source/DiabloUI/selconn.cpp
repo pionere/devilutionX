@@ -140,7 +140,7 @@ static void SelconnSelect(unsigned index)
 bool UiSelectProvider(bool bMulti)
 {
 	selconn_bMulti = bMulti;
-
+#ifndef NONET
 	if (selconn_bMulti) {
 		SelconnLoad();
 
@@ -157,7 +157,9 @@ bool UiSelectProvider(bool bMulti)
 	} else {
 		provider = SELCONN_LOOPBACK;
 	}
-
+#else
+	provider = SELCONN_LOOPBACK;
+#endif
 	SNetInitializeProvider(provider);
 	return true;
 }

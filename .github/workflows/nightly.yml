@@ -72,7 +72,7 @@ jobs:
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v11.1
+      uses: lukka/run-vcpkg@v11.3
       with:
         vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
         #setupOnly: true
@@ -482,16 +482,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
             artifact: 'diablo-nightly-android.apk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
           - name: diablo-adrp
-            cmakeargs: '-D USE_PATCH=ON'
+            cmakearg0: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-androidp.apk'
           - name: hellfire-adrp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+            cmakearg0: '-DUSE_PATCH=ON'
+            cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
     runs-on: ubuntu-latest
     steps:
@@ -504,7 +504,7 @@ jobs:
         fetch-depth: 0
 
     - name: set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -525,7 +525,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakeargs="${{ matrix.cmakeargs }}"
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
     - name: Upload-Package
       uses: actions/upload-artifact@v3

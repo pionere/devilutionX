@@ -13,6 +13,7 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
+#include "engine/render/raw_render.h"
 #include "utils/screen_reader.hpp"
 #ifdef __SWITCH__
 // for virtual keyboard on Switch
@@ -29,7 +30,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define FOCUS_FRAME_COUNT 8
+#define FOCUS_FRAME_COUNT   8
+#define EDIT_SELECTOR_WIDTH 43
 
 CelImageBuf* gbBackCel;
 static CelImageBuf* gbLogoCelSmall;
@@ -57,12 +59,6 @@ bool gUiDrawCursor;
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue = 0;
 
-typedef struct ScrollBarState {
-	int8_t upPressCounter;
-	int8_t downPressCounter;
-} ScrollBarState;
-static ScrollBarState scrollBarState;
-
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
 	gUiDrawCursor = true;
@@ -74,13 +70,13 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
 	gfnListDelete = NULL;
+	if (fnFocus != NULL)
+		fnFocus(SelectedItem);
 #if SCREEN_READER_INTEGRATION
 	if (gUIListItems.size() > SelectedItem) {
 		SpeakText(gUIListItems[SelectedItem]->m_text);
 	}
 #endif
-	if (fnFocus != NULL)
-		fnFocus(SelectedItem);
 
 	gUiEditField = NULL;
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
@@ -97,8 +93,6 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, void (*fnDelete)(
 	} else {
 		uiSb->m_iFlags &= ~UIS_HIDDEN;
 	}
-	scrollBarState.upPressCounter = -1;
-	scrollBarState.downPressCounter = -1;
 }
 
 void UiInitEdit(UiEdit* uiEdit)
@@ -147,15 +141,15 @@ static void UiFocus(unsigned itemIndex)
 	SelectedItem = itemIndex;
 
 	UiScrollIntoView();
-#if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > SelectedItem) {
-		SpeakText(gUIListItems[SelectedItem]->m_text);
-	}
-#endif
 	UiPlayMoveSound();
 
 	if (gfnListFocus != NULL)
 		gfnListFocus(itemIndex);
+#if SCREEN_READER_INTEGRATION
+	if (gUIListItems.size() > itemIndex) {
+		SpeakText(gUIListItems[itemIndex]->m_text);
+	}
+#endif
 }
 
 static void UiFocusUp()
@@ -204,19 +198,44 @@ static void UiFocusPageDown()
 		newpos = SelectedItemMax;
 	UiFocus(newpos);
 }
-
+#ifndef USE_SDL1
+static bool UiCopyToClipboard()
+{
+	unsigned sp = gUiEditField->m_selpos;
+	unsigned cp = gUiEditField->m_curpos;
+	if (sp == cp) {
+		return false;
+	}
+	if (sp > cp) {
+		std::swap(sp, cp);
+	}
+	char tmp = gUiEditField->m_value[cp];
+	gUiEditField->m_value[cp] = '\0';
+	char* output = latin1_to_utf8(&gUiEditField->m_value[sp]);
+	gUiEditField->m_value[cp] = tmp;
+	SDL_SetClipboardText(output);
+	SDL_free(output);
+	return true;
+}
+#endif
 static void UiCatToText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
-	unsigned pos = gUiEditField->m_curpos;
+	unsigned cp = gUiEditField->m_curpos;
+	unsigned sp = gUiEditField->m_selpos;
+	if (sp > cp) {
+		std::swap(sp, cp);
+	}
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
-	SStrCopy(tempstr, &text[pos], std::min((unsigned)sizeof(tempstr) - 1, maxlen - pos));
-	SStrCopy(&text[pos], output, maxlen - pos);
-	mem_free_dbg(output);
-	pos = strlen(text);
-	gUiEditField->m_curpos = pos;
-	SStrCopy(&text[pos], tempstr, maxlen - pos);
+	// assert(maxLen - cp < sizeof(tempstr));
+	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
+	SStrCopy(&text[sp], output, maxlen - sp);
+	SDL_free(output);
+	sp = strlen(text);
+	gUiEditField->m_curpos = sp;
+	gUiEditField->m_selpos = sp;
+	SStrCopy(&text[sp], tempstr, maxlen - sp);
 }
 
 #ifdef __vita__
@@ -225,9 +244,10 @@ static void UiSetText(const char* inBuf)
 	char* output = utf8_to_latin1(inBuf);
 	char* text = gUiEditField->m_value;
 	SStrCopy(text, output, gUiEditField->m_max_length);
-	mem_free_dbg(output);
+	SDL_free(output);
 	unsigned pos = strlen(text);
 	gUiEditField->m_curpos = pos;
+	gUiEditField->m_selpos = pos;
 }
 #endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -246,14 +266,13 @@ void UiFocusNavigationSelect()
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
 	if (gUiEditField != NULL) {
-		if (gUiEditField->m_value[0] == '\0') {
+		if (gUiEditField->m_value[0] == '\0' && !(gUiEditField->m_iFlags & UIS_OPTIONAL)) {
 			return;
 		}
 		gUiEditField = NULL;
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
 		//if (SDL_IsTextInputShown()) {
 			SDL_StopTextInput();
-		//	return;
 		//}
 #endif
 	}
@@ -489,59 +508,84 @@ static void Render(const UiList* uiList)
 
 static void Render(const UiScrollBar* uiSb)
 {
+	const int sx = SCREEN_X + uiSb->m_rect.x;
+	int sy = SCREEN_Y + uiSb->m_rect.y - 1;
+	// Up Arrow:
+	{
+		const int frame = uiSb->m_pressMode == 1 ? 1 : 2;
+		// assert(scrollBarArrowCel != NULL);
+		sy += SCROLLBAR_ARROW_HEIGHT;
+		CelDraw(sx, sy, scrollBarArrowCel, frame);
+	}
 	// Bar background (tiled):
 	{
-		int bgYEnd = SCREEN_Y + DownArrowRect(uiSb).y - 1;
-		int bgX = SCREEN_X + uiSb->m_rect.x;
-		int bgY = SCREEN_Y + uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT - 1;
-		assert(scrollBarBackCel != NULL);
-		while (bgY < bgYEnd) {
-			bgY += SCROLLBAR_BG_HEIGHT;
-			if (bgYEnd < bgY)
-				bgY = bgYEnd;
-			CelDraw(bgX, bgY, scrollBarBackCel, 1);
-		}
+		int bgYEnd = sy + uiSb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT;
+		// assert(uiSb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT >= SCROLLBAR_BG_HEIGHT);
+		// assert(scrollBarBackCel != NULL);
+		const int frame = 1;
+		do {
+			sy += SCROLLBAR_BG_HEIGHT;
+			if (bgYEnd < sy)
+				sy = bgYEnd;
+			CelDraw(sx, sy, scrollBarBackCel, frame);
+		} while (sy < bgYEnd);
 	}
-	// Arrows:
-	assert(scrollBarArrowCel != NULL);
+	// Down Arrow:
 	{
-		SDL_Rect rect = UpArrowRect(uiSb);
-		rect.y--;
-		int frame = scrollBarState.upPressCounter != -1 ? ScrollBarArrowFrame_UP_ACTIVE : ScrollBarArrowFrame_UP;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
-	}
-	{
-		SDL_Rect rect = DownArrowRect(uiSb);
-		rect.y--;
-		int frame = scrollBarState.downPressCounter != -1 ? ScrollBarArrowFrame_DOWN_ACTIVE : ScrollBarArrowFrame_DOWN;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarArrowCel, frame + 1);
+		// assert(scrollBarArrowCel != NULL);
+		const int frame = uiSb->m_pressMode == 2 ? 3 : 4;
+		sy += SCROLLBAR_ARROW_HEIGHT;
+		CelDraw(sx, sy, scrollBarArrowCel, frame);
 	}
 	// Thumb:
-	assert(scrollBarThumbCel != NULL);
-	if (SelectedItemMax > 0) {
-		SDL_Rect rect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
-		rect.y--;
-		CelDraw(SCREEN_X + rect.x, SCREEN_Y + rect.y, scrollBarThumbCel, 1);
+	{
+		const int frame = 1;
+		const int thumb_max_y = uiSb->m_rect.h - (2 * SCROLLBAR_ARROW_HEIGHT + SCROLLBAR_THUMB_HEIGHT);
+		const int thumb_y = (SelectedItemMax - SelectedItem) * thumb_max_y / SelectedItemMax;
+		sy -= thumb_y + SCROLLBAR_ARROW_HEIGHT;
+
+		// assert(scrollBarThumbCel != NULL);
+		CelDraw(sx + SCROLLBAR_THUMB_OFFSET_X, sy, scrollBarThumbCel, frame);
 	}
 }
 
 static void Render(const UiEdit* uiEdit)
 {
-	DrawSelector(uiEdit->m_rect);
+	// DrawSelector(uiEdit->m_rect);
 	SDL_Rect rect = uiEdit->m_rect;
-	rect.x += 43;
+	// rect.x += EDIT_SELECTOR_WIDTH;
 	rect.y += 1;
-	// rect.w -= 86;
+	// rect.w -= 2 * EDIT_SELECTOR_WIDTH;
 	char* text = uiEdit->m_value;
 	// render the text
 	DrawArtStr(text, rect, UIS_LEFT | UIS_MED | UIS_GOLD);
+	{   // render the selection
+		unsigned curpos = uiEdit->m_curpos;
+		unsigned selpos = uiEdit->m_selpos;
+		if (selpos != curpos) {
+			int sp, w;
+			if (selpos > curpos) {
+				std::swap(selpos, curpos);
+			}
+			char tmp = text[selpos];
+			text[selpos] = '\0';
+			sp = GetBigStringWidth(text);
+			text[selpos] = tmp;
+			tmp = text[curpos];
+			text[curpos] = '\0';
+			w = GetBigStringWidth(&text[selpos]);
+			text[curpos] = tmp;
+			int h = BIG_FONT_HEIGHT;
+			DrawRectTrans(SCREEN_X + rect.x + sp + FONT_KERN_BIG, SCREEN_Y + rect.y, w, h, PAL16_GRAY);
+		}
+	}
 	// render the cursor
 	if (GetAnimationFrame(2, 512) != 0) {
 		unsigned curpos = uiEdit->m_curpos;
 		char tmp = text[curpos];
 		text[curpos] = '\0';
 		int w = GetBigStringWidth(text);
-		int h = 22;
+		int h = BIG_FONT_HEIGHT;
 		text[curpos] = tmp;
 		PrintBigChar(SCREEN_X + rect.x + w, SCREEN_Y + rect.y + h, '|', COL_WHITE);
 	}
@@ -616,46 +660,38 @@ static bool HandleMouseEventList(const Dvl_Event& event, UiList* uiList)
 	return true;
 }
 
-static bool HandleMouseEventScrollBar(const Dvl_Event& event, const UiScrollBar* uiSb)
+static bool HandleMouseEventScrollBar(const Dvl_Event& event, UiScrollBar* uiSb)
 {
 	if (event.type != DVL_WM_LBUTTONDOWN)
 		return true;
 
-	int y = event.button.y - uiSb->m_rect.y;
-	if (y >= uiSb->m_rect.h - SCROLLBAR_ARROW_HEIGHT) {
-		// down arrow
-		//scrollBarState.downArrowPressed = true;
-		scrollBarState.downPressCounter--;
-		if (scrollBarState.downPressCounter < 0) {
-			scrollBarState.downPressCounter = 2;
-			UiFocusDown();
-		}
-	} else if (y < SCROLLBAR_ARROW_HEIGHT) {
+	int y = event.button.y - (uiSb->m_rect.y + SCROLLBAR_ARROW_HEIGHT);
+	int mode = 0;
+	if (y < 0) {
 		// up arrow
-		//scrollBarState.upArrowPressed = true;
-		scrollBarState.upPressCounter--;
-		if (scrollBarState.upPressCounter < 0) {
-			scrollBarState.upPressCounter = 2;
-			UiFocusUp();
-		}
+		mode = 1;
+		UiFocusUp();
+	} else if (y >= uiSb->m_rect.h - 2 * SCROLLBAR_ARROW_HEIGHT) {
+		// down arrow
+		mode = 2;
+		UiFocusDown();
 	} else {
 		// Scroll up or down based on thumb position.
-		const SDL_Rect thumbRect = ThumbRect(uiSb, SelectedItem, SelectedItemMax);
-		if (event.button.y < thumbRect.y) {
+		const int thumb_max_y = uiSb->m_rect.h - (2 * SCROLLBAR_ARROW_HEIGHT + SCROLLBAR_THUMB_HEIGHT);
+		const int thumb_y = SelectedItem * thumb_max_y / SelectedItemMax;
+		if (y < thumb_y) {
 			UiFocusPageUp();
-		} else if (event.button.y > thumbRect.y + thumbRect.h) {
+		} else if (y >= thumb_y + SCROLLBAR_THUMB_HEIGHT) {
 			UiFocusPageDown();
 		}
 	}
+	uiSb->m_pressMode = mode;
 	return true;
 }
 
-static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+static unsigned EditCursPos(int x, UiEdit* uiEdit)
 {
-	if (event.type != DVL_WM_LBUTTONDOWN)
-		return true;
-
-	int x = event.button.x - (uiEdit->m_rect.x + 43);
+	x -= (uiEdit->m_rect.x /* + EDIT_SELECTOR_WIDTH */);
 	char* text = uiEdit->m_value;
 	unsigned curpos = 0;
 	for ( ; ; curpos++) {
@@ -672,11 +708,19 @@ static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
 			break;
 		}
 	}
-	// assert(uiEdit->m_max_length != 0);
-	if (curpos >= uiEdit->m_max_length - 1) {
-		curpos = uiEdit->m_max_length - 1;
+	return curpos;
+}
+
+static bool HandleMouseEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+{
+	uiEdit->m_selecting = event.type == DVL_WM_LBUTTONDOWN;
+	if (uiEdit->m_selecting) {
+		unsigned curpos = EditCursPos(event.button.x, uiEdit);
+		uiEdit->m_curpos = curpos;
+		if (!(SDL_GetModState() & KMOD_SHIFT)) {
+			uiEdit->m_selpos = curpos;
+		}
 	}
-	uiEdit->m_curpos = curpos;
 	return true;
 }
 
@@ -708,6 +752,71 @@ static void HandleMouseEvent(const Dvl_Event& event)
 	}
 }
 
+static bool HandleMouseMoveEventEdit(const Dvl_Event& event, UiEdit* uiEdit)
+{
+	if (uiEdit->m_selecting) {
+		unsigned curpos = EditCursPos(event.motion.x, uiEdit);
+		uiEdit->m_curpos = curpos;
+	}
+	return true;
+}
+
+static void HandleMouseMoveEvent(const Dvl_Event& event)
+{
+	/*for (UiItemBase* item : gUiItems) {
+		if ((item->m_iFlags & (UIS_HIDDEN | UIS_DISABLED)) || !IsInsideRect(event, item->m_rect))
+			continue;
+		switch (item->m_type) {
+		case UI_EDIT:
+			HandleMouseMoveEventEdit(event, static_cast<UiEdit*>(item));
+			break;
+		default:
+			continue;
+		}
+		return;
+	}*/
+	if (gUiEditField != NULL) {
+		HandleMouseMoveEventEdit(event, gUiEditField);
+	}
+}
+
+static void UiDelFromText(bool back)
+{
+	char* text = gUiEditField->m_value;
+	unsigned max_length = gUiEditField->m_max_length;
+
+	int w = gUiEditField->m_curpos - gUiEditField->m_selpos;
+	if (w != 0) {
+		if (w < 0) {
+			w = -w;
+			gUiEditField->m_selpos = gUiEditField->m_curpos;
+		} else {
+			gUiEditField->m_curpos = gUiEditField->m_selpos;
+		}
+	} else {
+		w = 1;
+		if (back) {
+			unsigned i = gUiEditField->m_curpos;
+			if (i == 0) {
+				return;
+			}
+			i--;
+			gUiEditField->m_curpos = i;
+			gUiEditField->m_selpos = i;
+		}
+	}
+
+	for (unsigned i = gUiEditField->m_curpos; ; i++) {
+		// assert(max_length != 0);
+		if (text[i] == '\0' || (i + w) >= max_length) {
+			text[i] = '\0';
+			break;
+		} else {
+			text[i] = text[i + w];
+		}
+	}
+}
+
 bool UiPeekAndHandleEvents(Dvl_Event* event)
 {
 	if (!PeekMessage(*event)) {
@@ -715,6 +824,9 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 	}
 
 	switch (event->type) {
+	case DVL_WM_MOUSEMOVE:
+		HandleMouseMoveEvent(*event);
+		break;
 	case DVL_WM_QUIT:
 		diablo_quit(EX_OK);
 		break;
@@ -723,18 +835,19 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+		HandleMouseEvent(*event);
+		break;
 	case DVL_WM_LBUTTONUP:
 		HandleMouseEvent(*event);
 
-		if (event->type == DVL_WM_LBUTTONUP) {
-			scrollBarState.downPressCounter = scrollBarState.upPressCounter = -1;
-			for (unsigned i = 0; i < gUiItems.size(); i++) {
-				UiItemBase* item = gUiItems[i];
-				if (item->m_type == UI_BUTTON)
-					static_cast<UiButton*>(item)->m_pressed = false;
+		for (UiItemBase* item : gUiItems) {
+			if (item->m_type == UI_BUTTON) {
+				static_cast<UiButton*>(item)->m_pressed = false;
+			} else if (item->m_type == UI_SCROLLBAR) {
+				static_cast<UiScrollBar*>(item)->m_pressMode = 0;
 			}
 		}
-		break; // handled
+		break;
 	case DVL_WM_RBUTTONDOWN:
 		UiFocusNavigationEsc();
 		break;
@@ -760,44 +873,54 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 					}
 				}
 				break;
+			case DVL_VK_C:
+			case DVL_VK_X:
+				if (!(event->key.keysym.mod & KMOD_CTRL)) {
+					break;
+				}
+				if (!UiCopyToClipboard()) {
+					break;
+				}
+				if (event->vkcode == DVL_VK_C) {
+					break;
+				}
+				// fall-through
 #endif
-			case DVL_VK_BACK: {
-				unsigned i = gUiEditField->m_curpos;
-				if (i > 0) {
-					i--;
-					gUiEditField->m_curpos = i;
-					for ( ; ; i++) {
-						// assert(gUiEditField->m_max_length != 0);
-						if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
-							gUiEditField->m_value[i] = '\0';
-							break;
-						} else {
-							gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
-						}
-					}
-				}
-			} break;
-			case DVL_VK_DELETE: {
-				for (unsigned i = gUiEditField->m_curpos; ; i++) {
-					// assert(gUiEditField->m_max_length != 0);
-					if (gUiEditField->m_value[i] == '\0' || i >= gUiEditField->m_max_length - 1) {
-						gUiEditField->m_value[i] = '\0';
-						break;
-					} else {
-						gUiEditField->m_value[i] = gUiEditField->m_value[i + 1];
-					}
-				}
-			} break;
+			case DVL_VK_BACK:
+				UiDelFromText(true);
+				break;
+			case DVL_VK_DELETE:
+				UiDelFromText(false);
+				break;
 			case DVL_VK_LEFT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (pos > 0) {
 					gUiEditField->m_curpos = pos - 1;
+					if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+						gUiEditField->m_selpos = pos - 1;
+					}
 				}
 			} break;
 			case DVL_VK_RIGHT: {
 				unsigned pos = gUiEditField->m_curpos;
 				if (gUiEditField->m_value[pos] != '\0' && pos + 1 < gUiEditField->m_max_length) {
 					gUiEditField->m_curpos = pos + 1;
+					if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+						gUiEditField->m_selpos = pos + 1;
+					}
+				}
+			} break;
+			case DVL_VK_HOME: {
+				gUiEditField->m_curpos = 0;
+				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+					gUiEditField->m_selpos = 0;
+				}
+			} break;
+			case DVL_VK_END: {
+				unsigned pos = strlen(gUiEditField->m_value);
+				gUiEditField->m_curpos = pos;
+				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
+					gUiEditField->m_selpos = pos;
 				}
 			} break;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -807,7 +930,11 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				UiFocusNavigationSelect();
 				break;
 			case DVL_VK_ESCAPE:
-				UiFocusNavigationEsc();
+				if (gUiEditField->m_curpos != gUiEditField->m_selpos) {
+					gUiEditField->m_selpos = gUiEditField->m_curpos;
+				} else {
+					UiFocusNavigationEsc();
+				}
 				break;
 			default:
 #ifdef USE_SDL1
