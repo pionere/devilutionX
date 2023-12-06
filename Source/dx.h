@@ -8,9 +8,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-extern BYTE *gpBuffer;
-extern BYTE *gpBufStart;
-extern BYTE *gpBufEnd;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** Back buffer */
+extern BYTE* gpBuffer;
+/** Upper bound of back buffer. */
+extern BYTE* gpBufStart;
+/** Lower bound of back buffer. */
+extern BYTE* gpBufEnd;
+/** The width of the back buffer. */
+extern int gnBufferWidth;
 
 void dx_init();
 void lock_buf(BYTE idx);
@@ -19,9 +28,12 @@ void dx_cleanup();
 void ToggleFullscreen();
 void ClearScreenBuffer();
 void RedBack();
-void trans_rect(int sx, int sy, int width, int height);
 void BltFast();
 void RenderPresent();
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
 

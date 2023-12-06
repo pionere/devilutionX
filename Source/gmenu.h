@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern CelImageBuf* gpOptbarCel;
 extern TMenuItem* gpCurrentMenu;
 
 void gmenu_draw_pause();
@@ -20,31 +21,36 @@ void InitGMenu();
 bool gmenu_is_active();
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)());
 void gmenu_draw();
-bool gmenu_presskeys(int vkey);
+void gmenu_presskey(int vkey);
 void gmenu_on_mouse_move();
-bool gmenu_left_mouse(bool isDown);
-void gmenu_enable(TMenuItem *pMenuItem, bool enable);
+void gmenu_left_mouse(bool isDown);
+void gmenu_enable(TMenuItem* pMenuItem, bool enable);
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+void CheckMenuMove();
+#endif
+void gmenu_update();
 
 /**
  * @brief Set the TMenuItem slider position based on the given value
  */
-void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value);
+void gmenu_slider_set(TMenuItem* pItem, int min, int max, int value);
 
 /**
  * @brief Get the current value for the slider
  */
-int gmenu_slider_get(TMenuItem *pItem, int min, int max);
+int gmenu_slider_get(TMenuItem* pItem, int min, int max);
 
 /**
  * @brief Set the number of steps for the slider
  */
-void gmenu_slider_steps(TMenuItem *pItem, int steps);
+void gmenu_slider_steps(TMenuItem* pItem, int steps);
 
 #ifdef __cplusplus
 }
 #endif
 
-inline bool gmenu_is_active() {
+inline bool gmenu_is_active()
+{
 	return gpCurrentMenu != NULL;
 }
 

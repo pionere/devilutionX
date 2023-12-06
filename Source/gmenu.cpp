@@ -4,6 +4,8 @@
  * Implementation of the in-game navigation and interaction.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include "controls/axis_direction.h"
@@ -12,25 +14,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MENU_ITEM_HEIGHT	45
-#define SLIDER_ROW_WIDTH	490
-#define SLIDER_OFFSET		186
-#define SLIDER_BORDER		2
-#define SLIDER_STEPS		256
-#define SLIDER_BUTTON_WIDTH	27
-
 /** Logo CEL above the menu */
-static BYTE* gpLogoCel;
-#ifdef HELLFIRE
-/** The next tick to increment the frame of the logo animation. */
-static Uint32 guNextLogoAnimTc;
-/** The current frame of the logo animation. */
-static BYTE gbLogoAnimFrame;
-#endif
+static CelImageBuf* gpLogoCel;
 /** Slider CEL */
-static BYTE* gpOptbarCel;
+CelImageBuf* gpOptbarCel;
 /** Slider button CEL */
-static BYTE* gpOptionCel;
+static CelImageBuf* gpOptionCel;
 /** Speficifies whether the mouse is pressed while navigating the menu. */
 static bool _gbMouseNavigation;
 /** The array of the current menu items. */
@@ -47,10 +36,11 @@ void gmenu_draw_pause()
 	int x, light;
 
 	if (!gmenu_is_active()) {
-		x = SCREEN_X + SCREEN_WIDTH / 2 - GetLargeStringWidth("Pause") / 2;
+		// assert(GetHugeStringWidth("Pause") == 135);
+		x = PANEL_CENTERX(135);
 		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
-		PrintLargeString(x, SCREEN_Y + SCREEN_HEIGHT / 2 - TILE_HEIGHT * 2, "Pause", light);
+		PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", light);
 	}
 }
 
@@ -63,20 +53,17 @@ void FreeGMenu()
 
 void InitGMenu()
 {
-#ifdef HELLFIRE
-	gbLogoAnimFrame = 1;
-#endif
 	gpCurrentMenu = NULL;
 	gmUpdateFunc = NULL;
 	guCurrItemIdx = 0;
 	guCurrentMenuSize = 0;
 	_gbMouseNavigation = false;
 	assert(gpLogoCel == NULL);
-	gpLogoCel = LoadFileInMem(LOGO_DATA);
+	gpLogoCel = CelLoadImage(LOGO_DATA, LOGO_WIDTH);
 	assert(gpOptionCel == NULL);
-	gpOptionCel = LoadFileInMem("Data\\option.CEL");
+	gpOptionCel = CelLoadImage("Data\\option.CEL", SLIDER_BUTTON_WIDTH);
 	assert(gpOptbarCel == NULL);
-	gpOptbarCel = LoadFileInMem("Data\\optbar.CEL");
+	gpOptbarCel = CelLoadImage("Data\\optbar.CEL", SLIDER_BOX_WIDTH);
 }
 
 static void gmenu_up_down(bool isDown)
@@ -95,7 +82,7 @@ static void gmenu_up_down(bool isDown)
 			if (--n < 0)
 				n = guCurrentMenuSize - 1;
 		}
-		if (gpCurrentMenu[n].dwFlags & GMENU_ENABLED)
+		if (gpCurrentMenu[n].dwFlags & GMF_ENABLED)
 			break;
 	}
 	if (n != guCurrItemIdx) {
@@ -104,13 +91,29 @@ static void gmenu_up_down(bool isDown)
 	}
 }
 
+static void gmenu_enter()
+{
+	if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMF_ENABLED) {
+		gpCurrentMenu[guCurrItemIdx].fnMenu(true);
+	}
+}
+
 static void gmenu_left_right(bool isRight)
 {
 	TMenuItem* pItem = &gpCurrentMenu[guCurrItemIdx];
 	int step, steps;
 
-	if ((pItem->dwFlags & (GMENU_SLIDER | GMENU_ENABLED)) != (GMENU_SLIDER | GMENU_ENABLED))
+	if (!(pItem->dwFlags & GMF_SLIDER)) {
+		if (isRight) {
+			gmenu_enter();
+		} else {
+			gamemenu_off();
+		}
 		return;
+	}
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
+		return;
+	}
 
 	step = pItem->wMenuParam2;
 	steps = pItem->wMenuParam1;
@@ -136,6 +139,8 @@ void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 	guCurrentMenuSize = nItems;
 	guCurrItemIdx = 0;
 	gmUpdateFunc = gmUpdFunc;
+	if (gmUpdateFunc != NULL)
+		gmUpdateFunc();
 	// play select sfx only in-game
 	if (gbRunGame)
 		PlaySFX(IS_TITLEMOV);
@@ -153,11 +158,11 @@ static void gmenu_draw_rectangle(int x, int y, int width, int height)
 	}
 }
 
-static int gmenu_get_lfont(TMenuItem *pItem)
+static int gmenu_get_lfont(TMenuItem* pItem)
 {
-	if (pItem->dwFlags & GMENU_SLIDER)
+	if (pItem->dwFlags & GMF_SLIDER)
 		return SLIDER_ROW_WIDTH;
-	return GetLargeStringWidth(pItem->pszStr);
+	return GetHugeStringWidth(pItem->pszStr);
 }
 
 static void gmenu_draw_menu_item(int i, int y)
@@ -166,74 +171,69 @@ static void gmenu_draw_menu_item(int i, int y)
 	unsigned w, x, nSteps, step, pos;
 
 	w = gmenu_get_lfont(pItem);
-	x = SCREEN_X + (SCREEN_WIDTH - w) / 2;
-	PrintLargeString(x, y, pItem->pszStr, (pItem->dwFlags & GMENU_ENABLED) ? 0 : MAXDARKNESS);
+	x = PANEL_CENTERX(w);
+	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMF_ENABLED) ? 0 : MAXDARKNESS);
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
-		DrawPentSpn(x - 54, x + 4 + w, y + 1);
-	if (pItem->dwFlags & GMENU_SLIDER) {
+		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
+	if (pItem->dwFlags & GMF_SLIDER) {
 		x += SLIDER_OFFSET;
-		CelDraw(x, y - 10, gpOptbarCel, 1, 287);
+		CelDraw(x, y - 10, gpOptbarCel, 1);
 		x += SLIDER_BORDER;
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
 		pos = step * SLIDER_STEPS / nSteps;
-		gmenu_draw_rectangle(x, y - 12, pos + SLIDER_BUTTON_WIDTH / 2, 28);
-		CelDraw(x + pos, y - 12, gpOptionCel, 1, SLIDER_BUTTON_WIDTH);
+		gmenu_draw_rectangle(x, y - 10 - SLIDER_BORDER, pos + SLIDER_BUTTON_WIDTH / 2, SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER);
+		CelDraw(x + pos, y - 10 - SLIDER_BORDER, gpOptionCel, 1);
 	}
 }
 
-static void GameMenuMove()
-{
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	static AxisDirectionRepeater repeater;
-	const AxisDirection move_dir = repeater.Get(GetLeftStickOrDpadDirection());
+void CheckMenuMove()
+{
+	// assert(gmenu_is_active());
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
 	if (move_dir.x != AxisDirectionX_NONE)
 		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
 	if (move_dir.y != AxisDirectionY_NONE)
 		gmenu_up_down(move_dir.y == AxisDirectionY_DOWN);
+}
 #endif
+
+void gmenu_update()
+{
+	// assert(gmenu_is_active());
+	assert(gmUpdateFunc != NULL);
+	gmUpdateFunc();
 }
 
 void gmenu_draw()
 {
 	int nCel, i, y;
 
-	assert(gmenu_is_active());
-	assert(gmUpdateFunc != NULL);
-	gmUpdateFunc();
-	GameMenuMove();
 #ifdef HELLFIRE
-	Uint32 currTc = SDL_GetTicks();
-	if (currTc > guNextLogoAnimTc) {
-		guNextLogoAnimTc = currTc + 25;
-		gbLogoAnimFrame++;
-		if (gbLogoAnimFrame > 16)
-			gbLogoAnimFrame = 1;
-	}
-	nCel = gbLogoAnimFrame;
+	// nCel = GetAnimationFrame(32, 16);
+	nCel = ((SDL_GetTicks() / 32) % 16) + 1;
 #else
 	nCel = 1;
 #endif
-	y = 102 + SCREEN_Y + UI_OFFSET_Y;
-	CelDraw(SCREEN_X + (SCREEN_WIDTH - LOGO_WIDTH) / 2, y, gpLogoCel, nCel, LOGO_WIDTH);
-	y += 58;
-	for (i = 0; i < guCurrentMenuSize; i++, y += MENU_ITEM_HEIGHT)
+	y = PANEL_Y + GAMEMENU_HEADER_Y;
+	CelDraw(PANEL_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
+	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
+	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);
 }
 
-bool gmenu_presskeys(int vkey)
+void gmenu_presskey(int vkey)
 {
-	assert(gmUpdateFunc != NULL);
-	gmUpdateFunc();
-
+	// assert(gmenu_is_active());
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
-		return gmenu_left_mouse(true);
-	case DVL_VK_RETURN:
-		if (gpCurrentMenu[guCurrItemIdx].dwFlags & GMENU_ENABLED) {
-			gpCurrentMenu[guCurrItemIdx].fnMenu(true);
-		}
+		gmenu_left_mouse(true);
 		break;
+	case DVL_VK_RETURN:
+		gmenu_enter();
+		break;
+	case DVL_VK_XBUTTON1:
 	case DVL_VK_ESCAPE:
 	case DVL_VK_SPACE:
 		gamemenu_off(); // TODO: add gmCloseFunc?
@@ -251,7 +251,6 @@ bool gmenu_presskeys(int vkey)
 		gmenu_up_down(true);
 		break;
 	}
-	return true;
 }
 
 static void gmenu_mouse_slider()
@@ -259,7 +258,7 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MouseX - (SCREEN_WIDTH / 2 - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (SCREEN_WIDTH / 2 - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;
@@ -284,57 +283,56 @@ void gmenu_on_mouse_move()
 	// return TRUE;
 }
 
-bool gmenu_left_mouse(bool isDown)
+void gmenu_left_mouse(bool isDown)
 {
-	TMenuItem *pItem;
+	TMenuItem* pItem;
 	int i, w;
 
-	assert(gmenu_is_active());
+	// assert(gmenu_is_active());
 	if (!isDown) {
-		if (_gbMouseNavigation) {
+		//if (_gbMouseNavigation) {
 			_gbMouseNavigation = false;
-			return true;
-		} else {
-			return false;
-		}
+		//}
+		return;
 	}
-
-	if (MouseY >= PANEL_TOP) {
-		return false;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive) {
+		gmenu_enter();
+		return;
 	}
-	i = MouseY - (117 + UI_OFFSET_Y);
+#endif
+	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
-		return true;
+		return;
 	}
-	i /= MENU_ITEM_HEIGHT;
+	i /= GAMEMENU_ITEM_HEIGHT;
 	if (i >= guCurrentMenuSize) {
-		return true;
+		return;
 	}
 	pItem = &gpCurrentMenu[i];
-	if (!(pItem->dwFlags & GMENU_ENABLED)) {
-		return true;
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
+		return;
 	}
 	w = gmenu_get_lfont(pItem) / 2;
-	if (abs(MouseX - SCREEN_WIDTH / 2) > w)
-		return true;
+	if (abs(MousePos.x - SCREEN_WIDTH / 2) > w)
+		return;
 	guCurrItemIdx = i;
-	if (pItem->dwFlags & GMENU_SLIDER) {
+	if (pItem->dwFlags & GMF_SLIDER) {
 		gmenu_mouse_slider();
 	} else {
 		pItem->fnMenu(true);
 	}
-	return true;
 }
 
-void gmenu_enable(TMenuItem *pMenuItem, bool enable)
+void gmenu_enable(TMenuItem* pMenuItem, bool enable)
 {
 	if (enable)
-		pMenuItem->dwFlags |= GMENU_ENABLED;
+		pMenuItem->dwFlags |= GMF_ENABLED;
 	else
-		pMenuItem->dwFlags &= ~GMENU_ENABLED;
+		pMenuItem->dwFlags &= ~GMF_ENABLED;
 }
 
-void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
+void gmenu_slider_set(TMenuItem* pItem, int min, int max, int value)
 {
 	int nSteps;
 
@@ -343,7 +341,7 @@ void gmenu_slider_set(TMenuItem *pItem, int min, int max, int value)
 	pItem->wMenuParam2 = ((max - min) / 2 + (value - min) * nSteps) / (max - min);
 }
 
-int gmenu_slider_get(TMenuItem *pItem, int min, int max)
+int gmenu_slider_get(TMenuItem* pItem, int min, int max)
 {
 	int nSteps, step;
 
@@ -354,7 +352,7 @@ int gmenu_slider_get(TMenuItem *pItem, int min, int max)
 	return min + step * (max - min) / nSteps;
 }
 
-void gmenu_slider_steps(TMenuItem *pItem, int steps)
+void gmenu_slider_steps(TMenuItem* pItem, int steps)
 {
 	//assert(pItem != NULL);
 	// assert(steps >= 1);

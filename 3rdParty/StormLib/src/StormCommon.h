@@ -69,17 +69,26 @@
 #define STORMLIB_MAX(a, b) ((a > b) ? a : b)
 #define STORMLIB_UNUSED(p) ((void)(p))
 
+// Check for masked flags
+#define STORMLIB_TEST_FLAGS(dwFlags, dwMask, dwValue)  ((dwFlags & (dwMask)) == (dwValue))
+
 // Macro for building 64-bit file offset from two 32-bit
-#define MAKE_OFFSET64(hi, lo)      (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+#define MAKE_OFFSET64(hi, lo)       (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+
+// Macro for checking a valid, non-empty ASCIIZ string
+#ifndef IS_VALID_STRING
+#define IS_VALID_STRING(str)    (str && str[0])
+#endif
 
 //-----------------------------------------------------------------------------
-// MTYPE definition - specifies what kind of MPQ is the map type
+// MTYPE definition - specifies what kind of MPQ is the file
 
 typedef enum _MTYPE
 {
     MapTypeNotChecked,                  // The map type was not checked yet
     MapTypeNotRecognized,               // The file does not seems to be a map
     MapTypeAviFile,                     // The file is actually an AVI file (Warcraft III cinematics)
+    MapTypeStarcraft,                   // The file is a Starcraft map
     MapTypeWarcraft3,                   // The file is a Warcraft III map
     MapTypeStarcraft2                   // The file is a Starcraft II map
 } MTYPE, *PMTYPE;
@@ -135,21 +144,27 @@ typedef struct _MPQ_SIGNATURE_INFO
 
 //-----------------------------------------------------------------------------
 // StormLib internal global variables
-
+#ifdef FULL_GLOBALS
 extern DWORD g_dwMpqSignature;                  // Marker for MPQ header
 extern DWORD g_dwHashTableKey;                  // Key for hash table
 extern DWORD g_dwBlockTableKey;                 // Key for block table
 extern LCID  g_lcFileLocale;                    // Preferred file locale
-
+#else
+#define g_dwMpqSignature  ID_MPQ
+#define g_dwHashTableKey  MPQ_KEY_HASH_TABLE
+#define g_dwBlockTableKey MPQ_KEY_BLOCK_TABLE
+#define g_lcFileLocale    LANG_NEUTRAL
+#define wPlatform         0
+#endif
 //-----------------------------------------------------------------------------
 // Conversion to uppercase/lowercase (and "/" to "\")
-
+#ifdef FULL
 extern unsigned char AsciiToLowerTable[256];
 extern unsigned char AsciiToUpperTable[256];
 
 //-----------------------------------------------------------------------------
 // Safe string functions
-#ifdef FULL
+
 template <typename XCHAR, typename XINT>
 XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nDigitCount = 0)
 {
@@ -186,17 +201,18 @@ XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nD
     szBuffer[0] = 0;
     return szBuffer;
 }
-#endif
+
 char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource);
-void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource);
+//void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource);
 //void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension);
 
 #ifdef _UNICODE
 void StringCopy(TCHAR * szTarget, size_t cchTarget, const char * szSource);
 void StringCopy(char * szTarget, size_t cchTarget, const TCHAR * szSource);
 void StringCopy(TCHAR * szTarget, size_t cchTarget, const TCHAR * szSource);
-void StringCat(TCHAR * szTarget, size_t cchTargetMax, const TCHAR * szSource);
+//void StringCat(TCHAR * szTarget, size_t cchTargetMax, const TCHAR * szSource);
 #endif
+#endif // FULL
 
 //-----------------------------------------------------------------------------
 // Encryption and decryption functions
@@ -247,7 +263,7 @@ TMPQFile * IsValidFileHandle(HANDLE hFile);
 ULONGLONG FileOffsetFromMpqOffset(TMPQArchive * ha, ULONGLONG MpqOffset);
 ULONGLONG CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
 
-int ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
+DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
 
 #ifdef FULL
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
@@ -271,16 +287,16 @@ TMPQBlock * TranslateBlockTable(TMPQArchive * ha, ULONGLONG * pcbTableSize, bool
 //ULONGLONG FindFreeMpqSpace(TMPQArchive * ha);
 
 // Functions that load the HET and BET tables
-int  CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize);
-int  LoadAnyHashTable(TMPQArchive * ha);
-int  BuildFileTable(TMPQArchive * ha);
+DWORD  CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize);
+DWORD  LoadAnyHashTable(TMPQArchive * ha);
+DWORD  BuildFileTable(TMPQArchive * ha);
 #ifdef FULL
-int  DefragmentFileTable(TMPQArchive * ha);
+DWORD  DefragmentFileTable(TMPQArchive * ha);
 
-//int  CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize);
-int  RebuildHetTable(TMPQArchive * ha);
-int  RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize);
-int  SaveMPQTables(TMPQArchive * ha);
+//DWORD  CreateFileTable(TMPQArchive * ha, DWORD dwFileTableSize);
+DWORD  RebuildHetTable(TMPQArchive * ha);
+DWORD  RebuildFileTable(TMPQArchive * ha, DWORD dwNewHashTableSize);
+DWORD  SaveMPQTables(TMPQArchive * ha);
 
 TMPQHetTable * CreateHetTable(DWORD dwEntryCount, DWORD dwTotalCount, DWORD dwHashBitSize, LPBYTE pbSrcData);
 void FreeHetTable(TMPQHetTable * pHetTable);
@@ -301,8 +317,8 @@ void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * sz
 
 // Allocates new file entry in the MPQ tables. Reuses existing, if possible
 //TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
-//int  RenameFileEntry(TMPQArchive * ha, TMPQFile * hf, const char * szNewFileName);
-//int  DeleteFileEntry(TMPQArchive * ha, TMPQFile * hf);
+//DWORD  RenameFileEntry(TMPQArchive * ha, TMPQFile * hf, const char * szNewFileName);
+//DWORD  DeleteFileEntry(TMPQArchive * ha, TMPQFile * hf);
 
 // Invalidates entries for (listfile) and (attributes)
 //void InvalidateInternalFiles(TMPQArchive * ha);
@@ -315,11 +331,11 @@ bool QueryMpqSignatureInfo(TMPQArchive * ha, PMPQ_SIGNATURE_INFO pSignatureInfo)
 //-----------------------------------------------------------------------------
 // Support for alternate file formats (SBaseSubTypes.cpp)
 
-int ConvertSqpHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
+DWORD ConvertSqpHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
 TMPQHash * LoadSqpHashTable(TMPQArchive * ha);
 TMPQBlock * LoadSqpBlockTable(TMPQArchive * ha);
 
-int ConvertMpkHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
+DWORD ConvertMpkHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
 void DecryptMpkTable(void * pvMpkTable, size_t cbSize);
 TMPQHash * LoadMpkHashTable(TMPQArchive * ha);
 TMPQBlock * LoadMpkBlockTable(TMPQArchive * ha);
@@ -332,19 +348,19 @@ int SCompDecompressMpk(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer
 
 TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 //TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
-void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, bool * pbTableIsCut);
-int  AllocateSectorBuffer(TMPQFile * hf);
+void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
+DWORD  AllocateSectorBuffer(TMPQFile * hf);
 #ifdef FULL
-int  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
+DWORD  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
 #endif
-int  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
-int  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
-//int  WritePatchInfo(TMPQFile * hf);
-//int  WriteSectorOffsets(TMPQFile * hf);
-//int  WriteSectorChecksums(TMPQFile * hf);
+DWORD  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
+DWORD  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
+//DWORD  WritePatchInfo(TMPQFile * hf);
+//DWORD  WriteSectorOffsets(TMPQFile * hf);
+//DWORD  WriteSectorChecksums(TMPQFile * hf);
 #ifdef FULL
-int  WriteMemDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, void * pvRawData, DWORD dwRawDataSize, DWORD dwChunkSize, LPDWORD pcbTotalSize);
-//int  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
+DWORD  WriteMemDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, void * pvRawData, DWORD dwRawDataSize, DWORD dwChunkSize, LPDWORD pcbTotalSize);
+//DWORD  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
 #endif // FULL
 void FreeFileHandle(TMPQFile *& hf);
 void FreeArchiveHandle(TMPQArchive *& ha);
@@ -366,8 +382,8 @@ typedef struct _TMPQPatcher
 
 //bool IsIncrementalPatchFile(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize);
 #ifdef FULL
-int Patch_InitPatcher(TMPQPatcher * pPatcher, TMPQFile * hf);
-int Patch_Process(TMPQPatcher * pPatcher, TMPQFile * hf);
+DWORD Patch_InitPatcher(TMPQPatcher * pPatcher, TMPQFile * hf);
+DWORD Patch_Process(TMPQPatcher * pPatcher, TMPQFile * hf);
 void Patch_Finalize(TMPQPatcher * pPatcher);
 #endif
 
@@ -394,7 +410,7 @@ const XCHAR * GetPlainFileName(const XCHAR * szFileName)
 //-----------------------------------------------------------------------------
 // Internal support for MPQ modifications
 #ifdef FULL
-int SFileAddFile_Init(
+DWORD SFileAddFile_Init(
     TMPQArchive * ha,
     const char * szArchivedName,
     ULONGLONG ft,
@@ -404,39 +420,39 @@ int SFileAddFile_Init(
     TMPQFile ** phf
     );
 
-int SFileAddFile_Init(
+DWORD SFileAddFile_Init(
     TMPQArchive * ha,
     TMPQFile * hfSrc,
     TMPQFile ** phf
     );
 
-int SFileAddFile_Write(
+DWORD SFileAddFile_Write(
     TMPQFile * hf,
     const void * pvData,
     DWORD dwSize,
     DWORD dwCompression
     );
 
-int SFileAddFile_Finish(
+DWORD SFileAddFile_Finish(
     TMPQFile * hf
     );
 
 //-----------------------------------------------------------------------------
 // Attributes support
 
-int  SAttrLoadAttributes(TMPQArchive * ha);
-int  SAttrFileSaveToMpq(TMPQArchive * ha);
+DWORD  SAttrLoadAttributes(TMPQArchive * ha);
+DWORD  SAttrFileSaveToMpq(TMPQArchive * ha);
 
 //-----------------------------------------------------------------------------
 // Listfile functions
 
-int  SListFileSaveToMpq(TMPQArchive * ha);
+DWORD  SListFileSaveToMpq(TMPQArchive * ha);
 
 //-----------------------------------------------------------------------------
 // Weak signature support
 
-int SSignFileCreate(TMPQArchive * ha);
-int SSignFileFinish(TMPQArchive * ha);
+DWORD SSignFileCreate(TMPQArchive * ha);
+DWORD SSignFileFinish(TMPQArchive * ha);
 #endif
 //-----------------------------------------------------------------------------
 // Dump data support

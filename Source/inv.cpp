@@ -4,17 +4,19 @@
  * Implementation of player inventory.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 #include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbInvflag;
-BYTE gbTSpell;   // the spell to cast after the target is selected
-char gbTSplFrom; // the source of the spell after the target is selected
-char gbOilFrom;
+BYTE gbTSpell;     // the spell to cast after the target is selected
+int8_t gbTSplFrom; // the source of the spell after the target is selected
+int8_t gbOilFrom;
 
-BYTE* pInvCels;
-BYTE* pBeltCels;
+CelImageBuf* pInvCels;
+CelImageBuf* pBeltCels;
 
 /**
  * Maps from inventory slot to screen position. The inventory slots are
@@ -99,14 +101,14 @@ const InvXY InvRect[NUM_XY_SLOTS] = {
 	{  2 + 7 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
 	{  2 + 8 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
 	{  2 + 9 * (INV_SLOT_SIZE_PX + 1), 206 + 3 * (INV_SLOT_SIZE_PX + 1) }, // inv row 4
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 1                   ,  MENUBTN_HEIGHT + 3 + 0 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
-	{ 2 + INV_SLOT_SIZE_PX,  MENUBTN_HEIGHT + 3 + 0 * (INV_SLOT_SIZE_PX + 1) }  // belt column 2
+	{ 1                   ,  1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 1                   ,  4 * (INV_SLOT_SIZE_PX + 1) }, // belt column 1
+	{ 2 + INV_SLOT_SIZE_PX,  1 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  2 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  3 * (INV_SLOT_SIZE_PX + 1) }, // belt column 2
+	{ 2 + INV_SLOT_SIZE_PX,  4 * (INV_SLOT_SIZE_PX + 1) }  // belt column 2
 	// clang-format on
 };
 
@@ -198,10 +200,10 @@ void FreeInvGFX()
 void InitInv()
 {
 	assert(pInvCels == NULL);
-	pInvCels = LoadFileInMem("Data\\Inv\\Inv.CEL");
+	pInvCels = CelLoadImage("Data\\Inv\\Inv.CEL", SPANEL_WIDTH);
 	assert(pBeltCels == NULL);
-	pBeltCels = LoadFileInMem("Data\\Inv\\Belt.CEL");
-	gbInvflag = false;
+	pBeltCels = CelLoadImage("Data\\Inv\\Belt.CEL", BELT_WIDTH);
+	//gbInvflag = false;
 	//gbTSpell = SPL_NULL;
 	//gbTSplFrom = 0;
 	//gbOilFrom = 0;
@@ -237,10 +239,12 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 void DrawInv()
 {
 	ItemStruct *is, *pi;
-	int pnum, frame, frame_width, screen_x, screen_y, i;
+	int pnum, frame, frame_width, screen_x, screen_y, dx, dy, i;
 	BYTE* cCels;
 
-	CelDraw(RIGHT_PANEL_X, SCREEN_Y + SPANEL_HEIGHT - 1, pInvCels, 1, SPANEL_WIDTH);
+	screen_x = SCREEN_X + gnWndInvX;
+	screen_y = SCREEN_Y + gnWndInvY;
+	CelDraw(screen_x, screen_y + SPANEL_HEIGHT - 1, pInvCels, 1);
 
 	cCels = pCursCels;
 
@@ -248,117 +252,107 @@ void DrawInv()
 	pi = /*pcursinvitem == ITEM_NONE ? NULL :*/ PlrItem(pnum, pcursinvitem);
 	is = &plr._pInvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HEAD_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HEAD_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HEAD_FIRST].X, screen_y + InvRect[SLOTXY_HEAD_LAST].Y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_HEAD_FIRST].X, screen_y + InvRect[SLOTXY_HEAD_LAST].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_RING_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_LEFT].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_LEFT].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_RING_LEFT].X, screen_y + InvRect[SLOTXY_RING_LEFT].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_RING_LEFT].X, screen_y + InvRect[SLOTXY_RING_LEFT].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_RING_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_RING_RIGHT].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_RING_RIGHT].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_RING_RIGHT].X, screen_y + InvRect[SLOTXY_RING_RIGHT].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_RING_RIGHT].X, screen_y + InvRect[SLOTXY_RING_RIGHT].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_AMULET];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_AMULET].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_AMULET].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_AMULET].X, screen_y + InvRect[SLOTXY_AMULET].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_AMULET].X, screen_y + InvRect[SLOTXY_AMULET].Y, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_HAND_LEFT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_LEFT_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_LEFT_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HAND_LEFT_FIRST].X, screen_y + InvRect[SLOTXY_HAND_LEFT_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
+		dx = 0;
+		dy = 0;
 		if (frame_width == INV_SLOT_SIZE_PX)
-			screen_x += INV_SLOT_SIZE_PX / 2;
+			dx += INV_SLOT_SIZE_PX / 2;
 		if (InvItemHeight[frame] != (3 * INV_SLOT_SIZE_PX))
-			screen_y -= INV_SLOT_SIZE_PX / 2;
+			dy -= INV_SLOT_SIZE_PX / 2;
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_HAND_LEFT_FIRST].X + dx, screen_y + InvRect[SLOTXY_HAND_LEFT_LAST].Y + dy, cCels, frame, frame_width);
 
 		if (TWOHAND_WIELD(&plr, is)) {
-				screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
-				screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
-				InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+				InvDrawSlotBack(screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 				light_trn_index = 0;
 				gbCelTransparencyActive = true;
 
+				dx = 0;
+				dy = 0;
 				if (frame_width == INV_SLOT_SIZE_PX)
-					screen_x += INV_SLOT_SIZE_PX / 2;
+					dx += INV_SLOT_SIZE_PX / 2;
 				if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
-					screen_y -= INV_SLOT_SIZE_PX / 2;
-				CelClippedDrawLightTrans(screen_x, screen_y, cCels, frame, frame_width);
+					dy -= INV_SLOT_SIZE_PX / 2;
+				CelClippedDrawLightTrans(screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X + dx, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y + dy, cCels, frame, frame_width);
 		}
 	}
 
 	is = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_HAND_RIGHT_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 		// calc item offsets for weapons smaller than 2x3 slots
+		dx = 0;
+		dy = 0;
 		if (frame_width == INV_SLOT_SIZE_PX)
-			screen_x += INV_SLOT_SIZE_PX / 2;
+			dx += INV_SLOT_SIZE_PX / 2;
 		if (InvItemHeight[frame] != 3 * INV_SLOT_SIZE_PX)
-			screen_y -= INV_SLOT_SIZE_PX / 2;
+			dy -= INV_SLOT_SIZE_PX / 2;
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_HAND_RIGHT_FIRST].X + dx, screen_y + InvRect[SLOTXY_HAND_RIGHT_LAST].Y + dy, cCels, frame, frame_width);
 	}
 
 	is = &plr._pInvBody[INVLOC_CHEST];
 	if (is->_itype != ITYPE_NONE) {
-		screen_x = RIGHT_PANEL_X + InvRect[SLOTXY_CHEST_FIRST].X;
-		screen_y = SCREEN_Y + InvRect[SLOTXY_CHEST_LAST].Y;
-		InvDrawSlotBack(screen_x, screen_y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_CHEST_FIRST].X, screen_y + InvRect[SLOTXY_CHEST_LAST].Y, 2 * INV_SLOT_SIZE_PX, 3 * INV_SLOT_SIZE_PX);
 
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		frame_width = InvItemWidth[frame];
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_CHEST_FIRST].X, screen_y + InvRect[SLOTXY_CHEST_LAST].Y, cCels, frame, frame_width);
 	}
 
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 		if (plr._pInvList[i]._itype != ITYPE_NONE) {
 			InvDrawSlotBack(
-			    InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X,
-			    InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y,
+			    screen_x + InvRect[i + SLOTXY_INV_FIRST].X,
+			    screen_y + InvRect[i + SLOTXY_INV_FIRST].Y,
 			    INV_SLOT_SIZE_PX,
 			    INV_SLOT_SIZE_PX);
 		}
@@ -368,13 +362,10 @@ void DrawInv()
 		is = &plr._pInvList[i];
 		if (is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER) {
 			// first (bottom left) slot of an item
-			screen_x = InvRect[i + SLOTXY_INV_FIRST].X + RIGHT_PANEL_X;
-			screen_y = InvRect[i + SLOTXY_INV_FIRST].Y + SCREEN_Y;
-
 			frame = is->_iCurs + CURSOR_FIRSTITEM;
 			frame_width = InvItemWidth[frame];
 
-			scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+			scrollrt_draw_item(is, pi == is, screen_x + InvRect[i + SLOTXY_INV_FIRST].X, screen_y + InvRect[i + SLOTXY_INV_FIRST].Y, cCels, frame, frame_width);
 		}
 	}
 }
@@ -386,7 +377,9 @@ void DrawInvBelt()
 	BYTE fi, ff;
 	BYTE* cCels;
 
-	CelDraw(SCREEN_X + InvRect[SLOTXY_BELT_FIRST].X - 1, SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_LAST].Y + 1, pBeltCels, 1, 60);
+	screen_x = SCREEN_X + gnWndBeltX;
+	screen_y = SCREEN_Y + gnWndBeltY;
+	CelDraw(screen_x, screen_y + BELT_HEIGHT - 1, pBeltCels, 1);
 
 	pnum = mypnum;
 	pi = NULL;
@@ -401,19 +394,19 @@ void DrawInvBelt()
 		if (is->_itype == ITYPE_NONE) {
 			continue;
 		}
-		screen_x = InvRect[SLOTXY_BELT_FIRST + i].X + SCREEN_X;
-		screen_y = SCREEN_Y + SCREEN_HEIGHT - InvRect[SLOTXY_BELT_FIRST + i].Y;
-		InvDrawSlotBack(screen_x, screen_y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
+		InvDrawSlotBack(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX);
 		frame = is->_iCurs + CURSOR_FIRSTITEM;
 		assert(InvItemWidth[frame] == INV_SLOT_SIZE_PX);
 		frame_width = INV_SLOT_SIZE_PX;
 
-		scrollrt_draw_item(is, pi == is, screen_x, screen_y, cCels, frame, frame_width);
+		scrollrt_draw_item(is, pi == is, screen_x + InvRect[SLOTXY_BELT_FIRST + i].X, screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, cCels, frame, frame_width);
 
-		if (is->_iStatFlag && AllItemsList[is->_iIdx].iUsable) {
+		if (is->_iStatFlag && is->_iUsable) {
 			fi = i + 49; // '1' + i;
-			ff = sfontframe[gbFontTransTbl[fi]];
-			PrintChar(screen_x + INV_SLOT_SIZE_PX - sfontkern[ff], screen_y, ff, COL_WHITE);
+			// PrintSmallChar right adjusted
+			ff = gbStdFontFrame[fi];
+			// PrintSmallChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, fi, COL_WHITE);
+			PrintSmallColorChar(screen_x + InvRect[SLOTXY_BELT_FIRST + i].X + INV_SLOT_SIZE_PX - smallFontWidth[ff], screen_y + InvRect[SLOTXY_BELT_FIRST + i].Y, ff, COL_WHITE);
 		}
 	}
 }
@@ -441,7 +434,7 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 	if ((ii % 10) + sx > 10
 	 || (ii / 10) + sy > NUM_INV_GRID_ELEM / 10)
 		done = false;
-	
+
 	xx = ii;
 	for (j = 0; j < sy && done; j++) {
 		for (i = 0; i < sx && done; i++, xx++) {
@@ -473,11 +466,11 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
  */
 static int GetNewItemSeed(ItemStruct* is)
 {
-	int seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24);
+	int seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24); // _rotr(gdwGameLogicTurn, 8)
 
 	seed ^= is->_iSeed;
 	SetRndSeed(seed);
-	return GetRndSeed();
+	return NextRndSeed();
 }
 
 static bool GoldAutoPlace(int pnum, ItemStruct* is)
@@ -595,10 +588,38 @@ bool WeaponAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 
 bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 {
-	int i;
+	ItemStruct* pi;
+	int i, n;
 
 	if (is->_iLoc != ILOC_BELT || !is->_iStatFlag)
 		return false;
+
+	// assert(is->_iUsable);
+	n = is->_iDurability;
+	// assert(n != 0); -- otherwise the item is discarded
+	// assert(n == 1 || saveflag); -- otherwise subsequent AutoPlaceBelt/AutoPlaceInv calls might fail
+	for (i = 0; i < MAXBELTITEMS; i++) {
+		pi = &plr._pSpdList[i];
+		if (pi->_itype != ITYPE_NONE
+		 && pi->_iMiscId == is->_iMiscId
+		 && pi->_iSpell == is->_iSpell
+		 && pi->_iDurability < pi->_iMaxDur) { // STACK
+			n -= pi->_iMaxDur - pi->_iDurability;
+			if (saveflag) {
+				//pi->_ivalue /= pi->_iDurability;
+				//is->_ivalue /= is->_iDurability;
+				if (n <= 0)
+					pi->_iDurability = pi->_iMaxDur + n;
+				else
+					pi->_iDurability = pi->_iMaxDur;
+				is->_iDurability = n;
+				//pi->_ivalue *= pi->_iDurability;
+				//is->_ivalue *= is->_iDurability;
+			}
+			if (n <= 0)
+				return true;
+		}
+	}
 
 	for (i = 0; i < MAXBELTITEMS; i++) {
 		if (plr._pSpdList[i]._itype == ITYPE_NONE) {
@@ -616,7 +637,35 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 bool AutoPlaceInv(int pnum, ItemStruct* is, bool saveflag)
 {
 	ItemStruct* pi;
-	int i, w, h;
+	int i, n, w, h;
+
+	if (is->_iUsable) {
+		// assert(is->_itype == ITYPE_MISC);
+		n = is->_iDurability;
+		// assert(n != 0); -- otherwise the item is discarded
+		for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
+			pi = &plr._pInvList[i];
+			if (pi->_itype != ITYPE_NONE
+			 && pi->_iMiscId == is->_iMiscId
+			 && pi->_iSpell == is->_iSpell
+			 && pi->_iDurability < pi->_iMaxDur) { // STACK
+				n -= pi->_iMaxDur - pi->_iDurability;
+				if (saveflag) {
+					//pi->_ivalue /= pi->_iDurability;
+					//is->_ivalue /= is->_iDurability;
+					if (n <= 0)
+						pi->_iDurability = pi->_iMaxDur + n;
+					else
+						pi->_iDurability = pi->_iMaxDur;
+					is->_iDurability = n;
+					//pi->_ivalue *= pi->_iDurability;
+					//is->_ivalue *= is->_iDurability;
+				}
+				if (n <= 0)
+					return true;
+			}
+		}
+	}
 
 	i = is->_iCurs + CURSOR_FIRSTITEM;
 	w = InvItemWidth[i] / INV_SLOT_SIZE_PX;
@@ -676,22 +725,43 @@ static int SwapHoldBodyItem(PlayerStruct* p, ItemStruct* holditem, int invLoc)
 	return cn;
 }
 
+static int MergeStackableItem(ItemStruct* a, ItemStruct* b)
+{
+	int gt, ig, cn;
+
+	gt = a->_iDurability;
+	ig = b->_iDurability + gt; // STACK
+	//a->_ivalue /= a->_iDurability;
+	//b->_ivalue /= b->_iDurability;
+	if (ig <= a->_iMaxDur) {
+		a->_iDurability = ig;
+		cn = CURSOR_HAND;
+	} else {
+		ig = a->_iMaxDur - gt;
+		a->_iDurability = a->_iMaxDur;
+		b->_iDurability -= ig;
+		cn = b->_iCurs + CURSOR_FIRSTITEM;
+	}
+	//a->_ivalue *= a->_iDurability;
+	//b->_ivalue *= b->_iDurability;
+	return cn;
+}
+
 static void CheckInvPaste()
 {
 	int r, sx, sy, i, j;
 
 	sx = cursW;
 	sy = cursH;
-	i = MouseX + (sx >> 1);
-	j = MouseY + (sy >> 1);
+	i = MousePos.x + (sx >> 1);
+	j = MousePos.y + (sy >> 1);
 	sx /= INV_SLOT_SIZE_PX;
 	sy /= INV_SLOT_SIZE_PX;
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
-		if (i >= InvRect[r].X + RIGHT_PANEL
-		 && i <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
-		 && j >= InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && j <= InvRect[r].Y) {
+		if (POS_IN_RECT(i, j,
+			gnWndInvX + InvRect[r].X, gnWndInvY + InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRITEM, r);
 			break;
 		}
@@ -856,7 +926,7 @@ void InvPasteItem(int pnum, BYTE r)
 			if (wRight->_itype != ITYPE_NONE) {
 				// replace if there was something
 				cn = SwapItem(wRight, holditem);
-			} else if (is->_itype != ITYPE_NONE && is->_iLoc == ILOC_TWOHAND) {
+			} else if (is->_itype != ITYPE_NONE && TWOHAND_WIELD(p, is)) {
 				// pick two-handed weapons and place the shield in the right hand
 				SwapItem(wRight, is);
 				cn = SwapItem(wRight, holditem);
@@ -886,7 +956,7 @@ void InvPasteItem(int pnum, BYTE r)
 		} else {
 			copy_pod(*is, *holditem);
 		}*/
-		if (/*is->_itype == ITYPE_NONE && */wRight->_itype != ITYPE_NONE) {
+		if (/*is->_itype == ITYPE_NONE &&*/ wRight->_itype != ITYPE_NONE) {
 			SwapItem(is, wRight);
 			cn = SwapItem(is, holditem);
 		} else {
@@ -921,6 +991,12 @@ void InvPasteItem(int pnum, BYTE r)
 			if (it == 0) {
 				// empty target
 				copy_pod(*is, *holditem);
+			} else if (holditem->_iUsable
+			 && holditem->_iMiscId == is->_iMiscId
+			 && holditem->_iSpell == is->_iSpell) {
+				// matching stackable items
+				cn = MergeStackableItem(is, holditem);
+				break;
 			} else {
 				it--;
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
@@ -964,9 +1040,9 @@ void InvPasteItem(int pnum, BYTE r)
 	if (cn == CURSOR_HAND)
 		holditem->_itype = ITYPE_NONE;
 	if (pnum == mypnum) {
-		PlaySFX(itemfiledata[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]].iiSFX);
+		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		if (cn == CURSOR_HAND) {
-			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+			SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 		}
 		NewCursor(cn);
 	}
@@ -976,14 +1052,13 @@ static void CheckBeltPaste()
 {
 	int r, i, j;
 
-	i = MouseX + INV_SLOT_SIZE_PX / 2;
-	j = MouseY + INV_SLOT_SIZE_PX / 2;
+	i = MousePos.x + INV_SLOT_SIZE_PX / 2;
+	j = MousePos.y + INV_SLOT_SIZE_PX / 2;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
-		if (i >= InvRect[r].X
-		 && i <= InvRect[r].X + INV_SLOT_SIZE_PX
-		 && j >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && j <= SCREEN_HEIGHT - InvRect[r].Y) {
+		if (POS_IN_RECT(i, j,
+			gnWndBeltX + InvRect[r].X,  gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRBELTITEM, r);
 			break;
 		}
@@ -1002,35 +1077,43 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	if (holditem->_iLoc != ILOC_BELT || holditem->_itype == ITYPE_NONE)
 		return;
-	
+	// assert(holditem->_iUsable);
 	is = &plr._pSpdList[r];
-	cn = SwapItem(is, holditem);
-	if (holditem->_itype == ITYPE_NONE)
-		cn = CURSOR_HAND;
+	if (is->_itype != ITYPE_NONE
+	 && is->_iMiscId == holditem->_iMiscId
+	 && is->_iSpell == holditem->_iSpell) {
+		// matching stackable items
+		cn = MergeStackableItem(is, holditem);
+	} else {
+		cn = SwapItem(is, holditem);
+		if (holditem->_itype == ITYPE_NONE)
+			cn = CURSOR_HAND;
+	}
 
 	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
-		PlaySFX(itemfiledata[ItemCAnimTbl[pcurs - CURSOR_FIRSTITEM]].iiSFX);
+		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		if (cn == CURSOR_HAND)
-			SetCursorPos(MouseX + (cursW >> 1), MouseY + (cursH >> 1));
+			SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 		NewCursor(cn);
 	}
 }
 
-static void CheckInvCut(bool bShift)
+static bool CheckInvCut(bool bShift)
 {
 	BYTE r;
 
 	if (myplr._pmode != PM_STAND) {
-		return; // FALSE;
+		return false;
 	}
 
 	r = pcursinvitem;
 	if (r == INVITEM_NONE)
-		return; // FALSE;
+		return false;
 
 	NetSendCmdBParam2(CMD_CUTPLRITEM, r, bShift);
+	return true;
 }
 
 void InvCutItem(int pnum, BYTE r, bool bShift)
@@ -1050,16 +1133,16 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	case INVITEM_AMULET:
 	case INVITEM_HAND_RIGHT:
 	case INVITEM_CHEST:
-		static_assert((int)INVITEM_HEAD == (int)INVLOC_HEAD, "Switch of CheckInvCut expects matching enum values I.");
-		static_assert((int)INVITEM_RING_LEFT == (int)INVLOC_RING_LEFT, "Switch of CheckInvCut expects matching enum values II.");
-		static_assert((int)INVITEM_RING_RIGHT == (int)INVLOC_RING_RIGHT, "Switch of CheckInvCut expects matching enum values III.");
-		static_assert((int)INVITEM_AMULET == (int)INVLOC_AMULET, "Switch of CheckInvCut expects matching enum values IV.");
-		static_assert((int)INVITEM_HAND_RIGHT == (int)INVLOC_HAND_RIGHT, "Switch of CheckInvCut expects matching enum values VI.");
-		static_assert((int)INVITEM_CHEST == (int)INVLOC_CHEST, "Switch of CheckInvCut expects matching enum values VII.");
+		static_assert((int)INVITEM_HEAD == (int)INVLOC_HEAD, "Switch of InvCutItem expects matching enum values I.");
+		static_assert((int)INVITEM_RING_LEFT == (int)INVLOC_RING_LEFT, "Switch of InvCutItem expects matching enum values II.");
+		static_assert((int)INVITEM_RING_RIGHT == (int)INVLOC_RING_RIGHT, "Switch of InvCutItem expects matching enum values III.");
+		static_assert((int)INVITEM_AMULET == (int)INVLOC_AMULET, "Switch of InvCutItem expects matching enum values IV.");
+		static_assert((int)INVITEM_HAND_RIGHT == (int)INVLOC_HAND_RIGHT, "Switch of InvCutItem expects matching enum values VI.");
+		static_assert((int)INVITEM_CHEST == (int)INVLOC_CHEST, "Switch of InvCutItem expects matching enum values VII.");
 		pi = &plr._pInvBody[r];
 		break;
 	case INVITEM_HAND_LEFT:
-		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of CheckInvCut expects matching enum values V.");
+		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of InvCutItem expects matching enum values V.");
 		pi = &plr._pInvBody[INVITEM_HAND_RIGHT];
 		if (pi->_itype != ITYPE_NONE && pi->_itype != ITYPE_SHIELD) {
 			// move right hand weapon to left hand
@@ -1112,7 +1195,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
-		SetCursorPos(MouseX - (cursW >> 1), MouseY - (cursH >> 1));
+		SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 	}
 }
 
@@ -1144,6 +1227,7 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		// assert(bLoc < MAXBELTITEMS);
 		plr._pSpdList[bLoc]._itype = ITYPE_NONE;
 		CalcPlrScrolls(pnum);
+		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 }
 
@@ -1174,21 +1258,14 @@ void SyncPlrStorageRemove(int pnum, int iv)
 	CalcPlrScrolls(pnum);
 }
 
-void SyncPlrSpdBarRemove(int pnum, int iv)
-{
-	plr._pSpdList[iv]._itype = ITYPE_NONE;
-
-	CalcPlrScrolls(pnum);
-
-	//gbRedrawFlags |= REDRAW_SPEED_BAR;
-}
-
 void CheckInvClick(bool bShift)
 {
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		CheckInvPaste();
 	} else {
-		CheckInvCut(bShift);
+		if (!CheckInvCut(bShift)) {
+			StartWndDrag(WND_INV);
+		}
 	}
 }
 
@@ -1197,10 +1274,12 @@ void CheckInvClick(bool bShift)
  */
 void CheckBeltClick(bool bShift)
 {
-	if (pcurs >= CURSOR_FIRSTITEM) {
+	if (pcursicon >= CURSOR_FIRSTITEM) {
 		/*return*/ CheckBeltPaste();
 	} else {
-		/*return*/ CheckInvCut(bShift);
+		if (!CheckInvCut(bShift)) {
+			StartWndDrag(WND_BELT);
+		}
 	}
 }
 
@@ -1219,7 +1298,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		return;
 	}
 	if (idx == IDI_MUSHROOM) {
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QS_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
 			return;
 		if (quests[Q_MUSHROOM]._qvar2 == SFXS_PLR_95)
 			return;
@@ -1248,11 +1327,11 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		delay = 20;
 		idx = TEXT_IM_ARMOFVAL;
 #ifdef HELLFIRE
-	} else if (idx == IDI_MAPOFDOOM) {
+	} else if (idx == IDI_FANG) {
 		if (quests[Q_GRAVE]._qactive != QUEST_INIT)
 			return;
 		delay = 10;
-		idx = TEXT_IM_MAPOFDOOM;
+		idx = TEXT_IM_FANG;
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn, i, x, y;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
@@ -1306,6 +1385,7 @@ void InvGetItem(int pnum, int ii)
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
 	if (pnum == mypnum) {
+		PlaySFX(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 		pcursitem = ITEM_NONE;
 	}
@@ -1357,13 +1437,13 @@ bool AutoGetItem(int pnum, int ii)
 	return done;
 }
 
-int FindGetItem(int iseed, WORD wIndex, WORD wCI)
+int FindGetItem(const PkItemStruct* pkItem)
 {
 	int i, ii;
 
 	for (i = 0; i < numitems; i++) {
 		ii = itemactive[i];
-		if (items[ii]._iSeed == iseed && items[ii]._iIdx == wIndex && items[ii]._iCreateInfo == wCI)
+		if (pkItem->PkItemEq(items[ii]))
 			return ii;
 	}
 
@@ -1408,47 +1488,47 @@ bool CanPut(int x, int y)
 	return true;
 }
 
-bool FindItemLocation(int sx, int sy, int* dx, int* dy, int rad)
+bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
 {
 	int dir;
 	int xx, yy, i, j, k;
 
-	if (sx != *dx || sy != *dy) {
-		dir = GetDirection(sx, sy, *dx, *dy);
-		*dx = sx + offset_x[dir];
-		*dy = sy + offset_y[dir];
-		if (CanPut(*dx, *dy))
+	if (sx != pos.x || sy != pos.y) {
+		dir = GetDirection(sx, sy, pos.x, pos.y);
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
 			return true;
 
 		dir = (dir - 1) & 7;
-		*dx = sx + offset_x[dir];
-		*dy = sy + offset_y[dir];
-		if (CanPut(*dx, *dy))
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
 			return true;
 
 		dir = (dir + 2) & 7;
-		*dx = sx + offset_x[dir];
-		*dy = sy + offset_y[dir];
-		if (CanPut(*dx, *dy))
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
 			return true;
 
-		*dx = sx;
-		*dy = sy;
+		pos.x = sx;
+		pos.y = sy;
 	}
 
-	if (CanPut(*dx, *dy))
+	if (CanPut(pos.x, pos.y))
 		return true;
 
-	xx = *dx;
-	yy = *dy;
+	xx = pos.x;
+	yy = pos.y;
 	for (k = 1; k <= rad; k++) {
 		for (j = -k; j <= k; j++) {
 			yy = j + sy;
 			for (i = -k; i <= k; i++) {
 				xx = i + sx;
 				if (CanPut(xx, yy)) {
-					*dx = xx;
-					*dy = yy;
+					pos.x = xx;
+					pos.y = yy;
 					return true;
 				}
 			}
@@ -1459,18 +1539,18 @@ bool FindItemLocation(int sx, int sy, int* dx, int* dy, int rad)
 
 void DropItem()
 {
-	int x, y;
+	POS32 pos;
 
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	x = cursmx;
-	y = cursmy;
-	if (!FindItemLocation(myplr._px, myplr._py, &x, &y, 1))
+	pos.x = pcurspos.x;
+	pos.y = pcurspos.y;
+	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 
-	NetSendCmdPutItem(x, y);
-	return;// true;
+	NetSendCmdPutItem(pos.x, pos.y);
+	return; // true;
 }
 
 /**
@@ -1482,31 +1562,32 @@ void DropItem()
  */
 void SyncPutItem(int pnum, int x, int y, bool flipFlag)
 {
-	int xx, yy, ii;
+	int ii;
 	ItemStruct* is;
+	POS32 tpos, pos = { x, y };
 
 	// assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
 	if ((unsigned)pnum < MAX_PLRS) {
-		xx = plr._px;
-		yy = plr._py;
+		tpos.x = plr._px;
+		tpos.y = plr._py;
 	} else {
-		xx = x;
-		yy = y;
+		tpos.x = pos.x;
+		tpos.y = pos.y;
 	}
-	if (!FindItemLocation(xx, yy, &x, &y, DSIZEX / 2))
+	if (!FindItemLocation(tpos.x, tpos.y, pos, DSIZEX / 2))
 		return; // -1;
 
 	is = &items[MAXITEMS];
 
 	ii = itemactive[numitems];
-	dItem[x][y] = ii + 1;
+	dItem[pos.x][pos.y] = ii + 1;
 	numitems++;
 	copy_pod(items[ii], *is);
-	items[ii]._ix = x;
-	items[ii]._iy = y;
+	items[ii]._ix = pos.x;
+	items[ii]._iy = pos.y;
 	RespawnItem(ii, flipFlag);
 	//return ii;
 }
@@ -1538,8 +1619,10 @@ void SyncSplitGold(int pnum, int cii, int value)
 	pi->_iSeed = seed;
 	pi->_iStatFlag = TRUE;
 	SetGoldItemValue(pi, value);
-	if (pnum == mypnum)
+	if (pnum == mypnum) {
+		PlaySFX(IS_IGRAB);
 		NewCursor(pi->_iCurs + CURSOR_FIRSTITEM);
+	}
 }
 
 BYTE CheckInvBelt()
@@ -1547,10 +1630,9 @@ BYTE CheckInvBelt()
 	int r;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
-		if (MouseX >= InvRect[r].X
-		 && MouseX <= InvRect[r].X + INV_SLOT_SIZE_PX
-		 && MouseY >= SCREEN_HEIGHT - InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && MouseY <= SCREEN_HEIGHT - InvRect[r].Y) {
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
+			gnWndBeltX + InvRect[r].X, gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
 	}
@@ -1571,10 +1653,9 @@ BYTE CheckInvItem()
 	BYTE rv;
 
 	for (r = 0; r < SLOTXY_BELT_FIRST; r++) {
-		if (MouseX >= InvRect[r].X + RIGHT_PANEL
-		 && MouseX <= InvRect[r].X + RIGHT_PANEL + INV_SLOT_SIZE_PX
-		 && MouseY >= InvRect[r].Y - INV_SLOT_SIZE_PX
-		 && MouseY <= InvRect[r].Y) {
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
+			gnWndInvX + InvRect[r].X, gnWndInvY + InvRect[r].Y - INV_SLOT_SIZE_PX,
+			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			break;
 		}
 	}
@@ -1650,8 +1731,10 @@ static void InvAddHp(int pnum)
 	int hp;
 
 	p = &plr;
-	hp = p->_pMaxHP >> 8;
-	hp = ((hp >> 1) + random_(39, hp)) << 6;
+	// commented out because iSeed of the STACK is not regenerated
+	// hp = p->_pMaxHP >> 8;
+	// hp = ((hp >> 1) + random_(39, hp)) << 6;
+	hp = p->_pMaxHP >> (8 - 6);
 	switch (p->_pClass) {
 #ifdef HELLFIRE
 	case PC_WARRIOR:
@@ -1676,18 +1759,20 @@ static void InvAddMana(int pnum)
 	int mana;
 
 	p = &plr;
-	mana = p->_pMaxMana >> 8;
-	mana = ((mana >> 1) + random_(40, mana)) << 6;
+	// commented out because iSeed of the STACK is not regenerated
+	// mana = p->_pMaxMana >> 8;
+	// mana = ((mana >> 1) + random_(40, mana)) << 6;
+	mana = p->_pMaxMana >> (8 - 6);
 	switch (p->_pClass) {
-	case PC_WARRIOR:				break;
-	case PC_SORCERER: mana <<= 1;	break;
+	case PC_WARRIOR:              break;
+	case PC_SORCERER: mana <<= 1; break;
 #ifdef HELLFIRE
-	case PC_BARBARIAN:				break;
+	case PC_BARBARIAN:            break;
 	case PC_MONK:
 	case PC_BARD:
 #endif
 	case PC_ROGUE:
-		mana += mana >> 1;			break;
+		mana += mana >> 1;        break;
 	default:
 		ASSUME_UNREACHABLE
 	}
@@ -1702,7 +1787,7 @@ bool InvUseItem(int cii)
 
 	if (plr._pHitPoints < (1 << 6))
 		return true;
-	if (pcurs != CURSOR_HAND)
+	if (pcursicon != CURSOR_HAND)
 		return true;
 	if (stextflag != STORE_NONE)
 		return true;
@@ -1727,7 +1812,7 @@ bool InvUseItem(int cii)
 		return true;
 	}
 
-	if (!AllItemsList[is->_iIdx].iUsable) {
+	if (!is->_iUsable) {
 		return false;
 	}
 
@@ -1742,7 +1827,7 @@ bool InvUseItem(int cii)
 #else
 	 && is->_iMiscId == IMISC_SCROLL
 #endif
-		&& (spelldata[is->_iSpell].sFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
+	 && (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
 		return true;
 	}
 
@@ -1772,14 +1857,14 @@ bool InvUseItem(int cii)
 			gbTSplFrom = cii;
 			NewCursor(spelldata[sn].scCurs);
 		} else {
-			NetSendCmdLocSkill(cursmx, cursmy, sn, cii);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, sn, cii);
 		}
 		return true;
 	case IMISC_BOOK:
 		break;
-	case IMISC_MAPOFDOOM:
-		doom_init();
-		return true;
+	//case IMISC_MAPOFDOOM:
+	//	doom_init();
+	//	return true;
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
 	case IMISC_OILSTR:
@@ -1795,8 +1880,7 @@ bool InvUseItem(int cii)
 		return true;
 #ifdef HELLFIRE
 	case IMISC_NOTE:
-		InitQTextMsg(TEXT_BOOK9);
-		gbInvflag = false;
+		StartQTextMsg(TEXT_BOOK9);
 		return true;
 #endif
 	default:
@@ -1814,22 +1898,25 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	// assert(plr._pmode != PM_DEATH);
 	// assert(cii < NUM_INVELEM);
 
+	is = PlrItem(pnum, cii);
+
+	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+		return false;
+
 	if (cii < INVITEM_INV_FIRST) {
-		is = &plr._pInvBody[cii];
-		if (is->_iSpell != sn || is->_itype == ITYPE_NONE || !is->_iStatFlag || is->_iCharges <= 0)
+		if (is->_iSpell != sn || is->_iCharges <= 0)
 			return false;
 		is->_iCharges--;
-		CalcPlrStaff(pnum);
+		CalcPlrCharges(pnum);
 		return true;
 	}
 
-	is = PlrItem(pnum, cii);
-
-	if (is->_itype == ITYPE_NONE || !is->_iStatFlag || !AllItemsList[is->_iIdx].iUsable)
+	if (!is->_iUsable)
 		return false;
 
 	// use the item
-	SetRndSeed(is->_iSeed);
+	// commented out because iSeed of the STACK is not regenerated
+	// SetRndSeed(is->_iSeed);
 	switch (is->_iMiscId) {
 	case IMISC_HEAL:
 		InvAddHp(pnum);
@@ -1876,7 +1963,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
 		break;
-	case IMISC_MAPOFDOOM:
+	//case IMISC_MAPOFDOOM:
 	case IMISC_NOTE:
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
@@ -1893,7 +1980,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		ASSUME_UNREACHABLE
 	}
 	// consume the item
-	SyncPlrItemRemove(pnum, cii);
+	if (--is->_iDurability <= 0) // STACK
+		SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;
 }
 

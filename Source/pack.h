@@ -12,8 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void PackPlayer(PkPlayerStruct *pPack, int pnum);
-void UnPackPlayer(PkPlayerStruct *pPack, int pnum);
+void PackPlayer(PkPlayerStruct* pPack, int pnum);
+void UnPackPlayer(PkPlayerStruct* pPack, int pnum);
 
 /* rdata */
 #ifdef __cplusplus

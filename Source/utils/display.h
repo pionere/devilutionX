@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cstdint>
 #include <type_traits>
 
-#include "../types.h"
-#include <SDL.h>
+//#include <SDL.h>
+
+//#include "../defs.h"
+//#include "../gameui.h"
+#include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -13,13 +15,14 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+extern bool gbFullscreen;
 extern bool gbVsyncEnabled;
 extern bool gbFPSLimit;
 extern int gnRefreshDelay;
-extern SDL_Window *ghMainWnd;
-extern SDL_Renderer *renderer;
-extern SDL_Texture *renderer_texture;
-extern SDL_Surface *renderer_surface;
+extern SDL_Window* ghMainWnd;
+extern SDL_Renderer* renderer;
+extern SDL_Texture* renderer_texture;
+extern SDL_Surface* renderer_surface;
 
 extern SDL_Palette* back_palette;
 extern SDL_Surface* back_surface;
@@ -37,20 +40,20 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height);
 // Always returns false on SDL2.
 bool OutputRequiresScaling();
 // Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect *rect);
+void ScaleOutputRect(SDL_Rect* rect);
 // If the output requires software scaling, replaces the given surface with a scaled one.
-void ScaleSurfaceToOutput(SDL_Surface **surface);
+void ScaleSurfaceToOutput(SDL_Surface** surface);
 #else // SDL2, scaling handled by renderer.
 void RecreateDisplay(int width, int height);
-inline void ScaleOutputRect(SDL_Rect *rect) { };
-inline void ScaleSurfaceToOutput(SDL_Surface **surface) { };
+inline void ScaleOutputRect(SDL_Rect* rect) { };
+inline void ScaleSurfaceToOutput(SDL_Surface** surface) { };
 #endif
 
 // Returns:
 // SDL1: Video surface.
 // SDL2, no upscale: Window surface.
 // SDL2, upscale: Renderer texture surface.
-SDL_Surface *GetOutputSurface();
+SDL_Surface* GetOutputSurface();
 
 #ifdef __cplusplus
 }
@@ -60,7 +63,7 @@ SDL_Surface *GetOutputSurface();
 template <
     typename T,
     typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
-void OutputToLogical(T *x, T *y)
+void OutputToLogical(T* x, T* y)
 {
 #ifndef USE_SDL1
 	if (!renderer)
@@ -77,7 +80,7 @@ void OutputToLogical(T *x, T *y)
 #else
 	if (!OutputRequiresScaling())
 		return;
-	const SDL_Surface *surface = GetOutputSurface();
+	const SDL_Surface* surface = GetOutputSurface();
 	*x = *x * SCREEN_WIDTH / surface->w;
 	*y = *y * SCREEN_HEIGHT / surface->h;
 #endif
@@ -86,7 +89,7 @@ void OutputToLogical(T *x, T *y)
 template <
     typename T,
     typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
-void LogicalToOutput(T *x, T *y)
+void LogicalToOutput(T* x, T* y)
 {
 #ifndef USE_SDL1
 	if (renderer == NULL)
@@ -114,7 +117,7 @@ void LogicalToOutput(T *x, T *y)
 #else
 	if (!OutputRequiresScaling())
 		return;
-	const SDL_Surface *surface = GetOutputSurface();
+	const SDL_Surface* surface = GetOutputSurface();
 	*x = *x * surface->w / SCREEN_WIDTH;
 	*y = *y * surface->h / SCREEN_HEIGHT;
 #endif

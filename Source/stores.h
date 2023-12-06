@@ -36,7 +36,7 @@ extern ItemStruct healitem[HEALER_ITEMS];
 
 void InitStoresOnce();
 void InitLvlStores();
-void PrintSString(int x, int y, bool cjustflag, const char *str, BYTE col, int val = -1);
+void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val = -1);
 void InitSTextHelp();
 void StartStore(int s);
 void DrawStore();
@@ -48,7 +48,7 @@ void STextPageDown();
 void SyncStoreCmd(int pnum, int cmd, int ii, int price);
 bool TakePlrsMoney(int pnum, int cost);
 void STextEnter();
-void CheckStoreBtn();
+void TryStoreBtnClick();
 void ReleaseStoreBtn();
 
 /* rdata */

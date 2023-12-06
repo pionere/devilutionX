@@ -3,7 +3,9 @@ set(ASAN OFF)
 set(UBSAN OFF)
 
 # General build options.
+# The 3ds build handles the stripping in a custom way.
 set(USE_SDL1 ON)
+set(DISABLE_STRIP ON)
 #set(ZEROTIER OFF)
 # Disable system dependencies.
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
@@ -25,8 +27,8 @@ set(PREFILL_PLAYER_NAME ON)
 # SDL Joystick axis mapping (circle-pad/C-stick)
 set(JOY_AXIS_LEFTX 0)
 set(JOY_AXIS_LEFTY 1)
-set(JOY_AXIS_RIGHTX 3)
-set(JOY_AXIS_RIGHTY 4)
+set(JOY_AXIS_RIGHTX 2)
+set(JOY_AXIS_RIGHTY 3)
 # SDL Joystick hat mapping (D-pad)
 set(JOY_HAT_DPAD_UP_HAT 0)
 set(JOY_HAT_DPAD_RIGHT_HAT 0)

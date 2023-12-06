@@ -1,21 +1,26 @@
 #pragma once
 // Unifies joystick, gamepad, and keyboard controller APIs.
 
-#include "../types.h"
+#include "../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-// NOTE: A, B, X, Y refer to physical positions on an XBox 360 controller.
-// A<->B and X<->Y are reversed on a Nintendo controller.
-enum ControllerButton {
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// NOTE: FACE-buttons on a VITA controller:     X O [] A
+//                    on a XBox 360 controller: A, B, X, Y
+//                    on a Nintendo controller: B, A, Y, X
+typedef enum ControllerButton {
 	ControllerButton_NONE = 0,
 	ControllerButton_IGNORE,
-	ControllerButton_AXIS_TRIGGERLEFT,  // ZL (aka L2)
-	ControllerButton_AXIS_TRIGGERRIGHT, // ZR (aka R2)
-	ControllerButton_BUTTON_A,          // Bottom button
-	ControllerButton_BUTTON_B,          // Right button
-	ControllerButton_BUTTON_X,          // Left button
-	ControllerButton_BUTTON_Y,          // TOP button
+	ControllerButton_AXIS_TRIGGERLEFT,   // ZL (aka L2)
+	ControllerButton_AXIS_TRIGGERRIGHT,  // ZR (aka R2)
+	ControllerButton_BUTTON_FACE_BOTTOM, // SDL_CONTROLLER_BUTTON_A
+	ControllerButton_BUTTON_FACE_RIGHT,  // SDL_CONTROLLER_BUTTON_B
+	ControllerButton_BUTTON_FACE_LEFT,   // SDL_CONTROLLER_BUTTON_X
+	ControllerButton_BUTTON_FACE_TOP,    // SDL_CONTROLLER_BUTTON_Y
 	ControllerButton_BUTTON_LEFTSTICK,
 	ControllerButton_BUTTON_RIGHTSTICK,
 	ControllerButton_BUTTON_LEFTSHOULDER,
@@ -26,7 +31,7 @@ enum ControllerButton {
 	ControllerButton_BUTTON_DPAD_DOWN,
 	ControllerButton_BUTTON_DPAD_LEFT,
 	ControllerButton_BUTTON_DPAD_RIGHT
-};
+} ControllerButton;
 
 inline bool IsDPadButton(ControllerButton button)
 {
@@ -35,5 +40,9 @@ inline bool IsDPadButton(ControllerButton button)
 	    || button == ControllerButton_BUTTON_DPAD_LEFT
 	    || button == ControllerButton_BUTTON_DPAD_RIGHT;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

@@ -6,7 +6,7 @@
 #pragma once
 
 #include <cstddef>
-#include "../types.h"
+#include "../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

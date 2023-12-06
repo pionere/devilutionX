@@ -4,6 +4,9 @@
  * Implementation of in-game message functions.
  */
 #include "all.h"
+#include "engine/render/cel_render.h"
+#include "engine/render/raw_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -13,76 +16,76 @@ BYTE currmsg;
 BYTE msgcnt;
 
 /** Maps from error_id to error message. */
-const char *const MsgStrings[NUM_EMSGS] = {
-	"",													// EMSG_NONE
-	"Multiplayer sync problem",
-	"Loading...",
-	"Saving...",
-	"New strength is forged through destruction.",		// EMSG_SHRINE_HIDDEN
-	"Keep your swords sharp but wit sharper.",			// EMSG_SHRINE_GLOOMY
-	"Know your priorities.",							// EMSG_SHRINE_WEIRD
-	"Time cannot diminish the power of steel.",			// EMSG_SHRINE_RELIGIOUS
-	"While the spirit is vigilant the body thrives.",	// EMSG_SHRINE_MAGICAL
-	"The powers of mana refocused renews.",				// EMSG_SHRINE_STONE
-	"Beware of too much power in one hand.",	 		// EMSG_SHRINE_CREEPY
-	"What once was opened now is closed.",				// EMSG_SHRINE_THAUMATURGIC
-	"Intensity comes at the cost of wisdom.",			// EMSG_SHRINE_FASCINATING
-	"Let the spirits guide you.",						// EMSG_SHRINE_SHIMMERING
-	"Arcane power brings destruction.",					// EMSG_SHRINE_CRYPTIC
-	"Crimson and Azure become as the sun.",				// EMSG_SHRINE_ELDRITCH
-	"Teamwork is the essence of survival.",				// EMSG_SHRINE_EERIE1
-	"A helping soul fills your spirit.",				// EMSG_SHRINE_EERIE2
-	"Where avarice fails, patience gains reward.",		// EMSG_SHRINE_SPOOKY1
-	"Blessed by a benevolent companion!",				// EMSG_SHRINE_SPOOKY2
-	"Thinking about others brings people closer.",		// EMSG_SHRINE_QUIET1
-	"Someone mentioned you in their prayer.",			// EMSG_SHRINE_QUIET2
-	"Drink and be refreshed.",							// EMSG_SHRINE_DIVINE
-	"Wherever you go, there you are.",					// EMSG_SHRINE_HOLY
-	"Energy comes at the cost of wisdom.",				// EMSG_SHRINE_SACRED
-	"Salvation comes at the cost of wisdom.",			// EMSG_SHRINE_ORNATE
-	"Riches abound when least expected.",				// EMSG_SHRINE_SPIRITUAL
-	"The way is made clear when viewed from above.",	// EMSG_SHRINE_SECLUDED
-	"Mysteries are revealed in the light of reason.",	// EMSG_SHRINE_GLIMMERING
-	"There can be only one.",					 		// EMSG_SHRINE_TAINTED
-	"The warmth of a fireside calls.",					// EMSG_SHRINE_GLISTENING
-	"Arcane knowledge gained!",							// EMSG_BONECHAMB
-	"Some experience is gained by touch.",				// EMSG_SHRINE_SPARKLING
-	"That which can break will.",						// EMSG_SHRINE_MURPHYS
+const char* const MsgStrings[NUM_EMSGS] = {
+	"",                                               // EMSG_NONE
+	"Multiplayer sync problem",                       // < EMSG_DESYNC >
+	"Loading...",                                     // < EMSG_LOADING >
+	"Saving...",                                      // < EMSG_SAVING >
+	"New strength is forged through destruction.",    // EMSG_SHRINE_HIDDEN
+	"Keep your swords sharp but wit sharper.",        // EMSG_SHRINE_GLOOMY
+	"Know your priorities.",                          // EMSG_SHRINE_WEIRD
+	"Time cannot diminish the power of steel.",       // EMSG_SHRINE_RELIGIOUS
+	"While the spirit is vigilant the body thrives.", // EMSG_SHRINE_MAGICAL
+	"The powers of mana refocused renews.",           // EMSG_SHRINE_STONE
+	"Beware of too much power in one hand.",          // EMSG_SHRINE_CREEPY
+	"What once was opened now is closed.",            // EMSG_SHRINE_THAUMATURGIC
+	"Intensity comes at the cost of wisdom.",         // EMSG_SHRINE_FASCINATING
+	"Let the spirits guide you.",                     // EMSG_SHRINE_SHIMMERING
+	"Arcane power brings destruction.",               // EMSG_SHRINE_CRYPTIC
+	"Crimson and Azure become as the sun.",           // EMSG_SHRINE_ELDRITCH
+	"Teamwork is the essence of survival.",           // EMSG_SHRINE_EERIE1
+	"A helping soul fills your spirit.",              // EMSG_SHRINE_EERIE2
+	"Where avarice fails, patience gains reward.",    // EMSG_SHRINE_SPOOKY1
+	"Blessed by a benevolent companion!",             // EMSG_SHRINE_SPOOKY2
+	"Thinking about others brings people closer.",    // EMSG_SHRINE_QUIET1
+	"Someone mentioned you in their prayer.",         // EMSG_SHRINE_QUIET2
+	"Drink and be refreshed.",                        // EMSG_SHRINE_DIVINE
+	"Wherever you go, there you are.",                // EMSG_SHRINE_HOLY
+	"Energy comes at the cost of wisdom.",            // EMSG_SHRINE_SACRED
+	"Salvation comes at the cost of wisdom.",         // EMSG_SHRINE_ORNATE
+	"Riches abound when least expected.",             // EMSG_SHRINE_SPIRITUAL
+	"The way is made clear when viewed from above.",  // EMSG_SHRINE_SECLUDED
+	"Mysteries are revealed in the light of reason.", // EMSG_SHRINE_GLIMMERING
+	"There can be only one.",                         // EMSG_SHRINE_TAINTED
+	"The warmth of a fireside calls.",                // EMSG_SHRINE_GLISTENING
+	"Arcane knowledge gained!",                       // EMSG_BONECHAMB
+	"Some experience is gained by touch.",            // EMSG_SHRINE_SPARKLING
+	"That which can break will.",                     // EMSG_SHRINE_MURPHYS
 #ifdef HELLFIRE
-	"Let the sun guide your path.",						// EMSG_SHRINE_SOLAR
+	"Let the sun guide your path.",                   // EMSG_SHRINE_SOLAR
 #endif
-// obsolete messages
-// "No automap available in town"
-// "No multiplayer functions in demo",
-// "Direct Sound Creation Failed",
-// "Not enough space to save",
-// "Copying to a hard disk is recommended",
-// "Not available in shareware version",
-// "No Pause in town",
-// "No pause in multiplayer",
-// "Those who defend seldom attack",
-// "Magic is not always what it seems to be."
-// "Knowledge and wisdom at the cost of self",
-// "The sword of justice is swift and sharp"
-// "Some are weakened as one grows strong",
-// "Strength is bolstered by heavenly faith",
-// "The hands of men may be guided by fate",
-// "That which cannot be held cannot be harmed",
-// "The essence of life flows from within",
-// "Those who are last may yet be first",
-// "Generosity brings its own rewards",
-// "That which does not kill you..."
-// "There's no place like home.",
-// "Knowledge is power."
-// "Give and you shall receive.",
-// "Spiritual energy is restored."
-//	"You feel more agile.",
-//	"You feel stronger.",
-//	"You feel wiser.",
-//	"You feel refreshed.",
-//	"You must be at least level 8 to use this.",
-//	"You must be at least level 13 to use this.",
-//	"You must be at least level 17 to use this.",
+	// obsolete messages
+	// "No automap available in town"
+	// "No multiplayer functions in demo",
+	// "Direct Sound Creation Failed",
+	// "Not enough space to save",
+	// "Copying to a hard disk is recommended",
+	// "Not available in shareware version",
+	// "No Pause in town",
+	// "No pause in multiplayer",
+	// "Those who defend seldom attack",
+	// "Magic is not always what it seems to be."
+	// "Knowledge and wisdom at the cost of self",
+	// "The sword of justice is swift and sharp"
+	// "Some are weakened as one grows strong",
+	// "Strength is bolstered by heavenly faith",
+	// "The hands of men may be guided by fate",
+	// "That which cannot be held cannot be harmed",
+	// "The essence of life flows from within",
+	// "Those who are last may yet be first",
+	// "Generosity brings its own rewards",
+	// "That which does not kill you..."
+	// "There's no place like home.",
+	// "Knowledge is power."
+	// "Give and you shall receive.",
+	// "Spiritual energy is restored."
+	// "You feel more agile.",
+	// "You feel stronger.",
+	// "You feel wiser.",
+	// "You feel refreshed.",
+	// "You must be at least level 8 to use this.",
+	// "You must be at least level 13 to use this.",
+	// "You must be at least level 17 to use this.",
 };
 
 void InitDiabloMsg(BYTE e)
@@ -111,36 +114,36 @@ void ClrDiabloMsg()
 
 void DrawDiabloMsg()
 {
-	int i, x, y, sx, sy;
+	int x, y, sx, sy;
+	BYTE backup[2 * SLIDER_BORDER][2 * SLIDER_BOX_HEIGHT];
 
 	//assert(currmsg != EMSG_NONE);
 	//assert(msgcnt > 0);
 
-	x = PANEL_X + 101;
-	y = DIALOG_Y;
-
-	CelDraw(x, y, pSTextSlidCels, 1, 12);
-	CelDraw(x + 426, y, pSTextSlidCels, 4, 12);
-	CelDraw(x, y + 48, pSTextSlidCels, 2, 12);
-	CelDraw(x + 426, y + 48, pSTextSlidCels, 3, 12);
-
-	sx = x + 8;
-	for (i = 0; i < 35; i++) {
-		CelDraw(sx, y, pSTextSlidCels, 5, 12);
-		CelDraw(sx, y + 48, pSTextSlidCels, 7, 12);
-		sx += 12;
+	x = PANEL_CENTERX((3 * SLIDER_BOX_WIDTH) / 2);
+	y = PANEL_CENTERY(SLIDER_BOX_HEIGHT + 2 * TILE_HEIGHT);
+	// preserve image content on borders
+	for (sx = 0; sx < SLIDER_BORDER; sx++) {
+		for (sy = SLIDER_BORDER; sy < SLIDER_BOX_HEIGHT - SLIDER_BORDER; sy++) {
+			backup[sx][sy - SLIDER_BORDER] = gpBuffer[x + (SLIDER_BOX_WIDTH - SLIDER_BORDER) + sx + (y - sy) * BUFFER_WIDTH];
+			backup[sx + SLIDER_BORDER][sy - SLIDER_BORDER] = gpBuffer[sx + x + SLIDER_BOX_WIDTH / 2 + (y - sy) * BUFFER_WIDTH];
+		}
 	}
-	sy = y + 12;
-	for (i = 0; i < 3; i++) {
-		CelDraw(x, sy, pSTextSlidCels, 6, 12);
-		CelDraw(x + 426, sy, pSTextSlidCels, 8, 12);
-		sy += 12;
+	// draw two overlapping bars
+	CelDraw(x, y, gpOptbarCel, 1);
+	CelDraw(x + SLIDER_BOX_WIDTH / 2, y, gpOptbarCel, 1);
+	// restore image content of the unwanted borders
+	for (sx = 0; sx < SLIDER_BORDER; sx++) {
+		for (sy = SLIDER_BORDER; sy < SLIDER_BOX_HEIGHT - SLIDER_BORDER; sy++) {
+			gpBuffer[x + (SLIDER_BOX_WIDTH - SLIDER_BORDER) + sx + (y - sy) * BUFFER_WIDTH] = backup[sx][sy - SLIDER_BORDER];
+			gpBuffer[sx + x + SLIDER_BOX_WIDTH / 2 + (y - sy) * BUFFER_WIDTH] = backup[sx + SLIDER_BORDER][sy - SLIDER_BORDER];
+		}
 	}
-
-	trans_rect(x + 3, y - 8, 432, 54);
-
+	// make the center transparent
+	DrawRectTrans(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER), PAL_BLACK);
+	// print the message
 	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
-	PrintString(x, y + 24, x + PANEL_WIDTH - 2 * 101, tempstr, true, COL_GOLD, 1);
+	PrintString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
 
 	if (msgdelay > 0 && msgdelay <= SDL_GetTicks() - 3500) {
 		msgdelay = 0;

@@ -12,21 +12,22 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-	/**
+/**
  * @brief Shifting the view area along the logical grid
  *        Note: this won't allow you to shift between even and odd rows
  * @param horizontal Shift the screen left or right
  * @param vertical Shift the screen up or down
  */
-#define SHIFT_GRID(x, y, horizontal, vertical)	\
-{												\
-	x += vertical + horizontal;					\
-	y += vertical - horizontal;					\
-}
+#define SHIFT_GRID(x, y, horizontal, vertical) \
+	{                                          \
+		x += (vertical) + (horizontal);        \
+		y += (vertical) - (horizontal);        \
+	}
 
 extern int ViewX;
 extern int ViewY;
 extern ScrollStruct ScrollInfo;
+extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 

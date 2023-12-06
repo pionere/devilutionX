@@ -203,6 +203,7 @@ static bool GetInfo_PatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInf
     TFileEntry * pFileEntry = NULL;
     TMPQHeader * pHeader = NULL;
     ULONGLONG Int64Value = 0;
+    ULONGLONG ByteOffset;
     TMPQFile * hf = NULL;
     void * pvSrcFileInfo = NULL;
     DWORD cbSrcFileInfo = 0;
@@ -237,9 +238,13 @@ static bool GetInfo_PatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInf
             return GetInfo(pvFileInfo, cbFileInfo, &ha->UserDataPos, sizeof(ULONGLONG), pcbLengthNeeded);
 
         case SFileMpqUserDataHeader:
+            if(ha->pUserData == NULL)
+                return GetInfo_ReturnError(ERROR_INVALID_PARAMETER);
             return GetInfo_ReadFromFile(pvFileInfo, cbFileInfo, ha->pStream, ha->UserDataPos, sizeof(TMPQUserData), pcbLengthNeeded);
 
         case SFileMpqUserData:
+            if(ha->pUserData == NULL)
+                return GetInfo_ReturnError(ERROR_INVALID_PARAMETER);
             return GetInfo_ReadFromFile(pvFileInfo, cbFileInfo, ha->pStream, ha->UserDataPos + sizeof(TMPQUserData), ha->pUserData->dwHeaderOffs - sizeof(TMPQUserData), pcbLengthNeeded);
 
         case SFileMpqHeaderOffset:
@@ -319,7 +324,8 @@ static bool GetInfo_PatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInf
             return GetInfo(pvFileInfo, cbFileInfo, &pHeader->dwBlockTableSize, sizeof(DWORD), pcbLengthNeeded);
 
         case SFileMpqBlockTable:
-            if(MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos) >= ha->FileSize)
+            ByteOffset = FileOffsetFromMpqOffset(ha, MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos));
+            if(ByteOffset >= ha->FileSize)
                 return GetInfo_ReturnError(ERROR_FILE_NOT_FOUND);
             cbSrcFileInfo = pHeader->dwBlockTableSize * sizeof(TMPQBlock);
             pvSrcFileInfo = LoadBlockTable(ha, true);
@@ -439,16 +445,16 @@ static bool GetInfo_PatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInf
 
         case SFileInfoEncryptionKeyRaw:
             dwInt32Value = hf->dwFileKey;
-            if(pFileEntry->dwFlags & MPQ_FILE_FIX_KEY)
+            if(pFileEntry->dwFlags & MPQ_FILE_KEY_V2)
                 dwInt32Value = (dwInt32Value ^ pFileEntry->dwFileSize) - (DWORD)hf->MpqFilePos;
             return GetInfo(pvFileInfo, cbFileInfo, &dwInt32Value, sizeof(DWORD), pcbLengthNeeded);
 
         case SFileInfoCRC32:
             return GetInfo(pvFileInfo, cbFileInfo, &hf->pFileEntry->dwCrc32, sizeof(DWORD), pcbLengthNeeded);
+        default:
+            // Invalid info class
+            return GetInfo_ReturnError(ERROR_INVALID_PARAMETER);
     }
-
-    // Invalid info class
-    return GetInfo_ReturnError(ERROR_INVALID_PARAMETER);
 }*/
 
 #ifdef FULL
@@ -524,7 +530,7 @@ static TFileHeader2Ext data2ext[] =
     {0, 0, 0, 0, NULL}                                          // Terminator
 };
 
-/*static int CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * szFileName)
+/*static DWORD CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * szFileName)
 {
     TMPQFile * hf = (TMPQFile *)hFile;  // MPQ File handle
     DWORD FirstBytes[2] = {0, 0};       // The first 4 bytes of the file
@@ -568,11 +574,11 @@ static TFileHeader2Ext data2ext[] =
 
 bool WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
 {
-    TMPQFile *hf = IsValidFileHandle(hFile);  // MPQ File handle
-    int nError = ERROR_INVALID_HANDLE;
+    TMPQFile *hf;
+    DWORD dwErrCode = ERROR_INVALID_HANDLE;
 
     // Check valid parameters
-    if (hf != NULL)
+    if((hf = IsValidFileHandle(hFile)) != NULL)
     {
         TFileEntry * pFileEntry = hf->pFileEntry;
 
@@ -583,13 +589,13 @@ bool WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
             {
                 // If the file name is not there yet, create a pseudo name
                 if(pFileEntry->szFileName == NULL)
-                    nError = CreatePseudoFileName(hf, pFileEntry, szFileName);
+                    dwErrCode = CreatePseudoFileName(hf, pFileEntry, szFileName);
 
                 // Copy the file name to the output buffer, if any
                 if(pFileEntry->szFileName && szFileName)
                 {
                     strcpy(szFileName, pFileEntry->szFileName);
-                    nError = ERROR_SUCCESS;
+                    dwErrCode = ERROR_SUCCESS;
                 }
             }
         }
@@ -602,12 +608,12 @@ bool WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
                 const TCHAR * szStreamName = FileStream_GetFileName(hf->pStream);
                 StringCopy(szFileName, MAX_PATH, szStreamName);
             }
-            nError = ERROR_SUCCESS;
+            dwErrCode = ERROR_SUCCESS;
         }
     }
 
-    if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
-    return (nError == ERROR_SUCCESS);
+    if(dwErrCode != ERROR_SUCCESS)
+        SetLastError(dwErrCode);
+    return (dwErrCode == ERROR_SUCCESS);
 }*/
 

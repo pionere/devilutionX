@@ -2,15 +2,12 @@
 
 #include <algorithm>
 
-#ifdef __vita__
-#include <psp2/power.h>
-#endif
-
 #ifdef __3DS__
 #include "platform/ctr/display.hpp"
 #endif
 
 #include "all.h"
+#include <config.h>
 
 #include "DiabloUI/diabloui.h"
 #include "control.h"
@@ -18,6 +15,8 @@
 #include "controls/devices/game_controller.h"
 #include "controls/devices/joystick.h"
 #include "controls/game_controls.h"
+#include "controls/touch.h"
+#include "storm/storm_cfg.h"
 
 #ifdef USE_SDL1
 #ifndef SDL1_VIDEO_MODE_BPP
@@ -34,6 +33,11 @@ DEVILUTION_BEGIN_NAMESPACE
  * Specfies whether the game is the current active window
  */
 bool gbWndActive;
+/**
+ * Specifies whether to give the game exclusive access to the
+ * screen, as needed for efficient rendering in fullscreen mode.
+ */
+bool gbFullscreen = true;
 /**
  * Specfies whether vertical sync is enabled.
  */
@@ -77,9 +81,11 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 	if (ghMainWnd == NULL) {
 		sdl_error(ERR_SDL_DISPLAY_MODE_SET);
 	}
-	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
+#if DEBUG_MODE
+	const SDL_VideoInfo* current = SDL_GetVideoInfo();
 	DoLog("Video mode is now %dx%d bpp=%d flags=0x%08X",
-	    current.current_w, current.current_h, current.vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
+	    current->current_w, current->current_h, current->vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
+#endif
 }
 
 void SetVideoModeToPrimary(bool fullscreen, int width, int height)
@@ -95,7 +101,8 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 }
 
-bool IsFullScreen() {
+bool IsFullScreen()
+{
 	return (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 	// ifndef USE_SDL1:
 	//   return (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
@@ -126,15 +133,10 @@ static void AdjustToScreenGeometry(int width, int height)
 		DoLog("Using software scaling");
 	}
 #endif
-	//viewportHeight = screenHeight;
-	/*if (screenWidth <= PANEL_WIDTH) {
-		// Part of the screen is fully obscured by the UI
-		viewportHeight -= PANEL_HEIGHT;
-	}*/
 }
 
 #ifndef USE_SDL1
-static void CalculatePreferredWindowSize(int &width, int &height, bool useIntegerScaling)
+static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
@@ -163,27 +165,25 @@ static void CalculatePreferredWindowSize(int &width, int &height, bool useIntege
 }
 #endif
 
-void SpawnWindow(const char* lpWindowName)
+void SpawnWindow()
 {
-#ifdef __vita__
-	scePowerSetArmClockFrequency(444);
-#endif
+	const char* lpWindowName = PROJECT_NAME;
 
+#if !defined(USE_SDL1) && (__WINRT__ || __ANDROID__ || __IPHONEOS__)
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 2) && __ANDROID__ && (HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD)
+	SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
+	SDL_SetHint(SDL_HINT_IME_INTERNAL_EDITING, "1");
+#endif
 #if SDL_VERSION_ATLEAST(2, 0, 6) && defined(__vita__)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
-#if (__WINRT__ || __ANDROID__ || __IPHONEOS__) && !USE_SDL1
-	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
-#endif
-
-//#ifdef _WIN32
-//	// The default WASAPI backend causes distortions
-//	// https://github.com/diasurgical/devilutionX/issues/1434
-//	SDL_setenv("SDL_AUDIODRIVER", "winmm", /*overwrite=*/false);
-//#endif
 
 	int initFlags = SDL_INIT_VIDEO;
 #ifndef NOSOUND
@@ -212,7 +212,6 @@ void SpawnWindow(const char* lpWindowName)
 #endif
 
 #ifdef USE_SDL1
-	SDL_EnableUNICODE(1);
 #if HAS_JOYSTICK
 	// On SDL 1, there are no ADDED/REMOVED events.
 	// Always try to initialize the first joystick.
@@ -225,11 +224,32 @@ void SpawnWindow(const char* lpWindowName)
 #endif
 #endif
 #endif
-
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
+#if 0
+	int smode = 0; 
+	switch (smode) {
+	case 0: // oe
+		width = DEFAULT_WIDTH + 64;			// 704
+		height = DEFAULT_HEIGHT + 48;		// 528
+		break;
+	case 1: // oo
+		width = DEFAULT_WIDTH + 64 + 32;	// 736
+		height = DEFAULT_HEIGHT;			// 552
+		break;
+	case 2: // EE
+		width = DEFAULT_WIDTH + (32 * 4 + 2) / 3 + 1;	// 684
+		height = DEFAULT_HEIGHT;						// 513
+		break;
+	case 3:// EO
+		width = DEFAULT_WIDTH;
+		height = DEFAULT_HEIGHT;
+		break;
+	}
+#else
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
+#endif
 #ifndef __vita__
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
@@ -243,9 +263,9 @@ void SpawnWindow(const char* lpWindowName)
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
-	const SDL_VideoInfo &current = *SDL_GetVideoInfo();
-	width = current.current_w;
-	height = current.current_h;
+	const SDL_VideoInfo* current = SDL_GetVideoInfo();
+	width = current->current_w;
+	height = current->current_h;
 #else
 	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
 	bool upscale = getIniBool("Graphics", "Upscale", true);
@@ -302,6 +322,9 @@ void SpawnWindow(const char* lpWindowName)
 
 	AdjustToScreenGeometry(width, height);
 
+#if HAS_TOUCHPAD
+	InitTouch();
+#endif
 	int refreshRate = 60;
 #ifndef USE_SDL1
 	SDL_DisplayMode mode;

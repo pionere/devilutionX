@@ -4,37 +4,25 @@
 #include <vector>
 #include <SDL.h>
 
-#include "DiabloUI/art.h"
-#include "DiabloUI/ui_item.h"
+#include "ui_item.h"
 #include "utils/display.h"
+#include "../diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SML_BUTTON_WIDTH	110
-#define SML_BUTTON_HEIGHT	28
-
-typedef enum _artFocus {
-	FOCUS_SMALL,
-	FOCUS_MED,
-	FOCUS_BIG,
-	NUM_FOCUS
-} _artFocus;
-
-extern Art ArtFocus[NUM_FOCUS];
-extern Art ArtBackground;
-#ifndef NOWIDESCREEN
-extern Art ArtBackgroundWidescreen;
+#ifdef __cplusplus
+extern "C" {
 #endif
-extern Art ArtCursor;
-extern Art ArtHero;
-extern Art ArtSmlButton;
 
-extern void (*gfnSoundFunction)(int gfx, int rndCnt);
+extern CelImageBuf* gbBackCel;
+extern CelImageBuf* gbHerosCel;
+extern CelImageBuf* gbSmlButtonCel;
+
 extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
-extern UiEdit* gUiEditField;
+extern bool gUiDrawCursor;
 
 inline SDL_Surface* DiabloUiSurface()
 {
@@ -57,24 +45,27 @@ inline SDL_Surface* DiabloUiSurface()
 }
 
 void UiFadeIn();
-void UiHandleEvents(SDL_Event* event);
-void UiItemMouseEvents(SDL_Event* event);
-void DrawMouse();
-void LoadBackgroundArt(const char* pszFile, int frames = 1);
-void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
-void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
+bool UiPeekAndHandleEvents(Dvl_Event* event);
+void LoadBackgroundArt(const char* pszFile, const char* palette);
+void FreeBackgroundArt();
+void UiAddBackground();
+void UiAddLogo();
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
-void UiFocusNavigationYesNo();
-void UiInitList(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL);
-void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
+void UiFocusNavigationDelete();
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL);
+void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, void (*fnDelete)());
+void UiInitEdit(UiEdit* ui_edit);
 void UiClearScreen();
-void UiPollAndRender();
-void UiRenderItems(const std::vector<UiItemBase*> &uiItems);
-void UiClearItems(std::vector<UiItemBase*> &uiItems);
+void UiRender();
+void UiRenderAndPoll();
+void UiRenderItems();
+void UiClearItems();
 void UiClearListItems();
-//void UiInitList_clear();
+int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 
-void mainmenu_restart_repintro();
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE

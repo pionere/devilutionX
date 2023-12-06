@@ -13,25 +13,24 @@ PortalStruct portals[MAXPORTAL];
 int portalindex;
 
 /** X-coordinate of each players portal in town. */
-int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
+const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
 /** Y-coordinate of each players portal in town. */
-int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
+const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
 
 void InitPortals()
 {
 	int i;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		portals[i]._wopen = false;
+		portals[i]._rlevel = DLV_TOWN;
 	}
 }
 
-/*void SetPortalStats(int pidx, bool o, int x, int y, int lvl)
+/*void SetPortalStats(int pidx, int x, int y, int lvl)
 {
-	portals[pidx]._wopen = o;
-	portals[pidx].x = x;
-	portals[pidx].y = y;
-	portals[pidx].level = lvl;
+	portals[pidx]._rx = x;
+	portals[pidx]._ry = y;
+	portals[pidx]._rlevel = lvl;
 }*/
 
 void AddWarpMissile(int pidx, int x, int y)
@@ -44,14 +43,14 @@ void SyncPortals()
 	int i, lvl;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (!portals[i]._wopen)
+		if (portals[i]._rlevel == DLV_TOWN)
 			continue;
 		lvl = currLvl._dLevelIdx;
 		if (lvl == DLV_TOWN)
 			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
 		else {
-			if (portals[i].level == lvl)
-				AddWarpMissile(i, portals[i].x, portals[i].y);
+			if (portals[i]._rlevel == lvl)
+				AddWarpMissile(i, portals[i]._rx, portals[i]._ry);
 		}
 	}
 }
@@ -61,20 +60,18 @@ void AddInTownPortal(int pidx)
 	AddWarpMissile(pidx, WarpDropX[pidx], WarpDropY[pidx]);
 }
 
-void ActivatePortal(int pidx, int x, int y, int lvl)
+void ActivatePortal(int pidx, int x, int y, int bLevel)
 {
-	assert(lvl != DLV_TOWN);
-	portals[pidx]._wopen = true;
-	portals[pidx].x = x;
-	portals[pidx].y = y;
-	portals[pidx].level = lvl;
-
-	delta_open_portal(pidx, x, y, lvl);
+	// assert(bLevel != DLV_TOWN);
+	net_assert(bLevel < NUM_LEVELS);
+	portals[pidx]._rx = x;
+	portals[pidx]._ry = y;
+	portals[pidx]._rlevel = bLevel;
 }
 
 static bool PortalOnLevel(int pidx)
 {
-	return portals[pidx].level == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
+	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 }
 
 void RemovePortalMissile(int pidx)
@@ -89,18 +86,16 @@ void RemovePortalMissile(int pidx)
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
 		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
-			mis->_miDelFlag = TRUE;
-			AddUnLight(mis->_miLid);
+			mis->_miDelFlag = TRUE; // + AddUnLight
 		}
 	}
 }
 
 void DeactivatePortal(int pidx)
 {
-	portals[pidx]._wopen = false;
-
 	RemovePortalMissile(pidx);
-	delta_close_portal(pidx);
+
+	portals[pidx]._rlevel = DLV_TOWN;
 }
 
 void UseCurrentPortal(int pidx)
@@ -114,8 +109,8 @@ void GetPortalLvlPos()
 		ViewX = WarpDropX[portalindex];
 		ViewY = WarpDropY[portalindex];
 	} else {
-		ViewX = portals[portalindex].x;
-		ViewY = portals[portalindex].y;
+		ViewX = portals[portalindex]._rx;
+		ViewY = portals[portalindex]._ry;
 	}
 }
 
@@ -124,13 +119,13 @@ bool PosOkPortal(int x, int y)
 	int i, lvl = currLvl._dLevelIdx;
 
 	for (i = 0; i < MAXPORTAL; i++) {
-		if (!portals[i]._wopen)
+		if (portals[i]._rlevel == DLV_TOWN)
 			continue;
 		if (lvl == DLV_TOWN) {
 			if (WarpDropX[i] == x && WarpDropY[i] == y)
 				return false;
 		} else {
-			if (portals[i].x == x && portals[i].y == y)
+			if (portals[i]._rx == x && portals[i]._ry == y)
 				return false;
 		}
 	}

@@ -12,19 +12,14 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern WNDPROC CurrentWndProc;
-#ifdef MPQONE
+#if USE_MPQONE
 extern HANDLE diabdat_mpq;
 #else
 extern HANDLE diabdat_mpqs[NUM_MPQS];
 #endif
 
-void init_cleanup();
-void init_archives();
-//void MainWndProc(UINT Msg);
-WNDPROC SetWindowProc(WNDPROC NewProc);
-
-extern const char gszProductName[];
+void FreeArchives();
+void InitArchives();
 
 #ifdef __cplusplus
 }

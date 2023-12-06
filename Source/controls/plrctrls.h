@@ -1,53 +1,23 @@
 #pragma once
 // Controller actions implementation
 
-#include "all.h"
-#include "controller.h"
-
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+
+#include "all.h"
+#include "../plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-typedef enum belt_item_type {
-	BLT_HEALING,
-	BLT_MANA,
-} belt_item_type;
-
-// Runs every frame.
-// Handles menu movement.
-void plrctrls_every_frame();
-
-// Run after every game logic iteration.
-// Handles player movement.
-void plrctrls_after_game_logic();
-
-// Runs at the end of CheckCursMove()
-// Handles item, object, and monster auto-aim.
-void plrctrls_after_check_curs_move();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Whether we're in a dialog menu that the game handles natively with keyboard controls.
 bool InGameMenu();
 
-// Whether the automap is being displayed.
-bool IsAutomapActive();
-
-// Whether the mouse cursor is being moved with the controller.
-bool IsMovingMouseCursorWithController();
-
-void UseBeltItem(int type);
-
-// Talk to towners, click on inv items, attack, etc.
-void PerformPrimaryAction();
-
-// Open chests, doors, pickup items.
-void PerformSecondaryAction();
-void FocusOnInventory();
-void PerformSpellAction();
-void StoreSpellCoords();
-
-extern int speedspellcount;
-extern bool sgbControllerActive;
+#ifdef __cplusplus
+}
+#endif
 
 DEVILUTION_END_NAMESPACE
-
-#endif
+#endif // HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

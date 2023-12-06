@@ -37,17 +37,17 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			idx = 0;
 		}
 		mon = &monsters[idx];
-		if (mon->_msquelch != 0 && mon->_mhitpoints != 0 &&
-			(idx >= MAX_MINIONS || !MINION_INACTIVE(mon))) {
+		if (mon->_msquelch != 0 && mon->_mhitpoints != 0) {
+			// assert(mon->_mmode <= MM_INGAME_LAST);
 			symon = (TSyncMonster*)pbBuf;
 			static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs in sync_all_monsters.");
-			symon->_mndx = idx;
-			symon->_mx = mon->_mx;
-			symon->_my = mon->_my;
-			symon->_mdir = mon->_mdir;
-			symon->_mleaderflag = mon->leaderflag;
-			symon->_mhitpoints = SDL_SwapLE32(mon->_mhitpoints);
-			symon->_mactive = SDL_SwapLE32(mon->_msquelch);
+			symon->nmndx = idx;
+			symon->nmx = mon->_mx;
+			symon->nmy = mon->_my;
+			symon->nmdir = mon->_mdir;
+			symon->nmleaderflag = mon->_mleaderflag;
+			symon->nmhitpoints = mon->_mhitpoints;
+			symon->nmactive = mon->_msquelch;
 
 			pbBuf += sizeof(TSyncMonster);
 			remsize -= sizeof(TSyncMonster);
@@ -60,22 +60,17 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 		return (BYTE*)pHdr;
 	//*size = remsize;
 	symon = (TSyncMonster*)(pbBuf - sizeof(TSyncMonster));
-	sync_mnum = symon->_mndx;
+	sync_mnum = symon->nmndx;
 
 	pHdr->bCmd = CMD_SYNCDATA;
 	pHdr->bLevel = currLvl._dLevelIdx;
-	pHdr->wLen = SwapLE16(wLen);
+	pHdr->wLen = static_cast<uint16_t>(wLen);
 	return pbBuf;
 }
 
 void InitSync()
 {
-	int i;
-
 	sync_mnum = 16 * mypnum;
-	// ensure inactive monsters are not synchronized
-	for (i = nummonsters; i < MAXMONSTERS; i++)
-		monsters[i]._msquelch = 0;
 }
 
 DEVILUTION_END_NAMESPACE

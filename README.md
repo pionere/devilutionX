@@ -1,9 +1,10 @@
-<p align="center">
+﻿<p align="center">
 <img width="554" src="https://user-images.githubusercontent.com/204594/113575181-c946a400-961d-11eb-8347-a8829fa3830c.png">
 </p>
 
 ---
 
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/pionere/devilutionX?include_prereleases)](https://github.com/pionere/devilutionX/releases)
 [![Discord Channel](https://img.shields.io/discord/518540764754608128?color=%237289DA&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/YQKCAYQ)
 <!--
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/devilutionX/total.svg)](https://github.com/diasurgical/devilutionX/releases)
@@ -12,12 +13,12 @@
 -->
 
 <p align="center">
-<img width="838" src="https://user-images.githubusercontent.com/204594/113578478-26912400-9623-11eb-9ff6-9bd9717462b6.png">
+<img src="https://raw.githubusercontent.com/pionere/devilutionx/master/.github/images/town.png">
 </p>
 
 # What is DevilutionX
 
-DevilutionX is a source port of Diablo and Hellfire that strives to make it simple to run the game while providing engine improvements, bugfixes and some  quality of life features.
+DevilutionX is a port of Diablo and Hellfire that strives to make it simple to run the game while providing engine improvements, bugfixes and some  quality of life features.
 
 Check out the [manual](https://github.com/pionere/devilutionX/wiki) for what features are available and how best to take advantage of them.
 
@@ -55,7 +56,7 @@ Want to compile the program by yourself? Great! Simply follow the [build instruc
 
 # Legal
 
-DevilutionX is released to the Public Domain. The documentation and functionality provided by DevilutionX may only be utilized with assets provided by the ownership of Diablo.
+DevilutionX is made publicly available and released under the Sustainable Use License (see [LICENSE](LICENSE.md))
 
 The source code in this repository is for non-commercial use only. If you use the source code you may not charge others for access to it or any derivative work thereof.
 

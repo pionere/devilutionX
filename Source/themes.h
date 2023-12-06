@@ -16,6 +16,7 @@ extern int numthemes;
 extern int zharlib;
 extern ThemeStruct themes[MAXTHEMES];
 
+void InitLvlThemes();
 void InitThemes();
 
 /**

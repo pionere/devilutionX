@@ -14,7 +14,7 @@
 #define __STORMLIB_SELF__
 #include "StormLib.h"
 #include "StormCommon.h"
-
+#ifdef FULL_GLOBALS
 char StormLibCopyright[] = "StormLib v " STORMLIB_VERSION_STRING " Copyright Ladislav Zezula 1998-2014";
 
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ DWORD g_dwHashTableKey = MPQ_KEY_HASH_TABLE;    // Key for hash table
 DWORD g_dwBlockTableKey = MPQ_KEY_BLOCK_TABLE;  // Key for block table
 LCID  g_lcFileLocale = LANG_NEUTRAL;            // File locale
 USHORT  wPlatform = 0;                          // File platform
-
+#endif
 //-----------------------------------------------------------------------------
 // Conversion to uppercase/lowercase
 
@@ -50,7 +50,7 @@ unsigned char AsciiToLowerTable[256] =
     0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-
+#ifdef FULL_HASH_TABLE
 // Converts ASCII characters to uppercase
 // Converts slash (0x2F) to backslash (0x5C)
 unsigned char AsciiToUpperTable[256] =
@@ -72,7 +72,7 @@ unsigned char AsciiToUpperTable[256] =
     0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-
+#endif
 // Converts ASCII characters to uppercase
 // Does NOT convert slash (0x2F) to backslash (0x5C)
 unsigned char AsciiToUpperTable_Slash[256] =
@@ -97,7 +97,7 @@ unsigned char AsciiToUpperTable_Slash[256] =
 
 //-----------------------------------------------------------------------------
 // Safe string functions (for ANSI builds)
-
+#ifdef FULL
 char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource)
 {
     size_t cchSource = 0;
@@ -128,7 +128,7 @@ void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
     }
 }
 
-/*void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension)
+void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension)
 {
     char * szBufferEnd = szBuffer + cchMaxChars;
 
@@ -146,8 +146,8 @@ void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource)
     while(szExtension[0] == '.')
         szExtension++;
     StringCopy(szBuffer, (szBufferEnd - szBuffer), szExtension);
-}*/
-
+}
+#endif
 //-----------------------------------------------------------------------------
 // Utility functions (UNICODE) only exist in the ANSI version of the library
 // In ANSI builds, TCHAR = char, so we don't need these functions implemented
@@ -246,8 +246,8 @@ void InitializeMpqCryptography()
 
 #ifdef FULL
         // Also register both MD5 and SHA1 hash algorithms
-        register_hash(&md5_desc);
         register_hash(&sha1_desc);
+        register_hash(&md5_desc);
 
         // Use LibTomMath as support math library for LibTomCrypt
         ltc_mp = ltm_desc;
@@ -274,6 +274,7 @@ void InitializeMpqCryptography()
 // various game versions and localizations. Even WorldEdit, after importing a file
 // with Korean characters in the name, cannot open the file back.
 //
+#ifdef FULL_HASH_TABLE
 DWORD HashString(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
@@ -293,7 +294,7 @@ DWORD HashString(const char * szFileName, unsigned dwHashType)
 
     return dwSeed1;
 }
-
+#endif
 DWORD HashStringSlash(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
@@ -407,7 +408,7 @@ DWORD GetDefaultSpecialFileFlags(DWORD dwFileSize, USHORT wFormatVersion)
 {
     // Fixed for format 1.0
     if(wFormatVersion == MPQ_FORMAT_VERSION_1)
-        return MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED | MPQ_FILE_FIX_KEY;
+        return MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED | MPQ_FILE_KEY_V2;
 
     // Size-dependent for formats 2.0-4.0
     return (dwFileSize > 0x4000) ? (MPQ_FILE_COMPRESS | MPQ_FILE_SECTOR_CRC) : (MPQ_FILE_COMPRESS | MPQ_FILE_SINGLE_UNIT);
@@ -619,10 +620,14 @@ DWORD DecryptFileKey(
 
     // File key is calculated from plain name
     szFileName = GetPlainFileName(szFileName);
+#ifdef FULL_HASH_TABLE
     dwFileKey = HashString(szFileName, MPQ_HASH_FILE_KEY);
+#else
+    dwFileKey = HashStringSlash(szFileName, MPQ_HASH_FILE_KEY);
+#endif
 
     // Fix the key, if needed
-    if(dwFlags & MPQ_FILE_FIX_KEY)
+    if(dwFlags & MPQ_FILE_KEY_V2)
         dwFileKey = (dwFileKey + dwMpqPos) ^ dwFileSize;
 
     // Return the key
@@ -917,24 +922,26 @@ void * LoadMpqTable(
     DWORD dwCompressedSize,
     DWORD dwTableSize,
     DWORD dwKey,
-    bool * pbTableIsCut)
+    DWORD * PtrRealTableSize)
 {
     ULONGLONG FileSize = 0;
     LPBYTE pbCompressed = NULL;
     LPBYTE pbMpqTable;
     LPBYTE pbToRead;
-    DWORD dwBytesToRead = dwCompressedSize;
-    int nError = ERROR_SUCCESS;
+    DWORD dwBytesToRead = dwTableSize;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Allocate the MPQ table
     pbMpqTable = pbToRead = STORM_ALLOC(BYTE, dwTableSize);
     if(pbMpqTable != NULL)
     {
-        // Check if the MPQ table is encrypted
+        // Check if the MPQ table is compressed
         if(dwCompressedSize < dwTableSize)
         {
             // Allocate temporary buffer for holding compressed data
             pbCompressed = pbToRead = STORM_ALLOC(BYTE, dwCompressedSize);
+            dwBytesToRead = dwCompressedSize;
+
             if(pbCompressed == NULL)
             {
                 STORM_FREE(pbMpqTable);
@@ -962,11 +969,13 @@ void * LoadMpqTable(
                 // Fill the extra data with zeros
                 dwBytesToRead = (DWORD)(FileSize - ByteOffset);
                 memset(pbMpqTable + dwBytesToRead, 0, (dwTableSize - dwBytesToRead));
-
-                // Give the caller information that the table was cut
-                if(pbTableIsCut != NULL)
-                    pbTableIsCut[0] = true;
             }
+        }
+
+        // Give the caller information that the table was cut
+        if(PtrRealTableSize != NULL)
+        {
+            PtrRealTableSize[0] = dwBytesToRead;
         }
 
         // If everything succeeded, read the raw table from the MPQ
@@ -976,16 +985,16 @@ void * LoadMpqTable(
             // Verify the MD5 of the table, if present
             if(!VerifyDataBlockHash(pbToRead, dwBytesToRead, pbTableHash))
             {
-                nError = ERROR_FILE_CORRUPT;
+                dwErrCode = ERROR_FILE_CORRUPT;
             }
 #endif // FULL
         }
         else
         {
-            nError = GetLastError();
+            dwErrCode = GetLastError();
         }
 
-        if(nError == ERROR_SUCCESS)
+        if(dwErrCode == ERROR_SUCCESS)
         {
             // First of all, decrypt the table
             if(dwKey != 0)
@@ -1003,9 +1012,9 @@ void * LoadMpqTable(
                 int cbInBuffer = (int)dwCompressedSize;
 
                 if(!SCompDecompress2(pbMpqTable, &cbOutBuffer, pbCompressed, cbInBuffer))
-                    nError = GetLastError();
+                    dwErrCode = GetLastError();
 #else
-				nError = ERROR_FILE_CORRUPT;
+                dwErrCode = ERROR_FILE_CORRUPT;
 #endif
             }
 
@@ -1014,7 +1023,7 @@ void * LoadMpqTable(
         }
 
         // If read failed, free the table and return
-        if(nError != ERROR_SUCCESS)
+        if(dwErrCode != ERROR_SUCCESS)
         {
             STORM_FREE(pbMpqTable);
             pbMpqTable = NULL;
@@ -1055,7 +1064,7 @@ static unsigned char * AllocateMd5Buffer(
 }
 #endif
 // Allocates sector buffer and sector offset table
-int AllocateSectorBuffer(TMPQFile * hf)
+DWORD AllocateSectorBuffer(TMPQFile * hf)
 {
     TMPQArchive * ha = hf->ha;
 
@@ -1074,13 +1083,14 @@ int AllocateSectorBuffer(TMPQFile * hf)
     hf->dwSectorOffs = SFILE_INVALID_POS;
 
     // Return result
-    return (hf->pbFileSector != NULL) ? (int)ERROR_SUCCESS : (int)ERROR_NOT_ENOUGH_MEMORY;
+    return (hf->pbFileSector != NULL) ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
 }
 #ifdef FULL
 // Allocates sector offset table
-int AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile)
+DWORD AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile)
 {
     TMPQArchive * ha = hf->ha;
+    TPatchInfo * pPatchInfo;
     DWORD dwLength = sizeof(TPatchInfo);
 
     // The following conditions must be true
@@ -1091,35 +1101,39 @@ __AllocateAndLoadPatchInfo:
 
     // Allocate space for patch header. Start with default size,
     // and if its size if bigger, then we reload them
-    hf->pPatchInfo = STORM_ALLOC(TPatchInfo, 1);
-    if(hf->pPatchInfo == NULL)
+    pPatchInfo = (TPatchInfo *)(STORM_ALLOC(BYTE, dwLength));
+    if(pPatchInfo == NULL)
         return ERROR_NOT_ENOUGH_MEMORY;
 
     // Do we have to load the patch header from the file ?
     if(bLoadFromFile)
     {
         // Load the patch header
-        if(!FileStream_Read(ha->pStream, &hf->RawFilePos, hf->pPatchInfo, dwLength))
+        if(!FileStream_Read(ha->pStream, &hf->RawFilePos, pPatchInfo, dwLength))
         {
-            // Free the patch info
-            STORM_FREE(hf->pPatchInfo);
-            hf->pPatchInfo = NULL;
+            STORM_FREE(pPatchInfo);
             return GetLastError();
         }
 
         // Perform necessary swapping
-        hf->pPatchInfo->dwLength = BSWAP_INT32_UNSIGNED(hf->pPatchInfo->dwLength);
-        hf->pPatchInfo->dwFlags = BSWAP_INT32_UNSIGNED(hf->pPatchInfo->dwFlags);
-        hf->pPatchInfo->dwDataSize = BSWAP_INT32_UNSIGNED(hf->pPatchInfo->dwDataSize);
+        pPatchInfo->dwLength = BSWAP_INT32_UNSIGNED(pPatchInfo->dwLength);
+        pPatchInfo->dwFlags = BSWAP_INT32_UNSIGNED(pPatchInfo->dwFlags);
+        pPatchInfo->dwDataSize = BSWAP_INT32_UNSIGNED(pPatchInfo->dwDataSize);
+
+        // Do nothing if the patch info is not valid
+        if(!(pPatchInfo->dwFlags & MPQ_PATCH_INFO_VALID))
+        {
+            STORM_FREE(pPatchInfo);
+            return ERROR_FILE_CORRUPT;
+        }
 
         // Verify the size of the patch header
         // If it's not default size, we have to reload them
-        if(hf->pPatchInfo->dwLength > dwLength)
+        if(pPatchInfo->dwLength > dwLength)
         {
             // Free the patch info
-            dwLength = hf->pPatchInfo->dwLength;
-            STORM_FREE(hf->pPatchInfo);
-            hf->pPatchInfo = NULL;
+            dwLength = pPatchInfo->dwLength;
+            STORM_FREE(pPatchInfo);
 
             // If the length is out of all possible ranges, fail the operation
             if(dwLength > 0x400)
@@ -1128,21 +1142,22 @@ __AllocateAndLoadPatchInfo:
         }
 
         // Patch file data size according to the patch header
-        hf->dwDataSize = hf->pPatchInfo->dwDataSize;
+        hf->dwDataSize = pPatchInfo->dwDataSize;
     }
     else
     {
-        memset(hf->pPatchInfo, 0, dwLength);
+        memset(pPatchInfo, 0, dwLength);
+        pPatchInfo->dwLength = dwLength;
+        pPatchInfo->dwFlags = MPQ_PATCH_INFO_VALID;
     }
 
     // Save the final length to the patch header
-    hf->pPatchInfo->dwLength = dwLength;
-    hf->pPatchInfo->dwFlags  = 0x80000000;
+    hf->pPatchInfo = pPatchInfo;
     return ERROR_SUCCESS;
 }
 #endif
 // Allocates sector offset table
-int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
+DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
 {
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -1189,7 +1204,7 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
         if(bLoadFromFile)
         {
             ULONGLONG RawFilePos = hf->RawFilePos;
-
+#ifdef FULL
             // Append the length of the patch info, if any
             if(hf->pPatchInfo != NULL)
             {
@@ -1197,7 +1212,7 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
                     return ERROR_FILE_CORRUPT;
                 RawFilePos += hf->pPatchInfo->dwLength;
             }
-
+#endif
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->SectorOffsets, dwSectorOffsLen))
             {
@@ -1272,11 +1287,12 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
             // They are mostly empty on WoW release MPQs, but on MPQs from PTR,
             // they contain random non-zero data. Their meaning is unknown.
             //
-            // These extra values are, however, include in the dwCmpSize in the file
+            // These extra values are, however, included in the dwCmpSize in the file
             // table. We cannot ignore them, because compacting archive would fail
             //
 
-            if(hf->SectorOffsets[0] > dwSectorOffsLen)
+            // Clear the lower 2 bits in order to make sure that the value is aligned to 4 bytes
+            if((hf->SectorOffsets[0] & 0xFFFFFFFC) > dwSectorOffsLen)
             {
                 // MPQ protectors put some ridiculous values there. We must limit the extra bytes
                 if(hf->SectorOffsets[0] > (dwSectorOffsLen + 0x400))
@@ -1298,7 +1314,7 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
     return ERROR_SUCCESS;
 }
 
-int AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
+DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
 {
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -1375,7 +1391,7 @@ int AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
     return ERROR_SUCCESS;
 }
 
-/*int WritePatchInfo(TMPQFile * hf)
+/*DWORD WritePatchInfo(TMPQFile * hf)
 {
     TMPQArchive * ha = hf->ha;
     TPatchInfo * pPatchInfo = hf->pPatchInfo;
@@ -1392,7 +1408,7 @@ int AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
     return ERROR_SUCCESS;
 }
 
-int WriteSectorOffsets(TMPQFile * hf)
+DWORD WriteSectorOffsets(TMPQFile * hf)
 {
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -1424,16 +1440,16 @@ int WriteSectorOffsets(TMPQFile * hf)
     return ERROR_SUCCESS;
 }
 
-int WriteSectorChecksums(TMPQFile * hf)
+DWORD WriteSectorChecksums(TMPQFile * hf)
 {
     TMPQArchive * ha = hf->ha;
     ULONGLONG RawFilePos;
     TFileEntry * pFileEntry = hf->pFileEntry;
     LPBYTE pbCompressed;
     DWORD dwCompressedSize = 0;
+    DWORD dwErrCode = ERROR_SUCCESS;
     DWORD dwCrcSize;
     int nOutSize;
-    int nError = ERROR_SUCCESS;
 
     // The caller must make sure that this function is only called
     // when the following is true.
@@ -1469,7 +1485,7 @@ int WriteSectorChecksums(TMPQFile * hf)
     if(hf->pPatchInfo != NULL)
         RawFilePos += hf->pPatchInfo->dwLength;
     if(!FileStream_Write(ha->pStream, &RawFilePos, pbCompressed, dwCompressedSize))
-        nError = GetLastError();
+        dwErrCode = GetLastError();
 
     // Not necessary, as the sector checksums
     // are going to be freed when this is done.
@@ -1479,11 +1495,11 @@ int WriteSectorChecksums(TMPQFile * hf)
     hf->SectorOffsets[hf->dwSectorCount + 1] = hf->SectorOffsets[hf->dwSectorCount] + dwCompressedSize;
     pFileEntry->dwCmpSize += dwCompressedSize;
     STORM_FREE(pbCompressed);
-    return nError;
+    return dwErrCode;
 }*/
 
 #ifdef FULL
-int WriteMemDataMD5(
+DWORD WriteMemDataMD5(
     TFileStream * pStream,
     ULONGLONG RawDataOffs,
     void * pvRawData,
@@ -1496,7 +1512,7 @@ int WriteMemDataMD5(
     LPBYTE pbRawData = (LPBYTE)pvRawData;
     DWORD dwBytesRemaining = dwRawDataSize;
     DWORD dwMd5ArraySize = 0;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Allocate buffer for array of MD5
     md5_array = md5 = AllocateMd5Buffer(dwRawDataSize, dwChunkSize, &dwMd5ArraySize);
@@ -1521,7 +1537,7 @@ int WriteMemDataMD5(
     // Write the array od MD5's to the file
     RawDataOffs += dwRawDataSize;
     if(!FileStream_Write(pStream, &RawDataOffs, md5_array, dwMd5ArraySize))
-        nError = GetLastError();
+        dwErrCode = GetLastError();
 
     // Give the caller the size of the MD5 array
     if(pcbTotalSize != NULL)
@@ -1529,11 +1545,11 @@ int WriteMemDataMD5(
 
     // Free buffers and exit
     STORM_FREE(md5_array);
-    return nError;
+    return dwErrCode;
 }
 
 // Writes the MD5 for each chunk of the raw file data
-/*int WriteMpqDataMD5(
+/*DWORD WriteMpqDataMD5(
     TFileStream * pStream,
     ULONGLONG RawDataOffs,
     DWORD dwRawDataSize,
@@ -1544,7 +1560,7 @@ int WriteMemDataMD5(
     LPBYTE pbFileChunk;
     DWORD dwMd5ArraySize = 0;
     DWORD dwToRead = dwRawDataSize;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Allocate buffer for array of MD5
     md5_array = md5 = AllocateMd5Buffer(dwRawDataSize, dwChunkSize, &dwMd5ArraySize);
@@ -1568,7 +1584,7 @@ int WriteMemDataMD5(
         // Read the chunk
         if(!FileStream_Read(pStream, &RawDataOffs, pbFileChunk, dwToRead))
         {
-            nError = GetLastError();
+            dwErrCode = GetLastError();
             break;
         }
 
@@ -1582,16 +1598,16 @@ int WriteMemDataMD5(
     }
 
     // Write the array od MD5's to the file
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         if(!FileStream_Write(pStream, NULL, md5_array, dwMd5ArraySize))
-            nError = GetLastError();
+            dwErrCode = GetLastError();
     }
 
     // Free buffers and exit
     STORM_FREE(pbFileChunk);
     STORM_FREE(md5_array);
-    return nError;
+    return dwErrCode;
 }*/
 #endif // FULL
 
@@ -1600,6 +1616,7 @@ void FreeFileHandle(TMPQFile *& hf)
 {
     if(hf != NULL)
     {
+#ifdef FULL
         // If we have patch file attached to this one, free it first
         if(hf->hfPatch != NULL)
             FreeFileHandle(hf->hfPatch);
@@ -1609,10 +1626,15 @@ void FreeFileHandle(TMPQFile *& hf)
             STORM_FREE(hf->pbFileData);
         if(hf->pPatchInfo != NULL)
             STORM_FREE(hf->pPatchInfo);
+#endif
         if(hf->SectorOffsets != NULL)
             STORM_FREE(hf->SectorOffsets);
         if(hf->SectorChksums != NULL)
             STORM_FREE(hf->SectorChksums);
+#ifdef FULL
+        if(hf->hctx != NULL)
+            STORM_FREE(hf->hctx);
+#endif
         if(hf->pbFileSector != NULL)
             STORM_FREE(hf->pbFileSector);
         if(hf->pStream != NULL)
@@ -1627,6 +1649,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 {
     if(ha != NULL)
     {
+#ifdef FULL
         // First of all, free the patch archive, if any
         if(ha->haPatch != NULL)
             FreeArchiveHandle(ha->haPatch);
@@ -1634,7 +1657,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
         // Free the patch prefix, if any
         if(ha->pPatchPrefix != NULL)
             STORM_FREE(ha->pPatchPrefix);
-
+#endif
         // Close the file stream
         FileStream_Close(ha->pStream);
         ha->pStream = NULL;
@@ -1642,12 +1665,14 @@ void FreeArchiveHandle(TMPQArchive *& ha)
         // Free the file names from the file table
         if(ha->pFileTable != NULL)
         {
+#ifdef FULL
             for(DWORD i = 0; i < ha->dwFileTableSize; i++)
             {
                 if(ha->pFileTable[i].szFileName != NULL)
                     STORM_FREE(ha->pFileTable[i].szFileName);
                 ha->pFileTable[i].szFileName = NULL;
             }
+#endif
 
             // Then free all buffers allocated in the archive structure
             STORM_FREE(ha->pFileTable);
@@ -1682,6 +1707,7 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 // Verifies if the file name is a pseudo-name
 bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)
 {
+#ifdef FULL
     DWORD dwFileIndex = 0;
 
     if(szFileName != NULL)
@@ -1706,7 +1732,7 @@ bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)
             }
         }
     }
-
+#endif // FULL
     // Not a pseudo-name
     return false;
 }
@@ -1858,7 +1884,7 @@ void ConvertTMPQHeader(void *header, uint16_t version)
 	TMPQHeader * theHeader = (TMPQHeader *)header;
 
     // Swap header part version 1
-    if(version == MPQ_FORMAT_VERSION_1)
+    if(version >= MPQ_FORMAT_VERSION_1)
     {
 	    theHeader->dwID = SwapUInt32(theHeader->dwID);
 	    theHeader->dwHeaderSize = SwapUInt32(theHeader->dwHeaderSize);
@@ -1871,21 +1897,21 @@ void ConvertTMPQHeader(void *header, uint16_t version)
 	    theHeader->dwBlockTableSize = SwapUInt32(theHeader->dwBlockTableSize);
     }
 
-	if(version == MPQ_FORMAT_VERSION_2)
+	if(version >= MPQ_FORMAT_VERSION_2)
 	{
 		theHeader->HiBlockTablePos64 = SwapUInt64(theHeader->HiBlockTablePos64);
         theHeader->wHashTablePosHi = SwapUInt16(theHeader->wHashTablePosHi);
 		theHeader->wBlockTablePosHi = SwapUInt16(theHeader->wBlockTablePosHi);
     }
 
-    if(version == MPQ_FORMAT_VERSION_3)
+    if(version >= MPQ_FORMAT_VERSION_3)
     {
         theHeader->ArchiveSize64 = SwapUInt64(theHeader->ArchiveSize64);
         theHeader->BetTablePos64 = SwapUInt64(theHeader->BetTablePos64);
         theHeader->HetTablePos64 = SwapUInt64(theHeader->HetTablePos64);
     }
 
-    if(version == MPQ_FORMAT_VERSION_4)
+    if(version >= MPQ_FORMAT_VERSION_4)
 	{
         theHeader->HashTableSize64    = SwapUInt64(theHeader->HashTableSize64);
         theHeader->BlockTableSize64   = SwapUInt64(theHeader->BlockTableSize64);

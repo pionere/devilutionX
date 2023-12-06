@@ -6,31 +6,33 @@
 #include <string>
 
 #include "all.h"
+#include "engine/render/text_render.h"
 #include "utils/paths.h"
 #include "diabloui.h"
 #include "utils/file_util.h"
+#include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define SAVEFILE_GAME				"game"
-#define SAVEFILE_HERO				"hero"
-#define PFILE_SAVE_MPQ_HASHCOUNT	2048
-#define PFILE_SAVE_MPQ_BLOCKCOUNT	2048
-#define PFILE_SAVE_INTERVAL			60000
+#define SAVEFILE_GAME             "game"
+#define SAVEFILE_HERO             "hero"
+#define PFILE_SAVE_MPQ_HASHCOUNT  2048
+#define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
+#define PFILE_SAVE_INTERVAL       60000
 
 unsigned mySaveIdx;
 bool gbValidSaveFile;
 static Uint32 guNextSaveTc;
 
-static const char* PASSWORD_SINGLE = "xrgyrkj1";
-static const char* PASSWORD_MULTI = "szqnlsk1";
+#define PASSWORD_SINGLE "xrgyrkj1"
+#define PASSWORD_MULTI  "szqnlsk1"
 
 #ifdef HELLFIRE
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.hsv"
-#define SAVE_FILE_FORMAT_MULTI "multi_%d.hsv"
+#define SAVE_FILE_FORMAT_MULTI  "multi_%d.hsv"
 #else
 #define SAVE_FILE_FORMAT_SINGLE "single_%d.sv"
-#define SAVE_FILE_FORMAT_MULTI "multi_%d.sv"
+#define SAVE_FILE_FORMAT_MULTI  "multi_%d.sv"
 #endif
 
 static std::string GetSavePath(unsigned save_num)
@@ -86,7 +88,7 @@ static void pfile_encode_hero(int pnum)
 	packed = (BYTE*)DiabloAllocPtr(packed_len);
 	memcpy(packed, &pPack, sizeof(pPack));
 	codec_encode(packed, sizeof(pPack), packed_len, password);
-	mpqapi_write_file(SAVEFILE_HERO, packed, packed_len);
+	mpqapi_write_entry(SAVEFILE_HERO, packed, packed_len);
 	mem_free_dbg(packed);
 }
 
@@ -146,7 +148,7 @@ static bool ValidPlayerName(const char* name)
 		//	if (*letter == invalidChars[i])
 		//		return false;
 		//}
-		if (*letter < 0x20 || (*letter > 0x7E && *letter < 0xC0))
+		if (*letter != 0x20 && gbStdFontFrame[*letter] == 0)
 			return false;
 	}
 
@@ -177,7 +179,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
-void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
+void pfile_ui_load_hero_infos(std::vector<_uiheroinfo> &hero_infos)
 {
 	int i;
 
@@ -189,7 +191,7 @@ void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo *))
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
 				pfile_player2hero(&players[0], &uihero, i, pfile_archive_contains_game(archive));
-				ui_add_hero_info(&uihero);
+				hero_infos.push_back(uihero);
 			}
 			SFileCloseArchive(archive);
 		}
@@ -224,7 +226,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 		return NEWHERO_FAIL;
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	heroinfo->hiIdx = save_num;
-	//mpqapi_remove_hash_entries(pfile_get_file_name);
+	//mpqapi_remove_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	pfile_encode_hero(0);
 	//pfile_player2hero(&players[0], heroinfo, save_num, false);
@@ -232,7 +234,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 	return NEWHERO_DONE;
 }
 
-static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
+static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[DATA_ARCHIVE_MAX_PATH])
 {
 	const char* fmt;
 
@@ -249,7 +251,7 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[MAX_PATH])
 	return true;
 }
 
-static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
+static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_PATH])
 {
 	const char* fmt;
 
@@ -266,7 +268,7 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[MAX_PATH])
 	return true;
 }
 
-/*bool pfile_get_file_name(unsigned lvl, char (&dst)[MAX_PATH])
+/*bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH])
 {
 	if (IsMultiGame) {
 		if (lvl != 0)
@@ -316,8 +318,8 @@ void pfile_rename_temp_to_perm()
 {
 	unsigned dwIndex;
 	bool bResult;
-	char szTemp[MAX_PATH];
-	char szPerm[MAX_PATH];
+	char szTemp[DATA_ARCHIVE_MAX_PATH];
+	char szPerm[DATA_ARCHIVE_MAX_PATH];
 
 	assert(!IsMultiGame);
 	if (!pfile_open_archive())
@@ -328,10 +330,10 @@ void pfile_rename_temp_to_perm()
 		bResult = GetPermLevelNames(dwIndex, szPerm);
 		assert(bResult);
 		dwIndex++;
-		if (mpqapi_has_file(szTemp)) {
-			if (mpqapi_has_file(szPerm))
-				mpqapi_remove_hash_entry(szPerm);
-			mpqapi_rename(szTemp, szPerm);
+		if (mpqapi_has_entry(szTemp)) {
+			if (mpqapi_has_entry(szPerm))
+				mpqapi_remove_entry(szPerm);
+			mpqapi_rename_entry(szTemp, szPerm);
 		}
 	}
 	assert(!GetPermLevelNames(dwIndex, szPerm));
@@ -341,7 +343,7 @@ void pfile_rename_temp_to_perm()
 void pfile_write_save_file(bool full, DWORD dwLen)
 {
 	DWORD qwLen;
-	char pszName[MAX_PATH] = SAVEFILE_GAME;
+	char pszName[DATA_ARCHIVE_MAX_PATH] = SAVEFILE_GAME;
 	BYTE* pbData = gsDeltaData.ddBuffer;
 
 	qwLen = codec_get_encoded_len(dwLen);
@@ -356,7 +358,7 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 
 	if (!full)
 		GetTempLevelNames(currLvl._dLevelIdx, pszName);
-	mpqapi_write_file(pszName, pbData, qwLen);
+	mpqapi_write_entry(pszName, pbData, qwLen);
 	pfile_flush(true);
 }
 
@@ -366,9 +368,9 @@ void pfile_delete_save_file(bool full)
 		if (!pfile_open_archive())
 			app_fatal("Unable to open file archive");
 		if (full)
-			mpqapi_remove_hash_entry(SAVEFILE_GAME);
+			mpqapi_remove_entry(SAVEFILE_GAME);
 		else
-			mpqapi_remove_hash_entries(GetTempLevelNames);
+			mpqapi_remove_entries(GetTempLevelNames);
 		pfile_flush(true);
 	}
 }
@@ -377,7 +379,7 @@ void pfile_read_save_file(bool full)
 {
 	DWORD len;
 	HANDLE archive, save;
-	char pszName[MAX_PATH] = SAVEFILE_GAME;
+	char pszName[DATA_ARCHIVE_MAX_PATH] = SAVEFILE_GAME;
 	int source;
 
 	archive = pfile_open_save_archive(mySaveIdx);

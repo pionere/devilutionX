@@ -6,8 +6,10 @@
 #include "all.h"
 #include "utils/display.h"
 #include "plrctrls.h"
-#include "engine/render/cl2_render.hpp"
-#include "engine/render/dun_render.hpp"
+#include "engine/render/cel_render.h"
+#include "engine/render/cl2_render.h"
+#include "engine/render/dun_render.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -27,12 +29,17 @@ ScrollStruct ScrollInfo;
   * _vShiftX: the base offset to ViewX.
   * _vShiftY: the base offset to ViewY.
 */
-static ViewportStruct gsTileVp;
+ViewportStruct gsTileVp;
 
 /**
  * Specifies the current light entry.
  */
 int light_trn_index;
+
+/**
+ * Specifies the current draw mode.
+ */
+static BOOLEAN gbPreFlag;
 
 /**
  * Cursor-size
@@ -54,7 +61,6 @@ int sgCursYOld;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-void (*DrawPlrProc)(int, int, int, int, int, BYTE *, int, int, int, int);
 /**
  * Buffer to store the cursor image.
  */
@@ -65,9 +71,8 @@ static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
-/* used in 1.00 debug */
 #if DEBUG_MODE
-const char *const szMonModeAssert[NUM_MON_MODES] = {
+const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -84,10 +89,13 @@ const char *const szMonModeAssert[NUM_MON_MODES] = {
 	"charging",
 	"stoned",
 	"healing",
-	"talking"
+	"talking",
+	"dead",
+	"unused",
+	"reserved",
 };
 
-const char *const szPlrModeAssert[NUM_PLR_MODES] = {
+const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 	"standing",
 	"walking (1)",
 	"walking (2)",
@@ -141,7 +149,7 @@ static void scrollrt_remove_back_buffer_cursor()
 
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 {
-	BYTE col;
+	BYTE col, trans;
 
 	col = ICOL_YELLOW;
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
@@ -151,13 +159,11 @@ void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, cons
 		col = ICOL_RED;
 	}
 
-	if (outline)
-		CelDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
-	if (col != ICOL_RED) {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, nWidth);
-	} else {
-		CelDrawLightRed(sx, sy, pCelBuff, nCel, nWidth);
+	if (outline) {
+		CelClippedDrawOutline(col, sx, sy, pCelBuff, nCel, nWidth);
 	}
+	trans = col != ICOL_RED ? 0 : COLOR_TRN_RED;
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -170,23 +176,25 @@ static void scrollrt_draw_cursor()
 
 	assert(sgCursWdt == 0);
 
-	if (pcurs <= CURSOR_NONE || cursW == 0 || cursH == 0) {
+	if (pcursicon <= CURSOR_NONE) {
 		return;
 	}
+	assert(cursW != 0 && cursH != 0);
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcurs != CURSOR_TELEPORT && !gbInvflag && (!gbChrflag || !gbLvlUp))
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
+	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
 		return;
 #endif
 
-	mx = MouseX - 1;
+	mx = MousePos.x - 1;
 	if (mx < 0 - cursW - 1) {
 		return;
 	}
 	if (mx > SCREEN_WIDTH - 1) {
 		return;
 	}
-	my = MouseY - 1;
+	my = MousePos.y - 1;
 	if (my < 0 - cursH - 1) {
 		return;
 	}
@@ -212,7 +220,7 @@ static void scrollrt_draw_cursor()
 	sgCursHgt -= sgCursY;
 	sgCursHgt++;
 
-	assert(sgCursWdt * sgCursHgt <= sizeof sgSaveBack);
+	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
 	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
@@ -226,10 +234,10 @@ static void scrollrt_draw_cursor()
 	my++;
 	my += cursH + SCREEN_Y - 1;
 
-	frame = pcurs;
+	frame = pcursicon;
 	cCels = pCursCels;
 	if (frame < CURSOR_FIRSTITEM) {
-		CelClippedDraw(mx, my, cCels, frame, cursW);
+		CelClippedDrawLightTbl(mx, my, cCels, frame, cursW, 0);
 	} else {
 		scrollrt_draw_item(&myplr._pHoldItem, true, mx, my, cCels, frame, cursW);
 	}
@@ -240,33 +248,30 @@ static void scrollrt_draw_cursor()
  * @param mis Pointer to MissileStruct struct
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
+static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
-	int mx, my, nCel, frames;
-	BYTE *pCelBuff;
+	int mx, my, nCel, frames, nWidth;
+	BYTE trans;
+	BYTE* pCelBuff;
 
-	if (mis->_miPreFlag != pre || !mis->_miDrawFlag)
+	if (mis->_miPreFlag != gbPreFlag || !mis->_miDrawFlag)
 		return;
 
 	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
 	my = sy + mis->_miyoff;
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Missile 2 type %d: NULL Cel Buffer", mis->_miType);
+		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
+	frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Missile 2: frame %d of %d, missile type==%d", nCel, frames, mis->_miType);
+		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
-	if (mis->_miUniqTrans != 0)
-		Cl2DrawLightTbl(mx, my, pCelBuff, nCel, mis->_miAnimWidth, mis->_miUniqTrans);
-	else if (mis->_miLightFlag)
-		Cl2DrawLight(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
-	else
-		Cl2Draw(mx, my, pCelBuff, nCel, mis->_miAnimWidth);
+	nWidth = mis->_miAnimWidth;
+	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -275,16 +280,15 @@ static void DrawMissilePrivate(MissileStruct *mis, int sx, int sy, BOOL pre)
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
+static void DrawMissile(int mi, int x, int y, int sx, int sy)
 {
 	int i;
-	MissileStruct *mis;
+	MissileStruct* mis;
 
 	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
-		DrawMissilePrivate(mis, sx, sy, pre);
+		DrawMissilePrivate(mis, sx, sy);
 		return;
 	}
 
@@ -293,7 +297,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
 		mis = &missile[missileactive[i]];
 		if (mis->_mix != x || mis->_miy != y)
 			continue;
-		DrawMissilePrivate(mis, sx, sy, pre);
+		DrawMissilePrivate(mis, sx, sy);
 	}
 }
 
@@ -306,11 +310,11 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy, BOOL pre)
  */
 static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
-	MonsterStruct *mon;
+	MonsterStruct* mon;
 	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (!visFlag && !myplr._pInfraFlag)
 		return;
@@ -329,19 +333,19 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->mName);
+		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->_mName);
 	}
 
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t *)pCelBuff);
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		const char *szMode = "unknown action";
+		const char* szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
 			szMode = szMonModeAssert[mon->_mmode];
 		dev_fatal(
 			"Draw Monster \"%s\" %s: facing %d, frame %d of %d",
-			mon->mName,
+			mon->_mName,
 			szMode,
 			mon->_mdir,
 			nCel,
@@ -356,13 +360,64 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
-	else if (mon->_uniqtype != 0)
-		trans = mon->_uniqtrans;
-	else {
-		Cl2DrawLight(mx, my, pCelBuff, nCel, nWidth);
+	else if (mon->_muniqtrans != 0)
+		trans = mon->_muniqtrans;
+	else
+		trans = light_trn_index;
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
+}
+
+/**
+ * @brief Render a sprite of a dead monster
+ * @param mnum Id of monster
+ * @param mx Back buffer coordinate
+ * @param my Back buffer coordinate
+ */
+static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
+{
+	int mx, my, nCel, nWidth;
+	BYTE trans;
+	BYTE* pCelBuff;
+
+	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
+	my = sy /*+ mon->_myoff*/;
+
+	pCelBuff = mon->_mAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Dead Monster \"%s\": NULL Cel Buffer", mon->_mName);
+	}
+	nCel = mon->_mAnimFrame;
+#if DEBUG_MODE
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
+	if (nCel < 1 || frames > 50 || nCel > frames) {
+		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
+	}
+#endif
+	nWidth = mon->_mAnimWidth;
+	trans = mon->_muniqtrans == 0 ? light_trn_index : mon->_muniqtrans;
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
+}
+
+static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
+{
+	int i;
+	MonsterStruct* mon;
+
+	if (light_trn_index >= MAXDARKNESS)
+		return;
+
+	if (mnum != DEAD_MULTI) {
+		mon = &monsters[mnum - 1];
+		DrawDeadMonsterHelper(mon, sx, sy);
 		return;
 	}
-	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
+
+	for (i = 0; i < MAXMONSTERS; i++) {
+		mon = &monsters[i];
+		if (mon->_mmode != MM_DEAD || mon->_mx != x || mon->_my != y)
+			continue;
+		DrawDeadMonsterHelper(mon, sx, sy);
+	}
 }
 
 /**
@@ -374,19 +429,22 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
  */
 static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
-	TownerStruct *tw;
+	MonsterStruct* tw;
 	int tx, nCel, nWidth;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
-	tw = &towners[tnum];
-	tx = sx - tw->_tAnimXOffset;
-	pCelBuff = tw->_tAnimData;
-	nCel = tw->_tAnimFrame;
-	nWidth = tw->_tAnimWidth;
-	if (tnum == pcursmonst) {
-		CelDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
+	tw = &monsters[tnum];
+	tx = sx - tw->_mAnimXOffset;
+	pCelBuff = tw->_mAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Towner \"%s\": NULL Cel Buffer", tw->_mName);
 	}
-	CelClippedDraw(tx, sy, pCelBuff, nCel, nWidth);
+	nCel = tw->_mAnimFrame;
+	nWidth = tw->_mAnimWidth;
+	if (tnum == pcursmonst) {
+		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
+	}
+	CelClippedDrawLightTbl(tx, sy, pCelBuff, nCel, nWidth, 0);
 }
 
 /**
@@ -402,26 +460,27 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
  */
 static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
-	int px, py, nCel, nWidth, l;
+	int px, py, nCel, nWidth;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE *pCelBuff;
+	BYTE trans;
+	BYTE* pCelBuff;
 
 	if (visFlag || myplr._pInfraFlag) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
 		pCelBuff = plr._pAnimData;
 		if (pCelBuff == NULL) {
-			dev_fatal("Drawing player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+			dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 		}
 		nCel = plr._pAnimFrame;
 #if DEBUG_MODE
-		int frames = SwapLE32(*(uint32_t *)pCelBuff);
+		int frames = SwapLE32(*(uint32_t*)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
-			const char *szMode = "unknown action";
+			const char* szMode = "unknown action";
 			if (plr._pmode < lengthof(szPlrModeAssert))
 				szMode = szPlrModeAssert[plr._pmode];
 			dev_fatal(
-				"Drawing player %d \"%s\" %s(%d): facing %d, frame %d of %d",
+				"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
 				pnum,
 				plr._pName,
 				szMode,
@@ -435,25 +494,21 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
-			Cl2Draw(px, py, pCelBuff, nCel, nWidth);
+			trans = 0;
 		} else if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8)) {
-			Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, COLOR_TRN_RED);
+			trans = COLOR_TRN_RED;
 		} else {
-			l = light_trn_index;
-			if (light_trn_index <= 5)
-				light_trn_index = 0;
-			else
-				light_trn_index -= 5;
-			Cl2DrawLight(px, py, pCelBuff, nCel, nWidth);
+			trans = light_trn_index;
+			trans = trans <= 5 ? 0 : (trans - 5);
 			/*if (plr.pManaShield != 0)
-				Cl2DrawLight(
+				Cl2DrawLightTbl(
 				    px + plr._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mfAnimWidth);*/
-			light_trn_index = l;
+				    misfiledata[MFILE_MANASHLD].mfAnimWidth, trans);*/
 		}
+		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 	}
 }
 
@@ -472,14 +527,14 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #if DEBUG_MODE
-			BYTE *pCelBuff = plr._pAnimData;
+			BYTE* pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
-				dev_fatal("Drawing dead player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
-			int frames = SwapLE32(*(uint32_t *)pCelBuff);
+			int frames = SwapLE32(*(uint32_t*)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Drawing dead player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
+				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
@@ -495,14 +550,13 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  * @param y dPiece coordinate
  * @param ox Back buffer coordinate
  * @param oy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
+static void DrawObject(int oi, int x, int y, int ox, int oy)
 {
-	ObjectStruct *os;
-	int sx, sy, xx, yy, nCel, frames;
+	ObjectStruct* os;
+	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
-	BYTE *pCelBuff;
+	BYTE* pCelBuff;
 
 	if (light_trn_index >= MAXDARKNESS)
 		return;
@@ -511,7 +565,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
 	oi = oi >= 0 ? oi - 1 : -(oi + 1);
 	assert((unsigned)oi < MAXOBJECTS);
 	os = &objects[oi];
-	if (os->_oPreFlag != pre)
+	if (os->_oPreFlag != gbPreFlag)
 		return;
 	sx = ox - os->_oAnimXOffset;
 	sy = oy;
@@ -528,18 +582,17 @@ static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
 	}
 
 	nCel = os->_oAnimFrame;
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
+#if DEBUG_MODE
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Object: frame %d of %d, object type==%d", nCel, frames, os->_otype);
+		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
-
-	if (oi == pcursobj)
-		CelDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, os->_oAnimWidth);
-	if (os->_oLightFlag) {
-		CelClippedDrawLight(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
-	} else {
-		CelClippedDraw(sx, sy, pCelBuff, nCel, os->_oAnimWidth);
+#endif
+	nWidth = os->_oAnimWidth;
+	if (oi == pcursobj) {
+		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
 	}
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
 /**
@@ -550,81 +603,355 @@ static void DrawObject(int oi, int x, int y, int ox, int oy, BOOL pre)
  */
 static void drawCell(int pn, int sx, int sy)
 {
-	BYTE *dst, i;
-	uint16_t levelCelBlock;
-	BYTE limit;
+	BYTE* dst;
+	uint16_t levelCelBlock, i, limit;
 	uint16_t* pMap;
 	int tmp, mask;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return;
+		return; // starting from too far to the left or right -> skip
 
-	tmp = (sy - SCREEN_Y + (TILE_HEIGHT / 2 + 1)) / (TILE_HEIGHT / 2);
-	if (tmp <= 0)
-		return;
+	tmp = sy - SCREEN_Y;
+	if (tmp < 0)
+		return; // starting from above the top -> skip
+	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT - 1)) / MICRO_HEIGHT;
+	tmp *= TILE_WIDTH / MICRO_WIDTH;
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
 	/*limit = MicroTileLen;
-	while (sy - limit * (TILE_HEIGHT / 2) <= SCREEN_Y - TILE_HEIGHT) {
-		limit -= 2;
+	while (sy - limit * (MICRO_HEIGHT / (TILE_WIDTH / MICRO_WIDTH)) <= SCREEN_Y - MICRO_HEIGHT) {
+		limit -= (TILE_WIDTH / MICRO_WIDTH);
 	}*/
 	/*i = 0;
-	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT) {
-		sy -= TILE_HEIGHT;
-		i += 2;
+	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT) {
+		sy -= MICRO_HEIGHT;
+		i += (TILE_WIDTH / MICRO_WIDTH);
 	}*/
-	tmp = (sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT) + (TILE_HEIGHT - 1)) / TILE_HEIGHT;
+	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1);
 	i = 0;
-	if (tmp > 0) {
+	if (tmp >= 0) {
+		// starting from below the bottom -> skip tiles
+		tmp = 1 + (unsigned)tmp / TILE_HEIGHT;
 		sy -= TILE_HEIGHT * tmp;
-		i = tmp * 2;
+		i = tmp * (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT);
 		if (i >= limit)
-			return;
+			return; // not enough microtiles to affect the screen -> skip
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn].mt[i];
+	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0 && (tmp & TMIF_LEFT_REDRAW)) {
-			mask = DMT_NONE;
-			if (tmp & TMIF_LEFT_WALL_TRANS) {
-				mask = DMT_LTFLOOR;	// &LeftMask[TILE_HEIGHT - 1];
-			} else if (tmp & TMIF_LEFT_FOLIAGE) {
-				mask = DMT_LFLOOR;	// &LeftFoliageMask[TILE_HEIGHT - 1];
+		if (tmp & TMIF_LEFT_REDRAW) {
+			for (int j = 0; j < ASSET_MPL; j++) {
+				for (int k = 0; k < ASSET_MPL; k++) {
+					levelCelBlock = pMap[k + j * ASSET_MPL * 2];
+					if (levelCelBlock != 0) {
+						mask = DMT_NONE;
+#if ASSET_MPL == 1
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							mask = DMT_LTFLOOR;
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							mask = DMT_LFLOOR;
+						}
+#elif ASSET_MPL == 2
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							static int leftTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,              DMT_NONE,
+								DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+								// clang-format on
+							};
+							mask = leftTrnMasksEven[j][k];
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							static int leftFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT,
+								DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,
+								// clang-format on
+							};
+							mask = leftFolMasksEven[j][k];
+						}
+#elif ASSET_MPL == 3
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							static int leftTrnMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,              DMT_NONE,
+								DMT_LTFLOOR, DMT_NONE,              DMT_NONE,
+								DMT_TWALL,   DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+								// clang-format on
+							};
+							mask = leftTrnMasksOdd[j][k];
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							static int leftFolMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,   DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT,
+								DMT_LFLOOR, DMT_EMPTY,                 DMT_EMPTY,
+								DMT_NONE,   DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,
+								// clang-format on
+							};
+							mask = leftFolMasksOdd[j][k];
+						}
+#elif ASSET_MPL == 4
+						if (tmp & TMIF_LEFT_WALL_TRANS) {
+							static int leftTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,              DMT_NONE,    DMT_NONE,              DMT_NONE,
+								DMT_NONE,              DMT_NONE,    DMT_NONE,              DMT_NONE,
+								DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR, DMT_NONE,              DMT_NONE,
+								DMT_TWALL,             DMT_TWALL,   DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+								// clang-format on
+							};
+							mask = leftTrnMasksEven[j][k];
+						} else if (tmp & TMIF_LEFT_FOLIAGE) {
+							static int leftFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,                  DMT_NONE,              DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT,
+							    DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT, DMT_EMPTY,                 DMT_EMPTY,
+								DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,    DMT_EMPTY,                 DMT_EMPTY,
+								DMT_NONE,                  DMT_NONE,              DMT_FLOOR_UP_TOP_LEFT,     DMT_FLOOR_TOP_LEFT,
+								// clang-format on
+							};
+							mask = leftFolMasksEven[j][k];
+						}
+#else
+					bool ASSET_EVEN = (ASSET_MPL & 1) == 0;
+					static int leftTrnMasksEven[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_FLOOR_TRN_UP_LEFT, DMT_LTFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE /*DMT_LTFLOOR*/, DMT_NONE /*DMT_LTFLOOR*/,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int leftTrnMasksOdd[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_LTFLOOR, DMT_FLOOR_TRN_UP_LEFT,
+						DMT_NONE, DMT_NONE, DMT_LTFLOOR, DMT_LTFLOOR,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int leftFolMasksEven[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_UP_TOP_LEFT, DMT_FLOOR_TOP_LEFT,
+						DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_FLOOR_BOTTOM_LEFT, DMT_NONE /*DMT_LFLOOR*/, DMT_NONE /*DMT_LFLOOR*/,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int leftFolMasksOdd[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_TOP_LEFT, DMT_FLOOR_UP_TOP_LEFT,
+						DMT_FLOOR_BOTTOM_LEFT, DMT_FLOOR_LOW_BOTTOM_LEFT, DMT_LFLOOR, DMT_LFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					mask = (k & 1)                                 // odd
+					 | ((j == (ASSET_MPL + k) / 2) << 1)           // onUpperTop
+					 | (((j + 1) == (ASSET_MPL - k + 1) / 2) << 2) // onLowerBottom
+					 | ((j > (ASSET_MPL + k) / 2) << 3)            // upperTop
+					 | (((j + 1) < (ASSET_MPL - k + 1) / 2) << 4); // lowerBottom
+					if (tmp & TMIF_LEFT_WALL_TRANS) {
+						if (ASSET_EVEN)
+							mask = leftTrnMasksEven[mask];
+						else
+							mask = leftTrnMasksOdd[mask];
+					} else if (tmp & TMIF_LEFT_FOLIAGE) {
+						if (ASSET_EVEN)
+							mask = leftFolMasksEven[mask];
+						else
+							mask = leftFolMasksOdd[mask];
+					} else {
+						mask = DMT_NONE;
+					}
+#endif /* ASSET_MPL */
+						RenderMicro(dst + MICRO_WIDTH * k - j * BUFFER_WIDTH * MICRO_HEIGHT, levelCelBlock, mask);
+					}
+				}
 			}
-			RenderMicro(dst, levelCelBlock, mask);
 		}
-		pMap++;
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0 && (tmp & TMIF_RIGHT_REDRAW)) {
-			mask = DMT_NONE;
-			if (tmp & TMIF_RIGHT_WALL_TRANS) {
-				mask = DMT_RTFLOOR;	// &RightMask[TILE_HEIGHT - 1];
-			} else if (tmp & TMIF_RIGHT_FOLIAGE) {
-				mask = DMT_RFLOOR;	// &RightFoliageMask[TILE_HEIGHT - 1];
+		pMap += ASSET_MPL;
+		if (tmp & TMIF_RIGHT_REDRAW) {
+			for (int j = 0; j < ASSET_MPL; j++) {
+				for (int k = 0; k < ASSET_MPL; k++) {
+					levelCelBlock = pMap[k + j * ASSET_MPL * 2];
+					if (levelCelBlock != 0) {
+						mask = DMT_NONE;
+#if ASSET_MPL == 1
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							mask = DMT_RTFLOOR; // &RightMask[MICRO_HEIGHT - 1];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							mask = DMT_RFLOOR; // &RightFoliageMask[MICRO_HEIGHT - 1];
+						}
+#elif ASSET_MPL == 2
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							static int rightTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,
+								DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT,
+								// clang-format on
+							};
+							mask = rightTrnMasksEven[j][k];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							static int rightFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT,
+								DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,
+								// clang-format on
+							};
+							mask = rightFolMasksEven[j][k];
+						}
+#elif ASSET_MPL == 3
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							static int rightTrnMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,               DMT_NONE,
+								DMT_NONE,    DMT_NONE,               DMT_RTFLOOR,
+								DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT, DMT_TWALL,
+								// clang-format on
+							};
+							mask = rightTrnMasksOdd[j][k];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							static int rightFolMasksOdd[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_NONE,
+								DMT_EMPTY,              DMT_EMPTY,                  DMT_RFLOOR,
+								DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,     DMT_NONE,
+								// clang-format on
+							};
+							mask = rightFolMasksOdd[j][k];
+						}
+#elif ASSET_MPL == 4
+						if (tmp & TMIF_RIGHT_WALL_TRANS) {
+							static int rightTrnMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_NONE,    DMT_NONE,               DMT_NONE,    DMT_NONE,
+								DMT_NONE,    DMT_NONE,               DMT_NONE,    DMT_NONE,
+								DMT_NONE,    DMT_NONE,               DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT,
+								DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT, DMT_TWALL,   DMT_TWALL,
+								// clang-format on
+							};
+							mask = rightTrnMasksEven[j][k];
+						} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+							static int rightFolMasksEven[ASSET_MPL][ASSET_MPL] = {
+								// clang-format off
+								DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_NONE,               DMT_NONE,
+								DMT_EMPTY,              DMT_EMPTY,                  DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT,
+								DMT_EMPTY,              DMT_EMPTY,                  DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,
+								DMT_FLOOR_TOP_RIGHT,    DMT_FLOOR_UP_TOP_RIGHT,     DMT_NONE,               DMT_NONE,
+								// clang-format on
+							};
+							mask = rightFolMasksEven[j][k];
+						}
+#else
+					bool ASSET_EVEN = (ASSET_MPL & 1) == 0;
+					static int rightTrnMasksEven[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_FLOOR_TRN_UP_RIGHT, DMT_RTFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE /*DMT_RTFLOOR*/, DMT_NONE /*DMT_RTFLOOR*/,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int rightTrnMasksOdd[] = {
+						// clang-format off
+						DMT_NONE, DMT_NONE, DMT_RTFLOOR, DMT_FLOOR_TRN_UP_RIGHT,
+						DMT_NONE, DMT_NONE, DMT_RTFLOOR, DMT_RTFLOOR,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_TWALL, DMT_TWALL, DMT_TWALL, DMT_TWALL,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int rightFolMasksEven[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_UP_TOP_RIGHT, DMT_FLOOR_TOP_RIGHT,
+						DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_FLOOR_BOTTOM_RIGHT, DMT_NONE /*DMT_RFLOOR*/, DMT_NONE /*DMT_RFLOOR*/,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					static int rightFolMasksOdd[] = {
+						// clang-format off
+						DMT_EMPTY, DMT_EMPTY, DMT_FLOOR_TOP_RIGHT, DMT_FLOOR_UP_TOP_RIGHT,
+						DMT_FLOOR_BOTTOM_RIGHT, DMT_FLOOR_LOW_BOTTOM_RIGHT, DMT_RFLOOR, DMT_RFLOOR,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE/*, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,
+						DMT_NONE, DMT_NONE, DMT_NONE, DMT_NONE,*/
+						// clang-format on
+					};
+					mask = ((ASSET_MPL - 1 - k) & 1)                                 // odd
+					 | ((j == (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 1)           // onUpperTop
+					 | (((j + 1) == (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 2) // onLowerBottom
+					 | ((j > (ASSET_MPL + (ASSET_MPL - 1 - k)) / 2) << 3)            // upperTop
+					 | (((j + 1) < (ASSET_MPL - (ASSET_MPL - 1 - k) + 1) / 2) << 4); // lowerBottom
+					if (tmp & TMIF_RIGHT_WALL_TRANS) {
+						if (ASSET_EVEN)
+							mask = rightTrnMasksEven[mask];
+						else
+							mask = rightTrnMasksOdd[mask];
+					} else if (tmp & TMIF_RIGHT_FOLIAGE) {
+						if (ASSET_EVEN)
+							mask = rightFolMasksEven[mask];
+						else
+							mask = rightFolMasksOdd[mask];
+					} else {
+						mask = DMT_NONE;
+					}
+#endif  /* ASSET_MPL */
+						RenderMicro(dst + ASSET_MPL * MICRO_WIDTH + MICRO_WIDTH * k - j * BUFFER_WIDTH * MICRO_HEIGHT, levelCelBlock, mask);
+					}
+				}
 			}
-			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, mask);
 		}
-		pMap++;
+		pMap += (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT) - ASSET_MPL;
 		dst -= BUFFER_WIDTH * TILE_HEIGHT;
-		i = 2;
+		i = (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT); // ASSET_MPL
 	}
 
-	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE; // &WallMask[TILE_HEIGHT - 1]
-	for ( ; i < limit; i += 2) {
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0) {
-			RenderMicro(dst, levelCelBlock, mask);
+	mask = (tmp & TMIF_WALL_TRANS) ? DMT_TWALL : DMT_NONE;
+	while (i < limit) {
+		for (int j = 0; j < (TILE_WIDTH / MICRO_WIDTH); j++) {
+			levelCelBlock = *pMap;
+			if (levelCelBlock != 0) {
+				RenderMicro(dst, levelCelBlock, mask);
+			}
+			pMap++;
+			dst += MICRO_WIDTH;
 		}
-		pMap++;
-		levelCelBlock = *pMap;
-		if (levelCelBlock != 0) {
-			RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, mask);
-		}
-		pMap++;
-		dst -= BUFFER_WIDTH * TILE_HEIGHT;
+		i += (TILE_WIDTH / MICRO_WIDTH);
+		dst -= TILE_WIDTH + BUFFER_WIDTH * MICRO_HEIGHT;
 	}
 }
 
@@ -638,26 +965,38 @@ static void drawFloor(int pn, int sx, int sy)
 {
 	BYTE *dst, tmp;
 	uint16_t levelCelBlock;
-	MICROS *pMap;
+	uint16_t* pMap;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return;
+		return; // starting from too far to the left or right -> skip
 
-	if (sy <= SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
-		return;
+	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
+		return; // starting from above the top or below the bottom -> skip
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn];
+	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];
 
-	levelCelBlock = pMap->mt[0];
-	if (levelCelBlock != 0 && (tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
-		RenderMicro(dst, levelCelBlock, DMT_NONE);
+	if ((tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
+		for (int j = 0; j < ASSET_MPL; j++) {
+			for (int i = 0; i < ASSET_MPL; i++) {
+				levelCelBlock = pMap[i + ASSET_MPL * 2 * j];
+				if (levelCelBlock != 0) {
+					RenderMicro(dst + MICRO_WIDTH * i - BUFFER_WIDTH * j * MICRO_HEIGHT, levelCelBlock, DMT_NONE);
+				}
+			}
+		}
 	}
-	levelCelBlock = pMap->mt[1];
-	if (levelCelBlock != 0 && (tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
-		RenderMicro(dst + TILE_WIDTH / 2, levelCelBlock, DMT_NONE);
+	if ((tmp & (TMIF_RIGHT_REDRAW | TMIF_RIGHT_FOLIAGE)) != TMIF_RIGHT_REDRAW) {
+		for (int j = 0; j < ASSET_MPL; j++) {
+			for (int i = 0; i < ASSET_MPL; i++) {
+				levelCelBlock = pMap[i + ASSET_MPL + ASSET_MPL * 2 * j];
+				if (levelCelBlock != 0) {
+					RenderMicro(dst + ASSET_MPL * MICRO_WIDTH + MICRO_WIDTH * i - BUFFER_WIDTH * j * MICRO_HEIGHT, levelCelBlock, DMT_NONE);
+				}
+			}
+		}
 	}
 }
 
@@ -667,37 +1006,37 @@ static void drawFloor(int pn, int sx, int sy)
  * @param x dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pre Is the sprite in the background
  */
-static void DrawItem(int ii, int sx, int sy, BOOL pre)
+static void DrawItem(int ii, int sx, int sy)
 {
-	int nCel, frames;
-	ItemStruct *is;
-	BYTE *pCelBuff;
+	int nCel;
+	ItemStruct* is;
+	BYTE* pCelBuff;
 
 	assert(ii > 0);
 
 	ii--;
 
 	is = &items[ii];
-	if (is->_iPostDraw == pre)
+	if (is->_iPostDraw == gbPreFlag)
 		return;
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Item \"%s\" 1: NULL Cel Buffer", is->_iName);
+		dev_fatal("Draw Item \"%s\": NULL Cel Buffer", is->_iName);
 	}
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
 	nCel = is->_iAnimFrame;
+#if DEBUG_MODE
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw \"%s\" Item 1: frame %d of %d, item type==%d", is->_iName, nCel, frames, is->_itype);
+		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
 	}
-
+#endif
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
 	if (ii == pcursitem) {
-		CelDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
+		CelClippedDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
 	}
-	CelClippedDrawLight(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); //is->_iAnimWidth);
+	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH, light_trn_index); //is->_iAnimWidth);
 }
 
 /**
@@ -712,35 +1051,6 @@ static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 		DrawMonster(mnum, bFlag, sx, sy);
 	else
 		DrawTowner(mnum, bFlag, sx, sy);
-}
-
-static void DrawDeadMonster(BYTE bDead, int sx, int sy)
-{
-	BYTE dd;
-	DeadStruct* pDeadGuy;
-	BYTE* pCelBuff;
-	int px, nCel, frames;
-
-	if (light_trn_index >= MAXDARKNESS)
-		return;
-
-	pDeadGuy = &dead[(bDead & 0x1F) - 1];
-	dd = (bDead >> 5) & 7;
-	px = sx - pDeadGuy->_deadXOffset;
-	pCelBuff = pDeadGuy->_deadData[dd];
-	if (pCelBuff == NULL) {
-		dev_fatal("Dead body(%d) without Data(%d) to draw .", bDead, dd);
-	}
-	frames = SwapLE32(*(uint32_t *)pCelBuff);
-	nCel = pDeadGuy->_deadFrame;
-	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Unclipped dead: frame %d of %d, deadnum==%d", nCel, frames, bDead);
-	}
-	if (pDeadGuy->_deadtrans != 0) {
-		Cl2DrawLightTbl(px, sy, pCelBuff, nCel, pDeadGuy->_deadWidth, pDeadGuy->_deadtrans);
-	} else {
-		Cl2DrawLight(px, sy, pCelBuff, nCel, pDeadGuy->_deadWidth);
-	}
 }
 
 /**
@@ -762,6 +1072,7 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	//	return;
 	//dRendered[sx][sy] = true;
 
+	gbPreFlag = TRUE;
 	bFlag = dFlags[sx][sy];
 	light_trn_index = dLight[sx][sy];
 	gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
@@ -769,30 +1080,25 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#if DEBUG_MODE
-	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDraw(dx, dy, pSquareCel, 1, TILE_WIDTH);
-	}
-#endif
-
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[sx][sy];
 		assert(mpnum != 0);
-		DrawMissile(mpnum, sx, sy, dx, dy, TRUE);
+		DrawMissile(mpnum, sx, sy, dx, dy);
 	}
 
 	bv = dDead[sx][sy];
 	if (bv != 0)
-		DrawDeadMonster(bv, dx, dy);
+		DrawDeadMonster(bv, sx, sy, dx, dy);
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy, TRUE);
+		DrawObject(mpnum, sx, sy, dx, dy);
 	bv = dItem[sx][sy];
 	if (bv != 0)
-		DrawItem(bv, dx, dy, TRUE);
+		DrawItem(bv, dx, dy);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
 		DrawDeadPlayer(sx, sy, dx, dy);
 	}
+	gbPreFlag = FALSE;
 	mpnum = dPlayer[sx][sy];
 	if (mpnum > 0)
 		DrawPlayer(mpnum - 1, bFlag, dx, dy);
@@ -801,27 +1107,28 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawMonsterHelper(mpnum - 1, bFlag, dx, dy);
 	mpnum = dMissile[sx][sy];
 	if (mpnum != 0)
-		DrawMissile(mpnum, sx, sy, dx, dy, FALSE);
+		DrawMissile(mpnum, sx, sy, dx, dy);
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy, FALSE);
+		DrawObject(mpnum, sx, sy, dx, dy);
 	bv = dItem[sx][sy];
 	if (bv != 0)
-		DrawItem(bv, dx, dy, FALSE);
+		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bv = dSpecial[sx][sy];
+		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
+			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
+			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0) {
-			bv = dSpecial[sx - 1][sy - 1];
+			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & PST_SPEC_TYPE;
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), pSpecialCels, bv, TILE_WIDTH);
+				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
 		}
 	}
@@ -855,8 +1162,8 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 				//} else {
 				//	world_draw_black_tile(sx, sy);
 				//}
-			} else {
-				world_draw_black_tile(sx, sy);
+			//} else {
+			//	world_draw_black_tile(sx, sy);
 			}
 			SHIFT_GRID(x, y, 1, 0);
 			sx += TILE_WIDTH;
@@ -879,7 +1186,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y) (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE) != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**
@@ -908,11 +1215,10 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 					// between tiles, from poking through the walls as they exceed the tile bounds.
 					// A proper fix for this would probably be to layout the sceen and render by
 					// sprite screen position rather than tile position.
-					if (IsWall(x, y) && IsWall(x + 1, y)) { // Part of a wall aligned on the x-axis
-						if (IsWalkable(x + 1, y - 1)) {     // Has walkable area behind it (to make sure it matches only the rightmost wall)
-							scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
-							skips |= 2;
-						}
+					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
+					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
+						scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
+						skips |= 2;
 					}
 				}
 				assert(dPiece[x][y] != 0);
@@ -951,8 +1257,8 @@ static void Zoom()
 	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2 - 1, VIEWPORT_HEIGHT / 2 - 1);
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
-	BYTE *src = &gpBuffer[nSrcOff];
-	BYTE *dst = &gpBuffer[nDstOff];
+	BYTE* src = &gpBuffer[nSrcOff];
+	BYTE* dst = &gpBuffer[nDstOff];
 
 	for (int hgt = 0; hgt < VIEWPORT_HEIGHT / 2; hgt++) {
 		for (int i = 0; i < wdt; i++) {
@@ -967,28 +1273,11 @@ static void Zoom()
 }
 
 /**
- * @brief Gets the number of rows covered by the main panel
- */
-static int RowsCoveredByPanel()
-{
-	//if (SCREEN_WIDTH <= PANEL_WIDTH) {
-		return 0;
-	/*}
-
-	int rows = PANEL_HEIGHT / TILE_HEIGHT;
-	if (gbZoomInFlag) {
-		rows /= 2;
-	}
-
-	return rows;*/
-}
-
-/**
  * @brief Calculate the offset needed for centering tiles in view area
  * @param offsetX Offset in pixels
  * @param offsetY Offset in pixels
  */
-static void CalcTileOffset(int *offsetX, int *offsetY)
+static void CalcTileOffset(int* offsetX, int* offsetY)
 {
 	unsigned x, y;
 
@@ -1013,10 +1302,10 @@ static void CalcTileOffset(int *offsetX, int *offsetY)
  * @param columns Tiles needed per row
  * @param rows Both even and odd rows
  */
-static void TilesInView(int *rcolumns, int *rrows)
+static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 {
-	int columns = (SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
-	int rows = (VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
+	unsigned columns = (unsigned)(SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
+	unsigned rows = (unsigned)(VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
 
 	if (gbZoomInFlag) {
 		// Half the number of tiles, rounded up
@@ -1040,12 +1329,12 @@ static void CalcTileViewport()
 	gsTileVp._vOffsetY = yo - (SCREEN_Y + TILE_HEIGHT / 2 - 1);
 
 	TilesInView(&gsTileVp._vColumns, &gsTileVp._vRows);
-	int lrow = gsTileVp._vRows - RowsCoveredByPanel();
+	unsigned lrow = gsTileVp._vRows;
 
 	// Center player tile on screen
 	gsTileVp._vShiftX = 0;
 	gsTileVp._vShiftY = 0;
-	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, -gsTileVp._vColumns / 2, -lrow / 2);
+	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
 
 	gsTileVp._vRows *= 2;
 
@@ -1081,12 +1370,12 @@ static void CalcMouseViewport()
 
 	// Convert to tile grid
 	TilesInView(&gsMouseVp._vColumns, &gsMouseVp._vRows);
-	int lrow = gsMouseVp._vRows - RowsCoveredByPanel();
+	unsigned lrow = gsMouseVp._vRows;
 
 	// Center player tile on screen
 	gsMouseVp._vShiftX = 0;
 	gsMouseVp._vShiftY = 0;
-	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, -gsMouseVp._vColumns / 2, -lrow / 2);
+	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
 
 	// Align grid
 	if ((gsMouseVp._vColumns & 1) == 0) {
@@ -1117,6 +1406,8 @@ static void DrawGame()
 {
 	int x, y, sx, sy, columns, rows;
 
+	ClearScreenBuffer();
+
 	// Limit rendering to the view area
 	//if (!gbZoomInFlag)
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT)];
@@ -1138,43 +1429,26 @@ static void DrawGame()
 	case SDIR_NONE:
 		break;
 	case SDIR_N:
+	case SDIR_S:
 		sy -= TILE_HEIGHT;
 		SHIFT_GRID(x, y, 0, -1);
 		rows += 2;
 		break;
 	case SDIR_NE:
-		sy -= TILE_HEIGHT;
-		SHIFT_GRID(x, y, 0, -1);
-		columns++;
-		rows += 2;
-		break;
-	case SDIR_E:
-		columns++;
-		break;
-	case SDIR_SE:
-		columns++;
-		rows++;
-		break;
-	case SDIR_S:
-		rows += 2;
-		break;
 	case SDIR_SW:
-		sx -= TILE_WIDTH;
-		SHIFT_GRID(x, y, -1, 0);
-		columns++;
-		rows++;
-		break;
-	case SDIR_W:
-		sx -= TILE_WIDTH;
-		SHIFT_GRID(x, y, -1, 0);
-		columns++;
-		break;
+	case SDIR_SE:
 	case SDIR_NW:
 		sx -= TILE_WIDTH / 2;
 		sy -= TILE_HEIGHT / 2;
 		x--;
 		columns++;
 		rows++;
+		break;
+	case SDIR_E:
+	case SDIR_W:
+		sx -= TILE_WIDTH;
+		SHIFT_GRID(x, y, -1, 0);
+		columns++;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1198,14 +1472,14 @@ static void DrawGame()
 static void DrawView()
 {
 	DrawGame();
-	if (gbAutomapflag) {
+	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}
+	DrawLifeFlask();
+	DrawManaFlask();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
-	DrawLifeFlask();
-	DrawManaFlask();
 	DrawDurIcon();
 
 	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {
@@ -1214,38 +1488,36 @@ static void DrawView()
 
 	DrawPlrMsg(false);
 
-	if (stextflag != STORE_NONE && !gbQtextflag)
-		DrawStore();
-	if (gbInvflag) {
-		DrawInv();
-	} else if (gbSbookflag) {
-		DrawSpellBook();
-	} else if (gbTeamFlag) {
-		DrawTeamBook();
-	}
-
-	if (gbChrflag) {
-		DrawChr();
-	} else if (gbQuestlog) {
-		DrawQuestLog();
-	}
-	if (gbLvlUp && stextflag == STORE_NONE) {
-		DrawLevelUpIcon();
-	}
 	if (gbQtextflag) {
 		DrawQText();
-	}
-	if (gbSkillListFlag) {
-		DrawSkillList();
-	}
-	if (gbShowTooltip || GetAsyncKeyState(DVL_VK_MENU)) {
-		DrawInfoStr();
-	}
-	if (gbDropGoldFlag) {
-		DrawGoldSplit(dropGoldValue);
-	}
-	if (gbHelpflag) {
-		DrawHelp();
+	} else if (stextflag != STORE_NONE) {
+		DrawStore();
+	} else {
+		if (gbLvlUp) {
+			DrawLevelUpIcon();
+		}
+		for (int i = 0; i < gnNumActiveWindows; i++) {
+			switch (gaActiveWindows[i]) {
+			case WND_INV:   DrawInv();       break;
+			case WND_CHAR:  DrawChr();       break;
+			case WND_BOOK:  DrawSpellBook(); break;
+			case WND_TEAM:  DrawTeamBook();  break;
+			case WND_QUEST: DrawQuestLog();  break;
+			default: ASSUME_UNREACHABLE;     break;
+			}
+		}
+		if (gbDropGoldFlag) {
+			DrawGoldSplit(dropGoldValue);
+		}
+		if (gbSkillListFlag) {
+			DrawSkillList();
+		}
+		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
+			DrawInfoStr();
+		}
+		if (gbHelpflag) {
+			DrawHelp();
+		}
 	}
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
@@ -1262,12 +1534,8 @@ static void DrawView()
 	DrawPlrMsg(true);
 	if (gmenu_is_active())
 		gmenu_draw();
-	if (gbDoomflag) {
-		doom_draw();
-	}
-	if (gbTalkflag) {
-		DrawTalkPan();
-	}
+	//if (gbDoomflag)
+	//	doom_draw();
 	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	//}
@@ -1281,12 +1549,12 @@ void ScrollView()
 {
 	bool scroll;
 
-	if (pcurs >= CURSOR_FIRSTITEM)
+	if (pcursicon >= CURSOR_FIRSTITEM)
 		return;
 
 	scroll = false;
 
-	if (MouseX < 20) {
+	if (MousePos.x < 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
@@ -1302,7 +1570,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseX > SCREEN_WIDTH - 20) {
+	if (MousePos.x > SCREEN_WIDTH - 20) {
 		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
 			if (DSIZEX + DBORDERX - 1 > ViewX) {
 				ViewX++;
@@ -1318,7 +1586,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseY < 20) {
+	if (MousePos.y < 20) {
 		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
 			if (DBORDERY < ViewY) {
 				ViewY--;
@@ -1334,7 +1602,7 @@ void ScrollView()
 			scroll = true;
 		}
 	}
-	if (MouseY > SCREEN_HEIGHT - 20) {
+	if (MousePos.y > SCREEN_HEIGHT - 20) {
 		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
 			if (DSIZEY + DBORDERY - 1 > ViewY) {
 				ViewY++;
@@ -1381,7 +1649,7 @@ static void DrawFPS()
 		guFrameCnt = 0;
 	}
 	snprintf(tempstr, sizeof(tempstr), "%d FPS", guFrameRate);
-	PrintGameStr(8, 65, tempstr, COL_RED);
+	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 65, tempstr, COL_RED);
 }
 
 /**
@@ -1390,6 +1658,10 @@ static void DrawFPS()
  */
 void scrollrt_draw_screen(bool draw_cursor)
 {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive)
+		draw_cursor = false;
+#endif
 	if (draw_cursor) {
 		lock_buf(0);
 		scrollrt_draw_cursor();
