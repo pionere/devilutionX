@@ -74,3 +74,5 @@ endif()
 if(MSVC)
   target_compile_definitions(libnatpmp_obj PRIVATE -DSTATICLIB)
 endif()
+
+add_library(zt ALIAS ${libzt_LIB_NAME})
