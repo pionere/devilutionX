@@ -1,4 +1,4 @@
-name: CMake
+﻿name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -25,8 +25,8 @@ jobs:
       run: >
         sudo apt-get update &&
         sudo apt-get install -y wget cmake git gettext &&
-        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/pacbrew-release-1.0/pacbrew-pacman-1.0.deb &&
-        sudo dpkg -i pacbrew-pacman-1.0.deb && sudo pacbrew-pacman -Sy &&
+        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/v1.1/pacbrew-pacman-1.1.deb &&
+        sudo dpkg -i pacbrew-pacman-1.1.deb && sudo pacbrew-pacman -Sy &&
         sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
         echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
 
