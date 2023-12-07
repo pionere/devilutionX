@@ -159,7 +159,7 @@ cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NO
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
-cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
+cmake_dependent_option(ZEROTIER "Build with zerotier support" ON "NOT NONET AND NOT HOSTONLY" OFF)
 cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)

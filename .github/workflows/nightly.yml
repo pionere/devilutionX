@@ -42,11 +42,11 @@ jobs:
           # x86 builds
           - name: diablo-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
             artifact: 'diablo-nightly-x86.zip'
           - name: hellfire-x86
             packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
           - name: hellmini-x86
             packages: 'sdl2:x86-windows'
@@ -546,16 +546,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-DZEROTIER=OFF'
             artifact: 'diablo-nightly-rg350.opk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350.opk'
           - name: diablo-rgp
-            cmakeargs: '-D USE_PATCH=ON'
+            cmakeargs: '-DZEROTIER=OFF -D USE_PATCH=ON'
             artifact: 'diablo-nightly-rg350p.opk'
           - name: hellfire-rgp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+            cmakeargs: '-DZEROTIER=OFF -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350p.opk'
     runs-on: ubuntu-22.04
     steps:
@@ -652,16 +652,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-DZEROTIER=OFF'
             artifact: 'diablo-nightly-retrofw.opk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofw.opk'
           - name: diablo-rtrp
-            cmakeargs: '-D USE_PATCH=ON'
+            cmakeargs: '-DZEROTIER=OFF -D USE_PATCH=ON'
             artifact: 'diablo-nightly-retrofwp.opk'
           - name: hellfire-rtrp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+            cmakeargs: '-DZEROTIER=OFF -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofwp.opk'
     runs-on: ubuntu-latest
     steps:
