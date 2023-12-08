@@ -36,6 +36,6 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: Packaging/OpenDingux/build.sh rg350 -DHELLFIRE=ON -DZEROTIER=OFF
+      run: Packaging/OpenDingux/build.sh rg350 "-DHELLFIRE=ON -DZEROTIER=OFF"
       env:
         TOOLCHAIN: /opt/gcw0-toolchain
