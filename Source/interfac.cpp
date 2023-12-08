@@ -107,26 +107,25 @@ static void DrawProgress()
 	}
 #if DEBUG_MODE || DEV_MODE
 	const char* progession[] {
-		"Startup", // 0
-		"Save", // 1
-		"Memfree", // 2
-		"Music stop", // 3
-		"Init Dungeon", // 4
-		"Init Level", // 5
-		"Create Dungeon", // 6
-		"MonsterFX", // 7
-		"Monsters", // 8
-		"ObjectsGFX", // 9
-		"Objects/Items", // 10
-		"Missiles/Light", // 11
-		"Music start", // 12
-		"Network - Pending Turns", // 13
-		"Network - Msg Queue", // 14
-		"Network - Join Level", // 15
-		"Network - Sync delta", // 16
-		"Fadeout", // 17
+/*  0 */"Startup",
+/*  1 */"Memfree",
+/*  2 */"Music stop",
+/*  3 */"Init Dungeon",
+/*  4 */"Init Level",
+/*  5 */"Create Dungeon",
+/*  6 */"MonsterFX",
+/*  7 */"Monsters",
+/*  8 */"ObjectsGFX",
+/*  9 */"Objects/Items",
+/* 10 */"Missiles/Light",
+/* 11 */"Music start",
+/* 12 */"Network - Pending Turns",
+/* 13 */"Network - Msg Queue",
+/* 14 */"Network - Join Level",
+/* 15 */"Network - Sync delta",
+/* 16 */"Fadeout",
 	};
-	unsigned progress = sgdwProgress / ((BAR_WIDTH + 17) / 18);
+	unsigned progress = sgdwProgress / ((BAR_WIDTH + (lengthof(progession) - 1)) / lengthof(progession));
 	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
 #endif
 }
@@ -269,7 +268,6 @@ void EnterLevel(BYTE lvl)
 
 static void SwitchGameLevel(int lvldir)
 {
-	IncProgress();
 	FreeLevelMem();
 	EnterLevel(myplr._pDunLevel);
 	IncProgress();
@@ -320,7 +318,6 @@ void ShowCutscene(unsigned uMsg)
 
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
-		IncProgress();
 		IncProgress();
 		if (gbLoadGame /*&& gbValidSaveFile*/) {
 			LoadGame();
