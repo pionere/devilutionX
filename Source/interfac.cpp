@@ -269,11 +269,6 @@ void EnterLevel(BYTE lvl)
 
 static void SwitchGameLevel(int lvldir)
 {
-	if (IsMultiGame) {
-		DeltaSaveLevel();
-	} else {
-		SaveLevel();
-	}
 	IncProgress();
 	FreeLevelMem();
 	EnterLevel(myplr._pDunLevel);
@@ -300,8 +295,12 @@ void ShowCutscene(unsigned uMsg)
 
 	nthread_run();
 	if (uMsg != DVL_DWM_NEWGAME) {
-		if (IsMultiGame)
+		if (IsMultiGame) {
 			pfile_write_hero(false);
+			DeltaSaveLevel();
+		} else {
+			SaveLevel();
+		}
 		// turned off to have a consistent fade in/out logic + reduces de-sync by
 		// eliminating the need for special handling in InitLevelChange (player.cpp)
 		//PaletteFadeOut();
