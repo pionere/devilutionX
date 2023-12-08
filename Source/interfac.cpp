@@ -65,6 +65,7 @@ static void InitCutscene(unsigned int uMsg)
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
+	case DVL_DWM_LOADGAME:
 		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
@@ -292,7 +293,8 @@ void ShowCutscene(unsigned uMsg)
 	WNDPROC saveProc;
 
 	nthread_run();
-	if (uMsg != DVL_DWM_NEWGAME) {
+	static_assert((unsigned)DVL_DWM_LOADGAME == (unsigned)DVL_DWM_NEWGAME + 1 && (unsigned)NUM_WNDMSGS == (unsigned)DVL_DWM_LOADGAME + 1, "Check to save hero/level in ShowCutscene must be adjusted.");
+	if (uMsg < DVL_DWM_NEWGAME) {
 		if (IsMultiGame) {
 			pfile_write_hero(false);
 			DeltaSaveLevel();
@@ -319,13 +321,13 @@ void ShowCutscene(unsigned uMsg)
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
 		IncProgress();
-		if (gbLoadGame /*&& gbValidSaveFile*/) {
-			LoadGame();
-		} else {
-			//FreeLevelMem();
-			pfile_delete_save_file(false);
-			LoadGameLevel(ENTRY_MAIN);
-		}
+		pfile_delete_save_file(false);
+		// FreeLevelMem();
+		LoadGameLevel(ENTRY_MAIN);
+		break;
+	case DVL_DWM_LOADGAME:
+		IncProgress();
+		LoadGame();
 		break;
 	case DVL_DWM_NEXTLVL:
 		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);

@@ -1178,6 +1178,7 @@ static void GameWndProc(const Dvl_Event* e)
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
+	case DVL_DWM_LOADGAME:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		if (gbQtextflag) {
@@ -1383,7 +1384,7 @@ static void run_game()
 	WNDPROC saveProc = InitGameFX();
 	SDL_Event event;
 
-	event.type = DVL_DWM_NEWGAME;
+	event.type = gbLoadGame ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME;
 	GameWndProc(&event);
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION

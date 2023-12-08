@@ -37,15 +37,18 @@ typedef enum window_messages {
 	DVL_WM_PAINT,
 	DVL_WM_QUERYENDSESSION,
 
-	DVL_DWM_NEXTLVL, //  dungeon -> next level
-	DVL_DWM_PREVLVL, //  dungeon -> previous level
-	DVL_DWM_SETLVL,  //  dungeon -> setlevel
-	DVL_DWM_RTNLVL,  //  setlevel -> dungeon
-	DVL_DWM_WARPLVL, //  portal (town <-> dungeon)
-	DVL_DWM_TWARPDN, //  town -> dungeon
-	DVL_DWM_TWARPUP, //  dungeon -> town
-	DVL_DWM_RETOWN,  //  restart in town
-	DVL_DWM_NEWGAME, //  new game
+	DVL_DWM_NEXTLVL,  // dungeon -> next level
+	DVL_DWM_PREVLVL,  // dungeon -> previous level
+	DVL_DWM_SETLVL,   // dungeon -> setlevel
+	DVL_DWM_RTNLVL,   // setlevel -> dungeon
+	DVL_DWM_WARPLVL,  // portal (town <-> dungeon)
+	DVL_DWM_TWARPDN,  // town -> dungeon
+	DVL_DWM_TWARPUP,  // dungeon -> town
+	DVL_DWM_RETOWN,   // restart in town
+	DVL_DWM_NEWGAME,  // new game
+	DVL_DWM_LOADGAME, // load game
+
+	NUM_WNDMSGS
 } window_messages;
 
 //#define DVL_SC_CLOSE 0xF060

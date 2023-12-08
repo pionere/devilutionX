@@ -393,18 +393,16 @@ void nthread_finish(UINT uMsg)
 	turn_t lastGameTurn;
 	unsigned tmp;
 
-	if (uMsg == DVL_DWM_NEWGAME) {
-		if (gbLoadGame /*&& gbValidSaveFile*/) {
+	if (uMsg == DVL_DWM_LOADGAME) {
 #ifndef NONET
-			assert(sghThread == NULL);
+		assert(sghThread == NULL);
 #endif
-			assert(geBufferMsgs == MSG_NORMAL);
-			assert(sgbPacketCountdown == 1);
-			// IncProgress();
-			// IncProgress();
-			// IncProgress();
-			return;
-		}
+		assert(geBufferMsgs == MSG_NORMAL);
+		assert(sgbPacketCountdown == 1);
+		// IncProgress();
+		// IncProgress();
+		// IncProgress();
+		return;
 	}
 	// phase 5 done
 	// phase 6 begin
