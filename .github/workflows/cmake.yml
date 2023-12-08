@@ -1,6 +1,6 @@
 name: CMake
 
-# When creating a new workflow in GitHubâ€™s action builder the default trigger is the push event. We want to extend this to push and pull request events.
+# When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
 
 env:
@@ -19,7 +19,14 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
+    #- name: Cache CMake build folder
+    #  uses: actions/cache@v2
+    #  with:
+    #    path: build
+    #    key: ios-cmake-${{ github.sha }}
+    #    restore-keys: ios-cmake-
+
     - name: Create Build Environment
       run: brew bundle install
 
@@ -27,30 +34,16 @@ jobs:
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF
+      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64
 
     - name: Build
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
       working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
-    
-    #- name: Release
-    #  uses: softprops/action-gh-release@v1
-    #  if: startsWith(github.ref, 'refs/tags/')
-    #  with:
-    #    files: ${{github.workspace}}/build/devilutionx.dmg
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # Upload the created artifact
-    - name: Upload
-      if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
-      with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
-        name: devilutionx.dmg
+      shell: bash
+      run: >
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --config Release &&
+        cd build &&
+        rm -rf Payload devilutionx.ipa &&
+        mkdir Payload &&
+        mv devilutionx.app Payload &&
+        zip -r devilutionx.ipa Payload
