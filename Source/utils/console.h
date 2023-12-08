@@ -1,14 +1,16 @@
 #pragma once
 
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32)
 // Suppress definitions of `min` and `max` macros by <windows.h>:
 #define NOMINMAX 1
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-namespace dvl {
+#include "../defs.h"
 
-void printInConsole(const char *fmt, ...)
+DEVILUTION_BEGIN_NAMESPACE
+
+void printInConsole(const char* fmt, ...)
 {
 	static HANDLE stderrHandle = NULL;
 	if (stderrHandle == NULL) {
@@ -29,7 +31,7 @@ void printInConsole(const char *fmt, ...)
 	WriteConsole(stderrHandle, message, strlen(message), NULL, NULL);
 }
 
-} // namespace dvl
+DEVILUTION_END_NAMESPACE
 #else
 #define printInConsole printf
 #endif

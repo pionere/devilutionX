@@ -38,27 +38,27 @@ std::uint8_t MixColors(std::uint8_t first, std::uint8_t second, unsigned ratio)
 
 } // namespace
 
-void BilinearScale32(SDL_Surface *src, SDL_Surface *dst)
+void BilinearScale32(SDL_Surface* src, SDL_Surface* dst)
 {
 	const std::unique_ptr<unsigned[]> mixXs = CreateMixFactors(src->w, dst->w);
 	const std::unique_ptr<unsigned[]> mixYs = CreateMixFactors(src->h, dst->h);
 
 	const unsigned dgap = dst->pitch - dst->w * 4;
 
-	auto *srcPixels = static_cast<std::uint8_t *>(src->pixels);
-	auto *dstPixels = static_cast<std::uint8_t *>(dst->pixels);
+	auto* srcPixels = static_cast<std::uint8_t*>(src->pixels);
+	auto* dstPixels = static_cast<std::uint8_t*>(dst->pixels);
 
-	unsigned *curMixY = &mixYs[0];
+	unsigned* curMixY = &mixYs[0];
 	unsigned srcY = 0;
 	for (unsigned y = 0; y < static_cast<unsigned>(dst->h); ++y) {
-		std::uint8_t *s[4] = {
+		std::uint8_t* s[4] = {
 			srcPixels,                 // Self
 			srcPixels + 4,             // Right
 			srcPixels + src->pitch,    // Bottom
 			srcPixels + src->pitch + 4 // Bottom right
 		};
 
-		unsigned *curMixX = &mixXs[0];
+		unsigned* curMixX = &mixXs[0];
 		unsigned srcX = 0;
 		for (unsigned x = 0; x < static_cast<unsigned>(dst->w); ++x) {
 			const unsigned mixX = Frac(*curMixX);
@@ -76,7 +76,7 @@ void BilinearScale32(SDL_Surface *src, SDL_Surface *dst)
 				srcX += step;
 				if (srcX <= static_cast<unsigned>(src->w)) {
 					step *= 4;
-					for (auto &v : s) {
+					for (auto& v : s) {
 						v += step;
 					}
 				}

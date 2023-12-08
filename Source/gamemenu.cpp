@@ -4,6 +4,7 @@
  * Implementation of the in-game menu functions.
  */
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -63,7 +64,7 @@ static void gamemenu_update_single()
 	bool enable;
 
 	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
-	// disable saving in case the player died, the player is changing the level, or diablo is dead
+	// disable saving in case the player died, the player is changing the level, or diablo is dying
 	enable = /*pcursicon == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE && !myplr._pLvlChanging;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
 	gmenu_enable(&sgSingleMenu[0], enable);
@@ -71,6 +72,9 @@ static void gamemenu_update_single()
 
 static void gamemenu_update_multi()
 {
+	// disable new game in case the player is dying or dead
+	gmenu_enable(&sgMultiMenu[1], gbDeathflag == MDM_ALIVE);
+	// disable restart in town in case the player is not dead
 	gmenu_enable(&sgMultiMenu[2], gbDeathflag == MDM_DEAD);
 }
 
@@ -101,7 +105,7 @@ static void gamemenu_previous(bool bActivate)
 static void gamemenu_new_game(bool bActivate)
 {
 	gamemenu_off();
-	gbRunGame = false;
+	NetSendCmd(CMD_DISCONNECT);
 }
 
 static void gamemenu_exit_game(bool bActivate)
@@ -153,18 +157,17 @@ static void gamemenu_restart_town(bool bActivate)
 	NetSendCmd(CMD_RETOWN);
 }
 
-static void gamemenu_sound_music_toggle(/*const char *const *names,*/TMenuItem* menu_item, int volume)
+static void gamemenu_sound_music_toggle(/*const char *const *names,*/ TMenuItem* menu_item, int volume)
 {
 #ifndef NOSOUND
 	assert(gbSndInited);
-	//if (gbSndInited) {
-	//	menu_item->dwFlags |= GMF_ENABLED | GMF_SLIDER;
-	//	menu_item->pszStr = *names;
-		static_assert(((VOLUME_MAX - VOLUME_MIN) % 16) == 0, "sfx slider expects a volume range divisible by 16.");
-		gmenu_slider_steps(menu_item, 16 /*(VOLUME_MAX - VOLUME_MIN) / 100*/);
-		gmenu_slider_set(menu_item, VOLUME_MIN, VOLUME_MAX, volume);
+	//if (!gbSndInited)
 	//	return;
-	//}
+	//menu_item->dwFlags |= GMF_ENABLED | GMF_SLIDER;
+	//menu_item->pszStr = *names;
+	static_assert(((VOLUME_MAX - VOLUME_MIN) % 16) == 0, "sfx slider expects a volume range divisible by 16.");
+	gmenu_slider_steps(menu_item, 16 /*(VOLUME_MAX - VOLUME_MIN) / 100*/);
+	gmenu_slider_set(menu_item, VOLUME_MIN, VOLUME_MAX, volume);
 #else
 	//menu_item->dwFlags &= ~(GMF_ENABLED | GMF_SLIDER);
 	//menu_item->pszStr = names[1];
@@ -194,7 +197,7 @@ static void gamemenu_get_speed()
 	// speed can not be changed in multi-player mode if not in the main menu
 	if (IsMultiGame && gbRunGame) {
 		pItem->dwFlags = 0; // &= ~(GMF_ENABLED | GMF_SLIDER);
-		const char *speed;
+		const char* speed;
 		if (gnTicksRate >= SPEED_FASTEST)
 			speed = "Speed: Fastest";
 		else if (gnTicksRate >= SPEED_FASTER)
@@ -270,7 +273,7 @@ static void gamemenu_sound_volume(bool bActivate)
 	if (volume == VOLUME_MIN) {
 		// assert(!gbSoundOn);
 		if (soundOn)
-			sound_stop();
+			StopSFX();
 	} else {
 		; // assert(gbSoundOn);
 	}

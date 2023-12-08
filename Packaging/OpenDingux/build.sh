@@ -58,19 +58,40 @@ prepare_buildroot() {
 	fi
 	git clone --depth=1 "${BUILDROOT_REPOS[$BUILDROOT_TARGET]}" "$BUILDROOT"
 	cd "$BUILDROOT"
+	mkdir -p ../shared-dl
 	ln -s ../shared-dl dl
 
 	# Work around a BR2_EXTERNAL initialization bug in older buildroots.
 	mkdir -p output
 	touch output/.br-external.mk
+	local -a config_args=(${BUILDROOT_DEFCONFIGS[$BUILDROOT_TARGET]})
+	local -r config="${config_args[0]}"
 
-	make ${BUILDROOT_DEFCONFIGS[$BUILDROOT_TARGET]}
+	# If the buildroot uses per-package directories, disable them.
+	# Otherwise, we'd have to buildroot the entire buildroot (up to `host-finalize`) to get
+	# the merged host directory.
+	if grep -q BR2_PER_PACKAGE_DIRECTORIES=y "configs/${config}"; then
+		local -r new_config="${config%_defconfig}_no_ppd_defconfig"
+		sed 's/BR2_PER_PACKAGE_DIRECTORIES=y/# BR2_PER_PACKAGE_DIRECTORIES is not selected/' \
+		  "configs/${config}" > "configs/${new_config}"
+		config_args[0]="$new_config"
+	fi
+
+	make "${config_args[@]}"
 	cd -
 }
 
 make_buildroot() {
 	cd "$BUILDROOT"
-	BR2_JLEVEL=0 make toolchain libzip sdl
+	local -a env_args=(
+	  # Unset client variables that cause issues with buildroot
+	  -u PERL_MM_OPT
+	  -u CMAKE_GENERATOR -u CMAKE_GENERATOR_PLATFORM -u CMAKE_GENERATOR_TOOLSET -u CMAKE_GENERATOR_INSTANCE
+
+	  # Enable parallelism
+	  BR2_JLEVEL=0
+	)
+	env "${env_args[@]}" make toolchain sdl
 	cd -
 }
 
@@ -79,7 +100,7 @@ cmake_configure() {
 		"-DTARGET_PLATFORM=$TARGET" \
 		-DCMAKE_VERBOSE_MAKEFILE=ON \
 		-DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}/usr/share/buildroot/toolchainfile.cmake" \
-		"${CMAKE_ARGS}" \
+		${CMAKE_ARGS} \
 		"$@"
 }
 
@@ -88,7 +109,7 @@ cmake_build() {
 }
 
 strip_bin() {
-	"${TOOLCHAIN}/usr/bin/"*-linux-strip "${BUILD_DIR}/devilutionx"
+	"${TOOLCHAIN}/usr/bin/"*-linux-strip -s -R .comment -R .gnu.version "${BUILD_DIR}/devilutionx"
 }
 
 build_debug() {

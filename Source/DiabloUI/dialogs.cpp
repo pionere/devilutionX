@@ -1,11 +1,8 @@
 #include "dialogs.h"
 
-#include "utils/display.h"
-
-#include "controls/menu_controls.h"
-#include "DiabloUI/diabloui.h"
-//#include "DiabloUI/errorart.h"
-#include "DiabloUI/text.h"
+#include "diabloui.h"
+//#include "errorart.h"
+#include "text.h"
 #include "all.h"
 //#include "utils/log.h"
 //#include "../palette.h"
@@ -19,7 +16,12 @@ static CelImageBuf* gbDialogBackCel;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
 
-static void DialogActionOK()
+static void DialogEsc()
+{
+	_gbDialogEnd = true;
+}
+
+static void DialogSelect(unsigned index)
 {
 	_gbDialogEnd = true;
 }
@@ -32,7 +34,7 @@ static void DialogActionOK()
 static void LoadFallbackPalette()
 {
 	// clang-format off
-	static const SDL_Color FallbackPalette[256] = {
+	static const SDL_Color FallbackPalette[NUM_COLORS] = {
 		{ 0x00, 0x00, 0x00, 0 },
 		BLANKCOLOR, BLANKCOLOR, BLANKCOLOR,
 		BLANKCOLOR, BLANKCOLOR, BLANKCOLOR,
@@ -156,12 +158,11 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 {
 	//if (renderBehind == NULL) {
 		UiClearListItems();
-		UiClearItems(gUiItems);
-		if (gbBackCel != NULL)
-			MemFreeDbg(gbBackCel);
+		UiClearItems();
+		FreeBackgroundArt();
 
 		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-		UiAddBackground(&gUiItems);
+		UiAddBackground();
 	//}
 
 	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
@@ -186,59 +187,36 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 0, PANEL_MIDY(LARGE_POPUP_HEIGHT) + 10, PANEL_WIDTH, 20 };
-		gUiItems.push_back(new UiText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(caption, rect2, UIS_HCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_MIDX(LARGE_POPUP_TEXT_WIDTH), PANEL_MIDY(LARGE_POPUP_HEIGHT) + 41, LARGE_POPUP_TEXT_WIDTH, LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17 - 17 };
 		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
 		SDL_Rect rect4 = { PANEL_MIDX(SML_BUTTON_WIDTH), (PANEL_MIDY(LARGE_POPUP_HEIGHT) + LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
-		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect4));
+		gUiItems.push_back(new UiButton("OK", &DialogEsc, rect4));
 	//}
+
+	UiInitScreen(0, NULL, DialogSelect, DialogEsc);
 }
 
 static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
 	//if (renderBehind == NULL) {
-	//	MemFreeDbg(gbBackCel);
+		FreeBackgroundArt();
 	//}
 	MemFreeDbg(gbDialogBackCel);
 	MemFreeDbg(gbSmlButtonCel)
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
-	SetFadeLevel(256);
+	SetFadeLevel(FADE_LEVELS);
+
 	_gbDialogEnd = false;
-
-	SDL_Event event;
 	do {
-		UiClearScreen();
-		//if (renderBehind != NULL)
-		//	UiRenderItems(*renderBehind);
-		UiRenderItems(gUiItems);
-		UiFadeIn(true);
-
-		while (SDL_PollEvent(&event) != 0) {
-			switch (event.type) {
-			case SDL_MOUSEBUTTONDOWN:
-			case SDL_MOUSEBUTTONUP:
-				UiItemMouseEvents(&event);
-				break;
-			default:
-				switch (GetMenuAction(event)) {
-				case MenuAction_BACK:
-				case MenuAction_SELECT:
-					_gbDialogEnd = true;
-					break;
-				default:
-					break;
-				}
-				break;
-			}
-			UiHandleEvents(&event);
-		}
+		UiRenderAndPoll();
 	} while (!_gbDialogEnd);
 }
 

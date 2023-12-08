@@ -17,28 +17,29 @@ extern ViewportStruct gsMouseVp;
 extern int cursW;
 extern int cursH;
 extern int pcursmonst;
-extern BYTE *pCursCels;
+extern BYTE* pCursCels;
 extern BYTE pcurswnd;
 extern BYTE pcursinvitem;
 extern BYTE pcursitem;
 extern BYTE pcursobj;
 extern BYTE pcursplr;
 extern int pcurstrig;
-extern int cursmx;
-extern int cursmy;
+extern POS32 pcurspos;
 extern int pcursicon;
+extern int pcurstgt;
 
 void InitCursorGFX();
 void FreeCursorGFX();
 void NewCursor(int i);
+void ChangeTarget();
 void InitLevelCursor();
 void CheckTownPortal();
 void CheckCursMove();
 
 /* rdata */
-#define MAX_CURSOR_AREA		8192
-extern const int InvItemWidth[CURSOR_FIRSTITEM + NUM_ICURS];
-extern const int InvItemHeight[CURSOR_FIRSTITEM + NUM_ICURS];
+#define MAX_CURSOR_AREA 8192
+extern const int InvItemWidth[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS];
+extern const int InvItemHeight[(int)CURSOR_FIRSTITEM + (int)NUM_ICURS];
 
 #ifdef __cplusplus
 }

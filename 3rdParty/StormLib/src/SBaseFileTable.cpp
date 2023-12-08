@@ -312,34 +312,38 @@ static ULONGLONG DetermineArchiveSize_V1(
     return (EndOfMpq - MpqOffset);
 }
 #ifdef FULL
-static ULONGLONG DetermineArchiveSize_V2(
-    TMPQHeader * pHeader,
-    ULONGLONG MpqOffset,
-    ULONGLONG FileSize)
+static ULONGLONG DetermineBlockTableSize_V2(TMPQHeader * pHeader, ULONGLONG MpqHeaderPos, ULONGLONG FileSize)
 {
-    ULONGLONG EndOfMpq = FileSize;
-    DWORD dwArchiveSize32;
+    ULONGLONG BlockTablePos = MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos);
+    ULONGLONG ArchiveSize = FileSize - MpqHeaderPos;
 
-    // This could only be called for MPQs version 2.0
-    assert(pHeader->wFormatVersion == MPQ_FORMAT_VERSION_2);
-
-    // Check if we can rely on the archive size in the header
-    if((FileSize >> 0x20) == 0)
+    // If there is a hi-block table and it is beyond the block table,
+    // we can determine the block table size from it
+    if(pHeader->HiBlockTablePos64 != 0)
     {
-        if(pHeader->dwBlockTablePos < pHeader->dwArchiveSize)
+        if(pHeader->HiBlockTablePos64 > BlockTablePos)
         {
-            if((pHeader->dwArchiveSize - pHeader->dwBlockTablePos) <= (pHeader->dwBlockTableSize * sizeof(TMPQBlock)))
-                return pHeader->dwArchiveSize;
-
-            // If the archive size in the header is less than real file size
-            dwArchiveSize32 = (DWORD)(FileSize - MpqOffset);
-            if(pHeader->dwArchiveSize <= dwArchiveSize32)
-                return pHeader->dwArchiveSize;
+            return (pHeader->HiBlockTablePos64 - BlockTablePos);
         }
     }
 
-    // Return the calculated archive size
-    return (EndOfMpq - MpqOffset);
+    // If we have valid archive size, we can determine the block table size from the archive size
+    else
+    {
+        if((BlockTablePos >> 0x20) == 0 && (ArchiveSize >> 0x20) == 0)
+        {
+            DWORD dwBlockTablePos32 = (DWORD)(BlockTablePos);
+            DWORD dwArchiveSize32 = (DWORD)(ArchiveSize);
+
+            if(pHeader->dwArchiveSize == dwArchiveSize32)
+            {
+                return (dwArchiveSize32 - dwBlockTablePos32);
+            }
+        }
+    }
+
+    // Default is the block table size from MPQ header
+    return (ULONGLONG)(pHeader->dwBlockTableSize) * sizeof(TMPQBlock);
 }
 
 static ULONGLONG DetermineArchiveSize_V4(
@@ -551,34 +555,14 @@ DWORD ConvertMpqHeaderToFormat4(
             // We require the block table to follow hash table
             if(BlockTablePos64 >= HashTablePos64)
             {
-                // HashTableSize64 may be less than TblSize * sizeof(TMPQHash).
-                // That means that the hash table is compressed.
+                // Determine whether the hash table is compressed. This can be detected
+                // by subtracting hash table position from the block table position.
                 pHeader->HashTableSize64 = BlockTablePos64 - HashTablePos64;
 
-                // Calculate the compressed block table size
-                if(pHeader->HiBlockTablePos64 != 0)
-                {
-                    // BlockTableSize64 may be less than TblSize * sizeof(TMPQBlock).
-                    // That means that the block table is compressed.
-                    pHeader->BlockTableSize64 = pHeader->HiBlockTablePos64 - BlockTablePos64;
-                    assert(pHeader->BlockTableSize64 <= (pHeader->dwBlockTableSize * sizeof(TMPQBlock)));
-
-                    // Determine real archive size
-                    pHeader->ArchiveSize64 = DetermineArchiveSize_V2(pHeader, ByteOffset, FileSize);
-
-                    // Calculate the size of the hi-block table
-                    pHeader->HiBlockTableSize64 = pHeader->ArchiveSize64 - pHeader->HiBlockTablePos64;
-                    assert(pHeader->HiBlockTableSize64 == (pHeader->dwBlockTableSize * sizeof(USHORT)));
-                }
-                else
-                {
-                    // Determine real archive size
-                    pHeader->ArchiveSize64 = DetermineArchiveSize_V2(pHeader, ByteOffset, FileSize);
-
-                    // Calculate size of the block table
-                    pHeader->BlockTableSize64 = pHeader->ArchiveSize64 - BlockTablePos64;
-                    assert(pHeader->BlockTableSize64 <= (pHeader->dwBlockTableSize * sizeof(TMPQBlock)));
-                }
+                // Also, block table may be compressed. We check whether the HiBlockTable is there.
+                // If not, we try to use the archive size. Note that ArchiveSize may have
+                // an arbitrary value, because it is not tested by Blizzard games anymore
+                pHeader->BlockTableSize64 = DetermineBlockTableSize_V2(pHeader, ByteOffset, FileSize);
             }
             else
             {
@@ -661,7 +645,6 @@ DWORD ConvertMpqHeaderToFormat4(
 
             // Verify header MD5. Header MD5 is calculated from the MPQ header since the 'MPQ\x1A'
             // signature until the position of header MD5 at offset 0xC0
-            BSWAP_TMPQHEADER(pHeader, MPQ_FORMAT_VERSION_4);
 
             // Apparently, Starcraft II only accepts MPQ headers where the MPQ header hash matches
             // If MD5 doesn't match, we ignore this offset. We also ignore it if there's no MD5 at all
@@ -671,6 +654,8 @@ DWORD ConvertMpqHeaderToFormat4(
             if(!VerifyDataBlockHash(pHeader, MPQ_HEADER_SIZE_V4 - MD5_DIGEST_SIZE, pHeader->MD5_MpqHeader))
                 return ERROR_FAKE_MPQ_HEADER;
 #endif // FULL
+            // Byteswap after header MD5 is verified
+            BSWAP_TMPQHEADER(pHeader, MPQ_FORMAT_VERSION_4);
 
             // HiBlockTable must be 0 for archives under 4GB
             if((pHeader->ArchiveSize64 >> 0x20) == 0 && pHeader->HiBlockTablePos64 != 0)
@@ -694,7 +679,7 @@ DWORD ConvertMpqHeaderToFormat4(
                 return ERROR_FAKE_MPQ_HEADER;
 
             // Check for malformed MPQs
-            if(pHeader->wFormatVersion != MPQ_FORMAT_VERSION_4 || (ByteOffset + pHeader->ArchiveSize64) != FileSize || (ByteOffset + pHeader->HiBlockTablePos64) >= FileSize)
+            if(pHeader->wFormatVersion != MPQ_FORMAT_VERSION_4 || (ByteOffset + pHeader->ArchiveSize64) > FileSize || (ByteOffset + pHeader->HiBlockTablePos64) >= FileSize)
             {
                 pHeader->wFormatVersion = MPQ_FORMAT_VERSION_4;
                 pHeader->dwHeaderSize = MPQ_HEADER_SIZE_V4;
@@ -2066,6 +2051,7 @@ TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID l
 
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName)
 {
+#ifdef FULL
     // Sanity check
     assert(pFileEntry != NULL);
 
@@ -2084,7 +2070,9 @@ void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * sz
         if(pFileEntry->szFileName != NULL)
             strcpy(pFileEntry->szFileName, szFileName);
     }
-
+#else
+    pFileEntry->szFileName = szFileName;
+#endif
 #ifdef FULL
     // We also need to create the file name hash
     if(ha->pHetTable != NULL)

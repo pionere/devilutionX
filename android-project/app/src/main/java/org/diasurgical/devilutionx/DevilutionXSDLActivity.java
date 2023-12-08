@@ -1,17 +1,15 @@
 package org.diasurgical.devilutionx;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import org.libsdl.app.SDLActivity;
 
@@ -32,7 +30,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= 25)
 			trackVisibleSpace();
 
-		externalDir = getExternalFilesDir(null).getAbsolutePath();
+		externalDir = chooseExternalFilesDir();
 
 		migrateSaveGames();
 
@@ -45,11 +43,86 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onStart() {
 		super.onStart();
 
-		if (DataActivity.missingGameData(externalDir)) {
-			Intent intent = new Intent(this, DataActivity.class);
-			startActivity(intent);
-			this.finish();
+		if (missingGameData()) {
+			Toast toast = Toast.makeText(DevilutionXSDLActivity.this, getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
+			toast.show();
+
+			if (Build.VERSION.SDK_INT >= 30) {
+				toast.addCallback(new android.widget.Toast.Callback(){
+					public void onToastShown() {
+						super.onToastShown();
+					}
+
+					public void onToastHidden() {
+						super.onToastHidden();
+						DevilutionXSDLActivity.this.finish();
+					}
+				  });
+			} else {
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						DevilutionXSDLActivity.this.finish();
+					}
+				}, Toast.LENGTH_SHORT * 1000);
+			}
+			return;
 		}
+	}
+
+	/**
+	 * When the user exits the game, use System.exit(0)
+	 * to clear memory and prevent errors on restart
+	 */
+	protected void onDestroy() {
+		super.onDestroy();
+
+		System.exit(0);
+	}
+
+	private String chooseExternalFilesDir() {
+		if (Build.VERSION.SDK_INT >= 19) {
+			File[] externalDirs = getExternalFilesDirs(null);
+			if (externalDirs != null) {
+				for (File dir : externalDirs) {
+					if (dir == null) {
+						continue;
+					}
+					File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
+					if (iniFiles != null && iniFiles.length > 0) {
+						return dir.getAbsolutePath();
+					}
+				}
+
+				for (File dir : externalDirs) {
+					if (dir == null) {
+						continue;
+					}
+					File[] anyFiles = dir.listFiles();
+					if (anyFiles != null && anyFiles.length > 0) {
+						return dir.getAbsolutePath();
+					}
+				}
+			}
+		}
+
+		// Fallback to the primary external storage directory
+		return getExternalFilesDir(null).getAbsolutePath();
+	}
+
+	/**
+	 * Check if the game data is present
+	 */
+	private boolean missingGameData() {
+		File fileDev = new File(externalDir + "/devilx.mpq");
+		if (!fileDev.exists())
+			return true;
+
+		File fileLower = new File(externalDir + "/diabdat.mpq");
+		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
+		//File spawnFile = new File(externalDir + "/spawn.mpq");
+
+		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
 
 	private void trackVisibleSpace() {
@@ -87,7 +160,12 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				in.close();
 			}
 		} catch (IOException exception) {
-			Log.e("copyFile", exception.getMessage());
+			String message = exception.getMessage();
+			if (message == null) {
+				Log.e("copyFile", "IOException", exception);
+			} else {
+				Log.e("copyFile", message);
+			}
 			if (dst.exists()) {
 				//noinspection ResultOfMethodCallIgnored
 				dst.delete();
@@ -122,7 +200,10 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	}
 
 	private void migrateSaveGames() {
-		for (File internalFile : getFilesDir().listFiles()) {
+		File[] files = getFilesDir().listFiles();
+		if (files == null)
+			return;
+		for (File internalFile : files) {
 			migrateFile(internalFile);
 		}
 	}

@@ -7,207 +7,51 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Starting position of the base megatiles. */
-#define BASE_MEGATILE_L1	(22 - 1)
+/** The default external tile. */
+#define BASE_MEGATILE_L1 22
+/** The default floor tile. */
+#define DEFAULT_MEGATILE_L1 13
 /** Size of the main chambers in the dungeon. */
-#define CHAMBER_SIZE		10
+#define CHAMBER_SIZE 10
 /** Shadow type of the base floor(13). */
-#define SF					4
+#define SF 4
 
+/**  The number of generated rooms */
+static int nRoomCnt;
 /** Specifies whether to generate a vertical or horizontal rooms in the Cathedral. */
-BOOLEAN ChambersVertical;
+static BOOLEAN ChambersVertical;
 /** Specifies whether to generate a room at position 1 in the Cathedral. */
-BOOLEAN ChambersFirst;
+static BOOLEAN ChambersFirst;
 /** Specifies whether to generate a room at position 2 in the Cathedral. */
-BOOLEAN ChambersMiddle;
+static BOOLEAN ChambersMiddle;
 /** Specifies whether to generate a room at position 3 in the Cathedral. */
-BOOLEAN ChambersLast;
-
-/** Contains shadows for 2x2 blocks of tiles in the Cathedral. */
-const ShadowStruct L1SPATS[] = {
-	// clang-format off
-	//sh11, 01, 10,  00,   mask11    01    10    00    nv1, nv2, nv3
-	{ { SF, 11, 12,   3 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150,   0,   0 },
-#if DEBUG_MODE
-	{ {  0,  1,  0,   3 }, { 0x00, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  2,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  7,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0, 14,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0, 35,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-	{ {  0,  0,  0,   3 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // shadow is not necessary
-#endif
-	{ { SF, SF, SF,   5 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152, 140, 139 },
-	{ { SF,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 142 },
-#if DEBUG_MODE
-	{ { 36,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
-	{ {  2,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  2
-	{ { 12,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 12
-	{ { 26,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
-	{ {  7,  0, SF,   7 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
-#endif
-	{ { SF, SF, 12,   8 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143,   0, 149 },
-	{ { SF, 11, SF,   9 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 151, 147, 142 },
-	{ {  0, SF,  0,  10 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
-	{ {  0,  1,  0,  10 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
-#if DEBUG_MODE
-	{ {  0,  6,  0,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  6
-	{ { SF, 25,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 25
-#endif
-	{ { SF, 11,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF }, 139, 147,   0 }, // shadow could be better
-	//{ { SF, 11,  2,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	//{ { SF, 11,  7,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	//{ { SF, 11, SF,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	//{ { SF, 11, 26,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	{ { SF, 11, 12,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143, 147,   0 },
-	{ { SF, 11, 36,  10 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 143, 147,   0 },
-#if DEBUG_MODE
-	{ { SF, 35,  0,  10 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 35
-#endif
-	{ {  0,  0,  2,  11 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0, 148 },
-	{ { SF,  0, SF,  11 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 139 },
-	{ { SF,  5, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
-	{ { SF, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
-	{ { SF, 14, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
-	{ { SF, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 139 },
-#if DEBUG_MODE
-	{ {  7, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
-	{ {  7, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
-	{ {  7,  1, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
-	{ {  0,  0,  7,  11 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 7
-#endif
-	{ {  2, 35, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 154,   0, 139 },
-	{ {  2, 11, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 },
-	{ {  2,  1, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 },
-	{ { 12,  8, SF,  11 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 },
-	{ {  0,  1,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
-	{ {  0, SF,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
-#if DEBUG_MODE
-	{ {  0,  6,  0,  12 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for  6
-	{ {  7,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
-	{ { 26,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
-	{ { 36,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
-#endif
-	{ {  2,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF }, 148,   0, 139 },
-	//{ {  2,  1, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 }, // covered above
-	//{ {  2,  6, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 139 }, // covered above
-	{ { 12,  0, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 },
-	//{ { 12,  6, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 139 }, // covered above
-	{ { SF,  0, SF,  14 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 139 },
-	//{ { SF,  1, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 144,   0, 139 }, covered above
-	//{ { SF, 25, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 144,   0, 139 }, covered above
-	{ { SF, 11, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 139 },
-	{ { SF, 35, SF,  14 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 139 },
-	{ { SF,  0, SF,  15 }, { 0xFF, 0x00, 0xFF, 0xFF }, 145,   0, 142 },
-	{ { SF,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF }, 144,   0, 142 },
-#if DEBUG_MODE
-	{ {  2,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  2
-	{ {  7,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
-	{ { 12,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 12
-	{ { 26,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
-	{ { 36,  0, SF,  16 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
-#endif
-	{ {  0,  0,  2,  35 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0, 154 },
-	{ {  2,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF }, 148,   0, 141 },
-	//{ {  2,  1, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 141 }, // covered above
-	//{ {  2,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 148,   0, 141 }, // covered above
-	{ {  2, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 154,   0, 141 },
-#if DEBUG_MODE
-	{ { 36,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 36
-	{ { 26,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for 26
-	{ {  7,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
-	{ {  0,  0,  7,  35 }, { 0x00, 0x00, 0xFF, 0xFF },   0,   0,   0 }, // missing shadow for  7
-#endif
-	{ { 12,  0, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 141 },
-	//{ { 12,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 149,   0, 141 }, // covered above
-	{ { 12, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 153,   0, 141 },
-	{ { SF,  0, SF,  35 }, { 0xFF, 0x00, 0xFF, 0xFF }, 152,   0, 141 },
-	//{ { SF,  1, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152,   0, 141 }, // covered above
-	//{ { SF,  6, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152,   0, 141 }, // covered above
-	//{ { SF, 25, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152,   0, 141 }, // covered above
-	{ { SF, 11, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139,   0, 141 },
-	{ { SF, 35, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 141,   0, 141 },
-	{ { SF, SF, SF,  35 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 152, 140, 141 }, // only for tile 37
-	{ {  0,  1,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 146,   0 },
-#if DEBUG_MODE
-	{ {  0,  6,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 6
-	{ {  0, 25,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 25
-#endif
-	{ {  0, SF,  0,  36 }, { 0x00, 0xFF, 0x00, 0xFF },   0, 140,   0 },
-	{ { SF, 11,  0,  36 }, { 0xFF, 0xFF, 0x00, 0xFF }, 139, 147,   0 },
-	//{ { SF, 11, SF,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	//{ { SF, 11,  2,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	//{ { SF, 11, 26,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	//{ { SF, 11,  7,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 139, 147,   0 }, // covered above
-	{ { SF, 11, 12,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150, 147,   0 },
-	{ { SF, 11, 36,  36 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 150, 147,   0 },
-#if DEBUG_MODE
-	{ { SF, 35,  0,  36 }, { 0xFF, 0xFF, 0x00, 0xFF },   0,   0,   0 }, // missing shadow for 35
-#endif
-	{ {  0,  0,  0, 255 }, {    0,    0,    0,    0 },   0,   0,   0 }
-	// clang-format on
-};
+static BOOLEAN ChambersLast;
 
 /*
- * Maps tile IDs to their corresponding shadow types.
- * Values with higher than 16 and the values 4 and 6 are commented out, because there is
- *  no matching possibility in L1SPATS.
- * Value 4 is reused for the most common floor type (13) to increase the speed.
- * BUGFIX: This array should contain an additional 0 (207 elements).
+ * Maps tile IDs to their corresponding undecorated tile type.
  */
-const BYTE BSTYPES[] = {
+static const BYTE L1BTYPES[207] = {
 	// clang-format off
-	0, 1, 2, 3, 0/*4*/, 5, 0/*6*/, 7, 8, 9,
-	10, 11, 12, SF, 14, 15, 16, 0/*17*/, 0, 0,
-	0, 0, 0, 0, 0, 25/*1*/, 26/*2*/, 36/*10*/, 0/*4*/, 5,
-	0/*6*/, 7, 8, 9, 10, 35/*11*/, 36/*12*/, 35/*14*/, 5, 14,
-	10, 0/*4*/, 14, 0/*4*/, 5, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	2, 3, 0/*4*/, 1, 0/*6*/, 7, 16, 0/*17*/, 2, 1,
-	1, 2, 2, 1, 1, 2, 2, 2, 2, 2,
-	1, 1, 11, 1, SF, SF, SF, 1, 2, 1, // 100 ...
-	2, 1, 2, 1, 2, 2, 2, 2, 12, 0,
-	0, 11, 1, 11, 1, SF, 0, 0, 0, 0,
-	0, 0, 0, SF, SF, SF, SF, SF, SF, SF,
-	SF, SF, SF, SF, SF, SF, 1, 11, 2, 12,
-	SF, SF, SF, 12, 2, 1, 2, 2, 0/*4*/, 14,
-	0/*4*/, 10, SF, SF, 0/*4*/, 0/*4*/, 1, 1, 0/*4*/, 2,
-	2, SF, SF, SF, SF, 0/*25*/, 0/*26*/, 0/*28*/, 0/*30*/, 0/*31*/,
-	0/*41*/, 0/*43*/, 0/*40*/, 0/*41*/, 0/*42*/, 0/*43*/, 0/*25*/, 0/*41*/, 0/*43*/, 0/*28*/,
-	0/*28*/, 1, 2, 0/*25*/, 0/*26*/, 0/*22*/, 0/*22*/, 0/*25*/, 0/*26*/, 0,
-	0, 0, 0, 0, 0, 0, 0
-	// clang-format on
-};
-
-/*
- * Maps tile IDs to their corresponding undecorated tile ID.
- * Values with a single entry are commented out, because pointless to randomize a single option.
- * Values 79 and 80 are not used at the moment
- * BUGFIX: This array should contain an additional 0 (207 elements) (fixed).
- */
-const BYTE L1BTYPES[] = {
-	// clang-format off
-	0, 1, 2, 0/*3*/, 0/*4*/, 0/*5*/, 0/*6*/, 0/*7*/, 0/*8*/, 0/*9*/,
-	0/*10*/, 11, 12, 13, 0/*14*/, 0/*15*/, 0/*16*/, 0/*17*/, 0, 0,
-	0, 0, 0, 0, 0, 25, 0/*26*/, 0, 0/*28*/, 0,
-	0/*30*/, 0/*31*/, 0, 0, 0, 0, 0, 0, 0, 0,
-	0/*40*/, 0/*41*/, 0/*42*/, 0/*43*/, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 79,
-	80, 0, 0/*82*/, 0, 0, 0, 0, 0, 0, 79,
-	0, 80, 0, 0, 79, 80, 0, 2, 2, 2,
-	1, 1, 11, 25, 13, 13, 13, 1, 2, 1,
-	2, 1, 2, 1, 2, 2, 2, 2, 12, 0,
-	0, 11, 1, 11, 1, 13, 0, 0, 0, 0,
-	0, 0, 0, 13, 13, 13, 13, 13, 13, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+	0, 3, 4, 5, 0, 0, 0, 0, 0, 0, // 10..
+	0, 0, 0, 0, 0, 6, 0, 0, 0, 0, // 20..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 30..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 40..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 50..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 60..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 70..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80..
+	0, 0, 0, 0, 0, 0, 0, 2, 2, 2, // 90..
+	1, 1, 3, 6, 5, 5, 5, 1, 2, 1, //100..
+	2, 1, 2, 1, 2, 2, 2, 2, 4, 0, //110..
+	0, 3, 1, 3, 1, 5, 0, 0, 0, 0, //120..
+	0, 0, 0, 5, 5, 5, 5, 5, 5, 0, //130..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //140..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //150..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //160..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //170..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //180..
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //190..
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
@@ -247,10 +91,10 @@ const BYTE L1BTYPES[] = {
 
 	  0,  0,     0,  0,     0,  0,     0,  0,
 	  0,  0,     0,  0,     0,  0,     0,  0, */
-	// clang-format on
+//	// clang-format on
 //};
 #ifdef HELLFIRE
-const BYTE L5USTAIRS[] = {
+static const BYTE L5USTAIRS[] = {
 	// clang-format off
 	4, 5, // width, height
 
@@ -261,9 +105,9 @@ const BYTE L5USTAIRS[] = {
 	13, 13, 13, 13,
 
 	 0, 54, 23,  0, // replace
-	 0,  1, 18,  0, // 1 was 53 in vanilla (replaced to reduce the number of tiles + fix bad shadow)
+	 0, 53, 18,  0,
 	55, 56, 57,  0,
-	58, 59, 60,  0,
+	99, 59, 60,  0,
 	 0,  0,  0,  0
 /*    0,  0   151,152,    73, 64,     0,  0,	// MegaTiles
 	  0,  0   153,130,    65, 66,     0,  0,
@@ -283,7 +127,7 @@ const BYTE L5USTAIRS[] = {
 };
 #endif
 /** Miniset: stairs up. */
-const BYTE L1USTAIRS[] = {
+static const BYTE L1USTAIRS[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -313,7 +157,7 @@ const BYTE L1USTAIRS[] = {
  * Miniset: stairs down.
  * Added an extra line to the top to prevent placing it too close to other entities (eg. upstair)
  */
-const BYTE L1DSTAIRS[] = {
+static const BYTE L1DSTAIRS[] = {
 	// clang-format off
 	4, 4, // width, height
 
@@ -340,7 +184,7 @@ const BYTE L1DSTAIRS[] = {
 	// clang-format on
 };
 #ifdef HELLFIRE
-const BYTE L5DSTAIRS[] = {
+static const BYTE L5DSTAIRS[] = {
 	// clang-format off
 	4, 5, // width, height
 
@@ -350,7 +194,7 @@ const BYTE L5DSTAIRS[] = {
 	13, 13, 13, 13,
 	13, 13, 13, 13,
 
-	 0,  0, 52,  0, // replace
+	 0,  0,  0,  0, // replace
 	 0, 48, 51,  0,
 	 0, 47, 50,  0,
 	45, 46, 49,  0,
@@ -377,19 +221,19 @@ const BYTE L5TWARP[] = {
 };*/
 #endif
 /** Miniset: candlestick. */
-const BYTE LAMPS[] = {
+static const BYTE LAMPS[] = {
 	// clang-format off
 	2, 2, // width, height
 
-	13,  0, // search
+	13, 13, // search
 	13, 13,
 
-	129,   0, // replace
-	130, 128,
+	 0,   0, // replace
+	 0, 128,
 	// clang-format on
 };
 /** Miniset: Poisoned Water Supply entrance. */
-const BYTE PWATERIN[] = {
+static const BYTE PWATERIN[] = {
 	// clang-format off
 	6, 6, // width, height
 
@@ -400,21 +244,54 @@ const BYTE PWATERIN[] = {
 	13, 13, 13, 13, 13, 13,
 	13, 13, 13, 13, 13, 13,
 
-	 0,   0,   0,   0,   0, 0, // replace
-	 0, 202, 200, 200,  84, 0,
-	 0, 199, 203, 203,  83, 0,
-	 0,  85, 206,  88,  81, 0, // in vanilla tile 80 was used instead of 88
-	 0,   0, 134, 135,   0, 0,
-	 0,   0,   0,   0,   0, 0,
+	 0,     0,   0,   0,   0, 0, // replace
+	 0,    21,  19,  19,  84, 0,
+	 159,  18,  22,  22,  83, 0,
+	 142,  85, 206,  80,  81, 0,
+	 0,     0, 134, 135,   0, 0,
+	 0,     0,   0,   0,   0, 0,
 	// clang-format on
 };
 #ifdef HELLFIRE
 /** Miniset: Column on the northern side of a vertical wall 1. */
-const BYTE L5VERTCOL1[4] = { 1, 1, 11, 95 };
+static const BYTE L5VERTCOL1[] = { 1, 1, 11, 95 };
 /** Miniset: Column on the northern side of a horizontal wall 1. */
-const BYTE L5HORIZCOL1[4] = { 1, 1, 12, 96 };
+// static const BYTE L5HORIZCOL1[] = { 1, 1, 12, 96 };
+static const BYTE L5HORIZCOL1a[] = {
+	// clang-format off
+	1, 2, // width, height
+
+	205, // search
+	 12,
+
+	208, // replace
+	 96,
+	// clang-format on
+};
+static const BYTE L5HORIZCOL1b[] = {
+	// clang-format off
+	1, 2, // width, height
+
+	204, // search
+	 12,
+
+	217, // replace
+	 96,
+	// clang-format on
+};
+/*static const BYTE L5HORIZCOL1c[] = {
+	// clang-format off
+	1, 2, // width, height
+
+	111, // search
+	 12,
+
+	216, // replace
+	 96,
+	// clang-format on
+};*/
 /** Miniset: Prepare random large vertical wall tile */
-const BYTE L5PREVERTWALL[8] = {
+static const BYTE L5PREVERTWALL[] = {
 	// clang-format off
 	1, 3, // width, height
 
@@ -428,7 +305,7 @@ const BYTE L5PREVERTWALL[8] = {
 	// clang-format on
 };
 /** Miniset: Prepare random large horizontal wall tile */
-const BYTE L5PREHORIZWALL[8] = {
+static const BYTE L5PREHORIZWALL[] = {
 	// clang-format off
 	3, 1, // width, height
 
@@ -438,15 +315,15 @@ const BYTE L5PREHORIZWALL[8] = {
 	// clang-format on
 };
 /** Miniset: Use random floor tile 1. */
-const BYTE L5RNDFLOOR1[4] = { 1, 1, 13, 97 };
+static const BYTE L5RNDFLOOR1[] = { 1, 1, 13, 97 };
 /** Miniset: Use random floor tile 2. */
-const BYTE L5RNDFLOOR2[4] = { 1, 1, 13, 98 };
+static const BYTE L5RNDFLOOR2[] = { 1, 1, 13, 98 };
 /** Miniset: Use random floor tile 3. */
-const BYTE L5RNDFLOOR3[4] = { 1, 1, 13, 99 };
+static const BYTE L5RNDFLOOR3[] = { 1, 1, 13, 99 };
 /** Miniset: Use random floor tile 4. */
-const BYTE L5RNDFLOOR4[4] = { 1, 1, 13, 100 };
+static const BYTE L5RNDFLOOR4[] = { 1, 1, 13, 100 };
 /** Miniset: Use random large floor tile. */
-const BYTE L5RNDLFLOOR1[20] = {
+static const BYTE L5RNDLFLOOR1[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -459,20 +336,8 @@ const BYTE L5RNDLFLOOR1[20] = {
 	0,   0, 0,
 	// clang-format on
 };
-/** Miniset: Replace random floor tile 2 with another one 1. */
-const BYTE L5RNDFLOOR2_0[4] = { 1, 1, 98, 189 };
-/** Miniset: Replace random floor tile 2 with another one 2. */
-const BYTE L5RNDFLOOR2_1[4] = { 1, 1, 98, 190 };
-/** Miniset: Replace random floor tile 1 with another one. */
-const BYTE L5RNDFLOOR1_0[4] = { 1, 1, 97, 191 };
-/** Miniset: Replace random floor tile 3 with another one 1. */
-const BYTE L5RNDFLOOR3_0[4] = { 1, 1, 99, 193 };
-/** Miniset: Replace random floor tile 3 with another one 2. */
-const BYTE L5RNDFLOOR3_1[4] = { 1, 1, 99, 194 };
-/** Miniset: Replace random floor tile 4 with another one. */
-const BYTE L5RNDFLOOR4_0[4] = { 1, 1, 100, 195 };
 /** Miniset: Lava fountain bowl. */
-const BYTE L5RNDLFLOOR2[20] = {
+static const BYTE L5RNDLFLOOR2[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -481,12 +346,12 @@ const BYTE L5RNDLFLOOR2[20] = {
 	13, 13, 13,
 
 	210,   0, 0, // replace
-	209, 167, 0,
+	 45, 167, 0,
 	  0,   0, 0,
 	// clang-format on
 };
 /** Miniset: Mooring on a stone. */
-const BYTE L5RNDLFLOOR3[20] = {
+static const BYTE L5RNDLFLOOR3[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -500,7 +365,7 @@ const BYTE L5RNDLFLOOR3[20] = {
 	// clang-format on
 };
 /** Miniset: A stone coffin(?). */
-const BYTE L5RNDLFLOOR4[20] = {
+static const BYTE L5RNDLFLOOR4[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -513,7 +378,7 @@ const BYTE L5RNDLFLOOR4[20] = {
 	0,   0, 0,
 };
 /** Miniset: A stone. */
-const BYTE L5RNDLFLOOR5[20] = {
+static const BYTE L5RNDLFLOOR5[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -527,7 +392,7 @@ const BYTE L5RNDLFLOOR5[20] = {
 	// clang-format on
 };
 /** Miniset: A broken head of a stone-column. */
-const BYTE L5RNDLFLOOR6[20] = {
+static const BYTE L5RNDLFLOOR6[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -541,7 +406,7 @@ const BYTE L5RNDLFLOOR6[20] = {
 	// clang-format on
 };
 /** Miniset: A leaf on the floor. */
-const BYTE L5RNDLFLOOR7[20] = {
+static const BYTE L5RNDLFLOOR7[] = {
 	// clang-format off
 	3, 3, // width, height
 
@@ -554,19 +419,41 @@ const BYTE L5RNDLFLOOR7[20] = {
 	 0,   0, 0,
 	// clang-format on
 };
+static const BYTE L5RNDCOL7[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	207,  0, // search
+	206, 15,
+
+	210,   0, // replace
+	 45, 160,
+	// clang-format on
+};
+static const BYTE L5RNDCOL9[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	207,  0, // search
+	206, 15,
+
+	210,   0, // replace
+	 45, 192,
+	// clang-format on
+};
 #endif
 
 /**
  * A lookup table for the 16 possible patterns of a 2x2 area,
  * where each cell either contains a SW wall or it doesn't.
  */
-const BYTE L1ConvTbl[16] = { BASE_MEGATILE_L1 + 1, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
+static const BYTE L1ConvTbl[16] = { BASE_MEGATILE_L1, 13, 1, 13, 2, 13, 13, 13, 4, 13, 1, 13, 2, 13, 16, 13 };
 
 /*
  * Place doors on the marked places.
  * New dungeon values: 25, 26
  */
-static void DRLG_L1PlaceDoors()
+/*static void DRLG_L1PlaceDoors()
 {
 	int i, j;
 	BYTE df, c;
@@ -574,75 +461,76 @@ static void DRLG_L1PlaceDoors()
 	for (j = 0; j < DMAXY; j++) {
 		for (i = 0; i < DMAXX; i++) {
 			df = drlgFlags[i][j];
-			if ((df & ~DLRG_PROTECTED) == 0)
+			if ((df & ~DRLG_PROTECTED) == 0)
 				continue;
-			assert(!(df & DLRG_PROTECTED));
-			//if (!(df & DLRG_PROTECTED)) {
+			assert(!(df & DRLG_PROTECTED));
+			//if (!(df & DRLG_PROTECTED)) {
 				c = dungeon[i][j];
 
-				if (df == DLRG_HDOOR) {
+				if (df == DRLG_L1_HDOOR) {
 					assert(c == 2);
 					if (j == 1)
 						df = 0;
 					else //if (j != 1 && c == 2)
 						c = 26;
-					/* commented out because this is not possible with the current implementation
-					if (j != 1 && c == 7)
-						c = 31; -- slightly different 26
-					if (j != 1 && c == 14)
-						c = 42; -- edge with arch on the other side
-					if (j != 1 && c == 4)
-						c = 43; -- edge with wall on the other side
-					if (i != 1 && c == 1)
-						c = 25; ?
-					if (i != 1 && c == 10)
-						c = 40; ?
-					if (i != 1 && c == 6)
-						c = 30; ? */
+					// commented out because this is not possible with the current implementation
+					//if (j != 1 && c == 7)
+					//	c = 31; -- slightly different 26
+					//if (j != 1 && c == 14)
+					//	c = 42; -- edge with arch on the other side
+					//if (j != 1 && c == 4)
+					//	c = 43; -- edge with wall on the other side
+					//if (i != 1 && c == 1)
+					//	c = 25; ?
+					//if (i != 1 && c == 10)
+					//	c = 40; ?
+					//if (i != 1 && c == 6)
+					//	c = 30; ?
 				} else {
-					assert(df == DLRG_VDOOR);
+					assert(df == DRLG_L1_VDOOR);
 					assert(c == 1);
 					if (i == 1)
 						df = 0;
 					else // if (i != 1 && c == 1)
 						c = 25;
-					/* commented out because this is not possible with the current implementation
-					if (i != 1 && c == 6)
-						c = 30; -- slightly different 25
-					if (i != 1 && c == 10)
-						c = 40; -- edge with arch on the other side
-					if (i != 1 && c == 4)
-						c = 41; -- edge with wall on the other side
-					if (j != 1 && c == 2)
-						c = 26; ?
-					if (j != 1 && c == 14)
-						c = 42; ?
-					if (j != 1 && c == 7)
-						c = 31; ? */
-				} /* commented out because this is not possible with the current implementation
-				  else if (df == (DLRG_HDOOR | DLRG_VDOOR)) {
-					if (i != 1 && j != 1 && c == 4)
-						c = 28; -- edge with double door
-					if (i != 1 && c == 10)
-						c = 40;
-					if (j != 1 && c == 14)
-						c = 42;
-					if (j != 1 && c == 2)
-						c = 26;
-					if (i != 1 && c == 1)
-						c = 25;
-					if (j != 1 && c == 7)
-						c = 31;
-					if (i != 1 && c == 6)
-						c = 30;
-				}*/
+					// commented out because this is not possible with the current implementation
+					//if (i != 1 && c == 6)
+					//	c = 30; -- slightly different 25
+					//if (i != 1 && c == 10)
+					//	c = 40; -- edge with arch on the other side
+					//if (i != 1 && c == 4)
+					//	c = 41; -- edge with wall on the other side
+					//if (j != 1 && c == 2)
+					//	c = 26; ?
+					//if (j != 1 && c == 14)
+					//	c = 42; ?
+					//if (j != 1 && c == 7)
+					//	c = 31; ?
+				}
+				// commented out because this is not possible with the current implementation
+				//else if (df == (DRLG_L1_HDOOR | DRLG_L1_VDOOR)) {
+				//	if (i != 1 && j != 1 && c == 4)
+				//		c = 28; -- edge with double door
+				//	if (i != 1 && c == 10)
+				//		c = 40;
+				//	if (j != 1 && c == 14)
+				//		c = 42;
+				//	if (j != 1 && c == 2)
+				//		c = 26;
+				//	if (i != 1 && c == 1)
+				//		c = 25;
+				//	if (j != 1 && c == 7)
+				//		c = 31;
+				//	if (i != 1 && c == 6)
+				//		c = 30;
+				//}
 				dungeon[i][j] = c;
 			//}
-			// TODO: might want to convert DLRG_VDOOR and DLRG_HDOOR to DLRG_PROTECTED
+			// TODO: might want to convert DRLG_L1_VDOOR and DRLG_L1_HDOOR to DRLG_PROTECTED
 			drlgFlags[i][j] = df;
 		}
 	}
-}
+}*/
 
 #ifdef HELLFIRE
 static void DRLG_L5Shadows()
@@ -651,162 +539,158 @@ static void DRLG_L5Shadows()
 
 	for (j = DMAXY - 1; j > 0; j--) {
 		for (i = DMAXX - 1; i > 0; i--) {
-			switch (dungeon[i][j]) {
-			// -- pointless. placed in the chamber hallway, where one of the
-			//    shadows is always messed up...
-			//case 3:
-			//	if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
-			//		dungeon[i - 1][j] = 206;
-			//		dungeon[i - 1][j - 1] = 207;
-			//	}
-			//	break;
+			BYTE bv = dungeon[i][j];
+			bool horizArch = false;
+			bool vertArch = false;
+			bool pillar = false;
+			/*switch (bv) {
 			case 5:
-			//case 116: 5
-			//case 133: 5
-				//if (dungeon[i - 1][j] == 13)
-				assert(dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 203 || dungeon[i - 1][j] == 204);
-					dungeon[i - 1][j] = 203;
-				//if (dungeon[i - 1][j - 1] == 13)
-				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 204);
-					dungeon[i - 1][j - 1] = 204;
-				//if (dungeon[i][j - 1] == 13)
-				assert(dungeon[i][j - 1] == 13 || dungeon[i][j - 1] == 205);
-					dungeon[i][j - 1] = 205;
+			// case 116:
+			// case 133:
+			// case 150:
+				pillar = true;
 				break;
+			case 28:
 			case 7:
+			// case 118:
+			// case 135:
+			// case 152:
 			case 15:
+			// case 126:
+			// case 143:
 			case 16:
-			case 17:
-			//case 118: 7
-			//case 126: 15
-			//case 127: 16
-			//case 128: 17
-			//case 135: 7
-			//case 144: 16
-			//case 152: 7
-			//case 160: 15 ?
-			//case 161: 16
-			//case 192: 15 ?
-				if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
-					dungeon[i - 1][j] = 206;
-					dungeon[i - 1][j - 1] = 207;
-				}
+			// case 127:
+			// case 144:
+			// case 161:
+			// case 3:
+			// case 114:
+			// case 131:
+			// case 148:
+			// case 17:
+			// case 128:
+			// case 145:
+			// case 162:
+			// case 31:
+			// case 33:
+			case 85:
+			case 86:
+				pillar = true;
 				break;
 			case 8:
-				//assert(dungeon[i - 1][j] == 12); -- or its decorated one
-				//	dungeon[i - 1][j] = 203;
-				//if (dungeon[i - 1][j - 1] == 13)
-				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 204);
-					dungeon[i - 1][j - 1] = 204;
-				break;
-			case 11:
-			case 35:
+			// case 119:
+			// case 136:
+			// case 153:
 			case 14:
+			// case 125:
+			// case 142:
+			// case 159:
 			case 37:
-			case 95: // necessary because of DRLG_L5PlaceRndSet(L5VERTCOL1)
-			//case 119: 8
-			//case 125: 14
-			//case 136: 8
-			//case 142: 14
-			//case 153: 8
-			//case 156: 11
-			//case 159: 14
-			//case 185: 11
-			//case 186: 11
-				if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
-					dungeon[i - 1][j] = 203;
-					dungeon[i - 1][j - 1] = 204;
-				}
+			// case 32:
+			// case 39:
+			// case 42:
+			// case 29:
+			// case 38:
+			// case 44:
+				pillar = true;
 				break;
 			case 9:
-			//case 120: 9
-			//case 154: 9
-				//if (dungeon[i - 1][j] == 13)
-				assert(dungeon[i - 1][j] == 13 || dungeon[i - 1][j] == 206);
-					dungeon[i - 1][j] = 206;
-				//if (dungeon[i - 1][j - 1] == 13)
-				assert(dungeon[i - 1][j - 1] == 13 || dungeon[i - 1][j - 1] == 207);
-					dungeon[i - 1][j - 1] = 207;
-				//assert(dungeon[i][j - 1] == 11); -- or its decorated one
-				//if (dungeon[i][j - 1] == 13)
-				//	dungeon[i][j - 1] = 205;
+			// case 120:
+			// case 137:
+			// case 154:
+				pillar = true;
 				break;
-			case 10:
-			case 12:
-			case 36:
-			//case 121: 10
-			//case 123: 12
-			//case 138: 10
-			//case 155: 10
-			//case 187: 12
-			//case 188: 12
-				if (dungeon[i][j - 1] == 13)
+			}*/
+			pillar = (nTrnShadowTable[bv] & TIF_L5_PILLAR) != 0;
+			horizArch = (nTrnShadowTable[bv] & TIF_L5_EAST_ARCH_GRATE) != 0;
+			vertArch = (nTrnShadowTable[bv] & TIF_L5_WEST_ARCH_GRATE) != 0;
+			if (horizArch) {
+				if (dungeon[i][j - 1] == 13) {
 					dungeon[i][j - 1] = 205;
-				break;
-			case 96: // 12
-			case 188: // 12
-				if (dungeon[i][j - 1] == 13)
-					dungeon[i][j - 1] = 208;
-				break;
-			case 122: // 11
-				if (dungeon[i - 1][j] == 203 && dungeon[i - 1][j - 1] == 204) {
-					dungeon[i - 1][j] = 211;
-					dungeon[i - 1][j - 1] = 212;
+				} else if (dungeon[i][j - 1] == 1) {
+					dungeon[i][j - 1] = 109;
+				} else if (dungeon[i][j - 1] == 6) {
+					dungeon[i][j - 1] = 110;
+				} else if (dungeon[i][j - 1] == 11) {
+					dungeon[i][j - 1] = 111;
+				} else if (dungeon[i][j - 1] == 35) {
+					dungeon[i][j - 1] = 215;
+				//} else if (dungeon[i][j - 1] == 203) {
+				//	dungeon[i][j - 1] = 204;
+				} else {
+					// 25 -> not perfect, but ok and it would require a new door object as well
+					// TODO: what else?
 				}
-				break;
-			case 137: // 9
-				//if (dungeon[i - 1][j] == 13)
-				//if (dungeon[i - 1][j] == 206)
-				assert(dungeon[i - 1][j] == 206);
-					dungeon[i - 1][j] = 213;
-				//if (dungeon[i - 1][j - 1] == 13)
-				//if (dungeon[i - 1][j - 1] == 207)
-				assert(dungeon[i - 1][j - 1] == 207);
-					dungeon[i - 1][j - 1] = 214;
-				//assert(dungeon[i][j - 1] == 205);
-				break;
-			case 139: // 11
-				if (dungeon[i - 1][j] == 203 && dungeon[i - 1][j - 1] == 204) {
-					dungeon[i - 1][j] = 215;
-					dungeon[i - 1][j - 1] = 216;
+			}
+			if (vertArch) {
+				BYTE replaceA; bool okB;
+				BYTE replaceB = dungeon[i - 1][j];
+				switch (replaceB) {
+				case 13:
+				case 203: replaceA = 203; okB = false; break;
+				case 207: replaceA = 203; okB = false; break;
+				case 205: replaceA = 204; okB = false; break;
+				// case 71:  replaceA = 80;  okB = true;  break;
+				case 80:  replaceA = 80;  okB = true;  break;
+				// case 85:  replaceA = 86;  okB = true;  break;
+				case 86:  replaceA = 86;  okB = true;  break;
+				// case 81:  replaceA = 82;  okB = true;  break;
+				case 82:  replaceA = 82;  okB = true;  break;
+				// case 87:  replaceA = 88;  okB = true;  break;
+				case 88:  replaceA = 88;  okB = true;  break;
+				// case 83:  replaceA = 84;  okB = true;  break;
+				case 84:  replaceA = 84;  okB = true;  break;
+				default:
+					// 2, 4, 7, 12, 14, 26, 36, 37 -> ok
+					// TODO: what else?
+					continue;
 				}
-				break;
-			case 140: // 12
-			case 157: // 12
-				//if (dungeon[i][j - 1] == 13)
-				if (dungeon[i][j - 1] == 205)
-					dungeon[i][j - 1] = 217;
-				break;
-			case 143: // 15
-			//case 145: // 17
-				//if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j] == 206 /*&& dungeon[i - 1][j - 1] == 207*/) {
-					assert(dungeon[i - 1][j - 1] == 207);
-					dungeon[i - 1][j] = 213;
-					dungeon[i - 1][j - 1] = 214;
+
+				dungeon[i - 1][j] = replaceA;
+				if (okB) {
+					continue;
 				}
-				break;
-			case 150: // 5
-				//if (dungeon[i - 1][j] == 13)
-				//	dungeon[i - 1][j] = 203;
-				//if (dungeon[i - 1][j - 1] == 13)
-				//	dungeon[i - 1][j - 1] = 204;
-				//if (dungeon[i][j - 1] == 13)
-				//if (dungeon[i][j - 1] == 205)
-				assert(dungeon[i][j - 1] == 205);
-					dungeon[i][j - 1] = 217;
-				break;
-			//case 162: // 17 -- why?
-			//case 167: // done in DRLG_L5PlaceRndSet using L5RNDLFLOOR2
-			case 160: // 15
-			case 192: // 15
-				//if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13)
-				if (dungeon[i - 1][j] == 206 /*&& dungeon[i - 1][j - 1] == 207*/) {
-					assert(dungeon[i - 1][j - 1] == 207);
-					dungeon[i - 1][j] = 209;
-					dungeon[i - 1][j - 1] = 210;
+				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
+				pillar = pillar && (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L5_WEST_WALL) == 0;
+				switch (dungeon[i - 1][j - 1]) {
+				case 13: replaceB = pillar ? 207 : 203; break;
+				case 2:  replaceB = pillar ? 71 : 80;   break;
+				case 7:  replaceB = pillar ? 85 : 86;   break;
+				case 12: replaceB = pillar ? 81 : 82;   break;
+				case 26: replaceB = pillar ? 87 : 88;   break;
+				case 36: replaceB = pillar ? 83 : 84;   break;
+				default:
+					dungeon[i - 1][j] = replaceB; // restore original value
+					continue; // TODO: what else?
 				}
-				break;
+				dungeon[i - 1][j - 1] = replaceB;
+				continue;
+			}
+			if (pillar) {
+				if (dungeon[i - 1][j] == 13) {
+					BYTE replace = dungeon[i - 1][j - 1];
+					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
+					pillar = (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L5_WEST_WALL) == 0;
+					if (replace == 13) {
+						replace = pillar ? 207 : 203;
+					} else if (replace == 2) {
+						replace = pillar ? 71 : 80;
+					} else if (replace == 7) {
+						replace = pillar ? 85 : 86;
+					} else if (replace == 12) {
+						replace = pillar ? 81 : 82;
+					} else if (replace == 26) {
+						replace = pillar ? 87 : 88;
+					} else if (replace == 36) {
+						replace = pillar ? 83 : 84;
+					} else {
+						continue; // TODO: what else?
+					}
+					dungeon[i - 1][j] = 206;
+					dungeon[i - 1][j - 1] = replace;
+				} else {
+					// 2, 4, 7, 12, 14, 36, 37, 209, 212, 213, 214 -> ok
+					// TODO: what else?
+				}
 			}
 		}
 	}
@@ -815,45 +699,190 @@ static void DRLG_L5Shadows()
 
 static void DRLG_L1Shadows()
 {
-	const ShadowStruct* ss;
-	int x, y;
-	ShadowPattern sdp;
+	int i, j;
 
-	for (y = 1; y < DMAXY; y++) {
-		for (x = 1; x < DMAXX; x++) {
-			sdp.sh11 = BSTYPES[dungeon[x - 1][y - 1]];
-			sdp.sh01 = BSTYPES[dungeon[x][y - 1]];
-			sdp.sh10 = BSTYPES[dungeon[x - 1][y]];
-			sdp.sh00 = BSTYPES[dungeon[x][y]];
-			for (ss = L1SPATS; ss->shPattern.sh00 <= sdp.sh00; ss++) {
-				if (ss->shPattern.sh00 == sdp.sh00) {
-					if ((sdp.asUInt32 & ss->shMask.asUInt32) != ss->shPattern.asUInt32)
+	for (j = DMAXY - 1; j > 0; j--) {
+		for (i = DMAXX - 1; i > 0; i--) {
+			BYTE bv = dungeon[i][j];
+			bool horizArch = false;
+			bool vertArch = false;
+			bool pillar = false;
+			bool largePillar = false;
+			/*switch (bv) {
+			case 5:
+				pillar = true;
+				break;
+			case 15:
+				largePillar = true;
+				break;
+			case 28:
+			case 7:
+			// case 15:
+			case 16:
+			// case 17:
+			// case 31:
+			case 154:
+			case 155:
+				pillar = true;
+				break;
+			case 8:
+			case 14:
+			case 37:
+			// case 29:
+			// case 32:
+			// case 33:
+			// case 38:
+			// case 42:
+			// case 44:
+			// case 46:
+			// case 85:
+			case 160:
+			case 161:
+				pillar = true;
+				break;
+			case 9:
+			// case 33:
+				pillar = true;
+				break;
+			}*/
+			largePillar = bv == 15;
+			pillar = (nTrnShadowTable[bv] & TIF_L1_PILLAR) != 0;
+			horizArch = (nTrnShadowTable[bv] & TIF_L1_EAST_ARCH_GRATE) != 0;
+			vertArch = (nTrnShadowTable[bv] & TIF_L1_WEST_ARCH_GRATE) != 0;
+			if (horizArch) {
+				BYTE replaceA; bool okB;
+				replaceA = dungeon[i][j - 1];
+				bool pillarC = i == DMAXX - 1 || (nTrnShadowTable[dungeon[i + 1][j - 1]] & TIF_L1_WEST_WALL) == 0;
+				// TODO: handle !pillarC
+				switch (replaceA) {
+				case 13:  replaceA = pillarC ? 140 : 141; okB = false; break;
+				case 1:   replaceA = 146; okB = true;  break;
+				case 6:   replaceA = 147; okB = true;  break;
+				case 11:  replaceA = 145; okB = false; break;
+				case 35:  replaceA = 157; okB = false; break;
+				case 145: replaceA = 145; okB = false; break;
+				case 146: replaceA = 146; okB = true;  break;
+				case 147: replaceA = 147; okB = true;  break;
+				case 157: replaceA = 157; okB = false; break;
+				// case 131: replaceA = pillarC ? 131 : 132; okB = false; break;
+				case 164: replaceA = pillarC ? 131 : 132; okB = false; break;
+				// case 139: replaceA = 165; okB = false; break;
+				default:
+					okB = true;
+					// 25 -> not perfect, but ok and it would require a new door piece as well
+					// TODO: what else?
+				}
+				dungeon[i][j - 1] = replaceA;
+				if (!okB) {
+					if (dungeon[i - 1][j - 1] == 13) {
+						dungeon[i - 1][j - 1] = 164;
+					} else if (dungeon[i - 1][j - 1] == 1) {
+						dungeon[i - 1][j - 1] = 146;
+					} else if (dungeon[i - 1][j - 1] == 6) {
+						dungeon[i - 1][j - 1] = 147;
+					} else if (dungeon[i - 1][j - 1] == 11) {
+						dungeon[i - 1][j - 1] = 145;
+					} else if (dungeon[i - 1][j - 1] == 35) {
+						dungeon[i - 1][j - 1] = 157;
+					} else {
+						// 25 -> not perfect, but ok and it would require a new door object as well
+						// TODO: what else?
+					}
+				}
+			}
+			if (vertArch) {
+				BYTE replaceA; bool okB;
+				BYTE replaceB = dungeon[i - 1][j];
+				switch (replaceB) {
+				case 13:
+				case 139: replaceA = 139; okB = false; break;
+				case 143: replaceA = 139; okB = false; break;
+				// case 140: replaceA = 127; okB = false; break; - should not happen TIF_L1_WEST_ARCH_GRATE implies TIF_L1_WEST_WALL
+				case 148: replaceA = 148; okB = true;  break;
+				case 149: replaceA = 149; okB = true;  break;
+				// case 150: replaceA = 148; okB = true;  break;
+				// case 151: replaceA = 149; okB = true;  break;
+				// case 152: replaceA = 153; okB = true;  break;
+				case 153: replaceA = 153; okB = true;  break;
+				// case 154: replaceA = 155; okB = true;  break;
+				case 155: replaceA = 155; okB = true;  break;
+				case 156: replaceA = 156; okB = true;  break;
+				case 159: replaceA = 139; okB = false; break;
+				case 2:   replaceA = 148; okB = true;  break;
+				case 4:   replaceA = 158; okB = true;  break;
+				case 7:   replaceA = 155; okB = true;  break;
+				case 12:  replaceA = 149; okB = true;  break;
+				case 14:  replaceA = 160; okB = true;  break;
+				case 26:  replaceA = 156; okB = true;  break;
+				case 36:  replaceA = 152; okB = true;  break;
+				case 37:  replaceA = 161; okB = true;  break;
+				case 164: replaceA = 165; okB = false; break;
+				case 132: replaceA = 126; okB = false; break;
+				case 141: replaceA = 127; okB = false; break;
+				default:
+					// 25 -> not perfect, but ok and it would require a new door object as well
+					continue;
+				}
+
+				dungeon[i - 1][j] = replaceA;
+				if (okB) {
+					continue;
+				}
+				// pillar = pillar && (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
+				pillar = pillar && (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L1_WEST_WALL) == 0;
+				switch (dungeon[i - 1][j - 1]) {
+				case 13: replaceB = pillar ? 143 : 159; break;
+				case 2:  replaceB = pillar ? 150 : 148; break;
+				case 7:  replaceB = pillar ? 154 : 155; break;
+				case 12: replaceB = pillar ? 151 : 149; break;
+				case 26: replaceB = pillar ? 156 : 156; break;
+				case 36: replaceB = pillar ? 152 : 153; break;
+				case 164: continue;
+				default:
+					dungeon[i - 1][j] = replaceB; // restore original value
+					continue;
+				}
+				dungeon[i - 1][j - 1] = replaceB;
+				continue;
+			}
+			if (pillar) {
+				if (dungeon[i - 1][j] == 13) {
+					BYTE replace = dungeon[i - 1][j - 1];
+					// pillar = (dungeon[i][j - 1] == 13 /* || 203 207 204 81 ... 2 3 7 9 12 15 16 17 26 36 */);
+					pillar = (nTrnShadowTable[dungeon[i][j - 1]] & TIF_L1_WEST_WALL) == 0;
+					if (replace == 13) {
+						replace = pillar ? 143 : 159;
+					} else if (replace == 2) {
+						replace = pillar ? 150 : 148;
+					} else if (replace == 7) {
+						replace = pillar ? 154 : 155;
+					} else if (replace == 12) {
+						replace = pillar ? 151 : 149;
+					} else if (replace == 26) {
+						replace = pillar ? 156 : 156;
+					} else if (replace == 36) {
+						replace = pillar ? 152 : 153;
+					} else if (replace != 164) {
 						continue;
-					if (ss->nv1 != 0 && drlgFlags[x - 1][y - 1] == 0)
-						dungeon[x - 1][y - 1] = ss->nv1;
-					if (ss->nv2 != 0 && drlgFlags[x][y - 1] == 0)
-						dungeon[x][y - 1] = ss->nv2;
-					if (ss->nv3 != 0 && drlgFlags[x - 1][y] == 0)
-						dungeon[x - 1][y] = ss->nv3;
+					}
+					dungeon[i - 1][j] = 142;
+					dungeon[i - 1][j - 1] = replace;
+				} else {
+					// 2, 4, 7, 12, 14, 36, 37 -> ok
+					// TODO: what else?
+				}
+				continue;
+			}
+			if (largePillar) {
+				if (dungeon[i - 1][j] == 13 && dungeon[i - 1][j - 1] == 13) {
+					dungeon[i - 1][j] = 142;
+					dungeon[i - 1][j - 1] = 144;
+				} else {
+					// TODO: what else?
 				}
 			}
 		}
 	}
-}
-
-static bool DRLG_L1PlaceMiniSet(const BYTE* miniset, bool setview)
-{
-	POS32 result;
-
-	result = DRLG_PlaceMiniSet(miniset);
-	if (result.x == DMAXX)
-		return false;
-
-	if (setview) {
-		ViewX = 2 * result.x + DBORDERX + 3;
-		ViewY = 2 * result.y + DBORDERY + 4;
-	}
-	return true;
 }
 
 static void DRLG_L1Floor()
@@ -864,203 +893,86 @@ static void DRLG_L1Floor()
 
 static void DRLG_LoadL1SP()
 {
-	assert(pSetPiece == NULL);
-	if (QuestStatus(Q_LTBANNER)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\Banner2.DUN");
+	// assert(pSetPieces[0]._spData == NULL);
+	if (QuestStatus(Q_BANNER)) {
+		pSetPieces[0]._sptype = SPT_BANNER;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if 0
+		// patch set-piece - Banner1.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// fix the shadows
+		lm[2 + 0 + 1 * 8] = SwapLE16(11);
+		lm[2 + 3 + 1 * 8] = SwapLE16(11);
+		// - protect the main structure
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 8; x++) {
+				if (x >= 1 && y >= 3 && x <= 6 && y <= 5) {
+					bool skip = true;
+					if (x == 1 && y == 3) {
+						skip = false;
+					}
+					if (x == 2 && y == 3) {
+						skip = false;
+					}
+					if (x >= 4 && y == 4) {
+						skip = false;
+					}
+					if (skip) {
+						continue;
+					}
+				}
+				if (x == 3 && y == 6) {
+					continue;
+				}
+				lm[2 + 8 * 8 + x + y * 8] = SwapLE16(1);
+			}
+		}
+		// ensure the changing tiles are reserved
+		lm[2 + 8 * 8 + 3 + 6 * 8] = SwapLE16(3);
+		for (int y = 3; y <= 5; y++) {
+			for (int x = 1; x <= 6; x++) {
+				if (x == 1 && y == 3) {
+					continue;
+				}
+				if (x == 2 && y == 3) {
+					continue;
+				}
+				if (x >= 4 && y == 4) {
+					continue;
+				}
+				lm[2 + 8 * 8 + x + y * 8] = SwapLE16(3);
+			}
+		}
+#endif
 	} else if (QuestStatus(Q_SKELKING)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\SKngDO.DUN");
-		// patch set-piece to use common tiles - SKngDO.DUN
-		pSetPiece[(2 + 5 + 3 * 7) * 2] = 203;
-		pSetPiece[(2 + 5 + 4 * 7) * 2] = 22;
-		// patch set-piece to use common tiles and make the inner tile at the entrance non-walkable - SKngDO.DUN
-		pSetPiece[(2 + 5 + 2 * 7) * 2] = 203;
+		pSetPieces[0]._sptype = SPT_SKELKING;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+#if 0
+		// patch set-piece - SKngDO.DUN
+		uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+		// use common tiles
+		lm[2 + 5 + 4 * 7] =  SwapLE16(203 - 181);
+		// use common tile and make the inner tile at the entrance non-walkable
+		lm[2 + 5 + 2 * 7] =  SwapLE16(203 - 181);
+		// let the game generate the shadow
+		lm[2 + 0 + 5 * 7] = 0;
+		lm[2 + 0 + 6 * 7] = 0;
+		// protect the main structure
+		for (int y = 1; y < 7; y++) {
+			for (int x = 1; x < 7; x++) {
+				lm[2 + 7 * 7 + x + y * 7] = SwapLE16(3);
+			}
+		}
+#endif
 	} else if (QuestStatus(Q_BUTCHER)) {
-		pSetPiece = LoadFileInMem("Levels\\L1Data\\Butcher.DUN");
+		pSetPieces[0]._sptype = SPT_BUTCHER;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 #ifdef HELLFIRE
 	} else if (QuestStatus(Q_NAKRUL)) {
-		pSetPiece = LoadFileInMem("NLevels\\L5Data\\Nakrul1.DUN");
+		pSetPieces[0]._sptype = SPT_NAKRUL;
+		pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
 #endif
 	}
-}
-
-static void DRLG_FreeL1SP()
-{
-	MemFreeDbg(pSetPiece);
-}
-
-void DRLG_InitL1Specials(int x1, int y1, int x2, int y2)
-{
-	int i, j, pn;
-	// add special arches
-	for (i = x1; i <= x2; ++i) {
-		for (j = y1; j <= y2; ++j) {
-			pn = dPiece[i][j];
-			if (pn == 12 || pn == 71 || pn == 211 || pn == 321 || pn == 341 || pn == 418)
-				pn = 1;
-			else if (pn == 11 || pn == 249 || pn == 325 || pn == 331 || pn == 344 || pn == 421)
-				pn = 2;
-			else if (pn == 253)
-				pn = 3;
-			else if (pn == 255)
-				pn = 4;
-			else if (pn == 259)
-				pn = 5;
-			else if (pn == 267)
-				pn = 6;
-			else
-				pn = 0;
-			dSpecial[i][j] = pn;
-		}
-	}
-	// add rims to stone doors
-	for (i = x1; i <= x2; i++) {
-		for (j = y1; j <= y2; j++) {
-			pn = dPiece[i][j];
-			// 417 is stone L-door
-			// 420 is stone R-door -- unused at the moment
-			if (pn == 417) {
-				dSpecial[i][j + 1] = 7;
-			} else if (pn == 420) {
-				dSpecial[i + 1][j] = 8;
-			}
-		}
-	}
-}
-
-#ifdef HELLFIRE
-static void DRLG_InitL5Specials()
-{
-	int i, *dp;
-	BYTE pc, *dsp;
-
-	static_assert(sizeof(dPiece) == MAXDUNX * MAXDUNY * sizeof(int), "Linear traverse of dPiece does not work in DRLG_InitL5Vals.");
-	static_assert(sizeof(dSpecial) == MAXDUNX * MAXDUNY, "Linear traverse of dSpecial does not work in DRLG_InitL5Vals.");
-	dsp = &dSpecial[0][0];
-	dp = &dPiece[0][0];
-	for (i = 0; i < MAXDUNX * MAXDUNY; i++, dsp++, dp++) {
-		if (*dp == 77)
-			pc = 1;
-		else if (*dp == 80)
-			pc = 2;
-		else
-			continue;
-		*dsp = pc;
-	}
-}
-#endif
-
-static void SetMapTrans(BYTE* pMap)
-{
-	int i, j;
-	BYTE tv;
-	uint16_t rw, rh, *lm;
-
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-	lm += rw * rh; // skip dun
-	rw <<= 1;
-	rh <<= 1;
-	lm += 3 * rw * rh; // skip items?, monsters, objects
-
-	rw += DBORDERX;
-	rh += DBORDERY;
-	for (j = DBORDERY; j < rh; j++) {
-		for (i = DBORDERX; i < rw; i++) {
-			tv = SwapLE16(*lm);
-			dTransVal[i][j] = tv;
-			if (tv >= numtrans)
-				numtrans = tv + 1;
-			lm++;
-		}
-	}
-}
-
-static BYTE* LoadL1DungeonData(const char* sFileName)
-{
-	int i, j;
-	BYTE* pMap;
-	uint16_t rw, rh, *lm;
-
-	pMap = LoadFileInMem(sFileName);
-
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
-	memset(dungeon, BASE_MEGATILE_L1 + 1, sizeof(dungeon));
-
-	lm = (uint16_t*)pMap;
-	rw = SwapLE16(*lm);
-	lm++;
-	rh = SwapLE16(*lm);
-	lm++;
-
-	for (j = 0; j < rh; j++) {
-		for (i = 0; i < rw; i++) {
-			if (*lm != 0) {
-				dungeon[i][j] = SwapLE16(*lm);
-				// no need to protect the fields, DRLG_L1Floor is a harmless floor-replacement
-				//drlgFlags[i][j] = DLRG_PROTECTED;
-			} else {
-				dungeon[i][j] = 13;
-			}
-			lm++;
-		}
-	}
-
-	return pMap;
-}
-
-void LoadL1Dungeon(const LevelData* lds)
-{
-	BYTE* pMap;
-
-	ViewX = lds->dSetLvlDunX;
-	ViewY = lds->dSetLvlDunY;
-
-	// load pre-dungeon
-	pMap = LoadL1DungeonData(lds->dSetLvlPreDun);
-
-	DRLG_InitTrans();
-	//DRLG_FloodTVal(13);
-	SetMapTrans(pMap);
-
-	mem_free_dbg(pMap);
-
-	//memset(drlgFlags, 0, sizeof(drlgFlags));
-	//DRLG_L1Floor();
-
-	memcpy(pdungeon, dungeon, sizeof(pdungeon));
-
-	// load dungeon
-	pMap = LoadL1DungeonData(lds->dSetLvlDun);
-	if (currLvl._dLevelIdx == SL_VILEBETRAYER) {
-		// patch set-piece to fix empty tiles - Vile2.DUN
-		// assert(pMap[(2 + 8 + 16 * 21) * 2] == 0);
-		// assert(dungeon[8][16] == 13);
-		dungeon[8][16] = 203;
-		// assert(pMap[(2 + 12 + 22 * 21) * 2] == 0);
-		// assert(dungeon[12][22] == 13);
-		dungeon[12][22] = 203;
-		// assert(pMap[(2 + 13 + 22 * 21) * 2] == 0);
-		// assert(dungeon[13][22] == 13);
-		dungeon[13][22] = 203;
-		// assert(pMap[(2 + 14 + 22 * 21) * 2] == 0);
-		// assert(dungeon[14][22] == 13);
-		dungeon[14][22] = 203;
-	}
-
-	//DRLG_L1Floor();
-
-	DRLG_Init_Globals();
-	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	// assert(currLvl._dType == DTYPE_CATHEDRAL);
-	DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	SetMapMonsters(pMap, 0, 0);
-	SetMapObjects(pMap);
-
-	mem_free_dbg(pMap);
 }
 
 static void L1ClearChamberFlags()
@@ -1071,12 +983,18 @@ static void L1ClearChamberFlags()
 	static_assert(sizeof(drlgFlags) == DMAXX * DMAXY, "Linear traverse of drlgFlags does not work in L1ClearFlags.");
 	pTmp = &drlgFlags[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++)
-		*pTmp &= ~DLRG_CHAMBER;
+		*pTmp &= ~DRLG_L1_CHAMBER;
 }
 
 static void L1DrawRoom(int x, int y, int width, int height)
 {
 	int i, j, x2, y2;
+
+	drlg.L1RoomList[nRoomCnt].lrx = x;
+	drlg.L1RoomList[nRoomCnt].lry = y;
+	drlg.L1RoomList[nRoomCnt].lrw = width;
+	drlg.L1RoomList[nRoomCnt].lrh = height;
+	nRoomCnt++;
 
 	x2 = x + width;
 	y2 = y + height;
@@ -1165,7 +1083,7 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 			ry = h / 2 + y - height / 2;
 			rx = x - width;
 			if (L1CheckVHall(x, ry - 1, height + 2)
-			 && L1CheckRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
+			 && L1CheckRoom(rx - 1, ry - 1, width + 1, height + 2)) // BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
 				break;
 		}
 
@@ -1216,10 +1134,11 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
  * Create dungeon blueprint.
  * New dungeon values: 1
  */
-static void L1FirstRoom()
+static void DRLG_L1CreateDungeon()
 {
 	int is, ie, i;
 
+	nRoomCnt = 0;
 	ChambersVertical = random_(0, 2);
 	ChambersFirst = random_(0, 2);
 	ChambersMiddle = random_(0, 2);
@@ -1297,13 +1216,13 @@ static void L1FirstRoom()
 	}
 }
 
-static int L1GetArea()
+static int DRLG_L1GetArea()
 {
 	int i, rv;
 	BYTE* pTmp;
 
 	rv = 0;
-	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in L1GetArea.");
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L1GetArea.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
 		assert(*pTmp <= 1);
@@ -1324,7 +1243,7 @@ static void DRLG_L1MakeMegas()
 
 	for (j = 0; j < DMAXY - 1; j++) {
 		for (i = 0; i < DMAXX - 1; i++) {
-			assert(dungeon[i][j] <= 1);
+			// assert(dungeon[i][j] <= 1 && dungeon[i + 1][j] <= 1 && dungeon[i][j + 1] <= 1 && dungeon[i + 1][j + 1] <= 1);
 			v = dungeon[i][j]
 			 | (dungeon[i + 1][j] << 1)
 			 | (dungeon[i][j + 1] << 2)
@@ -1334,15 +1253,15 @@ static void DRLG_L1MakeMegas()
 		}
 	}
 	for (j = 0; j < DMAXY; j++)
-		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L1 + 1;
+		dungeon[DMAXX - 1][j] = BASE_MEGATILE_L1;
 	for (i = 0; i < DMAXX - 1; i++)
-		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L1 + 1;
+		dungeon[i][DMAXY - 1] = BASE_MEGATILE_L1;
 }
 
 static void L1HorizWall(int i, int j, int dx)
 {
 	int xx;
-	BYTE pn, dt, wt;
+	BYTE pn, dt;
 	// convert the first tile / select the internal replacement
 	pn = dungeon[i][j] == 6 ? 4 : 2;
 
@@ -1370,12 +1289,12 @@ static void L1HorizWall(int i, int j, int dx)
 		dungeon[i + xx][j] = dt;
 	}
 	// add 'door'
-	xx = RandRange(1, dx - 1);
-	wt = (dt == 12 || random_(0, 6) == 5) ? 12 : 2;
-	dungeon[i + xx][j] = wt;
-	if (wt != 12) {
-		assert(drlgFlags[i + xx][j] == 0);
-		drlgFlags[i + xx][j] = DLRG_HDOOR;
+	if (dt != 12) {
+		xx = RandRange(1, dx - 1);
+		dt = random_(0, 6) == 0 ? 12 : 26;
+		dungeon[i + xx][j] = dt;
+		// assert(drlgFlags[i + xx][j] == 0);
+		// drlgFlags[i + xx][j] = dt == 26 ? DRLG_L1_HDOOR : 0;
 	}
 }
 
@@ -1425,7 +1344,7 @@ static bool L1AddHWall(int x, int y)
 static void L1VertWall(int i, int j, int dy)
 {
 	int yy;
-	BYTE pn, wt, dt;
+	BYTE pn, dt;
 	// convert the first tile / select the internal replacement
 	pn = dungeon[i][j] == 7 ? 4 : 1;
 	switch (random_(0, 4)) {
@@ -1452,12 +1371,12 @@ static void L1VertWall(int i, int j, int dy)
 		dungeon[i][j + yy] = dt;
 	}
 	// add 'door'
-	yy = RandRange(1, dy - 1);
-	wt = (dt == 11 || random_(0, 6) == 5) ? 11 : 1;
-	dungeon[i][j + yy] = wt;
-	if (wt != 11) {
-		assert(drlgFlags[i][j + yy] == 0);
-		drlgFlags[i][j + yy] = DLRG_VDOOR;
+	if (dt != 11) {
+		yy = RandRange(1, dy - 1);
+		dt = random_(0, 6) == 0 ? 11 : 25;
+		dungeon[i][j + yy] = dt;
+		// assert(drlgFlags[i][j + yy] == 0);
+		// drlgFlags[i][j + yy] = dt == 25 ? DRLG_L1_VDOOR : 0;
 	}
 }
 
@@ -1506,7 +1425,7 @@ static void L1AddVWall(int x, int y)
 
 /*
  * Draw walls between pillars (out of the chambers)
- * New dungeon values: 27 35 36 37
+ * New dungeon values: 1 2 4 10 11 12 14 25 26 27 35 36 37
  */
 static void L1AddWall()
 {
@@ -1541,7 +1460,7 @@ static void DRLG_L1GChamber(int sx, int sy)
 	for (i = 0; i < CHAMBER_SIZE; i++) {
 		for (j = 0; j < CHAMBER_SIZE; j++) {
 			assert(dungeon[i + sx][j + sy] == 13);
-			drlgFlags[i + sx][j + sy] |= DLRG_CHAMBER;
+			drlgFlags[i + sx][j + sy] |= DRLG_L1_CHAMBER;
 		}
 	}
 	// add the four main pillars of the chamber
@@ -1578,7 +1497,7 @@ static void DRLG_L1GHallHoriz(int x1, int y1, int x2)
 	//else //if (dungeon[i][y1 - 2] == 3)
 		dungeon[i][y1 - 2] = 11;
 	dungeon[i][y1 - 1] = 11;
-	dungeon[i][y1 + 0] = 3;
+	dungeon[i][y1 + 0] = 28;
 	dungeon[i][y1 + 3] = 8;
 	dungeon[i][y1 + 4] = 11;
 	//assert(dungeon[i][y1 + 5] == 6 || dungeon[i][y1 + 5] == 17);
@@ -1615,7 +1534,7 @@ static void DRLG_L1GHallVert(int x1, int y1, int y2)
 	//else //if (dungeon[x1 - 2][i] == 3)
 		dungeon[x1 - 2][i] = 12;
 	dungeon[x1 - 1][i] = 12;
-	dungeon[x1 + 0][i] = 3;
+	dungeon[x1 + 0][i] = 28;
 	dungeon[x1 + 3][i] = 9;
 	dungeon[x1 + 4][i] = 12;
 	//assert(dungeon[x1 + 5][i] == 7 || dungeon[x1 + 5][i] == 16);
@@ -1628,33 +1547,14 @@ static void DRLG_L1GHallVert(int x1, int y1, int y2)
 
 static void DRLG_L1SetRoom(int rx1, int ry1)
 {
-	int rw, rh, i, j;
-	BYTE* sp;
-
-	rw = pSetPiece[0];
-	rh = pSetPiece[2];
-
-	setpc_x = rx1;
-	setpc_y = ry1;
-	setpc_w = rw;
-	setpc_h = rh;
-
-	sp = &pSetPiece[4];
-
-	rw += rx1;
-	rh += ry1;
-	for (j = ry1; j < rh; j++) {
-		for (i = rx1; i < rw; i++) {
-			dungeon[i][j] = *sp != 0 ? *sp : 13;
-			drlgFlags[i][j] |= DLRG_PROTECTED;
-			sp += 2;
-		}
-	}
+	pSetPieces[0]._spx = rx1;
+	pSetPieces[0]._spy = ry1;
+	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
 }
 
 /*
  * Add pillars to the chambers.
- * New dungeon values: [2] (1) 3 5 8 9 10 11 12 14 15
+ * New dungeon values: [2] (1) 5 8 9 10 11 12 14 15 28
  */
 static void L1FillChambers()
 {
@@ -1698,7 +1598,7 @@ static void L1FillChambers()
 		}
 	}
 
-	if (pSetPiece != NULL) {
+	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
 		c = ChambersFirst + ChambersMiddle + ChambersLast;
 		c = random_low(0, c);
 		if (ChambersFirst) {
@@ -1711,7 +1611,7 @@ static void L1FillChambers()
 			if (c == 0)
 				c = 16; // select the middle chamber for the set piece
 			else if (c != 2)
-				c--;   // 'deselect' the middle chamber (only if the first was not selected)
+				c--;    // 'deselect' the middle chamber (only if the first was not selected)
 		}
 		if (ChambersLast) {
 			if (c == 0)
@@ -1753,9 +1653,9 @@ static void L1FillChambers()
 */
 
 /*
- * Draw wall around the tiles selected by L1FirstRoom.
+ * Draw wall around the tiles selected by DRLG_L1CreateDungeon.
  * Assumes the border of dungeon was empty.
- * New dungeon values: 6 7 16 17 18 19 23 24
+ * New dungeon values: 3 6 7 16 17 18 19 21 23 24
  */
 static void L1TileFix()
 {
@@ -1767,20 +1667,20 @@ static void L1TileFix()
 		for (j = DMAXY - 1; j > 0; j--) {
 			switch (dungeon[i][j]) {
 			case 1:
-			//			[ 13(6) ]
-			// [ 2(6) ]  	1
-			// 2(6) -- the possible values on the top are 1, 4 and 13.
-			//         in case of 1 and 4 the conversion is not necessary.
-			//         in case of 13, the same conversion is triggered.
+				//          [ 13(6) ]
+				// [ 2(6) ]     1
+				// 2(6) -- the possible values on the top are 1, 4 and 13.
+				//         in case of 1 and 4 the conversion is not necessary.
+				//         in case of 13, the same conversion is triggered.
 				if (/*dungeon[i - 1][j] == 2 ||*/ dungeon[i][j - 1] == 13)
 					dungeon[i][j] = 6; // cut/connect
 				break;
 			case 2:
-			//			[ 1(7) ]
-			// [ 13(7) ]	2
-			// 1(7) -- the possible values on the left are 2, 4 and 13.
-			//         in case of 2 and 4 the conversion is not necessary.
-			//         in case of 13, the same conversion is triggered.
+				//          [ 1(7) ]
+				// [ 13(7) ]    2
+				// 1(7) -- the possible values on the left are 2, 4 and 13.
+				//         in case of 2 and 4 the conversion is not necessary.
+				//         in case of 13, the same conversion is triggered.
 				if (dungeon[i - 1][j] == 13 /*|| dungeon[i][j - 1] == 1*/) {
 					dungeon[i][j] = 7; // cut/connect
 				}
@@ -1788,8 +1688,8 @@ static void L1TileFix()
 			case 4:
 				break;
 			case 13:
-			//		[ 1(16) ]
-			// [ 2(17) ] 13
+				//          [ 1(16) ]
+				// [ 2(17) ]    13
 				// Impossible case ([2 13]) if there is an empty tile between walls.
 				assert(dungeon[i - 1][j] != 2);
 				if (dungeon[i][j - 1] == 1) {
@@ -1805,8 +1705,8 @@ static void L1TileFix()
 				}*/
 				break;
 			case 16:
-			//				[ 13(17) ]
-			// [ 2(3), 4(3) ]	16
+				//              [ 13(17) ]
+				// [ 2(3), 4(3) ]   16
 				if (dungeon[i - 1][j] == 2 || dungeon[i - 1][j] == 4) {
 					if (dungeon[i][j - 1] == 13) {
 						dungeon[i][j] = 17; // cut + connect
@@ -1821,8 +1721,8 @@ static void L1TileFix()
 				}
 				break;
 			case 22:
-			//			[ 1(24!), 13(19!) ]
-			// [ 2(23!), 13(18!) ]	22
+				//          [ 1(24!), 13(19!) ]
+				// [ 2(23!), 13(18!) ]  22
 				if (dungeon[i - 1][j] == 2) {
 					if (dungeon[i][j - 1] == 1 || dungeon[i][j - 1] == 13) {
 						dungeon[i][j] = 21; // new wall (SW, SE)
@@ -1859,12 +1759,12 @@ static void L1TileFix()
 	for (i = DMAXX - 1; i > 0; i--) {
 		/* Impossible case ([2 13]) if there is an empty tile between walls.
 		if (dungeon[i][0] == 13) {
-			// [ 2(17) ] 13
+			// [ 2(17) ]   13
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 17; // connect
 			}
 		} else*/ if (dungeon[i][0] == 22) {
-			// [ 2(23) ]	22
+			// [ 2(23) ]   22
 			if (dungeon[i - 1][0] == 2) {
 				dungeon[i][0] = 23; // new wall (SW)
 			}
@@ -1873,7 +1773,7 @@ static void L1TileFix()
 	for (j = DMAXY - 1; j > 0; j--) {
 		if (dungeon[0][j] == 22) {
 			// [ 1(24) ]
-			//	22
+			//    22
 			if (dungeon[0][j - 1] == 1) {
 				dungeon[0][j] = 24; // new wall (SE)
 			} else {
@@ -1993,6 +1893,76 @@ static void L1TileFix()
 #endif
 }
 
+static void DRLG_L1PlaceThemeRooms()
+{
+	for (int i = ChambersFirst + ChambersMiddle + ChambersLast; i < nRoomCnt; i++) {
+		int roomLeft = drlg.L1RoomList[i].lrx;
+		int roomRight = roomLeft + drlg.L1RoomList[i].lrw - 1;
+		int roomTop = drlg.L1RoomList[i].lry;
+		int roomBottom = roomTop + drlg.L1RoomList[i].lrh - 1;
+		// select floor on the top-left corner
+		if (dungeon[roomLeft][roomTop] != DEFAULT_MEGATILE_L1) {
+			if (dungeon[roomLeft + 1][roomTop] == DEFAULT_MEGATILE_L1) {
+				roomLeft++;
+			} else if (dungeon[roomLeft][roomTop + 1] == DEFAULT_MEGATILE_L1) {
+				roomTop++;
+			} else if (dungeon[roomLeft + 1][roomTop + 1] == DEFAULT_MEGATILE_L1) {
+				roomLeft++;
+				roomTop++;
+			} else {
+				continue;
+			}
+		}
+		// select floor on the bottom-right corner
+		if (dungeon[roomRight][roomBottom] != DEFAULT_MEGATILE_L1) {
+			if (dungeon[roomRight - 1][roomBottom] == DEFAULT_MEGATILE_L1) {
+				roomRight--;
+			} else if (dungeon[roomLeft][roomBottom - 1] == DEFAULT_MEGATILE_L1) {
+				roomBottom--;
+			} else if (dungeon[roomRight - 1][roomBottom - 1] == DEFAULT_MEGATILE_L1) {
+				roomRight--;
+				roomBottom--;
+			} else {
+				continue;
+			}
+		}
+		// check inner tiles
+		bool fit = roomLeft <= roomRight && roomTop <= roomBottom;
+		for (int x = roomLeft; x <= roomRight; x++) {
+			for (int y = roomTop; y <= roomBottom; y++) {
+				if (dungeon[x][y] != DEFAULT_MEGATILE_L1 || (drlgFlags[x][y] & DRLG_PROTECTED)) {
+					fit = false;
+				}
+			}
+		}
+		// check border tiles
+		for (int x = roomLeft - 1; x <= roomRight + 1; x++) {
+			if (dungeon[x][roomTop - 1] == DEFAULT_MEGATILE_L1 || dungeon[x][roomBottom + 1] == DEFAULT_MEGATILE_L1) {
+				fit = false;
+			}
+		}
+		for (int y = roomTop - 1; y <= roomBottom + 1; y++) {
+			if (dungeon[roomLeft - 1][y] == DEFAULT_MEGATILE_L1 || dungeon[roomRight + 1][y] == DEFAULT_MEGATILE_L1) {
+				fit = false;
+			}
+		}
+		if (!fit)
+			continue;
+		// create the room
+		int w = roomRight - roomLeft + 1;
+		int h = roomBottom - roomTop + 1;
+		w += 2;
+		h += 2;
+		themes[numthemes]._tsx1 = roomLeft - 1;
+		themes[numthemes]._tsy1 = roomTop - 1;
+		themes[numthemes]._tsx2 = roomLeft + w - 2;
+		themes[numthemes]._tsy2 = roomTop + h - 2;
+		numthemes++;
+		if (numthemes == lengthof(themes))
+			break;
+	}
+}
+
 #ifdef HELLFIRE
 static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 {
@@ -2020,13 +1990,13 @@ static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 			if (!found)
 				continue;
 			// assert(ii == sw * sh + 2);
-			if (miniset[ii] >= 84 && miniset[ii] <= 100) {
+			if (miniset[ii] >= 89 && miniset[ii] <= 101) {
 				// BUGFIX: accesses to dungeon can go out of bounds (fixed)
 				// BUGFIX: Comparisons vs 100 should use same tile as comparisons vs 84 (fixed)
-				if ((sx > 0 && dungeon[sx - 1][sy] >= 84 && dungeon[sx - 1][sy] <= 100)
-				 || (dungeon[sx + 1][sy] >= 84 && dungeon[sx + 1][sy] <= 100)
-				 || (dungeon[sx][sy + 1] >= 84 && dungeon[sx][sy + 1] <= 100)
-				 || (sy > 0 && dungeon[sx][sy - 1] >= 84 && dungeon[sx][sy - 1] <= 100)) {
+				if ((sx > 0 && dungeon[sx - 1][sy] >= 89 && dungeon[sx - 1][sy] <= 101)
+				 || (dungeon[sx + 1][sy] >= 89 && dungeon[sx + 1][sy] <= 101)
+				 || (dungeon[sx][sy + 1] >= 89 && dungeon[sx][sy + 1] <= 101)
+				 || (sy > 0 && dungeon[sx][sy - 1] >= 89 && dungeon[sx][sy - 1] <= 101)) {
 					continue;
 				}
 			}
@@ -2045,17 +2015,21 @@ static void DRLG_L5PlaceRndSet(const BYTE* miniset, BYTE rndper)
 }
 #endif
 
+/*
+ * Replace undecorated tiles with matching decorated tiles.
+ * New dungeon values: 97 98 99 100 101 102 103 104 105 106 107 108 (97..108)  121 122 123 124 125 (121..125)  133 134 135 136 137 138 (133..138)
+ */
 static void DRLG_L1Subs()
 {
 	int x, y;
-	BYTE i, c;
-	char rv;
+	BYTE c, k;
+	int8_t rv;
 	const unsigned MAX_MATCH = 11;
 	const unsigned NUM_L1TYPES = 139;
-	static_assert(MAX_MATCH <= CHAR_MAX, "MAX_MATCH does not fit to rv(char) in DRLG_L1Subs.");
+	static_assert(MAX_MATCH <= INT8_MAX, "MAX_MATCH does not fit to rv(int8_t) in DRLG_L1Subs.");
 	static_assert(NUM_L1TYPES <= UCHAR_MAX, "NUM_L1TYPES does not fit to i(BYTE) in DRLG_L1Subs.");
 #if DEBUG_MODE
-	for (i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
+	for (int i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
 		if (L1BTYPES[i] != 0) {
 			if (i >= NUM_L1TYPES)
 				app_fatal("Value %d is ignored in L1BTYPES at %d", L1BTYPES[i], i);
@@ -2063,7 +2037,7 @@ static void DRLG_L1Subs()
 		}
 	}
 
-	for (i = 0; i < sizeof(L1BTYPES); i++) {
+	for (int i = 0; i < sizeof(L1BTYPES); i++) {
 		c = L1BTYPES[i];
 		if (c == 0)
 			continue;
@@ -2076,41 +2050,21 @@ static void DRLG_L1Subs()
 			app_fatal("Too many(%d) matching('%d') values in L1BTYPES", x, c);
 	}
 #endif
-	for (y = 0; y < DMAXY; y++) {
-		for (x = 0; x < DMAXX; x++) {
+	for (x = 0; x < DMAXX; x++) {
+		for (y = 0; y < DMAXY; y++) {
 			if (random_(0, 4) == 0) {
 				c = L1BTYPES[dungeon[x][y]];
-
-				if (c != 0 && drlgFlags[x][y] == 0) {
-					assert(c != 79);
-					assert(c != 80);
+				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
-					i = 0;
+					k = 0;
 					while (TRUE) {
-						if (c == L1BTYPES[i] && --rv < 0) {
+						if (c == L1BTYPES[k] && --rv < 0) {
 							break;
 						}
-						if (++i == NUM_L1TYPES)
-							i = 0;
+						if (++k == NUM_L1TYPES)
+							k = 0;
 					}
-
-					assert(i != 89);
-					// BUGFIX: Add `&& y > 0` to the if statement. (fixed)
-					/*if (i == 89 && y > 0) {
-						if (L1BTYPES[dungeon[x][y - 1]] != 79 || drlgFlags[x][y - 1] != 0)
-							i = 79;
-						else
-							dungeon[x][y - 1] = 90;
-					}*/
-					assert(i != 91);
-					// BUGFIX: Add `&& x + 1 < DMAXX` to the if statement. (fixed)
-					/*if (i == 91 && x + 1 < DMAXX) {
-						if (L1BTYPES[dungeon[x + 1][y]] != 80 || drlgFlags[x + 1][y] != 0)
-							i = 80;
-						else
-							dungeon[x + 1][y] = 92;
-					}*/
-					dungeon[x][y] = i;
+					dungeon[x][y] = k;
 				}
 			}
 		}
@@ -2126,6 +2080,7 @@ static void DRLG_L5Crypt_pattern2(BYTE rndper)
 	DRLG_PlaceRndTile(2, 113, rndper);
 	/** Miniset: South-Edge column on the northern side 1. */
 	DRLG_PlaceRndTile(3, 114, rndper);
+	DRLG_PlaceRndTile(28, 126, rndper);
 	/** Miniset: Use random corner north 1. */
 	DRLG_PlaceRndTile(4, 115, rndper);
 	/** Miniset: North-Edge column on the northern side 1. */
@@ -2164,6 +2119,7 @@ static void DRLG_L5Crypt_pattern3(BYTE rndper)
 	DRLG_PlaceRndTile(2, 130, rndper);
 	/** Miniset: South-Edge column on the northern side 2. */
 	DRLG_PlaceRndTile(3, 131, rndper);
+	DRLG_PlaceRndTile(28, 143, rndper);
 	/** Miniset: Use random corner north 2. */
 	DRLG_PlaceRndTile(4, 132, rndper);
 	/** Miniset: North-Edge column on the northern side 2. */
@@ -2202,6 +2158,7 @@ static void DRLG_L5Crypt_pattern4(BYTE rndper)
 	DRLG_PlaceRndTile(2, 147, rndper);
 	/** Miniset: South-Edge column on the northern side 3. */
 	DRLG_PlaceRndTile(3, 148, rndper);
+	// DRLG_PlaceRndTile(28, 160, rndper);
 	/** Miniset: Use random corner north 3. */
 	DRLG_PlaceRndTile(4, 149, rndper);
 	/** Miniset: North-Edge column on the northern side 3. */
@@ -2225,7 +2182,7 @@ static void DRLG_L5Crypt_pattern4(BYTE rndper)
 	/** Miniset: Use random concave corner east B3. */
 	DRLG_PlaceRndTile(14, 159, rndper);
 	/** Miniset: Use random column 4. (Lava fountain) */
-	DRLG_PlaceRndTile(15, 160, rndper);
+	DRLG_L5PlaceRndSet(L5RNDCOL7, rndper); // 15 -> 160
 	/** Miniset: Use random concave corner north A3. */
 	DRLG_PlaceRndTile(16, 161, rndper);
 	/** Miniset: Use random concave corner north B3. */
@@ -2252,14 +2209,16 @@ static void DRLG_L5Crypt_pattern5(BYTE rndper)
 
 static void DRLG_L5Crypt_pattern6(BYTE rndper)
 {
-	/** Miniset: Column on the northern side of a vertical wall 2. pointless? same as 95 */
+	/** Miniset: Column on the northern side of a vertical wall 2. */
 	DRLG_PlaceRndTile(11, 185, rndper);
-	/** Miniset: Column on the northern side of a horizontal wall 2. pointless? same as 96 */
-	DRLG_PlaceRndTile(12, 187, rndper);
-	/** Miniset: Column on the northern side of a vertical wall 3. pointless? same as 95 */
+	/** Miniset: Column on the northern side of a vertical wall 3. */
 	DRLG_PlaceRndTile(11, 186, rndper);
-	/** Miniset: Column on the northern side of a horizontal wall 3. pointless? same as 96 */
-	DRLG_PlaceRndTile(12, 188, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 2. */
+	DRLG_PlaceRndTile(96, 187, rndper);
+	/** Miniset: Column on the northern side of a horizontal wall 3. */
+	DRLG_PlaceRndTile(96, 188, rndper);
+	/** Miniset: Use random column 1. (Cracked) */
+	DRLG_L5PlaceRndSet(L5RNDCOL9, rndper); // 15 -> 192
 	/** Miniset: Replace vertical wall tile on the bottom 1. */
 	DRLG_PlaceRndTile(89, 173, rndper);
 	/** Miniset: Replace vertical wall tile on the bottom 2. */
@@ -2284,19 +2243,23 @@ static void DRLG_L5Crypt_pattern6(BYTE rndper)
 	DRLG_PlaceRndTile(94, 183, rndper);
 	/** Miniset: Replace random horizontal wall tile on west 2. */
 	DRLG_PlaceRndTile(94, 184, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR2_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR2_1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR1_0, rndper);
-	/** Miniset: Use random column 1. (Cracked) */
-	DRLG_PlaceRndTile(15, 192, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR3_0, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR3_1, rndper);
-	DRLG_L5PlaceRndSet(L5RNDFLOOR4_0, rndper);
+	/** Miniset: Replace random floor tile 1 with another one. */
+	DRLG_PlaceRndTile(97, 191, rndper);
+	/** Miniset: Replace random floor tile 2 with another one 1. */
+	DRLG_PlaceRndTile(98, 189, rndper);
+	/** Miniset: Replace random floor tile 2 with another one 2. */
+	DRLG_PlaceRndTile(98, 190, rndper);
+	/** Miniset: Replace random floor tile 3 with another one 1. */
+	DRLG_PlaceRndTile(99, 193, rndper);
+	/** Miniset: Replace random floor tile 3 with another one 2. */
+	DRLG_PlaceRndTile(99, 194, rndper);
+	/** Miniset: Replace random floor tile 4 with another one 1. */
+	DRLG_PlaceRndTile(100, 195, rndper);
+	/** Miniset: Replace random floor tile 4 with another one 2. */
+	DRLG_PlaceRndTile(100, 196, rndper);
 	/** Miniset: Replace random large floor tile 1. */
-	DRLG_PlaceRndTile(101, 196, rndper);
-	/** Miniset: Replace random large floor tile 2. */
 	DRLG_PlaceRndTile(101, 197, rndper);
-	/** Miniset: Replace random large floor tile 3. */
+	/** Miniset: Replace random large floor tile 2. */
 	DRLG_PlaceRndTile(101, 198, rndper);
 }
 
@@ -2354,19 +2317,33 @@ static void DRLG_L1TransFix()
 				}
 				break;*/
 			// fix transVals of corners
-			case 20:
 			case 22:
+			//case 203:
+			case 20:
+			//case 201:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 18:
 			case 23:
+			//case 204:
+				//if (dungeon[i][j - 1] != 199) {
+				//	break;
+				//}
+				/* fall-through */
+			case 18:
+			//case 199:
 				DRLG_CopyTrans(xx, yy, xx + 1, yy);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
-			case 19:
 			case 24:
+			//case 205:
+				//if (dungeon[i + 1][j] != 200) {
+				//	break;
+				//}
+				/* fall-through */
+			case 19:
+			//case 200:
 				DRLG_CopyTrans(xx, yy, xx, yy + 1);
 				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
 				break;
@@ -2402,11 +2379,137 @@ static void DRLG_L1TransFix()
 	}
 }
 
+#ifdef HELLFIRE
+/*
+ * Spread transVals further.
+ * - spread transVals on corner tiles to make transparency smoother.
+ */
+static void DRLG_L5TransFix()
+{
+	int xx, yy, i, j;
+	//BYTE tv;
+
+	yy = DBORDERY;
+
+	for (j = 0; j < DMAXY; j++) {
+		xx = DBORDERX;
+
+		for (i = 0; i < DMAXX; i++) {
+			switch (dungeon[i][j]) {
+			/* commented out because a simplified version is added below
+			case 18:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 19:
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 20:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 23:
+				// BUGFIX: Should check for `j > 0` first. (fixed)
+				if (j > 0 && dungeon[i][j - 1] == 18) {
+					DRLG_CopyTrans(xx, yy, xx + 1, yy);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				}
+				break;
+			case 24:
+				// BUGFIX: Should check for `i + 1 < DMAXX` first. (fixed)
+				if (i < DMAXX - 1 && dungeon[i + 1][j] == 19) {
+					DRLG_CopyTrans(xx, yy, xx, yy + 1);
+					DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				}
+				break;*/
+			// fix transVals of corners
+			case 22:
+			//case 86:
+			case 20:
+			//case 84:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 23:
+			//case 87:
+				//if (dungeon[i][j - 1] != 82) {
+				//	break;
+				//}
+				/* fall-through */
+			case 18:
+			//case 82:
+				DRLG_CopyTrans(xx, yy, xx + 1, yy);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			case 24:
+			//case 88:
+				//if (dungeon[i + 1][j] != 83) {
+				//	break;
+				//}
+				/* fall-through */
+			case 19:
+			//case 83:
+				DRLG_CopyTrans(xx, yy, xx, yy + 1);
+				//DRLG_CopyTrans(xx, yy, xx + 1, yy + 1);
+				break;
+			/* fix transVals around the stairs - necessary only if DRLG_FloodTVal is run after the placement
+			// - due to id conflict between hellfire and diablo, this does not work on tile 63
+			case 55:
+			case 58:
+			case 61:
+			case 62:
+			case 63:
+			case 66:
+				tv = dTransVal[xx + 6][yy];
+				dTransVal[xx][yy] = tv;
+				dTransVal[xx + 1][yy] = tv;
+				dTransVal[xx][yy + 1] = tv;
+				dTransVal[xx + 1][yy + 1] = tv;
+				// fix walls on the west side
+				//if (dTransVal[xx - 1][yy] == 0)
+					dTransVal[xx - 1][yy] = tv;
+				//if (dTransVal[xx - 1][yy + 1] == 0)
+					dTransVal[xx - 1][yy + 1] = tv;
+				break;
+			case 67:
+				DRLG_CopyTrans(xx, yy + 1, xx + 1, yy);
+				break;
+			case 68:
+				DRLG_CopyTrans(xx, yy + 1, xx, yy);
+				break;*/
+			}
+			xx += 2;
+		}
+		yy += 2;
+	}
+}
+#endif
+
+void DRLG_L1InitTransVals()
+{
+	static_assert(sizeof(drlg.transvalMap) == sizeof(dungeon), "transvalMap vs dungeon mismatch.");
+	memcpy(drlg.transvalMap, dungeon, sizeof(dungeon));
+
+	DRLG_FloodTVal();
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_L5TransFix();
+	} else
+#endif
+	{
+		DRLG_L1TransFix();
+	}
+}
+
 /*
  * Replace tiles with complete ones to hide rendering glitch of transparent corners.
- * New dungeon values: 199 200 202 204 205 / 82 83 85 87 88
+ * New dungeon values: 199..205 / 82..88
+ * Obsolete dungeon values: 18..24
  */
-static void DRLG_L1Corners()
+/*static void DRLG_L1Corners()
 {
 	int i;
 	BYTE dv = 181, *pTmp;
@@ -2420,45 +2523,44 @@ static void DRLG_L1Corners()
 	// assert(currLvl._dType == DTYPE_CATHEDRAL);
 #endif
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		if (*pTmp >= 18 && *pTmp <= 24 && *pTmp != 22/* && *pTmp != 20*/)
+		if (*pTmp >= 18 && *pTmp <= 24) // && *pTmp != 22 && *pTmp != 20
 			*pTmp += dv;
 	}
-	/*for (j = 0; j < DMAXY - 1; j++) {
-		for (i = 0; i < DMAXX - 1; i++) {
-			switch (dungeon[i][j]) {
-			case 18:
-				if (dungeon[i][j + 1] != 18)
-					dungeon[i][j] = 199;
-				break;
-			case 19:
-				if (dungeon[i + 1][j] != 19)
-					dungeon[i][j] = 200;
-				break;
-			case 21:
-				if (dungeon[i + 1][j] != 19 || dungeon[i][j + 1] != 18)
-					dungeon[i][j] = 202;
-				break;
-			case 23:
-				if (dungeon[i][j + 1] != 18)
-					dungeon[i][j] = 204;
-				break;
-			case 24:
-				if (dungeon[i + 1][j] != 19)
-					dungeon[i][j] = 205;
-				break;
-			}
-		}
-	}*/
-}
+	//for (j = 0; j < DMAXY - 1; j++) {
+	//	for (i = 0; i < DMAXX - 1; i++) {
+	//		switch (dungeon[i][j]) {
+	//		case 18:
+	//			if (dungeon[i][j + 1] != 18)
+	//				dungeon[i][j] = 199;
+	//			break;
+	//		case 19:
+	//			if (dungeon[i + 1][j] != 19)
+	//				dungeon[i][j] = 200;
+	//			break;
+	//		case 21:
+	//			if (dungeon[i + 1][j] != 19 || dungeon[i][j + 1] != 18)
+	//				dungeon[i][j] = 202;
+	//			break;
+	//		case 23:
+	//			if (dungeon[i][j + 1] != 18)
+	//				dungeon[i][j] = 204;
+	//			break;
+	//		case 24:
+	//			if (dungeon[i + 1][j] != 19)
+	//				dungeon[i][j] = 205;
+	//			break;
+	//		}
+	//	}
+	//}
+}*/
 
 /*
  * Miniset replacement of corner tiles.
  * New dungeon values: (8 16)
  * TODO: use DRLG_PlaceMiniSet instead?
  */
-static void DRLG_L1CornerFix()
+/*static void DRLG_L1CornerFix()
 {
-	/* commented out because this is no longer necessary
 	int i, j;
 
 	for (j = 1; j < DMAXY - 1; j++) {
@@ -2468,9 +2570,9 @@ static void DRLG_L1CornerFix()
 
 			// 0,  0, 0, replace
 			// 0, 16, 0,
-			if (!(drlgFlags[i][j] & DLRG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
+			if (!(drlgFlags[i][j] & DRLG_PROTECTED) && dungeon[i][j] == 17 && dungeon[i - 1][j] == 13 && dungeon[i][j - 1] == 1) {
 				dungeon[i][j] = 16;
-				drlgFlags[i][j - 1] &= DLRG_PROTECTED;
+				drlgFlags[i][j - 1] &= DRLG_PROTECTED;
 			}
 			// 0, 202, 13,  search
 			// 0,   1,  0,
@@ -2481,30 +2583,14 @@ static void DRLG_L1CornerFix()
 				dungeon[i][j] = 8;
 			}
 		}
-	}*/
-}
-
-struct mini_set {
-	const BYTE* data;
-	bool setview;
-};
-static bool DRLG_L1PlaceMiniSets(mini_set* minisets, int n)
-{
-	int i;
-
-	for (i = 0; i < n; i++) {
-		if (minisets[i].data != NULL && !DRLG_L1PlaceMiniSet(minisets[i].data, minisets[i].setview)) {
-			return false;
-		}
 	}
-	return true;
-}
+}*/
 
-static void DRLG_L1(int entry)
+static void DRLG_L1()
 {
 	int i;
 	int minarea;
-	bool doneflag;
+	bool placeWater = QuestStatus(Q_PWATER);
 
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL1:
@@ -2518,12 +2604,11 @@ static void DRLG_L1(int entry)
 		break;
 	}
 
-	do {
+	while (true) {
 		do {
-			static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of pdungeon does not work in DRLG_L1.");
 			memset(dungeon, 0, sizeof(dungeon));
-			L1FirstRoom();
-		} while (L1GetArea() < minarea);
+			DRLG_L1CreateDungeon();
+		} while (DRLG_L1GetArea() < minarea);
 
 		DRLG_L1MakeMegas();
 		L1TileFix();
@@ -2531,68 +2616,114 @@ static void DRLG_L1(int entry)
 		L1FillChambers();
 		L1AddWall();
 		L1ClearChamberFlags();
-		DRLG_InitTrans();
-		DRLG_FloodTVal(13);
-
-		doneflag = true;
-
-		if (QuestStatus(Q_PWATER)) {
-			POS32 mpos = DRLG_PlaceMiniSet(PWATERIN);
-			if (mpos.x != DMAXX) {
-				// fix transVal of the set-map
-				// - uncommented since the pieces are blocked anyway
-				//DRLG_MRectTrans(mpos.x + 1, mpos.y + 1, mpos.x + 4, mpos.y + 2, 0);
-
-				quests[Q_PWATER]._qtx = 2 * mpos.x + DBORDERX + 5;
-				quests[Q_PWATER]._qty = 2 * mpos.y + DBORDERY + 6;
-			} else {
-				doneflag = false;
+		if (placeWater) {
+			POS32 warpPos = DRLG_PlaceMiniSet(PWATERIN);
+			if (warpPos.x < 0) {
+				continue;
 			}
+			pWarps[DWARP_SIDE]._wx = warpPos.x + 2;
+			pWarps[DWARP_SIDE]._wy = warpPos.y + 3;
+			pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX + 1;
+			pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY;
+			pWarps[DWARP_SIDE]._wtype = WRPT_L1_PWATER;
+			pWarps[DWARP_SIDE]._wlvl = questlist[Q_PWATER]._qslvl;
 		}
-		if (QuestStatus(Q_LTBANNER)) {
-			// fix transVal behind the stairs
-			// - uncommented since the set-map is 'populated' -> monsters are not spawn there
-			//DRLG_MRectTrans(setpc_x, setpc_y + 3, setpc_x, setpc_y + 5,
-			//	dTransVal[2 * setpc_x + DBORDERX + 1][2 * setpc_y + DBORDERY + 11]);
-			if (entry == ENTRY_PREV) {
-				ViewX = 2 * setpc_x + DBORDERX + 3;
-				ViewY = 2 * setpc_y + DBORDERY + 11;
-			}
-			doneflag = DRLG_L1PlaceMiniSet(L1USTAIRS, entry != ENTRY_PREV); // was STAIRSUP, entry == ENTRY_MAIN
 #ifdef HELLFIRE
-		} else if (currLvl._dType == DTYPE_CRYPT) {
-			mini_set stairs[2] = {
-				{ /*currLvl._dLevelIdx != DLV_CRYPT1 ?*/ L5USTAIRS /*: L5TWARP*/, entry != ENTRY_PREV },
-				{ currLvl._dLevelIdx != DLV_CRYPT4 ? L5DSTAIRS : NULL, entry == ENTRY_PREV },
-			};
-			doneflag = DRLG_L1PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_PREV) {
-				ViewY += 3;
+		if (currLvl._dType == DTYPE_CRYPT) {
+			POS32 warpPos = DRLG_PlaceMiniSet(L5USTAIRS); // L5USTAIRS (3, 6), was STAIRSUP, entry == ENTRY_MAIN
+			if (warpPos.x < 0) {
+				continue;
+			}
+			if (currLvl._dLevelIdx == DLV_CRYPT1) {
+				pWarps[DWARP_TOWN]._wx = warpPos.x + 1;
+				pWarps[DWARP_TOWN]._wy = warpPos.y + 2;
+				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+				pWarps[DWARP_TOWN]._wtype = WRPT_L1_UP;
 			} else {
-				ViewY += 2;
+				pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
+				pWarps[DWARP_ENTRY]._wy = warpPos.y + 2;
+				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+				pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+				pWarps[DWARP_ENTRY]._wtype = WRPT_L1_UP;
 			}
+			if (currLvl._dLevelIdx != DLV_CRYPT4) {
+				warpPos = DRLG_PlaceMiniSet(L5DSTAIRS); // L5DSTAIRS (3, 7)
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
+				pWarps[DWARP_EXIT]._wy = warpPos.y + 3;
+				pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX + 1;
+				pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+				pWarps[DWARP_EXIT]._wtype = WRPT_L1_DOWN;
+			}
+		} else
 #endif
-		} else {
+		{
 			// assert(currLvl._dType == DTYPE_CATHEDRAL);
-			mini_set stairs[2] = {
-				{ L1USTAIRS, entry != ENTRY_PREV }, // was STAIRSUP in hellfire
-				{ L1DSTAIRS, entry == ENTRY_PREV },
-			};
-			doneflag &= DRLG_L1PlaceMiniSets(stairs, 2);
-			if (entry == ENTRY_PREV) {
-				ViewY++;
+			POS32 warpPos = DRLG_PlaceMiniSet(L1USTAIRS); // L1USTAIRS (3, 4)
+			if (warpPos.x < 0) {
+				continue;
 			}
+			if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
+				pWarps[DWARP_TOWN]._wx = warpPos.x + 1;
+				pWarps[DWARP_TOWN]._wy = warpPos.y + 1;
+				pWarps[DWARP_TOWN]._wx = 2 * pWarps[DWARP_TOWN]._wx + DBORDERX;
+				pWarps[DWARP_TOWN]._wy = 2 * pWarps[DWARP_TOWN]._wy + DBORDERY;
+				pWarps[DWARP_TOWN]._wtype = WRPT_L1_UP;
+			} else {
+				pWarps[DWARP_ENTRY]._wx = warpPos.x + 1;
+				pWarps[DWARP_ENTRY]._wy = warpPos.y + 1;
+				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX;
+				pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+				pWarps[DWARP_ENTRY]._wtype = WRPT_L1_UP;
+			}
+			if (pSetPieces[0]._sptype == SPT_SKELKING) {
+				pWarps[DWARP_SIDE]._wx = pSetPieces[0]._spx + 6; // L1DSTAIRS (3, 5)
+				pWarps[DWARP_SIDE]._wy = pSetPieces[0]._spy + 3;
+				pWarps[DWARP_SIDE]._wx = 2 * pWarps[DWARP_SIDE]._wx + DBORDERX;
+				pWarps[DWARP_SIDE]._wy = 2 * pWarps[DWARP_SIDE]._wy + DBORDERY + 1;
+				pWarps[DWARP_SIDE]._wtype = WRPT_L1_SKING;
+				pWarps[DWARP_SIDE]._wlvl = questlist[Q_SKELKING]._qslvl;
+			}
+			if (pSetPieces[0]._sptype == SPT_BANNER) {
+				pWarps[DWARP_EXIT]._wx = pSetPieces[0]._spx + 1; // L1DSTAIRS (3, 5)
+				pWarps[DWARP_EXIT]._wy = pSetPieces[0]._spy + 5;
+			} else {
+				warpPos = DRLG_PlaceMiniSet(L1DSTAIRS); // L1DSTAIRS (3, 5)
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_EXIT]._wx = warpPos.x + 1;
+				pWarps[DWARP_EXIT]._wy = warpPos.y + 2;
+			}
+			pWarps[DWARP_EXIT]._wx = 2 * pWarps[DWARP_EXIT]._wx + DBORDERX + 1;
+			pWarps[DWARP_EXIT]._wy = 2 * pWarps[DWARP_EXIT]._wy + DBORDERY;
+			pWarps[DWARP_EXIT]._wtype = WRPT_L1_DOWN;
 		}
-	} while (!doneflag);
+		break;
+	}
 
-	DRLG_L1TransFix();
-	DRLG_L1Corners();
-	DRLG_L1CornerFix();
+	/*if (placeWater) {
+		int x, y;
 
-	DRLG_L1PlaceDoors();
+		x = pWarps[DWARP_SIDE]._wx + 1;
+		y = pWarps[DWARP_SIDE]._wy + 1;
+		// fix transVal of the set-map (entrance)
+		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 0);
+		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 0);
+		DRLG_CopyTrans(x + 0, y + 2, x + 0, y + 1);
+		DRLG_CopyTrans(x + 1, y + 2, x + 1, y + 1);
+	}*/
+	// DRLG_L1Corners(); - commented out, because this is no longer necessary
+	// DRLG_L1CornerFix(); - commented out, because this is no longer necessary
+
+	// DRLG_L1PlaceDoors(); - commented out, because this is no longer necessary
 
 #ifdef HELLFIRE
 	if (currLvl._dType == DTYPE_CRYPT) {
+		DRLG_L5Shadows();
 		/** Miniset: Use random vertical wall 4. (Statue). */
 		DRLG_PlaceRndTile(1, 199, 10);
 		/** Miniset: Use random vertical wall 5. (Succubus statue) */
@@ -2601,12 +2732,13 @@ static void DRLG_L1(int entry)
 		DRLG_PlaceRndTile(2, 200, 10);
 		/** Miniset: Use random horizontal wall 5. (Succubus statue) */
 		DRLG_PlaceRndTile(2, 202, 10);
-		DRLG_L5PlaceRndSet(L5VERTCOL1, 95);
-		DRLG_L5PlaceRndSet(L5HORIZCOL1, 95);
+		DRLG_L5PlaceRndSet(L5VERTCOL1, 95); // 11 -> 95
+		DRLG_L5PlaceRndSet(L5HORIZCOL1a, 95); // 12 -> 96
+		DRLG_L5PlaceRndSet(L5HORIZCOL1b, 95);
+		// DRLG_L5PlaceRndSet(L5HORIZCOL1c, 95);
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
 		DRLG_L5PlaceRndSet(L5PREHORIZWALL, 100);
 		DRLG_L5PlaceRndSet(L5RNDLFLOOR1, 60);
-		DRLG_L5Shadows();
 		switch (currLvl._dLevelIdx) {
 		case DLV_CRYPT1:
 			DRLG_L5Crypt_pattern2(30);
@@ -2644,41 +2776,451 @@ static void DRLG_L1(int entry)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		DRLG_L5Shadows();
 	} else
 #endif
 	{
 		// assert(currLvl._dType == DTYPE_CATHEDRAL);
-		DRLG_L1Subs();
+		DRLG_L1PlaceThemeRooms();
+
 		DRLG_L1Shadows();
 		for (i = RandRange(5, 9); i > 0; i--)
-			DRLG_L1PlaceMiniSet(LAMPS, false);
+			DRLG_PlaceMiniSet(LAMPS);
+	}
+}
+#if 0
+static void DRLG_L1FixMap()
+{
+	uint16_t* lm = (uint16_t*)pSetPieces[0]._spData;
+
+	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
+		// patch the map - Vile1.DUN
+		// external tiles
+		for (int y = 0; y < 23; y++) {
+			for (int x = 0; x < 21; x++) {
+				uint16_t currTileRef = SwapLE16(lm[2 + x + y * 21]);
+				if (currTileRef >= 181 + 18 && currTileRef <= 181 + 24) {
+					lm[2 + x + y * 21] = SwapLE16(currTileRef - 181);
+				}
+			}
+		}
+		// replace default tiles with external piece
+		// - SW in the middle
+		lm[2 + 12 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 13 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 14 + 22 * 21] = SwapLE16(203 - 181);
+		// - SE
+		for (int i = 1; i < 23; i++) {
+			lm[2 + 20 + i * 21] = SwapLE16(203 - 181);
+		}
+		// use common tiles
+		lm[2 + 11 +  3 * 21] = SwapLE16(18);
+		// ensure the changing tiles are reserved
+		lm[2 + 21 * 23 +  4 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  4 +  6 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  4 +  7 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  5 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  6 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 12 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 13 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 14 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 15 +  5 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 15 +  6 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 15 +  7 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  7 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  8 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 +  9 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 10 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 11 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 12 + 18 * 21] = SwapLE16(3);
+		lm[2 + 21 * 23 + 14 + 15 * 21] = SwapLE16(3);
+	} else if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
+		// patch the map - SklKng1.DUN
+		// external tiles
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 37; x++) {
+				uint16_t currTileRef = SwapLE16(lm[2 + x + y * 37]);
+				if (currTileRef >= 181 + 18 && currTileRef <= 181 + 24) {
+					lm[2 + x + y * 37] = SwapLE16(currTileRef - 181);
+				}
+			}
+		}
+		// useless tiles
+		lm[2 + 15 + 12 * 37] = 0;
+		lm[2 + 15 + 16 * 37] = 0;
+		lm[2 + 25 + 11 * 37] = 0;
+		lm[2 + 24 + 23 * 37] = 0;
+		// fix the shadows
+		lm[2 +  9 + 2 * 37] = SwapLE16(143);
+		lm[2 + 12 + 2 * 37] = SwapLE16(143);
+		lm[2 + 10 + 5 * 37] = SwapLE16(157);
+		lm[2 + 24, 18 * 37] = SwapLE16(140);
+		// use common tiles
+		lm[2 +  7 + 14 * 37] = SwapLE16(84);
+		// use the new shadows
+		lm[2 +  9 +  3 * 37] = SwapLE16(139);
+		lm[2 +  9 +  4 * 37] = SwapLE16(139);
+		lm[2 +  9 +  5 * 37] = SwapLE16(126);
+		lm[2 + 12 +  3 * 37] = SwapLE16(139);
+		lm[2 + 12 +  4 * 37] = SwapLE16(139);
+		lm[2 + 12 +  5 * 37] = SwapLE16(127);
+		lm[2 +  4 + 15 * 37] = SwapLE16(150);
+		lm[2 +  6 + 16 * 37] = SwapLE16(150);
+		lm[2 + 15 + 17 * 37] = SwapLE16(159);
+		lm[2 + 15 + 13 * 37] = SwapLE16(159);
+		lm[2 + 27 + 13 * 37] = SwapLE16(159);
+		lm[2 +  8 + 10 * 37] = SwapLE16(159);
+		lm[2 +  8 + 12 * 37] = SwapLE16(144);
+		lm[2 + 13 + 12 * 37] = SwapLE16(144);
+		lm[2 +  8 + 17 * 37] = SwapLE16(144);
+		lm[2 + 13 + 17 * 37] = SwapLE16(144);
+		// remove fix decorations
+		lm[2 +  3 + 15 * 37] = SwapLE16(2);
+		lm[2 +  5 + 20 * 37] = SwapLE16(1);
+		lm[2 +  6 +  9 * 37] = SwapLE16(2);
+		lm[2 + 10 +  1 * 37] = SwapLE16(2);
+		lm[2 + 13 +  1 * 37] = SwapLE16(2);
+		lm[2 + 15 +  9 * 37] = SwapLE16(2);
+		lm[2 + 17 + 14 * 37] = SwapLE16(2);
+		lm[2 + 22 + 12 * 37] = SwapLE16(2);
+		lm[2 + 20 +  8 * 37] = SwapLE16(1);
+		lm[2 + 21 +  7 * 37] = SwapLE16(2);
+		lm[2 + 24 +  7 * 37] = SwapLE16(2);
+		lm[2 + 25 + 12 * 37] = SwapLE16(2);
+		lm[2 + 26 + 12 * 37] = SwapLE16(2);
+		lm[2 + 29 + 14 * 37] = SwapLE16(2);
+		lm[2 + 16 + 15 * 37] = SwapLE16(11);
+		lm[2 +  8 +  3 * 37] = SwapLE16(1);
+		lm[2 +  8 +  4 * 37] = SwapLE16(1);
+		lm[2 + 10 +  7 * 37] = SwapLE16(1);
+		lm[2 + 10 +  9 * 37] = SwapLE16(1);
+		lm[2 + 21 + 13 * 37] = SwapLE16(1);
+		lm[2 + 21 + 17 * 37] = SwapLE16(1);
+		lm[2 + 23 +  9 * 37] = SwapLE16(1);
+		lm[2 + 23 + 10 * 37] = SwapLE16(1);
+		lm[2 + 23 + 20 * 37] = SwapLE16(1);
+		lm[2 + 23 + 21 * 37] = SwapLE16(1);
+		lm[2 + 31 + 15 * 37] = SwapLE16(11);
+		lm[2 + 31 + 16 * 37] = SwapLE16(11);
+		lm[2 + 32 + 16 * 37] = 0;
+		lm[2 + 33 + 16 * 37] = 0;
+		// - remove sarcophagi tiles
+		lm[2 +  6 + 11 * 37] = 0;
+		lm[2 +  7 + 11 * 37] = 0;
+		lm[2 + 15 + 11 * 37] = 0;
+		lm[2 + 16 + 11 * 37] = 0;
+		lm[2 +  6 + 20 * 37] = 0;
+		lm[2 +  7 + 20 * 37] = 0;
+		lm[2 + 15 + 20 * 37] = 0;
+		lm[2 + 16 + 20 * 37] = 0;
+		lm[2 + 24 +  8 * 37] = 0;
+		lm[2 + 24 + 22 * 37] = 0;
+		// ensure the changing tiles are reserved
+		lm[2 + 25 * 37 + 10 + 11 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 11 + 11 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 12 + 11 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 20 + 14 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 20 + 15 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 20 + 16 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 21 + 14 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 21 + 15 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 21 + 16 * 37] = SwapLE16(3);
+		lm[2 + 25 * 37 + 23 +  8 * 37] = SwapLE16(3);
+	}
+}
+
+static void DRLG_L1FixPreMap(int idx)
+{
+	uint16_t* lm = (uint16_t*)pSetPieces[idx]._spData;
+
+	if (pSetPieces[idx]._sptype == SPT_BANNER) {
+		// patch set-piece - Banner2.DUN
+		// useless tiles
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 8; x++) {
+				if (x >= 3 && y >= 3 && x <= 3 && y <= 6) {
+					continue;
+				}
+				if (x >= 3 && y >= 5 && x <= 6 && y <= 5) {
+					continue;
+				}
+				lm[2 + x + y * 8] = 0;
+			}
+		}
+		// protect subtiles from spawning monsters/objects
+		// - protect objects from monsters/objects
+		lm[2 + 8 * 8 + (10 / 2) + ( 2 / 2) * 8] = SwapLE16(3 << 12);
+		// - protect monsters from monsters/objects
+		lm[2 + 8 * 8 + ( 0 / 2) + ( 0 / 2) * 8] = SwapLE16(3 << 14);
+		lm[2 + 8 * 8 + ( 2 / 2) + ( 2 / 2) * 8] = SwapLE16(3 << 10);
+		lm[2 + 8 * 8 + ( 8 / 2) + ( 0 / 2) * 8] = SwapLE16(3 << 12);
+		lm[2 + 8 * 8 + ( 8 / 2) + ( 4 / 2) * 8] = SwapLE16(3 << 10);
+		lm[2 + 8 * 8 + (10 / 2) + ( 2 / 2) * 8] = SwapLE16(3 << 10);
+		// - protect area from monsters/objects
+		lm[2 + 8 * 8 + ( 0 / 2) + ( 6 / 2) * 8] = SwapLE16(3 << 14);
+		lm[2 + 8 * 8 + ( 0 / 2) + ( 8 / 2) * 8] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 8 * 8 + ( 0 / 2) + (10 / 2) * 8] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 8 * 8 + ( 0 / 2) + (12 / 2) * 8] = SwapLE16((3 << 10) | (3 << 14));
+		for (int x = 2 / 2; x <= 12 / 2; x++) {
+			lm[2 + 8 * 8 + x + (6 / 2) * 8] = SwapLE16((3 << 12) | (3 << 14));
+		}
+		for (int y = 8 / 2; y <= 12 / 2; y++) {
+			for (int x = 2 / 2; x <= 12 / 2; x++) {
+				lm[2 + 8 * 8 + x + y * 8] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// - replace monsters
+		for (int y = 7; y <= 9; y++) {
+			for (int x = 7; x <= 13; x++) {
+				lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + x + y * 8 * 2] = SwapLE16(16);
+			}
+		}
+		// - remove monsters
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 1 + 4 * 8 * 2] = 0;
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 13 + 5 * 8 * 2] = 0;
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 7 + 12 * 8 * 2] = 0;
+		// - add unique
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 + 12 * 8 * 2] = SwapLE16((UMT_SNOTSPIL + 1) | (1 << 15));
+		// - add sign-chest
+		lm[2 + 8 * 8 + 8 * 8 * 2 * 2 + 8 * 8 * 2 * 2 + 10 + 3 * 8 * 2] = SwapLE16(90);
+	} else if (pSetPieces[idx]._sptype == SPT_LVL_BETRAYER) {
+		// patch the map - Vile2.DUN
+		// useless tiles
+		for (int y = 0; y < 23; y++) {
+			for (int x = 0; x < 21; x++) {
+				// room on the left side
+				if (x >= 4 && y >= 5 && x <= 6 && y <= 7) {
+					continue;
+				}
+				if (x >= 4 && y >= 8 && x <= 7 && y <= 10) {
+					continue;
+				}
+				// room on the right side
+				if (x == 12 && y == 5) {
+					continue;
+				}
+				if (x >= 13 && y >= 5 && x <= 15 && y <= 7) {
+					continue;
+				}
+				if (x >= 12 && y >= 8 && x <= 14 && y <= 10) {
+					continue;
+				}
+				// main room
+				if (x >= 7 && y >= 13 && x <= 13 && y <= 17) {
+					continue;
+				}
+				if (x >= 7 && y >= 18 && x <= 12 && y <= 18) {
+					continue;
+				}
+				if (x >= 8 && y >= 20 && x <= 11 && y <= 22) {
+					continue;
+				}
+				lm[2 + x + y * 21] = 0;
+			}
+		}
+		// - fix empty tiles
+		lm[2 + 8 + 16 * 21] = SwapLE16(203 - 181);
+		/*lm[2 + 12 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 13 + 22 * 21] = SwapLE16(203 - 181);
+		lm[2 + 14 + 22 * 21] = SwapLE16(203 - 181);
+		for (int i = 1; i < 23; i++) {
+			lm[2 + 20 + i * 21] = SwapLE16(203 - 181);
+		}*/
+		// use the new shadows
+		lm[2 + 14 + 5 * 21] = SwapLE16(152);
+		// - add monsters
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 16 + 30 * 21 * 2] = SwapLE16((UMT_LAZARUS + 1) | (1 << 15));
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 24 + 29 * 21 * 2] = SwapLE16((UMT_RED_VEX + 1) | (1 << 15));
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 22 + 33 * 21 * 2] = SwapLE16((UMT_BLACKJADE + 1) | (1 << 15));
+		// - replace the books
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
+	} else if (pSetPieces[idx]._sptype == SPT_LVL_SKELKING) {
+		// patch the map - SklKng2.DUN
+		// external tiles
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 37; x++) {
+				uint16_t currTileRef = SwapLE16(lm[2 + x + y * 37]);
+				if (currTileRef >= 181 + 18 && currTileRef <= 181 + 24) {
+					lm[2 + x + y * 37] = SwapLE16(currTileRef - 181);
+				}
+			}
+		}
+		// useless tiles
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 37; x++) {
+				// large hidden room
+				if (x >= 8 && y >= 1 && x <= 15 && y <= 6) {
+					continue;
+				}
+				if (x >= 10 && y >= 7 && x <= 13 && y <= 10) {
+					continue;
+				}
+				if (x == 11 && y == 11) {
+					continue;
+				}
+				// small hidden room
+				if (x >= 20 && y >= 7 && x <= 22 && y <= 10) {
+					continue;
+				}
+				if (x == 23 && y == 8) {
+					continue;
+				}
+				// grate
+				if (x >= 20 && y >= 14 && x <= 21 && y <= 16) {
+					continue;
+				}
+				lm[2 + x + y * 37] = 0;
+			}
+		}
+		// add sarcophagi
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 14 + 23 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 14 + 41 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 32 + 23 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 32 + 41 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 48 + 45 * 37 * 2] = SwapLE16(5);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 48 + 17 * 37 * 2] = SwapLE16(5);
+		// add the skeleton king
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
+		// remove monsters
+		for (int y = 21; y <= 41; y++) {
+			for (int x = 13; x <= 39; x++) {
+				if (x >= 18 && y >= 30 && x <= 20 && y <= 32) {
+					continue;
+				}
+				lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + x + y * 37 * 2] = 0;
+			}
+		}
+		for (int y = 21; y <= 36; y++) {
+			for (int x = 43; x <= 59; x++) {
+				lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + x + y * 37 * 2] = 0;
+			}
+		}
+		// protect subtiles from spawning additional monsters/objects
+		// - protect objects from monsters
+		lm[2 + 37 * 25 + (10 / 2) + (20 / 2) * 37] = SwapLE16(3 << 14);
+		lm[2 + 37 * 25 + (12 / 2) + (20 / 2) * 37] = SwapLE16(3 << 8);
+		lm[2 + 37 * 25 + (12 / 2) + (40 / 2) * 37] = SwapLE16(3 << 12);
+		lm[2 + 37 * 25 + (10 / 2) + (36 / 2) * 37] = SwapLE16(3 << 14);
+		lm[2 + 37 * 25 + (30 / 2) + (18 / 2) * 37] = SwapLE16(3 << 12);
+		lm[2 + 37 * 25 + (32 / 2) + (36 / 2) * 37] = SwapLE16(3 << 14);
+		lm[2 + 37 * 25 + (14 / 2) + (22 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 37 * 25 + (14 / 2) + (40 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 37 * 25 + (18 / 2) + (30 / 2) * 37] = SwapLE16((3 << 8) | (3 << 14));
+		lm[2 + 37 * 25 + (18 / 2) + (32 / 2) * 37] = SwapLE16(3 << 8);
+		lm[2 + 37 * 25 + (20 / 2) + (30 / 2) * 37] = SwapLE16(3 << 8);
+		lm[2 + 37 * 25 + (20 / 2) + (32 / 2) * 37] = SwapLE16(3 << 8);
+		lm[2 + 37 * 25 + (32 / 2) + (22 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 37 * 25 + (32 / 2) + (40 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 37 * 25 + (34 / 2) + (18 / 2) * 37] = SwapLE16(3 << 12);
+		lm[2 + 37 * 25 + (46 / 2) + (38 / 2) * 37] = SwapLE16(3 << 14);
+		lm[2 + 37 * 25 + (48 / 2) + (38 / 2) * 37] = SwapLE16((3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + (48 / 2) + (40 / 2) * 37] = SwapLE16((3 << 8) | (3 << 10));
+		lm[2 + 37 * 25 + (50 / 2) + (38 / 2) * 37] = SwapLE16(3 << 12);
+		lm[2 + 37 * 25 + (48 / 2) + (14 / 2) * 37] = SwapLE16(3 << 12);
+		lm[2 + 37 * 25 + (48 / 2) + (16 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 37 * 25 + (48 / 2) + (18 / 2) * 37] = SwapLE16(3 << 8);
+		lm[2 + 37 * 25 + (48 / 2) + (42 / 2) * 37] = SwapLE16(3 << 12);
+		lm[2 + 37 * 25 + (48 / 2) + (44 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+		// - protect the back-room from additional monsters
+		lm[2 + 37 * 25 + ( 2 / 2) + (30 / 2) * 37] = SwapLE16(3 << 14);
+		lm[2 + 37 * 25 + ( 2 / 2) + (32 / 2) * 37] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 37 * 25 + ( 2 / 2) + (34 / 2) * 37] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 37 * 25 + ( 2 / 2) + (36 / 2) * 37] = SwapLE16((3 << 10) | (3 << 14));
+		lm[2 + 37 * 25 + ( 4 / 2) + (30 / 2) * 37] = SwapLE16((3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + ( 6 / 2) + (30 / 2) * 37] = SwapLE16((3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + ( 8 / 2) + (30 / 2) * 37] = SwapLE16((3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + (10 / 2) + (32 / 2) * 37] = SwapLE16((3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + (12 / 2) + (32 / 2) * 37] = SwapLE16((3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + (10 / 2) + (34 / 2) * 37] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+		lm[2 + 37 * 25 + (12 / 2) + (34 / 2) * 37] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+		for (int y = 32 / 2; y <= 36 / 2; y++) {
+			for (int x = 4 / 2; x <= 8 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		// - add empty space after the grate
+		for (int y = 28 / 2; y <= 32 / 2; y++) {
+			for (int x = 32 / 2; x <= 32 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		for (int y = 30 / 2; y <= 32 / 2; y++) {
+			for (int x = 34 / 2; x <= 40 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
+			}
+		}
+		for (int y = 28 / 2; y <= 28 / 2; y++) {
+			for (int x = 32 / 2; x <= 40 / 2; x++) {
+				lm[2 + 37 * 25 + x + y * 37] = SwapLE16((3 << 12) | (3 << 14));
+			}
+		}
+		// protect the changing tiles from trap placement
+		lm[2 + 37 * 25 + (22 / 2) + (22 / 2) * 37] = SwapLE16((3 << 8) | (3 << 10));
+		lm[2 + 37 * 25 + (46 / 2) + (16 / 2) * 37] = SwapLE16((3 << 8) | (3 << 12));
+	}
+}
+#endif // 0
+
+static void DRLG_L1DrawPreMaps()
+{
+	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
+		if (pSetPieces[i]._sptype == SPT_NONE)
+			continue;
+		if (setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile != NULL) {
+			MemFreeDbg(pSetPieces[i]._spData);
+			pSetPieces[i]._spData = LoadFileInMem(setpiecedata[pSetPieces[i]._sptype]._spdPreDunFile);
+			// DRLG_L1FixPreMap(i);
+			DRLG_DrawMap(i);
+		}
+	}
+}
+
+static void LoadL1Dungeon(const LevelData* lds)
+{
+	pWarps[DWARP_ENTRY]._wx = lds->dSetLvlDunX;
+	pWarps[DWARP_ENTRY]._wy = lds->dSetLvlDunY;
+	pWarps[DWARP_ENTRY]._wtype = lds->dSetLvlWarp;
+
+	// load dungeon
+	pSetPieces[0]._spx = 0;
+	pSetPieces[0]._spy = 0;
+	pSetPieces[0]._sptype = lds->dSetLvlPiece;
+	pSetPieces[0]._spData = LoadFileInMem(setpiecedata[pSetPieces[0]._sptype]._spdDunFile);
+	// DRLG_L1FixMap();
+
+	memset(drlgFlags, 0, sizeof(drlgFlags));
+	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in LoadL1DungeonData.");
+	memset(dungeon, BASE_MEGATILE_L1, sizeof(dungeon));
+
+	DRLG_LoadSP(0, DEFAULT_MEGATILE_L1);
+}
+
+void CreateL1Dungeon()
+{
+	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+
+	if (lds->dSetLvl) {
+		LoadL1Dungeon(lds);
+	} else {
+		DRLG_LoadL1SP();
+		DRLG_L1();
+	}
+
+#ifdef HELLFIRE
+	if (currLvl._dType == DTYPE_CRYPT) {
+		;
+	} else
+#endif
+	{
+		DRLG_L1Subs();
 		DRLG_L1Floor();
 	}
 
 	memcpy(pdungeon, dungeon, sizeof(pdungeon));
+	DRLG_L1DrawPreMaps();
 
-	DRLG_Init_Globals();
-	DRLG_CheckQuests();
-}
-
-void CreateL1Dungeon(int entry)
-{
-	DRLG_InitSetPC();
-	DRLG_LoadL1SP();
-	DRLG_L1(entry);
+	DRLG_L1InitTransVals();
 	DRLG_PlaceMegaTiles(BASE_MEGATILE_L1);
-	DRLG_FreeL1SP();
-
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT)
-		DRLG_InitL5Specials();
-	else
-#endif
-		// assert(currLvl._dType == DTYPE_CATHEDRAL);
-		DRLG_InitL1Specials(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
-
-	DRLG_SetPC();
 }
 
 DEVILUTION_END_NAMESPACE

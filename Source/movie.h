@@ -12,9 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern bool gbMoviePlaying;
-
-void play_movie(const char *pszMovie, int movieFlags);
+int play_movie(const char* pszMovie, int movieFlags);
 
 #ifdef __cplusplus
 }

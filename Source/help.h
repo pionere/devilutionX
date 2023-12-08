@@ -14,9 +14,10 @@ extern "C" {
 
 extern bool gbHelpflag;
 
-void InitHelp();
+//void InitHelp();
 void DrawHelp();
-void DisplayHelp();
+void StartHelp();
+void StopHelp();
 void HelpScrollUp();
 void HelpScrollDown();
 

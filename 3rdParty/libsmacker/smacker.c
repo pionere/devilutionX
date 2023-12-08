@@ -1989,7 +1989,9 @@ char smk_first(smk s)
 		return -1;
 	}
 
+#ifdef FULL
 	if (s->f == 1) return SMK_LAST;
+#endif
 
 	return SMK_MORE;
 }

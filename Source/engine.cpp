@@ -19,7 +19,7 @@ DEVILUTION_BEGIN_NAMESPACE
 int SeedCount;
 #endif
 /** Current game seed */
-Sint32 sglGameSeed;
+int32_t sglGameSeed;
 #if __cplusplus <= 199711L
 static CCritSect sgMemCrit;
 #endif
@@ -27,12 +27,12 @@ static CCritSect sgMemCrit;
 /**
  * Specifies the increment used in the Borland C/C++ pseudo-random.
  */
-const Uint32 RndInc = 1;
+static const uint32_t RndInc = 1;
 
 /**
  * Specifies the multiplier used in the Borland C/C++ pseudo-random number generator algorithm.
  */
-const Uint32 RndMult = 0x015A4E35;
+static const uint32_t RndMult = 0x015A4E35;
 
 /**
  * @brief Calculate the best fit direction between two points
@@ -89,9 +89,9 @@ int GetDirection(int x1, int y1, int x2, int y2)
 	//                        SE  NE  SW  NW
 	const int BaseDirs[4] = {  7,  5,  1,  3 };
 	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
-	//const int DeltaDir[2][4] = {{0, 1, 2}, {2, 1, 0}};
-	const int DeltaDirs[2][4] = {{1, 0, 2}, {1, 2, 0}};
-	const int (&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
+	//const int DeltaDir[2][4] = { { 0, 1, 2 }, { 2, 1, 0 } };
+	const int DeltaDirs[2][4] = { { 1, 0, 2 }, { 1, 2, 0 } };
+	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	//dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 0 : 1)];
 	dir += DeltaDir[2 * adx < ady ? 2 : (2 * ady < adx ? 1 : 0)];
 	return dir & 7;
@@ -111,10 +111,19 @@ void SetRndSeed(int32_t s)
 }
 
 /**
- * @brief Get the current RNG seed
+ * @bried Return the current RNG seed
  * @return RNG seed
  */
 int32_t GetRndSeed()
+{
+	return sglGameSeed;
+}
+
+/**
+ * @brief Get the next RNG seed
+ * @return RNG seed
+ */
+int32_t NextRndSeed()
 {
 #if DEBUG_MODE
 	SeedCount++;
@@ -133,13 +142,13 @@ int random_(BYTE idx, int v)
 {
 	if (v <= 0)
 		return 0;
-	if (v < 0xFFFF)
-		return (((unsigned)GetRndSeed()) >> 16) % v;
-	return ((unsigned)GetRndSeed()) % v;
+	if (v < 0x7FFF)
+		return (((unsigned)NextRndSeed()) >> 16) % v;
+	return ((unsigned)NextRndSeed()) % v;
 }
 
 /**
- * @brief Same as random_ but assumes 0 < v < 0xFFFF
+ * @brief Same as random_ but assumes 0 < v < 0x7FFF
  * @param idx Unused
  * @param v The upper limit for the return value
  * @return A random number from 0 to (v-1)
@@ -147,8 +156,8 @@ int random_(BYTE idx, int v)
 int random_low(BYTE idx, int v)
 {
 	// assert(v > 0);
-	// assert(v < 0xFFFF);
-	return (((unsigned)GetRndSeed()) >> 16) % v;
+	// assert(v < 0x7FFF);
+	return (((unsigned)NextRndSeed()) >> 16) % v;
 }
 
 /**
@@ -198,7 +207,7 @@ void mem_free_dbg(void* p)
 BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 {
 	HANDLE file;
-	BYTE* buf;
+	BYTE* buf = NULL;
 	size_t fileLen;
 
 	file = SFileOpenFile(pszName);
@@ -207,12 +216,11 @@ BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
 
-	if (fileLen == 0)
-		app_fatal("Zero length SFILE:\n%s", pszName);
+	if (fileLen != 0) {
+		buf = (BYTE*)DiabloAllocPtr(fileLen);
+		SFileReadFile(file, buf, fileLen);
+	}
 
-	buf = (BYTE*)DiabloAllocPtr(fileLen);
-
-	SFileReadFile(file, buf, fileLen);
 	SFileCloseFile(file);
 
 	return buf;
@@ -229,19 +237,37 @@ void LoadFileWithMem(const char* pszName, BYTE* p)
 	HANDLE hsFile;
 
 	assert(pszName != NULL);
-	if (p == NULL) {
+	/*if (p == NULL) {
 		app_fatal("LoadFileWithMem(NULL):\n%s", pszName);
-	}
+	}*/
 
 	hsFile = SFileOpenFile(pszName);
 
 	dwFileLen = SFileGetFileSize(hsFile);
-	if (dwFileLen == 0) {
-		app_fatal("Zero length SFILE:\n%s", pszName);
+	if (dwFileLen != 0) {
+		SFileReadFile(hsFile, p, dwFileLen);
 	}
 
-	SFileReadFile(hsFile, p, dwFileLen);
 	SFileCloseFile(hsFile);
+}
+
+char** LoadTxtFile(const char* name, int lines)
+{
+	BYTE* textFile = LoadFileInMem(name, NULL);
+	char** textLines = (char**)DiabloAllocPtr(sizeof(char*) * lines);
+
+	for (int i = 0; i < lines; i++) {
+		textLines[i] = (char*)textFile;
+
+		while (*textFile != '\n') {
+			assert(*textFile != '\0');
+			textFile++;
+		}
+		*textFile = '\0';
+		textFile++;
+	}
+
+	return textLines;
 }
 
 #define LOAD_LE32(b) (SwapLE32(*((DWORD*)(b))))

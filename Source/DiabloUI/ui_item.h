@@ -1,14 +1,16 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <string>
+//#include <cstddef>
+//#include <cstdint>
 #include <vector>
 
-#include "../types.h"
-#include "../appfat.h"
+/*#include "../defs.h"
+#include "../enums.h"
+#include "../structs.h"
+#include "../appfat.h"*/
+#include "all.h"
 
-#include "DiabloUI/text_draw.h"
+#include "text_draw.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -20,6 +22,7 @@ enum UiType : uint8_t {
 	UI_LIST,
 	UI_SCROLLBAR,
 	UI_EDIT,
+	UI_CUSTOM,
 };
 
 enum UiAlignment {
@@ -35,11 +38,12 @@ enum UiFlags : uint16_t {
 	UIS_BIG         = AFT_BIG << 0,
 	UIS_HUGE        = AFT_HUGE << 0,
 	UIS_LEFT        = UIA_LEFT << 4,
-	UIS_CENTER      = UIA_CENTER << 4,
+	UIS_HCENTER     = UIA_CENTER << 4,
 	UIS_RIGHT       = UIA_RIGHT << 4,
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = AFC_SILVER << 7,
 	UIS_GOLD        = AFC_GOLD << 7,
+	UIS_OPTIONAL    = 1 << 11,
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,
 
@@ -51,7 +55,7 @@ enum UiFlags : uint16_t {
 
 class UiItemBase {
 public:
-	UiItemBase(UiType type, SDL_Rect &rect, int flags)
+	UiItemBase(UiType type, SDL_Rect& rect, int flags)
 		: m_type(type), m_rect(rect), m_iFlags(flags)
 	{
 	}
@@ -68,7 +72,7 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(CelImageBuf* celData, int frame, SDL_Rect &rect, bool animated)
+	UiImage(CelImageBuf* celData, int frame, SDL_Rect& rect, bool animated)
 	    : UiItemBase(UI_IMAGE, rect, 0), m_cel_data(celData), m_frame(frame), m_animated(animated)
 	{
 	}
@@ -85,7 +89,7 @@ public:
 
 class UiText : public UiItemBase {
 public:
-	UiText(const char* text, SDL_Rect &rect, int flags)
+	UiText(const char* text, SDL_Rect& rect, int flags)
 	    : UiItemBase(UI_TEXT, rect, flags), m_text(text)
 	{
 	}
@@ -93,26 +97,29 @@ public:
 	~UiText() = default;
 
 	//private:
-	const char *m_text;
+	const char* m_text;
 };
 
 //=============================================================================
 
 class UiScrollBar : public UiItemBase {
 public:
-	UiScrollBar(SDL_Rect &rect)
+	UiScrollBar(SDL_Rect& rect)
 	    : UiItemBase(UI_SCROLLBAR, rect, 0)
 	{
+		m_pressMode = 0;
 	}
 
 	~UiScrollBar() = default;
+
+	int m_pressMode;
 };
 
 //=============================================================================
 
 class UiTxtButton : public UiItemBase {
 public:
-	UiTxtButton(const char* text, void (*action)(), SDL_Rect &rect, int flags)
+	UiTxtButton(const char* text, void (*action)(), SDL_Rect& rect, int flags)
 	    : UiItemBase(UI_TXT_BUTTON, rect, flags), m_text(text), m_action(action)
 	{
 	}
@@ -120,7 +127,7 @@ public:
 	~UiTxtButton() = default;
 
 	//private:
-	const char *m_text;
+	const char* m_text;
 	void (*m_action)();
 };
 
@@ -128,20 +135,31 @@ public:
 
 class UiEdit : public UiItemBase {
 public:
-	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect &rect)
+	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect& rect)
 	    : UiItemBase(UI_EDIT, rect, 0)
 	{
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 		m_hint = hint;
+#endif
 		m_value = value;
 		m_max_length = max_length;
+		m_curpos = strlen(value);
+		m_selpos = m_curpos;
+		m_selecting = false;
 	}
 
 	~UiEdit() = default;
 
 	//private:
-	const char *m_hint;
-	char *m_value;
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
+	const char* m_hint;
+#endif
+	char* m_value;
 	unsigned m_max_length;
+	unsigned m_curpos;
+	unsigned m_selpos;
+	// State
+	bool m_selecting;
 };
 
 //=============================================================================
@@ -150,7 +168,7 @@ public:
 
 class UiButton : public UiItemBase {
 public:
-	UiButton(const char* text, void (*action)(), SDL_Rect &rect)
+	UiButton(const char* text, void (*action)(), SDL_Rect& rect)
 	    : UiItemBase(UI_BUTTON, rect, 0), m_text(text), m_action(action)
 	{
 		m_pressed = false;
@@ -160,7 +178,7 @@ public:
 
 	//private:
 
-	const char *m_text;
+	const char* m_text;
 	void (*m_action)();
 
 	// State
@@ -179,13 +197,13 @@ public:
 	~UiListItem() = default;
 
 	//private:
-	const char *m_text;
+	const char* m_text;
 	int m_value;
 };
 
 class UiList : public UiItemBase {
 public:
-	UiList(std::vector<UiListItem*>* vItems, unsigned numItems, SDL_Rect &rect, int flags)
+	UiList(std::vector<UiListItem*>* vItems, unsigned numItems, SDL_Rect& rect, int flags)
 	    : UiItemBase(UI_LIST, rect, flags)
 	{
 		m_vecItems = vItems;
@@ -214,6 +232,21 @@ public:
 	//private:
 	int m_height;
 	std::vector<UiListItem*>* m_vecItems;
+};
+
+//=============================================================================
+
+class UiCustom : public UiItemBase {
+public:
+	UiCustom(void (*renderFn)(), SDL_Rect& rect)
+	    : UiItemBase(UI_CUSTOM, rect, 0), m_render(renderFn)
+	{
+	}
+
+	~UiCustom() = default;
+
+	//private:
+	void (*m_render)();
 };
 
 DEVILUTION_END_NAMESPACE

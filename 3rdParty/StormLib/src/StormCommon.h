@@ -69,11 +69,19 @@
 #define STORMLIB_MAX(a, b) ((a > b) ? a : b)
 #define STORMLIB_UNUSED(p) ((void)(p))
 
+// Check for masked flags
+#define STORMLIB_TEST_FLAGS(dwFlags, dwMask, dwValue)  ((dwFlags & (dwMask)) == (dwValue))
+
 // Macro for building 64-bit file offset from two 32-bit
-#define MAKE_OFFSET64(hi, lo)      (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+#define MAKE_OFFSET64(hi, lo)       (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+
+// Macro for checking a valid, non-empty ASCIIZ string
+#ifndef IS_VALID_STRING
+#define IS_VALID_STRING(str)    (str && str[0])
+#endif
 
 //-----------------------------------------------------------------------------
-// MTYPE definition - specifies what kind of MPQ is the map type
+// MTYPE definition - specifies what kind of MPQ is the file
 
 typedef enum _MTYPE
 {
@@ -136,21 +144,27 @@ typedef struct _MPQ_SIGNATURE_INFO
 
 //-----------------------------------------------------------------------------
 // StormLib internal global variables
-
+#ifdef FULL_GLOBALS
 extern DWORD g_dwMpqSignature;                  // Marker for MPQ header
 extern DWORD g_dwHashTableKey;                  // Key for hash table
 extern DWORD g_dwBlockTableKey;                 // Key for block table
 extern LCID  g_lcFileLocale;                    // Preferred file locale
-
+#else
+#define g_dwMpqSignature  ID_MPQ
+#define g_dwHashTableKey  MPQ_KEY_HASH_TABLE
+#define g_dwBlockTableKey MPQ_KEY_BLOCK_TABLE
+#define g_lcFileLocale    LANG_NEUTRAL
+#define wPlatform         0
+#endif
 //-----------------------------------------------------------------------------
 // Conversion to uppercase/lowercase (and "/" to "\")
-
+#ifdef FULL
 extern unsigned char AsciiToLowerTable[256];
 extern unsigned char AsciiToUpperTable[256];
 
 //-----------------------------------------------------------------------------
 // Safe string functions
-#ifdef FULL
+
 template <typename XCHAR, typename XINT>
 XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nDigitCount = 0)
 {
@@ -187,7 +201,7 @@ XCHAR * IntToString(XCHAR * szBuffer, size_t cchMaxChars, XINT nValue, size_t nD
     szBuffer[0] = 0;
     return szBuffer;
 }
-#endif
+
 char * StringCopy(char * szTarget, size_t cchTarget, const char * szSource);
 //void StringCat(char * szTarget, size_t cchTargetMax, const char * szSource);
 //void StringCreatePseudoFileName(char * szBuffer, size_t cchMaxChars, unsigned int nIndex, const char * szExtension);
@@ -198,6 +212,7 @@ void StringCopy(char * szTarget, size_t cchTarget, const TCHAR * szSource);
 void StringCopy(TCHAR * szTarget, size_t cchTarget, const TCHAR * szSource);
 //void StringCat(TCHAR * szTarget, size_t cchTargetMax, const TCHAR * szSource);
 #endif
+#endif // FULL
 
 //-----------------------------------------------------------------------------
 // Encryption and decryption functions

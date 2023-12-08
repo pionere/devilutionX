@@ -9,7 +9,7 @@ cd "$DIR"
 declare -r ABSDIR="$(pwd)"
 
 usage() {
-	echo "${BASH_SOURCE[0]} [--target /path/to/devliution/in/gameshell/menu] [--usage]"
+	echo "${BASH_SOURCE[0]} [--target /path/to/devilutionx/in/gameshell/menu] [--usage]"
 	exit 1
 }
 
@@ -37,7 +37,7 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 install_deps() {
-	#sudo apt install -y cmake libsdl2-ttf-dev libsdl2-mixer-dev
+	#sudo apt install -y cmake libsdl2-dev libbz2-dev libsodium-dev
 	sudo apt install -y cmake
 }
 
@@ -48,19 +48,17 @@ main() {
 }
 
 build() {
-	mkdir -p ../../build
-	cd ../../build
+	cd ../..
 	rm -f CMakeCache.txt
 
-	cmake .. -DTARGET_PLATFORM=cpigamesh
-	make -j $(getconf _NPROCESSORS_ONLN)
+	#cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DTARGET_PLATFORM=cpigamesh -DDISABLE_LTO=ON
+	cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DTARGET_PLATFORM=cpigamesh
+	cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 	cd -
 }
 
 install() {
-	mkdir -p /home/cpi/games/devilutionX/bin
-	cp /home/cpi/games/devilutionX/build/devilutionx /home/cpi/games/devilutionX/bin
-	git rev-parse HEAD > /home/cpi/games/devilutionX/bin/devilutionx.rev
+	git rev-parse HEAD > /home/cpi/games/devilutionX/build/devilutionx.rev
 
 	if [ -z ${TARGET+x} ]; then
 		local target_dir="25_devilutionX"

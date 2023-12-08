@@ -16,14 +16,13 @@ extern int missileactive[MAXMISSILES];
 extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 
-void GetDamageAmt(int sn, int sl, int *mind, int *maxd);
-unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
+void GetDamageAmt(int sn, int sl, int* mind, int* maxd);
+unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);
 int CheckPlrCol(int _pnum_);
-void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
+int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl);
-void DeleteMissile(int mi, int idx);
 void LoadMissileGFX(BYTE midx);
 void InitGameMissileGFX();
 void FreeGameMissileGFX();
@@ -39,7 +38,7 @@ inline bool CheckHit(int hitper)
 	} else if (hitper < 25) {
 		hitper = 25 + ((hitper - 25) >> 2);
 	}
-	return random_(0, 100) < hitper; 
+	return random_(0, 100) < hitper;
 }
 
 #ifdef __cplusplus

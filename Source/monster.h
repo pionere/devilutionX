@@ -8,11 +8,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MON_WALK_SHIFT 8
+
 // Ticks necessary to finish the current action and add the result to the delta
-// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_NORMAL_MSG_SIZE / sizeof(TSyncMonster)))
-#define SQUELCH_LOW					127
-#define SQUELCH_MAX					(SQUELCH_LOW + 240)
-#define OPPOSITE(x)					(((x) + 4) & 7)
+// ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_TURN_MSG_SIZE / sizeof(TSyncMonster)))
+#define SQUELCH_LOW 127
+#define SQUELCH_MAX (SQUELCH_LOW + 240)
+#define OPPOSITE(x) (((x) + 4) & 7)
 /** Maps from direction to the opposite direction. */
 //const int opposite[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
 
@@ -32,34 +34,29 @@ extern BYTE mapSkelTypes[MAX_LVLMTYPES];
 /* Goat-monster types on the current level. */
 extern BYTE mapGoatTypes[MAX_LVLMTYPES];
 
-void InitLevelMonsters();
+void InitLvlMonsters();
 void GetLevelMTypes();
 #ifdef HELLFIRE
-void WakeUberDiablo();
+void WakeNakrul();
 #endif
 void InitMonsters();
-void SetMapMonsters(BYTE *pMap, int startx, int starty);
 void MonChangeMap();
 void InitMonster(int mnum, int dir, int mtidx, int x, int y);
-void AddMonster(int x, int y, int dir, int mtidx);
+void AddMonster(int mtidx, int x, int y);
+void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y);
 int SummonMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
-void MonGetKnockback(int mnum, int sx, int sy);
-void MonStartHit(int mnum, int pnum, int dam, unsigned hitflags);
+void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy);
+void MonStartMonHit(int defm, int offm, int dam);
 void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);
 void MonUpdateLeader(int mnum);
 void MonAddDead(int mnum);
 void DoEnding();
-void MonWalkDir(int mnum, int md);
 void ProcessMonsters();
 void FreeMonsters();
-bool MonDirOK(int mnum, int mdir);
-bool CheckAllowMissile(int x, int y);
-bool CheckNoSolid(int x, int y);
-bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2);
+//bool CheckAllowMissile(int x, int y);
 bool LineClear(int x1, int y1, int x2, int y2);
-bool LineClearF1(bool (*Clear)(int, int, int), int mnum, int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
 void SyncMonsterLight();
 void MissToMonst(int mnum);
@@ -78,7 +75,7 @@ void TalktoMonster(int mnum, int pnum);
 void InitGolemStats(int mnum, int level);
 void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
-bool CheckMonsterHit(int mnum, bool *ret);
+bool CheckMonsterHit(int mnum, bool* ret);
 
 inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 {
@@ -90,7 +87,8 @@ inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
 
 extern const int offset_x[NUM_DIRS];
 extern const int offset_y[NUM_DIRS];
-//extern const char walk2dir[9];
+extern const int MWVel[24];
+//extern const int8_t walk2dir[9];
 
 #ifdef __cplusplus
 }

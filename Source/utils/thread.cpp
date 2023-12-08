@@ -1,17 +1,16 @@
 #include "thread.h"
 
-#include "../types.h"
-#include "appfat.h"
-#include <SDL.h>
+//#include <SDL.h>
+//#include "appfat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 SDL_Thread* CreateThread(SDL_ThreadFunction handler)
 {
 #ifdef USE_SDL1
-	SDL_Thread *ret = SDL_CreateThread(handler, NULL);
+	SDL_Thread* ret = SDL_CreateThread(handler, NULL);
 #else
-	SDL_Thread *ret = SDL_CreateThread(handler, NULL, NULL);
+	SDL_Thread* ret = SDL_CreateThread(handler, NULL, NULL);
 #endif
 	if (ret == NULL) {
 		sdl_error(ERR_SDL_THREAD_CREATE);
@@ -19,7 +18,7 @@ SDL_Thread* CreateThread(SDL_ThreadFunction handler)
 	return ret;
 }
 
-void StartEvent(event_emul &ev)
+void StartEvent(event_emul& ev)
 {
 	ev.mutex = SDL_CreateMutex();
 	if (ev.mutex == NULL) {
@@ -31,7 +30,7 @@ void StartEvent(event_emul &ev)
 	}
 }
 
-void EndEvent(event_emul &ev)
+void EndEvent(event_emul& ev)
 {
 	SDL_DestroyCond(ev.cond);
 	ev.cond = NULL;
@@ -39,21 +38,21 @@ void EndEvent(event_emul &ev)
 	ev.mutex = NULL;
 }
 
-void SetEvent(event_emul &ev)
+void SetEvent(event_emul& ev)
 {
 	if (SDL_LockMutex(ev.mutex) < 0 || SDL_CondSignal(ev.cond) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
 		sdl_error(ERR_SDL_EVENT_SET);
 	}
 }
 
-void ResetEvent(event_emul &ev)
+void ResetEvent(event_emul& ev)
 {
 	if (SDL_LockMutex(ev.mutex) < 0 || SDL_CondWaitTimeout(ev.cond, ev.mutex, 0) < 0 || SDL_UnlockMutex(ev.mutex) < 0) {
 		sdl_error(ERR_SDL_EVENT_RESET);
 	}
 }
 
-void WaitForEvent(event_emul &ev)
+void WaitForEvent(event_emul& ev)
 {
 	if (SDL_LockMutex(ev.mutex) < 0) {
 		sdl_error(ERR_SDL_EVENT_LOCK);

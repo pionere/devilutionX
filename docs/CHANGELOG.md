@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - configurable starting positions for modal windows (in diablo.ini)
 - multiple modal windows might be open at a time
 - control-click to move between belt and inventory
+- added 'target mode' to select items or objects exclusively
+- support swapping of hotkey-sets
+- (subtile based) minimap
 ### Gameplay
 - SAVE-files are NOT backwards compatible
 - altered abilities (hellfire)
@@ -29,8 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - critical hit chance is based on items
 - block only if standing or actively using the Block skill
 - separate resistance against acid
-- added Far Shot/Point Blank/Swipe/Charge skills
-- added Attract spell
+- slash/blunt/puncture damage types with corresponding resistances
+- added Whiplash/Wallop/Swipe/Multi Shot/Pierce Shot/Far Shot/Point Blank/Charge skills
+- added Attract/Meteor/Bloodboil/Poison/Wind/Shroud spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
 - rebalanced spells (some spells removed, others damage modified, runes fire multiple times, etc...)
@@ -38,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - D2-style chain lightning
 - added splash damage to disbanded golems
 - added special effect (trn) to arrows with elemental damage
+- added bleeding ailment
 - altered damage calculations
 - altered hit checks for hand-to-hand attacks of monsters (directional + advanced collision check)
 - added faster walk/cast affixes
@@ -46,29 +51,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - altered the functions of oils
 - consumable items are stackable
 - added base items: Katar(a), Poingard, Winged Helm
-- added unique items: Ring of Destruction, Spirit Ward
+- added unique items: Ring of Destruction, Spirit Ward, Tyrael's Gift, Collar of Lilith (replacement for Ring of Regha)
 - altered the effects of the shrines
 - most of the quests are available in multiplayer games
+- The Defiler drops a fang instead of the Cathedral Map (the fang acts the same way as the Cathedral Map)
+- the brain quest-item is dropped by a new unique monster
 - Skeleton King (and Hork Demon) are summoning monsters in multiplayer games
 - added unique monsters to crypt and nest levels
 - multiple corpses are allowed on one tile
 - players do not leave the game after Diablo is defeated (restart in town)
 - players do not lose gold on death
 - players lose experience on death
+- durability is not reduced when an object(barrel/urn/crux) is destroyed
 - items are dropped on death even on diablo-level
 - better rewards on higher difficulties
+- HP/Exp/Loot from monsters are depending on the number of players
 - limited offers in stores/wirt
 ### System
 - Lockstep networking
 - Adaptive netupdate
 - Game server (maintains game-delta, but no validation at the moment)
-- Merge .mpq files on demand
+- Merge/patch .mpq files on demand
 - Support for high definition assets
 - Widescreen, controller, sound support and encryption of net-messages are optional features
 - Separate (.TMI) file to control drawing of the tiles
 - Added tools to convert PNG to CEL/CL2, PNGs to (TIL,MIN,CEL,SOL,TMI), CEL to CEL (aka. merge)
 - Added tools to upscale assets
-- Slash/blunt/puncture damage types with corresponding resistances
 
 ## DevilutionX 1.2.1
 ### Bugfixes
