@@ -1171,8 +1171,8 @@ static void GameWndProc(const Dvl_Event* e)
 		return;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
-	case DVL_DWM_RTNLVL:
 	case DVL_DWM_SETLVL:
+	case DVL_DWM_RTNLVL:
 	case DVL_DWM_WARPLVL:
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:

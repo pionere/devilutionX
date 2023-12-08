@@ -3742,11 +3742,11 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
-	ENTRY_LOAD,
 	ENTRY_WARPLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
 	ENTRY_RETOWN,
+	ENTRY_LOAD,
 } lvl_entry;
 
 /*typedef enum game_info {
