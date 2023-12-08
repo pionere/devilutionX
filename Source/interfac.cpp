@@ -269,9 +269,7 @@ void EnterLevel(BYTE lvl)
 
 static void SwitchGameLevel(int lvldir)
 {
-	FreeLevelMem();
 	EnterLevel(myplr._pDunLevel);
-	IncProgress();
 	LoadGameLevel(lvldir);
 }
 
@@ -317,16 +315,15 @@ void ShowCutscene(unsigned uMsg)
 	DrawCutscene();
 	PaletteFadeIn(false);
 	IncProgress();
+	FreeLevelMem();
+	IncProgress();
 
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
-		IncProgress();
 		pfile_delete_save_file(false);
-		// FreeLevelMem();
 		LoadGameLevel(ENTRY_MAIN);
 		break;
 	case DVL_DWM_LOADGAME:
-		IncProgress();
 		LoadGame();
 		break;
 	case DVL_DWM_NEXTLVL:

@@ -764,7 +764,6 @@ void LoadGame()
 	int _ViewX, _ViewY;
 	int32_t _CurrSeed;
 
-	FreeLevelMem();
 	// TODO: UIDisconnectGame() ?
 	SNetLeaveGame();
 

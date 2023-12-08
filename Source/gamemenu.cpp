@@ -124,6 +124,7 @@ static void gamemenu_load_game(bool bActivate)
 	scrollrt_draw_game();
 	gbDeathflag = MDM_ALIVE;
 	// gbZoomInFlag = false;
+	FreeLevelMem();
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
