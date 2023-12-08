@@ -1286,7 +1286,7 @@ static void game_loop()
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
-				//gbRedrawFlags = REDRAW_ALL;
+				// gbRedrawFlags = REDRAW_ALL;
 			}
 			//scrollrt_draw_screen(true);
 			break;
@@ -1294,7 +1294,7 @@ static void game_loop()
 		if (gnTimeoutCurs != CURSOR_NONE) {
 			NewCursor(gnTimeoutCurs);
 			gnTimeoutCurs = CURSOR_NONE;
-			//gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags = REDRAW_ALL;
 		}
 		//if (ProcessInput()) {
 			game_logic();
