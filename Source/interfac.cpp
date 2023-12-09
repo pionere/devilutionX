@@ -320,7 +320,7 @@ void ShowCutscene(unsigned uMsg)
 
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
-		LoadGameLevel(ENTRY_MAIN);
+		SwitchGameLevel(ENTRY_MAIN);
 		break;
 	case DVL_DWM_LOADGAME:
 		LoadGame();

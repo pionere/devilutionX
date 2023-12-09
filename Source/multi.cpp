@@ -662,10 +662,7 @@ static void SetupLocalPlr()
 {
 	PlayerStruct* p;
 
-	EnterLevel(DLV_TOWN);
-
 	p = &myplr;
-	assert(currLvl._dLevelIdx == DLV_TOWN);
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
