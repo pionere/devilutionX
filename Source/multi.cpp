@@ -775,25 +775,14 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 				gbSelectProvider = true;
 				continue;
 			}
-		} else {
-			dlgresult = SELHERO_NEW_DUNGEON;
 		}
 		gbSelectHero = bSinglePlayer;
-		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
 			gameData.aePlayerId = SNPLAYER_MASTER;
 			mypnum = SNPLAYER_MASTER;
 		} else {
 			gameData.aePlayerId = 0;
 			pfile_read_hero_from_save();
-		}
-
-		if (gbLoadGame) {
-			// mypnum = 0;
-			gameData.aeMaxPlayers = 1;
-			gameData.aeTickRate = gnTicksRate;
-			gameData.aeNetUpdateRate = 1;
-			break;
 		}
 
 		// select game
@@ -808,15 +797,15 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			gbSelectHero = true;
 			continue;
 		}
-
-		if (dlgresult == SELGAME_JOIN) {
+		gbLoadGame = dlgresult == SELGAME_LOAD;
+		gbJoinGame = dlgresult == SELGAME_JOIN;
+		if (gbJoinGame) {
 			pnum = gameData.aePlayerId;
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
 				//pfile_read_player_from_save();
 			}
-			gbJoinGame = true;
 		}
 		break;
 	}

@@ -3997,15 +3997,15 @@ typedef enum _mainmenu_selections {
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {
-	SELHERO_NONE        = 0,
-	SELHERO_NEW_DUNGEON = 1,
-	SELHERO_CONTINUE    = 2,
-	SELHERO_PREVIOUS    = 3
+	SELHERO_NONE,
+	SELHERO_CONTINUE,
+	SELHERO_PREVIOUS
 } _selhero_selections;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,
 	SELGAME_JOIN,
+	SELGAME_LOAD,
 	SELGAME_PREVIOUS
 } _selgame_selections;
 

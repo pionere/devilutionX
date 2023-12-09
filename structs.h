@@ -2458,7 +2458,6 @@ typedef struct _uiheroinfo {
 	int16_t hiMagic;
 	int16_t hiDexterity;
 	int16_t hiVitality;
-	BOOL hiHasSaved;
 } _uiheroinfo;
 
 typedef struct _uigamedata {

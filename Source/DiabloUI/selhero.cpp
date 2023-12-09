@@ -339,14 +339,13 @@ static void SelheroClassSelectorFocus(unsigned index)
 	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
 	selhero_heroInfo.hiVitality = VitalityTbl[index];   //defaults.dsVitality;
-	//selhero_heroInfo.hiHasSaved = FALSE;
 
 	SelheroSetStats();
 }
 
-static void SelheroLoadSelect(unsigned index)
+static void SelheroContinue()
 {
-	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
+	selhero_result = SELHERO_CONTINUE;
 }
 
 static void SelheroClassSelectorInit()
@@ -375,25 +374,6 @@ static void SelheroClassSelectorInit()
 	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroNameInit, SelheroClassSelectorEsc);
 }
 
-static void SelheroLoadInit()
-{
-	SelheroResetScreen("Single Player Characters", "Save File Exists");
-
-	gUIListItems.push_back(new UiListItem("Load Game", 0));
-	gUIListItems.push_back(new UiListItem("New Game", 1));
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELHERO_LIST_TOP, 280, 26 * 2 };
-	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
-
-	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-	//assert(gUIListItems.size() == 2);
-	UiInitScreen(2, NULL, SelheroLoadSelect, SelheroListInit);
-}
-
 static void SelheroListSelect(unsigned index)
 {
 	if (index == selhero_SaveCount) {
@@ -401,12 +381,7 @@ static void SelheroListSelect(unsigned index)
 		return;
 	}
 
-	if (selhero_heroInfo.hiHasSaved) {
-		SelheroLoadInit();
-		return;
-	}
-
-	SelheroLoadSelect(1);
+	SelheroContinue();
 }
 
 static void SelheroNameInit(unsigned index)
@@ -442,7 +417,7 @@ static void SelheroNameSelect(unsigned index)
 
 	switch (result) {
 	case NEWHERO_DONE:
-		SelheroLoadSelect(1);
+		SelheroContinue();
 		return;
 	case NEWHERO_INVALID_NAME:
 		err = "Invalid name.\nA name cannot contain reserved characters.";
