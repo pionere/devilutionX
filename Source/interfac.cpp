@@ -267,12 +267,6 @@ void EnterLevel(BYTE lvl)
 	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
 }
 
-static void SwitchGameLevel(int lvldir)
-{
-	EnterLevel(myplr._pDunLevel);
-	LoadGameLevel(lvldir);
-}
-
 /*
  * Load Game          Load In-Game             Single Game               Multi Game
  *
@@ -318,42 +312,27 @@ void ShowCutscene(unsigned uMsg)
 	FreeLevelMem();
 	IncProgress();
 
-	switch (uMsg) {
-	case DVL_DWM_NEWGAME:
-		SwitchGameLevel(ENTRY_MAIN);
-		break;
-	case DVL_DWM_LOADGAME:
+	if (uMsg != DVL_DWM_LOADGAME) {
+		int lvldir = ENTRY_MAIN;
+		if (uMsg != DVL_DWM_NEWGAME) {
+			lvldir += (uMsg - DVL_DWM_NEXTLVL);
+			if (uMsg == DVL_DWM_NEXTLVL)
+				assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
+			if (uMsg == DVL_DWM_PREVLVL)
+				assert(myplr._pDunLevel == currLvl._dLevelIdx - 1);
+			static_assert((int)DVL_DWM_NEXTLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_MAIN    - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted I.");
+			static_assert((int)DVL_DWM_PREVLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PREV    - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted II.");
+			static_assert((int)DVL_DWM_SETLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_SETLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted III.");
+			static_assert((int)DVL_DWM_RTNLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RTNLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted IV.");
+			static_assert((int)DVL_DWM_WARPLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_WARPLVL - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted V.");
+			static_assert((int)DVL_DWM_TWARPDN - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPDN - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VI.");
+			static_assert((int)DVL_DWM_TWARPUP - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPUP - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VII.");
+			static_assert((int)DVL_DWM_RETOWN  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RETOWN  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VIII.");
+		}
+		EnterLevel(myplr._pDunLevel);
+		LoadGameLevel(lvldir);
+	} else {
 		LoadGame();
-		break;
-	case DVL_DWM_NEXTLVL:
-		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
-		SwitchGameLevel(ENTRY_MAIN);
-		break;
-	case DVL_DWM_PREVLVL:
-		assert(myplr._pDunLevel == currLvl._dLevelIdx - 1);
-		SwitchGameLevel(ENTRY_PREV);
-		break;
-	case DVL_DWM_SETLVL:
-		SwitchGameLevel(ENTRY_SETLVL);
-		break;
-	case DVL_DWM_RTNLVL:
-		SwitchGameLevel(ENTRY_RTNLVL);
-		break;
-	case DVL_DWM_WARPLVL:
-		SwitchGameLevel(ENTRY_WARPLVL);
-		break;
-	case DVL_DWM_TWARPDN:
-		SwitchGameLevel(ENTRY_TWARPDN);
-		break;
-	case DVL_DWM_TWARPUP:
-		SwitchGameLevel(ENTRY_TWARPUP);
-		break;
-	case DVL_DWM_RETOWN:
-		SwitchGameLevel(ENTRY_RETOWN);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
 	}
 	IncProgress();
 	// process packets arrived during LoadLevel / delta-load and disable nthread
