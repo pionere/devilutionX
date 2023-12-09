@@ -320,7 +320,6 @@ void ShowCutscene(unsigned uMsg)
 
 	switch (uMsg) {
 	case DVL_DWM_NEWGAME:
-		pfile_delete_save_file(false);
 		LoadGameLevel(ENTRY_MAIN);
 		break;
 	case DVL_DWM_LOADGAME:
