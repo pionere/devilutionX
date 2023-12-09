@@ -273,12 +273,12 @@ static void SelheroListDelete()
 
 	SelheroResetScreen(selconn_bMulti ? "Multi Player Characters" : "Single Player Characters", "Confirm delete");
 
-	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 30 };
+	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT + 25, SELHERO_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 30 };
 	gUiItems.push_back(new UiText(selhero_heroInfo.hiName, rect1, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Yes", 0));
 	gUIListItems.push_back(new UiListItem("No", 1));
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 100) / 2, SELCONN_LIST_TOP + 40, 100, 26 * 2 };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 100) / 2, SELHERO_LIST_TOP + 40, 100, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	UiInitScreen(2, NULL, SelheroListDeleteYesNo, SelheroInitHeros);
@@ -294,7 +294,7 @@ static void SelheroListInit()
 	}
 	SelheroUpdateViewportItems();
 
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_heroes };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 25, SELHERO_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_heroes };
 	gUiItems.push_back(new UiList(&gUIListItems, num_viewport_heroes, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH - SCROLLBAR_BG_WIDTH + 1, SELHERO_RPANEL_TOP - 1, SCROLLBAR_BG_WIDTH, SELHERO_RPANEL_HEIGHT + 1 };
@@ -362,7 +362,7 @@ static void SelheroClassSelectorInit()
 	gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 #endif
 	//assert(gUIListItems.size() == NUM_CLASSES);
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELCONN_LIST_TOP, 270, 26 * NUM_CLASSES };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELHERO_LIST_TOP, 270, 26 * NUM_CLASSES };
 	gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
@@ -381,7 +381,7 @@ static void SelheroLoadInit()
 
 	gUIListItems.push_back(new UiListItem("Load Game", 0));
 	gUIListItems.push_back(new UiListItem("New Game", 1));
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELCONN_LIST_TOP, 280, 26 * 2 };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELHERO_LIST_TOP, 280, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
