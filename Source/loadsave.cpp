@@ -323,16 +323,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 4; // _pIAMinDam
 	tbuff += 4; // _pIAMaxDam*/
 
-	// CalculateGold(pnum);
-	CalcPlrInv(pnum, false);
-
-	// Omit pointers _pAnimFileData
-	// Omit pointer alignment
-
-	InitPlayerGFX(pnum);
-	SetPlrAnims(pnum);
-	SyncPlrAnim(pnum);
-
 	return src;
 }
 
@@ -780,9 +770,6 @@ void LoadGame()
 	// assert(gbNetUpdateRate == 1);
 	gdwLastGameTurn = gdwGameLogicTurn;
 	sgbSentThisCycle = ghs->vhSentCycle;
-	gnDifficulty = ghs->vhDifficulty;
-	currLvl._dLevelIdx = ghs->vhCurrLevel;
-	EnterLevel(currLvl._dLevelIdx);
 	for (i = 0; i < NUM_LEVELS; i++) {
 		glSeedTbl[i] = ghs->vhSeeds[i];
 	}
@@ -811,25 +798,29 @@ void LoadGame()
 	AutoMapScale = ghs->vhAutoMapScale;
 	MiniMapScale = ghs->vhMiniMapScale;
 	NormalMapScale = ghs->vhNormalMapScale;
+	gnDifficulty = ghs->vhDifficulty;
 	AutoMapXOfs = ghs->vhAutoMapXOfs;
 	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
 	guLvlVisited = ghs->vhLvlVisited;
 
 	tbuff += sizeof(LSaveGameHeaderStruct);
-
-	tbuff = LoadPlayer(tbuff, mypnum);
+	// assert(mypnum == 0);
+	tbuff = LoadPlayer(tbuff, 0);
 
 	// load meta-data I. (used by LoadGameLevel)
 	for (i = 0; i < NUM_QUESTS; i++)
 		tbuff = LoadQuest(tbuff, i);
 	for (i = 0; i < MAXPORTAL; i++)
 		tbuff = LoadPortal(tbuff, i);
-	// load level-data
+	// load level
+	// assert(mypnum == 0);
+	EnterLevel(plx(0)._pDunLevel);
 	LoadGameLevel(ENTRY_LOAD);
 	ViewX = _ViewX;
 	ViewY = _ViewY;
 	ResyncQuests();
+	// load level-data
 	tbuff = LoadLevelData(tbuff, true);
 
 	// load meta-data III. (modified by LoadGameLevel)
@@ -869,6 +860,13 @@ void LoadGame()
 		for (i = 0; i < WITCH_ITEMS; i++)
 			tbuff = LoadItem(tbuff, &witchitem[i]);
 	}
+
+	// assert(mypnum == 0);
+	// CalculateGold(0);
+	CalcPlrInv(0, false);
+	InitPlayerGFX(0);
+	SetPlrAnims(0);
+	SyncPlrAnim(0);
 
 	InitAutomapScale();
 	//ResyncQuests();
@@ -1593,8 +1591,6 @@ void SaveGame()
 	assert(gdwLastGameTurn == gdwGameLogicTurn
 	 || ((gdwLastGameTurn + 1) == gdwGameLogicTurn && gbNetUpdateRate == 1));
 	ghs->vhSentCycle = sgbSentThisCycle;
-	ghs->vhCurrLevel = currLvl._dLevelIdx;
-	ghs->vhDifficulty = gnDifficulty;
 	for (i = 0; i < NUM_LEVELS; i++) {
 		ghs->vhSeeds[i] = glSeedTbl[i];
 	}
@@ -1623,14 +1619,15 @@ void SaveGame()
 	ghs->vhAutoMapScale = AutoMapScale;
 	ghs->vhMiniMapScale = MiniMapScale;
 	ghs->vhNormalMapScale = NormalMapScale;
+	ghs->vhDifficulty = gnDifficulty;
 	ghs->vhAutoMapXOfs = AutoMapXOfs;
 	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
 	ghs->vhLvlVisited = guLvlVisited;
 
 	tbuff += sizeof(LSaveGameHeaderStruct);
-
-	tbuff = SavePlayer(tbuff, mypnum);
+	// assert(mypnum == 0);
+	tbuff = SavePlayer(tbuff, 0);
 
 	// save meta-data I.
 	for (i = 0; i < NUM_QUESTS; i++)
@@ -1638,6 +1635,7 @@ void SaveGame()
 	for (i = 0; i < MAXPORTAL; i++)
 		tbuff = SavePortal(tbuff, i);
 	// save level-data
+	// assert(currLvl._dLevelIdx == plx(0)._pDunLevel);
 	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + (MAX_MINIONS + MAX_TOWNERS) * sizeof(LSaveMonsterStruct) /*+ MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))*/ + MAXITEMS * (4 + sizeof(LSaveItemStruct))
 	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT) /*+ MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY*/;
