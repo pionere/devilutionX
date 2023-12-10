@@ -64,10 +64,10 @@ static void GetRandomItemSpace(int ii)
 static void GetRandomItemSpace(int randarea, int ii)
 {
 	int x, y, i, j, tries;
+	constexpr int numTries = 1000;
+	// assert(randarea > 0 && randarea < DBORDERX && randarea < DBORDERY);
 
-	assert(randarea > 0);
-
-	tries = 0;
+	tries = numTries;
 	while (TRUE) {
 		x = random_(0, DSIZEX) + DBORDERX;
 		y = random_(0, DSIZEY) + DBORDERY;
@@ -79,9 +79,11 @@ static void GetRandomItemSpace(int randarea, int ii)
 		}
 		break;
 fail:
-		tries++;
-		if (tries > 1000 && randarea > 1)
+		tries--;
+		if (tries < 0 && randarea > 1) {
 			randarea--;
+			tries = numTries;
+		}
 	}
 
 	SetItemLoc(ii, x, y);
