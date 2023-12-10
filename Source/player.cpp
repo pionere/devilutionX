@@ -1759,20 +1759,14 @@ __attribute__((no_sanitize("shift-base")))
 #endif
 void StartNewLvl(int pnum, int fom, int lvl)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartNewLvl: illegal player %d", pnum);
-	}
+	// assert((unsigned)pnum < MAX_PLRS);
+
 	InitLevelChange(pnum);
 
-	switch (fom) {
-	case DVL_DWM_NEXTLVL:
-	case DVL_DWM_PREVLVL:
-	case DVL_DWM_RTNLVL:
-	case DVL_DWM_TWARPDN:
-	case DVL_DWM_SETLVL:
-		break;
-	case DVL_DWM_TWARPUP:
-		if (pnum == mypnum) {
+	// net_assert(lvl < NUM_LEVELS);
+	plr._pDunLevel = lvl;
+	if (pnum == mypnum) {
+		if (fom == DVL_DWM_TWARPUP) {
 			assert(currLvl._dType >= 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
 			static_assert((int)TWARP_CATACOMB == (int)DTYPE_CATACOMBS - 1, "Dtype to Warp conversion requires matching enums II.");
@@ -1785,14 +1779,6 @@ void StartNewLvl(int pnum, int fom, int lvl)
 			gbTWarpFrom = (currLvl._dType - 1);
 			gbTownWarps |= 1 << gbTWarpFrom;
 		}
-		break;
-	default:
-		net_assert(0);
-		ASSUME_UNREACHABLE
-	}
-	// net_assert(lvl < NUM_LEVELS);
-	plr._pDunLevel = lvl;
-	if (pnum == mypnum) {
 		PostMessage(fom);
 	}
 }
