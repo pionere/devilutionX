@@ -4,12 +4,7 @@
  * Implementation of functions for creating and editing MPQ files.
  */
 #include <cerrno>
-//#include <cinttypes>
-//#include <cstdint>
-//#include <cstring>
-#include <memory>
 #include <cstdio>
-#include <type_traits>
 
 #include "all.h"
 #include "utils/file_util.h"
