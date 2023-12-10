@@ -481,7 +481,7 @@ void DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey1)
  *  (dwKey1 + dwKey2) = DataBlock[0] ^ dwDecrypted0;
  *
  */
-
+#ifdef FULL
 DWORD DetectFileKeyBySectorSize(LPDWORD EncryptedData, DWORD dwSectorSize, DWORD dwDecrypted0)
 {
     DWORD dwDecrypted1Max = dwSectorSize + dwDecrypted0;
@@ -608,7 +608,7 @@ DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD d
     // Not detected, sorry
     return 0;
 }
-
+#endif // FULL
 DWORD DecryptFileKey(
     const char * szFileName,
     ULONGLONG MpqPos,
@@ -1228,6 +1228,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
             // Decrypt loaded sector positions if necessary
             if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
             {
+#ifdef FULL
                 // If we don't know the file key, try to find it.
                 if(hf->dwFileKey == 0)
                 {
@@ -1239,7 +1240,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
                         return ERROR_UNKNOWN_FILE_KEY;
                     }
                 }
-
+#endif // FULL
                 // Decrypt sector positions
                 DecryptMpqBlock(hf->SectorOffsets, dwSectorOffsLen, hf->dwFileKey - 1);
             }
