@@ -1141,7 +1141,7 @@ void InitMonsters()
 #endif
 				na = RandRange(2, 3);
 			else
-				na = RandRange(3, 5);
+				na = RandRange(2, 5);
 			PlaceGroup(mtidx, na, 0, 0);
 		}
 	// }
