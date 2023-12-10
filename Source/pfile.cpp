@@ -238,11 +238,8 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[DATA_ARCHIVE_MAX_
 	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
-	if (dwIndex < NUM_STDLVLS)
-		fmt = "perml%02d";
-	else if (dwIndex < NUM_LEVELS) {
-		dwIndex -= NUM_STDLVLS;
-		fmt = "perms%02d";
+	if (dwIndex < NUM_LEVELS) {
+		fmt = "plvl%02d";
 	} else
 		return false;
 
@@ -255,11 +252,8 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_
 	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
-	if (dwIndex < NUM_STDLVLS)
-		fmt = "templ%02d";
-	else if (dwIndex < NUM_LEVELS) {
-		dwIndex -= NUM_STDLVLS;
-		fmt = "temps%02d";
+	if (dwIndex < NUM_LEVELS) {
+		fmt = "tlvl%02d";
 	} else
 		return false;
 
