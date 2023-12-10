@@ -792,13 +792,13 @@ void LoadGame()
 
 	gnNumActiveWindows = ghs->vhNumActiveWindows;
 	memcpy(gaActiveWindows, ghs->vhActiveWindows, sizeof(gaActiveWindows));
+	gnDifficulty = ghs->vhDifficulty;
 	gbTownWarps = ghs->vhTownWarps;
 	gbWaterDone = ghs->vhWaterDone;
 
 	AutoMapScale = ghs->vhAutoMapScale;
 	MiniMapScale = ghs->vhMiniMapScale;
 	NormalMapScale = ghs->vhNormalMapScale;
-	gnDifficulty = ghs->vhDifficulty;
 	AutoMapXOfs = ghs->vhAutoMapXOfs;
 	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
@@ -1613,13 +1613,13 @@ void SaveGame()
 
 	ghs->vhNumActiveWindows = gnNumActiveWindows;
 	memcpy(ghs->vhActiveWindows, gaActiveWindows, sizeof(gaActiveWindows));
+	ghs->vhDifficulty = gnDifficulty;
 	ghs->vhTownWarps = gbTownWarps;
 	ghs->vhWaterDone = gbWaterDone;
 
 	ghs->vhAutoMapScale = AutoMapScale;
 	ghs->vhMiniMapScale = MiniMapScale;
 	ghs->vhNormalMapScale = NormalMapScale;
-	ghs->vhDifficulty = gnDifficulty;
 	ghs->vhAutoMapXOfs = AutoMapXOfs;
 	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
