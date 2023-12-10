@@ -680,7 +680,7 @@ static void SetupLocalPlr()
 	//if (!(p->_pSkillFlags & SFLAG_MELEE))
 	//	p->_pAtkSkill = SPL_RATTACK;
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
-	CalcPlrInv(mypnum, false);
+	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
