@@ -567,7 +567,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 		break;
 	case IDI_BRAIN:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_BRAINGIVEN)
 			return;
 		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
