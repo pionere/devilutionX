@@ -696,6 +696,7 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		if (full) {
 			for (i = 0; i < MAX_MINIONS + MAX_TOWNERS; i++)
 				src = LoadMonster(src, i);
+			SyncPortals(); // restore portal missiles
 		}
 	}
 
