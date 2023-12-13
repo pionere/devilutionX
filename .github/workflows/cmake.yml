@@ -24,7 +24,7 @@ jobs:
         fetch-depth: 0
 
     - name: set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -32,7 +32,7 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    - name: Create Build Environment
+    - name: Remove system CMake
       run: rm /usr/local/bin/cmake
 
     #- name: Test CMake
@@ -50,7 +50,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease --info -Pcmakeargs="-DHELLFIRE=ON"
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="-DHELLFIRE=ON" -Pcmakearg1="" -Pcmakearg2=""
 
     - name: Upload-Package
       uses: actions/upload-artifact@v3
