@@ -70,13 +70,13 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
 	gfnListDelete = NULL;
-	if (fnFocus != NULL)
+	if (fnFocus != NULL) {
 		fnFocus(SelectedItem);
 #if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > SelectedItem) {
-		SpeakText(gUIListItems[SelectedItem]->m_text);
-	}
+		unsigned idx = SelectedItem - ListOffset;
+		SpeakText(gUIListItems[idx]->m_text);
 #endif
+	}
 
 	gUiEditField = NULL;
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
@@ -143,13 +143,13 @@ static void UiFocus(unsigned itemIndex)
 	UiScrollIntoView();
 	UiPlayMoveSound();
 
-	if (gfnListFocus != NULL)
+	if (gfnListFocus != NULL) {
 		gfnListFocus(itemIndex);
 #if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > itemIndex) {
-		SpeakText(gUIListItems[itemIndex]->m_text);
-	}
+		unsigned idx = itemIndex - ListOffset;
+		SpeakText(gUIListItems[idx]->m_text);
 #endif
+	}
 }
 
 static void UiFocusUp()
@@ -211,8 +211,10 @@ static bool UiCopyToClipboard()
 	}
 	char tmp = gUiEditField->m_value[cp];
 	gUiEditField->m_value[cp] = '\0';
-	SDL_SetClipboardText(&gUiEditField->m_value[sp]);
+	char* output = latin1_to_utf8(&gUiEditField->m_value[sp]);
 	gUiEditField->m_value[cp] = tmp;
+	SDL_SetClipboardText(output);
+	SDL_free(output);
 	return true;
 }
 #endif
@@ -264,7 +266,7 @@ void UiFocusNavigationSelect()
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
 	if (gUiEditField != NULL) {
-		if (gUiEditField->m_value[0] == '\0') {
+		if (gUiEditField->m_value[0] == '\0' && !(gUiEditField->m_iFlags & UIS_OPTIONAL)) {
 			return;
 		}
 		gUiEditField = NULL;

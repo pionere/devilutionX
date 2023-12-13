@@ -19,8 +19,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #include <gperftools/heap-profiler.h>
 #endif
 
-/** The pseudo random seeds to generate the levels. */
-uint32_t glSeedTbl[NUM_LEVELS];
 /** The X/Y-coordinate of the mouse on the screen. */
 POS32 MousePos;
 /** Controlls whether the main game-loop should run. */
@@ -29,8 +27,6 @@ bool gbRunGame;
 bool gbRunGameResult;
 /** Specifies whether the view is zoomed in. */
 bool gbZoomInFlag;
-/** Specifies whether a game should be loaded. */
-bool gbLoadGame;
 /** Specifies whether the ending cinematics should be played before the cutscene. */
 bool gbCineflag;
 /** The state of the game-logic progession. */
@@ -224,6 +220,7 @@ static bool diablo_splash()
 static void diablo_deinit()
 {
 	NetClose();
+	SNetDestroy();
 	pfile_flush(true);
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
@@ -1174,13 +1171,14 @@ static void GameWndProc(const Dvl_Event* e)
 		return;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
-	case DVL_DWM_RTNLVL:
 	case DVL_DWM_SETLVL:
+	case DVL_DWM_RTNLVL:
 	case DVL_DWM_WARPLVL:
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
+	case DVL_DWM_LOADGAME:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		if (gbQtextflag) {
@@ -1289,7 +1287,7 @@ static void game_loop()
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
-				//gbRedrawFlags = REDRAW_ALL;
+				// gbRedrawFlags = REDRAW_ALL;
 			}
 			//scrollrt_draw_screen(true);
 			break;
@@ -1297,7 +1295,7 @@ static void game_loop()
 		if (gnTimeoutCurs != CURSOR_NONE) {
 			NewCursor(gnTimeoutCurs);
 			gnTimeoutCurs = CURSOR_NONE;
-			//gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags = REDRAW_ALL;
 		}
 		//if (ProcessInput()) {
 			game_logic();
@@ -1386,7 +1384,7 @@ static void run_game()
 	WNDPROC saveProc = InitGameFX();
 	SDL_Event event;
 
-	event.type = DVL_DWM_NEWGAME;
+	event.type = gbLoadGame ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME;
 	GameWndProc(&event);
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION

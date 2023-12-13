@@ -354,6 +354,8 @@ void VersionPlrMsg()
 	EventPlrMsg(gszProductName);
 	if (!(SDL_GetModState() & KMOD_SHIFT)) {
 		if (!IsLocalGame) {
+			const char *szGameName, *szGamePassword;
+			SNetGetGameInfo(&szGameName, &szGamePassword);
 			EventPlrMsg(szGameName);
 			if (szGamePassword[0] != '\0') {
 				char desc[sizeof("password: %s") + NET_MAX_PASSWD_LEN];
@@ -468,8 +470,10 @@ static bool plrmsg_CopyToClipboard()
 	}
 	char tmp = sgpCurMsg->str[cp];
 	sgpCurMsg->str[cp] = '\0';
-	SDL_SetClipboardText(&sgpCurMsg->str[sp]);
+	char* output = latin1_to_utf8(&sgpCurMsg->str[sp]);
 	sgpCurMsg->str[cp] = tmp;
+	SDL_SetClipboardText(output);
+	SDL_free(output);
 	return true;
 }
 #endif

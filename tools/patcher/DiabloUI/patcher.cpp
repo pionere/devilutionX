@@ -667,6 +667,13 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
 		}
+		lm[2 + 10 * 16 + 2 + 3 * 10] = SwapLE16((3 << 10));
+		lm[2 + 10 * 16 + 3 + 3 * 10] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 10 * 16 + 6 + 3 * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12));
+		for (int y = 4; y < 7; y++) {
+			lm[2 + 10 * 16 + 3 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
+			lm[2 + 10 * 16 + 6 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
+		}
 		// remove rooms
 		*fileSize = (2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2) * 2;
 	} break;

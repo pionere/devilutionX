@@ -1314,7 +1314,8 @@ int AddVision(int x, int y, int r, bool mine)
 
 void AddUnVision(unsigned vnum)
 {
-	assert(vnum < MAXVISION);
+	if (vnum >= MAXVISION)
+		return;
 
 	VisionList[vnum]._ldel = true;
 	_gbDovision = true;
@@ -1357,7 +1358,7 @@ void ProcessVisionList()
 		return;
 
 	// skip vision calculation in town
-	if (currLvl._dLevelIdx != DLV_TOWN) {
+	// if (currLvl._dLevelIdx != DLV_TOWN) {
 		for (i = 0; i < numvision; i++) {
 			vis = &VisionList[visionactive[i]];
 			if (vis->_lunflag) {
@@ -1387,7 +1388,7 @@ void ProcessVisionList()
 			vis = &VisionList[visionactive[i]];
 			DoVision(vis->_lx, vis->_ly, vis->_lradius, vis->_lmine);
 		}
-	}
+	// }
 
 	_gbDovision = false;
 }

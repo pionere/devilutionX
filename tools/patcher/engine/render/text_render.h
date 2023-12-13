@@ -20,8 +20,8 @@ extern "C" {
 
 extern CelImageBuf* pBigTextCels;
 
-extern const BYTE smallFontWidth[69];
-extern const BYTE bigFontWidth[69];
+extern const BYTE smallFontWidth[107];
+extern const BYTE bigFontWidth[107];
 extern const BYTE gbStdFontFrame[256];
 
 void InitText();
@@ -31,7 +31,6 @@ int GetHugeStringWidth(const char* text);
 int GetBigStringWidth(const char* text);
 int GetSmallStringWidth(const char* text);
 
-void PrintChar(int sx, int sy, int nCel, BYTE col);
 int PrintSmallChar(int sx, int sy, BYTE text, BYTE col);
 int PrintBigChar(int sx, int sy, BYTE text, BYTE col);
 int PrintHugeChar(int sx, int sy, BYTE text, BYTE col);

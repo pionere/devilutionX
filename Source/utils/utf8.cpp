@@ -6,6 +6,12 @@
 #include <string.h>
 #include <utility>
 
+// TODO: implement latin1_to_utf8 for SDL1
+char* latin1_to_utf8(const char* in)
+{
+	return strdup(in);
+}
+
 /* Branchless UTF-8 decoder
  *
  * This is free and unencumbered software released into the public domain.

@@ -2403,6 +2403,7 @@ typedef enum _uniq_monsterid {
 	UMT_WARLORD,
 	UMT_BUTCHER,
 	UMT_DIABLO,
+	UMT_ZAMPHIR,
 #ifdef HELLFIRE
 	UMT_HORKDMN,
 	UMT_DEFILER,
@@ -2428,16 +2429,12 @@ typedef enum _monster_flag {
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
+	MFLAG_NODROP          = 0x1000,
 	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 	MFLAG_KNOCKBACK       = 0x00010000,
 	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
 } _monster_flag;
-
-typedef enum _monster_treasure {
-	NO_DROP = 0x4000,
-	UQ_DROP = 0x8000,
-} _monster_treasure;
 
 typedef enum _uniq_monster_flag {
 	UMF_GROUP   = 1 << 0,
@@ -3527,6 +3524,9 @@ typedef enum theme_id {
 typedef enum event_type {
 	EVENT_TYPE_JOIN_ACCEPTED,
 	EVENT_TYPE_PLAYER_LEAVE_GAME,
+#ifdef ZEROTIER
+	EVENT_TYPE_PLAYER_INFO,
+#endif
 	NUM_EVT_TYPES,
 } event_type;
 
@@ -3534,7 +3534,7 @@ typedef enum player_status {
 	PCS_CONNECTED    = 0x01, // was 0x10000 - player sent a packet recently 
 	PCS_TURN_ARRIVED = 0x02, // was 0x20000 - the next turn of the player has arrived
 	PCS_ACTIVE       = 0x04, // was 0x40000 - a future turn (next or later) of the player has arrived
-	PCS_JOINED       = 0x08, //             - the player just joined (sent an initial turn)
+	PCS_DESYNC       = 0x08, //             - the player is not in sync
 } player_status;
 
 typedef enum turn_status {
@@ -3543,12 +3543,6 @@ typedef enum turn_status {
 	TS_TIMEOUT,	// turn is due, but not all turns arrived
 	TS_DESYNC,	// turn is not necessary due, but a higher than current turn arrived
 } turn_status;
-
-typedef enum leave_reason {
-	LEAVE_NONE,
-	LEAVE_NORMAL,
-	LEAVE_DROP,   // was 0x40000006
-} leave_reason;
 
 typedef enum text_color {
 	COL_WHITE,
@@ -3748,11 +3742,11 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
-	ENTRY_LOAD,
 	ENTRY_WARPLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
 	ENTRY_RETOWN,
+	ENTRY_LOAD,
 } lvl_entry;
 
 /*typedef enum game_info {
@@ -3836,7 +3830,6 @@ typedef enum spell_id {
 } spell_id;
 
 typedef enum _msg_id {
-	NMSG_SEND_GAME_DELTA,
 	NMSG_PLRINFO,
 	NMSG_DLEVEL_DATA,
 	NMSG_DLEVEL_JUNK,
@@ -3845,7 +3838,6 @@ typedef enum _msg_id {
 	NMSG_LVL_DELTA,
 	NMSG_LVL_DELTA_END,
 	NMSG_STRING,
-	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
 
 typedef enum _cmd_id {
@@ -3901,6 +3893,7 @@ typedef enum _cmd_id {
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
 	CMD_DISCONNECT,
+	CMD_REQDELTA,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,
@@ -4004,15 +3997,15 @@ typedef enum _mainmenu_selections {
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {
-	SELHERO_NONE        = 0,
-	SELHERO_NEW_DUNGEON = 1,
-	SELHERO_CONTINUE    = 2,
-	SELHERO_PREVIOUS    = 3
+	SELHERO_NONE,
+	SELHERO_CONTINUE,
+	SELHERO_PREVIOUS
 } _selhero_selections;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,
 	SELGAME_JOIN,
+	SELGAME_LOAD,
 	SELGAME_PREVIOUS
 } _selgame_selections;
 
@@ -4241,7 +4234,7 @@ typedef enum quest_var1_state {
 	QV_MUSHROOM_MUSHSPAWNED = 3, // unused
 	QV_MUSHROOM_MUSHPICKED = 4,  // unused
 	QV_MUSHROOM_MUSHGIVEN = 5,
-	QV_MUSHROOM_BRAINSPAWNED = 6,
+	QV_MUSHROOM_BRAINSPAWNED = 6, // unused
 	QV_MUSHROOM_BRAINGIVEN = 7,
 
 	QV_WARLORD_BOOK = 1,
@@ -4668,11 +4661,9 @@ typedef enum input_key {
 
 typedef enum application_error {
 	ERR_APP_FRAME_BUFSIZE,
-	ERR_APP_LOOPBACK_JOIN,
 	ERR_APP_LOOPBACK_SENDMSG,
 	ERR_APP_LOOPBACK_QUEUE_SIZE,
 	ERR_APP_LOOPBACK_POLLTURN,
-	ERR_APP_LOOPBACK_LASTTURN,
 	ERR_APP_LOOPBACK_DROPPLR,
 	ERR_APP_LOOPBACK_TRANSIT,
 	ERR_APP_PACKET_ENCRYPT,

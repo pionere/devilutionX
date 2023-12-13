@@ -527,7 +527,7 @@ void CheckTriggers()
 		static_assert((int)DVL_DWM_TWARPUP < UCHAR_MAX, "CheckTriggers sends DVL_DWM_* value in BYTE field I.");
 		static_assert((int)DVL_DWM_NEXTLVL < UCHAR_MAX, "CheckTriggers sends DVL_DWM_* value in BYTE field II.");
 		static_assert((int)NUM_LEVELS < UCHAR_MAX, "CheckTriggers sends level index in BYTE field.");
-		NetSendCmdBParam2(CMD_NEWLVL, fom, lvl);
+		NetSendCmdNewLvl(fom, lvl);
 		numtrigs = 0; // prevent triggering again
 	}
 }

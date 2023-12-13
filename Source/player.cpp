@@ -852,7 +852,11 @@ void InitLvlPlayer(int pnum, bool entering)
 	} else {
 		plr._plid = NO_LIGHT;
 	}
-	plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	if (currLvl._dLevelIdx != DLV_TOWN) {
+		plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+	} else {
+		plr._pvid = NO_VISION;
+	}
 }
 
 void RemoveLvlPlayer(int pnum)
@@ -1755,20 +1759,14 @@ __attribute__((no_sanitize("shift-base")))
 #endif
 void StartNewLvl(int pnum, int fom, int lvl)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartNewLvl: illegal player %d", pnum);
-	}
+	// assert((unsigned)pnum < MAX_PLRS);
+
 	InitLevelChange(pnum);
 
-	switch (fom) {
-	case DVL_DWM_NEXTLVL:
-	case DVL_DWM_PREVLVL:
-	case DVL_DWM_RTNLVL:
-	case DVL_DWM_TWARPDN:
-	case DVL_DWM_SETLVL:
-		break;
-	case DVL_DWM_TWARPUP:
-		if (pnum == mypnum) {
+	// net_assert(lvl < NUM_LEVELS);
+	plr._pDunLevel = lvl;
+	if (pnum == mypnum) {
+		if (fom == DVL_DWM_TWARPUP) {
 			assert(currLvl._dType >= 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
 			static_assert((int)TWARP_CATACOMB == (int)DTYPE_CATACOMBS - 1, "Dtype to Warp conversion requires matching enums II.");
@@ -1781,14 +1779,6 @@ void StartNewLvl(int pnum, int fom, int lvl)
 			gbTWarpFrom = (currLvl._dType - 1);
 			gbTownWarps |= 1 << gbTWarpFrom;
 		}
-		break;
-	default:
-		net_assert(0);
-		ASSUME_UNREACHABLE
-	}
-	net_assert(lvl < NUM_LEVELS);
-	plr._pDunLevel = lvl;
-	if (pnum == mypnum) {
 		PostMessage(fom);
 	}
 }
@@ -2033,10 +2023,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
-	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += fdam + ldam + mdam + adam;
-		AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
-	}
+	dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;

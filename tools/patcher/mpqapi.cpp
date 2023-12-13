@@ -4,12 +4,7 @@
  * Implementation of functions for creating and editing MPQ files.
  */
 #include <cerrno>
-#include <cinttypes>
-#include <cstdint>
-#include <cstring>
-#include <memory>
 #include <cstdio>
-#include <type_traits>
 
 #include "all.h"
 #include "utils/file_util.h"
@@ -638,6 +633,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 			mpqapi_alloc_block(pBlk->bqSizeAlloc + pBlk->bqOffset, emptyBlockSize);
 		}
 	}
+	mem_free_dbg(sectoroffsettable);
 	return true;
 	}
 on_error:

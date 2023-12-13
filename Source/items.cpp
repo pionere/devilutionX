@@ -64,10 +64,10 @@ static void GetRandomItemSpace(int ii)
 static void GetRandomItemSpace(int randarea, int ii)
 {
 	int x, y, i, j, tries;
+	constexpr int numTries = 1000;
+	// assert(randarea > 0 && randarea < DBORDERX && randarea < DBORDERY);
 
-	assert(randarea > 0);
-
-	tries = 0;
+	tries = numTries;
 	while (TRUE) {
 		x = random_(0, DSIZEX) + DBORDERX;
 		y = random_(0, DSIZEY) + DBORDERY;
@@ -79,31 +79,15 @@ static void GetRandomItemSpace(int randarea, int ii)
 		}
 		break;
 fail:
-		tries++;
-		if (tries > 1000 && randarea > 1)
+		tries--;
+		if (tries < 0 && randarea > 1) {
 			randarea--;
+			tries = numTries;
+		}
 	}
 
 	SetItemLoc(ii, x, y);
 }
-
-#ifdef HELLFIRE
-static void PlaceNote()
-{
-	int x, y, id;
-
-	do {
-		x = random_(12, DSIZEX) + DBORDERX;
-		y = random_(12, DSIZEY) + DBORDERY;
-	} while (!RandomItemPlace(x, y));
-	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "PlaceNote requires ordered IDI_NOTE indices I.");
-	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "PlaceNote requires ordered IDI_NOTE indices II.");
-	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "PlaceNote requires ordered DLV_CRYPT indices I.");
-	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "PlaceNote requires ordered DLV_CRYPT indices II.");
-	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
-	CreateQuestItemAt(id, x, y, ICM_DELTA);
-}
-#endif
 
 static inline unsigned items_get_currlevel()
 {
@@ -191,8 +175,13 @@ void InitItems()
 		 || (currLvl._dLevelIdx >= DLV_CATACOMBS1 && currLvl._dLevelIdx <= DLV_CATACOMBS4))
 			PlaceInitItems();
 #ifdef HELLFIRE
-		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
-			PlaceNote();
+		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3) {
+			static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "InitItems requires ordered DLV_CRYPT indices I.");
+			static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "InitItems requires ordered DLV_CRYPT indices II.");
+			static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "InitItems requires ordered IDI_NOTE indices I.");
+			static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "InitItems requires ordered IDI_NOTE indices II.");
+			PlaceQuestItemInArea(IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1), 1);
+		}
 #endif
 	// }
 }
@@ -2045,28 +2034,13 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 	unsigned quality = CFDQ_NORMAL;
 
 	mon = &monsters[mnum];
-	if ((mon->_mTreasure & UQ_DROP) != 0 && !IsMultiGame) {
-		// fix drop in single player
-		idx = mon->_mTreasure & 0xFFF;
-		SpawnUnique(idx, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-		return;
-	}
-	if (mon->_mTreasure & NO_DROP)
-		// no drop
-		return;
-
 	if (mon->_muniqtype != 0) {
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;
-	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QV_MUSHROOM_MUSHGIVEN) {
-		if (random_(24, 128) > 51)
+	} else {
+		if (random_(24, 128) > (47 + currLvl._dLevelPlyrs * 4))
 			return;
 		idx = RndAllItems(mon->_mLevel);
-	} else {
-		idx = IDI_BRAIN;
-		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINSPAWNED;
-		if (sendmsg)
-			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
 	SetupAllItems(MAXITEMS, idx, NextRndSeed(), mon->_mLevel, quality);
@@ -2304,13 +2278,12 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	numitems++;
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	// assert(gbLvlLoad != 0);
-	RespawnItem(ii, false);
-	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
 	items[ii]._iSeed = NextRndSeed();               // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
+
+	RespawnItem(ii, false);
 	DeltaAddItem(ii);
 }
 
