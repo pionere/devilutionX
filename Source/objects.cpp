@@ -1829,6 +1829,7 @@ void MonstCheckDoors(int mx, int my)
 void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
 	int i;
+	// const ObjectData* ods;
 
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
@@ -1842,6 +1843,18 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		dObject[os->_ox][os->_oy] = oi + 1;
 		os->_oModeFlags &= ~OMF_RESERVED;
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
+		assert(objectdata[os->_otype].oLightRadius == 0);
+		/*ods = &objectdata[os->_otype];
+		if (ods->oLightRadius != 0) {
+#if FLICKER_LIGHT
+			if (type == OBJ_L1LIGHT) {
+				os->_olid = NO_LIGHT;
+			} else
+#endif
+			{
+				TraceLightSource(os->_ox + ods->oLightOffX, os->_oy + ods->oLightOffY, ods->oLightRadius);
+			}
+		}*/
 	}
 	// add new objects (doors + light)
 	AddDunObjs(x1, y1, x2, y2);
@@ -2201,7 +2214,7 @@ static void SyncPedestal(/*int oi*/)
 		else
 			DRLG_ChangeMap(sx, sy, sx + 9, sy + 8/*, false*/);
 		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches + always reload lighting)?
-		LoadPreLighting();
+		// LoadPreLighting();
 #if 1
 		{
 		// BYTE lvlMask = 1 << currLvl._dType;
