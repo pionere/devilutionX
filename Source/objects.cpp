@@ -489,7 +489,7 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 static void AddL2Torches()
 {
 	int i, j;
-	// place torches on NE->SW walls
+	// place torches on NW->SE walls
 	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 		for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 			// skip setmap pieces
@@ -510,7 +510,7 @@ static void AddL2Torches()
 			j += 4;
 		}
 	}
-	// place torches on NW->SE walls
+	// place torches on NE->SW walls
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			// skip setmap pieces
