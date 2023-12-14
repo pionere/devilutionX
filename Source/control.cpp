@@ -1591,6 +1591,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 
 	if (y < 0)
 		return;
+	static_assert(HEALTHBAR_HEIGHT < BORDER_BOTTOM, "DrawHealthBar might draw out of the buffer.");
 	x -= HEALTHBAR_WIDTH / 2;
 	if (x < 0)
 		x = 0;
@@ -2352,6 +2353,15 @@ void CheckTeamClick(bool shift)
 					guTeamTab++;
 			}
 		}
+	}
+}
+
+void DrawGolemBar()
+{
+	MonsterStruct* mon = &monsters[mypnum];
+
+	if (mon->_mmode <= MM_INGAME_LAST) {
+		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, LIFE_FLASK_X + LIFE_FLASK_WIDTH / 2 - SCREEN_X, PANEL_Y + PANEL_HEIGHT - 1 - HEALTHBAR_HEIGHT + 2 - SCREEN_Y);
 	}
 }
 
