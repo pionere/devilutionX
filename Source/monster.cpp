@@ -3069,7 +3069,6 @@ void MAI_SkelBow(int mnum)
 {
 	MonsterStruct* mon;
 	int v;
-	bool walking;
 
 	mon = &monsters[mnum];
 	if (MON_ACTIVE || MON_RELAXED)
@@ -3079,22 +3078,20 @@ void MAI_SkelBow(int mnum)
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	mon->_mdir = currEnemyInfo._meLastDir;
 
-	walking = false;
 	if (currEnemyInfo._meRealDist < 4) {
 		v = random_(110, 100);
 		if (v < (70 + 8 * mon->_mAI.aiInt)) {
-			walking = MonDumbWalk(mnum, OPPOSITE(mon->_mdir));
+			if (MonDumbWalk(mnum, OPPOSITE(mon->_mdir)))
+				return;
 		}
 	}
 
-	if (!walking) {
-		// STAND_PREV_MODE
-		if (mon->_mVar1 == MM_DELAY && MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
-			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-			MonStartRAttack(mnum, MIS_ARROW);
-		} else {
-			MonStartDelay(mnum, RandRange(21, 24) - 4 * mon->_mAI.aiInt);
-		}
+	// STAND_PREV_MODE
+	if (mon->_mVar1 == MM_DELAY && MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
+		// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
+		MonStartRAttack(mnum, MIS_ARROW);
+	} else {
+		MonStartDelay(mnum, RandRange(21, 24) - 4 * mon->_mAI.aiInt);
 	}
 }
 
