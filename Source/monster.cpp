@@ -3214,7 +3214,7 @@ void MAI_Sneak(int mnum)
 		if (EnemyInLine(mnum)
 		    && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
-			mon->_mgoal = MGOAL_ATTACK2;
+			mon->_mgoal = MGOAL_ATTACK;
 			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
 		} else {
 			if (currEnemyInfo._meRealDist < 2) {
@@ -3223,11 +3223,11 @@ void MAI_Sneak(int mnum)
 				md = OPPOSITE(md);
 			}
 			if (!MonCallWalk(mnum, md)) {
-				mon->_mgoal = MGOAL_ATTACK2;
+				mon->_mgoal = MGOAL_ATTACK;
 				MonStartFadein(mnum, mon->_mdir, false);
 			}
 		}
-	} else if (mon->_mgoal == MGOAL_ATTACK2) {
+	} else if (mon->_mgoal == MGOAL_ATTACK) {
 		if (++mon->_mgoalvar1 > 3) { // FIREMAN_ACTION_PROGRESS
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mgoalvar1 = 0;
@@ -3239,7 +3239,7 @@ void MAI_Sneak(int mnum)
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_RETREAT);
-		mon->_mgoal = MGOAL_ATTACK2;
+		mon->_mgoal = MGOAL_ATTACK;
 		MonStartFadein(mnum, md, false);
 	}
 }*/
@@ -3281,7 +3281,7 @@ void MAI_Fallen(int mnum)
 						mon = &monsters[m - 1];
 						if (mon->_mAI.aiType == AI_FALLEN && !MON_RELAXED) {
 							mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-							mon->_mgoal = MGOAL_ATTACK2;
+							mon->_mgoal = MGOAL_ATTACK;
 							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 						}
 					}
@@ -3300,7 +3300,7 @@ void MAI_Fallen(int mnum)
 			MonStartStand(mnum);
 		}
 	} else {
-		assert(mon->_mgoal == MGOAL_ATTACK2);
+		assert(mon->_mgoal == MGOAL_ATTACK);
 		if (--mon->_mgoalvar1 != 0) { // FALLEN_ATTACK_AMOUNT
 			MonEnemyInfo(mnum);
 			if (currEnemyInfo._meRealDist < 2) {

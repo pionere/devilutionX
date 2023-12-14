@@ -2449,7 +2449,7 @@ typedef enum _monster_goal {
 	MGOAL_RETREAT,
 	MGOAL_HEALING,
 	MGOAL_MOVE,
-	MGOAL_ATTACK2,
+	MGOAL_ATTACK,
 	MGOAL_TALKING,
 } _monster_goal;
 
