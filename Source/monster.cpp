@@ -3087,9 +3087,13 @@ void MAI_SkelBow(int mnum)
 	}
 
 	// STAND_PREV_MODE
-	if (mon->_mVar1 == MM_DELAY && MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
-		// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-		MonStartRAttack(mnum, MIS_ARROW);
+	if (mon->_mVar1 == MM_DELAY) {
+		if (MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
+			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
+			MonStartRAttack(mnum, MIS_ARROW);
+		} else {
+			mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
+		}
 	} else {
 		MonStartDelay(mnum, RandRange(21, 24) - 4 * mon->_mAI.aiInt);
 	}
@@ -3428,8 +3432,8 @@ void MAI_Ranged(int mnum)
 				 && MonDestWalk(mnum)) {
 					return;
 				}
-			}
-			MonStartDelay(mnum, md + 1);
+			} else
+				MonStartDelay(mnum, md + 1);
 		}
 	} else {
 		MonDestWalk(mnum);
@@ -3684,18 +3688,18 @@ void MAI_RoundRanged(int mnum)
 		        || v < ((8 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2))
 			&& EnemyInLine(mnum)) {
 			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+			return;
 		} else if (dist >= 2) {
 			if (v < 10 * (mon->_mAI.aiInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mAI.aiInt + 8))) {
 				MonDestWalk(mnum);
+				return;
 			}
 		} else if (v < 10 * (mon->_mAI.aiInt + 6)) {
 			MonStartAttack(mnum);
+			return;
 		}
-		if (mon->_mmode == MM_STAND) {
-			v = std::max(1, RandRange(6, 13) - mon->_mAI.aiInt);
-			MonStartDelay(mnum, v);
-		}
+		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 	}
 }
 
@@ -3753,6 +3757,7 @@ void MAI_RoundRanged2(int mnum)
 			if (v < 10 * (mon->_mAI.aiInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mAI.aiInt + 8))) {
 				MonDestWalk(mnum);
+				return;
 			}
 		} else {
 			if (v < 10 * (mon->_mAI.aiInt + 4)) {
@@ -3760,11 +3765,10 @@ void MAI_RoundRanged2(int mnum)
 					MonStartAttack(mnum);
 				else
 					MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+				return;
 			}
 		}
-		if (mon->_mmode == MM_STAND) {
-			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
-		}
+		MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 	}
 }
 
