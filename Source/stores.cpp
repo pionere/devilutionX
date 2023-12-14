@@ -344,24 +344,19 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		AddSText(40, l++, false, sstr, iclr, false);
 		cursor = 0;
 	}
-	if (is->_iClass == ICLASS_WEAPON) {
-#ifdef HELLFIRE
-		if (is->_iMinDam == is->_iMaxDam) {
-			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-				cat_str(sstr, cursor, "Damage: %d  Dur: %d/%d", is->_iMinDam, is->_iDurability, is->_iMaxDur);
+	if (is->_iClass == ICLASS_WEAPON || is->_iClass == ICLASS_ARMOR) {
+		if (is->_iClass == ICLASS_WEAPON) {
+			if (is->_iMinDam == is->_iMaxDam)
+				cat_str(sstr, cursor, "Damage: %d", is->_iMinDam);
 			else
-				cat_str(sstr, cursor, "Damage: %d  Indestructible", is->_iMinDam);
-		} else
-#endif
-			if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-				cat_str(sstr, cursor, "Damage: %d-%d  Dur: %d/%d", is->_iMinDam, is->_iMaxDam, is->_iDurability, is->_iMaxDur);
-			else
-				cat_str(sstr, cursor, "Damage: %d-%d  Indestructible", is->_iMinDam, is->_iMaxDam);
-	} else if (is->_iClass == ICLASS_ARMOR) {
+				cat_str(sstr, cursor, "Damage: %d-%d", is->_iMinDam, is->_iMaxDam);
+		} else {
+			cat_str(sstr, cursor, "Armor: %d", is->_iAC);
+		}
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-			cat_str(sstr, cursor, "Armor: %d  Dur: %d/%d", is->_iAC, is->_iDurability, is->_iMaxDur);
+			cat_str(sstr, cursor, "  Dur: %d/%d", is->_iDurability, is->_iMaxDur);
 		else
-			cat_str(sstr, cursor, "Armor: %d  Indestructible", is->_iAC);
+			cat_str(sstr, cursor, "  indestructible");
 	}
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		if (cursor != 0)
@@ -600,12 +595,6 @@ static void S_StartSSell()
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (SmithSellOk(pi))
 			AddStoreSell(pi, i);
-#ifdef HELLFIRE
-	pi = p->_pSpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, pi++)
-		if (SmithSellOk(pi))
-			AddStoreSell(pi, -(i + 1));
-#endif
 
 	gbWidePanel = true;
 	gbRenderGold = true;
@@ -770,10 +759,6 @@ static void S_StartWSell()
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		if (WitchSellOk(pi))
 			AddStoreSell(pi, i);
-	pi = p->_pSpdList;
-	for (i = 0; i < MAXBELTITEMS; i++, pi++)
-		if (WitchSellOk(pi))
-			AddStoreSell(pi, -(i + 1));
 
 	gbWidePanel = true;
 	gbRenderGold = true;
@@ -2355,7 +2340,7 @@ static void S_PriestEnter()
 	switch (stextsel) {
 	/*case STORE_PRIEST_GOSSIP:
 		stextlhold = STORE_PRIEST_GOSSIP;
-		talker = TOWN_DRUNK;
+		talker = TOWN_PRIEST;
 		stextshold = STORE_PRIEST;
 		StartStore(STORE_GOSSIP);
 		break;*/
