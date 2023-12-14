@@ -3499,11 +3499,8 @@ static bool WitchItemOk(int i)
 {
 	return AllItemsList[i].itype == ITYPE_STAFF
 	 || (AllItemsList[i].itype == ITYPE_MISC
-	  && (AllItemsList[i].iMiscId == IMISC_BOOK
-	   || AllItemsList[i].iMiscId == IMISC_SCROLL
-	   || AllItemsList[i].iMiscId == IMISC_RUNE
-	   || AllItemsList[i].iMiscId == IMISC_REJUV
-	   || AllItemsList[i].iMiscId == IMISC_FULLREJUV));
+	  && (AllItemsList[i].iMiscId == IMISC_SCROLL
+	   || AllItemsList[i].iMiscId == IMISC_RUNE));
 }
 
 static int RndWitchItem(unsigned lvl)
