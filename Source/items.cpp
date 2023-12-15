@@ -1456,7 +1456,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iPLSkillLevels = r;
 		break;
 	case IPL_CHARGES:
-		is->_iCharges *= param1;
+		is->_iCharges *= r;
 		is->_iMaxCharges = is->_iCharges;
 		break;
 	case IPL_FIREDAM:
@@ -1580,8 +1580,8 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDam = param2;
 		break;
 	case IPL_SETDUR:
-		is->_iDurability = param1;
-		is->_iMaxDur = param1;
+		is->_iDurability = r;
+		is->_iMaxDur = r;
 		break;
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
