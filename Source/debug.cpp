@@ -621,6 +621,14 @@ void ValidateData()
 				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
 			}
 		}
+		if (pres->PLPower == IPL_CHARGES) {
+			for (int n = 0; n < NUM_SPELLS; n++) {
+				const SpellData& sd = spelldata[n];
+				if (sd.sStaffLvl != SPELL_NA && sd.sStaffMax * pres->PLParam2 > UCHAR_MAX) { // required by (Un)PackPkItem
+					app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d) to be used for staff with spell %d.", i, pres->PLPower, pres->PLParam2, n);
+				}
+			}
+		}
 	}
 	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
 		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
