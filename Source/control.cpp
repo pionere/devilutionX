@@ -1601,7 +1601,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
 	for (int i = 0; i < HEALTHBAR_HEIGHT; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 5, HEALTHBAR_WIDTH);
+		memset(dst, PAL16_YELLOW + 8, HEALTHBAR_WIDTH);
 
 	// draw the bar
 	//width = (HEALTHBAR_WIDTH - 2) * hp / maxhp;
@@ -1611,7 +1611,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 	}
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
 	for (int i = 0; i < HEALTHBAR_HEIGHT - 2; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_RED + 9, w);
+		memset(dst, PAL16_RED + 11, w);
 }
 
 static void DrawTrigInfo()
