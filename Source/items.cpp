@@ -1332,7 +1332,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 	is->_iMaxCharges = is->_iCharges;
 
 	is->_iMinMag = sd->sMinInt;
-	v = is->_iCharges * sd->sStaffCost / 5;
+	v = is->_iCharges * sd->sStaffCost;
 	is->_ivalue += v;
 	is->_iIvalue += v;
 }

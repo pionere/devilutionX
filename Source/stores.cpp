@@ -786,7 +786,7 @@ static void AddStoreHoldRecharge(const ItemStruct* is, int i)
 	itm = &storehold[storenumh];
 	copy_pod(*itm, *is);
 	itm->_ivalue += spelldata[itm->_iSpell].sStaffCost;
-	itm->_ivalue = itm->_ivalue * (itm->_iMaxCharges - itm->_iCharges) / (itm->_iMaxCharges * 2);
+	itm->_ivalue = itm->_ivalue * (itm->_iMaxCharges - itm->_iCharges) / itm->_iMaxCharges;
 	itm->_iIvalue = itm->_ivalue;
 	storehidx[storenumh] = i;
 	storenumh++;
