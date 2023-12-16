@@ -2726,10 +2726,10 @@ static void GroupUnity(int mnum)
 	if (mon->_mleader != MON_NO_LEADER) {
 		leader = &monsters[mon->_mleader];
 		clear = LineClear(mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
-		if (clear) {
-			if (mon->_mleaderflag == MLEADER_AWAY
+		if (clear
 			 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
 			 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
+			if (mon->_mleaderflag == MLEADER_AWAY) {
 				leader->_mpacksize++;
 				mon->_mleaderflag = MLEADER_PRESENT;
 			}
