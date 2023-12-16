@@ -2773,21 +2773,21 @@ static bool MonDirOK(int mnum, int mdir)
 
 	fx = x + offset_x[mdir];
 	fy = y + offset_y[mdir];
-	static_assert(DBORDERX >= 3, "DirOK expects a large enough border I.");
-	static_assert(DBORDERY >= 3, "DirOK expects a large enough border II.");
+	static_assert(DBORDERX >= MON_PACK_DISTANCE, "DirOK expects a large enough border I.");
+	static_assert(DBORDERY >= MON_PACK_DISTANCE, "DirOK expects a large enough border II.");
 	assert(IN_DUNGEON_AREA(fx, fy));
 	if (!PosOkMonst(mnum, fx, fy))
 		return false;
 
 	if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
-		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) < 4
-		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) < 4;
+		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) <= MON_PACK_DISTANCE
+		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) <= MON_PACK_DISTANCE;
 	}
 	if (monsters[mnum]._mpacksize == 0)
 		return true;
 	mcount = 0;
-	for (x = fx - 3; x <= fx + 3; x++) {
-		for (y = fy - 3; y <= fy + 3; y++) {
+	for (x = fx - MON_PACK_DISTANCE; x <= fx + MON_PACK_DISTANCE; x++) {
+		for (y = fy - MON_PACK_DISTANCE; y <= fy + MON_PACK_DISTANCE; y++) {
 			assert(IN_DUNGEON_AREA(x, y));
 			ma = dMonster[x][y];
 			if (ma == 0)
