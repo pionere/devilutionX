@@ -1645,6 +1645,7 @@ static void PlrGetKnockback(int pnum, int dir)
 	if (plr._pmode != PM_GOTHIT)
 		PlrStartGetHit(pnum, dir);
 
+	dir = OPPOSITE(dir);
 	oldx = plr._px;
 	oldy = plr._py;
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
