@@ -755,237 +755,237 @@ jobs:
     steps:
     # Windows-builds (x86)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellmini-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellmini-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellsrv-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellsrv-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
 
     # Windows-builds (x64)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
 
     # Mac-builds
     - name: Download a diablo mac-artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-mac.dmg
 
     - name: Download a diablo mac-artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-macp.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-macp.dmg
 
     - name: Download a hellfire mac-artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
 
     - name: Download a hellfire mac-artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-macp.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-macp.dmg
 
     # iOS-builds
     - name: Download a diablo iOS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-ios.ipa
 
     - name: Download a diablo iOS artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-iosp.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-iosp.ipa
 
     - name: Download a hellfire iOS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     - name: Download a hellfire iOS artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-iosp.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-iosp.ipa
 
     # Android-builds
     - name: Download a diablo android artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-android.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
 
     - name: Download a diablo android artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-androidp.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-androidp.apk
 
     - name: Download a hellfire android artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-android.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     - name: Download a hellfire android artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-androidp.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-androidp.apk
 
     # rg350-builds
     - name: Download a diablo rg350 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350.opk
 
     - name: Download a diablo rg350 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-rg350p.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350p.opk
 
     - name: Download a hellfire rg350 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350.opk
 
     - name: Download a hellfire rg350 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-rg350p.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350p.opk
 
     # lepus-builds
     - name: Download a diablo lepus artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepus.opk
 
     - name: Download a diablo lepus artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-lepusp.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepusp.opk
 
     - name: Download a hellfire lepus artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepus.opk
 
     - name: Download a hellfire lepus artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-lepusp.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepusp.opk
 
     # retrofw-builds
     - name: Download a diablo retrofw artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/diablo-nightly-retrofw.opk
 
     - name: Download a diablo retrofw artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-retrofwp.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/diablo-nightly-retrofwp.opk
 
     - name: Download a hellfire retrofw artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
     - name: Download a hellfire retrofw artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-retrofwp.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofwp.opk
 
     # ps4-builds
     - name: Download a diablo ps4 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4.pkg
 
     - name: Download a diablo ps4 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ps4p.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4p.pkg
 
     - name: Download a hellfire ps4 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
 
     - name: Download a hellfire ps4 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ps4p.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4p.pkg
