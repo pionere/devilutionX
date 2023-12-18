@@ -1,4 +1,4 @@
-name: CMake
+﻿name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Create Build Environment
       run: brew bundle install
 
@@ -39,7 +39,7 @@ jobs:
       working-directory: ${{github.workspace}}
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
-    
+
     #- name: Release
     #  uses: softprops/action-gh-release@v1
     #  if: startsWith(github.ref, 'refs/tags/')
@@ -50,7 +50,7 @@ jobs:
     # Upload the created artifact
     - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{github.workspace}}/build/devilutionx.dmg
         name: devilutionx.dmg

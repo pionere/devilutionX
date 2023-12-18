@@ -97,7 +97,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -143,7 +143,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -189,7 +189,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -236,7 +236,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -272,7 +272,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Create Build Environment
       run: Packaging/nix/debian-host-prep.sh
 
@@ -300,14 +300,14 @@ jobs:
 
     - name: Upload Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: devilutionx-x86_64-linux-gnu.tar.xz
         name: ${{ matrix.artifact }}
 
     - name: Upload AppImage
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: devilutionx-x86_64-linux-gnu.appimage
         name: ${{ matrix.appimage }}
@@ -367,7 +367,7 @@ jobs:
 
     - name: Upload Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: devilutionx-aarch64.tar.xz
         name: ${{ matrix.artifact }}
@@ -415,7 +415,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
@@ -467,7 +467,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
@@ -528,7 +528,7 @@ jobs:
       run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
@@ -583,7 +583,7 @@ jobs:
         TOOLCHAIN: /opt/gcw0-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: build-rg350/devilutionx-rg350.opk
@@ -636,7 +636,7 @@ jobs:
         TOOLCHAIN: /opt/lepus-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: build-lepus/devilutionx-lepus.opk
@@ -691,7 +691,7 @@ jobs:
         TOOLCHAIN: /opt/retrofw-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-retrofw.opk.zip
         name: ${{ matrix.artifact }}
@@ -741,7 +741,7 @@ jobs:
       run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
