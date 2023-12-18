@@ -1681,8 +1681,7 @@ static void MonStartSpAttack(int mnum)
  */
 void MonUpdateLeader(int mnum)
 {
-	MonsterStruct* mon;
-	int i;
+	int ma;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonUpdateLeader: Invalid monster %d", mnum);
@@ -1690,11 +1689,12 @@ void MonUpdateLeader(int mnum)
 	if (monsters[mnum]._mleaderflag == MLEADER_NONE)
 		return;
 	if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
-		for (i = 0; i < MAXMONSTERS; i++) {
-			mon = &monsters[i];
-			if (/*mon->_mleaderflag != MLEADER_NONE && */mon->_mleader == mnum) {
-				mon->_mleader = MON_NO_LEADER;
-				mon->_mleaderflag = MLEADER_NONE;
+		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
+			// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
+			if (/*monsters[ma]._mleaderflag != MLEADER_NONE && */monsters[ma]._mleader == mnum) {
+				monsters[ma]._mleader = MON_NO_LEADER;
+				monsters[ma]._mleaderflag = MLEADER_NONE;
 			}
 		}
 	} else if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
@@ -2789,25 +2789,20 @@ static bool MonDirOK(int mnum, int mdir)
 		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) <= MON_PACK_DISTANCE
 		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) <= MON_PACK_DISTANCE;
 	}
-	if (monsters[mnum]._mpacksize == 0)
+	mcount = monsters[mnum]._mpacksize;
+	if (mcount == 0)
 		return true;
-	mcount = 0;
-	for (x = fx - MON_PACK_DISTANCE; x <= fx + MON_PACK_DISTANCE; x++) {
-		for (y = fy - MON_PACK_DISTANCE; y <= fy + MON_PACK_DISTANCE; y++) {
-			assert(IN_DUNGEON_AREA(x, y));
-			ma = dMonster[x][y];
-			if (ma == 0)
-				continue;
-			ma = ma >= 0 ? ma - 1 : -(ma + 1);
-			if (monsters[ma]._mleaderflag == MLEADER_PRESENT
-			    && monsters[ma]._mleader == mnum
-			    && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
-			    && abs(fy - monsters[ma]._mfuty) <= MON_PACK_DISTANCE) {
-				mcount++;
-			}
+	// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+	for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
+		// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
+		if (monsters[ma]._mleaderflag == MLEADER_PRESENT
+		 && monsters[ma]._mleader == mnum
+		 && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
+		 && abs(fy - monsters[ma]._mfuty) <= MON_PACK_DISTANCE) {
+			mcount--;
 		}
 	}
-	return mcount == monsters[mnum]._mpacksize;
+	return mcount == 0;
 }
 
 static bool MonCallWalk(int mnum, int md)
