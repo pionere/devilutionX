@@ -1671,6 +1671,37 @@ static void MonStartSpAttack(int mnum)
 	AssertFixMonLocation(mnum);
 }
 
+/*
+ * Disconnect monster from its pack/leader.
+ */
+void MonUpdateLeader(int mnum)
+{
+	MonsterStruct* mon;
+	int i;
+
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("MonUpdateLeader: Invalid monster %d", mnum);
+	}
+	if (monsters[mnum]._mleaderflag == MLEADER_NONE)
+		return;
+	if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
+		for (i = 0; i < MAXMONSTERS; i++) {
+			mon = &monsters[i];
+			if (/*mon->_mleaderflag != MLEADER_NONE && */mon->_mleader == mnum) {
+				mon->_mleader = MON_NO_LEADER;
+				mon->_mleaderflag = MLEADER_NONE;
+			}
+		}
+	} else if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
+		monsters[monsters[mnum]._mleader]._mpacksize--;
+	}
+	monsters[mnum]._mleader = MON_NO_LEADER;
+	monsters[mnum]._mleaderflag = MLEADER_NONE;
+	monsters[mnum]._mpacksize = 0;
+	// assert(monsters[mnum]._mvid == NO_VISION);
+	monsters[mnum]._mvid = NO_VISION;
+}
+
 void RemoveMonFromMap(int mnum)
 {
 	MonsterStruct* mon;
@@ -2500,37 +2531,6 @@ static bool MonDoGotHit(int mnum)
 		return true;
 	}
 	return false;
-}
-
-/*
- * Disconnect monster from its pack/leader.
- */
-void MonUpdateLeader(int mnum)
-{
-	MonsterStruct* mon;
-	int i;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonUpdateLeader: Invalid monster %d", mnum);
-	}
-	if (monsters[mnum]._mleaderflag == MLEADER_NONE)
-		return;
-	if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
-		for (i = 0; i < MAXMONSTERS; i++) {
-			mon = &monsters[i];
-			if (/*mon->_mleaderflag != MLEADER_NONE && */mon->_mleader == mnum) {
-				mon->_mleader = MON_NO_LEADER;
-				mon->_mleaderflag = MLEADER_NONE;
-			}
-		}
-	} else if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
-		monsters[monsters[mnum]._mleader]._mpacksize--;
-	}
-	monsters[mnum]._mleader = MON_NO_LEADER;
-	monsters[mnum]._mleaderflag = MLEADER_NONE;
-	monsters[mnum]._mpacksize = 0;
-	// assert(monsters[mnum]._mvid == NO_VISION);
-	monsters[mnum]._mvid = NO_VISION;
 }
 
 void DoEnding()
