@@ -2796,8 +2796,8 @@ static bool MonDirOK(int mnum, int mdir)
 			ma = ma >= 0 ? ma - 1 : -(ma + 1);
 			if (monsters[ma]._mleaderflag == MLEADER_PRESENT
 			    && monsters[ma]._mleader == mnum
-			    && monsters[ma]._mfutx == x
-				&& monsters[ma]._mfuty == y) {
+			    && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
+			    && abs(fy - monsters[ma]._mfuty) <= MON_PACK_DISTANCE) {
 				mcount++;
 			}
 		}
