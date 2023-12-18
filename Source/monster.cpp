@@ -1899,11 +1899,11 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		return;
 	if (mon->_mmode == MM_STONE)
 		return;
-	if (hitflags & ISPL_KNOCKBACK)
-		MonGetKnockback(mnum, sx, sy);
 	if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
+	if (hitflags & ISPL_KNOCKBACK)
+		MonGetKnockback(mnum, sx, sy);
 	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp /*&& mon->_mmode != MM_STONE*/) {
 		mon->_mdir = OPPOSITE(plr._pdir);
 		if (mon->_mType == MT_NBAT)
