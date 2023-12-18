@@ -801,7 +801,6 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			} while (!MonstPlace(x1, y1));
 		}
 
-		assert(dTransVal[x1][y1] != 0);
 		static_assert(DBORDERX >= 1, "PlaceGroup expects a large enough border I.");
 		static_assert(DBORDERY >= 1, "PlaceGroup expects a large enough border II.");
 		xp = x1; yp = y1;
@@ -810,14 +809,20 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			x2 = xp + offset_x[offset];
 			y2 = yp + offset_y[offset];
 			assert((unsigned)x2 < MAXDUNX);
-			assert((unsigned)y2 < MAXDUNX);
-			if (dTransVal[x2][y2] != dTransVal[x1][y1]
-			 || ((leaderf & UMF_LEADER) && ((abs(x2 - x1) > MON_PACK_DISTANCE) || (abs(y2 - y1) > MON_PACK_DISTANCE)))) {
+			assert((unsigned)y2 < MAXDUNY);
+			if ((leaderf & UMF_LEADER) && ((abs(x2 - x1) > MON_PACK_DISTANCE) || (abs(y2 - y1) > MON_PACK_DISTANCE))) {
+				continue;
+			}
+			if (!MonstPlace(x2, y2)) {
+				if (dMonster[x2][y2] != 0) {
+					xp = x2;
+					yp = y2;
+				}
 				continue;
 			}
 			xp = x2;
 			yp = y2;
-			if ((!MonstPlace(xp, yp)) || random_(0, 2) != 0)
+			if (random_(0, 2) != 0)
 				continue;
 			// assert(nummonsters < MAXMONSTERS);
 			mnum = PlaceMonster(mtidx, xp, yp);
