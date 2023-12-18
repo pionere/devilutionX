@@ -50,6 +50,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 void MonStartMonHit(int defm, int offm, int dam);
 void MonStartKill(int mnum, int pnum);
 void MonSyncStartKill(int mnum, int x, int y, int pnum);
+void MonLeaveLeader(int mnum);
 void MonUpdateLeader(int mnum);
 void MonAddDead(int mnum);
 void DoEnding();

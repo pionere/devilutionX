@@ -1679,7 +1679,7 @@ static void MonStartSpAttack(int mnum)
 /*
  * Disconnect monster from its pack/leader temporarily.
  */
-static void MonLeaveLeader(int mnum)
+void MonLeaveLeader(int mnum)
 {
 	int ma;
 
@@ -1872,6 +1872,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 			mon->_my = newy;
 			RemoveMonFromMap(mnum);
 			MonPlace(mnum);
+			MonLeaveLeader(mnum);
 		}
 	}
 
