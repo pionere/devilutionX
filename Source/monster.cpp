@@ -1782,6 +1782,7 @@ static void MonTeleport(int mnum, int tx, int ty)
 			mon->_mx = x;
 			mon->_my = y;
 			mon->_mdir = OPPOSITE(rx);
+			MonUpdateLeader(mnum);
 			return;
 		}
 	}
@@ -2974,6 +2975,7 @@ void MAI_Snake(int mnum)
 		if (dist == 2 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSFX(mnum, MS_ATTACK);
+				MonUpdateLeader(mnum);
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mAI.aiInt) {
 			// calculate the desired direction
