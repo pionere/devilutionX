@@ -2399,16 +2399,7 @@ static bool MonDoRAttack(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum) {
-		AddMissile(
-		    mon->_mx,
-		    mon->_my,
-		    mon->_menemyx,
-		    mon->_menemyy,
-		    mon->_mdir,
-		    mon->_mVar1, // RATTACK_SKILL
-		    MST_MONSTER,
-		    mnum,
-		    0);
+		AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // RATTACK_SKILL
 		PlayMonSFX(mnum, MS_ATTACK);
 	}
 
@@ -2428,16 +2419,7 @@ static bool MonDoRSpAttack(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2) {
 		if (mon->_mAnimCnt == 0) {
-			AddMissile(
-				mon->_mx,
-				mon->_my,
-				mon->_menemyx,
-				mon->_menemyy,
-				mon->_mdir,
-				mon->_mVar1, // SPATTACK_SKILL
-				MST_MONSTER,
-				mnum,
-				0);
+			AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // SPATTACK_SKILL
 			PlayMonSFX(mnum, MS_SPECIAL);
 		}
 
@@ -3031,8 +3013,8 @@ void MAI_Snake(int mnum)
 		}
 	} else { // STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY
-		    || mon->_mVar1 == MM_CHARGE
-		    || (random_(105, 100) < mon->_mAI.aiInt + 20)) {
+		 || mon->_mVar1 == MM_CHARGE
+		 || (random_(105, 100) < mon->_mAI.aiInt + 20)) {
 			MonStartAttack(mnum);
 		} else
 			MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
@@ -3070,9 +3052,9 @@ void MAI_Bat(int mnum)
 	v = random_(107, 100);
 	dist = currEnemyInfo._meRealDist;
 	if (mon->_mType == MT_GBAT
-	    && dist >= 5
-	    && v < 4 * mon->_mAI.aiInt + 33
-	    && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+	 && dist >= 5
+	 && v < 4 * mon->_mAI.aiInt + 33
+	 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 		if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonLeaveLeader(mnum);
 		}
@@ -3238,7 +3220,7 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (EnemyInLine(mnum)
-		    && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
+		 && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK;
 			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
@@ -3692,8 +3674,7 @@ void MAI_RoundRanged(int mnum)
 			}
 			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, currEnemyInfo._meLastDir)) || mon->_mgoalvar1 == 0) {
 				mon->_mgoal = MGOAL_NORMAL;
-			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2)
-			    && EnemyInLine(mnum)) {
+			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2) && EnemyInLine(mnum)) {
 				MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
@@ -3939,7 +3920,7 @@ void MAI_Rhino(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 5 && v < 2 * mon->_mAI.aiInt + 43
-		    && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
+		 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 			mon->_mdir = currEnemyInfo._meLastDir;
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSFX(mnum, MS_SPECIAL);
@@ -4051,7 +4032,7 @@ void MAI_Counselor(int mnum)
 			}
 		} else {
 			mon->_mdir = md;
-			if (mon->_mVar1 == MM_FADEIN)
+			if (mon->_mVar1 == MM_FADEIN) // STAND_PREV_MODE
 				v >>= 1;
 			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
 #if DEBUG
@@ -4062,8 +4043,7 @@ void MAI_Counselor(int mnum)
 				mon->_mgoal = MGOAL_RETREAT;
 				mon->_mgoalvar1 = 5; // RETREAT_DISTANCE
 				MonStartFadeout(mnum, md, false);
-			} else if (mon->_mVar1 == MM_DELAY // STAND_PREV_MODE
-			    || v < 2 * mon->_mAI.aiInt + 20) {
+			} else if (mon->_mVar1 == MM_DELAY || v < 2 * mon->_mAI.aiInt + 20) {
 				MonStartRAttack(mnum, MIS_FLASH);
 			}
 		}
