@@ -1677,7 +1677,31 @@ static void MonStartSpAttack(int mnum)
 }
 
 /*
- * Disconnect monster from its pack/leader.
+ * Disconnect monster from its pack/leader temporarily.
+ */
+static void MonLeaveLeader(int mnum)
+{
+	int ma;
+
+	//if (monsters[mnum]._mleaderflag == MLEADER_NONE)
+	//	return;
+	if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
+		monsters[mnum]._mleaderflag = MLEADER_AWAY;
+		monsters[monsters[mnum]._mleader]._mpacksize--;
+	} else if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
+		monsters[mnum]._mpacksize = 0;
+		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
+			// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
+			if (/*monsters[ma]._mleaderflag != MLEADER_NONE && */monsters[ma]._mleader == mnum) {
+				monsters[ma]._mleaderflag = MLEADER_AWAY;
+			}
+		}
+	}
+}
+
+/*
+ * Disconnect monster from its pack/leader permanently.
  */
 void MonUpdateLeader(int mnum)
 {
@@ -1787,7 +1811,7 @@ static void MonTeleport(int mnum, int tx, int ty)
 			mon->_mx = x;
 			mon->_my = y;
 			mon->_mdir = OPPOSITE(rx);
-			MonUpdateLeader(mnum);
+			MonLeaveLeader(mnum);
 			return;
 		}
 	}
@@ -2739,9 +2763,9 @@ static void GroupUnity(int mnum)
 				leader->_mpacksize++;
 				mon->_mleaderflag = MLEADER_PRESENT;
 			}
-		} else if (mon->_mleaderflag == MLEADER_PRESENT) {
-			leader->_mpacksize--;
+		} else if (mon->_mleaderflag == MLEADER_PRESENT) { // MonLeaveLeader
 			mon->_mleaderflag = MLEADER_AWAY;
+			leader->_mpacksize--;
 		}
 		if (mon->_mleaderflag == MLEADER_PRESENT) {
 			if (mon->_msquelch > leader->_msquelch) {
@@ -2975,7 +2999,7 @@ void MAI_Snake(int mnum)
 		if (dist == 2 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSFX(mnum, MS_ATTACK);
-				MonUpdateLeader(mnum);
+				MonLeaveLeader(mnum);
 			}
 		} else if (mon->_mVar1 == MM_DELAY || random_(106, 100) >= 35 - 2 * mon->_mAI.aiInt) {
 			// calculate the desired direction
@@ -3050,7 +3074,7 @@ void MAI_Bat(int mnum)
 	    && v < 4 * mon->_mAI.aiInt + 33
 	    && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 		if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
-			MonUpdateLeader(mnum);
+			MonLeaveLeader(mnum);
 		}
 	} else if (dist >= 2) {
 		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < mon->_mAI.aiInt + 13) // STAND_TICK
@@ -3503,7 +3527,7 @@ void MAI_Scav(int mnum)
 	if (MON_ACTIVE || MON_RELAXED)
 		return;
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
-		MonUpdateLeader(mnum);
+		MonLeaveLeader(mnum);
 		mon->_mgoal = MGOAL_HEALING;
 		mon->_mgoalvar1 = 0; // HEALING_LOCATION_X
 		//mon->_mgoalvar2 = 0;
@@ -3919,7 +3943,7 @@ void MAI_Rhino(int mnum)
 			mon->_mdir = currEnemyInfo._meLastDir;
 			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSFX(mnum, MS_SPECIAL);
-				MonUpdateLeader(mnum);
+				MonLeaveLeader(mnum);
 			}
 		} else if (dist < 2) {
 			if (v < 2 * mon->_mAI.aiInt + 28) {
@@ -4387,7 +4411,7 @@ void ProcessMonsters()
 #endif
 			}
 			mon->_msquelch = SQUELCH_MAX;
-		} else if (mon->_msquelch != 0 && mon->_mhitpoints == mon->_mmaxhp) {
+		} else if (mon->_msquelch != 0 && mon->_mhitpoints == mon->_mmaxhp && mon->_mleaderflag != MLEADER_AWAY) {
 			mon->_msquelch--;
 			if (mon->_msquelch == 0) {
 				// reset monster state to ensure sync in multiplayer games
