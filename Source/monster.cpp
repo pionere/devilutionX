@@ -702,8 +702,8 @@ static bool MonstPlace(int xp, int yp)
 {
 	static_assert(DBORDERX >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border I.");
 	static_assert(DBORDERY >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border II.");
-	return (dMonster[xp][yp] | /*dPlayer[xp][yp] |*/ nSolidTable[dPiece[xp][yp]]
-		 | (dFlags[xp][yp] & (BFLAG_ALERT | BFLAG_MON_PROTECT))) == 0;
+	return (dMonster[xp][yp]/* | /*dPlayer[xp][yp] | dObject[xp][yp]*/
+		 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & (BFLAG_ALERT | BFLAG_MON_PROTECT))) == 0;
 }
 
 #ifdef HELLFIRE
@@ -1780,6 +1780,7 @@ static void MonStopWalk(int mnum)
 	MonsterStruct* mon = &monsters[mnum];
 	int x, y;
 
+	// assert(mon->_mmode != MM_STONE);
 	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2)
 		return;
 
@@ -1802,7 +1803,7 @@ static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE /*&& mon->_mType != MT_GOLEM */);
+	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE && mon->_mType != MT_GOLEM);
 
 	MonStopWalk(mnum);
 	AssertFixMonLocation(mnum);
@@ -1921,7 +1922,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
 	if (hitflags & ISPL_KNOCKBACK)
 		MonGetKnockback(mnum, sx, sy);
-	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp /*&& mon->_mmode != MM_STONE*/) {
+	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
 		mon->_mdir = OPPOSITE(plr._pdir);
 		if (mon->_mType == MT_NBAT)
 			MonTeleport(mnum, plr._pfutx, plr._pfuty);
@@ -1937,6 +1938,7 @@ void MonStartMonHit(int defm, int offm, int dam)
 		dev_fatal("Invalid monster %d getting hit by monster/trap", defm);
 	}
 	dmon = &monsters[defm];
+	// assert(dmon->_mmode != MM_DEATH);
 	if ((unsigned)offm < MAX_MINIONS) {
 		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
 		dmon->_mWhoHit |= 1 << offm;
@@ -1947,13 +1949,15 @@ void MonStartMonHit(int defm, int offm, int dam)
 	PlayMonSFX(defm, MS_GOTHIT);
 	if (defm < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
 		return;
+	if (dmon->_mmode == MM_STONE)
+		return;
 	// Knockback:
 	//	1. Golems -> other monsters. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK));
 	//	2. other monsters -> golems : golems are immune against knockbacks
 	// Bleed:
 	//	1. Golems -> other monsters. TODO: implement?
 	//	2. other monsters -> golems. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-	if ((dam << 2) >= dmon->_mmaxhp && dmon->_mmode != MM_STONE) {
+	if ((dam << 2) >= dmon->_mmaxhp) {
 		if (offm >= 0) {
 			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
 			if (dmon->_mType == MT_NBAT)
@@ -2756,8 +2760,8 @@ static void GroupUnity(int mnum)
 		leader = &monsters[mon->_mleader];
 		clear = LineClear(mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
 		if (clear
-			 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
-			 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
+		 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
+		 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
 			if (mon->_mleaderflag == MLEADER_AWAY) {
 				leader->_mpacksize++;
 				mon->_mleaderflag = MLEADER_PRESENT;
