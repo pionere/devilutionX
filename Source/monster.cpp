@@ -1462,6 +1462,8 @@ static void MonFindEnemy(int mnum)
 			y = monsters[enemy]._mfuty;
 		}
 		mon->_menemy = enemy;
+		mon->_mlastx = x;
+		mon->_mlasty = y;
 	} else {
 		// flags |= MFLAG_NO_ENEMY;
 		x = 0;
@@ -3846,8 +3848,6 @@ void MAI_Golem(int mnum)
 	if (MON_HAS_ENEMY) {
 		MonEnemyInfo(mnum);
 		if (currEnemyInfo._meRealDist >= 2) {
-			mon->_mlastx = mon->_menemyx;
-			mon->_mlasty = mon->_menemyy;
 			if (MonDestWalk(mnum)) {
 				return;
 			}
@@ -4411,8 +4411,6 @@ void ProcessMonsters()
 		}
 		if (alert) {
 			if (MON_HAS_ENEMY) {
-				mon->_mlastx = mon->_menemyx;
-				mon->_mlasty = mon->_menemyy;
 				if (mon->_msquelch == 0) {
 					if (mon->_mType == MT_CLEAVER)
 						PlaySfxLoc(USFX_CLEAVER, mon->_mfutx, mon->_mfuty);
