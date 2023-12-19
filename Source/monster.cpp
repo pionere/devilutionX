@@ -1829,12 +1829,12 @@ static void MonTeleport(int mnum, int tx, int ty)
 		y = ty + offset_y[rx];
 		assert(IN_DUNGEON_AREA(x, y));
 		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
-			//RemoveMonFromMap(mnum);
-			//assert(dMonster[mon->_mx][mon->_my] == 0);
-			//dMonster[x][y] = mnum + 1;
 			mon->_mx = x;
 			mon->_my = y;
 			mon->_mdir = OPPOSITE(rx);
+			mon->_mmode = MM_STAND; // prevent overwrite of mx/y from MonStopWalk
+			// RemoveMonFromMap(mnum);
+			// MonPlace(mnum);
 			MonLeaveLeader(mnum);
 			return;
 		}
