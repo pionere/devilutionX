@@ -1892,8 +1892,8 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 		}
 	}
 
-	if (mnum >= MAX_MINIONS) // mon->_mType != MT_GOLEM
-		MonStartGetHit(mnum);
+	// assert(mnum >= MAX_MINIONS); // mon->_mType != MT_GOLEM
+	MonStartGetHit(mnum);
 }
 
 void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
@@ -4668,7 +4668,6 @@ void MissToMonst(int mi)
 		MonHitMon(mnum, defm, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dMonster[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 			// TODO: use MonStartMonHit ?
-			MonGetKnockback(defm, mis->_misx, mis->_misy);
 			PlayMonSFX(mnum, MS_GOTHIT);
 		}
 	}
