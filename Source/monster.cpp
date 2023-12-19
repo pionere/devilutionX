@@ -1365,10 +1365,17 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
 				continue;
-			if (!LineClear(mon->_mfutx, mon->_mfuty, plx(i)._pfutx, plx(i)._pfuty))
+			if (plx(i)._pmode < PM_WALK || plx(i)._pmode > PM_WALK2) {
+				x = plx(i)._px;
+				y = plx(i)._py;
+			} else {
+				x = plx(i)._pfutx;
+				y = plx(i)._pfuty;
+			}
+			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
-			sameroom = tv == dTransVal[plx(i)._pfutx][plx(i)._pfuty];
-			dist = std::max(abs(mon->_mfutx - plx(i)._pfutx), abs(mon->_mfuty - plx(i)._pfuty));
+			sameroom = tv == dTransVal[x][y];
+			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
@@ -1441,8 +1448,13 @@ static void MonFindEnemy(int mnum)
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
-			x = plx(enemy)._pfutx;
-			y = plx(enemy)._pfuty;
+			if (plx(enemy)._pmode < PM_WALK || plx(enemy)._pmode > PM_WALK2) {
+				x = plx(enemy)._px;
+				y = plx(enemy)._py;
+			} else {
+				x = plx(enemy)._pfutx;
+				y = plx(enemy)._pfuty;
+			}
 		} else {
 			enemy = -(enemy + 1);
 			flags |= MFLAG_TARGETS_MONSTER;
