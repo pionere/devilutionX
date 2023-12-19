@@ -1354,8 +1354,7 @@ static void MonFindEnemy(int mnum)
 	bool sameroom, bestsameroom;
 	MonsterStruct *mon = &monsters[mnum], *tmon;
 	const BYTE tv = dTransVal[mon->_mfutx][mon->_mfuty];
-	int flags;
-	BYTE x, y;
+	int x, y, flags;
 
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
@@ -1395,10 +1394,12 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-			if (!LineClear(mon->_mfutx, mon->_mfuty, tmon->_mfutx, tmon->_mfuty))
+			x = tmon->_mfutx;
+			y = tmon->_mfuty;
+			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
-			dist = std::max(abs(mon->_mfutx - tmon->_mfutx), abs(mon->_mfuty - tmon->_mfuty));
-			sameroom = tv == dTransVal[tmon->_mfutx][tmon->_mfuty];
+			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
+			sameroom = tv == dTransVal[x][y];
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
@@ -1423,12 +1424,14 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (CanTalkToMonst(tnum))
 				continue;
-			//if (!LineClear(mon->_mfutx, mon->_mfuty, tmon->_mfutx, tmon->_mfuty))
+			x = tmon->_mfutx;
+			y = tmon->_mfuty;
+			//if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 			//	continue;
-			if (!(dFlags[tmon->_mfutx][tmon->_mfuty] & BFLAG_ALERT))
+			if (!(dFlags[x][y] & BFLAG_ALERT))
 				continue;
-			dist = std::max(abs(mon->_mfutx - tmon->_mfutx), abs(mon->_mfuty - tmon->_mfuty));
-			sameroom = tv == dTransVal[tmon->_mfutx][tmon->_mfuty];
+			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
+			sameroom = tv == dTransVal[x][y];
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
