@@ -4381,12 +4381,6 @@ void ProcessMonsters()
 
 		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
 		hasenemy = MON_HAS_ENEMY;
-		if (alert && !hasenemy) {
-			MonFindEnemy(mnum);
-			// commented out, because the player might went out of sight in the meantime
-			// assert(MON_HAS_ENEMY || myplr._pInvincible);
-			alert = hasenemy = MON_HAS_ENEMY;
-		}
 		if (hasenemy) {
 			_menemy = mon->_menemy;
 			if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
@@ -4396,6 +4390,11 @@ void ProcessMonsters()
 				mon->_menemyx = monsters[_menemy]._mfutx;
 				mon->_menemyy = monsters[_menemy]._mfuty;
 			}
+		} else if (alert) {
+			MonFindEnemy(mnum);
+			// commented out, because the player might went out of sight in the meantime
+			// assert(MON_HAS_ENEMY || myplr._pInvincible);
+			alert = hasenemy = MON_HAS_ENEMY;
 		}
 		if (alert) {
 			assert(hasenemy);
