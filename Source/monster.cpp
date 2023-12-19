@@ -1871,8 +1871,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 	MonsterStruct* mon = &monsters[mnum];
 	int oldx, oldy, newx, newy, dir;
 
-	if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
-		return;
+	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 
 	MonStopWalk(mnum);
 	AssertFixMonLocation(mnum);
@@ -1907,6 +1906,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		dev_fatal("Invalid player %d hitting monster %d", pnum, mnum);
 	}
 	mon = &monsters[mnum];
+	// assert(mon->_mmode != MM_DEATH);
 	mon->_mWhoHit |= 1 << pnum;
 	if (pnum == mypnum) {
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
