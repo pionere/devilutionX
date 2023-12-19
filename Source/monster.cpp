@@ -1370,8 +1370,12 @@ static void MonFindEnemy(int mnum)
 			sameroom = tv == dTransVal[plx(i)._px][plx(i)._py];
 			dist = std::max(abs(mon->_mx - plx(i)._px), abs(mon->_my - plx(i)._py));
 			if (sameroom == bestsameroom) {
-				if (dist >= best_dist)
+				if (dist > best_dist)
 					continue;
+				if (dist == best_dist) {
+					if (mon->_menemyy != i || (mon->_mFlags & MFLAG_TARGETS_MONSTER))
+						continue;
+				}
 			} else if (!sameroom)
 				continue;
 			enemy = i + 1;
@@ -1389,8 +1393,12 @@ static void MonFindEnemy(int mnum)
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
 			if (sameroom == bestsameroom) {
-				if (dist >= best_dist)
+				if (dist > best_dist)
 					continue;
+				if (dist == best_dist) {
+					if (mon->_menemyy != i || !(mon->_mFlags & (MFLAG_TARGETS_MONSTER)))
+						continue;
+				}
 			} else if (!sameroom)
 				continue;
 			enemy = -(i + 1);
@@ -4364,8 +4372,8 @@ void MAI_Warlord(int mnum)
 
 void ProcessMonsters()
 {
-	int mnum, _menemy;
-	bool alert, hasenemy, raflag;
+	int mnum;
+	bool alert, raflag;
 	MonsterStruct* mon;
 
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
@@ -4384,37 +4392,27 @@ void ProcessMonsters()
 		}
 
 		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
-		hasenemy = MON_HAS_ENEMY;
-		if (hasenemy) {
-			_menemy = mon->_menemy;
-			if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
-				mon->_menemyx = plx(_menemy)._pfutx;
-				mon->_menemyy = plx(_menemy)._pfuty;
-			} else {
-				mon->_menemyx = monsters[_menemy]._mfutx;
-				mon->_menemyy = monsters[_menemy]._mfuty;
-			}
-		} else if (alert) {
+		if (alert || MON_HAS_ENEMY) {
 			MonFindEnemy(mnum);
 			// commented out, because the player might went out of sight in the meantime
 			// assert(MON_HAS_ENEMY || myplr._pInvincible);
-			alert = hasenemy = MON_HAS_ENEMY;
 		}
 		if (alert) {
-			assert(hasenemy);
-			mon->_mlastx = mon->_menemyx;
-			mon->_mlasty = mon->_menemyy;
-			if (mon->_msquelch == 0) {
-				if (mon->_mType == MT_CLEAVER)
-					PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
+			if (MON_HAS_ENEMY) {
+				mon->_mlastx = mon->_menemyx;
+				mon->_mlasty = mon->_menemyy;
+				if (mon->_msquelch == 0) {
+					if (mon->_mType == MT_CLEAVER)
+						PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
 #ifdef HELLFIRE
-				else if (mon->_mType == MT_NAKRUL)
-					PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
-				else if (mon->_mType == MT_DEFILER)
-					PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
+					else if (mon->_mType == MT_NAKRUL)
+						PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
+					else if (mon->_mType == MT_DEFILER)
+						PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
 #endif
+				}
+				mon->_msquelch = SQUELCH_MAX;
 			}
-			mon->_msquelch = SQUELCH_MAX;
 		} else if (mon->_msquelch != 0 && mon->_mhitpoints == mon->_mmaxhp && mon->_mleaderflag != MLEADER_AWAY) {
 			mon->_msquelch--;
 			if (mon->_msquelch == 0) {
@@ -4432,6 +4430,8 @@ void ProcessMonsters()
 					assert(mon->_mmode == MM_STAND);
 				}
 				// mon->_mFlags |= MFLAG_NO_ENEMY;
+				mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
+				mon->_menemy = 0;
 				mon->_menemyx = 0;
 				mon->_menemyy = 0;
 				mon->_mVar1 = MM_STAND;           // STAND_PREV_MODE
