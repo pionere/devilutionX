@@ -1415,8 +1415,12 @@ static void MonFindEnemy(int mnum)
 			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
 			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
 			if (sameroom == bestsameroom) {
-				if (dist >= best_dist)
+				if (dist > best_dist)
 					continue;
+				if (dist == best_dist) {
+					if (mon->_menemyy != i/* || !(mon->_mFlags & (MFLAG_TARGETS_MONSTER))*/)
+						continue;
+				}
 			} else if (!sameroom)
 				continue;
 			enemy = -(tnum + 1);
