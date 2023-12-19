@@ -1775,14 +1775,37 @@ static void MonPlace(int mnum)
 	dMonster[mx][my] = mnum + 1;
 }
 
+static void MonStopWalk(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	int x, y;
+
+	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2)
+		return;
+
+	if (mon->_mAnimFrame > (mon->_mAnims[MA_WALK].maFrames >> 1)) {
+		x = mon->_mfutx;
+		y = mon->_mfuty;
+	} else {
+		x = mon->_moldx;
+		y = mon->_moldy;
+	}
+	mon->_mx = x;
+	mon->_my = y;
+	RemoveMonFromMap(mnum);
+	MonPlace(mnum);
+	MonStartStand(mnum);
+	return;
+}
+
 static void MonStartGetHit(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
 	assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE /*&& mon->_mType != MT_GOLEM */);
 
-	RemoveMonFromMap(mnum);
-	MonPlace(mnum);
+	MonStopWalk(mnum);
+	AssertFixMonLocation(mnum);
 
 	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
 
@@ -1848,21 +1871,14 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 	MonsterStruct* mon = &monsters[mnum];
 	int oldx, oldy, newx, newy, dir;
 
-	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2) {
-		if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
-			return;
-		oldx = mon->_mx;
-		oldy = mon->_my;
-	} else {
-		if (mon->_mAnimFrame > (mon->_mAnims[MA_WALK].maFrames >> 1)) {
-			oldx = mon->_mfutx;
-			oldy = mon->_mfuty;
-		} else {
-			oldx = mon->_moldx;
-			oldy = mon->_moldy;
-		}
-	}
+	if (mon->_mmode == MM_DEATH || mon->_mmode == MM_STONE)
+		return;
 
+	MonStopWalk(mnum);
+	AssertFixMonLocation(mnum);
+
+	oldx = mon->_mx;
+	oldy = mon->_my;
 	dir = GetDirection(sx, sy, oldx, oldy);
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
 		newx = oldx + offset_x[dir];
