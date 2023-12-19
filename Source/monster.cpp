@@ -1353,7 +1353,7 @@ static void MonFindEnemy(int mnum)
 	int enemy, dist, best_dist;
 	bool sameroom, bestsameroom;
 	MonsterStruct *mon = &monsters[mnum], *tmon;
-	const BYTE tv = dTransVal[mon->_mx][mon->_my];
+	const BYTE tv = dTransVal[mon->_mfutx][mon->_mfuty];
 	int flags;
 	BYTE x, y;
 
@@ -1365,10 +1365,10 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
 				continue;
-			if (!LineClear(mon->_mx, mon->_my, plx(i)._px, plx(i)._py))
+			if (!LineClear(mon->_mfutx, mon->_mfuty, plx(i)._pfutx, plx(i)._pfuty))
 				continue;
-			sameroom = tv == dTransVal[plx(i)._px][plx(i)._py];
-			dist = std::max(abs(mon->_mx - plx(i)._px), abs(mon->_my - plx(i)._py));
+			sameroom = tv == dTransVal[plx(i)._pfutx][plx(i)._pfuty];
+			dist = std::max(abs(mon->_mfutx - plx(i)._pfutx), abs(mon->_mfuty - plx(i)._pfuty));
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
@@ -1388,10 +1388,10 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-			if (!LineClear(mon->_mx, mon->_my, tmon->_mx, tmon->_my))
+			if (!LineClear(mon->_mfutx, mon->_mfuty, tmon->_mfutx, tmon->_mfuty))
 				continue;
-			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
-			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
+			dist = std::max(abs(mon->_mfutx - tmon->_mfutx), abs(mon->_mfuty - tmon->_mfuty));
+			sameroom = tv == dTransVal[tmon->_mfutx][tmon->_mfuty];
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
@@ -1416,12 +1416,12 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (CanTalkToMonst(tnum))
 				continue;
-			//if (!LineClear(mon->_mx, mon->_my, tmon->_mx, tmon->_my))
+			//if (!LineClear(mon->_mfutx, mon->_mfuty, tmon->_mfutx, tmon->_mfuty))
 			//	continue;
-			if (!(dFlags[tmon->_mx][tmon->_my] & BFLAG_ALERT))
+			if (!(dFlags[tmon->_mfutx][tmon->_mfuty] & BFLAG_ALERT))
 				continue;
-			dist = std::max(abs(mon->_mx - tmon->_mx), abs(mon->_my - tmon->_my));
-			sameroom = tv == dTransVal[tmon->_mx][tmon->_my];
+			dist = std::max(abs(mon->_mfutx - tmon->_mfutx), abs(mon->_mfuty - tmon->_mfuty));
+			sameroom = tv == dTransVal[tmon->_mfutx][tmon->_mfuty];
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
@@ -4391,7 +4391,7 @@ void ProcessMonsters()
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
 
-		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
+		alert = (dFlags[mon->_mfutx][mon->_mfuty] & BFLAG_ALERT) != 0;
 		if (alert || MON_HAS_ENEMY) {
 			MonFindEnemy(mnum);
 			// commented out, because the player might went out of sight in the meantime
@@ -4403,12 +4403,12 @@ void ProcessMonsters()
 				mon->_mlasty = mon->_menemyy;
 				if (mon->_msquelch == 0) {
 					if (mon->_mType == MT_CLEAVER)
-						PlaySfxLoc(USFX_CLEAVER, mon->_mx, mon->_my);
+						PlaySfxLoc(USFX_CLEAVER, mon->_mfutx, mon->_mfuty);
 #ifdef HELLFIRE
 					else if (mon->_mType == MT_NAKRUL)
-						PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mx, mon->_my);
+						PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mfutx, mon->_mfuty);
 					else if (mon->_mType == MT_DEFILER)
-						PlaySfxLoc(USFX_DEFILER8, mon->_mx, mon->_my);
+						PlaySfxLoc(USFX_DEFILER8, mon->_mfutx, mon->_mfuty);
 #endif
 				}
 				mon->_msquelch = SQUELCH_MAX;
