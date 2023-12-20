@@ -471,10 +471,10 @@ void InitLvlMonsters()
 		monsters[i]._mNameColor = COL_WHITE;
 		monsters[i]._mlid = NO_LIGHT;
 		// reset _mleaderflag value to simplify GroupUnity
-		monsters[i]._mleader = MON_NO_LEADER;
-		monsters[i]._mleaderflag = MLEADER_NONE;
-		monsters[i]._mpacksize = 0;
-		monsters[i]._mvid = NO_VISION;
+		// monsters[i]._mleader = MON_NO_LEADER;
+		// monsters[i]._mleaderflag = MLEADER_NONE;
+		// monsters[i]._mpacksize = 0;
+		// monsters[i]._mvid = NO_VISION;
 	}
 	// reserve minions
 	nummonsters = MAX_MINIONS;
@@ -2777,7 +2777,7 @@ static void ActivateSpawn(int mnum, int x, int y, int dir)
 static void GroupUnity(int mnum)
 {
 	MonsterStruct *mon, *leader, *bmon;
-	int i;
+	int ma;
 	bool clear;
 
 	mon = &monsters[mnum];
@@ -2808,9 +2808,11 @@ static void GroupUnity(int mnum)
 	}
 	// update squelch value + enemy location of the pack monsters
 	if (mon->_mpacksize != 0) {
-		for (i = 0; i < MAXMONSTERS; i++) {
-			bmon = &monsters[i];
-			if (bmon->_mleaderflag == MLEADER_PRESENT && bmon->_mleader == mnum) {
+		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
+			// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
+			bmon = &monsters[ma];
+			if (bmon->_mleaderflag == MLEADER_PRESENT/* && bmon->_mleader == mnum*/) {
 				if (mon->_msquelch > bmon->_msquelch) {
 					bmon->_mlastx = mon->_mlastx; // BUGFIX: use _mlastx instead of _mx (fixed)
 					bmon->_mlasty = mon->_mlasty; // BUGFIX: use _mlasty instead of _my (fixed)
@@ -2850,8 +2852,7 @@ static bool MonDirOK(int mnum, int mdir)
 	// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 	for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
 		// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
-		if (monsters[ma]._mleaderflag == MLEADER_PRESENT
-		 && monsters[ma]._mleader == mnum
+		if (monsters[ma]._mleaderflag == MLEADER_PRESENT/* && monsters[ma]._mleader == mnum*/
 		 && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
 		 && abs(fy - monsters[ma]._mfuty) <= MON_PACK_DISTANCE) {
 			mcount--;
