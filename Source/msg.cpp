@@ -1329,7 +1329,7 @@ void LevelDeltaExport()
 			//assert(!mis->_miDelFlag);
 			TSyncLvlMissile* DVL_RESTRICT tmis = (TSyncLvlMissile*)dst;
 			tmis->smiMi = static_cast<uint16_t>(mi + MAXMONSTERS);
-			tmis->smiType = mis->_miType; // Type of projectile (MIS_*)
+			tmis->smiType = mis->_miType;
 			//BYTE _miFlags;
 			//BYTE _miResist;
 			tmis->smiFileNum = mis->_miFileNum;
@@ -1344,20 +1344,20 @@ void LevelDeltaExport()
 			//int _miAnimLen;
 			//int _miAnimWidth;
 			//int _miAnimXOffset;
-			tmis->smiAnimCnt = mis->_miAnimCnt;     // Increases by one each game tick, counting how close we are to _miAnimFrameLen
-			tmis->smiAnimAdd = mis->_miAnimAdd;     //
-			tmis->smiAnimFrame = mis->_miAnimFrame; // Current frame of animation.
-			tmis->smiDir = mis->_miDir;             // The direction of the missile
-			tmis->smisx = mis->_misx;               // Initial tile X-position for missile
-			tmis->smisy = mis->_misy;               // Initial tile Y-position for missile
-			tmis->smix = mis->_mix;                 // Tile X-position of the missile
-			tmis->smiy = mis->_miy;                 // Tile Y-position of the missile
-			tmis->smixoff = mis->_mixoff;           // Sprite pixel X-offset for the missile
-			tmis->smiyoff = mis->_miyoff;           // Sprite pixel Y-offset for the missile
-			tmis->smixvel = mis->_mixvel;           // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-			tmis->smiyvel = mis->_miyvel;           // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-			tmis->smitxoff = mis->_mitxoff;         // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-			tmis->smityoff = mis->_mityoff;         // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+			tmis->smiAnimCnt = mis->_miAnimCnt;
+			tmis->smiAnimAdd = mis->_miAnimAdd;
+			tmis->smiAnimFrame = mis->_miAnimFrame;
+			tmis->smiDir = mis->_miDir;
+			tmis->smisx = mis->_misx;
+			tmis->smisy = mis->_misy;
+			tmis->smix = mis->_mix;
+			tmis->smiy = mis->_miy;
+			tmis->smixoff = mis->_mixoff;
+			tmis->smiyoff = mis->_miyoff;
+			tmis->smixvel = mis->_mixvel;
+			tmis->smiyvel = mis->_miyvel;
+			tmis->smitxoff = mis->_mitxoff;
+			tmis->smityoff = mis->_mityoff;
 			// smiDir/_miDir reordered for better alignment
 			tmis->smiSpllvl = mis->_miSpllvl; // int?
 			tmis->smiSource = mis->_miSource; // int?
