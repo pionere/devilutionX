@@ -1436,7 +1436,7 @@ static void MonFindEnemy(int mnum)
 				if (dist > best_dist)
 					continue;
 				if (dist == best_dist) {
-					if (mon->_menemyy != i/* || !(mon->_mFlags & (MFLAG_TARGETS_MONSTER))*/)
+					if (mon->_menemyy != tnum/* || !(mon->_mFlags & (MFLAG_TARGETS_MONSTER))*/)
 						continue;
 				}
 			} else if (!sameroom)
