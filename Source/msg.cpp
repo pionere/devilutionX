@@ -1248,8 +1248,8 @@ void LevelDeltaExport()
 			tplr->spfuty = plr._pfuty;
 			tplr->spoldx = plr._poldx;
 			tplr->spoldy = plr._poldy;
-			//LE_INT32 spxoff;   // Player sprite's pixel X-offset from tile.
-			//LE_INT32 spyoff;   // Player sprite's pixel Y-offset from tile.
+			//tplr->spxoff = plr._pxoff;
+			//tplr->spyoff = plr._pyoff;
 			tplr->spdir = plr._pdir;
 			tplr->spAnimFrame = plr._pAnimFrame;
 			tplr->spAnimCnt = plr._pAnimCnt;
@@ -1285,37 +1285,37 @@ void LevelDeltaExport()
 			tmon->smGoalvar1 = mon->_mgoalvar1;
 			tmon->smGoalvar2 = mon->_mgoalvar2;
 			tmon->smGoalvar3 = mon->_mgoalvar3;
-			tmon->smx = mon->_mx;                 // Tile X-position of monster
-			tmon->smy = mon->_my;                 // Tile Y-position of monster
-			tmon->smfutx = mon->_mfutx;           // Future tile X-position of monster. Set at start of walking animation
-			tmon->smfuty = mon->_mfuty;           // Future tile Y-position of monster. Set at start of walking animation
-			tmon->smoldx = mon->_moldx;           // Most recent X-position in dMonster.
-			tmon->smoldy = mon->_moldy;           // Most recent Y-position in dMonster.
-			//tmon->smxoff;                         // Monster sprite's pixel X-offset from tile.
-			//tmon->smyoff;                         // Monster sprite's pixel Y-offset from tile.
-			tmon->smdir = mon->_mdir;             // Direction faced by monster (direction enum)
-			tmon->smEnemy = mon->_menemy;         // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
-			tmon->smEnemyx = mon->_menemyx;       // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-			tmon->smEnemyy = mon->_menemyy;       // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-			tmon->smListener = mon->_mListener;   // the player to whom the monster is talking to
-			tmon->smAnimCnt = mon->_mAnimCnt;     // Increases by one each game tick, counting how close we are to _mAnimFrameLen
-			tmon->smAnimFrame = mon->_mAnimFrame; // Current frame of animation.
-			// assert(!mon->_mDelFlag || mon->_mmode == MM_STONE);
+			tmon->smx = mon->_mx;
+			tmon->smy = mon->_my;
+			tmon->smfutx = mon->_mfutx;
+			tmon->smfuty = mon->_mfuty;
+			tmon->smoldx = mon->_moldx;
+			tmon->smoldy = mon->_moldy;
+			//tmon->smxoff = mon->_mxoff;
+			//tmon->smyoff = mon->_myoff;
+			tmon->smdir = mon->_mdir;
+			tmon->smEnemy = mon->_menemy;
+			tmon->smEnemyx = mon->_menemyx;
+			tmon->smEnemyy = mon->_menemyy;
+			tmon->smListener = mon->_mListener;
 			tmon->smDelFlag = mon->_mDelFlag; // unused
+			tmon->smAnimCnt = mon->_mAnimCnt;
+			tmon->smAnimFrame = mon->_mAnimFrame;
+			// assert(!mon->_mDelFlag || mon->_mmode == MM_STONE);
 			tmon->smVar1 = mon->_mVar1;
 			tmon->smVar2 = mon->_mVar2;
 			tmon->smVar3 = mon->_mVar3;
 			tmon->smVar4 = mon->_mVar4;
 			tmon->smVar5 = mon->_mVar5;
-			tmon->smVar6 = mon->_mVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-			tmon->smVar7 = mon->_mVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-			tmon->smVar8 = mon->_mVar8; // Value used to measure progress for moving from one tile to another
+			tmon->smVar6 = mon->_mVar6;
+			tmon->smVar7 = mon->_mVar7;
+			tmon->smVar8 = mon->_mVar8;
 			tmon->smHitpoints = mon->_mhitpoints;
-			tmon->smLastx = mon->_mlastx; // the last known X-coordinate of the enemy
-			tmon->smLasty = mon->_mlasty; // the last known Y-coordinate of the enemy
-			//tmon->smLeader = mon->_mleader; // the leader of the monster
-			tmon->smLeaderflag = mon->_mleaderflag; // the status of the monster's leader
-			//tmon->smPacksize = mon->_mpacksize; // the number of 'pack'-monsters close to their leader
+			tmon->smLastx = mon->_mlastx;
+			tmon->smLasty = mon->_mlasty;
+			//tmon->smLeader = mon->_mleader;
+			tmon->smLeaderflag = mon->_mleaderflag;
+			//tmon->smPacksize = mon->_mpacksize;
 	//BYTE falign_CB;
 			tmon->smFlags = mon->_mFlags;
 

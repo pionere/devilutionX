@@ -315,18 +315,18 @@ typedef struct PlayerStruct {
 	int16_t _pTimer[NUM_PLRTIMERS];
 	unsigned _pExperience;
 	unsigned _pNextExper;
-	int _px;      // Tile X-position of player
-	int _py;      // Tile Y-position of player
-	int _pfutx;   // Future tile X-position of player. Set at start of walking animation
-	int _pfuty;   // Future tile Y-position of player. Set at start of walking animation
-	int _poldx;   // Most recent X-position in dPlayer.
-	int _poldy;   // Most recent Y-position in dPlayer.
-	int _pxoff;   // Player sprite's pixel X-offset from tile.
-	int _pyoff;   // Player sprite's pixel Y-offset from tile.
+	int _px;      // Tile X-position where the player should be drawn
+	int _py;      // Tile Y-position where the player should be drawn
+	int _pfutx;   // Future tile X-position where the player will be at the end of its action
+	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
+	int _poldx;   // Most recent tile X-position where the player was at the start of its action
+	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
+	int _pxoff;   // Pixel X-offset from tile X-position where the player should be drawn
+	int _pyoff;   // Pixel Y-offset from tile Y-position where the player should be drawn
 	int _pdir;    // Direction faced by player (direction enum)
 	BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
-	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
+	int _pAnimCnt;        // Increases by one each game tick, counting how close we are to _pAnimFrameLen
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
@@ -685,7 +685,7 @@ static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align Map
 #endif
 #pragma pack(pop)
 typedef struct MonsterStruct {
-	int _mmode; /* MON_MODE */
+	int _mmode; // MON_MODE
 	unsigned _msquelch;
 	BYTE _mMTidx;
 	BYTE _mpathcount; // unused
@@ -694,19 +694,19 @@ typedef struct MonsterStruct {
 	int _mgoalvar1;
 	int _mgoalvar2;
 	int _mgoalvar3;
-	int _mx;                // Tile X-position of monster
-	int _my;                // Tile Y-position of monster
-	int _mfutx;             // Future tile X-position of monster. Set at start of walking animation
-	int _mfuty;             // Future tile Y-position of monster. Set at start of walking animation
-	int _moldx;             // Most recent X-position in dMonster.
-	int _moldy;             // Most recent Y-position in dMonster.
-	int _mxoff;             // Monster sprite's pixel X-offset from tile.
-	int _myoff;             // Monster sprite's pixel Y-offset from tile.
-	int _mdir;              // Direction faced by monster (direction enum)
-	int _menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
-	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE _mListener;        // the player to whom the monster is talking to (unused)
+	int _mx;           // Tile X-position where the monster should be drawn
+	int _my;           // Tile Y-position where the monster should be drawn
+	int _mfutx;        // Future tile X-position where the monster will be at the end of its action
+	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
+	int _moldx;        // Most recent tile X-position where the monster was at the start of its action
+	int _moldy;        // Most recent tile Y-position where the monster was at the start of its action
+	int _mxoff;        // Pixel X-offset from tile X-position where the monster should be drawn
+	int _myoff;        // Pixel Y-offset from tile Y-position where the monster should be drawn
+	int _mdir;         // Direction faced by monster (direction enum)
+	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	BYTE _mListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN _mDelFlag; // unused
 	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
@@ -718,23 +718,23 @@ typedef struct MonsterStruct {
 	int _mVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
 	int _mVar4;
 	int _mVar5;
-	int _mVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	int _mVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	int _mVar8; // Value used to measure progress for moving from one tile to another
+	int _mVar6;
+	int _mVar7;
+	int _mVar8;
 	int _mmaxhp;
 	int _mhitpoints;
-	int _mlastx; // the last known X-coordinate of the enemy
-	int _mlasty; // the last known Y-coordinate of the enemy
+	int _mlastx; // the last known (future) tile X-coordinate of the enemy
+	int _mlasty; // the last known (future) tile Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
-	BYTE _mNameColor; // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
-	BYTE _mlid; // light id of the monster
-	BYTE _mleader; // the leader of the monster
+	BYTE _mNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
+	BYTE _mlid;        // light id of the monster
+	BYTE _mleader;     // the leader of the monster
 	BYTE _mleaderflag; // the status of the monster's leader
-	BYTE _mpacksize; // the number of 'pack'-monsters close to their leader
-	BYTE _mvid; // vision id of the monster (for minions only)
+	BYTE _mpacksize;   // the number of 'pack'-monsters close to their leader
+	BYTE _mvid;        // vision id of the monster (for minions only)
 	const char* _mName;
 	uint16_t _mFileNum; // _monster_gfx_id
 	BYTE _mLevel;
@@ -1262,14 +1262,14 @@ typedef struct LSavePlayerStruct {
 	LE_INT16 vpTimer[NUM_PLRTIMERS];
 	LE_UINT32 vpExperience;
 	LE_UINT32 vpNextExper;
-	LE_INT32 vpx;      // Tile X-position of player
-	LE_INT32 vpy;      // Tile Y-position of player
-	LE_INT32 vpfutx;   // Future tile X-position of player. Set at start of walking animation
-	LE_INT32 vpfuty;   // Future tile Y-position of player. Set at start of walking animation
-	LE_INT32 vpoldx;   // Most recent X-position in dPlayer.
-	LE_INT32 vpoldy;   // Most recent Y-position in dPlayer.
-	LE_INT32 vpxoff;   // Player sprite's pixel X-offset from tile.
-	LE_INT32 vpyoff;   // Player sprite's pixel Y-offset from tile.
+	LE_INT32 vpx;      // Tile X-position where the player should be drawn
+	LE_INT32 vpy;      // Tile Y-position where the player should be drawn
+	LE_INT32 vpfutx;   // Future tile X-position where the player will be at the end of its action
+	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
+	LE_INT32 vpoldx;   // Most recent tile X-position where the player was at the start of its action
+	LE_INT32 vpoldy;   // Most recent tile Y-position where the player was at the start of its action
+	LE_INT32 vpxoff;   // Pixel X-offset from tile X-position where the player should be drawn
+	LE_INT32 vpyoff;   // Pixel Y-offset from tile Y-position where the player should be drawn
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
 	INT vpAnimDataAlign;
 	INT vpAnimFrameLenAlign; // Tick length of each frame in the current animation
@@ -1339,7 +1339,7 @@ typedef struct LSavePlayerStruct {
 } LSavePlayerStruct;
 
 typedef struct LSaveMonsterStruct {
-	LE_INT32 vmmode; /* MON_MODE */
+	LE_INT32 vmmode; // MON_MODE
 	LE_UINT32 vmsquelch;
 	BYTE vmMTidx;
 	BYTE vmpathcount; // unused
@@ -1348,18 +1348,18 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmgoalvar1;
 	LE_INT32 vmgoalvar2;
 	LE_INT32 vmgoalvar3;
-	LE_INT32 vmx;           // Tile X-position of monster
-	LE_INT32 vmy;           // Tile Y-position of monster
-	LE_INT32 vmfutx;        // Future tile X-position of monster. Set at start of walking animation
-	LE_INT32 vmfuty;        // Future tile Y-position of monster. Set at start of walking animation
-	LE_INT32 vmoldx;        // Most recent X-position in dMonster.
-	LE_INT32 vmoldy;        // Most recent Y-position in dMonster.
-	LE_INT32 vmxoff;        // Monster sprite's pixel X-offset from tile.
-	LE_INT32 vmyoff;        // Monster sprite's pixel Y-offset from tile.
+	LE_INT32 vmx;           // Tile X-position where the monster should be drawn
+	LE_INT32 vmy;           // Tile Y-position where the monster should be drawn
+	LE_INT32 vmfutx;        // Future tile X-position where the monster will be at the end of its action
+	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
+	LE_INT32 vmoldx;        // Most recent tile X-position where the monster was at the start of its action
+	LE_INT32 vmoldy;        // Most recent tile Y-position where the monster was at the start of its action
+	LE_INT32 vmxoff;        // Pixel X-offset from tile X-position where the monster should be drawn
+	LE_INT32 vmyoff;        // Pixel Y-offset from tile X-position where the monster should be drawn
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
-	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array based on the vmeflag value.
-	BYTE vmenemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE vmenemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	BYTE vmenemyx;          // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE vmenemyy;          // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE vmListener;        // the player to whom the monster is talking to (unused)
 	BOOLEAN vmDelFlag; // unused
 	INT vmAnimDataAlign;
@@ -1372,23 +1372,23 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
 	LE_INT32 vmVar4;
 	LE_INT32 vmVar5;
-	LE_INT32 vmVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 vmVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 vmVar8; // Value used to measure progress for moving from one tile to another
+	LE_INT32 vmVar6;
+	LE_INT32 vmVar7;
+	LE_INT32 vmVar8;
 	LE_INT32 vmmaxhp;
 	LE_INT32 vmhitpoints;
-	LE_INT32 vmlastx; // the last known X-coordinate of the enemy
-	LE_INT32 vmlasty; // the last known Y-coordinate of the enemy
+	LE_INT32 vmlastx; // the last known (future) tile X-coordinate of the enemy
+	LE_INT32 vmlasty; // the last known (future) tile Y-coordinate of the enemy
 	LE_INT32 vmRndSeed;
 	LE_INT32 vmAISeed;
 	BYTE vmuniqtype;
 	BYTE vmuniqtrans;
-	BYTE vmNameColor;
-	BYTE vmlid;
-	BYTE vmleader; // the leader of the monster
+	BYTE vmNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
+	BYTE vmlid;        // light id of the monster
+	BYTE vmleader;     // the leader of the monster
 	BYTE vmleaderflag; // the status of the monster's leader
-	BYTE vmpacksize; // the number of 'pack'-monsters close to their leader
-	BYTE vmvid; // vision id of the monster (for minions only)
+	BYTE vmpacksize;   // the number of 'pack'-monsters close to their leader
+	BYTE vmvid;        // vision id of the monster (for minions only)
 	INT vmNameAlign;
 	LE_UINT16 vmFileNum;
 	BYTE vmLevel;
@@ -1407,7 +1407,7 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmMagic;      // hit chance of magic-projectile
 	LE_INT32 vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	LE_INT32 vmEvasion;    // evasion: used against magic-projectile
-	LE_UINT32 vmMagicRes;  // resistances of the monster
+	LE_UINT32 vmMagicRes;  // resistances of the monster (_monster_resistance)
 	LE_UINT32 vmExp;
 } LSaveMonsterStruct;
 
