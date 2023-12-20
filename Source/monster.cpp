@@ -1834,7 +1834,6 @@ static void MonStartGetHit(int mnum)
 
 	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE && mon->_mType != MT_GOLEM);
 
-	MonStopWalk(mnum);
 	AssertFixMonLocation(mnum);
 
 	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
@@ -1845,27 +1844,30 @@ static void MonStartGetHit(int mnum)
 static void MonTeleport(int mnum, int tx, int ty)
 {
 	MonsterStruct* mon;
-	int i, x, y, rx;
+	int i, oldx, oldy, newx, newy, rx;
 
 	mon = &monsters[mnum];
-	//assert(mon->_mmode != MM_STONE);
+	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
+	AssertFixMonLocation(mnum);
 
+	oldx = mon->_mx;
+	oldy = mon->_my;
 	rx = random_(100, NUM_DIRS);
 	static_assert(DBORDERX >= 1, "MonTeleport expects a large enough border I.");
 	static_assert(DBORDERY >= 1, "MonTeleport expects a large enough border II.");
 	for (i = 0; i < lengthof(offset_x); i++, rx = (rx + 1) & 7) {
-		x = tx + offset_x[rx];
-		y = ty + offset_y[rx];
-		assert(IN_DUNGEON_AREA(x, y));
-		if (x != mon->_mx && y != mon->_my && PosOkMonst(mnum, x, y)) {
-			mon->_mx = x;
-			mon->_my = y;
+		newx = tx + offset_x[rx];
+		newy = ty + offset_y[rx];
+		assert(IN_DUNGEON_AREA(newx, newy));
+		if (newx != oldx && newy != oldy && PosOkMonst(mnum, newx, newy)) {
+			mon->_mx = newx;
+			mon->_my = newy;
+			assert(OPPOSITE(rx) == GetDirection(newx, newy, tx, ty));
 			mon->_mdir = OPPOSITE(rx);
-			mon->_mmode = MM_STAND; // prevent overwrite of mx/y from MonStopWalk
-			// RemoveMonFromMap(mnum);
-			// MonPlace(mnum);
+			RemoveMonFromMap(mnum);
+			MonPlace(mnum);
 			MonLeaveLeader(mnum);
-			return;
+			break;
 		}
 	}
 }
@@ -1952,6 +1954,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 	if (hitflags & ISPL_KNOCKBACK)
 		MonGetKnockback(mnum, sx, sy);
 	if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
+		MonStopWalk(mnum);
 		mon->_mdir = OPPOSITE(plr._pdir);
 		if (mon->_mType == MT_NBAT)
 			MonTeleport(mnum, plr._pfutx, plr._pfuty);
@@ -1987,6 +1990,7 @@ void MonStartMonHit(int defm, int offm, int dam)
 	//	1. Golems -> other monsters. TODO: implement?
 	//	2. other monsters -> golems. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
 	if ((dam << 2) >= dmon->_mmaxhp) {
+		MonStopWalk(defm);
 		if (offm >= 0) {
 			dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
 			if (dmon->_mType == MT_NBAT)
