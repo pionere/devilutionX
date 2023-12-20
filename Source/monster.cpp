@@ -1364,7 +1364,7 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
 				continue;
-			if (plx(i)._pmode < PM_WALK || plx(i)._pmode > PM_WALK2) {
+			if ((plx(i)._pmode < PM_WALK || plx(i)._pmode > PM_WALK2) || plx(i)._pAnimFrame <= (plx(i)._pAnimLen >> 1)) {
 				x = plx(i)._px;
 				y = plx(i)._py;
 			} else {
@@ -1394,8 +1394,13 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mhitpoints < (1 << 6))
 				continue;
-			x = tmon->_mfutx;
-			y = tmon->_mfuty;
+			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
+				x = tmon->_mx;
+				y = tmon->_my;
+			} else {
+				x = tmon->_mfutx;
+				y = tmon->_mfuty;
+			}
 			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
 			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
@@ -1424,8 +1429,13 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (CanTalkToMonst(tnum))
 				continue;
-			x = tmon->_mfutx;
-			y = tmon->_mfuty;
+			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
+				x = tmon->_mx;
+				y = tmon->_my;
+			} else {
+				x = tmon->_mfutx;
+				y = tmon->_mfuty;
+			}
 			//if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 			//	continue;
 			if (!(dFlags[x][y] & BFLAG_ALERT))
@@ -1451,13 +1461,8 @@ static void MonFindEnemy(int mnum)
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
-			if (plx(enemy)._pmode < PM_WALK || plx(enemy)._pmode > PM_WALK2) {
-				x = plx(enemy)._px;
-				y = plx(enemy)._py;
-			} else {
-				x = plx(enemy)._pfutx;
-				y = plx(enemy)._pfuty;
-			}
+			x = plx(enemy)._pfutx;
+			y = plx(enemy)._pfuty;
 		} else {
 			enemy = -(enemy + 1);
 			flags |= MFLAG_TARGETS_MONSTER;
