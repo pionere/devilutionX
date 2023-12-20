@@ -1297,7 +1297,8 @@ int CheckMonCol(int mnum)
 	static_assert(MM_WALK + 1 == MM_WALK2, "CheckMonCol expects ordered MM_WALKs.");
 	if (mode > MM_WALK2 || mode < MM_WALK)
 		return (negate || mode == MM_STONE) ? mnum : -1;
-	halfOver = mon->_mAnimFrame > (mon->_mAnims[MA_WALK].maFrames >> 1);
+	// assert(mon->_mAnims[MA_WALK].maFrames == mon->_mAnimLen);
+	halfOver = mon->_mAnimFrame > (mon->_mAnimLen >> 1);
 	if (mode == MM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
@@ -1327,7 +1328,8 @@ int CheckPlrCol(int pnum)
 	static_assert(PM_WALK + 1 == PM_WALK2, "CheckPlrCol expects ordered PM_WALKs.");
 	if (mode > PM_WALK2 || mode < PM_WALK)
 		return negate ? pnum : -1;
-	halfOver = plr._pAnimFrame > (plr._pAnims[PGX_WALK].paFrames >> 1);
+	// assert(plr._pAnims[PGX_WALK].paFrames == plr._pAnimLen);
+	halfOver = plr._pAnimFrame > (plr._pAnimLen >> 1);
 	if (mode == PM_WALK) {
 		if (negate)
 			halfOver = !halfOver;
@@ -3318,7 +3320,8 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
 			continue; // skip player if not on the current level
-		if (plr._pAnimFrame > (plr._pAnims[PGX_WALK].paFrames >> 1)) {
+		// assert(plr._pAnims[PGX_WALK].paFrames == plr._mAnimLen);
+		if (plr._pAnimFrame > (plr._pAnimLen >> 1)) {
 			px = plr._pfutx;
 			py = plr._pfuty;
 		} else {

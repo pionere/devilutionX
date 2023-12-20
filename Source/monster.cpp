@@ -1813,7 +1813,8 @@ static void MonStopWalk(int mnum)
 	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2)
 		return;
 
-	if (mon->_mAnimFrame > (mon->_mAnims[MA_WALK].maFrames >> 1)) {
+	// assert(mon->_mAnims[MA_WALK].maFrames == mon->_mAnimLen);
+	if (mon->_mAnimFrame > (mon->_mAnimLen >> 1)) {
 		x = mon->_mfutx;
 		y = mon->_mfuty;
 	} else {
