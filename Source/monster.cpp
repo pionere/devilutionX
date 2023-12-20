@@ -2781,9 +2781,8 @@ static void GroupUnity(int mnum)
 	bool clear;
 
 	mon = &monsters[mnum];
-	// track/update enemy if still active
-	if (mon->_msquelch != 0)
-		MonFindEnemy(mnum);
+	// track/update enemy
+	MonFindEnemy(mnum);
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->_mleader != MON_NO_LEADER) {
 		leader = &monsters[mon->_mleader];
