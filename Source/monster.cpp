@@ -670,7 +670,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	//mon->_mgoalvar1 = 0;	-- should be set before use
 	//mon->_mgoalvar2 = 0;
 	//mon->_mgoalvar3 = 0;
-	//mon->_menemy = 0;	-- should be set before use
+	mon->_menemy = 0;
 	mon->_menemyx = 0;
 	mon->_menemyy = 0;
 	mon->_mListener = 0;
