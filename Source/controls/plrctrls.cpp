@@ -1,9 +1,6 @@
 #include "plrctrls.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-//#include <cstdint>
-#include <queue>
-
 #include "controller_motion.h"
 #include "game_controls.h"
 
@@ -204,8 +201,6 @@ static void FindRangedTarget()
 		if (tgtMode == 0)
 			continue;
 		const bool newCanTalk = tgtMode - 1;
-		if (!canTalk && newCanTalk)
-			continue;
 		const MonsterStruct& mon = monsters[mnum];
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
@@ -216,6 +211,8 @@ static void FindRangedTarget()
 				continue;
 			if (distance == newDdistance && rotations < newRotations)
 				continue;
+		} else if (newCanTalk) {
+			continue;
 		}
 		distance = newDdistance;
 		rotations = newRotations;
@@ -226,66 +223,35 @@ static void FindRangedTarget()
 
 static void FindMeleeTarget()
 {
-	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
-	int maxSteps = MAX_PATH_LENGTH;
-	int rotations = NUM_DIRS;
+	int rotations = NUM_DIRS, distance = MAXDUNX + MAXDUNY, mnum;
 	bool canTalk = true;
+	int8_t walkpath[MAX_PATH_LENGTH + 1];
 
-	struct SearchNode {
-		int x, y;
-		int steps;
-	};
-	std::queue<SearchNode> nodes;
-	{
-		const int startX = myplr._pfutx;
-		const int startY = myplr._pfuty;
-		visited[startX][startY] = true;
-		nodes.push({ startX, startY, 0 });
-	}
-
-	while (!nodes.empty()) {
-		SearchNode node = nodes.front();
-		nodes.pop();
-
-		if (node.steps > maxSteps)
-			break;
-		static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
-		for (int i = 0; i < lengthof(pathxdir); i++) {
-			const int dx = node.x + pathxdir[i];
-			const int dy = node.y + pathydir[i];
-			if (visited[dx][dy])
-				continue; // already visited
-
-			if (!PosOkPlayer(mypnum, dx, dy)) {
-				visited[dx][dy] = true;
-
-				int mi = dMonster[dx][dy];
-				if (mi != 0) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					const int tgtMode = CanTargetMonster(mi);
-					if (tgtMode != 0) {
-						const bool newCanTalk = tgtMode - 1;
-						if (!canTalk && newCanTalk)
-							continue;
-						const int newRotations = GetRotaryDistance(dx, dy);
-						if (canTalk == newCanTalk && rotations < newRotations)
-							continue;
-						rotations = newRotations;
-						canTalk = newCanTalk;
-						pcursmonst = mi;
-						if (!canTalk)
-							maxSteps = node.steps; // Monsters found, cap search to current steps
-					}
-				}
-
-				continue;
-			}
-
-			if (PathWalkable(node.x, node.y, i)) {
-				nodes.push({ dx, dy, node.steps + 1 });
-				visited[dx][dy] = true;
-			}
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const int tgtMode = CanTargetMonster(mnum);
+		if (tgtMode == 0)
+			continue;
+		const bool newCanTalk = tgtMode - 1;
+		const MonsterStruct& mon = monsters[mnum];
+		const int mx = mon._mfutx;
+		const int my = mon._mfuty;
+		const int newDdistance = FindPath(PosOkPlayer, mypnum, myplr._pfutx, myplr._pfuty, mx, my, walkpath);
+		if (newDdistance < 0) {
+			continue;
 		}
+		const int newRotations = GetRotaryDistance(mx, my);
+		if (canTalk == newCanTalk) {
+			if (distance < newDdistance)
+				continue;
+			if (distance == newDdistance && rotations < newRotations)
+				continue;
+		} else if (newCanTalk) {
+			continue;
+		}
+		distance = newDdistance;
+		rotations = newRotations;
+		canTalk = newCanTalk;
+		pcursmonst = mnum;
 	}
 }
 
