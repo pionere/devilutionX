@@ -321,8 +321,8 @@ typedef struct PlayerStruct {
 	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
 	int _poldx;   // Most recent tile X-position where the player was at the start of its action
 	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
-	int _pxoff;   // Pixel X-offset from tile X-position where the player should be drawn
-	int _pyoff;   // Pixel Y-offset from tile Y-position where the player should be drawn
+	int _pxoff;   // Pixel X-offset from tile position where the player should be drawn
+	int _pyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	int _pdir;    // Direction faced by player (direction enum)
 	BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -520,8 +520,8 @@ typedef struct MissileStruct {
 	int _misy;    // Initial tile Y-position
 	int _mix;     // Tile X-position where the missile should be drawn
 	int _miy;     // Tile Y-position where the missile should be drawn
-	int _mixoff;  // Pixel X-offset from tile X-position where the missile should be drawn
-	int _miyoff;  // Pixel Y-offset from tile Y-position where the missile should be drawn
+	int _mixoff;  // Pixel X-offset from tile position where the missile should be drawn
+	int _miyoff;  // Pixel Y-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
 	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
@@ -700,8 +700,8 @@ typedef struct MonsterStruct {
 	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
 	int _moldx;        // Most recent tile X-position where the monster was at the start of its action
 	int _moldy;        // Most recent tile Y-position where the monster was at the start of its action
-	int _mxoff;        // Pixel X-offset from tile X-position where the monster should be drawn
-	int _myoff;        // Pixel Y-offset from tile Y-position where the monster should be drawn
+	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
+	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	int _mdir;         // Direction faced by monster (direction enum)
 	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
 	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
@@ -1246,7 +1246,7 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
-	LE_INT32 vpDestParam3;	// the skill to be used in case of skill based actions
+	LE_INT32 vpDestParam3; // the skill to be used in case of skill based actions
 	LE_INT32 vpDestParam4; // the level of the skill to be used in case of skill based actions
 	BOOLEAN vpActive;
 	BYTE vpInvincible;
@@ -1268,8 +1268,8 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 vpoldx;   // Most recent tile X-position where the player was at the start of its action
 	LE_INT32 vpoldy;   // Most recent tile Y-position where the player was at the start of its action
-	LE_INT32 vpxoff;   // Pixel X-offset from tile X-position where the player should be drawn
-	LE_INT32 vpyoff;   // Pixel Y-offset from tile Y-position where the player should be drawn
+	LE_INT32 vpxoff;   // Pixel X-offset from tile position where the player should be drawn
+	LE_INT32 vpyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
 	INT vpAnimDataAlign;
 	INT vpAnimFrameLenAlign; // Tick length of each frame in the current animation
@@ -1354,8 +1354,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 vmoldx;        // Most recent tile X-position where the monster was at the start of its action
 	LE_INT32 vmoldy;        // Most recent tile Y-position where the monster was at the start of its action
-	LE_INT32 vmxoff;        // Pixel X-offset from tile X-position where the monster should be drawn
-	LE_INT32 vmyoff;        // Pixel Y-offset from tile X-position where the monster should be drawn
+	LE_INT32 vmxoff;        // Pixel X-offset from tile position where the monster should be drawn
+	LE_INT32 vmyoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
 	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
 	BYTE vmenemyx;          // Future (except for teleporting) tile X-coordinate of the enemy
@@ -1434,8 +1434,8 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmisy;    // Initial tile Y-position
 	LE_INT32 vmix;     // Tile X-position where the missile should be drawn
 	LE_INT32 vmiy;     // Tile Y-position where the missile should be drawn
-	LE_INT32 vmixoff;  // Pixel X-offset from tile X-position where the missile should be drawn
-	LE_INT32 vmiyoff;  // Pixel Y-offset from tile Y-position where the missile should be drawn
+	LE_INT32 vmixoff;  // Pixel X-offset from tile position where the missile should be drawn
+	LE_INT32 vmiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
 	LE_INT32 vmixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 vmiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
 	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
@@ -1807,14 +1807,14 @@ typedef struct TSyncLvlPlayer {
 	LE_INT32 spDestParam3;
 	LE_INT32 spDestParam4;
 	LE_INT16 spTimer[NUM_PLRTIMERS];
-	BYTE spx;      // Tile X-position of player
-	BYTE spy;      // Tile Y-position of player
-	BYTE spfutx;   // Future tile X-position of player. Set at start of walking animation
-	BYTE spfuty;   // Future tile Y-position of player. Set at start of walking animation
-	BYTE spoldx;   // Most recent X-position in dPlayer.
-	BYTE spoldy;   // Most recent Y-position in dPlayer.
-//	LE_INT32 spxoff;   // Player sprite's pixel X-offset from tile.
-//	LE_INT32 spyoff;   // Player sprite's pixel Y-offset from tile.
+	BYTE spx;      // Tile X-position where the player should be drawn
+	BYTE spy;      // Tile Y-position where the player should be drawn
+	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
+	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
+	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
+	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
+//	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
+//	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)
 	BYTE spAnimFrame; // Current frame of animation.
 	BYTE spAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
@@ -1842,19 +1842,19 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar1;
 	LE_INT32 smGoalvar2;
 	LE_INT32 smGoalvar3;
-	BYTE smx;                // Tile X-position of monster
-	BYTE smy;                // Tile Y-position of monster
-	BYTE smfutx;             // Future tile X-position of monster. Set at start of walking animation
-	BYTE smfuty;             // Future tile Y-position of monster. Set at start of walking animation
-	BYTE smoldx;             // Most recent X-position in dMonster.
-	BYTE smoldy;             // Most recent Y-position in dMonster.
-//	LE_INT32 smxoff;             // Monster sprite's pixel X-offset from tile.
-//	LE_INT32 smyoff;             // Monster sprite's pixel Y-offset from tile.
-	BYTE smdir;              // Direction faced by monster (direction enum)
-	LE_INT32 smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
-	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE smListener;        // the player to whom the monster is talking to (unused)
+	BYTE smx;          // Tile X-position where the monster should be drawn
+	BYTE smy;          // Tile Y-position where the monster should be drawn
+	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
+	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
+	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
+	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
+//	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
+//	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
+	BYTE smdir;        // Direction faced by monster (direction enum)
+	LE_INT32 smEnemy;  // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	BYTE smEnemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE smEnemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	BYTE smListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
 	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	BYTE smAnimFrame; // Current frame of animation.
@@ -1863,12 +1863,12 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smVar3;
 	LE_INT32 smVar4;
 	LE_INT32 smVar5;
-	LE_INT32 smVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 smVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 smVar8; // Value used to measure progress for moving from one tile to another
+	LE_INT32 smVar6;
+	LE_INT32 smVar7;
+	LE_INT32 smVar8;
 	LE_INT32 smHitpoints;
-	BYTE smLastx; // the last known X-coordinate of the enemy
-	BYTE smLasty; // the last known Y-coordinate of the enemy
+	BYTE smLastx; // the last known (future) tile X-coordinate of the enemy
+	BYTE smLasty; // the last known (future) tile Y-coordinate of the enemy
 	//BYTE smLeader; // the leader of the monster
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
@@ -1890,14 +1890,14 @@ typedef struct TSyncLvlMissile {
 	BYTE smiDir;   // The direction of the missile
 	BYTE smisx;    // Initial tile X-position for missile
 	BYTE smisy;    // Initial tile Y-position for missile
-	BYTE smix;     // Tile X-position of the missile
-	BYTE smiy;     // Tile Y-position of the missile
-	LE_INT32 smixoff;  // Sprite pixel X-offset for the missile
-	LE_INT32 smiyoff;  // Sprite pixel Y-offset for the missile
-	LE_INT32 smixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-	LE_INT32 smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	BYTE smix;     // Tile X-position where the missile should be drawn
+	BYTE smiy;     // Tile Y-position where the missile should be drawn
+	LE_INT32 smixoff;  // Pixel X-offset from tile position where the missile should be drawn
+	LE_INT32 smiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 smixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
+	LE_INT32 smiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
+	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	LE_INT32 smiSpllvl; // TODO: int?
 	LE_INT32 smiSource; // TODO: int?
 	LE_INT32 smiCaster; // TODO: int?
@@ -1911,8 +1911,8 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiVar4;
 	LE_INT32 smiVar5;
 	LE_INT32 smiVar6;
-	LE_INT32 smiVar7;
-	LE_INT32 smiVar8;
+	LE_INT32 smiVar7; // distance travelled in case of ARROW missiles
+	LE_INT32 smiVar8; // last target in case of non-DOT missiles
 	BYTE smiLidRadius;
 } TSyncLvlMissile;
 

@@ -1359,9 +1359,10 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_MUSHPATCH:
 			Alloc2x2Obj(oi);
 			break;
-			//case OBJ_TEARFTN:
-			//	ObjAddRndSeed(oi);
-			//	break;
+		//case OBJ_BLOODFTN:
+		//case OBJ_TEARFTN:
+		//	ObjAddRndSeed(oi);
+		//	break;
 		case OBJ_MCIRCLE1:
 		case OBJ_MCIRCLE2:
 			AddMagicCircle(oi);
