@@ -3448,12 +3448,15 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 
 static bool Sentfire(int mi, int sx, int sy)
 {
+	int mnum;
 	MissileStruct* mis;
 
 	mis = &missile[mi];
 	assert(mis->_miCaster == MST_PLAYER);
-	if (dMonster[sx][sy] - 1 >= MAX_MINIONS
-	 && monsters[dMonster[sx][sy] - 1]._mhitpoints >= (1 << 6)
+	mnum = dMonster[sx][sy] - 1;
+	if (mnum >= MAX_MINIONS
+	 && monsters[mnum]._mhitpoints >= (1 << 6)
+	 && !CanTalkToMonst(mnum)
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		// SetRndSeed(mis->_miRndSeed);
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
