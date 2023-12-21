@@ -100,29 +100,29 @@ static void FindItemOrObject()
 	int rotations = 5;
 
 	if (pcurstgt == TGT_NORMAL) {
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
-	for (int xx = -1; xx <= 1; xx++) {
-		for (int yy = -1; yy <= 1; yy++) {
-			int ii = dItem[mx + xx][my + yy];
-			if (ii <= 0)
-				continue;
-			ii--;
-			if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
-				continue;
-			int newRotations = GetRotaryDistance(mx + xx, my + yy);
-			if (rotations < newRotations)
-				continue;
-			if (GetDistance(mx + xx, my + yy, 1) < 0)
-				continue;
-			rotations = newRotations;
-			pcursitem = ii;
-			pcurspos.x = mx + xx;
-			pcurspos.y = my + yy;
+		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
+		for (int xx = -1; xx <= 1; xx++) {
+			for (int yy = -1; yy <= 1; yy++) {
+				int ii = dItem[mx + xx][my + yy];
+				if (ii <= 0)
+					continue;
+				ii--;
+				if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
+					continue;
+				int newRotations = GetRotaryDistance(mx + xx, my + yy);
+				if (rotations < newRotations)
+					continue;
+				if (GetDistance(mx + xx, my + yy, 1) < 0)
+					continue;
+				rotations = newRotations;
+				pcursitem = ii;
+				pcurspos.x = mx + xx;
+				pcurspos.y = my + yy;
+			}
 		}
-	}
 
-	if (currLvl._dType == DTYPE_TOWN || pcursitem != ITEM_NONE)
-		return; // Don't look for objects in town
+		if (pcursitem != ITEM_NONE)
+			return;
 	} else if (pcurstgt != TGT_OBJECT) {
 		return;
 	}
@@ -246,9 +246,6 @@ static void CheckPlayerNearby()
 		spl = myplr._pAltMoveSkill;
 	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
 
-	if (pcursmonst != MON_NONE)
-		return;
-
 	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_PLAYER && pcurstgt != TGT_DEAD)
 		return;
 
@@ -292,7 +289,7 @@ static void FindActor()
 	else
 		CheckTownersNearby();
 
-	if (!IsLocalGame)
+	if (!IsLocalGame && pcursmonst == MON_NONE)
 		CheckPlayerNearby();
 }
 
