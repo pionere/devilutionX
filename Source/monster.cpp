@@ -5002,7 +5002,7 @@ void InitGolemStats(int mnum, int level)
 
 	mon = &monsters[mnum];
 	mon->_mLevel = level;
-	mon->_mmaxhp = 640 * level;
+	mon->_mmaxhp = 640 * (level + 1);
 	mon->_mArmorClass = 25 + level;
 	mon->_mEvasion = 10 + (level >> 1);
 	mon->_mHit = 4 * level + 40;
