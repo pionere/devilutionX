@@ -156,12 +156,8 @@ static void CheckTownersNearby()
 	}
 }
 
-static bool HasRangedSpell()
+static bool IsRangedSpell(int spl)
 {
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-
 	return spl != SPL_INVALID
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
@@ -257,7 +253,11 @@ static void FindMeleeTarget()
 
 static void CheckMonstersNearby()
 {
-	if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
+	int spl = myplr._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = myplr._pAltMoveSkill;
+
+	if ((myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl)) {
 		FindRangedTarget();
 		return;
 	}
@@ -291,7 +291,7 @@ static void CheckPlayerNearby()
 		const int my = players[i]._pfuty;
 		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 			continue;
-		if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
+		if ((myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl)) {
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
 			newDdistance = GetDistance(mx, my, distance);
