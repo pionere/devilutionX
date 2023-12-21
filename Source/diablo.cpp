@@ -456,18 +456,14 @@ bool TryIconCurs(bool bShift)
 		}
 	} break;
 	case CURSOR_TELEPORT:
+	case CURSOR_HEALOTHER:
+	case CURSOR_RESURRECT:
 		if (pcursmonst != MON_NONE)
 			NetSendCmdMonSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
-		else
+		else if (pcursicon == CURSOR_TELEPORT)
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSpell, gbTSplFrom);
-		break;
-	case CURSOR_HEALOTHER:
-	case CURSOR_RESURRECT:
-		if (pcursplr != PLR_NONE) {
-			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
-		}
 		break;
 	default:
 		return false;

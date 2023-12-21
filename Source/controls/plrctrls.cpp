@@ -99,6 +99,7 @@ static void FindItemOrObject()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
+	if (pcurstgt == TGT_NORMAL) {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
@@ -122,6 +123,9 @@ static void FindItemOrObject()
 
 	if (currLvl._dType == DTYPE_TOWN || pcursitem != ITEM_NONE)
 		return; // Don't look for objects in town
+	} else if (pcurstgt != TGT_OBJECT) {
+		return;
+	}
 
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
@@ -148,6 +152,9 @@ static void FindItemOrObject()
 
 static void CheckTownersNearby()
 {
+	if (pcurstgt != TGT_NORMAL)
+		return;
+
 	for (int i = MAX_MINIONS; i < numtowners; i++) {
 		int distance = GetDistance(monsters[i]._mx, monsters[i]._my, 2);
 		if (distance < 0)
@@ -196,6 +203,9 @@ static void CheckMonstersNearby()
 		spl = myplr._pAltMoveSkill;
 	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
 
+	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_PLAYER)
+		return;
+
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		const int tgtMode = CanTargetMonster(mnum);
 		if (tgtMode == 0)
@@ -237,6 +247,9 @@ static void CheckPlayerNearby()
 	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
 
 	if (pcursmonst != MON_NONE)
+		return;
+
+	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_PLAYER && pcurstgt != TGT_DEAD)
 		return;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
