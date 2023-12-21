@@ -187,111 +187,72 @@ static int CanTargetMonster(int mnum)
 	return CanTalkToMonst(mnum) ? 2 : 1;
 }
 
-static void FindRangedTarget()
-{
-	int rotations = NUM_DIRS, distance = MAXDUNX + MAXDUNY, mnum;
-	bool canTalk = true;
-
-	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		const int tgtMode = CanTargetMonster(mnum);
-		if (tgtMode == 0)
-			continue;
-		const bool newCanTalk = tgtMode - 1;
-		const MonsterStruct& mon = monsters[mnum];
-		const int mx = mon._mfutx;
-		const int my = mon._mfuty;
-		const int newDdistance = GetDistanceRanged(mx, my);
-		const int newRotations = GetRotaryDistance(mx, my);
-		if (canTalk == newCanTalk) {
-			if (distance < newDdistance)
-				continue;
-			if (distance == newDdistance && rotations < newRotations)
-				continue;
-		} else if (newCanTalk) {
-			continue;
-		}
-		distance = newDdistance;
-		rotations = newRotations;
-		canTalk = newCanTalk;
-		pcursmonst = mnum;
-	}
-}
-
-static void FindMeleeTarget()
-{
-	int rotations = NUM_DIRS, distance = MAXDUNX + MAXDUNY, mnum;
-	bool canTalk = true;
-	int8_t walkpath[MAX_PATH_LENGTH + 1];
-
-	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		const int tgtMode = CanTargetMonster(mnum);
-		if (tgtMode == 0)
-			continue;
-		const bool newCanTalk = tgtMode - 1;
-		const MonsterStruct& mon = monsters[mnum];
-		const int mx = mon._mfutx;
-		const int my = mon._mfuty;
-		const int newDdistance = FindPath(PosOkPlayer, mypnum, myplr._pfutx, myplr._pfuty, mx, my, walkpath);
-		if (newDdistance < 0) {
-			continue;
-		}
-		const int newRotations = GetRotaryDistance(mx, my);
-		if (canTalk == newCanTalk) {
-			if (distance < newDdistance)
-				continue;
-			if (distance == newDdistance && rotations < newRotations)
-				continue;
-		} else if (newCanTalk) {
-			continue;
-		}
-		distance = newDdistance;
-		rotations = newRotations;
-		canTalk = newCanTalk;
-		pcursmonst = mnum;
-	}
-}
-
 static void CheckMonstersNearby()
 {
+	int newDdistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
+	bool ranged, canTalk = true;
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = myplr._pAltMoveSkill;
+	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
 
-	if ((myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl)) {
-		FindRangedTarget();
-		return;
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const int tgtMode = CanTargetMonster(mnum);
+		if (tgtMode == 0)
+			continue;
+		const bool newCanTalk = tgtMode - 1;
+		const MonsterStruct& mon = monsters[mnum];
+		const int mx = mon._mfutx;
+		const int my = mon._mfuty;
+		if (ranged) {
+			newDdistance = GetDistanceRanged(mx, my);
+		} else {
+			newDdistance = GetDistance(mx, my, distance);
+			if (newDdistance < 0)
+				continue;
+		}
+		const int newRotations = GetRotaryDistance(mx, my);
+		if (canTalk == newCanTalk) {
+			if (distance < newDdistance)
+				continue;
+			if (distance == newDdistance && rotations < newRotations)
+				continue;
+		} else if (newCanTalk) {
+			continue;
+		}
+		distance = newDdistance;
+		rotations = newRotations;
+		canTalk = newCanTalk;
+		pcursmonst = mnum;
 	}
-
-	FindMeleeTarget();
 }
 
 static void CheckPlayerNearby()
 {
-	int newDdistance;
-	int rotations;
-	int distance = MAXDUNX + MAXDUNY;
+	int newDdistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
+	bool ranged;
+	int spl = myplr._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = myplr._pAltMoveSkill;
+	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
 
 	if (pcursmonst != MON_NONE)
 		return;
 
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-
-	for (int i = 0; i < MAX_PLRS; i++) {
-		if (i == mypnum)
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (pnum == mypnum)
 			continue;
 		if (spl != SPL_RESURRECT) {
-			if (players[i]._pHitPoints == 0)
+			if (plr._pHitPoints == 0)
 				continue;
-			if (players[i]._pTeam == myplr._pTeam && spl != SPL_HEALOTHER)
+			if (plr._pTeam == myplr._pTeam && spl != SPL_HEALOTHER)
 				continue;
 		}
-		const int mx = players[i]._pfutx;
-		const int my = players[i]._pfuty;
+		const int mx = plr._pfutx;
+		const int my = plr._pfuty;
 		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 			continue;
-		if ((myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl)) {
+		if (ranged) {
 			newDdistance = GetDistanceRanged(mx, my);
 		} else {
 			newDdistance = GetDistance(mx, my, distance);
@@ -307,7 +268,7 @@ static void CheckPlayerNearby()
 
 		distance = newDdistance;
 		rotations = newRotations;
-		pcursplr = i;
+		pcursplr = pnum;
 	}
 }
 
