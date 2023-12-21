@@ -2916,33 +2916,34 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	int pnum, i, hp;
 
 	assert((unsigned)misource < MAX_PLRS);
+	// calculate hp
+	hp = RandRange(1, 10);
+	for (i = spllvl; i > 0; i--) {
+		hp += RandRange(1, 6);
+	}
+	for (i = plx(misource)._pLevel; i > 0; i--) {
+		hp += RandRange(1, 4);
+	}
+	hp <<= 6;
 
+	switch (plx(misource)._pClass) {
+	case PC_WARRIOR: hp <<= 1;    break;
+#ifdef HELLFIRE
+	case PC_MONK: hp *= 3;        break;
+	case PC_BARBARIAN: hp <<= 1;  break;
+	case PC_BARD:
+#endif
+	case PC_ROGUE: hp += hp >> 1; break;
+	case PC_SORCERER: break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	// select target
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum != misource
 		 && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx
 		 && plr._px == dx && plr._py == dy
 		 && plr._pHitPoints >= (1 << 6)) {
-			hp = RandRange(1, 10);
-			for (i = spllvl; i > 0; i--) {
-				hp += RandRange(1, 6);
-			}
-			for (i = plx(misource)._pLevel; i > 0; i--) {
-				hp += RandRange(1, 4);
-			}
-			hp <<= 6;
-
-			switch (plx(misource)._pClass) {
-			case PC_WARRIOR: hp <<= 1;    break;
-#ifdef HELLFIRE
-			case PC_MONK: hp *= 3;        break;
-			case PC_BARBARIAN: hp <<= 1;  break;
-			case PC_BARD:
-#endif
-			case PC_ROGUE: hp += hp >> 1; break;
-			case PC_SORCERER: break;
-			default:
-				ASSUME_UNREACHABLE
-			}
 			PlrIncHp(pnum, hp);
 			break;
 		}
