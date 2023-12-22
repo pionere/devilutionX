@@ -237,7 +237,7 @@ static void CheckMonstersNearby()
 	}
 }
 
-static void CheckPlayerNearby()
+static void FindPlayer()
 {
 	int newDdistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
 	bool ranged;
@@ -282,15 +282,12 @@ static void CheckPlayerNearby()
 	}
 }
 
-static void FindActor()
+static void FindMonster()
 {
 	if (currLvl._dType != DTYPE_TOWN)
 		CheckMonstersNearby();
 	else
 		CheckTownersNearby();
-
-	if (!IsLocalGame && pcursmonst == MON_NONE)
-		CheckPlayerNearby();
 }
 
 static void FindTrigger()
@@ -1016,7 +1013,9 @@ void plrctrls_after_check_curs_move()
 		}
 		if (!gbInvflag) {
 			*infostr = '\0';
-			FindActor();
+			FindMonster();
+			if (!IsLocalGame && pcursmonst == MON_NONE)
+				FindPlayer();
 			FindItemOrObject();
 			FindTrigger();
 		}
