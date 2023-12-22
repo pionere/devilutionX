@@ -169,39 +169,20 @@ static bool IsRangedSpell(int spl)
 	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) == spelldata[spl].sUseFlags;
 }
 
-static int CanTargetMonster(int mnum)
-{
-	MonsterStruct* mon;
-
-	// The first MAX_MINIONS monsters are reserved for players' golems.
-	if (mnum < MAX_MINIONS)
-		return 0;
-
-	mon = &monsters[mnum];
-	if (mon->_mmode > MM_INGAME_LAST)
-		return 0;
-	if (mon->_mFlags & MFLAG_HIDDEN)
-		return 0;
-	if (mon->_mhitpoints < (1 << 6)) // dead
-		return 0;
-
-	if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
-		return 0;
-
-	return CanTalkToMonst(mnum) ? 2 : 1;
-}
-
 static void CheckMonstersNearby(bool ranged)
 {
 	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
 	bool canTalk = true;
 
-	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		const int tgtMode = CanTargetMonster(mnum);
-		if (tgtMode == 0)
-			continue;
-		const bool newCanTalk = tgtMode - 1;
+	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
 		const MonsterStruct& mon = monsters[mnum];
+		if (mon._mmode > MM_INGAME_LAST || mon._mmode == MM_DEATH)
+			continue;
+		if (mon._mFlags & MFLAG_HIDDEN)
+			continue;
+		if (!(dFlags[mon._mx][mon._my] & BFLAG_VISIBLE))
+			continue;
+
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		if (ranged) {
@@ -211,6 +192,7 @@ static void CheckMonstersNearby(bool ranged)
 			if (newDistance < 0)
 				continue;
 		}
+		const bool newCanTalk = CanTalkToMonst(mnum);
 		const int newRotations = GetRotaryDistance(mx, my);
 		if (canTalk == newCanTalk) {
 			if (distance < newDistance)
