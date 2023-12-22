@@ -191,14 +191,10 @@ static int CanTargetMonster(int mnum)
 	return CanTalkToMonst(mnum) ? 2 : 1;
 }
 
-static void CheckMonstersNearby()
+static void CheckMonstersNearby(bool ranged)
 {
 	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
-	bool ranged, canTalk = true;
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
+	bool canTalk = true;
 
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		const int tgtMode = CanTargetMonster(mnum);
@@ -234,15 +230,12 @@ static void CheckMonstersNearby()
 /**
  * @brief Find a player to target
  * @param mode: 0 - offensive, 1 - heal, 2 - dead
+ * @param ranged: whether the current player is melee or ranged
  */
-static void FindPlayer(int mode)
+static void FindPlayer(int mode, bool ranged)
 {
 	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
-	bool ranged, sameTeam;
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
+	bool sameTeam;
 	sameTeam = mode == 0;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
@@ -287,10 +280,10 @@ static void FindPlayer(int mode)
 	}
 }
 
-static void FindMonster()
+static void FindMonster(bool ranged)
 {
 	if (currLvl._dType != DTYPE_TOWN)
-		CheckMonstersNearby();
+		CheckMonstersNearby(ranged);
 	else
 		CheckTownersNearby();
 }
@@ -1018,11 +1011,16 @@ void plrctrls_after_check_curs_move()
 		}
 		if (!gbInvflag) {
 			*infostr = '\0';
+			int spl = myplr._pAltAtkSkill;
+			if (spl == SPL_INVALID)
+				spl = myplr._pAltMoveSkill;
+			bool ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
+
 			switch (pcurstgt) {
 			case TGT_NORMAL:
-				FindMonster();
+				FindMonster(ranged);
 				if (!IsLocalGame && pcursmonst == MON_NONE)
-					FindPlayer(0);
+					FindPlayer(0, ranged);
 				FindItem();
 				if (pcursitem == ITEM_NONE)
 					FindObject();
@@ -1035,10 +1033,12 @@ void plrctrls_after_check_curs_move()
 				FindObject();
 				break;
 			case TGT_PLAYER:
-				FindPlayer(1);
+				assert(ranged);
+				FindPlayer(1, true);
 				break;
 			case TGT_DEAD:
-				FindPlayer(2);
+				assert(ranged);
+				FindPlayer(2, true);
 				break;
 			case TGT_NONE:
 				break;
