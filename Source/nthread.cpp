@@ -200,6 +200,7 @@ static int SDLCALL nthread_handler(void* data)
 #endif
 void nthread_start()
 {
+	gbLvlLoad = 10; // TODO: duplicate logic in nthread_run...
 	assert(geBufferMsgs == MSG_NORMAL);
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	if (gbJoinGame) {
