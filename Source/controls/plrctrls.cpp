@@ -99,26 +99,26 @@ static void FindItem()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
-		for (int xx = -1; xx <= 1; xx++) {
-			for (int yy = -1; yy <= 1; yy++) {
-				int ii = dItem[mx + xx][my + yy];
-				if (ii <= 0)
-					continue;
-				ii--;
-				if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
-					continue;
-				int newRotations = GetRotaryDistance(mx + xx, my + yy);
-				if (rotations < newRotations)
-					continue;
-				if (GetDistance(mx + xx, my + yy, 1) < 0)
-					continue;
-				rotations = newRotations;
-				pcursitem = ii;
-				pcurspos.x = mx + xx;
-				pcurspos.y = my + yy;
-			}
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
+	for (int xx = -1; xx <= 1; xx++) {
+		for (int yy = -1; yy <= 1; yy++) {
+			int ii = dItem[mx + xx][my + yy];
+			if (ii <= 0)
+				continue;
+			ii--;
+			if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
+				continue;
+			int newRotations = GetRotaryDistance(mx + xx, my + yy);
+			if (rotations < newRotations)
+				continue;
+			if (GetDistance(mx + xx, my + yy, 1) < 0)
+				continue;
+			rotations = newRotations;
+			pcursitem = ii;
+			pcurspos.x = mx + xx;
+			pcurspos.y = my + yy;
 		}
+	}
 }
 
 static void FindObject()
@@ -193,7 +193,7 @@ static int CanTargetMonster(int mnum)
 
 static void CheckMonstersNearby()
 {
-	int newDdistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
+	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
 	bool ranged, canTalk = true;
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
@@ -209,22 +209,22 @@ static void CheckMonstersNearby()
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
 		if (ranged) {
-			newDdistance = GetDistanceRanged(mx, my);
+			newDistance = GetDistanceRanged(mx, my);
 		} else {
-			newDdistance = GetDistance(mx, my, distance);
-			if (newDdistance < 0)
+			newDistance = GetDistance(mx, my, distance);
+			if (newDistance < 0)
 				continue;
 		}
 		const int newRotations = GetRotaryDistance(mx, my);
 		if (canTalk == newCanTalk) {
-			if (distance < newDdistance)
+			if (distance < newDistance)
 				continue;
-			if (distance == newDdistance && rotations < newRotations)
+			if (distance == newDistance && rotations < newRotations)
 				continue;
 		} else if (newCanTalk) {
 			continue;
 		}
-		distance = newDdistance;
+		distance = newDistance;
 		rotations = newRotations;
 		canTalk = newCanTalk;
 		pcursmonst = mnum;
@@ -237,7 +237,7 @@ static void CheckMonstersNearby()
  */
 static void FindPlayer(int mode)
 {
-	int newDdistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
+	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
 	bool ranged, sameTeam;
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
@@ -257,18 +257,18 @@ static void FindPlayer(int mode)
 		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
 			continue;
 		if (ranged) {
-			newDdistance = GetDistanceRanged(mx, my);
+			newDistance = GetDistanceRanged(mx, my);
 		} else {
-			newDdistance = GetDistance(mx, my, distance);
-			if (newDdistance < 0)
+			newDistance = GetDistance(mx, my, distance);
+			if (newDistance < 0)
 				continue;
 		}
 		const int newRotations = GetRotaryDistance(mx, my);
 		bool newSameTeam = plr._pTeam == myplr._pTeam;
 		if (newSameTeam == sameTeam) {
-			if (distance < newDdistance)
+			if (distance < newDistance)
 				continue;
-			if (distance == newDdistance && rotations < newRotations)
+			if (distance == newDistance && rotations < newRotations)
 				continue;
 		} else {
 			if (mode == 0) {
@@ -280,7 +280,7 @@ static void FindPlayer(int mode)
 			}
 		}
 
-		distance = newDdistance;
+		distance = newDistance;
 		rotations = newRotations;
 		sameTeam = newSameTeam;
 		pcursplr = pnum;
