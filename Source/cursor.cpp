@@ -269,7 +269,7 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
+	int i, pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
 	bool flipflag, flipx, flipy;
 
 	pcursmonst = MON_NONE;
@@ -293,7 +293,7 @@ void CheckCursMove()
 
 	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;
-	for (int i = 0; i < gnNumActiveWindows; i++) {
+	for (i = 0; i < gnNumActiveWindows; i++) {
 		switch (gaActiveWindows[i]) {
 		case WND_INV:
 			if (POS_IN_RECT(sx, sy, gnWndInvX, gnWndInvY, SPANEL_WIDTH, SPANEL_HEIGHT))
@@ -460,7 +460,7 @@ void CheckCursMove()
 	case TGT_NORMAL:
 		// select the previous monster/npc
 		if (pcursmonst != MON_NONE) {
-			for (int i = 4; i >= 0; i--) {
+			for (i = 4; i >= 0; i--) {
 				mi = curmon[i];
 				if (mi != 0) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
@@ -478,7 +478,7 @@ void CheckCursMove()
 			}
 		}
 		// select a monster/npc
-		for (int i = 4; i >= 0; i--) {
+		for (i = 4; i >= 0; i--) {
 			mi = curmon[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
@@ -498,7 +498,7 @@ void CheckCursMove()
 			}
 		}
 		// select a live player
-		for (int i = 2; i >= 0; i--) {
+		for (i = 2; i >= 0; i--) {
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
@@ -519,7 +519,7 @@ void CheckCursMove()
 			goto done;
 		}
 		// select an object
-		for (int i = 4; i >= 0; i--) {
+		for (i = 4; i >= 0; i--) {
 			mi = curobj[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
@@ -533,7 +533,7 @@ void CheckCursMove()
 			}
 		}
 		// select an item
-		for (int i = 2; i >= 0; i--) {
+		for (i = 2; i >= 0; i--) {
 			mi = curitem[i];
 			if (mi > 0) {
 				mi = mi - 1;
@@ -555,7 +555,7 @@ done:
 		break;
 	case TGT_ITEM:
 		// select an item
-		for (int i = 2; i >= 0; i--) {
+		for (i = 2; i >= 0; i--) {
 			mi = curitem[i];
 			if (mi > 0) {
 				mi = mi - 1;
@@ -571,7 +571,7 @@ done:
 		break;
 	case TGT_OBJECT:
 		// select an object
-		for (int i = 4; i >= 0; i--) {
+		for (i = 4; i >= 0; i--) {
 			mi = curobj[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
@@ -587,7 +587,7 @@ done:
 		break;
 	case TGT_PLAYER:
 		// select a live player
-		for (int i = 2; i >= 0; i--) {
+		for (i = 2; i >= 0; i--) {
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
