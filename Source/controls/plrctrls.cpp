@@ -227,10 +227,11 @@ static void FindPlayer(int mode, bool ranged)
 			continue;
 		if ((mode == 2) != (plr._pHitPoints == 0))
 			continue;
+		if (!(dFlags[plr._px][plr._py] & BFLAG_VISIBLE))
+			continue;
+
 		const int mx = plr._pfutx;
 		const int my = plr._pfuty;
-		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
-			continue;
 		if (ranged) {
 			newDistance = GetDistanceRanged(mx, my);
 		} else {
