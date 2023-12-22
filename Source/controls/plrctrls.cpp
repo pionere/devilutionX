@@ -99,9 +99,6 @@ static void FindItem()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_ITEM)
-		return;
-
 		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
 		for (int xx = -1; xx <= 1; xx++) {
 			for (int yy = -1; yy <= 1; yy++) {
@@ -130,9 +127,6 @@ static void FindObject()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_OBJECT)
-		return;
-
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
 			int oi = dObject[mx + xx][my + yy];
@@ -158,9 +152,6 @@ static void FindObject()
 
 static void CheckTownersNearby()
 {
-	if (pcurstgt != TGT_NORMAL)
-		return;
-
 	for (int i = MAX_MINIONS; i < numtowners; i++) {
 		int distance = GetDistance(monsters[i]._mx, monsters[i]._my, 2);
 		if (distance < 0)
@@ -209,9 +200,6 @@ static void CheckMonstersNearby()
 		spl = myplr._pAltMoveSkill;
 	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
 
-	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_PLAYER)
-		return;
-
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		const int tgtMode = CanTargetMonster(mnum);
 		if (tgtMode == 0)
@@ -251,9 +239,6 @@ static void FindPlayer()
 	if (spl == SPL_INVALID)
 		spl = myplr._pAltMoveSkill;
 	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
-
-	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_PLAYER && pcurstgt != TGT_DEAD)
-		return;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
@@ -1019,13 +1004,31 @@ void plrctrls_after_check_curs_move()
 		}
 		if (!gbInvflag) {
 			*infostr = '\0';
-			FindMonster();
-			if (!IsLocalGame && pcursmonst == MON_NONE)
-				FindPlayer();
-			FindItem();
-			if (pcursitem == ITEM_NONE)
+			switch (pcurstgt) {
+			case TGT_NORMAL:
+				FindMonster();
+				if (!IsLocalGame && pcursmonst == MON_NONE)
+					FindPlayer();
+				FindItem();
+				if (pcursitem == ITEM_NONE)
+					FindObject();
+				FindTrigger();
+				break;
+			case TGT_ITEM:
+				FindItem();
+				break;
+			case TGT_OBJECT:
 				FindObject();
-			FindTrigger();
+				break;
+			case TGT_PLAYER:
+			case TGT_DEAD:
+				FindPlayer();
+				break;
+			case TGT_NONE:
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
 		}
 	}
 }
