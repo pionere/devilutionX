@@ -150,7 +150,7 @@ static void FindObject()
 	}
 }
 
-static void CheckTownersNearby()
+static void FindTowner()
 {
 	for (int i = MAX_MINIONS; i < numtowners; i++) {
 		int distance = GetDistance(monsters[i]._mx, monsters[i]._my, 2);
@@ -169,7 +169,11 @@ static bool IsRangedSpell(int spl)
 	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) == spelldata[spl].sUseFlags;
 }
 
-static void CheckMonstersNearby(bool ranged)
+/**
+ * @brief Find a monster to target
+ * @param ranged: whether the current player is melee or ranged
+ */
+static void FindMonster(bool ranged)
 {
 	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
 	bool canTalk = true;
@@ -261,14 +265,6 @@ static void FindPlayer(int mode, bool ranged)
 		sameTeam = newSameTeam;
 		pcursplr = pnum;
 	}
-}
-
-static void FindMonster(bool ranged)
-{
-	if (currLvl._dType != DTYPE_TOWN)
-		CheckMonstersNearby(ranged);
-	else
-		CheckTownersNearby();
 }
 
 static void FindTrigger()
@@ -1001,7 +997,10 @@ void plrctrls_after_check_curs_move()
 
 			switch (pcurstgt) {
 			case TGT_NORMAL:
-				FindMonster(ranged);
+				if (currLvl._dType != DTYPE_TOWN)
+					FindMonster(ranged);
+				else
+					FindTowner();
 				if (!IsLocalGame && pcursmonst == MON_NONE)
 					FindPlayer(0, ranged);
 				FindItem();
