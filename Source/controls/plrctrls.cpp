@@ -231,26 +231,27 @@ static void CheckMonstersNearby()
 	}
 }
 
-static void FindPlayer()
+/**
+ * @brief Find a player to target
+ * @param mode: 0 - offensive, 1 - heal, 2 - dead
+ */
+static void FindPlayer(int mode)
 {
 	int newDdistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
-	bool ranged;
+	bool ranged, sameTeam;
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = myplr._pAltMoveSkill;
 	ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
+	sameTeam = mode == 0;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
 			continue;
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
 			continue;
-		if (spl != SPL_RESURRECT) {
-			if (plr._pHitPoints == 0)
-				continue;
-			if (plr._pTeam == myplr._pTeam && spl != SPL_HEALOTHER)
-				continue;
-		}
+		if ((mode == 2) != (plr._pHitPoints == 0))
+			continue;
 		const int mx = plr._pfutx;
 		const int my = plr._pfuty;
 		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
@@ -262,15 +263,26 @@ static void FindPlayer()
 			if (newDdistance < 0)
 				continue;
 		}
-
-		if (distance < newDdistance)
-			continue;
 		const int newRotations = GetRotaryDistance(mx, my);
-		if (distance == newDdistance && rotations < newRotations)
-			continue;
+		bool newSameTeam = plr._pTeam == myplr._pTeam;
+		if (newSameTeam == sameTeam) {
+			if (distance < newDdistance)
+				continue;
+			if (distance == newDdistance && rotations < newRotations)
+				continue;
+		} else {
+			if (mode == 0) {
+				if (newSameTeam)
+					continue; // offensive mode -> prefer opponents
+			} else {
+				if (!newSameTeam)
+					continue; // defensive mode -> prefer teammates
+			}
+		}
 
 		distance = newDdistance;
 		rotations = newRotations;
+		sameTeam = newSameTeam;
 		pcursplr = pnum;
 	}
 }
@@ -1010,7 +1022,7 @@ void plrctrls_after_check_curs_move()
 			case TGT_NORMAL:
 				FindMonster();
 				if (!IsLocalGame && pcursmonst == MON_NONE)
-					FindPlayer();
+					FindPlayer(0);
 				FindItem();
 				if (pcursitem == ITEM_NONE)
 					FindObject();
@@ -1023,8 +1035,10 @@ void plrctrls_after_check_curs_move()
 				FindObject();
 				break;
 			case TGT_PLAYER:
+				FindPlayer(1);
+				break;
 			case TGT_DEAD:
-				FindPlayer();
+				FindPlayer(2);
 				break;
 			case TGT_NONE:
 				break;
