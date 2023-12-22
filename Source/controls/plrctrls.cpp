@@ -93,13 +93,15 @@ static int GetDistanceRanged(int dx, int dy)
 	return sqrt(a * a + b * b);
 }
 
-static void FindItemOrObject()
+static void FindItem()
 {
 	int mx = myplr._pfutx;
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-	if (pcurstgt == TGT_NORMAL) {
+	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_ITEM)
+		return;
+
 		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
 		for (int xx = -1; xx <= 1; xx++) {
 			for (int yy = -1; yy <= 1; yy++) {
@@ -120,12 +122,16 @@ static void FindItemOrObject()
 				pcurspos.y = my + yy;
 			}
 		}
+}
 
-		if (pcursitem != ITEM_NONE)
-			return;
-	} else if (pcurstgt != TGT_OBJECT) {
+static void FindObject()
+{
+	int mx = myplr._pfutx;
+	int my = myplr._pfuty;
+	int rotations = 5;
+
+	if (pcurstgt != TGT_NORMAL && pcurstgt != TGT_OBJECT)
 		return;
-	}
 
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
@@ -1016,7 +1022,9 @@ void plrctrls_after_check_curs_move()
 			FindMonster();
 			if (!IsLocalGame && pcursmonst == MON_NONE)
 				FindPlayer();
-			FindItemOrObject();
+			FindItem();
+			if (pcursitem == ITEM_NONE)
+				FindObject();
 			FindTrigger();
 		}
 	}
