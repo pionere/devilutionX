@@ -99,7 +99,7 @@ static void FindItem()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItem expects a large enough border.");
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
 			int ii = dItem[mx + xx][my + yy];
@@ -127,6 +127,7 @@ static void FindObject()
 	int my = myplr._pfuty;
 	int rotations = 5;
 
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindObject expects a large enough border.");
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
 			int oi = dObject[mx + xx][my + yy];
@@ -160,8 +161,15 @@ static void FindTowner()
 	}
 }
 
-static bool IsRangedSpell(int spl)
+static bool HasRangedSkill()
 {
+	if (myplr._pSkillFlags & SFLAG_RANGED)
+		return true;
+
+	int spl = myplr._pAltAtkSkill;
+	if (spl == SPL_INVALID)
+		spl = myplr._pAltMoveSkill;
+
 	return spl != SPL_INVALID
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
@@ -196,8 +204,8 @@ static void FindMonster(bool ranged)
 			if (newDistance < 0)
 				continue;
 		}
-		const bool newCanTalk = CanTalkToMonst(mnum);
 		const int newRotations = GetRotaryDistance(mx, my);
+		const bool newCanTalk = CanTalkToMonst(mnum);
 		if (canTalk == newCanTalk) {
 			if (distance < newDistance)
 				continue;
@@ -221,8 +229,7 @@ static void FindMonster(bool ranged)
 static void FindPlayer(int mode, bool ranged)
 {
 	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
-	bool sameTeam;
-	sameTeam = mode == 0;
+	bool sameTeam = mode == 0;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
@@ -244,8 +251,8 @@ static void FindPlayer(int mode, bool ranged)
 				continue;
 		}
 		const int newRotations = GetRotaryDistance(mx, my);
-		bool newSameTeam = plr._pTeam == myplr._pTeam;
-		if (newSameTeam == sameTeam) {
+		const bool newSameTeam = plr._pTeam == myplr._pTeam;
+		if (sameTeam == newSameTeam) {
 			if (distance < newDistance)
 				continue;
 			if (distance == newDistance && rotations < newRotations)
@@ -990,10 +997,7 @@ void plrctrls_after_check_curs_move()
 		}
 		if (!gbInvflag) {
 			*infostr = '\0';
-			int spl = myplr._pAltAtkSkill;
-			if (spl == SPL_INVALID)
-				spl = myplr._pAltMoveSkill;
-			bool ranged = (myplr._pSkillFlags & SFLAG_RANGED) || IsRangedSpell(spl);
+			bool ranged = HasRangedSkill();
 
 			switch (pcurstgt) {
 			case TGT_NORMAL:
