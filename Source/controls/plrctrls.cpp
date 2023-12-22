@@ -243,6 +243,8 @@ static void FindPlayer()
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
 			continue;
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
+			continue;
 		if (spl != SPL_RESURRECT) {
 			if (plr._pHitPoints == 0)
 				continue;
