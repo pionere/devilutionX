@@ -458,6 +458,100 @@ void CheckCursMove()
 
 	switch (pcurstgt) {
 	case TGT_NORMAL:
+		// select the previous monster/npc
+		if (pcursmonst != MON_NONE) {
+			for (int i = 4; i >= 0; i--) {
+				mi = curmon[i];
+				if (mi != 0) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi != pcursmonst) {
+						continue;
+					}
+					if (!(monsters[mi]._mSelFlag & selFlag[i])) {
+						continue;
+					}
+					pcursmonst = mi;
+					pcurspos.x = mx + offx[i];
+					pcurspos.y = my + offy[i];
+					goto done;
+				}
+			}
+		}
+		// select a monster/npc
+		for (int i = 4; i >= 0; i--) {
+			mi = curmon[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
+					continue;
+				}
+				if (!(monsters[mi]._mSelFlag & selFlag[i])) {
+					continue;
+				}
+				if (mi < MAX_MINIONS) {
+					break;
+				}
+				pcursmonst = mi;
+				pcurspos.x = mx + offx[i];
+				pcurspos.y = my + offy[i];
+				goto done;
+			}
+		}
+		// select a live player
+		for (int i = 2; i >= 0; i--) {
+			mi = curplr[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+					continue;
+				}
+				pcursplr = mi;
+				pcurspos.x = mx + offx[i + 2];
+				pcurspos.y = my + offy[i + 2];
+				goto done;
+			}
+		}
+		// select a dead player
+		if (deadplr[0] != 0) {
+			pcursplr = deadplr[0];
+			pcurspos.x = mx;
+			pcurspos.y = my;
+			goto done;
+		}
+		// select an object
+		for (int i = 4; i >= 0; i--) {
+			mi = curobj[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (!(objects[mi]._oSelFlag & selFlag[i])) {
+					continue;
+				}
+				pcursobj = mi;
+				pcurspos.x = mx + offx[i];
+				pcurspos.y = my + offy[i];
+				goto done;
+			}
+		}
+		// select an item
+		for (int i = 2; i >= 0; i--) {
+			mi = curitem[i];
+			if (mi > 0) {
+				mi = mi - 1;
+				if (!(items[mi]._iSelFlag & selFlag[i + 2])) {
+					continue;
+				}
+				pcursitem = mi;
+				pcurspos.x = mx + offx[i + 2];
+				pcurspos.y = my + offy[i + 2];
+				goto done;
+			}
+		}
+
+		pcurspos.x = mx;
+		pcurspos.y = my;
+		CheckTrigForce();
+		CheckTownPortal();
+done:
 		break;
 	case TGT_ITEM:
 		// select an item
@@ -471,10 +565,10 @@ void CheckCursMove()
 				pcursitem = mi;
 				pcurspos.x = mx + offx[i + 2];
 				pcurspos.y = my + offy[i + 2];
-				return;
+				break;
 			}
 		}
-		return;
+		break;
 	case TGT_OBJECT:
 		// select an object
 		for (int i = 4; i >= 0; i--) {
@@ -487,10 +581,10 @@ void CheckCursMove()
 				pcursobj = mi;
 				pcurspos.x = mx + offx[i];
 				pcurspos.y = my + offy[i];
-				return;
+				break;
 			}
 		}
-		return;
+		break;
 	case TGT_PLAYER:
 		// select a live player
 		for (int i = 2; i >= 0; i--) {
@@ -503,117 +597,23 @@ void CheckCursMove()
 				pcursplr = mi;
 				pcurspos.x = mx + offx[i + 2];
 				pcurspos.y = my + offy[i + 2];
-				return;
+				break;
 			}
 		}
-		return;
+		break;
 	case TGT_DEAD:
 		// select a dead player
 		if (deadplr[0] != 0) {
 			pcursplr = deadplr[0] - 1;
 			pcurspos.x = mx;
 			pcurspos.y = my;
-			return;
 		}
-		return;
+		break;
 	case TGT_NONE:
-		return;
+		break;
 	default:
 		ASSUME_UNREACHABLE
 	}
-	// select the previous monster/npc
-	if (pcursmonst != MON_NONE) {
-		for (int i = 4; i >= 0; i--) {
-			mi = curmon[i];
-			if (mi != 0) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi != pcursmonst) {
-					continue;
-				}
-				if (!(monsters[mi]._mSelFlag & selFlag[i])) {
-					continue;
-				}
-				pcursmonst = mi;
-				pcurspos.x = mx + offx[i];
-				pcurspos.y = my + offy[i];
-				return;
-			}
-		}
-	}
-	// select a monster/npc
-	for (int i = 4; i >= 0; i--) {
-		mi = curmon[i];
-		if (mi != 0) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
-				continue;
-			}
-			if (!(monsters[mi]._mSelFlag & selFlag[i])) {
-				continue;
-			}
-			if (mi < MAX_MINIONS) {
-				break;
-			}
-			pcursmonst = mi;
-			pcurspos.x = mx + offx[i];
-			pcurspos.y = my + offy[i];
-			return;
-		}
-	}
-	// select a live player
-	for (int i = 2; i >= 0; i--) {
-		mi = curplr[i];
-		if (mi != 0) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
-				continue;
-			}
-			pcursplr = mi;
-			pcurspos.x = mx + offx[i + 2];
-			pcurspos.y = my + offy[i + 2];
-			return;
-		}
-	}
-	// select a dead player
-	if (deadplr[0] != 0) {
-		pcursplr = deadplr[0];
-		pcurspos.x = mx;
-		pcurspos.y = my;
-		return;
-	}
-	// select an object
-	for (int i = 4; i >= 0; i--) {
-		mi = curobj[i];
-		if (mi != 0) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (!(objects[mi]._oSelFlag & selFlag[i])) {
-				continue;
-			}
-			pcursobj = mi;
-			pcurspos.x = mx + offx[i];
-			pcurspos.y = my + offy[i];
-			return;
-		}
-	}
-	// select an item
-	for (int i = 2; i >= 0; i--) {
-		mi = curitem[i];
-		if (mi > 0) {
-			mi = mi - 1;
-			if (!(items[mi]._iSelFlag & selFlag[i + 2])) {
-				continue;
-			}
-			pcursitem = mi;
-			pcurspos.x = mx + offx[i + 2];
-			pcurspos.y = my + offy[i + 2];
-			return;
-		}
-	}
-
-	pcurspos.x = mx;
-	pcurspos.y = my;
-	CheckTrigForce();
-	CheckTownPortal();
 }
 
 DEVILUTION_END_NAMESPACE
