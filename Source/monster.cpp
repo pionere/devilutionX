@@ -2905,8 +2905,8 @@ static bool MonCallWalk(int mnum, int md)
 	md = MonFindDir(mnum, md);
 	if (md >= 0)
 		MonWalkDir(mnum, md);
-	else
-		MonFindEnemy(mnum); // prevent from stucking with an inaccessible enemy
+	//else
+	//	MonFindEnemy(mnum); // prevent from stucking with an inaccessible enemy - not necessary if GroupUnity runs it unconditionally
 	return md >= 0;
 }
 
