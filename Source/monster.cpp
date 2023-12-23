@@ -4111,17 +4111,17 @@ void MAI_Counselor(int mnum)
 			MonStartDelay(mnum, v);
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
-		if (--mon->_mgoalvar1 != 0) // RETREAT_DISTANCE
-			MonCallWalk(mnum, OPPOSITE(md));
-		else {
+		if (--mon->_mgoalvar1 == 0 // RETREAT_DISTANCE
+		 || !MonCallWalk(mnum, OPPOSITE(md))) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, md, true);
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_MOVE);
 		if (dist >= 2 /*&& mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/
-		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !MonDirOK(mnum, md)))) { // MOVE_DISTANCE
-			MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
+		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !MonDirOK(mnum, md))) // MOVE_DISTANCE
+		 && MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+			;
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, md, true);
