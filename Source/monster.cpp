@@ -2871,7 +2871,7 @@ static bool MonDirOK(int mnum, int mdir)
 	return mcount == 0;
 }
 
-static bool MonCallWalk(int mnum, int md)
+static int MonFindDir(int mnum, int md)
 {
 	int mdtemp;
 	bool ok;
@@ -2897,11 +2897,17 @@ static bool MonCallWalk(int mnum, int md)
 				  || (md = (mdtemp + 2) & 7, MonDirOK(mnum, md));
 		}
 	}
-	if (ok)
+	return ok ? md : -1;
+}
+
+static bool MonCallWalk(int mnum, int md)
+{
+	md = MonFindDir(mnum, md);
+	if (md >= 0)
 		MonWalkDir(mnum, md);
 	else
 		MonFindEnemy(mnum); // prevent from stucking with an inaccessible enemy
-	return ok;
+	return md >= 0;
 }
 
 static bool MonDestWalk(int mnum)
@@ -4093,7 +4099,7 @@ void MAI_Counselor(int mnum)
 			mon->_mdir = md;
 			if (mon->_mVar1 == MM_FADEIN) // STAND_PREV_MODE
 				v >>= 1;
-			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1)) {
+			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1) && MonFindDir(mnum, OPPOSITE(md)) >= 0) {
 #if DEBUG
 				assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 + 
 					mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 5 < SQUELCH_MAX - SQUELCH_LOW);
