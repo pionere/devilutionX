@@ -702,7 +702,7 @@ static bool MonstPlace(int xp, int yp)
 {
 	static_assert(DBORDERX >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border I.");
 	static_assert(DBORDERY >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border II.");
-	return (dMonster[xp][yp]/* | /*dPlayer[xp][yp] | dObject[xp][yp]*/
+	return (dMonster[xp][yp]/* | dPlayer[xp][yp] | dObject[xp][yp]*/
 		 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & (BFLAG_ALERT | BFLAG_MON_PROTECT))) == 0;
 }
 

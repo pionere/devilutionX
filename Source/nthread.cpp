@@ -200,7 +200,7 @@ static int SDLCALL nthread_handler(void* data)
 #endif
 void nthread_start()
 {
-	gbLvlLoad = 10; // TODO: duplicate logic in nthread_run...
+	gbLvlLoad = 10; // TODO: set this when _pLvlChanging of the local player is set to TRUE?
 	assert(geBufferMsgs == MSG_NORMAL);
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	if (gbJoinGame) {
