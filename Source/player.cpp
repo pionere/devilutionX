@@ -3278,10 +3278,8 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 
 void PlrDecMana(int pnum, int mana)
 {
-	assert(mana >= 0);
-	if (plr._pIFlags & ISPL_NOMANA)
-		return;
-
+	// assert(mana >= 0);
+	// assert(mana == 0 || !(plr._pIFlags & ISPL_NOMANA));
 	plr._pMana -= mana;
 	plr._pManaBase -= mana;
 	if (pnum == mypnum) {
