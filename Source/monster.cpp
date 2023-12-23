@@ -5048,7 +5048,7 @@ bool CheckMonsterHit(int mnum, bool* ret)
 	mon = &monsters[mnum];
 
 	if (mon->_mgoal == MGOAL_TALKING || mon->_mmode == MM_CHARGE || mon->_mmode == MM_DEATH
-	 || (mon->_mAI.aiType == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT)
+	 || (mon->_mAI.aiType == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT && mon->_mmode != MM_STONE)
 	 || (mon->_mAI.aiType == AI_COUNSLR && mon->_mgoal != MGOAL_NORMAL)) {
 		*ret = false;
 		return false;
