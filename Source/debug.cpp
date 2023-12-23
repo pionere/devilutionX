@@ -264,6 +264,8 @@ void ValidateData()
 #endif
 		if ((md.mAI.aiType == AI_CLEAVER || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
+		if (md.mAI.aiType == AI_GARG && !(md.mFlags & MFLAG_NOSTONE))
+			app_fatal("AI_GARG might override stoned state (%s, %d)", md.mName, i); // required by MAI_Garg
 		if (md.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitMonsterStats
 			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel == 0) // required by InitMonsterStats
@@ -392,6 +394,8 @@ void ValidateData()
 #endif
 		if ((um.mAI.aiType == AI_CLEAVER || um.mAI.aiType == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
 			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
+		if (um.mAI.aiType == AI_GARG && !(monsterdata[um.mtype].mFlags & MFLAG_NOSTONE))
+			app_fatal("Unique AI_GARG might override stoned state (%s, %d)", um.mName, i); // required by MAI_Garg
 		if (um.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitUniqueMonster
 			app_fatal("Too high aiInt %d for %s (%d).", um.muLevel, um.mName, i);
 		if (um.muLevel == 0) // required by InitUniqueMonster

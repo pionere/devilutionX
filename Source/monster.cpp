@@ -3670,7 +3670,8 @@ void MAI_Garg(int mnum)
 				return;
 			}
 		}
-		if (mon->_mmode != MM_SPATTACK && mon->_mmode != MM_STONE) {
+		if (mon->_mmode != MM_SPATTACK) {
+			// assert(mon->_mmode != MM_STONE);
 			if (mon->_mleaderflag == MLEADER_NONE) {
 				MonStartSpAttack(mnum);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
