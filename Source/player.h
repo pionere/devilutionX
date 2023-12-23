@@ -44,7 +44,7 @@ void SyncPlrKill(int pnum, int dmgtype);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
-void StartTWarp(int pnum, int pidx);
+void UseTownPortal(int pnum, int pidx);
 void PlrFillHp(int pnum);
 void PlrFillMana(int pnum);
 void PlrSetHp(int pnum, int hp);

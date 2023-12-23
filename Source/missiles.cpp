@@ -4096,7 +4096,7 @@ void MI_Portal(int mi)
 		p = &myplr;
 		if (p->_px == mis->_mix && p->_py == mis->_miy && /*!p->_pLvlChanging &&*/ p->_pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
-			NetSendCmdBParam1(CMD_TWARP, mis->_miSource);
+			NetSendCmdBParam1(CMD_USEPORTAL, mis->_miSource);
 		}
 	}
 

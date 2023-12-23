@@ -146,7 +146,7 @@ void InitView(int entry)
 {
 	int type;
 
-	if (entry == ENTRY_WARPLVL) {
+	if (entry == ENTRY_PORTLVL) {
 		GetPortalLvlPos();
 		return;
 	}
@@ -224,7 +224,7 @@ void InitView(int entry)
 		}
 		break;
 	case ENTRY_LOAD:    // set from the save file
-	case ENTRY_WARPLVL: // should not happen
+	case ENTRY_PORTLVL: // should not happen
 		return;
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;

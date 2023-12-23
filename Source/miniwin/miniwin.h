@@ -41,7 +41,7 @@ typedef enum window_messages {
 	DVL_DWM_PREVLVL,  // dungeon -> previous level
 	DVL_DWM_SETLVL,   // dungeon -> setlevel
 	DVL_DWM_RTNLVL,   // setlevel -> dungeon
-	DVL_DWM_WARPLVL,  // portal (town <-> dungeon)
+	DVL_DWM_PORTLVL,  // portal (town <-> dungeon)
 	DVL_DWM_TWARPDN,  // town -> dungeon
 	DVL_DWM_TWARPUP,  // dungeon -> town
 	DVL_DWM_RETOWN,   // restart in town

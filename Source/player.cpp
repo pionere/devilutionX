@@ -1803,10 +1803,10 @@ void RestartTownLvl(int pnum)
 	}
 }
 
-void StartTWarp(int pnum, int pidx)
+void UseTownPortal(int pnum, int pidx)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartWarpLvl: illegal player %d", pnum);
+		dev_fatal("UseTownPortal: illegal player %d", pnum);
 	}
 	InitLevelChange(pnum);
 
@@ -1814,7 +1814,7 @@ void StartTWarp(int pnum, int pidx)
 		plr._pDunLevel = DLV_TOWN;
 	} else {
 		plr._pDunLevel = portals[pidx]._rlevel;
-		static_assert(MAXPORTAL == MAX_PLRS, "StartTWarp uses pnum as portal-id.");
+		static_assert(MAXPORTAL == MAX_PLRS, "UseTownPortal uses pnum as portal-id.");
 		if (pidx == pnum) {
 			DeactivatePortal(pidx);
 		}
@@ -1822,7 +1822,7 @@ void StartTWarp(int pnum, int pidx)
 
 	if (pnum == mypnum) {
 		UseCurrentPortal(pidx);
-		PostMessage(DVL_DWM_WARPLVL);
+		PostMessage(DVL_DWM_PORTLVL);
 	}
 }
 

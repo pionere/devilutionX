@@ -2696,7 +2696,7 @@ static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TWARP(TCmd* pCmd, int pnum)
+static unsigned On_USEPORTAL(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 	BYTE idx = cmd->bParam1;
@@ -2704,7 +2704,7 @@ static unsigned On_TWARP(TCmd* pCmd, int pnum)
 	net_assert(idx < MAX_PLRS);
 
 	if (plr._pmode != PM_DEATH)
-		StartTWarp(pnum, idx);
+		UseTownPortal(pnum, idx);
 
 	return sizeof(*cmd);
 }
@@ -4455,8 +4455,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_NEWLVL:
 		return On_NEWLVL(pCmd, pnum);
-	case CMD_TWARP:
-		return On_TWARP(pCmd, pnum);
+	case CMD_USEPORTAL:
+		return On_USEPORTAL(pCmd, pnum);
 	case CMD_RETOWN:
 		return On_RETOWN(pCmd, pnum);
 	case CMD_JOINLEVEL:

@@ -58,7 +58,7 @@ static void InitCutscene(unsigned int uMsg)
 		lvl = currLvl._dLevelIdx;
 		InitLvlCutscene(lvl);
 		break;
-	case DVL_DWM_WARPLVL:
+	case DVL_DWM_PORTLVL:
 		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
@@ -324,7 +324,7 @@ void ShowCutscene(unsigned uMsg)
 			static_assert((int)DVL_DWM_PREVLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PREV    - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted II.");
 			static_assert((int)DVL_DWM_SETLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_SETLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted III.");
 			static_assert((int)DVL_DWM_RTNLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RTNLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted IV.");
-			static_assert((int)DVL_DWM_WARPLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_WARPLVL - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted V.");
+			static_assert((int)DVL_DWM_PORTLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PORTLVL - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted V.");
 			static_assert((int)DVL_DWM_TWARPDN - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPDN - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VI.");
 			static_assert((int)DVL_DWM_TWARPUP - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPUP - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VII.");
 			static_assert((int)DVL_DWM_RETOWN  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RETOWN  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VIII.");
