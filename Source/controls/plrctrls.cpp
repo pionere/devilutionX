@@ -1005,7 +1005,7 @@ void plrctrls_after_check_curs_move()
 					FindMonster(ranged);
 				else
 					FindTowner();
-				if (!IsLocalGame && pcursmonst == MON_NONE)
+				if (pcursmonst == MON_NONE)
 					FindPlayer(0, ranged);
 				FindItem();
 				if (pcursitem == ITEM_NONE)
