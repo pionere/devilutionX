@@ -3499,14 +3499,13 @@ void MAI_Ranged(int mnum)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 					else
 						MonStartRAttack(mnum, mon->_mAI.aiParam1);
-					return;
 				} else if (currEnemyInfo._meRealDist >= 4
-				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))
-				 && MonDestWalk(mnum)) {
-					return;
+				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
+					MonDestWalk(mnum);
 				}
-			} else
+			} else {
 				MonStartDelay(mnum, md + 1);
+			}
 		}
 	} else {
 		MonDestWalk(mnum);
