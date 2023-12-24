@@ -3224,7 +3224,7 @@ void MAI_Sneak(int mnum)
 	range = 7 - mon->_mAI.aiInt;
 	if (range < 4)
 		range = 4;
-	if (mon->_mgoal != MGOAL_RETREAT) {
+	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (mon->_mVar1 == MM_GOTHIT) { // STAND_PREV_MODE
 			mon->_mgoal = MGOAL_RETREAT;
 #if DEBUG
@@ -3238,7 +3238,8 @@ void MAI_Sneak(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
-	if (mon->_mgoal == MGOAL_RETREAT) {
+	if (mon->_mgoal != MGOAL_NORMAL) {
+		// assert(mon->_mgoal == MGOAL_RETREAT);
 		md = OPPOSITE(currEnemyInfo._meLastDir);
 		if (mon->_mType == MT_BSNEAK) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
@@ -3254,7 +3255,8 @@ void MAI_Sneak(int mnum)
 	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadeout(mnum, mon->_mdir, true);
 	} else {
-		if (mon->_mgoal == MGOAL_RETREAT) {
+		if (mon->_mgoal != MGOAL_NORMAL) {
+			// assert(mon->_mgoal == MGOAL_RETREAT);
 			if (MonCallWalk(mnum, mon->_mdir))
 				return;
 		} else if (dist >= 2) {
