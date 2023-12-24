@@ -283,6 +283,12 @@ void ValidateData()
 			app_fatal("Too high mHit2 %d for %s (%d).", md.mHit2, md.mName, i);
 		if (md.mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mMagic %d for %s (%d).", md.mMagic, md.mName, i);
+		if (md.mMaxDamage == 0)
+			app_fatal("mMaxDamage is not set for %s (%d).", md.mName, i);
+		if (md.mMaxDamage2 == 0 && (md.mAI.aiType == AI_ROUND || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_RHINO || md.mAI.aiType == AI_SNAKE))
+			app_fatal("mMaxDamage2 is not set for %s (%d).", md.mName, i);
+		if (md.mMaxDamage2 != 0 && (md.mAI.aiType == AI_SCAV || md.mAI.aiType == AI_GARG))
+			app_fatal("Fake special attack of %s (%d) might hurt someone because mMaxDamage2 is set.", md.mName, i);
 		if (md.mMinDamage > md.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for %s (%d).", md.mMinDamage, md.mName, i);
 		if (md.mMinDamage2 > md.mMaxDamage2)
@@ -413,6 +419,15 @@ void ValidateData()
 			app_fatal("Too high mUnqHit2 %d for %s (%d).", um.mUnqHit2, um.mName, i);
 		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
+		if (um.mMaxDamage == 0 && monsterdata[um.mtype].mMaxDamage != 0)
+			if (um.mQuestId != Q_INVALID)
+				app_fatal("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
+			else
+				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
+		if (um.mMaxDamage2 == 0 && (um.mAI.aiType == AI_ROUND || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
+			app_fatal("mMaxDamage2 is not set for unique monster %s (%d).", um.mName, i);
+		if (um.mMaxDamage2 != 0 && (um.mAI.aiType == AI_SCAV || um.mAI.aiType == AI_GARG))
+			app_fatal("Fake special attack of the unique monster %s (%d) might hurt someone because mMaxDamage2 is set.", um.mName, i);
 		if (um.mMinDamage > um.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for unique monster %s (%d).", um.mMinDamage, um.mName, i);
 		if (um.mMinDamage2 > um.mMaxDamage2)
@@ -436,6 +451,8 @@ void ValidateData()
 				DoLog("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
 			}
 		}
+		if (um.mmaxhp < monsterdata[um.mtype].mMaxHP)
+			DoLog("Warn: Low mmaxhp %d for %s (%d): lower than mMaxHP %d.", um.mmaxhp, um.mName, i, monsterdata[um.mtype].mMaxHP);
 #endif
 	}
 
