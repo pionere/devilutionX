@@ -3252,7 +3252,7 @@ void MAI_Sneak(int mnum)
 	// assert(range >= 2);
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadein(mnum, mon->_mdir, false);
-	} else if ((dist > range) && !(mon->_mFlags & MFLAG_HIDDEN)) {
+	} else if (dist > range && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadeout(mnum, mon->_mdir, true);
 	} else {
 		if (mon->_mgoal != MGOAL_NORMAL) {
@@ -3262,8 +3262,8 @@ void MAI_Sneak(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 		if (dist >= 2) {
-			if ((((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
-			 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 64)))
+			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
+			 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 64))
 				MonDestWalk(mnum);
 		} else {
 			if (v < 4 * mon->_mAI.aiInt + 10)
