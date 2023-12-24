@@ -3254,13 +3254,9 @@ void MAI_Sneak(int mnum)
 		MonStartFadein(mnum, mon->_mdir, false);
 	} else if (dist > range && !(mon->_mFlags & MFLAG_HIDDEN)) {
 		MonStartFadeout(mnum, mon->_mdir, true);
-	} else {
-		if (mon->_mgoal != MGOAL_NORMAL) {
-			// assert(mon->_mgoal == MGOAL_RETREAT);
-			if (MonCallWalk(mnum, mon->_mdir))
-				return;
-			mon->_mgoal = MGOAL_NORMAL;
-		}
+	} else if (mon->_mgoal == MGOAL_NORMAL || !MonCallWalk(mnum, mon->_mdir)) {
+		// assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT);
+		mon->_mgoal = MGOAL_NORMAL;
 		if (dist >= 2) {
 			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 64))
