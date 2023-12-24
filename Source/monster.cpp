@@ -5046,26 +5046,23 @@ bool CanTalkToMonst(int mnum)
 bool CheckMonsterHit(int mnum, bool* ret)
 {
 	MonsterStruct* mon;
+	bool result = true;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("CheckMonsterHit: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-
 	if (mon->_mgoal == MGOAL_TALKING || mon->_mmode == MM_CHARGE || mon->_mmode == MM_DEATH || mon->_mmode == MM_FADEIN || mon->_mmode == MM_FADEOUT
 	 || (mon->_mAI.aiType == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT && mon->_mmode != MM_STONE)) {
 		*ret = false;
-		return false;
-	}
-
-	if (mon->_mAI.aiType == AI_GARG && mon->_mFlags & MFLAG_GARG_STONE) {
+		result = false;
+	} else if (mon->_mAI.aiType == AI_GARG && mon->_mFlags & MFLAG_GARG_STONE) {
 		mon->_mFlags &= ~(MFLAG_GARG_STONE | MFLAG_LOCK_ANIMATION);
-		// mon->_mmode = MM_SPATTACK;
 		*ret = true;
-		return false;
+		result = false;
 	}
 
-	return true;
+	return result;
 }
 
 DEVILUTION_END_NAMESPACE
