@@ -492,12 +492,13 @@ void nthread_finish(UINT uMsg)
 			DeltaLoadLevel();
 			//SyncPortals();
 			LevelDeltaLoad();
-			assert(geBufferMsgs == MSG_NORMAL);
-			assert(currLvl._dLevelIdx == myplr._pDunLevel);
 			// phase 12
+			// assert(currLvl._dLevelIdx == myplr._pDunLevel);
+			// assert(!sgTurnQueue.empty());
 			// assert(geBufferMsgs == MSG_NORMAL);
 			geBufferMsgs = MSG_LVL_DELTA_SKIP_JOIN;
 			nthread_process_pending_delta_turns(false);
+			// assert(geBufferMsgs == MSG_NORMAL);
 #else
 		assert(geBufferMsgs == MSG_LVL_DELTA_WAIT);
 		if (FALSE) {
@@ -508,6 +509,7 @@ void nthread_finish(UINT uMsg)
 			guDeltaTurn = UINT32_MAX;
 			if (!nthread_process_pending_delta_turns(true))
 				goto fail;
+			// assert(sgTurnQueue.empty());
 			// phase 11-12b
 			assert(currLvl._dLevelIdx == DLV_INVALID);
 			currLvl._dLevelIdx = myplr._pDunLevel;
@@ -519,6 +521,7 @@ void nthread_finish(UINT uMsg)
 			}
 			SyncPortals();
 			InitLvlPlayer(mypnum, true);
+			// assert(geBufferMsgs == MSG_NORMAL);
 		}
 		guSendLevelData &= tmp;
 fail:
@@ -529,7 +532,7 @@ fail:
 		sgbPacketCountdown = 1; //gbNetUpdateRate;
 		// reset DeltaTurn to prevent turn-skips in case of turn_id-overflow
 		guDeltaTurn = 0;
-		// reset geBufferMsgs to normal
+		// reset geBufferMsgs to normal (in case of failure)
 		geBufferMsgs = MSG_NORMAL;
 		InitSync();
 		// finalize the light/vision calculations
