@@ -467,6 +467,7 @@ void CheckCursMove()
 					if (mi != pcursmonst) {
 						continue;
 					}
+					// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
 					if (!(monsters[mi]._mSelFlag & selFlag[i])) {
 						continue;
 					}
@@ -485,11 +486,9 @@ void CheckCursMove()
 				if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
 					continue;
 				}
+				// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
 				if (!(monsters[mi]._mSelFlag & selFlag[i])) {
 					continue;
-				}
-				if (mi < MAX_MINIONS) {
-					break;
 				}
 				pcursmonst = mi;
 				pcurspos.x = mx + offx[i];
