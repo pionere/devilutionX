@@ -3696,7 +3696,7 @@ typedef enum _target_mode {
 	TGT_NORMAL,
 	TGT_ITEM,
 	TGT_OBJECT,
-	TGT_PLAYER,
+	TGT_OTHER,
 	TGT_DEAD,
 	TGT_NONE
 } _target_mode;

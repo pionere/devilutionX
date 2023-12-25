@@ -2914,6 +2914,7 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int tnum, i, hp;
+	MonsterStruct* mon;
 
 	assert((unsigned)misource < MAX_PLRS);
 	// calculate hp
@@ -2941,9 +2942,25 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	// select target
 	tnum = dPlayer[dx][dy];
 	if (tnum != 0) {
+		// - player
 		tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
 		if (tnum != misource && plx(tnum)._pHitPoints >= (1 << 6))
 			PlrIncHp(tnum, hp);
+	} else {
+		// - minion
+		tnum = dMonster[dx][dy];
+		if (tnum != 0) {
+			tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
+			if (tnum < MAX_MINIONS) {
+				mon = &monsters[tnum];
+				if (mon->_mhitpoints >= (1 << 6)) {
+					// MonIncHp(tnum, hp);
+					mon->_mhitpoints += hp;
+					if (mon->_mhitpoints > mon->_mmaxhp)
+						mon->_mhitpoints = mon->_mmaxhp;
+				}
+			}
+		}
 	}
 	return MIRES_DELETE;
 }

@@ -378,9 +378,9 @@ void DrawSkillIcons()
 		str = "Object";
 		numchar = lengthof("Object") - 1;
 		break;
-	case TGT_PLAYER:
-		str = "Player";
-		numchar = lengthof("Player") - 1;
+	case TGT_OTHER:
+		str = "Other";
+		numchar = lengthof("Other") - 1;
 		break;
 	case TGT_DEAD:
 		str = "Dead";

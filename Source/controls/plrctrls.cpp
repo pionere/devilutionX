@@ -179,14 +179,22 @@ static bool HasRangedSkill()
 
 /**
  * @brief Find a monster to target
+ * @param mode: 0 - offensive, 1 - heal
  * @param ranged: whether the current player is melee or ranged
  */
-static void FindMonster(bool ranged)
+static void FindMonster(int mode, bool ranged)
 {
-	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum;
+	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum, lastMon;
 	bool canTalk = true;
 
-	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+	if (mode == 0) {
+		mnum = MAX_MINIONS;
+		lastMon = MAXMONSTERS;
+	} else {
+		mnum = 0;
+		lastMon = MAX_MINIONS;
+	}
+	for ( ; mnum < lastMon; mnum++) {
 		const MonsterStruct& mon = monsters[mnum];
 		if (mon._mmode > MM_INGAME_LAST || mon._mmode == MM_DEATH)
 			continue;
@@ -1002,7 +1010,7 @@ void plrctrls_after_check_curs_move()
 			switch (pcurstgt) {
 			case TGT_NORMAL:
 				if (currLvl._dType != DTYPE_TOWN)
-					FindMonster(ranged);
+					FindMonster(0, ranged);
 				else
 					FindTowner();
 				if (pcursmonst == MON_NONE)
@@ -1018,9 +1026,11 @@ void plrctrls_after_check_curs_move()
 			case TGT_OBJECT:
 				FindObject();
 				break;
-			case TGT_PLAYER:
+			case TGT_OTHER:
 				assert(ranged);
 				FindPlayer(1, true);
+				if (pcursplr == PLR_NONE)
+					FindMonster(1, true);
 				break;
 			case TGT_DEAD:
 				assert(ranged);

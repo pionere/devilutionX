@@ -1174,8 +1174,7 @@ static void GetBookSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1228,8 +1227,7 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = 0; bs < lengthof(ss); bs++) {
 		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1262,8 +1260,7 @@ static void GetRuneSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = SPL_RUNE_FIRST; bs <= SPL_RUNE_LAST; bs++) {
 		if (/*spelldata[bs].sScrollLvl != SPELL_NA &&*/ lvl >= spelldata[bs].sScrollLvl
-		 /*&& (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))*/) {
+		 /*&& (IsMultiGame || bs != SPL_RESURRECT)*/) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1312,8 +1309,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sStaffLvl != SPELL_NA && lvl >= spelldata[bs].sStaffLvl
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1345,8 +1341,7 @@ static int GetItemSpell()
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sManaCost != 0 // TODO: use sSkillFlags ?
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -3699,8 +3694,7 @@ void SpawnHealer(unsigned lvl)
 			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndHealerItem(lvl), lvl);
-		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL
-			 && (items[0]._iSpell != SPL_HEALOTHER || !IsMultiGame));
+		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL && items[0]._iSpell != SPL_HEALOTHER);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_HEALER;
 		copy_pod(healitem[i], items[0]);

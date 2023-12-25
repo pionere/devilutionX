@@ -200,7 +200,7 @@ void NewCursor(int i)
 	case CURSOR_TELEPORT:
 		break;
 	case CURSOR_HEALOTHER:
-		pcurstgt = TGT_PLAYER;
+		pcurstgt = TGT_OTHER;
 		break;
 	case CURSOR_HOURGLASS:
 		break;
@@ -585,7 +585,7 @@ done:
 			}
 		}
 		break;
-	case TGT_PLAYER:
+	case TGT_OTHER:
 		// select a live player
 		for (i = 2; i >= 0; i--) {
 			mi = curplr[i];
@@ -598,6 +598,22 @@ done:
 				pcurspos.x = mx + offx[i + 2];
 				pcurspos.y = my + offy[i + 2];
 				break;
+			}
+		}
+		if (i < 0) {
+			// select a live minion
+			for (i = 4; i >= 0; i--) {
+				mi = curmon[i];
+				if (mi != 0) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints < (1 << 6)) {
+						continue;
+					}
+					pcursmonst = mi;
+					pcurspos.x = mx + offx[i];
+					pcurspos.y = my + offy[i];
+					break;
+				}
 			}
 		}
 		break;
