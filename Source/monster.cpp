@@ -1392,7 +1392,7 @@ static void MonFindEnemy(int mnum)
 			tmon = &monsters[i];
 			if (tmon->_mmode > MM_INGAME_LAST)
 				continue;
-			if (tmon->_mhitpoints < (1 << 6))
+			if (tmon->_mmode == MM_DEATH)
 				continue;
 			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
 				x = tmon->_mx;
@@ -1425,7 +1425,7 @@ static void MonFindEnemy(int mnum)
 			tmon = &monsters[tnum];
 			if (tmon->_mmode > MM_INGAME_LAST)
 				continue;
-			if (tmon->_mhitpoints < (1 << 6))
+			if (tmon->_mmode == MM_DEATH)
 				continue;
 			if (CanTalkToMonst(tnum))
 				continue;
