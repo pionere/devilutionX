@@ -1431,7 +1431,7 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mFlags & MFLAG_HIDDEN)
 				continue;
-			if (CanTalkToMonst(tnum))
+			if (tmon->_mgoal == MGOAL_TALKING) // CanTalkToMonst(tnum)
 				continue;
 			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
 				x = tmon->_mx;
@@ -5055,7 +5055,8 @@ bool CheckMonsterHit(int mnum, bool* ret)
 		dev_fatal("CheckMonsterHit: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if (mon->_mgoal == MGOAL_TALKING || mon->_mmode == MM_CHARGE || mon->_mmode == MM_DEATH || mon->_mmode == MM_FADEIN || mon->_mmode == MM_FADEOUT
+	if (mon->_mgoal == MGOAL_TALKING // CanTalkToMonst(mnum)
+	 || mon->_mmode == MM_CHARGE || mon->_mmode == MM_DEATH || mon->_mmode == MM_FADEIN || mon->_mmode == MM_FADEOUT
 	 || (mon->_mAI.aiType == AI_SNEAK && mon->_mgoal == MGOAL_RETREAT && mon->_mmode != MM_STONE)) {
 		*ret = false;
 		result = false;
