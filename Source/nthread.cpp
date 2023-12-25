@@ -440,11 +440,13 @@ void nthread_finish(UINT uMsg)
 		// phase 9 begin - wait for join level replies
 		//   process only joinlevel commands and deltalevel/leave messages
 		geBufferMsgs = MSG_LVL_DELTA_WAIT;
-		guOweLevelDelta = 1 << mypnum;
+		tmp = 0;
 		for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 			if (plr._pActive)
-				guOweLevelDelta |= 1 << pnum;
+				tmp |= 1 << pnum;
 		}
+		assert(tmp & (1 << mypnum));
+		guOweLevelDelta = tmp;
 		// TODO: delta_init_level_data ?
 		//memset(gsDeltaData.ddRecvLastCmd, NMSG_LVL_DELTA_END, sizeof(gsDeltaData.ddRecvLastCmd));
 		gsDeltaData.ddRecvLastCmd = NMSG_LVL_DELTA_END;
