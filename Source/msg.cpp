@@ -1190,8 +1190,7 @@ void LevelDeltaExport()
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!(guSendLevelData & (1 << pnum)) || // pnum did not request a level-delta
 //		  (guOweLevelDelta & (1 << pnum) == 0) || // got an (empty) level delta from pnum
-		  (!validDelta && !myplr._pLvlChanging   // both players are 'actively' loading
-		   && plr._pDunLevel == myplr._pDunLevel // the same level ->
+		  (!validDelta && plr._pDunLevel == myplr._pDunLevel // both players are loading the same level ->
 		   && (guRequestLevelData[pnum] > guRequestLevelData[mypnum] || (guRequestLevelData[pnum] == guRequestLevelData[mypnum] && pnum > mypnum)))) { // ignore lower priority requests 	TODO: overflow hickup
 			; // skip
 		} else {
