@@ -200,7 +200,7 @@ static int SDLCALL nthread_handler(void* data)
 #endif
 void nthread_start()
 {
-	gbLvlLoad = 10; // TODO: set this when _pLvlChanging of the local player is set to TRUE?
+	gbLvlLoad = true; // TODO: set this when _pLvlChanging of the local player is set to TRUE?
 	assert(geBufferMsgs == MSG_NORMAL);
 	guNextTick = SDL_GetTicks() /*+ gnTickDelay*/;
 	if (gbJoinGame) {
@@ -251,7 +251,7 @@ void nthread_cleanup()
 
 void nthread_run()
 {
-	gbLvlLoad = 10;
+	gbLvlLoad = true;
 #ifndef NONET
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
@@ -353,7 +353,6 @@ static bool nthread_process_pending_delta_turns(bool pre)
 		multi_process_msgs();
 		if (!pre) {
 			for (i = gbNetUpdateRate; i > 0; i--) {
-				++gbLvlLoad;
 				game_logic();
 			}
 		} else {
@@ -403,8 +402,7 @@ void nthread_finish(UINT uMsg)
 		// IncProgress();
 		// IncProgress();
 		// IncProgress();
-		return;
-	}
+	} else {
 	// phase 5 done
 	// phase 6 begin
 	// set current level to an invalid level
@@ -555,6 +553,8 @@ done:
 		NetSendCmd(CMD_REQUEST_PLRCHECK);
 	}
 #endif
+	}
+	gbLvlLoad = false;
 }
 
 bool nthread_has_50ms_passed()

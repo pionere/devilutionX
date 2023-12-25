@@ -142,7 +142,7 @@ static void PlaceInitItems()
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
-		// assert(gbLvlLoad != 0);
+		// assert(gbLvlLoad);
 		RespawnItem(ii, false);
 
 		GetRandomItemSpace(ii);
@@ -2304,7 +2304,7 @@ void PlaceQuestItemInArea(int idx, int areasize)
 		assert(i == numitems);
 		CreateQuestItemAt(IDI_ROCK, objects[oi]._ox, objects[oi]._oy, ICM_DELTA);
 //		SetItemData(i, IDI_ROCK);
-		// assert(gbLvlLoad != 0);
+		// assert(gbLvlLoad);
 //		RespawnItem(i, false);
 		// draw it above the stand
 		items[i]._iSelFlag = 2;

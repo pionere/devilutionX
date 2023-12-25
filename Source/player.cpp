@@ -10,8 +10,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int mypnum;
 PlayerStruct players[MAX_PLRS];
-/* Counter to suppress animations in case the current player is changing the level. */
-BYTE gbLvlLoad;
+/* Whether the current player is changing the level. */
+bool gbLvlLoad;
 /** The current player while processing the players. */
 BYTE gbGameLogicPnum;
 /** Cache the maximum sizes of the player gfx files. */
@@ -2776,9 +2776,6 @@ void ProcessPlayers()
 		dev_fatal("ProcessPlayers: illegal player %d", mypnum);
 	}
 
-	if (gbLvlLoad > 0) {
-		gbLvlLoad--;
-	}
 #ifndef NOSOUND
 	if (gnSfxDelay > 0) {
 		gnSfxDelay--;
