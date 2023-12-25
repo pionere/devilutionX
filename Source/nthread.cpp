@@ -361,6 +361,15 @@ static bool nthread_process_pending_delta_turns(bool pre)
 	return gbRunGame;
 }
 
+static void nthread_finish_dungeon()
+{
+	InitSync();
+	// finalize the light/vision calculations
+	DRLG_RedoTrans();
+	ProcessLightList();
+	ProcessVisionList();
+}
+
 /*
                          lvl    out  reply  proc. proc. proc.  proc.  valid       turns  
  phase		       idx dun  cmd   reqs  dlvl  join  other  msgs/d delta  inc. timed queued  mode
@@ -492,11 +501,13 @@ void nthread_finish(UINT uMsg)
 			DeltaLoadLevel();
 			//SyncPortals();
 			LevelDeltaLoad();
+			nthread_finish_dungeon();
 			// phase 12
 			// assert(currLvl._dLevelIdx == myplr._pDunLevel);
 			// assert(!sgTurnQueue.empty());
 			// assert(geBufferMsgs == MSG_NORMAL);
 			geBufferMsgs = MSG_LVL_DELTA_SKIP_JOIN;
+			gbLvlLoad = false;
 			nthread_process_pending_delta_turns(false);
 			// assert(geBufferMsgs == MSG_NORMAL);
 #else
@@ -521,6 +532,7 @@ void nthread_finish(UINT uMsg)
 			}
 			SyncPortals();
 			InitLvlPlayer(mypnum, true);
+			nthread_finish_dungeon();
 			// assert(geBufferMsgs == MSG_NORMAL);
 		}
 		guSendLevelData &= tmp;
@@ -534,11 +546,6 @@ fail:
 		guDeltaTurn = 0;
 		// reset geBufferMsgs to normal (in case of failure)
 		geBufferMsgs = MSG_NORMAL;
-		InitSync();
-		// finalize the light/vision calculations
-		DRLG_RedoTrans();
-		ProcessLightList();
-		ProcessVisionList();
 		// enter the dungeon level
 		PlayDungMsgs();
 		guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
