@@ -430,7 +430,7 @@ void nthread_finish(UINT uMsg)
 				// IncProgress();
 				// IncProgress();
 				// assert(!gbRunGame);
-				goto done;
+				goto fail;
 			}
 		}
 		IncProgress(); // "Network - Join Level" (15)
@@ -457,7 +457,7 @@ void nthread_finish(UINT uMsg)
 			if (!nthread_level_turn()) {
 				// IncProgress();
 				// assert(!gbRunGame);
-				goto done;
+				goto fail;
 			}
 			if (guOweLevelDelta == 0) {
 				break;
@@ -466,7 +466,7 @@ void nthread_finish(UINT uMsg)
 				app_warn("Unable to join level.");
 				gbRunGame = false;
 				// IncProgress();
-				goto done;
+				goto fail;
 			}
 		}
 		IncProgress(); // "Network - Sync delta" (16)
@@ -481,7 +481,7 @@ void nthread_finish(UINT uMsg)
 			// phase 10a - level-delta received
 			assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
 			if (!nthread_process_pending_delta_turns(true))
-				goto done;
+				goto fail;
 			// phase 11 - load received level-delta
 			assert(geBufferMsgs == MSG_LVL_DELTA_PROC);
 			geBufferMsgs = MSG_NORMAL;
@@ -507,7 +507,7 @@ void nthread_finish(UINT uMsg)
 			geBufferMsgs = MSG_NORMAL;
 			guDeltaTurn = UINT32_MAX;
 			if (!nthread_process_pending_delta_turns(true))
-				goto done;
+				goto fail;
 			// phase 11-12b
 			assert(currLvl._dLevelIdx == DLV_INVALID);
 			currLvl._dLevelIdx = myplr._pDunLevel;
@@ -521,7 +521,7 @@ void nthread_finish(UINT uMsg)
 			InitLvlPlayer(mypnum, true);
 		}
 		guSendLevelData &= tmp;
-	done:
+fail:
 		// skip till next turn
 		if (_gbTickInSync) {
 			guNextTick += (gbNetUpdateRate - sgbPacketCountdown) * gnTickDelay;
