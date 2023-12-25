@@ -1394,6 +1394,8 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mmode == MM_DEATH)
 				continue;
+			//if (tmon->_mFlags & MFLAG_HIDDEN)
+			//	continue;
 			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
 				x = tmon->_mx;
 				y = tmon->_my;
@@ -1426,6 +1428,8 @@ static void MonFindEnemy(int mnum)
 			if (tmon->_mmode > MM_INGAME_LAST)
 				continue;
 			if (tmon->_mmode == MM_DEATH)
+				continue;
+			if (tmon->_mFlags & MFLAG_HIDDEN)
 				continue;
 			if (CanTalkToMonst(tnum))
 				continue;
