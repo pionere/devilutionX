@@ -2913,7 +2913,7 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 
 int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int pnum, i, hp;
+	int tnum, i, hp;
 
 	assert((unsigned)misource < MAX_PLRS);
 	// calculate hp
@@ -2939,14 +2939,11 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		ASSUME_UNREACHABLE
 	}
 	// select target
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (pnum != misource
-		 && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx
-		 && plr._px == dx && plr._py == dy
-		 && plr._pHitPoints >= (1 << 6)) {
-			PlrIncHp(pnum, hp);
-			break;
-		}
+	tnum = dPlayer[dx][dy];
+	if (tnum != 0) {
+		tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
+		if (tnum != misource && plx(tnum)._pHitPoints >= (1 << 6))
+			PlrIncHp(tnum, hp);
 	}
 	return MIRES_DELETE;
 }
