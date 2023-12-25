@@ -14,7 +14,6 @@ extern "C" {
 
 extern bool gbTalkflag;
 
-void plrmsg_delay(bool delay);
 void EventPlrMsg(const char* pszFmt, ...);
 void ReceivePlrMsg(int pnum, const char* pszStr);
 //void ClearPlrMsg(int pnum);

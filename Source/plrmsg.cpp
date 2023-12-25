@@ -40,23 +40,6 @@ static bool sgbSelecting;
 /** The message where the cursor is at the moment. */
 static _plrmsg* sgpCurMsg;
 
-void plrmsg_delay(bool delay)
-{
-	/*int i;
-	_plrmsg* pMsg;
-	Uint32 deltaTc;
-
-	deltaTc = SDL_GetTicks();
-	if (delay) {
-		guDelayStartTc = deltaTc;
-		return;
-	}
-	deltaTc -= guDelayStartTc;
-	pMsg = plr_msgs;
-	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++)
-		pMsg->time += deltaTc;*/
-}
-
 static void plrmsg_WordWrap(_plrmsg* pMsg)
 {
 	char* text = pMsg->str;

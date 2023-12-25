@@ -256,8 +256,6 @@ void nthread_run()
 	if (sghThread != NULL && !_gbRunThread) {
 		_gbRunThread = true;
 		sgThreadMutex.Leave();
-
-		plrmsg_delay(true);
 	}
 #endif
 }
@@ -533,7 +531,6 @@ fail:
 		guDeltaTurn = 0;
 		// reset geBufferMsgs to normal
 		geBufferMsgs = MSG_NORMAL;
-		plrmsg_delay(false);
 		InitSync();
 		// finalize the light/vision calculations
 		DRLG_RedoTrans();
