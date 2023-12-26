@@ -2771,10 +2771,9 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			mid = dMonster[tx][ty];
-			if (mid == 0)
+			mid = dMonster[tx][ty] - 1;
+			if (mid < MAX_MINIONS)
 				continue;
-			mid = mid >= 0 ? mid - 1 : -(mid + 1);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE) && !CanTalkToMonst(mid)) {
 				if (mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints >= (1 << 6*/) {
@@ -3470,7 +3469,7 @@ static bool Sentfire(int mi, int sx, int sy)
 	mnum = dMonster[sx][sy] - 1;
 	if (mnum >= MAX_MINIONS
 	 && monsters[mnum]._mhitpoints >= (1 << 6)
-	 && !CanTalkToMonst(mnum)
+	 //&& !CanTalkToMonst(mnum) -- commented out to make it consistent with MI_Rune, MI_Poison, FindClosestChain, FindClosest
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		// SetRndSeed(mis->_miRndSeed);
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
