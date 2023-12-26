@@ -40,7 +40,7 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 #define MON_NO_LEADER MAXMONSTERS
 
 /** Light radius of unique monsters */
-#define MON_LIGHTRAD 3
+#define MON_LIGHTRAD 7
 
 /** Maximum distance of the pack-monster from its leader. */
 #define MON_PACK_DISTANCE 3
