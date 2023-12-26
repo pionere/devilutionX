@@ -3844,42 +3844,54 @@ void MAI_RoundRanged2(int mnum)
 void MAI_Golem(int mnum)
 {
 	MonsterStruct* mon;
-	int md, i;
+	int md, ld, i;
 
 	mon = &monsters[mnum];
-	assert(mon->_mmode <= MM_INGAME_LAST);
-	if (MON_ACTIVE) {
-		//assert(mon->_mmode == MM_DEATH || mon->_mmode == MM_SPSTAND
-		// || mon->_mmode == MM_ATTACK || mon->_mmode == MM_WALK || mon->_mmode == MM_WALK2);
+	if (MON_ACTIVE)
 		return;
+	assert(mon->_msquelch == SQUELCH_MAX);
+	if (MON_HAS_ENEMY) {
+		MAI_Cleaver(mnum);
+		if (mon->_mmode != MM_STAND)
+			return;
 	}
-	mon->_msquelch = SQUELCH_MAX;
+	if (mon->_mgoal == MGOAL_NORMAL) {
+		// go to the player
+		int8_t path[MAX_PATH_LENGTH];
+		assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
+		if (FindPath(PosOkMonst3, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, path) > 1) {
+			md = path[0];
+			MonCallWalk(mnum, md);
+			return;
+		}
 
-	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER))
-		MonFindEnemy(mnum);
+		mon->_mgoal = MGOAL_MOVE;
+		mon->_mgoalvar1 = 0; // MOVE_DIRECTION
+	}
+	// follow the gaze of the player
 	assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
 	// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
 	MonstCheckDoors(mon->_mx, mon->_my);
-	if (MON_HAS_ENEMY) {
-		MonEnemyInfo(mnum);
-		if (currEnemyInfo._meRealDist >= 2) {
-			if (MonDestWalk(mnum)) {
-				return;
-			}
-		} else {
-			MonStartAttack(mnum);
+	ld = mon->_mdir;
+	md = plx(mnum)._pdir;
+	if (MonCallWalk(mnum, md)) {
+		if (ld != OPPOSITE(mon->_mdir)) {
 			return;
 		}
+		if (++mon->_mgoalvar1 <= 2) {
+			return; // MOVE_DIRECTION
+		}
+		// had to turn twice -> give up following the gaze of the player
+		MonStopWalk(mnum);
 	}
-
-	md = plx(mnum)._pdir;
-	if (!MonCallWalk(mnum, md)) {
-		for (i = 0; i < NUM_DIRS; i++) {
-			md = (md + 1) & 7;
-			if (MonDirOK(mnum, md)) {
-				MonWalkDir(mnum, md);
-				break;
-			}
+	// walk around randomly
+	mon->_mgoal = MGOAL_NORMAL;
+	md = md + 2;
+	for (i = 0; i < NUM_DIRS - 5; i++) {
+		md = (md + 1) & 7;
+		if (MonDirOK(mnum, md)) {
+			MonWalkDir(mnum, md);
+			break;
 		}
 	}
 }
