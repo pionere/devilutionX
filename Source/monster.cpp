@@ -1933,7 +1933,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 		}
 	}
 
-	// assert(mnum >= MAX_MINIONS); // mon->_mType != MT_GOLEM
+	// assert(mon->_mType != MT_GOLEM);
 	MonStartGetHit(mnum);
 }
 
@@ -1954,10 +1954,8 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayMonSFX(mnum, MS_GOTHIT);
-	if (mnum < MAX_MINIONS) // mon->_mType == MT_GOLEM
-		return;
-	if (mon->_mmode == MM_STONE)
-		return;
+	// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
+	if (mon->_mType != MT_GOLEM && mon->_mmode != MM_STONE) {
 	if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
@@ -1969,6 +1967,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 		if (mon->_mType == MT_NBAT)
 			MonTeleport(mnum, plr._pfutx, plr._pfuty);
 		MonStartGetHit(mnum);
+	}
 	}
 }
 
@@ -1989,16 +1988,10 @@ void MonStartMonHit(int defm, int offm, int dam)
 		}
 	}
 	PlayMonSFX(defm, MS_GOTHIT);
-	if (defm < MAX_MINIONS/* mon->_mType == MT_GOLEM */)
-		return;
-	if (dmon->_mmode == MM_STONE)
-		return;
-	// Knockback:
-	//	1. Golems -> other monsters. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK));
-	//	2. other monsters -> golems : golems are immune against knockbacks
-	// Bleed:
-	//	1. Golems -> other monsters. TODO: implement?
-	//	2. other monsters -> golems. assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
+	// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
+	if (dmon->_mType != MT_GOLEM && dmon->_mmode != MM_STONE) {
+	// TODO: implement monster vs. monster knockback & bleed?
+	//       assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK));
 	if ((dam << 2) >= dmon->_mmaxhp) {
 		MonStopWalk(defm);
 		if (offm >= 0) {
@@ -2007,6 +2000,7 @@ void MonStartMonHit(int defm, int offm, int dam)
 				MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
 		}
 		MonStartGetHit(defm);
+	}
 	}
 }
 

@@ -251,7 +251,7 @@ void ValidateData()
 	}
 	// monsters
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonStartMonHit
-	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit and MonStartPlrHit
 	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
