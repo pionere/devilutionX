@@ -413,6 +413,8 @@ void ValidateData()
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqFlags & UMF_LEADER) != 0 && ((um.mUnqFlags & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
+		if ((um.mUnqFlags & UMF_LIGHT) != 0 && i != UMT_LACHDAN)
+			app_fatal("Unique monster %s (%d) has light, but its movement is not supported.", um.mName, i); // required by DeltaLoadLevel, LevelDeltaLoad, LoadLevel, SaveLevel, SetMapMonsters, MonChangeMap, MonStartWalk2, MonPlace, MonDoWalk, MonDoFadein, MonDoFadeout, MI_Rhino
 #if DEBUG_MODE
 		if (um.mUnqHit + monsterdata[um.mtype].mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqHit %d for %s (%d).", um.mUnqHit, um.mName, i);

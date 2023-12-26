@@ -1064,7 +1064,8 @@ static void SetMapMonsters(int idx)
 				if (!posOk) {
 					dMonster[i][j] = 0;
 					monsters[mnum]._mmode = MM_RESERVED;
-					ChangeLightRadius(monsters[mnum]._mlid, 0);
+					// assert(monsters[mnum]._mlid == NO_LIGHT);
+					//ChangeLightRadius(monsters[mnum]._mlid, 0);
 				}
 			}
 			lm++;
@@ -1173,7 +1174,8 @@ void MonChangeMap()
 		 && PosOkActor(monsters[mnum]._mx, monsters[mnum]._my)) {
 			dMonster[monsters[mnum]._mx][monsters[mnum]._my] = mnum + 1;
 			monsters[mnum]._mmode = MM_STAND;
-			ChangeLightRadius(monsters[mnum]._mlid, MON_LIGHTRAD);
+			// assert(monsters[mnum]._mlid == NO_LIGHT);
+			//ChangeLightRadius(monsters[mnum]._mlid, MON_LIGHTRAD);
 		}
 	}
 }
@@ -1641,10 +1643,11 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
-		ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
-	}
+	// assert(monsters[mnum]._mlid == NO_LIGHT);
+	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
+	//	ChangeLightXY(mon->_mlid, mx, my);
+	//	ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+	//}
 }
 
 static void MonStartAttack(int mnum)
@@ -1805,8 +1808,9 @@ static void MonPlace(int mnum)
 	mon = &monsters[mnum];
 	mx = mon->_mx;
 	my = mon->_my;
-	if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-		ChangeLightXYOff(mon->_mlid, mx, my);
+	// assert(mon->_mlid == NO_LIGHT || (LightList[mon->_mlid]._lx == mx && LightList[mon->_mlid]._ly == my));
+	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
+	//	ChangeLightXYOff(mon->_mlid, mx, my);
 	if (mon->_mvid != NO_VISION)
 		ChangeVisionXY(mon->_mvid, mx, my);
 	// place monster in the new position
@@ -2309,8 +2313,9 @@ static bool MonDoWalk(int mnum)
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
 			mon->_mxoff = mon->_mVar6 >> MON_WALK_SHIFT;
 			mon->_myoff = mon->_mVar7 >> MON_WALK_SHIFT;
-			if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-				CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+			// assert(mon->_mlid == NO_LIGHT);
+			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
+			//	CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
 		//}
 		rv = false;
 	}
@@ -2525,10 +2530,11 @@ static bool MonDoFadein(int mnum)
 		return false;
 
 	mon->_mFlags &= ~MFLAG_REV_ANIMATION;
-	if (mon->_mlid != NO_LIGHT) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		ChangeLightRadius(mon->_mlid, MON_LIGHTRAD);
-		ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
-	}
+	// assert(mon->_mlid == NO_LIGHT);
+	//if (mon->_mlid != NO_LIGHT) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
+	//	ChangeLightRadius(mon->_mlid, MON_LIGHTRAD);
+	//	ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
+	//}
 	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	return true;
@@ -2545,9 +2551,8 @@ static bool MonDoFadeout(int mnum)
 	mon->_mFlags &= ~MFLAG_REV_ANIMATION;
 	//if (mon->_mType < MT_INCIN || mon->_mType > MT_HELLBURN) {
 		mon->_mFlags |= MFLAG_HIDDEN;
-		if (mon->_mlid != NO_LIGHT) {
-			ChangeLightRadius(mon->_mlid, 0);
-		}
+		// assert(mon->_mlid == NO_LIGHT);
+		//ChangeLightRadius(mon->_mlid, 0);
 	//}
 	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);

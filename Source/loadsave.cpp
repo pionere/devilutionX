@@ -653,14 +653,6 @@ static BYTE* LoadPortal(BYTE* DVL_RESTRICT src, int i)
 	return src;
 }
 
-/*static void RedoPlayerLight()
-{
-	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
-			ChangeLightXY(plr._plid, plr._px, plr._py);
-	}
-}*/
-
 static BYTE* LoadLevelData(BYTE* src, bool full)
 {
 	int i, moncount, ii;
@@ -1545,6 +1537,14 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 	return dest;
 }
 
+/*static void RedoPlayerLight()
+{
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
+			ChangeLightXY(plr._plid, plr._px, plr._py);
+	}
+}
+
 static BYTE* SaveMonstersLight(BYTE* dest)
 {
 	MonsterStruct* mon;
@@ -1580,7 +1580,7 @@ static BYTE* SyncMonstersLight(BYTE* src)
 		ChangeLightScreenOff(lid, lls._lxoff, lls._lyoff);
 	}
 	return src;
-}
+}*/
 
 void SaveGame()
 {
@@ -1716,7 +1716,7 @@ void SaveLevel()
 	tbuff = fileBuff;
 
 	tbuff = SaveLevelData(tbuff, false);
-	tbuff = SaveMonstersLight(tbuff);
+	//tbuff = SaveMonstersLight(tbuff); -- assuming there are no moving monsters with light
 
 	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/);
 	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
@@ -1732,7 +1732,7 @@ void LoadLevel()
 	tbuff = fileBuff;
 
 	tbuff = LoadLevelData(tbuff, false);
-	tbuff = SyncMonstersLight(tbuff);
+	//tbuff = SyncMonstersLight(tbuff); -- assuming there are no moving monsters with light
 
 	//ResyncQuests();
 	//SyncPortals();

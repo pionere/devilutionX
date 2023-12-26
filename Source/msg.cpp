@@ -996,9 +996,11 @@ void DeltaLoadLevel()
 				// set hitpoints for dead monsters as well to ensure sync in multiplayer
 				// games even on the first game_logic run
 				mon->_mhitpoints = mstr->dmhitpoints;
+#if 0 // commented out because the implementation is incomplete (e.g. what about hidden monsters)
 				// SyncMonstersLight: inline for better performance + apply to moving monsters
 				if (mon->_mlid != NO_LIGHT)
 					ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
+#endif
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->dmCmd >= DCMD_MON_DEAD) {
@@ -1560,8 +1562,9 @@ void LevelDeltaLoad()
 		//BYTE _mvid; // vision id of the monster (for minions only)
 		mon->_mFlags = tmon->smFlags;
 		// move the light of the monster
-		if (mon->_mlid != NO_LIGHT)
-			ChangeLightXY(mon->_mlid, mon->_moldx, mon->_moldy);
+		// assert(mon->_mlid == NO_LIGHT || (LightList[mon->_mlid]._lx == mx && LightList[mon->_mlid]._ly == my));
+		//if (mon->_mlid != NO_LIGHT)
+		//	ChangeLightXY(mon->_mlid, mon->_moldx, mon->_moldy);
 		// place the monster
 		mi = mon->_mmode;
 		if (mi != MM_STONE || mon->_mhitpoints != 0) {

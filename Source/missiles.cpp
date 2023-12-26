@@ -4593,7 +4593,8 @@ void MI_Rhino(int mi)
 	if (monsters[mnum]._mx != bx || monsters[mnum]._my != by) {
 		SetMonsterLoc(&monsters[mnum], bx, by);
 		// assert(monsters[mnum]._mvid == NO_VISION);
-		ChangeLightXY(monsters[mnum]._mlid, bx, by);
+		// assert(monsters[mnum]._mlid == NO_LIGHT);
+		//ChangeLightXY(monsters[mnum]._mlid, bx, by);
 	}
 	ShiftMissilePos(mi);
 	PutMissile(mi);
