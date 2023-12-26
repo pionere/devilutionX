@@ -3737,18 +3737,17 @@ void MAI_RoundRanged(int mnum)
 		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << mon->_mAI.aiParam2) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
-				static_assert(MAXDUNX + MAXDUNY <= 0x7FFF, "MAI_RoundRanged uses RandRangeLow to set distance");
-				mon->_mgoalvar1 = 4 + RandRangeLow(2, dist); // MOVE_DISTANCE
-				mon->_mgoalvar2 = random_(123, 2);           // MOVE_TURN_DIRECTION
+				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			/*if ((--mon->_mgoalvar1 <= 4 && MonDirOK(mnum, currEnemyInfo._meLastDir)) || mon->_mgoalvar1 == 0) {
+			/*if (mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, currEnemyInfo._meLastDir)) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2) && EnemyInLine(mnum)) {
 				MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
-			if (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !MonDirOK(mnum, currEnemyInfo._meLastDir))) { // MOVE_DISTANCE
+			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) { // MOVE_DISTANCE
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
