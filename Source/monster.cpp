@@ -5026,14 +5026,24 @@ void InitGolemStats(int mnum, int level)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	mon->_mLevel = level;
-	mon->_mmaxhp = 640 * (level + 1);
-	mon->_mArmorClass = 25 + level;
-	mon->_mEvasion = 10 + (level >> 1);
-	mon->_mHit = 4 * level + 40;
-	mon->_mMinDamage = 4 + (level >> 1);
-	mon->_mMaxDamage = 2 * mon->_mMinDamage;
-	mon->_mExp = 0;
+	int lvlBonus = level > 0 ? level - 1 : 0;
+
+	// mon->_mAI.aiInt = monsterdata[MT_GOLEM].mAI.aiInt + lvlBonus / 16;
+	mon->_mHit = monsterdata[MT_GOLEM].mHit + lvlBonus * 5 / 2;
+	// mon->_mHit2 = monsterdata[MT_GOLEM].mHit2 + lvlBonus * 5 / 2;
+	// mon->_mMagic = monsterdata[MT_GOLEM].mMagic + lvlBonus * 5 / 2;
+	mon->_mEvasion = monsterdata[MT_GOLEM].mEvasion + lvlBonus * 5 / 2;
+	mon->_mArmorClass = monsterdata[MT_GOLEM].mArmorClass + lvlBonus * 5 / 2;
+
+	int baseLvl = monsterdata[MT_GOLEM].mLevel;
+	int monLvl = baseLvl + lvlBonus;
+	mon->_mLevel = monLvl;
+	mon->_mmaxhp = (monLvl * monsterdata[MT_GOLEM].mMinHP / baseLvl) << 6;
+	mon->_mExp = 0; // monLvl * mon->_mExp / baseLvl;
+	mon->_mMinDamage = monLvl * monsterdata[MT_GOLEM].mMinDamage / baseLvl;
+	mon->_mMaxDamage = monLvl * monsterdata[MT_GOLEM].mMaxDamage / baseLvl;
+	// mon->_mMinDamage2 = monLvl * monsterdata[MT_GOLEM].mMinDamage2 / baseLvl;
+	// mon->_mMaxDamage2 = monLvl * monsterdata[MT_GOLEM].mMaxDamage2 / baseLvl;
 }
 
 void SpawnGolem(int mnum, int x, int y, int level)
@@ -5044,7 +5054,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
-	InitGolemStats(mnum, level * 2 + (plx(mnum)._pMagic >> 6));
+	InitGolemStats(mnum, level * 4 + (plx(mnum)._pMagic >> 6));
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
