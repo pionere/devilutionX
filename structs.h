@@ -689,7 +689,7 @@ typedef struct MonsterStruct {
 	unsigned _msquelch;
 	BYTE _mMTidx;
 	BYTE _mpathcount; // unused
-	BYTE _mWhoHit;    // unused in multiplayer games
+	BYTE _mAlign_1;   // unused
 	BYTE _mgoal;
 	int _mgoalvar1;
 	int _mgoalvar2;
@@ -1343,7 +1343,7 @@ typedef struct LSaveMonsterStruct {
 	LE_UINT32 vmsquelch;
 	BYTE vmMTidx;
 	BYTE vmpathcount; // unused
-	BYTE vmWhoHit;
+	BYTE vmAlign_1;   // unused
 	BYTE vmgoal;
 	LE_INT32 vmgoalvar1;
 	LE_INT32 vmgoalvar2;
@@ -1837,7 +1837,7 @@ typedef struct TSyncLvlMonster {
 	LE_UINT32 smSquelch;
 	//BYTE _mMTidx;
 	//BYTE smPathcount; // unused
-	//BYTE smWhoHit;
+	//BYTE smAlign_1;   // unused
 	BYTE smGoal;
 	LE_INT32 smGoalvar1;
 	LE_INT32 smGoalvar2;

@@ -111,9 +111,6 @@ static void msg_mask_monhit(int pnum)
 			gsDeltaData.ddLevel[i].monster[j].dmWhoHit &= mask;
 		}
 	}
-	// commented out because _mWhoHit is unused in multiplayer games
-	//for (i = 0; i < MAXMONSTERS; i++)
-	//	monsters[i]._mWhoHit &= mask;
 }
 
 static int msg_wait_for_delta()
@@ -558,14 +555,14 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 {
 	DDMonster* pD;
 	int mnum;
-	BYTE bLevel, whoHit = 0;
+	BYTE bLevel, whoHit;
 
-	if (mon->mkPnum < MAX_PLRS)
-		whoHit |= 1 << mon->mkPnum;
+	whoHit = mon->mkPnum < MAX_PLRS ? 1 << mon->mkPnum : 0;
 
 	mnum = mon->mkMnum;
 	if (!IsMultiGame) {
-		return whoHit | monsters[mnum]._mWhoHit;
+		return whoHit; // TODO: what about trap-kills?
+		// return 1 << mypnum; -- exclude UMT_LACHDAN?
 	}
 
 	bLevel = mon->mkParam1.bParam1;
@@ -1019,7 +1016,6 @@ void DeltaLoadLevel()
 					mon->_mAnimData = mon->_mAnims[MA_DEATH].maAnimData[mon->_mdir];
 				} else {
 					mon->_msquelch = mstr->dmactive;
-					// mon->_mWhoHit = mstr->dmWhoHit;
 					if (mon->_mmode == MM_RESERVED) {
 						mon->_mmode = MM_STAND;
 					}
@@ -1281,7 +1277,7 @@ void LevelDeltaExport()
 			tmon->smMode = mon->_mmode;
 			tmon->smSquelch = mon->_msquelch;
 			//tmon->smPathcount = mon->_mpathcount; // unused
-			//tmon->smWhoHit = mon->_mWhoHit; -- not synced, because it is unused in multiplayer games
+			//tmon->smAlign_1 = mon->_mAlign_1;     // unused
 			tmon->smGoal = mon->_mgoal;
 			tmon->smGoalvar1 = mon->_mgoalvar1;
 			tmon->smGoalvar2 = mon->_mgoalvar2;
@@ -1523,7 +1519,7 @@ void LevelDeltaLoad()
 		mon->_mmode = tmon->smMode;
 		mon->_msquelch = tmon->smSquelch;
 		//mon->_mpathcount = tmon->smPathcount; // unused
-		//mon->_mWhoHit = tmon->smWhoHit;  // unused in multiplayer games
+		//mon->_mAlign_1 = tmon->_mAlign_1;     // unused
 		mon->_mgoal = tmon->smGoal;
 		mon->_mgoalvar1 = tmon->smGoalvar1;
 		mon->_mgoalvar2 = tmon->smGoalvar2;
@@ -3420,7 +3416,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	"sq:%d "
 	"idx:%d "
 	//"pc:%d "
-	//"wh:%d "
 	"g:%d "
 	"gv1:%d "
 	"gv2:%d "
@@ -3493,7 +3488,6 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	mon->_msquelch,
 	mon->_mMTidx,
 	//mon->_mpathcount,
-	//mon->_mWhoHit,
 	mon->_mgoal,
 	mon->_mgoalvar1,
 	mon->_mgoalvar2,

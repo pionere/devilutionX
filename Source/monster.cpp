@@ -462,7 +462,7 @@ void InitLvlMonsters()
 		// reset _mMTidx value to simplify SyncMonsterAnim (loadsave.cpp)
 		monsters[i]._mMTidx = 0;
 		monsters[i]._mpathcount = 0;
-		monsters[i]._mWhoHit = 0;
+		monsters[i]._mAlign_1 = 0;
 		monsters[i]._mgoal = MGOAL_NORMAL;
 		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
 		// reset _mlid value to simplify SyncMonstersLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
@@ -665,7 +665,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	//mon->_mVar8 = 0;
 	mon->_msquelch = 0;
 	mon->_mpathcount = 0;
-	mon->_mWhoHit = 0;
+	mon->_mAlign_1 = 0;
 	mon->_mgoal = MGOAL_NORMAL;
 	//mon->_mgoalvar1 = 0;	-- should be set before use
 	//mon->_mgoalvar2 = 0;
@@ -1953,7 +1953,6 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 	}
 	mon = &monsters[mnum];
 	// assert(mon->_mmode != MM_DEATH);
-	mon->_mWhoHit |= 1 << pnum;
 	if (pnum == mypnum) {
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
@@ -1986,7 +1985,6 @@ void MonStartMonHit(int defm, int offm, int dam)
 	// assert(dmon->_mmode != MM_DEATH);
 	if ((unsigned)offm < MAX_MINIONS) {
 		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
-		dmon->_mWhoHit |= 1 << offm;
 		if (offm == mypnum) {
 			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
 		}
