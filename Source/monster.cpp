@@ -2986,11 +2986,9 @@ static bool MonRoundWalk(int mnum, int md, int* dir)
 
 void MAI_Zombie(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int md;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	if (random_(103, 100) < 2 * mon->_mAI.aiInt + 10) {
@@ -3014,10 +3012,8 @@ void MAI_Zombie(int mnum)
 
 void MAI_SkelSd(int mnum)
 {
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	MonsterStruct* mon = &monsters[mnum];
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	MonEnemyInfo(mnum);
@@ -3041,13 +3037,12 @@ void MAI_SkelSd(int mnum)
 
 void MAI_Snake(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int dist, md;
-
 	const BYTE pattern[6] = { 1, 1, 0, 7, 7, 0 };
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	mon->_mdir = currEnemyInfo._meLastDir;
@@ -3098,11 +3093,9 @@ void MAI_Snake(int mnum)
 
 void MAI_Bat(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int md, v, dist;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	MonEnemyInfo(mnum);
@@ -3150,11 +3143,9 @@ void MAI_Bat(int mnum)
 
 void MAI_SkelBow(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int v;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	MonEnemyInfo(mnum);
@@ -3184,11 +3175,9 @@ void MAI_SkelBow(int mnum)
 
 void MAI_Fat(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int v;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	MonEnemyInfo(mnum);
@@ -3209,13 +3198,11 @@ void MAI_Fat(int mnum)
 
 void MAI_Sneak(int mnum)
 {
-	MonsterStruct* mon;
-	int md;
-	int dist, range, v;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	MonsterStruct* mon = &monsters[mnum];
+	int md, dist, range, v;
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	// mx = mon->_mx;
 	// my = mon->_my;
 	// commented out because dLight is not in-sync in multiplayer games and with the added
@@ -3279,12 +3266,11 @@ void MAI_Sneak(int mnum)
 
 /*void MAI_Fireman(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int mx, my, fx, fy, md;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	mx = mon->_mx;
 	my = mon->_my;
@@ -3328,12 +3314,11 @@ void MAI_Sneak(int mnum)
 
 void MAI_Fallen(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int x, y, mx, my, m, rad, amount;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
@@ -3403,11 +3388,10 @@ void MAI_Fallen(int mnum)
 
 void MAI_Cleaver(int mnum)
 {
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	MonsterStruct* mon = &monsters[mnum];
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR) || (mon->_mFlags & MFLAG_SEARCH));
 	mon->_mdir = currEnemyInfo._meLastDir;
@@ -3427,11 +3411,9 @@ void MAI_Cleaver(int mnum)
  */
 void MAI_Round(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int md, dist, v;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	MonEnemyInfo(mnum);
@@ -3483,12 +3465,11 @@ void MAI_Round(int mnum)
  */
 void MAI_Ranged(int mnum)
 {
+	MonsterStruct* mon = &monsters[mnum];
 	int md;
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
@@ -3574,13 +3555,12 @@ static void MonConsumeCorpse(MonsterStruct* mon)
 
 void MAI_Scav(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int i, j, tx, ty, maxhp, tmp;
 	const int8_t* cr;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
 		MonLeaveLeader(mnum);
 		mon->_mgoal = MGOAL_HEALING;
@@ -3695,7 +3675,7 @@ void MAI_Garg(int mnum)
 		return;
 	}
 
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1))
@@ -3727,12 +3707,11 @@ void MAI_Garg(int mnum)
  */
 void MAI_RoundRanged(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int dist, v;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
@@ -3792,12 +3771,11 @@ void MAI_RoundRanged(int mnum)
  */
 void MAI_RoundRanged2(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int dist, v;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	dist = currEnemyInfo._meRealDist;
 	/*if (dist >= 5) {
@@ -3909,12 +3887,11 @@ void MAI_Golem(int mnum)
 
 void MAI_SkelKing(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int nx, ny, md, v, dist;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	if (mon->_msquelch < SQUELCH_MAX) {
 		assert(monsterdata[MT_SKING].mFlags & MFLAG_CAN_OPEN_DOOR);
@@ -3973,12 +3950,11 @@ void MAI_SkelKing(int mnum)
 
 void MAI_Rhino(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int v, dist;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
@@ -4028,12 +4004,11 @@ void MAI_Rhino(int mnum)
 #ifdef HELLFIRE
 void MAI_Horkdemon(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int v, dist;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	v = random_(131, 100);
@@ -4086,12 +4061,11 @@ void MAI_Horkdemon(int mnum)
  */
 void MAI_Counselor(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int md, v, dist;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
+
 	MonEnemyInfo(mnum);
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
@@ -4346,10 +4320,8 @@ void MAI_Lazhelp(int mnum)
 
 void MAI_Lachdanan(int mnum)
 {
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	if (MON_ACTIVE || MON_RELAXED)
+	MonsterStruct* mon = &monsters[mnum];
+	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	mon->_mdir = MonEnemyLastDir(mnum);
