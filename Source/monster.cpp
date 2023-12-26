@@ -2920,10 +2920,21 @@ static bool MonDestWalk(int mnum)
 		Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 			MonstCheckDoors(mon->_mx, mon->_my);
-		if (FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, path) > 0) {
+		md = FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, path);
+		if (md > 0) { // found path to the enemy -> go
 			md = path[0];
-		} else {
+		} else if (md != 0) { // cound not find path to the enemy -> just go in its generic direction
 			md = currEnemyInfo._meLastDir;
+		} else { // enemy disappeared -> walk around randomly
+			md = random_(145, NUM_DIRS);
+			for (int i = 0; i < NUM_DIRS; i++) {
+				if (MonDirOK(mnum, md)) {
+					mon->_mlastx += offset_x[md];
+					mon->_mlasty += offset_y[md];
+					break;
+				}
+				md = (md + 1) & 7;
+			}
 		}
 	} else {
 		md = currEnemyInfo._meLastDir;
