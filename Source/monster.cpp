@@ -3734,7 +3734,7 @@ void MAI_RoundRanged(int mnum)
 	dist = currEnemyInfo._meRealDist;
 	//v = random_(121, 10000);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[fx][fy]*/) {
-		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_low(122, 4 << mon->_mAI.aiParam2) == 0)) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist > 2 && random_low(122, 4 << mon->_mAI.aiParam2) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
@@ -3759,7 +3759,7 @@ void MAI_RoundRanged(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(124, 100);
-		if (((dist >= 3 && v < ((8 * (mon->_mAI.aiInt + 2)) >> mon->_mAI.aiParam2))
+		if (((dist > 2 && v < ((8 * (mon->_mAI.aiInt + 2)) >> mon->_mAI.aiParam2))
 		        || v < ((8 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2))
 			&& EnemyInLine(mnum)) {
 			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
@@ -3805,7 +3805,7 @@ void MAI_RoundRanged2(int mnum)
 		MonstCheckDoors(mon->_mx, mon->_my);
 	v = random_(121, 100);
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/) {
-		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && dist < 5)) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist > 2 && dist < 5)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
@@ -3823,7 +3823,7 @@ void MAI_RoundRanged2(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist < 5 && (dist >= 3 || v < 5 * (mon->_mAI.aiInt + 1)) && EnemyInLine(mnum)) {
+		if (dist < 5 && (dist > 2 || v < 5 * (mon->_mAI.aiInt + 1)) && EnemyInLine(mnum)) {
 			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 			return;
 		}
@@ -3908,7 +3908,7 @@ void MAI_SkelKing(int mnum)
 	v = random_(126, 100);
 	dist = currEnemyInfo._meRealDist;
 	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX) {
-		if (mon->_mgoal == MGOAL_MOVE || (dist >= 3 && random_(127, 4) == 0)) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist > 2 && random_(127, 4) == 0)) {
 			if (mon->_mgoal != MGOAL_MOVE) {
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
@@ -3925,7 +3925,7 @@ void MAI_SkelKing(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (((dist >= 3 && v < 4 * mon->_mAI.aiInt + 35) || v < 6)
+		if (((dist > 2 && v < 4 * mon->_mAI.aiInt + 35) || v < 6)
 			&& MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
 			nx = mon->_mx + offset_x[md];
@@ -4039,7 +4039,7 @@ void MAI_Horkdemon(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist >= 3 && v < 2 * mon->_mAI.aiInt + 43) {
+		if (dist > 2 && v < 2 * mon->_mAI.aiInt + 43) {
 			if (PosOkMonst(mnum, mon->_mx + offset_x[mon->_mdir], mon->_my + offset_y[mon->_mdir]) && nummonsters < MAXMONSTERS) {
 				MonStartRSpAttack(mnum, MIS_HORKDMN);
 			}
@@ -4087,10 +4087,10 @@ void MAI_Counselor(int mnum)
 				MonStartRAttack(mnum, mon->_mAI.aiParam1);
 			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
-				assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 + 
-					mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
+				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
+					(mon->_mAnims[MA_WALK].maFrames - 1) * mon->_mAnims[MA_WALK].maFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-				static_assert(2 * 20 + (6 + 4) * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with move goal.");
+				static_assert((20 - 1) * 1 * 2 + (1 - 1) * 1 * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with move goal.");
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 6 + random_low(0, std::min(dist, 4)); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(125, 2);               // MOVE_TURN_DIRECTION
@@ -4102,10 +4102,10 @@ void MAI_Counselor(int mnum)
 				v >>= 1;
 			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1) && MonFindDir(mnum, OPPOSITE(md)) >= 0) {
 #if DEBUG
-				assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 + 
-					mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * 5 < SQUELCH_MAX - SQUELCH_LOW);
+				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
+					(mon->_mAnims[MA_WALK].maFrames - 1) * mon->_mAnims[MA_WALK].maFrameLen * 5 < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-				static_assert(2 * 20 + 5 * 1 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with retreat goal.");
+				static_assert((20 - 1) * 1 * 2 + (1 - 1) * 1 * 5 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with retreat goal.");
 				mon->_mgoal = MGOAL_RETREAT;
 				mon->_mgoalvar1 = 5; // RETREAT_DISTANCE
 				MonStartFadeout(mnum, md, false);
