@@ -1545,6 +1545,43 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 	return dest;
 }
 
+static BYTE* SaveMonstersLight(BYTE* dest)
+{
+	MonsterStruct* mon;
+	int mnum;
+	LE_INT32* nl = (LE_INT32*)dest;
+	*nl = 0;
+	dest += sizeof(LE_INT32);
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		mon = &monsters[mnum];
+		if (mon->_mlid != NO_LIGHT) {
+			LE_INT32* mp = (LE_INT32*)dest;
+			*mp = mnum;
+			dest += sizeof(LE_INT32);
+			dest = SaveLight(dest, &LightList[mon->_mlid]);
+			*nl = *nl + 1;
+		}
+	}
+	return dest;
+}
+
+static BYTE* SyncMonstersLight(BYTE* src)
+{
+	int i, lid;
+	int nl = *(LE_INT32*)src;
+	src += sizeof(LE_INT32);
+	for (i = 0; i < nl; i++) {
+		lid = monsters[*(LE_INT32*)src]._mlid;
+		src += sizeof(LE_INT32);
+		assert(lid != NO_LIGHT);
+		LightListStruct lls;
+		src = LoadLight(src, &lls);
+		ChangeLight(lid, lls._lx, lls._ly, lls._lradius);
+		ChangeLightScreenOff(lid, lls._lxoff, lls._lyoff);
+	}
+	return src;
+}
+
 void SaveGame()
 {
 	int i;
@@ -1679,6 +1716,7 @@ void SaveLevel()
 	tbuff = fileBuff;
 
 	tbuff = SaveLevelData(tbuff, false);
+	tbuff = SaveMonstersLight(tbuff);
 
 	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/);
 	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
@@ -1694,8 +1732,8 @@ void LoadLevel()
 	tbuff = fileBuff;
 
 	tbuff = LoadLevelData(tbuff, false);
+	tbuff = SyncMonstersLight(tbuff);
 
-	SyncMonsterLight();
 	//ResyncQuests();
 	//SyncPortals();
 

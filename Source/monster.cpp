@@ -465,7 +465,7 @@ void InitLvlMonsters()
 		monsters[i]._mWhoHit = 0;
 		monsters[i]._mgoal = MGOAL_NORMAL;
 		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
-		// reset _mlid value to simplify SyncMonsterLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
+		// reset _mlid value to simplify SyncMonstersLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
 		monsters[i]._muniqtype = 0;
 		monsters[i]._muniqtrans = 0;
 		monsters[i]._mNameColor = COL_WHITE;
@@ -4627,19 +4627,6 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnimData = mon->_mAnims[anim].maAnimData[mon->_mdir];
 	mon->_mAnimFrameLen = mon->_mAnims[anim].maFrameLen;
 	mon->_mAnimLen = mon->_mAnims[anim].maFrames;
-}
-
-void SyncMonsterLight()
-{
-	MonsterStruct* mon;
-	int i;
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		mon = &monsters[i];
-		if (mon->_mlid != NO_LIGHT /*&& mon->_mmode > MM_INGAME_LAST*/) {
-			ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
-		}
-	}
 }
 
 void MissToMonst(int mi)

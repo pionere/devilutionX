@@ -996,7 +996,7 @@ void DeltaLoadLevel()
 				// set hitpoints for dead monsters as well to ensure sync in multiplayer
 				// games even on the first game_logic run
 				mon->_mhitpoints = mstr->dmhitpoints;
-				// SyncMonsterLight: inline for better performance + apply to moving monsters
+				// SyncMonstersLight: inline for better performance + apply to moving monsters
 				if (mon->_mlid != NO_LIGHT)
 					ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
@@ -1040,7 +1040,7 @@ void DeltaLoadLevel()
 			}
 			nummonsters = MAX_MINIONS;
 		}
-		// SyncMonsterLight();
+		// SyncMonstersLight();
 
 		DeltaLoadAutomap(gsDeltaData.ddLocal[currLvl._dLevelIdx]);
 
