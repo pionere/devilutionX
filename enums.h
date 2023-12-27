@@ -2141,6 +2141,17 @@ typedef enum missile_collision_mode {
 	MICM_BLOCK_WALL,
 } missile_collision_mode;
 
+typedef enum missile_resistance {
+	MISR_NONE,
+	MISR_SLASH,
+	MISR_BLUNT,
+	MISR_PUNCTURE,
+	MISR_FIRE,
+	MISR_LIGHTNING,
+	MISR_MAGIC,
+	MISR_ACID,
+} missile_resistance;
+
 typedef enum _monster_ai {
 	AI_ZOMBIE,
 	AI_FAT,
@@ -2500,17 +2511,6 @@ typedef enum _monster_resistance {
 	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } _monster_resistance;
-
-typedef enum missile_resistance {
-	MISR_NONE,
-	MISR_SLASH,
-	MISR_BLUNT,
-	MISR_PUNCTURE,
-	MISR_FIRE,
-	MISR_LIGHTNING,
-	MISR_MAGIC,
-	MISR_ACID,
-} missile_resistance;
 
 typedef enum _speech_id {
 	TEXT_KING1,
