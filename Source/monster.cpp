@@ -675,8 +675,8 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_menemyy = 0;
 	mon->_mListener = 0;
 	mon->_mDelFlag = FALSE;
-	//mon->_mlastx = 0;	-- should be set before use
-	//mon->_mlasty = 0;
+	mon->_mlastx = 0; // should be set before use (except for stone-rune)
+	mon->_mlasty = 0;
 	mon->_mRndSeed = NextRndSeed();
 	// mon->_mAISeed = -- should be set before use
 
@@ -4457,6 +4457,8 @@ void ProcessMonsters()
 				mon->_menemy = 0;
 				mon->_menemyx = 0;
 				mon->_menemyy = 0;
+				mon->_mlastx = 0;
+				mon->_mlasty = 0;
 				mon->_mVar1 = MM_STAND;           // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
 				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_TALKING);
