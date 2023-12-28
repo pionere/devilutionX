@@ -2327,8 +2327,8 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 	if (!CheckMonsterHit(defm, &ret))
 		return;
 
-	hper += (monsters[offm]._mLevel << 1);
-	hper -= (monsters[defm]._mLevel << 1);
+	hper += 30 + 2 * monsters[offm]._mLevel;
+	hper -= monsters[defm]._mArmorClass;
 	if (CheckHit(hper) || monsters[defm]._mmode == MM_STONE) {
 		int dam = RandRange(mind, maxd) << 6;
 		monsters[defm]._mhitpoints -= dam;
