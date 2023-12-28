@@ -2260,11 +2260,11 @@ static void MonStartFadeout(int mnum, bool backwards)
 
 static void MonStartHeal(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
+	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
-	mon = &monsters[mnum];
-	mon->_mAnimData = mon->_mAnims[MA_SPECIAL].maAnimData[mon->_mdir];
-	mon->_mAnimFrame = mon->_mAnims[MA_SPECIAL].maFrames;
+	mon->_mAnimFrame = mon->_mAnimLen;
 	mon->_mFlags |= MFLAG_REV_ANIMATION;
 	mon->_mmode = MM_HEAL;
 	static_assert((SQUELCH_MAX - SQUELCH_LOW) >= 16 * 8, "MonStartHeal might relax while healing.");
