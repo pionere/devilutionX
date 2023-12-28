@@ -3651,7 +3651,7 @@ void MAI_Garg(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
 		if (!MON_RELAXED) {
-			// MonFindEnemy(mnum);
+			MonFindEnemy(mnum);
 			mx = mon->_mx - mon->_menemyx;
 			my = mon->_my - mon->_menemyy;
 			dist = std::max(abs(mx), abs(my));
@@ -4413,7 +4413,7 @@ void ProcessMonsters()
 		}
 
 		alert = (dFlags[mon->_mfutx][mon->_mfuty] & BFLAG_ALERT) != 0;
-		if (alert || MON_HAS_ENEMY) {
+		if ((alert || MON_HAS_ENEMY) && !MON_ACTIVE) {
 			MonFindEnemy(mnum);
 			// commented out, because the player might went out of sight in the meantime
 			// assert(MON_HAS_ENEMY || myplr._pInvincible);
