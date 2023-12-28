@@ -2225,14 +2225,12 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
  * Start fade in using the special effect of monsters.
  * Used by: Sneak, Fireman, Mage, DarkMage
  */
-static void MonStartFadein(int mnum, int md, bool backwards)
+static void MonStartFadein(int mnum, bool backwards)
 {
-	MonsterStruct* mon;
-
-	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	MonsterStruct* mon = &monsters[mnum];
 	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
-	mon = &monsters[mnum];
 	mon->_mmode = MM_FADEIN;
 	mon->_mFlags &= ~MFLAG_HIDDEN;
 	if (backwards) {
@@ -2244,14 +2242,12 @@ static void MonStartFadein(int mnum, int md, bool backwards)
 	}
 }
 
-static void MonStartFadeout(int mnum, int md, bool backwards)
+static void MonStartFadeout(int mnum, bool backwards)
 {
-	MonsterStruct* mon;
-
-	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	MonsterStruct* mon = &monsters[mnum];
 	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
-	mon = &monsters[mnum];
 	mon->_mmode = MM_FADEOUT;
 	if (backwards) {
 		mon->_mFlags |= MFLAG_REV_ANIMATION;
@@ -3250,9 +3246,9 @@ void MAI_Sneak(int mnum)
 	range -= 2;
 	// assert(range >= 2);
 	if (dist < range && (mon->_mFlags & MFLAG_HIDDEN)) {
-		MonStartFadein(mnum, mon->_mdir, false);
+		MonStartFadein(mnum, false);
 	} else if (dist > range && !(mon->_mFlags & MFLAG_HIDDEN)) {
-		MonStartFadeout(mnum, mon->_mdir, true);
+		MonStartFadeout(mnum, true);
 	} else if (mon->_mgoal == MGOAL_NORMAL || !MonCallWalk(mnum, mon->_mdir)) {
 		// assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_RETREAT);
 		mon->_mgoal = MGOAL_NORMAL;
@@ -3295,14 +3291,14 @@ void MAI_Sneak(int mnum)
 			}
 			if (!MonCallWalk(mnum, md)) {
 				mon->_mgoal = MGOAL_ATTACK;
-				MonStartFadein(mnum, mon->_mdir, false);
+				MonStartFadein(mnum, false);
 			}
 		}
 	} else if (mon->_mgoal == MGOAL_ATTACK) {
 		if (++mon->_mgoalvar1 > 3) { // FIREMAN_ACTION_PROGRESS
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mgoalvar1 = 0;
-			MonStartFadeout(mnum, md, true);
+			MonStartFadeout(mnum, true);
 		} else if (EnemyInLine(mnum)) {
 			MonStartRAttack(mnum, MIS_KRULL);
 		} else {
@@ -3311,7 +3307,7 @@ void MAI_Sneak(int mnum)
 	} else {
 		assert(mon->_mgoal == MGOAL_RETREAT);
 		mon->_mgoal = MGOAL_ATTACK;
-		MonStartFadein(mnum, md, false);
+		MonStartFadein(mnum, false);
 	}
 }*/
 
@@ -4089,7 +4085,7 @@ void MAI_Counselor(int mnum)
 				mon->_mgoal = MGOAL_MOVE;
 				mon->_mgoalvar1 = 6 + random_low(0, std::min(dist, 4)); // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(125, 2);               // MOVE_TURN_DIRECTION
-				MonStartFadeout(mnum, md, false);
+				MonStartFadeout(mnum, false);
 			}
 		} else {
 			if (mon->_mVar1 == MM_FADEIN) // STAND_PREV_MODE
@@ -4102,7 +4098,7 @@ void MAI_Counselor(int mnum)
 				static_assert((20 - 1) * 1 * 2 + (1 - 1) * 1 * 5 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Counselor might relax with retreat goal.");
 				mon->_mgoal = MGOAL_RETREAT;
 				mon->_mgoalvar1 = 5; // RETREAT_DISTANCE
-				MonStartFadeout(mnum, md, false);
+				MonStartFadeout(mnum, false);
 			} else if (mon->_mVar1 == MM_DELAY || v < 2 * mon->_mAI.aiInt + 20) {
 				MonStartRAttack(mnum, MIS_FLASH);
 			}
@@ -4115,7 +4111,7 @@ void MAI_Counselor(int mnum)
 		if (--mon->_mgoalvar1 == 0 // RETREAT_DISTANCE
 		 || !MonCallWalk(mnum, OPPOSITE(md))) {
 			mon->_mgoal = MGOAL_NORMAL;
-			MonStartFadein(mnum, md, true);
+			MonStartFadein(mnum, true);
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_MOVE);
@@ -4125,7 +4121,7 @@ void MAI_Counselor(int mnum)
 			;
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
-			MonStartFadein(mnum, md, true);
+			MonStartFadein(mnum, true);
 		}
 	}
 }
@@ -4658,7 +4654,7 @@ void MissToMonst(int mi)
 	assert(mon->_mdir == mis->_miDir);
 	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
-		MonStartFadein(mnum, mon->_mdir, false);
+		MonStartFadein(mnum, false);
 		return;
 	}*/
 	PlayMonSFX(mnum, MS_GOTHIT);
