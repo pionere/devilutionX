@@ -4074,6 +4074,7 @@ void MAI_Counselor(int mnum)
 		MonstCheckDoors(mon->_mx, mon->_my);
 	md = currEnemyInfo._meLastDir;
 	dist = currEnemyInfo._meRealDist;
+	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(121, 100);
 		if (dist >= 2) {
@@ -4091,7 +4092,6 @@ void MAI_Counselor(int mnum)
 				MonStartFadeout(mnum, md, false);
 			}
 		} else {
-			mon->_mdir = md;
 			if (mon->_mVar1 == MM_FADEIN) // STAND_PREV_MODE
 				v >>= 1;
 			if (mon->_mVar1 != MM_FADEIN && mon->_mhitpoints < (mon->_mmaxhp >> 1) && MonFindDir(mnum, OPPOSITE(md)) >= 0) {
