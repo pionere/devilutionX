@@ -277,6 +277,8 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
+		if ((md.mFlags & MFLAG_GARG_STONE) && (md.mFlags & MFLAG_HIDDEN))
+			app_fatal("Both GARG_STONE and HIDDEN flags are set for %s (%d).", md.mName, i); // required ProcessMonsters
 #if DEBUG_MODE
 		if (md.mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
