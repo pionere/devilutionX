@@ -3646,18 +3646,15 @@ void MAI_Scav(int mnum)
 void MAI_Garg(int mnum)
 {
 	MonsterStruct* mon;
-	int mx, my, dist;
 
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
 		if (!MON_RELAXED) {
 			MonFindEnemy(mnum);
-			mx = mon->_mx - mon->_menemyx;
-			my = mon->_my - mon->_menemyy;
-			dist = std::max(abs(mx), abs(my));
+			MonEnemyInfo(mnum);
 			// wake up if the enemy is close
 			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is usually 'far' from (0;0)."); // (_menemyx;_menemyy)
-			if (dist < mon->_mAI.aiInt + 2) {
+			if (currEnemyInfo._meRealDist < mon->_mAI.aiInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
 			}
