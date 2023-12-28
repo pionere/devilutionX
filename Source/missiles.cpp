@@ -760,7 +760,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = 100 + (2 * currLvl._dLevel);
+		hper = mis->_miVar6; // MISHIT
 		hper -= mon->_mArmorClass;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
@@ -999,7 +999,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = 100 + (4 * currLvl._dLevel);
+		hper = mis->_miVar6; // MISHIT
 		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
@@ -1061,7 +1061,7 @@ static bool PlayerMHit(int pnum, int mi)
 	// mis->_miRndSeed = NextRndSeed();
 	mon = &monsters[mis->_miSource];
 	if (mis->_miFlags & MIF_ARROW) {
-		hper = 30 + mon->_mHit + (2 * mon->_mLevel);
+		hper = mis->_miVar6; // MISHIT
 		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
@@ -1834,6 +1834,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 /*
  * Var1: x coordinate of the missile-target of MIS_ASARROW
  * Var2: y coordinate of the missile-target of MIS_ASARROW
+ * Var6: hit chance (MISHIT)
  * Var7: the distance travelled (MISDIST)
  */
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
@@ -1884,12 +1885,15 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			mis->_miVar1 = dx;
 			mis->_miVar2 = dy;
 		}
+		// mis->_miVar6 = plx(misource)._pIHitChance;
 	} else if (micaster == MST_MONSTER) {
 		mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 		mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
+		mis->_miVar6 = 30 + monsters[misource]._mHit + 2 * monsters[misource]._mLevel;
 	} else {
 		mis->_miMinDam = currLvl._dLevel << 6;
 		mis->_miMaxDam = currLvl._dLevel << (1 + 6);
+		mis->_miVar6 = 100 + currLvl._dLevel * 2;
 	}
 	return MIRES_DONE;
 }
