@@ -743,7 +743,7 @@ int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam
 	return dam;
 }
 
-static bool MonsterTrapHit(int mnum, int mi)
+static bool MissMonHitByMon(int mnum, int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
@@ -806,7 +806,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 	return true;
 }
 
-static bool MonsterMHit(int mnum, int mi)
+static bool MissMonHitByPlr(int mnum, int mi)
 {
 	MonsterStruct* mon;
 	MissileStruct* mis;
@@ -989,7 +989,7 @@ unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 	return dam;
 }
 
-static bool PlayerMHit(int pnum, int mi)
+static bool MissPlrHitByMon(int pnum, int mi)
 {
 	MissileStruct* mis;
 	int misource, hper, tmp, dam;
@@ -1049,14 +1049,14 @@ static bool PlayerMHit(int pnum, int mi)
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW) {
 			hitFlags = (misource >= 0 ? monsters[misource]._mFlags & ISPL_HITFLAGS_MASK : 0) | ISPL_FAKE_CAN_BLEED;
-			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "PlayerMHit uses _mFlags as hitFlags.");
+			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MissPlrHitByMon uses _mFlags as hitFlags.");
 		}
 		PlrHitByAny(pnum, misource, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
 
-static bool Plr2PlrMHit(int pnum, int mi)
+static bool MissPlrHitByPlr(int pnum, int mi)
 {
 	MissileStruct* mis;
 	int offp, dam, tmp, hper;
@@ -1190,10 +1190,10 @@ static bool MonMissHit(int mnum, int mi)
 	mis = &missile[mi];
 	if (mis->_miCaster & MST_PLAYER) {
 		// player vs. monster
-		return MonsterMHit(mnum, mi);
+		return MissMonHitByPlr(mnum, mi);
 	} else {
 		// trap/monster vs. monster
-		return MonsterTrapHit(mnum, mi);
+		return MissMonHitByMon(mnum, mi);
 	}
 }
 
@@ -1204,10 +1204,10 @@ static bool PlrMissHit(int pnum, int mi)
 	mis = &missile[mi];
 	if (mis->_miCaster & MST_PLAYER) {
 		// player vs. player
-		return Plr2PlrMHit(pnum, mi);
+		return MissPlrHitByPlr(pnum, mi);
 	} else {
 		// monster/trap vs. player
-		return PlayerMHit(pnum, mi);
+		return MissPlrHitByMon(pnum, mi);
 	}
 }
 
