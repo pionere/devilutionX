@@ -1941,7 +1941,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 	MonStartGetHit(mnum);
 }
 
-void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
+void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 {
 	MonsterStruct* mon;
 
@@ -1974,7 +1974,7 @@ void MonStartPlrHit(int mnum, int pnum, int dam, unsigned hitflags, int sx, int 
 	}
 }
 
-void MonStartMonHit(int defm, int offm, int dam)
+void MonHitByMon(int defm, int offm, int dam)
 {
 	MonsterStruct* dmon;
 
@@ -2126,7 +2126,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	SpawnMonItem(mnum, mx, my, sendmsg);
 }
 
-static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
+static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 {
 	MonsterStruct* mon;
 
@@ -2146,7 +2146,7 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 	mon->_mhitpoints = 0;
 	CheckQuestKill(mnum, sendmsg);
 	if (sendmsg) {
-		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonstStartKill uses mnum as pnum, which must fit to BYTE.");
+		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonInitKill uses mnum as pnum, which must fit to BYTE.");
 		NetSendCmdMonstKill(mnum, mpnum);
 	}
 	//if (mnum >= MAX_MINIONS) {
@@ -2189,21 +2189,21 @@ static void M2MStartKill(int offm, int defm)
 	else
 		sendmsg = true;
 
-	MonstStartKill(defm, offm, sendmsg);
+	MonInitKill(defm, offm, sendmsg);
 }
 
-void MonStartKill(int mnum, int pnum)
+void MonKill(int mnum, int pnum)
 {
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonStartKill: Invalid monster %d", mnum);
+		dev_fatal("MonKill: Invalid monster %d", mnum);
 	}
-	MonstStartKill(mnum, pnum, pnum == mypnum || pnum == -1);
+	MonInitKill(mnum, pnum, pnum == mypnum || pnum == -1);
 }
 
-void MonSyncStartKill(int mnum, int x, int y, int pnum)
+void MonSyncKill(int mnum, int x, int y, int pnum)
 {
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonSyncStartKill: Invalid monster %d", mnum);
+		dev_fatal("MonSyncKill: Invalid monster %d", mnum);
 	}
 	if (monsters[mnum]._mmode == MM_DEATH || monsters[mnum]._mmode > MM_INGAME_LAST
 	 || (monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
@@ -2218,7 +2218,7 @@ void MonSyncStartKill(int mnum, int x, int y, int pnum)
 		monsters[mnum]._moldy = y;
 	}
 
-	MonstStartKill(mnum, pnum, false);
+	MonInitKill(mnum, pnum, false);
 }
 
 /*
@@ -2335,7 +2335,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
 			M2MStartKill(offm, defm);
 		} else {
-			MonStartMonHit(defm, offm, dam);
+			MonHitByMon(defm, offm, dam);
 		}
 	}
 }
@@ -2376,9 +2376,9 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 		dam = RandRange(1, 3) << 6;
 		mon->_mhitpoints -= dam;
 		if (mon->_mhitpoints < (1 << 6))
-			MonStartKill(mnum, pnum);
+			MonKill(mnum, pnum);
 		else
-			MonStartMonHit(mnum, pnum, dam);
+			MonHitByMon(mnum, pnum, dam);
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
@@ -2392,7 +2392,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MonHitPlr uses _mFlags as hitFlags.");
-		PlrStartAnyHit(pnum, mnum, dam, hitFlags, mon->_mx, mon->_my);
+		PlrHitByAny(pnum, mnum, dam, hitFlags, mon->_mx, mon->_my);
 	}
 }
 
@@ -4326,7 +4326,7 @@ void MAI_Lachdanan(int mnum)
 		//if (mon->_mVar8++ >= gnTicksRate * 32) {
 		if (IsMultiGame || !IsSFXPlaying(USFX_LACH3)) {
 			// mon->_mgoal = MGOAL_NORMAL;
-			MonStartKill(mnum, -1);
+			MonKill(mnum, -1);
 		}
 		return;
 	}
@@ -4668,7 +4668,7 @@ void MissToMonst(int mi)
 		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
 		MonHitPlr(mnum, pnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dPlayer[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			PlrStartAnyHit(pnum, mnum, 0, ISPL_KNOCKBACK, mis->_misx, mis->_misy);
+			PlrHitByAny(pnum, mnum, 0, ISPL_KNOCKBACK, mis->_misx, mis->_misy);
 		}
 		return;
 	}
@@ -4679,7 +4679,7 @@ void MissToMonst(int mi)
 			return; // do not hit team-mate : assert(mnum >= MAX_MINIONS);
 		MonHitMon(mnum, defm, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dMonster[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			// TODO: use MonStartMonHit ?
+			// TODO: use MonHitByMon ?
 			PlayMonSFX(mnum, MS_GOTHIT);
 		}
 	}

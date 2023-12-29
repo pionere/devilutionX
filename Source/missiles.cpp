@@ -779,12 +779,12 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon->_mhitpoints -= dam;
 	if (mon->_mhitpoints < (1 << 6)) {
-		MonStartKill(mnum, -1);
+		MonKill(mnum, -1);
 	} else {
 		/*if (resist != MORT_NONE) {
 			PlayMonSFX(mnum, MS_GOTHIT);
 		} else {*/
-			MonStartMonHit(mnum, -1, dam);
+			MonHitByMon(mnum, -1, dam);
 		//}
 	}
 	if (mon->_msquelch != SQUELCH_MAX) {
@@ -911,7 +911,7 @@ static bool MonsterMHit(int mnum, int mi)
 	}
 
 	if (mon->_mhitpoints < (1 << 6)) {
-		MonStartKill(mnum, pnum);
+		MonKill(mnum, pnum);
 	} else {
 		/*if (resist != MORT_NONE) {
 			PlayMonSFX(mnum, MS_GOTHIT);
@@ -922,7 +922,7 @@ static bool MonsterMHit(int mnum, int mi)
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
 			}
-			MonStartPlrHit(mnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			MonHitByPlr(mnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		//}
 	}
 
@@ -1036,7 +1036,7 @@ static bool PlayerTrapHit(int pnum, int mi)
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = ISPL_FAKE_CAN_BLEED;
-		PlrStartAnyHit(pnum, -1, dam, hitFlags, mis->_misx, mis->_misy);
+		PlrHitByAny(pnum, -1, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
@@ -1105,7 +1105,7 @@ static bool PlayerMHit(int pnum, int mi)
 			hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "PlayerMHit uses _mFlags as hitFlags.");
 		}
-		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
+		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
@@ -1234,7 +1234,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = (plx(mis->_miSource)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrStartAnyHit(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
+		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
@@ -2878,7 +2878,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
 	CheckSplashColFull(mi);
 
-	MonStartKill(misource, misource);
+	MonKill(misource, misource);
 	return MIRES_DELETE;
 }
 
@@ -3311,7 +3311,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;
-			MonStartPlrHit(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
+			MonHitByPlr(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
 		}
 		break;
 	case MTT_OBJECT:

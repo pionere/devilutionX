@@ -2715,7 +2715,7 @@ static unsigned On_MONSTDEATH(TCmd* pCmd, int pnum)
 	BYTE whoHit, mask;
 
 	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkParam1.bParam1)
-		MonSyncStartKill(cmd->mkMnum, cmd->mkParam1.x, cmd->mkParam1.y, cmd->mkPnum);
+		MonSyncKill(cmd->mkMnum, cmd->mkParam1.x, cmd->mkParam1.y, cmd->mkPnum);
 
 	whoHit = delta_kill_monster(cmd);
 
