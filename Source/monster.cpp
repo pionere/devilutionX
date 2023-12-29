@@ -790,7 +790,8 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 			dMonster[monsters[nummonsters]._mx][monsters[nummonsters]._my] = 0;
 		}
 
-		if (leaderf & UMF_GROUP) {
+		if (leaderf) {
+			// assert(leaderf & UMF_GROUP);
 			x1 = monsters[leader]._mx;
 			y1 = monsters[leader]._my;
 		} else {
@@ -825,7 +826,8 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 				continue;
 			// assert(nummonsters < MAXMONSTERS);
 			mnum = PlaceMonster(mtidx, xp, yp);
-			if (leaderf & UMF_GROUP) {
+			if (leaderf) {
+				// assert(leaderf & UMF_GROUP);
 				monsters[mnum]._mNameColor = COL_BLUE;
 				monsters[mnum]._mmaxhp *= 2;
 				monsters[mnum]._mhitpoints = monsters[mnum]._mmaxhp;
