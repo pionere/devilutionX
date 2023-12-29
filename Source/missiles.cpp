@@ -765,9 +765,13 @@ static bool MonsterTrapHit(int mnum, int mi)
 		hper = mis->_miVar6; // MISHIT
 		hper -= mon->_mArmorClass;
 		hper -= mis->_miVar7 << 1; // MISDIST
-	} else {
+	} else if (mis->_miFlags & MIF_AREA) {
 		hper = 40 + (misource < 0 ? 2 * currLvl._dLevel : 2 * monsters[misource]._mLevel);
 		hper -= 2 * mon->_mLevel;
+	} else {
+		hper = 50 + (misource < 0 ? 2 * currLvl._dLevel : monsters[misource]._mMagic);
+		hper -= 2 * mon->_mLevel + mon->_mEvasion;
+		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 		return false;
@@ -782,12 +786,12 @@ static bool MonsterTrapHit(int mnum, int mi)
 
 	mon->_mhitpoints -= dam;
 	if (mon->_mhitpoints < (1 << 6)) {
-		MonKill(mnum, -1);
+		MonKill(mnum, misource);
 	} else {
 		/*if (resist != MORT_NONE) {
 			PlayMonSFX(mnum, MS_GOTHIT);
 		} else {*/
-			MonHitByMon(mnum, -1, dam);
+			MonHitByMon(mnum, misource, dam);
 		//}
 	}
 	if (mon->_msquelch != SQUELCH_MAX) {
@@ -1003,9 +1007,13 @@ static bool PlayerTrapHit(int pnum, int mi)
 		hper = mis->_miVar6; // MISHIT
 		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
-	} else {
+	} else if (mis->_miFlags & MIF_AREA) {
 		hper = 40 + 2 * currLvl._dLevel;
 		hper -= 2 * plr._pLevel;
+	} else {
+		hper = 50 + 2 * currLvl._dLevel;
+		hper -= plr._pIEvasion;
+		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
 
 	if (!CheckHit(hper))
