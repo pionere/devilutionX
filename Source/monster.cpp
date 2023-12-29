@@ -3648,11 +3648,9 @@ void MAI_Garg(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
-		if (!MON_RELAXED) {
-			MonFindEnemy(mnum);
+		if (MON_HAS_ENEMY) {
 			MonEnemyInfo(mnum);
 			// wake up if the enemy is close
-			static_assert(std::max(DBORDERX, DBORDERY) > (5 + 2), "MAI_Garg skips MFLAG_NO_ENEMY-check by assuming a monster is usually 'far' from (0;0)."); // (_menemyx;_menemyy)
 			if (currEnemyInfo._meRealDist < mon->_mAI.aiInt + 2) {
 				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 				return;
@@ -4409,7 +4407,7 @@ void ProcessMonsters()
 		}
 
 		alert = (dFlags[mon->_mfutx][mon->_mfuty] & BFLAG_ALERT) != 0;
-		if ((alert || MON_HAS_ENEMY) && !MON_ACTIVE) {
+		if ((alert || MON_HAS_ENEMY) && (!MON_ACTIVE || (mon->_mFlags & MFLAG_GARG_STONE))) {
 			MonFindEnemy(mnum);
 			// commented out, because the player might went out of sight in the meantime
 			// assert(MON_HAS_ENEMY || myplr._pInvincible);
