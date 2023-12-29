@@ -851,7 +851,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 	}
 }
 
-static void InitUniqueMonster(int mnum, int uniqindex)
+static unsigned InitUniqueMonster(int mnum, int uniqindex)
 {
 	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
@@ -884,6 +884,7 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 	if (uniqm->mTrnName != NULL) {
 		snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
 		LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
+		static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 		mon->_muniqtrans = uniquetrans++;
 	}
 
@@ -943,28 +944,26 @@ static void InitUniqueMonster(int mnum, int uniqindex)
 
 	mon->_mhitpoints = mon->_mmaxhp;
 
-	if (uniqm->mUnqFlags & UMF_NODROP)
+	unsigned flags = uniqm->mUnqFlags;
+	if (flags & UMF_NODROP)
 		mon->_mFlags |= MFLAG_NODROP;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
-	if (uniqm->mUnqFlags & UMF_LIGHT) {
+	if (flags & UMF_LIGHT) {
 		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 	}
+	return flags;
 }
 
-static bool PlaceUniqueMonst(int uniqindex, int mtidx)
+static void PlaceUniqueMonst(int uniqindex, int mtidx)
 {
 	int xp, yp, x, y;
 	int count2;
 	int mnum, count;
-	static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
-	if (uniquetrans >= NUM_COLOR_TRNS) {
-		return false;
-	}
 
 	switch (uniqindex) {
 	case UMT_ZHAR:
 		if (zharlib == -1)
-			return false;
+			return;
 		xp = themes[zharlib]._tsx1 + 4;
 		yp = themes[zharlib]._tsy1 + 4;
 		break;
@@ -998,8 +997,10 @@ static bool PlaceUniqueMonst(int uniqindex, int mtidx)
 	}
 	// assert(nummonsters < MAXMONSTERS);
 	mnum = PlaceMonster(mtidx, xp, yp);
-	InitUniqueMonster(mnum, uniqindex);
-	return true;
+	unsigned flags = InitUniqueMonster(mnum, uniqindex);
+	if (flags & UMF_GROUP) {
+		PlaceGroup(mtidx, MON_PACK_SIZE - 1, flags, mnum);
+	}
 }
 
 static void PlaceUniques()
@@ -1007,6 +1008,8 @@ static void PlaceUniques()
 	int u, mt;
 
 	for (u = 0; uniqMonData[u].mtype != MT_INVALID; u++) {
+		if (uniquetrans >= NUM_COLOR_TRNS)
+			continue;
 		if (uniqMonData[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
 		if (uniqMonData[u].mQuestId != Q_INVALID
@@ -1014,10 +1017,7 @@ static void PlaceUniques()
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
-				if (PlaceUniqueMonst(u, mt) && uniqMonData[u].mUnqFlags & UMF_GROUP) {
-					// assert(mnum == nummonsters - 1);
-					PlaceGroup(mt, MON_PACK_SIZE - 1, uniqMonData[u].mUnqFlags, nummonsters - 1);
-				}
+				PlaceUniqueMonst(u, mt);
 				break;
 			}
 		}
