@@ -48,7 +48,7 @@ int SummonMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
 void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy);
 void MonHitByMon(int defm, int offm, int dam);
-void MonKill(int mnum, int pnum);
+void MonKill(int mnum, int mpnum);
 void MonSyncKill(int mnum, int x, int y, int pnum);
 void MonLeaveLeader(int mnum);
 void MonUpdateLeader(int mnum);

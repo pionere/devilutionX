@@ -2170,34 +2170,25 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, MST_MONSTER, mnum, 1);
 }
 
-static void M2MStartKill(int offm, int defm)
+void MonKill(int mnum, int mpnum)
 {
 	bool sendmsg;
 
-	static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartKill requires that owner of a monster has the same id as the monster itself.");
-	// check if it is a golem vs. monster/golem -> the attacker's owner should send the message
-	if (offm == mypnum)
-		sendmsg = true;
-	else if (offm < MAX_MINIONS)
-		sendmsg = false;
-	// check if it is a monster vs. golem -> the golem's owner should send the message
-	else if (defm == mypnum)
-		sendmsg = true;
-	else if (defm < MAX_MINIONS)
-		sendmsg = false;
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("MonKill: Invalid monster %d", mnum);
+	}
+	static_assert(MAX_MINIONS == MAX_PLRS, "MonKill requires that owner of a monster has the same id as the monster itself.");
+	// check if it is a plr/golem vs. monster/golem -> the attacker's owner should send the message
+	if ((unsigned)mpnum < MAX_PLRS)
+		sendmsg = mpnum == mypnum || !plx(mpnum)._pActive; // assert(MAX_MINIONS == MAX_PLRS)
+	// check if it is a monster/trap vs. golem -> the golem's owner should send the message
+	else if (mnum < MAX_MINIONS)
+		sendmsg = mnum == mypnum; // assert(MAX_MINIONS == MAX_PLRS && plx(mnum)._pActive)
 	// monster vs. monster -> the host should send the message (should not happen at the moment)
 	else
 		sendmsg = true;
 
-	MonInitKill(defm, offm, sendmsg);
-}
-
-void MonKill(int mnum, int pnum)
-{
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("MonKill: Invalid monster %d", mnum);
-	}
-	MonInitKill(mnum, pnum, pnum == mypnum || pnum == -1);
+	MonInitKill(mnum, mpnum, sendmsg);
 }
 
 void MonSyncKill(int mnum, int x, int y, int pnum)
@@ -2333,7 +2324,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		int dam = RandRange(mind, maxd) << 6;
 		monsters[defm]._mhitpoints -= dam;
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
-			M2MStartKill(offm, defm);
+			MonKill(offm, defm);
 		} else {
 			MonHitByMon(defm, offm, dam);
 		}
