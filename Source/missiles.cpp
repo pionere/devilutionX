@@ -769,10 +769,10 @@ static bool MissMonHitByMon(int mnum, int mi)
 		hper -= mon->_mArmorClass;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else if (mis->_miFlags & MIF_AREA) {
-		hper = 40 + (misource < 0 ? 2 * currLvl._dLevel : 2 * monsters[misource]._mLevel);
+		hper = 40 + (misource >= 0 ? 2 * monsters[misource]._mLevel : 2 * currLvl._dLevel);
 		hper -= 2 * mon->_mLevel;
 	} else {
-		hper = 50 + (misource < 0 ? 2 * currLvl._dLevel : monsters[misource]._mMagic);
+		hper = 50 + (misource >= 0 ? monsters[misource]._mMagic : 2 * currLvl._dLevel);
 		hper -= 2 * mon->_mLevel + mon->_mEvasion;
 		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
@@ -1020,7 +1020,6 @@ static bool MissPlrHitByMon(int pnum, int mi)
 		hper -= plr._pIEvasion;
 		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
-
 	if (!CheckHit(hper))
 		return false;
 
@@ -1192,7 +1191,7 @@ static bool MonMissHit(int mnum, int mi)
 		// player vs. monster
 		return MissMonHitByPlr(mnum, mi);
 	} else {
-		// trap/monster vs. monster
+		// monster/trap vs. monster
 		return MissMonHitByMon(mnum, mi);
 	}
 }
