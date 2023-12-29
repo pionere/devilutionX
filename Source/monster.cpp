@@ -2320,7 +2320,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		int dam = RandRange(mind, maxd) << 6;
 		monsters[defm]._mhitpoints -= dam;
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
-			MonKill(offm, defm);
+			MonKill(defm, offm);
 		} else {
 			MonHitByMon(defm, offm, dam);
 		}
