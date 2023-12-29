@@ -2174,15 +2174,20 @@ void MonKill(int mnum, int mpnum)
 		dev_fatal("MonKill: Invalid monster %d", mnum);
 	}
 	static_assert(MAX_MINIONS == MAX_PLRS, "MonKill requires that owner of a monster has the same id as the monster itself.");
-	// check if it is a plr/golem vs. monster/golem -> the attacker's owner should send the message
-	if ((unsigned)mpnum < MAX_PLRS)
-		sendmsg = mpnum == mypnum || !plx(mpnum)._pActive; // assert(MAX_MINIONS == MAX_PLRS)
-	// check if it is a monster/trap vs. golem -> the golem's owner should send the message
-	else if (mnum < MAX_MINIONS)
-		sendmsg = mnum == mypnum; // assert(MAX_MINIONS == MAX_PLRS && plx(mnum)._pActive)
-	// monster vs. monster -> the host should send the message (should not happen at the moment)
-	else
-		sendmsg = true;
+	// check if it is a plr/golem vs. monster/golem -> the attacker('s owner) should send the message
+	sendmsg = mpnum == mypnum;
+	if (!sendmsg) {
+		// not a kill by the local plr/golem -> check if the attacker is an active player on the level
+		if ((unsigned)mpnum >= MAX_PLRS || !plx(mpnum)._pActive || plx(mpnum)._pLvlChanging || plx(mpnum)._pDunLevel != currLvl._dLevelIdx) {
+			// select the first active player on the level
+			for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+				if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx) {
+					sendmsg = pnum == mypnum;
+					break;
+				}
+			}
+		}
+	}
 
 	MonInitKill(mnum, mpnum, sendmsg);
 }
