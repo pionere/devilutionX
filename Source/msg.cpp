@@ -748,30 +748,31 @@ static bool delta_get_item(const TCmdGItem* pI)
 	return false;
 }
 
-static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
+/*
+ * Add an item to the delta of the given level.
+ * @return 0: if there was no space, 1: if the item is a new item on the floor, 2: the item is supposed to be on the floor already
+ */
+static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 {
 	int i;
 	DDItem* pD;
 
 	if (!IsMultiGame)
-		return true;
+		return 1;
 
 	net_assert(bLevel < NUM_LEVELS);
-	// set out of loop to reduce the number of locals
-	// this might not change the level if there were MAXITEMS number of floor-items
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.PkItemEq(*pItem)) {
-			if (pD->bCmd == DCMD_ITM_TAKEN) {
+			bool notOnFloor = pD->bCmd == DCMD_ITM_TAKEN;
+			if (notOnFloor) {
 				pD->bCmd = DCMD_ITM_MOVED;
 				pD->x = x;
 				pD->y = y;
 			}
-			//else
-			//	app_fatal("Trying to drop a floor item?");
-			return true;
+			return notOnFloor ? 1 : 2;
 		}
 	}
 
@@ -782,11 +783,11 @@ static bool delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 			pD->x = x;
 			pD->y = y;
 			copy_pod(pD->item, *pItem);
-			return true;
+			return 1;
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 static void PackEar(PkItemStruct* dest, const ItemStruct* src)
@@ -2418,7 +2419,7 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 {
 	TCmdPItem* cmd = (TCmdPItem*)pCmd;
 	ItemStruct* pi;
-	int x, y;
+	int x, y, pr;
 
 	pi = &plr._pHoldItem;
 	if (pi->_itype != ITYPE_NONE) {
@@ -2436,8 +2437,9 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 #endif
 		PkItemStruct pkItem;
 		PackPkItem(&pkItem, pi);
-		if (delta_put_item(&pkItem, cmd->bLevel, x, y)) {
-			if (currLvl._dLevelIdx == cmd->bLevel) {
+		pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
+		if (pr != 0) {
+			if (pr == 1 && currLvl._dLevelIdx == cmd->bLevel) {
 				copy_pod(items[MAXITEMS], *pi);
 				pi->_itype = ITYPE_NONE;
 				SyncPutItem(pnum, x, y, true);
@@ -2458,7 +2460,7 @@ static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
 {
 	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
-	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) && currLvl._dLevelIdx == cmd->bLevel) {
+	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) == 1 && currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
 		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
 	}
@@ -2775,7 +2777,7 @@ static unsigned On_MONSTSUMMON(TCmd* pCmd, int pnum)
 
 static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 {
-	int x, y;
+	int x, y, pr;
 
 	if (pi->_itype == ITYPE_NONE)
 		return true;
@@ -2785,9 +2787,10 @@ static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 	PackPkItem(&pkItem, pi);
 	x = plr._px + offset_x[dir];
 	y = plr._py + offset_y[dir];
-	if (!delta_put_item(&pkItem, plr._pDunLevel, x, y))
+	pr = delta_put_item(&pkItem, plr._pDunLevel, x, y);
+	if (pr == 0)
 		return false;
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
+	if (pr == 1 && currLvl._dLevelIdx == plr._pDunLevel) {
 		UnPackPkItem(&pkItem);
 		SyncPutItem(pnum, x, y, true);
 	}
