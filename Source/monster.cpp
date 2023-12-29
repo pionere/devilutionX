@@ -2149,12 +2149,12 @@ static void MonstStartKill(int mnum, int mpnum, bool sendmsg)
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonstStartKill uses mnum as pnum, which must fit to BYTE.");
 		NetSendCmdMonstKill(mnum, mpnum);
 	}
-	if (mnum >= MAX_MINIONS) {
+	//if (mnum >= MAX_MINIONS) {
 		MonUpdateLeader(mnum);
 		SpawnLoot(mnum, sendmsg);
-	} else {
+	//} else {
 		AddUnVision(mon->_mvid);
-	}
+	//}
 
 	if (mon->_mType == MT_DIABLO)
 		MonDiabloDeath(mnum, sendmsg);
@@ -5015,6 +5015,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
+	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 	ActivateSpawn(mnum, x, y, DIR_S);
 	if (mnum == mypnum)
 		NetSendCmdGolem();
