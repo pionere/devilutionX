@@ -700,8 +700,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
  */
 static bool MonstPlace(int xp, int yp)
 {
-	static_assert(DBORDERX >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border I.");
-	static_assert(DBORDERY >= MON_PACK_DISTANCE, "MonstPlace does not check IN_DUNGEON_AREA but expects a large enough border II.");
 	return (dMonster[xp][yp]/* | dPlayer[xp][yp] | dObject[xp][yp]*/
 		 | nSolidTable[dPiece[xp][yp]] | (dFlags[xp][yp] & (BFLAG_ALERT | BFLAG_MON_PROTECT))) == 0;
 }
@@ -788,6 +786,7 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 		while (placed != 0) {
 			nummonsters--;
 			placed--;
+			// monsters[nummonsters]._mmode = MM_UNUSED; -- unnecessary assuming these are going to be overwritten...
 			dMonster[monsters[nummonsters]._mx][monsters[nummonsters]._my] = 0;
 		}
 
@@ -975,6 +974,8 @@ static bool PlaceUniqueMonst(int uniqindex, int mtidx)
 			xp = random_(91, DSIZEX) + DBORDERX;
 			yp = random_(91, DSIZEY) + DBORDERY;
 			count2 = 0;
+			static_assert(DBORDERX >= MON_PACK_DISTANCE, "PlaceUniqueMonst does not check IN_DUNGEON_AREA but expects a large enough border I.");
+			static_assert(DBORDERY >= MON_PACK_DISTANCE, "PlaceUniqueMonst does not check IN_DUNGEON_AREA but expects a large enough border II.");
 			for (x = xp - MON_PACK_DISTANCE; x <= xp + MON_PACK_DISTANCE; x++) {
 				for (y = yp - MON_PACK_DISTANCE; y <= yp + MON_PACK_DISTANCE; y++) {
 					if (MonstPlace(x, y)) {
@@ -1643,7 +1644,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	// assert(monsters[mnum]._mlid == NO_LIGHT);
+	// assert(mon->_mlid == NO_LIGHT);
 	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
 	//	ChangeLightXY(mon->_mlid, mx, my);
 	//	ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
@@ -1839,7 +1840,6 @@ static void MonStopWalk(int mnum)
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
 	MonStartStand(mnum);
-	return;
 }
 
 static void MonStartGetHit(int mnum)
@@ -2145,12 +2145,12 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonInitKill uses mnum as pnum, which must fit to BYTE.");
 		NetSendCmdMonstKill(mnum, mpnum);
 	}
-	//if (mnum >= MAX_MINIONS) {
+	// if (mnum >= MAX_MINIONS) {
 		MonUpdateLeader(mnum);
 		SpawnLoot(mnum, sendmsg);
 	//} else {
 		AddUnVision(mon->_mvid);
-	//}
+	// }
 
 	if (mon->_mType == MT_DIABLO)
 		MonDiabloDeath(mnum);
@@ -2558,6 +2558,7 @@ static bool MonDoHeal(int mnum)
 			mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 		} else {
 			mon->_mhitpoints = mon->_mmaxhp;
+			// MonStartSpAttack(mnum);
 			mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
 			mon->_mmode = MM_SPATTACK;
 		}
