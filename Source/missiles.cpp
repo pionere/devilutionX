@@ -989,75 +989,10 @@ unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 	return dam;
 }
 
-static bool PlayerTrapHit(int pnum, int mi)
-{
-	MissileStruct* mis;
-	int hper, tmp, dam;
-	unsigned hitFlags;
-
-	mis = &missile[mi];
-	if (!(mis->_miFlags & MIF_DOT)) {
-		if (mis->_miVar8 == -(pnum + 1))
-			return false;
-		mis->_miVar8 = -(pnum + 1);
-	}
-	if (plr._pInvincible) {
-		return false;
-	}
-	// SetRndSeed(mis->_miRndSeed);
-	// mis->_miRndSeed = NextRndSeed();
-	if (mis->_miFlags & MIF_ARROW) {
-		hper = mis->_miVar6; // MISHIT
-		hper -= plr._pIAC;
-		hper -= mis->_miVar7 << 1; // MISDIST
-	} else if (mis->_miFlags & MIF_AREA) {
-		hper = 40 + 2 * currLvl._dLevel;
-		hper -= 2 * plr._pLevel;
-	} else {
-		hper = 50 + 2 * currLvl._dLevel;
-		hper -= plr._pIEvasion;
-		// hper -= dist; // TODO: either don't care about it, or set it!
-	}
-
-	if (!CheckHit(hper))
-		return false;
-
-	if (!(mis->_miFlags & MIF_NOBLOCK)) {
-		tmp = plr._pIBlockChance;
-		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
-			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - (currLvl._dLevel << 1);
-			if (tmp > random_(73, 100)) {
-				PlrStartBlock(pnum, mis->_misx, mis->_misy);
-				return true;
-			}
-		}
-	}
-
-	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
-	if (dam == 0)
-		return false;
-
-	if (!(mis->_miFlags & MIF_DOT)) {
-		dam += plr._pIGetHit;
-		if (dam < 64)
-			dam = 64;
-	}
-
-	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
-		hitFlags = 0;
-		if (mis->_miFlags & MIF_ARROW)
-			hitFlags = ISPL_FAKE_CAN_BLEED;
-		PlrHitByAny(pnum, -1, dam, hitFlags, mis->_misx, mis->_misy);
-	}
-	return true;
-}
-
 static bool PlayerMHit(int pnum, int mi)
 {
 	MissileStruct* mis;
-	MonsterStruct* mon;
-	int hper, tmp, dam;
+	int misource, hper, tmp, dam;
 	unsigned hitFlags;
 
 	if (plr._pInvincible) {
@@ -1071,16 +1006,17 @@ static bool PlayerMHit(int pnum, int mi)
 	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
-	mon = &monsters[mis->_miSource];
+	misource = mis->_miSource;
+	// assert(misource == -1 || (unsigned)misource < MAXMONSTERS);
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = mis->_miVar6; // MISHIT
 		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else if (mis->_miFlags & MIF_AREA) {
-		hper = 40 + 2 * mon->_mLevel;
+		hper = 40 + (misource >= 0 ? 2 * monsters[misource]._mLevel : 2 * currLvl._dLevel);
 		hper -= 2 * plr._pLevel;
 	} else {
-		hper = 50 + mon->_mMagic;
+		hper = 50 + (misource >= 0 ? monsters[misource]._mMagic : 2 * currLvl._dLevel);
 		hper -= plr._pIEvasion;
 		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
@@ -1092,7 +1028,7 @@ static bool PlayerMHit(int pnum, int mi)
 		tmp = plr._pIBlockChance;
 		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - (mon->_mLevel << 1);
+			tmp = tmp - (misource >= 0 ? 2 * monsters[misource]._mLevel : 2 * currLvl._dLevel);
 			if (tmp > random_(73, 100)) {
 				PlrStartBlock(pnum, mis->_misx, mis->_misy);
 				return true;
@@ -1112,10 +1048,10 @@ static bool PlayerMHit(int pnum, int mi)
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW) {
-			hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
+			hitFlags = (misource >= 0 ? monsters[misource]._mFlags & ISPL_HITFLAGS_MASK : 0) | ISPL_FAKE_CAN_BLEED;
 			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "PlayerMHit uses _mFlags as hitFlags.");
 		}
-		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
+		PlrHitByAny(pnum, misource, dam, hitFlags, mis->_misx, mis->_misy);
 	}
 	return true;
 }
@@ -1269,12 +1205,9 @@ static bool PlrMissHit(int pnum, int mi)
 	if (mis->_miCaster & MST_PLAYER) {
 		// player vs. player
 		return Plr2PlrMHit(pnum, mi);
-	} else if (mis->_miCaster == MST_MONSTER) {
-		// monster vs. player
-		return PlayerMHit(pnum, mi);
 	} else {
-		// trap vs. player
-		return PlayerTrapHit(pnum, mi);
+		// monster/trap vs. player
+		return PlayerMHit(pnum, mi);
 	}
 }
 
