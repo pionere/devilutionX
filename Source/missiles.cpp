@@ -761,6 +761,9 @@ static bool MonsterTrapHit(int mnum, int mi)
 	// mis->_miRndSeed = NextRndSeed();
 	misource = mis->_miSource;
 	// assert(misource == -1 || (unsigned)misource < MAXMONSTERS);
+	if (mnum >= MAX_MINIONS && misource >= MAX_MINIONS) {
+		return false;
+	}
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = mis->_miVar6; // MISHIT
 		hper -= mon->_mArmorClass;
@@ -1252,11 +1255,8 @@ static bool MonMissHit(int mnum, int mi)
 	if (mis->_miCaster & MST_PLAYER) {
 		// player vs. monster
 		return MonsterMHit(mnum, mi);
-	} else if (mis->_miCaster == MST_MONSTER) {
-		// monster vs. golem
-		return mnum < MAX_MINIONS && MonsterTrapHit(mnum, mi);
 	} else {
-		// trap vs. monster
+		// trap/monster vs. monster
 		return MonsterTrapHit(mnum, mi);
 	}
 }
