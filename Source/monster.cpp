@@ -2173,6 +2173,7 @@ void MonKill(int mnum, int mpnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonKill: Invalid monster %d", mnum);
 	}
+#if 0 // commented out because it seems to be an unnecessary complexity
 	static_assert(MAX_MINIONS == MAX_PLRS, "MonKill requires that owner of a monster has the same id as the monster itself.");
 	// check if it is a plr/golem vs. monster/golem -> the attacker('s owner) should send the message
 	sendmsg = mpnum == mypnum;
@@ -2188,6 +2189,9 @@ void MonKill(int mnum, int mpnum)
 			}
 		}
 	}
+#else
+	sendmsg = true;
+#endif
 
 	MonInitKill(mnum, mpnum, sendmsg);
 }
