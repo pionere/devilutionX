@@ -819,15 +819,13 @@ static bool MonsterMHit(int mnum, int mi)
 		hper = plr._pIHitChance;
 		hper -= mon->_mArmorClass;
 		hper -= (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
+	} else if (mis->_miFlags & MIF_AREA) {
+		hper = 40 + 2 * plr._pLevel;
+		hper -= 2 * mon->_mLevel;
 	} else {
-		if (mis->_miFlags & MIF_AREA) {
-			hper = 40 + (plr._pLevel << 1);
-			hper -= (mon->_mLevel << 1);
-		} else {
-			hper = 50 + plr._pMagic;
-			hper -= (mon->_mLevel << 1) + mon->_mEvasion;
-			// hper -= dist; // TODO: either don't care about it, or set it!
-		}
+		hper = 50 + plr._pMagic;
+		hper -= 2 * mon->_mLevel + mon->_mEvasion;
+		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 		return false;
@@ -1003,8 +1001,8 @@ static bool PlayerTrapHit(int pnum, int mi)
 		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
-		hper = 40 + (2 * currLvl._dLevel);
-		hper -= (2 * plr._pLevel);
+		hper = 40 + 2 * currLvl._dLevel;
+		hper -= 2 * plr._pLevel;
 	}
 
 	if (!CheckHit(hper))
@@ -1064,15 +1062,13 @@ static bool PlayerMHit(int pnum, int mi)
 		hper = mis->_miVar6; // MISHIT
 		hper -= plr._pIAC;
 		hper -= mis->_miVar7 << 1; // MISDIST
+	} else if (mis->_miFlags & MIF_AREA) {
+		hper = 40 + 2 * mon->_mLevel;
+		hper -= 2 * plr._pLevel;
 	} else {
-		if (mis->_miFlags & MIF_AREA) {
-			hper = 40 + (2 * mon->_mLevel);
-			hper -= (2 * plr._pLevel);
-		} else {
-			hper = 50 + mon->_mMagic;
-			hper -= plr._pIEvasion;
-			// hper -= dist; // TODO: either don't care about it, or set it!
-		}
+		hper = 50 + mon->_mMagic;
+		hper -= plr._pIEvasion;
+		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
 
 	if (!CheckHit(hper))
@@ -1132,15 +1128,13 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		hper = plx(offp)._pIHitChance;
 		hper -= plr._pIAC;
 		hper -= (mis->_miVar7 * mis->_miVar7 >> 1); // MISDIST
+	} else if (mis->_miFlags & MIF_AREA) {
+		hper = 40 + 2 * plx(offp)._pLevel;
+		hper -= 2 * plr._pLevel;
 	} else {
-		if (mis->_miFlags & MIF_AREA) {
-			hper = 40 + (2 * plx(offp)._pLevel);
-			hper -= (2 * plr._pLevel);
-		} else {
-			hper = 50 + plx(offp)._pMagic;
-			hper -= plr._pIEvasion;
-			// hper -= dist; // TODO: either don't care about it, or set it!
-		}
+		hper = 50 + plx(offp)._pMagic;
+		hper -= plr._pIEvasion;
+		// hper -= dist; // TODO: either don't care about it, or set it!
 	}
 	if (!CheckHit(hper))
 		return false;
@@ -1149,7 +1143,7 @@ static bool Plr2PlrMHit(int pnum, int mi)
 		tmp = plr._pIBlockChance;
 		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
 			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - (plx(offp)._pLevel << 1);
+			tmp = tmp - 2 * plx(offp)._pLevel;
 			if (tmp > random_(73, 100)) {
 				PlrStartBlock(pnum, mis->_misx, mis->_misy);
 				return true;
