@@ -747,7 +747,7 @@ static bool MonsterTrapHit(int mnum, int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int hper, dam;
+	int misource, hper, dam;
 	bool ret;
 
 	mon = &monsters[mnum];
@@ -759,12 +759,15 @@ static bool MonsterTrapHit(int mnum, int mi)
 	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
+	misource = mis->_miSource;
+	// assert(misource == -1 || (unsigned)misource < MAXMONSTERS);
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = mis->_miVar6; // MISHIT
 		hper -= mon->_mArmorClass;
 		hper -= mis->_miVar7 << 1; // MISDIST
 	} else {
-		hper = 40;
+		hper = 40 + (misource < 0 ? 2 * currLvl._dLevel : 2 * monsters[misource]._mLevel);
+		hper -= 2 * mon->_mLevel;
 	}
 	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
 		return false;
