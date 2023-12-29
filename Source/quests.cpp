@@ -192,6 +192,10 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		gnSfxNum = TEXT_QM_BUTCHER;
 		qn = Q_BUTCHER;
 		break;
+	case UMT_DIABLO:
+		quests[Q_DIABLO]._qactive = QUEST_DONE;
+		qn = Q_DIABLO;
+		break;
 #ifdef HELLFIRE
 	case UMT_NAKRUL:
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;

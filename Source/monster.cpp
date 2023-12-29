@@ -2006,16 +2006,12 @@ void MonHitByMon(int defm, int offm, int dam)
 	}
 }
 
-static void MonDiabloDeath(int mnum, bool sendmsg)
+static void MonDiabloDeath(int mnum)
 {
 	MonsterStruct* mon;
 	int i, mx, my;
 	unsigned killLevel;
 
-	quests[Q_DIABLO]._qactive = QUEST_DONE;
-	if (sendmsg) {
-		NetSendCmdQuest(Q_DIABLO, false); // recipient should not matter
-	}
 	for (i = 0; i < MAXMONSTERS; i++) {
 		// commented out because this is a pointless complexity
 		//if (i == mnum)
@@ -2157,7 +2153,7 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 	//}
 
 	if (mon->_mType == MT_DIABLO)
-		MonDiabloDeath(mnum, sendmsg);
+		MonDiabloDeath(mnum);
 	else
 		PlayMonSFX(mnum, MS_DEATH);
 
