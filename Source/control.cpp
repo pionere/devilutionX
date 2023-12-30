@@ -79,7 +79,7 @@ static CelImageBuf* pChrPanelCel;
 /** Char-Panel button images CEL */
 static CelImageBuf* pChrButtonCels;
 /** Specifies whether the button of the given attribute is pressed on Character-Panel. */
-bool gabChrbtn[NUM_ATTRIBS];
+static bool gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
 bool gbChrbtnactive;
 /** Color translations for the skill icons. */

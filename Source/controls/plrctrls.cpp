@@ -337,34 +337,30 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	if (dir.y == AxisDirectionY_NONE)
 		return;
 
-	if (gbChrbtnactive || myplr._pStatPts <= 0)
-		return;
-
-	// first, find our cursor location
-	int slot = 0;
-	for (int i = 0; i < lengthof(gabChrbtn); i++) {
-		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
-			CHRBTN_WIDTH, CHRBTN_HEIGHT)) {
-			slot = i;
-			break;
-		}
+	// find the current slot based on the mouse position
+	int slot = -1;
+	int sy = MousePos.y - (gnWndCharY + CHRBTN_TOP(0));
+	while (sy >= 0) {
+		slot++;
+		sy -= CHRBTN_TOP(slot + 1) - CHRBTN_TOP(slot);
 	}
-
+	// step in the desired direction
 	if (dir.y == AxisDirectionY_UP) {
-		if (slot == 0)
-			return; // Avoid wobbling when scaled
-		--slot;
-	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (slot >= lengthof(gabChrbtn) - 1)
-			return; // Avoid wobbling when scaled
-		++slot;
+		slot--;
+	} else {
+		// assert(dir.y == AxisDirectionY_DOWN);
+		slot++;
 	}
-
+	// limit the slot to the available ones
+	if (slot < 0)
+		slot = 0;
+	else if (slot >= NUM_ATTRIBS)
+		slot = NUM_ATTRIBS - 1;
 	// move cursor to our new location
 	int x = gnWndCharX + CHRBTN_LEFT + (CHRBTN_WIDTH / 2);
 	int y = gnWndCharY + CHRBTN_TOP(slot) + (CHRBTN_HEIGHT / 2);
-	SetCursorPos(x, y);
+	if (abs(MousePos.x - x) >= CHRBTN_WIDTH / 2 || abs(MousePos.y - y) >= CHRBTN_HEIGHT / 2) // Avoid wobbling when scaled
+		SetCursorPos(x, y);
 }
 
 #define SELECT_INV_SLOT(s)                                     \

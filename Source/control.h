@@ -22,7 +22,6 @@ extern int dropGoldValue;
 extern int initialDropGoldValue;
 extern BYTE initialDropGoldIndex;
 extern bool gbChrbtnactive;
-extern bool gabChrbtn[NUM_ATTRIBS];
 extern BYTE infoclr;
 extern char infostr[256];
 extern char tempstr[256];
