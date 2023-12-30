@@ -1285,10 +1285,10 @@ void DrawChr()
 	if (p->_pStatPts > 0) {
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		PrintString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, true, COL_RED, FONT_KERN_SMALL);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 3 : 2);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 5 : 4);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_DEX) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_DEX] ? 7 : 6);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_VIT) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_VIT] ? 9 : 8);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 2 : 1);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 2 : 1);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_DEX) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_DEX] ? 2 : 1);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_VIT) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_VIT] ? 2 : 1);
 	}
 
 	if (p->_pHasUnidItem)
@@ -1426,7 +1426,7 @@ void DrawLevelUpIcon()
 	screen_x = SCREEN_X + LVLUP_LEFT;
 	screen_y = PANEL_Y + PANEL_HEIGHT - LVLUP_OFFSET;
 	PrintString(screen_x - 38, screen_y + 20, screen_x - 38 + 120, "Level Up", true, COL_WHITE, FONT_KERN_SMALL);
-	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 3 : 2);
+	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 2 : 1);
 }
 
 static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE col)
