@@ -342,10 +342,10 @@ static void AttrIncBtnSnap(AxisDirection dir)
 
 	// first, find our cursor location
 	int slot = 0;
-	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
+	for (int i = 0; i < lengthof(gabChrbtn); i++) {
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
-			ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
+			gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
+			CHRBTN_WIDTH, CHRBTN_HEIGHT)) {
 			slot = i;
 			break;
 		}
@@ -356,14 +356,14 @@ static void AttrIncBtnSnap(AxisDirection dir)
 			return; // Avoid wobbling when scaled
 		--slot;
 	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (slot >= lengthof(ChrBtnsRect) - 1)
+		if (slot >= lengthof(gabChrbtn) - 1)
 			return; // Avoid wobbling when scaled
 		++slot;
 	}
 
 	// move cursor to our new location
-	int x = gnWndCharX + ChrBtnsRect[slot].x + (ChrBtnsRect[slot].w / 2);
-	int y = gnWndCharY + ChrBtnsRect[slot].y + (ChrBtnsRect[slot].h / 2);
+	int x = gnWndCharX + CHRBTN_LEFT + (CHRBTN_WIDTH / 2);
+	int y = gnWndCharY + CHRBTN_TOP(slot) + (CHRBTN_HEIGHT / 2);
 	SetCursorPos(x, y);
 }
 
@@ -982,8 +982,7 @@ void FocusOnCharInfo()
 		return;
 
 	// Jump to the first incrementable stat.
-	const RECT32& rect = ChrBtnsRect[0];
-	SetCursorPos(gnWndCharX + rect.x + (rect.w / 2), gnWndCharY + rect.y + (rect.h / 2));
+	SetCursorPos(gnWndCharX + CHRBTN_LEFT + (CHRBTN_WIDTH / 2), gnWndCharY + CHRBTN_TOP(0) + (CHRBTN_HEIGHT / 2));
 }
 
 void plrctrls_after_check_curs_move()

@@ -22,6 +22,7 @@ extern int dropGoldValue;
 extern int initialDropGoldValue;
 extern BYTE initialDropGoldIndex;
 extern bool gbChrbtnactive;
+extern bool gabChrbtn[NUM_ATTRIBS];
 extern BYTE infoclr;
 extern char infostr[256];
 extern char tempstr[256];
@@ -76,10 +77,6 @@ void control_drop_gold(int vkey);
 void DrawTeamBook();
 void CheckTeamClick(bool shift);
 void DrawGolemBar();
-
-/* data */
-
-extern const RECT32 ChrBtnsRect[4];
 
 #ifdef __cplusplus
 }

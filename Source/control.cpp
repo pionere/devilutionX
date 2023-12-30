@@ -79,7 +79,7 @@ static CelImageBuf* pChrPanelCel;
 /** Char-Panel button images CEL */
 static CelImageBuf* pChrButtonCels;
 /** Specifies whether the button of the given attribute is pressed on Character-Panel. */
-static bool _gabChrbtn[NUM_ATTRIBS];
+bool gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
 bool gbChrbtnactive;
 /** Color translations for the skill icons. */
@@ -121,15 +121,6 @@ static const char* PanBtnTxt[NUM_PANBTNS] = {
 	"Map",
 	"Chat",
 	"Teams"
-	// clang-format on
-};
-/** Maps from attribute_id to the rectangle on screen used for attribute increment buttons. */
-const RECT32 ChrBtnsRect[NUM_ATTRIBS] = {
-	// clang-format off
-	{ 132, 102, CHRBTN_WIDTH, CHRBTN_HEIGHT },
-	{ 132, 130, CHRBTN_WIDTH, CHRBTN_HEIGHT },
-	{ 132, 159, CHRBTN_WIDTH, CHRBTN_HEIGHT },
-	{ 132, 187, CHRBTN_WIDTH, CHRBTN_HEIGHT }
 	// clang-format on
 };
 /** The number of spells/skills on a single spellbook page. */
@@ -929,8 +920,8 @@ void InitControlPan()
 	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
 	assert(pChrButtonCels == NULL);
 	pChrButtonCels = CelLoadImage("Data\\CharBut.CEL", CHRBTN_WIDTH);
-	for (i = 0; i < lengthof(_gabChrbtn); i++)
-		_gabChrbtn[i] = false;
+	for (i = 0; i < lengthof(gabChrbtn); i++)
+		gabChrbtn[i] = false;
 	gbChrbtnactive = false;
 	assert(pTextBoxCels == NULL);
 	pTextBoxCels = CelLoadImage("Data\\TextBox.CEL", LTPANEL_WIDTH);
@@ -1294,10 +1285,10 @@ void DrawChr()
 	if (p->_pStatPts > 0) {
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		PrintString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, true, COL_RED, FONT_KERN_SMALL);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_STR].x, screen_y + ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_MAG].x, screen_y + ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_DEX].x, screen_y + ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_DEX] ? 7 : 6);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_VIT].x, screen_y + ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_VIT] ? 9 : 8);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 3 : 2);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 5 : 4);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_DEX) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_DEX] ? 7 : 6);
+		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_VIT) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_VIT] ? 9 : 8);
 	}
 
 	if (p->_pHasUnidItem)
@@ -1786,13 +1777,13 @@ void CheckChrBtnClick()
 	if (myplr._pStatPts != 0) {
 		if (gbChrbtnactive)
 			return; // true;
-		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
+		for (i = 0; i < lengthof(gabChrbtn); i++) {
 			if (!POS_IN_RECT(MousePos.x, MousePos.y,
-				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
-				ChrBtnsRect[i].w, ChrBtnsRect[i].h))
+				gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
+				CHRBTN_WIDTH, CHRBTN_HEIGHT))
 				continue;
 
-			_gabChrbtn[i] = true;
+			gabChrbtn[i] = true;
 			gbChrbtnactive = true;
 			return; // true;
 		}
@@ -1806,14 +1797,13 @@ void ReleaseChrBtn()
 	int i;
 
 	gbChrbtnactive = false;
-	static_assert(lengthof(_gabChrbtn) == lengthof(ChrBtnsRect), "Mismatching _gabChrbtn and ChrBtnsRect tables.");
-	static_assert(lengthof(_gabChrbtn) == 4, "Table _gabChrbtn does not work with ReleaseChrBtns function.");
-	for (i = 0; i < lengthof(_gabChrbtn); ++i) {
-		if (_gabChrbtn[i]) {
-			_gabChrbtn[i] = false;
+	static_assert(lengthof(gabChrbtn) == 4, "Table gabChrbtn does not work with ReleaseChrBtns function.");
+	for (i = 0; i < lengthof(gabChrbtn); ++i) {
+		if (gabChrbtn[i]) {
+			gabChrbtn[i] = false;
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
-				ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
+				gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
+				CHRBTN_WIDTH, CHRBTN_HEIGHT)) {
 				static_assert((int)CMD_ADDSTR + 1 == (int)CMD_ADDMAG, "ReleaseChrBtn expects ordered CMD_ADD values I.");
 				static_assert((int)CMD_ADDMAG + 1 == (int)CMD_ADDDEX, "ReleaseChrBtn expects ordered CMD_ADD values II.");
 				static_assert((int)CMD_ADDDEX + 1 == (int)CMD_ADDVIT, "ReleaseChrBtn expects ordered CMD_ADD values III.");
