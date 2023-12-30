@@ -749,7 +749,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 
 /*
  * Add an item to the delta of the given level.
- * @return 0: if there was no space, 1: if the item is a new item on the floor, 2: the item is supposed to be on the floor already
+ * @return -1: if there was no space, 0: if the item is a new item on the floor, 1: the item is supposed to be on the floor already
  */
 static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 {
@@ -757,7 +757,7 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	DDItem* pD;
 
 	if (!IsMultiGame)
-		return 1;
+		return 0;
 
 	net_assert(bLevel < NUM_LEVELS);
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
@@ -765,13 +765,13 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.PkItemEq(*pItem)) {
-			bool notOnFloor = pD->bCmd == DCMD_ITM_TAKEN;
-			if (notOnFloor) {
+			bool onFloor = pD->bCmd != DCMD_ITM_TAKEN;
+			if (!onFloor) {
 				pD->bCmd = DCMD_ITM_MOVED;
 				pD->x = x;
 				pD->y = y;
 			}
-			return notOnFloor ? 1 : 2;
+			return onFloor ? 1 : 0;
 		}
 	}
 
@@ -782,11 +782,11 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 			pD->x = x;
 			pD->y = y;
 			copy_pod(pD->item, *pItem);
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 static void PackEar(PkItemStruct* dest, const ItemStruct* src)
@@ -2437,8 +2437,8 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 		PkItemStruct pkItem;
 		PackPkItem(&pkItem, pi);
 		pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
-		if (pr != 0) {
-			if (pr == 1 && currLvl._dLevelIdx == cmd->bLevel) {
+		if (pr >= 0) {
+			if (pr == 0 && currLvl._dLevelIdx == cmd->bLevel) {
 				copy_pod(items[MAXITEMS], *pi);
 				pi->_itype = ITYPE_NONE;
 				SyncPutItem(pnum, x, y, true);
@@ -2459,7 +2459,7 @@ static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
 {
 	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
 
-	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) == 1 && currLvl._dLevelIdx == cmd->bLevel) {
+	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) == 0 && currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
 		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
 	}
@@ -2787,9 +2787,9 @@ static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 	x = plr._px + offset_x[dir];
 	y = plr._py + offset_y[dir];
 	pr = delta_put_item(&pkItem, plr._pDunLevel, x, y);
-	if (pr == 0)
+	if (pr < 0)
 		return false;
-	if (pr == 1 && currLvl._dLevelIdx == plr._pDunLevel) {
+	if (pr == 0 && currLvl._dLevelIdx == plr._pDunLevel) {
 		UnPackPkItem(&pkItem);
 		SyncPutItem(pnum, x, y, true);
 	}
