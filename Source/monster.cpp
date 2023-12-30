@@ -1736,7 +1736,6 @@ void MonLeaveLeader(int mnum)
 		monsters[mnum]._mpacksize = 0;
 		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
-			// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
 			if (/*monsters[ma]._mleaderflag != MLEADER_NONE && */monsters[ma]._mleader == mnum) {
 				monsters[ma]._mleaderflag = MLEADER_AWAY;
 			}
@@ -1759,7 +1758,6 @@ void MonUpdateLeader(int mnum)
 	if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
 		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
-			// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
 			if (/*monsters[ma]._mleaderflag != MLEADER_NONE && */monsters[ma]._mleader == mnum) {
 				monsters[ma]._mleader = MON_NO_LEADER;
 				monsters[ma]._mleaderflag = MLEADER_NONE;
@@ -2816,9 +2814,8 @@ static void GroupUnity(int mnum)
 	if (mon->_mpacksize != 0) {
 		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
-			// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
 			bmon = &monsters[ma];
-			if (bmon->_mleaderflag == MLEADER_PRESENT/* && bmon->_mleader == mnum*/) {
+			if (bmon->_mleaderflag == MLEADER_PRESENT && bmon->_mleader == mnum) {
 				if (mon->_msquelch > bmon->_msquelch) {
 					bmon->_mlastx = mon->_mlastx; // BUGFIX: use _mlastx instead of _mx (fixed)
 					bmon->_mlasty = mon->_mlasty; // BUGFIX: use _mlasty instead of _my (fixed)
@@ -2857,8 +2854,7 @@ static bool MonDirOK(int mnum, int mdir)
 		return true;
 	// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 	for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
-		// assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
-		if (monsters[ma]._mleaderflag == MLEADER_PRESENT/* && monsters[ma]._mleader == mnum*/
+		if (monsters[ma]._mleaderflag == MLEADER_PRESENT && monsters[ma]._mleader == mnum
 		 && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
 		 && abs(fy - monsters[ma]._mfuty) <= MON_PACK_DISTANCE) {
 			mcount--;
