@@ -1783,7 +1783,9 @@ void CheckChrBtnClick()
 {
 	int i;
 
-	if (myplr._pStatPts != 0 && !gbChrbtnactive) {
+	if (myplr._pStatPts != 0) {
+		if (gbChrbtnactive)
+			return; // true;
 		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
 			if (!POS_IN_RECT(MousePos.x, MousePos.y,
 				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
