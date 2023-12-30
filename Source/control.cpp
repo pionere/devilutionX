@@ -1770,6 +1770,13 @@ void DrawInfoStr()
 	}
 }
 
+static bool CheckInChrBtnRect(int i)
+{
+	return POS_IN_RECT(MousePos.x, MousePos.y,
+			gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
+			CHRBTN_WIDTH, CHRBTN_HEIGHT);
+}
+
 void CheckChrBtnClick()
 {
 	int i;
@@ -1778,9 +1785,7 @@ void CheckChrBtnClick()
 		if (gbChrbtnactive)
 			return; // true;
 		for (i = 0; i < lengthof(gabChrbtn); i++) {
-			if (!POS_IN_RECT(MousePos.x, MousePos.y,
-				gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
-				CHRBTN_WIDTH, CHRBTN_HEIGHT))
+			if (!CheckInChrBtnRect(i))
 				continue;
 
 			gabChrbtn[i] = true;
@@ -1801,9 +1806,7 @@ void ReleaseChrBtn()
 	for (i = 0; i < lengthof(gabChrbtn); ++i) {
 		if (gabChrbtn[i]) {
 			gabChrbtn[i] = false;
-			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
-				CHRBTN_WIDTH, CHRBTN_HEIGHT)) {
+			if (CheckInChrBtnRect(i)) {
 				static_assert((int)CMD_ADDSTR + 1 == (int)CMD_ADDMAG, "ReleaseChrBtn expects ordered CMD_ADD values I.");
 				static_assert((int)CMD_ADDMAG + 1 == (int)CMD_ADDDEX, "ReleaseChrBtn expects ordered CMD_ADD values II.");
 				static_assert((int)CMD_ADDDEX + 1 == (int)CMD_ADDVIT, "ReleaseChrBtn expects ordered CMD_ADD values III.");
