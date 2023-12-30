@@ -1814,23 +1814,10 @@ void ReleaseChrBtn()
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
 				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
 				ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
-				switch (i) {
-				case 0:
-					NetSendCmd(CMD_ADDSTR);
-					break;
-				case 1:
-					NetSendCmd(CMD_ADDMAG);
-					break;
-				case 2:
-					NetSendCmd(CMD_ADDDEX);
-					break;
-				case 3:
-					NetSendCmd(CMD_ADDVIT);
-					break;
-				default:
-					ASSUME_UNREACHABLE
-					break;
-				}
+				static_assert((int)CMD_ADDSTR + 1 == (int)CMD_ADDMAG, "ReleaseChrBtn expects ordered CMD_ADD values I.");
+				static_assert((int)CMD_ADDMAG + 1 == (int)CMD_ADDDEX, "ReleaseChrBtn expects ordered CMD_ADD values II.");
+				static_assert((int)CMD_ADDDEX + 1 == (int)CMD_ADDVIT, "ReleaseChrBtn expects ordered CMD_ADD values III.");
+				NetSendCmd(CMD_ADDSTR + i);
 			}
 		}
 	}
