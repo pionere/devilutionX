@@ -76,6 +76,7 @@ extern "C" {
 #define CHRBTN_WIDTH   40
 #define CHRBTN_HEIGHT  21
 #define CHRBTN_LEFT    132
+#define CHRBTN_ALT     85
 #define CHRBTN_TOP(x) (104 + (CHRBTN_HEIGHT + 7) * x)
 #if ASSET_MPL == 1
 #define SPLICON_WIDTH  37

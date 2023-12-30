@@ -1234,6 +1234,7 @@ void DrawChr()
 	BYTE col;
 	char chrstr[64];
 	int screen_x, screen_y, pc, val, mindam, maxdam;
+	bool showStats;
 
 	p = &myplr;
 	pc = p->_pClass;
@@ -1282,19 +1283,22 @@ void DrawChr()
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseVit);
 	PrintString(screen_x + 88, screen_y + 203, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
 
-	if (p->_pStatPts > 0) {
+	showStats = p->_pStatPts <= 0;
+	if (!showStats) {
+		showStats = (SDL_GetModState() & KMOD_ALT) != 0;
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		PrintString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, true, COL_RED, FONT_KERN_SMALL);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 2 : 1);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 2 : 1);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_DEX) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_DEX] ? 2 : 1);
-		CelDraw(screen_x + CHRBTN_LEFT, screen_y + CHRBTN_TOP(ATTRIB_VIT) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_VIT] ? 2 : 1);
+		int sx = screen_x + (showStats ? CHRBTN_ALT : CHRBTN_LEFT);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 2 : 1);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 2 : 1);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_DEX) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_DEX] ? 2 : 1);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_VIT) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_VIT] ? 2 : 1);
 	}
 
 	if (p->_pHasUnidItem)
 		return;
 
-	if (p->_pStatPts <= 0) {
+	if (showStats) {
 		val = p->_pStrength;
 		col = COL_WHITE;
 		if (val > p->_pBaseStr)
@@ -1772,8 +1776,9 @@ void DrawInfoStr()
 
 static bool CheckInChrBtnRect(int i)
 {
+	int sx = (SDL_GetModState() & KMOD_ALT) ? CHRBTN_ALT : CHRBTN_LEFT;
 	return POS_IN_RECT(MousePos.x, MousePos.y,
-			gnWndCharX + CHRBTN_LEFT, gnWndCharY + CHRBTN_TOP(i),
+			gnWndCharX + sx, gnWndCharY + CHRBTN_TOP(i),
 			CHRBTN_WIDTH, CHRBTN_HEIGHT);
 }
 
