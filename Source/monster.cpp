@@ -337,12 +337,7 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinHP = mdata->mMinHP;
 	cmon->cmMaxHP = mdata->mMaxHP;
 
-	lvlBonus = 0;
-	if (gnDifficulty == DIFF_NIGHTMARE) {
-		lvlBonus = NIGHTMARE_LEVEL_BONUS;
-	} else if (gnDifficulty == DIFF_HELL) {
-		lvlBonus = HELL_LEVEL_BONUS;
-	}
+	lvlBonus = currLvl._dLevelBonus;
 	cmon->cmAI.aiInt += lvlBonus / 16;
 
 	cmon->cmHit += lvlBonus * 5 / 2;
@@ -896,12 +891,7 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	mon->_mEvasion += uniqm->mUnqEva;
 	mon->_mArmorClass += uniqm->mUnqAC;
 
-	lvlBonus = 0;
-	if (gnDifficulty == DIFF_NIGHTMARE) {
-		lvlBonus = NIGHTMARE_LEVEL_BONUS;
-	} else if (gnDifficulty == DIFF_HELL) {
-		lvlBonus = HELL_LEVEL_BONUS;
-	}
+	lvlBonus = currLvl._dLevelBonus;
 	mon->_mAI.aiInt += lvlBonus / 16;
 
 	/*mon->_mHit += lvlBonus * 5 / 2;

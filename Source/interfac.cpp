@@ -255,16 +255,22 @@ void LoadGameLevel(int lvldir)
 
 void EnterLevel(BYTE lvl)
 {
+	int lvlBonus;
+
+	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
 	currLvl._dLevelIdx = lvl;
 	currLvl._dLevel = AllLevels[lvl].dLevel;
 	currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
 	currLvl._dType = AllLevels[lvl].dType;
 	currLvl._dDunType = AllLevels[lvl].dDunType;
-	if (gnDifficulty == DIFF_NIGHTMARE)
-		currLvl._dLevel += NIGHTMARE_LEVEL_BONUS;
-	else if (gnDifficulty == DIFF_HELL)
-		currLvl._dLevel += HELL_LEVEL_BONUS;
-	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
+	lvlBonus = 0;
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		lvlBonus += NIGHTMARE_LEVEL_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		lvlBonus += HELL_LEVEL_BONUS;
+	}
+	currLvl._dLevelBonus = lvlBonus;
+	currLvl._dLevel += lvlBonus;
 }
 
 /*

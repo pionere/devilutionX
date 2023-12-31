@@ -2074,6 +2074,7 @@ typedef struct LevelStruct {
 	int _dType;       // cached type of the level (dungeon_type)
 	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
 	int _dLevelPlyrs; // cached number of players when the level was 'initialized'
+	int _dLevelBonus; // cached level bonus
 } LevelStruct;
 
 typedef struct LevelFileData {
