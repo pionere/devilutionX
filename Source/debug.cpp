@@ -1019,6 +1019,13 @@ void ValidateData()
 				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		int n = 0;
+		for ( ; n < NUM_IDI; n++) {
+			if (AllItemsList[n].iUniqType == ui.UIUniqType)
+				break;
+		}
+		if (n == NUM_IDI)
+			app_fatal("Missing base type for '%s' %d.", ui.UIName, i);
 	}
 	assert(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].iAnimLen == 10); // required by ProcessItems
 	// objects
