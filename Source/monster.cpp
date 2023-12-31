@@ -3642,14 +3642,6 @@ void MAI_Garg(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
-		if (MON_HAS_ENEMY) {
-			MonEnemyInfo(mnum);
-			// wake up if the enemy is close
-			if (currEnemyInfo._meRealDist < mon->_mAI.aiInt + 2) {
-				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
-				return;
-			}
-		}
 		if (mon->_mmode != MM_SPATTACK) {
 			// assert(mon->_mmode != MM_STONE);
 			if (mon->_mleaderflag == MLEADER_NONE) {
@@ -3657,6 +3649,13 @@ void MAI_Garg(int mnum)
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else {
 				mon->_mFlags &= ~MFLAG_GARG_STONE;
+			}
+		}
+		if (MON_HAS_ENEMY) {
+			MonEnemyInfo(mnum);
+			// wake up if the enemy is close
+			if (currEnemyInfo._meRealDist < mon->_mAI.aiInt + 2) {
+				mon->_mFlags &= ~(MFLAG_LOCK_ANIMATION | MFLAG_GARG_STONE);
 			}
 		}
 		return;
