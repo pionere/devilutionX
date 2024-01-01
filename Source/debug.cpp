@@ -267,6 +267,12 @@ void ValidateData()
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
 		if (md.mAI.aiType == AI_GARG && !(md.mFlags & MFLAG_NOSTONE))
 			app_fatal("AI_GARG might override stoned state (%s, %d)", md.mName, i); // required by MAI_Garg
+		if (md.mFlags & MFLAG_GARG_STONE) {
+			if (md.mFlags & MFLAG_HIDDEN)
+				app_fatal("Both GARG_STONE and HIDDEN flags are set for %s (%d).", md.mName, i); // required ProcessMonsters
+			if (md.mAI.aiType != AI_GARG)
+				app_fatal("GARG_STONE flag is not supported by the AI of %s (%d).", md.mName, i);
+		}
 		if (md.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitMonsterStats
 			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel == 0) // required by InitMonsterStats
@@ -277,8 +283,6 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
-		if ((md.mFlags & MFLAG_GARG_STONE) && (md.mFlags & MFLAG_HIDDEN))
-			app_fatal("Both GARG_STONE and HIDDEN flags are set for %s (%d).", md.mName, i); // required ProcessMonsters
 #if DEBUG_MODE
 		if (md.mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
@@ -1275,8 +1279,8 @@ void LogErrorF(const char* msg, ...)
 
 	using namespace std::chrono;
 	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
-	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+	snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+	// snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
 	fputs(tmp, f0);
 
 	fputc('\n', f0);
