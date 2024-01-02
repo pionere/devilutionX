@@ -1449,10 +1449,10 @@ static void MonFindEnemy(int mnum)
 				x = tmon->_mfutx;
 				y = tmon->_mfuty;
 			}
-			//if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
-			//	continue;
-			if (!(dFlags[x][y] & BFLAG_ALERT))
+			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
+			// if (!(dFlags[x][y] & BFLAG_ALERT)) - stick to line of sight to prevent stuck golems in multiplayer games
+			//	continue;
 			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			sameroom = tv == dTransVal[x][y];
 			if (sameroom == bestsameroom) {
