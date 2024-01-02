@@ -5007,6 +5007,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
+	InitMonster(mnum, DIR_S, 0, 0, 0); // reset goal, enemy (+last)
 	InitGolemStats(mnum, level * 4 + (plx(mnum)._pMagic >> 6));
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
