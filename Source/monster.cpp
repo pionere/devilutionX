@@ -2144,17 +2144,17 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 	}
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
-	CheckQuestKill(mnum, sendmsg);
-	if (sendmsg) {
-		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonInitKill uses mnum as pnum, which must fit to BYTE.");
-		NetSendCmdMonstKill(mnum, mpnum);
-	}
 	// if (mnum < MAX_MINIONS) {
 		AddUnVision(mon->_mvid);
 	//} else {
 		MonUpdateLeader(mnum);
 		SpawnLoot(mnum, sendmsg);
 	// }
+	CheckQuestKill(mnum, sendmsg);
+	if (sendmsg) {
+		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonInitKill uses mnum as pnum, which must fit to BYTE.");
+		NetSendCmdMonstKill(mnum, mpnum);
+	}
 
 	if (mon->_mType == MT_DIABLO)
 		MonDiabloDeath(mnum);
