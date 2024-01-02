@@ -2367,9 +2367,9 @@ static bool CheckIfTrig(int x, int y)
  */
 int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct* mis;
 	int i, j, tx, ty;
 	const int8_t* cr;
+	// assert((unsigned)misource < MAX_PLRS);
 	// the position of portals in town and recreated portals are fixed
 	if (currLvl._dType != DTYPE_TOWN && spllvl >= 0) {
 		const int RANGE = 6;
@@ -2395,11 +2395,9 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 		ty = dy;
 	}
 	// 'delete' previous portal of the misource
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == misource)
-			mis->_miRange = -1;
-	}
+	// assert(!missile[mi]._miDelFlag);
+	RemovePortalMissile(misource);
+	missile[mi]._miDelFlag = FALSE; // revert delete flag of the current missile
 	// setup the new portal
 	return AddPortal(mi, 0, 0, tx, ty, 0, 0, misource, spllvl);
 }
@@ -2414,7 +2412,6 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis = &missile[mi];
 	mis->_mix = mis->_misx = dx;
 	mis->_miy = mis->_misy = dy;
-	mis->_miRange = 1;
 	mis->_miLid = AddLight(dx, dy, spllvl >= 0 ? 1 : 15);
 	if (spllvl >= 0) {
 		PlaySfxLoc(LS_SENTINEL, dx, dy);
@@ -4024,13 +4021,9 @@ void MI_Portal(int mi)
 	MissileStruct* mis;
 	static_assert(MAX_LIGHT_RAD >= 15, "MI_Portal needs at least light-radius of 15.");
 	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
-	PlayerStruct* p;
 
 	mis = &missile[mi];
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE; // + AddUnLight
-		return;
-	}
+	// assert(!mis->_miDelFlag);
 	if (mis->_miDir == 0) {
 		// assert(mis->_miAnimLen < lengthof(ExpLight));
 		// assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
@@ -4046,8 +4039,7 @@ void MI_Portal(int mi)
 	}
 
 	if (mis->_miType == MIS_TOWN) {
-		p = &myplr;
-		if (p->_px == mis->_mix && p->_py == mis->_miy && /*!p->_pLvlChanging &&*/ p->_pmode == PM_STAND && !mis->_miVar3) {
+		if (myplr._px == mis->_mix && myplr._py == mis->_miy && /*!myplr._pLvlChanging &&*/ myplr._pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
 			NetSendCmdBParam1(CMD_USEPORTAL, mis->_miSource);
 		}

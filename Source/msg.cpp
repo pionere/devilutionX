@@ -2702,8 +2702,7 @@ static unsigned On_USEPORTAL(TCmd* pCmd, int pnum)
 
 	net_assert(idx < MAX_PLRS);
 
-	if (plr._pmode != PM_DEATH)
-		UseTownPortal(pnum, idx);
+	UseTownPortal(pnum, idx);
 
 	return sizeof(*cmd);
 }

@@ -80,8 +80,8 @@ void RemovePortalMissile(int pidx)
 	MissileStruct* mis;
 	int i;
 
-	if (!PortalOnLevel(pidx))
-		return;
+	//if (!PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
+	//	return;
 
 	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
 	for (i = 0; i < nummissiles; i++) {
