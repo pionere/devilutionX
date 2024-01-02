@@ -475,6 +475,7 @@ void InitLvlMonsters()
 	nummonsters = MAX_MINIONS;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		AddMonsterType(MT_GOLEM, FALSE);
+		mapMonTypes[0].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 		for (i = 0; i < MAX_MINIONS; i++) {
 			InitMonster(i, 0, 0, 0, 0);
 			monsters[i]._mmode = MM_RESERVED;
@@ -2148,11 +2149,11 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 		static_assert(MAXMONSTERS <= UCHAR_MAX, "MonInitKill uses mnum as pnum, which must fit to BYTE.");
 		NetSendCmdMonstKill(mnum, mpnum);
 	}
-	// if (mnum >= MAX_MINIONS) {
+	// if (mnum < MAX_MINIONS) {
+		AddUnVision(mon->_mvid);
+	//} else {
 		MonUpdateLeader(mnum);
 		SpawnLoot(mnum, sendmsg);
-	//} else {
-		AddUnVision(mon->_mvid);
 	// }
 
 	if (mon->_mType == MT_DIABLO)
@@ -5010,7 +5011,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
-	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+	// assert((mon->_mFlags & (MFLAG_NOCORPSE | MFLAG_NODROP)) == (MFLAG_NOCORPSE | MFLAG_NODROP));
 	ActivateSpawn(mnum, x, y, DIR_S);
 	if (mnum == mypnum)
 		NetSendCmdGolem();
