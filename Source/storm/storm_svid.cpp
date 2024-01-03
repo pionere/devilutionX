@@ -303,11 +303,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 
 	smk_enable_video(SVidSMK, enableVideo);
 	smk_first(SVidSMK); // Decode first frame
-#ifndef USE_SDL1
-	if (renderer != NULL) {
-		RecreateDisplay(SVidWidth, SVidHeight);
-	}
-#else
+#ifdef USE_SDL1
 	TrySetVideoModeToSVidForSDL1();
 #endif
 
@@ -403,14 +399,6 @@ bool SVidPlayContinue()
 	}
 
 	SDL_Surface* outputSurface = GetOutputSurface();
-#ifndef USE_SDL1
-	if (renderer != NULL) {
-		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
-			sdl_issue(ERR_SDL_VIDEO_BLIT_A);
-			return false;
-		}
-	} else
-#endif
 	{
 #ifdef USE_SDL1
 		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
@@ -493,11 +481,7 @@ void SVidPlayEnd()
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
 
-#ifndef USE_SDL1
-	if (renderer != NULL) {
-		RecreateDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
-	}
-#else
+#ifdef USE_SDL1
 	if (IsSVidVideoMode) {
 		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
 		IsSVidVideoMode = false;
