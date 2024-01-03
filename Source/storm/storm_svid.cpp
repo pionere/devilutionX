@@ -478,8 +478,8 @@ void SVidPlayEnd()
 		RestartMixer();
 	}
 #endif // !NOSOUND
-	if (SVidSMK != NULL)
-		smk_close(SVidSMK);
+	smk_close(SVidSMK);
+	SVidSMK = NULL;
 
 	MemFreeDbg(SVidBuffer);
 

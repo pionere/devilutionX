@@ -1031,14 +1031,13 @@ error:
 void smk_close(smk s)
 {
 	unsigned long u;
-#ifdef FULL
+
 	if (s == NULL) {
+#ifdef FULL
 		fputs("libsmacker::smk_close() - ERROR: smk is NULL\n", stderr);
+#endif
 		return;
 	}
-#else
-	assert(s);
-#endif
 
 	/* free video sub-components */
 	for (u = 0; u < 4; u ++) {
@@ -1971,75 +1970,96 @@ error:
 /* rewind to first frame and unpack */
 char smk_first(smk s)
 {
-	/* null check */
 #ifdef FULL
+	/* null check */
 	if (s == NULL) {
 		fputs("libsmacker::smk_first() - ERROR: smk is NULL\n", stderr);
 		return -1;
 	}
-#else
-	assert(s);
-#endif
+
 	s->cur_frame = 0;
 
 	if (smk_render(s) < 0) {
-#ifdef FULL
 		fprintf(stderr, "libsmacker::smk_first(s) - Warning: frame %lu: smk_render returned errors.\n", s->cur_frame);
-#endif
 		return -1;
 	}
 
-#ifdef FULL
 	if (s->f == 1) return SMK_LAST;
-#endif
 
 	return SMK_MORE;
+#else
+	char result = SMK_MORE;
+
+	assert(s);
+
+	s->cur_frame = 0;
+
+	if (smk_render(s) < 0) {
+		result = SMK_ERROR;
+	}
+
+	return result;
+#endif
 }
 
 /* advance to next frame */
 char smk_next(smk s)
 {
-	/* null check */
 #ifdef FULL
+	/* null check */
 	if (s == NULL) {
 		fputs("libsmacker::smk_next() - ERROR: smk is NULL\n", stderr);
 		return -1;
 	}
-#else
-	assert(s);
-#endif
 
 	if (s->cur_frame + 1 < (s->f + s->ring_frame)) {
 		s->cur_frame ++;
 
 		if (smk_render(s) < 0) {
-#ifdef FULL
 			fprintf(stderr, "libsmacker::smk_next(s) - Warning: frame %lu: smk_render returned errors.\n", s->cur_frame);
-#endif
 			return -1;
 		}
-#ifdef FULL
+
 		if (s->cur_frame + 1 == (s->f + s->ring_frame))
 			return SMK_LAST;
-#endif
+
 		return SMK_MORE;
 	} else if (s->ring_frame) {
 		s->cur_frame = 1;
 
 		if (smk_render(s) < 0) {
-#ifdef FULL
 			fprintf(stderr, "libsmacker::smk_next(s) - Warning: frame %lu: smk_render returned errors.\n", s->cur_frame);
-#endif
 			return -1;
 		}
-#ifdef FULL
+
 		if (s->cur_frame + 1 == (s->f + s->ring_frame))
 			return SMK_LAST;
-#endif
+
 		return SMK_MORE;
 	}
 
 	return SMK_DONE;
+#else
+	char result = SMK_DONE;
+
+	assert(s);
+
+	if (s->cur_frame + 1 < (s->f + s->ring_frame)) {
+		s->cur_frame ++;
+
+		result = SMK_MORE;
+	} else if (s->ring_frame) {
+		s->cur_frame = 1;
+
+		result = SMK_MORE;
+	}
+
+	if (result == SMK_MORE && smk_render(s) < 0) {
+		result = SMK_ERROR;
+	}
+
+	return result;
+#endif
 }
 
 /* seek to a keyframe in an smk */
