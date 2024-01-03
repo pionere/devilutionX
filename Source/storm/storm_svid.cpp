@@ -400,11 +400,11 @@ bool SVidPlayContinue()
 
 	SDL_Surface* outputSurface = GetOutputSurface();
 	{
+		SDL_PixelFormat* outputFormat = outputSurface->format;
 #ifdef USE_SDL1
-		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
+		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputFormat);
 #else
-		const Uint32 wndFormat = SDL_GetWindowPixelFormat(ghMainWnd);
-		const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(wndFormat);
+		const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(outputFormat->format);
 #endif
 		SDL_Rect outputRect;
 		if (isIndexedOutputFormat) {
@@ -432,9 +432,9 @@ bool SVidPlayContinue()
 			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
 			// We must convert to the output format before calling SDL_BlitScaled.
 #ifdef USE_SDL1
-			SDL_Surface* tmp = SDL_ConvertSurface(SVidSurface, ghMainWnd->format, 0);
+			SDL_Surface* tmp = SDL_ConvertSurface(SVidSurface, outputFormat, 0);
 #else
-			SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
+			SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, outputFormat->format, 0);
 #endif
 			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
 				SDL_FreeSurface(tmp);
