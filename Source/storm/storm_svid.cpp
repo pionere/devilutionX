@@ -254,7 +254,6 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	//0x200800 // Clear FB
 	size_t dwBytes;
 
-	assert(SVidBuffer == NULL);
 	SVidBuffer = LoadFileInMem(filename, &dwBytes);
 
 	SVidSMK = smk_open_memory(SVidBuffer, dwBytes);
@@ -334,8 +333,9 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 			sdl_issue(ERR_SDL_VIDEO_PALETTE);
 		}
 		SVidPlayEnd();
-	} else {
-		UpdatePalette();
+	//} else {
+	//	assert(smk_palette_updated(SVidSMK));
+	//	UpdatePalette();
 	}
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
