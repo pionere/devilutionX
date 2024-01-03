@@ -100,6 +100,8 @@ void TrySetVideoModeToSVidForSDL1()
 #endif
 
 	SetVideoMode(w, h, display->format->BitsPerPixel, flags);
+	// Set the background to black.
+	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 }
 #endif
 
@@ -306,11 +308,6 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 #ifdef USE_SDL1
 	TrySetVideoModeToSVidForSDL1();
 #endif
-
-	// Set the background to black.
-	// commented out because the background is supposed to be black at this point
-	// due to RecreateDisplay, this should be done twice anyway...
-	// SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(
