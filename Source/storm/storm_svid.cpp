@@ -285,16 +285,14 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 			if (deviceId != 0) {
 				SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 			} else {
-				DoLog(SDL_GetError());
-				//sdl_error(ERR_SDL_AUDIO_DEVICE_SDL2);
+				sdl_issue(ERR_SDL_AUDIO_DEVICE_SDL2);
 			}
 #else
 			sVidAudioQueue->Subscribe(&audioFormat);
 			if (SDL_OpenAudio(&audioFormat, NULL) == 0) {
 				SDL_PauseAudio(0);
 			} else {
-				DoLog(SDL_GetError());
-				//sdl_error(ERR_SDL_AUDIO_DEVICE_SDL1);
+				sdl_issue(ERR_SDL_AUDIO_DEVICE_SDL1);
 			}
 #endif
 		}
@@ -327,16 +325,18 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
-	if (SVidSurface == NULL) {
-		sdl_error(ERR_SDL_VIDEO_CREATE);
-	}
 
 	SVidPalette = SDL_AllocPalette(NUM_COLORS);
-	if (SVidPalette == NULL) {
-		sdl_error(ERR_SDL_VIDEO_PALETTE);
+	if (SVidSurface == NULL || SVidPalette == NULL) {
+		if (SVidSurface == NULL) {
+			sdl_issue(ERR_SDL_VIDEO_CREATE);
+		} else {
+			sdl_issue(ERR_SDL_VIDEO_PALETTE);
+		}
+		SVidPlayEnd();
+	} else {
+		UpdatePalette();
 	}
-	UpdatePalette();
-
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
 }
@@ -390,7 +390,7 @@ bool SVidPlayContinue()
 		BYTE* audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
-			sdl_error(ERR_SDL_VIDEO_AUDIO);
+			sdl_issue(ERR_SDL_VIDEO_AUDIO);
 		}
 #else
 		sVidAudioQueue->Enqueue(audio, len);
@@ -406,7 +406,8 @@ bool SVidPlayContinue()
 #ifndef USE_SDL1
 	if (renderer != NULL) {
 		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
-			sdl_error(ERR_SDL_VIDEO_BLIT_A);
+			sdl_issue(ERR_SDL_VIDEO_BLIT_A);
+			return false;
 		}
 	} else
 #endif
@@ -436,7 +437,8 @@ bool SVidPlayContinue()
 		    || outputSurface->w == static_cast<int>(SVidWidth)
 		    || outputSurface->h == static_cast<int>(SVidHeight)) {
 			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
-				sdl_error(ERR_SDL_VIDEO_BLIT_B);
+				sdl_issue(ERR_SDL_VIDEO_BLIT_B);
+				return false;
 			}
 		} else {
 			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
@@ -447,7 +449,9 @@ bool SVidPlayContinue()
 			SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
 #endif
 			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-				sdl_error(ERR_SDL_VIDEO_BLIT_SCALED);
+				SDL_FreeSurface(tmp);
+				sdl_issue(ERR_SDL_VIDEO_BLIT_SCALED);
+				return false;
 			}
 			SDL_FreeSurface(tmp);
 		}
