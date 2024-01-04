@@ -139,36 +139,32 @@ static void AdjustToScreenGeometry(int width, int height)
 static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
-	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		return;
-	}
-
-	if (mode.w < mode.h) {
-		std::swap(mode.w, mode.h);
-	}
-
-	if (useIntegerScaling) {
-		int wFactor = mode.w / width;
-		int hFactor = mode.h / height;
-		if (wFactor > hFactor) {
-			if (hFactor != 0)
-				width *= wFactor / hFactor;
-		} else { // if (hFactor > wFactor) {
-			if (wFactor != 0)
-				height *= hFactor / wFactor;
+	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+		if (mode.w < mode.h) {
+			std::swap(mode.w, mode.h);
 		}
-		return;
-	}
 
-	float wFactor = (float)mode.w / width;
-	float hFactor = (float)mode.h / height;
-
-	if (wFactor > hFactor) {
-		// if (hFactor != 0.0)
-			width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
-	} else { // if (hFactor > wFactor) {
-		// if (wFactor != 0.0)
-			height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
+		if (useIntegerScaling) {
+			int wFactor = mode.w / width;
+			int hFactor = mode.h / height;
+			if (wFactor > hFactor) {
+				if (hFactor != 0)
+					width *= wFactor / hFactor;
+			} else { // if (hFactor > wFactor) {
+				if (wFactor != 0)
+					height *= hFactor / wFactor;
+			}
+		} else {
+			float wFactor = (float)mode.w / width;
+			float hFactor = (float)mode.h / height;
+			if (wFactor > hFactor) {
+				// if (hFactor != 0.0)
+					width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
+			} else { // if (hFactor > wFactor) {
+				// if (wFactor != 0.0)
+					height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
+			}
+		}
 	}
 }
 #endif
