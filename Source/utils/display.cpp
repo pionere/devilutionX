@@ -140,7 +140,7 @@ static void CalculatePreferredWindowSize(int& width, int& height, bool useIntege
 {
 	SDL_DisplayMode mode;
 	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		sdl_error(ERR_SDL_DISPLAY_MODE_GET);
+		return;
 	}
 
 	if (mode.w < mode.h) {
