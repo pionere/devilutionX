@@ -94,9 +94,8 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
 #ifdef __3DS__
-	flags &= ~SDL_FULLSCREEN;
-	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
-	flags |= Get3DSScalingFlag(fitToScreen, width, height);
+	else
+		flags |= Get3DSScalingFlag(width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 }
