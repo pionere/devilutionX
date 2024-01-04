@@ -148,9 +148,15 @@ static void CalculatePreferredWindowSize(int& width, int& height, bool useIntege
 	}
 
 	if (useIntegerScaling) {
-		int factor = std::min(mode.w / width, mode.h / height);
-		width = mode.w / factor;
-		height = mode.h / factor;
+		int wFactor = mode.w / width;
+		int hFactor = mode.h / height;
+		if (wFactor > hFactor) {
+			if (hFactor != 0)
+				width *= wFactor / hFactor;
+		} else { // if (hFactor > wFactor) {
+			if (wFactor != 0)
+				height *= hFactor / wFactor;
+		}
 		return;
 	}
 
@@ -158,9 +164,11 @@ static void CalculatePreferredWindowSize(int& width, int& height, bool useIntege
 	float hFactor = (float)mode.h / height;
 
 	if (wFactor > hFactor) {
-		width = mode.w * height / mode.h;
-	} else {
-		height = mode.h * width / mode.w;
+		// if (hFactor != 0.0)
+			width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
+	} else { // if (hFactor > wFactor) {
+		// if (wFactor != 0.0)
+			height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
 	}
 }
 #endif
