@@ -2305,15 +2305,13 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if (PosOkMissile(tx, ty)) {
-					mis->_mix = tx;
-					mis->_miy = ty;
-					//mis->_misx = tx;
-					//mis->_misy = ty;
-					mis->_miRange = 32 * spllvl + 160;
-					return MIRES_DONE;
-				}
+			if (PosOkMissile(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				mis->_mix = tx;
+				mis->_miy = ty;
+				//mis->_misx = tx;
+				//mis->_misy = ty;
+				mis->_miRange = 32 * spllvl + 160;
+				return MIRES_DONE;
 			}
 		}
 	}
@@ -2750,17 +2748,15 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (LineClear(sx, sy, tx, ty)) {
-				if (PosOkMissile(tx, ty)) {
-					mis->_mix = tx;
-					mis->_miy = ty;
-					mis->_misx = tx;
-					mis->_misy = ty;
-					static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
-					mis->_miLid = AddLight(tx, ty, 1);
-					mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
-					return MIRES_DONE;
-				}
+			if (PosOkMissile(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				mis->_mix = tx;
+				mis->_miy = ty;
+				mis->_misx = tx;
+				mis->_misy = ty;
+				static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
+				mis->_miLid = AddLight(tx, ty, 1);
+				mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
+				return MIRES_DONE;
 			}
 		}
 	}
@@ -2784,11 +2780,9 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
-				if (LineClear(sx, sy, tx, ty)) {
-					if (PosOkActor(tx, ty)) {
-						SpawnGolem(misource, tx, ty, spllvl);
-						return MIRES_DELETE;
-					}
+				if (PosOkActor(tx, ty) && LineClear(sx, sy, tx, ty)) {
+					SpawnGolem(misource, tx, ty, spllvl);
+					return MIRES_DELETE;
 				}
 			}
 		}
