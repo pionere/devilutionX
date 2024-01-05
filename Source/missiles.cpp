@@ -1560,7 +1560,7 @@ void InitMissiles()
 }
 
 #ifdef HELLFIRE
-static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
+static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mirange)
 {
 	int i, j, tx, ty;
 	const int8_t* cr;
@@ -1582,16 +1582,16 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty)) {
+			if (PosOkMissile(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				static_assert(MAX_LIGHT_RAD >= 8, "PlaceRune needs at least light-radius of 8.");
 				mis->_miLid = AddLight(tx, ty, 8);
-				return true;
+				return MIRES_DONE;
 			}
 		}
 	}
-	return false;
+	return MIRES_FAIL_DELETE;
 }
 
 /**
@@ -1601,11 +1601,7 @@ static bool PlaceRune(int mi, int dx, int dy, int mitype, int mirange)
  */
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	if (LineClear(sx, sy, dx, dy)) {
-		if (PlaceRune(mi, dx, dy, MIS_FIREEXP, 0))
-			return MIRES_DONE;
-	}
-	return MIRES_FAIL_DELETE;
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREEXP, 0);
 }
 
 /**
@@ -1615,12 +1611,8 @@ int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
  */
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	if (LineClear(sx, sy, dx, dy)) {
-		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddLightRune expects a large enough border.");
-		if (PlaceRune(mi, dx, dy, MIS_LIGHTNINGC, 1))
-			return MIRES_DONE;
-	}
-	return MIRES_FAIL_DELETE;
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddLightRune expects a large enough border.");
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNINGC, 1);
 }
 
 /**
@@ -1630,12 +1622,8 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
  */
 int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	if (LineClear(sx, sy, dx, dy)) {
-		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddNovaRune expects a large enough border.");
-		if (PlaceRune(mi, dx, dy, MIS_LIGHTNOVAC, 1))
-			return MIRES_DONE;
-	}
-	return MIRES_FAIL_DELETE;
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddNovaRune expects a large enough border.");
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNOVAC, 1);
 }
 
 /**
@@ -1645,12 +1633,8 @@ int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
  */
 int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	if (LineClear(sx, sy, dx, dy)) {
-		static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWaveRune expects a large enough border.");
-		if (PlaceRune(mi, dx, dy, MIS_FIREWAVEC, 1))
-			return MIRES_DONE;
-	}
-	return MIRES_FAIL_DELETE;
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWaveRune expects a large enough border.");
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREWAVEC, 1);
 }
 
 /**
@@ -1660,11 +1644,7 @@ int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
  */
 int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	if (LineClear(sx, sy, dx, dy)) {
-		if (PlaceRune(mi, dx, dy, MIS_STONE, 0))
-			return MIRES_DONE;
-	}
-	return MIRES_FAIL_DELETE;
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0);
 }
 
 int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
