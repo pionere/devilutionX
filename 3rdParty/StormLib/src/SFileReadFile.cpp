@@ -56,7 +56,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
         // If the sector positions are not loaded yet, do it
         if (hf->SectorOffsets == NULL) {
+#ifdef FULL
             dwErrCode = AllocateSectorOffsets(hf, true);
+#else
+            dwErrCode = AllocateSectorOffsets(hf);
+#endif
             if (dwErrCode != ERROR_SUCCESS || hf->SectorOffsets == NULL)
                 return dwErrCode;
         }
@@ -71,8 +75,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // We only try to load sector CRCs once, and regardless if it fails
             // or not, we won't try that again for the given file.
             //
-
+#ifdef FULL
             AllocateSectorChecksums(hf, true);
+#else
+            AllocateSectorChecksums(hf);
+#endif
             hf->bLoadedSectorCRCs = true;
         }
 
