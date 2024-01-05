@@ -2038,6 +2038,17 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	int i, j, tx, ty;
 	const int8_t* cr;
 
+	// MisInCastDistance(sx, sy, midir, dx, dy, 7);
+	while (true) {
+		tx = abs(sx - dx);
+		ty = abs(sy - dy);
+		i = sqrt(tx * tx + ty * ty);
+		if (i <= 7)
+			break;
+		dx += offset_x[OPPOSITE(midir)];
+		dy += offset_y[OPPOSITE(midir)];
+	}
+
 	assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTeleport expects a large enough border.");
 	for (i = 0; i <= 5; i++) {
@@ -2360,11 +2371,9 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
-				if (PosOkMissile(tx, ty)) {
-					if (!CheckIfTrig(tx, ty)) {
-						i = RANGE;
-						break;
-					}
+				if (PosOkMissile(tx, ty) && !CheckIfTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
+					i = RANGE;
+					break;
 				}
 			}
 		}
@@ -2690,7 +2699,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			mid = dMonster[tx][ty] - 1;
-			if (mid < MAX_MINIONS)
+			if (mid < MAX_MINIONS || !LineClear(sx, sy, tx, ty))
 				continue;
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE) && !CanTalkToMonst(mid)
@@ -3817,7 +3826,7 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct* mis;
-	int j, mnum, tx, ty;
+	int j, mnum, sx, sy, tx, ty;
 	const int8_t* cr;
 
 	mis = &missile[mi];
@@ -3827,10 +3836,12 @@ void MI_Rune(int mi)
 		return;
 	}
 	if (--mis->_miVar3 < 0) {
+		sx = mis->_mix;
+		sy = mis->_miy;
 		cr = &CrawlTable[CrawlNum[mis->_miVar2]];
 		for (j = *cr; j > 0; j--) {
-			tx = mis->_mix + *++cr;
-			ty = mis->_miy + *++cr;
+			tx = sx + *++cr;
+			ty = sy + *++cr;
 			if (dPlayer[tx][ty] == 0) {
 				mnum = dMonster[tx][ty];
 				if (mnum == 0)
@@ -3839,8 +3850,10 @@ void MI_Rune(int mi)
 				if (monsters[mnum]._mmode == MM_STONE || monsters[mnum]._mmode == MM_DEATH)
 					continue;
 			}
+			if (!LineClear(sx, sy, tx, ty))
+				continue;
 			// SetRndSeed(mis->_miRndSeed);
-			AddMissile(mis->_mix, mis->_miy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(sx, sy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 			mis->_miRange -= 48;
 			mis->_miVar3 = 48;
 			break;
