@@ -243,6 +243,8 @@ void ValidateData()
 			app_fatal("Too low dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
 		if ((AllLevels[i].dLevel * 8 - AllLevels[i].dLevel * 2) >= 0x7FFF) // required by GetItemAttrs
 			app_fatal("Too high dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
+		if (AllLevels[i].dMonDensity > UINT_MAX / (DSIZEX * DSIZEY))
+			app_fatal("Too high dMonDensity on level %s (%d)", AllLevels[i].dLevelName, i); // required by InitMonsters
 	}
 	{
 	BYTE lvlMask = 1 << AllLevels[questlist[Q_BLOOD]._qdlvl].dType;

@@ -1127,8 +1127,6 @@ void InitMonsters()
 		na = na * AllLevels[currLvl._dLevelIdx].dMonDensity / 32;
 
 		numplacemonsters = na / 32;
-		if (IsMultiGame)
-			numplacemonsters += numplacemonsters >> 1;
 		totalmonsters = nummonsters + numplacemonsters;
 		if (totalmonsters > MAXMONSTERS - 10)
 			totalmonsters = MAXMONSTERS - 10;
