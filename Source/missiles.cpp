@@ -2040,11 +2040,12 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 
 	// MisInCastDistance(sx, sy, midir, dx, dy, 7);
 	while (true) {
-		tx = abs(sx - dx);
-		ty = abs(sy - dy);
+		tx = sx - dx;
+		ty = sy - dy;
 		i = sqrt(tx * tx + ty * ty);
 		if (i <= 7)
 			break;
+		// assert(i < MAXDUNX + MAXDUNY);
 		dx += offset_x[OPPOSITE(midir)];
 		dy += offset_y[OPPOSITE(midir)];
 	}
