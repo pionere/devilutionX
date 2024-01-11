@@ -1817,41 +1817,20 @@ void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_ha
 
 #ifndef STORMLIB_LITTLE_ENDIAN
 
-// Swaps a signed 16-bit integer
-int16_t SwapInt16(uint16_t val)
-{
-    return (val << 8) | ((val >> 8) & 0xFF);
-}
-
-// Swaps an unsigned 16-bit integer
+// Swaps a 16-bit integer
 uint16_t SwapUInt16(uint16_t val)
 {
     return (val << 8) | (val >> 8 );
 }
 
-// Swaps a signed 32-bit integer
-int32_t SwapInt32(uint32_t val)
-{
-    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF );
-    return (val << 16) | ((val >> 16) & 0xFFFF);
-}
-
-// Swaps an unsigned 32-bit integer
+// Swaps a 32-bit integer
 uint32_t SwapUInt32(uint32_t val)
 {
     val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF );
     return (val << 16) | (val >> 16);
 }
 
-// Swaps a signed 64-bit integer
-int64_t SwapInt64(uint64_t val)
-{
-    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
-    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
-    return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
-}
-
-// Swaps an unsigned 64-bit integer
+// Swaps a 64-bit integer
 uint64_t SwapUInt64(uint64_t val)
 {
     val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
@@ -1886,7 +1865,7 @@ void ConvertUInt32Buffer(void * ptr, size_t length)
 }
 
 // Swaps array of unsigned 64-bit integers
-void ConvertUInt64Buffer(void * ptr, size_t length)
+/*void ConvertUInt64Buffer(void * ptr, size_t length)
 {
     uint64_t * buffer = (uint64_t *)ptr;
     uint32_t nElements = (uint32_t)(length / sizeof(uint64_t));
@@ -1896,7 +1875,7 @@ void ConvertUInt64Buffer(void * ptr, size_t length)
 		*buffer = SwapUInt64(*buffer);
 		buffer++;
 	}
-}
+}*/
 
 // Swaps the TMPQHeader structure
 void ConvertTMPQHeader(void *header, uint16_t version)
