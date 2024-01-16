@@ -20,6 +20,9 @@ static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
 typedef enum filenames {
+	FILE_MOVIE_VIC1,
+	FILE_MOVIE_VIC2,
+	FILE_MOVIE_VIC3,
 #if ASSET_MPL == 1
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
@@ -119,6 +122,9 @@ typedef enum filenames {
 } filenames;
 
 static const char* const filesToPatch[NUM_FILENAMES] = {
+/*FILE_MOVIE_VIC1*/    "gendata\\DiabVic1.smk",
+/*FILE_MOVIE_VIC2*/    "gendata\\DiabVic2.smk",
+/*FILE_MOVIE_VIC3*/    "gendata\\DiabVic3.smk",
 #if ASSET_MPL == 1
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
@@ -325,6 +331,249 @@ static BYTE* buildBlkMin(BYTE* minBuf, size_t *minLen, unsigned blockSize)
 	}
 	removeMicros.clear();
 	return minBuf;
+}
+
+static void patchMovie(int fileIndex, BYTE* fileBuf, size_t* fileSize)
+{
+	uint32_t* lm = (uint32_t*)fileBuf;
+
+	// TODO: validate file-size
+	switch (fileIndex) {
+	case FILE_MOVIE_VIC1:
+	{	// patch movie - DiabVic1.smk
+		lm += 2365112 / 4;
+		lm[0] = SwapLE32(-550965321);
+		lm[1] = SwapLE32(-272898787);
+		lm[2] = SwapLE32(2091106043);
+		lm[3] = SwapLE32(1596505681);
+		lm[4] = SwapLE32(2009739156);
+		lm[5] = SwapLE32(-202827765);
+		lm[6] = SwapLE32(2104344764);
+		lm[7] = SwapLE32(-2141622575);
+		lm[8] = SwapLE32(48038255);
+		lm[9] = SwapLE32(45358492);
+		lm[10] = SwapLE32(-1267717305);
+		lm[11] = SwapLE32(-1587331326);
+		lm[12] = SwapLE32(-2120218010);
+		lm[13] = SwapLE32(-2011561816);
+		lm[14] = SwapLE32(1414846530);
+		lm[15] = SwapLE32(-1349224483);
+		lm[16] = SwapLE32(1596506156);
+		lm[17] = SwapLE32(-1101954983);
+		lm[18] = SwapLE32(1199431464);
+		lm[19] = SwapLE32(1367122681);
+		lm[20] = SwapLE32(-1805702978);
+		lm[21] = SwapLE32(-545797585);
+		lm[22] = SwapLE32(1596505681);
+		lm[23] = SwapLE32(-225513580);
+		lm[24] = SwapLE32(1005517125);
+		lm[25] = SwapLE32(-1947920438);
+		lm[26] = SwapLE32(-1560721934);
+		lm[27] = SwapLE32(-71413380);
+		lm[28] = SwapLE32(-112856434);
+		lm[29] = SwapLE32(-1101955934);
+		lm[30] = SwapLE32(-1349230808);
+		lm[31] = SwapLE32(199978722);
+		lm[32] = SwapLE32(-834474092);
+		lm[33] = SwapLE32(1232795968);
+		lm[34] = SwapLE32(1968370609);
+		lm[35] = SwapLE32(-1751256130);
+		lm[36] = SwapLE32(26469610);
+		lm[37] = SwapLE32(-1792990555);
+		lm[38] = SwapLE32(-1099607468);
+		lm[39] = SwapLE32(1251410675);
+		lm[40] = SwapLE32(-136193238);
+		lm[41] = SwapLE32(2079387026);
+		lm[42] = SwapLE32(-130195607);
+		lm[43] = SwapLE32(1596987095);
+		lm[44] = SwapLE32(-905946117);
+		lm[45] = SwapLE32(-113243273);
+		lm[46] = SwapLE32(781362926);
+		lm[47] = SwapLE32(399126420);
+		lm[48] = SwapLE32(1173523429);
+		lm[49] = SwapLE32(-176381191);
+		lm[50] = SwapLE32(275362381);
+		lm[51] = SwapLE32(-155288568);
+		lm[52] = SwapLE32(1439028673);
+		lm[53] = SwapLE32(-2129603742);
+		lm[54] = SwapLE32(766280566);
+		lm[55] = SwapLE32(919806055);
+		lm[56] = SwapLE32(1681665368);
+		lm[57] = SwapLE32(-863511906);
+		lm[58] = SwapLE32(-1957164198);
+		lm[59] = SwapLE32(-1063860819);
+		lm[60] = SwapLE32(-883300707);
+		lm[61] = SwapLE32(-1663365712);
+		lm[62] = SwapLE32(-107803491);
+		lm[63] = SwapLE32(706130563);
+		lm[64] = SwapLE32(-905866675);
+		lm[65] = SwapLE32(-1308512774);
+		lm[66] = SwapLE32(1493841248);
+		lm[67] = SwapLE32(256192880);
+		lm[68] = SwapLE32(-619848059);
+		lm[69] = SwapLE32(369285801);
+		lm[70] = SwapLE32(-876682358);
+		lm[71] = SwapLE32(334941186);
+		lm[72] = SwapLE32(2128183385);
+		lm[73] = SwapLE32(23856562);
+	} break;
+	case FILE_MOVIE_VIC2:
+	{	// patch movie - DiabVic2.smk
+		lm += 2303424 / 4;
+		lm[0] = SwapLE32(-692176717);
+		lm[1] = SwapLE32(1924240277);
+		lm[2] = SwapLE32(-1116350926);
+		lm[3] = SwapLE32(846226659);
+		lm[4] = SwapLE32(211556664);
+		lm[5] = SwapLE32(1836009038);
+		lm[6] = SwapLE32(1847955435);
+		lm[7] = SwapLE32(-1153933168);
+		lm[8] = SwapLE32(-14372439);
+		lm[9] = SwapLE32(-1352999270);
+		lm[10] = SwapLE32(2047723429);
+		lm[11] = SwapLE32(231186652);
+		lm[12] = SwapLE32(-748630536);
+		lm[13] = SwapLE32(1183210856);
+		lm[14] = SwapLE32(-1080806677);
+		lm[15] = SwapLE32(-1159502474);
+		lm[16] = SwapLE32(1490301554);
+		lm[17] = SwapLE32(1666238914);
+		lm[18] = SwapLE32(-1820121335);
+		lm[19] = SwapLE32(211594929);
+		lm[20] = SwapLE32(-2094594482);
+		lm[21] = SwapLE32(-523648621);
+		lm[22] = SwapLE32(657173604);
+		lm[23] = SwapLE32(1540461443);
+		lm[24] = SwapLE32(1663511471);
+		lm[25] = SwapLE32(-1676068515);
+		lm[26] = SwapLE32(654724620);
+		lm[27] = SwapLE32(-910060669);
+		lm[28] = SwapLE32(-1047294120);
+		lm[29] = SwapLE32(1885659337);
+		lm[30] = SwapLE32(-1676068814);
+		lm[31] = SwapLE32(76938764);
+		lm[32] = SwapLE32(1988926659);
+		lm[33] = SwapLE32(-2121035208);
+		lm[34] = SwapLE32(162658691);
+		lm[35] = SwapLE32(1300551711);
+		lm[36] = SwapLE32(-1315994408);
+		lm[37] = SwapLE32(-943693268);
+		lm[38] = SwapLE32(1911569951);
+		lm[39] = SwapLE32(-598899496);
+		lm[40] = SwapLE32(-1136785472);
+		lm[41] = SwapLE32(-130681637);
+		lm[42] = SwapLE32(-84905981);
+		lm[43] = SwapLE32(1866660917);
+		lm[44] = SwapLE32(-1123243555);
+		lm[45] = SwapLE32(-1214044363);
+		lm[46] = SwapLE32(1991009510);
+		lm[47] = SwapLE32(-2094590931);
+		lm[48] = SwapLE32(-523648621);
+		lm[49] = SwapLE32(942829668);
+		lm[50] = SwapLE32(-661056999);
+		lm[51] = SwapLE32(-663336473);
+		lm[52] = SwapLE32(-2103178071);
+		lm[53] = SwapLE32(-810450266);
+		lm[54] = SwapLE32(-1798627861);
+		lm[55] = SwapLE32(468686179);
+		lm[56] = SwapLE32(-510503487);
+		lm[57] = SwapLE32(1505680763);
+		lm[58] = SwapLE32(172312093);
+		lm[59] = SwapLE32(-450712496);
+		lm[60] = SwapLE32(-284186083);
+		lm[61] = SwapLE32(124493483);
+		lm[62] = SwapLE32(2141065680);
+		lm[63] = SwapLE32(344695419);
+		lm[64] = SwapLE32(-174581497);
+		lm[65] = SwapLE32(2096023608);
+		lm[66] = SwapLE32(-1908604696);
+		lm[67] = SwapLE32(-1021173752);
+		lm[68] = SwapLE32(-1211136129);
+		lm[69] = SwapLE32(-688626406);
+		lm[70] = SwapLE32(1030122221);
+		lm[71] = SwapLE32(-1448569291);
+		lm[72] = SwapLE32(1780845896);
+		lm[73] = SwapLE32(-810685910);
+	} break;
+	case FILE_MOVIE_VIC3:
+	{	// patch movie - DiabVic3.smk
+		lm += 2313520 / 4;
+		lm[0] = SwapLE32(1810378268);
+		lm[1] = SwapLE32(1956082596);
+		lm[2] = SwapLE32(-1852204306);
+		lm[3] = SwapLE32(-1528346162);
+		lm[4] = SwapLE32(-382086541);
+		lm[5] = SwapLE32(248990172);
+		lm[6] = SwapLE32(-1442865169);
+		lm[7] = SwapLE32(1302565187);
+		lm[8] = SwapLE32(-15115782);
+		lm[9] = SwapLE32(1349539657);
+		lm[10] = SwapLE32(-3497991);
+		lm[11] = SwapLE32(1715994196);
+		lm[12] = SwapLE32(-94472062);
+		lm[13] = SwapLE32(-2014741919);
+		lm[14] = SwapLE32(1392874889);
+		lm[15] = SwapLE32(-414656584);
+		lm[16] = SwapLE32(-1658193332);
+		lm[17] = SwapLE32(1957161267);
+		lm[18] = SwapLE32(1186702574);
+		lm[19] = SwapLE32(-1818417350);
+		lm[20] = SwapLE32(-1528346162);
+		lm[21] = SwapLE32(1807340147);
+		lm[22] = SwapLE32(970093476);
+		lm[23] = SwapLE32(-1658462999);
+		lm[24] = SwapLE32(593350291);
+		lm[25] = SwapLE32(1238274973);
+		lm[26] = SwapLE32(-764173081);
+		lm[27] = SwapLE32(451843001);
+		lm[28] = SwapLE32(1316265193);
+		lm[29] = SwapLE32(-1818417350);
+		lm[30] = SwapLE32(2028423630);
+		lm[31] = SwapLE32(1213262382);
+		lm[32] = SwapLE32(1233196775);
+		lm[33] = SwapLE32(-466215703);
+		lm[34] = SwapLE32(14841857);
+		lm[35] = SwapLE32(1006878780);
+		lm[36] = SwapLE32(-192136591);
+		lm[37] = SwapLE32(-2008008564);
+		lm[38] = SwapLE32(14818371);
+		lm[39] = SwapLE32(1342160956);
+		lm[40] = SwapLE32(-2142182884);
+		lm[41] = SwapLE32(-1934654195);
+		lm[42] = SwapLE32(859320077);
+		lm[43] = SwapLE32(384383416);
+		lm[44] = SwapLE32(-1817907820);
+		lm[45] = SwapLE32(-764109362);
+		lm[46] = SwapLE32(-40358983);
+		lm[47] = SwapLE32(-414593385);
+		lm[48] = SwapLE32(970093476);
+		lm[49] = SwapLE32(1316265193);
+		lm[50] = SwapLE32(145792077);
+		lm[51] = SwapLE32(-1810424179);
+		lm[52] = SwapLE32(-183817203);
+		lm[53] = SwapLE32(689004884);
+		lm[54] = SwapLE32(-296328173);
+		lm[55] = SwapLE32(-673137993);
+		lm[56] = SwapLE32(502011765);
+		lm[57] = SwapLE32(1689426827);
+		lm[58] = SwapLE32(-547293725);
+		lm[59] = SwapLE32(-474683808);
+		lm[60] = SwapLE32(-1511228563);
+		lm[61] = SwapLE32(-1515184584);
+		lm[62] = SwapLE32(-753466767);
+		lm[63] = SwapLE32(-880436852);
+		lm[64] = SwapLE32(1545606400);
+		lm[65] = SwapLE32(316322038);
+		lm[66] = SwapLE32(-1061779178);
+		lm[67] = SwapLE32(719126690);
+		lm[68] = SwapLE32(-1785938886);
+		lm[69] = SwapLE32(1415292139);
+		lm[70] = SwapLE32(-191309975);
+		lm[71] = SwapLE32(644310227);
+		lm[72] = SwapLE32(-222423811);
+		lm[73] = SwapLE32(1019295561);
+	} break;
+	}
 }
 
 static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
@@ -1933,6 +2182,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	}
 
 	switch (index) {
+	case FILE_MOVIE_VIC1:
+	case FILE_MOVIE_VIC2:
+	case FILE_MOVIE_VIC3:
+	{	// patch .SMK
+		patchMovie(index, buf, dwLen);
+	} break;
 #if ASSET_MPL == 1
 	case FILE_TOWN_CEL:
 	{	// patch dMicroCels - TOWN.CEL
