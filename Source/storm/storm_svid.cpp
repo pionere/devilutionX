@@ -33,6 +33,8 @@ static BYTE* SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
 #ifndef NOSOUND
 static BYTE SVidAudioDepth;
+/* 1: adjust the volume of a 16bit audio, 0: adjust the volume of a 8bit audio, -1: do not adjust the volume (on max sound or when looping) */
+static int8_t SVidAudioAdjust;
 #endif
 
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
@@ -265,18 +267,20 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	}
 
 #ifndef NOSOUND
-	if (enableAudio) {
+	if (enableAudio && gbSoundOn) {
 		unsigned char channels, depth;
 		unsigned long rate;
 		smk_info_audio(SVidSMK, &channels, &depth, &rate);
 		if (depth != 0) {
-			SVidAudioDepth = depth;
-
 			smk_enable_audio(SVidSMK, 0, true);
+
+			SVidAudioDepth = depth;
+			SVidAudioAdjust = gnSoundVolume == VOLUME_MAX ? -1 : (depth == 16 ? 1 : 0);
+
 			SDL_AudioSpec audioFormat;
 			memset(&audioFormat, 0, sizeof(audioFormat));
 			audioFormat.freq = rate;
-			audioFormat.format = SVidAudioDepth == 16 ? AUDIO_S16SYS : AUDIO_U8;
+			audioFormat.format = depth == 16 ? AUDIO_S16SYS : AUDIO_U8;
 			audioFormat.channels = channels;
 
 			Mix_CloseAudio();
@@ -345,7 +349,9 @@ static bool SVidLoadNextFrame()
 		if (SMK_ERR(result) || !SVidLoop) {
 			return false;
 		}
-
+#ifndef NOSOUND
+		SVidAudioAdjust = -1;
+#endif
 		smk_first(SVidSMK);
 	}
 
@@ -357,10 +363,10 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 	//BYTE* scaled = DiabloAllocPtr(rawLen);
 	BYTE* scaled = raw;
 
-	if (SVidAudioDepth == 16) {
+	if (SVidAudioAdjust > 0) {
 		for (unsigned long i = 0; i < rawLen / 2; i++)
 			((Sint16*)scaled)[i] = ADJUST_VOLUME(((Sint16*)raw)[i], 0, gnSoundVolume);
-	} else {
+	} else if (SVidAudioAdjust == 0) {
 		for (unsigned long i = 0; i < rawLen; i++)
 			scaled[i] = ADJUST_VOLUME((raw[i] - 128), 0, gnSoundVolume) + 128;
 	}
