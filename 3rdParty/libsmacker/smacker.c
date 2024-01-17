@@ -836,6 +836,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 		return NULL;
 	}
 #else
+	s = NULL;
 	smk_malloc(s, sizeof(struct smk_t));
 #endif
 	/* Check for a valid signature */
