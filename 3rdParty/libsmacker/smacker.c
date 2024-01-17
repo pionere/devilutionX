@@ -19,9 +19,23 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef FULL
-#undef DEBUG_MODE
-#define DEBUG_MODE 1
+/* endianness */
+#if !defined(_WIN32)
+#include <sys/param.h>
+#endif
+#ifndef __BIG_ENDIAN__
+#define smk_swap_le16(X) (X)
+#define smk_swap_le32(X) (X)
+#else
+static uint16_t smk_swap_le16(uint16_t val)
+{
+    return (val << 8) | (val >> 8);
+}
+static uint32_t smk_swap_le32(uint32_t val)
+{
+    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
+    return (val << 16) | (val >> 16);
+}
 #endif
 
 /* logging replacements */
@@ -800,6 +814,7 @@ static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, u
 #endif // DEBUG_MODE
 #endif // !FULL_ORIG
 /* Calls smk_read, but returns a ul */
+#ifdef FULL
 #define smk_read_ul(p) \
 { \
 	smk_read(buf,4); \
@@ -808,6 +823,13 @@ static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, u
 		((unsigned long) buf[1] << 8) | \
 		((unsigned long) buf[0]); \
 }
+#else
+#define smk_read_ul(p) \
+{ \
+	smk_read(buf,4); \
+	p = smk_swap_le32(*(uint32_t*)&buf[0]); \
+}
+#endif
 
 /* PUBLIC FUNCTIONS */
 /* open an smk (from a generic Source) */
@@ -1677,19 +1699,24 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 						return -1;
 #endif
 					}
-
+#ifdef FULL
 					t[skip + 3] = ((unpack & 0xFF00) >> 8);
 					t[skip + 2] = (unpack & 0x00FF);
-
+#else
+					*(uint16_t*)&t[skip + 2] = smk_swap_le16(unpack);
+#endif
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
 						LogErrorMsg("libsmacker::smk_render_video() - ERROR: failed to lookup from FULL tree.\n");
 #if DEBUG_MODE
 						return -1;
 #endif
 					}
-
+#ifdef FULL
 					t[skip + 1] = ((unpack & 0xFF00) >> 8);
 					t[skip] = (unpack & 0x00FF);
+#else
+					*(uint16_t*)&t[skip] = smk_swap_le16(unpack);
+#endif
 					skip += s->w;
 				}
 
@@ -1829,10 +1856,14 @@ static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned
 		}
 
 		/* chunk is compressed (huff-compressed dpcm), retrieve unpacked buffer size */
+#ifdef FULL
 		s->buffer_size = ((unsigned int) p[3] << 24) |
 			((unsigned int) p[2] << 16) |
 			((unsigned int) p[1] << 8) |
 			((unsigned int) p[0]);
+#else
+		s->buffer_size = smk_swap_le32(*(uint32_t*)&p[0]);
+#endif
 		p += 4;
 		size -= 4;
 		/* Compressed audio: must unpack here */
@@ -2104,11 +2135,14 @@ static char smk_render(smk s)
 
 			/* First 4 bytes in block tell how many
 				subsequent bytes are present */
+#ifdef FULL
 			size = (((unsigned int) p[3] << 24) |
 					((unsigned int) p[2] << 16) |
 					((unsigned int) p[1] << 8) |
 					((unsigned int) p[0]));
-
+#else
+			size = smk_swap_le32(*(uint32_t*)&p[0]);
+#endif
 			/* If audio rendering enabled, kick this off for decode. */
 			if (s->audio[track].enable)
 				smk_render_audio(&s->audio[track], p + 4, size - 4);
