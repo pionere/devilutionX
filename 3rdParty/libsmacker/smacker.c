@@ -582,9 +582,12 @@ struct smk_t {
 	/* microsec per frame - stored as a double to handle scaling
 		(large positive millisec / frame values may overflow a ul) */
 	double	usf;
-
+#ifdef FULL
 	/* total frames */
 	unsigned long	f;
+#else
+	unsigned long	total_frames; /* f + ring_frame */
+#endif
 	/* does file have a ring frame? (in other words, does file loop?) */
 	unsigned char	ring_frame;
 
@@ -865,7 +868,11 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	/* width, height, total num frames */
 	smk_read_ul(s->video.w);
 	smk_read_ul(s->video.h);
+#ifdef FULL
 	smk_read_ul(s->f);
+#else
+	smk_read_ul(s->total_frames);
+#endif
 	/* frames per second calculation */
 	smk_read_ul(temp_u);
 	temp_l = (int)temp_u;
@@ -886,11 +893,10 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 		Y scale / Y interlace go in the Video flags.
 		The user should scale appropriately. */
 	smk_read_ul(temp_u);
-
+#ifdef FULL
 	if (temp_u & 0x01)
 		s->ring_frame = 1;
 
-#ifdef FULL
 	if (temp_u & 0x02)
 		s->video.y_scale_mode = SMK_FLAG_Y_DOUBLE;
 
@@ -899,6 +905,11 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 			fputs("libsmacker::smk_open_generic - Warning: SMK file specifies both Y-Double AND Y-Interlace.\n", stderr);
 
 		s->video.y_scale_mode = SMK_FLAG_Y_INTERLACE;
+	}
+#else
+	if (temp_u & 0x01) {
+		s->ring_frame = 1;
+		s->total_frames++;
 	}
 #endif
 	/* Max buffer size for each audio track - used to pre-allocate buffers */
@@ -945,10 +956,15 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	/* FrameSizes and Keyframe marker are stored together. */
 #ifdef FULL
 	smk_malloc(s->keyframe, (s->f + s->ring_frame));
-#endif
+
 	smk_malloc(s->chunk_size, (s->f + s->ring_frame) * sizeof(unsigned long));
 
 	for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++) {
+#else
+	smk_malloc(s->chunk_size, s->total_frames * sizeof(unsigned long));
+
+	for (temp_u = 0; temp_u < s->total_frames; temp_u ++) {
+#endif
 		smk_read_ul(s->chunk_size[temp_u]);
 
 #ifdef FULL
@@ -967,7 +983,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++)
 		smk_read(&s->frame_type[temp_u], 1);
 #else
-	smk_read_in(s->frame_type, (s->f + s->ring_frame));
+	smk_read_in(s->frame_type, s->total_frames);
 #endif
 	/* HuffmanTrees
 		We know the sizes already: read and assemble into
@@ -998,8 +1014,10 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	/* Handle the rest of the data.
 		For MODE_MEMORY, read the chunks and store */
 	if (s->mode == SMK_MODE_MEMORY) {
-#endif
 		smk_malloc(s->source.chunk_data, (s->f + s->ring_frame) * sizeof(unsigned char *));
+#else
+		smk_malloc(s->source.chunk_data, s->total_frames * sizeof(unsigned char *));
+#endif
 
 #ifdef FULL_ORIG
 		for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++) {
@@ -1007,7 +1025,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 			smk_read(s->source.chunk_data[temp_u], s->chunk_size[temp_u]);
 		}
 #else
-		for (temp_u = 0; temp_u < (s->f + s->ring_frame); temp_u ++) {
+		for (temp_u = 0; temp_u < s->total_frames; temp_u ++) {
 			smk_read_in(s->source.chunk_data[temp_u], s->chunk_size[temp_u]);
 		}
 #endif
@@ -2204,7 +2222,7 @@ char smk_next(smk s)
 
 	assert(s);
 
-	if (s->cur_frame + 1 < (s->f + s->ring_frame)) {
+	if (s->cur_frame + 1 < s->total_frames) {
 		s->cur_frame ++;
 
 		result = SMK_MORE;
