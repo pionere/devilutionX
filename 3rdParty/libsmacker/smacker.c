@@ -102,15 +102,19 @@ static int smk_bs_read_8(struct smk_bit_t * const bs)
 		return -1;
 	}
 #endif
+#ifdef FULL
 	if (bs->bit_num) {
+#endif
 		/* unaligned read */
 		int ret = *bs->buffer >> bs->bit_num;
 		bs->buffer ++;
 		return ret | (*bs->buffer << (8 - bs->bit_num) & 0xFF);
+#if FULL
 	}
 
 	/* aligned read */
 	return *bs->buffer++;
+#endif
 }
 
 /* ************************************************************************* */
