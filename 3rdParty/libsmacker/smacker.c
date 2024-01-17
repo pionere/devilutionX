@@ -1569,7 +1569,9 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 	unsigned char type;
 	unsigned char blocklen;
 	unsigned char typedata;
+#ifdef FULL_V4
 	char bit;
+#endif
 	const unsigned short sizetable[64] = {
 		1,	 2,	3,	4,	5,	6,	7,	8,
 		9,	10,	11,	12,	13,	14,	15,	16,
@@ -1603,7 +1605,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 		type = ((unpack & 0x0003));
 		blocklen = ((unpack & 0x00FC) >> 2);
 		typedata = ((unpack & 0xFF00) >> 8);
-
+#ifdef FULL_V4
 		/* support for v4 full-blocks */
 		if (type == 1 && s->v == '4') {
 			bit = smk_bs_read_1(&bs);
@@ -1617,7 +1619,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 					type = 5;
 			}
 		}
-
+#endif
 		for (j = 0; (j < sizetable[blocklen]) && (row < s->h); j ++) {
 			skip = (row * s->w) + col;
 
@@ -1727,7 +1729,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 				*(uint32_t*)&t[skip] = value;
 #endif
 			} break;
-
+#ifdef FULL_V4
 			case 4: /* V4 DOUBLE BLOCK */
 				for (k = 0; k < 2; k ++) {
 					if ((unpack = smk_huff16_lookup(&s->tree[SMK_TREE_FULL], &bs)) < 0) {
@@ -1775,6 +1777,7 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 				}
 
 				break;
+#endif
 			}
 
 			col += 4;
