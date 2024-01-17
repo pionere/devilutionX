@@ -575,9 +575,10 @@ static int smk_huff16_lookup(struct smk_huff16_t * const t, struct smk_bit_t * c
 
 struct smk_t {
 	/* meta-info */
+#ifdef FULL
 	/* file mode: see flags, smacker.h */
 	unsigned char	mode;
-
+#endif
 	/* microsec per frame - stored as a double to handle scaling
 		(large positive millisec / frame values may overflow a ul) */
 	double	usf;
@@ -990,12 +991,12 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	smk_free(hufftree_chunk);
 	/* Go ahead and malloc storage for the video frame */
 	smk_malloc(s->video.frame, s->video.w * s->video.h);
+#ifdef FULL
 	/* final processing: depending on ProcessMode, handle what to do with rest of file data */
 	s->mode = process_mode;
 
 	/* Handle the rest of the data.
 		For MODE_MEMORY, read the chunks and store */
-#ifdef FULL
 	if (s->mode == SMK_MODE_MEMORY) {
 #endif
 		smk_malloc(s->source.chunk_data, (s->f + s->ring_frame) * sizeof(unsigned char *));
