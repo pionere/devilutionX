@@ -1688,7 +1688,8 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 				} */
 				break;
 
-			case 3: /* SOLID BLOCK */
+			case 3: /* SOLID BLOCK */ {
+#ifdef FULL
 				memset(&t[skip], typedata, 4);
 				skip += s->w;
 				memset(&t[skip], typedata, 4);
@@ -1696,7 +1697,18 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 				memset(&t[skip], typedata, 4);
 				skip += s->w;
 				memset(&t[skip], typedata, 4);
-				break;
+#else
+				uint32_t value;
+				memset(&value, typedata, 4);
+				*(uint32_t*)&t[skip] = value;
+				skip += s->w;
+				*(uint32_t*)&t[skip] = value;
+				skip += s->w;
+				*(uint32_t*)&t[skip] = value;
+				skip += s->w;
+				*(uint32_t*)&t[skip] = value;
+#endif
+			} break;
 
 			case 4: /* V4 DOUBLE BLOCK */
 				for (k = 0; k < 2; k ++) {
