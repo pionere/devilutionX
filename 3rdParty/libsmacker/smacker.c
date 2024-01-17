@@ -1539,7 +1539,9 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 {
 	unsigned char * t = s->frame;
 	unsigned char s1, s2;
+#ifdef FULL
 	unsigned short temp;
+#endif
 	unsigned long i, j, k, row, col, skip;
 	/* used for video decoding */
 	struct smk_bit_t bs;
@@ -1619,17 +1621,26 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 					return -1;
 #endif
 				}
-
+#ifdef FULL
 				temp = 0x01;
-
+#endif
 				for (k = 0; k < 4; k ++) {
 					for (i = 0; i < 4; i ++) {
+#ifdef FULL
 						if (unpack & temp)
 							t[skip + i] = s1;
 						else
 							t[skip + i] = s2;
 
 						temp = temp << 1;
+#else
+						if (unpack & 0x01)
+							t[skip + i] = s1;
+						else
+							t[skip + i] = s2;
+
+						unpack = (unsigned)unpack >> 1;
+#endif
 					}
 
 					skip += s->w;
