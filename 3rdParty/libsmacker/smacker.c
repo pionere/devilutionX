@@ -603,12 +603,11 @@ struct smk_t {
 #ifdef FULL
 	/* total frames */
 	unsigned long	f;
+	/* does file have a ring frame? (in other words, does file loop?) */
+	unsigned char	ring_frame;
 #else
 	unsigned long	total_frames; /* f + ring_frame */
 #endif
-	/* does file have a ring frame? (in other words, does file loop?) */
-	unsigned char	ring_frame;
-
 	/* Index of current frame */
 	unsigned long	cur_frame;
 
@@ -935,7 +934,7 @@ static smk smk_open_generic(const unsigned char m, union smk_read_t fp, unsigned
 	}
 #else
 	if (temp_u & 0x01) {
-		s->ring_frame = 1;
+		LogErrorMsg("libsmacker::smk_open_generic - Warning: ring_frames are no supported by the game.\n");
 		s->total_frames++;
 	}
 #endif
@@ -2268,14 +2267,9 @@ char smk_next(smk s)
 		s->cur_frame ++;
 
 		result = SMK_MORE;
-	} else if (s->ring_frame) {
-		s->cur_frame = 1;
-
-		result = SMK_MORE;
-	}
-
-	if (result == SMK_MORE && smk_render(s) < 0) {
-		result = SMK_ERROR;
+		if (smk_render(s) < 0) {
+			result = SMK_ERROR;
+		}
 	}
 
 	return result;
