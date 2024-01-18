@@ -38,6 +38,10 @@ static uint32_t smk_swap_le32(uint32_t val)
 }
 #endif
 
+#ifdef FULL
+#undef DEBUG_MODE
+#define DEBUG_MODE 1
+#endif
 /* logging replacements */
 #if DEBUG_MODE
 #define PrintError(msg)    perror(msg);
@@ -47,7 +51,7 @@ static uint32_t smk_swap_le32(uint32_t val)
 #define PrintError(msg)
 #define LogErrorMsg(msg)
 #define LogError(msg, ...)
-#endif /* DEBUG_MODE */
+#endif // DEBUG_MODE
 
 /* ************************************************************************* */
 /* BITSTREAM Structure */
@@ -154,13 +158,13 @@ static int _smk_huff8_build_rec(struct smk_huff8_t * const t, struct smk_bit_t *
 	int bit, value;
 	assert(t);
 	assert(bs);
-#if DEBUG_MODE
 	/* Make sure we aren't running out of bounds */
 	if (t->size >= 511) {
 		LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: size exceeded\n");
+#if DEBUG_MODE
 		return 0;
-	}
 #endif
+	}
 	/* Read the next bit */
 	if ((bit = smk_bs_read_1(bs)) < 0) {
 		LogErrorMsg("libsmacker::_smk_huff8_build_rec() - ERROR: get_bit returned -1\n");
@@ -800,7 +804,7 @@ static char smk_read_in_memory(unsigned char ** buf, const unsigned long size, u
 	} \
 	if (r < 0) \
 	{ \
-		LogError("libsmacker::smk_read(...) - Errors encountered on read, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
+		LogError("libsmacker::smk_read(...) - Errors encountered on read_in, bailing out (file: %s, line: %lu)\n", __FILE__, (unsigned long)__LINE__); \
 		goto error; \
 	} \
 }
@@ -2173,14 +2177,14 @@ static char smk_render(smk s)
 	return 0;
 #if DEBUG_MODE
 error:
-
+#ifdef FULL
 	if (s->mode == SMK_MODE_DISK) {
 		/* Remember that buffer we allocated?  Trash it */
 		smk_free(buffer);
 	}
-
+#endif // FULL
 	return -1;
-#endif
+#endif // DEBUG_MODE
 }
 
 /* rewind to first frame and unpack */
