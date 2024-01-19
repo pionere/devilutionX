@@ -1634,12 +1634,22 @@ static char smk_render_video(struct smk_video_t * s, unsigned char * p, unsigned
 #ifdef FULL_V4
 		/* support for v4 full-blocks */
 		if (type == 1 && s->v == '4') {
-			bit = smk_bs_read_1(&bs);
+			if ((bit = smk_bs_read_1(&bs)) < 0) {
+				LogErrorMsg("libsmacker::smk_render_video() - ERROR: first subtype of v4 returned -1\n");
+#if DEBUG_MODE
+				return -1;
+#endif
+			}
 
 			if (bit)
 				type = 4;
 			else {
-				bit = smk_bs_read_1(&bs);
+				if ((bit = smk_bs_read_1(&bs)) < 0) {
+					LogErrorMsg("libsmacker::smk_render_video() - ERROR: second subtype of v4 returned -1\n");
+#if DEBUG_MODE
+					return -1;
+#endif
+				}
 
 				if (bit)
 					type = 5;
@@ -1872,7 +1882,12 @@ static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned
 		/* Compressed audio: must unpack here */
 		/*  Set up a bitstream */
 		smk_bs_init(&bs, p, size);
-		bit = smk_bs_read_1(&bs);
+		if ((bit = smk_bs_read_1(&bs)) < 0) {
+			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: initial get_bit returned -1\n");
+#if DEBUG_MODE
+			goto error;
+#endif
+		}
 #ifdef FULL
 		if (!bit) {
 			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: initial get_bit returned 0\n");
@@ -1963,13 +1978,23 @@ static char smk_render_audio(struct smk_audio_t * s, unsigned char * p, unsigned
 		if (!bit)
 			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: initial get_bit returned 0\n");
 
-		bit = smk_bs_read_1(&bs);
+		if ((bit = smk_bs_read_1(&bs)) < 0) {
+			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: channels_bit returned -1\n");
+#if DEBUG_MODE
+			goto error;
+#endif
+		}
 		bitdepth = s->bitdepth;
 		channels = s->channels;
 		if (channels != (bit == 1 ? 2 : 1))
 			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: mono/stereo mismatch\n");
 
-		bit = smk_bs_read_1(&bs);
+		if ((bit = smk_bs_read_1(&bs)) < 0) {
+			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: bitdepth_bit returned -1\n");
+#if DEBUG_MODE
+			goto error;
+#endif
+		}
 
 		if (bitdepth != (bit == 1 ? 16 : 8))
 			LogErrorMsg("libsmacker::smk_render_audio() - ERROR: 8-/16-bit mismatch\n");
@@ -2106,20 +2131,30 @@ static char smk_render(smk s)
 	/* Palette record first */
 	if (s->frame_type[s->cur_frame] & 0x01) {
 		/* need at least 1 byte to process */
-		if (!i) {
-			LogError("libsmacker::smk_render() - ERROR: frame %lu: insufficient data for a palette rec.\n", s->cur_frame);
-#if DEBUG_MODE
-			goto error;
-#endif
-		}
+		assert(i != 0);
 
 		/* Byte 1 in block, times 4, tells how many
 			subsequent bytes are present */
 		size = 4 * (*p);
 
+		if (i < size) {
+			LogError("libsmacker::smk_render() - ERROR: frame %lu: insufficient data for a palette content.\n", s->cur_frame);
+#if DEBUG_MODE
+			goto error;
+#endif
+		}
+
 		/* If video rendering enabled, kick this off for decode. */
-		if (s->video.enable)
+		if (s->video.enable) {
+			if (size < 1) {
+				LogError("libsmacker::smk_render() - ERROR: frame %lu: invalid palette size.\n", s->cur_frame);
+#if DEBUG_MODE
+				goto error;
+#endif
+			}
+
 			smk_render_palette(&(s->video), p + 1, size - 1);
+		}
 
 		p += size;
 		i -= size;
@@ -2146,9 +2181,23 @@ static char smk_render(smk s)
 #else
 			size = smk_swap_le32(*(uint32_t*)&p[0]);
 #endif
+			if (i < size) {
+				LogError("libsmacker::smk_render() - ERROR: frame %lu: insufficient data for audio[%u] content.\n", s->cur_frame, track);
+#if DEBUG_MODE
+				goto error;
+#endif
+			}
 			/* If audio rendering enabled, kick this off for decode. */
-			if (s->audio[track].enable)
+			if (s->audio[track].enable) {
+				if (size < 4) {
+					LogError("libsmacker::smk_render() - ERROR: frame %lu: invalid data size for audio[%u] content.\n", s->cur_frame, track);
+#if DEBUG_MODE
+					goto error;
+#endif
+				}
+
 				smk_render_audio(&s->audio[track], p + 4, size - 4);
+			}
 
 			p += size;
 			i -= size;
