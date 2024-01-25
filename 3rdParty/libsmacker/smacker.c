@@ -127,7 +127,7 @@ static int smk_bs_read_8(struct smk_bit_t * const bs)
 		int ret = *bs->buffer >> bs->bit_num;
 		bs->buffer ++;
 		return ret | (*bs->buffer << (8 - bs->bit_num) & 0xFF);
-#if FULL
+#ifdef FULL
 	}
 
 	/* aligned read */
@@ -472,13 +472,13 @@ static int smk_huff16_build(struct smk_huff16_t * const t, struct smk_bit_t * co
 
 			t->cache[i] |= (value << 8);
 		}
-#if DEBUG_MODE
 		/* Everything looks OK so far. Time to malloc structure. */
 		if (alloc_size < 12 || alloc_size % 4) {
 			LogError("libsmacker::smk_huff16_build() - ERROR: illegal value %u for alloc_size\n", alloc_size);
+#if DEBUG_MODE
 			return 0;
-		}
 #endif
+		}
 		limit = (alloc_size - 12) / 4;
 
 		if ((t->tree = malloc(limit * sizeof(unsigned int))) == NULL) {
