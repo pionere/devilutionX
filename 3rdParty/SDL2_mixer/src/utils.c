@@ -26,18 +26,29 @@
 #include <stddef.h>
 
 #ifndef FULL // SELF_CONV
+#ifdef __SSE2__
+#define HAVE_SSE2_INTRINSICS
+#endif
+
+#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
+#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
+#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
+#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
+#endif
+
+/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
+#ifndef NEED_SCALAR_CONVERTER_FALLBACKS
+#define NEED_SCALAR_CONVERTER_FALLBACKS 1
+#endif
+
+/* Function pointers set to a CPU-specific implementation. */
 //void Mix_Converter_AUDIO8_Mono2Stereo(Mix_BuffOps* buf);
-//void (*Mix_Convert_AUDIO8_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Mono2Stereo;
-static void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf);
-static void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Mono2Stereo;
-static void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf);
-static void (*Mix_Convert_AUDIO8_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO8_Resample_Half;
-static void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf);
-static void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf) = Mix_Converter_AUDIO16_Resample_Half;
-static void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf);
-static void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf) = Mix_Converter_U8_S16LSB;
-void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len);
-void (*Mix_MixAudioFormat)(void* dst, const void* src, unsigned len) = Mix_Mixer_AUDIOS16;
+//void (*Mix_Convert_AUDIO8_Mono2Stereo)(Mix_BuffOps* buf) = NULL;
+static void (*Mix_Convert_AUDIO16_Mono2Stereo)(Mix_BuffOps* buf) = NULL;
+static void (*Mix_Convert_AUDIO8_Resample_Half)(Mix_BuffOps* buf) = NULL;
+static void (*Mix_Convert_AUDIO16_Resample_Half)(Mix_BuffOps* buf) = NULL;
+static void (*Mix_Convert_U8_S16LSB)(Mix_BuffOps* buf) = NULL;
+void (*Mix_MixAudioFormat)(void* dst, const void* src, unsigned len) = NULL;
 
 #endif
 
@@ -276,7 +287,7 @@ void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
         currPos++;
     }
 }
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
 {
     const Sint16* srcPos = (const Sint16*)src;
@@ -298,7 +309,7 @@ void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
         Mix_Mixer_AUDIOS16(currPos, srcPos, len);
     }
 }
-#endif // __SSE2__
+#endif // HAVE_SSE2_INTRINSICS
 #ifdef __AVX__
 void Mix_Mixer_AUDIOS16_AVX(void* dst, const void* src, unsigned len)
 {
@@ -355,7 +366,7 @@ void Mix_Converter_AUDIO16_Mono2Stereo_AVX(Mix_BuffOps* buf)
     }
 }
 #endif // __AVX__
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
@@ -402,7 +413,7 @@ void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
     }
 }
 
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->currPos;
@@ -451,7 +462,7 @@ void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
     }
 }
 
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->currPos;
@@ -544,7 +555,7 @@ void Mix_Converter_U8_S16LSB_AVX(Mix_BuffOps* buf)
     }
 }
 #endif // __AVX__
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
@@ -600,8 +611,21 @@ void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
 
 void Mix_Utils_Init()
 {
-#ifdef __SSE2__
+#if NEED_SCALAR_CONVERTER_FALLBACKS
+    //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo;
+    Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo;
+    Mix_Convert_AUDIO8_Resample_Half = Mix_Converter_AUDIO8_Resample_Half;
+    Mix_Convert_AUDIO16_Resample_Half = Mix_Converter_AUDIO16_Resample_Half;
+    Mix_MixAudioFormat = Mix_Mixer_AUDIOS16;
+    Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB;
+#endif
+#ifdef HAVE_SSE2_INTRINSICS
+#if NEED_SCALAR_CONVERTER_FALLBACKS
     if (SDL_HasSSE2()) {
+#else
+    // SDL_assert(SDL_HasSSE2());
+    if (1) {
+#endif
         //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo_SSE2;
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_SSE2;
         Mix_Convert_AUDIO8_Resample_Half = Mix_Converter_AUDIO8_Resample_Half_SSE2;
