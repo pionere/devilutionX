@@ -746,6 +746,54 @@ jobs:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
 
+  # vita-builds
+  build_vita:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-VITA
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: '-DNONET=ON'
+            artifact: 'diablo-nightly-vita.vpk'
+          - name: hellfire
+            cmakeargs: '-DNONET=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-vita.vpk'
+          - name: diablo-vita
+            cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
+            artifact: 'diablo-nightly-vita.vpk'
+          - name: hellfire-vita
+            cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-vita.vpk'
+    runs-on: ubuntu-22.04
+    container: vitasdk/vitasdk:latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: apk add git ninja gettext
+
+    - name: Configure CMake
+      run: |
+        cmake -S. -Bbuild -GNinja \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
+          -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
+
+    - name: Build
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu)
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ./build/devilutionx.vpk
+
   # Releases
   release:
     needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
