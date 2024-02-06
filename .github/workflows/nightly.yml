@@ -764,10 +764,10 @@ jobs:
             artifact: 'hellfire-nightly-vita.vpk'
           - name: diablo-vita
             cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
-            artifact: 'diablo-nightly-vita.vpk'
+            artifact: 'diablo-nightly-vitap.vpk'
           - name: hellfire-vita
             cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
-            artifact: 'hellfire-nightly-vita.vpk'
+            artifact: 'hellfire-nightly-vitap.vpk'
     runs-on: ubuntu-22.04
     container: vitasdk/vitasdk:latest
     steps:
@@ -793,6 +793,79 @@ jobs:
       with:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx.vpk
+
+  # 3ds-builds
+  build_n3ds:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-Nintendo 3DS
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: '-DNONET=ON'
+            artifact: 'diablo-nightly-3ds.3dsx'
+            cia: 'diablo-nightly-3ds.cia'
+          - name: hellfire
+            cmakeargs: '-DNONET=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-3ds.3dsx'
+            cia: 'hellfire-nightly-3ds.cia'
+          - name: diablo-3ds
+            cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
+            artifact: 'diablo-nightly-3dsp.3dsx'
+            cia: 'diablo-nightly-3dsp.cia'
+          - name: hellfire-3ds
+            cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-3dsp.3dsx'
+            cia: 'hellfire-nightly-3dsp.cia'
+    runs-on: ubuntu-22.04
+    container: devkitpro/devkitarm:latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        apt-get update && \
+        apt-get install -y --no-install-recommends --no-install-suggests \
+          ffmpeg \
+          gettext
+
+    - name: Get external dependencies
+      run: |
+        wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
+        unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
+        wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
+        unzip "makerom-v0.18-ubuntu_x86_64.zip" "makerom" -d "/opt/devkitpro/tools/bin"
+        chmod a+x /opt/devkitpro/tools/bin/makerom
+
+    - name: Configure CMake
+      run: |
+        cmake -S. -Bbuild -GNinja \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DNINTENDO_3DS=ON \
+          -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
+
+    - name: Build DevilutionX
+      run: cmake --build build -j$(nproc)
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: |
+          ./build/devilutionx.3dsx
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.cia }}
+        path: |
+          ./build/devilutionx.cia
 
   # Releases
   release:
