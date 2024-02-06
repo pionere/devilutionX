@@ -13,32 +13,32 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-latest
-
+    runs-on: ubuntu-latest
+    container: vitasdk/vitasdk:latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Create Build Environment
-      run: brew bundle install
+      - name: Install dependencies
+        run: apk --no-cache add git cmake ninja bash pkgconfig gettext
 
-    - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
-      working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF
+      - name: Configure CMake
+        run: |
+          cmake -S. -Bbuild -GNinja \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D DEVILUTIONX_SYSTEM_SDL2=OFF -DZEROTIER=OFF -DNONET=ON \
+            -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
-    - name: Build
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
-      working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+      - name: Build DevilutionX
+        run: cmake --build build -j$(nproc)
+
+      - name: Upload Package
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: devilutionx.vpk
+          path: ./build/devilutionx.vpk
 
     #- name: Release
     #  uses: softprops/action-gh-release@v1
@@ -48,9 +48,37 @@ jobs:
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Upload the created artifact
-    - name: Upload
-      if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v4
-      with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
-        name: devilutionx.dmg
+    #- name: Upload
+    #  if: ${{ !env.ACT }}
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    path: ${{github.workspace}}/build/devilutionx.dmg
+    #    name: devilutionx.dmg
+
+  build_net:
+    runs-on: ubuntu-latest
+    container: vitasdk/vitasdk:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: apk --no-cache add git cmake ninja bash pkgconfig gettext
+
+      - name: Configure CMake
+        run: |
+          cmake -S. -Bbuild -GNinja \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D DEVILUTIONX_SYSTEM_SDL2=OFF -DZEROTIER=OFF -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF \
+            -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
+
+      - name: Build DevilutionX
+        run: cmake --build build -j$(nproc) --target package
+
+      - name: Upload Package
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: devilutionx_net.vpk
+          path: ./build/devilutionx.vpk

@@ -351,6 +351,9 @@ if(TCPIP)
     target_compile_definitions(asio INTERFACE _DEFAULT_SOURCE=ON)
     # Missing headers and declarations provided by DevilutionX
     target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/switch/asio/include)
+  elseif(VITA)
+    target_compile_definitions(asio INTERFACE ASIO_DISABLE_THREADS=ON _DEFAULT_SOURCE=ON)
+    target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/vita/asio/include)
   endif()
 endif()
 
