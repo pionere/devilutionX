@@ -34,15 +34,12 @@ void SNetUnregisterEventHandler(int evtype)
 bool SNetCreateGame(unsigned port, const char* pszGamePassword, _uigamedata* gameData, char (&errorText)[256])
 {
 	bool result;
-
 	// assert(gameData != NULL && pszGamePassword != NULL);
 	dvlnet_inst->make_default_gamename(gpszGameName);
 	SStrCopy(gpszGamePassword, pszGamePassword, sizeof(gpszGamePassword));
 	result = dvlnet_inst->setup_game(gameData, gpszGameName, port, pszGamePassword, errorText);
 #ifdef ZEROTIER
-	if (port == 0)
-		SStrCopy(gpszGameName, gpszGameName, sizeof(gpszGameName));
-	else
+	if (port != 0)
 #endif
 		snprintf(gpszGameName, sizeof(gpszGameName), "%s:%d", gpszGameName, port);
 	return result;
