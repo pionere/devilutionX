@@ -962,6 +962,9 @@ typedef struct LE_UINT32 {
 	void operator=(unsigned val) {
 		_value = SwapLE32(val);
 	};
+	void operator=(unsigned long val) {
+		_value = SwapLE32(val);
+	};
 #if INT_MAX != INT32_MAX
 	void operator=(uint32_t val) {
 		_value = SwapLE32(val);
@@ -986,6 +989,9 @@ typedef struct LE_INT32 {
 	int32_t _value;
 
 	void operator=(int val) {
+		_value = SwapLE32(val);
+	};
+	void operator=(long val) {
 		_value = SwapLE32(val);
 	};
 #if INT_MAX != INT32_MAX
