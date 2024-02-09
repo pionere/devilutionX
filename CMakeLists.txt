@@ -1010,19 +1010,14 @@ endif()
 if(VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
-        SceNet_stub
-        SceNetCtl_stub
-        freetype
-        png
-        m
-        z
-        FLAC
-        vorbisfile
-        vorbis
-        ogg
-        mikmod
-        mpg123
+        SceAppUtil_stub
   )
+  if(NOT NONET)
+    target_link_libraries(${BIN_TARGET} PRIVATE
+          SceNet_stub
+          SceNetCtl_stub
+    )
+  endif()
   #target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
 endif()
 
