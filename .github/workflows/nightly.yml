@@ -847,7 +847,7 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -S. -Bbuild -GNinja \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DNINTENDO_3DS=ON \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} -DNINTENDO_3DS=ON \
           -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
 
     - name: Build DevilutionX
@@ -907,7 +907,7 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -S . -B build \
-          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
           -D CMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
 
     - name: Build DevilutionX
@@ -955,7 +955,7 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -S. -Bbuild -GNinja \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
           -DM68K_COMMON="-s -ffast-math -O3" \
           -DM68K_CPU=68040 \
           -DM68K_FPU=hard
