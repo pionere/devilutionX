@@ -579,7 +579,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 		goto on_error;
 #else
 	// Ensure we do not seekp beyond EOF by filling the missing space.
-	std::streampos stream_end;
+	long stream_end;
 	if (!cur_archive.stream.seekp(0, SEEK_END) || !cur_archive.stream.tellp(&stream_end))
 		goto on_error;
 	std::size_t curSize = stream_end - cur_archive.stream_begin;
