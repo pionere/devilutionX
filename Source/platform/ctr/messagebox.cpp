@@ -1,6 +1,7 @@
 #include <3ds.h>
 #include <SDL.h>
 #include "utils/sdl2_to_1_2_backports.h"
+#include "utils/log.h"
 
 int SDL_ShowSimpleMessageBox(Uint32 flags,
     const char *title,
@@ -13,7 +14,7 @@ int SDL_ShowSimpleMessageBox(Uint32 flags,
 	bool init = !gspHasGpuRight();
 
 	char text[1024];
-	snprintf(text, sizeof(text), "%s\n\n%s", title, message)
+	snprintf(text, sizeof(text), "%s\n\n%s", title, message);
 
 	if (init)
 		gfxInitDefault();

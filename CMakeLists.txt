@@ -688,15 +688,15 @@ if(USE_PATCH AND NOT ANDROID)
 
   if(NINTENDO_SWITCH)
     list(APPEND devil_patcher_SRCS
-      Source/platform/switch/docking.cpp
-      Source/platform/switch/romfs.cpp)
+      tools/patcher/platform/switch/docking.cpp
+      tools/patcher/platform/switch/romfs.cpp)
   endif()
 
   if(NINTENDO_3DS)
     list(APPEND devil_patcher_SRCS
-      Source/platform/ctr/system.cpp
-      Source/platform/ctr/display.cpp
-      Source/platform/ctr/messagebox.cpp)
+      tools/patcher/platform/ctr/system.cpp
+      tools/patcher/platform/ctr/display.cpp
+      tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
   set(PATCHER_SOURCES ${devil_patcher_SRCS})
@@ -1023,6 +1023,9 @@ if(NINTENDO_3DS)
   #target_include_directories(${BIN_TARGET} PRIVATE ${TREMOR_INCLUDE_DIRS})
   #target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::citro3d 3ds::ctrulib)
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE 3ds::citro3d 3ds::ctrulib)
+  endif()
 endif()
 
 if(GPERF)

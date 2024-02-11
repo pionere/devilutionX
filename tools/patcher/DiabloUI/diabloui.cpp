@@ -462,11 +462,13 @@ void UiRenderAndPoll()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleMenuMove();
 #endif
+#if FULL_UI
 #ifdef __3DS__
 	// Keyboard blocks until input is finished
 	// so defer until after render and fade-in
 	ctr_vkbdFlush();
 #endif
+#endif // FULL_UI
 }
 
 static void Render(const UiText* uiArtText)
