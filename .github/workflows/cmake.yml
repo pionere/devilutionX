@@ -9,48 +9,31 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-latest
-
+    runs-on: ubuntu-latest
+    container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Create Build Environment
-      run: brew bundle install
+    - name: Run prep.sh script
+      run: Packaging/amiga/prep.sh
+      #run: Packaging/nix/debian-host-prep.sh
 
     - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
-      working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF
+      run: |
+        cmake -S. -Bbuild -GNinja \
+          -DM68K_COMMON="-s -ffast-math -O3" \
+          -DM68K_CPU=68040 \
+          -DM68K_FPU=hard
 
-    - name: Build
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
-      working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+    - name: Build DevilutionX
+      run: cmake --build build
 
-    #- name: Release
-    #  uses: softprops/action-gh-release@v1
-    #  if: startsWith(github.ref, 'refs/tags/')
-    #  with:
-    #    files: ${{github.workspace}}/build/devilutionx.dmg
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # Upload the created artifact
-    - name: Upload
+    - name: Upload Package
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
-        name: devilutionx.dmg
+        name: devilutionx_m68k
+        path: ./build/devilutionx
