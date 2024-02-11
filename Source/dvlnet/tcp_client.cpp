@@ -3,6 +3,7 @@
 #include <string>
 #include <SDL.h>
 #include <memory>
+#include <functional>
 
 #include <asio/connect.hpp>
 

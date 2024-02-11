@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <memory>
 #include <sodium.h>
+#include <functional>
 
 #include <asio/connect.hpp>
 

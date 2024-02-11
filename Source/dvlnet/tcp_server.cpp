@@ -2,6 +2,7 @@
 #ifdef TCPIP
 #include <chrono>
 #include <memory>
+#include <functional>
 
 #include "storm/storm_cfg.h"
 
