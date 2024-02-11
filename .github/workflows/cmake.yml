@@ -84,7 +84,7 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -S. -Bbuild -GNinja \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DNINTENDO_3DS=ON \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DNINTENDO_3DS=ON -DZEROTIER=OFF \
           -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
 
     - name: Build DevilutionX
