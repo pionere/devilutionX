@@ -971,7 +971,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_vita, build_n3ds, build_switch, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
@@ -1013,6 +1013,18 @@ jobs:
         name: hellfire-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
 
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-mingw-w9x.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-w9x.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-mingw-w9x.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
+
     # Windows-builds (x64)
     - name: Download a diablo artifact
       uses: actions/download-artifact@v4
@@ -1037,6 +1049,80 @@ jobs:
       with:
         name: hellfire-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
+
+    # Linux-builds (x64)
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnu.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/diablo-nightly-x86_64-linux-gnu.tar.xz
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnu.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/diablo-nightly-x86_64-linux-gnu.appimage
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnu.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnu.tar.xz
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnu.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnu.appimage
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnup.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/diablo-nightly-x86_64-linux-gnup.tar.xz
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnup.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/diablo-nightly-x86_64-linux-gnup.appimage
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnup.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnup.tar.xz
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnup.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnup.appimage
+
+    # Aarch64-builds (x64)
+    - name: Download a diablo aarch64-artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-aarch64.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
+
+    - name: Download a diablo aarch64-artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-aarch64p.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/diablo-nightly-aarch64p.tar.xz
+
+    - name: Download a hellfire aarch64-artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-aarch64.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
+
+    - name: Download a hellfire aarch64-artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-aarch64p.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/hellfire-nightly-aarch64p.tar.xz
 
     # Mac-builds
     - name: Download a diablo mac-artifact
@@ -1213,6 +1299,130 @@ jobs:
         name: hellfire-nightly-ps4p.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4p.pkg
 
+    # vita-builds
+    - name: Download a diablo vita artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-vita.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vita.vpk
+
+    - name: Download a diablo vita artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-vitap.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vitap.vpk
+
+    - name: Download a hellfire vita artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-vita.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/hellfire-nightly-vita.vpk
+
+    - name: Download a hellfire vita artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-vitap.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/hellfire-nightly-vitap.vpk
+
+    # n3ds-builds
+    - name: Download a diablo n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3ds.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3ds.3dsx
+
+    - name: Download a diablo n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3ds.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3ds.cia
+
+    - name: Download a diablo n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3dsp.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3dsp.3dsx
+
+    - name: Download a diablo n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3dsp.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3dsp.cia
+
+    - name: Download a hellfire n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3ds.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3ds.3dsx
+
+    - name: Download a hellfire n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3ds.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3ds.cia
+
+    - name: Download a hellfire n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3dsp.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3dsp.3dsx
+
+    - name: Download a hellfire n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3dsp.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3dsp.cia
+
+    # switch-builds
+    - name: Download a diablo switch artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-switch.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switch.nro
+
+    - name: Download a diablo switch artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-switchp.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switchp.nro
+
+    - name: Download a hellfire switch artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-switch.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
+
+    - name: Download a hellfire switch artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-switchp.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switchp.nro
+
+    # amiga-builds
+    - name: Download a diablo amiga artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-amiga
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/diablo-nightly-amiga
+
+    - name: Download a diablo amiga artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-amigap
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/diablo-nightly-amigap
+
+    - name: Download a hellfire amiga artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-amiga
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/hellfire-nightly-amiga
+
+    - name: Download a hellfire amiga artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-amigap
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/hellfire-nightly-amigap
+
     # release notes
     - name: Create release notes
       run: |
@@ -1228,12 +1438,19 @@ jobs:
         echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-ps4.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-aarch64.tar.xz](../../releases/download/devilx-nightly/diablo-nightly-aarch64.tar.xz) | Diablo package for `aarch64`'         >> RELEASE_NOTE.md
         echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-vita.vpk](../../releases/download/devilx-nightly/diablo-nightly-vita.vpk) | Diablo package for `Vita`'            >> RELEASE_NOTE.md
+        echo '[diablo-nightly-3ds.3dsx](../../releases/download/devilx-nightly/diablo-nightly-3ds.3dsx) | Diablo package for `Nintendo 3DS` (3dsx)'         >> RELEASE_NOTE.md
+        echo '[diablo-nightly-3ds.cia](../../releases/download/devilx-nightly/diablo-nightly-3ds.cia) | Diablo package for `Nintendo 3DS` (cia)'            >> RELEASE_NOTE.md
+        echo '[diablo-nightly-switch.nro](../../releases/download/devilx-nightly/diablo-nightly-switch.nro)   | Diablo package for `Nintendo Switch`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-amiga](../../releases/download/devilx-nightly/diablo-nightly-amiga)   | Diablo package for `Amiga`'               >> RELEASE_NOTE.md
         echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mingw-w9x.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-w9x.zip)   | Diablo build for `Windows 98`'       >> RELEASE_NOTE.md
         echo ''                             >> RELEASE_NOTE.md
         echo '### **Diablo: Hellfire**'     >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
@@ -1243,12 +1460,19 @@ jobs:
         echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ps4.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-aarch64.tar.xz](../../releases/download/devilx-nightly/hellfire-nightly-aarch64.tar.xz) | Hellfire package for `aarch64`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-vita.vpk](../../releases/download/devilx-nightly/hellfire-nightly-vita.vpk) | Hellfire package for `Vita`'            >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-3ds.3dsx](../../releases/download/devilx-nightly/hellfire-nightly-3ds.3dsx) | Hellfire package for `Nintendo 3DS` (3dsx)' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-3ds.cia](../../releases/download/devilx-nightly/hellfire-nightly-3ds.cia) | Hellfire package for `Nintendo 3DS` (cia)'    >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-switch.nro](../../releases/download/devilx-nightly/hellfire-nightly-switch.nro) | Hellfire package for `Nintendo Switch`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-amiga](../../releases/download/devilx-nightly/hellfire-nightly-amiga) | Hellfire package for `Amiga`'                 >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-x64.zip) | Hellfire build for `Windows x64`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-x86.zip) | Hellfire build for `Windows x86`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-w9x.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-w9x.zip) | Hellfire build for `Windows 98`' >> RELEASE_NOTE.md
         echo '[hellmini-nightly-x86.zip](../../releases/download/devilx-nightly/hellmini-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support'                                         >> RELEASE_NOTE.md
         echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                     >> RELEASE_NOTE.md
         echo ''                                    >> RELEASE_NOTE.md
@@ -1260,12 +1484,19 @@ jobs:
         echo '[diablo-nightly-retrofwp.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofwp.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[diablo-nightly-rg350p.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350p.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-ps4p.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4p.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-aarch64p.tar.xz](../../releases/download/devilx-nightly/diablo-nightly-aarch64p.tar.xz) | Diablo package for `aarch64`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-macp.dmg](../../releases/download/devilx-nightly/diablo-nightly-macp.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
         echo '[diablo-nightly-iosp.ipa](../../releases/download/devilx-nightly/diablo-nightly-iosp.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
+        echo '[diablo-nightly-vitap.vpk](../../releases/download/devilx-nightly/diablo-nightly-vitap.vpk) | Diablo package for `Vita`'            >> RELEASE_NOTE.md
+        echo '[diablo-nightly-3dsp.3dsx](../../releases/download/devilx-nightly/diablo-nightly-3dsp.3dsx) | Diablo package for `Nintendo 3DS` (3dsx)'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-3dsp.cia](../../releases/download/devilx-nightly/diablo-nightly-3dsp.cia) | Diablo package for `Nintendo 3DS` (cia)'          >> RELEASE_NOTE.md
+        echo '[diablo-nightly-switchp.nro](../../releases/download/devilx-nightly/diablo-nightly-switchp.nro) | Diablo package for `Nintendo Switch`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-amigap](../../releases/download/devilx-nightly/diablo-nightly-amigap)   | Diablo package for `Amiga`'               >> RELEASE_NOTE.md
         echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
         echo '[diablo-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
+        echo '[diablo-nightly-mingw-w9x.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-w9x.zip)   | Diablo build for `Windows 98`'        >> RELEASE_NOTE.md
         echo ''                                              >> RELEASE_NOTE.md
         echo '### **Diablo: Hellfire** using patched assets' >> RELEASE_NOTE.md
         echo '_Filename_ | _Description_'                    >> RELEASE_NOTE.md
@@ -1275,12 +1506,19 @@ jobs:
         echo '[hellfire-nightly-retrofwp.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofwp.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-rg350p.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350p.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-ps4p.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4p.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-aarch64p.tar.xz](../../releases/download/devilx-nightly/hellfire-nightly-aarch64p.tar.xz) | Hellfire package for `aarch64`' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-macp.dmg](../../releases/download/devilx-nightly/hellfire-nightly-macp.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-iosp.ipa](../../releases/download/devilx-nightly/hellfire-nightly-iosp.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-vitap.vpk](../../releases/download/devilx-nightly/hellfire-nightly-vitap.vpk) | Hellfire package for `Vita`'            >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-3dsp.3dsx](../../releases/download/devilx-nightly/hellfire-nightly-3dsp.3dsx) | Hellfire package for `Nintendo 3DS` (3dsx)' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-3dsp.cia](../../releases/download/devilx-nightly/hellfire-nightly-3dsp.cia) | Hellfire package for `Nintendo 3DS` (cia)'    >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-switchp.nro](../../releases/download/devilx-nightly/hellfire-nightly-switchp.nro) | Hellfire package for `Nintendo Switch`' >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-amigap](../../releases/download/devilx-nightly/hellfire-nightly-amigap) | Hellfire package for `Amiga`'                 >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`(requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'        >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-x64.zip) | Hellfire build for `Windows x64`'   >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-x86.zip) | Hellfire build for `Windows x86`    >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-mingw-w9x.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-w9x.zip) | Hellfire build for `Windows 98`'    >> RELEASE_NOTE.md
         echo '[hellmini-nightly-x86.zip](../../releases/download/devilx-nightly/hellmini-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support'                                         >> RELEASE_NOTE.md
         echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                     >> RELEASE_NOTE.md
 
