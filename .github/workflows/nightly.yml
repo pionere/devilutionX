@@ -1513,7 +1513,7 @@ jobs:
         echo '[hellfire-nightly-3dsp.3dsx](../../releases/download/devilx-nightly/hellfire-nightly-3dsp.3dsx) | Hellfire package for `Nintendo 3DS` (3dsx)' >> RELEASE_NOTE.md
         echo '[hellfire-nightly-3dsp.cia](../../releases/download/devilx-nightly/hellfire-nightly-3dsp.cia) | Hellfire package for `Nintendo 3DS` (cia)'    >> RELEASE_NOTE.md
         echo '[hellfire-nightly-switchp.nro](../../releases/download/devilx-nightly/hellfire-nightly-switchp.nro) | Hellfire package for `Nintendo Switch`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-amigap](../../releases/download/devilx-nightly/hellfire-nightly-amigap) | Hellfire package for `Amiga`'                 >> RELEASE_NOTE.md
+        echo '[hellfire-nightly-amigap](../../releases/download/devilx-nightly/hellfire-nightly-amigap)   | Hellfire package for `Amiga`'               >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
         echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-mingw-x64.zip) | Hellfire build for `Windows x64`'   >> RELEASE_NOTE.md
         echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
@@ -1555,23 +1555,37 @@ jobs:
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
           ${{github.workspace}}/diablo-nightly-ps4.pkg
+          ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
+          ${{github.workspace}}/diablo-nightly-vita.vpk
+          ${{github.workspace}}/diablo-nightly-3ds.3dsx
+          ${{github.workspace}}/diablo-nightly-3ds.cia
+          ${{github.workspace}}/diablo-nightly-switch.nro
+          ${{github.workspace}}/diablo-nightly-amiga
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
           ${{github.workspace}}/diablo-nightly-mingw-x86.zip
+          ${{github.workspace}}/diablo-nightly-mingw-w9x.zip
           ${{github.workspace}}/hellfire-nightly-android.apk
           ${{github.workspace}}/hellfire-nightly-lepus.opk
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
           ${{github.workspace}}/hellfire-nightly-ps4.pkg
+          ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
+          ${{github.workspace}}/hellfire-nightly-vita.vpk
+          ${{github.workspace}}/hellfire-nightly-3ds.3dsx
+          ${{github.workspace}}/hellfire-nightly-3ds.cia
+          ${{github.workspace}}/hellfire-nightly-switch.nro
+          ${{github.workspace}}/hellfire-nightly-amiga
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
+          ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
           ${{github.workspace}}/hellmini-nightly-x86.zip
           ${{github.workspace}}/hellsrv-nightly-x86.zip
           ${{github.workspace}}/diablo-nightly-androidp.apk
@@ -1579,15 +1593,27 @@ jobs:
           ${{github.workspace}}/diablo-nightly-retrofwp.opk
           ${{github.workspace}}/diablo-nightly-rg350p.opk
           ${{github.workspace}}/diablo-nightly-ps4p.pkg
+          ${{github.workspace}}/diablo-nightly-aarch64p.tar.xz
           ${{github.workspace}}/diablo-nightly-macp.dmg
           ${{github.workspace}}/diablo-nightly-iosp.ipa
+          ${{github.workspace}}/diablo-nightly-vitap.vpk
+          ${{github.workspace}}/diablo-nightly-3dsp.3dsx
+          ${{github.workspace}}/diablo-nightly-3dsp.cia
+          ${{github.workspace}}/diablo-nightly-switchp.nro
+          ${{github.workspace}}/diablo-nightly-amigap
           ${{github.workspace}}/hellfire-nightly-androidp.apk
           ${{github.workspace}}/hellfire-nightly-lepusp.opk
           ${{github.workspace}}/hellfire-nightly-retrofwp.opk
           ${{github.workspace}}/hellfire-nightly-rg350p.opk
           ${{github.workspace}}/hellfire-nightly-ps4p.pkg
+          ${{github.workspace}}/hellfire-nightly-aarch64p.tar.xz
           ${{github.workspace}}/hellfire-nightly-macp.dmg
           ${{github.workspace}}/hellfire-nightly-iosp.ipa
+          ${{github.workspace}}/hellfire-nightly-vitap.vpk
+          ${{github.workspace}}/hellfire-nightly-3dsp.3dsx
+          ${{github.workspace}}/hellfire-nightly-3dsp.cia
+          ${{github.workspace}}/hellfire-nightly-switchp.nro
+          ${{github.workspace}}/hellfire-nightly-amigap
         fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
