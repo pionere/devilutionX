@@ -138,7 +138,8 @@ static void AdjustToScreenGeometry(int width, int height)
 static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
-	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+	SDL_GetDesktopDisplayMode(0, &mode);
+
 		if (mode.w < mode.h) {
 			std::swap(mode.w, mode.h);
 		}
@@ -164,7 +165,6 @@ static void CalculatePreferredWindowSize(int& width, int& height, bool useIntege
 					height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
 			}
 		}
-	}
 }
 #endif
 
@@ -331,8 +331,9 @@ void SpawnWindow()
 	int refreshRate = 60;
 #ifndef USE_SDL1
 	SDL_DisplayMode mode;
-	// TODO: use SDL_GetCurrentDisplayMode after window is shown?
-	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+	// TODO: use SDL_GetWindowDisplayMode?
+	SDL_GetDesktopDisplayMode(0, &mode);
+	if (mode.refresh_rate != 0) {
 		refreshRate = mode.refresh_rate;
 	}
 #endif
