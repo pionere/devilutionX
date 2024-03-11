@@ -1543,7 +1543,7 @@ jobs:
       shell: bash
 
     - name: Release
-      uses: softprops/action-gh-release@v0.1.15
+      uses: softprops/action-gh-release@v2.0.3
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
