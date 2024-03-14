@@ -26,7 +26,7 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DZEROTIER=OFF -DNONET=ON -DUSE_PATCH=ON \
+        cmake -S . -B build -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DZEROTIER=OFF -DNONET=ON -D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON \
           -D CMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
 
     - name: Build DevilutionX
