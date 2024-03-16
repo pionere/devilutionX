@@ -708,16 +708,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-ps4.pkg'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4.pkg'
           - name: diablo-ps4p
-            cmakeargs: '-DUSE_PATCH=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-ps4p.pkg'
           - name: hellfire-ps4p
-            cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4p.pkg'
     runs-on: ubuntu-22.04
     steps:
@@ -757,16 +757,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: '-DNONET=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON'
             artifact: 'diablo-nightly-vita.vpk'
           - name: hellfire
-            cmakeargs: '-DNONET=ON -DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vita.vpk'
           - name: diablo-vita
-            cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON'
             artifact: 'diablo-nightly-vitap.vpk'
           - name: hellfire-vita
-            cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vitap.vpk'
     runs-on: ubuntu-latest
     container: vitasdk/vitasdk:latest
@@ -876,16 +876,16 @@ jobs:
         #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: '-DNONET=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON'
             artifact: 'diablo-nightly-switch.nro'
           - name: hellfire
-            cmakeargs: '-DNONET=ON -DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-switch.nro'
           - name: diablo-switch
-            cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON'
             artifact: 'diablo-nightly-switchp.nro'
           - name: hellfire-switch
-            cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-switchp.nro'
     runs-on: ubuntu-latest
     container: devkitpro/devkita64:latest
