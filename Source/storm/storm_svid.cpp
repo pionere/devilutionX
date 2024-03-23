@@ -286,7 +286,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 			Mix_CloseAudio();
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
+			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
 			if (deviceId != 0) {
 				SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 			} else {
