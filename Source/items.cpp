@@ -1516,9 +1516,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_LIGHT:
 		is->_iPLLight = r;
 		break;
-	case IPL_INVCURS:
-		is->_iCurs = param1;
-		break;
+	// case IPL_INVCURS:
+	//	is->_iCurs = param1;
+	//	break;
 	//case IPL_THORNS:
 	//	is->_iFlags |= ISPL_THORNS;
 	//	break;
@@ -1947,6 +1947,7 @@ static void GetUniqueItem(int ii, int uid)
 		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b, 0, 0, 1);
 	}}}}}
 
+	items[ii]._iCurs = ui->UICurs;
 	items[ii]._iIvalue = ui->UIValue;
 
 	// if (items[ii]._iMiscId == IMISC_UNIQUE)
@@ -2904,9 +2905,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 	case IPL_LIGHT:
 		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
 		break;
-	case IPL_INVCURS:
-		copy_cstr(tempstr, " ");
-		break;
+	// case IPL_INVCURS:
+	//	copy_cstr(tempstr, " ");
+	//	break;
 	//case IPL_THORNS:
 	//	copy_cstr(tempstr, "attacker takes 1-3 damage");
 	//	break;
@@ -3039,10 +3040,10 @@ static void PrintItemString(int x, int& y, const char* str, int col)
 
 static void PrintUniquePower(BYTE plidx, ItemStruct* is, int x, int& y)
 {
-	if (plidx != IPL_INVCURS) {
+	// if (plidx != IPL_INVCURS) {
 		PrintItemPower(plidx, is);
 		PrintItemString(x, y);
-	}
+	// }
 }
 
 static void DrawUniqueInfo(ItemStruct* is, int x, int& y)
