@@ -393,7 +393,7 @@ jobs:
           - name: hellfire-macp
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-macp.dmg'
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v4
       with:
@@ -441,7 +441,7 @@ jobs:
           - name: hellfire-iosp
             cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-iosp.ipa'
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v4
       with:
