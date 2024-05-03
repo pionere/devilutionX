@@ -31,14 +31,14 @@
 #endif
 
 #if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
+#define HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
 #elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
+#define HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
+
 #endif
 
-/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
-#ifndef NEED_SCALAR_CONVERTER_FALLBACKS
-#define NEED_SCALAR_CONVERTER_FALLBACKS 1
+#ifndef HAVE_SSE2_SUPPORT
+#define HAVE_SSE2_SUPPORT 0
 #endif
 
 /* Function pointers set to a CPU-specific implementation. */
@@ -477,13 +477,13 @@ void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
         __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
         __m128i bb = _mm_loadu_si128((const __m128i*)&srcPos[8]);
 
-        aa = _mm_shufflehi_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        aa = _mm_shufflelo_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        aa = _mm_shuffle_epi32(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        aa = _mm_shufflehi_epi16(aa, _MM_SHUFFLE(3, 1, 2, 0));
+        aa = _mm_shufflelo_epi16(aa, _MM_SHUFFLE(3, 1, 2, 0));
+        aa = _mm_shuffle_epi32(aa, _MM_SHUFFLE(3, 1, 2, 0));
 
-        bb = _mm_shufflehi_epi16(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        bb = _mm_shufflelo_epi16(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        bb = _mm_shuffle_epi32(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        bb = _mm_shufflehi_epi16(bb, _MM_SHUFFLE(3, 1, 2, 0));
+        bb = _mm_shufflelo_epi16(bb, _MM_SHUFFLE(3, 1, 2, 0));
+        bb = _mm_shuffle_epi32(bb, _MM_SHUFFLE(3, 1, 2, 0));
 
         __m128i cc = _mm_unpacklo_epi64(aa, bb);
         _mm_storeu_si128((__m128i*)dstPos, cc);
@@ -526,32 +526,25 @@ void Mix_Converter_U8_S16LSB_AVX(Mix_BuffOps* buf)
     buf->endPos = dstPos;
 
     const __m256i zero = _mm256_setzero_si256();
-    const __m256i sub = _mm256_set1_epi16(128);
+    const __m256i sign = _mm256_set1_epi8(0x80);
 
     while (&currPos[32] <= srcPos) {
         srcPos -= 32;
-        dstPos -= 32;
+        dstPos -= 64;
 
-        __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
+        const __m256i src00 = _mm256_loadu_si256((__m128i const *)&srcPos[0]); /* get 32 uint8 into an XMM register. */
+        const __m256i value = _mm_xor_si128(sign, src00);                      /* 'convert' to int8 */
+        const __m256i src0 = _mm_unpacklo_epi8(zero, value);
+        const __m256i src1 = _mm_unpackhi_epi8(zero, value);
 
-        __m256i bb = _mm256_unpackhi_epi8(aa, zero);// zfill(a[hi], 16)
-        bb = _mm256_sub_epi16(bb, sub);				// subtract 128
-
-        bb = _mm256_slli_epi16(bb, 8);				// shl 8
-        _mm256_storeu_si256((__m256i*)dstPos, bb);
-
-        dstPos -= 32;
-        __m256i cc = _mm256_unpacklo_epi8(aa, zero);// zfill(a[lo], 16)
-        cc = _mm256_sub_epi16(cc, sub);				// subtract 128
-
-        cc = _mm256_slli_epi16(cc, 8);				// shl 8
-        _mm256_storeu_si256((__m256i*)dstPos, cc);
+        _mm_storeu_si128((__m256i*)&dstPos[0], src0);
+        _mm_storeu_si128((__m256i*)&dstPos[32], src1);
     }
 
     while (srcPos != currPos) {
         srcPos--;
         dstPos -= 2;
-        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) << 8);
+        *(Sint16*)dstPos = SDL_SwapLE16((Sint8)(srcPos[0] ^ 0x80) << 8);
     }
 }
 #endif // __AVX__
@@ -565,32 +558,25 @@ void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
     buf->endPos = dstPos;
 
     const __m128i zero = _mm_setzero_si128();
-    const __m128i sub = _mm_set1_epi16(128);
+    const __m128i sign = _mm_set1_epi8(0x80);
 
     while (&currPos[16] <= srcPos) {
         srcPos -= 16;
-        dstPos -= 16;
+        dstPos -= 32;
 
-        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
+        const __m128i src00 = _mm_loadu_si128((__m128i const *)&srcPos[0]); /* get 16 uint8 into an XMM register. */
+        const __m128i value = _mm_xor_si128(sign, src00);                   /* 'convert' to int8 */
+        const __m128i src0 = _mm_unpacklo_epi8(zero, value);
+        const __m128i src1 = _mm_unpackhi_epi8(zero, value);
 
-        __m128i bb = _mm_unpackhi_epi8(aa, zero);	// zfill(a[hi], 16)
-        bb = _mm_sub_epi16(bb, sub);				// subtract 128
-
-        bb = _mm_slli_epi16(bb, 8);					// shl 8
-        _mm_storeu_si128((__m128i*)dstPos, bb);
-
-        dstPos -= 16;
-        __m128i cc = _mm_unpacklo_epi8(aa, zero);	// zfill(a[lo], 16)
-        cc = _mm_sub_epi16(cc, sub);				// subtract 128
-
-        cc = _mm_slli_epi16(cc, 8);					// shl 8
-        _mm_storeu_si128((__m128i*)dstPos, cc);
+        _mm_storeu_si128((__m128i*)&dstPos[0], src0);
+        _mm_storeu_si128((__m128i*)&dstPos[16], src1);
     }
 
     while (srcPos != currPos) {
         srcPos--;
         dstPos -= 2;
-        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) << 8);
+        *(Sint16*)dstPos = SDL_SwapLE16((Sint8)(srcPos[0] ^ 0x80) << 8);
     }
 }
 #endif
@@ -605,26 +591,24 @@ void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
     while (srcPos != currPos) {
         srcPos--;
         dstPos -= 2;
-        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) << 8);
+        *(Sint16*)dstPos = SDL_SwapLE16((Sint8)(srcPos[0] ^ 0x80) << 8);
     }
 }
 
 void Mix_Utils_Init()
 {
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo;
+    // Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo;
     Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo;
     Mix_Convert_AUDIO8_Resample_Half = Mix_Converter_AUDIO8_Resample_Half;
     Mix_Convert_AUDIO16_Resample_Half = Mix_Converter_AUDIO16_Resample_Half;
     Mix_MixAudioFormat = Mix_Mixer_AUDIOS16;
     Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB;
-#endif
 #ifdef HAVE_SSE2_INTRINSICS
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    if (SDL_HasSSE2()) {
-#else
+#if HAVE_SSE2_SUPPORT
     // SDL_assert(SDL_HasSSE2());
     if (1) {
+#else
+    if (SDL_HasSSE2()) {
 #endif
         //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo_SSE2;
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_SSE2;
