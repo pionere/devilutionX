@@ -1,7 +1,7 @@
 #include <3ds.h>
 #include <cstdlib>
 #include <cstdio>
-#include "platform/ctr/cfgu_service.hpp
+#include "platform/ctr/cfgu_service.hpp"
 #include "platform/ctr/random.hpp"
 #include "platform/ctr/sockets.hpp"
 #include "platform/ctr/system.h"
@@ -78,7 +78,7 @@ bool ctr_is_n3ds()
 
 bool ctr_should_disable_backlight()
 {
-	n3ds::CFGUService cfguService;
+	dvl::n3ds::CFGUService cfguService;
 	if (!cfguService.IsInitialized())
 		return false;
 

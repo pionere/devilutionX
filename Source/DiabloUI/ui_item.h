@@ -43,6 +43,7 @@ enum UiFlags : uint16_t {
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = AFC_SILVER << 7,
 	UIS_GOLD        = AFC_GOLD << 7,
+	UIS_OPTIONAL    = 1 << 11,
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,
 
@@ -106,9 +107,12 @@ public:
 	UiScrollBar(SDL_Rect& rect)
 	    : UiItemBase(UI_SCROLLBAR, rect, 0)
 	{
+		m_pressMode = 0;
 	}
 
 	~UiScrollBar() = default;
+
+	int m_pressMode;
 };
 
 //=============================================================================
@@ -134,19 +138,28 @@ public:
 	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect& rect)
 	    : UiItemBase(UI_EDIT, rect, 0)
 	{
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 		m_hint = hint;
+#endif
 		m_value = value;
 		m_max_length = max_length;
 		m_curpos = strlen(value);
+		m_selpos = m_curpos;
+		m_selecting = false;
 	}
 
 	~UiEdit() = default;
 
 	//private:
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 	const char* m_hint;
+#endif
 	char* m_value;
 	unsigned m_max_length;
 	unsigned m_curpos;
+	unsigned m_selpos;
+	// State
+	bool m_selecting;
 };
 
 //=============================================================================

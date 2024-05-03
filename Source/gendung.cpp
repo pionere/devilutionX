@@ -1608,16 +1608,17 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-	// TODO: LoadPreLighting, DRLG_LightSubtiles? (see SyncPedestal)
+	LoadPreLighting();
+	// TODO: DRLG_LightSubtiles?
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
+	SavePreLighting();
+	// RedoLightAndVision();
 	// activate monsters
 	MonChangeMap();
 	gbDoTransVals = true;
 	if (!deltaload) {
 		DRLG_RedoTrans();
 	}
-	// RedoLightAndVision();
-	// TODO: SavePreLighting?
 }
 
 void DRLG_RedoTrans()

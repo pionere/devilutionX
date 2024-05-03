@@ -41,6 +41,9 @@ bool UiSelectProvider(bool bMulti);
 /* Defined in dialogs.cpp */
 void UiErrorOkDialog(const char* caption, const char* text, bool error = true);
 
+/* Defined in hostgame.cpp */
+void UiHostGameDialog();
+
 #ifdef __cplusplus
 }
 #endif

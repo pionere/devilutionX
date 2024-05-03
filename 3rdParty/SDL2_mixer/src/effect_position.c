@@ -33,6 +33,25 @@
 #define MIX_INTERNAL_EFFECT__
 #include "effects_internal.h"
 
+#ifndef FULL
+
+#ifdef __SSE2__
+#define HAVE_SSE2_INTRINSICS
+#endif
+
+#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
+#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
+#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
+#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
+#endif
+
+/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
+#ifndef NEED_SCALAR_CONVERTER_FALLBACKS
+#define NEED_SCALAR_CONVERTER_FALLBACKS 1
+#endif
+
+#endif // FULL
+
 /* profile code:
     #include <sys/time.h>
     #include <unistd.h>
@@ -59,10 +78,10 @@ static _Mix_EffectPosArgs *pos_args_global = NULL;
 #endif
 static int position_channels = 0;
 #endif // FULL - FIX_EFF
-static SDL_bool _Eff_volume_s16lbs(void* stream, unsigned len, void* udata);
-static SDL_bool (*_Eff_do_volume_s16lbs)(void* stream, unsigned len, void* udata) = _Eff_volume_s16lbs;
-static SDL_bool _Eff_position_s16lsb(void* stream, unsigned len, void* udata);
-static SDL_bool (*_Eff_do_position_s16lsb)(void* stream, unsigned len, void* udata) = _Eff_position_s16lsb;
+
+/* Function pointers set to a CPU-specific implementation. */
+static SDL_bool (*_Eff_do_volume_s16lbs)(void* stream, unsigned len, void* udata) = NULL;
+static SDL_bool (*_Eff_do_position_s16lsb)(void* stream, unsigned len, void* udata) = NULL;
 
 #ifdef FULL // FIX_EFF
 /* This just frees up the callback-specific data. */
@@ -817,7 +836,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* u
     }
     return SDL_TRUE;
 }
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
@@ -851,9 +870,9 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
     }
     return SDL_TRUE;
 }
-#endif // __SSE2__
-#ifdef __AVX__
-static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, void* udata)
+#endif // HAVE_SSE2_INTRINSICS
+#ifdef __AVX2__
+static SDL_bool SDLCALL _Eff_position_s16lsb_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -863,9 +882,9 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
     if (left == 0 && right == 0)
         return SDL_FALSE;
 
-    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be a power of 2.");
-    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_POS_EFFECT to be a power of 2.");
-    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be low.");
+    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX2 expects MIX_MAX_VOLUME to be a power of 2.");
+    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX2 expects MIX_MAX_POS_EFFECT to be a power of 2.");
+    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX2 expects MIX_MAX_VOLUME to be low.");
     left *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
     right *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
 
@@ -877,7 +896,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm_storeu_si256(ptr, bb);
+        _mm256_storeu_si256(ptr, bb);
         ptr += 16;
     }
 
@@ -906,7 +925,7 @@ static SDL_bool _Eff_volume_s16lbs(void* stream, unsigned len, void* udata)
     }
     return SDL_TRUE;
 }
-#ifdef __SSE2__
+#ifdef HAVE_SSE2_INTRINSICS
 static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
@@ -941,9 +960,9 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
     }
     return SDL_TRUE;
 }
-#endif // __SSE2__
-#ifdef __AVX__
-static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
+#endif // HAVE_SSE2_INTRINSICS
+#ifdef __AVX2__
+static SDL_bool _Eff_volume_s16lbs_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -963,7 +982,7 @@ static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm_storeu_si256(ptr, bb);
+        _mm256_storeu_si256(ptr, bb);
         ptr += 16;
     }
 
@@ -2357,16 +2376,25 @@ int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance)
 
 void _Eff_PositionInit(void)
 {
-#ifdef __SSE2__
+#if NEED_SCALAR_CONVERTER_FALLBACKS
+    _Eff_do_volume_s16lbs = _Eff_volume_s16lbs;
+    _Eff_do_position_s16lsb = _Eff_position_s16lsb;
+#endif
+#ifdef HAVE_SSE2_INTRINSICS
+#if NEED_SCALAR_CONVERTER_FALLBACKS
     if (SDL_HasSSE2()) {
+#else
+    // SDL_assert(SDL_HasSSE2());
+    if (1) {
+#endif
         _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_SSE2;
         _Eff_do_position_s16lsb = _Eff_position_s16lsb_SSE2;
     }
 #endif
-#if defined(__AVX__) && SDL_VERSION_ATLEAST(2, 0, 2)
-    if (SDL_HasAVX()) {
-        _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_AVX;
-        _Eff_do_position_s16lsb = _Eff_position_s16lsb_AVX;
+#if defined(__AVX2__) && SDL_VERSION_ATLEAST(2, 0, 2)
+    if (SDL_HasAVX2()) {
+        _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_AVX2;
+        _Eff_do_position_s16lsb = _Eff_position_s16lsb_AVX2;
     }
 #endif
 }

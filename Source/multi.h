@@ -12,19 +12,19 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern const char* szGameName;
-extern const char* szGamePassword;
 extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
+extern bool gbLoadGame;
+extern bool gbJoinGame;
 extern BYTE gbGameMode;
-extern uint32_t guDeltaTurn;
+extern turn_t guDeltaTurn;
 extern unsigned guSendGameDelta;
 extern unsigned guSendLevelData;
-extern unsigned guReceivedLevelDelta;
-extern uint32_t guRequestLevelData[MAX_PLRS];
-extern uint32_t gdwLastGameTurn;
-extern uint32_t gdwGameLogicTurn;
+extern unsigned guOweLevelDelta;
+extern turn_t guRequestLevelData[MAX_PLRS];
+extern turn_t gdwLastGameTurn;
+extern turn_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 
 void NetSendChunk(const BYTE* pbMsg, BYTE bLen);
@@ -35,7 +35,7 @@ bool multi_handle_turn();
 void multi_send_turn_packet();
 void multi_pre_process_turn(SNetTurnPkt* turn);
 void multi_process_turn(SNetTurnPkt* turn);
-void multi_deactivate_player(int pnum, int reason);
+void multi_deactivate_player(int pnum);
 void multi_disband_team(int pnum);
 bool multi_check_timeout();
 void multi_rnd_seeds();

@@ -1,4 +1,4 @@
-name: CMake
+﻿name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.1
@@ -50,7 +50,7 @@ jobs:
     # Upload the created artifact
     - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: diablo-test-x86.zip

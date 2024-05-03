@@ -17,7 +17,7 @@ extern BYTE gbNetUpdateRate;
 extern BYTE gbEmptyTurns;
 #endif
 extern const unsigned gdwDeltaBytesSec;
-extern uint32_t sgbSentThisCycle;
+extern turn_t sgbSentThisCycle;
 
 /*
  * Send a new turn to the other players.

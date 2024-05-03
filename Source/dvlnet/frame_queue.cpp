@@ -57,10 +57,10 @@ buffer_t frame_queue::read_packet()
 	return ret;
 }
 
-void frame_queue::write(buffer_t buf)
+void frame_queue::write(const buffer_t& buf, unsigned len)
 {
-	current_size += buf.size();
-	buffer_deque.push_back(std::move(buf));
+	current_size += len;
+	buffer_deque.push_back(buffer_t(buf.begin(), buf.begin() + len));
 }
 
 void frame_queue::clear()
@@ -71,7 +71,7 @@ void frame_queue::clear()
 	buffer_deque.clear();
 }
 
-buffer_t* frame_queue::make_frame(buffer_t packetbuf)
+buffer_t* frame_queue::make_frame(const buffer_t packetbuf)
 {
 	buffer_t* ret;
 	uint32_t size = packetbuf.size();

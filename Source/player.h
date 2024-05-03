@@ -19,7 +19,7 @@ extern "C" {
 
 extern int mypnum;
 extern PlayerStruct players[MAX_PLRS];
-extern BYTE gbLvlLoad;
+extern bool gbLvlLoad;
 
 void InitPlayerGFX(int pnum);
 void InitPlrGFXMem(int pnum);
@@ -39,12 +39,12 @@ void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
 void PlrStartBlock(int pnum, int sx, int sy);
 void RemovePlrFromMap(int pnum);
-void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy);
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy);
 void SyncPlrKill(int pnum, int dmgtype);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
-void StartTWarp(int pnum, int pidx);
+void UseTownPortal(int pnum, int pidx);
 void PlrFillHp(int pnum);
 void PlrFillMana(int pnum);
 void PlrSetHp(int pnum, int hp);

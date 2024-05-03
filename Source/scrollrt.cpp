@@ -583,7 +583,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 
 	nCel = os->_oAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->ciFrameCnt;
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
@@ -1027,7 +1027,7 @@ static void DrawItem(int ii, int sx, int sy)
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->ciFrameCnt;
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
 	}
@@ -1477,6 +1477,7 @@ static void DrawView()
 	}
 	DrawLifeFlask();
 	DrawManaFlask();
+	DrawGolemBar();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}

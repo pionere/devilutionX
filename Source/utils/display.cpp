@@ -94,9 +94,8 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
 #ifdef __3DS__
-	flags &= ~SDL_FULLSCREEN;
-	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
-	flags |= Get3DSScalingFlag(fitToScreen, width, height);
+	else
+		flags |= Get3DSScalingFlag(width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 }
@@ -139,29 +138,33 @@ static void AdjustToScreenGeometry(int width, int height)
 static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
-	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		sdl_error(ERR_SDL_DISPLAY_MODE_GET);
-	}
+	SDL_GetDesktopDisplayMode(0, &mode);
 
-	if (mode.w < mode.h) {
-		std::swap(mode.w, mode.h);
-	}
+		if (mode.w < mode.h) {
+			std::swap(mode.w, mode.h);
+		}
 
-	if (useIntegerScaling) {
-		int factor = std::min(mode.w / width, mode.h / height);
-		width = mode.w / factor;
-		height = mode.h / factor;
-		return;
-	}
-
-	float wFactor = (float)mode.w / width;
-	float hFactor = (float)mode.h / height;
-
-	if (wFactor > hFactor) {
-		width = mode.w * height / mode.h;
-	} else {
-		height = mode.h * width / mode.w;
-	}
+		if (useIntegerScaling) {
+			int wFactor = mode.w / width;
+			int hFactor = mode.h / height;
+			if (wFactor > hFactor) {
+				if (hFactor != 0)
+					width *= wFactor / hFactor;
+			} else { // if (hFactor > wFactor) {
+				if (wFactor != 0)
+					height *= hFactor / wFactor;
+			}
+		} else {
+			float wFactor = (float)mode.w / width;
+			float hFactor = (float)mode.h / height;
+			if (wFactor > hFactor) {
+				// if (hFactor != 0.0)
+					width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
+			} else { // if (hFactor > wFactor) {
+				// if (wFactor != 0.0)
+					height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
+			}
+		}
 }
 #endif
 
@@ -328,8 +331,9 @@ void SpawnWindow()
 	int refreshRate = 60;
 #ifndef USE_SDL1
 	SDL_DisplayMode mode;
-	// TODO: use SDL_GetCurrentDisplayMode after window is shown?
-	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+	// TODO: use SDL_GetWindowDisplayMode?
+	SDL_GetDesktopDisplayMode(0, &mode);
+	if (mode.refresh_rate != 0) {
 		refreshRate = mode.refresh_rate;
 	}
 #endif

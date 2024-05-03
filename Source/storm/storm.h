@@ -62,14 +62,14 @@ bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h
-#if defined(_WIN32)
-// https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
-#define STORM_ERROR_FILE_NOT_FOUND 2
-#define STORM_ERROR_HANDLE_EOF     38
-#else // !defined(_WIN32)
-#define STORM_ERROR_FILE_NOT_FOUND ENOENT
-#define STORM_ERROR_HANDLE_EOF     1002
-#endif
+//#if defined(_WIN32)
+//// https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
+//#define STORM_ERROR_FILE_NOT_FOUND 2
+//#define STORM_ERROR_HANDLE_EOF     38
+//#else // !defined(_WIN32)
+//#define STORM_ERROR_FILE_NOT_FOUND ENOENT
+//#define STORM_ERROR_HANDLE_EOF     1002
+//#endif
 
 /*  SErrGetLastError @ 463
  *
@@ -78,7 +78,7 @@ bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead
  *
  *  Returns the last error set within the Storm library.
  */
-DWORD SErrGetLastError();
+//DWORD SErrGetLastError();
 
 /*  SErrSetLastError @ 465
  *
@@ -86,7 +86,7 @@ DWORD SErrGetLastError();
  *
  *  dwErrCode:  The error code that will be set.
  */
-void SErrSetLastError(DWORD dwErrCode);
+//void SErrSetLastError(DWORD dwErrCode);
 
 // Values for dwErrCode
 //#define STORM_ERROR_GAME_TERMINATED 0x85100069

@@ -117,6 +117,7 @@ typedef enum window_messages {
 #define DVL_VK_U                   0x55
 #define DVL_VK_V                   0x56
 #define DVL_VK_W                   0x57
+#define DVL_VK_X                   0x58
 #define DVL_VK_Z                   0x5A
 #define DVL_VK_LWIN                0x5B // Left Windows key (Natural keyboard)
 #define DVL_VK_RWIN                0x5C // Right Windows key (Natural keyboard)

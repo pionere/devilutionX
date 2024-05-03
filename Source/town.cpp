@@ -67,7 +67,7 @@ static void LoadTown()
 	uint32_t* pBuf = (uint32_t*)LoadFileInMem(TOWN_PREDUN);
 	int* dp = &dPiece[0][0];
 	uint32_t* pTmp = pBuf;
-	for (x = 0; x < MAXDUNX * MAXDUNY; x++, dp++, pTmp++)
+	for (int x = 0; x < MAXDUNX * MAXDUNY; x++, dp++, pTmp++)
 		*dp = SwapLE32(*pTmp);
 
 	mem_free_dbg(pBuf);
