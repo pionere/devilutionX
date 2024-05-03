@@ -871,8 +871,8 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
     return SDL_TRUE;
 }
 #endif // HAVE_SSE2_INTRINSICS
-#ifdef __AVX__
-static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, void* udata)
+#ifdef __AVX2__
+static SDL_bool SDLCALL _Eff_position_s16lsb_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -882,9 +882,9 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
     if (left == 0 && right == 0)
         return SDL_FALSE;
 
-    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be a power of 2.");
-    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_POS_EFFECT to be a power of 2.");
-    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be low.");
+    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX2 expects MIX_MAX_VOLUME to be a power of 2.");
+    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX2 expects MIX_MAX_POS_EFFECT to be a power of 2.");
+    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX2 expects MIX_MAX_VOLUME to be low.");
     left *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
     right *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
 
@@ -896,7 +896,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm_storeu_si256(ptr, bb);
+        _mm256_storeu_si256(ptr, bb);
         ptr += 16;
     }
 
@@ -961,8 +961,8 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
     return SDL_TRUE;
 }
 #endif // HAVE_SSE2_INTRINSICS
-#ifdef __AVX__
-static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
+#ifdef __AVX2__
+static SDL_bool _Eff_volume_s16lbs_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -982,7 +982,7 @@ static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm_storeu_si256(ptr, bb);
+        _mm256_storeu_si256(ptr, bb);
         ptr += 16;
     }
 
@@ -2391,10 +2391,10 @@ void _Eff_PositionInit(void)
         _Eff_do_position_s16lsb = _Eff_position_s16lsb_SSE2;
     }
 #endif
-#if defined(__AVX__) && SDL_VERSION_ATLEAST(2, 0, 2)
-    if (SDL_HasAVX()) {
-        _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_AVX;
-        _Eff_do_position_s16lsb = _Eff_position_s16lsb_AVX;
+#if defined(__AVX2__) && SDL_VERSION_ATLEAST(2, 0, 2)
+    if (SDL_HasAVX2()) {
+        _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_AVX2;
+        _Eff_do_position_s16lsb = _Eff_position_s16lsb_AVX2;
     }
 #endif
 }
