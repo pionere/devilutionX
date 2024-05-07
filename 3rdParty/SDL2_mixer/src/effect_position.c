@@ -745,7 +745,7 @@ static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *
 #else
 //static_assert(SDL_MAX_SINT16 * MIX_MAX_POS_EFFECT * MIX_MAX_VOLUME <= SDL_MAX_SINT32, "Volume might overflow when the effects are calculated.");
 #define ADJUST_SIDE_VOLUME(s, v) (s = (s*v)/(MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT))
-static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* udata)
+static SDL_bool _Eff_position_s16lsb(void* stream, unsigned len, void* udata)
 #endif
 {
     /* 16 signed bits (lsb) * 2 channels. */
@@ -818,7 +818,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* u
     return SDL_TRUE;
 }
 #ifdef SDL_SSE2_INTRINSICS
-static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
+static SDL_bool _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -842,7 +842,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
         len -= 16;
         __m128i aa = _mm_loadu_si128((const __m128i*)ptr);
         __m128i bb = _mm_mulhi_epi16(aa, mm);
-        _mm_storeu_si128(ptr, bb);
+        _mm_storeu_si128((__m128i*)ptr, bb);
         ptr += 8;
     }
 
@@ -853,7 +853,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
 }
 #endif // SDL_SSE2_INTRINSICS
 #ifdef SDL_AVX2_INTRINSICS
-static SDL_bool SDLCALL _Eff_position_s16lsb_AVX2(void* stream, unsigned len, void* udata)
+static SDL_bool SDL_TARGETING("avx2") _Eff_position_s16lsb_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -877,7 +877,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX2(void* stream, unsigned len, vo
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm256_storeu_si256(ptr, bb);
+        _mm256_storeu_si256((__m256i*)ptr, bb);
         ptr += 16;
     }
 
@@ -927,7 +927,7 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
         len -= 16;
         __m128i aa = _mm_loadu_si128((const __m128i*)ptr);
         __m128i bb = _mm_mulhi_epi16(aa, mm);
-        _mm_storeu_si128(ptr, bb);
+        _mm_storeu_si128((__m128i*)ptr, bb);
         ptr += 8;
     }
 
@@ -943,7 +943,7 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
 }
 #endif // SDL_SSE2_INTRINSICS
 #ifdef SDL_AVX2_INTRINSICS
-static SDL_bool _Eff_volume_s16lbs_AVX2(void* stream, unsigned len, void* udata)
+static SDL_bool SDL_TARGETING("avx2") _Eff_volume_s16lbs_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -963,7 +963,7 @@ static SDL_bool _Eff_volume_s16lbs_AVX2(void* stream, unsigned len, void* udata)
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
         __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm256_storeu_si256(ptr, bb);
+        _mm256_storeu_si256((__m256i*)ptr, bb);
         ptr += 16;
     }
 
