@@ -1,9 +1,6 @@
 #include "plrctrls.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-#include <cstdint>
-#include <queue>
-
 #include "controller_motion.h"
 #include "game_controls.h"
 
@@ -96,13 +93,13 @@ static int GetDistanceRanged(int dx, int dy)
 	return sqrt(a * a + b * b);
 }
 
-static void FindItemOrObject()
+static void FindItem()
 {
 	int mx = myplr._pfutx;
 	int my = myplr._pfuty;
 	int rotations = 5;
 
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItemOrObject expects a large enough border.");
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItem expects a large enough border.");
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
 			int ii = dItem[mx + xx][my + yy];
@@ -122,10 +119,15 @@ static void FindItemOrObject()
 			pcurspos.y = my + yy;
 		}
 	}
+}
 
-	if (currLvl._dType == DTYPE_TOWN || pcursitem != ITEM_NONE)
-		return; // Don't look for objects in town
+static void FindObject()
+{
+	int mx = myplr._pfutx;
+	int my = myplr._pfuty;
+	int rotations = 5;
 
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindObject expects a large enough border.");
 	for (int xx = -1; xx <= 1; xx++) {
 		for (int yy = -1; yy <= 1; yy++) {
 			int oi = dObject[mx + xx][my + yy];
@@ -149,7 +151,7 @@ static void FindItemOrObject()
 	}
 }
 
-static void CheckTownersNearby()
+static void FindTowner()
 {
 	for (int i = MAX_MINIONS; i < numtowners; i++) {
 		int distance = GetDistance(monsters[i]._mx, monsters[i]._my, 2);
@@ -159,8 +161,11 @@ static void CheckTownersNearby()
 	}
 }
 
-static bool HasRangedSpell()
+static bool HasRangedSkill()
 {
+	if (myplr._pSkillFlags & SFLAG_RANGED)
+		return true;
+
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = myplr._pAltMoveSkill;
@@ -172,188 +177,109 @@ static bool HasRangedSpell()
 	    && (spelldata[spl].sUseFlags & myplr._pSkillFlags) == spelldata[spl].sUseFlags;
 }
 
-static int CanTargetMonster(int mnum)
+/**
+ * @brief Find a monster to target
+ * @param mode: 0 - offensive, 1 - heal
+ * @param ranged: whether the current player is melee or ranged
+ */
+static void FindMonster(int mode, bool ranged)
 {
-	MonsterStruct* mon;
-
-	// The first MAX_MINIONS monsters are reserved for players' golems.
-	if (mnum < MAX_MINIONS)
-		return 0;
-
-	mon = &monsters[mnum];
-	if (mon->_mmode > MM_INGAME_LAST)
-		return 0;
-	if (mon->_mFlags & MFLAG_HIDDEN)
-		return 0;
-	if (mon->_mhitpoints < (1 << 6)) // dead
-		return 0;
-
-	if (!(dFlags[mon->_mx][mon->_my] & BFLAG_VISIBLE))
-		return 0;
-
-	return CanTalkToMonst(mnum) ? 2 : 1;
-}
-
-static void FindRangedTarget()
-{
-	int rotations = NUM_DIRS, distance = MAXDUNX + MAXDUNY, mnum;
+	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum, lastMon;
 	bool canTalk = true;
 
-	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		const int tgtMode = CanTargetMonster(mnum);
-		if (tgtMode == 0)
-			continue;
-		const bool newCanTalk = tgtMode - 1;
-		if (!canTalk && newCanTalk)
-			continue;
+	if (mode == 0) {
+		mnum = MAX_MINIONS;
+		lastMon = MAXMONSTERS;
+	} else {
+		mnum = 0;
+		lastMon = MAX_MINIONS;
+	}
+	for ( ; mnum < lastMon; mnum++) {
 		const MonsterStruct& mon = monsters[mnum];
+		if (mon._mmode > MM_INGAME_LAST || mon._mmode == MM_DEATH)
+			continue;
+		if (mon._mFlags & MFLAG_HIDDEN)
+			continue;
+		if (!(dFlags[mon._mx][mon._my] & BFLAG_VISIBLE))
+			continue;
+
 		const int mx = mon._mfutx;
 		const int my = mon._mfuty;
-		const int newDdistance = GetDistanceRanged(mx, my);
-		const int newRotations = GetRotaryDistance(mx, my);
-		if (canTalk == newCanTalk) {
-			if (distance < newDdistance)
-				continue;
-			if (distance == newDdistance && rotations < newRotations)
+		if (ranged) {
+			newDistance = GetDistanceRanged(mx, my);
+		} else {
+			newDistance = GetDistance(mx, my, distance);
+			if (newDistance < 0)
 				continue;
 		}
-		distance = newDdistance;
+		const int newRotations = GetRotaryDistance(mx, my);
+		const bool newCanTalk = CanTalkToMonst(mnum);
+		if (canTalk == newCanTalk) {
+			if (distance < newDistance)
+				continue;
+			if (distance == newDistance && rotations < newRotations)
+				continue;
+		} else if (newCanTalk) {
+			continue;
+		}
+		distance = newDistance;
 		rotations = newRotations;
 		canTalk = newCanTalk;
 		pcursmonst = mnum;
 	}
 }
 
-static void FindMeleeTarget()
+/**
+ * @brief Find a player to target
+ * @param mode: 0 - offensive, 1 - heal, 2 - dead
+ * @param ranged: whether the current player is melee or ranged
+ */
+static void FindPlayer(int mode, bool ranged)
 {
-	bool visited[MAXDUNX][MAXDUNY] = { { 0 } };
-	int maxSteps = MAX_PATH_LENGTH;
-	int rotations = NUM_DIRS;
-	bool canTalk = true;
+	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
+	bool sameTeam = mode == 0;
 
-	struct SearchNode {
-		int x, y;
-		int steps;
-	};
-	std::queue<SearchNode> nodes;
-	{
-		const int startX = myplr._pfutx;
-		const int startY = myplr._pfuty;
-		visited[startX][startY] = true;
-		nodes.push({ startX, startY, 0 });
-	}
-
-	while (!nodes.empty()) {
-		SearchNode node = nodes.front();
-		nodes.pop();
-
-		if (node.steps > maxSteps)
-			break;
-		static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
-		for (int i = 0; i < lengthof(pathxdir); i++) {
-			const int dx = node.x + pathxdir[i];
-			const int dy = node.y + pathydir[i];
-			if (visited[dx][dy])
-				continue; // already visited
-
-			if (!PosOkPlayer(mypnum, dx, dy)) {
-				visited[dx][dy] = true;
-
-				int mi = dMonster[dx][dy];
-				if (mi != 0) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					const int tgtMode = CanTargetMonster(mi);
-					if (tgtMode != 0) {
-						const bool newCanTalk = tgtMode - 1;
-						if (!canTalk && newCanTalk)
-							continue;
-						const int newRotations = GetRotaryDistance(dx, dy);
-						if (canTalk == newCanTalk && rotations < newRotations)
-							continue;
-						rotations = newRotations;
-						canTalk = newCanTalk;
-						pcursmonst = mi;
-						if (!canTalk)
-							maxSteps = node.steps; // Monsters found, cap search to current steps
-					}
-				}
-
-				continue;
-			}
-
-			if (PathWalkable(node.x, node.y, i)) {
-				nodes.push({ dx, dy, node.steps + 1 });
-				visited[dx][dy] = true;
-			}
-		}
-	}
-}
-
-static void CheckMonstersNearby()
-{
-	if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
-		FindRangedTarget();
-		return;
-	}
-
-	FindMeleeTarget();
-}
-
-static void CheckPlayerNearby()
-{
-	int newDdistance;
-	int rotations;
-	int distance = MAXDUNX + MAXDUNY;
-
-	if (pcursmonst != MON_NONE)
-		return;
-
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-
-	for (int i = 0; i < MAX_PLRS; i++) {
-		if (i == mypnum)
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (pnum == mypnum)
 			continue;
-		if (spl != SPL_RESURRECT) {
-			if (players[i]._pHitPoints == 0)
-				continue;
-			if (players[i]._pTeam == myplr._pTeam && spl != SPL_HEALOTHER)
-				continue;
-		}
-		const int mx = players[i]._pfutx;
-		const int my = players[i]._pfuty;
-		if (!(dFlags[mx][my] & BFLAG_VISIBLE))
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
 			continue;
-		if ((myplr._pSkillFlags & SFLAG_RANGED) || HasRangedSpell()) {
-			newDdistance = GetDistanceRanged(mx, my);
+		if ((mode == 2) != (plr._pHitPoints == 0))
+			continue;
+		if (!(dFlags[plr._px][plr._py] & BFLAG_VISIBLE))
+			continue;
+
+		const int mx = plr._pfutx;
+		const int my = plr._pfuty;
+		if (ranged) {
+			newDistance = GetDistanceRanged(mx, my);
 		} else {
-			newDdistance = GetDistance(mx, my, distance);
-			if (newDdistance < 0)
+			newDistance = GetDistance(mx, my, distance);
+			if (newDistance < 0)
 				continue;
 		}
-
-		if (distance < newDdistance)
-			continue;
 		const int newRotations = GetRotaryDistance(mx, my);
-		if (distance == newDdistance && rotations < newRotations)
-			continue;
+		const bool newSameTeam = plr._pTeam == myplr._pTeam;
+		if (sameTeam == newSameTeam) {
+			if (distance < newDistance)
+				continue;
+			if (distance == newDistance && rotations < newRotations)
+				continue;
+		} else {
+			if (mode == 0) {
+				if (newSameTeam)
+					continue; // offensive mode -> prefer opponents
+			} else {
+				if (!newSameTeam)
+					continue; // defensive mode -> prefer teammates
+			}
+		}
 
-		distance = newDdistance;
+		distance = newDistance;
 		rotations = newRotations;
-		pcursplr = i;
+		sameTeam = newSameTeam;
+		pcursplr = pnum;
 	}
-}
-
-static void FindActor()
-{
-	if (currLvl._dType != DTYPE_TOWN)
-		CheckMonstersNearby();
-	else
-		CheckTownersNearby();
-
-	if (!IsLocalGame)
-		CheckPlayerNearby();
 }
 
 static void FindTrigger()
@@ -411,34 +337,30 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	if (dir.y == AxisDirectionY_NONE)
 		return;
 
-	if (gbChrbtnactive || myplr._pStatPts <= 0)
-		return;
-
-	// first, find our cursor location
-	int slot = 0;
-	for (int i = 0; i < lengthof(ChrBtnsRect); i++) {
-		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
-			ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
-			slot = i;
-			break;
-		}
+	// find the current slot based on the mouse position
+	int slot = -1;
+	int sy = MousePos.y - (gnWndCharY + CHRBTN_TOP(0));
+	while (sy >= 0) {
+		slot++;
+		sy -= CHRBTN_TOP(slot + 1) - CHRBTN_TOP(slot);
 	}
-
+	// step in the desired direction
 	if (dir.y == AxisDirectionY_UP) {
-		if (slot == 0)
-			return; // Avoid wobbling when scaled
-		--slot;
-	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (slot >= lengthof(ChrBtnsRect) - 1)
-			return; // Avoid wobbling when scaled
-		++slot;
+		slot--;
+	} else {
+		// assert(dir.y == AxisDirectionY_DOWN);
+		slot++;
 	}
-
+	// limit the slot to the available ones
+	if (slot < 0)
+		slot = 0;
+	else if (slot >= NUM_ATTRIBS)
+		slot = NUM_ATTRIBS - 1;
 	// move cursor to our new location
-	int x = gnWndCharX + ChrBtnsRect[slot].x + (ChrBtnsRect[slot].w / 2);
-	int y = gnWndCharY + ChrBtnsRect[slot].y + (ChrBtnsRect[slot].h / 2);
-	SetCursorPos(x, y);
+	int x = gnWndCharX + ((SDL_GetModState() & KMOD_ALT) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
+	int y = gnWndCharY + CHRBTN_TOP(slot) + (CHRBTN_HEIGHT / 2);
+	if (abs(MousePos.x - x) >= CHRBTN_WIDTH / 2 || abs(MousePos.y - y) >= CHRBTN_HEIGHT / 2) // Avoid wobbling when scaled
+		SetCursorPos(x, y);
 }
 
 #define SELECT_INV_SLOT(s)                                     \
@@ -1056,8 +978,7 @@ void FocusOnCharInfo()
 		return;
 
 	// Jump to the first incrementable stat.
-	const RECT32& rect = ChrBtnsRect[0];
-	SetCursorPos(gnWndCharX + rect.x + (rect.w / 2), gnWndCharY + rect.y + (rect.h / 2));
+	SetCursorPos(gnWndCharX + CHRBTN_LEFT + (CHRBTN_WIDTH / 2), gnWndCharY + CHRBTN_TOP(0) + (CHRBTN_HEIGHT / 2));
 }
 
 void plrctrls_after_check_curs_move()
@@ -1079,9 +1000,42 @@ void plrctrls_after_check_curs_move()
 		}
 		if (!gbInvflag) {
 			*infostr = '\0';
-			FindActor();
-			FindItemOrObject();
-			FindTrigger();
+			bool ranged = HasRangedSkill();
+
+			switch (pcurstgt) {
+			case TGT_NORMAL:
+				if (currLvl._dType != DTYPE_TOWN)
+					FindMonster(0, ranged);
+				else
+					FindTowner();
+				if (pcursmonst == MON_NONE)
+					FindPlayer(0, ranged);
+				FindItem();
+				if (pcursitem == ITEM_NONE)
+					FindObject();
+				FindTrigger();
+				break;
+			case TGT_ITEM:
+				FindItem();
+				break;
+			case TGT_OBJECT:
+				FindObject();
+				break;
+			case TGT_OTHER:
+				assert(ranged);
+				FindPlayer(1, true);
+				if (pcursplr == PLR_NONE)
+					FindMonster(1, true);
+				break;
+			case TGT_DEAD:
+				assert(ranged);
+				FindPlayer(2, true);
+				break;
+			case TGT_NONE:
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
 		}
 	}
 }
@@ -1097,7 +1051,7 @@ void plrctrls_after_game_logic()
 	Movement();
 }
 
-void UseBeltItem(int type)
+void UseBeltItem(bool manaItem)
 {
 	ItemStruct* pi;
 
@@ -1105,79 +1059,13 @@ void UseBeltItem(int type)
 	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
-		if ((type == BLT_HEALING && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
-		    || (type == BLT_MANA && (id == IMISC_MANA || id == IMISC_FULLMANA))
+		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
+		    || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
 			if (InvUseItem(INVITEM_BELT_FIRST + i))
 				break;
 		}
 	}
-}
-// TODO: same as ActionBtnDown(false)
-void PerformPrimaryAction()
-{
-	if (gbSkillListFlag) {
-		SetSkill(false, false);
-		return;
-	}
-
-	if (stextflag != STORE_NONE) {
-		TryStoreBtnClick();
-		return;
-	}
-
-	if (gmenu_is_active()) {
-		TryLimitedPanBtnClick();
-		return;
-	}
-
-	if (TryPanBtnClick()) {
-		return;
-	}
-
-	if (TryIconCurs(false))
-		return;
-
-	if (pcurswnd == WND_BELT) {
-		// in belt
-		// assert(!TryPanBtnClick());
-		CheckBeltClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_INV) {
-		// in inventory
-		CheckInvClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_CHAR) {
-		CheckChrBtnClick();
-		return;
-	}
-
-	if (pcurswnd == WND_QUEST) {
-		CheckQuestlogClick();
-		return;
-	}
-
-	if (pcurswnd == WND_TEAM) {
-		// in team panel
-		CheckTeamClick(false);
-		return;
-	}
-
-	if (pcurswnd == WND_BOOK) {
-		CheckBookClick(false, false);
-		return;
-	}
-
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		DropItem();
-		return;
-	}
-
-	ActionBtnCmd(false);
 }
 
 static bool SpellHasActorTarget()

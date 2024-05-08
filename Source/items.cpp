@@ -64,10 +64,10 @@ static void GetRandomItemSpace(int ii)
 static void GetRandomItemSpace(int randarea, int ii)
 {
 	int x, y, i, j, tries;
+	constexpr int numTries = 1000;
+	// assert(randarea > 0 && randarea < DBORDERX && randarea < DBORDERY);
 
-	assert(randarea > 0);
-
-	tries = 0;
+	tries = numTries;
 	while (TRUE) {
 		x = random_(0, DSIZEX) + DBORDERX;
 		y = random_(0, DSIZEY) + DBORDERY;
@@ -79,31 +79,15 @@ static void GetRandomItemSpace(int randarea, int ii)
 		}
 		break;
 fail:
-		tries++;
-		if (tries > 1000 && randarea > 1)
+		tries--;
+		if (tries < 0 && randarea > 1) {
 			randarea--;
+			tries = numTries;
+		}
 	}
 
 	SetItemLoc(ii, x, y);
 }
-
-#ifdef HELLFIRE
-static void PlaceNote()
-{
-	int x, y, id;
-
-	do {
-		x = random_(12, DSIZEX) + DBORDERX;
-		y = random_(12, DSIZEY) + DBORDERY;
-	} while (!RandomItemPlace(x, y));
-	static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "PlaceNote requires ordered IDI_NOTE indices I.");
-	static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "PlaceNote requires ordered IDI_NOTE indices II.");
-	static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "PlaceNote requires ordered DLV_CRYPT indices I.");
-	static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "PlaceNote requires ordered DLV_CRYPT indices II.");
-	id = IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1);
-	CreateQuestItemAt(id, x, y, ICM_DELTA);
-}
-#endif
 
 static inline unsigned items_get_currlevel()
 {
@@ -158,7 +142,7 @@ static void PlaceInitItems()
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
-		// assert(gbLvlLoad != 0);
+		// assert(gbLvlLoad);
 		RespawnItem(ii, false);
 
 		GetRandomItemSpace(ii);
@@ -191,8 +175,13 @@ void InitItems()
 		 || (currLvl._dLevelIdx >= DLV_CATACOMBS1 && currLvl._dLevelIdx <= DLV_CATACOMBS4))
 			PlaceInitItems();
 #ifdef HELLFIRE
-		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3)
-			PlaceNote();
+		if (currLvl._dLevelIdx >= DLV_CRYPT1 && currLvl._dLevelIdx <= DLV_CRYPT3) {
+			static_assert(DLV_CRYPT1 + 1 == DLV_CRYPT2, "InitItems requires ordered DLV_CRYPT indices I.");
+			static_assert(DLV_CRYPT2 + 1 == DLV_CRYPT3, "InitItems requires ordered DLV_CRYPT indices II.");
+			static_assert(IDI_NOTE1 + 1 == IDI_NOTE2, "InitItems requires ordered IDI_NOTE indices I.");
+			static_assert(IDI_NOTE2 + 1 == IDI_NOTE3, "InitItems requires ordered IDI_NOTE indices II.");
+			PlaceQuestItemInArea(IDI_NOTE1 + (currLvl._dLevelIdx - DLV_CRYPT1), 1);
+		}
 #endif
 	// }
 }
@@ -1062,23 +1051,8 @@ void CreatePlrItems(int pnum)
 
 	pi = &plr._pInvList[0];
 	CreateBaseItem(pi, IDI_GOLD);
-
-#if DEBUG_MODE
-	if (debug_mode_key_w) {
-		SetGoldItemValue(pi, GOLD_MAX_LIMIT);
-		for (int i = 0; i < NUM_INV_GRID_ELEM; i++) {
-			if (plr._pInvList[i]._itype == ITYPE_NONE) {
-				GetItemSeed(pi);
-				copy_pod(plr._pInvList[i], *pi);
-				plr._pGold += GOLD_MAX_LIMIT;
-			}
-		}
-	} else
-#endif
-	{
-		SetGoldItemValue(pi, 100);
-		plr._pGold = 100;
-	}
+	SetGoldItemValue(pi, 100);
+	plr._pGold = 100;
 
 	CalcPlrItemVals(pnum, false);
 }
@@ -1088,7 +1062,7 @@ void CreatePlrItems(int pnum)
  */
 bool ItemSpaceOk(int x, int y)
 {
-	int oi, oi2;
+	int oi;
 
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
@@ -1103,7 +1077,7 @@ bool ItemSpaceOk(int x, int y)
 			return false;
 	}
 
-	oi = dObject[x + 1][y + 1];
+	/*oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (objects[oi]._oSelFlag != 0)
@@ -1118,9 +1092,9 @@ bool ItemSpaceOk(int x, int y)
 	}
 
 	if (currLvl._dType == DTYPE_TOWN)
-		if ((/*dMonster[x][y] |*/ dMonster[x + 1][y + 1]) != 0)
+		if (dMonster[x + 1][y + 1] != 0)
 			return false;
-
+	*/
 	return true;
 }
 
@@ -1200,8 +1174,7 @@ static void GetBookSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1254,8 +1227,7 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = 0; bs < lengthof(ss); bs++) {
 		if (spelldata[bs].sScrollLvl != SPELL_NA && lvl >= spelldata[bs].sScrollLvl
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1288,8 +1260,7 @@ static void GetRuneSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = SPL_RUNE_FIRST; bs <= SPL_RUNE_LAST; bs++) {
 		if (/*spelldata[bs].sScrollLvl != SPELL_NA &&*/ lvl >= spelldata[bs].sScrollLvl
-		 /*&& (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))*/) {
+		 /*&& (IsMultiGame || bs != SPL_RESURRECT)*/) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1338,8 +1309,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sStaffLvl != SPELL_NA && lvl >= spelldata[bs].sStaffLvl
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1358,7 +1328,7 @@ static void GetStaffSpell(int ii, unsigned lvl)
 	is->_iMaxCharges = is->_iCharges;
 
 	is->_iMinMag = sd->sMinInt;
-	v = is->_iCharges * sd->sStaffCost / 5;
+	v = is->_iCharges * sd->sStaffCost;
 	is->_ivalue += v;
 	is->_iIvalue += v;
 }
@@ -1371,8 +1341,7 @@ static int GetItemSpell()
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
 		if (spelldata[bs].sManaCost != 0 // TODO: use sSkillFlags ?
-		 && (IsMultiGame
-			 || (bs != SPL_RESURRECT && bs != SPL_HEALOTHER))) {
+		 && (IsMultiGame || bs != SPL_RESURRECT)) {
 			ss[ns] = bs;
 			ns++;
 		}
@@ -1482,7 +1451,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iPLSkillLevels = r;
 		break;
 	case IPL_CHARGES:
-		is->_iCharges *= param1;
+		is->_iCharges *= r;
 		is->_iMaxCharges = is->_iCharges;
 		break;
 	case IPL_FIREDAM:
@@ -1547,9 +1516,9 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_LIGHT:
 		is->_iPLLight = r;
 		break;
-	case IPL_INVCURS:
-		is->_iCurs = param1;
-		break;
+	// case IPL_INVCURS:
+	//	is->_iCurs = param1;
+	//	break;
 	//case IPL_THORNS:
 	//	is->_iFlags |= ISPL_THORNS;
 	//	break;
@@ -1606,8 +1575,8 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDam = param2;
 		break;
 	case IPL_SETDUR:
-		is->_iDurability = param1;
-		is->_iMaxDur = param1;
+		is->_iDurability = r;
+		is->_iMaxDur = r;
 		break;
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
@@ -1978,6 +1947,7 @@ static void GetUniqueItem(int ii, int uid)
 		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b, 0, 0, 1);
 	}}}}}
 
+	items[ii]._iCurs = ui->UICurs;
 	items[ii]._iIvalue = ui->UIValue;
 
 	// if (items[ii]._iMiscId == IMISC_UNIQUE)
@@ -2060,28 +2030,13 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 	unsigned quality = CFDQ_NORMAL;
 
 	mon = &monsters[mnum];
-	if ((mon->_mTreasure & UQ_DROP) != 0 && !IsMultiGame) {
-		// fix drop in single player
-		idx = mon->_mTreasure & 0xFFF;
-		SpawnUnique(idx, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-		return;
-	}
-	if (mon->_mTreasure & NO_DROP)
-		// no drop
-		return;
-
 	if (mon->_muniqtype != 0) {
 		idx = RndUItem(mon->_mLevel);
 		quality = CFDQ_UNIQUE;
-	} else if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 != QV_MUSHROOM_MUSHGIVEN) {
-		if (random_(24, 128) > 51)
+	} else {
+		if (random_(24, 128) > (47 + currLvl._dLevelPlyrs * 4))
 			return;
 		idx = RndAllItems(mon->_mLevel);
-	} else {
-		idx = IDI_BRAIN;
-		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINSPAWNED;
-		if (sendmsg)
-			NetSendCmdQuest(Q_MUSHROOM, true);
 	}
 
 	SetupAllItems(MAXITEMS, idx, NextRndSeed(), mon->_mLevel, quality);
@@ -2319,13 +2274,12 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	numitems++;
 	// assert(_iMiscId != IMISC_BOOK && _iMiscId != IMISC_SCROLL && _itype != ITYPE_GOLD);
 	SetItemData(ii, idx);
-	// assert(gbLvlLoad != 0);
-	RespawnItem(ii, false);
-	//items[ii]._iPostDraw = TRUE;
 	items[ii]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
 	items[ii]._iSeed = NextRndSeed();               // make sure it is unique
 
 	GetRandomItemSpace(areasize, ii);
+
+	RespawnItem(ii, false);
 	DeltaAddItem(ii);
 }
 
@@ -2351,7 +2305,7 @@ void PlaceQuestItemInArea(int idx, int areasize)
 		assert(i == numitems);
 		CreateQuestItemAt(IDI_ROCK, objects[oi]._ox, objects[oi]._oy, ICM_DELTA);
 //		SetItemData(i, IDI_ROCK);
-		// assert(gbLvlLoad != 0);
+		// assert(gbLvlLoad);
 //		RespawnItem(i, false);
 		// draw it above the stand
 		items[i]._iSelFlag = 2;
@@ -2951,9 +2905,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 	case IPL_LIGHT:
 		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
 		break;
-	case IPL_INVCURS:
-		copy_cstr(tempstr, " ");
-		break;
+	// case IPL_INVCURS:
+	//	copy_cstr(tempstr, " ");
+	//	break;
 	//case IPL_THORNS:
 	//	copy_cstr(tempstr, "attacker takes 1-3 damage");
 	//	break;
@@ -3086,10 +3040,10 @@ static void PrintItemString(int x, int& y, const char* str, int col)
 
 static void PrintUniquePower(BYTE plidx, ItemStruct* is, int x, int& y)
 {
-	if (plidx != IPL_INVCURS) {
+	// if (plidx != IPL_INVCURS) {
 		PrintItemPower(plidx, is);
 		PrintItemString(x, y);
-	}
+	// }
 }
 
 static void DrawUniqueInfo(ItemStruct* is, int x, int& y)
@@ -3541,11 +3495,8 @@ static bool WitchItemOk(int i)
 {
 	return AllItemsList[i].itype == ITYPE_STAFF
 	 || (AllItemsList[i].itype == ITYPE_MISC
-	  && (AllItemsList[i].iMiscId == IMISC_BOOK
-	   || AllItemsList[i].iMiscId == IMISC_SCROLL
-	   || AllItemsList[i].iMiscId == IMISC_RUNE
-	   || AllItemsList[i].iMiscId == IMISC_REJUV
-	   || AllItemsList[i].iMiscId == IMISC_FULLREJUV));
+	  && (AllItemsList[i].iMiscId == IMISC_SCROLL
+	   || AllItemsList[i].iMiscId == IMISC_RUNE));
 }
 
 static int RndWitchItem(unsigned lvl)
@@ -3744,8 +3695,7 @@ void SpawnHealer(unsigned lvl)
 			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndHealerItem(lvl), lvl);
-		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL
-			 && (items[0]._iSpell != SPL_HEALOTHER || !IsMultiGame));
+		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL && items[0]._iSpell != SPL_HEALOTHER);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_HEALER;
 		copy_pod(healitem[i], items[0]);

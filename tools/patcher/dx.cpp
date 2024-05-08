@@ -234,18 +234,6 @@ void ToggleFullscreen()
 	// gbRedrawFlags = REDRAW_ALL;
 }
 
-void SuppressVSync()
-{
-	if (gbVsyncEnabled)
-		SDL_RenderSetVSync(renderer, 0);
-}
-
-void ResetVSync()
-{
-	if (gbVsyncEnabled)
-		SDL_RenderSetVSync(renderer, 1);
-}
-
 /**
  * @brief Render the whole screen black
  */
@@ -262,26 +250,7 @@ void ClearScreenBuffer()
 
 	//unlock_buf(3);
 }
-#if GAME
-void RedBack()
-{
-	assert(gpBuffer != NULL);
 
-	int w, h;
-	BYTE *dst, *tbl;
-	bool inHell = currLvl._dType == DTYPE_HELL;
-
-	dst = &gpBuffer[SCREENXY(0, 0)];
-	tbl = ColorTrns[COLOR_TRN_CORAL];
-	for (h = VIEWPORT_HEIGHT; h > 0; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
-		for (w = SCREEN_WIDTH; w > 0; w--) {
-			if (!inHell || *dst >= 32)
-				*dst = tbl[*dst];
-			dst++;
-		}
-	}
-}
-#endif // GAME
 static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
 {
 	SDL_Surface* dst = GetOutputSurface();

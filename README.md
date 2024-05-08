@@ -4,6 +4,7 @@
 
 ---
 
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/pionere/devilutionX?include_prereleases)](https://github.com/pionere/devilutionX/releases)
 [![Discord Channel](https://img.shields.io/discord/518540764754608128?color=%237289DA&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/YQKCAYQ)
 <!--
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/devilutionX/total.svg)](https://github.com/diasurgical/devilutionX/releases)
@@ -12,7 +13,7 @@
 -->
 
 <p align="center">
-<img width="838" src="https://user-images.githubusercontent.com/204594/113578478-26912400-9623-11eb-9ff6-9bd9717462b6.png">
+<img src="https://raw.githubusercontent.com/pionere/devilutionx/master/.github/images/town.png">
 </p>
 
 # What is DevilutionX
@@ -25,11 +26,11 @@ For a full list of changes see our [changelog](docs/CHANGELOG.md).
 
 # How to Install
 
-Note: You'll need access to the data from the original game. If you don't have an original CD then you can [buy Diablo from GoG.com](https://www.gog.com/game/diablo).
+Note: You'll need access to the data from the original game. If you don't have an original CD then you can [buy Diablo from GoG.com](https://www.gog.com/game/diablo) or Battle.net.
 
 Download the latest [DevilutionX release](https://github.com/pionere/devilutionX/releases) and extract the contents to a location of your choosing or [build from source](#building-from-source).
 
-- Copy `DIABDAT.MPQ` from the CD or GOG-installation (or [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)) to the DevilutionX folder.
+- Copy `DIABDAT.MPQ` from the CD or Diablo-installation (or [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-the-.MPQs-from-the-GoG-installer)) to the DevilutionX folder.
 - To run the Diablo: Hellfire expansion you will need to also copy `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, `hfvoice.mpq`.
 
 For more detailed instructions: [Installation Instructions](./docs/installing.md).

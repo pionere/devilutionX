@@ -41,7 +41,7 @@ extern "C" {
 #define SCREEN_WIDTH   dvl::screenWidth
 #define BUFFER_WIDTH   dvl::gnBufferWidth
 #else
-#define BUFFER_WIDTH	(BORDER_LEFT + SCREEN_WIDTH + BORDER_LEFT)
+#define BUFFER_WIDTH   (BORDER_LEFT + SCREEN_WIDTH + BORDER_LEFT)
 #endif
 #ifndef SCREEN_HEIGHT
 #define SCREEN_HEIGHT  dvl::screenHeight
@@ -73,8 +73,11 @@ extern "C" {
 
 #define MENUBTN_WIDTH  71
 #define MENUBTN_HEIGHT 19
-#define CHRBTN_WIDTH   41
-#define CHRBTN_HEIGHT  22
+#define CHRBTN_WIDTH   40
+#define CHRBTN_HEIGHT  21
+#define CHRBTN_LEFT    132
+#define CHRBTN_ALT     85
+#define CHRBTN_TOP(x) (104 + (CHRBTN_HEIGHT + 7) * x)
 #if ASSET_MPL == 1
 #define SPLICON_WIDTH  37
 #define SPLICON_HEIGHT 38
@@ -129,7 +132,7 @@ extern "C" {
 #define PLRMSG_PANEL_BORDER 3
 #define PLRMSG_TEXT_HEIGHT  12
 #define PLRMSG_TEXT_X       (PANEL_X + 10)
-#define PLRMSG_TEXT_BOTTOM  (SCREEN_Y + PANEL_BOTTOM - 130)
+#define PLRMSG_TEXT_BOTTOM  (SCREEN_Y + PANEL_BOTTOM - 140)
 #define PLRMSG_TEXT_TOP     (PANEL_Y + 2 * PLRMSG_TEXT_HEIGHT + 2 * PLRMSG_PANEL_BORDER)
 
 #define SBOOK_CELWIDTH    37
@@ -148,7 +151,7 @@ extern "C" {
 #define BELT_WIDTH       60
 #define BELT_HEIGHT      118
 #define BELT_LEFT        PANEL_LEFT
-#define BELT_TOP         (PANEL_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
+#define BELT_TOP         (PANEL_BOTTOM - (MENUBTN_HEIGHT + BELT_HEIGHT))
 
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261
@@ -268,6 +271,8 @@ extern "C" {
 #define SELGAME_CONTENT_TOP   (SELGAME_PNL_TOP + SELGAME_HEADER_HEIGHT)
 #define SELGAME_LPANEL_LEFT   (PANEL_LEFT + 25 * ASSET_MPL)
 #define SELGAME_LPANEL_WIDTH  (228 * ASSET_MPL)
+#define SELGAME_LPANEL_HEIGHT (219 * ASSET_MPL)
+#define SELGAME_LPANEL_BOTTOM (SELGAME_CONTENT_TOP + SELGAME_LPANEL_HEIGHT)
 #define SELGAME_RPANEL_LEFT   (PANEL_LEFT + 280 * ASSET_MPL)
 #define SELGAME_RPANEL_WIDTH  (334 * ASSET_MPL)
 #define SELGAME_RPANEL_HEIGHT (178 * ASSET_MPL)
@@ -289,6 +294,9 @@ extern "C" {
 #define BOTTOM_BAR_Y (421 * ASSET_MPL)
 
 #define SMALL_FONT_HEIGHT 11
+#define MED_FONT_HEIGHT   22
+#define BIG_FONT_HEIGHT   22
+#define HUGE_FONT_HEIGHT  46
 
 extern int gnWndBeltX, gnWndBeltY;
 extern int gnWndInvX, gnWndInvY;

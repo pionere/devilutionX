@@ -3,18 +3,17 @@
  *
  * Implementation of routines for initializing the environment, disable screen saver, load MPQ.
  */
-//#if defined(_WIN64) || defined(_WIN32)
+//#if defined(_WIN32)
 //#include <find_steam_game.h>
 //#endif
 
 #include "all.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
-#include <SDL.h>
+#include "storm/storm_cfg.h"
 #include <string>
-#include <fstream>
 #if DEV_MODE
-#include <sys/stat.h>
+#include <fstream>
 #endif
 
 #ifdef __vita__
@@ -80,7 +79,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 		if (line[0] == '_')
 			continue;
 		std::string path = basePath + line.c_str();
-		FILE* fp = fopen(path.c_str(), "r");
+		FILE* fp = FileOpen(path.c_str(), "r");
 		if (fp == NULL)
 			app_fatal("Missing file: %s", path.c_str());
 		fclose(fp);
@@ -100,14 +99,14 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
 		std::string path = basePath + line.c_str();
-		FILE* fp = fopen(path.c_str(), "rb");
+		FILE* fp = FileOpen(path.c_str(), "rb");
 		if (fp != NULL) {
-			struct stat st;
-			stat(path.c_str(), &st);
-			BYTE* buf = DiabloAllocPtr(st.st_size);
-			int readBytes = fread(buf, 1, st.st_size, fp);
+			uintmax_t fileSize;
+			GetFileSize(path.c_str(), &fileSize);
+			BYTE* buf = DiabloAllocPtr(fileSize);
+			ReadFile(buf, fileSize, fp);
 			fclose(fp);
-			if (!mpqapi_write_entry(line.c_str(), buf, st.st_size))
+			if (!mpqapi_write_entry(line.c_str(), buf, fileSize))
 				app_fatal("Unable to write %s to the MPQ.", line.c_str());
 			mem_free_dbg(buf);
 		}
@@ -124,7 +123,7 @@ static void ReadOnlyTest()
 	FILE* f = FileOpen(path.c_str(), "w");
 	if (f != NULL) {
 		fclose(f);
-		remove(path.c_str());
+		RemoveFile(path.c_str());
 	} else {
 		app_fatal("Unable to write to location:\n%s", GetPrefPath());
 	}

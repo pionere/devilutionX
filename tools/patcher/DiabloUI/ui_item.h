@@ -1,15 +1,14 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <string>
+//#include <cstddef>
+//#include <cstdint>
 #include <vector>
 
 /*#include "../defs.h"
 #include "../enums.h"
 #include "../structs.h"
 #include "../appfat.h"*/
-#include "../all.h"
+#include "all.h"
 
 #include "text_draw.h"
 
@@ -39,7 +38,7 @@ enum UiFlags : uint16_t {
 	UIS_BIG         = AFT_BIG << 0,
 	UIS_HUGE        = AFT_HUGE << 0,
 	UIS_LEFT        = UIA_LEFT << 4,
-	UIS_CENTER      = UIA_CENTER << 4,
+	UIS_HCENTER     = UIA_CENTER << 4,
 	UIS_RIGHT       = UIA_RIGHT << 4,
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = AFC_SILVER << 7,
@@ -101,7 +100,7 @@ public:
 };
 
 //=============================================================================
-
+#if FULL_UI
 class UiScrollBar : public UiItemBase {
 public:
 	UiScrollBar(SDL_Rect& rect)
@@ -135,19 +134,30 @@ public:
 	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect& rect)
 	    : UiItemBase(UI_EDIT, rect, 0)
 	{
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 		m_hint = hint;
+#endif
 		m_value = value;
 		m_max_length = max_length;
+		m_curpos = strlen(value);
+		m_selpos = m_curpos;
+		m_selecting = false;
 	}
 
 	~UiEdit() = default;
 
 	//private:
+#if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 	const char* m_hint;
+#endif
 	char* m_value;
 	unsigned m_max_length;
+	unsigned m_curpos;
+	unsigned m_selpos;
+	// State
+	bool m_selecting;
 };
-
+#endif // FULL_UI
 //=============================================================================
 
 // A button (uses Diablo sprites)

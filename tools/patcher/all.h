@@ -20,12 +20,8 @@
 
 #include <SDL.h>
 
-#ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
-#else
 #include "utils/sdl2_backports.h"
-#endif
-
 #include "utils/sdl_compat.h"
 #include "utils/log.h"
 
@@ -57,6 +53,10 @@
 //#include "drlg_l2.h"
 //#include "drlg_l3.h"
 //#include "drlg_l4.h"
+#include "drlp_l1.h"
+#include "drlp_l2.h"
+#include "drlp_l3.h"
+#include "drlp_l4.h"
 //#include "dthread.h"
 #include "effects.h"
 #include "encrypt.h"
@@ -88,6 +88,7 @@
 //#include "objects.h"
 //#include "pack.h"
 #include "palette.h"
+#include "patchdung.h"
 //#include "path.h"
 //#include "pfile.h"
 //#include "player.h"
@@ -105,6 +106,7 @@
 //#include "themes.h"
 //#include "tmsg.h"
 //#include "town.h"
+#include "townp.h"
 //#include "towners.h"
 //#include "track.h"
 //#include "trigs.h"

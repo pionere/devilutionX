@@ -583,7 +583,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 
 	nCel = os->_oAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->ciFrameCnt;
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
@@ -638,7 +638,7 @@ static void drawCell(int pn, int sx, int sy)
 	}
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][i];
+	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
 	tmp &= gbCelTransparencyActive ? ~0 : ~(TMIF_LEFT_WALL_TRANS | TMIF_RIGHT_WALL_TRANS | TMIF_WALL_TRANS);
 	if (i == 0) {
@@ -975,7 +975,7 @@ static void drawFloor(int pn, int sx, int sy)
 
 	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	pMap = &pMicroPieces[pn][0];
+	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];
 
 	if ((tmp & (TMIF_LEFT_REDRAW | TMIF_LEFT_FOLIAGE)) != TMIF_LEFT_REDRAW) {
@@ -1027,7 +1027,7 @@ static void DrawItem(int ii, int sx, int sy)
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->ciFrameCnt;
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
 	}
@@ -1080,12 +1080,6 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dPiece[sx][sy];
 	drawCell(mpnum, dx, dy);
 
-#if DEBUG_MODE
-	if (visiondebug && (bFlag & BFLAG_VISIBLE)) {
-		CelClippedDrawLightTbl(dx, dy, pSquareCel, 1, TILE_WIDTH, 0);
-	}
-#endif
-
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[sx][sy];
 		assert(mpnum != 0);
@@ -1122,18 +1116,19 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 		DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
-		bv = dSpecial[sx][sy];
+		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
 		if (bv != 0) {
-			CelClippedDrawLightTrans(dx, dy, pSpecialCels, bv, TILE_WIDTH);
+			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
+			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 		}
 	} else {
 		// Tree leaves should always cover player when entering or leaving the tile,
 		// So delay the rendering until after the next row is being drawn.
 		// This could probably have been better solved by sprites in screen space.
 		if (sx > 0 && sy > 0) {
-			bv = dSpecial[sx - 1][sy - 1];
+			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & PST_SPEC_TYPE;
 			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelDraw(dx, (dy - TILE_HEIGHT), (CelImageBuf*)pSpecialCels, bv);
+				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
 			}
 		}
 	}
@@ -1191,7 +1186,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 	}
 }
 
-#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || dSpecial[x][y] != 0)
+#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE) != 0)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**
@@ -1220,11 +1215,10 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 					// between tiles, from poking through the walls as they exceed the tile bounds.
 					// A proper fix for this would probably be to layout the sceen and render by
 					// sprite screen position rather than tile position.
-					if (IsWall(x, y) && IsWall(x + 1, y)) { // Part of a wall aligned on the x-axis
-						if (IsWalkable(x + 1, y - 1)) {     // Has walkable area behind it (to make sure it matches only the rightmost wall)
-							scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
-							skips |= 2;
-						}
+					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
+					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
+						scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
+						skips |= 2;
 					}
 				}
 				assert(dPiece[x][y] != 0);
@@ -1478,14 +1472,15 @@ static void DrawGame()
 static void DrawView()
 {
 	DrawGame();
-	if (gbAutomapflag) {
+	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}
+	DrawLifeFlask();
+	DrawManaFlask();
+	DrawGolemBar();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
-	DrawLifeFlask();
-	DrawManaFlask();
 	DrawDurIcon();
 
 	//if (gbRedrawFlags & REDRAW_SPEED_BAR) {

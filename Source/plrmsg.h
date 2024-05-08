@@ -14,10 +14,6 @@ extern "C" {
 
 extern bool gbTalkflag;
 
-void plrmsg_delay(bool delay);
-#if DEV_MODE
-void ErrorPlrMsg(const char* pszMsg);
-#endif
 void EventPlrMsg(const char* pszFmt, ...);
 void ReceivePlrMsg(int pnum, const char* pszStr);
 //void ClearPlrMsg(int pnum);
@@ -25,9 +21,12 @@ void InitPlrMsg();
 void DrawPlrMsg(bool onTop);
 void StartPlrMsg();
 void SetupPlrMsg(int pnum, bool shift);
+void VersionPlrMsg();
 void StopPlrMsg();
+void plrmsg_HandleMouseReleaseEvent();
 bool plrmsg_presskey(int vkey);
-bool plrmsg_presschar(int vkey);
+void plrmsg_CatToText(const char* inBuf);
+void plrmsg_HandleMouseMoveEvent();
 
 #ifdef __cplusplus
 }

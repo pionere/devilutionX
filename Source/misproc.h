@@ -87,6 +87,7 @@ void MI_Lightball(int mi);
 void MI_Poison(int mi);
 void MI_Wind(int mi);
 //void MI_Krull(int mi);
+void MI_Acid(int mi);
 void MI_Acidpud(int mi);
 void MI_Firewall(int mi);
 //void MI_Fireball(int mi);
@@ -94,7 +95,6 @@ void MI_Firewall(int mi);
 void MI_HorkSpawn(int mi);
 void MI_Rune(int mi);
 //void MI_Lightwall(int mi);
-//void MI_Hiveexp(int mi);
 #endif
 void MI_LightningC(int mi);
 void MI_Lightning(int mi);

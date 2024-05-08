@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern uint32_t glSeedTbl[NUM_LEVELS];
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;
 extern uint32_t guLvlVisited;
@@ -26,7 +27,6 @@ void InitQuests();
 void InitQuestGFX();
 void FreeQuestGFX();
 void CheckQuests();
-int ForceQuests();
 bool QuestStatus(int qn);
 void CheckQuestKill(int mnum, bool sendmsg);
 void DRLG_CheckQuests();
@@ -34,6 +34,7 @@ void SetReturnLvlPos();
 void GetReturnLvlPos();
 void LoadPWaterPalette();
 void ResyncBanner();
+void ResyncDiablo();
 void ResyncQuests();
 void DrawQuestLog();
 void StartQuestlog();

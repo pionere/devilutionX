@@ -19,7 +19,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 	MonsterStruct* mon;
 	TSyncMonster* symon;
 
-	if (!IsMultiGame || gbLvlLoad == 10 /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
+	if (!IsMultiGame || gbLvlLoad /*|| nummonsters < 1*/) { // nummonsters is always >= MAX_MINIONS
 		return pbBuf;
 	}
 	if (remsize < sizeof(*pHdr) + sizeof(TSyncMonster)) {

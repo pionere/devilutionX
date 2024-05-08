@@ -6,7 +6,7 @@
 #include <math.h>
 
 #ifdef __vita__
-#include "storm/storm.h"
+#include "storm/storm_cfg.h"
 static bool back_touch = false;
 #endif
 

@@ -382,7 +382,7 @@ typedef enum item_effect_type {
 	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
-	IPL_INVCURS,
+	//IPL_INVCURS,
 	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
@@ -527,7 +527,8 @@ typedef enum item_cursor_graphic {
 	ICURS_CLUB                        = 66,
 	ICURS_SABRE                       = 67,
 	ICURS_FALCON_GRYPHON              = 68,
-	ICURS_SPIKED_CLUB                 = 70,
+	ICURS_GNARLROOT                   = 70,
+	ICURS_SPIKED_CLUB                 = 71,
 	ICURS_SCIMITAR                    = 72,
 	ICURS_POIGNARD                    = 73,
 	ICURS_FULL_HELM                   = 75,
@@ -561,7 +562,7 @@ typedef enum item_cursor_graphic {
 	ICURS_STONECLEAVER                = 104,
 	ICURS_SMALL_SHIELD                = 105,
 	ICURS_CLEAVER                     = 106,
-	ICURS_STUDDED_LEATHER_ARMOR       = 107,
+	ICURS_STUD_LEATH_ARMOR            = 107,
 	ICURS_BATTLE_BOW                  = 108,
 	ICURS_SHORT_STAFF                 = 109,
 	ICURS_TWO_HANDED_SWORD            = 110,
@@ -2141,6 +2142,17 @@ typedef enum missile_collision_mode {
 	MICM_BLOCK_WALL,
 } missile_collision_mode;
 
+typedef enum missile_resistance {
+	MISR_NONE,
+	MISR_SLASH,
+	MISR_BLUNT,
+	MISR_PUNCTURE,
+	MISR_FIRE,
+	MISR_LIGHTNING,
+	MISR_MAGIC,
+	MISR_ACID,
+} missile_resistance;
+
 typedef enum _monster_ai {
 	AI_ZOMBIE,
 	AI_FAT,
@@ -2403,6 +2415,7 @@ typedef enum _uniq_monsterid {
 	UMT_WARLORD,
 	UMT_BUTCHER,
 	UMT_DIABLO,
+	UMT_ZAMPHIR,
 #ifdef HELLFIRE
 	UMT_HORKDMN,
 	UMT_DEFILER,
@@ -2428,21 +2441,18 @@ typedef enum _monster_flag {
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
+	MFLAG_NODROP          = 0x1000,
 	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 	MFLAG_KNOCKBACK       = 0x00010000,
 	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
 } _monster_flag;
 
-typedef enum _monster_treasure {
-	NO_DROP = 0x4000,
-	UQ_DROP = 0x8000,
-} _monster_treasure;
-
 typedef enum _uniq_monster_flag {
 	UMF_GROUP   = 1 << 0,
 	UMF_LEADER  = 1 << 1,
 	UMF_NODROP  = 1 << 2,
+	UMF_LIGHT   = 1 << 3,
 	UMF_GANG = UMF_GROUP | UMF_LEADER
 } _uniq_monster_flag;
 
@@ -2451,7 +2461,7 @@ typedef enum _monster_goal {
 	MGOAL_RETREAT,
 	MGOAL_HEALING,
 	MGOAL_MOVE,
-	MGOAL_ATTACK2,
+	MGOAL_ATTACK,
 	MGOAL_TALKING,
 } _monster_goal;
 
@@ -2502,17 +2512,6 @@ typedef enum _monster_resistance {
 	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } _monster_resistance;
-
-typedef enum missile_resistance {
-	MISR_NONE,
-	MISR_SLASH,
-	MISR_BLUNT,
-	MISR_PUNCTURE,
-	MISR_FIRE,
-	MISR_LIGHTNING,
-	MISR_MAGIC,
-	MISR_ACID,
-} missile_resistance;
 
 typedef enum _speech_id {
 	TEXT_KING1,
@@ -3126,6 +3125,14 @@ typedef enum dungeon_type {
 	DTYPE_NEST,
 } dungeon_type;
 
+typedef enum dungeon_gen_type {
+	DGT_TOWN,
+	DGT_CATHEDRAL,
+	DGT_CATACOMBS,
+	DGT_CAVES,
+	DGT_HELL,
+} dungeon_gen_type;
+
 typedef enum dungeon_type_mask {
 	DTM_TOWN      = 1 << DTYPE_TOWN,
 	DTM_CATHEDRAL = 1 << DTYPE_CATHEDRAL,
@@ -3134,7 +3141,7 @@ typedef enum dungeon_type_mask {
 	DTM_HELL      = 1 << DTYPE_HELL,
 	DTM_CRYPT     = 1 << DTYPE_CRYPT,
 	DTM_NEST      = 1 << DTYPE_NEST,
-	DTM_ANY       = 0xFF,
+	DTM_ANY       = DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES | DTM_HELL | DTM_CRYPT | DTM_NEST,
 	DTM_NONE      = 0,
 } dungeon_type_mask;
 
@@ -3151,8 +3158,8 @@ typedef enum townwarp_dest {
 } townwarp_dest;
 
 typedef enum dungeon_warp {
-	DWARP_ENTRY,
 	DWARP_EXIT,
+	DWARP_ENTRY,
 	DWARP_TOWN,
 	DWARP_SIDE,
 	NUM_DWARP
@@ -3172,7 +3179,52 @@ typedef enum dungeon_warp_type {
 	WRPT_L4_DOWN,
 	WRPT_L4_PENTA,
 	WRPT_CIRCLE,
+	WRPT_RPORTAL,
+	WRPT_TOWN_L1,
+	WRPT_TOWN_L2,
+	WRPT_TOWN_L3,
+	WRPT_TOWN_L4,
+	WRPT_TOWN_L5,
+	WRPT_TOWN_L6,
 } dungeon_warp_type;
+
+typedef enum trig_type {
+	TRT_TOWN_L1,
+	TRT_L1_UP,
+	TRT_L1_TOWN,
+	TRT_L1_DOWN,
+	TRT_L1_SKING,
+	TRT_SKING_L1,
+	TRT_L1_PWATER,
+	TRT_PWATER_L1,
+	TRT_TOWN_L2,
+	TRT_L2_UP,
+	TRT_L2_TOWN,
+	TRT_L2_DOWN,
+	TRT_L2_BCHAMB,
+	TRT_BCHAMB_L2,
+	TRT_TOWN_L3,
+	TRT_L3_UP,
+	TRT_L3_TOWN,
+	TRT_L3_DOWN,
+	TRT_TOWN_L4,
+	TRT_L4_UP,
+	TRT_L4_TOWN,
+	TRT_L4_DOWN,
+	TRT_L4_PENTA,
+	TRT_L4_BETR,
+	TRT_BETR_L4,
+#ifdef HELLFIRE
+	TRT_TOWN_L5,
+	TRT_L5_UP,
+	TRT_L5_TOWN,
+	TRT_L5_DOWN,
+	TRT_TOWN_L6,
+	TRT_L6_UP,
+	TRT_L6_TOWN,
+	TRT_L6_DOWN,
+#endif
+} trig_type;
 
 typedef enum dungeon_theme_room_tiles {
 	DRT_FLOOR,
@@ -3184,8 +3236,19 @@ typedef enum dungeon_theme_room_tiles {
 	DRT_TOP_RIGHT,
 	DRT_BOTTOM_LEFT,
 	DRT_BOTTOM_RIGHT,
-	NUM_DRT_TYPES,
+	NUM_DRT_TYPES
 } dungeon_theme_room_tiles;
+
+typedef enum level_graphic_id {
+	LFILE_TOWN,
+	LFILE_L1,
+	LFILE_L2,
+	LFILE_L3,
+	LFILE_L4,
+	LFILE_L5,
+	LFILE_L6,
+	NUM_LFILE_TYPES
+} level_graphic_id;
 
 typedef enum dungeon_level {
 	DLV_TOWN,
@@ -3257,23 +3320,20 @@ typedef enum _setpiece_type {
 	NUM_SPT_TYPES
 } _setpiece_type;
 
-typedef enum piece_flag {
-	PFLAG_BLOCK_PATH       = 1 << 0,
-	PFLAG_BLOCK_LIGHT      = 1 << 1,
-	PFLAG_BLOCK_MISSILE    = 1 << 2,
-	PFLAG_TRANSPARENT      = 1 << 3,
-	PFLAG_TRANS_MASK_LEFT  = 1 << 4,
-	PFLAG_TRANS_MASK_RIGHT = 1 << 5,
-	// PFLAG_TRANS_MASK_NONE  = 1 << 6, - unused. masked the LEFT/RIGHT flags in vanilla.
-	PFLAG_TRAP_SOURCE      = 1 << 7,
-} piece_flag;
+typedef enum _piece_sol_flag {
+	PSF_LIGHT_RADIUS     = 0xF,
+	PSF_BLOCK_MISSILE    = 1 << 5,
+	PSF_BLOCK_LIGHT      = 1 << 6,
+	PSF_BLOCK_PATH       = 1 << 7,
+} _piece_sol_flag;
 
-typedef enum _piece_trap_type {
-	PTT_NONE,
-	PTT_ANY,
-	PTT_LEFT,
-	PTT_RIGHT,
-} _piece_trap_type;
+typedef enum _piece_spectrap_flag {
+	PST_NONE      = 0,
+	PST_LEFT      = 1 << 6,
+	PST_RIGHT     = 2 << 6,
+	PST_SPEC_TYPE = (1 << 6) - 1,
+	PST_TRAP_TYPE = (PST_LEFT | PST_RIGHT),
+} _piece_spectrap_flag;
 
 typedef enum piece_micro_flag {
 	TMIF_WALL_TRANS = 1 << 0,
@@ -3313,6 +3373,57 @@ typedef enum _draw_mask_type {
 	DMT_FLOOR_TRN_UP_RIGHT,		// UpperRightMask
 	DMT_EMPTY,
 } _draw_mask_type;
+
+typedef enum _automap_mode {
+	AMM_NONE,
+	AMM_MINI,
+	AMM_NORMAL,
+	NUM_AMMS
+} _automap_mode;
+
+typedef enum _automap_subtypes {
+	MAT_NONE,
+	MAT_EXTERN,
+	MAT_STAIRS,
+	MAT_DOOR_WEST,
+	MAT_DOOR_EAST,
+	MAT_TYPE       = 0xF,
+	MAT_WALL_NW = 1 << 4,
+	MAT_WALL_NE = 1 << 5,
+	MAT_WALL_SW = 1 << 6,
+	MAT_WALL_SE = 1 << 7,
+} _automap_subtypes;
+
+typedef enum _tile_flags {
+	TIF_FLOOR_00  = 1 << 0,
+	TIF_FLOOR_01  = 1 << 1,
+	TIF_FLOOR_10  = 1 << 2,
+	TIF_FLOOR_11  = 1 << 3,
+
+	TIF_SHADOW_00 = 1 << 4,
+	TIF_SHADOW_01 = 1 << 5,
+	TIF_SHADOW_02 = 1 << 6,
+	TIF_SHADOW_03 = 1 << 7,
+
+	TIF_L1_WEST_ARCH_GRATE = 1 << 4,
+	TIF_L1_EAST_ARCH_GRATE = 1 << 5,
+	TIF_L1_PILLAR  = 1 << 6,
+	TIF_L1_WEST_WALL = 1 << 7,
+
+	TIF_L2_WEST_ARCH = 1 << 4,
+	TIF_L2_EAST_ARCH = 1 << 5,
+	TIF_L2_PILLAR    = 1 << 6,
+	TIF_L2_EAST_DOOR = 1 << 7,
+
+	TIF_L4_WEST_ARCH = 1 << 4,
+	TIF_L4_EAST_ARCH = 1 << 5,
+	TIF_L4_PILLAR    = 1 << 6,
+
+	TIF_L5_WEST_ARCH_GRATE = 1 << 4,
+	TIF_L5_EAST_ARCH_GRATE = 1 << 5,
+	TIF_L5_PILLAR  = 1 << 6,
+	TIF_L5_WEST_WALL = 1 << 7,
+} _tile_flags;
 
 typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
@@ -3414,6 +3525,9 @@ typedef enum theme_id {
 typedef enum event_type {
 	EVENT_TYPE_JOIN_ACCEPTED,
 	EVENT_TYPE_PLAYER_LEAVE_GAME,
+#ifdef ZEROTIER
+	EVENT_TYPE_PLAYER_INFO,
+#endif
 	NUM_EVT_TYPES,
 } event_type;
 
@@ -3421,7 +3535,7 @@ typedef enum player_status {
 	PCS_CONNECTED    = 0x01, // was 0x10000 - player sent a packet recently 
 	PCS_TURN_ARRIVED = 0x02, // was 0x20000 - the next turn of the player has arrived
 	PCS_ACTIVE       = 0x04, // was 0x40000 - a future turn (next or later) of the player has arrived
-	PCS_JOINED       = 0x08, //             - the player just joined (sent an initial turn)
+	PCS_DESYNC       = 0x08, //             - the player is not in sync
 } player_status;
 
 typedef enum turn_status {
@@ -3431,18 +3545,11 @@ typedef enum turn_status {
 	TS_DESYNC,	// turn is not necessary due, but a higher than current turn arrived
 } turn_status;
 
-typedef enum leave_reason {
-	LEAVE_NONE,
-	LEAVE_NORMAL,
-	LEAVE_DROP,   // was 0x40000006
-} leave_reason;
-
 typedef enum text_color {
 	COL_WHITE,
 	COL_BLUE,
 	COL_RED,
 	COL_GOLD,
-	COL_BLACK,
 } text_color;
 
 typedef enum item_color {
@@ -3586,6 +3693,15 @@ typedef enum cursor_id {
 	CURSOR_FIRSTITEM,
 } cursor_id;
 
+typedef enum _target_mode {
+	TGT_NORMAL,
+	TGT_ITEM,
+	TGT_OBJECT,
+	TGT_OTHER,
+	TGT_DEAD,
+	TGT_NONE
+} _target_mode;
+
 typedef enum direction {
 	DIR_S,
 	DIR_SW,
@@ -3627,11 +3743,11 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
-	ENTRY_LOAD,
-	ENTRY_WARPLVL,
+	ENTRY_PORTLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
 	ENTRY_RETOWN,
+	ENTRY_LOAD,
 } lvl_entry;
 
 /*typedef enum game_info {
@@ -3715,7 +3831,6 @@ typedef enum spell_id {
 } spell_id;
 
 typedef enum _msg_id {
-	NMSG_SEND_GAME_DELTA,
 	NMSG_PLRINFO,
 	NMSG_DLEVEL_DATA,
 	NMSG_DLEVEL_JUNK,
@@ -3724,7 +3839,6 @@ typedef enum _msg_id {
 	NMSG_LVL_DELTA,
 	NMSG_LVL_DELTA_END,
 	NMSG_STRING,
-	NMSG_PLRDROP, // internal use only (supposedly)
 } _msg_id;
 
 typedef enum _cmd_id {
@@ -3776,10 +3890,11 @@ typedef enum _cmd_id {
 	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,
-	CMD_TWARP,
+	CMD_USEPORTAL,
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
 	CMD_DISCONNECT,
+	CMD_REQDELTA,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,
@@ -3799,9 +3914,6 @@ typedef enum _cmd_id {
 	CMD_DO_PLRCHECK,       // DEV_MODE
 	CMD_REQUEST_ITEMCHECK, // DEV_MODE
 	CMD_DO_ITEMCHECK,      // DEV_MODE
-	CMD_CHEAT_EXPERIENCE,  // DEBUG_MODE
-	CMD_CHEAT_SPELL_LEVEL, // DEBUG_MODE
-	CMD_DEBUG,             // DEBUG_MODE
 } _cmd_id;
 
 typedef enum _dcmd_item {
@@ -3886,24 +3998,25 @@ typedef enum _mainmenu_selections {
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {
-	SELHERO_NEW_DUNGEON = 1,
-	SELHERO_CONTINUE    = 2,
-	SELHERO_PREVIOUS    = 3
+	SELHERO_NONE,
+	SELHERO_CONTINUE,
+	SELHERO_PREVIOUS
 } _selhero_selections;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,
 	SELGAME_JOIN,
+	SELGAME_LOAD,
 	SELGAME_PREVIOUS
 } _selgame_selections;
 
 typedef enum conn_type {
-	SELCONN_ZT,       // zerotier (p2p)
+	SELCONN_LOOPBACK, // local
 	SELCONN_TCP,      // tcp/ip server-client
 	SELCONN_TCPD,     // tcp/ip server-client + p2p
 	SELCONN_TCPS,     // tcp/ip server
 	SELCONN_TCPDS,    // tcp/ip server + p2p
-	SELCONN_LOOPBACK, // local
+	SELCONN_ZT,       // zerotier (p2p)
 } conn_type;
 
 typedef enum _create_hero {
@@ -4122,7 +4235,7 @@ typedef enum quest_var1_state {
 	QV_MUSHROOM_MUSHSPAWNED = 3, // unused
 	QV_MUSHROOM_MUSHPICKED = 4,  // unused
 	QV_MUSHROOM_MUSHGIVEN = 5,
-	QV_MUSHROOM_BRAINSPAWNED = 6,
+	QV_MUSHROOM_BRAINSPAWNED = 6, // unused
 	QV_MUSHROOM_BRAINGIVEN = 7,
 
 	QV_WARLORD_BOOK = 1,
@@ -4489,9 +4602,9 @@ typedef enum redraw_flags {
 
 typedef enum input_key {
 	ACT_NONE,
-	ACT_ACT,
-	ACT_ALTACT,
-	ACT_SKL0,
+	ACT_ACT,    // base action (LMB)
+	ACT_ALTACT, // alt action (RMB)
+	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,
 	ACT_SKL3,
@@ -4499,11 +4612,13 @@ typedef enum input_key {
 	ACT_SKL5,
 	ACT_SKL6,
 	ACT_SKL7,
-	ACT_INV,
-	ACT_CHAR,
-	ACT_SKLBOOK,
-	ACT_SKLLIST,
-	ACT_ITEM0,
+	ACT_SWAP,    // skill-set swap
+	ACT_TGT,     // change target mode
+	ACT_INV,     // toggle inventory
+	ACT_CHAR,    // toggle character sheet
+	ACT_SKLBOOK, // toggle skill book
+	ACT_SKLLIST, // toggle skill list
+	ACT_ITEM0, // use item
 	ACT_ITEM1,
 	ACT_ITEM2,
 	ACT_ITEM3,
@@ -4511,46 +4626,51 @@ typedef enum input_key {
 	ACT_ITEM5,
 	ACT_ITEM6,
 	ACT_ITEM7,
-	ACT_AUTOMAP,
-	ACT_MAPZ_IN,
-	ACT_MAPZ_OUT,
-	ACT_CLEARUI,
-	ACT_UP,
+	ACT_AUTOMAP,   // toggle automap
+	ACT_MAPZ_IN,   // zoom in the automap
+	ACT_MAPZ_OUT,  // zoom out the automap
+	ACT_CLEARUI,   // close the 'windows'
+	ACT_UP,    // navigate in the current context
 	ACT_DOWN,
 	ACT_LEFT,
 	ACT_RIGHT,
 	ACT_PGUP,
 	ACT_PGDOWN,
 	ACT_RETURN,
-	ACT_TEAM,
-	ACT_QUESTS,
-	ACT_MSG0,
+	ACT_TEAM,   // toggle team book
+	ACT_QUESTS, // toggle quest book
+	ACT_MSG0, // send quick message
 	ACT_MSG1,
 	ACT_MSG2,
 	ACT_MSG3,
-	ACT_GAMMA_DEC,
-	ACT_GAMMA_INC,
-	ACT_ZOOM,
-	ACT_VER,
-	ACT_HELP,
-	ACT_PAUSE,
+	ACT_GAMMA_DEC, // decrease the gamma
+	ACT_GAMMA_INC, // increase the gamma
+	ACT_ZOOM,  // toggle the zoom
+	ACT_VER,   // print the game version
+	ACT_HELP,  // open the help text
+	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
-	ACT_TOOLTIP,
+	ACT_TOOLTIP, // toggle the permanency of the tooltips
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	ACT_CTRL_ALTACT,
+	ACT_CTRL_CASTACT,
+	ACT_CTRL_USE_HP,
+	ACT_CTRL_USE_MP,
+#endif
 	NUM_ACTS
 } input_key;
 
 typedef enum application_error {
 	ERR_APP_FRAME_BUFSIZE,
-	ERR_APP_LOOPBACK_JOIN,
 	ERR_APP_LOOPBACK_SENDMSG,
 	ERR_APP_LOOPBACK_QUEUE_SIZE,
 	ERR_APP_LOOPBACK_POLLTURN,
-	ERR_APP_LOOPBACK_LASTTURN,
 	ERR_APP_LOOPBACK_DROPPLR,
 	ERR_APP_LOOPBACK_TRANSIT,
 	ERR_APP_PACKET_ENCRYPT,
 	ERR_APP_PACKET_SETUP,
 	ERR_APP_PACKET_PASSWD,
+	ERR_APP_ASIO,
 	ERR_APP_SETMAP,
 } application_error;
 

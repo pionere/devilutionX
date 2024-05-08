@@ -4,11 +4,11 @@
  * Implementation of functions setting up the audio pipeline.
  */
 #include "all.h"
-#include <SDL.h>
 #ifndef NOSOUND
 #include <SDL_mixer.h>
 #include "utils/soundsample.h"
 #endif
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -127,7 +127,7 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 
 void RestartMixer()
 {
-	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
+	if (Mix_OpenAudioDevice(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024, NULL, SDL_AUDIO_ALLOW_SAMPLES_CHANGE) < 0) {
 		DoLog(Mix_GetError());
 	}
 	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));

@@ -1,6 +1,5 @@
 #include "dialogs.h"
 
-#include "controls/menu_controls.h"
 #include "diabloui.h"
 //#include "errorart.h"
 #include "text.h"
@@ -159,11 +158,11 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 {
 	//if (renderBehind == NULL) {
 		UiClearListItems();
-		UiClearItems(gUiItems);
+		UiClearItems();
 		FreeBackgroundArt();
 
 		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-		UiAddBackground(&gUiItems);
+		UiAddBackground();
 	//}
 
 	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
@@ -188,7 +187,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 0, PANEL_MIDY(LARGE_POPUP_HEIGHT) + 10, PANEL_WIDTH, 20 };
-		gUiItems.push_back(new UiText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(caption, rect2, UIS_HCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_MIDX(LARGE_POPUP_TEXT_WIDTH), PANEL_MIDY(LARGE_POPUP_HEIGHT) + 41, LARGE_POPUP_TEXT_WIDTH, LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17 - 17 };
 		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
@@ -208,7 +207,7 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	MemFreeDbg(gbDialogBackCel);
 	MemFreeDbg(gbSmlButtonCel)
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
@@ -217,7 +216,7 @@ static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 
 	_gbDialogEnd = false;
 	do {
-		UiRenderAndPoll(NULL /*renderBehind*/);
+		UiRenderAndPoll();
 	} while (!_gbDialogEnd);
 }
 

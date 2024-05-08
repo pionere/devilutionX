@@ -1,19 +1,19 @@
 #include "storm_svid.h"
 
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
+//#include <cstddef>
+//#include <cstdint>
+//#include <cstring>
 
-#include <SDL.h>
+//#include <SDL.h>
+
+//#include "all.h"
+#include "utils/display.h"
+#include "utils/sdl_compat.h"
 #ifndef NOSOUND
 #include <SDL_mixer.h>
 #include "utils/soundsample.h"
 #endif
 #include <smacker.h>
-
-#include "all.h"
-#include "utils/display.h"
-#include "utils/sdl_compat.h"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
 #include <queue>
@@ -33,6 +33,8 @@ static BYTE* SVidBuffer;
 static unsigned long SVidWidth, SVidHeight;
 #ifndef NOSOUND
 static BYTE SVidAudioDepth;
+/* 1: adjust the volume of a 16bit audio, 0: adjust the volume of a 8bit audio, -1: do not adjust the volume (on max sound or when looping) */
+static int8_t SVidAudioAdjust;
 #endif
 
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
@@ -81,7 +83,7 @@ void TrySetVideoModeToSVidForSDL1()
 
 		// Check is there are any modes available.
 		if (modes == NULL
-		    || modes == reinterpret_cast<SDL_Rect**>(-1)) { // should not happen, since the first try was rejected...
+		 || modes == reinterpret_cast<SDL_Rect**>(-1)) { // should not happen, since the first try was rejected...
 			return;
 		}
 
@@ -100,6 +102,8 @@ void TrySetVideoModeToSVidForSDL1()
 #endif
 
 	SetVideoMode(w, h, display->format->BitsPerPixel, flags);
+	// Set the background to black.
+	SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 }
 #endif
 
@@ -254,7 +258,6 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	//0x200800 // Clear FB
 	size_t dwBytes;
 
-	assert(SVidBuffer == NULL);
 	SVidBuffer = LoadFileInMem(filename, &dwBytes);
 
 	SVidSMK = smk_open_memory(SVidBuffer, dwBytes);
@@ -264,37 +267,37 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	}
 
 #ifndef NOSOUND
-	if (enableAudio) {
+	if (enableAudio && gbSoundOn) {
 		unsigned char channels, depth;
 		unsigned long rate;
 		smk_info_audio(SVidSMK, &channels, &depth, &rate);
 		if (depth != 0) {
-			SVidAudioDepth = depth;
-
 			smk_enable_audio(SVidSMK, 0, true);
+
+			SVidAudioDepth = depth;
+			SVidAudioAdjust = gnSoundVolume == VOLUME_MAX ? -1 : (depth == 16 ? 1 : 0);
+
 			SDL_AudioSpec audioFormat;
 			memset(&audioFormat, 0, sizeof(audioFormat));
 			audioFormat.freq = rate;
-			audioFormat.format = SVidAudioDepth == 16 ? AUDIO_S16SYS : AUDIO_U8;
+			audioFormat.format = depth == 16 ? AUDIO_S16SYS : AUDIO_U8;
 			audioFormat.channels = channels;
 
 			Mix_CloseAudio();
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
+			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
 			if (deviceId != 0) {
 				SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 			} else {
-				DoLog(SDL_GetError());
-				//sdl_error(ERR_SDL_AUDIO_DEVICE_SDL2);
+				sdl_issue(ERR_SDL_AUDIO_DEVICE_SDL2);
 			}
 #else
 			sVidAudioQueue->Subscribe(&audioFormat);
 			if (SDL_OpenAudio(&audioFormat, NULL) == 0) {
 				SDL_PauseAudio(0);
 			} else {
-				DoLog(SDL_GetError());
-				//sdl_error(ERR_SDL_AUDIO_DEVICE_SDL1);
+				sdl_issue(ERR_SDL_AUDIO_DEVICE_SDL1);
 			}
 #endif
 		}
@@ -306,18 +309,9 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 
 	smk_enable_video(SVidSMK, enableVideo);
 	smk_first(SVidSMK); // Decode first frame
-#ifndef USE_SDL1
-	if (renderer != NULL) {
-		RecreateDisplay(SVidWidth, SVidHeight);
-	}
-#else
+#ifdef USE_SDL1
 	TrySetVideoModeToSVidForSDL1();
 #endif
-
-	// Set the background to black.
-	// commented out because the background is supposed to be black at this point
-	// due to RecreateDisplay, this should be done twice anyway...
-	// SDL_FillRect(GetOutputSurface(), NULL, 0x000000);
 
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(
@@ -327,16 +321,19 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
-	if (SVidSurface == NULL) {
-		sdl_error(ERR_SDL_VIDEO_CREATE);
-	}
 
 	SVidPalette = SDL_AllocPalette(NUM_COLORS);
-	if (SVidPalette == NULL) {
-		sdl_error(ERR_SDL_VIDEO_PALETTE);
+	if (SVidSurface == NULL || SVidPalette == NULL) {
+		if (SVidSurface == NULL) {
+			sdl_issue(ERR_SDL_VIDEO_CREATE);
+		} else {
+			sdl_issue(ERR_SDL_VIDEO_PALETTE);
+		}
+		SVidPlayEnd();
+	//} else {
+	//	assert(smk_palette_updated(SVidSMK));
+	//	UpdatePalette();
 	}
-	UpdatePalette();
-
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
 }
@@ -352,7 +349,9 @@ static bool SVidLoadNextFrame()
 		if (SMK_ERR(result) || !SVidLoop) {
 			return false;
 		}
-
+#ifndef NOSOUND
+		SVidAudioAdjust = -1;
+#endif
 		smk_first(SVidSMK);
 	}
 
@@ -364,10 +363,10 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 	//BYTE* scaled = DiabloAllocPtr(rawLen);
 	BYTE* scaled = raw;
 
-	if (SVidAudioDepth == 16) {
+	if (SVidAudioAdjust > 0) {
 		for (unsigned long i = 0; i < rawLen / 2; i++)
 			((Sint16*)scaled)[i] = ADJUST_VOLUME(((Sint16*)raw)[i], 0, gnSoundVolume);
-	} else {
+	} else if (SVidAudioAdjust == 0) {
 		for (unsigned long i = 0; i < rawLen; i++)
 			scaled[i] = ADJUST_VOLUME((raw[i] - 128), 0, gnSoundVolume) + 128;
 	}
@@ -390,7 +389,7 @@ bool SVidPlayContinue()
 		BYTE* audio = SVidApplyVolume(smk_get_audio(SVidSMK, 0), len);
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 		if (SDL_QueueAudio(deviceId, audio, len) < 0) {
-			sdl_error(ERR_SDL_VIDEO_AUDIO);
+			sdl_issue(ERR_SDL_VIDEO_AUDIO);
 		}
 #else
 		sVidAudioQueue->Enqueue(audio, len);
@@ -403,54 +402,48 @@ bool SVidPlayContinue()
 	}
 
 	SDL_Surface* outputSurface = GetOutputSurface();
-#ifndef USE_SDL1
-	if (renderer != NULL) {
-		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, NULL) < 0) {
-			sdl_error(ERR_SDL_VIDEO_BLIT_A);
-		}
-	} else
-#endif
-	{
+	SDL_PixelFormat* outputFormat = outputSurface->format;
 #ifdef USE_SDL1
-		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
+	const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputFormat);
 #else
-		const Uint32 wndFormat = SDL_GetWindowPixelFormat(ghMainWnd);
-		const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(wndFormat);
+	const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(outputFormat->format);
 #endif
-		SDL_Rect outputRect;
-		if (isIndexedOutputFormat) {
-			// Cannot scale if the output format is indexed (8-bit palette).
-			outputRect.w = static_cast<int>(SVidWidth);
-			outputRect.h = static_cast<int>(SVidHeight);
-		} else if (IsLandscapeFit(SVidWidth, SVidHeight, outputSurface->w, outputSurface->h)) {
-			outputRect.w = outputSurface->w;
-			outputRect.h = SVidHeight * outputSurface->w / SVidWidth;
-		} else {
-			outputRect.w = SVidWidth * outputSurface->h / SVidHeight;
-			outputRect.h = outputSurface->h;
-		}
-		outputRect.x = (outputSurface->w - outputRect.w) / 2;
-		outputRect.y = (outputSurface->h - outputRect.h) / 2;
+	SDL_Rect outputRect;
+	if (isIndexedOutputFormat) {
+		// Cannot scale if the output format is indexed (8-bit palette).
+		outputRect.w = static_cast<int>(SVidWidth);
+		outputRect.h = static_cast<int>(SVidHeight);
+	} else if (IsLandscapeFit(SVidWidth, SVidHeight, outputSurface->w, outputSurface->h)) {
+		outputRect.w = outputSurface->w;
+		outputRect.h = SVidHeight * outputSurface->w / SVidWidth;
+	} else {
+		outputRect.w = SVidWidth * outputSurface->h / SVidHeight;
+		outputRect.h = outputSurface->h;
+	}
+	outputRect.x = (outputSurface->w - outputRect.w) / 2;
+	outputRect.y = (outputSurface->h - outputRect.h) / 2;
 
-		if (isIndexedOutputFormat
-		    || outputSurface->w == static_cast<int>(SVidWidth)
-		    || outputSurface->h == static_cast<int>(SVidHeight)) {
-			if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
-				sdl_error(ERR_SDL_VIDEO_BLIT_B);
-			}
-		} else {
-			// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
-			// We must convert to the output format before calling SDL_BlitScaled.
-#ifdef USE_SDL1
-			SDL_Surface* tmp = SDL_ConvertSurface(SVidSurface, ghMainWnd->format, 0);
-#else
-			SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, wndFormat, 0);
-#endif
-			if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-				sdl_error(ERR_SDL_VIDEO_BLIT_SCALED);
-			}
-			SDL_FreeSurface(tmp);
+	if (isIndexedOutputFormat
+	 || outputSurface->w == static_cast<int>(SVidWidth)
+	 || outputSurface->h == static_cast<int>(SVidHeight)) {
+		if (SDL_BlitSurface(SVidSurface, NULL, outputSurface, &outputRect) < 0) {
+			sdl_issue(ERR_SDL_VIDEO_BLIT_B);
+			return false;
 		}
+	} else {
+		// The source surface is always 8-bit, and the output surface is never 8-bit in this branch.
+		// We must convert to the output format before calling SDL_BlitScaled.
+#ifdef USE_SDL1
+		SDL_Surface* tmp = SDL_ConvertSurface(SVidSurface, outputFormat, 0);
+#else
+		SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, outputFormat->format, 0);
+#endif
+		if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
+			SDL_FreeSurface(tmp);
+			sdl_issue(ERR_SDL_VIDEO_BLIT_SCALED);
+			return false;
+		}
+		SDL_FreeSurface(tmp);
 	}
 
 	RenderPresent();
@@ -478,8 +471,8 @@ void SVidPlayEnd()
 		RestartMixer();
 	}
 #endif // !NOSOUND
-	if (SVidSMK != NULL)
-		smk_close(SVidSMK);
+	smk_close(SVidSMK);
+	SVidSMK = NULL;
 
 	MemFreeDbg(SVidBuffer);
 
@@ -489,11 +482,7 @@ void SVidPlayEnd()
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
 
-#ifndef USE_SDL1
-	if (renderer != NULL) {
-		RecreateDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
-	}
-#else
+#ifdef USE_SDL1
 	if (IsSVidVideoMode) {
 		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
 		IsSVidVideoMode = false;

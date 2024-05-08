@@ -3,7 +3,9 @@ set(ASAN OFF)
 set(UBSAN OFF)
 
 # General build options.
+# The 3ds build handles the stripping in a custom way.
 set(USE_SDL1 ON)
+set(DISABLE_STRIP ON)
 #set(ZEROTIER OFF)
 # Disable system dependencies.
 set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)

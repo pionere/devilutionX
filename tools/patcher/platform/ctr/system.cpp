@@ -1,14 +1,15 @@
 #include <3ds.h>
 #include <cstdlib>
 #include <cstdio>
-#include "platform/ctr/cfgu_service.hpp
-#include "platform/ctr/random.hpp"
-#include "platform/ctr/sockets.hpp"
+#include "platform/ctr/cfgu_service.hpp"
 #include "platform/ctr/system.h"
 
 bool shouldDisableBacklight;
 
 aptHookCookie cookie;
+
+static void ctr_lcd_backlight_on();
+static void ctr_lcd_backlight_off();
 
 void aptHookFunc(APT_HookType hookType, void *param)
 {
@@ -32,7 +33,7 @@ void aptHookFunc(APT_HookType hookType, void *param)
 	}
 }
 
-void ctr_lcd_backlight_on()
+static void ctr_lcd_backlight_on()
 {
 	if (!shouldDisableBacklight)
 		return;
@@ -41,7 +42,7 @@ void ctr_lcd_backlight_on()
 	gspLcdExit();
 }
 
-void ctr_lcd_backlight_off()
+static void ctr_lcd_backlight_off()
 {
 	if (!shouldDisableBacklight)
 		return;
@@ -50,7 +51,7 @@ void ctr_lcd_backlight_off()
 	gspLcdExit();
 }
 
-bool ctr_check_dsp()
+static bool ctr_check_dsp()
 {
 	FILE *dsp = fopen("sdmc:/3ds/dspfirm.cdc", "r");
 	if (dsp == NULL) {
@@ -75,7 +76,7 @@ bool ctr_is_n3ds()
 
 bool ctr_should_disable_backlight()
 {
-	n3ds::CFGUService cfguService;
+	dvl::n3ds::CFGUService cfguService;
 	if (!cfguService.IsInitialized())
 		return false;
 
@@ -108,10 +109,10 @@ void ctr_sys_init()
 	acInit();
 	atexit([]() { acExit(); });
 
-	n3ds_socInit();
-	atexit([]() { n3ds_socExit(); });
+	// n3ds_socInit();
+	// atexit([]() { n3ds_socExit(); });
 
-	randombytes_ctrrandom_init();
+	// randombytes_ctrrandom_init();
 	atexit([]() {
 		if (psGetSessionHandle())
 			psExit();

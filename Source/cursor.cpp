@@ -48,6 +48,8 @@ int pcurstrig;
 POS32 pcurspos;
 /** Index of current cursor image */
 int pcursicon;
+/** The targeting mode (TGT_*) */
+int pcurstgt;
 
 /*  Maps from objcurs.cel frame number to frame width.
  **If the values are modified, make sure validateCursorAreas does not fail.**
@@ -140,6 +142,12 @@ void InitCursorGFX()
 {
 	assert(pCursCels == NULL);
 
+#if USE_PATCH
+	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
+	if (SwapLE32(*(DWORD*)pCursCels) != lengthof(InvItemWidth) - 1) {
+		app_fatal("Invalid file %s in the mpq.", "Data\\Inv\\Objcurs.CEL");
+	}
+#else
 #ifdef HELLFIRE
 	size_t sizeA, sizeB;
 	BYTE *aCursCels, *bCursCels;
@@ -153,7 +161,8 @@ void InitCursorGFX()
 	mem_free_dbg(bCursCels);
 #else
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
-#endif
+#endif // HELLFIRE
+#endif // USE_PATCH
 	ClearCursor();
 }
 
@@ -168,6 +177,56 @@ void NewCursor(int i)
 	pcursicon = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
+	pcurstgt = TGT_NORMAL;
+	switch (i) {
+	case CURSOR_NONE:
+	case CURSOR_HAND:
+		break;
+	case CURSOR_IDENTIFY:
+	case CURSOR_REPAIR:
+	case CURSOR_RECHARGE:
+	case CURSOR_OIL:
+		// skip monster/player/object/etc targeting if the player is using a skill/spell to target an item
+		pcurstgt = TGT_NONE;
+		break;
+	case CURSOR_DISARM:
+		pcurstgt = TGT_OBJECT;
+		break;
+	case CURSOR_TELEKINESIS:
+		break;
+	case CURSOR_RESURRECT:
+		pcurstgt = TGT_DEAD;
+		break;
+	case CURSOR_TELEPORT:
+		break;
+	case CURSOR_HEALOTHER:
+		pcurstgt = TGT_OTHER;
+		break;
+	case CURSOR_HOURGLASS:
+		break;
+	default:
+		// pcursicon >= CURSOR_FIRSTITEM
+		// skip monster/player/object/etc targeting if the player is holding an item
+		pcurstgt = TGT_NONE;
+		break;
+	}
+}
+
+void ChangeTarget()
+{
+	int cursor = pcursicon;
+	if (cursor == CURSOR_HOURGLASS) {
+		cursor = gnTimeoutCurs;
+	}
+	if (cursor == CURSOR_HAND || cursor == CURSOR_TELEKINESIS || cursor == CURSOR_TELEPORT) {
+		if (pcurstgt == TGT_NORMAL) {
+			pcurstgt = TGT_ITEM;
+		} else if (pcurstgt == TGT_ITEM) {
+			pcurstgt = TGT_OBJECT;
+		} else {
+			pcurstgt = TGT_NORMAL;
+		}
+	}
 }
 
 void InitLevelCursor()
@@ -210,13 +269,9 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
-	int pcurstemp; // Previously highlighted monster
-	int8_t bv;
-	BYTE ii;
+	int i, pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
 	bool flipflag, flipx, flipy;
 
-	pcurstemp = pcursmonst;
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
@@ -238,7 +293,7 @@ void CheckCursMove()
 
 	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;
-	for (int i = 0; i < gnNumActiveWindows; i++) {
+	for (i = 0; i < gnNumActiveWindows; i++) {
 		switch (gaActiveWindows[i]) {
 		case WND_INV:
 			if (POS_IN_RECT(sx, sy, gnWndInvX, gnWndInvY, SPANEL_WIDTH, SPANEL_HEIGHT))
@@ -342,420 +397,237 @@ void CheckCursMove()
 	pcurspos.x = mx;
 	pcurspos.y = my;
 
-	switch (pcursicon) {
-	case CURSOR_NONE:
-	case CURSOR_HAND:
-		break;
-	case CURSOR_IDENTIFY:
-	case CURSOR_REPAIR:
-	case CURSOR_RECHARGE:
-	case CURSOR_OIL:
-		// skip monster/player/object/etc targeting if the player is using a skill/spell to target an item
-		return;
-	case CURSOR_DISARM:
-		// select an object
-		if (!flipflag) {
-			bv = dObject[mx + 1][my];
-			if (bv != 0) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (objects[bv]._oSelFlag & 2) {
-					pcurspos.x = mx + 1;
-					pcurspos.y = my;
-					pcursobj = bv;
-				}
-			}
-		} else {
-			bv = dObject[mx][my + 1];
-			if (bv != 0) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (objects[bv]._oSelFlag & 2) {
-					pcurspos.x = mx;
-					pcurspos.y = my + 1;
-					pcursobj = bv;
-				}
-			}
-		}
-		bv = dObject[mx][my];
-		if (bv != 0) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag & 1) {
-				pcurspos.x = mx;
-				pcurspos.y = my;
-				pcursobj = bv;
-			}
-		}
-		bv = dObject[mx + 1][my + 1];
-		if (bv != 0) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag & 2) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my + 1;
-				pcursobj = bv;
-			}
-		}
-		return;
-	case CURSOR_TELEKINESIS:
-		break;
-	case CURSOR_RESURRECT:
-		// target dead player
-		if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-				if (/*pnum != mypnum &&*/ plr._pmode == PM_DEATH && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
-					pcurspos.x = mx;
-					pcurspos.y = my;
-					pcursplr = pnum;
-				}
-			}
-		}
-		return;
-	case CURSOR_TELEPORT:
-		break;
-	case CURSOR_HEALOTHER:
-		// target live player
-		if (!flipflag) {
-			bv = dPlayer[mx + 1][my];
-			if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-					pcurspos.x = mx + 1;
-					pcurspos.y = my;
-					pcursplr = bv;
-				}
-			}
-		} else {
-			bv = dPlayer[mx][my + 1];
-			if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-				bv = bv >= 0 ? bv - 1 : -(bv + 1);
-				if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-					pcurspos.x = mx;
-					pcurspos.y = my + 1;
-					pcursplr = bv;
-				}
-			}
-		}
-		bv = dPlayer[mx][my];
-		if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-				pcurspos.x = mx;
-				pcurspos.y = my;
-				pcursplr = bv;
-			}
-		}
-		bv = dPlayer[mx + 1][my + 1];
-		if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my + 1;
-				pcursplr = bv;
-			}
-		}
-		return;
-	case CURSOR_HOURGLASS:
-		break;
-	default:
-		// pcursicon >= CURSOR_FIRSTITEM
-		// skip monster/player/object/etc targeting if the player is holding an item
-		return;
-	}
-
+	int curmon[5] = { 0 };
+	int curobj[5] = { 0 };
+	int curitem[3] = { 0 };
+	int curplr[3] = { 0 };
+	int deadplr[1] = { 0 };
+	const int selFlag[5] = { 4, 4, 2, 1, 2 };
+	int offx[5] = { 2, 2, 1, 0, 1 };
+	int offy[5] = { 1, 2, 0, 0, 1 };
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
-	// select a monster
-	if (pcurstemp != MON_NONE
-	 && monsters[pcurstemp]._mhitpoints >= (1 << 6)
-	 && !(monsters[pcurstemp]._mFlags & MFLAG_HIDDEN)) {
-		if (!flipflag) {
-			mi = dMonster[mx + 2][my + 1];
-			if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
-					pcurspos.x = mx + 2; /// BUGFIX: 'mx + 2' (fixed)
-					pcurspos.y = my + 1; /// BUGFIX: 'my + 1' (fixed)
-					pcursmonst = mi;
+	if (dFlags[mx][my] & BFLAG_VISIBLE) {
+		curmon[3] = dMonster[mx][my];
+		curobj[3] = dObject[mx][my];
+		curplr[1] = dPlayer[mx][my];
+		curitem[1] = dItem[mx][my];
+		if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
+			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+				if (/*pnum != mypnum && */plr._pmode == PM_DEATH && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
+					deadplr[0] = pnum + 1;
 				}
 			}
-		} else {
-			mi = dMonster[mx + 1][my + 2];
-			if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
-					pcurspos.x = mx + 1;
-					pcurspos.y = my + 2;
-					pcursmonst = mi;
-				}
-			}
+
 		}
-		mi = dMonster[mx + 2][my + 2];
-		if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (mi == pcurstemp && monsters[mi]._mSelFlag & 4) {
-				pcurspos.x = mx + 2;
-				pcurspos.y = my + 2;
-				pcursmonst = mi;
-			}
+	}
+	if (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE) {
+		curmon[4] = dMonster[mx + 1][my + 1];
+		curobj[4] = dObject[mx + 1][my + 1];
+		curplr[2] = dPlayer[mx + 1][my + 1];
+		curitem[2] = dItem[mx + 1][my + 1];
+	}
+	if (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE) {
+		curmon[1] = dMonster[mx + 2][my + 2];
+		curobj[1] = dObject[mx + 2][my + 2];
+	}
+	if (flipflag) {
+		if (dFlags[mx + 0][my + 1] & BFLAG_VISIBLE) {
+			curmon[2] = dMonster[mx + 0][my + 1];
+			curobj[2] = dObject[mx + 0][my + 1];
+			curplr[0] = dPlayer[mx + 0][my + 1];
+			curitem[0] = dItem[mx + 0][my + 1];
 		}
-		if (!flipflag) {
-			mi = dMonster[mx + 1][my];
-			if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
-					pcurspos.x = mx + 1;
-					pcurspos.y = my;
-					pcursmonst = mi;
-				}
-			}
-		} else {
-			mi = dMonster[mx][my + 1];
-			if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
-					pcurspos.x = mx;
-					pcurspos.y = my + 1;
-					pcursmonst = mi;
-				}
-			}
+		if (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE) {
+			curmon[0] = dMonster[mx + 1][my + 2];
+			curobj[0] = dObject[mx + 1][my + 2];
 		}
-		mi = dMonster[mx][my];
-		if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (mi == pcurstemp && monsters[mi]._mSelFlag & 1) {
-				pcurspos.x = mx;
-				pcurspos.y = my;
-				pcursmonst = mi;
-			}
+	} else {
+		if (dFlags[mx + 1][my + 0] & BFLAG_VISIBLE) {
+			curmon[2] = dMonster[mx + 1][my + 0];
+			curobj[2] = dObject[mx + 1][my + 0];
+			curplr[0] = dPlayer[mx + 1][my + 0];
+			curitem[0] = dItem[mx + 1][my + 0];
 		}
-		mi = dMonster[mx + 1][my + 1];
-		if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (mi == pcurstemp && monsters[mi]._mSelFlag & 2) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my + 1;
-				pcursmonst = mi;
-			}
+		if (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE) {
+			curmon[0] = dMonster[mx + 2][my + 1];
+			curobj[0] = dObject[mx + 2][my + 1];
 		}
+	}
+	offx[0] = flipflag ? 1 : 2; offy[0] = flipflag ? 2 : 1;
+	offx[2] = flipflag ? 0 : 1; offy[2] = flipflag ? 1 : 0;
+
+	switch (pcurstgt) {
+	case TGT_NORMAL:
+		// select the previous monster/npc
 		if (pcursmonst != MON_NONE) {
-			return;
-		}
-	}
-	if (!flipflag) {
-		mi = dMonster[mx + 2][my + 1];
-		if (mi != 0 && (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
-				pcurspos.x = mx + 2;
-				pcurspos.y = my + 1;
-				pcursmonst = mi;
+			for (i = 4; i >= 0; i--) {
+				mi = curmon[i];
+				if (mi != 0) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi != pcursmonst) {
+						continue;
+					}
+					// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
+					if (!(monsters[mi]._mSelFlag & selFlag[i])) {
+						continue;
+					}
+					pcursmonst = mi;
+					pcurspos.x = mx + offx[i];
+					pcurspos.y = my + offy[i];
+					goto done;
+				}
 			}
 		}
-	} else {
-		mi = dMonster[mx + 1][my + 2];
-		if (mi != 0 && (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my + 2;
+		// select a monster/npc
+		for (i = 4; i >= 0; i--) {
+			mi = curmon[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
+					continue;
+				}
+				// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
+				if (!(monsters[mi]._mSelFlag & selFlag[i])) {
+					continue;
+				}
 				pcursmonst = mi;
+				pcurspos.x = mx + offx[i];
+				pcurspos.y = my + offy[i];
+				goto done;
 			}
 		}
-	}
-	mi = dMonster[mx + 2][my + 2];
-	if (mi != 0 && (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE)) {
-		mi = mi >= 0 ? mi - 1 : -(mi + 1);
-		if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 4) {
-			pcurspos.x = mx + 2;
-			pcurspos.y = my + 2;
-			pcursmonst = mi;
-		}
-	}
-	if (!flipflag) {
-		mi = dMonster[mx + 1][my];
-		if (mi != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my;
-				pcursmonst = mi;
+		// select a live player
+		for (i = 2; i >= 0; i--) {
+			mi = curplr[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+					continue;
+				}
+				pcursplr = mi;
+				pcurspos.x = mx + offx[i + 2];
+				pcurspos.y = my + offy[i + 2];
+				goto done;
 			}
 		}
-	} else {
-		mi = dMonster[mx][my + 1];
-		if (mi != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-			mi = mi >= 0 ? mi - 1 : -(mi + 1);
-			if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
-				pcurspos.x = mx;
-				pcurspos.y = my + 1;
-				pcursmonst = mi;
-			}
-		}
-	}
-	mi = dMonster[mx][my];
-	if (mi != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-		mi = mi >= 0 ? mi - 1 : -(mi + 1);
-		if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 1) {
+		// select a dead player
+		if (deadplr[0] != 0) {
+			pcursplr = deadplr[0];
 			pcurspos.x = mx;
 			pcurspos.y = my;
-			pcursmonst = mi;
+			goto done;
 		}
-	}
-	mi = dMonster[mx + 1][my + 1];
-	if (mi != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-		mi = mi >= 0 ? mi - 1 : -(mi + 1);
-		if (monsters[mi]._mhitpoints >= (1 << 6) && monsters[mi]._mSelFlag & 2) {
-			pcurspos.x = mx + 1;
-			pcurspos.y = my + 1;
-			pcursmonst = mi;
-		}
-	}
-	if (pcursmonst != MON_NONE) {
-		if (pcursmonst < MAX_MINIONS || monsters[pcursmonst]._mFlags & MFLAG_HIDDEN)
-			pcursmonst = MON_NONE;
-		else
-			return;
-	}
-	// select a player
-	// target dead player
-	if ((dFlags[mx][my] & (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) == (BFLAG_DEAD_PLAYER | BFLAG_VISIBLE)) {
-		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-			if (/*pnum != mypnum && plr._pmode == PM_DEATH &&*/ plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
-				pcurspos.x = mx;
-				pcurspos.y = my;
-				pcursplr = pnum;
+		// select an object
+		for (i = 4; i >= 0; i--) {
+			mi = curobj[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (!(objects[mi]._oSelFlag & selFlag[i])) {
+					continue;
+				}
+				pcursobj = mi;
+				pcurspos.x = mx + offx[i];
+				pcurspos.y = my + offy[i];
+				goto done;
 			}
 		}
-	}
-	// target live player
-	if (!flipflag) {
-		bv = dPlayer[mx + 1][my];
-		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my;
-				pcursplr = bv;
+		// select an item
+		for (i = 2; i >= 0; i--) {
+			mi = curitem[i];
+			if (mi > 0) {
+				mi = mi - 1;
+				if (!(items[mi]._iSelFlag & selFlag[i + 2])) {
+					continue;
+				}
+				pcursitem = mi;
+				pcurspos.x = mx + offx[i + 2];
+				pcurspos.y = my + offy[i + 2];
+				goto done;
 			}
 		}
-	} else {
-		bv = dPlayer[mx][my + 1];
-		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-				pcurspos.x = mx;
-				pcurspos.y = my + 1;
-				pcursplr = bv;
-			}
-		}
-	}
-	bv = dPlayer[mx][my];
-	if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-			pcurspos.x = mx;
-			pcurspos.y = my;
-			pcursplr = bv;
-		}
-	}
-	bv = dPlayer[mx + 1][my + 1];
-	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (bv != mypnum && plx(bv)._pHitPoints >= (1 << 6)) {
-			pcurspos.x = mx + 1;
-			pcurspos.y = my + 1;
-			pcursplr = bv;
-		}
-	}
 
-	if (pcursplr != PLR_NONE) {
-		return;
-	}
-	// select an object
-	if (!flipflag) {
-		bv = dObject[mx + 1][my];
-		if (bv != 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag & 2) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my;
-				pcursobj = bv;
-			}
-		}
-	} else {
-		bv = dObject[mx][my + 1];
-		if (bv != 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-			bv = bv >= 0 ? bv - 1 : -(bv + 1);
-			if (objects[bv]._oSelFlag & 2) {
-				pcurspos.x = mx;
-				pcurspos.y = my + 1;
-				pcursobj = bv;
-			}
-		}
-	}
-	bv = dObject[mx][my];
-	if (bv != 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (objects[bv]._oSelFlag & 1) {
-			pcurspos.x = mx;
-			pcurspos.y = my;
-			pcursobj = bv;
-		}
-	}
-	bv = dObject[mx + 1][my + 1];
-	if (bv != 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-		bv = bv >= 0 ? bv - 1 : -(bv + 1);
-		if (objects[bv]._oSelFlag & 2) {
-			pcurspos.x = mx + 1;
-			pcurspos.y = my + 1;
-			pcursobj = bv;
-		}
-	}
-
-	if (pcursobj != OBJ_NONE)
-		return;
-	// select an item
-	if (!flipflag) {
-		ii = dItem[mx + 1][my];
-		if (ii > 0 && (dFlags[mx + 1][my] & BFLAG_VISIBLE)) {
-			ii--;
-			if (items[ii]._iSelFlag & 2) {
-				pcurspos.x = mx + 1;
-				pcurspos.y = my;
-				pcursitem = ii;
-			}
-		}
-	} else {
-		ii = dItem[mx][my + 1];
-		if (ii > 0 && (dFlags[mx][my + 1] & BFLAG_VISIBLE)) {
-			ii--;
-			if (items[ii]._iSelFlag & 2) {
-				pcurspos.x = mx;
-				pcurspos.y = my + 1;
-				pcursitem = ii;
-			}
-		}
-	}
-	ii = dItem[mx][my];
-	if (ii > 0 && (dFlags[mx][my] & BFLAG_VISIBLE)) {
-		ii--;
-		if (items[ii]._iSelFlag & 1) {
-			pcurspos.x = mx;
-			pcurspos.y = my;
-			pcursitem = ii;
-		}
-	}
-	ii = dItem[mx + 1][my + 1];
-	if (ii > 0 && (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE)) {
-		ii--;
-		if (items[ii]._iSelFlag & 2) {
-			pcurspos.x = mx + 1;
-			pcurspos.y = my + 1;
-			pcursitem = ii;
-		}
-	}
-	if (pcursitem == ITEM_NONE) {
 		pcurspos.x = mx;
 		pcurspos.y = my;
 		CheckTrigForce();
 		CheckTownPortal();
+done:
+		break;
+	case TGT_ITEM:
+		// select an item
+		for (i = 2; i >= 0; i--) {
+			mi = curitem[i];
+			if (mi > 0) {
+				mi = mi - 1;
+				if (!(items[mi]._iSelFlag & selFlag[i + 2])) {
+					continue;
+				}
+				pcursitem = mi;
+				pcurspos.x = mx + offx[i + 2];
+				pcurspos.y = my + offy[i + 2];
+				break;
+			}
+		}
+		break;
+	case TGT_OBJECT:
+		// select an object
+		for (i = 4; i >= 0; i--) {
+			mi = curobj[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (!(objects[mi]._oSelFlag & selFlag[i])) {
+					continue;
+				}
+				pcursobj = mi;
+				pcurspos.x = mx + offx[i];
+				pcurspos.y = my + offy[i];
+				break;
+			}
+		}
+		break;
+	case TGT_OTHER:
+		// select a live player
+		for (i = 2; i >= 0; i--) {
+			mi = curplr[i];
+			if (mi != 0) {
+				mi = mi >= 0 ? mi - 1 : -(mi + 1);
+				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+					continue;
+				}
+				pcursplr = mi;
+				pcurspos.x = mx + offx[i + 2];
+				pcurspos.y = my + offy[i + 2];
+				break;
+			}
+		}
+		if (i < 0) {
+			// select a live minion
+			for (i = 4; i >= 0; i--) {
+				mi = curmon[i];
+				if (mi != 0) {
+					mi = mi >= 0 ? mi - 1 : -(mi + 1);
+					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints < (1 << 6)) {
+						continue;
+					}
+					pcursmonst = mi;
+					pcurspos.x = mx + offx[i];
+					pcurspos.y = my + offy[i];
+					break;
+				}
+			}
+		}
+		break;
+	case TGT_DEAD:
+		// select a dead player
+		if (deadplr[0] != 0) {
+			pcursplr = deadplr[0] - 1;
+			pcurspos.x = mx;
+			pcurspos.y = my;
+		}
+		break;
+	case TGT_NONE:
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 }
 

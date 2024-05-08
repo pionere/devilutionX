@@ -18,12 +18,10 @@ extern CelImageBuf* gbBackCel;
 extern CelImageBuf* gbHerosCel;
 extern CelImageBuf* gbSmlButtonCel;
 
-extern void (*gfnSoundFunction)(int gfx, int rndCnt);
 extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;
 extern unsigned SelectedItem;
 extern unsigned ListOffset;
-extern UiEdit* gUiEditField;
 extern bool gUiDrawCursor;
 
 inline SDL_Surface* DiabloUiSurface()
@@ -47,20 +45,22 @@ inline SDL_Surface* DiabloUiSurface()
 }
 
 void UiFadeIn();
-void UiHandleEvents(SDL_Event* event);
+bool UiPeekAndHandleEvents(Dvl_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void FreeBackgroundArt();
-void UiAddBackground(std::vector<UiItemBase*>* vecDialog);
-void UiAddLogo(std::vector<UiItemBase*>* vecDialog);
+void UiAddBackground();
+void UiAddLogo();
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
-void UiFocusNavigationYesNo();
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL, bool (*fnYesNo)() = NULL);
-void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size);
+void UiFocusNavigationDelete();
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL);
+void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, void (*fnDelete)());
+void UiInitEdit(UiEdit* ui_edit);
 void UiClearScreen();
-void UiRenderAndPoll(std::vector<UiItemBase*>* addUiItems);
-void UiRenderItems(const std::vector<UiItemBase*>& uiItems);
-void UiClearItems(std::vector<UiItemBase*>& uiItems);
+void UiRender();
+void UiRenderAndPoll();
+void UiRenderItems();
+void UiClearItems();
 void UiClearListItems();
 int GetAnimationFrame(int frames, int animFrameLenMs = 64);
 

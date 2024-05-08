@@ -22,6 +22,36 @@ static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_CANCEL = 102;
 static constexpr int RETURN_DONE = 100;
 
+static const char* const filesToSkip[] = {
+#ifdef HELLFIRE
+	"gendata\\diablo1.smk",
+	"Levels\\TownData\\Town.DUN",
+	"Levels\\TownData\\Town.RDUN",
+	"Levels\\TownData\\Town.SLA",
+	"Levels\\TownData\\Town.CEL",
+	"Levels\\TownData\\Town.TIL",
+	"Levels\\TownData\\Town.MIN",
+	"Meta\\credits.txt",
+#else
+	"gendata\\Hellfire.smk",
+	"Meta\\credits_hf.txt",
+	"NLevels\\L5Data\\L5.SLA",
+	"NLevels\\L5Data\\L5.TLA",
+	"NLevels\\L5Data\\Nakrul1.DUN",
+	"NLevels\\L5Data\\Nakrul2.DUN",
+	"NLevels\\L6Data\\L6.SLA",
+	"NLevels\\L6Data\\L6.TLA",
+	"NLevels\\L6Data\\L6.TRS",
+	"NLevels\\TownData\\Town.DUN",
+	"NLevels\\TownData\\Town.RDUN",
+	"NLevels\\TownData\\Town.SLA",
+	"NLevels\\TownData\\Town.CEL",
+	"NLevels\\TownData\\Town.TIL",
+	"NLevels\\TownData\\Town.TRS",
+	"NLevels\\TownData\\Town.MIN",
+#endif
+};
+
 // Forward-declare UI-handlers, used by other handlers.
 static void MergerSelect(unsigned index);
 
@@ -29,7 +59,7 @@ static void MergerFreeDlgItems()
 {
 	UiClearListItems();
 
-	UiClearItems(gUiItems);
+	UiClearItems();
 }
 
 static void MergerEsc()
@@ -41,18 +71,18 @@ static void MergerInit()
 {
 	MergerFreeDlgItems();
 
-	UiAddBackground(&gUiItems);
-	UiAddLogo(&gUiItems);
+	UiAddBackground();
+	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
-	gUiItems.push_back(new UiText("Merge MPQ files", rect1, UIS_CENTER | UIS_BIG | UIS_SILVER));
+	gUiItems.push_back(new UiText("Merge MPQ files", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Start merge", 0));
 	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", 1));
 	gUIListItems.push_back(new UiListItem("Cancel", 2));
 
 	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * 3 };
-	gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_CENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	//assert(gUIListItems.size() == 3);
 	UiInitScreen(3, NULL, MergerSelect, MergerEsc);
@@ -136,14 +166,27 @@ static int merger_callback()
 		int skip = hashCount;
 		std::string line;
 		while (std::getline(input, line)) {
+			// skip sound files if requested
 			if (noSound && line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
 				continue;
+			// skip hellfire/vanilla files
+			int n = 0;
+			for ( ; n < lengthof(filesToSkip); n++) {
+				if (SDL_strcmp(line.c_str(), filesToSkip[n]) == 0) {
+					break;
+				}
+			}
+			if (n != lengthof(filesToSkip)) {
+				continue;
+			}
+			// process only a bunch of files at a time to be more responsive
 			if (--skip >= 0) {
 				continue;
 			}
 			if (skip <= -10) {
 				break;
 			}
+			// add the file to the mpq
 			for (int i = 0; i < NUM_MPQS; i++) {
 				HANDLE hFile;
 				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
@@ -192,12 +235,12 @@ static int merger_callback()
 void UiMergerDialog()
 {
 	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
+	workPhase = 0;
 	MergerInit();
 
 	workProgress = RETURN_DONE;
-	workPhase = 0;
 	do {
-		UiRenderAndPoll(NULL);
+		UiRenderAndPoll();
 	} while (workProgress == RETURN_DONE);
 	MergerFreeDlgItems();
 	FreeBackgroundArt();

@@ -9,6 +9,7 @@
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
 #include "storm/storm_net.h"
+#include "utils/screen_reader.hpp"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -78,7 +79,7 @@ static CelImageBuf* pChrPanelCel;
 /** Char-Panel button images CEL */
 static CelImageBuf* pChrButtonCels;
 /** Specifies whether the button of the given attribute is pressed on Character-Panel. */
-static bool _gabChrbtn[NUM_ATTRIBS];
+static bool gabChrbtn[NUM_ATTRIBS];
 /** Specifies whether any attribute-button is pressed on Character-Panel. */
 bool gbChrbtnactive;
 /** Color translations for the skill icons. */
@@ -120,15 +121,6 @@ static const char* PanBtnTxt[NUM_PANBTNS] = {
 	"Map",
 	"Chat",
 	"Teams"
-	// clang-format on
-};
-/** Maps from attribute_id to the rectangle on screen used for attribute increment buttons. */
-const RECT32 ChrBtnsRect[NUM_ATTRIBS] = {
-	// clang-format off
-	{ 132, 102, CHRBTN_WIDTH, CHRBTN_HEIGHT },
-	{ 132, 130, CHRBTN_WIDTH, CHRBTN_HEIGHT },
-	{ 132, 159, CHRBTN_WIDTH, CHRBTN_HEIGHT },
-	{ 132, 187, CHRBTN_WIDTH, CHRBTN_HEIGHT }
 	// clang-format on
 };
 /** The number of spells/skills on a single spellbook page. */
@@ -363,6 +355,44 @@ void DrawSkillIcons()
 		type = plr._pAltAtkSkillType;
 	}
 	DrawSkillIcon(pnum, spl, type, SPLICON_WIDTH);
+
+	const char* str;
+	unsigned numchar;
+	switch (pcurstgt) {
+	case TGT_NORMAL:
+		return;
+	case TGT_ITEM:
+		str = "Item";
+		numchar = lengthof("Item") - 1;
+		break;
+	case TGT_OBJECT:
+		str = "Object";
+		numchar = lengthof("Object") - 1;
+		break;
+	case TGT_OTHER:
+		str = "Other";
+		numchar = lengthof("Other") - 1;
+		break;
+	case TGT_DEAD:
+		str = "Dead";
+		numchar = lengthof("Dead") - 1;
+		break;
+	case TGT_NONE:
+		str = "X";
+		numchar = lengthof("X") - 1;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+	// PrintSmallVerticalStr centered
+	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
+	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2;
+	for (unsigned i = 0; i < numchar; i++) {
+		sy += SMALL_FONT_HEIGHT;
+		BYTE nCel = gbStdFontFrame[str[i]];
+		// PrintSmallChar(sx + (SMALL_FONT_WIDTH - smallFontWidth[nCel]) / 2, sy, str[i], COL_GOLD);
+		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
+	}
 }
 
 static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
@@ -414,6 +444,9 @@ void DrawSkillList()
 	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
 
+#if SCREEN_READER_INTEGRATION
+	BYTE prevSkill = currSkill;
+#endif
 	currSkill = SPL_INVALID;
 	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
@@ -493,7 +526,7 @@ void DrawSkillList()
 					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
 					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), 
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX),
 					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
 					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
 			}
@@ -513,6 +546,11 @@ void DrawSkillList()
 	}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	_gbMoveCursor = 0;
+#endif
+#if SCREEN_READER_INTEGRATION
+	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+		SpeakText(spelldata[currSkill].sNameText);
+	}
 #endif
 }
 
@@ -882,8 +920,8 @@ void InitControlPan()
 	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
 	assert(pChrButtonCels == NULL);
 	pChrButtonCels = CelLoadImage("Data\\CharBut.CEL", CHRBTN_WIDTH);
-	for (i = 0; i < lengthof(_gabChrbtn); i++)
-		_gabChrbtn[i] = false;
+	for (i = 0; i < lengthof(gabChrbtn); i++)
+		gabChrbtn[i] = false;
 	gbChrbtnactive = false;
 	assert(pTextBoxCels == NULL);
 	pTextBoxCels = CelLoadImage("Data\\TextBox.CEL", LTPANEL_WIDTH);
@@ -1196,6 +1234,7 @@ void DrawChr()
 	BYTE col;
 	char chrstr[64];
 	int screen_x, screen_y, pc, val, mindam, maxdam;
+	bool showStats;
 
 	p = &myplr;
 	pc = p->_pClass;
@@ -1244,19 +1283,22 @@ void DrawChr()
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseVit);
 	PrintString(screen_x + 88, screen_y + 203, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
 
-	if (p->_pStatPts > 0) {
+	showStats = p->_pStatPts <= 0;
+	if (!showStats) {
+		showStats = (SDL_GetModState() & KMOD_ALT) != 0;
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		PrintString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, true, COL_RED, FONT_KERN_SMALL);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_STR].x, screen_y + ChrBtnsRect[ATTRIB_STR].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_STR] ? 3 : 2);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_MAG].x, screen_y + ChrBtnsRect[ATTRIB_MAG].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_MAG] ? 5 : 4);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_DEX].x, screen_y + ChrBtnsRect[ATTRIB_DEX].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_DEX] ? 7 : 6);
-		CelDraw(screen_x + ChrBtnsRect[ATTRIB_VIT].x, screen_y + ChrBtnsRect[ATTRIB_VIT].y + CHRBTN_HEIGHT, pChrButtonCels, _gabChrbtn[ATTRIB_VIT] ? 9 : 8);
+		int sx = screen_x + (showStats ? CHRBTN_ALT : CHRBTN_LEFT);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 2 : 1);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 2 : 1);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_DEX) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_DEX] ? 2 : 1);
+		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_VIT) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_VIT] ? 2 : 1);
 	}
 
 	if (p->_pHasUnidItem)
 		return;
 
-	if (p->_pStatPts <= 0) {
+	if (showStats) {
 		val = p->_pStrength;
 		col = COL_WHITE;
 		if (val > p->_pBaseStr)
@@ -1388,7 +1430,7 @@ void DrawLevelUpIcon()
 	screen_x = SCREEN_X + LVLUP_LEFT;
 	screen_y = PANEL_Y + PANEL_HEIGHT - LVLUP_OFFSET;
 	PrintString(screen_x - 38, screen_y + 20, screen_x - 38 + 120, "Level Up", true, COL_WHITE, FONT_KERN_SMALL);
-	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 3 : 2);
+	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 2 : 1);
 }
 
 static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE col)
@@ -1432,6 +1474,16 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	}
 	PrintGameStr(SCREEN_X + x + border + w1, SCREEN_Y + y + height - 14, text1, col);
 	PrintGameStr(SCREEN_X + x + border + w2, SCREEN_Y + y + height - 3, text2, COL_WHITE);
+#if SCREEN_READER_INTEGRATION
+	unsigned len1 = strlen(text1);
+	unsigned len = len1 + strlen(text2) + 2;
+	char *text = new char[len];
+	memcpy(text, text1, len1);
+	text[len1] = '\n';
+	memcpy(&text[len1 + 1], text1, len - (len1 + 1));
+	SpeakText(text);
+	free(text);
+#endif
 	return result;
 }
 
@@ -1518,6 +1570,9 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	// print the info
 	PrintGameStr(SCREEN_X + x + border, SCREEN_Y + y + TOOLTIP_HEIGHT - 3, text, col);
+#if SCREEN_READER_INTEGRATION
+	SpeakText(text);
+#endif
 	return result;
 }
 
@@ -1531,6 +1586,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 
 	if (y < 0)
 		return;
+	static_assert(HEALTHBAR_HEIGHT < BORDER_BOTTOM, "DrawHealthBar might draw out of the buffer.");
 	x -= HEALTHBAR_WIDTH / 2;
 	if (x < 0)
 		x = 0;
@@ -1540,7 +1596,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 	// draw gray border
 	dst = &gpBuffer[SCREENXY(x, y)];
 	for (int i = 0; i < HEALTHBAR_HEIGHT; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_GRAY + 5, HEALTHBAR_WIDTH);
+		memset(dst, PAL16_YELLOW + 8, HEALTHBAR_WIDTH);
 
 	// draw the bar
 	//width = (HEALTHBAR_WIDTH - 2) * hp / maxhp;
@@ -1550,7 +1606,7 @@ static void DrawHealthBar(int hp, int maxhp, int x, int y)
 	}
 	dst = &gpBuffer[SCREENXY(x + 1, y + 1)];
 	for (int i = 0; i < HEALTHBAR_HEIGHT - 2; i++, dst += BUFFER_WIDTH)
-		memset(dst, PAL16_RED + 9, w);
+		memset(dst, PAL16_RED + 11, w);
 }
 
 static void DrawTrigInfo()
@@ -1602,38 +1658,38 @@ static void DrawTrigInfo()
 			case SL_BONECHAMB:
 				copy_cstr(infostr, "To The Chamber of Bone");
 				break;
-			/*case SL_MAZE:
-				copy_cstr(infostr, "To Maze");
-				break;*/
+			//case SL_MAZE:
+			//	copy_cstr(infostr, "To Maze");
+			//	break;
 			case SL_POISONWATER:
 				copy_cstr(infostr, "To A Dark Passage");
 				break;
-			case SL_VILEBETRAYER:
-				copy_cstr(infostr, "To The Unholy Altar");
-				break;
+			//case SL_VILEBETRAYER:
+			//	copy_cstr(infostr, "To The Unholy Altar");
+			//	break;
 			default:
 				ASSUME_UNREACHABLE
 			}
 			break;
 		case DVL_DWM_TWARPDN:
-			switch (pcurstrig) {
-			case TWARP_CATHEDRAL:
+			switch (trigs[pcurstrig]._ttype) {
+			case WRPT_TOWN_L1:
 				copy_cstr(infostr, "Down to dungeon");
 				break;
-			case TWARP_CATACOMB:
+			case WRPT_TOWN_L2:
 				copy_cstr(infostr, "Down to catacombs");
 				break;
-			case TWARP_CAVES:
+			case WRPT_TOWN_L3:
 				copy_cstr(infostr, "Down to caves");
 				break;
-			case TWARP_HELL:
+			case WRPT_TOWN_L4:
 				copy_cstr(infostr, "Down to hell");
 				break;
 #ifdef HELLFIRE
-			case TWARP_NEST:
+			case WRPT_TOWN_L6:
 				copy_cstr(infostr, "Down to nest");
 				break;
-			case TWARP_CRYPT:
+			case WRPT_TOWN_L5:
 				copy_cstr(infostr, "Down to crypt");
 				break;
 #endif
@@ -1718,18 +1774,26 @@ void DrawInfoStr()
 	}
 }
 
+static bool CheckInChrBtnRect(int i)
+{
+	int sx = (SDL_GetModState() & KMOD_ALT) ? CHRBTN_ALT : CHRBTN_LEFT;
+	return POS_IN_RECT(MousePos.x, MousePos.y,
+			gnWndCharX + sx, gnWndCharY + CHRBTN_TOP(i),
+			CHRBTN_WIDTH, CHRBTN_HEIGHT);
+}
+
 void CheckChrBtnClick()
 {
 	int i;
 
-	if (myplr._pStatPts != 0 && !gbChrbtnactive) {
-		for (i = 0; i < lengthof(ChrBtnsRect); i++) {
-			if (!POS_IN_RECT(MousePos.x, MousePos.y,
-				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
-				ChrBtnsRect[i].w, ChrBtnsRect[i].h))
+	if (myplr._pStatPts != 0) {
+		if (gbChrbtnactive)
+			return; // true;
+		for (i = 0; i < lengthof(gabChrbtn); i++) {
+			if (!CheckInChrBtnRect(i))
 				continue;
 
-			_gabChrbtn[i] = true;
+			gabChrbtn[i] = true;
 			gbChrbtnactive = true;
 			return; // true;
 		}
@@ -1743,31 +1807,15 @@ void ReleaseChrBtn()
 	int i;
 
 	gbChrbtnactive = false;
-	static_assert(lengthof(_gabChrbtn) == lengthof(ChrBtnsRect), "Mismatching _gabChrbtn and ChrBtnsRect tables.");
-	static_assert(lengthof(_gabChrbtn) == 4, "Table _gabChrbtn does not work with ReleaseChrBtns function.");
-	for (i = 0; i < lengthof(_gabChrbtn); ++i) {
-		if (_gabChrbtn[i]) {
-			_gabChrbtn[i] = false;
-			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				gnWndCharX + ChrBtnsRect[i].x, gnWndCharY + ChrBtnsRect[i].y,
-				ChrBtnsRect[i].w, ChrBtnsRect[i].h)) {
-				switch (i) {
-				case 0:
-					NetSendCmd(CMD_ADDSTR);
-					break;
-				case 1:
-					NetSendCmd(CMD_ADDMAG);
-					break;
-				case 2:
-					NetSendCmd(CMD_ADDDEX);
-					break;
-				case 3:
-					NetSendCmd(CMD_ADDVIT);
-					break;
-				default:
-					ASSUME_UNREACHABLE
-					break;
-				}
+	static_assert(lengthof(gabChrbtn) == 4, "Table gabChrbtn does not work with ReleaseChrBtns function.");
+	for (i = 0; i < lengthof(gabChrbtn); ++i) {
+		if (gabChrbtn[i]) {
+			gabChrbtn[i] = false;
+			if (CheckInChrBtnRect(i)) {
+				static_assert((int)CMD_ADDSTR + 1 == (int)CMD_ADDMAG, "ReleaseChrBtn expects ordered CMD_ADD values I.");
+				static_assert((int)CMD_ADDMAG + 1 == (int)CMD_ADDDEX, "ReleaseChrBtn expects ordered CMD_ADD values II.");
+				static_assert((int)CMD_ADDDEX + 1 == (int)CMD_ADDVIT, "ReleaseChrBtn expects ordered CMD_ADD values III.");
+				NetSendCmd(CMD_ADDSTR + i);
 			}
 		}
 	}
@@ -1785,7 +1833,7 @@ void DrawTextBox()
 	y = LTPANEL_Y;
 
 	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
-	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
+	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
 }
 
 /**
@@ -1797,7 +1845,7 @@ void DrawTextBox()
 void DrawSTextBox(int x, int y)
 {
 	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
-	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER);
+	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
 }
 
 /**
@@ -1922,6 +1970,9 @@ void DrawSpellBook()
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
 	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
 
+#if SCREEN_READER_INTEGRATION
+	BYTE prevSkill = currSkill;
+#endif
 	currSkill = SPL_INVALID;
 
 	pnum = mypnum;
@@ -2002,6 +2053,11 @@ void DrawSpellBook()
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
+#if SCREEN_READER_INTEGRATION
+	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+		SpeakText(spelldata[currSkill].sNameText);
+	}
+#endif
 }
 
 void CheckBookClick(bool shift, bool altSkill)
@@ -2284,6 +2340,15 @@ void CheckTeamClick(bool shift)
 					guTeamTab++;
 			}
 		}
+	}
+}
+
+void DrawGolemBar()
+{
+	MonsterStruct* mon = &monsters[mypnum];
+
+	if (mon->_mmode <= MM_INGAME_LAST) {
+		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, LIFE_FLASK_X + LIFE_FLASK_WIDTH / 2 - SCREEN_X, PANEL_Y + PANEL_HEIGHT - 1 - HEALTHBAR_HEIGHT + 2 - SCREEN_Y);
 	}
 }
 

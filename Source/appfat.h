@@ -28,9 +28,7 @@ void app_fatal(const char* pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
  * @param ... Additional parameters for message format
  */
 void app_warn(const char* pszFmt, ...); // DVL_PRINTF_ATTRIBUTE(1, 2);
-#if DEBUG_MODE
-void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr);
-#endif
+//void ErrDlg(const char* title, const char* error, const char* log_file_path, int log_line_nr);
 //void FileErrDlg(const char* error);
 //void InsertCDDlg();
 
@@ -40,6 +38,10 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 	app_fatal(pszFmt, args...);
 }*/
 #define dev_fatal(msg, ...) app_fatal(msg, __VA_ARGS__);
+#else
+#define dev_fatal(msg, ...) ((void)0)
+#endif
+
 #if DEBUG_MODE
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
@@ -51,31 +53,41 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__);        \
 		app_fatal("SDL Error %d: '%s' @ %s:%d", ec, SDL_GetError(), __FILE__, __LINE__); \
 	}
+#define asio_error(ec, msg)                                                        \
+	if (ec == ec) {                                                                \
+		DoLog("ABORT(asio.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("ASIO Error %d: '%s' @ %s:%d", ec, msg, __FILE__, __LINE__);     \
+	}
 #else
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
-		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		DoLog("ABORT(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("App Error %d", ec);                                            \
 	}
 #define sdl_error(ec)                                                             \
 	if (ec == ec) {                                                               \
 		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("SDL Error %d", ec);                                            \
+	}
+#define asio_error(ec, msg)                                               \
+	if (ec == ec) {                                                       \
+		DoLog("ABORT(asio.%d): %s @ %s:%d", ec, msg, __FILE__, __LINE__); \
+		dvl::app_fatal("ASIO Error");                                     \
 	}
 #endif // DEBUG_MODE
-#else
-#define dev_fatal(msg, ...) ((void)0)
-#define app_error(ec)                                                             \
+
+#define app_issue(ec)                                                             \
 	if (ec == ec) {                                                               \
-		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
-		app_fatal("App Error %d", ec);                                            \
+		DoLog("ERROR(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 	}
-#define sdl_error(ec)                                                             \
+#define sdl_issue(ec)                                                             \
 	if (ec == ec) {                                                               \
-		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
-		app_fatal("SDL Error %d", ec);                                            \
+		DoLog("ERROR(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 	}
-#endif // DEBUG_MODE || DEV_MODE
+#define asio_issue(ec, msg)                                                        \
+	if (ec == ec) {                                                                \
+		DoLog("ERROR(asio.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
 
 #ifdef __cplusplus
 }

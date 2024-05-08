@@ -14,6 +14,8 @@
 #define SDLC_KEYSTATE_DOWN       SDL_SCANCODE_DOWN
 #define SDLC_KEYSTATE_LEFT       SDL_SCANCODE_LEFT
 #define SDLC_KEYSTATE_RIGHT      SDL_SCANCODE_RIGHT
+
+#define vkcode                   key.keysym.sym
 #else
 //#define SDLC_KEYSTATE(x) SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_##x)
 #define SDLC_KEYSTATE(x)         SDLK_##x
@@ -27,6 +29,8 @@
 #define SDLC_KEYSTATE_DOWN       SDLK_DOWN
 #define SDLC_KEYSTATE_LEFT       SDLK_LEFT
 #define SDLC_KEYSTATE_RIGHT      SDLK_RIGHT
+
+#define vkcode                   key.keysym.scancode
 #endif
 
 inline const Uint8* SDLC_GetKeyState()

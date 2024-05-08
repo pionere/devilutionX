@@ -4,6 +4,7 @@
  * Implementation of functions for handling the engines color palette.
  */
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -76,7 +77,7 @@ void LoadPalette(const char* pszFileName)
 	palette_create_sdl_colors(orig_palette, PalData);
 }
 
-void LoadRndLvlPal()
+void LoadLvlPalette()
 {
 	int rv;
 	char szFileName[DATA_ARCHIVE_MAX_PATH];
@@ -168,7 +169,7 @@ void PaletteFadeOut()
 	}
 }
 
-void palette_update_caves()
+/*void palette_update_caves()
 {
 	int i;
 	SDL_Color col;
@@ -180,10 +181,10 @@ void palette_update_caves()
 	system_palette[i] = col;
 
 	palette_update();
-}
+}*/
 
 #ifdef HELLFIRE
-static int cryptCycleCounter = 3;
+/*static int cryptCycleCounter = 3;
 void palette_update_crypt()
 {
 	int i;
@@ -208,16 +209,16 @@ void palette_update_crypt()
 	palette_update();
 }
 
-static int hiveCycleCounter = 3;
-void palette_update_hive()
+/*static int nestCycleCounter = 3;
+void palette_update_nest()
 {
 	int i;
 	SDL_Color col;
 
-	if (--hiveCycleCounter != 0) {
+	if (--nestCycleCounter != 0) {
 		return;
 	}
-	hiveCycleCounter = 3;
+	nestCycleCounter = 3;
 
 	col = system_palette[8];
 	for (i = 8; i > 1; i--) {
@@ -232,7 +233,7 @@ void palette_update_hive()
 	system_palette[i] = col;
 
 	palette_update();
-}
+}*/
 #endif
 
 void palette_update_quest_palette(int n)

@@ -25,83 +25,13 @@ static void mainmenu_refresh_music()
 			menu_music_track_id = TMUSIC_TOWN;
 	} while (menu_music_track_id == TMUSIC_TOWN || menu_music_track_id == TMUSIC_L1);
 }
-#if GAME
-static bool mainmenu_init_menu(bool bSinglePlayer)
-{
-	bool success;
-
-	music_stop();
-
-	success = StartGame(bSinglePlayer);
-	if (success)
-		mainmenu_refresh_music();
-
-	return success;
-}
-
-static bool mainmenu_single_player()
-{
-	if (getIniInt("Diablo", "Game Speed", &gnTicksRate)) {
-		if (gnTicksRate < SPEED_NORMAL)
-			gnTicksRate = SPEED_NORMAL;
-		else if (gnTicksRate > SPEED_FASTEST)
-			gnTicksRate = SPEED_FASTEST;
-	}
-
-	return mainmenu_init_menu(true);
-}
-
-static bool mainmenu_multi_player()
-{
-	return mainmenu_init_menu(false);
-}
-
-static int mainmenu_play_intro()
-{
-	int result = MPR_DONE;
-#ifndef HOSTONLY
-	// music_stop(); -- no need to stop/start music, play_movie takes care about it
-	PaletteFadeOut();
-	result = play_movie(INTRO_ARCHIVE, MOV_SKIP);
-	// PaletteFadeIn(false); -- no need, the mainmenu is going to fade in
-	// mainmenu_refresh_music();
-#endif
-	return result;
-}
-#else
-
-void LogErrorF(const char* type, const char* msg, ...)
-{
-	char tmp[256];
-	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
-	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", 0);
-	FILE* f0 = fopen(tmp, "a+");
-	if (f0 == NULL)
-		return;
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
-
-#endif // GAME
 
 void mainmenu_loop()
 {
 	mainmenu_refresh_music();
 
 	while (TRUE) {
-		switch (UiMainMenuDialog(PlaySFX)) {
+		switch (UiMainMenuDialog()) {
 		case 0:
 			UiPatcherDialog();
 			continue;

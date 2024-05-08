@@ -63,7 +63,7 @@ void DrawPixelSafe(int sx, int sy, BYTE col)
 #endif
 
 /**
- * @brief Draw a line on the back buffer
+ * @brief Draw a line on the back buffer from [x0; y0] to [x1; y1] inclusive on both ends
  * @param x0 Back buffer coordinate
  * @param y0 Back buffer coordinate
  * @param x1 Back buffer coordinate
@@ -101,6 +101,8 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		//dy *= 2;
 		d = 0;
 		// draw to the final position as well
+		dx++;
+		dy++;
 		x1++;
 		// initialize the buffer-pointer
 		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
@@ -139,6 +141,8 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		//dx *= 2;
 		d = 0;
 		// draw to the final position as well
+		dx++;
+		dy++;
 		y1++;
 		// initialize the buffer-pointer
 		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
@@ -159,12 +163,12 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 
 /**
  * @brief Draw a half-transparent, black rectangle using stippled-transparency
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @param sx left side of the rectangle (back buffer coordinate)
+ * @param sy top of the rectangle (back buffer coordinate)
  * @param width Rectangle width
  * @param height Rectangle height
  */
-void DrawRectTrans(int sx, int sy, int width, int height)
+/*void DrawRectTrans(int sx, int sy, int width, int height)
 {
 	int row, col;
 	BYTE* pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
@@ -189,6 +193,26 @@ void DrawRectTrans(int sx, int sy, int width, int height)
 			pix++;
 		}
 		pix += BUFFER_WIDTH - width;
+	}
+}*/
+/**
+ * @brief Draw a half-transparent, black rectangle using stippled-transparency
+ * @param sx left side of the rectangle (back buffer coordinate)
+ * @param sy top of the rectangle (back buffer coordinate)
+ * @param width Rectangle width
+ * @param height Rectangle height
+ * @param color the color of the rectangle
+ */
+void DrawRectTrans(int sx, int sy, int width, int height, BYTE color)
+{
+	int y, x;
+	BYTE* pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+
+	for (y = 0; y < height; y++) {
+		for (x = width; x > 0; x -= 2, pix += 2) {
+			*pix = color;
+		}
+		pix += BUFFER_WIDTH - (width - x + ((y & 1) ? -1 : 1));
 	}
 }
 

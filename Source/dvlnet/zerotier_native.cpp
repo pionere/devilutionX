@@ -1,16 +1,5 @@
 #include "zerotier_native.h"
 #ifdef ZEROTIER
-#include <SDL.h>
-#include <atomic>
-
-#ifdef USE_SDL1
-#include "utils/sdl2_to_1_2_backports.h"
-#else
-#include "utils/sdl2_backports.h"
-#endif
-
-#include <ZeroTierSockets.h>
-#include <cstdlib>
 
 #include "utils/log.h"
 #include "utils/paths.h"
@@ -23,45 +12,92 @@ namespace net {
 //static constexpr uint64_t zt_earth = 0x8056c2e21c000001;
 static constexpr uint64_t ZtNetwork = 0xaf78bf943649eb12;
 
-static std::atomic_bool zt_network_ready(false);
-static std::atomic_bool zt_node_online(false);
-static std::atomic_bool zt_joined(false);
+typedef enum zerotier_status : uint8_t {
+	ZT_READY,
+	ZT_CONNECT,
+	ZT_DOWN,
+} zerotier_status;
+static zerotier_status zt_status = ZT_DOWN;
 
-static void Callback(void* ptr)
+static void zerotier_event_handler(void* ptr)
 {
 	zts_event_msg_t* msg = reinterpret_cast<zts_event_msg_t*>(ptr);
-	// printf("callback %d\n", msg->event_code);
-	if (msg->event_code == ZTS_EVENT_NODE_ONLINE) {
-		DoLog("ZeroTier: ZTS_EVENT_NODE_ONLINE, nodeId=%llx\n", (unsigned long long)msg->node->node_id);
-		zt_node_online = true;
-		if (!zt_joined) {
-			zts_net_join(ZtNetwork);
-			zt_joined = true;
-		}
-	} else if (msg->event_code == ZTS_EVENT_NODE_OFFLINE) {
-		DoLog("ZeroTier: ZTS_EVENT_NODE_OFFLINE\n");
-		zt_node_online = false;
-	} else if (msg->event_code == ZTS_EVENT_NETWORK_READY_IP6) {
-		DoLog("ZeroTier: ZTS_EVENT_NETWORK_READY_IP6, networkId=%llx\n", (unsigned long long)msg->network->net_id);
-		zt_ip6setup();
-		zt_network_ready = true;
-	} else if (msg->event_code == ZTS_EVENT_ADDR_ADDED_IP6) {
-		print_ip6_addr(&(msg->addr->addr));
+	switch (msg->event_code) {
+	case ZTS_EVENT_NODE_ONLINE:
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_ONLINE");
+		// zt_status = ZT_READY; -- don't change, zt-nodes are coming and going...
+		break;
+	case ZTS_EVENT_NODE_OFFLINE:
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_OFFLINE");
+		// zt_status = ZT_DOWN; -- don't change, they are just joking...
+		break;
+	case ZTS_EVENT_NODE_DOWN:
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_DOWN");
+		zt_status = ZT_DOWN;
+		break;
+	case ZTS_EVENT_NETWORK_READY_IP6:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_READY_IP6, networkId=%llx", (unsigned long long)msg->network->net_id);
+		// print_ip6_addr(&msg->network->assigned_addrs[0]);
+		multicast_join();
+		zt_status = ZT_READY;
+		break;
+	case ZTS_EVENT_NETWORK_ACCESS_DENIED:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_ACCESS_DENIED"); -- TODO: what now?
+		break;
+	case ZTS_EVENT_NETWORK_CLIENT_TOO_OLD:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_CLIENT_TOO_OLD"); -- TODO: what now?
+		break;
+	case ZTS_EVENT_NETWORK_DOWN:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_DOWN");
+		zt_status = ZT_DOWN;
+		break;
+	case ZTS_EVENT_NETWORK_NOT_FOUND:
+		// DoLog("ZeroTier: ZTS_EVENT_NETWORK_NOT_FOUND"); -- TODO: what now?
+		break;
+	case ZTS_EVENT_NODE_UP:
+		// DoLog("ZeroTier: ZTS_EVENT_NODE_UP");
+		zts_net_join(ZtNetwork);
+		break;
 	}
 }
 
 bool zerotier_network_ready()
 {
-	return zt_network_ready && zt_node_online;
+	// return zts_addr_is_assigned(ZtNetwork, ZTS_AF_INET);
+	return zt_status == ZT_READY;
 }
 
 void zerotier_network_start()
 {
-	std::string ztpath = GetConfigPath();
-	ztpath += "zerotier";
-	zts_init_from_storage(ztpath.c_str());
-	zts_init_set_event_handler(&Callback);
-	zts_node_start();
+	if (zt_status == ZT_DOWN) {
+		zt_status = ZT_CONNECT;
+		std::string ztpath = GetPrefPath();
+		ztpath += "zerotier";
+		zts_init_from_storage(ztpath.c_str());
+		zts_init_allow_id_cache(0);
+		// zts_init_allow_net_cache(0);
+		zts_init_set_event_handler(&zerotier_event_handler);
+		zts_node_start();
+	}
+}
+
+void zerotier_network_stop()
+{
+	// zt is not designed to be stopped...
+	/*if (zt_status < ZT_CONNECT) {
+		zt_status = ZT_CONNECT;
+		multicast_leave();
+		zts_net_leave(ZtNetwork);
+	}
+	// if (zt_status != ZT_DOWN)
+	zts_node_stop();
+	// zts_free();
+	// zts_node_free();*/
+}
+
+bool zerotier_current_addr(zts_sockaddr_storage* addr)
+{
+	return zts_addr_get(ZtNetwork, ZTS_AF_INET6, addr) == ZTS_ERR_OK;
 }
 
 } // namespace net

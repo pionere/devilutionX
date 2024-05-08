@@ -3,6 +3,8 @@
 #include <switch.h>
 #include <SDL.h>
 
+#include "utils/display.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 
 static int currently_docked = -1; // keep track of docked or handheld mode
