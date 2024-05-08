@@ -818,7 +818,7 @@ static SDL_bool _Eff_position_s16lsb(void* stream, unsigned len, void* udata)
     return SDL_TRUE;
 }
 #ifdef SDL_SSE2_INTRINSICS
-static SDL_bool _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
+static SDL_bool SDL_TARGETING("sse2") _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -907,7 +907,7 @@ static SDL_bool _Eff_volume_s16lbs(void* stream, unsigned len, void* udata)
     return SDL_TRUE;
 }
 #ifdef SDL_SSE2_INTRINSICS
-static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
+static SDL_bool SDL_TARGETING("sse2") _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;

@@ -274,7 +274,7 @@ static void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
     }
 }
 #ifdef SDL_SSE2_INTRINSICS
-static void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
+static void SDL_TARGETING("sse2") Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
 {
     const Sint16* srcPos = (const Sint16*)src;
     Sint16* currPos = (Sint16*)dst;
@@ -353,7 +353,7 @@ static void SDL_TARGETING("avx2") Mix_Converter_AUDIO16_Mono2Stereo_AVX2(Mix_Buf
 }
 #endif // SDL_AVX2_INTRINSICS
 #ifdef SDL_SSE2_INTRINSICS
-static void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
     Sint16* currPos = (Sint16*)buf->currPos;
@@ -381,7 +381,7 @@ static void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
         *dstPos = *srcPos;
     }
 }
-#endif // _SSE2_
+#endif // SDL_SSE2_INTRINSICS
 static void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
@@ -400,7 +400,7 @@ static void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
 }
 
 #ifdef SDL_SSE2_INTRINSICS
-static void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->currPos;
     Uint8* dstPos = srcPos;
@@ -449,7 +449,7 @@ static void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
 }
 
 #ifdef SDL_SSE2_INTRINSICS
-static void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->currPos;
     Sint16* dstPos = srcPos;
@@ -535,7 +535,7 @@ static void SDL_TARGETING("avx2") Mix_Converter_U8_S16LSB_AVX2(Mix_BuffOps* buf)
 }
 #endif // SDL_AVX2_INTRINSICS
 #ifdef SDL_SSE2_INTRINSICS
-static void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
+static void SDL_TARGETING("sse2") Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
     Uint8* currPos = (Uint8*)buf->currPos;
