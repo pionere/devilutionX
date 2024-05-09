@@ -1158,6 +1158,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	if (s->mode == SMK_MODE_MEMORY) {
 		smk_malloc(s->source.chunk_data, (s->f + s->ring_frame) * sizeof(unsigned char *));
 #else
+	{
 		smk_malloc(s->source.chunk_data, s->total_frames * sizeof(unsigned char *));
 #endif
 
@@ -1186,8 +1187,8 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 				goto error;
 			}
 		}
-	}
 #endif
+	}
 
 	return s;
 #if DEBUG_MODE
