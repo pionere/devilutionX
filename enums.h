@@ -382,7 +382,7 @@ typedef enum item_effect_type {
 	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
-	IPL_INVCURS,
+	//IPL_INVCURS,
 	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
@@ -527,7 +527,8 @@ typedef enum item_cursor_graphic {
 	ICURS_CLUB                        = 66,
 	ICURS_SABRE                       = 67,
 	ICURS_FALCON_GRYPHON              = 68,
-	ICURS_SPIKED_CLUB                 = 70,
+	ICURS_GNARLROOT                   = 70,
+	ICURS_SPIKED_CLUB                 = 71,
 	ICURS_SCIMITAR                    = 72,
 	ICURS_POIGNARD                    = 73,
 	ICURS_FULL_HELM                   = 75,
@@ -561,7 +562,7 @@ typedef enum item_cursor_graphic {
 	ICURS_STONECLEAVER                = 104,
 	ICURS_SMALL_SHIELD                = 105,
 	ICURS_CLEAVER                     = 106,
-	ICURS_STUDDED_LEATHER_ARMOR       = 107,
+	ICURS_STUD_LEATH_ARMOR            = 107,
 	ICURS_BATTLE_BOW                  = 108,
 	ICURS_SHORT_STAFF                 = 109,
 	ICURS_TWO_HANDED_SWORD            = 110,
@@ -2141,6 +2142,17 @@ typedef enum missile_collision_mode {
 	MICM_BLOCK_WALL,
 } missile_collision_mode;
 
+typedef enum missile_resistance {
+	MISR_NONE,
+	MISR_SLASH,
+	MISR_BLUNT,
+	MISR_PUNCTURE,
+	MISR_FIRE,
+	MISR_LIGHTNING,
+	MISR_MAGIC,
+	MISR_ACID,
+} missile_resistance;
+
 typedef enum _monster_ai {
 	AI_ZOMBIE,
 	AI_FAT,
@@ -2449,7 +2461,7 @@ typedef enum _monster_goal {
 	MGOAL_RETREAT,
 	MGOAL_HEALING,
 	MGOAL_MOVE,
-	MGOAL_ATTACK2,
+	MGOAL_ATTACK,
 	MGOAL_TALKING,
 } _monster_goal;
 
@@ -2500,17 +2512,6 @@ typedef enum _monster_resistance {
 	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } _monster_resistance;
-
-typedef enum missile_resistance {
-	MISR_NONE,
-	MISR_SLASH,
-	MISR_BLUNT,
-	MISR_PUNCTURE,
-	MISR_FIRE,
-	MISR_LIGHTNING,
-	MISR_MAGIC,
-	MISR_ACID,
-} missile_resistance;
 
 typedef enum _speech_id {
 	TEXT_KING1,
@@ -3524,6 +3525,9 @@ typedef enum theme_id {
 typedef enum event_type {
 	EVENT_TYPE_JOIN_ACCEPTED,
 	EVENT_TYPE_PLAYER_LEAVE_GAME,
+#ifdef ZEROTIER
+	EVENT_TYPE_PLAYER_INFO,
+#endif
 	NUM_EVT_TYPES,
 } event_type;
 
@@ -3531,7 +3535,7 @@ typedef enum player_status {
 	PCS_CONNECTED    = 0x01, // was 0x10000 - player sent a packet recently 
 	PCS_TURN_ARRIVED = 0x02, // was 0x20000 - the next turn of the player has arrived
 	PCS_ACTIVE       = 0x04, // was 0x40000 - a future turn (next or later) of the player has arrived
-	PCS_JOINED       = 0x08, //             - the player just joined (sent an initial turn)
+	PCS_DESYNC       = 0x08, //             - the player is not in sync
 } player_status;
 
 typedef enum turn_status {
@@ -3693,7 +3697,7 @@ typedef enum _target_mode {
 	TGT_NORMAL,
 	TGT_ITEM,
 	TGT_OBJECT,
-	TGT_PLAYER,
+	TGT_OTHER,
 	TGT_DEAD,
 	TGT_NONE
 } _target_mode;
@@ -3739,11 +3743,11 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
-	ENTRY_LOAD,
-	ENTRY_WARPLVL,
+	ENTRY_PORTLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
 	ENTRY_RETOWN,
+	ENTRY_LOAD,
 } lvl_entry;
 
 /*typedef enum game_info {
@@ -3827,7 +3831,6 @@ typedef enum spell_id {
 } spell_id;
 
 typedef enum _msg_id {
-	NMSG_SEND_GAME_DELTA,
 	NMSG_PLRINFO,
 	NMSG_DLEVEL_DATA,
 	NMSG_DLEVEL_JUNK,
@@ -3887,10 +3890,11 @@ typedef enum _cmd_id {
 	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,
-	CMD_TWARP,
+	CMD_USEPORTAL,
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
 	CMD_DISCONNECT,
+	CMD_REQDELTA,
 	CMD_INVITE,
 	CMD_ACK_INVITE,
 	CMD_DEC_INVITE,
@@ -3994,15 +3998,15 @@ typedef enum _mainmenu_selections {
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {
-	SELHERO_NONE        = 0,
-	SELHERO_NEW_DUNGEON = 1,
-	SELHERO_CONTINUE    = 2,
-	SELHERO_PREVIOUS    = 3
+	SELHERO_NONE,
+	SELHERO_CONTINUE,
+	SELHERO_PREVIOUS
 } _selhero_selections;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,
 	SELGAME_JOIN,
+	SELGAME_LOAD,
 	SELGAME_PREVIOUS
 } _selgame_selections;
 
@@ -4658,11 +4662,9 @@ typedef enum input_key {
 
 typedef enum application_error {
 	ERR_APP_FRAME_BUFSIZE,
-	ERR_APP_LOOPBACK_JOIN,
 	ERR_APP_LOOPBACK_SENDMSG,
 	ERR_APP_LOOPBACK_QUEUE_SIZE,
 	ERR_APP_LOOPBACK_POLLTURN,
-	ERR_APP_LOOPBACK_LASTTURN,
 	ERR_APP_LOOPBACK_DROPPLR,
 	ERR_APP_LOOPBACK_TRANSIT,
 	ERR_APP_PACKET_ENCRYPT,

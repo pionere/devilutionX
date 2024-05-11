@@ -535,7 +535,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_BANNER]._qlog = FALSE;
 		quests[Q_BANNER]._qvar1 = QV_BANNER_GIVEN;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN, ICM_SEND_FLIP);
 		break;
 	case IDI_ROCK:
 		if (quests[Q_ROCK]._qactive != QUEST_ACTIVE)
@@ -543,7 +543,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_ROCK]._qactive = QUEST_DONE;
 		//quests[Q_ROCK]._qlog = FALSE;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_INFRARING, TPOS_SMITH, ICM_SEND_FLIP);
 		break;
 	case IDI_ANVIL:
 		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
@@ -551,7 +551,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_ANVIL]._qactive = QUEST_DONE;
 		//quests[Q_ANVIL]._qlog = FALSE;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH, ICM_SEND_FLIP);
 		break;
 	case IDI_FUNGALTM:
 		if (quests[Q_MUSHROOM]._qactive != QUEST_INIT)
@@ -567,12 +567,12 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 		break;
 	case IDI_BRAIN:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_BRAINGIVEN)
 			return;
 		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 		if (pnum == mypnum)
-			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER + 1, ICM_SEND_FLIP);
+			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER, ICM_SEND_FLIP);
 		break;
 	case IDI_LAZSTAFF:
 		if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
@@ -672,7 +672,7 @@ void TalkToTowner(int tnum)
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
 		 && quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_TRING, TPOS_HEALER, ICM_SEND_FLIP);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE

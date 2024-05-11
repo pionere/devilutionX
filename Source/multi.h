@@ -12,19 +12,19 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern const char* szGameName;
-extern const char* szGamePassword;
 extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
+extern bool gbLoadGame;
+extern bool gbJoinGame;
 extern BYTE gbGameMode;
-extern uint32_t guDeltaTurn;
+extern turn_t guDeltaTurn;
 extern unsigned guSendGameDelta;
 extern unsigned guSendLevelData;
 extern unsigned guOweLevelDelta;
-extern uint32_t guRequestLevelData[MAX_PLRS];
-extern uint32_t gdwLastGameTurn;
-extern uint32_t gdwGameLogicTurn;
+extern turn_t guRequestLevelData[MAX_PLRS];
+extern turn_t gdwLastGameTurn;
+extern turn_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 
 void NetSendChunk(const BYTE* pbMsg, BYTE bLen);

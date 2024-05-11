@@ -160,7 +160,7 @@ cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NO
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
 cmake_dependent_option(NETENCRYPT "Encrypt network messages" ON "NOT NONET" OFF)
 cmake_dependent_option(TCPIP "Build with tcp/ip support" ON "NOT NONET" OFF)
-cmake_dependent_option(ZEROTIER "Build with zerotier support" OFF "NOT NONET" OFF)
+cmake_dependent_option(ZEROTIER "Build with zerotier support" ON "NOT NONET AND NOT HOSTONLY" OFF)
 cmake_dependent_option(NOHOSTING "Disable support for host-only games" ON "TCPIP" ON)
 cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "TCPIP AND NOT NOHOSTING" OFF)
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
@@ -406,7 +406,8 @@ add_library(StormLib STATIC
 
 add_library(PKWare STATIC
   3rdParty/PKWare/explode.cpp
-  3rdParty/PKWare/implode.cpp)
+  3rdParty/PKWare/implode.cpp
+  3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
 set(devilutionx_SRCS
@@ -507,11 +508,18 @@ set(devilutionx_SRCS
   Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
-  Source/dvlnet/base.cpp
-  Source/dvlnet/cdwrap.cpp
+  Source/dvlnet/base_client.cpp
   Source/dvlnet/frame_queue.cpp
   Source/dvlnet/loopback.cpp
   Source/dvlnet/packet.cpp
+  Source/dvlnet/protocol_zt.cpp
+  Source/dvlnet/tcp_client.cpp
+  Source/dvlnet/tcp_server.cpp
+  Source/dvlnet/tcpd_client.cpp
+  Source/dvlnet/tcp_host.cpp
+  Source/dvlnet/zerotier_native.cpp
+  Source/dvlnet/zerotier_lwip.cpp
+  Source/dvlnet/zt_client.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
@@ -529,17 +537,6 @@ set(devilutionx_SRCS
   Source/utils/soundsample.cpp
   Source/utils/thread.cpp
   Source/utils/utf8.cpp)
-
-if(NOT NONET)
-  list(APPEND devilutionx_SRCS
-    Source/dvlnet/tcp_client.cpp
-    Source/dvlnet/tcp_server.cpp
-    Source/dvlnet/tcpd_client.cpp
-    Source/dvlnet/tcp_host.cpp
-    Source/dvlnet/protocol_zt.cpp
-    Source/dvlnet/zerotier_native.cpp
-    Source/dvlnet/zerotier_lwip.cpp)
-endif()
 
 if(IOS)
   list(APPEND devilutionx_SRCS Source/platform/ios/ios_paths.m)
@@ -628,15 +625,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(CMAKE_STRIP AND NOT DISABLE_STRIP)
-  add_custom_command(
-    TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
-    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
-    ARGS $<TARGET_FILE:${BIN_TARGET}>)
-endif()
-
-if(USE_PATCH)
+if(USE_PATCH AND NOT ANDROID)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -692,8 +681,7 @@ if(USE_PATCH)
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
-    tools/patcher/utils/soundsample.cpp
-    tools/patcher/utils/thread.cpp)
+    tools/patcher/utils/soundsample.cpp)
 
   if(IOS)
     list(APPEND devil_patcher_SRCS tools/patcher/platform/ios/ios_paths.m)
@@ -701,15 +689,15 @@ if(USE_PATCH)
 
   if(NINTENDO_SWITCH)
     list(APPEND devil_patcher_SRCS
-      Source/platform/switch/docking.cpp
-      Source/platform/switch/romfs.cpp)
+      tools/patcher/platform/switch/docking.cpp
+      tools/patcher/platform/switch/romfs.cpp)
   endif()
 
   if(NINTENDO_3DS)
     list(APPEND devil_patcher_SRCS
-      Source/platform/ctr/system.cpp
-      Source/platform/ctr/display.cpp
-      Source/platform/ctr/messagebox.cpp)
+      tools/patcher/platform/ctr/system.cpp
+      tools/patcher/platform/ctr/display.cpp
+      tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
   set(PATCHER_SOURCES ${devil_patcher_SRCS})
@@ -757,13 +745,29 @@ if(USE_PATCH)
     ${CMAKE_BINARY_DIR})
 endif()
 
+if(CMAKE_STRIP AND NOT DISABLE_STRIP)
+  add_custom_command(
+    TARGET ${BIN_TARGET} POST_BUILD
+    DEPENDS ${BIN_TARGET}
+    COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
+    ARGS $<TARGET_FILE:${BIN_TARGET}>)
+
+  if(DEVIL_PATCHER)
+    add_custom_command(
+      TARGET ${DEVIL_PATCHER} POST_BUILD
+      DEPENDS ${DEVIL_PATCHER}
+      COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
+      ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
+  endif()
+endif()
+
 # Use file GENERATE instead of configure_file because configure_file
 # does not support generator expressions.
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(is_multi_config)
   set(CONFIG_PATH $<CONFIG>/config.h)
   target_include_directories(${BIN_TARGET} PRIVATE ${CMAKE_BINARY_DIR}/$<CONFIG>)
-  if(USE_PATCH)
+  if(DEVIL_PATCHER)
     target_include_directories(${DEVIL_PATCHER} PRIVATE ${CMAKE_BINARY_DIR}/$<CONFIG>)
   endif()
 else()
@@ -827,11 +831,7 @@ if(TCPIP)
   target_link_libraries(${BIN_TARGET} PRIVATE asio)
 endif()
 if(ZEROTIER)
-  if(NOT ANDROID)
-    target_link_libraries(${BIN_TARGET} PRIVATE zt-static)
-  else()
-    target_link_libraries(${BIN_TARGET} PRIVATE zt-shared)
-  endif()
+  target_link_libraries(${BIN_TARGET} PRIVATE zt)
 endif()
 
 # Defines without value
@@ -941,7 +941,7 @@ endforeach(def_name)
 
 target_compile_definitions(${BIN_TARGET} PRIVATE ${def_list})
 target_compile_definitions(smacker PRIVATE ${def_list})
-if(USE_PATCH)
+if(DEVIL_PATCHER)
   target_compile_definitions(${DEVIL_PATCHER} PRIVATE ${def_list})
 endif()
 
@@ -1008,19 +1008,14 @@ endif()
 if(VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
-        SceNet_stub
-        SceNetCtl_stub
-        freetype
-        png
-        m
-        z
-        FLAC
-        vorbisfile
-        vorbis
-        ogg
-        mikmod
-        mpg123
+        SceAppUtil_stub
   )
+  if(NOT NONET)
+    target_link_libraries(${BIN_TARGET} PRIVATE
+          SceNet_stub
+          SceNetCtl_stub
+    )
+  endif()
   #target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
 endif()
 
@@ -1029,6 +1024,9 @@ if(NINTENDO_3DS)
   #target_include_directories(${BIN_TARGET} PRIVATE ${TREMOR_INCLUDE_DIRS})
   #target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::citro3d 3ds::ctrulib)
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE 3ds::citro3d 3ds::ctrulib)
+  endif()
 endif()
 
 if(GPERF)
@@ -1037,6 +1035,9 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND NOT GPERF AND NOT HAIKU AND NOT VITA)
   target_link_libraries(${BIN_TARGET} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PUBLIC "$<$<NOT:$<CONFIG:Debug>>:-static-libgcc;-static-libstdc++>")
+  endif()
 endif()
 
 if(WIN32)
@@ -1063,8 +1064,15 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
       OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8))
     target_compile_options(${BIN_TARGET} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
+    if(DEVIL_PATCHER)
+      target_compile_options(${DEVIL_PATCHER} PUBLIC "-fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
+    endif()
   else()
     get_target_property(devilutionx_SRCS ${BIN_TARGET} SOURCES)
+    if(DEVIL_PATCHER)
+      get_target_property(devil_patcher_SRCS ${DEVIL_PATCHER} SOURCES)
+      list(APPEND devilutionx_SRCS ${devil_patcher_SRCS})
+    endif()
     foreach(SOURCE_FILE ${devilutionx_SRCS})
       set_source_files_properties(${SOURCE_FILE} PROPERTIES
         COMPILE_DEFINITIONS __FILE__="${SOURCE_FILE}"
@@ -1134,12 +1142,29 @@ if(APPLE)
 
   install (TARGETS ${BIN_TARGET} DESTINATION ./)
 
+  if(DEVIL_PATCHER)
+    set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_ICON_FILE "AppIcon.icns")
+    set_target_properties(${DEVIL_PATCHER} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Packaging/apple/Info.plist")
+
+    install (TARGETS ${DEVIL_PATCHER} DESTINATION ./)
+  endif()
+
   if(MACOSX_STANDALONE_APP_BUNDLE)
-      install(CODE "
-        include(BundleUtilities)
-        fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
-        "
-        COMPONENT Runtime)
+    set(BUNDLE_FIXUP_CODE "
+      include(BundleUtilities)
+      fixup_bundle(\"${CMAKE_BINARY_DIR}/${BIN_TARGET}.app\" \"\" \"\")
+      ")
+    if(DEVIL_PATCHER)
+      set(BUNDLE_FIXUP_CODE "${BUNDLE_FIXUP_CODE}fixup_bundle(\"${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.app\" \"\" \"\")
+      ")
+    endif()
+    install(CODE ${BUNDLE_FIXUP_CODE} COMPONENT Runtime)
+
+    #install(CODE "
+    #  include(BundleUtilities)
+    #  fixup_bundle(${CMAKE_BINARY_DIR}/${MACOSX_BUNDLE_BUNDLE_NAME}.app \"\" \"\")
+    #  "
+    #  COMPONENT Runtime)
   endif()
 
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "Version ${PROJECT_VERSION}")
@@ -1330,7 +1355,9 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "."
     )
-    if(USE_PATCH)
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "."
       )
@@ -1429,7 +1456,9 @@ if(CPACK)
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
       DESTINATION "share/diasurgical/${project_name}"
     )
-    if(USE_PATCH)
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION bin)
+
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
         DESTINATION "share/diasurgical/${project_name}"
       )
@@ -1473,9 +1502,14 @@ if(CPACK)
   elseif(APPLE)
     set(CPACK_PACKAGE_NAME ${project_name})
     set(CPACK_PACKAGE_FILE_NAME ${project_name})
-    set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
+    #set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK "ON")
     set(CPACK_STRIP_FILES TRUE)
-    set(CPACK_GENERATOR "DragNDrop")
+    #set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_GENERATOR "Bundle")
+    set(CPACK_BUNDLE_NAME ${project_name})
+    set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
+    set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
+    set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})

@@ -11,6 +11,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
 
+/** The pseudo random seeds to generate the levels. */
+uint32_t glSeedTbl[NUM_LEVELS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -189,6 +191,10 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_QM_BUTCHER;
 		qn = Q_BUTCHER;
+		break;
+	case UMT_DIABLO:
+		quests[Q_DIABLO]._qactive = QUEST_DONE;
+		qn = Q_DIABLO;
 		break;
 #ifdef HELLFIRE
 	case UMT_NAKRUL:

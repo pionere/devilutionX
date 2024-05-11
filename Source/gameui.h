@@ -73,8 +73,11 @@ extern "C" {
 
 #define MENUBTN_WIDTH  71
 #define MENUBTN_HEIGHT 19
-#define CHRBTN_WIDTH   41
-#define CHRBTN_HEIGHT  22
+#define CHRBTN_WIDTH   40
+#define CHRBTN_HEIGHT  21
+#define CHRBTN_LEFT    132
+#define CHRBTN_ALT     85
+#define CHRBTN_TOP(x) (104 + (CHRBTN_HEIGHT + 7) * x)
 #if ASSET_MPL == 1
 #define SPLICON_WIDTH  37
 #define SPLICON_HEIGHT 38
@@ -148,7 +151,7 @@ extern "C" {
 #define BELT_WIDTH       60
 #define BELT_HEIGHT      118
 #define BELT_LEFT        PANEL_LEFT
-#define BELT_TOP         (PANEL_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
+#define BELT_TOP         (PANEL_BOTTOM - (MENUBTN_HEIGHT + BELT_HEIGHT))
 
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261

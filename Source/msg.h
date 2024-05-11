@@ -103,8 +103,6 @@ void SendStoreCmd2(BYTE bStoreId);
  */
 void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
 void NetSendCmdString(unsigned int pmask);
-void delta_open_portal(int i, BYTE x, BYTE y, BYTE bLevel);
-void delta_close_portal(int i);
 unsigned ParseMsg(int pnum, TCmd* pCmd);
 unsigned ParseCmd(int pnum, TCmd* pCmd);
 

@@ -120,7 +120,7 @@ void pfile_write_hero(bool bFree)
 	}
 }
 
-static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsigned saveIdx, bool bHasSaveFile)
+static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsigned saveIdx)
 {
 	memset(heroinfo->hiName, 0, sizeof(heroinfo->hiName));
 	SStrCopy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
@@ -132,7 +132,6 @@ static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsi
 	heroinfo->hiMagic = p->_pMagic;
 	heroinfo->hiDexterity = p->_pDexterity;
 	heroinfo->hiVitality = p->_pVitality;
-	heroinfo->hiHasSaved = bHasSaveFile;
 }
 
 static bool ValidPlayerName(const char* name)
@@ -166,7 +165,7 @@ static bool ValidPlayerName(const char* name)
 		return false;
 
 	SStrCopy(players[i]._pName, name_2, PLR_NAME_LEN);
-	pfile_player2hero(&players[0], &uihero, mySaveIdx, gbValidSaveFile);
+	pfile_player2hero(&players[0], &uihero, mySaveIdx);
 	pfile_write_hero();
 	return true;
 }*/
@@ -190,7 +189,7 @@ void pfile_ui_load_hero_infos(std::vector<_uiheroinfo> &hero_infos)
 			if (pfile_read_hero(archive, &pkplr)) {
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
-				pfile_player2hero(&players[0], &uihero, i, pfile_archive_contains_game(archive));
+				pfile_player2hero(&players[0], &uihero, i);
 				hero_infos.push_back(uihero);
 			}
 			SFileCloseArchive(archive);
@@ -229,7 +228,7 @@ int pfile_ui_create_save(_uiheroinfo* heroinfo)
 	//mpqapi_remove_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	pfile_encode_hero(0);
-	//pfile_player2hero(&players[0], heroinfo, save_num, false);
+	//pfile_player2hero(&players[0], heroinfo, save_num);
 	pfile_flush(true);
 	return NEWHERO_DONE;
 }
@@ -239,11 +238,8 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[DATA_ARCHIVE_MAX_
 	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
-	if (dwIndex < NUM_STDLVLS)
-		fmt = "perml%02d";
-	else if (dwIndex < NUM_LEVELS) {
-		dwIndex -= NUM_STDLVLS;
-		fmt = "perms%02d";
+	if (dwIndex < NUM_LEVELS) {
+		fmt = "plvl%02d";
 	} else
 		return false;
 
@@ -256,11 +252,8 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_
 	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
-	if (dwIndex < NUM_STDLVLS)
-		fmt = "templ%02d";
-	else if (dwIndex < NUM_LEVELS) {
-		dwIndex -= NUM_STDLVLS;
-		fmt = "temps%02d";
+	if (dwIndex < NUM_LEVELS) {
+		fmt = "tlvl%02d";
 	} else
 		return false;
 
