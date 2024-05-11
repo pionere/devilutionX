@@ -353,6 +353,9 @@ if(TCPIP)
     # Missing headers and declarations provided by DevilutionX
     target_include_directories(asio BEFORE INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Source/platform/switch/asio/include)
   endif()
+  if(TARGET_PLATFORM STREQUAL "windows9x")
+    target_compile_definitions(asio INTERFACE ASIO_ENABLE_CANCELIO)
+  endif()
 endif()
 
 if(ZEROTIER)
