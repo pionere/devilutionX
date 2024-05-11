@@ -115,7 +115,9 @@ typedef enum filenames {
 	FILE_NEST_MIN,
 #endif
 	FILE_NEST_TIL,
+#if ASSET_MPL == 1
 	FILE_L5LIGHT_CEL,
+#endif
 	FILE_OBJCURS_CEL,
 #endif
 	NUM_FILENAMES
@@ -217,7 +219,9 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
+#if ASSET_MPL == 1
 /*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
+#endif
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
 };
@@ -2687,10 +2691,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L5_PatchTil(buf);
 	} break;
+#if ASSET_MPL == 1
 	case FILE_L5LIGHT_CEL:
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);
 	} break;
+#endif // ASSET_MPL
 	case FILE_OBJCURS_CEL:
 	{
 		size_t sizeB, sizeAB;
