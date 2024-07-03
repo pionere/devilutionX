@@ -141,7 +141,9 @@ static void SelheroSetStats()
 	int baseFlags = UIS_HCENTER | UIS_VCENTER | UIS_BIG;
 
 	if (heroclass < NUM_CLASSES) {
-		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		if (SELLIST_DIALOG_DELETE_BUTTON != NULL) {
+			SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		}
 		SELHERO_DIALOG_HERO_IMG->m_frame = heroclass + 1;
 		selhero_heroFrame = heroclass + 1;
 
@@ -151,6 +153,7 @@ static void SelheroSetStats()
 		snprintf(textStats[3], sizeof(textStats[3]), "%d", selhero_heroInfo.hiDexterity);
 		snprintf(textStats[4], sizeof(textStats[4]), "%d", selhero_heroInfo.hiVitality);
 	} else {
+		assert(SELLIST_DIALOG_DELETE_BUTTON != NULL);
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
 		SELHERO_DIALOG_HERO_IMG->m_frame = 0;
 		selhero_heroFrame = 0;
