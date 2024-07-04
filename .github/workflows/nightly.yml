@@ -41,28 +41,28 @@ jobs:
         include:
           # x86 builds
           - name: diablo-x86
-            packages: 'sdl2:x86-windows libsodium:x86-windows'
+            #packages: 'sdl2:x86-windows libsodium:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x86.zip'
           - name: hellfire-x86
-            packages: 'sdl2:x86-windows libsodium:x86-windows'
+            #packages: 'sdl2:x86-windows libsodium:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
           - name: hellmini-x86
-            packages: 'sdl2:x86-windows'
+            #packages: 'sdl2:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNONET=ON -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellmini-nightly-x86.zip'
           - name: hellsrv-x86
-            packages: 'sdl2:x86-windows libsodium:x86-windows'
+            #packages: 'sdl2:x86-windows libsodium:x86-windows'
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -DNOHOSTING=OFF -DHOSTONLY=ON -DINET_MODE=ON -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
           - name: diablo
-            packages: 'sdl2:x64-windows libsodium:x64-windows'
+            #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x64.zip'
           - name: hellfire
-            packages: 'sdl2:x64-windows libsodium:x64-windows'
+            #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
     steps:
@@ -77,12 +77,12 @@ jobs:
         vcpkgGitCommitId: '095ee06e7f60dceef7d713e3f8b1c2eb10d650d7'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
-    - name: Install Required Packages
-      run: |
-        vcpkg install ${{ matrix.packages }}
-      #  Start-Process -Wait -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
-      #  $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
-      #shell: bash
+    #- name: Install Required Packages
+    #  run: |
+    #    vcpkg install ${{ matrix.packages }}
+    #  #  Start-Process -Wait -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
+    #  #  $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
+    #  #shell: bash
 
     - name: Configure CMake
       shell: bash
