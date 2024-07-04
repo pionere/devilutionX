@@ -26,20 +26,6 @@
 #include <stddef.h>
 
 #ifndef FULL // SELF_CONV
-#ifdef __SSE2__
-#define HAVE_SSE2_INTRINSICS
-#endif
-
-#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
-#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
-
-#endif
-
-#ifndef HAVE_SSE2_SUPPORT
-#define HAVE_SSE2_SUPPORT 0
-#endif
 
 /* Function pointers set to a CPU-specific implementation. */
 //void Mix_Converter_AUDIO8_Mono2Stereo(Mix_BuffOps* buf);
@@ -261,7 +247,7 @@ void Mix_RWFromMem(Mix_RWops* rwOps, const void* mem, size_t size)
 /**
  * Mix audio buffers. Based on SDL_MixAudioFormat of SDL2/SDL_audio.
  */
-void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
+static void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
 {
     // assert(format == AUDIO_S16LSB);
     const Sint16* srcPos = (const Sint16*)src;
@@ -287,8 +273,8 @@ void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
         currPos++;
     }
 }
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
 {
     const Sint16* srcPos = (const Sint16*)src;
     Sint16* currPos = (Sint16*)dst;
@@ -299,7 +285,7 @@ void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
         __m128i bb = _mm_loadu_si128((const __m128i*)currPos);
 
         __m128i cc = _mm_adds_epi16(aa, bb);
-        _mm_storeu_si128(currPos, cc);
+        _mm_storeu_si128((__m128i*)currPos, cc);
 
         currPos += 8;
         srcPos += 8;
@@ -309,9 +295,9 @@ void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
         Mix_Mixer_AUDIOS16(currPos, srcPos, len);
     }
 }
-#endif // HAVE_SSE2_INTRINSICS
-#ifdef __AVX2__
-void Mix_Mixer_AUDIOS16_AVX2(void* dst, const void* src, unsigned len)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static void SDL_TARGETING("avx2") Mix_Mixer_AUDIOS16_AVX2(void* dst, const void* src, unsigned len)
 {
     const Sint16* srcPos = (const Sint16*)src;
     Sint16* currPos = (Sint16*)dst;
@@ -322,7 +308,7 @@ void Mix_Mixer_AUDIOS16_AVX2(void* dst, const void* src, unsigned len)
         __m256i bb = _mm256_loadu_si256((const __m256i*)currPos);
 
         __m256i cc = _mm256_adds_epi16(aa, bb);
-        _mm256_storeu_si256(currPos, cc);
+        _mm256_storeu_si256((__m256i*)currPos, cc);
 
         currPos += 16;
         srcPos += 16;
@@ -332,12 +318,12 @@ void Mix_Mixer_AUDIOS16_AVX2(void* dst, const void* src, unsigned len)
         Mix_Mixer_AUDIOS16(currPos, srcPos, len);
     }
 }
-#endif // __AVX__
+#endif // SDL_AVX2_INTRINSICS
 #endif // FULL - SELF_MIX
 
 #ifndef FULL // SELF_CONV
-#ifdef __AVX2__
-void Mix_Converter_AUDIO16_Mono2Stereo_AVX2(Mix_BuffOps* buf)
+#ifdef SDL_AVX2_INTRINSICS
+static void SDL_TARGETING("avx2") Mix_Converter_AUDIO16_Mono2Stereo_AVX2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
     Sint16* currPos = (Sint16*)buf->currPos;
@@ -350,11 +336,11 @@ void Mix_Converter_AUDIO16_Mono2Stereo_AVX2(Mix_BuffOps* buf)
         dstPos -= 16;
         __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
         __m256i bb = _mm256_unpackhi_epi16(aa, aa);
-        _mm256_storeu_si256(dstPos, bb);
+        _mm256_storeu_si256((__m256i*)dstPos, bb);
 
         dstPos -= 16;
         __m256i cc = _mm256_unpacklo_epi16(aa, aa);
-        _mm256_storeu_si256(dstPos, cc);
+        _mm256_storeu_si256((__m256i*)dstPos, cc);
     }
 
     while (srcPos != currPos) {
@@ -365,9 +351,9 @@ void Mix_Converter_AUDIO16_Mono2Stereo_AVX2(Mix_BuffOps* buf)
         *dstPos = *srcPos;
     }
 }
-#endif // __AVX__
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
+#endif // SDL_AVX2_INTRINSICS
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
     Sint16* currPos = (Sint16*)buf->currPos;
@@ -380,11 +366,11 @@ void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
         dstPos -= 8;
         __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
         __m128i bb = _mm_unpackhi_epi16(aa, aa);
-        _mm_storeu_si128(dstPos, bb);
+        _mm_storeu_si128((__m128i*)dstPos, bb);
 
         dstPos -= 8;
         __m128i cc = _mm_unpacklo_epi16(aa, aa);
-        _mm_storeu_si128(dstPos, cc);
+        _mm_storeu_si128((__m128i*)dstPos, cc);
     }
 
     while (srcPos != currPos) {
@@ -395,8 +381,8 @@ void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
         *dstPos = *srcPos;
     }
 }
-#endif // _SSE2_
-void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
+#endif // SDL_SSE2_INTRINSICS
+static void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
     Sint16* currPos = (Sint16*)buf->currPos;
@@ -413,8 +399,8 @@ void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
     }
 }
 
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->currPos;
     Uint8* dstPos = srcPos;
@@ -445,7 +431,7 @@ void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
     }
 }
 #endif
-void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
+static void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->currPos;
     Uint8* dstPos = srcPos;
@@ -462,8 +448,8 @@ void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
     }
 }
 
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->currPos;
     Sint16* dstPos = srcPos;
@@ -499,7 +485,7 @@ void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
     }
 }
 #endif
-void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
+static void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->currPos;
     Sint16* dstPos = srcPos;
@@ -516,8 +502,8 @@ void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
     }
 }
 
-#ifdef __AVX2__
-void Mix_Converter_U8_S16LSB_AVX2(Mix_BuffOps* buf)
+#ifdef SDL_AVX2_INTRINSICS
+static void SDL_TARGETING("avx2") Mix_Converter_U8_S16LSB_AVX2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
     Uint8* currPos = (Uint8*)buf->currPos;
@@ -547,9 +533,9 @@ void Mix_Converter_U8_S16LSB_AVX2(Mix_BuffOps* buf)
         *(Sint16*)dstPos = SDL_SwapLE16((Sint8)(srcPos[0] ^ 0x80) << 8);
     }
 }
-#endif // __AVX__
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
+#endif // SDL_AVX2_INTRINSICS
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
     Uint8* currPos = (Uint8*)buf->currPos;
@@ -580,7 +566,7 @@ void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
     }
 }
 #endif
-void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
+static void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
     Uint8* currPos = (Uint8*)buf->currPos;
@@ -603,8 +589,8 @@ void Mix_Utils_Init()
     Mix_Convert_AUDIO16_Resample_Half = Mix_Converter_AUDIO16_Resample_Half;
     Mix_MixAudioFormat = Mix_Mixer_AUDIOS16;
     Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB;
-#ifdef HAVE_SSE2_INTRINSICS
-#if HAVE_SSE2_SUPPORT
+#ifdef SDL_SSE2_INTRINSICS
+#if SDL_HAVE_SSE2_SUPPORT
     // SDL_assert(SDL_HasSSE2());
     if (1) {
 #else
@@ -618,7 +604,7 @@ void Mix_Utils_Init()
         Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB_SSE2;
     }
 #endif
-#if defined(__AVX2__) && SDL_VERSION_ATLEAST(2, 0, 2)
+#if defined(SDL_AVX2_INTRINSICS) && SDL_VERSION_ATLEAST(2, 0, 2)
     if (SDL_HasAVX2()) {
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_AVX2;
         Mix_MixAudioFormat = Mix_Mixer_AUDIOS16_AVX2;
