@@ -243,6 +243,8 @@ void ValidateData()
 			app_fatal("Too low dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
 		if ((AllLevels[i].dLevel * 8 - AllLevels[i].dLevel * 2) >= 0x7FFF) // required by GetItemAttrs
 			app_fatal("Too high dLevel on level %s (%d)", AllLevels[i].dLevelName, i);
+		if (AllLevels[i].dMonDensity > UINT_MAX / (DSIZEX * DSIZEY))
+			app_fatal("Too high dMonDensity on level %s (%d)", AllLevels[i].dLevelName, i); // required by InitMonsters
 	}
 	{
 	BYTE lvlMask = 1 << AllLevels[questlist[Q_BLOOD]._qdlvl].dType;
@@ -250,8 +252,9 @@ void ValidateData()
 	assert(objectdata[OBJ_TORCHL2].oLvlTypes & lvlMask); // required by SyncPedestal
 	}
 	// monsters
-	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonStartMonHit
-	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonStartMonHit
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonHitByMon
+	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonHitByMon and MonHitByPlr
+	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
 		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -264,6 +267,14 @@ void ValidateData()
 #endif
 		if ((md.mAI.aiType == AI_CLEAVER || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_BAT) && (md.mFlags & MFLAG_CAN_OPEN_DOOR) && !(md.mFlags & MFLAG_SEARCH))
 			app_fatal("AI_CLEAVER, AI_FAT and AI_BAT only check the doors while searching (%s, %d)", md.mName, i);
+		if (md.mAI.aiType == AI_GARG && !(md.mFlags & MFLAG_NOSTONE))
+			app_fatal("AI_GARG might override stoned state (%s, %d)", md.mName, i); // required by MAI_Garg
+		if (md.mFlags & MFLAG_GARG_STONE) {
+			if (md.mFlags & MFLAG_HIDDEN)
+				app_fatal("Both GARG_STONE and HIDDEN flags are set for %s (%d).", md.mName, i); // required ProcessMonsters
+			if (md.mAI.aiType != AI_GARG)
+				app_fatal("GARG_STONE flag is not supported by the AI of %s (%d).", md.mName, i);
+		}
 		if (md.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitMonsterStats
 			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel == 0) // required by InitMonsterStats
@@ -281,6 +292,12 @@ void ValidateData()
 			app_fatal("Too high mHit2 %d for %s (%d).", md.mHit2, md.mName, i);
 		if (md.mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mMagic %d for %s (%d).", md.mMagic, md.mName, i);
+		if (md.mMaxDamage == 0)
+			app_fatal("mMaxDamage is not set for %s (%d).", md.mName, i);
+		if (md.mMaxDamage2 == 0 && (md.mAI.aiType == AI_ROUND || md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_RHINO || md.mAI.aiType == AI_SNAKE))
+			app_fatal("mMaxDamage2 is not set for %s (%d).", md.mName, i);
+		if (md.mMaxDamage2 != 0 && (md.mAI.aiType == AI_SCAV || md.mAI.aiType == AI_GARG))
+			app_fatal("Fake special attack of %s (%d) might hurt someone because mMaxDamage2 is set.", md.mName, i);
 		if (md.mMinDamage > md.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for %s (%d).", md.mMinDamage, md.mName, i);
 		if (md.mMinDamage2 > md.mMaxDamage2)
@@ -392,6 +409,8 @@ void ValidateData()
 #endif
 		if ((um.mAI.aiType == AI_CLEAVER || um.mAI.aiType == AI_FAT) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR) && !(monsterdata[um.mtype].mFlags & MFLAG_SEARCH))
 			app_fatal("Unique AI_CLEAVER and AI_FAT only check the doors while searching (%s, %d)", um.mName, i);
+		if (um.mAI.aiType == AI_GARG && !(monsterdata[um.mtype].mFlags & MFLAG_NOSTONE))
+			app_fatal("Unique AI_GARG might override stoned state (%s, %d)", um.mName, i); // required by MAI_Garg
 		if (um.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitUniqueMonster
 			app_fatal("Too high aiInt %d for %s (%d).", um.muLevel, um.mName, i);
 		if (um.muLevel == 0) // required by InitUniqueMonster
@@ -402,6 +421,8 @@ void ValidateData()
 			app_fatal("Invalid muLevel %d for %s (%d). Too high in hell to set the level of item-drop.", um.muLevel, um.mName, i);
 		if ((um.mUnqFlags & UMF_LEADER) != 0 && ((um.mUnqFlags & UMF_GROUP) == 0))
 			app_fatal("Unique monster %s (%d) is a leader without group.", um.mName, i);
+		if ((um.mUnqFlags & UMF_LIGHT) != 0 && i != UMT_LACHDAN)
+			app_fatal("Unique monster %s (%d) has light, but its movement is not supported.", um.mName, i); // required by DeltaLoadLevel, LevelDeltaLoad, LoadLevel, SaveLevel, SetMapMonsters, MonChangeMap, MonStartWalk2, MonPlace, MonDoWalk, MonDoFadein, MonDoFadeout, MI_Rhino
 #if DEBUG_MODE
 		if (um.mUnqHit + monsterdata[um.mtype].mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqHit %d for %s (%d).", um.mUnqHit, um.mName, i);
@@ -409,6 +430,15 @@ void ValidateData()
 			app_fatal("Too high mUnqHit2 %d for %s (%d).", um.mUnqHit2, um.mName, i);
 		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
+		if (um.mMaxDamage == 0 && monsterdata[um.mtype].mMaxDamage != 0)
+			if (um.mQuestId != Q_INVALID)
+				app_fatal("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
+			else
+				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
+		if (um.mMaxDamage2 == 0 && (um.mAI.aiType == AI_ROUND || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
+			app_fatal("mMaxDamage2 is not set for unique monster %s (%d).", um.mName, i);
+		if (um.mMaxDamage2 != 0 && (um.mAI.aiType == AI_SCAV || um.mAI.aiType == AI_GARG))
+			app_fatal("Fake special attack of the unique monster %s (%d) might hurt someone because mMaxDamage2 is set.", um.mName, i);
 		if (um.mMinDamage > um.mMaxDamage)
 			app_fatal("Too high mMinDamage %d for unique monster %s (%d).", um.mMinDamage, um.mName, i);
 		if (um.mMinDamage2 > um.mMaxDamage2)
@@ -432,6 +462,8 @@ void ValidateData()
 				DoLog("Warn: Weak muMagicRes %d (%d) for %s (%d): worse than mMagicRes %d.", um.mMagicRes, j, um.mName, i, monsterdata[um.mtype].mMagicRes);
 			}
 		}
+		if (um.mmaxhp < monsterdata[um.mtype].mMaxHP)
+			DoLog("Warn: Low mmaxhp %d for %s (%d): lower than mMaxHP %d.", um.mmaxhp, um.mName, i, monsterdata[um.mtype].mMaxHP);
 #endif
 	}
 
@@ -619,6 +651,14 @@ void ValidateData()
 		if (pres->PLPower == IPL_DUR) {
 			if (pres->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
+			}
+		}
+		if (pres->PLPower == IPL_CHARGES) {
+			for (int n = 0; n < NUM_SPELLS; n++) {
+				const SpellData& sd = spelldata[n];
+				if (sd.sStaffLvl != SPELL_NA && sd.sStaffMax * pres->PLParam2 > UCHAR_MAX) { // required by (Un)PackPkItem
+					app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d) to be used for staff with spell %d.", i, pres->PLPower, pres->PLParam2, n);
+				}
 			}
 		}
 	}
@@ -985,6 +1025,13 @@ void ValidateData()
 				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
 			}
 		}
+		int n = 0;
+		for ( ; n < NUM_IDI; n++) {
+			if (AllItemsList[n].iUniqType == ui.UIUniqType)
+				break;
+		}
+		if (n == NUM_IDI)
+			app_fatal("Missing base type for '%s' %d.", ui.UIName, i);
 	}
 	assert(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].iAnimLen == 10); // required by ProcessItems
 	// objects
@@ -1024,7 +1071,7 @@ void ValidateData()
 #endif
 
 	// spells
-	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
+	assert(spelldata[SPL_TELEPORT].sSkillFlags & SDFLAG_TARGETED); // required by AddTeleport
 #define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
 	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs
 	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].spCurs)); // required by TryIconCurs
@@ -1051,6 +1098,7 @@ void ValidateData()
 #define SPEC_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_TELEKINESIS)
 	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].scCurs)); // required by TryIconCurs
 	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].spCurs)); // required by TryIconCurs
+	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		if (i == SPL_DISARM
@@ -1234,8 +1282,8 @@ void LogErrorF(const char* msg, ...)
 
 	using namespace std::chrono;
 	milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-	//snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
-	snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
+	snprintf(tmp, sizeof(tmp), " @ %llu", ms.count());
+	// snprintf(tmp, sizeof(tmp), " @ %u", gdwGameLogicTurn);
 	fputs(tmp, f0);
 
 	fputc('\n', f0);

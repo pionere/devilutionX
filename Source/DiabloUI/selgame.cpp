@@ -64,7 +64,7 @@ static char selgame_GameName[NET_MAX_GAMENAME_LEN + 1] = "";
 static char selgame_GamePort[8] = "";
 static char selgame_Password[NET_MAX_PASSWD_LEN + 1] = "";
 static char selgame_Description[128];
-static int selgame_mode;
+static int selgame_mode; // _selgame_selections
 static bool selgame_endMenu;
 //int selgame_heroLevel;
 
@@ -73,7 +73,6 @@ static _uigamedata* selgame_gameData;
 #define DESCRIPTION_WIDTH (SELGAME_LPANEL_WIDTH - 2 * 10)
 
 // Forward-declare UI-handlers, used by other handlers.
-static void SelgameModeSelect(unsigned index);
 static void SelgameAddressListInit();
 static void SelgameDiffSelect(unsigned index);
 static void SelgameSpeedSelect(unsigned index);
@@ -301,21 +300,65 @@ static void SelgameDiffInit()
 	UiInitScreen(3, SelgameDiffFocus, SelgameDiffSelect, SelgameDiffEsc);
 }
 
+static void SelgameModeSet(unsigned value)
+{
+	selgame_mode = value;
+
+	//gfnHeroInfo(UpdateHeroLevel);
+	int port = NET_DEFAULT_PORT;
+	getIniInt("Network", "Port", &port);
+	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
+	if (value == SELGAME_CREATE) {
+		SelgameDiffInit();
+		return;
+	}
+	if (value == SELGAME_LOAD) {
+		selgame_Password[0] = '\0';
+		SelgamePasswordSelect(0);
+		return;
+	}
+	SelgameAddressListInit();
+}
+
+static void SelgameModeSelect(unsigned index)
+{
+	SelgameModeSet(gUIListItems[index]->m_value);
+}
+
 static void SelgameModeInit()
 {
 #ifndef NOHOSTING
-	if (provider == SELCONN_LOOPBACK || provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
-#else
-	if (provider == SELCONN_LOOPBACK) {
+	if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+		SelgameModeSet(SELGAME_CREATE);
+		return;
+	}
 #endif
-		SelgameModeSelect(SELGAME_CREATE);
+	if (provider == SELCONN_LOOPBACK) {
+		if (!gbValidSaveFile) {
+			SelgameModeSet(SELGAME_CREATE);
+			return;
+		}
+
+		SelgameResetScreen("Single Player Game", "Select Action");
+
+		gUIListItems.push_back(new UiListItem("Load Game", SELGAME_LOAD));
+		gUIListItems.push_back(new UiListItem("New Game", SELGAME_CREATE));
+		SDL_Rect rect2 = { SELGAME_RPANEL_LEFT + (SELGAME_RPANEL_WIDTH - 280) / 2, SELGAME_LIST_TOP, 280, 26 * 2 };
+		gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+
+		SDL_Rect rect3 = { SELGAME_RPANEL_LEFT, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
+		gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+		SDL_Rect rect4 = { SELGAME_RPANEL_LEFT + SELGAME_RPANEL_WIDTH / 2, SELGAME_RBUTTON_TOP, SELGAME_RPANEL_WIDTH / 2, 35 };
+		gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+		//assert(gUIListItems.size() == 2);
+		UiInitScreen(2, NULL, SelgameModeSelect, SelgameModeEsc);
 		return;
 	}
 
 	SelgameResetScreen("Multi Player Game", "Select Action");
 
-	static_assert(0 == (int)SELGAME_CREATE, "SelgameModeSelect expects the index and its value to match I.");
-	static_assert(1 == (int)SELGAME_JOIN, "SelgameModeSelect expects the index and its value to match II.");
 	gUIListItems.push_back(new UiListItem("Create Game", SELGAME_CREATE));
 	gUIListItems.push_back(new UiListItem("Join Game", SELGAME_JOIN));
 
@@ -705,10 +748,12 @@ static void SelgamePasswordEsc()
 static void SelgameDiffEsc()
 {
 #ifndef NOHOSTING
-	if (provider == SELCONN_LOOPBACK || provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
-#else
-	if (provider == SELCONN_LOOPBACK) {
+	if (provider == SELCONN_TCPS || provider == SELCONN_TCPDS) {
+		SelgameModeEsc();
+		return;
+	}
 #endif
+	if (provider == SELCONN_LOOPBACK && !gbValidSaveFile) {
 		SelgameModeEsc();
 		return;
 	}
@@ -718,53 +763,25 @@ static void SelgameDiffEsc()
 
 static void SelgameDiffSelect(unsigned index)
 {
-	int value = gUIListItems[index]->m_value;
-
-	selgame_gameData->aeDifficulty = value;
+	selgame_gameData->aeDifficulty = gUIListItems[index]->m_value;
 
 	if (!selconn_bMulti) {
-		selgame_gameData->aeMaxPlayers = 1;
-		selgame_gameData->aeTickRate = gnTicksRate;
-		selgame_gameData->aeNetUpdateRate = 1;
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
 	}
-	selgame_gameData->aeMaxPlayers = MAX_PLRS;
 
 	SelgameSpeedInit();
-}
-
-static void SelgameModeSelect(unsigned index)
-{
-	selgame_mode = index;
-
-	//gfnHeroInfo(UpdateHeroLevel);
-	int port = NET_DEFAULT_PORT;
-	getIniInt("Network", "Port", &port);
-	snprintf(selgame_GamePort, sizeof(selgame_GamePort), "%d", port);
-	if (index == SELGAME_CREATE) {
-		SelgameDiffInit();
-		return;
-	}
-	SelgameAddressListInit();
 }
 
 static void SelgameSpeedSelect(unsigned index)
 {
 	selgame_gameData->aeTickRate = gUIListItems[index]->m_value;
-	selgame_gameData->aeNetUpdateRate = 1;
 	if (provider == SELCONN_LOOPBACK) {
 		selgame_Password[0] = '\0';
 		SelgamePasswordSelect(0);
 		return;
 	}
-#ifndef ADAPTIVE_NETUPDATE
-	int latency = 80;
-	getIniInt("Network", "Latency", &latency);
-	selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
-#endif
-
 	if (ztProvider) {
 		SelgamePasswordInit(0);
 		return;
@@ -780,7 +797,19 @@ static void SelgamePasswordSelect(unsigned index)
 	char dialogText[256];
 	int port = 0;
 
-	if (selgame_mode == SELGAME_CREATE) {
+	if (selgame_mode != SELGAME_JOIN) {
+		// assert(selgame_mode == SELGAME_CREATE || selgame_mode == SELGAME_LOAD);
+		selgame_gameData->aeNetUpdateRate = 1;
+		selgame_gameData->aeMaxPlayers = !selconn_bMulti ? 1 : MAX_PLRS;
+		if (!selconn_bMulti) {
+			selgame_gameData->aeTickRate = gnTicksRate;
+#ifndef ADAPTIVE_NETUPDATE
+		} else {
+			int latency = 80;
+			getIniInt("Network", "Latency", &latency);
+			selgame_gameData->aeNetUpdateRate = std::max(2, latency / (1000 / selgame_gameData->aeTickRate));
+#endif
+		}
 		if (!ztProvider) {
 			setIniValue("Network", "Port", selgame_GamePort);
 			getIniInt("Network", "Port", &port);

@@ -456,18 +456,14 @@ bool TryIconCurs(bool bShift)
 		}
 	} break;
 	case CURSOR_TELEPORT:
+	case CURSOR_HEALOTHER:
+	case CURSOR_RESURRECT:
 		if (pcursmonst != MON_NONE)
 			NetSendCmdMonSkill(pcursmonst, gbTSpell, gbTSplFrom);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
-		else
+		else if (pcursicon == CURSOR_TELEPORT)
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSpell, gbTSplFrom);
-		break;
-	case CURSOR_HEALOTHER:
-	case CURSOR_RESURRECT:
-		if (pcursplr != PLR_NONE) {
-			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
-		}
 		break;
 	default:
 		return false;
@@ -1171,13 +1167,14 @@ static void GameWndProc(const Dvl_Event* e)
 		return;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
-	case DVL_DWM_RTNLVL:
 	case DVL_DWM_SETLVL:
-	case DVL_DWM_WARPLVL:
+	case DVL_DWM_RTNLVL:
+	case DVL_DWM_PORTLVL:
 	case DVL_DWM_TWARPDN:
 	case DVL_DWM_TWARPUP:
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
+	case DVL_DWM_LOADGAME:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
 		if (gbQtextflag) {
@@ -1286,7 +1283,7 @@ static void game_loop()
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
-				//gbRedrawFlags = REDRAW_ALL;
+				// gbRedrawFlags = REDRAW_ALL;
 			}
 			//scrollrt_draw_screen(true);
 			break;
@@ -1294,7 +1291,7 @@ static void game_loop()
 		if (gnTimeoutCurs != CURSOR_NONE) {
 			NewCursor(gnTimeoutCurs);
 			gnTimeoutCurs = CURSOR_NONE;
-			//gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags = REDRAW_ALL;
 		}
 		//if (ProcessInput()) {
 			game_logic();
@@ -1383,7 +1380,7 @@ static void run_game()
 	WNDPROC saveProc = InitGameFX();
 	SDL_Event event;
 
-	event.type = DVL_DWM_NEWGAME;
+	event.type = gbLoadGame ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME;
 	GameWndProc(&event);
 
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION

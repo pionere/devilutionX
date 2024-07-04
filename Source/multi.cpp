@@ -662,10 +662,7 @@ static void SetupLocalPlr()
 {
 	PlayerStruct* p;
 
-	EnterLevel(DLV_TOWN);
-
 	p = &myplr;
-	assert(currLvl._dLevelIdx == DLV_TOWN);
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
@@ -683,10 +680,11 @@ static void SetupLocalPlr()
 	//if (!(p->_pSkillFlags & SFLAG_MELEE))
 	//	p->_pAtkSkill = SPL_RATTACK;
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
-	CalcPlrInv(mypnum, false);
+	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
+	assert(p->_pWalkpath[0] == DIR_NONE);
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
@@ -775,25 +773,14 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 				gbSelectProvider = true;
 				continue;
 			}
-		} else {
-			dlgresult = SELHERO_NEW_DUNGEON;
 		}
 		gbSelectHero = bSinglePlayer;
-		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
 			gameData.aePlayerId = SNPLAYER_MASTER;
 			mypnum = SNPLAYER_MASTER;
 		} else {
 			gameData.aePlayerId = 0;
 			pfile_read_hero_from_save();
-		}
-
-		if (gbLoadGame) {
-			// mypnum = 0;
-			gameData.aeMaxPlayers = 1;
-			gameData.aeTickRate = gnTicksRate;
-			gameData.aeNetUpdateRate = 1;
-			break;
 		}
 
 		// select game
@@ -808,15 +795,15 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			gbSelectHero = true;
 			continue;
 		}
-
-		if (dlgresult == SELGAME_JOIN) {
+		gbLoadGame = dlgresult == SELGAME_LOAD;
+		gbJoinGame = dlgresult == SELGAME_JOIN;
+		if (gbJoinGame) {
 			pnum = gameData.aePlayerId;
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
 				//pfile_read_player_from_save();
 			}
-			gbJoinGame = true;
 		}
 		break;
 	}

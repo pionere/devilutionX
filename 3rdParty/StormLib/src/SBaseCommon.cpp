@@ -481,7 +481,7 @@ void DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey1)
  *  (dwKey1 + dwKey2) = DataBlock[0] ^ dwDecrypted0;
  *
  */
-
+#ifdef FULL
 DWORD DetectFileKeyBySectorSize(LPDWORD EncryptedData, DWORD dwSectorSize, DWORD dwDecrypted0)
 {
     DWORD dwDecrypted1Max = dwSectorSize + dwDecrypted0;
@@ -608,7 +608,7 @@ DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD d
     // Not detected, sorry
     return 0;
 }
-
+#endif // FULL
 DWORD DecryptFileKey(
     const char * szFileName,
     ULONGLONG MpqPos,
@@ -918,14 +918,20 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
 void * LoadMpqTable(
     TMPQArchive * ha,
     ULONGLONG ByteOffset,
+#ifdef FULL_COMP
     LPBYTE pbTableHash,
     DWORD dwCompressedSize,
+#endif
     DWORD dwTableSize,
     DWORD dwKey,
     DWORD * PtrRealTableSize)
 {
     ULONGLONG FileSize = 0;
+#ifdef FULL_COMP
     LPBYTE pbCompressed = NULL;
+#else
+    const DWORD dwCompressedSize = dwTableSize;
+#endif
     LPBYTE pbMpqTable;
     LPBYTE pbToRead;
     DWORD dwBytesToRead = dwTableSize;
@@ -935,6 +941,7 @@ void * LoadMpqTable(
     pbMpqTable = pbToRead = STORM_ALLOC(BYTE, dwTableSize);
     if(pbMpqTable != NULL)
     {
+#ifdef FULL_COMP
         // Check if the MPQ table is compressed
         if(dwCompressedSize < dwTableSize)
         {
@@ -948,7 +955,7 @@ void * LoadMpqTable(
                 return NULL;
             }
         }
-
+#endif
         // Get the file offset from which we will read the table
         // Note: According to Storm.dll from Warcraft III (version 2002),
         // if the hash table position is 0xFFFFFFFF, no SetFilePointer call is done
@@ -1003,21 +1010,18 @@ void * LoadMpqTable(
                 DecryptMpqBlock(pbToRead, dwCompressedSize, dwKey);
                 BSWAP_ARRAY32_UNSIGNED(pbToRead, dwCompressedSize);
             }
-
+#ifdef FULL_COMP
             // If the table is compressed, decompress it
             if(dwCompressedSize < dwTableSize)
             {
-#ifdef FULL_COMP
                 int cbOutBuffer = (int)dwTableSize;
                 int cbInBuffer = (int)dwCompressedSize;
 
                 if(!SCompDecompress2(pbMpqTable, &cbOutBuffer, pbCompressed, cbInBuffer))
                     dwErrCode = GetLastError();
-#else
                 dwErrCode = ERROR_FILE_CORRUPT;
-#endif
             }
-
+#endif
             // Make sure that the table is properly byte-swapped
             BSWAP_ARRAY32_UNSIGNED(pbMpqTable, dwTableSize);
         }
@@ -1028,10 +1032,11 @@ void * LoadMpqTable(
             STORM_FREE(pbMpqTable);
             pbMpqTable = NULL;
         }
-
+#ifdef FULL_COMP
         // Free the compression buffer, if any
         if(pbCompressed != NULL)
             STORM_FREE(pbCompressed);
+#endif
     }
 
     // Return the MPQ table
@@ -1155,9 +1160,11 @@ __AllocateAndLoadPatchInfo:
     hf->pPatchInfo = pPatchInfo;
     return ERROR_SUCCESS;
 }
-#endif
 // Allocates sector offset table
 DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
+#else
+DWORD AllocateSectorOffsets(TMPQFile * hf)
+#endif
 {
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -1199,9 +1206,10 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
         hf->SectorOffsets = STORM_ALLOC(DWORD, (dwSectorOffsLen / sizeof(DWORD)));
         if(hf->SectorOffsets == NULL)
             return ERROR_NOT_ENOUGH_MEMORY;
-
+#ifdef FULL
         // Only read from the file if we are supposed to do so
         if(bLoadFromFile)
+#endif
         {
             ULONGLONG RawFilePos = hf->RawFilePos;
 #ifdef FULL
@@ -1228,6 +1236,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
             // Decrypt loaded sector positions if necessary
             if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
             {
+#ifdef FULL
                 // If we don't know the file key, try to find it.
                 if(hf->dwFileKey == 0)
                 {
@@ -1239,7 +1248,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
                         return ERROR_UNKNOWN_FILE_KEY;
                     }
                 }
-
+#endif // FULL
                 // Decrypt sector positions
                 DecryptMpqBlock(hf->SectorOffsets, dwSectorOffsLen, hf->dwFileKey - 1);
             }
@@ -1304,17 +1313,22 @@ DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
                 goto __LoadSectorOffsets;
             }
         }
+#ifdef FULL
         else
         {
             memset(hf->SectorOffsets, 0, dwSectorOffsLen);
             hf->SectorOffsets[0] = dwSectorOffsLen;
         }
+#endif
     }
 
     return ERROR_SUCCESS;
 }
-
+#ifdef FULL
 DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
+#else
+DWORD AllocateSectorChecksums(TMPQFile * hf)
+#endif
 {
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -1352,6 +1366,7 @@ DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
     dwExpectedSize = (hf->dwSectorCount + 2) * sizeof(DWORD);
     if(hf->SectorOffsets[0] != 0 && hf->SectorOffsets[0] == dwExpectedSize)
     {
+#ifdef FULL
         // If we are not loading from the MPQ file, we just allocate the sector table
         // In that case, do not check any sizes
         if(bLoadFromFile == false)
@@ -1365,6 +1380,7 @@ DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
             return ERROR_SUCCESS;
         }
         else
+#endif
         {
             // Is there valid size of the sector checksums?
             if(hf->SectorOffsets[hf->dwSectorCount + 1] >= hf->SectorOffsets[hf->dwSectorCount])
@@ -1380,7 +1396,11 @@ DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
             RawFilePos = CalculateRawSectorOffset(hf, dwCrcOffset);
 
             // Now read the table from the MPQ
+#ifdef FULL
             hf->SectorChksums = (DWORD *)LoadMpqTable(ha, RawFilePos, NULL, dwCompressedSize, dwCrcSize, 0, NULL);
+#else
+            hf->SectorChksums = (DWORD *)LoadMpqTable(ha, RawFilePos, dwCrcSize, 0, NULL);
+#endif
             if(hf->SectorChksums == NULL)
                 return ERROR_NOT_ENOUGH_MEMORY;
         }
@@ -1797,41 +1817,20 @@ void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_ha
 
 #ifndef STORMLIB_LITTLE_ENDIAN
 
-// Swaps a signed 16-bit integer
-int16_t SwapInt16(uint16_t val)
-{
-    return (val << 8) | ((val >> 8) & 0xFF);
-}
-
-// Swaps an unsigned 16-bit integer
+// Swaps a 16-bit integer
 uint16_t SwapUInt16(uint16_t val)
 {
     return (val << 8) | (val >> 8 );
 }
 
-// Swaps a signed 32-bit integer
-int32_t SwapInt32(uint32_t val)
-{
-    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF );
-    return (val << 16) | ((val >> 16) & 0xFFFF);
-}
-
-// Swaps an unsigned 32-bit integer
+// Swaps a 32-bit integer
 uint32_t SwapUInt32(uint32_t val)
 {
     val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF );
     return (val << 16) | (val >> 16);
 }
 
-// Swaps a signed 64-bit integer
-int64_t SwapInt64(uint64_t val)
-{
-    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
-    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
-    return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
-}
-
-// Swaps an unsigned 64-bit integer
+// Swaps a 64-bit integer
 uint64_t SwapUInt64(uint64_t val)
 {
     val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
@@ -1866,7 +1865,7 @@ void ConvertUInt32Buffer(void * ptr, size_t length)
 }
 
 // Swaps array of unsigned 64-bit integers
-void ConvertUInt64Buffer(void * ptr, size_t length)
+/*void ConvertUInt64Buffer(void * ptr, size_t length)
 {
     uint64_t * buffer = (uint64_t *)ptr;
     uint32_t nElements = (uint32_t)(length / sizeof(uint64_t));
@@ -1876,7 +1875,7 @@ void ConvertUInt64Buffer(void * ptr, size_t length)
 		*buffer = SwapUInt64(*buffer);
 		buffer++;
 	}
-}
+}*/
 
 // Swaps the TMPQHeader structure
 void ConvertTMPQHeader(void *header, uint16_t version)

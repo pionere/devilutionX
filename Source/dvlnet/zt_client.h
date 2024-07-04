@@ -17,7 +17,8 @@ public:
 	void get_gamelist(std::vector<SNetZtGame>& games);
 	bool network_ready();
 
-	void handle_recv(endpoint& peer, buffer_t& data);
+	void handle_recv_oob(buffer_t& data, const endpoint& sender);
+	void handle_recv(buffer_t& data, int pnum);
 
 	virtual ~zt_client() = default;
 
@@ -45,10 +46,9 @@ private:
 
 	plr_t get_master();
 	plr_t next_free_conn();
-	void disconnect_peer(const endpoint& peer);
 	void send_info_request();
 	void handle_join_request(packet& pkt, const endpoint& sender);
-	void handle_recv_packet(packet& pkt, const endpoint& sender);
+	void handle_recv_packet(packet& pkt, int pnum);
 	void recv_ctrl(packet& pkt, const endpoint& sender);
 
 	bool wait_network();

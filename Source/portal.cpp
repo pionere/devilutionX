@@ -13,6 +13,7 @@ PortalStruct portals[MAXPORTAL];
 int portalindex;
 
 /** X-coordinate of each players portal in town. */
+static_assert(MAXPORTAL <= 4, "Portal coordinates in town must be set.");
 const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
 /** Y-coordinate of each players portal in town. */
 const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
@@ -79,8 +80,8 @@ void RemovePortalMissile(int pidx)
 	MissileStruct* mis;
 	int i;
 
-	if (!PortalOnLevel(pidx))
-		return;
+	//if (!PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
+	//	return;
 
 	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
 	for (i = 0; i < nummissiles; i++) {

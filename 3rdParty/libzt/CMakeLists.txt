@@ -9,9 +9,9 @@ set(OMIT_JSON_SUPPORT TRUE)
 include(FetchContent)
 FetchContent_Declare(libzt
   #GIT_REPOSITORY https://github.com/diasurgical/libzt.git
-  #GIT_TAG 47e38259e9c99ba2d8e7241515fa1b56cb538c8c)
+  #GIT_TAG db7b642a4ce9f0f5e0ba7f293bd7ffa7897e4831)
   GIT_REPOSITORY https://github.com/pionere/libzt.git
-  GIT_TAG 08a848ae3363984edf27667222bc410ad2144f57)
+  GIT_TAG b738557b538fc6948316c69312ced99d0ef495d4)
 FetchContent_MakeAvailableExcludeFromAll(libzt)
 
 #if(NOT ANDROID)

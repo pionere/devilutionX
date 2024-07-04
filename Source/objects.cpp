@@ -489,7 +489,7 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 static void AddL2Torches()
 {
 	int i, j;
-	// place torches on NE->SW walls
+	// place torches on NW->SE walls
 	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 		for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 			// skip setmap pieces
@@ -510,7 +510,7 @@ static void AddL2Torches()
 			j += 4;
 		}
 	}
-	// place torches on NW->SE walls
+	// place torches on NE->SW walls
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			// skip setmap pieces
@@ -1359,9 +1359,10 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_MUSHPATCH:
 			Alloc2x2Obj(oi);
 			break;
-			//case OBJ_TEARFTN:
-			//	ObjAddRndSeed(oi);
-			//	break;
+		//case OBJ_BLOODFTN:
+		//case OBJ_TEARFTN:
+		//	ObjAddRndSeed(oi);
+		//	break;
 		case OBJ_MCIRCLE1:
 		case OBJ_MCIRCLE2:
 			AddMagicCircle(oi);
@@ -1829,6 +1830,7 @@ void MonstCheckDoors(int mx, int my)
 void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
 	int i;
+	// const ObjectData* ods;
 
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
@@ -1842,6 +1844,18 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		dObject[os->_ox][os->_oy] = oi + 1;
 		os->_oModeFlags &= ~OMF_RESERVED;
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
+		assert(objectdata[os->_otype].oLightRadius == 0);
+		/*ods = &objectdata[os->_otype];
+		if (ods->oLightRadius != 0) {
+#if FLICKER_LIGHT
+			if (type == OBJ_L1LIGHT) {
+				os->_olid = NO_LIGHT;
+			} else
+#endif
+			{
+				TraceLightSource(os->_ox + ods->oLightOffX, os->_oy + ods->oLightOffY, ods->oLightRadius);
+			}
+		}*/
 	}
 	// add new objects (doors + light)
 	AddDunObjs(x1, y1, x2, y2);
@@ -2201,7 +2215,7 @@ static void SyncPedestal(/*int oi*/)
 		else
 			DRLG_ChangeMap(sx, sy, sx + 9, sy + 8/*, false*/);
 		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches + always reload lighting)?
-		LoadPreLighting();
+		// LoadPreLighting();
 #if 1
 		{
 		// BYTE lvlMask = 1 << currLvl._dType;

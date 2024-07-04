@@ -7,7 +7,7 @@ if (buildAsApplication) {
 }
 
 android {
-	// ndkVersion '26.0.10792818' - asio is not ready for this
+	// ndkVersion '26.1.10909125' - asio is not ready for this
 	ndkVersion '25.2.9519653'
 	compileSdk 34
 	aaptOptions { // probably does not matter...
@@ -36,6 +36,9 @@ android {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
+	}
+	buildFeatures {
+		buildConfig true
 	}
 	applicationVariants.all { variant ->
 		tasks["merge${variant.name.capitalize()}Assets"]
