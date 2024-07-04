@@ -1,7 +1,8 @@
+#include "platform/ctr/keyboard.h"
+
 #include <cstdlib>
 #include <cstring>
-
-#include "platform/ctr/keyboard.h"
+#include <3ds.h>
 
 constexpr size_t MAX_TEXT_LENGTH = 255;
 
@@ -13,7 +14,7 @@ struct vkbdEvent {
 };
 
 static vkbdEvent events[16];
-static int eventCount = 0;
+static unsigned eventCount = 0;
 
 void ctr_vkbdInput(const char *hintText, const char *inText, char *outText, int maxLength)
 {
@@ -30,7 +31,7 @@ void ctr_vkbdInput(const char *hintText, const char *inText, char *outText, int 
 
 void ctr_vkbdFlush()
 {
-	for (int i = 0; i < eventCount; i++) {
+	for (unsigned i = 0; i < eventCount; i++) {
 		vkbdEvent &event = events[i];
 		SwkbdState swkbd;
 

@@ -10,8 +10,7 @@ void UiSettingsDialog()
 	TMenuItem* settingsMenu;
 
 	// enable speed setting
-	gbGameMode = 0;
-	assert(!IsMultiGame);
+	// assert(!gbRunGame);
 	// load speed setting - TODO: copy-paste from mainmenu_single_player
 	if (getIniInt("Diablo", "Game Speed", &gnTicksRate)) {
 		if (gnTicksRate < SPEED_NORMAL)

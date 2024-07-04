@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern uint32_t glSeedTbl[NUM_LEVELS];
 // current mouse position
 extern POS32 MousePos;
 extern bool gbWasUiInit;
@@ -20,7 +19,6 @@ extern bool gbSndInited;
 extern bool gbRunGame;
 extern bool gbRunGameResult;
 extern bool gbZoomInFlag;
-extern bool gbLoadGame;
 extern bool gbCineflag;
 extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;

@@ -4,12 +4,7 @@
  * Implementation of functions for creating and editing MPQ files.
  */
 #include <cerrno>
-//#include <cinttypes>
-//#include <cstdint>
-//#include <cstring>
-#include <memory>
 #include <cstdio>
-#include <type_traits>
 
 #include "all.h"
 #include "utils/file_util.h"
@@ -584,7 +579,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 		goto on_error;
 #else
 	// Ensure we do not seekp beyond EOF by filling the missing space.
-	std::streampos stream_end;
+	long stream_end;
 	if (!cur_archive.stream.seekp(0, SEEK_END) || !cur_archive.stream.tellp(&stream_end))
 		goto on_error;
 	std::size_t curSize = stream_end - cur_archive.stream_begin;
@@ -638,6 +633,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 			mpqapi_alloc_block(pBlk->bqSizeAlloc + pBlk->bqOffset, emptyBlockSize);
 		}
 	}
+	mem_free_dbg(sectoroffsettable);
 	return true;
 	}
 on_error:

@@ -57,6 +57,7 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, voi
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, void (*fnDelete)());
 void UiInitEdit(UiEdit* ui_edit);
 void UiClearScreen();
+void UiRender();
 void UiRenderAndPoll();
 void UiRenderItems();
 void UiClearItems();

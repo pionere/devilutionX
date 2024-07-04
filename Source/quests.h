@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+extern uint32_t glSeedTbl[NUM_LEVELS];
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;
 extern uint32_t guLvlVisited;

@@ -1258,7 +1258,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	int lPan, lVolume;
 	SFXStruct* pSFX;
 
-	if (!gbSoundOn || gbLvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad)
 		return;
 
 	lPan = 0;
@@ -1293,7 +1293,7 @@ void PlayMonSFX(int mnum, int mode)
 	SoundSample* snd;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
-	if (!gbSoundOn || gbLvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad)
 		return;
 
 	mon = &monsters[mnum];

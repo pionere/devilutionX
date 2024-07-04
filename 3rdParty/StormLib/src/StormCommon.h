@@ -69,11 +69,19 @@
 #define STORMLIB_MAX(a, b) ((a > b) ? a : b)
 #define STORMLIB_UNUSED(p) ((void)(p))
 
+// Check for masked flags
+#define STORMLIB_TEST_FLAGS(dwFlags, dwMask, dwValue)  ((dwFlags & (dwMask)) == (dwValue))
+
 // Macro for building 64-bit file offset from two 32-bit
-#define MAKE_OFFSET64(hi, lo)      (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+#define MAKE_OFFSET64(hi, lo)       (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+
+// Macro for checking a valid, non-empty ASCIIZ string
+#ifndef IS_VALID_STRING
+#define IS_VALID_STRING(str)    (str && str[0])
+#endif
 
 //-----------------------------------------------------------------------------
-// MTYPE definition - specifies what kind of MPQ is the map type
+// MTYPE definition - specifies what kind of MPQ is the file
 
 typedef enum _MTYPE
 {
@@ -231,9 +239,10 @@ DWORD GetDefaultSpecialFileFlags(DWORD dwFileSize, USHORT wFormatVersion);
 
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
-
+#ifdef FULL
 DWORD DetectFileKeyBySectorSize(LPDWORD EncryptedData, DWORD dwSectorSize, DWORD dwSectorOffsLen);
 DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD dwFileSize);
+#endif
 DWORD DecryptFileKey(const char * szFileName, ULONGLONG MpqPos, DWORD dwFileSize, DWORD dwFlags);
 
 bool IsValidMD5(LPBYTE pbMd5);
@@ -322,7 +331,7 @@ bool QueryMpqSignatureInfo(TMPQArchive * ha, PMPQ_SIGNATURE_INFO pSignatureInfo)
 
 //-----------------------------------------------------------------------------
 // Support for alternate file formats (SBaseSubTypes.cpp)
-
+#ifdef FULL
 DWORD ConvertSqpHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
 TMPQHash * LoadSqpHashTable(TMPQArchive * ha);
 TMPQBlock * LoadSqpBlockTable(TMPQArchive * ha);
@@ -334,19 +343,26 @@ TMPQBlock * LoadMpkBlockTable(TMPQArchive * ha);
 #ifdef FULL
 int SCompDecompressMpk(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
 #endif // FULL
-
+#endif // FULL
 //-----------------------------------------------------------------------------
 // Common functions - MPQ File
 
 TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 //TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
+#ifdef FULL
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
+#else
+void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
+#endif
 DWORD  AllocateSectorBuffer(TMPQFile * hf);
 #ifdef FULL
 DWORD  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
-#endif
 DWORD  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
 DWORD  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
+#else
+DWORD  AllocateSectorOffsets(TMPQFile * hf);
+DWORD  AllocateSectorChecksums(TMPQFile * hf);
+#endif
 //DWORD  WritePatchInfo(TMPQFile * hf);
 //DWORD  WriteSectorOffsets(TMPQFile * hf);
 //DWORD  WriteSectorChecksums(TMPQFile * hf);

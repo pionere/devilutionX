@@ -5,6 +5,10 @@
  */
 #pragma once
 
+//#include <vector>
+
+#include "all.h"
+
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef __cplusplus
@@ -12,11 +16,11 @@ extern "C" {
 #endif
 
 /* Defined in effects.cpp */
-#ifndef NOSOUND
+/*#ifndef NOSOUND
 void PlaySFX(int psfx);
 #else
 inline void PlaySFX(int psfx) { }
-#endif
+#endif*/
 
 #ifdef __cplusplus
 }

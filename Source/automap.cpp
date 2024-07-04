@@ -205,9 +205,8 @@ static void DrawAutomapStairs(int sx, int sy)
 
 static void DrawAutomapDoorDiamond(int dir, int sx, int sy)
 {
-	// int y2;
 	unsigned d32 = AmLine32;
-	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3), d2 = (d32 >> 4);
+	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
 	if (dir == 0) { // WEST
 		sx -= d8;

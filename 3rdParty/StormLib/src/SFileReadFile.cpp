@@ -14,6 +14,11 @@
 #include "StormCommon.h"
 
 //-----------------------------------------------------------------------------
+// External references (not public functions)
+#ifdef FULL_COMP
+int WINAPI SCompDecompressX(TMPQArchive * ha, void * pvOutBuffer, int * pcbOutBuffer, void * pbInBuffer, int cbInBuffer);
+#endif
+//-----------------------------------------------------------------------------
 // Local functions
 
 //  hf            - MPQ File handle.
@@ -51,7 +56,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
         // If the sector positions are not loaded yet, do it
         if (hf->SectorOffsets == NULL) {
+#ifdef FULL
             dwErrCode = AllocateSectorOffsets(hf, true);
+#else
+            dwErrCode = AllocateSectorOffsets(hf);
+#endif
             if (dwErrCode != ERROR_SUCCESS || hf->SectorOffsets == NULL)
                 return dwErrCode;
         }
@@ -66,8 +75,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // We only try to load sector CRCs once, and regardless if it fails
             // or not, we won't try that again for the given file.
             //
-
+#ifdef FULL
             AllocateSectorChecksums(hf, true);
+#else
+            AllocateSectorChecksums(hf);
+#endif
             hf->bLoadedSectorCRCs = true;
         }
 
@@ -115,7 +127,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // If the file is encrypted, we have to decrypt the sector
             if (pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
                 BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
-
+#ifdef FULL
                 // If we don't know the key, try to detect it by file content
                 if (hf->dwFileKey == 0) {
                     hf->dwFileKey = DetectFileKeyByContent(pbInSector, dwBytesInThisSector, hf->dwDataSize);
@@ -124,7 +136,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
                         break;
                     }
                 }
-
+#endif
                 DecryptMpqBlock(pbInSector, dwRawBytesInThisSector, hf->dwFileKey + dwIndex);
                 BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
             }
@@ -145,7 +157,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
                     }
                 }
             }
-#endif // FULL
+#endif
 
             // If the sector is really compressed, decompress it.
             // WARNING : Some sectors may not be compressed, it can be determined only
@@ -156,15 +168,14 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
                 int nResult = 0;
 #ifdef FULL_COMP
                 // Is the file compressed by Blizzard's multiple compression ?
-                if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
+                if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
                     // Remember the last used compression
                     hf->dwCompression0 = pbInSector[0];
 
-                    // Decompress the data
-                    if (ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_2)
-                        nResult = SCompDecompress2(pbOutSector, &cbOutSector, pbInSector, cbInSector);
-                    else
-                        nResult = SCompDecompress(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                    // Decompress the data. We need to perform MPQ-specific decompression,
+                    // as multiple Blizzard games may have their own decompression tables
+                    // and even decompression methods.
+                    nResult = SCompDecompressX(ha, pbOutSector, &cbOutSector, pbInSector, cbInSector);
                 }
                 // Is the file compressed by PKWARE Data Compression Library ?
                 else if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {

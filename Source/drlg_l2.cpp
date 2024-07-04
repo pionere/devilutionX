@@ -2599,6 +2599,7 @@ static void DRLG_L2FixPreMap(int idx)
 		lm[2 + 5 + 8 * 10] = SwapLE16(50);
 		// remove 'items'
 		lm[2 + 10 * 16 + 9 + 2 * 10 * 2] = 0;
+		// adjust objects
 		// - add book and pedistal
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = SwapLE16(15);
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = SwapLE16(91);
@@ -2614,6 +2615,13 @@ static void DRLG_L2FixPreMap(int idx)
 			for (int x = 2; x <= 6; x++) {
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
+		}
+		lm[2 + 10 * 16 + 2 + 3 * 10] = SwapLE16((3 << 10));
+		lm[2 + 10 * 16 + 3 + 3 * 10] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 10 * 16 + 6 + 3 * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12));
+		for (int y = 4; y < 7; y++) {
+			lm[2 + 10 * 16 + 3 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
+			lm[2 + 10 * 16 + 6 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
 		}
 	} else if (pSetPieces[idx]._sptype == SPT_BCHAMB) {
 		// patch the map - Bonestr1.DUN

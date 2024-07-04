@@ -11,7 +11,7 @@
 #define __STORMLIB_SELF__
 #include "StormLib.h"
 #include "StormCommon.h"
-
+#ifdef FULL
 /*****************************************************************************/
 /*                                                                           */
 /*         Support for SQP file format (War of the Immortals)                */
@@ -97,7 +97,6 @@ DWORD ConvertSqpHeaderToFormat4(
     ULONGLONG FileSize,
     DWORD dwFlags)
 {
-#ifdef FULL
     TSQPHeader * pSqpHeader = (TSQPHeader *)ha->HeaderData;
     TMPQHeader Header;
 
@@ -152,7 +151,7 @@ DWORD ConvertSqpHeaderToFormat4(
             return ERROR_SUCCESS;
         }
     }
-#endif
+
     return ERROR_FILE_CORRUPT;
 }
 
@@ -630,3 +629,4 @@ TMPQBlock * LoadMpkBlockTable(TMPQArchive * ha)
 
     return pBlockTable;
 }
+#endif // FULL
