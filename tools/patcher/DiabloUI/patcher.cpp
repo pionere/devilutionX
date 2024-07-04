@@ -20,6 +20,9 @@ static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
 typedef enum filenames {
+	FILE_MOVIE_VIC1,
+	FILE_MOVIE_VIC2,
+	FILE_MOVIE_VIC3,
 #if ASSET_MPL == 1
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
@@ -112,13 +115,19 @@ typedef enum filenames {
 	FILE_NEST_MIN,
 #endif
 	FILE_NEST_TIL,
+#if ASSET_MPL == 1
 	FILE_L5LIGHT_CEL,
+	FILE_MON_FALLGW,
+#endif
 	FILE_OBJCURS_CEL,
 #endif
 	NUM_FILENAMES
 } filenames;
 
 static const char* const filesToPatch[NUM_FILENAMES] = {
+/*FILE_MOVIE_VIC1*/    "gendata\\DiabVic1.smk",
+/*FILE_MOVIE_VIC2*/    "gendata\\DiabVic2.smk",
+/*FILE_MOVIE_VIC3*/    "gendata\\DiabVic3.smk",
 #if ASSET_MPL == 1
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
@@ -211,7 +220,10 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
+#if ASSET_MPL == 1
 /*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
+/*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
+#endif
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 #endif
 };
@@ -325,6 +337,249 @@ static BYTE* buildBlkMin(BYTE* minBuf, size_t *minLen, unsigned blockSize)
 	}
 	removeMicros.clear();
 	return minBuf;
+}
+
+static void patchMovie(int fileIndex, BYTE* fileBuf, size_t* fileSize)
+{
+	uint32_t* lm = (uint32_t*)fileBuf;
+
+	// TODO: validate file-size
+	switch (fileIndex) {
+	case FILE_MOVIE_VIC1:
+	{	// patch movie - DiabVic1.smk
+		lm += 2365112 / 4;
+		lm[0] = SwapLE32(-550965321);
+		lm[1] = SwapLE32(-272898787);
+		lm[2] = SwapLE32(2091106043);
+		lm[3] = SwapLE32(1596505681);
+		lm[4] = SwapLE32(2009739156);
+		lm[5] = SwapLE32(-202827765);
+		lm[6] = SwapLE32(2104344764);
+		lm[7] = SwapLE32(-2141622575);
+		lm[8] = SwapLE32(48038255);
+		lm[9] = SwapLE32(45358492);
+		lm[10] = SwapLE32(-1267717305);
+		lm[11] = SwapLE32(-1587331326);
+		lm[12] = SwapLE32(-2120218010);
+		lm[13] = SwapLE32(-2011561816);
+		lm[14] = SwapLE32(1414846530);
+		lm[15] = SwapLE32(-1349224483);
+		lm[16] = SwapLE32(1596506156);
+		lm[17] = SwapLE32(-1101954983);
+		lm[18] = SwapLE32(1199431464);
+		lm[19] = SwapLE32(1367122681);
+		lm[20] = SwapLE32(-1805702978);
+		lm[21] = SwapLE32(-545797585);
+		lm[22] = SwapLE32(1596505681);
+		lm[23] = SwapLE32(-225513580);
+		lm[24] = SwapLE32(1005517125);
+		lm[25] = SwapLE32(-1947920438);
+		lm[26] = SwapLE32(-1560721934);
+		lm[27] = SwapLE32(-71413380);
+		lm[28] = SwapLE32(-112856434);
+		lm[29] = SwapLE32(-1101955934);
+		lm[30] = SwapLE32(-1349230808);
+		lm[31] = SwapLE32(199978722);
+		lm[32] = SwapLE32(-834474092);
+		lm[33] = SwapLE32(1232795968);
+		lm[34] = SwapLE32(1968370609);
+		lm[35] = SwapLE32(-1751256130);
+		lm[36] = SwapLE32(26469610);
+		lm[37] = SwapLE32(-1792990555);
+		lm[38] = SwapLE32(-1099607468);
+		lm[39] = SwapLE32(1251410675);
+		lm[40] = SwapLE32(-136193238);
+		lm[41] = SwapLE32(2079387026);
+		lm[42] = SwapLE32(-130195607);
+		lm[43] = SwapLE32(1596987095);
+		lm[44] = SwapLE32(-905946117);
+		lm[45] = SwapLE32(-113243273);
+		lm[46] = SwapLE32(781362926);
+		lm[47] = SwapLE32(399126420);
+		lm[48] = SwapLE32(1173523429);
+		lm[49] = SwapLE32(-176381191);
+		lm[50] = SwapLE32(275362381);
+		lm[51] = SwapLE32(-155288568);
+		lm[52] = SwapLE32(1439028673);
+		lm[53] = SwapLE32(-2129603742);
+		lm[54] = SwapLE32(766280566);
+		lm[55] = SwapLE32(919806055);
+		lm[56] = SwapLE32(1681665368);
+		lm[57] = SwapLE32(-863511906);
+		lm[58] = SwapLE32(-1957164198);
+		lm[59] = SwapLE32(-1063860819);
+		lm[60] = SwapLE32(-883300707);
+		lm[61] = SwapLE32(-1663365712);
+		lm[62] = SwapLE32(-107803491);
+		lm[63] = SwapLE32(706130563);
+		lm[64] = SwapLE32(-905866675);
+		lm[65] = SwapLE32(-1308512774);
+		lm[66] = SwapLE32(1493841248);
+		lm[67] = SwapLE32(256192880);
+		lm[68] = SwapLE32(-619848059);
+		lm[69] = SwapLE32(369285801);
+		lm[70] = SwapLE32(-876682358);
+		lm[71] = SwapLE32(334941186);
+		lm[72] = SwapLE32(2128183385);
+		lm[73] = SwapLE32(23856562);
+	} break;
+	case FILE_MOVIE_VIC2:
+	{	// patch movie - DiabVic2.smk
+		lm += 2303424 / 4;
+		lm[0] = SwapLE32(-692176717);
+		lm[1] = SwapLE32(1924240277);
+		lm[2] = SwapLE32(-1116350926);
+		lm[3] = SwapLE32(846226659);
+		lm[4] = SwapLE32(211556664);
+		lm[5] = SwapLE32(1836009038);
+		lm[6] = SwapLE32(1847955435);
+		lm[7] = SwapLE32(-1153933168);
+		lm[8] = SwapLE32(-14372439);
+		lm[9] = SwapLE32(-1352999270);
+		lm[10] = SwapLE32(2047723429);
+		lm[11] = SwapLE32(231186652);
+		lm[12] = SwapLE32(-748630536);
+		lm[13] = SwapLE32(1183210856);
+		lm[14] = SwapLE32(-1080806677);
+		lm[15] = SwapLE32(-1159502474);
+		lm[16] = SwapLE32(1490301554);
+		lm[17] = SwapLE32(1666238914);
+		lm[18] = SwapLE32(-1820121335);
+		lm[19] = SwapLE32(211594929);
+		lm[20] = SwapLE32(-2094594482);
+		lm[21] = SwapLE32(-523648621);
+		lm[22] = SwapLE32(657173604);
+		lm[23] = SwapLE32(1540461443);
+		lm[24] = SwapLE32(1663511471);
+		lm[25] = SwapLE32(-1676068515);
+		lm[26] = SwapLE32(654724620);
+		lm[27] = SwapLE32(-910060669);
+		lm[28] = SwapLE32(-1047294120);
+		lm[29] = SwapLE32(1885659337);
+		lm[30] = SwapLE32(-1676068814);
+		lm[31] = SwapLE32(76938764);
+		lm[32] = SwapLE32(1988926659);
+		lm[33] = SwapLE32(-2121035208);
+		lm[34] = SwapLE32(162658691);
+		lm[35] = SwapLE32(1300551711);
+		lm[36] = SwapLE32(-1315994408);
+		lm[37] = SwapLE32(-943693268);
+		lm[38] = SwapLE32(1911569951);
+		lm[39] = SwapLE32(-598899496);
+		lm[40] = SwapLE32(-1136785472);
+		lm[41] = SwapLE32(-130681637);
+		lm[42] = SwapLE32(-84905981);
+		lm[43] = SwapLE32(1866660917);
+		lm[44] = SwapLE32(-1123243555);
+		lm[45] = SwapLE32(-1214044363);
+		lm[46] = SwapLE32(1991009510);
+		lm[47] = SwapLE32(-2094590931);
+		lm[48] = SwapLE32(-523648621);
+		lm[49] = SwapLE32(942829668);
+		lm[50] = SwapLE32(-661056999);
+		lm[51] = SwapLE32(-663336473);
+		lm[52] = SwapLE32(-2103178071);
+		lm[53] = SwapLE32(-810450266);
+		lm[54] = SwapLE32(-1798627861);
+		lm[55] = SwapLE32(468686179);
+		lm[56] = SwapLE32(-510503487);
+		lm[57] = SwapLE32(1505680763);
+		lm[58] = SwapLE32(172312093);
+		lm[59] = SwapLE32(-450712496);
+		lm[60] = SwapLE32(-284186083);
+		lm[61] = SwapLE32(124493483);
+		lm[62] = SwapLE32(2141065680);
+		lm[63] = SwapLE32(344695419);
+		lm[64] = SwapLE32(-174581497);
+		lm[65] = SwapLE32(2096023608);
+		lm[66] = SwapLE32(-1908604696);
+		lm[67] = SwapLE32(-1021173752);
+		lm[68] = SwapLE32(-1211136129);
+		lm[69] = SwapLE32(-688626406);
+		lm[70] = SwapLE32(1030122221);
+		lm[71] = SwapLE32(-1448569291);
+		lm[72] = SwapLE32(1780845896);
+		lm[73] = SwapLE32(-810685910);
+	} break;
+	case FILE_MOVIE_VIC3:
+	{	// patch movie - DiabVic3.smk
+		lm += 2313520 / 4;
+		lm[0] = SwapLE32(1810378268);
+		lm[1] = SwapLE32(1956082596);
+		lm[2] = SwapLE32(-1852204306);
+		lm[3] = SwapLE32(-1528346162);
+		lm[4] = SwapLE32(-382086541);
+		lm[5] = SwapLE32(248990172);
+		lm[6] = SwapLE32(-1442865169);
+		lm[7] = SwapLE32(1302565187);
+		lm[8] = SwapLE32(-15115782);
+		lm[9] = SwapLE32(1349539657);
+		lm[10] = SwapLE32(-3497991);
+		lm[11] = SwapLE32(1715994196);
+		lm[12] = SwapLE32(-94472062);
+		lm[13] = SwapLE32(-2014741919);
+		lm[14] = SwapLE32(1392874889);
+		lm[15] = SwapLE32(-414656584);
+		lm[16] = SwapLE32(-1658193332);
+		lm[17] = SwapLE32(1957161267);
+		lm[18] = SwapLE32(1186702574);
+		lm[19] = SwapLE32(-1818417350);
+		lm[20] = SwapLE32(-1528346162);
+		lm[21] = SwapLE32(1807340147);
+		lm[22] = SwapLE32(970093476);
+		lm[23] = SwapLE32(-1658462999);
+		lm[24] = SwapLE32(593350291);
+		lm[25] = SwapLE32(1238274973);
+		lm[26] = SwapLE32(-764173081);
+		lm[27] = SwapLE32(451843001);
+		lm[28] = SwapLE32(1316265193);
+		lm[29] = SwapLE32(-1818417350);
+		lm[30] = SwapLE32(2028423630);
+		lm[31] = SwapLE32(1213262382);
+		lm[32] = SwapLE32(1233196775);
+		lm[33] = SwapLE32(-466215703);
+		lm[34] = SwapLE32(14841857);
+		lm[35] = SwapLE32(1006878780);
+		lm[36] = SwapLE32(-192136591);
+		lm[37] = SwapLE32(-2008008564);
+		lm[38] = SwapLE32(14818371);
+		lm[39] = SwapLE32(1342160956);
+		lm[40] = SwapLE32(-2142182884);
+		lm[41] = SwapLE32(-1934654195);
+		lm[42] = SwapLE32(859320077);
+		lm[43] = SwapLE32(384383416);
+		lm[44] = SwapLE32(-1817907820);
+		lm[45] = SwapLE32(-764109362);
+		lm[46] = SwapLE32(-40358983);
+		lm[47] = SwapLE32(-414593385);
+		lm[48] = SwapLE32(970093476);
+		lm[49] = SwapLE32(1316265193);
+		lm[50] = SwapLE32(145792077);
+		lm[51] = SwapLE32(-1810424179);
+		lm[52] = SwapLE32(-183817203);
+		lm[53] = SwapLE32(689004884);
+		lm[54] = SwapLE32(-296328173);
+		lm[55] = SwapLE32(-673137993);
+		lm[56] = SwapLE32(502011765);
+		lm[57] = SwapLE32(1689426827);
+		lm[58] = SwapLE32(-547293725);
+		lm[59] = SwapLE32(-474683808);
+		lm[60] = SwapLE32(-1511228563);
+		lm[61] = SwapLE32(-1515184584);
+		lm[62] = SwapLE32(-753466767);
+		lm[63] = SwapLE32(-880436852);
+		lm[64] = SwapLE32(1545606400);
+		lm[65] = SwapLE32(316322038);
+		lm[66] = SwapLE32(-1061779178);
+		lm[67] = SwapLE32(719126690);
+		lm[68] = SwapLE32(-1785938886);
+		lm[69] = SwapLE32(1415292139);
+		lm[70] = SwapLE32(-191309975);
+		lm[71] = SwapLE32(644310227);
+		lm[72] = SwapLE32(-222423811);
+		lm[73] = SwapLE32(1019295561);
+	} break;
+	}
 }
 
 static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
@@ -1812,8 +2067,7 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
-
-			if (ii == 1) {
+			if (ii == 1) { // DIR_SW
 				// draw the stand frame
 				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
 				// for (int y = 0; y < height; y++) {
@@ -1924,6 +2178,1263 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 	return resCl2Buf;
 }
 
+BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 8;
+	constexpr bool groupped = true;
+	constexpr int height = 128;
+	constexpr int width = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+
+			if (ii == 6) { // DIR_E
+				// duplicate the current frame
+				// for (int y = 0; y < height; y++) {
+				//	memset(&gpBuffer[0 + BUFFER_WIDTH * y], TRANS_COLOR, width);
+				// }
+				Cl2Draw(0, height - 1, frameBuf, n, width);
+				// draw the west-walk frame
+				const BYTE* wwFrameBuf = CelGetFrameStart(cl2Buf, 2); // DIR_W
+				// for (int y = 0; y < height; y++) {
+				//	memset(&gpBuffer[width + BUFFER_WIDTH * y], TRANS_COLOR, width);
+				// }
+				Cl2Draw(width, height - 1, wwFrameBuf, n, width);
+
+				int i = n - 1;
+				// mirror the west-walk frame
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						unsigned addr = x + BUFFER_WIDTH * y;
+						unsigned addr2 = width + (width - x - 1) + BUFFER_WIDTH * y;
+						BYTE color = gpBuffer[addr2];
+						if (color != TRANS_COLOR) {
+							if ((color >= 170 && color <= 175) || (color >= 190 && color <= 205) || color >= 251) {
+								if (i == 0) {
+									if (x >= 71 && y >= 99 && y <= 112) {
+										continue;
+									}
+								}
+								if (i == 1) {
+									if (x >= 67 && y >= 101 && y <= 110) {
+										continue;
+									}
+								}
+								if (i == 2) {
+									if (x >= 62 && y >= 105 && y <= 114) {
+										continue;
+									}
+								}
+								if (i == 3) {
+									if (x >= 58 && y >= 109 && y <= 118) {
+										continue;
+									}
+								}
+								if (i == 4) {
+									if (x >= 57 && y >= 110 && y <= 121) {
+										continue;
+									}
+								}
+								if (i == 5) {
+									if (x >= 58 && y >= 110 && y <= 119) {
+										continue;
+									}
+								}
+								if (i == 6) {
+									if (x >= 62 && y >= 106 && y <= 114) {
+										continue;
+									}
+								}
+								if (i == 7) {
+									if (x >= 66 && y >= 96 && y <= 112) {
+										continue;
+									}
+								}
+								/*if (x >= 62 && y >= 99 && y <= 121) {
+									continue;
+								}*/
+							}
+							if (color == 0) {
+								if (i == 0) {
+									if (/*x >= 87 || */(x >= 81 && y >= 118 + 10 - x / 8)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 1) {
+									if (/*x >= 87 || */(x >= 79 && y >= 118 + 10 - x / 8)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 2) {
+									if (/*x >= 87 || */(x >= 75 && y >= 118 + 10 - x / 8)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 3) {
+									if (/*x >= 87 || */(x >= 70 && y >= 118)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 4) {
+									if (/*x >= 87 || */(x >= 67 && y >= 119)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 5) {
+									if (/*x >= 87 || */(x >= 71 && y >= 119)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 6) {
+									if (/*x >= 87 || */(x >= 72 && y >= 117 && y >= 120 + 72 - x)) {
+										color = TRANS_COLOR;
+									}
+								}
+								if (i == 7) {
+									if (/*x >= 87 || */(x >= 85 && y <= 118 && y >= 118 + 85 - x)) {
+										color = TRANS_COLOR;
+									}
+								}
+								/*if (x >= 65 && y >= 115 && y <= 122) {
+									continue;
+								}*/
+							}
+						}
+						gpBuffer[addr] = color;
+					}
+				}
+
+				// copy the club from the stand frame
+				int fn, dx, dy;
+				switch (i) {
+				case 0: fn = 8; dx = -11; dy = 11; break;
+				case 1: fn = 9; dx =  -8; dy =  9; break;
+				case 2: fn = 9; dx =  -7; dy =  9; break;
+				case 3: fn = 9; dx =  -5; dy =  9; break;
+				case 4: fn = 9; dx =  -4; dy =  9; break;
+				case 5: fn = 9; dx =  -5; dy =  8; break;
+				case 6: fn = 8; dx =  -2; dy =  5; break;
+				case 7: fn = 9; dx =  -8; dy =  8; break;
+				}
+				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+				for (int y = 0; y < height; y++) {
+					memset(&gpBuffer[width + BUFFER_WIDTH * y], TRANS_COLOR, width);
+				}
+				Cl2Draw(width, height - 1, stdFrameBuf, fn + 1, width);
+
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						unsigned addr = x + dx + BUFFER_WIDTH * (y + dy);
+						unsigned addr2 = width + x + BUFFER_WIDTH * y;
+						BYTE color = gpBuffer[addr2];
+						if (color == TRANS_COLOR) {
+							continue;
+						}
+						switch (fn) {
+						case 7:
+							if (x < 60 || y < 88 || y > 111 || (color != 0 && !(color >= 170 && color <= 175) && !(color >= 188 && color <= 205) && color != 223 && color != 251 && color != 252))
+								continue;
+							break;
+						case 8:
+						case 9:
+							if (x < 80 || y < 86 || y > 109 || (color != 0 && !(color >= 170 && color <= 175) && !(color >= 188 && color <= 205) && color != 223 && color != 251 && color != 252))
+								continue;
+							break;
+						}
+						BYTE curr_color = gpBuffer[addr];
+						if (curr_color == TRANS_COLOR
+							|| (i == 0 && curr_color == 0 && x >= 75 + 11)) {
+							gpBuffer[addr] = color;
+						}
+					}
+				}
+
+				// fix artifacts
+				switch (i) {
+				case 0: dx = 85; break;
+				case 1: dx = 92; break;
+				case 2: dx = 93; break;
+				case 3: dx = 95; break;
+				case 4: dx = 96; break;
+				case 5: dx = 95; break;
+				case 6: dx = 94; break;
+				case 7: dx = 93; break;
+				}
+				for (int y = 85; y < height; y++) {
+					for (int x = dx; x < width; x++) {
+						gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+					}
+				}
+
+				if (i == 0) {
+					gpBuffer[76 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 110] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 110] = TRANS_COLOR; // color0)
+					gpBuffer[78 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[82 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[83 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[82 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[83 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[69 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 118] = 0; // was tp
+				}
+				if (i == 1) {
+					for (int y = 106; y < 114; y++) {
+						for (int x = 73; x < 86; x++) {
+							if (y < 276 - 2 * x) {
+								gpBuffer[x + BUFFER_WIDTH * y] = 0;
+							}
+						}
+					}
+					for (int y = 105; y < 109; y++) {
+						for (int x = 84; x < 88; x++) {
+							if (x != 87 || (y != 105 || y != 108)) {
+								gpBuffer[x + BUFFER_WIDTH * y] = 0;
+							}
+						}
+					}
+					gpBuffer[73 + BUFFER_WIDTH * 100] = 175; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 100] = 175; // was tp
+					gpBuffer[91 + BUFFER_WIDTH * 102] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color191)
+					gpBuffer[84 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[82 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[83 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color207)
+					gpBuffer[82 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[82 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[83 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[82 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[83 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[76 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[77 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[78 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[79 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[74 + BUFFER_WIDTH * 119] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 119] = TRANS_COLOR; // color0)
+					gpBuffer[76 + BUFFER_WIDTH * 119] = TRANS_COLOR; // color0)
+				}
+				if (i == 2) {
+					gpBuffer[71 + BUFFER_WIDTH * 96] = 238; // was color191)
+					gpBuffer[71 + BUFFER_WIDTH * 97] = 237; // was color191)
+					gpBuffer[72 + BUFFER_WIDTH * 97] = 236; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 97] = 237; // was color191)
+					gpBuffer[75 + BUFFER_WIDTH * 97] = 236; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 97] = 236; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 98] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 98] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 98] = 236; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 98] = 236; // was color203)
+					gpBuffer[70 + BUFFER_WIDTH * 99] = 238; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 99] = 236; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 99] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 99] = 238; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 99] = 238; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 100] = 235; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 100] = 238; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 100] = 238; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 100] = 236; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 101] = 236; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 101] = 238; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 101] = 236; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 101] = 173; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 101] = 173; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 102] = 237; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 102] = 237; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 102] = 236; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 102] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 102] = 238; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 102] = 236; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 103] = 238; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 103] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 103] = 238; // was tp
+					gpBuffer[92 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 104] = 238; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 104] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 104] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 104] = 236; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 105] = 235; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 105] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 105] = 236; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 105] = 238; // was color170)
+					gpBuffer[85 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 106] = 236; // was color238)
+					gpBuffer[71 + BUFFER_WIDTH * 106] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 106] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 106] = 238; // was tp
+					gpBuffer[92 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[71 + BUFFER_WIDTH * 107] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 107] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 107] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 107] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 107] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 107] = 0; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 108] = 238; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 108] = 236; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 108] = 238; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 108] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 108] = 0; // was color191)
+					gpBuffer[76 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 109] = 238; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 109] = 238; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 109] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color207)
+					gpBuffer[73 + BUFFER_WIDTH * 110] = 0; // was color189)
+					gpBuffer[74 + BUFFER_WIDTH * 110] = 0; // was color189)
+					gpBuffer[75 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 110] = TRANS_COLOR; // color223)
+					gpBuffer[71 + BUFFER_WIDTH * 111] = 237; // was color0)
+					gpBuffer[83 + BUFFER_WIDTH * 111] = TRANS_COLOR; // color0)
+					gpBuffer[71 + BUFFER_WIDTH * 112] = 237; // was color0)
+					gpBuffer[72 + BUFFER_WIDTH * 112] = 237; // was color0)
+					gpBuffer[73 + BUFFER_WIDTH * 112] = 238; // was color0)
+					gpBuffer[74 + BUFFER_WIDTH * 112] = 237; // was color0)
+					gpBuffer[81 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 113] = 236; // was color0)
+					gpBuffer[71 + BUFFER_WIDTH * 113] = 236; // was color0)
+					gpBuffer[72 + BUFFER_WIDTH * 113] = 237; // was color0)
+					gpBuffer[73 + BUFFER_WIDTH * 113] = 237; // was color0)
+					gpBuffer[83 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[89 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[73 + BUFFER_WIDTH * 114] = 236; // was color0)
+					gpBuffer[85 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[79 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+				}
+				if (i == 3) { // 52
+					gpBuffer[68 + BUFFER_WIDTH * 87] = 237; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 87] = 237; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 88] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 88] = 237; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 89] = 237; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 89] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 90] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 91] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 91] = 175; // was color237)
+					gpBuffer[77 + BUFFER_WIDTH * 91] = TRANS_COLOR; // color237)
+					gpBuffer[77 + BUFFER_WIDTH * 92] = 175; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 94] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 95] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 95] = 175; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 96] = 235; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 96] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 96] = 237; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 96] = 237; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 97] = 235; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 97] = 203; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 97] = 203; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 97] = 237; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 98] = 235; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 98] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 99] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 99] = 174; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 99] = 203; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 99] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 99] = 203; // was color170)
+					gpBuffer[73 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 100] = 174; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 100] = 174; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 101] = 174; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 101] = 175; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 101] = 172; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 102] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 102] = 238; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 103] = 238; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 103] = 237; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 103] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 103] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color189)
+					gpBuffer[76 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color188)
+					gpBuffer[86 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[66 + BUFFER_WIDTH * 104] = 237; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 104] = 237; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 104] = 235; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 104] = 235; // was color207)
+					gpBuffer[81 + BUFFER_WIDTH * 104] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[66 + BUFFER_WIDTH * 105] = 237; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 105] = 237; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 105] = 235; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 105] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color170)
+					gpBuffer[84 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[66 + BUFFER_WIDTH * 106] = 237; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 106] = 235; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 106] = 235; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 106] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 106] = 237; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[66 + BUFFER_WIDTH * 107] = 235; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 107] = 237; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 107] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 107] = 237; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[66 + BUFFER_WIDTH * 108] = 237; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 108] = 235; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 108] = 235; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[67 + BUFFER_WIDTH * 109] = 237; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 109] = 235; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 109] = 238; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[68 + BUFFER_WIDTH * 110] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 110] = 238; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 110] = 0; // was 235
+					gpBuffer[80 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 111] = 238; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 111] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 112] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 112] = 237; // was color0
+					gpBuffer[84 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 113] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[72 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 114] = 0; // was color188
+					gpBuffer[88 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[72 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 118] = 0; // was tp
+				}
+				if (i == 4) { // 53
+					gpBuffer[72 + BUFFER_WIDTH * 89] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 90] = 238; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 91] = 238; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 91] = 238; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 92] = 238; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 94] = 238; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 95] = 238; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 95] = 237; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 95] = 237; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 95] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 96] = 236; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 96] = 237; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 96] = 236; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 96] = 237; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 96] = 234; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 97] = 237; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 97] = 203; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 97] = 236; // was tp
+					gpBuffer[65 + BUFFER_WIDTH * 98] = 238; // was color190)
+					gpBuffer[66 + BUFFER_WIDTH * 98] = 238; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 98] = 238; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 98] = 237; // was tp
+					gpBuffer[65 + BUFFER_WIDTH * 99] = 236; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 99] = 236; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 99] = 238; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 99] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 99] = 237; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 100] = 236; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 100] = 236; // was tp
+					gpBuffer[65 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 101] = 236; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 102] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 103] = 237; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color188)
+					gpBuffer[75 + BUFFER_WIDTH * 104] = 236; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[95 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 105] = 236; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[95 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 106] = 237; // was color0)
+					gpBuffer[83 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[95 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[74 + BUFFER_WIDTH * 107] = 237; // was color0)
+					gpBuffer[84 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[95 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 108] = 237; // was color0)
+					gpBuffer[76 + BUFFER_WIDTH * 108] = 237; // was color0)
+					gpBuffer[86 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 109] = 236; // was color0)
+					gpBuffer[76 + BUFFER_WIDTH * 109] = 236; // was color0)
+					gpBuffer[86 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 109] = TRANS_COLOR; // color0)
+					gpBuffer[76 + BUFFER_WIDTH * 110] = 219; // was color0)
+					gpBuffer[77 + BUFFER_WIDTH * 110] = 236; // was color0)
+					gpBuffer[78 + BUFFER_WIDTH * 110] = 237; // was color0)
+					gpBuffer[77 + BUFFER_WIDTH * 111] = 237; // was color0)
+					gpBuffer[78 + BUFFER_WIDTH * 111] = 237; // was color0)
+					gpBuffer[79 + BUFFER_WIDTH * 111] = 236; // was color0)
+					gpBuffer[80 + BUFFER_WIDTH * 111] = 237; // was color188)
+					gpBuffer[81 + BUFFER_WIDTH * 111] = 236; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 111] = TRANS_COLOR; // color0)
+					gpBuffer[77 + BUFFER_WIDTH * 112] = 237; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 112] = 237; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 112] = 236; // was color219)
+					gpBuffer[83 + BUFFER_WIDTH * 112] = 237; // was color219)
+					gpBuffer[85 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[64 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[65 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[66 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[69 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[72 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 115] = 0; // was color172)
+					gpBuffer[89 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[60 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[61 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[62 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 116] = 0; // was color172)
+					gpBuffer[89 + BUFFER_WIDTH * 116] = TRANS_COLOR; // color0)
+					gpBuffer[69 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[80 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[76 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[77 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[56 + BUFFER_WIDTH * 120] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 120] = TRANS_COLOR; // color223)
+				}
+				if (i == 5) { // 54
+					gpBuffer[74 + BUFFER_WIDTH * 94] = 203; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 95] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 95] = 236; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 95] = 173; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 95] = 172; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 95] = 203; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 96] = 174; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 96] = 173; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 96] = 203; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 97] = 172; // was color235)
+					gpBuffer[75 + BUFFER_WIDTH * 97] = 171; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 98] = 172; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 98] = 171; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 99] = 237; // was color0)
+					gpBuffer[75 + BUFFER_WIDTH * 99] = 171; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 99] = 203; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 99] = 203; // was tp
+					// gpBuffer[78 + BUFFER_WIDTH * 99] = 171; // was color174)
+					gpBuffer[73 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 100] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 100] = 172; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 100] = 171; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 102] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 102] = 220; // was tp
+					gpBuffer[92 + BUFFER_WIDTH * 102] = TRANS_COLOR; // color0)
+					gpBuffer[73 + BUFFER_WIDTH * 103] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 103] = 220; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 103] = 172; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[73 + BUFFER_WIDTH * 104] = 220; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 104] = 235; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[73 + BUFFER_WIDTH * 105] = 236; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 105] = 235; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 105] = 172; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[72 + BUFFER_WIDTH * 106] = 236; // was color191)
+					gpBuffer[73 + BUFFER_WIDTH * 106] = 236; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[94 + BUFFER_WIDTH * 108] = TRANS_COLOR; // color0)
+					gpBuffer[69 + BUFFER_WIDTH * 110] = 236; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 110] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 110] = 235; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 110] = TRANS_COLOR; // color188)
+					gpBuffer[70 + BUFFER_WIDTH * 111] = 237; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 111] = 236; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 111] = 236; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 112] = 236; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 112] = 236; // was color0)
+					gpBuffer[82 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 113] = 237; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 113] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 113] = 236; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 113] = 237; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 113] = 236; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 113] = 236; // was color0)
+					gpBuffer[77 + BUFFER_WIDTH * 113] = 236; // was color0)
+					gpBuffer[89 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[69 + BUFFER_WIDTH * 114] = 236; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 114] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 114] = 236; // was tp
+					gpBuffer[89 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[73 + BUFFER_WIDTH * 115] = 236; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 115] = TRANS_COLOR; // color0)
+					gpBuffer[81 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[90 + BUFFER_WIDTH * 117] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 118] = TRANS_COLOR; // color0)
+					gpBuffer[60 + BUFFER_WIDTH * 119] = 0; // was tp
+					gpBuffer[57 + BUFFER_WIDTH * 120] = 0; // was tp
+					gpBuffer[58 + BUFFER_WIDTH * 120] = 0; // was tp
+				}
+				if (i == 6) { // 55
+					gpBuffer[70 + BUFFER_WIDTH * 90] = 173; // was color237)
+					gpBuffer[71 + BUFFER_WIDTH * 91] = 235; // was color237)
+					gpBuffer[72 + BUFFER_WIDTH * 91] = 235; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 92] = 235; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 93] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 93] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 93] = 173; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 93] = 173; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 94] = 173; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 94] = 173; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 94] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 94] = 173; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 95] = 221; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 95] = 173; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 95] = 173; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 95] = 203; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 95] = 171; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 95] = 203; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 95] = 252; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 96] = 173; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 96] = 203; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 96] = 171; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 96] = 203; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 96] = 203; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 96] = 171; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 96] = 171; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 96] = 171; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 96] = 171; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 97] = 237; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 97] = 203; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 97] = 171; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 97] = 171; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 97] = 171; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 97] = 171; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 97] = 203; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 98] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 98] = 237; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 98] = 171; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 98] = 203; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 98] = 203; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 98] = 203; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 99] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 99] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 99] = 171; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 99] = 171; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 99] = 203; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 100] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 100] = 171; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 101] = 237; // was tp
+					gpBuffer[93 + BUFFER_WIDTH * 102] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[70 + BUFFER_WIDTH * 104] = 237; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 104] = 237; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 104] = 236; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[69 + BUFFER_WIDTH * 105] = 237; // was tp
+					gpBuffer[70 + BUFFER_WIDTH * 105] = 237; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[68 + BUFFER_WIDTH * 106] = 237; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 106] = 236; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 106] = TRANS_COLOR; // color0)
+					gpBuffer[68 + BUFFER_WIDTH * 107] = 236; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color191)
+					gpBuffer[93 + BUFFER_WIDTH * 107] = TRANS_COLOR; // color0)
+					gpBuffer[61 + BUFFER_WIDTH * 108] = 236; // was tp
+					gpBuffer[62 + BUFFER_WIDTH * 108] = 236; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 108] = 237; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[59 + BUFFER_WIDTH * 109] = 236; // was tp
+					gpBuffer[68 + BUFFER_WIDTH * 109] = 237; // was tp
+					gpBuffer[69 + BUFFER_WIDTH * 109] = 236; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[71 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[72 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 110] = 0; // was color171)
+					gpBuffer[79 + BUFFER_WIDTH * 110] = 0; // was color188)
+					gpBuffer[80 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 110] = TRANS_COLOR; // color207)
+					gpBuffer[77 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 112] = TRANS_COLOR; // color0)
+					gpBuffer[76 + BUFFER_WIDTH * 113] = 237; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 113] = TRANS_COLOR; // color0)
+					gpBuffer[75 + BUFFER_WIDTH * 114] = 237; // was tp
+					gpBuffer[90 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[93 + BUFFER_WIDTH * 114] = TRANS_COLOR; // color0)
+					gpBuffer[66 + BUFFER_WIDTH * 115] = 237; // was tp
+					gpBuffer[67 + BUFFER_WIDTH * 115] = 237; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[88 + BUFFER_WIDTH * 115] = 0; // was tp
+					gpBuffer[64 + BUFFER_WIDTH * 116] = 237; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 116] = 0; // was tp
+					gpBuffer[73 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[74 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[87 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[64 + BUFFER_WIDTH * 118] = 237; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 118] = 0; // was tp
+				}
+				if (i == 7) { // 56
+					gpBuffer[90 + BUFFER_WIDTH * 102] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 102] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 102] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[90 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[91 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 103] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[88 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[89 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color0)
+					gpBuffer[92 + BUFFER_WIDTH * 104] = TRANS_COLOR; // color191)
+					gpBuffer[83 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[84 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[85 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[86 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[87 + BUFFER_WIDTH * 105] = TRANS_COLOR; // color0)
+					gpBuffer[82 + BUFFER_WIDTH * 107] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 107] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 108] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[78 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 109] = 0; // was tp
+					gpBuffer[75 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[76 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[77 + BUFFER_WIDTH * 110] = 0; // was tp
+					gpBuffer[79 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 111] = 0; // was tp
+					gpBuffer[80 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[81 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[82 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[83 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 112] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 113] = 0; // was tp
+					gpBuffer[86 + BUFFER_WIDTH * 114] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 117] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 118] = 0; // was tp
+					gpBuffer[85 + BUFFER_WIDTH * 119] = 0; // was tp
+					gpBuffer[84 + BUFFER_WIDTH * 120] = 0; // was tp
+				}
+			} else {
+				Cl2Draw(0, height - 1, frameBuf, n, width);
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -1933,6 +3444,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	}
 
 	switch (index) {
+	case FILE_MOVIE_VIC1:
+	case FILE_MOVIE_VIC2:
+	case FILE_MOVIE_VIC3:
+	{	// patch .SMK
+		patchMovie(index, buf, dwLen);
+	} break;
 #if ASSET_MPL == 1
 	case FILE_TOWN_CEL:
 	{	// patch dMicroCels - TOWN.CEL
@@ -2432,10 +3949,25 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L5_PatchTil(buf);
 	} break;
+#if ASSET_MPL == 1
 	case FILE_L5LIGHT_CEL:
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);
 	} break;
+	case FILE_MON_FALLGW:
+	{
+		size_t stdLen;
+		const char* stdFileName = "Monsters\\BigFall\\Fallgn.CL2";
+		BYTE* stdBuf = LoadFileInMem(stdFileName, &stdLen);
+		if (stdBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", stdFileName);
+			return NULL;
+		}
+		buf = createFallgwAnim(buf, dwLen, stdBuf);
+		mem_free_dbg(stdBuf);
+	} break;
+#endif // ASSET_MPL
 	case FILE_OBJCURS_CEL:
 	{
 		size_t sizeB, sizeAB;

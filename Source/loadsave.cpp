@@ -337,7 +337,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 
 	mon->_mMTidx = savedMon->vmMTidx;
 	mon->_mpathcount = savedMon->vmpathcount; // unused
-	mon->_mWhoHit = savedMon->vmWhoHit;
+	mon->_mAlign_1 = savedMon->vmAlign_1;     // unused
 	mon->_mgoal = savedMon->vmgoal;
 
 	mon->_mgoalvar1 = savedMon->vmgoalvar1;
@@ -652,14 +652,6 @@ static BYTE* LoadPortal(BYTE* DVL_RESTRICT src, int i)
 
 	return src;
 }
-
-/*static void RedoPlayerLight()
-{
-	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
-			ChangeLightXY(plr._plid, plr._px, plr._py);
-	}
-}*/
 
 static BYTE* LoadLevelData(BYTE* src, bool full)
 {
@@ -1189,7 +1181,7 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 
 	monSave->vmMTidx = mon->_mMTidx;
 	monSave->vmpathcount = mon->_mpathcount; // unused
-	monSave->vmWhoHit = mon->_mWhoHit;
+	monSave->vmAlign_1 = mon->_mAlign_1;     // unused
 	monSave->vmgoal = mon->_mgoal;
 
 	monSave->vmgoalvar1 = mon->_mgoalvar1;
@@ -1545,6 +1537,51 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 	return dest;
 }
 
+/*static void RedoPlayerLight()
+{
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
+			ChangeLightXY(plr._plid, plr._px, plr._py);
+	}
+}
+
+static BYTE* SaveMonstersLight(BYTE* dest)
+{
+	MonsterStruct* mon;
+	int mnum;
+	LE_INT32* nl = (LE_INT32*)dest;
+	*nl = 0;
+	dest += sizeof(LE_INT32);
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		mon = &monsters[mnum];
+		if (mon->_mlid != NO_LIGHT) {
+			LE_INT32* mp = (LE_INT32*)dest;
+			*mp = mnum;
+			dest += sizeof(LE_INT32);
+			dest = SaveLight(dest, &LightList[mon->_mlid]);
+			*nl = *nl + 1;
+		}
+	}
+	return dest;
+}
+
+static BYTE* SyncMonstersLight(BYTE* src)
+{
+	int i, lid;
+	int nl = *(LE_INT32*)src;
+	src += sizeof(LE_INT32);
+	for (i = 0; i < nl; i++) {
+		lid = monsters[*(LE_INT32*)src]._mlid;
+		src += sizeof(LE_INT32);
+		assert(lid != NO_LIGHT);
+		LightListStruct lls;
+		src = LoadLight(src, &lls);
+		ChangeLight(lid, lls._lx, lls._ly, lls._lradius);
+		ChangeLightScreenOff(lid, lls._lxoff, lls._lyoff);
+	}
+	return src;
+}*/
+
 void SaveGame()
 {
 	int i;
@@ -1679,6 +1716,7 @@ void SaveLevel()
 	tbuff = fileBuff;
 
 	tbuff = SaveLevelData(tbuff, false);
+	//tbuff = SaveMonstersLight(tbuff); -- assuming there are no moving monsters with light
 
 	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/);
 	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
@@ -1694,8 +1732,8 @@ void LoadLevel()
 	tbuff = fileBuff;
 
 	tbuff = LoadLevelData(tbuff, false);
+	//tbuff = SyncMonstersLight(tbuff); -- assuming there are no moving monsters with light
 
-	SyncMonsterLight();
 	//ResyncQuests();
 	//SyncPortals();
 

@@ -1477,6 +1477,7 @@ static void DrawView()
 	}
 	DrawLifeFlask();
 	DrawManaFlask();
+	DrawGolemBar();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}

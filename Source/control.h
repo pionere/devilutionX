@@ -75,10 +75,7 @@ void DrawGoldSplit(int amount);
 void control_drop_gold(int vkey);
 void DrawTeamBook();
 void CheckTeamClick(bool shift);
-
-/* data */
-
-extern const RECT32 ChrBtnsRect[4];
+void DrawGolemBar();
 
 #ifdef __cplusplus
 }

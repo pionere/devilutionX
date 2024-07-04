@@ -12,11 +12,11 @@ DEVILUTION_BEGIN_NAMESPACE
 const MissileData missiledata[] = {
 	// clang-format off
 //                    mAddProc,        mProc,          mdFlags,                                       mResist,        mFileNum,       mDrawFlag, mlSFX,       miSFX,       mlSFXCnt, miSFXCnt, 
-/*MIS_ARROW*/       { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_NONE,      MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
-/*MIS_PBARROW*/     { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_NONE,      MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
-/*MIS_ASARROW*/     { &AddArrow,       &MI_AsArrow,    MIF_ARROW |              MIF_LEAD,             MISR_NONE,      MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
-/*MIS_MLARROW*/     { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_NONE,      MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN }, // miSFX was IS_STING
-/*MIS_PCARROW*/     { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_NONE,      MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
+/*MIS_ARROW*/       { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_PUNCTURE,  MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
+/*MIS_PBARROW*/     { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_PUNCTURE,  MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
+/*MIS_ASARROW*/     { &AddArrow,       &MI_AsArrow,    MIF_ARROW |              MIF_LEAD,             MISR_PUNCTURE,  MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
+/*MIS_MLARROW*/     { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_PUNCTURE,  MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN }, // miSFX was IS_STING
+/*MIS_PCARROW*/     { &AddArrow,       &MI_Arrow,      MIF_ARROW | MIF_SHROUD | MIF_LEAD,             MISR_PUNCTURE,  MFILE_ARROWS,   TRUE,      PS_BFIRE,    SFX_NONE,           1,        1, ALIGN },
 /*MIS_FIREBOLT*/    { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD | MIF_LEAD,                         MISR_FIRE,      MFILE_FIREBA,   TRUE,      LS_FBOLT1,   LS_FIRIMP2,         1,        1, ALIGN },
 /*MIS_FIREBALL*/    { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD | MIF_LEAD,                         MISR_FIRE,      MFILE_FIREBA,   TRUE,      LS_FBOLT1,   LS_FIRIMP2,         1,        1, ALIGN },
 /*MIS_HBOLT*/       { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD | MIF_LEAD,                         MISR_ACID,      MFILE_HOLY,     TRUE,      LS_HOLYBOLT, LS_ELECIMP1,        1,        1, ALIGN },

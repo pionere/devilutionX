@@ -506,10 +506,14 @@ typedef struct TMPQBits TMPQBits;
 //
 
 #define MPQ_HEADER_SIZE_V1    0x20
+#ifdef FULL
 #define MPQ_HEADER_SIZE_V2    0x2C
 #define MPQ_HEADER_SIZE_V3    0x44
 #define MPQ_HEADER_SIZE_V4    0xD0
 #define MPQ_HEADER_DWORDS     (MPQ_HEADER_SIZE_V4 / 0x04)
+#else
+#define MPQ_HEADER_DWORDS     (MPQ_HEADER_SIZE_V1 / 0x04)
+#endif
 
 typedef struct _TMPQUserData
 {
@@ -568,7 +572,7 @@ typedef struct _TMPQHeader
 
     // Number of entries in the block table
     DWORD dwBlockTableSize;
-
+#ifdef FULL
     //-- MPQ HEADER v 2 -------------------------------------------
 
     // Offset to the beginning of array of 16-bit high parts of file offsets.
@@ -619,6 +623,7 @@ typedef struct _TMPQHeader
     unsigned char MD5_BetTable[MD5_DIGEST_SIZE];        // MD5 of the BET table before decryption
     unsigned char MD5_HetTable[MD5_DIGEST_SIZE];        // MD5 of the HET table before decryption
     unsigned char MD5_MpqHeader[MD5_DIGEST_SIZE];       // MD5 of the MPQ header from signature to (including) MD5_HetTable
+#endif
 } TMPQHeader;
 #pragma pack(pop)
 
@@ -831,16 +836,17 @@ typedef struct _TMPQNameCache
 typedef struct _TMPQArchive
 {
     TFileStream  * pStream;                     // Open stream for the MPQ
-
+#ifdef FULL
     ULONGLONG      UserDataPos;                 // Position of user data (relative to the begin of the file)
+#endif
     ULONGLONG      MpqPos;                      // MPQ header offset (relative to the begin of the file)
     ULONGLONG      FileSize;                    // Size of the file at the moment of file open
 #ifdef FULL
     struct _TMPQArchive * haPatch;              // Pointer to patch archive, if any
     struct _TMPQArchive * haBase;               // Pointer to base ("previous version") archive, if any
     TMPQNamePrefix * pPatchPrefix;              // Patch prefix to precede names of patch files
-#endif
     TMPQUserData * pUserData;                   // MPQ user data (NULL if not present in the file)
+#endif
     TMPQHeader   * pHeader;                     // MPQ file header
     TMPQHash     * pHashTable;                  // Hash table
 #ifdef FULL
@@ -849,7 +855,9 @@ typedef struct _TMPQArchive
     TFileEntry   * pFileTable;                  // File table
     HASH_STRING    pfnHashString;               // Hashing function that will convert the file name into hash
 
+#ifdef FULL
     TMPQUserData   UserData;                    // MPQ user data. Valid only when ID_MPQ_USERDATA has been found
+#endif
     DWORD          HeaderData[MPQ_HEADER_DWORDS];  // Storage for MPQ header
 #ifdef FULL
     DWORD          dwHETBlockSize;

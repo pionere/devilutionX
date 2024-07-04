@@ -150,6 +150,7 @@ option(PIE "Generate position-independent code" OFF)
 option(CPACK "Configure CPack" ON)
 option(USE_LD_MOLD "Use mold linker(GNU|Clang)" OFF)
 option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
+option(WIN_NSIS "Generate an NSIS installer" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
@@ -688,15 +689,15 @@ if(USE_PATCH AND NOT ANDROID)
 
   if(NINTENDO_SWITCH)
     list(APPEND devil_patcher_SRCS
-      Source/platform/switch/docking.cpp
-      Source/platform/switch/romfs.cpp)
+      tools/patcher/platform/switch/docking.cpp
+      tools/patcher/platform/switch/romfs.cpp)
   endif()
 
   if(NINTENDO_3DS)
     list(APPEND devil_patcher_SRCS
-      Source/platform/ctr/system.cpp
-      Source/platform/ctr/display.cpp
-      Source/platform/ctr/messagebox.cpp)
+      tools/patcher/platform/ctr/system.cpp
+      tools/patcher/platform/ctr/display.cpp
+      tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
   set(PATCHER_SOURCES ${devil_patcher_SRCS})
@@ -1007,19 +1008,14 @@ endif()
 if(VITA)
   target_link_libraries(${BIN_TARGET} PRIVATE
         ScePower_stub
-        SceNet_stub
-        SceNetCtl_stub
-        freetype
-        png
-        m
-        z
-        FLAC
-        vorbisfile
-        vorbis
-        ogg
-        mikmod
-        mpg123
+        SceAppUtil_stub
   )
+  if(NOT NONET)
+    target_link_libraries(${BIN_TARGET} PRIVATE
+          SceNet_stub
+          SceNetCtl_stub
+    )
+  endif()
   #target_compile_definitions(${BIN_TARGET} PRIVATE VITA)
 endif()
 
@@ -1028,6 +1024,9 @@ if(NINTENDO_3DS)
   #target_include_directories(${BIN_TARGET} PRIVATE ${TREMOR_INCLUDE_DIRS})
   #target_link_libraries(${BIN_TARGET} PRIVATE 3ds::ogg 3ds::mikmod 3ds::mad 3ds::freetype 3ds::bzip2 3ds::png)
   target_link_libraries(${BIN_TARGET} PRIVATE 3ds::citro3d 3ds::ctrulib)
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE 3ds::citro3d 3ds::ctrulib)
+  endif()
 endif()
 
 if(GPERF)
@@ -1295,8 +1294,20 @@ endif()
 if(CPACK)
   if(WIN32)
     set(CPACK_PACKAGE_NAME ${project_name})
-    set(CPACK_PACKAGE_FILE_NAME ${project_name})
-    set(CPACK_GENERATOR "ZIP")
+    if(WIN_NSIS)
+      set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_Installer")
+      set(CPACK_GENERATOR "NSIS")
+      set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
+      set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/Packaging/windows/icon.ico")
+      set(CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/Packaging/windows/icon.ico")
+      set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.md")
+      set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+      set(CPACK_PACKAGE_EXECUTABLES "${BIN_TARGET}" "${PROJECT_NAME}")
+      set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${BIN_TARGET}")
+    else()
+      set(CPACK_PACKAGE_FILE_NAME ${project_name})
+      set(CPACK_GENERATOR "ZIP")
+    endif()
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
 

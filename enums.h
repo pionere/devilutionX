@@ -382,7 +382,7 @@ typedef enum item_effect_type {
 	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
-	IPL_INVCURS,
+	//IPL_INVCURS,
 	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
@@ -527,7 +527,8 @@ typedef enum item_cursor_graphic {
 	ICURS_CLUB                        = 66,
 	ICURS_SABRE                       = 67,
 	ICURS_FALCON_GRYPHON              = 68,
-	ICURS_SPIKED_CLUB                 = 70,
+	ICURS_GNARLROOT                   = 70,
+	ICURS_SPIKED_CLUB                 = 71,
 	ICURS_SCIMITAR                    = 72,
 	ICURS_POIGNARD                    = 73,
 	ICURS_FULL_HELM                   = 75,
@@ -561,7 +562,7 @@ typedef enum item_cursor_graphic {
 	ICURS_STONECLEAVER                = 104,
 	ICURS_SMALL_SHIELD                = 105,
 	ICURS_CLEAVER                     = 106,
-	ICURS_STUDDED_LEATHER_ARMOR       = 107,
+	ICURS_STUD_LEATH_ARMOR            = 107,
 	ICURS_BATTLE_BOW                  = 108,
 	ICURS_SHORT_STAFF                 = 109,
 	ICURS_TWO_HANDED_SWORD            = 110,
@@ -2141,6 +2142,17 @@ typedef enum missile_collision_mode {
 	MICM_BLOCK_WALL,
 } missile_collision_mode;
 
+typedef enum missile_resistance {
+	MISR_NONE,
+	MISR_SLASH,
+	MISR_BLUNT,
+	MISR_PUNCTURE,
+	MISR_FIRE,
+	MISR_LIGHTNING,
+	MISR_MAGIC,
+	MISR_ACID,
+} missile_resistance;
+
 typedef enum _monster_ai {
 	AI_ZOMBIE,
 	AI_FAT,
@@ -2449,7 +2461,7 @@ typedef enum _monster_goal {
 	MGOAL_RETREAT,
 	MGOAL_HEALING,
 	MGOAL_MOVE,
-	MGOAL_ATTACK2,
+	MGOAL_ATTACK,
 	MGOAL_TALKING,
 } _monster_goal;
 
@@ -2500,17 +2512,6 @@ typedef enum _monster_resistance {
 	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } _monster_resistance;
-
-typedef enum missile_resistance {
-	MISR_NONE,
-	MISR_SLASH,
-	MISR_BLUNT,
-	MISR_PUNCTURE,
-	MISR_FIRE,
-	MISR_LIGHTNING,
-	MISR_MAGIC,
-	MISR_ACID,
-} missile_resistance;
 
 typedef enum _speech_id {
 	TEXT_KING1,
@@ -3696,7 +3697,7 @@ typedef enum _target_mode {
 	TGT_NORMAL,
 	TGT_ITEM,
 	TGT_OBJECT,
-	TGT_PLAYER,
+	TGT_OTHER,
 	TGT_DEAD,
 	TGT_NONE
 } _target_mode;
@@ -3742,7 +3743,7 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
-	ENTRY_WARPLVL,
+	ENTRY_PORTLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
 	ENTRY_RETOWN,
@@ -3889,7 +3890,7 @@ typedef enum _cmd_id {
 	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,
-	CMD_TWARP,
+	CMD_USEPORTAL,
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
 	CMD_DISCONNECT,

@@ -3,11 +3,16 @@
  *
  * Various global structures.
  */
+#ifndef _STRUCTS_H
+#define _STRUCTS_H
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifndef _STRUCTS_H
-#define _STRUCTS_H
+#ifndef __AMIGA__
+#define static_warning(x, msg) static_assert(x, msg)
+#else
+#define static_warning(x, msg)
+#endif
 
 #if INT_MAX == INT32_MAX && INTPTR_MAX == INT32_MAX
 #define X86_32bit_COMP
@@ -113,6 +118,7 @@ typedef struct UniqItemData {
 	const char* UIName;
 	BYTE UIUniqType; // unique_item_type
 	BYTE UIMinLvl;
+	uint16_t UICurs;
 	int UIValue;
 	BYTE UIPower1; // item_effect_type
 	int UIParam1a;
@@ -136,7 +142,7 @@ typedef struct UniqItemData {
 } UniqItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align UniqItemData to power of 2 for better performance.");
+static_warning((sizeof(UniqItemData) & (sizeof(UniqItemData) - 1)) == 64, "Align UniqItemData to power of 2 for better performance.");
 #endif
 
 typedef struct ItemFileData {
@@ -148,7 +154,7 @@ typedef struct ItemFileData {
 } ItemFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align ItemFileData to power of 2 for better performance.");
+static_warning((sizeof(ItemFileData) & (sizeof(ItemFileData) - 1)) == 0, "Align ItemFileData to power of 2 for better performance.");
 #endif
 
 typedef struct ItemData {
@@ -178,7 +184,7 @@ typedef struct ItemData {
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
+static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
 typedef struct ItemStruct {
@@ -266,7 +272,7 @@ typedef struct ItemStruct {
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemStruct closer to power of 2 for better performance.");
+static_warning((sizeof(ItemStruct) & (sizeof(ItemStruct) - 1)) == 0, "Align ItemStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -279,7 +285,7 @@ typedef struct PlrAnimType {
 } PlrAnimType;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(PlrAnimType) & (sizeof(PlrAnimType) - 1)) == 0, "Align PlrAnimType closer to power of 2 for better performance.");
+static_warning((sizeof(PlrAnimType) & (sizeof(PlrAnimType) - 1)) == 0, "Align PlrAnimType closer to power of 2 for better performance.");
 #endif
 
 typedef struct PlrAnimStruct {
@@ -288,9 +294,9 @@ typedef struct PlrAnimStruct {
 	int paAnimWidth;
 } PlrAnimStruct;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Align PlrAnimStruct closer to power of 2 for better performance.");
+static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
+static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #endif
 
 typedef struct PlayerStruct {
@@ -315,18 +321,18 @@ typedef struct PlayerStruct {
 	int16_t _pTimer[NUM_PLRTIMERS];
 	unsigned _pExperience;
 	unsigned _pNextExper;
-	int _px;      // Tile X-position of player
-	int _py;      // Tile Y-position of player
-	int _pfutx;   // Future tile X-position of player. Set at start of walking animation
-	int _pfuty;   // Future tile Y-position of player. Set at start of walking animation
-	int _poldx;   // Most recent X-position in dPlayer.
-	int _poldy;   // Most recent Y-position in dPlayer.
-	int _pxoff;   // Player sprite's pixel X-offset from tile.
-	int _pyoff;   // Player sprite's pixel Y-offset from tile.
+	int _px;      // Tile X-position where the player should be drawn
+	int _py;      // Tile Y-position where the player should be drawn
+	int _pfutx;   // Future tile X-position where the player will be at the end of its action
+	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
+	int _poldx;   // Most recent tile X-position where the player was at the start of its action
+	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
+	int _pxoff;   // Pixel X-offset from tile position where the player should be drawn
+	int _pyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	int _pdir;    // Direction faced by player (direction enum)
 	BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
-	int _pAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
+	int _pAnimCnt;        // Increases by one each game tick, counting how close we are to _pAnimFrameLen
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
@@ -445,7 +451,7 @@ typedef struct PlayerStruct {
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align PlayerStruct closer to power of 2 for better performance.");
+static_warning((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align PlayerStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -479,7 +485,7 @@ typedef struct MissileData {
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align MissileData to power of 2 for better performance.");
+static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align MissileData to power of 2 for better performance.");
 #endif
 
 typedef struct MisFileData {
@@ -494,7 +500,7 @@ typedef struct MisFileData {
 	ALIGNMENT(2, 14)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
+static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
 #endif
 
 typedef struct MissileStruct {
@@ -516,16 +522,16 @@ typedef struct MissileStruct {
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
-	int _misx;    // Initial tile X-position for missile
-	int _misy;    // Initial tile Y-position for missile
-	int _mix;     // Tile X-position of the missile
-	int _miy;     // Tile Y-position of the missile
-	int _mixoff;  // Sprite pixel X-offset for the missile
-	int _miyoff;  // Sprite pixel Y-offset for the missile
-	int _mixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-	int _miyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-	int _mitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	int _mityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	int _misx;    // Initial tile X-position
+	int _misy;    // Initial tile Y-position
+	int _mix;     // Tile X-position where the missile should be drawn
+	int _miy;     // Tile Y-position where the missile should be drawn
+	int _mixoff;  // Pixel X-offset from tile position where the missile should be drawn
+	int _miyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
+	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
+	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	int _miDir;   // The direction of the missile
 	int _miSpllvl;
 	int _miSource; // missile_source_type
@@ -547,9 +553,9 @@ typedef struct MissileStruct {
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Align MissileStruct closer to power of 2 for better performance.");
+static_warning((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 128, "Align MissileStruct closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Align MissileStruct closer to power of 2 for better performance.");
+static_warning((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Align MissileStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -588,9 +594,9 @@ typedef struct MonAnimStruct {
 	int maFrameLen;
 } MonAnimStruct;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 32, "Align MonAnimStruct closer to power of 2 for better performance.");
+static_warning((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 32, "Align MonAnimStruct closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 64, "Align MonAnimStruct closer to power of 2 for better performance.");
+static_warning((sizeof(MonAnimStruct) & (sizeof(MonAnimStruct) - 1)) == 64, "Align MonAnimStruct closer to power of 2 for better performance.");
 #endif
 
 typedef struct MonsterAI {
@@ -626,7 +632,7 @@ typedef struct MonsterData {
 	ALIGNMENT(5, 2)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
+static_warning((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
 #endif
 
 typedef struct MonFileData {
@@ -641,9 +647,9 @@ typedef struct MonFileData {
 	BYTE moAFNum2;
 } MonFileData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
+static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
+static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
 #endif
 #pragma pack(push, 1)
 typedef struct MapMonData {
@@ -679,34 +685,34 @@ typedef struct MapMonData {
 	ALIGNMENT(24, 17);
 } MapMonData;
 #ifdef X86_32bit_COMP
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
+static_warning((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 0, "Align MapMonData closer to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
+static_warning((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align MapMonData closer to power of 2 for better performance.");
 #endif
 #pragma pack(pop)
 typedef struct MonsterStruct {
-	int _mmode; /* MON_MODE */
+	int _mmode; // MON_MODE
 	unsigned _msquelch;
 	BYTE _mMTidx;
 	BYTE _mpathcount; // unused
-	BYTE _mWhoHit;    // unused in multiplayer games
+	BYTE _mAlign_1;   // unused
 	BYTE _mgoal;
 	int _mgoalvar1;
 	int _mgoalvar2;
 	int _mgoalvar3;
-	int _mx;                // Tile X-position of monster
-	int _my;                // Tile Y-position of monster
-	int _mfutx;             // Future tile X-position of monster. Set at start of walking animation
-	int _mfuty;             // Future tile Y-position of monster. Set at start of walking animation
-	int _moldx;             // Most recent X-position in dMonster.
-	int _moldy;             // Most recent Y-position in dMonster.
-	int _mxoff;             // Monster sprite's pixel X-offset from tile.
-	int _myoff;             // Monster sprite's pixel Y-offset from tile.
-	int _mdir;              // Direction faced by monster (direction enum)
-	int _menemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
-	BYTE _menemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE _menemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE _mListener;        // the player to whom the monster is talking to (unused)
+	int _mx;           // Tile X-position where the monster should be drawn
+	int _my;           // Tile Y-position where the monster should be drawn
+	int _mfutx;        // Future tile X-position where the monster will be at the end of its action
+	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
+	int _moldx;        // Most recent tile X-position where the monster was at the start of its action
+	int _moldy;        // Most recent tile Y-position where the monster was at the start of its action
+	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
+	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
+	int _mdir;         // Direction faced by monster (direction enum)
+	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	BYTE _mListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN _mDelFlag; // unused
 	BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
@@ -718,23 +724,23 @@ typedef struct MonsterStruct {
 	int _mVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
 	int _mVar4;
 	int _mVar5;
-	int _mVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	int _mVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	int _mVar8; // Value used to measure progress for moving from one tile to another
+	int _mVar6;
+	int _mVar7;
+	int _mVar8;
 	int _mmaxhp;
 	int _mhitpoints;
-	int _mlastx; // the last known X-coordinate of the enemy
-	int _mlasty; // the last known Y-coordinate of the enemy
+	int _mlastx; // the last known (future) tile X-coordinate of the enemy
+	int _mlasty; // the last known (future) tile Y-coordinate of the enemy
 	int _mRndSeed;
 	int _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
-	BYTE _mNameColor; // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
-	BYTE _mlid; // light id of the monster
-	BYTE _mleader; // the leader of the monster
+	BYTE _mNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
+	BYTE _mlid;        // light id of the monster
+	BYTE _mleader;     // the leader of the monster
 	BYTE _mleaderflag; // the status of the monster's leader
-	BYTE _mpacksize; // the number of 'pack'-monsters close to their leader
-	BYTE _mvid; // vision id of the monster (for minions only)
+	BYTE _mpacksize;   // the number of 'pack'-monsters close to their leader
+	BYTE _mvid;        // vision id of the monster (for minions only)
 	const char* _mName;
 	uint16_t _mFileNum; // _monster_gfx_id
 	BYTE _mLevel;
@@ -763,7 +769,7 @@ typedef struct MonsterStruct {
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
+static_warning((sizeof(MonsterStruct) & (sizeof(MonsterStruct) - 1)) == 0, "Align MonsterStruct to power of 2 for better performance.");
 #endif
 
 typedef struct MonEnemyStruct {
@@ -798,7 +804,7 @@ typedef struct UniqMonData {
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align UniqMonData to power of 2 for better performance.");
+static_warning((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align UniqMonData to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -833,7 +839,7 @@ typedef struct ObjectData {
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ObjectData) & (sizeof(ObjectData) - 1)) == 0, "Align ObjectData closer to power of 2 for better performance.");
+static_warning((sizeof(ObjectData) & (sizeof(ObjectData) - 1)) == 0, "Align ObjectData closer to power of 2 for better performance.");
 #endif
 
 typedef struct ObjFileData {
@@ -850,7 +856,7 @@ typedef struct ObjFileData {
 } ObjFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align ObjFileData closer to power of 2 for better performance.");
+static_warning((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align ObjFileData closer to power of 2 for better performance.");
 #endif
 
 typedef struct ObjectStruct {
@@ -892,7 +898,7 @@ typedef struct ObjectStruct {
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align ObjectStruct to power of 2 for better performance.");
+static_warning((sizeof(ObjectStruct) & (sizeof(ObjectStruct) - 1)) == 0, "Align ObjectStruct to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -907,7 +913,7 @@ typedef struct PortalStruct {
 } PortalStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 0, "Align PortalStruct closer to power of 2 for better performance.");
+static_warning((sizeof(PortalStruct) & (sizeof(PortalStruct) - 1)) == 0, "Align PortalStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -962,6 +968,9 @@ typedef struct LE_UINT32 {
 	void operator=(unsigned val) {
 		_value = SwapLE32(val);
 	};
+	void operator=(unsigned long val) {
+		_value = SwapLE32(val);
+	};
 #if INT_MAX != INT32_MAX
 	void operator=(uint32_t val) {
 		_value = SwapLE32(val);
@@ -986,6 +995,9 @@ typedef struct LE_INT32 {
 	int32_t _value;
 
 	void operator=(int val) {
+		_value = SwapLE32(val);
+	};
+	void operator=(long val) {
 		_value = SwapLE32(val);
 	};
 #if INT_MAX != INT32_MAX
@@ -1246,7 +1258,7 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
-	LE_INT32 vpDestParam3;	// the skill to be used in case of skill based actions
+	LE_INT32 vpDestParam3; // the skill to be used in case of skill based actions
 	LE_INT32 vpDestParam4; // the level of the skill to be used in case of skill based actions
 	BOOLEAN vpActive;
 	BYTE vpInvincible;
@@ -1262,14 +1274,14 @@ typedef struct LSavePlayerStruct {
 	LE_INT16 vpTimer[NUM_PLRTIMERS];
 	LE_UINT32 vpExperience;
 	LE_UINT32 vpNextExper;
-	LE_INT32 vpx;      // Tile X-position of player
-	LE_INT32 vpy;      // Tile Y-position of player
-	LE_INT32 vpfutx;   // Future tile X-position of player. Set at start of walking animation
-	LE_INT32 vpfuty;   // Future tile Y-position of player. Set at start of walking animation
-	LE_INT32 vpoldx;   // Most recent X-position in dPlayer.
-	LE_INT32 vpoldy;   // Most recent Y-position in dPlayer.
-	LE_INT32 vpxoff;   // Player sprite's pixel X-offset from tile.
-	LE_INT32 vpyoff;   // Player sprite's pixel Y-offset from tile.
+	LE_INT32 vpx;      // Tile X-position where the player should be drawn
+	LE_INT32 vpy;      // Tile Y-position where the player should be drawn
+	LE_INT32 vpfutx;   // Future tile X-position where the player will be at the end of its action
+	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
+	LE_INT32 vpoldx;   // Most recent tile X-position where the player was at the start of its action
+	LE_INT32 vpoldy;   // Most recent tile Y-position where the player was at the start of its action
+	LE_INT32 vpxoff;   // Pixel X-offset from tile position where the player should be drawn
+	LE_INT32 vpyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
 	INT vpAnimDataAlign;
 	INT vpAnimFrameLenAlign; // Tick length of each frame in the current animation
@@ -1339,27 +1351,27 @@ typedef struct LSavePlayerStruct {
 } LSavePlayerStruct;
 
 typedef struct LSaveMonsterStruct {
-	LE_INT32 vmmode; /* MON_MODE */
+	LE_INT32 vmmode; // MON_MODE
 	LE_UINT32 vmsquelch;
 	BYTE vmMTidx;
 	BYTE vmpathcount; // unused
-	BYTE vmWhoHit;
+	BYTE vmAlign_1;   // unused
 	BYTE vmgoal;
 	LE_INT32 vmgoalvar1;
 	LE_INT32 vmgoalvar2;
 	LE_INT32 vmgoalvar3;
-	LE_INT32 vmx;           // Tile X-position of monster
-	LE_INT32 vmy;           // Tile Y-position of monster
-	LE_INT32 vmfutx;        // Future tile X-position of monster. Set at start of walking animation
-	LE_INT32 vmfuty;        // Future tile Y-position of monster. Set at start of walking animation
-	LE_INT32 vmoldx;        // Most recent X-position in dMonster.
-	LE_INT32 vmoldy;        // Most recent Y-position in dMonster.
-	LE_INT32 vmxoff;        // Monster sprite's pixel X-offset from tile.
-	LE_INT32 vmyoff;        // Monster sprite's pixel Y-offset from tile.
+	LE_INT32 vmx;           // Tile X-position where the monster should be drawn
+	LE_INT32 vmy;           // Tile Y-position where the monster should be drawn
+	LE_INT32 vmfutx;        // Future tile X-position where the monster will be at the end of its action
+	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
+	LE_INT32 vmoldx;        // Most recent tile X-position where the monster was at the start of its action
+	LE_INT32 vmoldy;        // Most recent tile Y-position where the monster was at the start of its action
+	LE_INT32 vmxoff;        // Pixel X-offset from tile position where the monster should be drawn
+	LE_INT32 vmyoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
-	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array based on the vmeflag value.
-	BYTE vmenemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE vmenemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
+	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	BYTE vmenemyx;          // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE vmenemyy;          // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE vmListener;        // the player to whom the monster is talking to (unused)
 	BOOLEAN vmDelFlag; // unused
 	INT vmAnimDataAlign;
@@ -1372,23 +1384,23 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmVar3; // Used to store the original mode of a stoned monster. Not 'thread' safe -> do not use for anything else! 
 	LE_INT32 vmVar4;
 	LE_INT32 vmVar5;
-	LE_INT32 vmVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 vmVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 vmVar8; // Value used to measure progress for moving from one tile to another
+	LE_INT32 vmVar6;
+	LE_INT32 vmVar7;
+	LE_INT32 vmVar8;
 	LE_INT32 vmmaxhp;
 	LE_INT32 vmhitpoints;
-	LE_INT32 vmlastx; // the last known X-coordinate of the enemy
-	LE_INT32 vmlasty; // the last known Y-coordinate of the enemy
+	LE_INT32 vmlastx; // the last known (future) tile X-coordinate of the enemy
+	LE_INT32 vmlasty; // the last known (future) tile Y-coordinate of the enemy
 	LE_INT32 vmRndSeed;
 	LE_INT32 vmAISeed;
 	BYTE vmuniqtype;
 	BYTE vmuniqtrans;
-	BYTE vmNameColor;
-	BYTE vmlid;
-	BYTE vmleader; // the leader of the monster
+	BYTE vmNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
+	BYTE vmlid;        // light id of the monster
+	BYTE vmleader;     // the leader of the monster
 	BYTE vmleaderflag; // the status of the monster's leader
-	BYTE vmpacksize; // the number of 'pack'-monsters close to their leader
-	BYTE vmvid; // vision id of the monster (for minions only)
+	BYTE vmpacksize;   // the number of 'pack'-monsters close to their leader
+	BYTE vmvid;        // vision id of the monster (for minions only)
 	INT vmNameAlign;
 	LE_UINT16 vmFileNum;
 	BYTE vmLevel;
@@ -1407,7 +1419,7 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmMagic;      // hit chance of magic-projectile
 	LE_INT32 vmArmorClass; // AC+evasion: used against physical-hit (melee+projectile)
 	LE_INT32 vmEvasion;    // evasion: used against magic-projectile
-	LE_UINT32 vmMagicRes;  // resistances of the monster
+	LE_UINT32 vmMagicRes;  // resistances of the monster (_monster_resistance)
 	LE_UINT32 vmExp;
 } LSaveMonsterStruct;
 
@@ -1430,16 +1442,16 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiAnimCnt; // Increases by one each game tick, counting how close we are to vmiAnimFrameLen
 	LE_INT32 vmiAnimAdd;
 	LE_INT32 vmiAnimFrame; // Current frame of animation.
-	LE_INT32 vmisx;    // Initial tile X-position for missile
-	LE_INT32 vmisy;    // Initial tile Y-position for missile
-	LE_INT32 vmix;     // Tile X-position of the missile
-	LE_INT32 vmiy;     // Tile Y-position of the missile
-	LE_INT32 vmixoff;  // Sprite pixel X-offset for the missile
-	LE_INT32 vmiyoff;  // Sprite pixel Y-offset for the missile
-	LE_INT32 vmixvel;  // Missile tile X-velocity while walking. This gets added onto vmitxoff each game tick
-	LE_INT32 vmiyvel;  // Missile tile Y-velocity while walking. This gets added onto vmitxoff each game tick
-	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 vmisx;    // Initial tile X-position
+	LE_INT32 vmisy;    // Initial tile Y-position
+	LE_INT32 vmix;     // Tile X-position where the missile should be drawn
+	LE_INT32 vmiy;     // Tile Y-position where the missile should be drawn
+	LE_INT32 vmixoff;  // Pixel X-offset from tile position where the missile should be drawn
+	LE_INT32 vmiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 vmixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
+	LE_INT32 vmiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
+	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	LE_INT32 vmiDir;   // The direction of the missile
 	LE_INT32 vmiSpllvl;
 	LE_INT32 vmiSource; // missile_source_type
@@ -1807,14 +1819,14 @@ typedef struct TSyncLvlPlayer {
 	LE_INT32 spDestParam3;
 	LE_INT32 spDestParam4;
 	LE_INT16 spTimer[NUM_PLRTIMERS];
-	BYTE spx;      // Tile X-position of player
-	BYTE spy;      // Tile Y-position of player
-	BYTE spfutx;   // Future tile X-position of player. Set at start of walking animation
-	BYTE spfuty;   // Future tile Y-position of player. Set at start of walking animation
-	BYTE spoldx;   // Most recent X-position in dPlayer.
-	BYTE spoldy;   // Most recent Y-position in dPlayer.
-//	LE_INT32 spxoff;   // Player sprite's pixel X-offset from tile.
-//	LE_INT32 spyoff;   // Player sprite's pixel Y-offset from tile.
+	BYTE spx;      // Tile X-position where the player should be drawn
+	BYTE spy;      // Tile Y-position where the player should be drawn
+	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
+	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
+	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
+	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
+//	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
+//	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)
 	BYTE spAnimFrame; // Current frame of animation.
 	BYTE spAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
@@ -1837,24 +1849,24 @@ typedef struct TSyncLvlMonster {
 	LE_UINT32 smSquelch;
 	//BYTE _mMTidx;
 	//BYTE smPathcount; // unused
-	//BYTE smWhoHit;
+	//BYTE smAlign_1;   // unused
 	BYTE smGoal;
 	LE_INT32 smGoalvar1;
 	LE_INT32 smGoalvar2;
 	LE_INT32 smGoalvar3;
-	BYTE smx;                // Tile X-position of monster
-	BYTE smy;                // Tile Y-position of monster
-	BYTE smfutx;             // Future tile X-position of monster. Set at start of walking animation
-	BYTE smfuty;             // Future tile Y-position of monster. Set at start of walking animation
-	BYTE smoldx;             // Most recent X-position in dMonster.
-	BYTE smoldy;             // Most recent Y-position in dMonster.
-//	LE_INT32 smxoff;             // Monster sprite's pixel X-offset from tile.
-//	LE_INT32 smyoff;             // Monster sprite's pixel Y-offset from tile.
-	BYTE smdir;              // Direction faced by monster (direction enum)
-	LE_INT32 smEnemy;            // The current target of the monster. An index in to either the plr or monster array based on the _meflag value.
-	BYTE smEnemyx;          // X-coordinate of enemy (usually correspond's to the enemy's futx value)
-	BYTE smEnemyy;          // Y-coordinate of enemy (usually correspond's to the enemy's futy value)
-	BYTE smListener;        // the player to whom the monster is talking to (unused)
+	BYTE smx;          // Tile X-position where the monster should be drawn
+	BYTE smy;          // Tile Y-position where the monster should be drawn
+	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
+	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
+	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
+	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
+//	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
+//	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
+	BYTE smdir;        // Direction faced by monster (direction enum)
+	LE_INT32 smEnemy;  // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	BYTE smEnemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE smEnemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	BYTE smListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
 	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	BYTE smAnimFrame; // Current frame of animation.
@@ -1863,12 +1875,12 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smVar3;
 	LE_INT32 smVar4;
 	LE_INT32 smVar5;
-	LE_INT32 smVar6; // Used as _mxoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 smVar7; // Used as _myoff but with a higher range so that we can correctly apply velocities of a smaller number
-	LE_INT32 smVar8; // Value used to measure progress for moving from one tile to another
+	LE_INT32 smVar6;
+	LE_INT32 smVar7;
+	LE_INT32 smVar8;
 	LE_INT32 smHitpoints;
-	BYTE smLastx; // the last known X-coordinate of the enemy
-	BYTE smLasty; // the last known Y-coordinate of the enemy
+	BYTE smLastx; // the last known (future) tile X-coordinate of the enemy
+	BYTE smLasty; // the last known (future) tile Y-coordinate of the enemy
 	//BYTE smLeader; // the leader of the monster
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
@@ -1890,14 +1902,14 @@ typedef struct TSyncLvlMissile {
 	BYTE smiDir;   // The direction of the missile
 	BYTE smisx;    // Initial tile X-position for missile
 	BYTE smisy;    // Initial tile Y-position for missile
-	BYTE smix;     // Tile X-position of the missile
-	BYTE smiy;     // Tile Y-position of the missile
-	LE_INT32 smixoff;  // Sprite pixel X-offset for the missile
-	LE_INT32 smiyoff;  // Sprite pixel Y-offset for the missile
-	LE_INT32 smixvel;  // Missile tile X-velocity while walking. This gets added onto _mitxoff each game tick
-	LE_INT32 smiyvel;  // Missile tile Y-velocity while walking. This gets added onto _mitxoff each game tick
-	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the X-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the Y-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	BYTE smix;     // Tile X-position where the missile should be drawn
+	BYTE smiy;     // Tile Y-position where the missile should be drawn
+	LE_INT32 smixoff;  // Pixel X-offset from tile position where the missile should be drawn
+	LE_INT32 smiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 smixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
+	LE_INT32 smiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
+	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
 	LE_INT32 smiSpllvl; // TODO: int?
 	LE_INT32 smiSource; // TODO: int?
 	LE_INT32 smiCaster; // TODO: int?
@@ -1911,8 +1923,8 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiVar4;
 	LE_INT32 smiVar5;
 	LE_INT32 smiVar6;
-	LE_INT32 smiVar7;
-	LE_INT32 smiVar8;
+	LE_INT32 smiVar7; // distance travelled in case of ARROW missiles
+	LE_INT32 smiVar8; // last target in case of non-DOT missiles
 	BYTE smiLidRadius;
 } TSyncLvlMissile;
 
@@ -2074,6 +2086,7 @@ typedef struct LevelStruct {
 	int _dType;       // cached type of the level (dungeon_type)
 	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
 	int _dLevelPlyrs; // cached number of players when the level was 'initialized'
+	int _dLevelBonus; // cached level bonus
 } LevelStruct;
 
 typedef struct LevelFileData {
@@ -2111,9 +2124,9 @@ typedef struct LevelData {
 } LevelData;
 
 #ifdef X86_32bit_COMP
-static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelData to power of 2 for better performance.");
+static_warning((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 0, "Align LevelData to power of 2 for better performance.");
 #elif defined(X86_64bit_COMP)
-static_assert((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 64, "Align LevelData to power of 2 for better performance.");
+static_warning((sizeof(LevelData) & (sizeof(LevelData) - 1)) == 64, "Align LevelData to power of 2 for better performance.");
 #endif
 
 typedef struct WarpStruct {
@@ -2148,7 +2161,7 @@ typedef struct QuestStruct {
 } QuestStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align QuestStruct to power of 2 for better performance.");
+static_warning((sizeof(QuestStruct) & (sizeof(QuestStruct) - 1)) == 0, "Align QuestStruct to power of 2 for better performance.");
 #endif
 
 typedef struct QuestData {
@@ -2203,7 +2216,7 @@ typedef struct SpellData {
 	ALIGNMENT64(6)
 } SpellData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellData to power of 2 for better performance.");
+static_warning((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellData to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -2320,7 +2333,7 @@ typedef struct ThemeStruct {
 } ThemeStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
+static_warning((sizeof(ThemeStruct) & (sizeof(ThemeStruct) - 1)) == 0, "Align ThemeStruct to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -2354,7 +2367,7 @@ typedef struct LightListStruct {
 } LightListStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "Align LightListStruct closer to power of 2 for better performance.");
+static_warning((sizeof(LightListStruct) & (sizeof(LightListStruct) - 1)) == 0, "Align LightListStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -2485,7 +2498,7 @@ typedef struct PATHNODE {
 } PATHNODE;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE closer to power of 2 for better performance.");
+static_warning((sizeof(PATHNODE) & (sizeof(PATHNODE) - 1)) == 0, "Align PATHNODE closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////
@@ -2575,7 +2588,7 @@ typedef struct STextStruct {
 } STextStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
-static_assert((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STextStruct closer to power of 2 for better performance.");
+static_warning((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align STextStruct closer to power of 2 for better performance.");
 #endif
 
 //////////////////////////////////////////////////

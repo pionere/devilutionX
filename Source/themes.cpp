@@ -584,7 +584,7 @@ static void Theme_SkelRoom(int themeId, BYTE tv)
 static void Theme_Treasure(BYTE tv)
 {
 	int xx, yy;
-	const BYTE treasrnds[4] = { 4, 9, 7, 10 };
+	const BYTE treasrnds[4] = { 6, 9, 7, 10 };
 	const BYTE treasrnd = treasrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	for (xx = DBORDERX; xx < DBORDERX + DSIZEX; xx++) {
