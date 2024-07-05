@@ -2563,7 +2563,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		// if (frame.subtileIndex0 < 0) {
 		// 	continue;
 		// }
-		for (int n = 0; n < lengthof(frame.microIndices0); n++) {
+		for (int n = 0; n < lengthof(frame.microIndices0) && frame.subtileIndex0 >= 0; n++) {
 			if (frame.microIndices0[n] < 0) {
 				continue;
 			}
