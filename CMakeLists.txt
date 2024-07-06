@@ -658,6 +658,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/controls/devices/kbcontroller.cpp
     tools/patcher/controls/game_controls.cpp
     tools/patcher/controls/touch.cpp
+    tools/patcher/DiabloUI/checker.cpp
     tools/patcher/DiabloUI/diabloui.cpp
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp

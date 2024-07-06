@@ -24,11 +24,12 @@ static void MainmenuEsc()
 
 static void MainmenuLoad()
 {
-	int numOptions = 3;
+	int numOptions = 4;
 
 	gUIListItems.push_back(new UiListItem("Patch Assets", 0));
 	gUIListItems.push_back(new UiListItem("Merge Assets", 1));
-	gUIListItems.push_back(new UiListItem("Exit Patcher", 2));
+	gUIListItems.push_back(new UiListItem("Check Assets", 2));
+	gUIListItems.push_back(new UiListItem("Exit Patcher", 3));
 
 	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
 

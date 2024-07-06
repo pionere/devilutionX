@@ -5,7 +5,7 @@
  */
 #pragma once
 
-//#include <vector>
+#include <string>
 
 #include "all.h"
 
@@ -14,6 +14,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Defined in init.cpp */
+extern std::string diabdat_paths[NUM_MPQS + 1];
 
 /* Defined in effects.cpp */
 /*#ifndef NOSOUND
