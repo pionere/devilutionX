@@ -21,22 +21,23 @@ jobs:
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v11.1
+      uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
+        vcpkgGitCommitId: '095ee06e7f60dceef7d713e3f8b1c2eb10d650d7'
+        #vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
         #vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
         #vcpkgGitCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
-    - name: Install Required Packages
-      run: |
-        vcpkg install sdl2:x64-windows libsodium:x64-windows
+    #- name: Install Required Packages
+    #  run: |
+    #    vcpkg install sdl2:x64-windows libsodium:x64-windows
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D SCREEN_READER_INTEGRATION=ON -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
-
+      run: cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      #-D SCREEN_READER_INTEGRATION=ON
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
