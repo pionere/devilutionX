@@ -19,6 +19,8 @@ void UiDestroy();
 bool UiTitleDialog();
 /* Defined in mainmenu.cpp */
 int UiMainMenuDialog();
+/* Defined in checker.cpp */
+void UiCheckerDialog();
 /* Defined in merger.cpp */
 void UiMergerDialog();
 /* Defined in patcher.cpp */
