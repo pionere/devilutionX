@@ -684,6 +684,14 @@ static void SetupLocalPlr()
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
+	int spls[] = { SPL_TELEPORT, SPL_MANASHIELD, SPL_TOWN, SPL_GOLEM };
+	for (int i = 0; i < lengthof(spls); i++) {
+		int sn = spls[i];
+		if (p->_pSkillLvlBase[sn] == 0)
+			p->_pSkillLvlBase[sn] = 10;
+		if ((p->_pMemSkills & SPELL_MASK(sn)) == 0)
+			p->_pMemSkills |= SPELL_MASK(sn);
+	}
 	assert(p->_pWalkpath[0] == DIR_NONE);
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
