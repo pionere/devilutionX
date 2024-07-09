@@ -830,6 +830,8 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
+	glSeedTbl[4] = 774112450;
+	glSeedTbl[DLV_HELL3] = 1044985017;
 
 	InitQuests();
 	InitPortals();
