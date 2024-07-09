@@ -1170,10 +1170,11 @@ static void AddShrine(int oi)
 	os = &objects[oi];
 	os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
+	/* -- disabled because the animation is shifted and not much point without trap (+ cel file is cut in the patcher)
 	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
-	}
+	}*/
 }
 
 static void ObjAddRndSeed(int oi)
