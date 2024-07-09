@@ -263,8 +263,9 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 {
 	DDPortal* pDPortal;
 	DDQuest* pDQuest;
+	DDDynLevel* pDLevel;
 	int i;
-	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
+	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + NUM_DYNLVLS * sizeof(DDDynLevel) + sizeof(gsDeltaData.ddJunk);
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaExportJunk.");
 
 	// export portals
@@ -283,6 +284,14 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 		pDQuest->qvar1 = quests[i]._qvar1;
 	}
 	dst = (BYTE*)pDQuest;
+	// export dynamic levels
+	pDLevel = (DDDynLevel*)dst;
+	for (i = 0; i < NUM_DYNLVLS; i++) {
+		pDLevel->dlSeed = glSeedTbl[NUM_FIXLVLS + i];
+		pDLevel->dlLevel = gDynLevels[i]._dnLevel;
+		pDLevel++;
+	}
+	dst = (BYTE*)pDLevel;
 	// export golems
 	memcpy(dst, &gsDeltaData.ddJunk, sizeof(gsDeltaData.ddJunk));
 	dst += sizeof(gsDeltaData.ddJunk);
@@ -294,9 +303,10 @@ static void DeltaImportJunk()
 {
 	DDPortal* pDPortal;
 	DDQuest* pDQuest;
+	DDDynLevel* pDLevel;
 	int i;
 	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
-	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
+	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + NUM_DYNLVLS * sizeof(DDDynLevel) + sizeof(gsDeltaData.ddJunk);
 	// static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaImportJunk.");
 
@@ -318,6 +328,14 @@ static void DeltaImportJunk()
 		quests[i]._qvar1 = pDQuest->qvar1;
 	}
 	src = (BYTE*)pDQuest;
+	// export dynamic levels
+	pDLevel = (DDDynLevel*)src;
+	for (i = 0; i < NUM_DYNLVLS; i++) {
+		glSeedTbl[NUM_FIXLVLS + i] = pDLevel->dlSeed;
+		gDynLevels[i]._dnLevel = pDLevel->dlLevel;
+		pDLevel++;
+	}
+	src = (BYTE*)pDLevel;
 	// update golems
 	memcpy(&gsDeltaData.ddJunk, src, sizeof(gsDeltaData.ddJunk));
 	// src += sizeof(gsDeltaData.ddJunk);
@@ -665,10 +683,10 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	pD->dmCmd = DCMD_MON_ACTIVE;
 	pD->dmx = pG->goX;
 	pD->dmy = pG->goY;
-	pD->dmactive = static_cast<uint32_t>(SQUELCH_MAX);
+	// pD->dmactive = static_cast<uint32_t>(SQUELCH_MAX); -- should not matter
 	// pD->dmdir = DIR_S; -- should not matter
 	static_assert(MLEADER_NONE == 0, "delta_awake_golem expects _mleaderflag to be set by zerofill.");
-	// pD->dmleaderflag = MLEADER_NONE;
+	// assert(pD->dmleaderflag == MLEADER_NONE);
 	pD->dmhitpoints = monsters[mnum]._mmaxhp;
 }
 
@@ -2177,6 +2195,17 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
+void NetSendCmdCreateLvl(DWORD seed)
+{
+	TCmdCreateLvl cmd;
+
+	cmd.bCmd = CMD_CREATELVL;
+	cmd.clPlayers = gbActivePlayers; // TODO: could be done in On_CREATELVL 
+	cmd.clSeed = seed;
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
 void NetSendCmdString(unsigned int pmask)
 {
 	int dwStrLen;
@@ -2691,6 +2720,45 @@ static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
 	}
 
 	StartNewLvl(pnum, cmd->bFom, bLevel);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
+{
+	TCmdCreateLvl* cmd = (TCmdCreateLvl*)pCmd;
+	BYTE bLevel, bPlayers;
+	for (bLevel = NUM_FIXLVLS; bLevel < NUM_LEVELS; bLevel++) {
+		int i = 0;
+		for ( ; i < MAX_PLRS; i++) {
+			if (plx(i)._pActive && plx(i)._pDunLevel == bLevel)
+				break;
+			if (portals[i]._rlevel == bLevel)
+				break;
+		}
+		if (i == MAX_PLRS) {
+			break;
+		}
+	}
+	bPlayers = cmd->clPlayers;
+	net_assert(bLevel < NUM_LEVELS);
+	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
+	// reset level delta (entities + automap)
+	// - multi
+	static_assert((int)DCMD_INVALID == 0, "On_CREATELVL initializes the items with zero, assuming the invalid command to be zero.");
+	static_assert((int)DCMD_MON_INVALID == 0, "On_CREATELVL initializes the monsters with zero, assuming the invalid command to be zero.");
+	static_assert((int)CMD_SYNCDATA == 0, "On_CREATELVL initializes the objects with zero, assuming none of the valid commands for an object to be zero.");
+	memset(&gsDeltaData.ddLevel[bLevel], 0, sizeof(DDLevel));
+	memset(&gsDeltaData.ddLocal[bLevel], 0, sizeof(LocalLevel));
+	// - single
+	guLvlVisited &= ~LEVEL_MASK(bLevel);
+	// setup the new level
+	glSeedTbl[bLevel] = cmd->clSeed;
+	gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
+	static_assert(MAXCHARLEVEL + HELL_LEVEL_BONUS < CF_LEVEL, "On_CREATELVL might initialize a level which is too high for item-drops.");
+	gDynLevels[bLevel - NUM_FIXLVLS]._dnLevel = plr._pLevel;
+
+	StartNewLvl(pnum, DVL_DWM_DYNLVL, bLevel);
 
 	return sizeof(*cmd);
 }
@@ -4453,6 +4521,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_NEWLVL:
 		return On_NEWLVL(pCmd, pnum);
+	case CMD_CREATELVL:
+		return On_CREATELVL(pCmd, pnum);
 	case CMD_USEPORTAL:
 		return On_USEPORTAL(pCmd, pnum);
 	case CMD_RETOWN:

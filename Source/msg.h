@@ -102,6 +102,10 @@ void SendStoreCmd2(BYTE bStoreId);
  * @param bLevel: the destination level
  */
 void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
+/** Initiate level creation and change.
+ * @param seed: the seed of the level
+ */
+void NetSendCmdCreateLvl(DWORD seed);
 void NetSendCmdString(unsigned int pmask);
 unsigned ParseMsg(int pnum, TCmd* pCmd);
 unsigned ParseCmd(int pnum, TCmd* pCmd);

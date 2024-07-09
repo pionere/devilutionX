@@ -494,14 +494,6 @@ void GetLevelMTypes()
 
 	lvl = currLvl._dLevelIdx;
 	//if (!currLvl._dSetLvl) {
-		if (lvl == DLV_HELL4) {
-			AddMonsterType(MT_BMAGE, TRUE);
-			AddMonsterType(MT_GBLACK, TRUE);
-			// AddMonsterType(MT_NBLACK, FALSE);
-			// AddMonsterType(uniqMonData[UMT_DIABLO].mtype, FALSE);
-			return;
-		}
-
 #ifdef HELLFIRE
 		if (lvl == uniqMonData[UMT_HORKDMN].muLevelIdx - 1)
 			AddMonsterType(MT_HORKSPWN, TRUE);
@@ -512,7 +504,6 @@ void GetLevelMTypes()
 		if (lvl == uniqMonData[UMT_DEFILER].muLevelIdx)
 			AddMonsterType(uniqMonData[UMT_DEFILER].mtype, FALSE);
 		if (lvl == DLV_CRYPT4) {
-			AddMonsterType(MT_ARCHLICH, TRUE);
 			// AddMonsterType(uniqMonData[UMT_NAKRUL].mtype, FALSE);
 		}
 #endif
@@ -548,6 +539,19 @@ void GetLevelMTypes()
 		//	AddMonsterType(uniqMonData[UMT_RED_VEX].mtype, FALSE);
 		//  assert(uniqMonData[UMT_RED_VEX].mtype == uniqMonData[UMT_BLACKJADE].mtype);
 		//}
+		lvl = currLvl._dLevelNum;
+		if (lvl == DLV_HELL4) {
+			AddMonsterType(MT_BMAGE, TRUE);
+			AddMonsterType(MT_GBLACK, TRUE);
+			// AddMonsterType(MT_NBLACK, FALSE);
+			// AddMonsterType(uniqMonData[UMT_DIABLO].mtype, FALSE);
+			// return;
+		}
+#ifdef HELLFIRE
+		if (lvl == DLV_CRYPT4) {
+			AddMonsterType(MT_ARCHLICH, TRUE);
+		}
+#endif
 		lds = &AllLevels[lvl];
 		for (nt = 0; nt < lengthof(lds->dMonTypes); nt++) {
 			mtype = lds->dMonTypes[nt];
@@ -726,7 +730,7 @@ void WakeNakrul()
 void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y)
 {
 	static_assert(DLV_TOWN == 0, "InitSummonedMonster skips the first entry glSeedTbl assuming the 'dynamic' seed is stored there.");
-	SetRndSeed(glSeedTbl[(mnum % (NUM_LEVELS - 1)) + 1]);
+	SetRndSeed(glSeedTbl[(mnum % (NUM_FIXLVLS - 1)) + 1]);
 	InitMonster(mnum, dir, mtidx, x, y);
 	monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 }
@@ -973,7 +977,7 @@ static int MonPackSpace(int dx, int dy, int px, int py, bool (&visited)[MON_PACK
 
 static void PlaceUniqueMonst(int uniqindex, int mtidx)
 {
-	int xp, yp, x, y;
+	int xp, yp;
 	int count2;
 	int mnum, count;
 
@@ -1016,10 +1020,14 @@ static void PlaceUniques()
 	for (u = 0; uniqMonData[u].mtype != MT_INVALID; u++) {
 		if (uniquetrans >= NUM_COLOR_TRNS)
 			continue;
-		if (uniqMonData[u].muLevelIdx != currLvl._dLevelIdx)
+		/*if (uniqMonData[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
 		if (uniqMonData[u].mQuestId != Q_INVALID
 		 && quests[uniqMonData[u].mQuestId]._qactive == QUEST_NOTAVAIL)
+			continue;*/
+		if (uniqMonData[u].muLevelIdx != currLvl._dLevelNum)
+			continue;
+		if (uniqMonData[u].mQuestId != Q_INVALID && !QuestStatus(uniqMonData[u].mQuestId))
 			continue;
 		for (mt = 0; mt < nummtypes; mt++) {
 			if (mapMonTypes[mt].cmType == uniqMonData[u].mtype) {
@@ -1124,7 +1132,7 @@ void InitMonsters()
 			for (yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
 				if ((nSolidTable[dPiece[xx][yy]] | (dFlags[xx][yy] & (BFLAG_ALERT | BFLAG_MON_PROTECT))) == 0)
 					na++;
-		na = na * AllLevels[currLvl._dLevelIdx].dMonDensity / 32;
+		na = na * AllLevels[currLvl._dLevelNum].dMonDensity / 32;
 
 		numplacemonsters = na / 32;
 		totalmonsters = nummonsters + numplacemonsters;
@@ -2070,7 +2078,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	my = mon->_my;
 	switch (mon->_muniqtype - 1) {
 	case UMT_GARBUD:
-		assert(QuestStatus(Q_GARBUD));
+		// assert(QuestStatus(Q_GARBUD));
 		CreateTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
@@ -2086,19 +2094,20 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		}
 		break;
 	case UMT_ZAMPHIR:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL) {
+		if (quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL && currLvl._dLevelIdx == uniqMonData[UMT_ZAMPHIR].muLevelIdx) {
 			SpawnQuestItemAt(IDI_BRAIN, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
-		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL) {
+		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL && currLvl._dLevelIdx == uniqMonData[UMT_HORKDMN].muLevelIdx) {
 			SpawnQuestItemAt(IDI_THEODORE, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
 	case UMT_DEFILER:
+		// assert(QuestStatus(Q_DEFILER));
 		//if (IsSFXPlaying(USFX_DEFILER8))
 			StopStreamSFX();
 		// quests[Q_DEFILER]._qlog = FALSE;
@@ -3232,7 +3241,7 @@ void MAI_Sneak(int mnum)
 	}
 	if (mon->_mgoal != MGOAL_NORMAL) {
 		// assert(mon->_mgoal == MGOAL_RETREAT);
-		md = OPPOSITE(currEnemyInfo._meLastDir);
+		md = OPPOSITE(md);
 		if (mon->_mType == MT_BSNEAK) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
 			md = (md + 2 * random_(112, 2) - 1) & 7;
@@ -4067,7 +4076,7 @@ void MAI_Counselor(int mnum)
 		if (dist >= 2) {
 			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
 				MonStartRAttack(mnum, mon->_mAI.aiParam1);
-			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
+			} else if (random_(124, 128) < 39 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
 				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
 					(mon->_mAnims[MA_WALK].maFrames - 1) * mon->_mAnims[MA_WALK].maFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);

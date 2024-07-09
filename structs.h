@@ -1129,11 +1129,16 @@ typedef struct PkPlayerStruct {
 //////////////////////////////////////////////////
 
 #pragma pack(push, 1)
+typedef struct LSaveGameDynLvlStruct {
+	BYTE vdLevel;
+} LSaveGameDynLvlStruct;
+
 typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhInitial;
 	LE_UINT32 vhLogicTurn;
 	LE_UINT32 vhSentCycle;
 	LE_UINT32 vhSeeds[NUM_LEVELS];
+	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
 	LE_INT32 vhViewY;
@@ -1151,9 +1156,11 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhDifficulty;
 	BYTE vhTownWarps;
 	BYTE vhWaterDone;
+	BYTE vhAlign0;
 	BYTE vhAutoMapScale;
 	BYTE vhMiniMapScale;
 	BYTE vhNormalMapScale;
+	BYTE vhAlign1;
 	LE_INT32 vhAutoMapXOfs;
 	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;
@@ -1618,6 +1625,12 @@ typedef struct TCmdNewLvl {
 	BYTE bLevel;
 } TCmdNewLvl;
 
+typedef struct TCmdCreateLvl {
+	BYTE bCmd;
+	BYTE clPlayers;
+	LE_UINT32 clSeed;
+} TCmdCreateLvl;
+
 typedef struct TCmdItemOp {
 	BYTE bCmd;
 	BYTE ioIdx;
@@ -1983,6 +1996,11 @@ typedef struct DDLevel {
 	DDMonster monster[MAXMONSTERS];
 } DDLevel;
 
+typedef struct DDDynLevel {
+	LE_UINT32 dlSeed; // the seed of the dynamic level
+	BYTE dlLevel;     // the difficulty level of the dynamic level
+} DDDynLevel;
+
 typedef struct LocalLevel {
 	BYTE automapsv[MAXDUNX][MAXDUNY]; // TODO: compress the data?
 } LocalLevel;
@@ -2002,6 +2020,7 @@ typedef struct DDQuest {
 typedef struct DDJunk {
 	// DDPortal jPortals[MAXPORTAL];
 	// DDQuest jQuests[NUM_QUESTS];
+	// DDDynLevel[NUM_DYNLVLS]
 	BYTE jGolems[MAX_MINIONS];
 } DDJunk;
 
@@ -2080,8 +2099,10 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 
 typedef struct LevelStruct {
-	int _dLevelIdx;   // index in AllLevels (dungeon_level)
+	int _dLevelIdx;   // dungeon_level / NUM_LEVELS
+	int _dLevelNum;   // index in AllLevels (dungeon_level / NUM_FIXLVLS)
 	bool _dSetLvl;    // cached flag if the level is a set-level
+	bool _dDynLvl;     // cached flag if the level is a dynamic-level
 	int _dLevel;      // cached difficulty value of the level
 	int _dType;       // cached type of the level (dungeon_type)
 	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
@@ -2151,6 +2172,12 @@ typedef struct SetPieceData {
 //////////////////////////////////////////////////
 // quests
 //////////////////////////////////////////////////
+
+typedef struct DynLevelStruct {
+	// uint32_t _dnSeed; -- stored in glSeedTbl
+	// BYTE _dnPlayers;  -- stored in gsDeltaData.ddLevelPlrs
+	BYTE _dnLevel;
+} DynLevelStruct;
 
 typedef struct QuestStruct {
 	BYTE _qactive; // quest_state

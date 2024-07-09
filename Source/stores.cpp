@@ -60,8 +60,11 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP 12
 #define STORE_DRUNK_EXIT   18
 
-#define STORE_PRIEST_GOSSIP 12
+#define STORE_PRIEST_ERRAND 12
 #define STORE_PRIEST_EXIT   18
+
+#define STORE_ERRAND_YES    18
+#define STORE_ERRAND_NO     20
 
 // service prices
 #define STORE_ID_PRICE     100
@@ -1153,8 +1156,18 @@ static void S_StartPriest()
 	gbHasScroll = false;
 	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	//AddSText(0, STORE_PRIEST_GOSSIP, true, "Talk to Tremain", COL_BLUE, true);
+	AddSText(0, STORE_PRIEST_ERRAND, true, "Run errand", COL_BLUE, true);
 	AddSText(0, STORE_PRIEST_EXIT, true, "Say Goodbye", COL_WHITE, true);
+	AddSLine(5);
+}
+
+static void S_StartErrand()
+{
+	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
+	// AddSText(0, 12, true, "Would you like to", COL_WHITE, false);
+	AddSText(0, 14, true, "Go on an errand?", COL_WHITE, false);
+	AddSText(0, STORE_ERRAND_YES, true, "Yes", COL_WHITE, true);
+	AddSText(0, STORE_ERRAND_NO, true, "No", COL_WHITE, true);
 	AddSLine(5);
 }
 
@@ -1240,6 +1253,9 @@ void StartStore(int s)
 		break;
 	case STORE_PRIEST:
 		S_StartPriest();
+		break;
+	case STORE_ERRAND:
+		S_StartErrand();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1374,6 +1390,9 @@ void STextESC()
 		StartStore(stextshold);
 		stextsel = stextlhold;
 		stextsidx = stextvhold;
+		break;
+	case STORE_ERRAND:
+		StartStore(STORE_PRIEST);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -2344,8 +2363,30 @@ static void S_PriestEnter()
 		stextshold = STORE_PRIEST;
 		StartStore(STORE_GOSSIP);
 		break;*/
+	case STORE_PRIEST_ERRAND:
+		stextlhold = STORE_PRIEST_ERRAND;
+		talker = TOWN_PRIEST;
+		stextshold = STORE_PRIEST;
+		StartStore(STORE_ERRAND);
+		break;
 	case STORE_PRIEST_EXIT:
 		stextflag = STORE_NONE;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+}
+
+static void S_ErrandEnter()
+{
+	switch (stextsel) {
+	case STORE_ERRAND_YES:
+		NetSendCmdCreateLvl(GetRndSeed());
+		stextflag = STORE_NONE;
+		break;
+	case STORE_ERRAND_NO:
+		StartStore(STORE_PRIEST);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -2428,6 +2469,9 @@ void STextEnter()
 		break;
 	case STORE_PRIEST:
 		S_PriestEnter();
+		break;
+	case STORE_ERRAND:
+		S_ErrandEnter();
 		break;
 	case STORE_WAIT:
 		return;

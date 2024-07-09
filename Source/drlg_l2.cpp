@@ -80,6 +80,18 @@ const BYTE L2BTYPES[159] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0,    //150..
 	// clang-format on
 };
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L2DYNENTRY[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	2, 2, // search
+	3, 3,
+
+	33, 0, // replace
+	0, 0,
+	// clang-format on
+};
 /** Miniset: Stairs up. */
 const BYTE L2USTAIRS[] = {
 	// clang-format off
@@ -2314,6 +2326,19 @@ static void DRLG_L2()
 			DRLG_L2SetRoom(0);
 		}
 
+		if (currLvl._dDynLvl) {
+			POS32 warpPos = DRLG_PlaceMiniSet(L2DYNENTRY);
+			if (warpPos.x < 0) {
+				continue;
+			}
+
+			pWarps[DWARP_ENTRY]._wx = warpPos.x;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+			break;
+		}
 		POS32 warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2USTAIRS (5, 3)
 		if (warpPos.x < 0) {
 			continue;
@@ -2720,7 +2745,7 @@ static void LoadL2Dungeon(const LevelData* lds)
 
 void CreateL2Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL2Dungeon(lds);
