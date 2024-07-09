@@ -4539,8 +4539,10 @@ int counter = 0;
 				break;
 			}
 			if (raflag) {
-if (counter++ > 100)
-	LogErrorF("Monster %d type %d unique type %d: mode %d loc(%d:%d) ai%d aii%d aip(%d:%d) anim %d,%d pc:%d sq:%d v%d,%d tarmon:%d e%d(%d:%d) alert:%d last%d:%d flags:%d", mnum, mon->_mType, mon->_muniqtype, mon->_mmode, mon->_mx, mon->_my, mon->_mAI.aiType, mon->_mAI.aiInt, mon->_mAI.aiParam1, mon->_mAI.aiParam2, mon->_mAnimCnt, mon->_mAnimFrame, mon->_mpathcount, mon->_msquelch, mon->_mVar1, mon->_mVar2, (mon->_mFlags & MFLAG_TARGETS_MONSTER) != 0, mon->_menemy, mon->_menemyx, mon->_menemyy, (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0, mon->_mlastx, mon->_mlasty, mon->_mFlags);
+if (counter++ > 100) {
+	snprintf(tempstr, lengthof(tempstr), "Monster %d type %d unique type %d: mode %d loc(%d:%d) ai%d aii%d aip(%d:%d) anim %d,%d pc:%d sq:%d v%d,%d tarmon:%d e%d(%d:%d) alert:%d last%d:%d flags:%d", mnum, mon->_mType, mon->_muniqtype, mon->_mmode, mon->_mx, mon->_my, mon->_mAI.aiType, mon->_mAI.aiInt, mon->_mAI.aiParam1, mon->_mAI.aiParam2, mon->_mAnimCnt, mon->_mAnimFrame, mon->_mpathcount, mon->_msquelch, mon->_mVar1, mon->_mVar2, (mon->_mFlags & MFLAG_TARGETS_MONSTER) != 0, mon->_menemy, mon->_menemyx, mon->_menemyy, (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0, mon->_mlastx, mon->_mlasty, mon->_mFlags);
+	EventPlrMsg(tempstr);
+}
 
 				GroupUnity(mnum);
 				continue;
