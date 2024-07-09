@@ -14,7 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static unsigned workProgress;
 static unsigned workPhase;
-static HANDLE mpqone;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
@@ -4166,11 +4165,22 @@ void UiPatcherDialog()
 	workPhase = 0;
 
 	// ignore the merged mpq during the patch
-	mpqone = diabdat_mpqs[NUM_MPQS];
+	HANDLE mpqone = diabdat_mpqs[NUM_MPQS];
 	diabdat_mpqs[NUM_MPQS] = NULL;
+	// use the whole buffer for drawing
+	BYTE* bufstart = gpBufStart;
+	BYTE* bufend = gpBufEnd;
+	gpBufStart = &gpBuffer[0];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * BUFFER_HEIGHT];
+
 	bool result = UiProgressDialog("...Patch in progress...", patcher_callback);
+
 	// restore the merged mpq
 	diabdat_mpqs[NUM_MPQS] = mpqone;
+	// restore buffer start/end
+	gpBufStart = bufstart;
+	gpBufEnd = bufend;
+
 	if (!result) {
 		return;
 	}
