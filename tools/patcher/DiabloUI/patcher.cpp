@@ -4165,7 +4165,7 @@ void UiPatcherDialog()
 	workPhase = 0;
 
 	// ignore the merged mpq during the patch
-	mpqone = diabdat_mpqs[NUM_MPQS];
+	HANDLE mpqone = diabdat_mpqs[NUM_MPQS];
 	diabdat_mpqs[NUM_MPQS] = NULL;
 	// use the whole buffer for drawing
 	BYTE* bufstart = gpBufStart;
