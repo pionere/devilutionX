@@ -1600,26 +1600,34 @@ static void StartTalk(int pnum)
 
 void RemovePlrFromMap(int pnum)
 {
-	int pp, dx, dy, y, x;
+	// MBUGFIX: RemovePlrFromMap vs RemoveMonFromMap
+	int p1;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("RemovePlrFromMap: illegal player %d", pnum);
 	}
 
+	p1 = pnum + 1;
+	if (abs(dPlayer[plr._poldx][plr._poldy]) == p1)
+		dPlayer[plr._poldx][plr._poldy] = 0;
+	if (abs(dPlayer[plr._pfutx][plr._pfuty]) == p1)
+		dPlayer[plr._pfutx][plr._pfuty] = 0;
+
+#if DEBUG_MODE || DEV_MODE
+	int dx, dy, y, x;
+
 	dx = plr._poldx;
 	dy = plr._poldy;
+
 	assert(dx >= 1 && dx < MAXDUNX - 1);
 	assert(dy >= 1 && dy < MAXDUNY - 1);
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "RemovePlrFromMap expects a large enough border.");
-
-	pp = pnum + 1;
 	for (x = dx - 1; x <= dx + 1; x++) {
 		for (y = dy - 1; y <= dy + 1; y++) {
-			if (abs(dPlayer[x][y]) == pp) {
-				dPlayer[x][y] = 0;
-			}
+			if (abs(dPlayer[x][y]) == p1)
+				app_fatal("dPlayer not cleared on %d:%d id:%d mode:%d", x, y, pnum, plr._pmode);
 		}
 	}
+#endif
 }
 
 static void PlrStartGetHit(int pnum, int dir)
@@ -1758,14 +1766,20 @@ __attribute__((no_sanitize("shift-base")))
 #endif
 void StartNewLvl(int pnum, int fom, int lvl)
 {
-	// assert((unsigned)pnum < MAX_PLRS);
+	assert((unsigned)pnum < MAX_PLRS);
 
 	InitLevelChange(pnum);
 
-	// net_assert(lvl < NUM_LEVELS);
-	plr._pDunLevel = lvl;
-	if (pnum == mypnum) {
-		if (fom == DVL_DWM_TWARPUP) {
+	switch (fom) {
+	case DVL_DWM_NEXTLVL:
+	case DVL_DWM_PREVLVL:
+	case DVL_DWM_RTNLVL:
+	case DVL_DWM_DYNLVL:
+	case DVL_DWM_TWARPDN:
+	case DVL_DWM_SETLVL:
+		break;
+	case DVL_DWM_TWARPUP:
+		if (pnum == mypnum) {
 			assert(currLvl._dType >= 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
 			static_assert((int)TWARP_CATACOMB == (int)DTYPE_CATACOMBS - 1, "Dtype to Warp conversion requires matching enums II.");
@@ -1778,6 +1792,14 @@ void StartNewLvl(int pnum, int fom, int lvl)
 			gbTWarpFrom = (currLvl._dType - 1);
 			gbTownWarps |= 1 << gbTWarpFrom;
 		}
+		break;
+	default:
+		net_assert(0);
+		ASSUME_UNREACHABLE
+	}
+	// net_assert(lvl < NUM_LEVELS);
+	plr._pDunLevel = lvl;
+	if (pnum == mypnum) {
 		PostMessage(fom);
 	}
 }
@@ -1869,7 +1891,7 @@ static void PlrDoWalk(int pnum)
 	}
 
 	assert(PlrAnimFrameLens[PGX_WALK] == 1);
-	// assert(plr._pAnims[PGX_WALK].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_WALK].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame < plr._pAnimLen) {
 		PlrChangeOffset(pnum);
 		return;
@@ -2232,7 +2254,7 @@ static void PlrDoAttack(int pnum)
 		}
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
-	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
@@ -2303,7 +2325,7 @@ static void PlrDoRangeAttack(int pnum)
 		WeaponDur(pnum, 40);
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
-	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
@@ -2340,10 +2362,10 @@ void PlrStartBlock(int pnum, int sx, int sy)
 		dev_fatal("PlrStartBlock: illegal player %d", pnum);
 	}
 
-	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
-		return;
-	}
+	//if (plr._pHitPoints < (1 << 6)) {
+	//	StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
+	//	return;
+	//}
 
 	dir = GetDirection(plr._px, plr._py, sx, sy);
 	if (plr._pmode != PM_BLOCK) {
@@ -2371,7 +2393,7 @@ static void PlrDoBlock(int pnum)
 	if (plr._pIFlags & ISPL_FASTBLOCK) {
 		PlrStepAnim(pnum);
 	}
-	// assert(plr._pAnims[PGX_BLOCK].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_BLOCK].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame > plr._pAnimLen || (plr._pAnimFrame == plr._pAnimLen && plr._pAnimCnt >= PlrAnimFrameLens[PGX_BLOCK] - 1)) {
 		if (plr._pDestAction == ACTION_BLOCK) {
 			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
@@ -2457,7 +2479,7 @@ static void PlrDoSpell(int pnum)
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1);
-	// assert(plr._pAnims[PGX_FIRE].paFrames == plr._pAnimLen || plr._pAnims[PGX_LIGHTNING].paFrames == plr._pAnimLen || plr._pAnims[PGX_MAGIC].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_FIRE].paFrames == plr._pAnimLen || plr._pAnims[PGX_LIGHTNING].paFrames == plr._pAnimLen || plr._pAnims[PGX_MAGIC].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 
@@ -2493,7 +2515,7 @@ static void PlrDoGotHit(int pnum)
 	}
 
 	assert(PlrAnimFrameLens[PGX_GOTHIT] == 1);
-	// assert(plr._pAnims[PGX_GOTHIT].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_GOTHIT].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame < plr._pAnimLen)
 		return;
 	//PlrStartStand(pnum);
@@ -2506,7 +2528,7 @@ static void PlrDoGotHit(int pnum)
 
 static void PlrDoDeath(int pnum)
 {
-	// assert(plr._pAnims[PGX_DEATH].paFrames == plr._pAnimLen);
+	assert(plr._pAnims[PGX_DEATH].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame == plr._pAnimLen) {
 		assert(PlrAnimFrameLens[PGX_DEATH] > 1);
 		plr._pAnimCnt = 0;
@@ -2735,8 +2757,8 @@ static void ValidatePlayer(int pnum)
 			assert(p->_pSkillLvlBase[i] <= MAXSPLLEVEL);
 		}
 	}
-	//p->_pMemSkills &= msk;
-	assert((p->_pMemSkills & ~msk) == 0);
+	p->_pMemSkills &= msk;
+	//assert((p->_pMemSkills & ~msk) == 0);
 }
 #endif
 
@@ -3253,6 +3275,9 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 	if (plr._pManaShield != 0) {
 		static_assert(MAXSPLLEVEL <= 16, "PlrDecHp does not give bonus for high level manashield.");
 		hp -= (hp * (std::min(plr._pManaShield, (BYTE)16))) >> 6;
+snprintf(tempstr, lengthof(tempstr), "Damage:%d .. %d", hp, hp >> 6);
+EventPlrMsg(tempstr);
+		return false;
 		if (plr._pMana >= hp) {
 			PlrDecMana(pnum, hp);
 			return false;
@@ -3277,6 +3302,7 @@ void PlrDecMana(int pnum, int mana)
 {
 	// assert(mana >= 0);
 	// assert(mana == 0 || !(plr._pIFlags & ISPL_NOMANA));
+	return; // REMOVEME
 	plr._pMana -= mana;
 	plr._pManaBase -= mana;
 	if (pnum == mypnum) {
