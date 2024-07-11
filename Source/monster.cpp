@@ -973,7 +973,7 @@ static int MonPackSpace(int dx, int dy, int px, int py, bool (&visited)[MON_PACK
 
 static void PlaceUniqueMonst(int uniqindex, int mtidx)
 {
-	int xp, yp, x, y;
+	int xp, yp;
 	int count2;
 	int mnum, count;
 
