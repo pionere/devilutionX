@@ -3212,7 +3212,6 @@ void MAI_Sneak(int mnum)
 	MonEnemyInfo(mnum);
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	dist = currEnemyInfo._meRealDist;
-	md = currEnemyInfo._meLastDir;
 	range = 7 - mon->_mAI.aiInt;
 	if (range < 4)
 		range = 4;
@@ -3230,9 +3229,10 @@ void MAI_Sneak(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 		}
 	}
+	md = currEnemyInfo._meLastDir;
 	if (mon->_mgoal != MGOAL_NORMAL) {
 		// assert(mon->_mgoal == MGOAL_RETREAT);
-		md = OPPOSITE(currEnemyInfo._meLastDir);
+		md = OPPOSITE(md);
 		if (mon->_mType == MT_BSNEAK) {
 			//md = random_(112, 2) != 0 ? left[md] : right[md];
 			md = (md + 2 * random_(112, 2) - 1) & 7;
@@ -4067,7 +4067,7 @@ void MAI_Counselor(int mnum)
 		if (dist >= 2) {
 			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
 				MonStartRAttack(mnum, mon->_mAI.aiParam1);
-			} else if (random_(124, 100) < 30 && mon->_msquelch == SQUELCH_MAX) {
+			} else if (random_(124, 128) < 39 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
 				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
 					(mon->_mAnims[MA_WALK].maFrames - 1) * mon->_mAnims[MA_WALK].maFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
