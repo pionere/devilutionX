@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - better rewards on higher difficulties
 - HP/Exp/Loot from monsters are depending on the number of players
 - limited offers in stores/wirt
+- added errands (custom levels)
 ### System
 - Lockstep networking
 - Adaptive netupdate

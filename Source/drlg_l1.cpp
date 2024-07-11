@@ -55,6 +55,33 @@ static const BYTE L1BTYPES[207] = {
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L1DYNENTRY[] = {
+	// clang-format off
+	3, 3, // width, height -- larger miniset to prevent theme-room placement
+
+	 2,  2,  2, // search
+	13, 13, 13,
+	13, 13, 13,
+
+	 0,   0, 0, // replace
+	 0, 134, 0,
+	 0,   0, 0,
+	// clang-format on
+};
+#ifdef HELLFIRE
+const BYTE L5DYNENTRY[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	 2,  2, // search
+	13, 13,
+
+	0, 0, // replace
+	195, 0,
+	// clang-format on
+};
+#endif
 /** Miniset: stairs up on a corner wall. */
 //const BYTE STAIRSUP[] = {
 //	// clang-format off
@@ -2616,6 +2643,22 @@ static void DRLG_L1()
 		L1FillChambers();
 		L1AddWall();
 		L1ClearChamberFlags();
+		if (currLvl._dDynLvl) {
+#ifdef HELLFIRE
+			POS32 warpPos = DRLG_PlaceMiniSet(currLvl._dType == DTYPE_CRYPT ? L5DYNENTRY : L1DYNENTRY);
+#else
+			POS32 warpPos = DRLG_PlaceMiniSet(L1DYNENTRY);
+#endif
+			if (warpPos.x < 0) {
+				continue;
+			}
+			pWarps[DWARP_ENTRY]._wx = warpPos.x;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 2;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+			break;
+		}
 		if (placeWater) {
 			POS32 warpPos = DRLG_PlaceMiniSet(PWATERIN);
 			if (warpPos.x < 0) {
@@ -2739,7 +2782,7 @@ static void DRLG_L1()
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
 		DRLG_L5PlaceRndSet(L5PREHORIZWALL, 100);
 		DRLG_L5PlaceRndSet(L5RNDLFLOOR1, 60);
-		switch (currLvl._dLevelIdx) {
+		switch (currLvl._dLevelNum) {
 		case DLV_CRYPT1:
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(15);
@@ -3197,7 +3240,7 @@ static void LoadL1Dungeon(const LevelData* lds)
 
 void CreateL1Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL1Dungeon(lds);

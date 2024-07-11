@@ -816,7 +816,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 	SetRndSeed(gameData.aeSeed);
 	sgbSentThisCycle = gameData.aeTurn;
 
-	for (i = 0; i < NUM_LEVELS; i++) {
+	for (i = 0; i < NUM_FIXLVLS; i++) {
 		seed = NextRndSeed();
 		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
 		glSeedTbl[i] = seed;

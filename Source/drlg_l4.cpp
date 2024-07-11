@@ -26,6 +26,29 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L4, 1, 2, 1, 2, 9, 16,
  */
 const BYTE L4ConvTbl[16] = { BASE_MEGATILE_L4, 6, 1, 6, 2, 6, 6, 6, 9, 6, 1, 6, 2, 6, 3, 6 };
 
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L4DYNENTRY1[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	2, 2, // search
+	6, 6,
+
+	64, 0, // replace
+	0, 0,
+	// clang-format on
+};
+const BYTE L4DYNENTRY2[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	2, 6, // search
+	2, 6,
+
+	63, 0, // replace
+	0, 0,
+	// clang-format on
+};
 /** Miniset: Stairs up. */
 const BYTE L4USTAIRS[] = {
 	// clang-format off
@@ -1992,6 +2015,18 @@ static void DRLG_L4()
 		}
 		L4AddWall();
 
+		if (currLvl._dDynLvl) {
+			POS32 warpPos = DRLG_PlaceMiniSet(random_(141, 2) ? L4DYNENTRY1 : L4DYNENTRY2);
+			if (warpPos.x < 0) {
+				continue;
+			}
+			pWarps[DWARP_ENTRY]._wx = warpPos.x;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+			break;
+		}
 		POS32 warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4USTAIRS (5, 6)
 		if (warpPos.x < 0) {
 			continue;
@@ -2328,7 +2363,7 @@ static void LoadL4Dungeon(const LevelData* lds)
 
 void CreateL4Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL4Dungeon(lds);

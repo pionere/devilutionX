@@ -141,7 +141,7 @@ void InitLvlDungeon()
 #if ASSET_MPL == 1
 	uint16_t blocks, *minFile, *pSubtile, *pPTmp;
 #endif
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 	const LevelFileData* lfd = &levelfiledata[lds->dfindex];
 
 	static_assert((int)WRPT_NONE == 0, "InitLvlDungeon fills pWarps with 0 instead of WRPT_NONE values.");

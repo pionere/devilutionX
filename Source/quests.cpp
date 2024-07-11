@@ -13,6 +13,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** The pseudo random seeds to generate the levels. */
 uint32_t glSeedTbl[NUM_LEVELS];
+/** Contains the informations to recreate the dynamic levels. */
+DynLevelStruct gDynLevels[NUM_DYNLVLS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -27,7 +29,7 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
+/** the masks of the visited levels */
 uint32_t guLvlVisited;
 int gnSfxDelay;
 int gnSfxNum;

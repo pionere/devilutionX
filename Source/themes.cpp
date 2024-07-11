@@ -313,7 +313,7 @@ void InitThemes()
 	int i, j;
 
 	// assert(currLvl._dType != DTYPE_TOWN);
-	if (currLvl._dLevelIdx >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
+	if (currLvl._dLevelNum >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
 	// TODO: use dType instead
@@ -360,7 +360,7 @@ void HoldThemeRooms()
 {
 	int i, x, y, x1, y1, x2, y2;
 	// assert(currLvl._dType != DTYPE_TOWN);
-	// assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
+	// assert(currLvl._dLevelNum < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
 
 	for (i = numthemes - 1; i >= 0; i--) {
 		x1 = themes[i]._tsx1;
@@ -834,7 +834,7 @@ void CreateThemeRooms()
 	int i;
 	BYTE tv;
 	// assert(currLvl._dType != DTYPE_TOWN);
-	// assert(currLvl._dLevelIdx < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
+	// assert(currLvl._dLevelNum < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
 
 	//gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {

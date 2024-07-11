@@ -248,7 +248,7 @@ static void gamemenu_music_volume(bool bActivate)
 	} else {
 		// assert(gbMusicOn);
 		if (!musicOn)
-			music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+			music_start(AllLevels[currLvl._dLevelNum].dMusic);
 	}
 	gamemenu_get_music();
 	PlaySFX(IS_TITLEMOV);
