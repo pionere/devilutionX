@@ -22,6 +22,13 @@ typedef struct FileMetaInfo {
 	bool optional;
 } FileMetaInfo;
 
+#ifdef HELLFIRE
+#define MPQDEVXP_HASH "251688ff12da6d42ea2ebf31d83d3f3c"
+#define MPQONE_HASH "81befc2f5f061df0ac3d9de1ecbaff7f"
+#else
+#define MPQDEVXP_HASH "7814c8a9402f2130c7e1894ff3d2044a"
+#define MPQONE_HASH "7c201ea260497b2ca98ae77975754125"
+#endif
 #if USE_MPQONE
 #define MPQONE_OPTIONAL false
 #else
@@ -32,7 +39,7 @@ static const FileMetaInfo filemetadata[] = {
 #if ASSET_MPL != 1
 	{ "DEVILHD.MPQ", "", "", false },
 #endif
-	{ "DEVILX.MPQ", "251688ff12da6d42ea2ebf31d83d3f3c", "b336be80b3968d4bf8495a2983d4d9f9", false },
+	{ "DEVILX.MPQ", MPQDEVXP_HASH, "b336be80b3968d4bf8495a2983d4d9f9", false },
 #ifdef HELLFIRE
 	{ "HF_OPT2.MPQ", "", "", true },
 	{ "HF_OPT1.MPQ", "", "", true },
@@ -45,7 +52,7 @@ static const FileMetaInfo filemetadata[] = {
 #endif
 	{ "PATCH_RT.MPQ", "d2488b30310c1d293eaf068a29709e65", "", true },
 	{ "DIABDAT.MPQ", "011bc6518e6166206231080a4440b373", "68f049866b44688a7af65ba766bef75a", false },
-	{ MPQONE, "81befc2f5f061df0ac3d9de1ecbaff7f", "", MPQONE_OPTIONAL },
+	{ MPQONE, MPQONE_HASH, "", MPQONE_OPTIONAL },
 };
 static_assert(NUM_MPQS + 1 == sizeof(filemetadata) / sizeof(FileMetaInfo), "Mismatching metadata.");
 
