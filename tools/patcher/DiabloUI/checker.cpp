@@ -22,6 +22,12 @@ typedef struct FileMetaInfo {
 	bool optional;
 } FileMetaInfo;
 
+#if USE_MPQONE
+#define MPQONE_OPTIONAL false
+#else
+#define MPQONE_OPTIONAL true
+#endif
+
 static const FileMetaInfo filemetadata[] = {
 #if ASSET_MPL != 1
 	{ "DEVILHD.MPQ", "", "", false },
@@ -39,11 +45,7 @@ static const FileMetaInfo filemetadata[] = {
 #endif
 	{ "PATCH_RT.MPQ", "d2488b30310c1d293eaf068a29709e65", "", true },
 	{ "DIABDAT.MPQ", "011bc6518e6166206231080a4440b373", "68f049866b44688a7af65ba766bef75a", false },
-#if USE_MPQONE
-	{ MPQONE, "81befc2f5f061df0ac3d9de1ecbaff7f", "", false },
-#else
-	{ MPQONE, "81befc2f5f061df0ac3d9de1ecbaff7f", "", true },
-#endif
+	{ MPQONE, "81befc2f5f061df0ac3d9de1ecbaff7f", "", MPQONE_OPTIONAL },
 };
 static_assert(NUM_MPQS + 1 == sizeof(filemetadata) / sizeof(FileMetaInfo), "Mismatching metadata.");
 
