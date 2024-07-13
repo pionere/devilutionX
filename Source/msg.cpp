@@ -2011,7 +2011,7 @@ void NetSendCmdQuest(BYTE q, bool extOnly)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value)
+void SendStoreCmd1(BYTE idx, BYTE bStoreId, int value)
 {
 	TCmdStore1 cmd;
 
@@ -2091,7 +2091,7 @@ void NetSendCmdDelItem(BYTE bLoc)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdItemSkill(int cii, BYTE skill, int8_t from)
+void NetSendCmdItemSkill(BYTE cii, BYTE skill, int8_t from)
 {
 	TCmdItemOp cmd;
 

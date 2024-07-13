@@ -51,7 +51,7 @@ void NetSendCmdDelItem(BYTE bLoc);
  * @param skill: the skill to be used
  * @param from: the source of the skill
  */
-void NetSendCmdItemSkill(int cii, BYTE skill, int8_t from);
+void NetSendCmdItemSkill(BYTE cii, BYTE skill, int8_t from);
 /** Use a spell/skill on a given location using from as a source.
  * @param x: the x coordinate of the target (MAXDUNX)
  * @param y: the y coordinate of the target (MAXDUNY)
@@ -95,7 +95,7 @@ void NetSendCmdMonstSummon(int mnum);
 void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);
-void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value);
+void SendStoreCmd1(BYTE idx, BYTE bStoreId, int value);
 void SendStoreCmd2(BYTE bStoreId);
 /** Initiate level change.
  * @param fom: the type of the level-change (window_messages)
