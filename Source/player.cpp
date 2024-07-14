@@ -1907,7 +1907,7 @@ static void ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
 		return;
 	pi->_iDurability = 1;
 	if (pnum == mypnum)
-		NetSendCmdDelItem(iLoc);
+		NetSendCmdBParam1(CMD_DELPLRITEM, iLoc);
 }
 
 static void WeaponDur(int pnum, int durrnd)

@@ -45,7 +45,6 @@ void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdGItem(BYTE bCmd, BYTE ii);
 void NetSendCmdPutItem(BYTE x, BYTE y);
 void NetSendCmdSpawnItem(bool flipFlag);
-void NetSendCmdDelItem(BYTE bLoc);
 /** Use a spell on an item using from as a source.
  * @param cii: the index of the item in the inventory
  * @param skill: the skill to be used

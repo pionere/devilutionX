@@ -2081,16 +2081,6 @@ void NetSendCmdSpawnItem(bool flipFlag)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdDelItem(BYTE bLoc)
-{
-	TCmdBParam1 cmd;
-
-	cmd.bCmd = CMD_DELPLRITEM;
-	cmd.bParam1 = bLoc;
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
 void NetSendCmdItemSkill(BYTE cii, BYTE skill, int8_t from)
 {
 	TCmdItemOp cmd;
