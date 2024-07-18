@@ -566,11 +566,13 @@ static void Theme_SkelRoom(int themeId, BYTE tv)
 		AddObject(OBJ_BANNERL, xx + 1, yy + 1);
 	}
 
-	if (dObject[xx][yy - 3] == 0) {
+	if ((dObject[xx][yy - 3] == 0 || !objects[dObject[xx][yy - 3] - 1]._oDoorFlag)   // not a door
+	 && (nSolidTable[dPiece[xx][yy - 3]] || !nSolidTable[dPiece[xx + 1][yy - 3]])) { // or a single path to NE TODO: allow if !nSolidTable[dPiece[xx - 1][yy - 3]]?
 		// assert(dObject[xx][yy - 2] == 0);
 		AddObject(OBJ_BOOK2R, xx, yy - 2);
 	}
-	if (dObject[xx][yy + 3] == 0) {
+	if ((dObject[xx][yy + 3] == 0 || !objects[dObject[xx][yy + 3] - 1]._oDoorFlag)   // not a door
+	 && (nSolidTable[dPiece[xx][yy + 3]] || !nSolidTable[dPiece[xx + 1][yy + 3]])) { // or a single path to SW TODO: allow if !nSolidTable[dPiece[xx - 1][yy + 3]]?
 		// assert(dObject[xx][yy + 2] == 0);
 		AddObject(OBJ_BOOK2R, xx, yy + 2);
 	}
