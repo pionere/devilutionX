@@ -128,7 +128,7 @@ static void DrawProgress()
 /* 16 */"Fadeout",
 	};
 	unsigned progress = sgdwProgress / ((BAR_WIDTH + (lengthof(progession) - 1)) / lengthof(progession));
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
+	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 

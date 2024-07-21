@@ -319,28 +319,14 @@ void PrintGameStr(int x, int y, const char* text, BYTE color)
  * @param y Screen coordinate
  * @param endX End of line in screen coordinate
  * @param text String to print, in Windows-1252 encoding
- * @param center 
  * @param col text_color color value
  * @param kern Letter spacing
  */
-void PrintString(int x, int y, int endX, const char* text, bool center, BYTE col, int kern)
+void PrintString(int x, int y, int endX, const char* text, BYTE col, int kern)
 {
 	BYTE c;
-	const char* tmp;
-	int strEnd;
 	int k;
 
-	if (center) {
-		strEnd = x;
-		tmp = text;
-		while (*tmp != '\0') {
-			c = gbStdFontFrame[(BYTE)*tmp++];
-			strEnd += smallFontWidth[c] + kern;
-		}
-		if (strEnd < endX) {
-			x += (endX - strEnd) >> 1;
-		}
-	}
 	while (*text != '\0') {
 		c = gbStdFontFrame[(BYTE)*text++];
 		k = smallFontWidth[c] + kern;
@@ -349,6 +335,35 @@ void PrintString(int x, int y, int endX, const char* text, bool center, BYTE col
 		}
 		x += k;
 	}
+}
+
+/**
+ * @brief Render text string justified to the back buffer
+ * @param x Screen coordinate
+ * @param y Screen coordinate
+ * @param endX End of line in screen coordinate
+ * @param text String to print, in Windows-1252 encoding
+ * @param col text_color color value
+ * @param kern Letter spacing
+ */
+void PrintJustifiedString(int x, int y, int endX, const char* text, BYTE col, int kern)
+{
+	BYTE c;
+	const char* tmp;
+	int strEnd;
+	int k;
+
+	strEnd = x;
+	tmp = text;
+	while (*tmp != '\0') {
+		c = gbStdFontFrame[(BYTE)*tmp++];
+		strEnd += smallFontWidth[c] + kern;
+	}
+	if (strEnd < endX) {
+		x += (endX - strEnd) >> 1;
+	}
+
+	PrintString(x, y, endX, text, col, kern);
 }
 
 int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)

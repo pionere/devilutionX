@@ -3022,19 +3022,19 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 
 static void PrintItemString(int x, int& y)
 {
-	PrintString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), tempstr, true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), tempstr, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int& y, const char* str)
 {
-	PrintString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int& y, const char* str, int col)
 {
-	PrintString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, col, FONT_KERN_SMALL);
 	y += 24;
 }
 
