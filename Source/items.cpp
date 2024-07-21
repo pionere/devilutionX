@@ -3706,18 +3706,18 @@ void SpawnHealer(unsigned lvl)
 	SortHealer();
 }
 
-static void RecreateSmithItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateSmithItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_SMITH;
 }
 
-static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreatePremiumItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 	GetItemBonus(ii, lvl >> 1, lvl, true, false);
 
@@ -3725,9 +3725,9 @@ static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
 }
 
-static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateBoyItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 	GetItemBonus(ii, lvl >> 1, lvl << 1, true, true);
 
@@ -3735,12 +3735,12 @@ static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_BOY;
 }
 
-static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateWitchItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
 	/*if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		SetItemData(ii, idx);
 	} else {*/
-		SetRndSeed(iseed);
+		// SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		// if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
 			GetItemBonus(ii, lvl >> 1, lvl, true, true);
@@ -3750,12 +3750,12 @@ static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_WITCH;
 }
 
-static void RecreateHealerItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateHealerItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
 	/*if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
 		SetItemData(ii, idx);
 	} else {*/
-		SetRndSeed(iseed);
+		// SetRndSeed(iseed);
 		GetItemAttrs(ii, RndHealerItem(lvl), lvl);
 	//}
 
@@ -3763,9 +3763,9 @@ static void RecreateHealerItem(int ii, int iseed, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_HEALER;
 }
 
-static void RecreateCraftedItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateCraftedItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl);
 	if (random_(51, 2) != 0)
 		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, true, true);
@@ -3781,24 +3781,25 @@ void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo)
 
 	loc = (icreateinfo & CF_TOWN) >> 8;
 	lvl = icreateinfo & CF_LEVEL;
+	SetRndSeed(iseed);
 	switch (loc) {
 	case CFL_SMITH:
-		RecreateSmithItem(ii, iseed, idx, lvl);
+		RecreateSmithItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_SMITHPREMIUM:
-		RecreatePremiumItem(ii, iseed, idx, lvl);
+		RecreatePremiumItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_BOY:
-		RecreateBoyItem(ii, iseed, idx, lvl);
+		RecreateBoyItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_WITCH:
-		RecreateWitchItem(ii, iseed, idx, lvl);
+		RecreateWitchItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_HEALER:
-		RecreateHealerItem(ii, iseed, idx, lvl);
+		RecreateHealerItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_CRAFTED:
-		RecreateCraftedItem(ii, iseed, idx, lvl);
+		RecreateCraftedItem(ii, /*iseed, */idx, lvl);
 		break;
 	default:
 		ASSUME_UNREACHABLE;
