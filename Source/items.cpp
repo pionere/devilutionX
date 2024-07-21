@@ -3175,12 +3175,6 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		desc = "increase inner magic";
 		PrintItemString(x, y, desc);
 		break;
-	case IMISC_OILCLEAN:
-		desc = "removes the affixes";
-		PrintItemString(x, y, desc);
-		desc = "of a magic item";
-		PrintItemString(x, y, desc);
-		break;
 	case IMISC_OILRESIST:
 		desc = "imbues a normal item to";
 		PrintItemString(x, y, desc);
@@ -3191,6 +3185,12 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		desc = "imbues a normal item to";
 		PrintItemString(x, y, desc);
 		desc = "a magic item";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_OILCLEAN:
+		desc = "removes the affixes";
+		PrintItemString(x, y, desc);
+		desc = "of a magic item";
 		PrintItemString(x, y, desc);
 		break;
 #ifdef HELLFIRE
