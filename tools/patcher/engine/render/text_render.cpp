@@ -218,15 +218,15 @@ static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
 	}
 }
 
-int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
+int PrintBigChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbStdFontFrame[text];
+	BYTE nCel = gbStdFontFrame[chr];
 
 	if (nCel != 0) {
 		PrintBigColorChar(sx, sy, nCel, col);
 		// draw optional diacritic
-		if (text >= 128) {
-			BYTE dCel = gbStdDiacFrame[text - 128];
+		if (chr >= 128) {
+			BYTE dCel = gbStdDiacFrame[chr - 128];
 			if (dCel != 0) {
 				PrintBigColorChar(sx, sy, dCel, col);
 			}
@@ -236,15 +236,15 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 	return bigFontWidth[nCel] + FONT_KERN_BIG;
 }
 
-int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
+int PrintSmallChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbStdFontFrame[text];
+	BYTE nCel = gbStdFontFrame[chr];
 
 	if (nCel != 0) {
 		PrintSmallColorChar(sx, sy, nCel, col);
 		// draw optional diacritic
-		if (text >= 128) {
-			BYTE dCel = gbStdDiacFrame[text - 128];
+		if (chr >= 128) {
+			BYTE dCel = gbStdDiacFrame[chr - 128];
 			if (dCel != 0) {
 				PrintSmallColorChar(sx, sy, dCel, col);
 			}
@@ -254,9 +254,9 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
 }
 
-int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
+int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbHugeFontFrame[text];
+	BYTE nCel = gbHugeFontFrame[chr];
 
 	if (nCel != 0) {
 		// PrintHugeColorChar(sx, sy, nCel, col);
