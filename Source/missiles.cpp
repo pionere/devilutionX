@@ -2700,9 +2700,21 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			mid = dMonster[tx][ty] - 1;
 			if (mid < MAX_MINIONS || !LineClear(sx, sy, tx, ty))
 				continue;
+			assert(mid < MAXMONSTERS);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE) && !CanTalkToMonst(mid)
 			 && mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints >= (1 << 6*/) {
+				// range = (sl * 128 - HP + 128) * 2
+				range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
+				// TODO: add support for spell duration modifier
+				//range += (range * plx(misource)._pISplDur) >> 7;
+				range >>= 5;
+				if (range < 15)
+					return MIRES_DELETE;
+				if (range > 239)
+					range = 239;
+				mis->_miRange = range;
+
 				MonLeaveLeader(mid);
 				mis->_miVar1 = mon->_mmode;
 				mis->_miVar2 = mid;
@@ -2716,16 +2728,6 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				//	assert(!MON_RELAXED);
 				}
 
-				// range = (sl * 128 - HP + 128) * 2
-				range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
-				// TODO: add support for spell duration modifier
-				//range += (range * plx(misource)._pISplDur) >> 7;
-				range >>= 5;
-				if (range < 15)
-					return MIRES_DELETE;
-				if (range > 239)
-					range = 239;
-				mis->_miRange = range;
 				return MIRES_DONE;
 			}
 		}
@@ -4370,25 +4372,13 @@ void MI_Stone(int mi)
 	dead = mon->_mhitpoints < (1 << 6);
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		if (!dead) {
-			mon->_mmode = mis->_miVar1;
-		} else {
-			// TODO: RemoveMonFromGame ?
-			// mon->_mAnimFrame = mon->_mAnimLen;
-			// mon->_mAnimCnt = -1;
-			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
-			mon->_msquelch = 0;
-			// assert(mnum >= MAX_MINIONS);
-			// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
-			mon->_mmode = MM_UNUSED;
-			nummonsters--;
-		}
-		return;
-	}
-
 	if (!dead) {
+		if (mis->_miRange < 0) {
+			mis->_miDelFlag = TRUE;
+			mon->_mmode = mis->_miVar1;
+			return;
+		}
+
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	} else {
 		if (mis->_miFileNum != MFILE_SHATTER1) {
@@ -4400,6 +4390,18 @@ void MI_Stone(int mi)
 			// mis->_mixoff = mon->_mxoff;
 			// mis->_miyoff = mon->_myoff;
 			SetMissDir(mi, 0);
+		} else if (mis->_miRange < 0) {
+			mis->_miDelFlag = TRUE;
+			// TODO: RemoveMonFromGame ?
+			// mon->_mAnimFrame = mon->_mAnimLen;
+			// mon->_mAnimCnt = -1;
+			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+			mon->_msquelch = 0;
+			// assert(mnum >= MAX_MINIONS);
+			// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
+			mon->_mmode = MM_UNUSED;
+			nummonsters--;
+			return;
 		} else if (mis->_miAnimFrame == misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
 			mis->_miAnimFlag = FALSE;
 		}
