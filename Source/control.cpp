@@ -286,7 +286,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		ASSUME_UNREACHABLE
 		return;
 	}
-	PrintJustifiedString(x + SPLICON_OVERX, y, x + SPLICON_WIDTH - SPLICON_OVERX, tempstr, t, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + SPLICON_WIDTH, tempstr, t, FONT_KERN_SMALL);
 }
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
