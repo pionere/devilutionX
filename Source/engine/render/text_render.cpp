@@ -351,16 +351,18 @@ void PrintJustifiedString(int x, int y, int endX, const char* text, BYTE col, in
 	BYTE c;
 	const char* tmp;
 	int strEnd;
-	int k;
-
+restart:
 	strEnd = x;
 	tmp = text;
 	while (*tmp != '\0') {
 		c = gbStdFontFrame[(BYTE)*tmp++];
 		strEnd += smallFontWidth[c] + kern;
 	}
-	if (strEnd < endX) {
+	if (strEnd <= endX) {
 		x += (endX - strEnd) >> 1;
+	} else if (kern > 0) {
+		--kern;
+		goto restart;
 	}
 
 	PrintString(x, y, endX, text, col, kern);
