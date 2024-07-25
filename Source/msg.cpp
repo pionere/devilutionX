@@ -1708,17 +1708,17 @@ void LevelDeltaLoad()
 			net_assert(plr._py == plr._poldy);
 			switch (plr._pmode) {
 			case PM_ATTACK:
-				net_assert(plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
-				net_assert(plr._pVar6 >= 0);         // ATTACK_SKILL_LEVEL
+				net_assert((unsigned)plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
+				net_assert(plr._pVar6 >= 0);                   // ATTACK_SKILL_LEVEL
 				break;
 			case PM_RATTACK:
-				net_assert(plr._pVar5 < NUM_SPELLS); // RATTACK_SKILL
-				net_assert(plr._pVar6 >= 0);         // RATTACK_SKILL_LEVEL
+				net_assert((unsigned)plr._pVar5 < NUM_SPELLS); // RATTACK_SKILL
+				net_assert(plr._pVar6 >= 0);                   // RATTACK_SKILL_LEVEL
 				break;
 			case PM_SPELL:
 				net_assert(plr._pVar1 >= DBORDERX && plr._pVar1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
 				net_assert(plr._pVar2 >= DBORDERY && plr._pVar2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-				net_assert(plr._pVar5 < NUM_SPELLS);                                  // SPELL_NUM
+				net_assert((unsigned)plr._pVar5 < NUM_SPELLS);                        // SPELL_NUM
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
 			}
@@ -1728,42 +1728,42 @@ void LevelDeltaLoad()
 		case ACTION_WALK:
 			break;
 		case ACTION_OPERATE:
-			net_assert(plr._pDestParam1 < MAXOBJECTS);
-			net_assert(plr._pDestParam2 < MAXDUNX);
-			net_assert(plr._pDestParam3 < MAXDUNY);
+			net_assert((unsigned)plr._pDestParam1 < MAXOBJECTS);
+			net_assert((unsigned)plr._pDestParam2 < MAXDUNX);
+			net_assert((unsigned)plr._pDestParam3 < MAXDUNY);
 			net_assert(abs(dObject[plr._pDestParam2][plr._pDestParam3]) == plr._pDestParam1 + 1);
 			break;
 		case ACTION_BLOCK:
-			net_assert(plr._pDestParam1 < NUM_DIRS);
+			net_assert((unsigned)plr._pDestParam1 < NUM_DIRS);
 			break;
 		case ACTION_ATTACKMON:
 		case ACTION_RATTACKMON:
 		case ACTION_SPELLMON:
-			net_assert(plr._pDestParam1 < MAXMONSTERS);
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert((unsigned)plr._pDestParam1 < MAXMONSTERS);
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_ATTACK:
 		case ACTION_RATTACK:
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL
 			break;
 		case ACTION_ATTACKPLR:
 		case ACTION_RATTACKPLR:
 		case ACTION_SPELLPLR:
-			net_assert(plr._pDestParam1 < MAX_PLRS);
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert((unsigned)plr._pDestParam1 < MAX_PLRS);
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
 			net_assert(plr._pDestParam1 >= DBORDERX && plr._pDestParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
 			net_assert(plr._pDestParam2 >= DBORDERY && plr._pDestParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-			net_assert(plr._pDestParam3 < NUM_SPELLS);                                        // SPELL_NUM
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS);                              // SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
-				net_assert(plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
+				net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_RESURRECT)
-				net_assert(plr._pDestParam4 < MAX_PLRS); // fake SPELL_LEVEL
+				net_assert((unsigned)plr._pDestParam4 < MAX_PLRS); // fake SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_TELEKINESIS) {
 				switch (plr._pDestParam4 >> 16) {
 				case MTT_ITEM:
@@ -1783,10 +1783,10 @@ void LevelDeltaLoad()
 			break;
 		case ACTION_PICKUPITEM:  // put item in hand (inventory screen open)
 		case ACTION_PICKUPAITEM: // put item in inventory
-			net_assert(plr._pDestParam1 < MAXITEMS);
+			net_assert((unsigned)plr._pDestParam1 < MAXITEMS);
 			break;
 		case ACTION_TALK:
-			net_assert(plr._pDestParam1 < MAXMONSTERS);
+			net_assert((unsigned)plr._pDestParam1 < MAXMONSTERS);
 			break;
 		default:
 			net_assert(0);
