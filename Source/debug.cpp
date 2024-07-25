@@ -507,7 +507,8 @@ void ValidateData()
 			minMediumArmor = ids.iMinMLvl;
 		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != 0)
 			minHeavyArmor = ids.iMinMLvl;
-		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD && ids.iMiscId != IMISC_UNIQUE)
+		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD
+		 && (ids.iMiscId != IMISC_UNIQUE || ids.itype == ITYPE_STAFF /* required by DoWhittle */)) // required by DoClean
 			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
 		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != 0)
 			app_fatal("Fix unique item %s (%d) should not be part of the loot.", ids.iName, i);
@@ -736,16 +737,13 @@ void ValidateData()
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
 		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-			if (pres->PLMinLvl > i) {
-				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
-					c++;
-				continue;
-			}
-			if (pres->PLMinLvl >= (i >> 1) && pres->PLOk) {
-				a++;
+			if (pres->PLRanges[IAR_SHOP].to >= i + 8 && pres->PLRanges[IAR_SHOP].from <= i + 8 && pres->PLOk) {
 				c++;
 			}
-			if (pres->PLMinLvl >= (i >> 2)) {
+			if (pres->PLRanges[IAR_SHOP].to >= i && pres->PLRanges[IAR_SHOP].from <= i && pres->PLOk) {
+				a++;
+			}
+			if (pres->PLRanges[IAR_DROP].to >= i && pres->PLRanges[IAR_DROP].from <= i) {
 				b++;
 				if (!pres->PLOk)
 					w++;
@@ -753,16 +751,13 @@ void ValidateData()
 		}
 		int as = 0, bs = 0, cs = 0, ws = 0;
 		for (const AffixData* pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
-			if (pres->PLMinLvl > i) {
-				if (pres->PLMinLvl <= (i << 1) && pres->PLOk)
-					cs++;
-				continue;
-			}
-			if (pres->PLMinLvl >= (i >> 1) && pres->PLOk) {
-				as++;
+			if (pres->PLRanges[IAR_SHOP].to >= i + 8 && pres->PLRanges[IAR_SHOP].from <= i + 8 && pres->PLOk) {
 				cs++;
 			}
-			if (pres->PLMinLvl >= (i >> 2)) {
+			if (pres->PLRanges[IAR_SHOP].to >= i && pres->PLRanges[IAR_SHOP].from <= i && pres->PLOk) {
+				as++;
+			}
+			if (pres->PLRanges[IAR_DROP].to >= i && pres->PLRanges[IAR_DROP].from <= i) {
 				bs++;
 				if (!pres->PLOk)
 					ws++;

@@ -415,6 +415,13 @@ typedef enum item_effect_type {
 	IPL_INVALID          = 0xFF,
 } item_effect_type;
 
+typedef enum item_affix_range {
+	IAR_DROP,
+	IAR_SHOP,
+	IAR_CRAFT,
+	NUM_IARS
+} item_affix_range;
+
 typedef enum affix_item_type {
 	PLT_MISC   = 1 << 1,
 	PLT_BOW    = 1 << 2,

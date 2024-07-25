@@ -101,11 +101,16 @@ typedef struct CelImageBuf {
 // items
 //////////////////////////////////////////////////
 
+typedef struct RANGE {
+	BYTE from;
+	BYTE to;
+} RANGE;
+
 typedef struct AffixData {
 	BYTE PLPower; // item_effect_type
 	int PLParam1;
 	int PLParam2;
-	BYTE PLMinLvl;
+	RANGE PLRanges[NUM_IARS];
 	int PLIType; // affix_item_type
 	BOOLEAN PLDouble;
 	BOOLEAN PLOk;

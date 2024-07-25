@@ -1630,7 +1630,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	}
 }
 
-static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, bool onlygood)
+static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygood)
 {
 	int nl, v;
 	const AffixData *pres, *sufs;
@@ -1639,6 +1639,8 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 	BOOLEAN good;
 
 	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
+	if (flgs != PLT_MISC) // items[ii]._itype != ITYPE_RING && items[ii]._itype != ITYPE_AMULET)
+		lvl = lvl > AllItemsList[items[ii]._iIdx].iMinMLvl ? lvl - AllItemsList[items[ii]._iIdx].iMinMLvl : 0;
 
 	// select affixes (3: both, 2: prefix, 1: suffix)
 	v = random_(23, 128);
@@ -1649,7 +1651,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
-			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
+			 && pres->PLRanges[range].from <= lvl && pres->PLRanges[range].to >= lvl
 			// && (!onlygood || pres->PLOk)) {
 			 && (good <= pres->PLOk)) {
 				l[nl] = pres;
@@ -1679,7 +1681,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 		nl = 0;
 		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
 			if ((sufs->PLIType & flgs)
-			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
+			    && sufs->PLRanges[range].from <= lvl && sufs->PLRanges[range].to >= lvl
 			   // && (!onlygood || sufs->PLOk)) {
 			    && (good <= sufs->PLOk)) {
 				l[nl] = sufs;
@@ -1717,7 +1719,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 	}
 }
 
-static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood, bool allowspells)
+static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool allowspells)
 {
 	int flgs;
 
@@ -1750,7 +1752,7 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
 		if (allowspells && random_(17, 4) != 0) {
-			GetStaffSpell(ii, maxlvl);
+			GetStaffSpell(ii, lvl);
 			if (random_(51, 2) != 0)
 				return;
 			flgs |= PLT_CHRG;
@@ -1767,7 +1769,7 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 		return;
 	}
 
-	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
+	GetItemPower(ii, lvl, range, flgs, onlygood);
 }
 
 static int RndUItem(unsigned lvl)
@@ -1986,7 +1988,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		 || random_(32, 128) < 14 || (unsigned)random_(33, 128) <= lvl) {
 			uid = CheckUnique(ii, lvl, quality);
 			if (uid < 0) {
-				GetItemBonus(ii, lvl >> 2, lvl, quality >= CFDQ_GOOD, true);
+				GetItemBonus(ii, lvl, IAR_DROP, quality >= CFDQ_GOOD, true);
 			} else {
 				GetUniqueItem(ii, uid);
 				return;
@@ -2517,7 +2519,7 @@ static void DoRecharge(int pnum, int cii)
 static void DoClean(ItemStruct* pi, bool whittle)
 {
 	int seed, spell;
-	uint16_t ci, idx;
+	uint16_t ci, idx, ll;
 
 	seed = pi->_iSeed;
 	spell = pi->_iSpell;
@@ -2528,9 +2530,12 @@ static void DoClean(ItemStruct* pi, bool whittle)
 			idx = IDI_DROPSHSTAFF;
 		spell = SPL_NULL;
 	}
-
+	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemsList[idx].iMinMLvl : 0;
+	if (spell != SPL_NULL && spelldata[spell].sStaffLvl > ll) {
+		ll = spelldata[spell].sStaffLvl;
+	}
 	ci = (pi->_iCreateInfo & CF_LEVEL);
-	if (ci > AllItemsList[idx].iMinMLvl)
+	if (ci > ll)
 		ci--;
 	ci |= CF_CRAFTED;
 
@@ -3457,7 +3462,7 @@ static void SpawnOnePremium(int i, unsigned lvl)
 		seed = NextRndSeed();
 		SetRndSeed(seed);
 		GetItemAttrs(0, RndSmithItem(lvl), lvl);
-		GetItemBonus(0, lvl >> 1, lvl, true, false);
+		GetItemBonus(0, lvl, IAR_SHOP, true, false);
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
 	items[0]._iCreateInfo = lvl | CF_SMITHPREMIUM;
@@ -3576,7 +3581,7 @@ void SpawnWitch(unsigned lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
 			// if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
-				GetItemBonus(0, lvl >> 1, lvl, true, true);
+				GetItemBonus(0, lvl, IAR_SHOP, true, true);
 		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_WITCH;
@@ -3599,7 +3604,7 @@ void SpawnBoy(unsigned lvl)
 			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndSmithItem(lvl), lvl);
-			GetItemBonus(0, lvl >> 1, lvl << 1, true, true);
+			GetItemBonus(0, lvl, IAR_SHOP, true, true);
 		} while (items[0]._iIvalue > BOY_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_BOY;
@@ -3719,7 +3724,7 @@ static void RecreatePremiumItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
 	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
-	GetItemBonus(ii, lvl >> 1, lvl, true, false);
+	GetItemBonus(ii, lvl, IAR_SHOP, true, false);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
@@ -3729,7 +3734,7 @@ static void RecreateBoyItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
 	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
-	GetItemBonus(ii, lvl >> 1, lvl << 1, true, true);
+	GetItemBonus(ii, lvl, IAR_SHOP, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_BOY;
@@ -3743,7 +3748,7 @@ static void RecreateWitchItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 		// SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		// if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
-			GetItemBonus(ii, lvl >> 1, lvl, true, true);
+			GetItemBonus(ii, lvl, IAR_SHOP, true, true);
 	//}
 
 	//items[ii]._iSeed = iseed;
@@ -3768,7 +3773,7 @@ static void RecreateCraftedItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 	// SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl);
 	if (random_(51, 2) != 0)
-		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, true, true);
+		GetItemBonus(ii, lvl, IAR_CRAFT, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;

@@ -70,10 +70,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_ID_PRICE     100
 #define STORE_PEGBOY_PRICE 50
 
-// level limits of the premium items by the smith
-#define STORE_PITEM_MINLVL 6
-#define STORE_PITEM_MAXLVL 32
-
 /* The current item in store. */
 ItemStruct storeitem;
 /* The item for sale by Wirt. */
@@ -167,10 +163,6 @@ static unsigned StoresLimitedItemLvl()
 	int l = myplr._pLevel;
 
 	l += 2;
-	if (l < STORE_PITEM_MINLVL)
-		l = STORE_PITEM_MINLVL;
-	if (l > STORE_PITEM_MAXLVL)
-		l = STORE_PITEM_MAXLVL;
 	return l;
 }
 
@@ -204,7 +196,7 @@ void InitLvlStores()
 	SpawnSmith(l);
 	SpawnWitch(l);
 	SpawnHealer(l);
-	SpawnBoy(l);
+	SpawnBoy(l + 8);
 	SpawnPremium(l);
 }
 
