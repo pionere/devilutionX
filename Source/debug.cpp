@@ -494,6 +494,11 @@ void ValidateData()
 	int rnddrops = 0;
 	for (i = 0; i < NUM_IDI; i++) {
 		const ItemData& ids = AllItemsList[i];
+		if (ids.iName == NULL) {
+			if (i >= IDI_RNDDROP_FIRST || ids.iRnd != 0)
+				app_fatal("Invalid iRnd value for nameless item (%d)", i);
+			continue;
+		}
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i);
 		rnddrops += ids.iRnd;
@@ -1171,8 +1176,10 @@ void ValidateData()
 		app_fatal("No staff spell for GetStaffSpell.");
 	if (!hasScrollSpell)
 		app_fatal("No scroll spell for GetScrollSpell.");
+#ifdef HELLFIRE
 	if (!hasRuneSpell)
 		app_fatal("No rune spell for GetRuneSpell.");
+#endif
 
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {
