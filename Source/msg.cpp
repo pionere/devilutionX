@@ -2562,11 +2562,9 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 		(cmd->iou.from == SPLFROM_ABILITY && cmd->iou.skill != SPL_OIL));
 	net_assert(cmd->ioIdx < NUM_INVELEM);
 
-#ifdef HELLFIRE
 	if (cmd->iou.skill == SPL_OIL)
 		DoOil(pnum, cmd->iou.from, cmd->ioIdx);
 	else
-#endif
 		DoAbility(pnum, cmd->iou.from, cmd->ioIdx);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
