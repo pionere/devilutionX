@@ -209,7 +209,9 @@ void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int v
 	sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + x;
 	sy = LTPANEL_Y + 20 + y * 12 + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - 7 * 2 : STPANEL_WIDTH - 7 * 2;
+	limit -= x;
 	if (cjustflag) {
+		// assert(x == 0); -- otherwise limit -= x; ?
 		width = GetSmallStringWidth(str);
 		if (width < limit) {
 			sx += (limit - width) >> 1;
