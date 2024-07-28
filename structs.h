@@ -97,6 +97,13 @@ typedef struct CelImageBuf {
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelImageBuf;
 
+typedef struct CampaignMapEntry {
+	BYTE ceDunType;
+	BYTE ceIndex;
+	BYTE ceLevel;
+	BOOLEAN ceAvailable;
+} CampaignMapEntry;
+
 //////////////////////////////////////////////////
 // items
 //////////////////////////////////////////////////
@@ -1136,6 +1143,7 @@ typedef struct PkPlayerStruct {
 #pragma pack(push, 1)
 typedef struct LSaveGameDynLvlStruct {
 	BYTE vdLevel;
+	BYTE vdType;
 } LSaveGameDynLvlStruct;
 
 typedef struct LSaveGameHeaderStruct {
@@ -1632,6 +1640,8 @@ typedef struct TCmdCreateLvl {
 	BYTE bCmd;
 	BYTE clPlayers;
 	LE_UINT32 clSeed;
+	BYTE clLevel;
+	BYTE clType;
 } TCmdCreateLvl;
 
 typedef struct TCmdItemOp {
@@ -2002,6 +2012,7 @@ typedef struct DDLevel {
 typedef struct DDDynLevel {
 	LE_UINT32 dlSeed; // the seed of the dynamic level
 	BYTE dlLevel;     // the difficulty level of the dynamic level
+	BYTE dlType;      // dungeon_type (random in case of DTYPE_TOWN)
 } DDDynLevel;
 
 typedef struct LocalLevel {
@@ -2180,6 +2191,7 @@ typedef struct DynLevelStruct {
 	// uint32_t _dnSeed; -- stored in glSeedTbl
 	// BYTE _dnPlayers;  -- stored in gsDeltaData.ddLevelPlrs
 	BYTE _dnLevel;
+	BYTE _dnType;
 } DynLevelStruct;
 
 typedef struct QuestStruct {

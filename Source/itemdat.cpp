@@ -20,7 +20,7 @@ const BYTE ItemCAnimTbl[NUM_ICURS] = {
 	// clang-format off
 	IFILE_FBTTLEBB, IFILE_SCROLL, IFILE_SCROLL, IFILE_SCROLL, IFILE_GOLDFLIP, IFILE_GOLDFLIP, IFILE_GOLDFLIP, IFILE_RING, IFILE_RING, IFILE_RING,
 	IFILE_RING, IFILE_RING, IFILE_RING, IFILE_RING, IFILE_RING, IFILE_FBTTLEDY, IFILE_FBTTLEDY, IFILE_FBTTLEBY, IFILE_RING, IFILE_FEAR,
-	IFILE_FEAR, IFILE_FEAR, 0, 0, 0, IFILE_BLDSTN, 0, 0, 0, IFILE_FBTTLEBL,
+	IFILE_FEAR, IFILE_FEAR, 0, 0, 0, IFILE_BLDSTN, IFILE_BLDSTN, 0, 0, IFILE_FBTTLEBL,
 	IFILE_FBTTLEBL, IFILE_FBTTLEWH, IFILE_FBTTLE, IFILE_FBTTLEBY, IFILE_FBTTLEOR, IFILE_FBTTLEBR, IFILE_FBTTLEBL, IFILE_FBTTLEBY, IFILE_FBTTLEDB, IFILE_FBTTLEDB,
 	IFILE_FBRAIN, 0, IFILE_FBRAIN, 0, IFILE_RING, IFILE_RING, IFILE_RING, IFILE_RING, IFILE_RING, 0/*IFILE_FHEART*/,
 	IFILE_SWRDFLIP, IFILE_SWRDFLIP, 0/*IFILE_FOOD*/, IFILE_SWRDFLIP, IFILE_SWRDFLIP, IFILE_SWRDFLIP, IFILE_SWRDFLIP, IFILE_SWRDFLIP, IFILE_SWRDFLIP, IFILE_MACE, // 50 ...
@@ -213,6 +213,7 @@ const ItemData AllItemsList[NUM_IDI] = {
 /*               */ { "Amulet",                         1,        8, UITYPE_AMULET,      ICURS_AMULET,                      ITYPE_AMULET, IMISC_NONE,      SPL_NULL,      ICLASS_MISC,   ILOC_AMULET,      IDAM_NONE,           0,       0,         0,       0,       0,       0, FALSE,        0,      0,           0,   1200, ALIGN },
 /*               */ { "Amulet",                         1,       16, UITYPE_AMULET,      ICURS_AMULET,                      ITYPE_AMULET, IMISC_NONE,      SPL_NULL,      ICLASS_MISC,   ILOC_AMULET,      IDAM_NONE,           0,       0,         0,       0,       0,       0, FALSE,        0,      0,           0,   1200, ALIGN },
 /*               */ { "Amulet",                         1,       33, UITYPE_AMULET,      ICURS_AMULET,                      ITYPE_AMULET, IMISC_NONE,      SPL_NULL,      ICLASS_MISC,   ILOC_AMULET,      IDAM_NONE,           0,       0,         0,       0,       0,       0, FALSE,        0,      0,           0,   1200, ALIGN },
+/*IDI_CAMPAIGNMAP*/ { "Campaign Map",                   1,       64, UITYPE_NONE,        ICURS_CAMPAIGN_MAP,                ITYPE_MISC,   IMISC_MAP,       SPL_NULL,      ICLASS_MISC,   ILOC_UNEQUIPABLE, IDAM_NONE,           0,       0,         0,       0,       0,       0, TRUE,         0,      0,           1, 0xFFFF, ALIGN },
 #ifdef HELLFIRE
 /*               */ { "Rune of ",                       1,        1, UITYPE_NONE,        ICURS_RUNE_OF_FIRE,                ITYPE_MISC,   IMISC_RUNE,      SPL_NULL,      ICLASS_MISC,   ILOC_BELT,        IDAM_NONE,           0,       0,         0,       0,       0,       0, TRUE,         0,      0,     SS_RUNE,      0, ALIGN },
 /*               */ { "Rune of ",                       1,        3, UITYPE_NONE,        ICURS_RUNE_OF_FIRE,                ITYPE_MISC,   IMISC_RUNE,      SPL_NULL,      ICLASS_MISC,   ILOC_BELT,        IDAM_NONE,           0,       0,         0,       0,       0,       0, TRUE,         0,      0,     SS_RUNE,      0, ALIGN },

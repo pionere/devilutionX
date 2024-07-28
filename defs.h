@@ -123,6 +123,9 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define BASESTAFFCHARGES        40
 #endif
 
+#define MAXCAMPAIGNLVL          60
+#define MAXCAMPAIGNSIZE         16
+
 // number of inventory grid cells
 #define NUM_INV_GRID_ELEM       40
 

@@ -1513,6 +1513,9 @@ static void DrawView()
 		if (gbSkillListFlag) {
 			DrawSkillList();
 		}
+		if (gbCampaignMapFlag) {
+			DrawCampaignMap();
+		}
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
 			DrawInfoStr();
 		}

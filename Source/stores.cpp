@@ -2376,7 +2376,7 @@ static void S_ErrandEnter()
 {
 	switch (stextsel) {
 	case STORE_ERRAND_YES:
-		NetSendCmdCreateLvl(GetRndSeed());
+		NetSendCmdCreateLvl(GetRndSeed(), myplr._pLevel, DTYPE_TOWN);
 		stextflag = STORE_NONE;
 		break;
 	case STORE_ERRAND_NO:

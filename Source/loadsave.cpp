@@ -767,6 +767,7 @@ void LoadGame()
 	_CurrSeed = ghs->vhCurrSeed;
 	for (i = 0; i < NUM_DYNLVLS; i++) {
 		gDynLevels[i]._dnLevel = ghs->vhDynLvls[i].vdLevel;
+		gDynLevels[i]._dnType = ghs->vhDynLvls[i].vdType;
 	}
 	// load player-data
 	_ViewX = ghs->vhViewX;
@@ -1606,6 +1607,7 @@ void SaveGame()
 	}
 	for (i = 0; i < NUM_DYNLVLS; i++) {
 		ghs->vhDynLvls[i].vdLevel = gDynLevels[i]._dnLevel;
+		ghs->vhDynLvls[i].vdType = gDynLevels[i]._dnType;
 	}
 	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data

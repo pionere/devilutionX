@@ -39,6 +39,9 @@ extern unsigned guTeamMute;
 extern bool gabPanbtn[NUM_PANBTNS];
 extern int numpanbtns;
 extern bool gbSkillListFlag;
+extern bool gbCampaignMapFlag;
+extern int camItemIndex;
+extern CampaignMapEntry selCamEntry;
 
 void DrawSkillList();
 void SetSkill(bool shift, bool altSkill);
@@ -76,6 +79,9 @@ void control_drop_gold(int vkey);
 void DrawTeamBook();
 void CheckTeamClick(bool shift);
 void DrawGolemBar();
+void InitCampaignMap(int cii);
+void DrawCampaignMap();
+void TryCampaignMapClick(bool bShift, bool altAction);
 
 #ifdef __cplusplus
 }

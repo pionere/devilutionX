@@ -1797,7 +1797,7 @@ static int RndUItem(unsigned lvl)
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemsList[i].iMinMLvl ||
-			(AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK)) ? 0 : AllItemsList[i].iRnd;
+			(AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK && AllItemsList[i].iMiscId != IMISC_MAP)) ? 0 : AllItemsList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -3198,6 +3198,14 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		desc = "of a magic item";
 		PrintItemString(x, y, desc);
 		break;
+	case IMISC_MAP:
+		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
+		PrintItemString(x, y);
+		desc = "right-click to use";
+		PrintItemString(x, y, desc);
+		desc = "(only in town)";
+		PrintItemString(x, y, desc);
+		return;
 #ifdef HELLFIRE
 	//case IMISC_MAPOFDOOM:
 	//	desc = "right-click to view";

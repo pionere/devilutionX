@@ -1830,6 +1830,9 @@ bool InvUseItem(int cii)
 	 && (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
 		return true;
 	}
+	if (currLvl._dType != DTYPE_TOWN && is->_iMiscId == IMISC_MAP) {
+		return true;
+	}
 
 	// add sfx
 	if (is->_iMiscId == IMISC_BOOK)
@@ -1877,6 +1880,9 @@ bool InvUseItem(int cii)
 		gbTSpell = SPL_OIL;
 		gbTSplFrom = cii;
 		NewCursor(CURSOR_OIL);
+		return true;
+	case IMISC_MAP:
+		InitCampaignMap(cii);
 		return true;
 #ifdef HELLFIRE
 	case IMISC_NOTE:
@@ -1974,6 +1980,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_OILRESIST:
 	case IMISC_OILCHANCE:
 	case IMISC_OILCLEAN:
+	case IMISC_MAP:
 		// should not happen, only if the player is reckless...
 		return false;
 	default:
@@ -1983,6 +1990,58 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	if (--is->_iDurability <= 0) // STACK
 		SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;
+}
+
+bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)
+{
+	ItemStruct* is;
+
+	// assert(plr._pmode != PM_DEATH);
+	// assert(cii < NUM_INVELEM);
+	// assert(mIdx < MAXCAMPAIGNSIZE);
+
+	is = PlrItem(pnum, cii);
+
+	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+		return false;
+
+	// if (!is->_iUsable)
+	//	return false;
+
+	// use the item
+	if (is->_iMiscId != IMISC_MAP) {
+		return false;
+	}
+
+	int available = is->_ivalue;
+	int mask = 1 << mIdx;
+	if (!(available & mask)) {
+		return false;
+	}
+
+	if (pnum == mypnum && camItemIndex == cii) {
+		SetRndSeed(is->_iSeed);
+		// skip the seeds used during map-generation
+		for (int i = 0; i < 2 * MAXCAMPAIGNSIZE; i++) {
+			NextRndSeed();
+		}
+		// calculate the seed of the map
+		for (int i = 0; i < mIdx; i++) {
+			DWORD seed = NextRndSeed();
+			seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+			SetRndSeed(seed);
+		}
+		NetSendCmdCreateLvl(GetRndSeed(), selCamEntry.ceLevel, selCamEntry.ceDunType);
+	}
+
+	available &= ~mask;
+	if (available == 0) {
+		SyncPlrItemRemove(pnum, cii);
+	} else {
+		is->_ivalue = available;
+	}
+
+	return true;
 }
 
 void CalculateGold(int pnum)

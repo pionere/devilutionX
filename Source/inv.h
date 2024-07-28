@@ -49,6 +49,7 @@ BYTE CheckInvItem();
 BYTE CheckInvBelt();
 bool InvUseItem(int cii);
 bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
+bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 void CalculateGold(int pnum);
 
 #ifdef __cplusplus

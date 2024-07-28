@@ -21,6 +21,7 @@ _Data\Inv\Inv_rog.CEL
 _Data\Inv\Inv_Sor.CEL
 Data\Inv\Objcurs.CEL
 Data\Inv\Objcurs2.CEL
+Data\MapIcon.CEL
 Data\MedTextS.CEL
 Data\optbar.CEL
 Data\option.CEL

@@ -44,6 +44,19 @@ unsigned guTeamInviteSent;
 /** The mask of players who were muted. */
 unsigned guTeamMute;
 
+/** Campaign-map images CEL */
+static CelImageBuf* pMapIconCels;
+/** Specifies whether the campaign-map is displayed. */
+bool gbCampaignMapFlag;
+/** The 'highlighted' map on the campaign-map. */
+static CampaignMapEntry currCamEntry;
+/** The entries of the current campaign-map. */
+static CampaignMapEntry camEntries[16][16];
+/** The index of the campaign-map in the inventory. */
+int camItemIndex;
+/** The 'selected' map on the campaign-map. */
+CampaignMapEntry selCamEntry;
+
 /** Specifies whether the Golddrop is displayed. */
 bool gbDropGoldFlag;
 /** Golddrop background CEL */
@@ -950,6 +963,9 @@ void InitControlPan()
 	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICON_WIDTH);
 #endif // HELLFIRE
 #endif // ASSET_MPL == 1
+	assert(pMapIconCels == NULL);
+	pMapIconCels = CelLoadImage("Data\\MapIcon.CEL", CAMICON_WIDTH);
+	gbCampaignMapFlag = false;
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
 		for (j = 0; j < NUM_COLORS; j++)
 			SkillTrns[j] = j;
@@ -1225,6 +1241,7 @@ void FreeControlPan()
 	MemFreeDbg(pSpellCels);
 #endif
 	MemFreeDbg(pSBkIconCels);
+	MemFreeDbg(pMapIconCels);
 	MemFreeDbg(pGoldDropCel);
 }
 
@@ -1764,6 +1781,43 @@ void DrawInfoStr()
 			break;
 		}
 		DrawTooltip2(spelldata[currSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
+	} else if (gbCampaignMapFlag) {
+		if (currCamEntry.ceIndex == 0)
+			return;
+		const char* type;
+		switch (currCamEntry.ceDunType) {
+		case DTYPE_CATHEDRAL:
+			type = "Cathedral";
+			break;
+		case DTYPE_CATACOMBS:
+			type = "Catacombs";
+			break;
+		case DTYPE_CAVES:
+			type = "Caves";
+			break;
+		case DTYPE_HELL:
+			type = "Hell";
+			break;
+#ifdef HELLFIRE
+		case DTYPE_CRYPT:
+			type = "Crypt";
+			break;
+		case DTYPE_NEST:
+			type = "Nest";
+			break;
+#endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		BYTE lvl = currCamEntry.ceLevel;
+		if (gnDifficulty == DIFF_NIGHTMARE) {
+			lvl += NIGHTMARE_LEVEL_BONUS;
+		} else if (gnDifficulty == DIFF_HELL) {
+			lvl += HELL_LEVEL_BONUS;
+		}
+		snprintf(infostr, sizeof(infostr), "(lvl: %d)", lvl);
+		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
@@ -2349,6 +2403,155 @@ void DrawGolemBar()
 
 	if (mon->_mmode <= MM_INGAME_LAST) {
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, LIFE_FLASK_X + LIFE_FLASK_WIDTH / 2 - SCREEN_X, PANEL_Y + PANEL_HEIGHT - 1 - HEALTHBAR_HEIGHT + 2 - SCREEN_Y);
+	}
+}
+
+#define CAM_RADIUS 5
+#define CAMROWICONLS (2 * CAM_RADIUS + 1)
+static void control_addmappos(int x, int y, BYTE type, BYTE idx, WORD available, int* border)
+{
+	int db = -1;
+	camEntries[x][y].ceDunType = type;
+	camEntries[x][y].ceIndex = idx;
+	camEntries[x][y].ceAvailable = ((available >> (idx - 1)) & 1) ? SDL_TRUE : SDL_FALSE;
+	if (x > 8 - CAM_RADIUS && camEntries[x - 1][y].ceDunType == DTYPE_TOWN) {
+		camEntries[x - 1][y].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	if (x < 8 + CAM_RADIUS && camEntries[x + 1][y].ceDunType == DTYPE_TOWN) {
+		camEntries[x + 1][y].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	if (y > 8 - CAM_RADIUS && camEntries[x][y - 1].ceDunType == DTYPE_TOWN) {
+		camEntries[x][y - 1].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	if (y < 8 + CAM_RADIUS && camEntries[x][y + 1].ceDunType == DTYPE_TOWN) {
+		camEntries[x][y + 1].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	*border += db;
+}
+
+static void control_setmaplevel(int x, int y, BYTE lvl)
+{
+	if (camEntries[x][y].ceIndex != 0 && (camEntries[x][y].ceLevel == 0 || camEntries[x][y].ceLevel > lvl)) {
+		camEntries[x][y].ceLevel = lvl;
+
+		lvl += 4;
+		if (lvl > MAXCAMPAIGNLVL)
+			lvl = MAXCAMPAIGNLVL;
+		control_setmaplevel(x + 1, y + 0, lvl);
+		control_setmaplevel(x - 1, y + 0, lvl);
+		control_setmaplevel(x + 0, y + 1, lvl);
+		control_setmaplevel(x + 0, y - 1, lvl);
+	}
+}
+
+void InitCampaignMap(int cii)
+{
+	BYTE idx = 0;
+	WORD available;
+	int border = 1;
+	int numMaps = MAXCAMPAIGNSIZE;
+	// TODO: prevent map-open after CMD_USEPLRMAP?
+	camItemIndex = cii;
+	ItemStruct* is = PlrItem(mypnum, camItemIndex);
+	available = is->_ivalue;
+	// generate the map
+	SetRndSeed(is->_iSeed);
+
+	memset(camEntries, 0, sizeof(camEntries));
+	static_assert(DTYPE_TOWN == 0, "InitCampaignMap must be adjusted.");
+	control_addmappos(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, random_(200, NUM_DTYPES - 1) + 1, ++idx, available, &border);
+
+	for (int i = 0; i < numMaps - 1; i++) {
+		int step = random_low(201, border) + 1;
+		for (int x = 0; x < lengthof(camEntries); x++) {
+			for (int y = 0; y < lengthof(camEntries[0]); y++) {
+				if (camEntries[x][y].ceDunType > NUM_DTYPES && --step == 0) {
+					BYTE type = random_(202, 3 * (NUM_DTYPES - 1)) + 1;
+					if (type >= NUM_DTYPES) {
+						type = camEntries[x][y].ceDunType - NUM_DTYPES;
+					}
+					control_addmappos(x, y, type, ++idx, available, &border);
+					x = lengthof(camEntries);
+					break;
+				}
+			}
+		}
+	}
+
+	BYTE lvl = (is->_iCreateInfo & CF_LEVEL) - HELL_LEVEL_BONUS;
+	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl);
+
+	gbCampaignMapFlag = true;
+}
+
+void TryCampaignMapClick(bool bShift, bool altAction)
+{
+	if (!altAction) {
+		BYTE mIdx = currCamEntry.ceIndex;
+		if (mIdx != 0) {
+			if (currCamEntry.ceAvailable) {
+				selCamEntry = currCamEntry;
+				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
+				if (!bShift) {
+					if (gbInvflag) {
+						gbInvflag = false;
+						/* gbInvflag =*/ ToggleWindow(WND_INV);
+					}
+				}
+			} else {
+				return;
+			}
+		}
+	}
+
+	gbCampaignMapFlag = false;
+}
+
+void DrawCampaignMap()
+{
+	int x, y, sx, sy, lx, ly;
+	sx = PANEL_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
+	sy = PANEL_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
+
+	sx += CAMICON_WIDTH * (CAM_RADIUS - lengthof(camEntries) / 2);
+	sy += CAMICON_HEIGHT * (CAM_RADIUS - lengthof(camEntries[0]) / 2);
+
+	currCamEntry = { 0 };
+	for (int cy = 0; cy < lengthof(camEntries[0]); cy++) {
+		for (int cx = 0; cx < lengthof(camEntries); cx++) {
+			const CampaignMapEntry &cme = camEntries[cy][cx];
+			if (cme.ceIndex != 0) {
+				x = sx + CAMICON_WIDTH * (cx/* + CAM_RADIUS  - lengthof(camEntries) / 2*/);
+				y = sy + CAMICON_HEIGHT * (cy/* + CAM_RADIUS - lengthof(camEntries[0]) / 2*/);
+				lx = x - BORDER_LEFT;
+				ly = y - (BORDER_TOP + CAMICON_HEIGHT);
+
+				const BYTE* tbl = ColorTrns[COLOR_TRN_GRAY];
+				if (cme.ceAvailable) { // not visited
+					if ((cx == lengthof(camEntries) / 2 && cy == lengthof(camEntries[0]) / 2) // starting place
+					 || (camEntries[cy + 0][cx + 1].ceIndex != 0 && !camEntries[cy + 0][cx + 1].ceAvailable) // neighbour of a visited place
+					 || (camEntries[cy + 0][cx - 1].ceIndex != 0 && !camEntries[cy + 0][cx - 1].ceAvailable)
+					 || (camEntries[cy + 1][cx + 0].ceIndex != 0 && !camEntries[cy + 1][cx + 0].ceAvailable)
+					 || (camEntries[cy - 1][cx + 0].ceIndex != 0 && !camEntries[cy - 1][cx + 0].ceAvailable)) {
+						tbl = ColorTrns[0];
+					} else {
+						continue;
+					}
+				}
+
+				CelDrawTrnTbl(x, y, pMapIconCels, cme.ceDunType, tbl);
+
+				if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, CAMICON_WIDTH, CAMICON_HEIGHT)) {
+					CelDrawTrnTbl(x, y, pMapIconCels, CAMICONLAST, tbl);
+
+					currCamEntry = cme;
+				}
+			}
+		}
 	}
 }
 

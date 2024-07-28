@@ -588,6 +588,7 @@ void ValidateData()
 			case IMISC_OILRESIST:
 			case IMISC_OILCHANCE:
 			case IMISC_OILCLEAN:
+			case IMISC_MAP:
 				break;
 			default:
 				app_fatal("Usable item %s (%d) with miscId %d is not handled by SyncUseItem.", ids.iName, i, ids.iMiscId);

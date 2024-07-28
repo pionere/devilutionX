@@ -23,11 +23,11 @@ typedef struct FileMetaInfo {
 } FileMetaInfo;
 
 #ifdef HELLFIRE
-#define MPQDEVXP_HASH "251688ff12da6d42ea2ebf31d83d3f3c"
-#define MPQONE_HASH "81befc2f5f061df0ac3d9de1ecbaff7f"
+#define MPQDEVXP_HASH "4dc99a3508ec4e46ea617a987381389e"
+#define MPQONE_HASH "6fd287f43ed950ff25a4218787314b40"
 #else
-#define MPQDEVXP_HASH "7814c8a9402f2130c7e1894ff3d2044a"
-#define MPQONE_HASH "7c201ea260497b2ca98ae77975754125"
+#define MPQDEVXP_HASH "4c0681b79a0af6d3d6907f985b9a3bc5"
+#define MPQONE_HASH "88815f47b3bec695f20c763687516208"
 #endif
 #if USE_MPQONE
 #define MPQONE_OPTIONAL false
@@ -39,7 +39,7 @@ static const FileMetaInfo filemetadata[] = {
 #if ASSET_MPL != 1
 	{ "DEVILHD.MPQ", "", "", false },
 #endif
-	{ "DEVILX.MPQ", MPQDEVXP_HASH, "b336be80b3968d4bf8495a2983d4d9f9", false },
+	{ "DEVILX.MPQ", MPQDEVXP_HASH, "646be569d22f1d542851008ea6c9e22f", false },
 #ifdef HELLFIRE
 	{ "HF_OPT2.MPQ", "", "", true },
 	{ "HF_OPT1.MPQ", "", "", true },

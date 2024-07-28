@@ -63,10 +63,11 @@ typedef enum item_indexes {
 	IDI_BOOK4      = 0x61,
 	IDI_CLUB       = 0x7A,
 	IDI_DROPSHSTAFF= 0x86,
+	IDI_CAMPAIGNMAP= 0x93,
 #ifdef HELLFIRE
-	NUM_IDI        = 0x9A,
+	NUM_IDI        = 0x9B,
 #else
-	NUM_IDI        = 0x93,
+	NUM_IDI        = 0x94,
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF
@@ -241,6 +242,7 @@ typedef enum item_misc_id {
 	IMISC_OILCLEAN,
 	IMISC_OILLAST = IMISC_OILCLEAN,
 	//IMISC_MAPOFDOOM,
+	IMISC_MAP,
 	IMISC_RUNE,
 	IMISC_NOTE,
 	IMISC_INVALID   = -1,
@@ -500,6 +502,7 @@ typedef enum item_cursor_graphic {
 	ICURS_EAR_WARRIOR                 = 20,
 	ICURS_EAR_ROGUE                   = 21,
 	ICURS_BLOOD_STONE                 = 25,
+	ICURS_CAMPAIGN_MAP                = 26,
 	ICURS_OIL_OF_DEXTERITY            = 29,
 	ICURS_OIL_OF_STRENGTH             = 30,
 	ICURS_OIL_OF_CLEANSING            = 31,
@@ -3128,8 +3131,11 @@ typedef enum dungeon_type {
 	DTYPE_CATACOMBS,
 	DTYPE_CAVES,
 	DTYPE_HELL,
+#ifdef HELLFIRE
 	DTYPE_CRYPT,
 	DTYPE_NEST,
+#endif
+	NUM_DTYPES
 } dungeon_type;
 
 typedef enum dungeon_gen_type {
@@ -3146,8 +3152,13 @@ typedef enum dungeon_type_mask {
 	DTM_CATACOMBS = 1 << DTYPE_CATACOMBS,
 	DTM_CAVES     = 1 << DTYPE_CAVES,
 	DTM_HELL      = 1 << DTYPE_HELL,
+#ifdef HELLFIRE
 	DTM_CRYPT     = 1 << DTYPE_CRYPT,
 	DTM_NEST      = 1 << DTYPE_NEST,
+#else
+	DTM_CRYPT     = 0,
+	DTM_NEST      = 0,
+#endif
 	DTM_ANY       = DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES | DTM_HELL | DTM_CRYPT | DTM_NEST,
 	DTM_NONE      = 0,
 } dungeon_type_mask;
@@ -3881,6 +3892,7 @@ typedef enum _cmd_id {
 	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
+	CMD_USEPLRMAP,
 	CMD_PUTITEM,
 	CMD_SPAWNITEM,
 	CMD_GETITEM,

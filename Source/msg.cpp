@@ -289,6 +289,7 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 	for (i = 0; i < NUM_DYNLVLS; i++) {
 		pDLevel->dlSeed = glSeedTbl[NUM_FIXLVLS + i];
 		pDLevel->dlLevel = gDynLevels[i]._dnLevel;
+		pDLevel->dlType = gDynLevels[i]._dnType;
 		pDLevel++;
 	}
 	dst = (BYTE*)pDLevel;
@@ -328,11 +329,12 @@ static void DeltaImportJunk()
 		quests[i]._qvar1 = pDQuest->qvar1;
 	}
 	src = (BYTE*)pDQuest;
-	// export dynamic levels
+	// update dynamic levels
 	pDLevel = (DDDynLevel*)src;
 	for (i = 0; i < NUM_DYNLVLS; i++) {
 		glSeedTbl[NUM_FIXLVLS + i] = pDLevel->dlSeed;
 		gDynLevels[i]._dnLevel = pDLevel->dlLevel;
+		gDynLevels[i]._dnType = pDLevel->dlType;
 		pDLevel++;
 	}
 	src = (BYTE*)pDLevel;
@@ -833,6 +835,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->bMDur = src->_iMaxDur;
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
+		static_assert(MAXCAMPAIGNSIZE <= 16, "PackPkItem stores the campaign status in 2 bytes.");
 		dest->wValue = static_cast<uint16_t>(src->_ivalue);
 	} else {
 		PackEar(dest, src);
@@ -923,6 +926,8 @@ void UnPackPkItem(const PkItemStruct* src)
 			value = src->wValue;
 			net_assert(value <= GOLD_MAX_LIMIT);
 			SetGoldItemValue(&items[MAXITEMS], value);
+		} else if (idx == IDI_CAMPAIGNMAP) {
+			items[MAXITEMS]._ivalue = src->wValue;
 		}
 		items[MAXITEMS]._iIdentified = src->bId;
 		items[MAXITEMS]._iDurability = src->bDur;
@@ -2185,13 +2190,15 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdCreateLvl(DWORD seed)
+void NetSendCmdCreateLvl(DWORD seed, BYTE lvl, BYTE type)
 {
 	TCmdCreateLvl cmd;
 
 	cmd.bCmd = CMD_CREATELVL;
 	cmd.clPlayers = gbActivePlayers; // TODO: could be done in On_CREATELVL 
 	cmd.clSeed = seed;
+	cmd.clLevel = lvl;
+	cmd.clType = type;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2716,6 +2723,7 @@ static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
 {
 	TCmdCreateLvl* cmd = (TCmdCreateLvl*)pCmd;
 	BYTE bLevel, bPlayers;
+	if (plr._pDunLevel == DLV_TOWN && !plr._pLvlChanging && plr._pmode != PM_DEATH) {
 	for (bLevel = NUM_FIXLVLS; bLevel < NUM_LEVELS; bLevel++) {
 		int i = 0;
 		for ( ; i < MAX_PLRS; i++) {
@@ -2731,6 +2739,7 @@ static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
 	bPlayers = cmd->clPlayers;
 	net_assert(bLevel < NUM_LEVELS);
 	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
+	net_assert(cmd->clType < NUM_DTYPES);
 	// reset level delta (entities + automap)
 	// - multi
 	static_assert((int)DCMD_INVALID == 0, "On_CREATELVL initializes the items with zero, assuming the invalid command to be zero.");
@@ -2744,10 +2753,12 @@ static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
 	glSeedTbl[bLevel] = cmd->clSeed;
 	gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
 	static_assert(MAXCHARLEVEL + HELL_LEVEL_BONUS < CF_LEVEL, "On_CREATELVL might initialize a level which is too high for item-drops.");
-	gDynLevels[bLevel - NUM_FIXLVLS]._dnLevel = plr._pLevel;
+	gDynLevels[bLevel - NUM_FIXLVLS]._dnLevel = cmd->clLevel;
+	gDynLevels[bLevel - NUM_FIXLVLS]._dnType = cmd->clType;
 
 	StartNewLvl(pnum, DVL_DWM_DYNLVL, bLevel);
 
+	}
 	return sizeof(*cmd);
 }
 
@@ -3062,6 +3073,21 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 
 	if (plr._pmode != PM_DEATH)
 		SyncUseItem(pnum, r, SPL_INVALID);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_USEPLRMAP(TCmd* pCmd, int pnum)
+{
+	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	BYTE cii = cmd->bParam1;
+	BYTE mIdx = cmd->bParam2;
+
+	net_assert(cii < NUM_INVELEM);
+	net_assert(mIdx < MAXCAMPAIGNSIZE);
+
+	if (plr._pmode != PM_DEATH)
+		SyncUseMapItem(pnum, cii, mIdx);
 
 	return sizeof(*cmd);
 }
@@ -4471,6 +4497,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_DELPLRITEM(pCmd, pnum);
 	case CMD_USEPLRITEM:
 		return On_USEPLRITEM(pCmd, pnum);
+	case CMD_USEPLRMAP:
+		return On_USEPLRMAP(pCmd, pnum);
 	case CMD_PUTITEM:
 		return On_PUTITEM(pCmd, pnum);
 	case CMD_SPAWNITEM:

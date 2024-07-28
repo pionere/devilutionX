@@ -483,6 +483,11 @@ static void ActionBtnDown(bool bShift)
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
+	if (gbCampaignMapFlag) {
+		TryCampaignMapClick(bShift, false);
+		return;
+	}
+
 	if (gbSkillListFlag) {
 		SetSkill(bShift, false);
 		return;
@@ -562,6 +567,11 @@ static void AltActionBtnDown(bool bShift)
 	assert(!gbGamePaused);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
+
+	if (gbCampaignMapFlag) {
+		TryCampaignMapClick(bShift, true);
+		return;
+	}
 
 	if (gbSkillListFlag) {
 		SetSkill(bShift, true);
@@ -696,6 +706,10 @@ bool PressEscKey()
 		gbSkillListFlag = false;
 		rv = true;
 	}
+	if (gbCampaignMapFlag) {
+		gbCampaignMapFlag = false;
+		rv = true;
+	}
 	if (gabPanbtn[PANBTN_MAINMENU]) {
 		gabPanbtn[PANBTN_MAINMENU] = false;
 		rv = true;
@@ -714,6 +728,7 @@ void ClearPanels()
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
 	gbSkillListFlag = false;
+	gbCampaignMapFlag = false;
 	gbDropGoldFlag = false;
 }
 

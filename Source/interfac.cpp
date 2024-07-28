@@ -268,11 +268,12 @@ void EnterLevel(BYTE lvl)
 	if (currLvl._dDynLvl) {
 		// select level
 		unsigned baseLevel = gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
+		unsigned leveltype = gDynLevels[lvl - NUM_FIXLVLS]._dnType;
 		// assert(baseLevel + HELL_LEVEL_BONUS < CF_LEVEL);
 		int availableLvls[NUM_FIXLVLS];
 		int numLvls = 0;
 		for (int i = DLV_CATHEDRAL1; i < NUM_STDLVLS; i++) {
-			if (AllLevels[i].dLevel <= baseLevel /*&& AllLevels[i].dMonTypes[0] != MT_INVALID*/) {
+			if (AllLevels[i].dLevel <= baseLevel && (leveltype == DLV_TOWN || leveltype == AllLevels[i].dType) /*&& AllLevels[i].dMonTypes[0] != MT_INVALID*/) {
 				availableLvls[numLvls] = i;
 				numLvls++;
 			}
