@@ -923,6 +923,12 @@ static void S_StartBoy()
 
 static void S_StartBBoy()
 {
+	if (boyitem._itype == ITYPE_NONE) {
+		stextflag = STORE_PEGBOY;
+		stextlhold = STORE_PEGBOY_EXIT2;
+		S_StartBoy();
+		return;
+	}
 	gbWidePanel = true;
 	gbRenderGold = true;
 	gbHasScroll = false;
@@ -1174,6 +1180,7 @@ void StartStore(int s)
 
 	ClearSText(0, STORE_LINES);
 	ReleaseStoreBtn();
+	stextflag = s;
 	switch (s) {
 	case STORE_SMITH:
 		S_StartSmith();
@@ -1265,7 +1272,6 @@ void StartStore(int s)
 	}
 
 	stextsel = i == STORE_LINES ? -1 : i;
-	stextflag = s;
 }
 
 void DrawStore()
