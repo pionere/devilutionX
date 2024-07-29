@@ -827,20 +827,26 @@ static void S_StartWRecharge()
 
 static void S_StartNoMoney()
 {
-	StartStore(stextshold);
+	// StartStore(stextshold);
+	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	gbHasScroll = false;
 	gbWidePanel = true;
 	gbRenderGold = false;
-	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
+
+	AddSLine(3);
+	AddSLine(21);
 }
 
 static void S_StartNoRoom()
 {
-	StartStore(stextshold);
+	// StartStore(stextshold);
+	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	gbHasScroll = false;
-	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
+
+	AddSLine(3);
+	AddSLine(21);
 }
 
 static void S_StartWait()
@@ -852,11 +858,13 @@ static void S_StartWait()
 
 static void S_StartConfirm()
 {
-	StartStore(stextshold);
+	// StartStore(stextshold);
+	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	gbHasScroll = false;
-	ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	PrintStoreItem(&storeitem, 8, false);
 	AddSTextVal(8, storeitem._iIvalue);
+	AddSLine(3);
+	AddSLine(21);
 
 	switch (stextshold) {
 	case STORE_PBUY:
