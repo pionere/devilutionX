@@ -926,15 +926,12 @@ static void S_StartBBoy()
 	gbWidePanel = true;
 	gbRenderGold = true;
 	gbHasScroll = false;
-	AddSText(10, 1, false, "I have this item for sale:", COL_GOLD, false);
-	AddSLine(3);
-	AddSLine(21);
 
 	StorePrepareItemBuy(&boyitem);
 	PrintStoreItem(&boyitem, STORE_PEGBOY_BUY, true);
 	AddSTextVal(STORE_PEGBOY_BUY, boyitem._iIvalue);
-	AddSText(0, 22, true, "Leave", COL_WHITE, true);
-	OffsetSTextY(22, 6);
+
+	AddStoreFrame("I have this item for sale:");
 }
 
 static void S_StartHealer()
@@ -1073,11 +1070,9 @@ static void S_StartIdShow()
 	//gbRenderGold = true;
 	gbHasScroll = false;
 
-	AddSLine(3);
-	AddSText(0, 7, true, "This item is:", COL_WHITE, false);
 	PrintStoreItem(&storeitem, 11, false);
-	AddSText(0, 18, true, "Done", COL_WHITE, true);
-	AddSLine(21);
+
+	AddStoreFrame("This item is:");
 }
 
 static void S_StartTalk()
@@ -1334,7 +1329,6 @@ void STextESC()
 	case STORE_SMITH:
 	case STORE_WITCH:
 	case STORE_PEGBOY:
-	case STORE_PBUY:
 	case STORE_HEALER:
 	case STORE_STORY:
 	case STORE_TAVERN:
@@ -1382,6 +1376,10 @@ void STextESC()
 	case STORE_SIDENTIFY:
 		StartStore(STORE_STORY);
 		stextsel = STORE_STORY_IDENTIFY;
+		break;
+	case STORE_PBUY:
+		StartStore(STORE_PEGBOY);
+		stextsel = STORE_PEGBOY_QUERY;
 		break;
 	case STORE_IDSHOW:
 		StartStore(STORE_SIDENTIFY);
@@ -2096,8 +2094,10 @@ static void S_BBuyEnter()
 		stextlhold = STORE_PEGBOY_BUY;
 		StoreStartBuy(&boyitem, boyitem._iIvalue);
 	} else {
-		assert(stextsel == 22);
-		stextflag = STORE_NONE;
+		assert(stextsel == STORE_BACK);
+		// stextflag = STORE_NONE;
+		StartStore(STORE_PEGBOY);
+		stextsel = STORE_PEGBOY_QUERY;
 	}
 }
 
