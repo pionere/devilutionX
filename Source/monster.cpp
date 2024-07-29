@@ -3594,7 +3594,7 @@ void MAI_Scav(int mnum)
 						MonConsumeCorpse(mon);
 					}
 #else
-					mon->_mhitpoints += 1 << 6;
+					mon->_mhitpoints += mon->_mLevel << (6 - 2);
 					if (mon->_mhitpoints > maxhp)
 						mon->_mhitpoints = maxhp;
 					if (mon->_mhitpoints >= (maxhp >> 1) + (maxhp >> 2))
