@@ -1841,13 +1841,6 @@ static void StoreSellItem()
 	}
 	cost = storehold[idx]._iIvalue;
 	SendStoreCmd1(i, STORE_SSELL, cost);
-
-	storenumh--;
-	while (idx < storenumh) {
-		copy_pod(storehold[idx], storehold[idx + 1]);
-		storehidx[idx] = storehidx[idx + 1];
-		idx++;
-	}
 }
 
 static void S_SSell()
