@@ -1579,8 +1579,9 @@ static void S_SBuyEnter()
 	int idx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_SMITH);
-		stextsel = STORE_SMITH_BUY;
+		STextESC();
+		// StartStore(STORE_SMITH);
+		// stextsel = STORE_SMITH_BUY;
 	} else {
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
@@ -1618,8 +1619,9 @@ static void S_SPBuyEnter()
 	int i, idx, xx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_SMITH);
-		stextsel = STORE_SMITH_SPBUY;
+		STextESC();
+		// StartStore(STORE_SMITH);
+		// stextsel = STORE_SMITH_SPBUY;
 	} else {
 		stextshold = STORE_SPBUY;
 		stextlhold = stextsel;
@@ -1868,8 +1870,9 @@ static void S_SSell()
 static void S_SSellEnter()
 {
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_SMITH);
-		stextsel = STORE_SMITH_SELL;
+		STextESC();
+		// StartStore(STORE_SMITH);
+		// stextsel = STORE_SMITH_SELL;
 	} else {
 		S_SSell();
 	}
@@ -1899,8 +1902,9 @@ static void S_SRepairEnter()
 	int idx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_SMITH);
-		stextsel = STORE_SMITH_REPAIR;
+		STextESC();
+		// StartStore(STORE_SMITH);
+		// stextsel = STORE_SMITH_REPAIR;
 	} else {
 		stextshold = STORE_SREPAIR;
 		stextlhold = stextsel;
@@ -1968,8 +1972,9 @@ static void S_WBuyEnter()
 	int idx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_WITCH);
-		stextsel = STORE_WITCH_BUY;
+		STextESC();
+		// StartStore(STORE_WITCH);
+		// stextsel = STORE_WITCH_BUY;
 	} else {
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
@@ -1983,8 +1988,9 @@ static void S_WBuyEnter()
 static void S_WSellEnter()
 {
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_WITCH);
-		stextsel = STORE_WITCH_SELL;
+		STextESC();
+		// StartStore(STORE_WITCH);
+		// stextsel = STORE_WITCH_SELL;
 	} else {
 		S_SSell();
 	}
@@ -2013,8 +2019,9 @@ static void S_WRechargeEnter()
 	int idx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_WITCH);
-		stextsel = STORE_WITCH_RECHARGE;
+		STextESC();
+		// StartStore(STORE_WITCH);
+		// stextsel = STORE_WITCH_RECHARGE;
 	} else {
 		stextshold = STORE_WRECHARGE;
 		stextlhold = stextsel;
@@ -2094,16 +2101,15 @@ static void HealerBuyItem()
 
 static void S_BBuyEnter()
 {
-	if (stextsel == STORE_PEGBOY_BUY) {
+	if (stextsel == STORE_BACK) {
+		STextESC();
+		// StartStore(STORE_PEGBOY);
+		// stextsel = STORE_PEGBOY_QUERY;
+	} else {
 		stextshold = STORE_PBUY;
 		stextvhold = stextsidx;
 		stextlhold = STORE_PEGBOY_BUY;
 		StoreStartBuy(&boyitem, boyitem._iIvalue);
-	} else {
-		assert(stextsel == STORE_BACK);
-		// stextflag = STORE_NONE;
-		StartStore(STORE_PEGBOY);
-		stextsel = STORE_PEGBOY_QUERY;
 	}
 }
 
@@ -2164,23 +2170,7 @@ static void S_ConfirmEnter()
 		S_StartWait();
 		return;
 	}
-
-	StartStore(lastshold);
-	// deliberate redirect -> done
-	//if (stextshold != lastshold) {
-	//	return;
-	//}
-	// store page is empty -> done
-	//if (stextsel == STORE_BACK) {
-	//	return;
-	//}
-
-	stextsel = stextlhold;
-	stextsidx = std::min(stextvhold, stextsmax);
-
-	while (stextsel != -1 && !stextlines[stextsel]._ssel) {
-		stextsel--;
-	}
+	STextESC();
 }
 
 static void S_HealerEnter()
@@ -2215,8 +2205,9 @@ static void S_HBuyEnter()
 	int idx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_HEALER);
-		stextsel = STORE_HEALER_BUY;
+		STextESC();
+		// StartStore(STORE_HEALER);
+		// stextsel = STORE_HEALER_BUY;
 	} else {
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
@@ -2252,8 +2243,9 @@ static void S_SIDEnter()
 	int idx;
 
 	if (stextsel == STORE_BACK) {
-		StartStore(STORE_STORY);
-		stextsel = STORE_STORY_IDENTIFY;
+		STextESC();
+		// StartStore(STORE_STORY);
+		// stextsel = STORE_STORY_IDENTIFY;
 	} else {
 		stextshold = STORE_SIDENTIFY;
 		stextlhold = stextsel;
@@ -2272,8 +2264,9 @@ static void S_TalkEnter()
 	int i, tq, sn, la;
 
 	if (stextsel == 22) {
-		StartStore(stextshold);
-		stextsel = stextlhold;
+		STextESC();
+		// StartStore(stextshold);
+		// stextsel = stextlhold;
 		return;
 	}
 
@@ -2394,7 +2387,8 @@ static void S_ErrandEnter()
 		stextflag = STORE_NONE;
 		break;
 	case STORE_ERRAND_NO:
-		StartStore(STORE_PRIEST);
+		STextESC();
+		// StartStore(STORE_PRIEST);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -2435,9 +2429,10 @@ void STextEnter()
 		break;
 	case STORE_NOMONEY:
 	case STORE_NOROOM:
-		StartStore(stextshold);
-		stextsel = stextlhold;
-		stextsidx = stextvhold;
+		STextESC();
+		// StartStore(stextshold);
+		// stextsel = stextlhold;
+		// stextsidx = stextvhold;
 		break;
 	case STORE_CONFIRM:
 		S_ConfirmEnter();
@@ -2464,7 +2459,8 @@ void STextEnter()
 		S_TalkEnter();
 		break;
 	case STORE_IDSHOW:
-		StartStore(STORE_SIDENTIFY);
+		STextESC();
+		// StartStore(STORE_SIDENTIFY);
 		break;
 	case STORE_DRUNK:
 		S_DrunkEnter();
