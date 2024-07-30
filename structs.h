@@ -2624,7 +2624,7 @@ typedef struct STextStruct {
 	char _sstr[112];
 	bool _sjust;
 	BYTE _sclr;
-	bool _sline;
+	// bool _sline;
 	bool _ssel;
 	int _sval;
 } STextStruct;

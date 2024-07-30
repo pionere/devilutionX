@@ -152,7 +152,7 @@ static void ClearSText(int s, int e)
 		stextlines[i]._sstr[0] = '\0';
 		stextlines[i]._sjust = false;
 		stextlines[i]._sclr = COL_WHITE;
-		stextlines[i]._sline = false;
+		// stextlines[i]._sline = false;
 		stextlines[i]._ssel = false;
 		stextlines[i]._sval = -1;
 	}
@@ -268,10 +268,10 @@ void InitSTextHelp()
 	ClearSText(0, STORE_LINES); // necessary to reset the _syoff values
 }
 
-static void AddSLine(int y)
+/*static void AddSLine(int y)
 {
 	stextlines[y]._sline = true;
-}
+}*/
 
 static void AddSTextVal(int y, int val)
 {
@@ -293,7 +293,7 @@ static void AddSText(int x, int y, bool j, const char* str, BYTE clr, bool sel)
 	SStrCopy(ss->_sstr, str, sizeof(ss->_sstr));
 	ss->_sjust = j;
 	ss->_sclr = clr;
-	ss->_sline = false;
+	// ss->_sline = false;
 	ss->_ssel = sel;
 }
 
@@ -373,8 +373,8 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 static void AddStoreFrame(const char* title)
 {
 	AddSText(10, 1, false, title, COL_GOLD, false);
-	AddSLine(3);
-	AddSLine(21);
+	// AddSLine(3);
+	// AddSLine(21);
 	AddSText(0, STORE_BACK, true, "Back", COL_WHITE, true);
 	OffsetSTextY(STORE_BACK, 6);
 }
@@ -393,7 +393,7 @@ static void S_StartSmith()
 	AddSText(0, STORE_SMITH_SELL, true, "Sell items", COL_WHITE, true);
 	AddSText(0, STORE_SMITH_REPAIR, true, "Repair items", COL_WHITE, true);
 	AddSText(0, STORE_SMITH_EXIT, true, "Leave the shop", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void StorePrepareItemBuy(ItemStruct* is)
@@ -681,7 +681,7 @@ static void S_StartWitch()
 	AddSText(0, STORE_WITCH_SELL, true, "Sell items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_RECHARGE, true, "Recharge staves", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_EXIT, true, "Leave the shack", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void S_ScrollWBuy()
@@ -834,8 +834,8 @@ static void S_StartNoMoney()
 	gbRenderGold = false;
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
 
-	AddSLine(3);
-	AddSLine(21);
+	// AddSLine(3);
+	// AddSLine(21);
 }
 
 static void S_StartNoRoom()
@@ -845,8 +845,8 @@ static void S_StartNoRoom()
 	gbHasScroll = false;
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
 
-	AddSLine(3);
-	AddSLine(21);
+	// AddSLine(3);
+	// AddSLine(21);
 }
 
 static void S_StartWait()
@@ -863,8 +863,8 @@ static void S_StartConfirm()
 	gbHasScroll = false;
 	PrintStoreItem(&storeitem, 8, false);
 	AddSTextVal(8, storeitem._iIvalue);
-	AddSLine(3);
-	AddSLine(21);
+	// AddSLine(3);
+	// AddSLine(21);
 
 	switch (stextshold) {
 	case STORE_PBUY:
@@ -904,7 +904,7 @@ static void S_StartBoy()
 	gbRenderGold = false;
 	gbHasScroll = false;
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
-	AddSLine(5);
+	// AddSLine(5);
 	if (boyitem._itype != ITYPE_NONE) {
 		AddSText(0, STORE_PEGBOY_GOSSIP1, true, "Talk to Wirt", COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
@@ -952,7 +952,7 @@ static void S_StartHealer()
 	AddSText(0, STORE_HEALER_HEAL, true, "Receive healing", COL_WHITE, true);
 	AddSText(0, STORE_HEALER_BUY, true, "Buy items", COL_WHITE, true);
 	AddSText(0, STORE_HEALER_EXIT, true, "Leave Healer's home", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void S_ScrollHBuy()
@@ -1008,7 +1008,7 @@ static void S_StartStory()
 	AddSText(0, STORE_STORY_GOSSIP, true, "Talk to Cain", COL_BLUE, true);
 	AddSText(0, STORE_STORY_IDENTIFY, true, "Identify an item", COL_WHITE, true);
 	AddSText(0, STORE_STORY_EXIT, true, "Say goodbye", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static bool IdItemOk(const ItemStruct* is)
@@ -1090,7 +1090,7 @@ static void S_StartTalk()
 	gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
 	AddSText(0, 2, true, tempstr, COL_GOLD, false);
-	AddSLine(5);
+	// AddSLine(5);
 	sn = 0;
 	for (i = 0; i < NUM_QUESTS; i++) {
 		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
@@ -1125,7 +1125,7 @@ static void S_StartTavern()
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_TAVERN_GOSSIP, true, "Talk to Ogden", COL_BLUE, true);
 	AddSText(0, STORE_TAVERN_EXIT, true, "Leave the tavern", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void S_StartBarMaid()
@@ -1137,7 +1137,7 @@ static void S_StartBarMaid()
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_BARMAID_GOSSIP, true, "Talk to Gillian", COL_BLUE, true);
 	AddSText(0, STORE_BARMAID_EXIT, true, "Say goodbye", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void S_StartDrunk()
@@ -1149,7 +1149,7 @@ static void S_StartDrunk()
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_DRUNK_GOSSIP, true, "Talk to Farnham", COL_BLUE, true);
 	AddSText(0, STORE_DRUNK_EXIT, true, "Say Goodbye", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void S_StartPriest()
@@ -1161,7 +1161,7 @@ static void S_StartPriest()
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_PRIEST_ERRAND, true, "Run errand", COL_BLUE, true);
 	AddSText(0, STORE_PRIEST_EXIT, true, "Say Goodbye", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 static void S_StartErrand()
@@ -1171,7 +1171,7 @@ static void S_StartErrand()
 	AddSText(0, 14, true, "Go on an errand?", COL_WHITE, false);
 	AddSText(0, STORE_ERRAND_YES, true, "Yes", COL_WHITE, true);
 	AddSText(0, STORE_ERRAND_NO, true, "No", COL_WHITE, true);
-	AddSLine(5);
+	// AddSLine(5);
 }
 
 void StartStore(int s)
@@ -1279,10 +1279,14 @@ void DrawStore()
 	STextStruct* sts;
 	int i;
 
-	if (gbWidePanel)
+	if (gbWidePanel) {
 		DrawTextBox();
-	else
+		DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 3 * 12 + 14, true);
+		DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 21 * 12 + 14, true);
+	} else {
 		DrawSTextBox(STORE_PNL_X, LTPANEL_Y);
+		DrawTextBoxSLine(STORE_PNL_X, LTPANEL_Y, 5 * 12 + 14, false);
+	}
 
 	if (gbHasScroll) {
 		switch (stextflag) {
@@ -1313,8 +1317,8 @@ void DrawStore()
 
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
-		if (sts->_sline)
-			DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
+		// if (sts->_sline)
+		//	DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
 	}
