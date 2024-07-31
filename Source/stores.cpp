@@ -833,7 +833,7 @@ static void S_StartNoMoney()
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	gbHasScroll = false;
 	gbWidePanel = true;
-	gbRenderGold = false;
+	gbRenderGold = true;
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
 
 	// AddSLine(3);
