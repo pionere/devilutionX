@@ -144,9 +144,11 @@ static const char* const talkname[] = {
 
 static void ClearSText(int s, int e)
 {
-	int i;
+	// int i;
 
-	for (i = s; i < e; i++) {
+	static_assert(COL_WHITE == 0, "ClearSText skips color initialization by expecting COL_WHITE to be zero.");
+	memset(&stextlines[s], 0, (size_t)&stextlines[e] - (size_t)&stextlines[s]);
+	/*for (i = s; i < e; i++) {
 		stextlines[i]._sx = 0;
 		stextlines[i]._syoff = 0;
 		stextlines[i]._sstr[0] = '\0';
@@ -155,7 +157,7 @@ static void ClearSText(int s, int e)
 		// stextlines[i]._sline = false;
 		stextlines[i]._ssel = false;
 		stextlines[i]._sval = 0;
-	}
+	}*/
 }
 
 static unsigned StoresLimitedItemLvl()
