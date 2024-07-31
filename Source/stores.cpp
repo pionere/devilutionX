@@ -154,7 +154,7 @@ static void ClearSText(int s, int e)
 		stextlines[i]._sclr = COL_WHITE;
 		// stextlines[i]._sline = false;
 		stextlines[i]._ssel = false;
-		stextlines[i]._sval = -1;
+		stextlines[i]._sval = 0;
 	}
 }
 
@@ -219,7 +219,7 @@ void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int v
 	}
 	px = stextsel == y ? sx : INT_MAX;
 	sx = PrintLimitedString(sx, sy, str, limit, col);
-	if (val >= 0) {
+	if (val > 0) {
 		assert(!cjustflag && gbWidePanel);
 		snprintf(valstr, sizeof(valstr), "%d", val);
 		sx = LTPANEL_X + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
