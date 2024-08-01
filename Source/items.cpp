@@ -3268,9 +3268,6 @@ void DrawInvItemDetails()
 	// draw the background
 	DrawSTextBox(x, y);
 
-	// add separator
-	DrawTextBoxSLine(x, y, 74, false);
-
 	x += TPANEL_BORDER;
 	y += 44;
 

@@ -1891,15 +1891,19 @@ void DrawTextBox()
 }
 
 /**
- * @brief Draw a small text box with transparent background.
+ * @brief Draw a small text box with transparent background and a separator.
  *  used as background to items and in stores.
  * @param x: the starting x-coordinate of the text box
  * @param y: the starting y-coordinate of the text box
  */
 void DrawSTextBox(int x, int y)
 {
+	// draw the box
 	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
+	// draw the background
 	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
+	// add separator
+	DrawTextBoxSLine(x, y, 5 * 12 + 14, false);
 }
 
 /**

@@ -1287,7 +1287,6 @@ void DrawStore()
 		DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 21 * 12 + 14, true);
 	} else {
 		DrawSTextBox(STORE_PNL_X, LTPANEL_Y);
-		DrawTextBoxSLine(STORE_PNL_X, LTPANEL_Y, 5 * 12 + 14, false);
 	}
 
 	if (gbHasScroll) {
