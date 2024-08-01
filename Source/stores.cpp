@@ -1282,9 +1282,7 @@ void DrawStore()
 	int i;
 
 	if (gbWidePanel) {
-		DrawTextBox();
-		DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 3 * 12 + 14, true);
-		DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 21 * 12 + 14, true);
+		DrawTextBox(3);
 	} else {
 		DrawSTextBox(STORE_PNL_X, LTPANEL_Y);
 	}

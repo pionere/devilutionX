@@ -91,10 +91,9 @@ void DrawHelp()
 	BYTE col;
 	const char* s;
 
-	DrawTextBox();
+	DrawTextBox(1);
 
 	PrintSString(0, 1, true, HELP_TITLE, COL_GOLD);
-	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 3 * 12 + 14, true);
 
 	for (i = 5; i < 22; i++) {
 		s = gbHelpLines[helpFirstLine + i - 5];

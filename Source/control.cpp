@@ -1879,15 +1879,22 @@ void ReleaseChrBtn()
  * @brief Draw a large text box with transparent background.
  *  used as background to quest dialog window and in stores.
  */
-void DrawTextBox()
+void DrawTextBox(unsigned separators)
 {
 	int x, y;
 
 	x = LTPANEL_X;
 	y = LTPANEL_Y;
 
+	// draw the box
 	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
+	// draw the background
 	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
+	// add separator
+	if (separators & 1)
+		DrawTextBoxSLine(x, y, 3 * 12 + 14, true);
+	if (separators & 2)
+		DrawTextBoxSLine(x, y, 21 * 12 + 14, true);
 }
 
 /**
