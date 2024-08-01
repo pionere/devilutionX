@@ -24,10 +24,10 @@ typedef struct FileMetaInfo {
 
 #ifdef HELLFIRE
 #define MPQDEVXP_HASH "4dc99a3508ec4e46ea617a987381389e"
-#define MPQONE_HASH "6fd287f43ed950ff25a4218787314b40"
+#define MPQONE_HASH "c060c972cc1a6c5dd1f64adb2d432417"
 #else
 #define MPQDEVXP_HASH "4c0681b79a0af6d3d6907f985b9a3bc5"
-#define MPQONE_HASH "88815f47b3bec695f20c763687516208"
+#define MPQONE_HASH "ba32299daae9a8e96c7c8d923fd4272b"
 #endif
 #if USE_MPQONE
 #define MPQONE_OPTIONAL false

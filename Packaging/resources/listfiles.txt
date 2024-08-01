@@ -3442,13 +3442,13 @@ Sfx\Monsters\Lach01.wav
 Sfx\Monsters\Lach02.wav
 Sfx\Monsters\Lach03.wav
 Sfx\Monsters\Laz01.wav
-Sfx\Monsters\Laz02.wav
+_Sfx\Monsters\Laz02.wav
 Sfx\Monsters\Sking01.wav
 Sfx\Monsters\Snot01.wav
 Sfx\Monsters\Snot02.wav
 Sfx\Monsters\Snot03.wav
 Sfx\Monsters\Warlrd01.wav
-Sfx\Monsters\Wlock01.wav
+_Sfx\Monsters\Wlock01.wav
 Sfx\Monsters\Zhar01.wav
 Sfx\Monsters\Zhar02.wav
 Sfx\Narrator\Nar01.wav
