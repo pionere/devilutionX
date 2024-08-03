@@ -2530,7 +2530,8 @@ static bool CheckNewPath(int pnum)
 	}
 
 	if (plr._pDestAction == ACTION_ATTACKMON) {
-		MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
+			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
 	}
