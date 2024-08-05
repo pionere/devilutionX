@@ -2530,6 +2530,7 @@ typedef struct _uigamedata {
 typedef struct PATHNODE {
 	BYTE totalCost;
 	BYTE remainingCost;
+	BYTE lastStepCost;
 	BYTE walkCost;
 	int x;
 	int y;

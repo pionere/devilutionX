@@ -84,15 +84,9 @@ static PATHNODE* PathVisitedNodeAt(int dx, int dy)
 static void PathAddNode(PATHNODE* pPath)
 {
 	PATHNODE *next, *current;
-	BYTE currCost;
 
 	current = pathFrontNodes;
 	next = pathFrontNodes->NextNode;
-	currCost = pPath->totalCost;
-	while (next != NULL && next->totalCost < currCost) {
-		current = next;
-		next = next->NextNode;
-	}
 	pPath->NextNode = next;
 	current->NextNode = pPath;
 }
@@ -117,7 +111,7 @@ static void PathUpdateCosts(PATHNODE* pPath)
 	PATHNODE* PathOld;
 	PATHNODE* PathAct;
 	int updateStackSize;
-	BYTE i, newWalkCost;
+	BYTE i, newStepCost, newWalkCost;
 
 	pathUpdateStack[0] = pPath;
 	updateStackSize = 1;
@@ -129,14 +123,20 @@ static void PathUpdateCosts(PATHNODE* pPath)
 			if (PathAct == NULL)
 				break;
 
-			newWalkCost = PathOld->walkCost + PathStepCost(PathOld->x, PathOld->y, PathAct->x, PathAct->y);
+			newStepCost = PathStepCost(PathOld->x, PathOld->y, PathAct->x, PathAct->y);
+			newWalkCost = PathOld->walkCost + newStepCost;
 			if (newWalkCost < PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/) {
 				// EventPlrMsg("Update walk 0 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
 				PathAct->Parent = PathOld;
 				PathAct->walkCost = newWalkCost;
+				PathAct->lastStepCost = newStepCost;
 				PathAct->totalCost = newWalkCost + PathAct->remainingCost;
 				pathUpdateStack[updateStackSize] = PathAct;
 				updateStackSize++;
+			} else if (newWalkCost == PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/ && newStepCost > PathAct->lastStepCost) {
+				// EventPlrMsg("Update walk 1 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
+				PathAct->Parent = PathOld;
+				PathAct->lastStepCost = newStepCost;
 			}
 		}
 	} while (updateStackSize != 0);
@@ -150,8 +150,12 @@ static int PathRemainingCost(int x, int y)
 	int delta_x = abs(x - gnTx);
 	int delta_y = abs(y - gnTy);
 
-	// see PathStepCost for why this is times 2
-	return 2 * (delta_x + delta_y);
+	// see PathStepCost for why this is times 2 and 3
+	if (delta_x > delta_y) {
+		return 2 * (delta_x - delta_y) + 3 * delta_y;
+	} else {
+		return 2 * (delta_y - delta_x) + 3 * delta_x;
+	}
 }
 
 static inline void PathAppendChild(PATHNODE* parent, PATHNODE* child)
@@ -174,10 +178,12 @@ static inline void PathAppendChild(PATHNODE* parent, PATHNODE* child)
 static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 {
 	BYTE nextWalkCost;
+	BYTE stepCost;
 	bool frontier;
 	PATHNODE* dxdy;
 
-	nextWalkCost = pPath->walkCost + PathStepCost(pPath->x, pPath->y, dx, dy);
+	stepCost = PathStepCost(pPath->x, pPath->y, dx, dy);
+	nextWalkCost = pPath->walkCost + stepCost;
 
 	// 3 cases to consider
 	// case 1: (dx,dy) is already on the frontier
@@ -189,16 +195,21 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 	}
 	if (dxdy != NULL) {
 		PathAppendChild(pPath, dxdy);
+		// update the node if necessary
 		if (nextWalkCost < dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/) {
-			// update the node
 			// EventPlrMsg("Update %d path %d:%d cost%d:%d last%d to cost%d:%d last%d", frontier, dxdy->x - gnSx, dxdy->y - gnSy, dxdy->totalCost, dxdy->walkCost, dxdy->lastStepCost, nextWalkCost + dxdy->remainingCost, nextWalkCost, stepCost);
 			dxdy->Parent = pPath;
+			dxdy->lastStepCost = stepCost;
 			dxdy->walkCost = nextWalkCost;
 			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
 			if (!frontier) {
 				// already explored, so re-update others starting from that node
 				PathUpdateCosts(dxdy);
 			}
+		} else if (nextWalkCost == dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/ && stepCost > dxdy->lastStepCost) {
+			// EventPlrMsg("Update 2 path %d:%d cost%d:%d last%d to last%d", dxdy->x - gnSx, dxdy->y - gnSy, dxdy->totalCost, dxdy->walkCost, dxdy->lastStepCost, stepCost);
+			dxdy->Parent = pPath;
+			dxdy->lastStepCost = stepCost;
 		} else {
 			// LogErrorF("Ignoring path %d:%d cost%d vs. %d last%d vs. last%d", dxdy->x - gnSx, dxdy->y - gnSy, nextWalkCost, dxdy->walkCost, dxdy->lastStepCost, stepCost);
 		}
@@ -216,6 +227,7 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 		dxdy->y = dy;
 		dxdy->remainingCost = PathRemainingCost(dx, dy);
 		dxdy->walkCost = nextWalkCost;
+		dxdy->lastStepCost = stepCost;
 		dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
 		// add it to the frontier
 		PathAddNode(dxdy);
@@ -253,11 +265,28 @@ static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE* 
  */
 static PATHNODE* PathPopNode()
 {
-	PATHNODE* result;
+	PATHNODE* prevNode = pathFrontNodes;
+	PATHNODE* result = pathFrontNodes->NextNode;
 
-	result = pathFrontNodes->NextNode;
 	if (result != NULL) {
-		pathFrontNodes->NextNode = result->NextNode;
+		PATHNODE* res = result;
+		PATHNODE* pNode;
+		while (true) {
+			pNode = res;
+			res = res->NextNode;
+			if (res == NULL) {
+				break;
+			}
+
+			if (res->totalCost < result->totalCost
+			// || (res->totalCost == result->totalCost && (res->walkCost < result->walkCost || (res->walkCost == result->walkCost && res->lastStepCost > result->lastStepCost)))) {
+			 || (res->totalCost == result->totalCost && result->remainingCost == 0)) {
+				result = res;
+				prevNode = pNode;
+			}
+		}
+
+		prevNode->NextNode = result->NextNode;
 		result->NextNode = pathVisitedNodes->NextNode;
 		pathVisitedNodes->NextNode = result;
 	}
