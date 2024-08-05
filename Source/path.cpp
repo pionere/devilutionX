@@ -7,6 +7,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+// #define DEBUG_PATH
+
 /** Pre-allocated memory to store nodes used by the path finding algorithm. */
 PATHNODE path_nodes[MAXPATHNODES];
 /** The index of last used node in path_nodes. */
@@ -21,7 +23,10 @@ static PATHNODE* pathUpdateStack[MAXPATHNODES];
 static PATHNODE* pathFrontNodes;
 /** The target location. */
 static int gnTx, gnTy;
-
+#ifdef DEBUG_PATH
+/** The target location. */
+static int gnSx, gnSy;
+#endif
 /** For iterating over the 8 possible movement directions. */
 //                       PDIR_N   W   E   S  NW  NE  SE  SW
 const int8_t pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
@@ -126,6 +131,7 @@ static void PathUpdateCosts(PATHNODE* pPath)
 
 			newWalkCost = PathOld->walkCost + PathStepCost(PathOld->x, PathOld->y, PathAct->x, PathAct->y);
 			if (newWalkCost < PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/) {
+				// EventPlrMsg("Update walk 0 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
 				PathAct->Parent = PathOld;
 				PathAct->walkCost = newWalkCost;
 				PathAct->totalCost = newWalkCost + PathAct->remainingCost;
@@ -184,7 +190,8 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 	if (dxdy != NULL) {
 		PathAppendChild(pPath, dxdy);
 		if (nextWalkCost < dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/) {
-			// we'll explore it later, just update
+			// update the node
+			// EventPlrMsg("Update %d path %d:%d cost%d:%d last%d to cost%d:%d last%d", frontier, dxdy->x - gnSx, dxdy->y - gnSy, dxdy->totalCost, dxdy->walkCost, dxdy->lastStepCost, nextWalkCost + dxdy->remainingCost, nextWalkCost, stepCost);
 			dxdy->Parent = pPath;
 			dxdy->walkCost = nextWalkCost;
 			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
@@ -192,11 +199,15 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 				// already explored, so re-update others starting from that node
 				PathUpdateCosts(dxdy);
 			}
+		} else {
+			// LogErrorF("Ignoring path %d:%d cost%d vs. %d last%d vs. last%d", dxdy->x - gnSx, dxdy->y - gnSy, nextWalkCost, dxdy->walkCost, dxdy->lastStepCost, stepCost);
 		}
 	} else {
 		// case 3: (dx,dy) is totally new
-		if (gnLastNodeIdx == MAXPATHNODES - 1)
+		if (gnLastNodeIdx == MAXPATHNODES - 1) {
+			// EventPlrMsg("Not enough nodes %d:%d", pPath->x - gnSx, pPath->y - gnSy);
 			return false;
+		}
 		dxdy = &path_nodes[++gnLastNodeIdx];
 		memset(dxdy, 0, sizeof(PATHNODE));
 		dxdy->Parent = pPath;
@@ -263,7 +274,11 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 {
 	PATHNODE* currNode;
 	int path_length, i;
-
+#ifdef DEBUG_PATH
+	// EventPlrMsg("Find path from %d:%d to %d:%d", sx, sy, dx, dy);
+	gnSx = sx;
+	gnSy = sy;
+#endif
 	gnTx = dx;
 	gnTy = dy;
 	// create root nodes for the visited/frontier linked lists
@@ -279,26 +294,36 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 	pathVisitedNodes = currNode;
 	// A* search until we find (dx,dy) or fail
 	while (TRUE) {
+		// LogErrorF("Eval path from %d:%d", currNode->x - gnSx, currNode->y - gnSy);
 		// reached the end, success!
 		if (currNode->x == gnTx && currNode->y == gnTy) {
 			path_length = 0;
 			while (currNode->Parent != NULL) {
-				if (path_length == MAX_PATH_LENGTH)
+				if (path_length == MAX_PATH_LENGTH) {
+					// EventPlrMsg("Found path from %d:%d to %d:%d -- too long", sx - gnSx, sy - gnSy, dx, dy - gnSy);
 					return -1; // path does not fit to the destination, abort!
+				}
 				reversePathDirs[path_length++] = path_directions[3 * (currNode->y - currNode->Parent->y) - currNode->Parent->x + 4 + currNode->x];
 				currNode = currNode->Parent;
 			}
 			for (i = 0; i < path_length; i++)
 				path[i] = reversePathDirs[path_length - i - 1];
+			// EventPlrMsg("Found path from %d:%d to %d:%d: %d", sx - gnSx, sy - gnSy, dx - gnSx, dy - gnSy, path_length);
 			return i;
 		}
-		if (currNode->totalCost > 4 * (MAX_PATH_LENGTH - 1))
+		if (currNode->totalCost > 4 * (MAX_PATH_LENGTH - 1)) {
+			// EventPlrMsg("No path from %d:%d to %d:%d -- too long", sx - gnSx, sy - gnSy, dx, dy - gnSy);
 			return -1; // path is hopeless
-		if (!path_get_path(PosOk, PosOkArg, currNode))
+		}
+		if (!path_get_path(PosOk, PosOkArg, currNode)) {
+			// EventPlrMsg("No path from %d:%d to %d:%d -- too many options", sx - gnSx, sy - gnSy, dx, dy - gnSy);
 			return -1; // ran out of nodes, abort!
+		}
 		currNode = PathPopNode();
-		if (currNode == NULL)
+		if (currNode == NULL) {
+			// EventPlrMsg("No path from %d:%d to %d:%d -- not at all", sx - gnSx, sy - gnSy, dx, dy - gnSy);
 			return -1; // frontier is empty, no path!
+		}
 	}
 }
 
