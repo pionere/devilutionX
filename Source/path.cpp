@@ -168,6 +168,7 @@ static inline void PathAppendChild(PATHNODE* parent, PATHNODE* child)
 static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 {
 	BYTE nextWalkCost;
+	bool frontier;
 	PATHNODE* dxdy;
 
 	nextWalkCost = pPath->walkCost + PathStepCost(pPath->x, pPath->y, dx, dy);
@@ -175,6 +176,11 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 	// 3 cases to consider
 	// case 1: (dx,dy) is already on the frontier
 	dxdy = PathFrontNodeAt(dx, dy);
+	frontier = dxdy != NULL;
+	if (!frontier) {
+		// case 2: (dx,dy) was already visited
+		dxdy = PathVisitedNodeAt(dx, dy);
+	}
 	if (dxdy != NULL) {
 		PathAppendChild(pPath, dxdy);
 		if (nextWalkCost < dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/) {
@@ -182,36 +188,26 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 			dxdy->Parent = pPath;
 			dxdy->walkCost = nextWalkCost;
 			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
-		}
-	} else {
-		// case 2: (dx,dy) was already visited
-		dxdy = PathVisitedNodeAt(dx, dy);
-		if (dxdy != NULL) {
-			PathAppendChild(pPath, dxdy);
-			if (nextWalkCost < dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/) {
-				// update the node
-				dxdy->Parent = pPath;
-				dxdy->walkCost = nextWalkCost;
-				dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
+			if (!frontier) {
 				// already explored, so re-update others starting from that node
 				PathUpdateCosts(dxdy);
 			}
-		} else {
-			// case 3: (dx,dy) is totally new
-			if (gnLastNodeIdx == MAXPATHNODES - 1)
-				return false;
-			dxdy = &path_nodes[++gnLastNodeIdx];
-			memset(dxdy, 0, sizeof(PATHNODE));
-			dxdy->Parent = pPath;
-			PathAppendChild(pPath, dxdy);
-			dxdy->x = dx;
-			dxdy->y = dy;
-			dxdy->remainingCost = PathRemainingCost(dx, dy);
-			dxdy->walkCost = nextWalkCost;
-			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
-			// add it to the frontier
-			PathAddNode(dxdy);
 		}
+	} else {
+		// case 3: (dx,dy) is totally new
+		if (gnLastNodeIdx == MAXPATHNODES - 1)
+			return false;
+		dxdy = &path_nodes[++gnLastNodeIdx];
+		memset(dxdy, 0, sizeof(PATHNODE));
+		dxdy->Parent = pPath;
+		PathAppendChild(pPath, dxdy);
+		dxdy->x = dx;
+		dxdy->y = dy;
+		dxdy->remainingCost = PathRemainingCost(dx, dy);
+		dxdy->walkCost = nextWalkCost;
+		dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
+		// add it to the frontier
+		PathAddNode(dxdy);
 	}
 	return true;
 }
