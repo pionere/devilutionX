@@ -2528,16 +2528,16 @@ typedef struct _uigamedata {
 //////////////////////////////////////////////////
 
 typedef struct PATHNODE {
-	BYTE totalCost;
-	BYTE remainingCost;
-	BYTE lastStepCost;
-	BYTE walkCost;
+	int totalCost;
+	int remainingCost;
+	int lastStepCost;
+	int walkCost;
 	int x;
 	int y;
 	struct PATHNODE* Parent;
 	struct PATHNODE* Child[NUM_DIRS];
 	struct PATHNODE* NextNode;
-	ALIGNMENT(3, 8)
+	ALIGNMENT64(6)
 } PATHNODE;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

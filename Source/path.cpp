@@ -111,7 +111,7 @@ static void PathUpdateCosts(PATHNODE* pPath)
 	PATHNODE* PathOld;
 	PATHNODE* PathAct;
 	int updateStackSize;
-	BYTE i, newStepCost, newWalkCost;
+	int i, newStepCost, newWalkCost;
 
 	pathUpdateStack[0] = pPath;
 	updateStackSize = 1;
@@ -177,8 +177,8 @@ static inline void PathAppendChild(PATHNODE* parent, PATHNODE* child)
  */
 static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 {
-	BYTE nextWalkCost;
-	BYTE stepCost;
+	int nextWalkCost;
+	int stepCost;
 	bool frontier;
 	PATHNODE* dxdy;
 
