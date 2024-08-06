@@ -451,7 +451,7 @@ static void S_StartSBuy()
 		msg = "I have no basic item for sale.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSBuy();
 
 		msg = "I have these basic items for sale:";
@@ -513,7 +513,7 @@ static void S_StartSPBuy()
 		msg = "I have no premium item for sale.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSPBuy();
 
 		msg = "I have these premium items for sale:";
@@ -602,7 +602,7 @@ static void S_StartSSell()
 		msg = "You have nothing I want.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSSell();
 
 		msg = "Which item is for sale?";
@@ -662,7 +662,7 @@ static void S_StartSRepair()
 		msg = "You have nothing to repair.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSSell();
 
 		msg = "Repair which item?";
@@ -723,7 +723,7 @@ static void S_StartWBuy()
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	gbHasScroll = true;
-	stextsidx = 0;
+	// stextsidx = 0;
 	S_ScrollWBuy();
 
 	AddStoreFrame("I have these items for sale:");
@@ -766,7 +766,7 @@ static void S_StartWSell()
 		msg = "You have nothing I want.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSSell();
 		msg = "Which item is for sale?";
 	}
@@ -819,7 +819,7 @@ static void S_StartWRecharge()
 		msg = "You have nothing to recharge.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSSell();
 
 		msg = "Recharge which item?";
@@ -994,7 +994,7 @@ static void S_StartHBuy()
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	gbHasScroll = true;
-	stextsidx = 0;
+	// stextsidx = 0;
 	S_ScrollHBuy();
 
 	AddStoreFrame("I have these items for sale:");
@@ -1060,7 +1060,7 @@ static void S_StartSIdentify()
 		msg = "You have nothing to identify.";
 	} else {
 		gbHasScroll = true;
-		stextsidx = 0;
+		// stextsidx = 0;
 		S_ScrollSSell();
 
 		msg = "Identify which item?";
@@ -1183,6 +1183,7 @@ void StartStore(int s)
 	ClearSText(0, STORE_LINES);
 	ReleaseStoreBtn();
 	stextflag = s;
+	stextsidx = 0;
 	switch (s) {
 	case STORE_SMITH:
 		S_StartSmith();
