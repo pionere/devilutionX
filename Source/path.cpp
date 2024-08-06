@@ -244,16 +244,19 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
  */
 static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE* pPath)
 {
+	int sx, sy;
 	int dx, dy;
 	int i;
 	bool ok;
 
+	sx = pPath->x;
+	sy = pPath->y;
 	static_assert(lengthof(pathxdir) == lengthof(pathydir), "Mismatching pathdir tables.");
 	for (i = 0; i < lengthof(pathxdir); i++) {
-		dx = pPath->x + pathxdir[i];
-		dy = pPath->y + pathydir[i];
+		dx = sx + pathxdir[i];
+		dy = sy + pathydir[i];
 		ok = PosOk(PosOkArg, dx, dy);
-		if ((ok && PathWalkable(pPath->x, pPath->y, i)) || (!ok && dx == gnTx && dy == gnTy)) {
+		if ((ok && PathWalkable(sx, sy, i)) || (!ok && dx == gnTx && dy == gnTy)) {
 			if (!path_parent_path(pPath, dx, dy))
 				return false;
 		}
