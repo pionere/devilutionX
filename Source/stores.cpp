@@ -9,6 +9,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+// #define DEBUG_STORES
+#ifdef DEBUG_STORES
+#define DEBUG_ASSERT(x) assert(x)
+#else
+#define DEBUG_ASSERT(x) ((void)0)
+#endif
+
 // required size of the store to accomodate the relevant items
 #define STORAGE_LIMIT (NUM_INV_GRID_ELEM + (MAXBELTITEMS > NUM_INVLOC ? MAXBELTITEMS : NUM_INVLOC))
 
@@ -60,6 +67,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_DRUNK_GOSSIP 12
 #define STORE_DRUNK_EXIT   18
 
+//#define STORE_PRIEST_GOSSIP 12
 #define STORE_PRIEST_ERRAND 12
 #define STORE_PRIEST_EXIT   18
 
@@ -222,13 +230,13 @@ void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int v
 	px = stextsel == y ? sx : INT_MAX;
 	sx = PrintLimitedString(sx, sy, str, limit, col);
 	if (val > 0) {
-		assert(!cjustflag && gbWidePanel);
+		DEBUG_ASSERT(!cjustflag && gbWidePanel);
 		snprintf(valstr, sizeof(valstr), "%d", val);
 		sx = LTPANEL_X + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
 		PrintGameStr(sx, sy, valstr, col);
 	}
 	if (px != INT_MAX) {
-		assert(cjustflag || gbWidePanel);
+		DEBUG_ASSERT(cjustflag || gbWidePanel);
 		DrawSmallPentSpn(px - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
 	}
 }
@@ -240,7 +248,7 @@ static void DrawSSlider(/*int y1, int y2*/)
 
 	//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 	//x = STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
-	assert(gbWidePanel);
+	DEBUG_ASSERT(gbWidePanel);
 	x = LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
 	yd1 = y1 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20; // top position of the scrollbar
 	yd2 = y2 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20; // bottom position of the scrollbar
@@ -1417,9 +1425,7 @@ void STextESC()
 void STextUp()
 {
 	PlaySFX(IS_TITLEMOV);
-	if (stextsel == -1) {
-		return;
-	}
+	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == STORE_LIST_FIRST) {
 		if (stextsidx != 0)
@@ -1437,9 +1443,7 @@ void STextUp()
 void STextDown()
 {
 	PlaySFX(IS_TITLEMOV);
-	if (stextsel == -1) {
-		return;
-	}
+	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == stextdown) {
 		if (stextsidx < stextsmax)
@@ -1456,7 +1460,8 @@ void STextDown()
 
 void STextPageUp()
 {
-	if (stextsel != -1 && gbHasScroll) {
+	DEBUG_ASSERT(stextsel != -1);
+	if (gbHasScroll) {
 		PlaySFX(IS_TITLEMOV);
 		stextsidx -= 4;
 		if (stextsidx < 0) {
@@ -1468,7 +1473,8 @@ void STextPageUp()
 
 void STextPageDown()
 {
-	if (stextsel != -1 && gbHasScroll) {
+	DEBUG_ASSERT(stextsel != -1);
+	if (gbHasScroll) {
 		PlaySFX(IS_TITLEMOV);
 		stextsidx += 4;
 		if (stextsidx > stextsmax) {
@@ -1482,6 +1488,7 @@ static void S_SmithEnter()
 {
 	switch (stextsel) {
 	case STORE_SMITH_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_SMITH);
 		stextlhold = STORE_SMITH_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_SMITH;
@@ -1592,6 +1599,7 @@ static void S_SBuyEnter()
 		// StartStore(STORE_SMITH);
 		// stextsel = STORE_SMITH_BUY;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_SBUY);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
@@ -1632,6 +1640,7 @@ static void S_SPBuyEnter()
 		// StartStore(STORE_SMITH);
 		// stextsel = STORE_SMITH_SPBUY;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_SPBUY);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_SPBUY;
@@ -1779,7 +1788,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		lastshold = nextMode;
 		break;
 	case STORE_SIDENTIFY:
-		assert(price == STORE_ID_PRICE);
+		DEBUG_ASSERT(price == STORE_ID_PRICE);
 		if (!TakePlrsMoney(pnum, STORE_ID_PRICE))
 			return;
 		pi = PlrItem(pnum, ii);
@@ -1803,7 +1812,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		pi->_iCharges = pi->_iMaxCharges;
 		break;
 	case STORE_PEGBOY:
-		assert(price == STORE_PEGBOY_PRICE);
+		DEBUG_ASSERT(price == STORE_PEGBOY_PRICE);
 		if (!TakePlrsMoney(pnum, STORE_PEGBOY_PRICE))
 			return;
 		//lastshold = STORE_PEGBOY;
@@ -1832,9 +1841,10 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	if (stextsidx > stextsmax) {
 		stextsidx = stextsmax;
 	}
-
-	while (stextsel != -1 && !stextlines[stextsel]._ssel) {
+	DEBUG_ASSERT(stextsel != -1);
+	while (/*stextsel != -1 && */ !stextlines[stextsel]._ssel) {
 		stextsel--;
+		DEBUG_ASSERT(stextsel != -1);
 	}
 }
 
@@ -1913,6 +1923,7 @@ static void S_SRepairEnter()
 		// StartStore(STORE_SMITH);
 		// stextsel = STORE_SMITH_REPAIR;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_SREPAIR);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_SREPAIR;
@@ -1929,6 +1940,7 @@ static void S_WitchEnter()
 {
 	switch (stextsel) {
 	case STORE_WITCH_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_WITCH);
 		stextlhold = STORE_WITCH_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_WITCH;
@@ -1984,6 +1996,7 @@ static void S_WBuyEnter()
 		// StartStore(STORE_WITCH);
 		// stextsel = STORE_WITCH_BUY;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_WBUY);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_WBUY;
@@ -2031,6 +2044,7 @@ static void S_WRechargeEnter()
 		// StartStore(STORE_WITCH);
 		// stextsel = STORE_WITCH_RECHARGE;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_WRECHARGE);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_WRECHARGE;
@@ -2045,6 +2059,7 @@ static void S_WRechargeEnter()
 
 static void S_BoyEnter()
 {
+	DEBUG_ASSERT(stextflag == STORE_PEGBOY);
 	if (boyitem._itype != ITYPE_NONE) {
 		if (stextsel == STORE_PEGBOY_QUERY) {
 			stextlhold = STORE_PEGBOY_QUERY;
@@ -2115,6 +2130,8 @@ static void S_BBuyEnter()
 		// StartStore(STORE_PEGBOY);
 		// stextsel = STORE_PEGBOY_QUERY;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_PBUY);
+		DEBUG_ASSERT(stextsel == STORE_PEGBOY_BUY);
 		stextlhold = STORE_PEGBOY_BUY;
 		stextvhold = stextsidx;
 		stextshold = STORE_PBUY;
@@ -2187,6 +2204,7 @@ static void S_HealerEnter()
 {
 	switch (stextsel) {
 	case STORE_HEALER_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_HEALER);
 		stextlhold = STORE_HEALER_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_HEALER;
@@ -2220,6 +2238,7 @@ static void S_HBuyEnter()
 		// StartStore(STORE_HEALER);
 		// stextsel = STORE_HEALER_BUY;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_HBUY);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
@@ -2232,6 +2251,7 @@ static void S_StoryEnter()
 {
 	switch (stextsel) {
 	case STORE_STORY_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_STORY);
 		stextlhold = STORE_STORY_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_STORY;
@@ -2259,6 +2279,7 @@ static void S_SIDEnter()
 		// StartStore(STORE_STORY);
 		// stextsel = STORE_STORY_IDENTIFY;
 	} else {
+		DEBUG_ASSERT(stextflag == STORE_SIDENTIFY);
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
 		stextshold = STORE_SIDENTIFY;
@@ -2317,6 +2338,7 @@ static void S_TavernEnter()
 {
 	switch (stextsel) {
 	case STORE_TAVERN_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_TAVERN);
 		stextlhold = STORE_TAVERN_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_TAVERN;
@@ -2336,6 +2358,7 @@ static void S_BarmaidEnter()
 {
 	switch (stextsel) {
 	case STORE_BARMAID_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_BARMAID);
 		stextlhold = STORE_BARMAID_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_BARMAID;
@@ -2355,6 +2378,7 @@ static void S_DrunkEnter()
 {
 	switch (stextsel) {
 	case STORE_DRUNK_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_DRUNK);
 		stextlhold = STORE_DRUNK_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_DRUNK;
@@ -2374,6 +2398,7 @@ static void S_PriestEnter()
 {
 	switch (stextsel) {
 	/*case STORE_PRIEST_GOSSIP:
+		DEBUG_ASSERT(stextflag == STORE_PRIEST);
 		stextlhold = STORE_PRIEST_GOSSIP;
 		// stextvhold = stextsidx;
 		stextshold = STORE_PRIEST;
