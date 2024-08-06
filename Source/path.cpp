@@ -334,11 +334,11 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 					// EventPlrMsg("Found path from %d:%d to %d:%d -- too long", sx - gnSx, sy - gnSy, dx, dy - gnSy);
 					return -1; // path does not fit to the destination, abort!
 				}
-				reversePathDirs[path_length++] = path_directions[3 * (currNode->y - currNode->Parent->y) - currNode->Parent->x + 4 + currNode->x];
+				reversePathDirs[path_length++] = 3 * (currNode->y - currNode->Parent->y) - currNode->Parent->x + 4 + currNode->x;
 				currNode = currNode->Parent;
 			}
 			for (i = 0; i < path_length; i++)
-				path[i] = reversePathDirs[path_length - i - 1];
+				path[i] = path_directions[reversePathDirs[path_length - i - 1]];
 			// EventPlrMsg("Found path from %d:%d to %d:%d: %d", sx - gnSx, sy - gnSy, dx - gnSx, dy - gnSy, path_length);
 			return i;
 		}
