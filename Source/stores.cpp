@@ -2362,9 +2362,6 @@ static void S_PriestEnter()
 		StartStore(STORE_GOSSIP);
 		break;*/
 	case STORE_PRIEST_ERRAND:
-		stextlhold = STORE_PRIEST_ERRAND;
-		talker = TOWN_PRIEST;
-		stextshold = STORE_PRIEST;
 		StartStore(STORE_ERRAND);
 		break;
 	case STORE_PRIEST_EXIT:
