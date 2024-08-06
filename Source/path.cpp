@@ -102,7 +102,7 @@ static inline int PathStepCost(int sx, int sy, int dx, int dy)
 {
 	return (sx == dx || sy == dy) ? 2 : 3;
 }
-
+#ifdef DEBUG_PATH
 /**
  * @brief update all path costs using depth-first search starting at pPath
  */
@@ -126,7 +126,7 @@ static void PathUpdateCosts(PATHNODE* pPath)
 			newStepCost = PathStepCost(PathOld->x, PathOld->y, PathAct->x, PathAct->y);
 			newWalkCost = PathOld->walkCost + newStepCost;
 			if (newWalkCost < PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/) {
-				// EventPlrMsg("Update walk 0 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
+				EventPlrMsg("Update walk 0 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
 				PathAct->Parent = PathOld;
 				PathAct->walkCost = newWalkCost;
 				PathAct->lastStepCost = newStepCost;
@@ -134,14 +134,14 @@ static void PathUpdateCosts(PATHNODE* pPath)
 				pathUpdateStack[updateStackSize] = PathAct;
 				updateStackSize++;
 			} else if (newWalkCost == PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/ && newStepCost > PathAct->lastStepCost) {
-				// EventPlrMsg("Update walk 1 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
+				EventPlrMsg("Update walk 1 %d:%d cost%d:%d last%d to cost%d:%d", PathAct->x - gnSx, PathAct->y - gnSy, PathAct->totalCost, PathAct->walkCost, PathAct->lastStepCost, newWalkCost + PathAct->remainingCost, newWalkCost);
 				PathAct->Parent = PathOld;
 				PathAct->lastStepCost = newStepCost;
 			}
 		}
 	} while (updateStackSize != 0);
 }
-
+#endif
 /**
  * @brief heuristic, estimated cost from (x,y) to (gnTx,gnTy)
  */
@@ -202,10 +202,12 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
 			dxdy->lastStepCost = stepCost;
 			dxdy->walkCost = nextWalkCost;
 			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
+#ifdef DEBUG_PATH
 			if (!frontier) {
 				// already explored, so re-update others starting from that node
 				PathUpdateCosts(dxdy);
 			}
+#endif
 		} else if (nextWalkCost == dxdy->walkCost /*&& PathWalkable(pPath->x, pPath->y, dx, dy)*/ && stepCost > dxdy->lastStepCost) {
 			// EventPlrMsg("Update 2 path %d:%d cost%d:%d last%d to last%d", dxdy->x - gnSx, dxdy->y - gnSy, dxdy->totalCost, dxdy->walkCost, dxdy->lastStepCost, stepCost);
 			dxdy->Parent = pPath;
