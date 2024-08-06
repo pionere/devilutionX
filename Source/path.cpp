@@ -342,7 +342,7 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 			// EventPlrMsg("Found path from %d:%d to %d:%d: %d", sx - gnSx, sy - gnSy, dx - gnSx, dy - gnSy, path_length);
 			return i;
 		}
-		if (currNode->totalCost > 4 * (MAX_PATH_LENGTH - 1)) {
+		if (currNode->totalCost > 3 * MAX_PATH_LENGTH) {
 			// EventPlrMsg("No path from %d:%d to %d:%d -- too long", sx - gnSx, sy - gnSy, dx, dy - gnSy);
 			return -1; // path is hopeless
 		}
