@@ -23,14 +23,16 @@ static PATHNODE* pathUpdateStack[MAXPATHNODES];
 static PATHNODE* pathFrontNodes;
 /** The target location. */
 static int gnTx, gnTy;
-#ifdef DEBUG_PATH
-/** The target location. */
-static int gnSx, gnSy;
-#endif
+
 /** For iterating over the 8 possible movement directions. */
 //                       PDIR_N   W   E   S  NW  NE  SE  SW
 const int8_t pathxdir[8] = { -1, -1,  1,  1, -1,  0,  1,  0 };
 const int8_t pathydir[8] = { -1,  1, -1,  1,  0, -1,  0,  1 };
+#ifdef DEBUG_PATH
+static const int8_t stepcost[8] = { 3, 3, 3, 3, 2, 2, 2, 2 };
+/** The target location. */
+static int gnSx, gnSy;
+#endif
 /** Maps from facing direction to path-direction. */
 const BYTE dir2pdir[NUM_DIRS] = { PDIR_S, PDIR_SW, PDIR_W, PDIR_NW, PDIR_N, PDIR_NE, PDIR_E, PDIR_SE };
 
@@ -175,14 +177,14 @@ static inline void PathAppendChild(PATHNODE* parent, PATHNODE* child)
  *
  * @return true if step successfully added, false if we ran out of nodes to use
  */
-static bool path_parent_path(PATHNODE* pPath, int dx, int dy)
+static bool path_parent_path(PATHNODE* pPath, int dx, int dy, int stepCost)
 {
 	int nextWalkCost;
-	int stepCost;
+	// int stepCost;
 	bool frontier;
 	PATHNODE* dxdy;
 
-	stepCost = PathStepCost(pPath->x, pPath->y, dx, dy);
+	// stepCost = PathStepCost(pPath->x, pPath->y, dx, dy);
 	nextWalkCost = pPath->walkCost + stepCost;
 
 	// 3 cases to consider
@@ -257,7 +259,10 @@ static bool path_get_path(bool (*PosOk)(int, int, int), int PosOkArg, PATHNODE* 
 		dy = sy + pathydir[i];
 		ok = PosOk(PosOkArg, dx, dy);
 		if ((ok && PathWalkable(sx, sy, i)) || (!ok && dx == gnTx && dy == gnTy)) {
-			if (!path_parent_path(pPath, dx, dy))
+#ifdef DEBUG_PATH
+			assert(stepcost[i] == (i < 4 ? 3 : 2));
+#endif
+			if (!path_parent_path(pPath, dx, dy, i < 4 ? 3 : 2))
 				return false;
 		}
 	}
