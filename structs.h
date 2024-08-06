@@ -2620,14 +2620,14 @@ typedef struct TriggerStruct {
 //////////////////////////////////////////////////
 
 typedef struct STextStruct {
-	int _sx;
-	int _syoff;
-	char _sstr[112];
-	bool _sjust;
-	BYTE _sclr;
+	int _sx;         // starting position
+	int _syoff;      // y-offset where the text should be printed
+	char _sstr[112]; // the text
+	bool _sjust;     // whether the string should be justified
+	BYTE _sclr;      // the color of the string
 	// bool _sline;
-	bool _ssel;
-	int _sval;
+	bool _ssel;      // whether the line is selectable
+	int _sval;       // integer value to be printed on the right side of the line
 } STextStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
