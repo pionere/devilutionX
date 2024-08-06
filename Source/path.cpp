@@ -132,7 +132,7 @@ static void PathUpdateCosts(PATHNODE* pPath)
 				PathAct->Parent = PathOld;
 				PathAct->walkCost = newWalkCost;
 				PathAct->lastStepCost = newStepCost;
-				PathAct->totalCost = newWalkCost + PathAct->remainingCost;
+				PathAct->totalCost = newWalkCost + PathAct->remainingCost; // PathAct->totalCost -= PathAct->walkCost - newWalkCost;
 				pathUpdateStack[updateStackSize] = PathAct;
 				updateStackSize++;
 			} else if (newWalkCost == PathAct->walkCost /*&& PathWalkable(PathOld->x, PathOld->y, PathAct->x, PathAct->y)*/ && newStepCost > PathAct->lastStepCost) {
@@ -203,7 +203,7 @@ static bool path_parent_path(PATHNODE* pPath, int dx, int dy, int stepCost)
 			dxdy->Parent = pPath;
 			dxdy->lastStepCost = stepCost;
 			dxdy->walkCost = nextWalkCost;
-			dxdy->totalCost = nextWalkCost + dxdy->remainingCost;
+			dxdy->totalCost = nextWalkCost + dxdy->remainingCost; // dxdy->totalCost -= dxdy->walkCost - nextWalkCost;
 #ifdef DEBUG_PATH
 			if (!frontier) {
 				// already explored, so re-update others starting from that node
