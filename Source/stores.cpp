@@ -1350,7 +1350,9 @@ void STextESC()
 		break;
 	case STORE_GOSSIP:
 		StartStore(stextshold);
+		// stextflag = stextshold;
 		stextsel = stextlhold;
+		// stextsidx = stextvhold;
 		break;
 	case STORE_SBUY:
 		StartStore(STORE_SMITH);
@@ -1399,6 +1401,7 @@ void STextESC()
 	case STORE_NOROOM:
 	case STORE_CONFIRM:
 		StartStore(stextshold);
+		// stextflag = stextshold;
 		stextsel = stextlhold;
 		stextsidx = stextvhold;
 		break;
@@ -1480,8 +1483,9 @@ static void S_SmithEnter()
 	switch (stextsel) {
 	case STORE_SMITH_GOSSIP:
 		stextlhold = STORE_SMITH_GOSSIP;
-		talker = TOWN_SMITH;
+		// stextvhold = stextsidx;
 		stextshold = STORE_SMITH;
+		talker = TOWN_SMITH;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_SMITH_BUY:
@@ -1628,9 +1632,9 @@ static void S_SPBuyEnter()
 		// StartStore(STORE_SMITH);
 		// stextsel = STORE_SMITH_SPBUY;
 	} else {
-		stextshold = STORE_SPBUY;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
+		stextshold = STORE_SPBUY;
 		xx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		idx = 0;
 		for (i = 0; xx >= 0; i++) {
@@ -1822,8 +1826,12 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		return;
 	}
 
+	// stextflag = stextshold; -- except for wirt's redirect
 	stextsel = stextlhold;
-	stextsidx = std::min(stextvhold, stextsmax);
+	stextsidx = stextvhold;
+	if (stextsidx > stextsmax) {
+		stextsidx = stextsmax;
+	}
 
 	while (stextsel != -1 && !stextlines[stextsel]._ssel) {
 		stextsel--;
@@ -1853,9 +1861,10 @@ static void S_SSell()
 	int idx;
 
 	stextlhold = stextsel;
-	idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
-	stextshold = stextflag;
 	stextvhold = stextsidx;
+	stextshold = stextflag;
+
+	idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 	copy_pod(storeitem, storehold[idx]);
 
 	idx = storehidx[idx] >= 0 ? storeitem._iCurs + CURSOR_FIRSTITEM : CURSOR_NONE;
@@ -1904,9 +1913,9 @@ static void S_SRepairEnter()
 		// StartStore(STORE_SMITH);
 		// stextsel = STORE_SMITH_REPAIR;
 	} else {
-		stextshold = STORE_SREPAIR;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
+		stextshold = STORE_SREPAIR;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
@@ -1921,8 +1930,9 @@ static void S_WitchEnter()
 	switch (stextsel) {
 	case STORE_WITCH_GOSSIP:
 		stextlhold = STORE_WITCH_GOSSIP;
-		talker = TOWN_WITCH;
+		// stextvhold = stextsidx;
 		stextshold = STORE_WITCH;
+		talker = TOWN_WITCH;
 		StartStore(STORE_GOSSIP);
 		return;
 	case STORE_WITCH_BUY:
@@ -2021,9 +2031,9 @@ static void S_WRechargeEnter()
 		// StartStore(STORE_WITCH);
 		// stextsel = STORE_WITCH_RECHARGE;
 	} else {
-		stextshold = STORE_WRECHARGE;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
+		stextshold = STORE_WRECHARGE;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
@@ -2037,9 +2047,9 @@ static void S_BoyEnter()
 {
 	if (boyitem._itype != ITYPE_NONE) {
 		if (stextsel == STORE_PEGBOY_QUERY) {
-			stextshold = STORE_PEGBOY;
 			stextlhold = STORE_PEGBOY_QUERY;
 			stextvhold = stextsidx;
+			stextshold = STORE_PEGBOY;
 			if (boyitem._iIdentified) {
 				StartStore(STORE_PBUY);
 			} else if (myplr._pGold < STORE_PEGBOY_PRICE) {
@@ -2061,8 +2071,9 @@ static void S_BoyEnter()
 		}
 	}
 	stextlhold = stextsel;
-	talker = TOWN_PEGBOY;
+	// stextvhold = stextsidx;
 	stextshold = STORE_PEGBOY;
+	talker = TOWN_PEGBOY;
 	StartStore(STORE_GOSSIP);
 }
 
@@ -2104,9 +2115,9 @@ static void S_BBuyEnter()
 		// StartStore(STORE_PEGBOY);
 		// stextsel = STORE_PEGBOY_QUERY;
 	} else {
-		stextshold = STORE_PBUY;
-		stextvhold = stextsidx;
 		stextlhold = STORE_PEGBOY_BUY;
+		stextvhold = stextsidx;
+		stextshold = STORE_PBUY;
 		StoreStartBuy(&boyitem, boyitem._iIvalue);
 	}
 }
@@ -2115,7 +2126,8 @@ static void StoryIdItem()
 {
 	int idx;
 
-	idx = storehidx[((stextlhold - STORE_LIST_FIRST) >> 2) + stextvhold];
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = storehidx[idx];
 	if (idx < 0)
 		idx = INVITEM_BODY_FIRST - (idx + 1);
 	else
@@ -2176,8 +2188,9 @@ static void S_HealerEnter()
 	switch (stextsel) {
 	case STORE_HEALER_GOSSIP:
 		stextlhold = STORE_HEALER_GOSSIP;
-		talker = TOWN_HEALER;
+		// stextvhold = stextsidx;
 		stextshold = STORE_HEALER;
+		talker = TOWN_HEALER;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_HEALER_HEAL:
@@ -2220,8 +2233,9 @@ static void S_StoryEnter()
 	switch (stextsel) {
 	case STORE_STORY_GOSSIP:
 		stextlhold = STORE_STORY_GOSSIP;
-		talker = TOWN_STORY;
+		// stextvhold = stextsidx;
 		stextshold = STORE_STORY;
+		talker = TOWN_STORY;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_STORY_IDENTIFY:
@@ -2245,9 +2259,9 @@ static void S_SIDEnter()
 		// StartStore(STORE_STORY);
 		// stextsel = STORE_STORY_IDENTIFY;
 	} else {
-		stextshold = STORE_SIDENTIFY;
 		stextlhold = stextsel;
 		stextvhold = stextsidx;
+		stextshold = STORE_SIDENTIFY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
@@ -2304,8 +2318,9 @@ static void S_TavernEnter()
 	switch (stextsel) {
 	case STORE_TAVERN_GOSSIP:
 		stextlhold = STORE_TAVERN_GOSSIP;
-		talker = TOWN_TAVERN;
+		// stextvhold = stextsidx;
 		stextshold = STORE_TAVERN;
+		talker = TOWN_TAVERN;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_TAVERN_EXIT:
@@ -2322,8 +2337,9 @@ static void S_BarmaidEnter()
 	switch (stextsel) {
 	case STORE_BARMAID_GOSSIP:
 		stextlhold = STORE_BARMAID_GOSSIP;
-		talker = TOWN_BARMAID;
+		// stextvhold = stextsidx;
 		stextshold = STORE_BARMAID;
+		talker = TOWN_BARMAID;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_BARMAID_EXIT:
@@ -2340,8 +2356,9 @@ static void S_DrunkEnter()
 	switch (stextsel) {
 	case STORE_DRUNK_GOSSIP:
 		stextlhold = STORE_DRUNK_GOSSIP;
-		talker = TOWN_DRUNK;
+		// stextvhold = stextsidx;
 		stextshold = STORE_DRUNK;
+		talker = TOWN_DRUNK;
 		StartStore(STORE_GOSSIP);
 		break;
 	case STORE_DRUNK_EXIT:
@@ -2358,8 +2375,9 @@ static void S_PriestEnter()
 	switch (stextsel) {
 	/*case STORE_PRIEST_GOSSIP:
 		stextlhold = STORE_PRIEST_GOSSIP;
-		talker = TOWN_PRIEST;
+		// stextvhold = stextsidx;
 		stextshold = STORE_PRIEST;
+		talker = TOWN_PRIEST;
 		StartStore(STORE_GOSSIP);
 		break;*/
 	case STORE_PRIEST_ERRAND:
@@ -2426,6 +2444,7 @@ void STextEnter()
 	case STORE_NOROOM:
 		STextESC();
 		// StartStore(stextshold);
+		// // stextflag = stextshold;
 		// stextsel = stextlhold;
 		// stextsidx = stextvhold;
 		break;
