@@ -2622,7 +2622,14 @@ typedef struct TriggerStruct {
 typedef struct STextStruct {
 	int _sx;         // starting position
 	int _syoff;      // y-offset where the text should be printed
-	char _sstr[112]; // the text
+	union {
+		char _sstr[112]; // the text
+		struct {
+			char _schr;     // placeholder to differentiate from a normal text
+			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
+		};
+	};
+	bool _sitemlist; // whether items should be drawn 
 	bool _sjust;     // whether the string should be justified
 	BYTE _sclr;      // the color of the string
 	// bool _sline;

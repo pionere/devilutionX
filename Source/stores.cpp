@@ -78,6 +78,10 @@ DEVILUTION_BEGIN_NAMESPACE
 #define STORE_ID_PRICE     100
 #define STORE_PEGBOY_PRICE 50
 
+#define STORE_ITEM_LINES   ((3 * INV_SLOT_SIZE_PX + 11) / 12)
+#define STORE_LINE_ITEMS   8
+#define STORE_PAGE_ITEMS   (STORE_LINE_ITEMS * 2)
+
 /* The current item in store. */
 ItemStruct storeitem;
 /* The item for sale by Wirt. */
@@ -119,8 +123,12 @@ static int stextshold;
 static STextStruct stextlines[STORE_LINES];
 /** Currently selected text line from stextlines */
 static int stextsel;
+/** Currently selected item index from stextlines */
+static int stextselx;
 /** Remember stextsel while displaying a dialog */
 static int stextlhold;
+/** Remember stextselx while displaying a dialog */
+static int stextxhold;
 /** The maximum possible value of stextsidx */
 static int stextsmax;
 /** Copies of the players items as presented in the store */
@@ -155,6 +163,7 @@ static void ClearSText(int s, int e)
 	// int i;
 
 	static_assert(COL_WHITE == 0, "ClearSText skips color initialization by expecting COL_WHITE to be zero.");
+	static_assert(CURSOR_NONE == 0, "ClearSText skips cursor initialization by expecting CURSOR_NONE to be zero.");	
 	memset(&stextlines[s], 0, (size_t)&stextlines[e] - (size_t)&stextlines[s]);
 	/*for (i = s; i < e; i++) {
 		stextlines[i]._sx = 0;
@@ -307,6 +316,17 @@ static void AddSText(int x, int y, bool j, const char* str, BYTE clr, bool sel)
 	ss->_ssel = sel;
 }
 
+static void AddSItem(int x, int y, int idx, int iCurs, bool selectable)
+{
+	STextStruct* ss;
+
+	ss = &stextlines[y];
+	ss->_sx = x;
+	ss->_sitemlist = true;
+	ss->_siCurs[idx] = iCurs + CURSOR_FIRSTITEM;
+	ss->_ssel = selectable;
+}
+
 static BYTE StoreItemColor(const ItemStruct* is)
 {
 	if (!is->_iStatFlag)
@@ -416,27 +436,47 @@ static void StorePrepareItemBuy(ItemStruct* is)
 static void S_ScrollSBuy()
 {
 	ItemStruct* is;
-	int l;
+	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
 
 	is = &smithitem[stextsidx];
-	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
 			StorePrepareItemBuy(is);
-			PrintStoreItem(is, l, true);
-			AddSTextVal(l, is->_iIvalue);
-			stextdown = l;
+			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+			stextdown = line;
 			is++;
 		}
 	}
 
 	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
+	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
+	}
+
+	is = &smithitem[stextsidx];
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
+		if (is->_itype != ITYPE_NONE) {
+			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+				// StorePrepareItemBuy(is);
+				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+			}
+			is++;
+		}
+	}
+	static_assert(lengthof(smithitem) <= STORE_PAGE_ITEMS, "S_ScrollSBuy must fit to a single store-page.");
+	// stextsmax = storenumh - STORE_PAGE_ITEMS;
+	// if (stextsmax <= 0)
 		stextsmax = 0;
+	// else
+	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartSBuy()
@@ -471,7 +511,7 @@ static void S_StartSBuy()
 static void S_ScrollSPBuy()
 {
 	ItemStruct* is;
-	int idx, l, boughtitems;
+	unsigned idx, l, boughtitems;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
@@ -481,23 +521,46 @@ static void S_ScrollSPBuy()
 		if (premiumitems[idx]._itype != ITYPE_NONE)
 			boughtitems--;
 
-	for (l = STORE_LIST_FIRST; l < 20 && idx < SMITH_PREMIUM_ITEMS; ) {
+	unsigned sidx = idx;
+	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
 			StorePrepareItemBuy(is);
-			PrintStoreItem(is, l, true);
-			AddSTextVal(l, is->_iIvalue);
-			stextdown = l;
-			l += 4;
+			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+			stextdown = line;
+			l++;
 		}
 		idx++;
 	}
 
 	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
+	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
+	}
+
+	idx = sidx;
+	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
+		is = &premiumitems[idx];
+		if (is->_itype != ITYPE_NONE) {
+			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+				// StorePrepareItemBuy(is);
+				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+			}
+			l++;
+		}
+		idx++;
+	}
+	static_assert(lengthof(premiumitems) <= STORE_PAGE_ITEMS, "S_ScrollSPBuy must fit to a single store-page.");
+	// stextsmax = storenumh - STORE_PAGE_ITEMS;
+	// if (stextsmax <= 0)
 		stextsmax = 0;
+	// else
+	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartSPBuy()
@@ -563,27 +626,44 @@ static bool SmithSellOk(const ItemStruct* is)
 static void S_ScrollSSell()
 {
 	ItemStruct* is;
-	int idx, l;
+	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
 
-	idx = stextsidx;
-	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
-		is = &storehold[idx];
+	is = &storehold[stextsidx];
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			PrintStoreItem(is, l, true);
-			AddSTextVal(l, is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue);
-			stextdown = l;
+			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+			stextdown = line;
+			is++;
 		}
-		idx++;
 	}
 
 	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
+	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
+	}
+
+	is = &storehold[stextsidx];
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
+		if (is->_itype != ITYPE_NONE) {
+			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue/*is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue*/);
+			}
+			is++;
+		}
+	}
+	stextsmax = storenumh - STORE_PAGE_ITEMS;
+	if (stextsmax <= 0)
 		stextsmax = 0;
+	else
+		stextsmax = ((stextsmax + STORE_LINE_ITEMS + 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartSSell()
@@ -697,27 +777,46 @@ static void S_StartWitch()
 static void S_ScrollWBuy()
 {
 	ItemStruct* is;
-	int l;
+	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
 
 	is = &witchitem[stextsidx];
-	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
 			StorePrepareItemBuy(is);
-			PrintStoreItem(is, l, true);
-			AddSTextVal(l, is->_iIvalue);
-			stextdown = l;
+			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+			stextdown = line;
 			is++;
 		}
 	}
 
 	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
+	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
+	}
+
+	is = &witchitem[stextsidx];
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
+		if (is->_itype != ITYPE_NONE) {
+			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+				// StorePrepareItemBuy(is);
+				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+			}
+			is++;
+		}
+	}
+	stextsmax = storenumh - STORE_PAGE_ITEMS;
+	if (stextsmax <= 0)
 		stextsmax = 0;
+	else
+		stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartWBuy()
@@ -871,8 +970,9 @@ static void S_StartConfirm()
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	gbHasScroll = false;
-	PrintStoreItem(&storeitem, 8, false);
-	AddSTextVal(8, storeitem._iIvalue);
+	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
+	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
+	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
 	// AddSLine(3);
 	// AddSLine(21);
 
@@ -944,6 +1044,7 @@ static void S_StartBBoy()
 	gbHasScroll = false;
 
 	StorePrepareItemBuy(&boyitem);
+	AddSItem(260, STORE_LIST_FIRST, 0, boyitem._iCurs, FALSE);
 	PrintStoreItem(&boyitem, STORE_PEGBOY_BUY, true);
 	AddSTextVal(STORE_PEGBOY_BUY, boyitem._iIvalue);
 
@@ -968,27 +1069,47 @@ static void S_StartHealer()
 static void S_ScrollHBuy()
 {
 	ItemStruct* is;
-	int l;
+	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 	//stextup = STORE_LIST_FIRST;
 
 	is = &healitem[stextsidx];
-	for (l = STORE_LIST_FIRST; l < 20; l += 4) {
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
 			StorePrepareItemBuy(is);
-			PrintStoreItem(is, l, true);
-			AddSTextVal(l, is->_iIvalue);
-			stextdown = l;
+			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+			stextdown = line;
 			is++;
 		}
 	}
 
 	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
 		stextsel = stextdown;
-	stextsmax = storenumh - 4;
-	if (stextsmax < 0)
+	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
+	}
+
+	is = &healitem[stextsidx];
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
+		if (is->_itype != ITYPE_NONE) {
+			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+				// StorePrepareItemBuy(is);
+				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+			}
+			is++;
+		}
+	}
+	static_assert(lengthof(healitem) <= STORE_PAGE_ITEMS, "S_ScrollHBuy must fit to a single store-page.");
+	// stextsmax = storenumh - STORE_PAGE_ITEMS;
+	// if (stextsmax <= 0)
 		stextsmax = 0;
+	// else
+	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartHBuy()
@@ -1086,6 +1207,7 @@ static void S_StartIdShow()
 	//gbRenderGold = true;
 	gbHasScroll = false;
 
+	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
 	PrintStoreItem(&storeitem, 11, false);
 
 	AddStoreFrame("This item is:");
@@ -1283,7 +1405,47 @@ void StartStore(int s)
 	}
 
 	stextsel = i == STORE_LINES ? -1 : i;
+	stextselx = 0;
 }
+
+/*void DrawStoreLineX(int sx, int sy, int dx, int dy, int length)
+{
+	int sxy, dxy, width;
+
+	width = BUFFER_WIDTH;
+	sxy = sx + 0 + width * (sy + 0);
+	dxy = dx + 0 + width * dy;
+
+	/// ASSERT: assert(gpBuffer != NULL);
+
+	int i;
+	BYTE *src, *dst;
+
+	src = &gpBuffer[sxy];
+	dst = &gpBuffer[dxy];
+
+	for (i = 0; i < TPANEL_BORDER; i++, src += width, dst += width)
+		memcpy(dst, src, length);
+}
+void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
+{
+	int sxy, dxy, width;
+
+	width = BUFFER_WIDTH;
+	sxy = sx + 0 + width * (sy + 0);
+	dxy = dx + 0 + width * dy;
+
+	/// ASSERT: assert(gpBuffer != NULL);
+
+	int i;
+	BYTE *src, *dst;
+
+	src = &gpBuffer[sxy];
+	dst = &gpBuffer[dxy];
+
+	for (i = 0; i < height; i++, src += width, dst += width)
+		memcpy(dst, src, TPANEL_BORDER);
+}*/
 
 void DrawStore()
 {
@@ -1329,6 +1491,48 @@ void DrawStore()
 		//	DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
+		else if (sts->_sitemlist) {
+			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
+				int frame = sts->_siCurs[n];
+				if (frame != CURSOR_NONE) {
+					// int sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + sts->_sx;
+					int px = LTPANEL_X, py = LTPANEL_Y + 1;
+					int sx = px + 7 + sts->_sx;
+					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
+					int frame_width = InvItemWidth[frame];
+
+					sx += n * 2 * INV_SLOT_SIZE_PX;
+					sy += (STORE_ITEM_LINES - (1 + 1)) * 12;
+
+					sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
+					sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
+
+					if (stextsel == i && stextselx == n) {
+						// assert(gbWidePanel);
+						// DrawTextBoxSLine(px, py, 20 + i * 12, false);
+						/*
+						// top-left corner
+						DrawStoreLineX(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
+						// top-right corner
+						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px + LTPANEL_WIDTH - TPANEL_BORDER, py, sx + 2 * INV_SLOT_SIZE_PX - TPANEL_BORDER, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
+						// bottom-left corner
+						DrawStoreLineX(px, py + TPANEL_HEIGHT - TPANEL_BORDER, sx + 0 * INV_SLOT_SIZE_PX, sy - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px, py + TPANEL_HEIGHT - TPANEL_BORDER - INV_SLOT_SIZE_PX / 2, sx + 0 * INV_SLOT_SIZE_PX, sy - INV_SLOT_SIZE_PX / 2 - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						// bottom-right corner
+						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py + TPANEL_HEIGHT - TPANEL_BORDER, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px + LTPANEL_WIDTH - TPANEL_BORDER, py + TPANEL_HEIGHT - TPANEL_BORDER - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - TPANEL_BORDER, sy - INV_SLOT_SIZE_PX / 2 - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						*/
+						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
+					}
+
+					// sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
+					// sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
+					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, 0 /* COLOR_TRN_RED */);
+				}
+			}
+		}
 	}
 
 	// if (gbRenderGold) {
@@ -1360,6 +1564,7 @@ void STextESC()
 		StartStore(stextshold);
 		// stextflag = stextshold;
 		stextsel = stextlhold;
+		// stextselx = stextxhold;
 		// stextsidx = stextvhold;
 		break;
 	case STORE_SBUY:
@@ -1411,6 +1616,7 @@ void STextESC()
 		StartStore(stextshold);
 		// stextflag = stextshold;
 		stextsel = stextlhold;
+		stextselx = stextxhold;
 		stextsidx = stextvhold;
 		break;
 	case STORE_ERRAND:
@@ -1428,8 +1634,10 @@ void STextUp()
 	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == STORE_LIST_FIRST) {
-		if (stextsidx != 0)
-			stextsidx--;
+		if (stextsidx != 0) {
+			DEBUG_ASSERT(stextlines[stextsel]._sitemlist);
+			stextsidx -= STORE_LINE_ITEMS;
+		}
 		return;
 	}
 
@@ -1446,8 +1654,10 @@ void STextDown()
 	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == stextdown) {
-		if (stextsidx < stextsmax)
-			stextsidx++;
+		if (stextsidx < stextsmax) {
+			DEBUG_ASSERT(stextlines[stextsel]._sitemlist);
+			stextsidx += STORE_LINE_ITEMS;
+		}
 		return;
 	}
 
@@ -1458,12 +1668,43 @@ void STextDown()
 	} while (!stextlines[stextsel]._ssel);
 }
 
+void STextRight()
+{
+	DEBUG_ASSERT(stextsel != -1);
+	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
+		return;
+	}
+	PlaySFX(IS_TITLEMOV);
+
+	do {
+		stextselx++;
+		if (stextselx == STORE_LINE_ITEMS)
+			stextselx = 0;
+	} while (stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE);
+}
+
+void STextLeft()
+{
+	DEBUG_ASSERT(stextsel != -1);
+	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
+		return;
+	}
+	PlaySFX(IS_TITLEMOV);
+
+	do {
+		stextselx--;
+		if (stextselx < 0)
+			stextselx = STORE_LINE_ITEMS - 1;
+	} while (stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE);
+}
+
 void STextPageUp()
 {
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
+		DEBUG_ASSERT(stextsidx == 0 || stextlines[stextsel]._sitemlist);
 		PlaySFX(IS_TITLEMOV);
-		stextsidx -= 4;
+		stextsidx -= STORE_PAGE_ITEMS;
 		if (stextsidx < 0) {
 			stextsidx = 0;
 			stextsel = STORE_LIST_FIRST;
@@ -1475,8 +1716,9 @@ void STextPageDown()
 {
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
+		DEBUG_ASSERT(stextsmax == 0 || stextlines[stextsel]._sitemlist);
 		PlaySFX(IS_TITLEMOV);
-		stextsidx += 4;
+		stextsidx += STORE_PAGE_ITEMS;
 		if (stextsidx > stextsmax) {
 			stextsidx = stextsmax;
 			stextsel = stextdown;
@@ -1490,6 +1732,7 @@ static void S_SmithEnter()
 	case STORE_SMITH_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_SMITH);
 		stextlhold = STORE_SMITH_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_SMITH;
 		talker = TOWN_SMITH;
@@ -1569,7 +1812,7 @@ static void SmithBuyItem()
 
 	SendStoreCmd2(STORE_SBUY);
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	do {
 		copy_pod(smithitem[idx], smithitem[idx + 1]);
 		idx++;
@@ -1601,9 +1844,10 @@ static void S_SBuyEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_SBUY);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		StoreStartBuy(&smithitem[idx], smithitem[idx]._iIvalue);
 	}
 }
@@ -1617,7 +1861,7 @@ static void SmithBuyPItem()
 
 	SendStoreCmd2(STORE_SPBUY);
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	xx = 0;
 	for (i = 0; idx >= 0; i++) {
 		if (premiumitems[i]._itype != ITYPE_NONE) {
@@ -1642,9 +1886,10 @@ static void S_SPBuyEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_SPBUY);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_SPBUY;
-		xx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		xx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		idx = 0;
 		for (i = 0; xx >= 0; i++) {
 			if (premiumitems[i]._itype != ITYPE_NONE) {
@@ -1837,6 +2082,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 
 	// stextflag = stextshold; -- except for wirt's redirect
 	stextsel = stextlhold;
+	stextselx = stextxhold;
 	stextsidx = stextvhold;
 	if (stextsidx > stextsmax) {
 		stextsidx = stextsmax;
@@ -1845,6 +2091,11 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	while (/*stextsel != -1 && */ !stextlines[stextsel]._ssel) {
 		stextsel--;
 		DEBUG_ASSERT(stextsel != -1);
+	}
+	if (/*stextsel != -1 && */ stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
 	}
 }
 
@@ -1855,7 +2106,7 @@ static void StoreSellItem()
 {
 	int i, idx, cost;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	i = storehidx[idx];
 	if (i >= 0) {
 		i += INVITEM_INV_FIRST;
@@ -1871,10 +2122,11 @@ static void S_SSell()
 	int idx;
 
 	stextlhold = stextsel;
+	stextxhold = stextselx;
 	stextvhold = stextsidx;
 	stextshold = stextflag;
 
-	idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+	idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 	copy_pod(storeitem, storehold[idx]);
 
 	idx = storehidx[idx] >= 0 ? storeitem._iCurs + CURSOR_FIRSTITEM : CURSOR_NONE;
@@ -1902,7 +2154,7 @@ static void SmithRepairItem()
 {
 	int i, idx;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -1925,9 +2177,10 @@ static void S_SRepairEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_SREPAIR);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_SREPAIR;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -1942,6 +2195,7 @@ static void S_WitchEnter()
 	case STORE_WITCH_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_WITCH);
 		stextlhold = STORE_WITCH_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_WITCH;
 		talker = TOWN_WITCH;
@@ -1972,7 +2226,7 @@ static void WitchBuyItem()
 {
 	int idx;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 
 	if (idx < 3)
 		storeitem._iSeed = NextRndSeed();
@@ -1998,9 +2252,10 @@ static void S_WBuyEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_WBUY);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_WBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 
 		StoreStartBuy(&witchitem[idx], witchitem[idx]._iIvalue);
 	}
@@ -2024,7 +2279,7 @@ static void WitchRechargeItem()
 {
 	int i, idx;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -2046,9 +2301,10 @@ static void S_WRechargeEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_WRECHARGE);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_WRECHARGE;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -2063,6 +2319,7 @@ static void S_BoyEnter()
 	if (boyitem._itype != ITYPE_NONE) {
 		if (stextsel == STORE_PEGBOY_QUERY) {
 			stextlhold = STORE_PEGBOY_QUERY;
+			// stextxhold = stextselx;
 			stextvhold = stextsidx;
 			stextshold = STORE_PEGBOY;
 			if (boyitem._iIdentified) {
@@ -2086,6 +2343,7 @@ static void S_BoyEnter()
 		}
 	}
 	stextlhold = stextsel;
+	// stextxhold = stextselx;
 	// stextvhold = stextsidx;
 	stextshold = STORE_PEGBOY;
 	talker = TOWN_PEGBOY;
@@ -2107,7 +2365,7 @@ static void HealerBuyItem()
 	int idx;
 	bool infinite;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
 		storeitem._iSeed = NextRndSeed();
@@ -2133,6 +2391,7 @@ static void S_BBuyEnter()
 		DEBUG_ASSERT(stextflag == STORE_PBUY);
 		DEBUG_ASSERT(stextsel == STORE_PEGBOY_BUY);
 		stextlhold = STORE_PEGBOY_BUY;
+		// stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_PBUY;
 		StoreStartBuy(&boyitem, boyitem._iIvalue);
@@ -2143,7 +2402,7 @@ static void StoryIdItem()
 {
 	int idx;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) >> 2);
+	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	idx = storehidx[idx];
 	if (idx < 0)
 		idx = INVITEM_BODY_FIRST - (idx + 1);
@@ -2206,6 +2465,7 @@ static void S_HealerEnter()
 	case STORE_HEALER_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_HEALER);
 		stextlhold = STORE_HEALER_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_HEALER;
 		talker = TOWN_HEALER;
@@ -2240,9 +2500,10 @@ static void S_HBuyEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_HBUY);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		StoreStartBuy(&healitem[idx], healitem[idx]._iIvalue);
 	}
 }
@@ -2253,6 +2514,7 @@ static void S_StoryEnter()
 	case STORE_STORY_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_STORY);
 		stextlhold = STORE_STORY_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_STORY;
 		talker = TOWN_STORY;
@@ -2281,9 +2543,10 @@ static void S_SIDEnter()
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_SIDENTIFY);
 		stextlhold = stextsel;
+		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_SIDENTIFY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) >> 2);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
 			StartStore(STORE_NOMONEY);
@@ -2340,6 +2603,7 @@ static void S_TavernEnter()
 	case STORE_TAVERN_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_TAVERN);
 		stextlhold = STORE_TAVERN_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_TAVERN;
 		talker = TOWN_TAVERN;
@@ -2360,6 +2624,7 @@ static void S_BarmaidEnter()
 	case STORE_BARMAID_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_BARMAID);
 		stextlhold = STORE_BARMAID_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_BARMAID;
 		talker = TOWN_BARMAID;
@@ -2380,6 +2645,7 @@ static void S_DrunkEnter()
 	case STORE_DRUNK_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_DRUNK);
 		stextlhold = STORE_DRUNK_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_DRUNK;
 		talker = TOWN_DRUNK;
@@ -2400,6 +2666,7 @@ static void S_PriestEnter()
 	/*case STORE_PRIEST_GOSSIP:
 		DEBUG_ASSERT(stextflag == STORE_PRIEST);
 		stextlhold = STORE_PRIEST_GOSSIP;
+		// stextxhold = stextselx;
 		// stextvhold = stextsidx;
 		stextshold = STORE_PRIEST;
 		talker = TOWN_PRIEST;
@@ -2471,6 +2738,7 @@ void STextEnter()
 		// StartStore(stextshold);
 		// // stextflag = stextshold;
 		// stextsel = stextlhold;
+		// stextselx = stextxhold;
 		// stextsidx = stextvhold;
 		break;
 	case STORE_CONFIRM:
@@ -2579,14 +2847,36 @@ void TryStoreBtnClick()
 			if (y >= 22)
 				y = 22;
 			// allow clicking on multi-line items
-			else if (gbHasScroll /*&& y < 21*/ && !stextlines[y]._ssel) {
-				y--;
-				if (!stextlines[y]._ssel) {
+			else if (gbHasScroll /*&& y < 21*/ /*&& !stextlines[y]._ssel*/) {
+				y++;
+				for (int n = 0; n < STORE_ITEM_LINES; n++) {
+					if (stextlines[y]._ssel)
+						break;
 					y--;
+					if (y == 0)
+						break;
 				}
 			}
 			//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
 			if (stextlines[y]._ssel) {
+				if (stextlines[y]._sitemlist) {
+					int x = MousePos.x - (LTPANEL_X + 7 + 60 - SCREEN_X);
+					if (x >= 0) {
+						x /= (2 * INV_SLOT_SIZE_PX);
+						if (x < lengthof(stextlines[y]._siCurs)) {
+							if (stextlines[y]._siCurs[x] != CURSOR_NONE) {
+								// EventPlrMsg("clicked pos %d:%d", x, y);
+								stextselx = x;
+							} else {
+								return;
+							}
+						} else {
+							return;
+						}
+					} else {
+						return;
+					}
+				}
 				stextsel = y;
 				STextEnter();
 			}

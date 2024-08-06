@@ -43,6 +43,8 @@ void DrawStore();
 void STextESC();
 void STextUp();
 void STextDown();
+void STextRight();
+void STextLeft();
 void STextPageUp();
 void STextPageDown();
 void SyncStoreCmd(int pnum, int cmd, int ii, int price);

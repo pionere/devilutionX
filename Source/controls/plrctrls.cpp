@@ -788,6 +788,10 @@ static void StoreMove(AxisDirection moveDir)
 		STextUp();
 	else if (moveDir.y == AxisDirectionY_DOWN)
 		STextDown();
+	else if (moveDir.x == AxisDirectionX_LEFT)
+		STextLeft();
+	else if (moveDir.x == AxisDirectionX_RIGHT)
+		STextRight();
 }
 
 typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
