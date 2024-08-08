@@ -156,6 +156,8 @@ static const char* const talkname[] = {
 	// clang-format on
 };
 
+static void StoreUpdateSelection();
+
 static void ClearSText(int s, int e)
 {
 	// int i;
@@ -445,21 +447,6 @@ static void S_ScrollSBuy()
 			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 			stextdown = line;
-			is++;
-		}
-	}
-
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
-		stextsel = stextdown;
-	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
-			stextselx--;
-		}
-	}
-
-	is = &smithitem[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
 			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 				// StorePrepareItemBuy(is);
 				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
@@ -524,23 +511,6 @@ static void S_ScrollSPBuy()
 			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 			stextdown = line;
-			l++;
-		}
-		idx++;
-	}
-
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
-		stextsel = stextdown;
-	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
-			stextselx--;
-		}
-	}
-
-	idx = sidx;
-	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
-		is = &premiumitems[idx];
-		if (is->_itype != ITYPE_NONE) {
 			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 				// StorePrepareItemBuy(is);
 				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
@@ -630,21 +600,6 @@ static void S_ScrollSSell()
 			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 			stextdown = line;
-			is++;
-		}
-	}
-
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
-		stextsel = stextdown;
-	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
-			stextselx--;
-		}
-	}
-
-	is = &storehold[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
 			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
 				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue/*is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue*/);
@@ -779,21 +734,6 @@ static void S_ScrollWBuy()
 			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 			stextdown = line;
-			is++;
-		}
-	}
-
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
-		stextsel = stextdown;
-	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
-			stextselx--;
-		}
-	}
-
-	is = &witchitem[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
 			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 				// StorePrepareItemBuy(is);
 				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
@@ -1070,21 +1010,6 @@ static void S_ScrollHBuy()
 			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 			stextdown = line;
-			is++;
-		}
-	}
-
-	if (stextsel != -1 && /*stextsel != STORE_BACK &&*/ !stextlines[stextsel]._ssel)
-		stextsel = stextdown;
-	if (stextsel != -1 && stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
-			stextselx--;
-		}
-	}
-
-	is = &healitem[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
 			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 				// StorePrepareItemBuy(is);
 				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
@@ -1476,6 +1401,7 @@ void DrawStore()
 			ASSUME_UNREACHABLE
 			break;
 		}
+		StoreUpdateSelection(); // check maxx
 	}
 
 	for (i = 0; i < STORE_LINES; i++) {
@@ -2077,6 +2003,11 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	stextsel = stextlhold;
 	stextselx = stextxhold;
 	stextsidx = stextvhold;
+	StoreUpdateSelection();
+}
+
+static void StoreUpdateSelection()
+{
 	if (stextsidx > stextsmax) {
 		stextsidx = stextsmax;
 	}
