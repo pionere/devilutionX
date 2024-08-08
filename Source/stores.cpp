@@ -115,8 +115,6 @@ static bool gbHasScroll;
 static int stextsidx;
 /** The line number of the last visible item in the store */
 static int stextdown;
-/** Previous scroll position */
-//static int stextup;
 /** Remember stextflag while displaying a dialog */
 static int stextshold;
 /** Text lines */
@@ -439,7 +437,6 @@ static void S_ScrollSBuy()
 	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-	//stextup = STORE_LIST_FIRST;
 
 	is = &smithitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -514,7 +511,6 @@ static void S_ScrollSPBuy()
 	unsigned idx, l, boughtitems;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-	//stextup = STORE_LIST_FIRST;
 
 	boughtitems = stextsidx;
 	for (idx = 0; boughtitems != 0; idx++)
@@ -629,7 +625,6 @@ static void S_ScrollSSell()
 	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-	//stextup = STORE_LIST_FIRST;
 
 	is = &storehold[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -780,7 +775,6 @@ static void S_ScrollWBuy()
 	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-	//stextup = STORE_LIST_FIRST;
 
 	is = &witchitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -1072,7 +1066,6 @@ static void S_ScrollHBuy()
 	unsigned l;
 
 	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-	//stextup = STORE_LIST_FIRST;
 
 	is = &healitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
