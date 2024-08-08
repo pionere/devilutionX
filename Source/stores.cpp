@@ -881,6 +881,7 @@ static void S_StartNoRoom()
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	// gbHasScroll = false;
 	gbWidePanel = true;
+	// gbRenderGold = true;
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
 
 	// AddSLine(3);
@@ -900,6 +901,7 @@ static void S_StartConfirm()
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
 	// gbHasScroll = false;
 	gbWidePanel = true;
+	// gbRenderGold = true;
 	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
 	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
 	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
@@ -1117,7 +1119,7 @@ static void S_StartIdShow()
 	//ClearSText(STORE_LIST_FIRST, STORE_LINES);
 
 	gbWidePanel = true;
-	//gbRenderGold = true;
+	// gbRenderGold = true;
 	// gbHasScroll = false;
 
 	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
@@ -1212,6 +1214,7 @@ static void S_StartPriest()
 static void S_StartErrand()
 {
 	// gbWidePanel = false;
+	// gbRenderGold = false;
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
 	// AddSText(0, 12, true, "Would you like to", COL_WHITE, false);
