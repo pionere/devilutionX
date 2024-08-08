@@ -191,7 +191,7 @@ void InitStoresOnce()
 	stextflag = STORE_NONE;
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	numpremium = 0;
 	premiumlevel = StoresLimitedItemLvl();
 	// assert((premiumlevel + premiumlvladd[0]) >= 1);
@@ -411,7 +411,7 @@ static void S_StartSmith()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Blacksmith's shop", COL_GOLD, false);
 	AddSText(0, 7, true, "Would you like to:", COL_GOLD, false);
@@ -757,7 +757,7 @@ static void S_StartWitch()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 
 	AddSText(0, 2, true, "Witch's shack", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -932,7 +932,7 @@ static void S_StartNoMoney()
 {
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
@@ -945,7 +945,7 @@ static void S_StartNoRoom()
 {
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
 
 	// AddSLine(3);
@@ -963,7 +963,7 @@ static void S_StartConfirm()
 {
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
 	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
 	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
@@ -1006,7 +1006,7 @@ static void S_StartBoy()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
 	// AddSLine(5);
 	if (boyitem._itype != ITYPE_NONE) {
@@ -1035,7 +1035,7 @@ static void S_StartBBoy()
 	}
 	gbWidePanel = true;
 	// gbRenderGold = true;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 
 	StorePrepareItemBuy(&boyitem);
 	AddSItem(260, STORE_LIST_FIRST, 0, boyitem._iCurs, FALSE);
@@ -1049,7 +1049,7 @@ static void S_StartHealer()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Healer's home", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1126,7 +1126,7 @@ static void S_StartStory()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 2, true, "The Town Elder", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_STORY_GOSSIP, true, "Talk to Cain", COL_BLUE, true);
@@ -1198,7 +1198,7 @@ static void S_StartIdShow()
 
 	//gbWidePanel = true;
 	//gbRenderGold = true;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 
 	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
 	PrintStoreItem(&storeitem, 11, false);
@@ -1212,7 +1212,7 @@ static void S_StartTalk()
 
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
 	AddSText(0, 2, true, tempstr, COL_GOLD, false);
 	// AddSLine(5);
@@ -1244,7 +1244,7 @@ static void S_StartTavern()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Rising Sun", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
@@ -1257,7 +1257,7 @@ static void S_StartBarMaid()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 2, true, "Gillian", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_BARMAID_GOSSIP, true, "Talk to Gillian", COL_BLUE, true);
@@ -1269,7 +1269,7 @@ static void S_StartDrunk()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_DRUNK_GOSSIP, true, "Talk to Farnham", COL_BLUE, true);
@@ -1281,7 +1281,7 @@ static void S_StartPriest()
 {
 	gbWidePanel = false;
 	// gbRenderGold = false;
-	gbHasScroll = false;
+	// gbHasScroll = false;
 	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_PRIEST_ERRAND, true, "Run errand", COL_BLUE, true);
@@ -1291,6 +1291,7 @@ static void S_StartPriest()
 
 static void S_StartErrand()
 {
+	// gbHasScroll = false;
 	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
 	// AddSText(0, 12, true, "Would you like to", COL_WHITE, false);
 	AddSText(0, 14, true, "Go on an errand?", COL_WHITE, false);
@@ -1307,6 +1308,7 @@ void StartStore(int s)
 	ReleaseStoreBtn();
 	stextflag = s;
 	stextsidx = 0;
+	gbHasScroll = false;
 	switch (s) {
 	case STORE_SMITH:
 		S_StartSmith();
