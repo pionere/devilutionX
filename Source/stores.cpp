@@ -471,7 +471,7 @@ static void S_ScrollSBuy()
 	static_assert(lengthof(smithitem) <= STORE_PAGE_ITEMS, "S_ScrollSBuy must fit to a single store-page.");
 	// stextsmax = storenumh - STORE_PAGE_ITEMS;
 	// if (stextsmax <= 0)
-		stextsmax = 0;
+	//	stextsmax = 0;
 	// else
 	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
@@ -553,7 +553,7 @@ static void S_ScrollSPBuy()
 	static_assert(lengthof(premiumitems) <= STORE_PAGE_ITEMS, "S_ScrollSPBuy must fit to a single store-page.");
 	// stextsmax = storenumh - STORE_PAGE_ITEMS;
 	// if (stextsmax <= 0)
-		stextsmax = 0;
+	//	stextsmax = 0;
 	// else
 	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
@@ -1094,7 +1094,7 @@ static void S_ScrollHBuy()
 	static_assert(lengthof(healitem) <= STORE_PAGE_ITEMS, "S_ScrollHBuy must fit to a single store-page.");
 	// stextsmax = storenumh - STORE_PAGE_ITEMS;
 	// if (stextsmax <= 0)
-		stextsmax = 0;
+	//	stextsmax = 0;
 	// else
 	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
@@ -1301,6 +1301,7 @@ void StartStore(int s)
 	ReleaseStoreBtn();
 	stextflag = s;
 	stextsidx = 0;
+	stextsmax = 0;
 	gbHasScroll = false;
 	switch (s) {
 	case STORE_SMITH:
