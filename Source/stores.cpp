@@ -487,15 +487,14 @@ static void S_StartSBuy()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
 		//StartStore(STORE_SMITH);
 		//stextshold = STORE_SMITH;
 		//stextsel = STORE_SMITH_BUY;
 		//return false;
-		gbHasScroll = false;
 		msg = "I have no basic item for sale.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSBuy();
 
@@ -571,15 +570,14 @@ static void S_StartSPBuy()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
 		//StartStore(STORE_SMITH);
 		//stextshold = STORE_SMITH;
 		//stextsel = STORE_SMITH_SPBUY;
 		//return false;
-		gbHasScroll = false;
 		msg = "I have no premium item for sale.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSPBuy();
 
@@ -680,11 +678,10 @@ static void S_StartSSell()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
-		gbHasScroll = false;
 		msg = "You have nothing I want.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSSell();
 
@@ -740,11 +737,10 @@ static void S_StartSRepair()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
-		gbHasScroll = false;
 		msg = "You have nothing to repair.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSSell();
 
@@ -862,11 +858,10 @@ static void S_StartWSell()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
-		gbHasScroll = false;
 		msg = "You have nothing I want.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSSell();
 		msg = "Which item is for sale?";
@@ -915,11 +910,10 @@ static void S_StartWRecharge()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
-		gbHasScroll = false;
 		msg = "You have nothing to recharge.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSSell();
 
@@ -1177,11 +1171,10 @@ static void S_StartSIdentify()
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
-		gbHasScroll = false;
 		msg = "You have nothing to identify.";
 	} else {
-		gbHasScroll = true;
 		// stextsidx = 0;
 		S_ScrollSSell();
 
