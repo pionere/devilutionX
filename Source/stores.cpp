@@ -156,8 +156,6 @@ static const char* const talkname[] = {
 	// clang-format on
 };
 
-static void StoreUpdateSelection();
-
 static void ClearSText(int s, int e)
 {
 	// int i;
@@ -866,9 +864,9 @@ static void S_StartNoMoney()
 {
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	// gbHasScroll = false;
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	// gbHasScroll = false;
 	AddSText(0, 14, true, "You do not have enough gold", COL_WHITE, true);
 
 	// AddSLine(3);
@@ -879,9 +877,9 @@ static void S_StartNoRoom()
 {
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	// gbHasScroll = false;
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	// gbHasScroll = false;
 	AddSText(0, 14, true, "You do not have enough room in inventory", COL_WHITE, true);
 
 	// AddSLine(3);
@@ -899,9 +897,9 @@ static void S_StartConfirm()
 {
 	// StartStore(stextshold);
 	// ClearSText(STORE_LIST_FIRST, STORE_LINES);
-	// gbHasScroll = false;
 	gbWidePanel = true;
 	// gbRenderGold = true;
+	// gbHasScroll = false;
 	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
 	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
 	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
@@ -1233,8 +1231,9 @@ void StartStore(int s)
 	stextflag = s;
 	stextsidx = 0;
 	stextsmax = 0;
-	gbHasScroll = false;
 	gbWidePanel = false; // 11 vs 14
+	// gbRenderGold = false;
+	gbHasScroll = false;
 	switch (s) {
 	case STORE_SMITH:
 		S_StartSmith();
@@ -1327,6 +1326,23 @@ void StartStore(int s)
 
 	stextsel = i == STORE_LINES ? -1 : i;
 	stextselx = 0;
+}
+
+static void StoreUpdateSelection()
+{
+	if (stextsidx > stextsmax) {
+		stextsidx = stextsmax;
+	}
+	DEBUG_ASSERT(stextsel != -1);
+	while (/*stextsel != -1 && */ !stextlines[stextsel]._ssel) {
+		stextsel--;
+		DEBUG_ASSERT(stextsel != -1);
+	}
+	if (/*stextsel != -1 && */ stextlines[stextsel]._sitemlist) {
+		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+			stextselx--;
+		}
+	}
 }
 
 /*void DrawStoreLineX(int sx, int sy, int dx, int dy, int length)
@@ -2007,23 +2023,6 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 	stextselx = stextxhold;
 	stextsidx = stextvhold;
 	StoreUpdateSelection();
-}
-
-static void StoreUpdateSelection()
-{
-	if (stextsidx > stextsmax) {
-		stextsidx = stextsmax;
-	}
-	DEBUG_ASSERT(stextsel != -1);
-	while (/*stextsel != -1 && */ !stextlines[stextsel]._ssel) {
-		stextsel--;
-		DEBUG_ASSERT(stextsel != -1);
-	}
-	if (/*stextsel != -1 && */ stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
-			stextselx--;
-		}
-	}
 }
 
 /**
