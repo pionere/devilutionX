@@ -975,12 +975,16 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_LEFT:
-		if (gbAutomapflag != AMM_NONE) {
+		if (stextflag != STORE_NONE) {
+			STextLeft();
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapLeft();
 		}
 		break;
 	case ACT_RIGHT:
-		if (gbAutomapflag != AMM_NONE) {
+		if (stextflag != STORE_NONE) {
+			STextRight();
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
 		}
 		break;
