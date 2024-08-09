@@ -282,7 +282,7 @@ void InitSTextHelp()
 	gbWidePanel = true;
 	// assert(gbRenderGold == false); - not necessary since it is not used in PrintSString
 	// assert(gbHasScroll == false); - not necessary since it is not used in PrintSString
-	ClearSText(0, STORE_LINES); // necessary to reset the _syoff values
+	// ClearSText(0, STORE_LINES); // necessary to reset the _syoff values -- should be zero at the moment...
 }
 
 /*static void AddSLine(int y)
