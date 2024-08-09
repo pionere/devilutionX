@@ -306,7 +306,7 @@ static void AddSText(int x, int y, bool j, const char* str, BYTE clr, bool sel)
 
 	ss = &stextlines[y];
 	ss->_sx = x;
-	ss->_syoff = 0;
+	// ss->_syoff = 0;
 	SStrCopy(ss->_sstr, str, sizeof(ss->_sstr));
 	ss->_sjust = j;
 	ss->_sclr = clr;
