@@ -2204,10 +2204,7 @@ void control_drop_gold(int vkey)
 {
 	int newValue;
 
-	if (myplr._pHitPoints < (1 << 6)) {
-		gbDropGoldFlag = false;
-		return;
-	}
+	assert(myplr._pHitPoints >= (1 << 6) || vkey == DVL_VK_ESCAPE);
 
 	if (vkey == DVL_VK_RETURN) {
 		if (dropGoldValue > 0)
