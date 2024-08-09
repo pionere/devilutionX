@@ -729,6 +729,13 @@ static int MergeStackableItem(ItemStruct* a, ItemStruct* b)
 {
 	int gt, ig, cn;
 
+	// assert(a->_iUsable || b->_iUsable);
+	if (a->_iMiscId == IMISC_MAP // TODO: use a->_iMaxDur != 1 instead?
+	 || a->_iMiscId != b->_iMiscId
+	 || a->_iSpell != b->_iSpell) {
+		return CURSOR_NONE;
+	}
+	// assert(a->_iUsable && b->_iUsable);
 	gt = a->_iDurability;
 	ig = b->_iDurability + gt; // STACK
 	//a->_ivalue /= a->_iDurability;
@@ -991,13 +998,13 @@ void InvPasteItem(int pnum, BYTE r)
 			if (it == 0) {
 				// empty target
 				copy_pod(*is, *holditem);
-			} else if (holditem->_iUsable
-			 && holditem->_iMiscId == is->_iMiscId
-			 && holditem->_iSpell == is->_iSpell) {
-				// matching stackable items
-				cn = MergeStackableItem(is, holditem);
-				break;
 			} else {
+				if (holditem->_iUsable) {
+					cn = MergeStackableItem(is, holditem);
+					if (cn != CURSOR_NONE)
+						break;
+				}
+
 				it--;
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (p->_pInvList[i]._itype == ITYPE_PLACEHOLDER
@@ -1079,12 +1086,12 @@ void InvPasteBeltItem(int pnum, BYTE r)
 		return;
 	// assert(holditem->_iUsable);
 	is = &plr._pSpdList[r];
-	if (is->_itype != ITYPE_NONE
-	 && is->_iMiscId == holditem->_iMiscId
-	 && is->_iSpell == holditem->_iSpell) {
+	cn = CURSOR_NONE;
+	if (is->_itype != ITYPE_NONE) {
 		// matching stackable items
 		cn = MergeStackableItem(is, holditem);
-	} else {
+	}
+	if (cn == CURSOR_NONE) {
 		cn = SwapItem(is, holditem);
 		if (holditem->_itype == ITYPE_NONE)
 			cn = CURSOR_HAND;
