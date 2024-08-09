@@ -436,7 +436,7 @@ static void S_ScrollSBuy()
 	ItemStruct* is;
 	unsigned l;
 
-	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 
 	is = &smithitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -494,7 +494,7 @@ static void S_ScrollSPBuy()
 	ItemStruct* is;
 	unsigned idx, l, boughtitems;
 
-	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 
 	boughtitems = stextsidx;
 	for (idx = 0; boughtitems != 0; idx++)
@@ -590,7 +590,7 @@ static void S_ScrollSSell()
 	ItemStruct* is;
 	unsigned l;
 
-	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 
 	is = &storehold[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -723,7 +723,7 @@ static void S_ScrollWBuy()
 	ItemStruct* is;
 	unsigned l;
 
-	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 
 	is = &witchitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -1001,7 +1001,7 @@ static void S_ScrollHBuy()
 	ItemStruct* is;
 	unsigned l;
 
-	ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 
 	is = &healitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
@@ -1396,6 +1396,8 @@ void DrawStore()
 	}
 
 	if (gbHasScroll) {
+		// update list entries (TODO: only if stextsmax != 0?)
+		ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
 		switch (stextflag) {
 		case STORE_SBUY:
 			S_ScrollSBuy();
