@@ -39,9 +39,11 @@ void mainmenu_loop()
 			UiMergerDialog();
 			continue;
 		case 2:
+#if 0
 			UiCheckerDialog();
 			continue;
 		case 3:
+#endif
 			break;
 		default:
 			ASSUME_UNREACHABLE
