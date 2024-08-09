@@ -1324,7 +1324,8 @@ void StartStore(int s)
 			break;
 	}
 
-	stextsel = i == STORE_LINES ? -1 : i;
+	DEBUG_ASSERT(i != STORE_LINES);
+	stextsel = /*i == STORE_LINES ? -1 :*/ i;
 	stextselx = 0;
 }
 
