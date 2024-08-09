@@ -835,6 +835,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->bMDur = src->_iMaxDur;
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
+		static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "PackPkItem stores the gold value in 2 bytes.");
 		static_assert(MAXCAMPAIGNSIZE <= 16, "PackPkItem stores the campaign status in 2 bytes.");
 		dest->wValue = static_cast<uint16_t>(src->_ivalue);
 	} else {
