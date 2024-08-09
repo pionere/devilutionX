@@ -187,7 +187,7 @@ void InitStoresOnce()
 {
 	int i;
 
-	ClearSText(0, STORE_LINES);
+	// ClearSText(0, STORE_LINES);
 	stextflag = STORE_NONE;
 	// gbWidePanel = false;
 	// gbRenderGold = false;
