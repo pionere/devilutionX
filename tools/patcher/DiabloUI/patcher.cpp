@@ -119,8 +119,8 @@ typedef enum filenames {
 	FILE_MON_FALLGW,
 	FILE_MON_GOATLD,
 #endif
+#endif // HELLFIRE
 	FILE_OBJCURS_CEL,
-#endif
 	NUM_FILENAMES
 } filenames;
 
@@ -225,8 +225,8 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
 /*FILE_MON_GOATLD*/    "Monsters\\GoatLord\\GoatLd.CL2",
 #endif
+#endif // HELLFIRE
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
-#endif
 };
 
 #define nSolidTable(pn, v) \
@@ -2177,6 +2177,237 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
+}
+
+static void moveImage(int width, int height, int dx, int dy, BYTE TRANS_COLOR)
+{
+	if (dx > 0) {
+		for (int y = 0; y < height; y++) {
+			for (int x = width - dx - 1; x >= 0; x--) {
+				gpBuffer[x + dx + BUFFER_WIDTH * y] = gpBuffer[x + BUFFER_WIDTH * y];
+				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+			}
+		}
+	}
+	if (dx < 0) {
+		for (int y = 0; y < height; y++) {
+			for (int x = -dx; x < width; x++) {
+				gpBuffer[x + dx + BUFFER_WIDTH * y] = gpBuffer[x + BUFFER_WIDTH * y];
+				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+			}
+		}
+	}
+	if (dy > 0) {
+		for (int y = height - dy - 1; y >= 0; y--) {
+			for (int x = 0; x < width; x++) {
+				gpBuffer[x + BUFFER_WIDTH * (y + dy)] = gpBuffer[x + BUFFER_WIDTH * y];
+				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+			}
+		}
+	}
+	if (dy < 0) {
+		for (int y = -dy; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				gpBuffer[x + BUFFER_WIDTH * (y + dy)] = gpBuffer[x + BUFFER_WIDTH * y];
+				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+			}
+		}
+	}
+}
+
+static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	const int resCelEntries = NUM_ICURS + CURSOR_FIRSTITEM - 1;
+	assert(srcCelEntries == resCelEntries);
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen * 2;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	bool needsPatch = false;
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, InvItemHeight[i + 1] * BUFFER_WIDTH);
+		CelClippedDraw(0, InvItemHeight[i + 1] - 1, celBuf, i + 1, InvItemWidth[i + 1]);
+
+		int dx = 0, dy = 0;
+		switch (i + 1) {
+		case 236: dx = 0; dy = -2; break;
+		case 234: dx = 0; dy = -2; break;
+		case 233: dx = 0; dy = -1; break;
+		case 232: dx = -2; dy = -2; break;
+		case 231: dx = 0; dy = -1; break;
+		case 230: dx = 2; dy = 0; break;
+		case 229: dx = -1; dy = -3; break;
+		case 228: dx = 0; dy = -2; break;
+		case 227: dx = -1; dy = -2; break;
+		case 226: dx = -1; dy = -2; break;
+		case 225: dx = 0; dy = 2; break;
+		case 224: dx = -1; dy = 1; break;
+		case 223: dx = 0; dy = 1; break;
+		case 222: dx = -2; dy = 3; break;
+		case 221: dx = -1; dy = 2; break;
+		case 220: dx = -1; dy = 0; break;
+		case 219: dx = -1; dy = 0; break;
+		case 218: dx = -1; dy = 0; break;
+		case 217: dx = 0; dy = 1; break;
+		case 216: dx = -1; dy = 9; break; // a
+		case 215: dx = 0; dy = 12; break; // a
+		case 213: dx = -1; dy = 0; break;
+		case 179: dx = 1; dy = 5; break;
+		case 177: dx = 0; dy = 2; break;
+		case 176: dx = 1; dy = 0; break;
+		case 173: dx = 1; dy = 0; break;
+		case 171: dx = 0; dy = -3; break; // a
+		case 167: dx = - 1; dy = 0; break;
+		case 165: dx = 2; dy = -3; // overwrite bright yellow colors on the armor
+			for (int y = 0; y < InvItemHeight[i + 1]; y++) {
+				for (int x = 0; x < InvItemWidth[i + 1]; x++) {
+					BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+					if (color == 144 || color == 145)
+						gpBuffer[x + BUFFER_WIDTH * y] = color + 96;
+				}
+			}
+			break;
+		case 164: dx = 0; dy = 4; break;// a
+		case 162: dx = 0; dy = -4; break;// a
+		case 161: dx = 0; dy = 1; break;
+		case 159: dx = 1; dy = 1; break;
+		case 158: dx = 0; dy = 3; break;
+		case 157: dx = 1; dy = -1; break;
+		case 156: dx = 0; dy = 1; break;
+		case 154: dx = 1; dy = 0; break;
+		case 153: dx = -1; dy = 1; break;
+		case 152: dx = 0; dy = 2; break;
+		case 151: dx = 0; dy = 2; break;// a
+		case 147: dx = 0; dy = 2; break;// a
+		case 146: dx = - 2; dy = -2; break;
+		case 145: dx = 0; dy = -2; break;
+		case 144: dx = 0; dy = 1; break;
+		case 142: dx = 1; dy = 2; break;
+		case 141: dx = 0; dy = 4; break;// a
+		case 140: dx = 0; dy = 0;  break; //a
+		case 139: dx = 1; dy = 1; break;// a
+		case 138: dx = 3; dy = 1; break;
+		case 137: dx = 1; dy = 0; break;
+		case 135: dx = - 1; dy = 0; break;
+		case 134: dx = 0; dy = 2; break;
+		case 133: dx = - 1; dy = -1; break;
+		case 130: dx = - 1; dy = 2; break;
+		case 127: dx = 0; dy = 1; break;
+		case 126: dx = 1; dy = 4; break;// a
+		case 124: dx = 0; dy = 3; break;
+		case 123: dx = - 1; dy = 3; break;// a
+		case 120: dx = 0; dy = 1; break;
+		case 119: dx = 0; dy = 1; break;
+		case 116: dx = 0; dy = 1; break;
+		case 115: dx = 0; dy = 4; break;// a
+		case 114: dx = 0; dy = 1; break;
+		case 112: dx = 0; dy = -1; break;
+		case 109: dx = 3; dy = 3; break;
+		case 108: dx = 2; dy = 3; break;
+		case 106: dx = 0; dy = 2; break;
+		case 105: dx = 1; dy = 0; break;
+		case 104: dx = 0; dy = 1; break;
+		case 103: dx = 0; dy = 1; break;
+		case 102: dx = 0; dy = 1; break;
+		case 100: dx = 0; dy = 3; break;
+		case 99: dx = 1; dy = 2; break;
+		case 98: dx = 0; dy = 2; break;
+		case 95: dx = 1; dy = 1; break;
+		case 94: dx = 1; dy = 0; break;
+		case 93: dx = 0; dy = 2; break;
+		case 92: dx = 0; dy = 2; break;
+		case 90: dx = 0; dy = 1; break;
+		case 89: dx = 1; dy = 8; break;
+		case 88: dx = 0; dy = 1; break;
+		case 87: dx = 0; dy = 1; break;
+		case 86: dx = 0; dy = 2; break;
+		case 85: dx = 0; dy = 2; break;
+		case 84: dx = 1; dy = 1; break;
+		case 83: dx = 0; dy = 3; break;
+		case 82: dx = 1; dy = 2; break;
+		case 81: dx = - 2; dy = -3; break;
+		case 76: dx = -1; dy = -3; break;
+		case 75: dx = -2; dy = 0; break;
+		case 74: dx = 2; dy = 0; break;
+		case 72: dx = -1; dy = 0; break;
+		case 69: dx = 0; dy = 1; break;
+		case 68: dx = 1; dy = 0; break;
+		case 66: dx = 0; dy = 1; break;
+		case 65: dx = 1; dy = 0; break;
+		case 64: dx = 0; dy = 4; break;
+		case 63: dx = 0; dy = 2; break;
+		case 60: dx = 0; dy = 1; break;// ?
+		case 57: dx = 0; dy = 1; break;// ?
+		case 56: dx = 0; dy = 1; // make the amulet more round
+			if (needsPatch) {
+				gpBuffer[16 + BUFFER_WIDTH * 25] = 188;
+				gpBuffer[17 + BUFFER_WIDTH * 25] = 186;
+				gpBuffer[18 + BUFFER_WIDTH * 25] = 185;
+				gpBuffer[19 + BUFFER_WIDTH * 25] = 184;
+				gpBuffer[20 + BUFFER_WIDTH * 25] = 183;
+			}
+			break;
+		case 55: dx = -1; dy = 3; break;
+		case 52: dx = 0; dy = 1; break;
+		case 51: dx = -1; dy = 0; break;
+		case 49: dx = 1; dy = 0; break;
+		case 43: dx = -1; dy = 0; break;
+		case 42: dx = 1; dy = 0; break;
+		case 39: dx = 0; dy = -1; break;
+		case 36: dx = 1; dy = 0; break;
+		case 37: dx = 0; dy = 1; break;
+		case 35: dx = 1; dy = 0; break;
+		case 34: dx = 2; dy = 1; break;
+		case 33: dx = 0; dy = 1; break;
+		case 32: dx = -1; dy = 1; break;
+		case 31: dx = 0; dy = 1; break;
+		case 30: dx = 2; dy = 0; break;
+		case 27: dx = 0; dy = 1; break;
+		case 26: dx = 1; dy = 0; break;
+		case 25: dx = 0; dy = 1; break;
+		case 24: dx = 1; dy = 0; break;
+		case 22: dx = 0; dy = 1; break;
+		case 20: dx = 1; dy = 2; break;
+		case 19: dx = 1; dy = 1; break;
+		case 13: dx = 1; dy = 0;
+			needsPatch = gpBuffer[25 + BUFFER_WIDTH * 4] == TRANS_COLOR; // assume it is already done
+			break;
+		}
+
+		if (needsPatch) {
+			moveImage(InvItemWidth[i + 1], InvItemHeight[i + 1], dx, dy, TRANS_COLOR);
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, InvItemWidth[i + 1], InvItemHeight[i + 1], SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32(*celLen);
+
+	return resCelBuf;
 }
 
 BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
@@ -4204,21 +4435,26 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = fixGoatLdAnim(buf, dwLen);
 	} break;
 #endif // ASSET_MPL
+#endif // HELLFIRE
 	case FILE_OBJCURS_CEL:
 	{
+#ifdef HELLFIRE
 		size_t sizeB, sizeAB;
 		BYTE *aCursCels, *bCursCels;
-		DWORD numA, numAB;
+		DWORD numAB;
+#endif
+		DWORD numA;
 
 		numA = SwapLE32(((DWORD*)buf)[0]);
 		if (numA != 179) {
-			if (numA != 179 + 61 - 2) {
+			if (numA != NUM_ICURS + CURSOR_FIRSTITEM - 1 /* 179 + 61 - 2*/) {
 				mem_free_dbg(buf);
 				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 				buf = NULL;
 			}
 			return buf;
 		}
+#ifdef HELLFIRE
 		bCursCels = LoadFileInMem("Data\\Inv\\Objcurs2.CEL", &sizeB);
 		// merge the two cel files
 		aCursCels = buf;
@@ -4242,8 +4478,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		mem_free_dbg(buf);
 		buf = aCursCels;
 		*dwLen = sizeAB;
-	} break;
 #endif // HELLFIRE
+		// move the graphics to the center + minor adjustments
+		buf = centerCursors(buf, dwLen);
+	} break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
