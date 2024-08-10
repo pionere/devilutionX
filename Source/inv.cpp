@@ -225,7 +225,7 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 			pix = *dst;
 			if (pix >= PAL16_BLUE) {
 				if (pix <= PAL16_BLUE + 15)
-					*dst -= PAL16_BLUE - PAL16_BEIGE;
+					; // *dst -= PAL16_BLUE - PAL16_BEIGE;
 				else if (pix >= PAL16_GRAY)
 					*dst -= PAL16_GRAY - PAL16_BEIGE;
 			}
