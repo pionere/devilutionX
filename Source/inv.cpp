@@ -36,18 +36,18 @@ CelImageBuf* pBeltCels;
 const InvXY InvRect[NUM_XY_SLOTS] = {
 	// clang-format off
 	//  X,   Y
-	{ 121,                    29 },                       // helmet
-	{ 121 + INV_SLOT_SIZE_PX, 29 },                       // helmet
-	{ 121,                    29 +    INV_SLOT_SIZE_PX }, // helmet
-	{ 121 + INV_SLOT_SIZE_PX, 29 +    INV_SLOT_SIZE_PX }, // helmet
-	{  61, 171 }, // left ring
-	{ 206, 171 }, // right ring
-	{ 187,  45 }, // amulet
+	{ 120,                    30 },                       // helmet
+	{ 120 + INV_SLOT_SIZE_PX, 30 },                       // helmet
+	{ 120,                    30 +    INV_SLOT_SIZE_PX }, // helmet
+	{ 120 + INV_SLOT_SIZE_PX, 30 +    INV_SLOT_SIZE_PX }, // helmet
+	{  60, 172 }, // left ring
+	{ 205, 172 }, // right ring
+	{ 186,  44 }, // amulet
 	{  47,                    82 },                      // left hand
 	{  47 + INV_SLOT_SIZE_PX, 82 },                      // left hand
 	{  47,                    82 +   INV_SLOT_SIZE_PX }, // left hand
 	{  47 + INV_SLOT_SIZE_PX, 82 +   INV_SLOT_SIZE_PX }, // left hand
-	{  57,                    82 + 2*INV_SLOT_SIZE_PX }, // left hand
+	{  47,                    82 + 2*INV_SLOT_SIZE_PX }, // left hand
 	{  47 + INV_SLOT_SIZE_PX, 82 + 2*INV_SLOT_SIZE_PX }, // left hand
 	{ 192,                    82 },                      // right hand
 	{ 192 + INV_SLOT_SIZE_PX, 82 },                      // right hand
@@ -55,12 +55,12 @@ const InvXY InvRect[NUM_XY_SLOTS] = {
 	{ 192 + INV_SLOT_SIZE_PX, 82 +   INV_SLOT_SIZE_PX }, // right hand
 	{ 192,                    82 + 2*INV_SLOT_SIZE_PX }, // right hand
 	{ 192 + INV_SLOT_SIZE_PX, 82 + 2*INV_SLOT_SIZE_PX }, // right hand
-	{ 121,                    93 },                      // chest
-	{ 121 + INV_SLOT_SIZE_PX, 93 },                      // chest
-	{ 121,                    93 +   INV_SLOT_SIZE_PX }, // chest
-	{ 121 + INV_SLOT_SIZE_PX, 93 +   INV_SLOT_SIZE_PX }, // chest
-	{ 121,                    93 + 2*INV_SLOT_SIZE_PX }, // chest
-	{ 121 + INV_SLOT_SIZE_PX, 93 + 2*INV_SLOT_SIZE_PX }, // chest
+	{ 120,                    94 },                      // chest
+	{ 120 + INV_SLOT_SIZE_PX, 94 },                      // chest
+	{ 120,                    94 +   INV_SLOT_SIZE_PX }, // chest
+	{ 120 + INV_SLOT_SIZE_PX, 94 +   INV_SLOT_SIZE_PX }, // chest
+	{ 120,                    94 + 2*INV_SLOT_SIZE_PX }, // chest
+	{ 120 + INV_SLOT_SIZE_PX, 94 + 2*INV_SLOT_SIZE_PX }, // chest
 	{  2 + 0 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
 	{  2 + 1 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
 	{  2 + 2 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
