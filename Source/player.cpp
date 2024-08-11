@@ -2915,7 +2915,6 @@ void MissToPlr(int mi, bool hit)
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
-		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);
 		return;
 	}
