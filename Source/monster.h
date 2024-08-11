@@ -59,7 +59,7 @@ void FreeMonsters();
 //bool CheckAllowMissile(int x, int y);
 bool LineClear(int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
-void MissToMonst(int mnum);
+void MissToMonst(int mi);
 /* Check if the monster can be displaced to the given position. (unwillingly) */
 bool PosOkMonster(int mnum, int x, int y);
 /* Check if the monster can be placed to the given position. (willingly) */
