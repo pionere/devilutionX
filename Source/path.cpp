@@ -17,8 +17,10 @@ static unsigned gnLastNodeIdx;
 static int8_t reversePathDirs[MAX_PATH_LENGTH];
 /** A linked list of all visited nodes. */
 static PATHNODE* pathVisitedNodes;
+#ifdef DEBUG_PATH
 /** A stack for recursively update nodes. */
 static PATHNODE* pathUpdateStack[MAXPATHNODES];
+#endif
 /** A linked list of the A* frontier, sorted by distance. */
 static PATHNODE* pathFrontNodes;
 /** The target location. */
@@ -92,7 +94,7 @@ static void PathAddNode(PATHNODE* pPath)
 	pPath->NextNode = next;
 	current->NextNode = pPath;
 }
-
+#ifdef DEBUG_PATH
 /**
  * @brief return 2 if (sx,sy) is horizontally/vertically aligned with (dx,dy), else 3
  *
@@ -104,7 +106,7 @@ static inline int PathStepCost(int sx, int sy, int dx, int dy)
 {
 	return (sx == dx || sy == dy) ? 2 : 3;
 }
-#ifdef DEBUG_PATH
+
 /**
  * @brief update all path costs using depth-first search starting at pPath
  */

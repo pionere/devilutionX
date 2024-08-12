@@ -2528,7 +2528,7 @@ void DrawCampaignMap()
 	sx += CAMICON_WIDTH * (CAM_RADIUS - lengthof(camEntries) / 2);
 	sy += CAMICON_HEIGHT * (CAM_RADIUS - lengthof(camEntries[0]) / 2);
 
-	currCamEntry = { 0 };
+	currCamEntry = { 0, 0, 0, FALSE };
 	for (int cy = 0; cy < lengthof(camEntries[0]); cy++) {
 		for (int cx = 0; cx < lengthof(camEntries); cx++) {
 			const CampaignMapEntry &cme = camEntries[cy][cx];

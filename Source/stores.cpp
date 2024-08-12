@@ -501,7 +501,6 @@ static void S_ScrollSPBuy()
 		if (premiumitems[idx]._itype != ITYPE_NONE)
 			boughtitems--;
 
-	unsigned sidx = idx;
 	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
