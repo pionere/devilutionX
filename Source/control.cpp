@@ -1524,6 +1524,9 @@ static POS32 GetMousePos(int x, int y)
 	pos.x *= TILE_WIDTH / 2;
 	pos.y *= TILE_HEIGHT / 2;
 
+	pos.x += ScrollInfo._sxoff;
+	pos.y += ScrollInfo._syoff;
+
 	if (gbZoomInFlag) {
 		pos.x <<= 1;
 		pos.y <<= 1;
@@ -1747,12 +1750,16 @@ void DrawInfoStr()
 		MonsterStruct* mon = &monsters[pcursmonst];
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
 		pos = GetMousePos(mon->_mx, mon->_my);
+		pos.x += mon->_mxoff;
+		pos.y += mon->_myoff;
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (pcursplr != PLR_NONE) {
 		PlayerStruct* p = &players[pcursplr];
 		pos = GetMousePos(p->_px, p->_py);
+		pos.x += p->_pxoff;
+		pos.y += p->_pyoff;
 		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
