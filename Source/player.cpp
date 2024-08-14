@@ -2123,8 +2123,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 	}
 	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += fdam + ldam + mdam + adam;
-		AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
