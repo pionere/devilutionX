@@ -717,10 +717,10 @@ unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxda
 	return dam;
 }
 
-int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam)
+int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster, int mpnum)
 {
 	int dam = fdam + ldam + mdam + adam;
-	int mtype;
+	int mtype, mx, my, mxoff, myoff, mi;
 
 	if (dam == 0) {
 		return 0;
@@ -731,7 +731,22 @@ int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam
 	} else {
 		mtype = mdam >= adam ? MIS_EXMAGIC : MIS_EXACID;
 	}
-	AddMissile(dx, dy, -1, 0, 0, mtype, MST_NA, 0, 0);
+	if (isMonster) {
+		mx = monsters[mpnum]._mx;
+		my = monsters[mpnum]._my;
+		mxoff = monsters[mpnum]._mxoff;
+		myoff = monsters[mpnum]._myoff;
+	} else {
+		mx = plx(mpnum)._px;
+		my = plx(mpnum)._py;
+		mxoff = plx(mpnum)._pxoff;
+		myoff = plx(mpnum)._pyoff;
+	}
+	mi = AddMissile(mx, my, -1, 0, 0, mtype, MST_NA, 0, 0);
+	if (mi >= 0) {
+		missile[mi]._mixoff = mxoff;
+		missile[mi]._miyoff = myoff;
+	}
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
 		if (gfx < dam - ldam) {
@@ -896,7 +911,7 @@ static bool MissMonHitByPlr(int mnum, int mi)
 		if (adam != 0) {
 			adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 		}
-		dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, true, mnum);
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
@@ -1158,7 +1173,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		if (adam != 0) {
 			adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 		}
-		dam += AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	} else {
 		dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		dam >>= 1;

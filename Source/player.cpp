@@ -2022,7 +2022,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
-	dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
+	dam += AddElementalExplosion(fdam, ldam, mdam, adam, true, mnum);
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
@@ -2123,7 +2123,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 	}
 	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
