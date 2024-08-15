@@ -3834,16 +3834,18 @@ void MI_HorkSpawn(int mi)
 	const int8_t* cr;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-
-		PutMissile(mi);
-		return;
+		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy) || PosOkMissile(mis->_mix, mis->_miy)) {
+		// if (PosOkMonster(mis->_miSource, mis->_mix, mis->_miy)) {
+			PutMissile(mi);
+			return;
+		// }
 	}
+	// assert(abs(mis->_mix - mis->_misx) <= 1 && abs(mis->_miy - mis->_misy) <= 1);
 	mis->_miDelFlag = TRUE;
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "MI_HorkSpawn expects a large enough border.");
 	for (i = 0; i <= 1; i++) {
