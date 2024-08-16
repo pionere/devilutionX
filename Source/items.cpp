@@ -1705,15 +1705,21 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 	}
 	// prefix or suffix added -> recalculate the value of the item
 	if (items[ii]._iMagical == ITEM_QUALITY_MAGIC) {
-		v = items[ii]._iVMult;
-		if (v >= 0) {
-			v *= items[ii]._ivalue;
+		if (items[ii]._iMiscId != IMISC_MAP) {
+			v = items[ii]._iVMult;
+			if (v >= 0) {
+				v *= items[ii]._ivalue;
+			}
+			else {
+				v = items[ii]._ivalue / -v;
+			}
+			v += items[ii]._iVAdd;
+			if (v <= 0) {
+				v = 1;
+			}
 		} else {
-			v = items[ii]._ivalue / -v;
-		}
-		v += items[ii]._iVAdd;
-		if (v <= 0) {
-			v = 1;
+			v = ((1 << MAXCAMPAIGNSIZE) - 1) >> (6 - items[ii]._iPLLight);
+			items[ii]._ivalue = v;
 		}
 		items[ii]._iIvalue = v;
 	}
@@ -1725,7 +1731,10 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 
 	switch (items[ii]._itype) {
 	case ITYPE_MISC:
-		return;
+		if (items[ii]._iMiscId != IMISC_MAP)
+			return;
+		flgs = PLT_MAP;
+		break;
 	case ITYPE_SWORD:
 	case ITYPE_AXE:
 	case ITYPE_MACE:
@@ -2699,8 +2708,13 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 		return;
 
 	pi = PlrItem(pnum, cii);
-	if (pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_MISC || pi->_itype == ITYPE_GOLD)
+	if (pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_GOLD) {
 		return;
+	}
+	if (pi->_itype == ITYPE_MISC
+	 && (pi->_iMiscId != IMISC_MAP || !(pi->_ivalue & 1) || (oilType != IMISC_OILCHANCE && oilType != IMISC_OILCLEAN))) {
+		return;
+	}
 
 	if (oilType == IMISC_OILCLEAN) {
 		if (pi->_iMagical != ITEM_QUALITY_MAGIC)
@@ -2793,7 +2807,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	CalcPlrInv(pnum, true);
 }
 
-void PrintItemPower(BYTE plidx, const ItemStruct* is)
+static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
@@ -3025,6 +3039,34 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 	}
 }
 
+static void PrintMapPower(BYTE plidx, const ItemStruct* is)
+{
+	switch (plidx) {
+	case IPL_SKILLLEVELS:
+		snprintf(tempstr, sizeof(tempstr), "%+d to map levels", is->_iPLSkillLevels);
+		break;
+	case IPL_ACP:
+		snprintf(tempstr, sizeof(tempstr), "%+d to level gain", is->_iPLAC);
+		break;
+	case IPL_SETAC:
+		snprintf(tempstr, sizeof(tempstr), "starting level %d", is->_iAC);
+		break;
+	case IPL_LIGHT:
+		snprintf(tempstr, sizeof(tempstr), (is->_iPLLight & 1) ? "%+d area" : "%+d areas", is->_iPLLight);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+}
+
+void PrintItemPower(BYTE plidx, const ItemStruct* is)
+{
+	if (is->_itype != ITYPE_MISC || is->_iMiscId != IMISC_MAP)
+		PrintEquipmentPower(plidx, is);
+	else
+		PrintMapPower(plidx, is);
+}
+
 static void PrintItemString(int x, int& y)
 {
 	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), tempstr, COL_WHITE, FONT_KERN_SMALL);
@@ -3199,8 +3241,7 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		PrintItemString(x, y, desc);
 		break;
 	case IMISC_MAP:
-		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
-		PrintItemString(x, y);
+		y += 24;
 		desc = "right-click to use";
 		PrintItemString(x, y, desc);
 		desc = "(only in town)";
@@ -3276,7 +3317,7 @@ void DrawInvItemDetails()
 	PrintItemString(x, y, ItemName(is), ItemColor(is));
 
 	// add item-level info or stack-size
-	if (is->_itype != ITYPE_MISC && is->_itype != ITYPE_GOLD) {
+	if ((is->_itype != ITYPE_MISC || is->_iMiscId == IMISC_MAP) && is->_itype != ITYPE_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
 		y -= 6;
 		PrintItemString(x, y);

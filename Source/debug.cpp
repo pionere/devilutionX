@@ -484,6 +484,12 @@ void ValidateData()
 		app_fatal("IDI_BOOK1 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK1].iMiscId, AllItemsList[IDI_BOOK1].iMinMLvl);
 	if (AllItemsList[IDI_BOOK4].iMiscId != IMISC_BOOK)
 		app_fatal("IDI_BOOK4 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK4].iMiscId, AllItemsList[IDI_BOOK4].iMinMLvl);
+	if (AllItemsList[IDI_CAMPAIGNMAP].iMiscId != IMISC_MAP)
+		app_fatal("IDI_CAMPAIGNMAP is not a map, its miscId is %d, iminlvl %d.", AllItemsList[IDI_CAMPAIGNMAP].iMiscId, AllItemsList[IDI_CAMPAIGNMAP].iMinMLvl);
+	if (AllItemsList[IDI_CAMPAIGNMAP].iDurability != 1) // required because of affixes and map level
+		app_fatal("IDI_CAMPAIGNMAP stack-size is not one, its miscId is %d, iminlvl %d.", AllItemsList[IDI_CAMPAIGNMAP].iMiscId, AllItemsList[IDI_CAMPAIGNMAP].iMinMLvl);
+	if (AllItemsList[IDI_CAMPAIGNMAP].iValue != (1 << (MAXCAMPAIGNSIZE - 6)) - 1) // required by InitCampaignMap
+		app_fatal("IDI_CAMPAIGNMAP base value is invalid (%d vs. %d).", AllItemsList[IDI_CAMPAIGNMAP].iValue, (1 << (MAXCAMPAIGNSIZE - 2)) - 1);
 	static_assert(IDI_BOOK4 - IDI_BOOK1 == 3, "Invalid IDI_BOOK indices.");
 	if (AllItemsList[IDI_CLUB].iCurs != ICURS_CLUB)
 		app_fatal("IDI_CLUB is not a club, its cursor is %d, iminlvl %d.", AllItemsList[IDI_CLUB].iCurs, AllItemsList[IDI_CLUB].iMinMLvl);
@@ -666,6 +672,33 @@ void ValidateData()
 				if (sd.sStaffLvl != SPELL_NA && sd.sStaffMax * pres->PLParam2 > UCHAR_MAX) { // required by (Un)PackPkItem
 					app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d) to be used for staff with spell %d.", i, pres->PLPower, pres->PLParam2, n);
 				}
+			}
+		}
+		if (pres->PLIType == PLT_MAP) {
+			if (pres->PLPower == IPL_ACP) {
+				if (pres->PLParam1 < -2) { // required by InitCampaignMap
+					app_fatal("(Map-)PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+				}
+				if (pres->PLParam2 > UCHAR_MAX - 2) { // required by InitCampaignMap
+					app_fatal("(Map-)PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
+				}
+			}
+			if (pres->PLPower == IPL_LIGHT) {
+				if (pres->PLParam1 < -(MAXCAMPAIGNSIZE - (1 + 6))) { // required by InitCampaignMap and GetItemPower
+					app_fatal("(Map-)PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+				}
+				if (pres->PLParam2 > 6) { // required by InitCampaignMap and GetItemPower
+					app_fatal("(Map-)PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
+				}
+			}
+			if (pres->PLMultVal != 1) {
+				app_fatal("(Map-)PLMultVal invalid for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+			if (pres->PLMinVal != 0) {
+				app_fatal("(Map-)PLMinVal invalid for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+			}
+			if (pres->PLMaxVal != 0) {
+				app_fatal("(Map-)PLMaxVal invalid for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 			}
 		}
 	}

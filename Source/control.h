@@ -39,7 +39,7 @@ extern unsigned guTeamMute;
 extern bool gabPanbtn[NUM_PANBTNS];
 extern int numpanbtns;
 extern bool gbSkillListFlag;
-extern bool gbCampaignMapFlag;
+extern BYTE gbCampaignMapFlag;
 extern int camItemIndex;
 extern CampaignMapEntry selCamEntry;
 

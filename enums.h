@@ -435,6 +435,7 @@ typedef enum affix_item_type {
 	PLT_LARMOR = 1 << 8,
 	PLT_MARMOR = 1 << 9,
 	PLT_HARMOR = 1 << 10,
+	PLT_MAP    = 1 << 11,
 } affix_item_type;
 
 typedef enum item_base_bonus {
@@ -4327,6 +4328,12 @@ typedef enum quest_nakrul_book {
 	QNB_BOOK_B,
 	QNB_BOOK_C,
 } quest_nakrul_book;
+
+typedef enum map_status {
+	CMAP_NONE,
+	CMAP_IDENTIFIED,
+	CMAP_UNIDENTIFIED
+} map_status;
 
 typedef enum talk_id {
 	STORE_NONE,

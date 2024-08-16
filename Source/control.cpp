@@ -46,8 +46,8 @@ unsigned guTeamMute;
 
 /** Campaign-map images CEL */
 static CelImageBuf* pMapIconCels;
-/** Specifies whether the campaign-map is displayed. */
-bool gbCampaignMapFlag;
+/** Specifies the campaign-map status. */
+BYTE gbCampaignMapFlag;
 /** The 'highlighted' map on the campaign-map. */
 static CampaignMapEntry currCamEntry;
 /** The entries of the current campaign-map. */
@@ -965,7 +965,7 @@ void InitControlPan()
 #endif // ASSET_MPL == 1
 	assert(pMapIconCels == NULL);
 	pMapIconCels = CelLoadImage("Data\\MapIcon.CEL", CAMICON_WIDTH);
-	gbCampaignMapFlag = false;
+	gbCampaignMapFlag = CMAP_NONE;
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
 		for (j = 0; j < NUM_COLORS; j++)
 			SkillTrns[j] = j;
@@ -1788,7 +1788,7 @@ void DrawInfoStr()
 			break;
 		}
 		DrawTooltip2(spelldata[currSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
-	} else if (gbCampaignMapFlag) {
+	} else if (gbCampaignMapFlag != CMAP_NONE) {
 		if (currCamEntry.ceIndex == 0)
 			return;
 		const char* type;
@@ -1823,7 +1823,7 @@ void DrawInfoStr()
 		} else if (gnDifficulty == DIFF_HELL) {
 			lvl += HELL_LEVEL_BONUS;
 		}
-		snprintf(infostr, sizeof(infostr), "(lvl: %d)", lvl);
+		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: ??)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
@@ -2448,18 +2448,18 @@ static void control_addmappos(int x, int y, BYTE type, BYTE idx, WORD available,
 	*border += db;
 }
 
-static void control_setmaplevel(int x, int y, BYTE lvl)
+static void control_setmaplevel(int x, int y, BYTE lvl, BYTE dlvl)
 {
 	if (camEntries[x][y].ceIndex != 0 && (camEntries[x][y].ceLevel == 0 || camEntries[x][y].ceLevel > lvl)) {
 		camEntries[x][y].ceLevel = lvl;
 
-		lvl += 4;
+		lvl += dlvl;
 		if (lvl > MAXCAMPAIGNLVL)
 			lvl = MAXCAMPAIGNLVL;
-		control_setmaplevel(x + 1, y + 0, lvl);
-		control_setmaplevel(x - 1, y + 0, lvl);
-		control_setmaplevel(x + 0, y + 1, lvl);
-		control_setmaplevel(x + 0, y - 1, lvl);
+		control_setmaplevel(x + 1, y + 0, lvl, dlvl);
+		control_setmaplevel(x - 1, y + 0, lvl, dlvl);
+		control_setmaplevel(x + 0, y + 1, lvl, dlvl);
+		control_setmaplevel(x + 0, y - 1, lvl, dlvl);
 	}
 }
 
@@ -2480,6 +2480,7 @@ void InitCampaignMap(int cii)
 	static_assert(DTYPE_TOWN == 0, "InitCampaignMap must be adjusted.");
 	control_addmappos(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, random_(200, NUM_DTYPES - 1) + 1, ++idx, available, &border);
 
+	numMaps += is->_iPLLight - 6;
 	for (int i = 0; i < numMaps - 1; i++) {
 		int step = random_low(201, border) + 1;
 		for (int x = 0; x < lengthof(camEntries); x++) {
@@ -2497,10 +2498,14 @@ void InitCampaignMap(int cii)
 		}
 	}
 
-	BYTE lvl = (is->_iCreateInfo & CF_LEVEL) - HELL_LEVEL_BONUS;
-	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl);
+	BYTE lvl = (is->_iAC == 0 ? (is->_iCreateInfo & CF_LEVEL) : is->_iAC) - HELL_LEVEL_BONUS;
+	lvl += is->_iPLSkillLevels;
+	BYTE dlvl = 2;
+	dlvl += is->_iPLAC;
 
-	gbCampaignMapFlag = true;
+	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl, dlvl);
+
+	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
 void TryCampaignMapClick(bool bShift, bool altAction)
@@ -2523,7 +2528,7 @@ void TryCampaignMapClick(bool bShift, bool altAction)
 		}
 	}
 
-	gbCampaignMapFlag = false;
+	gbCampaignMapFlag = CMAP_NONE;
 }
 
 void DrawCampaignMap()
