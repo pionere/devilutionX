@@ -1568,8 +1568,6 @@ static void MonStartDelay(int mnum, int len)
 {
 	MonsterStruct* mon;
 
-	// assert(len > 0);
-
 	mon = &monsters[mnum];
 	mon->_mVar2 = len; // DELAY_TICK : length of the delay
 	mon->_mmode = MM_DELAY;
