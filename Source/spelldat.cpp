@@ -26,6 +26,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #endif
 
 /*
+	reused icons :  4
 	unused icons :	// hellfire only
 					51 - SPL_MANA/MAGI
 					50 - SPL_JESTER
@@ -72,6 +73,7 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_POISON*/      {        22, STYPE_MAGIC,          25, "Poison",                18,        28,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     70, IS_CAST2,    MIS_POISON,             1,       18,        30,        70,     24500,         30, ALIGN64 },
 /*SPL_WIND*/        {        24, STYPE_MAGIC,          22, "Wind",                  10,        18,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     44, IS_CAST2,    MIS_WIND,               2,       12,        40,        80,     12500,         35, ALIGN64 },
 /*SPL_SHROUD*/      {        28, STYPE_MAGIC,          19, "Shroud",                20,        28,         18, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     36, IS_CAST2,    MIS_SHROUD,             1,       18,        20,        60,     20500,         80, ALIGN64 },
+/*SPL_SWAMP*/       {        21, STYPE_MAGIC,           4, "Swamp",                 30,        40,         24, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     36, IS_CAST2,    MIS_SWAMPC,             1,       16,        20,        60,     18500,         70, ALIGN64 },
 /*SPL_GUARDIAN*/    {        50, STYPE_FIRE,           18, "Guardian",               9,        16,         12, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     61, IS_CAST2,    MIS_GUARDIAN,           4,       30,        16,        32,     14000,         90, ALIGN64 },
 /*SPL_GOLEM*/       {       100, STYPE_FIRE,           21, "Golem",                 11,        18,         10, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     81, IS_CAST2,    MIS_GOLEM,             10,       60,        16,        32,     18000,        200, ALIGN64 },
 /*SPL_STONE*/       {        60, STYPE_MAGIC,           8, "Stone Curse",            6,        10,          6, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     51, IS_CAST2,    MIS_STONE,              4,       40,         8,        16,     12000,        160, ALIGN64 },

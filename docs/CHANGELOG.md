@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - separate resistance against acid
 - slash/blunt/puncture damage types with corresponding resistances
 - added Whiplash/Wallop/Swipe/Multi Shot/Pierce Shot/Far Shot/Point Blank/Charge skills
-- added Attract/Meteor/Bloodboil/Poison/Wind/Shroud spells
+- added Attract/Meteor/Bloodboil/Poison/Wind/Shroud/Swamp spells
 - skills/spells have experience counters
 - books give skill experience instead of a whole level
 - rebalanced spells (some spells removed, others damage modified, runes fire multiple times, etc...)

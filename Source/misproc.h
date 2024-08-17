@@ -100,6 +100,7 @@ void MI_LightningC(int mi);
 void MI_Lightning(int mi);
 void MI_BloodBoilC(int mi);
 void MI_BloodBoil(int mi);
+void MI_SwampC(int mi);
 void MI_Bleed(int mi);
 void MI_Portal(int mi);
 void MI_Flash(int mi);

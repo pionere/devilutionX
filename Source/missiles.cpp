@@ -2360,7 +2360,8 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	}
 	//mis->_mixvel = 0;
 	//mis->_miyvel = 0;
-	mis->_miRange = mis->_miAnimLen;
+	// assert(mis->_miAnimFrameLen == 1);
+	mis->_miRange = mis->_miAnimLen/* * mis->_miAnimFrameLen*/;
 	return MIRES_DONE;
 }
 
@@ -3980,20 +3981,74 @@ void MI_BloodBoilC(int mi)
 	int mx, my;
 
 	mis = &missile[mi];
-	assert(misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0] == 16);
-	if ((mis->_miVar1++ & 7) == 0) {
+	// assert(mis->_miType == MIS_BLOODBOILC || mis->_miType == MIS_SWAMPC);
+	if ((mis->_miVar1++ & (mis->_miType == MIS_BLOODBOILC ? 7 : 3)) == 0) {
 		mis->_miVar2++;
 		if (mis->_miVar2 >= lengthof(BloodBoilLocs))
 			mis->_miVar2 = 0;
 		mx = mis->_mix + BloodBoilLocs[mis->_miVar2][0];
 		my = mis->_miy + BloodBoilLocs[mis->_miVar2][1];
 		if ((nMissileTable[dPiece[mx][my]] | dObject[mx][my]) == 0) {
-			AddMissile(mx, my, 0, 0, 0, MIS_BLOODBOIL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(mx, my, -1, 0, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 		}
 	}
 	mis->_miRange--;
 	if (mis->_miRange < 0)
 		mis->_miDelFlag = TRUE;
+}
+
+void MI_SwampC(int mi)
+{
+	MissileStruct *mis, *bmis;
+	int i, bmi, dx, dy, mx, my, mnum, pnum;
+	bool matches[16][16] = { false };
+	const int bx = 8 - 2; const int by = 8 - 2;
+
+	mis = &missile[mi];
+	for (i = 0; i < nummissiles; i++) {
+		bmi = missileactive[i];
+		bmis = &missile[bmi];
+		if (bmis->_miType != MIS_SWAMPC)
+			continue;
+		if (bmis->_miSpllvl < mis->_miSpllvl)
+			continue;
+		if (bmis->_miSpllvl == mis->_miSpllvl && mi <= bmi)
+			continue;
+		dx = bmis->_mix - mis->_mix;
+		dy = bmis->_miy - mis->_miy;
+		if (dx < -4 || dx > 4 || dy < -4 || dy > 4)
+			continue;
+		dx += bx;
+		dy += by;
+		for (int n = 0; n < lengthof(BloodBoilLocs); n++) {
+			mx = dx + BloodBoilLocs[n][0];
+			my = dy + BloodBoilLocs[n][1];
+			matches[mx][my] = true;
+		}
+	}
+
+	for (int n = 0; n < lengthof(BloodBoilLocs); n++) {
+		dx = BloodBoilLocs[n][0];
+		dy = BloodBoilLocs[n][1];
+		if (matches[dx + bx][dy + by])
+			continue;
+		mx = mis->_mix + dx;
+		my = mis->_miy + dy;
+
+		mnum = dMonster[mx][my];
+		if (mnum < 0) {
+			mnum = -(mnum + 1);
+			MonHinder(mnum, mis->_miSpllvl, mis->_miVar1);
+		} else {
+			pnum = dPlayer[mx][my];
+			if (pnum < 0) {
+				pnum = -(pnum + 1);
+				PlrHinder(pnum, mis->_miSpllvl, mis->_miVar1);
+			}
+		}
+	}
+
+	MI_BloodBoilC(mi);
 }
 
 void MI_BloodBoil(int mi)

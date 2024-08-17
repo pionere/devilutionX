@@ -2886,6 +2886,28 @@ void ClrPlrPath(int pnum)
 	//memset(plr._pWalkpath, DIR_NONE, sizeof(plr._pWalkpath));
 }
 
+void PlrHinder(int pnum, int spllvl, unsigned tick)
+{
+	int effect;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrHinder: illegal player %d", pnum);
+	}
+	if ((plr._pmode < PM_WALK || plr._pmode > PM_WALK2 /*|| plr._pAnimFrame == plr._pAnimLen*/) && plr._pmode != PM_CHARGE)
+		return;
+	effect = spllvl * 4 - plr._pLevel;
+	effect = effect > 10 ? 2 : (effect > 0 ? 3 : (effect > -10 ? 4 : 0));
+	if (effect != 0 && ((unsigned)tick % (unsigned)effect) == 0) {
+		if (plr._pmode != PM_CHARGE) {
+			plr._pAnimCnt--;
+			plr._pVar6 -= plr._pVar4; // WALK_XOFF <- WALK_XVEL
+			plr._pVar7 -= plr._pVar5; // WALK_YOFF <- WALK_YVEL
+			plr._pVar8--; // WALK_TICK
+		} else {
+			PlrStartStand(pnum);
+		}
+	}
+}
+
 void MissToPlr(int mi, bool hit)
 {
 	MissileStruct* mis;

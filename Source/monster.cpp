@@ -4629,6 +4629,36 @@ void SyncMonsterAnim(int mnum)
 	mon->_mAnimLen = mon->_mAnims[anim].maFrames;
 }
 
+void MonHinder(int mnum, int spllvl, unsigned tick)
+{
+	MonsterStruct* mon;
+	int effect;
+	if ((unsigned)mnum >= MAXMONSTERS) {
+		dev_fatal("MonHinder: Invalid monster %d", mnum);
+	}
+	mon = &monsters[mnum];
+	if ((mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2) && mon->_mmode != MM_CHARGE)
+		return;
+
+	effect = spllvl * 6 - mon->_mLevel;
+	effect = effect >= 6 ? 2 : (effect > 0 ? 3 : (effect >= -6 ? 4 : 0));
+	if (effect != 0 && ((unsigned)tick % (unsigned)effect) == 0) {
+		if (mon->_mmode != MM_CHARGE) {
+			mon->_mAnimCnt--;
+			mon->_mVar6 -= mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
+			mon->_mVar7 -= mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
+		} else {
+			AssertFixMonLocation(mnum);
+			// assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
+			dMonster[mon->_mx][mon->_my] = mnum + 1;
+			// assert(dPlayer[mon->_mx][mon->_my] == 0);
+			// assert(!(mon->_mFlags & MFLAG_HIDDEN));
+			//ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
+			MonStartStand(mnum);
+		}
+	}
+}
+
 void MissToMonst(int mi)
 {
 	MissileStruct* mis;

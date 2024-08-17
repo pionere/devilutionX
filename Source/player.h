@@ -55,6 +55,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype);
 void PlrDecMana(int pnum, int mana);
 void ProcessPlayers();
 void ClrPlrPath(int pnum);
+void PlrHinder(int pnum, int spllvl, unsigned tick);
 void MissToPlr(int mi, bool hit);
 bool PosOkActor(int x, int y);
 bool PosOkPlayer(int pnum, int x, int y);
