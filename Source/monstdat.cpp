@@ -217,7 +217,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_BYCLPS*/   {     800, "Monsters\\Byclps\\Byclps%c.CL2",   "Monsters\\newsfx\\Biclop%c%d.WAV",  { 10, 11, 16,  6, 16,  0 }, { 2, 1, 1, 1, 2, 0 },     180, FALSE,              8,        0 }, // moImage = 974 ?
 /*MOFILE_FLESH*/    {     800, "Monsters\\Flesh\\Flesh%c.CL2",     "Monsters\\newsfx\\FleshT%c%d.WAV",  { 15, 24, 15,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     164, TRUE,               8,        0 }, // moImage = 1711 ?
 /*MOFILE_REAPER*/   {     800, "Monsters\\Reaper\\Reap%c.CL2",     "Monsters\\newsfx\\Reaper%c%d.WAV",  { 12, 10, 14,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     180, FALSE,              8,        0 }, // moImage = 1546 ?
-/*MOFILE_NKR*/      {    1200, "Monsters\\Nkr\\Nkr%c.CL2",         "Monsters\\newsfx\\Nakrul%c%d.WAV",  {  2,  6, 16,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     226, FALSE,              7,       10 }, // moImage = 2763 ? moSndSpecial was TRUE, but unused
+/*MOFILE_NKR*/      {    1200, "Monsters\\Nkr\\Nkr%c.CL2",         "Monsters\\newsfx\\Nakrul%c%d.WAV",  {  2,  6, 16,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     226, FALSE,              7,        0 }, // moImage = 2763 ? moSndSpecial was TRUE, but unused
 #endif
 	// clang-format on
 };

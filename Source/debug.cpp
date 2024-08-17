@@ -106,6 +106,13 @@ static void PrintText(const char* text, char lineSep, int limit)
 
 	fclose(textFile);
 }
+/* copy-paste from monster.cpp */
+static bool IsSkel(int mt)
+{
+	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
+		|| (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
+		|| (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
+}
 
 void ValidateData()
 {
@@ -257,6 +264,7 @@ void ValidateData()
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonHitByMon
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonHitByMon and MonHitByPlr
 	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
+	assert(monsterdata[MT_GBAT].mAI.aiType == AI_BAT); // required by MAI_Bat
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
@@ -288,6 +296,57 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
+		if (lengthof(monfiledata) <= md.moFileNum)
+			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
+		BYTE afnumReq = 0, altDamReq = 0;
+		if (md.mAI.aiType == AI_ROUNDRANGED || md.mAI.aiType == AI_ROUNDRANGED2 || (md.mAI.aiType == AI_RANGED && md.mAI.aiParam2) // required for MonStartRSpAttack / MonDoRSpAttack
+#ifdef HELLFIRE
+		  || md.mAI.aiType == AI_HORKDMN
+#endif
+			) {
+			afnumReq |= 2;
+		}
+		if (md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_ROUND || md.mAI.aiType == AI_GARBUD || md.mAI.aiType == AI_SCAV || md.mAI.aiType == AI_GARG) { // required for MonStartSpAttack / MonDoSpAttack
+			afnumReq |= 1;
+		}
+		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_GOLUM || IsSkel(i)) && monfiledata[md.moFileNum].moSndSpecial) { // required for MonStartSpStand
+			afnumReq |= 2;
+		}
+		if (md.mAI.aiType == AI_RHINO || md.mAI.aiType == AI_SNAKE) { // required for MissToMonst
+			altDamReq |= 1; // requires mMaxDamage2
+		}
+		if (afnumReq != 0) {
+			if (afnumReq & 2) {
+				// moAFNum2 required
+				if (monfiledata[md.moFileNum].moAFNum2 == 0) {
+					app_fatal("moAFNum2 is not set for %s (%d).", md.mName, i);
+				}
+			}
+			if (afnumReq & 1) {
+				// moAFNum2 optional
+				if (monfiledata[md.moFileNum].moAFNum2 != 0) {
+					altDamReq |= 3; // requires mMaxDamage2 and mHit2
+				}
+			}
+		} else {
+			if (monfiledata[md.moFileNum].moAFNum2 != 0)
+				LogErrorF("moAFNum2 is set for %s (%d), but it is not used.", md.mName, i);
+		}
+		if (altDamReq != 0) {
+			if (altDamReq & 1) {
+				if (md.mMaxDamage2 == 0)
+					app_fatal("mMaxDamage2 is not set for %s (%d).", md.mName, i);
+			}
+			if (altDamReq & 2) {
+				if (md.mHit2 == 0)
+					app_fatal("mHit2 is not set for %s (%d).", md.mName, i);
+			}
+		} else {
+			if (md.mHit2 != 0)
+				LogErrorF("mHit2 is set for %s (%d), but it is not used.", md.mName, i);
+			if (md.mMaxDamage2 != 0)
+				LogErrorF("mMaxDamage2 is set (%d) for %s (%d), but it is not used.", md.mMaxDamage2, md.mName, i);
+		}
 		if (md.mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
 		if (md.mHit2 > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
@@ -342,6 +401,8 @@ void ValidateData()
 			app_fatal("Too long(%d) attack animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL] >= SQUELCH_LOW)
 			app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_SPECIAL] == 0 && md.moAFNum2 != 0)
+			app_fatal("moAFNum2 is set for %s (%d), but it has no special animation.", md.moGfxFile, i);
 	}
 #endif
 	// umt checks for GetLevelMTypes
