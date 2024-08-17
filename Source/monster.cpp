@@ -2927,7 +2927,7 @@ static bool MonDestWalk(int mnum)
 		md = FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, path);
 		if (md > 0) { // found path to the enemy -> go
 			md = path[0];
-		} else if (md != 0) { // cound not find path to the enemy -> just go in its generic direction
+		} else if (md != 0) { // could not find path to the enemy -> just go in its generic direction
 			md = currEnemyInfo._meLastDir;
 		} else { // enemy disappeared -> walk around randomly
 			md = random_(145, NUM_DIRS);

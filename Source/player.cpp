@@ -2895,12 +2895,12 @@ void MissToPlr(int mi, bool hit)
 	bool ret;
 
 	if ((unsigned)mi >= MAXMISSILES) {
-		dev_fatal("MissToPlr: Invalid missile %d", mi);
+		dev_fatal("MissToPlr: illegal missile %d", mi);
 	}
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("MissToPlr: Invalid player %d", pnum);
+		dev_fatal("MissToPlr: illegal player %d", pnum);
 	}
 	//dPlayer[plr._px][plr._py] = pnum + 1;
 	/*assert(plr._pfutx == plr._px);
