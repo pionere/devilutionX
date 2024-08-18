@@ -162,7 +162,7 @@ typedef struct ItemFileData {
 	int idSFX;          // sounds effect of dropping the item on ground (_sfx_id).
 	int iiSFX;          // sounds effect of placing the item in the inventory (_sfx_id).
 	int iAnimLen;       // item drop animation length
-	ALIGNMENT64(2)
+	ALIGNMENT64(3)
 } ItemFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -192,7 +192,7 @@ typedef struct ItemData {
 	BYTE iMaxAC;
 	BYTE iDurability;
 	int iValue;
-	ALIGNMENT(5, 3)
+	ALIGNMENT(5, 4)
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -493,7 +493,7 @@ typedef struct MissileData {
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
-	ALIGNMENT(2, 7)
+	ALIGNMENT32(2)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -777,7 +777,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
-	ALIGNMENT(6, 1)
+	ALIGNMENT(6, 2)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -906,7 +906,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(8, 5)
+	ALIGNMENT(8, 6)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
