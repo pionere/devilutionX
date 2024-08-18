@@ -1976,14 +1976,12 @@ static void DRLG_L1PlaceThemeRooms()
 		if (!fit)
 			continue;
 		// create the room
-		int w = roomRight - roomLeft + 1;
-		int h = roomBottom - roomTop + 1;
-		w += 2;
-		h += 2;
+		int w = (roomRight + 1) - (roomLeft - 1) + 1;
+		int h = (roomBottom + 1) - (roomTop - 1) + 1;
 		themes[numthemes]._tsx1 = roomLeft - 1;
 		themes[numthemes]._tsy1 = roomTop - 1;
-		themes[numthemes]._tsx2 = roomLeft + w - 2;
-		themes[numthemes]._tsy2 = roomTop + h - 2;
+		themes[numthemes]._tsx2 = roomLeft - 1 + w - 1;
+		themes[numthemes]._tsy2 = roomTop - 1 + h - 1;
 		numthemes++;
 		if (numthemes == lengthof(themes))
 			break;
