@@ -829,7 +829,7 @@ Mix_Audio* Mix_LoadWAV_RW(Mix_RWops* src, SDL_bool stream)
 #ifdef FULL // SELF_CONV
     SDL_AudioCVT wavecvt;
 #endif
-    int audioLength;
+    size_t audioLength;
 #ifdef FULL // WAV_CHECK
     /* rcg06012001 Make sure src is valid */
     if (!src) {
