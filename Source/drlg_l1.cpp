@@ -1974,10 +1974,12 @@ static void DRLG_L1PlaceThemeRooms()
 			}
 		}
 		if (!fit)
-			continue;
+			continue; // room is too small or incomplete
 		// create the room
 		int w = (roomRight + 1) - (roomLeft - 1) + 1;
 		int h = (roomBottom + 1) - (roomTop - 1) + 1;
+		if (w * h > 100)
+			continue; // room is too large
 		themes[numthemes]._tsx1 = roomLeft - 1;
 		themes[numthemes]._tsy1 = roomTop - 1;
 		themes[numthemes]._tsx2 = roomLeft - 1 + w - 1;
