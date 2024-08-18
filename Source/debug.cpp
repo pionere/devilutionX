@@ -114,10 +114,75 @@ static bool IsSkel(int mt)
 		|| (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
 }
 
-void ValidateData()
+static BYTE GetUniqueItemPower(const UniqItemData& ui, int index)
+{
+	switch (index) {
+	case 1: return ui.UIPower1;
+	case 2: return ui.UIPower2;
+	case 3: return ui.UIPower3;
+	case 4: return ui.UIPower4;
+	case 5: return ui.UIPower5;
+	case 6: return ui.UIPower6;
+	default: ASSUME_UNREACHABLE; return 0;
+	}
+}
+
+static int GetUniqueItemParamA(const UniqItemData& ui, int index)
+{
+	switch (index) {
+	case 1: return ui.UIParam1a;
+	case 2: return ui.UIParam2a;
+	case 3: return ui.UIParam3a;
+	case 4: return ui.UIParam4a;
+	case 5: return ui.UIParam5a;
+	case 6: return ui.UIParam6a;
+	default: ASSUME_UNREACHABLE; return 0;
+	}
+}
+
+static int GetUniqueItemParamB(const UniqItemData& ui, int index)
+{
+	switch (index) {
+	case 1: return ui.UIParam1b;
+	case 2: return ui.UIParam2b;
+	case 3: return ui.UIParam3b;
+	case 4: return ui.UIParam4b;
+	case 5: return ui.UIParam5b;
+	case 6: return ui.UIParam6b;
+	default: ASSUME_UNREACHABLE; return 0;
+	}
+}
+
+static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 {
 	int i;
+	for (i = 1; i < 6; i++) {
+		if (pow == IPL_STR && GetUniqueItemPower(ui, i) == IPL_NOMINSTR)
+			return false;
+	}
+	for (i = 0; i < NUM_IDI; i++) {
+		const ItemData& ids = AllItemsList[i];
+		if (ids.iUniqType == ui.UIUniqType) {
+			int minv;
+			switch (pow) {
+			case IPL_STR: minv = ids.iMinStr; break;
+			case IPL_MAG: minv = ids.iMinMag; break;
+			case IPL_DEX: minv = ids.iMinDex; break;
+			default:ASSUME_UNREACHABLE; break;
+			}
+			if (minv != 0)
+				return true;
+		}
+	}
+	return false;
+}
 
+
+void ValidateData()
+{
+#ifdef DEBUG_DATA
+	int i;
+#endif
 #if DEBUG_MODE
 	// dvlnet
 	{
@@ -492,7 +557,7 @@ void ValidateData()
 		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
 		if (um.mMaxDamage == 0 && monsterdata[um.mtype].mMaxDamage != 0)
-			if (um.mQuestId != Q_INVALID)
+			if (um.mAI.aiType != AI_LACHDAN)
 				app_fatal("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
 			else
 				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
@@ -818,15 +883,17 @@ void ValidateData()
 				(pres->PLPower == IPL_FIRERES || pres->PLPower == IPL_LIGHTRES || pres->PLPower == IPL_MAGICRES || pres->PLPower == IPL_ACIDRES)) {
 				app_fatal("IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES and IPL_ALLRES might be set for the same item.");
 			}
-			if (sufs->PLPower == IPL_TOHIT && pres->PLPower == IPL_TOHIT_DAMP) {
-				app_fatal("IPL_TOHIT_DAMP and IPL_TOHIT might be set for the same item.");
-			}
-			if (pres->PLPower == IPL_TOHIT && sufs->PLPower == IPL_TOHIT_DAMP) {
-				app_fatal("IPL_TOHIT and IPL_TOHIT_DAMP might be set for the same item.");
+			if ((pres->PLPower == IPL_TOHIT || pres->PLPower == IPL_TOHIT_DAMP) &&
+				(sufs->PLPower == IPL_TOHIT || sufs->PLPower == IPL_TOHIT_DAMP)) {
+				app_fatal("IPL_TOHIT/IPL_TOHIT_DAMP might be set for the same item.");
 			}
 			if ((pres->PLPower == IPL_DAMP || pres->PLPower == IPL_TOHIT_DAMP || pres->PLPower == IPL_CRYSTALLINE) &&
 				(sufs->PLPower == IPL_DAMP || sufs->PLPower == IPL_TOHIT_DAMP || sufs->PLPower == IPL_CRYSTALLINE)) {
 				app_fatal("IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE might be set for the same item.");
+			}
+			if ((pres->PLPower == IPL_SETAC || pres->PLPower == IPL_ACMOD) &&
+				(sufs->PLPower == IPL_SETAC || sufs->PLPower == IPL_ACMOD)) {
+				app_fatal("IPL_SETAC/IPL_ACMOD might be set for the same item.");
 			}
 		}
 	}
@@ -868,255 +935,94 @@ void ValidateData()
 	// unique items
 	for (i = 0; i < NUM_UITEM; i++) {
 		const UniqItemData& ui = UniqueItemList[i];
-		if (ui.UIPower1 == IPL_INVALID)
-			app_fatal("Unique item '%s' %d does not have any affix", ui.UIName, i);
-		//if (ui.UIPower1 != IPL_INVALID) {
-			if (ui.UIPower1 == ui.UIPower2) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs2.", ui.UIName, i);
+		for (int n = 1; n <= 6; n++) {
+			BYTE pow = GetUniqueItemPower(ui, n);
+			if (pow != IPL_INVALID) {
+				for (int m = n + 1; m <= 6; m++) {
+					if (GetUniqueItemPower(ui, m) == pow)
+						app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else {
+				if (n == 1)
+					app_fatal("Unique item '%s' %d does not have any affix", ui.UIName, i);
+				for (int m = n + 1; m <= 6; m++) {
+					if (GetUniqueItemPower(ui, m) != IPL_INVALID)
+						app_fatal("Unique item '%s' %d ignores its set affix%d, because UIPower%d is IPL_INVALID.", ui.UIName, i);
+				}
 			}
-			if (ui.UIPower1 == ui.UIPower3) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs3.", ui.UIName, i);
-			}
-			if (ui.UIPower1 == ui.UIPower4) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs4.", ui.UIName, i);
-			}
-			if (ui.UIPower1 == ui.UIPower5) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs5.", ui.UIName, i);
-			}
-			if (ui.UIPower1 == ui.UIPower6) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 1vs6.", ui.UIName, i);
-			}
-		//}
-		if (ui.UIPower2 != IPL_INVALID) {
-			if (ui.UIPower2 == ui.UIPower3) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs3.", ui.UIName, i);
-			}
-			if (ui.UIPower2 == ui.UIPower4) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs4.", ui.UIName, i);
-			}
-			if (ui.UIPower2 == ui.UIPower5) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs5.", ui.UIName, i);
-			}
-			if (ui.UIPower2 == ui.UIPower6) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 2vs6.", ui.UIName, i);
-			}
-		} else {
-			if (ui.UIPower3 != IPL_INVALID || ui.UIPower4 != IPL_INVALID || ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
-				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower2 is IPL_INVALID.", ui.UIName, i);
-		}
-		if (ui.UIPower3 != IPL_INVALID) {
-			if (ui.UIPower3 == ui.UIPower4) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs4.", ui.UIName, i);
-			}
-			if (ui.UIPower3 == ui.UIPower5) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs5.", ui.UIName, i);
-			}
-			if (ui.UIPower3 == ui.UIPower6) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 3vs6.", ui.UIName, i);
-			}
-		} else {
-			if (ui.UIPower4 != IPL_INVALID || ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
-				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower3 is IPL_INVALID.", ui.UIName, i);
-		}
-		if (ui.UIPower4 != IPL_INVALID) {
-			if (ui.UIPower4 == ui.UIPower5) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 4vs5.", ui.UIName, i);
-			}
-			if (ui.UIPower4 == ui.UIPower6) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 4vs6.", ui.UIName, i);
-			}
-		} else {
-			if (ui.UIPower5 != IPL_INVALID || ui.UIPower6 != IPL_INVALID)
-				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower4 is IPL_INVALID.", ui.UIName, i);
-		}
-		if (ui.UIPower5 != IPL_INVALID) {
-			if (ui.UIPower5 == ui.UIPower6) {
-				app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, 5vs6.", ui.UIName, i);
-			}
-		} else {
-			if (ui.UIPower6 != IPL_INVALID)
-				app_fatal("Unique item '%s' %d ignores its set affix, because UIPower5 is IPL_INVALID.", ui.UIName, i);
-		}
-		if (ui.UIPower1 == IPL_ATTRIBS || ui.UIPower2 == IPL_ATTRIBS || ui.UIPower3 == IPL_ATTRIBS || ui.UIPower4 == IPL_ATTRIBS || ui.UIPower5 == IPL_ATTRIBS || ui.UIPower6 == IPL_ATTRIBS) {
-			if ((ui.UIPower1 == IPL_STR || ui.UIPower2 == IPL_STR || ui.UIPower3 == IPL_STR || ui.UIPower4 == IPL_STR || ui.UIPower5 == IPL_STR || ui.UIPower6 == IPL_STR) ||
-			    (ui.UIPower1 == IPL_MAG || ui.UIPower2 == IPL_MAG || ui.UIPower3 == IPL_MAG || ui.UIPower4 == IPL_MAG || ui.UIPower5 == IPL_MAG || ui.UIPower6 == IPL_MAG) ||
-			    (ui.UIPower1 == IPL_DEX || ui.UIPower2 == IPL_DEX || ui.UIPower3 == IPL_DEX || ui.UIPower4 == IPL_DEX || ui.UIPower5 == IPL_DEX || ui.UIPower6 == IPL_DEX) ||
-				(ui.UIPower1 == IPL_VIT || ui.UIPower2 == IPL_VIT || ui.UIPower3 == IPL_VIT || ui.UIPower4 == IPL_VIT || ui.UIPower5 == IPL_VIT || ui.UIPower6 == IPL_VIT)) {
-				app_fatal("SaveItemPower does not support IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT modifiers at the same time on '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_ALLRES || ui.UIPower2 == IPL_ALLRES || ui.UIPower3 == IPL_ALLRES || ui.UIPower4 == IPL_ALLRES || ui.UIPower5 == IPL_ALLRES || ui.UIPower6 == IPL_ALLRES) {
-			if ((ui.UIPower1 == IPL_FIRERES || ui.UIPower2 == IPL_FIRERES || ui.UIPower3 == IPL_FIRERES || ui.UIPower4 == IPL_FIRERES || ui.UIPower5 == IPL_FIRERES || ui.UIPower6 == IPL_FIRERES) ||
-			    (ui.UIPower1 == IPL_LIGHTRES || ui.UIPower2 == IPL_LIGHTRES || ui.UIPower3 == IPL_LIGHTRES || ui.UIPower4 == IPL_LIGHTRES || ui.UIPower5 == IPL_LIGHTRES || ui.UIPower6 == IPL_LIGHTRES) ||
-			    (ui.UIPower1 == IPL_MAGICRES || ui.UIPower2 == IPL_MAGICRES || ui.UIPower3 == IPL_MAGICRES || ui.UIPower4 == IPL_MAGICRES || ui.UIPower5 == IPL_MAGICRES || ui.UIPower6 == IPL_MAGICRES) ||
-				(ui.UIPower1 == IPL_ACIDRES || ui.UIPower2 == IPL_ACIDRES || ui.UIPower3 == IPL_ACIDRES || ui.UIPower4 == IPL_ACIDRES || ui.UIPower5 == IPL_ACIDRES || ui.UIPower6 == IPL_ACIDRES)) {
-				app_fatal("SaveItemPower does not support IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES modifiers at the same time on '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_TOHIT || ui.UIPower2 == IPL_TOHIT || ui.UIPower3 == IPL_TOHIT || ui.UIPower4 == IPL_TOHIT || ui.UIPower5 == IPL_TOHIT || ui.UIPower6 == IPL_TOHIT) {
-			if (ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) {
-				app_fatal("SaveItemPower does not support IPL_TOHIT and IPL_TOHIT_DAMP modifiers at the same time on '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_DAMP || ui.UIPower2 == IPL_DAMP || ui.UIPower3 == IPL_DAMP || ui.UIPower4 == IPL_DAMP || ui.UIPower5 == IPL_DAMP || ui.UIPower6 == IPL_DAMP) {
-			if ((ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) ||
-			    (ui.UIPower1 == IPL_CRYSTALLINE || ui.UIPower2 == IPL_CRYSTALLINE || ui.UIPower3 == IPL_CRYSTALLINE || ui.UIPower4 == IPL_CRYSTALLINE || ui.UIPower5 == IPL_CRYSTALLINE || ui.UIPower6 == IPL_CRYSTALLINE)) {
-				app_fatal("SaveItemPower does not support IPL_DAMP and IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_TOHIT_DAMP || ui.UIPower2 == IPL_TOHIT_DAMP || ui.UIPower3 == IPL_TOHIT_DAMP || ui.UIPower4 == IPL_TOHIT_DAMP || ui.UIPower5 == IPL_TOHIT_DAMP || ui.UIPower6 == IPL_TOHIT_DAMP) {
-			if (ui.UIPower1 == IPL_CRYSTALLINE || ui.UIPower2 == IPL_CRYSTALLINE || ui.UIPower3 == IPL_CRYSTALLINE || ui.UIPower4 == IPL_CRYSTALLINE || ui.UIPower5 == IPL_CRYSTALLINE || ui.UIPower6 == IPL_CRYSTALLINE) {
-				app_fatal("SaveItemPower does not support IPL_TOHIT_DAMP and IPL_CRYSTALLINE modifiers at the same time on '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_FASTATTACK) {
-			if (ui.UIParam1a < 1 || ui.UIParam1b > 4) {
-				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_FASTRECOVER) {
-			if (ui.UIParam1a < 1 || ui.UIParam1b > 3) {
-				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_FASTCAST) {
-			if (ui.UIParam1a < 1 || ui.UIParam1b > 3) {
-				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_FASTWALK) {
-			if (ui.UIParam1a < 1 || ui.UIParam1b > 3) {
-				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower1 == IPL_DUR) {
-			if (ui.UIParam1b > 200) {
-				app_fatal("Invalid UIParam1 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower2 == IPL_FASTATTACK) {
-			if (ui.UIParam2a < 1 || ui.UIParam2b > 4) {
-				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower2 == IPL_FASTRECOVER) {
-			if (ui.UIParam2a < 1 || ui.UIParam2a > 3) {
-				app_fatal("Invalid UIParam2a set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower2 == IPL_FASTCAST) {
-			if (ui.UIParam2a < 1 || ui.UIParam2b > 3) {
-				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower2 == IPL_FASTWALK) {
-			if (ui.UIParam2a < 1 || ui.UIParam2b > 3) {
-				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower2 == IPL_DUR) {
-			if (ui.UIParam2b > 200) {
-				app_fatal("Invalid UIParam2 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower3 == IPL_FASTATTACK) {
-			if (ui.UIParam3a < 1 || ui.UIParam3b > 4) {
-				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower3 == IPL_FASTRECOVER) {
-			if (ui.UIParam3a < 1 || ui.UIParam3b > 3) {
-				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower3 == IPL_FASTCAST) {
-			if (ui.UIParam3a < 1 || ui.UIParam3b > 3) {
-				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower3 == IPL_FASTWALK) {
-			if (ui.UIParam3a < 1 || ui.UIParam3b > 3) {
-				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower3 == IPL_DUR) {
-			if (ui.UIParam3b > 200) {
-				app_fatal("Invalid UIParam3 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower4 == IPL_FASTATTACK) {
-			if (ui.UIParam4a < 1 || ui.UIParam4b > 4) {
-				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower4 == IPL_FASTRECOVER) {
-			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
-				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower4 == IPL_FASTCAST) {
-			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
-				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower4 == IPL_FASTWALK) {
-			if (ui.UIParam4a < 1 || ui.UIParam4b > 3) {
-				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower4 == IPL_DUR) {
-			if (ui.UIParam4b > 200) {
-				app_fatal("Invalid UIParam4 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower5 == IPL_FASTATTACK) {
-			if (ui.UIParam5a < 1 || ui.UIParam5b > 4) {
-				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower5 == IPL_FASTRECOVER) {
-			if (ui.UIParam5a < 1 || ui.UIParam5b > 3) {
-				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower5 == IPL_FASTCAST) {
-			if (ui.UIParam5a < 1 || ui.UIParam5b > 3) {
-				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower5 == IPL_FASTWALK) {
-			if (ui.UIParam5a < 1 || ui.UIParam5b > 3) {
-				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower5 == IPL_DUR) {
-			if (ui.UIParam5b > 200) {
-				app_fatal("Invalid UIParam5 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower6 == IPL_FASTATTACK) {
-			if (ui.UIParam6a < 1 || ui.UIParam6b > 4) {
-				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower6 == IPL_FASTRECOVER) {
-			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
-				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower6 == IPL_FASTCAST) {
-			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
-				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower6 == IPL_FASTWALK) {
-			if (ui.UIParam6a < 1 || ui.UIParam6b > 3) {
-				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
-			}
-		}
-		if (ui.UIPower6 == IPL_DUR) {
-			if (ui.UIParam6b > 200) {
-				app_fatal("Invalid UIParam6 set for '%s' %d.", ui.UIName, i);
+			if (pow == IPL_ATTRIBS) {
+				for (int m = 1; m <= 6; m++) {
+					pow = GetUniqueItemPower(ui, m);
+					if (pow == IPL_STR || pow == IPL_MAG || pow == IPL_DEX || pow == IPL_VIT)
+						app_fatal("SaveItemPower does not support IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else if (pow == IPL_ALLRES) {
+				for (int m = 1; m <= 6; m++) {
+					pow = GetUniqueItemPower(ui, m);
+					if (pow == IPL_FIRERES || pow == IPL_LIGHTRES || pow == IPL_MAGICRES || pow == IPL_ACIDRES)
+						app_fatal("SaveItemPower does not support IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else if (pow == IPL_TOHIT) {
+				for (int m = 1; m <= 6; m++) {
+					pow = GetUniqueItemPower(ui, m);
+					if (pow == IPL_TOHIT_DAMP)
+						app_fatal("SaveItemPower does not support IPL_TOHIT and IPL_TOHIT_DAMP modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else if (pow == IPL_SETDAM && GetUniqueItemParamA(ui, n) == 0 && GetUniqueItemParamB(ui, n) == 0) {
+				for (int m = 1; m <= 6; m++) {
+					pow = GetUniqueItemPower(ui, m);
+					if (pow == IPL_DAMMOD || pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE)
+						app_fatal("SaveItemPower does not support IPL_SETDAM (0) and IPL_DAMMOD/IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else if (pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE) {
+				for (int m = 1; m <= 6; m++) {
+					pow = GetUniqueItemPower(ui, m);
+					if (n != m && (pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE))
+						app_fatal("SaveItemPower does not support IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else if (pow == IPL_SETAC) {
+				for (int m = 1; m <= 6; m++) {
+					pow = GetUniqueItemPower(ui, m);
+					if (pow == IPL_ACMOD)
+						app_fatal("SaveItemPower does not support IPL_SETAC and IPL_ACMOD modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+				}
+			} else if (pow == IPL_FASTATTACK) {
+				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 4)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if (pow == IPL_FASTRECOVER) {
+				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if (pow == IPL_FASTCAST) {
+				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if (pow == IPL_FASTWALK) {
+				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if (pow == IPL_DUR) {
+				if (GetUniqueItemParamA(ui, n) <= 0 || GetUniqueItemParamB(ui, n) > 200)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if ((pow == IPL_STR || pow == IPL_MAG || pow == IPL_DEX) && GetUniqueItemParamA(ui, n) < 0 && HasUniqueItemReq(ui, pow)) {
+				for (int m = 1; m <= 6; m++) {
+					BYTE pw = GetUniqueItemPower(ui, m);
+					if (pow != pw && (pw == IPL_STR || pw == IPL_MAG || pw == IPL_DEX) && GetUniqueItemParamB(ui, m) > 0) {
+						// str/mag/dex +- modifiers
+						for (int ii = i + 1; ii < NUM_UITEM; ii++) {
+							const UniqItemData& oui = UniqueItemList[ii];
+							if (!HasUniqueItemReq(oui, pw))
+								continue;
+							for (int o = 1; o <= 6; o++) {
+								if (GetUniqueItemPower(oui, o) == pow && GetUniqueItemParamB(ui, o) > 0) {
+									for (int p = 1; p <= 6; p++) {
+										if (GetUniqueItemPower(oui, p) == pw && GetUniqueItemParamA(ui, p) < 0) {
+											app_fatal("Unique items '%s' %d and '%s' %d might help each other to equip.", ui.UIName, i, oui.UIName, ii);
+										}
+									}
+									break;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		int n = 0;
@@ -1130,6 +1036,19 @@ void ValidateData()
 #endif // DEBUG_DATA
 	assert(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].iAnimLen == 10); // required by ProcessItems
 #ifdef DEBUG_DATA
+	for (i = 0; i < NUM_IFILE; i++) {
+		const ItemFileData& id = itemfiledata[i];
+		if (id.idSFX != SFX_NONE) {
+			if (id.idSFX >= NUM_SFXS)
+				app_fatal("Invalid idSFX %d for %s (%d)", id.idSFX, id.ifName, i);
+			if ((id.iAnimLen >> 1) < 2)
+				app_fatal("Too short iAnimLen %d for %s (%d)", id.iAnimLen, id.ifName, i); // required by ProcessItems
+		}
+		if (id.iiSFX != SFX_NONE) {
+			if (id.iiSFX >= NUM_SFXS)
+				app_fatal("Invalid iiSFX %d for %s (%d)", id.iiSFX, id.ifName, i);
+		}
+	}
 	// objects
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		const ObjFileData& od = objfiledata[i];
@@ -1299,9 +1218,14 @@ void ValidateData()
 #endif
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
-		if (md.mProc == MI_Misexp || md.mProc == MI_MiniExp) {
+		if (md.mProc == MI_Misexp) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 16 /* lengthof(ExpLight) */);
+			}
+		}
+		if (md.mProc == MI_MiniExp) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
 		if (md.mDrawFlag) {
