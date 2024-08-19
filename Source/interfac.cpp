@@ -229,9 +229,8 @@ void LoadGameLevel(int lvldir)
 	IncProgress(); // "MonsterFX" (7)
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes(); // select monster types and load their fx
-		InitThemes();     // select theme types
+		InitThemes();     // protect themes with dFlags and select theme types
 		IncProgress(); // "Monsters" (8)
-		HoldThemeRooms(); // protect themes with dFlags
 		InitMonsters();   // place monsters
 	} else {
 		InitLvlStores();

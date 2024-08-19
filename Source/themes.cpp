@@ -310,12 +310,41 @@ void InitLvlThemes()
 
 void InitThemes()
 {
-	int i, j;
+	int i, j, x, y, x1, y1, x2, y2;
 
 	// assert(currLvl._dType != DTYPE_TOWN);
 	if (currLvl._dLevelNum >= DLV_HELL4) // there are no themes in hellfire (and on diablo-level)
 		return;
 
+	for (i = 0; i < numthemes; i++) {
+		x1 = themes[i]._tsx1;
+		y1 = themes[i]._tsy1;
+		x2 = themes[i]._tsx2;
+		y2 = themes[i]._tsy2;
+		// convert to subtile-coordinates
+		x1 = DBORDERX + 2 * x1;
+		y1 = DBORDERY + 2 * y1;
+		x2 = DBORDERX + 2 * x2 + 1;
+		y2 = DBORDERY + 2 * y2 + 1;
+		themes[i]._tsx1 = x1;
+		themes[i]._tsy1 = y1;
+		themes[i]._tsx2 = x2;
+		themes[i]._tsy2 = y2;
+		// select transval
+		themes[i]._tsTransVal = dTransVal[x1 + 2][y1 + 2];
+		assert(themes[i]._tsTransVal != 0);
+		// protect themes with dFlags
+		// v = themes[i]._tsTransVal;
+		for (x = x1 + 1; x < x2; x++) {
+			for (y = y1 + 1; y < y2; y++) {
+				// if (dTransVal[x][y] == v) { -- wall?
+					dFlags[x][y] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
+				// }
+			}
+		}
+	}
+
+	// select theme types
 	// TODO: use dType instead
 	_gbShrineFlag = currLvl._dDunType != DGT_CAVES && currLvl._dDunType != DGT_HELL;
 	_gbSkelRoomFlag = _gbShrineFlag && numSkelTypes != 0;
@@ -329,16 +358,6 @@ void InitThemes()
 	_gbTFountainFlag = true;
 	_gbTreasureFlag = true;
 
-	for (i = 0; i < numthemes; i++) {
-		// convert to subtile-coordinates
-		themes[i]._tsx1 = DBORDERX + 2 * themes[i]._tsx1;
-		themes[i]._tsy1 = DBORDERY + 2 * themes[i]._tsy1;
-		themes[i]._tsx2 = DBORDERX + 2 * themes[i]._tsx2 + 1;
-		themes[i]._tsy2 = DBORDERY + 2 * themes[i]._tsy2 + 1;
-		// select transval
-		themes[i]._tsTransVal = dTransVal[themes[i]._tsx1 + 2][themes[i]._tsy1 + 2];
-		assert(themes[i]._tsTransVal != 0);
-	}
 	if (QuestStatus(Q_ZHAR)) {
 		for (i = 0; i < numthemes; i++) {
 			if (SpecialThemeFit(i, THEME_LIBRARY)) {
@@ -352,28 +371,6 @@ void InitThemes()
 			j = ThemeGood[random_(0, lengthof(ThemeGood))];
 			while (!SpecialThemeFit(i, j))
 				j = random_(0, NUM_THEMES);
-		}
-	}
-}
-
-void HoldThemeRooms()
-{
-	int i, x, y, x1, y1, x2, y2;
-	// assert(currLvl._dType != DTYPE_TOWN);
-	// assert(currLvl._dLevelNum < DLV_HELL4 || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
-
-	for (i = numthemes - 1; i >= 0; i--) {
-		x1 = themes[i]._tsx1;
-		y1 = themes[i]._tsy1;
-		x2 = themes[i]._tsx2;
-		y2 = themes[i]._tsy2;
-		// v = themes[i]._tsTransVal;
-		for (x = x1 + 1; x < x2; x++) {
-			for (y = y1 + 1; y < y2; y++) {
-				// if (dTransVal[x][y] == v) { -- wall?
-					dFlags[x][y] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
-				// }
-			}
 		}
 	}
 }
