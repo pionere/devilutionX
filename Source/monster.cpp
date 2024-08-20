@@ -137,6 +137,7 @@ static void (*const AiProc[])(int i) = {
 /*AI_SNOTSPIL*/     &MAI_SnotSpil,
 /*AI_SNAKE*/        &MAI_Snake,
 /*AI_COUNSLR*/      &MAI_Counselor,
+/*AI_MAGE*/         &MAI_Mage,
 /*AI_ROUNDRANGED2*/ &MAI_RoundRanged2,
 /*AI_LAZARUS*/      &MAI_Lazarus,
 /*AI_LAZHELP*/      &MAI_Lazhelp,
@@ -274,6 +275,11 @@ static void InitMonsterGFX(int midx)
 	case MT_BSUCC:
 		LoadMissileGFX(MFILE_SCUBMISC);
 		LoadMissileGFX(MFILE_SCBSEXPC);
+		break;
+	case MT_SMAGE:
+	case MT_OMAGE:
+		LoadMissileGFX(MFILE_MAGEMIS);
+		LoadMissileGFX(MFILE_MAGEEXP);
 		break;
 	case MT_DIABLO:
 		LoadMissileGFX(MFILE_FIREPLAR);
@@ -4052,7 +4058,8 @@ void MAI_Horkdemon(int mnum)
 
 /*
  * AI for monsters using ranged attacks. Uses MIS_FLASH when the target is next to the monster.
- * Attempts to walk in a circle around the target. Uses fade in/out while moving.
+ * Attempts to walk in a circle around the target. Retreats on low hp.
+ * Uses fade in/out while moving.
  *
  * @param mnum: the id of the monster
  * @param aiParam1: the missile type to be launched at the end of the attack animation when the target is far away.
@@ -4109,6 +4116,79 @@ void MAI_Counselor(int mnum)
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		if (--mon->_mgoalvar1 == 0 // RETREAT_DISTANCE
 		 || !MonCallWalk(mnum, OPPOSITE(md))) {
+			mon->_mgoal = MGOAL_NORMAL;
+			MonStartFadein(mnum, true);
+		}
+	} else {
+		assert(mon->_mgoal == MGOAL_MOVE);
+		if (dist >= 2 /*&& mon->_msquelch == SQUELCH_MAX && dTransVal[mon->_mx][mon->_my] == dTransVal[mon->_menemyx][mon->_menemyy]*/
+		 && (--mon->_mgoalvar1 > 4 || (mon->_mgoalvar1 > 0 && !MonDirOK(mnum, md))) // MOVE_DISTANCE
+		 && MonRoundWalk(mnum, md, &mon->_mgoalvar2)) { // MOVE_TURN_DIRECTION
+			;
+		} else {
+			mon->_mgoal = MGOAL_NORMAL;
+			MonStartFadein(mnum, true);
+		}
+	}
+}
+
+/*
+ * AI for monsters using ranged attacks (MIS_MAGE normally, aiParam1 occasionally).
+ * Uses MIS_FLASH when the target is next to the monster.
+ * Attempts to walk in a circle around the target. Might move a bit when the enemy is far away.
+ * Uses fade in/out while moving.
+ *
+ * @param mnum: the id of the monster
+ * @param aiParam1: the missile type to be launched at the end of the attack animation when the target is far away.
+ */
+void MAI_Mage(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	int md, v, dist;
+	if (MON_RELAXED || MON_ACTIVE)
+		return;
+
+	MonEnemyInfo(mnum);
+	// if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+	//	MonstCheckDoors(mon->_mx, mon->_my);
+	md = currEnemyInfo._meLastDir;
+	dist = currEnemyInfo._meRealDist;
+	mon->_mdir = md;
+	if (mon->_mgoal == MGOAL_NORMAL) {
+		v = random_(121, 100);
+		if (dist >= 2) {
+			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
+				MonStartRAttack(mnum, v == (5 * (4 + 10) - 1) ? mon->_mAI.aiParam1 : MIS_MAGE /*mon->_mAI.aiParam2*/);
+			} else if (mon->_msquelch >= SQUELCH_MAX && random_(124, 128) < 39) {
+#if DEBUG
+				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
+					(mon->_mAnims[MA_WALK].maFrames - 1) * mon->_mAnims[MA_WALK].maFrameLen * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+				static_assert((20 - 1) * 1 * 2 + (1 - 1) * 1 * (6 + 4) < SQUELCH_MAX - SQUELCH_LOW, "MAI_Mage might relax with move goal.");
+				mon->_mgoal = MGOAL_MOVE;
+				mon->_mgoalvar1 = 6 + random_low(0, std::min(dist, 4)); // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(130, 2);               // MOVE_TURN_DIRECTION
+				MonStartFadeout(mnum, false);
+			} else if (mon->_msquelch < SQUELCH_MAX && mon->_msquelch >= SQUELCH_MAX - 20 && mon->_mVar1 != MM_DELAY) {
+				static_assert((20 - 1) * 1 * 2 + (1 - 1) * 1 * 2 < SQUELCH_MAX - 20 - SQUELCH_LOW, "MAI_Mage might relax with retreat goal.");
+				mon->_mgoal = MGOAL_RETREAT;
+				mon->_mgoalvar1 = mon->_mAI.aiInt + 1; // RETREAT_DISTANCE
+				MonStartFadeout(mnum, false);
+			}
+		} else {
+			if (mon->_mVar1 == MM_FADEIN) // STAND_PREV_MODE
+				v >>= 1;
+			if (mon->_mVar1 == MM_DELAY || v < 2 * mon->_mAI.aiInt + 20) {
+				MonStartRAttack(mnum, v < 10 ? MIS_FLASH : MIS_MAGE /*mon->_mAI.aiParam2*/);
+			}
+		}
+		if (mon->_mmode == MM_STAND) {
+			v = std::max(1, RandRange(11, 18) - 2 * mon->_mAI.aiInt);
+			MonStartDelay(mnum, v);
+		}
+	} else if (mon->_mgoal == MGOAL_RETREAT) {
+		if (--mon->_mgoalvar1 == 0 // RETREAT_DISTANCE
+		 || !MonCallWalk(mnum, random_(130, NUM_DIRS))) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartFadein(mnum, true);
 		}

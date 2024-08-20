@@ -1895,6 +1895,28 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: the target player
+ * Var2: turn timer
+ */
+int AddMage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	constexpr int MAX_BRIGHTNESS = 10;
+	// (micaster == MST_MONSTER);
+	// assert(misource < MAXMONSTERS);
+	mis = &missile[mi];
+	mis->_miVar1 = dPlayer[dx][dy];
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(4));
+	mis->_miUniqTrans = MAX_BRIGHTNESS;
+	mis->_miRange = 255;
+	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddMage needs at least light-radius of 8.");
+	mis->_miLid = AddLight(sx, sy, 8);
+	return MIRES_DONE;
+}
+
 int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -2249,9 +2271,12 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	// (micaster & MST_PLAYER);
-	// 'assert'((unsigned)misource < MAX_PLRS);
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
+	if (micaster == MST_MONSTER) {
+		spllvl = monsters[misource]._mLevel / 6; // TODO: add _mSkillLvl?
+		mis->_miSpllvl = spllvl;
+	}
 
 	mis->_mix = dx - 2;
 	mis->_miy = dy - 2;
@@ -2265,12 +2290,15 @@ int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	MissileStruct* mis;
 	int mindam, maxdam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
-	// (micaster & MST_PLAYER);
-	// assert((unsigned)misource < MAX_PLRS);
-	mindam = (plx(misource)._pMagic >> 2) + (spllvl << 2) + 10;
-	maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 10;
+	if (micaster == MST_MONSTER) {
+		mindam = monsters[misource]._mLevel >> 1; // TODO: use _mSkillLvl?
+		maxdam = monsters[misource]._mLevel;
+	} else {
+		mindam = (plx(misource)._pMagic >> 2) + (spllvl << 2) + 10;
+		maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 10;
+	}
 
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
@@ -2357,6 +2385,7 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		mis->_miyoff = bmis->_miyoff;
 		//mis->_mitxoff = bmis->_mitxoff;
 		//mis->_mityoff = bmis->_mityoff;
+		mis->_miUniqTrans = bmis->_miUniqTrans;
 	}
 	//mis->_mixvel = 0;
 	//mis->_miyvel = 0;
@@ -3562,6 +3591,79 @@ void MI_Firebolt(int mi)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
+
+	mis->_miDelFlag = TRUE; // + AddUnLight
+}
+
+void MI_Mage(int mi)
+{
+	MissileStruct *mis, *bmis;
+	constexpr int MAX_BRIGHTNESS = 10;
+	int i, bmi, xptype;
+
+	mis = &missile[mi];
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	bool wallHit = true;
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		wallHit = CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+	}
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		for (i = 0; i < nummissiles; i++) {
+			bmi = missileactive[i];
+			if (bmi <= mi)
+				continue;
+			bmis = &missile[bmi];
+			// check the type of the other missile
+			if (bmis->_miType != MIS_MAGE) {
+				continue;
+			}
+			// check the distance
+			if (bmis->_mix != mis->_mix || bmis->_miy != mis->_miy) {
+				continue;
+			}
+			int doff = abs(bmis->_mixoff - mis->_mixoff) + abs(bmis->_miyoff - mis->_miyoff) * 2;
+			if (doff > 64 * ASSET_MPL)
+				continue;
+			// check target
+			if (mis->_miVar1 != 0 && bmis->_miVar1 != 0 && mis->_miVar1 != bmis->_miVar1)
+				continue;
+			// merge the missiles
+			if (mis->_miVar1 != 0)
+				bmis->_miVar1 = mis->_miVar1;
+			bmis->_miUniqTrans -= (MAX_BRIGHTNESS - mis->_miUniqTrans) + 1;
+			if (bmis->_miUniqTrans < 0)
+				bmis->_miUniqTrans = 0;
+			bmis->_miMinDam += mis->_miMinDam;
+			bmis->_miMaxDam += mis->_miMaxDam;
+			if (bmis->_miRange < mis->_miRange + 1)
+				bmis->_miRange = mis->_miRange + 1;
+			// assert(mis->_miCaster == MST_MONSTER && bmis->_miCaster == MST_MONSTER);
+			if (monsters[bmis->_miSource]._mMagic < monsters[mis->_miSource]._mMagic)
+				bmis->_miSource = mis->_miSource;
+			mis->_miDelFlag = TRUE; // + AddUnLight
+			return;
+		}
+
+		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
+			int pnum = mis->_miVar1;
+			pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
+			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && plr._pHitPoints >= (1 << 6) && (mis->_mix != plr._px || mis->_miy != plr._py)) {
+				GetMissileVel(mi, mis->_mix, mis->_miy, plr._px, plr._py, MIS_SHIFTEDVEL(4));
+			} else {
+				mis->_miVar1 = 0;
+			}
+		}
+
+		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
+		PutMissile(mi);
+		return;
+	}
+
+	xptype = MIS_EXMAGE;
 	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
 
 	mis->_miDelFlag = TRUE; // + AddUnLight

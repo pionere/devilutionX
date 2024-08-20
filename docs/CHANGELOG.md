@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Defiler drops a fang instead of the Cathedral Map (the fang acts the same way as the Cathedral Map)
 - the brain quest-item is dropped by a new unique monster
 - Skeleton King (and Hork Demon) are summoning monsters in multiplayer games
+- added new monster types to hell levels
 - added unique monsters to crypt and nest levels
 - multiple corpses are allowed on one tile
 - players do not leave the game after Diablo is defeated (restart in town)

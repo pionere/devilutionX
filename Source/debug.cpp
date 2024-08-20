@@ -353,6 +353,8 @@ void ValidateData()
 		}
 		if (md.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitMonsterStats
 			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
+		if (md.mAI.aiType == AI_MAGE && md.mAI.aiInt < 1)// required by MAI_Mage (RETREAT)
+			app_fatal("Too low aiInt %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel == 0) // required by InitMonsterStats
 			app_fatal("Invalid mLevel %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mLevel > UINT8_MAX - HELL_LEVEL_BONUS) // required by InitMonsterStats
