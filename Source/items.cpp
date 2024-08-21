@@ -138,7 +138,6 @@ static void PlaceInitItems()
 		ii = itemactive[numitems];
 		assert(ii == numitems);
 		seed = NextRndSeed();
-		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
