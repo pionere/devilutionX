@@ -2191,7 +2191,7 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdCreateLvl(DWORD seed, BYTE lvl, BYTE type)
+void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type)
 {
 	TCmdCreateLvl cmd;
 

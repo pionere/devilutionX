@@ -200,7 +200,7 @@ static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData
 #endif
 
 typedef struct ItemStruct {
-	int _iSeed;
+	int32_t _iSeed;
 	uint16_t _iIdx;        // item_indexes
 	uint16_t _iCreateInfo; // icreateinfo_flag
 	union {
@@ -743,8 +743,8 @@ typedef struct MonsterStruct {
 	int _mhitpoints;
 	int _mlastx; // the last known (future) tile X-coordinate of the enemy
 	int _mlasty; // the last known (future) tile Y-coordinate of the enemy
-	int _mRndSeed;
-	int _mAISeed;
+	int32_t _mRndSeed;
+	int32_t _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
 	BYTE _mNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
@@ -897,7 +897,7 @@ typedef struct ObjectStruct {
 	BYTE _oSelFlag;
 	BOOLEAN _oPreFlag;
 	unsigned _olid; // light id of the object
-	int _oRndSeed;
+	int32_t _oRndSeed;
 	int _oVar1;
 	int _oVar2;
 	int _oVar3;
@@ -1150,7 +1150,7 @@ typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhInitial;
 	LE_UINT32 vhLogicTurn;
 	LE_UINT32 vhSentCycle;
-	LE_UINT32 vhSeeds[NUM_LEVELS];
+	LE_INT32 vhSeeds[NUM_LEVELS];
 	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
@@ -1639,7 +1639,7 @@ typedef struct TCmdNewLvl {
 typedef struct TCmdCreateLvl {
 	BYTE bCmd;
 	BYTE clPlayers;
-	LE_UINT32 clSeed;
+	LE_INT32 clSeed;
 	BYTE clLevel;
 	BYTE clType;
 } TCmdCreateLvl;
@@ -2010,9 +2010,9 @@ typedef struct DDLevel {
 } DDLevel;
 
 typedef struct DDDynLevel {
-	LE_UINT32 dlSeed; // the seed of the dynamic level
-	BYTE dlLevel;     // the difficulty level of the dynamic level
-	BYTE dlType;      // dungeon_type (random in case of DTYPE_TOWN)
+	LE_INT32 dlSeed; // the seed of the dynamic level
+	BYTE dlLevel;    // the difficulty level of the dynamic level
+	BYTE dlType;     // dungeon_type (random in case of DTYPE_TOWN)
 } DDDynLevel;
 
 typedef struct LocalLevel {
@@ -2116,7 +2116,7 @@ typedef struct LevelStruct {
 	int _dLevelIdx;   // dungeon_level / NUM_LEVELS
 	int _dLevelNum;   // index in AllLevels (dungeon_level / NUM_FIXLVLS)
 	bool _dSetLvl;    // cached flag if the level is a set-level
-	bool _dDynLvl;     // cached flag if the level is a dynamic-level
+	bool _dDynLvl;    // cached flag if the level is a dynamic-level
 	int _dLevel;      // cached difficulty value of the level
 	int _dType;       // cached type of the level (dungeon_type)
 	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
@@ -2188,8 +2188,8 @@ typedef struct SetPieceData {
 //////////////////////////////////////////////////
 
 typedef struct DynLevelStruct {
-	// uint32_t _dnSeed; -- stored in glSeedTbl
-	// BYTE _dnPlayers;  -- stored in gsDeltaData.ddLevelPlrs
+	// int32_t _dnSeed; -- stored in glSeedTbl
+	// BYTE _dnPlayers; -- stored in gsDeltaData.ddLevelPlrs
 	BYTE _dnLevel;
 	BYTE _dnType;
 } DynLevelStruct;

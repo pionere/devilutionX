@@ -104,7 +104,7 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
 /** Initiate level creation and change.
  * @param seed: the seed of the level
  */
-void NetSendCmdCreateLvl(DWORD seed, BYTE lvl, BYTE type);
+void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type);
 void NetSendCmdString(unsigned int pmask);
 unsigned ParseMsg(int pnum, TCmd* pCmd);
 unsigned ParseCmd(int pnum, TCmd* pCmd);

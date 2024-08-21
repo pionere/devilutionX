@@ -172,7 +172,7 @@ void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 void multi_rnd_seeds()
 {
 	int i;
-	uint32_t seed;
+	int32_t seed;
 
 	gdwGameLogicTurn++;
 	if (!IsMultiGame)
@@ -743,7 +743,7 @@ void NetClose()
 static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
 	int i, dlgresult, pnum;
-	uint32_t seed;
+	int32_t seed;
 
 	while (TRUE) {
 		// mypnum = 0;
@@ -818,7 +818,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 
 	for (i = 0; i < NUM_FIXLVLS; i++) {
 		seed = NextRndSeed();
-		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		seed = ((uint32_t)seed >> 8) | ((uint32_t)seed << 24); // _rotr(seed, 8)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
