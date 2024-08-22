@@ -1552,7 +1552,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 					return;
 			}
 
-			j += tArea.x + 2;
+			j += tArea.y;
 		}
 	}
 }
