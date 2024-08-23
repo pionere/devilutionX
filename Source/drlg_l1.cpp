@@ -1978,7 +1978,7 @@ static void DRLG_L1PlaceThemeRooms()
 		// create the room
 		int w = (roomRight + 1) - (roomLeft - 1) + 1;
 		int h = (roomBottom + 1) - (roomTop - 1) + 1;
-		if (w * h > 100)
+		if (w > 10 - 2 || h > 10 - 2)
 			continue; // room is too large
 		themes[numthemes]._tsx1 = roomLeft - 1;
 		themes[numthemes]._tsy1 = roomTop - 1;
