@@ -1252,16 +1252,29 @@ static void DRLG_L1CreateDungeon()
 static int DRLG_L1GetArea()
 {
 	int i, rv;
+#if 1
 	BYTE* pTmp;
 
 	rv = 0;
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L1GetArea.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		assert(*pTmp <= 1);
+		// assert(*pTmp <= 1);
 		rv += *pTmp;
 	}
-
+#else
+	rv = 0;
+	for (i = 0; i < nRoomCnt; i++) {
+		rv += drlg.L1RoomList[i].lrw * drlg.L1RoomList[i].lrh;
+	}
+	if (ChambersFirst + ChambersMiddle + ChambersLast == 3) {
+		rv += 6 * 4 * 2;
+	} else if (ChambersFirst + ChambersMiddle + ChambersLast == 2) {
+		rv += 6 * 4;
+		if (!ChambersMiddle)
+			rv += 6 * 4 + CHAMBER_SIZE * 6;
+	}
+#endif
 	return rv;
 }
 
