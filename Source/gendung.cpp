@@ -1511,7 +1511,7 @@ static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DR
 	}
 }
 
-void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM_DRT_TYPES], int rndSkip, bool rndSize)
+void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM_DRT_TYPES], int rndSkip)
 {
 	int i, j;
 	int min;
@@ -1531,7 +1531,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 				continue;
 			}
 			// randomize the size
-			if (rndSize) {
+			if (rndSkip) {
 				// assert(minSize > 2);
 				min = minSize - 2;
 				static_assert(DMAXX /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeW.");

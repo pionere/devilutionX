@@ -2383,7 +2383,7 @@ static void DRLG_L2()
 	L2LockoutFix();
 	// L2DoorFix(); - commented out, because this is no longer necessary
 
-	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0, false);
+	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0);
 
 	L2CreateArches();
 	// L2DoorFix2(); - commented out, because there is not much point to do this after L2CreateArches

@@ -2078,7 +2078,7 @@ static void DRLG_L4()
 	// DRLG_L4GeneralFix(); - commented out, because this is no longer necessary
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		DRLG_PlaceThemeRooms(7, 10, themeTiles, 112, true);
+		DRLG_PlaceThemeRooms(7, 10, themeTiles, 112);
 		DRLG_L4ThemeExitFix();
 	}
 
