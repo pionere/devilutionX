@@ -2635,26 +2635,22 @@ void DRLG_L1InitTransVals()
 static void DRLG_L1()
 {
 	int i;
-	int minarea;
+	int areaidx;
 	bool placeWater = QuestStatus(Q_PWATER);
-
-	switch (currLvl._dLevelIdx) {
-	case DLV_CATHEDRAL1:
-		minarea = 533;
-		break;
-	case DLV_CATHEDRAL2:
-		minarea = 693;
-		break;
-	default:
-		minarea = 761;
-		break;
+	const int arealimits[] = { DMAXX * DMAXY, 761, 693, 533 };
+	areaidx = 0;
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
+		areaidx = 2;
+	} else if (currLvl._dLevelIdx == DLV_CATHEDRAL2) {
+		areaidx = 1;
 	}
 
 	while (true) {
 		do {
 			memset(dungeon, 0, sizeof(dungeon));
 			DRLG_L1CreateDungeon();
-		} while (DRLG_L1GetArea() < minarea);
+			i = DRLG_L1GetArea();
+		} while (i > arealimits[areaidx]  || i < arealimits[areaidx + 1]);
 
 		DRLG_L1MakeMegas();
 		L1TileFix();
