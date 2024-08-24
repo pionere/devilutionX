@@ -2333,7 +2333,12 @@ typedef struct ROOMHALLNODE {
 	int nHallx2;
 	int nHally2;
 	int nHalldir;
+	ALIGNMENT(6, 6)
 } ROOMHALLNODE;
+
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(ROOMHALLNODE) & (sizeof(ROOMHALLNODE) - 1)) == 0, "Align ROOMHALLNODE to power of 2 for better performance.");
+#endif
 
 typedef struct L1ROOM {
 	int lrx;
@@ -2342,6 +2347,10 @@ typedef struct L1ROOM {
 	int lrh;
 } L1ROOM;
 
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(L1ROOM) & (sizeof(L1ROOM) - 1)) == 0, "Align L1ROOM to power of 2 for better performance.");
+#endif
+
 typedef struct ThemePosDir {
 	int tpdx;
 	int tpdy;
@@ -2349,10 +2358,15 @@ typedef struct ThemePosDir {
 	int tpdvar2; // unused
 } ThemePosDir;
 
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(ThemePosDir) & (sizeof(ThemePosDir) - 1)) == 0, "Align ThemePosDir to power of 2 for better performance.");
+#endif
+
 /** The number of generated rooms in cathedral. */
 #define L1_MAXROOMS ((DSIZEX * DSIZEY) / sizeof(L1ROOM))
 /** The number of generated rooms in catacombs. */
 #define L2_MAXROOMS 32
+static_assert(L2_MAXROOMS * sizeof(ROOMHALLNODE) <= (DSIZEX * DSIZEY), "RoomList is too large for DrlgMem.");
 /** Possible matching locations in a theme room. */
 #define THEME_LOCS ((DSIZEX * DSIZEY) / sizeof(ThemePosDir))
 
