@@ -1969,7 +1969,9 @@ static void L1TileFix()
 
 static void DRLG_L1PlaceThemeRooms()
 {
-	for (int i = ChambersFirst + ChambersMiddle + ChambersLast; i < nRoomCnt; i++) {
+	RECT_AREA32 thops[32];
+	int i, numops = 0;
+	for (i = ChambersFirst + ChambersMiddle + ChambersLast; i < nRoomCnt; i++) {
 		int roomLeft = drlg.L1RoomList[i].lrx;
 		int roomRight = roomLeft + drlg.L1RoomList[i].lrw - 1;
 		int roomTop = drlg.L1RoomList[i].lry;
@@ -2027,14 +2029,29 @@ static void DRLG_L1PlaceThemeRooms()
 		int h = (roomBottom + 1) - (roomTop - 1) + 1;
 		if (w > 10 - 2 || h > 10 - 2)
 			continue; // room is too large
-		themes[numthemes]._tsx1 = roomLeft - 1;
-		themes[numthemes]._tsy1 = roomTop - 1;
-		themes[numthemes]._tsx2 = roomLeft - 1 + w - 1;
-		themes[numthemes]._tsy2 = roomTop - 1 + h - 1;
-		numthemes++;
-		if (numthemes == lengthof(themes))
-			break;
+		// register the room
+		thops[numops].x1 = roomLeft - 1;
+		thops[numops].y1 = roomTop - 1;
+		thops[numops].x2 = roomLeft - 1 + w - 1;
+		thops[numops].y2 = roomTop - 1 + h - 1;
+		numops++;
+		if (numops == lengthof(thops))
+			break; // should not happen (too often), otherwise the theme-placement is biased
 	}
+	// filter the rooms
+	while (numops > lengthof(themes)) {
+		i = random_low(0, numops);
+		--numops;
+		thops[i] = thops[numops];
+	}
+	// add the rooms
+	for (i = 0; i < numops; i++) {
+		themes[i]._tsx1 = thops[i].x1;
+		themes[i]._tsy1 = thops[i].y1;
+		themes[i]._tsx2 = thops[i].x2;
+		themes[i]._tsy2 = thops[i].y2;
+	}
+	numthemes = numops;
 }
 
 #ifdef HELLFIRE
