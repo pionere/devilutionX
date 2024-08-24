@@ -1402,10 +1402,10 @@ void InitLvlMap()
 static POS32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize)
 {
 	int xmax, ymax, i, j, smallest;
-	int xArray[20], yArray[20];
+	int xArray[16], yArray[16];
 	int size, bestSize, w, h;
 
-	// assert(maxSize < 20);
+	// assert(maxSize < 16);
 
 	xmax = std::min(maxSize, DMAXX - x);
 	ymax = std::min(maxSize, DMAXY - y);
