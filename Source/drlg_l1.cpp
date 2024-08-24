@@ -1098,7 +1098,7 @@ static bool L1CheckHHall(int y, int left, int w)
 static void L1RoomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
-	bool ran2;
+	static_assert((DMAXX * DMAXY - (CHAMBER_SIZE + 2) * (CHAMBER_SIZE + 2) + 4) / (2 * 2) <= lengthof(drlg.L1RoomList), "L1RoomGen skips limit checks assuming enough L1RoomList entries.");
 
 	dirProb = random_(0, 4);
 

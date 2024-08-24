@@ -2336,10 +2336,10 @@ typedef struct ROOMHALLNODE {
 } ROOMHALLNODE;
 
 typedef struct L1ROOM {
-	BYTE lrx;
-	BYTE lry;
-	BYTE lrw;
-	BYTE lrh;
+	int lrx;
+	int lry;
+	int lrw;
+	int lrh;
 } L1ROOM;
 
 typedef struct ThemePosDir {
