@@ -2681,7 +2681,7 @@ static void DRLG_L1()
 {
 	int i;
 	int areaidx;
-	bool placeWater = QuestStatus(Q_PWATER);
+	// bool placeWater = QuestStatus(Q_PWATER);
 	const int arealimits[] = { DMAXX * DMAXY, 761, 693, 533 };
 	areaidx = 0;
 	if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
@@ -2719,7 +2719,7 @@ static void DRLG_L1()
 			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
 			break;
 		}
-		if (placeWater) {
+		if (QuestStatus(Q_PWATER)) {
 			POS32 warpPos = DRLG_PlaceMiniSet(PWATERIN);
 			if (warpPos.x < 0) {
 				continue;
