@@ -1883,7 +1883,7 @@ void ReleaseChrBtn()
 }
 
 /**
- * @brief Draw a large text box with transparent background.
+ * @brief Draw a large text box with transparent background with separators.
  *  used as background to quest dialog window and in stores.
  */
 void DrawTextBox(unsigned separators)
@@ -1905,7 +1905,7 @@ void DrawTextBox(unsigned separators)
 }
 
 /**
- * @brief Draw a small text box with transparent background and a separator.
+ * @brief Draw a small text box with transparent background with a separator.
  *  used as background to items and in stores.
  * @param x: the starting x-coordinate of the text box
  * @param y: the starting y-coordinate of the text box

@@ -148,8 +148,8 @@ int random_(BYTE idx, int v)
 	if (v <= 0)
 		return 0;
 	if (v < 0x7FFF)
-		return ((NextRndValue()) >> 16) % v;
-	return (NextRndValue()) % v;
+		return (NextRndValue() >> 16) % v;
+	return NextRndValue() % v;
 }
 
 /**
@@ -162,7 +162,7 @@ int random_low(BYTE idx, int v)
 {
 	// assert(v > 0);
 	// assert(v < 0x7FFF);
-	return ((NextRndValue()) >> 16) % v;
+	return (NextRndValue() >> 16) % v;
 }
 
 /**

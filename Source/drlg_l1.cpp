@@ -645,6 +645,7 @@ static void DRLG_L5Shadows()
 				//	dungeon[i][j - 1] = 204;
 				} else {
 					// 25 -> not perfect, but ok and it would require a new door object as well
+					// 195 -> not perfect, but ok and only on the dyn map entrance
 					// TODO: what else?
 				}
 			}
@@ -2679,8 +2680,7 @@ void DRLG_L1InitTransVals()
 
 static void DRLG_L1()
 {
-	int i;
-	int areaidx;
+	int i, areaidx;
 	// bool placeWater = QuestStatus(Q_PWATER);
 	const int arealimits[] = { DMAXX * DMAXY, 761, 693, 533 };
 	areaidx = 0;
