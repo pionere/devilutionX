@@ -80,12 +80,24 @@ typedef struct POS32 {
 	int y;
 } POS32;
 
+typedef struct AREA32 {
+	int w;
+	int h;
+} AREA32;
+
 typedef struct RECT32 {
 	int x;
 	int y;
 	int w;
 	int h;
 } RECT32;
+
+typedef struct RECT_AREA32 {
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+} RECT_AREA32;
 
 typedef struct CelImageBuf {
 #if DEBUG_MODE

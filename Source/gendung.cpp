@@ -1399,7 +1399,7 @@ void InitLvlMap()
  * @param maxSize the maximum size of the room (must be less than 20)
  * @return the size of the room
  */
-static POS32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize)
+static AREA32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize)
 {
 	int xmax, ymax, i, j, smallest;
 	int xArray[16], yArray[16];
@@ -1526,8 +1526,8 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 				continue;
 			}
 			// check if there is enough space
-			POS32 tArea = DRLG_FitThemeRoom(themeTiles[DRT_FLOOR], i, j, minSize, maxSize);
-			if (tArea.x <= 0) {
+			AREA32 tArea = DRLG_FitThemeRoom(themeTiles[DRT_FLOOR], i, j, minSize, maxSize);
+			if (tArea.w <= 0) {
 				continue;
 			}
 			// randomize the size
@@ -1536,23 +1536,23 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 				min = minSize - 2;
 				static_assert(DMAXX /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeW.");
 				static_assert(DMAXY /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeH.");
-				tArea.x = RandRangeLow(min, tArea.x);
-				tArea.y = RandRangeLow(min, tArea.y);
+				tArea.w = RandRangeLow(min, tArea.w);
+				tArea.h = RandRangeLow(min, tArea.h);
 			}
 			// ensure there is no overlapping with previous themes
 			if (!InThemeRoom(i + 1, j + 1)) {
 				// create the room
 				themes[numthemes]._tsx1 = i + 1;
 				themes[numthemes]._tsy1 = j + 1;
-				themes[numthemes]._tsx2 = i + 1 + tArea.x - 1;
-				themes[numthemes]._tsy2 = j + 1 + tArea.y - 1;
+				themes[numthemes]._tsx2 = i + 1 + tArea.w - 1;
+				themes[numthemes]._tsy2 = j + 1 + tArea.h - 1;
 				DRLG_CreateThemeRoom(numthemes, themeTiles);
 				numthemes++;
 				if (numthemes == lengthof(themes))
 					return;
 			}
 
-			j += tArea.y;
+			j += tArea.h;
 		}
 	}
 }
