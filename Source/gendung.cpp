@@ -1397,9 +1397,10 @@ void InitLvlMap()
  * @param y the y-coordinate of the starting position
  * @param minSize the minimum size of the room (must be less than 20)
  * @param maxSize the maximum size of the room (must be less than 20)
- * @return the size of the room
+ * @param room the w/h of the room if found
+ * @return whether a fitting room was found
  */
-static AREA32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize)
+static bool DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize, AREA32 &room)
 {
 	int xmax, ymax, i, j, smallest;
 	int xArray[16], yArray[16];
@@ -1411,7 +1412,7 @@ static AREA32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSi
 	ymax = std::min(maxSize, DMAXY - y);
 	// BUGFIX: change '&&' to '||' (fixed)
 	if (xmax < minSize || ymax < minSize)
-		return { 0, 0 };
+		return false;
 
 	memset(xArray, 0, sizeof(xArray));
 	memset(yArray, 0, sizeof(yArray));
@@ -1430,7 +1431,7 @@ static AREA32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSi
 		xArray[++i] = smallest;
 	}
 	if (i < minSize)
-		return { 0, 0 };
+		return false;
 
 	// find vertical(y) limits
 	smallest = ymax;
@@ -1446,7 +1447,7 @@ static AREA32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSi
 		yArray[++i] = smallest;
 	}
 	if (i < minSize)
-		return { 0, 0 };
+		return false;
 
 	// select the best option
 	xmax = std::max(xmax, ymax);
@@ -1466,7 +1467,9 @@ static AREA32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSi
 		}
 	}
 	assert(bestSize != 0);
-	return { w - 2, h - 2 };
+	room.w = w - 2;
+	room.h = h - 2;
+	return true;
 }
 
 static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DRT_TYPES])
@@ -1526,8 +1529,8 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 				continue;
 			}
 			// check if there is enough space
-			AREA32 tArea = DRLG_FitThemeRoom(themeTiles[DRT_FLOOR], i, j, minSize, maxSize);
-			if (tArea.w <= 0) {
+			AREA32 tArea;
+			if (!DRLG_FitThemeRoom(themeTiles[DRT_FLOOR], i, j, minSize, maxSize, tArea)) {
 				continue;
 			}
 			// randomize the size
