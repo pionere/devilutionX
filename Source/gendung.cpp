@@ -1518,7 +1518,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 {
 	int i, j;
 	int min;
-
+	// assert((maxSize - 2) * (maxSize - 2) <= lengthof(drlg.thLocs));
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			// always start from a floor tile

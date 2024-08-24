@@ -2343,10 +2343,10 @@ typedef struct L1ROOM {
 } L1ROOM;
 
 typedef struct ThemePosDir {
-	BYTE tpdx;
-	BYTE tpdy;
-	BYTE tpdvar1;
-	BYTE tpdvar2; // unused
+	int tpdx;
+	int tpdy;
+	int tpdvar1;
+	int tpdvar2; // unused
 } ThemePosDir;
 
 /** The number of generated rooms in cathedral. */

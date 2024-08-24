@@ -81,6 +81,7 @@ static int TFit_Shrine(int themeId)
 					drlg.thLocs[numMatches].tpdvar1 = 1;
 					drlg.thLocs[numMatches].tpdvar2 = 0;
 					numMatches++;
+					static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (1 + 1)) * (10 - 2 - (1 + 1)), "TFit_Shrine skips limit checks assuming enough thLocs entries I.");
 					// if (numMatches == lengthof(drlg.thLocs))
 					//	goto done;
 				}
@@ -103,6 +104,7 @@ static int TFit_Shrine(int themeId)
 					drlg.thLocs[numMatches].tpdvar1 = 0;
 					drlg.thLocs[numMatches].tpdvar2 = 0;
 					numMatches++;
+					static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (1 + 1)) * (10 - 2 - (1 + 1)), "TFit_Shrine skips limit checks assuming enough thLocs entries II.");
 					// if (numMatches == lengthof(drlg.thLocs))
 					//	goto done;
 				}
@@ -112,7 +114,7 @@ static int TFit_Shrine(int themeId)
 // done:
 	if (numMatches == 0)
 		return -1;
-	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
+	static_assert(lengthof(drlg.thLocs) < 0x7FFF, "TFit_Shrine uses random_low to select a matching location.");
 	return random_low(0, numMatches);
 }
 
@@ -140,6 +142,7 @@ static int TFit_Obj5(int themeId)
 					drlg.thLocs[numMatches].tpdvar1 = 0;
 					drlg.thLocs[numMatches].tpdvar2 = 0;
 					numMatches++;
+					static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (3 + 3)) * (10 - 2 - (3 + 3)), "TFit_Obj5 skips limit checks assuming enough thLocs entries II.");
 					// if (numMatches == lengthof(drlg.thLocs))
 					//	goto done;
 				}
@@ -149,7 +152,7 @@ static int TFit_Obj5(int themeId)
 // done:
 	if (numMatches == 0)
 		return -1;
-	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
+	static_assert(lengthof(drlg.thLocs) < 0x7FFF, "TFit_Obj5 uses random_low to select a matching location.");
 	return random_low(0, numMatches);
 }
 
@@ -186,6 +189,7 @@ static int TFit_Obj3(int themeId)
 				drlg.thLocs[numMatches].tpdvar1 = 0;
 				drlg.thLocs[numMatches].tpdvar2 = 0;
 				numMatches++;
+				static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (2 + 2)) * (10 - 2 - (2 + 2)), "TFit_Obj3 skips limit checks assuming enough thLocs entries II.");
 				// if (numMatches == lengthof(drlg.thLocs))
 				//	goto done;
 			}
@@ -194,7 +198,7 @@ static int TFit_Obj3(int themeId)
 // done:
 	if (numMatches == 0)
 		return -1;
-	// static_assert(lengthof(drlg.thLocs) < 0x7FFF);
+	static_assert(lengthof(drlg.thLocs) < 0x7FFF, "TFit_Obj3 uses random_low to select a matching location.");
 	return random_low(0, numMatches);
 }
 
