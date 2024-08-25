@@ -381,7 +381,7 @@ void InitThemes()
 
 /*
  * Place a theme object with the specified frequency.
- * @param tv: theme id in the dungeon matrix.
+ * @param tv: room id in the dungeon matrix.
  * @param type: the type of the object to place
  * @param rndfrq: the frequency to place the object
  */
@@ -400,7 +400,7 @@ static void Place_Obj3(BYTE tv, int type, int rndfrq)
 /**
  * PlaceThemeMonsts places theme monsters with the specified frequency.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param tv: room id in the dungeon matrix.
  */
 static void PlaceThemeMonsts(BYTE tv)
 {
@@ -433,7 +433,7 @@ static void PlaceThemeMonsts(BYTE tv)
 /**
  * Theme_Barrel initializes the barrel theme.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param tv: room id in the dungeon matrix.
  */
 static void Theme_Barrel(BYTE tv)
 {
@@ -582,7 +582,7 @@ static void Theme_SkelRoom(int themeId, BYTE tv)
 /**
  * Theme_Treasure initializes the treasure theme.
  *
- * @param tv: theme id in the dungeon matrix.
+ * @param tv: room id in the dungeon matrix.
  */
 static void Theme_Treasure(BYTE tv)
 {
