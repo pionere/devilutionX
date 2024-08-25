@@ -746,6 +746,55 @@ jobs:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
 
+  # ps5-builds
+  build_ps5:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-PS5
+    strategy:
+      fail-fast: false
+      matrix:
+        #name: [diablo, hellfire]
+        include:
+          - name: diablo
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-ps5.zip'
+          - name: hellfire
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-ps5.zip'
+          - name: diablo+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
+            artifact: 'diablo-nightly-ps5p.zip'
+          - name: hellfire+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-ps5p.zip'
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: |
+        sudo apt update
+        sudo apt install cmake pkg-config clang-15 lld-15
+        sudo apt install build-essential autoconf libtool yasm nasm
+        sudo apt install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
+        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.8/ps5-payload-dev.tar.gz
+        sudo tar -xf ps5-payload-dev.tar.gz -C /
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: Packaging/ps5/build.sh "${{ matrix.cmakeargs }}"
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v4
+      with:
+        path: build-ps5/devilutionx-ps5.zip
+        name: ${{ matrix.artifact }}
+
   # vita-builds
   build_vita:
     needs: build_check

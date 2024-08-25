@@ -112,6 +112,10 @@ if(PS4)
   include(ps4_defs)
 endif()
 
+if(PS5)
+  include(ps5_defs)
+endif()
+
 if(ANDROID)
   include(android_defs)
 endif()
@@ -861,6 +865,7 @@ foreach(
   HAS_JOYSTICK
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
+  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF

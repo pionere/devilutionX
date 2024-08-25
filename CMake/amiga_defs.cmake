@@ -4,6 +4,7 @@ set(UBSAN OFF)
 
 # General build options.
 set(NONET ON)
+set(NOMEMCCPY ON)
 set(USE_SDL1 ON)
 
 #set(TTF_FONT_NAME \"LiberationSerif-Bold.ttf\")
