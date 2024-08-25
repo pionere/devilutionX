@@ -2904,7 +2904,7 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 		PlrDeadItem(pnum, &ear, DIR_S);
 	}
 
-	SyncPlrKill(pnum, dmgtype);
+	SyncPlrKill(pnum);
 
 	if (pnum == mypnum)
 		check_update_plr(pnum);

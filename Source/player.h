@@ -40,7 +40,7 @@ void PlrStartStand(int pnum);
 void PlrStartBlock(int pnum, int sx, int sy);
 void RemovePlrFromMap(int pnum);
 void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy);
-void SyncPlrKill(int pnum, int dmgtype);
+void SyncPlrKill(int pnum);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);

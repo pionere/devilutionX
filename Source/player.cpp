@@ -1695,7 +1695,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 	}
 }
 
-void SyncPlrKill(int pnum, int dmgtype)
+void SyncPlrKill(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SyncPlrKill: illegal player %d", pnum);
@@ -1706,7 +1706,7 @@ void SyncPlrKill(int pnum, int dmgtype)
 	}
 
 	if (plr._pmode != PM_DYING) {
-		StartPlrKill(pnum, dmgtype);
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
 
 	plr._pmode = PM_DEATH;
