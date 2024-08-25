@@ -1018,8 +1018,8 @@ static void DrawItem(int ii, int sx, int sy)
 	ii--;
 
 	is = &items[ii];
-	if (is->_iPostDraw == gbPreFlag)
-		return;
+	//if (is->_iPostDraw == gbPreFlag)
+	//	return;
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
@@ -1111,9 +1111,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
 		DrawObject(mpnum, sx, sy, dx, dy);
-	bv = dItem[sx][sy];
-	if (bv != 0)
-		DrawItem(bv, dx, dy);
+	//bv = dItem[sx][sy];
+	//if (bv != 0)
+	//	DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;

@@ -2319,7 +2319,7 @@ void PlaceQuestItemInArea(int idx, int areasize)
 //		RespawnItem(i, false);
 		// draw it above the stand
 		items[i]._iSelFlag = 2;
-		items[i]._iPostDraw = TRUE;
+		//items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
 		//items[i]._iAnimFlag = TRUE;
 //		items[i]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
@@ -2343,7 +2343,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	is->_iAnimFrameLen = 1;
 	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
 	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
-	is->_iPostDraw = FALSE;
+	//is->_iPostDraw = FALSE;
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;

@@ -247,7 +247,7 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand)
+	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
 	BOOL _iIdentified;
 	char _iName[32];
 	int _ivalue;
