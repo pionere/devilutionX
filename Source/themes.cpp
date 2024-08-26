@@ -59,8 +59,8 @@ static int TFit_Shrine(int themeId)
 	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = themes[themeId]._tsx1; xx <= themes[themeId]._tsx2; xx++) {
-		for (yy = themes[themeId]._tsy1; yy <= themes[themeId]._tsy2; yy++) {
+	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
+		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) != PST_NONE
 				 // make sure the place is wide enough
@@ -124,8 +124,8 @@ static int TFit_Obj5(int themeId)
 	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = themes[themeId]._tsx1 + 2; xx < themes[themeId]._tsx2 - 1; xx++) {
-		for (yy = themes[themeId]._tsy1 + 2; yy < themes[themeId]._tsy2 - 1; yy++) {
+	for (xx = themes[themeId]._tsx1 + 2; xx < themes[themeId]._tsx2 - 2; xx++) {
+		for (yy = themes[themeId]._tsy1 + 2; yy < themes[themeId]._tsy2 - 2; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
 				static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
 				for (i = 0; i < lengthof(trm5x); i++) {
@@ -181,8 +181,8 @@ static int TFit_Obj3(int themeId)
 	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2; xx++) {
-		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2; yy++) {
+	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
+		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
 			if (CheckThemeObj3(xx, yy, tv)) {
 				drlg.thLocs[numMatches].tpdx = xx;
 				drlg.thLocs[numMatches].tpdy = yy;
@@ -489,10 +489,10 @@ static void Theme_MonstPit(int themeId, BYTE tv)
 	int r, xx, yy;
 	bool done = false;
 
-	r = random_(11, (themes[themeId]._tsx2 + 1 - themes[themeId]._tsx1) * (themes[themeId]._tsy2 + 1 - themes[themeId]._tsy1));
+	r = random_(11, (themes[themeId]._tsx2 - themes[themeId]._tsx1) * (themes[themeId]._tsy2 - themes[themeId]._tsy1));
 restart:
-	for (xx = themes[themeId]._tsx1; xx <= themes[themeId]._tsx2 && !done; xx++) {
-		for (yy = themes[themeId]._tsy1; yy <= themes[themeId]._tsy2 && !done; yy++) {
+	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2 && !done; xx++) {
+		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2 && !done; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && --r < 0) {
 				CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
 				done = true;
