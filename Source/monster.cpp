@@ -991,8 +991,8 @@ static void PlaceUniqueMonst(int uniqindex, int mtidx)
 	case UMT_ZHAR:
 		if (zharlib == -1)
 			return;
-		xp = themes[zharlib]._tsx1 + 4;
-		yp = themes[zharlib]._tsy1 + 4;
+		xp = themes[zharlib]._tsx1 + 3;
+		yp = themes[zharlib]._tsy1 + 3;
 		break;
 	default:
 		count = 1000;
