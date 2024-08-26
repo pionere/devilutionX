@@ -337,10 +337,10 @@ void InitThemes()
 		// select transval
 		themes[i]._tsTransVal = dTransVal[x1 + 1][y1 + 1];
 		assert(themes[i]._tsTransVal != 0);
-		// protect themes with dFlags
+		// protect themes with dFlags - TODO: extend the protection +1 to prevent overdrawn shrine and torch? unlikely + protection would prevent torches in theme rooms...
 		// v = themes[i]._tsTransVal;
-		for (x = x1; x <= x2; x++) {
-			for (y = y1; y <= y2; y++) {
+		for (x = x1; x < x2; x++) {
+			for (y = y1; y < y2; y++) {
 				// if (dTransVal[x][y] == v) { -- wall?
 					dFlags[x][y] |= BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT;
 				// }
