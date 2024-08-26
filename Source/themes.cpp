@@ -487,20 +487,19 @@ static void Theme_Shrine(int themeId, BYTE tv)
 static void Theme_MonstPit(int themeId, BYTE tv)
 {
 	int r, xx, yy;
-	bool done = false;
 
 	r = random_(11, (themes[themeId]._tsx2 - themes[themeId]._tsx1) * (themes[themeId]._tsy2 - themes[themeId]._tsy1));
-restart:
-	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2 && !done; xx++) {
-		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2 && !done; yy++) {
+	while (true) {
+	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
+		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
 			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && --r < 0) {
 				CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
-				done = true;
+				goto done;
 			}
 		}
 	}
-	if (!done)
-		goto restart;
+	}
+done:
 
 	PlaceThemeMonsts(tv);
 }
