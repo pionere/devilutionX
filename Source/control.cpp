@@ -1823,7 +1823,7 @@ void DrawInfoStr()
 		} else if (gnDifficulty == DIFF_HELL) {
 			lvl += HELL_LEVEL_BONUS;
 		}
-		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: ??)", lvl);
+		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
