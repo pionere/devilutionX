@@ -72,7 +72,7 @@ static PATHNODE* PathVisitedNodeAt(int dx, int dy)
 {
 	PATHNODE* result = pathVisitedNodes;
 
-	while (TRUE) {
+	while (true) {
 		if (result->x == dx && result->y == dy)
 			break;
 		result = result->NextNode;
@@ -334,7 +334,7 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 	currNode->totalCost = currNode->remainingCost + currNode->walkCost;
 	pathVisitedNodes = currNode;
 	// A* search until we find (dx,dy) or fail
-	while (TRUE) {
+	while (true) {
 		// LogErrorF("Eval path from %d:%d", currNode->x - gnSx, currNode->y - gnSy);
 		// reached the end, success!
 		if (currNode->x == gnTx && currNode->y == gnTy) {

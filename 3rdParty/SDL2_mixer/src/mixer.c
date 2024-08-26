@@ -1938,7 +1938,7 @@ static int _Mix_register_effect(effect_info **e, Mix_EffectFunc_t f,
         *e = new_e;
     } else {
         effect_info *cur = *e;
-        while (1) {
+        while (true) {
             if (cur->next == NULL) {
                 cur->next = new_e;
                 break;

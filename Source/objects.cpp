@@ -241,7 +241,7 @@ static POS32 RndLoc3x3()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc3x3 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -1; i <= 1; i++) {
@@ -263,7 +263,7 @@ static POS32 RndLoc3x4()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc3x4 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -1; i <= 1; i++) {
@@ -285,7 +285,7 @@ static POS32 RndLoc5x5()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc5x5 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -2; i <= 2; i++) {
@@ -307,7 +307,7 @@ static POS32 RndLoc7x5()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc7x5 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -3; i <= 3; i++) {
@@ -1155,7 +1155,7 @@ static int FindValidShrine(int filter)
 	int rv;
 	BYTE excl = IsMultiGame ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
-	while (TRUE) {
+	while (true) {
 		rv = random_(0, NUM_SHRINETYPE);
 		if (rv != filter && shrineavail[rv] != excl)
 			break;

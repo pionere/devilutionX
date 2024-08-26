@@ -73,7 +73,7 @@ void DrawQText()
 	while (*str != '\0') {
 		len = 0;
 		sstr = endstr = str;
-		while (TRUE) {
+		while (true) {
 			if (*sstr == '\0') {
 				endstr = sstr;
 				break;

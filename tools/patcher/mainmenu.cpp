@@ -30,7 +30,7 @@ void mainmenu_loop()
 {
 	mainmenu_refresh_music();
 
-	while (TRUE) {
+	while (true) {
 		switch (UiMainMenuDialog()) {
 		case 0:
 			UiPatcherDialog();

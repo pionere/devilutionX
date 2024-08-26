@@ -1406,7 +1406,7 @@ static void run_game()
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;
 #endif
-	while (TRUE) {
+	while (true) {
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
@@ -1445,7 +1445,7 @@ bool StartGame(bool bSinglePlayer)
 	gbSelectProvider = true;
 	gbSelectHero = true;
 
-	while (TRUE) {
+	while (true) {
 		if (!NetInit(bSinglePlayer)) {
 			return true;
 		}

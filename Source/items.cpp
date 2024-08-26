@@ -68,7 +68,7 @@ static void GetRandomItemSpace(int randarea, int ii)
 	// assert(randarea > 0 && randarea < DBORDERX && randarea < DBORDERY);
 
 	tries = numTries;
-	while (TRUE) {
+	while (true) {
 		x = random_(0, DSIZEX) + DBORDERX;
 		y = random_(0, DSIZEY) + DBORDERY;
 		for (i = x; i < x + randarea; i++) {
@@ -2547,7 +2547,7 @@ static void DoClean(ItemStruct* pi, bool whittle)
 		ci--;
 	ci |= CF_CRAFTED;
 
-	while (TRUE) {
+	while (true) {
 		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iPrePower == IPL_INVALID
@@ -2589,7 +2589,7 @@ static void BuckleItem(ItemStruct* pi)
 	magic = pi->_iMagical == ITEM_QUALITY_NORMAL ? ITEM_QUALITY_NORMAL : ITEM_QUALITY_MAGIC;
 
 	ci |= CF_CRAFTED;
-	while (TRUE) {
+	while (true) {
 		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iMagical == magic)
@@ -2788,7 +2788,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	spell = pi->_iSpell;
 	seed = pi->_iSeed;
 
-	while (TRUE) {
+	while (true) {
 		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iSpell == spell
@@ -3867,7 +3867,7 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
-	while (TRUE) {
+	while (true) {
 		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_NORMAL);
 		assert(items[MAXITEMS]._iMiscId == IMISC_BOOK);
 		if (items[MAXITEMS]._iSpell == ispell)
@@ -3886,7 +3886,7 @@ void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 
 	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
-	while (TRUE) {
+	while (true) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
 		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == ICURS_AMULET)
@@ -3905,7 +3905,7 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 
 	lvl = items_get_currlevel();
 
-	while (TRUE) {
+	while (true) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
 		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == icurs)

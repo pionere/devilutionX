@@ -1946,7 +1946,7 @@ static void DRLG_L3Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L3BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -2014,7 +2014,7 @@ static void DRLG_L6Subs()
 				if (c != 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L6BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -2165,7 +2165,7 @@ static void DRLG_L3Wood()
 				if (InThemeRoom(i, j - 1))
 					continue; // in a theme room -> skip
 				y1 = j;
-				while (TRUE) {
+				while (true) {
 					y1--;
 					bv = dungeon[i][y1];
 					if (bv == 10) { // normal wall
@@ -2220,7 +2220,7 @@ static void DRLG_L3Wood()
 				if (InThemeRoom(i - 1, j))
 					continue; // in a theme room -> skip
 				x1 = i;
-				while (TRUE) {
+				while (true) {
 					x1--;
 					bv = dungeon[x1][j];
 					if (bv == 9) { // normal wall

@@ -95,7 +95,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
 		src_ptr = &sgTurnChunkBuf.bData[0];
-		while (TRUE) {
+		while (true) {
 			chunk_size = *src_ptr;
 			if (chunk_size == 0 || chunk_size > *size)
 				break;
@@ -745,7 +745,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 	int i, dlgresult, pnum;
 	int32_t seed;
 
-	while (TRUE) {
+	while (true) {
 		// mypnum = 0;
 
 		// select provider
@@ -832,7 +832,7 @@ bool NetInit(bool bSinglePlayer)
 {
 	_uigamedata gameData;
 
-	while (TRUE) {
+	while (true) {
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;

@@ -605,7 +605,7 @@ static void L4AddHWall(int x, int y)
 	BYTE bv;
 
 	i = x;
-	while (TRUE) {
+	while (true) {
 		i++;
 		bv = dungeon[i][y];
 		if (bv != 6)
@@ -696,7 +696,7 @@ static void L4AddVWall(int x, int y)
 	BYTE bv;
 
 	j = y;
-	while (TRUE) {
+	while (true) {
 		j++;
 		bv = dungeon[x][j];
 		if (bv != 6)
@@ -1158,7 +1158,7 @@ static void DRLG_L4Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L4BTYPES[k] && --rv < 0)
 							break;
 						if (++k == NUM_L4TYPES)
@@ -1224,7 +1224,7 @@ static void L4ConnectBlock()
 	}
 
 	rv = RandRange(1, L4BLOCKY - 1);
-	while (TRUE) {
+	while (true) {
 		if (hallok[rv] != 0) {
 			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
 				drlg.dungBlock[i][rv] = 1;
@@ -1253,7 +1253,7 @@ static void L4ConnectBlock()
 	}
 
 	rv = RandRange(1, L4BLOCKX - 1);
-	while (TRUE) {
+	while (true) {
 		if (hallok[rv] != 0) {
 			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
 				drlg.dungBlock[rv][j] = 1;

@@ -1393,7 +1393,7 @@ static bool L1AddHWall(int x, int y)
 	BYTE bv;
 
 	i = x;
-	while (TRUE) {
+	while (true) {
 		i++;
 		bv = dungeon[i][y];
 		if (bv != 13)
@@ -1475,7 +1475,7 @@ static void L1AddVWall(int x, int y)
 	BYTE bv;
 
 	j = y;
-	while (TRUE) {
+	while (true) {
 		j++;
 		bv = dungeon[x][j];
 		if (bv != 13)
@@ -2149,7 +2149,7 @@ static void DRLG_L1Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L1BTYPES[k] && --rv < 0) {
 							break;
 						}

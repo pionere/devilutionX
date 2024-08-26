@@ -996,7 +996,7 @@ static void PlaceUniqueMonst(int uniqindex, int mtidx)
 		break;
 	default:
 		count = 1000;
-		while (TRUE) {
+		while (true) {
 			xp = random_(91, DSIZEX) + DBORDERX;
 			yp = random_(91, DSIZEY) + DBORDERY;
 			static_assert(DBORDERX >= MON_PACK_DISTANCE, "PlaceUniqueMonst does not check IN_DUNGEON_AREA but expects a large enough border I.");
@@ -4540,7 +4540,7 @@ void ProcessMonsters()
 			}
 		}
 
-		while (TRUE) {
+		while (true) {
 			AiProc[mon->_mAI.aiType](mnum);
 
 			switch (mon->_mmode) {
