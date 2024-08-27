@@ -13,13 +13,13 @@ on:
 #
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze (${{ matrix.name }})
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || (matrix.version == 'mac-x64' && 'macos-12') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
       # required for all workflows
@@ -36,12 +36,34 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - language: c-cpp
-          #build-mode: autobuild
+        #- name: c-cpp (auto)
+        #  language: c-cpp
+        #  build-mode: autobuild
+        #- name: c-cpp (win-x86)
+        #  language: c-cpp
+        #  build-mode: manual
+        #  version: win-x86
+        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake'
+        - name: c-cpp (win-x64)
+          language: c-cpp
           build-mode: manual
-        - language: java-kotlin
+          version: win-x64
+          cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake'
+        #- name: c-cpp (linux-x64)
+        #  language: c-cpp
+        #  build-mode: manual
+        #  version: linux-x64
+        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_INSTALL_PREFIX=/usr'
+        #- name: c-cpp (mac-x64)
+        #  language: c-cpp
+        #  build-mode: manual
+        #  version: mac-x64
+        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DMACOSX_STANDALONE_APP_BUNDLE=ON'
+        - name: java
+          language: java-kotlin
           build-mode: none # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.
-        - language: python
+        - name: python
+          language: python
           build-mode: none
         #- language: ruby
         #  build-mode: none
@@ -63,6 +85,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
+        #debug: true
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -77,22 +100,39 @@ jobs:
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
     - name: Create Build Environment
-      if: matrix.build-mode == 'manual'
+      if: matrix.version == 'win-x86'
       run: >
         sudo apt-get update &&
         sudo apt install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
         sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
         sudo Packaging/windows/mingw-prep.sh
 
+    - name: Create Build Environment
+      if: matrix.version == 'win-x64'
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev dpkg-dev wget git sudo &&
+        sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep.sh
+
+    - name: Create Build Environment
+      if: matrix.version == 'linux-x64'
+      run: Packaging/nix/debian-host-prep.sh
+
+    - name: Create Build Environment
+      if: matrix.version == 'mac-x64'
+      run: brew bundle install
+
+    # TODO: -j $(nproc) vs. -j $(sysctl -n hw.physicalcpu)
     - name: Build
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cmake -S. -Bbuild -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
-        cmake --build build -j $(nproc) --target package
+        cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" && \
+        cmake --build build --target package
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:${{matrix.language}}"
+        category: "/language:${{matrix.language}}${{matrix.version}}"
 
