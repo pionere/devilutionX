@@ -830,47 +830,51 @@ static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
 static void CalcItemReqs(int pnum)
 {
 	int i;
-	bool changeflag;
 	ItemStruct* pi;
 	int sa, ma, da, sc, mc, dc;
+	int strReq[NUM_INVLOC];
+	int magReq[NUM_INVLOC];
+	int dexReq[NUM_INVLOC];
 
 	sa = plr._pBaseStr;
 	ma = plr._pBaseMag;
 	da = plr._pBaseDex;
 
 	pi = plr._pInvBody;
-	for (i = NUM_INVLOC; i != 0; i--, pi++) {
+	for (i = 0; i < NUM_INVLOC; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
 			//if (pi->_iIdentified) {
 				sa += pi->_iPLStr;
 				ma += pi->_iPLMag;
 				da += pi->_iPLDex;
+				strReq[i] = pi->_iMinStr == 0 ? INT_MIN : pi->_iMinStr + (pi->_iPLStr > 0 ? pi->_iPLStr : 0);
+				magReq[i] = pi->_iMinMag == 0 ? INT_MIN : pi->_iMinMag + (pi->_iPLMag > 0 ? pi->_iPLMag : 0);
+				dexReq[i] = pi->_iMinDex == 0 ? INT_MIN : pi->_iMinDex + (pi->_iPLDex > 0 ? pi->_iPLDex : 0);
 			//}
 		}
 	}
-	do {
-		changeflag = false;
-		sc = std::max(0, sa);
-		mc = std::max(0, ma);
-		dc = std::max(0, da);
-		pi = plr._pInvBody;
-		for (i = NUM_INVLOC; i != 0; i--, pi++) {
-			if (pi->_itype == ITYPE_NONE)
-				continue;
-			if (sc >= pi->_iMinStr && mc >= pi->_iMinMag && dc >= pi->_iMinDex)
-				continue;
-			if (pi->_iStatFlag) {
-				pi->_iStatFlag = FALSE;
-				changeflag = true;
-				//if (pi->_iIdentified) {
-					sa -= pi->_iPLStr;
-					ma -= pi->_iPLMag;
-					da -= pi->_iPLDex;
-				//}
-			}
+recheck:
+	pi = plr._pInvBody;
+	for (i = 0; i < NUM_INVLOC; i++, pi++) {
+		if (pi->_itype == ITYPE_NONE)
+			continue;
+		if (sa >= strReq[i] && ma >= magReq[i] && da >= dexReq[i])
+			continue;
+		if (pi->_iStatFlag) {
+			pi->_iStatFlag = FALSE;
+			//if (pi->_iIdentified) {
+				sa -= pi->_iPLStr;
+				ma -= pi->_iPLMag;
+				da -= pi->_iPLDex;
+			//}
+			goto recheck;
 		}
-	} while (changeflag);
+	}
+
+	sc = std::max(0, sa);
+	mc = std::max(0, ma);
+	dc = std::max(0, da);
 
 	pi = &plr._pHoldItem;
 	ItemStatOk(pi, sc, mc, dc);
