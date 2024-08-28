@@ -56,12 +56,12 @@ static const int trm3y[] = {
 static int TFit_Shrine(int themeId)
 {
 	int xx, yy, numMatches;
-	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
-	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
-		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+	yy = themes[themeId]._tsy1;
+	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
+			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx - 1][yy] == themes[themeId]._tsTransVal && dTransVal[xx + 1][yy] == themes[themeId]._tsTransVal);
+			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) != PST_NONE
 				 // make sure the place is wide enough
 				 // - on the inside
@@ -71,8 +71,8 @@ static int TFit_Shrine(int themeId)
 				 && nSolidTable[dPiece[xx - 1][yy - 1]]
 				 && nSolidTable[dPiece[xx + 1][yy - 1]]
 				 // make sure it is in the same room
-				 && dTransVal[xx - 1][yy] == tv
-				 && dTransVal[xx + 1][yy] == tv) {
+				 /*&& dTransVal[xx - 1][yy] == tv
+				 && dTransVal[xx + 1][yy] == tv*/) {
 					// assert(dObject[xx][yy] == 0);
 					// assert(dObject[xx - 1][yy] == 0);
 					// assert(dObject[xx + 1][yy] == 0);
@@ -85,6 +85,11 @@ static int TFit_Shrine(int themeId)
 					// if (numMatches == lengthof(drlg.thLocs))
 					//	goto done;
 				}
+	}
+	xx = themes[themeId]._tsx1;
+		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
+			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx][yy - 1] == themes[themeId]._tsTransVal && dTransVal[xx][yy + 1] == themes[themeId]._tsTransVal);
+			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				if ((nSpecTrapTable[dPiece[xx - 1][yy]] & PST_TRAP_TYPE) != PST_NONE
 				 // make sure the place is wide enough
 				 // - on the inside
@@ -94,8 +99,8 @@ static int TFit_Shrine(int themeId)
 				 && nSolidTable[dPiece[xx - 1][yy - 1]]
 				 && nSolidTable[dPiece[xx - 1][yy + 1]]
 				 // make sure it is in the same room
-				 && dTransVal[xx][yy - 1] == tv
-				 && dTransVal[xx][yy + 1] == tv) {
+				 /*&& dTransVal[xx][yy - 1] == tv
+				 && dTransVal[xx][yy + 1] == tv*/) {
 					// assert(dObject[xx][yy] == 0);
 					// assert(dObject[xx][yy - 1] == 0);
 					// assert(dObject[xx][yy + 1] == 0);
@@ -121,20 +126,21 @@ static int TFit_Shrine(int themeId)
 static int TFit_Obj5(int themeId)
 {
 	int xx, yy, i, numMatches;
-	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
 	for (xx = themes[themeId]._tsx1 + 2; xx < themes[themeId]._tsx2 - 2; xx++) {
 		for (yy = themes[themeId]._tsy1 + 2; yy < themes[themeId]._tsy2 - 2; yy++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
 				for (i = 0; i < lengthof(trm5x); i++) {
 					if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
 						break;
 					}
-					if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
-						break;
-					}
+					//assert(dTransVal[xx + trm5x[i]][yy + trm5y[i]] == themes[themeId]._tsTransVal);
+					//if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
+					//	break;
+					//}
 				}
 				if (i == lengthof(trm5x)) {
 					drlg.thLocs[numMatches].tpdx = xx;
@@ -156,7 +162,7 @@ static int TFit_Obj5(int themeId)
 	return random_low(0, numMatches);
 }
 
-static bool CheckThemeObj3(int x, int y, BYTE tv)
+static bool CheckThemeObj3(int x, int y)
 {
 	int i, xx, yy;
 
@@ -166,8 +172,9 @@ static bool CheckThemeObj3(int x, int y, BYTE tv)
 		yy = y + trm3y[i];
 		//if (xx < 0 || yy < 0)
 		//	return false;
-		if (dTransVal[xx][yy] != tv)
-			return false;
+		//assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+		//if (dTransVal[xx][yy] != tv)
+		//	return false;
 		if ((nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) != 0)
 			return false;
 	}
@@ -178,12 +185,11 @@ static bool CheckThemeObj3(int x, int y, BYTE tv)
 static int TFit_Obj3(int themeId)
 {
 	int xx, yy, numMatches;
-	BYTE tv = themes[themeId]._tsTransVal;
 
 	numMatches = 0;
 	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
 		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
-			if (CheckThemeObj3(xx, yy, tv)) {
+			if (CheckThemeObj3(xx, yy)) {
 				drlg.thLocs[numMatches].tpdx = xx;
 				drlg.thLocs[numMatches].tpdy = yy;
 				drlg.thLocs[numMatches].tpdvar1 = 0;
@@ -382,17 +388,16 @@ void InitThemes()
 /*
  * Place a theme object with the specified frequency.
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  * @param type: the type of the object to place
  * @param rndfrq: the frequency to place the object
  */
-static void Place_Obj3(int themeId, BYTE tv, int type, int rndfrq)
+static void Place_Obj3(int themeId, int type, int rndfrq)
 {
 	int xx, yy;
 	// assert(rndfrq > 0);
-	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
-		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-			if (CheckThemeObj3(xx, yy, tv) && random_low(0, rndfrq) == 0) {
+	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
+		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
+			if (CheckThemeObj3(xx, yy) && random_low(0, rndfrq) == 0) {
 				AddObject(type, xx, yy);
 			}
 		}
@@ -402,9 +407,8 @@ static void Place_Obj3(int themeId, BYTE tv, int type, int rndfrq)
  * PlaceThemeMonsts places theme monsters with the specified frequency.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void PlaceThemeMonsts(int themeId, BYTE tv)
+static void PlaceThemeMonsts(int themeId)
 {
 	int xx, yy;
 	int scattertypes[MAX_LVLMTYPES];
@@ -423,7 +427,8 @@ static void PlaceThemeMonsts(int themeId, BYTE tv)
 	mtype = scattertypes[random_low(0, numscattypes)];
 	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
 		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-			if (dTransVal[xx][yy] == tv && (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
+			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+			if (/*dTransVal[xx][yy] == tv &&*/ (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_low(0, rndfrq) == 0) {
 					AddMonster(mtype, xx, yy);
 				}
@@ -436,9 +441,8 @@ static void PlaceThemeMonsts(int themeId, BYTE tv)
  * Theme_Barrel initializes the barrel theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Barrel(int themeId, BYTE tv)
+static void Theme_Barrel(int themeId)
 {
 	int r, xx, yy;
 	const BYTE barrnds[4] = { 2, 6, 4, 8 };
@@ -446,7 +450,8 @@ static void Theme_Barrel(int themeId, BYTE tv)
 
 	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
 		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				if (random_low(0, barrnd) == 0) {
 					r = random_low(0, barrnd) == 0 ? OBJ_BARREL : OBJ_BARRELEX;
 					AddObject(r, xx, yy);
@@ -454,16 +459,15 @@ static void Theme_Barrel(int themeId, BYTE tv)
 			}
 		}
 	}
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_Shrine initializes the shrine theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Shrine(int themeId, BYTE tv)
+static void Theme_Shrine(int themeId)
 {
 	int xx, yy;
 
@@ -478,16 +482,15 @@ static void Theme_Shrine(int themeId, BYTE tv)
 		AddObject(OBJ_SHRINEL, xx, yy);
 		AddObject(OBJ_CANDLE2, xx, yy + 1);
 	}
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_MonstPit initializes the monster pit theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_MonstPit(int themeId, BYTE tv)
+static void Theme_MonstPit(int themeId)
 {
 	int r, xx, yy;
 
@@ -495,7 +498,8 @@ static void Theme_MonstPit(int themeId, BYTE tv)
 	while (true) {
 		for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
 			for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-				if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]] && --r < 0) {
+				// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+				if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]] && --r < 0) {
 					CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
 					goto done;
 				}
@@ -504,7 +508,7 @@ static void Theme_MonstPit(int themeId, BYTE tv)
 	}
 done:
 
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 static void AddSkelMonster(int x, int y)
@@ -517,9 +521,8 @@ static void AddSkelMonster(int x, int y)
  * Theme_SkelRoom initializes the skeleton room theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_SkelRoom(int themeId, BYTE tv)
+static void Theme_SkelRoom(int themeId)
 {
 	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
@@ -585,9 +588,8 @@ static void Theme_SkelRoom(int themeId, BYTE tv)
  * Theme_Treasure initializes the treasure theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Treasure(int themeId, BYTE tv)
+static void Theme_Treasure(int themeId)
 {
 	int xx, yy;
 	const BYTE treasrnds[4] = { 6, 9, 7, 10 };
@@ -595,7 +597,8 @@ static void Theme_Treasure(int themeId, BYTE tv)
 
 	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
 		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-			if (dTransVal[xx][yy] == tv && !nSolidTable[dPiece[xx][yy]]) {
+			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				if (random_low(0, treasrnd) == 0) {
 					CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_GOLD, IMISC_NONE, ICM_DELTA);
 				} else if (random_low(0, treasrnd) == 0) {
@@ -604,16 +607,15 @@ static void Theme_Treasure(int themeId, BYTE tv)
 			}
 		}
 	}
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_Library initializes the library theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Library(int themeId, BYTE tv)
+static void Theme_Library(int themeId)
 {
 	int xx, yy, oi;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
@@ -632,9 +634,9 @@ static void Theme_Library(int themeId, BYTE tv)
 	}
 
 	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?
-	for (xx = themes[themeId]._tsx1; xx < themes[themeId]._tsx2; xx++) {
-		for (yy = themes[themeId]._tsy1; yy < themes[themeId]._tsy2; yy++) {
-			if (CheckThemeObj3(xx, yy, tv) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
+	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
+		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
+			if (CheckThemeObj3(xx, yy) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
 				oi = AddObject(OBJ_BOOK2L, xx, yy);
 				if (random_low(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
 					objects[oi]._oSelFlag = 0;
@@ -644,93 +646,85 @@ static void Theme_Library(int themeId, BYTE tv)
 		}
 	}
 
-	if (/*QuestStatus(Q_ZHAR) &&*/ themeId == zharlib)
-		return;
-
-	PlaceThemeMonsts(themeId, tv);
+	if (/*QuestStatus(Q_ZHAR) &&*/ themeId != zharlib)
+		PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_Torture initializes the torture theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Torture(int themeId, BYTE tv)
+static void Theme_Torture(int themeId)
 {
 	const BYTE tortrnds[4] = { 6 * 2, 8 * 2, 3 * 2, 8 * 2 };
 	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 
 	AddObject(random_(46, 2) ? OBJ_TNUDEW : OBJ_TNUDEM, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	Place_Obj3(themeId, tv, OBJ_TNUDEM, tortrnd);
-	Place_Obj3(themeId, tv, OBJ_TNUDEW, tortrnd);
-	PlaceThemeMonsts(themeId, tv);
+	Place_Obj3(themeId, OBJ_TNUDEM, tortrnd);
+	Place_Obj3(themeId, OBJ_TNUDEW, tortrnd);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_BloodFountain initializes the blood fountain theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_BloodFountain(int themeId, BYTE tv)
+static void Theme_BloodFountain(int themeId)
 {
 	AddObject(OBJ_BLOODFTN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_Decap initializes the decapitated theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Decap(int themeId, BYTE tv)
+static void Theme_Decap(int themeId)
 {
 	const BYTE decaprnds[4] = { 6, 8, 3, 8 };
 	const BYTE decaprnd = decaprnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	AddObject(OBJ_DECAP, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	Place_Obj3(themeId, tv, OBJ_DECAP, decaprnd);
-	PlaceThemeMonsts(themeId, tv);
+	Place_Obj3(themeId, OBJ_DECAP, decaprnd);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_PurifyingFountain initializes the purifying fountain theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_PurifyingFountain(int themeId, BYTE tv)
+static void Theme_PurifyingFountain(int themeId)
 {
 	AddObject(OBJ_PURIFYINGFTN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_ArmorStand initializes the armor stand theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_ArmorStand(int themeId, BYTE tv)
+static void Theme_ArmorStand(int themeId)
 {
 	const BYTE armorrnds[4] = { 6, 8, 3, 8 };
 	const BYTE armorrnd = armorrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	AddObject(_gbArmorFlag ? OBJ_ARMORSTAND : OBJ_ARMORSTANDN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	_gbArmorFlag = false;
-	Place_Obj3(themeId, tv, OBJ_ARMORSTANDN, armorrnd);
-	PlaceThemeMonsts(themeId, tv);
+	Place_Obj3(themeId, OBJ_ARMORSTANDN, armorrnd);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_GoatShrine initializes the goat shrine theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_GoatShrine(int themeId, BYTE tv)
+static void Theme_GoatShrine(int themeId)
 {
 	int i, xx, yy, x, y;
 
@@ -740,7 +734,7 @@ static void Theme_GoatShrine(int themeId, BYTE tv)
 	for (i = 0; i < lengthof(offset_x); i++) {
 		x = xx + offset_x[i];
 		y = yy + offset_y[i];
-		assert(dTransVal[x][y] == tv && !nSolidTable[dPiece[x][y]]);
+		// assert(dTransVal[x][y] == themes[themeId]._tsTransVal && !nSolidTable[dPiece[x][y]]);
 		AddMonster(mapGoatTypes[0], x, y); // OPPOSITE(i)
 	}
 }
@@ -749,61 +743,56 @@ static void Theme_GoatShrine(int themeId, BYTE tv)
  * Theme_Cauldron initializes the cauldron theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_Cauldron(int themeId, BYTE tv)
+static void Theme_Cauldron(int themeId)
 {
 	AddObject(OBJ_CAULDRON, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_MurkyFountain initializes the murky fountain theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_MurkyFountain(int themeId, BYTE tv)
+static void Theme_MurkyFountain(int themeId)
 {
 	AddObject(OBJ_MURKYFTN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_TearFountain initializes the tear fountain theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_TearFountain(int themeId, BYTE tv)
+static void Theme_TearFountain(int themeId)
 {
 	AddObject(OBJ_TEARFTN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	PlaceThemeMonsts(themeId, tv);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_BrnCross initializes the burning cross theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_BrnCross(int themeId, BYTE tv)
+static void Theme_BrnCross(int themeId)
 {
 	const BYTE bcrossrnds[4] = { 5, 7, 3, 8 };
 	const BYTE bcrossrnd = bcrossrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	AddObject(OBJ_TBCROSS, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	Place_Obj3(themeId, tv, OBJ_TBCROSS, bcrossrnd);
-	PlaceThemeMonsts(themeId, tv);
+	Place_Obj3(themeId, OBJ_TBCROSS, bcrossrnd);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
  * Theme_WeaponRack initializes the weapon rack theme.
  *
  * @param themeId: theme id.
- * @param tv: room id in the dungeon matrix.
  */
-static void Theme_WeaponRack(int themeId, BYTE tv)
+static void Theme_WeaponRack(int themeId)
 {
 	int type;
 	const BYTE weaponrnds[4] = { 6, 8, 5, 8 };
@@ -816,8 +805,8 @@ static void Theme_WeaponRack(int themeId, BYTE tv)
 	AddObject(type + (_gbWeaponFlag ? 0 : 1), themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	_gbWeaponFlag = false;
 	type += 1;
-	Place_Obj3(themeId, tv, type, weaponrnd);
-	PlaceThemeMonsts(themeId, tv);
+	Place_Obj3(themeId, type, weaponrnd);
+	PlaceThemeMonsts(themeId);
 }
 
 /**
@@ -838,62 +827,60 @@ static void Theme_WeaponRack(int themeId, BYTE tv)
 void CreateThemeRooms()
 {
 	int i;
-	BYTE tv;
 	// assert(currLvl._dLevelNum < DLV_HELL4 || (currLvl._dDynLvl && currLvl._dLevelNum == DLV_HELL4) || numthemes == 0); // there are no themes in hellfire (and on diablo-level)
 	//gbInitObjFlag = true;
 	for (i = 0; i < numthemes; i++) {
-		tv = themes[i]._tsTransVal;
 		switch (themes[i]._tsType) {
 		case THEME_BARREL:
-			Theme_Barrel(i, tv);
+			Theme_Barrel(i);
 			break;
 		case THEME_SHRINE:
-			Theme_Shrine(i, tv);
+			Theme_Shrine(i);
 			break;
 		case THEME_MONSTPIT:
-			Theme_MonstPit(i, tv);
+			Theme_MonstPit(i);
 			break;
 		case THEME_SKELROOM:
-			Theme_SkelRoom(i, tv);
+			Theme_SkelRoom(i);
 			break;
 		case THEME_TREASURE:
-			Theme_Treasure(i, tv);
+			Theme_Treasure(i);
 			break;
 		case THEME_LIBRARY:
-			Theme_Library(i, tv);
+			Theme_Library(i);
 			break;
 		case THEME_TORTURE:
-			Theme_Torture(i, tv);
+			Theme_Torture(i);
 			break;
 		case THEME_BLOODFOUNTAIN:
-			Theme_BloodFountain(i, tv);
+			Theme_BloodFountain(i);
 			break;
 		case THEME_DECAPITATED:
-			Theme_Decap(i, tv);
+			Theme_Decap(i);
 			break;
 		case THEME_PURIFYINGFOUNTAIN:
-			Theme_PurifyingFountain(i, tv);
+			Theme_PurifyingFountain(i);
 			break;
 		case THEME_ARMORSTAND:
-			Theme_ArmorStand(i, tv);
+			Theme_ArmorStand(i);
 			break;
 		case THEME_GOATSHRINE:
-			Theme_GoatShrine(i, tv);
+			Theme_GoatShrine(i);
 			break;
 		case THEME_CAULDRON:
-			Theme_Cauldron(i, tv);
+			Theme_Cauldron(i);
 			break;
 		case THEME_MURKYFOUNTAIN:
-			Theme_MurkyFountain(i, tv);
+			Theme_MurkyFountain(i);
 			break;
 		case THEME_TEARFOUNTAIN:
-			Theme_TearFountain(i, tv);
+			Theme_TearFountain(i);
 			break;
 		case THEME_BRNCROSS:
-			Theme_BrnCross(i, tv);
+			Theme_BrnCross(i);
 			break;
 		case THEME_WEAPONRACK:
-			Theme_WeaponRack(i, tv);
+			Theme_WeaponRack(i);
 			break;
 		default:
 			ASSUME_UNREACHABLE
