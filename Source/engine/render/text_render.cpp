@@ -334,10 +334,11 @@ int GetSmallStringWidth(const char* text)
 	return i - FONT_KERN_SMALL;
 }
 
-void PrintGameStr(int x, int y, const char* text, BYTE color)
+void PrintGameStr(int x, int y, const char* text, BYTE col)
 {
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
-		x += PrintSmallChar(x, y, (BYTE)*text++, color);
+		x += PrintSmallChar(x, y, (BYTE)*text++, col);
 	}
 }
 
@@ -354,7 +355,7 @@ void PrintString(int x, int y, int endX, const char* text, BYTE col, int kern)
 {
 	BYTE c;
 	int k;
-
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
 		c = gbStdFontFrame[(BYTE)*text++];
 		k = smallFontWidth[c] + kern;
@@ -399,7 +400,7 @@ restart:
 int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
 {
 	BYTE c;
-
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
 		c = gbStdFontFrame[(BYTE)*text++];
 		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
