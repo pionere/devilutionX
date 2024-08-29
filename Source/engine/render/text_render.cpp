@@ -127,7 +127,7 @@ static CelImageBuf* pHugePentSpinCels;
  * Merged color translations for fonts. The shades of one color are used in one font.CEL
  * SmalText.CEL uses PAL16_GRAY values, while MedTextS and BigTGold.CEL are using PAL16_YELLOWs
  */
-static BYTE fontColorTrns[16 + 2][16] = {
+static BYTE fontColorTrns[][16] = {
 	// clang-format off
 	// skip non-generic colors
 	{ 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, },
@@ -146,13 +146,13 @@ static BYTE fontColorTrns[16 + 2][16] = {
 	// TRN for COL_GOLD (SmalText)
 	{ PAL16_YELLOW + 2, PAL16_YELLOW + 3, PAL16_YELLOW + 4, PAL16_YELLOW + 5, PAL16_YELLOW + 6, PAL16_YELLOW + 7, PAL16_YELLOW + 8, PAL16_YELLOW + 9, PAL16_YELLOW + 10, PAL16_YELLOW + 11, PAL16_YELLOW + 12, PAL16_YELLOW + 13, PAL16_YELLOW + 14, PAL16_YELLOW + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_RED (SmalText)
-	{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
+	//{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
 	// clang-format on
 };
 #define FONT_TRN_SILVER (&fontColorTrns[0][0])
 #define FONT_TRN_BLUE   (&fontColorTrns[0][0])
 #define FONT_TRN_GOLD   (&fontColorTrns[1][0])
-#define FONT_TRN_RED    (&fontColorTrns[2][0])
+//#define FONT_TRN_RED    (&fontColorTrns[2][0])
 
 void InitText()
 {
@@ -196,7 +196,7 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 		tbl = FONT_TRN_BLUE;
 		break;
 	case COL_RED:
-		tbl = FONT_TRN_RED;
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
 		break;
 	case COL_GOLD:
 		tbl = FONT_TRN_GOLD;
