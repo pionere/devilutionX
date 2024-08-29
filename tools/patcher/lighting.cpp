@@ -19,7 +19,7 @@ BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
 void InitLighting()
 {
-	// LoadFileWithMem("Levels\\TownData\\Town.TRS", ColorTrns[0]);
+	LoadFileWithMem("Levels\\TownData\\Town.TRS", ColorTrns[0]);
 	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
 	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
 	LoadFileWithMem("PlrGFX\\Coral.TRN", ColorTrns[COLOR_TRN_CORAL]);

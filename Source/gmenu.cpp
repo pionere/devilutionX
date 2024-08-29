@@ -40,7 +40,7 @@ void gmenu_draw_pause()
 		x = PANEL_CENTERX(135);
 		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 		light = (SDL_GetTicks() / 256) % 4;
-		PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", light);
+		PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
 	}
 }
 

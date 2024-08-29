@@ -193,7 +193,7 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 		tbl = GRY_FONT_TRN_GOLD;
 		break;
 	default:
-		ASSUME_UNREACHABLE
+		tbl = ColorTrns[col - COL_GOLD];
 		break;
 	}
 	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
@@ -201,12 +201,50 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 
 static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
 {
-	if (col == COL_GOLD) {
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE:
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // YLW_FONT_TRN_RED;
+		break;
+	case COL_GOLD:
 		CelDraw(sx, sy, pBigTextCels, nCel);
-	} else {
-		// assert(col == COL_WHITE);
-		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, YLW_FONT_TRN_SILVER);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
 	}
+	CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
+}
+
+static void PrintHugeColorChar(int sx, int sy, int nCel, BYTE col)
+{
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE: // -- unused
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // YLW_FONT_TRN_RED;
+		break;
+	case COL_GOLD:
+		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
+	}
+	CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);
 }
 
 int PrintBigChar(int sx, int sy, BYTE chr, BYTE col)
@@ -250,8 +288,7 @@ int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col)
 	BYTE nCel = gbHugeFontFrame[chr];
 
 	if (nCel != 0) {
-		// PrintHugeColorChar(sx, sy, nCel, col);
-		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		PrintHugeColorChar(sx, sy, nCel, col);
 	}
 
 	return hugeFontWidth[nCel] + FONT_KERN_HUGE;
@@ -374,22 +411,11 @@ int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
 	return x;
 }
 
-void PrintHugeString(int x, int y, const char* text, int light)
+void PrintHugeString(int x, int y, const char* text, BYTE col)
 {
-	BYTE c, *tbl;
-
-	// TODO: uncomment if performance is required
-	//tbl = light == 0 ? NULL : ColorTrns[light];
-	tbl = ColorTrns[light];
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
-		c = gbHugeFontFrame[(BYTE)*text++];
-		if (c != 0) {
-			// if (tbl == NULL)
-			//	CelDraw(x, y, pHugeGoldTextCels, c);
-			// else
-			CelDrawTrnTbl(x, y, pHugeGoldTextCels, c, tbl);
-		}
-		x += hugeFontWidth[c] + FONT_KERN_HUGE;
+		x += PrintHugeChar(x, y, (BYTE)*text++, col);
 	}
 }
 

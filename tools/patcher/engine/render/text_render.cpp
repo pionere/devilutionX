@@ -192,7 +192,7 @@ static void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 		tbl = GRY_FONT_TRN_GOLD;
 		break;
 	default:
-		ASSUME_UNREACHABLE
+		tbl = ColorTrns[col - COL_GOLD];
 		break;
 	}
 	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
@@ -200,12 +200,50 @@ static void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 
 static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
 {
-	if (col == COL_GOLD) {
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE:
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
+		break;
+	case COL_GOLD:
 		CelDraw(sx, sy, pBigTextCels, nCel);
-	} else {
-		// assert(col == COL_WHITE);
-		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, YLW_FONT_TRN_SILVER);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
 	}
+	CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
+}
+
+static void PrintHugeColorChar(int sx, int sy, int nCel, BYTE col)
+{
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE: // -- unused
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
+		break;
+	case COL_GOLD:
+		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
+	}
+	CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);
 }
 
 int PrintBigChar(int sx, int sy, BYTE chr, BYTE col)
@@ -249,8 +287,7 @@ int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col)
 	BYTE nCel = gbHugeFontFrame[chr];
 
 	if (nCel != 0) {
-		// PrintHugeColorChar(sx, sy, nCel, col);
-		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		PrintHugeColorChar(sx, sy, nCel, col);
 	}
 
 	return hugeFontWidth[nCel] + FONT_KERN_HUGE;
