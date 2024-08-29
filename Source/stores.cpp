@@ -1384,6 +1384,32 @@ void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
 	for (i = 0; i < height; i++, src += width, dst += width)
 		memcpy(dst, src, TPANEL_BORDER);
 }*/
+static int current_store_index()
+{
+	int mx, my, y;
+
+	mx = MousePos.x;
+	my = MousePos.y;
+
+	y = (my - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
+	if (gbWidePanel) {
+		if (mx < LTPANEL_X - SCREEN_X || mx > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
+			y = 0;
+	} else {
+		if (mx < STORE_PNL_X - SCREEN_X || mx > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
+			y = 0;
+	}
+
+	if (y >= STORE_LIST_FIRST && y < STORE_LINES) {
+		static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to current_store_index.");
+		// add some freedom to the back button since it has an offset
+		if (y >= 22)
+			y = 22;
+	} else {
+		y = 0;
+	}
+	return y;
+}
 
 void DrawStore()
 {
@@ -1426,12 +1452,14 @@ void DrawStore()
 		StoreUpdateSelection(); // check maxx
 	}
 
+	int y = current_store_index();
+	STextStruct* stc = &stextlines[y];
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
 		//	DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
-			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, sts->_sclr, sts->_sval);
+			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
 				int frame = sts->_siCurs[n];
@@ -2728,14 +2756,9 @@ void TryStoreBtnClick()
 
 	assert(!gbQtextflag);
 	if (stextsel != -1 && stextflag != STORE_WAIT) {
-		if (gbWidePanel) {
-			if (MousePos.x < LTPANEL_X - SCREEN_X || MousePos.x > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
-				return;
-		} else {
-			if (MousePos.x < STORE_PNL_X - SCREEN_X || MousePos.x > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
-				return;
-		}
-		y = (MousePos.y - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
+		y = current_store_index();
+		if (y == 0)
+			return;
 		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 		//if (MousePos.x >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
 		if (MousePos.x >= LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
@@ -2770,13 +2793,9 @@ void TryStoreBtnClick()
 					}
 				}
 			}
-		} else if (y >= STORE_LIST_FIRST && y < STORE_LINES) {
-			static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to TryStoreBtnClick.");
-			// add some freedom to the back button since it has an offset
-			if (y >= 22)
-				y = 22;
+		} else {
 			// allow clicking on multi-line items
-			else if (gbHasScroll /*&& y < 21*/ /*&& !stextlines[y]._ssel*/) {
+			if (gbHasScroll && y < 21 /*&& !stextlines[y]._ssel*/) {
 				y++;
 				for (int n = 0; n < STORE_ITEM_LINES; n++) {
 					if (stextlines[y]._ssel)
