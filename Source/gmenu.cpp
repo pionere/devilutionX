@@ -165,14 +165,41 @@ static int gmenu_get_lfont(TMenuItem* pItem)
 	return GetHugeStringWidth(pItem->pszStr);
 }
 
+static TMenuItem* current_menu_item(bool activate)
+{
+	int i, w;
+	TMenuItem* pItem;
+
+	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
+	if (i < 0) {
+		return NULL;
+	}
+	i /= GAMEMENU_ITEM_HEIGHT;
+	if (i >= guCurrentMenuSize) {
+		return NULL;
+	}
+	pItem = &gpCurrentMenu[i];
+	if (!(pItem->dwFlags & GMF_ENABLED)) {
+		return NULL;
+	}
+	w = gmenu_get_lfont(pItem) / 2;
+	if (abs(MousePos.x - SCREEN_WIDTH / 2) > w)
+		return NULL;
+
+	if (activate)
+		guCurrItemIdx = i;
+	return pItem;
+}
+
 static void gmenu_draw_menu_item(int i, int y)
 {
 	TMenuItem* pItem = &gpCurrentMenu[i];
+	TMenuItem* mItem = current_menu_item(false);
 	unsigned w, x, nSteps, step, pos;
 
 	w = gmenu_get_lfont(pItem);
 	x = PANEL_CENTERX(w);
-	PrintHugeString(x, y, pItem->pszStr, (pItem->dwFlags & GMF_ENABLED) ? 0 : MAXDARKNESS);
+	PrintHugeString(x, y, pItem->pszStr, COL_GOLD + ((pItem->dwFlags & GMF_ENABLED) ? (pItem == mItem ? 2 : 0) : MAXDARKNESS));
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
 		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMF_SLIDER) {
@@ -286,7 +313,6 @@ void gmenu_on_mouse_move()
 void gmenu_left_mouse(bool isDown)
 {
 	TMenuItem* pItem;
-	int i, w;
 
 	// assert(gmenu_is_active());
 	if (!isDown) {
@@ -301,22 +327,9 @@ void gmenu_left_mouse(bool isDown)
 		return;
 	}
 #endif
-	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
-	if (i < 0) {
+	pItem = current_menu_item(true);
+	if (pItem == NULL)
 		return;
-	}
-	i /= GAMEMENU_ITEM_HEIGHT;
-	if (i >= guCurrentMenuSize) {
-		return;
-	}
-	pItem = &gpCurrentMenu[i];
-	if (!(pItem->dwFlags & GMF_ENABLED)) {
-		return;
-	}
-	w = gmenu_get_lfont(pItem) / 2;
-	if (abs(MousePos.x - SCREEN_WIDTH / 2) > w)
-		return;
-	guCurrItemIdx = i;
 	if (pItem->dwFlags & GMF_SLIDER) {
 		gmenu_mouse_slider();
 	} else {
