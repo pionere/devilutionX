@@ -24,6 +24,9 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 	static int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
 	color = color == AFC_SILVER ? COL_WHITE : COL_GOLD;
+	if (flags & UIS_LIGHT) {
+		color = COL_GOLD + 2;
+	}
 	switch (size) {
 	case AFT_SMALL:
 		w = GetSmallStringWidth(text);
