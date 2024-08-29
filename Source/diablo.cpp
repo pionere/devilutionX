@@ -1080,39 +1080,55 @@ void DisableInputWndProc(const Dvl_Event* e)
 	switch (e->type) {
 	case DVL_WM_KEYDOWN:
 		UpdateActionBtnState(e->vkcode, true);
-		return;
+		break; //  return;
 	case DVL_WM_KEYUP:
 		UpdateActionBtnState(e->vkcode, false);
-		return;
+		break; //  return;
 	case DVL_WM_TEXT:
 	//case DVL_WM_SYSKEYDOWN:
 	//case DVL_WM_SYSCOMMAND:
-		return;
+		break; //  return;
 	case DVL_WM_QUIT:
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
-		return;
+		break; //  return;
 	case DVL_WM_MOUSEMOVE:
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_LBUTTON, true);
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONUP:
 		UpdateActionBtnState(DVL_VK_LBUTTON, false);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_RBUTTON, true);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONUP:
 		UpdateActionBtnState(DVL_VK_RBUTTON, false);
-		return;
+		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
-		return;
+		break; //  return;
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
-		return;
+		break; //  return;
+	case DVL_WM_NONE:
+	// case DVL_WM_QUERYENDSESSION:
+	// case DVL_DWM_NEXTLVL:
+	// case DVL_DWM_PREVLVL:
+	// case DVL_DWM_SETLVL:
+	// case DVL_DWM_RTNLVL:
+	// case DVL_DWM_DYNLVL:
+	// case DVL_DWM_PORTLVL:
+	// case DVL_DWM_TWARPDN:
+	// case DVL_DWM_TWARPUP:
+	// case DVL_DWM_RETOWN:
+	// case DVL_DWM_NEWGAME:
+	// case DVL_DWM_LOADGAME:
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 
 	// MainWndProc(uMsg);
@@ -1123,24 +1139,24 @@ static void GameWndProc(const Dvl_Event* e)
 	switch (e->type) {
 	case DVL_WM_KEYDOWN:
 		PressKey(e->vkcode);
-		return;
+		break; //  return;
 	case DVL_WM_KEYUP:
 		ReleaseKey(e->vkcode);
-		return;
+		break; //  return;
 	case DVL_WM_TEXT:
 #ifndef USE_SDL1
 		if (gmenu_is_active()) {
-			return;
+			break; //  return;
 		}
 		if (gbTalkflag) {
 			plrmsg_CatToText(e->text.text);
-			return;
+			break; //  return;
 		}
 #endif
-		return;
+		break; //  return;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
-	//		return;
+	//		break; //  return;
 	//	break;
 	//case DVL_WM_SYSCOMMAND:
 	//	if (wParam != DVL_SC_CLOSE)
@@ -1152,7 +1168,7 @@ static void GameWndProc(const Dvl_Event* e)
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		gbGamePaused = false;
-		return;
+		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
@@ -1160,30 +1176,30 @@ static void GameWndProc(const Dvl_Event* e)
 			DoWndDrag();
 		else if (gbTalkflag)
 			plrmsg_HandleMouseMoveEvent();
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONDOWN:
 		//GetMousePos(wParam); -- disabled to prevent inconsistent MousePos.x/y vs. CheckCursMove state
 		PressKey(DVL_VK_LBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONUP:
 		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_LBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONDOWN:
 		//GetMousePos(wParam);
 		PressKey(DVL_VK_RBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONUP:
 		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_RBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
-		return;
+		break; //  return;
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
-		return;
+		break; //  return;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
 	case DVL_DWM_SETLVL:
@@ -1209,7 +1225,12 @@ static void GameWndProc(const Dvl_Event* e)
 			scrollrt_draw_game();
 			//gbRedrawFlags = REDRAW_ALL;
 		}
-		return;
+		break; //  return;
+	case DVL_WM_NONE:
+	// case DVL_WM_QUERYENDSESSION:
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 
 	// MainWndProc(uMsg);
