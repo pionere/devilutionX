@@ -1204,7 +1204,7 @@ static void S_StartPriest()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "Tremain the Priest", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_PRIEST_ERRAND, true, "Run errand", COL_BLUE, true);
+	AddSText(0, STORE_PRIEST_ERRAND, true, "Run errand", COL_WHITE, true);
 	AddSText(0, STORE_PRIEST_EXIT, true, "Say Goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
