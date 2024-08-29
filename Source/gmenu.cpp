@@ -304,10 +304,11 @@ static void gmenu_mouse_slider()
 
 void gmenu_on_mouse_move()
 {
-	if (!_gbMouseNavigation)
-		return; // FALSE;
-	gmenu_mouse_slider();
-	// return TRUE;
+	if (_gbMouseNavigation) {
+		gmenu_mouse_slider();
+		// return TRUE;
+	}
+	// return FALSE;
 }
 
 void gmenu_left_mouse(bool isDown)
@@ -328,12 +329,12 @@ void gmenu_left_mouse(bool isDown)
 	}
 #endif
 	pItem = current_menu_item(true);
-	if (pItem == NULL)
-		return;
-	if (pItem->dwFlags & GMF_SLIDER) {
-		gmenu_mouse_slider();
-	} else {
-		pItem->fnMenu(true);
+	if (pItem != NULL) {
+		if (pItem->dwFlags & GMF_SLIDER) {
+			gmenu_mouse_slider();
+		} else {
+			pItem->fnMenu(true);
+		}
 	}
 }
 
