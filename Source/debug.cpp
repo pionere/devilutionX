@@ -251,6 +251,10 @@ void ValidateData()
 		if (gbStdFontFrame[i] >= lengthof(smallFontWidth))
 			app_fatal("Width of the small font %d ('%c') is undefined (frame number: %d).", i, i, gbStdFontFrame[i]);
 	}
+	for (i = 0; i < lengthof(smallFontWidth); i++) {
+		if (smallFontWidth[i] > 13)
+			app_fatal("Width of the small font %d is too high.", i); // required by DrawSkillIcons
+	}
 
 	if (GetHugeStringWidth("Pause") != 135)
 		app_fatal("gmenu_draw_pause expects hardcoded width 135.");

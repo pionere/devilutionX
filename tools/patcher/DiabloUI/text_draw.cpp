@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
 {
 	if (flags & UIS_HCENTER)
-		return (dest.w - w) / 2;
+		return (dest.w - w) >> 1;
 	if (flags & UIS_RIGHT)
 		return dest.w - w;
 	return 0;
@@ -57,7 +57,7 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 	}
 
 	int x = rect.x + AlignXOffset(flags, rect, w) + SCREEN_X;
-	int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - h) / 2 : 0) + SCREEN_Y + h;
+	int y = rect.y + ((flags & UIS_VCENTER) ? ((rect.h - h) >> 1) : 0) + SCREEN_Y + h;
 
 	y += dy;
 	h += dy;

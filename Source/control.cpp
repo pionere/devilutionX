@@ -381,6 +381,7 @@ void DrawSkillIcons()
 	case TGT_OBJECT:
 		str = "Object";
 		numchar = lengthof("Object") - 1;
+		static_assert((lengthof("Object") - 1) * SMALL_FONT_HEIGHT <= 2 * SPLICON_WIDTH, "DrawSkillIcons uses unsigned division to calculate sy.");
 		break;
 	case TGT_OTHER:
 		str = "Other";
@@ -399,12 +400,12 @@ void DrawSkillIcons()
 	}
 	// PrintSmallVerticalStr centered
 	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
-	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2;
+	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2u;
 	for (unsigned i = 0; i < numchar; i++) {
 		sy += SMALL_FONT_HEIGHT;
 		BYTE nCel = gbStdFontFrame[str[i]];
 		// PrintSmallChar(sx + (SMALL_FONT_WIDTH - smallFontWidth[nCel]) / 2, sy, str[i], COL_GOLD);
-		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
+		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2u, sy, nCel, COL_GOLD);
 	}
 }
 
@@ -1462,7 +1463,7 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 
 	if (y < 0)
 		return result;
-	x -= width / 2;
+	x -= width / 2u;
 	if (x < 0) {
 		result = -x;
 		x = 0;
@@ -1532,8 +1533,8 @@ static POS32 GetMousePos(int x, int y)
 		pos.y <<= 1;
 	}
 
-	pos.x += SCREEN_WIDTH / 2;
-	pos.y += VIEWPORT_HEIGHT / 2;
+	pos.x += SCREEN_WIDTH / 2u;
+	pos.y += VIEWPORT_HEIGHT / 2u;
 
 	return pos;
 }
@@ -1569,7 +1570,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	if (y < 0)
 		return result;
-	x -= width / 2;
+	x -= width / 2u;
 	if (x < 0) {
 		result = -x;
 		x = 0;
@@ -1831,7 +1832,7 @@ void DrawInfoStr()
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
-		DrawTooltip(infostr, MousePos.x + cursW / 2, MousePos.y - TOOLTIP_OFFSET, infoclr);
+		DrawTooltip(infostr, MousePos.x + cursW / 2u, MousePos.y - TOOLTIP_OFFSET, infoclr);
 	}
 }
 

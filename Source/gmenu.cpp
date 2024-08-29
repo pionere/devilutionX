@@ -182,8 +182,8 @@ static TMenuItem* current_menu_item(bool activate)
 	if (!(pItem->dwFlags & GMF_ENABLED)) {
 		return NULL;
 	}
-	w = gmenu_get_lfont(pItem) / 2;
-	if (abs(MousePos.x - SCREEN_WIDTH / 2) > w)
+	w = gmenu_get_lfont(pItem) / 2u;
+	if (abs(MousePos.x - (int)(SCREEN_WIDTH / 2u)) > w)
 		return NULL;
 
 	if (activate)
@@ -285,7 +285,7 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MousePos.x - (SCREEN_WIDTH / 2 - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (SCREEN_WIDTH / 2u - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;
@@ -351,8 +351,9 @@ void gmenu_slider_set(TMenuItem* pItem, int min, int max, int value)
 	int nSteps;
 
 	//assert(pItem != NULL);
+	//assert(max > min);
 	nSteps = pItem->wMenuParam1;
-	pItem->wMenuParam2 = ((max - min) / 2 + (value - min) * nSteps) / (max - min);
+	pItem->wMenuParam2 = ((max - min) / 2u + (value - min) * nSteps) / (max - min);
 }
 
 int gmenu_slider_get(TMenuItem* pItem, int min, int max)

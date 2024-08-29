@@ -141,7 +141,7 @@ static int diablo_parse_flags(int argc, char** argv)
 
 static void diablo_init_screen()
 {
-	MousePos.x = SCREEN_WIDTH / 2;
+	MousePos.x = SCREEN_WIDTH / 2u;
 	MousePos.y = MAINMENU_TOP + MAINMENU_ITEM_HEIGHT / 2;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (!sgbControllerActive)

@@ -32,11 +32,11 @@ struct CircleMenuHint {
 	    , bottom(bottom)
 	    , left(left)
 	{
-		int left_w = CalculateTextWidth(left);
-		int x_mid = left_w + SpaceWidth() * 5 / 2;
+		int left_w = CalculateTextWidth(left); // std::max(CalculateTextWidth(left), CalculateTextWidth(right));
+		int x_mid = left_w + SpaceWidth() * 5 / 2u;
 		width = 2 * x_mid;
-		top_offx = x_mid - CalculateTextWidth(top) / 2;
-		bottom_offx = x_mid - CalculateTextWidth(bottom) / 2;
+		top_offx = x_mid - CalculateTextWidth(top) / 2u;
+		bottom_offx = x_mid - CalculateTextWidth(bottom) / 2u;
 		right_offx = left_w + SpaceWidth() * 5;
 	}
 
