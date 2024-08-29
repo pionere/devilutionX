@@ -1078,13 +1078,7 @@ static void UpdateActionBtnState(int vKey, bool dir)
 void DisableInputWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
-	case DVL_WM_KEYDOWN:
-		UpdateActionBtnState(e->vkcode, true);
-		break; //  return;
-	case DVL_WM_KEYUP:
-		UpdateActionBtnState(e->vkcode, false);
-		break; //  return;
-	case DVL_WM_TEXT:
+	case DVL_WM_NONE:
 	//case DVL_WM_SYSKEYDOWN:
 	//case DVL_WM_SYSCOMMAND:
 		break; //  return;
@@ -1106,6 +1100,14 @@ void DisableInputWndProc(const Dvl_Event* e)
 	case DVL_WM_RBUTTONUP:
 		UpdateActionBtnState(DVL_VK_RBUTTON, false);
 		break; //  return;
+	case DVL_WM_KEYDOWN:
+		UpdateActionBtnState(e->vkcode, true);
+		break; //  return;
+	case DVL_WM_KEYUP:
+		UpdateActionBtnState(e->vkcode, false);
+		break; //  return;
+	case DVL_WM_TEXT:
+		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
@@ -1113,7 +1115,6 @@ void DisableInputWndProc(const Dvl_Event* e)
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
 		break; //  return;
-	case DVL_WM_NONE:
 	// case DVL_WM_QUERYENDSESSION:
 	// case DVL_DWM_NEXTLVL:
 	// case DVL_DWM_PREVLVL:
@@ -1126,7 +1127,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 	// case DVL_DWM_RETOWN:
 	// case DVL_DWM_NEWGAME:
 	// case DVL_DWM_LOADGAME:
-		break;
+	//	break;
 	default:
 		ASSUME_UNREACHABLE
 	}
@@ -1137,23 +1138,8 @@ void DisableInputWndProc(const Dvl_Event* e)
 static void GameWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
-	case DVL_WM_KEYDOWN:
-		PressKey(e->vkcode);
-		break; //  return;
-	case DVL_WM_KEYUP:
-		ReleaseKey(e->vkcode);
-		break; //  return;
-	case DVL_WM_TEXT:
-#ifndef USE_SDL1
-		if (gmenu_is_active()) {
-			break; //  return;
-		}
-		if (gbTalkflag) {
-			plrmsg_CatToText(e->text.text);
-			break; //  return;
-		}
-#endif
-		break; //  return;
+	case DVL_WM_NONE:
+		break;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
 	//		break; //  return;
@@ -1193,6 +1179,20 @@ static void GameWndProc(const Dvl_Event* e)
 		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_RBUTTON);
 		break; //  return;
+	case DVL_WM_KEYDOWN:
+		PressKey(e->vkcode);
+		break; //  return;
+	case DVL_WM_KEYUP:
+		ReleaseKey(e->vkcode);
+		break; //  return;
+	case DVL_WM_TEXT:
+#ifndef USE_SDL1
+		if (gmenu_is_active())
+			break; //  return;
+		else if (gbTalkflag)
+			plrmsg_CatToText(e->text.text);
+#endif
+		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
@@ -1200,6 +1200,8 @@ static void GameWndProc(const Dvl_Event* e)
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
 		break; //  return;
+	// case DVL_WM_QUERYENDSESSION:
+	//	break;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
 	case DVL_DWM_SETLVL:
@@ -1226,9 +1228,6 @@ static void GameWndProc(const Dvl_Event* e)
 			//gbRedrawFlags = REDRAW_ALL;
 		}
 		break; //  return;
-	case DVL_WM_NONE:
-	// case DVL_WM_QUERYENDSESSION:
-		break;
 	default:
 		ASSUME_UNREACHABLE
 	}
