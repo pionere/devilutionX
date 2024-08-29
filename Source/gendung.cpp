@@ -1552,7 +1552,7 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 				DRLG_CreateThemeRoom(numthemes, themeTiles);
 				numthemes++;
 				if (numthemes == lengthof(themes))
-					break; // should not happen (too often), otherwise the theme-placement is biased
+					return; // should not happen (too often), otherwise the theme-placement is biased
 			}
 
 			j += tArea.h;
