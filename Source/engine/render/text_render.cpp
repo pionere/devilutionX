@@ -124,23 +124,13 @@ static CelImageBuf* pSmallPentSpinCels;
 static CelImageBuf* pHugePentSpinCels;
 
 /**
- * Merged color translations for fonts. The shades of one color are used in one font.CEL
+ * 'One-line' color translations for fonts. The shades of one color are used in one font.CEL
  * SmalText.CEL uses PAL16_GRAY values, while MedTextS and BigTGold.CEL are using PAL16_YELLOWs
  */
-static BYTE fontColorTrns[][16] = {
+static BYTE fontColorTrns[3][16] = {
 	// clang-format off
-	// skip non-generic colors
-	{ 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, },
-	// skip unused colors
-	{ 0, },
-	{ 0, },
-	{ 0, },
-	{ 0, },
 	// TRN for AFT_SILVER (MedTextS)
 	{ PAL16_GRAY, PAL16_GRAY + 1, PAL16_GRAY + 2, PAL16_GRAY + 3, PAL16_GRAY + 4, PAL16_GRAY + 5, PAL16_GRAY + 6, PAL16_GRAY + 7, PAL16_GRAY + 8, PAL16_GRAY + 9, PAL16_GRAY + 10, PAL16_GRAY + 11, PAL16_GRAY + 12, PAL16_GRAY + 13, PAL16_GRAY + 14, PAL16_YELLOW + 15 },
-	// skip unused colors
-	{ 0, },
-	{ 0, },
 	// TRN for COL_BLUE (SmalText)
 	{ PAL16_BLUE + 2, PAL16_BLUE + 3, PAL16_BLUE + 4, PAL16_BLUE + 5, PAL16_BLUE + 6, PAL16_BLUE + 7, PAL16_BLUE + 8, PAL16_BLUE + 9, PAL16_BLUE + 10, PAL16_BLUE + 11, PAL16_BLUE + 12, PAL16_BLUE + 13, PAL16_BLUE + 14, PAL16_BLUE + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_GOLD (SmalText)
@@ -149,10 +139,11 @@ static BYTE fontColorTrns[][16] = {
 	//{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
 	// clang-format on
 };
-#define FONT_TRN_SILVER (&fontColorTrns[0][0])
-#define FONT_TRN_BLUE   (&fontColorTrns[0][0])
-#define FONT_TRN_GOLD   (&fontColorTrns[1][0])
-//#define FONT_TRN_RED    (&fontColorTrns[2][0])
+#define YLW_FONT_TRN_SILVER (&fontColorTrns[0][0] - PAL16_YELLOW)
+#define YLW_FONT_TRN_BLUE   (&fontColorTrns[1][0] - PAL16_YELLOW)
+#define GRY_FONT_TRN_BLUE   (&fontColorTrns[1][0] - PAL16_GRAY)
+#define GRY_FONT_TRN_GOLD   (&fontColorTrns[2][0] - PAL16_GRAY)
+//#define GRY_FONT_TRN_RED    (&fontColorTrns[3][0] - PAL16_GRAY)
 
 void InitText()
 {
@@ -193,13 +184,13 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 		CelDraw(sx, sy, pSmallTextCels, nCel);
 		return;
 	case COL_BLUE:
-		tbl = FONT_TRN_BLUE;
+		tbl = GRY_FONT_TRN_BLUE;
 		break;
 	case COL_RED:
-		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // GRY_FONT_TRN_RED;
 		break;
 	case COL_GOLD:
-		tbl = FONT_TRN_GOLD;
+		tbl = GRY_FONT_TRN_GOLD;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -214,7 +205,7 @@ static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
 		CelDraw(sx, sy, pBigTextCels, nCel);
 	} else {
 		// assert(col == COL_WHITE);
-		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
+		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, YLW_FONT_TRN_SILVER);
 	}
 }
 
