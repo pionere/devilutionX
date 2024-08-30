@@ -52,7 +52,7 @@ const BYTE L4DYNENTRY2[] = {
 /** Miniset: Stairs up. */
 const BYTE L4USTAIRS[] = {
 	// clang-format off
-	4, 5, // width, height
+	5, 5, // width, height
 
 	 6, 6, 6, 6, // search
 	 6, 6, 6, 6,
@@ -60,11 +60,11 @@ const BYTE L4USTAIRS[] = {
 	 6, 6, 6, 6,
 	 6, 6, 6, 6,
 
-	 0,  0,  0,  0, // replace
-	36, 38, 35,  0,
-	37, 34, 33, 32,
-	 0,  0, 31,  0,
-	 0,  0,  0,  0,
+	 0,  0,  0,  0,  0, // replace
+	36, 38, 35,  0,  0,
+	37, 34, 33, 32,  0,
+	 0,  0, 31,  0,  0,
+	 0,  0,  0,  0,  0,
 	// clang-format on
 };
 /** Miniset: Stairs up to town. */
