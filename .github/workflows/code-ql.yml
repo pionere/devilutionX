@@ -3,7 +3,7 @@ name: Weekly Code Scanning
 #on: [push, pull_request]
 on:
   schedule:
-    - cron: "0 0 * * 0" # Every Sunday at midnight
+    - cron: "0 0 1 * *" # First day of the months
 
 # For most projects, this workflow file will not need changing; you simply need
 # to commit it to your repository.
