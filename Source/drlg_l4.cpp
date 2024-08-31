@@ -1207,23 +1207,19 @@ static void L4ConnectBlock()
 {
 	int j, i, rv;
 	BYTE hallok[std::max(L4BLOCKX, L4BLOCKY)];
-
-	memset(hallok, 0, sizeof(hallok));
-	for (j = L4BLOCKY - 2; j >= 0; j--) {
-		for (i = L4BLOCKX - 2; i >= 0; i--) {
+	// find the right side of the rooms
+	for (j = L4BLOCKY - 1; j >= 0; j--) {
+		for (i = L4BLOCKX - 1; i > 0; i--) {
 			if (drlg.dungBlock[i][j] == 1) {
-				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (drlg.dungBlock[i][j + 1] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
-					hallok[j] = i;
-				}
-				i = 0;
+				break;
 			}
 		}
+		hallok[j] = i;
 	}
-
+	// connect to the right side of the dungeon
 	rv = RandRange(1, L4BLOCKY - 1);
 	while (true) {
-		if (hallok[rv] != 0) {
+		if (hallok[rv] != 0 && hallok[rv] == hallok[rv + 1]) {
 			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
 				drlg.dungBlock[i][rv] = 1;
 				drlg.dungBlock[i][rv + 1] = 1;
@@ -1231,28 +1227,25 @@ static void L4ConnectBlock()
 			break;
 		} else {
 			rv++;
-			if (rv == L4BLOCKY) {
+			if (rv == L4BLOCKY - 1) {
 				rv = 1;
 			}
 		}
 	}
 
-	memset(hallok, 0, sizeof(hallok));
-	for (i = L4BLOCKX - 2; i >= 0; i--) {
-		for (j = L4BLOCKY - 2; j >= 0; j--) {
+	// find the bottom side of the rooms
+	for (i = L4BLOCKX - 1; i >= 0; i--) {
+		for (j = L4BLOCKY - 1; j > 0; j--) {
 			if (drlg.dungBlock[i][j] == 1) {
-				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (drlg.dungBlock[i + 1][j] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
-					hallok[i] = j;
-				}
-				j = 0;
+				break;
 			}
 		}
+		hallok[i] = j;
 	}
-
+	// connect to the bottom side of the dungeon
 	rv = RandRange(1, L4BLOCKX - 1);
 	while (true) {
-		if (hallok[rv] != 0) {
+		if (hallok[rv] != 0 && hallok[rv] == hallok[rv + 1]) {
 			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
 				drlg.dungBlock[rv][j] = 1;
 				drlg.dungBlock[rv + 1][j] = 1;
@@ -1260,7 +1253,7 @@ static void L4ConnectBlock()
 			break;
 		} else {
 			rv++;
-			if (rv == L4BLOCKX) {
+			if (rv == L4BLOCKX - 1) {
 				rv = 1;
 			}
 		}
