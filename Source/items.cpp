@@ -2912,10 +2912,9 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
-		copy_cstr(tempstr, "high durability");
-		break;
 	case IPL_DUR_CURSE:
-		copy_cstr(tempstr, "decreased durability");
+	case IPL_SETDUR:
+		copy_cstr(tempstr, "altered durability");
 		break;
 	case IPL_INDESTRUCTIBLE:
 		copy_cstr(tempstr, "indestructible");
@@ -2982,9 +2981,6 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		break;
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
-		break;
-	case IPL_SETDUR:
-		copy_cstr(tempstr, "altered durability");
 		break;
 	case IPL_NOMINSTR:
 		copy_cstr(tempstr, "no strength requirement");
