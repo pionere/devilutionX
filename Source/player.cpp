@@ -749,8 +749,9 @@ static void PlacePlayer(int pnum)
 		return;
 
 	if (i == lengthof(plrxoff2)) {
-		static_assert(DBORDERX >= 16 && DBORDERY >= 16, "PlacePlayer expects a large enough border.");
-		for (i = 2; i < 16; i++) {
+		static_assert(DBORDERX >= 15 && DBORDERY >= 15, "PlacePlayer expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 15, "PlacePlayer uses CrawlTable/CrawlNum up to radius 16.");
+		for (i = 2; i <= 15; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				nx = plr._px + *++cr;

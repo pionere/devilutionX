@@ -668,6 +668,7 @@ void TraceLightSource(int nXPos, int nYPos, int nRadius)
 	nRadius = 2 * (nRadius + 1) * 8 * 16;
 	static_assert(INT_MAX / (2 * 8 * 16) > MAX_LIGHT_RAD, "Light tracing overflows in TraceLightSource.");
 	static_assert(MAX_OFFSET == 8, "Light tracing shift must be adjusted in TraceLightSource.");
+	static_assert(lengthof(CrawlNum) > 15, "TraceLightSource uses CrawlTable/CrawlNum up to radius 15.");
 	cr = &CrawlTable[CrawlNum[15]];
 	for (i = (BYTE)*cr; i > 0; i--) {
 		x1 = nXPos;
@@ -798,6 +799,7 @@ void DoVision(int nXPos, int nYPos, int nRadius, bool local)
 		}
 	}
 	nRadius = 2 * (nRadius + 1);
+	static_assert(lengthof(CrawlNum) > 15, "DoVision uses CrawlTable/CrawlNum up to radius 15.");
 	cr = &CrawlTable[CrawlNum[15]];
 	for (i = (BYTE)*cr; i > 0; i--) {
 		x1 = nXPos;

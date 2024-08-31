@@ -265,6 +265,7 @@ static bool FindClosest(int sx, int sy, int& dx, int& dy)
 	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
 	static_assert(DBORDERX >= 15 && DBORDERY >= 15, "FindClosest expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 15, "FindClosest uses CrawlTable/CrawlNum up to radius 16.");
 	for (i = 1; i <= 15; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -299,6 +300,7 @@ static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
 	static_assert(DBORDERX >= 7 && DBORDERY >= 7, "FindClosestChain expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 7, "FindClosestChain uses CrawlTable/CrawlNum up to radius 7.");
 	for (i = 1; i <= 7; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -1591,6 +1593,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 	}
 	mis->_miRange = 16 + 1584; // delay + ttl
 	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "PlaceRune expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 9, "PlaceRune uses CrawlTable/CrawlNum up to radius 9.");
 	for (i = 0; i <= 9; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = *cr; j > 0; j--) {
@@ -1616,7 +1619,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
  */
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREEXP, 0);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREEXP, 0); // RUNE_RANGE
 }
 
 /**
@@ -1627,7 +1630,7 @@ int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddLightRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNINGC, 1);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNINGC, 1); // RUNE_RANGE
 }
 
 /**
@@ -1638,7 +1641,7 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddNovaRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNOVAC, 1);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNOVAC, 1); // RUNE_RANGE
 }
 
 /**
@@ -1649,7 +1652,7 @@ int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWaveRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREWAVEC, 1);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREWAVEC, 1); // RUNE_RANGE
 }
 
 /**
@@ -1659,7 +1662,7 @@ int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
  */
 int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0); // RUNE_RANGE
 }
 
 int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
@@ -1751,6 +1754,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
 
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddRingC expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 3, "AddRingC uses CrawlTable/CrawlNum radius 3.");
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = *cr; j > 0; j--) {
 		tx = sx + *++cr;
@@ -2095,6 +2099,7 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	}
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTeleport expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddTeleport uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2351,6 +2356,7 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis = &missile[mi];
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddShroud expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2418,6 +2424,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	if (currLvl._dType != DTYPE_TOWN && spllvl >= 0) {
 		const int RANGE = 6;
 		static_assert(DBORDERX >= RANGE - 1 && DBORDERY >= RANGE - 1, "AddTown expects a large enough border.");
+		static_assert(lengthof(CrawlNum) >= RANGE, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
 		for (i = 0; i < RANGE; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
@@ -2550,6 +2557,7 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miMaxDam = maxdam << 6;
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddMeteor expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddMeteor uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2747,6 +2755,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "AddStone expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 2, "AddStone uses CrawlTable/CrawlNum up to radius 2.");
 	for (i = 0; i <= 2; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2801,6 +2810,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis = &missile[mi];
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddGuardian expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddGuardian uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2833,6 +2843,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	mon = &monsters[misource];
 	if (mon->_mmode > MM_INGAME_LAST) {
 		static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddGolem expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 5, "AddGolem uses CrawlTable/CrawlNum up to radius 5.");
 		for (i = 0; i <= 5; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
@@ -2997,6 +3008,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	// (micaster & MST_PLAYER);
 	// ((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddWallC expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddWallC uses CrawlTable/CrawlNum up to radius 5.");
 	mis = &missile[mi];
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -3059,6 +3071,7 @@ int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	const int8_t* cr;
 	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddNovaC expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 3, "AddNovaC uses CrawlTable/CrawlNum radius 3.");
 	cr = &CrawlTable[CrawlNum[3]];
 	for (i = *cr; i > 0; i--) {
 		tx = sx + *++cr;
@@ -3253,6 +3266,7 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 	dist = 4 + (spllvl >> 2);
 	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "AddAttract expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 9, "AddAttract uses CrawlTable/CrawlNum up to radius 9.");
 	if (dist > 9)
 		dist = 9;
 	for (i = 0; i <= dist; i++) {
@@ -3951,6 +3965,7 @@ void MI_HorkSpawn(int mi)
 	// assert(abs(mis->_mix - mis->_misx) <= 1 && abs(mis->_miy - mis->_misy) <= 1);
 	mis->_miDelFlag = TRUE;
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "MI_HorkSpawn expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 1, "MI_HorkSpawn uses CrawlTable/CrawlNum up to radius 1.");
 	for (i = 0; i <= 1; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = *cr; j > 0; j--) {
@@ -3981,7 +3996,8 @@ void MI_Rune(int mi)
 	if (--mis->_miVar3 < 0) {
 		sx = mis->_mix;
 		sy = mis->_miy;
-		cr = &CrawlTable[CrawlNum[mis->_miVar2]];
+		static_assert(lengthof(CrawlNum) > 1, "MI_Rune uses CrawlTable/CrawlNum up to radius 1.");
+		cr = &CrawlTable[CrawlNum[mis->_miVar2]]; // RUNE_RANGE
 		for (j = *cr; j > 0; j--) {
 			tx = sx + *++cr;
 			ty = sy + *++cr;
@@ -4392,6 +4408,7 @@ void MI_Guardian(int mi)
 			if (mis->_miRange >= 0) {
 				ex = false;
 				static_assert(DBORDERX >= 6 && DBORDERY >= 6, "MI_Guardian expects a large enough border.");
+				static_assert(lengthof(CrawlNum) > 6, "MI_Guardian uses CrawlTable/CrawlNum up to radius 6.");
 				for (i = 6; i >= 0 && !ex; i--) {
 					cr = &CrawlTable[CrawlNum[i]];
 					for (j = *cr; j > 0; j--) {
