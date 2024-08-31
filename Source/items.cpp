@@ -1502,19 +1502,16 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
-		is->_iMaxDur += r2;
-		is->_iDurability += r2;
+		is->_iDurability = is->_iMaxDur = is->_iMaxDur + r2;
 		break;
 	case IPL_CRYSTALLINE:
 		is->_iPLDam = r * 2;
 		// no break
 	case IPL_DUR_CURSE:
-		is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
-		is->_iDurability = is->_iMaxDur;
+		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_INDESTRUCTIBLE:
-		is->_iDurability = DUR_INDESTRUCTIBLE;
-		is->_iMaxDur = DUR_INDESTRUCTIBLE;
+		is->_iDurability = is->_iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IPL_LIGHT:
 		is->_iPLLight = r;
@@ -1578,8 +1575,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDam = param2;
 		break;
 	case IPL_SETDUR:
-		is->_iDurability = r;
-		is->_iMaxDur = r;
+		is->_iDurability = is->_iMaxDur = r;
 		break;
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
