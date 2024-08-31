@@ -881,7 +881,6 @@ static void ValidateSEConnection(int x, int y)
 
 /*
  * Draw wall around the tiles selected by L4FirstRoom (and L4ConnectBlock).
- * Assumes the border of dungeon was empty.
  * New dungeon values: 4 .. 29 except 20
  */
 static void L4TileFix()
@@ -1203,7 +1202,6 @@ static void L4Block2Dungeon()
 
 /*
  * Create link between the quarters (blocks) of the dungeon.
- * Assumes the border of dungBlock to be empty.
  */
 static void L4ConnectBlock()
 {
@@ -1392,7 +1390,7 @@ static void L4RoomGen(int x, int y, int w, int h, bool dir)
 		}
 		// try to place a room to the right
 		rxy2 = x + w;
-		while(true) {
+		while (true) {
 			if (L4CheckVHall(rxy2 - 1, ry - 1, height + 2)
 			 && L4CheckRoom(rxy2, ry - 1, width + 1, height + 2)) {
 				// - add room to the right
@@ -1436,7 +1434,7 @@ static void L4RoomGen(int x, int y, int w, int h, bool dir)
 		}
 		// try to place a room to the bottom
 		rxy2 = y + h;
-		while(true) {
+		while (true) {
 			if (L4CheckHHall(rxy2 - 1, rx - 1, width + 2)
 			 && L4CheckRoom(rx - 1, rxy2, width + 2, height + 1)) {
 				// - add room to the bottom
