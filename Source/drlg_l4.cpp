@@ -2024,8 +2024,8 @@ static void DRLG_L4()
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
 			L4FirstRoom();
-		} while (DRLG_L4GetArea() < 173);
-		L4ConnectBlock();
+			L4ConnectBlock();
+		} while (DRLG_L4GetArea() < 190);
 
 		L4Block2Dungeon();
 		DRLG_L4MakeMegas();
