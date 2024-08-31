@@ -1200,6 +1200,22 @@ static void L4Block2Dungeon()
 	}
 }
 
+static int L4SelectPos(const BYTE (&hall)[20])
+{
+	int i, n, rv;
+	BYTE match[20];
+	n = 0;
+	for (i = 20 - 2; i > 0; i--) {
+		if (hall[i] != 0 && hall[i] == hall[i + 1]) {
+			match[n] = i;
+			n++;
+		}
+	}
+	// assert(n != 0);
+	rv = random_low(0, n);
+	return match[rv];
+}
+
 /*
  * Create link between the quarters (blocks) of the dungeon.
  */
@@ -1216,21 +1232,12 @@ static void L4ConnectBlock()
 		}
 		hallok[j] = i;
 	}
+	// select a position with matching 2 tiles-wide ending
+	rv = L4SelectPos(hallok);
 	// connect to the right side of the dungeon
-	rv = RandRange(1, L4BLOCKY - 1);
-	while (true) {
-		if (hallok[rv] != 0 && hallok[rv] == hallok[rv + 1]) {
-			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
-				drlg.dungBlock[i][rv] = 1;
-				drlg.dungBlock[i][rv + 1] = 1;
-			}
-			break;
-		} else {
-			rv++;
-			if (rv == L4BLOCKY - 1) {
-				rv = 1;
-			}
-		}
+	for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
+		drlg.dungBlock[i][rv] = 1;
+		drlg.dungBlock[i][rv + 1] = 1;
 	}
 
 	// find the bottom side of the rooms
@@ -1242,21 +1249,12 @@ static void L4ConnectBlock()
 		}
 		hallok[i] = j;
 	}
+	// select a position with matching 2 tiles-wide ending
+	rv = L4SelectPos(hallok);
 	// connect to the bottom side of the dungeon
-	rv = RandRange(1, L4BLOCKX - 1);
-	while (true) {
-		if (hallok[rv] != 0 && hallok[rv] == hallok[rv + 1]) {
-			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
-				drlg.dungBlock[rv][j] = 1;
-				drlg.dungBlock[rv + 1][j] = 1;
-			}
-			break;
-		} else {
-			rv++;
-			if (rv == L4BLOCKX - 1) {
-				rv = 1;
-			}
-		}
+	for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
+		drlg.dungBlock[rv][j] = 1;
+		drlg.dungBlock[rv + 1][j] = 1;
 	}
 }
 
