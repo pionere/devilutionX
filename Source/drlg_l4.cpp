@@ -1205,7 +1205,7 @@ static int L4SelectPos(const BYTE (&hall)[20])
 	int i, n, rv;
 	BYTE match[20];
 	n = 0;
-	for (i = 20 - 2; i > 0; i--) {
+	for (i = 20 - 3; i >= 0; i--) {
 		if (hall[i] != 0 && hall[i] == hall[i + 1]) {
 			match[n] = i;
 			n++;
