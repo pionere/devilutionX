@@ -269,6 +269,42 @@ void ValidateData()
 			app_fatal("Invalid (zero) cursor height at %d.", i);
 	}
 	// meta-data
+	// - CrawlNum
+	for (int n = 0; n < lengthof(CrawlNum); n++) {
+		int a = CrawlNum[n];
+		int e = CrawlTable[a];
+		int b;
+		if (n < lengthof(CrawlNum) - 1) {
+			b = CrawlNum[n + 1];
+		} else {
+			b = lengthof(CrawlTable);
+		}
+		if (a + 1 + 2 * e != b)
+			app_fatal("CrawlNum mismatch %d vs %d (idx=%d)", a + 1 + 2 * e, b, n);
+	}
+	// - CrawlTable
+	for (int i = 0; i < lengthof(CrawlTable); i++) {
+		int k = 0;
+		for (; k < lengthof(CrawlNum); k++) {
+			if (CrawlNum[k] == i)
+				break;
+		}
+		if (k >= lengthof(CrawlNum)) {
+			for (int n = i + 2; n < lengthof(CrawlTable); n++) {
+				k = 0;
+				for (; k < lengthof(CrawlNum); k++) {
+					if (CrawlNum[k] == n)
+						break;
+				}
+				if (k >= lengthof(CrawlNum)) {
+					if (CrawlTable[n] == CrawlTable[i] && CrawlTable[n + 1] == CrawlTable[i + 1])
+						app_fatal("Duplicate entry (%d:%d) in CrawlTable (@ %d and %d)", CrawlTable[n], CrawlTable[n + 1], n, i);
+					n++;
+				}
+			}
+			i++;
+		}
+	}
 	assert(CrawlTable[CrawlNum[4]] == 32); // required by MAI_Scav
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
