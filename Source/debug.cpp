@@ -53,7 +53,7 @@ void DumpDungeon()
 #endif /* DEBUG_MODE */
 
 #if DEBUG_MODE || DEV_MODE
-static const char* ReadTextLine(const char* str, char lineSep, int limit)
+/*static const char* ReadTextLine(const char* str, char lineSep, int limit)
 {
 	int w;
 	BYTE c;
@@ -80,7 +80,7 @@ static const char* ReadTextLine(const char* str, char lineSep, int limit)
 static void PrintText(const char* text, char lineSep, int limit)
 {
 	const char* s = text;
-	int i = 0, w;
+	// int i = 0, w;
 	BYTE col;
 	FILE* textFile = fopen("f:\\sample.txt", "wb");
 
@@ -92,7 +92,7 @@ static void PrintText(const char* text, char lineSep, int limit)
 			col = COL_WHITE;
 		}
 		s = ReadTextLine(s, lineSep, limit);
-		w = GetSmallStringWidth(tempstr);
+		//  w = GetSmallStringWidth(tempstr);
 
 		// LogErrorF("%03d(%04d):%s", i++, w, tempstr);
 		if (col == COL_RED)
@@ -105,7 +105,8 @@ static void PrintText(const char* text, char lineSep, int limit)
 	}
 
 	fclose(textFile);
-}
+}*/
+#ifdef DEBUG_DATA
 /* copy-paste from monster.cpp */
 static bool IsSkel(int mt)
 {
@@ -176,7 +177,7 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 	}
 	return false;
 }
-#ifdef DEBUG_DATA
+
 static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
 {
 	if (abs(a->y) != abs(b->y))

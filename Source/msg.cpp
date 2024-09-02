@@ -3656,7 +3656,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 		mstr->dmy,
 		mstr->dmdir,
 		mstr->dmactive,
-		mstr->dmhitpoints,
+		(int)mstr->dmhitpoints,
 		mstr->dmWhoHit);
 			// clang-format on
 		} else {
@@ -4022,10 +4022,10 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		//memcpy(buf, plx(i)._pTimer, sizeof(plx(i)._pTimer));
 		//buf += sizeof(plx(i)._pTimer);
 
-		if (plx(i)._pExperience != *(INT*)src)
+		if (plx(i)._pExperience != *(UINT*)src)
 			PrintPlrMismatch("expr", plx(i)._pExperience, *(INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pNextExper != *(INT*)src)
+		if (plx(i)._pNextExper != *(UINT*)src)
 			PrintPlrMismatch("nexpr", plx(i)._pNextExper, *(INT*)src, pnum, i);
 		src += sizeof(INT);
 

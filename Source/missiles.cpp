@@ -3620,9 +3620,8 @@ void MI_Mage(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	bool wallHit = true;
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		wallHit = CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
