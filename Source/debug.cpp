@@ -416,6 +416,7 @@ void ValidateData()
 		}
 	}
 	assert(CrawlTable[CrawlNum[4]] == 32); // required by MAI_Scav
+	assert(CrawlTable[CrawlNum[3]] == 24); // required by AddNovaC
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;

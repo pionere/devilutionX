@@ -3071,6 +3071,7 @@ int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddNovaC expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 3, "AddNovaC uses CrawlTable/CrawlNum radius 3.");
+	// assert(CrawlTable[CrawlNum[3]] == 24);  -- (total) damage depends on this
 	cr = &CrawlTable[CrawlNum[3]];
 	for (i = (BYTE)*cr; i > 0; i--) {
 		tx = sx + *++cr;
