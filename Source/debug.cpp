@@ -268,7 +268,8 @@ void ValidateData()
 		if (i != CURSOR_NONE && InvItemHeight[i] == 0)
 			app_fatal("Invalid (zero) cursor height at %d.", i);
 	}
-
+	// meta-data
+	assert(CrawlTable[CrawlNum[4]] == 32); // required by MAI_Scav
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;
