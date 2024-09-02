@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <switch.h>
-#include "platform/switch/network.h"
 
 static int nxlink_sock = -1; // for stdio on Switch
 

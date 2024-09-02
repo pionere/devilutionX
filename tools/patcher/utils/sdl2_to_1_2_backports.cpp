@@ -501,7 +501,7 @@ static char* readSymLink(const char* path)
 	ssize_t len = 64;
 	ssize_t rc = -1;
 
-	while (1) {
+	while (true) {
 		char* ptr = (char*)SDL_realloc(retval, (size_t)len);
 		if (ptr == NULL) {
 			SDL_OutOfMemory();

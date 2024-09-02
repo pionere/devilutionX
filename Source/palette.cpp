@@ -83,7 +83,7 @@ void LoadLvlPalette()
 	char szFileName[DATA_ARCHIVE_MAX_PATH];
 
 	rv = RandRange(1, 4);
-	snprintf(szFileName, sizeof(szFileName), AllLevels[currLvl._dLevelIdx].dPalName, rv);
+	snprintf(szFileName, sizeof(szFileName), AllLevels[currLvl._dLevelNum].dPalName, rv);
 	LoadPalette(szFileName);
 }
 

@@ -265,6 +265,7 @@ static bool FindClosest(int sx, int sy, int& dx, int& dy)
 	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
 	static_assert(DBORDERX >= 15 && DBORDERY >= 15, "FindClosest expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 15, "FindClosest uses CrawlTable/CrawlNum up to radius 16.");
 	for (i = 1; i <= 15; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -299,6 +300,7 @@ static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
 	static_assert(DBORDERX >= 7 && DBORDERY >= 7, "FindClosestChain expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 7, "FindClosestChain uses CrawlTable/CrawlNum up to radius 7.");
 	for (i = 1; i <= 7; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -717,10 +719,10 @@ unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxda
 	return dam;
 }
 
-int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam)
+int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster, int mpnum)
 {
 	int dam = fdam + ldam + mdam + adam;
-	int mtype;
+	int mtype, mx, my, mxoff, myoff, mi;
 
 	if (dam == 0) {
 		return 0;
@@ -731,7 +733,22 @@ int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int adam
 	} else {
 		mtype = mdam >= adam ? MIS_EXMAGIC : MIS_EXACID;
 	}
-	AddMissile(dx, dy, -1, 0, 0, mtype, MST_NA, 0, 0);
+	if (isMonster) {
+		mx = monsters[mpnum]._mx;
+		my = monsters[mpnum]._my;
+		mxoff = monsters[mpnum]._mxoff;
+		myoff = monsters[mpnum]._myoff;
+	} else {
+		mx = plx(mpnum)._px;
+		my = plx(mpnum)._py;
+		mxoff = plx(mpnum)._pxoff;
+		myoff = plx(mpnum)._pyoff;
+	}
+	mi = AddMissile(mx, my, -1, 0, 0, mtype, MST_NA, 0, 0);
+	if (mi >= 0) {
+		missile[mi]._mixoff = mxoff;
+		missile[mi]._miyoff = myoff;
+	}
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
 		if (gfx < dam - ldam) {
@@ -896,7 +913,7 @@ static bool MissMonHitByPlr(int mnum, int mi)
 		if (adam != 0) {
 			adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 		}
-		dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, true, mnum);
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
@@ -1158,7 +1175,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		if (adam != 0) {
 			adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 		}
-		dam += AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	} else {
 		dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		dam >>= 1;
@@ -1565,7 +1582,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 	int i, j, tx, ty;
 	const int8_t* cr;
 	MissileStruct* mis;
-
+	// (micaster == MST_PLAYER || micaster == MST_OBJECT);
 	mis = &missile[mi];
 	mis->_miVar1 = mitype;
 	mis->_miVar2 = mirange;    // trigger range
@@ -1576,9 +1593,10 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 	}
 	mis->_miRange = 16 + 1584; // delay + ttl
 	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "PlaceRune expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 9, "PlaceRune uses CrawlTable/CrawlNum up to radius 9.");
 	for (i = 0; i <= 9; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
@@ -1601,7 +1619,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
  */
 int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREEXP, 0);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREEXP, 0); // RUNE_RANGE
 }
 
 /**
@@ -1612,7 +1630,7 @@ int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddLightRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNINGC, 1);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNINGC, 1); // RUNE_RANGE
 }
 
 /**
@@ -1623,7 +1641,7 @@ int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddNovaRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNOVAC, 1);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNOVAC, 1); // RUNE_RANGE
 }
 
 /**
@@ -1634,7 +1652,7 @@ int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWaveRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREWAVEC, 1);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREWAVEC, 1); // RUNE_RANGE
 }
 
 /**
@@ -1644,11 +1662,13 @@ int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
  */
 int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0);
+	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0); // RUNE_RANGE
 }
 
 int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
+	// (micaster == MST_MONSTER);
+	// 'assert'(misource < MAXMONSTERS);
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(8));
 	// missile[mi]._miMinDam = missile[mi]._miMaxDam = 0;
 	missile[mi]._miRange = 9 - 1;
@@ -1678,12 +1698,12 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 {
 	MissileStruct* mis;
 	int mindam, maxdam, dam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
 	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] * misfiledata[MFILE_BIGEXP].mfAnimFrameLen[0];
 
 	if (misource != -1) {
-		assert((unsigned)misource < MAX_PLRS);
+		// assert((unsigned)misource < MAX_PLRS);
 		mindam = 1 + (plx(misource)._pMagic >> 1) + 16 * spllvl;
 		maxdam = 1 + (plx(misource)._pMagic >> 1) + 32 * spllvl;
 		dam = RandRange(mindam, maxdam);
@@ -1730,12 +1750,13 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 {
 	int tx, ty, j, mitype;
 	const int8_t* cr;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
 
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddRingC expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 3, "AddRingC uses CrawlTable/CrawlNum radius 3.");
 	cr = &CrawlTable[CrawlNum[3]];
-	for (j = *cr; j > 0; j--) {
+	for (j = (BYTE)*cr; j > 0; j--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		assert(IN_DUNGEON_AREA(tx, ty));
@@ -1878,9 +1899,33 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_DONE;
 }
 
+/**
+ * Var1: the target player
+ * Var2: turn timer
+ */
+int AddMage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	constexpr int MAX_BRIGHTNESS = 10;
+	// (micaster == MST_MONSTER);
+	// assert(misource < MAXMONSTERS);
+	mis = &missile[mi];
+	mis->_miVar1 = dPlayer[dx][dy];
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(4));
+	mis->_miUniqTrans = MAX_BRIGHTNESS;
+	mis->_miRange = 255;
+	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
+	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
+	static_assert(MAX_LIGHT_RAD >= 8, "AddMage needs at least light-radius of 8.");
+	mis->_miLid = AddLight(sx, sy, 8);
+	return MIRES_DONE;
+}
+
 int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
+	// (micaster == MST_MONSTER);
+	// assert(misource < MAXMONSTERS);
 
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	mis = &missile[mi];
@@ -1899,7 +1944,7 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	MissileStruct* mis;
 	int mindam, maxdam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -1927,7 +1972,8 @@ int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 {
 	MissileStruct* mis;
 	int magic, mindam, maxdam;
-
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -1937,7 +1983,6 @@ int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis = &missile[mi];
 	mis->_miRange = 16 * spllvl + 96;
 	//if (misource != -1) {
-		assert((unsigned)misource < MAX_PLRS);
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
 		magic = plx(misource)._pMagic;
@@ -1961,7 +2006,8 @@ int AddWind(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 {
 	MissileStruct* mis;
 	int magic, mindam, maxdam;
-
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -1974,7 +2020,6 @@ int AddWind(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	GetMissilePos(mi);
 	mis->_miRange = 255;
 	//if (misource != -1) {
-		assert((unsigned)misource < MAX_PLRS);
 		magic = plx(misource)._pMagic;
 		mindam = (magic >> 3) + 7 * spllvl + 1;
 		maxdam = (magic >> 3) + 8 * spllvl + 1;
@@ -1992,7 +2037,8 @@ int AddWind(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// (micaster == MST_MONSTER);
+	// assert(misource < MAXMONSTERS);
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
@@ -2008,7 +2054,8 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 {
 	MissileStruct* mis;
 	int dam;
-
+	// (micaster == MST_MONSTER);
+	// assert(misource < MAXMONSTERS);
 	mis = &missile[mi];
 	if (spllvl == 0) {
 		// pud from a missile
@@ -2037,7 +2084,8 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 {
 	int i, j, tx, ty;
 	const int8_t* cr;
-
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	// MisInCastDistance(sx, sy, midir, dx, dy, 7);
 	while (true) {
 		tx = sx - dx;
@@ -2050,8 +2098,8 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		dy += offset_y[OPPOSITE(midir)];
 	}
 
-	assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTeleport expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddTeleport uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2070,8 +2118,8 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int nTries;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
+	// assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 6 && DBORDERY >= 6, "AddRndTeleport expects a large enough border.");
 	if ((micaster & MST_PLAYER) || (dx == 0 && dy == 0)) {
 		nTries = 0;
@@ -2103,11 +2151,11 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 {
 	MissileStruct* mis;
 	int magic, mindam, maxdam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
 	mis->_miRange = 64 * spllvl + 160;
 	if (misource != -1) {
-		assert((unsigned)misource < MAX_PLRS);
+		// assert((unsigned)misource < MAX_PLRS);
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
 		magic = plx(misource)._pMagic;
@@ -2228,8 +2276,12 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
+	if (micaster == MST_MONSTER) {
+		spllvl = monsters[misource]._mLevel / 6; // TODO: add _mSkillLvl?
+		mis->_miSpllvl = spllvl;
+	}
 
 	mis->_mix = dx - 2;
 	mis->_miy = dy - 2;
@@ -2243,11 +2295,15 @@ int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	MissileStruct* mis;
 	int mindam, maxdam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
-	// assert(micaster & MST_PLAYER);
-	mindam = (plx(misource)._pMagic >> 2) + (spllvl << 2) + 10;
-	maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 10;
+	if (micaster == MST_MONSTER) {
+		mindam = monsters[misource]._mLevel >> 1; // TODO: use _mSkillLvl?
+		maxdam = monsters[misource]._mLevel;
+	} else {
+		mindam = (plx(misource)._pMagic >> 2) + (spllvl << 2) + 10;
+		maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 10;
+	}
 
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
@@ -2295,11 +2351,12 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	MissileStruct* mis;
 	int i, j, tx, ty;
 	const int8_t* cr;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// ((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddShroud expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2334,10 +2391,12 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		mis->_miyoff = bmis->_miyoff;
 		//mis->_mitxoff = bmis->_mitxoff;
 		//mis->_mityoff = bmis->_mityoff;
+		mis->_miUniqTrans = bmis->_miUniqTrans;
 	}
 	//mis->_mixvel = 0;
 	//mis->_miyvel = 0;
-	mis->_miRange = mis->_miAnimLen;
+	// assert(mis->_miAnimFrameLen == 1);
+	mis->_miRange = mis->_miAnimLen/* * mis->_miAnimFrameLen*/;
 	return MIRES_DONE;
 }
 
@@ -2359,25 +2418,26 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 {
 	int i, j, tx, ty;
 	const int8_t* cr;
-	// assert((unsigned)misource < MAX_PLRS);
+	// ((micaster & MST_PLAYER) || micaster == MST_NA);
+	// ((unsigned)misource < MAX_PLRS);
 	// the position of portals in town and recreated portals are fixed
 	if (currLvl._dType != DTYPE_TOWN && spllvl >= 0) {
-		const int RANGE = 6;
-		static_assert(DBORDERX >= RANGE - 1 && DBORDERY >= RANGE - 1, "AddTown expects a large enough border.");
-		for (i = 0; i < RANGE; i++) {
+		static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTown expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 5, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
+		for (i = 0; i <= 5; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (PosOkMissile(tx, ty) && !CheckIfTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
-					i = RANGE;
-					break;
+					goto done;
 				}
 			}
 		}
-		if (i == RANGE)
-			return MIRES_FAIL_DELETE;
+		return MIRES_FAIL_DELETE;
+done:
+		;
 	} else {
 		tx = dx;
 		ty = dy;
@@ -2396,7 +2456,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_NA);
 	mis = &missile[mi];
 	mis->_mix = mis->_misx = dx;
 	mis->_miy = mis->_misy = dy;
@@ -2453,11 +2513,11 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 {
 	MissileStruct* mis;
 	int magic, mindam, maxdam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	mis = &missile[mi];
 	if (misource != -1) {
-		assert((unsigned)misource < MAX_PLRS);
+		// assert((unsigned)misource < MAX_PLRS);
 		magic = plx(misource)._pMagic;
 		mindam = (magic >> 3) + 2 * spllvl + 1;
 		maxdam = (magic >> 3) + 4 * spllvl + 2;
@@ -2479,7 +2539,8 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	MissileStruct* mis;
 	int mindam, maxdam, i, j, tx, ty;
 	const int8_t* cr;
-
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//if (micaster & MST_PLAYER) {
 		mindam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 40;
@@ -2495,6 +2556,7 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miMaxDam = maxdam << 6;
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddMeteor expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddMeteor uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2521,9 +2583,8 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
-	assert((unsigned)misource < MAX_PLRS);
-
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -2553,7 +2614,8 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// (micaster == MST_MONSTER);
+	// assert((unsigned)misource < MAXMONSTERS);
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(18));
 	//assert(dMonster[sx][sy] == misource + 1);
 	dMonster[sx][sy] = -(misource + 1);
@@ -2575,7 +2637,8 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 {
 	MissileStruct* mis;
 	int pnum = misource, chv, aa;
-
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)pnum < MAX_PLRS);
 	dPlayer[sx][sy] = -(pnum + 1);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -2687,10 +2750,11 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	MonsterStruct* mon;
 	int i, j, tx, ty, mid, range;
 	const int8_t* cr;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "AddStone expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 2, "AddStone uses CrawlTable/CrawlNum up to radius 2.");
 	for (i = 0; i <= 2; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2700,9 +2764,21 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			mid = dMonster[tx][ty] - 1;
 			if (mid < MAX_MINIONS || !LineClear(sx, sy, tx, ty))
 				continue;
+			assert(mid < MAXMONSTERS);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE) && !CanTalkToMonst(mid)
 			 && mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints >= (1 << 6*/) {
+				// range = (sl * 128 - HP + 128) * 2
+				range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
+				// TODO: add support for spell duration modifier
+				//range += (range * plx(misource)._pISplDur) >> 7;
+				range >>= 5;
+				if (range < 15)
+					return MIRES_DELETE;
+				if (range > 239)
+					range = 239;
+				mis->_miRange = range;
+
 				MonLeaveLeader(mid);
 				mis->_miVar1 = mon->_mmode;
 				mis->_miVar2 = mid;
@@ -2716,16 +2792,6 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				//	assert(!MON_RELAXED);
 				}
 
-				// range = (sl * 128 - HP + 128) * 2
-				range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
-				// TODO: add support for spell duration modifier
-				//range += (range * plx(misource)._pISplDur) >> 7;
-				range >>= 5;
-				if (range < 15)
-					return MIRES_DELETE;
-				if (range > 239)
-					range = 239;
-				mis->_miRange = range;
 				return MIRES_DONE;
 			}
 		}
@@ -2738,11 +2804,12 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	MissileStruct* mis;
 	int i, j, tx, ty;
 	const int8_t* cr;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddGuardian expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddGuardian uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -2769,12 +2836,13 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	MonsterStruct* mon;
 	int tx, ty, i, j;
 	const int8_t* cr;
-
-	assert((unsigned)misource < MAX_PLRS);
-
+	// (micaster & MST_PLAYER);
+	// ((unsigned)misource < MAX_PLRS);
+	static_assert(MAX_MINIONS == MAX_PLRS, "AddGolem requires that owner of a monster has the same id as the monster itself.");
 	mon = &monsters[misource];
 	if (mon->_mmode > MM_INGAME_LAST) {
 		static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddGolem expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 5, "AddGolem uses CrawlTable/CrawlNum up to radius 5.");
 		for (i = 0; i <= 5; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
@@ -2803,8 +2871,8 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int i, hp;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 
 	hp = RandRange(1, 10);
 	for (i = spllvl; i > 0; i--) {
@@ -2835,8 +2903,8 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	int tnum, i, hp;
 	MonsterStruct* mon;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	// calculate hp
 	hp = RandRange(1, 10);
 	for (i = spllvl; i > 0; i--) {
@@ -2894,8 +2962,8 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	MissileStruct* mis;
 	int magic, i, mindam, maxdam;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)misource < MAX_PLRS);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -2936,9 +3004,10 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	MissileStruct* mis;
 	int i, j, tx, ty;
 	const int8_t* cr;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// ((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddWallC expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddWallC uses CrawlTable/CrawlNum up to radius 5.");
 	mis = &missile[mi];
 	for (i = 0; i <= 5; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
@@ -2965,7 +3034,8 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	assert((unsigned)misource < MAX_PLRS);
+	// (micaster & MST_PLAYER);
+	// ((unsigned)misource < MAX_PLRS);
 	int sd, nx, ny, dir;
 	int i, j;
 
@@ -2998,9 +3068,11 @@ int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 {
 	int i, tx, ty;
 	const int8_t* cr;
+	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddNovaC expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 3, "AddNovaC uses CrawlTable/CrawlNum radius 3.");
 	cr = &CrawlTable[CrawlNum[3]];
-	for (i = *cr; i > 0; i--) {
+	for (i = (BYTE)*cr; i > 0; i--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		AddMissile(sx, sy, tx, ty, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
@@ -3013,7 +3085,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 {
 	int oi = spllvl;
 	int pnum = misource;
-
+	// (micaster & MST_PLAYER);
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert((unsigned)oi < MAXOBJECTS);
 	// assert(objects[oi]._oBreak == OBM_UNBREAKABLE);
@@ -3032,7 +3104,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	MissileStruct* mis;
 	MissileStruct* bmis;
 	int mindam, maxdam;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 1, "AddInferno needs at least light-radius of 1.");
 	bmis = &missile[midir];
@@ -3065,7 +3137,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -3092,7 +3164,7 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// (micaster == MST_NA);
 	mis = &missile[mi];
 	mis->_miMinDam = 8 << (6 + gnDifficulty);
 	mis->_miMaxDam = 16 << (6 + gnDifficulty);
@@ -3104,6 +3176,8 @@ int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int i = 3;
+
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 
 	// checks commented out, because spllvl is zero if the caster is not a player
 	//if (misource != -1) {
@@ -3127,7 +3201,7 @@ int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
@@ -3156,6 +3230,9 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 {
 	MissileStruct* mis;
 
+	// (micaster & MST_PLAYER);
+	// ((unsigned)misource < MAX_PLRS);
+
 	if (spllvl == mypnum)
 		NetSendCmd(CMD_PLRRESURRECT);
 
@@ -3174,6 +3251,9 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	int dist, i, j, tx, ty, mnum;
 	const int8_t* cr;
 
+	// (micaster & MST_PLAYER);
+	// ((unsigned)misource < MAX_PLRS);
+
 	if (!LineClear(sx, sy, dx, dy))
 		return MIRES_FAIL_DELETE;
 
@@ -3185,6 +3265,7 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 	dist = 4 + (spllvl >> 2);
 	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "AddAttract expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 9, "AddAttract uses CrawlTable/CrawlNum up to radius 9.");
 	if (dist > 9)
 		dist = 9;
 	for (i = 0; i <= dist; i++) {
@@ -3213,6 +3294,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	int target = spllvl & 0xFFFF;
 	int type = spllvl >> 16;
 	bool ret;
+	// (micaster & MST_PLAYER);
 	// assert((unsigned)pnum < MAX_PLRS);
 
 	switch (type) {
@@ -3249,8 +3331,11 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	MissileStruct* mis;
 	int pnum, px, py;
 
+	// (micaster == MST_MONSTER);
+	// (misource == DIABLO);
+
 	mis = &missile[mi];
-	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty); // assert(misource == DIABLO);
+	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty);
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
@@ -3282,7 +3367,8 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	assert((unsigned)misource < MAX_PLRS);
+	// ((micaster & MST_PLAYER) || micaster == MST_NA);
+	// ((unsigned)misource < MAX_PLRS);
 
 	if (misource == mypnum) {
 		if (plx(misource)._pManaShield == 0)
@@ -3296,8 +3382,8 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int i, range;
-
-	assert((unsigned)misource < MAX_PLRS);
+	// ((micaster & MST_PLAYER) || micaster == MST_NA);
+	// assert((unsigned)misource < MAX_PLRS);
 	range = 1584;
 	for (i = spllvl; i > 0; i--) {
 		range += range >> 3;
@@ -3310,10 +3396,10 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int pnum;
+	int pnum = misource;
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)pnum < MAX_PLRS);
 
-	pnum = misource;
-	assert((unsigned)pnum < MAX_PLRS);
 	if (plr._pTimer[PLTR_RAGE] == 0) {
 		plr._pTimer[PLTR_RAGE] = 32 * spllvl + 245;
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
@@ -3518,6 +3604,79 @@ void MI_Firebolt(int mi)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
+
+	mis->_miDelFlag = TRUE; // + AddUnLight
+}
+
+void MI_Mage(int mi)
+{
+	MissileStruct *mis, *bmis;
+	constexpr int MAX_BRIGHTNESS = 10;
+	int i, bmi, xptype;
+
+	mis = &missile[mi];
+	mis->_mitxoff += mis->_mixvel;
+	mis->_mityoff += mis->_miyvel;
+	GetMissilePos(mi);
+	bool wallHit = true;
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		wallHit = CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+	}
+	mis->_miRange--;
+	if (mis->_miRange >= 0) {
+		for (i = 0; i < nummissiles; i++) {
+			bmi = missileactive[i];
+			if (bmi <= mi)
+				continue;
+			bmis = &missile[bmi];
+			// check the type of the other missile
+			if (bmis->_miType != MIS_MAGE) {
+				continue;
+			}
+			// check the distance
+			if (bmis->_mix != mis->_mix || bmis->_miy != mis->_miy) {
+				continue;
+			}
+			int doff = abs(bmis->_mixoff - mis->_mixoff) + abs(bmis->_miyoff - mis->_miyoff) * 2;
+			if (doff > 64 * ASSET_MPL)
+				continue;
+			// check target
+			if (mis->_miVar1 != 0 && bmis->_miVar1 != 0 && mis->_miVar1 != bmis->_miVar1)
+				continue;
+			// merge the missiles
+			if (mis->_miVar1 != 0)
+				bmis->_miVar1 = mis->_miVar1;
+			bmis->_miUniqTrans -= (MAX_BRIGHTNESS - mis->_miUniqTrans) + 1;
+			if (bmis->_miUniqTrans < 0)
+				bmis->_miUniqTrans = 0;
+			bmis->_miMinDam += mis->_miMinDam;
+			bmis->_miMaxDam += mis->_miMaxDam;
+			if (bmis->_miRange < mis->_miRange + 1)
+				bmis->_miRange = mis->_miRange + 1;
+			// assert(mis->_miCaster == MST_MONSTER && bmis->_miCaster == MST_MONSTER);
+			if (monsters[bmis->_miSource]._mMagic < monsters[mis->_miSource]._mMagic)
+				bmis->_miSource = mis->_miSource;
+			mis->_miDelFlag = TRUE; // + AddUnLight
+			return;
+		}
+
+		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
+			int pnum = mis->_miVar1;
+			pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
+			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && plr._pHitPoints >= (1 << 6) && (mis->_mix != plr._px || mis->_miy != plr._py)) {
+				GetMissileVel(mi, mis->_mix, mis->_miy, plr._px, plr._py, MIS_SHIFTEDVEL(4));
+			} else {
+				mis->_miVar1 = 0;
+			}
+		}
+
+		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
+		PutMissile(mi);
+		return;
+	}
+
+	xptype = MIS_EXMAGE;
 	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
 
 	mis->_miDelFlag = TRUE; // + AddUnLight
@@ -3791,21 +3950,24 @@ void MI_HorkSpawn(int mi)
 	const int8_t* cr;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
-
-		PutMissile(mi);
-		return;
+		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy) || PosOkMissile(mis->_mix, mis->_miy)) {
+		// if (PosOkMonster(mis->_miSource, mis->_mix, mis->_miy)) {
+			PutMissile(mi);
+			return;
+		// }
 	}
+	// assert(abs(mis->_mix - mis->_misx) <= 1 && abs(mis->_miy - mis->_misy) <= 1);
 	mis->_miDelFlag = TRUE;
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "MI_HorkSpawn expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 1, "MI_HorkSpawn uses CrawlTable/CrawlNum up to radius 1.");
 	for (i = 0; i <= 1; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = mis->_mix + *++cr;
 			ty = mis->_miy + *++cr;
 			// assert(IN_DUNGEON_AREA(tx, ty));
@@ -3833,8 +3995,9 @@ void MI_Rune(int mi)
 	if (--mis->_miVar3 < 0) {
 		sx = mis->_mix;
 		sy = mis->_miy;
-		cr = &CrawlTable[CrawlNum[mis->_miVar2]];
-		for (j = *cr; j > 0; j--) {
+		static_assert(lengthof(CrawlNum) > 1, "MI_Rune uses CrawlTable/CrawlNum up to radius 1.");
+		cr = &CrawlTable[CrawlNum[mis->_miVar2]]; // RUNE_RANGE
+		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = sx + *++cr;
 			ty = sy + *++cr;
 			if (dPlayer[tx][ty] == 0) {
@@ -3935,20 +4098,74 @@ void MI_BloodBoilC(int mi)
 	int mx, my;
 
 	mis = &missile[mi];
-	assert(misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0] == 16);
-	if ((mis->_miVar1++ & 7) == 0) {
+	// assert(mis->_miType == MIS_BLOODBOILC || mis->_miType == MIS_SWAMPC);
+	if ((mis->_miVar1++ & (mis->_miType == MIS_BLOODBOILC ? 7 : 3)) == 0) {
 		mis->_miVar2++;
 		if (mis->_miVar2 >= lengthof(BloodBoilLocs))
 			mis->_miVar2 = 0;
 		mx = mis->_mix + BloodBoilLocs[mis->_miVar2][0];
 		my = mis->_miy + BloodBoilLocs[mis->_miVar2][1];
 		if ((nMissileTable[dPiece[mx][my]] | dObject[mx][my]) == 0) {
-			AddMissile(mx, my, 0, 0, 0, MIS_BLOODBOIL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(mx, my, -1, 0, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 		}
 	}
 	mis->_miRange--;
 	if (mis->_miRange < 0)
 		mis->_miDelFlag = TRUE;
+}
+
+void MI_SwampC(int mi)
+{
+	MissileStruct *mis, *bmis;
+	int i, bmi, dx, dy, mx, my, mnum, pnum;
+	bool matches[16][16] = { false };
+	const int bx = 8 - 2; const int by = 8 - 2;
+
+	mis = &missile[mi];
+	for (i = 0; i < nummissiles; i++) {
+		bmi = missileactive[i];
+		bmis = &missile[bmi];
+		if (bmis->_miType != MIS_SWAMPC)
+			continue;
+		if (bmis->_miSpllvl < mis->_miSpllvl)
+			continue;
+		if (bmis->_miSpllvl == mis->_miSpllvl && mi <= bmi)
+			continue;
+		dx = bmis->_mix - mis->_mix;
+		dy = bmis->_miy - mis->_miy;
+		if (dx < -4 || dx > 4 || dy < -4 || dy > 4)
+			continue;
+		dx += bx;
+		dy += by;
+		for (int n = 0; n < lengthof(BloodBoilLocs); n++) {
+			mx = dx + BloodBoilLocs[n][0];
+			my = dy + BloodBoilLocs[n][1];
+			matches[mx][my] = true;
+		}
+	}
+
+	for (int n = 0; n < lengthof(BloodBoilLocs); n++) {
+		dx = BloodBoilLocs[n][0];
+		dy = BloodBoilLocs[n][1];
+		if (matches[dx + bx][dy + by])
+			continue;
+		mx = mis->_mix + dx;
+		my = mis->_miy + dy;
+
+		mnum = dMonster[mx][my];
+		if (mnum < 0) {
+			mnum = -(mnum + 1);
+			MonHinder(mnum, mis->_miSpllvl, mis->_miVar1);
+		} else {
+			pnum = dPlayer[mx][my];
+			if (pnum < 0) {
+				pnum = -(pnum + 1);
+				PlrHinder(pnum, mis->_miSpllvl, mis->_miVar1);
+			}
+		}
+	}
+
+	MI_BloodBoilC(mi);
 }
 
 void MI_BloodBoil(int mi)
@@ -4188,18 +4405,19 @@ void MI_Guardian(int mi)
 			// check for an enemy
 			mis->_miRange--;
 			if (mis->_miRange >= 0) {
-				ex = false;
 				static_assert(DBORDERX >= 6 && DBORDERY >= 6, "MI_Guardian expects a large enough border.");
-				for (i = 6; i >= 0 && !ex; i--) {
+				static_assert(lengthof(CrawlNum) > 6, "MI_Guardian uses CrawlTable/CrawlNum up to radius 6.");
+				for (i = 6; i >= 0; i--) {
 					cr = &CrawlTable[CrawlNum[i]];
-					for (j = *cr; j > 0; j--) {
+					for (j = (BYTE)*cr; j > 0; j--) {
 						tx = mis->_mix + *++cr;
 						ty = mis->_miy + *++cr;
-						ex = Sentfire(mi, tx, ty);
-						if (ex)
-							break;
+						if (Sentfire(mi, tx, ty))
+							goto done;
 					}
 				}
+done:
+				;
 			} else {
 				// start collapse
 				SetMissDir(mi, 0);
@@ -4370,25 +4588,13 @@ void MI_Stone(int mi)
 	dead = mon->_mhitpoints < (1 << 6);
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE;
-		if (!dead) {
-			mon->_mmode = mis->_miVar1;
-		} else {
-			// TODO: RemoveMonFromGame ?
-			// mon->_mAnimFrame = mon->_mAnimLen;
-			// mon->_mAnimCnt = -1;
-			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
-			mon->_msquelch = 0;
-			// assert(mnum >= MAX_MINIONS);
-			// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
-			mon->_mmode = MM_UNUSED;
-			nummonsters--;
-		}
-		return;
-	}
-
 	if (!dead) {
+		if (mis->_miRange < 0) {
+			mis->_miDelFlag = TRUE;
+			mon->_mmode = mis->_miVar1;
+			return;
+		}
+
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	} else {
 		if (mis->_miFileNum != MFILE_SHATTER1) {
@@ -4400,6 +4606,18 @@ void MI_Stone(int mi)
 			// mis->_mixoff = mon->_mxoff;
 			// mis->_miyoff = mon->_myoff;
 			SetMissDir(mi, 0);
+		} else if (mis->_miRange < 0) {
+			mis->_miDelFlag = TRUE;
+			// TODO: RemoveMonFromGame ?
+			// mon->_mAnimFrame = mon->_mAnimLen;
+			// mon->_mAnimCnt = -1;
+			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+			mon->_msquelch = 0;
+			// assert(mnum >= MAX_MINIONS);
+			// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
+			mon->_mmode = MM_UNUSED;
+			nummonsters--;
+			return;
 		} else if (mis->_miAnimFrame == misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
 			mis->_miAnimFlag = FALSE;
 		}

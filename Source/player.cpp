@@ -749,8 +749,9 @@ static void PlacePlayer(int pnum)
 		return;
 
 	if (i == lengthof(plrxoff2)) {
-		static_assert(DBORDERX >= 16 && DBORDERY >= 16, "PlacePlayer expects a large enough border.");
-		for (i = 2; i < 16; i++) {
+		static_assert(DBORDERX >= 15 && DBORDERY >= 15, "PlacePlayer expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 15, "PlacePlayer uses CrawlTable/CrawlNum up to radius 16.");
+		for (i = 2; i <= 15; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				nx = plr._px + *++cr;
@@ -1695,7 +1696,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 	}
 }
 
-void SyncPlrKill(int pnum, int dmgtype)
+void SyncPlrKill(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SyncPlrKill: illegal player %d", pnum);
@@ -1706,7 +1707,7 @@ void SyncPlrKill(int pnum, int dmgtype)
 	}
 
 	if (plr._pmode != PM_DYING) {
-		StartPlrKill(pnum, dmgtype);
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
 
 	plr._pmode = PM_DEATH;
@@ -1907,7 +1908,7 @@ static void ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
 		return;
 	pi->_iDurability = 1;
 	if (pnum == mypnum)
-		NetSendCmdDelItem(iLoc);
+		NetSendCmdBParam1(CMD_DELPLRITEM, iLoc);
 }
 
 static void WeaponDur(int pnum, int durrnd)
@@ -2022,7 +2023,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
-	dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
+	dam += AddElementalExplosion(fdam, ldam, mdam, adam, true, mnum);
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
@@ -2123,8 +2124,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 	}
 	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += fdam + ldam + mdam + adam;
-		AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
@@ -2530,7 +2530,8 @@ static bool CheckNewPath(int pnum)
 	}
 
 	if (plr._pDestAction == ACTION_ATTACKMON) {
-		MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
+			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
 	}
@@ -2886,6 +2887,28 @@ void ClrPlrPath(int pnum)
 	//memset(plr._pWalkpath, DIR_NONE, sizeof(plr._pWalkpath));
 }
 
+void PlrHinder(int pnum, int spllvl, unsigned tick)
+{
+	int effect;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrHinder: illegal player %d", pnum);
+	}
+	if ((plr._pmode < PM_WALK || plr._pmode > PM_WALK2 /*|| plr._pAnimFrame == plr._pAnimLen*/) && plr._pmode != PM_CHARGE)
+		return;
+	effect = spllvl * 4 - plr._pLevel;
+	effect = effect > 10 ? 2 : (effect > 0 ? 3 : (effect > -10 ? 4 : 0));
+	if (effect != 0 && ((unsigned)tick % (unsigned)effect) == 0) {
+		if (plr._pmode != PM_CHARGE) {
+			plr._pAnimCnt--;
+			plr._pVar6 -= plr._pVar4; // WALK_XOFF <- WALK_XVEL
+			plr._pVar7 -= plr._pVar5; // WALK_YOFF <- WALK_YVEL
+			plr._pVar8--; // WALK_TICK
+		} else {
+			PlrStartStand(pnum);
+		}
+	}
+}
+
 void MissToPlr(int mi, bool hit)
 {
 	MissileStruct* mis;
@@ -2895,12 +2918,12 @@ void MissToPlr(int mi, bool hit)
 	bool ret;
 
 	if ((unsigned)mi >= MAXMISSILES) {
-		dev_fatal("MissToPlr: Invalid missile %d", mi);
+		dev_fatal("MissToPlr: illegal missile %d", mi);
 	}
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("MissToPlr: Invalid player %d", pnum);
+		dev_fatal("MissToPlr: illegal player %d", pnum);
 	}
 	//dPlayer[plr._px][plr._py] = pnum + 1;
 	/*assert(plr._pfutx == plr._px);
@@ -2914,7 +2937,6 @@ void MissToPlr(int mi, bool hit)
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
-		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);
 		return;
 	}

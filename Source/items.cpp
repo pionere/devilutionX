@@ -68,7 +68,7 @@ static void GetRandomItemSpace(int randarea, int ii)
 	// assert(randarea > 0 && randarea < DBORDERX && randarea < DBORDERY);
 
 	tries = numTries;
-	while (TRUE) {
+	while (true) {
 		x = random_(0, DSIZEX) + DBORDERX;
 		y = random_(0, DSIZEY) + DBORDERY;
 		for (i = x; i < x + randarea; i++) {
@@ -138,7 +138,6 @@ static void PlaceInitItems()
 		ii = itemactive[numitems];
 		assert(ii == numitems);
 		seed = NextRndSeed();
-		SetRndSeed(seed);
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
@@ -831,47 +830,51 @@ static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
 static void CalcItemReqs(int pnum)
 {
 	int i;
-	bool changeflag;
 	ItemStruct* pi;
 	int sa, ma, da, sc, mc, dc;
+	int strReq[NUM_INVLOC];
+	int magReq[NUM_INVLOC];
+	int dexReq[NUM_INVLOC];
 
 	sa = plr._pBaseStr;
 	ma = plr._pBaseMag;
 	da = plr._pBaseDex;
 
 	pi = plr._pInvBody;
-	for (i = NUM_INVLOC; i != 0; i--, pi++) {
+	for (i = 0; i < NUM_INVLOC; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
 			//if (pi->_iIdentified) {
 				sa += pi->_iPLStr;
 				ma += pi->_iPLMag;
 				da += pi->_iPLDex;
+				strReq[i] = pi->_iMinStr == 0 ? INT_MIN : pi->_iMinStr + (pi->_iPLStr > 0 ? pi->_iPLStr : 0);
+				magReq[i] = pi->_iMinMag == 0 ? INT_MIN : pi->_iMinMag + (pi->_iPLMag > 0 ? pi->_iPLMag : 0);
+				dexReq[i] = pi->_iMinDex == 0 ? INT_MIN : pi->_iMinDex + (pi->_iPLDex > 0 ? pi->_iPLDex : 0);
 			//}
 		}
 	}
-	do {
-		changeflag = false;
-		sc = std::max(0, sa);
-		mc = std::max(0, ma);
-		dc = std::max(0, da);
-		pi = plr._pInvBody;
-		for (i = NUM_INVLOC; i != 0; i--, pi++) {
-			if (pi->_itype == ITYPE_NONE)
-				continue;
-			if (sc >= pi->_iMinStr && mc >= pi->_iMinMag && dc >= pi->_iMinDex)
-				continue;
-			if (pi->_iStatFlag) {
-				pi->_iStatFlag = FALSE;
-				changeflag = true;
-				//if (pi->_iIdentified) {
-					sa -= pi->_iPLStr;
-					ma -= pi->_iPLMag;
-					da -= pi->_iPLDex;
-				//}
-			}
+recheck:
+	pi = plr._pInvBody;
+	for (i = 0; i < NUM_INVLOC; i++, pi++) {
+		if (pi->_itype == ITYPE_NONE)
+			continue;
+		if (sa >= strReq[i] && ma >= magReq[i] && da >= dexReq[i])
+			continue;
+		if (pi->_iStatFlag) {
+			pi->_iStatFlag = FALSE;
+			//if (pi->_iIdentified) {
+				sa -= pi->_iPLStr;
+				ma -= pi->_iPLMag;
+				da -= pi->_iPLDex;
+			//}
+			goto recheck;
 		}
-	} while (changeflag);
+	}
+
+	sc = std::max(0, sa);
+	mc = std::max(0, ma);
+	dc = std::max(0, da);
 
 	pi = &plr._pHoldItem;
 	ItemStatOk(pi, sc, mc, dc);
@@ -1499,19 +1502,16 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
-		is->_iMaxDur += r2;
-		is->_iDurability += r2;
+		is->_iDurability = is->_iMaxDur = is->_iMaxDur + r2;
 		break;
 	case IPL_CRYSTALLINE:
 		is->_iPLDam = r * 2;
 		// no break
 	case IPL_DUR_CURSE:
-		is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
-		is->_iDurability = is->_iMaxDur;
+		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_INDESTRUCTIBLE:
-		is->_iDurability = DUR_INDESTRUCTIBLE;
-		is->_iMaxDur = DUR_INDESTRUCTIBLE;
+		is->_iDurability = is->_iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IPL_LIGHT:
 		is->_iPLLight = r;
@@ -1575,8 +1575,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		is->_iMaxDam = param2;
 		break;
 	case IPL_SETDUR:
-		is->_iDurability = r;
-		is->_iMaxDur = r;
+		is->_iDurability = is->_iMaxDur = r;
 		break;
 	case IPL_NOMINSTR:
 		is->_iMinStr = 0;
@@ -1630,7 +1629,7 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	}
 }
 
-static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, bool onlygood)
+static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygood)
 {
 	int nl, v;
 	const AffixData *pres, *sufs;
@@ -1639,6 +1638,8 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 	BOOLEAN good;
 
 	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
+	if (flgs != PLT_MISC) // items[ii]._itype != ITYPE_RING && items[ii]._itype != ITYPE_AMULET)
+		lvl = lvl > AllItemsList[items[ii]._iIdx].iMinMLvl ? lvl - AllItemsList[items[ii]._iIdx].iMinMLvl : 0;
 
 	// select affixes (3: both, 2: prefix, 1: suffix)
 	v = random_(23, 128);
@@ -1649,7 +1650,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 		nl = 0;
 		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
 			if ((flgs & pres->PLIType)
-			 && pres->PLMinLvl >= minlvl && pres->PLMinLvl <= maxlvl
+			 && pres->PLRanges[range].from <= lvl && pres->PLRanges[range].to >= lvl
 			// && (!onlygood || pres->PLOk)) {
 			 && (good <= pres->PLOk)) {
 				l[nl] = pres;
@@ -1679,7 +1680,7 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 		nl = 0;
 		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
 			if ((sufs->PLIType & flgs)
-			    && sufs->PLMinLvl >= minlvl && sufs->PLMinLvl <= maxlvl
+			    && sufs->PLRanges[range].from <= lvl && sufs->PLRanges[range].to >= lvl
 			   // && (!onlygood || sufs->PLOk)) {
 			    && (good <= sufs->PLOk)) {
 				l[nl] = sufs;
@@ -1703,27 +1704,36 @@ static void GetItemPower(int ii, unsigned minlvl, unsigned maxlvl, int flgs, boo
 	}
 	// prefix or suffix added -> recalculate the value of the item
 	if (items[ii]._iMagical == ITEM_QUALITY_MAGIC) {
-		v = items[ii]._iVMult;
-		if (v >= 0) {
-			v *= items[ii]._ivalue;
+		if (items[ii]._iMiscId != IMISC_MAP) {
+			v = items[ii]._iVMult;
+			if (v >= 0) {
+				v *= items[ii]._ivalue;
+			}
+			else {
+				v = items[ii]._ivalue / -v;
+			}
+			v += items[ii]._iVAdd;
+			if (v <= 0) {
+				v = 1;
+			}
 		} else {
-			v = items[ii]._ivalue / -v;
-		}
-		v += items[ii]._iVAdd;
-		if (v <= 0) {
-			v = 1;
+			v = ((1 << MAXCAMPAIGNSIZE) - 1) >> (6 - items[ii]._iPLLight);
+			items[ii]._ivalue = v;
 		}
 		items[ii]._iIvalue = v;
 	}
 }
 
-static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood, bool allowspells)
+static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool allowspells)
 {
 	int flgs;
 
 	switch (items[ii]._itype) {
 	case ITYPE_MISC:
-		return;
+		if (items[ii]._iMiscId != IMISC_MAP)
+			return;
+		flgs = PLT_MAP;
+		break;
 	case ITYPE_SWORD:
 	case ITYPE_AXE:
 	case ITYPE_MACE:
@@ -1750,7 +1760,7 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
 		if (allowspells && random_(17, 4) != 0) {
-			GetStaffSpell(ii, maxlvl);
+			GetStaffSpell(ii, lvl);
 			if (random_(51, 2) != 0)
 				return;
 			flgs |= PLT_CHRG;
@@ -1767,7 +1777,7 @@ static void GetItemBonus(int ii, unsigned minlvl, unsigned maxlvl, bool onlygood
 		return;
 	}
 
-	GetItemPower(ii, minlvl, maxlvl, flgs, onlygood);
+	GetItemPower(ii, lvl, range, flgs, onlygood);
 }
 
 static int RndUItem(unsigned lvl)
@@ -1795,7 +1805,7 @@ static int RndUItem(unsigned lvl)
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemsList[i].iMinMLvl ||
-			(AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK)) ? 0 : AllItemsList[i].iRnd;
+			(AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK && AllItemsList[i].iMiscId != IMISC_MAP)) ? 0 : AllItemsList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -1986,7 +1996,7 @@ static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned qua
 		 || random_(32, 128) < 14 || (unsigned)random_(33, 128) <= lvl) {
 			uid = CheckUnique(ii, lvl, quality);
 			if (uid < 0) {
-				GetItemBonus(ii, lvl >> 2, lvl, quality >= CFDQ_GOOD, true);
+				GetItemBonus(ii, lvl, IAR_DROP, quality >= CFDQ_GOOD, true);
 			} else {
 				GetUniqueItem(ii, uid);
 				return;
@@ -2309,7 +2319,7 @@ void PlaceQuestItemInArea(int idx, int areasize)
 //		RespawnItem(i, false);
 		// draw it above the stand
 		items[i]._iSelFlag = 2;
-		items[i]._iPostDraw = TRUE;
+		//items[i]._iPostDraw = TRUE;
 		items[i]._iAnimFrame = 11;
 		//items[i]._iAnimFlag = TRUE;
 //		items[i]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
@@ -2333,7 +2343,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	is->_iAnimFrameLen = 1;
 	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
 	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
-	is->_iPostDraw = FALSE;
+	//is->_iPostDraw = FALSE;
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;
@@ -2517,7 +2527,7 @@ static void DoRecharge(int pnum, int cii)
 static void DoClean(ItemStruct* pi, bool whittle)
 {
 	int seed, spell;
-	uint16_t ci, idx;
+	uint16_t ci, idx, ll;
 
 	seed = pi->_iSeed;
 	spell = pi->_iSpell;
@@ -2528,13 +2538,16 @@ static void DoClean(ItemStruct* pi, bool whittle)
 			idx = IDI_DROPSHSTAFF;
 		spell = SPL_NULL;
 	}
-
+	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemsList[idx].iMinMLvl : 0;
+	if (spell != SPL_NULL && spelldata[spell].sStaffLvl > ll) {
+		ll = spelldata[spell].sStaffLvl;
+	}
 	ci = (pi->_iCreateInfo & CF_LEVEL);
-	if (ci > AllItemsList[idx].iMinMLvl)
+	if (ci > ll)
 		ci--;
 	ci |= CF_CRAFTED;
 
-	while (TRUE) {
+	while (true) {
 		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iPrePower == IPL_INVALID
@@ -2576,7 +2589,7 @@ static void BuckleItem(ItemStruct* pi)
 	magic = pi->_iMagical == ITEM_QUALITY_NORMAL ? ITEM_QUALITY_NORMAL : ITEM_QUALITY_MAGIC;
 
 	ci |= CF_CRAFTED;
-	while (TRUE) {
+	while (true) {
 		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iMagical == magic)
@@ -2694,8 +2707,13 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 		return;
 
 	pi = PlrItem(pnum, cii);
-	if (pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_MISC || pi->_itype == ITYPE_GOLD)
+	if (pi->_itype == ITYPE_NONE || pi->_itype == ITYPE_GOLD) {
 		return;
+	}
+	if (pi->_itype == ITYPE_MISC
+	 && (pi->_iMiscId != IMISC_MAP || !(pi->_ivalue & 1) || (oilType != IMISC_OILCHANCE && oilType != IMISC_OILCLEAN))) {
+		return;
+	}
 
 	if (oilType == IMISC_OILCLEAN) {
 		if (pi->_iMagical != ITEM_QUALITY_MAGIC)
@@ -2770,7 +2788,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	spell = pi->_iSpell;
 	seed = pi->_iSeed;
 
-	while (TRUE) {
+	while (true) {
 		RecreateItem(seed, idx, ci);
 		assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iSpell == spell
@@ -2788,7 +2806,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	CalcPlrInv(pnum, true);
 }
 
-void PrintItemPower(BYTE plidx, const ItemStruct* is)
+static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 {
 	switch (plidx) {
 	case IPL_TOHIT:
@@ -2894,10 +2912,9 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
-		copy_cstr(tempstr, "high durability");
-		break;
 	case IPL_DUR_CURSE:
-		copy_cstr(tempstr, "decreased durability");
+	case IPL_SETDUR:
+		copy_cstr(tempstr, "altered durability");
 		break;
 	case IPL_INDESTRUCTIBLE:
 		copy_cstr(tempstr, "indestructible");
@@ -2965,9 +2982,6 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
 		break;
-	case IPL_SETDUR:
-		copy_cstr(tempstr, "altered durability");
-		break;
 	case IPL_NOMINSTR:
 		copy_cstr(tempstr, "no strength requirement");
 		break;
@@ -3020,21 +3034,49 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 	}
 }
 
+static void PrintMapPower(BYTE plidx, const ItemStruct* is)
+{
+	switch (plidx) {
+	case IPL_SKILLLEVELS:
+		snprintf(tempstr, sizeof(tempstr), "%+d to map levels", is->_iPLSkillLevels);
+		break;
+	case IPL_ACP:
+		snprintf(tempstr, sizeof(tempstr), "%+d to level gain", is->_iPLAC);
+		break;
+	case IPL_SETAC:
+		snprintf(tempstr, sizeof(tempstr), "starting level %d", is->_iAC);
+		break;
+	case IPL_LIGHT:
+		snprintf(tempstr, sizeof(tempstr), (is->_iPLLight & 1) ? "%+d area" : "%+d areas", is->_iPLLight);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+}
+
+void PrintItemPower(BYTE plidx, const ItemStruct* is)
+{
+	if (is->_itype != ITYPE_MISC || is->_iMiscId != IMISC_MAP)
+		PrintEquipmentPower(plidx, is);
+	else
+		PrintMapPower(plidx, is);
+}
+
 static void PrintItemString(int x, int& y)
 {
-	PrintString(x, y, x + 257, tempstr, true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), tempstr, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int& y, const char* str)
 {
-	PrintString(x, y, x + 257, str, true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int& y, const char* str, int col)
 {
-	PrintString(x, y, x + 257, str, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, col, FONT_KERN_SMALL);
 	y += 24;
 }
 
@@ -3175,12 +3217,6 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		desc = "increase inner magic";
 		PrintItemString(x, y, desc);
 		break;
-	case IMISC_OILCLEAN:
-		desc = "removes the affixes";
-		PrintItemString(x, y, desc);
-		desc = "of a magic item";
-		PrintItemString(x, y, desc);
-		break;
 	case IMISC_OILRESIST:
 		desc = "imbues a normal item to";
 		PrintItemString(x, y, desc);
@@ -3193,6 +3229,19 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		desc = "a magic item";
 		PrintItemString(x, y, desc);
 		break;
+	case IMISC_OILCLEAN:
+		desc = "removes the affixes";
+		PrintItemString(x, y, desc);
+		desc = "of a magic item";
+		PrintItemString(x, y, desc);
+		break;
+	case IMISC_MAP:
+		y += 24;
+		desc = "right-click to use";
+		PrintItemString(x, y, desc);
+		desc = "(only in town)";
+		PrintItemString(x, y, desc);
+		return;
 #ifdef HELLFIRE
 	//case IMISC_MAPOFDOOM:
 	//	desc = "right-click to view";
@@ -3255,10 +3304,7 @@ void DrawInvItemDetails()
 	// draw the background
 	DrawSTextBox(x, y);
 
-	// add separator
-	DrawTextBoxSLine(x, y, 74, false);
-
-	x += 8;
+	x += TPANEL_BORDER;
 	y += 44;
 
 	is = PlrItem(mypnum, pcursinvitem);
@@ -3266,7 +3312,7 @@ void DrawInvItemDetails()
 	PrintItemString(x, y, ItemName(is), ItemColor(is));
 
 	// add item-level info or stack-size
-	if (is->_itype != ITYPE_MISC && is->_itype != ITYPE_GOLD) {
+	if ((is->_itype != ITYPE_MISC || is->_iMiscId == IMISC_MAP) && is->_itype != ITYPE_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
 		y -= 6;
 		PrintItemString(x, y);
@@ -3457,7 +3503,7 @@ static void SpawnOnePremium(int i, unsigned lvl)
 		seed = NextRndSeed();
 		SetRndSeed(seed);
 		GetItemAttrs(0, RndSmithItem(lvl), lvl);
-		GetItemBonus(0, lvl >> 1, lvl, true, false);
+		GetItemBonus(0, lvl, IAR_SHOP, true, false);
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
 	items[0]._iCreateInfo = lvl | CF_SMITHPREMIUM;
@@ -3576,7 +3622,7 @@ void SpawnWitch(unsigned lvl)
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndWitchItem(lvl), lvl);
 			// if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
-				GetItemBonus(0, lvl >> 1, lvl, true, true);
+				GetItemBonus(0, lvl, IAR_SHOP, true, true);
 		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_WITCH;
@@ -3599,7 +3645,7 @@ void SpawnBoy(unsigned lvl)
 			seed = NextRndSeed();
 			SetRndSeed(seed);
 			GetItemAttrs(0, RndSmithItem(lvl), lvl);
-			GetItemBonus(0, lvl >> 1, lvl << 1, true, true);
+			GetItemBonus(0, lvl, IAR_SHOP, true, true);
 		} while (items[0]._iIvalue > BOY_MAX_VALUE);
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = lvl | CF_BOY;
@@ -3706,56 +3752,56 @@ void SpawnHealer(unsigned lvl)
 	SortHealer();
 }
 
-static void RecreateSmithItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateSmithItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_SMITH;
 }
 
-static void RecreatePremiumItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreatePremiumItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
-	GetItemBonus(ii, lvl >> 1, lvl, true, false);
+	GetItemBonus(ii, lvl, IAR_SHOP, true, false);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_SMITHPREMIUM;
 }
 
-static void RecreateBoyItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateBoyItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, RndSmithItem(lvl), lvl);
-	GetItemBonus(ii, lvl >> 1, lvl << 1, true, true);
+	GetItemBonus(ii, lvl, IAR_SHOP, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_BOY;
 }
 
-static void RecreateWitchItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateWitchItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
 	/*if (idx == IDI_MANA || idx == IDI_FULLMANA || idx == IDI_PORTAL) {
 		SetItemData(ii, idx);
 	} else {*/
-		SetRndSeed(iseed);
+		// SetRndSeed(iseed);
 		GetItemAttrs(ii, RndWitchItem(lvl), lvl);
 		// if (random_(51, 100) <= 5 || items[ii]._itype == ITYPE_STAFF)
-			GetItemBonus(ii, lvl >> 1, lvl, true, true);
+			GetItemBonus(ii, lvl, IAR_SHOP, true, true);
 	//}
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_WITCH;
 }
 
-static void RecreateHealerItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateHealerItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
 	/*if (idx == IDI_HEAL || idx == IDI_FULLHEAL || idx == IDI_RESURRECT) {
 		SetItemData(ii, idx);
 	} else {*/
-		SetRndSeed(iseed);
+		// SetRndSeed(iseed);
 		GetItemAttrs(ii, RndHealerItem(lvl), lvl);
 	//}
 
@@ -3763,12 +3809,12 @@ static void RecreateHealerItem(int ii, int iseed, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_HEALER;
 }
 
-static void RecreateCraftedItem(int ii, int iseed, int idx, unsigned lvl)
+static void RecreateCraftedItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 {
-	SetRndSeed(iseed);
+	// SetRndSeed(iseed);
 	GetItemAttrs(ii, idx, lvl);
 	if (random_(51, 2) != 0)
-		GetItemBonus(ii, 0, lvl != 0 ? lvl : 1, true, true);
+		GetItemBonus(ii, lvl, IAR_CRAFT, true, true);
 
 	//items[ii]._iSeed = iseed;
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
@@ -3781,24 +3827,25 @@ void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo)
 
 	loc = (icreateinfo & CF_TOWN) >> 8;
 	lvl = icreateinfo & CF_LEVEL;
+	SetRndSeed(iseed);
 	switch (loc) {
 	case CFL_SMITH:
-		RecreateSmithItem(ii, iseed, idx, lvl);
+		RecreateSmithItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_SMITHPREMIUM:
-		RecreatePremiumItem(ii, iseed, idx, lvl);
+		RecreatePremiumItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_BOY:
-		RecreateBoyItem(ii, iseed, idx, lvl);
+		RecreateBoyItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_WITCH:
-		RecreateWitchItem(ii, iseed, idx, lvl);
+		RecreateWitchItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_HEALER:
-		RecreateHealerItem(ii, iseed, idx, lvl);
+		RecreateHealerItem(ii, /*iseed, */idx, lvl);
 		break;
 	case CFL_CRAFTED:
-		RecreateCraftedItem(ii, iseed, idx, lvl);
+		RecreateCraftedItem(ii, /*iseed, */idx, lvl);
 		break;
 	default:
 		ASSUME_UNREACHABLE;
@@ -3816,7 +3863,7 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 
 	idx = RndTypeItems(ITYPE_MISC, IMISC_BOOK, lvl);
 
-	while (TRUE) {
+	while (true) {
 		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_NORMAL);
 		assert(items[MAXITEMS]._iMiscId == IMISC_BOOK);
 		if (items[MAXITEMS]._iSpell == ispell)
@@ -3835,7 +3882,7 @@ void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 
 	lvl = wCI & CF_LEVEL; // TODO: make sure there is an amulet which fits?
 
-	while (TRUE) {
+	while (true) {
 		idx = RndTypeItems(ITYPE_AMULET, IMISC_NONE, lvl);
 		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == ICURS_AMULET)
@@ -3854,7 +3901,7 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 
 	lvl = items_get_currlevel();
 
-	while (TRUE) {
+	while (true) {
 		idx = RndTypeItems(itype, IMISC_NONE, lvl);
 		SetupAllItems(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
 		if (items[MAXITEMS]._iCurs == icurs)

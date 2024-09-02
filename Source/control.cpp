@@ -44,6 +44,19 @@ unsigned guTeamInviteSent;
 /** The mask of players who were muted. */
 unsigned guTeamMute;
 
+/** Campaign-map images CEL */
+static CelImageBuf* pMapIconCels;
+/** Specifies the campaign-map status. */
+BYTE gbCampaignMapFlag;
+/** The 'highlighted' map on the campaign-map. */
+static CampaignMapEntry currCamEntry;
+/** The entries of the current campaign-map. */
+static CampaignMapEntry camEntries[16][16];
+/** The index of the campaign-map in the inventory. */
+int camItemIndex;
+/** The 'selected' map on the campaign-map. */
+CampaignMapEntry selCamEntry;
+
 /** Specifies whether the Golddrop is displayed. */
 bool gbDropGoldFlag;
 /** Golddrop background CEL */
@@ -133,7 +146,7 @@ static BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 	{ SPL_WHIPLASH, SPL_WALLOP, SPL_SWIPE, SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_MULTI_SHOT, SPL_PIERCE_SHOT },
 	{ SPL_GOLEM, SPL_MANASHIELD, SPL_HEAL, SPL_HEALOTHER, SPL_RNDTELEPORT, SPL_TELEPORT, SPL_TOWN },
 	{ SPL_METEOR, SPL_HBOLT, SPL_FLARE, SPL_FLASH, SPL_POISON, SPL_BLOODBOIL, SPL_WIND },
-	{ SPL_CHARGE, SPL_RAGE, SPL_INVALID, SPL_SHROUD, SPL_TELEKINESIS, SPL_ATTRACT, SPL_STONE },
+	{ SPL_CHARGE, SPL_RAGE, SPL_SWAMP, SPL_SHROUD, SPL_TELEKINESIS, SPL_ATTRACT, SPL_STONE },
 #ifdef HELLFIRE
 	{ SPL_FIRERING, SPL_RUNEFIRE, SPL_RUNEWAVE, SPL_RUNELIGHT, SPL_RUNENOVA, SPL_INVALID, SPL_INVALID },
 #endif
@@ -286,7 +299,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		ASSUME_UNREACHABLE
 		return;
 	}
-	PrintString(x + SPLICON_OVERX, y, x + SPLICON_WIDTH - SPLICON_OVERX, tempstr, true, t, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + SPLICON_WIDTH, tempstr, t, FONT_KERN_SMALL);
 }
 
 static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
@@ -368,6 +381,7 @@ void DrawSkillIcons()
 	case TGT_OBJECT:
 		str = "Object";
 		numchar = lengthof("Object") - 1;
+		static_assert((lengthof("Object") - 1) * SMALL_FONT_HEIGHT <= 2 * SPLICON_WIDTH, "DrawSkillIcons uses unsigned division to calculate sy.");
 		break;
 	case TGT_OTHER:
 		str = "Other";
@@ -386,12 +400,12 @@ void DrawSkillIcons()
 	}
 	// PrintSmallVerticalStr centered
 	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
-	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2;
+	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2u;
 	for (unsigned i = 0; i < numchar; i++) {
 		sy += SMALL_FONT_HEIGHT;
 		BYTE nCel = gbStdFontFrame[str[i]];
 		// PrintSmallChar(sx + (SMALL_FONT_WIDTH - smallFontWidth[nCel]) / 2, sy, str[i], COL_GOLD);
-		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2, sy, nCel, COL_GOLD);
+		PrintSmallColorChar(sx + (13 - smallFontWidth[nCel]) / 2u, sy, nCel, COL_GOLD);
 	}
 }
 
@@ -950,6 +964,9 @@ void InitControlPan()
 	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICON_WIDTH);
 #endif // HELLFIRE
 #endif // ASSET_MPL == 1
+	assert(pMapIconCels == NULL);
+	pMapIconCels = CelLoadImage("Data\\MapIcon.CEL", CAMICON_WIDTH);
+	gbCampaignMapFlag = CMAP_NONE;
 	/*for (i = 0; i < NUM_RSPLTYPES; i++) {
 		for (j = 0; j < NUM_COLORS; j++)
 			SkillTrns[j] = j;
@@ -1016,7 +1033,7 @@ void DrawCtrlBtns()
 		pb = gabPanbtn[i];
 		CelDraw(x, y + MENUBTN_HEIGHT - 1, pPanelButtonCels, 2);
 		// print the text of the button
-		PrintString(x + 3, y + (MENUBTN_HEIGHT + SMALL_FONT_HEIGHT) / 2, x + MENUBTN_WIDTH - 1, PanBtnTxt[i], true, pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
+		PrintJustifiedString(x + 3, y + (MENUBTN_HEIGHT + SMALL_FONT_HEIGHT) / 2, x + MENUBTN_WIDTH - 1, PanBtnTxt[i], pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
 	}
 }
 
@@ -1225,6 +1242,7 @@ void FreeControlPan()
 	MemFreeDbg(pSpellCels);
 #endif
 	MemFreeDbg(pSBkIconCels);
+	MemFreeDbg(pMapIconCels);
 	MemFreeDbg(pGoldDropCel);
 }
 
@@ -1242,17 +1260,17 @@ void DrawChr()
 	screen_x = SCREEN_X + gnWndCharX;
 	screen_y = SCREEN_Y + gnWndCharY;
 	CelDraw(screen_x, screen_y + SPANEL_HEIGHT - 1, pChrPanelCel, 1);
-	PrintString(screen_x + 5, screen_y + 19, screen_x + 144, p->_pName, true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 5, screen_y + 19, screen_x + 144, p->_pName, COL_WHITE, FONT_KERN_SMALL);
 
-	PrintString(screen_x + 153, screen_y + 19, screen_x + 292, ClassStrTbl[pc], true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 153, screen_y + 19, screen_x + 292, ClassStrTbl[pc], COL_WHITE, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pLevel);
-	PrintString(screen_x + 53, screen_y + 46, screen_x + 96, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 53, screen_y + 46, screen_x + 96, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pExperience);
-	PrintString(screen_x + 200, screen_y + 46, screen_x + 292, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 200, screen_y + 46, screen_x + 292, chrstr, col, FONT_KERN_SMALL);
 
 	if (p->_pLevel == MAXCHARLEVEL) {
 		copy_cstr(chrstr, "None");
@@ -1261,33 +1279,33 @@ void DrawChr()
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pNextExper);
 		col = COL_WHITE;
 	}
-	PrintString(screen_x + 200, screen_y + 71, screen_x + 292, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 200, screen_y + 71, screen_x + 292, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pGold);
-	PrintString(screen_x + 221, screen_y + 97, screen_x + 292, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 221, screen_y + 97, screen_x + 292, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseStr);
-	PrintString(screen_x + 88, screen_y + 119, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 88, screen_y + 119, screen_x + 125, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseMag);
-	PrintString(screen_x + 88, screen_y + 147, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 88, screen_y + 147, screen_x + 125, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseDex);
-	PrintString(screen_x + 88, screen_y + 175, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 88, screen_y + 175, screen_x + 125, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pBaseVit);
-	PrintString(screen_x + 88, screen_y + 203, screen_x + 125, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 88, screen_y + 203, screen_x + 125, chrstr, col, FONT_KERN_SMALL);
 
 	showStats = p->_pStatPts <= 0;
 	if (!showStats) {
 		showStats = (SDL_GetModState() & KMOD_ALT) != 0;
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
-		PrintString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, true, COL_RED, FONT_KERN_SMALL);
+		PrintJustifiedString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, COL_RED, FONT_KERN_SMALL);
 		int sx = screen_x + (showStats ? CHRBTN_ALT : CHRBTN_LEFT);
 		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_STR) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_STR] ? 2 : 1);
 		CelDraw(sx, screen_y + CHRBTN_TOP(ATTRIB_MAG) + CHRBTN_HEIGHT - 1, pChrButtonCels, gabChrbtn[ATTRIB_MAG] ? 2 : 1);
@@ -1306,7 +1324,7 @@ void DrawChr()
 		else if (val < p->_pBaseStr)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		PrintString(screen_x + 135, screen_y + 119, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
+		PrintJustifiedString(screen_x + 135, screen_y + 119, screen_x + 172, chrstr, col, FONT_KERN_SMALL);
 
 		val = p->_pMagic;
 		col = COL_WHITE;
@@ -1315,7 +1333,7 @@ void DrawChr()
 		else if (val < p->_pBaseMag)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		PrintString(screen_x + 135, screen_y + 147, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
+		PrintJustifiedString(screen_x + 135, screen_y + 147, screen_x + 172, chrstr, col, FONT_KERN_SMALL);
 
 		val = p->_pDexterity;
 		col = COL_WHITE;
@@ -1324,7 +1342,7 @@ void DrawChr()
 		else if (val < p->_pBaseDex)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		PrintString(screen_x + 135, screen_y + 175, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
+		PrintJustifiedString(screen_x + 135, screen_y + 175, screen_x + 172, chrstr, col, FONT_KERN_SMALL);
 
 		val = p->_pVitality;
 		col = COL_WHITE;
@@ -1333,16 +1351,16 @@ void DrawChr()
 		else if (val < p->_pBaseVit)
 			col = COL_RED;
 		snprintf(chrstr, sizeof(chrstr), "%d", val);
-		PrintString(screen_x + 135, screen_y + 203, screen_x + 172, chrstr, true, col, FONT_KERN_SMALL);
+		PrintJustifiedString(screen_x + 135, screen_y + 203, screen_x + 172, chrstr, col, FONT_KERN_SMALL);
 	}
 
 	snprintf(chrstr, sizeof(chrstr), "%d/%d", p->_pIAC, p->_pIEvasion);
 	// instead of (242;291) x-limits, (239;294) are used to make sure the values are displayed
-	PrintString(screen_x + 239, screen_y + 122, screen_x + 294, chrstr, true, COL_WHITE, -1);
+	PrintJustifiedString(screen_x + 239, screen_y + 122, screen_x + 294, chrstr, COL_WHITE, -1);
 
 	snprintf(chrstr, sizeof(chrstr), "%d/%d", p->_pIBlockChance, p->_pICritChance / 2);
 	// instead of (242;291) x-limits, (241;292) are used to make sure the values are displayed
-	PrintString(screen_x + 241, screen_y + 150, screen_x + 292, chrstr, true, COL_WHITE, -1);
+	PrintJustifiedString(screen_x + 241, screen_y + 150, screen_x + 292, chrstr, COL_WHITE, -1);
 
 	val = p->_pIHitChance;
 	col = COL_WHITE;
@@ -1351,7 +1369,7 @@ void DrawChr()
 	else if (p->_pIBaseHitBonus == IBONUS_NEGATIVE)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d%%", val);
-	PrintString(screen_x + 242, screen_y + 178, screen_x + 291, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 242, screen_y + 178, screen_x + 291, chrstr, col, FONT_KERN_SMALL);
 
 	col = COL_WHITE;
 	mindam = (p->_pIFMinDam + p->_pILMinDam + p->_pIMMinDam + p->_pIAMinDam) >> 6;
@@ -1362,7 +1380,7 @@ void DrawChr()
 	maxdam += (p->_pISlMaxDam + p->_pIBlMaxDam + p->_pIPcMaxDam) >> (6 + 1);
 	snprintf(chrstr, sizeof(chrstr), "%d-%d", mindam, maxdam);
 	// instead of (242;291) x-limits, (240;293) are used to make sure the values are displayed
-	PrintString(screen_x + 240, screen_y + 206, screen_x + 293, chrstr, true, col, mindam < 100 ? 0 : -1);
+	PrintJustifiedString(screen_x + 240, screen_y + 206, screen_x + 293, chrstr, col, mindam < 100 ? 0 : -1);
 
 	val = p->_pMagResist;
 	if (val < MAXRESIST) {
@@ -1372,7 +1390,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	PrintString(screen_x + 185, screen_y + 254, screen_x + 234, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 185, screen_y + 254, screen_x + 234, chrstr, col, FONT_KERN_SMALL);
 
 	val = p->_pFireResist;
 	if (val < MAXRESIST) {
@@ -1382,7 +1400,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	PrintString(screen_x + 242, screen_y + 254, screen_x + 291, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 242, screen_y + 254, screen_x + 291, chrstr, col, FONT_KERN_SMALL);
 
 	val = p->_pLghtResist;
 	if (val < MAXRESIST) {
@@ -1392,7 +1410,7 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	PrintString(screen_x + 185, screen_y + 289, screen_x + 234, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 185, screen_y + 289, screen_x + 234, chrstr, col, FONT_KERN_SMALL);
 
 	val = p->_pAcidResist;
 	if (val < MAXRESIST) {
@@ -1402,25 +1420,25 @@ void DrawChr()
 		col = COL_GOLD;
 		copy_cstr(chrstr, "MAX");
 	}
-	PrintString(screen_x + 242, screen_y + 289, screen_x + 291, chrstr, true, col, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 242, screen_y + 289, screen_x + 291, chrstr, col, FONT_KERN_SMALL);
 
 	val = p->_pMaxHP;
 	col = val <= p->_pMaxHPBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
-	PrintString(screen_x + 87, screen_y + 260, screen_x + 126, chrstr, true, col, FONT_KERN_SMALL); // 88, 125 -> 87, 126 otherwise '1000' is truncated
+	PrintJustifiedString(screen_x + 87, screen_y + 260, screen_x + 126, chrstr, col, FONT_KERN_SMALL); // 88, 125 -> 87, 126 otherwise '1000' is truncated
 	if (p->_pHitPoints != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pHitPoints >> 6);
-	PrintString(screen_x + 134, screen_y + 260, screen_x + 173, chrstr, true, col, FONT_KERN_SMALL); // 135, 172 -> 134, 173 otherwise '1000' is truncated
+	PrintJustifiedString(screen_x + 134, screen_y + 260, screen_x + 173, chrstr, col, FONT_KERN_SMALL); // 135, 172 -> 134, 173 otherwise '1000' is truncated
 
 	val = p->_pMaxMana;
 	col = val <= p->_pMaxManaBase ? COL_WHITE : COL_BLUE;
 	snprintf(chrstr, sizeof(chrstr), "%d", val >> 6);
-	PrintString(screen_x + 87, screen_y + 288, screen_x + 126, chrstr, true, col, FONT_KERN_SMALL); // 88, 125 -> 87, 126 otherwise '1000' is truncated
+	PrintJustifiedString(screen_x + 87, screen_y + 288, screen_x + 126, chrstr, col, FONT_KERN_SMALL); // 88, 125 -> 87, 126 otherwise '1000' is truncated
 	if (p->_pMana != val)
 		col = COL_RED;
 	snprintf(chrstr, sizeof(chrstr), "%d", p->_pMana >> 6);
-	PrintString(screen_x + 134, screen_y + 288, screen_x + 173, chrstr, true, col, FONT_KERN_SMALL); // 135, 172 -> 134, 173 otherwise '1000' is truncated
+	PrintJustifiedString(screen_x + 134, screen_y + 288, screen_x + 173, chrstr, col, FONT_KERN_SMALL); // 135, 172 -> 134, 173 otherwise '1000' is truncated
 }
 
 void DrawLevelUpIcon()
@@ -1429,7 +1447,7 @@ void DrawLevelUpIcon()
 
 	screen_x = SCREEN_X + LVLUP_LEFT;
 	screen_y = PANEL_Y + PANEL_HEIGHT - LVLUP_OFFSET;
-	PrintString(screen_x - 38, screen_y + 20, screen_x - 38 + 120, "Level Up", true, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x - 38, screen_y + 20, screen_x - 38 + 120, "Level Up", COL_WHITE, FONT_KERN_SMALL);
 	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 2 : 1);
 }
 
@@ -1445,7 +1463,7 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 
 	if (y < 0)
 		return result;
-	x -= width / 2;
+	x -= width / 2u;
 	if (x < 0) {
 		result = -x;
 		x = 0;
@@ -1507,13 +1525,16 @@ static POS32 GetMousePos(int x, int y)
 	pos.x *= TILE_WIDTH / 2;
 	pos.y *= TILE_HEIGHT / 2;
 
+	pos.x += ScrollInfo._sxoff;
+	pos.y += ScrollInfo._syoff;
+
 	if (gbZoomInFlag) {
 		pos.x <<= 1;
 		pos.y <<= 1;
 	}
 
-	pos.x += SCREEN_WIDTH / 2;
-	pos.y += VIEWPORT_HEIGHT / 2;
+	pos.x += SCREEN_WIDTH / 2u;
+	pos.y += VIEWPORT_HEIGHT / 2u;
 
 	return pos;
 }
@@ -1549,7 +1570,7 @@ static int DrawTooltip(const char* text, int x, int y, BYTE col)
 
 	if (y < 0)
 		return result;
-	x -= width / 2;
+	x -= width / 2u;
 	if (x < 0) {
 		result = -x;
 		x = 0;
@@ -1730,12 +1751,16 @@ void DrawInfoStr()
 		MonsterStruct* mon = &monsters[pcursmonst];
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
 		pos = GetMousePos(mon->_mx, mon->_my);
+		pos.x += mon->_mxoff;
+		pos.y += mon->_myoff;
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (pcursplr != PLR_NONE) {
 		PlayerStruct* p = &players[pcursplr];
 		pos = GetMousePos(p->_px, p->_py);
+		pos.x += p->_pxoff;
+		pos.y += p->_pyoff;
 		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
@@ -1764,13 +1789,50 @@ void DrawInfoStr()
 			break;
 		}
 		DrawTooltip2(spelldata[currSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
+	} else if (gbCampaignMapFlag != CMAP_NONE) {
+		if (currCamEntry.ceIndex == 0)
+			return;
+		const char* type;
+		switch (currCamEntry.ceDunType) {
+		case DTYPE_CATHEDRAL:
+			type = "Cathedral";
+			break;
+		case DTYPE_CATACOMBS:
+			type = "Catacombs";
+			break;
+		case DTYPE_CAVES:
+			type = "Caves";
+			break;
+		case DTYPE_HELL:
+			type = "Hell";
+			break;
+#ifdef HELLFIRE
+		case DTYPE_CRYPT:
+			type = "Crypt";
+			break;
+		case DTYPE_NEST:
+			type = "Nest";
+			break;
+#endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		BYTE lvl = currCamEntry.ceLevel;
+		if (gnDifficulty == DIFF_NIGHTMARE) {
+			lvl += NIGHTMARE_LEVEL_BONUS;
+		} else if (gnDifficulty == DIFF_HELL) {
+			lvl += HELL_LEVEL_BONUS;
+		}
+		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
+		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (pcursinvitem != INVITEM_NONE) {
 		DrawInvItemDetails();
 	} else if (pcurstrig != -1) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
-		DrawTooltip(infostr, MousePos.x + cursW / 2, MousePos.y - TOOLTIP_OFFSET, infoclr);
+		DrawTooltip(infostr, MousePos.x + cursW / 2u, MousePos.y - TOOLTIP_OFFSET, infoclr);
 	}
 }
 
@@ -1822,30 +1884,41 @@ void ReleaseChrBtn()
 }
 
 /**
- * @brief Draw a large text box with transparent background.
+ * @brief Draw a large text box with transparent background with separators.
  *  used as background to quest dialog window and in stores.
  */
-void DrawTextBox()
+void DrawTextBox(unsigned separators)
 {
 	int x, y;
 
 	x = LTPANEL_X;
 	y = LTPANEL_Y;
 
+	// draw the box
 	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
+	// draw the background
 	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
+	// add separator
+	if (separators & 1)
+		DrawTextBoxSLine(x, y, 3 * 12 + 14, true);
+	if (separators & 2)
+		DrawTextBoxSLine(x, y, 21 * 12 + 14, true);
 }
 
 /**
- * @brief Draw a small text box with transparent background.
+ * @brief Draw a small text box with transparent background with a separator.
  *  used as background to items and in stores.
  * @param x: the starting x-coordinate of the text box
  * @param y: the starting y-coordinate of the text box
  */
 void DrawSTextBox(int x, int y)
 {
+	// draw the box
 	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
+	// draw the background
 	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
+	// add separator
+	DrawTextBoxSLine(x, y, 5 * 12 + 14, false);
 }
 
 /**
@@ -1968,7 +2041,7 @@ void DrawSpellBook()
 	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
-	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
+	PrintJustifiedString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, COL_WHITE, 0);
 
 #if SCREEN_READER_INTEGRATION
 	BYTE prevSkill = currSkill;
@@ -2109,10 +2182,10 @@ void DrawGoldSplit(int amount)
 
 	CelDraw(screen_x, screen_y, pGoldDropCel, 1);
 	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
-	PrintString(screen_x + 15, screen_y - (18 + 18 * 4), screen_x + GOLDDROP_WIDTH - 15, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 4), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
 	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
-	PrintString(screen_x + 15, screen_y - (18 + 18 * 3), screen_x + GOLDDROP_WIDTH - 15, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
-	PrintString(screen_x + 15, screen_y - (18 + 18 * 2), screen_x + GOLDDROP_WIDTH - 15, "you want to remove?", true, COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 3), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 2), screen_x + GOLDDROP_WIDTH - 15, "you want to remove?", COL_GOLD, FONT_KERN_SMALL);
 	screen_x += 37;
 	screen_y -= 18 + 18 * 1;
 	if (amount > 0) {
@@ -2139,10 +2212,7 @@ void control_drop_gold(int vkey)
 {
 	int newValue;
 
-	if (myplr._pHitPoints < (1 << 6)) {
-		gbDropGoldFlag = false;
-		return;
-	}
+	assert(myplr._pHitPoints >= (1 << 6) || vkey == DVL_VK_ESCAPE);
 
 	if (vkey == DVL_VK_RETURN) {
 		if (dropGoldValue > 0)
@@ -2214,7 +2284,7 @@ void DrawTeamBook()
 	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
 	// selected page
 	snprintf(tempstr, sizeof(tempstr), "%d.", guTeamTab + 1);
-	PrintString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, true, COL_WHITE, 0);
+	PrintJustifiedString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, COL_WHITE, 0);
 
 	hasTeam = PlrHasTeam();
 
@@ -2227,7 +2297,7 @@ void DrawTeamBook()
 		if (!plr._pActive)
 			continue;
 		// name
-		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, false, COL_WHITE, 0);
+		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
@@ -2349,6 +2419,160 @@ void DrawGolemBar()
 
 	if (mon->_mmode <= MM_INGAME_LAST) {
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, LIFE_FLASK_X + LIFE_FLASK_WIDTH / 2 - SCREEN_X, PANEL_Y + PANEL_HEIGHT - 1 - HEALTHBAR_HEIGHT + 2 - SCREEN_Y);
+	}
+}
+
+#define CAM_RADIUS 5
+#define CAMROWICONLS (2 * CAM_RADIUS + 1)
+static void control_addmappos(int x, int y, BYTE type, BYTE idx, WORD available, int* border)
+{
+	int db = -1;
+	camEntries[x][y].ceDunType = type;
+	camEntries[x][y].ceIndex = idx;
+	camEntries[x][y].ceAvailable = ((available >> (idx - 1)) & 1) ? SDL_TRUE : SDL_FALSE;
+	if (x > 8 - CAM_RADIUS && camEntries[x - 1][y].ceDunType == DTYPE_TOWN) {
+		camEntries[x - 1][y].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	if (x < 8 + CAM_RADIUS && camEntries[x + 1][y].ceDunType == DTYPE_TOWN) {
+		camEntries[x + 1][y].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	if (y > 8 - CAM_RADIUS && camEntries[x][y - 1].ceDunType == DTYPE_TOWN) {
+		camEntries[x][y - 1].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	if (y < 8 + CAM_RADIUS && camEntries[x][y + 1].ceDunType == DTYPE_TOWN) {
+		camEntries[x][y + 1].ceDunType = NUM_DTYPES + type;
+		db++;
+	}
+	*border += db;
+}
+
+static void control_setmaplevel(int x, int y, BYTE lvl, BYTE dlvl)
+{
+	if (camEntries[x][y].ceIndex != 0 && (camEntries[x][y].ceLevel == 0 || camEntries[x][y].ceLevel > lvl)) {
+		camEntries[x][y].ceLevel = lvl;
+
+		lvl += dlvl;
+		if (lvl > MAXCAMPAIGNLVL)
+			lvl = MAXCAMPAIGNLVL;
+		control_setmaplevel(x + 1, y + 0, lvl, dlvl);
+		control_setmaplevel(x - 1, y + 0, lvl, dlvl);
+		control_setmaplevel(x + 0, y + 1, lvl, dlvl);
+		control_setmaplevel(x + 0, y - 1, lvl, dlvl);
+	}
+}
+
+void InitCampaignMap(int cii)
+{
+	BYTE idx = 0;
+	WORD available;
+	int border = 1;
+	int numMaps = MAXCAMPAIGNSIZE;
+	// TODO: prevent map-open after CMD_USEPLRMAP?
+	camItemIndex = cii;
+	ItemStruct* is = PlrItem(mypnum, camItemIndex);
+	available = is->_ivalue;
+	// generate the map
+	SetRndSeed(is->_iSeed);
+
+	memset(camEntries, 0, sizeof(camEntries));
+	static_assert(DTYPE_TOWN == 0, "InitCampaignMap must be adjusted.");
+	control_addmappos(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, random_(200, NUM_DTYPES - 1) + 1, ++idx, available, &border);
+
+	numMaps += is->_iPLLight - 6;
+	for (int i = 0; i < numMaps - 1; i++) {
+		int step = random_low(201, border) + 1;
+		for (int x = 0; x < lengthof(camEntries); x++) {
+			for (int y = 0; y < lengthof(camEntries[0]); y++) {
+				if (camEntries[x][y].ceDunType > NUM_DTYPES && --step == 0) {
+					BYTE type = random_(202, 3 * (NUM_DTYPES - 1)) + 1;
+					if (type >= NUM_DTYPES) {
+						type = camEntries[x][y].ceDunType - NUM_DTYPES;
+					}
+					control_addmappos(x, y, type, ++idx, available, &border);
+					x = lengthof(camEntries);
+					break;
+				}
+			}
+		}
+	}
+
+	BYTE lvl = (is->_iAC == 0 ? (is->_iCreateInfo & CF_LEVEL) : is->_iAC) - HELL_LEVEL_BONUS;
+	lvl += is->_iPLSkillLevels;
+	BYTE dlvl = 2;
+	dlvl += is->_iPLAC;
+
+	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl, dlvl);
+
+	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
+}
+
+void TryCampaignMapClick(bool bShift, bool altAction)
+{
+	if (!altAction) {
+		BYTE mIdx = currCamEntry.ceIndex;
+		if (mIdx != 0) {
+			if (currCamEntry.ceAvailable) {
+				selCamEntry = currCamEntry;
+				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
+				if (!bShift) {
+					if (gbInvflag) {
+						gbInvflag = false;
+						/* gbInvflag =*/ ToggleWindow(WND_INV);
+					}
+				}
+			} else {
+				return;
+			}
+		}
+	}
+
+	gbCampaignMapFlag = CMAP_NONE;
+}
+
+void DrawCampaignMap()
+{
+	int x, y, sx, sy, lx, ly;
+	sx = PANEL_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
+	sy = PANEL_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
+
+	sx += CAMICON_WIDTH * (CAM_RADIUS - lengthof(camEntries) / 2);
+	sy += CAMICON_HEIGHT * (CAM_RADIUS - lengthof(camEntries[0]) / 2);
+
+	currCamEntry = { 0, 0, 0, FALSE };
+	for (int cy = 0; cy < lengthof(camEntries[0]); cy++) {
+		for (int cx = 0; cx < lengthof(camEntries); cx++) {
+			const CampaignMapEntry &cme = camEntries[cy][cx];
+			if (cme.ceIndex != 0) {
+				x = sx + CAMICON_WIDTH * (cx/* + CAM_RADIUS  - lengthof(camEntries) / 2*/);
+				y = sy + CAMICON_HEIGHT * (cy/* + CAM_RADIUS - lengthof(camEntries[0]) / 2*/);
+				lx = x - BORDER_LEFT;
+				ly = y - (BORDER_TOP + CAMICON_HEIGHT);
+
+				const BYTE* tbl = ColorTrns[COLOR_TRN_GRAY];
+				if (cme.ceAvailable) { // not visited
+					if ((cx == lengthof(camEntries) / 2 && cy == lengthof(camEntries[0]) / 2) // starting place
+					 || (camEntries[cy + 0][cx + 1].ceIndex != 0 && !camEntries[cy + 0][cx + 1].ceAvailable) // neighbour of a visited place
+					 || (camEntries[cy + 0][cx - 1].ceIndex != 0 && !camEntries[cy + 0][cx - 1].ceAvailable)
+					 || (camEntries[cy + 1][cx + 0].ceIndex != 0 && !camEntries[cy + 1][cx + 0].ceAvailable)
+					 || (camEntries[cy - 1][cx + 0].ceIndex != 0 && !camEntries[cy - 1][cx + 0].ceAvailable)) {
+						tbl = ColorTrns[0];
+					} else {
+						continue;
+					}
+				}
+
+				CelDrawTrnTbl(x, y, pMapIconCels, cme.ceDunType, tbl);
+
+				if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, CAMICON_WIDTH, CAMICON_HEIGHT)) {
+					CelDrawTrnTbl(x, y, pMapIconCels, CAMICONLAST, tbl);
+
+					currCamEntry = cme;
+				}
+			}
+		}
 	}
 }
 

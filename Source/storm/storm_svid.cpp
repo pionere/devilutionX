@@ -420,8 +420,8 @@ bool SVidPlayContinue()
 		outputRect.w = SVidWidth * outputSurface->h / SVidHeight;
 		outputRect.h = outputSurface->h;
 	}
-	outputRect.x = (outputSurface->w - outputRect.w) / 2;
-	outputRect.y = (outputSurface->h - outputRect.h) / 2;
+	outputRect.x = (outputSurface->w - outputRect.w) >> 1;
+	outputRect.y = (outputSurface->h - outputRect.h) >> 1;
 
 	if (isIndexedOutputFormat
 	 || outputSurface->w == static_cast<int>(SVidWidth)

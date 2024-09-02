@@ -26,6 +26,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 #endif
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
+int AddMage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
@@ -85,6 +86,7 @@ void MI_AsArrow(int mi);
 void MI_Firebolt(int mi);
 void MI_Lightball(int mi);
 void MI_Poison(int mi);
+void MI_Mage(int mi);
 void MI_Wind(int mi);
 //void MI_Krull(int mi);
 void MI_Acid(int mi);
@@ -100,6 +102,7 @@ void MI_LightningC(int mi);
 void MI_Lightning(int mi);
 void MI_BloodBoilC(int mi);
 void MI_BloodBoil(int mi);
+void MI_SwampC(int mi);
 void MI_Bleed(int mi);
 void MI_Portal(int mi);
 void MI_Flash(int mi);

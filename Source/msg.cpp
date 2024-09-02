@@ -263,8 +263,9 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 {
 	DDPortal* pDPortal;
 	DDQuest* pDQuest;
+	DDDynLevel* pDLevel;
 	int i;
-	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
+	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + NUM_DYNLVLS * sizeof(DDDynLevel) + sizeof(gsDeltaData.ddJunk);
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaExportJunk.");
 
 	// export portals
@@ -283,6 +284,15 @@ static BYTE* DeltaExportJunk(BYTE* dst)
 		pDQuest->qvar1 = quests[i]._qvar1;
 	}
 	dst = (BYTE*)pDQuest;
+	// export dynamic levels
+	pDLevel = (DDDynLevel*)dst;
+	for (i = 0; i < NUM_DYNLVLS; i++) {
+		pDLevel->dlSeed = glSeedTbl[NUM_FIXLVLS + i];
+		pDLevel->dlLevel = gDynLevels[i]._dnLevel;
+		pDLevel->dlType = gDynLevels[i]._dnType;
+		pDLevel++;
+	}
+	dst = (BYTE*)pDLevel;
 	// export golems
 	memcpy(dst, &gsDeltaData.ddJunk, sizeof(gsDeltaData.ddJunk));
 	dst += sizeof(gsDeltaData.ddJunk);
@@ -294,9 +304,10 @@ static void DeltaImportJunk()
 {
 	DDPortal* pDPortal;
 	DDQuest* pDQuest;
+	DDDynLevel* pDLevel;
 	int i;
 	BYTE* src = gsDeltaData.ddSendRecvPkt.apMsg.tpData.content;
-	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + sizeof(gsDeltaData.ddJunk);
+	constexpr int junkDataSize = MAXPORTAL * sizeof(DDPortal) + NUM_QUESTS * sizeof(DDQuest) + NUM_DYNLVLS * sizeof(DDDynLevel) + sizeof(gsDeltaData.ddJunk);
 	// static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= sizeof(gsDeltaData.ddJunk), "DJunk does not fit to the buffer in DeltaImportJunk.");
 	static_assert(sizeof(gsDeltaData.ddSendRecvPkt.apMsg.tpData.content) >= junkDataSize, "DJunk does not fit to the buffer in DeltaImportJunk.");
 
@@ -318,6 +329,15 @@ static void DeltaImportJunk()
 		quests[i]._qvar1 = pDQuest->qvar1;
 	}
 	src = (BYTE*)pDQuest;
+	// update dynamic levels
+	pDLevel = (DDDynLevel*)src;
+	for (i = 0; i < NUM_DYNLVLS; i++) {
+		glSeedTbl[NUM_FIXLVLS + i] = pDLevel->dlSeed;
+		gDynLevels[i]._dnLevel = pDLevel->dlLevel;
+		gDynLevels[i]._dnType = pDLevel->dlType;
+		pDLevel++;
+	}
+	src = (BYTE*)pDLevel;
 	// update golems
 	memcpy(&gsDeltaData.ddJunk, src, sizeof(gsDeltaData.ddJunk));
 	// src += sizeof(gsDeltaData.ddJunk);
@@ -815,6 +835,8 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->bMDur = src->_iMaxDur;
 		dest->bCh = src->_iCharges;
 		dest->bMCh = src->_iMaxCharges;
+		static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "PackPkItem stores the gold value in 2 bytes.");
+		static_assert(MAXCAMPAIGNSIZE <= 16, "PackPkItem stores the campaign status in 2 bytes.");
 		dest->wValue = static_cast<uint16_t>(src->_ivalue);
 	} else {
 		PackEar(dest, src);
@@ -905,6 +927,8 @@ void UnPackPkItem(const PkItemStruct* src)
 			value = src->wValue;
 			net_assert(value <= GOLD_MAX_LIMIT);
 			SetGoldItemValue(&items[MAXITEMS], value);
+		} else if (idx == IDI_CAMPAIGNMAP) {
+			items[MAXITEMS]._ivalue = src->wValue;
 		}
 		items[MAXITEMS]._iIdentified = src->bId;
 		items[MAXITEMS]._iDurability = src->bDur;
@@ -1690,17 +1714,17 @@ void LevelDeltaLoad()
 			net_assert(plr._py == plr._poldy);
 			switch (plr._pmode) {
 			case PM_ATTACK:
-				net_assert(plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
-				net_assert(plr._pVar6 >= 0);         // ATTACK_SKILL_LEVEL
+				net_assert((unsigned)plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
+				net_assert(plr._pVar6 >= 0);                   // ATTACK_SKILL_LEVEL
 				break;
 			case PM_RATTACK:
-				net_assert(plr._pVar5 < NUM_SPELLS); // RATTACK_SKILL
-				net_assert(plr._pVar6 >= 0);         // RATTACK_SKILL_LEVEL
+				net_assert((unsigned)plr._pVar5 < NUM_SPELLS); // RATTACK_SKILL
+				net_assert(plr._pVar6 >= 0);                   // RATTACK_SKILL_LEVEL
 				break;
 			case PM_SPELL:
 				net_assert(plr._pVar1 >= DBORDERX && plr._pVar1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
 				net_assert(plr._pVar2 >= DBORDERY && plr._pVar2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-				net_assert(plr._pVar5 < NUM_SPELLS);                                  // SPELL_NUM
+				net_assert((unsigned)plr._pVar5 < NUM_SPELLS);                        // SPELL_NUM
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
 			}
@@ -1710,42 +1734,42 @@ void LevelDeltaLoad()
 		case ACTION_WALK:
 			break;
 		case ACTION_OPERATE:
-			net_assert(plr._pDestParam1 < MAXOBJECTS);
-			net_assert(plr._pDestParam2 < MAXDUNX);
-			net_assert(plr._pDestParam3 < MAXDUNY);
+			net_assert((unsigned)plr._pDestParam1 < MAXOBJECTS);
+			net_assert((unsigned)plr._pDestParam2 < MAXDUNX);
+			net_assert((unsigned)plr._pDestParam3 < MAXDUNY);
 			net_assert(abs(dObject[plr._pDestParam2][plr._pDestParam3]) == plr._pDestParam1 + 1);
 			break;
 		case ACTION_BLOCK:
-			net_assert(plr._pDestParam1 < NUM_DIRS);
+			net_assert((unsigned)plr._pDestParam1 < NUM_DIRS);
 			break;
 		case ACTION_ATTACKMON:
 		case ACTION_RATTACKMON:
 		case ACTION_SPELLMON:
-			net_assert(plr._pDestParam1 < MAXMONSTERS);
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert((unsigned)plr._pDestParam1 < MAXMONSTERS);
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_ATTACK:
 		case ACTION_RATTACK:
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL
 			break;
 		case ACTION_ATTACKPLR:
 		case ACTION_RATTACKPLR:
 		case ACTION_SPELLPLR:
-			net_assert(plr._pDestParam1 < MAX_PLRS);
-			net_assert(plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
+			net_assert((unsigned)plr._pDestParam1 < MAX_PLRS);
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS); // ATTACK_SKILL, SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
 			net_assert(plr._pDestParam1 >= DBORDERX && plr._pDestParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
 			net_assert(plr._pDestParam2 >= DBORDERY && plr._pDestParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
-			net_assert(plr._pDestParam3 < NUM_SPELLS);                                        // SPELL_NUM
+			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS);                              // SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
-				net_assert(plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
+				net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_RESURRECT)
-				net_assert(plr._pDestParam4 < MAX_PLRS); // fake SPELL_LEVEL
+				net_assert((unsigned)plr._pDestParam4 < MAX_PLRS); // fake SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_TELEKINESIS) {
 				switch (plr._pDestParam4 >> 16) {
 				case MTT_ITEM:
@@ -1765,10 +1789,10 @@ void LevelDeltaLoad()
 			break;
 		case ACTION_PICKUPITEM:  // put item in hand (inventory screen open)
 		case ACTION_PICKUPAITEM: // put item in inventory
-			net_assert(plr._pDestParam1 < MAXITEMS);
+			net_assert((unsigned)plr._pDestParam1 < MAXITEMS);
 			break;
 		case ACTION_TALK:
-			net_assert(plr._pDestParam1 < MAXMONSTERS);
+			net_assert((unsigned)plr._pDestParam1 < MAXMONSTERS);
 			break;
 		default:
 			net_assert(0);
@@ -1993,7 +2017,7 @@ void NetSendCmdQuest(BYTE q, bool extOnly)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value)
+void SendStoreCmd1(BYTE idx, BYTE bStoreId, int value)
 {
 	TCmdStore1 cmd;
 
@@ -2063,17 +2087,7 @@ void NetSendCmdSpawnItem(bool flipFlag)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdDelItem(BYTE bLoc)
-{
-	TCmdBParam1 cmd;
-
-	cmd.bCmd = CMD_DELPLRITEM;
-	cmd.bParam1 = bLoc;
-
-	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
-}
-
-void NetSendCmdItemSkill(int cii, BYTE skill, int8_t from)
+void NetSendCmdItemSkill(BYTE cii, BYTE skill, int8_t from)
 {
 	TCmdItemOp cmd;
 
@@ -2173,6 +2187,19 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel)
 	cmd.bPlayers = gbActivePlayers; // TODO: could be done in On_NEWLVL 
 	cmd.bFom = fom;
 	cmd.bLevel = bLevel;
+
+	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
+}
+
+void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type)
+{
+	TCmdCreateLvl cmd;
+
+	cmd.bCmd = CMD_CREATELVL;
+	cmd.clPlayers = gbActivePlayers; // TODO: could be done in On_CREATELVL 
+	cmd.clSeed = seed;
+	cmd.clLevel = lvl;
+	cmd.clType = type;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2543,11 +2570,9 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 		(cmd->iou.from == SPLFROM_ABILITY && cmd->iou.skill != SPL_OIL));
 	net_assert(cmd->ioIdx < NUM_INVELEM);
 
-#ifdef HELLFIRE
 	if (cmd->iou.skill == SPL_OIL)
 		DoOil(pnum, cmd->iou.from, cmd->ioIdx);
 	else
-#endif
 		DoAbility(pnum, cmd->iou.from, cmd->ioIdx);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
@@ -2695,6 +2720,49 @@ static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
+{
+	TCmdCreateLvl* cmd = (TCmdCreateLvl*)pCmd;
+	BYTE bLevel, bPlayers;
+	if (plr._pDunLevel == DLV_TOWN && !plr._pLvlChanging && plr._pmode != PM_DEATH) {
+	for (bLevel = NUM_FIXLVLS; bLevel < NUM_LEVELS; bLevel++) {
+		int i = 0;
+		for ( ; i < MAX_PLRS; i++) {
+			if (plx(i)._pActive && plx(i)._pDunLevel == bLevel)
+				break;
+			if (portals[i]._rlevel == bLevel)
+				break;
+		}
+		if (i == MAX_PLRS) {
+			break;
+		}
+	}
+	bPlayers = cmd->clPlayers;
+	net_assert(bLevel < NUM_LEVELS);
+	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
+	net_assert(cmd->clType < NUM_DTYPES);
+	// reset level delta (entities + automap)
+	// - multi
+	static_assert((int)DCMD_INVALID == 0, "On_CREATELVL initializes the items with zero, assuming the invalid command to be zero.");
+	static_assert((int)DCMD_MON_INVALID == 0, "On_CREATELVL initializes the monsters with zero, assuming the invalid command to be zero.");
+	static_assert((int)CMD_SYNCDATA == 0, "On_CREATELVL initializes the objects with zero, assuming none of the valid commands for an object to be zero.");
+	memset(&gsDeltaData.ddLevel[bLevel], 0, sizeof(DDLevel));
+	memset(&gsDeltaData.ddLocal[bLevel], 0, sizeof(LocalLevel));
+	// - single
+	guLvlVisited &= ~LEVEL_MASK(bLevel);
+	// setup the new level
+	glSeedTbl[bLevel] = cmd->clSeed;
+	gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
+	static_assert(MAXCHARLEVEL + HELL_LEVEL_BONUS < CF_LEVEL, "On_CREATELVL might initialize a level which is too high for item-drops.");
+	gDynLevels[bLevel - NUM_FIXLVLS]._dnLevel = cmd->clLevel;
+	gDynLevels[bLevel - NUM_FIXLVLS]._dnType = cmd->clType;
+
+	StartNewLvl(pnum, DVL_DWM_DYNLVL, bLevel);
+
+	}
+	return sizeof(*cmd);
+}
+
 static unsigned On_USEPORTAL(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
@@ -2836,7 +2904,7 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 		PlrDeadItem(pnum, &ear, DIR_S);
 	}
 
-	SyncPlrKill(pnum, dmgtype);
+	SyncPlrKill(pnum);
 
 	if (pnum == mypnum)
 		check_update_plr(pnum);
@@ -3006,6 +3074,21 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 
 	if (plr._pmode != PM_DEATH)
 		SyncUseItem(pnum, r, SPL_INVALID);
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_USEPLRMAP(TCmd* pCmd, int pnum)
+{
+	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	BYTE cii = cmd->bParam1;
+	BYTE mIdx = cmd->bParam2;
+
+	net_assert(cii < NUM_INVELEM);
+	net_assert(mIdx < MAXCAMPAIGNSIZE);
+
+	if (plr._pmode != PM_DEATH)
+		SyncUseMapItem(pnum, cii, mIdx);
 
 	return sizeof(*cmd);
 }
@@ -4415,6 +4498,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_DELPLRITEM(pCmd, pnum);
 	case CMD_USEPLRITEM:
 		return On_USEPLRITEM(pCmd, pnum);
+	case CMD_USEPLRMAP:
+		return On_USEPLRMAP(pCmd, pnum);
 	case CMD_PUTITEM:
 		return On_PUTITEM(pCmd, pnum);
 	case CMD_SPAWNITEM:
@@ -4453,6 +4538,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_NEWLVL:
 		return On_NEWLVL(pCmd, pnum);
+	case CMD_CREATELVL:
+		return On_CREATELVL(pCmd, pnum);
 	case CMD_USEPORTAL:
 		return On_USEPORTAL(pCmd, pnum);
 	case CMD_RETOWN:

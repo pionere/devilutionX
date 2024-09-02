@@ -1018,8 +1018,8 @@ static void DrawItem(int ii, int sx, int sy)
 	ii--;
 
 	is = &items[ii];
-	if (is->_iPostDraw == gbPreFlag)
-		return;
+	//if (is->_iPostDraw == gbPreFlag)
+	//	return;
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
@@ -1111,9 +1111,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
 		DrawObject(mpnum, sx, sy, dx, dy);
-	bv = dItem[sx][sy];
-	if (bv != 0)
-		DrawItem(bv, dx, dy);
+	//bv = dItem[sx][sy];
+	//if (bv != 0)
+	//	DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
@@ -1253,14 +1253,14 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
  */
 static void Zoom()
 {
-	int wdt = SCREEN_WIDTH / 2;
-	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2 - 1, VIEWPORT_HEIGHT / 2 - 1);
+	int wdt = SCREEN_WIDTH / 2u;
+	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1);
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
 	BYTE* src = &gpBuffer[nSrcOff];
 	BYTE* dst = &gpBuffer[nDstOff];
 
-	for (int hgt = 0; hgt < VIEWPORT_HEIGHT / 2; hgt++) {
+	for (unsigned hgt = 0; hgt < VIEWPORT_HEIGHT / 2u; hgt++) {
 		for (int i = 0; i < wdt; i++) {
 			*dst-- = *src;
 			*dst-- = *src;
@@ -1512,6 +1512,9 @@ static void DrawView()
 		}
 		if (gbSkillListFlag) {
 			DrawSkillList();
+		}
+		if (gbCampaignMapFlag) {
+			DrawCampaignMap();
 		}
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
 			DrawInfoStr();

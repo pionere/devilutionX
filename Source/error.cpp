@@ -143,7 +143,7 @@ void DrawDiabloMsg()
 	DrawRectTrans(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER), PAL_BLACK);
 	// print the message
 	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
-	PrintString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, tempstr, COL_GOLD, FONT_KERN_SMALL);
 
 	if (msgdelay > 0 && msgdelay <= SDL_GetTicks() - 3500) {
 		msgdelay = 0;
