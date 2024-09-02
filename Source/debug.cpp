@@ -176,8 +176,117 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 	}
 	return false;
 }
+#ifdef DEBUG_DATA
+static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
+{
+	if (abs(a->y) != abs(b->y))
+		return abs(a->y) > abs(b->y);
+	if (abs(a->x) != abs(b->x))
+		return abs(a->x) < abs(b->x);
+	if (a->y != b->y) {
+		return a->y > b->y;
+	}
+	return a->x < b->x;
+}
 
+static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const POS32 *a, const POS32 *b))
+{
+	if (entries <= 1)
+		return;
+	sortCrawlTable(&table[0], entries - entries / 2, cmpFunc);
+	sortCrawlTable(&table[entries - entries / 2], entries / 2, cmpFunc);
 
+	unsigned cl = 0;
+	unsigned cr = entries - entries / 2;
+	unsigned el = cr;
+	unsigned er = entries;
+
+	POS32 *tmp = (POS32 *)malloc(sizeof(table[0]) * entries);
+
+	for (unsigned i = 0; i < entries; i++) {
+		if (cr >= er || (cl < el && !cmpFunc(&table[cr], &table[cl]))) {
+			tmp[i] = table[cl];
+			cl++;
+		} else {
+			tmp[i] = table[cr];
+			cr++;
+		}
+	}
+	memcpy(table, tmp, sizeof(table[0]) * entries);
+}
+
+static void recreateCrawlTable()
+{
+	constexpr int r = 18;
+	int crns[r + 1];
+	memset(crns, 0, sizeof(crns));
+	POS32 ctableentries[r + 1][2 * 2 * r * 4];
+	memset(ctableentries, 0x80, sizeof(ctableentries));
+	int dx, dy, tx, ty, dist, total = 0;
+	dx = r + 1;
+	dy = r + 1;
+	for (tx = dx - r; tx <= dx + r; tx++) {
+		for (ty = dx - r; ty <= dy + r; ty++) {
+			dist = std::max(abs(tx - dx), abs(ty - dy));
+			if (abs(tx - dx) == abs(ty - dy) && (tx != dx || ty != dy))
+				dist++;
+			if (dist <= r) {
+				ctableentries[dist][crns[dist]].x = tx - dx;
+				ctableentries[dist][crns[dist]].y = ty - dy;
+				crns[dist]++;
+				total++;
+			}
+		}
+	}
+	for (int n = 0; n <= r; n++) {
+		sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntry);
+	}
+	LogErrorF("const int8_t CrawlTable[%d] = {", total * 2 + r + 1);
+	LogErrorF("	// clang-format off");
+	int cursor = 0;
+	for (int n = 0; n <= r; n++) {
+		int ii = crns[n];
+		if (ii < 100)
+			LogErrorF("	%d,\t\t\t\t\t\t\t\t\t\t// %2d - %d", ii, n, cursor);
+		else if (ii < 128)
+			LogErrorF("	%d,\t\t\t\t\t\t\t\t\t// %2d - %d", ii, n, cursor);
+		else
+			LogErrorF("	(int8_t)%d,\t\t\t\t\t\t\t// %2d - %d", ii, n, cursor);
+		cursor++;
+		cursor += 2 * ii;
+		tempstr[0] = '\0';
+		for (int i = 0; i < ii; i++) {
+			if ((i % 4) == 0) {
+				copy_cstr(tempstr, "\t");
+			}
+			snprintf(tempstr, sizeof(tempstr), "%s%3d,%3d,  ", tempstr, ctableentries[n][i].x, ctableentries[n][i].y);
+			if ((i % 4) == 3) {
+				tempstr[strlen(tempstr) - 2] = '\0';
+				LogErrorF(tempstr);
+				tempstr[0] = '\0';
+			}
+		}
+		if (tempstr[0] != '\0') {
+			tempstr[strlen(tempstr) - 2] = '\0';
+			LogErrorF(tempstr);
+			tempstr[0] = '\0';
+		}
+	}
+	LogErrorF("	// clang-format on");
+	LogErrorF("};");
+
+	snprintf(tempstr, sizeof(tempstr), "const int CrawlNum[%d] = {", r + 1);
+	cursor = 0;
+	for (int n = 0; n <= r; n++) {
+		snprintf(tempstr, sizeof(tempstr), "%s %d,", tempstr, cursor);
+		cursor++;
+		cursor += 2 * crns[n];
+	}
+	tempstr[strlen(tempstr) - 1] = '\0';
+	snprintf(tempstr, sizeof(tempstr), "%s };", tempstr);
+	LogErrorF(tempstr);
+}
+#endif // DEBUG_DATA
 void ValidateData()
 {
 #ifdef DEBUG_DATA
@@ -269,6 +378,7 @@ void ValidateData()
 			app_fatal("Invalid (zero) cursor height at %d.", i);
 	}
 	// meta-data
+	// recreateCrawlTable();
 	// - CrawlNum
 	for (int n = 0; n < lengthof(CrawlNum); n++) {
 		int a = CrawlNum[n];
