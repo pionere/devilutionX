@@ -2422,23 +2422,22 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	// ((unsigned)misource < MAX_PLRS);
 	// the position of portals in town and recreated portals are fixed
 	if (currLvl._dType != DTYPE_TOWN && spllvl >= 0) {
-		const int RANGE = 6;
-		static_assert(DBORDERX >= RANGE - 1 && DBORDERY >= RANGE - 1, "AddTown expects a large enough border.");
-		static_assert(lengthof(CrawlNum) >= RANGE, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
-		for (i = 0; i < RANGE; i++) {
+		static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTown expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 5, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
+		for (i = 0; i <= 5; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (PosOkMissile(tx, ty) && !CheckIfTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
-					i = RANGE;
-					break;
+					goto done;
 				}
 			}
 		}
-		if (i == RANGE)
-			return MIRES_FAIL_DELETE;
+		return MIRES_FAIL_DELETE;
+done:
+		;
 	} else {
 		tx = dx;
 		ty = dy;
@@ -4406,19 +4405,19 @@ void MI_Guardian(int mi)
 			// check for an enemy
 			mis->_miRange--;
 			if (mis->_miRange >= 0) {
-				ex = false;
 				static_assert(DBORDERX >= 6 && DBORDERY >= 6, "MI_Guardian expects a large enough border.");
 				static_assert(lengthof(CrawlNum) > 6, "MI_Guardian uses CrawlTable/CrawlNum up to radius 6.");
-				for (i = 6; i >= 0 && !ex; i--) {
+				for (i = 6; i >= 0; i--) {
 					cr = &CrawlTable[CrawlNum[i]];
 					for (j = *cr; j > 0; j--) {
 						tx = mis->_mix + *++cr;
 						ty = mis->_miy + *++cr;
-						ex = Sentfire(mi, tx, ty);
-						if (ex)
-							break;
+						if (Sentfire(mi, tx, ty))
+							goto done;
 					}
 				}
+done:
+				;
 			} else {
 				// start collapse
 				SetMissDir(mi, 0);
