@@ -1596,7 +1596,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 	static_assert(lengthof(CrawlNum) > 9, "PlaceRune uses CrawlTable/CrawlNum up to radius 9.");
 	for (i = 0; i <= 9; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
@@ -1756,7 +1756,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddRingC expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 3, "AddRingC uses CrawlTable/CrawlNum radius 3.");
 	cr = &CrawlTable[CrawlNum[3]];
-	for (j = *cr; j > 0; j--) {
+	for (j = (BYTE)*cr; j > 0; j--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		assert(IN_DUNGEON_AREA(tx, ty));
@@ -3072,7 +3072,7 @@ int AddNovaC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddNovaC expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 3, "AddNovaC uses CrawlTable/CrawlNum radius 3.");
 	cr = &CrawlTable[CrawlNum[3]];
-	for (i = *cr; i > 0; i--) {
+	for (i = (BYTE)*cr; i > 0; i--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		AddMissile(sx, sy, tx, ty, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
@@ -3967,7 +3967,7 @@ void MI_HorkSpawn(int mi)
 	static_assert(lengthof(CrawlNum) > 1, "MI_HorkSpawn uses CrawlTable/CrawlNum up to radius 1.");
 	for (i = 0; i <= 1; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = mis->_mix + *++cr;
 			ty = mis->_miy + *++cr;
 			// assert(IN_DUNGEON_AREA(tx, ty));
@@ -3997,7 +3997,7 @@ void MI_Rune(int mi)
 		sy = mis->_miy;
 		static_assert(lengthof(CrawlNum) > 1, "MI_Rune uses CrawlTable/CrawlNum up to radius 1.");
 		cr = &CrawlTable[CrawlNum[mis->_miVar2]]; // RUNE_RANGE
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			tx = sx + *++cr;
 			ty = sy + *++cr;
 			if (dPlayer[tx][ty] == 0) {
@@ -4409,7 +4409,7 @@ void MI_Guardian(int mi)
 				static_assert(lengthof(CrawlNum) > 6, "MI_Guardian uses CrawlTable/CrawlNum up to radius 6.");
 				for (i = 6; i >= 0; i--) {
 					cr = &CrawlTable[CrawlNum[i]];
-					for (j = *cr; j > 0; j--) {
+					for (j = (BYTE)*cr; j > 0; j--) {
 						tx = mis->_mix + *++cr;
 						ty = mis->_miy + *++cr;
 						if (Sentfire(mi, tx, ty))

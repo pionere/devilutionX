@@ -1428,7 +1428,7 @@ static void FindClosestPlr(int* dx, int* dy)
 	static_assert(lengthof(CrawlNum) > 9, "FindClosestPlr uses CrawlTable/CrawlNum up to radius 9.");
 	for (i = 0; i <= 9; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			xx = *dx + *++cr;
 			yy = *dy + *++cr;
 			if (PosOkActor(xx, yy) && PosOkPortal(xx, yy)) {
