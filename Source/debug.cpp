@@ -239,6 +239,13 @@ static void recreateCrawlTable()
 			dist = std::max(abs(tx - dx), abs(ty - dy));
 			if (abs(tx - dx) == abs(ty - dy) && (tx != dx || ty != dy))
 				dist++;
+			if (version != 0 && dist > 3) {
+				dist = (tx - dx) * (tx - dx) + (ty - dy) * (ty - dy);
+				dist = sqrt((double)dist) + 0.5f;
+				// if (dist == 1 && (tx != dx || ty != dy))
+				//	dist++;
+			}
+
 			if (dist <= r) {
 				ctableentries[dist][crns[dist]].x = tx - dx;
 				ctableentries[dist][crns[dist]].y = ty - dy;
@@ -427,7 +434,7 @@ void ValidateData()
 			i++;
 		}
 	}
-	assert(CrawlTable[CrawlNum[4]] == 32); // required by MAI_Scav
+	assert(CrawlTable[CrawlNum[4]] == 24); // required by MAI_Scav
 	assert(CrawlTable[CrawlNum[3]] == 24); // required by AddNovaC
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {

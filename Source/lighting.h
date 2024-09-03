@@ -74,7 +74,7 @@ void lighting_update_nest();
 
 /* rdata */
 
-extern const int8_t CrawlTable[2749];
+extern const int8_t CrawlTable[2189];
 extern const int CrawlNum[19];
 
 #ifdef __cplusplus

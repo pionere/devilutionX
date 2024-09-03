@@ -3613,8 +3613,8 @@ void MAI_Scav(int mnum)
 					static_assert(MAXDUNX < UCHAR_MAX, "MAI_Scav stores dungeon coordinates in BYTE field I.");
 					static_assert(MAXDUNY < UCHAR_MAX, "MAI_Scav stores dungeon coordinates in BYTE field II.");
 					static_assert(lengthof(CrawlNum) > 4, "MAI_Scav uses CrawlTable/CrawlNum up to radius 4.");
-					// assert(CrawlTable[CrawlNum[4]] == 32);
-					BYTE corpseLocs[32 * 2];
+					// assert(CrawlTable[CrawlNum[4]] == 24);
+					BYTE corpseLocs[24 * 2];
 					tmp = 0;
 					for (i = 1; i <= 4; i++) {
 						cr = &CrawlTable[CrawlNum[i]];
