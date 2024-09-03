@@ -37,7 +37,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           # x86 builds
           - name: diablo-x86
@@ -57,11 +56,11 @@ jobs:
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -DNOHOSTING=OFF -DHOSTONLY=ON -DINET_MODE=ON -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
-          - name: diablo
+          - name: diablo+patch
             #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x64.zip'
-          - name: hellfire
+          - name: hellfire+patch
             #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
@@ -110,13 +109,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo-x86, hellfire-x86]
         include:
           # x86 builds
-          - name: diablo-x86
+          - name: diablo+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-mingw-x86.zip'
-          - name: hellfire-x86
+          - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
@@ -156,13 +154,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           # x64 builds
-          - name: diablo-x64
+          - name: diablo+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-mingw-x64.zip'
-          - name: hellfire-x64
+          - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
@@ -202,13 +199,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo-x86, hellfire-x86]
         include:
           # x86 builds
-          - name: diablo-w9x
+          - name: diablo+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON -DNONET=ON'
             artifact: 'diablo-nightly-mingw-w9x.zip'
-          - name: hellfire-w9x
+          - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON -DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-w9x.zip'
     steps:
@@ -249,7 +245,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
@@ -259,11 +254,11 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnu.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnu.appimage'
-          - name: diablo-uxp
+          - name: diablo+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x86_64-linux-gnup.tar.xz'
             appimage: 'diablo-nightly-x86_64-linux-gnup.appimage'
-          - name: hellfire-uxp
+          - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnup.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnup.appimage'
@@ -320,18 +315,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
-          - name: diablo-aa64
+          - name: diablo
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-aarch64.tar.xz'
-          - name: hellfire-aa64
+          - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64.tar.xz'
-          - name: diablo-aa64p
+          - name: diablo+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-aarch64p.tar.xz'
-          - name: hellfire-aa64p
+          - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64p.tar.xz'
     runs-on: ubuntu-20.04
@@ -379,18 +373,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
-          - name: diablo-mac
+          - name: diablo
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-mac.dmg'
-          - name: hellfire-mac
+          - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mac.dmg'
-          - name: diablo-macp
+          - name: diablo+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-macp.dmg'
-          - name: hellfire-macp
+          - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-macp.dmg'
     runs-on: macos-12
@@ -427,18 +420,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
-          - name: diablo-ios
+          - name: diablo
             cmakeargs: ''
             artifact: 'diablo-nightly-ios.ipa'
-          - name: hellfire-ios
+          - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ios.ipa'
-          - name: diablo-iosp
+          - name: diablo+patch
             cmakeargs: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-iosp.ipa'
-          - name: hellfire-iosp
+          - name: hellfire+patch
             cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-iosp.ipa'
     runs-on: macos-12
@@ -479,17 +471,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             artifact: 'diablo-nightly-android.apk'
           - name: hellfire
             cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
-          - name: diablo-adrp
+          - name: diablo+patch
             cmakearg0: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-androidp.apk'
-          - name: hellfire-adrp
+          - name: hellfire+patch
             cmakearg0: '-DUSE_PATCH=ON'
             cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
@@ -543,7 +534,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-DZEROTIER=OFF'
@@ -551,10 +541,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350.opk'
-          - name: diablo-rgp
+          - name: diablo+patch
             cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-rg350p.opk'
-          - name: hellfire-rgp
+          - name: hellfire+patch
             cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350p.opk'
     runs-on: ubuntu-22.04
@@ -596,7 +586,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: ''
@@ -604,10 +593,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-lepus.opk'
-          - name: diablo-lepp
+          - name: diablo+patch
             cmakeargs: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-lepusp.opk'
-          - name: hellfire-lepp
+          - name: hellfire+patch
             cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-lepusp.opk'
     runs-on: ubuntu-22.04
@@ -649,7 +638,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-DZEROTIER=OFF'
@@ -657,10 +645,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofw.opk'
-          - name: diablo-rtrp
+          - name: diablo+patch
             cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-retrofwp.opk'
-          - name: hellfire-rtrp
+          - name: hellfire+patch
             cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofwp.opk'
     runs-on: ubuntu-latest
@@ -705,7 +693,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
@@ -713,10 +700,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4.pkg'
-          - name: diablo-ps4p
+          - name: diablo+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-ps4p.pkg'
-          - name: hellfire-ps4p
+          - name: hellfire+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4p.pkg'
     runs-on: ubuntu-22.04
@@ -754,7 +741,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
@@ -803,7 +789,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON'
@@ -811,10 +796,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vita.vpk'
-          - name: diablo-vita
+          - name: diablo+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON'
             artifact: 'diablo-nightly-vitap.vpk'
-          - name: hellfire-vita
+          - name: hellfire+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vitap.vpk'
     runs-on: ubuntu-latest
@@ -851,7 +836,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-DNONET=ON'
@@ -861,11 +845,11 @@ jobs:
             cmakeargs: '-DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-3ds.3dsx'
             cia: 'hellfire-nightly-3ds.cia'
-          - name: diablo-3ds
+          - name: diablo+patch
             cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
             artifact: 'diablo-nightly-3dsp.3dsx'
             cia: 'diablo-nightly-3dsp.cia'
-          - name: hellfire-3ds
+          - name: hellfire+patch
             cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-3dsp.3dsx'
             cia: 'hellfire-nightly-3dsp.cia'
@@ -922,7 +906,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON'
@@ -930,10 +913,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-switch.nro'
-          - name: diablo-switch
+          - name: diablo+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON'
             artifact: 'diablo-nightly-switchp.nro'
-          - name: hellfire-switch
+          - name: hellfire+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-switchp.nro'
     runs-on: ubuntu-latest
@@ -944,8 +927,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    #  - name: Create Build Environment
-    #    run: brew bundle install
     - name: Install dependencies
       shell: bash
       run: |
@@ -976,7 +957,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: '-DNONET=ON'
@@ -984,10 +964,10 @@ jobs:
           - name: hellfire
             cmakeargs: '-DNONET=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-amiga'
-          - name: diablo-amiga
+          - name: diablo+patch
             cmakeargs: '-DNONET=ON -D USE_PATCH=ON'
             artifact: 'diablo-nightly-amigap'
-          - name: hellfire-amiga
+          - name: hellfire+patch
             cmakeargs: '-DNONET=ON -D USE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-amigap'
     runs-on: ubuntu-latest
