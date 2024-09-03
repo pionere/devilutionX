@@ -225,8 +225,8 @@ static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const 
 
 static void recreateCrawlTable()
 {
-	constexpr int r = 18;
 	constexpr int version = 1;
+	constexpr int r = version == 0 ? 18 : 15;
 	int crns[r + 1];
 	memset(crns, 0, sizeof(crns));
 	POS32 ctableentries[r + 1][2 * 2 * r * 4];
