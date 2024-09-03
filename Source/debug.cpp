@@ -178,7 +178,7 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 	return false;
 }
 
-static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
+/*static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
 {
 	if (abs(a->y) != abs(b->y))
 		return abs(a->y) > abs(b->y);
@@ -188,6 +188,13 @@ static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
 		return a->y > b->y;
 	}
 	return a->x < b->x;
+}
+
+static bool lessCrawlTableEntryDist(const POS32 *a, const POS32 *b)
+{
+	int da = a->x * a->x + a->y * a->y;
+	int db = b->x * b->x + b->y * b->y;
+	return da < db;
 }
 
 static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const POS32 *a, const POS32 *b))
@@ -219,6 +226,7 @@ static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const 
 static void recreateCrawlTable()
 {
 	constexpr int r = 18;
+	constexpr int version = 1;
 	int crns[r + 1];
 	memset(crns, 0, sizeof(crns));
 	POS32 ctableentries[r + 1][2 * 2 * r * 4];
@@ -240,7 +248,10 @@ static void recreateCrawlTable()
 		}
 	}
 	for (int n = 0; n <= r; n++) {
-		sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntry);
+		if (version == 0)
+			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntry);
+		else
+			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntryDist);
 	}
 	LogErrorF("const int8_t CrawlTable[%d] = {", total * 2 + r + 1);
 	LogErrorF("	// clang-format off");
@@ -286,7 +297,7 @@ static void recreateCrawlTable()
 	tempstr[strlen(tempstr) - 1] = '\0';
 	snprintf(tempstr, sizeof(tempstr), "%s };", tempstr);
 	LogErrorF(tempstr);
-}
+}*/
 #endif // DEBUG_DATA
 void ValidateData()
 {
