@@ -2514,7 +2514,7 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
 		static_assert((int)ACTION_RATTACKPLR + 1 == (int)ACTION_SPELL, "CheckPlrSkillUse expects ordered action-ids VI.");
 		static_assert((int)ACTION_SPELL + 1 == (int)ACTION_SPELLMON, "CheckPlrSkillUse expects ordered action-ids VII.");
 		static_assert((int)ACTION_SPELLMON + 1 == (int)ACTION_SPELLPLR, "CheckPlrSkillUse expects ordered action-ids VIII.");
-		if (sn == plr._pDestParam3 && ((BYTE)su.from) == plr._pDestParam4
+		if (sn != SPL_TELEKINESIS && sn != SPL_DISARM && sn == plr._pDestParam3 && ((BYTE)su.from) == plr._pDestParam4
 			&& plr._pDestAction >= ACTION_ATTACK && plr._pDestAction <= ACTION_SPELLPLR)
 			return sameLvl;
 		if (sf == SPLFROM_MANA) {
