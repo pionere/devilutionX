@@ -7,7 +7,7 @@ set(UBSAN OFF)
 # Failed to build FSELF: no symbol section
 #set(DISABLE_STRIP ON)
 #set(DISABLE_LTO ON)
-set(NONET ON)
+#set(NONET ON)
 set(NOMEMCCPY ON)
 #set(DISCORD_INTEGRATION OFF)
 #set(BUILD_TESTING OFF)
