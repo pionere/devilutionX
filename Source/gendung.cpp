@@ -1508,9 +1508,9 @@ static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DR
 
 	// exits
 	if (random_(0, 2) == 0) {
-		dungeon[x2][(y1 + y2 + 1) / 2] = themeTiles[DRT_DOOR_VERT];
+		dungeon[x2][(y1 + y2 + 1) / 2u] = themeTiles[DRT_DOOR_VERT];
 	} else {
-		dungeon[(x1 + x2 + 1) / 2][y2] = themeTiles[DRT_DOOR_HORIZ];
+		dungeon[(x1 + x2 + 1) / 2u][y2] = themeTiles[DRT_DOOR_HORIZ];
 	}
 }
 
