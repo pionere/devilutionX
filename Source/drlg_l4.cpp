@@ -508,7 +508,7 @@ static void DRLG_L4SetRoom(int idx)
 }
 
 /*
- * Transform dungeon by replacing values using 2x2 block patterns defined in L1ConvTbl
+ * Transform dungeon by replacing values using 2x2 block patterns defined in L4ConvTbl
  * New dungeon values: 1 2 3 6 9 30
  */
 static void DRLG_L4MakeMegas()

@@ -766,7 +766,7 @@ static void DRLG_L2Shadows()
 					dungeon[i - 1][j - 1] = replace;
 					dungeon[i - 1][j] = 50;
 				} else {
-					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 9, 45, 50 -> ok
+					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 2, 5, 8, 9, 33, 45, 50 -> ok
 					// TODO: what else?
 				}
 			}
@@ -2331,7 +2331,6 @@ static void DRLG_L2()
 			if (warpPos.x < 0) {
 				continue;
 			}
-
 			pWarps[DWARP_ENTRY]._wx = warpPos.x;
 			pWarps[DWARP_ENTRY]._wy = warpPos.y;
 			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
