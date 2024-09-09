@@ -1474,7 +1474,7 @@ bool CanPut(int x, int y)
 			return false;
 	}
 
-	oi = dObject[x + 1][y + 1];
+	/*oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (objects[oi]._oSelFlag != 0)
@@ -1486,10 +1486,10 @@ bool CanPut(int x, int y)
 		oi2 = dObject[x][y + 1];
 		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
 			return false;
-	}
+	}*/
 
 	if (currLvl._dType == DTYPE_TOWN)
-		if ((dMonster[x][y] | dMonster[x + 1][y + 1]) != 0)
+		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
 			return false;
 
 	return true;
