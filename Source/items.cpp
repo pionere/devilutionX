@@ -1065,6 +1065,8 @@ void CreatePlrItems(int pnum)
  */
 bool ItemSpaceOk(int x, int y)
 {
+	return CanPut(x, y) && (dMonster[x][y] | dPlayer[x][y]) == 0;
+#if 0
 	int oi;
 
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
@@ -1099,6 +1101,7 @@ bool ItemSpaceOk(int x, int y)
 			return false;
 	*/
 	return true;
+#endif
 }
 
 static bool GetItemSpace(int x, int y, int ii)
