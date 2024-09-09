@@ -1104,14 +1104,14 @@ bool ItemSpaceOk(int x, int y)
 #endif
 }
 
-static bool GetItemSpace(int x, int y, int ii)
+static bool GetItemSpace(int x, int y, bool (func)(int x, int y), int ii)
 {
 	BYTE i, rs;
 	BYTE slist[NUM_DIRS + 1];
 
 	rs = 0;
 	for (i = 0; i < lengthof(area3x3_x); i++) {
-		if (ItemSpaceOk(x + area3x3_x[i], y + area3x3_y[i])) {
+		if (func(x + area3x3_x[i], y + area3x3_y[i])) {
 			slist[rs] = i;
 			rs++;
 		}
@@ -1129,20 +1129,26 @@ static bool GetItemSpace(int x, int y, int ii)
 static void GetSuperItemSpace(int x, int y, int ii)
 {
 	int xx, yy;
-	int i, j, k;
+	int i, j;
 
-	if (!GetItemSpace(x, y, ii)) {
-		for (k = 2; k < 50; k++) {
-			for (j = -k; j <= k; j++) {
-				yy = y + j;
-				for (i = -k; i <= k; i++) {
-					xx = i + x;
-					if (ItemSpaceOk(xx, yy)) {
-						SetItemLoc(ii, xx, yy);
-						return;
-					}
+	if (!GetItemSpace(x, y, ItemSpaceOk, ii) && !GetItemSpace(x, y, CanPut, ii)) {
+		const int8_t* cr;
+		bool ignoreLine = false;
+restart:
+		for (i = 2; i < lengthof(CrawlNum); i--) {
+			cr = &CrawlTable[CrawlNum[i]];
+			for (j = (BYTE)*cr; j > 0; j--) {
+				xx = x + *++cr;
+				yy = y + *++cr;
+				if (CanPut(xx, yy) && (ignoreLine || LineClear(x, y, xx, yy))) {
+					SetItemLoc(ii, xx, yy);
+					return;
 				}
 			}
+		}
+		if (!ignoreLine) {
+			ignoreLine = true;
+			goto restart;
 		}
 	}
 }
