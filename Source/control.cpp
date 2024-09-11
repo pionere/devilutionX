@@ -945,7 +945,8 @@ void InitControlPan()
 	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", SMALL_SCROLL_WIDTH);
 	assert(pDurIconCels == NULL);
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
-	infostr[0] = '\0';
+	// infostr[0] = '\0';
+	// tempstr[0] = '\0';
 	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbLvlUp = false;
 	gbSkillListFlag = false;

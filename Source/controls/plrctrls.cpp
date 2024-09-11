@@ -1003,7 +1003,7 @@ void plrctrls_after_check_curs_move()
 			return;
 		}
 		if (!gbInvflag) {
-			*infostr = '\0';
+			// infostr[0] = '\0';
 			bool ranged = HasRangedSkill();
 
 			switch (pcurstgt) {
