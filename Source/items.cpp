@@ -2174,33 +2174,6 @@ void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mo
 	}
 }
 
-void RecreateItem(int iseed, uint16_t wIndex, uint16_t wCI)
-{
-	if (wIndex == IDI_GOLD) {
-		SetItemData(MAXITEMS, IDI_GOLD);
-		//items[MAXITEMS]._iSeed = iseed;
-		//items[MAXITEMS]._iCreateInfo = wCI;
-	} else {
-		if ((wCI & ~CF_LEVEL) == 0) {
-			SetItemData(MAXITEMS, wIndex);
-			//items[MAXITEMS]._iSeed = iseed;
-			//items[MAXITEMS]._iCreateInfo = wCI;
-		} else {
-			if (wCI & CF_TOWN) {
-				RecreateTownItem(MAXITEMS, iseed, wIndex, wCI);
-			//	items[MAXITEMS]._iSeed = iseed;
-			//	items[MAXITEMS]._iCreateInfo = wCI;
-			//} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
-			//	SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
-			} else {
-				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, (wCI & CF_DROP_QUALITY) >> 11); //, onlygood);
-			}
-		}
-	}
-	items[MAXITEMS]._iSeed = iseed;
-	items[MAXITEMS]._iCreateInfo = wCI;
-}
-
 /**
  * Place a fixed item to the given location.
  * 
@@ -3829,7 +3802,7 @@ static void RecreateCraftedItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
 }
 
-void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo)
+static void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo)
 {
 	int loc;
 	unsigned lvl;
@@ -3919,6 +3892,33 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 	GetSuperItemSpace(x, y, MAXITEMS);
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
+}
+
+void RecreateItem(int iseed, uint16_t wIndex, uint16_t wCI)
+{
+	if (wIndex == IDI_GOLD) {
+		SetItemData(MAXITEMS, IDI_GOLD);
+		//items[MAXITEMS]._iSeed = iseed;
+		//items[MAXITEMS]._iCreateInfo = wCI;
+	} else {
+		if ((wCI & ~CF_LEVEL) == 0) {
+			SetItemData(MAXITEMS, wIndex);
+			//items[MAXITEMS]._iSeed = iseed;
+			//items[MAXITEMS]._iCreateInfo = wCI;
+		} else {
+			if (wCI & CF_TOWN) {
+				RecreateTownItem(MAXITEMS, iseed, wIndex, wCI);
+			//	items[MAXITEMS]._iSeed = iseed;
+			//	items[MAXITEMS]._iCreateInfo = wCI;
+			//} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
+			//	SetupAllUseful(MAXITEMS, iseed, wCI & CF_LEVEL);
+			} else {
+				SetupAllItems(MAXITEMS, wIndex, iseed, wCI & CF_LEVEL, (wCI & CF_DROP_QUALITY) >> 11); //, onlygood);
+			}
+		}
+	}
+	items[MAXITEMS]._iSeed = iseed;
+	items[MAXITEMS]._iCreateInfo = wCI;
 }
 
 DEVILUTION_END_NAMESPACE
