@@ -2019,7 +2019,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	int mdam = plr._pIMMaxDam;
 	if (mdam != 0)
 		mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam, false);
-	int adam = 0;
+	int adam = plr._pIAMaxDam;
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
