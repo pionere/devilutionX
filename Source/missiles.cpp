@@ -3377,7 +3377,7 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 
 	if (misource == mypnum) {
 		if (plx(misource)._pManaShield == 0)
-			NetSendCmdBParam1(CMD_SETSHIELD, spllvl);
+			NetSendCmdBParam1(CMD_SETSHIELD, spllvl + 1);
 		else
 			NetSendCmd(CMD_REMSHIELD);
 	}
