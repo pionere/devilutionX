@@ -92,6 +92,7 @@ void GetDamageAmt(int sn, int sl, int* minv, int* maxv)
 	case SPL_CHARGE:
 	case SPL_RAGE:
 	case SPL_SHROUD:
+	case SPL_SWAMP:
 	case SPL_STONE:
 	case SPL_INFRA:
 	case SPL_MANASHIELD:
