@@ -92,7 +92,7 @@ static void PrintText(const char* text, char lineSep, int limit)
 			col = COL_WHITE;
 		}
 		s = ReadTextLine(s, lineSep, limit);
-		//  w = GetSmallStringWidth(tempstr);
+		// w = GetSmallStringWidth(tempstr);
 
 		// LogErrorF("%03d(%04d):%s", i++, w, tempstr);
 		if (col == COL_RED)
@@ -1291,6 +1291,8 @@ void ValidateData()
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
+		int mind, maxd;
+		GetDamageAmt(i, 0, &mind, &maxd);
 		if (i == SPL_DISARM
 		 || i == SPL_HEALOTHER || i == SPL_RESURRECT
 		 || i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE

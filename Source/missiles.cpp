@@ -105,6 +105,7 @@ void GetDamageAmt(int sn, int sl, int* minv, int* maxv)
 	case SPL_HEALOTHER:
 	case SPL_RESURRECT:
 	case SPL_IDENTIFY:
+	case SPL_OIL:
 	case SPL_REPAIR:
 	case SPL_RECHARGE:
 	case SPL_DISARM:
