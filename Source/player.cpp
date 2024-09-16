@@ -629,7 +629,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	int i, pnum = 0;
 
 	memset(&plr, 0, sizeof(PlayerStruct));
-	//SetRndSeed(SDL_GetTicks());
+	SetRndSeed(SDL_GetTicks()); // used by CreatePlrItems / CreateBaseItem
 
 	plr._pLevel = heroinfo.hiLevel;
 	plr._pClass = heroinfo.hiClass;
