@@ -2328,11 +2328,6 @@ static void PlrStartBlock(int pnum, int sx, int sy)
 {
 	int dir;
 
-	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
-		return;
-	}
-
 	dir = GetDirection(plr._px, plr._py, sx, sy);
 	if (plr._pmode != PM_BLOCK) {
 		assert(plr._pmode == PM_STAND);
