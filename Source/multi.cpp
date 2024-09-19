@@ -6,7 +6,7 @@
 #include "all.h"
 #include "diabloui.h"
 #include "storm/storm_net.h"
-#include <time.h>
+#include <ctime>
 #include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE

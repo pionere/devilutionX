@@ -1,4 +1,4 @@
-#include <time.h>
+#include <ctime>
 
 #include "../all.h"
 #include "DiabloUI/diablo.h"

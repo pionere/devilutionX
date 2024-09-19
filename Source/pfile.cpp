@@ -11,7 +11,7 @@
 #include "diabloui.h"
 #include "utils/file_util.h"
 #include "DiabloUI/diablo.h"
-#include <time.h>
+#include <ctime>
 
 DEVILUTION_BEGIN_NAMESPACE
 
