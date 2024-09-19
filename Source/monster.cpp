@@ -2355,7 +2355,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
-	int dam, blkper;
+	int dam;
 	unsigned hitFlags;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -2371,16 +2371,9 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	if (!CheckHit(hper))
 		return;
 
-	blkper = plr._pIBlockChance;
-	if (blkper != 0
-	 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
-		// assert(plr._pSkillFlags & SFLAG_BLOCK);
-		blkper = blkper - (mon->_mLevel << 1);
-		if (blkper > random_(98, 100)) {
-			PlrStartBlock(pnum, mon->_mx, mon->_my);
-			return;
-		}
-	}
+	if (PlrCheckBlock(pnum, mon->_mLevel, mon->_mx, mon->_my))
+		return;
+
 	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
 		NetSendCmd(CMD_DECHP);
 	}

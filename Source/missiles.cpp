@@ -1047,15 +1047,8 @@ static bool MissPlrHitByMon(int pnum, int mi)
 		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {
-		tmp = plr._pIBlockChance;
-		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
-			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - (misource >= 0 ? 2 * monsters[misource]._mLevel : 2 * currLvl._dLevel);
-			if (tmp > random_(73, 100)) {
-				PlrStartBlock(pnum, mis->_misx, mis->_misy);
-				return true;
-			}
-		}
+		if (PlrCheckBlock(pnum, misource >= 0 ? monsters[misource]._mLevel : currLvl._dLevel, mis->_misx, mis->_misy))
+			return true;
 	}
 
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
@@ -1112,15 +1105,8 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {
-		tmp = plr._pIBlockChance;
-		if (tmp != 0 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
-			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			tmp = tmp - 2 * plx(offp)._pLevel;
-			if (tmp > random_(73, 100)) {
-				PlrStartBlock(pnum, mis->_misx, mis->_misy);
-				return true;
-			}
-		}
+		if (PlrCheckBlock(pnum, plx(offp)._pLevel, mis->_misx, mis->_misy))
+			return true;
 	}
 
 	if (mis->_miFlags & MIF_ARROW) {

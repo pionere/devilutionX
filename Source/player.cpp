@@ -2059,16 +2059,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (!CheckHit(hper))
 		return false;
 
-	blkper = plr._pIBlockChance;
-	if (blkper != 0
-	 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
-		// assert(plr._pSkillFlags & SFLAG_BLOCK);
-		blkper = blkper - (plx(offp)._pLevel << 1);
-		if (blkper > random_(5, 100)) {
-			PlrStartBlock(pnum, plx(offp)._px, plx(offp)._py);
-			return true;
-		}
-	}
+	if (PlrCheckBlock(pnum, plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
+		return true;
 
 	dam = 0;
 	damsl = plx(offp)._pISlMaxDam;
@@ -2332,13 +2324,9 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-void PlrStartBlock(int pnum, int sx, int sy)
+static void PlrStartBlock(int pnum, int sx, int sy)
 {
 	int dir;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrStartBlock: illegal player %d", pnum);
-	}
 
 	if (plr._pHitPoints < (1 << 6)) {
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
@@ -2356,6 +2344,27 @@ void PlrStartBlock(int pnum, int sx, int sy)
 	if (random_(3, 10) == 0) {
 		ShieldDur(pnum);
 	}
+}
+
+bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
+{
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrCheckBlock: illegal player %d", pnum);
+	}
+
+	bool result = false;
+	int blkper = plr._pIBlockChance;
+	if (blkper != 0
+	 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
+		// assert(plr._pSkillFlags & SFLAG_BLOCK);
+		blkper = blkper - bmod * 2;
+		if (blkper > random_(98, 100)) {
+			PlrStartBlock(pnum, sx, sy);
+			result = true;
+		}
+	}
+
+	return result;
 }
 
 static void PlrDoBlock(int pnum)
@@ -3005,16 +3014,8 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper))
 			return;
 
-		blkper = plx(mpnum)._pIBlockChance;
-		if (blkper != 0
-		 && (plx(mpnum)._pmode == PM_STAND || plx(mpnum)._pmode == PM_BLOCK)) {
-			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			blkper = blkper - (plr._pLevel << 1);
-			if (blkper > random_(5, 100)) {
-				PlrStartBlock(mpnum, mis->_misx, mis->_misy);
-				return;
-			}
-		}
+		if (PlrCheckBlock(mpnum, plr._pLevel, mis->_misx, mis->_misy))
+			return;
 		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
 
 		//if (random_(151, 200) < plr._pICritChance)
