@@ -2672,7 +2672,7 @@ static_warning((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align ST
 //////////////////////////////////////////////////
 
 typedef struct _plrmsg {
-	Uint32 time;
+	uint32_t time;
 	BYTE player;
 	BYTE lineBreak;
 	char str[122];
