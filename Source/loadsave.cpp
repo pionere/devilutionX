@@ -279,10 +279,11 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
+	tbuff += 8; // _pISpells
+	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
-	tbuff += 1; // _pAlign_B0
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -298,12 +299,11 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 1; // _pLghtResist
 	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
-	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
 	tbuff += 1; // _pIBlockChance
+	tbuff += 1; // _pAlign_B0
 
-	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
 	tbuff += 1; // _pIWalkSpeed
 	tbuff += 1; // _pIRecoverySpeed
@@ -1124,10 +1124,11 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
+	tbuff += 8; // _pISpells
+	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
-	tbuff += 1; // _pAlign_B0
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -1143,12 +1144,11 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 1; // _pLghtResist
 	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
-	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
 	tbuff += 1; // _pIBlockChance
+	tbuff += 1; // _pAlign_B0
 
-	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
 	tbuff += 1; // _pIWalkSpeed
 	tbuff += 1; // _pIRecoverySpeed
