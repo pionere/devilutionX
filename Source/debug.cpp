@@ -1405,6 +1405,10 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
+		if (md.mdFlags & MIF_ARROW) {
+			if (i != MIS_ARROW && i != MIS_PBARROW && i != MIS_ASARROW && i != MIS_MLARROW && i != MIS_PCARROW)
+				app_fatal("Arrow-Missile %d is not handled in MissMonHitByPlr and in MissPlrHitByPlr.", i);
+		}
 		if (md.mDrawFlag) {
 			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
 				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
@@ -1421,6 +1425,11 @@ void ValidateData()
 			app_fatal("Missile %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
 	}
 #endif // DEBUG_DATA
+	assert((missiledata[MIS_ARROW].mdFlags & MIF_ARROW) != 0);   // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert((missiledata[MIS_PBARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert((missiledata[MIS_ASARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert((missiledata[MIS_MLARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert((missiledata[MIS_PCARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
 	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
