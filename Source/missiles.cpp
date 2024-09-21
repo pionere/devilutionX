@@ -887,9 +887,11 @@ static bool MissMonHitByPlr(int mnum, int mi)
 		case MIS_ARROW:
 			break;
 		case MIS_PBARROW:
+			// assert(mis->_miVar7 <= 6); -- guaranteed by _miRange
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 			break;
 		case MIS_ASARROW:
+			// assert(mis->_miVar7 >= 2); -- depends on _pIArrowVelBonus
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 			break;
 		case MIS_MLARROW:
@@ -1131,9 +1133,11 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		case MIS_ARROW:
 			break;
 		case MIS_PBARROW:
+			// assert(mis->_miVar7 <= 6); -- guaranteed by _miRange
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 			break;
 		case MIS_ASARROW:
+			// assert(mis->_miVar7 >= 2); -- depends on _pIArrowVelBonus
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 			break;
 		case MIS_MLARROW:

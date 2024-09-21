@@ -944,6 +944,9 @@ void ValidateData()
 			if (pres->PLParam1 < 1 || pres->PLParam2 > 4) {
 				app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
 			}
+			if (pres->PLParam2 >= 3 && (pres->PLIType & PLT_BOW)) {
+				app_fatal("Too high PLParam2 set for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2); // required by MissMonHitByPlr and MissPlrHitByPlr
+			}
 		}
 		if (pres->PLPower == IPL_FASTRECOVER) {
 			if (pres->PLParam1 < 1 || pres->PLParam2 > 3) {
@@ -1012,6 +1015,9 @@ void ValidateData()
 		if (sufs->PLPower == IPL_FASTATTACK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 4) {
 				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			}
+			if (sufs->PLParam2 >= 3 && (sufs->PLIType & PLT_BOW)) {
+				app_fatal("Too high PLParam2 set for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2); // required by MissMonHitByPlr and MissPlrHitByPlr
 			}
 		}
 		if (sufs->PLPower == IPL_FASTRECOVER) {
@@ -1162,6 +1168,13 @@ void ValidateData()
 			} else if (pow == IPL_FASTATTACK) {
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 4)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+				if (GetUniqueItemParamB(ui, n) >= 3) {
+					for (int n = 0; n < NUM_IDI; n++) {
+						if (AllItemsList[n].iUniqType == ui.UIUniqType && AllItemsList[n].itype == ITYPE_BOW) {
+							app_fatal("Too high UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by MissMonHitByPlr and MissPlrHitByPlr
+						}
+					}
+				}
 			} else if (pow == IPL_FASTRECOVER) {
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
