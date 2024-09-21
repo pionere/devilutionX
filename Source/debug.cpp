@@ -1260,6 +1260,7 @@ void ValidateData()
 #endif
 
 	// spells
+	assert(spelldata[SPL_RESURRECT].sManaCost == 0); // required by GetItemSpell
 	assert(spelldata[SPL_TELEPORT].sSkillFlags & SDFLAG_TARGETED); // required by AddTeleport
 #define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
 	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs

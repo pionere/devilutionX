@@ -1352,8 +1352,8 @@ static int GetItemSpell()
 
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
-		if (spelldata[bs].sManaCost != 0 // TODO: use sSkillFlags ?
-		 && (IsMultiGame || bs != SPL_RESURRECT)) {
+		if (spelldata[bs].sManaCost != 0) { // TODO: use sSkillFlags ?
+			// assert(!IsMultiGame || bs != SPL_RESURRECT);
 			ss[ns] = bs;
 			ns++;
 		}
