@@ -1017,7 +1017,7 @@ unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 static bool MissPlrHitByMon(int pnum, int mi)
 {
 	MissileStruct* mis;
-	int misource, hper, tmp, dam;
+	int misource, hper, dam;
 	unsigned hitFlags;
 
 	if (plr._pInvincible) {
@@ -1076,7 +1076,7 @@ static bool MissPlrHitByMon(int pnum, int mi)
 static bool MissPlrHitByPlr(int pnum, int mi)
 {
 	MissileStruct* mis;
-	int offp, dam, tmp, hper;
+	int offp, dam, hper;
 	unsigned hitFlags;
 
 	mis = &missile[mi];
