@@ -53,8 +53,8 @@ typedef uint16_t WORD;
 
 typedef unsigned int UINT;
 
-typedef int32_t WPARAM;
-typedef int32_t LPARAM;
+// typedef int32_t WPARAM;
+// typedef int32_t LPARAM;
 
 //
 // Handles
@@ -66,10 +66,10 @@ typedef HANDLE HMODULE, HDC, HINSTANCE;
 typedef SDL_Event Dvl_Event;
 typedef void (*WNDPROC)(const Dvl_Event*);
 
-typedef struct tagMSG {
-	UINT message;
-	WPARAM wParam;
-} MSG, *LPMSG;
+// typedef struct tagMSG {
+// 	UINT message;
+// 	WPARAM wParam;
+// } MSG, *LPMSG;
 
 //////////////////////////////////////////////////
 // control
