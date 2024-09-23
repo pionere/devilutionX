@@ -2949,16 +2949,20 @@ void MissToPlr(int mi, bool hit)
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
-	if (dist < 0)
-		return;
+	// if (dist < 0)
+	//	return;
 	if (dist > 32)
 		dist = 32;
 	minbl = plr._pIChMinDam;
 	maxbl = plr._pIChMaxDam;
-	if (maxbl != 0) {
+	//if (maxbl != 0) {
 		minbl = ((64 + dist) * minbl) >> 5;
 		maxbl = ((64 + dist) * maxbl) >> 5;
-	}
+	//}
+	if (maxbl <= 0)
+		return;
+	//if (minbl < 0)
+	//	minbl = 0;
 
 	oldx = mis->_mix;
 	oldy = mis->_miy;
@@ -3016,7 +3020,7 @@ void MissToPlr(int mi, bool hit)
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
-			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_FORCE_STUN;
+			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
 			PlrHitByAny(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		}
 		return;

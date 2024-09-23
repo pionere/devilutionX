@@ -610,7 +610,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		static_assert((int)ANIM_ID_MACE + 1 == (int)ANIM_ID_MACE_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield III.");
 		gfx++;
 
-		maxdam += wRight->_iAC << (6 + 1 - 1); // 2*AC - halved by resists, doubled by MissToPlr
+		maxdam += wRight->_iAC << (6 + 2 + 1 - 1); // 4*AC - halved by resists, doubled by MissToPlr
 	}
 	plr._pIChMinDam = maxdam >> 1;
 	plr._pIChMaxDam = maxdam;
