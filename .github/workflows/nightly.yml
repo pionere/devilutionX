@@ -1604,6 +1604,7 @@ jobs:
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
         draft: false
         prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
         files: |
           ${{github.workspace}}/diablo-nightly-android.apk
           ${{github.workspace}}/diablo-nightly-lepus.opk
@@ -1670,5 +1671,5 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-switchp.nro
           ${{github.workspace}}/hellfire-nightly-amigap
         fail_on_unmatched_files: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #env:
+      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
