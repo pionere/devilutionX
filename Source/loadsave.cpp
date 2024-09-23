@@ -301,8 +301,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 4; // _pIHitChance
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
-	tbuff += 1; // _pIBlockChance
-	tbuff += 1; // _pAlign_B0
+	tbuff += 2; // _pIBlockChance
 
 	tbuff += 4; // _pIFlags
 	tbuff += 1; // _pIWalkSpeed
@@ -1146,8 +1145,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 4; // _pIHitChance
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
-	tbuff += 1; // _pIBlockChance
-	tbuff += 1; // _pAlign_B0
+	tbuff += 2; // _pIBlockChance
 
 	tbuff += 4; // _pIFlags
 	tbuff += 1; // _pIWalkSpeed

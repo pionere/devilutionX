@@ -2353,7 +2353,7 @@ bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
 	 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - bmod * 2;
-		if (blkper > random_(98, 100)) {
+		if (CheckHit(blkper)) {
 			PlrStartBlock(pnum, sx, sy);
 			result = true;
 		}

@@ -450,8 +450,7 @@ typedef struct PlayerStruct {
 	int _pIHitChance;
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
-	BYTE _pIBlockChance;
-	BYTE _pAlign_B0;
+	uint16_t _pIBlockChance;
 	unsigned _pIFlags; // item_special_effect
 	BYTE _pIWalkSpeed;
 	BYTE _pIRecoverySpeed;

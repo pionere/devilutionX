@@ -704,7 +704,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pICritChance = cc;
 
 	// calculate block chance
-	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(200, 10 + (std::min(plr._pStrength, plr._pDexterity) >> 1)) : 0;
+	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(plr._pStrength, plr._pDexterity) : 0;
 
 	// calculate walk speed
 	plr._pIWalkSpeed = WalkSpeed(plr._pIFlags);
