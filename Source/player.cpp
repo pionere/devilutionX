@@ -13,7 +13,7 @@ PlayerStruct players[MAX_PLRS];
 /* Whether the current player is changing the level. */
 bool gbLvlLoad;
 /** The current player while processing the players. */
-BYTE gbGameLogicPnum;
+static BYTE gbGameLogicPnum;
 /** Cache the maximum sizes of the player gfx files. */
 static unsigned _guPlrFrameSize[NUM_PGXS + 1];
 /** Whether the _guPlrFrameSize array is initalized. */
