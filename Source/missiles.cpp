@@ -3198,6 +3198,7 @@ int AddCboltC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
+	int mindam, maxdam;
 	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
@@ -3213,11 +3214,14 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	//mis->_miVar3 = 0;
 	mis->_miVar4 = random_(0, 16);
 	if (micaster & MST_PLAYER) {
-		mis->_miMinDam = 1;
-		mis->_miMaxDam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
+		mindam = 1;
+		maxdam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
 	} else {
-		mis->_miMinDam = mis->_miMaxDam = 15 << (6 + gnDifficulty);
+		mindam = monsters[misource]._mMinDamage << 6;
+		maxdam = monsters[misource]._mMaxDamage << 6;
 	}
+	mis->_miMinDam = mindam;
+	mis->_miMaxDam = maxdam;
 	mis->_miRange = 255;
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_MINILTNG].mfAnimLen[0]);
 	return MIRES_DONE;
