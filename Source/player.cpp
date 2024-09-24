@@ -2557,7 +2557,7 @@ static bool CheckNewPath(int pnum)
 				//PlrStartStand(pnum);
 				StartStand(pnum);
 				plr._pDestAction = ACTION_NONE;
-				return false;
+				// return true; -- does not matter (at the moment)
 			}
 			return true;
 		}
@@ -2616,6 +2616,7 @@ static bool CheckNewPath(int pnum)
 		 || plr._pDestAction == ACTION_OPERATE) {
 			StartAttack(pnum);
 			plr._pDestAction = ACTION_NONE;
+			return true;
 		}
 	} else if (plr._pmode == PM_RATTACK && plr._pAnimFrame > plr._pAFNum) {
 		if (plr._pDestAction == ACTION_RATTACK
@@ -2623,6 +2624,7 @@ static bool CheckNewPath(int pnum)
 		 || plr._pDestAction == ACTION_RATTACKPLR) {
 			StartRangeAttack(pnum);
 			plr._pDestAction = ACTION_NONE;
+			return true;
 		}
 	} else if (plr._pmode == PM_SPELL && plr._pAnimFrame > plr._pSFNum) {
 		if (plr._pDestAction == ACTION_SPELL
@@ -2630,6 +2632,7 @@ static bool CheckNewPath(int pnum)
 		 || plr._pDestAction == ACTION_SPELLPLR) {
 			StartSpell(pnum);
 			plr._pDestAction = ACTION_NONE;
+			return true;
 		}
 	}
 	return false;
