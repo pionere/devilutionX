@@ -83,7 +83,7 @@ static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
 };
 /**
  * Specifies the number of frames of each animation for each player class.
-   STAND, ATTACK, WALK, BLOCK, DEATH, SPELL, GOTHIT
+   STAND, WALK, ATTACK, SPELL, BLOCK, GOTHIT, DEATH
  */
 const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
