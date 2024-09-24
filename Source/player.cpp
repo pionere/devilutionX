@@ -1631,6 +1631,7 @@ static void PlrStartGetHit(int pnum, int dir)
 	NewPlrAnim(pnum, PGX_GOTHIT, dir);
 
 	plr._pmode = PM_GOTHIT;
+	plr._pVar8 = 0; // GOTHIT_TICK
 	RemovePlrFromMap(pnum);
 	dPlayer[plr._px][plr._py] = pnum + 1;
 	FixPlayerLocation(pnum);
