@@ -1140,7 +1140,6 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 			height = RandRange(2, 6) & ~1;
 			ry = h / 2u + y - height / 2u;
 		}
-		if (i != 0)
 		// proceed with the placed a room on the left
 		if (rx >= 0)
 			L1RoomGen(rx, ry, width, height, true);
