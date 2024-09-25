@@ -1544,7 +1544,7 @@ static void FixMonLocation(int mnum)
 	mon->_mfuty = mon->_moldy = mon->_my;
 }
 
-void AssertFixMonLocation(int mnum)
+static void AssertFixMonLocation(int mnum)
 {
 	MonsterStruct* mon;
 
