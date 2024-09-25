@@ -3444,6 +3444,27 @@ void IncreasePlrVit(int pnum)
 	CalcPlrInv(pnum, true);
 }
 
+void DecreasePlrMaxHp(int pnum)
+{
+	int tmp;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("DecreasePlrMaxHp: illegal player %d", pnum);
+	}
+
+	if (plr._pMaxHPBase > (1 << 6) && plr._pMaxHP > (1 << 6)) {
+		tmp = plr._pMaxHP - (1 << 6);
+		plr._pMaxHP = tmp;
+		if (plr._pHitPoints > tmp) {
+			plr._pHitPoints = tmp;
+		}
+		tmp = plr._pMaxHPBase - (1 << 6);
+		plr._pMaxHPBase = tmp;
+		if (plr._pHPBase > tmp) {
+			plr._pHPBase = tmp;
+		}
+	}
+}
+
 void RestorePlrHpVit(int pnum)
 {
 	int hp;

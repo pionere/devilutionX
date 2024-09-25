@@ -65,6 +65,7 @@ void IncreasePlrStr(int pnum);
 void IncreasePlrMag(int pnum);
 void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
+void DecreasePlrMaxHp(int pnum);
 void RestorePlrHpVit(int pnum);
 
 // Set each location to the input location.

@@ -2276,20 +2276,7 @@ static unsigned On_ADDVIT(TCmd* pCmd, int pnum)
 
 static unsigned On_DECHP(TCmd* pCmd, int pnum)
 {
-	int tmp;
-
-	if (plr._pMaxHPBase > (1 << 6) && plr._pMaxHP > (1 << 6)) {
-		tmp = plr._pMaxHP - (1 << 6);
-		plr._pMaxHP = tmp;
-		if (plr._pHitPoints > tmp) {
-			plr._pHitPoints = tmp;
-		}
-		tmp = plr._pMaxHPBase - (1 << 6);
-		plr._pMaxHPBase = tmp;
-		if (plr._pHPBase > tmp) {
-			plr._pHPBase = tmp;
-		}
-	}
+	DecreasePlrMaxHp(pnum);
 
 	return sizeof(*pCmd);
 }
