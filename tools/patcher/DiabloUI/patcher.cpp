@@ -3954,24 +3954,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATHEDRAL_SCEL:
 	{	// patch pSpecialsCel - L1S.CEL
-		size_t minLen;
-		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATHEDRAL_MIN], &minLen);
-		if (minBuf == NULL) {
-			mem_free_dbg(buf);
-			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATHEDRAL_MIN]);
-			return NULL;
-		}
-		size_t celLen;
-		BYTE* celBuf = LoadFileInMem(filesToPatch[FILE_CATHEDRAL_CEL], &celLen);
-		if (celBuf == NULL) {
-			mem_free_dbg(minBuf);
-			mem_free_dbg(buf);
-			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_CATHEDRAL_CEL]);
-			return NULL;
-		}
-		buf = DRLP_L1_PatchSpec(minBuf, minLen, celBuf, celLen, buf, dwLen);
-		mem_free_dbg(celBuf);
-		mem_free_dbg(minBuf);
+		buf = DRLP_L1_PatchSpec(buf, dwLen);
 	} break;
 	case FILE_CATHEDRAL_CEL:
 	{	// patch dMicroCels - L1.CEL
