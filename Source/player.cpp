@@ -2040,7 +2040,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 
 static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 {
-	int hper, blkper, dam, damsl, dambl, dampc;
+	int hper, dam, damsl, dambl, dampc;
 	unsigned tmp, hitFlags;
 
 	if ((unsigned)offp >= MAX_PLRS) {
@@ -2918,7 +2918,7 @@ void MissToPlr(int mi, bool hit)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int pnum, oldx, oldy, mpnum, dist, minbl, maxbl, dam, hper, blkper;
+	int pnum, oldx, oldy, mpnum, dist, minbl, maxbl, dam, hper;
 	unsigned hitFlags;
 	bool ret;
 

@@ -1459,7 +1459,7 @@ int FindGetItem(const PkItemStruct* pkItem)
 
 bool CanPut(int x, int y)
 {
-	int oi, oi2;
+	int oi; // , oi2;
 
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
