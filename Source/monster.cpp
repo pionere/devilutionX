@@ -483,7 +483,7 @@ void InitLvlMonsters()
 		AddMonsterType(MT_GOLEM, FALSE);
 		mapMonTypes[0].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 		for (i = 0; i < MAX_MINIONS; i++) {
-			InitMonster(i, 0, 0, 0, 0);
+			InitMonster(i, DIR_S, 0, 0, 0);
 			monsters[i]._mmode = MM_RESERVED;
 		}
 	}

@@ -242,7 +242,7 @@ void DrawPlrMsg(bool onTop)
 	int msgs[PLRMSG_COUNT], nummsgs, numlines;
 	int i, idx, x, y, h, linelimit, top;
 	const int width = PLRMSG_WIDTH;
-	Uint32 timeout;
+	uint32_t timeout;
 
 	// collect the messages
 	nummsgs = 0;

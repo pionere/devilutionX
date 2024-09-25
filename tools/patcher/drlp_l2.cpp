@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 {
-	const int frames[] = { 0, 1	};
+	const int frames[] = { 0, 1 };
 	constexpr int FRAME_WIDTH = 64;
 	constexpr int FRAME_HEIGHT = 128;
 

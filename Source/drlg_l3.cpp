@@ -2395,7 +2395,6 @@ static void DRLG_L3()
 				if (warpPos.x < 0) {
 					continue;
 				}
-
 				pWarps[DWARP_ENTRY]._wx = warpPos.x;
 				pWarps[DWARP_ENTRY]._wy = warpPos.y;
 				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;

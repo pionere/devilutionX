@@ -600,7 +600,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			bf = true;
 	}
 #endif*/
-	maxdam = plr._pMaxHP >> (2 - 1 + 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
+	maxdam = plr._pMaxHP >> (2 + 1 - 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag
 	 && (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_SWORD || gfx == ANIM_ID_MACE)) {
 		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
