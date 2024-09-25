@@ -85,6 +85,7 @@ static int TFit_Shrine(int themeId)
 					// if (numMatches == lengthof(drlg.thLocs))
 					//	goto done;
 				}
+			}
 	}
 	xx = themes[themeId]._tsx1;
 		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
@@ -115,7 +116,6 @@ static int TFit_Shrine(int themeId)
 				}
 			}
 		}
-	}
 // done:
 	if (numMatches == 0)
 		return -1;
