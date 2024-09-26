@@ -26,20 +26,6 @@
 #include <stddef.h>
 
 #ifndef FULL // SELF_CONV
-#ifdef __SSE2__
-#define HAVE_SSE2_INTRINSICS
-#endif
-
-#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
-#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
-#endif
-
-/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
-#ifndef NEED_SCALAR_CONVERTER_FALLBACKS
-#define NEED_SCALAR_CONVERTER_FALLBACKS 1
-#endif
 
 /* Function pointers set to a CPU-specific implementation. */
 //void Mix_Converter_AUDIO8_Mono2Stereo(Mix_BuffOps* buf);
@@ -261,7 +247,7 @@ void Mix_RWFromMem(Mix_RWops* rwOps, const void* mem, size_t size)
 /**
  * Mix audio buffers. Based on SDL_MixAudioFormat of SDL2/SDL_audio.
  */
-void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
+static void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
 {
     // assert(format == AUDIO_S16LSB);
     const Sint16* srcPos = (const Sint16*)src;
@@ -287,8 +273,8 @@ void Mix_Mixer_AUDIOS16(void* dst, const void* src, unsigned len)
         currPos++;
     }
 }
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
 {
     const Sint16* srcPos = (const Sint16*)src;
     Sint16* currPos = (Sint16*)dst;
@@ -299,7 +285,7 @@ void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
         __m128i bb = _mm_loadu_si128((const __m128i*)currPos);
 
         __m128i cc = _mm_adds_epi16(aa, bb);
-        _mm_storeu_si128(currPos, cc);
+        _mm_storeu_si128((__m128i*)currPos, cc);
 
         currPos += 8;
         srcPos += 8;
@@ -309,9 +295,9 @@ void Mix_Mixer_AUDIOS16_SSE2(void* dst, const void* src, unsigned len)
         Mix_Mixer_AUDIOS16(currPos, srcPos, len);
     }
 }
-#endif // HAVE_SSE2_INTRINSICS
-#ifdef __AVX__
-void Mix_Mixer_AUDIOS16_AVX(void* dst, const void* src, unsigned len)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static void SDL_TARGETING("avx2") Mix_Mixer_AUDIOS16_AVX2(void* dst, const void* src, unsigned len)
 {
     const Sint16* srcPos = (const Sint16*)src;
     Sint16* currPos = (Sint16*)dst;
@@ -322,7 +308,7 @@ void Mix_Mixer_AUDIOS16_AVX(void* dst, const void* src, unsigned len)
         __m256i bb = _mm256_loadu_si256((const __m256i*)currPos);
 
         __m256i cc = _mm256_adds_epi16(aa, bb);
-        _mm_storeu_si256(currPos, cc);
+        _mm256_storeu_si256((__m256i*)currPos, cc);
 
         currPos += 16;
         srcPos += 16;
@@ -332,42 +318,12 @@ void Mix_Mixer_AUDIOS16_AVX(void* dst, const void* src, unsigned len)
         Mix_Mixer_AUDIOS16(currPos, srcPos, len);
     }
 }
-#endif // __AVX__
+#endif // SDL_AVX2_INTRINSICS
 #endif // FULL - SELF_MIX
 
 #ifndef FULL // SELF_CONV
-#ifdef __AVX__
-void Mix_Converter_AUDIO16_Mono2Stereo_AVX(Mix_BuffOps* buf)
-{
-    Sint16* srcPos = (Sint16*)buf->endPos;
-    Sint16* currPos = (Sint16*)buf->currPos;
-
-    Sint16* dstPos = srcPos + (srcPos - currPos);
-    buf->endPos = dstPos;
-
-    while (&currPos[16] <= srcPos) {
-        srcPos -= 16;
-        dstPos -= 16;
-        __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
-        __m256i bb = _mm256_unpackhi_epi16(aa, aa);
-        _mm256_storeu_si256(dstPos, bb);
-
-        dstPos -= 16;
-        __m256i cc = _mm256_unpacklo_epi16(aa, aa);
-        _mm256_storeu_si256(dstPos, cc);
-    }
-
-    while (srcPos != currPos) {
-        srcPos--;
-        dstPos--;
-        *dstPos = *srcPos;
-        dstPos--;
-        *dstPos = *srcPos;
-    }
-}
-#endif // __AVX__
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
     Sint16* currPos = (Sint16*)buf->currPos;
@@ -380,11 +336,11 @@ void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
         dstPos -= 8;
         __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
         __m128i bb = _mm_unpackhi_epi16(aa, aa);
-        _mm_storeu_si128(dstPos, bb);
+        _mm_storeu_si128((__m128i*)dstPos, bb);
 
         dstPos -= 8;
         __m128i cc = _mm_unpacklo_epi16(aa, aa);
-        _mm_storeu_si128(dstPos, cc);
+        _mm_storeu_si128((__m128i*)dstPos, cc);
     }
 
     while (srcPos != currPos) {
@@ -395,8 +351,8 @@ void Mix_Converter_AUDIO16_Mono2Stereo_SSE2(Mix_BuffOps* buf)
         *dstPos = *srcPos;
     }
 }
-#endif // _SSE2_
-void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
+#endif // SDL_SSE2_INTRINSICS
+static void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->endPos;
     Sint16* currPos = (Sint16*)buf->currPos;
@@ -413,8 +369,8 @@ void Mix_Converter_AUDIO16_Mono2Stereo(Mix_BuffOps* buf)
     }
 }
 
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->currPos;
     Uint8* dstPos = srcPos;
@@ -445,7 +401,7 @@ void Mix_Converter_AUDIO8_Resample_Half_SSE2(Mix_BuffOps* buf)
     }
 }
 #endif
-void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
+static void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->currPos;
     Uint8* dstPos = srcPos;
@@ -462,8 +418,8 @@ void Mix_Converter_AUDIO8_Resample_Half(Mix_BuffOps* buf)
     }
 }
 
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->currPos;
     Sint16* dstPos = srcPos;
@@ -477,13 +433,13 @@ void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
         __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
         __m128i bb = _mm_loadu_si128((const __m128i*)&srcPos[8]);
 
-        aa = _mm_shufflehi_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        aa = _mm_shufflelo_epi16(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        aa = _mm_shuffle_epi32(aa, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        aa = _mm_shufflehi_epi16(aa, _MM_SHUFFLE(3, 1, 2, 0));
+        aa = _mm_shufflelo_epi16(aa, _MM_SHUFFLE(3, 1, 2, 0));
+        aa = _mm_shuffle_epi32(aa, _MM_SHUFFLE(3, 1, 2, 0));
 
-        bb = _mm_shufflehi_epi16(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        bb = _mm_shufflelo_epi16(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
-        bb = _mm_shuffle_epi32(bb, (0 << 0) | (2 << 2) | (1 << 4) | (3 << 6));
+        bb = _mm_shufflehi_epi16(bb, _MM_SHUFFLE(3, 1, 2, 0));
+        bb = _mm_shufflelo_epi16(bb, _MM_SHUFFLE(3, 1, 2, 0));
+        bb = _mm_shuffle_epi32(bb, _MM_SHUFFLE(3, 1, 2, 0));
 
         __m128i cc = _mm_unpacklo_epi64(aa, bb);
         _mm_storeu_si128((__m128i*)dstPos, cc);
@@ -499,7 +455,7 @@ void Mix_Converter_AUDIO16_Resample_Half_SSE2(Mix_BuffOps* buf)
     }
 }
 #endif
-void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
+static void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
 {
     Sint16* srcPos = (Sint16*)buf->currPos;
     Sint16* dstPos = srcPos;
@@ -516,47 +472,8 @@ void Mix_Converter_AUDIO16_Resample_Half(Mix_BuffOps* buf)
     }
 }
 
-#ifdef __AVX__
-void Mix_Converter_U8_S16LSB_AVX(Mix_BuffOps* buf)
-{
-    Uint8* srcPos = (Uint8*)buf->endPos;
-    Uint8* currPos = (Uint8*)buf->currPos;
-
-    Uint8* dstPos = srcPos + (srcPos - currPos);
-    buf->endPos = dstPos;
-
-    const __m256i zero = _mm256_setzero_si256();
-    const __m256i sub = _mm256_set1_epi16(128);
-
-    while (&currPos[32] <= srcPos) {
-        srcPos -= 32;
-        dstPos -= 32;
-
-        __m256i aa = _mm256_loadu_si256((const __m256i*)srcPos);
-
-        __m256i bb = _mm256_unpackhi_epi8(aa, zero);// zfill(a[hi], 16)
-        bb = _mm256_sub_epi16(bb, sub);				// subtract 128
-
-        bb = _mm256_slli_epi16(bb, 8);				// shl 8
-        _mm256_storeu_si256((__m256i*)dstPos, bb);
-
-        dstPos -= 32;
-        __m256i cc = _mm256_unpacklo_epi8(aa, zero);// zfill(a[lo], 16)
-        cc = _mm256_sub_epi16(cc, sub);				// subtract 128
-
-        cc = _mm256_slli_epi16(cc, 8);				// shl 8
-        _mm256_storeu_si256((__m256i*)dstPos, cc);
-    }
-
-    while (srcPos != currPos) {
-        srcPos--;
-        dstPos -= 2;
-        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) << 8);
-    }
-}
-#endif // __AVX__
-#ifdef HAVE_SSE2_INTRINSICS
-void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
+#ifdef SDL_SSE2_INTRINSICS
+static void SDL_TARGETING("sse2") Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
     Uint8* currPos = (Uint8*)buf->currPos;
@@ -565,36 +482,29 @@ void Mix_Converter_U8_S16LSB_SSE2(Mix_BuffOps* buf)
     buf->endPos = dstPos;
 
     const __m128i zero = _mm_setzero_si128();
-    const __m128i sub = _mm_set1_epi16(128);
+    const __m128i sign = _mm_set1_epi8(0x80);
 
     while (&currPos[16] <= srcPos) {
         srcPos -= 16;
-        dstPos -= 16;
+        dstPos -= 32;
 
-        __m128i aa = _mm_loadu_si128((const __m128i*)srcPos);
+        const __m128i src00 = _mm_loadu_si128((__m128i const *)&srcPos[0]); /* get 16 uint8 into an XMM register. */
+        const __m128i value = _mm_xor_si128(sign, src00);                   /* 'convert' to int8 */
+        const __m128i src0 = _mm_unpacklo_epi8(zero, value);
+        const __m128i src1 = _mm_unpackhi_epi8(zero, value);
 
-        __m128i bb = _mm_unpackhi_epi8(aa, zero);	// zfill(a[hi], 16)
-        bb = _mm_sub_epi16(bb, sub);				// subtract 128
-
-        bb = _mm_slli_epi16(bb, 8);					// shl 8
-        _mm_storeu_si128((__m128i*)dstPos, bb);
-
-        dstPos -= 16;
-        __m128i cc = _mm_unpacklo_epi8(aa, zero);	// zfill(a[lo], 16)
-        cc = _mm_sub_epi16(cc, sub);				// subtract 128
-
-        cc = _mm_slli_epi16(cc, 8);					// shl 8
-        _mm_storeu_si128((__m128i*)dstPos, cc);
+        _mm_storeu_si128((__m128i*)&dstPos[0], src0);
+        _mm_storeu_si128((__m128i*)&dstPos[16], src1);
     }
 
     while (srcPos != currPos) {
         srcPos--;
         dstPos -= 2;
-        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) << 8);
+        *(Sint16*)dstPos = SDL_SwapLE16((Sint8)(srcPos[0] ^ 0x80) << 8);
     }
 }
 #endif
-void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
+static void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
 {
     Uint8* srcPos = (Uint8*)buf->endPos;
     Uint8* currPos = (Uint8*)buf->currPos;
@@ -605,26 +515,24 @@ void Mix_Converter_U8_S16LSB(Mix_BuffOps* buf)
     while (srcPos != currPos) {
         srcPos--;
         dstPos -= 2;
-        *(Sint16*)dstPos = SDL_SwapLE16((*srcPos - 128) << 8);
+        *(Sint16*)dstPos = SDL_SwapLE16((Sint8)(srcPos[0] ^ 0x80) << 8);
     }
 }
 
 void Mix_Utils_Init()
 {
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo;
+    // Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo;
     Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo;
     Mix_Convert_AUDIO8_Resample_Half = Mix_Converter_AUDIO8_Resample_Half;
     Mix_Convert_AUDIO16_Resample_Half = Mix_Converter_AUDIO16_Resample_Half;
     Mix_MixAudioFormat = Mix_Mixer_AUDIOS16;
     Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB;
-#endif
-#ifdef HAVE_SSE2_INTRINSICS
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    if (SDL_HasSSE2()) {
-#else
+#ifdef SDL_SSE2_INTRINSICS
+#if SDL_HAVE_SSE2_SUPPORT
     // SDL_assert(SDL_HasSSE2());
     if (1) {
+#else
+    if (SDL_HasSSE2()) {
 #endif
         //Mix_Convert_AUDIO8_Mono2Stereo = Mix_Converter_AUDIO8_Mono2Stereo_SSE2;
         Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_SSE2;
@@ -634,11 +542,9 @@ void Mix_Utils_Init()
         Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB_SSE2;
     }
 #endif
-#if defined(__AVX__) && SDL_VERSION_ATLEAST(2, 0, 2)
-    if (SDL_HasAVX()) {
-        Mix_Convert_AUDIO16_Mono2Stereo = Mix_Converter_AUDIO16_Mono2Stereo_AVX;
-        Mix_MixAudioFormat = Mix_Mixer_AUDIOS16_AVX;
-        Mix_Convert_U8_S16LSB = Mix_Converter_U8_S16LSB_AVX;
+#if defined(SDL_AVX2_INTRINSICS) && SDL_VERSION_ATLEAST(2, 0, 2)
+    if (SDL_HasAVX2()) {
+        Mix_MixAudioFormat = Mix_Mixer_AUDIOS16_AVX2;
     }
 #endif
 }

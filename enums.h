@@ -63,10 +63,11 @@ typedef enum item_indexes {
 	IDI_BOOK4      = 0x61,
 	IDI_CLUB       = 0x7A,
 	IDI_DROPSHSTAFF= 0x86,
+	IDI_CAMPAIGNMAP= 0x93,
 #ifdef HELLFIRE
-	NUM_IDI        = 0x9A,
+	NUM_IDI        = 0x9B,
 #else
-	NUM_IDI        = 0x93,
+	NUM_IDI        = 0x94,
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF
@@ -241,6 +242,7 @@ typedef enum item_misc_id {
 	IMISC_OILCLEAN,
 	IMISC_OILLAST = IMISC_OILCLEAN,
 	//IMISC_MAPOFDOOM,
+	IMISC_MAP,
 	IMISC_RUNE,
 	IMISC_NOTE,
 	IMISC_INVALID   = -1,
@@ -382,7 +384,7 @@ typedef enum item_effect_type {
 	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
-	IPL_INVCURS,
+	//IPL_INVCURS,
 	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
@@ -415,6 +417,13 @@ typedef enum item_effect_type {
 	IPL_INVALID          = 0xFF,
 } item_effect_type;
 
+typedef enum item_affix_range {
+	IAR_DROP,
+	IAR_SHOP,
+	IAR_CRAFT,
+	NUM_IARS
+} item_affix_range;
+
 typedef enum affix_item_type {
 	PLT_MISC   = 1 << 1,
 	PLT_BOW    = 1 << 2,
@@ -426,6 +435,7 @@ typedef enum affix_item_type {
 	PLT_LARMOR = 1 << 8,
 	PLT_MARMOR = 1 << 9,
 	PLT_HARMOR = 1 << 10,
+	PLT_MAP    = 1 << 11,
 } affix_item_type;
 
 typedef enum item_base_bonus {
@@ -493,6 +503,7 @@ typedef enum item_cursor_graphic {
 	ICURS_EAR_WARRIOR                 = 20,
 	ICURS_EAR_ROGUE                   = 21,
 	ICURS_BLOOD_STONE                 = 25,
+	ICURS_CAMPAIGN_MAP                = 26,
 	ICURS_OIL_OF_DEXTERITY            = 29,
 	ICURS_OIL_OF_STRENGTH             = 30,
 	ICURS_OIL_OF_CLEANSING            = 31,
@@ -527,7 +538,8 @@ typedef enum item_cursor_graphic {
 	ICURS_CLUB                        = 66,
 	ICURS_SABRE                       = 67,
 	ICURS_FALCON_GRYPHON              = 68,
-	ICURS_SPIKED_CLUB                 = 70,
+	ICURS_GNARLROOT                   = 70,
+	ICURS_SPIKED_CLUB                 = 71,
 	ICURS_SCIMITAR                    = 72,
 	ICURS_POIGNARD                    = 73,
 	ICURS_FULL_HELM                   = 75,
@@ -561,7 +573,7 @@ typedef enum item_cursor_graphic {
 	ICURS_STONECLEAVER                = 104,
 	ICURS_SMALL_SHIELD                = 105,
 	ICURS_CLEAVER                     = 106,
-	ICURS_STUDDED_LEATHER_ARMOR       = 107,
+	ICURS_STUD_LEATH_ARMOR            = 107,
 	ICURS_BATTLE_BOW                  = 108,
 	ICURS_SHORT_STAFF                 = 109,
 	ICURS_TWO_HANDED_SWORD            = 110,
@@ -1786,13 +1798,13 @@ typedef enum _sfx_id {
 	USFX_LACH2,
 	USFX_LACH3,
 	USFX_LAZ1,
-	USFX_LAZ2,
+	//USFX_LAZ2,
 	USFX_SKING1,
 	USFX_SNOT1,
 	USFX_SNOT2,
 	USFX_SNOT3,
 	USFX_WARLRD1,
-	USFX_WLOCK1,
+	//USFX_WLOCK1,
 	USFX_ZHAR1,
 	USFX_ZHAR2,
 	USFX_DIABLOD,
@@ -1918,6 +1930,7 @@ typedef enum missile_id {
 	MIS_SNOWWICH,
 	MIS_HLSPWN,
 	MIS_SOLBRNR,
+	MIS_MAGE,
 	MIS_MAGMABALL,
 	MIS_ACID,
 	MIS_ACIDPUD,
@@ -1932,6 +1945,7 @@ typedef enum missile_id {
 	MIS_EXSNOWWICH,
 	MIS_EXHLSPWN,
 	MIS_EXSOLBRNR,
+	MIS_EXMAGE,
 	MIS_POISON,
 	MIS_WIND,
 	MIS_LIGHTBALL,
@@ -1941,6 +1955,8 @@ typedef enum missile_id {
 	MIS_LIGHTNING2,
 	MIS_BLOODBOILC,
 	MIS_BLOODBOIL,
+	MIS_SWAMPC,
+	MIS_SWAMP,
 	MIS_TOWN,
 	MIS_RPORTAL,
 	MIS_FLASH,
@@ -2060,6 +2076,7 @@ typedef enum missile_gfx_id {
 	//MFILE_DOOM,
 	//MFILE_DOOMEXP,
 	MFILE_BLODBURS,
+	MFILE_SWAMP,
 	//MFILE_NEWEXP,
 	MFILE_SHATTER1,
 	MFILE_BIGEXP,
@@ -2090,6 +2107,8 @@ typedef enum missile_gfx_id {
 	MFILE_SCBSEXPC,
 	MFILE_SCUBMISD,
 	MFILE_SCBSEXPD,
+	MFILE_MAGEMIS,
+	MFILE_MAGEEXP,
 #ifdef HELLFIRE
 	MFILE_SPAWNS,
 	MFILE_RGLOWS1,
@@ -2175,6 +2194,7 @@ typedef enum _monster_ai {
 	AI_SNOTSPIL,
 	AI_SNAKE,
 	AI_COUNSLR,
+	AI_MAGE,
 	AI_ROUNDRANGED2,
 	AI_LAZARUS,
 	AI_LAZHELP,
@@ -2299,6 +2319,8 @@ typedef enum _monster_id {
 	MT_GMAGE,
 	MT_XMAGE,
 	MT_BMAGE,
+	MT_SMAGE,
+	MT_OMAGE,
 	MT_GOLEM,
 	MT_DIABLO,
 	//MT_DARKMAGE,
@@ -3120,8 +3142,11 @@ typedef enum dungeon_type {
 	DTYPE_CATACOMBS,
 	DTYPE_CAVES,
 	DTYPE_HELL,
+#ifdef HELLFIRE
 	DTYPE_CRYPT,
 	DTYPE_NEST,
+#endif
+	NUM_DTYPES
 } dungeon_type;
 
 typedef enum dungeon_gen_type {
@@ -3138,8 +3163,13 @@ typedef enum dungeon_type_mask {
 	DTM_CATACOMBS = 1 << DTYPE_CATACOMBS,
 	DTM_CAVES     = 1 << DTYPE_CAVES,
 	DTM_HELL      = 1 << DTYPE_HELL,
+#ifdef HELLFIRE
 	DTM_CRYPT     = 1 << DTYPE_CRYPT,
 	DTM_NEST      = 1 << DTYPE_NEST,
+#else
+	DTM_CRYPT     = 0,
+	DTM_NEST      = 0,
+#endif
 	DTM_ANY       = DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES | DTM_HELL | DTM_CRYPT | DTM_NEST,
 	DTM_NONE      = 0,
 } dungeon_type_mask;
@@ -3288,7 +3318,9 @@ typedef enum _setlevels {
 	SL_POISONWATER,
 	SL_VILEBETRAYER,
 	NUM_SETLVLS = SL_VILEBETRAYER - NUM_STDLVLS + 1,
-	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS,
+	NUM_FIXLVLS = NUM_STDLVLS + NUM_SETLVLS,
+	NUM_DYNLVLS = 2 * MAX_PLRS,
+	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS + NUM_DYNLVLS,
 	DLV_INVALID = NUM_LEVELS
 } _setlevels;
 
@@ -3742,6 +3774,7 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
+	ENTRY_DYNLVL,
 	ENTRY_PORTLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
@@ -3791,6 +3824,7 @@ typedef enum spell_id {
 	SPL_POISON,
 	SPL_WIND,
 	SPL_SHROUD,
+	SPL_SWAMP,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,
@@ -3870,6 +3904,7 @@ typedef enum _cmd_id {
 	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
+	CMD_USEPLRMAP,
 	CMD_PUTITEM,
 	CMD_SPAWNITEM,
 	CMD_GETITEM,
@@ -3889,6 +3924,7 @@ typedef enum _cmd_id {
 	CMD_TELEKINOID,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,
+	CMD_CREATELVL,
 	CMD_USEPORTAL,
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
@@ -4304,6 +4340,12 @@ typedef enum quest_nakrul_book {
 	QNB_BOOK_C,
 } quest_nakrul_book;
 
+typedef enum map_status {
+	CMAP_NONE,
+	CMAP_IDENTIFIED,
+	CMAP_UNIDENTIFIED
+} map_status;
+
 typedef enum talk_id {
 	STORE_NONE,
 	STORE_SMITH,
@@ -4330,6 +4372,7 @@ typedef enum talk_id {
 	STORE_DRUNK,
 	STORE_BARMAID,
 	STORE_PRIEST,
+	STORE_ERRAND,
 	STORE_WAIT,
 } talk_id;
 

@@ -53,8 +53,8 @@ typedef uint16_t WORD;
 
 typedef unsigned int UINT;
 
-typedef int32_t WPARAM;
-typedef int32_t LPARAM;
+// typedef int32_t WPARAM;
+// typedef int32_t LPARAM;
 
 //
 // Handles
@@ -66,10 +66,10 @@ typedef HANDLE HMODULE, HDC, HINSTANCE;
 typedef SDL_Event Dvl_Event;
 typedef void (*WNDPROC)(const Dvl_Event*);
 
-typedef struct tagMSG {
-	UINT message;
-	WPARAM wParam;
-} MSG, *LPMSG;
+// typedef struct tagMSG {
+// 	UINT message;
+// 	WPARAM wParam;
+// } MSG, *LPMSG;
 
 //////////////////////////////////////////////////
 // control
@@ -80,12 +80,24 @@ typedef struct POS32 {
 	int y;
 } POS32;
 
+typedef struct AREA32 {
+	int w;
+	int h;
+} AREA32;
+
 typedef struct RECT32 {
 	int x;
 	int y;
 	int w;
 	int h;
 } RECT32;
+
+typedef struct RECT_AREA32 {
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+} RECT_AREA32;
 
 typedef struct CelImageBuf {
 #if DEBUG_MODE
@@ -97,15 +109,27 @@ typedef struct CelImageBuf {
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelImageBuf;
 
+typedef struct CampaignMapEntry {
+	BYTE ceDunType;
+	BYTE ceIndex;
+	BYTE ceLevel;
+	BOOLEAN ceAvailable;
+} CampaignMapEntry;
+
 //////////////////////////////////////////////////
 // items
 //////////////////////////////////////////////////
+
+typedef struct RANGE {
+	BYTE from;
+	BYTE to;
+} RANGE;
 
 typedef struct AffixData {
 	BYTE PLPower; // item_effect_type
 	int PLParam1;
 	int PLParam2;
-	BYTE PLMinLvl;
+	RANGE PLRanges[NUM_IARS];
 	int PLIType; // affix_item_type
 	BOOLEAN PLDouble;
 	BOOLEAN PLOk;
@@ -118,6 +142,7 @@ typedef struct UniqItemData {
 	const char* UIName;
 	BYTE UIUniqType; // unique_item_type
 	BYTE UIMinLvl;
+	uint16_t UICurs;
 	int UIValue;
 	BYTE UIPower1; // item_effect_type
 	int UIParam1a;
@@ -149,7 +174,7 @@ typedef struct ItemFileData {
 	int idSFX;          // sounds effect of dropping the item on ground (_sfx_id).
 	int iiSFX;          // sounds effect of placing the item in the inventory (_sfx_id).
 	int iAnimLen;       // item drop animation length
-	ALIGNMENT64(2)
+	ALIGNMENT64(3)
 } ItemFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -179,7 +204,7 @@ typedef struct ItemData {
 	BYTE iMaxAC;
 	BYTE iDurability;
 	int iValue;
-	ALIGNMENT(5, 3)
+	ALIGNMENT(5, 4)
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -187,7 +212,7 @@ static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData
 #endif
 
 typedef struct ItemStruct {
-	int _iSeed;
+	int32_t _iSeed;
 	uint16_t _iIdx;        // item_indexes
 	uint16_t _iCreateInfo; // icreateinfo_flag
 	union {
@@ -222,7 +247,7 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand)
+	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
 	BOOL _iIdentified;
 	char _iName[32];
 	int _ivalue;
@@ -403,10 +428,11 @@ typedef struct PlayerStruct {
 	int _pMana;      // the current mana of the player
 	int _pMaxMana;   // the maximum mana of the player
 	BYTE _pSkillLvl[64]; // the skill levels of the player
+	uint64_t _pISpells;  // Bitmask of skills available via equipped items (staff)
+	BYTE _pSkillFlags;   // Bitmask of allowed skill-types (SFLAG_*)
 	BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
-	BYTE _pAlign_B0;
 	int _pISlMinDam; // min slash-damage (swords, axes)
 	int _pISlMaxDam; // max slash-damage (swords, axes)
 	int _pIBlMinDam; // min blunt-damage (maces, axes)
@@ -422,12 +448,10 @@ typedef struct PlayerStruct {
 	int8_t _pLghtResist;
 	int8_t _pAcidResist;
 	int _pIHitChance;
-	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
-	BYTE _pIBlockChance;
-	uint64_t _pISpells; // Bitmask of skills available via equipped items (staff)
-	unsigned _pIFlags;
+	uint16_t _pIBlockChance;
+	unsigned _pIFlags; // item_special_effect
 	BYTE _pIWalkSpeed;
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
@@ -480,7 +504,7 @@ typedef struct MissileData {
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
-	ALIGNMENT(2, 7)
+	ALIGNMENT32(2)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -730,8 +754,8 @@ typedef struct MonsterStruct {
 	int _mhitpoints;
 	int _mlastx; // the last known (future) tile X-coordinate of the enemy
 	int _mlasty; // the last known (future) tile Y-coordinate of the enemy
-	int _mRndSeed;
-	int _mAISeed;
+	int32_t _mRndSeed;
+	int32_t _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
 	BYTE _mNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
@@ -764,7 +788,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
-	ALIGNMENT(6, 1)
+	ALIGNMENT(6, 2)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -884,7 +908,7 @@ typedef struct ObjectStruct {
 	BYTE _oSelFlag;
 	BOOLEAN _oPreFlag;
 	unsigned _olid; // light id of the object
-	int _oRndSeed;
+	int32_t _oRndSeed;
 	int _oVar1;
 	int _oVar2;
 	int _oVar3;
@@ -893,7 +917,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(8, 5)
+	ALIGNMENT(8, 6)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1128,11 +1152,17 @@ typedef struct PkPlayerStruct {
 //////////////////////////////////////////////////
 
 #pragma pack(push, 1)
+typedef struct LSaveGameDynLvlStruct {
+	BYTE vdLevel;
+	BYTE vdType;
+} LSaveGameDynLvlStruct;
+
 typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhInitial;
 	LE_UINT32 vhLogicTurn;
 	LE_UINT32 vhSentCycle;
-	LE_UINT32 vhSeeds[NUM_LEVELS];
+	LE_INT32 vhSeeds[NUM_LEVELS];
+	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
 	LE_INT32 vhViewY;
@@ -1617,6 +1647,14 @@ typedef struct TCmdNewLvl {
 	BYTE bLevel;
 } TCmdNewLvl;
 
+typedef struct TCmdCreateLvl {
+	BYTE bCmd;
+	BYTE clPlayers;
+	LE_INT32 clSeed;
+	BYTE clLevel;
+	BYTE clType;
+} TCmdCreateLvl;
+
 typedef struct TCmdItemOp {
 	BYTE bCmd;
 	BYTE ioIdx;
@@ -1982,6 +2020,12 @@ typedef struct DDLevel {
 	DDMonster monster[MAXMONSTERS];
 } DDLevel;
 
+typedef struct DDDynLevel {
+	LE_INT32 dlSeed; // the seed of the dynamic level
+	BYTE dlLevel;    // the difficulty level of the dynamic level
+	BYTE dlType;     // dungeon_type (random in case of DTYPE_TOWN)
+} DDDynLevel;
+
 typedef struct LocalLevel {
 	BYTE automapsv[MAXDUNX][MAXDUNY]; // TODO: compress the data?
 } LocalLevel;
@@ -2001,6 +2045,7 @@ typedef struct DDQuest {
 typedef struct DDJunk {
 	// DDPortal jPortals[MAXPORTAL];
 	// DDQuest jQuests[NUM_QUESTS];
+	// DDDynLevel[NUM_DYNLVLS]
 	BYTE jGolems[MAX_MINIONS];
 } DDJunk;
 
@@ -2079,8 +2124,10 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 
 typedef struct LevelStruct {
-	int _dLevelIdx;   // index in AllLevels (dungeon_level)
+	int _dLevelIdx;   // dungeon_level / NUM_LEVELS
+	int _dLevelNum;   // index in AllLevels (dungeon_level / NUM_FIXLVLS)
 	bool _dSetLvl;    // cached flag if the level is a set-level
+	bool _dDynLvl;    // cached flag if the level is a dynamic-level
 	int _dLevel;      // cached difficulty value of the level
 	int _dType;       // cached type of the level (dungeon_type)
 	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
@@ -2150,6 +2197,13 @@ typedef struct SetPieceData {
 //////////////////////////////////////////////////
 // quests
 //////////////////////////////////////////////////
+
+typedef struct DynLevelStruct {
+	// int32_t _dnSeed; -- stored in glSeedTbl
+	// BYTE _dnPlayers; -- stored in gsDeltaData.ddLevelPlrs
+	BYTE _dnLevel;
+	BYTE _dnType;
+} DynLevelStruct;
 
 typedef struct QuestStruct {
 	BYTE _qactive; // quest_state
@@ -2278,26 +2332,40 @@ typedef struct ROOMHALLNODE {
 	int nHallx2;
 	int nHally2;
 	int nHalldir;
+	ALIGNMENT(6, 6)
 } ROOMHALLNODE;
 
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(ROOMHALLNODE) & (sizeof(ROOMHALLNODE) - 1)) == 0, "Align ROOMHALLNODE to power of 2 for better performance.");
+#endif
+
 typedef struct L1ROOM {
-	BYTE lrx;
-	BYTE lry;
-	BYTE lrw;
-	BYTE lrh;
+	int lrx;
+	int lry;
+	int lrw;
+	int lrh;
 } L1ROOM;
 
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(L1ROOM) & (sizeof(L1ROOM) - 1)) == 0, "Align L1ROOM to power of 2 for better performance.");
+#endif
+
 typedef struct ThemePosDir {
-	BYTE tpdx;
-	BYTE tpdy;
-	BYTE tpdvar1;
-	BYTE tpdvar2; // unused
+	int tpdx;
+	int tpdy;
+	int tpdvar1;
+	int tpdvar2; // unused
 } ThemePosDir;
+
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(ThemePosDir) & (sizeof(ThemePosDir) - 1)) == 0, "Align ThemePosDir to power of 2 for better performance.");
+#endif
 
 /** The number of generated rooms in cathedral. */
 #define L1_MAXROOMS ((DSIZEX * DSIZEY) / sizeof(L1ROOM))
 /** The number of generated rooms in catacombs. */
 #define L2_MAXROOMS 32
+static_assert(L2_MAXROOMS * sizeof(ROOMHALLNODE) <= (DSIZEX * DSIZEY), "RoomList is too large for DrlgMem.");
 /** Possible matching locations in a theme room. */
 #define THEME_LOCS ((DSIZEX * DSIZEY) / sizeof(ThemePosDir))
 
@@ -2485,15 +2553,16 @@ typedef struct _uigamedata {
 //////////////////////////////////////////////////
 
 typedef struct PATHNODE {
-	BYTE totalCost;
-	BYTE remainingCost;
-	BYTE walkCost;
+	int totalCost;
+	int remainingCost;
+	int lastStepCost;
+	int walkCost;
 	int x;
 	int y;
 	struct PATHNODE* Parent;
 	struct PATHNODE* Child[NUM_DIRS];
 	struct PATHNODE* NextNode;
-	ALIGNMENT(3, 8)
+	ALIGNMENT64(6)
 } PATHNODE;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -2576,14 +2645,21 @@ typedef struct TriggerStruct {
 //////////////////////////////////////////////////
 
 typedef struct STextStruct {
-	int _sx;
-	int _syoff;
-	char _sstr[112];
-	bool _sjust;
-	BYTE _sclr;
-	bool _sline;
-	bool _ssel;
-	int _sval;
+	int _sx;         // starting position
+	int _syoff;      // y-offset where the text should be printed
+	union {
+		char _sstr[112]; // the text
+		struct {
+			char _schr;     // placeholder to differentiate from a normal text
+			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
+		};
+	};
+	bool _sitemlist; // whether items should be drawn 
+	bool _sjust;     // whether the string should be justified
+	BYTE _sclr;      // the color of the string
+	// bool _sline;
+	bool _ssel;      // whether the line is selectable
+	int _sval;       // integer value to be printed on the right side of the line
 } STextStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -2595,7 +2671,7 @@ static_warning((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align ST
 //////////////////////////////////////////////////
 
 typedef struct _plrmsg {
-	Uint32 time;
+	uint32_t time;
 	BYTE player;
 	BYTE lineBreak;
 	char str[122];

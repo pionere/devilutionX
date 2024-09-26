@@ -109,6 +109,10 @@ extern "C" {
 #define LVLUP_LEFT   (PANEL_LEFT + 175)
 #define LVLUP_OFFSET 24
 
+#define CAMICON_WIDTH  37
+#define CAMICON_HEIGHT 38
+#define CAMICONLAST    7
+
 #define LTPANEL_WIDTH 591
 #define STPANEL_WIDTH 271
 #define TPANEL_HEIGHT 303

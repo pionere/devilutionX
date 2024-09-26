@@ -58,6 +58,7 @@ static void InitCutscene(unsigned int uMsg)
 		lvl = currLvl._dLevelIdx;
 		InitLvlCutscene(lvl);
 		break;
+	case DVL_DWM_DYNLVL:
 	case DVL_DWM_PORTLVL:
 		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
 		LoadPalette("Gendata\\Cutportl.pal");
@@ -127,7 +128,7 @@ static void DrawProgress()
 /* 16 */"Fadeout",
 	};
 	unsigned progress = sgdwProgress / ((BAR_WIDTH + (lengthof(progession) - 1)) / lengthof(progession));
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
+	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 
@@ -192,6 +193,9 @@ static void CreateDungeon()
 
 void LoadGameLevel(int lvldir)
 {
+	extern int32_t sglGameSeed;
+	assert(sglGameSeed == glSeedTbl[currLvl._dLevelIdx] || currLvl._dDynLvl);
+
 	music_stop();
 	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
@@ -214,7 +218,7 @@ void LoadGameLevel(int lvldir)
 	InitLvlItems();    // reset items
 	IncProgress(); // "Create Dungeon" (6)
 
-	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
+	// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	// fill pre: pSetPieces
 	// fill in loop: dungeon, pWarps, uses drlgFlags, dungBlock
 	// fill post: themeLoc, pdungeon, dPiece, dTransVal
@@ -225,9 +229,8 @@ void LoadGameLevel(int lvldir)
 	IncProgress(); // "MonsterFX" (7)
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes(); // select monster types and load their fx
-		InitThemes();     // select theme types
+		InitThemes();     // protect themes with dFlags and select theme types
 		IncProgress(); // "Monsters" (8)
-		HoldThemeRooms(); // protect themes with dFlags
 		InitMonsters();   // place monsters
 	} else {
 		InitLvlStores();
@@ -250,20 +253,50 @@ void LoadGameLevel(int lvldir)
 
 	IncProgress(); // "Music start" (12)
 
-	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+	music_start(AllLevels[currLvl._dLevelNum].dMusic);
 }
 
 void EnterLevel(BYTE lvl)
 {
 	int lvlBonus;
 
+	SetRndSeed(glSeedTbl[lvl]);
 	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
 	currLvl._dLevelIdx = lvl;
-	currLvl._dLevel = AllLevels[lvl].dLevel;
-	currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
-	currLvl._dType = AllLevels[lvl].dType;
-	currLvl._dDunType = AllLevels[lvl].dDunType;
-	lvlBonus = 0;
+	currLvl._dDynLvl = lvl >= NUM_FIXLVLS;
+	if (currLvl._dDynLvl) {
+		// select level
+		unsigned baseLevel = gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
+		unsigned leveltype = gDynLevels[lvl - NUM_FIXLVLS]._dnType;
+		// assert(baseLevel + HELL_LEVEL_BONUS < CF_LEVEL);
+		int availableLvls[NUM_FIXLVLS];
+		int numLvls = 0;
+		for (int i = DLV_CATHEDRAL1; i < NUM_STDLVLS; i++) {
+			if (AllLevels[i].dLevel <= baseLevel && (leveltype == DLV_TOWN || leveltype == AllLevels[i].dType) /*&& AllLevels[i].dMonTypes[0] != MT_INVALID*/) {
+				availableLvls[numLvls] = i;
+				numLvls++;
+			}
+		}
+		lvl = DLV_CATHEDRAL1;
+		if (numLvls != 0) {
+			lvl = availableLvls[random_low(141, numLvls)];
+		} else {
+			baseLevel = AllLevels[DLV_CATHEDRAL1].dLevel;
+		}
+		currLvl._dLevelNum = lvl;
+		currLvl._dLevel = AllLevels[lvl].dLevel;
+		currLvl._dSetLvl = false; // AllLevels[lvl].dSetLvl;
+		currLvl._dType = AllLevels[lvl].dType;
+		currLvl._dDunType = AllLevels[lvl].dDunType;
+		lvlBonus = baseLevel - AllLevels[lvl].dLevel;
+	} else {
+		currLvl._dLevelNum = lvl;
+		currLvl._dLevel = AllLevels[lvl].dLevel;
+		currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
+		currLvl._dType = AllLevels[lvl].dType;
+		currLvl._dDunType = AllLevels[lvl].dDunType;
+		lvlBonus = 0;
+	}
 	if (gnDifficulty == DIFF_NIGHTMARE) {
 		lvlBonus += NIGHTMARE_LEVEL_BONUS;
 	} else if (gnDifficulty == DIFF_HELL) {
@@ -330,10 +363,11 @@ void ShowCutscene(unsigned uMsg)
 			static_assert((int)DVL_DWM_PREVLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PREV    - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted II.");
 			static_assert((int)DVL_DWM_SETLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_SETLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted III.");
 			static_assert((int)DVL_DWM_RTNLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RTNLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted IV.");
-			static_assert((int)DVL_DWM_PORTLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PORTLVL - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted V.");
-			static_assert((int)DVL_DWM_TWARPDN - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPDN - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VI.");
-			static_assert((int)DVL_DWM_TWARPUP - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPUP - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VII.");
-			static_assert((int)DVL_DWM_RETOWN  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RETOWN  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VIII.");
+			static_assert((int)DVL_DWM_DYNLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_DYNLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted V.");
+			static_assert((int)DVL_DWM_PORTLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PORTLVL - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VI.");
+			static_assert((int)DVL_DWM_TWARPDN - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPDN - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VII.");
+			static_assert((int)DVL_DWM_TWARPUP - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPUP - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VIII.");
+			static_assert((int)DVL_DWM_RETOWN  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RETOWN  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted IX.");
 		}
 		EnterLevel(myplr._pDunLevel);
 		LoadGameLevel(lvldir);

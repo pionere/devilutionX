@@ -1,4 +1,4 @@
-#include <time.h>
+#include <ctime>
 
 #include "../all.h"
 #include "DiabloUI/diablo.h"
@@ -141,7 +141,9 @@ static void SelheroSetStats()
 	int baseFlags = UIS_HCENTER | UIS_VCENTER | UIS_BIG;
 
 	if (heroclass < NUM_CLASSES) {
-		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		if (SELLIST_DIALOG_DELETE_BUTTON != NULL) {
+			SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		}
 		SELHERO_DIALOG_HERO_IMG->m_frame = heroclass + 1;
 		selhero_heroFrame = heroclass + 1;
 
@@ -151,6 +153,7 @@ static void SelheroSetStats()
 		snprintf(textStats[3], sizeof(textStats[3]), "%d", selhero_heroInfo.hiDexterity);
 		snprintf(textStats[4], sizeof(textStats[4]), "%d", selhero_heroInfo.hiVitality);
 	} else {
+		assert(SELLIST_DIALOG_DELETE_BUTTON != NULL);
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
 		SELHERO_DIALOG_HERO_IMG->m_frame = 0;
 		selhero_heroFrame = 0;
@@ -366,6 +369,8 @@ static void SelheroClassSelectorInit()
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SELLIST_DIALOG_DELETE_BUTTON = NULL; // TODO: reset in SelheroFreeDlgItems?
 
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));

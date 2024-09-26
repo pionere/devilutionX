@@ -82,6 +82,8 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 	unsigned int destSize; // , type, dsize;
 
 	work_buf = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	// zfill the work-buffer to make the result consistent (see Warning in WriteCmpData(TCmpStruct * pWork) / (implode.cpp)
+	memset(work_buf, 0, CMP_BUFFER_SIZE);
 
 	destSize = 2 * size;
 	if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)

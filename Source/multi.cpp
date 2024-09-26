@@ -6,7 +6,7 @@
 #include "all.h"
 #include "diabloui.h"
 #include "storm/storm_net.h"
-#include <time.h>
+#include <ctime>
 #include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -95,7 +95,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
 		src_ptr = &sgTurnChunkBuf.bData[0];
-		while (TRUE) {
+		while (true) {
 			chunk_size = *src_ptr;
 			if (chunk_size == 0 || chunk_size > *size)
 				break;
@@ -172,7 +172,7 @@ void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 void multi_rnd_seeds()
 {
 	int i;
-	uint32_t seed;
+	int32_t seed;
 
 	gdwGameLogicTurn++;
 	if (!IsMultiGame)
@@ -743,9 +743,9 @@ void NetClose()
 static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
 	int i, dlgresult, pnum;
-	uint32_t seed;
+	int32_t seed;
 
-	while (TRUE) {
+	while (true) {
 		// mypnum = 0;
 
 		// select provider
@@ -816,9 +816,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 	SetRndSeed(gameData.aeSeed);
 	sgbSentThisCycle = gameData.aeTurn;
 
-	for (i = 0; i < NUM_LEVELS; i++) {
+	for (i = 0; i < NUM_FIXLVLS; i++) {
 		seed = NextRndSeed();
-		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		seed = ((uint32_t)seed >> 8) | ((uint32_t)seed << 24); // _rotr(seed, 8)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
@@ -832,7 +832,7 @@ bool NetInit(bool bSinglePlayer)
 {
 	_uigamedata gameData;
 
-	while (TRUE) {
+	while (true) {
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;

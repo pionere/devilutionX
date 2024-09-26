@@ -241,7 +241,7 @@ static POS32 RndLoc3x3()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc3x3 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -1; i <= 1; i++) {
@@ -263,7 +263,7 @@ static POS32 RndLoc3x4()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc3x4 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -1; i <= 1; i++) {
@@ -285,7 +285,7 @@ static POS32 RndLoc5x5()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc5x5 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -2; i <= 2; i++) {
@@ -307,7 +307,7 @@ static POS32 RndLoc7x5()
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc7x5 returns 0;0 position as a failed location.");
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		xp = random_(140, DSIZEX) + DBORDERX;
 		yp = random_(140, DSIZEY) + DBORDERY;
 		for (i = -3; i <= 3; i++) {
@@ -976,7 +976,7 @@ void InitObjects()
 		for (int yy = DBORDERY; yy < DSIZEY + DBORDERY; yy++)
 			if ((nSolidTable[dPiece[xx][yy]] | (dFlags[xx][yy] & BFLAG_OBJ_PROTECT)) == 0)
 				na++;
-	na = na * AllLevels[currLvl._dLevelIdx].dObjDensity / 32;
+	na = na * AllLevels[currLvl._dLevelNum].dObjDensity / 32;
 
 	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
 		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow I.");
@@ -1155,7 +1155,7 @@ static int FindValidShrine(int filter)
 	int rv;
 	BYTE excl = IsMultiGame ? SHRINETYPE_SINGLE : SHRINETYPE_MULTI;
 
-	while (TRUE) {
+	while (true) {
 		rv = random_(0, NUM_SHRINETYPE);
 		if (rv != filter && shrineavail[rv] != excl)
 			break;
@@ -1170,10 +1170,11 @@ static void AddShrine(int oi)
 	os = &objects[oi];
 	os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
+	/* -- disabled because the animation is shifted and not much point without trap (+ cel file is cut in the patcher)
 	if (random_(150, 2) != 0) {
 		os->_oAnimFrame = 12;
 		os->_oAnimLen = 22;
-	}
+	}*/
 }
 
 static void ObjAddRndSeed(int oi)
@@ -1424,10 +1425,10 @@ static void FindClosestPlr(int* dx, int* dy)
 {
 	int xx, yy, j, i;
 	const int8_t* cr;
-
-	for (i = 0; i < 10; i++) {
+	static_assert(lengthof(CrawlNum) > 9, "FindClosestPlr uses CrawlTable/CrawlNum up to radius 9.");
+	for (i = 0; i <= 9; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
-		for (j = *cr; j > 0; j--) {
+		for (j = (BYTE)*cr; j > 0; j--) {
 			xx = *dx + *++cr;
 			yy = *dy + *++cr;
 			if (PosOkActor(xx, yy) && PosOkPortal(xx, yy)) {
@@ -2794,6 +2795,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
 		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEWAVE, "SHRINE_SOLAR expects runes in a given order III.");
 		static_assert(DBORDERX >= 3 && DBORDERY >= 3, "SHRINE_SOLAR expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 3, "OperateShrine uses CrawlTable/CrawlNum radius 3.");
 		const int8_t* cr = &CrawlTable[CrawlNum[3]];
 		mode = sendmsg ? ICM_SEND : ICM_DUMMY;
 		for (i = (BYTE)*cr; i > 0; i--) {
@@ -3177,7 +3179,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	if (os->_otype == xotype) {
 		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
 			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
-				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, MST_OBJECT, -1, 0);
+				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, MST_NA, -1, 0);
 				mpo = dObject[xp][yp];
 				if (mpo > 0) {
 					mpo--;

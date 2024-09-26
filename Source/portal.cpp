@@ -70,10 +70,10 @@ void ActivatePortal(int pidx, int x, int y, int bLevel)
 	portals[pidx]._rlevel = bLevel;
 }
 
-static bool PortalOnLevel(int pidx)
-{
-	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
-}
+//static bool PortalOnLevel(int pidx)
+//{
+//	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
+//}
 
 void RemovePortalMissile(int pidx)
 {

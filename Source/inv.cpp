@@ -36,18 +36,18 @@ CelImageBuf* pBeltCels;
 const InvXY InvRect[NUM_XY_SLOTS] = {
 	// clang-format off
 	//  X,   Y
-	{ 121,                    29 },                       // helmet
-	{ 121 + INV_SLOT_SIZE_PX, 29 },                       // helmet
-	{ 121,                    29 +    INV_SLOT_SIZE_PX }, // helmet
-	{ 121 + INV_SLOT_SIZE_PX, 29 +    INV_SLOT_SIZE_PX }, // helmet
-	{  61, 171 }, // left ring
-	{ 206, 171 }, // right ring
-	{ 187,  45 }, // amulet
+	{ 120,                    30 },                       // helmet
+	{ 120 + INV_SLOT_SIZE_PX, 30 },                       // helmet
+	{ 120,                    30 +    INV_SLOT_SIZE_PX }, // helmet
+	{ 120 + INV_SLOT_SIZE_PX, 30 +    INV_SLOT_SIZE_PX }, // helmet
+	{  60, 172 }, // left ring
+	{ 205, 172 }, // right ring
+	{ 186,  44 }, // amulet
 	{  47,                    82 },                      // left hand
 	{  47 + INV_SLOT_SIZE_PX, 82 },                      // left hand
 	{  47,                    82 +   INV_SLOT_SIZE_PX }, // left hand
 	{  47 + INV_SLOT_SIZE_PX, 82 +   INV_SLOT_SIZE_PX }, // left hand
-	{  57,                    82 + 2*INV_SLOT_SIZE_PX }, // left hand
+	{  47,                    82 + 2*INV_SLOT_SIZE_PX }, // left hand
 	{  47 + INV_SLOT_SIZE_PX, 82 + 2*INV_SLOT_SIZE_PX }, // left hand
 	{ 192,                    82 },                      // right hand
 	{ 192 + INV_SLOT_SIZE_PX, 82 },                      // right hand
@@ -55,12 +55,12 @@ const InvXY InvRect[NUM_XY_SLOTS] = {
 	{ 192 + INV_SLOT_SIZE_PX, 82 +   INV_SLOT_SIZE_PX }, // right hand
 	{ 192,                    82 + 2*INV_SLOT_SIZE_PX }, // right hand
 	{ 192 + INV_SLOT_SIZE_PX, 82 + 2*INV_SLOT_SIZE_PX }, // right hand
-	{ 121,                    93 },                      // chest
-	{ 121 + INV_SLOT_SIZE_PX, 93 },                      // chest
-	{ 121,                    93 +   INV_SLOT_SIZE_PX }, // chest
-	{ 121 + INV_SLOT_SIZE_PX, 93 +   INV_SLOT_SIZE_PX }, // chest
-	{ 121,                    93 + 2*INV_SLOT_SIZE_PX }, // chest
-	{ 121 + INV_SLOT_SIZE_PX, 93 + 2*INV_SLOT_SIZE_PX }, // chest
+	{ 120,                    94 },                      // chest
+	{ 120 + INV_SLOT_SIZE_PX, 94 },                      // chest
+	{ 120,                    94 +   INV_SLOT_SIZE_PX }, // chest
+	{ 120 + INV_SLOT_SIZE_PX, 94 +   INV_SLOT_SIZE_PX }, // chest
+	{ 120,                    94 + 2*INV_SLOT_SIZE_PX }, // chest
+	{ 120 + INV_SLOT_SIZE_PX, 94 + 2*INV_SLOT_SIZE_PX }, // chest
 	{  2 + 0 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
 	{  2 + 1 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
 	{  2 + 2 * (INV_SLOT_SIZE_PX + 1), 206 }, // inv row 1
@@ -225,7 +225,7 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 			pix = *dst;
 			if (pix >= PAL16_BLUE) {
 				if (pix <= PAL16_BLUE + 15)
-					*dst -= PAL16_BLUE - PAL16_BEIGE;
+					; // *dst -= PAL16_BLUE - PAL16_BEIGE;
 				else if (pix >= PAL16_GRAY)
 					*dst -= PAL16_GRAY - PAL16_BEIGE;
 			}
@@ -729,6 +729,13 @@ static int MergeStackableItem(ItemStruct* a, ItemStruct* b)
 {
 	int gt, ig, cn;
 
+	// assert(a->_iUsable || b->_iUsable);
+	if (a->_iMiscId == IMISC_MAP // TODO: use a->_iMaxDur != 1 instead?
+	 || a->_iMiscId != b->_iMiscId
+	 || a->_iSpell != b->_iSpell) {
+		return CURSOR_NONE;
+	}
+	// assert(a->_iUsable && b->_iUsable);
 	gt = a->_iDurability;
 	ig = b->_iDurability + gt; // STACK
 	//a->_ivalue /= a->_iDurability;
@@ -991,13 +998,13 @@ void InvPasteItem(int pnum, BYTE r)
 			if (it == 0) {
 				// empty target
 				copy_pod(*is, *holditem);
-			} else if (holditem->_iUsable
-			 && holditem->_iMiscId == is->_iMiscId
-			 && holditem->_iSpell == is->_iSpell) {
-				// matching stackable items
-				cn = MergeStackableItem(is, holditem);
-				break;
 			} else {
+				if (holditem->_iUsable) {
+					cn = MergeStackableItem(is, holditem);
+					if (cn != CURSOR_NONE)
+						break;
+				}
+
 				it--;
 				for (i = 0; i < NUM_INV_GRID_ELEM; i++) {
 					if (p->_pInvList[i]._itype == ITYPE_PLACEHOLDER
@@ -1079,12 +1086,12 @@ void InvPasteBeltItem(int pnum, BYTE r)
 		return;
 	// assert(holditem->_iUsable);
 	is = &plr._pSpdList[r];
-	if (is->_itype != ITYPE_NONE
-	 && is->_iMiscId == holditem->_iMiscId
-	 && is->_iSpell == holditem->_iSpell) {
+	cn = CURSOR_NONE;
+	if (is->_itype != ITYPE_NONE) {
 		// matching stackable items
 		cn = MergeStackableItem(is, holditem);
-	} else {
+	}
+	if (cn == CURSOR_NONE) {
 		cn = SwapItem(is, holditem);
 		if (holditem->_itype == ITYPE_NONE)
 			cn = CURSOR_HAND;
@@ -1452,7 +1459,7 @@ int FindGetItem(const PkItemStruct* pkItem)
 
 bool CanPut(int x, int y)
 {
-	int oi, oi2;
+	int oi; // , oi2;
 
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
@@ -1467,7 +1474,7 @@ bool CanPut(int x, int y)
 			return false;
 	}
 
-	oi = dObject[x + 1][y + 1];
+	/*oi = dObject[x + 1][y + 1];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (objects[oi]._oSelFlag != 0)
@@ -1479,10 +1486,10 @@ bool CanPut(int x, int y)
 		oi2 = dObject[x][y + 1];
 		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
 			return false;
-	}
+	}*/
 
 	if (currLvl._dType == DTYPE_TOWN)
-		if ((dMonster[x][y] | dMonster[x + 1][y + 1]) != 0)
+		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
 			return false;
 
 	return true;
@@ -1830,6 +1837,9 @@ bool InvUseItem(int cii)
 	 && (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
 		return true;
 	}
+	if (currLvl._dType != DTYPE_TOWN && is->_iMiscId == IMISC_MAP) {
+		return true;
+	}
 
 	// add sfx
 	if (is->_iMiscId == IMISC_BOOK)
@@ -1877,6 +1887,9 @@ bool InvUseItem(int cii)
 		gbTSpell = SPL_OIL;
 		gbTSplFrom = cii;
 		NewCursor(CURSOR_OIL);
+		return true;
+	case IMISC_MAP:
+		InitCampaignMap(cii);
 		return true;
 #ifdef HELLFIRE
 	case IMISC_NOTE:
@@ -1974,6 +1987,7 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_OILRESIST:
 	case IMISC_OILCHANCE:
 	case IMISC_OILCLEAN:
+	case IMISC_MAP:
 		// should not happen, only if the player is reckless...
 		return false;
 	default:
@@ -1983,6 +1997,58 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	if (--is->_iDurability <= 0) // STACK
 		SyncPlrItemRemove(pnum, cii);
 	return sn == SPL_INVALID;
+}
+
+bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)
+{
+	ItemStruct* is;
+
+	// assert(plr._pmode != PM_DEATH);
+	// assert(cii < NUM_INVELEM);
+	// assert(mIdx < MAXCAMPAIGNSIZE);
+
+	is = PlrItem(pnum, cii);
+
+	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+		return false;
+
+	// if (!is->_iUsable)
+	//	return false;
+
+	// use the item
+	if (is->_iMiscId != IMISC_MAP) {
+		return false;
+	}
+
+	int available = is->_ivalue;
+	int mask = 1 << mIdx;
+	if (!(available & mask)) {
+		return false;
+	}
+
+	if (pnum == mypnum && camItemIndex == cii) {
+		SetRndSeed(is->_iSeed);
+		// skip the seeds used during map-generation
+		for (int i = 0; i < 2 * MAXCAMPAIGNSIZE; i++) {
+			NextRndSeed();
+		}
+		// calculate the seed of the map
+		for (int i = 0; i < mIdx; i++) {
+			DWORD seed = NextRndSeed();
+			seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+			SetRndSeed(seed);
+		}
+		NetSendCmdCreateLvl(GetRndSeed(), selCamEntry.ceLevel, selCamEntry.ceDunType);
+	}
+
+	available &= ~mask;
+	if (available == 0) {
+		SyncPlrItemRemove(pnum, cii);
+	} else {
+		is->_ivalue = available;
+	}
+
+	return true;
 }
 
 void CalculateGold(int pnum)

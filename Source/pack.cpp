@@ -133,11 +133,11 @@ static void UnPackItem(const PkItemStruct* pis, ItemStruct* is)
 	}
 }
 
-void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
+void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 {
 	int i;
 	ItemStruct* pi;
-	PkItemStruct* pki;
+	const PkItemStruct* pki;
 
 	// TODO: validate data from the internet
 	//SetPlayerLoc(&plr, pPack->px, pPack->py);

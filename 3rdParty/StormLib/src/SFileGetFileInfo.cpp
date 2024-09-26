@@ -482,7 +482,7 @@ bool WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass)
 //-----------------------------------------------------------------------------
 // Tries to retrieve the file name
 
-struct TFileHeader2Ext
+/*struct TFileHeader2Ext
 {
     DWORD dwOffset00Data;               // Required data at offset 00 (32-bits)
     DWORD dwOffset00Mask;               // Mask for data at offset 00 (32 bits). 0 = data are ignored
@@ -530,7 +530,7 @@ static TFileHeader2Ext data2ext[] =
     {0, 0, 0, 0, NULL}                                          // Terminator
 };
 
-/*static DWORD CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * szFileName)
+static DWORD CreatePseudoFileName(HANDLE hFile, TFileEntry * pFileEntry, char * szFileName)
 {
     TMPQFile * hf = (TMPQFile *)hFile;  // MPQ File handle
     DWORD FirstBytes[2] = {0, 0};       // The first 4 bytes of the file

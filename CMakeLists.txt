@@ -112,6 +112,10 @@ if(PS4)
   include(ps4_defs)
 endif()
 
+if(PS5)
+  include(ps5_defs)
+endif()
+
 if(ANDROID)
   include(android_defs)
 endif()
@@ -150,6 +154,7 @@ option(PIE "Generate position-independent code" OFF)
 option(CPACK "Configure CPack" ON)
 option(USE_LD_MOLD "Use mold linker(GNU|Clang)" OFF)
 option(MACOSX_STANDALONE_APP_BUNDLE "Generate a portable app bundle to use on other devices (requires sudo)" OFF)
+option(WIN_NSIS "Generate an NSIS installer" OFF)
 option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
@@ -176,12 +181,12 @@ cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" 
 option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
-  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" OFF)
   cmake_conditional_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" NOT ${DEVILUTIONX_SYSTEM_LIBSODIUM})
 endif()
 
 if(NOT USE_SDL1)
-  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
+  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" OFF)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
@@ -657,6 +662,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/controls/devices/kbcontroller.cpp
     tools/patcher/controls/game_controls.cpp
     tools/patcher/controls/touch.cpp
+    tools/patcher/DiabloUI/checker.cpp
     tools/patcher/DiabloUI/diabloui.cpp
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp
@@ -859,6 +865,7 @@ foreach(
   HAS_JOYSTICK
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
+  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF
@@ -1293,8 +1300,20 @@ endif()
 if(CPACK)
   if(WIN32)
     set(CPACK_PACKAGE_NAME ${project_name})
-    set(CPACK_PACKAGE_FILE_NAME ${project_name})
-    set(CPACK_GENERATOR "ZIP")
+    if(WIN_NSIS)
+      set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_Installer")
+      set(CPACK_GENERATOR "NSIS")
+      set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
+      set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/Packaging/windows/icon.ico")
+      set(CPACK_NSIS_MUI_UNIICON "${PROJECT_SOURCE_DIR}/Packaging/windows/icon.ico")
+      set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.md")
+      set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+      set(CPACK_PACKAGE_EXECUTABLES "${BIN_TARGET}" "${PROJECT_NAME}")
+      set(CPACK_NSIS_MUI_FINISHPAGE_RUN "${BIN_TARGET}")
+    else()
+      set(CPACK_PACKAGE_FILE_NAME ${project_name})
+      set(CPACK_GENERATOR "ZIP")
+    endif()
     set(CPACK_STRIP_FILES TRUE)
     install(TARGETS ${BIN_TARGET} DESTINATION .)
 
@@ -1675,15 +1694,17 @@ else()
     message(STATUS " Using dynamically linked SDL2.")
   endif()
 endif()
-if(DEVILUTIONX_STATIC_LIBSODIUM)
-  set(_LINK_MODE "statically")
-else()
-  set(_LINK_MODE "dynamically")
+if(NOT NONET)
+  if(DEVILUTIONX_STATIC_LIBSODIUM)
+    set(_LINK_MODE "statically")
+  else()
+    set(_LINK_MODE "dynamically")
+  endif()
+  if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+    set(_SOURCE "system ")
+  else()
+    set(_SOURCE "")
+  endif()
+  message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
 endif()
-if(DEVILUTIONX_SYSTEM_LIBSODIUM)
-  set(_SOURCE "system ")
-else()
-  set(_SOURCE "")
-endif()
-message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
 message(STATUS "")

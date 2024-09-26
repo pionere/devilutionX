@@ -286,7 +286,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 			Mix_CloseAudio();
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, 0);
+			deviceId = SDL_OpenAudioDevice(NULL, 0, &audioFormat, NULL, SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
 			if (deviceId != 0) {
 				SDL_PauseAudioDevice(deviceId, 0); /* start audio playing. */
 			} else {
@@ -420,8 +420,8 @@ bool SVidPlayContinue()
 		outputRect.w = SVidWidth * outputSurface->h / SVidHeight;
 		outputRect.h = outputSurface->h;
 	}
-	outputRect.x = (outputSurface->w - outputRect.w) / 2;
-	outputRect.y = (outputSurface->h - outputRect.h) / 2;
+	outputRect.x = (outputSurface->w - outputRect.w) >> 1;
+	outputRect.y = (outputSurface->h - outputRect.h) >> 1;
 
 	if (isIndexedOutputFormat
 	 || outputSurface->w == static_cast<int>(SVidWidth)

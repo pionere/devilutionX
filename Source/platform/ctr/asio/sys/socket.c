@@ -107,4 +107,4 @@ int socketpair(int domain, int type, int protocol, int socket_vector[2])
 {
 	return ENOTSUP;
 }
-#endif
+#endif // TCPIP

@@ -11,6 +11,7 @@
 #include "diabloui.h"
 #include "utils/file_util.h"
 #include "DiabloUI/diablo.h"
+#include <ctime>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -18,11 +19,11 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVEFILE_HERO             "hero"
 #define PFILE_SAVE_MPQ_HASHCOUNT  2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
-#define PFILE_SAVE_INTERVAL       60000
+#define PFILE_SAVE_INTERVAL       60
 
 unsigned mySaveIdx;
 bool gbValidSaveFile;
-static Uint32 guNextSaveTc;
+static uint32_t guNextSaveTc;
 
 #define PASSWORD_SINGLE "xrgyrkj1"
 #define PASSWORD_MULTI  "szqnlsk1"
@@ -304,7 +305,7 @@ void pfile_read_hero_from_save()
 	mypnum = 0;
 	gbValidSaveFile = pfile_archive_contains_game(archive);
 	SFileCloseArchive(archive);
-	guNextSaveTc = SDL_GetTicks() + PFILE_SAVE_INTERVAL;
+	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
 
 void pfile_rename_temp_to_perm()
@@ -418,7 +419,7 @@ nextSource:
 void pfile_update(bool force_save)
 {
 	if (IsMultiGame) {
-		Uint32 currTc = SDL_GetTicks();
+		uint32_t currTc = time(NULL);
 		if (force_save || currTc > guNextSaveTc) {
 			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
 			pfile_write_hero(false);
