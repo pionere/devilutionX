@@ -23,7 +23,8 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: 'f7423ee180c4b7f40d43402c2feb3859161ef625'
+        vcpkgGitCommitId: '813a241fb83adad503a391facaa6aa634631accc'
+        #vcpkgGitCommitId: 'f7423ee180c4b7f40d43402c2feb3859161ef625'
         #vcpkgGitCommitId: '095ee06e7f60dceef7d713e3f8b1c2eb10d650d7'
         #vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
         #vcpkgGitCommitId: 'b86c0c35b88e2bf3557ff49dc831689c2f085090'
