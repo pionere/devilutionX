@@ -484,7 +484,7 @@ jobs:
             cmakearg0: '-DUSE_PATCH=ON'
             cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Install gettext
       run: sudo apt-get update && sudo apt-get install -y gettext
@@ -503,15 +503,21 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    - name: Remove system CMake
-      run: rm /usr/local/bin/cmake
+    #- name: Remove system CMake
+    #  run: rm /usr/local/bin/cmake
+    - name: Accept SDK licenses
+      run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+    - name: Install CMake
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "cmake;3.31.0" 
 
     #- name: Cache CMake build folder
     #  uses: actions/cache@v3
     #  with:
     #    path: android-project/app/.cxx
-    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
-    #    restore-keys: ${{ github.workflow }}-v1-
+    #    key: ${{ github.workflow }}-v5-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v5-
 
     - name: Build
       working-directory: ${{github.workspace}}
