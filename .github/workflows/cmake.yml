@@ -32,8 +32,14 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    - name: Remove system CMake
-      run: rm /usr/local/bin/cmake
+    #- name: Remove system CMake
+    #  run: rm /usr/local/bin/cmake
+    - name: Accept SDK licenses
+      run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+    - name: Install CMake
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "cmake;3.31.0" 
 
     #- name: Test CMake
     #  shell: bash
