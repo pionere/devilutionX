@@ -69,6 +69,8 @@ elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
   include(cpigamesh_defs)
 elseif(TARGET_PLATFORM STREQUAL "windows9x")
   include(windows9x_defs)
+elseif(TARGET_PLATFORM STREQUAL "windowsXP")
+  include(windowsXP_defs)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
