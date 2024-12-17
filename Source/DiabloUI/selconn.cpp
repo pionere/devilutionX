@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 bool selconn_bMulti = false;
 int provider;
-
+#ifndef NONET
 static_assert(MAX_PLRS < 100, "Not enough space to print the info message.");
 static char selconn_MaxPlayers[22];
 static char selconn_Description[64];
@@ -136,7 +136,7 @@ static void SelconnSelect(unsigned index)
 
 	selconn_EndMenu = true;
 }
-
+#endif // NONET
 bool UiSelectProvider(bool bMulti)
 {
 	selconn_bMulti = bMulti;

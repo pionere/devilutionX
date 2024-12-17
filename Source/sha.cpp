@@ -132,10 +132,10 @@ void SHA1Clear()
 	memset(sgSHA1, 0, sizeof(sgSHA1));
 }
 
-void SHA1Result(int n, BYTE Message_Digest[SHA1HashSize])
+void SHA1Result(/*int n,*/ BYTE Message_Digest[SHA1HashSize])
 {
 	DWORD* Message_Digest_Block;
-	int i;
+	int i, n = 0;
 
 	assert(Message_Digest != NULL);
 	Message_Digest_Block = (DWORD*)Message_Digest;
@@ -145,15 +145,17 @@ void SHA1Result(int n, BYTE Message_Digest[SHA1HashSize])
 	}
 }
 
-void SHA1Calculate(int n, const BYTE* data, BYTE Message_Digest[SHA1HashSize])
+void SHA1Calculate(/*int n,*/ const BYTE* data, BYTE Message_Digest[SHA1HashSize])
 {
+	int n = 0;
 	SHA1Input(&sgSHA1[n], data, SHA1BlockSize);
 	if (Message_Digest != NULL)
-		SHA1Result(n, Message_Digest);
+		SHA1Result(/*n,*/ Message_Digest);
 }
 
-void SHA1Reset(int n)
+void SHA1Reset(/*int n*/)
 {
+	int n = 0;
 	SHA1Init(&sgSHA1[n]);
 }
 

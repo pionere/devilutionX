@@ -24,26 +24,11 @@ typedef enum window_messages {
 
 	DVL_WM_KEYDOWN, // 0x0100
 	DVL_WM_KEYUP,   // 0x0101
-	// DVL_WM_SYSKEYDOWN 0x0104
-	// DVL_WM_SYSCOMMAND 0x0112
 	DVL_WM_TEXT,    // 0x0102
 
 	DVL_WM_CAPTURECHANGED,  // 0x0215
 	DVL_WM_PAINT,           // 0x000F
-	DVL_WM_QUERYENDSESSION, // 0x0011
-
-	DVL_DWM_NEXTLVL, //  = 0x402, // dungeon -> next level  WM_USER+2
-	DVL_DWM_PREVLVL, //  = 0x403, // dungeon -> previous level
-	DVL_DWM_RTNLVL,  //  = 0x404, // setlevel -> dungeon
-	DVL_DWM_SETLVL,  //  = 0x405, // dungeon -> setlevel
-	DVL_DWM_TWARPDN, //  = 0x407, // town -> dungeon
-	DVL_DWM_TWARPUP, //  = 0x408, // dungeon -> town
-	DVL_DWM_WARPLVL, //  = 0x406, // portal
-	DVL_DWM_RETOWN,  //  = 0x409, // restart in town
-	DVL_DWM_NEWGAME, //  = 0x40A,
-
-	// WM_LEIGHSKIP = 0x40C, // psx only
-	// WM_DIAVNEWLVL = 0x40D, // psx only
+	// DVL_WM_QUERYENDSESSION, // 0x0011
 } window_messages;
 
 //#define DVL_SC_CLOSE 0xF060

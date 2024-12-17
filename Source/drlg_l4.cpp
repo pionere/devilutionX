@@ -26,22 +26,45 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L4, 1, 2, 1, 2, 9, 16,
  */
 const BYTE L4ConvTbl[16] = { BASE_MEGATILE_L4, 6, 1, 6, 2, 6, 6, 6, 9, 6, 1, 6, 2, 6, 3, 6 };
 
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L4DYNENTRY1[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	2, 2, // search
+	6, 6,
+
+	64, 0, // replace
+	0, 0,
+	// clang-format on
+};
+const BYTE L4DYNENTRY2[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	2, 6, // search
+	2, 6,
+
+	63, 0, // replace
+	0, 0,
+	// clang-format on
+};
 /** Miniset: Stairs up. */
 const BYTE L4USTAIRS[] = {
 	// clang-format off
-	4, 5, // width, height
+	5, 5, // width, height
 
-	 6, 6, 6, 6, // search
-	 6, 6, 6, 6,
-	 6, 6, 6, 6,
-	 6, 6, 6, 6,
-	 6, 6, 6, 6,
+	 6, 6, 6, 6, 6, // search
+	 6, 6, 6, 6, 6,
+	 6, 6, 6, 6, 6,
+	 6, 6, 6, 6, 6,
+	 6, 6, 6, 6, 6,
 
-	 0,  0,  0,  0, // replace
-	36, 38, 35,  0,
-	37, 34, 33, 32,
-	 0,  0, 31,  0,
-	 0,  0,  0,  0,
+	 0,  0,  0,  0,  0, // replace
+	 0, 38, 35,  0,  0,
+	37, 34, 33, 32,  0,
+	 0,  0, 31,  0,  0,
+	 0,  0,  0,  0,  0,
 	// clang-format on
 };
 /** Miniset: Stairs up to town. */
@@ -485,7 +508,7 @@ static void DRLG_L4SetRoom(int idx)
 }
 
 /*
- * Transform dungeon by replacing values using 2x2 block patterns defined in L1ConvTbl
+ * Transform dungeon by replacing values using 2x2 block patterns defined in L4ConvTbl
  * New dungeon values: 1 2 3 6 9 30
  */
 static void DRLG_L4MakeMegas()
@@ -582,7 +605,7 @@ static void L4AddHWall(int x, int y)
 	BYTE bv;
 
 	i = x;
-	while (TRUE) {
+	while (true) {
 		i++;
 		bv = dungeon[i][y];
 		if (bv != 6)
@@ -673,7 +696,7 @@ static void L4AddVWall(int x, int y)
 	BYTE bv;
 
 	j = y;
-	while (TRUE) {
+	while (true) {
 		j++;
 		bv = dungeon[x][j];
 		if (bv != 6)
@@ -858,7 +881,6 @@ static void ValidateSEConnection(int x, int y)
 
 /*
  * Draw wall around the tiles selected by L4FirstRoom (and L4ConnectBlock).
- * Assumes the border of dungeon was empty.
  * New dungeon values: 4 .. 29 except 20
  */
 static void L4TileFix()
@@ -1135,7 +1157,7 @@ static void DRLG_L4Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L4BTYPES[k] && --rv < 0)
 							break;
 						if (++k == NUM_L4TYPES)
@@ -1178,71 +1200,61 @@ static void L4Block2Dungeon()
 	}
 }
 
+static int L4SelectPos(const BYTE (&hall)[20])
+{
+	int i, n, rv;
+	BYTE match[20];
+	n = 0;
+	for (i = 20 - 3; i >= 0; i--) {
+		if (hall[i] != 0 && hall[i] == hall[i + 1]) {
+			match[n] = i;
+			n++;
+		}
+	}
+	// assert(n != 0);
+	rv = random_low(0, n);
+	return match[rv];
+}
+
 /*
  * Create link between the quarters (blocks) of the dungeon.
- * Assumes the border of dungBlock to be empty.
  */
 static void L4ConnectBlock()
 {
 	int j, i, rv;
 	BYTE hallok[std::max(L4BLOCKX, L4BLOCKY)];
-
-	memset(hallok, 0, sizeof(hallok));
-	for (j = L4BLOCKY - 2; j >= 0; j--) {
-		for (i = L4BLOCKX - 2; i >= 0; i--) {
+	// find the right side of the rooms
+	for (j = L4BLOCKY - 1; j >= 0; j--) {
+		for (i = L4BLOCKX - 1; i > 0; i--) {
 			if (drlg.dungBlock[i][j] == 1) {
-				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (drlg.dungBlock[i][j + 1] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
-					hallok[j] = i;
-				}
-				i = 0;
+				break;
 			}
 		}
+		hallok[j] = i;
+	}
+	// select a position with matching 2 tiles-wide ending
+	rv = L4SelectPos(hallok);
+	// connect to the right side of the dungeon
+	for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
+		drlg.dungBlock[i][rv] = 1;
+		drlg.dungBlock[i][rv + 1] = 1;
 	}
 
-	rv = RandRange(1, L4BLOCKY - 1);
-	while (TRUE) {
-		if (hallok[rv] != 0) {
-			for (i = L4BLOCKX - 1; i > hallok[rv]; i--) {
-				drlg.dungBlock[i][rv] = 1;
-				drlg.dungBlock[i][rv + 1] = 1;
-			}
-			break;
-		} else {
-			rv++;
-			if (rv == L4BLOCKY) {
-				rv = 1;
-			}
-		}
-	}
-
-	memset(hallok, 0, sizeof(hallok));
-	for (i = L4BLOCKX - 2; i >= 0; i--) {
-		for (j = L4BLOCKY - 2; j >= 0; j--) {
+	// find the bottom side of the rooms
+	for (i = L4BLOCKX - 1; i >= 0; i--) {
+		for (j = L4BLOCKY - 1; j > 0; j--) {
 			if (drlg.dungBlock[i][j] == 1) {
-				assert(i + 1 < L4BLOCKX && j + 1 < L4BLOCKY);
-				if (drlg.dungBlock[i + 1][j] == 1 && drlg.dungBlock[i + 1][j + 1] == 0) {
-					hallok[i] = j;
-				}
-				j = 0;
+				break;
 			}
 		}
+		hallok[i] = j;
 	}
-
-	rv = RandRange(1, L4BLOCKX - 1);
-	while (TRUE) {
-		if (hallok[rv] != 0) {
-			for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
-				drlg.dungBlock[rv][j] = 1;
-				drlg.dungBlock[rv + 1][j] = 1;
-			}
-			break;
-		} else {
-			rv++;
-			if (rv == L4BLOCKX) {
-				rv = 1;
-			}
-		}
+	// select a position with matching 2 tiles-wide ending
+	rv = L4SelectPos(hallok);
+	// connect to the bottom side of the dungeon
+	for (j = L4BLOCKY - 1; j > hallok[rv]; j--) {
+		drlg.dungBlock[rv][j] = 1;
+		drlg.dungBlock[rv + 1][j] = 1;
 	}
 }
 
@@ -1342,7 +1354,6 @@ static bool L4CheckHHall(int y, int left, int w)
 static void L4RoomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
-	bool ran2;
 
 	dirProb = random_(0, 4);
 
@@ -1351,52 +1362,87 @@ static void L4RoomGen(int x, int y, int w, int h, bool dir)
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
-			ry = h / 2 + y - height / 2;
+			ry = h / 2u + y - height / 2u;
 			rx = x - width;
 			if (L4CheckVHall(x, ry - 1, height + 2)
-			 && L4CheckRoom(rx - 1, ry - 1, width + 1, height + 2))  /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
+			 && L4CheckRoom(rx - 1, ry - 1, width + 1, height + 2)) { /// BUGFIX: swap args 3 and 4 ("ch+2" and "cw+1") (fixed)
+				// - add room to the left
+				L4DrawRoom(rx, ry, width, height);
 				break;
+			}
 		}
-
-		if (i != 0)
-			L4DrawRoom(rx, ry, width, height);
+		if (i != 0) {
+			// room added to the left -> force similar room on the right side
+			i = 1;
+		} else {
+			// room was not added to the left -> try more options on the right
+			rx = -1;
+			i = 20;
+		}
 		// try to place a room to the right
 		rxy2 = x + w;
-		ran2 = L4CheckVHall(rxy2 - 1, ry - 1, height + 2)
-			&& L4CheckRoom(rxy2, ry - 1, width + 1, height + 2);
-		if (ran2)
-			L4DrawRoom(rxy2, ry, width, height);
+		while (true) {
+			if (L4CheckVHall(rxy2 - 1, ry - 1, height + 2)
+			 && L4CheckRoom(rxy2, ry - 1, width + 1, height + 2)) {
+				// - add room to the right
+				L4DrawRoom(rxy2, ry, width, height);
+				break;
+			}
+			if (--i == 0)
+				break;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
+			ry = h / 2u + y - height / 2u;
+		}
 		// proceed with the placed a room on the left
-		if (i != 0)
+		if (rx >= 0)
 			L4RoomGen(rx, ry, width, height, true);
 		// proceed with the placed a room on the right
-		if (ran2)
+		if (i != 0)
 			L4RoomGen(rxy2, ry, width, height, true);
 	} else {
 		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
-			rx = w / 2 + x - width / 2;
+			rx = w / 2u + x - width / 2u;
 			ry = y - height;
 			if (L4CheckHHall(y, rx - 1, width + 2)
-			 && L4CheckRoom(rx - 1, ry - 1, width + 2, height + 1))
+			 && L4CheckRoom(rx - 1, ry - 1, width + 2, height + 1)) {
+				// - add room to the top
+				L4DrawRoom(rx, ry, width, height);
 				break;
+			}
 		}
 
-		if (i != 0)
-			L4DrawRoom(rx, ry, width, height);
+		if (i != 0) {
+			// room added to the top -> force similar room on the bottom side
+			i = 1;
+		} else {
+			// room was not added to the top -> try more options on the bottom
+			ry = -1;
+			i = 20;
+		}
 		// try to place a room to the bottom
 		rxy2 = y + h;
-		ran2 = L4CheckHHall(rxy2 - 1, rx - 1, width + 2)
-			&& L4CheckRoom(rx - 1, rxy2, width + 2, height + 1);
-		if (ran2)
-			L4DrawRoom(rx, rxy2, width, height);
+		while (true) {
+			if (L4CheckHHall(rxy2 - 1, rx - 1, width + 2)
+			 && L4CheckRoom(rx - 1, rxy2, width + 2, height + 1)) {
+				// - add room to the bottom
+				L4DrawRoom(rx, rxy2, width, height);
+				break;
+			}
+			if (--i == 0)
+				break;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
+			rx = w / 2u + x - width / 2u;
+		}
 		// proceed with the placed a room on the top
-		if (i != 0)
+		if (ry >= 0)
 			L4RoomGen(rx, ry, width, height, false);
 		// proceed with the placed a room on the bottom
-		if (ran2)
+		if (i != 0)
 			L4RoomGen(rx, rxy2, width, height, false);
 	}
 }
@@ -1936,21 +1982,21 @@ static void DRLG_L4ThemeExitFix()
 		y2 = themes[i]._tsy2;
 		switch (random_(0, 4)) {
 		case 0:
-			yy = (y1 + y2 + 1) / 2;
+			yy = (y1 + y2 + 1) / 2u;
 			dungeon[x1][yy - 1] = 53;
 			dungeon[x1][yy + 0] = 50;
 			dungeon[x1][yy + 1] = 52;
 			//dungeon[x2 - 1][yy - 1] = 54;
 			break;
 		case 1:
-			yy = (y1 + y2 + 1) / 2;
+			yy = (y1 + y2 + 1) / 2u;
 			dungeon[x2][yy - 1] = 53;
 			dungeon[x2][yy + 0] = 50;
 			dungeon[x2][yy + 1] = 52;
 			//dungeon[x2 - 1][yy - 1] = 54;
 			break;
 		case 2:
-			xx = (x1 + x2 + 1) / 2;
+			xx = (x1 + x2 + 1) / 2u;
 			dungeon[xx - 1][y1] = 57;
 			dungeon[xx + 0][y1] = 50;
 			dungeon[xx + 1][y1] = 56;
@@ -1958,7 +2004,7 @@ static void DRLG_L4ThemeExitFix()
 			//dungeon[xx - 1][y2 - 1] = 58;
 			break;
 		case 3:
-			xx = (x1 + x2 + 1) / 2;
+			xx = (x1 + x2 + 1) / 2u;
 			dungeon[xx - 1][y2] = 57;
 			dungeon[xx + 0][y2] = 50;
 			dungeon[xx + 1][y2] = 56;
@@ -1978,8 +2024,8 @@ static void DRLG_L4()
 			//static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L4.");
 			//memset(dungeon, 30, sizeof(dungeon));
 			L4FirstRoom();
-		} while (DRLG_L4GetArea() < 173);
-		L4ConnectBlock();
+			L4ConnectBlock();
+		} while (DRLG_L4GetArea() < 190);
 
 		L4Block2Dungeon();
 		DRLG_L4MakeMegas();
@@ -1992,6 +2038,18 @@ static void DRLG_L4()
 		}
 		L4AddWall();
 
+		if (currLvl._dDynLvl) {
+			POS32 warpPos = DRLG_PlaceMiniSet(random_(141, 2) ? L4DYNENTRY1 : L4DYNENTRY2);
+			if (warpPos.x < 0) {
+				continue;
+			}
+			pWarps[DWARP_ENTRY]._wx = warpPos.x;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+			break;
+		}
 		POS32 warpPos = DRLG_PlaceMiniSet(L4USTAIRS); // L4USTAIRS (5, 6)
 		if (warpPos.x < 0) {
 			continue;
@@ -2043,7 +2101,7 @@ static void DRLG_L4()
 	// DRLG_L4GeneralFix(); - commented out, because this is no longer necessary
 
 	if (currLvl._dLevelIdx != DLV_HELL4) {
-		DRLG_PlaceThemeRooms(7, 10, themeTiles, 112, true);
+		DRLG_PlaceThemeRooms(7, 10, themeTiles, 112);
 		DRLG_L4ThemeExitFix();
 	}
 
@@ -2328,7 +2386,7 @@ static void LoadL4Dungeon(const LevelData* lds)
 
 void CreateL4Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL4Dungeon(lds);

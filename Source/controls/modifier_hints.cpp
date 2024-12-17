@@ -20,7 +20,7 @@ int CalculateTextWidth(const char* s)
 
 int SpaceWidth()
 {
-	static const int spaceWidth = CalculateTextWidth(" ");
+	static const int spaceWidth = smallFontWidth[0]; // CalculateTextWidth(" ");
 	return spaceWidth;
 }
 
@@ -28,34 +28,29 @@ struct CircleMenuHint {
 	CircleMenuHint(bool isDpad, const char* top, const char* right, const char* bottom, const char* left)
 	    : is_dpad(isDpad)
 	    , top(top)
-	    , top_w(CalculateTextWidth(top))
 	    , right(right)
-	    , right_w(CalculateTextWidth(right))
 	    , bottom(bottom)
-	    , bottom_w(CalculateTextWidth(bottom))
 	    , left(left)
-	    , left_w(CalculateTextWidth(left))
-	    , x_mid(left_w + SpaceWidth() * 5 / 2)
 	{
-	}
-
-	int Width() const
-	{
-		return 2 * x_mid;
+		int left_w = CalculateTextWidth(left); // std::max(CalculateTextWidth(left), CalculateTextWidth(right));
+		int x_mid = left_w + SpaceWidth() * 5 / 2u;
+		width = 2 * x_mid;
+		top_offx = x_mid - CalculateTextWidth(top) / 2u;
+		bottom_offx = x_mid - CalculateTextWidth(bottom) / 2u;
+		right_offx = left_w + SpaceWidth() * 5;
 	}
 
 	bool is_dpad;
 
 	const char* top;
-	int top_w;
 	const char* right;
-	int right_w;
 	const char* bottom;
-	int bottom_w;
 	const char* left;
-	int left_w;
 
-	int x_mid;
+	int width;
+	int top_offx;
+	int right_offx;
+	int bottom_offx;
 };
 
 bool IsTopActive(const CircleMenuHint& hint)
@@ -97,14 +92,14 @@ void DrawCircleMenuHint(const CircleMenuHint& hint, int x, int y)
 	x += SCREEN_X;
 	y += SCREEN_Y;
 
-	PrintGameStr(x + hint.x_mid - hint.top_w / 2, y, hint.top, CircleMenuHintTextColor(IsTopActive(hint)));
+	PrintGameStr(x + hint.top_offx, y, hint.top, CircleMenuHintTextColor(IsTopActive(hint)));
 	y += lineHeight;
 
 	PrintGameStr(x, y, hint.left, CircleMenuHintTextColor(IsLeftActive(hint)));
-	PrintGameStr(x + hint.left_w + 5 * SpaceWidth(), y, hint.right, CircleMenuHintTextColor(IsRightActive(hint)));
+	PrintGameStr(x + hint.right_offx, y, hint.right, CircleMenuHintTextColor(IsRightActive(hint)));
 	y += lineHeight;
 
-	PrintGameStr(x + hint.x_mid - hint.bottom_w / 2, y, hint.bottom, CircleMenuHintTextColor(IsBottomActive(hint)));
+	PrintGameStr(x + hint.bottom_offx, y, hint.bottom, CircleMenuHintTextColor(IsBottomActive(hint)));
 }
 
 const int CircleMarginX = 16;
@@ -117,7 +112,7 @@ void DrawStartModifierMenu()
 	static const CircleMenuHint dPad(/*is_dpad=*/true, /*top=*/"Menu", /*right=*/"Inv", /*bottom=*/"Map", /*left=*/"Char");
 	static const CircleMenuHint buttons(/*is_dpad=*/false, /*top=*/"", /*right=*/"", /*bottom=*/"Spells", /*left=*/"Quests");
 	DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, SCREEN_HEIGHT - CirclesTop);
-	DrawCircleMenuHint(buttons, PANEL_LEFT + PANEL_WIDTH - buttons.Width() - CircleMarginX, SCREEN_HEIGHT - CirclesTop);
+	DrawCircleMenuHint(buttons, PANEL_LEFT + PANEL_WIDTH - buttons.width - CircleMarginX, SCREEN_HEIGHT - CirclesTop);
 }
 
 void DrawSelectModifierMenu()
@@ -129,7 +124,7 @@ void DrawSelectModifierMenu()
 		DrawCircleMenuHint(dPad, PANEL_LEFT + CircleMarginX, SCREEN_HEIGHT - CirclesTop);
 	}
 	static const CircleMenuHint spells(/*is_dpad=*/false, "W", "R", "E", "Q");
-	DrawCircleMenuHint(spells, PANEL_LEFT + PANEL_WIDTH - spells.Width() - CircleMarginX, SCREEN_HEIGHT - CirclesTop);
+	DrawCircleMenuHint(spells, PANEL_LEFT + PANEL_WIDTH - spells.width - CircleMarginX, SCREEN_HEIGHT - CirclesTop);
 }
 
 } // namespace
