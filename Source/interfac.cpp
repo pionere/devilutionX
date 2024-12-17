@@ -352,7 +352,7 @@ void ShowCutscene(unsigned uMsg)
 
 	interface_msg_pump();
 	ClearScreenBuffer();
-	scrollrt_draw_screen(false);
+	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutscene
 	InitCutscene(uMsg);
 	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
 	DrawCutscene();
