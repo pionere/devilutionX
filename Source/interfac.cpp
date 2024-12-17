@@ -4,6 +4,7 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "utils/display.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
 
@@ -13,7 +14,8 @@ DEVILUTION_BEGIN_NAMESPACE
 CelImageBuf* sgpBackCel;
 /** Counter to maintain the status of the level-change. */
 unsigned sgdwProgress;
-
+/** Specifies the next tick-count to draw the cutscene and progress bar. */
+static Uint32 sgdwNextCut;
 /** Specifies whether the progress bar is drawn on top or at the bottom of the image. */
 static BOOLEAN sgbLoadBarOnTop;
 /** Color of the progress bar. */
@@ -137,6 +139,12 @@ static void DrawProgress()
 
 static void DrawCutscene()
 {
+	Uint32 now = SDL_GetTicks();
+	if (sgdwProgress > 0 && sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
+		return; // skip drawing if the progression is too fast
+	}
+	sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
+
 	lock_buf(1);
 	if (sgdwProgress == 0)
 		CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
