@@ -1,9 +1,10 @@
 name: clang-format check
 
-#on: [push, pull_request]
+on: [push, pull_request]
 
 jobs:
   formatting-check:
+    if: false
     name: Formatting Check
     runs-on: ubuntu-latest
     strategy:
