@@ -12,7 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
 
 /** The pseudo random seeds to generate the levels. */
-uint32_t glSeedTbl[NUM_LEVELS];
+int32_t glSeedTbl[NUM_LEVELS];
+/** Contains the informations to recreate the dynamic levels. */
+DynLevelStruct gDynLevels[NUM_DYNLVLS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -27,7 +29,7 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
+/** the masks of the visited levels */
 uint32_t guLvlVisited;
 int gnSfxDelay;
 int gnSfxNum;
@@ -191,6 +193,10 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_QM_BUTCHER;
 		qn = Q_BUTCHER;
+		break;
+	case UMT_DIABLO:
+		quests[Q_DIABLO]._qactive = QUEST_DONE;
+		qn = Q_DIABLO;
 		break;
 #ifdef HELLFIRE
 	case UMT_NAKRUL:

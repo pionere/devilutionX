@@ -88,9 +88,13 @@ HANDLE SFileOpenFile(const char* filename)
 
 void SStrCopy(char* dest, const char* src, int max_length)
 {
+#ifndef NOMEMCCPY
 	if (memccpy(dest, src, '\0', max_length) == NULL)
 		dest[max_length - 1] = '\0';
-	//strncpy(dest, src, max_length);
+#else
+	strncpy(dest, src, max_length - 1);
+	dest[max_length - 1] = '\0';
+#endif
 }
 
 void SFileEnableDirectAccess(bool enable)

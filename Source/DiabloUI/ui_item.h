@@ -43,6 +43,7 @@ enum UiFlags : uint16_t {
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = AFC_SILVER << 7,
 	UIS_GOLD        = AFC_GOLD << 7,
+	UIS_LIGHT       = 1 << 8,
 	UIS_OPTIONAL    = 1 << 11,
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,

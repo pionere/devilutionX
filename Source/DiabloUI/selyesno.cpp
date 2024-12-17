@@ -24,7 +24,7 @@ static void SelyesnoFree()
 
 static void SelyesnoSelect(unsigned index)
 {
-	_gbYNValue = gUIListItems[index]->m_value == 0;
+	_gbYNValue = index == 0;
 	_gbYNEndMenu = true;
 }
 

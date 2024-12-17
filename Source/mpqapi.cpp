@@ -4,12 +4,7 @@
  * Implementation of functions for creating and editing MPQ files.
  */
 #include <cerrno>
-//#include <cinttypes>
-//#include <cstdint>
-//#include <cstring>
-#include <memory>
 #include <cstdio>
-#include <type_traits>
 
 #include "all.h"
 #include "utils/file_util.h"
@@ -559,14 +554,9 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 	return 0;
 }
 
-static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, DWORD dwLen, uint32_t block)
+static bool mpqapi_write_file_contents(const BYTE* pbData, DWORD dwLen, uint32_t block)
 {
 	FileMpqBlockEntry* pBlk = &cur_archive.sgpBlockTbl[block];
-	const char* tmp;
-	while ((tmp = strchr(pszName, ':')))
-		pszName = tmp + 1;
-	while ((tmp = strchr(pszName, '\\')))
-		pszName = tmp + 1;
 
 	const uint32_t num_sectors = (dwLen + (MPQ_SECTOR_SIZE - 1)) / MPQ_SECTOR_SIZE;
 	const uint32_t offset_table_bytesize = sizeof(uint32_t) * (num_sectors + 1);
@@ -584,7 +574,7 @@ static bool mpqapi_write_file_contents(const char* pszName, const BYTE* pbData, 
 		goto on_error;
 #else
 	// Ensure we do not seekp beyond EOF by filling the missing space.
-	std::streampos stream_end;
+	long stream_end;
 	if (!cur_archive.stream.seekp(0, SEEK_END) || !cur_archive.stream.tellp(&stream_end))
 		goto on_error;
 	std::size_t curSize = stream_end - cur_archive.stream_begin;
@@ -653,7 +643,7 @@ bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen)
 	cur_archive.modified = true;
 	mpqapi_remove_entry(pszName);
 	block = mpqapi_add_entry(pszName, HASH_ENTRY_FREE);
-	if (!mpqapi_write_file_contents(pszName, pbData, dwLen, block)) {
+	if (!mpqapi_write_file_contents(pbData, dwLen, block)) {
 		mpqapi_remove_entry(pszName);
 		return false;
 	}

@@ -6,7 +6,7 @@
 #include "all.h"
 #include "diabloui.h"
 #include "storm/storm_net.h"
-#include <time.h>
+#include <ctime>
 #include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -95,7 +95,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
 		src_ptr = &sgTurnChunkBuf.bData[0];
-		while (TRUE) {
+		while (true) {
 			chunk_size = *src_ptr;
 			if (chunk_size == 0 || chunk_size > *size)
 				break;
@@ -172,7 +172,7 @@ void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 void multi_rnd_seeds()
 {
 	int i;
-	uint32_t seed;
+	int32_t seed;
 
 	gdwGameLogicTurn++;
 	if (!IsMultiGame)
@@ -662,10 +662,7 @@ static void SetupLocalPlr()
 {
 	PlayerStruct* p;
 
-	EnterLevel(DLV_TOWN);
-
 	p = &myplr;
-	assert(currLvl._dLevelIdx == DLV_TOWN);
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
@@ -683,10 +680,11 @@ static void SetupLocalPlr()
 	//if (!(p->_pSkillFlags & SFLAG_MELEE))
 	//	p->_pAtkSkill = SPL_RATTACK;
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
-	CalcPlrInv(mypnum, false);
+	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
+	assert(p->_pWalkpath[0] == DIR_NONE);
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town
@@ -745,9 +743,9 @@ void NetClose()
 static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
 	int i, dlgresult, pnum;
-	uint32_t seed;
+	int32_t seed;
 
-	while (TRUE) {
+	while (true) {
 		// mypnum = 0;
 
 		// select provider
@@ -775,25 +773,14 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 				gbSelectProvider = true;
 				continue;
 			}
-		} else {
-			dlgresult = SELHERO_NEW_DUNGEON;
 		}
 		gbSelectHero = bSinglePlayer;
-		gbLoadGame = dlgresult == SELHERO_CONTINUE;
 		if (IsGameSrv) {
 			gameData.aePlayerId = SNPLAYER_MASTER;
 			mypnum = SNPLAYER_MASTER;
 		} else {
 			gameData.aePlayerId = 0;
 			pfile_read_hero_from_save();
-		}
-
-		if (gbLoadGame) {
-			// mypnum = 0;
-			gameData.aeMaxPlayers = 1;
-			gameData.aeTickRate = gnTicksRate;
-			gameData.aeNetUpdateRate = 1;
-			break;
 		}
 
 		// select game
@@ -808,15 +795,15 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			gbSelectHero = true;
 			continue;
 		}
-
-		if (dlgresult == SELGAME_JOIN) {
+		gbLoadGame = dlgresult == SELGAME_LOAD;
+		gbJoinGame = dlgresult == SELGAME_JOIN;
+		if (gbJoinGame) {
 			pnum = gameData.aePlayerId;
 			if (mypnum != pnum) {
 				copy_pod(plr, myplr);
 				mypnum = pnum;
 				//pfile_read_player_from_save();
 			}
-			gbJoinGame = true;
 		}
 		break;
 	}
@@ -829,9 +816,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 	SetRndSeed(gameData.aeSeed);
 	sgbSentThisCycle = gameData.aeTurn;
 
-	for (i = 0; i < NUM_LEVELS; i++) {
+	for (i = 0; i < NUM_FIXLVLS; i++) {
 		seed = NextRndSeed();
-		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		seed = ((uint32_t)seed >> 8) | ((uint32_t)seed << 24); // _rotr(seed, 8)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
@@ -845,7 +832,7 @@ bool NetInit(bool bSinglePlayer)
 {
 	_uigamedata gameData;
 
-	while (TRUE) {
+	while (true) {
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;

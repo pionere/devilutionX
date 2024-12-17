@@ -1,4 +1,4 @@
-#include <time.h>
+#include <ctime>
 
 #include "../all.h"
 #include "DiabloUI/diablo.h"
@@ -141,7 +141,9 @@ static void SelheroSetStats()
 	int baseFlags = UIS_HCENTER | UIS_VCENTER | UIS_BIG;
 
 	if (heroclass < NUM_CLASSES) {
-		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		if (SELLIST_DIALOG_DELETE_BUTTON != NULL) {
+			SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_GOLD;
+		}
 		SELHERO_DIALOG_HERO_IMG->m_frame = heroclass + 1;
 		selhero_heroFrame = heroclass + 1;
 
@@ -151,6 +153,7 @@ static void SelheroSetStats()
 		snprintf(textStats[3], sizeof(textStats[3]), "%d", selhero_heroInfo.hiDexterity);
 		snprintf(textStats[4], sizeof(textStats[4]), "%d", selhero_heroInfo.hiVitality);
 	} else {
+		assert(SELLIST_DIALOG_DELETE_BUTTON != NULL);
 		SELLIST_DIALOG_DELETE_BUTTON->m_iFlags = baseFlags | UIS_SILVER | UIS_DISABLED;
 		SELHERO_DIALOG_HERO_IMG->m_frame = 0;
 		selhero_heroFrame = 0;
@@ -273,12 +276,12 @@ static void SelheroListDelete()
 
 	SelheroResetScreen(selconn_bMulti ? "Multi Player Characters" : "Single Player Characters", "Confirm delete");
 
-	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 30 };
+	SDL_Rect rect1 = { SELHERO_RPANEL_LEFT + 25, SELHERO_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 30 };
 	gUiItems.push_back(new UiText(selhero_heroInfo.hiName, rect1, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Yes", 0));
 	gUIListItems.push_back(new UiListItem("No", 1));
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 100) / 2, SELCONN_LIST_TOP + 40, 100, 26 * 2 };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 100) / 2, SELHERO_LIST_TOP + 40, 100, 26 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	UiInitScreen(2, NULL, SelheroListDeleteYesNo, SelheroInitHeros);
@@ -294,7 +297,7 @@ static void SelheroListInit()
 	}
 	SelheroUpdateViewportItems();
 
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 25, SELCONN_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_heroes };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 25, SELHERO_LIST_TOP, SELHERO_RPANEL_WIDTH - 2 * 25, 26 * (int)num_viewport_heroes };
 	gUiItems.push_back(new UiList(&gUIListItems, num_viewport_heroes, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH - SCROLLBAR_BG_WIDTH + 1, SELHERO_RPANEL_TOP - 1, SCROLLBAR_BG_WIDTH, SELHERO_RPANEL_HEIGHT + 1 };
@@ -339,14 +342,13 @@ static void SelheroClassSelectorFocus(unsigned index)
 	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
 	selhero_heroInfo.hiVitality = VitalityTbl[index];   //defaults.dsVitality;
-	//selhero_heroInfo.hiHasSaved = FALSE;
 
 	SelheroSetStats();
 }
 
-static void SelheroLoadSelect(unsigned index)
+static void SelheroContinue()
 {
-	selhero_result = index == 0 ? SELHERO_CONTINUE : SELHERO_NEW_DUNGEON;
+	selhero_result = SELHERO_CONTINUE;
 }
 
 static void SelheroClassSelectorInit()
@@ -362,36 +364,19 @@ static void SelheroClassSelectorInit()
 	gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 #endif
 	//assert(gUIListItems.size() == NUM_CLASSES);
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELCONN_LIST_TOP, 270, 26 * NUM_CLASSES };
+	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELHERO_LIST_TOP, 270, 26 * NUM_CLASSES };
 	gUiItems.push_back(new UiList(&gUIListItems, NUM_CLASSES, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SELLIST_DIALOG_DELETE_BUTTON = NULL; // TODO: reset in SelheroFreeDlgItems?
 
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == NUM_CLASSES);
 	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroNameInit, SelheroClassSelectorEsc);
-}
-
-static void SelheroLoadInit()
-{
-	SelheroResetScreen("Single Player Characters", "Save File Exists");
-
-	gUIListItems.push_back(new UiListItem("Load Game", 0));
-	gUIListItems.push_back(new UiListItem("New Game", 1));
-	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 280) / 2, SELCONN_LIST_TOP, 280, 26 * 2 };
-	gUiItems.push_back(new UiList(&gUIListItems, 2, rect2, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
-
-	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
-	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
-
-	//assert(gUIListItems.size() == 2);
-	UiInitScreen(2, NULL, SelheroLoadSelect, SelheroListInit);
 }
 
 static void SelheroListSelect(unsigned index)
@@ -401,12 +386,7 @@ static void SelheroListSelect(unsigned index)
 		return;
 	}
 
-	if (selhero_heroInfo.hiHasSaved) {
-		SelheroLoadInit();
-		return;
-	}
-
-	SelheroLoadSelect(1);
+	SelheroContinue();
 }
 
 static void SelheroNameInit(unsigned index)
@@ -442,7 +422,7 @@ static void SelheroNameSelect(unsigned index)
 
 	switch (result) {
 	case NEWHERO_DONE:
-		SelheroLoadSelect(1);
+		SelheroContinue();
 		return;
 	case NEWHERO_INVALID_NAME:
 		err = "Invalid name.\nA name cannot contain reserved characters.";

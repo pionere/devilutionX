@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static void gamemenu_previous(bool bActivate);
 static void gamemenu_new_game(bool bActivate);
 static void gamemenu_exit_game(bool bActivate);
-static void gamemenu_load_game(bool bActivate);
+//static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
 //void gamemenu_settings(bool bActivate);
@@ -25,10 +25,10 @@ static void gamemenu_speed(bool bActivate);
 static TMenuItem sgSingleMenu[] = {
 	// clang-format off
 	// pszStr,     fnMenu,              dwFlags, wMenuParam*
-	{ "Save Game", &gamemenu_save_game, GMF_ENABLED, 0, 0 },
 	{ "Settings",  &gamemenu_settings,  GMF_ENABLED, 0, 0 },
 	{ "New Game",  &gamemenu_new_game,  GMF_ENABLED, 0, 0 },
-	{ "Load Game", &gamemenu_load_game, GMF_ENABLED, 0, 0 },
+	// { "Load Game", &gamemenu_load_game, GMF_ENABLED, 0, 0 },
+	{ "Save Game", &gamemenu_save_game, GMF_ENABLED, 0, 0 },
 	{ "Exit Game", &gamemenu_exit_game, GMF_ENABLED, 0, 0 },
 	// clang-format on
 };
@@ -63,11 +63,10 @@ static void gamemenu_update_single()
 {
 	bool enable;
 
-	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 	// disable saving in case the player died, the player is changing the level, or diablo is dying
 	enable = /*pcursicon == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE && !myplr._pLvlChanging;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
-	gmenu_enable(&sgSingleMenu[0], enable);
+	gmenu_enable(&sgSingleMenu[2], enable);
 }
 
 static void gamemenu_update_multi()
@@ -114,7 +113,7 @@ static void gamemenu_exit_game(bool bActivate)
 	gbRunGameResult = false;
 }
 
-static void gamemenu_load_game(bool bActivate)
+/*static void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();
@@ -124,6 +123,7 @@ static void gamemenu_load_game(bool bActivate)
 	scrollrt_draw_game();
 	gbDeathflag = MDM_ALIVE;
 	// gbZoomInFlag = false;
+	FreeLevelMem();
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
@@ -134,7 +134,7 @@ static void gamemenu_load_game(bool bActivate)
 	PaletteFadeIn(false);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
-}
+}*/
 
 static void gamemenu_save_game(bool bActivate)
 {
@@ -248,7 +248,7 @@ static void gamemenu_music_volume(bool bActivate)
 	} else {
 		// assert(gbMusicOn);
 		if (!musicOn)
-			music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+			music_start(AllLevels[currLvl._dLevelNum].dMusic);
 	}
 	gamemenu_get_music();
 	PlaySFX(IS_TITLEMOV);

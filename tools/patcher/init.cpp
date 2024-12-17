@@ -8,8 +8,10 @@
 //#endif
 
 #include "all.h"
+#include "DiabloUI/diablo.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
+#include "utils/md5.h"
 #include "storm/storm_cfg.h"
 #include <string>
 #if DEV_MODE
@@ -25,8 +27,10 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** A handle to the mpq archives. */
 HANDLE diabdat_mpqs[NUM_MPQS + 1];
+/** Path to the mpq archives. */
+std::string diabdat_paths[NUM_MPQS + 1];
 
-static HANDLE init_test_access(const char* mpq_name)
+static HANDLE init_test_access(const char* mpq_name, unsigned fileIndex)
 {
 	HANDLE archive;
 #if defined(__3DS__) || defined(__SWITCH__)
@@ -39,11 +43,13 @@ static HANDLE init_test_access(const char* mpq_name)
 	const char* paths[2] = { GetBasePath(), GetPrefPath() };
 #endif
 	std::string mpq_abspath;
+	diabdat_paths[fileIndex].clear();
 	for (int i = 0; i < lengthof(paths); i++) {
 		mpq_abspath = paths[i];
 		mpq_abspath += mpq_name;
 		archive = SFileOpenArchive(mpq_abspath.c_str(), MPQ_OPEN_READ_ONLY);
 		if (archive != NULL) {
+			diabdat_paths[fileIndex] = mpq_abspath;
 			return archive;
 		}
 	}
@@ -138,34 +144,34 @@ void InitArchives()
 	CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
 	CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
 #endif
-	diabdat_mpqs[NUM_MPQS] = init_test_access(MPQONE);
+	diabdat_mpqs[NUM_MPQS] = init_test_access(MPQONE, NUM_MPQS);
 
-	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
+	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN, MPQ_DIABDAT);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
-		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT);
+		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT, MPQ_DIABDAT);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
-	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
+	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH, MPQ_PATCH_RT);
 	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE
-	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq");
-	diabdat_mpqs[MPQ_HF_MONK] = init_test_access("hfmonk.mpq");
-	diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq");
-	diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq");
-	diabdat_mpqs[MPQ_HF_MUSIC] = init_test_access("hfmusic.mpq");
-	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq");
-	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
-	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
+	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq", MPQ_HELLFIRE);
+	diabdat_mpqs[MPQ_HF_MONK] = init_test_access("hfmonk.mpq", MPQ_HF_MONK);
+	diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq", MPQ_HF_BARD);
+	diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq", MPQ_HF_BARB);
+	diabdat_mpqs[MPQ_HF_MUSIC] = init_test_access("hfmusic.mpq", MPQ_HF_MUSIC);
+	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq", MPQ_HF_VOICE);
+	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq", MPQ_HF_OPT1);
+	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq", MPQ_HF_OPT2);
 #endif
-	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
+	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq", MPQ_DEVILX);
 	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
 #if ASSET_MPL != 1
 	char tmpstr[32];
 	snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
-	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr);
+	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr, MPQ_DEVILHD);
 	if (diabdat_mpqs[MPQ_DEVILHD] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif

@@ -991,13 +991,13 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*USFX_LACH2*/   { sfx_STREAM,                "Sfx\\Monsters\\Lach02.wav",   { 0, NULL } },
 /*USFX_LACH3*/   { sfx_STREAM,                "Sfx\\Monsters\\Lach03.wav",   { 0, NULL } },
 /*USFX_LAZ1*/    { sfx_STREAM,                "Sfx\\Monsters\\Laz01.wav",    { 0, NULL } },
-/*USFX_LAZ2*/    { sfx_STREAM,                "Sfx\\Monsters\\Laz02.wav",    { 0, NULL } },
+/*USFX_LAZ2*///  { sfx_STREAM,                "Sfx\\Monsters\\Laz02.wav",    { 0, NULL } },
 /*USFX_SKING1*/  { sfx_STREAM,                "Sfx\\Monsters\\Sking01.wav",  { 0, NULL } },
 /*USFX_SNOT1*/   { sfx_STREAM,                "Sfx\\Monsters\\Snot01.wav",   { 0, NULL } },
 /*USFX_SNOT2*/   { sfx_STREAM,                "Sfx\\Monsters\\Snot02.wav",   { 0, NULL } },
 /*USFX_SNOT3*/   { sfx_STREAM,                "Sfx\\Monsters\\Snot03.wav",   { 0, NULL } },
 /*USFX_WARLRD1*/ { sfx_STREAM,                "Sfx\\Monsters\\Warlrd01.wav", { 0, NULL } },
-/*USFX_WLOCK1*/  { sfx_STREAM,                "Sfx\\Monsters\\Wlock01.wav",  { 0, NULL } },
+/*USFX_WLOCK1*///{ sfx_STREAM,                "Sfx\\Monsters\\Wlock01.wav",  { 0, NULL } },
 /*USFX_ZHAR1*/   { sfx_STREAM,                "Sfx\\Monsters\\Zhar01.wav",   { 0, NULL } },
 /*USFX_ZHAR2*/   { sfx_STREAM,                "Sfx\\Monsters\\Zhar02.wav",   { 0, NULL } },
 /*USFX_DIABLOD*/ { sfx_STREAM,                "Sfx\\Monsters\\DiabloD.wav",  { 0, NULL } },
@@ -1258,7 +1258,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	int lPan, lVolume;
 	SFXStruct* pSFX;
 
-	if (!gbSoundOn || gbLvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad)
 		return;
 
 	lPan = 0;
@@ -1293,7 +1293,7 @@ void PlayMonSFX(int mnum, int mode)
 	SoundSample* snd;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
-	if (!gbSoundOn || gbLvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad)
 		return;
 
 	mon = &monsters[mnum];

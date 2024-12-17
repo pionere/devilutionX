@@ -10,10 +10,11 @@
 #include "plrctrls.h"
 #include "utils/utf8.h"
 #include "storm/storm_net.h"
+#include <ctime>
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PLRMSG_TEXT_TIMEOUT 10000
+#define PLRMSG_TEXT_TIMEOUT 10
 #define PLRMSG_WIDTH        (PANEL_WIDTH - 20)
 
 static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
@@ -39,23 +40,6 @@ static unsigned sguSelPos;
 static bool sgbSelecting;
 /** The message where the cursor is at the moment. */
 static _plrmsg* sgpCurMsg;
-
-void plrmsg_delay(bool delay)
-{
-	/*int i;
-	_plrmsg* pMsg;
-	Uint32 deltaTc;
-
-	deltaTc = SDL_GetTicks();
-	if (delay) {
-		guDelayStartTc = deltaTc;
-		return;
-	}
-	deltaTc -= guDelayStartTc;
-	pMsg = plr_msgs;
-	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++)
-		pMsg->time += deltaTc;*/
-}
 
 static void plrmsg_WordWrap(_plrmsg* pMsg)
 {
@@ -105,7 +89,7 @@ static _plrmsg* AddPlrMsg(int pnum)
 	static_assert((PLRMSG_COUNT & (PLRMSG_COUNT - 1)) == 0, "Modulo to BitAnd optimization requires a power of 2.");
 	plr_msg_slot = (unsigned)(plr_msg_slot + 1) % PLRMSG_COUNT;
 	pMsg->player = pnum;
-	pMsg->time = SDL_GetTicks();
+	pMsg->time = time(NULL);
 	if (pMsg == sgpCurMsg) {
 		sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 	}
@@ -258,13 +242,13 @@ void DrawPlrMsg(bool onTop)
 	int msgs[PLRMSG_COUNT], nummsgs, numlines;
 	int i, idx, x, y, h, linelimit, top;
 	const int width = PLRMSG_WIDTH;
-	Uint32 timeout;
+	uint32_t timeout;
 
 	// collect the messages
 	nummsgs = 0;
 	numlines = 0;
 	if (!gbTalkflag) {
-		timeout = SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
+		timeout = time(NULL) - PLRMSG_TEXT_TIMEOUT;
 		linelimit = 3;
 	} else {
 		numlines += plr_msgs[PLRMSG_COUNT].lineBreak != 0 ? 2 : 1;

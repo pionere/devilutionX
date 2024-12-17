@@ -10,10 +10,10 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int mypnum;
 PlayerStruct players[MAX_PLRS];
-/* Counter to suppress animations in case the current player is changing the level. */
-BYTE gbLvlLoad;
+/* Whether the current player is changing the level. */
+bool gbLvlLoad;
 /** The current player while processing the players. */
-BYTE gbGameLogicPnum;
+static BYTE gbGameLogicPnum;
 /** Cache the maximum sizes of the player gfx files. */
 static unsigned _guPlrFrameSize[NUM_PGXS + 1];
 /** Whether the _guPlrFrameSize array is initalized. */
@@ -83,7 +83,7 @@ static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
 };
 /**
  * Specifies the number of frames of each animation for each player class.
-   STAND, ATTACK, WALK, BLOCK, DEATH, SPELL, GOTHIT
+   STAND, WALK, ATTACK, SPELL, BLOCK, GOTHIT, DEATH
  */
 const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
@@ -629,7 +629,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	int i, pnum = 0;
 
 	memset(&plr, 0, sizeof(PlayerStruct));
-	//SetRndSeed(SDL_GetTicks());
+	SetRndSeed(SDL_GetTicks()); // used by CreatePlrItems / CreateBaseItem
 
 	plr._pLevel = heroinfo.hiLevel;
 	plr._pClass = heroinfo.hiClass;
@@ -749,8 +749,9 @@ static void PlacePlayer(int pnum)
 		return;
 
 	if (i == lengthof(plrxoff2)) {
-		static_assert(DBORDERX >= 16 && DBORDERY >= 16, "PlacePlayer expects a large enough border.");
-		for (i = 2; i < 16; i++) {
+		static_assert(DBORDERX >= 15 && DBORDERY >= 15, "PlacePlayer expects a large enough border.");
+		static_assert(lengthof(CrawlNum) > 15, "PlacePlayer uses CrawlTable/CrawlNum up to radius 16.");
+		for (i = 2; i <= 15; i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				nx = plr._px + *++cr;
@@ -872,7 +873,7 @@ void RemoveLvlPlayer(int pnum)
 		RemovePlrFromMap(pnum);
 		static_assert(MAX_MINIONS == MAX_PLRS, "RemoveLvlPlayer requires that owner of a monster has the same id as the monster itself.");
 		if (currLvl._dLevelIdx != DLV_TOWN && monsters[pnum]._mmode <= MM_INGAME_LAST) {
-			MonStartKill(pnum, pnum);
+			MonKill(pnum, pnum);
 		}
 	}
 }
@@ -1303,12 +1304,9 @@ static bool StartWalk(int pnum)
 		return false;
 	}
 
-#if DEBUG_MODE
-	for (i = 0; i < NUM_CLASSES; i++)
-		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
-#endif
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
 	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
+	// assert(PlrGFXAnimLens[plr._pClass][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
 	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] <= lengthof(MWVel));
 	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
 	mwi = MWVel[PlrGFXAnimLens[PC_WARRIOR][PA_WALK] - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
@@ -1630,6 +1628,7 @@ static void PlrStartGetHit(int pnum, int dir)
 	NewPlrAnim(pnum, PGX_GOTHIT, dir);
 
 	plr._pmode = PM_GOTHIT;
+	plr._pVar8 = 0; // GOTHIT_TICK
 	RemovePlrFromMap(pnum);
 	dPlayer[plr._px][plr._py] = pnum + 1;
 	FixPlayerLocation(pnum);
@@ -1638,13 +1637,14 @@ static void PlrStartGetHit(int pnum, int dir)
 static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
-
-	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
-		return;
+	// assert(plr._pHitPoints >= (1 << 6));
+	// if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
+	//	return;
 
 	if (plr._pmode != PM_GOTHIT)
 		PlrStartGetHit(pnum, dir);
 
+	dir = OPPOSITE(dir);
 	oldx = plr._px;
 	oldy = plr._py;
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
@@ -1662,12 +1662,12 @@ static void PlrGetKnockback(int pnum, int dir)
 	}
 }
 
-void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy)
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy)
 {
 	int dir;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrStartAnyHit: illegal player %d", pnum);
+		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
 
 	// assert(plr._pHitPoints >= (1 << 6) && dam >= 0);
@@ -1676,27 +1676,25 @@ void PlrStartAnyHit(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int
 		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
 		if (hitflags == 0)
 			return;
-		dam = 0;
+		// dam = 0;
 	}
 
 	dir = GetDirection(plr._px, plr._py, sx, sy);
 	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
-	if (hitflags & ISPL_KNOCKBACK) {
-		PlrGetKnockback(pnum, dir);
-	}
-
-	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrStartAnyHit uses a single int to store player and monster sources.");
+	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 64) == 0 : random_(48, 128) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
 
-	if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
+	if (hitflags & ISPL_KNOCKBACK) {
+		PlrGetKnockback(pnum, dir);
+	} else if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
 		PlrStartGetHit(pnum, dir);
 	}
 }
 
-void SyncPlrKill(int pnum, int dmgtype)
+void SyncPlrKill(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SyncPlrKill: illegal player %d", pnum);
@@ -1707,7 +1705,7 @@ void SyncPlrKill(int pnum, int dmgtype)
 	}
 
 	if (plr._pmode != PM_DYING) {
-		StartPlrKill(pnum, dmgtype);
+		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
 
 	plr._pmode = PM_DEATH;
@@ -1759,20 +1757,14 @@ __attribute__((no_sanitize("shift-base")))
 #endif
 void StartNewLvl(int pnum, int fom, int lvl)
 {
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartNewLvl: illegal player %d", pnum);
-	}
+	// assert((unsigned)pnum < MAX_PLRS);
+
 	InitLevelChange(pnum);
 
-	switch (fom) {
-	case DVL_DWM_NEXTLVL:
-	case DVL_DWM_PREVLVL:
-	case DVL_DWM_RTNLVL:
-	case DVL_DWM_TWARPDN:
-	case DVL_DWM_SETLVL:
-		break;
-	case DVL_DWM_TWARPUP:
-		if (pnum == mypnum) {
+	// net_assert(lvl < NUM_LEVELS);
+	plr._pDunLevel = lvl;
+	if (pnum == mypnum) {
+		if (fom == DVL_DWM_TWARPUP) {
 			assert(currLvl._dType >= 1);
 			static_assert((int)TWARP_CATHEDRAL == (int)DTYPE_CATHEDRAL - 1, "Dtype to Warp conversion requires matching enums I.");
 			static_assert((int)TWARP_CATACOMB == (int)DTYPE_CATACOMBS - 1, "Dtype to Warp conversion requires matching enums II.");
@@ -1785,14 +1777,6 @@ void StartNewLvl(int pnum, int fom, int lvl)
 			gbTWarpFrom = (currLvl._dType - 1);
 			gbTownWarps |= 1 << gbTWarpFrom;
 		}
-		break;
-	default:
-		net_assert(0);
-		ASSUME_UNREACHABLE
-	}
-	// net_assert(lvl < NUM_LEVELS);
-	plr._pDunLevel = lvl;
-	if (pnum == mypnum) {
 		PostMessage(fom);
 	}
 }
@@ -1818,10 +1802,10 @@ void RestartTownLvl(int pnum)
 	}
 }
 
-void StartTWarp(int pnum, int pidx)
+void UseTownPortal(int pnum, int pidx)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("StartWarpLvl: illegal player %d", pnum);
+		dev_fatal("UseTownPortal: illegal player %d", pnum);
 	}
 	InitLevelChange(pnum);
 
@@ -1829,7 +1813,7 @@ void StartTWarp(int pnum, int pidx)
 		plr._pDunLevel = DLV_TOWN;
 	} else {
 		plr._pDunLevel = portals[pidx]._rlevel;
-		static_assert(MAXPORTAL == MAX_PLRS, "StartTWarp uses pnum as portal-id.");
+		static_assert(MAXPORTAL == MAX_PLRS, "UseTownPortal uses pnum as portal-id.");
 		if (pidx == pnum) {
 			DeactivatePortal(pidx);
 		}
@@ -1837,7 +1821,7 @@ void StartTWarp(int pnum, int pidx)
 
 	if (pnum == mypnum) {
 		UseCurrentPortal(pidx);
-		PostMessage(DVL_DWM_WARPLVL);
+		PostMessage(DVL_DWM_PORTLVL);
 	}
 }
 
@@ -1922,7 +1906,7 @@ static void ReduceItemDur(ItemStruct* pi, BYTE iLoc, int pnum)
 		return;
 	pi->_iDurability = 1;
 	if (pnum == mypnum)
-		NetSendCmdDelItem(iLoc);
+		NetSendCmdBParam1(CMD_DELPLRITEM, iLoc);
 }
 
 static void WeaponDur(int pnum, int durrnd)
@@ -2033,30 +2017,30 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 	int mdam = plr._pIMMaxDam;
 	if (mdam != 0)
 		mdam = CalcMonsterDam(mon->_mMagicRes, MISR_MAGIC, plr._pIMMinDam, mdam, false);
-	int adam = 0;
+	int adam = plr._pIAMaxDam;
 	if (adam != 0)
 		adam = CalcMonsterDam(mon->_mMagicRes, MISR_ACID, plr._pIAMinDam, adam, false);
 
-	dam += AddElementalExplosion(mon->_mx, mon->_my, fdam, ldam, mdam, adam);
+	dam += AddElementalExplosion(fdam, ldam, mdam, adam, true, mnum);
 
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
 	//}
 
 	if (mon->_mhitpoints < (1 << 6)) {
-		MonStartKill(mnum, pnum);
+		MonKill(mnum, pnum);
 	} else {
 		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		//if (hitFlags & ISPL_NOHEALMON)
 		//	mon->_mFlags |= MFLAG_NOHEAL;
-		MonStartPlrHit(mnum, pnum, dam, hitFlags, plr._px, plr._py);
+		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._px, plr._py);
 	}
 	return true;
 }
 
 static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 {
-	int hper, blkper, dam, damsl, dambl, dampc;
+	int hper, dam, damsl, dambl, dampc;
 	unsigned tmp, hitFlags;
 
 	if ((unsigned)offp >= MAX_PLRS) {
@@ -2073,16 +2057,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (!CheckHit(hper))
 		return false;
 
-	blkper = plr._pIBlockChance;
-	if (blkper != 0
-	 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
-		// assert(plr._pSkillFlags & SFLAG_BLOCK);
-		blkper = blkper - (plx(offp)._pLevel << 1);
-		if (blkper > random_(5, 100)) {
-			PlrStartBlock(pnum, plx(offp)._px, plx(offp)._py);
-			return true;
-		}
-	}
+	if (PlrCheckBlock(pnum, plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
+		return true;
 
 	dam = 0;
 	damsl = plx(offp)._pISlMaxDam;
@@ -2138,13 +2114,12 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		adam = CalcPlrDam(pnum, MISR_ACID, plx(offp)._pIAMinDam, adam);
 	}
 	if ((fdam | ldam | mdam | adam) != 0) {
-		dam += fdam + ldam + mdam + adam;
-		AddElementalExplosion(plr._px, plr._py, fdam, ldam, mdam, adam);
+		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrStartAnyHit(pnum, offp, dam, hitFlags, plx(offp)._px, plx(offp)._py);
+		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._px, plx(offp)._py);
 	}
 	return true;
 }
@@ -2347,18 +2322,9 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-void PlrStartBlock(int pnum, int sx, int sy)
+static void PlrStartBlock(int pnum, int sx, int sy)
 {
 	int dir;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrStartBlock: illegal player %d", pnum);
-	}
-
-	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
-		return;
-	}
 
 	dir = GetDirection(plr._px, plr._py, sx, sy);
 	if (plr._pmode != PM_BLOCK) {
@@ -2371,6 +2337,27 @@ void PlrStartBlock(int pnum, int sx, int sy)
 	if (random_(3, 10) == 0) {
 		ShieldDur(pnum);
 	}
+}
+
+bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
+{
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrCheckBlock: illegal player %d", pnum);
+	}
+
+	bool result = false;
+	int blkper = plr._pIBlockChance;
+	if (blkper != 0
+	 && (plr._pmode == PM_STAND || plr._pmode == PM_BLOCK)) {
+		// assert(plr._pSkillFlags & SFLAG_BLOCK);
+		blkper = blkper - bmod * 2;
+		if (CheckHit(blkper)) {
+			PlrStartBlock(pnum, sx, sy);
+			result = true;
+		}
+	}
+
+	return result;
 }
 
 static void PlrDoBlock(int pnum)
@@ -2545,7 +2532,8 @@ static bool CheckNewPath(int pnum)
 	}
 
 	if (plr._pDestAction == ACTION_ATTACKMON) {
-		MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
+			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
 	}
@@ -2567,7 +2555,7 @@ static bool CheckNewPath(int pnum)
 				//PlrStartStand(pnum);
 				StartStand(pnum);
 				plr._pDestAction = ACTION_NONE;
-				return false;
+				// return true; -- does not matter (at the moment)
 			}
 			return true;
 		}
@@ -2626,6 +2614,7 @@ static bool CheckNewPath(int pnum)
 		 || plr._pDestAction == ACTION_OPERATE) {
 			StartAttack(pnum);
 			plr._pDestAction = ACTION_NONE;
+			return true;
 		}
 	} else if (plr._pmode == PM_RATTACK && plr._pAnimFrame > plr._pAFNum) {
 		if (plr._pDestAction == ACTION_RATTACK
@@ -2633,6 +2622,7 @@ static bool CheckNewPath(int pnum)
 		 || plr._pDestAction == ACTION_RATTACKPLR) {
 			StartRangeAttack(pnum);
 			plr._pDestAction = ACTION_NONE;
+			return true;
 		}
 	} else if (plr._pmode == PM_SPELL && plr._pAnimFrame > plr._pSFNum) {
 		if (plr._pDestAction == ACTION_SPELL
@@ -2640,6 +2630,7 @@ static bool CheckNewPath(int pnum)
 		 || plr._pDestAction == ACTION_SPELLPLR) {
 			StartSpell(pnum);
 			plr._pDestAction = ACTION_NONE;
+			return true;
 		}
 	}
 	return false;
@@ -2791,9 +2782,6 @@ void ProcessPlayers()
 		dev_fatal("ProcessPlayers: illegal player %d", mypnum);
 	}
 
-	if (gbLvlLoad > 0) {
-		gbLvlLoad--;
-	}
 #ifndef NOSOUND
 	if (gnSfxDelay > 0) {
 		gnSfxDelay--;
@@ -2904,21 +2892,43 @@ void ClrPlrPath(int pnum)
 	//memset(plr._pWalkpath, DIR_NONE, sizeof(plr._pWalkpath));
 }
 
+void PlrHinder(int pnum, int spllvl, unsigned tick)
+{
+	int effect;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("PlrHinder: illegal player %d", pnum);
+	}
+	if ((plr._pmode < PM_WALK || plr._pmode > PM_WALK2 /*|| plr._pAnimFrame == plr._pAnimLen*/) && plr._pmode != PM_CHARGE)
+		return;
+	effect = spllvl * 4 - plr._pLevel;
+	effect = effect > 10 ? 2 : (effect > 0 ? 3 : (effect > -10 ? 4 : 0));
+	if (effect != 0 && ((unsigned)tick % (unsigned)effect) == 0) {
+		if (plr._pmode != PM_CHARGE) {
+			plr._pAnimCnt--;
+			plr._pVar6 -= plr._pVar4; // WALK_XOFF <- WALK_XVEL
+			plr._pVar7 -= plr._pVar5; // WALK_YOFF <- WALK_YVEL
+			plr._pVar8--; // WALK_TICK
+		} else {
+			PlrStartStand(pnum);
+		}
+	}
+}
+
 void MissToPlr(int mi, bool hit)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int pnum, oldx, oldy, mpnum, dist, minbl, maxbl, dam, hper, blkper;
+	int pnum, oldx, oldy, mpnum, dist, minbl, maxbl, dam, hper;
 	unsigned hitFlags;
 	bool ret;
 
 	if ((unsigned)mi >= MAXMISSILES) {
-		dev_fatal("MissToPlr: Invalid missile %d", mi);
+		dev_fatal("MissToPlr: illegal missile %d", mi);
 	}
 	mis = &missile[mi];
 	pnum = mis->_miSource;
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("MissToPlr: Invalid player %d", pnum);
+		dev_fatal("MissToPlr: illegal player %d", pnum);
 	}
 	//dPlayer[plr._px][plr._py] = pnum + 1;
 	/*assert(plr._pfutx == plr._px);
@@ -2932,25 +2942,28 @@ void MissToPlr(int mi, bool hit)
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	if (!hit || plr._pHitPoints < (1 << 6)) {
-		assert(plr._pdir == mis->_miDir);
 		PlrStartStand(pnum);
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		PlrStartAnyHit(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._px + (plr._px - mis->_misx), plr._py + (plr._py - mis->_misy));
+		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._px + (plr._px - mis->_misx), plr._py + (plr._py - mis->_misy));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
-	if (dist < 0)
-		return;
+	// if (dist < 0)
+	//	return;
 	if (dist > 32)
 		dist = 32;
 	minbl = plr._pIChMinDam;
 	maxbl = plr._pIChMaxDam;
-	if (maxbl != 0) {
+	//if (maxbl != 0) {
 		minbl = ((64 + dist) * minbl) >> 5;
 		maxbl = ((64 + dist) * maxbl) >> 5;
-	}
+	//}
+	if (maxbl <= 0)
+		return;
+	//if (minbl < 0)
+	//	minbl = 0;
 
 	oldx = mis->_mix;
 	oldy = mis->_miy;
@@ -2979,12 +2992,12 @@ void MissToPlr(int mi, bool hit)
 		//}
 
 		if (mon->_mhitpoints < (1 << 6)) {
-			MonStartKill(mpnum, pnum);
+			MonKill(mpnum, pnum);
 		} else {
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
 			//if (hitFlags & ISPL_NOHEALMON)
 			//	mon->_mFlags |= MFLAG_NOHEAL;
-			MonStartPlrHit(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			MonHitByPlr(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		}
 		return;
 	}
@@ -3001,23 +3014,15 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper))
 			return;
 
-		blkper = plx(mpnum)._pIBlockChance;
-		if (blkper != 0
-		 && (plx(mpnum)._pmode == PM_STAND || plx(mpnum)._pmode == PM_BLOCK)) {
-			// assert(plr._pSkillFlags & SFLAG_BLOCK);
-			blkper = blkper - (plr._pLevel << 1);
-			if (blkper > random_(5, 100)) {
-				PlrStartBlock(mpnum, mis->_misx, mis->_misy);
-				return;
-			}
-		}
+		if (PlrCheckBlock(mpnum, plr._pLevel, mis->_misx, mis->_misy))
+			return;
 		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
 
 		//if (random_(151, 200) < plr._pICritChance)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
-			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_FORCE_STUN;
-			PlrStartAnyHit(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
+			PlrHitByAny(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
 		}
 		return;
 	}
@@ -3293,10 +3298,8 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 
 void PlrDecMana(int pnum, int mana)
 {
-	assert(mana >= 0);
-	if (plr._pIFlags & ISPL_NOMANA)
-		return;
-
+	// assert(mana >= 0);
+	// assert(mana == 0 || !(plr._pIFlags & ISPL_NOMANA));
 	plr._pMana -= mana;
 	plr._pManaBase -= mana;
 	if (pnum == mypnum) {
@@ -3439,6 +3442,27 @@ void IncreasePlrVit(int pnum)
 	//plr._pMaxHP += ms;
 
 	CalcPlrInv(pnum, true);
+}
+
+void DecreasePlrMaxHp(int pnum)
+{
+	int tmp;
+	if ((unsigned)pnum >= MAX_PLRS) {
+		dev_fatal("DecreasePlrMaxHp: illegal player %d", pnum);
+	}
+
+	if (plr._pMaxHPBase > (1 << 6) && plr._pMaxHP > (1 << 6)) {
+		tmp = plr._pMaxHP - (1 << 6);
+		plr._pMaxHP = tmp;
+		if (plr._pHitPoints > tmp) {
+			plr._pHitPoints = tmp;
+		}
+		tmp = plr._pMaxHPBase - (1 << 6);
+		plr._pMaxHPBase = tmp;
+		if (plr._pHPBase > tmp) {
+			plr._pHPBase = tmp;
+		}
+	}
 }
 
 void RestorePlrHpVit(int pnum)

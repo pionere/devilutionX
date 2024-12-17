@@ -57,7 +57,7 @@ void DrawQText()
 	Uint32 currTime;
 	BYTE *pStart, *pEnd;
 
-	DrawTextBox();
+	DrawTextBox(0);
 
 	/// ASSERT: assert(gpBuffer != NULL);
 	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
@@ -73,7 +73,7 @@ void DrawQText()
 	while (*str != '\0') {
 		len = 0;
 		sstr = endstr = str;
-		while (TRUE) {
+		while (true) {
 			if (*sstr == '\0') {
 				endstr = sstr;
 				break;
