@@ -14,7 +14,6 @@ extern "C" {
 
 extern int32_t glSeedTbl[NUM_LEVELS];
 extern DynLevelStruct gDynLevels[NUM_DYNLVLS];
-extern DynLevelStruct gDynLevels[NUM_DYNLVLS];
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;
 extern uint32_t guLvlVisited;

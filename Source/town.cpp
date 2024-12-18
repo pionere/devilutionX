@@ -42,8 +42,7 @@ static BYTE GetOpenWarps()
 	if (quests[Q_GRAVE]._qactive == QUEST_DONE)
 		twarps |= 1 << TWARP_CRYPT;
 #endif
-	//return twarps;
-	return -1; // REMOVEME
+	return twarps;
 }
 
 static void LoadTown()

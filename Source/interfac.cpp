@@ -269,10 +269,6 @@ void LoadGameLevel(int lvldir)
 void EnterLevel(BYTE lvl)
 {
 	int lvlBonus;
-	FILE* f = fopen("c:\\lastmap.txt", "w");
-	snprintf(tempstr, 256, "glSeedTbl[%d] = %d;\n\tglSeedTbl[DLV_HELL3] = %d;", lvl, glSeedTbl[lvl], glSeedTbl[DLV_HELL3]);
-	fputs(tempstr, f);
-	fclose(f);
 
 	SetRndSeed(glSeedTbl[lvl]);
 	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;

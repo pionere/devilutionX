@@ -685,10 +685,10 @@ static void delta_awake_golem(TCmdGolem* pG, int mnum)
 	pD->dmCmd = DCMD_MON_ACTIVE;
 	pD->dmx = pG->goX;
 	pD->dmy = pG->goY;
-	// pD->dmactive = static_cast<uint32_t>(SQUELCH_MAX); -- should not matter
+	pD->dmactive = static_cast<uint32_t>(SQUELCH_MAX);
 	// pD->dmdir = DIR_S; -- should not matter
 	static_assert(MLEADER_NONE == 0, "delta_awake_golem expects _mleaderflag to be set by zerofill.");
-	// assert(pD->dmleaderflag == MLEADER_NONE);
+	// pD->dmleaderflag = MLEADER_NONE;
 	pD->dmhitpoints = monsters[mnum]._mmaxhp;
 }
 

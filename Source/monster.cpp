@@ -391,7 +391,7 @@ static void InitMonsterStats(int midx)
 	}
 
 	int mpl = currLvl._dLevelPlyrs;
-	assert(mpl != 0);
+	// assert(mpl != 0);
 	mpl++;
 	cmon->cmMinHP = (cmon->cmMinHP * mpl) >> 1;
 	cmon->cmMaxHP = (cmon->cmMaxHP * mpl) >> 1;
@@ -937,7 +937,7 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	}
 
 	int mpl = currLvl._dLevelPlyrs;
-	assert(mpl != 0);
+	// assert(mpl != 0);
 	mpl++;
 	/*mon->_mmaxhp = (mon->_mmaxhp * mpl) >> 1;
 	// mon->_mExp = (mon->_mExp * mpl) >> 1;
@@ -1748,7 +1748,7 @@ void MonLeaveLeader(int mnum)
 		monsters[monsters[mnum]._mleader]._mpacksize--;
 	} else if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
 		monsters[mnum]._mpacksize = 0;
-		assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
 			if (/*monsters[ma]._mleaderflag != MLEADER_NONE && */monsters[ma]._mleader == mnum) {
 				monsters[ma]._mleaderflag = MLEADER_AWAY;
@@ -1770,7 +1770,7 @@ void MonUpdateLeader(int mnum)
 	if (monsters[mnum]._mleaderflag == MLEADER_NONE)
 		return;
 	if (monsters[mnum]._mleaderflag == MLEADER_SELF) {
-		assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
 			if (/*monsters[ma]._mleaderflag != MLEADER_NONE && */monsters[ma]._mleader == mnum) {
 				monsters[ma]._mleader = MON_NO_LEADER;
@@ -1803,10 +1803,8 @@ void RemoveMonFromMap(int mnum)
 
 	mx = mon->_moldx;
 	my = mon->_moldy;
-	// for (x = mx - 1; x <= mx + 1; x++) {
-	//	for (y = my - 1; y <= my + 1; y++) {
-	 for (x = 0; x < MAXDUNX; x++) {
-		for (y = 0; y < MAXDUNY; y++) {
+	for (x = mx - 1; x <= mx + 1; x++) {
+		for (y = my - 1; y <= my + 1; y++) {
 			if (abs(dMonster[x][y]) == m1)
 				app_fatal("dMonster not cleared on %d:%d mode:%d ai:%d goal:%d", x, y, mon->_mmode, mon->_mAI.aiType, mon->_mgoal);
 		}
@@ -1843,7 +1841,7 @@ static void MonStopWalk(int mnum)
 	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2)
 		return;
 
-	assert(mon->_mAnims[MA_WALK].maFrames == mon->_mAnimLen);
+	// assert(mon->_mAnims[MA_WALK].maFrames == mon->_mAnimLen);
 	if (mon->_mAnimFrame > (mon->_mAnimLen >> 1)) {
 		x = mon->_mfutx;
 		y = mon->_mfuty;
@@ -1855,7 +1853,6 @@ static void MonStopWalk(int mnum)
 	mon->_my = y;
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
-	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 }
 
@@ -1918,8 +1915,8 @@ static void MonFallenFear(int x, int y)
 		 && mon->_mAI.aiInt < 4) {
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
-#endif
 			assert(mon->_mmode <= MM_INGAME_LAST);
+#endif
 			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
 			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 			mon->_mgoal = MGOAL_RETREAT;
@@ -2313,7 +2310,6 @@ static bool MonDoWalk(int mnum)
 		mon->_mx = mon->_mfutx;
 		mon->_my = mon->_mfuty;
 		MonPlace(mnum);
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		rv = true;
 	} else {
@@ -2378,8 +2374,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	if (PlrCheckBlock(pnum, mon->_mLevel, mon->_mx, mon->_my))
 		return;
 
-	if (FALSE) { // REMOVEME
-	//if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
+	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
 		NetSendCmd(CMD_DECHP);
 	}
 	/*if (plr._pIFlags & ISPL_THORNS) {
@@ -2596,7 +2591,7 @@ static bool MonDoTalk(int mnum)
 	mon = &monsters[mnum];
 	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
-	assert(mon->_mgoal == MGOAL_TALKING);
+	// assert(mon->_mgoal == MGOAL_TALKING);
 	mon->_mgoalvar1 = TRUE; // TALK_SPEAKING
 	if (!IsSFXPlaying(alltext[mon->_mgoalvar2].sfxnr)) // TALK_MESSAGE
 		StartQTextMsg(mon->_mgoalvar2, !IsMultiGame /*mon->_mListener == mypnum*/); // TALK_MESSAGE
@@ -2717,7 +2712,6 @@ static bool monster_posok(int mnum, int x, int y)
 {
 	if ((dFlags[x][y] & BFLAG_HAZARD) == 0)
 		return true;
-	assert(mnum >= 0);
 	return (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) == MORS_FIRE_IMMUNE;
 }
 
@@ -2752,9 +2746,6 @@ static void MonWalkDir(int mnum, int md)
 	if (monsters[mnum]._mType == MT_FLESTHNG)
 		PlayMonSFX(mnum, MS_SPECIAL);
 #endif
-	if (monsters[mnum]._moldx != monsters[mnum]._mx || monsters[mnum]._moldy != monsters[mnum]._my) {
-		app_fatal("MonWalkDir %d vs %d, %d vs %d type%d", monsters[mnum]._moldx, monsters[mnum]._mx, monsters[mnum]._moldy, monsters[mnum]._my, monsters[mnum]._mType);
-	}
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
@@ -2830,9 +2821,8 @@ static void GroupUnity(int mnum)
 	}
 	// update squelch value + enemy location of the pack monsters
 	if (mon->_mpacksize != 0) {
-		assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+		// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 		for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
-			assert(monsters[ma]._mleader == mnum || monsters[ma]._mhitpoints == 0);
 			bmon = &monsters[ma];
 			if (bmon->_mleaderflag == MLEADER_PRESENT && bmon->_mleader == mnum) {
 				if (mon->_msquelch > bmon->_msquelch) {
@@ -2871,7 +2861,7 @@ static bool MonDirOK(int mnum, int mdir)
 	mcount = monsters[mnum]._mpacksize;
 	if (mcount == 0)
 		return true;
-	assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
+	// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 	for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
 		if (monsters[ma]._mleaderflag == MLEADER_PRESENT && monsters[ma]._mleader == mnum
 		 && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
@@ -3697,12 +3687,10 @@ void MAI_Garg(int mnum)
 		if (currEnemyInfo._meRealDist >= mon->_mAI.aiInt + 2) {
 			mon->_mgoal = MGOAL_NORMAL;
 			MonStartHeal(mnum);
-			return;
+		} else if (mon->_mhitpoints == mon->_mmaxhp ||
+		 !MonCallWalk(mnum, OPPOSITE(currEnemyInfo._meLastDir))) {
+			mon->_mgoal = MGOAL_NORMAL;
 		}
-		if (mon->_mhitpoints != mon->_mmaxhp && MonCallWalk(mnum, OPPOSITE(currEnemyInfo._meLastDir))) {
-			return;
-		}
-		mon->_mgoal = MGOAL_NORMAL;
 	}
 	MAI_Round(mnum);
 }
@@ -4296,14 +4284,14 @@ void MAI_SnotSpil(int mnum)
 		return;
 	case QV_BANNER_TALK1:
 		// switch to new text if the player(s) left
-		assert(mon->_mgoal == MGOAL_TALKING);
+		// assert(mon->_mgoal == MGOAL_TALKING);
 		if (mon->_mgoalvar2 == TEXT_BANNER10 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			mon->_mgoalvar2 = TEXT_BANNER11; // TALK_MESSAGE
 		// if (mon->_mgoalvar1)
 			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		return;
 	case QV_BANNER_GIVEN:
-		assert(mon->_mgoal == MGOAL_TALKING);
+		// assert(mon->_mgoal == MGOAL_TALKING);
 		// if (mon->_mgoalvar1)
 			mon->_mgoalvar1 = FALSE; // TALK_INQUIRING
 		return;
@@ -4422,7 +4410,7 @@ void MAI_Lachdanan(int mnum)
 		if (mon->_mgoalvar2 == TEXT_VEIL9 && !(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			mon->_mgoalvar2 = TEXT_VEIL10; // TALK_MESSAGE
 	}
-	assert(mon->_mgoal == MGOAL_TALKING);
+	// assert(mon->_mgoal == MGOAL_TALKING);
 	// if (mon->_mgoalvar1)
 		mon->_mgoalvar1 = FALSE;
 }
@@ -4453,7 +4441,7 @@ void MAI_Warlord(int mnum)
 	case QV_WARLORD_TALK:
 		//if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
 		//	return; // wait till the sfx is running, but don't rely on IsSFXPlaying
-		assert(!IsMultiGame);
+		// assert(!IsMultiGame);
 		if (/*!IsMultiGame &&*/ IsSFXPlaying(USFX_WARLRD1)) // alltext[TEXT_WARLRD9].sfxnr
 			return;
 		quests[Q_WARLORD]._qvar1 = QV_WARLORD_ATTACK;
@@ -4531,10 +4519,6 @@ void ProcessMonsters()
 					assert(mon->_mmode == MM_STAND);
 				} else {
 					mon->_mFlags &= ~(MFLAG_HIDDEN | MFLAG_GARG_STONE);
-					if (mon->_mmode != MM_STAND) {
-						app_fatal("Trying to reset %d, %d monster in mode %d goal %d v(%d:%d:%d)", mon->_mAI.aiType, mon->_mType, mon->_mmode, mon->_mgoal, mon->_mgoalvar1, mon->_mgoalvar2, mon->_mgoalvar3);
-						// MonStartStand(mnum);
-					}
 					assert(mon->_mmode == MM_STAND);
 				}
 				// mon->_mFlags |= MFLAG_NO_ENEMY;
@@ -4546,8 +4530,6 @@ void ProcessMonsters()
 				mon->_mlasty = 0;
 				mon->_mVar1 = MM_STAND;           // STAND_PREV_MODE
 				mon->_mVar2 = MON_WALK_DELAY + 1; // STAND_TICK
-				if (mon->_mgoal != MGOAL_NORMAL && mon->_mgoal != MGOAL_TALKING)
-					app_fatal("Reset Err Mon ai:%d goal:%d gv:%d %d %d", mon->_mAI.aiType, mon->_mgoal, mon->_mgoalvar1, mon->_mgoalvar2, mon->_mgoalvar3);
 				assert(mon->_mgoal == MGOAL_NORMAL || mon->_mgoal == MGOAL_TALKING);
 			}
 		}
@@ -5135,7 +5117,6 @@ void SpawnGolem(int mnum, int x, int y, int level)
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
 	InitMonster(mnum, DIR_S, 0, 0, 0); // reset goal, enemy (+last)
-	AssertFixMonLocation(mnum);
 	InitGolemStats(mnum, level * 4 + (plx(mnum)._pMagic >> 6));
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;

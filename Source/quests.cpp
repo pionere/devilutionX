@@ -15,8 +15,6 @@ DEVILUTION_BEGIN_NAMESPACE
 int32_t glSeedTbl[NUM_LEVELS];
 /** Contains the informations to recreate the dynamic levels. */
 DynLevelStruct gDynLevels[NUM_DYNLVLS];
-/** Contains the informations to recreate the dynamic levels. */
-DynLevelStruct gDynLevels[NUM_DYNLVLS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
