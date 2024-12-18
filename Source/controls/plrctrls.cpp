@@ -1077,6 +1077,8 @@ static bool SpellHasActorTarget()
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = myplr._pAltMoveSkill;
+	if (spl != SPL_INVALID && spelldata[spl].spCurs != CURSOR_NONE)
+		return true;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
@@ -1130,15 +1132,6 @@ void PerformSpellAction()
 		return;
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		TryDropItem();
-		return;
-	}
-
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-	if ((pcursplr == PLR_NONE && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
-	    || (pcursobj == OBJ_NONE && spl == SPL_DISARM)) {
-		PlaySFX(sgSFXSets[SFXS_PLR_27][myplr._pClass]);
 		return;
 	}
 
