@@ -3397,7 +3397,7 @@ Sfx\Monk\Monk14.wav
 Sfx\Monk\Monk15.wav
 Sfx\Monk\Monk16.wav
 Sfx\Monk\Monk24.wav
-Sfx\Monk\Monk27.wav
+_Sfx\Monk\Monk27.wav
 Sfx\Monk\Monk29.wav
 Sfx\Monk\Monk34.wav
 Sfx\Monk\Monk35.wav
@@ -3489,7 +3489,7 @@ _Sfx\Rogue\Rogue23.wav
 Sfx\Rogue\Rogue24.wav
 _Sfx\Rogue\Rogue25.wav
 _Sfx\Rogue\Rogue26.wav
-Sfx\Rogue\Rogue27.wav
+_Sfx\Rogue\Rogue27.wav
 _Sfx\Rogue\Rogue28.wav
 Sfx\Rogue\Rogue29.wav
 _Sfx\Rogue\Rogue30.wav
@@ -3592,7 +3592,7 @@ _Sfx\Sorceror\Mage23.wav
 Sfx\Sorceror\Mage24.wav
 _Sfx\Sorceror\Mage25.wav
 _Sfx\Sorceror\Mage26.wav
-Sfx\Sorceror\Mage27.wav
+_Sfx\Sorceror\Mage27.wav
 _Sfx\Sorceror\Mage28.wav
 Sfx\Sorceror\Mage29.wav
 _Sfx\Sorceror\Mage30.wav
@@ -4084,7 +4084,7 @@ _Sfx\Warrior\Warior23.wav
 Sfx\Warrior\Warior24.wav
 _Sfx\Warrior\Warior25.wav
 _Sfx\Warrior\Warior26.wav
-Sfx\Warrior\Warior27.wav
+_Sfx\Warrior\Warior27.wav
 _Sfx\Warrior\Warior28.wav
 Sfx\Warrior\Warior29.wav
 _Sfx\Warrior\Warior30.wav
