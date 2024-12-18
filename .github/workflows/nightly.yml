@@ -73,7 +73,7 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: 'f7423ee180c4b7f40d43402c2feb3859161ef625'
+        vcpkgGitCommitId: '813a241fb83adad503a391facaa6aa634631accc'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     #- name: Install Required Packages
@@ -1610,7 +1610,7 @@ jobs:
       shell: bash
 
     - name: Release
-      uses: softprops/action-gh-release@v2.2.0
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
