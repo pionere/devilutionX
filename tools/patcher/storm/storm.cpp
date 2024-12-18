@@ -83,7 +83,7 @@ HANDLE SFileOpenFile(const char* filename)
 
 void SStrCopy(char* dest, const char* src, int max_length)
 {
-#ifndef __AMIGA__
+#ifndef NOMEMCCPY
 	if (memccpy(dest, src, '\0', max_length) == NULL)
 		dest[max_length - 1] = '\0';
 #else

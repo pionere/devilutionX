@@ -141,8 +141,8 @@ static int diablo_parse_flags(int argc, char** argv)
 
 static void diablo_init_screen()
 {
-	MousePos.x = SCREEN_WIDTH / 2;
-	MousePos.y = SCREEN_HEIGHT / 2;
+	MousePos.x = SCREEN_WIDTH / 2u;
+	MousePos.y = MAINMENU_TOP + MAINMENU_ITEM_HEIGHT / 2;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (!sgbControllerActive)
 #endif
@@ -483,6 +483,11 @@ static void ActionBtnDown(bool bShift)
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
+	if (gbCampaignMapFlag) {
+		TryCampaignMapClick(bShift, false);
+		return;
+	}
+
 	if (gbSkillListFlag) {
 		SetSkill(bShift, false);
 		return;
@@ -562,6 +567,11 @@ static void AltActionBtnDown(bool bShift)
 	assert(!gbGamePaused);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
+
+	if (gbCampaignMapFlag) {
+		TryCampaignMapClick(bShift, true);
+		return;
+	}
 
 	if (gbSkillListFlag) {
 		SetSkill(bShift, true);
@@ -696,6 +706,10 @@ bool PressEscKey()
 		gbSkillListFlag = false;
 		rv = true;
 	}
+	if (gbCampaignMapFlag) {
+		gbCampaignMapFlag = false;
+		rv = true;
+	}
 	if (gabPanbtn[PANBTN_MAINMENU]) {
 		gabPanbtn[PANBTN_MAINMENU] = false;
 		rv = true;
@@ -714,6 +728,7 @@ void ClearPanels()
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
 	gbSkillListFlag = false;
+	gbCampaignMapFlag = false;
 	gbDropGoldFlag = false;
 }
 
@@ -960,12 +975,16 @@ static void PressKey(int vkey)
 		}
 		break;
 	case ACT_LEFT:
-		if (gbAutomapflag != AMM_NONE) {
+		if (stextflag != STORE_NONE) {
+			STextLeft();
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapLeft();
 		}
 		break;
 	case ACT_RIGHT:
-		if (gbAutomapflag != AMM_NONE) {
+		if (stextflag != STORE_NONE) {
+			STextRight();
+		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
 		}
 		break;
@@ -1059,41 +1078,58 @@ static void UpdateActionBtnState(int vKey, bool dir)
 void DisableInputWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
-	case DVL_WM_KEYDOWN:
-		UpdateActionBtnState(e->vkcode, true);
-		return;
-	case DVL_WM_KEYUP:
-		UpdateActionBtnState(e->vkcode, false);
-		return;
-	case DVL_WM_TEXT:
+	case DVL_WM_NONE:
 	//case DVL_WM_SYSKEYDOWN:
 	//case DVL_WM_SYSCOMMAND:
-		return;
+		break; //  return;
 	case DVL_WM_QUIT:
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
-		return;
+		break; //  return;
 	case DVL_WM_MOUSEMOVE:
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_LBUTTON, true);
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONUP:
 		UpdateActionBtnState(DVL_VK_LBUTTON, false);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONDOWN:
 		UpdateActionBtnState(DVL_VK_RBUTTON, true);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONUP:
 		UpdateActionBtnState(DVL_VK_RBUTTON, false);
-		return;
+		break; //  return;
+	case DVL_WM_KEYDOWN:
+		UpdateActionBtnState(e->vkcode, true);
+		break; //  return;
+	case DVL_WM_KEYUP:
+		UpdateActionBtnState(e->vkcode, false);
+		break; //  return;
+	case DVL_WM_TEXT:
+		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
-		return;
+		break; //  return;
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
-		return;
+		break; //  return;
+	// case DVL_WM_QUERYENDSESSION:
+	// case DVL_DWM_NEXTLVL:
+	// case DVL_DWM_PREVLVL:
+	// case DVL_DWM_SETLVL:
+	// case DVL_DWM_RTNLVL:
+	// case DVL_DWM_DYNLVL:
+	// case DVL_DWM_PORTLVL:
+	// case DVL_DWM_TWARPDN:
+	// case DVL_DWM_TWARPUP:
+	// case DVL_DWM_RETOWN:
+	// case DVL_DWM_NEWGAME:
+	// case DVL_DWM_LOADGAME:
+	//	break;
+	default:
+		ASSUME_UNREACHABLE
 	}
 
 	// MainWndProc(uMsg);
@@ -1102,26 +1138,11 @@ void DisableInputWndProc(const Dvl_Event* e)
 static void GameWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
-	case DVL_WM_KEYDOWN:
-		PressKey(e->vkcode);
-		return;
-	case DVL_WM_KEYUP:
-		ReleaseKey(e->vkcode);
-		return;
-	case DVL_WM_TEXT:
-#ifndef USE_SDL1
-		if (gmenu_is_active()) {
-			return;
-		}
-		if (gbTalkflag) {
-			plrmsg_CatToText(e->text.text);
-			return;
-		}
-#endif
-		return;
+	case DVL_WM_NONE:
+		break;
 	//case DVL_WM_SYSKEYDOWN:
 	//	if (PressSysKey(wParam))
-	//		return;
+	//		break; //  return;
 	//	break;
 	//case DVL_WM_SYSCOMMAND:
 	//	if (wParam != DVL_SC_CLOSE)
@@ -1133,7 +1154,7 @@ static void GameWndProc(const Dvl_Event* e)
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
 		gbGamePaused = false;
-		return;
+		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
@@ -1141,30 +1162,46 @@ static void GameWndProc(const Dvl_Event* e)
 			DoWndDrag();
 		else if (gbTalkflag)
 			plrmsg_HandleMouseMoveEvent();
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONDOWN:
 		//GetMousePos(wParam); -- disabled to prevent inconsistent MousePos.x/y vs. CheckCursMove state
 		PressKey(DVL_VK_LBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_LBUTTONUP:
 		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_LBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONDOWN:
 		//GetMousePos(wParam);
 		PressKey(DVL_VK_RBUTTON);
-		return;
+		break; //  return;
 	case DVL_WM_RBUTTONUP:
 		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_RBUTTON);
-		return;
+		break; //  return;
+	case DVL_WM_KEYDOWN:
+		PressKey(e->vkcode);
+		break; //  return;
+	case DVL_WM_KEYUP:
+		ReleaseKey(e->vkcode);
+		break; //  return;
+	case DVL_WM_TEXT:
+#ifndef USE_SDL1
+		if (gmenu_is_active())
+			break; //  return;
+		else if (gbTalkflag)
+			plrmsg_CatToText(e->text.text);
+#endif
+		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
 		gbActionBtnDown = false;
 		gbAltActionBtnDown = false;
-		return;
+		break; //  return;
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
-		return;
+		break; //  return;
+	// case DVL_WM_QUERYENDSESSION:
+	//	break;
 	case DVL_DWM_NEXTLVL:
 	case DVL_DWM_PREVLVL:
 	case DVL_DWM_SETLVL:
@@ -1190,7 +1227,9 @@ static void GameWndProc(const Dvl_Event* e)
 			scrollrt_draw_game();
 			//gbRedrawFlags = REDRAW_ALL;
 		}
-		return;
+		break; //  return;
+	default:
+		ASSUME_UNREACHABLE
 	}
 
 	// MainWndProc(uMsg);
@@ -1387,7 +1426,7 @@ static void run_game()
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 	unsigned run_game_iteration = 0;
 #endif
-	while (TRUE) {
+	while (true) {
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
@@ -1426,7 +1465,7 @@ bool StartGame(bool bSinglePlayer)
 	gbSelectProvider = true;
 	gbSelectHero = true;
 
-	while (TRUE) {
+	while (true) {
 		if (!NetInit(bSinglePlayer)) {
 			return true;
 		}

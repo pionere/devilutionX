@@ -22,7 +22,6 @@ extern BYTE* pMicrosCel;
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 bool PressEscKey();
-void DisableInputWndProc(UINT uMsg, WPARAM wParam);
 
 #ifdef __cplusplus
 }

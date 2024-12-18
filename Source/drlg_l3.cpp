@@ -1946,7 +1946,7 @@ static void DRLG_L3Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L3BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -2014,7 +2014,7 @@ static void DRLG_L6Subs()
 				if (c != 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L6BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -2165,7 +2165,7 @@ static void DRLG_L3Wood()
 				if (InThemeRoom(i, j - 1))
 					continue; // in a theme room -> skip
 				y1 = j;
-				while (TRUE) {
+				while (true) {
 					y1--;
 					bv = dungeon[i][y1];
 					if (bv == 10) { // normal wall
@@ -2220,7 +2220,7 @@ static void DRLG_L3Wood()
 				if (InThemeRoom(i - 1, j))
 					continue; // in a theme room -> skip
 				x1 = i;
-				while (TRUE) {
+				while (true) {
 					x1--;
 					bv = dungeon[x1][j];
 					if (bv == 9) { // normal wall
@@ -2395,7 +2395,6 @@ static void DRLG_L3()
 				if (warpPos.x < 0) {
 					continue;
 				}
-
 				pWarps[DWARP_ENTRY]._wx = warpPos.x;
 				pWarps[DWARP_ENTRY]._wy = warpPos.y;
 				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
@@ -2550,7 +2549,7 @@ static void DRLG_L3()
 		// assert(currLvl._dType == DTYPE_CAVES);
 		FixL3HallofHeroes();
 		DRLG_L3River();
-		DRLG_PlaceThemeRooms(5, 10, themeTiles, 0, false);
+		DRLG_PlaceThemeRooms(5, 10, themeTiles, 0);
 
 		DRLG_L3Wood();
 		//DRLG_L3PlaceRndSet(L3LTITE1, 20); - commented out because of a graphical glitch

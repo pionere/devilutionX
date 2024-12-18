@@ -142,7 +142,7 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 
-BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
+BYTE* DRLP_L1_PatchSpec(BYTE* sCelBuf, size_t* sCelLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SUB_HEADER_SIZE = 10;

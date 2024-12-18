@@ -484,10 +484,16 @@ static void Render(const UiImage* uiImage)
 
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
+
+static int UIItemFlags(int flags, const SDL_Rect& rect)
+{
+	const SDL_Point point = { MousePos.x, MousePos.y };
+	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
+}
 #if FULL_UI
 static void Render(const UiTxtButton* uiButton)
 {
-	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
+	DrawArtStr(uiButton->m_text, uiButton->m_rect, UIItemFlags(uiButton->m_iFlags, uiButton->m_rect));
 }
 #endif
 static void Render(const UiButton* button)
@@ -511,7 +517,7 @@ static void Render(const UiList* uiList)
 		if (i + ListOffset == SelectedItem)
 			DrawSelector(rect);
 		UiListItem* item = (*uiList->m_vecItems)[i];
-		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
+		DrawArtStr(item->m_text, rect, UIItemFlags(uiList->m_iFlags, rect));
 	}
 }
 #if FULL_UI

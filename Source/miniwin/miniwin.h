@@ -35,7 +35,7 @@ typedef enum window_messages {
 
 	DVL_WM_CAPTURECHANGED,
 	DVL_WM_PAINT,
-	DVL_WM_QUERYENDSESSION,
+	// DVL_WM_QUERYENDSESSION,
 
 	DVL_DWM_NEXTLVL,  // dungeon -> next level
 	DVL_DWM_PREVLVL,  // dungeon -> previous level

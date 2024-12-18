@@ -12,7 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern uint32_t glSeedTbl[NUM_LEVELS];
+extern int32_t glSeedTbl[NUM_LEVELS];
+extern DynLevelStruct gDynLevels[NUM_DYNLVLS];
 extern DynLevelStruct gDynLevels[NUM_DYNLVLS];
 extern BYTE gbTownWarps;
 extern BYTE gbWaterDone;

@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static void gamemenu_previous(bool bActivate);
 static void gamemenu_new_game(bool bActivate);
 static void gamemenu_exit_game(bool bActivate);
-static void gamemenu_load_game(bool bActivate);
+//static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
 //void gamemenu_settings(bool bActivate);
@@ -113,7 +113,7 @@ static void gamemenu_exit_game(bool bActivate)
 	gbRunGameResult = false;
 }
 
-static void gamemenu_load_game(bool bActivate)
+/*static void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();
@@ -134,7 +134,7 @@ static void gamemenu_load_game(bool bActivate)
 	PaletteFadeIn(false);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
-}
+}*/
 
 static void gamemenu_save_game(bool bActivate)
 {

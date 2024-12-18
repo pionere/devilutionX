@@ -209,7 +209,7 @@ void palette_update_crypt()
 	palette_update();
 }
 
-/*static int nestCycleCounter = 3;
+static int nestCycleCounter = 3;
 void palette_update_nest()
 {
 	int i;

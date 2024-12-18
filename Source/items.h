@@ -71,7 +71,6 @@ void SpawnPremium(unsigned lvl);
 void SpawnWitch(unsigned lvl);
 void SpawnBoy(unsigned lvl);
 void SpawnHealer(unsigned lvl);
-void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo);
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg);
 void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 

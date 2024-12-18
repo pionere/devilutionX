@@ -45,13 +45,12 @@ void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdGItem(BYTE bCmd, BYTE ii);
 void NetSendCmdPutItem(BYTE x, BYTE y);
 void NetSendCmdSpawnItem(bool flipFlag);
-void NetSendCmdDelItem(BYTE bLoc);
 /** Use a spell on an item using from as a source.
  * @param cii: the index of the item in the inventory
  * @param skill: the skill to be used
  * @param from: the source of the skill
  */
-void NetSendCmdItemSkill(int cii, BYTE skill, int8_t from);
+void NetSendCmdItemSkill(BYTE cii, BYTE skill, int8_t from);
 /** Use a spell/skill on a given location using from as a source.
  * @param x: the x coordinate of the target (MAXDUNX)
  * @param y: the y coordinate of the target (MAXDUNY)
@@ -95,7 +94,7 @@ void NetSendCmdMonstSummon(int mnum);
 void NetSendCmdGolem();
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);
-void SendStoreCmd1(unsigned idx, BYTE bStoreId, int value);
+void SendStoreCmd1(BYTE idx, BYTE bStoreId, int value);
 void SendStoreCmd2(BYTE bStoreId);
 /** Initiate level change.
  * @param fom: the type of the level-change (window_messages)
@@ -105,7 +104,7 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
 /** Initiate level creation and change.
  * @param seed: the seed of the level
  */
-void NetSendCmdCreateLvl(DWORD seed);
+void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type);
 void NetSendCmdString(unsigned int pmask);
 unsigned ParseMsg(int pnum, TCmd* pCmd);
 unsigned ParseCmd(int pnum, TCmd* pCmd);

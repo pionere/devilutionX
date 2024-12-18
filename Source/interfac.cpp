@@ -4,6 +4,7 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "utils/display.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
 
@@ -11,13 +12,16 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Cutscene image CEL */
 CelImageBuf* sgpBackCel;
-
+/** Counter to maintain the status of the level-change. */
 unsigned sgdwProgress;
-
+/** Specifies the next tick-count to draw the cutscene and progress bar. */
+static Uint32 sgdwNextCut;
 /** Specifies whether the progress bar is drawn on top or at the bottom of the image. */
 static BOOLEAN sgbLoadBarOnTop;
 /** Color of the progress bar. */
 static BYTE sgbLoadBarCol;
+
+#define BAR_STEP ((BAR_WIDTH + 16) / 17)
 
 static void FreeCutscene()
 {
@@ -127,13 +131,20 @@ static void DrawProgress()
 /* 15 */"Network - Sync delta",
 /* 16 */"Fadeout",
 	};
-	unsigned progress = sgdwProgress / ((BAR_WIDTH + (lengthof(progession) - 1)) / lengthof(progession));
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
+	static_assert(((BAR_WIDTH + lengthof(progession) - 1) / lengthof(progession)) == BAR_STEP, "Progression steps and labels are not in sync.");
+	unsigned progress = sgdwProgress / BAR_STEP;
+	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 
 static void DrawCutscene()
 {
+	Uint32 now = SDL_GetTicks();
+	if (sgdwProgress > 0 && sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
+		return; // skip drawing if the progression is too fast
+	}
+	sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
+
 	lock_buf(1);
 	if (sgdwProgress == 0)
 		CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
@@ -158,9 +169,8 @@ void interface_msg_pump()
 void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += (BAR_WIDTH + 17) / 18;
-	if (sgdwProgress > BAR_WIDTH)
-		sgdwProgress = BAR_WIDTH;
+	sgdwProgress += BAR_STEP;
+	assert(sgdwProgress <= BAR_WIDTH);
 	// do not draw in case of quick-load
 	if (sgpBackCel != NULL)
 		DrawCutscene();
@@ -201,9 +211,9 @@ void LoadGameLevel(int lvldir)
 	//	NewCursor(CURSOR_HAND);
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	IncProgress(); // "Init Dungeon" (4)
+	IncProgress(); // "Init Dungeon" (3)
 	InitLvlDungeon();
-	IncProgress(); // "Init Level" (5)
+	IncProgress(); // "Init Level" (4)
 
 	InitLvlAutomap();
 
@@ -216,7 +226,7 @@ void LoadGameLevel(int lvldir)
 	InitLvlObjects();  // reset objects
 	InitLvlThemes();   // reset themes
 	InitLvlItems();    // reset items
-	IncProgress(); // "Create Dungeon" (6)
+	IncProgress(); // "Create Dungeon" (5)
 
 	// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	// fill pre: pSetPieces
@@ -226,33 +236,32 @@ void LoadGameLevel(int lvldir)
 	LoadLvlPalette();
 	// reset: dMonster, dObject, dPlayer, dItem, dMissile, dFlags+, dLight+
 	InitLvlMap();
-	IncProgress(); // "MonsterFX" (7)
+	IncProgress(); // "MonsterFX" (6)
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes(); // select monster types and load their fx
-		InitThemes();     // select theme types
-		IncProgress(); // "Monsters" (8)
-		HoldThemeRooms(); // protect themes with dFlags
+		InitThemes();     // protect themes with dFlags and select theme types
+		IncProgress(); // "Monsters" (7)
 		InitMonsters();   // place monsters
 	} else {
 		InitLvlStores();
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
 		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-		IncProgress(); // "Monsters" (8)
+		IncProgress(); // "Monsters" (7)
 		InitTowners();
 	}
-	IncProgress(); // "ObjectsGFX" (9)
+	IncProgress(); // "ObjectsGFX" (8)
 	InitObjectGFX();    // load object graphics
-	IncProgress(); // "Objects/Items" (10)
+	IncProgress(); // "Objects/Items" (9)
 	InitObjects();      // place objects
 	InitItems();        // place items
 	CreateThemeRooms(); // populate theme rooms
 	FreeSetPieces();
-	IncProgress(); // "Missiles/Light" (11)
+	IncProgress(); // "Missiles/Light" (10)
 	InitMissiles();
 	SavePreLighting();
 	InitView(lvldir);
 
-	IncProgress(); // "Music start" (12)
+	IncProgress(); // "Music start" (11)
 
 	music_start(AllLevels[currLvl._dLevelNum].dMusic);
 }
@@ -272,11 +281,12 @@ void EnterLevel(BYTE lvl)
 	if (currLvl._dDynLvl) {
 		// select level
 		unsigned baseLevel = gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
+		unsigned leveltype = gDynLevels[lvl - NUM_FIXLVLS]._dnType;
 		// assert(baseLevel + HELL_LEVEL_BONUS < CF_LEVEL);
 		int availableLvls[NUM_FIXLVLS];
 		int numLvls = 0;
 		for (int i = DLV_CATHEDRAL1; i < NUM_STDLVLS; i++) {
-			if (AllLevels[i].dLevel <= baseLevel /*&& AllLevels[i].dMonTypes[0] != MT_INVALID*/) {
+			if (AllLevels[i].dLevel <= baseLevel && (leveltype == DLV_TOWN || leveltype == AllLevels[i].dType) /*&& AllLevels[i].dMonTypes[0] != MT_INVALID*/) {
 				availableLvls[numLvls] = i;
 				numLvls++;
 			}
@@ -346,14 +356,14 @@ void ShowCutscene(unsigned uMsg)
 
 	interface_msg_pump();
 	ClearScreenBuffer();
-	scrollrt_draw_screen(false);
+	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutscene
 	InitCutscene(uMsg);
 	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
 	DrawCutscene();
 	PaletteFadeIn(false);
-	IncProgress();
+	IncProgress(); // "Memfree" (1)
 	FreeLevelMem();
-	IncProgress();
+	IncProgress(); // "Music stop" (2)
 
 	if (uMsg != DVL_DWM_LOADGAME) {
 		int lvldir = ENTRY_MAIN;
@@ -378,13 +388,13 @@ void ShowCutscene(unsigned uMsg)
 	} else {
 		LoadGame();
 	}
-	IncProgress();
+	IncProgress(); // "Network" (13..15)
 	// process packets arrived during LoadLevel / delta-load and disable nthread
 	nthread_finish(uMsg);
 
 	if (IsLocalGame) { // do not block other players
-		sgdwProgress = BAR_WIDTH;
-		IncProgress();
+		sgdwProgress = BAR_WIDTH - BAR_STEP;
+		IncProgress(); // "Fadeout" (16)
 		PaletteFadeOut();
 	}
 	FreeCutscene();

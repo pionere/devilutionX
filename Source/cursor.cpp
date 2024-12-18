@@ -285,7 +285,7 @@ void CheckCursMove()
 
 	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
-	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag)
+	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag)
 		return;
 
 	sx = MousePos.x;
@@ -332,11 +332,6 @@ void CheckCursMove()
 		return;
 	}
 
-	if (gbZoomInFlag) {
-		sx >>= 1;
-		sy >>= 1;
-	}
-
 	sx += gsMouseVp._vOffsetX;
 	sy += gsMouseVp._vOffsetY;
 
@@ -352,6 +347,11 @@ void CheckCursMove()
 	//	sx -= fx;
 	//	sy -= fy;
 	//}
+
+	if (gbZoomInFlag) {
+		sx >>= 1;
+		sy >>= 1;
+	}
 
 	// Center player tile on screen
 	mx = ViewX + gsMouseVp._vShiftX;
@@ -417,7 +417,6 @@ void CheckCursMove()
 					deadplr[0] = pnum + 1;
 				}
 			}
-
 		}
 	}
 	if (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE) {

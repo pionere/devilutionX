@@ -569,7 +569,7 @@ static void DRLG_L2Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L2BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -766,7 +766,7 @@ static void DRLG_L2Shadows()
 					dungeon[i - 1][j - 1] = replace;
 					dungeon[i - 1][j] = 50;
 				} else {
-					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 9, 45, 50 -> ok
+					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 2, 5, 8, 9, 33, 45, 50 -> ok
 					// TODO: what else?
 				}
 			}
@@ -1135,7 +1135,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	//assert(nX2 >= 0 && nX2 < DMAXX && nY2 >= 0 && nY2 < DMAXY);
 	pdungeon[nX2][nY2] = PRE_HALLWAY;
 
-	while (TRUE) {
+	while (true) {
 		//assert(nX1 < DMAXX - 2 || nCurrd != HDIR_RIGHT);
 		//assert(nX1 > 1 || nCurrd != HDIR_LEFT);
 		//assert(nY1 < DMAXX - 2 || nCurrd != HDIR_DOWN);
@@ -1609,7 +1609,7 @@ static bool DL2_FillVoids()
 	int tries;
 
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		if (DRLG_L2GetArea() >= 800)
 			return true;
 next_try:
@@ -1689,7 +1689,7 @@ next_try:
 			if (y2 - y1 < 5)
 				goto next_try;
 			if (!xLeft) {
-				while (TRUE) {
+				while (true) {
 					if (x2 == DMAXX - 1) {
 						break;
 					}
@@ -1708,7 +1708,7 @@ next_try:
 				x2 -= 2;
 			} else {
 				// assert(!xRight);
-				while (TRUE) {
+				while (true) {
 					if (x1 == 0) {
 						break;
 					}
@@ -1761,7 +1761,7 @@ next_try:
 			if (x2 - x1 < 5)
 				goto next_try;
 			if (!xUp) {
-				while (TRUE) {
+				while (true) {
 					if (y2 == DMAXY - 1) {
 						break;
 					}
@@ -1781,7 +1781,7 @@ next_try:
 				y2 -= 2;
 			} else {
 				// assert(!xDown);
-				while (TRUE) {
+				while (true) {
 					if (y1 == 0) {
 						break;
 					}
@@ -2048,7 +2048,7 @@ static void L2LockoutFix()
 			doorok = dungeon[i][j] == 5;
 			if ((dungeon[i][j] == 2 || doorok) && dungeon[i][j - 1] == 3 && dungeon[i][j + 1] == 3) {
 				//assert(j >= 1 && j <= DMAXY - 2);
-				while (TRUE) {
+				while (true) {
 					i++;
 					//assert(i < DMAXX);
 					if (dungeon[i][j - 1] != 3 || dungeon[i][j + 1] != 3) {
@@ -2076,7 +2076,7 @@ static void L2LockoutFix()
 			doorok = dungeon[i][j] == 4;
 			if ((dungeon[i][j] == 1 || doorok) && dungeon[i - 1][j] == 3 && dungeon[i + 1][j] == 3) {
 				//assert(i >= 1 && i <= DMAXX - 2);
-				while (TRUE) {
+				while (true) {
 					j++;
 					//assert(j < DMAXY);
 					if (dungeon[i - 1][j] != 3 || dungeon[i + 1][j] != 3) {
@@ -2331,7 +2331,6 @@ static void DRLG_L2()
 			if (warpPos.x < 0) {
 				continue;
 			}
-
 			pWarps[DWARP_ENTRY]._wx = warpPos.x;
 			pWarps[DWARP_ENTRY]._wy = warpPos.y;
 			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
@@ -2383,7 +2382,7 @@ static void DRLG_L2()
 	L2LockoutFix();
 	// L2DoorFix(); - commented out, because this is no longer necessary
 
-	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0, false);
+	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0);
 
 	L2CreateArches();
 	// L2DoorFix2(); - commented out, because there is not much point to do this after L2CreateArches
