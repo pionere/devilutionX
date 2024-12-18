@@ -1163,7 +1163,6 @@ typedef struct LSaveGameHeaderStruct {
 	LE_UINT32 vhSentCycle;
 	LE_INT32 vhSeeds[NUM_LEVELS];
 	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
-	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
 	LE_INT32 vhViewY;
