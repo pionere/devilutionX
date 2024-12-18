@@ -73,7 +73,7 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: 'f7423ee180c4b7f40d43402c2feb3859161ef625'
+        vcpkgGitCommitId: '813a241fb83adad503a391facaa6aa634631accc'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     #- name: Install Required Packages
@@ -484,7 +484,7 @@ jobs:
             cmakearg0: '-DUSE_PATCH=ON'
             cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Install gettext
       run: sudo apt-get update && sudo apt-get install -y gettext
@@ -503,15 +503,21 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    - name: Remove system CMake
-      run: rm /usr/local/bin/cmake
+    #- name: Remove system CMake
+    #  run: rm /usr/local/bin/cmake
+
+    #- name: Accept SDK licenses
+    #  run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+    - name: Install CMake
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "cmake;3.31.0"
 
     #- name: Cache CMake build folder
     #  uses: actions/cache@v3
     #  with:
     #    path: android-project/app/.cxx
-    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
-    #    restore-keys: ${{ github.workflow }}-v1-
+    #    key: ${{ github.workflow }}-v4-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v4-
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -706,7 +712,7 @@ jobs:
           - name: hellfire+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4p.pkg'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -714,12 +720,18 @@ jobs:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: >
-        sudo apt-get update &&
-        sudo apt-get install -y wget cmake git gettext &&
-        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/v1.1/pacbrew-pacman-1.1.deb &&
-        sudo dpkg -i pacbrew-pacman-1.1.deb && sudo pacbrew-pacman -Sy &&
-        sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
+      run: |
+        sudo apt-get update && \
+        sudo apt-get install -y pacman-package-manager wget cmake git gettext && \
+        sudo tee -a /etc/pacman.conf > /dev/null <<TEXT
+        [pacbrew]
+        SigLevel = Optional TrustAll
+        Server = https://pacman.mydedibox.fr/pacbrew/packages/
+        TEXT
+    - name: Setup pacman packages
+      run: |
+        sudo pacman --noconfirm -Sy && \
+        sudo pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs && \
         echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
 
     - name: Build
@@ -1598,7 +1610,7 @@ jobs:
       shell: bash
 
     - name: Release
-      uses: softprops/action-gh-release@v2.1.0
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
