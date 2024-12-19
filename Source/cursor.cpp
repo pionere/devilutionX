@@ -174,9 +174,20 @@ void FreeCursorGFX()
 
 void NewCursor(int i)
 {
+	int dx = 0, dy = 0;
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		dx += (cursW >> 1);
+		dy += (cursH >> 1);
+	}
 	pcursicon = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		dx -= (cursW >> 1);
+		dy -= (cursH >> 1);
+	}
+	if (dx != 0 || dy != 0)
+		SetCursorPos(MousePos.x + dx, MousePos.y + dy);
 	pcurstgt = TGT_NORMAL;
 	switch (i) {
 	case CURSOR_NONE:
@@ -290,6 +301,10 @@ void CheckCursMove()
 
 	sx = MousePos.x;
 	sy = MousePos.y;
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		sx += cursW >> 1;
+		sy += cursH >> 1;
+	}
 
 	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;

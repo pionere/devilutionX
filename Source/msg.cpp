@@ -2458,6 +2458,7 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 				SyncPutItem(pnum, x, y, true);
 				if (pnum == mypnum) {
 					check_update_plr(pnum);
+					// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 					NewCursor(CURSOR_HAND);
 				}
 			} else {
