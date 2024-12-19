@@ -79,38 +79,52 @@ static void scrollrt_draw_cursor()
 		return;
 #endif
 
-	mx = MousePos.x - 1;
-	if (mx < 0 - cursW - 1) {
+	// limit the mouse to the screen
+	mx = MousePos.x;
+	if (mx <= 0 - cursW) {
 		return;
 	}
-	if (mx > SCREEN_WIDTH - 1) {
+	if (mx >= SCREEN_WIDTH) {
 		return;
 	}
-	my = MousePos.y - 1;
-	if (my < 0 - cursH - 1) {
+	my = MousePos.y;
+	if (my <= 0 - cursH) {
 		return;
 	}
-	if (my > SCREEN_HEIGHT - 1) {
+	if (my >= SCREEN_HEIGHT) {
 		return;
 	}
 
 	sgCursX = mx;
-	sgCursWdt = sgCursX + cursW + 1;
-	if (sgCursWdt > SCREEN_WIDTH - 1) {
-		sgCursWdt = SCREEN_WIDTH - 1;
-	}
-	sgCursX &= ~3;
-	sgCursWdt |= 3;
-	sgCursWdt -= sgCursX;
-	sgCursWdt++;
+	sgCursWdt = sgCursX + cursW;
+	// cut the cursor on the right side
+	//if (sgCursWdt > SCREEN_WIDTH) {
+	//	sgCursWdt = SCREEN_WIDTH;
+	//}
+	// cut the cursor on the left side
+	//if (sgCursX <= 0) {
+	//	sgCursX = 0;
+	//} else {
+		// draw to 4-byte aligned blocks
+		sgCursX &= ~3;
+		sgCursWdt -= sgCursX;
+	//}
+	// draw with 4-byte alignment
+	sgCursWdt += 3;
+	sgCursWdt &= ~3;
 
 	sgCursY = my;
-	sgCursHgt = sgCursY + cursH + 1;
-	if (sgCursHgt > SCREEN_HEIGHT - 1) {
-		sgCursHgt = SCREEN_HEIGHT - 1;
-	}
-	sgCursHgt -= sgCursY;
-	sgCursHgt++;
+	sgCursHgt = sgCursY + cursH;
+	// cut the cursor on the bottom
+	//if (sgCursHgt > SCREEN_HEIGHT) {
+	//	sgCursHgt = SCREEN_HEIGHT;
+	//}
+	// cut the cursor on the top
+	//if (sgCursY <= 0) {
+	//	sgCursY = 0;
+	//} else {
+		sgCursHgt -= sgCursY;
+	//}
 
 	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
@@ -121,9 +135,7 @@ static void scrollrt_draw_cursor()
 		memcpy(dst, src, sgCursWdt);
 	}
 
-	mx++;
 	mx += SCREEN_X;
-	my++;
 	my += cursH + SCREEN_Y - 1;
 
 	frame = pcursicon;
