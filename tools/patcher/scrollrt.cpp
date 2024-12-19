@@ -79,15 +79,16 @@ static void scrollrt_draw_cursor()
 		return;
 #endif
 
-	// limit the mouse to the screen
 	mx = MousePos.x;
+	my = MousePos.y;
+	// assert(pcursicon < CURSOR_FIRSTITEM); -- hotspot is always 0:0
+	// limit the mouse to the screen
 	if (mx <= 0 - cursW) {
 		return;
 	}
 	if (mx >= SCREEN_WIDTH) {
 		return;
 	}
-	my = MousePos.y;
 	if (my <= 0 - cursH) {
 		return;
 	}
