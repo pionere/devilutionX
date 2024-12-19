@@ -16,7 +16,7 @@ int cursH;
 BYTE* pCursCels;
 
 /** Index of current cursor image */
-int pcursicon;
+int pcursicon = CURSOR_NONE;
 
 /*  Maps from objcurs.cel frame number to frame width.
  **If the values are modified, make sure validateCursorAreas does not fail.**

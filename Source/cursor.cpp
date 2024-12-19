@@ -47,7 +47,7 @@ int pcurstrig;
 /** Current highlighted tile row/column */
 POS32 pcurspos;
 /** Index of current cursor image */
-int pcursicon;
+int pcursicon = CURSOR_NONE;
 /** The targeting mode (TGT_*) */
 int pcurstgt;
 
