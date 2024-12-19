@@ -1048,9 +1048,9 @@ void InvPasteItem(int pnum, BYTE r)
 		holditem->_itype = ITYPE_NONE;
 	if (pnum == mypnum) {
 		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
-		if (cn == CURSOR_HAND) {
-			SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
-		}
+		// if (cn == CURSOR_HAND) {
+		//	SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
+		// }
 		NewCursor(cn);
 	}
 }
@@ -1101,8 +1101,8 @@ void InvPasteBeltItem(int pnum, BYTE r)
 	if (pnum == mypnum) {
 		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
-		if (cn == CURSOR_HAND)
-			SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
+		// if (cn == CURSOR_HAND)
+		//	SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 		NewCursor(cn);
 	}
 }
@@ -1202,7 +1202,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
-		SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
+		// SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 	}
 }
 
@@ -1394,6 +1394,7 @@ void InvGetItem(int pnum, int ii)
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
+		// SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 		pcursitem = ITEM_NONE;
 	}
 
@@ -1629,6 +1630,7 @@ void SyncSplitGold(int pnum, int cii, int value)
 	if (pnum == mypnum) {
 		PlaySFX(IS_IGRAB);
 		NewCursor(pi->_iCurs + CURSOR_FIRSTITEM);
+		// SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 	}
 }
 
