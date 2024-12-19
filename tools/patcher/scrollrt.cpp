@@ -13,18 +13,14 @@ DEVILUTION_BEGIN_NAMESPACE
 /**
  * Cursor-size
  */
-int sgCursHgt;
-int sgCursWdt;
-int sgCursHgtOld;
-int sgCursWdtOld;
+static int sgCursHgt;
+static int sgCursWdt;
 
 /**
  * Cursor-position
  */
-int sgCursX;
-int sgCursY;
-int sgCursXOld;
-int sgCursYOld;
+static int sgCursX;
+static int sgCursY;
 
 /**
  * Buffer to store the cursor image.
@@ -37,7 +33,6 @@ BYTE sgSaveBack[MAX_CURSOR_AREA];
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
 	sgCursWdt = 0;
-	sgCursWdtOld = 0;
 }
 
 /**
@@ -61,10 +56,6 @@ static void scrollrt_remove_back_buffer_cursor()
 		dst += BUFFER_WIDTH;
 	}
 
-	sgCursXOld = sgCursX;
-	sgCursYOld = sgCursY;
-	sgCursWdtOld = sgCursWdt;
-	sgCursHgtOld = sgCursHgt;
 	sgCursWdt = 0;
 }
 
