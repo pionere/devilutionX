@@ -760,8 +760,8 @@ static void CheckInvPaste()
 
 	sx = cursW;
 	sy = cursH;
-	i = MousePos.x + (sx >> 1);
-	j = MousePos.y + (sy >> 1);
+	i = MousePos.x; // + (sx >> 1); -- CURSOR_HOTSPOT
+	j = MousePos.y; // + (sy >> 1);
 	sx /= INV_SLOT_SIZE_PX;
 	sy /= INV_SLOT_SIZE_PX;
 
@@ -1058,9 +1058,8 @@ void InvPasteItem(int pnum, BYTE r)
 static void CheckBeltPaste()
 {
 	int r, i, j;
-
-	i = MousePos.x + INV_SLOT_SIZE_PX / 2;
-	j = MousePos.y + INV_SLOT_SIZE_PX / 2;
+	i = MousePos.x; // + INV_SLOT_SIZE_PX / 2; -- CURSOR_HOTSPOT
+	j = MousePos.y; // + INV_SLOT_SIZE_PX / 2;
 
 	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
 		if (POS_IN_RECT(i, j,
