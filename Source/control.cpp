@@ -2142,6 +2142,9 @@ void CheckBookClick(bool shift, bool altSkill)
 		SetSkill(shift, altSkill);
 		return;
 	}
+	if (altSkill) {
+		return;
+	}
 
 	dx = MousePos.x - (gnWndBookX + SBOOK_LEFT_BORDER);
 	dy = MousePos.y - (gnWndBookY + SBOOK_TOP_BORDER);

@@ -586,8 +586,15 @@ static void AltActionBtnDown(bool bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (pcursinvitem != INVITEM_NONE && InvUseItem(pcursinvitem))
+	if (pcurswnd == WND_BELT || pcurswnd == WND_INV) {
+		if (pcursinvitem != INVITEM_NONE)
+			InvUseItem(pcursinvitem);
 		return;
+	}
+
+	if (pcurswnd == WND_CHAR || pcurswnd == WND_QUEST || pcurswnd == WND_TEAM) {
+		return;
+	}
 
 	if (pcurswnd == WND_BOOK) {
 		CheckBookClick(bShift, true);
