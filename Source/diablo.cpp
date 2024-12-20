@@ -598,11 +598,6 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (pcurswnd == WND_TEAM) {
-		CheckTeamClick(bShift);
-		return;
-	}
-
 	AltActionBtnCmd(bShift);
 }
 
