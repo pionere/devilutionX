@@ -498,10 +498,10 @@ static void ActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (gmenu_is_active()) {
-		TryLimitedPanBtnClick();
-		return;
-	}
+	//if (gmenu_is_active()) {
+	//	TryLimitedPanBtnClick();
+	//	return;
+	//}
 
 	if (TryPanBtnClick()) {
 		return;
