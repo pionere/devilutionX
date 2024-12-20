@@ -578,8 +578,10 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (stextflag != STORE_NONE)
+	if (stextflag != STORE_NONE) {
+		STextESC();
 		return;
+	}
 
 	if (TryIconCurs(bShift))
 		return;
