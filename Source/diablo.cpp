@@ -585,16 +585,17 @@ static void AltActionBtnDown(bool bShift)
 
 	if (TryIconCurs(bShift))
 		return;
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		DropItem();
-		return;
-	}
 
 	if (pcursinvitem != INVITEM_NONE && InvUseItem(pcursinvitem))
 		return;
 
 	if (pcurswnd == WND_BOOK) {
 		CheckBookClick(bShift, true);
+		return;
+	}
+
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		DropItem();
 		return;
 	}
 
