@@ -510,45 +510,35 @@ static void ActionBtnDown(bool bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (pcurswnd == WND_BELT) {
-		// in belt
+	switch (pcurswnd) {
+	case WND_BELT:
 		// assert(!TryPanBtnClick());
 		CheckBeltClick(bShift);
-		return;
-	}
-
-	if (pcurswnd == WND_INV) {
-		// in inventory
+		break;
+	case WND_INV:
 		CheckInvClick(bShift);
-		return;
-	}
-
-	if (pcurswnd == WND_CHAR) {
+		break;
+	case WND_CHAR:
 		CheckChrBtnClick();
-		return;
-	}
-
-	if (pcurswnd == WND_QUEST) {
+		break;
+	case WND_QUEST:
 		CheckQuestlogClick();
-		return;
-	}
-
-	if (pcurswnd == WND_TEAM) {
+		break;
+	case WND_TEAM:
 		CheckTeamClick(bShift);
-		return;
-	}
-
-	if (pcurswnd == WND_BOOK) {
+		break;
+	case WND_BOOK:
 		CheckBookClick(bShift, false);
-		return;
-	}
+		break;
+	default:
+		if (pcursicon >= CURSOR_FIRSTITEM) {
+			DropItem();
+			break;
+		}
 
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		DropItem();
-		return;
+		ActionBtnCmd(bShift);
+		break;
 	}
-
-	ActionBtnCmd(bShift);
 }
 
 void AltActionBtnCmd(bool bShift)
@@ -586,27 +576,28 @@ static void AltActionBtnDown(bool bShift)
 	if (TryIconCurs(bShift))
 		return;
 
-	if (pcurswnd == WND_BELT || pcurswnd == WND_INV) {
+	switch (pcurswnd) {
+	case WND_BELT:
 		if (pcursinvitem != INVITEM_NONE)
 			InvUseItem(pcursinvitem);
-		return;
-	}
-
-	if (pcurswnd == WND_CHAR || pcurswnd == WND_QUEST || pcurswnd == WND_TEAM) {
-		return;
-	}
-
-	if (pcurswnd == WND_BOOK) {
+		break;
+	case WND_INV:
+	case WND_CHAR:
+	case WND_QUEST:
+	case WND_TEAM:
+		break;
+	case WND_BOOK:
 		CheckBookClick(bShift, true);
-		return;
-	}
+		break;
+	default:
+		if (pcursicon >= CURSOR_FIRSTITEM) {
+			DropItem();
+			break;
+		}
 
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		DropItem();
-		return;
+		AltActionBtnCmd(bShift);
+		break;
 	}
-
-	AltActionBtnCmd(bShift);
 }
 
 static void diablo_pause_game()
