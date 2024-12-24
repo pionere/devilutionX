@@ -24,6 +24,7 @@ static constexpr int RETURN_CANCEL = 102;
 static constexpr int RETURN_DONE = 100;
 
 static const char* const filesToSkip[] = {
+	"Data\\Inv\\Objcurs2.CEL",
 #ifdef HELLFIRE
 	"gendata\\diablo1.smk",
 	"Levels\\TownData\\Town.DUN",
