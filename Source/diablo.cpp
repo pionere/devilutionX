@@ -280,7 +280,6 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 	assert(sn != SPL_INVALID);
 
 	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) != spelldata[sn].sUseFlags) {
-		// PlaySFX(sgSFXSets[SFXS_PLR_34][p->_pClass]);
 		return SPLFROM_INVALID_TYPE;
 	}
 
@@ -293,7 +292,7 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 		if (myplr._pMana < GetManaAmount(mypnum, sn))
 			result = SPLFROM_INVALID_MANA;
 		else if (myplr._pSkillLvl[sn] > 0)
-			result = SPLFROM_MANA; // PlaySFX(sgSFXSets[SFXS_PLR_35][p->_pClass]);
+			result = SPLFROM_MANA;
 		else
 			result = SPLFROM_INVALID_LEVEL;
 		break;
@@ -370,7 +369,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	} else if (moveSkill == SPL_INVALID) {
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
 			PlaySFX(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
-		} else {
+		} else /*if (asf == 0 && msf == 0)*/ {
 			int dir = GetDirection(myplr._px, myplr._py, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}

@@ -581,7 +581,7 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_MAGE31*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage31.wav",   { 0, NULL } },
 /*PS_MAGE32*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage32.wav",   { 0, NULL } },
 /*PS_MAGE33*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage33.wav",   { 0, NULL } },
-/*PS_MAGE34*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage34.wav",   { 0, NULL } }, // I do not have a spell ready.
+/*PS_MAGE34*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage34.wav",   { 0, NULL } }, // I do not have a spell ready.
 /*PS_MAGE35*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage35.wav",   { 0, NULL } }, // Not enough mana.
 /*PS_MAGE36*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage36.wav",   { 0, NULL } },
 /*PS_MAGE37*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage37.wav",   { 0, NULL } },
@@ -684,7 +684,7 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_ROGUE31*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue31.wav",     { 0, NULL } },
 /*PS_ROGUE32*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue32.wav",     { 0, NULL } },
 /*PS_ROGUE33*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue33.wav",     { 0, NULL } },
-/*PS_ROGUE34*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue34.wav",     { 0, NULL } }, // I don't have a spell ready.
+/*PS_ROGUE34*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue34.wav",     { 0, NULL } }, // I don't have a spell ready.
 /*PS_ROGUE35*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue35.wav",     { 0, NULL } }, // Not enough mana.
 /*PS_ROGUE36*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue36.wav",     { 0, NULL } },
 /*PS_ROGUE37*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue37.wav",     { 0, NULL } },
@@ -793,7 +793,7 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_WARR31*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior31.wav",  { 0, NULL } },
 /*PS_WARR32*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior32.wav",  { 0, NULL } },
 /*PS_WARR33*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior33.wav",  { 0, NULL } },
-/*PS_WARR34*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior34.wav",  { 0, NULL } }, // I don't have a spell ready.
+/*PS_WARR34*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior34.wav",  { 0, NULL } }, // I don't have a spell ready.
 /*PS_WARR35*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior35.wav",  { 0, NULL } }, // Not enough mana.
 /*PS_WARR36*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior36.wav",  { 0, NULL } },
 /*PS_WARR37*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior37.wav",  { 0, NULL } },
@@ -901,7 +901,7 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_MONK31*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK32*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK33*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
-/*PS_MONK34*/    { sfx_MONK,                  "Sfx\\Monk\\Monk34.wav",       { 0, NULL } }, // I do not have a spell ready.
+/*PS_MONK34*///  { sfx_MONK,                  "Sfx\\Monk\\Monk34.wav",       { 0, NULL } }, // I do not have a spell ready.
 /*PS_MONK35*/    { sfx_MONK,                  "Sfx\\Monk\\Monk35.wav",       { 0, NULL } }, // Not enough mana.
 /*PS_MONK36*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK37*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
@@ -1069,7 +1069,7 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	{ PS_WARR24, PS_ROGUE24, PS_MAGE24, PS_MONK24, PS_ROGUE24, PS_WARR24 },
 	//{ PS_WARR27, PS_ROGUE27, PS_MAGE27, PS_MONK27, PS_ROGUE27, PS_WARR27 },
 	{ PS_WARR29, PS_ROGUE29, PS_MAGE29, PS_MONK29, PS_ROGUE29, PS_WARR29 },
-	{ PS_WARR34, PS_ROGUE34, PS_MAGE34, PS_MONK34, PS_ROGUE34, PS_WARR34 },
+	//{ PS_WARR34, PS_ROGUE34, PS_MAGE34, PS_MONK34, PS_ROGUE34, PS_WARR34 },
 	{ PS_WARR35, PS_ROGUE35, PS_MAGE35, PS_MONK35, PS_ROGUE35, PS_WARR35 },
 	{ PS_WARR46, PS_ROGUE46, PS_MAGE46, PS_MONK46, PS_ROGUE46, PS_WARR46 },
 	{ PS_WARR54, PS_ROGUE54, PS_MAGE54, PS_MONK54, PS_ROGUE54, PS_WARR54 },
@@ -1111,7 +1111,7 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	{ PS_WARR24, PS_ROGUE24, PS_MAGE24 },
 	//{ PS_WARR27, PS_ROGUE27, PS_MAGE27 },
 	{ PS_WARR29, PS_ROGUE29, PS_MAGE29 },
-	{ PS_WARR34, PS_ROGUE34, PS_MAGE34 },
+	//{ PS_WARR34, PS_ROGUE34, PS_MAGE34 },
 	{ PS_WARR35, PS_ROGUE35, PS_MAGE35 },
 	{ PS_WARR46, PS_ROGUE46, PS_MAGE46 },
 	{ PS_WARR54, PS_ROGUE54, PS_MAGE54 },
