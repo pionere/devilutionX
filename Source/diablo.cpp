@@ -578,10 +578,10 @@ static void AltActionBtnDown(bool bShift)
 
 	switch (pcurswnd) {
 	case WND_BELT:
+	case WND_INV:
 		if (pcursinvitem != INVITEM_NONE)
 			InvUseItem(pcursinvitem);
 		break;
-	case WND_INV:
 	case WND_CHAR:
 	case WND_QUEST:
 	case WND_TEAM:
