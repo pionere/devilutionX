@@ -1491,6 +1491,12 @@ static void StartRangeAttack(int pnum)
 	AssertFixPlayerLocation(pnum);
 }
 
+static void StartTurn(int pnum)
+{
+	plr._pdir = plr._pDestParam1;
+	StartStand(pnum);
+}
+
 static void StartBlock(int pnum, int dir)
 {
 	plr._pmode = PM_BLOCK;
@@ -2585,6 +2591,9 @@ static bool CheckNewPath(int pnum)
 		case ACTION_SPELLMON:
 		case ACTION_SPELLPLR:
 			StartSpell(pnum);
+			break;
+		case ACTION_TURN:
+			StartTurn(pnum);
 			break;
 		case ACTION_BLOCK:
 			StartBlock(pnum, plr._pDestParam1);

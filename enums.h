@@ -3882,6 +3882,7 @@ typedef enum _cmd_id {
 	CMD_DISARMXY,
 	CMD_SKILLPLR,
 	CMD_SKILLMON,
+	CMD_TURN,
 	CMD_BLOCK,
 	CMD_TALKXY,
 	CMD_MONSTDEATH,
@@ -4559,6 +4560,7 @@ typedef enum action_id {
 	ACTION_SPELL,
 	ACTION_SPELLMON,
 	ACTION_SPELLPLR,
+	ACTION_TURN,
 	ACTION_BLOCK,
 	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
 	ACTION_PICKUPAITEM, // put item in inventory

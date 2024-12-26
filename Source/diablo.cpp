@@ -368,12 +368,12 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {
-		const int* sfx;
-		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA)
-			sfx = sgSFXSets[SFXS_PLR_35]; // no mana
-		else
-			sfx = sgSFXSets[SFXS_PLR_34]; // nothing to do/not ready
-		PlaySFX(sfx[myplr._pClass]);
+		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
+			PlaySFX(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
+		} else {
+			int dir = GetDirection(myplr._px, myplr._py, pcurspos.x, pcurspos.y);
+			NetSendCmdBParam1(CMD_TURN, dir);
+		}
 		return;
 	}
 

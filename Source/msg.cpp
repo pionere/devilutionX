@@ -1739,6 +1739,7 @@ void LevelDeltaLoad()
 			net_assert((unsigned)plr._pDestParam3 < MAXDUNY);
 			net_assert(abs(dObject[plr._pDestParam2][plr._pDestParam3]) == plr._pDestParam1 + 1);
 			break;
+		case ACTION_TURN:
 		case ACTION_BLOCK:
 			net_assert((unsigned)plr._pDestParam1 < NUM_DIRS);
 			break;
@@ -2279,6 +2280,23 @@ static unsigned On_DECHP(TCmd* pCmd, int pnum)
 	DecreasePlrMaxHp(pnum);
 
 	return sizeof(*pCmd);
+}
+
+static unsigned On_TURN(TCmd* pCmd, int pnum)
+{
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	int dir;
+
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		ClrPlrPath(pnum);
+		dir = cmd->bParam1;
+
+		net_assert(dir < NUM_DIRS);
+
+		plr._pDestAction = ACTION_TURN;
+		plr._pDestParam1 = dir;
+	}
+	return sizeof(*cmd);
 }
 
 static unsigned On_BLOCK(TCmd* pCmd, int pnum)
@@ -4442,6 +4460,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_SKILLPLR(pCmd, pnum);
 	case CMD_SKILLMON:
 		return On_SKILLMON(pCmd, pnum);
+	case CMD_TURN:
+		return On_TURN(pCmd, pnum);
 	case CMD_BLOCK:
 		return On_BLOCK(pCmd, pnum);
 	case CMD_TALKXY:
