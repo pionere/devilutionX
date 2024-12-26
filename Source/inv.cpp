@@ -1351,12 +1351,11 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 					SyncPlrStorageRemove(pnum, nn);
 				}
 			}
-			SetItemData(MAXITEMS, IDI_FULLNOTE);
-			// preserve seed and location of the last item
+			// preserve seed and location of the last item (required by AutoGetItem)
 			idx = is->_iSeed;
 			x = is->_ix;
 			y = is->_iy;
-			copy_pod(*is, items[MAXITEMS]);
+			SetItemSData(is, IDI_FULLNOTE);
 			is->_iSeed = idx;
 			is->_ix = x;
 			is->_iy = y;

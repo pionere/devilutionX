@@ -43,6 +43,7 @@ void SetGoldItemValue(ItemStruct* is, int value);
 void CreatePlrItems(int pnum);
 bool ItemSpaceOk(int x, int y);
 void SetItemData(int ii, int idata);
+void SetItemSData(ItemStruct* is, int idata);
 void SpawnUnique(int uid, int x, int y, int mode);
 void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
 void CreateRndItem(int x, int y, unsigned quality, int mode);
