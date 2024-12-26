@@ -4456,10 +4456,10 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_OPOBJXY(pCmd, pnum);
 	case CMD_DISARMXY:
 		return On_DISARMXY(pCmd, pnum);
-	case CMD_SKILLPLR:
-		return On_SKILLPLR(pCmd, pnum);
 	case CMD_SKILLMON:
 		return On_SKILLMON(pCmd, pnum);
+	case CMD_SKILLPLR:
+		return On_SKILLPLR(pCmd, pnum);
 	case CMD_TURN:
 		return On_TURN(pCmd, pnum);
 	case CMD_BLOCK:
