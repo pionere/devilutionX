@@ -2690,7 +2690,7 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TALKXY(TCmd* pCmd, int pnum)
+static unsigned On_TALKMON(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 	int mnum = cmd->wParam1;
@@ -4464,8 +4464,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_TURN(pCmd, pnum);
 	case CMD_BLOCK:
 		return On_BLOCK(pCmd, pnum);
-	case CMD_TALKXY:
-		return On_TALKXY(pCmd, pnum);
+	case CMD_TALKMON:
+		return On_TALKMON(pCmd, pnum);
 	case CMD_MONSTDEATH:
 		return On_MONSTDEATH(pCmd, pnum);
 	case CMD_MONSTDAMAGE:
