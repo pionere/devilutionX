@@ -3407,7 +3407,7 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 	TCmdStore1* cmd = (TCmdStore1*)pCmd;
 	BYTE c = cmd->stCmd, r = cmd->stLoc;
 
-	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
+	net_assert(plr._pmode != PM_DEATH);
 	net_assert(plr._pDunLevel == DLV_TOWN);
 	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_PEGBOY);
 	net_assert(r < NUM_INVELEM);
@@ -3425,7 +3425,7 @@ static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 	TCmdStore2* cmd = (TCmdStore2*)pCmd;
 	BYTE c = cmd->stCmd;
 
-	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
+	net_assert(plr._pmode != PM_DEATH);
 	net_assert(plr._pDunLevel == DLV_TOWN);
 	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_PBUY);
 
@@ -3440,7 +3440,7 @@ static unsigned On_QTOWNER(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 
-	net_assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
+	net_assert(plr._pmode != PM_DEATH);
 	net_assert(plr._pDunLevel == DLV_TOWN);
 
 	SyncTownerQ(pnum, cmd->wParam1);
