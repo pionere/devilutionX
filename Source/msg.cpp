@@ -1731,7 +1731,7 @@ void LevelDeltaLoad()
 			break;
 		case ACTION_OPERATE:
 			net_assert((unsigned)plr._pDestParam1 < MAXOBJECTS);
-			net_assert(IN_DUNGEON_AREA(plr._pDestParam2, plr._pDestParam3));
+			net_assert(IN_ACTIVE_AREA(plr._pDestParam2, plr._pDestParam3));
 			net_assert(abs(dObject[plr._pDestParam2][plr._pDestParam3]) == plr._pDestParam1 + 1);
 			break;
 		case ACTION_TURN:
@@ -2597,7 +2597,7 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 		oi = cmd->wParam1;
 
 		net_assert(oi < MAXOBJECTS);
-		net_assert(IN_DUNGEON_AREA(cmd->x, cmd->y));
+		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_OPOBJXY expects ODT_NONE to be zero.");
@@ -2626,7 +2626,7 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 
 		net_assert(oi < MAXOBJECTS);
 		net_assert(objects[oi]._oBreak == OBM_UNBREAKABLE);
-		net_assert(IN_DUNGEON_AREA(cmd->x, cmd->y));
+		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_DISARMXY expects ODT_NONE to be zero.");
