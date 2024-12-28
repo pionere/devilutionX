@@ -2282,11 +2282,10 @@ static unsigned On_TURN(TCmd* pCmd, int pnum)
 	int dir;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
 		dir = cmd->bParam1;
 
 		net_assert(dir < NUM_DIRS);
-
+		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_TURN;
 		plr._pDestParam1 = dir;
 	}
@@ -2299,11 +2298,10 @@ static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 	int dir;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
 		dir = cmd->bParam1;
 
 		net_assert(dir < NUM_DIRS);
-
+		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_BLOCK;
 		plr._pDestParam1 = dir;
 	}
@@ -2648,11 +2646,10 @@ static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 	int mnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->msu)) {
-		ClrPlrPath(pnum);
 		mnum = cmd->msMnum;
 
 		net_assert(mnum < MAXMONSTERS);
-
+		ClrPlrPath(pnum);
 		plr._pDestAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
 		plr._pDestParam1 = mnum;                // target id
 		plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
@@ -2668,11 +2665,10 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 	int tnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->psu)) {
-		ClrPlrPath(pnum);
 		tnum = cmd->psPnum;
 
 		net_assert(tnum < MAX_PLRS);
-
+		ClrPlrPath(pnum);
 		plr._pDestAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
 		plr._pDestParam1 = tnum;                // target id
 		plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
@@ -2685,11 +2681,13 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 static unsigned On_TALKMON(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
-	int mnum = cmd->wParam1;
+	int mnum;
 
-	net_assert(mnum < MAXMONSTERS);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		mnum = cmd->wParam1;
+
+		net_assert(mnum < MAXMONSTERS);
 		if (MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false)) {
 			plr._pDestAction = ACTION_TALK;
 			plr._pDestParam1 = mnum;
