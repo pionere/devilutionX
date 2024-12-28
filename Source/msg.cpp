@@ -1463,8 +1463,7 @@ void LevelDeltaLoad()
 			net_assert(plr._pManaBase == tplr->spManaBase);
 		}
 		// RemovePlrFromMap(pnum);
-		net_assert((unsigned)plr._px < MAXDUNX);
-		net_assert((unsigned)plr._py < MAXDUNY);
+		net_assert(IN_DUNGEON_AREA(plr._px, plr._py));
 		if (dPlayer[plr._px][plr._py] == pnum + 1)
 			dPlayer[plr._px][plr._py] = 0;
 		net_assert(tplr->spMode < NUM_PLR_MODES);
@@ -1515,10 +1514,8 @@ void LevelDeltaLoad()
 		net_assert(plr._pdir < NUM_DIRS);
 		// net_assert((unsigned)plr._px < MAXDUNX);
 		// net_assert((unsigned)plr._py < MAXDUNY);
-		net_assert((unsigned)plr._pfutx < MAXDUNX);
-		net_assert((unsigned)plr._pfuty < MAXDUNY);
-		net_assert((unsigned)plr._poldx < MAXDUNX);
-		net_assert((unsigned)plr._poldy < MAXDUNY);
+		net_assert(IN_DUNGEON_AREA(plr._pfutx, plr._pfuty));
+		net_assert(IN_DUNGEON_AREA(plr._poldx, plr._poldy));
 
 		InitLvlPlayer(pnum, false);
 	}
