@@ -1719,8 +1719,7 @@ void LevelDeltaLoad()
 				net_assert(plr._pVar6 >= 0);                   // RATTACK_SKILL_LEVEL
 				break;
 			case PM_SPELL:
-				net_assert(plr._pVar1 >= DBORDERX && plr._pVar1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
-				net_assert(plr._pVar2 >= DBORDERY && plr._pVar2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
+				net_assert(IN_ACTIVE_AREA(plr._pVar1, plr._pVar2)); // SPELL_TARGET_X, SPELL_TARGET_Y
 				net_assert((unsigned)plr._pVar5 < NUM_SPELLS);                        // SPELL_NUM
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
@@ -1760,8 +1759,7 @@ void LevelDeltaLoad()
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
-			net_assert(plr._pDestParam1 >= DBORDERX && plr._pDestParam1 < DBORDERX + DSIZEX); // SPELL_TARGET_X
-			net_assert(plr._pDestParam2 >= DBORDERY && plr._pDestParam2 < DBORDERY + DSIZEY); // SPELL_TARGET_Y
+			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2)); // SPELL_TARGET_X, SPELL_TARGET_Y
 			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS);                              // SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
@@ -3130,8 +3128,7 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 		//if (plr._pmode != PM_DEATH)
 			plr._pInvincible = 40;
 		net_assert(cmd->lLevel < NUM_LEVELS);
-		net_assert(cmd->px >= DBORDERX && cmd->px < DBORDERX + DSIZEX);
-		net_assert(cmd->py >= DBORDERY && cmd->py < DBORDERY + DSIZEY);
+		net_assert(IN_ACTIVE_AREA(cmd->px, cmd->py));
 		plr._pDunLevel = cmd->lLevel;
 		plr._px = cmd->px;
 		plr._py = cmd->py;
