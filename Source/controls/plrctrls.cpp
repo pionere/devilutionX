@@ -732,21 +732,6 @@ static bool IsPathBlocked(int x, int y, int dir)
 	return !PosOkPlayer(mypnum, d1x, d1y) && !PosOkPlayer(mypnum, d2x, d2y);
 }
 
-static bool CanChangeDirection()
-{
-	PlayerStruct* p = &myplr;
-
-	if (p->_pmode == PM_STAND)
-		return true;
-	if (p->_pmode == PM_ATTACK && p->_pAnimFrame > p->_pAFNum)
-		return true;
-	if (p->_pmode == PM_RATTACK && p->_pAnimFrame > p->_pAFNum)
-		return true;
-	if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum)
-		return true;
-	return false;
-}
-
 static void WalkInDir(AxisDirection dir)
 {
 	const int x = myplr._pfutx;
@@ -761,9 +746,6 @@ static void WalkInDir(AxisDirection dir)
 
 	const int dx = x + offset_x[pdir];
 	const int dy = y + offset_y[pdir];
-	if (CanChangeDirection())
-		myplr._pdir = pdir;
-
 	if (PosOkPlayer(mypnum, dx, dy) && IsPathBlocked(x, y, pdir))
 		return; // Don't start backtrack around obstacles
 
