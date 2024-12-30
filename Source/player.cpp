@@ -2532,7 +2532,7 @@ static void PlrDoDeath(int pnum)
 
 static bool CheckNewPath(int pnum)
 {
-	if (plr._pHitPoints < (1 << 6)) {
+	if (plr._pmode != PM_STAND && plr._pmode != PM_ATTACK && plr._pmode != PM_RATTACK && plr._pmode != PM_SPELL) {
 		return false;
 	}
 
