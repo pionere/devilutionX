@@ -2615,14 +2615,12 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
-		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_DISARMXY expects ODT_NONE to be zero.");
-		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
+		ClrPlrPath(pnum);
 			plr._pDestAction = ACTION_SPELL;
 			plr._pDestParam1 = cmd->x;
 			plr._pDestParam2 = cmd->y;
 			plr._pDestParam3 = SPL_DISARM; // spell
 			plr._pDestParam4 = oi;         // fake spllvl
-		}
 	}
 
 	return sizeof(*cmd);

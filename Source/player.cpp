@@ -2541,6 +2541,9 @@ static bool CheckNewPath(int pnum)
 			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+	} else if (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM) {
+		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
+		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
 	}
 
 	if (plr._pWalkpath[0] != DIR_NONE) {
