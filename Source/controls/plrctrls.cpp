@@ -681,57 +681,6 @@ static const direction FaceDir[3][3] = {
 	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
 };
 
-/**
- * @brief check if stepping in direction (dir) from x, y is blocked.
- *
- * If you step from A to B, at leat one of the Xs need to be clear:
- *
- *  AX
- *  XB
- *
- *  @return true if step is blocked
- */
-static bool IsPathBlocked(int x, int y, int dir)
-{
-	int d1, d2, d1x, d1y, d2x, d2y;
-
-	switch (dir) {
-	case DIR_N:
-		d1 = DIR_NW;
-		d2 = DIR_NE;
-		break;
-	case DIR_E:
-		d1 = DIR_NE;
-		d2 = DIR_SE;
-		break;
-	case DIR_S:
-		d1 = DIR_SE;
-		d2 = DIR_SW;
-		break;
-	case DIR_W:
-		d1 = DIR_SW;
-		d2 = DIR_NW;
-		break;
-	case DIR_SW:
-	case DIR_NW:
-	case DIR_NE:
-	case DIR_SE:
-		return false;
-	default:
-		ASSUME_UNREACHABLE
-	}
-
-	d1x = x + offset_x[d1];
-	d1y = y + offset_y[d1];
-	d2x = x + offset_x[d2];
-	d2y = y + offset_y[d2];
-
-	if (!nSolidTable[dPiece[d1x][d1y]] && !nSolidTable[dPiece[d2x][d2y]])
-		return false;
-
-	return !PosOkPlayer(mypnum, d1x, d1y) && !PosOkPlayer(mypnum, d2x, d2y);
-}
-
 static void WalkInDir(AxisDirection dir)
 {
 	const int x = myplr._pfutx;
@@ -746,7 +695,7 @@ static void WalkInDir(AxisDirection dir)
 
 	const int dx = x + offset_x[pdir];
 	const int dy = y + offset_y[pdir];
-	if (PosOkPlayer(mypnum, dx, dy) && IsPathBlocked(x, y, pdir))
+	if (PosOkPlayer(mypnum, dx, dy) && !PathWalkable(x, y, dir2pdir[pdir]))
 		return; // Don't start backtrack around obstacles
 
 	NetSendCmdLoc(CMD_WALKXY, dx, dy);
