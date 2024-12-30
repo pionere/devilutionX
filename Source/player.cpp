@@ -1387,20 +1387,14 @@ static void StartAttack(int pnum)
 	case ACTION_ATTACKMON:
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
-		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return; // false;
 		break;
 	case ACTION_ATTACKPLR:
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
-		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return; // false;
 		break;
 	case ACTION_OPERATE:
 		dx = i;
 		dy = plr._pDestParam2;
-		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return; // false;
 		i = plr._pDestParam4;
 		assert(abs(dObject[dx][dy]) == i + 1);
 		if (objects[i]._oBreak != OBM_BREAKABLE) {
@@ -1564,31 +1558,16 @@ static void StartSpell(int pnum)
 
 static void StartPickItem(int pnum)
 {
-	int i, x, y;
-
-	if (pnum != mypnum)
-		return;
-	if (pcursicon != CURSOR_HAND)
-		return;
-
-	i = plr._pDestParam4;
-	x = abs(plr._px - items[i]._ix);
-	y = abs(plr._py - items[i]._iy);
-	if (x > 1 || y > 1)
-		return;
-
-	NetSendCmdGItem(plr._pDestAction == ACTION_PICKUPAITEM ? CMD_AUTOGETITEM : CMD_GETITEM, i);
+	if (pnum == mypnum && pcursicon == CURSOR_HAND) {
+		NetSendCmdGItem(plr._pDestAction == ACTION_PICKUPAITEM ? CMD_AUTOGETITEM : CMD_GETITEM, plr._pDestParam4);
+	}
 }
 
 static void StartTalk(int pnum)
 {
-	int mnum, x, y;
+	int mnum;
 
 	mnum = plr._pDestParam1;
-	x = abs(plr._px - monsters[mnum]._mx);
-	y = abs(plr._py - monsters[mnum]._my);
-	if (x > 1 || y > 1)
-		return;
 
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		if (pnum == mypnum)
@@ -2527,37 +2506,28 @@ static void PlrDoDeath(int pnum)
 
 static bool CheckNewPath(int pnum)
 {
+	bool access = true;
+
 	if (plr._pmode != PM_STAND && plr._pmode != PM_ATTACK && plr._pmode != PM_RATTACK && plr._pmode != PM_SPELL) {
 		return false;
 	}
 
 	if (plr._pDestAction == ACTION_WALK) {
-		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
+		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
 	} else 	if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
-		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
+		access = !(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN) &&
 			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
-		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+		access = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
 	} else if (plr._pDestAction == ACTION_PICKUPITEM || plr._pDestAction == ACTION_PICKUPAITEM) {
-		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
+		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
 	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
-		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
+		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
 	}
 
 	if (plr._pWalkpath[0] != DIR_NONE) {
 		if (plr._pmode == PM_STAND) {
-			/* commented out because this should not happen
-			if (pnum == mypnum) {
-				if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_ATTACKPLR) {
-					if (StartAttack(pnum)) {
-						ClrPlrPath(pnum);
-						plr._pDestAction = ACTION_NONE;
-						return;
-					}
-				}
-			}*/
-
 			if (!StartWalk(pnum)) {
 				//PlrStartStand(pnum);
 				StartStand(pnum);
@@ -2569,7 +2539,8 @@ static bool CheckNewPath(int pnum)
 
 		return false;
 	}
-	if (plr._pDestAction == ACTION_NONE) {
+	if (!access || plr._pDestAction == ACTION_NONE) {
+		plr._pDestAction = ACTION_NONE;
 		return false;
 	}
 
