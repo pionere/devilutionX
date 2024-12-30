@@ -1374,7 +1374,7 @@ static bool StartWalk(int pnum)
 	return true;
 }
 
-static bool StartAttack(int pnum)
+static void StartAttack(int pnum)
 {
 	int i, dx, dy, sn, sl, dir, ss;
 
@@ -1390,7 +1390,7 @@ static bool StartAttack(int pnum)
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return false;
+			return; // false;
 		sn = plr._pDestParam3;
 		sl = plr._pDestParam4;
 		break;
@@ -1398,7 +1398,7 @@ static bool StartAttack(int pnum)
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return false;
+			return; // false;
 		sn = plr._pDestParam3;
 		sl = plr._pDestParam4;
 		break;
@@ -1406,11 +1406,11 @@ static bool StartAttack(int pnum)
 		dx = plr._pDestParam2;
 		dy = plr._pDestParam3;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return false;
+			return; // false;
 		assert(abs(dObject[dx][dy]) == i + 1);
 		if (objects[i]._oBreak != OBM_BREAKABLE) {
 			OperateObject(pnum, i, false);
-			return true;
+			return; // true;
 		}
 		sn = SPL_ATTACK;
 		sl = 0;
@@ -1443,7 +1443,7 @@ static bool StartAttack(int pnum)
 	NewPlrAnim(pnum, PGX_ATTACK, dir);
 
 	AssertFixPlayerLocation(pnum);
-	return true;
+	// return true;
 }
 
 static void StartRangeAttack(int pnum)
