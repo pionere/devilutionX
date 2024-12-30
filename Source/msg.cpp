@@ -1785,7 +1785,7 @@ void LevelDeltaLoad()
 			break;
 		case ACTION_PICKUPITEM:  // put item in hand (inventory screen open)
 		case ACTION_PICKUPAITEM: // put item in inventory
-			net_assert((unsigned)plr._pDestParam1 < MAXITEMS);
+			net_assert((unsigned)plr._pDestParam4 < MAXITEMS);
 			break;
 		case ACTION_TALK:
 			net_assert((unsigned)plr._pDestParam1 < MAXMONSTERS);
@@ -2317,13 +2317,15 @@ static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
 	int ii;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, false)) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ii = cmd->wParam1;
 
 		net_assert(ii < MAXITEMS);
-
+		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_PICKUPITEM;
-		plr._pDestParam1 = ii;
+		plr._pDestParam1 = cmd->x;
+		plr._pDestParam2 = cmd->y;
+		plr._pDestParam4 = ii;
 	}
 
 	return sizeof(*cmd);
@@ -2360,13 +2362,15 @@ static unsigned On_GOTOAGETITEM(TCmd* pCmd, int pnum)
 	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
 	int ii;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, false)) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ii = cmd->wParam1;
 
 		net_assert(ii < MAXITEMS);
-
+		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_PICKUPAITEM;
-		plr._pDestParam1 = ii;
+		plr._pDestParam1 = cmd->x;
+		plr._pDestParam2 = cmd->y;
+		plr._pDestParam4 = ii;
 	}
 
 	return sizeof(*cmd);

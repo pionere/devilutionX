@@ -1571,7 +1571,7 @@ static void StartPickItem(int pnum)
 	if (pcursicon != CURSOR_HAND)
 		return;
 
-	i = plr._pDestParam1;
+	i = plr._pDestParam4;
 	x = abs(plr._px - items[i]._ix);
 	y = abs(plr._py - items[i]._iy);
 	if (x > 1 || y > 1)
@@ -2538,6 +2538,8 @@ static bool CheckNewPath(int pnum)
 			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+	} else if (plr._pDestAction == ACTION_PICKUPITEM || plr._pDestAction == ACTION_PICKUPAITEM) {
+		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
 	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
 		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
