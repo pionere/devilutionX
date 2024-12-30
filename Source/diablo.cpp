@@ -1256,11 +1256,11 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		Uint32 tick = SDL_GetTicks();
-		if (gbActionBtnDown && (tick - guLastABD) >= 200) {
+		if (gbActionBtnDown && (tick - guLastABD) >= 200 && myplr._pDestAction == ACTION_NONE) {
 			gbActionBtnDown = false;
 			PressKey(actionBtnKey);
 		}
-		if (gbAltActionBtnDown && (tick - guLastAABD) >= 200) {
+		if (gbAltActionBtnDown && (tick - guLastAABD) >= 200 && myplr._pDestAction == ACTION_NONE) {
 			gbAltActionBtnDown = false;
 			PressKey(altActionBtnKey);
 		}
