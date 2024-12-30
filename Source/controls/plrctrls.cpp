@@ -692,12 +692,11 @@ static void WalkInDir(AxisDirection dir)
 			NetSendCmdLoc(CMD_WALKXY, x, y); // Stop walking
 		return;
 	}
+	if (!PathWalkable(x, y, dir2pdir[pdir]))
+		return; // Don't start backtrack around obstacles
 
 	const int dx = x + offset_x[pdir];
 	const int dy = y + offset_y[pdir];
-	if (PosOkPlayer(mypnum, dx, dy) && !PathWalkable(x, y, dir2pdir[pdir]))
-		return; // Don't start backtrack around obstacles
-
 	NetSendCmdLoc(CMD_WALKXY, dx, dy);
 }
 
