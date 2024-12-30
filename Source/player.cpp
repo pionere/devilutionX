@@ -2531,7 +2531,9 @@ static bool CheckNewPath(int pnum)
 		return false;
 	}
 
-	if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
+	if (plr._pDestAction == ACTION_WALK) {
+		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
+	} else 	if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
 		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
 			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {

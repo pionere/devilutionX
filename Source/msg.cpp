@@ -2235,8 +2235,11 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 {
 	TCmdLoc* cmd = (TCmdLoc*)pCmd;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel && MakePlrPath(pnum, cmd->x, cmd->y, true)) {
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_WALK;
+		plr._pDestParam1 = cmd->x;
+		plr._pDestParam2 = cmd->y;
 	}
 
 	return sizeof(*cmd);
