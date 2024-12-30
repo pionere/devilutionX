@@ -2533,7 +2533,6 @@ static void PlrDoDeath(int pnum)
 static bool CheckNewPath(int pnum)
 {
 	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
 		return false;
 	}
 
