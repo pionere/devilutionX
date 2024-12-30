@@ -2674,10 +2674,9 @@ static unsigned On_TALKMON(TCmd* pCmd, int pnum)
 		mnum = cmd->wParam1;
 
 		net_assert(mnum < MAXMONSTERS);
-		if (MakePlrPath(pnum, monsters[mnum]._mx, monsters[mnum]._my, false)) {
+		ClrPlrPath(pnum);
 			plr._pDestAction = ACTION_TALK;
 			plr._pDestParam1 = mnum;
-		}
 	}
 
 	return sizeof(*cmd);
