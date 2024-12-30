@@ -1730,9 +1730,10 @@ void LevelDeltaLoad()
 		case ACTION_WALK:
 			break;
 		case ACTION_OPERATE:
-			net_assert((unsigned)plr._pDestParam1 < MAXOBJECTS);
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam2, plr._pDestParam3));
-			net_assert(abs(dObject[plr._pDestParam2][plr._pDestParam3]) == plr._pDestParam1 + 1);
+			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(plr._pDestParam3 == SPL_ATTACK);
+			net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS);
+			net_assert(abs(dObject[plr._pDestParam1][plr._pDestParam2]) == plr._pDestParam4 + 1);
 			break;
 		case ACTION_TURN:
 		case ACTION_BLOCK:
@@ -2586,13 +2587,12 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
-		static_assert((int)ODT_NONE == 0, "BitOr optimization of On_OPOBJXY expects ODT_NONE to be zero.");
-		if (MakePlrPath(pnum, cmd->x, cmd->y, !(objects[oi]._oSolidFlag | objects[oi]._oDoorFlag))) {
+		ClrPlrPath(pnum);
 			plr._pDestAction = ACTION_OPERATE;
-			plr._pDestParam1 = oi;
-			plr._pDestParam2 = cmd->x;
-			plr._pDestParam3 = cmd->y;
-		}
+			plr._pDestParam1 = cmd->x;
+			plr._pDestParam2 = cmd->y;
+			plr._pDestParam3 = SPL_ATTACK; // spell
+			plr._pDestParam4 = oi;         // fake spllvl
 	}
 
 	return sizeof(*cmd);

@@ -1383,43 +1383,38 @@ static void StartAttack(int pnum)
 	case ACTION_ATTACK:
 		dx = i;
 		dy = plr._pDestParam2;
-		sn = plr._pDestParam3;
-		sl = plr._pDestParam4;
 		break;
 	case ACTION_ATTACKMON:
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return; // false;
-		sn = plr._pDestParam3;
-		sl = plr._pDestParam4;
 		break;
 	case ACTION_ATTACKPLR:
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return; // false;
-		sn = plr._pDestParam3;
-		sl = plr._pDestParam4;
 		break;
 	case ACTION_OPERATE:
-		dx = plr._pDestParam2;
-		dy = plr._pDestParam3;
+		dx = i;
+		dy = plr._pDestParam2;
 		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
 			return; // false;
+		i = plr._pDestParam4;
 		assert(abs(dObject[dx][dy]) == i + 1);
 		if (objects[i]._oBreak != OBM_BREAKABLE) {
 			OperateObject(pnum, i, false);
 			return; // true;
 		}
-		sn = SPL_ATTACK;
-		sl = 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
 
+	sn = plr._pDestParam3;
+	sl = plr._pDestParam4;
 	dir = GetDirection(plr._px, plr._py, dx, dy);
 	ss = plr._pIBaseAttackSpeed;
 	if (sn == SPL_WHIPLASH) {
@@ -2541,7 +2536,7 @@ static bool CheckNewPath(int pnum)
 			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
-	} else if (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM) {
+	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
 		MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
 	}
