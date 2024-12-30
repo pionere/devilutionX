@@ -2595,11 +2595,11 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		ClrPlrPath(pnum);
-			plr._pDestAction = ACTION_OPERATE;
-			plr._pDestParam1 = cmd->x;
-			plr._pDestParam2 = cmd->y;
-			plr._pDestParam3 = SPL_ATTACK; // spell
-			plr._pDestParam4 = oi;         // fake spllvl
+		plr._pDestAction = ACTION_OPERATE;
+		plr._pDestParam1 = cmd->x;
+		plr._pDestParam2 = cmd->y;
+		plr._pDestParam3 = SPL_ATTACK; // spell
+		plr._pDestParam4 = oi;         // fake spllvl
 	}
 
 	return sizeof(*cmd);
@@ -2623,11 +2623,11 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
 		ClrPlrPath(pnum);
-			plr._pDestAction = ACTION_SPELL;
-			plr._pDestParam1 = cmd->x;
-			plr._pDestParam2 = cmd->y;
-			plr._pDestParam3 = SPL_DISARM; // spell
-			plr._pDestParam4 = oi;         // fake spllvl
+		plr._pDestAction = ACTION_SPELL;
+		plr._pDestParam1 = cmd->x;
+		plr._pDestParam2 = cmd->y;
+		plr._pDestParam3 = SPL_DISARM; // spell
+		plr._pDestParam4 = oi;         // fake spllvl
 	}
 
 	return sizeof(*cmd);
@@ -2676,14 +2676,13 @@ static unsigned On_TALKMON(TCmd* pCmd, int pnum)
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 	int mnum;
 
-
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		mnum = cmd->wParam1;
 
 		net_assert(mnum < MAXMONSTERS);
 		ClrPlrPath(pnum);
-			plr._pDestAction = ACTION_TALK;
-			plr._pDestParam1 = mnum;
+		plr._pDestAction = ACTION_TALK;
+		plr._pDestParam1 = mnum;
 	}
 
 	return sizeof(*cmd);
