@@ -34,7 +34,7 @@ int play_movie(const char* pszMovie, int movieFlags)
 					result = MPR_CANCEL;
 					break;
 				}
-#ifndef USE_SDL1
+#if !__IPHONEOS__ && !__ANDROID__
 				if (SDL_GetModState() & KMOD_ALT) {
 					if (e.vkcode == DVL_VK_RETURN)
 						ToggleFullscreen();
