@@ -888,9 +888,9 @@ static void HandleRightStickMotion()
 		// We avoid calling `SetCursorPos` within the same SDL tick because
 		// that can cause all stick motion events to arrive before all
 		// cursor position events.
-		static int lastMouseSetTick = 0;
-		const int now = SDL_GetTicks();
-		if (now - lastMouseSetTick > 0) {
+		static Uint32 lastMouseSetTick = 0;
+		const Uint32 now = SDL_GetTicks();
+		if (now != lastMouseSetTick) {
 			SetCursorPos(pos.x, pos.y);
 			lastMouseSetTick = now;
 		}
