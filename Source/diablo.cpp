@@ -40,8 +40,8 @@ BYTE gbDeathflag = MDM_ALIVE;
 bool gbActionBtnDown;
 /** Specifies whether the secondary action button is pressed. */
 bool gbAltActionBtnDown;
-/** tick counter when the last time one of the mouse-buttons were pressed down. */
-static Uint32 guLastABD, guLastAABD;
+/** tick counter when the last time an action was repeated because a button was held down. */
+static Uint32 guLastRBD;
 static int actionBtnKey, altActionBtnKey;
 /** Specifies the speed of the game. */
 int gnTicksRate = SPEED_NORMAL;
@@ -845,14 +845,14 @@ static void PressKey(int vkey)
 	case ACT_ACT:
 		if (!gbActionBtnDown) {
 			gbActionBtnDown = true;
-			guLastABD = SDL_GetTicks();
+			guLastRBD = SDL_GetTicks();
 			ActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
 		}
 		break;
 	case ACT_ALTACT:
 		if (!gbAltActionBtnDown) {
 			gbAltActionBtnDown = true;
-			guLastAABD = SDL_GetTicks();
+			guLastRBD = SDL_GetTicks();
 			AltActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
 		}
 		break;
@@ -1256,13 +1256,14 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		Uint32 tick = SDL_GetTicks();
-		if (gbActionBtnDown && (tick - guLastABD) >= 200 && myplr._pDestAction == ACTION_NONE) {
-			gbActionBtnDown = false;
-			PressKey(actionBtnKey);
-		}
-		if (gbAltActionBtnDown && (tick - guLastAABD) >= 200 && myplr._pDestAction == ACTION_NONE) {
-			gbAltActionBtnDown = false;
-			PressKey(altActionBtnKey);
+		if (myplr._pDestAction == ACTION_NONE && (tick - guLastRBD) >= 200) {
+			if (gbActionBtnDown) {
+				gbActionBtnDown = false;
+				PressKey(actionBtnKey);
+			} else if (gbAltActionBtnDown) {
+				gbAltActionBtnDown = false;
+				PressKey(altActionBtnKey);
+			}
 		}
 	}
 
