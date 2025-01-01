@@ -618,9 +618,8 @@ static void HotSpellMove(AxisDirection dir)
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
 		return;
 
-	int spbslot = myplr._pAltAtkSkill;
-	if (spbslot == SPL_INVALID)
-		spbslot = myplr._pAltMoveSkill;
+	int spbslot = 0;
+	assert(speedspellcount != 0);
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
