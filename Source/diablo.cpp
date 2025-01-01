@@ -469,7 +469,7 @@ static void ActionBtnDown(bool bShift)
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
-	if (gbCampaignMapFlag) {
+	if (gbCampaignMapFlag != CMAP_NONE) {
 		TryCampaignMapClick(bShift, false);
 		return;
 	}
@@ -544,7 +544,7 @@ static void AltActionBtnDown(bool bShift)
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
-	if (gbCampaignMapFlag) {
+	if (gbCampaignMapFlag != CMAP_NONE) {
 		TryCampaignMapClick(bShift, true);
 		return;
 	}
@@ -688,8 +688,8 @@ bool PressEscKey()
 		gbSkillListFlag = false;
 		rv = true;
 	}
-	if (gbCampaignMapFlag) {
-		gbCampaignMapFlag = false;
+	if (gbCampaignMapFlag != CMAP_NONE) {
+		gbCampaignMapFlag = CMAP_NONE;
 		rv = true;
 	}
 	if (gabPanbtn[PANBTN_MAINMENU]) {
@@ -710,7 +710,7 @@ void ClearPanels()
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
 	gbSkillListFlag = false;
-	gbCampaignMapFlag = false;
+	gbCampaignMapFlag = CMAP_NONE;
 	gbDropGoldFlag = false;
 }
 

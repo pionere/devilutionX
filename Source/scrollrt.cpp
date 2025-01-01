@@ -1521,7 +1521,7 @@ static void DrawView()
 		if (gbSkillListFlag) {
 			DrawSkillList();
 		}
-		if (gbCampaignMapFlag) {
+		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
