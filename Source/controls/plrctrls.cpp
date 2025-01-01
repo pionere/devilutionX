@@ -802,46 +802,46 @@ struct RightStickAccumulator {
 
 void StoreSpellCoords()
 {
+	int pnum, i, j;
+	uint64_t mask;
 	const int START_X = PANEL_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
 	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
 	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICON_HEIGHT / 2;
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;
+	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 3.");
 	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 4.");
-	for (int i = 0; i < 4; i++) {
-		std::uint64_t spells;
+	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
-			spells = myplr._pAblSkills;
+			mask = plr._pAblSkills;
 			break;
 		case RSPLTYPE_SPELL:
-			spells = myplr._pMemSkills;
+			mask = plr._pMemSkills;
 			break;
 		case RSPLTYPE_INV:
-			spells = myplr._pInvSkills;
+			mask = plr._pInvSkills;
 			break;
 		case RSPLTYPE_CHARGES:
-			spells = myplr._pISpells;
+			mask = plr._pISpells;
 			break;
 		default:
 			continue;
 		}
-		std::uint64_t spell = 1;
-		int j;
-		for (j = 0; spells != 0 && j < NUM_SPELLS; j++) {
+		for (j = 0; mask != 0 && j < NUM_SPELLS; j++) {
 			if (j == SPL_NULL) {
 				if (i != 0)
 					continue;
 			} else {
-				if (!(spells & 1)) {
-					spells >>= 1;
+				if (!(mask & 1)) {
+					mask >>= 1;
 					continue;
 				}
-				spells >>= 1;
+				mask >>= 1;
 			}
 			speedspellscoords[speedspellcount] = { xo, yo };
 			++speedspellcount;
@@ -851,11 +851,12 @@ void StoreSpellCoords()
 				yo -= SPLICON_HEIGHT;
 			}
 		}
-		if (j != 0 && xo != END_X)
+		if (j != 0 && xo != END_X) {
 			xo -= SPLICON_WIDTH;
-		if (xo < START_X) {
-			xo = END_X;
-			yo -= SPLICON_HEIGHT;
+			if (xo < START_X) {
+				xo = END_X;
+				yo -= SPLICON_HEIGHT;
+			}
 		}
 	}
 }
