@@ -6,8 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static POS32 speedspellscoords[50];
-int speedspellcount = 0;
+static POS32 speedspellscoords[2 * NUM_SPELLS];
+static int speedspellcount = 0;
 
 /**
  * Native game menu, controlled by simulating a keyboard.
