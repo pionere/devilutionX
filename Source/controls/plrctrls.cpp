@@ -597,18 +597,18 @@ static void InvMove(AxisDirection dir)
 }
 
 /**
- * check if hot spell at X Y exists
+ * check if a skill list icon is at X Y
  */
-static bool HSExists(int x, int y)
+static int SkillListEntryAt(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(x, y,
 			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
 			SPLICON_WIDTH, SPLICON_HEIGHT)) {
-			return true;
+			return r;
 		}
 	}
-	return false;
+	return -1;
 }
 
 static void HotSpellMove(AxisDirection dir)
@@ -620,14 +620,9 @@ static void HotSpellMove(AxisDirection dir)
 
 	int spbslot = 0;
 	assert(speedspellcount != 0);
-	for (int r = 0; r < speedspellcount; r++) {
-		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
-			SPLICON_WIDTH, SPLICON_HEIGHT)) {
-			spbslot = r;
-			break;
-		}
-	}
+	int mpslot = SkillListEntryAt(MousePos.x, MousePos.y);
+	if (mpslot >= 0)
+		spbslot = mpslot;
 
 	int x = speedspellscoords[spbslot].x;
 	int y = speedspellscoords[spbslot].y;
@@ -645,11 +640,11 @@ static void HotSpellMove(AxisDirection dir)
 	}
 
 	if (dir.y == AxisDirectionY_UP) {
-		if (HSExists(x, y - SPLICON_HEIGHT)) {
+		if (SkillListEntryAt(x, y - SPLICON_HEIGHT) >= 0) {
 			y -= SPLICON_HEIGHT;
 		}
 	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (HSExists(x, y + SPLICON_HEIGHT)) {
+		if (SkillListEntryAt(x, y + SPLICON_HEIGHT) >= 0) {
 			y += SPLICON_HEIGHT;
 		}
 	}
