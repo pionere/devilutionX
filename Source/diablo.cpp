@@ -758,78 +758,6 @@ static void PressDebugChar(int vkey)
 	}
 }
 #endif
-static void InputBtnDown(int transKey);
-static void PressKey(int vkey)
-{
-	if (gmenu_is_active()) {
-		gmenu_presskey(vkey);
-		return;
-	}
-	if (gbTalkflag) {
-		if (plrmsg_presskey(vkey))
-			return;
-	}
-
-	if (vkey == DVL_VK_ESCAPE) {
-		if (!PressEscKey()) {
-			gamemenu_on();
-		}
-		return;
-	}
-
-	if (gnTimeoutCurs != CURSOR_NONE) {
-		return;
-	}
-#if !__IPHONEOS__ && !__ANDROID__
-	if (vkey == DVL_VK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
-		ToggleFullscreen();
-		return;
-	}
-#endif
-	int transKey = WMButtonInputTransTbl[vkey];
-	if (gbDeathflag != MDM_ALIVE) {
-		if (vkey == DVL_VK_RETURN) {
-			StartPlrMsg();
-		} else if (vkey == DVL_VK_LBUTTON) {
-			TryLimitedPanBtnClick();
-		} else {
-			if (transKey >= ACT_MSG0 && transKey <= ACT_MSG3)
-				diablo_hotkey_msg(transKey);
-		}
-		return;
-	}
-
-	if (transKey == ACT_PAUSE) {
-		diablo_pause_game();
-		return;
-	}
-	if (gbGamePaused) {
-		return;
-	}
-
-	if (gbDropGoldFlag) {
-		control_drop_gold(vkey);
-		return;
-	}
-
-	/*if (gbDoomflag) {
-		doom_close();
-		return;
-	}*/
-
-	if (gbQtextflag) {
-		StopQTextMsg();
-		return;
-	}
-#if DEBUG_MODE
-	if (transKey == ACT_NONE) {
-		transKey = TranslateKey2Char(vkey);
-		PressDebugChar(transKey);
-		return;
-	}
-#endif
-	InputBtnDown(transKey);
-}
 
 static void InputBtnDown(int transKey)
 {
@@ -1054,6 +982,78 @@ static void InputBtnDown(int transKey)
 	default:
 		ASSUME_UNREACHABLE
 	}
+}
+
+static void PressKey(int vkey)
+{
+	if (gmenu_is_active()) {
+		gmenu_presskey(vkey);
+		return;
+	}
+	if (gbTalkflag) {
+		if (plrmsg_presskey(vkey))
+			return;
+	}
+
+	if (vkey == DVL_VK_ESCAPE) {
+		if (!PressEscKey()) {
+			gamemenu_on();
+		}
+		return;
+	}
+
+	if (gnTimeoutCurs != CURSOR_NONE) {
+		return;
+	}
+#if !__IPHONEOS__ && !__ANDROID__
+	if (vkey == DVL_VK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
+		ToggleFullscreen();
+		return;
+	}
+#endif
+	int transKey = WMButtonInputTransTbl[vkey];
+	if (gbDeathflag != MDM_ALIVE) {
+		if (vkey == DVL_VK_RETURN) {
+			StartPlrMsg();
+		} else if (vkey == DVL_VK_LBUTTON) {
+			TryLimitedPanBtnClick();
+		} else {
+			if (transKey >= ACT_MSG0 && transKey <= ACT_MSG3)
+				diablo_hotkey_msg(transKey);
+		}
+		return;
+	}
+
+	if (transKey == ACT_PAUSE) {
+		diablo_pause_game();
+		return;
+	}
+	if (gbGamePaused) {
+		return;
+	}
+
+	if (gbDropGoldFlag) {
+		control_drop_gold(vkey);
+		return;
+	}
+
+	/*if (gbDoomflag) {
+		doom_close();
+		return;
+	}*/
+
+	if (gbQtextflag) {
+		StopQTextMsg();
+		return;
+	}
+#if DEBUG_MODE
+	if (transKey == ACT_NONE) {
+		transKey = TranslateKey2Char(vkey);
+		PressDebugChar(transKey);
+		return;
+	}
+#endif
+	InputBtnDown(transKey);
 }
 
 static void UpdateActionBtnState(int vKey, bool dir)
