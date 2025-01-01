@@ -759,7 +759,7 @@ static void PressDebugChar(int vkey)
 }
 #endif
 
-static void InputBtnDown(int transKey)
+void InputBtnDown(int transKey)
 {
 	switch (transKey) {
 	case ACT_NONE:

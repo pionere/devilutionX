@@ -1064,9 +1064,11 @@ void PerformSpellAction()
 		TryDropItem();
 		return;
 	}
-
-	UpdateSpellTarget();
-	AltActionBtnCmd(false);
+	if (!gbAltActionBtnDown) {
+		UpdateSpellTarget();
+		InputBtnDown(ACT_ALTACT);
+		gbAltActionBtnDown = false;
+	}
 }
 
 static void CtrlUseInvItem()

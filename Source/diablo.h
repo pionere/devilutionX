@@ -36,8 +36,7 @@ bool StartGame(bool bSinglePlayer);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-void ActionBtnCmd(bool bShift);
-void AltActionBtnCmd(bool bShift);
+void InputBtnDown(int transKey);
 #endif
 bool TryIconCurs(bool bShift);
 bool PressEscKey();
