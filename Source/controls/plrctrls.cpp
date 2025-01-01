@@ -831,19 +831,27 @@ void StoreSpellCoords()
 			continue;
 		}
 		std::uint64_t spell = 1;
-		for (int j = 1; j < NUM_SPELLS; j++) {
-			if ((spell & spells) != 0) {
-				speedspellscoords[speedspellcount] = { xo, yo };
-				++speedspellcount;
-				xo -= SPLICON_WIDTH;
-				if (xo < START_X) {
-					xo = END_X;
-					yo -= SPLICON_HEIGHT;
+		int j;
+		for (j = 0; spells != 0 && j < NUM_SPELLS; j++) {
+			if (j == SPL_NULL) {
+				if (i != 0)
+					continue;
+			} else {
+				if (!(spells & 1)) {
+					spells >>= 1;
+					continue;
 				}
+				spells >>= 1;
 			}
-			spell <<= 1;
+			speedspellscoords[speedspellcount] = { xo, yo };
+			++speedspellcount;
+			xo -= SPLICON_WIDTH;
+			if (xo < START_X) {
+				xo = END_X;
+				yo -= SPLICON_HEIGHT;
+			}
 		}
-		if (spells != 0 && xo != END_X)
+		if (j != 0 && xo != END_X)
 			xo -= SPLICON_WIDTH;
 		if (xo < START_X) {
 			xo = END_X;
