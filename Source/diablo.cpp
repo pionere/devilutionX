@@ -42,7 +42,6 @@ bool gbActionBtnDown;
 bool gbAltActionBtnDown;
 /** tick counter when the last time an action was repeated because a button was held down. */
 static Uint32 guLastRBD;
-static int actionBtnKey, altActionBtnKey;
 /** Specifies the speed of the game. */
 int gnTicksRate = SPEED_NORMAL;
 unsigned gnTickDelay = 1000 / SPEED_NORMAL;
@@ -157,20 +156,8 @@ static void diablo_init_screen()
 
 static void InitControls()
 {
-	int i;
-
 	// load key-configuration from diablo.ini
 	SLoadKeyMap(WMButtonInputTransTbl);
-
-	// find the action-keys to trigger when the button is held down
-	actionBtnKey = ACT_NONE;
-	altActionBtnKey = ACT_NONE;
-	for (i = 0; i < lengthof(WMButtonInputTransTbl); i++) {
-		if (WMButtonInputTransTbl[i] == ACT_ACT)
-			actionBtnKey = i;
-		else if (WMButtonInputTransTbl[i] == ACT_ALTACT)
-			altActionBtnKey = i;
-	}
 }
 
 static void diablo_init()
@@ -771,7 +758,7 @@ static void PressDebugChar(int vkey)
 	}
 }
 #endif
-
+static void InputBtnDown(int transKey);
 static void PressKey(int vkey)
 {
 	if (gmenu_is_active()) {
@@ -834,13 +821,20 @@ static void PressKey(int vkey)
 		StopQTextMsg();
 		return;
 	}
-
-	switch (transKey) {
-	case ACT_NONE:
 #if DEBUG_MODE
+	if (transKey == ACT_NONE) {
 		transKey = TranslateKey2Char(vkey);
 		PressDebugChar(transKey);
+		return;
+	}
 #endif
+	InputBtnDown(transKey);
+}
+
+static void InputBtnDown(int transKey)
+{
+	switch (transKey) {
+	case ACT_NONE:
 		break;
 	case ACT_ACT:
 		if (!gbActionBtnDown) {
@@ -1064,9 +1058,9 @@ static void PressKey(int vkey)
 
 static void UpdateActionBtnState(int vKey, bool dir)
 {
-	if (vKey == actionBtnKey)
+	if (WMButtonInputTransTbl[vKey] == ACT_ACT)
 		gbActionBtnDown = dir;
-	if (vKey == altActionBtnKey)
+	if (WMButtonInputTransTbl[vKey] == ACT_ALTACT)
 		gbAltActionBtnDown = dir;
 }
 
@@ -1256,13 +1250,13 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		Uint32 tick = SDL_GetTicks();
-		if (myplr._pDestAction == ACTION_NONE && (tick - guLastRBD) >= 200) {
+		if (myplr._pDestAction == ACTION_NONE && (tick - guLastRBD) >= 200 && gbDeathflag == MDM_ALIVE) {
 			if (gbActionBtnDown) {
 				gbActionBtnDown = false;
-				PressKey(actionBtnKey);
+				InputBtnDown(ACT_ACT);
 			} else if (gbAltActionBtnDown) {
 				gbAltActionBtnDown = false;
-				PressKey(altActionBtnKey);
+				InputBtnDown(ACT_ALTACT);
 			}
 		}
 	}
