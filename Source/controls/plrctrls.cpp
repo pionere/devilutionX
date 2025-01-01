@@ -874,8 +874,7 @@ static void HandleRightStickMotion()
 	if (IsAutomapActive()) { // move map
 		POS32 pos;
 		acc.Pool(pos, 32);
-		AutoMapXOfs += pos.y + pos.x;
-		AutoMapYOfs += pos.y - pos.x;
+		SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, pos.x, pos.y);
 		return;
 	}
 
