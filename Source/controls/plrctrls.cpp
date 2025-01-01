@@ -880,19 +880,15 @@ static void HandleRightStickMotion()
 		sgbControllerActive = false;
 		POS32 pos;
 		acc.Pool(pos, 2);
-		pos.x += MousePos.x;
-		pos.y += MousePos.y;
-		pos.x = std::min(std::max(pos.x, 0), SCREEN_WIDTH - 1);
-		pos.y = std::min(std::max(pos.y, 0), SCREEN_HEIGHT - 1);
-
 		// We avoid calling `SetCursorPos` within the same SDL tick because
 		// that can cause all stick motion events to arrive before all
 		// cursor position events.
-		static Uint32 lastMouseSetTick = 0;
-		const Uint32 now = SDL_GetTicks();
-		if (now != lastMouseSetTick) {
+		if (pos.x != 0 || pos.y != 0) {
+			pos.x += MousePos.x;
+			pos.y += MousePos.y;
+			pos.x = std::min(std::max(pos.x, 0), SCREEN_WIDTH - 1);
+			pos.y = std::min(std::max(pos.y, 0), SCREEN_HEIGHT - 1);
 			SetCursorPos(pos.x, pos.y);
-			lastMouseSetTick = now;
 		}
 	}
 }
