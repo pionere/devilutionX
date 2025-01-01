@@ -1050,22 +1050,28 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
-	if (InGameMenu())
-		return;
+	assert(!gmenu_is_active());
+	// assert(!gbTalkflag || !control_check_talk_btn());
+	assert(gnTimeoutCurs == CURSOR_NONE);
+	assert(gbDeathflag == MDM_ALIVE);
+	assert(!gbGamePaused);
+	assert(!gbDropGoldFlag);
+	//assert(!gbDoomflag);
+	assert(!gbQtextflag);
 
-	if (gbSkillListFlag) {
-		SetSkill(false, true);
-		return;
-	}
-
-	if (TryIconCurs(false))
-		return;
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		TryDropItem();
-		return;
-	}
 	if (!gbAltActionBtnDown) {
-		UpdateSpellTarget();
+		static_assert(CMAP_NONE == 0, "BitOr optimization of PerformSpellAction expects CMAP_NONE to be zero.");
+		static_assert(STORE_NONE == 0, "BitOr optimization of PerformSpellAction expects STORE_NONE to be zero.");
+		if ((gbCampaignMapFlag | gbSkillListFlag | stextflag) == 0 && pcurswnd == WND_NONE) {
+			if (pcursicon == CURSOR_HAND) {
+				// prepare for cast
+				UpdateSpellTarget();
+			} else if (pcursicon >= CURSOR_FIRSTITEM) {
+				// prepare for DropItem
+				pcurspos.x = myplr._pfutx + 1;
+				pcurspos.y = myplr._pfuty;
+			}
+		}
 		InputBtnDown(ACT_ALTACT);
 		gbAltActionBtnDown = false;
 	}
