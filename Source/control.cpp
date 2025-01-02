@@ -437,11 +437,9 @@ static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE mo
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
 
-static bool MoveToSkill(int pnum, int sn, int st)
+static bool CurrentSkill(int pnum, int sn, int st, bool altSkill)
 {
-	if (_gbMoveCursor == 0)
-		return false;
-	if (_gbMoveCursor == 1) {
+	if (altSkill) {
 		return MoveToAtkMoveSkill(sn, st,
 			plr._pAltAtkSkill, plr._pAltAtkSkillType,
 			plr._pAltMoveSkill, plr._pAltMoveSkillType);
@@ -457,7 +455,7 @@ void DrawSkillList()
 {
 	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
-
+	bool selected;
 #if SCREEN_READER_INTEGRATION
 	BYTE prevSkill = currSkill;
 #endif
@@ -515,12 +513,16 @@ void DrawSkillList()
 			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
 			lx = x - SCREEN_X;
 			ly = y - SCREEN_Y - SPLICON_HEIGHT;
+			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (MoveToSkill(pnum, j, i)) {
-				SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+			if (_gbMoveCursor != 0) {
+				selected = CurrentSkill(pnum, j, i, _gbMoveCursor == 1);
+				if (selected) {
+					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+				}
 			}
 #endif
-			if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
+			if (selected) {
 				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
