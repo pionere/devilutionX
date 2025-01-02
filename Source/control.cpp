@@ -513,8 +513,8 @@ void DrawSkillList()
 			else
 				st = GetSpellTrans(st, j);
 			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
-			lx = x - BORDER_LEFT;
-			ly = y - BORDER_TOP - SPLICON_HEIGHT;
+			lx = x - SCREEN_X;
+			ly = y - SCREEN_Y - SPLICON_HEIGHT;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			if (MoveToSkill(pnum, j, i)) {
 				SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
@@ -2059,7 +2059,7 @@ void DrawSpellBook()
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				sx - BORDER_LEFT, yp - BORDER_TOP - SBOOK_CELHEIGHT,
+				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
 				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
 				currSkill = sn;
 				currSkillType = st;
@@ -2552,8 +2552,8 @@ void DrawCampaignMap()
 			if (cme.ceIndex != 0) {
 				x = sx + CAMICON_WIDTH * (cx/* + CAM_RADIUS  - lengthof(camEntries) / 2*/);
 				y = sy + CAMICON_HEIGHT * (cy/* + CAM_RADIUS - lengthof(camEntries[0]) / 2*/);
-				lx = x - BORDER_LEFT;
-				ly = y - (BORDER_TOP + CAMICON_HEIGHT);
+				lx = x - SCREEN_X;
+				ly = y - (SCREEN_Y + CAMICON_HEIGHT);
 
 				const BYTE* tbl = ColorTrns[COLOR_TRN_GRAY];
 				if (cme.ceAvailable) { // not visited
