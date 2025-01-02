@@ -916,7 +916,9 @@ static void HandleRightStickMotion()
  */
 void FocusOnInventory()
 {
-	SetCursorPos(gnWndInvX + InvRect[SLOTXY_INV_FIRST].X + (INV_SLOT_SIZE_PX / 2), gnWndInvY + InvRect[SLOTXY_INV_FIRST].Y - (INV_SLOT_SIZE_PX / 2));
+	int x, y;
+	SELECT_INV_SLOT(SLOTXY_INV_FIRST)
+	SetCursorPos(x, y);
 }
 
 // Moves the mouse to the first attribute "+" button.
