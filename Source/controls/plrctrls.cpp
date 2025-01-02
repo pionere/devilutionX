@@ -24,8 +24,6 @@ bool InGameMenu()
 	    || gbDeathflag;
 }
 
-static int slot = SLOTXY_INV_FIRST;
-
 /**
  * Number of angles to turn to face the coordinate
  * @param x Tile coordinates
@@ -391,7 +389,7 @@ static void InvMove(AxisDirection dir)
 
 	int x = MousePos.x;
 	int y = MousePos.y;
-	int r;
+	int r, slot;
 
 	// check which inventory rectangle the mouse is in, if any
 	// standard inventory
