@@ -587,8 +587,8 @@ static void InvMove(AxisDirection dir)
 		return; // Avoid wobbling when scaled
 	}
 
-	if (pcursicon > CURSOR_HAND) { // [3] Keep item in the same slot, don't jump it up
-		if (x != MousePos.x) {     // without this, the cursor keeps moving -10
+	if (pcursicon >= CURSOR_FIRSTITEM) { // [3] Keep item in the same slot, don't jump it up
+		if (x != MousePos.x) {           // without this, the cursor keeps moving -10
 			x -= 10;
 			y -= 10;
 		}
