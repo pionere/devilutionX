@@ -603,11 +603,12 @@ static void InvMove(AxisDirection dir)
 	default:
 		ASSUME_UNREACHABLE
 	}
-
+#if 0 // CURSOR_HOTSPOT
 	if (pcursicon >= CURSOR_FIRSTITEM) { // [3] Keep item in the same slot, don't jump it up
-		x -= 10;
-		y -= 10;
+		x -= cursW >> 1;
+		y -= cursH >> 1;
 	}
+#endif
 	SetCursorPos(x, y);
 }
 
