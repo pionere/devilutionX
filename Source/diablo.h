@@ -41,7 +41,8 @@ void InputBtnDown(int transKey);
 bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(const Dvl_Event *event);
+void GameWndProc(const Dvl_Event* event);
+void DisableInputWndProc(const Dvl_Event* event);
 void game_logic();
 
 #ifdef __cplusplus

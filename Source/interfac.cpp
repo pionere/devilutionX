@@ -349,7 +349,7 @@ void ShowCutscene(unsigned uMsg)
 
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
-
+	assert(saveProc == GameWndProc);
 	interface_msg_pump();
 	ClearScreenBuffer();
 	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutscene
@@ -396,7 +396,7 @@ void ShowCutscene(unsigned uMsg)
 	FreeCutscene();
 
 	assert(ghMainWnd != NULL);
-	saveProc = SetWindowProc(saveProc);
+	saveProc = SetWindowProc(GameWndProc); // saveProc);
 	assert(saveProc == DisableInputWndProc);
 }
 

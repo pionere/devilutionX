@@ -1124,7 +1124,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 	// MainWndProc(uMsg);
 }
 
-static void GameWndProc(const Dvl_Event* e)
+void GameWndProc(const Dvl_Event* e)
 {
 	switch (e->type) {
 	case DVL_WM_NONE:
@@ -1409,7 +1409,7 @@ static void run_game()
 {
 	WNDPROC saveProc = InitGameFX();
 	SDL_Event event;
-
+	assert(saveProc == NULL);
 	event.type = gbLoadGame ? DVL_DWM_LOADGAME : DVL_DWM_NEWGAME;
 	GameWndProc(&event);
 
@@ -1445,7 +1445,7 @@ static void run_game()
 	//NewCursor(CURSOR_NONE);
 	//ClearScreenBuffer();
 	//scrollrt_draw_screen(true);
-	saveProc = SetWindowProc(saveProc);
+	saveProc = SetWindowProc(NULL); // saveProc);
 	assert(saveProc == GameWndProc);
 	FreeGameFX();
 }
