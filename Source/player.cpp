@@ -1489,7 +1489,8 @@ static void StartTurn(int pnum)
 static void StartBlock(int pnum, int dir)
 {
 	plr._pmode = PM_BLOCK;
-	plr._pVar1 = 0; // BLOCK_EXTENSION : extended blocking
+	plr._pVar1 = 8 - plr._pAnims[PGX_BLOCK].paFrames; // BASE_BLOCK_EXTENSION
+	plr._pVar2 = 0; // BLOCK_EXTENSION : extended blocking
 	if (!(plr._pGFXLoad & PGF_BLOCK)) {
 		LoadPlrGFX(pnum, PGF_BLOCK);
 	}
@@ -2344,8 +2345,8 @@ static void PlrDoBlock(int pnum)
 {
 	int extlen;
 
-	if (plr._pVar1 != 0) { // BLOCK_EXTENSION
-		plr._pVar1--;
+	if (plr._pVar2 != 0) { // BLOCK_EXTENSION
+		plr._pVar2--;
 		plr._pAnimCnt--;
 		return;
 	}
@@ -2356,7 +2357,7 @@ static void PlrDoBlock(int pnum)
 	// assert(plr._pAnims[PGX_BLOCK].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame > plr._pAnimLen || (plr._pAnimFrame == plr._pAnimLen && plr._pAnimCnt >= PlrAnimFrameLens[PGX_BLOCK] - 1)) {
 		if (plr._pDestAction == ACTION_BLOCK) {
-			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
+			// extend the blocking animation
 			plr._pDestAction = ACTION_NONE;
 			// StartBlock(pnum, plr._pDestParam1);
 			plr._pdir = plr._pDestParam1;
@@ -2368,10 +2369,15 @@ static void PlrDoBlock(int pnum)
 			extlen = plr._pAnimLen * 4; // plr._pAnims[PGX_BLOCK].paFrames * 4;
 			if (plr._pIFlags & ISPL_FASTBLOCK) {
 				extlen >>= 1;
-				if (extlen < 8)
-					extlen = 8;
 			}
-			plr._pVar1 = extlen; // BLOCK_EXTENSION
+			plr._pVar2 = extlen; // BLOCK_EXTENSION
+			// restore the base extension
+			plr._pVar1 = 8 - plr._pAnimLen; // BASE_BLOCK_EXTENSION
+		} else if (plr._pDestAction == ACTION_NONE && plr._pVar1 > 0) { // BASE_BLOCK_EXTENSION
+			plr._pVar1--;
+			// jump to the last frame
+			plr._pAnimFrame = plr._pAnimLen;
+			plr._pAnimCnt = PlrAnimFrameLens[PGX_BLOCK] - 2;
 		} else {
 			//PlrStartStand(pnum);
 			StartStand(pnum);
