@@ -2358,10 +2358,13 @@ static void PlrDoBlock(int pnum)
 		if (plr._pDestAction == ACTION_BLOCK) {
 			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
 			plr._pDestAction = ACTION_NONE;
+			// StartBlock(pnum, plr._pDestParam1);
 			plr._pdir = plr._pDestParam1;
 			plr._pAnimData = plr._pAnims[PGX_BLOCK].paAnimData[plr._pDestParam1];
+			// jump to the last frame
 			plr._pAnimFrame = plr._pAnimLen; //  plr._pAnims[PGX_BLOCK].paFrames;
 			plr._pAnimCnt = PlrAnimFrameLens[PGX_BLOCK] - 2;
+			// extend the blocking duration with a fixed amount
 			extlen = plr._pAnimLen * 4; // plr._pAnims[PGX_BLOCK].paFrames * 4;
 			if (plr._pIFlags & ISPL_FASTBLOCK) {
 				extlen >>= 1;
