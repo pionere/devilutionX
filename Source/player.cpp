@@ -1865,15 +1865,8 @@ static void PlrDoWalk(int pnum)
 	plr._py = py;
 	FixPlayerLocation(pnum);
 	dPlayer[px][py] = pnum + 1;
-
-	if (plr._pWalkpath[0] != DIR_NONE) {
-		//PlrStartWalkStand(pnum);
-		StartWalkStand(pnum);
-	} else {
 		//PlrStartStand(pnum);
 		StartStand(pnum);
-	}
-
 	//ClearPlrPVars(pnum);
 }
 
@@ -2521,7 +2514,9 @@ static bool CheckNewPath(int pnum)
 	if (plr._pmode != PM_STAND && plr._pmode != PM_ATTACK && plr._pmode != PM_RATTACK && plr._pmode != PM_SPELL) {
 		return false;
 	}
-
+	if (plr._pDestAction == ACTION_NONE) {
+		return false;
+	}
 	if (plr._pDestAction == ACTION_WALK) {
 		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
 	} else if (plr._pDestAction == ACTION_WALKDIR) {
@@ -2539,6 +2534,13 @@ static bool CheckNewPath(int pnum)
 		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
 	}
 
+	if (!access) {
+		if (plr._pmode == PM_STAND) {
+			plr._pDestAction = ACTION_NONE;
+			ClrPlrPath(pnum);
+		}
+		return false;
+	}
 	if (plr._pWalkpath[0] != DIR_NONE) {
 		if (plr._pmode == PM_STAND) {
 			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && plr._pWalkpath[1] == DIR_NONE)) {
@@ -2553,12 +2555,6 @@ static bool CheckNewPath(int pnum)
 			return true;
 		}
 
-		return false;
-	}
-	if (!access || plr._pDestAction == ACTION_NONE) {
-		if (plr._pmode == PM_STAND) {
-			plr._pDestAction = ACTION_NONE;
-		}
 		return false;
 	}
 

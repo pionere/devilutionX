@@ -399,8 +399,8 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		NetSendCmdLocParam1(gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 		return;
 	}
-
-	NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
+	if (!nSolidTable[dPiece[pcurspos.x][pcurspos.y]])
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 }
 
 void ActionBtnCmd(bool bShift)
