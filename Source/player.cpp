@@ -2524,6 +2524,9 @@ static bool CheckNewPath(int pnum)
 
 	if (plr._pDestAction == ACTION_WALK) {
 		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
+	} else if (plr._pDestAction == ACTION_WALKDIR) {
+		access = PathWalkable(plr._pfutx, plr._pfuty, dir2pdir[plr._pDestParam1]) // Don't start backtrack around obstacles
+			&& MakePlrPath(pnum, plr._pfutx + offset_x[plr._pDestParam1], plr._pfuty + offset_y[plr._pDestParam1], true);
 	} else if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
 		access = !(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN) &&
 			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
@@ -2538,6 +2541,9 @@ static bool CheckNewPath(int pnum)
 
 	if (plr._pWalkpath[0] != DIR_NONE) {
 		if (plr._pmode == PM_STAND) {
+			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && plr._pWalkpath[1] == DIR_NONE)) {
+				plr._pDestAction = ACTION_NONE;
+			}
 			if (!StartWalk(pnum)) {
 				//PlrStartStand(pnum);
 				StartStand(pnum);
@@ -2557,6 +2563,7 @@ static bool CheckNewPath(int pnum)
 	if (plr._pmode == PM_STAND) {
 		switch (plr._pDestAction) {
 		case ACTION_WALK:
+		case ACTION_WALKDIR:
 			break;
 		case ACTION_OPERATE:
 		case ACTION_ATTACK:

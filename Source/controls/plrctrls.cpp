@@ -693,21 +693,13 @@ static const direction FaceDir[3][3] = {
 
 static void WalkInDir(AxisDirection dir)
 {
-	const int x = myplr._pfutx;
-	const int y = myplr._pfuty;
-
 	const int pdir = FaceDir[dir.x][dir.y];
 	if (pdir == DIR_NONE) {
 		if (sgbControllerActive && myplr._pWalkpath[0] != DIR_NONE && myplr._pDestAction == ACTION_WALK)
-			NetSendCmdLoc(CMD_WALKXY, x, y); // Stop walking
+			NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		return;
 	}
-	if (!PathWalkable(x, y, dir2pdir[pdir]))
-		return; // Don't start backtrack around obstacles
-
-	const int dx = x + offset_x[pdir];
-	const int dy = y + offset_y[pdir];
-	NetSendCmdLoc(CMD_WALKXY, dx, dy);
+	NetSendCmdBParam1(CMD_WALKDIR, pdir);
 }
 
 static void QuestLogMove(AxisDirection moveDir)

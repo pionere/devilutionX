@@ -3877,6 +3877,7 @@ typedef enum _msg_id {
 typedef enum _cmd_id {
 	CMD_SYNCDATA,
 	CMD_WALKXY,
+	CMD_WALKDIR,
 	CMD_SKILLXY,
 	CMD_OPOBJXY,
 	CMD_DISARMXY,
@@ -4550,6 +4551,7 @@ typedef enum shrine_type {
 typedef enum action_id {
 	ACTION_NONE,
 	ACTION_WALK,
+	ACTION_WALKDIR,
 	ACTION_OPERATE,
 	ACTION_ATTACK,
 	ACTION_ATTACKMON,

@@ -1735,6 +1735,7 @@ void LevelDeltaLoad()
 			net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS);
 			net_assert(abs(dObject[plr._pDestParam1][plr._pDestParam2]) == plr._pDestParam4 + 1);
 			break;
+		case ACTION_WALKDIR:
 		case ACTION_TURN:
 		case ACTION_BLOCK:
 			net_assert((unsigned)plr._pDestParam1 < NUM_DIRS);
@@ -2240,6 +2241,23 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 		plr._pDestAction = ACTION_WALK;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
+	}
+
+	return sizeof(*cmd);
+}
+
+static unsigned On_WALKDIR(TCmd* pCmd, int pnum)
+{
+	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		ClrPlrPath(pnum);
+		if (cmd->bParam1 < NUM_DIRS) {
+			plr._pDestAction = ACTION_WALKDIR;
+			plr._pDestParam1 = cmd->bParam1;
+		} else {
+			plr._pDestAction = ACTION_NONE;
+		}
 	}
 
 	return sizeof(*cmd);
@@ -4430,6 +4448,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_SYNCDATA(pCmd, pnum);
 	case CMD_WALKXY:
 		return On_WALKXY(pCmd, pnum);
+	case CMD_WALKDIR:
+		return On_WALKDIR(pCmd, pnum);
 	case CMD_SKILLXY:
 		return On_SKILLXY(pCmd, pnum);
 	case CMD_OPOBJXY:
