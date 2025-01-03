@@ -2360,9 +2360,9 @@ static void PlrDoBlock(int pnum)
 			plr._pDestAction = ACTION_NONE;
 			plr._pdir = plr._pDestParam1;
 			plr._pAnimData = plr._pAnims[PGX_BLOCK].paAnimData[plr._pDestParam1];
-			plr._pAnimFrame = plr._pAnims[PGX_BLOCK].paFrames;
+			plr._pAnimFrame = plr._pAnimLen; //  plr._pAnims[PGX_BLOCK].paFrames;
 			plr._pAnimCnt = PlrAnimFrameLens[PGX_BLOCK] - 2;
-			extlen = plr._pAnims[PGX_BLOCK].paFrames * 4;
+			extlen = plr._pAnimLen * 4; // plr._pAnims[PGX_BLOCK].paFrames * 4;
 			if (plr._pIFlags & ISPL_FASTBLOCK) {
 				extlen >>= 1;
 				if (extlen < 8)
