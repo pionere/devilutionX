@@ -2556,7 +2556,9 @@ static bool CheckNewPath(int pnum)
 		return false;
 	}
 	if (!access || plr._pDestAction == ACTION_NONE) {
-		plr._pDestAction = ACTION_NONE;
+		if (plr._pmode == PM_STAND) {
+			plr._pDestAction = ACTION_NONE;
+		}
 		return false;
 	}
 
