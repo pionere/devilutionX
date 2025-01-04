@@ -1007,31 +1007,6 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 	}
 }
 
-static bool PlrDirOK(int pnum, int dir)
-{
-	int px, py;
-
-	px = plr._px + offset_x[dir];
-	py = plr._py + offset_y[dir];
-
-	//assert(px >= DBORDERX - 1 && px < DBORDERX + DSIZEX + 1);
-	//assert(py >= DBORDERY - 1 && px < DBORDERY + DSIZEX + 1);
-	//assert(dPiece[px][py] != 0);
-	if (/*px < 0 || !dPiece[px][py] ||*/ !PosOkActor(px, py)) {
-		return false;
-	}
-
-	if (dir == DIR_E) {
-		return !nSolidTable[dPiece[px][py + 1]];
-	}
-
-	if (dir == DIR_W) {
-		return !nSolidTable[dPiece[px + 1][py]];
-	}
-
-	return true;
-}
-
 static void StartPlrKill(int pnum, int dmgtype)
 {
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
@@ -1290,20 +1265,9 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	//}
 }
 
-static bool StartWalk(int pnum)
+static bool StartWalk(int pnum, int dir)
 {
-	int dir, i, mwi;
-
-	assert(plr._pWalkpath[MAX_PATH_LENGTH] == DIR_NONE);
-	dir = plr._pWalkpath[0];
-	for (i = 0; i < MAX_PATH_LENGTH; i++) {
-		plr._pWalkpath[i] = plr._pWalkpath[i + 1];
-	}
-
-	//dir = walk2dir[dir];
-	if (!PlrDirOK(pnum, dir)) {
-		return false;
-	}
+	int mwi;
 
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
 	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
@@ -2526,27 +2490,28 @@ static void PlrDoDeath(int pnum)
 	}
 }
 
-static bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
+static int MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
-	int path = -1;
+	int md = -1;
+	int8_t path[MAX_PATH_LENGTH];
 
 	if (!endspace || PosOkPlayer(pnum, xx, yy))
-		path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr._pWalkpath);
-	if (path < 0) {
-		return false;
+		md = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, path);
+	if (md < 0) {
+		return md;
 	}
 
-	if (path != 0 && !endspace) {
-		path--;
+	if (md != 0 && !endspace) {
+		md--;
 	}
 
-	plr._pWalkpath[path] = DIR_NONE;
-	return true;
+	path[md] = DIR_NONE;
+	return path[0];
 }
 
 static void CheckNewPath(int pnum)
 {
-	bool access = true;
+	int dir = DIR_NONE;
 
 	if (plr._pmode != PM_STAND) {
 		return;
@@ -2555,44 +2520,43 @@ static void CheckNewPath(int pnum)
 		return;
 	}
 	if (plr._pDestAction == ACTION_WALK) {
-		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
+		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
 	} else if (plr._pDestAction == ACTION_WALKDIR) {
-		access = PathWalkable(plr._pfutx, plr._pfuty, dir2pdir[plr._pDestParam1]) // Don't start backtrack around obstacles
-			&& MakePlrPath(pnum, plr._pfutx + offset_x[plr._pDestParam1], plr._pfuty + offset_y[plr._pDestParam1], true);
+		if (PathWalkable(plr._pfutx, plr._pfuty, dir2pdir[plr._pDestParam1])) // Don't start backtrack around obstacles
+			dir = MakePlrPath(pnum, plr._pfutx + offset_x[plr._pDestParam1], plr._pfuty + offset_y[plr._pDestParam1], true);
+		else
+			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
-		access = !(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN) &&
-			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
+			dir = MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+		else
+			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
-		access = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+		dir = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
 	} else if (plr._pDestAction == ACTION_PICKUPITEM || plr._pDestAction == ACTION_PICKUPAITEM) {
-		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
+		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
 	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
-		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
+		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
 	}
-
-	if (!access) {
+	static_assert((int)DIR_NONE >= 0, "CheckNewPath uses negative value to define an invalid path.");
+	if (dir < 0) {
 		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
 			// inaccessible after the last action is finished -> skip the action
 			plr._pDestAction = ACTION_NONE;
-			ClrPlrPath(pnum);
 		} else {
 			// inaccessible while trying to repeat an action -> restore the mode
 			plr._pmode = plr._pVar1; // STAND_PREV_MODE
 		}
 		return;
 	}
-	if (plr._pWalkpath[0] != DIR_NONE) {
+	if (dir != DIR_NONE) {
 		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
 			// walk is necessary after the last action is finished -> start walking
 			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && plr._pWalkpath[1] == DIR_NONE)) {
 				plr._pDestAction = ACTION_NONE;
 			}
-			if (!StartWalk(pnum)) {
-				//PlrStartStand(pnum);
-				StartStand(pnum);
-				plr._pDestAction = ACTION_NONE;
-			}
+			StartWalk(pnum, dir);
 		} else {
 			// walk is necessary while trying to repeat an action -> restore the mode
 			plr._pmode = plr._pVar1; // STAND_PREV_MODE
