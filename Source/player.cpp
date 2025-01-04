@@ -1140,6 +1140,7 @@ static void AssertFixPlayerLocation(int pnum)
 
 static void StartStand(int pnum)
 {
+	plr._pVar1 = PM_STAND; // STAND_PREV_MODE -- TODO: plr._pmode?
 	plr._pmode = PM_STAND;
 
 	if (!(plr._pGFXLoad & PGF_STAND)) {
@@ -2197,12 +2198,22 @@ static void PlrDoAttack(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
-	if (plr._pAnimFrame < plr._pAnimLen)
-		return;
+	if (plr._pAnimFrame < plr._pAnimLen) {
+		if (plr._pAnimFrame > plr._pAFNum
+		 && (plr._pDestAction == ACTION_ATTACK
+		  || plr._pDestAction == ACTION_ATTACKMON
+		  || plr._pDestAction == ACTION_ATTACKPLR
+		  || plr._pDestAction == ACTION_OPERATE)) {
+			// assert(plr._pmode == PM_ATTACK);
+			plr._pVar1 = PM_ATTACK; // STAND_PREV_MODE
+			plr._pmode = PM_STAND;
+		}
+	} else {
 
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
+	}
 }
 
 static void PlrDoRangeAttack(int pnum)
@@ -2268,12 +2279,20 @@ static void PlrDoRangeAttack(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
-	if (plr._pAnimFrame < plr._pAnimLen)
-		return;
-
+	if (plr._pAnimFrame < plr._pAnimLen) {
+		if (plr._pAnimFrame > plr._pAFNum
+		 && (plr._pDestAction == ACTION_RATTACK
+		  || plr._pDestAction == ACTION_RATTACKMON
+		  || plr._pDestAction == ACTION_RATTACKPLR)) {
+			// assert(plr._pmode == PM_RATTACK);
+			plr._pVar1 = PM_RATTACK; // STAND_PREV_MODE
+			plr._pmode = PM_STAND;
+		}
+	} else {
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
+	}
 }
 
 static void ShieldDur(int pnum)
@@ -2443,12 +2462,20 @@ static void PlrDoSpell(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1);
 	// assert(plr._pAnims[PGX_FIRE].paFrames == plr._pAnimLen || plr._pAnims[PGX_LIGHTNING].paFrames == plr._pAnimLen || plr._pAnims[PGX_MAGIC].paFrames == plr._pAnimLen);
-	if (plr._pAnimFrame < plr._pAnimLen)
-		return;
-
+	if (plr._pAnimFrame < plr._pAnimLen) {
+		if (plr._pAnimFrame > plr._pSFNum
+		 && (plr._pDestAction == ACTION_SPELL
+		  || plr._pDestAction == ACTION_SPELLMON
+		  || plr._pDestAction == ACTION_SPELLPLR)) {
+			// assert(plr._pmode == PM_SPELL);
+			plr._pVar1 = PM_SPELL; // STAND_PREV_MODE
+			plr._pmode = PM_STAND;
+		}
+	} else {
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
+	}
 }
 
 static void PlrDoGotHit(int pnum)
@@ -2534,7 +2561,7 @@ static bool CheckNewPath(int pnum)
 {
 	bool access = true;
 
-	if (plr._pmode != PM_STAND && plr._pmode != PM_ATTACK && plr._pmode != PM_RATTACK && plr._pmode != PM_SPELL) {
+	if (plr._pmode != PM_STAND) {
 		return false;
 	}
 	if (plr._pDestAction == ACTION_NONE) {
@@ -2558,14 +2585,19 @@ static bool CheckNewPath(int pnum)
 	}
 
 	if (!access) {
-		if (plr._pmode == PM_STAND) {
+		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
+			// inaccessible after the last action is finished -> skip the action
 			plr._pDestAction = ACTION_NONE;
 			ClrPlrPath(pnum);
+		} else {
+			// inaccessible while trying to repeat an action -> restore the mode
+			plr._pmode = plr._pVar1; // STAND_PREV_MODE
 		}
 		return false;
 	}
 	if (plr._pWalkpath[0] != DIR_NONE) {
-		if (plr._pmode == PM_STAND) {
+		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
+			// walk is necessary after the last action is finished -> start walking
 			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && plr._pWalkpath[1] == DIR_NONE)) {
 				plr._pDestAction = ACTION_NONE;
 			}
@@ -2576,12 +2608,14 @@ static bool CheckNewPath(int pnum)
 				// return true; -- does not matter (at the moment)
 			}
 			return true;
+		} else {
+			// walk is necessary while trying to repeat an action -> restore the mode
+			plr._pmode = plr._pVar1; // STAND_PREV_MODE
 		}
 
 		return false;
 	}
 
-	if (plr._pmode == PM_STAND) {
 		switch (plr._pDestAction) {
 		case ACTION_WALK:
 		case ACTION_WALKDIR:
@@ -2624,35 +2658,6 @@ static bool CheckNewPath(int pnum)
 		plr._pDestAction = ACTION_NONE;
 
 		return plr._pmode != PM_STAND;
-	}
-
-	if (plr._pmode == PM_ATTACK && plr._pAnimFrame > plr._pAFNum) {
-		if (plr._pDestAction == ACTION_ATTACK
-		 || plr._pDestAction == ACTION_ATTACKMON
-		 || plr._pDestAction == ACTION_ATTACKPLR
-		 || plr._pDestAction == ACTION_OPERATE) {
-			StartAttack(pnum);
-			plr._pDestAction = ACTION_NONE;
-			return true;
-		}
-	} else if (plr._pmode == PM_RATTACK && plr._pAnimFrame > plr._pAFNum) {
-		if (plr._pDestAction == ACTION_RATTACK
-		 || plr._pDestAction == ACTION_RATTACKMON
-		 || plr._pDestAction == ACTION_RATTACKPLR) {
-			StartRangeAttack(pnum);
-			plr._pDestAction = ACTION_NONE;
-			return true;
-		}
-	} else if (plr._pmode == PM_SPELL && plr._pAnimFrame > plr._pSFNum) {
-		if (plr._pDestAction == ACTION_SPELL
-		 || plr._pDestAction == ACTION_SPELLMON
-		 || plr._pDestAction == ACTION_SPELLPLR) {
-			StartSpell(pnum);
-			plr._pDestAction = ACTION_NONE;
-			return true;
-		}
-	}
-	return false;
 }
 
 #if DEBUG_MODE || DEV_MODE
