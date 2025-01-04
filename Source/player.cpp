@@ -2557,15 +2557,15 @@ static bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
 	return true;
 }
 
-static bool CheckNewPath(int pnum)
+static void CheckNewPath(int pnum)
 {
 	bool access = true;
 
 	if (plr._pmode != PM_STAND) {
-		return false;
+		return;
 	}
 	if (plr._pDestAction == ACTION_NONE) {
-		return false;
+		return;
 	}
 	if (plr._pDestAction == ACTION_WALK) {
 		access = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
@@ -2593,7 +2593,7 @@ static bool CheckNewPath(int pnum)
 			// inaccessible while trying to repeat an action -> restore the mode
 			plr._pmode = plr._pVar1; // STAND_PREV_MODE
 		}
-		return false;
+		return;
 	}
 	if (plr._pWalkpath[0] != DIR_NONE) {
 		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
@@ -2605,15 +2605,12 @@ static bool CheckNewPath(int pnum)
 				//PlrStartStand(pnum);
 				StartStand(pnum);
 				plr._pDestAction = ACTION_NONE;
-				// return true; -- does not matter (at the moment)
 			}
-			return true;
 		} else {
 			// walk is necessary while trying to repeat an action -> restore the mode
 			plr._pmode = plr._pVar1; // STAND_PREV_MODE
 		}
-
-		return false;
+		return;
 	}
 
 		switch (plr._pDestAction) {
@@ -2656,8 +2653,6 @@ static bool CheckNewPath(int pnum)
 
 		AssertFixPlayerLocation(pnum);
 		plr._pDestAction = ACTION_NONE;
-
-		return plr._pmode != PM_STAND;
 }
 
 #if DEBUG_MODE || DEV_MODE
@@ -2800,7 +2795,6 @@ static void ValidatePlayer(int pnum)
 void ProcessPlayers()
 {
 	int pnum;
-	bool raflag;
 
 	if ((unsigned)mypnum >= MAX_PLRS) {
 		dev_fatal("ProcessPlayers: illegal player %d", mypnum);
@@ -2857,7 +2851,6 @@ void ProcessPlayers()
 				}
 			}
 
-			do {
 				switch (plr._pmode) {
 				case PM_STAND:
 					break;
@@ -2891,8 +2884,7 @@ void ProcessPlayers()
 				default:
 					ASSUME_UNREACHABLE
 				}
-				raflag = CheckNewPath(pnum);
-			} while (raflag);
+				CheckNewPath(pnum);
 
 			plr._pAnimCnt++;
 			if (plr._pAnimCnt >= plr._pAnimFrameLen) {
