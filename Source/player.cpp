@@ -2536,13 +2536,14 @@ static void PlrDoDeath(int pnum)
 
 static bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
-	int path;
+	int path = -1;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("MakePlrPath: illegal player %d", pnum);
 	}
 
-	path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr._pWalkpath);
+	if (!endspace || PosOkPlayer(pnum, xx, yy))
+		path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr._pWalkpath);
 	if (path < 0) {
 		return false;
 	}
