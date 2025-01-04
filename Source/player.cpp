@@ -2671,18 +2671,15 @@ static void ValidatePlayer(int pnum)
 			if (pi->_itype == ITYPE_PLACEHOLDER) {
 				int par = pi->_iPHolder;
 				if ((unsigned)par >= NUM_INV_GRID_ELEM) {
-					snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d bad ph of %d", i, pnum);
-					NetSendCmdString(0xFF);
+					EventPlrMsg("InvItem %d bad ph of %d", i, pnum);
 					numerrors++;
 				} else {
 					ItemStruct* is = &p->_pInvList[par];
 					if (is->_itype == ITYPE_NONE) {
-						snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d null ph of %d", i, pnum);
-						NetSendCmdString(0xFF);
+						EventPlrMsg("InvItem %d null ph of %d", i, pnum);
 						numerrors++;
 					} else if (is->_itype == ITYPE_PLACEHOLDER) {
-						snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d ph ph of %d", i, pnum);
-						NetSendCmdString(0xFF);
+						EventPlrMsg("InvItem %d ph ph of %d", i, pnum);
 						numerrors++;
 					} else {
 						int xx = InvItemWidth[is->_iCurs + CURSOR_FIRSTITEM] / INV_SLOT_SIZE_PX;
@@ -2692,12 +2689,10 @@ static void ValidatePlayer(int pnum)
 						int px = par % 10;
 						int py = par / 10;
 						if (x < px || x >= px + xx) {
-							snprintf(gbNetMsg, sizeof(gbNetMsg), "InvI %d lx %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
-							NetSendCmdString(0xFF);
+							EventPlrMsg("InvI %d lx %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
 							numerrors++;
 						} else if (y > py || y < py - yy) {
-							snprintf(gbNetMsg, sizeof(gbNetMsg), "InvI %d ly %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
-							NetSendCmdString(0xFF);
+							EventPlrMsg("InvI %d ly %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
 							numerrors++;
 						}
 					}
@@ -2710,14 +2705,12 @@ static void ValidatePlayer(int pnum)
 						if (ii != 0 || jj != 0) {
 							ItemStruct* is = &p->_pInvList[i + ii - jj * 10];
 							if (is->_itype != ITYPE_PLACEHOLDER) {
-								snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d no ph %d %d of %d", i, ii, jj, pnum);
-								NetSendCmdString(0xFF);
+								EventPlrMsg("InvItem %d no ph %d %d of %d", i, ii, jj, pnum);
 								numerrors++;
 								ii = xx;
 								jj = yy;
 							} else if (is->_iPHolder != i) {
-								snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d bad ph %d %d vs %d of %d", i, ii, jj, is->_iPHolder, pnum);
-								NetSendCmdString(0xFF);
+								EventPlrMsg("InvItem %d bad ph %d %d vs %d of %d", i, ii, jj, is->_iPHolder, pnum);
 								numerrors++;
 								ii = xx;
 								jj = yy;
@@ -2730,8 +2723,7 @@ static void ValidatePlayer(int pnum)
 	}
 	//p->_pGold = gt;
 	if (p->_pGold != gt) {
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Gold %d vs calcGold %d of %d", p->_pGold, gt, pnum);
-		NetSendCmdString(0xFF);
+		EventPlrMsg("Gold %d vs calcGold %d of %d", p->_pGold, gt, pnum);
 	}
 	//assert(p->_pGold == gt);
 
