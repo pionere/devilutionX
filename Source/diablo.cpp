@@ -403,7 +403,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 }
 
-void ActionBtnCmd(bool bShift)
+static void ActionBtnCmd(bool bShift)
 {
 	assert(pcursicon == CURSOR_HAND);
 
@@ -527,7 +527,7 @@ static void ActionBtnDown(bool bShift)
 	}
 }
 
-void AltActionBtnCmd(bool bShift)
+static void AltActionBtnCmd(bool bShift)
 {
 	assert(pcursicon == CURSOR_HAND);
 
