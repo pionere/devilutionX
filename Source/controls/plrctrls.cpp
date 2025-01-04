@@ -695,7 +695,7 @@ static void WalkInDir(AxisDirection dir)
 {
 	const int pdir = FaceDir[dir.x][dir.y];
 	if (pdir == DIR_NONE) {
-		if (sgbControllerActive && myplr._pWalkpath[0] != DIR_NONE && myplr._pDestAction == ACTION_WALK)
+		if (sgbControllerActive && myplr._pDestAction == ACTION_WALK)
 			NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		return;
 	}
