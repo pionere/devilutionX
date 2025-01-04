@@ -2645,22 +2645,20 @@ static void CheckNewPath(int pnum)
 #if DEBUG_MODE || DEV_MODE
 static void ValidatePlayer(int pnum)
 {
-	PlayerStruct* p;
 	ItemStruct* pi;
 	uint64_t msk;
 	int gt, i;
 
-	p = &plr;
-	//if (p->_pLevel > MAXCHARLEVEL)
-	//	p->_pLevel = MAXCHARLEVEL;
-	assert(p->_pLevel <= MAXCHARLEVEL);
-	//if (p->_pExperience > p->_pNextExper)
-	//	p->_pExperience = p->_pNextExper;
-	assert(p->_pExperience <= p->_pNextExper);
+	//if (plr._pLevel > MAXCHARLEVEL)
+	//	plr._pLevel = MAXCHARLEVEL;
+	assert(plr._pLevel <= MAXCHARLEVEL);
+	//if (plr._pExperience > plr._pNextExper)
+	//	plr._pExperience = plr._pNextExper;
+	assert(plr._pExperience <= plr._pNextExper);
 
 	int numerrors = 0;
 	gt = 0;
-	pi = p->_pInvList;
+	pi = plr._pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 			//if (pi->_ivalue > GOLD_MAX_LIMIT)
@@ -2674,7 +2672,7 @@ static void ValidatePlayer(int pnum)
 					EventPlrMsg("InvItem %d bad ph of %d", i, pnum);
 					numerrors++;
 				} else {
-					ItemStruct* is = &p->_pInvList[par];
+					ItemStruct* is = &plr._pInvList[par];
 					if (is->_itype == ITYPE_NONE) {
 						EventPlrMsg("InvItem %d null ph of %d", i, pnum);
 						numerrors++;
@@ -2703,7 +2701,7 @@ static void ValidatePlayer(int pnum)
 				for (int jj = 0; jj < yy; jj++) {
 					for (int ii = 0; ii < xx; ii++) {
 						if (ii != 0 || jj != 0) {
-							ItemStruct* is = &p->_pInvList[i + ii - jj * 10];
+							ItemStruct* is = &plr._pInvList[i + ii - jj * 10];
 							if (is->_itype != ITYPE_PLACEHOLDER) {
 								EventPlrMsg("InvItem %d no ph %d %d of %d", i, ii, jj, pnum);
 								numerrors++;
@@ -2721,23 +2719,23 @@ static void ValidatePlayer(int pnum)
 			}
 		}
 	}
-	//p->_pGold = gt;
-	if (p->_pGold != gt) {
-		EventPlrMsg("Gold %d vs calcGold %d of %d", p->_pGold, gt, pnum);
+	//plr._pGold = gt;
+	if (plr._pGold != gt) {
+		EventPlrMsg("Gold %d vs calcGold %d of %d", plr._pGold, gt, pnum);
 	}
-	//assert(p->_pGold == gt);
+	//assert(plr._pGold == gt);
 
 	msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			msk |= SPELL_MASK(i);
-			//if (p->_pSkillLvlBase[i] > MAXSPLLEVEL)
-			//	p->_pSkillLvlBase[i] = MAXSPLLEVEL;
-			assert(p->_pSkillLvlBase[i] <= MAXSPLLEVEL);
+			//if (plr._pSkillLvlBase[i] > MAXSPLLEVEL)
+			//	plr._pSkillLvlBase[i] = MAXSPLLEVEL;
+			assert(plr._pSkillLvlBase[i] <= MAXSPLLEVEL);
 		}
 	}
-	//p->_pMemSkills &= msk;
-	assert((p->_pMemSkills & ~msk) == 0);
+	//plr._pMemSkills &= msk;
+	assert((plr._pMemSkills & ~msk) == 0);
 }
 #endif
 
