@@ -2299,10 +2299,6 @@ static void ShieldDur(int pnum)
 {
 	ItemStruct* pi;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ShieldDur: illegal player %d", pnum);
-	}
-
 	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype == ITYPE_SHIELD) {
 		ReduceItemDur(pi, INVLOC_HAND_RIGHT, pnum);
@@ -2402,10 +2398,6 @@ static void ArmorDur(int pnum)
 {
 	ItemStruct *pi, *pio;
 	BYTE loc;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ArmorDur: illegal player %d", pnum);
-	}
 
 	loc = INVLOC_CHEST;
 	pi = &plr._pInvBody[INVLOC_CHEST];
@@ -2538,10 +2530,6 @@ static bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
 	int path = -1;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("MakePlrPath: illegal player %d", pnum);
-	}
-
 	if (!endspace || PosOkPlayer(pnum, xx, yy))
 		path = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, plr._pWalkpath);
 	if (path < 0) {
@@ -2662,9 +2650,6 @@ static void ValidatePlayer(int pnum)
 	uint64_t msk;
 	int gt, i;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ValidatePlayer: illegal player %d", pnum);
-	}
 	p = &plr;
 	//if (p->_pLevel > MAXCHARLEVEL)
 	//	p->_pLevel = MAXCHARLEVEL;
