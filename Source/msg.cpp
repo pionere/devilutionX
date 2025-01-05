@@ -2083,27 +2083,25 @@ void NetSendCmdSpawnItem(bool flipFlag)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdItemSkill(BYTE cii, BYTE skill, int8_t from)
+void NetSendCmdItemSkill(BYTE cii, const CmdSkillUse skillUse)
 {
 	TCmdItemOp cmd;
 
 	cmd.bCmd = CMD_OPERATEITEM;
 	cmd.ioIdx = cii;
-	cmd.iou.skill = skill;
-	cmd.iou.from = from;
+	cmd.iou = skillUse;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocSkill(BYTE x, BYTE y, BYTE skill, int8_t from)
+void NetSendCmdLocSkill(BYTE x, BYTE y, const CmdSkillUse skillUse)
 {
 	TCmdLocSkill cmd;
 
 	cmd.bCmd = CMD_SKILLXY;
 	cmd.x = x;
 	cmd.y = y;
-	cmd.lsu.skill = skill;
-	cmd.lsu.from = from;
+	cmd.lsu = skillUse;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2121,26 +2119,24 @@ void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, int8_t from)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPlrSkill(int pnum, BYTE skill, int8_t from)
+void NetSendCmdPlrSkill(int pnum, const CmdSkillUse skillUse)
 {
 	TCmdPlrSkill cmd;
 
 	cmd.bCmd = CMD_SKILLPLR;
 	cmd.psPnum = pnum;
-	cmd.psu.skill = skill;
-	cmd.psu.from = from;
+	cmd.psu = skillUse;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdMonSkill(int mnum, BYTE skill, int8_t from)
+void NetSendCmdMonSkill(int mnum, const CmdSkillUse skillUse)
 {
 	TCmdMonSkill cmd;
 
 	cmd.bCmd = CMD_SKILLMON;
 	cmd.msMnum = static_cast<uint16_t>(mnum);
-	cmd.msu.skill = skill;
-	cmd.msu.from = from;
+	cmd.msu = skillUse;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }

@@ -1858,11 +1858,12 @@ bool InvUseItem(int cii)
 #endif
 	{
 		BYTE sn = is->_iSpell;
+		const CmdSkillUse itmSkill = { sn, static_cast<int8_t>(cii) }; 
 		if (spelldata[sn].scCurs != CURSOR_NONE) {
-			gbTSkillUse = { sn, static_cast<int8_t>(cii) };
+			gbTSkillUse = itmSkill;
 			NewCursor(spelldata[sn].scCurs);
 		} else {
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, sn, cii);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, itmSkill);
 		}
 	} return true;
 	case IMISC_BOOK:

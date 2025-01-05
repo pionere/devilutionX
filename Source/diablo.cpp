@@ -325,31 +325,31 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
-
+		const CmdSkillUse skillUse = { atkSkill, asf };
 		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
 			NewCursor(spelldata[atkSkill].spCurs);
-			gbTSkillUse = { atkSkill, asf };
+			gbTSkillUse = skillUse;
 			return;
 		}
 
 		if (bShift) {
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, atkSkill, asf);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
 		if (pcursmonst != MON_NONE) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKMON, pcursmonst);
 			} else {
-				NetSendCmdMonSkill(pcursmonst, atkSkill, asf);
+				NetSendCmdMonSkill(pcursmonst, skillUse);
 			}
 			return;
 		}
 		if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam) {
-			NetSendCmdPlrSkill(pcursplr, atkSkill, asf);
+			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
 		if (moveSkill == SPL_INVALID) {
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, atkSkill, asf);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
 	} else if (moveSkill == SPL_INVALID) {
@@ -390,7 +390,8 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 	if (moveSkill != SPL_WALK) {
 		// TODO: check if pcurspos.x/y == _px/y ?
-		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, moveSkill, msf);
+		const CmdSkillUse skillUse = { moveSkill, msf };
+		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 		return;
 	}
 
@@ -418,7 +419,7 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_RECHARGE:
 	case CURSOR_OIL:
 		if (pcursinvitem != INVITEM_NONE) {
-			NetSendCmdItemSkill(pcursinvitem, gbTSkillUse.skill, gbTSkillUse.from);
+			NetSendCmdItemSkill(pcursinvitem, gbTSkillUse);
 		}
 		break;
 	case CURSOR_DISARM:
@@ -444,11 +445,11 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_HEALOTHER:
 	case CURSOR_RESURRECT:
 		if (pcursmonst != MON_NONE)
-			NetSendCmdMonSkill(pcursmonst, gbTSkillUse.skill, gbTSkillUse.from);
+			NetSendCmdMonSkill(pcursmonst, gbTSkillUse);
 		else if (pcursplr != PLR_NONE)
-			NetSendCmdPlrSkill(pcursplr, gbTSkillUse.skill, gbTSkillUse.from);
+			NetSendCmdPlrSkill(pcursplr, gbTSkillUse);
 		else if (pcursicon == CURSOR_TELEPORT)
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSkillUse.skill, gbTSkillUse.from);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSkillUse);
 		break;
 	default:
 		return false;
