@@ -328,8 +328,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
 			NewCursor(spelldata[atkSkill].spCurs);
-			gbTSpell = atkSkill;
-			gbTSplFrom = asf;
+			gbTSkillUse = { atkSkill, asf };
 			return;
 		}
 
@@ -419,37 +418,37 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_RECHARGE:
 	case CURSOR_OIL:
 		if (pcursinvitem != INVITEM_NONE) {
-			NetSendCmdItemSkill(pcursinvitem, gbTSpell, gbTSplFrom);
+			NetSendCmdItemSkill(pcursinvitem, gbTSkillUse.skill, gbTSkillUse.from);
 		}
 		break;
 	case CURSOR_DISARM:
 		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!bShift ||
 			 (abs(myplr._px - pcurspos.x) < 2 && abs(myplr._py - pcurspos.y) < 2)) {
-				// assert(gbTSpell == SPL_DISARM);
-				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSplFrom);
+				// assert(gbTSkillUse.skill == SPL_DISARM);
+				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSkillUse.from);
 			}
 		}
 		break;
 	case CURSOR_TELEKINESIS: {
-		// assert(gbTSpell == SPL_TELEKINESIS);
+		// assert(gbTSkillUse.skill == SPL_TELEKINESIS);
 		if (pcursobj != OBJ_NONE) {
-			NetSendCmdParamBW(CMD_TELEKINOID, gbTSplFrom, pcursobj);
+			NetSendCmdParamBW(CMD_TELEKINOID, gbTSkillUse.from, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
-			NetSendCmdLocBParam2(CMD_TELEKINXY, items[pcursitem]._ix, items[pcursitem]._iy, gbTSplFrom, pcursitem);
+			NetSendCmdLocBParam2(CMD_TELEKINXY, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
 		} else if (pcursmonst != MON_NONE) {
-			NetSendCmdParamBW(CMD_TELEKINID, gbTSplFrom, pcursmonst);
+			NetSendCmdParamBW(CMD_TELEKINID, gbTSkillUse.from, pcursmonst);
 		}
 	} break;
 	case CURSOR_TELEPORT:
 	case CURSOR_HEALOTHER:
 	case CURSOR_RESURRECT:
 		if (pcursmonst != MON_NONE)
-			NetSendCmdMonSkill(pcursmonst, gbTSpell, gbTSplFrom);
+			NetSendCmdMonSkill(pcursmonst, gbTSkillUse.skill, gbTSkillUse.from);
 		else if (pcursplr != PLR_NONE)
-			NetSendCmdPlrSkill(pcursplr, gbTSpell, gbTSplFrom);
+			NetSendCmdPlrSkill(pcursplr, gbTSkillUse.skill, gbTSkillUse.from);
 		else if (pcursicon == CURSOR_TELEPORT)
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSpell, gbTSplFrom);
+			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSkillUse.skill, gbTSkillUse.from);
 		break;
 	default:
 		return false;

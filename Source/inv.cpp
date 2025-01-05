@@ -11,8 +11,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 bool gbInvflag;
-BYTE gbTSpell;     // the spell to cast after the target is selected
-int8_t gbTSplFrom; // the source of the spell after the target is selected
+CmdSkillUse gbTSkillUse; // the spell to cast and its source after the target is selected
 
 CelImageBuf* pInvCels;
 CelImageBuf* pBeltCels;
@@ -203,8 +202,7 @@ void InitInv()
 	assert(pBeltCels == NULL);
 	pBeltCels = CelLoadImage("Data\\Inv\\Belt.CEL", BELT_WIDTH);
 	//gbInvflag = false;
-	//gbTSpell = SPL_NULL;
-	//gbTSplFrom = 0;
+	//gbTSkillUse = { SPL_NULL, 0 };
 }
 
 static void InvDrawSlotBack(int X, int Y, int W, int H)
@@ -1786,7 +1784,6 @@ static void InvAddMana(int pnum)
 
 bool InvUseItem(int cii)
 {
-	int sn;
 	ItemStruct* is;
 	int pnum = mypnum;
 
@@ -1859,15 +1856,15 @@ bool InvUseItem(int cii)
 #ifdef HELLFIRE
 	case IMISC_RUNE:
 #endif
-		sn = is->_iSpell;
+	{
+		BYTE sn = is->_iSpell;
 		if (spelldata[sn].scCurs != CURSOR_NONE) {
-			gbTSpell = sn;
-			gbTSplFrom = cii;
+			gbTSkillUse = { sn, static_cast<int8_t>(cii) };
 			NewCursor(spelldata[sn].scCurs);
 		} else {
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, sn, cii);
 		}
-		return true;
+	} return true;
 	case IMISC_BOOK:
 		break;
 	//case IMISC_MAPOFDOOM:
@@ -1882,8 +1879,7 @@ bool InvUseItem(int cii)
 	case IMISC_OILRESIST:
 	case IMISC_OILCHANCE:
 	case IMISC_OILCLEAN:
-		gbTSpell = SPL_OIL;
-		gbTSplFrom = cii;
+		gbTSkillUse = { SPL_OIL, static_cast<int8_t>(cii) };
 		NewCursor(CURSOR_OIL);
 		return true;
 	case IMISC_MAP:
