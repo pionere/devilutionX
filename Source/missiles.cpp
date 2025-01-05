@@ -3303,7 +3303,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		// assert(target < MAXITEMS);
 		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy
 		 && LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
-			NetSendCmdGItem(CMD_AUTOGETITEM, target);
+			NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, target);
 		break;
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
