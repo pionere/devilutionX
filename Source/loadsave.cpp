@@ -145,7 +145,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	LSavePlayerStruct* DVL_RESTRICT savedPlr = (LSavePlayerStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	pr->_pmode = savedPlr->vpmode;
-	memcpy(pr->_pWalkpath, savedPlr->vpWalkpath, lengthof(pr->_pWalkpath));
 	pr->_pDestAction = savedPlr->vpDestAction;
 	pr->_pDestParam1 = savedPlr->vpDestParam1;
 	pr->_pDestParam2 = savedPlr->vpDestParam2;
@@ -988,7 +987,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	LSavePlayerStruct* DVL_RESTRICT plrSave = (LSavePlayerStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	plrSave->vpmode = pr->_pmode;
-	memcpy(plrSave->vpWalkpath, pr->_pWalkpath, lengthof(pr->_pWalkpath));
 	plrSave->vpDestAction = pr->_pDestAction;
 	plrSave->vpDestParam1 = pr->_pDestParam1;
 	plrSave->vpDestParam2 = pr->_pDestParam2;

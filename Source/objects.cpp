@@ -1465,7 +1465,6 @@ static void Obj_Circle(int oi)
 			AddMissile(0, 0, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
 			gbActionBtnDown = false;
 			gbAltActionBtnDown = false;
-			ClrPlrPath(mypnum);
 			myplr._pdir = DIR_NW;
 			myplr._pAnimData = myplr._pAnims[PGX_STAND].paAnimData[DIR_NW];
 			myplr._pDestAction = ACTION_NONE;

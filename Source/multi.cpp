@@ -684,7 +684,6 @@ static void SetupLocalPlr()
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
-	assert(p->_pWalkpath[0] == DIR_NONE);
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town

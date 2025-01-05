@@ -325,7 +325,6 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Ali
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	int8_t _pWalkpath[MAX_PATH_LENGTH + 1];
 	int _pDestAction;
 	int _pDestParam1;
 	int _pDestParam2;
@@ -470,7 +469,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(179, 94)
+	ALIGNMENT(185, 100)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1283,7 +1282,6 @@ typedef struct LSaveItemStruct {
 
 typedef struct LSavePlayerStruct {
 	LE_INT32 vpmode; // PLR_MODE
-	int8_t vpWalkpath[MAX_PATH_LENGTH + 1];
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
@@ -1847,7 +1845,6 @@ typedef struct TSyncMonster {
 
 typedef struct TSyncLvlPlayer {
 	BYTE spMode;
-	BYTE spWalkpath[MAX_PATH_LENGTH];
 	BYTE spManaShield;
 	BYTE spInvincible;
 	BYTE spDestAction;

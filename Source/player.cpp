@@ -784,8 +784,6 @@ void InitPlayer(int pnum)
 
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
-
-	plr._pWalkpath[MAX_PATH_LENGTH] = DIR_NONE;
 }
 
 /*
@@ -821,7 +819,6 @@ void InitLvlPlayer(int pnum, bool entering)
 		// plr._pAnimFrame = RandRange(1, plr._pAnimLen - 1);
 		// plr._pAnimCnt = random_(2, 3);
 
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_NONE;
 	} else {
 		if (pnum == mypnum) {
@@ -1671,7 +1668,6 @@ void SyncPlrResurrect(int pnum)
 		gamemenu_off();
 	}
 
-	ClrPlrPath(pnum);
 	plr._pDestAction = ACTION_NONE;
 	plr._pmode = PM_STAND;
 	plr._pInvincible = FALSE;
@@ -1691,7 +1687,6 @@ static void InitLevelChange(int pnum)
 {
 	RemoveLvlPlayer(pnum);
 
-	ClrPlrPath(pnum);
 	plr._pDestAction = ACTION_NONE;
 	plr._pLvlChanging = TRUE;
 	plr._pmode = PM_NEWLVL;
@@ -2553,7 +2548,7 @@ static void CheckNewPath(int pnum)
 	if (dir != DIR_NONE) {
 		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
 			// walk is necessary after the last action is finished -> start walking
-			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && plr._pWalkpath[1] == DIR_NONE)) {
+			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && path[1] == DIR_NONE)) {
 				plr._pDestAction = ACTION_NONE;
 			}
 			StartWalk(pnum, dir);
@@ -2834,15 +2829,6 @@ void ProcessPlayers()
 		}
 	}
 	gbGameLogicPnum = 0;
-}
-
-void ClrPlrPath(int pnum)
-{
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ClrPlrPath: illegal player %d", pnum);
-	}
-	plr._pWalkpath[0] = DIR_NONE;
-	//memset(plr._pWalkpath, DIR_NONE, sizeof(plr._pWalkpath));
 }
 
 void PlrHinder(int pnum, int spllvl, unsigned tick)

@@ -1251,9 +1251,6 @@ void LevelDeltaExport()
 			}
 
 			tplr->spMode = plr._pmode;
-			static_assert(sizeof(plr._pWalkpath[0]) == 1, "LevelDeltaExport exports walkpath as a bytestream.");
-			static_assert(((MAX_PATH_LENGTH + 1) % 4 == 0) && (offsetof(TSyncLvlPlayer, spWalkpath) + MAX_PATH_LENGTH + 1) <= sizeof(TSyncLvlPlayer), "LevelDeltaExport uses DWORD-memcpy to optimize performance.");
-			memcpy(tplr->spWalkpath, plr._pWalkpath, MAX_PATH_LENGTH + 1);
 			tplr->spManaShield = plr._pManaShield;
 			tplr->spInvincible = plr._pInvincible;
 			tplr->spDestAction = plr._pDestAction;
@@ -1453,7 +1450,6 @@ void LevelDeltaLoad()
 		if (pnum == mypnum) {
 			net_assert(tplr->spMode == PM_STAND
 			 || ((tplr->spMode == PM_DEATH || tplr->spMode == PM_DYING) && plr._pHitPoints < (1 << 6)));
-			net_assert(tplr->spWalkpath[0] == DIR_NONE);
 			net_assert(tplr->spDestAction == ACTION_NONE);
 			net_assert(tplr->spInvincible == 40);
 			net_assert(plr._pTimer[PLTR_INFRAVISION] == tplr->spTimer[PLTR_INFRAVISION]);
@@ -1468,8 +1464,6 @@ void LevelDeltaLoad()
 			dPlayer[plr._px][plr._py] = 0;
 		net_assert(tplr->spMode < NUM_PLR_MODES);
 		plr._pmode = tplr->spMode;
-		static_assert(sizeof(tplr->spWalkpath[0]) == 1, "LevelDeltaLoad imports walkpath as a bytestream.");
-		memcpy(plr._pWalkpath, tplr->spWalkpath, MAX_PATH_LENGTH);
 		plr._pManaShield = tplr->spManaShield;
 		plr._pInvincible = tplr->spInvincible;
 		plr._pDestAction = tplr->spDestAction;
@@ -1506,11 +1500,6 @@ void LevelDeltaLoad()
 
 		src += sizeof(TSyncLvlPlayer);
 		// validate data
-		for (i = 0; i < MAX_PATH_LENGTH; i++) {
-			if (plr._pWalkpath[i] == DIR_NONE)
-				break;
-			net_assert(plr._pWalkpath[i] < NUM_DIRS);
-		}
 		net_assert(plr._pdir < NUM_DIRS);
 		// net_assert((unsigned)plr._px < MAXDUNX);
 		// net_assert((unsigned)plr._py < MAXDUNY);
@@ -2232,7 +2221,6 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 	TCmdLoc* cmd = (TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_WALK;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2246,7 +2234,6 @@ static unsigned On_WALKDIR(TCmd* pCmd, int pnum)
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ClrPlrPath(pnum);
 		if (cmd->bParam1 < NUM_DIRS) {
 			plr._pDestAction = ACTION_WALKDIR;
 			plr._pDestParam1 = cmd->bParam1;
@@ -2302,7 +2289,6 @@ static unsigned On_TURN(TCmd* pCmd, int pnum)
 		dir = cmd->bParam1;
 
 		net_assert(dir < NUM_DIRS);
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_TURN;
 		plr._pDestParam1 = dir;
 	}
@@ -2318,7 +2304,6 @@ static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 		dir = cmd->bParam1;
 
 		net_assert(dir < NUM_DIRS);
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_BLOCK;
 		plr._pDestParam1 = dir;
 	}
@@ -2334,7 +2319,6 @@ static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
 		ii = cmd->wParam1;
 
 		net_assert(ii < MAXITEMS);
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_PICKUPITEM;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2535,7 +2519,7 @@ static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
 	TCmdLocSkill* cmd = (TCmdLocSkill*)pCmd;
 
 	if (CheckPlrSkillUse(pnum, cmd->lsu)) {
-		ClrPlrPath(pnum);
+		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		plr._pDestAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2565,7 +2549,6 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		// add cast effect
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = plr._px;
 		plr._pDestParam2 = plr._py;
@@ -2588,7 +2571,6 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_OPERATE;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2616,7 +2598,6 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2636,7 +2617,6 @@ static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 		mnum = cmd->msMnum;
 
 		net_assert(mnum < MAXMONSTERS);
-		ClrPlrPath(pnum);
 		plr._pDestAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
 		plr._pDestParam1 = mnum;                // target id
 		plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
@@ -2655,7 +2635,6 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 		tnum = cmd->psPnum;
 
 		net_assert(tnum < MAX_PLRS);
-		ClrPlrPath(pnum);
 		plr._pDestAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
 		plr._pDestParam1 = tnum;                // target id
 		plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
@@ -2674,7 +2653,6 @@ static unsigned On_TALKMON(TCmd* pCmd, int pnum)
 		mnum = cmd->wParam1;
 
 		net_assert(mnum < MAXMONSTERS);
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_TALK;
 		plr._pDestParam1 = mnum;
 	}
@@ -3185,8 +3163,6 @@ static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 	su.skill = SPL_TELEKINESIS;
 
 	if (CheckPlrSkillUse(pnum, su)) {
-		ClrPlrPath(pnum);
-
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = x;
 		plr._pDestParam2 = y;
@@ -3666,9 +3642,6 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 
 		*buf = plx(i)._pmode;
 		buf++;
-
-		//memcpy(buf, plx(i)._pWalkpath, MAX_PATH_LENGTH + 1);
-		//buf += MAX_PATH_LENGTH + 1;
 
 		*buf = plx(i)._pDestAction;
 		buf++;
