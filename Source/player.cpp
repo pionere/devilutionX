@@ -1525,7 +1525,7 @@ static void StartSpell(int pnum)
 static void StartPickItem(int pnum)
 {
 	if (pnum == mypnum && pcursicon == CURSOR_HAND) {
-		NetSendCmdGItem(plr._pDestAction == ACTION_PICKUPAITEM ? CMD_AUTOGETITEM : CMD_GETITEM, plr._pDestParam4);
+		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, plr._pDestParam4);
 	}
 }
 
@@ -2533,7 +2533,7 @@ static void CheckNewPath(int pnum)
 			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		dir = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
-	} else if (plr._pDestAction == ACTION_PICKUPITEM || plr._pDestAction == ACTION_PICKUPAITEM) {
+	} else if (plr._pDestAction == ACTION_PICKUPITEM) {
 		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
 	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
@@ -2591,7 +2591,6 @@ static void CheckNewPath(int pnum)
 			StartBlock(pnum, plr._pDestParam1);
 			break;
 		case ACTION_PICKUPITEM:
-		case ACTION_PICKUPAITEM:
 			StartPickItem(pnum);
 			break;
 		case ACTION_TALK:

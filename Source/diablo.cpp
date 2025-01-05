@@ -395,7 +395,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 
 	if (pcursitem != ITEM_NONE) {
-		NetSendCmdLocParam1(gbInvflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, pcurspos.x, pcurspos.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 		return;
 	}
 	if (!nSolidTable[dPiece[pcurspos.x][pcurspos.y]])

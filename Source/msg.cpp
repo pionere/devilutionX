@@ -1784,8 +1784,7 @@ void LevelDeltaLoad()
 				}
 			}
 			break;
-		case ACTION_PICKUPITEM:  // put item in hand (inventory screen open)
-		case ACTION_PICKUPAITEM: // put item in inventory
+		case ACTION_PICKUPITEM:
 			net_assert((unsigned)plr._pDestParam4 < MAXITEMS);
 			break;
 		case ACTION_TALK:
@@ -2370,25 +2369,6 @@ static unsigned On_GETITEM(TCmd* pCmd, int pnum)
 			copy_pod(plr._pHoldItem, items[MAXITEMS]);
 			// assert(!plr._pHoldItem._iFloorFlag);
 		}
-	}
-
-	return sizeof(*cmd);
-}
-
-static unsigned On_GOTOAGETITEM(TCmd* pCmd, int pnum)
-{
-	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
-	int ii;
-
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		ii = cmd->wParam1;
-
-		net_assert(ii < MAXITEMS);
-		ClrPlrPath(pnum);
-		plr._pDestAction = ACTION_PICKUPAITEM;
-		plr._pDestParam1 = cmd->x;
-		plr._pDestParam2 = cmd->y;
-		plr._pDestParam4 = ii;
 	}
 
 	return sizeof(*cmd);
@@ -4518,8 +4498,6 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_AUTOGETITEM(pCmd, pnum);
 	case CMD_GOTOGETITEM:
 		return On_GOTOGETITEM(pCmd, pnum);
-	case CMD_GOTOAGETITEM:
-		return On_GOTOAGETITEM(pCmd, pnum);
 	case CMD_OPERATEITEM:
 		return On_OPERATEITEM(pCmd, pnum);
 	case CMD_OPERATEOBJ:

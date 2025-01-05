@@ -3912,7 +3912,6 @@ typedef enum _cmd_id {
 	CMD_GETITEM,
 	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,
-	CMD_GOTOAGETITEM,
 	CMD_OPERATEITEM,
 	CMD_OPERATEOBJ,
 	CMD_DOOROPEN,
@@ -4564,8 +4563,7 @@ typedef enum action_id {
 	ACTION_SPELLPLR,
 	ACTION_TURN,
 	ACTION_BLOCK,
-	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
-	ACTION_PICKUPAITEM, // put item in inventory
+	ACTION_PICKUPITEM,
 	ACTION_TALK,
 } action_id;
 
