@@ -3171,7 +3171,7 @@ static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 	}
 }
 
-static unsigned On_TELEKINXY(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINITM(TCmd* pCmd, int pnum)
 {
 	TCmdLocBParam2* cmd = (TCmdLocBParam2*)pCmd;
 
@@ -3180,7 +3180,7 @@ static unsigned On_TELEKINXY(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TELEKINID(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINMON(TCmd* pCmd, int pnum)
 {
 	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
 	int mnum = cmd->wordParam;
@@ -3192,7 +3192,7 @@ static unsigned On_TELEKINID(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TELEKINOID(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINOBJ(TCmd* pCmd, int pnum)
 {
 	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
 	int oi = cmd->wordParam;
@@ -4483,12 +4483,12 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_SHRINE:
 		return On_SHRINE(pCmd, pnum);
-	case CMD_TELEKINXY:
-		return On_TELEKINXY(pCmd, pnum);
-	case CMD_TELEKINID:
-		return On_TELEKINID(pCmd, pnum);
-	case CMD_TELEKINOID:
-		return On_TELEKINOID(pCmd, pnum);
+	case CMD_TELEKINITM:
+		return On_TELEKINITM(pCmd, pnum);
+	case CMD_TELEKINMON:
+		return On_TELEKINMON(pCmd, pnum);
+	case CMD_TELEKINOBJ:
+		return On_TELEKINOBJ(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:
 		return On_ACTIVATEPORTAL(pCmd, pnum);
 	case CMD_NEWLVL:

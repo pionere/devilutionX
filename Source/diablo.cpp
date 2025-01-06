@@ -434,11 +434,11 @@ bool TryIconCurs(bool bShift)
 	case CURSOR_TELEKINESIS: {
 		// assert(gbTSkillUse.skill == SPL_TELEKINESIS);
 		if (pcursobj != OBJ_NONE) {
-			NetSendCmdParamBW(CMD_TELEKINOID, gbTSkillUse.from, pcursobj);
+			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
-			NetSendCmdLocBParam2(CMD_TELEKINXY, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
+			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
 		} else if (pcursmonst != MON_NONE) {
-			NetSendCmdParamBW(CMD_TELEKINID, gbTSkillUse.from, pcursmonst);
+			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
 		}
 	} break;
 	case CURSOR_TELEPORT:
