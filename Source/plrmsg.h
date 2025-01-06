@@ -20,7 +20,7 @@ void ReceivePlrMsg(int pnum, const char* pszStr);
 void InitPlrMsg();
 void DrawPlrMsg(bool onTop);
 void StartPlrMsg();
-void SetupPlrMsg(int pnum, bool shift);
+void SetupPlrMsg(int pnum);
 void VersionPlrMsg();
 void StopPlrMsg();
 void plrmsg_HandleMouseReleaseEvent();

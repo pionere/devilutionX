@@ -2344,7 +2344,7 @@ void DrawTeamBook()
 	}
 }
 
-void CheckTeamClick(bool shift)
+void CheckTeamClick()
 {
 	int dx, dy;
 
@@ -2364,7 +2364,7 @@ void CheckTeamClick(bool shift)
 		}
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
-			SetupPlrMsg(pnum, shift);
+			SetupPlrMsg(pnum);
 		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
 		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
 			// clicked on the right column of buttons

@@ -311,14 +311,14 @@ void StartPlrMsg()
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
-void SetupPlrMsg(int pnum, bool shift)
+void SetupPlrMsg(int pnum)
 {
 	const char* text;
 	int param;
 
 	if (!gbTalkflag)
 		StartPlrMsg();
-	if (!shift) {
+	if (!(SDL_GetModState() & KMOD_SHIFT)) {
 		text = "/p%d ";
 		param = pnum;
 	} else {

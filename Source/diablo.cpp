@@ -511,7 +511,7 @@ static void ActionBtnDown(bool bShift)
 		CheckQuestlogClick();
 		break;
 	case WND_TEAM:
-		CheckTeamClick(bShift);
+		CheckTeamClick();
 		break;
 	case WND_BOOK:
 		CheckBookClick(bShift, false);

@@ -1124,7 +1124,7 @@ void PerformSecondaryAction()
 	}
 
 	if (pcurswnd == WND_TEAM) {
-		CheckTeamClick(false);
+		CheckTeamClick();
 		return;
 	}
 
