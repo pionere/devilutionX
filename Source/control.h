@@ -81,7 +81,7 @@ void CheckTeamClick();
 void DrawGolemBar();
 void InitCampaignMap(int cii);
 void DrawCampaignMap();
-void TryCampaignMapClick(bool bShift, bool altAction);
+void TryCampaignMapClick(bool altAction);
 
 #ifdef __cplusplus
 }

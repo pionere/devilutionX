@@ -470,7 +470,7 @@ static void ActionBtnDown(bool bShift)
 	assert(!gbQtextflag);
 
 	if (gbCampaignMapFlag != CMAP_NONE) {
-		TryCampaignMapClick(bShift, false);
+		TryCampaignMapClick(false);
 		return;
 	}
 
@@ -545,7 +545,7 @@ static void AltActionBtnDown(bool bShift)
 	assert(!gbQtextflag);
 
 	if (gbCampaignMapFlag != CMAP_NONE) {
-		TryCampaignMapClick(bShift, true);
+		TryCampaignMapClick(true);
 		return;
 	}
 

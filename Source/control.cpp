@@ -2515,7 +2515,7 @@ void InitCampaignMap(int cii)
 	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
-void TryCampaignMapClick(bool bShift, bool altAction)
+void TryCampaignMapClick(bool altAction)
 {
 	if (!altAction) {
 		BYTE mIdx = currCamEntry.ceIndex;
@@ -2523,7 +2523,7 @@ void TryCampaignMapClick(bool bShift, bool altAction)
 			if (currCamEntry.ceAvailable) {
 				selCamEntry = currCamEntry;
 				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
-				if (!bShift) {
+				if (!(SDL_GetModState() & KMOD_SHIFT)) {
 					if (gbInvflag) {
 						gbInvflag = false;
 						/* gbInvflag =*/ ToggleWindow(WND_INV);
