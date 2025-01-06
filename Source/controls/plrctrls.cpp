@@ -1119,7 +1119,7 @@ void PerformSecondaryAction()
 	}
 
 	if (pcurswnd == WND_BOOK) {
-		CheckBookClick(false, true);
+		CheckBookClick(true);
 		return;
 	}
 

@@ -572,11 +572,11 @@ void DrawSkillList()
 
 /*
  * @brief Select the current skill to use for the (alt)action button.
- * @param shift true: the other (move/attack)skill is kept
- *             false: the other (move/attack)skill is set to INVALID
+ *   If shift is pressed:  the other (move/attack)skill is kept
+ *            is released: the other (move/attack)skill is set to INVALID
  * @param altSkill set it as the action or the alt action skill
  */
-void SetSkill(bool shift, bool altSkill)
+void SetSkill(bool altSkill)
 {
 	PlayerStruct* p;
 	BYTE sn;
@@ -593,7 +593,7 @@ void SetSkill(bool shift, bool altSkill)
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
-	if (shift) {
+	if (SDL_GetModState() & KMOD_SHIFT) {
 		if (!altSkill) {
 			if (moveskill) {
 				p->_pMoveSkill = sn;
@@ -2136,12 +2136,12 @@ void DrawSpellBook()
 #endif
 }
 
-void CheckBookClick(bool shift, bool altSkill)
+void CheckBookClick(bool altSkill)
 {
 	int dx, dy;
 
 	if (currSkill != SPL_INVALID) {
-		SetSkill(shift, altSkill);
+		SetSkill(altSkill);
 		return;
 	}
 	if (altSkill) {

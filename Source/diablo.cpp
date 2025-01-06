@@ -475,7 +475,7 @@ static void ActionBtnDown(bool bShift)
 	}
 
 	if (gbSkillListFlag) {
-		SetSkill(bShift, false);
+		SetSkill(false);
 		return;
 	}
 
@@ -514,7 +514,7 @@ static void ActionBtnDown(bool bShift)
 		CheckTeamClick();
 		break;
 	case WND_BOOK:
-		CheckBookClick(bShift, false);
+		CheckBookClick(false);
 		break;
 	default:
 		if (pcursicon >= CURSOR_FIRSTITEM) {
@@ -550,7 +550,7 @@ static void AltActionBtnDown(bool bShift)
 	}
 
 	if (gbSkillListFlag) {
-		SetSkill(bShift, true);
+		SetSkill(true);
 		return;
 	}
 
@@ -573,7 +573,7 @@ static void AltActionBtnDown(bool bShift)
 	case WND_TEAM:
 		break;
 	case WND_BOOK:
-		CheckBookClick(bShift, true);
+		CheckBookClick(true);
 		break;
 	default:
 		if (pcursicon >= CURSOR_FIRSTITEM) {

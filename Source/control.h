@@ -44,7 +44,7 @@ extern int camItemIndex;
 extern CampaignMapEntry selCamEntry;
 
 void DrawSkillList();
-void SetSkill(bool shift, bool altSkill);
+void SetSkill(bool altSkill);
 void SetSkillHotKey(int slot, bool altSkill);
 void SelectHotKeySkill(int slot, bool altSkill);
 void DrawLifeFlask();
@@ -72,7 +72,7 @@ void DrawSTextBox(int x, int y);
 void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
-void CheckBookClick(bool shift, bool altSkill);
+void CheckBookClick(bool altSkill);
 const char* get_pieces_str(int nGold);
 void DrawGoldSplit(int amount);
 void control_drop_gold(int vkey);
