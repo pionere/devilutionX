@@ -1754,8 +1754,6 @@ void LevelDeltaLoad()
 			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
 				net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS); // fake SPELL_LEVEL
-			if (plr._pDestParam3 == SPL_RESURRECT)
-				net_assert((unsigned)plr._pDestParam4 < MAX_PLRS); // fake SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_TELEKINESIS) {
 				switch (plr._pDestParam4 >> 16) {
 				case MTT_ITEM:
@@ -2594,7 +2592,6 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		oi = cmd->oi;
 
 		net_assert(oi < MAXOBJECTS);
-		net_assert(objects[oi]._oBreak == OBM_UNBREAKABLE);
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
 
