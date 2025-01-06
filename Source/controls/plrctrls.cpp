@@ -1067,7 +1067,7 @@ void PerformSpellAction()
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
-	if (!gbAltActionBtnDown) {
+	if (!(gbActionBtnDown & ACTBTN_MASK(ACT_ALTACT))) {
 		static_assert(CMAP_NONE == 0, "BitOr optimization of PerformSpellAction expects CMAP_NONE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of PerformSpellAction expects STORE_NONE to be zero.");
 		if ((gbCampaignMapFlag | gbSkillListFlag | stextflag) == 0 && pcurswnd == WND_NONE) {
@@ -1081,7 +1081,7 @@ void PerformSpellAction()
 			}
 		}
 		InputBtnDown(ACT_ALTACT);
-		gbAltActionBtnDown = false;
+		gbActionBtnDown &= ~ACTBTN_MASK(ACT_ALTACT);
 	}
 }
 

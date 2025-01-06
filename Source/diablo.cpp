@@ -36,10 +36,8 @@ int gbRedrawFlags;
 bool gbGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
 BYTE gbDeathflag = MDM_ALIVE;
-/** Specifies whether the main action button is pressed. */
-bool gbActionBtnDown;
-/** Specifies whether the secondary action button is pressed. */
-bool gbAltActionBtnDown;
+/** The state of the buttons for which might be repeated while held down. */
+unsigned gbActionBtnDown;
 /** tick counter when the last time an action was repeated because a button was held down. */
 static Uint32 guLastRBD;
 /** Specifies the speed of the game. */
@@ -73,9 +71,9 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
   ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_TGT, ACT_SKL5, ACT_SWAP, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_W_SW, ACT_W_S,  ACT_W_SE, ACT_W_W,
 // NUM5,    NUM6,     NUM7,     NUM8,     NUM9,     MULT,     ADD,         SEP,      SUB,          DEC,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_NONE, ACT_MAPZ_OUT, ACT_NONE,
+  ACT_STOP, ACT_W_E,  ACT_W_NW, ACT_W_N,  ACT_W_NE, ACT_NONE, ACT_MAPZ_IN, ACT_NONE, ACT_MAPZ_OUT, ACT_NONE,
 // DIV,     F1,       F2,       F3,       F4,       F5,       F6,       F7,       F8,       F9,
   ACT_NONE, ACT_HELP, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MSG0, ACT_MSG1, ACT_MSG2, ACT_MSG3, ACT_NONE,
 // F10,     F11,      F12,      F13,      F14,      F15,      F16,      F17,      F18,      F19,
@@ -642,10 +640,8 @@ static void ReleaseKey(int vkey)
 		CaptureScreen();
 	}
 
-	if (WMButtonInputTransTbl[vkey] == ACT_ACT) {
-		gbActionBtnDown = false;
-	} else if (WMButtonInputTransTbl[vkey] == ACT_ALTACT) {
-		gbAltActionBtnDown = false;
+	if (WMButtonInputTransTbl[vkey] >= ACT_ACT && WMButtonInputTransTbl[vkey] <= ACT_W_SE) {
+		gbActionBtnDown &= ~ACTBTN_MASK(WMButtonInputTransTbl[vkey]);
 	}
 }
 
@@ -763,22 +759,44 @@ static void PressDebugChar(int vkey)
 
 void InputBtnDown(int transKey)
 {
+	if (transKey >= ACT_ACT && (unsigned)transKey <= ACT_W_SE) {
+		if (gbActionBtnDown & ACTBTN_MASK(transKey))
+			return;
+		gbActionBtnDown |= ACTBTN_MASK(transKey);
+		guLastRBD = SDL_GetTicks();
+	}
+
 	switch (transKey) {
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
-		if (!gbActionBtnDown) {
-			gbActionBtnDown = true;
-			guLastRBD = SDL_GetTicks();
 			ActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
-		}
 		break;
 	case ACT_ALTACT:
-		if (!gbAltActionBtnDown) {
-			gbAltActionBtnDown = true;
-			guLastRBD = SDL_GetTicks();
 			AltActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
+		break;
+	case ACT_W_S: // walk actions
+	case ACT_W_SW:
+	case ACT_W_W:
+	case ACT_W_NW:
+	case ACT_W_N:
+	case ACT_W_NE:
+	case ACT_W_E:
+	case ACT_W_SE:
+		if (stextflag == STORE_NONE) {
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_SW - (int)ACT_W_SW, "PressKey expects a parallel assignment of ACT_W_x and DIR_x I.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_W - (int)ACT_W_W, "PressKey expects a parallel assignment of ACT_W_x and DIR_x II.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_NW - (int)ACT_W_NW, "PressKey expects a parallel assignment of ACT_W_x and DIR_x III.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_N - (int)ACT_W_N, "PressKey expects a parallel assignment of ACT_W_x and DIR_x IV.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_NE - (int)ACT_W_NE, "PressKey expects a parallel assignment of ACT_W_x and DIR_x V.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_E - (int)ACT_W_E, "PressKey expects a parallel assignment of ACT_W_x and DIR_x VI.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_SE - (int)ACT_W_SE, "PressKey expects a parallel assignment of ACT_W_x and DIR_x VII.");
+			const int dir = DIR_S + transKey - ACT_W_S;
+			NetSendCmdBParam1(CMD_WALKDIR, dir);
 		}
+		break;
+	case ACT_STOP:
+		NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		break;
 	case ACT_SWAP: {
 		struct TmpKeys {
@@ -1060,10 +1078,13 @@ static void PressKey(int vkey)
 
 static void UpdateActionBtnState(int vKey, bool dir)
 {
-	if (WMButtonInputTransTbl[vKey] == ACT_ACT)
-		gbActionBtnDown = dir;
-	if (WMButtonInputTransTbl[vKey] == ACT_ALTACT)
-		gbAltActionBtnDown = dir;
+	if (WMButtonInputTransTbl[vKey] >= ACT_ACT && WMButtonInputTransTbl[vKey] <= ACT_W_SE) {
+		if (dir) {
+			gbActionBtnDown |= ACTBTN_MASK(WMButtonInputTransTbl[vKey]);
+		} else {
+			gbActionBtnDown &= ~ACTBTN_MASK(WMButtonInputTransTbl[vKey]);
+		}
+	}
 }
 
 void DisableInputWndProc(const Dvl_Event* e)
@@ -1100,8 +1121,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 	case DVL_WM_TEXT:
 		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
-		gbActionBtnDown = false;
-		gbAltActionBtnDown = false;
+		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
@@ -1185,8 +1205,7 @@ void GameWndProc(const Dvl_Event* e)
 #endif
 		break; //  return;
 	case DVL_WM_CAPTURECHANGED:
-		gbActionBtnDown = false;
-		gbAltActionBtnDown = false;
+		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
 		gbRedrawFlags = REDRAW_ALL;
@@ -1204,8 +1223,7 @@ void GameWndProc(const Dvl_Event* e)
 	case DVL_DWM_RETOWN:
 	case DVL_DWM_NEWGAME:
 	case DVL_DWM_LOADGAME:
-		gbActionBtnDown = false;
-		gbAltActionBtnDown = false;
+		gbActionBtnDown = 0;
 		if (gbQtextflag) {
 			StopQTextMsg();
 		}
@@ -1252,13 +1270,26 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		Uint32 tick = SDL_GetTicks();
-		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && (tick - guLastRBD) >= gnTickDelay * 6 && gbDeathflag == MDM_ALIVE) {
-			if (gbActionBtnDown) {
-				gbActionBtnDown = false;
-				InputBtnDown(ACT_ACT);
-			} else if (gbAltActionBtnDown) {
-				gbAltActionBtnDown = false;
-				InputBtnDown(ACT_ALTACT);
+		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && (tick - guLastRBD) >= gnTickDelay * 6 && gbDeathflag == MDM_ALIVE && gbActionBtnDown != 0) {
+			int dx = 0, dy = 0;
+			for (int i = ACT_ACT; i <= ACT_W_SE; i++) {
+				if (gbActionBtnDown & ACTBTN_MASK(i)) {
+					if (i < ACT_W_S) {
+						gbActionBtnDown &= ~ACTBTN_MASK(i);
+						InputBtnDown(i);
+						break;
+					}
+					dx += offset_x[i - ACT_W_S];
+					dy += offset_y[i - ACT_W_S];
+				}
+			}
+			if (dx != 0 || dy != 0) {
+				int dir = GetDirection(0, 0, dx, dy);
+				int i = ACT_W_S + dir;
+				unsigned gabd = gbActionBtnDown;
+				gbActionBtnDown = 0;
+				InputBtnDown(i);
+				gbActionBtnDown = gabd;
 			}
 		}
 	}
@@ -1378,8 +1409,7 @@ static WNDPROC InitGameFX()
 	ScrollInfo._sdir = SDIR_NONE;
 
 	gnTimeoutCurs = CURSOR_NONE;
-	gbActionBtnDown = false;
-	gbAltActionBtnDown = false;
+	gbActionBtnDown = 0;
 	gbRunGame = true;
 	gbRunGameResult = true;
 

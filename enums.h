@@ -4650,6 +4650,15 @@ typedef enum input_key {
 	ACT_NONE,
 	ACT_ACT,    // base action (LMB)
 	ACT_ALTACT, // alt action (RMB)
+	ACT_W_S, // walk actions
+	ACT_W_SW,
+	ACT_W_W,
+	ACT_W_NW,
+	ACT_W_N,
+	ACT_W_NE,
+	ACT_W_E,
+	ACT_W_SE,
+	ACT_STOP,
 	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,

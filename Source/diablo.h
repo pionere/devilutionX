@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define ACTBTN_MASK(btn)     (1 << (btn))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,8 +26,7 @@ extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;
 extern bool gbGamePaused;
 extern BYTE gbDeathflag;
-extern bool gbActionBtnDown;
-extern bool gbAltActionBtnDown;
+extern unsigned gbActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 extern int gnTimeoutCurs;
