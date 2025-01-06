@@ -1252,7 +1252,7 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 #endif
 		Uint32 tick = SDL_GetTicks();
-		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && (tick - guLastRBD) >= 200 && gbDeathflag == MDM_ALIVE) {
+		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && (tick - guLastRBD) >= gnTickDelay * 6 && gbDeathflag == MDM_ALIVE) {
 			if (gbActionBtnDown) {
 				gbActionBtnDown = false;
 				InputBtnDown(ACT_ACT);
