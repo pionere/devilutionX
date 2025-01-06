@@ -409,7 +409,7 @@ static void ActionBtnCmd(bool bShift)
 		myplr._pAtkSkill, myplr._pAtkSkillType, bShift);
 }
 
-bool TryIconCurs(bool bShift)
+static bool TryIconCurs(bool bShift)
 {
 	switch (pcursicon) {
 	case CURSOR_IDENTIFY:

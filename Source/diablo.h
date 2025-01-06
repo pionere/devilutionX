@@ -39,7 +39,6 @@ int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
 void InputBtnDown(int transKey);
 #endif
-bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
 void GameWndProc(const Dvl_Event* event);
