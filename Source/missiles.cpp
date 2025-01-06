@@ -3320,6 +3320,14 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		if (LineClear(plr._px, plr._py, objects[target]._ox, objects[target]._oy))
 			OperateObject(pnum, target, true);
 		break;
+	case MTT_PLAYER:
+		// assert(target < MAX_PLRS);
+		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
+		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints >= (1 << 6) && plx(target)._pmode != PM_BLOCK
+		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pMagic) {
+			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
+		}
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;

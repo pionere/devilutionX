@@ -1765,6 +1765,9 @@ void LevelDeltaLoad()
 				case MTT_OBJECT:
 					net_assert((plr._pDestParam4 & 0xFFFF) < MAXOBJECTS);
 					break;
+				case MTT_PLAYER:
+					net_assert((plr._pDestParam4 & 0xFFFF) < MAX_PLRS);
+					break;
 				default:
 					net_assert(0);
 					break;
@@ -3189,6 +3192,18 @@ static unsigned On_TELEKINMON(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static unsigned On_TELEKINPLR(TCmd* pCmd, int pnum)
+{
+	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	int tnum = cmd->bParam2;
+
+	net_assert(tnum < MAX_PLRS);
+
+	DoTelekinesis(pnum, players[tnum]._px, players[tnum]._py, cmd->bParam1, (MTT_PLAYER << 16) | tnum);
+
+	return sizeof(*cmd);
+}
+
 static unsigned On_TELEKINOBJ(TCmd* pCmd, int pnum)
 {
 	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
@@ -4484,6 +4499,8 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_TELEKINITM(pCmd, pnum);
 	case CMD_TELEKINMON:
 		return On_TELEKINMON(pCmd, pnum);
+	case CMD_TELEKINPLR:
+		return On_TELEKINPLR(pCmd, pnum);
 	case CMD_TELEKINOBJ:
 		return On_TELEKINOBJ(pCmd, pnum);
 	case CMD_ACTIVATEPORTAL:

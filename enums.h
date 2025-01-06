@@ -2052,6 +2052,7 @@ typedef enum missile_telekinesis_type {
 	MTT_ITEM,
 	MTT_MONSTER,
 	MTT_OBJECT,
+	MTT_PLAYER,
 } missile_telekinesis_type;
 
 typedef enum missile_gfx_id {
@@ -3922,6 +3923,7 @@ typedef enum _cmd_id {
 	CMD_SHRINE,
 	CMD_TELEKINITM,
 	CMD_TELEKINMON,
+	CMD_TELEKINPLR,
 	CMD_TELEKINOBJ,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,

@@ -439,6 +439,8 @@ bool TryIconCurs(bool bShift)
 			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
 		} else if (pcursmonst != MON_NONE) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
+		} else if (pcursplr != MON_NONE) {
+			NetSendCmdBParam2(CMD_TELEKINPLR, gbTSkillUse.from, pcursplr);
 		}
 	} break;
 	case CURSOR_TELEPORT:
