@@ -311,6 +311,11 @@ void StartPlrMsg()
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
+/*
+ * @brief Setup a new chat message.
+ *   If shift is pressed:  the message is prepared to be sent to the whole team of the player
+ *            is released: the message is prepared to be sent to the given player
+ */
 void SetupPlrMsg(int pnum)
 {
 	const char* text;
@@ -333,6 +338,11 @@ void SetupPlrMsg(int pnum)
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
+/*
+ * @brief Show information about the current game to the player.
+ *   If shift is pressed:  the difficulty of the game is shown to the player
+ *            is released: the name and the password is shown to the player in multiplayer games
+ */
 void VersionPlrMsg()
 {
 	EventPlrMsg(gszProductName);
