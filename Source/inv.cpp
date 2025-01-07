@@ -1102,7 +1102,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 	}
 }
 
-static bool CheckInvCut(bool bShift)
+static bool CheckInvCut()
 {
 	BYTE r;
 
@@ -1114,7 +1114,8 @@ static bool CheckInvCut(bool bShift)
 	if (r == INVITEM_NONE)
 		return false;
 
-	NetSendCmdBParam2(CMD_CUTPLRITEM, r, bShift);
+	static_assert(KMOD_SHIFT <= UCHAR_MAX, "CheckInvCut send the state of the shift in a byte field.");
+	NetSendCmdBParam2(CMD_CUTPLRITEM, r, SDL_GetModState() & KMOD_SHIFT);
 	return true;
 }
 
@@ -1260,12 +1261,12 @@ void SyncPlrStorageRemove(int pnum, int iv)
 	CalcPlrScrolls(pnum);
 }
 
-void CheckInvClick(bool bShift)
+void CheckInvClick()
 {
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		CheckInvPaste();
 	} else {
-		if (!CheckInvCut(bShift)) {
+		if (!CheckInvCut()) {
 			StartWndDrag(WND_INV);
 		}
 	}
@@ -1274,12 +1275,12 @@ void CheckInvClick(bool bShift)
 /**
  * Check for interactions with belt
  */
-void CheckBeltClick(bool bShift)
+void CheckBeltClick()
 {
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		/*return*/ CheckBeltPaste();
 	} else {
-		if (!CheckInvCut(bShift)) {
+		if (!CheckInvCut()) {
 			StartWndDrag(WND_BELT);
 		}
 	}

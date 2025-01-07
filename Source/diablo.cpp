@@ -499,10 +499,10 @@ static void ActionBtnDown(bool bShift)
 	switch (pcurswnd) {
 	case WND_BELT:
 		// assert(!TryPanBtnClick());
-		CheckBeltClick(bShift);
+		CheckBeltClick();
 		break;
 	case WND_INV:
-		CheckInvClick(bShift);
+		CheckInvClick();
 		break;
 	case WND_CHAR:
 		CheckChrBtnClick();
