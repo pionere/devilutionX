@@ -2534,26 +2534,30 @@ static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
 static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 {
 	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
+	BYTE skill = cmd->iou.skill;
+	int8_t from = cmd->iou.from;
+	BYTE cii = cmd->ioIdx;
 
 	if (plr._pmode == PM_DEATH)
 		return sizeof(*cmd);
 
 	// manipulate the item
-	net_assert((BYTE)cmd->iou.from < NUM_INVELEM ||
-		(cmd->iou.from == SPLFROM_ABILITY && cmd->iou.skill != SPL_OIL));
-	net_assert(cmd->ioIdx < NUM_INVELEM);
+	net_assert(skill < NUM_SPELLS && spelldata[skill].sMissile == MIS_OPITEM);
+	net_assert((BYTE)from < NUM_INVELEM ||
+		(from == SPLFROM_ABILITY && skill != SPL_OIL));
+	net_assert(cii < NUM_INVELEM);
 
-	if (cmd->iou.skill == SPL_OIL)
-		DoOil(pnum, cmd->iou.from, cmd->ioIdx);
+	if (skill == SPL_OIL)
+		DoOil(pnum, from, cii);
 	else
-		DoAbility(pnum, cmd->iou.from, cmd->ioIdx);
+		DoAbility(pnum, from, cii);
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		// add cast effect
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = plr._px;
 		plr._pDestParam2 = plr._py;
-		plr._pDestParam3 = cmd->iou.skill; // spell
+		plr._pDestParam3 = skill;          // spell
 		plr._pDestParam4 = 0;              // spllvl (should not matter)
 	}
 
