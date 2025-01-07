@@ -1412,7 +1412,7 @@ void LevelDeltaExport()
 
 void LevelDeltaLoad()
 {
-	int pnum, i, mnum, mi;
+	int pnum, mnum, mi;
 	MonsterStruct* mon;
 	MissileStruct* mis;
 	const MissileData* mds;
