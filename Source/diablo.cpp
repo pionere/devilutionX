@@ -299,8 +299,9 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 	return result;
 }
 
-static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType, bool bShift)
+static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType)
 {
+	const bool bShift = SDL_GetModState() & KMOD_SHIFT;
 	int8_t msf = 0, asf = 0;
 
 	if (bShift)
@@ -401,12 +402,12 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 }
 
-static void ActionBtnCmd(bool bShift)
+static void ActionBtnCmd()
 {
 	assert(pcursicon == CURSOR_HAND);
 
 	DoActionBtnCmd(myplr._pMoveSkill, myplr._pMoveSkillType,
-		myplr._pAtkSkill, myplr._pAtkSkillType, bShift);
+		myplr._pAtkSkill, myplr._pAtkSkillType);
 }
 
 static bool TryIconCurs()
@@ -458,7 +459,7 @@ static bool TryIconCurs()
 	return true;
 }
 
-static void ActionBtnDown(bool bShift)
+static void ActionBtnDown()
 {
 	assert(!gbDropGoldFlag);
 	assert(!gmenu_is_active());
@@ -522,20 +523,20 @@ static void ActionBtnDown(bool bShift)
 			break;
 		}
 
-		ActionBtnCmd(bShift);
+		ActionBtnCmd();
 		break;
 	}
 }
 
-static void AltActionBtnCmd(bool bShift)
+static void AltActionBtnCmd()
 {
 	assert(pcursicon == CURSOR_HAND);
 
 	DoActionBtnCmd(myplr._pAltMoveSkill, myplr._pAltMoveSkillType,
-		myplr._pAltAtkSkill, myplr._pAltAtkSkillType, bShift);
+		myplr._pAltAtkSkill, myplr._pAltAtkSkillType);
 }
 
-static void AltActionBtnDown(bool bShift)
+static void AltActionBtnDown()
 {
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
@@ -581,7 +582,7 @@ static void AltActionBtnDown(bool bShift)
 			break;
 		}
 
-		AltActionBtnCmd(bShift);
+		AltActionBtnCmd();
 		break;
 	}
 }
@@ -770,10 +771,10 @@ void InputBtnDown(int transKey)
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
-			ActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
+			ActionBtnDown();
 		break;
 	case ACT_ALTACT:
-			AltActionBtnDown((SDL_GetModState() & KMOD_SHIFT));
+			AltActionBtnDown();
 		break;
 	case ACT_W_S: // walk actions
 	case ACT_W_SW:
