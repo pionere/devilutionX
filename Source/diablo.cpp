@@ -409,7 +409,7 @@ static void ActionBtnCmd(bool bShift)
 		myplr._pAtkSkill, myplr._pAtkSkillType, bShift);
 }
 
-static bool TryIconCurs(bool bShift)
+static bool TryIconCurs()
 {
 	switch (pcursicon) {
 	case CURSOR_IDENTIFY:
@@ -422,7 +422,7 @@ static bool TryIconCurs(bool bShift)
 		break;
 	case CURSOR_DISARM:
 		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
-			if (!bShift ||
+			if (!(SDL_GetModState() & KMOD_SHIFT) ||
 			 (abs(myplr._px - pcurspos.x) < 2 && abs(myplr._py - pcurspos.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
 				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSkillUse.from);
@@ -493,7 +493,7 @@ static void ActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (TryIconCurs(bShift))
+	if (TryIconCurs())
 		return;
 
 	switch (pcurswnd) {
@@ -559,7 +559,7 @@ static void AltActionBtnDown(bool bShift)
 		return;
 	}
 
-	if (TryIconCurs(bShift))
+	if (TryIconCurs())
 		return;
 
 	switch (pcurswnd) {
