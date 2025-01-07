@@ -2994,7 +2994,6 @@ static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
 	BYTE r = cmd->bParam1;
 
-	r -= SLOTXY_BELT_FIRST;
 	net_assert(r < MAXBELTITEMS);
 
 	if (plr._pmode != PM_DEATH)

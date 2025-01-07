@@ -1057,9 +1057,9 @@ static void CheckBeltPaste()
 	i = MousePos.x; // + INV_SLOT_SIZE_PX / 2; -- CURSOR_HOTSPOT
 	j = MousePos.y; // + INV_SLOT_SIZE_PX / 2;
 
-	for (r = SLOTXY_BELT_FIRST; r <= SLOTXY_BELT_LAST; r++) {
+	for (r = 0; r < MAXBELTITEMS; r++) {
 		if (POS_IN_RECT(i, j,
-			gnWndBeltX + InvRect[r].X,  gnWndBeltY + InvRect[r].Y - INV_SLOT_SIZE_PX,
+			gnWndBeltX + InvRect[SLOTXY_BELT_FIRST + r].X,  gnWndBeltY + InvRect[SLOTXY_BELT_FIRST + r].Y - INV_SLOT_SIZE_PX,
 			INV_SLOT_SIZE_PX + 1, INV_SLOT_SIZE_PX + 1)) {
 			NetSendCmdBParam1(CMD_PASTEPLRBELTITEM, r);
 			break;
