@@ -1586,8 +1586,8 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	case IPL_SETDUR:
 		is->_iDurability = is->_iMaxDur = r;
 		break;
-	case IPL_NOMINSTR:
-		is->_iMinStr = 0;
+	case IPL_REQSTR:
+		is->_iMinStr += r;
 		break;
 	case IPL_SPELL:
 		is->_iSpell = param1;
@@ -2964,8 +2964,8 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
 		break;
-	case IPL_NOMINSTR:
-		copy_cstr(tempstr, "no strength requirement");
+	case IPL_REQSTR:
+		copy_cstr(tempstr, "altered requirements");
 		break;
 	case IPL_SPELL:
 		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);

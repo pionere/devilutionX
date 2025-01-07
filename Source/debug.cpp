@@ -156,10 +156,12 @@ static int GetUniqueItemParamB(const UniqItemData& ui, int index)
 
 static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 {
-	int i;
+	int i, dv = 0;
 	for (i = 1; i < 6; i++) {
-		if (pow == IPL_STR && GetUniqueItemPower(ui, i) == IPL_NOMINSTR)
-			return false;
+		if (pow == IPL_STR && GetUniqueItemPower(ui, i) == IPL_REQSTR) {
+			dv = GetUniqueItemParamA(ui, i);
+			break;
+		}
 	}
 	for (i = 0; i < NUM_IDI; i++) {
 		const ItemData& ids = AllItemsList[i];
@@ -171,7 +173,7 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 			case IPL_DEX: minv = ids.iMinDex; break;
 			default:ASSUME_UNREACHABLE; break;
 			}
-			if (minv != 0)
+			if (minv + dv != 0)
 				return true;
 		}
 	}
@@ -933,7 +935,7 @@ void ValidateData()
 			app_fatal("PLParam-range too high for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
 		if (pres->PLParam1 == 0 && pres->PLParam2 == 0
 		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
-		 && pow != IPL_SETDAM && pow != IPL_NOMINSTR && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 			app_fatal("Invalid(zero) PLParams set for %d. prefix (power:%d)", i, pow);
 
 		if (pres->PLPower == IPL_TOHIT_DAMP) {
@@ -1023,7 +1025,7 @@ void ValidateData()
 			app_fatal("PLParam-range too high for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
 		if (sufs->PLParam1 == 0 && sufs->PLParam2 == 0
 		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
-		 && pow != IPL_SETDAM && pow != IPL_NOMINSTR && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 			app_fatal("Invalid(zero) PLParams set for %d. suffix (power:%d)", i, pow);
 
 		if (sufs->PLPower == IPL_FASTATTACK) {
@@ -1139,7 +1141,7 @@ void ValidateData()
 					app_fatal("UIParam%d-range too high for '%s' %d.", n, ui.UIName, i);
 				if (paramA == 0 && paramB == 0
 				 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
-				 && pow != IPL_SETDAM && pow != IPL_NOMINSTR && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+				 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 
 				for (int m = n + 1; m <= 6; m++) {
@@ -1212,6 +1214,15 @@ void ValidateData()
 			} else if (pow == IPL_DUR) {
 				if (GetUniqueItemParamA(ui, n) <= 0 || GetUniqueItemParamB(ui, n) > 200)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if (pow == IPL_REQSTR) {
+				for (int n = 0; n < NUM_IDI; n++) {
+					if (AllItemsList[n].iUniqType == ui.UIUniqType) {
+						if (AllItemsList[n].iMinStr < -paramA)
+							app_fatal("Too low UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by iMinStr
+						if (UCHAR_MAX - AllItemsList[n].iMinStr < paramB)
+							app_fatal("Too high UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by iMinStr
+					}
+				}
 			} else if ((pow == IPL_STR || pow == IPL_MAG || pow == IPL_DEX) && GetUniqueItemParamA(ui, n) < 0 && HasUniqueItemReq(ui, pow)) {
 				for (int m = 1; m <= 6; m++) {
 					BYTE pw = GetUniqueItemPower(ui, m);
