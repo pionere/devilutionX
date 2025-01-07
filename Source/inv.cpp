@@ -1119,6 +1119,13 @@ static bool CheckInvCut()
 	return true;
 }
 
+/*
+ * @brief Handle a click in the inventory/belt.
+ * @param pnum: the id of the player
+ * @param cii: the location where the item is in the inventory/belt (inv_item)
+ * @param bShift: if it is set the item is moved between the inventory and the belt (if there is enough space)
+ *                   otherwise the item is added to the player's hand
+ */
 void InvCutItem(int pnum, BYTE cii, bool bShift)
 {
 	ItemStruct* pi;

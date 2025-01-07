@@ -2538,6 +2538,12 @@ void TryCampaignMapClick(bool altAction)
 	gbCampaignMapFlag = CMAP_NONE;
 }
 
+/*
+ * @brief Manipulate the campaign map.
+ *   If shift is pressed:  the inventory is kept open
+ *            is released: the inventory is closed
+ * @param altAction: if set the map is just closed
+ */
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;
