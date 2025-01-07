@@ -925,13 +925,17 @@ void ValidateData()
 #endif
 	rnddrops = 0; i = 0;
 	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
+		const BYTE pow = pres->PLPower;
 		rnddrops += pres->PLDouble ? 2 : 1;
-		if (pres->PLParam2 < pres->PLParam1) {
-			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
-		}
-		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) { // required by SaveItemPower
-			app_fatal("PLParam too high for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
-		}
+		if (pres->PLParam2 < pres->PLParam1)
+			app_fatal("Invalid PLParam-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) // required by SaveItemPower
+			app_fatal("PLParam-range too high for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+		if (pres->PLParam1 == 0 && pres->PLParam2 == 0
+		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
+		 && pow != IPL_SETDAM && pow != IPL_NOMINSTR && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+			app_fatal("Invalid(zero) PLParams set for %d. prefix (power:%d)", i, pow);
+
 		if (pres->PLPower == IPL_TOHIT_DAMP) {
 			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
 				app_fatal("PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -1009,9 +1013,19 @@ void ValidateData()
 	rnddrops = 0;
 	const AffixData* sufs = PL_Suffix;
 	for (i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
+		const BYTE pow = sufs->PLPower;
 		if (sufs->PLDouble)
-			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
+			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pow, sufs->PLParam1);
 		rnddrops++;
+		if (sufs->PLParam2 < sufs->PLParam1)
+			app_fatal("Invalid PLParam-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+		if (sufs->PLParam2 - sufs->PLParam1 >= 0x7FFF) // required by SaveItemPower
+			app_fatal("PLParam-range too high for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+		if (sufs->PLParam1 == 0 && sufs->PLParam2 == 0
+		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
+		 && pow != IPL_SETDAM && pow != IPL_NOMINSTR && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+			app_fatal("Invalid(zero) PLParams set for %d. suffix (power:%d)", i, pow);
+
 		if (sufs->PLPower == IPL_FASTATTACK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 4) {
 				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
@@ -1115,8 +1129,19 @@ void ValidateData()
 	for (i = 0; i < NUM_UITEM; i++) {
 		const UniqItemData& ui = UniqueItemList[i];
 		for (int n = 1; n <= 6; n++) {
-			BYTE pow = GetUniqueItemPower(ui, n);
+			const BYTE pow = GetUniqueItemPower(ui, n);
+			const int paramA = GetUniqueItemParamA(ui, n);
+			const int paramB = GetUniqueItemParamB(ui, n);
 			if (pow != IPL_INVALID) {
+				if (paramB < paramA)
+					app_fatal("Invalid UIParam%d-range set for '%s' %d.", n, ui.UIName, i);
+				if (paramB - paramA >= 0x7FFF) // required by SaveItemPower
+					app_fatal("UIParam%d-range too high for '%s' %d.", n, ui.UIName, i);
+				if (paramA == 0 && paramB == 0
+				 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
+				 && pow != IPL_SETDAM && pow != IPL_NOMINSTR && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+
 				for (int m = n + 1; m <= 6; m++) {
 					if (GetUniqueItemPower(ui, m) == pow)
 						app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
