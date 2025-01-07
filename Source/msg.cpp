@@ -2534,12 +2534,11 @@ static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
 static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 {
 	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
-	BYTE skill = cmd->iou.skill;
-	int8_t from = cmd->iou.from;
-	BYTE cii = cmd->ioIdx;
 
-	if (plr._pmode == PM_DEATH)
-		return sizeof(*cmd);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE skill = cmd->iou.skill;
+		const int8_t from = cmd->iou.from;
+		const BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
 	net_assert(skill < NUM_SPELLS && spelldata[skill].sMissile == MIS_OPITEM);
@@ -2560,7 +2559,7 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 		plr._pDestParam3 = skill;          // spell
 		plr._pDestParam4 = 0;              // spllvl (should not matter)
 	}
-
+	}
 	return sizeof(*cmd);
 }
 
@@ -2966,7 +2965,7 @@ static unsigned On_SHRINE(TCmd* pCmd, int pnum)
 static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 {
 	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
-	BYTE r = cmd->byteParam;
+	const BYTE r = cmd->byteParam;
 
 	net_assert(r < NUM_INV_GRID_ELEM);
 
@@ -2979,12 +2978,14 @@ static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
-	BYTE r = cmd->bParam1;
 
-	net_assert(r < SLOTXY_BELT_FIRST);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE r = cmd->bParam1;
 
-	if (plr._pmode != PM_DEATH)
+		net_assert(r < SLOTXY_BELT_FIRST);
+
 		InvPasteItem(pnum, r);
+	}
 
 	return sizeof(*cmd);
 }
@@ -2992,12 +2993,14 @@ static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
 static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
-	BYTE r = cmd->bParam1;
 
-	net_assert(r < MAXBELTITEMS);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE r = cmd->bParam1;
 
-	if (plr._pmode != PM_DEATH)
+		net_assert(r < MAXBELTITEMS);
+
 		InvPasteBeltItem(pnum, r);
+	}
 
 	return sizeof(*cmd);
 }
@@ -3005,12 +3008,14 @@ static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 static unsigned On_CUTPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
-	BYTE cii = cmd->bParam1;
 
-	net_assert(cii < NUM_INVELEM);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE cii = cmd->bParam1;
 
-	if (plr._pmode != PM_DEATH)
+		net_assert(cii < NUM_INVELEM);
+
 		InvCutItem(pnum, cii, cmd->bParam2);
+	}
 
 	return sizeof(*cmd);
 }
@@ -3018,7 +3023,7 @@ static unsigned On_CUTPLRITEM(TCmd* pCmd, int pnum)
 static unsigned On_DELPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
-	BYTE cii = cmd->bParam1;
+	const BYTE cii = cmd->bParam1;
 
 	net_assert(cii < NUM_INVELEM);
 
@@ -3030,12 +3035,14 @@ static unsigned On_DELPLRITEM(TCmd* pCmd, int pnum)
 static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 {
 	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
-	BYTE cii = cmd->bParam1;
 
-	net_assert(cii < NUM_INVELEM);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE cii = cmd->bParam1;
 
-	if (plr._pmode != PM_DEATH)
+		net_assert(cii < NUM_INVELEM);
+
 		SyncUseItem(pnum, cii, SPL_INVALID);
+	}
 
 	return sizeof(*cmd);
 }
@@ -3043,14 +3050,16 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 static unsigned On_USEPLRMAP(TCmd* pCmd, int pnum)
 {
 	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
-	BYTE cii = cmd->bParam1;
-	BYTE mIdx = cmd->bParam2;
 
-	net_assert(cii < NUM_INVELEM);
-	net_assert(mIdx < MAXCAMPAIGNSIZE);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE cii = cmd->bParam1;
+		const BYTE mIdx = cmd->bParam2;
 
-	if (plr._pmode != PM_DEATH)
+		net_assert(cii < NUM_INVELEM);
+		net_assert(mIdx < MAXCAMPAIGNSIZE);
+
 		SyncUseMapItem(pnum, cii, mIdx);
+	}
 
 	return sizeof(*cmd);
 }
