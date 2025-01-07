@@ -1104,22 +1104,22 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 static bool CheckInvCut()
 {
-	BYTE r;
+	BYTE cii;
 
 	if (myplr._pmode != PM_STAND) {
 		return false;
 	}
 
-	r = pcursinvitem;
-	if (r == INVITEM_NONE)
+	cii = pcursinvitem;
+	if (cii == INVITEM_NONE)
 		return false;
 
 	static_assert(KMOD_SHIFT <= UCHAR_MAX, "CheckInvCut send the state of the shift in a byte field.");
-	NetSendCmdBParam2(CMD_CUTPLRITEM, r, SDL_GetModState() & KMOD_SHIFT);
+	NetSendCmdBParam2(CMD_CUTPLRITEM, cii, SDL_GetModState() & KMOD_SHIFT);
 	return true;
 }
 
-void InvCutItem(int pnum, BYTE r, bool bShift)
+void InvCutItem(int pnum, BYTE cii, bool bShift)
 {
 	ItemStruct* pi;
 	int i, ii;
@@ -1129,7 +1129,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	if (plr._pHoldItem._itype != ITYPE_NONE)
 		return;
 
-	switch (r) {
+	switch (cii) {
 	case INVITEM_HEAD:
 	case INVITEM_RING_LEFT:
 	case INVITEM_RING_RIGHT:
@@ -1142,7 +1142,7 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 		static_assert((int)INVITEM_AMULET == (int)INVLOC_AMULET, "Switch of InvCutItem expects matching enum values IV.");
 		static_assert((int)INVITEM_HAND_RIGHT == (int)INVLOC_HAND_RIGHT, "Switch of InvCutItem expects matching enum values VI.");
 		static_assert((int)INVITEM_CHEST == (int)INVLOC_CHEST, "Switch of InvCutItem expects matching enum values VII.");
-		pi = &plr._pInvBody[r];
+		pi = &plr._pInvBody[cii];
 		break;
 	case INVITEM_HAND_LEFT:
 		static_assert((int)INVITEM_HAND_LEFT == (int)INVLOC_HAND_LEFT, "Switch of InvCutItem expects matching enum values V.");
@@ -1157,8 +1157,8 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 	default:
 		static_assert(INVITEM_CHEST + 1 == INVITEM_INV_FIRST, "InvCutItem expects the storage items after the normal items.");
 		static_assert(INVITEM_INV_LAST + 1 == INVITEM_BELT_FIRST, "InvCutItem expects the storage items before the belt items.");
-		if (/*r >= INVITEM_INV_FIRST &&*/ r <= INVITEM_INV_LAST) {
-			ii = r - INVITEM_INV_FIRST;
+		if (/*cii >= INVITEM_INV_FIRST &&*/ cii <= INVITEM_INV_LAST) {
+			ii = cii - INVITEM_INV_FIRST;
 			pi = &plr._pInvList[ii];
 			if (pi->_itype == ITYPE_PLACEHOLDER) {
 				ii = pi->_iPHolder;
@@ -1174,10 +1174,10 @@ void InvCutItem(int pnum, BYTE r, bool bShift)
 			if (bShift && pi->_itype != ITYPE_NONE && AutoPlaceBelt(pnum, pi, true)) {
 				pi->_itype = ITYPE_NONE;
 			}
-		} else { // r >= INVITEM_BELT_FIRST
-			r = r - INVITEM_BELT_FIRST;
-			// assert(r < MAXBELTITEMS);
-			pi = &plr._pSpdList[r];
+		} else { // cii >= INVITEM_BELT_FIRST
+			ii = cii - INVITEM_BELT_FIRST;
+			// assert(ii < MAXBELTITEMS);
+			pi = &plr._pSpdList[ii];
 			if (bShift && pi->_itype != ITYPE_NONE && AutoPlaceInv(pnum, pi, true)) {
 				//gbRedrawFlags |= REDRAW_SPEED_BAR;
 				pi->_itype = ITYPE_NONE;
