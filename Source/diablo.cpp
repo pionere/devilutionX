@@ -320,7 +320,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 
 	if (atkSkill != SPL_INVALID) {
 		if (atkSkill == SPL_BLOCK) {
-			int dir = GetDirection(myplr._px, myplr._py, pcurspos.x, pcurspos.y);
+			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
@@ -355,7 +355,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
 			PlaySFX(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (asf == 0 && msf == 0)*/ {
-			int dir = GetDirection(myplr._px, myplr._py, pcurspos.x, pcurspos.y);
+			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}
 		return;
@@ -380,7 +380,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	}
 
 	if (pcursobj != OBJ_NONE) {
-		bool bNear = abs(myplr._px - pcurspos.x) < 2 && abs(myplr._py - pcurspos.y) < 2;
+		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
 		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 			return;
@@ -388,7 +388,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		//return; // TODO: proceed in case moveSkill != SPL_WALK?
 	}
 	if (moveSkill != SPL_WALK) {
-		// TODO: check if pcurspos.x/y == _px/y ?
+		// TODO: check if pcurspos.x/y == _pfutx/y ?
 		const CmdSkillUse skillUse = { moveSkill, msf };
 		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 		return;
@@ -424,7 +424,7 @@ static bool TryIconCurs()
 	case CURSOR_DISARM:
 		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!(SDL_GetModState() & KMOD_SHIFT) ||
-			 (abs(myplr._px - pcurspos.x) < 2 && abs(myplr._py - pcurspos.y) < 2)) {
+			 (abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
 				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSkillUse.from);
 			}
