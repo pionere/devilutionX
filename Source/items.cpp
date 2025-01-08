@@ -1388,9 +1388,13 @@ static void GetItemAttrs(int ii, int idata, unsigned lvl)
 	}
 }
 
-static int PLVal(int pv, int p1, int p2, int minv, int maxv)
+static int PLVal(const AffixData* affix, int pv)
 {
 	int dp, dv, rv;
+	int p1 = affix->PLParam1;
+	int p2 = affix->PLParam2;
+	int minv = affix->PLMinVal;
+	int maxv = affix->PLMaxVal;
 
 	rv = minv;
 	dp = p2 - p1;
@@ -1402,15 +1406,11 @@ static int PLVal(int pv, int p1, int p2, int minv, int maxv)
 	return rv;
 }
 
-static void SaveItemPower(int ii, int power, int param1, int param2, int minval, int maxval, int multval)
+static int SaveItemPower(int ii, int power, int param1, int param2)
 {
-	ItemStruct* is;
-	int r, r2;
-
-	is = &items[ii];
-	r = param1 == param2 ? param1 : RandRangeLow(param1, param2);
-	is->_iVAdd += PLVal(r, param1, param2, minval, maxval);
-	is->_iVMult += multval;
+	ItemStruct* is = &items[ii];
+	int r2;	
+	const int r = param1 == param2 ? param1 : RandRangeLow(param1, param2);
 	switch (power) {
 	case IPL_TOHIT:
 		is->_iPLToHit = r;
@@ -1420,8 +1420,8 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 		break;
 	case IPL_TOHIT_DAMP:
 		is->_iPLDam = r;
-		r = RandRangeLow(param1 >> 2, param2 >> 2);
-		is->_iPLToHit = r;
+		r2 = RandRangeLow(param1 >> 2, param2 >> 2);
+		is->_iPLToHit = r2;
 		break;
 	case IPL_ACP:
 		is->_iPLAC = r;
@@ -1636,11 +1636,13 @@ static void SaveItemPower(int ii, int power, int param1, int param2, int minval,
 	default:
 		ASSUME_UNREACHABLE
 	}
+	return r;
 }
 
 static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygood)
 {
 	int nl, v;
+	int va = 0, vm = 0;
 	const AffixData *pres, *sufs;
 	const AffixData* l[ITEM_RNDAFFIX_MAX];
 	BYTE affix;
@@ -1675,14 +1677,13 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			pres = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iPrePower = pres->PLPower;
-			SaveItemPower(
+			v = SaveItemPower(
 			    ii,
 			    pres->PLPower,
 			    pres->PLParam1,
-			    pres->PLParam2,
-			    pres->PLMinVal,
-			    pres->PLMaxVal,
-			    pres->PLMultVal);
+			    pres->PLParam2);
+			va += PLVal(pres, v);
+			vm += pres->PLMultVal;
 		}
 	}
 	if (affix & 1) {
@@ -1705,23 +1706,21 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			    ii,
 			    sufs->PLPower,
 			    sufs->PLParam1,
-			    sufs->PLParam2,
-			    sufs->PLMinVal,
-			    sufs->PLMaxVal,
-			    sufs->PLMultVal);
+			    sufs->PLParam2);
+			va += PLVal(sufs, v);
+			vm += sufs->PLMultVal;
 		}
 	}
 	// prefix or suffix added -> recalculate the value of the item
 	if (items[ii]._iMagical == ITEM_QUALITY_MAGIC) {
 		if (items[ii]._iMiscId != IMISC_MAP) {
-			v = items[ii]._iVMult;
+			v = vm;
 			if (v >= 0) {
 				v *= items[ii]._ivalue;
-			}
-			else {
+			} else {
 				v = items[ii]._ivalue / -v;
 			}
-			v += items[ii]._iVAdd;
+			v += va;
 			if (v <= 0) {
 				v = 1;
 			}
@@ -1952,18 +1951,18 @@ static void GetUniqueItem(int ii, int uid)
 	const UniqItemData* ui;
 
 	ui = &UniqueItemList[uid];
-	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b, 0, 0, 1);
+	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b);
 
 	if (ui->UIPower2 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower2, ui->UIParam2a, ui->UIParam2b, 0, 0, 1);
+		SaveItemPower(ii, ui->UIPower2, ui->UIParam2a, ui->UIParam2b);
 	if (ui->UIPower3 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower3, ui->UIParam3a, ui->UIParam3b, 0, 0, 1);
+		SaveItemPower(ii, ui->UIPower3, ui->UIParam3a, ui->UIParam3b);
 	if (ui->UIPower4 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower4, ui->UIParam4a, ui->UIParam4b, 0, 0, 1);
+		SaveItemPower(ii, ui->UIPower4, ui->UIParam4a, ui->UIParam4b);
 	if (ui->UIPower5 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower5, ui->UIParam5a, ui->UIParam5b, 0, 0, 1);
+		SaveItemPower(ii, ui->UIPower5, ui->UIParam5a, ui->UIParam5b);
 	if (ui->UIPower6 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b, 0, 0, 1);
+		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b);
 	}}}}}
 
 	items[ii]._iCurs = ui->UICurs;

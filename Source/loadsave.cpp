@@ -125,12 +125,9 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLMMaxDam = savedItem->viPLMMaxDam;
 	is->_iPLAMinDam = savedItem->viPLAMinDam;
 	is->_iPLAMaxDam = savedItem->viPLAMaxDam;
-
-	is->_iVAdd = savedItem->viVAdd;
-	is->_iVMult = savedItem->viVMult;
 #else
-	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viVMult) + sizeof(savedItem->viVMult)
-	 && offsetof(ItemStruct, _iVMult) == offsetof(LSaveItemStruct, viVMult), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
+	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viPLAMaxDam) + sizeof(savedItem->viPLAMaxDam)
+	 && offsetof(ItemStruct, _iPLAMaxDam) == offsetof(LSaveItemStruct, viPLAMaxDam), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
 	memcpy(is, savedItem, sizeof(LSaveItemStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	src += sizeof(LSaveItemStruct);
@@ -967,12 +964,9 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLMMaxDam = is->_iPLMMaxDam;
 	itemSave->viPLAMinDam = is->_iPLAMinDam;
 	itemSave->viPLAMaxDam = is->_iPLAMaxDam;
-
-	itemSave->viVAdd = is->_iVAdd;
-	itemSave->viVMult = is->_iVMult;
 #else
-	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viVMult) + sizeof(itemSave->viVMult)
-	 && offsetof(ItemStruct, _iVMult) == offsetof(LSaveItemStruct, viVMult), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
+	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viPLAMaxDam) + sizeof(itemSave->viPLAMaxDam)
+	 && offsetof(ItemStruct, _iPLAMaxDam) == offsetof(LSaveItemStruct, viPLAMaxDam), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
 	memcpy(itemSave, is, sizeof(LSaveItemStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	dest += sizeof(LSaveItemStruct);

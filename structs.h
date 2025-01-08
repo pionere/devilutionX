@@ -290,9 +290,7 @@ typedef struct ItemStruct {
 	BYTE _iPLMMaxDam;
 	BYTE _iPLAMinDam;
 	BYTE _iPLAMaxDam;
-	int _iVAdd;
-	int _iVMult;
-	ALIGNMENT(7, 6)
+	ALIGNMENT(9, 8)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1276,8 +1274,6 @@ typedef struct LSaveItemStruct {
 	BYTE viPLMMaxDam;
 	BYTE viPLAMinDam;
 	BYTE viPLAMaxDam;
-	LE_INT32 viVAdd;
-	LE_INT32 viVMult;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
