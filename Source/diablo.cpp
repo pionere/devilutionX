@@ -326,8 +326,8 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 		const CmdSkillUse skillUse = { atkSkill, asf };
 		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
-			NewCursor(spelldata[atkSkill].spCurs);
 			gbTSkillUse = skillUse;
+			NewCursor(spelldata[atkSkill].spCurs);
 			return;
 		}
 
@@ -640,9 +640,9 @@ static void ReleaseKey(int vkey)
 	} else if (vkey == DVL_VK_SNAPSHOT) {
 		CaptureScreen();
 	}
-
-	if (WMButtonInputTransTbl[vkey] >= ACT_ACT && WMButtonInputTransTbl[vkey] <= ACT_W_SE) {
-		gbActionBtnDown &= ~ACTBTN_MASK(WMButtonInputTransTbl[vkey]);
+	int transKey = WMButtonInputTransTbl[vkey];
+	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
+		gbActionBtnDown &= ~ACTBTN_MASK(transKey);
 	}
 }
 
@@ -771,10 +771,10 @@ void InputBtnDown(int transKey)
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
-			ActionBtnDown();
+		ActionBtnDown();
 		break;
 	case ACT_ALTACT:
-			AltActionBtnDown();
+		AltActionBtnDown();
 		break;
 	case ACT_W_S: // walk actions
 	case ACT_W_SW:
@@ -1079,11 +1079,12 @@ static void PressKey(int vkey)
 
 static void UpdateActionBtnState(int vKey, bool dir)
 {
-	if (WMButtonInputTransTbl[vKey] >= ACT_ACT && WMButtonInputTransTbl[vKey] <= ACT_W_SE) {
+	int transKey = WMButtonInputTransTbl[vKey];
+	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
 		if (dir) {
-			gbActionBtnDown |= ACTBTN_MASK(WMButtonInputTransTbl[vKey]);
+			gbActionBtnDown |= ACTBTN_MASK(transKey);
 		} else {
-			gbActionBtnDown &= ~ACTBTN_MASK(WMButtonInputTransTbl[vKey]);
+			gbActionBtnDown &= ~ACTBTN_MASK(transKey);
 		}
 	}
 }

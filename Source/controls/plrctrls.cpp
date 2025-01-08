@@ -564,8 +564,9 @@ static void InvMove(AxisDirection dir)
 		}
 	}
 
-	if (slot == r)
-		return;
+	if (slot == r) {
+		return; // Avoid wobbling when scaled
+	}
 
 	switch (InvSlotTbl[slot]) {
 	case SLOT_HEAD:

@@ -357,8 +357,7 @@ void VersionPlrMsg()
 				EventPlrMsg(desc);
 			}
 		}
-	}
-	else {
+	} else {
 		const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
 		EventPlrMsg(difficulties[gnDifficulty]);
 	}

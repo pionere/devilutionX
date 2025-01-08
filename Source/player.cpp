@@ -1825,8 +1825,8 @@ static void PlrDoWalk(int pnum)
 	plr._py = py;
 	FixPlayerLocation(pnum);
 	dPlayer[px][py] = pnum + 1;
-		//PlrStartStand(pnum);
-		StartStand(pnum);
+	//PlrStartStand(pnum);
+	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 }
 
@@ -2137,10 +2137,9 @@ static void PlrDoAttack(int pnum)
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;
 	}
-	dir = plr._pdir;
 	if (plr._pVar7 == 1) {
 		plr._pVar7++;
-
+		dir = plr._pdir;
 		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
 			plr._px + offset_x[dir], plr._py + offset_y[dir]);
 		if (plr._pVar5 == SPL_SWIPE) {
@@ -2168,10 +2167,9 @@ static void PlrDoAttack(int pnum)
 			plr._pmode = PM_STAND;
 		}
 	} else {
-
-	//PlrStartStand(pnum);
-	StartStand(pnum);
-	//ClearPlrPVars(pnum);
+		//PlrStartStand(pnum);
+		StartStand(pnum);
+		//ClearPlrPVars(pnum);
 	}
 }
 
@@ -2248,9 +2246,9 @@ static void PlrDoRangeAttack(int pnum)
 			plr._pmode = PM_STAND;
 		}
 	} else {
-	//PlrStartStand(pnum);
-	StartStand(pnum);
-	//ClearPlrPVars(pnum);
+		//PlrStartStand(pnum);
+		StartStand(pnum);
+		//ClearPlrPVars(pnum);
 	}
 }
 
@@ -2423,9 +2421,9 @@ static void PlrDoSpell(int pnum)
 			plr._pmode = PM_STAND;
 		}
 	} else {
-	//PlrStartStand(pnum);
-	StartStand(pnum);
-	//ClearPlrPVars(pnum);
+		//PlrStartStand(pnum);
+		StartStand(pnum);
+		//ClearPlrPVars(pnum);
 	}
 }
 
@@ -2559,45 +2557,45 @@ static void CheckNewPath(int pnum)
 		return;
 	}
 
-		switch (plr._pDestAction) {
-		case ACTION_WALK:
-		case ACTION_WALKDIR:
-			break;
-		case ACTION_OPERATE:
-		case ACTION_ATTACK:
-		case ACTION_ATTACKMON:
-		case ACTION_ATTACKPLR:
-			StartAttack(pnum);
-			break;
-		case ACTION_RATTACK:
-		case ACTION_RATTACKMON:
-		case ACTION_RATTACKPLR:
-			StartRangeAttack(pnum);
-			break;
-		case ACTION_SPELL:
-		case ACTION_SPELLMON:
-		case ACTION_SPELLPLR:
-			StartSpell(pnum);
-			break;
-		case ACTION_TURN:
-			StartTurn(pnum);
-			break;
-		case ACTION_BLOCK:
-			StartBlock(pnum, plr._pDestParam1);
-			break;
-		case ACTION_PICKUPITEM:
-			StartPickItem(pnum);
-			break;
-		case ACTION_TALK:
-			StartTalk(pnum);
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
+	switch (plr._pDestAction) {
+	case ACTION_WALK:
+	case ACTION_WALKDIR:
+		break;
+	case ACTION_OPERATE:
+	case ACTION_ATTACK:
+	case ACTION_ATTACKMON:
+	case ACTION_ATTACKPLR:
+		StartAttack(pnum);
+		break;
+	case ACTION_RATTACK:
+	case ACTION_RATTACKMON:
+	case ACTION_RATTACKPLR:
+		StartRangeAttack(pnum);
+		break;
+	case ACTION_SPELL:
+	case ACTION_SPELLMON:
+	case ACTION_SPELLPLR:
+		StartSpell(pnum);
+		break;
+	case ACTION_TURN:
+		StartTurn(pnum);
+		break;
+	case ACTION_BLOCK:
+		StartBlock(pnum, plr._pDestParam1);
+		break;
+	case ACTION_PICKUPITEM:
+		StartPickItem(pnum);
+		break;
+	case ACTION_TALK:
+		StartTalk(pnum);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
 
-		AssertFixPlayerLocation(pnum);
-		plr._pDestAction = ACTION_NONE;
+	AssertFixPlayerLocation(pnum);
+	plr._pDestAction = ACTION_NONE;
 }
 
 #if DEBUG_MODE || DEV_MODE
@@ -2783,40 +2781,40 @@ void ProcessPlayers()
 				}
 			}
 
-				switch (plr._pmode) {
-				case PM_STAND:
-					break;
-				case PM_WALK:
-				case PM_WALK2:
-					PlrDoWalk(pnum);
-					break;
-				case PM_CHARGE:
-					break;
-				case PM_ATTACK:
-					PlrDoAttack(pnum);
-					break;
-				case PM_RATTACK:
-					PlrDoRangeAttack(pnum);
-					break;
-				case PM_BLOCK:
-					PlrDoBlock(pnum);
-					break;
-				case PM_SPELL:
-					PlrDoSpell(pnum);
-					break;
-				case PM_GOTHIT:
-					PlrDoGotHit(pnum);
-					break;
-				case PM_DYING:
-				case PM_DEATH:
-					PlrDoDeath(pnum);
-					break;
-				case PM_NEWLVL:
-					break;
-				default:
-					ASSUME_UNREACHABLE
-				}
-				CheckNewPath(pnum);
+			switch (plr._pmode) {
+			case PM_STAND:
+				break;
+			case PM_WALK:
+			case PM_WALK2:
+				PlrDoWalk(pnum);
+				break;
+			case PM_CHARGE:
+				break;
+			case PM_ATTACK:
+				PlrDoAttack(pnum);
+				break;
+			case PM_RATTACK:
+				PlrDoRangeAttack(pnum);
+				break;
+			case PM_BLOCK:
+				PlrDoBlock(pnum);
+				break;
+			case PM_SPELL:
+				PlrDoSpell(pnum);
+				break;
+			case PM_GOTHIT:
+				PlrDoGotHit(pnum);
+				break;
+			case PM_DYING:
+			case PM_DEATH:
+				PlrDoDeath(pnum);
+				break;
+			case PM_NEWLVL:
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
+			CheckNewPath(pnum);
 
 			plr._pAnimCnt++;
 			if (plr._pAnimCnt >= plr._pAnimFrameLen) {
