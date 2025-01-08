@@ -253,7 +253,7 @@ typedef struct ItemStruct {
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iFlags;	// item_special_effect
+	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
@@ -1239,7 +1239,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 vivalue;
 	LE_INT32 viIvalue;
 	LE_INT32 viAC;
-	LE_INT32 viFlags;	// item_special_effect
+	LE_INT32 viPLFlags; // item_special_effect
 	LE_INT32 viCharges;
 	LE_INT32 viMaxCharges;
 	LE_INT32 viDurability;

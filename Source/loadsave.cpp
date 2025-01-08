@@ -83,7 +83,7 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_ivalue = savedItem->vivalue;
 	is->_iIvalue = savedItem->viIvalue;
 	is->_iAC = savedItem->viAC;
-	is->_iFlags = savedItem->viFlags;
+	is->_iPLFlags = savedItem->viPLFlags;
 	is->_iCharges = savedItem->viCharges;
 	is->_iMaxCharges = savedItem->viMaxCharges;
 	is->_iDurability = savedItem->viDurability;
@@ -925,7 +925,7 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->vivalue = is->_ivalue;
 	itemSave->viIvalue = is->_iIvalue;
 	itemSave->viAC = is->_iAC;
-	itemSave->viFlags = is->_iFlags;
+	itemSave->viPLFlags = is->_iPLFlags;
 	itemSave->viCharges = is->_iCharges;
 	itemSave->viMaxCharges = is->_iMaxCharges;
 	itemSave->viDurability = is->_iDurability;
