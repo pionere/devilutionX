@@ -1679,19 +1679,18 @@ void LevelDeltaLoad()
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
 			continue;
 		net_assert(PosOkPlayer(pnum, plr._px, plr._py));
-		if (plr._pmode == PM_WALK) {
-			net_assert(plr._px == plr._poldx);
-			net_assert(plr._py == plr._poldy);
-			net_assert(abs(plr._pfutx - plr._px) <= 1);
-			net_assert(abs(plr._pfuty - plr._py) <= 1);
-			net_assert(PosOkPlayer(pnum, plr._pfutx, plr._pfuty));
-			// FIXME: validate velocity/offset
-		} else if (plr._pmode == PM_WALK2) {
-			net_assert(plr._px == plr._pfutx);
-			net_assert(plr._py == plr._pfuty);
-			net_assert(abs(plr._poldx - plr._px) <= 1);
-			net_assert(abs(plr._poldy - plr._py) <= 1);
-			net_assert(PosOkPlayer(pnum, plr._poldx, plr._poldy));
+		if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
+			if (plr._pmode == PM_WALK) {
+				net_assert(plr._px == plr._poldx);
+				net_assert(plr._py == plr._poldy);
+				net_assert(PosOkPlayer(pnum, plr._pfutx, plr._pfuty));
+			} else {
+				net_assert(plr._px == plr._pfutx);
+				net_assert(plr._py == plr._pfuty);
+				net_assert(PosOkPlayer(pnum, plr._poldx, plr._poldy));
+			}
+			net_assert(plr._poldx + offset_x[plr._pdir] == plr._pfutx);
+			net_assert(plr._poldy + offset_y[plr._pdir] == plr._pfuty);
 			// FIXME: validate velocity/offset
 		} else {
 			net_assert(plr._px == plr._pfutx);
@@ -1716,7 +1715,9 @@ void LevelDeltaLoad()
 		}
 		switch (plr._pDestAction) {
 		case ACTION_NONE:
+			break;
 		case ACTION_WALK:
+			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
 			break;
 		case ACTION_OPERATE:
 			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
@@ -1775,6 +1776,7 @@ void LevelDeltaLoad()
 			}
 			break;
 		case ACTION_PICKUPITEM:
+			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
 			net_assert((unsigned)plr._pDestParam4 < MAXITEMS);
 			break;
 		case ACTION_TALK:
@@ -2222,6 +2224,7 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 	TCmdLoc* cmd = (TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		plr._pDestAction = ACTION_WALK;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2956,8 +2959,13 @@ static unsigned On_SHRINE(TCmd* pCmd, int pnum)
 {
 	TCmdShrine* cmd = (TCmdShrine*)pCmd;
 
-	if (plr._pmode != PM_DEATH)
-		SyncShrineCmd(pnum, cmd->shType, cmd->shSeed);
+	if (plr._pmode != PM_DEATH) {
+		const BYTE type = cmd->shType;
+
+		net_assert(type < NUM_SHRINETYPE);
+
+		SyncShrineCmd(pnum, type, cmd->shSeed);
+	}
 
 	return sizeof(*cmd);
 }
@@ -3197,7 +3205,7 @@ static unsigned On_TELEKINMON(TCmd* pCmd, int pnum)
 	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
 	int mnum = cmd->wordParam;
 
-	net_assert(mnum < MAXMONSTERS && mnum >= MAX_MINIONS);
+	net_assert(mnum < MAXMONSTERS);
 
 	DoTelekinesis(pnum, monsters[mnum]._mx, monsters[mnum]._my, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
 
@@ -3235,6 +3243,7 @@ static unsigned On_ACTIVATEPORTAL(TCmd* pCmd, int pnum)
 
 	net_assert(bLevel != DLV_TOWN);
 	// net_assert(bLevel < NUM_LEVELS);
+	net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 
 	static_assert(MAXPORTAL == MAX_PLRS, "On_ACTIVATEPORTAL uses pnum as portal-id.");
 	if (currLvl._dLevelIdx == DLV_TOWN)
