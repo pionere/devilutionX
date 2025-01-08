@@ -272,8 +272,8 @@ void CheckTownPortal()
 			 */
 			int dx = pcurspos.x - (mis->_mix - 1);
 			int dy = pcurspos.y - (mis->_miy - 1);
-			if (abs(dx) <= 1 && abs(dy) <= 1 // select the 3x3 square around (-1;-1)
-			 && abs(dx - dy) < 2) {          // exclude the top left and bottom right positions
+			if (abs(dx) < 2 && abs(dy) < 2 // select the 3x3 square around (-1;-1)
+			 && abs(dx - dy) < 2) {        // exclude the top left and bottom right positions
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				pcurspos.x = mis->_mix;
 				pcurspos.y = mis->_miy;
