@@ -1158,38 +1158,38 @@ void ValidateData()
 			}
 			if (pow == IPL_ATTRIBS) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_STR || pow == IPL_MAG || pow == IPL_DEX || pow == IPL_VIT)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_STR || opow == IPL_MAG || opow == IPL_DEX || opow == IPL_VIT)
 						app_fatal("SaveItemPower does not support IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_ALLRES) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_FIRERES || pow == IPL_LIGHTRES || pow == IPL_MAGICRES || pow == IPL_ACIDRES)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_FIRERES || opow == IPL_LIGHTRES || opow == IPL_MAGICRES || opow == IPL_ACIDRES)
 						app_fatal("SaveItemPower does not support IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_TOHIT) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_TOHIT_DAMP)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_TOHIT_DAMP)
 						app_fatal("SaveItemPower does not support IPL_TOHIT and IPL_TOHIT_DAMP modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_SETDAM && GetUniqueItemParamA(ui, n) == 0 && GetUniqueItemParamB(ui, n) == 0) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_DAMMOD || pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_DAMMOD || opow == IPL_DAMP || opow == IPL_TOHIT_DAMP || opow == IPL_CRYSTALLINE)
 						app_fatal("SaveItemPower does not support IPL_SETDAM (0) and IPL_DAMMOD/IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (n != m && (pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE))
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (n != m && (opow == IPL_DAMP || opow == IPL_TOHIT_DAMP || opow == IPL_CRYSTALLINE))
 						app_fatal("SaveItemPower does not support IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_SETAC) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_ACMOD)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_ACMOD)
 						app_fatal("SaveItemPower does not support IPL_SETAC and IPL_ACMOD modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_FASTATTACK) {
