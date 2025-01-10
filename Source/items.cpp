@@ -910,7 +910,7 @@ void SetItemData(int ii, int idata)
 	memset(is, 0, sizeof(*is));
 
 	is->_iIdx = idata;
-	ids = &AllItemsList[idata];
+	ids = &AllItemList[idata];
 	strcpy(is->_iName, ids->iName);
 	is->_iCurs = ids->iCurs;
 	is->_itype = ids->itype;
@@ -1650,7 +1650,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 
 	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
 	if (flgs != PLT_MISC) // items[ii]._itype != ITYPE_RING && items[ii]._itype != ITYPE_AMULET)
-		lvl = lvl > AllItemsList[items[ii]._iIdx].iMinMLvl ? lvl - AllItemsList[items[ii]._iIdx].iMinMLvl : 0;
+		lvl = lvl > AllItemList[items[ii]._iIdx].iMinMLvl ? lvl - AllItemList[items[ii]._iIdx].iMinMLvl : 0;
 
 	// select affixes (3: both, 2: prefix, 1: suffix)
 	v = random_(23, 128);
@@ -1796,11 +1796,11 @@ static int RndUItem(unsigned lvl)
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (lvl < AllItemsList[i].iMinMLvl
-		 // || AllItemsList[i].itype == ITYPE_GOLD
-		 || (AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK))
+		if (lvl < AllItemList[i].iMinMLvl
+		 // || AllItemList[i].itype == ITYPE_GOLD
+		 || (AllItemList[i].itype == ITYPE_MISC && AllItemList[i].iMiscId != IMISC_BOOK))
 			continue;
-		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -1812,8 +1812,8 @@ static int RndUItem(unsigned lvl)
 	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemsList[i].iMinMLvl ||
-			(AllItemsList[i].itype == ITYPE_MISC && AllItemsList[i].iMiscId != IMISC_BOOK && AllItemsList[i].iMiscId != IMISC_MAP)) ? 0 : AllItemsList[i].iRnd;
+		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemList[i].iMinMLvl ||
+			(AllItemList[i].itype == ITYPE_MISC && AllItemList[i].iMiscId != IMISC_BOOK && AllItemList[i].iMiscId != IMISC_MAP)) ? 0 : AllItemList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -1840,9 +1840,9 @@ static int RndAllItems(unsigned lvl)
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (lvl < AllItemsList[i].iMinMLvl)
+		if (lvl < AllItemList[i].iMinMLvl)
 			continue;
-		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -1857,7 +1857,7 @@ static int RndAllItems(unsigned lvl)
 		return IDI_GOLD;
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = lvl < AllItemsList[i].iMinMLvl ? 0 : AllItemsList[i].iRnd;
+		ril[i - IDI_RNDDROP_FIRST] = lvl < AllItemList[i].iMinMLvl ? 0 : AllItemList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -1883,11 +1883,11 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (lvl < AllItemsList[i].iMinMLvl
-		 || AllItemsList[i].itype != itype
-		 || (/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid))
+		if (lvl < AllItemList[i].iMinMLvl
+		 || AllItemList[i].itype != itype
+		 || (/*imid != IMISC_INVALID &&*/ AllItemList[i].iMiscId != imid))
 			continue;
-		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -1901,9 +1901,9 @@ static int RndTypeItems(int itype, int imid, unsigned lvl)
 	// assert(itype != ITYPE_GOLD);
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemsList[i].iMinMLvl ||
-			AllItemsList[i].itype != itype ||
-			(/*imid != IMISC_INVALID &&*/ AllItemsList[i].iMiscId != imid)) ? 0 : AllItemsList[i].iRnd;
+		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemList[i].iMinMLvl ||
+			AllItemList[i].itype != itype ||
+			(/*imid != IMISC_INVALID &&*/ AllItemList[i].iMiscId != imid)) ? 0 : AllItemList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -1930,7 +1930,7 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 
 	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
 
-	uid = AllItemsList[items[ii]._iIdx].iUniqType;
+	uid = AllItemList[items[ii]._iIdx].iUniqType;
 	ui = 0;
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIUniqType == uid
@@ -2023,10 +2023,10 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	int idx;
 
 	idx = 0;
-	while (AllItemsList[idx].iUniqType != UniqueItemList[uid].UIUniqType) {
+	while (AllItemList[idx].iUniqType != UniqueItemList[uid].UIUniqType) {
 		idx++;
 	}
-	assert(AllItemsList[idx].iMiscId == IMISC_UNIQUE);
+	assert(AllItemList[idx].iMiscId == IMISC_UNIQUE);
 
 	// SetupAllItems(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
@@ -2519,7 +2519,7 @@ static void DoClean(ItemStruct* pi, bool whittle)
 			idx = IDI_DROPSHSTAFF;
 		spell = SPL_NULL;
 	}
-	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemsList[idx].iMinMLvl : 0;
+	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemList[idx].iMinMLvl : 0;
 	if (spell != SPL_NULL && spelldata[spell].sStaffLvl > ll) {
 		ll = spelldata[spell].sStaffLvl;
 	}
@@ -3375,10 +3375,10 @@ void ItemStatOk(int pnum, ItemStruct* is)
 
 static bool SmithItemOk(int i)
 {
-	return AllItemsList[i].itype != ITYPE_MISC
-	 && AllItemsList[i].itype != ITYPE_GOLD
-	 && AllItemsList[i].itype != ITYPE_RING
-	 && AllItemsList[i].itype != ITYPE_AMULET;
+	return AllItemList[i].itype != ITYPE_MISC
+	 && AllItemList[i].itype != ITYPE_GOLD
+	 && AllItemList[i].itype != ITYPE_RING
+	 && AllItemList[i].itype != ITYPE_AMULET;
 }
 
 static int RndSmithItem(unsigned lvl)
@@ -3389,9 +3389,9 @@ static int RndSmithItem(unsigned lvl)
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (!SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+		if (!SmithItemOk(i) || lvl < AllItemList[i].iMinMLvl)
 			continue;
-		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -3403,7 +3403,7 @@ static int RndSmithItem(unsigned lvl)
 	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (!SmithItemOk(i) || lvl < AllItemsList[i].iMinMLvl) ? 0 : AllItemsList[i].iRnd;
+		ril[i - IDI_RNDDROP_FIRST] = (!SmithItemOk(i) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -3520,10 +3520,10 @@ void SpawnPremium(unsigned lvl)
 
 static bool WitchItemOk(int i)
 {
-	return AllItemsList[i].itype == ITYPE_STAFF
-	 || (AllItemsList[i].itype == ITYPE_MISC
-	  && (AllItemsList[i].iMiscId == IMISC_SCROLL
-	   || AllItemsList[i].iMiscId == IMISC_RUNE));
+	return AllItemList[i].itype == ITYPE_STAFF
+	 || (AllItemList[i].itype == ITYPE_MISC
+	  && (AllItemList[i].iMiscId == IMISC_SCROLL
+	   || AllItemList[i].iMiscId == IMISC_RUNE));
 }
 
 static int RndWitchItem(unsigned lvl)
@@ -3534,9 +3534,9 @@ static int RndWitchItem(unsigned lvl)
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (!WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+		if (!WitchItemOk(i) || lvl < AllItemList[i].iMinMLvl)
 			continue;
-		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -3548,7 +3548,7 @@ static int RndWitchItem(unsigned lvl)
 	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (!WitchItemOk(i) || lvl < AllItemsList[i].iMinMLvl) ? 0 : AllItemsList[i].iRnd;
+		ril[i - IDI_RNDDROP_FIRST] = (!WitchItemOk(i) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
@@ -3636,9 +3636,9 @@ void SpawnBoy(unsigned lvl)
 
 static bool HealerItemOk(int i)
 {
-	return AllItemsList[i].iMiscId == IMISC_REJUV
-		|| AllItemsList[i].iMiscId == IMISC_FULLREJUV
-		|| AllItemsList[i].iMiscId == IMISC_SCROLL;
+	return AllItemList[i].iMiscId == IMISC_REJUV
+		|| AllItemList[i].iMiscId == IMISC_FULLREJUV
+		|| AllItemList[i].iMiscId == IMISC_SCROLL;
 }
 
 static int RndHealerItem(unsigned lvl)
@@ -3649,9 +3649,9 @@ static int RndHealerItem(unsigned lvl)
 
 	ri = 0;
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (!HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl)
+		if (!HealerItemOk(i) || lvl < AllItemList[i].iMinMLvl)
 			continue;
-		for (j = AllItemsList[i].iRnd; j > 0; j--) {
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
 			ri++;
 		}
@@ -3663,7 +3663,7 @@ static int RndHealerItem(unsigned lvl)
 	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
 
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (!HealerItemOk(i) || lvl < AllItemsList[i].iMinMLvl) ? 0 : AllItemsList[i].iRnd;
+		ril[i - IDI_RNDDROP_FIRST] = (!HealerItemOk(i) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
 	}
 	ri = 0;
 	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)

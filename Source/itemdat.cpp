@@ -48,7 +48,7 @@ const BYTE ItemCAnimTbl[NUM_ICURS] = {
 };
 
 /** Contains the data related to each item ID. */
-const ItemData AllItemsList[NUM_IDI] = {
+const ItemData AllItemList[NUM_IDI] = {
 	// clang-format off
 //                    iName,                         iRnd, iMinMLvl, iUniqType,          iCurs,                             itype,        iMiscId,         iSpell,        iClass,        iLoc,             iDamType,      iMinDam, iMaxDam, iBaseCrit, iMinStr, iMinMag, iMinDex, iUsable, iMinAC, iMaxAC, iDurability, iValue, 
 /*IDI_GOLD       */ { "Gold",                           0,        1, UITYPE_NONE,        ICURS_GOLD_SMALL,                  ITYPE_GOLD,   IMISC_NONE,      SPL_NULL,      ICLASS_GOLD,   ILOC_UNEQUIPABLE, IDAM_NONE,           0,       0,         0,       0,       0,       0, FALSE,        0,      0,           0,      0, ALIGN },

@@ -164,7 +164,7 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 		}
 	}
 	for (i = 0; i < NUM_IDI; i++) {
-		const ItemData& ids = AllItemsList[i];
+		const ItemData& ids = AllItemList[i];
 		if (ids.iUniqType == ui.UIUniqType) {
 			int minv;
 			switch (pow) {
@@ -768,39 +768,39 @@ void ValidateData()
 	}
 #endif
 	// items
-	if (AllItemsList[IDI_HEAL].iMiscId != IMISC_HEAL)
-		app_fatal("IDI_HEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_HEAL].iMiscId, AllItemsList[IDI_HEAL].iMinMLvl);
-	if (AllItemsList[IDI_FULLHEAL].iMiscId != IMISC_FULLHEAL)
-		app_fatal("IDI_FULLHEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_FULLHEAL].iMiscId, AllItemsList[IDI_FULLHEAL].iMinMLvl);
-	if (AllItemsList[IDI_MANA].iMiscId != IMISC_MANA)
-		app_fatal("IDI_MANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_MANA].iMiscId, AllItemsList[IDI_MANA].iMinMLvl);
-	if (AllItemsList[IDI_FULLMANA].iMiscId != IMISC_FULLMANA)
-		app_fatal("IDI_FULLMANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_FULLMANA].iMiscId, AllItemsList[IDI_FULLMANA].iMinMLvl);
-	if (AllItemsList[IDI_REJUV].iMiscId != IMISC_REJUV)
-		app_fatal("IDI_REJUV is not a rejuv potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_REJUV].iMiscId, AllItemsList[IDI_REJUV].iMinMLvl);
-	if (AllItemsList[IDI_FULLREJUV].iMiscId != IMISC_FULLREJUV)
-		app_fatal("IDI_FULLREJUV is not a rejuv potion, its miscId is %d.", AllItemsList[IDI_FULLREJUV].iMiscId, AllItemsList[IDI_FULLREJUV].iMinMLvl);
-	if (AllItemsList[IDI_BOOK1].iMiscId != IMISC_BOOK)
-		app_fatal("IDI_BOOK1 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK1].iMiscId, AllItemsList[IDI_BOOK1].iMinMLvl);
-	if (AllItemsList[IDI_BOOK4].iMiscId != IMISC_BOOK)
-		app_fatal("IDI_BOOK4 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK4].iMiscId, AllItemsList[IDI_BOOK4].iMinMLvl);
-	if (AllItemsList[IDI_CAMPAIGNMAP].iMiscId != IMISC_MAP)
-		app_fatal("IDI_CAMPAIGNMAP is not a map, its miscId is %d, iminlvl %d.", AllItemsList[IDI_CAMPAIGNMAP].iMiscId, AllItemsList[IDI_CAMPAIGNMAP].iMinMLvl);
-	if (AllItemsList[IDI_CAMPAIGNMAP].iDurability != 1) // required because of affixes and map level
-		app_fatal("IDI_CAMPAIGNMAP stack-size is not one, its miscId is %d, iminlvl %d.", AllItemsList[IDI_CAMPAIGNMAP].iMiscId, AllItemsList[IDI_CAMPAIGNMAP].iMinMLvl);
-	if (AllItemsList[IDI_CAMPAIGNMAP].iValue != (1 << (MAXCAMPAIGNSIZE - 6)) - 1) // required by InitCampaignMap
-		app_fatal("IDI_CAMPAIGNMAP base value is invalid (%d vs. %d).", AllItemsList[IDI_CAMPAIGNMAP].iValue, (1 << (MAXCAMPAIGNSIZE - 2)) - 1);
+	if (AllItemList[IDI_HEAL].iMiscId != IMISC_HEAL)
+		app_fatal("IDI_HEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_HEAL].iMiscId, AllItemList[IDI_HEAL].iMinMLvl);
+	if (AllItemList[IDI_FULLHEAL].iMiscId != IMISC_FULLHEAL)
+		app_fatal("IDI_FULLHEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_FULLHEAL].iMiscId, AllItemList[IDI_FULLHEAL].iMinMLvl);
+	if (AllItemList[IDI_MANA].iMiscId != IMISC_MANA)
+		app_fatal("IDI_MANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_MANA].iMiscId, AllItemList[IDI_MANA].iMinMLvl);
+	if (AllItemList[IDI_FULLMANA].iMiscId != IMISC_FULLMANA)
+		app_fatal("IDI_FULLMANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_FULLMANA].iMiscId, AllItemList[IDI_FULLMANA].iMinMLvl);
+	if (AllItemList[IDI_REJUV].iMiscId != IMISC_REJUV)
+		app_fatal("IDI_REJUV is not a rejuv potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_REJUV].iMiscId, AllItemList[IDI_REJUV].iMinMLvl);
+	if (AllItemList[IDI_FULLREJUV].iMiscId != IMISC_FULLREJUV)
+		app_fatal("IDI_FULLREJUV is not a rejuv potion, its miscId is %d.", AllItemList[IDI_FULLREJUV].iMiscId, AllItemList[IDI_FULLREJUV].iMinMLvl);
+	if (AllItemList[IDI_BOOK1].iMiscId != IMISC_BOOK)
+		app_fatal("IDI_BOOK1 is not a book, its miscId is %d, iminlvl %d.", AllItemList[IDI_BOOK1].iMiscId, AllItemList[IDI_BOOK1].iMinMLvl);
+	if (AllItemList[IDI_BOOK4].iMiscId != IMISC_BOOK)
+		app_fatal("IDI_BOOK4 is not a book, its miscId is %d, iminlvl %d.", AllItemList[IDI_BOOK4].iMiscId, AllItemList[IDI_BOOK4].iMinMLvl);
+	if (AllItemList[IDI_CAMPAIGNMAP].iMiscId != IMISC_MAP)
+		app_fatal("IDI_CAMPAIGNMAP is not a map, its miscId is %d, iminlvl %d.", AllItemList[IDI_CAMPAIGNMAP].iMiscId, AllItemList[IDI_CAMPAIGNMAP].iMinMLvl);
+	if (AllItemList[IDI_CAMPAIGNMAP].iDurability != 1) // required because of affixes and map level
+		app_fatal("IDI_CAMPAIGNMAP stack-size is not one, its miscId is %d, iminlvl %d.", AllItemList[IDI_CAMPAIGNMAP].iMiscId, AllItemList[IDI_CAMPAIGNMAP].iMinMLvl);
+	if (AllItemList[IDI_CAMPAIGNMAP].iValue != (1 << (MAXCAMPAIGNSIZE - 6)) - 1) // required by InitCampaignMap
+		app_fatal("IDI_CAMPAIGNMAP base value is invalid (%d vs. %d).", AllItemList[IDI_CAMPAIGNMAP].iValue, (1 << (MAXCAMPAIGNSIZE - 2)) - 1);
 	static_assert(IDI_BOOK4 - IDI_BOOK1 == 3, "Invalid IDI_BOOK indices.");
-	if (AllItemsList[IDI_CLUB].iCurs != ICURS_CLUB)
-		app_fatal("IDI_CLUB is not a club, its cursor is %d, iminlvl %d.", AllItemsList[IDI_CLUB].iCurs, AllItemsList[IDI_CLUB].iMinMLvl);
-	if (AllItemsList[IDI_DROPSHSTAFF].iUniqType != UITYPE_SHORTSTAFF)
-		app_fatal("IDI_DROPSHSTAFF is not a short staff, its utype is %d, iminlvl %d.", AllItemsList[UITYPE_SHORTSTAFF].iUniqType, AllItemsList[UITYPE_SHORTSTAFF].iMinMLvl);
+	if (AllItemList[IDI_CLUB].iCurs != ICURS_CLUB)
+		app_fatal("IDI_CLUB is not a club, its cursor is %d, iminlvl %d.", AllItemList[IDI_CLUB].iCurs, AllItemList[IDI_CLUB].iMinMLvl);
+	if (AllItemList[IDI_DROPSHSTAFF].iUniqType != UITYPE_SHORTSTAFF)
+		app_fatal("IDI_DROPSHSTAFF is not a short staff, its utype is %d, iminlvl %d.", AllItemList[UITYPE_SHORTSTAFF].iUniqType, AllItemList[UITYPE_SHORTSTAFF].iMinMLvl);
 #ifdef DEBUG_DATA
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
 	int rnddrops = 0;
 	for (i = 0; i < NUM_IDI; i++) {
-		const ItemData& ids = AllItemsList[i];
+		const ItemData& ids = AllItemList[i];
 		if (ids.iName == NULL) {
 			if (i >= IDI_RNDDROP_FIRST || ids.iRnd != 0)
 				app_fatal("Invalid iRnd value for nameless item (%d)", i);
@@ -1197,7 +1197,7 @@ void ValidateData()
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 				if (GetUniqueItemParamB(ui, n) >= 3) {
 					for (int n = 0; n < NUM_IDI; n++) {
-						if (AllItemsList[n].iUniqType == ui.UIUniqType && AllItemsList[n].itype == ITYPE_BOW) {
+						if (AllItemList[n].iUniqType == ui.UIUniqType && AllItemList[n].itype == ITYPE_BOW) {
 							app_fatal("Too high UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by MissMonHitByPlr and MissPlrHitByPlr
 						}
 					}
@@ -1216,10 +1216,10 @@ void ValidateData()
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 			} else if (pow == IPL_REQSTR) {
 				for (int n = 0; n < NUM_IDI; n++) {
-					if (AllItemsList[n].iUniqType == ui.UIUniqType) {
-						if (AllItemsList[n].iMinStr < -paramA)
+					if (AllItemList[n].iUniqType == ui.UIUniqType) {
+						if (AllItemList[n].iMinStr < -paramA)
 							app_fatal("Too low UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by iMinStr
-						if (UCHAR_MAX - AllItemsList[n].iMinStr < paramB)
+						if (UCHAR_MAX - AllItemList[n].iMinStr < paramB)
 							app_fatal("Too high UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by iMinStr
 					}
 				}
@@ -1249,7 +1249,7 @@ void ValidateData()
 		}
 		int n = 0;
 		for ( ; n < NUM_IDI; n++) {
-			if (AllItemsList[n].iUniqType == ui.UIUniqType)
+			if (AllItemList[n].iUniqType == ui.UIUniqType)
 				break;
 		}
 		if (n == NUM_IDI)

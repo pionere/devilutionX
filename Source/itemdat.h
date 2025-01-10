@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 extern const BYTE ItemCAnimTbl[NUM_ICURS];
-extern const ItemData AllItemsList[NUM_IDI];
+extern const ItemData AllItemList[NUM_IDI];
 extern const AffixData PL_Prefix[];
 extern const AffixData PL_Suffix[];
 extern const UniqItemData UniqueItemList[NUM_UITEM];
