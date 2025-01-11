@@ -1,3 +1,4 @@
+#ifdef TCPIP
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -106,3 +107,4 @@ int socketpair(int domain, int type, int protocol, int socket_vector[2])
 {
 	return ENOTSUP;
 }
+#endif // TCPIP

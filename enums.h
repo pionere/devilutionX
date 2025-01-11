@@ -63,10 +63,11 @@ typedef enum item_indexes {
 	IDI_BOOK4      = 0x61,
 	IDI_CLUB       = 0x7A,
 	IDI_DROPSHSTAFF= 0x86,
+	IDI_CAMPAIGNMAP= 0x93,
 #ifdef HELLFIRE
-	NUM_IDI        = 0x9A,
+	NUM_IDI        = 0x9B,
 #else
-	NUM_IDI        = 0x93,
+	NUM_IDI        = 0x94,
 #endif
 	IDI_PHOLDER    = 0xFFFE,
 	IDI_NONE       = 0xFFFF
@@ -241,6 +242,7 @@ typedef enum item_misc_id {
 	IMISC_OILCLEAN,
 	IMISC_OILLAST = IMISC_OILCLEAN,
 	//IMISC_MAPOFDOOM,
+	IMISC_MAP,
 	IMISC_RUNE,
 	IMISC_NOTE,
 	IMISC_INVALID   = -1,
@@ -382,7 +384,7 @@ typedef enum item_effect_type {
 	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
-	IPL_INVCURS,
+	//IPL_INVCURS,
 	//IPL_THORNS,
 	IPL_NOMANA,
 	IPL_KNOCKBACK,
@@ -399,7 +401,7 @@ typedef enum item_effect_type {
 	IPL_DAMMOD,
 	IPL_SETDAM,
 	IPL_SETDUR,
-	IPL_NOMINSTR,
+	IPL_REQSTR,
 	IPL_SPELL,
 	IPL_ONEHAND,
 	IPL_ALLRESZERO,
@@ -415,6 +417,13 @@ typedef enum item_effect_type {
 	IPL_INVALID          = 0xFF,
 } item_effect_type;
 
+typedef enum item_affix_range {
+	IAR_DROP,
+	IAR_SHOP,
+	IAR_CRAFT,
+	NUM_IARS
+} item_affix_range;
+
 typedef enum affix_item_type {
 	PLT_MISC   = 1 << 1,
 	PLT_BOW    = 1 << 2,
@@ -426,6 +435,7 @@ typedef enum affix_item_type {
 	PLT_LARMOR = 1 << 8,
 	PLT_MARMOR = 1 << 9,
 	PLT_HARMOR = 1 << 10,
+	PLT_MAP    = 1 << 11,
 } affix_item_type;
 
 typedef enum item_base_bonus {
@@ -493,6 +503,7 @@ typedef enum item_cursor_graphic {
 	ICURS_EAR_WARRIOR                 = 20,
 	ICURS_EAR_ROGUE                   = 21,
 	ICURS_BLOOD_STONE                 = 25,
+	ICURS_CAMPAIGN_MAP                = 26,
 	ICURS_OIL_OF_DEXTERITY            = 29,
 	ICURS_OIL_OF_STRENGTH             = 30,
 	ICURS_OIL_OF_CLEANSING            = 31,
@@ -527,7 +538,8 @@ typedef enum item_cursor_graphic {
 	ICURS_CLUB                        = 66,
 	ICURS_SABRE                       = 67,
 	ICURS_FALCON_GRYPHON              = 68,
-	ICURS_SPIKED_CLUB                 = 70,
+	ICURS_GNARLROOT                   = 70,
+	ICURS_SPIKED_CLUB                 = 71,
 	ICURS_SCIMITAR                    = 72,
 	ICURS_POIGNARD                    = 73,
 	ICURS_FULL_HELM                   = 75,
@@ -561,7 +573,7 @@ typedef enum item_cursor_graphic {
 	ICURS_STONECLEAVER                = 104,
 	ICURS_SMALL_SHIELD                = 105,
 	ICURS_CLEAVER                     = 106,
-	ICURS_STUDDED_LEATHER_ARMOR       = 107,
+	ICURS_STUD_LEATH_ARMOR            = 107,
 	ICURS_BATTLE_BOW                  = 108,
 	ICURS_SHORT_STAFF                 = 109,
 	ICURS_TWO_HANDED_SWORD            = 110,
@@ -1369,14 +1381,14 @@ typedef enum _sfx_id {
 	PS_MAGE24,
 	//PS_MAGE25,
 	//PS_MAGE26,
-	PS_MAGE27,
+	//PS_MAGE27,
 	//PS_MAGE28,
 	PS_MAGE29,
 	//PS_MAGE30,
 	//PS_MAGE31,
 	//PS_MAGE32,
 	//PS_MAGE33,
-	PS_MAGE34,
+	//PS_MAGE34,
 	PS_MAGE35,
 	//PS_MAGE36,
 	//PS_MAGE37,
@@ -1472,14 +1484,14 @@ typedef enum _sfx_id {
 	PS_ROGUE24,
 	//PS_ROGUE25,
 	//PS_ROGUE26,
-	PS_ROGUE27,
+	//PS_ROGUE27,
 	//PS_ROGUE28,
 	PS_ROGUE29,
 	//PS_ROGUE30,
 	//PS_ROGUE31,
 	//PS_ROGUE32,
 	//PS_ROGUE33,
-	PS_ROGUE34,
+	//PS_ROGUE34,
 	PS_ROGUE35,
 	//PS_ROGUE36,
 	//PS_ROGUE37,
@@ -1581,14 +1593,14 @@ typedef enum _sfx_id {
 	PS_WARR24,
 	//PS_WARR25,
 	//PS_WARR26,
-	PS_WARR27,
+	//PS_WARR27,
 	//PS_WARR28,
 	PS_WARR29,
 	//PS_WARR30,
 	//PS_WARR31,
 	//PS_WARR32,
 	//PS_WARR33,
-	PS_WARR34,
+	//PS_WARR34,
 	PS_WARR35,
 	//PS_WARR36,
 	//PS_WARR37,
@@ -1689,14 +1701,14 @@ typedef enum _sfx_id {
 	PS_MONK24,
 	//PS_MONK25,
 	//PS_MONK26,
-	PS_MONK27,
+	//PS_MONK27,
 	//PS_MONK28,
 	PS_MONK29,
 	//PS_MONK30,
 	//PS_MONK31,
 	//PS_MONK32,
 	//PS_MONK33,
-	PS_MONK34,
+	//PS_MONK34,
 	PS_MONK35,
 	//PS_MONK36,
 	//PS_MONK37,
@@ -1786,13 +1798,13 @@ typedef enum _sfx_id {
 	USFX_LACH2,
 	USFX_LACH3,
 	USFX_LAZ1,
-	USFX_LAZ2,
+	//USFX_LAZ2,
 	USFX_SKING1,
 	USFX_SNOT1,
 	USFX_SNOT2,
 	USFX_SNOT3,
 	USFX_WARLRD1,
-	USFX_WLOCK1,
+	//USFX_WLOCK1,
 	USFX_ZHAR1,
 	USFX_ZHAR2,
 	USFX_DIABLOD,
@@ -1872,9 +1884,9 @@ typedef enum sfx_set {
 	SFXS_PLR_14,
 	//SFXS_PLR_16,
 	SFXS_PLR_24,
-	SFXS_PLR_27,
+	//SFXS_PLR_27,
 	SFXS_PLR_29,
-	SFXS_PLR_34,
+	//SFXS_PLR_34,
 	SFXS_PLR_35,
 	SFXS_PLR_46,
 	SFXS_PLR_54,
@@ -1918,6 +1930,7 @@ typedef enum missile_id {
 	MIS_SNOWWICH,
 	MIS_HLSPWN,
 	MIS_SOLBRNR,
+	MIS_MAGE,
 	MIS_MAGMABALL,
 	MIS_ACID,
 	MIS_ACIDPUD,
@@ -1932,6 +1945,7 @@ typedef enum missile_id {
 	MIS_EXSNOWWICH,
 	MIS_EXHLSPWN,
 	MIS_EXSOLBRNR,
+	MIS_EXMAGE,
 	MIS_POISON,
 	MIS_WIND,
 	MIS_LIGHTBALL,
@@ -1941,6 +1955,8 @@ typedef enum missile_id {
 	MIS_LIGHTNING2,
 	MIS_BLOODBOILC,
 	MIS_BLOODBOIL,
+	MIS_SWAMPC,
+	MIS_SWAMP,
 	MIS_TOWN,
 	MIS_RPORTAL,
 	MIS_FLASH,
@@ -2036,6 +2052,7 @@ typedef enum missile_telekinesis_type {
 	MTT_ITEM,
 	MTT_MONSTER,
 	MTT_OBJECT,
+	MTT_PLAYER,
 } missile_telekinesis_type;
 
 typedef enum missile_gfx_id {
@@ -2060,6 +2077,7 @@ typedef enum missile_gfx_id {
 	//MFILE_DOOM,
 	//MFILE_DOOMEXP,
 	MFILE_BLODBURS,
+	MFILE_SWAMP,
 	//MFILE_NEWEXP,
 	MFILE_SHATTER1,
 	MFILE_BIGEXP,
@@ -2090,6 +2108,8 @@ typedef enum missile_gfx_id {
 	MFILE_SCBSEXPC,
 	MFILE_SCUBMISD,
 	MFILE_SCBSEXPD,
+	MFILE_MAGEMIS,
+	MFILE_MAGEEXP,
 #ifdef HELLFIRE
 	MFILE_SPAWNS,
 	MFILE_RGLOWS1,
@@ -2141,6 +2161,17 @@ typedef enum missile_collision_mode {
 	MICM_BLOCK_WALL,
 } missile_collision_mode;
 
+typedef enum missile_resistance {
+	MISR_NONE,
+	MISR_SLASH,
+	MISR_BLUNT,
+	MISR_PUNCTURE,
+	MISR_FIRE,
+	MISR_LIGHTNING,
+	MISR_MAGIC,
+	MISR_ACID,
+} missile_resistance;
+
 typedef enum _monster_ai {
 	AI_ZOMBIE,
 	AI_FAT,
@@ -2164,6 +2195,7 @@ typedef enum _monster_ai {
 	AI_SNOTSPIL,
 	AI_SNAKE,
 	AI_COUNSLR,
+	AI_MAGE,
 	AI_ROUNDRANGED2,
 	AI_LAZARUS,
 	AI_LAZHELP,
@@ -2288,6 +2320,8 @@ typedef enum _monster_id {
 	MT_GMAGE,
 	MT_XMAGE,
 	MT_BMAGE,
+	MT_SMAGE,
+	MT_OMAGE,
 	MT_GOLEM,
 	MT_DIABLO,
 	//MT_DARKMAGE,
@@ -2449,7 +2483,7 @@ typedef enum _monster_goal {
 	MGOAL_RETREAT,
 	MGOAL_HEALING,
 	MGOAL_MOVE,
-	MGOAL_ATTACK2,
+	MGOAL_ATTACK,
 	MGOAL_TALKING,
 } _monster_goal;
 
@@ -2500,17 +2534,6 @@ typedef enum _monster_resistance {
 	MORS_ACID_RESIST         = 0x02 << MORS_IDX_ACID,
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } _monster_resistance;
-
-typedef enum missile_resistance {
-	MISR_NONE,
-	MISR_SLASH,
-	MISR_BLUNT,
-	MISR_PUNCTURE,
-	MISR_FIRE,
-	MISR_LIGHTNING,
-	MISR_MAGIC,
-	MISR_ACID,
-} missile_resistance;
 
 typedef enum _speech_id {
 	TEXT_KING1,
@@ -3120,8 +3143,11 @@ typedef enum dungeon_type {
 	DTYPE_CATACOMBS,
 	DTYPE_CAVES,
 	DTYPE_HELL,
+#ifdef HELLFIRE
 	DTYPE_CRYPT,
 	DTYPE_NEST,
+#endif
+	NUM_DTYPES
 } dungeon_type;
 
 typedef enum dungeon_gen_type {
@@ -3138,8 +3164,13 @@ typedef enum dungeon_type_mask {
 	DTM_CATACOMBS = 1 << DTYPE_CATACOMBS,
 	DTM_CAVES     = 1 << DTYPE_CAVES,
 	DTM_HELL      = 1 << DTYPE_HELL,
+#ifdef HELLFIRE
 	DTM_CRYPT     = 1 << DTYPE_CRYPT,
 	DTM_NEST      = 1 << DTYPE_NEST,
+#else
+	DTM_CRYPT     = 0,
+	DTM_NEST      = 0,
+#endif
 	DTM_ANY       = DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES | DTM_HELL | DTM_CRYPT | DTM_NEST,
 	DTM_NONE      = 0,
 } dungeon_type_mask;
@@ -3288,7 +3319,9 @@ typedef enum _setlevels {
 	SL_POISONWATER,
 	SL_VILEBETRAYER,
 	NUM_SETLVLS = SL_VILEBETRAYER - NUM_STDLVLS + 1,
-	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS,
+	NUM_FIXLVLS = NUM_STDLVLS + NUM_SETLVLS,
+	NUM_DYNLVLS = 2 * MAX_PLRS,
+	NUM_LEVELS = NUM_STDLVLS + NUM_SETLVLS + NUM_DYNLVLS,
 	DLV_INVALID = NUM_LEVELS
 } _setlevels;
 
@@ -3524,6 +3557,9 @@ typedef enum theme_id {
 typedef enum event_type {
 	EVENT_TYPE_JOIN_ACCEPTED,
 	EVENT_TYPE_PLAYER_LEAVE_GAME,
+#ifdef ZEROTIER
+	EVENT_TYPE_PLAYER_INFO,
+#endif
 	NUM_EVT_TYPES,
 } event_type;
 
@@ -3693,7 +3729,7 @@ typedef enum _target_mode {
 	TGT_NORMAL,
 	TGT_ITEM,
 	TGT_OBJECT,
-	TGT_PLAYER,
+	TGT_OTHER,
 	TGT_DEAD,
 	TGT_NONE
 } _target_mode;
@@ -3739,11 +3775,12 @@ typedef enum lvl_entry {
 	ENTRY_PREV,
 	ENTRY_SETLVL,
 	ENTRY_RTNLVL,
-	ENTRY_LOAD,
-	ENTRY_WARPLVL,
+	ENTRY_DYNLVL,
+	ENTRY_PORTLVL,
 	ENTRY_TWARPDN,
 	ENTRY_TWARPUP,
 	ENTRY_RETOWN,
+	ENTRY_LOAD,
 } lvl_entry;
 
 /*typedef enum game_info {
@@ -3788,6 +3825,7 @@ typedef enum spell_id {
 	SPL_POISON,
 	SPL_WIND,
 	SPL_SHROUD,
+	SPL_SWAMP,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,
@@ -3840,13 +3878,15 @@ typedef enum _msg_id {
 typedef enum _cmd_id {
 	CMD_SYNCDATA,
 	CMD_WALKXY,
+	CMD_WALKDIR,
 	CMD_SKILLXY,
 	CMD_OPOBJXY,
 	CMD_DISARMXY,
-	CMD_SKILLPLR,
 	CMD_SKILLMON,
+	CMD_SKILLPLR,
+	CMD_TURN,
 	CMD_BLOCK,
-	CMD_TALKXY,
+	CMD_TALKMON,
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
 	CMD_MONSTCORPSE,
@@ -3867,12 +3907,12 @@ typedef enum _cmd_id {
 	CMD_CUTPLRITEM,
 	CMD_DELPLRITEM,
 	CMD_USEPLRITEM,
+	CMD_USEPLRMAP,
 	CMD_PUTITEM,
 	CMD_SPAWNITEM,
 	CMD_GETITEM,
 	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,
-	CMD_GOTOAGETITEM,
 	CMD_OPERATEITEM,
 	CMD_OPERATEOBJ,
 	CMD_DOOROPEN,
@@ -3881,12 +3921,14 @@ typedef enum _cmd_id {
 	CMD_TRAPOPEN,
 	CMD_TRAPCLOSE,
 	CMD_SHRINE,
-	CMD_TELEKINXY,
-	CMD_TELEKINID,
-	CMD_TELEKINOID,
+	CMD_TELEKINITM,
+	CMD_TELEKINMON,
+	CMD_TELEKINPLR,
+	CMD_TELEKINOBJ,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,
-	CMD_TWARP,
+	CMD_CREATELVL,
+	CMD_USEPORTAL,
 	CMD_RETOWN,
 	CMD_JOINLEVEL,
 	CMD_DISCONNECT,
@@ -3994,15 +4036,15 @@ typedef enum _mainmenu_selections {
 } _mainmenu_selections;
 
 typedef enum _selhero_selections {
-	SELHERO_NONE        = 0,
-	SELHERO_NEW_DUNGEON = 1,
-	SELHERO_CONTINUE    = 2,
-	SELHERO_PREVIOUS    = 3
+	SELHERO_NONE,
+	SELHERO_CONTINUE,
+	SELHERO_PREVIOUS
 } _selhero_selections;
 
 typedef enum _selgame_selections {
 	SELGAME_CREATE,
 	SELGAME_JOIN,
+	SELGAME_LOAD,
 	SELGAME_PREVIOUS
 } _selgame_selections;
 
@@ -4301,6 +4343,12 @@ typedef enum quest_nakrul_book {
 	QNB_BOOK_C,
 } quest_nakrul_book;
 
+typedef enum map_status {
+	CMAP_NONE,
+	CMAP_IDENTIFIED,
+	CMAP_UNIDENTIFIED
+} map_status;
+
 typedef enum talk_id {
 	STORE_NONE,
 	STORE_SMITH,
@@ -4327,6 +4375,7 @@ typedef enum talk_id {
 	STORE_DRUNK,
 	STORE_BARMAID,
 	STORE_PRIEST,
+	STORE_ERRAND,
 	STORE_WAIT,
 } talk_id;
 
@@ -4503,6 +4552,7 @@ typedef enum shrine_type {
 typedef enum action_id {
 	ACTION_NONE,
 	ACTION_WALK,
+	ACTION_WALKDIR,
 	ACTION_OPERATE,
 	ACTION_ATTACK,
 	ACTION_ATTACKMON,
@@ -4513,9 +4563,9 @@ typedef enum action_id {
 	ACTION_SPELL,
 	ACTION_SPELLMON,
 	ACTION_SPELLPLR,
+	ACTION_TURN,
 	ACTION_BLOCK,
-	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
-	ACTION_PICKUPAITEM, // put item in inventory
+	ACTION_PICKUPITEM,
 	ACTION_TALK,
 } action_id;
 
@@ -4600,6 +4650,15 @@ typedef enum input_key {
 	ACT_NONE,
 	ACT_ACT,    // base action (LMB)
 	ACT_ALTACT, // alt action (RMB)
+	ACT_W_S, // walk actions
+	ACT_W_SW,
+	ACT_W_W,
+	ACT_W_NW,
+	ACT_W_N,
+	ACT_W_NE,
+	ACT_W_E,
+	ACT_W_SE,
+	ACT_STOP,
 	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,

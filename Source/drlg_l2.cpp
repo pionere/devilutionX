@@ -80,6 +80,18 @@ const BYTE L2BTYPES[159] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0,    //150..
 	// clang-format on
 };
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L2DYNENTRY[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	2, 2, // search
+	3, 3,
+
+	33, 0, // replace
+	0, 0,
+	// clang-format on
+};
 /** Miniset: Stairs up. */
 const BYTE L2USTAIRS[] = {
 	// clang-format off
@@ -557,7 +569,7 @@ static void DRLG_L2Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L2BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -754,7 +766,7 @@ static void DRLG_L2Shadows()
 					dungeon[i - 1][j - 1] = replace;
 					dungeon[i - 1][j] = 50;
 				} else {
-					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 9, 45, 50 -> ok
+					// automaptype MWT_NORTH_EAST, MWT_NORTH, tile 2, 5, 8, 9, 33, 45, 50 -> ok
 					// TODO: what else?
 				}
 			}
@@ -1123,7 +1135,7 @@ static void ConnectHall(int nX1, int nY1, int nX2, int nY2, int nHd)
 	//assert(nX2 >= 0 && nX2 < DMAXX && nY2 >= 0 && nY2 < DMAXY);
 	pdungeon[nX2][nY2] = PRE_HALLWAY;
 
-	while (TRUE) {
+	while (true) {
 		//assert(nX1 < DMAXX - 2 || nCurrd != HDIR_RIGHT);
 		//assert(nX1 > 1 || nCurrd != HDIR_LEFT);
 		//assert(nY1 < DMAXX - 2 || nCurrd != HDIR_DOWN);
@@ -1597,7 +1609,7 @@ static bool DL2_FillVoids()
 	int tries;
 
 	tries = 0;
-	while (TRUE) {
+	while (true) {
 		if (DRLG_L2GetArea() >= 800)
 			return true;
 next_try:
@@ -1677,7 +1689,7 @@ next_try:
 			if (y2 - y1 < 5)
 				goto next_try;
 			if (!xLeft) {
-				while (TRUE) {
+				while (true) {
 					if (x2 == DMAXX - 1) {
 						break;
 					}
@@ -1696,7 +1708,7 @@ next_try:
 				x2 -= 2;
 			} else {
 				// assert(!xRight);
-				while (TRUE) {
+				while (true) {
 					if (x1 == 0) {
 						break;
 					}
@@ -1749,7 +1761,7 @@ next_try:
 			if (x2 - x1 < 5)
 				goto next_try;
 			if (!xUp) {
-				while (TRUE) {
+				while (true) {
 					if (y2 == DMAXY - 1) {
 						break;
 					}
@@ -1769,7 +1781,7 @@ next_try:
 				y2 -= 2;
 			} else {
 				// assert(!xDown);
-				while (TRUE) {
+				while (true) {
 					if (y1 == 0) {
 						break;
 					}
@@ -2036,7 +2048,7 @@ static void L2LockoutFix()
 			doorok = dungeon[i][j] == 5;
 			if ((dungeon[i][j] == 2 || doorok) && dungeon[i][j - 1] == 3 && dungeon[i][j + 1] == 3) {
 				//assert(j >= 1 && j <= DMAXY - 2);
-				while (TRUE) {
+				while (true) {
 					i++;
 					//assert(i < DMAXX);
 					if (dungeon[i][j - 1] != 3 || dungeon[i][j + 1] != 3) {
@@ -2064,7 +2076,7 @@ static void L2LockoutFix()
 			doorok = dungeon[i][j] == 4;
 			if ((dungeon[i][j] == 1 || doorok) && dungeon[i - 1][j] == 3 && dungeon[i + 1][j] == 3) {
 				//assert(i >= 1 && i <= DMAXX - 2);
-				while (TRUE) {
+				while (true) {
 					j++;
 					//assert(j < DMAXY);
 					if (dungeon[i - 1][j] != 3 || dungeon[i + 1][j] != 3) {
@@ -2314,6 +2326,18 @@ static void DRLG_L2()
 			DRLG_L2SetRoom(0);
 		}
 
+		if (currLvl._dDynLvl) {
+			POS32 warpPos = DRLG_PlaceMiniSet(L2DYNENTRY);
+			if (warpPos.x < 0) {
+				continue;
+			}
+			pWarps[DWARP_ENTRY]._wx = warpPos.x;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+			break;
+		}
 		POS32 warpPos = DRLG_PlaceMiniSet(L2USTAIRS); // L2USTAIRS (5, 3)
 		if (warpPos.x < 0) {
 			continue;
@@ -2358,7 +2382,7 @@ static void DRLG_L2()
 	L2LockoutFix();
 	// L2DoorFix(); - commented out, because this is no longer necessary
 
-	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0, false);
+	DRLG_PlaceThemeRooms(6, 10, themeTiles, 0);
 
 	L2CreateArches();
 	// L2DoorFix2(); - commented out, because there is not much point to do this after L2CreateArches
@@ -2599,6 +2623,7 @@ static void DRLG_L2FixPreMap(int idx)
 		lm[2 + 5 + 8 * 10] = SwapLE16(50);
 		// remove 'items'
 		lm[2 + 10 * 16 + 9 + 2 * 10 * 2] = 0;
+		// adjust objects
 		// - add book and pedistal
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 24 * 10 * 2] = SwapLE16(15);
 		lm[2 + 10 * 16 + 10 * 16 * 2 * 2 + 10 * 16 * 2 * 2 + 9 + 16 * 10 * 2] = SwapLE16(91);
@@ -2614,6 +2639,13 @@ static void DRLG_L2FixPreMap(int idx)
 			for (int x = 2; x <= 6; x++) {
 				lm[2 + 10 * 16 + x + y * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12) | (3 << 14));
 			}
+		}
+		lm[2 + 10 * 16 + 2 + 3 * 10] = SwapLE16((3 << 10));
+		lm[2 + 10 * 16 + 3 + 3 * 10] = SwapLE16((3 << 8) | (3 << 12));
+		lm[2 + 10 * 16 + 6 + 3 * 10] = SwapLE16((3 << 8) | (3 << 10) | (3 << 12));
+		for (int y = 4; y < 7; y++) {
+			lm[2 + 10 * 16 + 3 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
+			lm[2 + 10 * 16 + 6 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
 		}
 	} else if (pSetPieces[idx]._sptype == SPT_BCHAMB) {
 		// patch the map - Bonestr1.DUN
@@ -2712,7 +2744,7 @@ static void LoadL2Dungeon(const LevelData* lds)
 
 void CreateL2Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL2Dungeon(lds);

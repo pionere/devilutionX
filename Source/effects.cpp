@@ -574,14 +574,14 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_MAGE24*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage24.wav",   { 0, NULL } }, // I can not open this. Yet.
 /*PS_MAGE25*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage25.wav",   { 0, NULL } },
 /*PS_MAGE26*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage26.wav",   { 0, NULL } },
-/*PS_MAGE27*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage27.wav",   { 0, NULL } }, // I can not cast that here.
+/*PS_MAGE27*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage27.wav",   { 0, NULL } }, // I can not cast that here.
 /*PS_MAGE28*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage28.wav",   { 0, NULL } },
 /*PS_MAGE29*/    { sfx_STREAM | sfx_SORCERER, "Sfx\\Sorceror\\Mage29.wav",   { 0, NULL } },
 /*PS_MAGE30*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage30.wav",   { 0, NULL } },
 /*PS_MAGE31*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage31.wav",   { 0, NULL } },
 /*PS_MAGE32*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage32.wav",   { 0, NULL } },
 /*PS_MAGE33*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage33.wav",   { 0, NULL } },
-/*PS_MAGE34*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage34.wav",   { 0, NULL } }, // I do not have a spell ready.
+/*PS_MAGE34*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage34.wav",   { 0, NULL } }, // I do not have a spell ready.
 /*PS_MAGE35*/    { sfx_SORCERER,              "Sfx\\Sorceror\\Mage35.wav",   { 0, NULL } }, // Not enough mana.
 /*PS_MAGE36*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage36.wav",   { 0, NULL } },
 /*PS_MAGE37*///  { sfx_SORCERER,              "Sfx\\Sorceror\\Mage37.wav",   { 0, NULL } },
@@ -677,14 +677,14 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_ROGUE24*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue24.wav",     { 0, NULL } }, // I can't open this. .. Yet.
 /*PS_ROGUE25*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue25.wav",     { 0, NULL } },
 /*PS_ROGUE26*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue26.wav",     { 0, NULL } },
-/*PS_ROGUE27*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue27.wav",     { 0, NULL } }, // I can't cast that here.
+/*PS_ROGUE27*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue27.wav",     { 0, NULL } }, // I can't cast that here.
 /*PS_ROGUE28*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue28.wav",     { 0, NULL } },
 /*PS_ROGUE29*/   { sfx_STREAM | sfx_ROGUE,    "Sfx\\Rogue\\Rogue29.wav",     { 0, NULL } }, // That did not do anything.
 /*PS_ROGUE30*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue30.wav",     { 0, NULL } },
 /*PS_ROGUE31*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue31.wav",     { 0, NULL } },
 /*PS_ROGUE32*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue32.wav",     { 0, NULL } },
 /*PS_ROGUE33*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue33.wav",     { 0, NULL } },
-/*PS_ROGUE34*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue34.wav",     { 0, NULL } }, // I don't have a spell ready.
+/*PS_ROGUE34*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue34.wav",     { 0, NULL } }, // I don't have a spell ready.
 /*PS_ROGUE35*/   { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue35.wav",     { 0, NULL } }, // Not enough mana.
 /*PS_ROGUE36*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue36.wav",     { 0, NULL } },
 /*PS_ROGUE37*/// { sfx_ROGUE,                 "Sfx\\Rogue\\Rogue37.wav",     { 0, NULL } },
@@ -786,14 +786,14 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_WARR24*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior24.wav",  { 0, NULL } }, // I can not open this. Yet.
 /*PS_WARR25*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior25.wav",  { 0, NULL } },
 /*PS_WARR26*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior26.wav",  { 0, NULL } },
-/*PS_WARR27*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior27.wav",  { 0, NULL } }, // I can't cast that here.
+/*PS_WARR27*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior27.wav",  { 0, NULL } }, // I can't cast that here.
 /*PS_WARR28*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior28.wav",  { 0, NULL } },
 /*PS_WARR29*/    { sfx_STREAM | sfx_WARRIOR,  "Sfx\\Warrior\\Warior29.wav",  { 0, NULL } },
 /*PS_WARR30*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior30.wav",  { 0, NULL } },
 /*PS_WARR31*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior31.wav",  { 0, NULL } },
 /*PS_WARR32*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior32.wav",  { 0, NULL } },
 /*PS_WARR33*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior33.wav",  { 0, NULL } },
-/*PS_WARR34*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior34.wav",  { 0, NULL } }, // I don't have a spell ready.
+/*PS_WARR34*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior34.wav",  { 0, NULL } }, // I don't have a spell ready.
 /*PS_WARR35*/    { sfx_WARRIOR,               "Sfx\\Warrior\\Warior35.wav",  { 0, NULL } }, // Not enough mana.
 /*PS_WARR36*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior36.wav",  { 0, NULL } },
 /*PS_WARR37*///  { sfx_WARRIOR,               "Sfx\\Warrior\\Warior37.wav",  { 0, NULL } },
@@ -894,14 +894,14 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*PS_MONK24*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk24.wav",       { 0, NULL } }, // I can not open this. .. Yet.
 /*PS_MONK25*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK26*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
-/*PS_MONK27*/    { sfx_MONK,                  "Sfx\\Monk\\Monk27.wav",       { 0, NULL } }, // I can not cast that here.
+/*PS_MONK27*///  { sfx_MONK,                  "Sfx\\Monk\\Monk27.wav",       { 0, NULL } }, // I can not cast that here.
 /*PS_MONK28*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK29*/    { sfx_STREAM | sfx_MONK,     "Sfx\\Monk\\Monk29.wav",       { 0, NULL } },
 /*PS_MONK30*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK31*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK32*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK33*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
-/*PS_MONK34*/    { sfx_MONK,                  "Sfx\\Monk\\Monk34.wav",       { 0, NULL } }, // I do not have a spell ready.
+/*PS_MONK34*///  { sfx_MONK,                  "Sfx\\Monk\\Monk34.wav",       { 0, NULL } }, // I do not have a spell ready.
 /*PS_MONK35*/    { sfx_MONK,                  "Sfx\\Monk\\Monk35.wav",       { 0, NULL } }, // Not enough mana.
 /*PS_MONK36*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*PS_MONK37*///  { sfx_MONK,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
@@ -991,13 +991,13 @@ static SFXStruct sgSFX[NUM_SFXS] = {
 /*USFX_LACH2*/   { sfx_STREAM,                "Sfx\\Monsters\\Lach02.wav",   { 0, NULL } },
 /*USFX_LACH3*/   { sfx_STREAM,                "Sfx\\Monsters\\Lach03.wav",   { 0, NULL } },
 /*USFX_LAZ1*/    { sfx_STREAM,                "Sfx\\Monsters\\Laz01.wav",    { 0, NULL } },
-/*USFX_LAZ2*/    { sfx_STREAM,                "Sfx\\Monsters\\Laz02.wav",    { 0, NULL } },
+/*USFX_LAZ2*///  { sfx_STREAM,                "Sfx\\Monsters\\Laz02.wav",    { 0, NULL } },
 /*USFX_SKING1*/  { sfx_STREAM,                "Sfx\\Monsters\\Sking01.wav",  { 0, NULL } },
 /*USFX_SNOT1*/   { sfx_STREAM,                "Sfx\\Monsters\\Snot01.wav",   { 0, NULL } },
 /*USFX_SNOT2*/   { sfx_STREAM,                "Sfx\\Monsters\\Snot02.wav",   { 0, NULL } },
 /*USFX_SNOT3*/   { sfx_STREAM,                "Sfx\\Monsters\\Snot03.wav",   { 0, NULL } },
 /*USFX_WARLRD1*/ { sfx_STREAM,                "Sfx\\Monsters\\Warlrd01.wav", { 0, NULL } },
-/*USFX_WLOCK1*/  { sfx_STREAM,                "Sfx\\Monsters\\Wlock01.wav",  { 0, NULL } },
+/*USFX_WLOCK1*///{ sfx_STREAM,                "Sfx\\Monsters\\Wlock01.wav",  { 0, NULL } },
 /*USFX_ZHAR1*/   { sfx_STREAM,                "Sfx\\Monsters\\Zhar01.wav",   { 0, NULL } },
 /*USFX_ZHAR2*/   { sfx_STREAM,                "Sfx\\Monsters\\Zhar02.wav",   { 0, NULL } },
 /*USFX_DIABLOD*/ { sfx_STREAM,                "Sfx\\Monsters\\DiabloD.wav",  { 0, NULL } },
@@ -1067,9 +1067,9 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	{ PS_WARR14, PS_ROGUE14, PS_MAGE14, PS_MONK14, PS_ROGUE14, PS_WARR14 },
 	//{ PS_WARR16, PS_ROGUE16, PS_MAGE16, PS_MONK16, PS_ROGUE16, PS_WARR16 },
 	{ PS_WARR24, PS_ROGUE24, PS_MAGE24, PS_MONK24, PS_ROGUE24, PS_WARR24 },
-	{ PS_WARR27, PS_ROGUE27, PS_MAGE27, PS_MONK27, PS_ROGUE27, PS_WARR27 },
+	//{ PS_WARR27, PS_ROGUE27, PS_MAGE27, PS_MONK27, PS_ROGUE27, PS_WARR27 },
 	{ PS_WARR29, PS_ROGUE29, PS_MAGE29, PS_MONK29, PS_ROGUE29, PS_WARR29 },
-	{ PS_WARR34, PS_ROGUE34, PS_MAGE34, PS_MONK34, PS_ROGUE34, PS_WARR34 },
+	//{ PS_WARR34, PS_ROGUE34, PS_MAGE34, PS_MONK34, PS_ROGUE34, PS_WARR34 },
 	{ PS_WARR35, PS_ROGUE35, PS_MAGE35, PS_MONK35, PS_ROGUE35, PS_WARR35 },
 	{ PS_WARR46, PS_ROGUE46, PS_MAGE46, PS_MONK46, PS_ROGUE46, PS_WARR46 },
 	{ PS_WARR54, PS_ROGUE54, PS_MAGE54, PS_MONK54, PS_ROGUE54, PS_WARR54 },
@@ -1109,9 +1109,9 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	{ PS_WARR14, PS_ROGUE14, PS_MAGE14 },
 	//{ PS_WARR16, PS_ROGUE16, PS_MAGE16 },
 	{ PS_WARR24, PS_ROGUE24, PS_MAGE24 },
-	{ PS_WARR27, PS_ROGUE27, PS_MAGE27 },
+	//{ PS_WARR27, PS_ROGUE27, PS_MAGE27 },
 	{ PS_WARR29, PS_ROGUE29, PS_MAGE29 },
-	{ PS_WARR34, PS_ROGUE34, PS_MAGE34 },
+	//{ PS_WARR34, PS_ROGUE34, PS_MAGE34 },
 	{ PS_WARR35, PS_ROGUE35, PS_MAGE35 },
 	{ PS_WARR46, PS_ROGUE46, PS_MAGE46 },
 	{ PS_WARR54, PS_ROGUE54, PS_MAGE54 },
@@ -1258,7 +1258,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	int lPan, lVolume;
 	SFXStruct* pSFX;
 
-	if (!gbSoundOn || gbLvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad)
 		return;
 
 	lPan = 0;
@@ -1293,7 +1293,7 @@ void PlayMonSFX(int mnum, int mode)
 	SoundSample* snd;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
-	if (!gbSoundOn || gbLvlLoad != 0)
+	if (!gbSoundOn || gbLvlLoad)
 		return;
 
 	mon = &monsters[mnum];

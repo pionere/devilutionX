@@ -47,8 +47,11 @@ bool packet::validate()
 		break;
 #ifdef ZEROTIER
 	case PT_INFO_REQUEST:
-	case PT_INFO_REPLY:
 		return true;
+	case PT_INFO_REPLY:
+		if (size != sizeof(NetPktInfoReply))
+			return false;
+		break;
 #endif
 	default:
 		return false;
@@ -134,6 +137,11 @@ void packet_factory::setup_password(const char* passwd)
 	        crypto_pwhash_ALG_ARGON2ID13))
 		app_error(ERR_APP_PACKET_PASSWD);
 #endif
+}
+
+void packet_factory::clear_password()
+{
+	setup_password("");
 }
 
 } // namespace net

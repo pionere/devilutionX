@@ -3,7 +3,7 @@
 // Keyboard keys acting like gamepad buttons
 #if HAS_KBCTRL
 #include <SDL.h>
-#include "../defs.h"
+
 #include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE

@@ -44,18 +44,14 @@ static BOOLEAN gbPreFlag;
 /**
  * Cursor-size
  */
-int sgCursHgt;
-int sgCursWdt;
-int sgCursHgtOld;
-int sgCursWdtOld;
+static int sgCursHgt;
+static int sgCursWdt;
 
 /**
  * Cursor-position
  */
-int sgCursX;
-int sgCursY;
-int sgCursXOld;
-int sgCursYOld;
+static int sgCursX;
+static int sgCursY;
 
 /**
  * Specifies whether transparency is active for the current CEL file being decoded.
@@ -116,7 +112,6 @@ const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
 	sgCursWdt = 0;
-	sgCursWdtOld = 0;
 }
 
 /**
@@ -140,10 +135,6 @@ static void scrollrt_remove_back_buffer_cursor()
 		dst += BUFFER_WIDTH;
 	}
 
-	sgCursXOld = sgCursX;
-	sgCursYOld = sgCursY;
-	sgCursWdtOld = sgCursWdt;
-	sgCursHgtOld = sgCursHgt;
 	sgCursWdt = 0;
 }
 
@@ -187,38 +178,57 @@ static void scrollrt_draw_cursor()
 		return;
 #endif
 
-	mx = MousePos.x - 1;
-	if (mx < 0 - cursW - 1) {
+	mx = MousePos.x;
+	my = MousePos.y;
+	// shift the cursor of the items CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		mx -= cursW >> 1;
+		my -= cursH >> 1;
+	}
+	// limit the mouse to the screen
+	if (mx <= 0 - cursW) {
 		return;
 	}
-	if (mx > SCREEN_WIDTH - 1) {
+	if (mx >= SCREEN_WIDTH) {
 		return;
 	}
-	my = MousePos.y - 1;
-	if (my < 0 - cursH - 1) {
+	if (my <= 0 - cursH) {
 		return;
 	}
-	if (my > SCREEN_HEIGHT - 1) {
+	if (my >= SCREEN_HEIGHT) {
 		return;
 	}
 
 	sgCursX = mx;
-	sgCursWdt = sgCursX + cursW + 1;
-	if (sgCursWdt > SCREEN_WIDTH - 1) {
-		sgCursWdt = SCREEN_WIDTH - 1;
-	}
-	sgCursX &= ~3;
-	sgCursWdt |= 3;
-	sgCursWdt -= sgCursX;
-	sgCursWdt++;
+	sgCursWdt = sgCursX + cursW;
+	// cut the cursor on the right side
+	//if (sgCursWdt > SCREEN_WIDTH) {
+	//	sgCursWdt = SCREEN_WIDTH;
+	//}
+	// cut the cursor on the left side
+	//if (sgCursX <= 0) {
+	//	sgCursX = 0;
+	//} else {
+		// draw to 4-byte aligned blocks
+		sgCursX &= ~3;
+		sgCursWdt -= sgCursX;
+	//}
+	// draw with 4-byte alignment
+	sgCursWdt += 3;
+	sgCursWdt &= ~3;
 
 	sgCursY = my;
-	sgCursHgt = sgCursY + cursH + 1;
-	if (sgCursHgt > SCREEN_HEIGHT - 1) {
-		sgCursHgt = SCREEN_HEIGHT - 1;
-	}
-	sgCursHgt -= sgCursY;
-	sgCursHgt++;
+	sgCursHgt = sgCursY + cursH;
+	// cut the cursor on the bottom
+	//if (sgCursHgt > SCREEN_HEIGHT) {
+	//	sgCursHgt = SCREEN_HEIGHT;
+	//}
+	// cut the cursor on the top
+	//if (sgCursY <= 0) {
+	//	sgCursY = 0;
+	//} else {
+		sgCursHgt -= sgCursY;
+	//}
 
 	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
@@ -229,9 +239,7 @@ static void scrollrt_draw_cursor()
 		memcpy(dst, src, sgCursWdt);
 	}
 
-	mx++;
 	mx += SCREEN_X;
-	my++;
 	my += cursH + SCREEN_Y - 1;
 
 	frame = pcursicon;
@@ -583,7 +591,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 
 	nCel = os->_oAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->ciFrameCnt;
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
@@ -1018,8 +1026,8 @@ static void DrawItem(int ii, int sx, int sy)
 	ii--;
 
 	is = &items[ii];
-	if (is->_iPostDraw == gbPreFlag)
-		return;
+	//if (is->_iPostDraw == gbPreFlag)
+	//	return;
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
@@ -1027,7 +1035,7 @@ static void DrawItem(int ii, int sx, int sy)
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->ciFrameCnt;
+	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
 	}
@@ -1111,9 +1119,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	mpnum = dObject[sx][sy];
 	if (mpnum != 0)
 		DrawObject(mpnum, sx, sy, dx, dy);
-	bv = dItem[sx][sy];
-	if (bv != 0)
-		DrawItem(bv, dx, dy);
+	//bv = dItem[sx][sy];
+	//if (bv != 0)
+	//	DrawItem(bv, dx, dy);
 
 	if (currLvl._dType != DTYPE_TOWN) {
 		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
@@ -1253,14 +1261,14 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
  */
 static void Zoom()
 {
-	int wdt = SCREEN_WIDTH / 2;
-	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2 - 1, VIEWPORT_HEIGHT / 2 - 1);
+	int wdt = SCREEN_WIDTH / 2u;
+	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1);
 	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
 
 	BYTE* src = &gpBuffer[nSrcOff];
 	BYTE* dst = &gpBuffer[nDstOff];
 
-	for (int hgt = 0; hgt < VIEWPORT_HEIGHT / 2; hgt++) {
+	for (unsigned hgt = 0; hgt < VIEWPORT_HEIGHT / 2u; hgt++) {
 		for (int i = 0; i < wdt; i++) {
 			*dst-- = *src;
 			*dst-- = *src;
@@ -1477,6 +1485,7 @@ static void DrawView()
 	}
 	DrawLifeFlask();
 	DrawManaFlask();
+	DrawGolemBar();
 	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
@@ -1511,6 +1520,9 @@ static void DrawView()
 		}
 		if (gbSkillListFlag) {
 			DrawSkillList();
+		}
+		if (gbCampaignMapFlag != CMAP_NONE) {
+			DrawCampaignMap();
 		}
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
 			DrawInfoStr();

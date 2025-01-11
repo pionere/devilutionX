@@ -10,10 +10,11 @@
 #include "plrctrls.h"
 #include "utils/utf8.h"
 #include "storm/storm_net.h"
+#include <ctime>
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define PLRMSG_TEXT_TIMEOUT 10000
+#define PLRMSG_TEXT_TIMEOUT 10
 #define PLRMSG_WIDTH        (PANEL_WIDTH - 20)
 
 static const char gszProductName[] = { PROJECT_NAME " v" PROJECT_VERSION };
@@ -39,23 +40,6 @@ static unsigned sguSelPos;
 static bool sgbSelecting;
 /** The message where the cursor is at the moment. */
 static _plrmsg* sgpCurMsg;
-
-void plrmsg_delay(bool delay)
-{
-	/*int i;
-	_plrmsg* pMsg;
-	Uint32 deltaTc;
-
-	deltaTc = SDL_GetTicks();
-	if (delay) {
-		guDelayStartTc = deltaTc;
-		return;
-	}
-	deltaTc -= guDelayStartTc;
-	pMsg = plr_msgs;
-	for (i = 0; i < PLRMSG_COUNT; i++, pMsg++)
-		pMsg->time += deltaTc;*/
-}
 
 static void plrmsg_WordWrap(_plrmsg* pMsg)
 {
@@ -105,7 +89,7 @@ static _plrmsg* AddPlrMsg(int pnum)
 	static_assert((PLRMSG_COUNT & (PLRMSG_COUNT - 1)) == 0, "Modulo to BitAnd optimization requires a power of 2.");
 	plr_msg_slot = (unsigned)(plr_msg_slot + 1) % PLRMSG_COUNT;
 	pMsg->player = pnum;
-	pMsg->time = SDL_GetTicks();
+	pMsg->time = time(NULL);
 	if (pMsg == sgpCurMsg) {
 		sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 	}
@@ -258,13 +242,13 @@ void DrawPlrMsg(bool onTop)
 	int msgs[PLRMSG_COUNT], nummsgs, numlines;
 	int i, idx, x, y, h, linelimit, top;
 	const int width = PLRMSG_WIDTH;
-	Uint32 timeout;
+	uint32_t timeout;
 
 	// collect the messages
 	nummsgs = 0;
 	numlines = 0;
 	if (!gbTalkflag) {
-		timeout = SDL_GetTicks() - PLRMSG_TEXT_TIMEOUT;
+		timeout = time(NULL) - PLRMSG_TEXT_TIMEOUT;
 		linelimit = 3;
 	} else {
 		numlines += plr_msgs[PLRMSG_COUNT].lineBreak != 0 ? 2 : 1;
@@ -327,14 +311,19 @@ void StartPlrMsg()
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
-void SetupPlrMsg(int pnum, bool shift)
+/*
+ * @brief Setup a new chat message.
+ *   If shift is pressed:  the message is prepared to be sent to the whole team of the player
+ *            is released: the message is prepared to be sent to the given player
+ */
+void SetupPlrMsg(int pnum)
 {
 	const char* text;
 	int param;
 
 	if (!gbTalkflag)
 		StartPlrMsg();
-	if (!shift) {
+	if (!(SDL_GetModState() & KMOD_SHIFT)) {
 		text = "/p%d ";
 		param = pnum;
 	} else {
@@ -349,11 +338,18 @@ void SetupPlrMsg(int pnum, bool shift)
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
+/*
+ * @brief Show information about the current game to the player.
+ *   If shift is pressed:  the difficulty of the game is shown to the player
+ *            is released: the name and the password is shown to the player in multiplayer games
+ */
 void VersionPlrMsg()
 {
 	EventPlrMsg(gszProductName);
 	if (!(SDL_GetModState() & KMOD_SHIFT)) {
 		if (!IsLocalGame) {
+			const char *szGameName, *szGamePassword;
+			SNetGetGameInfo(&szGameName, &szGamePassword);
 			EventPlrMsg(szGameName);
 			if (szGamePassword[0] != '\0') {
 				char desc[sizeof("password: %s") + NET_MAX_PASSWD_LEN];
@@ -361,8 +357,7 @@ void VersionPlrMsg()
 				EventPlrMsg(desc);
 			}
 		}
-	}
-	else {
+	} else {
 		const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
 		EventPlrMsg(difficulties[gnDifficulty]);
 	}

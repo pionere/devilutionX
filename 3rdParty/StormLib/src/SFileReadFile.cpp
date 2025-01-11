@@ -56,7 +56,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
         // If the sector positions are not loaded yet, do it
         if (hf->SectorOffsets == NULL) {
+#ifdef FULL
             dwErrCode = AllocateSectorOffsets(hf, true);
+#else
+            dwErrCode = AllocateSectorOffsets(hf);
+#endif
             if (dwErrCode != ERROR_SUCCESS || hf->SectorOffsets == NULL)
                 return dwErrCode;
         }
@@ -71,8 +75,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // We only try to load sector CRCs once, and regardless if it fails
             // or not, we won't try that again for the given file.
             //
-
+#ifdef FULL
             AllocateSectorChecksums(hf, true);
+#else
+            AllocateSectorChecksums(hf);
+#endif
             hf->bLoadedSectorCRCs = true;
         }
 
@@ -120,7 +127,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // If the file is encrypted, we have to decrypt the sector
             if (pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
                 BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
-
+#ifdef FULL
                 // If we don't know the key, try to detect it by file content
                 if (hf->dwFileKey == 0) {
                     hf->dwFileKey = DetectFileKeyByContent(pbInSector, dwBytesInThisSector, hf->dwDataSize);
@@ -129,7 +136,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
                         break;
                     }
                 }
-
+#endif
                 DecryptMpqBlock(pbInSector, dwRawBytesInThisSector, hf->dwFileKey + dwIndex);
                 BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
             }
@@ -150,7 +157,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
                     }
                 }
             }
-#endif // FULL
+#endif
 
             // If the sector is really compressed, decompress it.
             // WARNING : Some sectors may not be compressed, it can be determined only

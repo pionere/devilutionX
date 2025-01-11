@@ -57,6 +57,9 @@ static void InitTownTriggers()
 static void InitDunTriggers()
 {
 	numtrigs = 0;
+	if (currLvl._dDynLvl) {
+		return;
+	}
 	for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0) {
 			continue;
@@ -146,7 +149,7 @@ void InitView(int entry)
 {
 	int type;
 
-	if (entry == ENTRY_WARPLVL) {
+	if (entry == ENTRY_PORTLVL) {
 		GetPortalLvlPos();
 		return;
 	}
@@ -207,6 +210,7 @@ void InitView(int entry)
 		type = DWARP_EXIT;
 		break;
 	case ENTRY_SETLVL:
+	case ENTRY_DYNLVL:
 		type = DWARP_ENTRY;
 		break;
 	case ENTRY_RTNLVL:
@@ -224,7 +228,7 @@ void InitView(int entry)
 		}
 		break;
 	case ENTRY_LOAD:    // set from the save file
-	case ENTRY_WARPLVL: // should not happen
+	case ENTRY_PORTLVL: // should not happen
 		return;
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;
@@ -527,7 +531,7 @@ void CheckTriggers()
 		static_assert((int)DVL_DWM_TWARPUP < UCHAR_MAX, "CheckTriggers sends DVL_DWM_* value in BYTE field I.");
 		static_assert((int)DVL_DWM_NEXTLVL < UCHAR_MAX, "CheckTriggers sends DVL_DWM_* value in BYTE field II.");
 		static_assert((int)NUM_LEVELS < UCHAR_MAX, "CheckTriggers sends level index in BYTE field.");
-		NetSendCmdBParam2(CMD_NEWLVL, fom, lvl);
+		NetSendCmdNewLvl(fom, lvl);
 		numtrigs = 0; // prevent triggering again
 	}
 }

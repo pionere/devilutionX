@@ -1,6 +1,6 @@
 #pragma once
 // Backports for older versions of SDL 2.
-
+#ifndef USE_SDL1
 #include <SDL.h>
 
 #if !SDL_VERSION_ATLEAST(2, 0, 4)
@@ -45,3 +45,4 @@ SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
 	return surface;
 }
 #endif
+#endif // !USE_SDL1

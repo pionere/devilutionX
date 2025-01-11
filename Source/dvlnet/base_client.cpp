@@ -1,5 +1,5 @@
 #include "base_client.h"
-
+#ifndef NONET
 #include <cstring>
 #include <memory>
 
@@ -90,7 +90,7 @@ bool base_client::recv_accept(packet& pkt)
 	}
 	lastRecvTurn = turn;
 #ifdef ZEROTIER
-	// we joined and did not create
+	// preserve game-info in case we become master later
 	memcpy(&game_init_info, &pkt_info, sizeof(SNetGameData));
 #endif
 	SNetJoinEvent ev;
@@ -365,6 +365,7 @@ void base_client::close()
 	message_queue.clear();
 	for (i = 0; i < MAX_PLRS; i++)
 		turn_queue[i].clear();
+	pktfty.clear_password();
 	// prepare the client for possible re-connection
 	lastRecvTurn = -1;
 	plr_self = PLR_BROADCAST;
@@ -406,3 +407,4 @@ void base_client::SNetDisconnect()
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // !NONET

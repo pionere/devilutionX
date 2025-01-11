@@ -82,9 +82,12 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 		sdl_error(ERR_SDL_DISPLAY_MODE_SET);
 	}
 #if DEBUG_MODE
-	const SDL_VideoInfo* current = SDL_GetVideoInfo();
-	DoLog("Video mode is now %dx%d bpp=%d flags=0x%08X",
-	    current->current_w, current->current_h, current->vfmt->BitsPerPixel, SDL_GetVideoSurface()->flags);
+	const SDL_Surface *surface = SDL_GetVideoSurface();
+	if (surface == NULL) {
+		sdl_error(ERR_SDL_DISPLAY_MODE_SET);
+	}
+	DoLog("Video surface is now %dx%d bpp=%d flags=0x%08X",
+	    surface->w, surface->h, surface->format->BitsPerPixel, surface->flags);
 #endif
 }
 
@@ -94,9 +97,8 @@ void SetVideoModeToPrimary(bool fullscreen, int width, int height)
 	if (fullscreen)
 		flags |= SDL_FULLSCREEN;
 #ifdef __3DS__
-	flags &= ~SDL_FULLSCREEN;
-	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
-	flags |= Get3DSScalingFlag(fitToScreen, width, height);
+	else
+		flags |= Get3DSScalingFlag(width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 }
@@ -139,29 +141,33 @@ static void AdjustToScreenGeometry(int width, int height)
 static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
-	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		sdl_error(ERR_SDL_DISPLAY_MODE_GET);
-	}
+	SDL_GetDesktopDisplayMode(0, &mode);
 
-	if (mode.w < mode.h) {
-		std::swap(mode.w, mode.h);
-	}
+		if (mode.w < mode.h) {
+			std::swap(mode.w, mode.h);
+		}
 
-	if (useIntegerScaling) {
-		int factor = std::min(mode.w / width, mode.h / height);
-		width = mode.w / factor;
-		height = mode.h / factor;
-		return;
-	}
-
-	float wFactor = (float)mode.w / width;
-	float hFactor = (float)mode.h / height;
-
-	if (wFactor > hFactor) {
-		width = mode.w * height / mode.h;
-	} else {
-		height = mode.h * width / mode.w;
-	}
+		if (useIntegerScaling) {
+			int wFactor = mode.w / width;
+			int hFactor = mode.h / height;
+			if (wFactor > hFactor) {
+				if (hFactor != 0)
+					width *= wFactor / hFactor;
+			} else { // if (hFactor > wFactor) {
+				if (wFactor != 0)
+					height *= hFactor / wFactor;
+			}
+		} else {
+			float wFactor = (float)mode.w / width;
+			float hFactor = (float)mode.h / height;
+			if (wFactor > hFactor) {
+				// if (hFactor != 0.0)
+					width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
+			} else { // if (hFactor > wFactor) {
+				// if (wFactor != 0.0)
+					height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
+			}
+		}
 }
 #endif
 
@@ -263,9 +269,12 @@ void SpawnWindow()
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
-	const SDL_VideoInfo* current = SDL_GetVideoInfo();
-	width = current->current_w;
-	height = current->current_h;
+	const SDL_Surface *surface = SDL_GetVideoSurface();
+	if (surface == NULL) {
+		sdl_error(ERR_SDL_WINDOW_CREATE);
+	}
+	width = surface->w;
+	height = surface->h;
 #else
 	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
 	bool upscale = getIniBool("Graphics", "Upscale", true);
@@ -328,8 +337,9 @@ void SpawnWindow()
 	int refreshRate = 60;
 #ifndef USE_SDL1
 	SDL_DisplayMode mode;
-	// TODO: use SDL_GetCurrentDisplayMode after window is shown?
-	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+	// TODO: use SDL_GetWindowDisplayMode?
+	SDL_GetDesktopDisplayMode(0, &mode);
+	if (mode.refresh_rate != 0) {
 		refreshRate = mode.refresh_rate;
 	}
 #endif

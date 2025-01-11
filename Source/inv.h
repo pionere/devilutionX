@@ -15,9 +15,7 @@ extern "C" {
 #endif
 
 extern bool gbInvflag;
-extern BYTE gbTSpell;   // the spell to cast after the target is selected
-extern int8_t gbTSplFrom; // the source of the spell after the target is selected
-extern int8_t gbOilFrom;
+extern CmdSkillUse gbTSkillUse;   // the spell to cast after the target is selected
 
 extern const InvXY InvRect[NUM_XY_SLOTS];
 extern const BYTE InvSlotTbl[NUM_XY_SLOTS];
@@ -31,11 +29,11 @@ bool AutoPlaceInv(int pnum, ItemStruct* is, bool saveflag);
 //bool WeaponAutoPlace(int pnum, ItemStruct* is, bool saveflag);
 void InvPasteItem(int pnum, BYTE r);
 void InvPasteBeltItem(int pnum, BYTE r);
-void InvCutItem(int pnum, BYTE r, bool bShift);
-void SyncPlrItemRemove(int pnum, BYTE bLoc);
-void SyncPlrStorageRemove(int pnum, int iv);
-void CheckInvClick(bool bShift);
-void CheckBeltClick(bool bShift);
+void InvCutItem(int pnum, BYTE cii, bool bShift);
+void SyncPlrItemRemove(int pnum, BYTE cii);
+void SyncPlrStorageRemove(int pnum, int cii);
+void CheckInvClick();
+void CheckBeltClick();
 void InvGetItem(int pnum, int ii);
 bool AutoGetItem(int pnum, int ii);
 bool SyncAutoGetItem(int pnum, int ii);
@@ -49,6 +47,7 @@ BYTE CheckInvItem();
 BYTE CheckInvBelt();
 bool InvUseItem(int cii);
 bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
+bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 void CalculateGold(int pnum);
 
 #ifdef __cplusplus

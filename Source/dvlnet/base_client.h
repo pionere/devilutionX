@@ -1,5 +1,5 @@
 #pragma once
-
+#ifndef NONET
 #include <deque>
 #include <map>
 #include <memory>
@@ -54,6 +54,7 @@ protected:
 
 	void setup_password(const char* passwd);
 	void setup_gameinfo(_uigamedata* gameData);
+	void run_event_handler(SNetEventHdr* ev);
 	virtual void poll() = 0;
 	virtual void send_packet(packet& pkt) = 0;
 	virtual void disconnect_net(plr_t pnum);
@@ -63,9 +64,9 @@ protected:
 
 private:
 	void recv_disconnect(packet& pkt);
-	void run_event_handler(SNetEventHdr* ev);
 	void disconnect_plr(plr_t pnum);
 };
 
 } // namespace net
 DEVILUTION_END_NAMESPACE
+#endif // !NONET

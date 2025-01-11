@@ -142,7 +142,7 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 
-BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
+BYTE* DRLP_L1_PatchSpec(BYTE* sCelBuf, size_t* sCelLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SUB_HEADER_SIZE = 10;
@@ -2563,7 +2563,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		// if (frame.subtileIndex0 < 0) {
 		// 	continue;
 		// }
-		for (int n = 0; n < lengthof(frame.microIndices0); n++) {
+		for (int n = 0; n < lengthof(frame.microIndices0) && frame.subtileIndex0 >= 0; n++) {
 			if (frame.microIndices0[n] < 0) {
 				continue;
 			}

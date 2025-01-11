@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 
+#include "diablo.h"
 #include "diabloui.h"
 #include "selok.h"
 #include "selyesno.h"
@@ -23,6 +24,7 @@ static constexpr int RETURN_CANCEL = 102;
 static constexpr int RETURN_DONE = 100;
 
 static const char* const filesToSkip[] = {
+	"Data\\Inv\\Objcurs2.CEL",
 #ifdef HELLFIRE
 	"gendata\\diablo1.smk",
 	"Levels\\TownData\\Town.DUN",
@@ -221,6 +223,7 @@ static int merger_callback()
 			app_warn("Failed to create %s.", path.c_str());
 			return RETURN_ERROR;
 		}
+		diabdat_paths[NUM_MPQS] = path;
 	} return RETURN_DONE;
 	default:
 		ASSUME_UNREACHABLE
@@ -260,6 +263,7 @@ void UiMergerDialog()
 
 		SFileCloseArchive(diabdat_mpqs[NUM_MPQS]);
 		diabdat_mpqs[NUM_MPQS] = NULL;
+		diabdat_paths[NUM_MPQS].clear();
 		std::string path = std::string(GetBasePath()) + MPQONE;
 		RemoveFile(path.c_str());
 	}

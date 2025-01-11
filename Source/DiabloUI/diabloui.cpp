@@ -70,13 +70,13 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
 	gfnListDelete = NULL;
-	if (fnFocus != NULL)
+	if (fnFocus != NULL) {
 		fnFocus(SelectedItem);
 #if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > SelectedItem) {
-		SpeakText(gUIListItems[SelectedItem]->m_text);
-	}
+		unsigned idx = SelectedItem - ListOffset;
+		SpeakText(gUIListItems[idx]->m_text);
 #endif
+	}
 
 	gUiEditField = NULL;
 #if !defined(__SWITCH__) && !defined(__vita__) && !defined(__3DS__)
@@ -143,13 +143,13 @@ static void UiFocus(unsigned itemIndex)
 	UiScrollIntoView();
 	UiPlayMoveSound();
 
-	if (gfnListFocus != NULL)
+	if (gfnListFocus != NULL) {
 		gfnListFocus(itemIndex);
 #if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > itemIndex) {
-		SpeakText(gUIListItems[itemIndex]->m_text);
-	}
+		unsigned idx = itemIndex - ListOffset;
+		SpeakText(gUIListItems[idx]->m_text);
 #endif
+	}
 }
 
 static void UiFocusUp()
@@ -266,7 +266,7 @@ void UiFocusNavigationSelect()
 	if (gUiDrawCursor)
 		UiPlaySelectSound();
 	if (gUiEditField != NULL) {
-		if (gUiEditField->m_value[0] == '\0') {
+		if (gUiEditField->m_value[0] == '\0' && !(gUiEditField->m_iFlags & UIS_OPTIONAL)) {
 			return;
 		}
 		gUiEditField = NULL;
@@ -476,9 +476,15 @@ static void Render(const UiImage* uiImage)
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
 
+static int UIItemFlags(int flags, const SDL_Rect& rect)
+{
+	const SDL_Point point = { MousePos.x, MousePos.y };
+	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
+}
+
 static void Render(const UiTxtButton* uiButton)
 {
-	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
+	DrawArtStr(uiButton->m_text, uiButton->m_rect, UIItemFlags(uiButton->m_iFlags, uiButton->m_rect));
 }
 
 static void Render(const UiButton* button)
@@ -502,7 +508,7 @@ static void Render(const UiList* uiList)
 		if (i + ListOffset == SelectedItem)
 			DrawSelector(rect);
 		UiListItem* item = (*uiList->m_vecItems)[i];
-		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
+		DrawArtStr(item->m_text, rect, UIItemFlags(uiList->m_iFlags, rect));
 	}
 }
 
@@ -856,10 +862,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+#if !__IPHONEOS__ && !__ANDROID__
 		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
 		}
+#endif
 		if (gUiEditField != NULL) {
 			switch (event->vkcode) {
 #ifndef USE_SDL1

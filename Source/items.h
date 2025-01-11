@@ -43,6 +43,7 @@ void SetGoldItemValue(ItemStruct* is, int value);
 void CreatePlrItems(int pnum);
 bool ItemSpaceOk(int x, int y);
 void SetItemData(int ii, int idata);
+void SetItemSData(ItemStruct* is, int idata);
 void SpawnUnique(int uid, int x, int y, int mode);
 void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
 void CreateRndItem(int x, int y, unsigned quality, int mode);
@@ -71,7 +72,6 @@ void SpawnPremium(unsigned lvl);
 void SpawnWitch(unsigned lvl);
 void SpawnBoy(unsigned lvl);
 void SpawnHealer(unsigned lvl);
-void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo);
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg);
 void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
 

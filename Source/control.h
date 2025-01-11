@@ -39,9 +39,12 @@ extern unsigned guTeamMute;
 extern bool gabPanbtn[NUM_PANBTNS];
 extern int numpanbtns;
 extern bool gbSkillListFlag;
+extern BYTE gbCampaignMapFlag;
+extern int camItemIndex;
+extern CampaignMapEntry selCamEntry;
 
 void DrawSkillList();
-void SetSkill(bool shift, bool altSkill);
+void SetSkill(bool altSkill);
 void SetSkillHotKey(int slot, bool altSkill);
 void SelectHotKeySkill(int slot, bool altSkill);
 void DrawLifeFlask();
@@ -64,21 +67,21 @@ void DrawLevelUpIcon();
 void DrawInfoStr();
 void CheckChrBtnClick();
 void ReleaseChrBtn();
-void DrawTextBox();
+void DrawTextBox(unsigned separators);
 void DrawSTextBox(int x, int y);
 void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
-void CheckBookClick(bool shift, bool altSkill);
+void CheckBookClick(bool altSkill);
 const char* get_pieces_str(int nGold);
 void DrawGoldSplit(int amount);
 void control_drop_gold(int vkey);
 void DrawTeamBook();
-void CheckTeamClick(bool shift);
-
-/* data */
-
-extern const RECT32 ChrBtnsRect[4];
+void CheckTeamClick();
+void DrawGolemBar();
+void InitCampaignMap(int cii);
+void DrawCampaignMap();
+void TryCampaignMapClick(bool altAction);
 
 #ifdef __cplusplus
 }

@@ -259,6 +259,8 @@ _pkginfo.txt
 *.[Cc]ache
 # but keep track of directories ending in .cache
 !*.[Cc]ache/
+# except for a top-level .cache directory (clangd uses /.cache/clangd for temporary files)
+/.cache/
 
 # Others
 ClientBin/
@@ -429,7 +431,7 @@ DerivedData/
 
 # End of https://www.gitignore.io/api/xcode
 
-# Don't accidently commit the diabdat.mpq
+# Don't accidently commit the diabdat.mpq or any other MPQ files
 *.mpq
 
 ### Nintendo Switch ###
@@ -437,9 +439,6 @@ exefs/main
 /out/isenseconfig/CPI-Debug
 
 /docs/html/
-
-# MPQ files
-*.mpq
 
 # ddraw wrapper configuration file
 ddraw_settings.ini

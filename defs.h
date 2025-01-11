@@ -72,6 +72,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_DEFAULT_PORT        6112
 // the maximum length of the name of an 'instance'
 #define NET_MAX_GAMENAME_LEN    31
+// the length of the name of an 'instance' in case of zerotier
+#define NET_ZT_GAMENAME_LEN     6
 // the maximum length of the password of an 'instance'
 #define NET_MAX_PASSWD_LEN      15
 // the maximum length of a text-message to other players
@@ -88,10 +90,14 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define NET_TIMEOUT_CONNECT     30
 // number of iterations before an active connection timeouts (tcp)
 #define NET_TIMEOUT_ACTIVE      60
-// number of iterations before a ghost connection timeouts (tcp)
+// number of iterations before a ghost connection timeouts (tcp + zt)
 #define NET_TIMEOUT_GHOST       5
 // seconds to wait if there is no free connection (tcp)
 #define NET_WAIT_PENDING        10
+// number of milliseconds before a pending connection timeouts (zt)
+#define NET_TIMEOUT_SOCKET      (5 * 1000)
+// seconds after a game-info becomes obsolete (zt)
+#define NET_TIMEOUT_GAME        5
 
 #define DEAD_MULTI              0xFF
 #define MAXITEMS                127
@@ -105,12 +111,10 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAXOBJECTS              127
 #define OBJ_NONE                0xFF
 #define MAXPORTAL               MAX_PLRS
-#define MAXTHEMES               32
+#define MAXTHEMES               8
 #define MAXTILES                255
 #define MAXSUBTILES             1023
 #define MAXVISION               (MAX_PLRS + MAX_MINIONS)
-#define MDMAXX                  40
-#define MDMAXY                  40
 #define MAXCHARLEVEL            50
 #define MAXSPLLEVEL             15
 #ifdef HELLFIRE
@@ -118,6 +122,9 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #else
 #define BASESTAFFCHARGES        40
 #endif
+
+#define MAXCAMPAIGNLVL          60
+#define MAXCAMPAIGNSIZE         16
 
 // number of inventory grid cells
 #define NUM_INV_GRID_ELEM       40
@@ -202,10 +209,14 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
     && (y) < (ry + rh))
 
 #define IN_DUNGEON_AREA(x, y) \
-    (x >= 0                   \
-    && x < MAXDUNX            \
-    && y >= 0                 \
-    && y < MAXDUNY)
+    ((unsigned)(x) < MAXDUNX  \
+    && (unsigned)(y) < MAXDUNY)
+
+#define IN_ACTIVE_AREA(x, y)   \
+    ((x) >= DBORDERX           \
+    && (x) < DBORDERX + DSIZEX \
+    && (y) >= DBORDERY         \
+    && (y) < DBORDERY + DSIZEY)
 
 #ifndef TRUE
 #define TRUE true

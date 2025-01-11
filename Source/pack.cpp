@@ -133,11 +133,11 @@ static void UnPackItem(const PkItemStruct* pis, ItemStruct* is)
 	}
 }
 
-void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
+void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 {
 	int i;
 	ItemStruct* pi;
-	PkItemStruct* pki;
+	const PkItemStruct* pki;
 
 	// TODO: validate data from the internet
 	//SetPlayerLoc(&plr, pPack->px, pPack->py);
@@ -266,7 +266,6 @@ void UnPackPlayer(PkPlayerStruct* pPack, int pnum)
 
 	// reset fields which are used even by non-local players, but not part of pPack
 	// TODO: move these to SetupLocalPlr
-	ClrPlrPath(pnum);
 	plr._pDestAction = ACTION_NONE;
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;

@@ -333,4 +333,9 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 char* SDL_GetBasePath();
 char* SDL_GetPrefPath(const char* org, const char* app);
 
+//== Audio
+
+// Audio flags are not supported in SDL1.
+#define SDL_AUDIO_ALLOW_SAMPLES_CHANGE 0
+
 #endif // USE_SDL1

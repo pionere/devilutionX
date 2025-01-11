@@ -70,7 +70,7 @@ void mainmenu_loop()
 {
 	mainmenu_refresh_music();
 
-	while (TRUE) {
+	while (true) {
 		switch (UiMainMenuDialog()) {
 		case MAINMENU_SINGLE_PLAYER:
 			if (mainmenu_single_player())
