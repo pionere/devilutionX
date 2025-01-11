@@ -2446,6 +2446,15 @@ typedef struct SNetGameData {
 	BYTE ngTickRate;
 	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE ngMaxPlayers;
+	SNetGameData() {
+		memset(&ngVersionId, 0, sizeof(SNetGameData));
+	}
+	SNetGameData(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	}
+	void operator=(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	};
 } SNetGameData;
 
 /*typedef struct _SNETCAPS {

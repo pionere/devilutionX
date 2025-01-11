@@ -1137,31 +1137,6 @@ void PlrStartStand(int pnum)
 	}
 }
 
-static void StartWalkStand(int pnum)
-{
-	plr._pmode = PM_STAND;
-}
-
-/*static void PlrStartWalkStand(int pnum)
-{
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrStartWalkStand: illegal player %d", pnum);
-	}
-	plr._pmode = PM_STAND;
-	plr._pfutx = plr._px;
-	plr._pfuty = plr._py;
-	plr._pxoff = 0;
-	plr._pyoff = 0;
-
-	if (pnum == mypnum) {
-		ScrollInfo._sxoff = 0;
-		ScrollInfo._syoff = 0;
-		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px; // - ScrollInfo._sdx;
-		ViewY = plr._py; // - ScrollInfo._sdy;
-	}
-}*/
-
 static void PlrChangeOffset(int pnum)
 {
 	// int px, py;

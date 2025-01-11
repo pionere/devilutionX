@@ -230,7 +230,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #if DEBUG_MODE || DEV_MODE
 #define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
 #else
-#define assert(exp) ((void)0)
+#define assert(exp) do { (void) sizeof(exp); } while(0)
 #endif
 
 #ifdef _MSC_VER
@@ -253,7 +253,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #if INET_MODE
 #define net_assert(x) assert(x)
 #else
-#define net_assert(x) do { } while(0)
+#define net_assert(x) do { (void) sizeof(x); } while(0)
 #endif
 
 #define SwapLE64 SDL_SwapLE64
