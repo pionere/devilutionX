@@ -4715,6 +4715,12 @@ typedef enum input_key {
 	NUM_ACTS
 } input_key;
 
+typedef enum frame_rate_control {
+	FRC_NONE,
+	FRC_VSYNC,    // use vsync to balance performance, reduce tearing, or save power
+	FRC_CPUSLEEP, // use FPS-limiter to reduce CPU-load
+} frame_rate_control;
+
 typedef enum application_error {
 	ERR_APP_FRAME_BUFSIZE,
 	ERR_APP_LOOPBACK_SENDMSG,

@@ -39,13 +39,13 @@ bool gbWndActive;
  */
 bool gbFullscreen = true;
 /**
- * Specfies whether vertical sync is enabled.
+ * Specfies whether vertical sync or FPS limiter is used (or neither).
  */
-bool gbVsyncEnabled;
-/**
- * Specfies whether the FPS limiter is enabled to reduce CPU load.
- */
-bool gbFPSLimit;
+#ifdef USE_SDL1
+uint_fast8_t gbFrameRateControl = FRC_CPUSLEEP; // use the FPS limiter
+#else
+int gbFrameRateControl = FRC_VSYNC;    // use vsync
+#endif
 /*
  * Target (screen-)refresh delay in milliseconds when
  * VSync is inactive (disabled or not available).
@@ -249,6 +249,7 @@ void SpawnWindow()
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
 #endif
+	getIniInt("Graphics", "Frame Rate Control", &gbFrameRateControl);
 
 	bool grabInput = getIniBool("Diablo", "Grab Input", false);
 
@@ -298,8 +299,7 @@ void SpawnWindow()
 	if (upscale) {
 		Uint32 rendererFlags = 0;
 
-		gbVsyncEnabled = getIniBool("Graphics", "Vertical Sync", true);
-		if (gbVsyncEnabled) {
+		if (gbFrameRateControl == FRC_VSYNC) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 		}
 
@@ -333,8 +333,6 @@ void SpawnWindow()
 	}
 #endif
 	gnRefreshDelay = 1000 / refreshRate;
-
-	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
 
 	// return ghMainWnd != NULL;
 }

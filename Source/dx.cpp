@@ -379,9 +379,6 @@ void RenderPresent()
 				sdl_error(ERR_SDL_DX_RENDER_COPY);
 			}
 			SDL_RenderPresent(renderer);
-
-			if (gbVsyncEnabled)
-				return;
 		} else {
 			if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
 				sdl_error(ERR_SDL_DX_RENDER_SURFACE);
@@ -393,7 +390,7 @@ void RenderPresent()
 		}
 #endif
 	}
-	if (gbFPSLimit)
+	if (gbFrameRateControl == FRC_CPUSLEEP)
 		LimitFrameRate();
 }
 

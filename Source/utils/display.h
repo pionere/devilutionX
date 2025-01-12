@@ -18,8 +18,7 @@ extern bool gbWndActive;
 #if !FULLSCREEN_ONLY
 extern bool gbFullscreen;
 #endif
-extern bool gbVsyncEnabled;
-extern bool gbFPSLimit;
+extern int gbFrameRateControl;
 extern int gnRefreshDelay;
 extern SDL_Window* ghMainWnd;
 extern SDL_Renderer* renderer;
