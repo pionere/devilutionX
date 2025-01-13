@@ -30,11 +30,12 @@ DEVILUTION_BEGIN_NAMESPACE
 inline FILE* FileOpen(const char* path, const char* mode)
 {
 	FILE* file;
-#if (defined(_MSC_VER) && (_MSC_VER >= 1400))
-	fopen_s(&file, path, mode);
-#else
+// #if (defined(_MSC_VER) && (_MSC_VER >= 1400))
+//	fopen_s(&file, path, mode);
+// #else
+	#pragma warning ( suppress: 4996 )
 	file = std::fopen(path, mode);
-#endif
+// #endif
 	return file;
 }
 
