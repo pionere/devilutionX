@@ -1371,7 +1371,7 @@ void ValidateData()
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Rune of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetRuneSpell
 			hasRuneSpell = true;
 			continue;
 		}
@@ -1383,7 +1383,7 @@ void ValidateData()
 			if (sd.sBookCost <= 0)
 				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Book of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetBookSpell
 			hasBookSpell = true;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
@@ -1397,7 +1397,7 @@ void ValidateData()
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Staff of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetStaffSpell
 			hasStaffSpell = true;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
@@ -1406,7 +1406,7 @@ void ValidateData()
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
 			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
+				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetScrollSpell
 			if ((sd.sSkillFlags & SDFLAG_TARGETED) && sd.scCurs == CURSOR_NONE)
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			hasScrollSpell = true;
