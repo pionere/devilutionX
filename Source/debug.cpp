@@ -506,6 +506,8 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
+		if (strlen(md.mName) > sizeof(infostr)  - 1)
+			app_fatal("Too long name for %s, %d (maximum is %d).", md.mName, i, sizeof(infostr)); // required by DrawInfoStr
 		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
 		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_SNAKE || md.mAI.aiType == AI_SNEAK || md.mAI.aiType == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -807,7 +809,7 @@ void ValidateData()
 			continue;
 		}
 		if (strlen(ids.iName) > 32 - 1)
-			app_fatal("Too long name for %s (%d)", ids.iName, i);
+			app_fatal("Too long name for %s (%d)", ids.iName, i); // required by SetItemData
 		rnddrops += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
