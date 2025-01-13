@@ -80,8 +80,6 @@ static void dx_create_back_buffer()
 	// time the global `back_palette` is changed. No need to do anything here as
 	// the global `back_palette` doesn't have any colors set yet.
 #endif
-
-	back_surface_palette_version = 1;
 }
 
 static void dx_create_primary_surface()
@@ -112,7 +110,7 @@ void dx_init()
 
 	dx_create_primary_surface();
 	dx_create_back_buffer();
-	palette_init();
+	InitPalette();
 
 	gbWndActive = true;
 }
@@ -213,7 +211,7 @@ void dx_cleanup()
 
 	SDL_Quit();
 }
-
+#if !FULLSCREEN_ONLY
 void ToggleFullscreen()
 {
 #ifdef USE_SDL1
@@ -233,7 +231,7 @@ void ToggleFullscreen()
 	gbFullscreen = !gbFullscreen;
 	// gbRedrawFlags = REDRAW_ALL;
 }
-
+#endif
 /**
  * @brief Render the whole screen black
  */
@@ -362,9 +360,6 @@ void RenderPresent()
 				sdl_error(ERR_SDL_DX_RENDER_COPY);
 			}
 			SDL_RenderPresent(renderer);
-
-			if (gbVsyncEnabled)
-				return;
 		} else {
 			if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
 				sdl_error(ERR_SDL_DX_RENDER_SURFACE);
@@ -376,7 +371,7 @@ void RenderPresent()
 		}
 #endif
 	}
-	if (gbFPSLimit)
+	if (gbFrameRateControl == FRC_CPUSLEEP)
 		LimitFrameRate();
 }
 

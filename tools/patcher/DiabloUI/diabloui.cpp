@@ -883,10 +883,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+#if !FULLSCREEN_ONLY
 		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
 		}
+#endif
 #if FULL_UI
 		if (gUiEditField != NULL) {
 			switch (event->vkcode) {
