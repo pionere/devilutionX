@@ -484,7 +484,7 @@ void SVidPlayEnd()
 
 #ifdef USE_SDL1
 	if (IsSVidVideoMode) {
-		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
+		SetVideoModeToPrimary(SCREEN_WIDTH, SCREEN_HEIGHT);
 		IsSVidVideoMode = false;
 	}
 #endif

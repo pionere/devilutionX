@@ -91,23 +91,17 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 #endif
 }
 
-void SetVideoModeToPrimary(bool fullscreen, int width, int height)
+void SetVideoModeToPrimary(int width, int height)
 {
 	int flags = SDL1_VIDEO_MODE_FLAGS | SDL_HWPALETTE;
-	if (fullscreen)
+	if (gbFullscreen)
 		flags |= SDL_FULLSCREEN;
 #ifdef __3DS__
 	else
 		flags |= Get3DSScalingFlag(width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
-}
-
-bool IsFullScreen()
-{
-	return (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
-	// ifndef USE_SDL1:
-	//   return (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+	// gbFullscreen = (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 }
 #else
 void RecreateDisplay(int width, int height)
@@ -265,7 +259,7 @@ void SpawnWindow()
 
 #ifdef USE_SDL1
 	SDL_WM_SetCaption(lpWindowName, WINDOW_ICON_NAME);
-	SetVideoModeToPrimary(gbFullscreen, width, height);
+	SetVideoModeToPrimary(width, height);
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
@@ -305,7 +299,7 @@ void SpawnWindow()
 	if (ghMainWnd == NULL) {
 		sdl_error(ERR_SDL_WINDOW_CREATE);
 	}
-
+	// gbFullscreen = (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
 	if (upscale) {
 		Uint32 rendererFlags = 0;
 

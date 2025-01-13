@@ -34,8 +34,7 @@ extern int screenHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
-bool IsFullScreen();
-void SetVideoModeToPrimary(bool fullscreen, int width, int height);
+void SetVideoModeToPrimary(int width, int height);
 // Whether the output surface requires software scaling.
 // Always returns false on SDL2.
 bool OutputRequiresScaling();
