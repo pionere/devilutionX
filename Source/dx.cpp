@@ -110,7 +110,7 @@ void dx_init()
 
 	dx_create_primary_surface();
 	dx_create_back_buffer();
-	palette_init();
+	InitPalette();
 
 	gbWndActive = true;
 }
