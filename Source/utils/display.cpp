@@ -46,10 +46,6 @@ bool gbVsyncEnabled;
  * Specfies whether the FPS limiter is enabled to reduce CPU load.
  */
 bool gbFPSLimit;
-/**
- * Specfies whether the FPS counter is shown.
- */
-bool gbShowFPS;
 /*
  * Target (screen-)refresh delay in milliseconds when
  * VSync is inactive (disabled or not available).
@@ -339,7 +335,6 @@ void SpawnWindow()
 	gnRefreshDelay = 1000 / refreshRate;
 
 	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
-	gbShowFPS = getIniBool("Graphics", "Show FPS", false);
 
 	// return ghMainWnd != NULL;
 }

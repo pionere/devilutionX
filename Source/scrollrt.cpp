@@ -1634,16 +1634,6 @@ void ScrollView()
 	if (scroll)
 		ScrollInfo._sdir = SDIR_NONE;
 }
-#endif
-
-/**
- * @brief Toggle the FPS meter
- */
-/*void EnableFrameCount()
-{
-	gbShowFPS = !gbShowFPS;
-	guFpsStartTc = SDL_GetTicks();
-}*/
 
 /**
  * @brief Display the current average FPS over 1 sec
@@ -1663,6 +1653,7 @@ static void DrawFPS()
 	snprintf(tempstr, sizeof(tempstr), "%d FPS", guFrameRate);
 	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 65, tempstr, COL_RED);
 }
+#endif // DEBUG_MODE
 
 /**
  * @brief Redraw screen
@@ -1705,8 +1696,9 @@ void scrollrt_draw_game()
 	DrawView();
 	scrollrt_draw_cursor();
 
-	if (gbShowFPS)
-		DrawFPS();
+#if DEBUG_MODE
+	DrawFPS();
+#endif
 
 	unlock_buf(0);
 

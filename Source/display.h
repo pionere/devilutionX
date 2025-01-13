@@ -17,7 +17,6 @@ extern int screenHeight;
 //extern int viewportHeight;
 
 extern bool gbWndActive;
-extern bool gbShowFPS;
 
 extern SDL_Window* ghMainWnd;
 extern SDL_Palette* back_palette;
