@@ -188,7 +188,6 @@ void CaptureScreen()
 	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));
 	UpdatePalette();
 	gbRedrawFlags = REDRAW_ALL;
-	delete out;
 }
 
 DEVILUTION_END_NAMESPACE
