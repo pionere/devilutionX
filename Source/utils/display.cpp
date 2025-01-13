@@ -64,7 +64,6 @@ SDL_Surface* renderer_surface = NULL;
 
 /** Currently active palette */
 SDL_Palette* back_palette;
-unsigned int back_surface_palette_version = 0;
 
 /** 8-bit surface wrapper around #gpBuffer */
 SDL_Surface* back_surface;

@@ -27,7 +27,6 @@ void palette_update()
 	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, NUM_COLORS) < 0) {
 		sdl_error(ERR_SDL_PALETTE_UPDATE);
 	}
-	back_surface_palette_version++;
 }
 
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src)

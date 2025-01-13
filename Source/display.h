@@ -22,7 +22,6 @@ extern bool gbShowFPS;
 extern SDL_Window* ghMainWnd;
 extern SDL_Palette* back_palette;
 extern SDL_Surface* back_surface;
-extern unsigned int back_surface_palette_version;
 
 void SpawnWindow();
 

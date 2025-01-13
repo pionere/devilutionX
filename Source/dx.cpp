@@ -80,8 +80,6 @@ static void dx_create_back_buffer()
 	// time the global `back_palette` is changed. No need to do anything here as
 	// the global `back_palette` doesn't have any colors set yet.
 #endif
-
-	back_surface_palette_version = 1;
 }
 
 static void dx_create_primary_surface()
