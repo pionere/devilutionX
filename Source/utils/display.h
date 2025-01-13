@@ -15,7 +15,9 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+#if !FULLSCREEN_ONLY
 extern bool gbFullscreen;
+#endif
 extern bool gbVsyncEnabled;
 extern bool gbFPSLimit;
 extern int gnRefreshDelay;

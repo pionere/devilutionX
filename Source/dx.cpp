@@ -211,7 +211,7 @@ void dx_cleanup()
 
 	SDL_Quit();
 }
-
+#if !FULLSCREEN_ONLY
 void ToggleFullscreen()
 {
 #ifdef USE_SDL1
@@ -231,7 +231,7 @@ void ToggleFullscreen()
 	gbFullscreen = !gbFullscreen;
 	gbRedrawFlags = REDRAW_ALL;
 }
-
+#endif
 /**
  * @brief Render the whole screen black
  */

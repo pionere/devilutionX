@@ -245,7 +245,7 @@ void SpawnWindow()
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
 #endif
-#ifndef __vita__
+#if !FULLSCREEN_ONLY
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
 #endif

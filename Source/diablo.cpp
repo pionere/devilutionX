@@ -1026,7 +1026,7 @@ static void PressKey(int vkey)
 	if (gnTimeoutCurs != CURSOR_NONE) {
 		return;
 	}
-#if !__IPHONEOS__ && !__ANDROID__
+#if !FULLSCREEN_ONLY
 	if (vkey == DVL_VK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
 		ToggleFullscreen();
 		return;

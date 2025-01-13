@@ -109,6 +109,11 @@ if(WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
   set(USE_PATCH ON)
+  if(WINDOWS_STORE)
+    if(NTDDI_VERSION < NTDDI_WIN10)
+      set(FULLSCREEN_ONLY ON)
+    endif()
+  endif()
 endif()
 
 if(HAIKU)
@@ -175,6 +180,7 @@ option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
+option(FULLSCREEN_ONLY "Disable windowed mode" OFF)
 option(NONET "Disable network support" OFF)
 cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NOT NONET" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
@@ -866,6 +872,7 @@ foreach(
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
+  FULLSCREEN_ONLY
   NONET
   INET_MODE
   NETENCRYPT
@@ -1579,6 +1586,7 @@ foreach(
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
+  FULLSCREEN_ONLY
   NONET
   INET_MODE
   NETENCRYPT

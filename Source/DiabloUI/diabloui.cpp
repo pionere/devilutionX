@@ -862,7 +862,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
-#if !__IPHONEOS__ && !__ANDROID__
+#if !FULLSCREEN_ONLY
 		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
