@@ -2136,7 +2136,7 @@ static void PlrDoAttack(int pnum)
 		 && (plr._pDestAction == ACTION_ATTACK
 		  || plr._pDestAction == ACTION_ATTACKMON
 		  || plr._pDestAction == ACTION_ATTACKPLR
-		  || plr._pDestAction == ACTION_OPERATE)) {
+		  || (plr._pDestAction == ACTION_OPERATE && objects[plr._pDestParam4]._oBreak != OBM_UNBREAKABLE))) {
 			// assert(plr._pmode == PM_ATTACK);
 			plr._pVar1 = PM_ATTACK; // STAND_PREV_MODE
 			plr._pmode = PM_STAND;
