@@ -63,11 +63,11 @@ bool gbCelTransparencyActive;
 BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 //bool dRendered[MAXDUNX][MAXDUNY];
+#if DEBUG_MODE
 static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
-#if DEBUG_MODE
 const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",

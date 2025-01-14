@@ -129,8 +129,10 @@ static int diablo_parse_flags(int argc, char** argv)
 				SetPrefPath(argv[i]);
 		} else if (SDL_strcasecmp("-n", argv[i]) == 0) {
 			_gbSkipIntro = true;
+#if !FULLSCREEN_ONLY
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
+#endif
 		}
 	}
 	return EX_OK;

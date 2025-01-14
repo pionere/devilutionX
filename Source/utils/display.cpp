@@ -42,7 +42,7 @@ bool gbFullscreen = true;
  * Specfies whether vertical sync or FPS limiter is used (or neither).
  */
 #ifdef USE_SDL1
-uint_fast8_t gbFrameRateControl = FRC_CPUSLEEP; // use the FPS limiter
+int gbFrameRateControl = FRC_CPUSLEEP; // use the FPS limiter
 #else
 int gbFrameRateControl = FRC_VSYNC;    // use vsync
 #endif
