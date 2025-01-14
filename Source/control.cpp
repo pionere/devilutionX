@@ -1752,7 +1752,9 @@ void DrawInfoStr()
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
+		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
+		ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		pos = GetMousePos(mon->_mx, mon->_my);
 		pos.x += mon->_mxoff;
 		pos.y += mon->_myoff;

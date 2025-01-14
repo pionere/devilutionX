@@ -911,8 +911,9 @@ void SetItemData(int ii, int idata)
 
 	is->_iIdx = idata;
 	ids = &AllItemList[idata];
-	#pragma warning ( suppress: 4996 )
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	strcpy(is->_iName, ids->iName);
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	is->_iCurs = ids->iCurs;
 	is->_itype = ids->itype;
 	is->_iMiscId = ids->iMiscId;
@@ -1198,8 +1199,9 @@ static void GetBookSpell(int ii, unsigned lvl)
 	is = &items[ii];
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
-	#pragma warning ( suppress: 4996 )
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	strcat(is->_iName, sd->sNameText);
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	is->_iMinMag = sd->sMinInt;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sBookCost;
@@ -1252,8 +1254,9 @@ static void GetScrollSpell(int ii, unsigned lvl)
 	is = &items[ii];
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
-	#pragma warning ( suppress: 4996 )
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	strcat(is->_iName, sd->sNameText);
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	is->_iMinMag = sd->sMinInt > 20 ? sd->sMinInt - 20 : 0;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
@@ -1286,8 +1289,9 @@ static void GetRuneSpell(int ii, unsigned lvl)
 	is = &items[ii];
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
-	#pragma warning ( suppress: 4996 )
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	strcat(is->_iName, sd->sNameText);
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	is->_iMinMag = sd->sMinInt;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;

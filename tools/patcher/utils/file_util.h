@@ -33,8 +33,9 @@ inline FILE* FileOpen(const char* path, const char* mode)
 // #if (defined(_MSC_VER) && (_MSC_VER >= 1400))
 //	fopen_s(&file, path, mode);
 // #else
-	#pragma warning ( suppress: 4996 )
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	file = std::fopen(path, mode);
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 // #endif
 	return file;
 }
