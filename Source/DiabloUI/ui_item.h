@@ -144,7 +144,7 @@ public:
 #endif
 		m_value = value;
 		m_max_length = max_length;
-		m_curpos = strlen(value);
+		m_curpos = (unsigned)strlen(value);
 		m_selpos = m_curpos;
 		m_selecting = false;
 	}

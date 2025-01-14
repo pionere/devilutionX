@@ -8,6 +8,7 @@
 #include "misproc.h"
 #include "engine/render/text_render.h"
 #include "dvlnet/packet.h"
+#include "utils/file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -29,9 +30,9 @@ void CheckDungeonClear()
 
 void DumpDungeon()
 {
-	FILE* f0 = fopen("f:\\dundump0.txt", "wb");
-	FILE* f1 = fopen("f:\\dundump1.txt", "wb");
-	FILE* f2 = fopen("f:\\dundump2.txt", "wb");
+	FILE* f0 = FileOpen("f:\\dundump0.txt", "wb");
+	FILE* f1 = FileOpen("f:\\dundump1.txt", "wb");
+	FILE* f2 = FileOpen("f:\\dundump2.txt", "wb");
 	for (int j = 0; j < 48; j++)
 		for (int i = 0; i < 48; i++) {
 			BYTE v;
@@ -82,7 +83,7 @@ static void PrintText(const char* text, char lineSep, int limit)
 	const char* s = text;
 	// int i = 0, w;
 	BYTE col;
-	FILE* textFile = fopen("f:\\sample.txt", "wb");
+	FILE* textFile = FileOpen("f:\\sample.txt", "wb");
 
 	while (*s != '\0') {
 		if (*s == '$') {
@@ -243,7 +244,7 @@ static void recreateCrawlTable()
 				dist++;
 			if (version != 0 && dist > 3) {
 				dist = (tx - dx) * (tx - dx) + (ty - dy) * (ty - dy);
-				dist = sqrt((double)dist) + 0.5f;
+				dist = (int)(sqrt((double)dist) + 0.5f);
 				// if (dist == 1 && (tx != dx || ty != dy))
 				//	dist++;
 			}
@@ -1533,7 +1534,7 @@ void LogErrorF(const char* msg, ...)
 	char tmp[256];
 	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
 	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
-	FILE* f0 = fopen(tmp, "a+");
+	FILE* f0 = FileOpen(tmp, "a+");
 	if (f0 == NULL)
 		return;
 
@@ -1583,7 +1584,7 @@ void LogDumpQ()
 {
 	char tmp[256];
 	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
-	FILE* f0 = fopen(tmp, "a+");
+	FILE* f0 = FileOpen(tmp, "a+");
 	if (f0 == NULL)
 		return;
 

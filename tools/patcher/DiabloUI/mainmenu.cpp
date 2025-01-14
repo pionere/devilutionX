@@ -14,7 +14,7 @@ static void UiMainMenuSelect(unsigned index)
 
 static void MainmenuEsc()
 {
-	unsigned last = gUIListItems.size() - 1;
+	unsigned last = (unsigned)gUIListItems.size() - 1;
 	if (SelectedItem == last) {
 		UiMainMenuSelect(last);
 	} else {

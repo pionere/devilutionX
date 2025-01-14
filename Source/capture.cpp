@@ -111,14 +111,15 @@ static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
  */
 static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* pixels, FILE* out)
 {
-	int i, writeSize;
+	int i;
+	size_t writeSize;
 	BYTE *pBuffer, *pBufferEnd;
 
 	pBuffer = (BYTE*)DiabloAllocPtr(2 * width);
 	for (i = height; i > 0; i--) {
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
-		writeSize = pBufferEnd - pBuffer;
+		writeSize = (size_t)pBufferEnd - (size_t)pBuffer;
 		if (!WriteFile(pBuffer, writeSize, out))
 			break;
 	}

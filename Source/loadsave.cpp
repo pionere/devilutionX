@@ -1696,8 +1696,9 @@ void SaveGame()
 	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/;
 	static_assert(tst < mss, "Town might not fit to the preallocated buffer.");
 	static_assert(tsd < mss, "Dungeon might not fit to the preallocated buffer.");
+	static_assert(mss <= UINT32_MAX, "File is to large to be written by pfile_write_save_file I.");
 	assert((size_t)tbuff - (size_t)fileBuff < mss);
-	pfile_write_save_file(true, (size_t)tbuff - (size_t)fileBuff);
+	pfile_write_save_file(true, (DWORD)((size_t)tbuff - (size_t)fileBuff));
 	gbValidSaveFile = true;
 	pfile_rename_temp_to_perm();
 	pfile_write_hero(true);
@@ -1716,8 +1717,11 @@ void SaveLevel()
 	tbuff = SaveLevelData(tbuff, false);
 	//tbuff = SaveMonstersLight(tbuff); -- assuming there are no moving monsters with light
 
-	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/);
-	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
+	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/;
+	// static_assert(max(sld, slt) < mss, "Dungeon might not fit to the preallocated buffer.");
+	static_assert(mss <= UINT32_MAX, "File is to large to be written by pfile_write_save_file II.");
+	assert((size_t)tbuff - (size_t)fileBuff < mss);
+	pfile_write_save_file(false, (DWORD)((size_t)tbuff - (size_t)fileBuff));
 }
 
 void LoadLevel()
