@@ -1334,7 +1334,7 @@ static void StartAttack(int pnum)
 		dy = plr._pDestParam2;
 		i = plr._pDestParam4;
 		assert(abs(dObject[dx][dy]) == i + 1);
-		if (objects[i]._oBreak != OBM_BREAKABLE) {
+		if (objects[i]._oBreak == OBM_UNBREAKABLE) {
 			OperateObject(pnum, i, false);
 			return; // true;
 		}
