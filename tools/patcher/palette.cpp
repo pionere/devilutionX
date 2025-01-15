@@ -40,9 +40,9 @@ void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 	g = _gnGammaCorrection / 100.0;
 
 	for (i = 0; i < NUM_COLORS; i++) {
-		dst[i].r = pow(src[i].r / 256.0, g) * 256.0;
-		dst[i].g = pow(src[i].g / 256.0, g) * 256.0;
-		dst[i].b = pow(src[i].b / 256.0, g) * 256.0;
+		dst[i].r = (Uint8)(pow(src[i].r / 256.0, g) * 256.0);
+		dst[i].g = (Uint8)(pow(src[i].g / 256.0, g) * 256.0);
+		dst[i].b = (Uint8)(pow(src[i].b / 256.0, g) * 256.0);
 	}
 	// gbRedrawFlags = REDRAW_ALL;
 }
