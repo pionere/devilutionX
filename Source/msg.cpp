@@ -2196,8 +2196,9 @@ void NetSendCmdString(unsigned int pmask)
 	static_assert((sizeof(gbNetMsg) + 2) <= (sizeof(NormalMsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in NormalMsgPkt.");
 	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = NMSG_STRING;
+	cmd.bsLen = dwStrLen;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
-	multi_send_direct_msg(pmask, (BYTE*)&cmd, sizeof(cmd.bCmd) + dwStrLen + 1);
+	multi_send_direct_msg(pmask, (BYTE*)&cmd, dwStrLen + 3); // length of string + nul terminator + sizeof(cmd.bCmd) + sizeof(cmd.bsLen)
 }
 
 static void check_update_plr(int pnum)
@@ -3277,7 +3278,7 @@ static unsigned On_STRING(TCmd* pCmd, int pnum)
 		}
 	//}
 
-	return strlen(cmd->str) + 2; // length of string + nul terminator + sizeof(cmd->bCmd)
+	return cmd->bsLen + 3; // length of string + nul terminator + sizeof(cmd->bCmd) + sizeof(cmd->bsLen)
 }
 
 static unsigned On_INVITE(TCmd* pCmd, int pnum)

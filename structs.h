@@ -1787,6 +1787,7 @@ typedef struct TMsgLargeHdr {
 
 typedef struct TMsgString {
 	BYTE bCmd;
+	BYTE bsLen;
 	char str[MAX_SEND_STR_LEN];
 } TMsgString;
 
