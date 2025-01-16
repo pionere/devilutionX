@@ -192,17 +192,19 @@ static void SelgameModeEsc()
 static void SelgameModeFocus(unsigned index)
 {
 	selgame_Label[0] = '\0';
+	const char* txt;
 	switch (gUIListItems[index]->m_value) {
 	case SELGAME_CREATE:
-		copy_cstr(selgame_Description, "Create a new game with a difficulty setting of your choice.");
+		txt = "Create a new game with a difficulty setting of your choice";
 		break;
 	case SELGAME_JOIN:
-		copy_cstr(selgame_Description, "Enter an IP or a hostname and join a game already in progress.");
+		txt = "Enter an IP or a hostname and join a game already in progress";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	snprintf(selgame_Description, sizeof(selgame_Description), txt);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
@@ -220,20 +222,22 @@ static void SelgameDiffFocus(unsigned index)
 {
 	int diff = gUIListItems[index]->m_value;
 	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameDiffText(diff));
+	const char* txt;
 	switch (diff) {
 	case DIFF_NORMAL:
-		copy_cstr(selgame_Description, "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
+		txt = "This is where a starting character should begin the quest to defeat Diablo";
 		break;
 	case DIFF_NIGHTMARE:
-		copy_cstr(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge.");
+		txt = "The denizens of the Labyrinth have been bolstered and will prove to be a greater challenge";
 		break;
 	case DIFF_HELL:
-		copy_cstr(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell.");
+		txt = "The most powerful of the underworld's creatures lurk at the gateway into Hell";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", selgame_Label, txt);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
@@ -253,23 +257,25 @@ static void SelgameSpeedFocus(unsigned index)
 {
 	int speed = gUIListItems[index]->m_value;
 	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameSpeedText(speed));
+	const char* txt;
 	switch (speed) {
 	case SPEED_NORMAL:
-		copy_cstr(selgame_Description, "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
+		txt = "This is where a starting character should begin the quest to defeat Diablo";
 		break;
 	case SPEED_FAST:
-		copy_cstr(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge.");
+		txt = "The denizens of the Labyrinth have been hastened and will prove to be a greater challenge";
 		break;
 	case SPEED_FASTER:
-		copy_cstr(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before.");
+		txt = "Most monsters of the dungeon will seek you out quicker than ever before";
 		break;
 	case SPEED_FASTEST:
-		copy_cstr(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation.");
+		txt = "The minions of the underworld will rush to attack without hesitation";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", selgame_Label, txt);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 

@@ -31,6 +31,7 @@ static void SelconnEsc()
 static void SelconnFocus(unsigned index)
 {
 	int numplayers = MAX_PLRS;
+	const char* txt;
 	switch (gUIListItems[index]->m_value) {
 #ifdef TCPIP
 	case SELCONN_TCP:
@@ -39,25 +40,25 @@ static void SelconnFocus(unsigned index)
 	case SELCONN_TCPS:
 	case SELCONN_TCPDS:
 #endif
-		copy_cstr(selconn_Description, "All computers must be connected to a TCP-compatible network.");
+		txt = "All computers must be connected to a TCP-compatible network.";
 		//numplayers = MAX_PLRS;
 		break;
 #endif
 #ifdef ZEROTIER
 	case SELCONN_ZT:
-		copy_cstr(selconn_Description, "All computers must be connected to the internet.");
+		txt = "All computers must be connected to the internet.";
 		//numplayers = MAX_PLRS;
 		break;
 #endif
 	case SELCONN_LOOPBACK:
-		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
+		txt = "Play by yourself with no network exposure.";
 		numplayers = 1;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-
+	snprintf(selconn_Description, sizeof(selconn_Description), txt);
 	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", numplayers);
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
