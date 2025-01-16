@@ -229,6 +229,7 @@ static void UiCatToText(const char* inBuf)
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
 	// assert(maxLen - cp < sizeof(tempstr));
+	static_assert(sizeof(tempstr) >= UIEDIT_MAXLENGTH, "UiCatToText uses tempstr to store the string of UiEdit-fields.");
 	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
 	SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);

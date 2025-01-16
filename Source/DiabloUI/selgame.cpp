@@ -413,6 +413,7 @@ static void SelgamePasswordInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	static_assert(sizeof(selgame_Password) <= UIEDIT_MAXLENGTH, "The edit field of SelgamePasswordInit must fit to UIEdit.");
 	UiEdit* edit = new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password), rect5);
 	edit->m_iFlags |= UIS_OPTIONAL;
 	gUiItems.push_back(edit);
@@ -433,6 +434,7 @@ static void SelgamePortInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	static_assert(sizeof(selgame_GamePort) <= UIEDIT_MAXLENGTH, "The edit field of SelgamePortInit must fit to UIEdit.");
 	UiEdit* edit = new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort), rect5);
 	gUiItems.push_back(edit);
 
@@ -538,6 +540,8 @@ static void SelgameAddressInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	static_assert(NET_ZT_GAMENAME_LEN <= UIEDIT_MAXLENGTH, "The edit field of SelgameAddressInit must fit to UIEdit I.");
+	static_assert(sizeof(selgame_GameName) - (NET_TCP_PORT_LENGTH + 1) <= UIEDIT_MAXLENGTH, "The edit field of SelgameAddressInit must fit to UIEdit II.");
 	UiEdit* edit = new UiEdit(ztProvider ? "Enter Game ID" : "Enter Address", selgame_GameName, ztProvider ? NET_ZT_GAMENAME_LEN : (sizeof(selgame_GameName) - (NET_TCP_PORT_LENGTH + 1)), rect5);
 	gUiItems.push_back(edit);
 

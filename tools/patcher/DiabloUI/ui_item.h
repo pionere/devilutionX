@@ -129,12 +129,14 @@ public:
 };
 
 //=============================================================================
-
+// maximum length of the string (with the null-terminating character) in the text-box
+#define UIEDIT_MAXLENGTH 32
 class UiEdit : public UiItemBase {
 public:
 	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect& rect)
 	    : UiItemBase(UI_EDIT, rect, 0)
 	{
+		// assert(max_length <= UIEDIT_MAXLENGTH);
 #if defined(__SWITCH__) || defined(__vita__) || defined(__3DS__)
 		m_hint = hint;
 #endif
