@@ -3627,6 +3627,15 @@ void GetObjectStr(int oi)
 	case OBJ_TCHEST1:
 		txt0 = "Small Chest";
 		break;
+	case OBJ_CHEST2:
+	case OBJ_TCHEST2:
+		txt0 = "Chest";
+		break;
+	case OBJ_CHEST3:
+	case OBJ_TCHEST3:
+	case OBJ_SIGNCHEST:
+		txt0 = "Large Chest";
+		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
 #ifdef HELLFIRE
@@ -3647,15 +3656,6 @@ void GetObjectStr(int oi)
 		break;
 	case OBJ_SWITCHSKL:
 		txt0 = "Skull Lever";
-		break;
-	case OBJ_CHEST2:
-	case OBJ_TCHEST2:
-		txt0 = "Chest";
-		break;
-	case OBJ_CHEST3:
-	case OBJ_TCHEST3:
-	case OBJ_SIGNCHEST:
-		txt0 = "Large Chest";
 		break;
 	case OBJ_CRUXM:
 	case OBJ_CRUXR:
