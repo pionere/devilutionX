@@ -609,8 +609,9 @@ static void diablo_hotkey_msg(int actKey)
 	static_assert(ACT_MSG1 + 1 == ACT_MSG2, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 2.");
 	static_assert(ACT_MSG2 + 1 == ACT_MSG3, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 3.");
 	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", actKey - ACT_MSG0);
-	if (getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)) > 0)
-		NetSendCmdString(SNPLAYER_ALL);
+	int len = getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg));
+	if (len > 0)
+		NetSendCmdString(SNPLAYER_ALL, len);
 }
 
 /*static bool PressSysKey(int wParam)
@@ -727,32 +728,33 @@ static void ClearUI()
 #if DEBUG_MODE
 static void PressDebugChar(int vkey)
 {
+	int len;
 	switch (vkey) {
 	case 'R':
 	case 'r':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
-		NetSendCmdString(1 << mypnum);
+		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
+		NetSendCmdString(1 << mypnum, len);
 		break;
 	case 'T':
 	case 't':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
-		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
-		NetSendCmdString(1 << mypnum);
+		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
+		NetSendCmdString(1 << mypnum, len);
+		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
+		NetSendCmdString(1 << mypnum, len);
 		break;
 	case '[':
 		if (pcursitem != ITEM_NONE) {
-			snprintf(
+			len = snprintf(
 			    gbNetMsg,
 				sizeof(gbNetMsg),
 			    "IDX = %d  :  Seed = %d  :  CF = %d",
 			    items[pcursitem]._iIdx,
 			    items[pcursitem]._iSeed,
 			    items[pcursitem]._iCreateInfo);
-			NetSendCmdString(1 << mypnum);
+			NetSendCmdString(1 << mypnum, len);
 		}
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
-		NetSendCmdString(1 << mypnum);
+		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
+		NetSendCmdString(1 << mypnum, len);
 		break;
 	}
 }

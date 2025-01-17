@@ -419,8 +419,8 @@ static void SendPlrMsg()
 	}
 
 	if (*msg != '\0') {
-		SStrCopy(gbNetMsg, msg, sizeof(gbNetMsg));
-		NetSendCmdString(pmask);
+		int len = SStrCopy(gbNetMsg, msg, sizeof(gbNetMsg));
+		NetSendCmdString(pmask, len);
 
 		for (i = 0; i < lengthof(sgszTalkSave); i++) {
 			if (!strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))

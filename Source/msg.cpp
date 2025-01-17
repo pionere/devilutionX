@@ -2188,13 +2188,11 @@ void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdString(unsigned int pmask)
+void NetSendCmdString(unsigned int pmask, int dwStrLen)
 {
-	int dwStrLen;
 	TMsgString cmd;
 
 	static_assert((sizeof(gbNetMsg) + 2) <= (sizeof(NormalMsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in NormalMsgPkt.");
-	dwStrLen = strlen(gbNetMsg);
 	cmd.bCmd = NMSG_STRING;
 	cmd.bsLen = dwStrLen;
 	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
