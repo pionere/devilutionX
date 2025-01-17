@@ -204,7 +204,9 @@ static void SelgameModeFocus(unsigned index)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	DISABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), txt);
+	ENABLE_WARNING(format-security, format-security, 4774)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
