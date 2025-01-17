@@ -234,9 +234,10 @@ static void UiCatToText(const char* inBuf)
 	unsigned maxlen = gUiEditField->m_max_length;
 	char tmpstr[UIEDIT_MAXLENGTH];
 	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
-	SStrCopy(&text[sp], output, maxlen - sp);
+	int len = SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
-	sp = strlen(text);
+	// assert(strlen(text) == len + sp);
+	sp += len;
 	gUiEditField->m_curpos = sp;
 	gUiEditField->m_selpos = sp;
 	SStrCopy(&text[sp], tmpstr, maxlen - sp);
@@ -247,9 +248,10 @@ static void UiSetText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
 	char* text = gUiEditField->m_value;
-	SStrCopy(text, output, gUiEditField->m_max_length);
+	int len = SStrCopy(text, output, gUiEditField->m_max_length);
 	SDL_free(output);
-	unsigned pos = strlen(text);
+	// assert(strlen(text) == len);
+	unsigned pos = (unsigned)len;
 	gUiEditField->m_curpos = pos;
 	gUiEditField->m_selpos = pos;
 }

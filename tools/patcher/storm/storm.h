@@ -102,8 +102,9 @@ bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead
  *  src:          The source array.
  *  max_length:   The maximum length of dest.
  *
+ *  Returns the length of the string (without the trailing nul)
  */
-void SStrCopy(char* dest, const char* src, int max_length);
+int SStrCopy(char* dest, const char* src, int max_length);
 
 void InitializeMpqCryptography();
 void EncryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);
