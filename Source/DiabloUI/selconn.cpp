@@ -58,7 +58,9 @@ static void SelconnFocus(unsigned index)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	DISABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selconn_Description, sizeof(selconn_Description), txt);
+	ENABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", numplayers);
 	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
