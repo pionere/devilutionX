@@ -123,8 +123,9 @@ void pfile_write_hero(bool bFree)
 
 static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsigned saveIdx)
 {
-	memset(heroinfo->hiName, 0, sizeof(heroinfo->hiName));
-	SStrCopy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
+	static_assert(sizeof(heroinfo->hiName) <= sizeof(p->_pName), "pfile_player2hero uses memcpy to store the name of the player.");
+	memcpy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
+	heroinfo->hiName[sizeof(heroinfo->hiName) - 1] = '\0';
 	heroinfo->hiIdx = saveIdx;
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
