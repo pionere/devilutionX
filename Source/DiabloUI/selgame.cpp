@@ -210,74 +210,47 @@ static void SelgameModeFocus(unsigned index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
-static const char* SelgameDiffText(int difficulty)
+static std::pair<const char*, const char*> SelgameDiffText(int difficulty)
 {
-	const char* result = "Normal";
+	std::pair<const char*, const char*> result = { "Normal", "This is where a starting character should begin the quest to defeat Diablo" };
 	if (difficulty == DIFF_NIGHTMARE)
-		result = "Nightmare";
+		result = { "Nightmare", "The denizens of the Labyrinth have been bolstered and will prove to be a greater challenge" };
 	if (difficulty == DIFF_HELL)
-		result = "Hell";
+		result = { "Hell", "The most powerful of the underworld's creatures lurk at the gateway into Hell" };
 	return result;
 }
 
 static void SelgameDiffFocus(unsigned index)
 {
 	int diff = gUIListItems[index]->m_value;
-	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameDiffText(diff));
-	const char* txt;
-	switch (diff) {
-	case DIFF_NORMAL:
-		txt = "This is where a starting character should begin the quest to defeat Diablo";
-		break;
-	case DIFF_NIGHTMARE:
-		txt = "The denizens of the Labyrinth have been bolstered and will prove to be a greater challenge";
-		break;
-	case DIFF_HELL:
-		txt = "The most powerful of the underworld's creatures lurk at the gateway into Hell";
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", selgame_Label, txt);
+	const std::pair<const char*, const char*> diffTexts = SelgameDiffText(diff);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Label, sizeof(selgame_Label), diffTexts.first);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", diffTexts.first, diffTexts.second);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
-static const char* SelgameSpeedText(int speed)
+static std::pair<const char*, const char*> SelgameSpeedText(int speed)
 {
-	const char* result = "Normal";
+	std::pair<const char*, const char*> result = { "Normal", "This is where a starting character should begin the quest to defeat Diablo" };
 	if (speed == SPEED_FAST)
-		result = "Fast";
+		result = { "Fast", "The denizens of the Labyrinth have been hastened and will prove to be a greater challenge" };
 	if (speed == SPEED_FASTER)
-		result = "Faster";
+		result = { "Faster", "Most monsters of the dungeon will seek you out quicker than ever before" };
 	if (speed == SPEED_FASTEST)
-		result = "Fastest";
+		result = { "Fastest", "The minions of the underworld will rush to attack without hesitation" };
 	return result;
 }
 
 static void SelgameSpeedFocus(unsigned index)
 {
 	int speed = gUIListItems[index]->m_value;
-	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameSpeedText(speed));
-	const char* txt;
-	switch (speed) {
-	case SPEED_NORMAL:
-		txt = "This is where a starting character should begin the quest to defeat Diablo";
-		break;
-	case SPEED_FAST:
-		txt = "The denizens of the Labyrinth have been hastened and will prove to be a greater challenge";
-		break;
-	case SPEED_FASTER:
-		txt = "Most monsters of the dungeon will seek you out quicker than ever before";
-		break;
-	case SPEED_FASTEST:
-		txt = "The minions of the underworld will rush to attack without hesitation";
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", selgame_Label, txt);
+	const std::pair<const char*, const char*> speedTexts = SelgameSpeedText(speed);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Label, sizeof(selgame_Label), speedTexts.first);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", speedTexts.first, speedTexts.second);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
@@ -480,8 +453,8 @@ static void SelgameAddressListFocus(unsigned index)
 	} else {
 		if (index != selgame_connum) {
 			const SNetZtGame& ztGame = selgame_ztGames[index];
-			selgame_ztGameLabels.difficultyTxt->m_text = SelgameDiffText(ztGame.ngData.ngDifficulty);
-			selgame_ztGameLabels.speedTxt->m_text = SelgameSpeedText(ztGame.ngData.ngTickRate);
+			selgame_ztGameLabels.difficultyTxt->m_text = SelgameDiffText(ztGame.ngData.ngDifficulty).first;
+			selgame_ztGameLabels.speedTxt->m_text = SelgameSpeedText(ztGame.ngData.ngTickRate).first;
 
 			for (int i = 0; i < MAX_PLRS; i++) {
 				const SNetZtPlr &ztPlr = ztGame.ngPlayers[i];
