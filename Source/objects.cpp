@@ -3611,6 +3611,8 @@ void SyncObjectAnim(int oi)
 void GetObjectStr(int oi)
 {
 	ObjectStruct* os;
+	const char* prefix = "";
+	const char *txt0, *txt1 = "";
 
 	os = &objects[oi];
 	switch (os->_otype) {
@@ -3619,11 +3621,11 @@ void GetObjectStr(int oi)
 	case OBJ_NAKRULLEVER:
 #endif
 	//case OBJ_FLAMELVR:
-		copy_cstr(infostr, "Lever");
+		txt0 = "Lever";
 		break;
 	case OBJ_CHEST1:
 	case OBJ_TCHEST1:
-		copy_cstr(infostr, "Small Chest");
+		txt0 = "Small Chest";
 		break;
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -3636,90 +3638,92 @@ void GetObjectStr(int oi)
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
 		if (os->_oVar4 == DOOR_OPEN)
-			copy_cstr(infostr, "Open Door");
+			txt0 = "Open";
 		else if (os->_oVar4 == DOOR_CLOSED)
-			copy_cstr(infostr, "Closed Door");
+			txt0 = "Closed";
 		else // if (os->_oVar4 == DOOR_BLOCKED)
-			copy_cstr(infostr, "Blocked Door");
+			txt0 = "Blocked";
+		txt1 = " Door";
 		break;
 	case OBJ_SWITCHSKL:
-		copy_cstr(infostr, "Skull Lever");
+		txt0 = "Skull Lever";
 		break;
 	case OBJ_CHEST2:
 	case OBJ_TCHEST2:
-		copy_cstr(infostr, "Chest");
+		txt0 = "Chest";
 		break;
 	case OBJ_CHEST3:
 	case OBJ_TCHEST3:
 	case OBJ_SIGNCHEST:
-		copy_cstr(infostr, "Large Chest");
+		txt0 = "Large Chest";
 		break;
 	case OBJ_CRUXM:
 	case OBJ_CRUXR:
 	case OBJ_CRUXL:
-		copy_cstr(infostr, "Crucified Skeleton");
+		txt0 = "Crucified Skeleton";
 		break;
 	case OBJ_SARC:
 #ifdef HELLFIRE
 	case OBJ_L5SARC:
 #endif
-		copy_cstr(infostr, "Sarcophagus");
+		txt0 = "Sarcophagus";
 		break;
 	//case OBJ_BOOKSHELF:
-	//	copy_cstr(infostr, "Bookshelf");
+	//	txt0 = "Bookshelf";
 	//	break;
 #ifdef HELLFIRE
 	case OBJ_URN:
 	case OBJ_URNEX:
-		copy_cstr(infostr, "Urn");
+		txt0 = "Urn";
 		break;
 	case OBJ_POD:
 	case OBJ_PODEX:
-		copy_cstr(infostr, "Pod");
+		txt0 = "Pod";
 		break;
 #endif
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
-		copy_cstr(infostr, "Barrel");
+		txt0 = "Barrel";
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		snprintf(infostr, sizeof(infostr), "%s Shrine", shrinestrs[os->_oVar1]); // SHRINE_TYPE
+		txt0 = shrinestrs[os->_oVar1]; // SHRINE_TYPE
+		txt1 = " Shrine";
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
-		copy_cstr(infostr, "Bookcase");
+		txt0 = "Bookcase";
 		break;
 	case OBJ_BOOK2L:
 	case OBJ_BOOK2R:
-		copy_cstr(infostr, "Lectern");
+		txt0 = "Lectern";
 		break;
 	case OBJ_BLOODFTN:
-		copy_cstr(infostr, "Blood Fountain");
+		txt0 = "Blood Fountain";
 		break;
 	case OBJ_DECAP:
-		copy_cstr(infostr, "Decapitated Body");
+		txt0 = "Decapitated Body";
 		break;
 	case OBJ_PEDESTAL:
-		copy_cstr(infostr, "Pedestal of Blood");
+		txt0 = "Pedestal of Blood";
 		break;
 	case OBJ_PURIFYINGFTN:
-		copy_cstr(infostr, "Purifying Spring");
+		txt0 = "Purifying Spring";
 		break;
 	case OBJ_ARMORSTAND:
-		copy_cstr(infostr, "Armor");
+		txt0 = "Armor";
 		break;
 	case OBJ_GOATSHRINE:
-		copy_cstr(infostr, "Goat Shrine");
+		txt0 = "Goat Shrine";
 		break;
 	case OBJ_CAULDRON:
-		copy_cstr(infostr, "Cauldron");
+		txt0 = "Cauldron";
 		break;
 	case OBJ_MURKYFTN:
-		copy_cstr(infostr, "Murky Pool");
+		txt0 = "Murky Pool";
 		break;
 	case OBJ_TEARFTN:
-		copy_cstr(infostr, "Fountain of Tears");
+		txt0 = "Fountain of Tears";
 		break;
 	case OBJ_ANCIENTBOOK:
 	case OBJ_VILEBOOK:
@@ -3732,19 +3736,17 @@ void GetObjectStr(int oi)
 	case OBJ_L5BOOK:
 	case OBJ_NAKRULBOOK:
 #endif
-		DISABLE_WARNING(format-security, format-security, 4774)
-		snprintf(infostr, sizeof(infostr), BookName[os->_oVar5]); // STORY_BOOK_NAME
-		ENABLE_WARNING(format-security, format-security, 4774)
+		txt0 = BookName[os->_oVar5]; // STORY_BOOK_NAME
 		break;
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
-		copy_cstr(infostr, "Weapon Rack");
+		txt0 = "Weapon Rack";
 		break;
 	case OBJ_MUSHPATCH:
-		copy_cstr(infostr, "Mushroom Patch");
+		txt0 = "Mushroom Patch";
 		break;
 	case OBJ_LAZSTAND:
-		copy_cstr(infostr, "Vile Stand");
+		txt0 = "Vile Stand";
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -3752,10 +3754,10 @@ void GetObjectStr(int oi)
 	}
 	infoclr = COL_WHITE;
 	if (os->_oTrapChance != 0 && (3 * currLvl._dLevel + os->_oTrapChance) < myplr._pBaseDex) { // TRAP_CHANCE
-		snprintf(tempstr, sizeof(tempstr), "Trapped %s", infostr);
-		copy_str(infostr, tempstr);
+		prefix = "Trapped ";
 		infoclr = COL_RED;
 	}
+	snprintf(infostr, sizeof(infostr), "%s%s%s", prefix, txt0, txt1);
 }
 
 DEVILUTION_END_NAMESPACE
