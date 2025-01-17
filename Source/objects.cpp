@@ -3732,7 +3732,9 @@ void GetObjectStr(int oi)
 	case OBJ_L5BOOK:
 	case OBJ_NAKRULBOOK:
 #endif
-		SStrCopy(infostr, BookName[os->_oVar5], sizeof(infostr)); // STORY_BOOK_NAME
+		DISABLE_WARNING(format-security, format-security, 4774)
+		snprintf(infostr, sizeof(infostr), BookName[os->_oVar5]); // STORY_BOOK_NAME
+		ENABLE_WARNING(format-security, format-security, 4774)
 		break;
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
