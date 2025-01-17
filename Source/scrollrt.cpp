@@ -44,18 +44,14 @@ static BOOLEAN gbPreFlag;
 /**
  * Cursor-size
  */
-int sgCursHgt;
-int sgCursWdt;
-int sgCursHgtOld;
-int sgCursWdtOld;
+static int sgCursHgt;
+static int sgCursWdt;
 
 /**
  * Cursor-position
  */
-int sgCursX;
-int sgCursY;
-int sgCursXOld;
-int sgCursYOld;
+static int sgCursX;
+static int sgCursY;
 
 /**
  * Specifies whether transparency is active for the current CEL file being decoded.
@@ -67,11 +63,11 @@ bool gbCelTransparencyActive;
 BYTE sgSaveBack[MAX_CURSOR_AREA];
 
 //bool dRendered[MAXDUNX][MAXDUNY];
+#if DEBUG_MODE
 static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
-#if DEBUG_MODE
 const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
@@ -116,7 +112,6 @@ const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
 	sgCursWdt = 0;
-	sgCursWdtOld = 0;
 }
 
 /**
@@ -140,10 +135,6 @@ static void scrollrt_remove_back_buffer_cursor()
 		dst += BUFFER_WIDTH;
 	}
 
-	sgCursXOld = sgCursX;
-	sgCursYOld = sgCursY;
-	sgCursWdtOld = sgCursWdt;
-	sgCursHgtOld = sgCursHgt;
 	sgCursWdt = 0;
 }
 
@@ -187,38 +178,57 @@ static void scrollrt_draw_cursor()
 		return;
 #endif
 
-	mx = MousePos.x - 1;
-	if (mx < 0 - cursW - 1) {
+	mx = MousePos.x;
+	my = MousePos.y;
+	// shift the cursor of the items CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		mx -= cursW >> 1;
+		my -= cursH >> 1;
+	}
+	// limit the mouse to the screen
+	if (mx <= 0 - cursW) {
 		return;
 	}
-	if (mx > SCREEN_WIDTH - 1) {
+	if (mx >= SCREEN_WIDTH) {
 		return;
 	}
-	my = MousePos.y - 1;
-	if (my < 0 - cursH - 1) {
+	if (my <= 0 - cursH) {
 		return;
 	}
-	if (my > SCREEN_HEIGHT - 1) {
+	if (my >= SCREEN_HEIGHT) {
 		return;
 	}
 
 	sgCursX = mx;
-	sgCursWdt = sgCursX + cursW + 1;
-	if (sgCursWdt > SCREEN_WIDTH - 1) {
-		sgCursWdt = SCREEN_WIDTH - 1;
-	}
-	sgCursX &= ~3;
-	sgCursWdt |= 3;
-	sgCursWdt -= sgCursX;
-	sgCursWdt++;
+	sgCursWdt = sgCursX + cursW;
+	// cut the cursor on the right side
+	//if (sgCursWdt > SCREEN_WIDTH) {
+	//	sgCursWdt = SCREEN_WIDTH;
+	//}
+	// cut the cursor on the left side
+	//if (sgCursX <= 0) {
+	//	sgCursX = 0;
+	//} else {
+		// draw to 4-byte aligned blocks
+		sgCursX &= ~3;
+		sgCursWdt -= sgCursX;
+	//}
+	// draw with 4-byte alignment
+	sgCursWdt += 3;
+	sgCursWdt &= ~3;
 
 	sgCursY = my;
-	sgCursHgt = sgCursY + cursH + 1;
-	if (sgCursHgt > SCREEN_HEIGHT - 1) {
-		sgCursHgt = SCREEN_HEIGHT - 1;
-	}
-	sgCursHgt -= sgCursY;
-	sgCursHgt++;
+	sgCursHgt = sgCursY + cursH;
+	// cut the cursor on the bottom
+	//if (sgCursHgt > SCREEN_HEIGHT) {
+	//	sgCursHgt = SCREEN_HEIGHT;
+	//}
+	// cut the cursor on the top
+	//if (sgCursY <= 0) {
+	//	sgCursY = 0;
+	//} else {
+		sgCursHgt -= sgCursY;
+	//}
 
 	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
@@ -229,9 +239,7 @@ static void scrollrt_draw_cursor()
 		memcpy(dst, src, sgCursWdt);
 	}
 
-	mx++;
 	mx += SCREEN_X;
-	my++;
 	my += cursH + SCREEN_Y - 1;
 
 	frame = pcursicon;
@@ -1513,7 +1521,7 @@ static void DrawView()
 		if (gbSkillListFlag) {
 			DrawSkillList();
 		}
-		if (gbCampaignMapFlag) {
+		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
@@ -1626,16 +1634,6 @@ void ScrollView()
 	if (scroll)
 		ScrollInfo._sdir = SDIR_NONE;
 }
-#endif
-
-/**
- * @brief Toggle the FPS meter
- */
-/*void EnableFrameCount()
-{
-	gbShowFPS = !gbShowFPS;
-	guFpsStartTc = SDL_GetTicks();
-}*/
 
 /**
  * @brief Display the current average FPS over 1 sec
@@ -1655,6 +1653,7 @@ static void DrawFPS()
 	snprintf(tempstr, sizeof(tempstr), "%d FPS", guFrameRate);
 	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 65, tempstr, COL_RED);
 }
+#endif // DEBUG_MODE
 
 /**
  * @brief Redraw screen
@@ -1697,8 +1696,9 @@ void scrollrt_draw_game()
 	DrawView();
 	scrollrt_draw_cursor();
 
-	if (gbShowFPS)
-		DrawFPS();
+#if DEBUG_MODE
+	DrawFPS();
+#endif
 
 	unlock_buf(0);
 

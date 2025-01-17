@@ -139,6 +139,7 @@ static void gamemenu_exit_game(bool bActivate)
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
+	assert(saveProc == GameWndProc);
 	gamemenu_off();
 	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
@@ -149,7 +150,7 @@ static void gamemenu_save_game(bool bActivate)
 	// InitLevelCursor();
 	gbRedrawFlags = REDRAW_ALL;
 	interface_msg_pump();
-	SetWindowProc(saveProc);
+	SetWindowProc(GameWndProc); // saveProc);
 }
 
 static void gamemenu_restart_town(bool bActivate)

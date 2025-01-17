@@ -228,14 +228,14 @@ static void UiCatToText(const char* inBuf)
 	}
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
-	// assert(maxLen - cp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
+	char tmpstr[UIEDIT_MAXLENGTH];
+	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
 	SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
-	sp = strlen(text);
+	sp = (unsigned)strlen(text);
 	gUiEditField->m_curpos = sp;
 	gUiEditField->m_selpos = sp;
-	SStrCopy(&text[sp], tempstr, maxlen - sp);
+	SStrCopy(&text[sp], tmpstr, maxlen - sp);
 }
 
 #ifdef __vita__
@@ -245,7 +245,7 @@ static void UiSetText(const char* inBuf)
 	char* text = gUiEditField->m_value;
 	SStrCopy(text, output, gUiEditField->m_max_length);
 	SDL_free(output);
-	unsigned pos = strlen(text);
+	unsigned pos = (unsigned)strlen(text);
 	gUiEditField->m_curpos = pos;
 	gUiEditField->m_selpos = pos;
 }
@@ -862,10 +862,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+#if !FULLSCREEN_ONLY
 		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
 		}
+#endif
 		if (gUiEditField != NULL) {
 			switch (event->vkcode) {
 #ifndef USE_SDL1
@@ -923,7 +925,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				}
 			} break;
 			case DVL_VK_END: {
-				unsigned pos = strlen(gUiEditField->m_value);
+				unsigned pos = (unsigned)strlen(gUiEditField->m_value);
 				gUiEditField->m_curpos = pos;
 				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
 					gUiEditField->m_selpos = pos;

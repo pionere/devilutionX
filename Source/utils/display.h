@@ -15,9 +15,10 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+#if !FULLSCREEN_ONLY
 extern bool gbFullscreen;
-extern bool gbVsyncEnabled;
-extern bool gbFPSLimit;
+#endif
+extern int gbFrameRateControl;
 extern int gnRefreshDelay;
 extern SDL_Window* ghMainWnd;
 extern SDL_Renderer* renderer;
@@ -26,7 +27,6 @@ extern SDL_Surface* renderer_surface;
 
 extern SDL_Palette* back_palette;
 extern SDL_Surface* back_surface;
-extern unsigned int back_surface_palette_version;
 
 extern int screenWidth;
 extern int screenHeight;
@@ -34,8 +34,7 @@ extern int screenHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
-bool IsFullScreen();
-void SetVideoModeToPrimary(bool fullscreen, int width, int height);
+void SetVideoModeToPrimary(int width, int height);
 // Whether the output surface requires software scaling.
 // Always returns false on SDL2.
 bool OutputRequiresScaling();

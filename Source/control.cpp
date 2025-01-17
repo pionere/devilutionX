@@ -437,11 +437,9 @@ static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE mo
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
 
-static bool MoveToSkill(int pnum, int sn, int st)
+static bool CurrentSkill(int pnum, int sn, int st, bool altSkill)
 {
-	if (_gbMoveCursor == 0)
-		return false;
-	if (_gbMoveCursor == 1) {
+	if (altSkill) {
 		return MoveToAtkMoveSkill(sn, st,
 			plr._pAltAtkSkill, plr._pAltAtkSkillType,
 			plr._pAltMoveSkill, plr._pAltMoveSkillType);
@@ -457,7 +455,7 @@ void DrawSkillList()
 {
 	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
-
+	bool selected;
 #if SCREEN_READER_INTEGRATION
 	BYTE prevSkill = currSkill;
 #endif
@@ -513,14 +511,18 @@ void DrawSkillList()
 			else
 				st = GetSpellTrans(st, j);
 			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
-			lx = x - BORDER_LEFT;
-			ly = y - BORDER_TOP - SPLICON_HEIGHT;
+			lx = x - SCREEN_X;
+			ly = y - SCREEN_Y - SPLICON_HEIGHT;
+			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (MoveToSkill(pnum, j, i)) {
-				SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+			if (_gbMoveCursor != 0) {
+				selected = CurrentSkill(pnum, j, i, _gbMoveCursor == 1);
+				if (selected) {
+					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+				}
 			}
 #endif
-			if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
+			if (selected) {
 				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
@@ -570,11 +572,11 @@ void DrawSkillList()
 
 /*
  * @brief Select the current skill to use for the (alt)action button.
- * @param shift true: the other (move/attack)skill is kept
- *             false: the other (move/attack)skill is set to INVALID
+ *   If shift is pressed:  the other (move/attack)skill is kept
+ *            is released: the other (move/attack)skill is set to INVALID
  * @param altSkill set it as the action or the alt action skill
  */
-void SetSkill(bool shift, bool altSkill)
+void SetSkill(bool altSkill)
 {
 	PlayerStruct* p;
 	BYTE sn;
@@ -591,7 +593,7 @@ void SetSkill(bool shift, bool altSkill)
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
-	if (shift) {
+	if (SDL_GetModState() & KMOD_SHIFT) {
 		if (!altSkill) {
 			if (moveskill) {
 				p->_pMoveSkill = sn;
@@ -1750,7 +1752,9 @@ void DrawInfoStr()
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (pcursmonst != MON_NONE) {
 		MonsterStruct* mon = &monsters[pcursmonst];
+		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
+		ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		pos = GetMousePos(mon->_mx, mon->_my);
 		pos.x += mon->_mxoff;
 		pos.y += mon->_myoff;
@@ -2059,7 +2063,7 @@ void DrawSpellBook()
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				sx - BORDER_LEFT, yp - BORDER_TOP - SBOOK_CELHEIGHT,
+				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
 				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
 				currSkill = sn;
 				currSkillType = st;
@@ -2134,12 +2138,15 @@ void DrawSpellBook()
 #endif
 }
 
-void CheckBookClick(bool shift, bool altSkill)
+void CheckBookClick(bool altSkill)
 {
 	int dx, dy;
 
 	if (currSkill != SPL_INVALID) {
-		SetSkill(shift, altSkill);
+		SetSkill(altSkill);
+		return;
+	}
+	if (altSkill) {
 		return;
 	}
 
@@ -2339,7 +2346,7 @@ void DrawTeamBook()
 	}
 }
 
-void CheckTeamClick(bool shift)
+void CheckTeamClick()
 {
 	int dx, dy;
 
@@ -2359,7 +2366,7 @@ void CheckTeamClick(bool shift)
 		}
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
-			SetupPlrMsg(pnum, shift);
+			SetupPlrMsg(pnum);
 		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
 		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
 			// clicked on the right column of buttons
@@ -2510,7 +2517,7 @@ void InitCampaignMap(int cii)
 	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
-void TryCampaignMapClick(bool bShift, bool altAction)
+void TryCampaignMapClick(bool altAction)
 {
 	if (!altAction) {
 		BYTE mIdx = currCamEntry.ceIndex;
@@ -2518,7 +2525,7 @@ void TryCampaignMapClick(bool bShift, bool altAction)
 			if (currCamEntry.ceAvailable) {
 				selCamEntry = currCamEntry;
 				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
-				if (!bShift) {
+				if (!(SDL_GetModState() & KMOD_SHIFT)) {
 					if (gbInvflag) {
 						gbInvflag = false;
 						/* gbInvflag =*/ ToggleWindow(WND_INV);
@@ -2533,6 +2540,12 @@ void TryCampaignMapClick(bool bShift, bool altAction)
 	gbCampaignMapFlag = CMAP_NONE;
 }
 
+/*
+ * @brief Manipulate the campaign map.
+ *   If shift is pressed:  the inventory is kept open
+ *            is released: the inventory is closed
+ * @param altAction: if set the map is just closed
+ */
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;
@@ -2549,8 +2562,8 @@ void DrawCampaignMap()
 			if (cme.ceIndex != 0) {
 				x = sx + CAMICON_WIDTH * (cx/* + CAM_RADIUS  - lengthof(camEntries) / 2*/);
 				y = sy + CAMICON_HEIGHT * (cy/* + CAM_RADIUS - lengthof(camEntries[0]) / 2*/);
-				lx = x - BORDER_LEFT;
-				ly = y - (BORDER_TOP + CAMICON_HEIGHT);
+				lx = x - SCREEN_X;
+				ly = y - (SCREEN_Y + CAMICON_HEIGHT);
 
 				const BYTE* tbl = ColorTrns[COLOR_TRN_GRAY];
 				if (cme.ceAvailable) { // not visited

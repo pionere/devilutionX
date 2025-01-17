@@ -47,7 +47,7 @@ int pcurstrig;
 /** Current highlighted tile row/column */
 POS32 pcurspos;
 /** Index of current cursor image */
-int pcursicon;
+int pcursicon = CURSOR_NONE;
 /** The targeting mode (TGT_*) */
 int pcurstgt;
 
@@ -174,9 +174,24 @@ void FreeCursorGFX()
 
 void NewCursor(int i)
 {
+#if 0 // CURSOR_HOTSPOT
+	int dx = 0, dy = 0;
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		dx += (cursW >> 1);
+		dy += (cursH >> 1);
+	}
+#endif
 	pcursicon = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
+#if 0 // CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		dx -= (cursW >> 1);
+		dy -= (cursH >> 1);
+	}
+	if (dx != 0 || dy != 0)
+		SetCursorPos(MousePos.x + dx, MousePos.y + dy);
+#endif
 	pcurstgt = TGT_NORMAL;
 	switch (i) {
 	case CURSOR_NONE:
@@ -257,8 +272,8 @@ void CheckTownPortal()
 			 */
 			int dx = pcurspos.x - (mis->_mix - 1);
 			int dy = pcurspos.y - (mis->_miy - 1);
-			if (abs(dx) <= 1 && abs(dy) <= 1 // select the 3x3 square around (-1;-1)
-			 && abs(dx - dy) < 2) {          // exclude the top left and bottom right positions
+			if (abs(dx) < 2 && abs(dy) < 2 // select the 3x3 square around (-1;-1)
+			 && abs(dx - dy) < 2) {        // exclude the top left and bottom right positions
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				pcurspos.x = mis->_mix;
 				pcurspos.y = mis->_miy;
@@ -290,6 +305,12 @@ void CheckCursMove()
 
 	sx = MousePos.x;
 	sy = MousePos.y;
+#if 0 // CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		sx += cursW >> 1;
+		sy += cursH >> 1;
+	}
+#endif
 
 	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;

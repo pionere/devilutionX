@@ -39,17 +39,13 @@ bool gbWndActive;
  */
 bool gbFullscreen = true;
 /**
- * Specfies whether vertical sync is enabled.
+ * Specfies whether vertical sync or FPS limiter is used (or neither).
  */
-bool gbVsyncEnabled;
-/**
- * Specfies whether the FPS limiter is enabled to reduce CPU load.
- */
-bool gbFPSLimit;
-/**
- * Specfies whether the FPS counter is shown.
- */
-bool gbShowFPS;
+#ifdef USE_SDL1
+int gbFrameRateControl = FRC_CPUSLEEP; // use the FPS limiter
+#else
+int gbFrameRateControl = FRC_VSYNC;    // use vsync
+#endif
 /*
  * Target (screen-)refresh delay in milliseconds when
  * VSync is inactive (disabled or not available).
@@ -64,7 +60,6 @@ SDL_Surface* renderer_surface = NULL;
 
 /** Currently active palette */
 SDL_Palette* back_palette;
-unsigned int back_surface_palette_version = 0;
 
 /** 8-bit surface wrapper around #gpBuffer */
 SDL_Surface* back_surface;
@@ -91,23 +86,17 @@ void SetVideoMode(int width, int height, int bpp, uint32_t flags)
 #endif
 }
 
-void SetVideoModeToPrimary(bool fullscreen, int width, int height)
+void SetVideoModeToPrimary(int width, int height)
 {
 	int flags = SDL1_VIDEO_MODE_FLAGS | SDL_HWPALETTE;
-	if (fullscreen)
+	if (gbFullscreen)
 		flags |= SDL_FULLSCREEN;
 #ifdef __3DS__
 	else
 		flags |= Get3DSScalingFlag(width, height);
 #endif
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
-}
-
-bool IsFullScreen()
-{
-	return (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
-	// ifndef USE_SDL1:
-	//   return (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+	// gbFullscreen = (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 }
 #else
 void RecreateDisplay(int width, int height)
@@ -256,16 +245,17 @@ void SpawnWindow()
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
 #endif
-#ifndef __vita__
+#if !FULLSCREEN_ONLY
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
 #endif
+	getIniInt("Graphics", "Frame Rate Control", &gbFrameRateControl);
 
 	bool grabInput = getIniBool("Diablo", "Grab Input", false);
 
 #ifdef USE_SDL1
 	SDL_WM_SetCaption(lpWindowName, WINDOW_ICON_NAME);
-	SetVideoModeToPrimary(gbFullscreen, width, height);
+	SetVideoModeToPrimary(width, height);
 	if (grabInput)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	atexit(SDL_VideoQuit); // Without this video mode is not restored after fullscreen.
@@ -305,12 +295,11 @@ void SpawnWindow()
 	if (ghMainWnd == NULL) {
 		sdl_error(ERR_SDL_WINDOW_CREATE);
 	}
-
+	// gbFullscreen = (SDL_GetWindowFlags(ghMainWnd) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
 	if (upscale) {
 		Uint32 rendererFlags = 0;
 
-		gbVsyncEnabled = getIniBool("Graphics", "Vertical Sync", true);
-		if (gbVsyncEnabled) {
+		if (gbFrameRateControl == FRC_VSYNC) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 		}
 
@@ -344,9 +333,6 @@ void SpawnWindow()
 	}
 #endif
 	gnRefreshDelay = 1000 / refreshRate;
-
-	gbFPSLimit = getIniBool("Graphics", "FPS Limiter", true);
-	gbShowFPS = getIniBool("Graphics", "Show FPS", false);
 
 	// return ghMainWnd != NULL;
 }

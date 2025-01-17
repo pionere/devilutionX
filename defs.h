@@ -209,10 +209,14 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
     && (y) < (ry + rh))
 
 #define IN_DUNGEON_AREA(x, y) \
-    (x >= 0                   \
-    && x < MAXDUNX            \
-    && y >= 0                 \
-    && y < MAXDUNY)
+    ((unsigned)(x) < MAXDUNX  \
+    && (unsigned)(y) < MAXDUNY)
+
+#define IN_ACTIVE_AREA(x, y)   \
+    ((x) >= DBORDERX           \
+    && (x) < DBORDERX + DSIZEX \
+    && (y) >= DBORDERY         \
+    && (y) < DBORDERY + DSIZEY)
 
 #ifndef TRUE
 #define TRUE true
@@ -226,7 +230,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #if DEBUG_MODE || DEV_MODE
 #define assert(exp) (void)((exp) || (app_fatal("Assert fail at %d, %s, %s", __LINE__, __FILE__, #exp), 0))
 #else
-#define assert(exp) ((void)0)
+#define assert(exp) do { (void) sizeof(exp); } while(0)
 #endif
 
 #ifdef _MSC_VER
@@ -249,7 +253,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #if INET_MODE
 #define net_assert(x) assert(x)
 #else
-#define net_assert(x) do { } while(0)
+#define net_assert(x) do { (void) sizeof(x); } while(0)
 #endif
 
 #define SwapLE64 SDL_SwapLE64
@@ -285,6 +289,34 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define DVL_RESTRICT __restrict
 #else
 #define DVL_RESTRICT __restrict__
+#endif
+
+#if defined(_MSC_VER)
+#define DIAG_PRAGMA(x)                                            __pragma(warning(x))
+#define DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode) DIAG_PRAGMA(push) DIAG_PRAGMA(disable:##msvc_errorcode)
+#define ENABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)  DIAG_PRAGMA(pop)
+//#define DISABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) __pragma(warning(suppress: msvc_errorcode))
+//#define ENABLE_WARNING(gcc_unused,clang_unused,msvc_unused) ((void)0)
+#else
+#define DIAG_STR(s)              #s
+#define DIAG_JOINSTR(x, y)       DIAG_STR(x ## y)
+#define DO_DIAG_PRAGMA(x)        _Pragma(#x)
+#define DIAG_PRAGMA(compiler, x) DO_DIAG_PRAGMA(compiler diagnostic x)
+#if defined(__clang__)
+# define DISABLE_WARNING(gcc_unused, clang_option, msvc_unused) DIAG_PRAGMA(clang, push) DIAG_PRAGMA(clang, ignored DIAG_JOINSTR(-W, clang_option))
+# define ENABLE_WARNING(gcc_unused, clang_option, msvc_unused)  DIAG_PRAGMA(clang, pop)
+#elif defined(__GNUC__)
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
+# define DISABLE_WARNING(gcc_option, clang_unused, msvc_unused) DIAG_PRAGMA(GCC, push) DIAG_PRAGMA(GCC, ignored DIAG_JOINSTR(-W, gcc_option))
+# define ENABLE_WARNING(gcc_option, clang_unused, msvc_unused)  DIAG_PRAGMA(GCC, pop)
+#else
+# define DISABLE_WARNING(gcc_option, clang_unused, msvc_unused) DIAG_PRAGMA(GCC, ignored DIAG_JOINSTR(-W, gcc_option))
+# define ENABLE_WARNING(gcc_option, clang_option, msvc_unused)  DIAG_PRAGMA(GCC, warning DIAG_JOINSTR(-W, gcc_option))
+#endif
+#else
+#define DISABLE_WARNING(gcc_unused, clang_unused, msvc_unused) ;
+#define ENABLE_WARNING(gcc_unused, clang_unused, msvc_unused)  ;
+#endif
 #endif
 
 #ifndef M_SQRT2

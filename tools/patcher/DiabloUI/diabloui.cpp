@@ -232,14 +232,14 @@ static void UiCatToText(const char* inBuf)
 	}
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
-	// assert(maxLen - cp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
+	char tmpstr[UIEDIT_MAXLENGTH];
+	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
 	SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
 	sp = strlen(text);
 	gUiEditField->m_curpos = sp;
 	gUiEditField->m_selpos = sp;
-	SStrCopy(&text[sp], tempstr, maxlen - sp);
+	SStrCopy(&text[sp], tmpstr, maxlen - sp);
 }
 
 #ifdef __vita__
@@ -883,10 +883,12 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+#if !FULLSCREEN_ONLY
 		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
 		}
+#endif
 #if FULL_UI
 		if (gUiEditField != NULL) {
 			switch (event->vkcode) {

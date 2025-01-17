@@ -784,8 +784,6 @@ void InitPlayer(int pnum)
 
 	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
 	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
-
-	plr._pWalkpath[MAX_PATH_LENGTH] = DIR_NONE;
 }
 
 /*
@@ -821,7 +819,6 @@ void InitLvlPlayer(int pnum, bool entering)
 		// plr._pAnimFrame = RandRange(1, plr._pAnimLen - 1);
 		// plr._pAnimCnt = random_(2, 3);
 
-		ClrPlrPath(pnum);
 		plr._pDestAction = ACTION_NONE;
 	} else {
 		if (pnum == mypnum) {
@@ -1007,31 +1004,6 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 	}
 }
 
-static bool PlrDirOK(int pnum, int dir)
-{
-	int px, py;
-
-	px = plr._px + offset_x[dir];
-	py = plr._py + offset_y[dir];
-
-	//assert(px >= DBORDERX - 1 && px < DBORDERX + DSIZEX + 1);
-	//assert(py >= DBORDERY - 1 && px < DBORDERY + DSIZEX + 1);
-	//assert(dPiece[px][py] != 0);
-	if (/*px < 0 || !dPiece[px][py] ||*/ !PosOkActor(px, py)) {
-		return false;
-	}
-
-	if (dir == DIR_E) {
-		return !nSolidTable[dPiece[px][py + 1]];
-	}
-
-	if (dir == DIR_W) {
-		return !nSolidTable[dPiece[px + 1][py]];
-	}
-
-	return true;
-}
-
 static void StartPlrKill(int pnum, int dmgtype)
 {
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
@@ -1140,6 +1112,7 @@ static void AssertFixPlayerLocation(int pnum)
 
 static void StartStand(int pnum)
 {
+	plr._pVar1 = PM_STAND; // STAND_PREV_MODE -- TODO: plr._pmode?
 	plr._pmode = PM_STAND;
 
 	if (!(plr._pGFXLoad & PGF_STAND)) {
@@ -1163,31 +1136,6 @@ void PlrStartStand(int pnum)
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
 }
-
-static void StartWalkStand(int pnum)
-{
-	plr._pmode = PM_STAND;
-}
-
-/*static void PlrStartWalkStand(int pnum)
-{
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrStartWalkStand: illegal player %d", pnum);
-	}
-	plr._pmode = PM_STAND;
-	plr._pfutx = plr._px;
-	plr._pfuty = plr._py;
-	plr._pxoff = 0;
-	plr._pyoff = 0;
-
-	if (pnum == mypnum) {
-		ScrollInfo._sxoff = 0;
-		ScrollInfo._syoff = 0;
-		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px; // - ScrollInfo._sdx;
-		ViewY = plr._py; // - ScrollInfo._sdy;
-	}
-}*/
 
 static void PlrChangeOffset(int pnum)
 {
@@ -1289,20 +1237,9 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	//}
 }
 
-static bool StartWalk(int pnum)
+static bool StartWalk(int pnum, int dir)
 {
-	int dir, i, mwi;
-
-	assert(plr._pWalkpath[MAX_PATH_LENGTH] == DIR_NONE);
-	dir = plr._pWalkpath[0];
-	for (i = 0; i < MAX_PATH_LENGTH; i++) {
-		plr._pWalkpath[i] = plr._pWalkpath[i + 1];
-	}
-
-	//dir = walk2dir[dir];
-	if (!PlrDirOK(pnum, dir)) {
-		return false;
-	}
+	int mwi;
 
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
 	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
@@ -1374,7 +1311,7 @@ static bool StartWalk(int pnum)
 	return true;
 }
 
-static bool StartAttack(int pnum)
+static void StartAttack(int pnum)
 {
 	int i, dx, dy, sn, sl, dir, ss;
 
@@ -1383,43 +1320,32 @@ static bool StartAttack(int pnum)
 	case ACTION_ATTACK:
 		dx = i;
 		dy = plr._pDestParam2;
-		sn = plr._pDestParam3;
-		sl = plr._pDestParam4;
 		break;
 	case ACTION_ATTACKMON:
 		dx = monsters[i]._mfutx;
 		dy = monsters[i]._mfuty;
-		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return false;
-		sn = plr._pDestParam3;
-		sl = plr._pDestParam4;
 		break;
 	case ACTION_ATTACKPLR:
 		dx = plx(i)._pfutx;
 		dy = plx(i)._pfuty;
-		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return false;
-		sn = plr._pDestParam3;
-		sl = plr._pDestParam4;
 		break;
 	case ACTION_OPERATE:
-		dx = plr._pDestParam2;
-		dy = plr._pDestParam3;
-		if (abs(plr._px - dx) > 1 || abs(plr._py - dy) > 1)
-			return false;
+		dx = i;
+		dy = plr._pDestParam2;
+		i = plr._pDestParam4;
 		assert(abs(dObject[dx][dy]) == i + 1);
-		if (objects[i]._oBreak != OBM_BREAKABLE) {
+		if (objects[i]._oBreak == OBM_UNBREAKABLE) {
 			OperateObject(pnum, i, false);
-			return true;
+			return; // true;
 		}
-		sn = SPL_ATTACK;
-		sl = 0;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
 
+	sn = plr._pDestParam3;
+	sl = plr._pDestParam4;
 	dir = GetDirection(plr._px, plr._py, dx, dy);
 	ss = plr._pIBaseAttackSpeed;
 	if (sn == SPL_WHIPLASH) {
@@ -1443,7 +1369,7 @@ static bool StartAttack(int pnum)
 	NewPlrAnim(pnum, PGX_ATTACK, dir);
 
 	AssertFixPlayerLocation(pnum);
-	return true;
+	// return true;
 }
 
 static void StartRangeAttack(int pnum)
@@ -1491,10 +1417,17 @@ static void StartRangeAttack(int pnum)
 	AssertFixPlayerLocation(pnum);
 }
 
+static void StartTurn(int pnum)
+{
+	plr._pdir = plr._pDestParam1;
+	StartStand(pnum);
+}
+
 static void StartBlock(int pnum, int dir)
 {
 	plr._pmode = PM_BLOCK;
-	plr._pVar1 = 0; // BLOCK_EXTENSION : extended blocking
+	plr._pVar1 = 8 - plr._pAnims[PGX_BLOCK].paFrames; // BASE_BLOCK_EXTENSION
+	plr._pVar2 = 0; // BLOCK_EXTENSION : extended blocking
 	if (!(plr._pGFXLoad & PGF_BLOCK)) {
 		LoadPlrGFX(pnum, PGF_BLOCK);
 	}
@@ -1563,31 +1496,16 @@ static void StartSpell(int pnum)
 
 static void StartPickItem(int pnum)
 {
-	int i, x, y;
-
-	if (pnum != mypnum)
-		return;
-	if (pcursicon != CURSOR_HAND)
-		return;
-
-	i = plr._pDestParam1;
-	x = abs(plr._px - items[i]._ix);
-	y = abs(plr._py - items[i]._iy);
-	if (x > 1 || y > 1)
-		return;
-
-	NetSendCmdGItem(plr._pDestAction == ACTION_PICKUPAITEM ? CMD_AUTOGETITEM : CMD_GETITEM, i);
+	if (pnum == mypnum && pcursicon == CURSOR_HAND) {
+		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, plr._pDestParam4);
+	}
 }
 
 static void StartTalk(int pnum)
 {
-	int mnum, x, y;
+	int mnum;
 
 	mnum = plr._pDestParam1;
-	x = abs(plr._px - monsters[mnum]._mx);
-	y = abs(plr._py - monsters[mnum]._my);
-	if (x > 1 || y > 1)
-		return;
 
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		if (pnum == mypnum)
@@ -1725,7 +1643,6 @@ void SyncPlrResurrect(int pnum)
 		gamemenu_off();
 	}
 
-	ClrPlrPath(pnum);
 	plr._pDestAction = ACTION_NONE;
 	plr._pmode = PM_STAND;
 	plr._pInvincible = FALSE;
@@ -1745,7 +1662,6 @@ static void InitLevelChange(int pnum)
 {
 	RemoveLvlPlayer(pnum);
 
-	ClrPlrPath(pnum);
 	plr._pDestAction = ACTION_NONE;
 	plr._pLvlChanging = TRUE;
 	plr._pmode = PM_NEWLVL;
@@ -1884,15 +1800,8 @@ static void PlrDoWalk(int pnum)
 	plr._py = py;
 	FixPlayerLocation(pnum);
 	dPlayer[px][py] = pnum + 1;
-
-	if (plr._pWalkpath[0] != DIR_NONE) {
-		//PlrStartWalkStand(pnum);
-		StartWalkStand(pnum);
-	} else {
-		//PlrStartStand(pnum);
-		StartStand(pnum);
-	}
-
+	//PlrStartStand(pnum);
+	StartStand(pnum);
 	//ClearPlrPVars(pnum);
 }
 
@@ -2203,10 +2112,9 @@ static void PlrDoAttack(int pnum)
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;
 	}
-	dir = plr._pdir;
 	if (plr._pVar7 == 1) {
 		plr._pVar7++;
-
+		dir = plr._pdir;
 		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
 			plr._px + offset_x[dir], plr._py + offset_y[dir]);
 		if (plr._pVar5 == SPL_SWIPE) {
@@ -2223,12 +2131,21 @@ static void PlrDoAttack(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
-	if (plr._pAnimFrame < plr._pAnimLen)
-		return;
-
-	//PlrStartStand(pnum);
-	StartStand(pnum);
-	//ClearPlrPVars(pnum);
+	if (plr._pAnimFrame < plr._pAnimLen) {
+		if (plr._pAnimFrame > plr._pAFNum
+		 && (plr._pDestAction == ACTION_ATTACK
+		  || plr._pDestAction == ACTION_ATTACKMON
+		  || plr._pDestAction == ACTION_ATTACKPLR
+		  || (plr._pDestAction == ACTION_OPERATE && objects[plr._pDestParam4]._oBreak != OBM_UNBREAKABLE))) {
+			// assert(plr._pmode == PM_ATTACK);
+			plr._pVar1 = PM_ATTACK; // STAND_PREV_MODE
+			plr._pmode = PM_STAND;
+		}
+	} else {
+		//PlrStartStand(pnum);
+		StartStand(pnum);
+		//ClearPlrPVars(pnum);
+	}
 }
 
 static void PlrDoRangeAttack(int pnum)
@@ -2294,21 +2211,25 @@ static void PlrDoRangeAttack(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
-	if (plr._pAnimFrame < plr._pAnimLen)
-		return;
-
-	//PlrStartStand(pnum);
-	StartStand(pnum);
-	//ClearPlrPVars(pnum);
+	if (plr._pAnimFrame < plr._pAnimLen) {
+		if (plr._pAnimFrame > plr._pAFNum
+		 && (plr._pDestAction == ACTION_RATTACK
+		  || plr._pDestAction == ACTION_RATTACKMON
+		  || plr._pDestAction == ACTION_RATTACKPLR)) {
+			// assert(plr._pmode == PM_RATTACK);
+			plr._pVar1 = PM_RATTACK; // STAND_PREV_MODE
+			plr._pmode = PM_STAND;
+		}
+	} else {
+		//PlrStartStand(pnum);
+		StartStand(pnum);
+		//ClearPlrPVars(pnum);
+	}
 }
 
 static void ShieldDur(int pnum)
 {
 	ItemStruct* pi;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ShieldDur: illegal player %d", pnum);
-	}
 
 	pi = &plr._pInvBody[INVLOC_HAND_RIGHT];
 	if (pi->_itype == ITYPE_SHIELD) {
@@ -2364,8 +2285,8 @@ static void PlrDoBlock(int pnum)
 {
 	int extlen;
 
-	if (plr._pVar1 != 0) { // BLOCK_EXTENSION
-		plr._pVar1--;
+	if (plr._pVar2 != 0) { // BLOCK_EXTENSION
+		plr._pVar2--;
 		plr._pAnimCnt--;
 		return;
 	}
@@ -2376,18 +2297,27 @@ static void PlrDoBlock(int pnum)
 	// assert(plr._pAnims[PGX_BLOCK].paFrames == plr._pAnimLen);
 	if (plr._pAnimFrame > plr._pAnimLen || (plr._pAnimFrame == plr._pAnimLen && plr._pAnimCnt >= PlrAnimFrameLens[PGX_BLOCK] - 1)) {
 		if (plr._pDestAction == ACTION_BLOCK) {
-			// extend the blocking animation TODO: does not work with too fast animations (WARRIORs) in faster/fastest games
+			// extend the blocking animation
 			plr._pDestAction = ACTION_NONE;
+			// StartBlock(pnum, plr._pDestParam1);
+			plr._pdir = plr._pDestParam1;
 			plr._pAnimData = plr._pAnims[PGX_BLOCK].paAnimData[plr._pDestParam1];
-			plr._pAnimFrame = plr._pAnims[PGX_BLOCK].paFrames;
+			// jump to the last frame
+			plr._pAnimFrame = plr._pAnimLen; //  plr._pAnims[PGX_BLOCK].paFrames;
 			plr._pAnimCnt = PlrAnimFrameLens[PGX_BLOCK] - 2;
-			extlen = plr._pAnims[PGX_BLOCK].paFrames * 4;
+			// extend the blocking duration with a fixed amount
+			extlen = plr._pAnimLen * 4; // plr._pAnims[PGX_BLOCK].paFrames * 4;
 			if (plr._pIFlags & ISPL_FASTBLOCK) {
 				extlen >>= 1;
-				if (extlen < 8)
-					extlen = 8;
 			}
-			plr._pVar1 = extlen; // BLOCK_EXTENSION
+			plr._pVar2 = extlen; // BLOCK_EXTENSION
+			// restore the base extension
+			plr._pVar1 = 8 - plr._pAnimLen; // BASE_BLOCK_EXTENSION
+		} else if (plr._pDestAction == ACTION_NONE && plr._pVar1 > 0) { // BASE_BLOCK_EXTENSION
+			plr._pVar1--;
+			// jump to the last frame
+			plr._pAnimFrame = plr._pAnimLen;
+			plr._pAnimCnt = PlrAnimFrameLens[PGX_BLOCK] - 2;
 		} else {
 			//PlrStartStand(pnum);
 			StartStand(pnum);
@@ -2400,10 +2330,6 @@ static void ArmorDur(int pnum)
 {
 	ItemStruct *pi, *pio;
 	BYTE loc;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ArmorDur: illegal player %d", pnum);
-	}
 
 	loc = INVLOC_CHEST;
 	pi = &plr._pInvBody[INVLOC_CHEST];
@@ -2460,12 +2386,20 @@ static void PlrDoSpell(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1);
 	// assert(plr._pAnims[PGX_FIRE].paFrames == plr._pAnimLen || plr._pAnims[PGX_LIGHTNING].paFrames == plr._pAnimLen || plr._pAnims[PGX_MAGIC].paFrames == plr._pAnimLen);
-	if (plr._pAnimFrame < plr._pAnimLen)
-		return;
-
-	//PlrStartStand(pnum);
-	StartStand(pnum);
-	//ClearPlrPVars(pnum);
+	if (plr._pAnimFrame < plr._pAnimLen) {
+		if (plr._pAnimFrame > plr._pSFNum
+		 && (plr._pDestAction == ACTION_SPELL
+		  || plr._pDestAction == ACTION_SPELLMON
+		  || plr._pDestAction == ACTION_SPELLPLR)) {
+			// assert(plr._pmode == PM_SPELL);
+			plr._pVar1 = PM_SPELL; // STAND_PREV_MODE
+			plr._pmode = PM_STAND;
+		}
+	} else {
+		//PlrStartStand(pnum);
+		StartStand(pnum);
+		//ClearPlrPVars(pnum);
+	}
 }
 
 static void PlrDoGotHit(int pnum)
@@ -2524,140 +2458,138 @@ static void PlrDoDeath(int pnum)
 	}
 }
 
-static bool CheckNewPath(int pnum)
+static int MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
-	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, DMGTYPE_UNKNOWN); // BUGFIX: is this really necessary?
-		return false;
+	int md = -1;
+	int8_t path[MAX_PATH_LENGTH];
+
+	if (!endspace || PosOkPlayer(pnum, xx, yy))
+		md = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, path);
+	if (md < 0) {
+		return md;
 	}
 
-	if (plr._pDestAction == ACTION_ATTACKMON) {
-		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
-			MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
-	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
-		MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+	if (md != 0 && !endspace) {
+		md--;
 	}
 
-	if (plr._pWalkpath[0] != DIR_NONE) {
-		if (plr._pmode == PM_STAND) {
-			/* commented out because this should not happen
-			if (pnum == mypnum) {
-				if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_ATTACKPLR) {
-					if (StartAttack(pnum)) {
-						ClrPlrPath(pnum);
-						plr._pDestAction = ACTION_NONE;
-						return;
-					}
-				}
-			}*/
+	path[md] = DIR_NONE;
+	return path[0];
+}
 
-			if (!StartWalk(pnum)) {
-				//PlrStartStand(pnum);
-				StartStand(pnum);
-				plr._pDestAction = ACTION_NONE;
-				// return true; -- does not matter (at the moment)
-			}
-			return true;
-		}
+static void CheckNewPath(int pnum)
+{
+	int dir = DIR_NONE;
 
-		return false;
+	if (plr._pmode != PM_STAND) {
+		return;
 	}
 	if (plr._pDestAction == ACTION_NONE) {
-		return false;
+		return;
+	}
+	if (plr._pDestAction == ACTION_WALK) {
+		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
+	} else if (plr._pDestAction == ACTION_WALKDIR) {
+		if (PathWalkable(plr._pfutx, plr._pfuty, dir2pdir[plr._pDestParam1])) // Don't start backtrack around obstacles
+			dir = MakePlrPath(pnum, plr._pfutx + offset_x[plr._pDestParam1], plr._pfuty + offset_y[plr._pDestParam1], true);
+		else
+			dir = -1;
+	} else if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
+		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
+			dir = MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+		else
+			dir = -1;
+	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
+		dir = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+	} else if (plr._pDestAction == ACTION_PICKUPITEM) {
+		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
+	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
+		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
+		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
+	}
+	static_assert((int)DIR_NONE >= 0, "CheckNewPath uses negative value to define an invalid path.");
+	if (dir < 0) {
+		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
+			// inaccessible after the last action is finished -> skip the action
+			plr._pDestAction = ACTION_NONE;
+		} else {
+			// inaccessible while trying to repeat an action -> restore the mode
+			plr._pmode = plr._pVar1; // STAND_PREV_MODE
+		}
+		return;
+	}
+	if (dir != DIR_NONE) {
+		if (plr._pVar1 == PM_STAND) { // STAND_PREV_MODE
+			// walk is necessary after the last action is finished -> start walking
+			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && path[1] == DIR_NONE)) {
+				plr._pDestAction = ACTION_NONE;
+			}
+			StartWalk(pnum, dir);
+		} else {
+			// walk is necessary while trying to repeat an action -> restore the mode
+			plr._pmode = plr._pVar1; // STAND_PREV_MODE
+		}
+		return;
 	}
 
-	if (plr._pmode == PM_STAND) {
-		switch (plr._pDestAction) {
-		case ACTION_WALK:
-			break;
-		case ACTION_OPERATE:
-		case ACTION_ATTACK:
-		case ACTION_ATTACKMON:
-		case ACTION_ATTACKPLR:
-			StartAttack(pnum);
-			break;
-		case ACTION_RATTACK:
-		case ACTION_RATTACKMON:
-		case ACTION_RATTACKPLR:
-			StartRangeAttack(pnum);
-			break;
-		case ACTION_SPELL:
-		case ACTION_SPELLMON:
-		case ACTION_SPELLPLR:
-			StartSpell(pnum);
-			break;
-		case ACTION_BLOCK:
-			StartBlock(pnum, plr._pDestParam1);
-			break;
-		case ACTION_PICKUPITEM:
-		case ACTION_PICKUPAITEM:
-			StartPickItem(pnum);
-			break;
-		case ACTION_TALK:
-			StartTalk(pnum);
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-
-		AssertFixPlayerLocation(pnum);
-		plr._pDestAction = ACTION_NONE;
-
-		return plr._pmode != PM_STAND;
+	switch (plr._pDestAction) {
+	case ACTION_WALK:
+	case ACTION_WALKDIR:
+		break;
+	case ACTION_OPERATE:
+	case ACTION_ATTACK:
+	case ACTION_ATTACKMON:
+	case ACTION_ATTACKPLR:
+		StartAttack(pnum);
+		break;
+	case ACTION_RATTACK:
+	case ACTION_RATTACKMON:
+	case ACTION_RATTACKPLR:
+		StartRangeAttack(pnum);
+		break;
+	case ACTION_SPELL:
+	case ACTION_SPELLMON:
+	case ACTION_SPELLPLR:
+		StartSpell(pnum);
+		break;
+	case ACTION_TURN:
+		StartTurn(pnum);
+		break;
+	case ACTION_BLOCK:
+		StartBlock(pnum, plr._pDestParam1);
+		break;
+	case ACTION_PICKUPITEM:
+		StartPickItem(pnum);
+		break;
+	case ACTION_TALK:
+		StartTalk(pnum);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
 	}
 
-	if (plr._pmode == PM_ATTACK && plr._pAnimFrame > plr._pAFNum) {
-		if (plr._pDestAction == ACTION_ATTACK
-		 || plr._pDestAction == ACTION_ATTACKMON
-		 || plr._pDestAction == ACTION_ATTACKPLR
-		 || plr._pDestAction == ACTION_OPERATE) {
-			StartAttack(pnum);
-			plr._pDestAction = ACTION_NONE;
-			return true;
-		}
-	} else if (plr._pmode == PM_RATTACK && plr._pAnimFrame > plr._pAFNum) {
-		if (plr._pDestAction == ACTION_RATTACK
-		 || plr._pDestAction == ACTION_RATTACKMON
-		 || plr._pDestAction == ACTION_RATTACKPLR) {
-			StartRangeAttack(pnum);
-			plr._pDestAction = ACTION_NONE;
-			return true;
-		}
-	} else if (plr._pmode == PM_SPELL && plr._pAnimFrame > plr._pSFNum) {
-		if (plr._pDestAction == ACTION_SPELL
-		 || plr._pDestAction == ACTION_SPELLMON
-		 || plr._pDestAction == ACTION_SPELLPLR) {
-			StartSpell(pnum);
-			plr._pDestAction = ACTION_NONE;
-			return true;
-		}
-	}
-	return false;
+	AssertFixPlayerLocation(pnum);
+	plr._pDestAction = ACTION_NONE;
 }
 
 #if DEBUG_MODE || DEV_MODE
 static void ValidatePlayer(int pnum)
 {
-	PlayerStruct* p;
 	ItemStruct* pi;
 	uint64_t msk;
 	int gt, i;
 
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ValidatePlayer: illegal player %d", pnum);
-	}
-	p = &plr;
-	//if (p->_pLevel > MAXCHARLEVEL)
-	//	p->_pLevel = MAXCHARLEVEL;
-	assert(p->_pLevel <= MAXCHARLEVEL);
-	//if (p->_pExperience > p->_pNextExper)
-	//	p->_pExperience = p->_pNextExper;
-	assert(p->_pExperience <= p->_pNextExper);
+	//if (plr._pLevel > MAXCHARLEVEL)
+	//	plr._pLevel = MAXCHARLEVEL;
+	assert(plr._pLevel <= MAXCHARLEVEL);
+	//if (plr._pExperience > plr._pNextExper)
+	//	plr._pExperience = plr._pNextExper;
+	assert(plr._pExperience <= plr._pNextExper);
 
 	int numerrors = 0;
 	gt = 0;
-	pi = p->_pInvList;
+	pi = plr._pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 		if (pi->_itype == ITYPE_GOLD) {
 			//if (pi->_ivalue > GOLD_MAX_LIMIT)
@@ -2668,18 +2600,15 @@ static void ValidatePlayer(int pnum)
 			if (pi->_itype == ITYPE_PLACEHOLDER) {
 				int par = pi->_iPHolder;
 				if ((unsigned)par >= NUM_INV_GRID_ELEM) {
-					snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d bad ph of %d", i, pnum);
-					NetSendCmdString(0xFF);
+					EventPlrMsg("InvItem %d bad ph of %d", i, pnum);
 					numerrors++;
 				} else {
-					ItemStruct* is = &p->_pInvList[par];
+					ItemStruct* is = &plr._pInvList[par];
 					if (is->_itype == ITYPE_NONE) {
-						snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d null ph of %d", i, pnum);
-						NetSendCmdString(0xFF);
+						EventPlrMsg("InvItem %d null ph of %d", i, pnum);
 						numerrors++;
 					} else if (is->_itype == ITYPE_PLACEHOLDER) {
-						snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d ph ph of %d", i, pnum);
-						NetSendCmdString(0xFF);
+						EventPlrMsg("InvItem %d ph ph of %d", i, pnum);
 						numerrors++;
 					} else {
 						int xx = InvItemWidth[is->_iCurs + CURSOR_FIRSTITEM] / INV_SLOT_SIZE_PX;
@@ -2689,12 +2618,10 @@ static void ValidatePlayer(int pnum)
 						int px = par % 10;
 						int py = par / 10;
 						if (x < px || x >= px + xx) {
-							snprintf(gbNetMsg, sizeof(gbNetMsg), "InvI %d lx %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
-							NetSendCmdString(0xFF);
+							EventPlrMsg("InvI %d lx %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
 							numerrors++;
 						} else if (y > py || y < py - yy) {
-							snprintf(gbNetMsg, sizeof(gbNetMsg), "InvI %d ly %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
-							NetSendCmdString(0xFF);
+							EventPlrMsg("InvI %d ly %d:%d par%d:%d s%d:%d of %d", i, x, y, px, py, xx, yy, pnum);
 							numerrors++;
 						}
 					}
@@ -2705,16 +2632,14 @@ static void ValidatePlayer(int pnum)
 				for (int jj = 0; jj < yy; jj++) {
 					for (int ii = 0; ii < xx; ii++) {
 						if (ii != 0 || jj != 0) {
-							ItemStruct* is = &p->_pInvList[i + ii - jj * 10];
+							ItemStruct* is = &plr._pInvList[i + ii - jj * 10];
 							if (is->_itype != ITYPE_PLACEHOLDER) {
-								snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d no ph %d %d of %d", i, ii, jj, pnum);
-								NetSendCmdString(0xFF);
+								EventPlrMsg("InvItem %d no ph %d %d of %d", i, ii, jj, pnum);
 								numerrors++;
 								ii = xx;
 								jj = yy;
 							} else if (is->_iPHolder != i) {
-								snprintf(gbNetMsg, sizeof(gbNetMsg), "InvItem %d bad ph %d %d vs %d of %d", i, ii, jj, is->_iPHolder, pnum);
-								NetSendCmdString(0xFF);
+								EventPlrMsg("InvItem %d bad ph %d %d vs %d of %d", i, ii, jj, is->_iPHolder, pnum);
 								numerrors++;
 								ii = xx;
 								jj = yy;
@@ -2725,24 +2650,23 @@ static void ValidatePlayer(int pnum)
 			}
 		}
 	}
-	//p->_pGold = gt;
-	if (p->_pGold != gt) {
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Gold %d vs calcGold %d of %d", p->_pGold, gt, pnum);
-		NetSendCmdString(0xFF);
+	//plr._pGold = gt;
+	if (plr._pGold != gt) {
+		EventPlrMsg("Gold %d vs calcGold %d of %d", plr._pGold, gt, pnum);
 	}
-	//assert(p->_pGold == gt);
+	//assert(plr._pGold == gt);
 
 	msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			msk |= SPELL_MASK(i);
-			//if (p->_pSkillLvlBase[i] > MAXSPLLEVEL)
-			//	p->_pSkillLvlBase[i] = MAXSPLLEVEL;
-			assert(p->_pSkillLvlBase[i] <= MAXSPLLEVEL);
+			//if (plr._pSkillLvlBase[i] > MAXSPLLEVEL)
+			//	plr._pSkillLvlBase[i] = MAXSPLLEVEL;
+			assert(plr._pSkillLvlBase[i] <= MAXSPLLEVEL);
 		}
 	}
-	//p->_pMemSkills &= msk;
-	assert((p->_pMemSkills & ~msk) == 0);
+	//plr._pMemSkills &= msk;
+	assert((plr._pMemSkills & ~msk) == 0);
 }
 #endif
 
@@ -2776,7 +2700,6 @@ static void ValidatePlayer(int pnum)
 void ProcessPlayers()
 {
 	int pnum;
-	bool raflag;
 
 	if ((unsigned)mypnum >= MAX_PLRS) {
 		dev_fatal("ProcessPlayers: illegal player %d", mypnum);
@@ -2833,42 +2756,40 @@ void ProcessPlayers()
 				}
 			}
 
-			do {
-				switch (plr._pmode) {
-				case PM_STAND:
-					break;
-				case PM_WALK:
-				case PM_WALK2:
-					PlrDoWalk(pnum);
-					break;
-				case PM_CHARGE:
-					break;
-				case PM_ATTACK:
-					PlrDoAttack(pnum);
-					break;
-				case PM_RATTACK:
-					PlrDoRangeAttack(pnum);
-					break;
-				case PM_BLOCK:
-					PlrDoBlock(pnum);
-					break;
-				case PM_SPELL:
-					PlrDoSpell(pnum);
-					break;
-				case PM_GOTHIT:
-					PlrDoGotHit(pnum);
-					break;
-				case PM_DYING:
-				case PM_DEATH:
-					PlrDoDeath(pnum);
-					break;
-				case PM_NEWLVL:
-					break;
-				default:
-					ASSUME_UNREACHABLE
-				}
-				raflag = CheckNewPath(pnum);
-			} while (raflag);
+			switch (plr._pmode) {
+			case PM_STAND:
+				break;
+			case PM_WALK:
+			case PM_WALK2:
+				PlrDoWalk(pnum);
+				break;
+			case PM_CHARGE:
+				break;
+			case PM_ATTACK:
+				PlrDoAttack(pnum);
+				break;
+			case PM_RATTACK:
+				PlrDoRangeAttack(pnum);
+				break;
+			case PM_BLOCK:
+				PlrDoBlock(pnum);
+				break;
+			case PM_SPELL:
+				PlrDoSpell(pnum);
+				break;
+			case PM_GOTHIT:
+				PlrDoGotHit(pnum);
+				break;
+			case PM_DYING:
+			case PM_DEATH:
+				PlrDoDeath(pnum);
+				break;
+			case PM_NEWLVL:
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
+			CheckNewPath(pnum);
 
 			plr._pAnimCnt++;
 			if (plr._pAnimCnt >= plr._pAnimFrameLen) {
@@ -2881,15 +2802,6 @@ void ProcessPlayers()
 		}
 	}
 	gbGameLogicPnum = 0;
-}
-
-void ClrPlrPath(int pnum)
-{
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("ClrPlrPath: illegal player %d", pnum);
-	}
-	plr._pWalkpath[0] = DIR_NONE;
-	//memset(plr._pWalkpath, DIR_NONE, sizeof(plr._pWalkpath));
 }
 
 void PlrHinder(int pnum, int spllvl, unsigned tick)
@@ -3083,29 +2995,6 @@ bool PosOkPlayer(int pnum, int x, int y)
 	}
 
 	return false;
-}
-
-bool MakePlrPath(int pnum, int xx, int yy, bool endspace)
-{
-	int sx, sy, path;
-
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("MakePlrPath: illegal player %d", pnum);
-	}
-
-	sx = plr._pfutx;
-	sy = plr._pfuty;
-	path = FindPath(PosOkPlayer, pnum, sx, sy, xx, yy, plr._pWalkpath);
-	if (path < 0) {
-		return false;
-	}
-
-	if (path != 0 && !endspace) {
-		path--;
-	}
-
-	plr._pWalkpath[path] = DIR_NONE;
-	return true;
 }
 
 void SyncPlrAnim(int pnum)

@@ -311,14 +311,19 @@ void StartPlrMsg()
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
-void SetupPlrMsg(int pnum, bool shift)
+/*
+ * @brief Setup a new chat message.
+ *   If shift is pressed:  the message is prepared to be sent to the whole team of the player
+ *            is released: the message is prepared to be sent to the given player
+ */
+void SetupPlrMsg(int pnum)
 {
 	const char* text;
 	int param;
 
 	if (!gbTalkflag)
 		StartPlrMsg();
-	if (!shift) {
+	if (!(SDL_GetModState() & KMOD_SHIFT)) {
 		text = "/p%d ";
 		param = pnum;
 	} else {
@@ -333,6 +338,11 @@ void SetupPlrMsg(int pnum, bool shift)
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
+/*
+ * @brief Show information about the current game to the player.
+ *   If shift is pressed:  the difficulty of the game is shown to the player
+ *            is released: the name and the password is shown to the player in multiplayer games
+ */
 void VersionPlrMsg()
 {
 	EventPlrMsg(gszProductName);
@@ -347,8 +357,7 @@ void VersionPlrMsg()
 				EventPlrMsg(desc);
 			}
 		}
-	}
-	else {
+	} else {
 		const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
 		EventPlrMsg(difficulties[gnDifficulty]);
 	}

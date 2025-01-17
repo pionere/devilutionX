@@ -348,7 +348,7 @@ BYTE* DRLP_L3_PatchDoors(BYTE* celBuf, size_t* celLen)
 				}
 			}
 
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 
 			dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -358,7 +358,7 @@ BYTE* DRLP_L3_PatchDoors(BYTE* celBuf, size_t* celLen)
 
 			idx++;
 		} else {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -368,7 +368,7 @@ BYTE* DRLP_L3_PatchDoors(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }

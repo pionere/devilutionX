@@ -264,7 +264,7 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 	DWORD srcCelEntries = SwapLE32(srcHeaderCursor[0]);
 	srcHeaderCursor++;
 	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
-	DWORD dstCelEntries = srcCelEntries - removeMicros.size();
+	DWORD dstCelEntries = srcCelEntries - (DWORD)removeMicros.size();
 	dstHeaderCursor[0] = SwapLE32(dstCelEntries);
 	dstHeaderCursor++;
 	BYTE* dstDataCursor = resCelBuf + 4 * (dstCelEntries + 2);
@@ -274,9 +274,9 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		removeMicros.erase(nextRef);
 
 		// copy entries till the next frame
-		int numEntries = nextRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
-		for (int i = 0; i < numEntries; i++) {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		unsigned numEntries = nextRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		for (unsigned i = 0; i < numEntries; i++) {
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -288,9 +288,9 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		srcHeaderCursor++;
 	}
 	// add remaining entries
-	int numEntries = srcCelEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
-	for (int i = 0; i < numEntries; i++) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+	unsigned numEntries = srcCelEntries + 1 - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	for (unsigned i = 0; i < numEntries; i++) {
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -298,7 +298,7 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		srcHeaderCursor++;
 	}
 	// add file-size
-	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+	dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 
 	*celLen = SwapLE32(dstHeaderCursor[0]);
 
@@ -1634,7 +1634,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 		}
 
 		// write to the new CEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -1645,7 +1645,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -1696,7 +1696,7 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 		}
 
 		// write to the new CEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -1707,7 +1707,7 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -1756,7 +1756,7 @@ static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 		}
 
 		// write to the new CEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -1767,7 +1767,7 @@ static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -1808,7 +1808,7 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 		gpBuffer[88 + 100 * BUFFER_WIDTH] = TRANS_COLOR;
 
 		// write to the new CEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -1819,7 +1819,7 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -1867,7 +1867,7 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 		}
 
 		// write to the new CEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -1878,7 +1878,7 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
 
 	return resCelBuf;
 }
@@ -1888,8 +1888,8 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
-	int subHeaderSize = CEL_FRAME_HEADER_SIZE;
-	int hs = (height - 1) / CEL_BLOCK_HEIGHT;
+	unsigned subHeaderSize = CEL_FRAME_HEADER_SIZE;
+	unsigned hs = (height - 1) / CEL_BLOCK_HEIGHT;
 	hs = (hs + 1) * sizeof(WORD);
 	subHeaderSize = std::max(subHeaderSize, hs);
 
@@ -1898,7 +1898,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	BYTE* pHeader = pBuf;
 	if (clipped) {
 		// add CL2 FRAME HEADER
-		*(WORD*)&pBuf[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
+		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize); // SUB_HEADER_SIZE
 		*(DWORD*)&pBuf[2] = 0;
 		*(DWORD*)&pBuf[6] = 0;
 		pBuf += subHeaderSize;
@@ -1912,7 +1912,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	for (int i = 1; i <= height; i++) {
 		if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
 			pHead = pBuf;
-			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader); // pHead - buf - SUB_HEADER_SIZE;
+			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16((WORD)((size_t)pHead - (size_t)pHeader)); // pHead - buf - SUB_HEADER_SIZE;
 
 			colMatches = 0;
 			alpha = false;
@@ -2004,7 +2004,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	for (int ii = 0; ii < numGroups; ii++) {
 		int ni = frameCount;
 		hdr[0] = SwapLE32(ni);
-		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
@@ -2015,7 +2015,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
-			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 		}
 		hdr += ni + 2;
 	}
@@ -2062,7 +2062,7 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 	for (int ii = 0; ii < numGroups; ii++) {
 		int ni = frameCount;
 		hdr[0] = SwapLE32(ni);
-		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
@@ -2168,7 +2168,7 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
-			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 		}
 		hdr += ni + 2;
 	}
@@ -2394,7 +2394,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 		}
 
 		// write to the new CEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, InvItemWidth[i + 1], InvItemHeight[i + 1], SUB_HEADER_SIZE, TRANS_COLOR);
@@ -2405,7 +2405,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -2447,7 +2447,7 @@ BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 	for (int ii = 0; ii < numGroups; ii++) {
 		int ni = frameCount;
 		hdr[0] = SwapLE32(ni);
-		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
@@ -2630,7 +2630,7 @@ BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
-			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 		}
 		hdr += ni + 2;
 	}
@@ -2677,7 +2677,7 @@ BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	for (int ii = 0; ii < numGroups; ii++) {
 		int ni = frameCount;
 		hdr[0] = SwapLE32(ni);
-		hdr[1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
@@ -3887,7 +3887,7 @@ BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
-			hdr[n + 1] = SwapLE32((size_t)pBuf - (size_t)hdr);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 		}
 		hdr += ni + 2;
 	}

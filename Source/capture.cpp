@@ -111,14 +111,15 @@ static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
  */
 static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* pixels, FILE* out)
 {
-	int i, writeSize;
+	int i;
+	size_t writeSize;
 	BYTE *pBuffer, *pBufferEnd;
 
 	pBuffer = (BYTE*)DiabloAllocPtr(2 * width);
 	for (i = height; i > 0; i--) {
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
-		writeSize = pBufferEnd - pBuffer;
+		writeSize = (size_t)pBufferEnd - (size_t)pBuffer;
 		if (!WriteFile(pBuffer, writeSize, out))
 			break;
 	}
@@ -149,7 +150,7 @@ static void RedPalette()
 		system_palette[i].g = 0;
 		system_palette[i].b = 0;
 	}
-	palette_update();
+	UpdatePalette();
 	BltFast();
 	RenderPresent();
 }
@@ -186,9 +187,8 @@ void CaptureScreen()
 	}
 	SDL_Delay(300);
 	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));
-	palette_update();
+	UpdatePalette();
 	gbRedrawFlags = REDRAW_ALL;
-	delete out;
 }
 
 DEVILUTION_END_NAMESPACE

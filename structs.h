@@ -253,7 +253,7 @@ typedef struct ItemStruct {
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iFlags;	// item_special_effect
+	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
@@ -290,9 +290,7 @@ typedef struct ItemStruct {
 	BYTE _iPLMMaxDam;
 	BYTE _iPLAMinDam;
 	BYTE _iPLAMaxDam;
-	int _iVAdd;
-	int _iVMult;
-	ALIGNMENT(7, 6)
+	ALIGNMENT(9, 8)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -325,7 +323,6 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Ali
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	int8_t _pWalkpath[MAX_PATH_LENGTH + 1];
 	int _pDestAction;
 	int _pDestParam1;
 	int _pDestParam2;
@@ -470,7 +467,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(179, 94)
+	ALIGNMENT(185, 100)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1240,7 +1237,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 vivalue;
 	LE_INT32 viIvalue;
 	LE_INT32 viAC;
-	LE_INT32 viFlags;	// item_special_effect
+	LE_INT32 viPLFlags; // item_special_effect
 	LE_INT32 viCharges;
 	LE_INT32 viMaxCharges;
 	LE_INT32 viDurability;
@@ -1277,13 +1274,10 @@ typedef struct LSaveItemStruct {
 	BYTE viPLMMaxDam;
 	BYTE viPLAMinDam;
 	BYTE viPLAMaxDam;
-	LE_INT32 viVAdd;
-	LE_INT32 viVMult;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
 	LE_INT32 vpmode; // PLR_MODE
-	int8_t vpWalkpath[MAX_PATH_LENGTH + 1];
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
@@ -1793,6 +1787,7 @@ typedef struct TMsgLargeHdr {
 
 typedef struct TMsgString {
 	BYTE bCmd;
+	BYTE bsLen;
 	char str[MAX_SEND_STR_LEN];
 } TMsgString;
 
@@ -1847,7 +1842,6 @@ typedef struct TSyncMonster {
 
 typedef struct TSyncLvlPlayer {
 	BYTE spMode;
-	BYTE spWalkpath[MAX_PATH_LENGTH];
 	BYTE spManaShield;
 	BYTE spInvincible;
 	BYTE spDestAction;
@@ -2453,6 +2447,15 @@ typedef struct SNetGameData {
 	BYTE ngTickRate;
 	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE ngMaxPlayers;
+	SNetGameData() {
+		memset(&ngVersionId, 0, sizeof(SNetGameData));
+	}
+	SNetGameData(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	}
+	void operator=(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	};
 } SNetGameData;
 
 /*typedef struct _SNETCAPS {

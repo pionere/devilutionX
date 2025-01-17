@@ -1401,7 +1401,7 @@ static void CheckSplashCol(int mi)
 	for (i = 0; i < lengthof(XDirAdd); i++) {
 		tx = mx + XDirAdd[i];
 		ty = my + YDirAdd[i];
-		if (abs(tx - lx) <= 1 && abs(ty - ly) <= 1)
+		if (abs(tx - lx) < 2 && abs(ty - ly) < 2)
 			CheckMissileCol(mi, tx, ty, MICM_NONE);
 	}
 }
@@ -3086,7 +3086,7 @@ int AddDisarm(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert((unsigned)oi < MAXOBJECTS);
 	// assert(objects[oi]._oBreak == OBM_UNBREAKABLE);
-	// assert(abs(plr._px - dx) <= 1 && abs(plr._py - dy) <= 1);
+	// assert(abs(plr._px - dx) < 2 && abs(plr._py - dy) < 2);
 	// assert(abs(dObject[dx][dy]) == oi + 1);
 	DisarmObject(pnum, oi);
 	OperateObject(pnum, oi, false);
@@ -3303,7 +3303,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		// assert(target < MAXITEMS);
 		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy
 		 && LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
-			NetSendCmdGItem(CMD_AUTOGETITEM, target);
+			NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, target);
 		break;
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
@@ -3319,6 +3319,14 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		// assert(target < MAXOBJECTS);
 		if (LineClear(plr._px, plr._py, objects[target]._ox, objects[target]._oy))
 			OperateObject(pnum, target, true);
+		break;
+	case MTT_PLAYER:
+		// assert(target < MAX_PLRS);
+		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
+		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints >= (1 << 6) && plx(target)._pmode != PM_BLOCK
+		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pMagic) {
+			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
+		}
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -3961,7 +3969,7 @@ void MI_HorkSpawn(int mi)
 			return;
 		// }
 	}
-	// assert(abs(mis->_mix - mis->_misx) <= 1 && abs(mis->_miy - mis->_misy) <= 1);
+	// assert(abs(mis->_mix - mis->_misx) < 2 && abs(mis->_miy - mis->_misy) < 2);
 	mis->_miDelFlag = TRUE;
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "MI_HorkSpawn expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 1, "MI_HorkSpawn uses CrawlTable/CrawlNum up to radius 1.");

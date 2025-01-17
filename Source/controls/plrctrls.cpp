@@ -6,8 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static POS32 speedspellscoords[50];
-int speedspellcount = 0;
+static POS32 speedspellscoords[2 * NUM_SPELLS];
+static int speedspellcount = 0;
 
 /**
  * Native game menu, controlled by simulating a keyboard.
@@ -23,8 +23,6 @@ bool InGameMenu()
 	    || gbGamePaused
 	    || gbDeathflag;
 }
-
-static int slot = SLOTXY_INV_FIRST;
 
 /**
  * Number of angles to turn to face the coordinate
@@ -365,14 +363,12 @@ static void AttrIncBtnSnap(AxisDirection dir)
 
 #define SELECT_INV_SLOT(s)                                     \
 	{                                                          \
-		slot = s;                                              \
 		x = gnWndInvX + InvRect[s].X + (INV_SLOT_SIZE_PX / 2); \
 		y = gnWndInvY + InvRect[s].Y - (INV_SLOT_SIZE_PX / 2); \
 	}
 
 #define SELECT_BELT_SLOT(s)                                     \
 	{                                                           \
-		slot = s;                                               \
 		x = gnWndBeltX + InvRect[s].X + (INV_SLOT_SIZE_PX / 2); \
 		y = gnWndBeltY + InvRect[s].Y - (INV_SLOT_SIZE_PX / 2); \
 	}
@@ -391,7 +387,7 @@ static void InvMove(AxisDirection dir)
 
 	int x = MousePos.x;
 	int y = MousePos.y;
-	int r;
+	int r, slot;
 
 	// check which inventory rectangle the mouse is in, if any
 	// standard inventory
@@ -412,9 +408,9 @@ static void InvMove(AxisDirection dir)
 			}
 		}
 	}
-	if (r > SLOTXY_BELT_LAST)
-		r = SLOTXY_INV_FIRST;
 	slot = r;
+	if (slot > SLOTXY_BELT_LAST)
+		slot = SLOTXY_INV_FIRST;
 
 	// when item is on cursor, this is the real cursor XY
 	if (dir.x == AxisDirectionX_LEFT) {
@@ -424,32 +420,28 @@ static void InvMove(AxisDirection dir)
 		case SLOT_RING_LEFT: // left ring
 			break;           // do nothing
 		case SLOT_RING_RIGHT:
-			SELECT_INV_SLOT(SLOTXY_RING_LEFT)
+			slot = SLOTXY_RING_LEFT;
 			break;
 		case SLOT_AMULET:
-			SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
-			y -= INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HEAD_FIRST;
 			break;
 		case SLOT_HAND_LEFT: // left hand
 			break;           // do nothing
 		case SLOT_HAND_RIGHT:
-			SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_CHEST_FIRST;
 			break;
 		case SLOT_CHEST:
-			SELECT_INV_SLOT(SLOTXY_HAND_LEFT_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HAND_LEFT_FIRST;
 			break;
 		case SLOT_STORAGE: // general inventory
 			if (((slot - SLOTXY_INV_FIRST) % 10) != 0) {
-				SELECT_INV_SLOT(slot - 1)
+				slot = slot - 1;
 			}
 			break;
 		case SLOT_BELT: // belt
 			if (slot < SLOTXY_BELT_FIRST + 4)
 				break;
-			SELECT_BELT_SLOT(slot - 4)
+			slot = slot - 4;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -457,35 +449,33 @@ static void InvMove(AxisDirection dir)
 	} else if (dir.x == AxisDirectionX_RIGHT) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD: // head to amulet
-			SELECT_INV_SLOT(SLOTXY_AMULET)
+			slot = SLOTXY_AMULET;
 			break;
 		case SLOT_RING_LEFT:
-			SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
+			slot = SLOTXY_RING_RIGHT;
 			break;
 		case SLOT_RING_RIGHT: // rigth ring
 			break;            // do nothing
 		case SLOT_AMULET:     // amu
 			break;            // do nothing
 		case SLOT_HAND_LEFT:
-			SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_CHEST_FIRST;
 			break;
 		case SLOT_HAND_RIGHT: // right hand
 			break;            // do nothing
 		case SLOT_CHEST:
-			SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HAND_RIGHT_FIRST;
 			break;
 		case SLOT_STORAGE: // general inventory
 			if (((SLOTXY_INV_LAST - slot) % 10) != 0) {
-				SELECT_INV_SLOT(slot + 1)
+				slot = slot + 1;
 			}
 			break;
 		case SLOT_BELT: // belt
 			if (slot >= SLOTXY_BELT_FIRST + 4) {
-				SELECT_INV_SLOT(SLOTXY_INV_FIRST + 30)
+				slot = SLOTXY_INV_FIRST + 30;
 			} else {
-				SELECT_BELT_SLOT(slot + 4)
+				slot = slot + 4;
 			}
 			break;
 		default:
@@ -497,45 +487,38 @@ static void InvMove(AxisDirection dir)
 		case SLOT_HEAD:
 			break;           // do nothing
 		case SLOT_RING_LEFT: // left ring to left hand
-			SELECT_INV_SLOT(SLOTXY_HAND_LEFT_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HAND_LEFT_FIRST;
 			break;
 		case SLOT_RING_RIGHT: // right ring to right hand
-			SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HAND_RIGHT_FIRST;
 			break;
 		case SLOT_AMULET:
 			break;           // do nothing
 		case SLOT_HAND_LEFT: // left hand to head
-			SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
-			y -= INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HEAD_FIRST;
 			break;
 		case SLOT_HAND_RIGHT: // right hand to amulet
-			SELECT_INV_SLOT(SLOTXY_AMULET)
+			slot = SLOTXY_AMULET;
 			break;
 		case SLOT_CHEST: // chest to head
-			SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
-			y -= INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HEAD_FIRST;
 			break;
 		case SLOT_STORAGE: // general inventory
-			if (slot >= SLOTXY_INV_FIRST && slot <= SLOTXY_INV_FIRST + 2) { // first 3 general slots
-				SELECT_INV_SLOT(SLOTXY_RING_LEFT)
-			} else if (slot >= SLOTXY_INV_FIRST + 3 && slot <= SLOTXY_INV_FIRST + 6) { // middle 4 general slots
-				SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
-				x += INV_SLOT_SIZE_PX / 2;
-			} else if (slot >= SLOTXY_INV_FIRST + 7 && slot <= SLOTXY_INV_FIRST + 9) { // last 3 general slots
-				SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
+			if (slot <= SLOTXY_INV_FIRST + 2) { // first 3 general slots
+				slot = SLOTXY_RING_LEFT;
+			} else if (slot <= SLOTXY_INV_FIRST + 6) { // middle 4 general slots
+				slot = SLOTXY_CHEST_FIRST;
+			} else if (slot <= SLOTXY_INV_FIRST + 9) { // last 3 general slots
+				slot = SLOTXY_RING_RIGHT;
 			} else {
-				SELECT_INV_SLOT(slot - 10)
+				slot = slot - 10;
 			}
 			break;
 		case SLOT_BELT: // belt to general inventory
 			if (slot == SLOTXY_BELT_FIRST || slot == SLOTXY_BELT_FIRST + 4) {
-				SELECT_INV_SLOT(SLOTXY_INV_FIRST + 30)
+				slot = SLOTXY_INV_FIRST + 30;
 			} else {
-				SELECT_BELT_SLOT(slot - 1)
+				slot = slot - 1;
 			}
 			break;
 		default:
@@ -544,71 +527,105 @@ static void InvMove(AxisDirection dir)
 	} else if (dir.y == AxisDirectionY_DOWN) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:
-			SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_CHEST_FIRST;
 			break;
 		case SLOT_RING_LEFT:
-			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 1)
+			slot = SLOTXY_INV_FIRST + 1;
 			break;
 		case SLOT_RING_RIGHT:
-			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 8)
+			slot = SLOTXY_INV_FIRST + 8;
 			break;
 		case SLOT_AMULET:
-			SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
-			x += INV_SLOT_SIZE_PX / 2;
+			slot = SLOTXY_HAND_RIGHT_FIRST;
 			break;
 		case SLOT_HAND_LEFT:
-			SELECT_INV_SLOT(SLOTXY_RING_LEFT)
+			slot = SLOTXY_RING_LEFT;
 			break;
 		case SLOT_HAND_RIGHT:
-			SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
+			slot = SLOTXY_RING_RIGHT;
 			break;
 		case SLOT_CHEST:
-			SELECT_INV_SLOT(SLOTXY_INV_FIRST + 5)
+			slot = SLOTXY_INV_FIRST + 5;
 			break;
 		case SLOT_STORAGE:
 			if (slot <= (SLOTXY_INV_LAST - 10)) { // general inventory
-				SELECT_INV_SLOT(slot + 10)
+				slot = slot + 10;
 			} else {
-				SELECT_BELT_SLOT(SLOTXY_BELT_FIRST + 4)
+				slot = SLOTXY_BELT_FIRST + 4;
 			}
 			break;
 		case SLOT_BELT:
 			if (slot == SLOTXY_BELT_LAST || slot == SLOTXY_BELT_LAST - 4)
 				break;
-			SELECT_BELT_SLOT(slot + 1)
+			slot = slot + 1;
 			break;
 		default:
 			ASSUME_UNREACHABLE
 		}
 	}
 
-	if (x == MousePos.x && y == MousePos.y) {
+	if (slot == r) {
 		return; // Avoid wobbling when scaled
 	}
 
-	if (pcursicon > CURSOR_HAND) { // [3] Keep item in the same slot, don't jump it up
-		if (x != MousePos.x) {     // without this, the cursor keeps moving -10
-			x -= 10;
-			y -= 10;
-		}
+	switch (InvSlotTbl[slot]) {
+	case SLOT_HEAD:
+		SELECT_INV_SLOT(SLOTXY_HEAD_FIRST + 2)
+		x += INV_SLOT_SIZE_PX / 2;
+		y -= INV_SLOT_SIZE_PX / 2;
+		break;
+	case SLOT_RING_LEFT:
+		SELECT_INV_SLOT(SLOTXY_RING_LEFT)
+		break;
+	case SLOT_RING_RIGHT:
+		SELECT_INV_SLOT(SLOTXY_RING_RIGHT)
+		break;
+	case SLOT_AMULET:
+		SELECT_INV_SLOT(SLOTXY_AMULET)
+		break;
+	case SLOT_HAND_LEFT:
+		SELECT_INV_SLOT(SLOTXY_HAND_LEFT_FIRST + 2)
+		x += INV_SLOT_SIZE_PX / 2;
+		break;
+	case SLOT_HAND_RIGHT:
+		SELECT_INV_SLOT(SLOTXY_HAND_RIGHT_FIRST + 2)
+		x += INV_SLOT_SIZE_PX / 2;
+		break;
+	case SLOT_CHEST:
+		SELECT_INV_SLOT(SLOTXY_CHEST_FIRST + 2)
+		x += INV_SLOT_SIZE_PX / 2;
+		break;
+	case SLOT_STORAGE:
+		SELECT_INV_SLOT(slot)
+		break;
+	case SLOT_BELT:
+		SELECT_BELT_SLOT(slot)
+		break;
+	default:
+		ASSUME_UNREACHABLE
 	}
+#if 0 // CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) { // [3] Keep item in the same slot, don't jump it up
+		x -= cursW >> 1;
+		y -= cursH >> 1;
+	}
+#endif
 	SetCursorPos(x, y);
 }
 
 /**
- * check if hot spell at X Y exists
+ * check if a skill list icon is at X Y
  */
-static bool HSExists(int x, int y)
+static int SkillListEntryAt(int x, int y)
 {
 	for (int r = 0; r < speedspellcount; r++) {
 		if (POS_IN_RECT(x, y,
 			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
 			SPLICON_WIDTH, SPLICON_HEIGHT)) {
-			return true;
+			return r;
 		}
 	}
-	return false;
+	return -1;
 }
 
 static void HotSpellMove(AxisDirection dir)
@@ -618,17 +635,11 @@ static void HotSpellMove(AxisDirection dir)
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
 		return;
 
-	int spbslot = myplr._pAltAtkSkill;
-	if (spbslot == SPL_INVALID)
-		spbslot = myplr._pAltMoveSkill;
-	for (int r = 0; r < speedspellcount; r++) {
-		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
-			SPLICON_WIDTH, SPLICON_HEIGHT)) {
-			spbslot = r;
-			break;
-		}
-	}
+	int spbslot = 0;
+	assert(speedspellcount != 0);
+	int mpslot = SkillListEntryAt(MousePos.x, MousePos.y);
+	if (mpslot >= 0)
+		spbslot = mpslot;
 
 	int x = speedspellscoords[spbslot].x;
 	int y = speedspellscoords[spbslot].y;
@@ -646,11 +657,11 @@ static void HotSpellMove(AxisDirection dir)
 	}
 
 	if (dir.y == AxisDirectionY_UP) {
-		if (HSExists(x, y - SPLICON_HEIGHT)) {
+		if (SkillListEntryAt(x, y - SPLICON_HEIGHT) >= 0) {
 			y -= SPLICON_HEIGHT;
 		}
 	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (HSExists(x, y + SPLICON_HEIGHT)) {
+		if (SkillListEntryAt(x, y + SPLICON_HEIGHT) >= 0) {
 			y += SPLICON_HEIGHT;
 		}
 	}
@@ -681,93 +692,15 @@ static const direction FaceDir[3][3] = {
 	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
 };
 
-/**
- * @brief check if stepping in direction (dir) from x, y is blocked.
- *
- * If you step from A to B, at leat one of the Xs need to be clear:
- *
- *  AX
- *  XB
- *
- *  @return true if step is blocked
- */
-static bool IsPathBlocked(int x, int y, int dir)
-{
-	int d1, d2, d1x, d1y, d2x, d2y;
-
-	switch (dir) {
-	case DIR_N:
-		d1 = DIR_NW;
-		d2 = DIR_NE;
-		break;
-	case DIR_E:
-		d1 = DIR_NE;
-		d2 = DIR_SE;
-		break;
-	case DIR_S:
-		d1 = DIR_SE;
-		d2 = DIR_SW;
-		break;
-	case DIR_W:
-		d1 = DIR_SW;
-		d2 = DIR_NW;
-		break;
-	case DIR_SW:
-	case DIR_NW:
-	case DIR_NE:
-	case DIR_SE:
-		return false;
-	default:
-		ASSUME_UNREACHABLE
-	}
-
-	d1x = x + offset_x[d1];
-	d1y = y + offset_y[d1];
-	d2x = x + offset_x[d2];
-	d2y = y + offset_y[d2];
-
-	if (!nSolidTable[dPiece[d1x][d1y]] && !nSolidTable[dPiece[d2x][d2y]])
-		return false;
-
-	return !PosOkPlayer(mypnum, d1x, d1y) && !PosOkPlayer(mypnum, d2x, d2y);
-}
-
-static bool CanChangeDirection()
-{
-	PlayerStruct* p = &myplr;
-
-	if (p->_pmode == PM_STAND)
-		return true;
-	if (p->_pmode == PM_ATTACK && p->_pAnimFrame > p->_pAFNum)
-		return true;
-	if (p->_pmode == PM_RATTACK && p->_pAnimFrame > p->_pAFNum)
-		return true;
-	if (p->_pmode == PM_SPELL && p->_pAnimFrame > p->_pSFNum)
-		return true;
-	return false;
-}
-
 static void WalkInDir(AxisDirection dir)
 {
-	const int x = myplr._pfutx;
-	const int y = myplr._pfuty;
-
 	const int pdir = FaceDir[dir.x][dir.y];
 	if (pdir == DIR_NONE) {
-		if (sgbControllerActive && myplr._pWalkpath[0] != DIR_NONE && myplr._pDestAction == ACTION_NONE)
-			NetSendCmdLoc(CMD_WALKXY, x, y); // Stop walking
+		if (sgbControllerActive && myplr._pDestAction == ACTION_WALK)
+			NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		return;
 	}
-
-	const int dx = x + offset_x[pdir];
-	const int dy = y + offset_y[pdir];
-	if (CanChangeDirection())
-		myplr._pdir = pdir;
-
-	if (PosOkPlayer(mypnum, dx, dy) && IsPathBlocked(x, y, pdir))
-		return; // Don't start backtrack around obstacles
-
-	NetSendCmdLoc(CMD_WALKXY, dx, dy);
+	NetSendCmdBParam1(CMD_WALKDIR, pdir);
 }
 
 static void QuestLogMove(AxisDirection moveDir)
@@ -878,52 +811,61 @@ struct RightStickAccumulator {
 
 void StoreSpellCoords()
 {
+	int pnum, i, j;
+	uint64_t mask;
 	const int START_X = PANEL_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
 	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
 	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICON_HEIGHT / 2;
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;
+	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 3.");
 	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 4.");
-	for (int i = 0; i < 4; i++) {
-		std::uint64_t spells;
+	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
-			spells = myplr._pAblSkills;
+			mask = plr._pAblSkills;
 			break;
 		case RSPLTYPE_SPELL:
-			spells = myplr._pMemSkills;
+			mask = plr._pMemSkills;
 			break;
 		case RSPLTYPE_INV:
-			spells = myplr._pInvSkills;
+			mask = plr._pInvSkills;
 			break;
 		case RSPLTYPE_CHARGES:
-			spells = myplr._pISpells;
+			mask = plr._pISpells;
 			break;
 		default:
 			continue;
 		}
-		std::uint64_t spell = 1;
-		for (int j = 1; j < NUM_SPELLS; j++) {
-			if ((spell & spells) != 0) {
-				speedspellscoords[speedspellcount] = { xo, yo };
-				++speedspellcount;
-				xo -= SPLICON_WIDTH;
-				if (xo < START_X) {
-					xo = END_X;
-					yo -= SPLICON_HEIGHT;
+		for (j = 0; mask != 0 && j < NUM_SPELLS; j++) {
+			if (j == SPL_NULL) {
+				if (i != 0)
+					continue;
+			} else {
+				if (!(mask & 1)) {
+					mask >>= 1;
+					continue;
 				}
+				mask >>= 1;
 			}
-			spell <<= 1;
-		}
-		if (spells != 0 && xo != END_X)
+			speedspellscoords[speedspellcount] = { xo, yo };
+			++speedspellcount;
 			xo -= SPLICON_WIDTH;
-		if (xo < START_X) {
-			xo = END_X;
-			yo -= SPLICON_HEIGHT;
+			if (xo < START_X) {
+				xo = END_X;
+				yo -= SPLICON_HEIGHT;
+			}
+		}
+		if (j != 0 && xo != END_X) {
+			xo -= SPLICON_WIDTH;
+			if (xo < START_X) {
+				xo = END_X;
+				yo -= SPLICON_HEIGHT;
+			}
 		}
 	}
 }
@@ -941,8 +883,7 @@ static void HandleRightStickMotion()
 	if (IsAutomapActive()) { // move map
 		POS32 pos;
 		acc.Pool(pos, 32);
-		AutoMapXOfs += pos.y + pos.x;
-		AutoMapYOfs += pos.y - pos.x;
+		SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, pos.x, pos.y);
 		return;
 	}
 
@@ -950,19 +891,15 @@ static void HandleRightStickMotion()
 		sgbControllerActive = false;
 		POS32 pos;
 		acc.Pool(pos, 2);
-		pos.x += MousePos.x;
-		pos.y += MousePos.y;
-		pos.x = std::min(std::max(pos.x, 0), SCREEN_WIDTH - 1);
-		pos.y = std::min(std::max(pos.y, 0), SCREEN_HEIGHT - 1);
-
 		// We avoid calling `SetCursorPos` within the same SDL tick because
 		// that can cause all stick motion events to arrive before all
 		// cursor position events.
-		static int lastMouseSetTick = 0;
-		const int now = SDL_GetTicks();
-		if (now - lastMouseSetTick > 0) {
+		if (pos.x != 0 || pos.y != 0) {
+			pos.x += MousePos.x;
+			pos.y += MousePos.y;
+			pos.x = std::min(std::max(pos.x, 0), SCREEN_WIDTH - 1);
+			pos.y = std::min(std::max(pos.y, 0), SCREEN_HEIGHT - 1);
 			SetCursorPos(pos.x, pos.y);
-			lastMouseSetTick = now;
 		}
 	}
 }
@@ -972,7 +909,9 @@ static void HandleRightStickMotion()
  */
 void FocusOnInventory()
 {
-	SetCursorPos(gnWndInvX + InvRect[SLOTXY_INV_FIRST].X + (INV_SLOT_SIZE_PX / 2), gnWndInvY + InvRect[SLOTXY_INV_FIRST].Y - (INV_SLOT_SIZE_PX / 2));
+	int x, y;
+	SELECT_INV_SLOT(SLOTXY_INV_FIRST)
+	SetCursorPos(x, y);
 }
 
 // Moves the mouse to the first attribute "+" button.
@@ -1077,6 +1016,8 @@ static bool SpellHasActorTarget()
 	int spl = myplr._pAltAtkSkill;
 	if (spl == SPL_INVALID)
 		spl = myplr._pAltMoveSkill;
+	if (spl != SPL_INVALID && spelldata[spl].spCurs != CURSOR_NONE)
+		return true;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
@@ -1118,32 +1059,31 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
-	if (InGameMenu())
-		return;
+	assert(!gmenu_is_active());
+	// assert(!gbTalkflag || !control_check_talk_btn());
+	assert(gnTimeoutCurs == CURSOR_NONE);
+	assert(gbDeathflag == MDM_ALIVE);
+	assert(!gbGamePaused);
+	assert(!gbDropGoldFlag);
+	//assert(!gbDoomflag);
+	assert(!gbQtextflag);
 
-	if (gbSkillListFlag) {
-		SetSkill(false, true);
-		return;
+	if (!(gbActionBtnDown & ACTBTN_MASK(ACT_ALTACT))) {
+		static_assert(CMAP_NONE == 0, "BitOr optimization of PerformSpellAction expects CMAP_NONE to be zero.");
+		static_assert(STORE_NONE == 0, "BitOr optimization of PerformSpellAction expects STORE_NONE to be zero.");
+		if ((gbCampaignMapFlag | gbSkillListFlag | stextflag) == 0 && pcurswnd == WND_NONE) {
+			if (pcursicon == CURSOR_HAND) {
+				// prepare for cast
+				UpdateSpellTarget();
+			} else if (pcursicon >= CURSOR_FIRSTITEM) {
+				// prepare for DropItem
+				pcurspos.x = myplr._pfutx + 1;
+				pcurspos.y = myplr._pfuty;
+			}
+		}
+		InputBtnDown(ACT_ALTACT);
+		gbActionBtnDown &= ~ACTBTN_MASK(ACT_ALTACT);
 	}
-
-	if (TryIconCurs(false))
-		return;
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		TryDropItem();
-		return;
-	}
-
-	int spl = myplr._pAltAtkSkill;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
-	if ((pcursplr == PLR_NONE && (spl == SPL_RESURRECT || spl == SPL_HEALOTHER))
-	    || (pcursobj == OBJ_NONE && spl == SPL_DISARM)) {
-		PlaySFX(sgSFXSets[SFXS_PLR_27][myplr._pClass]);
-		return;
-	}
-
-	UpdateSpellTarget();
-	AltActionBtnCmd(false);
 }
 
 static void CtrlUseInvItem()
@@ -1180,20 +1120,20 @@ void PerformSecondaryAction()
 	}
 
 	if (pcurswnd == WND_BOOK) {
-		CheckBookClick(false, true);
+		CheckBookClick(true);
 		return;
 	}
 
 	if (pcurswnd == WND_TEAM) {
-		CheckTeamClick(false);
+		CheckTeamClick();
 		return;
 	}
 
 	if (pcursitem != ITEM_NONE) {
-		NetSendCmdLocParam1(CMD_GOTOAGETITEM, pcurspos.x, pcurspos.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 	} else if (pcursobj != OBJ_NONE) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
-	} else if (pcurstrig != -1) {
+	} else if (pcurstrig != -1 && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 	}
 }

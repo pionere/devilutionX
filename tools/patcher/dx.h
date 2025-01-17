@@ -25,7 +25,9 @@ void dx_init();
 void lock_buf(BYTE idx);
 void unlock_buf(BYTE idx);
 void dx_cleanup();
+#if !FULLSCREEN_ONLY
 void ToggleFullscreen();
+#endif
 void ClearScreenBuffer();
 void BltFast();
 void RenderPresent();

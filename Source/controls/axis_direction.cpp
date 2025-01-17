@@ -2,15 +2,13 @@
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
-#include <SDL.h>
-
 DEVILUTION_BEGIN_NAMESPACE
 
 AxisDirectionRepeater axisDirRepeater;
 
 AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 {
-	const int now = SDL_GetTicks();
+	const Uint32 now = SDL_GetTicks();
 	switch (axisDirection.x) {
 	case AxisDirectionX_LEFT:
 		last_right_ = 0;

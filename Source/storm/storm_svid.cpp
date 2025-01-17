@@ -213,7 +213,7 @@ static AudioQueue* sVidAudioQueue = new AudioQueue();
 #endif
 #endif // !NOSOUND
 
-static void UpdatePalette()
+static void SVidUpdatePalette()
 {
 	SDL_Color* colors = SVidPalette->colors;
 
@@ -332,7 +332,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 		SVidPlayEnd();
 	//} else {
 	//	assert(smk_palette_updated(SVidSMK));
-	//	UpdatePalette();
+	//	SVidUpdatePalette();
 	}
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
@@ -377,7 +377,7 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
-		UpdatePalette();
+		SVidUpdatePalette();
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
@@ -484,7 +484,7 @@ void SVidPlayEnd()
 
 #ifdef USE_SDL1
 	if (IsSVidVideoMode) {
-		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
+		SetVideoModeToPrimary(SCREEN_WIDTH, SCREEN_HEIGHT);
 		IsSVidVideoMode = false;
 	}
 #endif

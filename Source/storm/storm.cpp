@@ -56,7 +56,8 @@ HANDLE SFileOpenFile(const char* filename)
 	if (directFileAccess) {
 		const std::string* basePath = GetBasePathStr();
 		std::string path = *basePath + filename;
-		for (i = basePath->size(); i < path.size(); ++i)
+		const unsigned pathlen = (unsigned)path.size();
+		for (i = (unsigned)basePath->size(); i < pathlen; ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
 		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
 	}

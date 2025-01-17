@@ -266,7 +266,6 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 
 	// reset fields which are used even by non-local players, but not part of pPack
 	// TODO: move these to SetupLocalPlr
-	ClrPlrPath(pnum);
 	plr._pDestAction = ACTION_NONE;
 	plr._pInvincible = FALSE;
 	plr._pmode = PM_NEWLVL;

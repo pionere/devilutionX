@@ -145,11 +145,11 @@ void multi_send_turn_packet()
  *
  * @param pmask: The mask of the player indices to receive the data. Or SNPLAYER_ALL to send to everyone.
  * @param pbSrc: the content of the message
- * @param bLen: the length of the message
+ * @param wLen: the length of the message
  */
-void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, unsigned wLen)
 {
-	unsigned i, len = bLen;
+	unsigned i, len = wLen;
 	NormalMsgPkt pkt;
 
 	memcpy(&pkt.body[0], pbSrc, len);
@@ -684,7 +684,6 @@ static void SetupLocalPlr()
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
-	assert(p->_pWalkpath[0] == DIR_NONE);
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town

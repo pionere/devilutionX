@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define ACTBTN_MASK(btn)     (1 << (btn))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,8 +26,7 @@ extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;
 extern bool gbGamePaused;
 extern BYTE gbDeathflag;
-extern bool gbActionBtnDown;
-extern bool gbAltActionBtnDown;
+extern unsigned gbActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 extern int gnTimeoutCurs;
@@ -36,13 +37,12 @@ bool StartGame(bool bSinglePlayer);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-void ActionBtnCmd(bool bShift);
-void AltActionBtnCmd(bool bShift);
+void InputBtnDown(int transKey);
 #endif
-bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(const Dvl_Event *event);
+void GameWndProc(const Dvl_Event* event);
+void DisableInputWndProc(const Dvl_Event* event);
 void game_logic();
 
 #ifdef __cplusplus
