@@ -486,15 +486,15 @@ void plrmsg_CatToText(const char* inBuf)
 	}
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	const unsigned maxlen = MAX_SEND_STR_LEN;
-	// assert(maxLen - cp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
+	char tmpstr[MAX_SEND_STR_LEN];
+	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
 	int len = SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
 	// assert(strlen(text) == len + sp);
 	sp += len;
 	sguCursPos = sp;
 	sguSelPos = sp;
-	SStrCopy(&text[sp], tempstr, maxlen - sp);
+	SStrCopy(&text[sp], tmpstr, maxlen - sp);
 
 	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
