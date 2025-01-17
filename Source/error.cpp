@@ -11,11 +11,11 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-char msgtable[NUM_EMSGS];
+static char msgtable[NUM_EMSGS];
 uint32_t msgdelay;
 BYTE currmsg;
 static_assert(NUM_EMSGS <= UINT8_MAX, "msgcnt might overflow.");
-BYTE msgcnt;
+static BYTE msgcnt;
 
 /** Maps from error_id to error message. */
 const char* const MsgStrings[NUM_EMSGS] = {
