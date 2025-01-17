@@ -609,10 +609,8 @@ static void diablo_hotkey_msg(int actKey)
 	static_assert(ACT_MSG1 + 1 == ACT_MSG2, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 2.");
 	static_assert(ACT_MSG2 + 1 == ACT_MSG3, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 3.");
 	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", actKey - ACT_MSG0);
-	if (!getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)))
-		return;
-
-	NetSendCmdString(SNPLAYER_ALL);
+	if (getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)) > 0)
+		NetSendCmdString(SNPLAYER_ALL);
 }
 
 /*static bool PressSysKey(int wParam)

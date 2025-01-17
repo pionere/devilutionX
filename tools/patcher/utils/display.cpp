@@ -190,7 +190,7 @@ void SpawnWindow()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #ifndef USE_SDL1
 	char mapping[1024];
-	if (getIniValue("Controller", "sdl2_controller_mapping", mapping, 1024)) {
+	if (getIniValue("Controller", "sdl2_controller_mapping", mapping, 1024) > 0) {
 		SDL_GameControllerAddMapping(mapping);
 	}
 #endif
