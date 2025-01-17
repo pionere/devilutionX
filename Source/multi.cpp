@@ -91,7 +91,7 @@ void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 {
 	BYTE* src_ptr;
-	size_t chunk_size;
+	unsigned chunk_size;
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
 		src_ptr = &sgTurnChunkBuf.bData[0];
@@ -105,7 +105,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		sgTurnChunkBuf.dwDataSize -= (src_ptr - &sgTurnChunkBuf.bData[0]);
+		sgTurnChunkBuf.dwDataSize -= (unsigned)(src_ptr - &sgTurnChunkBuf.bData[0]);
 		memcpy(&sgTurnChunkBuf.bData[0], src_ptr, sgTurnChunkBuf.dwDataSize + 1);
 	}
 	return dest;
@@ -135,7 +135,7 @@ void multi_send_turn_packet()
 	remsize = NET_TURN_MSG_SIZE - sizeof(TurnPktHdr);
 	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
 	dstEnd = sync_all_monsters(dstEnd, remsize);
-	len = (size_t)dstEnd - (size_t)&pkt;
+	len = (unsigned)((size_t)dstEnd - (size_t)&pkt);
 	multi_init_pkt_header(pkt.hdr, len);
 	nthread_send_turn((BYTE*)&pkt, len);
 }
