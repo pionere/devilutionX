@@ -3261,6 +3261,7 @@ static unsigned On_STRING(TCmd* pCmd, int pnum)
 	TMsgString* cmd = (TMsgString*)pCmd;
 
 	//if (geBufferMsgs != MSG_GAME_DELTA_LOAD && geBufferMsgs != MSG_GAME_DELTA_WAIT) {
+		net_assert(cmd->bsLen < MAX_SEND_STR_LEN && cmd->str[cmd->bsLen] == '\0');
 		if (pnum < MAX_PLRS) {
 			if (!(guTeamMute & (1 << pnum))) {
 				ReceivePlrMsg(pnum, cmd->str);
