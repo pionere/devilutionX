@@ -1510,7 +1510,7 @@ void LevelDeltaLoad()
 	}
 
 	wLen = lvlData->wLen;
-	wLen -= ((size_t)src - size_t(&lvlData->ldContent[0]));
+	wLen -= ((size_t)src - (size_t)(&lvlData->ldContent[0]));
 	// load monsters
 	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
 		TSyncLvlMonster* DVL_RESTRICT tmon = (TSyncLvlMonster*)src;
