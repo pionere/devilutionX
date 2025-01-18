@@ -444,7 +444,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -490,7 +490,7 @@ jobs:
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}

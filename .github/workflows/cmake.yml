@@ -30,7 +30,7 @@ jobs:
       #working-directory: ${{github.workspace}}/build
       #run: cmake ..
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF
+      run: cmake -S. -Bbuild -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12
 
     - name: Build
       shell: bash
