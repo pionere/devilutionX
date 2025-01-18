@@ -601,6 +601,7 @@ static void diablo_pause_game()
 static void diablo_hotkey_msg(int actKey)
 {
 	char entryKey[16];
+	TMsgString msg;
 
 	if (IsLocalGame)
 		return;
@@ -609,9 +610,11 @@ static void diablo_hotkey_msg(int actKey)
 	static_assert(ACT_MSG1 + 1 == ACT_MSG2, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 2.");
 	static_assert(ACT_MSG2 + 1 == ACT_MSG3, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 3.");
 	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", actKey - ACT_MSG0);
-	int len = getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg));
-	if (len > 0)
-		NetSendCmdString(SNPLAYER_ALL, len);
+	int len = getIniValue("NetMsg", entryKey, msg.str, sizeof(msg.str));
+	if (len > 0) {
+		msg.bsLen = len;
+		NetSendCmdString(&msg, SNPLAYER_ALL);
+	}
 }
 
 /*static bool PressSysKey(int wParam)
@@ -728,35 +731,33 @@ static void ClearUI()
 #if DEBUG_MODE
 static void PressDebugChar(int vkey)
 {
-	int len;
+	TMsgString msg;
 	switch (vkey) {
 	case 'R':
 	case 'r':
-		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
-		NetSendCmdString(1 << mypnum, len);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
 		break;
 	case 'T':
 	case 't':
-		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
-		NetSendCmdString(1 << mypnum, len);
-		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
-		NetSendCmdString(1 << mypnum, len);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "PX = %d  PY = %d", myplr._px, myplr._py);
+		NetSendCmdString(&msg, 1 << mypnum);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
 		break;
 	case '[':
 		if (pcursitem != ITEM_NONE) {
-			len = snprintf(
-			    gbNetMsg,
-				sizeof(gbNetMsg),
+			msg.bsLen = snprintf(msg.str, sizeof(msg.str),
 			    "IDX = %d  :  Seed = %d  :  CF = %d",
 			    items[pcursitem]._iIdx,
 			    items[pcursitem]._iSeed,
 			    items[pcursitem]._iCreateInfo);
-			NetSendCmdString(1 << mypnum, len);
+			NetSendCmdString(&msg, 1 << mypnum);
 		}
-		len = snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
-		NetSendCmdString(1 << mypnum, len);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "Numitems : %d", numitems);
 		break;
+	default:
+		return;
 	}
+	NetSendCmdString(&msg, 1 << mypnum);
 }
 #endif
 

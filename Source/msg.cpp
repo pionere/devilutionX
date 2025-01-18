@@ -38,8 +38,6 @@ DeltaData gsDeltaData;
 static BYTE gbGameDeltaChunks;
 /* the current messaging mode. (MSG_*) */
 _msg_mode geBufferMsgs = MSG_NORMAL;
-/* Buffer holding the character message to send over to other players */
-char gbNetMsg[MAX_SEND_STR_LEN];
 
 static void DeltaAllocMegaPkt()
 {
@@ -2188,15 +2186,11 @@ void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdString(unsigned int pmask, int dwStrLen)
+void NetSendCmdString(TMsgString* cmd, unsigned int pmask)
 {
-	TMsgString cmd;
-
-	static_assert((sizeof(gbNetMsg) + 2) <= (sizeof(NormalMsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in NormalMsgPkt.");
-	cmd.bCmd = NMSG_STRING;
-	cmd.bsLen = dwStrLen;
-	memcpy(cmd.str, gbNetMsg, dwStrLen + 1);
-	multi_send_direct_msg(pmask, (BYTE*)&cmd, dwStrLen + 3); // length of string + nul terminator + sizeof(cmd.bCmd) + sizeof(cmd.bsLen)
+	static_assert(sizeof(TMsgString) <= (sizeof(NormalMsgPkt) - sizeof(MsgPktHdr)), "String message does not fit in NormalMsgPkt.");
+	cmd->bCmd = NMSG_STRING;
+	multi_send_direct_msg(pmask, (BYTE*)cmd, cmd->bsLen + 3); // length of string + nul terminator + sizeof(cmd->bCmd) + sizeof(cmd->bsLen)
 }
 
 static void check_update_plr(int pnum)
