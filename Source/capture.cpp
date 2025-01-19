@@ -185,7 +185,8 @@ void CaptureScreen()
 	} else {
 		DoLog("Screenshot saved at %s", FileName.c_str());
 	}
-	SDL_Delay(300);
+	if (IsLocalGame)
+		SDL_Delay(300);
 	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));
 	UpdatePalette();
 	gbRedrawFlags = REDRAW_ALL;
