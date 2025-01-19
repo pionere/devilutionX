@@ -13,11 +13,11 @@ SDL_Color system_palette[NUM_COLORS];
 SDL_Color orig_palette[NUM_COLORS];
 
 /** Specifies the gamma correction level. */
-int _gnGammaCorrection = 100;
+static int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
 bool gbColorCyclingEnabled = true;
 /** Specifies whether the game-screen is active with max brightness. */
-bool _gbFadedIn = false;
+static bool _gbFadedIn = false;
 
 void UpdatePalette()
 {
