@@ -86,7 +86,12 @@ void LoadLvlPalette()
 	LoadPalette(szFileName);
 }
 
-static void SetGamma(int gamma)
+int GetGamma()
+{
+	return _gnGammaCorrection;
+}
+
+void SetGamma(int gamma)
 {
 	setIniInt("Graphics", "Gamma Correction", gamma);
 	_gnGammaCorrection = gamma;
@@ -114,16 +119,6 @@ void DecreaseGamma()
 			gamma = 30;
 		SetGamma(gamma);
 	}
-}
-
-void UpdateGamma(int gamma)
-{
-	SetGamma(130 - gamma);
-}
-
-int GetGamma()
-{
-	return 130 - _gnGammaCorrection;
 }
 
 void SetFadeLevel(unsigned fadeval)

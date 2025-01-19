@@ -188,7 +188,7 @@ static void gamemenu_get_sound()
 static void gamemenu_get_gamma()
 {
 	gmenu_slider_steps(&sgSettingsMenu[2], 14 /*(100 - 30) / 5*/);
-	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, GetGamma());
+	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, 130 - GetGamma());
 }
 
 static void gamemenu_get_speed()
@@ -289,14 +289,14 @@ static void gamemenu_gamma(bool bActivate)
 
 	if (bActivate) {
 		gamma = GetGamma();
-		if (gamma == 30)
-			gamma = 100;
-		else
+		if (gamma == 100)
 			gamma = 30;
+		else
+			gamma = 100;
 	} else {
-		gamma = gmenu_slider_get(&sgSettingsMenu[2], 30, 100);
+		gamma = gmenu_slider_get(&sgSettingsMenu[2], 100, 30);
 	}
-	UpdateGamma(gamma);
+	SetGamma(gamma);
 	gamemenu_get_gamma();
 	PlaySFX(IS_TITLEMOV);
 }
