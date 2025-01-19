@@ -14,9 +14,7 @@ extern "C" {
 
 #define FADE_LEVELS 256
 
-extern SDL_Color logical_palette[NUM_COLORS];
 extern SDL_Color system_palette[NUM_COLORS];
-extern SDL_Color orig_palette[NUM_COLORS];
 
 void InitPalette();
 void LoadPalette(const char* pszFileName);

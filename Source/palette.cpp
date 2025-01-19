@@ -8,9 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-SDL_Color logical_palette[NUM_COLORS];
+static SDL_Color logical_palette[NUM_COLORS];
 SDL_Color system_palette[NUM_COLORS];
-SDL_Color orig_palette[NUM_COLORS];
+static SDL_Color orig_palette[NUM_COLORS];
 
 /** Specifies the gamma correction level. */
 static int _gnGammaCorrection = 100;

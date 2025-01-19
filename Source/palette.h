@@ -16,9 +16,7 @@ extern "C" {
 
 extern bool gbColorCyclingEnabled;
 
-extern SDL_Color logical_palette[NUM_COLORS];
 extern SDL_Color system_palette[NUM_COLORS];
-extern SDL_Color orig_palette[NUM_COLORS];
 
 void UpdatePalette();
 void InitPalette();
