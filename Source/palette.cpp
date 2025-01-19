@@ -51,10 +51,10 @@ void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 
 void InitPalette()
 {
-	int value;
+	int value = 100;
 
-	if (!getIniInt("Graphics", "Gamma Correction", &value))
-		value = 100;
+	getIniInt("Graphics", "Gamma Correction", &value);
+
 	if (value < 30) {
 		value = 30;
 	} else if (value > 100) {
