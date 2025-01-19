@@ -4703,6 +4703,7 @@ typedef enum input_key {
 	ACT_ZOOM,  // toggle the zoom
 	ACT_VER,   // print the game version
 	ACT_HELP,  // open the help text
+	ACT_SCRN,  // make a screenshot
 	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
 	ACT_TOOLTIP, // toggle the permanency of the tooltips

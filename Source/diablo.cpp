@@ -61,7 +61,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
   ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
 // SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,       
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_SCRN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
@@ -641,8 +641,6 @@ static void ReleaseKey(int vkey)
 		if (gbTalkflag)
 			plrmsg_HandleMouseReleaseEvent();
 		gbDragWnd = WND_NONE;
-	} else if (vkey == DVL_VK_SNAPSHOT) {
-		CaptureScreen();
 	}
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
@@ -981,6 +979,9 @@ void InputBtnDown(int transKey)
 			//gamemenu_off();
 			StartHelp();
 		}
+		break;
+	case ACT_SCRN:
+		CaptureScreen();
 		break;
 	case ACT_PAUSE:
 		break;
