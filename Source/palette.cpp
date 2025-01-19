@@ -86,35 +86,39 @@ void LoadLvlPalette()
 	LoadPalette(szFileName);
 }
 
+static void SetGamma(int gamma)
+{
+	setIniInt("Graphics", "Gamma Correction", gamma);
+	_gnGammaCorrection = gamma;
+	ApplyGamma(system_palette, logical_palette);
+	UpdatePalette();
+}
+
 void IncreaseGamma()
 {
-	if (_gnGammaCorrection < 100) {
-		_gnGammaCorrection += 5;
-		if (_gnGammaCorrection > 100)
-			_gnGammaCorrection = 100;
-		ApplyGamma(system_palette, logical_palette);
-		UpdatePalette();
+	int gamma = _gnGammaCorrection;
+	if (gamma < 100) {
+		gamma += 5;
+		if (gamma > 100)
+			gamma = 100;
+		SetGamma(gamma);
 	}
 }
 
 void DecreaseGamma()
 {
-	if (_gnGammaCorrection > 30) {
-		_gnGammaCorrection -= 5;
-		if (_gnGammaCorrection < 30)
-			_gnGammaCorrection = 30;
-		ApplyGamma(system_palette, logical_palette);
-		UpdatePalette();
+	int gamma = _gnGammaCorrection;
+	if (gamma > 30) {
+		gamma -= 5;
+		if (gamma < 30)
+			gamma = 30;
+		SetGamma(gamma);
 	}
 }
 
 void UpdateGamma(int gamma)
 {
-	gamma = 130 - gamma;
-	setIniInt("Graphics", "Gamma Correction", gamma);
-	_gnGammaCorrection = gamma;
-	ApplyGamma(system_palette, logical_palette);
-	UpdatePalette();
+	SetGamma(130 - gamma);
 }
 
 int GetGamma()
