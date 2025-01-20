@@ -170,9 +170,9 @@ void IncProgress()
 {
 	interface_msg_pump();
 	sgdwProgress += BAR_STEP;
-	assert(sgdwProgress <= BAR_WIDTH);
+	assert(sgdwProgress <= BAR_WIDTH); // || sgpBackCel == NULL
 	// do not draw in case of quick-load
-	if (sgpBackCel != NULL)
+	// if (sgpBackCel != NULL)
 		DrawCutscene();
 	//return sgdwProgress >= BAR_WIDTH;
 }
