@@ -137,17 +137,27 @@ static void DrawProgress()
 #endif
 }
 
+static void DrawCutsceneBack()
+{
+	lock_buf(1);
+
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+
+	unlock_buf(1);
+}
+
 static void DrawCutscene()
 {
 	Uint32 now = SDL_GetTicks();
-	if (sgdwProgress > 0 && sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
+	// assert(sgdwProgress != 0);
+	if (/*sgdwProgress > 0 &&*/ sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
 		return; // skip drawing if the progression is too fast
 	}
 	sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 
 	lock_buf(1);
-	if (sgdwProgress == 0)
-		CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	// if (sgdwProgress == 0)
+	//	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
@@ -352,11 +362,12 @@ void ShowCutscene(unsigned uMsg)
 	assert(saveProc == GameWndProc);
 	interface_msg_pump();
 	ClearScreenBuffer();
-	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutscene
+	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
-	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
-	DrawCutscene();
+	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
+	DrawCutsceneBack();
 	PaletteFadeIn(false);
+	sgdwNextCut = SDL_GetTicks() + gnRefreshDelay; // calculate the next tick to draw the cutscene
 	IncProgress(); // "Memfree" (1)
 	FreeLevelMem();
 	IncProgress(); // "Music stop" (2)
