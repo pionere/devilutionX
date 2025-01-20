@@ -392,7 +392,7 @@ void UiFadeIn()
 		if (_gnFadeValue == 0 && _gdwFadeTc == 0)
 			_gdwFadeTc = currTc;
 		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
-		if (_gnFadeValue > FADE_LEVELS) {
+		if ((unsigned)_gnFadeValue > FADE_LEVELS) {
 			_gnFadeValue = FADE_LEVELS;
 			//_gdwFadeTc = 0;
 		}
