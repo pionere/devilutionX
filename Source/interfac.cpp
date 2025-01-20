@@ -146,7 +146,7 @@ static void DrawCutsceneBack()
 	unlock_buf(1);
 }
 
-static void DrawCutscene()
+static void RenderCutscene()
 {
 	Uint32 now = SDL_GetTicks();
 	// assert(sgdwProgress != 0);
@@ -183,7 +183,7 @@ void IncProgress()
 	assert(sgdwProgress <= BAR_WIDTH); // || sgpBackCel == NULL
 	// do not draw in case of quick-load
 	// if (sgpBackCel != NULL)
-		DrawCutscene();
+		RenderCutscene();
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
