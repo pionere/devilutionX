@@ -53,7 +53,7 @@ void UiAddLogo();
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationDelete();
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL);
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)());
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, void (*fnDelete)());
 void UiInitEdit(UiEdit* ui_edit);
 void UiClearScreen();

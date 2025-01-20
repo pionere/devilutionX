@@ -23,7 +23,7 @@ void UiSettingsDialog()
 	UiAddBackground();
 	SDL_Rect rect0 = { 0, 0, 0, 0 };
 	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
-	UiInitScreen(0);
+	UiInitScreen(0, NULL, NULL, NULL);
 	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);

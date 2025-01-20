@@ -53,7 +53,7 @@ void UiFocus(unsigned itemIndex);
 void UiFocusNavigationSelect();
 void UiFocusNavigationEsc();
 void UiFocusNavigationDelete();
-void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index) = NULL, void (*fnSelect)(unsigned index) = NULL, void (*fnEsc)() = NULL);
+void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)());
 #if FULL_UI
 void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, void (*fnDelete)());
 void UiInitEdit(UiEdit* ui_edit);
