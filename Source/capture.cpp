@@ -164,7 +164,6 @@ void CaptureScreen()
 	FILE* out = CaptureFile(&FileName);
 	if (out == NULL)
 		return;
-	scrollrt_draw_game();
 	memcpy(bkp_palette, system_palette, sizeof(bkp_palette));
 	RedPalette();
 
