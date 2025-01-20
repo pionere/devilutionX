@@ -57,7 +57,7 @@ UiEdit* gUiEditField;
 bool gUiDrawCursor;
 
 static Uint32 _gdwFadeTc;
-static int _gnFadeValue = 0;
+static int _gnFadeValue;
 
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
@@ -352,8 +352,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	PaletteFadeIn(true);
 
 	// help the render loops by setting up an initial fade level
-	_gdwFadeTc = 0;
-	_gnFadeValue = 0;
+	_gnFadeValue = -1;
 	SetFadeLevel(0);
 	/* unnecessary, because the render loops are supposed to start with this.
 	UiClearScreen();
@@ -389,7 +388,7 @@ void UiFadeIn()
 
 	if (_gnFadeValue < FADE_LEVELS) {
 		currTc = SDL_GetTicks();
-		if (_gnFadeValue == 0 && _gdwFadeTc == 0)
+		if (_gnFadeValue < 0)
 			_gdwFadeTc = currTc;
 		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
 		if ((unsigned)_gnFadeValue > FADE_LEVELS) {
