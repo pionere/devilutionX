@@ -149,11 +149,15 @@ static void DrawCutsceneBack()
 static void RenderCutscene()
 {
 	Uint32 now = SDL_GetTicks();
+	bool skipRender = false;
 	// assert(sgdwProgress != 0);
-	if (/*sgdwProgress > 0 &&*/ sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
-		return; // skip drawing if the progression is too fast
+	if (/*sgdwProgress > 0 &&*/ now < sgdwNextCut) {
+		if (sgdwProgress < BAR_WIDTH)
+			return; // skip drawing if the progression is too fast
+		skipRender = true; // update the progress bar for fade-out
+	} else {
+		sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 	}
-	sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 
 	lock_buf(1);
 	// if (sgdwProgress == 0)
@@ -162,7 +166,9 @@ static void RenderCutscene()
 	DrawProgress();
 
 	unlock_buf(1);
-	scrollrt_draw_screen(false);
+
+	if (!skipRender)
+		scrollrt_draw_screen(false);
 }
 
 void interface_msg_pump()
