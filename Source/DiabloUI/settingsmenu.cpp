@@ -21,6 +21,8 @@ void UiSettingsDialog()
 	// initialize the UI
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 	UiAddBackground();
+	SDL_Rect rect0 = { 0, 0, 0, 0 };
+	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
 	UiInitScreen(0);
 	// initialize gamemenu
 	InitGMenu();
@@ -29,10 +31,7 @@ void UiSettingsDialog()
 
 	Dvl_Event event;
 	while (settingsMenu == gpCurrentMenu) {
-		UiClearScreen();
-		UiRenderItems();
-		gmenu_draw();
-		UiFadeIn();
+		UiRender();
 		while (UiPeekAndHandleEvents(&event)) {
 			switch (event.type) {
 			case DVL_WM_MOUSEMOVE:
