@@ -102,7 +102,6 @@ static void HostGameFree()
 void UiHostGameDialog()
 {
 	HostGameLoad();
-	SetFadeLevel(FADE_LEVELS);
 
 	Dvl_Event event;
 	do {
