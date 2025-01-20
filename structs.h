@@ -1180,8 +1180,6 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhAutoMapScale;
 	BYTE vhMiniMapScale;
 	BYTE vhNormalMapScale;
-	LE_INT32 vhAutoMapXOfs;
-	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;
 } LSaveGameHeaderStruct;
 
@@ -1189,6 +1187,8 @@ typedef struct LSaveGameMetaStruct {
 	LE_UINT32 vaboylevel;
 	LE_INT32 vanumpremium;
 	LE_INT32 vapremiumlevel;
+	LE_INT32 vaAutoMapXOfs;
+	LE_INT32 vaAutoMapYOfs;
 	LE_INT32 vanumlights;
 	LE_INT32 vanumvision;
 } LSaveGameMetaStruct;

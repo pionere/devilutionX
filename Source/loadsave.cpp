@@ -789,8 +789,6 @@ void LoadGame()
 	AutoMapScale = ghs->vhAutoMapScale;
 	MiniMapScale = ghs->vhMiniMapScale;
 	NormalMapScale = ghs->vhNormalMapScale;
-	AutoMapXOfs = ghs->vhAutoMapXOfs;
-	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
 	guLvlVisited = ghs->vhLvlVisited;
 
@@ -820,6 +818,8 @@ void LoadGame()
 	boylevel = gms->vaboylevel;
 	numpremium = gms->vanumpremium;
 	premiumlevel = gms->vapremiumlevel;
+	AutoMapXOfs = gms->vaAutoMapXOfs;
+	AutoMapYOfs = gms->vaAutoMapYOfs;
 	numlights = gms->vanumlights;
 	numvision = gms->vanumvision;
 
@@ -1625,8 +1625,6 @@ void SaveGame()
 	ghs->vhAutoMapScale = AutoMapScale;
 	ghs->vhMiniMapScale = MiniMapScale;
 	ghs->vhNormalMapScale = NormalMapScale;
-	ghs->vhAutoMapXOfs = AutoMapXOfs;
-	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
 	ghs->vhLvlVisited = guLvlVisited;
 
@@ -1660,6 +1658,8 @@ void SaveGame()
 	gms->vaboylevel = boylevel;
 	gms->vanumpremium = numpremium;
 	gms->vapremiumlevel = premiumlevel;
+	gms->vaAutoMapXOfs = AutoMapXOfs;
+	gms->vaAutoMapYOfs = AutoMapYOfs;
 	gms->vanumlights = numlights;
 	gms->vanumvision = numvision;
 
