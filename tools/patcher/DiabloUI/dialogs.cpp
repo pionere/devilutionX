@@ -219,14 +219,11 @@ static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char* caption, const char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
+static void UiOkDialog(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
-	char dialogText[256];
-
 	if (gbWndActive && gbWasUiInit && !gbInDialog) {
 		gbInDialog = true;
-		SStrCopy(dialogText, text, sizeof(dialogText));
-		Init(caption, dialogText, error/*, renderBehind*/);
+		Init(caption, text, error/*, renderBehind*/);
 		DialogLoop(/*renderBehind*/);
 		Deinit(/*, renderBehind*/);
 		gbInDialog = false;
@@ -247,7 +244,7 @@ static void UiOkDialog(const char* caption, const char* text, bool error/*, cons
 	}
 }
 
-void UiErrorOkDialog(const char* caption, const char* text, bool error)
+void UiErrorOkDialog(const char* caption, char* text, bool error)
 {
 	UiOkDialog(caption, text, error/*, NULL*/);
 }
