@@ -60,6 +60,31 @@ bool gUiDrawCursor;
 static Uint32 _gdwFadeTc;
 static int _gnFadeValue;
 
+UiProgressBar::UiProgressBar(const SDL_Rect& rect)
+		: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
+{
+	int i;
+	CelImageBuf* progFillCel;
+
+	m_ProgBackCel = CelLoadImage("ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
+	m_ProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
+
+	m_ProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
+	progFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
+	CelDraw(PANEL_X, PANEL_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
+	for (i = 0; i < PRBAR_HEIGHT; i++) {
+		memcpy(&m_ProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[PANEL_X + (PANEL_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
+	}
+	mem_free_dbg(progFillCel);
+}
+
+UiProgressBar::~UiProgressBar()
+{
+	MemFreeDbg(m_ProgBackCel);
+	MemFreeDbg(m_ProgEmptyCel);
+	MemFreeDbg(m_ProgFillBmp);
+}
+
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
 	gUiDrawCursor = true;
@@ -526,6 +551,28 @@ static void Render(const UiList* uiList)
 		DrawArtStr(item->m_text, rect, UIItemFlags(uiList->m_iFlags, rect));
 	}
 }
+
+static void Render(const UiProgressBar* uiPb)
+{
+	int x, y, i, dx;
+
+	x = uiPb->m_rect.x + SCREEN_X;
+	y = uiPb->m_rect.y + SCREEN_Y;
+	// draw the popup window
+	CelDraw(x, y + SMALL_POPUP_HEIGHT, uiPb->m_ProgBackCel, 1);
+	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
+	y += 46 + PRBAR_HEIGHT;
+	// draw the frame of the progress bar
+	CelDraw(x, y - 1, uiPb->m_ProgEmptyCel, 1);
+	// draw the progress bar
+	dx = uiPb->m_Progress;
+	if (dx > 100)
+		dx = 100;
+	dx = PRBAR_WIDTH * dx / 100;
+	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
+		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
+	}
+}
 #if FULL_UI
 static void Render(const UiScrollBar* uiSb)
 {
@@ -637,6 +684,9 @@ static void RenderItem(const UiItemBase* item)
 		break;
 	case UI_LIST:
 		Render(static_cast<const UiList*>(item));
+		break;
+	case UI_PROGRESSBAR:
+		Render(static_cast<const UiProgressBar*>(item));
 		break;
 #if FULL_UI
 	case UI_SCROLLBAR:

@@ -19,6 +19,7 @@ enum UiType : uint8_t {
 	UI_IMAGE,
 	UI_BUTTON,
 	UI_LIST,
+	UI_PROGRESSBAR,
 	UI_SCROLLBAR,
 	UI_EDIT,
 	UI_CUSTOM,
@@ -98,6 +99,21 @@ public:
 
 	//private:
 	const char* m_text;
+};
+
+//=============================================================================
+
+class UiProgressBar : public UiItemBase {
+public:
+	UiProgressBar(const SDL_Rect& rect);
+
+	~UiProgressBar();
+
+	//private:
+	CelImageBuf* m_ProgBackCel;
+	CelImageBuf* m_ProgEmptyCel;
+	BYTE* m_ProgFillBmp;
+	int m_Progress;
 };
 
 //=============================================================================
