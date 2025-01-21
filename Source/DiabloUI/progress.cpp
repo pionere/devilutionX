@@ -44,9 +44,8 @@ static void ProgressLoad(const char* msg)
 static void ProgressFree()
 {
 	FreeBackgroundArt();
-	MemFreeDbg(gbSmlButtonCel);
-
 	UiClearItems();
+	MemFreeDbg(gbSmlButtonCel);
 }
 
 bool UiProgressDialog(const char* msg, int (*fnfunc)())

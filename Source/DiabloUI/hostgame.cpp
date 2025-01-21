@@ -57,9 +57,8 @@ static void HostGameLoad()
 static void HostGameFree()
 {
 	FreeBackgroundArt();
-	MemFreeDbg(gbSmlButtonCel);
-
 	UiClearItems();
+	MemFreeDbg(gbSmlButtonCel);
 }
 
 void UiHostGameDialog()

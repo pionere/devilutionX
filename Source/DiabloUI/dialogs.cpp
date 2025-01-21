@@ -204,10 +204,9 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	//if (renderBehind == NULL) {
 		FreeBackgroundArt();
 	//}
+	UiClearItems();
 	MemFreeDbg(gbDialogBackCel);
 	MemFreeDbg(gbSmlButtonCel)
-
-	UiClearItems();
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
