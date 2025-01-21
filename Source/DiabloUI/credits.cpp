@@ -28,7 +28,7 @@ static void CreditsSelect(unsigned index)
 	_gbCreditsEnd = true;
 }
 
-static bool CreditsRender(Uint32 ticks_begin_)
+static void CreditsRender(Uint32 ticks_begin_)
 {
 	BYTE *pStart, *pEnd;
 
@@ -36,8 +36,10 @@ static bool CreditsRender(Uint32 ticks_begin_)
 	int linesBegin = std::max(offsetY / CREDITS_LINE_H, 0);
 	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINES_SIZE);
 
-	if (linesBegin >= CREDITS_LINES_SIZE)
-		return false;
+	if (linesBegin >= CREDITS_LINES_SIZE) {
+		_gbCreditsEnd = true;
+		return;
+	}
 
 	UiClearScreen();
 	UiRenderItems();
@@ -56,8 +58,6 @@ static bool CreditsRender(Uint32 ticks_begin_)
 
 	gpBufStart = pStart;
 	gpBufEnd = pEnd;
-
-	return true;
 }
 
 void UiCreditsDialog()
@@ -76,8 +76,7 @@ void UiCreditsDialog()
 
 	Dvl_Event event;
 	do {
-		if (!CreditsRender(ticks_begin_))
-			break;
+		CreditsRender(ticks_begin_);
 
 		UiFadeIn();
 		while (UiPeekAndHandleEvents(&event)) {
