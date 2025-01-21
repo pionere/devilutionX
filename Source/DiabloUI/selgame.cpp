@@ -126,7 +126,6 @@ static void selgame_remove_event_handlers()
 static void SelgameInit()
 {
 	LoadScrollBar();
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
 	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 }
 
@@ -140,7 +139,6 @@ static void SelgameFreeDlgItems()
 static void SelgameFree()
 {
 	FreeBackgroundArt();
-	MemFreeDbg(gbHerosCel);
 	UnloadScrollBar();
 	SelgameFreeDlgItems();
 

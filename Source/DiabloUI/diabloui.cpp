@@ -339,6 +339,8 @@ static void LoadUiGFX()
 	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", FOCUS_MEDIUM);
 	assert(gbFocusCelBig == NULL);
 	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", FOCUS_BIG);
+	assert(gbHerosCel == NULL);
+	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
 
 	NewCursor(CURSOR_HAND);
 }
@@ -349,6 +351,7 @@ static void UnloadUiGFX()
 	MemFreeDbg(gbFocusCelSmall);
 	MemFreeDbg(gbFocusCelMed);
 	MemFreeDbg(gbFocusCelBig);
+	MemFreeDbg(gbHerosCel);
 }
 
 void UiInitialize()

@@ -129,7 +129,6 @@ static void SelheroFreeDlgItems()
 static void SelheroFree()
 {
 	FreeBackgroundArt();
-	MemFreeDbg(gbHerosCel);
 	UnloadScrollBar();
 
 	SelheroFreeDlgItems();
@@ -179,8 +178,6 @@ static void SelheroUpdateViewportItems()
 static void SelheroInit()
 {
 	LoadScrollBar();
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
-
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 }
 
