@@ -16,13 +16,17 @@ DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType : uint8_t {
 	UI_TEXT,
+#if FULL_UI
 	UI_TXT_BUTTON,
 	UI_TXT_SCROLL,
+#endif
 	UI_IMAGE,
 	UI_BUTTON,
 	UI_LIST,
+#if FULL_UI
 	UI_SCROLLBAR,
 	UI_EDIT,
+#endif
 	UI_CUSTOM,
 };
 
