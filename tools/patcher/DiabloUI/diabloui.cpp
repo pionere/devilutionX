@@ -496,6 +496,11 @@ static void Render(const UiTxtButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, UIItemFlags(uiButton->m_iFlags, uiButton->m_rect));
 }
+
+static void Render(const UiTextScroll* uiTxtScroll)
+{
+	uiTxtScroll->m_render(uiTxtScroll);
+}
 #endif
 static void Render(const UiButton* button)
 {
@@ -622,6 +627,9 @@ static void RenderItem(const UiItemBase* item)
 #if FULL_UI
 	case UI_TXT_BUTTON:
 		Render(static_cast<const UiTxtButton*>(item));
+		break;
+	case UI_TXT_SCROLL:
+		Render(static_cast<const UiTextScroll*>(item));
 		break;
 #endif
 	case UI_BUTTON:

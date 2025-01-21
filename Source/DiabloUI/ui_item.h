@@ -17,6 +17,7 @@ DEVILUTION_BEGIN_NAMESPACE
 enum UiType : uint8_t {
 	UI_TEXT,
 	UI_TXT_BUTTON,
+	UI_TXT_SCROLL,
 	UI_IMAGE,
 	UI_BUTTON,
 	UI_LIST,
@@ -130,6 +131,26 @@ public:
 	//private:
 	const char* m_text;
 	void (*m_action)();
+};
+
+//=============================================================================
+
+class UiTextScroll : public UiItemBase {
+public:
+	UiTextScroll(const char* name, int lines, Uint32 ticks_begin, void (*renderFn)(const UiItemBase* _this), SDL_Rect& rect)
+	    : UiItemBase(UI_TXT_SCROLL, rect, 0), m_ticks_begin(ticks_begin), m_render(renderFn)
+	{
+		m_text = LoadTxtFile(name, lines);
+	}
+
+	~UiTextScroll() {
+		MemFreeTxtFile(m_text);
+	}
+
+	//private:
+	Uint32 m_ticks_begin;
+	char** m_text;
+	void (*m_render)(const UiItemBase* _this);
 };
 
 //=============================================================================
