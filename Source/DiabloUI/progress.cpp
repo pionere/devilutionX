@@ -24,8 +24,6 @@ static void ProgressLoad(const char* msg)
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
-
 	UiAddBackground();
 
 	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
@@ -45,7 +43,6 @@ static void ProgressFree()
 {
 	FreeBackgroundArt();
 	UiClearItems();
-	MemFreeDbg(gbSmlButtonCel);
 }
 
 bool UiProgressDialog(const char* msg, int (*fnfunc)())

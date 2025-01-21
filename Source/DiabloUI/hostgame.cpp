@@ -34,8 +34,6 @@ static void HostGameLoad()
 
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
-
 	UiAddBackground();
 
 	// y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
@@ -58,7 +56,6 @@ static void HostGameFree()
 {
 	FreeBackgroundArt();
 	UiClearItems();
-	MemFreeDbg(gbSmlButtonCel);
 }
 
 void UiHostGameDialog()

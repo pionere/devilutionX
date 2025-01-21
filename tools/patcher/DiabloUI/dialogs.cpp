@@ -165,8 +165,6 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		UiAddBackground();
 	//}
 
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
-
 	/*if (caption == NULL) {
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
 		WordWrapArtStr(text, 240, AFT_SMALL);
@@ -206,7 +204,6 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	//}
 	UiClearItems();
 	MemFreeDbg(gbDialogBackCel);
-	MemFreeDbg(gbSmlButtonCel)
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)

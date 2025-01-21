@@ -210,12 +210,15 @@ public:
 	    : UiItemBase(UI_BUTTON, rect, 0), m_text(text), m_action(action)
 	{
 		m_pressed = false;
+		m_image = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
 	}
 
-	~UiButton() = default;
+	~UiButton() {
+		mem_free_dbg(m_image);
+	}
 
 	//private:
-
+	CelImageBuf* m_image;
 	const char* m_text;
 	void (*m_action)();
 

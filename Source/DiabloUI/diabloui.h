@@ -15,7 +15,6 @@ extern "C" {
 #endif
 
 extern CelImageBuf* gbHerosCel;
-extern CelImageBuf* gbSmlButtonCel;
 
 extern std::vector<UiListItem*> gUIListItems;
 extern std::vector<UiItemBase*> gUiItems;

@@ -38,7 +38,6 @@ static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
-CelImageBuf* gbSmlButtonCel;
 
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
@@ -533,7 +532,7 @@ static void Render(const UiButton* button)
 	int x = SCREEN_X + button->m_rect.x;
 	int y = SCREEN_Y + button->m_rect.y + 28 - 1;
 
-	CelDraw(x, y, gbSmlButtonCel, frame);
+	CelDraw(x, y, button->m_image, frame);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
