@@ -158,12 +158,11 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 {
 	//if (renderBehind == NULL) {
 		UiClearListItems();
-		//UiClearItems();
-		//FreeBackgroundArt();
-		if (gbBackCel == NULL) {
-			LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-			UiAddBackground();
-		}
+		UiClearItems();
+		FreeBackgroundArt();
+
+		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+		UiAddBackground();
 	//}
 
 	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
