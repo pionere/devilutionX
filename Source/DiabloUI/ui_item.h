@@ -57,7 +57,7 @@ enum UiFlags : uint16_t {
 
 class UiItemBase {
 public:
-	UiItemBase(UiType type, SDL_Rect& rect, int flags)
+	UiItemBase(UiType type, const SDL_Rect& rect, int flags)
 		: m_type(type), m_rect(rect), m_iFlags(flags)
 	{
 	}
@@ -74,7 +74,7 @@ public:
 
 class UiImage : public UiItemBase {
 public:
-	UiImage(CelImageBuf* celData, int frame, SDL_Rect& rect, bool animated)
+	UiImage(CelImageBuf* celData, int frame, const SDL_Rect& rect, bool animated)
 	    : UiItemBase(UI_IMAGE, rect, 0), m_cel_data(celData), m_frame(frame), m_animated(animated)
 	{
 	}
@@ -91,7 +91,7 @@ public:
 
 class UiText : public UiItemBase {
 public:
-	UiText(const char* text, SDL_Rect& rect, int flags)
+	UiText(const char* text, const SDL_Rect& rect, int flags)
 	    : UiItemBase(UI_TEXT, rect, flags), m_text(text)
 	{
 	}
@@ -106,7 +106,7 @@ public:
 
 class UiScrollBar : public UiItemBase {
 public:
-	UiScrollBar(SDL_Rect& rect)
+	UiScrollBar(const SDL_Rect& rect)
 	    : UiItemBase(UI_SCROLLBAR, rect, 0)
 	{
 		m_pressMode = 0;
@@ -121,7 +121,7 @@ public:
 
 class UiTxtButton : public UiItemBase {
 public:
-	UiTxtButton(const char* text, void (*action)(), SDL_Rect& rect, int flags)
+	UiTxtButton(const char* text, void (*action)(), const SDL_Rect& rect, int flags)
 	    : UiItemBase(UI_TXT_BUTTON, rect, flags), m_text(text), m_action(action)
 	{
 	}
@@ -137,7 +137,7 @@ public:
 
 class UiTextScroll : public UiItemBase {
 public:
-	UiTextScroll(const char* name, int lines, Uint32 ticks_begin, void (*renderFn)(const UiItemBase* _this), SDL_Rect& rect)
+	UiTextScroll(const char* name, int lines, Uint32 ticks_begin, void (*renderFn)(const UiItemBase* _this), const SDL_Rect& rect)
 	    : UiItemBase(UI_TXT_SCROLL, rect, 0), m_ticks_begin(ticks_begin), m_render(renderFn)
 	{
 		m_text = LoadTxtFile(name, lines);
@@ -158,7 +158,7 @@ public:
 #define UIEDIT_MAXLENGTH 32
 class UiEdit : public UiItemBase {
 public:
-	UiEdit(const char* hint, char* value, unsigned max_length, SDL_Rect& rect)
+	UiEdit(const char* hint, char* value, unsigned max_length, const SDL_Rect& rect)
 	    : UiItemBase(UI_EDIT, rect, 0)
 	{
 		// assert(max_length <= UIEDIT_MAXLENGTH);
@@ -192,7 +192,7 @@ public:
 
 class UiButton : public UiItemBase {
 public:
-	UiButton(const char* text, void (*action)(), SDL_Rect& rect)
+	UiButton(const char* text, void (*action)(), const SDL_Rect& rect)
 	    : UiItemBase(UI_BUTTON, rect, 0), m_text(text), m_action(action)
 	{
 		m_pressed = false;
@@ -227,7 +227,7 @@ public:
 
 class UiList : public UiItemBase {
 public:
-	UiList(std::vector<UiListItem*>* vItems, unsigned numItems, SDL_Rect& rect, int flags)
+	UiList(std::vector<UiListItem*>* vItems, unsigned numItems, const SDL_Rect& rect, int flags)
 	    : UiItemBase(UI_LIST, rect, flags)
 	{
 		m_vecItems = vItems;
@@ -262,7 +262,7 @@ public:
 
 class UiCustom : public UiItemBase {
 public:
-	UiCustom(void (*renderFn)(), SDL_Rect& rect)
+	UiCustom(void (*renderFn)(), const SDL_Rect& rect)
 	    : UiItemBase(UI_CUSTOM, rect, 0), m_render(renderFn)
 	{
 	}
