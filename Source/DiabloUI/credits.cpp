@@ -28,10 +28,11 @@ static void CreditsSelect(unsigned index)
 	_gbCreditsEnd = true;
 }
 
-static bool CreditsRender(int offsetY)
+static bool CreditsRender(Uint32 ticks_begin_)
 {
 	BYTE *pStart, *pEnd;
 
+	int offsetY = -CREDITS_HEIGHT + (SDL_GetTicks() - ticks_begin_) / 32;
 	int linesBegin = std::max(offsetY / CREDITS_LINE_H, 0);
 	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINES_SIZE);
 
@@ -62,7 +63,6 @@ static bool CreditsRender(int offsetY)
 void UiCreditsDialog()
 {
 	Uint32 ticks_begin_;
-	int prev_offset_y_ = 0;
 
 	CREDITS_LINES = LoadTxtFile(CREDITS_TXT, CREDITS_LINES_SIZE);
 
@@ -76,10 +76,8 @@ void UiCreditsDialog()
 
 	Dvl_Event event;
 	do {
-		int offsetY = -CREDITS_HEIGHT + (SDL_GetTicks() - ticks_begin_) / 32;
-		if (offsetY != prev_offset_y_ && !CreditsRender(offsetY))
+		if (!CreditsRender(ticks_begin_))
 			break;
-		prev_offset_y_ = offsetY;
 
 		UiFadeIn();
 		while (UiPeekAndHandleEvents(&event)) {
