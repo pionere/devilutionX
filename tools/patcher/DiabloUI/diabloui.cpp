@@ -33,7 +33,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FOCUS_FRAME_COUNT   8
 #define EDIT_SELECTOR_WIDTH 43
 
-CelImageBuf* gbBackCel;
+static CelImageBuf* gbBackCel;
 static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;

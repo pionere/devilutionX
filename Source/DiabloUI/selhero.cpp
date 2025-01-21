@@ -128,7 +128,7 @@ static void SelheroFreeDlgItems()
 
 static void SelheroFree()
 {
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	MemFreeDbg(gbHerosCel);
 	UnloadScrollBar();
 
@@ -440,7 +440,7 @@ static void SelheroNameSelect(unsigned index)
 		break;
 	}
 
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	SelheroFreeDlgItems();
 	UiSelOkDialog("Unable to create hero", err);
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");

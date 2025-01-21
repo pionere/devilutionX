@@ -14,7 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern CelImageBuf* gbBackCel;
 extern CelImageBuf* gbHerosCel;
 extern CelImageBuf* gbSmlButtonCel;
 

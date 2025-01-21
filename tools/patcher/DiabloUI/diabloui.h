@@ -14,7 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern CelImageBuf* gbBackCel;
 extern CelImageBuf* gbSmlButtonCel;
 
 extern std::vector<UiListItem*> gUIListItems;
