@@ -10,8 +10,6 @@
 #include "../appfat.h"*/
 #include "all.h"
 
-#include "text_draw.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType : uint8_t {
