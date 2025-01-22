@@ -3,7 +3,6 @@
 #include "controls/controller_motion.h"
 
 #include "DiabloUI/diablo.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/text_draw.h"
 #include "DiabloUI/dialogs.h"
 //#include "controls/plrctrls.h"
@@ -38,6 +37,11 @@ static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
+#if FULL_UI
+static CelImageBuf* scrollBarBackCel;
+static CelImageBuf* scrollBarThumbCel;
+static CelImageBuf* scrollBarArrowCel;
+#endif
 
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
@@ -346,7 +350,14 @@ static void LoadUiGFX()
 	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", FOCUS_MEDIUM);
 	assert(gbFocusCelBig == NULL);
 	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", FOCUS_BIG);
-
+#if FULL_UI
+	assert(scrollBarBackCel == NULL);
+	scrollBarBackCel = CelLoadImage("ui_art\\sb_bg.CEL", SCROLLBAR_BG_WIDTH);
+	assert(scrollBarThumbCel == NULL);
+	scrollBarThumbCel = CelLoadImage("ui_art\\sb_thumb.CEL", SCROLLBAR_THUMB_WIDTH);
+	assert(scrollBarArrowCel == NULL);
+	scrollBarArrowCel = CelLoadImage("ui_art\\sb_arrow.CEL", SCROLLBAR_ARROW_WIDTH);
+#endif
 	NewCursor(CURSOR_HAND);
 }
 
@@ -356,6 +367,11 @@ static void UnloadUiGFX()
 	MemFreeDbg(gbFocusCelSmall);
 	MemFreeDbg(gbFocusCelMed);
 	MemFreeDbg(gbFocusCelBig);
+#if FULL_UI
+	MemFreeDbg(scrollBarBackCel);
+	MemFreeDbg(scrollBarThumbCel);
+	MemFreeDbg(scrollBarArrowCel);
+#endif
 }
 
 void UiInitialize()

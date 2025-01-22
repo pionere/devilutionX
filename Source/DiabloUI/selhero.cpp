@@ -4,7 +4,6 @@
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
@@ -129,7 +128,6 @@ static void SelheroFreeDlgItems()
 static void SelheroFree()
 {
 	FreeBackgroundArt();
-	UnloadScrollBar();
 
 	SelheroFreeDlgItems();
 }
@@ -177,7 +175,6 @@ static void SelheroUpdateViewportItems()
 
 static void SelheroInit()
 {
-	LoadScrollBar();
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 }
 

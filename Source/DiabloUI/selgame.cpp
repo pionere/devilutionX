@@ -2,7 +2,6 @@
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selconn.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
@@ -125,7 +124,6 @@ static void selgame_remove_event_handlers()
 
 static void SelgameInit()
 {
-	LoadScrollBar();
 	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 }
 
@@ -139,7 +137,6 @@ static void SelgameFreeDlgItems()
 static void SelgameFree()
 {
 	FreeBackgroundArt();
-	UnloadScrollBar();
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...

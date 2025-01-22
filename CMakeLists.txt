@@ -523,7 +523,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/hostgame.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
-  Source/DiabloUI/scrollbar.cpp
   Source/DiabloUI/selconn.cpp
   Source/DiabloUI/selgame.cpp
   Source/DiabloUI/selhero.cpp
@@ -691,7 +690,6 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/DiabloUI/merger.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
-    tools/patcher/DiabloUI/scrollbar.cpp
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
