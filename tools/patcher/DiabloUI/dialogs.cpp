@@ -225,9 +225,7 @@ static void UiOkDialog(const char* caption, char* text, bool error/*, const std:
 		return;
 	}
 
-	if (SDL_ShowCursor(SDL_ENABLE) < 0) {
-		DoLog(SDL_GetError());
-	}
+	SDL_ShowCursor(SDL_ENABLE);
 #ifndef RUN_TESTS
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, caption, text, NULL) < 0) {
 		DoLog(SDL_GetError());

@@ -362,9 +362,7 @@ void UiInitialize()
 {
 	LoadUiGFX();
 	//if (pCursCels != NULL) {
-		if (SDL_ShowCursor(SDL_DISABLE) < 0) {
-			sdl_error(ERR_SDL_UI_CURSOR_DISABLE);
-		}
+		SDL_ShowCursor(SDL_DISABLE);
 	//}
 }
 
