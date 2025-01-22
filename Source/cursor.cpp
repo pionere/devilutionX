@@ -163,12 +163,14 @@ void InitCursorGFX()
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
 #endif // HELLFIRE
 #endif // USE_PATCH
+	SDL_ShowCursor(SDL_DISABLE);
 	// ClearCursor(); -- unnecessary, because it is just a zero-initialization
 }
 
 void FreeCursorGFX()
 {
 	MemFreeDbg(pCursCels);
+	// SDL_ShowCursor(SDL_ENABLE); -- unnecessary, because an exit is expected
 	// ClearCursor();
 }
 

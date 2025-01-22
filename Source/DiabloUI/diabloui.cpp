@@ -356,9 +356,6 @@ static void UnloadUiGFX()
 void UiInitialize()
 {
 	LoadUiGFX();
-	//if (pCursCels != NULL) {
-		SDL_ShowCursor(SDL_DISABLE);
-	//}
 }
 
 void UiDestroy()
