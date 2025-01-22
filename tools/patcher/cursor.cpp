@@ -96,13 +96,13 @@ void InitCursorGFX()
 
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
 
-	ClearCursor();
+	// ClearCursor(); -- unnecessary, because it is just a zero-initialization
 }
 
 void FreeCursorGFX()
 {
 	MemFreeDbg(pCursCels);
-	//ClearCursor();
+	// ClearCursor();
 }
 
 void NewCursor(int i)
