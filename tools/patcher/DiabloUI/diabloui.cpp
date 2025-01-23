@@ -456,7 +456,7 @@ static int GetAnimationFrame(int frames, int animFrameLenMs)
 	return (SDL_GetTicks() / animFrameLenMs) % frames;
 }
 
-static void DrawSelector(const SDL_Rect& rect)
+static void UiDrawSelector(const SDL_Rect& rect)
 {
 	int size, frame, x, y;
 	CelImageBuf* selCel;
@@ -500,12 +500,12 @@ void UiRenderAndPoll()
 #endif // FULL_UI
 }
 
-static void Render(const UiText* uiArtText)
+static void UiDraw(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
 
-static void Render(const UiImage* uiImage)
+static void UiDraw(const UiImage* uiImage)
 {
 	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame, 64) : uiImage->m_frame;
 	int x = SCREEN_X + uiImage->m_rect.x;
@@ -520,17 +520,17 @@ static int UIItemFlags(int flags, const SDL_Rect& rect)
 	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
 }
 #if FULL_UI
-static void Render(const UiTxtButton* uiButton)
+static void UiDraw(const UiTxtButton* uiButton)
 {
 	DrawArtStr(uiButton->m_text, uiButton->m_rect, UIItemFlags(uiButton->m_iFlags, uiButton->m_rect));
 }
 
-static void Render(const UiTextScroll* uiTxtScroll)
+static void UiDraw(const UiTextScroll* uiTxtScroll)
 {
-	uiTxtScroll->m_render(uiTxtScroll);
+	uiTxtScroll->m_draw(uiTxtScroll);
 }
 #endif
-static void Render(const UiButton* button)
+static void UiDraw(const UiButton* button)
 {
 	int frame = button->m_pressed ? 2 : 1;
 	int x = SCREEN_X + button->m_rect.x;
@@ -544,18 +544,18 @@ static void Render(const UiButton* button)
 	DrawArtStr(button->m_text, textRect, UIS_HCENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
 }
 
-static void Render(const UiList* uiList)
+static void UiDraw(const UiList* uiList)
 {
 	for (unsigned i = 0; i < uiList->m_vecItems->size(); i++) {
 		SDL_Rect rect = uiList->itemRect(i);
 		if (i + ListOffset == SelectedItem)
-			DrawSelector(rect);
+			UiDrawSelector(rect);
 		UiListItem* item = (*uiList->m_vecItems)[i];
 		DrawArtStr(item->m_text, rect, UIItemFlags(uiList->m_iFlags, rect));
 	}
 }
 
-static void Render(const UiProgressBar* uiPb)
+static void UiDraw(const UiProgressBar* uiPb)
 {
 	int x, y, i, dx;
 
@@ -577,7 +577,7 @@ static void Render(const UiProgressBar* uiPb)
 	}
 }
 #if FULL_UI
-static void Render(const UiScrollBar* uiSb)
+static void UiDraw(const UiScrollBar* uiSb)
 {
 	const int sx = SCREEN_X + uiSb->m_rect.x;
 	int sy = SCREEN_Y + uiSb->m_rect.y - 1;
@@ -620,9 +620,9 @@ static void Render(const UiScrollBar* uiSb)
 	}
 }
 
-static void Render(const UiEdit* uiEdit)
+static void UiDraw(const UiEdit* uiEdit)
 {
-	// DrawSelector(uiEdit->m_rect);
+	// UiDrawSelector(uiEdit->m_rect);
 	SDL_Rect rect = uiEdit->m_rect;
 	// rect.x += EDIT_SELECTOR_WIDTH;
 	rect.y += 1;
@@ -662,45 +662,45 @@ static void Render(const UiEdit* uiEdit)
 	}
 }
 #endif
-static void RenderItem(const UiItemBase* item)
+static void UiDrawItem(const UiItemBase* item)
 {
 	if (item->m_iFlags & UIS_HIDDEN)
 		return;
 
 	switch (item->m_type) {
 	case UI_TEXT:
-		Render(static_cast<const UiText*>(item));
+		UiDraw(static_cast<const UiText*>(item));
 		break;
 	case UI_IMAGE:
-		Render(static_cast<const UiImage*>(item));
+		UiDraw(static_cast<const UiImage*>(item));
 		break;
 #if FULL_UI
 	case UI_TXT_BUTTON:
-		Render(static_cast<const UiTxtButton*>(item));
+		UiDraw(static_cast<const UiTxtButton*>(item));
 		break;
 	case UI_TXT_SCROLL:
-		Render(static_cast<const UiTextScroll*>(item));
+		UiDraw(static_cast<const UiTextScroll*>(item));
 		break;
 #endif
 	case UI_BUTTON:
-		Render(static_cast<const UiButton*>(item));
+		UiDraw(static_cast<const UiButton*>(item));
 		break;
 	case UI_LIST:
-		Render(static_cast<const UiList*>(item));
+		UiDraw(static_cast<const UiList*>(item));
 		break;
 	case UI_PROGRESSBAR:
-		Render(static_cast<const UiProgressBar*>(item));
+		UiDraw(static_cast<const UiProgressBar*>(item));
 		break;
 #if FULL_UI
 	case UI_SCROLLBAR:
-		Render(static_cast<const UiScrollBar*>(item));
+		UiDraw(static_cast<const UiScrollBar*>(item));
 		break;
 	case UI_EDIT:
-		Render(static_cast<const UiEdit*>(item));
+		UiDraw(static_cast<const UiEdit*>(item));
 		break;
 #endif
 	case UI_CUSTOM:
-		static_cast<const UiCustom*>(item)->m_render();
+		static_cast<const UiCustom*>(item)->m_draw();
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -708,17 +708,17 @@ static void RenderItem(const UiItemBase* item)
 	}
 }
 
-static void UiRenderItems()
+static void UiDrawItems()
 {
 	for (const UiItemBase* uiItem : gUiItems) {
-		RenderItem(uiItem);
+		UiDrawItem(uiItem);
 	}
 }
 
 void UiRender()
 {
 	UiClearScreen();
-	UiRenderItems();
+	UiDrawItems();
 	UiFadeIn();
 }
 #if FULL_UI

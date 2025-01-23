@@ -151,8 +151,8 @@ public:
 
 class UiTextScroll : public UiItemBase {
 public:
-	UiTextScroll(const char* name, int lines, Uint32 ticks_begin, void (*renderFn)(const UiItemBase* _this), const SDL_Rect& rect)
-	    : UiItemBase(UI_TXT_SCROLL, rect, 0), m_ticks_begin(ticks_begin), m_render(renderFn)
+	UiTextScroll(const char* name, int lines, Uint32 ticks_begin, void (*drawFn)(const UiItemBase* _this), const SDL_Rect& rect)
+	    : UiItemBase(UI_TXT_SCROLL, rect, 0), m_ticks_begin(ticks_begin), m_draw(drawFn)
 	{
 		m_text = LoadTxtFile(name, lines);
 	}
@@ -164,7 +164,7 @@ public:
 	//private:
 	Uint32 m_ticks_begin;
 	char** m_text;
-	void (*m_render)(const UiItemBase* _this);
+	void (*m_draw)(const UiItemBase* _this);
 };
 
 //=============================================================================
@@ -279,15 +279,15 @@ public:
 
 class UiCustom : public UiItemBase {
 public:
-	UiCustom(void (*renderFn)(), const SDL_Rect& rect)
-	    : UiItemBase(UI_CUSTOM, rect, 0), m_render(renderFn)
+	UiCustom(void (*drawFn)(), const SDL_Rect& rect)
+	    : UiItemBase(UI_CUSTOM, rect, 0), m_draw(drawFn)
 	{
 	}
 
 	~UiCustom() = default;
 
 	//private:
-	void (*m_render)();
+	void (*m_draw)();
 };
 
 DEVILUTION_END_NAMESPACE
