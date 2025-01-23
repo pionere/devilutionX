@@ -480,26 +480,6 @@ static void UiDrawSelector(const SDL_Rect& rect)
 	CelDraw(x, y, selCel, frame);
 }
 
-void UiRenderAndPoll()
-{
-	UiRender();
-
-	Dvl_Event event;
-	while (UiPeekAndHandleEvents(&event)) {
-		;
-	}
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleMenuMove();
-#endif
-#if FULL_UI
-#ifdef __3DS__
-	// Keyboard blocks until input is finished
-	// so defer until after render and fade-in
-	ctr_vkbdFlush();
-#endif
-#endif // FULL_UI
-}
-
 static void UiDraw(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
@@ -725,6 +705,26 @@ void UiRender()
 	UiClearScreen();
 	UiDrawItems();
 	UiFadeIn();
+}
+
+void UiRenderAndPoll()
+{
+	UiRender();
+
+	Dvl_Event event;
+	while (UiPeekAndHandleEvents(&event)) {
+		;
+	}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	HandleMenuMove();
+#endif
+#if FULL_UI
+#ifdef __3DS__
+	// Keyboard blocks until input is finished
+	// so defer until after render and fade-in
+	ctr_vkbdFlush();
+#endif
+#endif // FULL_UI
 }
 #if FULL_UI
 static bool HandleMouseEventArtTextButton(const Dvl_Event& event, const UiTxtButton* uiButton)
