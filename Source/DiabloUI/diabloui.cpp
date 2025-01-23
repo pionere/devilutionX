@@ -440,7 +440,7 @@ static void UiFadeIn()
 	scrollrt_draw_screen(gUiDrawCursor);
 }
 
-int GetAnimationFrame(int frames, int animFrameLenMs)
+static int GetAnimationFrame(int frames, int animFrameLenMs)
 {
 	//assert(frames > 0 && fps > 0);
 	return (SDL_GetTicks() / animFrameLenMs) % frames;
