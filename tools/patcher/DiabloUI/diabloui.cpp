@@ -391,18 +391,9 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
 
 	LoadPalette(palette);
-	PaletteFadeIn(true);
 
-	// help the render loops by setting up an initial fade level
+	// initiate fading
 	_gnFadeValue = -1;
-	SetFadeLevel(0);
-	/* unnecessary, because the render loops are supposed to start with this.
-	UiClearScreen();
-//#ifdef USE_SDL1
-//	if (DiabloUiSurface() == back_surface)
-		BltFast();
-//#endif
-	RenderPresent();*/
 }
 
 void FreeBackgroundArt()
@@ -438,8 +429,10 @@ static void UiFadeIn()
 
 	if (_gnFadeValue < FADE_LEVELS) {
 		currTc = SDL_GetTicks();
-		if (_gnFadeValue < 0)
+		if (_gnFadeValue < 0) {
 			_gdwFadeTc = currTc;
+			PaletteFadeIn(true);
+		}
 		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
 		if ((unsigned)_gnFadeValue > FADE_LEVELS) {
 			_gnFadeValue = FADE_LEVELS;
