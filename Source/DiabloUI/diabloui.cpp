@@ -508,9 +508,14 @@ static int UIItemFlags(int flags, const SDL_Rect& rect)
 	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
 }
 
+static void UiDrawStr(const char* text, const SDL_Rect& rect, int flags)
+{
+	DrawArtStr(text, rect, UIItemFlags(flags, rect));
+}
+
 static void UiDraw(const UiTxtButton* uiButton)
 {
-	DrawArtStr(uiButton->m_text, uiButton->m_rect, UIItemFlags(uiButton->m_iFlags, uiButton->m_rect));
+	UiDrawStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
 }
 
 static void UiDraw(const UiTextScroll* uiTxtScroll)
@@ -539,7 +544,7 @@ static void UiDraw(const UiList* uiList)
 		if (i + ListOffset == SelectedItem)
 			UiDrawSelector(rect);
 		UiListItem* item = (*uiList->m_vecItems)[i];
-		DrawArtStr(item->m_text, rect, UIItemFlags(uiList->m_iFlags, rect));
+		UiDrawStr(item->m_text, rect, uiList->m_iFlags);
 	}
 }
 
