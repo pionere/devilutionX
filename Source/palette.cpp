@@ -35,7 +35,8 @@ void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 	double g;
 
 	if (_gnGammaCorrection == 100) {
-		memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
+		if (dst != src)
+			memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
 		return;
 	}
 
