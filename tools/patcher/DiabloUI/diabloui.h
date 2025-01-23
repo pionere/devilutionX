@@ -40,7 +40,6 @@ inline SDL_Surface* DiabloUiSurface()
 //	return output_surface;
 }
 
-void UiFadeIn();
 bool UiPeekAndHandleEvents(Dvl_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);
 void FreeBackgroundArt();

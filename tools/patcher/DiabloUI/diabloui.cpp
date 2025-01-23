@@ -424,7 +424,7 @@ void UiAddLogo()
 	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
-void UiFadeIn()
+static void UiFadeIn()
 {
 	Uint32 currTc;
 
