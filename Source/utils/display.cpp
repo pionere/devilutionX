@@ -51,7 +51,7 @@ int gbFrameRateControl = FRC_VSYNC;    // use vsync
  * VSync is inactive (disabled or not available).
  * TODO: ensure gnRefreshDelay < gnTickDelay
  */
-int gnRefreshDelay;
+unsigned gnRefreshDelay;
 SDL_Window* ghMainWnd;
 SDL_Renderer* renderer;
 SDL_Texture* renderer_texture;

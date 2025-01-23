@@ -19,7 +19,7 @@ extern bool gbWndActive;
 extern bool gbFullscreen;
 #endif
 extern int gbFrameRateControl;
-extern int gnRefreshDelay;
+extern unsigned gnRefreshDelay;
 extern SDL_Window* ghMainWnd;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* renderer_texture;
