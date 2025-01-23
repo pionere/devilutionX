@@ -55,7 +55,6 @@ void UiInitScrollBar(UiScrollBar* ui_sb, unsigned viewport_size, void (*fnDelete
 void UiInitEdit(UiEdit* ui_edit);
 void UiRender();
 void UiRenderAndPoll();
-void UiRenderItems();
 void UiClearItems();
 void UiClearListItems();
 int GetAnimationFrame(int frames, int animFrameLenMs = 64);

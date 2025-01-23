@@ -440,13 +440,6 @@ static void UiFadeIn()
 	scrollrt_draw_screen(gUiDrawCursor);
 }
 
-void UiRender()
-{
-	UiClearScreen();
-	UiRenderItems();
-	UiFadeIn();
-}
-
 int GetAnimationFrame(int frames, int animFrameLenMs)
 {
 	//assert(frames > 0 && fps > 0);
@@ -697,6 +690,20 @@ static void RenderItem(const UiItemBase* item)
 		ASSUME_UNREACHABLE
 		break;
 	}
+}
+
+static void UiRenderItems()
+{
+	for (const UiItemBase* uiItem : gUiItems) {
+		RenderItem(uiItem);
+	}
+}
+
+void UiRender()
+{
+	UiClearScreen();
+	UiRenderItems();
+	UiFadeIn();
 }
 
 static bool HandleMouseEventArtTextButton(const Dvl_Event& event, const UiTxtButton* uiButton)
@@ -1074,13 +1081,6 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 #endif
 	}
 	return true;
-}
-
-void UiRenderItems()
-{
-	for (const UiItemBase* uiItem : gUiItems) {
-		RenderItem(uiItem);
-	}
 }
 
 void UiClearItems()
