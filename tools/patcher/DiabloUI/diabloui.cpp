@@ -471,7 +471,7 @@ static void DrawSelector(const SDL_Rect& rect)
 		selCel = gbFocusCelMed;
 	}
 	size = selCel->ciWidth;
-	frame = GetAnimationFrame(FOCUS_FRAME_COUNT) + 1;
+	frame = GetAnimationFrame(FOCUS_FRAME_COUNT, 64) + 1;
 	x = SCREEN_X + rect.x;
 	y = SCREEN_Y + rect.y + (unsigned)(rect.h + size) / 2 - 1; // TODO FOCUS_MED appears higher than the box
 
@@ -507,7 +507,7 @@ static void Render(const UiText* uiArtText)
 
 static void Render(const UiImage* uiImage)
 {
-	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame) : uiImage->m_frame;
+	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame, 64) : uiImage->m_frame;
 	int x = SCREEN_X + uiImage->m_rect.x;
 	int y = SCREEN_Y + uiImage->m_rect.y + uiImage->m_rect.h - 1;
 

@@ -57,7 +57,7 @@ void UiRender();
 void UiRenderAndPoll();
 void UiClearItems();
 void UiClearListItems();
-int GetAnimationFrame(int frames, int animFrameLenMs = 64);
+int GetAnimationFrame(int frames, int animFrameLenMs);
 
 #ifdef __cplusplus
 }
