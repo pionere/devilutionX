@@ -424,6 +424,14 @@ void UiAddLogo()
 	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
+static void UiClearScreen()
+{
+	if (SCREEN_WIDTH > PANEL_WIDTH) { // Background size
+		// SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
+		ClearScreenBuffer();
+	}
+}
+
 static void UiFadeIn()
 {
 	Uint32 currTc;
@@ -477,14 +485,6 @@ static void DrawSelector(const SDL_Rect& rect)
 	CelDraw(x, y, selCel, frame);
 	x += rect.w - size;
 	CelDraw(x, y, selCel, frame);
-}
-
-void UiClearScreen()
-{
-	if (SCREEN_WIDTH > PANEL_WIDTH) { // Background size
-		// SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
-		ClearScreenBuffer();
-	}
 }
 
 void UiRenderAndPoll()
