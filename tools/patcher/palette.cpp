@@ -81,6 +81,7 @@ void SetFadeLevel(unsigned fadeval)
 		system_palette[i].g = (fadeval * logical_palette[i].g) / FADE_LEVELS;
 		system_palette[i].b = (fadeval * logical_palette[i].b) / FADE_LEVELS;
 	}
+	ApplyGamma(system_palette, system_palette);
 	UpdatePalette();
 }
 
@@ -88,7 +89,7 @@ void PaletteFadeIn(bool instant)
 {
 	int i;
 
-	ApplyGamma(logical_palette, orig_palette);
+	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	if (!instant) {
 		Uint32 tc = SDL_GetTicks();
 		for (i = 0; i < FADE_LEVELS; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
@@ -98,7 +99,6 @@ void PaletteFadeIn(bool instant)
 		}
 	}
 	SetFadeLevel(FADE_LEVELS);
-	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	_gbFadedIn = true;
 }
 
