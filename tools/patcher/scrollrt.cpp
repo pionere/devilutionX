@@ -149,7 +149,7 @@ static void scrollrt_draw_cursor()
  * @brief Redraw screen
  * @param draw_cursor
  */
-void scrollrt_draw_screen(bool draw_cursor)
+void scrollrt_render_screen(bool draw_cursor)
 {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (sgbControllerActive)

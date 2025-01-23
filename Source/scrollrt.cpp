@@ -1659,7 +1659,7 @@ static void DrawFPS()
  * @brief Redraw screen
  * @param draw_cursor
  */
-void scrollrt_draw_screen(bool draw_cursor)
+void scrollrt_render_screen(bool draw_cursor)
 {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (sgbControllerActive)
@@ -1686,7 +1686,7 @@ void scrollrt_draw_screen(bool draw_cursor)
 /**
  * @brief Render the game
  */
-void scrollrt_draw_game()
+void scrollrt_render_game()
 {
 	if (!gbRunGame) {
 		return;

@@ -437,7 +437,7 @@ static void UiFadeIn()
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
-	scrollrt_draw_screen(gUiDrawCursor);
+	scrollrt_render_screen(gUiDrawCursor);
 }
 
 static int GetAnimationFrame(int frames, int animFrameLenMs)

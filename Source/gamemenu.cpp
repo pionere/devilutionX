@@ -120,7 +120,7 @@ static void gamemenu_exit_game(bool bActivate)
 	NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_LOADING);
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	scrollrt_render_game();
 	gbDeathflag = MDM_ALIVE;
 	// gbZoomInFlag = false;
 	FreeLevelMem();
@@ -129,7 +129,7 @@ static void gamemenu_exit_game(bool bActivate)
 	PaletteFadeOut();
 	InitLevelCursor();
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	scrollrt_render_game();
 	LoadPWaterPalette();
 	PaletteFadeIn(false);
 	interface_msg_pump();
@@ -144,7 +144,7 @@ static void gamemenu_save_game(bool bActivate)
 	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
 	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	scrollrt_render_game();
 	SaveGame();
 	ClrDiabloMsg();
 	// InitLevelCursor();

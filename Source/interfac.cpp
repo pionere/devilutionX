@@ -168,7 +168,7 @@ static void RenderCutscene()
 	unlock_buf(1);
 
 	if (!skipRender)
-		scrollrt_draw_screen(false);
+		scrollrt_render_screen(false);
 }
 
 void interface_msg_pump()
@@ -368,7 +368,7 @@ void ShowCutscene(unsigned uMsg)
 	assert(saveProc == GameWndProc);
 	interface_msg_pump();
 	ClearScreenBuffer();
-	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
+	// scrollrt_render_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
 	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
 	DrawCutsceneBack();

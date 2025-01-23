@@ -1239,7 +1239,7 @@ void GameWndProc(const Dvl_Event* e)
 			LoadPWaterPalette();
 			PaletteFadeIn(true);
 			gbRedrawFlags = REDRAW_ALL;
-			scrollrt_draw_game();
+			scrollrt_render_game();
 			//gbRedrawFlags = REDRAW_ALL;
 		}
 		break; //  return;
@@ -1354,7 +1354,7 @@ static void game_loop()
 				NewCursor(CURSOR_HOURGLASS);
 				// gbRedrawFlags = REDRAW_ALL;
 			}
-			//scrollrt_draw_screen(true);
+			//scrollrt_render_screen(true);
 			break;
 		}
 		if (gnTimeoutCurs != CURSOR_NONE) {
@@ -1462,12 +1462,12 @@ static void run_game()
 			break;
 		if (!nthread_has_50ms_passed()) {
 			ProcessInput();
-			scrollrt_draw_game();
+			scrollrt_render_game();
 			continue;
 		}
 		diablo_color_cyc_logic();
 		game_loop();
-		scrollrt_draw_game();
+		scrollrt_render_game();
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 		if (run_game_iteration++ == 0)
 			HeapProfilerDump("first_game_iteration");
@@ -1482,7 +1482,7 @@ static void run_game()
 	PaletteFadeOut();
 	//NewCursor(CURSOR_NONE);
 	//ClearScreenBuffer();
-	//scrollrt_draw_screen(true);
+	//scrollrt_render_screen(true);
 	saveProc = SetWindowProc(NULL); // saveProc);
 	assert(saveProc == GameWndProc);
 	FreeGameFX();

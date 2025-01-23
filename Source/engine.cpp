@@ -328,7 +328,7 @@ void PlayInGameMovie(const char* pszMovie)
 {
 	PaletteFadeOut();
 	play_movie(pszMovie, 0);
-	scrollrt_draw_game();
+	scrollrt_render_game();
 	PaletteFadeIn(false);
 	gbRedrawFlags = REDRAW_ALL;
 }
