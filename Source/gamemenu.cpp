@@ -303,16 +303,19 @@ static void gamemenu_gamma(bool bActivate)
 
 static void gamemenu_speed(bool bActivate)
 {
+	int speed;
+
 	if (bActivate) {
 		if (gnTicksRate == SPEED_NORMAL)
-			gnTicksRate = SPEED_FASTEST;
+			speed = SPEED_FASTEST;
 		else
-			gnTicksRate = SPEED_NORMAL;
+			speed = SPEED_NORMAL;
 	} else {
-		gnTicksRate = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
+		speed = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
 	}
-	setIniInt("Diablo", "Game Speed", gnTicksRate);
-	gnTickDelay = 1000 / gnTicksRate;
+	gnTicksRate = speed;
+	gnTickDelay = 1000 / speed;
+	setIniInt("Diablo", "Game Speed", speed);
 	gamemenu_get_speed();
 	PlaySFX(IS_TITLEMOV);
 }

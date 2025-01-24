@@ -94,8 +94,8 @@ int GetGamma()
 
 void SetGamma(int gamma)
 {
-	setIniInt("Graphics", "Gamma Correction", gamma);
 	_gnGammaCorrection = gamma;
+	setIniInt("Graphics", "Gamma Correction", gamma);
 	ApplyGamma(system_palette, logical_palette);
 	UpdatePalette();
 }
