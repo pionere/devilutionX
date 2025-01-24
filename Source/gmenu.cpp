@@ -208,7 +208,7 @@ static void gmenu_draw_menu_item(int i, int y)
 		x += SLIDER_BORDER;
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
-		pos = step * SLIDER_STEPS / nSteps;
+		pos = step * SLIDER_INNER_WIDTH / nSteps;
 		gmenu_draw_rectangle(x, y - 10 - SLIDER_BORDER, pos + SLIDER_BUTTON_WIDTH / 2, SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER);
 		CelDraw(x + pos, y - 10 - SLIDER_BORDER, gpOptionCel, 1);
 	}
@@ -291,14 +291,14 @@ static void gmenu_mouse_slider()
 			return;
 		offset = 0;
 	}
-	if (offset > SLIDER_STEPS) {
-		if (offset > SLIDER_STEPS + SLIDER_BUTTON_WIDTH / 2)
+	if (offset > SLIDER_INNER_WIDTH) {
+		if (offset > SLIDER_INNER_WIDTH + SLIDER_BUTTON_WIDTH / 2)
 			return;
-		offset = SLIDER_STEPS;
+		offset = SLIDER_INNER_WIDTH;
 	}
 	_gbMouseNavigation = true;
 	pItem = &gpCurrentMenu[guCurrItemIdx];
-	gmenu_slider_set(pItem, 0, SLIDER_STEPS, offset);
+	gmenu_slider_set(pItem, 0, SLIDER_INNER_WIDTH, offset);
 	pItem->fnMenu(false);
 }
 
