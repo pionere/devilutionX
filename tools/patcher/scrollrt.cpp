@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define BACK_CURSOR 0
+#if BACK_CURSOR
 /**
  * Cursor-size
  */
@@ -25,14 +27,16 @@ static int sgCursY;
 /**
  * Buffer to store the cursor image.
  */
-BYTE sgSaveBack[MAX_CURSOR_AREA];
-
+static BYTE sgSaveBack[MAX_CURSOR_AREA];
+#endif
 /**
  * @brief Clear cursor state
  */
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
+#if BACK_CURSOR
 	sgCursWdt = 0;
+#endif
 }
 
 /**
@@ -40,6 +44,7 @@ void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
  */
 static void scrollrt_remove_back_buffer_cursor()
 {
+#if BACK_CURSOR
 	int i;
 	BYTE *src, *dst;
 
@@ -57,6 +62,7 @@ static void scrollrt_remove_back_buffer_cursor()
 	}
 
 	sgCursWdt = 0;
+#endif
 }
 
 /**
@@ -64,12 +70,13 @@ static void scrollrt_remove_back_buffer_cursor()
  */
 static void scrollrt_draw_cursor()
 {
-	int i, mx, my, frame;
-	int cx, cy, cw, ch;
-	BYTE *src, *dst, *cCels;
-
+	int mx, my, frame;
+	BYTE* cCels;
+#if BACK_CURSOR
+	int i, cx, cy, cw, ch;
+	BYTE *src, *dst;
 	assert(sgCursWdt == 0);
-
+#endif
 	if (pcursicon <= CURSOR_NONE) {
 		return;
 	}
@@ -96,7 +103,7 @@ static void scrollrt_draw_cursor()
 	if (my >= SCREEN_HEIGHT) {
 		return;
 	}
-
+#if BACK_CURSOR
 	cx = mx;
 	cw = cx + cursW;
 	// cut the cursor on the right side
@@ -142,7 +149,7 @@ static void scrollrt_draw_cursor()
 	for (i = ch; i != 0; i--, dst += cw, src += BUFFER_WIDTH) {
 		memcpy(dst, src, cw);
 	}
-
+#endif
 	mx += SCREEN_X;
 	my += cursH + SCREEN_Y - 1;
 
