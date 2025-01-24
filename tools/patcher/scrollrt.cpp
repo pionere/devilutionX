@@ -65,6 +65,7 @@ static void scrollrt_remove_back_buffer_cursor()
 static void scrollrt_draw_cursor()
 {
 	int i, mx, my, frame;
+	int cx, cy, cw, ch;
 	BYTE *src, *dst, *cCels;
 
 	assert(sgCursWdt == 0);
@@ -96,44 +97,50 @@ static void scrollrt_draw_cursor()
 		return;
 	}
 
-	sgCursX = mx;
-	sgCursWdt = sgCursX + cursW;
+	cx = mx;
+	cw = cx + cursW;
 	// cut the cursor on the right side
-	//if (sgCursWdt > SCREEN_WIDTH) {
-	//	sgCursWdt = SCREEN_WIDTH;
+	//if (cw > SCREEN_WIDTH) {
+	//	cw = SCREEN_WIDTH;
 	//}
 	// cut the cursor on the left side
-	//if (sgCursX <= 0) {
-	//	sgCursX = 0;
+	//if (cx <= 0) {
+	//	cx = 0;
 	//} else {
 		// draw to 4-byte aligned blocks
-		sgCursX &= ~3;
-		sgCursWdt -= sgCursX;
+		cx &= ~3;
+		cw -= cx;
 	//}
 	// draw with 4-byte alignment
-	sgCursWdt += 3;
-	sgCursWdt &= ~3;
+	cw += 3;
+	cw &= ~3;
 
-	sgCursY = my;
-	sgCursHgt = sgCursY + cursH;
+	cy = my;
+	ch = cy + cursH;
 	// cut the cursor on the bottom
-	//if (sgCursHgt > SCREEN_HEIGHT) {
-	//	sgCursHgt = SCREEN_HEIGHT;
+	//if (ch > SCREEN_HEIGHT) {
+	//	ch = SCREEN_HEIGHT;
 	//}
 	// cut the cursor on the top
-	//if (sgCursY <= 0) {
-	//	sgCursY = 0;
+	//if (cy <= 0) {
+	//	cy = 0;
 	//} else {
-		sgCursHgt -= sgCursY;
+		ch -= cy;
 	//}
 
-	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
+	sgCursX = cx;
+	sgCursY = cy;
+
+	sgCursWdt = cw;
+	sgCursHgt = ch;
+
+	assert((unsigned)(cw * ch) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
-	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
+	src = &gpBuffer[SCREENXY(cx, cy)];
 
-	for (i = sgCursHgt; i != 0; i--, dst += sgCursWdt, src += BUFFER_WIDTH) {
-		memcpy(dst, src, sgCursWdt);
+	for (i = ch; i != 0; i--, dst += cw, src += BUFFER_WIDTH) {
+		memcpy(dst, src, cw);
 	}
 
 	mx += SCREEN_X;
