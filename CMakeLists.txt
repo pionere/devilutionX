@@ -1108,6 +1108,9 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
       )
     endforeach(SOURCE_FILE)
     target_compile_options(${BIN_TARGET} PRIVATE -Wno-builtin-macro-redefined)
+    if(DEVIL_PATCHER)
+      target_compile_options(${DEVIL_PATCHER} PRIVATE -Wno-builtin-macro-redefined)
+    endif()
   endif()
 
   # Note: For Valgrind support.
