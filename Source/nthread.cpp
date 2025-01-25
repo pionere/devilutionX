@@ -569,16 +569,16 @@ fail:
 bool nthread_has_50ms_passed()
 {
 	Uint32 now;
-	int ticksElapsed;
+	int ticksRemaining;
 
 	now = SDL_GetTicks();
-	ticksElapsed = now - guNextTick;
+	ticksRemaining = guNextTick - now;
 	// catch up if the host is too slow (only in local games)
-	if (IsLocalGame && ticksElapsed > (int)(10 * gnTickDelay)) {
+	if (IsLocalGame && (ticksRemaining + 8 * gnTickDelay) < 0) {
 		guNextTick = now;
-		ticksElapsed = 0;
+		ticksRemaining = 0;
 	}
-	return ticksElapsed >= 0;
+	return ticksRemaining <= 0;
 }
 
 DEVILUTION_END_NAMESPACE
