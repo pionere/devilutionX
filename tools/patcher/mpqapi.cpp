@@ -217,7 +217,11 @@ struct Archive {
 		DoLog("Opening %s", name);
 #endif
 		bool fileExists = FileExists(name);
+#if __cplusplus >= 201703L
+		const char* mode = "wbx";
+#else
 		const char* mode = "wb";
+#endif
 		std::uintmax_t size;
 #ifndef CAN_SEEKP_BEYOND_EOF
 		this->exists = fileExists;
