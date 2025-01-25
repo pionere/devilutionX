@@ -316,9 +316,9 @@ static void pfile_rename_temp_to_perm()
 	char szTemp[DATA_ARCHIVE_MAX_PATH];
 	char szPerm[DATA_ARCHIVE_MAX_PATH];
 
-	assert(!IsMultiGame);
-	if (!pfile_open_archive())
-		app_fatal("Unable to open file archive");
+	// assert(!IsMultiGame);
+	// if (!pfile_open_archive())
+	//	app_fatal("Unable to open file archive");
 
 	dwIndex = 0;
 	while (GetTempLevelNames(dwIndex, szTemp)) {
@@ -332,7 +332,6 @@ static void pfile_rename_temp_to_perm()
 		}
 	}
 	assert(!GetPermLevelNames(dwIndex, szPerm));
-	pfile_flush(true);
 }
 
 void pfile_write_save_file(bool full, DWORD dwLen)
@@ -354,13 +353,15 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	if (!full)
 		GetTempLevelNames(currLvl._dLevelIdx, pszName);
 	mpqapi_write_entry(pszName, pbData, qwLen);
-	pfile_flush(true);
 
 	if (full) {
-		gbValidSaveFile = true;
+		// gbValidSaveFile = true;
 		pfile_rename_temp_to_perm();
-		pfile_write_hero(true);
+		// pfile_write_hero(true);
+		// assert(mypnum == 0);
+		pfile_encode_hero(0);
 	}
+	pfile_flush(true);
 }
 
 void pfile_delete_save_file(bool full)
