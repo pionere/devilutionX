@@ -1347,8 +1347,6 @@ static void game_loop()
 	i = IsMultiGame ? 3 : 1;
 
 	do {
-		if (!ProcessInput())
-			break;
 		if (!multi_handle_turn()) {
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
@@ -1363,8 +1361,7 @@ static void game_loop()
 			gnTimeoutCurs = CURSOR_NONE;
 			// gbRedrawFlags = REDRAW_ALL;
 		}
-		//if (ProcessInput()) {
-			game_logic();
+		game_logic();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			plrctrls_after_game_logic();
 #endif
@@ -1374,7 +1371,8 @@ static void game_loop()
 
 static void diablo_color_cyc_logic()
 {
-	if (!gbColorCyclingEnabled || gbGamePaused)
+	// assert(!gbGamePaused);
+	if (!gbColorCyclingEnabled)
 		return;
 
 	if (currLvl._dType == DTYPE_HELL)
@@ -1461,8 +1459,7 @@ static void run_game()
 		}
 		if (!gbRunGame)
 			break;
-		if (!nthread_has_50ms_passed()) {
-			ProcessInput();
+		if (!ProcessInput() || !nthread_has_50ms_passed()) {
 			scrollrt_render_game();
 			continue;
 		}
