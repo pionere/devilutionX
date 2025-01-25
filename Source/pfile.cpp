@@ -174,9 +174,6 @@ static bool ValidPlayerName(const char* name)
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	if (IsMultiGame)
-		return false;
-
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
@@ -304,7 +301,7 @@ void pfile_read_hero_from_save()
 
 	UnPackPlayer(&pkplr, 0); // mypnum
 	mypnum = 0;
-	gbValidSaveFile = pfile_archive_contains_game(archive);
+	gbValidSaveFile = !IsMultiGame && pfile_archive_contains_game(archive);
 	SFileCloseArchive(archive);
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
@@ -398,8 +395,8 @@ nextSource:
 	}
 
 	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
-		source++;
-		if (source == 1) {
+		if (source == 0) {
+			source++;
 			goto nextSource;
 		}
 		app_fatal("Unable to open save file");
