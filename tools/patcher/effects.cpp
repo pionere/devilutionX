@@ -146,7 +146,7 @@ void CheckStreamSFX()
 	}
 }
 
-static void PlaySFX_priv(int psfx, bool loc, int x, int y)
+static void PlaySFX_priv(int psfx)
 {
 	int lPan, lVolume;
 	SFXStruct* pSFX;
@@ -178,7 +178,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 
 void PlaySFX(int psfx)
 {
-	PlaySFX_priv(psfx, false, 0, 0);
+	PlaySFX_priv(psfx);
 }
 
 static void priv_sound_free(BYTE bLoadMask)
