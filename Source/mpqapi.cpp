@@ -199,12 +199,11 @@ struct Archive {
 	FStreamWrapper stream;
 	std::string name;
 	uint32_t archiveSize;
-	bool modified;
-	bool exists;
 	uint32_t blockCount;
 	uint32_t hashCount;
-
+	bool modified;
 #ifndef CAN_SEEKP_BEYOND_EOF
+	bool exists;
 	long stream_begin;
 #endif
 
@@ -217,10 +216,13 @@ struct Archive {
 #if DEBUG_MODE
 		DoLog("Opening %s", name);
 #endif
-		exists = FileExists(name);
+		bool fileExists = FileExists(name);
 		const char* mode = "wb";
 		std::uintmax_t size;
-		if (exists) {
+#ifndef CAN_SEEKP_BEYOND_EOF
+		this->exists = fileExists;
+#endif
+		if (fileExists) {
 			mode = "r+b";
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
@@ -247,7 +249,7 @@ struct Archive {
 			return false;
 		}
 		this->archiveSize = static_cast<uint32_t>(size);
-		this->modified = !exists;
+		this->modified = !fileExists;
 		this->name = name;
 		return true;
 	}
