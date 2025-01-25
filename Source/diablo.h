@@ -34,6 +34,7 @@ extern bool gbShowTooltip;
 
 void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);
+void diablo_pause_game(bool pause);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1

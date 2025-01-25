@@ -128,11 +128,9 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 {
-	// pause game(+sound) in case of single-player mode if not in the main menu
-	if (!IsMultiGame && gbRunGame) {
-		gbGamePaused = pItem != NULL;
-		sound_pause(gbGamePaused);
-		//diablo_pause_game();
+	// pause game if not in the main menu
+	if (gbRunGame) {
+		diablo_pause_game(pItem != NULL);
 	}
 	_gbMouseNavigation = false;
 	gpCurrentMenu = pItem;
@@ -285,7 +283,7 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MousePos.x - (SCREEN_WIDTH / 2u - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (PANEL_MIDX(SLIDER_ROW_WIDTH) + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;

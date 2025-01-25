@@ -589,11 +589,11 @@ static void AltActionBtnDown()
 	}
 }
 
-static void diablo_pause_game()
+void diablo_pause_game(bool pause)
 {
 	if (!IsMultiGame) {
-		gbGamePaused = !gbGamePaused;
-		sound_pause(gbGamePaused);
+		gbGamePaused = pause;
+		sound_pause(pause);
 		//gbRedrawFlags = REDRAW_ALL;
 	}
 }
@@ -1050,7 +1050,7 @@ static void PressKey(int vkey)
 	}
 
 	if (transKey == ACT_PAUSE) {
-		diablo_pause_game();
+		diablo_pause_game(!gbGamePaused);
 		return;
 	}
 	if (gbGamePaused) {
