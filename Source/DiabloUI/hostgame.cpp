@@ -16,9 +16,7 @@ static void HostGameCancel()
 
 static void HostGameEsc()
 {
-	if (gbTalkflag) {
-		gbTalkflag = false;
-	} else {
+	if (!gbTalkflag) {
 		_gbHostPb->m_Progress = PROGRESS_CANCEL;
 	}
 }
