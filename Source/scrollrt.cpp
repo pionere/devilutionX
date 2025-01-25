@@ -1551,7 +1551,7 @@ static void DrawView()
 	}
 	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
-	} else if (gbGamePaused) {
+	} else if (gnGamePaused != 0) {
 		gmenu_draw_pause();
 	}
 

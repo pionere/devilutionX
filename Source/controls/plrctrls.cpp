@@ -20,7 +20,7 @@ bool InGameMenu()
 	    || gbQtextflag
 	    //|| gbDoomflag
 	    || gmenu_is_active()
-	    || gbGamePaused
+	    || gnGamePaused != 0
 	    || gbDeathflag;
 }
 
@@ -1063,7 +1063,7 @@ void PerformSpellAction()
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	assert(gbDeathflag == MDM_ALIVE);
-	assert(!gbGamePaused);
+	assert(gnGamePaused == 0);
 	assert(!gbDropGoldFlag);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);

@@ -33,7 +33,8 @@ bool gbCineflag;
 BYTE gbGameLogicProgress = GLP_NONE;
 /** Specifies which part of the screen should be redrawn. */
 int gbRedrawFlags;
-bool gbGamePaused;
+/** tick-count when the pause was started, zero if the game is not paused */
+Uint32 gnGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
 BYTE gbDeathflag = MDM_ALIVE;
 /** The state of the buttons for which might be repeated while held down. */
@@ -468,7 +469,7 @@ static void ActionBtnDown()
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(gbDeathflag == MDM_ALIVE);
-	assert(!gbGamePaused);
+	assert(gnGamePaused == 0);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
@@ -543,7 +544,7 @@ static void AltActionBtnDown()
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	assert(gbDeathflag == MDM_ALIVE);
-	assert(!gbGamePaused);
+	assert(gnGamePaused == 0);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
@@ -591,8 +592,17 @@ static void AltActionBtnDown()
 
 void diablo_pause_game(bool pause)
 {
-	if (!IsMultiGame) {
-		gbGamePaused = pause;
+	if (!IsMultiGame && pause != (gnGamePaused != 0)) {
+		Uint32 now = SDL_GetTicks();
+		if (pause) {
+			if (now == 0)
+				now = 1;
+		} else {
+			extern Uint32 guNextTick;
+			guNextTick += now - gnGamePaused;
+			now = 0;
+		}
+		gnGamePaused = now;
 		sound_pause(pause);
 		//gbRedrawFlags = REDRAW_ALL;
 	}
@@ -1050,10 +1060,10 @@ static void PressKey(int vkey)
 	}
 
 	if (transKey == ACT_PAUSE) {
-		diablo_pause_game(!gbGamePaused);
+		diablo_pause_game(gnGamePaused == 0);
 		return;
 	}
-	if (gbGamePaused) {
+	if (gnGamePaused != 0) {
 		return;
 	}
 
@@ -1170,7 +1180,7 @@ void GameWndProc(const Dvl_Event* e)
 			gamemenu_off();
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
-		gbGamePaused = false;
+		gnGamePaused = 0; // diablo_pause_game(false);
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
@@ -1256,11 +1266,11 @@ static bool ProcessInput()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		CheckMenuMove();
 #endif
-		// assert(!(IsMultiGame && gbGamePaused));
+		// assert(!(IsMultiGame && gnGamePaused != 0));
 		return IsMultiGame;
 	}
 
-	if (gbGamePaused) {
+	if (gnGamePaused != 0) {
 		return false;
 	}
 
@@ -1371,7 +1381,7 @@ static void game_loop()
 
 static void diablo_color_cyc_logic()
 {
-	// assert(!gbGamePaused);
+	// assert(gnGamePaused == 0);
 	if (!gbColorCyclingEnabled)
 		return;
 

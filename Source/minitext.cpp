@@ -112,7 +112,7 @@ void DrawQText()
 	gpBufEnd = pEnd;
 
 	for (currTime = SDL_GetTicks(); qtextTime < currTime; qtextTime += scrolltexty) {
-		if (gbGamePaused)
+		if (gnGamePaused != 0)
 			continue;
 		qtexty--;
 		if (qtexty <= LTPANEL_Y + 25) {
