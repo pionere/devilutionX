@@ -18,20 +18,20 @@ extern "C" {
 
 #ifndef NOSOUND
 bool IsSFXPlaying(int nSFX);
-void CheckStreamSFX();
 void StopStreamSFX();
 void StopSFX();
+void CheckStreamSFX();
 void PlaySFX(int psfx);
-void FreeUiSFX();
 void InitUiSFX();
+void FreeUiSFX();
 #else
 inline bool IsSFXPlaying(int nSFX) { return false; }
-inline void CheckStreamSFX() { }
 inline void StopStreamSFX() { }
 inline void StopSFX() { }
+inline void CheckStreamSFX() { }
 inline void PlaySFX(int psfx) { }
-inline void FreeUiSFX() { }
 inline void InitUiSFX() { }
+inline void FreeUiSFX() { }
 #endif
 
 #ifdef __cplusplus
