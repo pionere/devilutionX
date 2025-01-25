@@ -234,11 +234,11 @@ struct Archive {
 				DoLog("GetFileSize(\"%s\") failed. (%d)", name, errno);
 				return false;
 			}
+#endif
 			if (size > UINT32_MAX) {
 				DoLog("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
 				return false;
 			}
-#endif
 		} else {
 			size = 0;
 		}
