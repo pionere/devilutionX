@@ -1143,13 +1143,13 @@ const int sgSFXSets[NUM_SFXSets][NUM_CLASSES] {
 	// clang-format on
 };
 
-bool IsSFXPlaying(int nSFX)
+bool IsSfxPlaying(int nsfx)
 {
-	SFXStruct* sfx = &sgSFX[nSFX];
+	SFXStruct* pSFX = &sgSFX[nsfx];
 
-	if (sfx->bFlags & sfx_STREAM)
-		return sfx == sgpStreamSFX;
-	return sfx->pSnd.IsPlaying();
+	if (pSFX->bFlags & sfx_STREAM)
+		return pSFX == sgpStreamSFX;
+	return pSFX->pSnd.IsPlaying();
 }
 
 void StopStreamSFX()
@@ -1253,7 +1253,7 @@ static bool calc_snd_position(int x, int y, int* plVolume, int* plPan)
 	return true;
 }
 
-static void PlaySFX_priv(int psfx, bool loc, int x, int y)
+static void PlaySfx_priv(int nsfx, bool loc, int x, int y)
 {
 	int lPan, lVolume;
 	SFXStruct* pSFX;
@@ -1267,7 +1267,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 		return;
 	}
 
-	pSFX = &sgSFX[psfx];
+	pSFX = &sgSFX[nsfx];
 	/* not necessary, since non-streamed sfx should be loaded at this time
 	   streams are loaded in StartStreamSFX
 	if (!pSFX->pSnd.IsLoaded()) {
@@ -1286,7 +1286,7 @@ static void PlaySFX_priv(int psfx, bool loc, int x, int y)
 	sound_play(&pSFX->pSnd, lVolume, lPan);
 }
 
-void PlayMonSFX(int mnum, int mode)
+void PlayMonSfx(int mnum, int mode)
 {
 	MonsterStruct* mon;
 	int sndIdx, lVolume, lPan;
@@ -1313,38 +1313,38 @@ void PlayMonSFX(int mnum, int mode)
 	sound_play(snd, lVolume, lPan);
 }
 
-void PlaySFX(int psfx)
+void PlaySfx(int psfx)
 {
-	PlaySFX_priv(psfx, false, 0, 0);
+	PlaySfx_priv(psfx, false, 0, 0);
 }
 
-void PlaySfxN(int psfx, int rndCnt)
+void PlaySfxN(int nsfx, int rndCnt)
 {
 	if (rndCnt > 1)
-		psfx += random_low(165, rndCnt);
-	PlaySFX(psfx);
+		nsfx += random_low(165, rndCnt);
+	PlaySfx(nsfx);
 }
 
-void PlaySfxLoc(int psfx, int x, int y)
+void PlaySfxLoc(int nsfx, int x, int y)
 {
-	PlaySFX_priv(psfx, true, x, y);
+	PlaySfx_priv(nsfx, true, x, y);
 }
 
-void PlaySfxLocN(int psfx, int x, int y, int rndCnt)
+void PlaySfxLocN(int nsfx, int x, int y, int rndCnt)
 {
 	if (rndCnt > 1)
-		psfx += random_low(165, rndCnt);
+		nsfx += random_low(165, rndCnt);
 
-	PlaySfxLoc(psfx, x, y);
+	PlaySfxLoc(nsfx, x, y);
 }
 
 void PlayWalkSfx(int pnum)
 {
-	int psfx = PS_WALK1;
+	int nsfx = PS_WALK1;
 
-	sgSFX[psfx].pSnd.nextTc = 0;
+	sgSFX[nsfx].pSnd.nextTc = 0;
 
-	PlaySfxLoc(psfx, plr._px, plr._py);
+	PlaySfxLoc(nsfx, plr._px, plr._py);
 }
 
 static void priv_sound_free(BYTE bLoadMask)

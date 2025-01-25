@@ -2409,7 +2409,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		quests[Q_GRAVE]._qactive = QUEST_DONE;
 		// open crypt
 		if (currLvl._dLevelIdx == DLV_TOWN) {
-			PlaySFX(IS_SARC);
+			PlaySfx(IS_SARC);
 			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_CRYPT);
 			OpenCrypt();

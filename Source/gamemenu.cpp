@@ -252,7 +252,7 @@ static void gamemenu_music_volume(bool bActivate)
 			music_start(AllLevels[currLvl._dLevelNum].dMusic);
 	}
 	gamemenu_get_music();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -279,7 +279,7 @@ static void gamemenu_sound_volume(bool bActivate)
 		; // assert(gbSoundOn);
 	}
 	gamemenu_get_sound();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -298,7 +298,7 @@ static void gamemenu_gamma(bool bActivate)
 	}
 	SetGamma(gamma);
 	gamemenu_get_gamma();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 static void gamemenu_speed(bool bActivate)
@@ -317,7 +317,7 @@ static void gamemenu_speed(bool bActivate)
 	gnTickDelay = 1000 / speed;
 	setIniInt("Diablo", "Game Speed", speed);
 	gamemenu_get_speed();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 DEVILUTION_END_NAMESPACE

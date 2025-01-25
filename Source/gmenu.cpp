@@ -87,7 +87,7 @@ static void gmenu_up_down(bool isDown)
 	}
 	if (n != guCurrItemIdx) {
 		guCurrItemIdx = n;
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
@@ -119,7 +119,7 @@ static void gmenu_left_right(bool isRight)
 	steps = pItem->wMenuParam1;
 	step += isRight ? 1 : -1;
 	if (step < 0 || step > steps) {
-		// PlaySFX(IS_TITLEMOV);
+		// PlaySfx(IS_TITLEMOV);
 		return;
 	}
 	pItem->wMenuParam2 = step;
@@ -143,7 +143,7 @@ void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 		gmUpdateFunc();
 	// play select sfx only in-game
 	if (gbRunGame)
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 }
 
 static void gmenu_draw_rectangle(int x, int y, int width, int height)

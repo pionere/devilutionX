@@ -102,13 +102,13 @@ static SFXStruct sgSFX[] = {
 	// clang-format on
 };
 
-bool IsSFXPlaying(int nSFX)
+bool IsSfxPlaying(int nsfx)
 {
-	SFXStruct* sfx = &sgSFX[nSFX];
+	SFXStruct* pSFX = &sgSFX[nsfx];
 
-	if (sfx->bFlags & sfx_STREAM)
-		return sfx == sgpStreamSFX;
-	return sfx->pSnd.IsPlaying();
+	if (pSFX->bFlags & sfx_STREAM)
+		return pSFX == sgpStreamSFX;
+	return pSFX->pSnd.IsPlaying();
 }
 
 void StopStreamSFX()
@@ -146,7 +146,7 @@ void CheckStreamSFX()
 	}
 }
 
-static void PlaySFX_priv(int psfx)
+static void PlaySfx_priv(int nsfx)
 {
 	int lPan, lVolume;
 	SFXStruct* pSFX;
@@ -157,7 +157,7 @@ static void PlaySFX_priv(int psfx)
 	lPan = 0;
 	lVolume = VOLUME_MAX;
 
-	pSFX = &sgSFX[psfx];
+	pSFX = &sgSFX[nsfx];
 	/* not necessary, since non-streamed sfx should be loaded at this time
 	   streams are loaded in StartStreamSFX
 	if (!pSFX->pSnd.IsLoaded()) {
@@ -176,9 +176,9 @@ static void PlaySFX_priv(int psfx)
 	sound_play(&pSFX->pSnd, lVolume, lPan);
 }
 
-void PlaySFX(int psfx)
+void PlaySfx(int nsfx)
 {
-	PlaySFX_priv(psfx);
+	PlaySfx_priv(nsfx);
 }
 
 static void priv_sound_free(BYTE bLoadMask)

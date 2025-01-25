@@ -1599,7 +1599,7 @@ void STextESC()
 
 void STextUp()
 {
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == STORE_LIST_FIRST) {
@@ -1619,7 +1619,7 @@ void STextUp()
 
 void STextDown()
 {
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == stextdown) {
@@ -1643,7 +1643,7 @@ void STextRight()
 	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
 		return;
 	}
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 
 	do {
 		stextselx++;
@@ -1658,7 +1658,7 @@ void STextLeft()
 	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
 		return;
 	}
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 
 	do {
 		stextselx--;
@@ -1672,7 +1672,7 @@ void STextPageUp()
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
 		DEBUG_ASSERT(stextsidx == 0 || stextlines[stextsel]._sitemlist);
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 		stextsidx -= STORE_PAGE_ITEMS;
 		if (stextsidx < 0) {
 			stextsidx = 0;
@@ -1686,7 +1686,7 @@ void STextPageDown()
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
 		DEBUG_ASSERT(stextsmax == 0 || stextlines[stextsel]._sitemlist);
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 		stextsidx += STORE_PAGE_ITEMS;
 		if (stextsidx > stextsmax) {
 			stextsidx = stextsmax;
@@ -2431,7 +2431,7 @@ static void S_HealerEnter()
 	case STORE_HEALER_HEAL:
 		if (myplr._pHitPoints != myplr._pMaxHP) {
 			PlrFillHp(mypnum);
-			PlaySFX(IS_CAST8);
+			PlaySfx(IS_CAST8);
 		}
 		break;
 	case STORE_HEALER_BUY:
@@ -2747,7 +2747,7 @@ void STextEnter()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 }
 
 void TryStoreBtnClick()

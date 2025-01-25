@@ -815,7 +815,7 @@ static bool MissMonHitByMon(int mnum, int mi)
 		MonKill(mnum, misource);
 	} else {
 		/*if (resist != MORT_NONE) {
-			PlayMonSFX(mnum, MS_GOTHIT);
+			PlayMonSfx(mnum, MS_GOTHIT);
 		} else {*/
 			MonHitByMon(mnum, misource, dam);
 		//}
@@ -947,7 +947,7 @@ static bool MissMonHitByPlr(int mnum, int mi)
 		MonKill(mnum, pnum);
 	} else {
 		/*if (resist != MORT_NONE) {
-			PlayMonSFX(mnum, MS_GOTHIT);
+			PlayMonSfx(mnum, MS_GOTHIT);
 		} else {*/
 			hitFlags = 0;
 			if (mis->_miFlags & MIF_ARROW) {

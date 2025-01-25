@@ -2123,7 +2123,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 
 	if (quests[Q_BANNER]._qvar1 != QV_BANNER_TALK1 && !deltaload) {
 		if (sendmsg) // if (pnum == mypnum)
-			PlaySFX(sgSFXSets[SFXS_PLR_24][plr._pClass]);
+			PlaySfx(sgSFXSets[SFXS_PLR_24][plr._pClass]);
 		return;
 	}
 	os = &objects[oi];

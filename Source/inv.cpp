@@ -886,7 +886,7 @@ void InvPasteItem(int pnum, BYTE r)
 
 	if (il != ILOC_UNEQUIPABLE && !holditem->_iStatFlag) {
 		if (pnum == mypnum)
-			PlaySFX(sgSFXSets[SFXS_PLR_13][p->_pClass]);
+			PlaySfx(sgSFXSets[SFXS_PLR_13][p->_pClass]);
 		return;
 	}
 
@@ -1043,7 +1043,7 @@ void InvPasteItem(int pnum, BYTE r)
 	if (cn == CURSOR_HAND)
 		holditem->_itype = ITYPE_NONE;
 	if (pnum == mypnum) {
-		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
+		PlaySfx(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		// if (cn == CURSOR_HAND) {
 		//	SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 		// }
@@ -1094,7 +1094,7 @@ void InvPasteBeltItem(int pnum, BYTE r)
 
 	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
-		PlaySFX(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
+		PlaySfx(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 		// if (cn == CURSOR_HAND)
 		//	SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
@@ -1203,7 +1203,7 @@ void InvCutItem(int pnum, BYTE cii, bool bShift)
 		CalcPlrInv(pnum, true);
 
 	if (pnum == mypnum) {
-		PlaySFX(IS_IGRAB);
+		PlaySfx(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 		// SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 	}
@@ -1394,7 +1394,7 @@ void InvGetItem(int pnum, int ii)
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
 	if (pnum == mypnum) {
-		PlaySFX(IS_IGRAB);
+		PlaySfx(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
 		// SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 		pcursitem = ITEM_NONE;
@@ -1630,7 +1630,7 @@ void SyncSplitGold(int pnum, int cii, int value)
 	pi->_iStatFlag = TRUE;
 	SetGoldItemValue(pi, value);
 	if (pnum == mypnum) {
-		PlaySFX(IS_IGRAB);
+		PlaySfx(IS_IGRAB);
 		NewCursor(pi->_iCurs + CURSOR_FIRSTITEM);
 		// SetCursorPos(MousePos.x - (cursW >> 1), MousePos.y - (cursH >> 1));
 	}
@@ -1816,7 +1816,7 @@ bool InvUseItem(int cii)
 		return true;
 	}
 	if (is->_iIdx == IDI_FUNGALTM) {
-		PlaySFX(IS_IBOOK);
+		PlaySfx(IS_IBOOK);
 		gnSfxDelay = 10;
 		gnSfxNum = TEXT_IM_FUNGALTM;
 		return true;
@@ -1827,7 +1827,7 @@ bool InvUseItem(int cii)
 	}
 
 	if (!is->_iStatFlag) {
-		PlaySFX(sgSFXSets[SFXS_PLR_13][plr._pClass]);
+		PlaySfx(sgSFXSets[SFXS_PLR_13][plr._pClass]);
 		return true;
 	}
 
@@ -1846,9 +1846,9 @@ bool InvUseItem(int cii)
 
 	// add sfx
 	if (is->_iMiscId == IMISC_BOOK)
-		PlaySFX(IS_RBOOK);
+		PlaySfx(IS_RBOOK);
 	else
-		PlaySFX(itemfiledata[ItemCAnimTbl[is->_iCurs]].iiSFX);
+		PlaySfx(itemfiledata[ItemCAnimTbl[is->_iCurs]].iiSFX);
 
 	// use the item
 	switch (is->_iMiscId) {

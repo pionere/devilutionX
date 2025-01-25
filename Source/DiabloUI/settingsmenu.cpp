@@ -52,7 +52,7 @@ void UiSettingsDialog()
 		CheckMenuMove();
 #endif
 	}
-	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
+	PlaySfx(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
 	// free gamemenu
 	gmenu_set_items(NULL, 0, NULL);

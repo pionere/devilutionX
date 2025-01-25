@@ -17,19 +17,19 @@ extern "C" {
 #endif
 
 #ifndef NOSOUND
-bool IsSFXPlaying(int nSFX);
+bool IsSfxPlaying(int nsfx);
 void StopStreamSFX();
 void StopSFX();
 void CheckStreamSFX();
-void PlaySFX(int psfx);
+void PlaySfx(int nsfx);
 void InitUiSFX();
 void FreeUiSFX();
 #else
-inline bool IsSFXPlaying(int nSFX) { return false; }
+inline bool IsSfxPlaying(int nsfx) { return false; }
 inline void StopStreamSFX() { }
 inline void StopSFX() { }
 inline void CheckStreamSFX() { }
-inline void PlaySFX(int psfx) { }
+inline void PlaySfx(int nsfx) { }
 inline void InitUiSFX() { }
 inline void FreeUiSFX() { }
 #endif

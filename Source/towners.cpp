@@ -129,7 +129,7 @@ static int CowPlaying = SFX_NONE;
 
 static void CowSFX(MonsterStruct* cow, int pnum)
 {
-	if (CowPlaying != SFX_NONE && IsSFXPlaying(CowPlaying))
+	if (CowPlaying != SFX_NONE && IsSfxPlaying(CowPlaying))
 		return;
 
 	_guCowClicks++;
@@ -803,16 +803,16 @@ void TalkToTowner(int tnum)
 			break;
 		case QUEST_ACTIVE:
 			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!IsSFXPlaying(i)) {
+			if (!IsSfxPlaying(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+				PlaySfx(i);
 			}
 			break;
 		case QUEST_DONE:
 			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
-			if (!IsSFXPlaying(i)) {
+			if (!IsSfxPlaying(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+				PlaySfx(i);
 			}
 			break;
 		}

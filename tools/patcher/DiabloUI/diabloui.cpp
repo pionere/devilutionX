@@ -143,12 +143,12 @@ void UiInitEdit(UiEdit* uiEdit)
 #endif // FULL_UI
 static void UiPlayMoveSound()
 {
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 static void UiPlaySelectSound()
 {
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 }
 
 static void UiScrollIntoView()

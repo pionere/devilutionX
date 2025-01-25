@@ -17,9 +17,9 @@ extern "C" {
 
 /* Defined in effects.cpp */
 /*#ifndef NOSOUND
-void PlaySFX(int psfx);
+void PlaySfx(int nsfx);
 #else
-inline void PlaySFX(int psfx) { }
+inline void PlaySfx(int nsfx) { }
 #endif*/
 
 /* Defined in pfile.cpp */

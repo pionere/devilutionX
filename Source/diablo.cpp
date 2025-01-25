@@ -355,7 +355,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 	} else if (moveSkill == SPL_INVALID) {
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
-			PlaySFX(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
+			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (asf == 0 && msf == 0)*/ {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);

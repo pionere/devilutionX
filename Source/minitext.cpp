@@ -40,7 +40,7 @@ void StartQTextMsg(int m, bool showText)
 	if (tds->txtsfxset) {
 		sfxnr = sgSFXSets[sfxnr][myplr._pClass];
 	}
-	PlaySFX(sfxnr);
+	PlaySfx(sfxnr);
 }
 
 void StopQTextMsg()
