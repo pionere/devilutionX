@@ -1699,9 +1699,6 @@ void SaveGame()
 	static_assert(mss <= UINT32_MAX, "File is to large to be written by pfile_write_save_file I.");
 	assert((size_t)tbuff - (size_t)fileBuff < mss);
 	pfile_write_save_file(true, (DWORD)((size_t)tbuff - (size_t)fileBuff));
-	gbValidSaveFile = true;
-	pfile_rename_temp_to_perm();
-	pfile_write_hero(true);
 }
 
 void SaveLevel()

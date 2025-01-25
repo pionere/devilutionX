@@ -309,7 +309,7 @@ void pfile_read_hero_from_save()
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
 
-void pfile_rename_temp_to_perm()
+static void pfile_rename_temp_to_perm()
 {
 	unsigned dwIndex;
 	bool bResult;
@@ -355,6 +355,12 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 		GetTempLevelNames(currLvl._dLevelIdx, pszName);
 	mpqapi_write_entry(pszName, pbData, qwLen);
 	pfile_flush(true);
+
+	if (full) {
+		gbValidSaveFile = true;
+		pfile_rename_temp_to_perm();
+		pfile_write_hero(true);
+	}
 }
 
 void pfile_delete_save_file(bool full)
