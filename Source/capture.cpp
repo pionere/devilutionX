@@ -141,31 +141,14 @@ static FILE* CaptureFile(std::string* dst_path)
 	return NULL;
 }
 
-/**
- * @brief Make a red version of the given palette and apply it to the screen.
- */
-static void RedPalette()
-{
-	for (int i = 0; i < NUM_COLORS; i++) {
-		system_palette[i].g = 0;
-		system_palette[i].b = 0;
-	}
-	UpdatePalette();
-	BltFast();
-	RenderPresent();
-}
-
 void CaptureScreen()
 {
-	SDL_Color bkp_palette[lengthof(system_palette)];
 	std::string FileName;
 	bool success;
 
 	FILE* out = CaptureFile(&FileName);
 	if (out == NULL)
 		return;
-	memcpy(bkp_palette, system_palette, sizeof(bkp_palette));
-	RedPalette();
 
 	lock_buf(2);
 	success = CaptureHdr(SCREEN_WIDTH, SCREEN_HEIGHT, out);
@@ -173,22 +156,18 @@ void CaptureScreen()
 		success = CapturePix(SCREEN_WIDTH, SCREEN_HEIGHT, BUFFER_WIDTH, &gpBuffer[SCREENXY(0, 0)], out);
 	}
 	if (success) {
-		success = CapturePal(bkp_palette, out);
+		success = CapturePal(system_palette, out);
 	}
 	unlock_buf(2);
 	std::fclose(out);
 
-	if (!success) {
+	if (success) {
+		DoLog("Screenshot saved at %s", FileName.c_str());
+		EventPlrMsg("%s is created", FileName.c_str());
+	} else {
 		DoLog("Failed to save screenshot at %s", FileName.c_str());
 		RemoveFile(FileName.c_str());
-	} else {
-		DoLog("Screenshot saved at %s", FileName.c_str());
 	}
-	if (IsLocalGame)
-		SDL_Delay(300);
-	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));
-	UpdatePalette();
-	gbRedrawFlags = REDRAW_ALL;
 }
 
 DEVILUTION_END_NAMESPACE
