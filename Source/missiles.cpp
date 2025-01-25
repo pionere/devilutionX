@@ -1343,7 +1343,7 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 			mis->_miRange = -1;
 		mds = &missiledata[mis->_miType];
 		if (mds->miSFX != SFX_NONE)
-			PlaySfxLoc(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
+			PlaySfxLocN(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
 	}
 	return result;
 }
@@ -3457,7 +3457,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miLid = NO_LIGHT;
 
 	if (mds->mlSFX != SFX_NONE) {
-		PlaySfxLoc(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
+		PlaySfxLocN(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
 	}
 
 	res = mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);

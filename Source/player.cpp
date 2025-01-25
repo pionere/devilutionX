@@ -1598,7 +1598,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 	}
 
 	dir = GetDirection(plr._px, plr._py, sx, sy);
-	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
+	PlaySfxLocN(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
@@ -1780,7 +1780,7 @@ static void PlrDoWalk(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
-		PlaySfxLoc(PS_WALK1, plr._px, plr._py);
+		PlayWalkSfx(pnum);
 	}
 
 	assert(PlrAnimFrameLens[PGX_WALK] == 1);
@@ -2107,7 +2107,7 @@ static void PlrDoAttack(int pnum)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
 		plr._pVar7++;
-		PlaySfxLoc(PS_SWING, plr._px, plr._py, 2);
+		PlaySfxLocN(PS_SWING, plr._px, plr._py, 2);
 	}
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;

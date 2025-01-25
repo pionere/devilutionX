@@ -2597,7 +2597,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 
-	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
+	PlaySfxLocN(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
 	os->_oAnimFlag = OAM_SINGLE;
 	//os->_oAnimFrameLen = 1;
 

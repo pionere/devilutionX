@@ -26,8 +26,11 @@ void CheckStreamSFX();
 void InitMonsterSFX(int midx);
 void FreeMonsterSFX();
 void PlayMonSFX(int mnum, int mode);
-void PlaySFX(int psfx, int rndCnt = 1);
-void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1);
+void PlaySFX(int psfx);
+void PlaySfxN(int psfx, int rndCnt);
+void PlaySfxLoc(int psfx, int x, int y);
+void PlaySfxLocN(int psfx, int x, int y, int rndCnt);
+void PlayWalkSfx(int pnum);
 void InitGameSFX();
 void InitUiSFX();
 void FreeGameSFX();
@@ -39,9 +42,12 @@ inline void StopSFX() { }
 inline void CheckStreamSFX() { }
 inline void InitMonsterSFX(int midx) { }
 inline void FreeMonsterSFX() { }
-inline void PlayMonSFX(int mnum, int mode) { PlaySFX(-1, 2); }
-inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt > 1) random_low(165, rndCnt); }
-inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rndCnt); }
+inline void PlayMonSFX(int mnum, int mode) { PlaySfxN(-1, 2); }
+inline void PlaySFX(int psfx) { }
+inline void PlaySfxN(int psfx, int rndCnt) { if (rndCnt > 1) random_low(165, rndCnt); }
+inline void PlaySfxLoc(int psfx, int x, int y) { }
+inline void PlaySfxLocN(int psfx, int x, int y, int rndCnt) { PlaySfxN(-1, rndCnt); }
+inline void PlayWalkSfx(int pnum) { }
 inline void InitGameSFX() { }
 inline void InitUiSFX() { }
 inline void FreeGameSFX() { }

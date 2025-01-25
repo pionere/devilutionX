@@ -1440,7 +1440,7 @@ bool AutoGetItem(int pnum, int ii)
 		DeleteItems(ii);
 	} else {
 		if (pnum == mypnum) {
-			PlaySFX(sgSFXSets[SFXS_PLR_14][plr._pClass], 3);
+			PlaySfxN(sgSFXSets[SFXS_PLR_14][plr._pClass], 3);
 		}
 		RespawnItem(ii, true);
 	}

@@ -1313,24 +1313,38 @@ void PlayMonSFX(int mnum, int mode)
 	sound_play(snd, lVolume, lPan);
 }
 
-void PlaySFX(int psfx, int rndCnt)
+void PlaySFX(int psfx)
 {
-	if (rndCnt > 1)
-		psfx += random_low(165, rndCnt);
 	PlaySFX_priv(psfx, false, 0, 0);
 }
 
-void PlaySfxLoc(int psfx, int x, int y, int rndCnt)
+void PlaySfxN(int psfx, int rndCnt)
+{
+	if (rndCnt > 1)
+		psfx += random_low(165, rndCnt);
+	PlaySFX(psfx);
+}
+
+void PlaySfxLoc(int psfx, int x, int y)
+{
+	PlaySFX_priv(psfx, true, x, y);
+}
+
+void PlaySfxLocN(int psfx, int x, int y, int rndCnt)
 {
 	if (rndCnt > 1)
 		psfx += random_low(165, rndCnt);
 
-	//if (psfx <= PS_WALK4 && psfx >= PS_WALK1) {
-	if (psfx == PS_WALK1) {
-		sgSFX[psfx].pSnd.nextTc = 0;
-	}
+	PlaySfxLoc(psfx, x, y);
+}
 
-	PlaySFX_priv(psfx, true, x, y);
+void PlayWalkSfx(int pnum)
+{
+	int psfx = PS_WALK1;
+
+	sgSFX[psfx].pSnd.nextTc = 0;
+
+	PlaySfxLoc(psfx, plr._px, plr._py);
 }
 
 static void priv_sound_free(BYTE bLoadMask)
