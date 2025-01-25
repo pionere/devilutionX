@@ -1252,6 +1252,14 @@ void GameWndProc(const Dvl_Event* e)
 
 static bool ProcessInput()
 {
+	if (gmenu_is_active()) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		CheckMenuMove();
+#endif
+		// assert(!(IsMultiGame && gbGamePaused));
+		return IsMultiGame;
+	}
+
 	if (gbGamePaused) {
 		return false;
 	}
@@ -1259,13 +1267,6 @@ static bool ProcessInput()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	plrctrls_every_frame();
 #endif
-
-	if (gmenu_is_active()) {
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
-#endif
-		return IsMultiGame;
-	}
 
 	if (gnTimeoutCurs == CURSOR_NONE && gbDragWnd == WND_NONE) {
 #if HAS_TOUCHPAD
