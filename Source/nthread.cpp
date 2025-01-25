@@ -573,11 +573,13 @@ int nthread_ticks2gameturn()
 
 	now = SDL_GetTicks();
 	ticksRemaining = guNextTick - now;
+#if 0
 	// catch up if the host is too slow (only in local games)
 	if (IsLocalGame && (ticksRemaining + 8 * gnTickDelay) < 0) {
 		guNextTick = now;
 		ticksRemaining = 0;
 	}
+#endif
 	return ticksRemaining;
 }
 
