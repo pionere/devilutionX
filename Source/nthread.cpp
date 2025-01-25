@@ -566,7 +566,7 @@ fail:
 	gbLvlLoad = false;
 }
 
-bool nthread_has_50ms_passed()
+int nthread_ticks2gameturn()
 {
 	Uint32 now;
 	int ticksRemaining;
@@ -578,7 +578,7 @@ bool nthread_has_50ms_passed()
 		guNextTick = now;
 		ticksRemaining = 0;
 	}
-	return ticksRemaining <= 0;
+	return ticksRemaining;
 }
 
 DEVILUTION_END_NAMESPACE

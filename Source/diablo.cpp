@@ -1376,7 +1376,7 @@ static void game_loop()
 			plrctrls_after_game_logic();
 #endif
 		//}
-	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
+	} while (--i != 0 && gbRunGame && nthread_ticks2gameturn() <= 0);
 }
 
 static void diablo_color_cyc_logic()
@@ -1469,7 +1469,7 @@ static void run_game()
 		}
 		if (!gbRunGame)
 			break;
-		if (!ProcessInput() || !nthread_has_50ms_passed()) {
+		if (!ProcessInput() || nthread_ticks2gameturn() > 0) {
 			scrollrt_render_game();
 			continue;
 		}
