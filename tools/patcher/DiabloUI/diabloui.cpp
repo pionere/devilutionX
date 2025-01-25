@@ -121,8 +121,8 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, void (*fnDelete)(
 	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
 		uiSb->m_iFlags |= UIS_HIDDEN;
-	} else {
-		uiSb->m_iFlags &= ~UIS_HIDDEN;
+	//} else {
+	//	uiSb->m_iFlags &= ~UIS_HIDDEN;
 	}
 }
 
