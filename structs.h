@@ -589,8 +589,8 @@ typedef struct SoundSample final {
 	Mix_Audio* soundData;
 
 	void Release();
-	bool IsPlaying();
-	bool IsLoaded() {
+	bool IsPlaying() const;
+	bool IsLoaded() const {
 		return soundData != NULL;
 	}
 	void Play(int lVolume, int lPan, int channel);
