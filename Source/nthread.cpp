@@ -568,14 +568,14 @@ fail:
 
 bool nthread_has_50ms_passed()
 {
-	Uint32 currentTickCount;
+	Uint32 now;
 	int ticksElapsed;
 
-	currentTickCount = SDL_GetTicks();
-	ticksElapsed = currentTickCount - guNextTick;
+	now = SDL_GetTicks();
+	ticksElapsed = now - guNextTick;
 	// catch up if the host is too slow (only in local games)
 	if (IsLocalGame && ticksElapsed > (int)(10 * gnTickDelay)) {
-		guNextTick = currentTickCount;
+		guNextTick = now;
 		ticksElapsed = 0;
 	}
 	return ticksElapsed >= 0;
