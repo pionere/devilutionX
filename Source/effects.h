@@ -42,7 +42,7 @@ inline void StopSFX() { }
 inline void CheckStreamSFX() { }
 inline void InitMonsterSFX(int midx) { }
 inline void FreeMonsterSFX() { }
-inline void PlayMonSfx(int mnum, int mode) { PlaySfxN(-1, 2); }
+inline void PlayMonSfx(int mnum, int mode) { }
 inline void PlaySfx(int nsfx) { }
 inline void PlaySfxN(int nsfx, int rndCnt) { if (rndCnt > 1) random_low(165, rndCnt); }
 inline void PlaySfxLoc(int nsfx, int x, int y) { }
