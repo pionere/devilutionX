@@ -279,7 +279,8 @@ bool multi_check_timeout()
 {
 	// int i, nState, nLowestActive, nLowestPlayer;
 	//BYTE activePlrs, inActivePlrs;
-	Uint32 nTicks, now = SDL_GetTicks();
+	Uint32 now = SDL_GetTicks();
+	Sint32 dTicks;
 
 	if (!_gbTimeout) {
 		_gbTimeout = true;
@@ -287,15 +288,15 @@ bool multi_check_timeout()
 		return false;
 	}
 
-	nTicks = now - sglTimeoutStart;
-	if (nTicks > 10000) {
+	dTicks = now - sglTimeoutStart;
+	if (dTicks > 10000) {
 		SNetDisconnect();
 		// gbRunGame = false;
 		return true;
 	}
 	// commented out because a client should not be authorized to drop players
-	//if (nTicks < 5000) {
-		return nTicks >= 1000;
+	//if (dTicks < 5000) {
+		return dTicks >= 1000;
 	/*}
 
 	nLowestActive = -1;
