@@ -498,7 +498,8 @@ static unsigned gameProgress;
 extern Uint32 guNextTick;
 int multi_ui_handle_turn()
 {
-	int delta, i;
+	int i;
+	Sint32 delta;
 
 	switch (nthread_recv_turns()) {
 	case TS_DESYNC:

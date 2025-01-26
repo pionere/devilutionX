@@ -153,7 +153,7 @@ static void nthread_process_pending_turns()
 
 static int SDLCALL nthread_handler(void* data)
 {
-	int delta;
+	Sint32 delta;
 
 	while (_gbThreadLive) {
 		sgThreadMutex.Enter();
@@ -295,7 +295,7 @@ bool nthread_level_turn()
 			result = true;
 		} break;
 		case TS_LIVE: {
-			int delta = guNextTick - SDL_GetTicks();
+			Sint32 delta = guNextTick - SDL_GetTicks();
 			if (delta > 0) {
 				SDL_Delay(delta);
 			}

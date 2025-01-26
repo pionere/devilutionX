@@ -786,7 +786,7 @@ struct RightStickAccumulator {
 	void Pool(POS32& pos, int slowdown)
 	{
 		const Uint32 tc = SDL_GetTicks();
-		const int dtc = tc - lastTc;
+		const Sint32 dtc = tc - lastTc;
 		hiresDX += rightStickX * dtc;
 		hiresDY += rightStickY * dtc;
 		const int dx = hiresDX / slowdown;
