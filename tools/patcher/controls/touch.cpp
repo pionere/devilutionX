@@ -42,13 +42,13 @@ inline T clip(T v, T amin, T amax)
 #define SIMULATED_CLICK_DURATION 50
 
 // initiation time of last simulated left or right click (zero if no click)
-static unsigned int simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
+static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
 // pointer jumps to finger
 static bool direct_touch = true;
 
 struct Touch {
 	SDL_FingerID id; // -1: not touching
-	uint32_t time_last_down;
+	Uint32 time_last_down;
 	int last_x;        // last known screen coordinates
 	int last_y;        // last known screen coordinates
 	float last_down_x; // SDL touch coordinates when last pressed down
@@ -320,7 +320,7 @@ static void PreprocessFingerMotion(SDL_Event* event)
 				if (direct_touch) {
 					for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 						if (finger[port][i].id == id) {
-							uint32_t earliestTime = finger[port][i].time_last_down;
+							Uint32 earliestTime = finger[port][i].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 								if (finger[port][j].id != NO_TOUCH && (i != j)) {
 									if (finger[port][j].time_last_down < earliestTime) {
