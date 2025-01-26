@@ -33,7 +33,7 @@ void nthread_finish(UINT uMsg);
  * @brief return the remaining time (ticks) to the next game-turn
  * @return tick-count till the next game-turn should happen
  */
-int nthread_ticks2gameturn();
+Sint32 nthread_ticks2gameturn();
 
 #ifdef __cplusplus
 }

@@ -566,10 +566,10 @@ fail:
 	gbLvlLoad = false;
 }
 
-int nthread_ticks2gameturn()
+Sint32 nthread_ticks2gameturn()
 {
 	Uint32 now;
-	int ticksRemaining;
+	Sint32 ticksRemaining;
 
 	now = SDL_GetTicks();
 	ticksRemaining = guNextTick - now;
