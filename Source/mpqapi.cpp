@@ -72,10 +72,9 @@ public:
 
 	void Close()
 	{
-		if (s_ != NULL) {
-			std::fclose(s_);
-			s_ = NULL;
-		}
+		// assert(s_ != NULL);
+		std::fclose(s_);
+		s_ = NULL;
 	}
 
 	bool IsOpen() const
@@ -249,7 +248,6 @@ struct Archive {
 			size = 0;
 		}
 		if (!stream.Open(name, mode)) {
-			stream.Close();
 			return false;
 		}
 		this->archiveSize = static_cast<uint32_t>(size);
