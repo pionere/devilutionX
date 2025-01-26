@@ -1660,7 +1660,7 @@ static void DrawFPS()
 	guFrameCnt++;
 	currTc = SDL_GetTicks();
 	deltaTc = currTc - guFpsStartTc;
-	if (deltaTc >= 1000) {
+	if ((Sint32)deltaTc >= 1000) {
 		guFpsStartTc = currTc;
 		guFrameRate = 1000 * guFrameCnt / deltaTc;
 		guFrameCnt = 0;
