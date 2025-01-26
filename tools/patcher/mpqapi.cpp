@@ -57,17 +57,10 @@ void PrintError(const char* fmt, PrintFArgs... args)
 #endif /* DEBUG_MODE */
 struct FStreamWrapper {
 public:
-	bool Open(const char* path, const char* mode)
+	void Open(FILE* file)
 	{
-		s_ = FileOpen(path, mode);
-		if (s_ != NULL) {
-#if DEBUG_MODE
-			DoLog("Open(\"%s\", %s)", path, mode);
-#endif
-			return true;
-		}
-		PrintError("Open(\"%s\", %d)", path, mode);
-		return false;
+		// assert(file != NULL);
+		s_ = file;
 	}
 
 	void Close()
@@ -215,21 +208,22 @@ struct Archive {
 #if DEBUG_MODE
 		DoLog("Opening %s", name);
 #endif
-		bool fileExists = FileExists(name);
+		FILE* file = FileOpen(name, "r+b");
 #if __cplusplus >= 201703L
 		const char* mode = "wbx";
 #else
 		const char* mode = "wb";
 #endif
 		std::uintmax_t size;
+		bool fileExists = file != NULL;
 #ifndef CAN_SEEKP_BEYOND_EOF
 		this->exists = fileExists;
 #endif
 		if (fileExists) {
-			mode = "r+b";
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
+				std::fclose(file);
 				return false;
 			} else {
 				DoLog("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
@@ -237,19 +231,23 @@ struct Archive {
 #else
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed. (%d)", name, errno);
+				std::fclose(file);
 				return false;
 			}
 #endif
 			if (size > UINT32_MAX) {
 				DoLog("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
+				std::fclose(file);
 				return false;
 			}
 		} else {
+			file = FileOpen(name, mode);
+			if (file == NULL) {
+				return false;
+			}
 			size = 0;
 		}
-		if (!stream.Open(name, mode)) {
-			return false;
-		}
+		stream.Open(file);
 		this->archiveSize = static_cast<uint32_t>(size);
 		this->modified = !fileExists;
 		this->name = name;
