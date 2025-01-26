@@ -842,7 +842,7 @@ int UiSelectGame(_uigamedata* game_data)
 			ztBlOckBtn->m_iFlags |= UIS_GOLD;
 			ztBlOckBtn = NULL;
 		}
-		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && ztNextRefresh < SDL_GetTicks()) {
+		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && SDL_TICKS_PASSED(SDL_GetTicks(), ztNextRefresh)) {
 			ztRefreshBtn->m_iFlags &= ~(UIS_SILVER | UIS_DISABLED);
 			ztRefreshBtn->m_iFlags |= UIS_GOLD;
 			ztRefreshBtn = NULL;

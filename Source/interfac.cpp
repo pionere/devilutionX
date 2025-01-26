@@ -151,7 +151,7 @@ static void RenderCutscene()
 	Uint32 now = SDL_GetTicks();
 	bool skipRender = false;
 	// assert(sgdwProgress != 0);
-	if (/*sgdwProgress > 0 &&*/ now < sgdwNextCut) {
+	if (/*sgdwProgress > 0 &&*/ !SDL_TICKS_PASSED(now, sgdwNextCut)) {
 		if (sgdwProgress < BAR_WIDTH)
 			return; // skip drawing if the progression is too fast
 		skipRender = true; // update the progress bar for fade-out

@@ -71,7 +71,7 @@ void sound_play(SoundSample* pSnd, int lVolume, int lPan)
 		return;
 	assert(lVolume <= VOLUME_MAX);
 	currTc = SDL_GetTicks();
-	if (currTc < pSnd->nextTc)
+	if (!SDL_TICKS_PASSED(currTc, pSnd->nextTc))
 		return;
 	pSnd->nextTc = currTc + 80;
 	pSnd->Play(lVolume, lPan, -1);

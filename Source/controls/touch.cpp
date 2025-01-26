@@ -214,7 +214,7 @@ static void PreprocessFingerUp(SDL_Event* event)
 
 		finger[port][i].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
-			if ((event->tfinger.timestamp - finger[port][i].time_last_down) > MAX_TAP_TIME) {
+			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][i].time_last_down + MAX_TAP_TIME)) {
 				continue;
 			}
 
@@ -310,7 +310,7 @@ static void PreprocessFingerMotion(SDL_Event* event)
 				if (finger[port][i].id == NO_TOUCH) {
 					continue;
 				}
-				if (event->tfinger.timestamp - finger[port][i].time_last_down > MAX_TAP_TIME) {
+				if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][i].time_last_down + MAX_TAP_TIME)) {
 					numFingersDownlong++;
 				}
 			}
@@ -439,10 +439,8 @@ void finish_simulated_mouse_clicks()
 				continue;
 			}
 
-			Uint32 currentTime = SDL_GetTicks();
-			if (currentTime - simulated_click_start_time[port][i] < SIMULATED_CLICK_DURATION) {
+			if (!SDL_TICKS_PASSED(SDL_GetTicks(), simulated_click_start_time[port][i] + SIMULATED_CLICK_DURATION))
 				continue;
-			}
 
 			int simulatedButton;
 			if (i == 0) {
