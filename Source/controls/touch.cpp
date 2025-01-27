@@ -323,7 +323,7 @@ static void PreprocessFingerMotion(SDL_Event* event)
 							Uint32 earliestTime = finger[port][i].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 								if (finger[port][j].id != NO_TOUCH && (i != j)) {
-									if (finger[port][j].time_last_down < earliestTime) {
+									if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
 										mouseDownX = finger[port][j].last_x;
 										mouseDownY = finger[port][j].last_y;
 										earliestTime = finger[port][j].time_last_down;
@@ -367,7 +367,7 @@ static void PreprocessFingerMotion(SDL_Event* event)
 					if (finger[port][j].id == NO_TOUCH || (j == i)) {
 						continue;
 					}
-					if (finger[port][j].time_last_down < finger[port][i].time_last_down) {
+					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][i].time_last_down)) {
 						updatePointer = false;
 					}
 				}
