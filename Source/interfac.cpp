@@ -4,6 +4,7 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "plrctrls.h"
 #include "utils/display.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
@@ -180,6 +181,9 @@ void interface_msg_pump()
 			DispatchMessage(&e);
 		//}
 	}
+#if HAS_TOUCHPAD
+	finish_simulated_mouse_clicks();
+#endif
 }
 
 void IncProgress()

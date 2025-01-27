@@ -4,6 +4,7 @@
  * Implementation of video playback.
  */
 #include "all.h"
+#include "plrctrls.h"
 #include "storm/storm_svid.h"
 #include "utils/display.h"
 
@@ -60,6 +61,9 @@ int play_movie(const char* pszMovie, int movieFlags)
 			}
 			break;
 		}
+#if HAS_TOUCHPAD
+		finish_simulated_mouse_clicks();
+#endif
 		if (!SVidPlayContinue() || result != MPR_DONE) {
 			SVidPlayEnd();
 			break;

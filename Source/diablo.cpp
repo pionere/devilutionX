@@ -1279,9 +1279,6 @@ static bool ProcessInput()
 #endif
 
 	if (gnTimeoutCurs == CURSOR_NONE && gbDragWnd == WND_NONE) {
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 		CheckCursMove();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();
@@ -1467,6 +1464,9 @@ static void run_game()
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
+#if HAS_TOUCHPAD
+		finish_simulated_mouse_clicks();
+#endif
 		if (!gbRunGame)
 			break;
 		if (!ProcessInput() || nthread_ticks2gameturn() > 0) {

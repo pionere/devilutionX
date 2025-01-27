@@ -2,6 +2,7 @@
 #include "diabloui.h"
 //#include "all.h"
 #include "DiabloUI/diablo.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -92,6 +93,9 @@ void UiHostGameDialog()
 					VersionPlrMsg();
 			}
 		}
+#if HAS_TOUCHPAD
+		finish_simulated_mouse_clicks();
+#endif
 	} while (_gbHostPb->m_Progress < 100);
 	HostGameFree();
 }
