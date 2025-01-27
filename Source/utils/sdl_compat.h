@@ -110,3 +110,7 @@ inline int SDLC_SetSurfaceAndPaletteColors(SDL_Surface* surface, SDL_Palette* pa
 	return SDL_SetPaletteColors(palette, colors, firstcolor, ncolors);
 #endif
 }
+
+#ifndef SDL_TICKS_AFTER
+#define SDL_TICKS_AFTER(A, B, C) ((Uint32)((A) - (B)) >= (Uint32)(C))
+#endif

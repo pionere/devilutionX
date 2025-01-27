@@ -1283,8 +1283,8 @@ static bool ProcessInput()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();
 #endif
-		Uint32 tick = SDL_GetTicks();
-		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && (tick - guLastRBD) >= gnTickDelay * 6 && gbDeathflag == MDM_ALIVE && gbActionBtnDown != 0) {
+		Uint32 now = SDL_GetTicks();
+		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && SDL_TICKS_AFTER(now, guLastRBD, gnTickDelay * 6) && gbDeathflag == MDM_ALIVE && gbActionBtnDown != 0) {
 			int dx = 0, dy = 0;
 			for (int i = ACT_ACT; i <= ACT_W_SE; i++) {
 				if (gbActionBtnDown & ACTBTN_MASK(i)) {

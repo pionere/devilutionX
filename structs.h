@@ -585,7 +585,7 @@ static_warning((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Alig
 typedef struct _Mix_Audio Mix_Audio;
 
 typedef struct SoundSample final {
-	Uint32 nextTc;
+	Uint32 lastTc;
 	Mix_Audio* soundData;
 
 	void Release();

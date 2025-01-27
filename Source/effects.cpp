@@ -1342,7 +1342,7 @@ void PlayWalkSfx(int pnum)
 {
 	int nsfx = PS_WALK1;
 
-	sgSFX[nsfx].pSnd.nextTc = 0;
+	sgSFX[nsfx].pSnd.lastTc = 0;
 
 	PlaySfxLoc(nsfx, plr._px, plr._py);
 }
