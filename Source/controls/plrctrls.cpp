@@ -774,41 +774,6 @@ static void Movement()
 	}
 }
 
-struct RightStickAccumulator {
-
-	RightStickAccumulator()
-	{
-		lastTc = SDL_GetTicks();
-		hiresDX = 0;
-		hiresDY = 0;
-	}
-
-	void Pool(POS32& pos, int slowdown)
-	{
-		const Uint32 tc = SDL_GetTicks();
-		const Sint32 dtc = tc - lastTc;
-		hiresDX += rightStickX * dtc;
-		hiresDY += rightStickY * dtc;
-		const int dx = hiresDX / slowdown;
-		const int dy = hiresDY / slowdown;
-		pos.x = dx;
-		pos.y = dy;
-		lastTc = tc;
-		// keep track of remainder for sub-pixel motion
-		hiresDX -= dx * slowdown;
-		hiresDY -= dy * slowdown;
-	}
-
-	void Clear()
-	{
-		lastTc = SDL_GetTicks();
-	}
-
-	Uint32 lastTc;
-	float hiresDX;
-	float hiresDY;
-};
-
 void StoreSpellCoords()
 {
 	int pnum, i, j;
@@ -870,27 +835,62 @@ void StoreSpellCoords()
 	}
 }
 
+class StickAccumulator {
+public:
+	int Check(POS32& pos)
+	{
+		const Uint32 now = SDL_GetTicks();
+		// deadzone is handled in ScaleJoystickAxes() already
+		if (rightStickX == 0 && rightStickY == 0) {
+			lastTc = now;
+			return -1;
+		}
+		bool automap = IsAutomapActive();
+		// reset remainder on mode-switch
+		if (automapMode != automap) {
+			automapMode = automap;
+			hiresDX = 0;
+			hiresDY = 0;
+		}
+		{ // Pool
+			const int slowdown = automap ? 32 : 2;
+			const Sint32 dtc = now - lastTc;
+			const float fdx = hiresDX + rightStickX * dtc;
+			const float fdy = hiresDY + rightStickY * dtc;
+			const int dx = fdx / slowdown;
+			const int dy = fdy / slowdown;
+			lastTc = now;
+			// set the output
+			pos.x = dx;
+			pos.y = dy;
+			// keep track of remainder for sub-pixel motion
+			hiresDX = fdx - dx * slowdown;
+			hiresDY = fdy - dy * slowdown;
+		}
+		return automap ? 1 : 0;
+	}
+
+private:
+	Uint32 lastTc;
+	bool automapMode;
+	float hiresDX;
+	float hiresDY;
+};
+static StickAccumulator rStickAccumulator;
+
 // Moves the map if active, the cursor otherwise.
 static void HandleRightStickMotion()
 {
-	static RightStickAccumulator acc;
-	// deadzone is handled in ScaleJoystickAxes() already
-	if (rightStickX == 0 && rightStickY == 0) {
-		acc.Clear();
+	POS32 pos;
+	int mode = rStickAccumulator.Check(pos);
+	if (mode < 0)
 		return;
-	}
-
-	if (IsAutomapActive()) { // move map
-		POS32 pos;
-		acc.Pool(pos, 32);
+	if (mode != 0) {
+		// move map
 		SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, pos.x, pos.y);
-		return;
-	}
-
-	{ // move cursor
+	} else {
+		// move cursor
 		sgbControllerActive = false;
-		POS32 pos;
-		acc.Pool(pos, 2);
 		// We avoid calling `SetCursorPos` within the same SDL tick because
 		// that can cause all stick motion events to arrive before all
 		// cursor position events.
