@@ -405,8 +405,8 @@ static void AddStoreItem(ItemStruct* is, int l, bool noid)
 		is->_iIdentified = TRUE;
 	ItemStatOk(mypnum, is);
 	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-	AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 	stextdown = line;
+	AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
 	if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 		// StorePrepareItemBuy(is);
 		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
