@@ -1417,10 +1417,12 @@ static void StartRangeAttack(int pnum)
 	AssertFixPlayerLocation(pnum);
 }
 
-static void StartTurn(int pnum)
+static void StartTurn(int pnum, int dir)
 {
-	plr._pdir = plr._pDestParam1;
-	StartStand(pnum);
+	// assert(plr._pmode == PM_STAND);
+	plr._pdir = dir;
+	plr._pAnimData = plr._pAnims[PGX_STAND].paAnimData[dir];
+	// StartStand(pnum);
 }
 
 static void StartBlock(int pnum, int dir)
@@ -2553,7 +2555,7 @@ static void CheckNewPath(int pnum)
 		StartSpell(pnum);
 		break;
 	case ACTION_TURN:
-		StartTurn(pnum);
+		StartTurn(pnum, plr._pDestParam1);
 		break;
 	case ACTION_BLOCK:
 		StartBlock(pnum, plr._pDestParam1);
