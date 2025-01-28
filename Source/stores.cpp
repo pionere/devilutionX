@@ -426,9 +426,9 @@ static void S_StartSmith()
 
 static void StorePrepareItemBuy(ItemStruct* is)
 {
-	ItemStatOk(mypnum, is);
 	if (is->_iMagical != ITEM_QUALITY_NORMAL)
 		is->_iIdentified = TRUE;
+	ItemStatOk(mypnum, is);
 }
 
 static void S_ScrollSBuy()
