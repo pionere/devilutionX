@@ -314,14 +314,15 @@ static void AddSText(int x, int y, bool j, const char* str, BYTE clr, bool sel)
 	ss->_ssel = sel;
 }
 
-static void AddSItem(int x, int y, int idx, int iCurs, bool selectable)
+static void AddSItem(int x, int y, int idx, const ItemStruct* is, bool selectable)
 {
 	STextStruct* ss;
 
 	ss = &stextlines[y];
 	ss->_sx = x;
 	ss->_sitemlist = true;
-	ss->_siCurs[idx] = iCurs + CURSOR_FIRSTITEM;
+	ss->_siCurs[idx] = is->_iCurs + CURSOR_FIRSTITEM;
+	ss->_siClr[idx] = is->_iStatFlag ? 0 : COLOR_TRN_RED;
 	ss->_ssel = selectable;
 }
 
@@ -406,7 +407,7 @@ static void AddStoreItem(ItemStruct* is, int l, bool noid)
 	ItemStatOk(mypnum, is);
 	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 	stextdown = line;
-	AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+	AddSItem(60, line, l % STORE_LINE_ITEMS, is, TRUE);
 	if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
 		// StorePrepareItemBuy(is);
 		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
@@ -887,7 +888,7 @@ static void S_StartConfirm()
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	// gbHasScroll = false;
-	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
+	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
 	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
 	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
 	// AddSLine(3);
@@ -961,7 +962,7 @@ static void S_StartBBoy()
 	// gbHasScroll = false;
 
 	StorePrepareItemBuy(&boyitem);
-	AddSItem(260, STORE_LIST_FIRST, 0, boyitem._iCurs, FALSE);
+	AddSItem(260, STORE_LIST_FIRST, 0, &boyitem, FALSE);
 	PrintStoreItem(&boyitem, STORE_PEGBOY_BUY, true);
 	AddSTextVal(STORE_PEGBOY_BUY, boyitem._iIvalue);
 
@@ -1098,7 +1099,7 @@ static void S_StartIdShow()
 	// gbRenderGold = true;
 	// gbHasScroll = false;
 
-	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
+	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
 	PrintStoreItem(&storeitem, 11, false);
 
 	AddStoreFrame("This item is:");
@@ -1476,7 +1477,7 @@ void DrawStore()
 
 					// sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
 					// sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
-					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, 0 /* COLOR_TRN_RED */);
+					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, sts->_siClr[n]);
 				}
 			}
 		}

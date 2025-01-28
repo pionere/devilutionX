@@ -2655,6 +2655,7 @@ typedef struct STextStruct {
 		struct {
 			char _schr;     // placeholder to differentiate from a normal text
 			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
+			BYTE _siClr[8]; // the list of light-translations to draw the items with
 		};
 	};
 	bool _sitemlist; // whether items should be drawn 
