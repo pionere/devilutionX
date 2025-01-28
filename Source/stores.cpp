@@ -398,6 +398,22 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		AddSText(40, l++, false, sstr, iclr, false);
 }
 
+static void AddStoreItem(ItemStruct* is, int l, bool noid)
+{
+	// StorePrepareItemBuy(is);
+	if (!noid && is->_iMagical != ITEM_QUALITY_NORMAL)
+		is->_iIdentified = TRUE;
+	ItemStatOk(mypnum, is);
+	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+	AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
+	stextdown = line;
+	if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+		// StorePrepareItemBuy(is);
+		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+	}
+}
+
 static void AddStoreFrame(const char* title)
 {
 	AddSText(10, 1, false, title, COL_GOLD, false);
@@ -441,15 +457,7 @@ static void S_ScrollSBuy()
 	is = &smithitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			is++;
 		}
 	}
@@ -504,15 +512,7 @@ static void S_ScrollSPBuy()
 	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			l++;
 		}
 		idx++;
@@ -596,13 +596,7 @@ static void S_ScrollSSell()
 	is = &storehold[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue/*is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue*/);
-			}
+			AddStoreItem(is, l, true);
 			is++;
 		}
 	}
@@ -728,15 +722,7 @@ static void S_ScrollWBuy()
 	is = &witchitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			is++;
 		}
 	}
@@ -1007,15 +993,7 @@ static void S_ScrollHBuy()
 	is = &healitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			is++;
 		}
 	}
