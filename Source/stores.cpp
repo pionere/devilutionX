@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 // #define DEBUG_STORES
 #ifdef DEBUG_STORES
 #define DEBUG_ASSERT(x) assert(x)
@@ -2816,5 +2818,7 @@ void ReleaseStoreBtn()
 	stextscrlubtn = -1;
 	stextscrldbtn = -1;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

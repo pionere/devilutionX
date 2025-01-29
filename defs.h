@@ -319,6 +319,25 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #endif
 #endif
 
+#if DEBUG_MODE
+#define DISABLE_SPEED_OPTIMIZATION
+#define ENABLE_SPEED_OPTIMIZATION
+#else
+#ifdef _MSC_VER
+#define DISABLE_SPEED_OPTIMIZATION \
+__pragma (optimize( "", off )) \
+__pragma (optimize( "gsy", on ))
+#define ENABLE_SPEED_OPTIMIZATION \
+__pragma (optimize( "", on ))
+#else
+#define DISABLE_SPEED_OPTIMIZATION \
+_Pragma ("GCC push_options") \
+_Pragma ("GCC optimize(\"Os\")")
+#define ENABLE_SPEED_OPTIMIZATION \
+_Pragma ("GCC pop_options")
+#endif
+#endif // DEBUG_MODE
+
 #ifndef M_SQRT2
 #define M_SQRT2    1.41421356237309504880   // sqrt(2)
 #endif
