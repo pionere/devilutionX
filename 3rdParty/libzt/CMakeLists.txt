@@ -34,6 +34,7 @@ foreach(
   lwip_obj
   miniupnpc_obj
   zto_pic
+  zt_pic
   natpmp_pic
   lwip_pic
   miniupnpc_pic
