@@ -989,6 +989,14 @@ void plrctrls_every_frame()
 	HandleRightStickMotion();
 }
 
+bool plrctrls_draw_cursor()
+{
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
+	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
+		return false;
+	return true;
+}
+
 void plrctrls_after_game_logic()
 {
 	Movement();

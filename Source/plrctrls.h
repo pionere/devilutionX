@@ -25,9 +25,8 @@ void plrctrls_after_game_logic();
 // Runs every frame.
 // Handles menu movement.
 void plrctrls_every_frame();
-
-// defined in controller_motion.cpp
-bool IsMovingMouseCursorWithController();
+// return whether the ingame-cursor should be drawn
+bool plrctrls_draw_cursor();
 
 void FocusOnInventory();
 

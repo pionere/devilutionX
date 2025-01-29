@@ -181,12 +181,6 @@ static void scrollrt_draw_cursor()
 	}
 	assert(cursW != 0 && cursH != 0);
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
-	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
-		return;
-#endif
-
 	mx = MousePos.x;
 	my = MousePos.y;
 	// shift the cursor of the items CURSOR_HOTSPOT
@@ -1705,7 +1699,10 @@ void scrollrt_render_game()
 
 	lock_buf(0);
 	DrawView();
-	scrollrt_draw_cursor();
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (plrctrls_draw_cursor())
+#endif
+		scrollrt_draw_cursor();
 
 #if DEBUG_MODE
 	DrawFPS();

@@ -82,11 +82,6 @@ static void scrollrt_draw_cursor()
 	}
 	assert(cursW != 0 && cursH != 0);
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController())
-		return;
-#endif
-
 	mx = MousePos.x;
 	my = MousePos.y;
 	// assert(pcursicon < CURSOR_FIRSTITEM); -- hotspot is always 0:0
