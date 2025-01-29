@@ -1695,7 +1695,7 @@ void scrollrt_render_screen(bool draw_cursor)
  */
 void scrollrt_render_game()
 {
-	if (!gbRunGame || !gbWndActive) {
+	if (!gbWndActive) {
 		return;
 	}
 
