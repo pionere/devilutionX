@@ -1670,15 +1670,17 @@ static void DrawFPS()
  */
 void scrollrt_render_screen(bool draw_cursor)
 {
+	if (!gbWndActive) {
+		return;
+	}
+
 	if (draw_cursor) {
 		lock_buf(0);
 		scrollrt_draw_cursor();
 		unlock_buf(0);
 	}
 
-	if (gbWndActive) {
-		BltFast();
-	}
+	BltFast();
 
 	if (draw_cursor) {
 		lock_buf(0);
@@ -1693,7 +1695,7 @@ void scrollrt_render_screen(bool draw_cursor)
  */
 void scrollrt_render_game()
 {
-	if (!gbRunGame) {
+	if (!gbRunGame || !gbWndActive) {
 		return;
 	}
 
@@ -1710,10 +1712,7 @@ void scrollrt_render_game()
 
 	unlock_buf(0);
 
-	//DrawMain(hgt, gbRedrawFlags);
-	if (gbWndActive) {
-		BltFast();
-	}
+	BltFast();
 
 	lock_buf(0);
 	scrollrt_remove_back_buffer_cursor();
