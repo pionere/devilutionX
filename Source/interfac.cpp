@@ -415,7 +415,7 @@ void ShowCutscene(unsigned uMsg)
 		PaletteFadeOut();
 		// skip time due to fadein/out
 		extern Uint32 guNextTick;
-		guNextTick = SDL_GetTicks() + gnTickDelay; // (uMsg < DVL_DWM_NEWGAME ? 2 : 1) * FADE_LEVELS;
+		guNextTick = SDL_GetTicks() + gnTickDelay; // += (uMsg < DVL_DWM_NEWGAME ? 2 : 1) * FADE_LEVELS;
 	}
 	FreeCutscene();
 
