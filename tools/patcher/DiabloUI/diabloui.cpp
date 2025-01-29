@@ -426,6 +426,7 @@ static void UiClearScreen()
 static void UiFadeIn()
 {
 	Uint32 currTc;
+	bool draw_cursor;
 
 	if (_gnFadeValue < FADE_LEVELS) {
 		currTc = SDL_GetTicks();
@@ -440,7 +441,13 @@ static void UiFadeIn()
 		}
 		SetFadeLevel(_gnFadeValue);
 	}
-	scrollrt_render_screen(gUiDrawCursor);
+
+	draw_cursor = gUiDrawCursor;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive)
+		draw_cursor = false;
+#endif
+	scrollrt_render_screen(draw_cursor);
 }
 
 static int GetAnimationFrame(int frames, int animFrameLenMs)
