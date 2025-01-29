@@ -949,7 +949,7 @@ void InitControlPan()
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
 	// infostr[0] = '\0';
 	// tempstr[0] = '\0';
-	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
+	gbRedrawFlags = REDRAW_ALL; // gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
 	guBooktab = 0;

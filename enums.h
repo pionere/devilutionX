@@ -4638,12 +4638,12 @@ typedef enum game_logic_progress {
 typedef enum redraw_flags {
 	REDRAW_HP_FLASK      = 1 << 0,
 	REDRAW_MANA_FLASK    = 1 << 1,
-	REDRAW_SPELL_ICON    = 1 << 2,
-	REDRAW_CTRL_BUTTONS  = 1 << 3,
-	REDRAW_SPEED_BAR     = 1 << 4,
-	REDRAW_CTRL_PANEL    = 1 << 5,
-	REDRAW_ALL = REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPELL_ICON
-               | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL,
+	//REDRAW_SPELL_ICON    = 1 << 2,
+	//REDRAW_CTRL_BUTTONS  = 1 << 3,
+	//REDRAW_SPEED_BAR     = 1 << 4,
+	//REDRAW_CTRL_PANEL    = 1 << 5,
+	REDRAW_ALL = REDRAW_HP_FLASK | REDRAW_MANA_FLASK /*| REDRAW_SPELL_ICON
+               | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL*/,
 } redraw_flags;
 
 typedef enum input_key {
