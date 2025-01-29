@@ -4357,7 +4357,7 @@ void MAI_Lazarus(int mnum)
 				mon->_mmode = MM_TALK;
 				// mon->_mListener = mypnum;
 			} else { // TALK_SPEAKING  alltext[TEXT_VILE13].sfxnr
-				if (IsSfxPlaying(USFX_LAZ1) && myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
+				if (IsSfxPlaying(USFX_LAZ1) && myplr._pmode == PM_STAND) // myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
 					return;
 				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
 				//RedoLightAndVision();
