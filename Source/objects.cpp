@@ -1291,15 +1291,15 @@ int AddObject(int type, int ox, int oy)
 #endif
 			AddSarc(oi);
 			break;
-			/*case OBJ_FLAMEHOLE:
-				AddFlameTrap(oi);
-				break;
-			case OBJ_FLAMELVR:
-				AddFlameLever(oi);
-				break;
-			case OBJ_WATER:
-				objects[oi]._oAnimFrame = 1;
-				break;*/
+		/*case OBJ_FLAMEHOLE:
+			AddFlameTrap(oi);
+			break;
+		case OBJ_FLAMELVR:
+			AddFlameLever(oi);
+			break;
+		case OBJ_WATER:
+			objects[oi]._oAnimFrame = 1;
+			break;*/
 		case OBJ_TRAPL:
 		case OBJ_TRAPR:
 			AddTrap(oi);
