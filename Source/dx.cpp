@@ -389,9 +389,10 @@ void RenderPresent()
 			sdl_error(ERR_SDL_DX_FLIP);
 		}
 #endif
+		if (gbFrameRateControl != FRC_CPUSLEEP)
+			return;
 	}
-	if (gbFrameRateControl == FRC_CPUSLEEP)
-		LimitFrameRate();
+	LimitFrameRate();
 }
 
 DEVILUTION_END_NAMESPACE

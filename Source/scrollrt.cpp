@@ -1670,10 +1670,7 @@ static void DrawFPS()
  */
 void scrollrt_render_screen(bool draw_cursor)
 {
-	if (!gbWndActive) {
-		return;
-	}
-
+	if (gbWndActive) {
 	if (draw_cursor) {
 		lock_buf(0);
 		scrollrt_draw_cursor();
@@ -1687,6 +1684,7 @@ void scrollrt_render_screen(bool draw_cursor)
 		scrollrt_remove_back_buffer_cursor();
 		unlock_buf(0);
 	}
+	}
 	RenderPresent();
 }
 
@@ -1695,10 +1693,7 @@ void scrollrt_render_screen(bool draw_cursor)
  */
 void scrollrt_render_game()
 {
-	if (!gbWndActive) {
-		return;
-	}
-
+	if (gbWndActive) {
 	lock_buf(0);
 	DrawView();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -1717,9 +1712,9 @@ void scrollrt_render_game()
 	lock_buf(0);
 	scrollrt_remove_back_buffer_cursor();
 	unlock_buf(0);
-	RenderPresent();
-
 	gbRedrawFlags = 0;
+	}
+	RenderPresent();
 }
 
 DEVILUTION_END_NAMESPACE

@@ -160,10 +160,7 @@ static void scrollrt_draw_cursor()
  */
 void scrollrt_render_screen(bool draw_cursor)
 {
-	if (!gbWndActive) {
-		return;
-	}
-
+	if (gbWndActive) {
 	if (draw_cursor) {
 		lock_buf(0);
 		scrollrt_draw_cursor();
@@ -176,6 +173,7 @@ void scrollrt_render_screen(bool draw_cursor)
 		lock_buf(0);
 		scrollrt_remove_back_buffer_cursor();
 		unlock_buf(0);
+	}
 	}
 	RenderPresent();
 }
