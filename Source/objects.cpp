@@ -1720,11 +1720,8 @@ void ProcessObjects()
 	}*/
 }
 
-static void OpenDoor(int oi)
+static void OpenDoor(ObjectStruct* os)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
 	os->_oVar4 = DOOR_OPEN;
 	os->_oPreFlag = TRUE;
 	os->_oSelFlag = (objectdata[OBJ_L1LDOOR].oSelFlag & ~1) | 4;
@@ -1733,12 +1730,10 @@ static void OpenDoor(int oi)
 	os->_oAnimFrame += 2;
 }
 
-static bool CloseDoor(int oi)
+static bool CloseDoor(ObjectStruct* os)
 {
-	ObjectStruct* os;
 	int xp, yp;
 
-	os = &objects[oi];
 	xp = os->_ox;
 	yp = os->_oy;
 	os->_oVar4 = (dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0 ? DOOR_CLOSED : DOOR_BLOCKED;
@@ -1772,7 +1767,7 @@ static bool PlrCheckDoor(int oi, int pnum)
 		return dx <= 1 && dy == 1;
 }
 
-static void SyncDoors(int oi);
+static void SyncDoors(const ObjectStruct* os);
 static void OperateDoor(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -1785,8 +1780,8 @@ static void OperateDoor(int oi, bool sendmsg)
 		if (!deltaload) {
 			PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
 		}
-		OpenDoor(oi);
-		SyncDoors(oi);
+		OpenDoor(os);
+		SyncDoors(os);
 		RedoLightAndVision();
 		return;
 	}
@@ -1803,10 +1798,10 @@ static void OperateDoor(int oi, bool sendmsg)
 	if (os->_oVar4 == DOOR_BLOCKED)
 		return;
 
-	if (CloseDoor(oi)) {
+	if (CloseDoor(os)) {
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncDoors(oi);
+		SyncDoors(os);
 		RedoLightAndVision();
 	}
 }
@@ -3500,20 +3495,14 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	}*/
 }
 
-static void SyncLever(int oi)
+static void SyncLever(const ObjectStruct* os)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
 	if (CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
 		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
-static void SyncBookLever(int oi)
+static void SyncBookLever(const ObjectStruct* os)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
@@ -3524,33 +3513,25 @@ static void SyncBookLever(int oi)
 	}
 }
 
-static void SyncCrux(int oi)
+static void SyncCrux(const ObjectStruct* os)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
 	if (CheckCrux(os->_oVar8)) // LEVER_EFFECT
 		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 }
 
 #ifdef HELLFIRE
-static void SyncNakrulLever(int oi)
+static void SyncNakrulLever(const ObjectStruct* os)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
 	if (os->_oSelFlag == 0) {
 		OpenNakrulRoom();
 	}
 }
 #endif
 
-static void SyncDoors(int oi)
+static void SyncDoors(const ObjectStruct* os)
 {
-	ObjectStruct* os;
 	int pn;
 
-	os = &objects[oi];
 	pn = os->_oVar1; // DOOR_PIECE_CLOSED
 	if (os->_oVar4 != DOOR_CLOSED) {
 		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
@@ -3561,14 +3542,16 @@ static void SyncDoors(int oi)
 
 void SyncObjectAnim(int oi)
 {
+	ObjectStruct* os;
 	int type, ofidx;
 
-	type = objects[oi]._otype;
+	os = &objects[oi];
+	type = os->_otype;
 	ofidx = objectdata[type].ofindex;
-	objects[oi]._oAnimData = objanimdata[ofidx];
-	objects[oi]._oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
-	objects[oi]._oAnimWidth = objfiledata[ofidx].oAnimWidth * ASSET_MPL;
-	objects[oi]._oAnimXOffset = (objects[oi]._oAnimWidth - TILE_WIDTH) >> 1;
+	os->_oAnimData = objanimdata[ofidx];
+	os->_oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
+	os->_oAnimWidth = objfiledata[ofidx].oAnimWidth * ASSET_MPL;
+	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -3580,31 +3563,31 @@ void SyncObjectAnim(int oi)
 	case OBJ_L2RDOOR:
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		SyncDoors(oi);
+		SyncDoors(os);
 		break;
 	case OBJ_LEVER:
 	case OBJ_VILEBOOK:
 	case OBJ_SWITCHSKL:
-		SyncLever(oi);
+		SyncLever(os);
 		break;
 #ifdef HELLFIRE
 	case OBJ_NAKRULLEVER:
-		SyncNakrulLever(oi);
+		SyncNakrulLever(os);
 		break;
 #endif
 	case OBJ_CRUXM:
 	//case OBJ_CRUXR: -- check only one of them
 	//case OBJ_CRUXL:
-		SyncCrux(oi);
+		SyncCrux(os);
 		break;
 	case OBJ_MYTHICBOOK:
 	case OBJ_BLINDBOOK:
 	//case OBJ_BLOODBOOK: -- NULL_LVR_EFFECT
 	case OBJ_STEELTOME:
-		SyncBookLever(oi);
+		SyncBookLever(os);
 		break;
 	case OBJ_PEDESTAL:
-		SyncPedestal(/*oi*/);
+		SyncPedestal(/*os*/);
 		break;
 	}
 }
