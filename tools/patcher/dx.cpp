@@ -338,9 +338,8 @@ static void LimitFrameRate()
 
 void RenderPresent()
 {
-	SDL_Surface* surface = GetOutputSurface();
-
 	if (gbWndActive) {
+		SDL_Surface* surface = GetOutputSurface();
 #ifndef USE_SDL1
 		if (renderer != NULL) {
 			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) {
