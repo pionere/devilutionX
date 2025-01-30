@@ -1082,12 +1082,12 @@ void DeltaLoadLevel()
 				case CMD_TRAPDISABLE:
 					SyncTrapDisable(i);
 					break;
-				case CMD_TRAPOPEN:
-					SyncTrapOpen(i);
-					break;
-				case CMD_TRAPCLOSE:
-					SyncTrapClose(i);
-					break;
+				//case CMD_TRAPOPEN:
+				//	SyncTrapOpen(i);
+				//	break;
+				//case CMD_TRAPCLOSE:
+				//	SyncTrapClose(i);
+				//	break;
 				default:
 					ASSUME_UNREACHABLE
 					break;
@@ -2912,7 +2912,7 @@ static unsigned On_TRAPDISABLE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TRAPOPEN(TCmd* pCmd, int pnum)
+/*static unsigned On_TRAPOPEN(TCmd* pCmd, int pnum)
 {
 	TCmdParam1* cmd = (TCmdParam1*)pCmd;
 
@@ -2932,7 +2932,7 @@ static unsigned On_TRAPCLOSE(TCmd* pCmd, int pnum)
 	delta_sync_object(cmd->wParam1, CMD_TRAPCLOSE, plr._pDunLevel);
 
 	return sizeof(*cmd);
-}
+}*/
 
 static unsigned On_OPERATEOBJ(TCmd* pCmd, int pnum)
 {
@@ -4504,10 +4504,10 @@ unsigned ParseCmd(int pnum, TCmd* pCmd)
 		return On_DOORCLOSE(pCmd, pnum);
 	case CMD_TRAPDISABLE:
 		return On_TRAPDISABLE(pCmd, pnum);
-	case CMD_TRAPOPEN:
-		return On_TRAPOPEN(pCmd, pnum);
-	case CMD_TRAPCLOSE:
-		return On_TRAPCLOSE(pCmd, pnum);
+	//case CMD_TRAPOPEN:
+	//	return On_TRAPOPEN(pCmd, pnum);
+	//case CMD_TRAPCLOSE:
+	//	return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_SHRINE:
 		return On_SHRINE(pCmd, pnum);
 	case CMD_TELEKINITM:

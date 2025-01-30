@@ -3351,7 +3351,7 @@ void SyncTrapDisable(int oi)
 	objects[objects[oi]._oVar1]._oTrapChance = 0; // TRAP_OI_REF
 }
 
-void SyncTrapOpen(int oi)
+/*void SyncTrapOpen(int oi)
 {
 	if (objects[oi]._oAnimFrame == FLAMETRAP_INACTIVE_FRAME)
 		SyncOpObject(oi);
@@ -3360,7 +3360,7 @@ void SyncTrapClose(int oi)
 {
 	if (objects[oi]._oAnimFrame == FLAMETRAP_ACTIVE_FRAME)
 		SyncOpObject(oi);
-}
+}*/
 
 void SyncOpObject(/*int pnum,*/ int oi)
 {
