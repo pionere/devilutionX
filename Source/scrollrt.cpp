@@ -1671,19 +1671,19 @@ static void DrawFPS()
 void scrollrt_render_screen(bool draw_cursor)
 {
 	if (gbWndActive) {
-	if (draw_cursor) {
-		lock_buf(0);
-		scrollrt_draw_cursor();
-		unlock_buf(0);
-	}
+		if (draw_cursor) {
+			lock_buf(0);
+			scrollrt_draw_cursor();
+			unlock_buf(0);
+		}
 
-	BltFast();
+		BltFast();
 
-	if (draw_cursor) {
-		lock_buf(0);
-		scrollrt_remove_back_buffer_cursor();
-		unlock_buf(0);
-	}
+		if (draw_cursor) {
+			lock_buf(0);
+			scrollrt_remove_back_buffer_cursor();
+			unlock_buf(0);
+		}
 	}
 	RenderPresent();
 }
@@ -1694,25 +1694,25 @@ void scrollrt_render_screen(bool draw_cursor)
 void scrollrt_render_game()
 {
 	if (gbWndActive) {
-	lock_buf(0);
-	DrawView();
+		lock_buf(0);
+		DrawView();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (plrctrls_draw_cursor())
+		if (plrctrls_draw_cursor())
 #endif
-		scrollrt_draw_cursor();
+			scrollrt_draw_cursor();
 
 #if DEBUG_MODE
-	DrawFPS();
+		DrawFPS();
 #endif
 
-	unlock_buf(0);
+		unlock_buf(0);
 
-	BltFast();
+		BltFast();
 
-	lock_buf(0);
-	scrollrt_remove_back_buffer_cursor();
-	unlock_buf(0);
-	gbRedrawFlags = 0;
+		lock_buf(0);
+		scrollrt_remove_back_buffer_cursor();
+		unlock_buf(0);
+		gbRedrawFlags = 0;
 	}
 	RenderPresent();
 }
