@@ -702,8 +702,10 @@ static void UiDrawItems()
 
 void UiRender()
 {
+	if (gbWndActive) {
 	UiClearScreen();
 	UiDrawItems();
+	}
 	UiFadeIn();
 }
 
