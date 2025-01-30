@@ -657,16 +657,18 @@ bool plrmsg_presskey(int vkey)
 	SDL_Keymod mod = SDL_GetModState();
 	switch (vkey) {
 #ifndef USE_SDL1
-	case DVL_VK_MBUTTON:
 	case DVL_VK_V:
-		if (mod & KMOD_CTRL) {
-			char* clipboard = SDL_GetClipboardText();
-			if (clipboard != NULL) {
-				plrmsg_CatToText(clipboard);
-				SDL_free(clipboard);
-			}
+		if (!(mod & KMOD_CTRL)) {
+			break;
 		}
-		break;
+		// fall-through
+	case DVL_VK_MBUTTON: {
+		char* clipboard = SDL_GetClipboardText();
+		if (clipboard != NULL) {
+			plrmsg_CatToText(clipboard);
+			SDL_free(clipboard);
+		}
+	} break;
 	case DVL_VK_C:
 	case DVL_VK_X:
 		if (!(mod & KMOD_CTRL)) {

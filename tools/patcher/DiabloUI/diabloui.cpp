@@ -979,16 +979,18 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		if (gUiEditField != NULL) {
 			switch (event->vkcode) {
 #ifndef USE_SDL1
-			case DVL_VK_MBUTTON:
 			case DVL_VK_V:
-				if (event->key.keysym.mod & KMOD_CTRL) {
-					char* clipboard = SDL_GetClipboardText();
-					if (clipboard != NULL) {
-						UiCatToText(clipboard);
-						SDL_free(clipboard);
-					}
+				if (!(event->key.keysym.mod & KMOD_CTRL)) {
+					break;
 				}
-				break;
+				// fall-through
+			case DVL_VK_MBUTTON: {
+				char* clipboard = SDL_GetClipboardText();
+				if (clipboard != NULL) {
+					UiCatToText(clipboard);
+					SDL_free(clipboard);
+				}
+			} break;
 			case DVL_VK_C:
 			case DVL_VK_X:
 				if (!(event->key.keysym.mod & KMOD_CTRL)) {
