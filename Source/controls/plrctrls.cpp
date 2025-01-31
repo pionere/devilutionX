@@ -1072,7 +1072,7 @@ void PerformSpellAction()
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(gnGamePaused == 0);
-	assert(!gbDropGoldFlag);
+	assert(!INVIDX_VALID(gbDropGoldIndex));
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 

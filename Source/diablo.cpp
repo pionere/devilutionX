@@ -464,7 +464,7 @@ static bool TryIconCurs()
 
 static void ActionBtnDown()
 {
-	assert(!gbDropGoldFlag);
+	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !control_check_talk_btn());
@@ -691,7 +691,7 @@ bool PressEscKey()
 		msgdelay = 0;
 		rv = true;
 	}
-	if (gbDropGoldFlag) {
+	if (INVIDX_VALID(gbDropGoldIndex)) {
 		control_drop_gold(DVL_VK_ESCAPE);
 		rv = true;
 	}
@@ -722,7 +722,7 @@ void ClearPanels()
 	gnNumActiveWindows = 0;
 	gbSkillListFlag = false;
 	gbCampaignMapFlag = CMAP_NONE;
-	gbDropGoldFlag = false;
+	gbDropGoldIndex = INVITEM_NONE;
 }
 
 static void ClearUI()
@@ -1067,7 +1067,7 @@ static void PressKey(int vkey)
 		return;
 	}
 
-	if (gbDropGoldFlag) {
+	if (INVIDX_VALID(gbDropGoldIndex)) {
 		control_drop_gold(vkey);
 		return;
 	}

@@ -1524,8 +1524,8 @@ static void DrawView()
 			default: ASSUME_UNREACHABLE;     break;
 			}
 		}
-		if (gbDropGoldFlag) {
-			DrawGoldSplit(dropGoldValue);
+		if (INVIDX_VALID(gbDropGoldIndex)) {
+			DrawGoldSplit();
 		}
 		if (gbSkillListFlag) {
 			DrawSkillList();

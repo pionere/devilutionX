@@ -57,16 +57,12 @@ int camItemIndex;
 /** The 'selected' map on the campaign-map. */
 CampaignMapEntry selCamEntry;
 
-/** Specifies whether the Golddrop is displayed. */
-bool gbDropGoldFlag;
 /** Golddrop background CEL */
 static CelImageBuf* pGoldDropCel;
-/** The gold-stack index which is used as a source in Golddrop. */
-BYTE initialDropGoldIndex;
-/** The gold-stack size which is used as a source in Golddrop. */
-int initialDropGoldValue;
 /** The current value in Golddrop. */
-int dropGoldValue;
+int gnDropGoldValue;
+/** The gold-stack index which is used as a source in Golddrop (inv_item). */
+BYTE gbDropGoldIndex;
 BYTE infoclr;
 char tempstr[256];
 char infostr[256];
@@ -986,10 +982,8 @@ void InitControlPan()
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
-	gbDropGoldFlag = false;
-	dropGoldValue = 0;
-	initialDropGoldValue = 0;
-	initialDropGoldIndex = 0;
+	gbDropGoldIndex = INVITEM_NONE;
+	// gnDropGoldValue = 0;
 }
 
 void StartWndDrag(BYTE wnd)
@@ -2181,25 +2175,30 @@ const char* get_pieces_str(int nGold)
 	return nGold != 1 ? "pieces" : "piece";
 }
 
-void DrawGoldSplit(int amount)
+void DrawGoldSplit()
 {
-	int screen_x, screen_y;
+	int screen_x, screen_y, amount;
 
 	screen_x = SCREEN_X + gnWndInvX + (SPANEL_WIDTH - GOLDDROP_WIDTH) / 2;
 	screen_y = SCREEN_Y + gnWndInvY + 178;
-
+	// draw the background
 	CelDraw(screen_x, screen_y, pGoldDropCel, 1);
-	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
+	// draw the info-text
+	amount = PlrItem(mypnum, gbDropGoldIndex)->_ivalue;
+	snprintf(tempstr, sizeof(tempstr), "You have %d gold", amount);
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 4), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
-	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
+	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(amount));
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 3), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 2), screen_x + GOLDDROP_WIDTH - 15, "you want to remove?", COL_GOLD, FONT_KERN_SMALL);
+	// draw the edit-field
 	screen_x += 37;
 	screen_y -= 18 + 18 * 1;
+	amount = gnDropGoldValue;
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
-		PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
-		screen_x += GetSmallStringWidth(tempstr);
+		// PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
+		// screen_x += GetSmallStringWidth(tempstr);
+		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE);
 	}
 	screen_x += 2;
 	DrawSingleSmallPentSpn(screen_x, screen_y);
@@ -2207,13 +2206,22 @@ void DrawGoldSplit(int amount)
 
 static void control_remove_gold()
 {
-	int gi;
+	BYTE cii = gbDropGoldIndex;
 
-	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	assert(cii >= INVITEM_INV_FIRST && cii <= INVITEM_INV_LAST);
 	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
-	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using uint16_t.");
-	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParamBW(CMD_SPLITPLRGOLD, cii - INVITEM_INV_FIRST, gnDropGoldValue);
+}
+
+static void control_inc_dropgold(int value)
+{
+	int newValue;
+	int maxValue = PlrItem(mypnum, gbDropGoldIndex)->_ivalue;
+
+	newValue = gnDropGoldValue * 10 + value;
+	if (newValue <= maxValue)
+		gnDropGoldValue = newValue;
 }
 
 void control_drop_gold(int vkey)
@@ -2223,26 +2231,22 @@ void control_drop_gold(int vkey)
 	assert(myplr._pHitPoints >= (1 << 6) || vkey == DVL_VK_ESCAPE);
 
 	if (vkey == DVL_VK_RETURN) {
-		if (dropGoldValue > 0)
+		if (gnDropGoldValue > 0)
 			control_remove_gold();
 	} else if (vkey == DVL_VK_BACK) {
-		dropGoldValue /= 10;
+		gnDropGoldValue /= 10;
 		return;
 	} else if (vkey == DVL_VK_DELETE) {
-		dropGoldValue = 0;
+		gnDropGoldValue = 0;
 		return;
 	} else if (vkey >= DVL_VK_0 && vkey <= DVL_VK_9) {
-		newValue = dropGoldValue * 10 + vkey - DVL_VK_0;
-		if (newValue <= initialDropGoldValue)
-			dropGoldValue = newValue;
+		control_inc_dropgold(vkey - DVL_VK_0);
 		return;
 	} else if (vkey >= DVL_VK_NUMPAD0 && vkey <= DVL_VK_NUMPAD9) {
-		newValue = dropGoldValue * 10 + vkey - DVL_VK_NUMPAD0;
-		if (newValue <= initialDropGoldValue)
-			dropGoldValue = newValue;
+		control_inc_dropgold(vkey - DVL_VK_NUMPAD0);
 		return;
 	}
-	gbDropGoldFlag = false;
+	gbDropGoldIndex = INVITEM_NONE;
 }
 
 static void DrawTeamButton(int x, int y, int width, bool pressed, const char* label, int txtoff)

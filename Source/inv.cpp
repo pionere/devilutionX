@@ -1725,15 +1725,12 @@ BYTE CheckInvItem()
 	return rv;
 }
 
-static void StartGoldDrop()
+static void StartGoldDrop(int cii)
 {
-	if (gbTalkflag || myplr._pmode != PM_STAND)
+	if (gbTalkflag /*|| myplr._pmode != PM_STAND*/)
 		return;
-	initialDropGoldIndex = pcursinvitem;
-	assert(pcursinvitem >= INVITEM_INV_FIRST && pcursinvitem <= INVITEM_INV_LAST);
-	initialDropGoldValue = myplr._pInvList[pcursinvitem - INVITEM_INV_FIRST]._ivalue;
-	gbDropGoldFlag = true;
-	dropGoldValue = 0;
+	gbDropGoldIndex = cii;
+	gnDropGoldValue = 0;
 }
 
 static void InvAddHp(int pnum)
@@ -1807,7 +1804,7 @@ bool InvUseItem(int cii)
 	if (is->_itype == ITYPE_NONE)
 		return false;
 	if (is->_iIdx == IDI_GOLD) {
-		StartGoldDrop();
+		StartGoldDrop(cii);
 		return true;
 	}
 	if (is->_iIdx == IDI_MUSHROOM) {
