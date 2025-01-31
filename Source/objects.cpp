@@ -3152,7 +3152,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	os->_oAnimFlag = OAM_SINGLE;
 	// os->_oAnimFrame = 1;
 
-	assert(os->_oSFXCnt == 1);
+	// assert(os->_oSFXCnt == 1);
 	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
 
 	xotype = OBJ_BARRELEX;

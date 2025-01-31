@@ -1287,6 +1287,28 @@ void ValidateData()
 			if (od.oAnimLen >= 0x7FFF) // required by SetupObject
 				app_fatal("Too high oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
 		}
+		if (od.oSFXCnt != 0) {
+			for (int n = 0; n < NUM_OBJECTS; n++) {
+				const ObjectData& obd = objectdata[n];
+				if (obd.ofindex != i) continue;
+				if (n == OBJ_SHRINEL || n == OBJ_SHRINER || n == OBJ_GOATSHRINE || n == OBJ_CAULDRON) continue;
+				if (od.oSFXCnt == 1 &&
+					(n == OBJ_BARREL || n == OBJ_BARRELEX
+#ifdef HELLFIRE
+				 || n == OBJ_URN || n == OBJ_URNEX || n == OBJ_POD || n == OBJ_PODEX
+#endif
+					)) continue;
+
+				if (od.oSFXCnt == 2 &&
+					(n == OBJ_L1LDOOR || n == OBJ_L1RDOOR || n == OBJ_L2LDOOR || n == OBJ_L2RDOOR || n == OBJ_L3LDOOR || n == OBJ_L3RDOOR
+#ifdef HELLFIRE
+				 || n == OBJ_L5LDOOR || n == OBJ_L5RDOOR
+#endif
+					)) continue;
+				if (obd.ofindex == i && n != OBJ_SHRINEL && n != OBJ_SHRINER && n != OBJ_GOATSHRINE && n != OBJ_CAULDRON)
+					app_fatal("Unsupported oSFXCnt for %s (%d) used by object %d", od.ofName, i, n);
+			}
+		}
 	}
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		const ObjectData& od = objectdata[i];
