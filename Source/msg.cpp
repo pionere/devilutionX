@@ -1446,8 +1446,9 @@ void LevelDeltaLoad()
 			continue;
 		}
 		if (pnum == mypnum) {
-			net_assert(tplr->spMode == PM_STAND
-			 || ((tplr->spMode == PM_DEATH || tplr->spMode == PM_DYING) && plr._pHitPoints < (1 << 6)));
+			mi = tplr->spMode;
+			net_assert(mi == PM_STAND
+			 || ((mi == PM_DEATH || mi == PM_DYING) && plr._pHitPoints < (1 << 6)));
 			net_assert(tplr->spDestAction == ACTION_NONE);
 			net_assert(tplr->spInvincible == 40);
 			net_assert(plr._pTimer[PLTR_INFRAVISION] == tplr->spTimer[PLTR_INFRAVISION]);
@@ -1457,10 +1458,8 @@ void LevelDeltaLoad()
 			net_assert(plr._pManaBase == tplr->spManaBase);
 		}
 		// RemovePlrFromMap(pnum);
-		net_assert(IN_DUNGEON_AREA(plr._px, plr._py));
 		if (dPlayer[plr._px][plr._py] == pnum + 1)
 			dPlayer[plr._px][plr._py] = 0;
-		net_assert(tplr->spMode < NUM_PLR_MODES);
 		plr._pmode = tplr->spMode;
 		plr._pManaShield = tplr->spManaShield;
 		plr._pInvincible = tplr->spInvincible;
@@ -1504,7 +1503,9 @@ void LevelDeltaLoad()
 			px = plr._px;
 			py = plr._py;
 			net_assert(IN_DUNGEON_AREA(px, py));
-			if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
+			mi = plr._pmode;
+			net_assert(mi < NUM_PLR_MODES);
+			if (mi == PM_WALK || mi == PM_WALK2) {
 				if (plr._pmode == PM_WALK) {
 					plr._poldx = px;
 					plr._poldy = py;
