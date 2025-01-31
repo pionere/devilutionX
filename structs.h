@@ -1887,10 +1887,10 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar3;
 	BYTE smx;          // Tile X-position where the monster should be drawn
 	BYTE smy;          // Tile Y-position where the monster should be drawn
-	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
-	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
-	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
-	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
+//	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
+//	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
+//	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
+//	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
 //	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
 //	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)

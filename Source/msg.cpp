@@ -1303,10 +1303,10 @@ void LevelDeltaExport()
 			tmon->smGoalvar3 = mon->_mgoalvar3;
 			tmon->smx = mon->_mx;
 			tmon->smy = mon->_my;
-			tmon->smfutx = mon->_mfutx;
-			tmon->smfuty = mon->_mfuty;
-			tmon->smoldx = mon->_moldx;
-			tmon->smoldy = mon->_moldy;
+			//tmon->smfutx = mon->_mfutx;
+			//tmon->smfuty = mon->_mfuty;
+			//tmon->smoldx = mon->_moldx;
+			//tmon->smoldy = mon->_moldy;
 			//tmon->smxoff = mon->_mxoff;
 			//tmon->smyoff = mon->_myoff;
 			tmon->smdir = mon->_mdir;
@@ -1549,7 +1549,6 @@ void LevelDeltaLoad()
 
 		UpdateLeader(mnum, mon->_mleaderflag, tmon->smLeaderflag);
 
-		net_assert(tmon->smMode <= MM_INGAME_LAST);
 		mon->_mmode = tmon->smMode;
 		mon->_msquelch = tmon->smSquelch;
 		//mon->_mpathcount = tmon->smPathcount;
@@ -1560,10 +1559,10 @@ void LevelDeltaLoad()
 		mon->_mgoalvar3 = tmon->smGoalvar3;
 		mon->_mx = tmon->smx;
 		mon->_my = tmon->smy;
-		mon->_mfutx = tmon->smfutx;
-		mon->_mfuty = tmon->smfuty;
-		mon->_moldx = tmon->smoldx;
-		mon->_moldy = tmon->smoldy;
+		//mon->_mfutx = tmon->smfutx;
+		//mon->_mfuty = tmon->smfuty;
+		//mon->_moldx = tmon->smoldx;
+		//mon->_moldy = tmon->smoldy;
 		//mon->_mxoff = tmon->smxoff;
 		//mon->_myoff = tmon->smyoff;
 		mon->_mxoff = mon->_myoff = 0;        // no need to sync these values as they are recalculated when used
@@ -1597,7 +1596,45 @@ void LevelDeltaLoad()
 		//	ChangeLightXY(mon->_mlid, mon->_moldx, mon->_moldy);
 		// place the monster
 		mi = mon->_mmode;
+		net_assert(mi <= MM_INGAME_LAST);
 		if (mi != MM_STONE || mon->_mhitpoints != 0) {
+			// calculate the monster's (future/old) position based on its mode
+			int mdir, mx, my;
+			if (mi == MM_STONE)
+				mi = mon->_mVar3;
+			net_assert(mi <= MM_INGAME_LAST);
+			mdir = mon->_mdir;
+			net_assert(mdir < NUM_DIRS);
+			mx = mon->_mx;
+			my = mon->_my;
+			net_assert(IN_ACTIVE_AREA(mx, my));
+			if (mi == MM_WALK || mi == MM_WALK2) {
+				if (mon->_mmode == MM_WALK) {
+					mon->_moldx = mx;
+					mon->_moldy = my;
+
+					mx += offset_x[mdir];
+					my += offset_y[mdir];
+					mon->_mfutx = mx;
+					mon->_mfuty = my;
+				} else {
+					mon->_mfutx = mx;
+					mon->_mfuty = my;
+
+					mx -= offset_x[mdir];
+					my -= offset_y[mdir];
+					mon->_moldx = mx;
+					mon->_moldy = my;
+				}
+				net_assert(IN_ACTIVE_AREA(mx, my));
+				// net_assert(PosOkMonster(mnum, mx, my));
+			} else {
+				// net_assert(PosOkMonster(mnum, mx, my));
+				// SetMonsterLoc(mon, mx, my);
+				mon->_mfutx = mon->_moldx = mx;
+				mon->_mfuty = mon->_moldy = my;
+			}
+			// InitLvlMonster
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			if (mi == MM_STONE)
 				mi = mon->_mVar3;
