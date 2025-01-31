@@ -2226,8 +2226,6 @@ static void control_inc_dropgold(int value)
 
 void control_drop_gold(int vkey)
 {
-	int newValue;
-
 	assert(myplr._pHitPoints >= (1 << 6) || vkey == DVL_VK_ESCAPE);
 
 	if (vkey == DVL_VK_RETURN) {
@@ -2521,6 +2519,12 @@ void InitCampaignMap(int cii)
 	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
+/*
+ * @brief Manipulate the campaign map.
+ *   If shift is pressed:  the inventory is kept open
+ *            is released: the inventory is closed
+ * @param altAction: if set the map is just closed
+ */
 void TryCampaignMapClick(bool altAction)
 {
 	if (!altAction) {
@@ -2544,12 +2548,6 @@ void TryCampaignMapClick(bool altAction)
 	gbCampaignMapFlag = CMAP_NONE;
 }
 
-/*
- * @brief Manipulate the campaign map.
- *   If shift is pressed:  the inventory is kept open
- *            is released: the inventory is closed
- * @param altAction: if set the map is just closed
- */
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;
