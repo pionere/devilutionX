@@ -467,7 +467,7 @@ static void ActionBtnDown()
 	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
-	// assert(!gbTalkflag || !control_check_talk_btn());
+	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(gnGamePaused == 0);
 	//assert(!gbDoomflag);
@@ -541,8 +541,10 @@ static void AltActionBtnCmd()
 
 static void AltActionBtnDown()
 {
+//	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
+//	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(gnGamePaused == 0);
 	//assert(!gbDoomflag);

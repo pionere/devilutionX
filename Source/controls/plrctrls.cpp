@@ -1067,12 +1067,12 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
+	assert(!INVIDX_VALID(gbDropGoldIndex));
 	assert(!gmenu_is_active());
-	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(gnTimeoutCurs == CURSOR_NONE);
+	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(gnGamePaused == 0);
-	assert(!INVIDX_VALID(gbDropGoldIndex));
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
