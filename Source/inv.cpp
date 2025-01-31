@@ -1794,7 +1794,7 @@ bool InvUseItem(int cii)
 {
 	ItemStruct* is;
 	int pnum = mypnum;
-
+	// assert(INVIDX_VALID(cii));
 	if (plr._pHitPoints < (1 << 6))
 		return true;
 	if (pcursicon != CURSOR_HAND)

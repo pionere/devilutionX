@@ -1098,7 +1098,7 @@ static void CtrlUseInvItem()
 {
 	ItemStruct* is;
 
-	if (pcursinvitem == INVITEM_NONE)
+	if (!INVIDX_VALID(pcursinvitem))
 		return;
 
 	is = PlrItem(mypnum, pcursinvitem);

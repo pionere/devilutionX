@@ -292,7 +292,7 @@ void CheckCursMove()
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
-	//if (pcursinvitem != INVITEM_NONE) {
+	//if (INVIDX_VALID(pcursinvitem)) {
 	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
 	//}
 	pcursinvitem = INVITEM_NONE;

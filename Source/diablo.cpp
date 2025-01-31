@@ -420,7 +420,7 @@ static bool TryIconCurs()
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
 	case CURSOR_OIL:
-		if (pcursinvitem != INVITEM_NONE) {
+		if (INVIDX_VALID(pcursinvitem)) {
 			NetSendCmdItemSkill(pcursinvitem, gbTSkillUse);
 		}
 		break;
@@ -569,7 +569,7 @@ static void AltActionBtnDown()
 	switch (pcurswnd) {
 	case WND_BELT:
 	case WND_INV:
-		if (pcursinvitem != INVITEM_NONE)
+		if (INVIDX_VALID(pcursinvitem))
 			InvUseItem(pcursinvitem);
 		break;
 	case WND_CHAR:

@@ -3257,7 +3257,7 @@ void DrawInvItemDetails()
 {
 	ItemStruct* is;
 	int x, y, dx;
-
+	// assert(INVIDX_VALID(pcursinvitem));
 	if (pcursinvitem <= INVITEM_INV_LAST) {
 		x = gnWndInvX;
 		y = gnWndInvY;
