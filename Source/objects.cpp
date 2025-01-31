@@ -1846,8 +1846,9 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 			}
 		}*/
 	}
-	// add new objects (doors + light)
-	AddDunObjs(x1, y1, x2, y2);
+	// add new objects (doors + light) -- except when a delta of a single-player game is loaded
+	if (!deltaload || IsMultiGame)
+		AddDunObjs(x1, y1, x2, y2);
 }
 
 static bool CheckLeverGroup(int type, int lvrIdx)
@@ -2206,7 +2207,7 @@ static void SyncPedestal(/*int oi*/)
 		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches + always reload lighting)?
 		// LoadPreLighting();
 #if 1
-		{
+		if (!deltaload || IsMultiGame) {
 		// BYTE lvlMask = 1 << currLvl._dType;
 		// assert(objectdata[OBJ_TORCHR1].oLvlTypes & lvlMask);
 		// assert(objectdata[OBJ_TORCHR2].oLvlTypes & lvlMask);
