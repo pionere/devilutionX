@@ -1018,6 +1018,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 
 	if (pnum == mypnum) {
 		gbDeathflag = MDM_DYING;
+		gbActionBtnDown = 0;
 		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
 	}
 
