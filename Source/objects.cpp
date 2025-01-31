@@ -1479,19 +1479,23 @@ static void Obj_Circle(int oi)
 	}
 }
 
+static void UpdateDoorBlocks(ObjectStruct* os)
+{
+	int dx, dy;
+
+	dx = os->_ox;
+	dy = os->_oy;
+	os->_oVar4 = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0 ? DOOR_OPEN : DOOR_BLOCKED;
+}
+
 static void Obj_Door(int oi)
 {
 	ObjectStruct* os;
-	int dx, dy;
-	bool dok;
 
 	os = &objects[oi];
-	if (os->_oVar4 == DOOR_CLOSED)
-		return;
-	dx = os->_ox;
-	dy = os->_oy;
-	dok = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0;
-	os->_oVar4 = dok ? DOOR_OPEN : DOOR_BLOCKED;
+	if (os->_oVar4 != DOOR_CLOSED) {
+		UpdateDoorBlocks(os);
+	}
 }
 
 /*static void ActivateTrapLine(int tid)
@@ -1730,22 +1734,13 @@ static void OpenDoor(ObjectStruct* os)
 	os->_oAnimFrame += 2;
 }
 
-static bool CloseDoor(ObjectStruct* os)
+static void CloseDoor(ObjectStruct* os)
 {
-	int xp, yp;
-
-	xp = os->_ox;
-	yp = os->_oy;
-	os->_oVar4 = (dMonster[xp][yp] | dItem[xp][yp] | dDead[xp][yp]) == 0 ? DOOR_CLOSED : DOOR_BLOCKED;
-	if (os->_oVar4 == DOOR_CLOSED) {
-		os->_oPreFlag = FALSE;
-		os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
-		// TODO: set os->_oSolidFlag = TRUE;
-		os->_oMissFlag = FALSE;
-		os->_oAnimFrame -= 2;
-		return true;
-	}
-	return false;
+	os->_oPreFlag = FALSE;
+	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
+	// TODO: set os->_oSolidFlag = TRUE;
+	os->_oMissFlag = FALSE;
+	os->_oAnimFrame -= 2;
 }
 
 /*
@@ -1787,6 +1782,7 @@ static void OperateDoor(int oi, bool sendmsg)
 	}
 	// try to close the door
 	if (!deltaload) {
+		UpdateDoorBlocks(os);
 		int sfx = IS_DOORCLOS;
 #ifdef HELLFIRE
 		if (currLvl._dType == DTYPE_CRYPT) {
@@ -1797,13 +1793,11 @@ static void OperateDoor(int oi, bool sendmsg)
 	}
 	if (os->_oVar4 == DOOR_BLOCKED)
 		return;
-
-	if (CloseDoor(os)) {
-		if (sendmsg)
-			NetSendCmdParam1(CMD_DOORCLOSE, oi);
-		SyncDoors(os);
-		RedoLightAndVision();
-	}
+	if (sendmsg)
+		NetSendCmdParam1(CMD_DOORCLOSE, oi);
+	CloseDoor(os);
+	SyncDoors(os);
+	RedoLightAndVision();
 }
 
 void MonstCheckDoors(int mx, int my)
