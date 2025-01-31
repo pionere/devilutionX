@@ -2245,23 +2245,6 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-static void PlrStartBlock(int pnum, int sx, int sy)
-{
-	int dir;
-
-	dir = GetDirection(plr._px, plr._py, sx, sy);
-	if (plr._pmode != PM_BLOCK) {
-		assert(plr._pmode == PM_STAND);
-		AssertFixPlayerLocation(pnum);
-		StartBlock(pnum, dir);
-	}
-
-	PlaySfxLoc(IS_ISWORD, plr._px, plr._py);
-	if (random_(3, 10) == 0) {
-		ShieldDur(pnum);
-	}
-}
-
 bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
@@ -2275,7 +2258,16 @@ bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - bmod * 2;
 		if (CheckHit(blkper)) {
-			PlrStartBlock(pnum, sx, sy);
+			int dir = GetDirection(plr._px, plr._py, sx, sy);
+			if (plr._pmode == PM_STAND) {
+				AssertFixPlayerLocation(pnum);
+				StartBlock(pnum, dir);
+			}
+
+			PlaySfxLoc(IS_ISWORD, plr._px, plr._py);
+			if (random_(3, 10) == 0) {
+				ShieldDur(pnum);
+			}
 			result = true;
 		}
 	}
