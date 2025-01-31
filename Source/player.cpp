@@ -1968,7 +1968,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (!CheckHit(hper))
 		return false;
 
-	if (PlrCheckBlock(pnum, plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
+	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
 		return true;
 
 	dam = 0;
@@ -2920,7 +2920,7 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper))
 			return;
 
-		if (PlrCheckBlock(mpnum, plr._pLevel, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, mis->_misx, mis->_misy))
 			return;
 		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
 
