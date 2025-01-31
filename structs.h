@@ -1852,10 +1852,10 @@ typedef struct TSyncLvlPlayer {
 	LE_INT16 spTimer[NUM_PLRTIMERS];
 	BYTE spx;      // Tile X-position where the player should be drawn
 	BYTE spy;      // Tile Y-position where the player should be drawn
-	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
-	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
-	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
-	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
+//	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
+//	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
+//	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
+//	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
 //	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
 //	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)

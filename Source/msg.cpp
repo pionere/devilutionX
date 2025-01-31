@@ -1260,10 +1260,10 @@ void LevelDeltaExport()
 			tplr->spTimer[PLTR_RAGE] = plr._pTimer[PLTR_RAGE];
 			tplr->spx = plr._px;
 			tplr->spy = plr._py;
-			tplr->spfutx = plr._pfutx;
-			tplr->spfuty = plr._pfuty;
-			tplr->spoldx = plr._poldx;
-			tplr->spoldy = plr._poldy;
+			//tplr->spfutx = plr._pfutx;
+			//tplr->spfuty = plr._pfuty;
+			//tplr->spoldx = plr._poldx;
+			//tplr->spoldy = plr._poldy;
 			//tplr->spxoff = plr._pxoff;
 			//tplr->spyoff = plr._pyoff;
 			tplr->spdir = plr._pdir;
@@ -1473,10 +1473,10 @@ void LevelDeltaLoad()
 		plr._pTimer[PLTR_RAGE] = tplr->spTimer[PLTR_RAGE];
 		plr._px = tplr->spx;
 		plr._py = tplr->spy;
-		plr._pfutx = tplr->spfutx;
-		plr._pfuty = tplr->spfuty;
-		plr._poldx = tplr->spoldx;
-		plr._poldy = tplr->spoldy;
+		// plr._pfutx = tplr->spfutx;
+		// plr._pfuty = tplr->spfuty;
+		// plr._poldx = tplr->spoldx;
+		// plr._poldy = tplr->spoldy;
 		//plr._pxoff = tplr->spxoff;
 		//plr._pyoff = tplr->spyoff;
 		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
@@ -1497,12 +1497,38 @@ void LevelDeltaLoad()
 		ImportItemDurabilities(pnum, tplr->spItemsDur);
 
 		src += sizeof(TSyncLvlPlayer);
-		// validate data
-		net_assert(plr._pdir < NUM_DIRS);
-		// net_assert((unsigned)plr._px < MAXDUNX);
-		// net_assert((unsigned)plr._py < MAXDUNY);
-		net_assert(IN_DUNGEON_AREA(plr._pfutx, plr._pfuty));
-		net_assert(IN_DUNGEON_AREA(plr._poldx, plr._poldy));
+		{ // calculate the player's (future/old) position based on its mode
+			int pdir = plr._pdir;
+			int px , py;
+			net_assert(pdir < NUM_DIRS);
+			px = plr._px;
+			py = plr._py;
+			net_assert(IN_DUNGEON_AREA(px, py));
+			if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
+				if (plr._pmode == PM_WALK) {
+					plr._poldx = px;
+					plr._poldy = py;
+
+					px += offset_x[pdir];
+					py += offset_y[pdir];
+					plr._pfutx = px;
+					plr._pfuty = py;
+				} else {
+					plr._pfutx = px;
+					plr._pfuty = py;
+
+					px -= offset_x[pdir];
+					py -= offset_y[pdir];
+					plr._poldx = px;
+					plr._poldy = py;
+				}
+				net_assert(IN_DUNGEON_AREA(px, py));
+			} else {
+				// SetPlayerLoc(&plr, px, py);
+				plr._pfutx = plr._poldx = px;
+				plr._pfuty = plr._poldy = py;
+			}
+		}
 
 		InitLvlPlayer(pnum, false);
 	}
@@ -1676,25 +1702,11 @@ void LevelDeltaLoad()
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
 			continue;
-		net_assert(PosOkPlayer(pnum, plr._px, plr._py));
-		if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
-			if (plr._pmode == PM_WALK) {
-				net_assert(plr._px == plr._poldx);
-				net_assert(plr._py == plr._poldy);
-				net_assert(PosOkPlayer(pnum, plr._pfutx, plr._pfuty));
-			} else {
-				net_assert(plr._px == plr._pfutx);
-				net_assert(plr._py == plr._pfuty);
-				net_assert(PosOkPlayer(pnum, plr._poldx, plr._poldy));
-			}
-			net_assert(plr._poldx + offset_x[plr._pdir] == plr._pfutx);
-			net_assert(plr._poldy + offset_y[plr._pdir] == plr._pfuty);
-			// FIXME: validate velocity/offset
-		} else {
-			net_assert(plr._px == plr._pfutx);
-			net_assert(plr._py == plr._pfuty);
-			net_assert(plr._px == plr._poldx);
-			net_assert(plr._py == plr._poldy);
+		if (plr._pmode != PM_DYING && plr._pmode != PM_DEATH) {
+			int px = plr._pfutx, py = plr._pfuty;
+			net_assert(PosOkPlayer(pnum, px, py));
+			px = plr._poldx, py = plr._poldy;
+			net_assert(PosOkPlayer(pnum, px, py));
 			switch (plr._pmode) {
 			case PM_ATTACK:
 				net_assert((unsigned)plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
