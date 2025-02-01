@@ -1736,6 +1736,7 @@ static void OpenDoor(ObjectStruct* os)
 
 static void CloseDoor(ObjectStruct* os)
 {
+	os->_oVar4 = DOOR_CLOSED;
 	os->_oPreFlag = FALSE;
 	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
 	// TODO: set os->_oSolidFlag = TRUE;
