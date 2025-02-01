@@ -25,7 +25,7 @@ int cursW;
 /** Pixel height of the current cursor image */
 int cursH;
 /** Current highlighted monster */
-int pcursmonst = MON_NONE;
+int pcursmonst;
 /** Cursor images CEL */
 BYTE* pCursCels;
 
