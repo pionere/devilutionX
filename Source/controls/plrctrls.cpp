@@ -321,7 +321,7 @@ static void FindTrigger()
 	}
 
 	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
-	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || pcurstrig == -1)
+	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || pcurstrig == TRIG_NONE)
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -933,7 +933,7 @@ void plrctrls_after_check_curs_move()
 		pcursmonst = MON_NONE;
 		pcursitem = ITEM_NONE;
 		pcursobj = OBJ_NONE;
-		pcurstrig = -1;
+		pcurstrig = TRIG_NONE;
 		pcurspos.x = -1;
 		pcurspos.y = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
@@ -1141,7 +1141,7 @@ void PerformSecondaryAction()
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 	} else if (pcursobj != OBJ_NONE) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
-	} else if (pcurstrig != -1 && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
+	} else if (pcurstrig != TRIG_NONE && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 	}
 }

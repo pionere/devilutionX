@@ -297,7 +297,7 @@ void CheckCursMove()
 	//}
 	pcursinvitem = INVITEM_NONE;
 	pcursplr = PLR_NONE;
-	pcurstrig = -1;
+	pcurstrig = TRIG_NONE;
 	pcurswnd = WND_NONE;
 
 	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");
