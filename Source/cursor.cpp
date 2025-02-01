@@ -344,7 +344,7 @@ void CheckCursMove()
 		}
 	}
 	// skip monster/player/object/etc targeting if hovering over a window.
-	if (pcurswnd != WND_NONE) {
+	if (WND_VALID(pcurswnd)) {
 		// skip item targeting if the cursor can not target an item (in inventory)
 		if (pcursicon == CURSOR_HAND || pcursicon == CURSOR_IDENTIFY || pcursicon == CURSOR_REPAIR || pcursicon == CURSOR_RECHARGE || pcursicon == CURSOR_OIL) {
 			if (pcurswnd == WND_INV)

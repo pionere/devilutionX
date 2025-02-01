@@ -1187,7 +1187,7 @@ void GameWndProc(const Dvl_Event* e)
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
-		else if (gbDragWnd != WND_NONE)
+		else if (WND_VALID(gbDragWnd))
 			DoWndDrag();
 		else if (gbTalkflag)
 			plrmsg_HandleMouseMoveEvent();
@@ -1280,7 +1280,7 @@ static bool ProcessInput()
 	plrctrls_every_frame();
 #endif
 
-	if (gnTimeoutCurs == CURSOR_NONE && gbDragWnd == WND_NONE) {
+	if (gnTimeoutCurs == CURSOR_NONE && !WND_VALID(gbDragWnd)) {
 		CheckCursMove();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();

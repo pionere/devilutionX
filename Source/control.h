@@ -8,6 +8,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static_assert(NUM_WNDS <= INT8_MAX, "WND_VALID checks only the sign of the WND_-value I.");
+static_assert((int8_t)WND_NONE < 0, "WND_VALID checks only the sign of the WND_-value II.");
+#define WND_VALID(x) ((int8_t)x >= 0)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
