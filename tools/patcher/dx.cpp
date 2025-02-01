@@ -70,11 +70,12 @@ static void dx_create_back_buffer()
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
-	back_palette = SDL_AllocPalette(NUM_COLORS);
+	back_palette = back_surface->format->palette;
+	/*back_palette = SDL_AllocPalette(NUM_COLORS);
 	if (back_palette == NULL)
 		sdl_error(ERR_SDL_BACK_PALETTE_ALLOC);
 	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)
-		sdl_error(ERR_SDL_BACK_PALETTE_SET);
+		sdl_error(ERR_SDL_BACK_PALETTE_SET);*/
 #else
 	// In SDL1, `back_surface` owns its palette and we must update it every
 	// time the global `back_palette` is changed. No need to do anything here as
@@ -190,7 +191,8 @@ void dx_cleanup()
 	SDL_FreeSurface(back_surface);
 	back_surface = NULL;
 #ifndef USE_SDL1
-	SDL_FreePalette(back_palette);
+	// SDL_FreePalette(back_palette);
+	// back_palette = NULL;
 	if (renderer != NULL) {
 		SDL_FreeSurface(renderer_surface);
 		renderer_surface = NULL;
