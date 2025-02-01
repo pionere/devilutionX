@@ -112,7 +112,9 @@ void dx_init()
 	dx_create_primary_surface();
 	dx_create_back_buffer();
 	InitPalette();
-
+#ifndef USE_SDL1
+	UpdatePalette();
+#endif
 	gbWndActive = true;
 }
 
