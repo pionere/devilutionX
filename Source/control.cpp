@@ -1732,7 +1732,7 @@ void DrawInfoStr()
 {
 	POS32 pos;
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
 		pos = GetMousePos(is->_ix, is->_iy);

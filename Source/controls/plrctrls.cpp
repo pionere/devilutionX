@@ -285,7 +285,7 @@ static void FindTrigger()
 	int rotations;
 	int distance = 2 + 1;
 
-	if (pcursitem != ITEM_NONE || pcursobj != OBJ_NONE)
+	if (ITEM_VALID(pcursitem) || pcursobj != OBJ_NONE)
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
 	for (int i = 0; i < numtrigs; i++) {
@@ -954,7 +954,7 @@ void plrctrls_after_check_curs_move()
 				if (!MON_VALID(pcursmonst))
 					FindPlayer(0, ranged);
 				FindItem();
-				if (pcursitem == ITEM_NONE)
+				if (!ITEM_VALID(pcursitem))
 					FindObject();
 				FindTrigger();
 				break;
@@ -1137,7 +1137,7 @@ void PerformSecondaryAction()
 		return;
 	}
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 	} else if (pcursobj != OBJ_NONE) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);

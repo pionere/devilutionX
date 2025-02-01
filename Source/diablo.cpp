@@ -397,7 +397,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		return;
 	}
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 		return;
 	}
@@ -437,7 +437,7 @@ static bool TryIconCurs()
 		// assert(gbTSkillUse.skill == SPL_TELEKINESIS);
 		if (pcursobj != OBJ_NONE) {
 			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
-		} else if (pcursitem != ITEM_NONE) {
+		} else if (ITEM_VALID(pcursitem)) {
 			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
 		} else if (MON_VALID(pcursmonst)) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
@@ -754,7 +754,7 @@ static void PressDebugChar(int vkey)
 		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
 		break;
 	case '[':
-		if (pcursitem != ITEM_NONE) {
+		if (ITEM_VALID(pcursitem)) {
 			msg.bsLen = snprintf(msg.str, sizeof(msg.str),
 			    "IDX = %d  :  Seed = %d  :  CF = %d",
 			    items[pcursitem]._iIdx,
