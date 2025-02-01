@@ -346,7 +346,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			}
 			return;
 		}
-		if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam) {
+		if (PLR_VALID(pcursplr) && myplr._pTeam != players[pcursplr]._pTeam) {
 			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
@@ -377,7 +377,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		//return;
 	}
 
-	if (pcursplr != PLR_NONE) {
+	if (PLR_VALID(pcursplr)) {
 		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
 		//return;
 	}
@@ -441,7 +441,7 @@ static bool TryIconCurs()
 			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
 		} else if (MON_VALID(pcursmonst)) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
-		} else if (pcursplr != PLR_NONE) {
+		} else if (PLR_VALID(pcursplr)) {
 			NetSendCmdBParam2(CMD_TELEKINPLR, gbTSkillUse.from, pcursplr);
 		}
 	} break;
@@ -450,7 +450,7 @@ static bool TryIconCurs()
 	case CURSOR_RESURRECT:
 		if (MON_VALID(pcursmonst))
 			NetSendCmdMonSkill(pcursmonst, gbTSkillUse);
-		else if (pcursplr != PLR_NONE)
+		else if (PLR_VALID(pcursplr))
 			NetSendCmdPlrSkill(pcursplr, gbTSkillUse);
 		else if (pcursicon == CURSOR_TELEPORT)
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSkillUse);

@@ -1755,7 +1755,7 @@ void DrawInfoStr()
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
-	} else if (pcursplr != PLR_NONE) {
+	} else if (PLR_VALID(pcursplr)) {
 		PlayerStruct* p = &players[pcursplr];
 		pos = GetMousePos(p->_px, p->_py);
 		pos.x += p->_pxoff;

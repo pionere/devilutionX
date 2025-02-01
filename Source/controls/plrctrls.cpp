@@ -321,7 +321,7 @@ static void FindTrigger()
 	}
 
 	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
-	if (MON_VALID(pcursmonst) || pcursplr != PLR_NONE || pcurstrig == TRIG_NONE)
+	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || pcurstrig == TRIG_NONE)
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -967,7 +967,7 @@ void plrctrls_after_check_curs_move()
 			case TGT_OTHER:
 				assert(ranged);
 				FindPlayer(1, true);
-				if (pcursplr == PLR_NONE)
+				if (!PLR_VALID(pcursplr))
 					FindMonster(1, true);
 				break;
 			case TGT_DEAD:
@@ -1034,7 +1034,7 @@ static bool SpellHasActorTarget()
 		pcurspos.y = monsters[pcursmonst]._my;
 	}
 
-	return pcursplr != PLR_NONE || MON_VALID(pcursmonst);
+	return PLR_VALID(pcursplr) || MON_VALID(pcursmonst);
 }
 
 static void UpdateSpellTarget()
