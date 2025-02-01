@@ -321,7 +321,7 @@ static void FindTrigger()
 	}
 
 	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
-	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || pcurstrig == TRIG_NONE)
+	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || !TRIG_VALID(pcurstrig))
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -1141,7 +1141,7 @@ void PerformSecondaryAction()
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 	} else if (pcursobj != OBJ_NONE) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
-	} else if (pcurstrig != TRIG_NONE && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
+	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 	}
 }

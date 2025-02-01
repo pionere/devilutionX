@@ -1827,7 +1827,7 @@ void DrawInfoStr()
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (INVIDX_VALID(pcursinvitem)) {
 		DrawInvItemDetails();
-	} else if (pcurstrig != TRIG_NONE) {
+	} else if (TRIG_VALID(pcurstrig)) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);

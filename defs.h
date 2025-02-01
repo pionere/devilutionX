@@ -61,6 +61,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAXTRIGGERS              5
 #endif
 #define TRIG_NONE                -1
+#define TRIG_VALID(x) (x >= 0)
 
 // the maximum size of the turn packets
 #define NET_TURN_MSG_SIZE       512
