@@ -382,7 +382,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		//return;
 	}
 
-	if (pcursobj != OBJ_NONE) {
+	if (OBJ_VALID(pcursobj)) {
 		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
 		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
@@ -425,7 +425,7 @@ static bool TryIconCurs()
 		}
 		break;
 	case CURSOR_DISARM:
-		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
+		if (OBJ_VALID(pcursobj) && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!(SDL_GetModState() & KMOD_SHIFT) ||
 			 (abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
@@ -435,7 +435,7 @@ static bool TryIconCurs()
 		break;
 	case CURSOR_TELEKINESIS: {
 		// assert(gbTSkillUse.skill == SPL_TELEKINESIS);
-		if (pcursobj != OBJ_NONE) {
+		if (OBJ_VALID(pcursobj)) {
 			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
 		} else if (ITEM_VALID(pcursitem)) {
 			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);

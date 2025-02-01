@@ -285,7 +285,7 @@ static void FindTrigger()
 	int rotations;
 	int distance = 2 + 1;
 
-	if (ITEM_VALID(pcursitem) || pcursobj != OBJ_NONE)
+	if (ITEM_VALID(pcursitem) || OBJ_VALID(pcursobj))
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
 	for (int i = 0; i < numtrigs; i++) {
@@ -1139,7 +1139,7 @@ void PerformSecondaryAction()
 
 	if (ITEM_VALID(pcursitem)) {
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
-	} else if (pcursobj != OBJ_NONE) {
+	} else if (OBJ_VALID(pcursobj)) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);

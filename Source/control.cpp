@@ -1738,7 +1738,7 @@ void DrawInfoStr()
 		pos = GetMousePos(is->_ix, is->_iy);
 		pos.y -= TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
-	} else if (pcursobj != OBJ_NONE) {
+	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
 		pos = GetMousePos(os->_ox, os->_oy);
