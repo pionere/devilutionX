@@ -321,7 +321,7 @@ static void FindTrigger()
 	}
 
 	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
-	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || pcurstrig == TRIG_NONE)
+	if (MON_VALID(pcursmonst) || pcursplr != PLR_NONE || pcurstrig == TRIG_NONE)
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -951,7 +951,7 @@ void plrctrls_after_check_curs_move()
 					FindMonster(0, ranged);
 				else
 					FindTowner();
-				if (pcursmonst == MON_NONE)
+				if (!MON_VALID(pcursmonst))
 					FindPlayer(0, ranged);
 				FindItem();
 				if (pcursitem == ITEM_NONE)
@@ -1029,12 +1029,12 @@ static bool SpellHasActorTarget()
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
-	if (spl == SPL_FIREWALL && pcursmonst != MON_NONE) {
+	if (spl == SPL_FIREWALL && MON_VALID(pcursmonst)) {
 		pcurspos.x = monsters[pcursmonst]._mx;
 		pcurspos.y = monsters[pcursmonst]._my;
 	}
 
-	return pcursplr != PLR_NONE || pcursmonst != MON_NONE;
+	return pcursplr != PLR_NONE || MON_VALID(pcursmonst);
 }
 
 static void UpdateSpellTarget()

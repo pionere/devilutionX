@@ -481,7 +481,7 @@ void CheckCursMove()
 	switch (pcurstgt) {
 	case TGT_NORMAL:
 		// select the previous monster/npc
-		if (pcursmonst != MON_NONE) {
+		if (MON_VALID(pcursmonst)) {
 			for (i = 4; i >= 0; i--) {
 				mi = curmon[i];
 				if (mi != 0) {

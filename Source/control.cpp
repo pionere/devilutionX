@@ -1744,7 +1744,7 @@ void DrawInfoStr()
 		pos = GetMousePos(os->_ox, os->_oy);
 		pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
-	} else if (pcursmonst != MON_NONE) {
+	} else if (MON_VALID(pcursmonst)) {
 		MonsterStruct* mon = &monsters[pcursmonst];
 		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name

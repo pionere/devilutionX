@@ -338,7 +338,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
-		if (pcursmonst != MON_NONE) {
+		if (MON_VALID(pcursmonst)) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKMON, pcursmonst);
 			} else {
@@ -367,7 +367,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	// assert(moveSkill != SPL_INVALID);
 	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
-	if (pcursmonst != MON_NONE) {
+	if (MON_VALID(pcursmonst)) {
 		if (CanTalkToMonst(pcursmonst)) {
 			NetSendCmdParam1(CMD_TALKMON, pcursmonst);
 			return;
@@ -439,7 +439,7 @@ static bool TryIconCurs()
 			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
 		} else if (pcursitem != ITEM_NONE) {
 			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
-		} else if (pcursmonst != MON_NONE) {
+		} else if (MON_VALID(pcursmonst)) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
 		} else if (pcursplr != PLR_NONE) {
 			NetSendCmdBParam2(CMD_TELEKINPLR, gbTSkillUse.from, pcursplr);
@@ -448,7 +448,7 @@ static bool TryIconCurs()
 	case CURSOR_TELEPORT:
 	case CURSOR_HEALOTHER:
 	case CURSOR_RESURRECT:
-		if (pcursmonst != MON_NONE)
+		if (MON_VALID(pcursmonst))
 			NetSendCmdMonSkill(pcursmonst, gbTSkillUse);
 		else if (pcursplr != PLR_NONE)
 			NetSendCmdPlrSkill(pcursplr, gbTSkillUse);

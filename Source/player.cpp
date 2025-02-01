@@ -1161,7 +1161,7 @@ static void PlrChangeOffset(int pnum)
 		ScrollInfo._sxoff = -plr._pxoff;
 		ScrollInfo._syoff = -plr._pyoff;
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		//if (gbActionBtnDown && (px | py) != 0 && pcursmonst != MON_NONE)
+		// if (gbActionBtnDown != 0 && (px | py) != 0 && MON_VALID(pcursmonst))
 		//	SetCursorPos(MousePos.x + px, MousePos.y + py);
 	}
 
