@@ -209,7 +209,8 @@ struct Archive {
 		DoLog("Opening %s", name);
 #endif
 		FILE* file = FileOpen(name, "r+b");
-#if __cplusplus >= 201703L
+// 'x' mode requires a decent compiler (see: https://sourceforge.net/p/mingw-w64/bugs/493/ )
+#if __cplusplus >= 201703L && !defined(__MINGW32__)
 		const char* mode = "wbx";
 #else
 		const char* mode = "wb";
