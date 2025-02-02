@@ -20,9 +20,9 @@ extern std::string diabdat_paths[NUM_MPQS + 1];
 
 /* Defined in effects.cpp */
 /*#ifndef NOSOUND
-void PlaySFX(int psfx);
+void PlaySfx(int nsfx);
 #else
-inline void PlaySFX(int psfx) { }
+inline void PlaySfx(int nsfx) { }
 #endif*/
 
 #ifdef __cplusplus

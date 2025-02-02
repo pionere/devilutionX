@@ -57,25 +57,17 @@ void PrintError(const char* fmt, PrintFArgs... args)
 #endif /* DEBUG_MODE */
 struct FStreamWrapper {
 public:
-	bool Open(const char* path, const char* mode)
+	void Open(FILE* file)
 	{
-		s_ = FileOpen(path, mode);
-		if (s_ != NULL) {
-#if DEBUG_MODE
-			DoLog("Open(\"%s\", %s)", path, mode);
-#endif
-			return true;
-		}
-		PrintError("Open(\"%s\", %d)", path, mode);
-		return false;
+		// assert(file != NULL);
+		s_ = file;
 	}
 
 	void Close()
 	{
-		if (s_ != NULL) {
-			std::fclose(s_);
-			s_ = NULL;
-		}
+		// assert(s_ != NULL);
+		std::fclose(s_);
+		s_ = NULL;
 	}
 
 	bool IsOpen() const
@@ -199,12 +191,11 @@ struct Archive {
 	FStreamWrapper stream;
 	std::string name;
 	uint32_t archiveSize;
-	bool modified;
-	bool exists;
 	uint32_t blockCount;
 	uint32_t hashCount;
-
+	bool modified;
 #ifndef CAN_SEEKP_BEYOND_EOF
+	bool exists;
 	long stream_begin;
 #endif
 
@@ -217,14 +208,22 @@ struct Archive {
 #if DEBUG_MODE
 		DoLog("Opening %s", name);
 #endif
-		exists = FileExists(name);
+		FILE* file = FileOpen(name, "r+b");
+#if __cplusplus >= 201703L
+		const char* mode = "wbx";
+#else
 		const char* mode = "wb";
+#endif
 		std::uintmax_t size;
-		if (exists) {
-			mode = "r+b";
+		bool fileExists = file != NULL;
+#ifndef CAN_SEEKP_BEYOND_EOF
+		this->exists = fileExists;
+#endif
+		if (fileExists) {
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
+				std::fclose(file);
 				return false;
 			} else {
 				DoLog("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
@@ -232,22 +231,25 @@ struct Archive {
 #else
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed. (%d)", name, errno);
-				return false;
-			}
-			if (size > UINT32_MAX) {
-				DoLog("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
+				std::fclose(file);
 				return false;
 			}
 #endif
+			if (size > UINT32_MAX) {
+				DoLog("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
+				std::fclose(file);
+				return false;
+			}
 		} else {
+			file = FileOpen(name, mode);
+			if (file == NULL) {
+				return false;
+			}
 			size = 0;
 		}
-		if (!stream.Open(name, mode)) {
-			stream.Close();
-			return false;
-		}
+		stream.Open(file);
 		this->archiveSize = static_cast<uint32_t>(size);
-		this->modified = !exists;
+		this->modified = !fileExists;
 		this->name = name;
 		return true;
 	}

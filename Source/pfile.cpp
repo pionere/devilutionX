@@ -11,6 +11,7 @@
 #include "diabloui.h"
 #include "utils/file_util.h"
 #include "DiabloUI/diablo.h"
+#include <ctime>
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -18,11 +19,11 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVEFILE_HERO             "hero"
 #define PFILE_SAVE_MPQ_HASHCOUNT  2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
-#define PFILE_SAVE_INTERVAL       60000
+#define PFILE_SAVE_INTERVAL       60
 
 unsigned mySaveIdx;
 bool gbValidSaveFile;
-static Uint32 guNextSaveTc;
+static uint32_t guNextSaveTc;
 
 #define PASSWORD_SINGLE "xrgyrkj1"
 #define PASSWORD_MULTI  "szqnlsk1"
@@ -122,8 +123,9 @@ void pfile_write_hero(bool bFree)
 
 static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsigned saveIdx)
 {
-	memset(heroinfo->hiName, 0, sizeof(heroinfo->hiName));
-	SStrCopy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
+	static_assert(sizeof(heroinfo->hiName) <= sizeof(p->_pName), "pfile_player2hero uses memcpy to store the name of the player.");
+	memcpy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
+	heroinfo->hiName[sizeof(heroinfo->hiName) - 1] = '\0';
 	heroinfo->hiIdx = saveIdx;
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
@@ -172,9 +174,6 @@ static bool ValidPlayerName(const char* name)
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	if (IsMultiGame)
-		return false;
-
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
@@ -302,21 +301,21 @@ void pfile_read_hero_from_save()
 
 	UnPackPlayer(&pkplr, 0); // mypnum
 	mypnum = 0;
-	gbValidSaveFile = pfile_archive_contains_game(archive);
+	gbValidSaveFile = !IsMultiGame && pfile_archive_contains_game(archive);
 	SFileCloseArchive(archive);
-	guNextSaveTc = SDL_GetTicks() + PFILE_SAVE_INTERVAL;
+	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
 
-void pfile_rename_temp_to_perm()
+static void pfile_rename_temp_to_perm()
 {
 	unsigned dwIndex;
 	bool bResult;
 	char szTemp[DATA_ARCHIVE_MAX_PATH];
 	char szPerm[DATA_ARCHIVE_MAX_PATH];
 
-	assert(!IsMultiGame);
-	if (!pfile_open_archive())
-		app_fatal("Unable to open file archive");
+	// assert(!IsMultiGame);
+	// if (!pfile_open_archive())
+	//	app_fatal("Unable to open file archive");
 
 	dwIndex = 0;
 	while (GetTempLevelNames(dwIndex, szTemp)) {
@@ -330,7 +329,6 @@ void pfile_rename_temp_to_perm()
 		}
 	}
 	assert(!GetPermLevelNames(dwIndex, szPerm));
-	pfile_flush(true);
 }
 
 void pfile_write_save_file(bool full, DWORD dwLen)
@@ -352,6 +350,14 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	if (!full)
 		GetTempLevelNames(currLvl._dLevelIdx, pszName);
 	mpqapi_write_entry(pszName, pbData, qwLen);
+
+	if (full) {
+		// gbValidSaveFile = true;
+		pfile_rename_temp_to_perm();
+		// pfile_write_hero(true);
+		// assert(mypnum == 0);
+		pfile_encode_hero(0);
+	}
 	pfile_flush(true);
 }
 
@@ -389,8 +395,8 @@ nextSource:
 	}
 
 	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
-		source++;
-		if (source == 1) {
+		if (source == 0) {
+			source++;
 			goto nextSource;
 		}
 		app_fatal("Unable to open save file");
@@ -418,7 +424,7 @@ nextSource:
 void pfile_update(bool force_save)
 {
 	if (IsMultiGame) {
-		Uint32 currTc = SDL_GetTicks();
+		uint32_t currTc = time(NULL);
 		if (force_save || currTc > guNextSaveTc) {
 			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
 			pfile_write_hero(false);

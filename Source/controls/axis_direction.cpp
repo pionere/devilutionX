@@ -1,8 +1,7 @@
 #include "axis_direction.h"
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-
-#include <SDL.h>
+#include "../utils/sdl_compat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -10,11 +9,11 @@ AxisDirectionRepeater axisDirRepeater;
 
 AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 {
-	const int now = SDL_GetTicks();
+	const Uint32 now = SDL_GetTicks();
 	switch (axisDirection.x) {
 	case AxisDirectionX_LEFT:
 		last_right_ = 0;
-		if (now - last_left_ < min_interval_ms_) {
+		if (last_left_ != 0 && !SDL_TICKS_AFTER(now, last_left_, min_interval_ms_)) {
 			axisDirection.x = AxisDirectionX_NONE;
 		} else {
 			last_left_ = now;
@@ -22,7 +21,7 @@ AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 		break;
 	case AxisDirectionX_RIGHT:
 		last_left_ = 0;
-		if (now - last_right_ < min_interval_ms_) {
+		if (last_right_ != 0 && !SDL_TICKS_AFTER(now, last_right_, min_interval_ms_)) {
 			axisDirection.x = AxisDirectionX_NONE;
 		} else {
 			last_right_ = now;
@@ -35,7 +34,7 @@ AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 	switch (axisDirection.y) {
 	case AxisDirectionY_UP:
 		last_down_ = 0;
-		if (now - last_up_ < min_interval_ms_) {
+		if (last_up_ != 0 && !SDL_TICKS_AFTER(now, last_up_, min_interval_ms_)) {
 			axisDirection.y = AxisDirectionY_NONE;
 		} else {
 			last_up_ = now;
@@ -43,7 +42,7 @@ AxisDirection AxisDirectionRepeater::Get(AxisDirection axisDirection)
 		break;
 	case AxisDirectionY_DOWN:
 		last_up_ = 0;
-		if (now - last_down_ < min_interval_ms_) {
+		if (last_down_ != 0 && !SDL_TICKS_AFTER(now, last_down_, min_interval_ms_)) {
 			axisDirection.y = AxisDirectionY_NONE;
 		} else {
 			last_down_ = now;

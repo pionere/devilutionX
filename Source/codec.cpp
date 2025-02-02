@@ -35,17 +35,18 @@ static void CodecInitKey(const char* pszPassword)
 	}
 
 	BYTE digest[SHA1HashSize];
-	SHA1Reset(0);
-	SHA1Calculate(0, pw, digest);
+	SHA1Reset(/*0*/);
+	SHA1Calculate(/*0,*/ pw, digest);
 	SHA1Clear();
 	for (unsigned i = 0; i < sizeof(key); ++i)
 		key[i] ^= digest[i % SHA1HashSize];
 	memset(pw, 0, sizeof(pw));
 	memset(digest, 0, sizeof(digest));
-	for (int n = 0; n < SHA1ContextNum; ++n) {
-		SHA1Reset(n);
-		SHA1Calculate(n, &key[sizeof(key) - SHA1BlockSize], NULL);
-	}
+	static_assert(SHA1ContextNum == 1, "CodecInitKey must initialize the sha1 contexts.");
+	// for (int n = 0; n < SHA1ContextNum; ++n) {
+		SHA1Reset(/*n*/);
+		SHA1Calculate(/*n,*/ &key[sizeof(key) - SHA1BlockSize], NULL);
+	// }
 	memset(key, 0, sizeof(key));
 }
 
@@ -64,11 +65,11 @@ int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 		return 0;
 	for (i = size; i != 0; pbSrcDst += SHA1BlockSize, i -= SHA1BlockSize) {
 		memcpy(buf, pbSrcDst, SHA1BlockSize);
-		SHA1Result(0, dst);
+		SHA1Result(/*0, */dst);
 		for (int j = 0; j < SHA1BlockSize; j++) {
 			buf[j] ^= dst[j % SHA1HashSize];
 		}
-		SHA1Calculate(0, buf, NULL);
+		SHA1Calculate(/*0,*/ buf, NULL);
 		memcpy(pbSrcDst, buf, SHA1BlockSize);
 	}
 
@@ -78,7 +79,7 @@ int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 		goto error;
 	}
 
-	SHA1Result(0, dst);
+	SHA1Result(/*0,*/ dst);
 	if (sig->checksum != *(uint32_t*)dst) {
 		goto error;
 	}
@@ -116,8 +117,8 @@ void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* psz
 		memcpy(buf, pbSrcDst, chunk);
 		if (chunk < SHA1BlockSize)
 			memset(buf + chunk, 0, SHA1BlockSize - chunk);
-		SHA1Result(0, dst);
-		SHA1Calculate(0, buf, NULL);
+		SHA1Result(/*0,*/ dst);
+		SHA1Calculate(/*0,*/ buf, NULL);
 		for (int i = 0; i < SHA1BlockSize; i++) {
 			buf[i] ^= dst[i % SHA1HashSize];
 		}
@@ -126,7 +127,7 @@ void codec_encode(BYTE* pbSrcDst, DWORD size, DWORD encodedSize, const char* psz
 		size -= chunk;
 	}
 	memset(buf, 0, sizeof(buf));
-	SHA1Result(0, dst);
+	SHA1Result(/*0,*/ dst);
 	sig = (CodecSignature*)pbSrcDst;
 	sig->error = 0;
 	sig->unused = 0;

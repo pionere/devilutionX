@@ -54,11 +54,11 @@ const BYTE L4USTAIRS[] = {
 	// clang-format off
 	5, 5, // width, height
 
-	 6, 6, 6, 6, // search
-	 6, 6, 6, 6,
-	 6, 6, 6, 6,
-	 6, 6, 6, 6,
-	 6, 6, 6, 6,
+	 6, 6, 6, 6, 6, // search
+	 6, 6, 6, 6, 6,
+	 6, 6, 6, 6, 6,
+	 6, 6, 6, 6, 6,
+	 6, 6, 6, 6, 6,
 
 	 0,  0,  0,  0,  0, // replace
 	 0, 38, 35,  0,  0,
@@ -508,7 +508,7 @@ static void DRLG_L4SetRoom(int idx)
 }
 
 /*
- * Transform dungeon by replacing values using 2x2 block patterns defined in L1ConvTbl
+ * Transform dungeon by replacing values using 2x2 block patterns defined in L4ConvTbl
  * New dungeon values: 1 2 3 6 9 30
  */
 static void DRLG_L4MakeMegas()

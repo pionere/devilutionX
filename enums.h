@@ -401,7 +401,7 @@ typedef enum item_effect_type {
 	IPL_DAMMOD,
 	IPL_SETDAM,
 	IPL_SETDUR,
-	IPL_NOMINSTR,
+	IPL_REQSTR,
 	IPL_SPELL,
 	IPL_ONEHAND,
 	IPL_ALLRESZERO,
@@ -1381,14 +1381,14 @@ typedef enum _sfx_id {
 	PS_MAGE24,
 	//PS_MAGE25,
 	//PS_MAGE26,
-	PS_MAGE27,
+	//PS_MAGE27,
 	//PS_MAGE28,
 	PS_MAGE29,
 	//PS_MAGE30,
 	//PS_MAGE31,
 	//PS_MAGE32,
 	//PS_MAGE33,
-	PS_MAGE34,
+	//PS_MAGE34,
 	PS_MAGE35,
 	//PS_MAGE36,
 	//PS_MAGE37,
@@ -1484,14 +1484,14 @@ typedef enum _sfx_id {
 	PS_ROGUE24,
 	//PS_ROGUE25,
 	//PS_ROGUE26,
-	PS_ROGUE27,
+	//PS_ROGUE27,
 	//PS_ROGUE28,
 	PS_ROGUE29,
 	//PS_ROGUE30,
 	//PS_ROGUE31,
 	//PS_ROGUE32,
 	//PS_ROGUE33,
-	PS_ROGUE34,
+	//PS_ROGUE34,
 	PS_ROGUE35,
 	//PS_ROGUE36,
 	//PS_ROGUE37,
@@ -1593,14 +1593,14 @@ typedef enum _sfx_id {
 	PS_WARR24,
 	//PS_WARR25,
 	//PS_WARR26,
-	PS_WARR27,
+	//PS_WARR27,
 	//PS_WARR28,
 	PS_WARR29,
 	//PS_WARR30,
 	//PS_WARR31,
 	//PS_WARR32,
 	//PS_WARR33,
-	PS_WARR34,
+	//PS_WARR34,
 	PS_WARR35,
 	//PS_WARR36,
 	//PS_WARR37,
@@ -1701,14 +1701,14 @@ typedef enum _sfx_id {
 	PS_MONK24,
 	//PS_MONK25,
 	//PS_MONK26,
-	PS_MONK27,
+	//PS_MONK27,
 	//PS_MONK28,
 	PS_MONK29,
 	//PS_MONK30,
 	//PS_MONK31,
 	//PS_MONK32,
 	//PS_MONK33,
-	PS_MONK34,
+	//PS_MONK34,
 	PS_MONK35,
 	//PS_MONK36,
 	//PS_MONK37,
@@ -1884,9 +1884,9 @@ typedef enum sfx_set {
 	SFXS_PLR_14,
 	//SFXS_PLR_16,
 	SFXS_PLR_24,
-	SFXS_PLR_27,
+	//SFXS_PLR_27,
 	SFXS_PLR_29,
-	SFXS_PLR_34,
+	//SFXS_PLR_34,
 	SFXS_PLR_35,
 	SFXS_PLR_46,
 	SFXS_PLR_54,
@@ -2052,6 +2052,7 @@ typedef enum missile_telekinesis_type {
 	MTT_ITEM,
 	MTT_MONSTER,
 	MTT_OBJECT,
+	MTT_PLAYER,
 } missile_telekinesis_type;
 
 typedef enum missile_gfx_id {
@@ -3877,13 +3878,15 @@ typedef enum _msg_id {
 typedef enum _cmd_id {
 	CMD_SYNCDATA,
 	CMD_WALKXY,
+	CMD_WALKDIR,
 	CMD_SKILLXY,
 	CMD_OPOBJXY,
 	CMD_DISARMXY,
-	CMD_SKILLPLR,
 	CMD_SKILLMON,
+	CMD_SKILLPLR,
+	CMD_TURN,
 	CMD_BLOCK,
-	CMD_TALKXY,
+	CMD_TALKMON,
 	CMD_MONSTDEATH,
 	CMD_MONSTDAMAGE,
 	CMD_MONSTCORPSE,
@@ -3910,18 +3913,18 @@ typedef enum _cmd_id {
 	CMD_GETITEM,
 	CMD_AUTOGETITEM,
 	CMD_GOTOGETITEM,
-	CMD_GOTOAGETITEM,
 	CMD_OPERATEITEM,
 	CMD_OPERATEOBJ,
 	CMD_DOOROPEN,
 	CMD_DOORCLOSE,
 	CMD_TRAPDISABLE,
-	CMD_TRAPOPEN,
-	CMD_TRAPCLOSE,
+	//CMD_TRAPOPEN,
+	//CMD_TRAPCLOSE,
 	CMD_SHRINE,
-	CMD_TELEKINXY,
-	CMD_TELEKINID,
-	CMD_TELEKINOID,
+	CMD_TELEKINITM,
+	CMD_TELEKINMON,
+	CMD_TELEKINPLR,
+	CMD_TELEKINOBJ,
 	CMD_ACTIVATEPORTAL,
 	CMD_NEWLVL,
 	CMD_CREATELVL,
@@ -4549,6 +4552,7 @@ typedef enum shrine_type {
 typedef enum action_id {
 	ACTION_NONE,
 	ACTION_WALK,
+	ACTION_WALKDIR,
 	ACTION_OPERATE,
 	ACTION_ATTACK,
 	ACTION_ATTACKMON,
@@ -4559,9 +4563,9 @@ typedef enum action_id {
 	ACTION_SPELL,
 	ACTION_SPELLMON,
 	ACTION_SPELLPLR,
+	ACTION_TURN,
 	ACTION_BLOCK,
-	ACTION_PICKUPITEM,  // put item in hand (inventory screen open)
-	ACTION_PICKUPAITEM, // put item in inventory
+	ACTION_PICKUPITEM,
 	ACTION_TALK,
 } action_id;
 
@@ -4634,18 +4638,27 @@ typedef enum game_logic_progress {
 typedef enum redraw_flags {
 	REDRAW_HP_FLASK      = 1 << 0,
 	REDRAW_MANA_FLASK    = 1 << 1,
-	REDRAW_SPELL_ICON    = 1 << 2,
-	REDRAW_CTRL_BUTTONS  = 1 << 3,
-	REDRAW_SPEED_BAR     = 1 << 4,
-	REDRAW_CTRL_PANEL    = 1 << 5,
-	REDRAW_ALL = REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPELL_ICON
-               | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL,
+	//REDRAW_SPELL_ICON    = 1 << 2,
+	//REDRAW_CTRL_BUTTONS  = 1 << 3,
+	//REDRAW_SPEED_BAR     = 1 << 4,
+	//REDRAW_CTRL_PANEL    = 1 << 5,
+	REDRAW_ALL = REDRAW_HP_FLASK | REDRAW_MANA_FLASK /*| REDRAW_SPELL_ICON
+               | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL*/,
 } redraw_flags;
 
 typedef enum input_key {
 	ACT_NONE,
 	ACT_ACT,    // base action (LMB)
 	ACT_ALTACT, // alt action (RMB)
+	ACT_W_S, // walk actions
+	ACT_W_SW,
+	ACT_W_W,
+	ACT_W_NW,
+	ACT_W_N,
+	ACT_W_NE,
+	ACT_W_E,
+	ACT_W_SE,
+	ACT_STOP,
 	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,
@@ -4690,6 +4703,7 @@ typedef enum input_key {
 	ACT_ZOOM,  // toggle the zoom
 	ACT_VER,   // print the game version
 	ACT_HELP,  // open the help text
+	ACT_SCRN,  // make a screenshot
 	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
 	ACT_TOOLTIP, // toggle the permanency of the tooltips
@@ -4701,6 +4715,12 @@ typedef enum input_key {
 #endif
 	NUM_ACTS
 } input_key;
+
+typedef enum frame_rate_control {
+	FRC_NONE,
+	FRC_VSYNC,    // use vsync to balance performance, reduce tearing, or save power
+	FRC_CPUSLEEP, // use FPS-limiter to reduce CPU-load
+} frame_rate_control;
 
 typedef enum application_error {
 	ERR_APP_FRAME_BUFSIZE,
@@ -4725,7 +4745,6 @@ typedef enum app_sdl_error {
 	ERR_SDL_CREDIT_PRE_TEXT_COLOR,
 	ERR_SDL_CREDIT_PRE_SHADOW,
 	ERR_SDL_CREDIT_PRE_SHADOW_COLOR,
-	ERR_SDL_UI_CURSOR_DISABLE,
 	ERR_SDL_TDRAW_TEXT,
 	ERR_SDL_TDRAW_SHADOW,
 	ERR_SDL_DX_FLIP,

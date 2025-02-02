@@ -94,7 +94,9 @@ inline int SDLC_SetSurfaceAndPaletteColors(SDL_Surface* surface, SDL_Palette* pa
 
 #if SDL1_VIDEO_MODE_BPP == 8
 	// When the video surface is 8bit, we need to set the output palette as well.
-	SDL_SetColors(SDL_GetVideoSurface(), colors, firstcolor, ncolors);
+	SDL_Surface *videoSurface = SDL_GetVideoSurface();
+	SDL_SetColors(videoSurface, colors, firstcolor, ncolors);
+	if (videoSurface == surface) return 0;
 #endif
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
@@ -108,3 +110,7 @@ inline int SDLC_SetSurfaceAndPaletteColors(SDL_Surface* surface, SDL_Palette* pa
 	return SDL_SetPaletteColors(palette, colors, firstcolor, ncolors);
 #endif
 }
+
+#ifndef SDL_TICKS_AFTER
+#define SDL_TICKS_AFTER(A, B, C) ((Uint32)((A) - (B)) >= (Uint32)(C))
+#endif

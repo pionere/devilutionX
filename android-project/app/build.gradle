@@ -7,8 +7,8 @@ if (buildAsApplication) {
 }
 
 android {
-	// ndkVersion '26.1.10909125' - asio is not ready for this
-	ndkVersion '25.2.9519653'
+	ndkVersion '27.2.12479018'
+	// ndkVersion '25.2.9519653'
 	compileSdk 35
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
@@ -32,6 +32,9 @@ android {
 		}
 	}
 	buildTypes {
+		debug {
+			applicationIdSuffix "dev"
+		}
 		release {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -51,7 +54,7 @@ android {
 		externalNativeBuild {
 			cmake {
 				path '../../CMakeLists.txt'
-				version "3.13.0+"
+				version "3.31.0+"
 				buildStagingDirectory System.env.DevilutionX_Android_StagingDirectory
 			}
 		}

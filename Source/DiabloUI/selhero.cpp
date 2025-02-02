@@ -1,10 +1,9 @@
-#include <time.h>
+#include <ctime>
 
 #include "../all.h"
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
@@ -128,9 +127,7 @@ static void SelheroFreeDlgItems()
 
 static void SelheroFree()
 {
-	MemFreeDbg(gbBackCel);
-	MemFreeDbg(gbHerosCel);
-	UnloadScrollBar();
+	FreeBackgroundArt();
 
 	SelheroFreeDlgItems();
 }
@@ -178,9 +175,6 @@ static void SelheroUpdateViewportItems()
 
 static void SelheroInit()
 {
-	LoadScrollBar();
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
-
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 }
 
@@ -188,7 +182,8 @@ static void SelheroInitHeros()
 {
 	selhero_heros.clear();
 	pfile_ui_load_hero_infos(selhero_heros);
-	selhero_SaveCount = selhero_heros.size();
+	static_assert(MAX_CHARACTERS <= UINT32_MAX, "Check overflow in SelheroInitHeros.");
+	selhero_SaveCount = (unsigned)selhero_heros.size();
 	std::reverse(selhero_heros.begin(), selhero_heros.end());
 	{
 		_uiheroinfo newHero;
@@ -408,6 +403,7 @@ static void SelheroNameInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 24, SELHERO_RPANEL_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELHERO_RPANEL_WIDTH - 2 * 24, FOCUS_MEDIUM };
+	static_assert(sizeof(selhero_heroInfo.hiName) <= UIEDIT_MAXLENGTH, "The edit field of SelheroNameInit must fit to UIEdit.");
 	UiEdit* edit = new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName), rect2);
 	gUiItems.push_back(edit);
 
@@ -438,7 +434,7 @@ static void SelheroNameSelect(unsigned index)
 		break;
 	}
 
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	SelheroFreeDlgItems();
 	UiSelOkDialog("Unable to create hero", err);
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");

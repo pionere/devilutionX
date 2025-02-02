@@ -37,41 +37,40 @@ ViewportStruct gsTileVp;
 int light_trn_index;
 
 /**
+ * Specifies whether transparency is active for the current CEL file being decoded.
+ */
+bool gbCelTransparencyActive;
+
+/**
  * Specifies the current draw mode.
  */
 static BOOLEAN gbPreFlag;
 
+#define BACK_CURSOR 0
+#if BACK_CURSOR
 /**
  * Cursor-size
  */
-int sgCursHgt;
-int sgCursWdt;
-int sgCursHgtOld;
-int sgCursWdtOld;
+static int sgCursHgt;
+static int sgCursWdt;
 
 /**
  * Cursor-position
  */
-int sgCursX;
-int sgCursY;
-int sgCursXOld;
-int sgCursYOld;
+static int sgCursX;
+static int sgCursY;
 
-/**
- * Specifies whether transparency is active for the current CEL file being decoded.
- */
-bool gbCelTransparencyActive;
 /**
  * Buffer to store the cursor image.
  */
-BYTE sgSaveBack[MAX_CURSOR_AREA];
-
+static BYTE sgSaveBack[MAX_CURSOR_AREA];
+#endif
 //bool dRendered[MAXDUNX][MAXDUNY];
+#if DEBUG_MODE
 static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
 
-#if DEBUG_MODE
 const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
 	"walking (1)",
@@ -115,8 +114,9 @@ const char* const szPlrModeAssert[NUM_PLR_MODES] = {
  */
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
+#if BACK_CURSOR
 	sgCursWdt = 0;
-	sgCursWdtOld = 0;
+#endif
 }
 
 /**
@@ -124,6 +124,7 @@ void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
  */
 static void scrollrt_remove_back_buffer_cursor()
 {
+#if BACK_CURSOR
 	int i;
 	BYTE *src, *dst;
 
@@ -140,11 +141,8 @@ static void scrollrt_remove_back_buffer_cursor()
 		dst += BUFFER_WIDTH;
 	}
 
-	sgCursXOld = sgCursX;
-	sgCursYOld = sgCursY;
-	sgCursWdtOld = sgCursWdt;
-	sgCursHgtOld = sgCursHgt;
 	sgCursWdt = 0;
+#endif
 }
 
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
@@ -171,67 +169,86 @@ void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, cons
  */
 static void scrollrt_draw_cursor()
 {
-	int i, mx, my, frame;
+	int mx, my, frame;
+	BYTE* cCels;
+#if BACK_CURSOR
+	int i, cx, cy, cw, ch;
 	BYTE *src, *dst, *cCels;
-
 	assert(sgCursWdt == 0);
-
+#endif
 	if (pcursicon <= CURSOR_NONE) {
 		return;
 	}
 	assert(cursW != 0 && cursH != 0);
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
-	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
+	mx = MousePos.x;
+	my = MousePos.y;
+	// shift the cursor of the items CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		mx -= cursW >> 1;
+		my -= cursH >> 1;
+	}
+	// limit the mouse to the screen
+	if (mx <= 0 - cursW) {
 		return;
-#endif
+	}
+	if (mx >= SCREEN_WIDTH) {
+		return;
+	}
+	if (my <= 0 - cursH) {
+		return;
+	}
+	if (my >= SCREEN_HEIGHT) {
+		return;
+	}
+#if BACK_CURSOR
+	cx = mx;
+	cw = cx + cursW;
+	// cut the cursor on the right side
+	//if (cw > SCREEN_WIDTH) {
+	//	cw = SCREEN_WIDTH;
+	//}
+	// cut the cursor on the left side
+	//if (cx <= 0) {
+	//	cx = 0;
+	//} else {
+		// draw to 4-byte aligned blocks
+		cx &= ~3;
+		cw -= cx;
+	//}
+	// draw with 4-byte alignment
+	cw += 3;
+	cw &= ~3;
 
-	mx = MousePos.x - 1;
-	if (mx < 0 - cursW - 1) {
-		return;
-	}
-	if (mx > SCREEN_WIDTH - 1) {
-		return;
-	}
-	my = MousePos.y - 1;
-	if (my < 0 - cursH - 1) {
-		return;
-	}
-	if (my > SCREEN_HEIGHT - 1) {
-		return;
-	}
+	cy = my;
+	ch = cy + cursH;
+	// cut the cursor on the bottom
+	//if (ch > SCREEN_HEIGHT) {
+	//	ch = SCREEN_HEIGHT;
+	//}
+	// cut the cursor on the top
+	//if (cy <= 0) {
+	//	cy = 0;
+	//} else {
+		ch -= cy;
+	//}
 
-	sgCursX = mx;
-	sgCursWdt = sgCursX + cursW + 1;
-	if (sgCursWdt > SCREEN_WIDTH - 1) {
-		sgCursWdt = SCREEN_WIDTH - 1;
-	}
-	sgCursX &= ~3;
-	sgCursWdt |= 3;
-	sgCursWdt -= sgCursX;
-	sgCursWdt++;
+	sgCursX = cx;
+	sgCursY = cy;
 
-	sgCursY = my;
-	sgCursHgt = sgCursY + cursH + 1;
-	if (sgCursHgt > SCREEN_HEIGHT - 1) {
-		sgCursHgt = SCREEN_HEIGHT - 1;
-	}
-	sgCursHgt -= sgCursY;
-	sgCursHgt++;
+	sgCursWdt = cw;
+	sgCursHgt = ch;
 
-	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
+	assert((unsigned)(cw * ch) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
-	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
+	src = &gpBuffer[SCREENXY(cx, cy)];
 
-	for (i = sgCursHgt; i != 0; i--, dst += sgCursWdt, src += BUFFER_WIDTH) {
-		memcpy(dst, src, sgCursWdt);
+	for (i = ch; i != 0; i--, dst += cw, src += BUFFER_WIDTH) {
+		memcpy(dst, src, cw);
 	}
-
-	mx++;
+#endif
 	mx += SCREEN_X;
-	my++;
 	my += cursH + SCREEN_Y - 1;
 
 	frame = pcursicon;
@@ -1507,13 +1524,13 @@ static void DrawView()
 			default: ASSUME_UNREACHABLE;     break;
 			}
 		}
-		if (gbDropGoldFlag) {
-			DrawGoldSplit(dropGoldValue);
+		if (INVIDX_VALID(gbDropGoldIndex)) {
+			DrawGoldSplit();
 		}
 		if (gbSkillListFlag) {
 			DrawSkillList();
 		}
-		if (gbCampaignMapFlag) {
+		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
@@ -1528,7 +1545,7 @@ static void DrawView()
 	}
 	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
-	} else if (gbGamePaused) {
+	} else if (gnGamePaused != 0) {
 		gmenu_draw_pause();
 	}
 
@@ -1626,16 +1643,6 @@ void ScrollView()
 	if (scroll)
 		ScrollInfo._sdir = SDIR_NONE;
 }
-#endif
-
-/**
- * @brief Toggle the FPS meter
- */
-/*void EnableFrameCount()
-{
-	gbShowFPS = !gbShowFPS;
-	guFpsStartTc = SDL_GetTicks();
-}*/
 
 /**
  * @brief Display the current average FPS over 1 sec
@@ -1647,7 +1654,7 @@ static void DrawFPS()
 	guFrameCnt++;
 	currTc = SDL_GetTicks();
 	deltaTc = currTc - guFpsStartTc;
-	if (deltaTc >= 1000) {
+	if ((Sint32)deltaTc >= 1000) {
 		guFpsStartTc = currTc;
 		guFrameRate = 1000 * guFrameCnt / deltaTc;
 		guFrameCnt = 0;
@@ -1655,31 +1662,28 @@ static void DrawFPS()
 	snprintf(tempstr, sizeof(tempstr), "%d FPS", guFrameRate);
 	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 65, tempstr, COL_RED);
 }
+#endif // DEBUG_MODE
 
 /**
  * @brief Redraw screen
  * @param draw_cursor
  */
-void scrollrt_draw_screen(bool draw_cursor)
+void scrollrt_render_screen(bool draw_cursor)
 {
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive)
-		draw_cursor = false;
-#endif
-	if (draw_cursor) {
-		lock_buf(0);
-		scrollrt_draw_cursor();
-		unlock_buf(0);
-	}
-
 	if (gbWndActive) {
-		BltFast();
-	}
+		if (draw_cursor) {
+			lock_buf(0);
+			scrollrt_draw_cursor();
+			unlock_buf(0);
+		}
 
-	if (draw_cursor) {
-		lock_buf(0);
-		scrollrt_remove_back_buffer_cursor();
-		unlock_buf(0);
+		BltFast();
+
+		if (draw_cursor) {
+			lock_buf(0);
+			scrollrt_remove_back_buffer_cursor();
+			unlock_buf(0);
+		}
 	}
 	RenderPresent();
 }
@@ -1687,32 +1691,30 @@ void scrollrt_draw_screen(bool draw_cursor)
 /**
  * @brief Render the game
  */
-void scrollrt_draw_game()
+void scrollrt_render_game()
 {
-	if (!gbRunGame) {
-		return;
-	}
-
-	lock_buf(0);
-	DrawView();
-	scrollrt_draw_cursor();
-
-	if (gbShowFPS)
-		DrawFPS();
-
-	unlock_buf(0);
-
-	//DrawMain(hgt, gbRedrawFlags);
 	if (gbWndActive) {
+		lock_buf(0);
+		DrawView();
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		if (plrctrls_draw_cursor())
+#endif
+			scrollrt_draw_cursor();
+
+#if DEBUG_MODE
+		DrawFPS();
+#endif
+
+		unlock_buf(0);
+
 		BltFast();
+
+		lock_buf(0);
+		scrollrt_remove_back_buffer_cursor();
+		unlock_buf(0);
+		gbRedrawFlags = 0;
 	}
-
-	lock_buf(0);
-	scrollrt_remove_back_buffer_cursor();
-	unlock_buf(0);
 	RenderPresent();
-
-	gbRedrawFlags = 0;
 }
 
 DEVILUTION_END_NAMESPACE

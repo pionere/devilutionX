@@ -87,7 +87,7 @@ static void gmenu_up_down(bool isDown)
 	}
 	if (n != guCurrItemIdx) {
 		guCurrItemIdx = n;
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
@@ -119,7 +119,7 @@ static void gmenu_left_right(bool isRight)
 	steps = pItem->wMenuParam1;
 	step += isRight ? 1 : -1;
 	if (step < 0 || step > steps) {
-		// PlaySFX(IS_TITLEMOV);
+		// PlaySfx(IS_TITLEMOV);
 		return;
 	}
 	pItem->wMenuParam2 = step;
@@ -128,11 +128,9 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 {
-	// pause game(+sound) in case of single-player mode if not in the main menu
-	if (!IsMultiGame && gbRunGame) {
-		gbGamePaused = pItem != NULL;
-		sound_pause(gbGamePaused);
-		//diablo_pause_game();
+	// pause game if not in the main menu
+	if (gbRunGame) {
+		diablo_pause_game(pItem != NULL);
 	}
 	_gbMouseNavigation = false;
 	gpCurrentMenu = pItem;
@@ -143,7 +141,7 @@ void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 		gmUpdateFunc();
 	// play select sfx only in-game
 	if (gbRunGame)
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 }
 
 static void gmenu_draw_rectangle(int x, int y, int width, int height)
@@ -208,7 +206,7 @@ static void gmenu_draw_menu_item(int i, int y)
 		x += SLIDER_BORDER;
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
-		pos = step * SLIDER_STEPS / nSteps;
+		pos = step * SLIDER_INNER_WIDTH / nSteps;
 		gmenu_draw_rectangle(x, y - 10 - SLIDER_BORDER, pos + SLIDER_BUTTON_WIDTH / 2, SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER);
 		CelDraw(x + pos, y - 10 - SLIDER_BORDER, gpOptionCel, 1);
 	}
@@ -285,20 +283,20 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MousePos.x - (SCREEN_WIDTH / 2u - SLIDER_ROW_WIDTH / 2 + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (PANEL_MIDX(SLIDER_ROW_WIDTH) + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;
 		offset = 0;
 	}
-	if (offset > SLIDER_STEPS) {
-		if (offset > SLIDER_STEPS + SLIDER_BUTTON_WIDTH / 2)
+	if (offset > SLIDER_INNER_WIDTH) {
+		if (offset > SLIDER_INNER_WIDTH + SLIDER_BUTTON_WIDTH / 2)
 			return;
-		offset = SLIDER_STEPS;
+		offset = SLIDER_INNER_WIDTH;
 	}
 	_gbMouseNavigation = true;
 	pItem = &gpCurrentMenu[guCurrItemIdx];
-	gmenu_slider_set(pItem, 0, SLIDER_STEPS, offset);
+	gmenu_slider_set(pItem, 0, SLIDER_INNER_WIDTH, offset);
 	pItem->fnMenu(false);
 }
 

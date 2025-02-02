@@ -20,7 +20,6 @@ void pfile_read_hero_from_save();
 //bool pfile_rename_hero(const char* name_1, const char* name_2);
 void pfile_flush(bool bFree);
 //bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH]);
-void pfile_rename_temp_to_perm();
 /*
  * Write save file (game or level) from gsDeltaData.ddBuffer
  */

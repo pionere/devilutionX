@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 {
-	const int frames[] = { 0, 1	};
+	const int frames[] = { 0, 1 };
 	constexpr int FRAME_WIDTH = 64;
 	constexpr int FRAME_HEIGHT = 128;
 
@@ -54,7 +54,7 @@ BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 				}
 			}
 
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 
 			dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -64,7 +64,7 @@ BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 
 			idx++;
 		} else {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -74,7 +74,7 @@ BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -136,7 +136,7 @@ BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 				gpBuffer[11 + 149 * BUFFER_WIDTH] = 36;
 			}
 
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 
 			dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -146,7 +146,7 @@ BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 
 			idx++;
 		} else {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -156,7 +156,7 @@ BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -414,9 +414,9 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 			break;
 
 		// copy entries till the next frame
-		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		int numEntries = entries[next].frameRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 		for (int i = 0; i < numEntries; i++) {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -424,7 +424,7 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 			srcHeaderCursor++;
 		}
 		// add the next frame
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		
 		BYTE* frameSrc;
@@ -468,9 +468,9 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 		entries[next].frameRef = 0;
 	}
 	// add remaining entries
-	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	int numEntries = celEntries + 1 - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 	for (int i = 0; i < numEntries; i++) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -478,7 +478,7 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 		srcHeaderCursor++;
 	}
 	// add file-size
-	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+	dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 
 	*celLen = SwapLE32(dstHeaderCursor[0]);
 

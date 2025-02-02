@@ -8,18 +8,18 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-SDL_Color logical_palette[NUM_COLORS];
+static SDL_Color logical_palette[NUM_COLORS];
 SDL_Color system_palette[NUM_COLORS];
-SDL_Color orig_palette[NUM_COLORS];
+static SDL_Color orig_palette[NUM_COLORS];
 
 /** Specifies the gamma correction level. */
-int _gnGammaCorrection = 100;
+static int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
 bool gbColorCyclingEnabled = true;
 /** Specifies whether the game-screen is active with max brightness. */
-bool _gbFadedIn = false;
+static bool _gbFadedIn = false;
 
-void palette_update()
+void UpdatePalette()
 {
 #ifndef USE_SDL1
 	assert(back_palette != NULL);
@@ -27,7 +27,6 @@ void palette_update()
 	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, NUM_COLORS) < 0) {
 		sdl_error(ERR_SDL_PALETTE_UPDATE);
 	}
-	back_surface_palette_version++;
 }
 
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
@@ -36,26 +35,27 @@ void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 	double g;
 
 	if (_gnGammaCorrection == 100) {
-		memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
+		if (dst != src)
+			memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
 		return;
 	}
 
 	g = _gnGammaCorrection / 100.0;
 
 	for (i = 0; i < NUM_COLORS; i++) {
-		dst[i].r = pow(src[i].r / 256.0, g) * 256.0;
-		dst[i].g = pow(src[i].g / 256.0, g) * 256.0;
-		dst[i].b = pow(src[i].b / 256.0, g) * 256.0;
+		dst[i].r = (Uint8)(pow(src[i].r / 256.0, g) * 256.0);
+		dst[i].g = (Uint8)(pow(src[i].g / 256.0, g) * 256.0);
+		dst[i].b = (Uint8)(pow(src[i].b / 256.0, g) * 256.0);
 	}
 	gbRedrawFlags = REDRAW_ALL;
 }
 
-void palette_init()
+void InitPalette()
 {
-	int value;
+	int value = 100;
 
-	if (!getIniInt("Graphics", "Gamma Correction", &value))
-		value = 100;
+	getIniInt("Graphics", "Gamma Correction", &value);
+
 	if (value < 30) {
 		value = 30;
 	} else if (value > 100) {
@@ -87,40 +87,39 @@ void LoadLvlPalette()
 	LoadPalette(szFileName);
 }
 
+int GetGamma()
+{
+	return _gnGammaCorrection;
+}
+
+void SetGamma(int gamma)
+{
+	_gnGammaCorrection = gamma;
+	setIniInt("Graphics", "Gamma Correction", gamma);
+	ApplyGamma(system_palette, logical_palette);
+	UpdatePalette();
+}
+
 void IncreaseGamma()
 {
-	if (_gnGammaCorrection < 100) {
-		_gnGammaCorrection += 5;
-		if (_gnGammaCorrection > 100)
-			_gnGammaCorrection = 100;
-		ApplyGamma(system_palette, logical_palette);
-		palette_update();
+	int gamma = _gnGammaCorrection;
+	if (gamma < 100) {
+		gamma += 5;
+		if (gamma > 100)
+			gamma = 100;
+		SetGamma(gamma);
 	}
 }
 
 void DecreaseGamma()
 {
-	if (_gnGammaCorrection > 30) {
-		_gnGammaCorrection -= 5;
-		if (_gnGammaCorrection < 30)
-			_gnGammaCorrection = 30;
-		ApplyGamma(system_palette, logical_palette);
-		palette_update();
+	int gamma = _gnGammaCorrection;
+	if (gamma > 30) {
+		gamma -= 5;
+		if (gamma < 30)
+			gamma = 30;
+		SetGamma(gamma);
 	}
-}
-
-void UpdateGamma(int gamma)
-{
-	gamma = 130 - gamma;
-	setIniInt("Graphics", "Gamma Correction", gamma);
-	_gnGammaCorrection = gamma;
-	ApplyGamma(system_palette, logical_palette);
-	palette_update();
-}
-
-int GetGamma()
-{
-	return 130 - _gnGammaCorrection;
 }
 
 void SetFadeLevel(unsigned fadeval)
@@ -132,14 +131,15 @@ void SetFadeLevel(unsigned fadeval)
 		system_palette[i].g = (fadeval * logical_palette[i].g) / FADE_LEVELS;
 		system_palette[i].b = (fadeval * logical_palette[i].b) / FADE_LEVELS;
 	}
-	palette_update();
+	ApplyGamma(system_palette, system_palette);
+	UpdatePalette();
 }
 
 void PaletteFadeIn(bool instant)
 {
 	int i;
 
-	ApplyGamma(logical_palette, orig_palette);
+	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	if (!instant) {
 		Uint32 tc = SDL_GetTicks();
 		for (i = 0; i < FADE_LEVELS; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
@@ -149,7 +149,6 @@ void PaletteFadeIn(bool instant)
 		}
 	}
 	SetFadeLevel(FADE_LEVELS);
-	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	_gbFadedIn = true;
 }
 
@@ -180,7 +179,7 @@ void PaletteFadeOut()
 	}
 	system_palette[i] = col;
 
-	palette_update();
+	UpdatePalette();
 }*/
 
 #ifdef HELLFIRE
@@ -206,10 +205,10 @@ void palette_update_crypt()
 	}
 	system_palette[i] = col;
 
-	palette_update();
+	UpdatePalette();
 }
 
-/*static int nestCycleCounter = 3;
+static int nestCycleCounter = 3;
 void palette_update_nest()
 {
 	int i;
@@ -232,7 +231,7 @@ void palette_update_nest()
 	}
 	system_palette[i] = col;
 
-	palette_update();
+	UpdatePalette();
 }*/
 #endif
 
@@ -244,7 +243,7 @@ void palette_update_quest_palette(int n)
 		logical_palette[i] = orig_palette[i];
 	}
 	ApplyGamma(system_palette, logical_palette); // 32
-	palette_update();
+	UpdatePalette();
 }
 
 DEVILUTION_END_NAMESPACE

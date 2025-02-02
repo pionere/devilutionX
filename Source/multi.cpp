@@ -6,7 +6,7 @@
 #include "all.h"
 #include "diabloui.h"
 #include "storm/storm_net.h"
-#include <time.h>
+#include <ctime>
 #include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -91,7 +91,7 @@ void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 {
 	BYTE* src_ptr;
-	size_t chunk_size;
+	unsigned chunk_size;
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
 		src_ptr = &sgTurnChunkBuf.bData[0];
@@ -105,7 +105,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		sgTurnChunkBuf.dwDataSize -= (src_ptr - &sgTurnChunkBuf.bData[0]);
+		sgTurnChunkBuf.dwDataSize -= (unsigned)(src_ptr - &sgTurnChunkBuf.bData[0]);
 		memcpy(&sgTurnChunkBuf.bData[0], src_ptr, sgTurnChunkBuf.dwDataSize + 1);
 	}
 	return dest;
@@ -135,7 +135,7 @@ void multi_send_turn_packet()
 	remsize = NET_TURN_MSG_SIZE - sizeof(TurnPktHdr);
 	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
 	dstEnd = sync_all_monsters(dstEnd, remsize);
-	len = (size_t)dstEnd - (size_t)&pkt;
+	len = (unsigned)((size_t)dstEnd - (size_t)&pkt);
 	multi_init_pkt_header(pkt.hdr, len);
 	nthread_send_turn((BYTE*)&pkt, len);
 }
@@ -145,11 +145,11 @@ void multi_send_turn_packet()
  *
  * @param pmask: The mask of the player indices to receive the data. Or SNPLAYER_ALL to send to everyone.
  * @param pbSrc: the content of the message
- * @param bLen: the length of the message
+ * @param wLen: the length of the message
  */
-void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, unsigned wLen)
 {
-	unsigned i, len = bLen;
+	unsigned i, len = wLen;
 	NormalMsgPkt pkt;
 
 	memcpy(&pkt.body[0], pbSrc, len);
@@ -279,7 +279,8 @@ bool multi_check_timeout()
 {
 	// int i, nState, nLowestActive, nLowestPlayer;
 	//BYTE activePlrs, inActivePlrs;
-	Uint32 nTicks, now = SDL_GetTicks();
+	Uint32 now = SDL_GetTicks();
+	Sint32 dTicks;
 
 	if (!_gbTimeout) {
 		_gbTimeout = true;
@@ -287,15 +288,15 @@ bool multi_check_timeout()
 		return false;
 	}
 
-	nTicks = now - sglTimeoutStart;
-	if (nTicks > 10000) {
+	dTicks = now - sglTimeoutStart;
+	if (dTicks > 10000) {
 		SNetDisconnect();
 		// gbRunGame = false;
 		return true;
 	}
 	// commented out because a client should not be authorized to drop players
-	//if (nTicks < 5000) {
-		return nTicks >= 1000;
+	//if (dTicks < 5000) {
+		return dTicks >= 1000;
 	/*}
 
 	nLowestActive = -1;
@@ -497,7 +498,8 @@ static unsigned gameProgress;
 extern Uint32 guNextTick;
 int multi_ui_handle_turn()
 {
-	int delta, i;
+	int i;
+	Sint32 delta;
 
 	switch (nthread_recv_turns()) {
 	case TS_DESYNC:
@@ -684,7 +686,6 @@ static void SetupLocalPlr()
 	if (p->_pHitPoints < (1 << 6))
 		PlrSetHp(mypnum, (1 << 6));
 
-	assert(p->_pWalkpath[0] == DIR_NONE);
 	assert(p->_pDestAction == ACTION_NONE);
 	p->_pLvlChanging = TRUE;
 	//p->_pInvincible = TRUE; - does not matter in town

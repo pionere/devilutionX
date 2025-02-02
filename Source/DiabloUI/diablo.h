@@ -17,9 +17,9 @@ extern "C" {
 
 /* Defined in effects.cpp */
 /*#ifndef NOSOUND
-void PlaySFX(int psfx, int rndCnt = 1);
+void PlaySfx(int nsfx);
 #else
-inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt > 1) random_low(165, rndCnt); }
+inline void PlaySfx(int nsfx) { }
 #endif*/
 
 /* Defined in pfile.cpp */

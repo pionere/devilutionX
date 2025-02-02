@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static bool _gbIsScrolling;
-static DWORD sgdwLastWalk;
+static Uint32 sgdwLastWalk;
 static bool _gbIsWalking;
 
 void track_process()
@@ -23,9 +23,9 @@ void track_process()
 		return;
 
 	if (pcurspos.x != myplr._ptargx || pcurspos.y != myplr._ptargy) {
-		DWORD tick = SDL_GetTicks();
-		if ((int)(tick - sgdwLastWalk) >= tick_delay * 6) {
-			sgdwLastWalk = tick;
+		Uint32 now = SDL_GetTicks();
+		if (SDL_TICKS_PASSED(now, sgdwLastWalk + tick_delay * 6)) {
+			sgdwLastWalk = now;
 			NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 			if (!_gbIsScrolling)
 				_gbIsScrolling = true;

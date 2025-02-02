@@ -57,16 +57,12 @@ int camItemIndex;
 /** The 'selected' map on the campaign-map. */
 CampaignMapEntry selCamEntry;
 
-/** Specifies whether the Golddrop is displayed. */
-bool gbDropGoldFlag;
 /** Golddrop background CEL */
 static CelImageBuf* pGoldDropCel;
-/** The gold-stack index which is used as a source in Golddrop. */
-BYTE initialDropGoldIndex;
-/** The gold-stack size which is used as a source in Golddrop. */
-int initialDropGoldValue;
 /** The current value in Golddrop. */
-int dropGoldValue;
+int gnDropGoldValue;
+/** The gold-stack index which is used as a source in Golddrop (inv_item). */
+BYTE gbDropGoldIndex;
 BYTE infoclr;
 char tempstr[256];
 char infostr[256];
@@ -437,11 +433,9 @@ static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE mo
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
 
-static bool MoveToSkill(int pnum, int sn, int st)
+static bool CurrentSkill(int pnum, int sn, int st, bool altSkill)
 {
-	if (_gbMoveCursor == 0)
-		return false;
-	if (_gbMoveCursor == 1) {
+	if (altSkill) {
 		return MoveToAtkMoveSkill(sn, st,
 			plr._pAltAtkSkill, plr._pAltAtkSkillType,
 			plr._pAltMoveSkill, plr._pAltMoveSkillType);
@@ -457,7 +451,7 @@ void DrawSkillList()
 {
 	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
-
+	bool selected;
 #if SCREEN_READER_INTEGRATION
 	BYTE prevSkill = currSkill;
 #endif
@@ -513,14 +507,18 @@ void DrawSkillList()
 			else
 				st = GetSpellTrans(st, j);
 			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
-			lx = x - BORDER_LEFT;
-			ly = y - BORDER_TOP - SPLICON_HEIGHT;
+			lx = x - SCREEN_X;
+			ly = y - SCREEN_Y - SPLICON_HEIGHT;
+			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (MoveToSkill(pnum, j, i)) {
-				SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+			if (_gbMoveCursor != 0) {
+				selected = CurrentSkill(pnum, j, i, _gbMoveCursor == 1);
+				if (selected) {
+					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+				}
 			}
 #endif
-			if (POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT)) {
+			if (selected) {
 				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
@@ -570,11 +568,11 @@ void DrawSkillList()
 
 /*
  * @brief Select the current skill to use for the (alt)action button.
- * @param shift true: the other (move/attack)skill is kept
- *             false: the other (move/attack)skill is set to INVALID
+ *   If shift is pressed:  the other (move/attack)skill is kept
+ *            is released: the other (move/attack)skill is set to INVALID
  * @param altSkill set it as the action or the alt action skill
  */
-void SetSkill(bool shift, bool altSkill)
+void SetSkill(bool altSkill)
 {
 	PlayerStruct* p;
 	BYTE sn;
@@ -591,7 +589,7 @@ void SetSkill(bool shift, bool altSkill)
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
-	if (shift) {
+	if (SDL_GetModState() & KMOD_SHIFT) {
 		if (!altSkill) {
 			if (moveskill) {
 				p->_pMoveSkill = sn;
@@ -945,8 +943,9 @@ void InitControlPan()
 	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", SMALL_SCROLL_WIDTH);
 	assert(pDurIconCels == NULL);
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
-	infostr[0] = '\0';
-	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
+	// infostr[0] = '\0';
+	// tempstr[0] = '\0';
+	gbRedrawFlags = REDRAW_ALL; // gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
 	guBooktab = 0;
@@ -983,10 +982,8 @@ void InitControlPan()
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
-	gbDropGoldFlag = false;
-	dropGoldValue = 0;
-	initialDropGoldValue = 0;
-	initialDropGoldIndex = 0;
+	gbDropGoldIndex = INVITEM_NONE;
+	// gnDropGoldValue = 0;
 }
 
 void StartWndDrag(BYTE wnd)
@@ -1735,28 +1732,30 @@ void DrawInfoStr()
 {
 	POS32 pos;
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
 		pos = GetMousePos(is->_ix, is->_iy);
 		pos.y -= TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
-	} else if (pcursobj != OBJ_NONE) {
+	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
 		pos = GetMousePos(os->_ox, os->_oy);
 		pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
-	} else if (pcursmonst != MON_NONE) {
+	} else if (MON_VALID(pcursmonst)) {
 		MonsterStruct* mon = &monsters[pcursmonst];
+		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
+		ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		pos = GetMousePos(mon->_mx, mon->_my);
 		pos.x += mon->_mxoff;
 		pos.y += mon->_myoff;
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
-	} else if (pcursplr != PLR_NONE) {
+	} else if (PLR_VALID(pcursplr)) {
 		PlayerStruct* p = &players[pcursplr];
 		pos = GetMousePos(p->_px, p->_py);
 		pos.x += p->_pxoff;
@@ -1826,9 +1825,9 @@ void DrawInfoStr()
 		}
 		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
-	} else if (pcursinvitem != INVITEM_NONE) {
+	} else if (INVIDX_VALID(pcursinvitem)) {
 		DrawInvItemDetails();
-	} else if (pcurstrig != -1) {
+	} else if (TRIG_VALID(pcurstrig)) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
@@ -2058,7 +2057,7 @@ void DrawSpellBook()
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				sx - BORDER_LEFT, yp - BORDER_TOP - SBOOK_CELHEIGHT,
+				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
 				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
 				currSkill = sn;
 				currSkillType = st;
@@ -2133,12 +2132,15 @@ void DrawSpellBook()
 #endif
 }
 
-void CheckBookClick(bool shift, bool altSkill)
+void CheckBookClick(bool altSkill)
 {
 	int dx, dy;
 
 	if (currSkill != SPL_INVALID) {
-		SetSkill(shift, altSkill);
+		SetSkill(altSkill);
+		return;
+	}
+	if (altSkill) {
 		return;
 	}
 
@@ -2173,25 +2175,30 @@ const char* get_pieces_str(int nGold)
 	return nGold != 1 ? "pieces" : "piece";
 }
 
-void DrawGoldSplit(int amount)
+void DrawGoldSplit()
 {
-	int screen_x, screen_y;
+	int screen_x, screen_y, amount;
 
 	screen_x = SCREEN_X + gnWndInvX + (SPANEL_WIDTH - GOLDDROP_WIDTH) / 2;
 	screen_y = SCREEN_Y + gnWndInvY + 178;
-
+	// draw the background
 	CelDraw(screen_x, screen_y, pGoldDropCel, 1);
-	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
+	// draw the info-text
+	amount = PlrItem(mypnum, gbDropGoldIndex)->_ivalue;
+	snprintf(tempstr, sizeof(tempstr), "You have %d gold", amount);
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 4), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
-	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
+	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(amount));
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 3), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 2), screen_x + GOLDDROP_WIDTH - 15, "you want to remove?", COL_GOLD, FONT_KERN_SMALL);
+	// draw the edit-field
 	screen_x += 37;
 	screen_y -= 18 + 18 * 1;
+	amount = gnDropGoldValue;
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
-		PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
-		screen_x += GetSmallStringWidth(tempstr);
+		// PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
+		// screen_x += GetSmallStringWidth(tempstr);
+		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE);
 	}
 	screen_x += 2;
 	DrawSingleSmallPentSpn(screen_x, screen_y);
@@ -2199,42 +2206,45 @@ void DrawGoldSplit(int amount)
 
 static void control_remove_gold()
 {
-	int gi;
+	BYTE cii = gbDropGoldIndex;
 
-	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	assert(cii >= INVITEM_INV_FIRST && cii <= INVITEM_INV_LAST);
 	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
-	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using uint16_t.");
-	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParamBW(CMD_SPLITPLRGOLD, cii - INVITEM_INV_FIRST, gnDropGoldValue);
+}
+
+static void control_inc_dropgold(int value)
+{
+	int newValue;
+	int maxValue = PlrItem(mypnum, gbDropGoldIndex)->_ivalue;
+
+	newValue = gnDropGoldValue * 10 + value;
+	if (newValue <= maxValue)
+		gnDropGoldValue = newValue;
 }
 
 void control_drop_gold(int vkey)
 {
-	int newValue;
-
 	assert(myplr._pHitPoints >= (1 << 6) || vkey == DVL_VK_ESCAPE);
 
 	if (vkey == DVL_VK_RETURN) {
-		if (dropGoldValue > 0)
+		if (gnDropGoldValue > 0)
 			control_remove_gold();
 	} else if (vkey == DVL_VK_BACK) {
-		dropGoldValue /= 10;
+		gnDropGoldValue /= 10;
 		return;
 	} else if (vkey == DVL_VK_DELETE) {
-		dropGoldValue = 0;
+		gnDropGoldValue = 0;
 		return;
 	} else if (vkey >= DVL_VK_0 && vkey <= DVL_VK_9) {
-		newValue = dropGoldValue * 10 + vkey - DVL_VK_0;
-		if (newValue <= initialDropGoldValue)
-			dropGoldValue = newValue;
+		control_inc_dropgold(vkey - DVL_VK_0);
 		return;
 	} else if (vkey >= DVL_VK_NUMPAD0 && vkey <= DVL_VK_NUMPAD9) {
-		newValue = dropGoldValue * 10 + vkey - DVL_VK_NUMPAD0;
-		if (newValue <= initialDropGoldValue)
-			dropGoldValue = newValue;
+		control_inc_dropgold(vkey - DVL_VK_NUMPAD0);
 		return;
 	}
-	gbDropGoldFlag = false;
+	gbDropGoldIndex = INVITEM_NONE;
 }
 
 static void DrawTeamButton(int x, int y, int width, bool pressed, const char* label, int txtoff)
@@ -2338,7 +2348,7 @@ void DrawTeamBook()
 	}
 }
 
-void CheckTeamClick(bool shift)
+void CheckTeamClick()
 {
 	int dx, dy;
 
@@ -2358,7 +2368,7 @@ void CheckTeamClick(bool shift)
 		}
 		if (dx <= SBOOK_CELWIDTH) {
 			// clicked on the icon
-			SetupPlrMsg(pnum, shift);
+			SetupPlrMsg(pnum);
 		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
 		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
 			// clicked on the right column of buttons
@@ -2509,7 +2519,13 @@ void InitCampaignMap(int cii)
 	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
-void TryCampaignMapClick(bool bShift, bool altAction)
+/*
+ * @brief Manipulate the campaign map.
+ *   If shift is pressed:  the inventory is kept open
+ *            is released: the inventory is closed
+ * @param altAction: if set the map is just closed
+ */
+void TryCampaignMapClick(bool altAction)
 {
 	if (!altAction) {
 		BYTE mIdx = currCamEntry.ceIndex;
@@ -2517,7 +2533,7 @@ void TryCampaignMapClick(bool bShift, bool altAction)
 			if (currCamEntry.ceAvailable) {
 				selCamEntry = currCamEntry;
 				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
-				if (!bShift) {
+				if (!(SDL_GetModState() & KMOD_SHIFT)) {
 					if (gbInvflag) {
 						gbInvflag = false;
 						/* gbInvflag =*/ ToggleWindow(WND_INV);
@@ -2548,8 +2564,8 @@ void DrawCampaignMap()
 			if (cme.ceIndex != 0) {
 				x = sx + CAMICON_WIDTH * (cx/* + CAM_RADIUS  - lengthof(camEntries) / 2*/);
 				y = sy + CAMICON_HEIGHT * (cy/* + CAM_RADIUS - lengthof(camEntries[0]) / 2*/);
-				lx = x - BORDER_LEFT;
-				ly = y - (BORDER_TOP + CAMICON_HEIGHT);
+				lx = x - SCREEN_X;
+				ly = y - (SCREEN_Y + CAMICON_HEIGHT);
 
 				const BYTE* tbl = ColorTrns[COLOR_TRN_GRAY];
 				if (cme.ceAvailable) { // not visited

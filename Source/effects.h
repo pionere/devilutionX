@@ -19,33 +19,39 @@ extern "C" {
 extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 
 #ifndef NOSOUND
-bool IsSFXPlaying(int nSFX);
-void CheckStreamSFX();
+bool IsSfxPlaying(int nsfx);
 void StopStreamSFX();
 void StopSFX();
+void CheckStreamSFX();
 void InitMonsterSFX(int midx);
 void FreeMonsterSFX();
-void PlayMonSFX(int mnum, int mode);
-void PlaySFX(int psfx, int rndCnt = 1);
-void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1);
-void FreeGameSFX();
-void FreeUiSFX();
+void PlayMonSfx(int mnum, int mode);
+void PlaySfx(int nsfx);
+void PlaySfxN(int nsfx, int rndCnt);
+void PlaySfxLoc(int nsfx, int x, int y);
+void PlaySfxLocN(int nsfx, int x, int y, int rndCnt);
+void PlayWalkSfx(int pnum);
 void InitGameSFX();
 void InitUiSFX();
+void FreeGameSFX();
+void FreeUiSFX();
 #else
-inline bool IsSFXPlaying(int nSFX) { return false; }
-inline void CheckStreamSFX() { }
+inline bool IsSfxPlaying(int nsfx) { return false; }
 inline void StopStreamSFX() { }
 inline void StopSFX() { }
-inline void PlaySFX(int psfx, int rndCnt = 1) { if (rndCnt > 1) random_low(165, rndCnt); }
-inline void PlaySfxLoc(int psfx, int x, int y, int rndCnt = 1) { PlaySFX(-1, rndCnt); }
+inline void CheckStreamSFX() { }
 inline void InitMonsterSFX(int midx) { }
 inline void FreeMonsterSFX() { }
-inline void PlayMonSFX(int mnum, int mode) { PlaySFX(-1, 2); }
-inline void FreeGameSFX() { }
-inline void FreeUiSFX() { }
+inline void PlayMonSfx(int mnum, int mode) { }
+inline void PlaySfx(int nsfx) { }
+inline void PlaySfxN(int nsfx, int rndCnt) { if (rndCnt > 1) random_low(165, rndCnt); }
+inline void PlaySfxLoc(int nsfx, int x, int y) { }
+inline void PlaySfxLocN(int nsfx, int x, int y, int rndCnt) { PlaySfxN(-1, rndCnt); }
+inline void PlayWalkSfx(int pnum) { }
 inline void InitGameSFX() { }
 inline void InitUiSFX() { }
+inline void FreeGameSFX() { }
+inline void FreeUiSFX() { }
 #endif
 
 #ifdef __cplusplus

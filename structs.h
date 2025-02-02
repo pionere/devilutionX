@@ -53,8 +53,8 @@ typedef uint16_t WORD;
 
 typedef unsigned int UINT;
 
-typedef int32_t WPARAM;
-typedef int32_t LPARAM;
+// typedef int32_t WPARAM;
+// typedef int32_t LPARAM;
 
 //
 // Handles
@@ -66,10 +66,10 @@ typedef HANDLE HMODULE, HDC, HINSTANCE;
 typedef SDL_Event Dvl_Event;
 typedef void (*WNDPROC)(const Dvl_Event*);
 
-typedef struct tagMSG {
-	UINT message;
-	WPARAM wParam;
-} MSG, *LPMSG;
+// typedef struct tagMSG {
+// 	UINT message;
+// 	WPARAM wParam;
+// } MSG, *LPMSG;
 
 //////////////////////////////////////////////////
 // control
@@ -253,7 +253,7 @@ typedef struct ItemStruct {
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iFlags;	// item_special_effect
+	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
@@ -290,9 +290,7 @@ typedef struct ItemStruct {
 	BYTE _iPLMMaxDam;
 	BYTE _iPLAMinDam;
 	BYTE _iPLAMaxDam;
-	int _iVAdd;
-	int _iVMult;
-	ALIGNMENT(7, 6)
+	ALIGNMENT(9, 8)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -325,7 +323,6 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Ali
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	int8_t _pWalkpath[MAX_PATH_LENGTH + 1];
 	int _pDestAction;
 	int _pDestParam1;
 	int _pDestParam2;
@@ -428,10 +425,11 @@ typedef struct PlayerStruct {
 	int _pMana;      // the current mana of the player
 	int _pMaxMana;   // the maximum mana of the player
 	BYTE _pSkillLvl[64]; // the skill levels of the player
+	uint64_t _pISpells;  // Bitmask of skills available via equipped items (staff)
+	BYTE _pSkillFlags;   // Bitmask of allowed skill-types (SFLAG_*)
 	BOOLEAN _pInfraFlag;
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
-	BYTE _pAlign_B0;
 	int _pISlMinDam; // min slash-damage (swords, axes)
 	int _pISlMaxDam; // max slash-damage (swords, axes)
 	int _pIBlMinDam; // min blunt-damage (maces, axes)
@@ -447,12 +445,10 @@ typedef struct PlayerStruct {
 	int8_t _pLghtResist;
 	int8_t _pAcidResist;
 	int _pIHitChance;
-	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
-	BYTE _pIBlockChance;
-	uint64_t _pISpells; // Bitmask of skills available via equipped items (staff)
-	unsigned _pIFlags;
+	uint16_t _pIBlockChance;
+	unsigned _pIFlags; // item_special_effect
 	BYTE _pIWalkSpeed;
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
@@ -471,7 +467,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(179, 94)
+	ALIGNMENT(185, 100)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -589,12 +585,12 @@ static_warning((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Alig
 typedef struct _Mix_Audio Mix_Audio;
 
 typedef struct SoundSample final {
-	Uint32 nextTc;
+	Uint32 lastTc;
 	Mix_Audio* soundData;
 
 	void Release();
-	bool IsPlaying();
-	bool IsLoaded() {
+	bool IsPlaying() const;
+	bool IsLoaded() const {
 		return soundData != NULL;
 	}
 	void Play(int lVolume, int lPan, int channel);
@@ -1184,8 +1180,6 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhAutoMapScale;
 	BYTE vhMiniMapScale;
 	BYTE vhNormalMapScale;
-	LE_INT32 vhAutoMapXOfs;
-	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;
 } LSaveGameHeaderStruct;
 
@@ -1193,6 +1187,8 @@ typedef struct LSaveGameMetaStruct {
 	LE_UINT32 vaboylevel;
 	LE_INT32 vanumpremium;
 	LE_INT32 vapremiumlevel;
+	LE_INT32 vaAutoMapXOfs;
+	LE_INT32 vaAutoMapYOfs;
 	LE_INT32 vanumlights;
 	LE_INT32 vanumvision;
 } LSaveGameMetaStruct;
@@ -1241,7 +1237,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 vivalue;
 	LE_INT32 viIvalue;
 	LE_INT32 viAC;
-	LE_INT32 viFlags;	// item_special_effect
+	LE_INT32 viPLFlags; // item_special_effect
 	LE_INT32 viCharges;
 	LE_INT32 viMaxCharges;
 	LE_INT32 viDurability;
@@ -1278,13 +1274,10 @@ typedef struct LSaveItemStruct {
 	BYTE viPLMMaxDam;
 	BYTE viPLAMinDam;
 	BYTE viPLAMaxDam;
-	LE_INT32 viVAdd;
-	LE_INT32 viVMult;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
 	LE_INT32 vpmode; // PLR_MODE
-	int8_t vpWalkpath[MAX_PATH_LENGTH + 1];
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
@@ -1794,6 +1787,7 @@ typedef struct TMsgLargeHdr {
 
 typedef struct TMsgString {
 	BYTE bCmd;
+	BYTE bsLen;
 	char str[MAX_SEND_STR_LEN];
 } TMsgString;
 
@@ -1848,7 +1842,6 @@ typedef struct TSyncMonster {
 
 typedef struct TSyncLvlPlayer {
 	BYTE spMode;
-	BYTE spWalkpath[MAX_PATH_LENGTH];
 	BYTE spManaShield;
 	BYTE spInvincible;
 	BYTE spDestAction;
@@ -1859,10 +1852,10 @@ typedef struct TSyncLvlPlayer {
 	LE_INT16 spTimer[NUM_PLRTIMERS];
 	BYTE spx;      // Tile X-position where the player should be drawn
 	BYTE spy;      // Tile Y-position where the player should be drawn
-	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
-	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
-	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
-	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
+//	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
+//	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
+//	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
+//	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
 //	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
 //	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)
@@ -1894,10 +1887,10 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar3;
 	BYTE smx;          // Tile X-position where the monster should be drawn
 	BYTE smy;          // Tile Y-position where the monster should be drawn
-	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
-	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
-	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
-	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
+//	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
+//	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
+//	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
+//	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
 //	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
 //	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)
@@ -2454,6 +2447,15 @@ typedef struct SNetGameData {
 	BYTE ngTickRate;
 	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE ngMaxPlayers;
+	SNetGameData() {
+		memset(&ngVersionId, 0, sizeof(SNetGameData));
+	}
+	SNetGameData(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	}
+	void operator=(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	};
 } SNetGameData;
 
 /*typedef struct _SNETCAPS {
@@ -2653,6 +2655,7 @@ typedef struct STextStruct {
 		struct {
 			char _schr;     // placeholder to differentiate from a normal text
 			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
+			BYTE _siClr[8]; // the list of light-translations to draw the items with
 		};
 	};
 	bool _sitemlist; // whether items should be drawn 
@@ -2672,7 +2675,7 @@ static_warning((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align ST
 //////////////////////////////////////////////////
 
 typedef struct _plrmsg {
-	Uint32 time;
+	uint32_t time;
 	BYTE player;
 	BYTE lineBreak;
 	char str[122];

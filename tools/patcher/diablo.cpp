@@ -33,8 +33,10 @@ static int diablo_parse_flags(int argc, char** argv)
 			i++;
 			if (i < argc)
 				SetPrefPath(argv[i]);
+#if !FULLSCREEN_ONLY
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
+#endif
 		}
 	}
 	return EX_OK;
