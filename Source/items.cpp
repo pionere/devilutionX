@@ -1710,7 +1710,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			sufs = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iSufPower = sufs->PLPower;
-			SaveItemPower(
+			v = SaveItemPower(
 			    ii,
 			    sufs->PLPower,
 			    sufs->PLParam1,
