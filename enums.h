@@ -425,17 +425,18 @@ typedef enum item_affix_range {
 } item_affix_range;
 
 typedef enum affix_item_type {
-	PLT_MISC   = 1 << 1,
-	PLT_BOW    = 1 << 2,
-	PLT_STAFF  = 1 << 3,
+	PLT_MISC   = 1 << 0,
+	PLT_BOW    = 1 << 1,
+	PLT_STAFF  = 1 << 2,
+	PLT_CHRG   = 1 << 3,
 	PLT_MELEE  = 1 << 4,
 	PLT_SHLD   = 1 << 5,
-	PLT_ARMO   = 1 << 6,
-	PLT_CHRG   = 1 << 7,
-	PLT_LARMOR = 1 << 8,
-	PLT_MARMOR = 1 << 9,
-	PLT_HARMOR = 1 << 10,
-	PLT_MAP    = 1 << 11,
+	PLT_HELM   = 1 << 6,
+	PLT_LARMOR = 1 << 7,
+	PLT_MARMOR = 1 << 8,
+	PLT_HARMOR = 1 << 9,
+	PLT_MAP    = 1 << 10,
+	PLT_ARMO   = (PLT_HELM | PLT_LARMOR | PLT_MARMOR | PLT_HARMOR),
 } affix_item_type;
 
 typedef enum item_base_bonus {

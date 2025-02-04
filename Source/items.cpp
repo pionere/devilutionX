@@ -1762,16 +1762,16 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 		flgs = PLT_SHLD;
 		break;
 	case ITYPE_LARMOR:
-		flgs = PLT_ARMO | PLT_LARMOR;
+		flgs = PLT_LARMOR;
 		break;
 	case ITYPE_HELM:
-		flgs = PLT_ARMO;
+		flgs = PLT_HELM;
 		break;
 	case ITYPE_MARMOR:
-		flgs = PLT_ARMO | PLT_MARMOR;
+		flgs = PLT_MARMOR;
 		break;
 	case ITYPE_HARMOR:
-		flgs = PLT_ARMO | PLT_HARMOR;
+		flgs = PLT_HARMOR;
 		break;
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
