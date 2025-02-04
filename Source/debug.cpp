@@ -801,7 +801,8 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
-	int rnddrops = 0;
+	int rnddrops[ILVLMAX + 1][NUM_IARS][10];
+	rnddrops[0][0][0] = 0;
 	for (i = 0; i < NUM_IDI; i++) {
 		const ItemData& ids = AllItemList[i];
 		if (ids.iName == NULL) {
@@ -811,7 +812,7 @@ void ValidateData()
 		}
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i); // required by SetItemData
-		rnddrops += ids.iRnd;
+		rnddrops[0][0][0] += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_NONE)
@@ -912,11 +913,11 @@ void ValidateData()
 			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
 #if UNOPTIMIZED_RNDITEMS
-	if (rnddrops > ITEM_RNDDROP_MAX)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+	if (rnddrops[0][0][0] > ITEM_RNDDROP_MAX)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
 #else
-	if (rnddrops > 0x7FFF)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0x7FFF);
+	if (rnddrops[0][0][0] > 0x7FFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], 0x7FFF);
 #endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
@@ -928,10 +929,35 @@ void ValidateData()
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
 #endif
-	rnddrops = 0; i = 0;
+	memset(rnddrops, 0, sizeof(rnddrops));
+	i = 0;
 	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		const BYTE pow = pres->PLPower;
-		rnddrops += pres->PLDouble ? 2 : 1;
+		for (int ii = 0; ii < lengthof(pres->PLRanges); ii++) {
+			for (int n = pres->PLRanges[ii].from; n <= pres->PLRanges[ii].to; n++) {
+				int cnt = pres->PLDouble ? 2 : 1;
+				if (pres->PLIType & PLT_MISC)
+					rnddrops[n][ii][0] += cnt;
+				if (pres->PLIType & PLT_BOW)
+					rnddrops[n][ii][1] += cnt;
+				if (pres->PLIType & (PLT_STAFF | PLT_CHRG))
+					rnddrops[n][ii][2] += cnt;
+				if (pres->PLIType & PLT_MELEE)
+					rnddrops[n][ii][3] += cnt;
+				if (pres->PLIType & PLT_SHLD)
+					rnddrops[n][ii][4] += cnt;
+				if (pres->PLIType & PLT_HELM)
+					rnddrops[n][ii][5] += cnt;
+				if (pres->PLIType & PLT_LARMOR)
+					rnddrops[n][ii][6] += cnt;
+				if (pres->PLIType & PLT_MARMOR)
+					rnddrops[n][ii][7] += cnt;
+				if (pres->PLIType & PLT_HARMOR)
+					rnddrops[n][ii][8] += cnt;
+				if (pres->PLIType & PLT_MAP)
+					rnddrops[n][ii][9] += cnt;
+			}
+		}
 		if (pres->PLParam2 < pres->PLParam1)
 			app_fatal("Invalid PLParam-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
 		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) // required by SaveItemPower
@@ -1013,12 +1039,44 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
-		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
-	rnddrops = 0;
+	for (int ii = 0; ii < NUM_IARS; ii++) {
+		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
+		for (int n = 0; n <= ILVLMAX; n++) {
+			for (int k = 0; k < 10; k++) {
+				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+			}
+		}
+	}
+	memset(rnddrops, 0, sizeof(rnddrops));
 	const AffixData* sufs = PL_Suffix;
 	for (i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
 		const BYTE pow = sufs->PLPower;
+		for (int ii = 0; ii < lengthof(sufs->PLRanges); ii++) {
+			for (int n = sufs->PLRanges[ii].from; n <= sufs->PLRanges[ii].to; n++) {
+				int cnt = sufs->PLDouble ? 2 : 1;
+				if (sufs->PLIType & PLT_MISC)
+					rnddrops[n][ii][0] += cnt;
+				if (sufs->PLIType & PLT_BOW)
+					rnddrops[n][ii][1] += cnt;
+				if (sufs->PLIType & (PLT_STAFF | PLT_CHRG))
+					rnddrops[n][ii][2] += cnt;
+				if (sufs->PLIType & PLT_MELEE)
+					rnddrops[n][ii][3] += cnt;
+				if (sufs->PLIType & PLT_SHLD)
+					rnddrops[n][ii][4] += cnt;
+				if (sufs->PLIType & PLT_HELM)
+					rnddrops[n][ii][5] += cnt;
+				if (sufs->PLIType & PLT_LARMOR)
+					rnddrops[n][ii][6] += cnt;
+				if (sufs->PLIType & PLT_MARMOR)
+					rnddrops[n][ii][7] += cnt;
+				if (sufs->PLIType & PLT_HARMOR)
+					rnddrops[n][ii][8] += cnt;
+				if (sufs->PLIType & PLT_MAP)
+					rnddrops[n][ii][9] += cnt;
+			}
+		}
 		if (sufs->PLDouble)
 			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pow, sufs->PLParam1);
 		rnddrops++;
@@ -1095,8 +1153,15 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
-		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
+	for (int ii = 0; ii < NUM_IARS; ii++) {
+		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
+		for (int n = 0; n <= ILVLMAX; n++) {
+			for (int k = 0; k < 10; k++) {
+				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+			}
+		}
+	}
 
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
