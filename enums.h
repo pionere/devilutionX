@@ -4633,7 +4633,7 @@ typedef enum game_logic_progress {
 	//GLP_OBJECTS_DONE,
 	//GLP_MISSILES_DONE,
 	//GLP_ITEMS_DONE,
-} game_logic_progress; 
+} game_logic_progress;
 
 typedef enum redraw_flags {
 	REDRAW_HP_FLASK      = 1 << 0,
