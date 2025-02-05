@@ -2950,9 +2950,9 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 }
 
 /**
- * Var3: destination reached
- * Var4: x coordinate of the destination
- * Var5: y coordinate of the destination
+ * Var1: destination reached
+ * Var2: x coordinate of the destination
+ * Var3: y coordinate of the destination
  */
 int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2967,9 +2967,9 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection8(sx, sy, dx, dy));
 	mis = &missile[mi];
-	//mis->_miVar3 = FALSE;
-	mis->_miVar4 = dx;
-	mis->_miVar5 = dy;
+	//mis->_miVar1 = FALSE;
+	mis->_miVar2 = dx;
+	mis->_miVar3 = dy;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 
@@ -5008,8 +5008,8 @@ void MI_Elemental(int mi)
 	cy = mis->_miy;
 	if ((cx != mis->_misx || cy != mis->_misy)                              // not on the starting position
 	 && (CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY) || mis->_miRange >= 0) // did not hit a wall
-	 && !mis->_miVar3 && cx == mis->_miVar4 && cy == mis->_miVar5) {        // destination reached the first time
-		mis->_miVar3 = TRUE;
+	 && !mis->_miVar1 && cx == mis->_miVar2 && cy == mis->_miVar3) {        // destination reached the first time
+		mis->_miVar1 = TRUE;
 		mis->_miRange = 0;
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
