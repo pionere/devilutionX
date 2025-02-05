@@ -2090,8 +2090,8 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		if (i <= 7)
 			break;
 		// assert(i < MAXDUNX + MAXDUNY);
-		dx += offset_x[OPPOSITE(midir)];
-		dy += offset_y[OPPOSITE(midir)];
+		dx += XDirAdd[OPPOSITE(midir)];
+		dy += YDirAdd[OPPOSITE(midir)];
 	}
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTeleport expects a large enough border.");
