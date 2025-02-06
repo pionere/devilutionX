@@ -455,7 +455,7 @@ typedef struct PlayerStruct {
 	BYTE _pAlign_B1;
 	int _pIGetHit;
 	BYTE _pIBaseAttackSpeed;
-	int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
+	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
 	int _pIFMinDam; // min fire damage (item's added fire damage)

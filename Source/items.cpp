@@ -272,26 +272,6 @@ inline static BYTE BaseAttackSpeed(unsigned flags)
 	return res;
 }
 
-/*
- * Calculate the arrow-velocity bonus gained from attack-speed modifiers.
- *  ISPL_QUICKATTACK:   +1
- *  ISPL_FASTATTACK:    +2
- *  ISPL_FASTERATTACK:  +4
- *  ISPL_FASTESTATTACK: +8
- */
-inline static int ArrowVelBonus(unsigned flags)
-{
-	flags &= (ISPL_QUICKATTACK | ISPL_FASTATTACK | ISPL_FASTERATTACK | ISPL_FASTESTATTACK);
-	//if (flags != 0) {
-		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized ArrowVelBonus depends simple flag-like attack-speed modifiers.");
-		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers I.");
-		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers II.");
-		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers III.");
-		flags /= ISPL_QUICKATTACK;
-	//}
-	return flags;
-}
-
 static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
 	PlayerStruct* p;
@@ -328,7 +308,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	BYTE gfx;       // graphics
 	int wt;         // weapon-type
 	bool bf;        // blockflag
-	int av;         // arrow velocity bonus
 	unsigned pdmod; // player damage mod
 
 	int i;
@@ -717,22 +696,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// calculate base cast speed
 	plr._pIBaseCastSpeed = BaseCastSpeed(plr._pIFlags);
-
-	// calculate arrow velocity bonus
-	av = ArrowVelBonus(plr._pIFlags);
-	/*  No other velocity bonus for the moment, otherwise POINT_BLANK and FAR_SHOT do not work well...
-#ifdef HELLFIRE
-	if (plr._pClass == PC_ROGUE)
-		av += (plr._pLevel - 1) >> 2;
-	else if (plr._pClass == PC_WARRIOR || plr._pClass == PC_BARD)
-		av += (plr._pLevel - 1) >> 3;
-#else
-	if (plr._pClass == PC_ROGUE)
-		av += (plr._pLevel - 1) >> 2;
-	else if (plr._pClass == PC_WARRIOR)
-		av += (plr._pLevel - 1) >> 3;
-#endif*/
-	plr._pIArrowVelBonus = av;
 
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
 	for (i = 1; i < NUM_SPELLS; i++) {

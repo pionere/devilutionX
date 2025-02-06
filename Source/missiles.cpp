@@ -891,7 +891,7 @@ static bool MissMonHitByPlr(int mnum, int mi)
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 			break;
 		case MIS_ASARROW:
-			// assert(mis->_miVar7 >= 2); -- depends on _pIArrowVelBonus
+			// assert(mis->_miVar7 >= 2);
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 			break;
 		case MIS_MLARROW:
@@ -1137,7 +1137,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 			break;
 		case MIS_ASARROW:
-			// assert(mis->_miVar7 >= 2); -- depends on _pIArrowVelBonus
+			// assert(mis->_miVar7 >= 2);
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 			break;
 		case MIS_MLARROW:
@@ -1783,7 +1783,6 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	midir = GetDirection16(sx, sy, dx, dy);
 	mtype = MFILE_ARROWS;
 	if (micaster & MST_PLAYER) {
-		av += MIS_SHIFTEDVEL((int)plx(misource)._pIArrowVelBonus);
 		//int dam = plx(misource)._pIMaxDam + plx(misource)._pIMinDam;
 		int fdam = plx(misource)._pIFMaxDam;
 		int ldam = plx(misource)._pILMaxDam;

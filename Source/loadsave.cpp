@@ -306,7 +306,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pIBaseAttackSpeed
-	tbuff += 1; // _pIArrowVelBonus
+	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
 	tbuff += 4; // _pIFMinDam
@@ -1146,7 +1146,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pIBaseAttackSpeed
-	tbuff += 1; // _pIArrowVelBonus
+	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
 	tbuff += 4; // _pIFMinDam
