@@ -1844,12 +1844,12 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	if (micaster & MST_PLAYER) {
 		switch (mis->_miType) {
 		case MIS_FIREBOLT:
-			av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
+			av = MIS_SHIFTEDVEL(24);
 			mindam = (plx(misource)._pMagic >> 3) + spllvl + 1;
 			maxdam = mindam + 9;
 			break;
 		case MIS_FIREBALL:
-			av = MIS_SHIFTEDVEL(spllvl + 16);
+			av = MIS_SHIFTEDVEL(16);
 			mindam = (plx(misource)._pMagic >> 2) + 10;
 			maxdam = mindam + 10;
 			for (i = spllvl; i > 0; i--) {
@@ -1858,7 +1858,7 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			}
 			break;
 		case MIS_HBOLT:
-			av = MIS_SHIFTEDVEL(16 + 2 * spllvl);
+			av = MIS_SHIFTEDVEL(20);
 			mindam = (plx(misource)._pMagic >> 2) + spllvl;
 			maxdam = mindam + 9;
 			break;
@@ -1876,11 +1876,11 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		//	av = MIS_SHIFTEDVEL(63);
 	} else if (micaster == MST_MONSTER) {
 		//assert(misource >= MAX_MINIONS);
-		av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 26 : 16);
+		av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 24 : 16);
 		mindam = monsters[misource]._mMinDamage;
 		maxdam = monsters[misource]._mMaxDamage;
 	} else {
-		av = MIS_SHIFTEDVEL(16);
+		av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 24 : 16);
 		mindam = currLvl._dLevel;
 		maxdam = mindam + 2 * mindam - 1;
 	}
