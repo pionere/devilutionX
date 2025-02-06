@@ -1546,6 +1546,10 @@ void ValidateData()
 			}
 		}
 		if (md.mdFlags & MIF_ARROW) {
+			if (md.mAddProc != AddArrow)
+				app_fatal("Arrow-Missile %d is not added by AddArrow proc.", i); // required to initialize MISDIST / MISHIT
+			if (md.mProc != MI_Arrow && md.mProc != MI_AsArrow)
+				app_fatal("Arrow-Missile %d is not handled by MI_*Arrow proc.", i); // required to maintain MISDIST
 			if (i != MIS_ARROW && i != MIS_PBARROW && i != MIS_ASARROW && i != MIS_MLARROW && i != MIS_PCARROW)
 				app_fatal("Arrow-Missile %d is not handled in MissMonHitByPlr and in MissPlrHitByPlr.", i);
 		}
