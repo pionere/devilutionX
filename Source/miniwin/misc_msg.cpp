@@ -1175,7 +1175,7 @@ void PostMessage(UINT type /*, WPARAM wParam*/)
 {
 	switch (Msg) {
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break;
 	//case DVL_WM_QUERYENDSESSION:
 	//	diablo_quit(EX_OK);

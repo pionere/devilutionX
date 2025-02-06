@@ -1495,7 +1495,7 @@ static void DrawView()
 	DrawLifeFlask();
 	DrawManaFlask();
 	DrawGolemBar();
-	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
+	//if (gbRedrawFlags & (REDRAW_RECALC_MANA | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
 	DrawDurIcon();

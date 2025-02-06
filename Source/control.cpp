@@ -637,7 +637,7 @@ void SetSkill(bool altSkill)
 		gbSkillListFlag = false;
 	}
 
-	//gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_SPELL_ICON;
 }
 
 static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot, int sn)
@@ -693,7 +693,6 @@ static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4]
 {
 	*destSkill = hotKeyGroup[slot];
 	*destSkillType = hotKeyTypeGroup[slot];
-	//gbRedrawFlags = REDRAW_ALL;
 }
 
 /*
@@ -717,6 +716,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
 		SelectHotKeySkill(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot,
 			&p->_pAltAtkSkill, &p->_pAltAtkSkillType);
 	}
+	// gbRedrawFlags |= REDRAW_SPELL_ICON;
 }
 
 /*void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
@@ -867,7 +867,7 @@ void DrawLifeFlask()
 	int maxHP, hp;
 	int x;
 
-	if (gbRedrawFlags & REDRAW_HP_FLASK) {
+	if (gbRedrawFlags & REDRAW_RECALC_HP) {
 		maxHP = myplr._pMaxHP;
 		hp = myplr._pHitPoints;
 		if (hp <= 0 || maxHP <= 0)
@@ -891,7 +891,7 @@ void DrawManaFlask()
 	int maxMana, mana;
 	int x;
 
-	if (gbRedrawFlags & REDRAW_MANA_FLASK) {
+	if (gbRedrawFlags & REDRAW_RECALC_MANA) {
 		maxMana = myplr._pMaxMana;
 		mana = myplr._pMana;
 
@@ -945,7 +945,7 @@ void InitControlPan()
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
 	// infostr[0] = '\0';
 	// tempstr[0] = '\0';
-	gbRedrawFlags = REDRAW_ALL; // gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
+	gbRedrawFlags = REDRAW_RECALC_FLASKS; // | REDRAW_DRAW_ALL;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
 	guBooktab = 0;
@@ -1071,7 +1071,7 @@ static void control_set_button_down(int btn_id)
 		assert(gabPanbtn[PANBTN_MAINMENU]);
 		gabPanbtn[btn_id] = true;
 	}
-	//gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
+	// gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
 }
 
 static bool InLvlUpRect()
@@ -1217,7 +1217,7 @@ void ReleasePanBtn()
 		HandlePanBtn(i);
 
 		gabPanbtn[PANBTN_MAINMENU] = false;
-		//gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
+		// gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
 	}
 }
 

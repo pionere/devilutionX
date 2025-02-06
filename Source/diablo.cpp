@@ -606,7 +606,7 @@ void diablo_pause_game(bool pause)
 		}
 		gnGamePaused = now;
 		sound_pause(pause);
-		//gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	}
 }
 
@@ -1142,7 +1142,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break; //  return;
 	// case DVL_WM_QUERYENDSESSION:
 	// case DVL_DWM_NEXTLVL:
@@ -1226,7 +1226,7 @@ void GameWndProc(const Dvl_Event* e)
 		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break; //  return;
 	// case DVL_WM_QUERYENDSESSION:
 	//	break;
@@ -1250,9 +1250,8 @@ void GameWndProc(const Dvl_Event* e)
 			InitLevelCursor();
 			LoadPWaterPalette();
 			PaletteFadeIn(true);
-			gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags |= REDRAW_DRAW_ALL;
 			scrollrt_render_game();
-			//gbRedrawFlags = REDRAW_ALL;
 		}
 		break; //  return;
 	default:
@@ -1360,7 +1359,7 @@ static void game_loop()
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
-				// gbRedrawFlags = REDRAW_ALL;
+				// gbRedrawFlags |= REDRAW_DRAW_ALL;
 			}
 			//scrollrt_render_screen(true);
 			break;
@@ -1368,7 +1367,7 @@ static void game_loop()
 		if (gnTimeoutCurs != CURSOR_NONE) {
 			NewCursor(gnTimeoutCurs);
 			gnTimeoutCurs = CURSOR_NONE;
-			// gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		}
 		game_logic();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

@@ -29,23 +29,20 @@ void UpdatePalette()
 
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 {
-	int i;
-	double g;
-
 	if (_gnGammaCorrection == 100) {
 		if (dst != src)
 			memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
-		return;
-	}
+	} else {
+		int i;
+		double g = _gnGammaCorrection / 100.0;
 
-	g = _gnGammaCorrection / 100.0;
-
-	for (i = 0; i < NUM_COLORS; i++) {
-		dst[i].r = (Uint8)(pow(src[i].r / 256.0, g) * 256.0);
-		dst[i].g = (Uint8)(pow(src[i].g / 256.0, g) * 256.0);
-		dst[i].b = (Uint8)(pow(src[i].b / 256.0, g) * 256.0);
+		for (i = 0; i < NUM_COLORS; i++) {
+			dst[i].r = (Uint8)(pow(src[i].r / 256.0, g) * 256.0);
+			dst[i].g = (Uint8)(pow(src[i].g / 256.0, g) * 256.0);
+			dst[i].b = (Uint8)(pow(src[i].b / 256.0, g) * 256.0);
+		}
 	}
-	// gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
 
 void InitPalette()

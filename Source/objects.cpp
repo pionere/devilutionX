@@ -2561,7 +2561,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	}
 
 	CalcPlrInv(pnum, true);
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
 
 static void OperateShrine(int pnum, int oi, bool sendmsg)

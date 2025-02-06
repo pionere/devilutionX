@@ -3082,7 +3082,7 @@ void PlrSetHp(int pnum, int val)
 	plr._pHPBase = val + plr._pMaxHPBase - plr._pMaxHP;
 
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrSetMana(int pnum, int val)
@@ -3096,7 +3096,7 @@ void PlrSetMana(int pnum, int val)
 	plr._pManaBase = val - (plr._pMaxMana - plr._pMaxManaBase);
 
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 void PlrFillHp(int pnum)
@@ -3107,7 +3107,7 @@ void PlrFillHp(int pnum)
 	plr._pHitPoints = plr._pMaxHP;
 	plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrFillMana(int pnum)
@@ -3120,7 +3120,7 @@ void PlrFillMana(int pnum)
 	plr._pMana = plr._pMaxMana;
 	plr._pManaBase = plr._pMaxManaBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 void PlrIncHp(int pnum, int hp)
@@ -3133,7 +3133,7 @@ void PlrIncHp(int pnum, int hp)
 	if (plr._pHPBase > plr._pMaxHPBase)
 		plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrIncMana(int pnum, int mana)
@@ -3151,7 +3151,7 @@ void PlrIncMana(int pnum, int mana)
 		plr._pManaBase = plr._pMaxManaBase;
 	}
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 bool PlrDecHp(int pnum, int hp, int dmgtype)
@@ -3176,7 +3176,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 		return true;
 	}
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 	return false;
 }
 
@@ -3189,7 +3189,7 @@ void PlrDecMana(int pnum, int mana)
 	if (pnum == mypnum) {
 		if (plr._pMana <= 0 && plr._pManaShield != 0)
 			NetSendCmd(CMD_REMSHIELD);
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 	}
 }
 

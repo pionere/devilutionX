@@ -233,7 +233,7 @@ void ToggleFullscreen()
 	}
 #endif
 	gbFullscreen = !gbFullscreen;
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
 #endif
 /**

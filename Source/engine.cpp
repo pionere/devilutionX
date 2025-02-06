@@ -332,7 +332,7 @@ void PlayInGameMovie(const char* pszMovie)
 	play_movie(pszMovie, 0);
 	scrollrt_render_game();
 	PaletteFadeIn(false);
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	// skip time due to movie and fadein/out
 	extern Uint32 guNextTick;
 	guNextTick = SDL_GetTicks() + gnTickDelay; // += SDL_GetTicks() - currTc;

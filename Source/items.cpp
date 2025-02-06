@@ -761,7 +761,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 
 	if (pnum == mypnum)
-		gbRedrawFlags = REDRAW_ALL; // gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
+		gbRedrawFlags = REDRAW_RECALC_FLASKS; // gbRedrawFlags |= REDRAW_RECALC_FLASKS;
 }
 
 void CalcPlrSpells(int pnum)
