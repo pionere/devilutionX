@@ -1545,6 +1545,18 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
+		if (md.mProc == MI_Cbolt) {
+			assert(md.mdPrSpeed == missiledata[MIS_CBOLT].mdPrSpeed);
+		}
+		if (md.mProc == MI_Chain) {
+			assert(md.mdPrSpeed == missiledata[MIS_CHAIN].mdPrSpeed);
+		}
+		if (md.mProc == MI_Elemental) {
+			assert(md.mdPrSpeed == missiledata[MIS_ELEMENTAL].mdPrSpeed);
+		}
+		if (md.mProc == MI_Mage) {
+			assert(md.mdPrSpeed == missiledata[MIS_MAGE].mdPrSpeed);
+		}
 		if (md.mdFlags & MIF_ARROW) {
 			if (md.mAddProc != AddArrow)
 				app_fatal("Arrow-Missile %d is not added by AddArrow proc.", i); // required to initialize MISDIST / MISHIT
@@ -1574,6 +1586,19 @@ void ValidateData()
 	assert((missiledata[MIS_ASARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_MLARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_PCARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert(missiledata[MIS_EXFIRE].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_EXLGHT].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_EXMAGIC].mdPrSpeed == 0);             // required by AddElementalExplosion
+	assert(missiledata[MIS_EXACID].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_FLASH2].mdPrSpeed == 0);              // required by AddFlash
+	assert(missiledata[MIS_INFERNO].mdPrSpeed == 0);             // required by MI_InfernoC
+	assert(missiledata[MIS_ACIDPUD].mdPrSpeed == 0);             // required by MI_Acidsplat
+	assert(missiledata[MIS_FIREWALL].mdPrSpeed == 0);            // required by MI_Meteor, MI_WallC, AddRingC
+	assert(missiledata[MIS_LIGHTNING].mdPrSpeed == 0);           // required by MI_LightningC
+	assert(missiledata[MIS_LIGHTNING2].mdPrSpeed == 0);          // required by MI_LightningC
+	assert(missiledata[MIS_BLOODBOIL].mdPrSpeed == 0);           // required by MI_BloodBoilC
+	assert(missiledata[MIS_SWAMP].mdPrSpeed == 0);               // required by MI_BloodBoilC
+	assert(missiledata[MIS_STONE].mdPrSpeed == 0);               // required by MI_Rune
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
 	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall

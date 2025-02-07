@@ -501,6 +501,7 @@ typedef struct MissileData {
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
+	BYTE mdPrSpeed; // speed of the projectile
 	ALIGNMENT32(2)
 } MissileData;
 
