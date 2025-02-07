@@ -780,13 +780,15 @@ static bool MissMonHitByMon(int mnum, int mi)
 			return false;
 		mis->_miVar8 = mnum + 1;
 	}
+	misource = mis->_miSource;
+	// assert(misource == -1 || ((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS));
+	if (mnum >= MAX_MINIONS && misource >= MAX_MINIONS) {
+		return false; // monster vs. monster
+	}
+	// if (mnum < MAX_MINIONS && (unsigned)misource < MAX_MINIONS && plx(mnum)._pTeam == plx(misource)._pTeam)
+	//	return false; // minion vs. minion
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
-	misource = mis->_miSource;
-	// assert(misource == -1 || (unsigned)misource < MAXMONSTERS);
-	if (mnum >= MAX_MINIONS && misource >= MAX_MINIONS) {
-		return false;
-	}
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = mis->_miVar6; // MISHIT
 		hper -= mon->_mArmorClass;
@@ -844,10 +846,12 @@ static bool MissMonHitByPlr(int mnum, int mi)
 			return false;
 		mis->_miVar8 = mnum + 1;
 	}
+	pnum = mis->_miSource;
+	// assert((unsigned)pnum < MAX_PLRS);
+	// if (mnum < MAX_MINIONS && plx(mnum)._pTeam == plr._pTeam)
+	//	return false; // player vs. minion
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
-	pnum = mis->_miSource;
-	//assert((unsigned)pnum < MAX_PLRS);
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = plr._pIHitChance;
 		hper -= mon->_mArmorClass;
@@ -1020,19 +1024,21 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	int misource, hper, dam;
 	unsigned hitFlags;
 
-	if (plr._pInvincible) {
-		return false;
-	}
 	mis = &missile[mi];
 	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == -(pnum + 1))
 			return false;
 		mis->_miVar8 = -(pnum + 1);
 	}
+	misource = mis->_miSource;
+	// assert(misource == -1 || ((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS));
+	//if ((unsigned)misource < MAX_MINIONS && plx(misource)._pTeam == plr._pTeam)
+	//	return false; // minion vs. player
+	if (plr._pInvincible) {
+		return false;
+	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
-	misource = mis->_miSource;
-	// assert(misource == -1 || (unsigned)misource < MAXMONSTERS);
 	if (mis->_miFlags & MIF_ARROW) {
 		hper = mis->_miVar6; // MISHIT
 		hper -= plr._pIAC;
@@ -1086,8 +1092,9 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		mis->_miVar8 = -(pnum + 1);
 	}
 	offp = mis->_miSource;
+	// assert((unsigned)offp < MAX_PLRS);
 	if (plr._pTeam == plx(offp)._pTeam || plr._pInvincible) {
-		return false;
+		return false; // player vs. player
 	}
 	// SetRndSeed(mis->_miRndSeed);
 	// mis->_miRndSeed = NextRndSeed();
