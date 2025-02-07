@@ -1107,7 +1107,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		return false;
 
 	if (!(mis->_miFlags & MIF_NOBLOCK)) {
-		if (PlrCheckBlock(pnum, plx(offp)._pLevel, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, mis->_misx, mis->_misy))
 			return true;
 	}
 
