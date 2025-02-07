@@ -1729,18 +1729,13 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 /*int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int av = MIS_SHIFTEDVEL(16);
 
 	if (sx == dx && sy == dy) {
 		dx += XDirAdd[midir];
 		dy += YDirAdd[midir];
 	}
 	assert((unsigned)misource < MAX_PLRS);
-	av += spllvl;
-	//if (av > MIS_SHIFTEDVEL(50)) {
-	//	av = MIS_SHIFTEDVEL(50);
-	//}
-	GetMissileVel(mi, sx, sy, dx, dy, av);
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball2 needs at least light-radius of 8.");
@@ -1879,8 +1874,6 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			ASSUME_UNREACHABLE
 			break;
 		}
-		//if (av > MIS_SHIFTEDVEL(63))
-		//	av = MIS_SHIFTEDVEL(63);
 	} else if (micaster == MST_MONSTER) {
 		//assert(misource >= MAX_MINIONS);
 		av = MIS_SHIFTEDVEL(mis->_miType == MIS_FIREBOLT ? 24 : 16);
@@ -2190,16 +2183,12 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			mindam += mindam >> 3;
 			maxdam += maxdam >> 3;
 		}
-		i = MIS_SHIFTEDVEL(spllvl + 16);
-		//if (i > MIS_SHIFTEDVEL(50))
-		//	i = MIS_SHIFTEDVEL(50);
 	} else {
 		mindam = monsters[misource]._mMinDamage;
 		maxdam = monsters[misource]._mMaxDamage;
-		i = MIS_SHIFTEDVEL(16);
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	GetMissileVel(mi, sx, sy, dx, dy, i);
+	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
 	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
