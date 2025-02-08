@@ -665,6 +665,10 @@ static void SetupLocalPlr()
 	PlayerStruct* p;
 
 	p = &myplr;
+	p->_pmode = PM_NEWLVL;
+	p->_pDestAction = ACTION_NONE;
+	//p->_pInvincible = TRUE; - does not matter in town
+	p->_pLvlChanging = TRUE;
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
@@ -686,10 +690,6 @@ static void SetupLocalPlr()
 	if (p->_pHitPoints == 0)
 		PlrSetHp(mypnum, (1 << 6));
 
-	assert(p->_pDestAction == ACTION_NONE);
-	p->_pLvlChanging = TRUE;
-	//p->_pInvincible = TRUE; - does not matter in town
-	assert(p->_pmode == PM_NEWLVL);
 	assert(p->_pGFXLoad == 0);
 
 	gbActivePlayers = 1;
