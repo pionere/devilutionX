@@ -1761,6 +1761,8 @@ void LevelDeltaLoad()
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
 			}
+		} else {
+			net_assert(plr._pHitPoints == 0);
 		}
 		switch (plr._pDestAction) {
 		case ACTION_NONE:
