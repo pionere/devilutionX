@@ -1648,6 +1648,7 @@ void LevelDeltaLoad()
 			}
 			// ensure dead bodies are not placed prematurely
 			if (mi == MM_DEATH) {
+				net_assert(mon->_mhitpoints == 0);
 				if (dDead[mon->_mx][mon->_my] == mnum + 1)
 					dDead[mon->_mx][mon->_my] = 0;
 			} else if (mnum < MAX_MINIONS) {
