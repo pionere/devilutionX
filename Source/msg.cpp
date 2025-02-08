@@ -3206,8 +3206,6 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 		return sizeof(*pCmd);
 	}
 	multi_deactivate_player(pnum);
-	if (pnum == mypnum)
-		gbRunGame = false;
 
 	return sizeof(*pCmd);
 }
