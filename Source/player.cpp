@@ -2734,9 +2734,9 @@ void ProcessPlayers()
 			}
 			if (plr._pTimer[PLTR_INFRAVISION] != 0) {
 				plr._pTimer[PLTR_INFRAVISION]--;
-				if (plr._pTimer[PLTR_INFRAVISION] == 0) {
-					CalcPlrItemVals(pnum, false); // last parameter should not matter
-				}
+				//if (plr._pTimer[PLTR_INFRAVISION] == 0) {
+				//	CalcPlrItemVals(pnum, false); // last parameter should not matter
+				//}
 			}
 
 			int16_t nextTimer = plr._pTimer[PLTR_RAGE];
