@@ -308,39 +308,40 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 
 void InitPlayerGFX(int pnum)
 {
-	unsigned gfxflag;
+	unsigned gfx2load, gfxvalid;
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
+	gfxvalid = plr._pGFXLoad;
 	// reset gfx-flags which are no longer usable
 	if (currLvl._dType == DTYPE_TOWN)
-		plr._pGFXLoad &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+		gfxvalid &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
 	else
-		plr._pGFXLoad &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
+		gfxvalid &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
 	// select appropriate flags based on player-status and location
 	if (plr._pHitPoints != 0) {
-		gfxflag = PGF_NONDEATH;
+		gfx2load = PGF_NONDEATH;
 		// commented out because it is preferable to load everything at once
 		//if (currLvl._dType == DTYPE_TOWN)
-		//	gfxflag &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
+		//	gfx2load &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
 		//else if (!(plr._pSkillFlags & SFLAG_BLOCK))
-		//	gfxflag &= ~PGF_BLOCK;
-		if (plr._pGFXLoad & PGF_DEATH) // MEM_DEATH: gfxflag is either for death or non-death animations
-			plr._pGFXLoad = 0;
+		//	gfx2load &= ~PGF_BLOCK;
+		gfxvalid &= PGF_NONDEATH; // MEM_DEATH: _pAnimFileData is either for death or non-death animations
 	} else {
-		gfxflag = PGF_DEATH;
+		gfx2load = PGF_DEATH;
 		// protect against warping deads
 		if (plr._pgfxnum != ANIM_ID_UNARMED) {
 			plr._pgfxnum = ANIM_ID_UNARMED;
-			plr._pGFXLoad = 0;
+			gfxvalid = 0;
 		}
-		if (plr._pGFXLoad & PGF_NONDEATH) // MEM_DEATH
-			plr._pGFXLoad = 0;
+		gfxvalid &= PGF_DEATH; // MEM_DEATH
 	}
+	// update gfx-flags
+	plr._pGFXLoad = gfxvalid;
 	// mask gfx-flags which are already loaded
-	gfxflag &= ~plr._pGFXLoad;
+	gfx2load &= ~gfxvalid;
 
-	LoadPlrGFX(pnum, gfxflag);
+	LoadPlrGFX(pnum, gfx2load);
 }
 
 static unsigned GetPlrGFXSize(const char* szCel)
