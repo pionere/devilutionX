@@ -1383,7 +1383,7 @@ static void MonFindEnemy(int mnum)
 	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
-				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
+				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints == 0*/)
 				continue;
 			if ((plx(i)._pmode < PM_WALK || plx(i)._pmode > PM_WALK2) || plx(i)._pAnimFrame <= (plx(i)._pAnimLen >> 1)) {
 				x = plx(i)._px;
@@ -1911,7 +1911,7 @@ static void MonFallenFear(int x, int y)
 		 && mon->_mAI.aiType == AI_FALLEN
 		 && abs(x - mon->_mx) < 5
 		 && abs(y - mon->_my) < 5
-		 && mon->_mhitpoints >= (1 << 6)
+		 && mon->_mhitpoints != 0
 		 && mon->_mAI.aiInt < 4) {
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
@@ -4479,7 +4479,7 @@ void ProcessMonsters()
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = NextRndSeed();
 		}
-		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >= (1 << 6) /*&& !(mon->_mFlags & MFLAG_NOHEAL)*/) {
+		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints != 0 /*&& !(mon->_mFlags & MFLAG_NOHEAL)*/) {
 			mon->_mhitpoints += (mon->_mLevel + 1) >> 1;
 			if (mon->_mhitpoints > mon->_mmaxhp)
 				mon->_mhitpoints = mon->_mmaxhp;

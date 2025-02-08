@@ -278,7 +278,7 @@ static bool FindClosest(int sx, int sy, int& dx, int& dy)
 			if (mnum < 0 || mnum == mid)
 				continue;
 			mon = &monsters[mnum];
-			if (mon->_mhitpoints < (1 << 6))
+			if (mon->_mhitpoints == 0)
 				continue;
 			tx = mon->_mfutx;
 			ty = mon->_mfuty;
@@ -313,7 +313,7 @@ static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 			if (mnum < 0 || mnum == mid)
 				continue;
 			mon = &monsters[mnum];
-			if (mon->_mhitpoints < (1 << 6)
+			if (mon->_mhitpoints == 0
 			 || (mon->_mMagicRes & MORS_LIGHTNING_IMMUNE) == MORS_LIGHTNING_IMMUNE)
 				continue;
 			tx = mon->_mfutx;
@@ -2693,7 +2693,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			assert(mid < MAXMONSTERS);
 			mon = &monsters[mid];
 			if (!(mon->_mFlags & MFLAG_NOSTONE) && !CanTalkToMonst(mid)
-			 && mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints >= (1 << 6*/) {
+			 && mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints != 0*/) {
 				// range = (sl * 128 - HP + 128) * 2
 				range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
 				// TODO: add support for spell duration modifier
@@ -2858,7 +2858,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (tnum != 0) {
 		// - player
 		tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-		if (tnum != misource && plx(tnum)._pHitPoints >= (1 << 6))
+		if (tnum != misource && plx(tnum)._pHitPoints != 0)
 			PlrIncHp(tnum, hp);
 	} else {
 		// - minion
@@ -2867,7 +2867,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 			tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
 			if (tnum < MAX_MINIONS) {
 				mon = &monsters[tnum];
-				if (mon->_mhitpoints >= (1 << 6)) {
+				if (mon->_mhitpoints != 0) {
 					// MonIncHp(tnum, hp);
 					mon->_mhitpoints += hp;
 					if (mon->_mhitpoints > mon->_mmaxhp)
@@ -3237,7 +3237,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	case MTT_PLAYER:
 		// assert(target < MAX_PLRS);
 		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
-		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints >= (1 << 6) && plx(target)._pmode != PM_BLOCK
+		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints != 0 && plx(target)._pmode != PM_BLOCK
 		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pMagic) {
 			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
 		}
@@ -3406,7 +3406,7 @@ static bool Sentfire(int mi, int sx, int sy)
 	assert(mis->_miCaster == MST_PLAYER);
 	mnum = dMonster[sx][sy] - 1;
 	if (mnum >= MAX_MINIONS
-	 && monsters[mnum]._mhitpoints >= (1 << 6)
+	 && monsters[mnum]._mhitpoints != 0
 	 //&& !CanTalkToMonst(mnum) -- commented out to make it consistent with MI_Rune, MI_Poison, FindClosestChain, FindClosest
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		// SetRndSeed(mis->_miRndSeed);
@@ -3594,7 +3594,7 @@ void MI_Mage(int mi)
 		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
 			int pnum = mis->_miVar1;
 			pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
-			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && plr._pHitPoints >= (1 << 6) && (mis->_mix != plr._px || mis->_miy != plr._py)) {
+			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
 				GetMissileVel(mi, mis->_mix, mis->_miy, plr._px, plr._py, MIS_SHIFTEDVEL(missiledata[MIS_MAGE].mdPrSpeed));
 			} else {
 				mis->_miVar1 = 0;
@@ -3673,7 +3673,7 @@ void MI_Poison(int mi)
 	} else {
 		// player target
 		pnum = -(mis->_miVar1 + 1);
-		if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints < (1 << 6)) {
+		if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints == 0) {
 			mis->_miRange = 0;
 		} else {
 			mis->_mix = plr._px;
@@ -4134,7 +4134,7 @@ void MI_Bleed(int mi)
 			}
 		} else {
 			pnum = tnum;
-			if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints < (1 << 6)) {
+			if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints == 0) {
 				mis->_miVar1 = 1;
 			} else {
 				// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
@@ -4515,7 +4515,7 @@ void MI_Stone(int mi)
 
 	mis = &missile[mi];
 	mon = &monsters[mis->_miVar2];
-	dead = mon->_mhitpoints < (1 << 6);
+	dead = mon->_mhitpoints == 0;
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
 	if (!dead) {

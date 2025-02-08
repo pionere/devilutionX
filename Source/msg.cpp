@@ -1448,13 +1448,13 @@ void LevelDeltaLoad()
 		if (pnum == mypnum) {
 			mi = tplr->spMode;
 			net_assert(mi == PM_STAND
-			 || ((mi == PM_DEATH || mi == PM_DYING) && plr._pHitPoints < (1 << 6)));
+			 || ((mi == PM_DEATH || mi == PM_DYING) && plr._pHitPoints == 0));
 			net_assert(tplr->spDestAction == ACTION_NONE);
 			net_assert(tplr->spInvincible == 40);
 			net_assert(plr._pTimer[PLTR_INFRAVISION] == tplr->spTimer[PLTR_INFRAVISION]);
 			net_assert(plr._pTimer[PLTR_RAGE] == tplr->spTimer[PLTR_RAGE]);
 			net_assert(plr._pManaShield == tplr->spManaShield);
-			net_assert(plr._pHPBase == tplr->spHPBase || (plr._pHitPoints < (1 << 6) && currLvl._dLevelIdx == DLV_TOWN));
+			net_assert(plr._pHPBase == tplr->spHPBase || (plr._pHitPoints == 0 && currLvl._dLevelIdx == DLV_TOWN));
 			net_assert(plr._pManaBase == tplr->spManaBase);
 		}
 		// RemovePlrFromMap(pnum);

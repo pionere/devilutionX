@@ -318,7 +318,7 @@ void InitPlayerGFX(int pnum)
 	else
 		plr._pGFXLoad &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
 	// select appropriate flags based on player-status and location
-	if (plr._pHitPoints >= (1 << 6)) {
+	if (plr._pHitPoints != 0) {
 		gfxflag = PGF_NONDEATH;
 		// commented out because it is preferable to load everything at once
 		//if (currLvl._dType == DTYPE_TOWN)
@@ -962,10 +962,10 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 		dev_fatal("AddPlrExperience: illegal player %d", pnum);
 	}
 
-	//if (plr._pHitPoints < (1 << 6)) {
+	//if (plr._pHitPoints == 0) {
 	//	return;
 	//}
-	// assert(plr._pmode != PM_DEATH);
+	// assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 
 	// Add xp to the used skills
 	AddPlrSkillExp(pnum, lvl, exp);
@@ -1558,7 +1558,7 @@ static void PlrStartGetHit(int pnum, int dir)
 static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
-	// assert(plr._pHitPoints >= (1 << 6));
+	// assert(plr._pHitPoints != 0);
 	// if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
 	//	return;
 
@@ -1591,7 +1591,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
 
-	// assert(plr._pHitPoints >= (1 << 6) && dam >= 0);
+	// assert(plr._pHitPoints != 0 && dam >= 0);
 
 	if (plr._pManaShield != 0) {
 		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
@@ -2848,7 +2848,7 @@ void MissToPlr(int mi, bool hit)
 		FixPlayerLocation(pnum);*/
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
-	if (!hit || plr._pHitPoints < (1 << 6)) {
+	if (!hit || plr._pHitPoints == 0) {
 		PlrStartStand(pnum);
 		return;
 	}
@@ -2965,7 +2965,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 			//if (mpo < 0) {
 			//	return false;
 			//}
-			//if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
+			//if (monsters[mpo - 1]._mhitpoints != 0) {
 				return false;
 			//}
 			//if (currLvl._dLevelIdx == DLV_TOWN) {
@@ -2983,7 +2983,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 			// check commented out because a player should not walk over a dying player (looks bad)
-			return mpo == pnum /*|| plx(mpo)._pHitPoints < (1 << 6)*/;
+			return mpo == pnum /*|| plx(mpo)._pHitPoints == 0*/;
 		}
 
 		return true;
