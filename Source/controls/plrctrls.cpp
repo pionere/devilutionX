@@ -194,7 +194,7 @@ static void FindMonster(int mode, bool ranged)
 	}
 	for ( ; mnum < lastMon; mnum++) {
 		const MonsterStruct& mon = monsters[mnum];
-		if (mon._mmode > MM_INGAME_LAST || mon._mmode == MM_DEATH)
+		if (mon._mmode > MM_INGAME_LAST || mon._mhitpoints == 0)
 			continue;
 		if (mon._mFlags & MFLAG_HIDDEN)
 			continue;
@@ -240,7 +240,7 @@ static void FindPlayer(int mode, bool ranged)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
 			continue;
-		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
 			continue;
 		if ((mode == 2) != (plr._pHitPoints == 0))
 			continue;
