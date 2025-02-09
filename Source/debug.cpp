@@ -400,6 +400,12 @@ void ValidateData()
 			app_fatal("Invalid (zero) cursor height at %d.", i);
 	}
 	// meta-data
+	for (i = 0; i < NUM_DIRS; i++) {
+		int tx = DBORDERY, ty = DBORDERY;
+		int newx = tx + offset_x[i];
+		int newy = ty + offset_y[i];
+		assert(OPPOSITE(i) == GetDirection(newx, newy, tx, ty)); // required by MonTeleport
+	}
 	// recreateCrawlTable();
 	// - CrawlNum
 	for (int n = 0; n < lengthof(CrawlNum); n++) {

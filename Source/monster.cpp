@@ -1886,11 +1886,11 @@ static void MonTeleport(int mnum, int tx, int ty)
 	for (i = 0; i < lengthof(offset_x); i++, rx = (rx + 1) & 7) {
 		newx = tx + offset_x[rx];
 		newy = ty + offset_y[rx];
-		assert(IN_DUNGEON_AREA(newx, newy));
+		// assert(IN_DUNGEON_AREA(newx, newy));
 		if (newx != oldx && newy != oldy && PosOkMonst(mnum, newx, newy)) {
 			mon->_mx = newx;
 			mon->_my = newy;
-			assert(OPPOSITE(rx) == GetDirection(newx, newy, tx, ty));
+			// assert(OPPOSITE(rx) == GetDirection(newx, newy, tx, ty));
 			mon->_mdir = OPPOSITE(rx);
 			RemoveMonFromMap(mnum);
 			MonPlace(mnum);
