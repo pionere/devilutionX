@@ -1127,8 +1127,12 @@ void PerformSecondaryAction()
 	// assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
-	if (InGameMenu())
+	// if (InGameMenu())
+	//	return;
+	if (stextflag != STORE_NONE) {
+		STextESC();
 		return;
+	}
 
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		TryDropItem();
