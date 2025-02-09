@@ -929,16 +929,19 @@ void plrctrls_after_check_curs_move()
 	// check for monsters first, then items, then towners.
 	if (sgbControllerActive) {
 		// Clear focus set by cursor
-		pcursplr = PLR_NONE;
 		pcursmonst = MON_NONE;
-		pcursitem = ITEM_NONE;
 		pcursobj = OBJ_NONE;
+		pcursitem = ITEM_NONE;
+		// pcursinvitem = INVITEM_NONE;
+		pcursplr = PLR_NONE;
 		pcurstrig = TRIG_NONE;
+		// pcurswnd = WND_NONE;
 		pcurspos.x = -1;
 		pcurspos.y = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
-		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag) {
+		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
+		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag) {
 			return;
 		}
 		if (!gbInvflag) {
