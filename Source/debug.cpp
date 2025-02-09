@@ -906,6 +906,18 @@ void ValidateData()
 			}
 			if (ids.iDurability == 0)
 				app_fatal("Usable item %s (%d) with miscId %d must have a non-zero durablity(stacksize).", ids.iName, i, ids.iMiscId);
+		} else {
+			switch (ids.iMiscId) {
+			case IMISC_HEAL:
+			case IMISC_FULLHEAL:
+			case IMISC_MANA:
+			case IMISC_FULLMANA:
+			case IMISC_REJUV:
+			case IMISC_FULLREJUV:
+			case IMISC_SCROLL:
+				app_fatal("Non-Usable item %s (%d) with miscId %d is not handled by UseBeltItem.", ids.iName, i, ids.iMiscId);
+				break;
+			}
 		}
 		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
 			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
@@ -1400,6 +1412,7 @@ void ValidateData()
 
 	// spells
 	assert(spelldata[SPL_RESURRECT].sManaCost == 0); // required by GetItemSpell
+	assert(!(spelldata[SPL_HEAL].sUseFlags & SFLAG_DUNGEON)); // required by UseBeltItem
 	assert(spelldata[SPL_TELEPORT].sSkillFlags & SDFLAG_TARGETED); // required by AddTeleport
 #define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
 	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs

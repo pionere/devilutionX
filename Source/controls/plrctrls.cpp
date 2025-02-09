@@ -1011,10 +1011,13 @@ void UseBeltItem(bool manaItem)
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
 		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
-		    || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
-		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (InvUseItem(INVITEM_BELT_FIRST + i))
+		 || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
+		 || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
+			if (pi->_iStatFlag) {
+				// assert(pi->_iUsable);
+				InvUseItem(INVITEM_BELT_FIRST + i);
 				break;
+			}
 		}
 	}
 }

@@ -878,14 +878,16 @@ void InputBtnDown(int transKey)
 	case ACT_ITEM5:
 	case ACT_ITEM6:
 	case ACT_ITEM7:
-		static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
-		static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
-		static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
-		static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
-		static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
-		static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
-		static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
-		InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
+			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
+			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
+			static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
+			static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
+			static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
+			static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
+			InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		}
 		break;
 	case ACT_AUTOMAP:
 		ToggleAutomap();
@@ -1010,10 +1012,14 @@ void InputBtnDown(int transKey)
 		PerformSpellAction();
 		break;
 	case ACT_CTRL_USE_HP:
-		UseBeltItem(false);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			UseBeltItem(false);
+		}
 		break;
 	case ACT_CTRL_USE_MP:
-		UseBeltItem(true);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			UseBeltItem(true);
+		}
 		break;
 #endif
 	default:
