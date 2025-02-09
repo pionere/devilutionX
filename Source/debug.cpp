@@ -1638,10 +1638,43 @@ void ValidateData()
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
-#ifdef DEBUG_DATA
 	// players
-	for (i = 0; i < NUM_CLASSES; i++)
-		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]); // required by StartWalk
+	assert(PlrAnimFrameLens[PGX_WALK] == 1); // required by PlrDoWalk
+	assert(PlrAnimFrameLens[PGX_ATTACK] == 1); // required by PlrDoAttack, PlrDoRangeAttack
+	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1); // required by PlrDoSpell
+	assert(PlrAnimFrameLens[PGX_DEATH] > 1); // required by PlrDoDeath
+#ifdef DEBUG_DATA
+	int wal = -1;
+	for (i = 0; i < NUM_CLASSES; i++) {
+		int pnum = 0;
+		plr._pClass = i;
+		for (int k = 0; k < 2; k++) {
+			currLvl._dType = k == 0 ? DTYPE_CATHEDRAL : DTYPE_TOWN;
+			for (int n = ANIM_ID_UNARMED; n <= ANIM_ID_STAFF; n++) {
+				plr._pgfxnum = n;
+				SetPlrAnims(0);
+				if (wal < 0)
+					wal = plr._pAnims[PGX_WALK].paFrames;
+				else if (wal != plr._pAnims[PGX_WALK].paFrames)
+					app_fatal("Inconsistent walk-animation for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by StartWalk
+				if (n != ANIM_ID_BOW && plr._pAFNum == 0) {
+					app_fatal("Invalid attack-actionframe number for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by PlrDoAttack
+				}
+				if (plr._pAnims[PGX_ATTACK].paFrames < plr._pAFNum) {
+					app_fatal("Invalid attack-animation setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_FIRE].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_LIGHTNING].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_MAGIC].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+			}
+		}
+	}
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
 		//const int(*gl)[2] = &GossipList[i];

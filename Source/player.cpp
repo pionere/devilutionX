@@ -512,6 +512,7 @@ void SetPlrAnims(int pnum)
 		if (gn == ANIM_ID_BOW) {
 			plr._pAnims[PGX_STAND].paFrames = 8;
 			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
@@ -540,6 +541,7 @@ void SetPlrAnims(int pnum)
 		if (gn == ANIM_ID_UNARMED) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
 		} else if (gn == ANIM_ID_UNARMED_SHIELD) {
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 9;
 		} else if (gn == ANIM_ID_BOW) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
@@ -604,9 +606,10 @@ void SetPlrAnims(int pnum)
 			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			//plr._pAnims[PGX_ATTACK].paFrames = 16;
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 8;
 		}
 		break;
@@ -617,7 +620,7 @@ void SetPlrAnims(int pnum)
 	}
 	if (currLvl._dType == DTYPE_TOWN) {
 		plr._pAnims[PGX_STAND].paFrames = 20;
-		//plr._pAnims[PGX_WALK].paFrames = 8;
+		// plr._pAnims[PGX_WALK].paFrames = 8;
 	}
 }
 
