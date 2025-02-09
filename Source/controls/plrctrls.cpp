@@ -15,7 +15,7 @@ static int speedspellcount = 0;
 bool InGameMenu()
 {
 	return stextflag != STORE_NONE
-	    || gbHelpflag
+	    //|| gbHelpflag
 	    || gbTalkflag
 	    || gbQtextflag
 	    //|| gbDoomflag
