@@ -21,7 +21,7 @@ bool InGameMenu()
 	    //|| gbDoomflag
 	    || gmenu_is_active()
 	    || gnGamePaused != 0
-	    || gbDeathflag;
+	    || gbDeathflag != MDM_ALIVE;
 }
 
 /**
@@ -1067,13 +1067,13 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
-	assert(!INVIDX_VALID(gbDropGoldIndex));
+	// assert(!INVIDX_VALID(gbDropGoldIndex));
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(gnGamePaused == 0);
-	//assert(!gbDoomflag);
+	// assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
 	if (!(gbActionBtnDown & ACTBTN_MASK(ACT_ALTACT))) {
@@ -1112,6 +1112,15 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
+	// assert(!INVIDX_VALID(gbDropGoldIndex));
+	assert(!gmenu_is_active());
+	assert(gnTimeoutCurs == CURSOR_NONE);
+	// assert(!gbTalkflag || !plrmsg_presskey());
+	assert(gbDeathflag == MDM_ALIVE);
+	assert(gnGamePaused == 0);
+	// assert(!gbDoomflag);
+	assert(!gbQtextflag);
+
 	if (InGameMenu())
 		return;
 
