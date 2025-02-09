@@ -1372,7 +1372,7 @@ static int PLVal(const AffixData* affix, int pv)
 	if (dp != 0) {
 		dv = maxv - minv;
 		if (dv != 0)
-			rv += dv * (100 * (pv - p1) / dp) / 100;
+			rv += dv * (pv - p1) / dp;
 	}
 	return rv;
 }

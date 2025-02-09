@@ -985,6 +985,15 @@ void ValidateData()
 		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 			app_fatal("Invalid(zero) PLParams set for %d. prefix (power:%d)", i, pow);
 
+		if (pres->PLMinVal != pres->PLMaxVal) {
+			if (pres->PLMaxVal < pres->PLMinVal)
+				app_fatal("Invalid PL*Val-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2); // required by PLVal
+			if (pres->PLParam2 == pres->PLParam1)
+				app_fatal("Unused PL*Val-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+			if ((pres->PLMaxVal - pres->PLMinVal) >= INT_MAX / (pres->PLParam2 - pres->PLParam1))
+				app_fatal("Too hight PL*Vals set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2); // required by PLVal
+		}
+
 		if (pres->PLPower == IPL_TOHIT_DAMP) {
 			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
 				app_fatal("PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -1106,6 +1115,15 @@ void ValidateData()
 		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
 		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 			app_fatal("Invalid(zero) PLParams set for %d. suffix (power:%d)", i, pow);
+
+		if (sufs->PLMinVal != sufs->PLMaxVal) {
+			if (sufs->PLMaxVal < sufs->PLMinVal)
+				app_fatal("Invalid PL*Val-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2); // required by PLVal
+			if (sufs->PLParam2 == sufs->PLParam1)
+				app_fatal("Unused PL*Val-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+			if ((sufs->PLMaxVal - sufs->PLMinVal) >= INT_MAX / (sufs->PLParam2 - sufs->PLParam1))
+				app_fatal("Too hight PL*Vals set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2); // required by PLVal
+		}
 
 		if (sufs->PLPower == IPL_FASTATTACK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 4) {
