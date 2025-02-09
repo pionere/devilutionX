@@ -1017,7 +1017,7 @@ void ValidateData()
 			}
 		}
 		if (pres->PLPower == IPL_DUR) {
-			if (pres->PLParam2 > 200) {
+			if (pres->PLParam1 <= -100 || pres->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
 			}
 		}
@@ -1131,7 +1131,7 @@ void ValidateData()
 			}
 		}
 		if (sufs->PLPower == IPL_DUR) {
-			if (sufs->PLParam2 > 200) {
+			if (sufs->PLParam1 <= -100 || sufs->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
@@ -1298,7 +1298,7 @@ void ValidateData()
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 			} else if (pow == IPL_DUR) {
-				if (GetUniqueItemParamA(ui, n) <= 0 || GetUniqueItemParamB(ui, n) > 200)
+				if (GetUniqueItemParamA(ui, n) <= -100 || GetUniqueItemParamB(ui, n) > 200)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 			} else if (pow == IPL_REQSTR) {
 				for (int n = 0; n < NUM_IDI; n++) {
