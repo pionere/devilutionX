@@ -1869,7 +1869,7 @@ static void MonStartGetHit(int mnum)
 	mon->_mmode = MM_GOTHIT;
 }
 
-static void MonTeleport(int mnum, int tx, int ty)
+static int MonTeleport(int mnum, int tx, int ty, int dir)
 {
 	MonsterStruct* mon;
 	int i, oldx, oldy, newx, newy, rx;
@@ -1891,13 +1891,14 @@ static void MonTeleport(int mnum, int tx, int ty)
 			mon->_mx = newx;
 			mon->_my = newy;
 			// assert(OPPOSITE(rx) == GetDirection(newx, newy, tx, ty));
-			mon->_mdir = OPPOSITE(rx);
+			dir = rx;
 			RemoveMonFromMap(mnum);
 			MonPlace(mnum);
 			MonLeaveLeader(mnum);
 			break;
 		}
 	}
+	return dir;
 }
 
 static void MonFallenFear(int x, int y)
@@ -1982,9 +1983,9 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 			MonGetKnockback(mnum, dir);
 		if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
 			MonStopWalk(mnum);
-			mon->_mdir = OPPOSITE(dir);
 			if (mon->_mType == MT_NBAT)
-				MonTeleport(mnum, plr._pfutx, plr._pfuty);
+				dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
+			mon->_mdir = OPPOSITE(dir);
 			MonStartGetHit(mnum);
 		}
 	}
@@ -1993,6 +1994,7 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 void MonHitByMon(int defm, int offm, int dam)
 {
 	MonsterStruct* dmon;
+	int dir;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by monster/trap", defm);
@@ -2013,9 +2015,10 @@ void MonHitByMon(int defm, int offm, int dam)
 		if ((dam << 2) >= dmon->_mmaxhp) {
 			MonStopWalk(defm);
 			if (offm >= 0) {
-				dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
+				dir = monsters[offm]._mdir;
 				if (dmon->_mType == MT_NBAT)
-					MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
+					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
+				dmon->_mdir = OPPOSITE(dir);
 			}
 			MonStartGetHit(defm);
 		}
