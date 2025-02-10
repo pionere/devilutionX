@@ -2389,7 +2389,7 @@ static void ConvertPotion(ItemStruct* pi)
 void SyncShrineCmd(int pnum, BYTE type, int seed)
 {
 	ItemStruct* pi;
-	int i, cnt, r;
+	int i, cnt, r, lvl;
 
 	SetRndSeed(seed);
 
@@ -2397,11 +2397,14 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	case SHRINE_HIDDEN:
 		// SetRndSeed(seed);
 		cnt = 0;
+		lvl = plr._pDunLevel;
+		lvl = lvl < NUM_FIXLVLS ? AllLevels[lvl].dLevel : gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE
 			 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
-			 && pi->_iMaxDur != 0)
+			 && pi->_iMaxDur != 0
+			 && (pi->_iCreateInfo & CF_LEVEL) <= lvl)
 				cnt++;
 		}
 		if (cnt != 0) {
@@ -2410,7 +2413,8 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 			for (i = NUM_INVLOC; i != 0; i--, pi++) {
 				if (pi->_itype != ITYPE_NONE
 				 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
-				 && pi->_iMaxDur != 0) {
+				 && pi->_iMaxDur != 0
+				 && (pi->_iCreateInfo & CF_LEVEL) <= lvl) {
 					if (r == 0) {
 						pi->_iMaxDur = pi->_iMaxDur > 10 ? pi->_iMaxDur - 10 : 1;
 						pi->_iDurability = pi->_iDurability > 10 ? pi->_iDurability - 10 : 1;
