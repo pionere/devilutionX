@@ -1952,6 +1952,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 	}
 
 	// assert(mon->_mType != MT_GOLEM);
+	mon->_mdir = OPPOSITE(dir);
 	MonStartGetHit(mnum);
 }
 
