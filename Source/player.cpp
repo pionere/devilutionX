@@ -2040,9 +2040,15 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	return true;
 }
 
-static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
+static int PlrTryHit(int pnum, int dir)
 {
-	int mpo;
+	int dx, dy, mpo, sn, sl;
+
+	plr._pdir = dir;
+	dx = plr._px + offset_x[dir];
+	dy = plr._py + offset_y[dir];
+	sn = plr._pVar5; // ATTACK_SKILL
+	sl = plr._pVar6, // ATTACK_SKILL_LEVEL
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
@@ -2113,29 +2119,20 @@ static void PlrDoAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFNum - 1)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
-		plr._pVar7++;
+		plr._pVar7 = 1;
 		PlaySfxLocN(PS_SWING, plr._px, plr._py, 2);
 	}
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;
 	}
 	if (plr._pVar7 == 1) {
-		plr._pVar7++;
-		dir = plr._pdir;
-		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
-			plr._px + offset_x[dir], plr._py + offset_y[dir]);
+		plr._pVar7 = 2;
+		hitcnt = PlrTryHit(pnum, plr._pdir);
 		if (plr._pVar5 == SPL_SWIPE) {
-			int pdir;
-			pdir = (dir + 1) & 7;
-			plr._pdir = pdir;
-			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
-			pdir = (pdir + 6) & 7;
-			plr._pdir = pdir;
-			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
-			pdir = (pdir + 1) & 7;
-			plr._pdir = pdir;
+			dir = plr._pdir;
+			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
+			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
+			plr._pdir = dir;
 		}
 
 		if (hitcnt != 0) {
