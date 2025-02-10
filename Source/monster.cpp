@@ -1926,10 +1926,10 @@ static void MonFallenFear(int x, int y)
 	}
 }
 
-static void MonGetKnockback(int mnum, int sx, int sy)
+static void MonGetKnockback(int mnum, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int oldx, oldy, newx, newy, dir;
+	int oldx, oldy, newx, newy;
 
 	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 
@@ -1938,7 +1938,6 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 
 	oldx = mon->_mx;
 	oldy = mon->_my;
-	dir = GetDirection(sx, sy, oldx, oldy);
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
 		newx = oldx + offset_x[dir];
 		newy = oldy + offset_y[dir];
@@ -1959,6 +1958,7 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 {
 	MonsterStruct* mon;
+	int dir;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by player", mnum);
@@ -1977,11 +1977,12 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
+		dir = GetDirection(sx, sy, mon->_mx, mon->_my);
 		if (hitflags & ISPL_KNOCKBACK)
-			MonGetKnockback(mnum, sx, sy);
+			MonGetKnockback(mnum, dir);
 		if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
 			MonStopWalk(mnum);
-			mon->_mdir = OPPOSITE(plr._pdir);
+			mon->_mdir = OPPOSITE(dir);
 			if (mon->_mType == MT_NBAT)
 				MonTeleport(mnum, plr._pfutx, plr._pfuty);
 			MonStartGetHit(mnum);
