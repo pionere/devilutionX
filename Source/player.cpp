@@ -308,39 +308,40 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 
 void InitPlayerGFX(int pnum)
 {
-	unsigned gfxflag;
+	unsigned gfx2load, gfxvalid;
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
+	gfxvalid = plr._pGFXLoad;
 	// reset gfx-flags which are no longer usable
 	if (currLvl._dType == DTYPE_TOWN)
-		plr._pGFXLoad &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+		gfxvalid &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
 	else
-		plr._pGFXLoad &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
+		gfxvalid &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
 	// select appropriate flags based on player-status and location
-	if (plr._pHitPoints >= (1 << 6)) {
-		gfxflag = PGF_NONDEATH;
+	if (plr._pHitPoints != 0) {
+		gfx2load = PGF_NONDEATH;
 		// commented out because it is preferable to load everything at once
 		//if (currLvl._dType == DTYPE_TOWN)
-		//	gfxflag &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
+		//	gfx2load &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
 		//else if (!(plr._pSkillFlags & SFLAG_BLOCK))
-		//	gfxflag &= ~PGF_BLOCK;
-		if (plr._pGFXLoad & PGF_DEATH) // MEM_DEATH: gfxflag is either for death or non-death animations
-			plr._pGFXLoad = 0;
+		//	gfx2load &= ~PGF_BLOCK;
+		gfxvalid &= PGF_NONDEATH; // MEM_DEATH: _pAnimFileData is either for death or non-death animations
 	} else {
-		gfxflag = PGF_DEATH;
+		gfx2load = PGF_DEATH;
 		// protect against warping deads
 		if (plr._pgfxnum != ANIM_ID_UNARMED) {
 			plr._pgfxnum = ANIM_ID_UNARMED;
-			plr._pGFXLoad = 0;
+			gfxvalid = 0;
 		}
-		if (plr._pGFXLoad & PGF_NONDEATH) // MEM_DEATH
-			plr._pGFXLoad = 0;
+		gfxvalid &= PGF_DEATH; // MEM_DEATH
 	}
+	// update gfx-flags
+	plr._pGFXLoad = gfxvalid;
 	// mask gfx-flags which are already loaded
-	gfxflag &= ~plr._pGFXLoad;
+	gfx2load &= ~gfxvalid;
 
-	LoadPlrGFX(pnum, gfxflag);
+	LoadPlrGFX(pnum, gfx2load);
 }
 
 static unsigned GetPlrGFXSize(const char* szCel)
@@ -511,6 +512,7 @@ void SetPlrAnims(int pnum)
 		if (gn == ANIM_ID_BOW) {
 			plr._pAnims[PGX_STAND].paFrames = 8;
 			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
@@ -539,6 +541,7 @@ void SetPlrAnims(int pnum)
 		if (gn == ANIM_ID_UNARMED) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
 		} else if (gn == ANIM_ID_UNARMED_SHIELD) {
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 9;
 		} else if (gn == ANIM_ID_BOW) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
@@ -603,9 +606,10 @@ void SetPlrAnims(int pnum)
 			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			//plr._pAnims[PGX_ATTACK].paFrames = 16;
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 8;
 		}
 		break;
@@ -616,7 +620,7 @@ void SetPlrAnims(int pnum)
 	}
 	if (currLvl._dType == DTYPE_TOWN) {
 		plr._pAnims[PGX_STAND].paFrames = 20;
-		//plr._pAnims[PGX_WALK].paFrames = 8;
+		// plr._pAnims[PGX_WALK].paFrames = 8;
 	}
 }
 
@@ -962,10 +966,10 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 		dev_fatal("AddPlrExperience: illegal player %d", pnum);
 	}
 
-	//if (plr._pHitPoints < (1 << 6)) {
+	//if (plr._pHitPoints == 0) {
 	//	return;
 	//}
-	// assert(plr._pmode != PM_DEATH);
+	// assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 
 	// Add xp to the used skills
 	AddPlrSkillExp(pnum, lvl, exp);
@@ -1558,7 +1562,7 @@ static void PlrStartGetHit(int pnum, int dir)
 static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
-	// assert(plr._pHitPoints >= (1 << 6));
+	// assert(plr._pHitPoints != 0);
 	// if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
 	//	return;
 
@@ -1591,7 +1595,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
 
-	// assert(plr._pHitPoints >= (1 << 6) && dam >= 0);
+	// assert(plr._pHitPoints != 0 && dam >= 0);
 
 	if (plr._pManaShield != 0) {
 		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
@@ -1945,7 +1949,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		//if (hitFlags & ISPL_NOHEALMON)
 		//	mon->_mFlags |= MFLAG_NOHEAL;
-		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._px, plr._py);
+		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._pdir);
 	}
 	return true;
 }
@@ -2121,11 +2125,17 @@ static void PlrDoAttack(int pnum)
 		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
 			plr._px + offset_x[dir], plr._py + offset_y[dir]);
 		if (plr._pVar5 == SPL_SWIPE) {
+			int pdir;
+			pdir = (dir + 1) & 7;
+			plr._pdir = pdir;
 			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[(dir + 1) & 7], plr._py + offset_y[(dir + 1) & 7]);
-
+				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
+			pdir = (pdir + 6) & 7;
+			plr._pdir = pdir;
 			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[(dir + 7) & 7], plr._py + offset_y[(dir + 7) & 7]);
+				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
+			pdir = (pdir + 1) & 7;
+			plr._pdir = pdir;
 		}
 
 		if (hitcnt != 0) {
@@ -2734,9 +2744,9 @@ void ProcessPlayers()
 			}
 			if (plr._pTimer[PLTR_INFRAVISION] != 0) {
 				plr._pTimer[PLTR_INFRAVISION]--;
-				if (plr._pTimer[PLTR_INFRAVISION] == 0) {
-					CalcPlrItemVals(pnum, false); // last parameter should not matter
-				}
+				//if (plr._pTimer[PLTR_INFRAVISION] == 0) {
+				//	CalcPlrItemVals(pnum, false); // last parameter should not matter
+				//}
 			}
 
 			int16_t nextTimer = plr._pTimer[PLTR_RAGE];
@@ -2848,7 +2858,7 @@ void MissToPlr(int mi, bool hit)
 		FixPlayerLocation(pnum);*/
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
-	if (!hit || plr._pHitPoints < (1 << 6)) {
+	if (!hit || plr._pHitPoints == 0) {
 		PlrStartStand(pnum);
 		return;
 	}
@@ -2904,7 +2914,7 @@ void MissToPlr(int mi, bool hit)
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
 			//if (hitFlags & ISPL_NOHEALMON)
 			//	mon->_mFlags |= MFLAG_NOHEAL;
-			MonHitByPlr(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			MonHitByPlr(mpnum, pnum, dam, hitFlags, plr._pdir);
 		}
 		return;
 	}
@@ -2965,7 +2975,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 			//if (mpo < 0) {
 			//	return false;
 			//}
-			//if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
+			//if (monsters[mpo - 1]._mhitpoints != 0) {
 				return false;
 			//}
 			//if (currLvl._dLevelIdx == DLV_TOWN) {
@@ -2983,7 +2993,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 			// check commented out because a player should not walk over a dying player (looks bad)
-			return mpo == pnum /*|| plx(mpo)._pHitPoints < (1 << 6)*/;
+			return mpo == pnum /*|| plx(mpo)._pHitPoints == 0*/;
 		}
 
 		return true;
@@ -3082,7 +3092,7 @@ void PlrSetHp(int pnum, int val)
 	plr._pHPBase = val + plr._pMaxHPBase - plr._pMaxHP;
 
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrSetMana(int pnum, int val)
@@ -3096,7 +3106,7 @@ void PlrSetMana(int pnum, int val)
 	plr._pManaBase = val - (plr._pMaxMana - plr._pMaxManaBase);
 
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 void PlrFillHp(int pnum)
@@ -3107,7 +3117,7 @@ void PlrFillHp(int pnum)
 	plr._pHitPoints = plr._pMaxHP;
 	plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrFillMana(int pnum)
@@ -3120,7 +3130,7 @@ void PlrFillMana(int pnum)
 	plr._pMana = plr._pMaxMana;
 	plr._pManaBase = plr._pMaxManaBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 void PlrIncHp(int pnum, int hp)
@@ -3133,7 +3143,7 @@ void PlrIncHp(int pnum, int hp)
 	if (plr._pHPBase > plr._pMaxHPBase)
 		plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrIncMana(int pnum, int mana)
@@ -3151,7 +3161,7 @@ void PlrIncMana(int pnum, int mana)
 		plr._pManaBase = plr._pMaxManaBase;
 	}
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 bool PlrDecHp(int pnum, int hp, int dmgtype)
@@ -3176,7 +3186,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 		return true;
 	}
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 	return false;
 }
 
@@ -3189,7 +3199,7 @@ void PlrDecMana(int pnum, int mana)
 	if (pnum == mypnum) {
 		if (plr._pMana <= 0 && plr._pManaShield != 0)
 			NetSendCmd(CMD_REMSHIELD);
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 	}
 }
 

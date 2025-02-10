@@ -425,17 +425,18 @@ typedef enum item_affix_range {
 } item_affix_range;
 
 typedef enum affix_item_type {
-	PLT_MISC   = 1 << 1,
-	PLT_BOW    = 1 << 2,
-	PLT_STAFF  = 1 << 3,
+	PLT_MISC   = 1 << 0,
+	PLT_BOW    = 1 << 1,
+	PLT_STAFF  = 1 << 2,
+	PLT_CHRG   = 1 << 3,
 	PLT_MELEE  = 1 << 4,
 	PLT_SHLD   = 1 << 5,
-	PLT_ARMO   = 1 << 6,
-	PLT_CHRG   = 1 << 7,
-	PLT_LARMOR = 1 << 8,
-	PLT_MARMOR = 1 << 9,
-	PLT_HARMOR = 1 << 10,
-	PLT_MAP    = 1 << 11,
+	PLT_HELM   = 1 << 6,
+	PLT_LARMOR = 1 << 7,
+	PLT_MARMOR = 1 << 8,
+	PLT_HARMOR = 1 << 9,
+	PLT_MAP    = 1 << 10,
+	PLT_ARMO   = (PLT_HELM | PLT_LARMOR | PLT_MARMOR | PLT_HARMOR),
 } affix_item_type;
 
 typedef enum item_base_bonus {
@@ -2138,9 +2139,10 @@ typedef enum missile_gfx_id {
 typedef enum missile_flags {
 	MIF_AREA    = 1 << 0, // alternative hit chance calculation
 	MIF_NOBLOCK = 1 << 1, // can not be blocked
-	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check multiple times
+	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check multiple times, hit direction is ignored
 	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
 	MIF_SHROUD  = 1 << 4, // interacts with MIS_SHROUD
+	MIF_GUIDED  = 1 << 5, // guided missile which is changing its direction
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;
 
@@ -4633,17 +4635,17 @@ typedef enum game_logic_progress {
 	//GLP_OBJECTS_DONE,
 	//GLP_MISSILES_DONE,
 	//GLP_ITEMS_DONE,
-} game_logic_progress; 
+} game_logic_progress;
 
 typedef enum redraw_flags {
-	REDRAW_HP_FLASK      = 1 << 0,
-	REDRAW_MANA_FLASK    = 1 << 1,
+	REDRAW_RECALC_HP       = 1 << 0,
+	REDRAW_RECALC_MANA     = 1 << 1,
 	//REDRAW_SPELL_ICON    = 1 << 2,
 	//REDRAW_CTRL_BUTTONS  = 1 << 3,
 	//REDRAW_SPEED_BAR     = 1 << 4,
 	//REDRAW_CTRL_PANEL    = 1 << 5,
-	REDRAW_ALL = REDRAW_HP_FLASK | REDRAW_MANA_FLASK /*| REDRAW_SPELL_ICON
-               | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL*/,
+	//REDRAW_DRAW_ALL = REDRAW_SPELL_ICON | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL,
+	REDRAW_RECALC_FLASKS = REDRAW_RECALC_HP | REDRAW_RECALC_MANA,
 } redraw_flags;
 
 typedef enum input_key {

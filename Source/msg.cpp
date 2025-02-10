@@ -1448,13 +1448,13 @@ void LevelDeltaLoad()
 		if (pnum == mypnum) {
 			mi = tplr->spMode;
 			net_assert(mi == PM_STAND
-			 || ((mi == PM_DEATH || mi == PM_DYING) && plr._pHitPoints < (1 << 6)));
+			 || ((mi == PM_DEATH || mi == PM_DYING) && plr._pHitPoints == 0));
 			net_assert(tplr->spDestAction == ACTION_NONE);
 			net_assert(tplr->spInvincible == 40);
 			net_assert(plr._pTimer[PLTR_INFRAVISION] == tplr->spTimer[PLTR_INFRAVISION]);
 			net_assert(plr._pTimer[PLTR_RAGE] == tplr->spTimer[PLTR_RAGE]);
 			net_assert(plr._pManaShield == tplr->spManaShield);
-			net_assert(plr._pHPBase == tplr->spHPBase || (plr._pHitPoints < (1 << 6) && currLvl._dLevelIdx == DLV_TOWN));
+			net_assert(plr._pHPBase == tplr->spHPBase || (plr._pHitPoints == 0 && currLvl._dLevelIdx == DLV_TOWN));
 			net_assert(plr._pManaBase == tplr->spManaBase);
 		}
 		// RemovePlrFromMap(pnum);
@@ -1648,6 +1648,7 @@ void LevelDeltaLoad()
 			}
 			// ensure dead bodies are not placed prematurely
 			if (mi == MM_DEATH) {
+				net_assert(mon->_mhitpoints == 0);
 				if (dDead[mon->_mx][mon->_my] == mnum + 1)
 					dDead[mon->_mx][mon->_my] = 0;
 			} else if (mnum < MAX_MINIONS) {
@@ -1760,6 +1761,8 @@ void LevelDeltaLoad()
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
 			}
+		} else {
+			net_assert(plr._pHitPoints == 0);
 		}
 		switch (plr._pDestAction) {
 		case ACTION_NONE:
@@ -3203,8 +3206,6 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 		return sizeof(*pCmd);
 	}
 	multi_deactivate_player(pnum);
-	if (pnum == mypnum)
-		gbRunGame = false;
 
 	return sizeof(*pCmd);
 }

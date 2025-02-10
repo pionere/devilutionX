@@ -1383,7 +1383,7 @@ static void MonFindEnemy(int mnum)
 	if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
-				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints < (1 << 6)*/)
+				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints == 0*/)
 				continue;
 			if ((plx(i)._pmode < PM_WALK || plx(i)._pmode > PM_WALK2) || plx(i)._pAnimFrame <= (plx(i)._pAnimLen >> 1)) {
 				x = plx(i)._px;
@@ -1856,7 +1856,7 @@ static void MonStopWalk(int mnum)
 	MonStartStand(mnum);
 }
 
-static void MonStartGetHit(int mnum)
+static void MonStartGetHit(int mnum, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
@@ -1864,12 +1864,12 @@ static void MonStartGetHit(int mnum)
 
 	AssertFixMonLocation(mnum);
 
-	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
+	NewMonsterAnim(mnum, MA_GOTHIT, dir);
 
 	mon->_mmode = MM_GOTHIT;
 }
 
-static void MonTeleport(int mnum, int tx, int ty)
+static int MonTeleport(int mnum, int tx, int ty, int dir)
 {
 	MonsterStruct* mon;
 	int i, oldx, oldy, newx, newy, rx;
@@ -1886,18 +1886,19 @@ static void MonTeleport(int mnum, int tx, int ty)
 	for (i = 0; i < lengthof(offset_x); i++, rx = (rx + 1) & 7) {
 		newx = tx + offset_x[rx];
 		newy = ty + offset_y[rx];
-		assert(IN_DUNGEON_AREA(newx, newy));
+		// assert(IN_DUNGEON_AREA(newx, newy));
 		if (newx != oldx && newy != oldy && PosOkMonst(mnum, newx, newy)) {
 			mon->_mx = newx;
 			mon->_my = newy;
-			assert(OPPOSITE(rx) == GetDirection(newx, newy, tx, ty));
-			mon->_mdir = OPPOSITE(rx);
+			// assert(OPPOSITE(rx) == GetDirection(newx, newy, tx, ty));
+			dir = rx;
 			RemoveMonFromMap(mnum);
 			MonPlace(mnum);
 			MonLeaveLeader(mnum);
 			break;
 		}
 	}
+	return dir;
 }
 
 static void MonFallenFear(int x, int y)
@@ -1911,7 +1912,7 @@ static void MonFallenFear(int x, int y)
 		 && mon->_mAI.aiType == AI_FALLEN
 		 && abs(x - mon->_mx) < 5
 		 && abs(y - mon->_my) < 5
-		 && mon->_mhitpoints >= (1 << 6)
+		 && mon->_mhitpoints != 0
 		 && mon->_mAI.aiInt < 4) {
 #if DEBUG
 			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
@@ -1926,10 +1927,10 @@ static void MonFallenFear(int x, int y)
 	}
 }
 
-static void MonGetKnockback(int mnum, int sx, int sy)
+static void MonGetKnockback(int mnum, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int oldx, oldy, newx, newy, dir;
+	int oldx, oldy, newx, newy;
 
 	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 
@@ -1938,7 +1939,6 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 
 	oldx = mon->_mx;
 	oldy = mon->_my;
-	dir = GetDirection(sx, sy, oldx, oldy);
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
 		newx = oldx + offset_x[dir];
 		newy = oldy + offset_y[dir];
@@ -1952,10 +1952,10 @@ static void MonGetKnockback(int mnum, int sx, int sy)
 	}
 
 	// assert(mon->_mType != MT_GOLEM);
-	MonStartGetHit(mnum);
+	MonStartGetHit(mnum, OPPOSITE(dir));
 }
 
-void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
+void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 {
 	MonsterStruct* mon;
 
@@ -1977,18 +1977,17 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
 		if (hitflags & ISPL_KNOCKBACK)
-			MonGetKnockback(mnum, sx, sy);
+			MonGetKnockback(mnum, dir);
 		if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
 			MonStopWalk(mnum);
-			mon->_mdir = OPPOSITE(plr._pdir);
 			if (mon->_mType == MT_NBAT)
-				MonTeleport(mnum, plr._pfutx, plr._pfuty);
-			MonStartGetHit(mnum);
+				dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
+			MonStartGetHit(mnum, OPPOSITE(dir));
 		}
 	}
 }
 
-void MonHitByMon(int defm, int offm, int dam)
+void MonHitByMon(int defm, int offm, int dam, int dir)
 {
 	MonsterStruct* dmon;
 
@@ -2011,11 +2010,10 @@ void MonHitByMon(int defm, int offm, int dam)
 		if ((dam << 2) >= dmon->_mmaxhp) {
 			MonStopWalk(defm);
 			if (offm >= 0) {
-				dmon->_mdir = OPPOSITE(monsters[offm]._mdir);
 				if (dmon->_mType == MT_NBAT)
-					MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty);
+					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
 			}
-			MonStartGetHit(defm);
+			MonStartGetHit(defm, OPPOSITE(dir));
 		}
 	}
 }
@@ -2347,7 +2345,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
 			MonKill(defm, offm);
 		} else {
-			MonHitByMon(defm, offm, dam);
+			MonHitByMon(defm, offm, dam, monsters[offm]._mdir);
 		}
 	}
 }
@@ -2383,7 +2381,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 		if (mon->_mhitpoints < (1 << 6))
 			MonKill(mnum, pnum);
 		else
-			MonHitByMon(mnum, pnum, dam);
+			MonHitByPlr(mnum, pnum, dam, OPPOSITE(mon->_mdir));
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
@@ -4479,7 +4477,7 @@ void ProcessMonsters()
 			SetRndSeed(mon->_mAISeed);
 			mon->_mAISeed = NextRndSeed();
 		}
-		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints >= (1 << 6) /*&& !(mon->_mFlags & MFLAG_NOHEAL)*/) {
+		if (mon->_mhitpoints < mon->_mmaxhp && mon->_mhitpoints != 0 /*&& !(mon->_mFlags & MFLAG_NOHEAL)*/) {
 			mon->_mhitpoints += (mon->_mLevel + 1) >> 1;
 			if (mon->_mhitpoints > mon->_mmaxhp)
 				mon->_mhitpoints = mon->_mmaxhp;

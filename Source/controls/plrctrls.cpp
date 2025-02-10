@@ -21,7 +21,7 @@ bool InGameMenu()
 	    //|| gbDoomflag
 	    || gmenu_is_active()
 	    || gnGamePaused != 0
-	    || gbDeathflag;
+	    || gbDeathflag != MDM_ALIVE;
 }
 
 /**
@@ -194,7 +194,7 @@ static void FindMonster(int mode, bool ranged)
 	}
 	for ( ; mnum < lastMon; mnum++) {
 		const MonsterStruct& mon = monsters[mnum];
-		if (mon._mmode > MM_INGAME_LAST || mon._mmode == MM_DEATH)
+		if (mon._mmode > MM_INGAME_LAST || mon._mhitpoints == 0)
 			continue;
 		if (mon._mFlags & MFLAG_HIDDEN)
 			continue;
@@ -240,7 +240,7 @@ static void FindPlayer(int mode, bool ranged)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
 			continue;
-		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
 			continue;
 		if ((mode == 2) != (plr._pHitPoints == 0))
 			continue;
@@ -929,16 +929,19 @@ void plrctrls_after_check_curs_move()
 	// check for monsters first, then items, then towners.
 	if (sgbControllerActive) {
 		// Clear focus set by cursor
-		pcursplr = PLR_NONE;
 		pcursmonst = MON_NONE;
-		pcursitem = ITEM_NONE;
 		pcursobj = OBJ_NONE;
+		pcursitem = ITEM_NONE;
+		// pcursinvitem = INVITEM_NONE;
+		pcursplr = PLR_NONE;
 		pcurstrig = TRIG_NONE;
+		// pcurswnd = WND_NONE;
 		pcurspos.x = -1;
 		pcurspos.y = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
-		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag) {
+		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
+		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag) {
 			return;
 		}
 		if (!gbInvflag) {
@@ -1004,18 +1007,27 @@ void plrctrls_after_game_logic()
 
 void UseBeltItem(bool manaItem)
 {
+	int i, n = -1;
 	ItemStruct* pi;
 
-	pi = myplr._pSpdList;
-	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
+	pi = &myplr._pSpdList[0];
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
 		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
-		    || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
-		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (InvUseItem(INVITEM_BELT_FIRST + i))
+		 || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
+		 || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
+			if (pi->_iStatFlag) {
+				// assert(pi->_iUsable);
+				InvUseItem(INVITEM_BELT_FIRST + i);
 				break;
+			}
+			n = i;
 		}
+	}
+	// add sfx if only unusable (due to _iStatFlag) items were found
+	if (i >= MAXBELTITEMS && n >= 0) {
+		InvUseItem(INVITEM_BELT_FIRST + n);
 	}
 }
 
@@ -1067,13 +1079,13 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
-	assert(!INVIDX_VALID(gbDropGoldIndex));
+	// assert(!INVIDX_VALID(gbDropGoldIndex));
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
 	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
 	assert(gnGamePaused == 0);
-	//assert(!gbDoomflag);
+	// assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
 	if (!(gbActionBtnDown & ACTBTN_MASK(ACT_ALTACT))) {
@@ -1112,8 +1124,21 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
-	if (InGameMenu())
+	// assert(!INVIDX_VALID(gbDropGoldIndex));
+	assert(!gmenu_is_active());
+	assert(gnTimeoutCurs == CURSOR_NONE);
+	// assert(!gbTalkflag || !plrmsg_presskey());
+	assert(gbDeathflag == MDM_ALIVE);
+	assert(gnGamePaused == 0);
+	// assert(!gbDoomflag);
+	assert(!gbQtextflag);
+
+	// if (InGameMenu())
+	//	return;
+	if (stextflag != STORE_NONE) {
+		STextESC();
 		return;
+	}
 
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		TryDropItem();

@@ -400,6 +400,12 @@ void ValidateData()
 			app_fatal("Invalid (zero) cursor height at %d.", i);
 	}
 	// meta-data
+	for (i = 0; i < NUM_DIRS; i++) {
+		int tx = DBORDERY, ty = DBORDERY;
+		int newx = tx + offset_x[i];
+		int newy = ty + offset_y[i];
+		assert(OPPOSITE(i) == GetDirection(newx, newy, tx, ty)); // required by MonTeleport
+	}
 	// recreateCrawlTable();
 	// - CrawlNum
 	for (int n = 0; n < lengthof(CrawlNum); n++) {
@@ -801,7 +807,8 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
-	int rnddrops = 0;
+	int rnddrops[ILVLMAX + 1][NUM_IARS][10];
+	rnddrops[0][0][0] = 0;
 	for (i = 0; i < NUM_IDI; i++) {
 		const ItemData& ids = AllItemList[i];
 		if (ids.iName == NULL) {
@@ -811,7 +818,7 @@ void ValidateData()
 		}
 		if (strlen(ids.iName) > 32 - 1)
 			app_fatal("Too long name for %s (%d)", ids.iName, i); // required by SetItemData
-		rnddrops += ids.iRnd;
+		rnddrops[0][0][0] += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_NONE)
@@ -905,6 +912,18 @@ void ValidateData()
 			}
 			if (ids.iDurability == 0)
 				app_fatal("Usable item %s (%d) with miscId %d must have a non-zero durablity(stacksize).", ids.iName, i, ids.iMiscId);
+		} else {
+			switch (ids.iMiscId) {
+			case IMISC_HEAL:
+			case IMISC_FULLHEAL:
+			case IMISC_MANA:
+			case IMISC_FULLMANA:
+			case IMISC_REJUV:
+			case IMISC_FULLREJUV:
+			case IMISC_SCROLL:
+				app_fatal("Non-Usable item %s (%d) with miscId %d is not handled by UseBeltItem.", ids.iName, i, ids.iMiscId);
+				break;
+			}
 		}
 		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
 			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
@@ -912,11 +931,11 @@ void ValidateData()
 			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
 #if UNOPTIMIZED_RNDITEMS
-	if (rnddrops > ITEM_RNDDROP_MAX)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+	if (rnddrops[0][0][0] > ITEM_RNDDROP_MAX)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
 #else
-	if (rnddrops > 0x7FFF)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0x7FFF);
+	if (rnddrops[0][0][0] > 0x7FFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], 0x7FFF);
 #endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
@@ -928,10 +947,35 @@ void ValidateData()
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
 #endif
-	rnddrops = 0; i = 0;
+	memset(rnddrops, 0, sizeof(rnddrops));
+	i = 0;
 	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
 		const BYTE pow = pres->PLPower;
-		rnddrops += pres->PLDouble ? 2 : 1;
+		for (int ii = 0; ii < lengthof(pres->PLRanges); ii++) {
+			for (int n = pres->PLRanges[ii].from; n <= pres->PLRanges[ii].to; n++) {
+				int cnt = pres->PLDouble ? 2 : 1;
+				if (pres->PLIType & PLT_MISC)
+					rnddrops[n][ii][0] += cnt;
+				if (pres->PLIType & PLT_BOW)
+					rnddrops[n][ii][1] += cnt;
+				if (pres->PLIType & (PLT_STAFF | PLT_CHRG))
+					rnddrops[n][ii][2] += cnt;
+				if (pres->PLIType & PLT_MELEE)
+					rnddrops[n][ii][3] += cnt;
+				if (pres->PLIType & PLT_SHLD)
+					rnddrops[n][ii][4] += cnt;
+				if (pres->PLIType & PLT_HELM)
+					rnddrops[n][ii][5] += cnt;
+				if (pres->PLIType & PLT_LARMOR)
+					rnddrops[n][ii][6] += cnt;
+				if (pres->PLIType & PLT_MARMOR)
+					rnddrops[n][ii][7] += cnt;
+				if (pres->PLIType & PLT_HARMOR)
+					rnddrops[n][ii][8] += cnt;
+				if (pres->PLIType & PLT_MAP)
+					rnddrops[n][ii][9] += cnt;
+			}
+		}
 		if (pres->PLParam2 < pres->PLParam1)
 			app_fatal("Invalid PLParam-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
 		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) // required by SaveItemPower
@@ -940,6 +984,15 @@ void ValidateData()
 		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
 		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 			app_fatal("Invalid(zero) PLParams set for %d. prefix (power:%d)", i, pow);
+
+		if (pres->PLMinVal != pres->PLMaxVal) {
+			if (pres->PLMaxVal < pres->PLMinVal)
+				app_fatal("Invalid PL*Val-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2); // required by PLVal
+			if (pres->PLParam2 == pres->PLParam1)
+				app_fatal("Unused PL*Val-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+			if ((pres->PLMaxVal - pres->PLMinVal) >= INT_MAX / (pres->PLParam2 - pres->PLParam1))
+				app_fatal("Too hight PL*Vals set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2); // required by PLVal
+		}
 
 		if (pres->PLPower == IPL_TOHIT_DAMP) {
 			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
@@ -973,7 +1026,7 @@ void ValidateData()
 			}
 		}
 		if (pres->PLPower == IPL_DUR) {
-			if (pres->PLParam2 > 200) {
+			if (pres->PLParam1 <= -100 || pres->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
 			}
 		}
@@ -1013,12 +1066,44 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
-		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
-	rnddrops = 0;
+	for (int ii = 0; ii < NUM_IARS; ii++) {
+		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
+		for (int n = 0; n <= ILVLMAX; n++) {
+			for (int k = 0; k < 10; k++) {
+				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+			}
+		}
+	}
+	memset(rnddrops, 0, sizeof(rnddrops));
 	const AffixData* sufs = PL_Suffix;
 	for (i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
 		const BYTE pow = sufs->PLPower;
+		for (int ii = 0; ii < lengthof(sufs->PLRanges); ii++) {
+			for (int n = sufs->PLRanges[ii].from; n <= sufs->PLRanges[ii].to; n++) {
+				int cnt = sufs->PLDouble ? 2 : 1;
+				if (sufs->PLIType & PLT_MISC)
+					rnddrops[n][ii][0] += cnt;
+				if (sufs->PLIType & PLT_BOW)
+					rnddrops[n][ii][1] += cnt;
+				if (sufs->PLIType & (PLT_STAFF | PLT_CHRG))
+					rnddrops[n][ii][2] += cnt;
+				if (sufs->PLIType & PLT_MELEE)
+					rnddrops[n][ii][3] += cnt;
+				if (sufs->PLIType & PLT_SHLD)
+					rnddrops[n][ii][4] += cnt;
+				if (sufs->PLIType & PLT_HELM)
+					rnddrops[n][ii][5] += cnt;
+				if (sufs->PLIType & PLT_LARMOR)
+					rnddrops[n][ii][6] += cnt;
+				if (sufs->PLIType & PLT_MARMOR)
+					rnddrops[n][ii][7] += cnt;
+				if (sufs->PLIType & PLT_HARMOR)
+					rnddrops[n][ii][8] += cnt;
+				if (sufs->PLIType & PLT_MAP)
+					rnddrops[n][ii][9] += cnt;
+			}
+		}
 		if (sufs->PLDouble)
 			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pow, sufs->PLParam1);
 		rnddrops++;
@@ -1030,6 +1115,15 @@ void ValidateData()
 		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
 		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
 			app_fatal("Invalid(zero) PLParams set for %d. suffix (power:%d)", i, pow);
+
+		if (sufs->PLMinVal != sufs->PLMaxVal) {
+			if (sufs->PLMaxVal < sufs->PLMinVal)
+				app_fatal("Invalid PL*Val-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2); // required by PLVal
+			if (sufs->PLParam2 == sufs->PLParam1)
+				app_fatal("Unused PL*Val-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+			if ((sufs->PLMaxVal - sufs->PLMinVal) >= INT_MAX / (sufs->PLParam2 - sufs->PLParam1))
+				app_fatal("Too hight PL*Vals set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2); // required by PLVal
+		}
 
 		if (sufs->PLPower == IPL_FASTATTACK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 4) {
@@ -1055,7 +1149,7 @@ void ValidateData()
 			}
 		}
 		if (sufs->PLPower == IPL_DUR) {
-			if (sufs->PLParam2 > 200) {
+			if (sufs->PLParam1 <= -100 || sufs->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
@@ -1095,8 +1189,15 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
-		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
+	for (int ii = 0; ii < NUM_IARS; ii++) {
+		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
+		for (int n = 0; n <= ILVLMAX; n++) {
+			for (int k = 0; k < 10; k++) {
+				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+			}
+		}
+	}
 
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
@@ -1215,7 +1316,7 @@ void ValidateData()
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 			} else if (pow == IPL_DUR) {
-				if (GetUniqueItemParamA(ui, n) <= 0 || GetUniqueItemParamB(ui, n) > 200)
+				if (GetUniqueItemParamA(ui, n) <= -100 || GetUniqueItemParamB(ui, n) > 200)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 			} else if (pow == IPL_REQSTR) {
 				for (int n = 0; n < NUM_IDI; n++) {
@@ -1335,6 +1436,7 @@ void ValidateData()
 
 	// spells
 	assert(spelldata[SPL_RESURRECT].sManaCost == 0); // required by GetItemSpell
+	assert(!(spelldata[SPL_HEAL].sUseFlags & SFLAG_DUNGEON)); // required by UseBeltItem
 	assert(spelldata[SPL_TELEPORT].sSkillFlags & SDFLAG_TARGETED); // required by AddTeleport
 #define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
 	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs
@@ -1460,6 +1562,12 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
 			}
 		}
+		if (md.mAddProc == AddTelekinesis) {
+			for (int n = 0; n < NUM_SPELLS; n++) {
+				if (spelldata[n].sMissile == i)
+					assert(spelldata[n].sSkillFlags & SDFLAG_TARGETED);
+			}
+		}
 #ifdef HELLFIRE
 		if (md.mAddProc == AddHorkSpawn) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
@@ -1480,7 +1588,23 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
+		if (md.mProc == MI_Cbolt) {
+			assert(md.mdPrSpeed == missiledata[MIS_CBOLT].mdPrSpeed);
+		}
+		if (md.mProc == MI_Chain) {
+			assert(md.mdPrSpeed == missiledata[MIS_CHAIN].mdPrSpeed);
+		}
+		if (md.mProc == MI_Elemental) {
+			assert(md.mdPrSpeed == missiledata[MIS_ELEMENTAL].mdPrSpeed);
+		}
+		if (md.mProc == MI_Mage) {
+			assert(md.mdPrSpeed == missiledata[MIS_MAGE].mdPrSpeed);
+		}
 		if (md.mdFlags & MIF_ARROW) {
+			if (md.mAddProc != AddArrow)
+				app_fatal("Arrow-Missile %d is not added by AddArrow proc.", i); // required to initialize MISDIST / MISHIT
+			if (md.mProc != MI_Arrow && md.mProc != MI_AsArrow)
+				app_fatal("Arrow-Missile %d is not handled by MI_*Arrow proc.", i); // required to maintain MISDIST
 			if (i != MIS_ARROW && i != MIS_PBARROW && i != MIS_ASARROW && i != MIS_MLARROW && i != MIS_PCARROW)
 				app_fatal("Arrow-Missile %d is not handled in MissMonHitByPlr and in MissPlrHitByPlr.", i);
 		}
@@ -1505,6 +1629,19 @@ void ValidateData()
 	assert((missiledata[MIS_ASARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_MLARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_PCARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert(missiledata[MIS_EXFIRE].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_EXLGHT].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_EXMAGIC].mdPrSpeed == 0);             // required by AddElementalExplosion
+	assert(missiledata[MIS_EXACID].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_FLASH2].mdPrSpeed == 0);              // required by AddFlash
+	assert(missiledata[MIS_INFERNO].mdPrSpeed == 0);             // required by MI_InfernoC
+	assert(missiledata[MIS_ACIDPUD].mdPrSpeed == 0);             // required by MI_Acidsplat
+	assert(missiledata[MIS_FIREWALL].mdPrSpeed == 0);            // required by MI_Meteor, MI_WallC, AddRingC
+	assert(missiledata[MIS_LIGHTNING].mdPrSpeed == 0);           // required by MI_LightningC
+	assert(missiledata[MIS_LIGHTNING2].mdPrSpeed == 0);          // required by MI_LightningC
+	assert(missiledata[MIS_BLOODBOIL].mdPrSpeed == 0);           // required by MI_BloodBoilC
+	assert(missiledata[MIS_SWAMP].mdPrSpeed == 0);               // required by MI_BloodBoilC
+	assert(missiledata[MIS_STONE].mdPrSpeed == 0);               // required by MI_Rune
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
 	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
@@ -1531,10 +1668,43 @@ void ValidateData()
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
-#ifdef DEBUG_DATA
 	// players
-	for (i = 0; i < NUM_CLASSES; i++)
-		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]); // required by StartWalk
+	assert(PlrAnimFrameLens[PGX_WALK] == 1); // required by PlrDoWalk
+	assert(PlrAnimFrameLens[PGX_ATTACK] == 1); // required by PlrDoAttack, PlrDoRangeAttack
+	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1); // required by PlrDoSpell
+	assert(PlrAnimFrameLens[PGX_DEATH] > 1); // required by PlrDoDeath
+#ifdef DEBUG_DATA
+	int wal = -1;
+	for (i = 0; i < NUM_CLASSES; i++) {
+		int pnum = 0;
+		plr._pClass = i;
+		for (int k = 0; k < 2; k++) {
+			currLvl._dType = k == 0 ? DTYPE_CATHEDRAL : DTYPE_TOWN;
+			for (int n = ANIM_ID_UNARMED; n <= ANIM_ID_STAFF; n++) {
+				plr._pgfxnum = n;
+				SetPlrAnims(0);
+				if (wal < 0)
+					wal = plr._pAnims[PGX_WALK].paFrames;
+				else if (wal != plr._pAnims[PGX_WALK].paFrames)
+					app_fatal("Inconsistent walk-animation for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by StartWalk
+				if (n != ANIM_ID_BOW && plr._pAFNum == 0) {
+					app_fatal("Invalid attack-actionframe number for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by PlrDoAttack
+				}
+				if (plr._pAnims[PGX_ATTACK].paFrames < plr._pAFNum) {
+					app_fatal("Invalid attack-animation setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_FIRE].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_LIGHTNING].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_MAGIC].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+			}
+		}
+	}
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
 		//const int(*gl)[2] = &GossipList[i];

@@ -272,26 +272,6 @@ inline static BYTE BaseAttackSpeed(unsigned flags)
 	return res;
 }
 
-/*
- * Calculate the arrow-velocity bonus gained from attack-speed modifiers.
- *  ISPL_QUICKATTACK:   +1
- *  ISPL_FASTATTACK:    +2
- *  ISPL_FASTERATTACK:  +4
- *  ISPL_FASTESTATTACK: +8
- */
-inline static int ArrowVelBonus(unsigned flags)
-{
-	flags &= (ISPL_QUICKATTACK | ISPL_FASTATTACK | ISPL_FASTERATTACK | ISPL_FASTESTATTACK);
-	//if (flags != 0) {
-		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized ArrowVelBonus depends simple flag-like attack-speed modifiers.");
-		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers I.");
-		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers II.");
-		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "ArrowVelBonus depends on ordered attack-speed modifiers III.");
-		flags /= ISPL_QUICKATTACK;
-	//}
-	return flags;
-}
-
 static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
 	PlayerStruct* p;
@@ -328,7 +308,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	BYTE gfx;       // graphics
 	int wt;         // weapon-type
 	bool bf;        // blockflag
-	int av;         // arrow velocity bonus
 	unsigned pdmod; // player damage mod
 
 	int i;
@@ -485,7 +464,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
 
 	plr._pIFlags = iflgs;
-	plr._pInfraFlag = /*(iflgs & ISPL_INFRAVISION) != 0 ||*/ plr._pTimer[PLTR_INFRAVISION] > 0;
+	// plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
 	plr._pILifeSteal = lifesteal;
@@ -718,22 +697,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate base cast speed
 	plr._pIBaseCastSpeed = BaseCastSpeed(plr._pIFlags);
 
-	// calculate arrow velocity bonus
-	av = ArrowVelBonus(plr._pIFlags);
-	/*  No other velocity bonus for the moment, otherwise POINT_BLANK and FAR_SHOT do not work well...
-#ifdef HELLFIRE
-	if (plr._pClass == PC_ROGUE)
-		av += (plr._pLevel - 1) >> 2;
-	else if (plr._pClass == PC_WARRIOR || plr._pClass == PC_BARD)
-		av += (plr._pLevel - 1) >> 3;
-#else
-	if (plr._pClass == PC_ROGUE)
-		av += (plr._pLevel - 1) >> 2;
-	else if (plr._pClass == PC_WARRIOR)
-		av += (plr._pLevel - 1) >> 3;
-#endif*/
-	plr._pIArrowVelBonus = av;
-
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
 	for (i = 1; i < NUM_SPELLS; i++) {
 		skillLvl = 0;
@@ -761,7 +724,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 
 	if (pnum == mypnum)
-		gbRedrawFlags = REDRAW_ALL; // gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK;
+		gbRedrawFlags = REDRAW_RECALC_FLASKS; // gbRedrawFlags |= REDRAW_RECALC_FLASKS;
 }
 
 void CalcPlrSpells(int pnum)
@@ -1409,7 +1372,7 @@ static int PLVal(const AffixData* affix, int pv)
 	if (dp != 0) {
 		dv = maxv - minv;
 		if (dv != 0)
-			rv += dv * (100 * (pv - p1) / dp) / 100;
+			rv += dv * (pv - p1) / dp;
 	}
 	return rv;
 }
@@ -1710,7 +1673,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			sufs = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iSufPower = sufs->PLPower;
-			SaveItemPower(
+			v = SaveItemPower(
 			    ii,
 			    sufs->PLPower,
 			    sufs->PLParam1,
@@ -1762,16 +1725,16 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 		flgs = PLT_SHLD;
 		break;
 	case ITYPE_LARMOR:
-		flgs = PLT_ARMO | PLT_LARMOR;
+		flgs = PLT_LARMOR;
 		break;
 	case ITYPE_HELM:
-		flgs = PLT_ARMO;
+		flgs = PLT_HELM;
 		break;
 	case ITYPE_MARMOR:
-		flgs = PLT_ARMO | PLT_MARMOR;
+		flgs = PLT_MARMOR;
 		break;
 	case ITYPE_HARMOR:
-		flgs = PLT_ARMO | PLT_HARMOR;
+		flgs = PLT_HARMOR;
 		break;
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;

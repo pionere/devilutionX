@@ -606,7 +606,7 @@ void diablo_pause_game(bool pause)
 		}
 		gnGamePaused = now;
 		sound_pause(pause);
-		//gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	}
 }
 
@@ -878,14 +878,16 @@ void InputBtnDown(int transKey)
 	case ACT_ITEM5:
 	case ACT_ITEM6:
 	case ACT_ITEM7:
-		static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
-		static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
-		static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
-		static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
-		static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
-		static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
-		static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
-		InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
+			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
+			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
+			static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
+			static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
+			static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
+			static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
+			InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		}
 		break;
 	case ACT_AUTOMAP:
 		ToggleAutomap();
@@ -1010,10 +1012,14 @@ void InputBtnDown(int transKey)
 		PerformSpellAction();
 		break;
 	case ACT_CTRL_USE_HP:
-		UseBeltItem(false);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			UseBeltItem(false);
+		}
 		break;
 	case ACT_CTRL_USE_MP:
-		UseBeltItem(true);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			UseBeltItem(true);
+		}
 		break;
 #endif
 	default:
@@ -1142,7 +1148,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break; //  return;
 	// case DVL_WM_QUERYENDSESSION:
 	// case DVL_DWM_NEXTLVL:
@@ -1226,7 +1232,7 @@ void GameWndProc(const Dvl_Event* e)
 		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break; //  return;
 	// case DVL_WM_QUERYENDSESSION:
 	//	break;
@@ -1250,9 +1256,8 @@ void GameWndProc(const Dvl_Event* e)
 			InitLevelCursor();
 			LoadPWaterPalette();
 			PaletteFadeIn(true);
-			gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags |= REDRAW_DRAW_ALL;
 			scrollrt_render_game();
-			//gbRedrawFlags = REDRAW_ALL;
 		}
 		break; //  return;
 	default:
@@ -1360,7 +1365,7 @@ static void game_loop()
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
-				// gbRedrawFlags = REDRAW_ALL;
+				// gbRedrawFlags |= REDRAW_DRAW_ALL;
 			}
 			//scrollrt_render_screen(true);
 			break;
@@ -1368,7 +1373,7 @@ static void game_loop()
 		if (gnTimeoutCurs != CURSOR_NONE) {
 			NewCursor(gnTimeoutCurs);
 			gnTimeoutCurs = CURSOR_NONE;
-			// gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		}
 		game_logic();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

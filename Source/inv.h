@@ -49,7 +49,7 @@ void SyncPutItem(int pnum, int x, int y, bool flipFlag);
 void SyncSplitGold(int pnum, int cii, int value);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();
-bool InvUseItem(int cii);
+void InvUseItem(int cii);
 bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 void CalculateGold(int pnum);

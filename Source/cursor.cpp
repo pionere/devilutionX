@@ -302,6 +302,7 @@ void CheckCursMove()
 
 	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
+	static_assert(CMAP_NONE == 0, "BitOr optimization of CheckCursMove expects CMAP_NONE to be zero.");
 	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag)
 		return;
 
@@ -505,7 +506,7 @@ void CheckCursMove()
 			mi = curmon[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
+				if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
 					continue;
 				}
 				// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
@@ -523,7 +524,7 @@ void CheckCursMove()
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
 					continue;
 				}
 				pcursplr = mi;
@@ -612,7 +613,7 @@ done:
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
 					continue;
 				}
 				pcursplr = mi;
@@ -627,7 +628,7 @@ done:
 				mi = curmon[i];
 				if (mi != 0) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints < (1 << 6)) {
+					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints == 0) {
 						continue;
 					}
 					pcursmonst = mi;

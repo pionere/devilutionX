@@ -333,7 +333,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE* pCelBuff;
 
-	if (!visFlag && !myplr._pInfraFlag)
+	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0 /* && !myplr._pInfraFlag*/)
 		return;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
@@ -373,7 +373,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
-	if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8))
+	if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8))
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
@@ -482,7 +482,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 	BYTE trans;
 	BYTE* pCelBuff;
 
-	if (visFlag || myplr._pInfraFlag) {
+	if (visFlag || myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
 		pCelBuff = plr._pAnimData;
@@ -512,7 +512,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 		if (pnum == mypnum) {
 			trans = 0;
-		} else if (!visFlag || (myplr._pInfraFlag && light_trn_index > 8)) {
+		} else if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8)) {
 			trans = COLOR_TRN_RED;
 		} else {
 			trans = light_trn_index;
@@ -542,7 +542,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && plr._pHitPoints < (1 << 6) && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
+		if (plr._pActive && plr._pHitPoints == 0 && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #if DEBUG_MODE
 			BYTE* pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
@@ -1495,7 +1495,7 @@ static void DrawView()
 	DrawLifeFlask();
 	DrawManaFlask();
 	DrawGolemBar();
-	//if (gbRedrawFlags & (REDRAW_MANA_FLASK | REDRAW_SPELL_ICON)) {
+	//if (gbRedrawFlags & (REDRAW_RECALC_MANA | REDRAW_SPELL_ICON)) {
 		DrawSkillIcons();
 	//}
 	DrawDurIcon();

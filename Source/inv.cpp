@@ -1787,45 +1787,40 @@ static void InvAddMana(int pnum)
 	PlrIncMana(pnum, mana);
 }
 
-bool InvUseItem(int cii)
+void InvUseItem(int cii)
 {
 	ItemStruct* is;
 	int pnum = mypnum;
 	// assert(INVIDX_VALID(cii));
-	if (plr._pHitPoints < (1 << 6))
-		return true;
-	if (pcursicon != CURSOR_HAND)
-		return true;
-	if (stextflag != STORE_NONE)
-		return true;
+	// assert(plr._pHitPoints != 0);
 
 	is = PlrItem(pnum, cii);
 
 	if (is->_itype == ITYPE_NONE)
-		return false;
+		return;
 	if (is->_iIdx == IDI_GOLD) {
 		StartGoldDrop(cii);
-		return true;
+		return;
 	}
 	if (is->_iIdx == IDI_MUSHROOM) {
 		gnSfxDelay = 10;
 		gnSfxNum = TEXT_IM_MUSHROOM;
-		return true;
+		return;
 	}
 	if (is->_iIdx == IDI_FUNGALTM) {
 		PlaySfx(IS_IBOOK);
 		gnSfxDelay = 10;
 		gnSfxNum = TEXT_IM_FUNGALTM;
-		return true;
+		return;
 	}
 
 	if (!is->_iUsable) {
-		return false;
+		return;
 	}
 
 	if (!is->_iStatFlag) {
 		PlaySfx(sgSFXSets[SFXS_PLR_13][plr._pClass]);
-		return true;
+		return;
 	}
 
 	if (currLvl._dType == DTYPE_TOWN
@@ -1835,17 +1830,14 @@ bool InvUseItem(int cii)
 	 && is->_iMiscId == IMISC_SCROLL
 #endif
 	 && (spelldata[is->_iSpell].sUseFlags & SFLAG_DUNGEON) == SFLAG_DUNGEON) {
-		return true;
+		return;
 	}
 	if (currLvl._dType != DTYPE_TOWN && is->_iMiscId == IMISC_MAP) {
-		return true;
+		return;
 	}
 
 	// add sfx
-	if (is->_iMiscId == IMISC_BOOK)
-		PlaySfx(IS_RBOOK);
-	else
-		PlaySfx(itemfiledata[ItemCAnimTbl[is->_iCurs]].iiSFX);
+	PlaySfx(is->_iMiscId == IMISC_BOOK ? IS_RBOOK : itemfiledata[ItemCAnimTbl[is->_iCurs]].iiSFX);
 
 	// use the item
 	switch (is->_iMiscId) {
@@ -1855,7 +1847,9 @@ bool InvUseItem(int cii)
 	case IMISC_FULLMANA:
 	case IMISC_REJUV:
 	case IMISC_FULLREJUV:
+	case IMISC_BOOK:
 	case IMISC_SPECELIX:
+		NetSendCmdBParam1(CMD_USEPLRITEM, cii);
 		break;
 	case IMISC_SCROLL:
 #ifdef HELLFIRE
@@ -1870,9 +1864,7 @@ bool InvUseItem(int cii)
 		} else {
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, itmSkill);
 		}
-	} return true;
-	case IMISC_BOOK:
-		break;
+	} break;
 	//case IMISC_MAPOFDOOM:
 	//	doom_init();
 	//	return true;
@@ -1887,21 +1879,18 @@ bool InvUseItem(int cii)
 	case IMISC_OILCLEAN:
 		gbTSkillUse = { SPL_OIL, static_cast<int8_t>(cii) };
 		NewCursor(CURSOR_OIL);
-		return true;
+		break;
 	case IMISC_MAP:
 		InitCampaignMap(cii);
-		return true;
+		break;
 #ifdef HELLFIRE
 	case IMISC_NOTE:
 		StartQTextMsg(TEXT_BOOK9);
-		return true;
+		break;
 #endif
 	default:
 		ASSUME_UNREACHABLE
 	}
-
-	NetSendCmdBParam1(CMD_USEPLRITEM, cii);
-	return true;
 }
 
 bool SyncUseItem(int pnum, BYTE cii, BYTE sn)

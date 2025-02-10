@@ -31,6 +31,7 @@ void StartQTextMsg(int m, bool showText)
 		// gamemenu_off();
 		// StopQTextMsg();
 		gbQtextflag = true;
+		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
 		scrolltexty = tds->txtspd;

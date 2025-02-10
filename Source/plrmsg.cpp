@@ -303,7 +303,7 @@ void StartPlrMsg()
 	gbTalkflag = true;
 	SDL_StartTextInput();
 	plr_msgs[PLRMSG_COUNT].str[0] = '\0';
-	// gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 	sguCursPos = 0;
 	sguSelPos = 0;
@@ -367,7 +367,7 @@ void StopPlrMsg()
 {
 	gbTalkflag = false;
 	SDL_StopTextInput();
-	//gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	// sguCursPos = 0;
 	// sguSelPos = 0;
 	// sgbSelecting = false;

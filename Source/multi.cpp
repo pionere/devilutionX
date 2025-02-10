@@ -234,15 +234,14 @@ void multi_disband_team(int team)
 
 void multi_deactivate_player(int pnum)
 {
-	const char* pszFmt;
-
 	if (plr._pActive) {
 		DeactivatePortal(pnum);
 		multi_disband_team(pnum);
 		// ClearPlrMsg(pnum);
 		RemoveLvlPlayer(pnum);
 		// if (reason != LEAVE_NONE) {
-			pszFmt = "Player '%s' left the game";
+		if (pnum == mypnum) {
+			const char* pszFmt = "Player '%s' left the game";
 			//switch (reason) {
 			//case LEAVE_NORMAL:
 			//	break;
@@ -251,7 +250,9 @@ void multi_deactivate_player(int pnum)
 			//	break;
 			//}
 			EventPlrMsg(pszFmt, plr._pName);
-		// }
+		} else {
+			gbRunGame = false;
+		}
 		sgbPackPlrTbl[pnum] = false;
 		plr._pActive = FALSE;
 		guTeamInviteRec &= ~(1 << pnum);
@@ -665,6 +666,10 @@ static void SetupLocalPlr()
 	PlayerStruct* p;
 
 	p = &myplr;
+	p->_pmode = PM_NEWLVL;
+	p->_pDestAction = ACTION_NONE;
+	//p->_pInvincible = TRUE; - does not matter in town
+	p->_pLvlChanging = TRUE;
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
@@ -683,13 +688,9 @@ static void SetupLocalPlr()
 	//	p->_pAtkSkill = SPL_RATTACK;
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
-	if (p->_pHitPoints < (1 << 6))
+	if (p->_pHitPoints == 0)
 		PlrSetHp(mypnum, (1 << 6));
 
-	assert(p->_pDestAction == ACTION_NONE);
-	p->_pLvlChanging = TRUE;
-	//p->_pInvincible = TRUE; - does not matter in town
-	assert(p->_pmode == PM_NEWLVL);
 	assert(p->_pGFXLoad == 0);
 
 	gbActivePlayers = 1;
@@ -851,6 +852,7 @@ bool NetInit(bool bSinglePlayer)
 		memset(player_state, 0, sizeof(player_state));
 		guSendGameDelta = 0;
 		guSendLevelData = 0;
+		// guOweLevelDelta = 0;
 		assert(!_gbNetInited);
 		_gbNetInited = true;
 		_gbTimeout = false;
