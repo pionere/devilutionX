@@ -2391,9 +2391,11 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	ItemStruct* pi;
 	int i, cnt, r;
 
+	SetRndSeed(seed);
+
 	switch (type) {
 	case SHRINE_HIDDEN:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		cnt = 0;
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
@@ -2470,7 +2472,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		PlrFillMana(pnum);
 		break;
 	case SHRINE_ELDRITCH:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		pi = plr._pInvList;
 		for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++)
 			ConvertPotion(pi);
@@ -2506,7 +2508,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		AddRaiseSkill(pnum, SPL_HBOLT);
 		break;
 	case SHRINE_SPIRITUAL:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		cnt = plr._pDunLevel;
 		// assert(cnt != 0);
 		pi = plr._pInvList;
@@ -2537,7 +2539,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		AddPlrExperience(pnum, plr._pLevel, 500 * plr._pDunLevel);
 		break;
 	case SHRINE_MURPHYS:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype == ITYPE_NONE)
