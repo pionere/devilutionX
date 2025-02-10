@@ -1955,10 +1955,9 @@ static void MonGetKnockback(int mnum, int dir)
 	MonStartGetHit(mnum, OPPOSITE(dir));
 }
 
-void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
+void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 {
 	MonsterStruct* mon;
-	int dir;
 
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by player", mnum);
@@ -1977,7 +1976,6 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
-		dir = GetDirection(sx, sy, mon->_mx, mon->_my);
 		if (hitflags & ISPL_KNOCKBACK)
 			MonGetKnockback(mnum, dir);
 		if ((dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp) {
@@ -2383,7 +2381,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 		if (mon->_mhitpoints < (1 << 6))
 			MonKill(mnum, pnum);
 		else
-			MonHitByPlr(mnum, pnum, dam, plr._px, plr._py);
+			MonHitByPlr(mnum, pnum, dam, OPPOSITE(mon->_mdir));
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;

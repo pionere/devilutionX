@@ -97,7 +97,7 @@ const MissileData missiledata[] = {
 /*MIS_KRULL*///     { &AddKrull,       &MI_Krull,      0,                                             MISR_FIRE,      MFILE_KRULL,    TRUE,      SFX_NONE,    SFX_NONE,           1,        1,        16, ALIGN32 },
 /*MIS_CBOLTC*/      { &AddCboltC,      &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     FALSE,     LS_CBOLT,    SFX_NONE,           1,        1,         0, ALIGN32 },
 /*MIS_CBOLT*/       { &AddCbolt,       &MI_Cbolt,      MIF_SHROUD,                                    MISR_LIGHTNING, MFILE_MINILTNG, TRUE,      SFX_NONE,    SFX_NONE,           1,        1,         8, ALIGN32 },
-/*MIS_ELEMENTAL*/   { &AddElemental,   &MI_Elemental,  MIF_SHROUD | MIF_LEAD,                         MISR_FIRE,      MFILE_FIRERUN,  TRUE,      LS_ELEMENTL, SFX_NONE,           1,        1,        16, ALIGN32 },
+/*MIS_ELEMENTAL*/   { &AddElemental,   &MI_Elemental,  MIF_SHROUD | MIF_LEAD | MIF_GUIDED,            MISR_FIRE,      MFILE_FIRERUN,  TRUE,      LS_ELEMENTL, SFX_NONE,           1,        1,        16, ALIGN32 },
 /*MIS_BONESPIRIT*///{ &AddBoneSpirit,  &MI_Bonespirit, 0,                                             MISR_MAGIC,     MFILE_SKLBALL,  TRUE,      LS_BONESP,   LS_BSIMPCT,         1,        1,         0, ALIGN32 },
 /*MIS_APOCAC2*/     { &AddApocaC2,     &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     FALSE,     SFX_NONE,    SFX_NONE,           1,        1,         0, ALIGN32 },
 /*MIS_EXAPOCA2*/    { &AddMisexp,      &MI_LongExp,    0,                                             MISR_NONE,      MFILE_FIREPLAR, TRUE,      SFX_NONE,    SFX_NONE,           1,        1,         0, ALIGN32 },

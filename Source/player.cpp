@@ -1949,7 +1949,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		//if (hitFlags & ISPL_NOHEALMON)
 		//	mon->_mFlags |= MFLAG_NOHEAL;
-		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._px, plr._py);
+		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._pdir);
 	}
 	return true;
 }
@@ -2125,11 +2125,17 @@ static void PlrDoAttack(int pnum)
 		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
 			plr._px + offset_x[dir], plr._py + offset_y[dir]);
 		if (plr._pVar5 == SPL_SWIPE) {
+			int pdir;
+			pdir = (dir + 1) & 7;
+			plr._pdir = pdir;
 			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[(dir + 1) & 7], plr._py + offset_y[(dir + 1) & 7]);
-
+				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
+			pdir = (pdir + 6) & 7;
+			plr._pdir = pdir;
 			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[(dir + 7) & 7], plr._py + offset_y[(dir + 7) & 7]);
+				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
+			pdir = (pdir + 1) & 7;
+			plr._pdir = pdir;
 		}
 
 		if (hitcnt != 0) {
@@ -2908,7 +2914,7 @@ void MissToPlr(int mi, bool hit)
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
 			//if (hitFlags & ISPL_NOHEALMON)
 			//	mon->_mFlags |= MFLAG_NOHEAL;
-			MonHitByPlr(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			MonHitByPlr(mpnum, pnum, dam, hitFlags, plr._pdir);
 		}
 		return;
 	}

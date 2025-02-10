@@ -766,6 +766,19 @@ int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster
 	return dam;
 }
 
+static int MissDirection(const MissileStruct* mis, int adir, int ax, int ay)
+{
+	int dir;
+	if (mis->_miFlags & MIF_GUIDED) {
+		dir = mis->_miVar5; // MIS_DIR
+	} else if (mis->_miFlags & MIF_DOT || (ax == mis->_misx && ay == mis->_misy)) {
+		dir = OPPOSITE(adir);
+	} else {
+		dir = GetDirection8(mis->_misx, mis->_misy, ax, ay);
+	}
+	return dir;
+}
+
 static bool MissMonHitByMon(int mnum, int mi)
 {
 	MissileStruct* mis;
@@ -835,7 +848,7 @@ static bool MissMonHitByPlr(int mnum, int mi)
 {
 	MonsterStruct* mon;
 	MissileStruct* mis;
-	int pnum, hper, dam, lx, ly;
+	int pnum, hper, dir, dam, lx, ly;
 	unsigned hitFlags;
 	bool tmac, ret;
 
@@ -959,7 +972,8 @@ static bool MissMonHitByPlr(int mnum, int mi)
 				//if (hitFlags & ISPL_NOHEALMON)
 				//	mon->_mFlags |= MFLAG_NOHEAL;
 			}
-			MonHitByPlr(mnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			dir = MissDirection(mis, mon->_mdir, mon->_mx, mon->_my);
+			MonHitByPlr(mnum, pnum, dam, hitFlags, dir);
 		//}
 	}
 
@@ -2895,6 +2909,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	//mis->_miVar1 = FALSE;
 	mis->_miVar2 = dx;
 	mis->_miVar3 = dy;
+	mis->_miVar5 = midir; // MIS_DIR
 	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 
@@ -3226,7 +3241,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;
-			MonHitByPlr(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
+			// int dir = GetDirection8(plr._px, plr._py, monsters[target]._mx, monsters[target]._my);
+			MonHitByPlr(target, pnum, 0, ISPL_KNOCKBACK, plr._pdir);
 		}
 		break;
 	case MTT_OBJECT:
@@ -4940,6 +4956,7 @@ void MI_Elemental(int mi)
 			dx = cx + XDirAdd[sd];
 			dy = cy + YDirAdd[sd];
 		}
+		mis->_miVar5 = sd; // MIS_DIR
 		SetMissDir(mi, sd);
 		GetMissileVel(mi, cx, cy, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_ELEMENTAL].mdPrSpeed));
 	}

@@ -1562,6 +1562,12 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
 			}
 		}
+		if (md.mAddProc == AddTelekinesis) {
+			for (int n = 0; n < NUM_SPELLS; n++) {
+				if (spelldata[n].sMissile == i)
+					assert(spelldata[n].sSkillFlags & SDFLAG_TARGETED);
+			}
+		}
 #ifdef HELLFIRE
 		if (md.mAddProc == AddHorkSpawn) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
