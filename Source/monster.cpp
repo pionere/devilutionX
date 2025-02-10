@@ -1856,7 +1856,7 @@ static void MonStopWalk(int mnum)
 	MonStartStand(mnum);
 }
 
-static void MonStartGetHit(int mnum)
+static void MonStartGetHit(int mnum, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
@@ -1864,7 +1864,7 @@ static void MonStartGetHit(int mnum)
 
 	AssertFixMonLocation(mnum);
 
-	NewMonsterAnim(mnum, MA_GOTHIT, mon->_mdir);
+	NewMonsterAnim(mnum, MA_GOTHIT, dir);
 
 	mon->_mmode = MM_GOTHIT;
 }
@@ -1952,8 +1952,7 @@ static void MonGetKnockback(int mnum, int dir)
 	}
 
 	// assert(mon->_mType != MT_GOLEM);
-	mon->_mdir = OPPOSITE(dir);
-	MonStartGetHit(mnum);
+	MonStartGetHit(mnum, OPPOSITE(dir));
 }
 
 void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
@@ -1985,8 +1984,7 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 			MonStopWalk(mnum);
 			if (mon->_mType == MT_NBAT)
 				dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
-			mon->_mdir = OPPOSITE(dir);
-			MonStartGetHit(mnum);
+			MonStartGetHit(mnum, OPPOSITE(dir));
 		}
 	}
 }
@@ -2017,8 +2015,7 @@ void MonHitByMon(int defm, int offm, int dam, int dir)
 				if (dmon->_mType == MT_NBAT)
 					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
 			}
-			dmon->_mdir = OPPOSITE(dir);
-			MonStartGetHit(defm);
+			MonStartGetHit(defm, OPPOSITE(dir));
 		}
 	}
 }
