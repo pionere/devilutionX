@@ -1007,10 +1007,11 @@ void plrctrls_after_game_logic()
 
 void UseBeltItem(bool manaItem)
 {
+	int i, n = -1;
 	ItemStruct* pi;
 
-	pi = myplr._pSpdList;
-	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
+	pi = &myplr._pSpdList[0];
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
 		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
@@ -1021,7 +1022,12 @@ void UseBeltItem(bool manaItem)
 				InvUseItem(INVITEM_BELT_FIRST + i);
 				break;
 			}
+			n = i;
 		}
+	}
+	// add sfx if only unusable (due to _iStatFlag) items were found
+	if (i >= MAXBELTITEMS && n >= 0) {
+		InvUseItem(INVITEM_BELT_FIRST + n);
 	}
 }
 
