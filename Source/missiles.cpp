@@ -819,7 +819,7 @@ static bool MissMonHitByMon(int mnum, int mi)
 		/*if (resist != MORT_NONE) {
 			PlayMonSfx(mnum, MS_GOTHIT);
 		} else {*/
-			MonHitByMon(mnum, misource, dam);
+			MonHitByMon(mnum, misource, dam, misource >= 0 ? monsters[misource]._mdir : OPPOSITE(mon->_mdir));
 		//}
 	}
 	if (mon->_msquelch != SQUELCH_MAX) {

@@ -1991,10 +1991,9 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy)
 	}
 }
 
-void MonHitByMon(int defm, int offm, int dam)
+void MonHitByMon(int defm, int offm, int dam, int dir)
 {
 	MonsterStruct* dmon;
-	int dir;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by monster/trap", defm);
@@ -2015,11 +2014,10 @@ void MonHitByMon(int defm, int offm, int dam)
 		if ((dam << 2) >= dmon->_mmaxhp) {
 			MonStopWalk(defm);
 			if (offm >= 0) {
-				dir = monsters[offm]._mdir;
 				if (dmon->_mType == MT_NBAT)
 					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
-				dmon->_mdir = OPPOSITE(dir);
 			}
+			dmon->_mdir = OPPOSITE(dir);
 			MonStartGetHit(defm);
 		}
 	}
@@ -2352,7 +2350,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
 			MonKill(defm, offm);
 		} else {
-			MonHitByMon(defm, offm, dam);
+			MonHitByMon(defm, offm, dam, monsters[offm]._mdir);
 		}
 	}
 }
@@ -2388,7 +2386,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 		if (mon->_mhitpoints < (1 << 6))
 			MonKill(mnum, pnum);
 		else
-			MonHitByMon(mnum, pnum, dam);
+			MonHitByPlr(mnum, pnum, dam, plr._px, plr._py);
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam += plr._pIGetHit;
