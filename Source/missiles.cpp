@@ -771,7 +771,7 @@ static int MissDirection(const MissileStruct* mis, int adir, int ax, int ay)
 	int dir;
 	if (mis->_miFlags & MIF_GUIDED) {
 		dir = mis->_miVar5; // MIS_DIR
-	} else if (mis->_miFlags & MIF_DOT || (ax == mis->_misx && ay == mis->_misy)) {
+	} else if ((mis->_miFlags & MIF_AREA) || (ax == mis->_misx && ay == mis->_misy)) {
 		dir = OPPOSITE(adir);
 	} else {
 		dir = GetDirection8(mis->_misx, mis->_misy, ax, ay);
@@ -1068,7 +1068,7 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	if (!CheckHit(hper))
 		return false;
 
-	if (!(mis->_miFlags & MIF_NOBLOCK)) {
+	if (!(mis->_miFlags & MIF_AREA)) {
 		if (PlrCheckBlock(pnum, misource >= 0 ? monsters[misource]._mLevel : currLvl._dLevel, mis->_misx, mis->_misy))
 			return true;
 	}
@@ -1127,7 +1127,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 	if (!CheckHit(hper))
 		return false;
 
-	if (!(mis->_miFlags & MIF_NOBLOCK)) {
+	if (!(mis->_miFlags & MIF_AREA)) {
 		if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, mis->_misx, mis->_misy))
 			return true;
 	}
