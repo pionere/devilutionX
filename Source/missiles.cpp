@@ -2920,7 +2920,6 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	int magic, i, mindam, maxdam;
 	// (micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
-	SetMissDir(mi, GetDirection8(sx, sy, dx, dy));
 	mis = &missile[mi];
 	//mis->_miVar1 = 0;
 	mis->_miVar2 = dx;
