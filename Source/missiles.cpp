@@ -1372,22 +1372,31 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 static void CheckSplashColFull(int mi)
 {
 	MissileStruct* mis;
-	int i, mx, my;
+	int i, sx, sy, mx, my;
 
 	mis = &missile[mi];
 	mx = mis->_mix;
 	my = mis->_miy;
 
-	// monster/player/object hit -> hit everything around
+	// monster/player/object hit
+	//  - adjust source position for directional hit
+	sx = mis->_misx;
+	sy = mis->_misy;
+	mis->_misx = mx;
+	mis->_misy = my;
+	//  - hit everything around
 	for (i = 0; i < lengthof(XDirAdd); i++) {
 		CheckMissileCol(mi, mx + XDirAdd[i], my + YDirAdd[i], MICM_NONE);
 	}
+	// - restore source position
+	mis->_misx = sx;
+	mis->_misy = sy;
 }
 
 static void CheckSplashCol(int mi)
 {
 	MissileStruct* mis;
-	int i, mx, my, lx, ly, tx, ty;
+	int i, sx, sy, mx, my, lx, ly, tx, ty;
 
 	mis = &missile[mi];
 	mx = mis->_mix;
@@ -1398,16 +1407,16 @@ static void CheckSplashCol(int mi)
 	}
 
 	// wall hit:
-	//  1. move missile back a bit to indicate the displacement
+	//  - move missile back a bit to indicate the displacement
 	mis->_mitxoff -= mis->_mixvel;
 	mis->_mityoff -= mis->_miyvel;
 	GetMissilePos(mi);
 
-	//  2. limit the explosion area
+	//  - limit the explosion area
 	lx = mis->_mix;
 	ly = mis->_miy;
 
-	//  3. alter offset for better visual
+	//  - alter offset for better visual
 	if (mis->_mixoff >= TILE_WIDTH / 2) {
 		mis->_mixoff -= TILE_WIDTH;
 		mis->_mix++;
@@ -1419,12 +1428,21 @@ static void CheckSplashCol(int mi)
 	//GetMissilePos(mi);
 
 	// assert(lx != mx || ly != my);
+	//  - adjust source position for directional hit
+	sx = mis->_misx;
+	sy = mis->_misy;
+	mis->_misx = mx;
+	mis->_misy = my;
+	//  - hit around in a limited area
 	for (i = 0; i < lengthof(XDirAdd); i++) {
 		tx = mx + XDirAdd[i];
 		ty = my + YDirAdd[i];
 		if (abs(tx - lx) < 2 && abs(ty - ly) < 2)
 			CheckMissileCol(mi, tx, ty, MICM_NONE);
 	}
+	// - restore source position
+	mis->_misx = sx;
+	mis->_misy = sy;
 }
 
 static void SyncMissAnim(int mi)
@@ -2798,8 +2816,8 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		return MIRES_FAIL_DELETE;
 	}
 
-	missile[mi]._misx = missile[mi]._mix = mon->_mx;
-	missile[mi]._misy = missile[mi]._miy = mon->_my;
+	/*missile[mi]._misx = */missile[mi]._mix = mon->_mx;
+	/*missile[mi]._misy = */missile[mi]._miy = mon->_my;
 	missile[mi]._miMaxDam = mon->_mhitpoints;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
 	CheckSplashColFull(mi);
