@@ -97,28 +97,6 @@ void SetGamma(int gamma)
 	UpdatePalette();
 }
 
-void IncreaseGamma()
-{
-	int gamma = _gnGammaCorrection;
-	if (gamma < 100) {
-		gamma += 5;
-		if (gamma > 100)
-			gamma = 100;
-		SetGamma(gamma);
-	}
-}
-
-void DecreaseGamma()
-{
-	int gamma = _gnGammaCorrection;
-	if (gamma > 30) {
-		gamma -= 5;
-		if (gamma < 30)
-			gamma = 30;
-		SetGamma(gamma);
-	}
-}
-
 void SetFadeLevel(unsigned fadeval)
 {
 	int i;

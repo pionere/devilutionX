@@ -67,8 +67,8 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SKL0, ACT_SKLBOOK, ACT_CHAR, ACT_SKL2, ACT_SKL6, ACT_SKL3,
-// G,            H,                I,       J,        K,        L,        M,        N,        O,        P,
-  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_VER, ACT_PAUSE,
+// G,         H,        I,       J,        K,        L,          M,        N,        O,       P,
+  ACT_NONE, ACT_NONE, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_VER, ACT_PAUSE,
 // Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
   ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_TGT, ACT_SKL5, ACT_SWAP, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
@@ -971,12 +971,6 @@ void InputBtnDown(int transKey)
 	case ACT_MSG2:
 	case ACT_MSG3:
 		diablo_hotkey_msg(transKey);
-		break;
-	case ACT_GAMMA_DEC:
-		DecreaseGamma();
-		break;
-	case ACT_GAMMA_INC:
-		IncreaseGamma();
 		break;
 	case ACT_ZOOM:
 		gbZoomInFlag = !gbZoomInFlag;
