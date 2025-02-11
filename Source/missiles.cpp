@@ -1317,15 +1317,14 @@ int CheckPlrCol(int pnum)
  * @param mx: the x coordinate of the target
  * @param my: the y coordinate of the target
  * @param mode: the collision mode (missile_collision_mode)
- * @return true if an actor was hit on the tile
+ * @return what was hit (0: nothing, 1: actor, 2. object/wall)
  */
-static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
+static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 {
 	MissileStruct* mis;
 	const MissileData* mds;
 	int oi, mnum, pnum;
 	int hit = 0;
-	bool result;
 
 	oi = dObject[mx][my];
 	if (oi != 0) {
@@ -1355,18 +1354,17 @@ static bool CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 	}
 
 	if (hit == 0)
-		return false;
+		return hit;
 
-	result = hit == 1;
 	if (mode != MICM_NONE) {
 		mis = &missile[mi];
-		if (mode == MICM_BLOCK_ANY || (!result /*&& mode == MICM_BLOCK_WALL*/))
+		if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
 			mis->_miRange = -1;
 		mds = &missiledata[mis->_miType];
 		if (mds->miSFX != SFX_NONE)
 			PlaySfxLocN(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
 	}
-	return result;
+	return hit;
 }
 
 static void CheckSplashColFull(int mi)
@@ -3659,7 +3657,7 @@ void MI_Poison(int mi)
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL)) {
+		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL) == 1) {
 			tnum = dMonster[mis->_mix][mis->_miy];
 			if (tnum != 0) {
 				// monster target acquired
@@ -4424,7 +4422,7 @@ void MI_Chain(int mi)
 	my = mis->_miy;
 	if (mx != mis->_misx || my != mis->_misy) {
 		if (!nMissileTable[dPiece[mx][my]]) {
-			if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY)) {
+			if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY) == 1) {
 				if (mis->_miVar1-- != 0) {
 					// set the new position as the starting point
 					mis->_misx = mx;
@@ -4934,7 +4932,7 @@ void MI_Cbolt(int mi)
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mi);
 		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY)) {
+		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY) == 1) {
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
 			mis->_miFileNum = MFILE_LGHNING;
@@ -4962,9 +4960,9 @@ void MI_Elemental(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if ((cx != mis->_misx || cy != mis->_misy)                              // not on the starting position
-	 && (CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY) || mis->_miRange >= 0) // did not hit a wall
-	 && !mis->_miVar1 && cx == mis->_miVar2 && cy == mis->_miVar3) {        // destination reached the first time
+	if ((cx != mis->_misx || cy != mis->_misy)                       // not on the starting position
+	 && (CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY) <= 1)           // did not hit a object/wall
+	 && !mis->_miVar1 && cx == mis->_miVar2 && cy == mis->_miVar3) { // destination reached the first time
 		mis->_miVar1 = TRUE;
 		mis->_miRange = 0;
 		if (FindClosest(cx, cy, dx, dy)) {
