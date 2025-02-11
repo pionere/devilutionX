@@ -1317,7 +1317,7 @@ int CheckPlrCol(int pnum)
  * @param mx: the x coordinate of the target
  * @param my: the y coordinate of the target
  * @param mode: the collision mode (missile_collision_mode)
- * @return what was hit (0: nothing, 1: actor, 2. object/wall)
+ * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
  */
 static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 {
@@ -1336,7 +1336,7 @@ static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 		}
 	}
 	if (nMissileTable[dPiece[mx][my]]) {
-		hit = 2;
+		hit = 3;
 	}
 
 	mnum = dMonster[mx][my];
@@ -1391,20 +1391,20 @@ static void CheckSplashColFull(int mi)
 	mis->_misy = sy;
 }
 
-static void CheckSplashCol(int mi)
+static void CheckSplashCol(int mi, int hit)
 {
 	MissileStruct* mis;
 	int i, sx, sy, mx, my, lx, ly, tx, ty;
 
-	mis = &missile[mi];
-	mx = mis->_mix;
-	my = mis->_miy;
-	if (!nMissileTable[dPiece[mx][my]]) {
+	if (hit != 3) {
 		CheckSplashColFull(mi);
 		return;
 	}
 
 	// wall hit:
+	mis = &missile[mi];
+	mx = mis->_mix;
+	my = mis->_miy;
 	//  - move missile back a bit to indicate the displacement
 	mis->_mitxoff -= mis->_mixvel;
 	mis->_mityoff -= mis->_miyvel;
@@ -3499,7 +3499,7 @@ void MI_Firebolt(int mi)
 {
 	MissileStruct* mis;
 	//int omx, omy;
-	int xptype;
+	int xptype, hit = 0;
 
 	mis = &missile[mi];
 	//omx = mis->_mitxoff;
@@ -3508,7 +3508,7 @@ void MI_Firebolt(int mi)
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
 	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+		hit = CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
@@ -3527,7 +3527,7 @@ void MI_Firebolt(int mi)
 		break;
 	case MIS_FIREBALL:
 		mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1;
-		CheckSplashCol(mi);
+		CheckSplashCol(mi, hit);
 		xptype = MIS_EXFBALL;
 		break;
 	case MIS_HBOLT:
@@ -3880,7 +3880,7 @@ void MI_Firewall(int mi)
 /*void MI_Fireball(int mi)
 {
 	MissileStruct* mis;
-	int mx, my;
+	int mx, my, hit = 0;
 
 	mis = &missile[mi];
 	mis->_mitxoff += mis->_mixvel;
@@ -3889,7 +3889,7 @@ void MI_Firewall(int mi)
 	mx = mis->_mix;
 	my = mis->_miy;
 	if (mx != mis->_misx || my != mis->_misy)
-		CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY);
+		hit = CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY);
 	if (mis->_miRange >= 0) {
 		CondChangeLightXY(mis->_miLid, mx, my);
 		PutMissile(mi);
@@ -3897,7 +3897,7 @@ void MI_Firewall(int mi)
 	}
 	//CheckMissileCol(mi, mx, my, MICM_NONE);
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-	CheckSplashCol(mi);
+	CheckSplashCol(mi, hit);
 
 	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
 	mis->_miDelFlag = TRUE; // + AddUnLight
@@ -4985,7 +4985,7 @@ void MI_Elemental(int mi)
 	}
 	//CheckMissileCol(mi, cx, cy, MICM_NONE);
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-	CheckSplashCol(mi);
+	CheckSplashCol(mi, hit);
 
 	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
 
