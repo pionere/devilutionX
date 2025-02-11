@@ -2386,6 +2386,7 @@ static void ConvertPotion(ItemStruct* pi)
 	}
 }
 
+DISABLE_SPEED_OPTIMIZATION
 void SyncShrineCmd(int pnum, BYTE type, int seed)
 {
 	ItemStruct* pi;
@@ -2402,8 +2403,8 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE
-			 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
-			 && pi->_iMaxDur != 0
+			 && pi->_iMaxDur < DUR_INDESTRUCTIBLE
+			 && pi->_iMaxDur > 0
 			 && (pi->_iCreateInfo & CF_LEVEL) <= lvl)
 				cnt++;
 		}
@@ -2412,8 +2413,8 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 			pi = plr._pInvBody;
 			for (i = NUM_INVLOC; i != 0; i--, pi++) {
 				if (pi->_itype != ITYPE_NONE
-				 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
-				 && pi->_iMaxDur != 0
+				 && pi->_iMaxDur < DUR_INDESTRUCTIBLE
+				 && pi->_iMaxDur > 0
 				 && (pi->_iCreateInfo & CF_LEVEL) <= lvl) {
 					cnt = 1 + pi->_iMaxDur / 32u;
 					if (r == 0) {
@@ -2570,6 +2571,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	CalcPlrInv(pnum, true);
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
+ENABLE_SPEED_OPTIMIZATION
 
 static void OperateShrine(int pnum, int oi, bool sendmsg)
 {
