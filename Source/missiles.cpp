@@ -2910,7 +2910,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 }
 
 /**
- * Var1: destination reached
+ * Var1: progression (0: started, 1: going to the destination, 2: running to the target/wall)
  * Var2: x coordinate of the destination
  * Var3: y coordinate of the destination
  */
@@ -2922,7 +2922,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	// assert((unsigned)misource < MAX_PLRS);
 	SetMissDir(mi, GetDirection8(sx, sy, dx, dy));
 	mis = &missile[mi];
-	//mis->_miVar1 = FALSE;
+	//mis->_miVar1 = 0;
 	mis->_miVar2 = dx;
 	mis->_miVar3 = dy;
 	mis->_miVar5 = midir; // MIS_DIR
@@ -4952,7 +4952,7 @@ void MI_Cbolt(int mi)
 void MI_Elemental(int mi)
 {
 	MissileStruct* mis;
-	int sd, cx, cy, dx, dy;
+	int hit = 0, sd, cx, cy, dx, dy;
 
 	mis = &missile[mi];
 	mis->_mitxoff += mis->_mixvel;
@@ -4960,10 +4960,13 @@ void MI_Elemental(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if ((cx != mis->_misx || cy != mis->_misy)                       // not on the starting position
-	 && (CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY) <= 1)           // did not hit a object/wall
-	 && !mis->_miVar1 && cx == mis->_miVar2 && cy == mis->_miVar3) { // destination reached the first time
-		mis->_miVar1 = TRUE;
+	if (mis->_miVar1 == 0)
+		mis->_miVar1 = (cx != mis->_misx || cy != mis->_misy) ? 1 : 0;
+	if (mis->_miVar1 != 0)
+		hit = CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY);
+	if (hit <= 1                                                         // did not hit an object/wall
+	 && mis->_miVar1 <= 1 && cx == mis->_miVar2 && cy == mis->_miVar3) { // destination reached the first time
+		mis->_miVar1 = 2;
 		mis->_miRange = 0;
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
