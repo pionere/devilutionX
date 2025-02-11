@@ -2415,12 +2415,13 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 				 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
 				 && pi->_iMaxDur != 0
 				 && (pi->_iCreateInfo & CF_LEVEL) <= lvl) {
+					cnt = 1 + pi->_iMaxDur / 32u;
 					if (r == 0) {
-						pi->_iMaxDur = pi->_iMaxDur > 10 ? pi->_iMaxDur - 10 : 1;
-						pi->_iDurability = pi->_iDurability > 10 ? pi->_iDurability - 10 : 1;
+						pi->_iMaxDur = pi->_iMaxDur > 1 ? pi->_iMaxDur - cnt : pi->_iMaxDur;
+						pi->_iDurability = pi->_iDurability > 1 ? pi->_iDurability - cnt : pi->_iDurability;
 					} else {
-						pi->_iMaxDur = std::min(pi->_iMaxDur + 10, DUR_INDESTRUCTIBLE - 1);
-						pi->_iDurability = std::min(pi->_iDurability + 10, pi->_iMaxDur);
+						pi->_iMaxDur = std::min(pi->_iMaxDur + cnt, DUR_INDESTRUCTIBLE - 1);
+						pi->_iDurability = std::min(pi->_iDurability + cnt, pi->_iMaxDur);
 					}
 					r--;
 				}
