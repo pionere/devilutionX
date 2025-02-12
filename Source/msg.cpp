@@ -916,7 +916,7 @@ void UnPackPkItem(const PkItemStruct* src)
 			src->wCI);
 		net_assert(items[MAXITEMS]._iMaxCharges >= src->bMCh);
 		net_assert(src->bCh <= src->bMCh);
-		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
+		// net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur); -- HIDDEN_SHRINE
 		net_assert(src->bDur <= src->bMDur);
 		if (items[MAXITEMS]._iClass == ICLASS_ARMOR || items[MAXITEMS]._iClass == ICLASS_WEAPON) {
 			net_assert(src->bDur != 0);
