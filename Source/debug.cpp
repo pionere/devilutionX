@@ -116,6 +116,22 @@ static bool IsSkel(int mt)
 		|| (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
 }
 
+static int MonsterAiMissile(const MonsterAI &mai)
+{
+	if (mai.aiType == AI_ROUNDRANGED || mai.aiType == AI_RANGED || mai.aiType == AI_ROUNDRANGED2
+		|| mai.aiType == AI_COUNSLR || mai.aiType == AI_ZHAR || mai.aiType == AI_LAZARUS) {
+		int mm = mai.aiParam1;
+		if (mm == MIS_LIGHTNINGC2)
+			mm = MIS_LIGHTNING2;
+		if (mm == MIS_LIGHTNINGC)
+			mm = MIS_LIGHTNING;
+		if (mm == MIS_APOCAC2)
+			mm = MIS_EXAPOCA2;
+		return mm;
+	}
+	return -1;
+}
+
 static BYTE GetUniqueItemPower(const UniqItemData& ui, int index)
 {
 	switch (index) {
@@ -510,6 +526,7 @@ void ValidateData()
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonHitByMon and MonHitByPlr
 	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	assert(monsterdata[MT_GBAT].mAI.aiType == AI_BAT); // required by MAI_Bat
+	assert(missiledata[MIS_HORKDMN].mFileNum == MFILE_SPAWNS); // required by MAI_Horkdemon/InitMonsterGFX
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
@@ -532,6 +549,114 @@ void ValidateData()
 				app_fatal("Both GARG_STONE and HIDDEN flags are set for %s (%d).", md.mName, i); // required ProcessMonsters
 			if (md.mAI.aiType != AI_GARG)
 				app_fatal("GARG_STONE flag is not supported by the AI of %s (%d).", md.mName, i);
+		}
+		int mm = MonsterAiMissile(md.mAI);
+		if (mm >= 0) {
+			bool hiddenAnim = (misfiledata[missiledata[mm].mFileNum].mfFlags & MFLAG_HIDDEN) != 0;
+			if (i == MT_NMAGMA || i == MT_YMAGMA || i == MT_BMAGMA || i == MT_WMAGMA) {
+				if (missiledata[mm].mFileNum != MFILE_MAGBALL)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_RTHIN || i == MT_NTHIN || i == MT_XTHIN || i == MT_GTHIN) {
+				if (missiledata[mm].mFileNum != MFILE_THINLGHT)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_NACID || i == MT_RACID || i == MT_BACID || i == MT_XACID
+#ifdef HELLFIRE
+					|| i == MT_SPIDLORD
+#endif
+				) {
+				if (missiledata[mm].mFileNum != MFILE_ACIDBF)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_ACID) // MFILE_ACIDSPLA, MFILE_ACIDPUD ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_ACID, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_GSUCC) {
+				if (missiledata[mm].mFileNum != MFILE_SCUBMISB)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_SNOWWICH) // MFILE_SCBSEXPB ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_SNOWWICH, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_RSUCC) {
+				if (missiledata[mm].mFileNum != MFILE_SCUBMISD)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_HLSPWN) // MFILE_SCBSEXPD ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_HLSPWN, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_BSUCC) {
+				if (missiledata[mm].mFileNum != MFILE_SCUBMISC)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_SOLBRNR) // MFILE_SCBSEXPC ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_SOLBRNR, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_SMAGE || i == MT_OMAGE) {
+				if (missiledata[mm].mFileNum != MFILE_MAGEMIS)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_MAGE) // MFILE_MAGEEXP ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_MAGE, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_DIABLO) {
+				if (missiledata[mm].mFileNum != MFILE_FIREPLAR)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+#ifdef HELLFIRE
+			} else if (i == MT_SKLWING) {
+				/*if (mm != MIS_BONEDEMON) // MFILE_EXORA1_B ?
+					app_fatal("AI_...");
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA_B)
+					app_fatal("AI_...");*/
+			} else if (i == MT_BONEDEMN) {
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA_B)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_BONEDEMON) // MFILE_EXORA1_B ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_BONEDEMON, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_PSYCHORB) {
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_PSYCHORB) // MFILE_EXORA1 ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_PSYCHORB, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_NECRMORB) {
+				if (missiledata[mm].mFileNum != MFILE_MS_REB_B)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_NECROMORB) // MFILE_EXYEL2_B ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_NECROMORB, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_LICH) {
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA_A)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_LICH) // MFILE_EXORA1_A ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_LICH, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_ARCHLICH) {
+				if (missiledata[mm].mFileNum != MFILE_MS_YEB_A)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_ARCHLICH) // MFILE_EXYEL2_A ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_ARCHLICH, md.mName, i); // required by InitMonsterGFX
+#endif
+			} else if (misfiledata[missiledata[mm].mFileNum].mfFlags & MFLAG_HIDDEN) {
+				app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+			}
+#ifdef HELLFIRE
+		} else if (md.mAI.aiType == AI_HORKDMN) {
+			if (i != MT_HORKDMN)
+				app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", MFILE_SPAWNS, md.mName, i); // required by InitMonsterGFX
+#endif
 		}
 		if (md.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitMonsterStats
 			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
@@ -775,6 +900,23 @@ void ValidateData()
 			app_fatal("Too high mmaxhp %d for %s (%d)", um.mmaxhp, um.mName, i);
 		if (monsterdata[um.mtype].mExp > UINT_MAX / (um.muLevel + HELL_LEVEL_BONUS)) // required by InitUniqueMonster
 			app_fatal("Too high mExp %d for unique monster %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
+		int umm = MonsterAiMissile(um.mAI);
+		if (umm >= 0 && (misfiledata[missiledata[umm].mFileNum].mfFlags & MFLAG_HIDDEN)) {
+			int bmm = MonsterAiMissile(monsterdata[um.mtype].mAI);
+			if (umm != bmm) {
+#ifdef HELLFIRE
+				if (um.mtype == MT_SKLWING && umm == MIS_BONEDEMON)
+					sklwingBoned = true;
+				else
+#endif
+					app_fatal("Missile %d animation for unique monster %s (%d) might not be loaded.", umm, um.mName, i); // required by InitMonsterGFX
+			}
+#ifdef HELLFIRE
+		} else if (um.mAI.aiType == AI_HORKDMN) {
+			if (um.mtype != MT_HORKDMN)
+				app_fatal("Missile %d animation for unique monster %s (%d) might not be loaded.", MFILE_SPAWNS, um.mName, i); // required by InitMonsterGFX
+#endif
+		}
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
@@ -785,6 +927,10 @@ void ValidateData()
 		if (um.mmaxhp < monsterdata[um.mtype].mMaxHP)
 			DoLog("Warn: Low mmaxhp %d for %s (%d): lower than mMaxHP %d.", um.mmaxhp, um.mName, i, monsterdata[um.mtype].mMaxHP);
 	}
+#ifdef HELLFIRE
+	if (!sklwingBoned || !(misfiledata[missiledata[MIS_BONEDEMON].mFileNum].mfFlags & MFLAG_HIDDEN))
+		app_fatal("Loading optional missile for MT_SKLWING monsters is no longer necessary."); // required by InitMonsterGFX
+#endif
 #endif
 	// items
 	if (AllItemList[IDI_HEAL].iMiscId != IMISC_HEAL)
@@ -1701,6 +1847,36 @@ void ValidateData()
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
+	// requirements by InitMonsterGFX
+	assert(misfiledata[MFILE_MAGBALL].mfFlags & MFLAG_HIDDEN);
+	// assert(misfiledata[MFILE_KRULL].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_THINLGHT].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_ACIDBF].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_ACIDSPLA].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_ACIDPUD].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SCUBMISB].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SCBSEXPB].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SCUBMISD].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SCBSEXPD].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SCUBMISC].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SCBSEXPC].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_MAGEMIS].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_MAGEEXP].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_FIREPLAR].mfFlags & MFLAG_HIDDEN);
+#ifdef HELLFIRE
+	assert(misfiledata[MFILE_MS_ORA_B].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_EXORA1_B].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_MS_ORA].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_EXORA1].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_MS_REB_B].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_EXYEL2_B].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_SPAWNS].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_MS_ORA_A].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_EXORA1_A].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_MS_YEB_A].mfFlags & MFLAG_HIDDEN);
+	assert(misfiledata[MFILE_EXYEL2_A].mfFlags & MFLAG_HIDDEN);
+#endif
+	// -- requirements by InitMonsterGFX end
 	// players
 	assert(PlrAnimFrameLens[PGX_WALK] == 1); // required by PlrDoWalk
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1); // required by PlrDoAttack, PlrDoRangeAttack
