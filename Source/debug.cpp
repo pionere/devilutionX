@@ -1557,6 +1557,8 @@ void ValidateData()
 		const MissileData& md = missiledata[i];
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
+		if (md.mAddProc == AddCharge && md.mdPrSpeed != (int)(MIS_SHIFTEDVEL(16) / M_SQRT2))
+			app_fatal("Charge-Missile %d has invalid projectile-speed (%d, expected %d).", i, md.mdPrSpeed, (int)(MIS_SHIFTEDVEL(16) / M_SQRT2));
 		if (md.mAddProc == AddMisexp) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
