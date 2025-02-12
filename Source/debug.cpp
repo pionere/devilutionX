@@ -638,6 +638,12 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
+		for (int n = 0; n < NUM_MON_ANIM; n++) {
+			if (n != MA_SPECIAL && md.moAnimFrames[n] == 0 && i != MOFILE_GOLEM)
+				app_fatal("moAnimFrames[%d] is not set for %s (%d).", n, md.moGfxFile, i);
+			if (n != MA_SPECIAL && md.moAnimFrameLen[n] == 0)
+				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
+		}
 		if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
 			app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
@@ -652,6 +658,8 @@ void ValidateData()
 			app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_SPECIAL] == 0 && md.moAFNum2 != 0)
 			app_fatal("moAFNum2 is set for %s (%d), but it has no special animation.", md.moGfxFile, i);
+		if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
+			app_fatal("Inconsistent moAnimFrames/moAnimFrameLen settings for the special animation %s (%d).", md.moGfxFile, i);
 	}
 #endif
 	// umt checks for GetLevelMTypes
