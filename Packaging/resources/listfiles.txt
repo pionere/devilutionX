@@ -826,7 +826,7 @@ Monsters\Hellbat2\bhelbta.CL2
 Monsters\Hellbat2\bhelbtd.CL2
 Monsters\Hellbat2\bhelbth.CL2
 Monsters\Hellbat2\bhelbtn.CL2
-Monsters\Hellbat2\bhelbts.CL2
+_Monsters\Hellbat2\bhelbts.CL2
 Monsters\Hellbat2\bhelbtw.CL2
 Monsters\Hellbug\Hellbga.CL2
 Monsters\Hellbug\Hellbgd.CL2

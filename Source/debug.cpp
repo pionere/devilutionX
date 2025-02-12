@@ -132,6 +132,23 @@ static int MonsterAiMissile(const MonsterAI &mai)
 	return -1;
 }
 
+static bool MonsterAiSpecial(const MonsterAI &mai, int animNum)
+{
+	if (mai.aiType == AI_FALLEN || mai.aiType == AI_SKELKING || mai.aiType == AI_ROUNDRANGED || mai.aiType == AI_ROUNDRANGED2
+		|| mai.aiType == AI_SNEAK || mai.aiType == AI_SCAV || mai.aiType == AI_MAGE || mai.aiType == AI_GARG || mai.aiType == AI_FAT
+		|| mai.aiType == AI_COUNSLR || mai.aiType == AI_ZHAR || mai.aiType == AI_LAZARUS
+#ifdef HELLFIRE
+		|| mai.aiType == AI_HORKDMN
+#endif
+		|| ((mai.aiType == AI_SNAKE || mai.aiType == AI_RHINO || mai.aiType == AI_BAT) && animNum == MOFILE_RHINO)
+		|| (mai.aiType == AI_RANGED && mai.aiParam2)
+		|| (mai.aiType == AI_ROUND && mai.aiParam1))
+
+		return true;
+
+	return false;
+}
+
 static BYTE GetUniqueItemPower(const UniqItemData& ui, int index)
 {
 	switch (index) {
@@ -550,6 +567,7 @@ void ValidateData()
 			if (md.mAI.aiType != AI_GARG)
 				app_fatal("GARG_STONE flag is not supported by the AI of %s (%d).", md.mName, i);
 		}
+		// check missile animations of the monsters
 		int mm = MonsterAiMissile(md.mAI);
 		if (mm >= 0) {
 			bool hiddenAnim = (misfiledata[missiledata[mm].mFileNum].mfFlags & MFLAG_HIDDEN) != 0;
@@ -787,6 +805,29 @@ void ValidateData()
 			app_fatal("moAFNum2 is set for %s (%d), but it has no special animation.", md.moGfxFile, i);
 		if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
 			app_fatal("Inconsistent moAnimFrames/moAnimFrameLen settings for the special animation %s (%d).", md.moGfxFile, i);
+		// check if the special animation is used
+		bool spUsed = false;
+		for (int n = 0; n < NUM_MTYPES; n++) {
+			const MonsterData& msd = monsterdata[n];
+			if (msd.moFileNum != i) continue;
+			if (IsSkel(n) || n == MT_GOLEM || MonsterAiSpecial(msd.mAI, i)) {
+				if (md.moAnimFrames[MA_SPECIAL] == 0)
+					app_fatal("Missing special animation for monster %s (%d)", msd.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
+				spUsed = true;
+			}
+		}
+		for (int n = 0; uniqMonData[n].mtype != MT_INVALID; n++) {
+			const UniqMonData& um = uniqMonData[n];
+			if (monsterdata[um.mtype].moFileNum != i) continue;
+			if (MonsterAiSpecial(um.mAI, i)) {
+				if (md.moAnimFrames[MA_SPECIAL] == 0)
+					app_fatal("Missing special animation for unique monster %s (%d)", um.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
+				spUsed = true;
+			}
+		}
+		if (md.moAnimFrames[MA_SPECIAL] != 0 && !spUsed) {
+			app_fatal("Unused special animation for %s (%d)", md.moGfxFile, i);
+		}
 	}
 #endif
 	// umt checks for GetLevelMTypes
