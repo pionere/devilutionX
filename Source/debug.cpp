@@ -1787,6 +1787,11 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
+		if (md.mProc == MI_Inferno) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 24);
+			}
+		}
 		if (md.mProc == MI_Cbolt) {
 			assert(md.mdPrSpeed == missiledata[MIS_CBOLT].mdPrSpeed);
 		}
@@ -1798,6 +1803,43 @@ void ValidateData()
 		}
 		if (md.mProc == MI_Mage) {
 			assert(md.mdPrSpeed == missiledata[MIS_MAGE].mdPrSpeed);
+		}
+		if (md.mProc == MI_Acidpud)
+			assert(md.mFileNum == MFILE_ACIDPUD);
+		if (md.mProc == MI_BloodBoil) {
+			assert(md.mAddProc == AddBloodBoil);
+			// assert(md.mFileNum == MFILE_BLODBURS);
+		}
+		if (md.mProc == MI_Firewall || md.mProc == MI_FireWave)
+			assert(md.mFileNum == MFILE_FIREWAL);
+		if (md.mProc == MI_Flash)
+			assert(md.mFileNum == MFILE_BLUEXFR);
+		if (md.mProc == MI_Flash2)
+			assert(md.mFileNum == MFILE_BLUEXBK);
+		if (md.mProc == MI_Guardian) {
+			assert(md.mFileNum == MFILE_GUARD);
+			assert(misfiledata[md.mFileNum].mfAnimFAmt == 3);
+		}
+		if (md.mProc == MI_Portal) {
+			for (int j = 0; j < 16; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_PORTAL].mfAnimLen[j]);
+			}
+		}		
+		if (md.mProc == MI_Resurrect)
+			assert(md.mFileNum == MFILE_RESSUR1);
+		if (md.mProc == MI_Shroud)
+			assert(md.mFileNum == MFILE_SHROUD);
+		if (md.mProc == MI_Wind)
+			assert(md.mFileNum == MFILE_WIND);
+		if (md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_FireWave || md.mProc == MI_Flash || md.mProc == MI_Flash2
+		 || md.mProc == MI_Guardian || md.mProc == MI_Portal || md.mProc == MI_Shroud || md.mProc == MI_Wind || md.mProc == MI_Resurrect) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				if (misfiledata[md.mFileNum].mfAnimFrameLen[j] != 1)
+					app_fatal("Animated-Missile %d depending on mfAnimFrameLen is not a single stepper (%d: %d).", i, j, misfiledata[md.mFileNum].mfAnimFrameLen[j]);
+			}
+		}
+		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
+			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
 		}
 		if (md.mdFlags & MIF_ARROW) {
 			if (md.mAddProc != AddArrow)
@@ -1863,28 +1905,36 @@ void ValidateData()
 	assert(missiledata[MIS_SWAMP].mdPrSpeed == 0);               // required by MI_BloodBoilC
 	assert(missiledata[MIS_STONE].mdPrSpeed == 0);               // required by MI_Rune
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
 	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);                                      // required by MI_Firewall
 	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);                                             // required by MI_Firewall
-	assert(misfiledata[MFILE_WIND].mfAnimFrameLen[0] == 1);                                      // required by MI_Wind
 	assert(misfiledata[MFILE_WIND].mfAnimLen[0] == 12);                                          // required by AddWind + GetDamageAmt to set/calculate damage
-	assert(misfiledata[MFILE_SHROUD].mfAnimFrameLen[0] == 1);                                    // required by MI_Shroud
 	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);               // required by MI_Portal
 	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);                // required by MI_Portal
 	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);   // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1);                                    // required by MI_Portal
-	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Portal
-	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash
-	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash2
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_FireWave
 	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);                                    // required by MI_Meteor
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1);                                     // required by MI_Guardian
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);                 // required by MI_Guardian
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1);                                     // required by MI_Guardian
-	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);                                        // required by MI_Inferno
+	assert(misfiledata[MFILE_LGHNING].mfAnimFAmt == 1);                                          // required by MI_Cbolt
+	assert(misfiledata[MFILE_SHATTER1].mfAnimFAmt == 1);                                         // required by MI_Stone
+	assert(misfiledata[MFILE_ARROWS].mfAnimLen[0] == 16);                                        // required by AddArrow
+	assert(misfiledata[MFILE_FARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[MFILE_LARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[MFILE_MARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[MFILE_PARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[missiledata[MIS_EXFIRE].mFileNum].mfAnimFAmt < NUM_DIRS);                 // required by AddElementalExplosion
+	assert(misfiledata[missiledata[MIS_EXLGHT].mFileNum].mfAnimFAmt < NUM_DIRS);                 // required by AddElementalExplosion
+	assert(misfiledata[missiledata[MIS_EXMAGIC].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by AddElementalExplosion
+	assert(misfiledata[missiledata[MIS_EXACID].mFileNum].mfAnimFAmt < NUM_DIRS);                 // required by AddElementalExplosion
 	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acidsplat
+	assert(misfiledata[missiledata[MIS_EXACIDP].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acid
+	assert(misfiledata[missiledata[MIS_LIGHTNING].mFileNum].mfAnimFAmt < NUM_DIRS);              // required by MI_LightningC
+	assert(misfiledata[missiledata[MIS_LIGHTNING2].mFileNum].mfAnimFAmt < NUM_DIRS);             // required by MI_LightningC
+	assert(misfiledata[missiledata[MIS_FIREWAVE].mFileNum].mfAnimFAmt < NUM_DIRS);               // required by AddFireWaveC
+	assert(misfiledata[missiledata[MIS_FIREWALL].mFileNum].mfAnimFAmt < NUM_DIRS);               // required by AddRingC, MI_WallC, MI_Meteor
+	assert(misfiledata[missiledata[MIS_LIGHTBALL].mFileNum].mfAnimFAmt < NUM_DIRS);              // required by AddNovaC
+	assert(misfiledata[missiledata[MIS_BLEED].mFileNum].mfAnimFAmt < NUM_DIRS);                  // required by MonHitByPlr, PlrHitByAny
+	assert(misfiledata[missiledata[MIS_FIREBOLT].mFileNum].mfAnimFAmt == 16 && missiledata[MIS_FIREBOLT].mdPrSpeed != 0); // required by Sentfire
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
