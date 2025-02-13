@@ -98,7 +98,7 @@ SFXStruct sgSFX[NUM_SFXS] = {
 /*IS_SWRDFKD*/// { sfx_MISC,                  "Sfx\\Items\\Swrdfkd.wav",     { 0, NULL } },
 /*IS_TITLEMOV*/  { sfx_UI,                    "Sfx\\Items\\Titlemov.wav",    { 0, NULL } },
 /*IS_TITLSLCT*/  { sfx_UI,                    "Sfx\\Items\\Titlslct.wav",    { 0, NULL } },
-/*SFX_SILENCE*/  { sfx_UI,                    "Sfx\\Misc\\blank.wav",        { 0, NULL } },
+/*SFX_SILENCE*/  { sfx_MISC,                  "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 /*IS_TRAP*/      { sfx_MISC,                  "Sfx\\Items\\Trap.wav",        { 0, NULL } },
 /*IS_CAST1*///   { sfx_MISC,                  "Sfx\\Misc\\Cast1.wav",        { 0, NULL } },
 /*IS_CAST10*///  { sfx_MISC,                  "Sfx\\Misc\\Cast10.wav",       { 0, NULL } },

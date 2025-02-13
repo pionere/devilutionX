@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 #ifndef NOSOUND
-extern SFXStruct sgSFX[62];
+extern SFXStruct sgSFX[61];
 #endif
 
 #ifdef __cplusplus

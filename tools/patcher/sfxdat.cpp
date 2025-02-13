@@ -12,7 +12,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** List of all sounds, except monsters and music */
-SFXStruct sgSFX[62] = {
+SFXStruct sgSFX[61] = {
 	// clang-format off
 //_sfx_id           bFlags,                   pszName,                       pSnd
 /*PS_WALK1*/     { sfx_MISC,                  "Sfx\\Misc\\Walk1.wav",        { 0, NULL } },
@@ -94,7 +94,6 @@ SFXStruct sgSFX[62] = {
 /*IS_SWRDFKD*/// { sfx_MISC,                  "Sfx\\Items\\Swrdfkd.wav",     { 0, NULL } },
 /*IS_TITLEMOV*/  { sfx_UI,                    "Sfx\\Items\\Titlemov.wav",    { 0, NULL } },
 /*IS_TITLSLCT*/  { sfx_UI,                    "Sfx\\Items\\Titlslct.wav",    { 0, NULL } },
-/*SFX_SILENCE*/  { sfx_UI,                    "Sfx\\Misc\\blank.wav",        { 0, NULL } },
 	// clang-format on
 };
 
