@@ -14,7 +14,6 @@ extern "C" {
 
 extern const MissileData missiledata[];
 extern const MisFileData misfiledata[NUM_MFILE + 1];
-extern BYTE* misanimdata[NUM_MFILE + 1][16];
 
 #ifdef __cplusplus
 }

@@ -217,9 +217,6 @@ const MisFileData misfiledata[NUM_MFILE + 1] = {
 	// clang-format on
 };
 
-// container for live data of missile-animations
-BYTE* misanimdata[NUM_MFILE + 1][16] = { { 0 } };
-
 /* Unused missile graphic:
 // anim_index      mfAnimFAmt, mfName,      mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth[16],                                                            mfAnimXOffset[16]
 ..MFILE_BLOOD..     {       4, "Blood",     0,                     { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 15,  8,  8,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, {  96, 128, 128, 128,   0,   0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0 }, {  16, 32, 32, 32,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
