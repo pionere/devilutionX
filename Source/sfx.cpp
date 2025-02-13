@@ -50,7 +50,7 @@ static void StartStreamSFX(int nsfx, int lVolume, int lPan)
 	StopStreamSFX();
 	sgpStreamSFX = nsfx;
 
-	sound_stream(sfxdata[nsfx].pszName, &sgSndSamples[nsfx], lVolume, lPan);
+	sound_stream(sfxfiledata[nsfx].pszName, &sgSndSamples[nsfx], lVolume, lPan);
 }
 
 void CheckStreamSFX()
@@ -144,7 +144,7 @@ static void PlaySfx_priv(int nsfx, bool loc, int x, int y)
 	/* not necessary, since non-streamed sfx should be loaded at this time
 	   streams are loaded in StartStreamSFX
 	if (!sgSndSamples[nsfx].IsLoaded()) {
-		sound_file_load(pSFX->pszName, &sgSndSamples[nsfx]);
+		sound_file_load(sfxfiledata[nsfx].pszName, &sgSndSamples[nsfx]);
 		// assert(sgSndSamples[nsfx].IsLoaded());
 	}*/
 	if (pSFX->bFlags & sfx_STREAM) {
@@ -223,7 +223,7 @@ void PlayWalkSfx(int pnum)
 static void priv_sound_free(BYTE bLoadMask)
 {
 	int i;
-
+	static_assert(lengthof(sfxdata) == lengthof(sgSndSamples), "priv_sound_free must traverse sgSndSamples parallel to sfxdata");	
 	for (i = 0; i < lengthof(sfxdata); i++) {
 		if (/*sgSndSamples[i].IsLoaded() &&*/ (sfxdata[i].bFlags & bLoadMask)) {
 			sgSndSamples[i].Release();
@@ -236,7 +236,8 @@ static void priv_sound_init(BYTE bLoadMask)
 	int i;
 
 	assert(gbSndInited);
-
+	static_assert(lengthof(sfxdata) == lengthof(sfxfiledata), "priv_sound_init must traverse sfxfiledata parallel to sfxdata");
+	static_assert(lengthof(sfxdata) == lengthof(sgSndSamples), "priv_sound_init must traverse sgSndSamples parallel to sfxdata");	
 	for (i = 0; i < lengthof(sfxdata); i++) {
 		if ((sfxdata[i].bFlags & bLoadMask) != sfxdata[i].bFlags) {
 			continue;
@@ -244,7 +245,7 @@ static void priv_sound_init(BYTE bLoadMask)
 
 		assert(!sgSndSamples[i].IsLoaded());
 
-		sound_file_load(sfxdata[i].pszName, &sgSndSamples[i]);
+		sound_file_load(sfxfiledata[i].pszName, &sgSndSamples[i]);
 	}
 }
 

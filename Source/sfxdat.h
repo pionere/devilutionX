@@ -20,6 +20,7 @@ extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 
 #ifndef NOSOUND
 extern const SFXData sfxdata[NUM_SFXS];
+extern const SFXFileData sfxfiledata[NUM_SFXS];
 #endif
 
 #ifdef __cplusplus
