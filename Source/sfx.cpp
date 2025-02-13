@@ -129,7 +129,7 @@ static bool calc_snd_position(int x, int y, int* plVolume, int* plPan)
 static void PlaySfx_priv(int nsfx, bool loc, int x, int y)
 {
 	int lPan, lVolume;
-	const SFXStruct* pSFX;
+	const SFXData* pSFX;
 
 	if (!gbSoundOn || gbLvlLoad)
 		return;

@@ -45,7 +45,7 @@ static void StartStreamSFX(int nsfx, int lVolume, int lPan)
 static void PlaySfx_priv(int nsfx)
 {
 	int lPan, lVolume;
-	const SFXStruct* pSFX;
+	const SFXData* pSFX;
 
 	if (!gbSoundOn)
 		return;

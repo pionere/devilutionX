@@ -19,7 +19,7 @@ extern "C" {
 extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 
 #ifndef NOSOUND
-extern const SFXStruct sfxdata[NUM_SFXS];
+extern const SFXData sfxdata[NUM_SFXS];
 #endif
 
 #ifdef __cplusplus

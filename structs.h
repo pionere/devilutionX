@@ -599,10 +599,10 @@ typedef struct SoundSample final {
 	//int TrackLength();
 } SoundSample;
 
-typedef struct SFXStruct {
+typedef struct SFXData {
 	BYTE bFlags; // sfx_flag
 	const char* pszName;
-} SFXStruct;
+} SFXData;
 
 //////////////////////////////////////////////////
 // monster
