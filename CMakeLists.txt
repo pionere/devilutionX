@@ -452,7 +452,6 @@ set(devilutionx_SRCS
   Source/drlg_l4.cpp
   #Source/dthread.cpp
   Source/dx.cpp
-  Source/effects.cpp
   Source/encrypt.cpp
   Source/engine.cpp
   Source/error.cpp
@@ -493,6 +492,7 @@ set(devilutionx_SRCS
   Source/quests.cpp
   Source/scrollrt.cpp
   Source/sha.cpp
+  Source/sfx.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
@@ -612,7 +612,7 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/effects_test.cpp
+    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -662,7 +662,6 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/effects.cpp
     tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
@@ -673,6 +672,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
+    tools/patcher/sfx.cpp
     tools/patcher/sound.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp

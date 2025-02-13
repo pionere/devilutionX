@@ -1,5 +1,5 @@
 /**
- * @file effects.cpp
+ * @file sfx.cpp
  *
  * Implementation of functions for loading and playing sounds.
  */

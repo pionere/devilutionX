@@ -1,10 +1,10 @@
 /**
- * @file effects.h
+ * @file sfx.h
  *
  * Interface of functions for loading and playing sounds.
  */
-#ifndef __EFFECTS_H__
-#define __EFFECTS_H__
+#ifndef __SFX_H__
+#define __SFX_H__
 
 #ifdef NOSOUND
 #include "engine.h"
@@ -60,4 +60,4 @@ inline void FreeUiSFX() { }
 
 DEVILUTION_END_NAMESPACE
 
-#endif /* __EFFECTS_H__ */
+#endif /* __SFX_H__ */
