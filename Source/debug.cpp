@@ -1632,6 +1632,8 @@ void ValidateData()
 #endif
 
 	// spells
+	assert(SFX_VALID(spelldata[SPL_DISARM].sSFX)); // required by On_DISARMXY
+	assert(SFX_VALID(spelldata[SPL_TELEKINESIS].sSFX)); // required by DoTelekinesis
 	assert(spelldata[SPL_RESURRECT].sManaCost == 0); // required by GetItemSpell
 	assert(!(spelldata[SPL_HEAL].sUseFlags & SFLAG_DUNGEON)); // required by UseBeltItem
 	assert(spelldata[SPL_TELEPORT].sSkillFlags & SDFLAG_TARGETED); // required by AddTeleport
@@ -1737,6 +1739,10 @@ void ValidateData()
 			app_fatal("Skill %s (%d) supposed to use a missile, but neither sType nor the SFLAG_RANGED-flag is set.", sd.sNameText, i);
 		//if (!(sd.sUseFlags & SFLAG_DUNGEON) && sd.sType != STYPE_NONE && sd.sType != STYPE_MAGIC && i != SPL_NULL)
 		//	app_fatal("GFX is not loaded in town for skill %s (%d).", sd.sNameText, i); // required by InitPlayerGFX
+		if (sd.sType != STYPE_NONE && !SFX_VALID(sd.sSFX))
+			app_fatal("Skill %s (%d) does not have a valid sfx-id.", sd.sNameText, i); // required by On_SKILLXY, On_SKILLRXY, On_SKILLMON, On_SKILLPLR
+		if ((sd.sMissile == MIS_OPITEM || sd.sMissile == MIS_REPAIR) && !SFX_VALID(sd.sSFX))
+			app_fatal("Item-Skill %s (%d) does not have a valid sfx-id.", sd.sNameText, i); // required by On_OPERATEITEM
 	}
 	if (!hasBookSpell)
 		app_fatal("No book spell for GetBookSpell.");
