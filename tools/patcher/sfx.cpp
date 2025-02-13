@@ -16,7 +16,7 @@ static int sgpStreamSFX = SFX_NONE;
 
 void StopStreamSFX()
 {
-	if (sgpStreamSFX != SFX_NONE) {
+	if (SFX_VALID(sgpStreamSFX)) {
 		Mix_HaltChannel(SFX_STREAM_CHANNEL);
 		sgSFX[sgpStreamSFX].pSnd.Release();
 		sgpStreamSFX = SFX_NONE;

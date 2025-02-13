@@ -28,7 +28,7 @@ bool IsSfxPlaying(int nsfx)
 
 void StopStreamSFX()
 {
-	if (sgpStreamSFX != SFX_NONE) {
+	if (SFX_VALID(sgpStreamSFX)) {
 		Mix_HaltChannel(SFX_STREAM_CHANNEL);
 		sgSFX[sgpStreamSFX].pSnd.Release();
 		sgpStreamSFX = SFX_NONE;
@@ -55,7 +55,7 @@ static void StartStreamSFX(int nsfx, int lVolume, int lPan)
 
 void CheckStreamSFX()
 {
-	if (sgpStreamSFX != SFX_NONE && !sgSFX[sgpStreamSFX].pSnd.IsPlaying()) {
+	if (SFX_VALID(sgpStreamSFX) && !sgSFX[sgpStreamSFX].pSnd.IsPlaying()) {
 		StopStreamSFX();
 	}
 }

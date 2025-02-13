@@ -1361,7 +1361,7 @@ static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 		if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
 			mis->_miRange = -1;
 		mds = &missiledata[mis->_miType];
-		if (mds->miSFX != SFX_NONE)
+		if (SFX_VALID(mds->miSFX))
 			PlaySfxLocN(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
 	}
 	return hit;
@@ -3401,7 +3401,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miAnimAdd = 1;
 	mis->_miLid = NO_LIGHT;
 
-	if (mds->mlSFX != SFX_NONE) {
+	if (SFX_VALID(mds->mlSFX)) {
 		PlaySfxLocN(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
 	}
 

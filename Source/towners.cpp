@@ -129,7 +129,7 @@ static int CowPlaying = SFX_NONE;
 
 static void CowSFX(MonsterStruct* cow, int pnum)
 {
-	if (CowPlaying != SFX_NONE && IsSfxPlaying(CowPlaying))
+	if (SFX_VALID(CowPlaying) && IsSfxPlaying(CowPlaying))
 		return;
 
 	_guCowClicks++;

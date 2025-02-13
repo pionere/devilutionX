@@ -12,6 +12,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static_assert(NUM_SFXS <= INT_MAX, "SFX_VALID checks only the sign of the SFX_-value I.");
+static_assert(SFX_NONE < 0, "SFX_VALID checks only the sign of the SFX_-value II.");
+#define SFX_VALID(x) (x >= 0)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
