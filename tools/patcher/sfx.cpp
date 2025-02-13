@@ -14,15 +14,6 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Specifies the sound file and the playback state of the current sound effect. */
 static SFXStruct* sgpStreamSFX = NULL;
 
-bool IsSfxPlaying(int nsfx)
-{
-	SFXStruct* pSFX = &sgSFX[nsfx];
-
-	if (pSFX->bFlags & sfx_STREAM)
-		return pSFX == sgpStreamSFX;
-	return pSFX->pSnd.IsPlaying();
-}
-
 void StopStreamSFX()
 {
 	if (sgpStreamSFX != NULL) {
@@ -49,13 +40,6 @@ static void StartStreamSFX(SFXStruct* pSFX, int lVolume, int lPan)
 	sgpStreamSFX = pSFX;
 
 	sound_stream(pSFX->pszName, &pSFX->pSnd, lVolume, lPan);
-}
-
-void CheckStreamSFX()
-{
-	if (sgpStreamSFX != NULL && !sgpStreamSFX->pSnd.IsPlaying()) {
-		StopStreamSFX();
-	}
 }
 
 static void PlaySfx_priv(int nsfx)
