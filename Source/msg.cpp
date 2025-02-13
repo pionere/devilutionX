@@ -2590,7 +2590,7 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 		const BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
-	net_assert(skill < NUM_SPELLS && spelldata[skill].sMissile == MIS_OPITEM);
+	net_assert(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
 	net_assert((BYTE)from < NUM_INVELEM ||
 		(from == SPLFROM_ABILITY && skill != SPL_OIL));
 	net_assert(cii < NUM_INVELEM);
