@@ -602,7 +602,6 @@ typedef struct SoundSample final {
 typedef struct SFXStruct {
 	BYTE bFlags; // sfx_flag
 	const char* pszName;
-	SoundSample pSnd;
 } SFXStruct;
 
 //////////////////////////////////////////////////

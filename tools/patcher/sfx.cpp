@@ -14,11 +14,13 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Specifies the currently streamed sound effect. */
 static int sgpStreamSFX = SFX_NONE;
 
+static SoundSample sgSndSamples[61] = { };
+
 void StopStreamSFX()
 {
 	if (SFX_VALID(sgpStreamSFX)) {
 		Mix_HaltChannel(SFX_STREAM_CHANNEL);
-		sgSFX[sgpStreamSFX].pSnd.Release();
+		sgSndSamples[sgpStreamSFX].Release();
 		sgpStreamSFX = SFX_NONE;
 	}
 }
@@ -32,19 +34,18 @@ void StopSFX()
 static void StartStreamSFX(int nsfx, int lVolume, int lPan)
 {
 	// assert(sgSFX[nsfx].bFlags & sfx_STREAM);
-	// assert(sgSFX[nsfx].pSnd != NULL);
 	if (nsfx == sgpStreamSFX)
 		return;
 	StopStreamSFX();
 	sgpStreamSFX = nsfx;
 
-	sound_stream(sgSFX[nsfx].pszName, &sgSFX[nsfx].pSnd, lVolume, lPan);
+	sound_stream(sgSFX[nsfx].pszName, &sgSndSamples[nsfx], lVolume, lPan);
 }
 
 static void PlaySfx_priv(int nsfx)
 {
 	int lPan, lVolume;
-	SFXStruct* pSFX;
+	const SFXStruct* pSFX;
 
 	if (!gbSoundOn)
 		return;
@@ -55,20 +56,20 @@ static void PlaySfx_priv(int nsfx)
 	pSFX = &sgSFX[nsfx];
 	/* not necessary, since non-streamed sfx should be loaded at this time
 	   streams are loaded in StartStreamSFX
-	if (!pSFX->pSnd.IsLoaded()) {
-		sound_file_load(pSFX->pszName, &pSFX->pSnd);
-		// assert(pSFX->pSnd.IsLoaded());
+	if (!sgSndSamples[nsfx].IsLoaded()) {
+		sound_file_load(pSFX->pszName, &sgSndSamples[nsfx]);
+		// assert(sgSndSamples[nsfx].IsLoaded());
 	}*/
 	if (pSFX->bFlags & sfx_STREAM) {
 		StartStreamSFX(nsfx, lVolume, lPan);
 		return;
 	}
-	assert(pSFX->pSnd.IsLoaded());
-	if (!(pSFX->bFlags & sfx_MISC) && pSFX->pSnd.IsPlaying()) {
+	assert(sgSndSamples[nsfx].IsLoaded());
+	if (!(pSFX->bFlags & sfx_MISC) && sgSndSamples[nsfx].IsPlaying()) {
 		return;
 	}
 
-	sound_play(&pSFX->pSnd, lVolume, lPan);
+	sound_play(&sgSndSamples[nsfx], lVolume, lPan);
 }
 
 void PlaySfx(int nsfx)
@@ -81,8 +82,8 @@ static void priv_sound_free(BYTE bLoadMask)
 	int i;
 
 	for (i = 0; i < lengthof(sgSFX); i++) {
-		if (/*sgSFX[i].pSnd.IsLoaded() &&*/ (sgSFX[i].bFlags & bLoadMask)) {
-			sgSFX[i].pSnd.Release();
+		if (/*sgSndSamples[i].IsLoaded() &&*/ (sgSFX[i].bFlags & bLoadMask)) {
+			sgSndSamples[i].Release();
 		}
 	}
 }
@@ -98,9 +99,9 @@ static void priv_sound_init(BYTE bLoadMask)
 			continue;
 		}
 
-		assert(!sgSFX[i].pSnd.IsLoaded());
+		assert(!sgSndSamples[i].IsLoaded());
 
-		sound_file_load(sgSFX[i].pszName, &sgSFX[i].pSnd);
+		sound_file_load(sgSFX[i].pszName, &sgSndSamples[i]);
 	}
 }
 
