@@ -12,7 +12,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** List of all sounds, except monsters and music */
-const SFXStruct sgSFX[61] = {
+const SFXStruct sfxdata[61] = {
 	// clang-format off
 //_sfx_id           bFlags,                   pszName
 /*PS_WALK1*/     { sfx_MISC,                  "Sfx\\Misc\\Walk1.wav" },
