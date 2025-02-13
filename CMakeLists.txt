@@ -493,6 +493,7 @@ set(devilutionx_SRCS
   Source/scrollrt.cpp
   Source/sha.cpp
   Source/sfx.cpp
+  Source/sfxdat.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
@@ -673,6 +674,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
     tools/patcher/sfx.cpp
+    tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
