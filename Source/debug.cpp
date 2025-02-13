@@ -6,6 +6,7 @@
 #include <chrono>
 #include "all.h"
 #include "misproc.h"
+#include "sfxdat.h"
 #include "engine/render/text_render.h"
 #include "dvlnet/packet.h"
 #include "utils/file_util.h"
@@ -478,6 +479,50 @@ void ValidateData()
 	}
 	assert(CrawlTable[CrawlNum[4]] == 24); // required by MAI_Scav
 	assert(CrawlTable[CrawlNum[3]] == 24); // required by AddNovaC
+	{	// sfx
+		static const int snSFX[3][NUM_CLASSES] = {
+			// clang-format off
+#ifdef HELLFIRE
+			{ PS_WARR52, PS_ROGUE52, PS_MAGE52, PS_MONK52, PS_ROGUE52, PS_WARR52 },
+			{ PS_WARR49, PS_ROGUE49, PS_MAGE49, PS_MONK49, PS_ROGUE49, PS_WARR49 },
+			{ PS_WARR50, PS_ROGUE50, PS_MAGE50, PS_MONK50, PS_ROGUE50, PS_WARR50 },
+#else
+			{ PS_WARR52, PS_ROGUE52, PS_MAGE52 },
+			{ PS_WARR49, PS_ROGUE49, PS_MAGE49 },
+			{ PS_WARR50, PS_ROGUE50, PS_MAGE50 },
+#endif
+			// clang-format on
+		};
+		for (i = 0; i < NUM_CLASSES; i++) {
+			assert(sfxdata[sgSFXSets[SFXS_PLR_08][i]].bFlags & sfx_STREAM); // required by TalkToTowner
+			assert(sfxdata[sgSFXSets[SFXS_PLR_09][i]].bFlags & sfx_STREAM); // required by TalkToTowner
+			for (int n = 0; n < lengthof(snSFX); n++) {
+				assert(sfxdata[snSFX[n][i]].bFlags & sfx_STREAM); // required by CowSFX
+			}
+		}
+		for (i = 0; i < lengthof(alltext); i++) {
+			int n = alltext[i].sfxnr;
+			if (alltext[i].txtsfxset) {
+				if ((unsigned)n >= NUM_SFXS)
+					app_fatal("Sfx-set (%d) of minitext %d is invalid (%s).", n, i, alltext[i].txtstr);
+				for (int c = 0; c < NUM_CLASSES; c++) {
+					if (!(sfxdata[sgSFXSets[n][c]].bFlags & sfx_STREAM))
+						app_fatal("Sfx-set (%d) of minitext %d is not streamed (%s) for class %d.", n, i, alltext[i].txtstr, c); // required by MonDoTalk, SpawnLoot
+				}
+			} else {
+				if ((unsigned)n >= NUM_SFXS)
+					app_fatal("Sfx (%d) of minitext %d is invalid (%s).", n, i, alltext[i].txtstr);
+				if (!(sfxdata[n].bFlags & sfx_STREAM))
+					app_fatal("Sfx (%d) of minitext %d is not streamed (%s).", n, i, alltext[i].txtstr); // required by MonDoTalk, SpawnLoot
+			}
+		}
+		assert(sfxdata[USFX_GARBUD4].bFlags & sfx_STREAM); // required by MAI_Garbud
+		assert(sfxdata[USFX_ZHAR2].bFlags & sfx_STREAM);   // required by MAI_Zhar
+		assert(sfxdata[USFX_SNOT3].bFlags & sfx_STREAM);   // required by MAI_SnotSpil
+		assert(sfxdata[USFX_LAZ1].bFlags & sfx_STREAM);    // required by MAI_Lazarus
+		assert(sfxdata[USFX_LACH3].bFlags & sfx_STREAM);   // required by MAI_Lachdanan
+		assert(sfxdata[USFX_WARLRD1].bFlags & sfx_STREAM); // required by MAI_Warlord
+	}
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;

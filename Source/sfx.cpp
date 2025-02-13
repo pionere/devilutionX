@@ -20,13 +20,18 @@ static SoundSample sgSndSamples[NUM_SFXS] = { };
 /** Maps from monster sfx to monster sound letter. */
 static const char MonstSndChar[NUM_MON_SFX] = { 'a', 'h', 'd', 's' };
 
+bool IsSfxStreaming(int nsfx)
+{
+	return nsfx == sgpStreamSFX;
+}
+#if 0
 bool IsSfxPlaying(int nsfx)
 {
 	if (sfxdata[nsfx].bFlags & sfx_STREAM)
 		return nsfx == sgpStreamSFX;
 	return sgSndSamples[nsfx].IsPlaying();
 }
-
+#endif
 void StopStreamSFX()
 {
 	if (SFX_VALID(sgpStreamSFX)) {

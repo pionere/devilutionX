@@ -23,7 +23,8 @@ extern "C" {
 extern const int sgSFXSets[NUM_SFXSets][NUM_CLASSES];
 
 #ifndef NOSOUND
-bool IsSfxPlaying(int nsfx);
+bool IsSfxStreaming(int nsfx);
+// bool IsSfxPlaying(int nsfx);
 void StopStreamSFX();
 void StopSFX();
 void CheckStreamSFX();
@@ -40,7 +41,8 @@ void InitUiSFX();
 void FreeGameSFX();
 void FreeUiSFX();
 #else
-inline bool IsSfxPlaying(int nsfx) { return false; }
+inline bool IsSfxStreaming(int nsfx) { return false; }
+// inline bool IsSfxPlaying(int nsfx) { return false; }
 inline void StopStreamSFX() { }
 inline void StopSFX() { }
 inline void CheckStreamSFX() { }

@@ -2084,7 +2084,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		CreateTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
-		//if (IsSfxPlaying(USFX_LAZ1)) // alltext[TEXT_VILE13].sfxnr
+		//if (IsSfxStreaming(USFX_LAZ1)) // alltext[TEXT_VILE13].sfxnr
 			StopStreamSFX();
 		break;
 	case UMT_SKELKING:
@@ -2110,7 +2110,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		break;
 	case UMT_DEFILER:
 		// assert(QuestStatus(Q_DEFILER));
-		//if (IsSfxPlaying(USFX_DEFILER8)) // alltext[TEXT_DEFILER5].sfxnr
+		//if (IsSfxStreaming(USFX_DEFILER8)) // alltext[TEXT_DEFILER5].sfxnr
 			StopStreamSFX();
 		// quests[Q_DEFILER]._qlog = FALSE;
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
@@ -2120,7 +2120,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		return;
 	case UMT_NAKRUL:
 		//    alltext[TEXT_NAKRUL4].sfxnr   alltext[TEXT_NAKRUL5].sfxnr   alltext[TEXT_NAKRUL?].sfxnr
-		//if (IsSfxPlaying(USFX_NAKRUL4) || IsSfxPlaying(USFX_NAKRUL5) || IsSfxPlaying(USFX_NAKRUL6))
+		//if (IsSfxStreaming(USFX_NAKRUL4) || IsSfxStreaming(USFX_NAKRUL5) || IsSfxStreaming(USFX_NAKRUL6))
 			StopStreamSFX();
 		quests[Q_NAKRUL]._qactive = QUEST_DONE;
 		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? QV_NAKRUL_DEADOPEN : QV_NAKRUL_DEAD; // set to new state so innocent monsters are not 'woke' -- does not sync if quest was done
@@ -2591,7 +2591,7 @@ static bool MonDoTalk(int mnum)
 	MonStartStand(mnum);
 	// assert(mon->_mgoal == MGOAL_TALKING);
 	mon->_mgoalvar1 = TRUE; // TALK_SPEAKING
-	if (!IsSfxPlaying(alltext[mon->_mgoalvar2].sfxnr)) // TALK_MESSAGE
+	if (!IsSfxStreaming(alltext[mon->_mgoalvar2].sfxnr)) // TALK_MESSAGE
 		StartQTextMsg(mon->_mgoalvar2, !IsMultiGame /*mon->_mListener == mypnum*/); // TALK_MESSAGE
 	return false;
 }
@@ -4210,7 +4210,7 @@ void MAI_Garbud(int mnum)
 		if (mon->_mgoalvar1) { // TALK_SPEAKING
 			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
 				//if (quests[Q_GARBUD]._qvar1 == QV_GARBUD_ATTACK && mon->_mVar8++ >= gnTicksRate * 6) {
-				if (quests[Q_GARBUD]._qvar1 == QV_GARBUD_ATTACK && (IsMultiGame || !IsSfxPlaying(USFX_GARBUD4))) { // alltext[TEXT_GARBUD4].sfxnr
+				if (quests[Q_GARBUD]._qvar1 == QV_GARBUD_ATTACK && (IsMultiGame || !IsSfxStreaming(USFX_GARBUD4))) { // alltext[TEXT_GARBUD4].sfxnr
 					mon->_mgoal = MGOAL_NORMAL;
 					// mon->_msquelch = SQUELCH_MAX;
 				}
@@ -4253,8 +4253,8 @@ void MAI_Zhar(int mnum)
 				}
 			}
 		}
-		//if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && mon->_mVar8++ >= gnTicksRate * 4/*!IsSfxPlaying(USFX_ZHAR2)*/) {
-		if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && (IsMultiGame || !IsSfxPlaying(USFX_ZHAR2))) { // alltext[TEXT_ZHAR2].sfxnr
+		//if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && mon->_mVar8++ >= gnTicksRate * 4/*!IsSfxStreaming(USFX_ZHAR2)*/) {
+		if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_ATTACK && (IsMultiGame || !IsSfxStreaming(USFX_ZHAR2))) { // alltext[TEXT_ZHAR2].sfxnr
 			// mon->_msquelch = SQUELCH_MAX;
 			mon->_mgoal = MGOAL_NORMAL;
 		}
@@ -4295,8 +4295,8 @@ void MAI_SnotSpil(int mnum)
 		return;
 	case QV_BANNER_TALK2:
 		//if (mon->_mVar8++ < gnTicksRate * 6) // MON_TIMER
-		//	return; // wait till the sfx is running, but don't rely on IsSfxPlaying
-		if (IsMultiGame || IsSfxPlaying(USFX_SNOT3)) // alltext[TEXT_BANNER12].sfxnr
+		//	return; // wait till the sfx is running, but don't rely on IsSfxStreaming
+		if (IsMultiGame || IsSfxStreaming(USFX_SNOT3)) // alltext[TEXT_BANNER12].sfxnr
 			return;
 		//if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmd(CMD_OPENSPIL);
@@ -4355,7 +4355,7 @@ void MAI_Lazarus(int mnum)
 				mon->_mmode = MM_TALK;
 				// mon->_mListener = mypnum;
 			} else { // TALK_SPEAKING  alltext[TEXT_VILE13].sfxnr
-				if (IsSfxPlaying(USFX_LAZ1) && myplr._pmode == PM_STAND) // myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
+				if (IsSfxStreaming(USFX_LAZ1) && myplr._pmode == PM_STAND) // myplr._px == LAZ_CIRCLE_X && myplr._py == LAZ_CIRCLE_Y)
 					return;
 				DRLG_ChangeMap(7, 20, 11, 22/*, false*/);
 				//RedoLightAndVision();
@@ -4398,7 +4398,7 @@ void MAI_Lachdanan(int mnum)
 
 	if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 		//if (mon->_mVar8++ >= gnTicksRate * 32) {
-		if (IsMultiGame || !IsSfxPlaying(USFX_LACH3)) { // alltext[TEXT_VEIL11].sfxnr
+		if (IsMultiGame || !IsSfxStreaming(USFX_LACH3)) { // alltext[TEXT_VEIL11].sfxnr
 			// mon->_mgoal = MGOAL_NORMAL;
 			MonKill(mnum, -1);
 		}
@@ -4438,9 +4438,9 @@ void MAI_Warlord(int mnum)
 		return;
 	case QV_WARLORD_TALK:
 		//if (mon->_mVar8++ < gnTicksRate * 8) // MON_TIMER
-		//	return; // wait till the sfx is running, but don't rely on IsSfxPlaying
+		//	return; // wait till the sfx is running, but don't rely on IsSfxStreaming
 		// assert(!IsMultiGame);
-		if (/*!IsMultiGame &&*/ IsSfxPlaying(USFX_WARLRD1)) // alltext[TEXT_WARLRD9].sfxnr
+		if (/*!IsMultiGame &&*/ IsSfxStreaming(USFX_WARLRD1)) // alltext[TEXT_WARLRD9].sfxnr
 			return;
 		quests[Q_WARLORD]._qvar1 = QV_WARLORD_ATTACK;
 		//if (mon->_mListener == mypnum || !plx(mon->_mListener)._pActive || plx(mon->_mListener)._pDunLevel != currLvl._dLevelIdx) {
