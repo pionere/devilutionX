@@ -11,15 +11,15 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Specifies the sound file and the playback state of the current sound effect. */
-static SFXStruct* sgpStreamSFX = NULL;
+/** Specifies the currently streamed sound effect. */
+static int sgpStreamSFX = SFX_NONE;
 
 void StopStreamSFX()
 {
-	if (sgpStreamSFX != NULL) {
+	if (sgpStreamSFX != SFX_NONE) {
 		Mix_HaltChannel(SFX_STREAM_CHANNEL);
-		sgpStreamSFX->pSnd.Release();
-		sgpStreamSFX = NULL;
+		sgSFX[sgpStreamSFX].pSnd.Release();
+		sgpStreamSFX = SFX_NONE;
 	}
 }
 
@@ -29,17 +29,16 @@ void StopSFX()
 	sound_stop();
 }
 
-static void StartStreamSFX(SFXStruct* pSFX, int lVolume, int lPan)
+static void StartStreamSFX(int nsfx, int lVolume, int lPan)
 {
-	// assert(pSFX != NULL);
-	// assert(pSFX->bFlags & sfx_STREAM);
-	// assert(pSFX->pSnd != NULL);
-	if (pSFX == sgpStreamSFX)
+	// assert(sgSFX[nsfx].bFlags & sfx_STREAM);
+	// assert(sgSFX[nsfx].pSnd != NULL);
+	if (nsfx == sgpStreamSFX)
 		return;
 	StopStreamSFX();
-	sgpStreamSFX = pSFX;
+	sgpStreamSFX = nsfx;
 
-	sound_stream(pSFX->pszName, &pSFX->pSnd, lVolume, lPan);
+	sound_stream(sgSFX[nsfx].pszName, &sgSFX[nsfx].pSnd, lVolume, lPan);
 }
 
 static void PlaySfx_priv(int nsfx)
@@ -61,7 +60,7 @@ static void PlaySfx_priv(int nsfx)
 		// assert(pSFX->pSnd.IsLoaded());
 	}*/
 	if (pSFX->bFlags & sfx_STREAM) {
-		StartStreamSFX(pSFX, lVolume, lPan);
+		StartStreamSFX(nsfx, lVolume, lPan);
 		return;
 	}
 	assert(pSFX->pSnd.IsLoaded());
