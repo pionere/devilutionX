@@ -39,7 +39,7 @@ void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
 void RemovePlrFromMap(int pnum);
 bool PlrCheckBlock(int pnum, int bmod, int sx, int sy);
-void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy);
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir);
 void SyncPlrKill(int pnum);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);

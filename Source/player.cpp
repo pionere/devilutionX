@@ -1587,10 +1587,8 @@ static void PlrGetKnockback(int pnum, int dir)
 	}
 }
 
-void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy)
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 {
-	int dir;
-
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
@@ -1604,7 +1602,6 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 		// dam = 0;
 	}
 
-	dir = GetDirection(plr._px, plr._py, sx, sy);
 	PlaySfxLocN(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
@@ -2035,7 +2032,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._px, plx(offp)._py);
+		PlrHitByAny(pnum, offp, dam, hitFlags, OPPOSITE(plx(offp)._pdir));
 	}
 	return true;
 }
@@ -2860,7 +2857,7 @@ void MissToPlr(int mi, bool hit)
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._px + (plr._px - mis->_misx), plr._py + (plr._py - mis->_misy));
+		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._pdir);
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
@@ -2936,7 +2933,7 @@ void MissToPlr(int mi, bool hit)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
-			PlrHitByAny(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			PlrHitByAny(mpnum, pnum, dam, hitFlags, OPPOSITE(plr._pdir));
 		}
 		return;
 	}

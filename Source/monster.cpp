@@ -2397,7 +2397,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
 		hitFlags = (mon->_mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MonHitPlr uses _mFlags as hitFlags.");
-		PlrHitByAny(pnum, mnum, dam, hitFlags, mon->_mx, mon->_my);
+		PlrHitByAny(pnum, mnum, dam, hitFlags, OPPOSITE(mon->_mdir));
 	}
 }
 
@@ -4775,7 +4775,7 @@ void MissToMonst(int mi)
 		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
 		MonHitPlr(mnum, pnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dPlayer[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			PlrHitByAny(pnum, mnum, 0, ISPL_KNOCKBACK, mis->_misx, mis->_misy);
+			PlrHitByAny(pnum, mnum, 0, ISPL_KNOCKBACK, OPPOSITE(mon->_mdir));
 		}
 		return;
 	}

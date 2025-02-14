@@ -1038,7 +1038,7 @@ unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam)
 static bool MissPlrHitByMon(int pnum, int mi)
 {
 	MissileStruct* mis;
-	int misource, hper, dam;
+	int misource, hper, dir, dam;
 	unsigned hitFlags;
 
 	mis = &missile[mi];
@@ -1091,7 +1091,8 @@ static bool MissPlrHitByMon(int pnum, int mi)
 			hitFlags = (misource >= 0 ? monsters[misource]._mFlags & ISPL_HITFLAGS_MASK : 0) | ISPL_FAKE_CAN_BLEED;
 			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MissPlrHitByMon uses _mFlags as hitFlags.");
 		}
-		PlrHitByAny(pnum, misource, dam, hitFlags, mis->_misx, mis->_misy);
+		dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
+		PlrHitByAny(pnum, misource, dam, hitFlags, OPPOSITE(dir));
 	}
 	return true;
 }
@@ -1099,7 +1100,7 @@ static bool MissPlrHitByMon(int pnum, int mi)
 static bool MissPlrHitByPlr(int pnum, int mi)
 {
 	MissileStruct* mis;
-	int offp, dam, hper;
+	int offp, dam, dir, hper;
 	unsigned hitFlags;
 
 	mis = &missile[mi];
@@ -1214,7 +1215,8 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = (plx(mis->_miSource)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, mis->_misx, mis->_misy);
+		dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
+		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, OPPOSITE(dir));
 	}
 	return true;
 }
@@ -3209,7 +3211,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
 		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints != 0 && plx(target)._pmode != PM_BLOCK
 		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pMagic) {
-			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._px, plr._py);
+			// int dir = GetDirection8(plx(target)._px, plx(target)._py, plr._px, plr._py);
+			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, OPPOSITE(plr._pdir));
 		}
 		break;
 	default:
