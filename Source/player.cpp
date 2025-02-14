@@ -2739,11 +2739,11 @@ void ProcessPlayers()
 				//}
 			}
 
-			int16_t nextTimer = plr._pTimer[PLTR_RAGE];
-			if (nextTimer != 0) {
-				plr._pTimer[PLTR_RAGE] = nextTimer + (nextTimer < 0 ? 1 : -1);
+			int16_t lastTimer = plr._pTimer[PLTR_RAGE];
+			if (lastTimer != 0) {
+				plr._pTimer[PLTR_RAGE] = lastTimer + (lastTimer < 0 ? 1 : -1);
 				if (plr._pTimer[PLTR_RAGE] == 0) {
-					if (nextTimer >= 0) {
+					if (lastTimer >= 0) {
 						plr._pTimer[PLTR_RAGE] = -RAGE_COOLDOWN_TICK;
 						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
 					}
