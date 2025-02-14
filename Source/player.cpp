@@ -1606,9 +1606,9 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 	stun = (hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP;
 	if (knockback || stun) {
 		if (stun || plr._pmode != PM_GOTHIT)
-			PlrStartGetHit(pnum, dir);
+			PlrStartGetHit(pnum, OPPOSITE(dir));
 		if (knockback)
-			PlrGetKnockback(pnum, OPPOSITE(dir));
+			PlrGetKnockback(pnum, dir);
 	}
 }
 
@@ -2028,7 +2028,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrHitByAny(pnum, offp, dam, hitFlags, OPPOSITE(plx(offp)._pdir));
+		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._pdir);
 	}
 	return true;
 }
@@ -2853,7 +2853,7 @@ void MissToPlr(int mi, bool hit)
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._pdir);
+		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
@@ -2929,7 +2929,7 @@ void MissToPlr(int mi, bool hit)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
-			PlrHitByAny(mpnum, pnum, dam, hitFlags, OPPOSITE(plr._pdir));
+			PlrHitByAny(mpnum, pnum, dam, hitFlags, plr._pdir);
 		}
 		return;
 	}

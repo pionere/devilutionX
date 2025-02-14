@@ -1092,7 +1092,7 @@ static bool MissPlrHitByMon(int pnum, int mi)
 			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MissPlrHitByMon uses _mFlags as hitFlags.");
 		}
 		dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
-		PlrHitByAny(pnum, misource, dam, hitFlags, OPPOSITE(dir));
+		PlrHitByAny(pnum, misource, dam, hitFlags, dir);
 	}
 	return true;
 }
@@ -1216,7 +1216,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = (plx(mis->_miSource)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
-		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, OPPOSITE(dir));
+		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, dir);
 	}
 	return true;
 }
@@ -3211,8 +3211,8 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
 		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints != 0 && plx(target)._pmode != PM_BLOCK
 		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pMagic) {
-			// int dir = GetDirection8(plx(target)._px, plx(target)._py, plr._px, plr._py);
-			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, OPPOSITE(plr._pdir));
+			// int dir = GetDirection8(plr._px, plr._py, plx(target)._px, plx(target)._py);
+			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._pdir);
 		}
 		break;
 	default:
