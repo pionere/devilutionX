@@ -1762,7 +1762,6 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 {
 	MissileStruct* mis;
 	assert((unsigned)misource < MAX_PLRS);
-	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball2 needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -1896,8 +1895,6 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		maxdam = mindam + 2 * mindam - 1;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	if (misfiledata[mis->_miFileNum].mfAnimFAmt == 16)
-		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFirebolt needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 	mis->_miRange = 255;
@@ -2023,7 +2020,6 @@ int AddAcid(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	MissileStruct* mis;
 	// (micaster == MST_MONSTER);
 	// assert(misource < MAXMONSTERS);
-	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
 	mis = &missile[mi];
 	mis->_miRange = 5 * (monsters[misource]._mAI.aiInt + 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
@@ -3310,7 +3306,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 {
 	MissileStruct* mis;
 	const MissileData* mds;
-	int idx, mi, res;
+	int idx, mi, anims, animdir, res;
 
 	idx = nummissiles;
 	if (idx >= MAXMISSILES)
@@ -3337,11 +3333,6 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miFileNum = mds->mFileNum;
 	mis->_miDrawFlag = mds->mDrawFlag;
 
-	if (misfiledata[mis->_miFileNum].mfAnimFAmt < NUM_DIRS)
-		SetMissDir(mi, 0);
-	else
-		SetMissDir(mi, midir);
-
 	mis->_miAnimAdd = 1;
 	mis->_miLid = NO_LIGHT;
 
@@ -3356,6 +3347,17 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 		}
 		GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(mds->mdPrSpeed));
 	}
+
+	animdir = 0;
+	anims = misfiledata[mis->_miFileNum].mfAnimFAmt;
+	if (anims >= NUM_DIRS) {
+		animdir = midir;
+		if (anims != NUM_DIRS) {
+			// assert(anims == 16);
+			animdir = GetDirection16(sx, sy, dx, dy);
+		}
+	}
+	SetMissDir(mi, animdir);
 
 	res = mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);
 	if (res != MIRES_DONE) {
