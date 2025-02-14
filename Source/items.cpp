@@ -2957,7 +2957,7 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "armor class: %d", is->_iAC);
 		break;
 	case IPL_CRYSTALLINE:
-		snprintf(tempstr, sizeof(tempstr), "low dur, %+d%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "alt. dur, %+d%% damage", is->_iPLDam);
 		break;
 	case IPL_MANATOLIFE:
 		copy_cstr(tempstr, "50% Mana moved to Health");
