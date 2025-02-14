@@ -1484,9 +1484,9 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimWidth = mon->_mAnimWidth;
 	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
-	if (mon->_muniqtype != 0) {
+	// if (mon->_muniqtype != 0) {
 		mis->_miUniqTrans = mon->_muniqtrans;
-	}
+	// }
 	mis->_miLightFlag = TRUE;
 }
 
