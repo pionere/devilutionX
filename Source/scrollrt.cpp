@@ -268,7 +268,7 @@ static void scrollrt_draw_cursor()
  */
 static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
-	int mx, my, nCel, frames, nWidth;
+	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE* pCelBuff;
 
@@ -282,10 +282,12 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
 	}
 	nCel = mis->_miAnimFrame;
-	frames = SwapLE32(*(uint32_t*)pCelBuff);
+#if DEBUG_MODE
+	int frames = SwapLE32(*(uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
+#endif
 	nWidth = mis->_miAnimWidth;
 	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
