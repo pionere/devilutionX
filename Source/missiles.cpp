@@ -2152,37 +2152,6 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	return MIRES_DONE;
 }
 
-/*int AddFireball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-	int i, mindam, maxdam;
-
-	if (sx == dx && sy == dy) {
-		dx += XDirAdd[midir];
-		dy += YDirAdd[midir];
-	}
-	mis = &missile[mi];
-	//assert(misource != -1);
-	if (micaster & MST_PLAYER) {
-		mindam = (plx(misource)._pMagic >> 2) + 10;
-		maxdam = mindam + 10;
-		for (i = spllvl; i > 0; i--) {
-			mindam += mindam >> 3;
-			maxdam += maxdam >> 3;
-		}
-	} else {
-		mindam = monsters[misource]._mMinDamage;
-		maxdam = monsters[misource]._mMaxDamage;
-	}
-	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
-	SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
-	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball needs at least light-radius of 8.");
-	mis->_miLid = AddLight(sx, sy, 8);
-	mis->_miRange = 255;
-	return MIRES_DONE;
-}*/
-
 /**
  * Var1: x coordinate of the missile
  * Var2: y coordinate of the missile
@@ -2666,36 +2635,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	dMonster[mon->_mx][mon->_my] = 0;
 	//mis->_miRange = 255;
 	//PutMissile(mi);
-	return MIRES_DONE;
-}*/
-
-/*int AddFlare(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct* mis;
-
-	if (sx == dx && sy == dy) {
-		dx += XDirAdd[midir];
-		dy += YDirAdd[midir];
-	}
-	GetMissileVel(mi, sx, sy, dx, dy, MIS_SHIFTEDVEL(16));
-#ifdef HELLFIRE
-	if (misfiledata[missile[mi]._miFileNum].mfAnimFAmt == 16) {
-		SetMissDir(mi, GetDirection16(sx, sy, dx, dy));
-	}
-#endif
-	mis = &missile[mi];
-	mis->_miRange = 255;
-	static_assert(MAX_LIGHT_RAD >= 8, "AddFlare needs at least light-radius of 8.");
-	mis->_miLid = AddLight(sx, sy, 8);
-	//assert(misource != -1);
-	if (micaster & MST_PLAYER) {
-		if (!plx(misource)._pInvincible)
-			PlrDecHp(misource, 320, DMGTYPE_NPC);
-		mis->_miMinDam = mis->_miMaxDam = (plx(misource)._pMagic * (spllvl + 1)) << (-3 + 6);
-	} else {
-		mis->_miMinDam = monsters[misource]._mMinDamage << 6;
-		mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
-	}
 	return MIRES_DONE;
 }*/
 
