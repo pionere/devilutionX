@@ -1487,6 +1487,7 @@ static void SyncRhinoAnim(int mi)
 	if (mon->_muniqtype != 0) {
 		mis->_miUniqTrans = mon->_muniqtrans;
 	}
+	mis->_miLightFlag = TRUE;
 }
 
 static void SyncChargeAnim(int mi)
@@ -1506,6 +1507,7 @@ static void SyncChargeAnim(int mi)
 	mis->_miAnimLen = anim->paFrames;
 	mis->_miAnimWidth = anim->paAnimWidth;
 	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
+	mis->_miLightFlag = TRUE;
 }
 
 static void SetMissAnim(int mi, int dir)
@@ -2550,7 +2552,6 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	monsters[misource]._mmode = MM_CHARGE;
 	mis = &missile[mi];
 	mis->_miDir = midir;
-	mis->_miLightFlag = TRUE;
 	SyncRhinoAnim(mi);
 	// mis->_miRange = 255;
 	//PutMissile(mi);
@@ -2589,7 +2590,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
 	mis->_miAnimAdd = aa;
-	mis->_miLightFlag = TRUE;
 	SyncChargeAnim(mi);
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
