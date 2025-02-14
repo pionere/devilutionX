@@ -2045,7 +2045,6 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	}
 	mis->_miMinDam = mis->_miMaxDam = dam;
 	mis->_miRange = 40 * (monsters[misource]._mAI.aiInt + 1) + random_(50, 16);
-	mis->_miLightFlag = TRUE;
 	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
 }
