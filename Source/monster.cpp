@@ -466,7 +466,9 @@ void InitLvlMonsters()
 		monsters[i]._mAlign_1 = 0;
 		monsters[i]._mgoal = MGOAL_NORMAL;
 		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
-		// reset _mlid value to simplify SyncMonstersLight, DeltaLoadLevel, SummonMonster and InitTownerInfo
+		// reset _muniqtrans to simplify InitTownerInfo (towner.cpp)
+		// reset _mNameColor to simplify InitTownerInfo (towner.cpp)
+		// reset _mlid value to simplify SyncMonstersLight (loadsave.cpp), DeltaLoadLevel, SummonMonster and InitTownerInfo (towner.cpp)
 		monsters[i]._muniqtype = 0;
 		monsters[i]._muniqtrans = 0;
 		monsters[i]._mNameColor = COL_WHITE;
