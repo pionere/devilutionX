@@ -304,14 +304,15 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
 	MissileStruct* mis;
 
 	if (mi != MIS_MULTI) {
+		// assert((unsigned)(mi - 1) < MAXMISSILES);
 		mis = &missile[mi - 1];
-		assert(mis->_miDrawFlag);
+		// assert(mis->_miDrawFlag);
 		DrawMissilePrivate(mis, sx, sy);
 		return;
 	}
 
 	for (i = 0; i < nummissiles; i++) {
-		assert((unsigned)missileactive[i] < MAXMISSILES);
+		// assert((unsigned)missileactive[i] < MAXMISSILES);
 		mis = &missile[missileactive[i]];
 		if (mis->_mix != x || mis->_miy != y || !mis->_miDrawFlag)
 			continue;
@@ -333,13 +334,9 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE* pCelBuff;
-
+	// assert((unsigned)mnum < MAXMONSTERS);
 	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0 /* && !myplr._pInfraFlag*/)
 		return;
-
-	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("Draw Monster: tried to draw illegal monster %d", mnum);
-	}
 
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_HIDDEN) {
@@ -425,6 +422,7 @@ static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
 		return;
 
 	if (mnum != DEAD_MULTI) {
+		// assert((unsigned)(mnum - 1) < MAXMONSTERS);
 		mon = &monsters[mnum - 1];
 		DrawDeadMonsterHelper(mon, sx, sy);
 		return;
@@ -450,7 +448,7 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 	MonsterStruct* tw;
 	int tx, nCel, nWidth;
 	BYTE* pCelBuff;
-
+	// assert(tnum < numtowners);
 	tw = &monsters[tnum];
 	tx = sx - tw->_mAnimXOffset;
 	pCelBuff = tw->_mAnimData;
@@ -482,7 +480,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE trans;
 	BYTE* pCelBuff;
-
+	// assert(pnum < MAX_PLRS);
 	if (visFlag || myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
@@ -575,13 +573,12 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
 	BYTE* pCelBuff;
-
+	// assert(oi != 0);
 	if (light_trn_index >= MAXDARKNESS)
 		return;
-	// assert(oi != 0);
 	mainTile = oi >= 0;
 	oi = oi >= 0 ? oi - 1 : -(oi + 1);
-	assert((unsigned)oi < MAXOBJECTS);
+	// assert((unsigned)oi < MAXOBJECTS);
 	os = &objects[oi];
 	if (os->_oPreFlag != gbPreFlag)
 		return;
@@ -1030,9 +1027,7 @@ static void DrawItem(int ii, int sx, int sy)
 	int nCel;
 	ItemStruct* is;
 	BYTE* pCelBuff;
-
-	assert(ii > 0);
-
+	// assert(ii > 0);
 	ii--;
 
 	is = &items[ii];
