@@ -272,7 +272,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 	BYTE trans;
 	BYTE* pCelBuff;
 
-	if (mis->_miPreFlag != gbPreFlag || !mis->_miDrawFlag)
+	if (mis->_miPreFlag != gbPreFlag)
 		return;
 
 	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
@@ -305,6 +305,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
 
 	if (mi != MIS_MULTI) {
 		mis = &missile[mi - 1];
+		assert(mis->_miDrawFlag);
 		DrawMissilePrivate(mis, sx, sy);
 		return;
 	}
@@ -312,7 +313,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
 	for (i = 0; i < nummissiles; i++) {
 		assert((unsigned)missileactive[i] < MAXMISSILES);
 		mis = &missile[missileactive[i]];
-		if (mis->_mix != x || mis->_miy != y)
+		if (mis->_mix != x || mis->_miy != y || !mis->_miDrawFlag)
 			continue;
 		DrawMissilePrivate(mis, sx, sy);
 	}
