@@ -1510,14 +1510,11 @@ static void StartPickItem(int pnum)
 
 static void StartTalk(int pnum)
 {
-	int mnum;
+	int mnum = plr._pDestParam1;
 
-	mnum = plr._pDestParam1;
-
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		if (pnum == mypnum)
-			TalkToTowner(mnum);
-	} else
+	if (currLvl._dLevelIdx == DLV_TOWN)
+		TalkToTowner(mnum, pnum);
+	else
 		TalktoMonster(mnum, pnum);
 }
 

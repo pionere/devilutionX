@@ -619,12 +619,15 @@ void SyncTownerQ(int pnum, int idx)
 	SyncPlrStorageRemove(pnum, i);
 }
 
-void TalkToTowner(int tnum)
+void TalkToTowner(int tnum, int pnum)
 {
 	MonsterStruct* tw;
-	int i, qt, qn, pnum = mypnum;
+	int i, qt, qn;
 
 	tw = &monsters[tnum];
+	if (pnum != mypnum) {
+		return;
+	}
 	if (gbQtextflag) {
 		return;
 	}
