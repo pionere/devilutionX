@@ -2700,8 +2700,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 }*/
 
 /**
- * Var1: mmode of the monster
- * Var2: mnum of the monster
+ * Var1: mnum of the monster
  */
 int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2739,8 +2738,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				mis->_miRange = range;
 
 				MonLeaveLeader(mid);
-				mis->_miVar1 = mon->_mmode;
-				mis->_miVar2 = mid;
+				mis->_miVar1 = mid;
 				mon->_mVar3 = mon->_mmode;
 				mon->_mmode = MM_STONE;
 				// ensure lastx/y are set when MI_Stone 'alerts' the monster
@@ -4548,14 +4546,14 @@ void MI_Stone(int mi)
 	bool dead;
 
 	mis = &missile[mi];
-	mon = &monsters[mis->_miVar2];
+	mon = &monsters[mis->_miVar1];
 	dead = mon->_mhitpoints == 0;
 	// assert(mon->_mmode == MM_STONE);
 	mis->_miRange--;
 	if (!dead) {
 		if (mis->_miRange < 0) {
 			mis->_miDelFlag = TRUE;
-			mon->_mmode = mis->_miVar1;
+			mon->_mmode = mon->_mVar3;
 			return;
 		}
 
