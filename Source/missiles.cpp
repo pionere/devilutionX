@@ -4122,7 +4122,7 @@ void MI_Bleed(int mi)
 
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
-		PutMissileF(mi, BFLAG_MISSILE_PRE);
+		PutMissile(mi);
 		return;
 	}
 	mis->_miDelFlag = TRUE;
