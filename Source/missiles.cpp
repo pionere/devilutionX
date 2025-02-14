@@ -2739,6 +2739,10 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 				MonLeaveLeader(mid);
 				mis->_miVar1 = mid;
+				mis->_mix = mon->_mx;
+				mis->_miy = mon->_my;
+				mis->_mixoff = mon->_mxoff;
+				mis->_miyoff = mon->_myoff;
 				mon->_mVar3 = mon->_mmode;
 				mon->_mmode = MM_STONE;
 				// ensure lastx/y are set when MI_Stone 'alerts' the monster
@@ -4563,10 +4567,6 @@ void MI_Stone(int mi)
 			mis->_miDrawFlag = TRUE;
 			mis->_miFileNum = MFILE_SHATTER1;
 			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] * misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] - 1 + 10;
-			mis->_mix = mon->_mx;
-			mis->_miy = mon->_my;
-			// mis->_mixoff = mon->_mxoff;
-			// mis->_miyoff = mon->_myoff;
 			SetMissDir(mi, 0);
 		} else if (mis->_miRange < 0) {
 			mis->_miDelFlag = TRUE;
