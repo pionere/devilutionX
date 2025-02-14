@@ -4980,16 +4980,15 @@ void ProcessMissiles()
 
 void SyncMissilesAnim()
 {
-	MissileStruct* mis;
-	int i;
+	int i, mi;
 
 	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		SyncMissAnim(missileactive[i]);
-		if (mis->_miType == MIS_RHINO) {
-			SyncRhinoAnim(missileactive[i]);
-		} else if (mis->_miType == MIS_CHARGE) {
-			SyncChargeAnim(missileactive[i]);
+		mi = missileactive[i];
+		SyncMissAnim(mi);
+		if (missile[mi]._miType == MIS_RHINO) {
+			SyncRhinoAnim(mi);
+		} else if (missile[mi]._miType == MIS_CHARGE) {
+			SyncChargeAnim(mi);
 		}
 	}
 }
