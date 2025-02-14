@@ -722,6 +722,7 @@ void ClearPanels()
 	StopHelp();
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
+	gabPanbtn[PANBTN_MAINMENU] = false;
 	gbSkillListFlag = false;
 	gbCampaignMapFlag = CMAP_NONE;
 	gbDropGoldIndex = INVITEM_NONE;
@@ -734,7 +735,6 @@ static void ClearUI()
 	assert(!gbQtextflag);
 	gbAutomapflag = AMM_NONE;
 	msgdelay = 0;
-	gabPanbtn[PANBTN_MAINMENU] = false;
 	//doom_close();
 }
 
