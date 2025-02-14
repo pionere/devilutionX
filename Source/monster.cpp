@@ -1572,15 +1572,6 @@ static void MonStartStand(int mnum)
 	// MonFindEnemy(mnum);
 }
 
-static void MonStartDelay(int mnum, int len)
-{
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	mon->_mVar2 = len; // DELAY_TICK : length of the delay
-	mon->_mmode = MM_DELAY;
-}
-
 /*
  * Start the special standing of monsters.
  *
@@ -1599,6 +1590,144 @@ static void MonStartSpStand(int mnum, int md)
 	AssertFixMonLocation(mnum);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_SPSTAND;
+}
+
+static void MonStartAttack(int mnum)
+{
+	int md = currEnemyInfo._meRealDir;
+	MonsterStruct* mon;
+
+	// assert(md == MonEnemyRealDir(mnum));
+	NewMonsterAnim(mnum, MA_ATTACK, md);
+	AssertFixMonLocation(mnum);
+	mon = &monsters[mnum];
+	mon->_mmode = MM_ATTACK;
+}
+
+static void MonStartRAttack(int mnum, int mitype)
+{
+	int md = currEnemyInfo._meRealDir;
+	MonsterStruct* mon;
+
+	// assert(md == MonEnemyRealDir(mnum));
+	NewMonsterAnim(mnum, MA_ATTACK, md);
+	AssertFixMonLocation(mnum);
+	mon = &monsters[mnum];
+	mon->_mmode = MM_RATTACK;
+	mon->_mVar1 = mitype; // RATTACK_SKILL
+}
+
+/*
+ * Start the special ranged-attacks of monsters.
+ * Used by: Thin(STORM), Acid, Magma, DemonSkeleton,
+ *          Mega, Diablo, SpiderLord, HorkDemon, Hellbat, Torchant
+ * Not implemented for Nakrul.
+ */
+static void MonStartRSpAttack(int mnum, int mitype)
+{
+	int md = currEnemyInfo._meRealDir;
+	MonsterStruct* mon;
+
+	// assert(md == MonEnemyRealDir(mnum));
+	NewMonsterAnim(mnum, MA_SPECIAL, md);
+	AssertFixMonLocation(mnum);
+	mon = &monsters[mnum];
+	mon->_mmode = MM_RSPATTACK;
+	mon->_mVar1 = mitype; // SPATTACK_SKILL
+}
+
+/*
+ * Start the special 'attack' of monsters.
+ *
+ * Goat with maces: roundkick
+ * Toad(AI_FAT): punch
+ * Defiler: scorpion-hit
+ *
+ * Scavengers: eating
+ * Gravediggers: digging
+ * Gargoyle: standing up
+
+ * Rhino: running effect - handled by MIS_RHINO and MM_CHARGE
+ */
+static void MonStartSpAttack(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
+
+	mon->_mmode = MM_SPATTACK;
+	AssertFixMonLocation(mnum);
+}
+
+/*
+ * Start fade in using the special effect of monsters.
+ * Used by: Sneak, Fireman, Mage, DarkMage
+ */
+static void MonStartFadein(int mnum, bool backwards)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
+
+	mon->_mmode = MM_FADEIN;
+	mon->_mFlags &= ~MFLAG_HIDDEN;
+	if (backwards) {
+		mon->_mFlags |= MFLAG_REV_ANIMATION;
+		mon->_mAnimFrame = mon->_mAnimLen;
+		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
+	} else {                          //
+		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
+	}
+}
+
+static void MonStartFadeout(int mnum, bool backwards)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
+
+	mon->_mmode = MM_FADEOUT;
+	if (backwards) {
+		mon->_mFlags |= MFLAG_REV_ANIMATION;
+		mon->_mAnimFrame = mon->_mAnimLen;
+		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
+	} else {                          //
+		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
+	}
+}
+
+static void MonStartHeal(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
+
+	mon->_mAnimFrame = mon->_mAnimLen;
+	mon->_mFlags |= MFLAG_REV_ANIMATION;
+	mon->_mmode = MM_HEAL;
+	static_assert((SQUELCH_MAX - SQUELCH_LOW) >= 16 * 8, "MonStartHeal might relax while healing.");
+	// assert(mon->_msquelch == SQUELCH_MAX);
+	// assert(mon->_mmaxhp >= 2 * 64);
+	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(5, 8)); // HEAL_SPEED
+}
+
+static void MonStartGetHit(int mnum, int dir)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE && mon->_mType != MT_GOLEM);
+	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_GOTHIT, dir);
+
+	mon->_mmode = MM_GOTHIT;
+}
+
+static void MonStartDelay(int mnum, int len)
+{
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	mon->_mVar2 = len; // DELAY_TICK : length of the delay
+	mon->_mmode = MM_DELAY;
 }
 
 /**
@@ -1667,73 +1796,6 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	//	ChangeLightXY(mon->_mlid, mx, my);
 	//	ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
 	//}
-}
-
-static void MonStartAttack(int mnum)
-{
-	int md = currEnemyInfo._meRealDir;
-	MonsterStruct* mon;
-
-	// assert(md == MonEnemyRealDir(mnum));
-	NewMonsterAnim(mnum, MA_ATTACK, md);
-	AssertFixMonLocation(mnum);
-	mon = &monsters[mnum];
-	mon->_mmode = MM_ATTACK;
-}
-
-static void MonStartRAttack(int mnum, int mitype)
-{
-	int md = currEnemyInfo._meRealDir;
-	MonsterStruct* mon;
-
-	// assert(md == MonEnemyRealDir(mnum));
-	NewMonsterAnim(mnum, MA_ATTACK, md);
-	AssertFixMonLocation(mnum);
-	mon = &monsters[mnum];
-	mon->_mmode = MM_RATTACK;
-	mon->_mVar1 = mitype; // RATTACK_SKILL
-}
-
-/*
- * Start the special ranged-attacks of monsters.
- * Used by: Thin(STORM), Acid, Magma, DemonSkeleton,
- *          Mega, Diablo, SpiderLord, HorkDemon, Hellbat, Torchant
- * Not implemented for Nakrul.
- */
-static void MonStartRSpAttack(int mnum, int mitype)
-{
-	int md = currEnemyInfo._meRealDir;
-	MonsterStruct* mon;
-
-	// assert(md == MonEnemyRealDir(mnum));
-	NewMonsterAnim(mnum, MA_SPECIAL, md);
-	AssertFixMonLocation(mnum);
-	mon = &monsters[mnum];
-	mon->_mmode = MM_RSPATTACK;
-	mon->_mVar1 = mitype; // SPATTACK_SKILL
-}
-
-/*
- * Start the special 'attack' of monsters.
- *
- * Goat with maces: roundkick
- * Toad(AI_FAT): punch
- * Defiler: scorpion-hit
- *
- * Scavengers: eating
- * Gravediggers: digging
- * Gargoyle: standing up
-
- * Rhino: running effect - handled by MIS_RHINO and MM_CHARGE
- */
-static void MonStartSpAttack(int mnum)
-{
-	MonsterStruct* mon = &monsters[mnum];
-
-	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
-
-	mon->_mmode = MM_SPATTACK;
-	AssertFixMonLocation(mnum);
 }
 
 /*
@@ -1858,19 +1920,6 @@ static void MonStopWalk(int mnum)
 	MonStartStand(mnum);
 }
 
-static void MonStartGetHit(int mnum, int dir)
-{
-	MonsterStruct* mon = &monsters[mnum];
-
-	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE && mon->_mType != MT_GOLEM);
-
-	AssertFixMonLocation(mnum);
-
-	NewMonsterAnim(mnum, MA_GOTHIT, dir);
-
-	mon->_mmode = MM_GOTHIT;
-}
-
 static int MonTeleport(int mnum, int tx, int ty, int dir)
 {
 	MonsterStruct* mon;
@@ -1901,32 +1950,6 @@ static int MonTeleport(int mnum, int tx, int ty, int dir)
 		}
 	}
 	return dir;
-}
-
-static void MonFallenFear(int x, int y)
-{
-	MonsterStruct* mon;
-	int i;
-
-	for (i = 0; i < MAXMONSTERS; i++) {
-		mon = &monsters[i];
-		if (!MON_RELAXED // TODO: use LineClear instead to prevent retreat behind walls?
-		 && mon->_mAI.aiType == AI_FALLEN
-		 && abs(x - mon->_mx) < 5
-		 && abs(y - mon->_my) < 5
-		 && mon->_mhitpoints != 0
-		 && mon->_mAI.aiInt < 4) {
-#if DEBUG
-			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
-			assert(mon->_mmode <= MM_INGAME_LAST);
-#endif
-			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
-			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-			mon->_mgoal = MGOAL_RETREAT;
-			mon->_mgoalvar1 = 8 - 2 * mon->_mAI.aiInt; // RETREAT_DISTANCE
-			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
-		}
-	}
 }
 
 static void MonGetKnockback(int mnum, int dir)
@@ -2016,6 +2039,32 @@ void MonHitByMon(int defm, int offm, int dam, int dir)
 					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
 			}
 			MonStartGetHit(defm, OPPOSITE(dir));
+		}
+	}
+}
+
+static void MonFallenFear(int x, int y)
+{
+	MonsterStruct* mon;
+	int i;
+
+	for (i = 0; i < MAXMONSTERS; i++) {
+		mon = &monsters[i];
+		if (!MON_RELAXED // TODO: use LineClear instead to prevent retreat behind walls?
+		 && mon->_mAI.aiType == AI_FALLEN
+		 && abs(x - mon->_mx) < 5
+		 && abs(y - mon->_my) < 5
+		 && mon->_mhitpoints != 0
+		 && mon->_mAI.aiInt < 4) {
+#if DEBUG
+			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (8 - 2 * 0) < SQUELCH_MAX - SQUELCH_LOW);
+			assert(mon->_mmode <= MM_INGAME_LAST);
+#endif
+			static_assert((8 - 2 * 0) * 12 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with retreat goal.");
+			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+			mon->_mgoal = MGOAL_RETREAT;
+			mon->_mgoalvar1 = 8 - 2 * mon->_mAI.aiInt; // RETREAT_DISTANCE
+			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
 		}
 	}
 }
@@ -2231,58 +2280,6 @@ void MonSyncKill(int mnum, int x, int y, int pnum)
 	}
 
 	MonInitKill(mnum, pnum, false);
-}
-
-/*
- * Start fade in using the special effect of monsters.
- * Used by: Sneak, Fireman, Mage, DarkMage
- */
-static void MonStartFadein(int mnum, bool backwards)
-{
-	MonsterStruct* mon = &monsters[mnum];
-	AssertFixMonLocation(mnum);
-	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
-
-	mon->_mmode = MM_FADEIN;
-	mon->_mFlags &= ~MFLAG_HIDDEN;
-	if (backwards) {
-		mon->_mFlags |= MFLAG_REV_ANIMATION;
-		mon->_mAnimFrame = mon->_mAnimLen;
-		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
-	} else {                          //
-		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
-	}
-}
-
-static void MonStartFadeout(int mnum, bool backwards)
-{
-	MonsterStruct* mon = &monsters[mnum];
-	AssertFixMonLocation(mnum);
-	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
-
-	mon->_mmode = MM_FADEOUT;
-	if (backwards) {
-		mon->_mFlags |= MFLAG_REV_ANIMATION;
-		mon->_mAnimFrame = mon->_mAnimLen;
-		mon->_mVar8 = 1;              // FADE_END : target frame to end the fade mode
-	} else {                          //
-		mon->_mVar8 = mon->_mAnimLen; // FADE_END : target frame to end the fade mode
-	}
-}
-
-static void MonStartHeal(int mnum)
-{
-	MonsterStruct* mon = &monsters[mnum];
-	AssertFixMonLocation(mnum);
-	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
-
-	mon->_mAnimFrame = mon->_mAnimLen;
-	mon->_mFlags |= MFLAG_REV_ANIMATION;
-	mon->_mmode = MM_HEAL;
-	static_assert((SQUELCH_MAX - SQUELCH_LOW) >= 16 * 8, "MonStartHeal might relax while healing.");
-	// assert(mon->_msquelch == SQUELCH_MAX);
-	// assert(mon->_mmaxhp >= 2 * 64);
-	mon->_mVar1 = mon->_mmaxhp / (16 * RandRange(5, 8)); // HEAL_SPEED
 }
 
 static bool MonDoStand(int mnum)
