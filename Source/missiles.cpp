@@ -3768,8 +3768,8 @@ void MI_Acidpud(int mi)
 			mis->_miDelFlag = TRUE;
 			return;
 		} else {
-			SetMissAnim(mi, 1);
 			mis->_miRange = misfiledata[MFILE_ACIDPUD].mfAnimLen[1] * misfiledata[MFILE_ACIDPUD].mfAnimFrameLen[1];
+			SetMissAnim(mi, 1);
 		}
 	}
 	PutMissileF(mi, BFLAG_MISSILE_PRE);
@@ -4877,8 +4877,8 @@ void MI_Cbolt(int mi)
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
 			mis->_miFileNum = MFILE_LGHNING;
-			SetMissAnim(mi, 0);
 			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0] * misfiledata[MFILE_LGHNING].mfAnimFrameLen[0];
+			SetMissAnim(mi, 0);
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
 	}
