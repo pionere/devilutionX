@@ -1563,13 +1563,8 @@ static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
 	// assert(plr._pHitPoints != 0);
-	// if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
-	//	return;
+	// AssertFixPlayerLocation(pnum);
 
-	if (plr._pmode != PM_GOTHIT)
-		PlrStartGetHit(pnum, dir);
-
-	dir = OPPOSITE(dir);
 	oldx = plr._px;
 	oldy = plr._py;
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
@@ -1589,12 +1584,11 @@ static void PlrGetKnockback(int pnum, int dir)
 
 void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 {
+	bool knockback, stun;
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
-
 	// assert(plr._pHitPoints != 0 && dam >= 0);
-
 	if (plr._pManaShield != 0) {
 		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
 		if (hitflags == 0)
@@ -1608,11 +1602,13 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 64) == 0 : random_(48, 128) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
-
-	if (hitflags & ISPL_KNOCKBACK) {
-		PlrGetKnockback(pnum, dir);
-	} else if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
-		PlrStartGetHit(pnum, dir);
+	knockback = (hitflags & ISPL_KNOCKBACK) != 0;
+	stun = (hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP;
+	if (knockback || stun) {
+		if (stun || plr._pmode != PM_GOTHIT)
+			PlrStartGetHit(pnum, dir);
+		if (knockback)
+			PlrGetKnockback(pnum, OPPOSITE(dir));
 	}
 }
 

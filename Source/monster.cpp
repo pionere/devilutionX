@@ -1922,10 +1922,8 @@ static void MonStopWalk(int mnum)
 
 static int MonTeleport(int mnum, int tx, int ty, int dir)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int i, oldx, oldy, newx, newy, rx;
-
-	mon = &monsters[mnum];
 	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 	AssertFixMonLocation(mnum);
 
@@ -1956,7 +1954,6 @@ static void MonGetKnockback(int mnum, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int oldx, oldy, newx, newy;
-
 	// assert(mon->_mmode != MM_DEATH && mon->_mmode != MM_STONE);
 	AssertFixMonLocation(mnum);
 
