@@ -1508,7 +1508,7 @@ static void SyncChargeAnim(int mi)
 	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 }
 
-static void SetMissDir(int mi, int dir)
+static void SetMissAnim(int mi, int dir)
 {
 	missile[mi]._miDir = dir;
 	// assert(gbGameLogicProgress < GLP_MISSILES_DONE);
@@ -1825,7 +1825,7 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miAnimFrame = midir + 1;
 	} else {
 		mis->_miFileNum = mtype;
-		SetMissDir(mi, midir);
+		SetMissAnim(mi, midir);
 	}
 	mis->_miRange = 255;
 	// mis->_miVar7 = 0;
@@ -2405,7 +2405,7 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	} else {
 		// a recreated portal (by AddWarpMissile or InitVP*Trigger)
 		// make sure the portal is in its final form even on the first frame
-		SetMissDir(mi, 1);
+		SetMissAnim(mi, 1);
 		PutMissile(mi);
 	}
 	return MIRES_DONE;
@@ -3357,7 +3357,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 			animdir = GetDirection16(sx, sy, dx, dy);
 		}
 	}
-	SetMissDir(mi, animdir);
+	SetMissAnim(mi, animdir);
 
 	res = mds->mAddProc(mi, sx, sy, dx, dy, midir, micaster, misource, spllvl);
 	if (res != MIRES_DONE) {
@@ -3389,7 +3389,7 @@ static bool Sentfire(int mi, int sx, int sy)
 		// SetRndSeed(mis->_miRndSeed);
 		AddMissile(mis->_mix, mis->_miy, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
 		// mis->_miRndSeed = NextRndSeed();
-		SetMissDir(mi, 2);
+		SetMissAnim(mi, 2);
 		mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[2];
 		mis->_miAnimAdd = -1;
 		return true;
@@ -3685,7 +3685,7 @@ void MI_Wind(int mi)
 		mis->_miMinDam += mis->_miVar1;
 		mis->_miMaxDam += mis->_miVar2;
 		if (mis->_miAnimFrame == misfiledata[MFILE_WIND].mfAnimLen[0]) {
-			SetMissDir(mi, 1);
+			SetMissAnim(mi, 1);
 		}
 	}
 
@@ -3768,7 +3768,7 @@ void MI_Acidpud(int mi)
 			mis->_miDelFlag = TRUE;
 			return;
 		} else {
-			SetMissDir(mi, 1);
+			SetMissAnim(mi, 1);
 			mis->_miRange = misfiledata[MFILE_ACIDPUD].mfAnimLen[1] * misfiledata[MFILE_ACIDPUD].mfAnimFrameLen[1];
 		}
 	}
@@ -3799,7 +3799,7 @@ void MI_Firewall(int mi)
 		// && mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1
 		 && mis->_miAnimAdd >= 0) {
 			// start 'stand' after spawn
-			SetMissDir(mi, 1);
+			SetMissAnim(mi, 1);
 			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miVar1 = RandRange(1, 256);
@@ -3814,7 +3814,7 @@ void MI_Firewall(int mi)
 			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
 		} else if (mis->_miRange == misfiledata[MFILE_FIREWAL].mfAnimLen[0] - 1) {
 			// start collapse
-			SetMissDir(mi, 0);
+			SetMissAnim(mi, 0);
 			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
 			mis->_miAnimFrame = misfiledata[MFILE_FIREWAL].mfAnimLen[0];
 			mis->_miAnimAdd = -1;
@@ -4146,7 +4146,7 @@ void MI_Portal(int mi)
 		// assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1);
 		if (mis->_miAnimFrame == misfiledata[MFILE_PORTAL].mfAnimLen[0]
 		 /*&& mis->_miAnimCnt == misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] - 1*/) {
-			SetMissDir(mi, 1);
+			SetMissAnim(mi, 1);
 		}
 	}
 
@@ -4223,7 +4223,7 @@ void MI_FireWave(int mi)
 		// assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);
 		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]
 		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1*/) {
-			SetMissDir(mi, 1);
+			SetMissAnim(mi, 1);
 			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 		}
@@ -4250,7 +4250,7 @@ void MI_Meteor(int mi)
 			mis->_mixoff += MET_SHIFT_X / MET_STEPS_UP;
 			if (mis->_miyoff < -MET_SHIFT_UP) {
 				mis->_miFileNum = MFILE_FIREBA;
-				SetMissDir(mi, 0);
+				SetMissAnim(mi, 0);
 				mis->_mixoff = MET_SHIFT_X;
 				// -- 96: height of the sprite, 46: transparent lines on the first frame -- unnecessary, since Cl2DrawLightTbl is safe
 				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
@@ -4298,7 +4298,7 @@ void MI_Guardian(int mi)
 		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1
 		 && mis->_miAnimAdd >= 0) {
 			// start stand after spawn
-			SetMissDir(mi, 1);
+			SetMissAnim(mi, 1);
 		} else if (mis->_miAnimFrame == 1
 		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[0] - 1
 		 && mis->_miAnimAdd < 0) {
@@ -4327,7 +4327,7 @@ done:
 				;
 			} else {
 				// start collapse
-				SetMissDir(mi, 0);
+				SetMissAnim(mi, 0);
 				mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[0];
 				mis->_miAnimAdd = -1;
 			}
@@ -4339,7 +4339,7 @@ done:
 		if (mis->_miAnimFrame == 1
 		 /* && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
 			ex = mis->_miRange != 0;
-			SetMissDir(mi, ex ? 1 : 0);
+			SetMissAnim(mi, ex ? 1 : 0);
 			// skip check frame to add delay between attacks
 			mis->_miAnimFrame = ex ? 2 : misfiledata[MFILE_GUARD].mfAnimLen[0];
 			mis->_miAnimAdd = ex ? 1 : -1;
@@ -4391,7 +4391,7 @@ void MI_Chain(int mi)
 						dx = mx + XDirAdd[sd];
 						dy = my + YDirAdd[sd];
 					}
-					//SetMissDir(mi, sd);
+					//SetMissAnim(mi, sd);
 					GetMissileVel(mi, mx, my, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_CHAIN].mdPrSpeed));
 				}
 			}
@@ -4508,7 +4508,7 @@ void MI_Stone(int mi)
 			mis->_miDrawFlag = TRUE;
 			mis->_miFileNum = MFILE_SHATTER1;
 			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] * misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] - 1 + 10;
-			SetMissDir(mi, 0);
+			SetMissAnim(mi, 0);
 		} else if (mis->_miRange < 0) {
 			mis->_miDelFlag = TRUE;
 			// TODO: RemoveMonFromGame ?
@@ -4541,7 +4541,7 @@ void MI_Shroud(int mi)
 		if (mis->_miDir == 0) {
 			// assert(misfiledata[MFILE_SHROUD].mfAnimFrameLen[0] == 1);
 			if (mis->_miAnimFrame == misfiledata[MFILE_SHROUD].mfAnimLen[0]) {
-				SetMissDir(mi, 1);
+				SetMissAnim(mi, 1);
 			}
 		} else {
 			for (i = 0; i < nummissiles; i++) {
@@ -4877,7 +4877,7 @@ void MI_Cbolt(int mi)
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
 			mis->_miFileNum = MFILE_LGHNING;
-			SetMissDir(mi, 0);
+			SetMissAnim(mi, 0);
 			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0] * misfiledata[MFILE_LGHNING].mfAnimFrameLen[0];
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
@@ -4917,7 +4917,7 @@ void MI_Elemental(int mi)
 			dy = cy + YDirAdd[sd];
 		}
 		mis->_miVar5 = sd; // MIS_DIR
-		SetMissDir(mi, sd);
+		SetMissAnim(mi, sd);
 		GetMissileVel(mi, cx, cy, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_ELEMENTAL].mdPrSpeed));
 	}
 	if (mis->_miRange >= 0) {
