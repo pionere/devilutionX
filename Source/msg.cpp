@@ -2490,30 +2490,24 @@ static unsigned On_PUTITEM(const TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 #ifdef HELLFIRE
-		if (cmd->bLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, pi->_iIdx)) {
-			pi->_itype = ITYPE_NONE;
-			if (pnum == mypnum) {
-				check_update_plr(pnum);
-				NewCursor(CURSOR_HAND);
-			}
-			return sizeof(*cmd);
-		}
+		if (cmd->bLevel != DLV_TOWN || !CheckTownTrigs(pnum, x, y, pi->_iIdx))
 #endif
-		PkItemStruct pkItem;
-		PackPkItem(&pkItem, pi);
-		pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
-		if (pr >= 0) {
+		{
+			PkItemStruct pkItem;
+			PackPkItem(&pkItem, pi);
+			pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
+			if (pr < 0) {
+				return sizeof(*cmd);
+			}
 			if (pr == 0 && currLvl._dLevelIdx == cmd->bLevel) {
 				SyncPutItem(pnum, x, y, pi, true);
-				pi->_itype = ITYPE_NONE;
-				if (pnum == mypnum) {
-					check_update_plr(pnum);
-					// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
-					NewCursor(CURSOR_HAND);
-				}
-			} else {
-				pi->_itype = ITYPE_NONE;
 			}
+		}
+		pi->_itype = ITYPE_NONE;
+		if (pnum == mypnum) {
+			check_update_plr(pnum);
+			// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
+			NewCursor(CURSOR_HAND);
 		}
 	}
 
