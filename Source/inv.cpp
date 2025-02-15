@@ -1569,11 +1569,12 @@ void DropItem()
  * @param pnum the id of the player who places the item (might not be valid)
  * @param x tile coordinate to place the item
  * @param y tile coordinate to place the item
+ * @param is the item to be placed
+ * @param flipFlag whether the item is dropped
  */
-void SyncPutItem(int pnum, int x, int y, bool flipFlag)
+void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag)
 {
 	int ii;
-	ItemStruct* is;
 	POS32 tpos, pos = { x, y };
 
 	// assert(plr._pDunLevel == currLvl._dLevelIdx);
@@ -1589,8 +1590,6 @@ void SyncPutItem(int pnum, int x, int y, bool flipFlag)
 	}
 	if (!FindItemLocation(tpos.x, tpos.y, pos, DSIZEX / 2))
 		return; // -1;
-
-	is = &items[MAXITEMS];
 
 	ii = itemactive[numitems];
 	dItem[pos.x][pos.y] = ii + 1;

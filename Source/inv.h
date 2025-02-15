@@ -45,7 +45,7 @@ int FindGetItem(const PkItemStruct* pkItem);
 bool CanPut(int x, int y);
 bool FindItemLocation(int sx, int sy, POS32& pos, int rad);
 void DropItem();
-void SyncPutItem(int pnum, int x, int y, bool flipFlag);
+void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag);
 void SyncSplitGold(int pnum, int cii, int value);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();

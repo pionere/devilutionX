@@ -2504,9 +2504,8 @@ static unsigned On_PUTITEM(const TCmd* pCmd, int pnum)
 		pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
 		if (pr >= 0) {
 			if (pr == 0 && currLvl._dLevelIdx == cmd->bLevel) {
-				copy_pod(items[MAXITEMS], *pi);
+				SyncPutItem(pnum, x, y, pi, true);
 				pi->_itype = ITYPE_NONE;
-				SyncPutItem(pnum, x, y, true);
 				if (pnum == mypnum) {
 					check_update_plr(pnum);
 					// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
@@ -2527,7 +2526,7 @@ static unsigned On_SPAWNITEM(const TCmd* pCmd, int pnum)
 
 	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) == 0 && currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
-		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
+		SyncPutItem(-1, cmd->x, cmd->y, &items[MAXITEMS], cmd->bFlipFlag);
 	}
 
 	return sizeof(*cmd);
@@ -2875,8 +2874,7 @@ static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 	if (pr < 0)
 		return false;
 	if (pr == 0 && currLvl._dLevelIdx == plr._pDunLevel) {
-		UnPackPkItem(&pkItem);
-		SyncPutItem(pnum, x, y, true);
+		SyncPutItem(pnum, x, y, pi, true);
 	}
 	pi->_itype = ITYPE_NONE;
 	return true;
