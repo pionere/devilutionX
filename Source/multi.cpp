@@ -15,8 +15,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
-/* Buffer to hold the received player-info. */
-static PkPlayerStruct netplr[MAX_PLRS];
 /* Specifies whether the player-info is received. */
 static bool sgbPackPlrTbl[MAX_PLRS];
 /** Specifies whether a game should be loaded. */
@@ -908,11 +906,11 @@ void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 		// invalid data -> drop
 		return;
 	}
-
-	memcpy(&netplr[pnum], piMsg->tpData.content, size);
+	PkPlayerStruct netplr;
+	memcpy(&netplr, piMsg->tpData.content, size);
 	// DeltaDecompressData
 	if (piMsg->tpData.compressed) {
-		PkwareDecompress((BYTE*)&netplr[pnum], size, sizeof(PkPlayerStruct));
+		PkwareDecompress((BYTE*)&netplr, size, sizeof(PkPlayerStruct));
 	}
 	// TODO: check (decompressed) size ?
 	//if (size != sizeof(PkPlayerStruct)) {
@@ -921,19 +919,19 @@ void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 	//}
 #if INET_MODE
 	// TODO: extend validation of PkPlayerStruct?
-	if (netplr[pnum].pName[0] == '\0'
-	 || netplr[pnum].pTeam != pnum
-	 || netplr[pnum].pDunLevel != DLV_TOWN
-	 //|| !netplr[pnum].pLvlChanging
-	 || netplr[pnum].pLevel > MAXCHARLEVEL
-	 || netplr[pnum].pClass >= NUM_CLASSES) {
+	if (netplr.pName[0] == '\0'
+	 || netplr.pTeam != pnum
+	 || netplr.pDunLevel != DLV_TOWN
+	 //|| !netplr.pLvlChanging
+	 || netplr.pLevel > MAXCHARLEVEL
+	 || netplr.pClass >= NUM_CLASSES) {
 		// invalid data -> drop
 		return;
 	}
-	netplr[pnum].pName[lengthof(netplr[pnum].pName) - 1] = '\0'; // ensure the name is null terminated
+	netplr.pName[lengthof(netplr.pName) - 1] = '\0'; // ensure the name is null terminated
 #endif
 	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
-	UnPackPlayer(&netplr[pnum], pnum);
+	UnPackPlayer(&netplr, pnum);
 }
 
 bool multi_plrinfo_received(int pnum)
