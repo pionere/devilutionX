@@ -387,6 +387,7 @@ static void DeltaDecompressData()
 void DeltaExportData(int pmask)
 {
 	DBuffer* buff = &gsDeltaData.ddSendRecvPkt.apMsg.tpData;
+	BYTE* lvlData = buff->content;
 	BYTE* dstEnd;
 	int i;
 	BYTE numChunks = 0;
@@ -395,26 +396,29 @@ void DeltaExportData(int pmask)
 	for (i = 0; i < lengthof(gsDeltaData.ddLevel); i++) {
 		if (gsDeltaData.ddLevelPlrs[i] == 0)
 			continue;
-		dstEnd = DeltaExportLevel(i, buff->content);
-		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, (size_t)dstEnd - (size_t)buff->content);
+		dstEnd = DeltaExportLevel(i, lvlData);
+		static_assert(NET_LARGE_MSG_SIZE <= UINT_MAX, "Size of large message can not be sent in an unsigned parameter II.");
+		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, static_cast<unsigned>((size_t)dstEnd - (size_t)lvlData));
 		numChunks++;
 	}
 	{ // junk
-		dstEnd = DeltaExportJunk(buff->content);
-		multi_send_large_msg(pmask, NMSG_DLEVEL_JUNK, (size_t)dstEnd - (size_t)buff->content);
+		dstEnd = DeltaExportJunk(lvlData);
+		static_assert(NET_LARGE_MSG_SIZE <= UINT_MAX, "Size of large message can not be sent in an unsigned parameter II.");
+		multi_send_large_msg(pmask, NMSG_DLEVEL_JUNK, static_cast<unsigned>((size_t)dstEnd - (size_t)lvlData));
 		numChunks++;
 	}
 	// players
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plx(i)._pActive) {
-			dstEnd = DeltaExportPlr(i, buff->content);
-			multi_send_large_msg(pmask, NMSG_DLEVEL_PLR, (size_t)dstEnd - (size_t)buff->content);
+			dstEnd = DeltaExportPlr(i, lvlData);
+			// assert((size_t)dstEnd - (size_t)lvlData == 1 + sizeof(PkPlayerStruct));
+			multi_send_large_msg(pmask, NMSG_DLEVEL_PLR, 1 + sizeof(PkPlayerStruct)); // (size_t)dstEnd - (size_t)lvlData);
 			numChunks++;
 		}
 	}
 	static_assert(lengthof(gsDeltaData.ddLevel) + 1 + MAX_PLRS < UCHAR_MAX, "DeltaExportData sends the number of chunks in a BYTE field.");
 	// current number of chunks sent + turn-id + end
-	DeltaDataEnd* deltaEnd = (DeltaDataEnd*)buff->content;
+	DeltaDataEnd* deltaEnd = (DeltaDataEnd*)lvlData;
 	deltaEnd->numChunks = numChunks;
 	deltaEnd->turn = gdwLastGameTurn;
 	assert(gdwLastGameTurn * gbNetUpdateRate == gdwGameLogicTurn);
@@ -1202,7 +1206,7 @@ void LevelDeltaExport()
 	MissileStruct* mis;
 	bool validDelta, completeDelta;
 	BYTE* dst;
-	unsigned recipients = 0;
+	unsigned recipients = 0, ulen;
 
 	validDelta = currLvl._dLevelIdx != DLV_INVALID;
 	completeDelta = false;
@@ -1395,10 +1399,11 @@ void LevelDeltaExport()
 
 			dst += sizeof(TSyncLvlMissile);
 		}
-
-		lvlData->wLen = static_cast<uint16_t>((size_t)dst - (size_t)&lvlData->ldContent[0]);
+		ulen = (unsigned)((size_t)dst - (size_t)&lvlData->ldContent[0]);
+		static_assert(sizeof(lvlData->ldContent) <= UINT16_MAX, "Length of ldContent can not be sent with a WORD field.");
+		lvlData->wLen = static_cast<uint16_t>(ulen);
 		// send the data to the recipients
-		multi_send_large_msg(recipients, NMSG_LVL_DELTA, (size_t)dst - (size_t)buff->content);
+		multi_send_large_msg(recipients, NMSG_LVL_DELTA, offsetof(LDLevel, ldContent) + ulen);
 	}
 	// current number of chunks sent + level + turn-id + end
 	LevelDeltaEnd* deltaEnd = (LevelDeltaEnd*)buff->content;
@@ -1535,7 +1540,7 @@ void LevelDeltaLoad()
 	}
 
 	wLen = lvlData->wLen;
-	wLen -= ((size_t)src - (size_t)(&lvlData->ldContent[0]));
+	wLen -= static_cast<uint16_t>((size_t)src - (size_t)(&lvlData->ldContent[0]));
 	// load monsters
 	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
 		TSyncLvlMonster* DVL_RESTRICT tmon = (TSyncLvlMonster*)src;
@@ -3840,7 +3845,7 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		// LogErrorF("Player base-data %d", (size_t)buf - (size_t)plrdata);
 
 		assert((size_t)buf - (size_t)plrdata == 114);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 114); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes I.
 		buf = &plrdata[1];
@@ -3866,7 +3871,7 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		//LogErrorF("Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 219);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 219); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes II.
 		buf = &plrdata[1];
@@ -3881,7 +3886,7 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		// LogErrorF("Player skill-data II. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 131); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes III.
 		buf = &plrdata[1];
@@ -3896,7 +3901,7 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		//LogErrorF("Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 131); // (size_t)buf - (size_t)plrdata);
 		/*PlrAnimStruct _pAnims[NUM_PGXS];*/
 		/*BOOLEAN _pInfraFlag;
 		BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
@@ -3950,6 +3955,11 @@ static void PrintPlrMismatch(const char* field, int myval, int extval, int sp, i
 	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
 }
 
+static void PrintPlrMismatch64(const char* field, uint64_t myval, uint64_t extval, int sp, int pnum)
+{
+	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
+}
+
 static void CmpPlrArray(const char* field, const void* src, const void* data, int size, int len, int ip, int pnum)
 {
 	const BYTE* sbuf = (const BYTE*)src;
@@ -3978,7 +3988,7 @@ static void CmpPlrArray(const char* field, const void* src, const void* data, in
 			if (*(const uint64_t*)sbuf != *(const uint64_t*)dbuf) {
 				char tmp[256];
 				snprintf(tmp, 256, "%s[%d]", field, i);
-				PrintPlrMismatch(tmp, *(const uint64_t*)dbuf, *(const uint64_t*)sbuf, pnum, ip);
+				PrintPlrMismatch64(tmp, *(const uint64_t*)dbuf, *(const uint64_t*)sbuf, pnum, ip);
 			}
 		}
 		sbuf += size;
@@ -4171,13 +4181,13 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 		src += sizeof(plx(i)._pSkillActivity);
 
 		if (plx(i)._pMemSkills != *(const uint64_t*)src)
-			PrintPlrMismatch("MemSkills", plx(i)._pMemSkills, *(const uint64_t*)src, pnum, i);
+			PrintPlrMismatch64("MemSkills", plx(i)._pMemSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		if (plx(i)._pAblSkills != *(const uint64_t*)src)
-			PrintPlrMismatch("AblSkills", plx(i)._pAblSkills, *(const uint64_t*)src, pnum, i);
+			PrintPlrMismatch64("AblSkills", plx(i)._pAblSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		if (plx(i)._pInvSkills != *(const uint64_t*)src)
-			PrintPlrMismatch("InvSkills", plx(i)._pInvSkills, *(const uint64_t*)src, pnum, i);
+			PrintPlrMismatch64("InvSkills", plx(i)._pInvSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		break;
 	case 2: // skill data
@@ -4190,7 +4200,7 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 		break;
 	}
 
-	return (size_t)src - (size_t)pCmd;
+	return (unsigned)((size_t)src - (size_t)pCmd);
 }
 
 static const int ITEMCHECK_LEN = 4 + 2 + 2 + 1 + 1 + 1 + 1 + 4 + 4 + 4;
@@ -4374,7 +4384,7 @@ static unsigned On_DO_ITEMCHECK(const TCmd* pCmd, int pnum)
 	}
 
 	//	LogErrorF("ItemCheck done. %d", (size_t)src - (size_t)pCmd);
-	return (size_t)src - (size_t)pCmd;
+	return (unsigned)((size_t)src - (size_t)pCmd);
 }
 
 #endif
