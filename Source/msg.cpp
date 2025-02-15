@@ -2528,19 +2528,19 @@ static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
+static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 {
 	int ma;
-	BYTE sn = su.skill;
+	BYTE sn = su.skill, slvl;
 	int8_t sf = su.from;
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
 	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
 
 	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		su.from = plr._pSkillLvl[sn];
+		slvl = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
-			if (su.from == 0)
+			if (slvl == 0)
 				return false;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
 			// always grant skill-activity to prevent de-sync
@@ -2559,6 +2559,8 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
 			if (!SyncUseItem(pnum, sf, sn))
 				return false;
 		}
+		plr._pDestParam3 = sn;
+		plr._pDestParam4 = slvl;
 		return sameLvl;
 	}
 	return false;
@@ -2573,8 +2575,8 @@ static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
 		plr._pDestAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
-		plr._pDestParam3 = cmd->lsu.skill;      // spell/skill
-		plr._pDestParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
+		// plr._pDestParam3 = cmd->lsu.skill;      // spell/skill
+		// plr._pDestParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -2653,7 +2655,7 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
-		plr._pDestParam3 = SPL_DISARM; // spell
+		// plr._pDestParam3 = SPL_DISARM; // spell
 		plr._pDestParam4 = oi;         // fake spllvl
 	}
 
@@ -2671,8 +2673,8 @@ static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 		net_assert(mnum < MAXMONSTERS);
 		plr._pDestAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
 		plr._pDestParam1 = mnum;                // target id
-		plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
-		plr._pDestParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
+		// plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
+		// plr._pDestParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -2689,8 +2691,8 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 		net_assert(tnum < MAX_PLRS);
 		plr._pDestAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
 		plr._pDestParam1 = tnum;                // target id
-		plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
-		plr._pDestParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
+		// plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
+		// plr._pDestParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
@@ -3230,7 +3232,7 @@ static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = x;
 		plr._pDestParam2 = y;
-		plr._pDestParam3 = SPL_TELEKINESIS; // spell
+		// plr._pDestParam3 = SPL_TELEKINESIS; // spell
 		plr._pDestParam4 = id;              // fake spllvl
 	}
 }
