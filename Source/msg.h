@@ -101,8 +101,8 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
  */
 void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type);
 void NetSendCmdString(TMsgString* msg, unsigned int pmask);
-unsigned ParseMsg(int pnum, TCmd* pCmd);
-unsigned ParseCmd(int pnum, TCmd* pCmd);
+unsigned ParseMsg(int pnum, const TCmd* pCmd);
+unsigned ParseCmd(int pnum, const TCmd* pCmd);
 
 void UnPackPkItem(const PkItemStruct* src);
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src);

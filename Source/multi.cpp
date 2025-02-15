@@ -890,7 +890,7 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
+void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
