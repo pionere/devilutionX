@@ -335,12 +335,15 @@ __pragma (optimize( "", off )) \
 __pragma (optimize( "gsy", on ))
 #define ENABLE_SPEED_OPTIMIZATION \
 __pragma (optimize( "", on ))
-#else
+#elif defined(__GNUC__) && !defined(__clang__)
 #define DISABLE_SPEED_OPTIMIZATION \
 _Pragma ("GCC push_options") \
 _Pragma ("GCC optimize(\"Os\")")
 #define ENABLE_SPEED_OPTIMIZATION \
 _Pragma ("GCC pop_options")
+#else
+#define DISABLE_SPEED_OPTIMIZATION
+#define ENABLE_SPEED_OPTIMIZATION
 #endif
 #endif // DEBUG_MODE
 
