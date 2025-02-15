@@ -219,14 +219,14 @@ GameController* GameController::Get(const SDL_Event& event)
 		return NULL;
 	}
 }
-
+#if 0
 void GameController::ReleaseAll()
 {
 	while (!controllers_.empty()) {
 		GameController::Remove(controllers_.front().instance_id_);
 	}
 }
-
+#endif
 bool GameController::IsPressedOnAnyController(ControllerButton button)
 {
 	for (unsigned i = 0; i < controllers_.size(); ++i)
