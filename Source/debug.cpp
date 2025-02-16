@@ -1899,6 +1899,9 @@ void ValidateData()
 				app_fatal("Arrow-Missile %d is not handled by MI_*Arrow proc.", i); // required to maintain MISDIST
 			if (i != MIS_ARROW && i != MIS_PBARROW && i != MIS_ASARROW && i != MIS_MLARROW && i != MIS_PCARROW)
 				app_fatal("Arrow-Missile %d is not handled in MissMonHitByPlr and in MissPlrHitByPlr.", i);
+		} else {
+			if (md.mAddProc == AddApocaC2 && !(md.mdFlags & MIF_AREA))
+				app_fatal("Magic-Missile %d damage-direction is not handled in MissDirection.", i);
 		}
 		if (md.mDrawFlag) {
 			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
