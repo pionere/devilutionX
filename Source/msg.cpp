@@ -1108,7 +1108,6 @@ void DeltaLoadLevel()
 			ii = FindGetItem(&itm->item);
 			assert(ii != -1);
 			assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
-			dItem[items[ii]._ix][items[ii]._iy] = 0;
 			DeleteItem(ii);
 		}
 	}

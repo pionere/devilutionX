@@ -2331,6 +2331,8 @@ void DeleteItem(int ii)
 	}
 	// assert(i < numitems);
 	DeleteActiveItem(ii, i);
+
+	dItem[items[ii]._ix][items[ii]._iy] = 0;
 }
 
 static void ItemDoppel()

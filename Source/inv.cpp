@@ -1355,7 +1355,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 					SyncPlrStorageRemove(pnum, nn);
 				}
 			}
-			// preserve seed and location of the last item (required by AutoGetItem)
+			// preserve seed and location of the last item (required by DeleteItem[AutoGetItem, InvGetItem])
 			idx = is->_iSeed;
 			x = is->_ix;
 			y = is->_iy;
@@ -1395,11 +1395,7 @@ void SyncInvGetItem(int pnum, int ii)
 
 void InvGetItem(int pnum, int ii)
 {
-	ItemStruct* is;
-
-	is = &items[ii];
-	assert(dItem[is->_ix][is->_iy] == ii + 1);
-	dItem[is->_ix][is->_iy] = 0;
+	assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
 
 	SyncInvGetItem(pnum, ii);
 
@@ -1437,16 +1433,13 @@ bool SyncAutoGetItem(int pnum, int ii)
 
 bool AutoGetItem(int pnum, int ii)
 {
-	ItemStruct* is;
 	bool done;
 
-	is = &items[ii];
-	assert(dItem[is->_ix][is->_iy] == ii + 1);
+	assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
 
 	done = SyncAutoGetItem(pnum, ii);
 
 	if (done) {
-		dItem[is->_ix][is->_iy] = 0;
 		DeleteItem(ii);
 	} else {
 		if (pnum == mypnum) {
