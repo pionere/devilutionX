@@ -2312,7 +2312,7 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 1;*/
 }
 
-static void DeleteItem(int ii, int idx)
+static void DeleteActiveItem(int ii, int idx)
 {
 	numitems--;
 	// assert(itemactive[idx] == ii);
@@ -2320,7 +2320,7 @@ static void DeleteItem(int ii, int idx)
 	itemactive[numitems] = ii;
 }
 
-void DeleteItems(int ii)
+void DeleteItem(int ii)
 {
 	int i;
 
@@ -2330,7 +2330,7 @@ void DeleteItems(int ii)
 		}
 	}
 	// assert(i < numitems);
-	DeleteItem(ii, i);
+	DeleteActiveItem(ii, i);
 }
 
 static void ItemDoppel()

@@ -1410,7 +1410,7 @@ void InvGetItem(int pnum, int ii)
 		pcursitem = ITEM_NONE;
 	}
 
-	DeleteItems(ii);
+	DeleteItem(ii);
 }
 
 bool SyncAutoGetItem(int pnum, int ii)
@@ -1447,7 +1447,7 @@ bool AutoGetItem(int pnum, int ii)
 
 	if (done) {
 		dItem[is->_ix][is->_iy] = 0;
-		DeleteItems(ii);
+		DeleteItem(ii);
 	} else {
 		if (pnum == mypnum) {
 			PlaySfxN(sgSFXSets[SFXS_PLR_14][plr._pClass], 3);

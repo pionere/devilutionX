@@ -1109,7 +1109,7 @@ void DeltaLoadLevel()
 			if (ii != -1) {
 				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
 					dItem[items[ii]._ix][items[ii]._iy] = 0;
-				DeleteItems(ii);
+				DeleteItem(ii);
 			}
 		}
 	}
