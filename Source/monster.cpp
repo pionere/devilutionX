@@ -2363,7 +2363,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	if (!CheckHit(hper))
 		return;
 
-	if (PlrCheckBlock(pnum, mon->_mLevel, mon->_mx, mon->_my))
+	if (PlrCheckBlock(pnum, mon->_mLevel, OPPOSITE(mon->_mdir)))
 		return;
 
 	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
@@ -4762,7 +4762,7 @@ void MissToMonst(int mi)
 		pnum = CheckPlrCol(mpnum);
 		if (pnum < 0)
 			return;
-		if (PlrCheckBlock(pnum, mon->_mLevel + 16, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(pnum, mon->_mLevel + 16, OPPOSITE(mon->_mdir)))
 			return;
 		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
 		MonHitPlr(mnum, pnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);

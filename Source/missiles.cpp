@@ -1071,8 +1071,9 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	if (!CheckHit(hper))
 		return false;
 
+	dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
 	if (!(mis->_miFlags & MIF_AREA)) {
-		if (PlrCheckBlock(pnum, misource >= 0 ? monsters[misource]._mLevel : currLvl._dLevel, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(pnum, misource >= 0 ? monsters[misource]._mLevel : currLvl._dLevel, OPPOSITE(dir)))
 			return true;
 	}
 
@@ -1091,7 +1092,6 @@ static bool MissPlrHitByMon(int pnum, int mi)
 			hitFlags = (misource >= 0 ? monsters[misource]._mFlags & ISPL_HITFLAGS_MASK : 0) | ISPL_FAKE_CAN_BLEED;
 			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MissPlrHitByMon uses _mFlags as hitFlags.");
 		}
-		dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
 		PlrHitByAny(pnum, misource, dam, hitFlags, dir);
 	}
 	return true;
@@ -1131,8 +1131,9 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 	if (!CheckHit(hper))
 		return false;
 
+	dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
 	if (!(mis->_miFlags & MIF_AREA)) {
-		if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, OPPOSITE(dir)))
 			return true;
 	}
 
@@ -1215,7 +1216,6 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		hitFlags = 0;
 		if (mis->_miFlags & MIF_ARROW)
 			hitFlags = (plx(mis->_miSource)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		dir = MissDirection(mis, plr._pdir, plr._px, plr._py);
 		PlrHitByAny(pnum, mis->_miSource, dam, hitFlags, dir);
 	}
 	return true;

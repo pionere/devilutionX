@@ -1963,7 +1963,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (!CheckHit(hper))
 		return false;
 
-	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
+	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, OPPOSITE(plx(offp)._pdir)))
 		return true;
 
 	dam = 0;
@@ -2243,7 +2243,7 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
+bool PlrCheckBlock(int pnum, int bmod, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrCheckBlock: illegal player %d", pnum);
@@ -2256,7 +2256,6 @@ bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - bmod * 2;
 		if (CheckHit(blkper)) {
-			int dir = GetDirection(plr._px, plr._py, sx, sy);
 			if (plr._pmode == PM_STAND) {
 				AssertFixPlayerLocation(pnum);
 				StartBlock(pnum, dir);
@@ -2918,7 +2917,7 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper))
 			return;
 
-		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, OPPOSITE(plr._pdir)))
 			return;
 		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
 
