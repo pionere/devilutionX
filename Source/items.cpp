@@ -865,10 +865,13 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 
 void SetItemData(int ii, int idata)
 {
-	ItemStruct* is;
+	SetItemSData(&items[ii], idata);
+}
+
+void SetItemSData(ItemStruct* is, int idata)
+{
 	const ItemData* ids;
 
-	is = &items[ii];
 	// zero-initialize struct
 	memset(is, 0, sizeof(*is));
 
@@ -908,12 +911,6 @@ void SetItemData(int ii, int idata)
 	//is->_iMagical = ITEM_QUALITY_NORMAL;
 	static_assert(SPL_NULL == 0, "Zero-fill expects SPL_NULL == 0.");
 	//is->_iPLSkill = SPL_NULL;
-}
-
-void SetItemSData(ItemStruct* is, int idata)
-{
-	SetItemData(MAXITEMS, idata);
-	copy_pod(*is, items[MAXITEMS]);
 }
 
 /**
