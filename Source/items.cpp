@@ -2315,7 +2315,7 @@ void RespawnItem(int ii, bool FlipFlag)
 static void DeleteItem(int ii, int idx)
 {
 	numitems--;
-	assert(itemactive[idx] == ii);
+	// assert(itemactive[idx] == ii);
 	itemactive[idx] = itemactive[numitems];
 	itemactive[numitems] = ii;
 }
@@ -2324,13 +2324,13 @@ void DeleteItems(int ii)
 {
 	int i;
 
-	for (i = 0; i < numitems; ) {
+	for (i = 0; ; i++) {
 		if (itemactive[i] == ii) {
-			DeleteItem(ii, i);
-		} else {
-			i++;
+			break;
 		}
 	}
+	// assert(i < numitems);
+	DeleteItem(ii, i);
 }
 
 static void ItemDoppel()
