@@ -1106,11 +1106,10 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
 			ii = FindGetItem(&itm->item);
-			if (ii != -1) {
-				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
-					dItem[items[ii]._ix][items[ii]._iy] = 0;
-				DeleteItem(ii);
-			}
+			assert(ii != -1);
+			assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
+			dItem[items[ii]._ix][items[ii]._iy] = 0;
+			DeleteItem(ii);
 		}
 	}
 	//  II. place items
