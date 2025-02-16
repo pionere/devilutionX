@@ -4287,7 +4287,6 @@ void MI_Guardian(int mi)
 {
 	MissileStruct* mis;
 	int i, j, tx, ty;
-	bool ex;
 	const int8_t* cr;
 
 	mis = &missile[mi];
@@ -4328,6 +4327,7 @@ void MI_Guardian(int mi)
 done:
 				;
 			} else {
+collapse:
 				// start collapse
 				SetMissAnim(mi, 0);
 				mis->_miAnimFrame = misfiledata[MFILE_GUARD].mfAnimLen[0];
@@ -4340,11 +4340,12 @@ done:
 		// assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1);
 		if (mis->_miAnimFrame == 1
 		 /* && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen[2] - 1*/) {
-			ex = mis->_miRange != 0;
-			SetMissAnim(mi, ex ? 1 : 0);
+			if (mis->_miRange <= 0)
+				goto collapse;
+			SetMissAnim(mi, 1);
 			// skip check frame to add delay between attacks
-			mis->_miAnimFrame = ex ? 2 : misfiledata[MFILE_GUARD].mfAnimLen[0];
-			mis->_miAnimAdd = ex ? 1 : -1;
+			mis->_miAnimFrame = 2;
+			mis->_miAnimAdd = 1;
 		}
 		break;
 	default:
