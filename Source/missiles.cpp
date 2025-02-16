@@ -4369,37 +4369,33 @@ void MI_Chain(int mi)
 	mx = mis->_mix;
 	my = mis->_miy;
 	if (mx != mis->_misx || my != mis->_misy) {
-		if (!nMissileTable[dPiece[mx][my]]) {
-			if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY) == 1) {
-				if (mis->_miVar1-- != 0) {
-					// set the new position as the starting point
-					mis->_misx = mx;
-					mis->_misy = my;
-					mis->_mixoff = 0;
-					mis->_miyoff = 0;
-					mis->_mitxoff = 0;
-					mis->_mityoff = 0;
-					// restore base range
-					mis->_miRange = 255;
-					// find new target
-					if (!FindClosestChain(mx, my, dx, dy)) {
-						// create pseudo-random seed using the monster which was hit (or the first real monster)
-						/*sd = dMonster[mx][my];
-						if (sd != 0)
-							sd = sd >= 0 ? sd - 1 : -(sd + 1);
-						else
-							sd = MAX_MINIONS;
-						SetRndSeed(monsters[sd]._mRndSeed);*/
-						sd = random_(0, lengthof(XDirAdd));
-						dx = mx + XDirAdd[sd];
-						dy = my + YDirAdd[sd];
-					}
-					//SetMissAnim(mi, sd);
-					GetMissileVel(mi, mx, my, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_CHAIN].mdPrSpeed));
+		if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY) == 1) {
+			if (mis->_miVar1-- != 0) {
+				// set the new position as the starting point
+				mis->_misx = mx;
+				mis->_misy = my;
+				mis->_mixoff = 0;
+				mis->_miyoff = 0;
+				mis->_mitxoff = 0;
+				mis->_mityoff = 0;
+				// restore base range
+				mis->_miRange = 255;
+				// find new target
+				if (!FindClosestChain(mx, my, dx, dy)) {
+					// create pseudo-random seed using the monster which was hit (or the first real monster)
+					/*sd = dMonster[mx][my];
+					if (sd != 0)
+						sd = sd >= 0 ? sd - 1 : -(sd + 1);
+					else
+						sd = MAX_MINIONS;
+					SetRndSeed(monsters[sd]._mRndSeed);*/
+					sd = random_(0, lengthof(XDirAdd));
+					dx = mx + XDirAdd[sd];
+					dy = my + YDirAdd[sd];
 				}
+				//SetMissAnim(mi, sd);
+				GetMissileVel(mi, mx, my, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_CHAIN].mdPrSpeed));
 			}
-		} else {
-			mis->_miRange = 0;
 		}
 	}
 	mis->_miRange--;
