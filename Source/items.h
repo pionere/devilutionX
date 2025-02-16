@@ -62,8 +62,6 @@ void DeleteItem(int ii);
 void ProcessItems();
 void SyncItemAnim(int ii);
 int FindGetItem(const PkItemStruct* pkItem);
-bool CanPut(int x, int y);
-bool FindItemLocation(int sx, int sy, POS32& pos, int rad);
 void DropItem();
 void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag);
 ItemStruct* PlrItem(int pnum, int cii);

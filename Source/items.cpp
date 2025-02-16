@@ -1023,6 +1023,47 @@ void CreatePlrItems(int pnum)
 }
 
 /**
+ * Check the location if an item can be placed there while generating the dungeon.
+ */
+static bool CanPut(int x, int y)
+{
+	int oi; // , oi2;
+
+	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
+		return false;
+
+	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	/*oi = dObject[x + 1][y + 1];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSelFlag != 0)
+			return false;
+	}
+
+	oi = dObject[x + 1][y];
+	if (oi > 0) {
+		oi2 = dObject[x][y + 1];
+		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
+			return false;
+	}*/
+
+	if (currLvl._dType == DTYPE_TOWN)
+		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
+			return false;
+
+	return true;
+}
+
+/**
  * Check the location if an item can be placed there in 'runtime'.
  */
 bool ItemSpaceOk(int x, int y)
@@ -2407,45 +2448,7 @@ int FindGetItem(const PkItemStruct* pkItem)
 	return -1;
 }
 
-bool CanPut(int x, int y)
-{
-	int oi; // , oi2;
-
-	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
-		return false;
-
-	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
-		return false;
-
-	oi = dObject[x][y];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSolidFlag)
-			return false;
-	}
-
-	/*oi = dObject[x + 1][y + 1];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSelFlag != 0)
-			return false;
-	}
-
-	oi = dObject[x + 1][y];
-	if (oi > 0) {
-		oi2 = dObject[x][y + 1];
-		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
-			return false;
-	}*/
-
-	if (currLvl._dType == DTYPE_TOWN)
-		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
-			return false;
-
-	return true;
-}
-
-bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
+static bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
 {
 	int dir;
 	int xx, yy, i, j, k;
