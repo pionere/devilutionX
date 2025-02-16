@@ -1295,53 +1295,47 @@ void CheckBeltClick()
 
 static void CheckQuestItem(int pnum, ItemStruct* is)
 {
-	int idx, delay;
+	int idx, delay = 0;
 
 	idx = is->_iIdx;
 	if (idx == IDI_OPTAMULET) {
-		if (quests[Q_BLIND]._qactive != QUEST_ACTIVE)
-			return;
-		quests[Q_BLIND]._qactive = QUEST_DONE;
-		return;
-	}
-	if (idx == IDI_MUSHROOM) {
-		if (pnum != mypnum) {
-			return;
+		if (quests[Q_BLIND]._qactive == QUEST_ACTIVE)
+			quests[Q_BLIND]._qactive = QUEST_DONE;
+	} else if (idx == IDI_MUSHROOM) {
+		if (pnum == mypnum
+		 && quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && quests[Q_MUSHROOM]._qvar1 < QV_MUSHROOM_MUSHGIVEN
+		 && quests[Q_MUSHROOM]._qvar2 != SFXS_PLR_95) {
+			quests[Q_MUSHROOM]._qvar2 = SFXS_PLR_95;
+			delay = 10;
+			idx = TEXT_IM_MUSHROOM;
 		}
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
-			return;
-		if (quests[Q_MUSHROOM]._qvar2 == SFXS_PLR_95)
-			return;
-		quests[Q_MUSHROOM]._qvar2 = SFXS_PLR_95;
-		delay = 10;
-		idx = TEXT_IM_MUSHROOM;
 	} else if (idx == IDI_ANVIL) {
-		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
-			return;
-		delay = 10;
-		idx = TEXT_IM_ANVIL;
+		if (quests[Q_ANVIL]._qactive == QUEST_ACTIVE) {
+			delay = 10;
+			idx = TEXT_IM_ANVIL;
+		}
 	} else if (idx == IDI_GLDNELIX) {
-		if (quests[Q_VEIL]._qactive != QUEST_ACTIVE)
-			return;
-		delay = 30;
-		idx = TEXT_IM_GLDNELIX;
+		if (quests[Q_VEIL]._qactive == QUEST_ACTIVE) {
+			delay = 30;
+			idx = TEXT_IM_GLDNELIX;
+		}
 	} else if (idx == IDI_ROCK) {
-		if (quests[Q_ROCK]._qactive != QUEST_ACTIVE)
-			return;
-		delay = 10;
-		idx = TEXT_IM_ROCK;
+		if (quests[Q_ROCK]._qactive == QUEST_ACTIVE) {
+			delay = 10;
+			idx = TEXT_IM_ROCK;
+		}
 	} else if (idx == IDI_ARMOFVAL) {
-		if (quests[Q_BLOOD]._qactive != QUEST_ACTIVE)
-			return;
-		quests[Q_BLOOD]._qactive = QUEST_DONE;
-		delay = 20;
-		idx = TEXT_IM_ARMOFVAL;
+		if (quests[Q_BLOOD]._qactive == QUEST_ACTIVE) {
+			quests[Q_BLOOD]._qactive = QUEST_DONE;
+			delay = 20;
+			idx = TEXT_IM_ARMOFVAL;
+		}
 #ifdef HELLFIRE
 	} else if (idx == IDI_FANG) {
-		if (quests[Q_GRAVE]._qactive != QUEST_INIT)
-			return;
-		delay = 10;
-		idx = TEXT_IM_FANG;
+		if (quests[Q_GRAVE]._qactive == QUEST_INIT) {
+			delay = 10;
+			idx = TEXT_IM_FANG;
+		}
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn, i, x, y;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
@@ -1365,14 +1359,10 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			is->_iy = y;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
-		} else {
-			return;
 		}
 #endif
-	} else {
-		return;
 	}
-	if (pnum == mypnum) {
+	if (delay != 0 && pnum == mypnum) {
 		gnSfxDelay = delay;
 		gnSfxNum = idx;
 	}
