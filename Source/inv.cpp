@@ -1308,6 +1308,9 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		return;
 	}
 	if (idx == IDI_MUSHROOM) {
+		if (pnum != mypnum) {
+			return;
+		}
 		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
 			return;
 		if (quests[Q_MUSHROOM]._qvar2 == SFXS_PLR_95)
