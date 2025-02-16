@@ -2312,14 +2312,6 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 1;*/
 }
 
-static void DeleteActiveItem(int ii, int idx)
-{
-	numitems--;
-	// assert(itemactive[idx] == ii);
-	itemactive[idx] = itemactive[numitems];
-	itemactive[numitems] = ii;
-}
-
 void DeleteItem(int ii)
 {
 	int i;
@@ -2330,7 +2322,9 @@ void DeleteItem(int ii)
 		}
 	}
 	// assert(i < numitems);
-	DeleteActiveItem(ii, i);
+	numitems--;
+	itemactive[i] = itemactive[numitems];
+	itemactive[numitems] = ii;
 
 	dItem[items[ii]._ix][items[ii]._iy] = 0;
 }
