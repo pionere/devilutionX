@@ -893,7 +893,7 @@ void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
 	if (sgbPackPlrTbl[pnum]) {
-		// invalid data -> drop
+		// player info received already -> drop
 		return;
 	}
 	if (plr._pActive) {
@@ -928,7 +928,6 @@ void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 		// invalid data -> drop
 		return;
 	}
-	netplr.pName[lengthof(netplr.pName) - 1] = '\0'; // ensure the name is null terminated
 #endif
 	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
 	UnPackPlayer(&netplr, pnum);
