@@ -985,7 +985,6 @@ void DeltaLoadLevel()
 	DDItem* itm;
 	int ii;
 	int i;
-	POS32 pos;
 	bool monInGame;
 
 	assert(IsMultiGame);
@@ -1004,9 +1003,7 @@ void DeltaLoadLevel()
 				// skip minions and prespawn skeletons
 				if (monInGame)
 					RemoveMonFromMap(i);
-				pos.x = mstr->dmx;
-				pos.y = mstr->dmy;
-				SetMonsterLoc(mon, pos.x, pos.y);
+				SetMonsterLoc(mon, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
 				UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 				if (mstr->dmSIdx != 0) {
@@ -1116,18 +1113,7 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_DROPPED || itm->bCmd == DCMD_ITM_MOVED) {
 			UnPackPkItem(&itm->item);
-			pos.x = itm->x;
-			pos.y = itm->y;
-			if (!CanPut(pos.x, pos.y))
-				FindItemLocation(pos.x, pos.y, pos, DSIZEX / 2);
-
-			ii = itemactive[numitems];
-			copy_pod(items[ii], items[MAXITEMS]);
-			items[ii]._ix = pos.x;
-			items[ii]._iy = pos.y;
-			dItem[pos.x][pos.y] = ii + 1;
-			RespawnItem(ii, false);
-			numitems++;
+			SyncPutItem(-1, itm->x, itm->y, &items[MAXITEMS], false);
 		}
 	}
 
