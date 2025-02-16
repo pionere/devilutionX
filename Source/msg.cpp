@@ -2401,8 +2401,7 @@ static unsigned On_GETITEM(const TCmd* pCmd, int pnum)
 			InvGetItem(pnum, ii);
 		} else {
 			UnPackPkItem(&cmd->item);
-			copy_pod(plr._pHoldItem, items[MAXITEMS]);
-			// assert(!plr._pHoldItem._iFloorFlag);
+			SyncAutoGetItem(pnum, MAXITEMS);
 		}
 	}
 

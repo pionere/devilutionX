@@ -39,6 +39,7 @@ void SyncPlrStorageRemove(int pnum, int cii);
 void CheckInvClick();
 void CheckBeltClick();
 void InvGetItem(int pnum, int ii);
+void SyncInvGetItem(int pnum, int ii);
 bool AutoGetItem(int pnum, int ii);
 bool SyncAutoGetItem(int pnum, int ii);
 int FindGetItem(const PkItemStruct* pkItem);

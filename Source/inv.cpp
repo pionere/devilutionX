@@ -1302,9 +1302,6 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		if (quests[Q_BLIND]._qactive != QUEST_ACTIVE)
 			return;
 		quests[Q_BLIND]._qactive = QUEST_DONE;
-		if (pnum == mypnum) {
-			NetSendCmdQuest(Q_BLIND, false); // recipient should not matter
-		}
 		return;
 	}
 	if (idx == IDI_MUSHROOM) {
@@ -1381,13 +1378,11 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 	}
 }
 
-void InvGetItem(int pnum, int ii)
+void SyncInvGetItem(int pnum, int ii)
 {
 	ItemStruct* is;
 
 	is = &items[ii];
-	assert(dItem[is->_ix][is->_iy] == ii + 1);
-	dItem[is->_ix][is->_iy] = 0;
 
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
@@ -1396,6 +1391,18 @@ void InvGetItem(int pnum, int ii)
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
+}
+
+void InvGetItem(int pnum, int ii)
+{
+	ItemStruct* is;
+
+	is = &items[ii];
+	assert(dItem[is->_ix][is->_iy] == ii + 1);
+	dItem[is->_ix][is->_iy] = 0;
+
+	SyncInvGetItem(pnum, ii);
+
 	if (pnum == mypnum) {
 		PlaySfx(IS_IGRAB);
 		NewCursor(plr._pHoldItem._iCurs + CURSOR_FIRSTITEM);
