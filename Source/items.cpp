@@ -324,8 +324,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int dadd = 0; // added dexterity
 	int vadd = 0; // added vitality
 
-	uint64_t spl = 0; // bitarray for all enabled/active spells
-
 	int br = gnDifficulty * -10;
 	int fr = br; // fire resistance
 	int lr = br; // lightning resistance
@@ -370,9 +368,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-			if (pi->_iSpell != SPL_NULL) {
-				spl |= SPELL_MASK(pi->_iSpell);
-			}
 			cac = pi->_iAC;
 			cdmod = 0;
 			cdmodp = 0;
@@ -479,10 +474,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIMMaxDam = mmax * pdmod >> (-6 + 9);
 	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
 	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
-
-	plr._pISpells = spl;
-	if (pnum == mypnum)
-		ValidateActionSkills(pnum, RSPLTYPE_CHARGES, spl);
 
 	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
 	if (plr._pLightRad != lrad) {
@@ -708,6 +699,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		plr._pSkillLvl[i] = skillLvl;
 	}
 
+	CalcPlrCharges(pnum);
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING) {
 		PlrSetHp(pnum, 0);
 		PlrSetMana(pnum, 0);
@@ -775,7 +767,7 @@ void CalcPlrCharges(int pnum)
 
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag)
+		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0 && pi->_iSpell != NULL*/ && pi->_iStatFlag)
 			mask |= SPELL_MASK(pi->_iSpell);
 	}
 	plr._pISpells = mask;
