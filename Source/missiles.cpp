@@ -618,7 +618,7 @@ static void GetMissilePos(int mi)
 	mis->_miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
 	ChangeLightScreenOff(mis->_miLid, mis->_mixoff, mis->_miyoff);
 }
-
+#if 0
 /**
  * Shift the missiles coordinates to place it in front of the view.
  * @param mi the missile to be shifted
@@ -664,7 +664,7 @@ static void ShiftMissilePos(int mi)
 		mis->_miyoff -= ((dy * 16) + (dx * 16)) * ASSET_MPL;
 	}
 }
-
+#endif
 unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates)
 {
 	unsigned dam;
@@ -4599,7 +4599,7 @@ void MI_Rhino(int mi)
 		return;
 	}
 	// restore the real coordinates
-	GetMissilePos(mi);
+	//GetMissilePos(mi);
 	//assert(dMonster[mis->_mix][mis->_miy] == -(mnum + 1));
 	dMonster[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
@@ -4636,7 +4636,7 @@ void MI_Rhino(int mi)
 		// assert(monsters[mnum]._mlid == NO_LIGHT);
 		//ChangeLightXY(monsters[mnum]._mlid, bx, by);
 	}
-	ShiftMissilePos(mi);
+	//ShiftMissilePos(mi);
 	PutMissile(mi);
 }
 
