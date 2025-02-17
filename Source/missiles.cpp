@@ -786,7 +786,7 @@ static bool MissMonHitByMon(int mnum, int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int misource, hper, dam;
+	int misource, hper, dir, dam;
 	bool ret;
 
 	mon = &monsters[mnum];
@@ -835,7 +835,8 @@ static bool MissMonHitByMon(int mnum, int mi)
 		/*if (resist != MORT_NONE) {
 			PlayMonSfx(mnum, MS_GOTHIT);
 		} else {*/
-			MonHitByMon(mnum, misource, dam, misource >= 0 ? monsters[misource]._mdir : OPPOSITE(mon->_mdir));
+			dir = MissDirection(mis, mon->_mdir, mon->_mx, mon->_my);
+			MonHitByMon(mnum, misource, dam, dir);
 		//}
 	}
 	if (mon->_msquelch != SQUELCH_MAX) {
