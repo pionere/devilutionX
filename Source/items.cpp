@@ -448,30 +448,10 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	if (plr._pTimer[PLTR_RAGE] > 0) {
-		sadd += 2 * plr._pLevel;
-		dadd += plr._pLevel;
-		vadd += 2 * plr._pLevel;
-	}
-	plr._pStrength = std::max(0, sadd + plr._pBaseStr);
-	plr._pMagic = std::max(0, madd + plr._pBaseMag);
-	plr._pDexterity = std::max(0, dadd + plr._pBaseDex);
-	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
-
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
-
-	pdmod = (1 << 9) + (32 * plr._pMagic);
-	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
-	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
-	plr._pILMinDam = lmin * pdmod >> (-6 + 9);
-	plr._pILMaxDam = lmax * pdmod >> (-6 + 9);
-	plr._pIMMinDam = mmin * pdmod >> (-6 + 9);
-	plr._pIMMaxDam = mmax * pdmod >> (-6 + 9);
-	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
-	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
 
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
 	imana += madd << (6 + 1);
@@ -532,6 +512,30 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
 
+	sadd += plr._pBaseStr;
+	madd += plr._pBaseMag;
+	dadd += plr._pBaseDex;
+	vadd += plr._pBaseVit;
+	plr._pStrength = std::max(0, sadd);
+	plr._pMagic = std::max(0, madd);
+	plr._pDexterity = std::max(0, dadd);
+	plr._pVitality = std::max(0, vadd);
+	if (plr._pTimer[PLTR_RAGE] > 0) {
+		sadd += 2 * plr._pLevel;
+		dadd += plr._pLevel;
+		vadd += 2 * plr._pLevel;
+	}
+
+	pdmod = (1 << 9) + (32 * plr._pMagic);
+	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
+	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
+	plr._pILMinDam = lmin * pdmod >> (-6 + 9);
+	plr._pILMaxDam = lmax * pdmod >> (-6 + 9);
+	plr._pIMMinDam = mmin * pdmod >> (-6 + 9);
+	plr._pIMMaxDam = mmax * pdmod >> (-6 + 9);
+	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
+	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
+
 	wLeft = &plr._pInvBody[INVLOC_HAND_LEFT];
 	wRight = &plr._pInvBody[INVLOC_HAND_RIGHT];
 
@@ -577,7 +581,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	maxdam = plr._pMaxHP >> (2 + 1 - 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag
 	 && (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_SWORD || gfx == ANIM_ID_MACE)) {
-		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
+		tac += ((dadd - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
 		static_assert((int)ANIM_ID_UNARMED + 1 == (int)ANIM_ID_UNARMED_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield I.");
 		static_assert((int)ANIM_ID_SWORD + 1 == (int)ANIM_ID_SWORD_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield II.");
@@ -611,14 +615,14 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate bonuses
 	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	plr._pIEvasion = plr._pDexterity / 5 + 2 * plr._pLevel;
+	plr._pIEvasion = dadd / 5 + 2 * plr._pLevel;
 	plr._pIAC = tac + plr._pIEvasion;
 	btohit += 50; // + plr._pLevel;
 	if (wt == SFLAG_MELEE) {
-		btohit += 20 + (plr._pDexterity >> 1);
+		btohit += 20 + (dadd >> 1);
 	} else {
 		// assert(wt == SFLAG_RANGED);
-		btohit += plr._pDexterity;
+		btohit += dadd;
 	}
 	plr._pIHitChance = btohit;
 
@@ -633,23 +637,23 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// calculate the damages for each type
 	if (maxsl != 0) {
-		pdmod = 512 + plr._pStrength * 6 + plr._pDexterity * 2;
+		pdmod = 512 + sadd * 6 + dadd * 2;
 		minsl = minsl * pdmod / (100 * 512 / 64);
 		maxsl = maxsl * pdmod / (100 * 512 / 64);
 	}
 	if (maxbl != 0) {
 		if (wLeft->_itype == ITYPE_STAFF)
-			pdmod = 512 + plr._pStrength * 4 + plr._pDexterity * 4;
+			pdmod = 512 + sadd * 4 + dadd * 4;
 		else
-			pdmod = 512 + plr._pStrength * 6 + plr._pVitality * 2;
+			pdmod = 512 + sadd * 6 + vadd * 2;
 		minbl = minbl * pdmod / (100 * 512 / 64);
 		maxbl = maxbl * pdmod / (100 * 512 / 64);
 	}
 	if (maxpc != 0) {
 		if (wLeft->_itype == ITYPE_BOW)
-			pdmod = 512 + plr._pDexterity * 8;
+			pdmod = 512 + dadd * 8;
 		else // dagger
-			pdmod = 512 + plr._pStrength * 2 + plr._pDexterity * 6;
+			pdmod = 512 + sadd * 2 + dadd * 6;
 		minpc = minpc * pdmod / (100 * 512 / 64);
 		maxpc = maxpc * pdmod / (100 * 512 / 64);
 	}
@@ -678,7 +682,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pICritChance = cc;
 
 	// calculate block chance
-	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(plr._pStrength, plr._pDexterity) : 0;
+	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(sadd, dadd) : 0;
 
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
 	for (i = 1; i < NUM_SPELLS; i++) {
