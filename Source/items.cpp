@@ -1521,8 +1521,6 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		break;
 	case IPL_CRYSTALLINE:
 		is->_iPLDam = r * 2;
-		// no break
-	case IPL_DUR_CURSE:
 		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_INDESTRUCTIBLE:
@@ -3011,7 +3009,6 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
-	case IPL_DUR_CURSE:
 	case IPL_SETDUR:
 		copy_cstr(tempstr, "altered durability");
 		break;

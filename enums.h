@@ -381,7 +381,6 @@ typedef enum item_effect_type {
 	IPL_LIFE,
 	IPL_MANA,
 	IPL_DUR,
-	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
 	//IPL_INVCURS,
