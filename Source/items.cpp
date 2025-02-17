@@ -458,8 +458,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pDexterity = std::max(0, dadd + plr._pBaseDex);
 	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
 
-	plr._pIFlags = iflgs;
-	// plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
 	plr._pILifeSteal = lifesteal;
@@ -475,17 +473,23 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
 	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
 
-	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
-	if (plr._pLightRad != lrad) {
-		plr._pLightRad = lrad;
-		if (Loadgfx) {
-			ChangeLightRadius(plr._plid, lrad);
-			ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
-		}
-	}
-
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
 	imana += madd << (6 + 1);
+
+	plr._pIFlags = iflgs;
+	// plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
+
+	// calculate walk speed
+	plr._pIWalkSpeed = WalkSpeed(iflgs);
+
+	// calculate (hit-)recovery speed
+	plr._pIRecoverySpeed = RecoverySpeed(iflgs);
+
+	// calculate base attack speed
+	plr._pIBaseAttackSpeed = BaseAttackSpeed(iflgs);
+
+	// calculate base cast speed
+	plr._pIBaseCastSpeed = BaseCastSpeed(iflgs);
 
 	if (iflgs & ISPL_LIFETOMANA) {
 		ihp -= plr._pMaxHPBase >> 1;
@@ -676,18 +680,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate block chance
 	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(plr._pStrength, plr._pDexterity) : 0;
 
-	// calculate walk speed
-	plr._pIWalkSpeed = WalkSpeed(plr._pIFlags);
-
-	// calculate (hit-)recovery speed
-	plr._pIRecoverySpeed = RecoverySpeed(plr._pIFlags);
-
-	// calculate base attack speed
-	plr._pIBaseAttackSpeed = BaseAttackSpeed(plr._pIFlags);
-
-	// calculate base cast speed
-	plr._pIBaseCastSpeed = BaseCastSpeed(plr._pIFlags);
-
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
 	for (i = 1; i < NUM_SPELLS; i++) {
 		skillLvl = 0;
@@ -697,6 +689,15 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				skillLvl = 0;
 		//}
 		plr._pSkillLvl[i] = skillLvl;
+	}
+
+	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
+	if (plr._pLightRad != lrad) {
+		plr._pLightRad = lrad;
+		if (Loadgfx) {
+			ChangeLightRadius(plr._plid, lrad);
+			ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
+		}
 	}
 
 	CalcPlrCharges(pnum);
