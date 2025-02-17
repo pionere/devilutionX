@@ -2064,7 +2064,7 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int i, j, tx, ty;
+	int i, j, tx, ty, dir;
 	const int8_t* cr;
 	// (micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
@@ -2076,8 +2076,9 @@ int AddTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		if (i <= 7)
 			break;
 		// assert(i < MAXDUNX + MAXDUNY);
-		dx += XDirAdd[OPPOSITE(midir)];
-		dy += YDirAdd[OPPOSITE(midir)];
+		dir = OPPOSITE(midir);
+		dx += XDirAdd[dir];
+		dy += YDirAdd[dir];
 	}
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddTeleport expects a large enough border.");
@@ -2556,7 +2557,6 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	mis = &missile[mi];
 	mis->_miDir = midir;
 	SyncRhinoAnim(mi);
-	// mis->_miRange = 255;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -2878,7 +2878,7 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		maxdam += maxdam >> 3;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	mis->_miRange = 0;
+	//mis->_miRange = 0;
 	return MIRES_DONE;
 }
 
@@ -2910,10 +2910,11 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
 				midir = GetDirection8(sx, sy, dx, dy);
+				midir = (midir - 2) & 7;
 				mis->_mix = tx;
 				mis->_miy = ty;
-				mis->_mixvel = XDirAdd[(midir - 2) & 7];
-				mis->_miyvel = YDirAdd[(midir - 2) & 7];
+				mis->_mixvel = XDirAdd[midir];
+				mis->_miyvel = YDirAdd[midir];
 				//mis->_miVar1 = 0;
 				//mis->_miVar2 = FALSE;
 				//mis->_miVar3 = FALSE;
@@ -3340,7 +3341,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miLid = NO_LIGHT;
 
 	if (SFX_VALID(mds->mlSFX)) {
-		PlaySfxLocN(mds->mlSFX, mis->_misx, mis->_misy, mds->mlSFXCnt);
+		PlaySfxLocN(mds->mlSFX, sx, sy, mds->mlSFXCnt);
 	}
 
 	if (mds->mdPrSpeed != 0) {
@@ -3352,7 +3353,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	}
 
 	animdir = 0;
-	anims = misfiledata[mis->_miFileNum].mfAnimFAmt;
+	anims = misfiledata[mds->mFileNum].mfAnimFAmt;
 	if (anims >= NUM_DIRS) {
 		animdir = midir;
 		if (anims != NUM_DIRS) {
@@ -3383,7 +3384,7 @@ static bool Sentfire(int mi, int sx, int sy)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	assert(mis->_miCaster == MST_PLAYER);
+	// assert(mis->_miCaster == MST_PLAYER);
 	mnum = dMonster[sx][sy] - 1;
 	if (mnum >= MAX_MINIONS
 	 && monsters[mnum]._mhitpoints != 0
@@ -3754,7 +3755,7 @@ void MI_Acid(int mi)
 	}
 
 	// SetRndSeed(mis->_miRndSeed); // used by MIS_EXACIDP
-	AddMissile(mis->_mix, mis->_miy, mi, 0, mis->_miDir, MIS_EXACIDP, mis->_miCaster, mis->_miSource, 0);
+	AddMissile(0, 0, mi, 0, 0, MIS_EXACIDP, mis->_miCaster, mis->_miSource, 0);
 
 	mis->_miDelFlag = TRUE; // + AddUnLight
 }
@@ -3786,7 +3787,7 @@ void MI_Firewall(int mi)
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE; // AddUnLight
+		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
 	if (mis->_miDir == 0) {
