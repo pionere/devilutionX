@@ -43,6 +43,7 @@ tar -xzf SDL2-devel-${SDLDEV_VERS}-mingw.tar.gz
 #tar -xzf SDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz
 #wget -q https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz -OSDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz
 #tar -xzf SDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz
+sed -i '/$(CROSS_PATH)\/cmake/ s/^/#/' SDL2*/Makefile
 CROSS_PATH=/usr ARCHITECTURES=${MINGW_ARCH} $SUDO make -eC SDL2*/ cross
 
 wget -q https://github.com/jedisct1/libsodium/releases/download/${SODIUM_VERS}-RELEASE/libsodium-${SODIUM_VERS}-mingw.tar.gz -Olibsodium-${SODIUM_VERS}-mingw.tar.gz
