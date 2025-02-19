@@ -3549,8 +3549,8 @@ void MI_Mage(int mi)
 			if (bmis->_mix != mis->_mix || bmis->_miy != mis->_miy) {
 				continue;
 			}
-			int doff = abs(bmis->_mixoff - mis->_mixoff) + abs(bmis->_miyoff - mis->_miyoff) * 2;
-			if (doff > 64 * ASSET_MPL)
+			int doff = abs(bmis->_mixoff - mis->_mixoff) + abs(bmis->_miyoff - mis->_miyoff) * (TILE_WIDTH / TILE_HEIGHT);
+			if (doff > TILE_WIDTH)
 				continue;
 			// check target
 			if (mis->_miVar1 != 0 && bmis->_miVar1 != 0 && mis->_miVar1 != bmis->_miVar1)
