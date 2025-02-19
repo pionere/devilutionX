@@ -4605,22 +4605,10 @@ void MI_Rhino(int mi)
 	dMonster[mis->_mix][mis->_miy] = 0;
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
-	if (monsters[mnum]._mFileNum == MOFILE_SNAKE) {
-		mis->_mitxoff += mis->_mixvel;
-		mis->_mityoff += mis->_miyvel;
-		GetMissilePos(mi);
-		// assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
-		// assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);
-		if (mis->_miAnimFrame == 13 || !PosOkActor(mis->_mix, mis->_miy)) {
-			MissToMonst(mi);
-			mis->_miDelFlag = TRUE;
-			return;
-		}
-		mis->_mitxoff -= mis->_mixvel;
-		mis->_mityoff -= mis->_miyvel;
-	}
 	GetMissilePos(mi);
-	if (!PosOkActor(mis->_mix, mis->_miy)) {
+	// assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);
+	// assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);
+	if (!PosOkActor(mis->_mix, mis->_miy) || (mis->_miAnimFrame == 13 && monsters[mnum]._mFileNum == MOFILE_SNAKE)) {
 		MissToMonst(mi);
 		mis->_miDelFlag = TRUE;
 		return;
