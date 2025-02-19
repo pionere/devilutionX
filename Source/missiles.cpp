@@ -1833,8 +1833,6 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
 		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
 		if (mis->_miType == MIS_ASARROW) {
-			if (!LineClear(sx, sy, dx, dy))
-				return MIRES_FAIL_DELETE;
 			mis->_miVar1 = dx;
 			mis->_miVar2 = dy;
 		}
@@ -3414,7 +3412,7 @@ void MI_AsArrow(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
+	if (!nMissileTable[dPiece[mis->_mix][mis->_miy]] && (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2)) {
 		PutMissile(mi);
 		return;
 	}
