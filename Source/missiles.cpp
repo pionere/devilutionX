@@ -1955,7 +1955,7 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		maxdam = 6 + currLvl._dLevel;
 	}
 	mis = &missile[mi];
-	mis->_miRange = 3 * TILE_WIDTH / 16 + 2; // 4 normal tiles
+	mis->_miRange = 3 * (TILE_WIDTH / ASSET_MPL) / 16 + 2; // 4 normal tiles
 	mis->_miMinDam = mindam << (6 - 2);      // * 16 / 64
 	mis->_miMaxDam = maxdam << (6 - 2);      // * 16 / 64
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
