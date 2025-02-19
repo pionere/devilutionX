@@ -4,7 +4,6 @@
  * Implementation of missile functionality.
  */
 #include "all.h"
-#include "plrctrls.h"
 #include "misproc.h"
 #include "engine/render/cl2_render.h"
 
