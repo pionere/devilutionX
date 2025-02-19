@@ -502,6 +502,7 @@ typedef struct MissileData {
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
 	BYTE mdPrSpeed; // speed of the projectile
+	BYTE mdRange; // default range of the missile
 	ALIGNMENT32(2)
 } MissileData;
 

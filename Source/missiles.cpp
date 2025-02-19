@@ -1710,7 +1710,6 @@ int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	// (micaster == MST_MONSTER);
 	// 'assert'(misource < MAXMONSTERS);
 	// missile[mi]._miMinDam = missile[mi]._miMaxDam = 0;
-	missile[mi]._miRange = 9 - 1;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -1739,7 +1738,6 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	int mindam, maxdam, dam;
 	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
-	mis->_miRange = misfiledata[MFILE_BIGEXP].mfAnimLen[0] * misfiledata[MFILE_BIGEXP].mfAnimFrameLen[0];
 
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
@@ -1769,7 +1767,6 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFireball2 needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
-	mis->_miRange = 1;
 	return MIRES_DONE;
 }*/
 
@@ -1831,14 +1828,11 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miFileNum = mtype;
 		SetMissAnim(mi, midir);
 	}
-	mis->_miRange = 255;
 	// mis->_miVar7 = 0;
 	if (micaster & MST_PLAYER) {
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
 		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
-		if (mis->_miType == MIS_PBARROW)
-			mis->_miRange = 4;
-		else if (mis->_miType == MIS_ASARROW) {
+		if (mis->_miType == MIS_ASARROW) {
 			if (!LineClear(sx, sy, dx, dy))
 				return MIRES_FAIL_DELETE;
 			mis->_miVar1 = dx;
@@ -1901,7 +1895,6 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddFirebolt needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
-	mis->_miRange = 255;
 	return MIRES_DONE;
 }
 
@@ -1918,7 +1911,6 @@ int AddMage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	mis = &missile[mi];
 	mis->_miVar1 = dPlayer[dx][dy];
 	mis->_miUniqTrans = MAX_BRIGHTNESS;
-	mis->_miRange = 255;
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddMage needs at least light-radius of 8.");
@@ -1935,7 +1927,6 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis->_mitxoff += 4 * mis->_mixvel;
 	mis->_mityoff += 4 * mis->_miyvel;
 	GetMissilePos(mi);
-	mis->_miRange = 255;
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddMagmaball needs at least light-radius of 8.");
@@ -1955,7 +1946,6 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		maxdam = 6 + currLvl._dLevel;
 	}
 	mis = &missile[mi];
-	mis->_miRange = 3 * (TILE_WIDTH / ASSET_MPL) / 16 + 2; // 4 normal tiles
 	mis->_miMinDam = mindam << (6 - 2);      // * 16 / 64
 	mis->_miMaxDam = maxdam << (6 - 2);      // * 16 / 64
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_LGHNING].mfAnimLen[0]);
@@ -2003,7 +1993,6 @@ int AddWind(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	mis->_mitxoff += 4 * mis->_mixvel;
 	mis->_mityoff += 4 * mis->_miyvel;
 	GetMissilePos(mi);
-	mis->_miRange = 255;
 	//if (misource != -1) {
 		magic = plx(misource)._pMagic;
 		mindam = (magic >> 3) + 7 * spllvl + 1;
@@ -2055,7 +2044,6 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 
 /*int AddKrull(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	missile[mi]._miRange = 255;
 	missile[mi]._miMinDam = missile[mi]._miMaxDam = 4 << 6;
 	//PutMissile(mi);
 	return MIRES_DONE;
@@ -2163,7 +2151,6 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miRange = 255;
 	return MIRES_DONE;
 }
 
@@ -2248,7 +2235,6 @@ int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
-	mis->_miRange = misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0];
 	return MIRES_DONE;
 }
 
@@ -2282,7 +2268,6 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miMaxDam = plr._pMaxHP >> (1 + 4);
 	}
 
-	mis->_miRange = misfiledata[MFILE_BLODBURS].mfAnimFrameLen[0] * misfiledata[MFILE_BLODBURS].mfAnimLen[0];
 	// mis->_miVar1 = 0;
 	return MIRES_DONE;
 }
@@ -2337,7 +2322,6 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	//mis->_mixvel = 0;
 	//mis->_miyvel = 0;
 	// assert(mis->_miAnimFrameLen == 1);
-	mis->_miRange = mis->_miAnimLen/* * mis->_miAnimFrameLen*/;
 	return MIRES_DONE;
 }
 
@@ -2467,7 +2451,6 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	}
 	mis->_miMinDam = mindam << 6;
 	mis->_miMaxDam = maxdam << 6;
-	mis->_miRange = 255;
 	/*mis->_mix++;
 	mis->_miy++;
 	mis->_miyoff -= TILE_HEIGHT;*/
@@ -2541,7 +2524,6 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	//	mindam = 1 << 6;
 	//	maxdam = currLvl._dLevel << (1 + 6);
 	//}
-	mis->_miRange = 255;
 	return MIRES_DONE;
 }
 
@@ -2630,7 +2612,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	if (mon->_muniqtype != 0)
 		mis->_miUniqTrans = mon->_muniqtrans + 4;
 	dMonster[mon->_mx][mon->_my] = 0;
-	//mis->_miRange = 255;
 	//PutMissile(mi);
 	return MIRES_DONE;
 }*/
@@ -3011,7 +2992,6 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	// mis->_mityoff = bmis->_mityoff;
 	// assert(bmis->_miVar3 < 3);
 	mis->_miVar2 = (2 - bmis->_miRange) * 4;
-	mis->_miRange = misfiledata[MFILE_INFERNO].mfAnimLen[0] * misfiledata[MFILE_INFERNO].mfAnimFrameLen[0];
 	// assert(misource != -1);
 	if (micaster & MST_PLAYER) {
 		mindam = plx(misource)._pMagic;
@@ -3036,7 +3016,6 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis = &missile[mi];
 	mis->_miVar1 = sx;
 	mis->_miVar2 = sy;
-	mis->_miRange = 3 - 1;
 	return MIRES_DONE;
 }
 
@@ -3047,7 +3026,6 @@ int AddInfernoC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	mis = &missile[mi];
 	mis->_miMinDam = (2 + currLvl._dLevel) << (6 - 2);
 	mis->_miMaxDam = mis->_miMinDam * 2;
-	mis->_miRange = 8;
 	return MIRES_DONE;
 }*/
 
@@ -3109,7 +3087,6 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	}
 	mis->_miMinDam = mindam;
 	mis->_miMaxDam = maxdam;
-	mis->_miRange = 255;
 	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_MINILTNG].mfAnimLen[0]);
 	return MIRES_DONE;
 }
@@ -3336,6 +3313,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miResist = mds->mResist;
 	mis->_miFileNum = mds->mFileNum;
 	mis->_miDrawFlag = mds->mDrawFlag;
+	mis->_miRange = mds->mdRange;
 
 	mis->_miAnimAdd = 1;
 	mis->_miLid = NO_LIGHT;
