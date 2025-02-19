@@ -2085,6 +2085,8 @@ static void MonDiabloDeath(int mnum)
 		if (mon->_mmode != MM_STONE) {
 			NewMonsterAnim(i, MA_DEATH, mon->_mdir);
 			mon->_mmode = MM_DEATH;
+		} else {
+			dMonster[mon->_mx][mon->_my] = 0;
 		}
 	}
 	mon = &monsters[mnum];
