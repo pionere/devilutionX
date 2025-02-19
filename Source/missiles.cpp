@@ -2852,9 +2852,10 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 }
 
 /**
- * Var1: progression (0: started, 1: going to the destination, 2: running to the target/wall)
- * Var2: x coordinate of the destination
- * Var3: y coordinate of the destination
+ * Var1: whether the starting position is left
+ * Var2: whether the destination is reached
+ * Var3: x coordinate of the destination
+ * Var4: y coordinate of the destination
  */
 int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2863,9 +2864,10 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	// (micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	//mis->_miVar1 = 0;
-	mis->_miVar2 = dx;
-	mis->_miVar3 = dy;
+	//mis->_miVar1 = FALSE;
+	//mis->_miVar2 = FALSE;
+	mis->_miVar3 = dx;
+	mis->_miVar4 = dy;
 	mis->_miVar5 = midir; // MIS_DIR
 	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
@@ -2878,7 +2880,6 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		maxdam += maxdam >> 3;
 	}
 	mis->_miMinDam = mis->_miMaxDam = RandRange(mindam, maxdam) << 6;
-	//mis->_miRange = 0;
 	return MIRES_DONE;
 }
 
@@ -4890,14 +4891,13 @@ void MI_Elemental(int mi)
 	GetMissilePos(mi);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if (mis->_miVar1 == 0)
-		mis->_miVar1 = (cx != mis->_misx || cy != mis->_misy) ? 1 : 0;
-	if (mis->_miVar1 != 0)
+	if (!mis->_miVar1)
+		mis->_miVar1 = (cx != mis->_misx || cy != mis->_misy) ? TRUE : FALSE;
+	if (mis->_miVar1)
 		hit = CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY);
-	if (hit <= 1                                                         // did not hit an object/wall
-	 && mis->_miVar1 <= 1 && cx == mis->_miVar2 && cy == mis->_miVar3) { // destination reached the first time
-		mis->_miVar1 = 2;
-		mis->_miRange = 0;
+	if (hit == 0                                                     // did not hit anything
+	 && !mis->_miVar2 && cx == mis->_miVar3 && cy == mis->_miVar4) { // destination reached the first time
+		mis->_miVar2 = TRUE;
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
@@ -4909,7 +4909,7 @@ void MI_Elemental(int mi)
 		SetMissAnim(mi, sd);
 		GetMissileVel(mi, cx, cy, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_ELEMENTAL].mdPrSpeed));
 	}
-	if (mis->_miRange >= 0) {
+	if (hit == 0) {
 		CondChangeLightXY(mis->_miLid, cx, cy);
 		PutMissile(mi);
 		return;
