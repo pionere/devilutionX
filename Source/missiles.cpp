@@ -4901,16 +4901,6 @@ void MI_Elemental(int mi)
 	mis->_miDelFlag = TRUE; // + AddUnLight
 }
 
-void MI_Resurrect(int mi)
-{
-	// assert(missile[mi]._miAnimLen == misfiledata[MFILE_RESSUR1].mfAnimLen[0]);
-	if (missile[mi]._miAnimFrame < misfiledata[MFILE_RESSUR1].mfAnimLen[0]) {
-		PutMissile(mi);
-		return;
-	}
-	missile[mi]._miDelFlag = TRUE;
-}
-
 void ProcessMissiles()
 {
 	MissileStruct* mis;

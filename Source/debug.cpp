@@ -1809,8 +1809,12 @@ void ValidateData()
 		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0])
 			app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);*/
 		if ((md.mProc == MI_Misexp || md.mProc == MI_MiniExp || md.mProc == MI_LongExp || md.mProc == MI_Bleed || md.mProc == MI_BloodBoil || md.mProc == MI_Inferno || md.mProc == MI_Acidsplat)
-		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0])
-			app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);
+		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]) {
+			if (md.mAddProc != AddAttract)
+				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);
+			else if (md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0] /2u)
+				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0] / 2u);
+		}
 		if (md.mAddProc == AddCharge && md.mdPrSpeed != (int)(MIS_SHIFTEDVEL(16) / M_SQRT2))
 			app_fatal("Charge-Missile %d has invalid projectile-speed (%d, expected %d).", i, md.mdPrSpeed, (int)(MIS_SHIFTEDVEL(16) / M_SQRT2));
 		if (md.mAddProc == AddMisexp) {
@@ -1882,14 +1886,12 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_PORTAL].mfAnimLen[j]);
 			}
 		}		
-		if (md.mProc == MI_Resurrect)
-			assert(md.mFileNum == MFILE_RESSUR1);
 		if (md.mProc == MI_Shroud)
 			assert(md.mFileNum == MFILE_SHROUD);
 		if (md.mProc == MI_Wind)
 			assert(md.mFileNum == MFILE_WIND);
 		if (md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_FireWave || md.mProc == MI_Flash || md.mProc == MI_Flash2
-		 || md.mProc == MI_Guardian || md.mProc == MI_Portal || md.mProc == MI_Shroud || md.mProc == MI_Wind || md.mProc == MI_Resurrect) {
+		 || md.mProc == MI_Guardian || md.mProc == MI_Portal || md.mProc == MI_Shroud || md.mProc == MI_Wind) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
 				if (misfiledata[md.mFileNum].mfAnimFrameLen[j] != 1)
 					app_fatal("Animated-Missile %d depending on mfAnimFrameLen is not a single stepper (%d: %d).", i, j, misfiledata[md.mFileNum].mfAnimFrameLen[j]);
