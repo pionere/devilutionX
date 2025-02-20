@@ -2148,7 +2148,6 @@ typedef enum missile_flags {
 } missile_flags;
 
 typedef enum missile_anim_flags {
-	MAFLAG_HIDDEN         = 1 << 0,
 	MAFLAG_LOCK_ANIMATION = 1 << 1,
 } missile_anim_flags;
 

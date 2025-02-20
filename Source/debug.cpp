@@ -621,7 +621,7 @@ void ValidateData()
 		// check missile animations of the monsters
 		int mm = MonsterAiMissile(md.mAI);
 		if (mm >= 0) {
-			bool hiddenAnim = (misfiledata[missiledata[mm].mFileNum].mfFlags & MAFLAG_HIDDEN) != 0;
+			bool hiddenAnim = missiledata[mm].mFileNum >= NUM_FIXMFILE;
 			if (i == MT_NMAGMA || i == MT_YMAGMA || i == MT_BMAGMA || i == MT_WMAGMA) {
 				if (missiledata[mm].mFileNum != MFILE_MAGBALL)
 					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
@@ -718,7 +718,7 @@ void ValidateData()
 				if (mm != MIS_ARCHLICH) // MFILE_EXYEL2_A ?
 					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_ARCHLICH, md.mName, i); // required by InitMonsterGFX
 #endif
-			} else if (misfiledata[missiledata[mm].mFileNum].mfFlags & MAFLAG_HIDDEN) {
+			} else if (missiledata[mm].mFileNum >= NUM_FIXMFILE) {
 				app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
 			}
 #ifdef HELLFIRE
@@ -993,7 +993,7 @@ void ValidateData()
 		if (monsterdata[um.mtype].mExp > UINT_MAX / (um.muLevel + HELL_LEVEL_BONUS)) // required by InitUniqueMonster
 			app_fatal("Too high mExp %d for unique monster %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
 		int umm = MonsterAiMissile(um.mAI);
-		if (umm >= 0 && (misfiledata[missiledata[umm].mFileNum].mfFlags & MAFLAG_HIDDEN)) {
+		if (umm >= 0 && missiledata[umm].mFileNum >= NUM_FIXMFILE) {
 			int bmm = MonsterAiMissile(monsterdata[um.mtype].mAI);
 			if (umm != bmm) {
 #ifdef HELLFIRE
@@ -1020,7 +1020,7 @@ void ValidateData()
 			DoLog("Warn: Low mmaxhp %d for %s (%d): lower than mMaxHP %d.", um.mmaxhp, um.mName, i, monsterdata[um.mtype].mMaxHP);
 	}
 #ifdef HELLFIRE
-	if (!sklwingBoned || !(misfiledata[missiledata[MIS_BONEDEMON].mFileNum].mfFlags & MAFLAG_HIDDEN))
+	if (!sklwingBoned || missiledata[MIS_BONEDEMON].mFileNum < NUM_FIXMFILE)
 		app_fatal("Loading optional missile for MT_SKLWING monsters is no longer necessary."); // required by InitMonsterGFX
 #endif
 #endif
@@ -2010,33 +2010,33 @@ void ValidateData()
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
 	// requirements by InitMonsterGFX
-	assert(misfiledata[MFILE_MAGBALL].mfFlags & MAFLAG_HIDDEN);
-	// assert(misfiledata[MFILE_KRULL].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_THINLGHT].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_ACIDBF].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_ACIDSPLA].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_ACIDPUD].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SCUBMISB].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SCBSEXPB].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SCUBMISD].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SCBSEXPD].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SCUBMISC].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SCBSEXPC].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_MAGEMIS].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_MAGEEXP].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_FIREPLAR].mfFlags & MAFLAG_HIDDEN);
+	assert((int)MFILE_MAGBALL >= (int)NUM_FIXMFILE);
+	// assert((int)MFILE_KRULL >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_THINLGHT >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_ACIDBF >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_ACIDSPLA >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_ACIDPUD >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCUBMISB >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCBSEXPB >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCUBMISD >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCBSEXPD >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCUBMISC >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCBSEXPC >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MAGEMIS >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MAGEEXP >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_FIREPLAR >= (int)NUM_FIXMFILE);
 #ifdef HELLFIRE
-	assert(misfiledata[MFILE_MS_ORA_B].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_EXORA1_B].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_MS_ORA].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_EXORA1].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_MS_REB_B].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_EXYEL2_B].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_SPAWNS].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_MS_ORA_A].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_EXORA1_A].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_MS_YEB_A].mfFlags & MAFLAG_HIDDEN);
-	assert(misfiledata[MFILE_EXYEL2_A].mfFlags & MAFLAG_HIDDEN);
+	assert((int)MFILE_MS_ORA_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXORA1_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_ORA >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXORA1 >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_REB_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXYEL2_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SPAWNS >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_ORA_A >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXORA1_A >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_YEB_A >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXYEL2_A >= (int)NUM_FIXMFILE);
 #endif
 	// -- requirements by InitMonsterGFX end
 	// players
