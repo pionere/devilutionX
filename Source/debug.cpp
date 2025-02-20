@@ -128,6 +128,12 @@ static int MonsterAiMissile(const MonsterAI &mai)
 			mm = MIS_LIGHTNING;
 		if (mm == MIS_APOCAC2)
 			mm = MIS_EXAPOCA2;
+		if (mm == MIS_INFERNOC)
+			mm = MIS_INFERNO;
+		if (mm == MIS_CBOLTC)
+			mm = MIS_CBOLT;
+		if (missiledata[mm].mFileNum == MFILE_NONE)
+			app_fatal("Unresolved ai-missile %d", mm);
 		return mm;
 	}
 	return -1;
