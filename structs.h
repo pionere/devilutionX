@@ -533,12 +533,12 @@ typedef struct MissileStruct {
 	BYTE _miFlags; // missile_flags
 	BYTE _miResist; // missile_resistance
 	BYTE _miFileNum; // missile_gfx_id
-	BOOLEAN _miDrawFlag; // should be drawn
-	int _miUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN _miDelFlag; // should be deleted
+	int _miUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN _miDrawFlag; // should be drawn
+	BOOLEAN _miAnimFlag;
 	BOOLEAN _miLightFlag; // use light-transformation when drawing
 	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
-	BOOLEAN _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
@@ -1458,12 +1458,12 @@ typedef struct LSaveMissileStruct {
 	BYTE vmiFlags; // missile_flags
 	BYTE vmiResist; // missile_resistance
 	BYTE vmiFileNum; // missile_gfx_id
-	BOOLEAN vmiDrawFlag; // should be drawn
-	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN vmiDelFlag; // should be deleted
+	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN vmiDrawFlag; // should be drawn
+	BOOLEAN vmiAnimFlag;
 	BOOLEAN vmiLightFlag; // use light-transformation when drawing
 	BOOLEAN vmiPreFlag; // should be drawn in the pre-phase
-	BOOLEAN vmiAnimFlag;
 	INT vmiAnimDataAlign;
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation

@@ -458,14 +458,14 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miFlags = savedMis->vmiFlags;
 	mis->_miResist = savedMis->vmiResist;
 	mis->_miFileNum = savedMis->vmiFileNum;
-	mis->_miDrawFlag = savedMis->vmiDrawFlag;
+	mis->_miDelFlag = savedMis->vmiDelFlag;
 
 	mis->_miUniqTrans = savedMis->vmiUniqTrans;
 
-	mis->_miDelFlag = savedMis->vmiDelFlag;
+	mis->_miDrawFlag = savedMis->vmiDrawFlag;
+	mis->_miAnimFlag = savedMis->vmiAnimFlag;
 	mis->_miLightFlag = savedMis->vmiLightFlag;
 	mis->_miPreFlag = savedMis->vmiPreFlag;
-	mis->_miAnimFlag = savedMis->vmiAnimFlag;
 
 	// mis->_miAnimData = savedMis->vmiAnimDataAlign;
 	// mis->_miAnimFrameLen = savedMis->vmiAnimFrameLenAlign;
@@ -1280,14 +1280,14 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiFlags = mis->_miFlags;
 	misSave->vmiResist = mis->_miResist;
 	misSave->vmiFileNum = mis->_miFileNum;
-	misSave->vmiDrawFlag = mis->_miDrawFlag;
+	misSave->vmiDelFlag = mis->_miDelFlag;
 
 	misSave->vmiUniqTrans = mis->_miUniqTrans;
 
-	misSave->vmiDelFlag = mis->_miDelFlag;
+	misSave->vmiDrawFlag = mis->_miDrawFlag;
+	misSave->vmiAnimFlag = mis->_miAnimFlag; // could be skipped
 	misSave->vmiLightFlag = mis->_miLightFlag;
 	misSave->vmiPreFlag = mis->_miPreFlag;
-	misSave->vmiAnimFlag = mis->_miAnimFlag; // could be skipped
 
 	// misSave->vmiAnimDataAlign = mis->_miAnimData;
 	// misSave->vmiAnimFrameLenAlign = mis->_miAnimFrameLen;
