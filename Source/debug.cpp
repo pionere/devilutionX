@@ -1923,26 +1923,29 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MFILE; i++) {
 		const MisFileData& mfd = misfiledata[i];
-		if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
-			app_fatal("Missile %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
 		if (mfd.mfAnimFAmt < 0)
-			app_fatal("Missile %d has negative mfAnimFAmt.", i);
+			app_fatal("Missile-File %d has negative mfAnimFAmt.", i);
+		if (mfd.mfAnimFAmt == 0) {
+			if (i != MFILE_NONE)
+				app_fatal("Missile-File %d without animation.", i);
+		} else if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
+			app_fatal("Missile-File %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
 		if (mfd.mfAnimFAmt > NUM_DIRS && mfd.mfAnimFAmt != 16)
-			app_fatal("Missile %d has invalid mfAnimFAmt.", i); // required by AddMissile
+			app_fatal("Missile-File %d has invalid mfAnimFAmt.", i); // required by AddMissile
 		for (int n = 0; n < 16; n++) {
 			if (n < mfd.mfAnimFAmt) {
 				if (mfd.mfAnimFrameLen[n] == 0 && !(mfd.mfFlags & MAFLAG_LOCK_ANIMATION)) {
-					app_fatal("Missile %d has invalid mfAnimFrameLen.", i, n);
+					app_fatal("Missile-File %d has invalid mfAnimFrameLen.", i, n);
 				}
 				if (mfd.mfAnimLen[n] == 0 /*&& !(mfd.mfFlags & MAFLAG_LOCK_ANIMATION)*/) {
-					app_fatal("Missile %d has invalid mfAnimLen.", i, n);
+					app_fatal("Missile-File %d has invalid mfAnimLen.", i, n);
 				}
 			} else {
 				if (mfd.mfAnimFrameLen[n] != 0) {
-					app_fatal("Missile %d has unused mfAnimFrameLen setting (%d).", i, n);
+					app_fatal("Missile-File %d has unused mfAnimFrameLen setting (%d).", i, n);
 				}
 				if (mfd.mfAnimLen[n] != 0) {
-					app_fatal("Missile %d has unused mfAnimLen setting (%d).", i, n);
+					app_fatal("Missile-File %d has unused mfAnimLen setting (%d).", i, n);
 				}
 			}
 		}

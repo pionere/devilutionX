@@ -137,7 +137,7 @@ const MissileData missiledata[] = {
 };
 
 /** Data related to each missile graphic ID. */
-const MisFileData misfiledata[NUM_MFILE + 1] = {
+const MisFileData misfiledata[NUM_MFILE] = {
 	// clang-format off
 //                    mfName,     mfAnimTrans,                       mfAnimFAmt, mfFlags,               mfAnimFrameLen[16],                                 mfAnimLen[16],                                                      mfAnimWidth, mfAnimXOffset, 
 /*MFILE_ARROWS*/    { "Arrows",   NULL,                                       1, MAFLAG_LOCK_ANIMATION, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 16,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,            16, ALIGN },
@@ -217,7 +217,7 @@ const MisFileData misfiledata[NUM_MFILE + 1] = {
 /*MFILE_EXORA1_A*/  { "ex_ora1",  "Monsters\\Monsters\\WFTD.TRN",             1, MAFLAG_HIDDEN,         { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,            16, ALIGN },
 /*MFILE_EXORA1_B*/  { "ex_ora1",  "Monsters\\Monsters\\DSFM.TRN",             1, MAFLAG_HIDDEN,         { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 13,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },          96,            16, ALIGN },
 #endif
-/*MFILE_NONE*/      { "",         NULL,                                       0, 0,                     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },           0,             0, ALIGN },
+/*MFILE_NONE*/      { NULL,       NULL,                                       0, MAFLAG_HIDDEN,         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },           0,             0, ALIGN },
 	// clang-format on
 };
 
