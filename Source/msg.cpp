@@ -1342,7 +1342,7 @@ void LevelDeltaExport()
 			//BOOLEAN _miDrawFlag;
 			//BOOLEAN _miAnimFlag;
 			//BOOLEAN _miLightFlag;
-			tmis->smiPreFlag = mis->_miPreFlag;
+			//BOOLEAN _miPreFlag;
 			//BYTE* _miAnimData;
 			//int _miAnimFrameLen;
 			//int _miAnimLen;
@@ -1670,8 +1670,8 @@ void LevelDeltaLoad()
 		//int _miUniqTrans;
 		//BOOLEAN _miDrawFlag;
 		//BOOLEAN _miAnimFlag;
-		//BOOLEAN _miLightFlag
-		mis->_miPreFlag = tmis->smiPreFlag;     // could be calculated
+		//BOOLEAN _miLightFlag;
+		//BOOLEAN _miPreFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt;
 		mis->_miAnimAdd = tmis->smiAnimAdd;
 		mis->_miAnimFrame = tmis->smiAnimFrame;

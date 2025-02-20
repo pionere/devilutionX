@@ -1906,6 +1906,8 @@ void ValidateData()
 		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
 			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
 		}
+		if ((md.mProc == MI_Acidpud || md.mProc == MI_Flash2) != misfiledata[md.mFileNum].mfPreFlag)
+			app_fatal("Missile %d wont render correctly due to misconfigured preflag.", i);
 		if (md.mdFlags & MIF_ARROW) {
 			if (md.mAddProc != AddArrow)
 				app_fatal("Arrow-Missile %d is not added by AddArrow proc.", i); // required to initialize MISDIST / MISHIT

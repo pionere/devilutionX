@@ -1462,6 +1462,7 @@ static void SyncMissAnim(int mi)
 	mis->_miDrawFlag = mfd->mfDrawFlag;
 	mis->_miAnimFlag = mfd->mfAnimFlag;
 	mis->_miLightFlag = mfd->mfLightFlag;
+	mis->_miPreFlag = mfd->mfPreFlag;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
@@ -2036,7 +2037,6 @@ int AddAcidpud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	}
 	mis->_miMinDam = mis->_miMaxDam = dam;
 	mis->_miRange = 40 * (monsters[misource]._mAI.aiInt + 1) + random_(50, 16);
-	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
 }
 
@@ -2425,10 +2425,6 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct* mis;
-
-	mis = &missile[mi];
-	mis->_miPreFlag = TRUE;
 	return MIRES_DONE;
 }
 
