@@ -1940,10 +1940,10 @@ void ValidateData()
 			app_fatal("Missile-File %d has invalid mfAnimFAmt.", i); // required by AddMissile
 		for (int n = 0; n < 16; n++) {
 			if (n < mfd.mfAnimFAmt) {
-				if (mfd.mfAnimFrameLen[n] == 0 && !(mfd.mfFlags & MAFLAG_LOCK_ANIMATION)) {
+				if (mfd.mfAnimFrameLen[n] == 0 && mfd.mdAnimFlag) {
 					app_fatal("Missile-File %d has invalid mfAnimFrameLen.", i, n);
 				}
-				if (mfd.mfAnimLen[n] == 0 /*&& !(mfd.mfFlags & MAFLAG_LOCK_ANIMATION)*/) {
+				if (mfd.mfAnimLen[n] == 0 /*&& mfd.mdAnimFlag*/) {
 					app_fatal("Missile-File %d has invalid mfAnimLen.", i, n);
 				}
 			} else {

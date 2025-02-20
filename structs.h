@@ -514,7 +514,10 @@ typedef struct MisFileData {
 	const char* mfName;
 	const char* mfAnimTrans;
 	int mfAnimFAmt;
-	int mfFlags; // missile_anim_flags
+	BOOLEAN mdAnimFlag;
+	BYTE mdAlign01;
+	BYTE mdAlign02;
+	BYTE mdAlign03;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;

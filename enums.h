@@ -2147,10 +2147,6 @@ typedef enum missile_flags {
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;
 
-typedef enum missile_anim_flags {
-	MAFLAG_LOCK_ANIMATION = 1 << 1,
-} missile_anim_flags;
-
 typedef enum missile_add_result {
 	MIRES_DONE,
 	MIRES_DELETE,
