@@ -496,7 +496,6 @@ typedef struct MissileData {
 	BYTE mdFlags; // missile_flags
 	BYTE mResist; // missile_resistance
 	BYTE mFileNum; // missile_gfx_id
-	BOOLEAN mDrawFlag;
 	int mlSFX; // sound effect when a missile is launched (_sfx_id)
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
@@ -514,10 +513,10 @@ typedef struct MisFileData {
 	const char* mfName;
 	const char* mfAnimTrans;
 	int mfAnimFAmt;
-	BOOLEAN mdAnimFlag;
+	BOOLEAN mfDrawFlag;
+	BOOLEAN mfAnimFlag;
 	BYTE mdAlign01;
 	BYTE mdAlign02;
-	BYTE mdAlign03;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
@@ -1930,7 +1929,6 @@ typedef struct TSyncLvlMissile {
 	LE_UINT16 smiMi;
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
-	BOOLEAN smiDrawFlag;
 	BYTE smiUniqTrans;
 	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen

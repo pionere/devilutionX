@@ -1459,7 +1459,8 @@ static void SyncMissAnim(int mi)
 	dir = mis->_miDir;
 	mis->_miAnimData = misanimdata[animtype][dir];
 	mfd = &misfiledata[animtype];
-	mis->_miAnimFlag = mfd->mdAnimFlag;
+	mis->_miDrawFlag = mfd->mfDrawFlag;
+	mis->_miAnimFlag = mfd->mfAnimFlag;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
@@ -3310,7 +3311,6 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miFlags = mds->mdFlags;
 	mis->_miResist = mds->mResist;
 	mis->_miFileNum = mds->mFileNum;
-	mis->_miDrawFlag = mds->mDrawFlag;
 	mis->_miRange = mds->mdRange;
 
 	mis->_miAnimAdd = 1;
@@ -4483,7 +4483,6 @@ void MI_Stone(int mi)
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	} else {
 		if (mis->_miFileNum != MFILE_SHATTER1) {
-			mis->_miDrawFlag = TRUE;
 			mis->_miFileNum = MFILE_SHATTER1;
 			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] * misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] - 1 + 10;
 			SetMissAnim(mi, 0);

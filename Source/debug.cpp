@@ -1917,18 +1917,11 @@ void ValidateData()
 			if (md.mAddProc == AddApocaC2 && !(md.mdFlags & MIF_AREA))
 				app_fatal("Magic-Missile %d damage-direction is not handled in MissDirection.", i);
 		}
-		if (md.mDrawFlag) {
-			if (md.mFileNum == MFILE_NONE)
-				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
-		} else {
-			if (md.mFileNum != MFILE_NONE)
-				app_fatal("Missile %d is not drawn, but has valid mFileNum.", i);
-			if (md.miSFX != SFX_NONE)
-				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
-		}
 	}
 	for (i = 0; i < NUM_MFILE; i++) {
 		const MisFileData& mfd = misfiledata[i];
+		if (i != MFILE_NONE && !mfs.mfDrawFlag)
+			app_fatal("Missile-File %d is not rendered.", i);
 		if (mfd.mfAnimFAmt < 0)
 			app_fatal("Missile-File %d has negative mfAnimFAmt.", i);
 		if (mfd.mfAnimFAmt == 0) {
@@ -1940,10 +1933,10 @@ void ValidateData()
 			app_fatal("Missile-File %d has invalid mfAnimFAmt.", i); // required by AddMissile
 		for (int n = 0; n < 16; n++) {
 			if (n < mfd.mfAnimFAmt) {
-				if (mfd.mfAnimFrameLen[n] == 0 && mfd.mdAnimFlag) {
+				if (mfd.mfAnimFrameLen[n] == 0 && mfd.mfAnimFlag) {
 					app_fatal("Missile-File %d has invalid mfAnimFrameLen.", i, n);
 				}
-				if (mfd.mfAnimLen[n] == 0 /*&& mfd.mdAnimFlag*/) {
+				if (mfd.mfAnimLen[n] == 0 /*&& mfd.mfAnimFlag*/) {
 					app_fatal("Missile-File %d has invalid mfAnimLen.", i, n);
 				}
 			} else {
