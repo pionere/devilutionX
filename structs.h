@@ -1459,10 +1459,10 @@ typedef struct LSaveMissileStruct {
 	BYTE vmiFileNum; // missile_gfx_id
 	BOOLEAN vmiDelFlag; // should be deleted
 	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
-	BOOLEAN vmiDrawFlag; // should be drawn
-	BOOLEAN vmiAnimFlag;
-	BOOLEAN vmiLightFlag; // use light-transformation when drawing
-	BOOLEAN vmiPreFlag; // should be drawn in the pre-phase
+	BOOLEAN vmiDrawFlagAlign; // should be drawn
+	BOOLEAN vmiAnimFlagAlign;
+	BOOLEAN vmiLightFlagAlign; // use light-transformation when drawing
+	BOOLEAN vmiPreFlagAlign; // should be drawn in the pre-phase
 	INT vmiAnimDataAlign;
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation
