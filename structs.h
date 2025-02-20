@@ -511,15 +511,15 @@ static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mi
 #endif
 
 typedef struct MisFileData {
-	int mfAnimFAmt;
 	const char* mfName;
 	const char* mfAnimTrans;
+	int mfAnimFAmt;
 	int mfFlags; // missile_anim_flags
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset; // could be calculated
-	ALIGNMENT(2, 14)
+	ALIGNMENT(2, 16)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
