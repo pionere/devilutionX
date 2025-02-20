@@ -1338,7 +1338,7 @@ void LevelDeltaExport()
 			//BYTE _miResist;
 			tmis->smiFileNum = mis->_miFileNum;
 			//BOOLEAN _miDelFlag;
-			tmis->smiUniqTrans = mis->_miUniqTrans;
+			//int _miUniqTrans;
 			//BOOLEAN _miDrawFlag;
 			//BOOLEAN _miAnimFlag;
 			//BOOLEAN _miLightFlag;
@@ -1667,7 +1667,7 @@ void LevelDeltaLoad()
 		//BYTE _miResist;
 		mis->_miFileNum = tmis->smiFileNum;
 		//BOOLEAN _miDelFlag;
-		mis->_miUniqTrans = tmis->smiUniqTrans; //
+		//int _miUniqTrans;
 		//BOOLEAN _miDrawFlag;
 		//BOOLEAN _miAnimFlag;
 		//BOOLEAN _miLightFlag

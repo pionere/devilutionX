@@ -1929,7 +1929,6 @@ typedef struct TSyncLvlMissile {
 	LE_UINT16 smiMi;
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
-	BYTE smiUniqTrans;
 	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int8_t smiAnimAdd;
