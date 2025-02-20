@@ -2099,6 +2099,7 @@ typedef enum missile_gfx_id {
 	MFILE_RGLOWS1,
 	//MFILE_REFLECT,
 #endif
+	MFILE_NONE,
 	MFILE_THINLGHT,
 	MFILE_MAGBALL,
 	//MFILE_KRULL,
@@ -2133,9 +2134,8 @@ typedef enum missile_gfx_id {
 	MFILE_EXORA1_A,
 	MFILE_EXORA1_B,
 #endif
-	MFILE_NONE,
 	NUM_MFILE,
-	NUM_FIXMFILE = MFILE_THINLGHT,
+	NUM_FIXMFILE = MFILE_NONE,
 } missile_gfx_id;
 
 typedef enum missile_flags {
