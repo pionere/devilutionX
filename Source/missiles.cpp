@@ -1560,17 +1560,17 @@ void InitGameMissileGFX()
 {
 	int i;
 
-	for (i = 0; i < NUM_MFILE; i++) {
-		if (!(misfiledata[i].mfFlags & MAFLAG_HIDDEN))
-			LoadMissileGFX(i);
+	for (i = 0; i < NUM_FIXMFILE; i++) {
+		LoadMissileGFX(i);
 	}
 }
 
-static void FreeMissileGFX(int midx, int n)
+static void FreeMissileGFX(int midx)
 {
 	BYTE** mad;
-	int i;
+	int n, i;
 
+	n = misfiledata[midx].mfAnimFAmt;
 	mad = misanimdata[midx];
 	for (i = 0; i < n; i++) {
 		if (mad[i] != NULL) {
@@ -1583,9 +1583,8 @@ void FreeGameMissileGFX()
 {
 	int i;
 
-	for (i = 0; i < NUM_MFILE; i++) {
-		if (!(misfiledata[i].mfFlags & MAFLAG_HIDDEN))
-			FreeMissileGFX(i, misfiledata[i].mfAnimFAmt);
+	for (i = 0; i < NUM_FIXMFILE; i++) {
+		FreeMissileGFX(i);
 	}
 }
 
@@ -1593,9 +1592,8 @@ void FreeMonMissileGFX()
 {
 	int i;
 
-	for (i = 0; i < NUM_MFILE; i++) {
-		if (misfiledata[i].mfFlags & MAFLAG_HIDDEN)
-			FreeMissileGFX(i, misfiledata[i].mfAnimFAmt);
+	for (i = NUM_FIXMFILE; i < NUM_MFILE; i++) {
+		FreeMissileGFX(i);
 	}
 }
 
