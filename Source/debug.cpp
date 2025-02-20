@@ -132,7 +132,7 @@ static int MonsterAiMissile(const MonsterAI &mai)
 			mm = MIS_INFERNO;
 		if (mm == MIS_CBOLTC)
 			mm = MIS_CBOLT;
-		if (missiledata[mm].mFileNum == MFILE_NONE)
+		if (missiledata[mm].mFileNum == MFILE_NONE || missiledata[mm].mFileNum == MFILE_ACTOR)
 			app_fatal("Unresolved ai-missile %d", mm);
 		return mm;
 	}
@@ -1918,7 +1918,7 @@ void ValidateData()
 				app_fatal("Magic-Missile %d damage-direction is not handled in MissDirection.", i);
 		}
 		if (md.mDrawFlag) {
-			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
+			if (md.mFileNum == MFILE_NONE)
 				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
 		} else {
 			if (md.mFileNum != MFILE_NONE)
@@ -1932,7 +1932,7 @@ void ValidateData()
 		if (mfd.mfAnimFAmt < 0)
 			app_fatal("Missile-File %d has negative mfAnimFAmt.", i);
 		if (mfd.mfAnimFAmt == 0) {
-			if (i != MFILE_NONE)
+			if (i != MFILE_NONE && i != MFILE_ACTOR)
 				app_fatal("Missile-File %d without animation.", i);
 		} else if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
 			app_fatal("Missile-File %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);

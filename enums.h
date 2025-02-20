@@ -2100,6 +2100,7 @@ typedef enum missile_gfx_id {
 	//MFILE_REFLECT,
 #endif
 	MFILE_NONE,
+	MFILE_ACTOR,
 	MFILE_THINLGHT,
 	MFILE_MAGBALL,
 	//MFILE_KRULL,
