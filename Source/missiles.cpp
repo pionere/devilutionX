@@ -1461,6 +1461,7 @@ static void SyncMissAnim(int mi)
 	mfd = &misfiledata[animtype];
 	mis->_miDrawFlag = mfd->mfDrawFlag;
 	mis->_miAnimFlag = mfd->mfAnimFlag;
+	mis->_miLightFlag = mfd->mfLightFlag;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
@@ -1490,7 +1491,6 @@ static void SyncRhinoAnim(int mi)
 	// if (mon->_muniqtype != 0) {
 		mis->_miUniqTrans = mon->_muniqtrans;
 	// }
-	mis->_miLightFlag = TRUE;
 }
 
 static void SyncChargeAnim(int mi)
@@ -1510,7 +1510,6 @@ static void SyncChargeAnim(int mi)
 	mis->_miAnimLen = anim->paFrames;
 	mis->_miAnimWidth = anim->paAnimWidth;
 	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
-	mis->_miLightFlag = TRUE;
 }
 
 static void SetMissAnim(int mi, int dir)
@@ -2607,7 +2606,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miAnimAdd = 1;
 	//mis->_miVar1 = FALSE;
 	//mis->_miVar2 = 0;
-	mis->_miLightFlag = TRUE;
 	if (mon->_muniqtype != 0)
 		mis->_miUniqTrans = mon->_muniqtrans + 4;
 	dMonster[mon->_mx][mon->_my] = 0;

@@ -515,7 +515,7 @@ typedef struct MisFileData {
 	int mfAnimFAmt;
 	BOOLEAN mfDrawFlag;
 	BOOLEAN mfAnimFlag;
-	BYTE mdAlign01;
+	BOOLEAN mfLightFlag;
 	BYTE mdAlign02;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
