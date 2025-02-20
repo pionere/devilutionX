@@ -56,7 +56,7 @@ const MissileData missiledata[] = {
 /*MIS_TOWN*/         { &AddTown,        &MI_Portal,     0,                                             MISR_NONE,      MFILE_PORTAL,   SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_RPORTAL*/      { &AddPortal,      &MI_Portal,     0,                                             MISR_NONE,      MFILE_RPORTAL,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_FLASH*/        { &AddFlash,       &MI_Flash,      MIF_AREA | MIF_DOT,                            MISR_MAGIC,     MFILE_BLUEXFR,  LS_NOVA,     SFX_NONE,           1,        1,         0,       0, ALIGN32 }, // miSFX was LS_ELECIMP1
-/*MIS_FLASH2*/       { &AddFlash2,      &MI_Flash2,     0,                                             MISR_NONE,      MFILE_BLUEXBK,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
+/*MIS_FLASH2*/       { &AddDone,        &MI_Flash2,     0,                                             MISR_NONE,      MFILE_BLUEXBK,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_CHAIN*/        { &AddChain,       &MI_Chain,      MIF_SHROUD | MIF_AREA | MIF_LEAD,              MISR_LIGHTNING, MFILE_LGHNING,  LS_LNING1,   LS_ELECIMP1,        1,        1,        32,     255, ALIGN32 },
 /*MIS_BLODSTAR*///   { NULL,            NULL,           0,                                             MISR_NONE,      MFILE_BLOOD,    LS_BLODSTAR, LS_BLSIMPT,         1,        1,         0,       0, ALIGN32 },
 /*MIS_BONE*///       { NULL,            NULL,           0,                                             MISR_NONE,      MFILE_BONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
@@ -121,7 +121,7 @@ const MissileData missiledata[] = {
 /*MIS_RUNEWAVE*/     { &AddWaveRune,    &MI_Rune,       0,                                             MISR_NONE,      MFILE_RGLOWS1,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_RUNESTONE*/    { &AddStoneRune,   &MI_Rune,       0,                                             MISR_NONE,      MFILE_RGLOWS1,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_FIREEXP*/      { &AddFireexp,     &MI_Misexp,     0,                                             MISR_FIRE,      MFILE_BIGEXP,   LS_FLAMWAVE, SFX_NONE,           1,        1,         0,      15, ALIGN32 },
-/*MIS_HORKDMN*/      { &AddHorkSpawn,   &MI_HorkSpawn,  MIF_SHROUD,                                    MISR_NONE,      MFILE_SPAWNS,   SFX_NONE,    SFX_NONE,           1,        1,         8,       8, ALIGN32 },
+/*MIS_HORKDMN*/      { &AddDone,        &MI_HorkSpawn,  MIF_SHROUD,                                    MISR_NONE,      MFILE_SPAWNS,   SFX_NONE,    SFX_NONE,           1,        1,         8,       8, ALIGN32 },
 /*MIS_PSYCHORB*/     { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD,                                    MISR_MAGIC,     MFILE_MS_ORA,   SFX_NONE,    SFX_NONE,           1,        1,        16,    MVMR, ALIGN32 },
 /*MIS_LICH*/         { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD,                                    MISR_MAGIC,     MFILE_MS_ORA_A, SFX_NONE,    SFX_NONE,           1,        1,        16,    MVMR, ALIGN32 },
 /*MIS_BONEDEMON*/    { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD,                                    MISR_MAGIC,     MFILE_MS_ORA_B, SFX_NONE,    SFX_NONE,           1,        1,        16,    MVMR, ALIGN32 },

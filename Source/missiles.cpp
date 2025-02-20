@@ -1704,15 +1704,6 @@ int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0); // RUNE_RANGE
 }
 
-int AddHorkSpawn(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	// (micaster == MST_MONSTER);
-	// 'assert'(misource < MAXMONSTERS);
-	// missile[mi]._miMinDam = missile[mi]._miMaxDam = 0;
-	//PutMissile(mi);
-	return MIRES_DONE;
-}
-
 /*int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -1791,6 +1782,11 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_DELETE;
 }
 #endif
+
+int AddDone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	return MIRES_DONE;
+}
 
 /*
  * Var1: x coordinate of the missile-target of MIS_ASARROW
@@ -2420,11 +2416,6 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		}
 		mis->_miMinDam = mis->_miMaxDam = dam;
 	}
-	return MIRES_DONE;
-}
-
-int AddFlash2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
 	return MIRES_DONE;
 }
 
