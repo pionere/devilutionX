@@ -2902,9 +2902,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	int i, j;
 
 	sd = GetDirection8(sx, sy, dx, dy);
-	sx += XDirAdd[sd];
-	sy += YDirAdd[sd];
-	if (!nMissileTable[dPiece[sx][sy]]) {
+	// if (!nMissileTable[dPiece[sx][sy]]) {
 		AddMissile(sx, sy, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, micaster, misource, spllvl);
 
 		for (i = -2; i <= 2; i += 4) {
@@ -2921,7 +2919,7 @@ int AddFireWaveC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 				AddMissile(nx, ny, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, micaster, misource, spllvl);
 			}
 		}
-	}
+	// }
 
 	return MIRES_DELETE;
 }
