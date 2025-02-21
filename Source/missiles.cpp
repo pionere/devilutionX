@@ -2422,6 +2422,9 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_DONE;
 }
 
+/*
+ * Var1: sfx helper (firewall)
+ */
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -4180,39 +4183,16 @@ void MI_FireWave(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	/*mis->_mix--;
-	mis->_miy--;
-	mis->_miyoff += TILE_HEIGHT;*/
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE; // + AddUnLight
+	if (nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
+		mis->_miDelFlag = TRUE;
 		return;
 	}
-	if (mis->_miDir != 0) {
-		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
-	} else {
-		if (mis->_miLid == NO_LIGHT)
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
-		else {
-			// assert(mis->_miAnimLen < lengthof(FireWallLight));
-			// assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < lengthof(FireWallLight));
-			ChangeLight(mis->_miLid, mis->_mix, mis->_miy, FireWallLight[mis->_miAnimFrame]);
-		}
-		// assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);
-		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]
-		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1*/) {
-			SetMissAnim(mi, 1);
-			//assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-		}
-	}
-	/*mis->_mix++;
-	mis->_miy++;
-	mis->_miyoff -= TILE_HEIGHT;*/
-	PutMissile(mi);
+	CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
+
+	MI_Firewall(mi);
 }
 
 void MI_Meteor(int mi)
