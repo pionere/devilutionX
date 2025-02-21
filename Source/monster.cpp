@@ -5134,6 +5134,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
 	// assert((mon->_mFlags & (MFLAG_NOCORPSE | MFLAG_NODROP)) == (MFLAG_NOCORPSE | MFLAG_NODROP));
 	ActivateSpawn(mnum, x, y, DIR_S);
+	PlaySfxLoc(LS_GOLUM, x, y);
 	if (mnum == mypnum)
 		NetSendCmdGolem();
 }

@@ -72,7 +72,7 @@ const MissileData missiledata[] = {
 /*MIS_SHROUD*/       { &AddShroud,      &MI_Shroud,     MIF_SHROUD,                                    MISR_NONE,      MFILE_SHROUD,   SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_INVISIBL*///   { NULL,            NULL,           0,                                             MISR_NONE,      MFILE_NONE,     LS_INVISIBL, SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_GUARDIAN*/     { &AddGuardian,    &MI_Guardian,   MIF_SHROUD,                                    MISR_NONE,      MFILE_GUARD,    LS_GUARD,    SFX_NONE,           1,        1,         0,       0, ALIGN32 }, // miSFX was LS_GUARDLAN
-/*MIS_GOLEM*/        { &AddGolem,       &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     LS_GOLUM,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
+/*MIS_GOLEM*/        { &AddGolem,       &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_ETHEREALIZE*///{ NULL,            NULL,           0,                                             MISR_NONE,      MFILE_ETHRSHLD, LS_ETHEREAL, SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_BLEED*/        { &AddBleed,       &MI_Bleed,      MIF_AREA | MIF_DOT,                            MISR_NONE,      MFILE_BLODBURS, SFX_NONE,    SFX_NONE,           1,        1,         0,      16, ALIGN32 },
 /*MIS_EXAPOCA*///    { &AddApocaExp,    &MI_ApocaExp,   0,                                             MISR_NONE,      MFILE_NEWEXP,   SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
