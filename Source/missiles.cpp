@@ -2113,6 +2113,8 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 
 /**
  * Var1: sfx helper
+ * Var3: min-damage / 4
+ * Var4: max-damage / 4
  */
 int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2132,8 +2134,8 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		mindam = 5 + currLvl._dLevel;
 		maxdam = 10 + currLvl._dLevel * 2;
 	}
-	mis->_miMinDam = mindam << (-3 + 6);
-	mis->_miMaxDam = maxdam << (-3 + 6);
+	mis->_miVar3 = mindam << (-3 - 2 + 6);
+	mis->_miVar4 = maxdam << (-3 - 2 + 6);
 	return MIRES_DONE;
 }
 
@@ -2424,6 +2426,8 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 /*
  * Var1: sfx helper (firewall)
+ * Var3: min-damage / 4
+ * Var4: max-damage / 4
  */
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2440,11 +2444,8 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		mindam = currLvl._dLevel + 1;
 		maxdam = 2 * currLvl._dLevel + 2;
 	}
-	mis->_miMinDam = mindam << 6;
-	mis->_miMaxDam = maxdam << 6;
-	/*mis->_mix++;
-	mis->_miy++;
-	mis->_miyoff -= TILE_HEIGHT;*/
+	mis->_miVar3 = mindam << (-2 + 6);
+	mis->_miVar4 = maxdam << (-2 + 6);
 	return MIRES_DONE;
 }
 
@@ -3780,6 +3781,10 @@ void MI_Firewall(int mi)
 			ChangeLightRadius(mis->_miLid, FireWallLight[mis->_miAnimFrame]);
 		}
 		// assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);
+		if ((mis->_miAnimFrame & 1) == 0 && mis->_miAnimFrame <= 8) {
+			mis->_miMinDam += mis->_miAnimAdd >= 0 ? mis->_miVar3 : -mis->_miVar3;
+			mis->_miMaxDam += mis->_miAnimAdd >= 0 ? mis->_miVar4 : -mis->_miVar4;
+		}
 		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]
 		// && mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] - 1
 		 && mis->_miAnimAdd >= 0) {
