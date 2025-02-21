@@ -1462,7 +1462,7 @@ static void Obj_Circle(int oi)
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
-			AddMissile(0, 0, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
+			AddMissile(DBORDERX + 19, DBORDERY + 20, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
 			gbActionBtnDown = 0;
 			// StartTurn(mypnum, DIR_NW); ?
 			myplr._pdir = DIR_NW;
@@ -1929,7 +1929,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
 
 	FindClosestPlr(&dx, &dy);
-	AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+	AddMissile(os->_ox, os->_oy + 1, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 	objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
