@@ -121,7 +121,7 @@ const MissileData missiledata[] = {
 /*MIS_RUNEWAVE*/     { &AddWaveRune,    &MI_Rune,       0,                                             MISR_NONE,      MFILE_RGLOWS1,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_RUNESTONE*/    { &AddStoneRune,   &MI_Rune,       0,                                             MISR_NONE,      MFILE_RGLOWS1,  SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_FIREEXP*/      { &AddFireexp,     &MI_Misexp,     0,                                             MISR_FIRE,      MFILE_BIGEXP,   LS_FLAMWAVE, SFX_NONE,           1,        1,         0,      15, ALIGN32 },
-/*MIS_HORKDMN*/      { &AddDone,        &MI_HorkSpawn,  MIF_SHROUD,                                    MISR_NONE,      MFILE_SPAWNS,   SFX_NONE,    SFX_NONE,           1,        1,         8,       8, ALIGN32 },
+/*MIS_HORKDMN*/      { &AddDone,        &MI_HorkSpawn,  MIF_SHROUD,                                    MISR_NONE,      MFILE_SPAWNS,   SFX_NONE,    SFX_NONE,           1,        1,         8,       9, ALIGN32 },
 /*MIS_PSYCHORB*/     { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD,                                    MISR_MAGIC,     MFILE_MS_ORA,   SFX_NONE,    LS_FIRIMP2,         1,        1,        16,    MVMR, ALIGN32 },
 /*MIS_LICH*/         { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD,                                    MISR_MAGIC,     MFILE_MS_ORA_A, SFX_NONE,    LS_FIRIMP2,         1,        1,        16,    MVMR, ALIGN32 },
 /*MIS_BONEDEMON*/    { &AddFirebolt,    &MI_Firebolt,   MIF_SHROUD,                                    MISR_MAGIC,     MFILE_MS_ORA_B, SFX_NONE,    LS_FIRIMP2,         1,        1,        16,    MVMR, ALIGN32 },
