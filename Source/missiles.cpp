@@ -1459,10 +1459,13 @@ static void SyncMissAnim(int mi)
 	dir = mis->_miDir;
 	mis->_miAnimData = misanimdata[animtype][dir];
 	mfd = &misfiledata[animtype];
-	mis->_miDrawFlag = mfd->mfDrawFlag;
-	mis->_miAnimFlag = mfd->mfAnimFlag;
-	mis->_miLightFlag = mfd->mfLightFlag;
-	mis->_miPreFlag = mfd->mfPreFlag;
+	static_assert(offsetof(MissileStruct, _miAnimFlag) == offsetof(MissileStruct, _miDrawFlag) + 1, "SyncMissAnim uses DWORD-memcpy to optimize performance I.");
+	static_assert(offsetof(MissileStruct, _miLightFlag) == offsetof(MissileStruct, _miDrawFlag) + 2, "SyncMissAnim uses DWORD-memcpy to optimize performance II.");
+	static_assert(offsetof(MissileStruct, _miPreFlag) == offsetof(MissileStruct, _miDrawFlag) + 3, "SyncMissAnim uses DWORD-memcpy to optimize performance III.");
+	static_assert(offsetof(MisFileData, mfAnimFlag) == offsetof(MisFileData, mfDrawFlag) + 1, "SyncMissAnim uses DWORD-memcpy to optimize performance IV.");
+	static_assert(offsetof(MisFileData, mfLightFlag) == offsetof(MisFileData, mfDrawFlag) + 2, "SyncMissAnim uses DWORD-memcpy to optimize performance V.");
+	static_assert(offsetof(MisFileData, mfPreFlag) == offsetof(MisFileData, mfDrawFlag) + 3, "SyncMissAnim uses DWORD-memcpy to optimize performance VI.");
+	*(uint32_t*)&mis->_miDrawFlag = *(uint32_t*)&mfd->mfDrawFlag;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen[dir];
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
 	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
