@@ -4425,6 +4425,18 @@ void MI_LongExp(int mi)
 	mis->_miDelFlag = TRUE;
 }
 
+void MI_ExtExp(int mi)
+{
+	MissileStruct* mis;
+
+	MI_LongExp(mi);
+
+	mis = &missile[mi];
+
+	// mis->_miAnimFlag = mis->_miAnimFrame != mis->_miAnimLen;
+	mis->_miAnimFlag = mis->_miAnimFrame != misfiledata[MFILE_SHATTER1].mfAnimLen[0];
+}
+
 void MI_Acidsplat(int mi)
 {
 	MissileStruct* mis;
@@ -4467,26 +4479,9 @@ void MI_Stone(int mi)
 
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	} else {
-		if (mis->_miFileNum != MFILE_SHATTER1) {
-			mis->_miFileNum = MFILE_SHATTER1;
-			mis->_miRange = misfiledata[MFILE_SHATTER1].mfAnimLen[0] * misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] - 1 + 10;
-			SetMissAnim(mi, 0);
-		} else if (mis->_miRange < 0) {
-			mis->_miDelFlag = TRUE;
-			// TODO: RemoveMonFromGame ?
-			// mon->_mAnimFrame = mon->_mAnimLen;
-			// mon->_mAnimCnt = -1;
-			// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
-			mon->_msquelch = 0;
-			// assert(mnum >= MAX_MINIONS);
-			// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
-			mon->_mmode = MM_UNUSED;
-			nummonsters--;
-			return;
-		} else if (mis->_miAnimFrame == misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
-			mis->_miAnimFlag = FALSE;
-		}
-		PutMissile(mi);
+		mon->_mVar3 = MM_DEATH;
+		AddMissile(0, 0, mi, 0, 0, MIS_EXSTONE, MST_NA, 0, 0);
+		mis->_miDelFlag = TRUE;
 	}
 }
 

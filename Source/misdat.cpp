@@ -68,6 +68,7 @@ const MissileData missiledata[] = {
 /*MIS_FARROW*///     { NULL,            NULL,           0,                                             MISR_FIRE,      MFILE_FARROW,   SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_DOOMSERP*///   { NULL,            NULL,           0,                                             MISR_MAGIC,     MFILE_DOOM,     LS_DSERP,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_STONE*/        { &AddStone,       &MI_Stone,      0,                                             MISR_NONE,      MFILE_NONE,     LS_SCURIMP,  SFX_NONE,           1,        1,         0,       0, ALIGN32 },
+/*MIS_EXSTONE*/      { &AddMisexp,      &MI_ExtExp,     0,                                             MISR_NONE,      MFILE_SHATTER1, SFX_NONE,    SFX_NONE,           1,        1,         0,      22, ALIGN32 }, // range: effect + 10
 /*MIS_SHROUD*/       { &AddShroud,      &MI_Shroud,     MIF_SHROUD,                                    MISR_NONE,      MFILE_SHROUD,   SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_INVISIBL*///   { NULL,            NULL,           0,                                             MISR_NONE,      MFILE_NONE,     LS_INVISIBL, SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_GUARDIAN*/     { &AddGuardian,    &MI_Guardian,   MIF_SHROUD,                                    MISR_NONE,      MFILE_GUARD,    LS_GUARD,    SFX_NONE,           1,        1,         0,       0, ALIGN32 }, // miSFX was LS_GUARDLAN

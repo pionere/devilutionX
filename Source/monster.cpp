@@ -2728,6 +2728,21 @@ static bool MonDoCharge(int mnum)
 
 static bool MonDoStone(int mnum)
 {
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	if (mon->_mVar3 == MM_DEATH) {
+		// TODO: RemoveMonFromGame ?
+		// mon->_mAnimFrame = mon->_mAnimLen;
+		// mon->_mAnimCnt = -1;
+		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
+		mon->_msquelch = 0;
+		// assert(mnum >= MAX_MINIONS);
+		// mon->_mmode = (mon->_mFlags & MFLAG_NOCORPSE) ? MM_UNUSED : MM_DEAD;
+		mon->_mmode = MM_UNUSED;
+		nummonsters--;
+	}
+
 	return false;
 }
 
