@@ -3660,8 +3660,9 @@ void MI_Wind(int mi)
 	mis->_mitxoff += mis->_mixvel;
 	mis->_mityoff += mis->_miyvel;
 	GetMissilePos(mi);
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
-
+	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
+		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
+	}
 	if (mis->_miDir == 0) {
 		// assert(misfiledata[MFILE_WIND].mfAnimFrameLen[0] == 1);
 		mis->_miMinDam += mis->_miVar1;
