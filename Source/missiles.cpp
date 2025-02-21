@@ -3339,6 +3339,26 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	return mi;
 }
 
+static void ConvertMissile(int mi, int mitype)
+{
+	MissileStruct* mis;
+	const MissileData* mds;
+	const int animdir = 0;
+
+	mis = &missile[mi];
+	mis->_miType = mitype;
+	mds = &missiledata[mitype];
+	mis->_miFlags = mds->mdFlags;
+	// mis->_miResist = mds->mResist;
+	mis->_miFileNum = mds->mFileNum;
+	mis->_miRange = mds->mdRange;
+
+	// mis->_miAnimAdd = 1;
+
+	// assert(misfiledata[mds->mFileNum].mfAnimFAmt < NUM_DIRS);
+	SetMissAnim(mi, animdir);
+}
+
 static bool Sentfire(int mi, int sx, int sy)
 {
 	int mnum;
@@ -3477,9 +3497,7 @@ void MI_Firebolt(int mi)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
-
-	mis->_miDelFlag = TRUE; // + AddUnLight
+	ConvertMissile(mi, xptype);
 }
 
 void MI_Mage(int mi)
@@ -3550,9 +3568,7 @@ void MI_Mage(int mi)
 	}
 
 	xptype = MIS_EXMAGE;
-	AddMissile(0, 0, mi, 0, 0, xptype, MST_NA, 0, 0);
-
-	mis->_miDelFlag = TRUE; // + AddUnLight
+	ConvertMissile(mi, xptype);
 }
 
 void MI_Poison(int mi)
@@ -3717,9 +3733,7 @@ void MI_Acid(int mi)
 	}
 
 	// SetRndSeed(mis->_miRndSeed); // used by MIS_EXACIDP
-	AddMissile(0, 0, mi, 0, 0, MIS_EXACIDP, mis->_miCaster, mis->_miSource, 0);
-
-	mis->_miDelFlag = TRUE; // + AddUnLight
+	ConvertMissile(mi, MIS_EXACIDP);
 }
 
 void MI_Acidpud(int mi)
@@ -3811,8 +3825,7 @@ void MI_Firewall(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi, hit);
 
-	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
-	mis->_miDelFlag = TRUE; // + AddUnLight
+	ConvertMissile(mi, MIS_EXFBALL);
 }*/
 
 #ifdef HELLFIRE
@@ -4480,8 +4493,7 @@ void MI_Stone(int mi)
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	} else {
 		mon->_mVar3 = MM_DEATH;
-		AddMissile(0, 0, mi, 0, 0, MIS_EXSTONE, MST_NA, 0, 0);
-		mis->_miDelFlag = TRUE;
+		ConvertMissile(mi, MIS_EXSTONE);
 	}
 }
 
@@ -4873,9 +4885,7 @@ void MI_Elemental(int mi)
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi, hit);
 
-	AddMissile(0, 0, mi, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
-
-	mis->_miDelFlag = TRUE; // + AddUnLight
+	ConvertMissile(mi, MIS_EXFBALL);
 }
 
 void ProcessMissiles()
