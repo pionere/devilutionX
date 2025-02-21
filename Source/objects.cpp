@@ -1908,7 +1908,7 @@ static void OperateLever(int oi, bool sendmsg)
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
-	int dx, dy, on;
+	int dx, dy;
 
 	// assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 
@@ -1917,16 +1917,11 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	// assert(plr._pmode == PM_STAND && !deltaload);
 	if (plr._px != os->_ox || plr._py != os->_oy + 1)
 		return;
-	if (os->_ox == DBORDERX + 10) {
-		dx = DBORDERX + 11;
-		dy = DBORDERY + 13;
-	} else {
-		assert(os->_ox == DBORDERX + 29);
-		dx = DBORDERX + 27;
-		dy = DBORDERY + 13;
-	}
-	on = dObject[dx][dy] - 1;
-	assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
+	// assert(os->_ox == DBORDERX + 10 || os->_ox == DBORDERX + 29);
+	dx = DBORDERX + (os->_ox == DBORDERX + 10) ? 11 : 27;
+	dy = DBORDERY + 13;
+	// int on = dObject[dx][dy] - 1;
+	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
 
 	FindClosestPlr(&dx, &dy);
 	AddMissile(os->_ox, os->_oy + 1, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
