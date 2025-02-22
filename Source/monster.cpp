@@ -1375,7 +1375,7 @@ static void MonFindEnemy(int mnum)
 	bool sameroom, bestsameroom;
 	MonsterStruct *mon = &monsters[mnum], *tmon;
 	const BYTE tv = dTransVal[mon->_mfutx][mon->_mfuty];
-	int x, y, flags;
+	int x, y;
 
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
