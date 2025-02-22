@@ -4434,11 +4434,12 @@ void MAI_Warlord(int mnum)
 	switch (quests[Q_WARLORD]._qvar1) {
 	case QV_INIT: // quest not started
 	case QV_WARLORD_BOOK:
-		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
+		if (!MON_HAS_ENEMY)
 			return;
 		quests[Q_WARLORD]._qvar1 = IsMultiGame ? QV_WARLORD_ATTACK : QV_WARLORD_TALK;
 		pnum = mon->_menemy >= 0 ? mon->_menemy : -(mon->_menemy + 1);
-		if (pnum == mypnum || !plr._pActive || plr._pDunLevel != currLvl._dLevelIdx) {
+		// assert(plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
+		if (pnum == mypnum) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		mon->_mmode = MM_TALK;
