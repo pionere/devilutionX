@@ -16,6 +16,7 @@
 #include <string>
 #if DEV_MODE
 #include <fstream>
+#include "mpqapi.h"
 #endif
 
 #ifdef __vita__

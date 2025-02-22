@@ -9,6 +9,7 @@
 #include "engine/render/text_render.h"
 #include "utils/paths.h"
 #include "diabloui.h"
+#include "mpqapi.h"
 #include "utils/file_util.h"
 #include "DiabloUI/diablo.h"
 #include <ctime>

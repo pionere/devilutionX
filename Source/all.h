@@ -76,7 +76,6 @@
 #include "monstdat.h"
 #include "monster.h"
 #include "movie.h"
-#include "mpqapi.h"
 #include "msg.h"
 #include "multi.h"
 #include "nthread.h"

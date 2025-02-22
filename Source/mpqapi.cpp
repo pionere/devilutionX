@@ -8,6 +8,7 @@
 
 #include "all.h"
 #include "utils/file_util.h"
+#include "mpqapi.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

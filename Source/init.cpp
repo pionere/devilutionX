@@ -14,6 +14,7 @@
 #include <string>
 #if CREATE_MPQONE
 #include <fstream>
+#include "mpqapi.h"
 #endif
 
 #ifdef __vita__
