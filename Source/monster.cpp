@@ -1380,7 +1380,9 @@ static void MonFindEnemy(int mnum)
 	enemy = 0;
 	best_dist = MAXDUNX + MAXDUNY;
 	bestsameroom = false;
-	if (mnum >= MAX_MINIONS) {
+	if ((dFlags[mon->_mfutx][mon->_mfuty] & BFLAG_ALERT) == 0) {
+		// enemy = 0;
+	} else if (mnum >= MAX_MINIONS) {
 		for (i = 0; i < MAX_PLRS; i++) {
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints == 0*/)
