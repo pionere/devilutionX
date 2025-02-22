@@ -75,18 +75,14 @@ void ActivatePortal(int pidx, int x, int y, int bLevel)
 //	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 //}
 
-void RemovePortalMissile(int pidx)
+void RemovePortalMissile(int pnum)
 {
 	MissileStruct* mis;
 	int i;
 
-	//if (!PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
-	//	return;
-
-	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
+		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
 			mis->_miDelFlag = TRUE; // + AddUnLight
 		}
 	}
@@ -94,7 +90,11 @@ void RemovePortalMissile(int pidx)
 
 void DeactivatePortal(int pidx)
 {
-	RemovePortalMissile(pidx);
+	//if (PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
+	{
+		static_assert(MAXPORTAL == MAX_PLRS, "DeactivatePortal removes portal-missiles by portal-id.");
+		RemovePortalMissile(pidx);
+	}
 
 	portals[pidx]._rlevel = DLV_TOWN;
 }
