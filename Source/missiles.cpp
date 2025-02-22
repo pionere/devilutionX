@@ -3377,6 +3377,8 @@ static void ConvertMissile(int mi, int mitype)
 
 	// assert(misfiledata[mds->mFileNum].mfAnimFAmt < NUM_DIRS);
 	SetMissAnim(mi, animdir);
+
+	PutMissile(mi);
 }
 
 static bool Sentfire(int mi, int sx, int sy)
