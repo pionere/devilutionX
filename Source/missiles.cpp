@@ -4141,7 +4141,9 @@ void MI_Portal(int mi)
 	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
 
 	mis = &missile[mi];
-	// assert(!mis->_miDelFlag);
+	if (mis->_miDelFlag) {
+		return;
+	}
 	if (mis->_miDir == 0) {
 		// assert(mis->_miAnimLen < lengthof(ExpLight));
 		// assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < lengthof(ExpLight));
@@ -4903,8 +4905,6 @@ void ProcessMissiles()
 		dFlags[mis->_mix][mis->_miy] &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD);
 		dMissile[mis->_mix][mis->_miy] = 0;
 	}
-
-	DeleteMissiles();
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
