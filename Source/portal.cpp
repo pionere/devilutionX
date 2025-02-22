@@ -34,7 +34,7 @@ void InitPortals()
 	portals[pidx]._rlevel = lvl;
 }*/
 
-void AddWarpMissile(int pidx, int x, int y)
+static void AddWarpMissile(int pidx, int x, int y)
 {
 	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, pidx, -1);
 }
