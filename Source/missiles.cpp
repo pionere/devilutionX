@@ -4362,7 +4362,7 @@ void MI_Chain(int mi)
 				mis->_mitxoff = 0;
 				mis->_mityoff = 0;
 				// restore base range
-				mis->_miRange = 255;
+				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
 				// find new target
 				if (!FindClosestChain(mx, my, dx, dy)) {
 					// create pseudo-random seed using the monster which was hit (or the first real monster)
