@@ -97,7 +97,7 @@ static bool BaseFile_Create(TFileStream * pStream)
     {
         DWORD dwWriteShare = (pStream->dwFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0;
 
-        pStream->Base.File.hFile = CreateFile(pStream->szFileName,
+        pStream->Base.File.hFile = CreateFile(pStream->szFileName(),
                                               GENERIC_READ | GENERIC_WRITE,
                                               dwWriteShare | FILE_SHARE_READ,
                                               NULL,
@@ -113,7 +113,7 @@ static bool BaseFile_Create(TFileStream * pStream)
     {
         intptr_t handle;
 
-        handle = open(pStream->szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        handle = open(pStream->szFileName(), O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if(handle == -1)
         {
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
@@ -408,15 +408,15 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 #ifdef STORMLIB_WINDOWS
     // Delete the original stream file. Don't check the result value,
     // because if the file doesn't exist, it would fail
-    DeleteFile(pStream->szFileName);
+    DeleteFile(pStream->szFileName());
 
     // Rename the new file to the old stream's file
-    return (bool)MoveFile(pNewStream->szFileName, pStream->szFileName);
+    return (bool)MoveFile(pNewStream->szFileName(), pStream->szFileName());
 #endif
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     // "rename" on Linux also works if the target file exists
-    if(rename(pNewStream->szFileName, pStream->szFileName) == -1)
+    if(rename(pNewStream->szFileName(), pStream->szFileName()) == -1)
     {
         dwLastError = errno;
         return false;
@@ -1146,9 +1146,13 @@ static TFileStream * AllocateFileStream(
         pStream->dwFlags = dwStreamFlags;
 
         // Initialize the file name
+#ifdef FULL
         pStream->szFileName = (TCHAR *)((BYTE *)pStream + StreamSize);
         memcpy(pStream->szFileName, szFileName, FileNameSize);
         pStream->szFileName[FileNameSize / sizeof(TCHAR)] = 0;
+#else
+        memcpy(pStream->szFileName(), szFileName, FileNameSize + 1);
+#endif
 
         // Initialize the stream functions
 #ifdef FULL
@@ -1497,7 +1501,7 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 #else
     {
         // Attempt to open the base stream
-        if(!BaseFile_Open(pStream, pStream->szFileName, dwStreamFlags))
+        if(!BaseFile_Open(pStream, pStream->szFileName(), dwStreamFlags))
         {
             FileStream_Close(pStream);
             return NULL;
@@ -2573,7 +2577,7 @@ TFileStream * FileStream_OpenFile(
 const TCHAR * FileStream_GetFileName(TFileStream * pStream)
 {
     assert(pStream != NULL);
-    return pStream->szFileName;
+    return pStream->szFileName();
 }
 
 /**

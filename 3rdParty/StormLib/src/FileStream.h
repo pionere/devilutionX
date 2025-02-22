@@ -189,15 +189,16 @@ struct TFileStream
 #ifdef FULL
     // Stream provider data
     TFileStream * pMaster;                  // Master stream (e.g. MPQ on a web server)
-#endif
     TCHAR * szFileName;                     // File name (self-relative pointer)
-#ifdef FULL
     ULONGLONG StreamSize;                   // Stream size (can be less than file size)
     ULONGLONG StreamPos;                    // Stream position
     DWORD BuildNumber;                      // Game build number
 #endif
     DWORD dwFlags;                          // Stream flags
 
+    TCHAR * szFileName() {
+        return (TCHAR *)(&(&dwFlags)[1]);
+    }
     // Followed by stream provider data, with variable length
 };
 
