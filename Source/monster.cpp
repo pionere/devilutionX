@@ -697,8 +697,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	mon->_mleaderflag = MLEADER_NONE;
 	mon->_mpacksize = 0;
 	mon->_mvid = NO_VISION;
-
-	// mon->_mFlags |= MFLAG_NO_ENEMY;
 }
 
 /**
@@ -1402,7 +1400,7 @@ static void MonFindEnemy(int mnum)
 				if (dist > best_dist)
 					continue;
 				if (dist == best_dist) {
-					if (mon->_menemy != i || (mon->_mFlags & MFLAG_TARGETS_MONSTER))
+					if (mon->_menemy != i)
 						continue;
 				}
 			} else if (!sameroom)
@@ -1434,7 +1432,7 @@ static void MonFindEnemy(int mnum)
 				if (dist > best_dist)
 					continue;
 				if (dist == best_dist) {
-					if (mon->_menemy != i || !(mon->_mFlags & (MFLAG_TARGETS_MONSTER)))
+					if (mon->_menemy != -(i + 1))
 						continue;
 				}
 			} else if (!sameroom)
@@ -1473,7 +1471,7 @@ static void MonFindEnemy(int mnum)
 				if (dist > best_dist)
 					continue;
 				if (dist == best_dist) {
-					if (mon->_menemy != tnum/* || !(mon->_mFlags & (MFLAG_TARGETS_MONSTER))*/)
+					if (mon->_menemy != -(tnum + 1))
 						continue;
 				}
 			} else if (!sameroom)
@@ -1484,27 +1482,23 @@ static void MonFindEnemy(int mnum)
 		}
 	}
 	// clear previous target-flags
-	flags = mon->_mFlags & ~(MFLAG_TARGETS_MONSTER); // | MFLAG_NO_ENEMY);
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
 			x = plx(enemy)._pfutx;
 			y = plx(enemy)._pfuty;
 		} else {
-			enemy = -(enemy + 1);
-			flags |= MFLAG_TARGETS_MONSTER;
-			x = monsters[enemy]._mfutx;
-			y = monsters[enemy]._mfuty;
+			tnum = -(enemy + 1);
+			x = monsters[tnum]._mfutx;
+			y = monsters[tnum]._mfuty;
 		}
 		mon->_menemy = enemy;
 		mon->_mlastx = x;
 		mon->_mlasty = y;
 	} else {
-		// flags |= MFLAG_NO_ENEMY;
 		x = 0;
 		y = 0;
 	}
-	mon->_mFlags = flags;
 	mon->_menemyx = x;
 	mon->_menemyy = y;
 }
@@ -2401,7 +2395,7 @@ static void MonTryH2HHit(int mnum, int Hit, int MinDam, int MaxDam)
 	int mpnum;
 
 	mon = &monsters[mnum];
-	if (!(mon->_mFlags & MFLAG_TARGETS_MONSTER)) {
+	if (mon->_menemy >= 0) {
 		mpnum = dPlayer[mon->_mx + offset_x[mon->_mdir]][mon->_my + offset_y[mon->_mdir]];
 		if (mpnum == 0)
 			return;
@@ -3486,7 +3480,7 @@ void MAI_Ranged(int mnum)
 	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
 		MonstCheckDoors(mon->_mx, mon->_my);
 	mon->_mdir = currEnemyInfo._meLastDir;
-	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || (mon->_mFlags & MFLAG_TARGETS_MONSTER)*/) {
+	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || mon->_menemy < 0*/) {
 		bool walking = false;
 		if (currEnemyInfo._meRealDist < 4) {
 			if (random_(119, 100) < (76 + 8 * mon->_mAI.aiInt))
@@ -4427,6 +4421,7 @@ void MAI_Lachdanan(int mnum)
 void MAI_Warlord(int mnum)
 {
 	MonsterStruct* mon;
+	int pnum;
 
 	mon = &monsters[mnum];
 	if (MON_ACTIVE)
@@ -4440,7 +4435,8 @@ void MAI_Warlord(int mnum)
 		if (!(dFlags[mon->_mx][mon->_my] & BFLAG_ALERT))
 			return;
 		quests[Q_WARLORD]._qvar1 = IsMultiGame ? QV_WARLORD_ATTACK : QV_WARLORD_TALK;
-		if (mon->_menemy == mypnum || !plx(mon->_menemy)._pActive || plx(mon->_menemy)._pDunLevel != currLvl._dLevelIdx) {
+		pnum = mon->_menemy >= 0 ? mon->_menemy : -(mon->_menemy + 1);
+		if (pnum == mypnum || !plr._pActive || plr._pDunLevel != currLvl._dLevelIdx) {
 			NetSendCmdQuest(Q_WARLORD, true);
 		}
 		mon->_mmode = MM_TALK;
@@ -4530,8 +4526,6 @@ void ProcessMonsters()
 					mon->_mFlags &= ~(MFLAG_HIDDEN | MFLAG_GARG_STONE);
 					assert(mon->_mmode == MM_STAND);
 				}
-				// mon->_mFlags |= MFLAG_NO_ENEMY;
-				mon->_mFlags &= ~MFLAG_TARGETS_MONSTER;
 				mon->_menemy = 0;
 				mon->_menemyx = 0;
 				mon->_menemyy = 0;

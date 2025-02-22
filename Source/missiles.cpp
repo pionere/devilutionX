@@ -4675,7 +4675,7 @@ void MI_Charge(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	if (!(monsters[mnum]._mFlags & MFLAG_TARGETS_MONSTER)) {
+	if (monsters[mnum]._menemy >= 0) {
 		tnum = dPlayer[bx][by];
 	} else {
 		tnum = dMonster[bx][by];

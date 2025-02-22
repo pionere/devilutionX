@@ -2459,12 +2459,10 @@ typedef enum _monster_flag {
 	MFLAG_LIFESTEAL       = 0x0020,
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
-	MFLAG_TARGETS_MONSTER = 0x0100,
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
 	MFLAG_NODROP          = 0x1000,
-	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 	MFLAG_KNOCKBACK       = 0x00010000,
 	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS

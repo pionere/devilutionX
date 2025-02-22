@@ -735,7 +735,7 @@ typedef struct MonsterStruct {
 	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
 	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	int _mdir;         // Direction faced by monster (direction enum)
-	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	int _menemy;       // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
 	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
