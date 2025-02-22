@@ -25,9 +25,9 @@ void pfile_flush(bool bFree);
  */
 void pfile_write_save_file(bool full, DWORD dwLen);
 /*
- * Delete save file (game or temp-levels)
+ * Delete save file (temp-levels)
  */
-void pfile_delete_save_file(bool full);
+void pfile_delete_save_file();
 /*
  * Read save file (game or level) into gsDeltaData.ddBuffer
  */

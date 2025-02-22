@@ -302,7 +302,7 @@ void pfile_read_hero_from_save()
 
 	UnPackPlayer(&pkplr, 0); // mypnum
 	mypnum = 0;
-	gbValidSaveFile = !IsMultiGame && pfile_archive_contains_game(archive);
+	gbValidSaveFile = pfile_archive_contains_game(archive);
 	SFileCloseArchive(archive);
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
@@ -362,17 +362,16 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	pfile_flush(true);
 }
 
-void pfile_delete_save_file(bool full)
+void pfile_delete_save_file()
 {
-	if (!IsMultiGame) {
-		if (!pfile_open_archive())
-			app_fatal("Unable to open file archive");
-		if (full)
-			mpqapi_remove_entry(SAVEFILE_GAME);
-		else
-			mpqapi_remove_entries(GetTempLevelNames);
-		pfile_flush(true);
-	}
+	// assert(!IsMultiGame);
+	if (!pfile_open_archive())
+		app_fatal("Unable to open file archive");
+	// if (full)
+	//	mpqapi_remove_entry(SAVEFILE_GAME);
+	// else
+		mpqapi_remove_entries(GetTempLevelNames);
+	pfile_flush(true);
 }
 
 void pfile_read_save_file(bool full)
