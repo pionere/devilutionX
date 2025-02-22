@@ -227,6 +227,19 @@ void GetDamageAmt(int sn, int sl, int* minv, int* maxv)
 	*maxv = maxd;
 }
 
+void RemovePortalMissile(int pnum)
+{
+	MissileStruct* mis;
+	int i;
+
+	for (i = 0; i < nummissiles; i++) {
+		mis = &missile[missileactive[i]];
+		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
+			mis->_miDelFlag = TRUE; // + AddUnLight
+		}
+	}
+}
+
 /*
  * Check if an active (missile-)entity can be placed at the given position.
  */

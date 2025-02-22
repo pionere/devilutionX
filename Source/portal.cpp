@@ -75,19 +75,6 @@ void ActivatePortal(int pidx, int x, int y, int bLevel)
 //	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 //}
 
-void RemovePortalMissile(int pnum)
-{
-	MissileStruct* mis;
-	int i;
-
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == pnum) {
-			mis->_miDelFlag = TRUE; // + AddUnLight
-		}
-	}
-}
-
 void DeactivatePortal(int pidx)
 {
 	//if (PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
