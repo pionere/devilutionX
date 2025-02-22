@@ -1647,7 +1647,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 		mis->_miCaster |= MST_RUNE;
 		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 3;
 	}
-	mis->_miRange = 16 + 1584; // delay + ttl
+	mis->_miRange = 16 + 1584; // delay + ttl (48 * 17 + 48 * 16)
 	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "PlaceRune expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 9, "PlaceRune uses CrawlTable/CrawlNum up to radius 9.");
 	for (i = 0; i <= 9; i++) {
@@ -3901,7 +3901,7 @@ void MI_Rune(int mi)
 	const int8_t* cr;
 
 	mis = &missile[mi];
-	if (--mis->_miVar3 < 0) {
+	if (--mis->_miVar3 <= 0) {
 		sx = mis->_mix;
 		sy = mis->_miy;
 		static_assert(lengthof(CrawlNum) > 1, "MI_Rune uses CrawlTable/CrawlNum up to radius 1.");
