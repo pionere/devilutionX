@@ -564,12 +564,13 @@ static void PutMissile(int mi)
 	y = missile[mi]._miy;
 	assert(IN_DUNGEON_AREA(x, y));
 	//assert(missile[mi]._miDrawFlag); -- not really necessary, but otherwise it is pointless
-	if (!missile[mi]._miDelFlag) {
+	assert(!missile[mi]._miDelFlag);
+	//if (!missile[mi]._miDelFlag) {
 		dMissile[x][y] = dMissile[x][y] == 0 ? mi + 1 : MIS_MULTI;
 		assert(!missile[mi]._miPreFlag);
 		//if (missile[mi]._miPreFlag)
 		//	dFlags[x][y] |= BFLAG_MISSILE_PRE;
-	}
+	// }
 }
 
 static void PutMissileF(int mi, BYTE flag)
@@ -3900,11 +3901,6 @@ void MI_Rune(int mi)
 	const int8_t* cr;
 
 	mis = &missile[mi];
-	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE; // + AddUnLight
-		return;
-	}
 	if (--mis->_miVar3 < 0) {
 		sx = mis->_mix;
 		sy = mis->_miy;
@@ -3931,6 +3927,11 @@ void MI_Rune(int mi)
 		}
 	} else {
 		mis->_miAnimCnt--;
+	}
+	mis->_miRange--;
+	if (mis->_miRange < 0) {
+		mis->_miDelFlag = TRUE; // + AddUnLight
+		return;
 	}
 	PutMissile(mi);
 }
