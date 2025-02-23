@@ -356,8 +356,8 @@ void ShowCutscene(unsigned uMsg)
 	nthread_run();
 	static_assert((unsigned)DVL_DWM_LOADGAME == (unsigned)DVL_DWM_NEWGAME + 1 && (unsigned)NUM_WNDMSGS == (unsigned)DVL_DWM_LOADGAME + 1, "Check to save hero/level in ShowCutscene must be adjusted.");
 	if (uMsg < DVL_DWM_NEWGAME) {
+		pfile_update(true);
 		if (IsMultiGame) {
-			pfile_write_hero(false);
 			DeltaSaveLevel();
 		} else {
 			SaveLevel();

@@ -209,7 +209,6 @@ static void diablo_deinit()
 {
 	NetClose();
 	SNetDestroy();
-	pfile_flush(true);
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
 		StopSFX(); // stop click-effect
@@ -1483,10 +1482,9 @@ static void run_game()
 #endif
 	}
 	NetClose();
-	if (IsMultiGame)
-		pfile_write_hero(true);
-	//else
-	//	pfile_flush(true);
+
+	pfile_update(true);
+	// pfile_flush(true);
 
 	PaletteFadeOut();
 	//NewCursor(CURSOR_NONE);

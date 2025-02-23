@@ -104,7 +104,7 @@ static bool pfile_open_archive()
 	return pfile_open_save_mpq(mySaveIdx);
 }
 
-void pfile_flush(bool bFree)
+static void pfile_flush(bool bFree)
 {
 	mpqapi_flush_and_close(bFree);
 }
@@ -114,7 +114,7 @@ static HANDLE pfile_open_save_archive(unsigned save_num)
 	return SFileOpenArchive(GetSavePath(save_num).c_str(), MPQ_OPEN_READ_ONLY);
 }
 
-void pfile_write_hero(bool bFree)
+static void pfile_write_hero(bool bFree)
 {
 	if (pfile_open_archive()) {
 		pfile_encode_hero(mypnum);

@@ -15,10 +15,8 @@ extern "C" {
 extern unsigned mySaveIdx;
 extern bool gbValidSaveFile;
 
-void pfile_write_hero(bool bFree);
 void pfile_read_hero_from_save();
 //bool pfile_rename_hero(const char* name_1, const char* name_2);
-void pfile_flush(bool bFree);
 //bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH]);
 /*
  * Write save file (game or level) from gsDeltaData.ddBuffer
