@@ -1151,7 +1151,7 @@ static TFileStream * AllocateFileStream(
         memcpy(pStream->szFileName, szFileName, FileNameSize);
         pStream->szFileName[FileNameSize / sizeof(TCHAR)] = 0;
 #else
-        memcpy(pStream->szFileName(), szFileName, FileNameSize + 1);
+        memcpy(pStream->szFileName(), szFileName, FileNameSize + sizeof(TCHAR));
 #endif
 
         // Initialize the stream functions
