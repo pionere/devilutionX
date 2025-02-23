@@ -285,7 +285,7 @@ void pfile_ui_delete_hero(_uiheroinfo* hero_info)
 	RemoveFile(GetSavePath(save_num).c_str());
 }
 
-void pfile_read_hero_from_save()
+void pfile_read_hero()
 {
 	HANDLE archive;
 	PkPlayerStruct pkplr;

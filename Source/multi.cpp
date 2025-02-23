@@ -780,7 +780,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			mypnum = SNPLAYER_MASTER;
 		} else {
 			gameData.aePlayerId = 0;
-			pfile_read_hero_from_save();
+			pfile_read_hero();
 		}
 
 		// select game
