@@ -1918,7 +1918,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	if (plr._px != os->_ox || plr._py != os->_oy + 1)
 		return;
 	// assert(os->_ox == DBORDERX + 10 || os->_ox == DBORDERX + 29);
-	dx = DBORDERX + (os->_ox == DBORDERX + 10) ? 11 : 27;
+	dx = DBORDERX + ((os->_ox == DBORDERX + 10) ? 11 : 27);
 	dy = DBORDERY + 13;
 	// int on = dObject[dx][dy] - 1;
 	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
