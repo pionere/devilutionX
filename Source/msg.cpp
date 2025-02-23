@@ -2238,12 +2238,13 @@ void NetSendCmdString(TMsgString* cmd, unsigned int pmask)
 	multi_send_direct_msg(pmask, (BYTE*)cmd, cmd->bsLen + 3); // length of string + nul terminator + sizeof(cmd->bCmd) + sizeof(cmd->bsLen)
 }
 
-static void check_update_plr(int pnum)
+static bool check_update_plr(int pnum)
 {
-	if (IsMultiGame) {
-		assert(pnum == mypnum);
+	bool result = pnum == mypnum;
+	if (result && IsMultiGame) {
 		pfile_update(true);
 	}
+	return result;
 }
 
 static unsigned On_SYNCDATA(const TCmd* pCmd, int pnum)
@@ -2490,8 +2491,7 @@ static unsigned On_PUTITEM(const TCmd* pCmd, int pnum)
 			}
 		}
 		pi->_itype = ITYPE_NONE;
-		if (pnum == mypnum) {
-			check_update_plr(pnum);
+		if (check_update_plr(pnum)) {
 			// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
 			NewCursor(CURSOR_HAND);
 		}
@@ -2902,8 +2902,7 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 
 	SyncPlrKill(pnum);
 
-	if (pnum == mypnum)
-		check_update_plr(pnum);
+	check_update_plr(pnum);
 
 	return sizeof(*cmd);
 }
@@ -2911,8 +2910,8 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 static unsigned On_PLRRESURRECT(const TCmd* pCmd, int pnum)
 {
 	SyncPlrResurrect(pnum);
-	if (pnum == mypnum)
-		check_update_plr(pnum);
+
+	check_update_plr(pnum);
 
 	return sizeof(*pCmd);
 }
