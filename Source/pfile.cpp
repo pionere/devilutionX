@@ -76,16 +76,16 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 
 static void pfile_encode_hero(int pnum)
 {
+	const DWORD packed_len = codec_get_encoded_len(sizeof(PkPlayerStruct));
 	BYTE* packed;
-	PkPlayerStruct pPack;
-	DWORD packed_len;
-	const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
-	PackPlayer(&pPack, pnum);
-	packed_len = codec_get_encoded_len(sizeof(pPack));
 	packed = (BYTE*)DiabloAllocPtr(packed_len);
-	memcpy(packed, &pPack, sizeof(pPack));
-	codec_encode(packed, sizeof(pPack), packed_len, password);
+	PackPlayer((PkPlayerStruct*)packed, pnum);
+	{
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+
+		codec_encode(packed, sizeof(PkPlayerStruct), packed_len, password);
+	}
 	mpqapi_write_entry(SAVEFILE_HERO, packed, packed_len);
 	mem_free_dbg(packed);
 }
