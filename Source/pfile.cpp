@@ -52,19 +52,15 @@ static std::string GetSavePath(unsigned save_num)
 static bool pfile_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 {
 	HANDLE file;
-	DWORD dwlen;
-	BYTE* buf;
+	bool ret = false;
 
-	if (!SFileOpenFileEx(archive, SAVEFILE_HERO, SFILE_OPEN_FROM_MPQ, &file)) {
-		return false;
-	} else {
-		bool ret = false;
-		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
-
-		dwlen = SFileGetFileSize(file);
+	if (SFileOpenFileEx(archive, SAVEFILE_HERO, SFILE_OPEN_FROM_MPQ, &file)) {
+		DWORD dwlen = SFileGetFileSize(file);
 		if (dwlen != 0) {
-			buf = DiabloAllocPtr(dwlen);
+			BYTE* buf = DiabloAllocPtr(dwlen);
 			if (SFileReadFile(file, buf, dwlen)) {
+				const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+
 				int read = codec_decode(buf, dwlen, password);
 				if (read == sizeof(*pPack)) {
 					memcpy(pPack, buf, sizeof(*pPack));
@@ -74,8 +70,8 @@ static bool pfile_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 			mem_free_dbg(buf);
 		}
 		SFileCloseFile(file);
-		return ret;
 	}
+	return ret;
 }
 
 static void pfile_encode_hero(int pnum)
