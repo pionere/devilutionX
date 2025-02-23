@@ -199,6 +199,25 @@ void pfile_ui_load_hero_infos(std::vector<_uiheroinfo> &hero_infos)
 	class_stats->dsMagic = MagicTbl[player_class_nr];
 	class_stats->dsDexterity = DexterityTbl[player_class_nr];
 	class_stats->dsVitality = VitalityTbl[player_class_nr];
+}
+
+static bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH])
+{
+	if (IsMultiGame) {
+		if (lvl != 0)
+			return false;
+		copy_cstr(dst, SAVEFILE_HERO);
+	} else {
+		if (lvl < NUM_LEVELS)
+			return GetPermLevelNames(lvl, dst);
+		if (lvl == NUM_LEVELS)
+			copy_cstr(dst, SAVEFILE_GAME);
+		else if (lvl == NUM_LEVELS + 1)
+			copy_cstr(dst, SAVEFILE_HERO);
+		else
+			return false;
+	}
+	return true;
 }*/
 
 int pfile_ui_create_save(_uiheroinfo* heroinfo)
@@ -256,25 +275,6 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_
 	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
 	return true;
 }
-
-/*bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH])
-{
-	if (IsMultiGame) {
-		if (lvl != 0)
-			return false;
-		copy_cstr(dst, SAVEFILE_HERO);
-	} else {
-		if (lvl < NUM_LEVELS)
-			return GetPermLevelNames(lvl, dst);
-		if (lvl == NUM_LEVELS)
-			copy_cstr(dst, SAVEFILE_GAME);
-		else if (lvl == NUM_LEVELS + 1)
-			copy_cstr(dst, SAVEFILE_HERO);
-		else
-			return false;
-	}
-	return true;
-}*/
 
 void pfile_ui_delete_save(_uiheroinfo* hero_info)
 {

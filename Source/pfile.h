@@ -17,7 +17,6 @@ extern bool gbValidSaveFile;
 
 void pfile_read_hero_from_save();
 //bool pfile_rename_hero(const char* name_1, const char* name_2);
-//bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH]);
 /*
  * Write save file (game or level) from gsDeltaData.ddBuffer
  */
