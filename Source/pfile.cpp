@@ -174,7 +174,7 @@ static bool pfile_archive_contains_game(HANDLE hsArchive)
 	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
 }
 
-void pfile_ui_load_hero_infos(std::vector<_uiheroinfo> &hero_infos)
+void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 {
 	int i;
 
@@ -220,7 +220,7 @@ static bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH]
 	return true;
 }*/
 
-int pfile_ui_create_save(_uiheroinfo* heroinfo)
+int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 {
 	unsigned save_num;
 	HANDLE archive;
@@ -276,7 +276,7 @@ static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_
 	return true;
 }
 
-void pfile_ui_delete_save(_uiheroinfo* hero_info)
+void pfile_ui_delete_hero(_uiheroinfo* hero_info)
 {
 	unsigned save_num;
 

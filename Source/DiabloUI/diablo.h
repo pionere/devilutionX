@@ -23,9 +23,9 @@ inline void PlaySfx(int nsfx) { }
 #endif*/
 
 /* Defined in pfile.cpp */
-void pfile_ui_load_hero_infos(std::vector<_uiheroinfo>& hero_infos);
-int pfile_ui_create_save(_uiheroinfo* heroinfo);
-void pfile_ui_delete_save(_uiheroinfo* hero_info);
+void pfile_ui_load_heros(std::vector<_uiheroinfo>& hero_infos);
+int pfile_ui_create_hero(_uiheroinfo* heroinfo);
+void pfile_ui_delete_hero(_uiheroinfo* hero_info);
 
 /* Defined in multi.cpp */
 void multi_ui_handle_events(SNetEventHdr* pEvt);

@@ -181,7 +181,7 @@ static void SelheroInit()
 static void SelheroInitHeros()
 {
 	selhero_heros.clear();
-	pfile_ui_load_hero_infos(selhero_heros);
+	pfile_ui_load_heros(selhero_heros);
 	static_assert(MAX_CHARACTERS <= UINT32_MAX, "Check overflow in SelheroInitHeros.");
 	selhero_SaveCount = (unsigned)selhero_heros.size();
 	std::reverse(selhero_heros.begin(), selhero_heros.end());
@@ -259,7 +259,7 @@ static void SelheroListFocus(unsigned index)
 static void SelheroListDeleteYesNo(unsigned index)
 {
 	if (index == 0)
-		pfile_ui_delete_save(&selhero_heroInfo);
+		pfile_ui_delete_hero(&selhero_heroInfo);
 	SelheroInitHeros();
 }
 
@@ -414,7 +414,7 @@ static void SelheroNameInit(unsigned index)
 static void SelheroNameSelect(unsigned index)
 {
 	const char* err;
-	int result = pfile_ui_create_save(&selhero_heroInfo);
+	int result = pfile_ui_create_hero(&selhero_heroInfo);
 
 	switch (result) {
 	case NEWHERO_DONE:
