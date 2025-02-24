@@ -3,6 +3,7 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
 #include "DiabloUI/selconn.h"
+#include "DiabloUI/selhero.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_cfg.h"
@@ -165,10 +166,10 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 #endif
 	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
 	// assert(mypnum == 0 || hosted);
-	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : plx(0)._pClass + 1, rect5, false));
+	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : selhero_heroInfo.hiClass + 1, rect5, false));
 	if (!hosted) {
 		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
-		gUiItems.push_back(new UiText(plx(0)._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(selhero_heroInfo.hiName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 	}
 #ifdef ZEROTIER
 	ztBlOckBtn = NULL;

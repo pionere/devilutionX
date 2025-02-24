@@ -1,3 +1,5 @@
+#include "selhero.h"
+
 #include <ctime>
 
 #include "../all.h"
@@ -13,7 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
-static _uiheroinfo selhero_heroInfo;
+_uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
