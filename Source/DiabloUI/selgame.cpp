@@ -17,8 +17,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
 
-extern int provider;
-
 typedef struct ConnectionInfo {
 	const char *ci_GameName;
 	const char *ci_GamePort;
