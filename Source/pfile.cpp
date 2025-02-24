@@ -118,12 +118,12 @@ static void pfile_mpq_write_hero(bool bFree)
 	}
 }
 
-static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo, unsigned saveIdx)
+static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo)
 {
 	static_assert(sizeof(heroinfo->hiName) <= sizeof(p->_pName), "pfile_player2hero uses memcpy to store the name of the player.");
 	memcpy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
 	heroinfo->hiName[sizeof(heroinfo->hiName) - 1] = '\0';
-	heroinfo->hiIdx = saveIdx;
+	// heroinfo->hiIdx;
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
 	heroinfo->hiRank = p->_pRank;
@@ -164,7 +164,8 @@ static bool ValidPlayerName(const char* name)
 		return false;
 
 	SStrCopy(players[i]._pName, name_2, PLR_NAME_LEN);
-	pfile_player2hero(&players[0], &uihero, mySaveIdx);
+	uihero.hiIdx = mySaveIdx;
+	pfile_player2hero(&players[0], &uihero);
 	pfile_mpq_write_hero();
 	return true;
 }*/
@@ -185,7 +186,8 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 			if (pfile_archive_read_hero(archive, &pkplr)) {
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
-				pfile_player2hero(&players[0], &uihero, i);
+				uihero.hiIdx = i;
+				pfile_player2hero(&players[0], &uihero);
 				hero_infos.push_back(uihero);
 			}
 			SFileCloseArchive(archive);
@@ -243,7 +245,7 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	//mpqapi_remove_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	pfile_mpq_encode_hero(0);
-	//pfile_player2hero(&players[0], heroinfo, save_num);
+	//pfile_player2hero(&players[0], heroinfo);
 	pfile_mpq_flush(true);
 	return NEWHERO_DONE;
 }
