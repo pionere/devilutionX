@@ -152,21 +152,22 @@ static bool ValidPlayerName(const char* name)
 	return true;
 }
 
-/*bool pfile_rename_hero(const char* name_1, const char* name_2)
+/*bool pfile_rename_hero(_uiheroinfo* heroinfo, const char* name_2)
 {
-	int i;
-	unsigned save_num;
-	_uiheroinfo uihero;
-	bool found = false;
+	bool result = false;
 
-	if (!ValidPlayerName(name_2))
-		return false;
-
-	SStrCopy(players[i]._pName, name_2, PLR_NAME_LEN);
-	uihero.hiIdx = mySaveIdx;
-	pfile_player2hero(&players[0], &uihero);
-	pfile_mpq_write_hero();
-	return true;
+	if (ValidPlayerName(name_2)) {
+		HANDLE archive = pfile_archive_open_save(heroinfo->hiIdx);
+		if (archive != NULL) {
+			PkPlayerStruct pkplr;
+			if (pfile_archive_read_hero(archive, &pkplr)) {
+				SStrCopy(pkplr.pName, name_2, lengthof(pkplr.pName));
+				...
+				result = true;
+			}
+		}
+	}
+	return result;
 }*/
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
@@ -179,9 +180,9 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 	int i;
 
 	for (i = MAX_CHARACTERS; i >= 0; i--) {
-		PkPlayerStruct pkplr;
 		HANDLE archive = pfile_archive_open_save(i);
 		if (archive != NULL) {
+			PkPlayerStruct pkplr;
 			if (pfile_archive_read_hero(archive, &pkplr)) {
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
