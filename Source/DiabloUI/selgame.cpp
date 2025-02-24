@@ -165,7 +165,6 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 	hosted = provider == SELCONN_TCPS || provider == SELCONN_TCPDS;
 #endif
 	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
-	// assert(mypnum == 0 || hosted);
 	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : selhero_heroInfo.hiClass + 1, rect5, false));
 	if (!hosted) {
 		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
@@ -309,7 +308,7 @@ static void SelgameModeInit()
 	}
 #endif
 	if (provider == SELCONN_LOOPBACK) {
-		if (!gbValidSaveFile) {
+		if (!selhero_heroInfo.hiSaveFile) {
 			SelgameModeSet(SELGAME_CREATE);
 			return;
 		}
@@ -732,7 +731,7 @@ static void SelgameDiffEsc()
 		return;
 	}
 #endif
-	if (provider == SELCONN_LOOPBACK && !gbValidSaveFile) {
+	if (provider == SELCONN_LOOPBACK && !selhero_heroInfo.hiSaveFile) {
 		SelgameModeEsc();
 		return;
 	}

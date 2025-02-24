@@ -2534,7 +2534,7 @@ typedef struct _uiheroinfo {
 	BYTE hiIdx;
 	BYTE hiLevel;
 	BYTE hiClass;
-	BYTE hiRank;
+	BOOLEAN hiSaveFile;
 	char hiName[16];
 	int16_t hiStrength;
 	int16_t hiMagic;

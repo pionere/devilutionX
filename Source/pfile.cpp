@@ -23,7 +23,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PFILE_SAVE_INTERVAL       60
 
 unsigned mySaveIdx;
-bool gbValidSaveFile;
 static uint32_t guNextSaveTc;
 
 #define PASSWORD_SINGLE "xrgyrkj1"
@@ -126,7 +125,7 @@ static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo)
 	// heroinfo->hiIdx;
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
-	heroinfo->hiRank = p->_pRank;
+	// heroinfo->hiSaveFile
 	heroinfo->hiStrength = p->_pStrength;
 	heroinfo->hiMagic = p->_pMagic;
 	heroinfo->hiDexterity = p->_pDexterity;
@@ -187,6 +186,7 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
 				uihero.hiIdx = i;
+				uihero.hiSaveFile = pfile_archive_contains_game(archive);
 				pfile_player2hero(&players[0], &uihero);
 				hero_infos.push_back(uihero);
 			}
@@ -242,6 +242,7 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 		return NEWHERO_FAIL;
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	heroinfo->hiIdx = save_num;
+	// heroinfo->hiSaveFile = FALSE;
 	//mpqapi_remove_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	pfile_mpq_encode_hero(0);
@@ -300,7 +301,6 @@ void pfile_read_hero()
 
 	UnPackPlayer(&pkplr, 0); // mypnum
 	mypnum = 0;
-	gbValidSaveFile = pfile_archive_contains_game(archive);
 	SFileCloseArchive(archive);
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
@@ -351,7 +351,6 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	mpqapi_write_entry(pszName, pbData, qwLen);
 
 	if (full) {
-		// gbValidSaveFile = true;
 		pfile_mpq_rename_temp_to_perm();
 		// pfile_mpq_write_hero(true);
 		// assert(mypnum == 0);

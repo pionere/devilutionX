@@ -333,7 +333,7 @@ static void SelheroClassSelectorFocus(unsigned index)
 	selhero_heroInfo.hiIdx = MAX_CHARACTERS + 1;
 	selhero_heroInfo.hiLevel = 1;
 	selhero_heroInfo.hiClass = index;
-	//selhero_heroInfo.hiRank = 0;
+	selhero_heroInfo.hiSaveFile = FALSE;
 	selhero_heroInfo.hiStrength = StrengthTbl[index];   //defaults.dsStrength;
 	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
