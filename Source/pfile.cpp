@@ -178,7 +178,7 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 {
 	int i;
 
-	for (i = 0; i < MAX_CHARACTERS; i++) {
+	for (i = 0; i <= MAX_CHARACTERS; i++) {
 		PkPlayerStruct pkplr;
 		HANDLE archive = pfile_archive_open_save(i);
 		if (archive != NULL) {
@@ -227,14 +227,14 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 
 	if (!ValidPlayerName(heroinfo->hiName))
 		return NEWHERO_INVALID_NAME;
-	assert(heroinfo->hiIdx == MAX_CHARACTERS);
-	for (save_num = 0; save_num < MAX_CHARACTERS; save_num++) {
+	assert(heroinfo->hiIdx == MAX_CHARACTERS + 1);
+	for (save_num = 0; save_num <= MAX_CHARACTERS; save_num++) {
 		archive = pfile_archive_open_save(save_num);
 		if (archive == NULL)
 			break;
 		SFileCloseArchive(archive);
 	}
-	if (save_num >= MAX_CHARACTERS)
+	if (save_num > MAX_CHARACTERS)
 		return NEWHERO_HERO_LIMIT;
 	if (!pfile_mpq_open_save(save_num))
 		return NEWHERO_FAIL;
@@ -281,7 +281,7 @@ void pfile_ui_delete_hero(_uiheroinfo* hero_info)
 	unsigned save_num;
 
 	save_num = hero_info->hiIdx;
-	assert(save_num < MAX_CHARACTERS);
+	assert(save_num <= MAX_CHARACTERS);
 	RemoveFile(GetSavePath(save_num).c_str());
 }
 

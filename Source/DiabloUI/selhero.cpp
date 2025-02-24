@@ -329,7 +329,7 @@ static void SelheroClassSelectorFocus(unsigned index)
 	//pfile_ui_default_stats(index, &defaults);
 	assert((unsigned)gUIListItems[index]->m_value == index);
 
-	selhero_heroInfo.hiIdx = MAX_CHARACTERS;
+	selhero_heroInfo.hiIdx = MAX_CHARACTERS + 1;
 	selhero_heroInfo.hiLevel = 1;
 	selhero_heroInfo.hiClass = index;
 	//selhero_heroInfo.hiRank = 0;
