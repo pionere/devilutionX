@@ -29,6 +29,7 @@ void pfile_delete_save_file();
  */
 void pfile_read_save_file(bool full);
 void pfile_update(bool force_save);
+void pfile_close();
 
 #ifdef __cplusplus
 }

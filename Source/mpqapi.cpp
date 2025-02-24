@@ -750,4 +750,9 @@ void mpqapi_flush_and_close(bool bFree)
 	cur_archive.CloseArchive(bFree);
 }
 
+void mpqapi_close()
+{
+	cur_archive.CloseArchive(true);
+}
+
 DEVILUTION_END_NAMESPACE

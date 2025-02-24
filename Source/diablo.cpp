@@ -1483,8 +1483,7 @@ static void run_game()
 	}
 	NetClose();
 
-	pfile_update(true);
-	// pfile_flush(true);
+	pfile_close();
 
 	PaletteFadeOut();
 	//NewCursor(CURSOR_NONE);

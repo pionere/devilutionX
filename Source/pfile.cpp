@@ -302,6 +302,7 @@ void pfile_read_hero()
 
 	UnPackPlayer(&pkplr, mypnum);
 	SFileCloseArchive(archive);
+
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
 
@@ -426,6 +427,15 @@ void pfile_update(bool force_save)
 			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
 			pfile_mpq_write_hero(false);
 		}
+	}
+}
+
+void pfile_close()
+{
+	if (IsMultiGame) {
+		pfile_mpq_write_hero(true);
+	} else {
+		mpqapi_close();
 	}
 }
 
