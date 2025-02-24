@@ -453,7 +453,6 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 
     // If the file position is at or beyond end of file, do nothing
     if (dwFilePos >= hf->dwDataSize) {
-        *pdwBytesRead = 0;
         return ERROR_SUCCESS;
     }
 
