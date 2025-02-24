@@ -178,7 +178,7 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 {
 	int i;
 
-	for (i = 0; i <= MAX_CHARACTERS; i++) {
+	for (i = MAX_CHARACTERS; i >= 0; i--) {
 		PkPlayerStruct pkplr;
 		HANDLE archive = pfile_archive_open_save(i);
 		if (archive != NULL) {

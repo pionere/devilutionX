@@ -184,7 +184,6 @@ static void SelheroInitHeros()
 	pfile_ui_load_heros(selhero_heros);
 	static_assert(MAX_CHARACTERS <= UINT32_MAX, "Check overflow in SelheroInitHeros.");
 	selhero_SaveCount = (unsigned)selhero_heros.size();
-	std::reverse(selhero_heros.begin(), selhero_heros.end());
 	{
 		_uiheroinfo newHero;
 		copy_cstr(newHero.hiName, "New Hero");
