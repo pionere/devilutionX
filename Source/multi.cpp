@@ -775,13 +775,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			}
 		}
 		gbSelectHero = bSinglePlayer;
-		if (IsGameSrv) {
-			gameData.aePlayerId = SNPLAYER_MASTER;
-			mypnum = SNPLAYER_MASTER;
-		} else {
-			gameData.aePlayerId = 0;
-			pfile_read_hero();
-		}
+		gameData.aePlayerId = IsGameSrv ? SNPLAYER_MASTER : 0;
 
 		// select game
 		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
@@ -797,13 +791,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		}
 		gbLoadGame = dlgresult == SELGAME_LOAD;
 		gbJoinGame = dlgresult == SELGAME_JOIN;
-		if (gbJoinGame) {
-			pnum = gameData.aePlayerId;
-			if (mypnum != pnum) {
-				copy_pod(plr, myplr);
-				mypnum = pnum;
-				//pfile_read_player_from_save();
-			}
+		mypnum = gameData.aePlayerId;
+		if (!IsGameSrv) {
+			pfile_read_hero();
 		}
 		break;
 	}

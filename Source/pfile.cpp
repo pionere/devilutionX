@@ -299,8 +299,7 @@ void pfile_read_hero()
 	if (!pfile_archive_read_hero(archive, &pkplr))
 		app_fatal("Unable to read save file");
 
-	UnPackPlayer(&pkplr, 0); // mypnum
-	mypnum = 0;
+	UnPackPlayer(&pkplr, mypnum);
 	SFileCloseArchive(archive);
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
