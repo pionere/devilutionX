@@ -256,21 +256,29 @@ struct Archive {
 		return true;
 	}
 
+	void FlushArchive()
+	{
+#if DEBUG_MODE
+		DoLog("Flushing %s", name.c_str());
+#endif
+		// assert(stream.IsOpen());
+		bool resize = modified && stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
+		if (resize && archiveSize != 0) {
+			stream.Close();
+#if DEBUG_MODE
+			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
+#endif
+			ResizeFile(name.c_str(), archiveSize);
+		}
+	}
+
 	void CloseArchive(bool clear_tables)
 	{
 		if (stream.IsOpen()) {
 #if DEBUG_MODE
 			DoLog("Closing %s", name.c_str());
 #endif
-
-			bool resize = modified && stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
 			stream.Close();
-			if (resize && archiveSize != 0) {
-#if DEBUG_MODE
-				DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
-#endif
-				ResizeFile(name.c_str(), archiveSize);
-			}
 		}
 		if (clear_tables) {
 			MemFreeDbg(sgpHashTbl);
@@ -738,6 +746,7 @@ on_error:
 
 void mpqapi_flush_and_close(bool bFree)
 {
+	cur_archive.FlushArchive();
 	cur_archive.CloseArchive(bFree);
 }
 
