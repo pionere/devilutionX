@@ -205,7 +205,7 @@ struct Archive {
 
 	bool OpenArchive(const char* name)
 	{
-		CloseArchive(this->name != name);
+		// assert(!stream.IsOpen());
 #if DEBUG_MODE
 		DoLog("Opening %s", name);
 #endif
