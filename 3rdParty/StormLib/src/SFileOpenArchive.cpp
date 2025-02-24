@@ -436,7 +436,11 @@ HANDLE WINAPI SFileOpenArchive(
             ha->FileSize = FileSize;
 
             // Sector size must be nonzero.
+#ifdef FULL
             if(ByteOffset >= FileSize || ha->pHeader->wSectorSize == 0)
+#else
+            if(ByteOffset >= FileSize || ha->pHeader->wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
+#endif
                 dwErrCode = ERROR_BAD_FORMAT;
         }
     }
@@ -465,11 +469,11 @@ HANDLE WINAPI SFileOpenArchive(
         // Example map: MPQ_2016_v1_ProtectedMap_TableSizeOverflow.w3x
         ha->pHeader->dwBlockTableSize = (ha->pHeader->dwBlockTableSize & BLOCK_INDEX_MASK);
         ha->pHeader->dwHashTableSize = (ha->pHeader->dwHashTableSize & BLOCK_INDEX_MASK);
-
+#ifdef FULL
         // Both MPQ_OPEN_NO_LISTFILE or MPQ_OPEN_NO_ATTRIBUTES trigger read only mode
         if(dwFlags & (MPQ_OPEN_NO_LISTFILE | MPQ_OPEN_NO_ATTRIBUTES))
             ha->dwFlags |= MPQ_FLAG_READ_ONLY;
-
+#endif
         // Check if the caller wants to force adding listfile
         if(dwFlags & MPQ_OPEN_FORCE_LISTFILE)
             ha->dwFlags |= MPQ_FLAG_LISTFILE_FORCE;
@@ -487,9 +491,9 @@ HANDLE WINAPI SFileOpenArchive(
                 ha->dwFlags |= MPQ_FLAG_WAR3_MAP;
                 break;
         }
-#endif
         // Set the size of file sector
         ha->dwSectorSize = (0x200 << ha->pHeader->wSectorSize);
+#endif
 
         // Verify if any of the tables doesn't start beyond the end of the file
         dwErrCode = VerifyMpqTablePositions(ha, FileSize);
@@ -550,9 +554,10 @@ HANDLE WINAPI SFileOpenArchive(
             ha->dwFileFlags3 = pFileEntry->dwFlags;
 #endif
         }
-
+#ifdef FULL
         // Finally, set the MPQ_FLAG_READ_ONLY if the MPQ was found malformed
         ha->dwFlags |= (ha->dwFlags & MPQ_FLAG_MALFORMED) ? MPQ_FLAG_READ_ONLY : 0;
+#endif
     }
 
     // Cleanup and exit

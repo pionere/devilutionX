@@ -448,8 +448,8 @@ DWORD ConvertMpqHeaderToFormat4(
     MTYPE MapType)
 {
     TMPQHeader * pHeader = (TMPQHeader *)ha->HeaderData;
-    ULONGLONG BlockTablePos64 = 0;
 #ifdef FULL
+    ULONGLONG BlockTablePos64 = 0;
     ULONGLONG HashTablePos64 = 0;
     ULONGLONG BlockTableMask = (ULONGLONG)-1;
     ULONGLONG MaxOffset;
@@ -465,11 +465,8 @@ DWORD ConvertMpqHeaderToFormat4(
     // Reason: Storm.dll in Warcraft III ignores format version value
 #ifdef FULL
     if((MapType == MapTypeWarcraft3) || (dwFlags & MPQ_OPEN_FORCE_MPQ_V1))
-#else
-    if(dwFlags & MPQ_OPEN_FORCE_MPQ_V1)
-#endif
         wFormatVersion = MPQ_FORMAT_VERSION_1;
-#ifdef FULL
+
     // Don't accept format 3 for Starcraft II maps
     if((MapType == MapTypeStarcraft2) && (pHeader->wFormatVersion > MPQ_FORMAT_VERSION_2))
         wFormatVersion = MPQ_FORMAT_VERSION_4;
@@ -481,6 +478,7 @@ DWORD ConvertMpqHeaderToFormat4(
 
             // Check for malformed MPQ header version 1.0
             BSWAP_TMPQHEADER(pHeader, MPQ_FORMAT_VERSION_1);
+#ifdef FULL
             if(pHeader->wFormatVersion != MPQ_FORMAT_VERSION_1 || pHeader->dwHeaderSize != MPQ_HEADER_SIZE_V1)
             {
                 pHeader->wFormatVersion = MPQ_FORMAT_VERSION_1;
@@ -510,15 +508,15 @@ DWORD ConvertMpqHeaderToFormat4(
 
             // Fill the rest of the header
             memset((LPBYTE)pHeader + MPQ_HEADER_SIZE_V1, 0, sizeof(TMPQHeader) - MPQ_HEADER_SIZE_V1);
-#ifdef FULL
+
             pHeader->BlockTableSize64 = pHeader->dwBlockTableSize * sizeof(TMPQBlock);
             pHeader->HashTableSize64 = pHeader->dwHashTableSize * sizeof(TMPQHash);
             pHeader->ArchiveSize64 = pHeader->dwArchiveSize;
-#endif
+
             // Block table position must be calculated as 32-bit value
             // Note: BOBA protector puts block table before the MPQ header, so it is negative
             BlockTablePos64 = (ULONGLONG)((DWORD)ByteOffset + pHeader->dwBlockTablePos);
-#ifdef FULL
+
             BlockTableMask = 0xFFFFFFF0;
 
             // Determine the archive size on malformed MPQs
@@ -723,20 +721,14 @@ DWORD ConvertMpqHeaderToFormat4(
             // Calculate the block table position
             BlockTablePos64 = ByteOffset + MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos);
             break;
-#else
-		default:
-			// treat it as malformed MPQ version 1.0
-			pHeader->wFormatVersion = MPQ_FORMAT_VERSION_1;
-			pHeader->dwHeaderSize = MPQ_HEADER_SIZE_V1;
-			ha->dwFlags |= MPQ_FLAG_MALFORMED;
-			goto Label_ArchiveVersion1;
 #endif
     }
-
+#ifdef FULL
     // Handle case when block table is placed before the MPQ header
     // Used by BOBA protector
     if(BlockTablePos64 < ByteOffset)
         ha->dwFlags |= MPQ_FLAG_MALFORMED;
+#endif
     return dwErrCode;
 }
 
@@ -1005,11 +997,14 @@ static DWORD BuildFileTableFromBlockTable(
             // ByteOffset is only valid if file size is not zero
             pFileEntry->ByteOffset = pBlock->dwFilePos;
             if(pFileEntry->ByteOffset == 0 && pBlock->dwFSize == 0)
-                pFileEntry->ByteOffset = ha->pHeader->dwHeaderSize;
 #ifdef FULL
+                pFileEntry->ByteOffset = ha->pHeader->dwHeaderSize;
+
             // Clear file flags that are unknown to this type of map.
             pFileEntry->dwFlags = pBlock->dwFlags & ha->dwValidFileFlags;
 #else
+                pFileEntry->ByteOffset = MPQ_HEADER_SIZE_V1;
+
             pFileEntry->dwFlags = pBlock->dwFlags;
 #endif
 
@@ -2799,7 +2794,11 @@ DWORD BuildFileTable(TMPQArchive * ha)
     if(ha->pHashTable != NULL)
     {
         if(BuildFileTable_Classic(ha) != ERROR_SUCCESS)
+#ifdef FULL
             ha->dwFlags |= MPQ_FLAG_READ_ONLY;
+#else
+            bFileTableCreated = false;
+#endif
         else
             bFileTableCreated = true;
     }

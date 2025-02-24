@@ -36,8 +36,13 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     LPBYTE pbInSector = pbBuffer;
     DWORD dwRawBytesToRead;
     DWORD dwRawSectorOffset = dwByteOffset;
+#ifdef FULL
     DWORD dwSectorsToRead = dwBytesToRead / ha->dwSectorSize;
     DWORD dwSectorIndex = dwByteOffset / ha->dwSectorSize;
+#else
+    DWORD dwSectorsToRead = dwBytesToRead / MPQ_SECTOR_SIZE_V1;
+    DWORD dwSectorIndex = dwByteOffset / MPQ_SECTOR_SIZE_V1;
+#endif
     DWORD dwSectorsDone = 0;
     DWORD dwBytesRead = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
@@ -109,8 +114,13 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     if (FileStream_Read(ha->pStream, &RawFilePos, pbInSector, dwRawBytesToRead)) {
         // Now we have to decrypt and decompress all file sectors that have been loaded
         for (DWORD i = 0; i < dwSectorsToRead; i++) {
+#ifdef FULL
             DWORD dwRawBytesInThisSector = ha->dwSectorSize;
             DWORD dwBytesInThisSector = ha->dwSectorSize;
+#else
+            DWORD dwRawBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+            DWORD dwBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+#endif
             DWORD dwIndex = dwSectorIndex + i;
 
             // If there is not enough bytes in the last sector,
@@ -432,7 +442,11 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
     DWORD dwFilePos = hf->dwFilePos;
     LPBYTE pbBuffer = (BYTE *)pvBuffer;
     DWORD dwTotalBytesRead = 0;                         // Total bytes read in all three parts
+#ifdef FULL
     DWORD dwSectorSizeMask = ha->dwSectorSize - 1;      // Mask for block size, usually 0x0FFF
+#else
+    const DWORD dwSectorSizeMask = MPQ_SECTOR_SIZE_V1 - 1;
+#endif
     DWORD dwFileSectorPos;                              // File offset of the loaded sector
     DWORD dwBytesRead;                                  // Number of bytes read (temporary variable)
     DWORD dwErrCode;
@@ -459,14 +473,22 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 
     // Load the first (incomplete) file sector
     if (dwFilePos & dwSectorSizeMask) {
+#ifdef FULL
         DWORD dwBytesInSector = ha->dwSectorSize;
+#else
+        DWORD dwBytesInSector = MPQ_SECTOR_SIZE_V1;
+#endif
         DWORD dwBufferOffs = dwFilePos & dwSectorSizeMask;
         DWORD dwToCopy;
 
         // Is the file sector already loaded ?
         if (hf->dwSectorOffs != dwFileSectorPos) {
             // Load one MPQ sector into archive buffer
+#ifdef FULL
             dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, ha->dwSectorSize, &dwBytesInSector);
+#else
+            dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, dwBytesInSector, &dwBytesInSector);
+#endif
             if(dwErrCode != ERROR_SUCCESS)
                 return dwErrCode;
 
@@ -493,7 +515,11 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
     }
 
     // Load the whole ("middle") sectors only if there is at least one full sector to be read
+#ifdef FULL
     if (dwBytesToRead >= ha->dwSectorSize) {
+#else
+    if (dwBytesToRead >= MPQ_SECTOR_SIZE_V1) {
+#endif
         DWORD dwBlockBytes = dwBytesToRead & ~dwSectorSizeMask;
 
         // Load all sectors to the output buffer
@@ -510,12 +536,20 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 
     // Read the terminating sector
     if (dwBytesToRead > 0) {
+#ifdef FULL
         DWORD dwToCopy = ha->dwSectorSize;
+#else
+        DWORD dwToCopy = MPQ_SECTOR_SIZE_V1;
+#endif
 
         // Is the file sector already loaded ?
         if (hf->dwSectorOffs != dwFileSectorPos) {
             // Load one MPQ sector into archive buffer
+#ifdef FULL
             dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, ha->dwSectorSize, &dwBytesRead);
+#else
+            dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, dwToCopy, &dwBytesRead);
+#endif
             if(dwErrCode != ERROR_SUCCESS)
                 return dwErrCode;
 

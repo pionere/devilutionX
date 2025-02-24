@@ -967,7 +967,9 @@ void * LoadMpqTable(
         // Storm.dll reads as much as possible, then fills the missing part with zeros.
         // Abused by Spazzler map protector which sets hash table size to 0x00100000
         // Abused by NP_Protect in MPQs v4 as well
+#ifdef FULL
         if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
+#endif
         {
             // Cut the table size
             FileStream_GetSize(ha->pStream, &FileSize);
@@ -1081,9 +1083,12 @@ DWORD AllocateSectorBuffer(TMPQFile * hf)
     // Don't allocate anything if the file has zero size
     if(hf->pFileEntry->dwFileSize == 0 || hf->dwDataSize == 0)
         return ERROR_SUCCESS;
-
     // Determine the file sector size and allocate buffer for it
+#ifdef FULL
     hf->dwSectorSize = (hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) ? hf->dwDataSize : ha->dwSectorSize;
+#else
+    hf->dwSectorSize = (hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) ? hf->dwDataSize : MPQ_SECTOR_SIZE_V1;
+#endif
     hf->pbFileSector = STORM_ALLOC(BYTE, hf->dwSectorSize);
     hf->dwSectorOffs = SFILE_INVALID_POS;
 
@@ -1276,7 +1281,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                 // Edit: Yes, but apparently, in original Storm.dll, the compressed
                 // size is not checked anywhere. However, we need to do this check
                 // in order to sector offset table malformed by MPQ protectors
+#ifdef FULL
                 if((dwSectorOffset1 - dwSectorOffset0) > ha->dwSectorSize)
+#else
+                if((dwSectorOffset1 - dwSectorOffset0) > MPQ_SECTOR_SIZE_V1)
+#endif
                 {
                     bSectorOffsetTableCorrupt = true;
                     break;

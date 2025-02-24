@@ -2895,7 +2895,7 @@ bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
     *pFileTime = pStream->Base.File.FileTime;
     return true;
 }*/
-
+#ifdef fULL
 /**
  * Returns the stream flags
  *
@@ -2907,7 +2907,7 @@ bool FileStream_GetFlags(TFileStream * pStream, LPDWORD pdwStreamFlags)
     *pdwStreamFlags = pStream->dwFlags;
     return true;
 }
-
+#endif
 /**
  * Switches a stream with another. Used for final phase of archive compacting.
  * Performs these steps:

@@ -513,6 +513,8 @@ typedef struct TMPQBits TMPQBits;
 #define MPQ_HEADER_DWORDS     (MPQ_HEADER_SIZE_V4 / 0x04)
 #else
 #define MPQ_HEADER_DWORDS     (MPQ_HEADER_SIZE_V1 / 0x04)
+#define MPQ_SECTOR_SIZE_SHIFT_V1 3
+#define MPQ_SECTOR_SIZE_V1    (0x200 << MPQ_SECTOR_SIZE_SHIFT_V1)
 #endif
 
 typedef struct _TMPQUserData
@@ -866,8 +868,8 @@ typedef struct _TMPQArchive
     DWORD          dwMaxFileCount;              // Maximum number of files in the MPQ. Also total size of the file table.
     DWORD          dwFileTableSize;             // Current size of the file table, e.g. index of the entry past the last occupied one
     DWORD          dwReservedFiles;             // Number of entries reserved for internal MPQ files (listfile, attributes)
-    DWORD          dwSectorSize;                // Default size of one file sector
 #ifdef FULL
+    DWORD          dwSectorSize;                // Default size of one file sector
     DWORD          dwFileFlags1;                // Flags for (listfile)
     DWORD          dwFileFlags2;                // Flags for (attributes)
     DWORD          dwFileFlags3;                // Flags for (signature)
@@ -1014,7 +1016,9 @@ bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize);
 bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize);
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset);
 //bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFT);
+#ifdef fULL
 bool FileStream_GetFlags(TFileStream * pStream, LPDWORD pdwStreamFlags);
+#endif
 //bool FileStream_Replace(TFileStream * pStream, TFileStream * pNewStream);
 void FileStream_Close(TFileStream * pStream);
 
