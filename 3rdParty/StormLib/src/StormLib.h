@@ -1010,8 +1010,10 @@ size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
 bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData);
 
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
-#endif
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+#else
+bool FileStream_Read(TFileStream * pStream, const ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+#endif
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
 bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize);

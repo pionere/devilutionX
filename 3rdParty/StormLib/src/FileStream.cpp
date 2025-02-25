@@ -205,7 +205,11 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 
 static bool BaseFile_Read(
     TFileStream * pStream,                  // Pointer to an open stream
+#ifdef FULL
     ULONGLONG * pByteOffset,                // Pointer to file byte offset. If NULL, it reads from the current position
+#else
+    const ULONGLONG * pByteOffset,          // Pointer to file byte offset. If NULL, it reads from the current position
+#endif
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
 {
@@ -2802,15 +2806,18 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
  * - If the function reads less than required bytes, it returns false and GetLastError() returns ERROR_HANDLE_EOF
  * - If the function fails, it reads false and GetLastError() returns an error code different from ERROR_HANDLE_EOF
  */
+#ifdef fULL
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
 {
-#ifdef fULL
     assert(pStream->StreamRead != NULL);
     return pStream->StreamRead(pStream, pByteOffset, pvBuffer, dwBytesToRead);
-#else
-    return BaseFile_Read(pStream, pByteOffset, pvBuffer, dwBytesToRead);
-#endif
 }
+#else
+bool FileStream_Read(TFileStream * pStream, const ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
+{
+    return BaseFile_Read(pStream, pByteOffset, pvBuffer, dwBytesToRead);
+}
+#endif
 #ifdef FULL
 /**
  * This function writes data to the stream
