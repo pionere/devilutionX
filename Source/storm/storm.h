@@ -50,15 +50,12 @@ void WINAPI SFileCloseArchive(HANDLE hArchive);
 void WINAPI SFileCloseFile(HANDLE hFile);
 
 DWORD WINAPI SFileGetFileSize(HANDLE hFile);
-DWORD WINAPI SFileGetFilePointer(HANDLE hFile);
-DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 
 HANDLE SFileOpenFile(const char* filename);
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, DWORD dwSearchScope, HANDLE* phFile);
 
 bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead);
-
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h

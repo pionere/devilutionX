@@ -50,8 +50,6 @@ void WINAPI SFileCloseArchive(HANDLE hArchive);
 void WINAPI SFileCloseFile(HANDLE hFile);
 
 DWORD WINAPI SFileGetFileSize(HANDLE hFile);
-DWORD WINAPI SFileGetFilePointer(HANDLE hFile);
-DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 
 HANDLE SFileOpenFile(const char* filename);

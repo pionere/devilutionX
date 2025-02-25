@@ -790,7 +790,7 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
     return 0;
 #endif
 }
-
+#ifdef FULL
 DWORD WINAPI SFileGetFilePointer(HANDLE hFile)
 {
     TMPQFile *hf = IsValidFileHandle(hFile);
@@ -898,3 +898,4 @@ DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMet
     //    *plFilePosHigh = (LONG)(NewPosition >> 32);
     return (DWORD)NewPosition;
 }
+#endif
