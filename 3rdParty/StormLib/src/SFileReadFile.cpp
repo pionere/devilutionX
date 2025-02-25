@@ -451,13 +451,10 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
     DWORD dwBytesRead;                                  // Number of bytes read (temporary variable)
     DWORD dwErrCode;
 
-    // If the file position is at or beyond end of file, do nothing
-    if (dwFilePos >= hf->dwDataSize) {
-        return ERROR_SUCCESS;
-    }
-
     // If not enough bytes in the file remaining, cut them
-    if (dwBytesToRead > (hf->dwDataSize - dwFilePos))
+    if (dwFilePos >= hf->dwDataSize)
+        dwBytesToRead = 0;
+    else if (dwBytesToRead > (hf->dwDataSize - dwFilePos))
         dwBytesToRead = (hf->dwDataSize - dwFilePos);
 
     // Compute sector position in the file
@@ -670,7 +667,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
 bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/)
 {
     TMPQFile * hf;
+#ifdef FULL
     DWORD dwBytesRead = 0;                      // Number of bytes read
+#else
+    DWORD dwBytesRead;                          // Number of bytes read
+#endif
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Always zero the result
