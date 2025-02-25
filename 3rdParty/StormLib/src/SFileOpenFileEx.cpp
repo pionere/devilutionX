@@ -227,14 +227,19 @@ static bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
 
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * PtrFile)
 {
+#ifdef FULL
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
     TFileEntry  * pFileEntry = NULL;
+#else
+    TMPQArchive * ha;
+    TFileEntry  * pFileEntry;
+#endif
     TMPQFile    * hf = NULL;
     DWORD dwHashIndex = HASH_ENTRY_FREE;
     DWORD dwFileIndex = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
     bool bOpenByIndex = false;
-
+#ifdef FULL
     // Don't accept NULL pointer to file handle
     if (szFileName == NULL || *szFileName == 0)
         dwErrCode = ERROR_INVALID_PARAMETER;
@@ -253,13 +258,10 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             case SFILE_OPEN_FROM_MPQ:
             case SFILE_OPEN_BASE_FILE:
             case SFILE_OPEN_CHECK_EXISTS:
-#ifdef FULL
                 // If this MPQ has no patches, open the file from this MPQ directly
                 if(ha->haPatch == NULL || dwSearchScope == SFILE_OPEN_BASE_FILE)
                 {
-#endif
                     pFileEntry = GetFileEntryLocale2(ha, szFileName, g_lcFileLocale, &dwHashIndex);
-#ifdef FULL
                 }
 
                 // If this MPQ is a patched archive, open the file as patched
@@ -275,7 +277,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 // No argument validation. Tries to open file with neutral locale first,
                 // then any other available.
                 pFileEntry = GetFileEntryLocale2(ha, szFileName, 0, &dwHashIndex);
-#endif
+
                 break;
 
             case SFILE_OPEN_LOCAL_FILE:
@@ -289,10 +291,20 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 dwErrCode = ERROR_INVALID_PARAMETER;
                 break;
         }
+#else
+    {
+        if (dwSearchScope == SFILE_OPEN_LOCAL_FILE)
+            // Open a local file
+            return OpenLocalFile(szFileName, PtrFile);
+        assert(dwSearchScope == SFILE_OPEN_FROM_MPQ || dwSearchScope == SFILE_OPEN_CHECK_EXISTS);
+        ha = IsValidMpqHandle(hMpq);
+        pFileEntry = GetFileEntryLocale2(ha, szFileName, &dwHashIndex);
+#endif
     }
 
     // Check whether the file really exists in the MPQ
     if (dwErrCode == ERROR_SUCCESS) {
+#ifdef FULL
         // If we didn't find the file, try to open it using pseudo file name ("File
         if(pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0) {
             // Check the pseudo-file name  ("File00000001.ext")
@@ -305,12 +317,13 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                     pFileEntry = ha->pFileTable + dwFileIndex;
                 }
             }
-
+#endif
             // Still not found?
             if(pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0)
             {
                 dwErrCode = ERROR_FILE_NOT_FOUND;
             }
+#ifdef FULL
         }
 
         // Perform some checks of invalid files
@@ -332,6 +345,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 //              pFileEntry = NULL;
 //          }
         }
+#endif
     }
 
     // Did the caller just wanted to know if the file exists?
@@ -344,7 +358,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 dwHashIndex = FindHashIndex(ha, dwFileIndex);
             if(dwHashIndex != HASH_ENTRY_FREE)
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
+#ifdef FULL
             hf->dwHashIndex = dwHashIndex;
+#endif
 #ifdef FULL_CRC
             // If the MPQ has sector CRC enabled, enable if for the file
             if (ha->dwFlags & MPQ_FLAG_CHECK_SECTOR_CRC)
@@ -352,9 +368,10 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 #endif
             // If we know the real file name, copy it to the file entry
             if(bOpenByIndex == false) {
+#ifdef FULL
                 // If there is no file name yet, allocate it
                 AllocateFileName(ha, pFileEntry, szFileName);
-
+#endif
                 // If the file is encrypted, we should detect the file key
                 if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
                     hf->dwFileKey = DecryptFileKey(szFileName,

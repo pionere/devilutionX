@@ -193,11 +193,10 @@ struct TFileStream
     ULONGLONG StreamSize;                   // Stream size (can be less than file size)
     ULONGLONG StreamPos;                    // Stream position
     DWORD BuildNumber;                      // Game build number
-#endif
     DWORD dwFlags;                          // Stream flags
-
+#endif
     TCHAR * szFileName() {
-        return (TCHAR *)(&(&dwFlags)[1]);
+        return (TCHAR *)(&(&Base)[1]);
     }
     // Followed by stream provider data, with variable length
 };

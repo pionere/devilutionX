@@ -230,9 +230,8 @@ DWORD HashStringLower(const char * szFileName, unsigned dwHashType);
 void  InitializeMpqCryptography();
 
 DWORD GetNearestPowerOfTwo(DWORD dwFileCount);
-
-bool IsPseudoFileName(const char * szFileName, LPDWORD pdwFileIndex);
 #ifdef FULL
+bool IsPseudoFileName(const char * szFileName, LPDWORD pdwFileIndex);
 ULONGLONG HashStringJenkins(const char * szFileName);
 DWORD GetDefaultSpecialFileFlags(DWORD dwFileSize, USHORT wFormatVersion);
 #endif // FULL
@@ -244,10 +243,10 @@ DWORD DetectFileKeyBySectorSize(LPDWORD EncryptedData, DWORD dwSectorSize, DWORD
 DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD dwFileSize);
 #endif
 DWORD DecryptFileKey(const char * szFileName, ULONGLONG MpqPos, DWORD dwFileSize, DWORD dwFlags);
-
+#ifdef FULL
 bool IsValidMD5(LPBYTE pbMd5);
 bool IsValidSignature(LPBYTE pbSignature);
-#ifdef FULL
+
 bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5);
 void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
 #endif // FULL
@@ -260,28 +259,31 @@ TMPQFile * IsValidFileHandle(HANDLE hFile);
 
 //-----------------------------------------------------------------------------
 // Support for MPQ file tables
-
+#ifdef FULL
 ULONGLONG FileOffsetFromMpqOffset(TMPQArchive * ha, ULONGLONG MpqOffset);
+#else
+ULONGLONG FileOffsetFromMpqOffset(ULONGLONG MpqOffset);
+#endif
 ULONGLONG CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
-
+#ifndef FULL
+DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha);
+#else
 DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
 
-#ifdef FULL
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
-#endif
+
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
+#endif
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
+#ifdef FULL
 TMPQHash * AllocateHashEntry(TMPQArchive * ha, TFileEntry * pFileEntry, LCID lcLocale);
 
-#ifdef FULL
 TMPQExtHeader * LoadExtTable(TMPQArchive * ha, ULONGLONG ByteOffset, size_t Size, DWORD dwSignature, DWORD dwKey);
 TMPQHetTable * LoadHetTable(TMPQArchive * ha);
 TMPQBetTable * LoadBetTable(TMPQArchive * ha);
-#endif
 
 TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool bDontFixEntries = false);
-#ifdef FULL
 TMPQBlock * TranslateBlockTable(TMPQArchive * ha, ULONGLONG * pcbTableSize, bool * pbNeedHiBlockTable);
 #endif
 
@@ -304,18 +306,18 @@ void FreeHetTable(TMPQHetTable * pHetTable);
 
 TMPQBetTable * CreateBetTable(DWORD dwMaxFileCount);
 void FreeBetTable(TMPQBetTable * pBetTable);
-#endif // FULL
 
 // Functions for finding files in the file table
 TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
 TFileEntry * GetFileEntryLocale(TMPQArchive * ha, const char * szFileName, LCID lcLocale);
-#ifdef FULL
 TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
+#else
+TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LPDWORD PtrHashIndex);
 #endif
-
+#ifdef FULL
 // Allocates file name in the file entry
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName);
-
+#endif
 // Allocates new file entry in the MPQ tables. Reuses existing, if possible
 //TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
 //DWORD  RenameFileEntry(TMPQArchive * ha, TMPQFile * hf, const char * szNewFileName);

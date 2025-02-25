@@ -87,7 +87,7 @@ static void BaseNone_Init(TFileStream *)
 {
     // Nothing here
 }
-#endif // FULL
+
 //-----------------------------------------------------------------------------
 // Local functions - base file support
 
@@ -97,7 +97,7 @@ static bool BaseFile_Create(TFileStream * pStream)
     {
         DWORD dwWriteShare = (pStream->dwFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0;
 
-        pStream->Base.File.hFile = CreateFile(pStream->szFileName(),
+        pStream->Base.File.hFile = CreateFile(pStream->szFileName,
                                               GENERIC_READ | GENERIC_WRITE,
                                               dwWriteShare | FILE_SHARE_READ,
                                               NULL,
@@ -113,7 +113,7 @@ static bool BaseFile_Create(TFileStream * pStream)
     {
         intptr_t handle;
 
-        handle = open(pStream->szFileName(), O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        handle = open(pStream->szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if(handle == -1)
         {
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
@@ -130,14 +130,18 @@ static bool BaseFile_Create(TFileStream * pStream)
     pStream->Base.File.FilePos = 0;
     return true;
 }
-
+#endif // FULL
 static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
 {
 #ifdef STORMLIB_WINDOWS
     {
         ULARGE_INTEGER FileSize;
         DWORD dwWriteAccess = (dwStreamFlags & STREAM_FLAG_READ_ONLY) ? 0 : FILE_WRITE_DATA | FILE_APPEND_DATA | FILE_WRITE_ATTRIBUTES;
+#ifdef FULL
         DWORD dwWriteShare = (dwStreamFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0;
+#else
+        DWORD dwWriteShare = 0;
+#endif
 
         // Open the file
         pStream->Base.File.hFile = CreateFile(szFileName,
@@ -401,22 +405,22 @@ static bool BaseFile_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
     *pByteOffset = pStream->Base.File.FilePos;
     return true;
 }
-
+#ifdef FULL
 // Renames the file pointed by pStream so that it contains data from pNewStream
 static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 {
 #ifdef STORMLIB_WINDOWS
     // Delete the original stream file. Don't check the result value,
     // because if the file doesn't exist, it would fail
-    DeleteFile(pStream->szFileName());
+    DeleteFile(pStream->szFileName);
 
     // Rename the new file to the old stream's file
-    return (bool)MoveFile(pNewStream->szFileName(), pStream->szFileName());
+    return (bool)MoveFile(pNewStream->szFileName, pStream->szFileName);
 #endif
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     // "rename" on Linux also works if the target file exists
-    if(rename(pNewStream->szFileName(), pStream->szFileName()) == -1)
+    if(rename(pNewStream->szFileName, pStream->szFileName) == -1)
     {
         dwLastError = errno;
         return false;
@@ -425,7 +429,7 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
     return true;
 #endif
 }
-
+#endif // FULL
 static void BaseFile_Close(TFileStream * pStream)
 {
     if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
@@ -438,9 +442,10 @@ static void BaseFile_Close(TFileStream * pStream)
         close((intptr_t)pStream->Base.File.hFile);
 #endif
     }
-
+#ifdef FULL
     // Also invalidate the handle
     pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
+#endif
 }
 #ifdef FULL
 // Initializes base functions for the disk file
@@ -1142,11 +1147,9 @@ static TFileStream * AllocateFileStream(
         memset(pStream, 0, StreamSize);
 #ifdef FULL
         pStream->pMaster = pMaster;
-#endif
         pStream->dwFlags = dwStreamFlags;
 
         // Initialize the file name
-#ifdef FULL
         pStream->szFileName = (TCHAR *)((BYTE *)pStream + StreamSize);
         memcpy(pStream->szFileName, szFileName, FileNameSize);
         pStream->szFileName[FileNameSize / sizeof(TCHAR)] = 0;
@@ -2547,11 +2550,12 @@ TFileStream * FileStream_OpenFile(
     // Re-assemble the stream flags
     dwStreamFlags = (dwStreamFlags & STREAM_OPTIONS_MASK) | dwProvider;
     szFileName += nPrefixLength;
-#endif
+
     // Perform provider-specific open
     switch(dwStreamFlags & STREAM_PROVIDER_MASK)
     {
         case STREAM_PROVIDER_FLAT:
+#endif
             return FlatStream_Open(szFileName, dwStreamFlags);
 #ifdef FULL
         case STREAM_PROVIDER_PARTIAL:
@@ -2562,13 +2566,13 @@ TFileStream * FileStream_OpenFile(
 
         case STREAM_PROVIDER_BLOCK4:
             return Block4Stream_Open(szFileName, dwStreamFlags);
-#endif
         default:
             SetLastError(ERROR_INVALID_PARAMETER);
             return NULL;
     }
+#endif
 }
-
+#ifdef FULL
 /**
  * Returns the file name of the stream
  *
@@ -2586,7 +2590,7 @@ const TCHAR * FileStream_GetFileName(TFileStream * pStream)
  * \a szFileName Pointer to a stream name (file, mapped file, URL)
  * \a pdwStreamProvider Pointer to a DWORD variable that receives stream provider (STREAM_PROVIDER_XXX)
  */
-#ifdef FULL
+
 size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider)
 {
     size_t nPrefixLength1 = 0;

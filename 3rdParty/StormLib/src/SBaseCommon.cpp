@@ -649,7 +649,11 @@ TMPQFile * IsValidFileHandle(HANDLE hFile)
     TMPQFile * hf = (TMPQFile *)hFile;
 
     // Must not be NULL
+#ifdef FULL
     if(hf != NULL && hf->dwMagic == ID_MPQ_FILE)
+#else
+    if(hf != NULL)
+#endif
     {
         // Local file handle?
         if(hf->pStream != NULL)
@@ -665,7 +669,7 @@ TMPQFile * IsValidFileHandle(HANDLE hFile)
 
 //-----------------------------------------------------------------------------
 // Hash table and block table manipulation
-
+#ifdef FULL
 // Attempts to search a free hash entry, or an entry whose names and locale matches
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale)
 {
@@ -711,15 +715,21 @@ TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1
     // If we found a deleted entry, return that one preferentially
     return (pDeletedEntry != NULL) ? pDeletedEntry : pFreeEntry;
 }
-
+#endif
 // Retrieves the first hash entry for the given file.
 // Every locale version of a file has its own hash entry
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
 {
     DWORD dwHashIndexMask = HASH_INDEX_MASK(ha);
+#ifdef FULL
     DWORD dwStartIndex = ha->pfnHashString(szFileName, MPQ_HASH_TABLE_INDEX);
     DWORD dwName1 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_A);
     DWORD dwName2 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_B);
+#else
+    DWORD dwStartIndex = HashStringSlash(szFileName, MPQ_HASH_TABLE_INDEX);
+    DWORD dwName1 = HashStringSlash(szFileName, MPQ_HASH_NAME_A);
+    DWORD dwName2 = HashStringSlash(szFileName, MPQ_HASH_NAME_B);
+#endif
     DWORD dwIndex;
 
     // Set the initial index
@@ -774,7 +784,7 @@ TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * 
             return NULL;
     }
 }
-
+#ifdef FULL
 // Allocates an entry in the hash table
 TMPQHash * AllocateHashEntry(
     TMPQArchive * ha,
@@ -800,7 +810,7 @@ TMPQHash * AllocateHashEntry(
 
     return pHash;
 }
-
+#endif
 // Finds a free space in the MPQ where to store next data
 // The free space begins beyond the file that is stored at the fuhrtest
 // position in the MPQ. (listfile), (attributes) and (signature) are ignored,
@@ -856,7 +866,9 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
     {
         // Fill the file structure
         memset(hf, 0, sizeof(TMPQFile));
+#ifdef FULL
         hf->dwMagic = ID_MPQ_FILE;
+#endif
         hf->pStream = NULL;
         hf->ha = ha;
 
@@ -864,8 +876,12 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
         if(ha != NULL && pFileEntry != NULL)
         {
             // Set the raw position and MPQ position
+#ifdef FULL
             hf->RawFilePos = FileOffsetFromMpqOffset(ha, pFileEntry->ByteOffset);
             hf->MpqFilePos = pFileEntry->ByteOffset;
+#else
+            hf->RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
+#endif
 
             // Set the data size
             hf->dwDataSize = pFileEntry->dwFileSize;
@@ -1732,11 +1748,10 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 
     return false;
 }*/
-
+#ifdef FULL
 // Verifies if the file name is a pseudo-name
 bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)
 {
-#ifdef FULL
     DWORD dwFileIndex = 0;
 
     if(szFileName != NULL)
@@ -1761,7 +1776,6 @@ bool IsPseudoFileName(const char * szFileName, DWORD * pdwFileIndex)
             }
         }
     }
-#endif // FULL
     // Not a pseudo-name
     return false;
 }
@@ -1787,8 +1801,6 @@ bool IsValidSignature(LPBYTE pbSignature)
     return (SigValid != 0) ? true : false;
 }
 
-
-#ifdef FULL
 bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5)
 {
     hash_state md5_state;
