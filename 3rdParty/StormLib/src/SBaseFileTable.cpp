@@ -458,9 +458,7 @@ DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
     ULONGLONG HashTablePos64 = 0;
     ULONGLONG BlockTableMask = (ULONGLONG)-1;
     ULONGLONG MaxOffset;
-#endif
     USHORT wFormatVersion = BSWAP_INT16_UNSIGNED(pHeader->wFormatVersion);
-#ifdef FULL
     bool bHashBlockOffsetOK = false;
     bool bHetBetOffsetOK = false;
 #endif
@@ -475,6 +473,7 @@ DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
     // Don't accept format 3 for Starcraft II maps
     if((MapType == MapTypeStarcraft2) && (pHeader->wFormatVersion > MPQ_FORMAT_VERSION_2))
         wFormatVersion = MPQ_FORMAT_VERSION_4;
+
     // Format-specific fixes
     switch(wFormatVersion)
     {
@@ -538,7 +537,6 @@ DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
                 pHeader->dwBlockTableSize = (DWORD)((FileSize - BlockTablePos64) / sizeof(TMPQBlock));
                 pHeader->BlockTableSize64 = pHeader->dwBlockTableSize * sizeof(TMPQBlock);
             }
-
             break;
 
         case MPQ_FORMAT_VERSION_2:
@@ -792,10 +790,6 @@ static TMPQHash * GetHashEntryLocale(TMPQArchive * ha, const char * szFileName)
 #ifdef FULL
     TMPQHash * pBestEntry = NULL;
     TMPQHash * pHash = pFirstHash;
-#ifndef FULL
-    LCID lcLocale = g_lcFileLocale;
-    BYTE Platform = 0;
-#endif
 
     // Parse the found hashes
     while(pHash != NULL)
@@ -2450,7 +2444,7 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
 #ifdef FULL
 TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool /* bDontFixEntries */)
 #else
-TMPQBlock * LoadBlockTable(TMPQArchive * ha)
+static TMPQBlock * LoadBlockTable(TMPQArchive * ha)
 #endif
 {
     TMPQHeader * pHeader = ha->pHeader;
