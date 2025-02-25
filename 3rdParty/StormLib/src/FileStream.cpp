@@ -391,7 +391,23 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
     }
 #endif
 }
+#ifndef FULL
+// Gives the current file size
+static ULONGLONG BaseFile_GetSize(const TFileStream * pStream)
+{
+    // Note: Used by all thre base providers.
+    // Requires the TBaseData union to have the same layout for all three base providers
+    return pStream->Base.File.FileSize;
+}
 
+// Gives the current file position
+static ULONGLONG BaseFile_GetPos(const TFileStream * pStream)
+{
+    // Note: Used by all thre base providers.
+    // Requires the TBaseData union to have the same layout for all three base providers
+    return pStream->Base.File.FilePos;
+}
+#else
 // Gives the current file size
 static bool BaseFile_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
 {
@@ -409,7 +425,7 @@ static bool BaseFile_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
     *pByteOffset = pStream->Base.File.FilePos;
     return true;
 }
-#ifdef FULL
+
 // Renames the file pointed by pStream so that it contains data from pNewStream
 static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 {
@@ -2849,15 +2865,18 @@ bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void
  * \a pStream Pointer to an open stream
  * \a FileSize Pointer where to store the file size
  */
+#ifdef fULL
 bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
 {
-#ifdef fULL
     assert(pStream->StreamGetSize != NULL);
     return pStream->StreamGetSize(pStream, pFileSize);
-#else
-    return BaseFile_GetSize(pStream, pFileSize);
-#endif
 }
+#else
+ULONGLONG FileStream_GetSize(const TFileStream * pStream)
+{
+    return BaseFile_GetSize(pStream);
+}
+#endif
 
 /**
  * Sets the size of a file
@@ -2884,15 +2903,18 @@ bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize)
  * \a pStream
  * \a pByteOffset
  */
+#ifdef fULL
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
 {
-#ifdef fULL
     assert(pStream->StreamGetPos != NULL);
     return pStream->StreamGetPos(pStream, pByteOffset);
-#else
-    return BaseFile_GetPos(pStream, pByteOffset);
-#endif
 }
+#else
+ULONGLONG FileStream_GetPos(const TFileStream * pStream)
+{
+    return BaseFile_GetPos(pStream);
+}
+#endif
 
 /**
  * Returns the last write time of a file

@@ -752,9 +752,6 @@ static bool IsValidHashEntry1(TMPQArchive * ha, TMPQHash * pHash, TMPQBlock * pB
 {
     ULONGLONG ByteOffset;
     TMPQBlock * pBlock;
-#ifndef FULL
-    ULONGLONG fileSize;
-#endif
 
     // The block index is considered valid if it's less than block table size
     if(MPQ_BLOCK_INDEX(pHash) < ha->pHeader->dwBlockTableSize)
@@ -772,9 +769,7 @@ static bool IsValidHashEntry1(TMPQArchive * ha, TMPQHash * pHash, TMPQBlock * pB
             return (ByteOffset < ha->FileSize);
 #else
             ByteOffset = FileOffsetFromMpqOffset(pBlock->dwFilePos);
-            FileStream_GetSize(ha->pStream, &fileSize);
-            return (ByteOffset < fileSize);
-            // return (ByteOffset < ha->FileSize);
+            return (ByteOffset < FileStream_GetSize(ha->pStream));
 #endif
         }
     }

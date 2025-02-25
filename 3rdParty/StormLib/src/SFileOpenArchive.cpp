@@ -268,7 +268,11 @@ HANDLE WINAPI SFileOpenArchive(
     // Check the file size. There must be at least 0x20 bytes
     if(dwErrCode == ERROR_SUCCESS)
     {
+#ifdef FULL
         FileStream_GetSize(pStream, &FileSize);
+#else
+        FileSize = FileStream_GetSize(pStream);
+#endif
         if(FileSize < MPQ_HEADER_SIZE_V1)
             dwErrCode = ERROR_BAD_FORMAT;
     }

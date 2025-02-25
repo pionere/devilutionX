@@ -1017,9 +1017,12 @@ bool FileStream_Read(TFileStream * pStream, const ULONGLONG * pByteOffset, void 
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
 bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize);
-#endif
 bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize);
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset);
+#else
+ULONGLONG FileStream_GetSize(const TFileStream * pStream);
+ULONGLONG FileStream_GetPos(const TFileStream * pStream);
+#endif
 //bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFT);
 #ifdef fULL
 bool FileStream_GetFlags(TFileStream * pStream, LPDWORD pdwStreamFlags);

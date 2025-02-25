@@ -639,8 +639,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
     DWORD dwErrCode = ERROR_SUCCESS;
 
     assert(hf->pStream != NULL);
-
+#ifdef FULL
     FileStream_GetPos(hf->pStream, &FilePosition1);
+#else
+    FilePosition1 = FileStream_GetPos(hf->pStream);
+#endif
 
     // Because stream I/O functions are designed to read
     // "all or nothing", we compare file position before and after,
@@ -650,7 +653,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
     if (!FileStream_Read(hf->pStream, &FilePosition1, pvBuffer, dwToRead)) {
         // If not all bytes have been read, then return the number of bytes read
         if ((dwErrCode = GetLastError()) == ERROR_HANDLE_EOF) {
+#ifdef FULL
             FileStream_GetPos(hf->pStream, &FilePosition2);
+#else
+            FilePosition2 = FileStream_GetPos(hf->pStream);
+#endif
             dwBytesRead = (DWORD)(FilePosition2 - FilePosition1);
         }
     } else {
@@ -771,7 +778,11 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 #endif // FULL
             // Is it a local file ?
             if (hf->pStream != NULL) {
+#ifdef FULL
                 FileStream_GetSize(hf->pStream, &FileSize);
+#else
+                FileSize = FileStream_GetSize(hf->pStream);
+#endif
             } else {
                 FileSize = hf->dwDataSize;
             }

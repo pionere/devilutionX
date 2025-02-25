@@ -989,7 +989,11 @@ void * LoadMpqTable(
         // if the hash table position is 0xFFFFFFFF, no SetFilePointer call is done
         // and the table is loaded from the current file offset
         if(ByteOffset == SFILE_INVALID_POS)
+#ifdef FULL
             FileStream_GetPos(ha->pStream, &ByteOffset);
+#else
+            ByteOffset = FileStream_GetPos(ha->pStream);
+#endif
 
         // On archives v 1.0, hash table and block table can go beyond EOF.
         // Storm.dll reads as much as possible, then fills the missing part with zeros.
@@ -1000,7 +1004,11 @@ void * LoadMpqTable(
 #endif
         {
             // Cut the table size
+#ifdef FULL
             FileStream_GetSize(ha->pStream, &FileSize);
+#else
+            FileSize = FileStream_GetSize(ha->pStream);
+#endif
             if((ByteOffset + dwBytesToRead) > FileSize)
             {
                 // Fill the extra data with zeros
