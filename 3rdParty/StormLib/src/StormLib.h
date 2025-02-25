@@ -187,7 +187,7 @@ extern "C" {
 #define MPQ_FLAG_CHANGED            0x00000002  // If set, the MPQ tables have been changed
 #define MPQ_FLAG_MALFORMED          0x00000004  // Malformed data structure detected (W3M map protectors)
 #define MPQ_FLAG_HASH_TABLE_CUT     0x00000008  // The hash table goes beyond EOF
-#define MPQ_FLAG_BLOCK_TABLE_CUT    0x00000010  // The hash table goes beyond EOF
+#define MPQ_FLAG_BLOCK_TABLE_CUT    0x00000010  // The block table goes beyond EOF
 #define MPQ_FLAG_CHECK_SECTOR_CRC   0x00000020  // Checking sector CRC when reading files
 #define MPQ_FLAG_SAVING_TABLES      0x00000040  // If set, we are saving MPQ internal files and MPQ tables
 #define MPQ_FLAG_PATCH              0x00000080  // If set, this MPQ is a patch archive
