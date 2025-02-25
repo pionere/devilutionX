@@ -443,6 +443,10 @@ HANDLE WINAPI SFileOpenArchive(
 #endif
                 dwErrCode = ERROR_BAD_FORMAT;
         }
+#ifndef FULL
+    } else {
+        FileStream_Close(pStream);
+#endif
     }
 
     // Fix table positions according to format
@@ -563,7 +567,9 @@ HANDLE WINAPI SFileOpenArchive(
     // Cleanup and exit
     if(dwErrCode != ERROR_SUCCESS)
     {
+#ifdef FULL
         FileStream_Close(pStream);
+#endif
         FreeArchiveHandle(ha);
         SetLastError(dwErrCode);
         ha = NULL;
