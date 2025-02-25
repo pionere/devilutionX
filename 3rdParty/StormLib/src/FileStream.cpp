@@ -1116,24 +1116,19 @@ static STREAM_INIT StreamBaseInit[4] =
 // This function allocates an empty structure for the file stream
 // The stream structure is created as flat block, variable length
 // The file name is placed after the end of the stream structure data
+#ifdef FULL
 static TFileStream * AllocateFileStream(
     const TCHAR * szFileName,
     size_t StreamSize,
     DWORD dwStreamFlags)
 {
-#ifdef FULL
     TFileStream * pMaster = NULL;
     TFileStream * pStream;
     const TCHAR * szNextFile = szFileName;
     size_t FileNameSize;
-#else
-    TFileStream * pStream;
-    size_t FileNameSize;
-#endif
 
     // Sanity check
     assert(StreamSize != 0);
-#ifdef FULL
     // The caller can specify chain of files in the following form:
     // C:\archive.MPQ*http://www.server.com/MPQs/archive-server.MPQ
     // In that case, we use the part after "*" as master file name
@@ -1156,16 +1151,14 @@ static TFileStream * AllocateFileStream(
         // Open the master file
         pMaster = FileStream_OpenFile(szNextFile + 1, STREAM_FLAG_READ_ONLY);
     }
-#else
-    FileNameSize = _tcslen(szFileName);
-#endif
     // Allocate the stream structure for the given stream type
     pStream = (TFileStream *)STORM_ALLOC(BYTE, StreamSize + FileNameSize + sizeof(TCHAR));
+
     if(pStream != NULL)
     {
         // Zero the entire structure
         memset(pStream, 0, StreamSize);
-#ifdef FULL
+
         pStream->pMaster = pMaster;
         pStream->dwFlags = dwStreamFlags;
 
@@ -1173,19 +1166,19 @@ static TFileStream * AllocateFileStream(
         pStream->szFileName = (TCHAR *)((BYTE *)pStream + StreamSize);
         memcpy(pStream->szFileName, szFileName, FileNameSize);
         pStream->szFileName[FileNameSize / sizeof(TCHAR)] = 0;
-#else
-        memcpy(pStream->szFileName(), szFileName, FileNameSize + sizeof(TCHAR));
-#endif
 
         // Initialize the stream functions
-#ifdef FULL
         StreamBaseInit[dwStreamFlags & 0x03](pStream);
-#endif
     }
 
     return pStream;
 }
-
+#else
+static TFileStream * AllocateFileStream()
+{
+    return (TFileStream *)STORM_CALLOC(BYTE, sizeof(TFileStream));
+}
+#endif
 //-----------------------------------------------------------------------------
 // Local functions - flat stream support
 #ifdef FULL
@@ -1493,7 +1486,7 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 #ifdef FULL
     pStream = (TBlockStream *)AllocateFileStream(szFileName, sizeof(TBlockStream), dwStreamFlags);
 #else
-    pStream = AllocateFileStream(szFileName, sizeof(TFileStream), dwStreamFlags);
+    pStream = AllocateFileStream();
 #endif
     if(pStream == NULL)
         return NULL;
@@ -1524,7 +1517,7 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 #else
     {
         // Attempt to open the base stream
-        if(!BaseFile_Open(pStream, pStream->szFileName(), dwStreamFlags))
+        if(!BaseFile_Open(pStream, szFileName, dwStreamFlags))
         {
             FileStream_Close(pStream);
             return NULL;

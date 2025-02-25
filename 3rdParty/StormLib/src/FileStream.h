@@ -195,9 +195,6 @@ struct TFileStream
     DWORD BuildNumber;                      // Game build number
     DWORD dwFlags;                          // Stream flags
 #endif
-    TCHAR * szFileName() {
-        return (TCHAR *)(&(&Base)[1]);
-    }
     // Followed by stream provider data, with variable length
 };
 

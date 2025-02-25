@@ -136,6 +136,7 @@ typedef struct _MPQ_SIGNATURE_INFO
 //
 //#else
 
+#define STORM_CALLOC(type, nitems)        (type *)calloc(nitems, sizeof(type))
 #define STORM_ALLOC(type, nitems)        (type *)malloc((nitems) * sizeof(type))
 #define STORM_REALLOC(type, ptr, nitems) (type *)realloc(ptr, ((nitems) * sizeof(type)))
 #define STORM_FREE(ptr)                  free(ptr)
