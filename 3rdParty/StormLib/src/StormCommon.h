@@ -241,14 +241,13 @@ void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 #ifdef FULL
 DWORD DetectFileKeyBySectorSize(LPDWORD EncryptedData, DWORD dwSectorSize, DWORD dwSectorOffsLen);
 DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD dwFileSize);
-#endif
 DWORD DecryptFileKey(const char * szFileName, ULONGLONG MpqPos, DWORD dwFileSize, DWORD dwFlags);
-#ifdef FULL
 bool IsValidMD5(LPBYTE pbMd5);
 bool IsValidSignature(LPBYTE pbSignature);
-
 bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5);
 void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
+#else
+DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable);
 #endif // FULL
 
 //-----------------------------------------------------------------------------

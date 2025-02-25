@@ -374,10 +374,14 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 #endif
                 // If the file is encrypted, we should detect the file key
                 if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
+#ifdef FULL
                     hf->dwFileKey = DecryptFileKey(szFileName,
                                                    pFileEntry->ByteOffset,
                                                    pFileEntry->dwFileSize,
                                                    pFileEntry->dwFlags);
+#else
+                    hf->dwFileKey = DecryptFileKey(szFileName, pFileEntry);
+#endif
                 }
             }
         } else {

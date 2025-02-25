@@ -608,16 +608,24 @@ DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD d
     // Not detected, sorry
     return 0;
 }
-#endif // FULL
+
 DWORD DecryptFileKey(
     const char * szFileName,
     ULONGLONG MpqPos,
     DWORD dwFileSize,
     DWORD dwFlags)
+#else
+DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable)
+#endif // FULL
 {
     DWORD dwFileKey;
+#ifdef FULL
     DWORD dwMpqPos = (DWORD)MpqPos;
-
+#else
+    DWORD dwMpqPos;
+    DWORD dwFileSize;
+    DWORD dwFlags;
+#endif
     // File key is calculated from plain name
     szFileName = GetPlainFileName(szFileName);
 #ifdef FULL_HASH_TABLE
@@ -625,7 +633,11 @@ DWORD DecryptFileKey(
 #else
     dwFileKey = HashStringSlash(szFileName, MPQ_HASH_FILE_KEY);
 #endif
-
+#ifndef FULL
+    dwMpqPos = (DWORD)pFileTable->ByteOffset;
+    dwFileSize = pFileTable->dwFileSize;
+    dwFlags = pFileTable->dwFlags;
+#endif
     // Fix the key, if needed
     if(dwFlags & MPQ_FILE_KEY_V2)
         dwFileKey = (dwFileKey + dwMpqPos) ^ dwFileSize;
