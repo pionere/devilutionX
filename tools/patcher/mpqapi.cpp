@@ -675,7 +675,7 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 	if (!cur_archive.OpenArchive(pszArchive)) {
 		return false;
 	}
-	if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL) {
+	if (cur_archive.sgpBlockTbl == NULL/* || cur_archive.sgpHashTbl == NULL*/) {
 		// hashCount and blockCount must be a power of two
 		assert((hashCount & (hashCount - 1)) == 0);
 		assert((blockCount & (blockCount - 1)) == 0);
@@ -686,6 +686,10 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		}
 		blockSize = blockCount * sizeof(FileMpqBlockEntry);
 		cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
+		hashSize = hashCount * sizeof(FileMpqHashEntry);
+		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
+		if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
+			goto on_error;
 		if (fhdr.pqBlockCount != 0) {
 			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
 				goto on_error;
@@ -695,8 +699,6 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		} else {
 			std::memset(cur_archive.sgpBlockTbl, 0, blockSize);
 		}
-		hashSize = hashCount * sizeof(FileMpqHashEntry);
-		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (fhdr.pqHashCount != 0) {
 			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
 				goto on_error;
