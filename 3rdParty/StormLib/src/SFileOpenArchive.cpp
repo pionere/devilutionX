@@ -105,7 +105,7 @@ static TMPQUserData * IsValidMpqUserData(ULONGLONG ByteOffset, ULONGLONG FileSiz
 // This function gets the right positions of the hash table and the block table.
 static DWORD VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
 {
-    TMPQHeader * pHeader = ha->pHeader;
+    TMPQHeader * pHeader = &ha->pHeader;
     ULONGLONG ByteOffset;
     //bool bMalformed = (ha->dwFlags & MPQ_FLAG_MALFORMED) ? true : false;
 #ifdef FULL
@@ -396,7 +396,7 @@ HANDLE WINAPI SFileOpenArchive(
                     // Now convert the header to version 4
                     dwErrCode = ConvertMpqHeaderToFormat4(ha, ByteOffset, FileSize, dwFlags, MapType);
 #else
-                if(!FileStream_Read(ha->pStream, &ByteOffset, ha->HeaderData, sizeof(ha->HeaderData)))
+                if(!FileStream_Read(ha->pStream, &ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
                 {
                     dwErrCode = GetLastError();
                 } else {
@@ -440,10 +440,10 @@ HANDLE WINAPI SFileOpenArchive(
             // Set the user data position to the MPQ header, if none
             if(ha->pUserData == NULL)
                 ha->UserDataPos = ByteOffset;
-#endif
+
             // Set the position of the MPQ header
             ha->pHeader  = (TMPQHeader *)ha->HeaderData;
-#ifdef FULL
+
             ha->MpqPos   = ByteOffset;
             ha->FileSize = FileSize;
 #endif
@@ -452,7 +452,7 @@ HANDLE WINAPI SFileOpenArchive(
 #ifdef FULL
             if(ByteOffset >= FileSize || ha->pHeader->wSectorSize == 0)
 #else
-            if(ByteOffset >= FileSize || ha->pHeader->wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
+            if(ByteOffset >= FileSize || ha->pHeader.wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
 #endif
                 dwErrCode = ERROR_BAD_FORMAT;
         }

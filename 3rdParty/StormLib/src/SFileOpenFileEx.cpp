@@ -27,7 +27,7 @@ static DWORD FindHashIndex(TMPQArchive * ha, DWORD dwFileIndex)
 
     // Multiple hash table entries can point to the file table entry.
     // We need to search all of them
-    pHashTableEnd = ha->pHashTable + ha->pHeader->dwHashTableSize;
+    pHashTableEnd = ha->pHashTable + ha->pHeader.dwHashTableSize;
     for (pHash = ha->pHashTable; pHash < pHashTableEnd; pHash++) {
         if (MPQ_BLOCK_INDEX(pHash) == dwFileIndex) {
             // Duplicate hash entry found

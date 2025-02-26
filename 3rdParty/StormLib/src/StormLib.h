@@ -846,8 +846,10 @@ typedef struct _TMPQArchive
     struct _TMPQArchive * haBase;               // Pointer to base ("previous version") archive, if any
     TMPQNamePrefix * pPatchPrefix;              // Patch prefix to precede names of patch files
     TMPQUserData * pUserData;                   // MPQ user data (NULL if not present in the file)
-#endif
     TMPQHeader   * pHeader;                     // MPQ file header
+#else
+    TMPQHeader     pHeader;                     // MPQ file header
+#endif
     TMPQHash     * pHashTable;                  // Hash table
 #ifdef FULL
     TMPQHetTable * pHetTable;                   // HET table
@@ -857,9 +859,9 @@ typedef struct _TMPQArchive
     HASH_STRING    pfnHashString;               // Hashing function that will convert the file name into hash
 
     TMPQUserData   UserData;                    // MPQ user data. Valid only when ID_MPQ_USERDATA has been found
-#endif
+
     DWORD          HeaderData[MPQ_HEADER_DWORDS];  // Storage for MPQ header
-#ifdef FULL
+
     DWORD          dwHETBlockSize;
     DWORD          dwBETBlockSize;
 #endif

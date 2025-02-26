@@ -212,7 +212,7 @@ void StringCat(TCHAR * szTarget, size_t cchTargetMax, const TCHAR * szSource)
 // Storm hashing functions
 
 #define STORM_BUFFER_SIZE       0x500
-#define HASH_INDEX_MASK(ha) (ha->pHeader->dwHashTableSize ? (ha->pHeader->dwHashTableSize - 1) : 0)
+#define HASH_INDEX_MASK(ha) (ha->pHeader.dwHashTableSize ? (ha->pHeader.dwHashTableSize - 1) : 0)
 
 static DWORD StormBuffer[STORM_BUFFER_SIZE];    // Buffer for the decryption engine
 static bool  bMpqCryptographyInitialized = false;
@@ -652,8 +652,11 @@ DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable)
 TMPQArchive * IsValidMpqHandle(HANDLE hMpq)
 {
     TMPQArchive * ha = (TMPQArchive *)hMpq;
-
+#ifdef FULL
     return (ha != NULL && ha->pHeader != NULL && ha->pHeader->dwID == g_dwMpqSignature) ? ha : NULL;
+#else
+    return (ha != NULL && ha->pHeader.dwID == g_dwMpqSignature) ? ha : NULL;
+#endif
 }
 
 TMPQFile * IsValidFileHandle(HANDLE hFile)

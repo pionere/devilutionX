@@ -412,8 +412,9 @@ ULONGLONG CalculateRawSectorOffset(
 
     // Must be used for files within a MPQ
     assert(hf->ha != NULL);
+#ifdef FULL
     assert(hf->ha->pHeader != NULL);
-
+#endif
     //
     // Some MPQ protectors place the sector offset table after the actual file data.
     // Sector offsets in the sector offset table are negative. When added
@@ -452,8 +453,10 @@ DWORD ConvertMpqHeaderToFormat4(
 DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
 #endif
 {
+#ifndef FULL
+    TMPQHeader * pHeader = (TMPQHeader *)&ha->pHeader;
+#else
     TMPQHeader * pHeader = (TMPQHeader *)ha->HeaderData;
-#ifdef FULL
     ULONGLONG BlockTablePos64 = 0;
     ULONGLONG HashTablePos64 = 0;
     ULONGLONG BlockTableMask = (ULONGLONG)-1;
@@ -752,7 +755,7 @@ static bool IsValidHashEntry1(TMPQArchive * ha, TMPQHash * pHash, TMPQBlock * pB
     TMPQBlock * pBlock;
 
     // The block index is considered valid if it's less than block table size
-    if(MPQ_BLOCK_INDEX(pHash) < ha->pHeader->dwBlockTableSize)
+    if(MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
     {
         // Calculate the block table position
         pBlock = pBlockTable + MPQ_BLOCK_INDEX(pHash);
@@ -915,7 +918,7 @@ static DWORD BuildFileTableFromBlockTable(
     TMPQBlock * pBlockTable)
 {
     TFileEntry * pFileEntry;
-    TMPQHeader * pHeader = ha->pHeader;
+    TMPQHeader * pHeader = &ha->pHeader;
     TMPQBlock * pBlock;
     TMPQHash * pHashTableEnd;
     TMPQHash * pHash;
@@ -2358,7 +2361,7 @@ DWORD CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
 
     // Fill it
     memset(pHashTable, 0xFF, dwHashTableSize * sizeof(TMPQHash));
-    ha->pHeader->dwHashTableSize = dwHashTableSize;
+    ha->pHeader.dwHashTableSize = dwHashTableSize;
     ha->dwMaxFileCount = dwHashTableSize;
     ha->pHashTable = pHashTable;
     return ERROR_SUCCESS;
@@ -2366,7 +2369,7 @@ DWORD CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
 
 static TMPQHash * LoadHashTable(TMPQArchive * ha)
 {
-    TMPQHeader * pHeader = ha->pHeader;
+    TMPQHeader * pHeader = &ha->pHeader;
     ULONGLONG ByteOffset;
     TMPQHash * pHashTable = NULL;
     DWORD dwTableSize;
@@ -2447,7 +2450,7 @@ TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool /* bDontFixEntries */)
 static TMPQBlock * LoadBlockTable(TMPQArchive * ha)
 #endif
 {
-    TMPQHeader * pHeader = ha->pHeader;
+    TMPQHeader * pHeader = &ha->pHeader;
     TMPQBlock * pBlockTable = NULL;
     ULONGLONG ByteOffset;
     DWORD dwTableSize;
@@ -2559,7 +2562,7 @@ TMPQBetTable * LoadBetTable(TMPQArchive * ha)
 
 DWORD LoadAnyHashTable(TMPQArchive * ha)
 {
-    TMPQHeader * pHeader = ha->pHeader;
+    TMPQHeader * pHeader = &ha->pHeader;
 
     // If the MPQ archive is empty, don't bother trying to load anything
 #ifdef FULL
@@ -2598,7 +2601,7 @@ DWORD LoadAnyHashTable(TMPQArchive * ha)
 
 static DWORD BuildFileTable_Classic(TMPQArchive * ha)
 {
-    TMPQHeader * pHeader = ha->pHeader;
+    TMPQHeader * pHeader = &ha->pHeader;
     TMPQBlock * pBlockTable;
     DWORD dwErrCode = ERROR_SUCCESS;
 
@@ -2790,7 +2793,7 @@ DWORD BuildFileTable(TMPQArchive * ha)
     assert(ha->dwMaxFileCount != 0);
 
     // Determine the allocation size for the file table
-    dwFileTableSize = STORMLIB_MAX(ha->pHeader->dwBlockTableSize, ha->dwMaxFileCount);
+    dwFileTableSize = STORMLIB_MAX(ha->pHeader.dwBlockTableSize, ha->dwMaxFileCount);
 
     // Allocate the file table with size determined before
     ha->pFileTable = STORM_ALLOC(TFileEntry, dwFileTableSize);
