@@ -525,15 +525,6 @@ void mpqapi_remove_entry(const char* pszName)
 	}
 }
 
-void mpqapi_remove_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]))
-{
-	unsigned i;
-	char pszFileName[DATA_ARCHIVE_MAX_PATH];
-
-	for (i = 0; fnGetName(i, pszFileName); i++)
-		mpqapi_remove_entry(pszFileName);
-}
-
 static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 {
 	FileMpqHashEntry* pHash;

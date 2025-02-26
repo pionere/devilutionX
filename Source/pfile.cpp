@@ -202,25 +202,6 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 	class_stats->dsMagic = MagicTbl[player_class_nr];
 	class_stats->dsDexterity = DexterityTbl[player_class_nr];
 	class_stats->dsVitality = VitalityTbl[player_class_nr];
-}
-
-static bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH])
-{
-	if (IsMultiGame) {
-		if (lvl != 0)
-			return false;
-		copy_cstr(dst, SAVEFILE_HERO);
-	} else {
-		if (lvl < NUM_LEVELS)
-			return GetPermLevelNames(lvl, dst);
-		if (lvl == NUM_LEVELS)
-			copy_cstr(dst, SAVEFILE_GAME);
-		else if (lvl == NUM_LEVELS + 1)
-			copy_cstr(dst, SAVEFILE_HERO);
-		else
-			return false;
-	}
-	return true;
 }*/
 
 int pfile_ui_create_hero(_uiheroinfo* heroinfo)
@@ -244,7 +225,6 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	heroinfo->hiIdx = save_num;
 	// heroinfo->hiSaveFile = FALSE;
-	//mpqapi_remove_entries(pfile_get_file_name);
 	CreatePlayer(*heroinfo);
 	pfile_mpq_encode_hero(0);
 	//pfile_player2hero(&players[0], heroinfo);
@@ -368,7 +348,16 @@ void pfile_delete_save_file()
 	// if (full)
 	//	mpqapi_remove_entry(SAVEFILE_GAME);
 	// else
-		mpqapi_remove_entries(GetTempLevelNames);
+	{
+		unsigned dwIndex;
+		char szTemp[DATA_ARCHIVE_MAX_PATH];
+
+		dwIndex = 0;
+		while (GetTempLevelNames(dwIndex, szTemp)) {
+			dwIndex++;
+			mpqapi_remove_entry(szTemp);
+		}
+	}
 	pfile_mpq_flush(true);
 }
 

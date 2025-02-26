@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 void mpqapi_remove_entry(const char* pszName);
-void mpqapi_remove_entries(bool (*fnGetName)(unsigned, char (&)[DATA_ARCHIVE_MAX_PATH]));
 bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen);
 void mpqapi_rename_entry(char* pszOld, char* pszNew);
 bool mpqapi_has_entry(const char* pszName);
