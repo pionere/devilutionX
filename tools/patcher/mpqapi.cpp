@@ -506,7 +506,7 @@ void mpqapi_remove_entry(const char* pszName)
 	int hIdx, block_offset, block_size;
 
 	hIdx = FetchHandle(pszName);
-	if (hIdx != -1) {
+	if (hIdx >= 0) {
 		pHash = &cur_archive.sgpHashTbl[hIdx];
 		pBlock = &cur_archive.sgpBlockTbl[pHash->hqBlock];
 		pHash->hqBlock = HASH_ENTRY_DELETED;
@@ -653,7 +653,7 @@ void mpqapi_rename_entry(char* pszOld, char* pszNew)
 	uint32_t block;
 
 	index = FetchHandle(pszOld);
-	if (index != -1) {
+	if (index >= 0) {
 		pHash = &cur_archive.sgpHashTbl[index];
 		block = pHash->hqBlock;
 		pHash->hqBlock = HASH_ENTRY_DELETED;
@@ -664,7 +664,7 @@ void mpqapi_rename_entry(char* pszOld, char* pszNew)
 
 bool mpqapi_has_entry(const char* pszName)
 {
-	return FetchHandle(pszName) != -1;
+	return FetchHandle(pszName) >= 0;
 }
 
 bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
