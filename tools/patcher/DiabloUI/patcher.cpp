@@ -4512,6 +4512,9 @@ static int patcher_callback()
 	case 1:
 	{	// create the mpq file
 		std::string path = std::string(GetBasePath()) + "devilx.mpq.foo";
+		// - remove previous work-file
+		RemoveFile(path.c_str());
+		// - open a new work-file
 		if (!OpenMPQ(path.c_str(), hashCount, hashCount)) {
 			app_warn("Unable to open MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
