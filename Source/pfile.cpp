@@ -308,7 +308,7 @@ static void pfile_mpq_rename_temp_to_perm()
 		assert(bResult);
 		dwIndex++;
 		if (mpqapi_has_entry(szTemp)) {
-			if (mpqapi_has_entry(szPerm))
+			// if (mpqapi_has_entry(szPerm))
 				mpqapi_remove_entry(szPerm);
 			mpqapi_rename_entry(szTemp, szPerm);
 		}
