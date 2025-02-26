@@ -3975,7 +3975,7 @@ static void CmpPlrArray(const char* field, const void* src, const void* data, in
 
 static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 {
-	BYTE* src = (const BYTE*)pCmd;
+	const BYTE* src = (const BYTE*)pCmd;
 	src++;
 	int i = *src, k;
 	src++;
