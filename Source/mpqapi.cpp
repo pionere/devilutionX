@@ -249,7 +249,7 @@ struct Archive {
 			}
 			size = 0;
 		}
-		stream.Open(file);
+		this->stream.Open(file);
 		this->archiveSize = static_cast<uint32_t>(size);
 		this->modified = !fileExists;
 		this->name = name;
@@ -262,13 +262,13 @@ struct Archive {
 		DoLog("Flushing %s", name.c_str());
 #endif
 		// assert(stream.IsOpen());
-		bool resize = modified && stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
-		if (resize && archiveSize != 0) {
+		bool resize = this->modified && stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
+		if (resize && this->archiveSize != 0) {
 			stream.Close();
 #if DEBUG_MODE
-			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
+			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), this->archiveSize);
 #endif
-			ResizeFile(name.c_str(), archiveSize);
+			ResizeFile(name.c_str(), this->archiveSize);
 		}
 	}
 
@@ -293,7 +293,7 @@ struct Archive {
 
 	uint32_t HashOffset() const
 	{
-		return MPQ_BLOCK_OFFSET + blockCount * sizeof(FileMpqBlockEntry);
+		return MPQ_BLOCK_OFFSET + this->blockCount * sizeof(FileMpqBlockEntry);
 	}
 
 private:
@@ -303,13 +303,13 @@ private:
 
 		fhdr.pqSignature = SwapLE32(ID_MPQ);
 		fhdr.pqHeaderSize = SwapLE32(MPQ_HEADER_SIZE_V1);
-		fhdr.pqFileSize = SwapLE32(archiveSize);
+		fhdr.pqFileSize = SwapLE32(this->archiveSize);
 		fhdr.pqVersion = SwapLE16(MPQ_FORMAT_VERSION_1);
 		fhdr.pqSectorSizeId = SwapLE16(MPQ_SECTOR_SIZE_SHIFT_V1);
 		fhdr.pqHashOffset = SwapLE32(HashOffset());
 		fhdr.pqBlockOffset = SwapLE32(MPQ_BLOCK_OFFSET);
-		fhdr.pqHashCount = SwapLE32(hashCount);
-		fhdr.pqBlockCount = SwapLE32(blockCount);
+		fhdr.pqHashCount = SwapLE32(this->hashCount);
+		fhdr.pqBlockCount = SwapLE32(this->blockCount);
 		memset(&fhdr.pqPad[0], 0, sizeof(fhdr.pqPad));
 
 		return stream.write(reinterpret_cast<const char*>(&fhdr), sizeof(fhdr));
@@ -318,32 +318,30 @@ private:
 	bool WriteBlockTable()
 	{
 		DWORD blockSize, key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
-		FileMpqBlockEntry* blockTbl = sgpBlockTbl;
 
-		ByteSwapBlockTbl(blockTbl, blockCount);
+		ByteSwapBlockTbl(this->sgpBlockTbl, this->blockCount);
 
-		blockSize = blockCount * sizeof(FileMpqBlockEntry);
+		blockSize = this->blockCount * sizeof(FileMpqBlockEntry);
 
-		EncryptMpqBlock(blockTbl, blockSize, key);
-		const bool success = stream.write(reinterpret_cast<const char*>(blockTbl), blockSize);
-		DecryptMpqBlock(blockTbl, blockSize, key);
-		ByteSwapBlockTbl(blockTbl, blockCount);
+		EncryptMpqBlock(this->sgpBlockTbl, blockSize, key);
+		const bool success = stream.write(reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
+		DecryptMpqBlock(this->sgpBlockTbl, blockSize, key);
+		ByteSwapBlockTbl(this->sgpBlockTbl, this->blockCount);
 		return success;
 	}
 
 	bool WriteHashTable()
 	{
 		DWORD hashSize, key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
-		FileMpqHashEntry* hashTbl = sgpHashTbl;
 
-		ByteSwapHashTbl(hashTbl, hashCount);
+		ByteSwapHashTbl(this->sgpHashTbl, this->hashCount);
 
-		hashSize = hashCount * sizeof(FileMpqHashEntry);
+		hashSize = this->hashCount * sizeof(FileMpqHashEntry);
 
-		EncryptMpqBlock(hashTbl, hashSize, key);
-		const bool success = stream.write(reinterpret_cast<const char*>(hashTbl), hashSize);
-		DecryptMpqBlock(hashTbl, hashSize, key);
-		ByteSwapHashTbl(hashTbl, hashCount);
+		EncryptMpqBlock(this->sgpHashTbl, hashSize, key);
+		const bool success = stream.write(reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
+		DecryptMpqBlock(this->sgpHashTbl, hashSize, key);
+		ByteSwapHashTbl(this->sgpHashTbl, this->hashCount);
 		return success;
 	}
 };
