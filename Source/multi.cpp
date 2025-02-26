@@ -238,7 +238,7 @@ void multi_deactivate_player(int pnum)
 		// ClearPlrMsg(pnum);
 		RemoveLvlPlayer(pnum);
 		// if (reason != LEAVE_NONE) {
-		if (pnum == mypnum) {
+		if (pnum != mypnum) {
 			const char* pszFmt = "Player '%s' left the game";
 			//switch (reason) {
 			//case LEAVE_NORMAL:
