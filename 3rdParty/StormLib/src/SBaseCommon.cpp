@@ -655,20 +655,16 @@ TMPQArchive * IsValidMpqHandle(HANDLE hMpq)
 #ifdef FULL
     return (ha != NULL && ha->pHeader != NULL && ha->pHeader->dwID == g_dwMpqSignature) ? ha : NULL;
 #else
-    return (ha != NULL && ha->pHeader.dwID == g_dwMpqSignature) ? ha : NULL;
+    return ha;
 #endif
 }
 
 TMPQFile * IsValidFileHandle(HANDLE hFile)
 {
     TMPQFile * hf = (TMPQFile *)hFile;
-
-    // Must not be NULL
 #ifdef FULL
+    // Must not be NULL
     if(hf != NULL && hf->dwMagic == ID_MPQ_FILE)
-#else
-    if(hf != NULL)
-#endif
     {
         // Local file handle?
         if(hf->pStream != NULL)
@@ -680,6 +676,9 @@ TMPQFile * IsValidFileHandle(HANDLE hFile)
     }
 
     return NULL;
+#else
+    return hf;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1728,12 +1727,12 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 #endif
         // Close the file stream
         FileStream_Close(ha->pStream);
+#ifdef FULL
         ha->pStream = NULL;
 
         // Free the file names from the file table
         if(ha->pFileTable != NULL)
         {
-#ifdef FULL
             for(DWORD i = 0; i < ha->dwFileTableSize; i++)
             {
                 if(ha->pFileTable[i].szFileName != NULL)
@@ -1744,14 +1743,16 @@ void FreeArchiveHandle(TMPQArchive *& ha)
 
             // Then free all buffers allocated in the archive structure
             STORM_FREE(ha->pFileTable);
+#ifdef FULL
         }
 
         if(ha->pHashTable != NULL)
+#endif
             STORM_FREE(ha->pHashTable);
 #ifdef FULL
         if(ha->pHetTable != NULL)
             FreeHetTable(ha->pHetTable);
-#endif // FULL
+#endif
         STORM_FREE(ha);
         ha = NULL;
     }

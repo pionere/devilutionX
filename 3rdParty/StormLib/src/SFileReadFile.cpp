@@ -673,10 +673,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
 
 bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/)
 {
-    TMPQFile * hf;
 #ifdef FULL
+    TMPQFile * hf;
     DWORD dwBytesRead = 0;                      // Number of bytes read
 #else
+    TMPQFile * hf = IsValidFileHandle(hFile);
     DWORD dwBytesRead;                          // Number of bytes read
 #endif
     DWORD dwErrCode = ERROR_SUCCESS;
@@ -684,7 +685,7 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     // Always zero the result
     //if (pdwRead != NULL)
     //    *pdwRead = 0;
-
+#ifdef FULL
     // Check valid parameters
     if((hf = IsValidFileHandle(hFile)) == NULL)
     {
@@ -697,7 +698,6 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
         return false;
     }
 
-#ifdef FULL
     // If we didn't load the patch info yet, do it now
     if (hf->pFileEntry != NULL
      && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
@@ -755,15 +755,19 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
 
 DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 {
+#ifdef FULL
     ULONGLONG FileSize;
+#else
+    DWORD FileSize = 0;
+#endif
     TMPQFile *hf = IsValidFileHandle(hFile);
 
     // Validate the file handle before we go on
     if (hf != NULL) {
+#ifdef FULL
         // Make sure that the variable is initialized
         FileSize = 0;
 
-#ifdef FULL
         // If the file is patched file, we have to get the size of the last version
         if (hf->hfPatch != NULL) {
             // Walk through the entire patch chain, take the last version
@@ -781,24 +785,22 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 #ifdef FULL
                 FileStream_GetSize(hf->pStream, &FileSize);
 #else
-                FileSize = FileStream_GetSize(hf->pStream);
+                FileSize = (DWORD)FileStream_GetSize(hf->pStream);
 #endif
             } else {
                 FileSize = hf->dwDataSize;
             }
-#ifdef FULL
         }
-#endif
+#ifdef FULL
         // If opened from archive, return file size
         //if (pdwFileSizeHigh != NULL)
         //    *pdwFileSizeHigh = (DWORD)(FileSize >> 32);
-        return (DWORD)FileSize;
+        return FileSize;
     }
-#ifdef FULL
     SetLastError(ERROR_INVALID_HANDLE);
     return SFILE_INVALID_SIZE;
 #else
-    return 0;
+    return FileSize;
 #endif
 }
 #ifdef FULL

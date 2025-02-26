@@ -707,25 +707,21 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
 void WINAPI SFileCloseArchive(HANDLE hMpq)
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
+#ifdef FULL
     bool bResult = false;
 
     // Only if the handle is valid
     if(ha == NULL)
     {
-#ifdef FULL
         SetLastError(ERROR_INVALID_HANDLE);
-#endif
-        return;// false;
+        return false;
     }
 
-#ifdef FULL
     // Invalidate the add file callback so it won't be called
     // when saving (listfile) and (attributes)
     ha->pfnAddFileCB = NULL;
     ha->pvAddFileUserData = NULL;
-#endif
 
-#ifdef FULL
     // Flush all unsaved data to the storage
     bResult = SFileFlushArchive(hMpq);
 #endif // FULL

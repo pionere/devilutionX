@@ -414,7 +414,7 @@ ULONGLONG CalculateRawSectorOffset(
     assert(hf->ha != NULL);
 #ifdef FULL
     assert(hf->ha->pHeader != NULL);
-#endif
+
     //
     // Some MPQ protectors place the sector offset table after the actual file data.
     // Sector offsets in the sector offset table are negative. When added
@@ -425,7 +425,7 @@ ULONGLONG CalculateRawSectorOffset(
     //
 
     RawFilePos = hf->RawFilePos + dwSectorOffset;
-#ifdef FULL
+
     if(hf->ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
         RawFilePos = (DWORD)hf->ha->MpqPos + (DWORD)hf->pFileEntry->ByteOffset + dwSectorOffset;
 #else
@@ -928,6 +928,7 @@ static DWORD BuildFileTableFromBlockTable(
 #endif
     // Sanity checks
     assert(ha->pFileTable != NULL);
+#ifdef FULL
     assert(ha->dwFileTableSize >= ha->dwMaxFileCount);
 
     //
@@ -948,7 +949,7 @@ static DWORD BuildFileTableFromBlockTable(
     //    ha->pHashTable = DefragmentHashTable(ha, ha->pHashTable, pBlockTable);
     //    ha->dwMaxFileCount = pHeader->dwHashTableSize;
     //}
-#ifdef FULL
+
     // If the hash table or block table is cut,
     // we will defragment the block table
     if(ha->dwFlags & (MPQ_FLAG_HASH_TABLE_CUT | MPQ_FLAG_BLOCK_TABLE_CUT))
@@ -2020,7 +2021,9 @@ TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LPDW
 #endif
         if(pHash != NULL && MPQ_BLOCK_INDEX(pHash) < ha->dwFileTableSize)
         {
+#ifdef FULL
             if(PtrHashIndex != NULL)
+#endif
                 PtrHashIndex[0] = (DWORD)(pHash - ha->pHashTable);
             return ha->pFileTable + MPQ_BLOCK_INDEX(pHash);
         }
@@ -2341,7 +2344,7 @@ void InvalidateInternalFiles(TMPQArchive * ha)
 
 //-----------------------------------------------------------------------------
 // Support for file tables - hash table, block table, hi-block table
-
+#ifdef FULL
 DWORD CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
 {
     TMPQHash * pHashTable;
@@ -2366,7 +2369,7 @@ DWORD CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
     ha->pHashTable = pHashTable;
     return ERROR_SUCCESS;
 }
-
+#endif
 static TMPQHash * LoadHashTable(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = &ha->pHeader;
@@ -2567,21 +2570,17 @@ DWORD LoadAnyHashTable(TMPQArchive * ha)
     // If the MPQ archive is empty, don't bother trying to load anything
 #ifdef FULL
     if(pHeader->dwHashTableSize == 0 && pHeader->HetTableSize64 == 0)
-#else
-    if(pHeader->dwHashTableSize == 0)
-#endif
         return CreateHashTable(ha, HASH_TABLE_SIZE_DEFAULT);
 
-#ifdef FULL
     // Try to load HET table
     if(pHeader->HetTablePos64 != 0)
         ha->pHetTable = LoadHetTable(ha);
-#endif // FULL
 
     // Try to load classic hash table
     // Note that we load the classic hash table even when HET table exists,
     // because if the MPQ gets modified and saved, hash table must be there
     if(pHeader->dwHashTableSize)
+#endif // FULL
         ha->pHashTable = LoadHashTable(ha);
 
     // At least one of the tables must be present
@@ -2595,7 +2594,9 @@ DWORD LoadAnyHashTable(TMPQArchive * ha)
     // Set the maximum file count to the size of the hash table.
     // Note: We don't care about HET table limits, because HET table is rebuilt
     // after each file add/rename/delete.
+#ifdef FULL
     ha->dwMaxFileCount = (ha->pHashTable != NULL) ? pHeader->dwHashTableSize : HASH_TABLE_SIZE_MAX;
+#endif
     return ERROR_SUCCESS;
 }
 
@@ -2790,10 +2791,14 @@ DWORD BuildFileTable(TMPQArchive * ha)
     // Sanity checks
     assert(ha->pFileTable == NULL);
     assert(ha->dwFileTableSize == 0);
+#ifdef FULL
     assert(ha->dwMaxFileCount != 0);
 
     // Determine the allocation size for the file table
     dwFileTableSize = STORMLIB_MAX(ha->pHeader.dwBlockTableSize, ha->dwMaxFileCount);
+#else
+    dwFileTableSize = STORMLIB_MAX(ha->pHeader.dwBlockTableSize, ha->pHeader.dwHashTableSize);
+#endif
 
     // Allocate the file table with size determined before
     ha->pFileTable = STORM_ALLOC(TFileEntry, dwFileTableSize);

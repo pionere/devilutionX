@@ -416,11 +416,12 @@ void WINAPI SFileCloseFile(HANDLE hFile)
 	TMPQFile * hf;
 
 	hf = IsValidFileHandle(hFile);
+#ifdef FULL
 	if (hf == NULL) {
 		// SetLastError(ERROR_INVALID_HANDLE);
 		return;
 	}
-
+#endif
 	// Free the structure
 	FreeFileHandle(hf);
 }

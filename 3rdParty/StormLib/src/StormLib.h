@@ -864,8 +864,8 @@ typedef struct _TMPQArchive
 
     DWORD          dwHETBlockSize;
     DWORD          dwBETBlockSize;
-#endif
     DWORD          dwMaxFileCount;              // Maximum number of files in the MPQ. Also total size of the file table.
+#endif
     DWORD          dwFileTableSize;             // Current size of the file table, e.g. index of the entry past the last occupied one
 #ifdef FULL
     DWORD          dwReservedFiles;             // Number of entries reserved for internal MPQ files (listfile, attributes)

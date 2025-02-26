@@ -285,12 +285,12 @@ TMPQBetTable * LoadBetTable(TMPQArchive * ha);
 
 TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool bDontFixEntries = false);
 TMPQBlock * TranslateBlockTable(TMPQArchive * ha, ULONGLONG * pcbTableSize, bool * pbNeedHiBlockTable);
-#endif
 
 //ULONGLONG FindFreeMpqSpace(TMPQArchive * ha);
 
 // Functions that load the HET and BET tables
 DWORD  CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize);
+#endif
 DWORD  LoadAnyHashTable(TMPQArchive * ha);
 DWORD  BuildFileTable(TMPQArchive * ha);
 #ifdef FULL
