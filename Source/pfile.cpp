@@ -18,9 +18,12 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define SAVEFILE_GAME             "game"
 #define SAVEFILE_HERO             "hero"
+#define PFILE_ENTRY_MAX_PATH      8
 #define PFILE_SAVE_MPQ_HASHCOUNT  2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
 #define PFILE_SAVE_INTERVAL       60
+
+static_assert(DATA_ARCHIVE_MAX_PATH >= PFILE_ENTRY_MAX_PATH, "pfile can not write to the mpq archive.");
 
 unsigned mySaveIdx;
 static uint32_t guNextSaveTc;
@@ -232,11 +235,12 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	return NEWHERO_DONE;
 }
 
-static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[DATA_ARCHIVE_MAX_PATH])
+static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[PFILE_ENTRY_MAX_PATH])
 {
 	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
+	static_assert(PFILE_ENTRY_MAX_PATH >= sizeof("plvl**"), "PermSaveName can not be written to the path");
 	if (dwIndex < NUM_LEVELS) {
 		fmt = "plvl%02d";
 	} else
@@ -246,11 +250,12 @@ static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[DATA_ARCHIVE_MAX_
 	return true;
 }
 
-static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[DATA_ARCHIVE_MAX_PATH])
+static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[PFILE_ENTRY_MAX_PATH])
 {
 	const char* fmt;
 
 	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
+	static_assert(PFILE_ENTRY_MAX_PATH >= sizeof("tlvl**"), "TempSaveName can not be written to the path");
 	if (dwIndex < NUM_LEVELS) {
 		fmt = "tlvl%02d";
 	} else
@@ -290,8 +295,8 @@ static void pfile_mpq_rename_temp_to_perm()
 {
 	unsigned dwIndex;
 	bool bResult;
-	char szTemp[DATA_ARCHIVE_MAX_PATH];
-	char szPerm[DATA_ARCHIVE_MAX_PATH];
+	char szTemp[PFILE_ENTRY_MAX_PATH];
+	char szPerm[PFILE_ENTRY_MAX_PATH];
 
 	// assert(!IsMultiGame);
 	// if (!pfile_mpq_open_mysave())
@@ -314,7 +319,7 @@ static void pfile_mpq_rename_temp_to_perm()
 void pfile_write_save_file(bool full, DWORD dwLen)
 {
 	DWORD qwLen;
-	char pszName[DATA_ARCHIVE_MAX_PATH] = SAVEFILE_GAME;
+	char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
 	BYTE* pbData = gsDeltaData.ddBuffer;
 
 	qwLen = codec_get_encoded_len(dwLen);
@@ -350,7 +355,7 @@ void pfile_delete_save_file()
 	// else
 	{
 		unsigned dwIndex;
-		char szTemp[DATA_ARCHIVE_MAX_PATH];
+		char szTemp[PFILE_ENTRY_MAX_PATH];
 
 		dwIndex = 0;
 		while (GetTempLevelNames(dwIndex, szTemp)) {
@@ -365,7 +370,7 @@ void pfile_read_save_file(bool full)
 {
 	DWORD len;
 	HANDLE archive, save;
-	char pszName[DATA_ARCHIVE_MAX_PATH] = SAVEFILE_GAME;
+	char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
 	int source;
 
 	archive = pfile_archive_open_save(mySaveIdx);
