@@ -296,11 +296,6 @@ struct Archive {
 		return MPQ_BLOCK_OFFSET + blockCount * sizeof(FileMpqBlockEntry);
 	}
 
-	~Archive()
-	{
-		CloseArchive(true);
-	}
-
 private:
 	bool WriteHeader()
 	{

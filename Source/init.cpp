@@ -11,10 +11,10 @@
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include "storm/storm_cfg.h"
+#include "mpqapi.h"
 #include <string>
 #if CREATE_MPQONE
 #include <fstream>
-#include "mpqapi.h"
 #endif
 
 #ifdef __vita__
@@ -72,6 +72,7 @@ void FreeArchives()
 		}
 	}
 #endif
+	mpqapi_close();
 }
 
 static void ReadOnlyTest()
