@@ -785,12 +785,8 @@ static bool IsValidHashEntry1(TMPQArchive * ha, TMPQHash * pHash, TMPQBlock * pB
 // Storm_2016.dll: 15020940
 #ifdef FULL
 static TMPQHash * GetHashEntryLocale(TMPQArchive * ha, const char * szFileName, LCID lcLocale, BYTE Platform)
-#else
-static TMPQHash * GetHashEntryLocale(TMPQArchive * ha, const char * szFileName)
-#endif
 {
     TMPQHash * pFirstHash = GetFirstHashEntry(ha, szFileName);
-#ifdef FULL
     TMPQHash * pBestEntry = NULL;
     TMPQHash * pHash = pFirstHash;
 
@@ -821,12 +817,8 @@ static TMPQHash * GetHashEntryLocale(TMPQArchive * ha, const char * szFileName)
 
     // Return the best entry that we found
     return pBestEntry;
-#else
-    return pFirstHash;
-#endif
 }
 
-#ifdef FULL
 // Returns a hash table entry in the following order:
 // 1) A hash table entry with the preferred locale
 // 2) NULL
@@ -2016,10 +2008,11 @@ TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LPDW
     {
 #ifdef FULL
         pHash = GetHashEntryLocale(ha, szFileName, lcLocale, 0);
-#else
-        pHash = GetHashEntryLocale(ha, szFileName);
-#endif
         if(pHash != NULL && MPQ_BLOCK_INDEX(pHash) < ha->dwFileTableSize)
+#else
+        pHash = GetFirstHashEntry(ha, szFileName);
+        if(pHash != NULL && MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
+#endif
         {
 #ifdef FULL
             if(PtrHashIndex != NULL)
@@ -2613,8 +2606,9 @@ static DWORD BuildFileTable_Classic(TMPQArchive * ha)
     // If the MPQ has no block table, do nothing
     if(pHeader->dwBlockTableSize == 0)
         return ERROR_SUCCESS;
+#ifdef FULL
     assert(ha->dwFileTableSize >= pHeader->dwBlockTableSize);
-
+#endif
     // Load the block table
     // WARNING! ha->pFileTable can change in the process!!
     pBlockTable = (TMPQBlock *)LoadBlockTable(ha);
@@ -2786,18 +2780,25 @@ static DWORD BuildFileTable_HetBet(TMPQArchive * ha)
 DWORD BuildFileTable(TMPQArchive * ha)
 {
     DWORD dwFileTableSize;
+#ifdef FULL
     bool bFileTableCreated = false;
+#else
+    DWORD dwErrCode = ERROR_SUCCESS;
+#endif
 
     // Sanity checks
     assert(ha->pFileTable == NULL);
-    assert(ha->dwFileTableSize == 0);
 #ifdef FULL
+    assert(ha->dwFileTableSize == 0);
     assert(ha->dwMaxFileCount != 0);
 
     // Determine the allocation size for the file table
     dwFileTableSize = STORMLIB_MAX(ha->pHeader.dwBlockTableSize, ha->dwMaxFileCount);
 #else
-    dwFileTableSize = STORMLIB_MAX(ha->pHeader.dwBlockTableSize, ha->pHeader.dwHashTableSize);
+    assert(ha->pHashTable != NULL);
+    assert(ha->pHeader.dwBlockTableSize != 0);
+
+    dwFileTableSize = ha->pHeader.dwBlockTableSize;
 #endif
 
     // Allocate the file table with size determined before
@@ -2807,9 +2808,9 @@ DWORD BuildFileTable(TMPQArchive * ha)
 
     // Fill the table with zeros
     memset(ha->pFileTable, 0, dwFileTableSize * sizeof(TFileEntry));
+#ifdef FULL
     ha->dwFileTableSize = dwFileTableSize;
 
-#ifdef FULL
     // If we have HET table, we load file table from the BET table
     // Note: If BET table is corrupt or missing, we set the archive as read only
     if(ha->pHetTable != NULL)
@@ -2819,24 +2820,24 @@ DWORD BuildFileTable(TMPQArchive * ha)
         else
             bFileTableCreated = true;
     }
-#endif // FULL
 
     // If we have hash table, we load the file table from the block table
     // Note: If block table is corrupt or missing, we set the archive as read only
     if(ha->pHashTable != NULL)
     {
         if(BuildFileTable_Classic(ha) != ERROR_SUCCESS)
-#ifdef FULL
             ha->dwFlags |= MPQ_FLAG_READ_ONLY;
-#else
-            bFileTableCreated = false;
-#endif
         else
             bFileTableCreated = true;
     }
 
     // Return result
     return bFileTableCreated ? ERROR_SUCCESS : ERROR_FILE_CORRUPT;
+#else
+    dwErrCode = BuildFileTable_Classic(ha);
+
+    return dwErrCode;
+#endif
 }
 
 /*

@@ -755,7 +755,11 @@ TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
         TMPQHash * pHash = ha->pHashTable + dwIndex;
 
         // If the entry matches, we found it.
+#ifdef FULL
         if(pHash->dwName1 == dwName1 && pHash->dwName2 == dwName2 && MPQ_BLOCK_INDEX(pHash) < ha->dwFileTableSize)
+#else
+        if(pHash->dwName1 == dwName1 && pHash->dwName2 == dwName2 && MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
+#endif
             return pHash;
 
         // If that hash entry is a free entry, it means we haven't found the file
@@ -769,7 +773,7 @@ TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
             return NULL;
     }
 }
-
+#ifdef FULL
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pHash)
 {
     DWORD dwHashIndexMask = HASH_INDEX_MASK(ha);
@@ -798,7 +802,7 @@ TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * 
             return NULL;
     }
 }
-#ifdef FULL
+
 // Allocates an entry in the hash table
 TMPQHash * AllocateHashEntry(
     TMPQArchive * ha,
@@ -986,22 +990,19 @@ void * LoadMpqTable(
             }
         }
 #endif
+#ifdef FULL
         // Get the file offset from which we will read the table
         // Note: According to Storm.dll from Warcraft III (version 2002),
         // if the hash table position is 0xFFFFFFFF, no SetFilePointer call is done
         // and the table is loaded from the current file offset
         if(ByteOffset == SFILE_INVALID_POS)
-#ifdef FULL
             FileStream_GetPos(ha->pStream, &ByteOffset);
-#else
-            ByteOffset = FileStream_GetPos(ha->pStream);
-#endif
 
         // On archives v 1.0, hash table and block table can go beyond EOF.
         // Storm.dll reads as much as possible, then fills the missing part with zeros.
         // Abused by Spazzler map protector which sets hash table size to 0x00100000
         // Abused by NP_Protect in MPQs v4 as well
-#ifdef FULL
+
         if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
 #endif
         {
@@ -1111,8 +1112,9 @@ static unsigned char * AllocateMd5Buffer(
 // Allocates sector buffer and sector offset table
 DWORD AllocateSectorBuffer(TMPQFile * hf)
 {
+#ifdef FULL
     TMPQArchive * ha = hf->ha;
-
+#endif
     // Caller of AllocateSectorBuffer must ensure these
     assert(hf->pbFileSector == NULL);
     assert(hf->pFileEntry != NULL);

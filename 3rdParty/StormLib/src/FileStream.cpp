@@ -274,7 +274,7 @@ static bool BaseFile_Read(
         SetLastError(ERROR_HANDLE_EOF);
     return (dwBytesRead == dwBytesToRead);
 }
-
+#ifdef FULL
 /**
  * \a pStream Pointer to an open stream
  * \a pByteOffset Pointer to file byte offset. If NULL, writes to current position
@@ -391,6 +391,7 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
     }
 #endif
 }
+#endif
 #ifndef FULL
 // Gives the current file size
 static ULONGLONG BaseFile_GetSize(const TFileStream * pStream)
@@ -1560,11 +1561,6 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
         pStream->StreamGetSize = pStream->BaseGetSize;
         pStream->StreamGetPos  = pStream->BaseGetPos;
         pStream->StreamClose   = pStream->BaseClose;
-    }
-#else
-    {
-        // Reset the base position to zero
-        BaseFile_Read(pStream, &ByteOffset, NULL, 0);
     }
 #endif // FULL
     return pStream;

@@ -452,7 +452,7 @@ HANDLE WINAPI SFileOpenArchive(
 #ifdef FULL
             if(ByteOffset >= FileSize || ha->pHeader->wSectorSize == 0)
 #else
-            if(ByteOffset >= FileSize || ha->pHeader.wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
+            if(ha->pHeader.wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
 #endif
                 dwErrCode = ERROR_BAD_FORMAT;
         }
