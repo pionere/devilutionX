@@ -190,7 +190,6 @@ Levels\L2Data\L2.TLA
 Levels\L2Data\L2.TRS
 Levels\L2Data\L2_0.PAL
 Levels\L2Data\L2_1.PAL
-Levels\L2Data\L2_2.pal
 Levels\L2Data\L2_2.PAL
 Levels\L2Data\L2_3.PAL
 Levels\L2Data\L2_4.PAL
@@ -1337,12 +1336,10 @@ Music\DTowne.wav
 _Music\sintro.wav
 _Music\sLvlA.wav
 _Music\sTowne.wav
-NLevels\cutl5.CEL
 NLevels\Cutl5.CEL
-Nlevels\cutl5.pal
-NLevels\cutl6.CEL
+Nlevels\Cutl5.pal
 NLevels\Cutl6.CEL
-Nlevels\cutl6.pal
+Nlevels\Cutl6.pal
 _NLevels\L5Data\L5.AMP
 NLevels\L5Data\L5.CEL
 NLevels\L5Data\L5.MIN
