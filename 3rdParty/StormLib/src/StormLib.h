@@ -926,8 +926,8 @@ typedef struct _TMPQFile
 
     LPBYTE         pbFileSector;                // Last loaded file sector. For single unit files, entire file content
     DWORD          dwSectorOffs;                // File position of currently loaded file sector
-    DWORD          dwSectorSize;                // Size of the file sector. For single unit files, this is equal to the file size
 #ifdef FULL
+    DWORD          dwSectorSize;                // Size of the file sector. For single unit files, this is equal to the file size
     void         * hctx;                        // Hash state for MD5. Used when saving file to MPQ
 
     DWORD          dwCrc32;                     // CRC32 value, used when saving file to MPQ

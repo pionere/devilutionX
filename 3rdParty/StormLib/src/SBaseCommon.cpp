@@ -1135,10 +1135,10 @@ DWORD AllocateSectorBuffer(TMPQFile * hf)
     // Determine the file sector size and allocate buffer for it
 #ifdef FULL
     hf->dwSectorSize = (hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) ? hf->dwDataSize : ha->dwSectorSize;
-#else
-    hf->dwSectorSize = (hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) ? hf->dwDataSize : MPQ_SECTOR_SIZE_V1;
-#endif
     hf->pbFileSector = STORM_ALLOC(BYTE, hf->dwSectorSize);
+#else
+    hf->pbFileSector = STORM_ALLOC(BYTE, MPQ_SECTOR_SIZE_V1);
+#endif
     hf->dwSectorOffs = SFILE_INVALID_POS;
 
     // Return result
@@ -1230,18 +1230,19 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     assert(hf->pFileEntry != NULL);
     assert(hf->dwDataSize != 0);
     assert(hf->ha != NULL);
-
+#ifdef FULL
     // If the file is stored as single unit, just set number of sectors to 1
     if(pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT)
     {
         hf->dwSectorCount = 1;
         return ERROR_SUCCESS;
     }
-
     // Calculate the number of data sectors
     // Note that this doesn't work if the file size is zero
     hf->dwSectorCount = ((hf->dwDataSize - 1) / hf->dwSectorSize) + 1;
-
+#else
+    hf->dwSectorCount = ((hf->dwDataSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+#endif
     // Calculate the number of file sectors
     dwSectorOffsLen = (hf->dwSectorCount + 1) * sizeof(DWORD);
 #ifdef FULL
