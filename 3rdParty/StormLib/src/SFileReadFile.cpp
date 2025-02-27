@@ -69,7 +69,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             if (dwErrCode != ERROR_SUCCESS || hf->SectorOffsets == NULL)
                 return dwErrCode;
         }
-
+#ifdef FULL
         // If the sector checksums are not loaded yet, load them now.
         if (hf->SectorChksums == NULL
          && (pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
@@ -80,14 +80,10 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // We only try to load sector CRCs once, and regardless if it fails
             // or not, we won't try that again for the given file.
             //
-#ifdef FULL
             AllocateSectorChecksums(hf, true);
-#else
-            AllocateSectorChecksums(hf);
-#endif
             hf->bLoadedSectorCRCs = true;
         }
-
+#endif
         // TODO: If the raw data MD5s are not loaded yet, load them now
         // Only do it if the MPQ is of format 4.0
 //      if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_4 && ha->pHeader->dwRawChunkSize != 0)

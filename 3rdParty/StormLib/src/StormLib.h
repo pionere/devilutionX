@@ -912,8 +912,8 @@ typedef struct _TMPQFile
     TPatchInfo   * pPatchInfo;                  // Patch info block, preceding the sector table
 #endif
     LPDWORD        SectorOffsets;               // Position of each file sector, relative to the begin of the file. Only for compressed files.
-    LPDWORD        SectorChksums;               // Array of sector checksums (either ADLER32 or MD5) values for each file sector
 #ifdef FULL
+    LPDWORD        SectorChksums;               // Array of sector checksums (either ADLER32 or MD5) values for each file sector
     LPBYTE         pbFileData;                  // Data of the file (single unit files, patched files)
     DWORD          cbFileData;                  // Size of file data
     DWORD          dwCompression0;              // Compression that will be used on the first file sector
@@ -932,9 +932,8 @@ typedef struct _TMPQFile
 
     DWORD          dwCrc32;                     // CRC32 value, used when saving file to MPQ
     DWORD          dwAddFileError;              // Result of the "Add File" operations
-#endif
+
     bool           bLoadedSectorCRCs;           // If true, we already tried to load sector CRCs
-#ifdef FULL
     bool           bCheckSectorCRCs;            // If true, then SFileReadFile will check sector CRCs when reading the file
     bool           bIsWriteHandle;              // If true, this handle has been created by SFileCreateFile
 #endif

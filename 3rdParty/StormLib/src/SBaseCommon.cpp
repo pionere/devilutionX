@@ -1251,13 +1251,13 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
 
     // Calculate the number of file sectors
     dwSectorOffsLen = (hf->dwSectorCount + 1) * sizeof(DWORD);
-
+#ifdef FULL
     // If MPQ_FILE_SECTOR_CRC flag is set, there will either be extra DWORD
     // or an array of MD5's. Either way, we read at least 4 bytes more
     // in order to save additional read from the file.
     if(pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
         dwSectorOffsLen += sizeof(DWORD);
-
+#endif
     // Only allocate and load the table if the file is compressed
     if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
     {
@@ -1391,9 +1391,6 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
 }
 #ifdef FULL
 DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
-#else
-DWORD AllocateSectorChecksums(TMPQFile * hf)
-#endif
 {
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
@@ -1475,7 +1472,7 @@ DWORD AllocateSectorChecksums(TMPQFile * hf)
 //  assert(false);
     return ERROR_SUCCESS;
 }
-
+#endif
 /*DWORD WritePatchInfo(TMPQFile * hf)
 {
     TMPQArchive * ha = hf->ha;
@@ -1714,9 +1711,9 @@ void FreeFileHandle(TMPQFile *& hf)
 #endif
         if(hf->SectorOffsets != NULL)
             STORM_FREE(hf->SectorOffsets);
+#ifdef FULL
         if(hf->SectorChksums != NULL)
             STORM_FREE(hf->SectorChksums);
-#ifdef FULL
         if(hf->hctx != NULL)
             STORM_FREE(hf->hctx);
 #endif

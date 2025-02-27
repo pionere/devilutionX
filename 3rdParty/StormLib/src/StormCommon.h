@@ -362,7 +362,6 @@ DWORD  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
 DWORD  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
 #else
 DWORD  AllocateSectorOffsets(TMPQFile * hf);
-DWORD  AllocateSectorChecksums(TMPQFile * hf);
 #endif
 //DWORD  WritePatchInfo(TMPQFile * hf);
 //DWORD  WriteSectorOffsets(TMPQFile * hf);
