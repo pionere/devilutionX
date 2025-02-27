@@ -1122,7 +1122,7 @@ static unsigned char * AllocateMd5Buffer(
         *pcbMd5Size = cbMd5Size;
     return md5_array;
 }
-#endif
+
 // Allocates sector buffer and sector offset table
 DWORD AllocateSectorBuffer(TMPQFile * hf)
 {
@@ -1153,7 +1153,7 @@ DWORD AllocateSectorBuffer(TMPQFile * hf)
     return (hf->pbFileSector != NULL) ? ERROR_SUCCESS : (ERROR_SUCCESS + 1);
 #endif
 }
-#ifdef FULL
+
 // Allocates sector offset table
 DWORD AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile)
 {
@@ -1734,10 +1734,10 @@ void FreeFileHandle(TMPQFile *& hf)
             STORM_FREE(hf->SectorChksums);
         if(hf->hctx != NULL)
             STORM_FREE(hf->hctx);
-#endif
         if(hf->pbFileSector != NULL)
             STORM_FREE(hf->pbFileSector);
         if(hf->pStream != NULL)
+#endif
             FileStream_Close(hf->pStream);
         STORM_FREE(hf);
         hf = NULL;

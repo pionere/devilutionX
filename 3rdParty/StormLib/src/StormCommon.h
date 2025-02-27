@@ -355,8 +355,8 @@ void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, 
 #else
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
 #endif
-DWORD  AllocateSectorBuffer(TMPQFile * hf);
 #ifdef FULL
+DWORD  AllocateSectorBuffer(TMPQFile * hf);
 DWORD  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
 DWORD  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
 DWORD  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
