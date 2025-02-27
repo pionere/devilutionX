@@ -2000,35 +2000,34 @@ TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LPDW
 #endif // FULL
 {
     TMPQHash * pHash;
-
+#ifdef FULL
     // First, we have to search the classic hash table
     // This is because on renaming, deleting, or changing locale,
     // we will need the pointer to hash table entry
     if(ha->pHashTable != NULL)
     {
-#ifdef FULL
         pHash = GetHashEntryLocale(ha, szFileName, lcLocale, 0);
         if(pHash != NULL && MPQ_BLOCK_INDEX(pHash) < ha->dwFileTableSize)
-#else
-        pHash = GetFirstHashEntry(ha, szFileName);
-        if(pHash != NULL && MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
-#endif
         {
-#ifdef FULL
             if(PtrHashIndex != NULL)
-#endif
                 PtrHashIndex[0] = (DWORD)(pHash - ha->pHashTable);
             return ha->pFileTable + MPQ_BLOCK_INDEX(pHash);
         }
     }
 
-#ifdef FULL
     // If we have HET table in the MPQ, try to find the file in HET table
     if(ha->pHetTable != NULL)
     {
         DWORD dwFileIndex = GetFileIndex_Het(ha, szFileName);
         if(dwFileIndex != HASH_ENTRY_FREE)
             return ha->pFileTable + dwFileIndex;
+    }
+#else
+    int hashIdx = GetFirstHashEntry(ha, szFileName);
+    if (hashIdx >= 0) {
+        PtrHashIndex[0] = hashIdx;
+        pHash = &ha->pHashTable[hashIdx];
+        return ha->pFileTable + MPQ_BLOCK_INDEX(pHash);
     }
 #endif // FULL
 

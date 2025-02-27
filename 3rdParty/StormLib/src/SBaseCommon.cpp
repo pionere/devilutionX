@@ -729,23 +729,26 @@ TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1
     // If we found a deleted entry, return that one preferentially
     return (pDeletedEntry != NULL) ? pDeletedEntry : pFreeEntry;
 }
-#endif
+
 // Retrieves the first hash entry for the given file.
 // Every locale version of a file has its own hash entry
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
 {
     DWORD dwHashIndexMask = HASH_INDEX_MASK(ha);
-#ifdef FULL
     DWORD dwStartIndex = ha->pfnHashString(szFileName, MPQ_HASH_TABLE_INDEX);
     DWORD dwName1 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_A);
     DWORD dwName2 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_B);
 #else
+int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
+{
+    DWORD dwHashIndexMask = ha->pHeader.dwHashTableSize - 1;
     DWORD dwStartIndex = HashStringSlash(szFileName, MPQ_HASH_TABLE_INDEX);
     DWORD dwName1 = HashStringSlash(szFileName, MPQ_HASH_NAME_A);
     DWORD dwName2 = HashStringSlash(szFileName, MPQ_HASH_NAME_B);
 #endif
     DWORD dwIndex;
-
+    int i;
+#ifdef FULL
     // Set the initial index
     dwStartIndex = dwIndex = (dwStartIndex & dwHashIndexMask);
 
@@ -772,6 +775,19 @@ TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
         if(dwIndex == dwStartIndex)
             return NULL;
     }
+#else
+    dwIndex = dwStartIndex;
+    for (i = dwHashIndexMask + 1; i != 0; i--, dwIndex++) {
+        dwIndex &= dwHashIndexMask;
+        TMPQHash * pHash = &ha->pHashTable[dwIndex];
+        if (pHash->dwName1 == dwName1 && pHash->dwName2 == dwName2 && MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
+//            /*&& pHash->lcid == locale*/ && pHash->dwBlockIndex != HASH_ENTRY_DELETED)
+            return dwIndex;
+        if (pHash->dwBlockIndex == HASH_ENTRY_FREE)
+            break;
+    }
+    return -1;
+#endif
 }
 #ifdef FULL
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pHash)

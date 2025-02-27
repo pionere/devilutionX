@@ -267,15 +267,14 @@ ULONGLONG FileOffsetFromMpqOffset(ULONGLONG MpqOffset);
 ULONGLONG CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
 #ifndef FULL
 DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha);
+int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
 #else
 DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
 
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
 
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
-#endif
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
-#ifdef FULL
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
 TMPQHash * AllocateHashEntry(TMPQArchive * ha, TFileEntry * pFileEntry, LCID lcLocale);
 
