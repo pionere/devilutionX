@@ -621,10 +621,6 @@ DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable)
     DWORD dwFileKey;
 #ifdef FULL
     DWORD dwMpqPos = (DWORD)MpqPos;
-#else
-    DWORD dwMpqPos;
-    DWORD dwFileSize;
-    DWORD dwFlags;
 #endif
     // File key is calculated from plain name
     szFileName = GetPlainFileName(szFileName);
@@ -633,15 +629,12 @@ DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable)
 #else
     dwFileKey = HashStringSlash(szFileName, MPQ_HASH_FILE_KEY);
 #endif
-#ifndef FULL
-    dwMpqPos = (DWORD)pFileTable->ByteOffset;
-    dwFileSize = pFileTable->dwFileSize;
-    dwFlags = pFileTable->dwFlags;
-#endif
+#ifdef FULL
     // Fix the key, if needed
-    if(dwFlags & MPQ_FILE_KEY_V2)
+    if(dwFlags & MPQ_FILE_KEY_V2) {
         dwFileKey = (dwFileKey + dwMpqPos) ^ dwFileSize;
-
+    }
+#endif
     // Return the key
     return dwFileKey;
 }
