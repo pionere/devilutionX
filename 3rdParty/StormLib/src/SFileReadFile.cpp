@@ -100,7 +100,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
         // If the file is compressed, also allocate secondary buffer
         pbInSector = pbRawSector = STORM_ALLOC(BYTE, dwRawBytesToRead);
         if (pbRawSector == NULL)
+#ifdef FULL
             return ERROR_NOT_ENOUGH_MEMORY;
+#else
+            return ERROR_SUCCESS + 1;
+#endif
     }
 
     // Calculate raw file offset where the sector(s) are stored.
@@ -193,7 +197,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
 
                 // Did the decompression fail ?
                 if (nResult == 0) {
+#ifdef FULL
                     dwErrCode = ERROR_FILE_CORRUPT;
+#else
+                    dwErrCode = ERROR_SUCCESS + 1;
+#endif
                     break;
                 }
             } else {
@@ -210,7 +218,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             dwSectorsDone++;
         }
     } else {
+#ifdef FULL
         dwErrCode = GetLastError();
+#else
+        dwErrCode = ERROR_SUCCESS + 1;
+#endif
     }
 
     // Free all used buffers
@@ -738,11 +750,15 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     // If the read operation succeeded, but not full number of bytes was read,
     // set the last error to ERROR_HANDLE_EOF
     if (dwErrCode == ERROR_SUCCESS && (dwBytesRead < dwToRead))
+#ifdef FULL
         dwErrCode = ERROR_HANDLE_EOF;
 
     // If something failed, set the last error value
     if (dwErrCode != ERROR_SUCCESS)
         SetLastError(dwErrCode);
+#else
+        dwErrCode = ERROR_SUCCESS + 1;
+#endif
     return (dwErrCode == ERROR_SUCCESS);
 }
 

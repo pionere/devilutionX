@@ -1044,11 +1044,16 @@ void * LoadMpqTable(
             {
                 dwErrCode = ERROR_FILE_CORRUPT;
             }
-#endif // FULL
         }
         else
         {
             dwErrCode = GetLastError();
+#else
+        }
+        else
+        {
+            dwErrCode = ERROR_SUCCESS + 1;
+#endif // FULL
         }
 
         if(dwErrCode == ERROR_SUCCESS)
@@ -1142,7 +1147,11 @@ DWORD AllocateSectorBuffer(TMPQFile * hf)
     hf->dwSectorOffs = SFILE_INVALID_POS;
 
     // Return result
+#ifdef FULL
     return (hf->pbFileSector != NULL) ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
+#else
+    return (hf->pbFileSector != NULL) ? ERROR_SUCCESS : (ERROR_SUCCESS + 1);
+#endif
 }
 #ifdef FULL
 // Allocates sector offset table
@@ -1260,10 +1269,13 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
         // Allocate the sector offset table
         hf->SectorOffsets = STORM_ALLOC(DWORD, (dwSectorOffsLen / sizeof(DWORD)));
         if(hf->SectorOffsets == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
 #ifdef FULL
+            return ERROR_NOT_ENOUGH_MEMORY;
+
         // Only read from the file if we are supposed to do so
         if(bLoadFromFile)
+#else
+            return ERROR_SUCCESS + 1;
 #endif
         {
             ULONGLONG RawFilePos = hf->RawFilePos;
@@ -1282,7 +1294,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                 // Free the sector offsets
                 STORM_FREE(hf->SectorOffsets);
                 hf->SectorOffsets = NULL;
+#ifdef FULL
                 return GetLastError();
+#else
+                return ERROR_SUCCESS + 1;
+#endif
             }
 
             // Swap the sector positions
@@ -1347,7 +1363,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             {
                 STORM_FREE(hf->SectorOffsets);
                 hf->SectorOffsets = NULL;
+#ifdef FULL
                 return ERROR_FILE_CORRUPT;
+#else
+                return ERROR_SUCCESS + 1;
+#endif
             }
 
             //
@@ -1364,7 +1384,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             {
                 // MPQ protectors put some ridiculous values there. We must limit the extra bytes
                 if(hf->SectorOffsets[0] > (dwSectorOffsLen + 0x400))
+#ifdef FULL
                     return ERROR_FILE_CORRUPT;
+#else
+                    return ERROR_SUCCESS + 1;
+#endif
 
                 // Free the old sector offset table
                 dwSectorOffsLen = hf->SectorOffsets[0];

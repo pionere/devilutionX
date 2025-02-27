@@ -88,7 +88,9 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
             return true;
         } else {
             FileStream_Close(pStream);
+#ifdef FULL
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+#endif
         }
     }
     *PtrFile = NULL;
@@ -392,10 +394,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     // Give the file entry
     if (PtrFile != NULL)
         PtrFile[0] = hf;
-
+#ifdef FULL
     // Return error code
     if (dwErrCode != ERROR_SUCCESS)
         SetLastError(dwErrCode);
+#endif
     return (dwErrCode == ERROR_SUCCESS);
 }
 

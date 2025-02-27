@@ -270,18 +270,25 @@ HANDLE WINAPI SFileOpenArchive(
     {
 #ifdef FULL
         FileStream_GetSize(pStream, &FileSize);
-#else
-        FileSize = FileStream_GetSize(pStream);
-#endif
         if(FileSize < MPQ_HEADER_SIZE_V1)
             dwErrCode = ERROR_BAD_FORMAT;
+#else
+        FileSize = FileStream_GetSize(pStream);
+        if(FileSize < MPQ_HEADER_SIZE_V1)
+            dwErrCode = ERROR_SUCCESS + 1;
+#endif
     }
 
     // Allocate the MPQhandle
     if(dwErrCode == ERROR_SUCCESS)
     {
         if((ha = STORM_ALLOC(TMPQArchive, 1)) == NULL)
+#ifdef FULL
+
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+#else
+            dwErrCode = ERROR_SUCCESS + 1;
+#endif
     }
 #ifdef FULL
     // Allocate buffer for searching MPQ header
@@ -398,7 +405,7 @@ HANDLE WINAPI SFileOpenArchive(
 #else
                 if(!FileStream_Read(ha->pStream, &ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
                 {
-                    dwErrCode = GetLastError();
+                    dwErrCode = ERROR_SUCCESS + 1;
                 } else {
                     dwErrCode = ConvertMpqHeaderToFormat4(ha);
 #endif // FULL
@@ -451,10 +458,11 @@ HANDLE WINAPI SFileOpenArchive(
             // Sector size must be nonzero.
 #ifdef FULL
             if(ByteOffset >= FileSize || ha->pHeader->wSectorSize == 0)
+                dwErrCode = ERROR_BAD_FORMAT;
 #else
             if(ha->pHeader.wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
+                dwErrCode = ERROR_SUCCESS + 1;
 #endif
-                dwErrCode = ERROR_BAD_FORMAT;
         }
 #ifndef FULL
     } else {
@@ -579,7 +587,9 @@ HANDLE WINAPI SFileOpenArchive(
         FileStream_Close(pStream);
 #endif
         FreeArchiveHandle(ha);
+#ifdef FULL
         SetLastError(dwErrCode);
+#endif
         ha = NULL;
     }
 #ifdef FULL
