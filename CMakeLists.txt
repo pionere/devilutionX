@@ -775,14 +775,12 @@ endif()
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
   add_custom_command(
     TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
     COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 
   if(DEVIL_PATCHER)
     add_custom_command(
       TARGET ${DEVIL_PATCHER} POST_BUILD
-      DEPENDS ${DEVIL_PATCHER}
       COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
       ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
   endif()
