@@ -81,9 +81,16 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
     pStream = FileStream_OpenFile(szFileNameT, STREAM_FLAG_READ_ONLY);
     if (pStream != NULL) {
         // Allocate and initialize file handle
+#ifdef FULL
         hf = CreateFileHandle(NULL, NULL);
+#else
+        hf = STORM_ALLOC(TMPQFile, 1);
+#endif
         if (hf != NULL) {
             hf->pStream = pStream;
+#ifndef FULL
+            hf->pFileEntry = NULL;
+#endif
             *PtrFile = hf;
             return true;
         } else {
@@ -356,7 +363,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     // Did the caller just wanted to know if the file exists?
     if(dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
         // Allocate file handle
+#ifdef FULL
         hf = CreateFileHandle(ha, pFileEntry);
+#else
+        hf = STORM_ALLOC(TMPQFile, 1);
+#endif
         if(hf != NULL) {
 #ifdef FULL
             // Get the hash index for the file
@@ -365,6 +376,10 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             if(dwHashIndex != HASH_ENTRY_FREE)
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
             hf->dwHashIndex = dwHashIndex;
+#else
+            hf->ha = ha;
+            hf->pFileEntry = pFileEntry;
+            hf->SectorOffsets = NULL;
 #endif
 #ifdef FULL_CRC
             // If the MPQ has sector CRC enabled, enable if for the file

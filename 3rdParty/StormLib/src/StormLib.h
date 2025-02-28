@@ -893,32 +893,25 @@ typedef struct _TMPQArchive
     void         * pvCompactUserData;           // User data thats passed to the callback
 #endif
 } TMPQArchive;
-
+#ifdef FULL
 // File handle structure
 typedef struct _TMPQFile
 {
     TFileStream  * pStream;                     // File stream. Only used on local files
     TMPQArchive  * ha;                          // Archive handle
-#ifdef FULL
     TMPQHash     * pHashEntry;                  // Pointer to hash table entry, if the file was open using hash table
-#endif
     TFileEntry   * pFileEntry;                  // File entry for the file
-#ifdef FULL
     ULONGLONG      RawFilePos;                  // Offset in MPQ archive (relative to file begin)
     ULONGLONG      MpqFilePos;                  // Offset in MPQ archive (relative to MPQ header)
     DWORD          dwHashIndex;                 // Hash table index (0xFFFFFFFF if not used)
-#endif
     DWORD          dwFileKey;                   // Decryption key
-#ifdef FULL
     DWORD          dwFilePos;                   // Current file position
     DWORD          dwMagic;                     // 'FILE'
 
     struct _TMPQFile * hfPatch;                 // Pointer to opened patch file
 
     TPatchInfo   * pPatchInfo;                  // Patch info block, preceding the sector table
-#endif
     LPDWORD        SectorOffsets;               // Position of each file sector, relative to the begin of the file. Only for compressed files.
-#ifdef FULL
     LPDWORD        SectorChksums;               // Array of sector checksums (either ADLER32 or MD5) values for each file sector
     LPBYTE         pbFileData;                  // Data of the file (single unit files, patched files)
     DWORD          cbFileData;                  // Size of file data
@@ -937,9 +930,21 @@ typedef struct _TMPQFile
     bool           bLoadedSectorCRCs;           // If true, we already tried to load sector CRCs
     bool           bCheckSectorCRCs;            // If true, then SFileReadFile will check sector CRCs when reading the file
     bool           bIsWriteHandle;              // If true, this handle has been created by SFileCreateFile
-#endif
 } TMPQFile;
-
+#else
+typedef struct _TMPQFile
+{
+    TFileEntry   * pFileEntry;                  // File entry for the file. NULL in case of local files
+    union {
+        TFileStream  * pStream;                 // File stream. Only used on local files
+        struct {
+            TMPQArchive  * ha;                  // Archive handle
+            LPDWORD        SectorOffsets;       // Position of each file sector, relative to the begin of the file. Only for compressed files.
+            DWORD          dwFileKey;           // Decryption key
+        };
+    };
+} TMPQFile;
+#endif
 // Structure for SFileFindFirstFile and SFileFindNextFile
 typedef struct _SFILE_FIND_DATA
 {

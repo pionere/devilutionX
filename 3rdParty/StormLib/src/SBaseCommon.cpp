@@ -837,7 +837,7 @@ TMPQHash * AllocateHashEntry(
 
     return pHash;
 }
-#endif
+
 // Finds a free space in the MPQ where to store next data
 // The free space begins beyond the file that is stored at the fuhrtest
 // position in the MPQ. (listfile), (attributes) and (signature) are ignored,
@@ -893,9 +893,7 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
     {
         // Fill the file structure
         memset(hf, 0, sizeof(TMPQFile));
-#ifdef FULL
         hf->dwMagic = ID_MPQ_FILE;
-#endif
         hf->pStream = NULL;
         hf->ha = ha;
 
@@ -903,20 +901,18 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
         if(ha != NULL && pFileEntry != NULL)
         {
             // Set the raw position and MPQ position
-#ifdef FULL
             hf->RawFilePos = FileOffsetFromMpqOffset(ha, pFileEntry->ByteOffset);
             hf->MpqFilePos = pFileEntry->ByteOffset;
 
             // Set the data size
             hf->dwDataSize = pFileEntry->dwFileSize;
-#endif
             hf->pFileEntry = pFileEntry;
         }
     }
 
     return hf;
 }
-
+#endif
 /*TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize)
 {
     ULONGLONG FreeMpqSpace;
@@ -1738,10 +1734,8 @@ void FreeFileHandle(TMPQFile *& hf)
             STORM_FREE(hf->pbFileData);
         if(hf->pPatchInfo != NULL)
             STORM_FREE(hf->pPatchInfo);
-#endif
         if(hf->SectorOffsets != NULL)
             STORM_FREE(hf->SectorOffsets);
-#ifdef FULL
         if(hf->SectorChksums != NULL)
             STORM_FREE(hf->SectorChksums);
         if(hf->hctx != NULL)
@@ -1749,8 +1743,15 @@ void FreeFileHandle(TMPQFile *& hf)
         if(hf->pbFileSector != NULL)
             STORM_FREE(hf->pbFileSector);
         if(hf->pStream != NULL)
-#endif
             FileStream_Close(hf->pStream);
+#else
+        if(hf->pFileEntry == NULL)
+            // local file
+            FileStream_Close(hf->pStream);
+        else if(hf->SectorOffsets != NULL)
+            // archive file
+            STORM_FREE(hf->SectorOffsets);
+#endif
         STORM_FREE(hf);
         hf = NULL;
     }

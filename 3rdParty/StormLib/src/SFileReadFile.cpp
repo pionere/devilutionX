@@ -747,10 +747,9 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
 
     // Clear the last used compression
     hf->dwCompression0 = 0;
-#endif
+
     // If the file is local file, read the data directly from the stream
     if (hf->pStream != NULL) {
-#ifdef FULL
         dwErrCode = ReadMpqFileLocalFile(hf, pvBuffer, dwToRead, &dwBytesRead);
     // If the file is a patch file, we have to read it special way
     } else if (hf->hfPatch != NULL
@@ -763,6 +762,8 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     } else if(hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) {
         dwErrCode = ReadMpqFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
 #else
+    // If the file is local file, read the data directly from the stream
+    if (hf->pFileEntry == NULL) {
         dwErrCode = ReadMpqFileLocalFile(hf, pvBuffer, dwToRead);
 #endif
     // Otherwise read it as sector based MPQ file
@@ -824,10 +825,11 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
         } else {
 #endif // FULL
             // Is it a local file ?
-            if (hf->pStream != NULL) {
 #ifdef FULL
+            if (hf->pStream != NULL) {
                 FileStream_GetSize(hf->pStream, &FileSize);
 #else
+            if (hf->pFileEntry == NULL) {
                 FileSize = (DWORD)FileStream_GetSize(hf->pStream);
 #endif
             } else {

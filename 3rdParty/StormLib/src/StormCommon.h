@@ -340,16 +340,14 @@ DWORD ConvertMpkHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFl
 void DecryptMpkTable(void * pvMpkTable, size_t cbSize);
 TMPQHash * LoadMpkHashTable(TMPQArchive * ha);
 TMPQBlock * LoadMpkBlockTable(TMPQArchive * ha);
-#ifdef FULL
+
 int SCompDecompressMpk(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
-#endif // FULL
-#endif // FULL
+
 //-----------------------------------------------------------------------------
 // Common functions - MPQ File
 
 TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 //TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
-#ifdef FULL
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
 #else
 void * LoadMpqTable(TMPQArchive * ha, FILESIZE_T ByteOffset, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
