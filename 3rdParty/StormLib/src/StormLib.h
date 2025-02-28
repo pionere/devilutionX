@@ -919,9 +919,7 @@ typedef struct _TMPQFile
     LPBYTE         pbFileData;                  // Data of the file (single unit files, patched files)
     DWORD          cbFileData;                  // Size of file data
     DWORD          dwCompression0;              // Compression that will be used on the first file sector
-#endif
     DWORD          dwSectorCount;               // Number of sectors in the file
-#ifdef FULL
     DWORD          dwPatchedFileSize;           // Size of patched file. Used when saving patch file to the MPQ
 #endif
     DWORD          dwDataSize;                  // Size of data in the file (on patch files, this differs from file size in block table entry)

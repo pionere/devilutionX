@@ -1231,6 +1231,9 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     TFileEntry * pFileEntry = hf->pFileEntry;
     DWORD dwSectorOffsLen;
     bool bSectorOffsetTableCorrupt = false;
+#ifndef FULL
+    DWORD dwSectorCount;
+#endif
 
     // Caller of AllocateSectorOffsets must ensure these
     assert(hf->SectorOffsets == NULL);
@@ -1247,11 +1250,13 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     // Calculate the number of data sectors
     // Note that this doesn't work if the file size is zero
     hf->dwSectorCount = ((hf->dwDataSize - 1) / hf->dwSectorSize) + 1;
-#else
-    hf->dwSectorCount = ((hf->dwDataSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
-#endif
     // Calculate the number of file sectors
     dwSectorOffsLen = (hf->dwSectorCount + 1) * sizeof(DWORD);
+#else
+    dwSectorCount = ((hf->dwDataSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+    // Calculate the number of file sectors
+    dwSectorOffsLen = (dwSectorCount + 1) * sizeof(DWORD);
+#endif
 #ifdef FULL
     // If MPQ_FILE_SECTOR_CRC flag is set, there will either be extra DWORD
     // or an array of MD5's. Either way, we read at least 4 bytes more
@@ -1330,8 +1335,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             // Note: Some MPQ protectors put the actual file data before the sector offset table.
             // In this case, the sector offsets are negative (> 0x80000000).
             //
-
+#ifdef FULL
             for(DWORD i = 0; i < hf->dwSectorCount; i++)
+#else
+            for(DWORD i = 0; i < dwSectorCount; i++)
+#endif
             {
                 DWORD dwSectorOffset1 = hf->SectorOffsets[i+1];
                 DWORD dwSectorOffset0 = hf->SectorOffsets[i];
