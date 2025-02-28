@@ -13,7 +13,7 @@
 
 //-----------------------------------------------------------------------------
 // Function prototypes
-
+#ifdef FULL
 typedef void (*STREAM_INIT)(
     struct TFileStream * pStream        // Pointer to an unopened stream
 );
@@ -118,7 +118,7 @@ typedef struct _FILE_BITMAP_FOOTER
     DWORD BlockSize;                      // Size of one block (usually 0x4000 bytes)
 
 } FILE_BITMAP_FOOTER, *PFILE_BITMAP_FOOTER;
-
+#endif
 //-----------------------------------------------------------------------------
 // Structure for file stream
 

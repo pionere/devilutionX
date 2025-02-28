@@ -382,7 +382,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                                                    pFileEntry->dwFileSize,
                                                    pFileEntry->dwFlags);
 #else
-                    hf->dwFileKey = DecryptFileKey(szFileName, pFileEntry);
+                    hf->dwFileKey = DecryptFileKey(szFileName);
 #endif
                 }
             }

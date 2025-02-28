@@ -56,19 +56,18 @@
 
 // For HashStringJenkins
 #include "jenkins/lookup.h"
-#endif // FULL
 
 //-----------------------------------------------------------------------------
 // StormLib private defines
 
 #define ID_MPQ_FILE            0x46494c45     // Used internally for checking TMPQFile ('FILE')
-
+#endif // FULL
 // Prevent problems with CRT "min" and "max" functions,
 // as they are not defined on all platforms
 #define STORMLIB_MIN(a, b) ((a < b) ? a : b)
 #define STORMLIB_MAX(a, b) ((a > b) ? a : b)
 #define STORMLIB_UNUSED(p) ((void)(p))
-
+#ifdef FULL
 // Check for masked flags
 #define STORMLIB_TEST_FLAGS(dwFlags, dwMask, dwValue)  ((dwFlags & (dwMask)) == (dwValue))
 
@@ -115,7 +114,7 @@ typedef struct _MPQ_SIGNATURE_INFO
     DWORD SignatureTypes;                       // See SIGNATURE_TYPE_XXX
 
 } MPQ_SIGNATURE_INFO, *PMPQ_SIGNATURE_INFO;
-
+#endif // FULL
 //-----------------------------------------------------------------------------
 // Memory management
 //
@@ -248,7 +247,7 @@ bool IsValidSignature(LPBYTE pbSignature);
 bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5);
 void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
 #else
-DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable);
+DWORD DecryptFileKey(const char * szFileName);
 #endif // FULL
 
 //-----------------------------------------------------------------------------

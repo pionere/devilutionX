@@ -615,7 +615,7 @@ DWORD DecryptFileKey(
     DWORD dwFileSize,
     DWORD dwFlags)
 #else
-DWORD DecryptFileKey(const char * szFileName, const TFileEntry * pFileTable)
+DWORD DecryptFileKey(const char * szFileName)
 #endif // FULL
 {
     DWORD dwFileKey;

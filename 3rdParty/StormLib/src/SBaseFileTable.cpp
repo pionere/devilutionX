@@ -1020,7 +1020,9 @@ static DWORD BuildFileTableFromBlockTable(
 
             // Fill the rest of the file entry
             pFileEntry->dwFileSize = pBlock->dwFSize;
+#ifdef FULL
             pFileEntry->dwCmpSize  = pBlock->dwCSize;
+#endif
         }
     }
 #ifdef FULL

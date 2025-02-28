@@ -309,11 +309,14 @@ HANDLE WINAPI SFileOpenArchive(
         DWORD dwHeaderSize;
         DWORD dwHeaderID;
         bool bSearchComplete = false;
-#endif
+
         memset(ha, 0, sizeof(TMPQArchive));
-#ifdef FULL
+
         ha->dwValidFileFlags = MPQ_FILE_VALID_FLAGS;
         ha->pfnHashString = HashStringSlash;
+#else
+        ha->pFileTable = NULL;
+        ha->pHashTable = NULL;
 #endif
         ha->pStream = pStream;
 #ifdef FULL

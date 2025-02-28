@@ -208,12 +208,16 @@ static bool BaseFile_Read(
 #ifdef FULL
     ULONGLONG * pByteOffset,                // Pointer to file byte offset. If NULL, it reads from the current position
 #else
-    const ULONGLONG * pByteOffset,          // Pointer to file byte offset. If NULL, it reads from the current position
+    const ULONGLONG * pByteOffset,          // Pointer to file byte offset
 #endif
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
 {
+#ifdef FULL
     ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
+#else
+    ULONGLONG ByteOffset = *pByteOffset;
+#endif
     DWORD dwBytesRead = 0;                  // Must be set by platform-specific code
 
 #ifdef STORMLIB_WINDOWS
@@ -1177,7 +1181,7 @@ static TFileStream * AllocateFileStream(
 #else
 static TFileStream * AllocateFileStream()
 {
-    return (TFileStream *)STORM_CALLOC(BYTE, sizeof(TFileStream));
+    return (TFileStream *)STORM_ALLOC(BYTE, sizeof(TFileStream));
 }
 #endif
 //-----------------------------------------------------------------------------
@@ -1478,10 +1482,10 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 {
 #ifdef FULL
     TBlockStream * pStream;
+    ULONGLONG ByteOffset = 0;
 #else
     TFileStream * pStream;
 #endif
-    ULONGLONG ByteOffset = 0;
 
     // Create new empty stream
 #ifdef FULL
@@ -1520,7 +1524,7 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
         // Attempt to open the base stream
         if(!BaseFile_Open(pStream, szFileName, dwStreamFlags))
         {
-            FileStream_Close(pStream);
+            STORM_FREE(pStream);
             return NULL;
         }
     }

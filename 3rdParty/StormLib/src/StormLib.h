@@ -487,11 +487,11 @@ typedef enum _SFileInfoClass
 #define CCB_COPYING_NON_MPQ_DATA            3   // Copying non-MPQ data: No params used
 #define CCB_COMPACTING_FILES                4   // Compacting archive (dwParam1 = current, dwParam2 = total)
 #define CCB_CLOSING_ARCHIVE                 5   // Closing archive: No params used
-
+#ifdef FULL
 typedef void (WINAPI * SFILE_DOWNLOAD_CALLBACK)(void * pvUserData, ULONGLONG ByteOffset, DWORD dwTotalBytes);
 typedef void (WINAPI * SFILE_ADDFILE_CALLBACK)(void * pvUserData, DWORD dwBytesWritten, DWORD dwTotalBytes, bool bFinalCall);
 typedef void (WINAPI * SFILE_COMPACT_CALLBACK)(void * pvUserData, DWORD dwWorkType, ULONGLONG BytesProcessed, ULONGLONG TotalBytes);
-
+#endif
 typedef struct TFileStream TFileStream;
 typedef struct TMPQBits TMPQBits;
 
@@ -707,15 +707,17 @@ typedef struct _TFileEntry
     ULONGLONG FileTime;                         // FileTime from the (attributes) file. 0 if not present.
 #endif
     DWORD     dwFileSize;                       // Decompressed size of the file
+#ifdef FULL
     DWORD     dwCmpSize;                        // Compressed size of the file (i.e., size of the file data in the MPQ)
+#endif
     DWORD     dwFlags;                          // File flags (from block table)
+#ifdef FULL
     DWORD     dwCrc32;                          // CRC32 from (attributes) file. 0 if not present.
     BYTE      md5[MD5_DIGEST_SIZE];             // File MD5 from the (attributes) file. 0 if not present.
-#ifdef FULL
     char * szFileName;                          // File name. NULL if not known.
 #endif
 } TFileEntry;
-
+#ifdef FULL
 // Common header for HET and BET tables
 typedef struct _TMPQExtHeader
 {
@@ -831,7 +833,7 @@ typedef struct _TMPQNameCache
     // Followed by name cache (ANSI multistring)
 
 } TMPQNameCache;
-
+#endif
 // Archive handle structure
 typedef struct _TMPQArchive
 {
@@ -983,7 +985,7 @@ typedef struct _SFILE_MARKERS
 // TMPQBits support - functions
 #ifdef FULL
 void GetMPQBits(TMPQBits * pBits, unsigned int nBitPosition, unsigned int nBitLength, void * pvBuffer, int nResultByteSize);
-#endif
+
 //-----------------------------------------------------------------------------
 // Stream support - functions
 
@@ -998,7 +1000,7 @@ struct TStreamBitmap
 
     // Followed by the BYTE array, each bit means availability of one block
 };
-
+#endif
 // UNICODE versions of the file access functions
 //TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
 TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
