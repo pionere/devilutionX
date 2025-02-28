@@ -921,9 +921,7 @@ typedef struct _TMPQFile
     DWORD          dwCompression0;              // Compression that will be used on the first file sector
     DWORD          dwSectorCount;               // Number of sectors in the file
     DWORD          dwPatchedFileSize;           // Size of patched file. Used when saving patch file to the MPQ
-#endif
     DWORD          dwDataSize;                  // Size of data in the file (on patch files, this differs from file size in block table entry)
-#ifdef FULL
     LPBYTE         pbFileSector;                // Last loaded file sector. For single unit files, entire file content
     DWORD          dwSectorOffs;                // File position of currently loaded file sector
     DWORD          dwSectorSize;                // Size of the file sector. For single unit files, this is equal to the file size

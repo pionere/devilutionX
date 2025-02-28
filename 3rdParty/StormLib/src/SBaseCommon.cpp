@@ -906,10 +906,10 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
 #ifdef FULL
             hf->RawFilePos = FileOffsetFromMpqOffset(ha, pFileEntry->ByteOffset);
             hf->MpqFilePos = pFileEntry->ByteOffset;
-#endif
 
             // Set the data size
             hf->dwDataSize = pFileEntry->dwFileSize;
+#endif
             hf->pFileEntry = pFileEntry;
         }
     }
@@ -1238,7 +1238,9 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     // Caller of AllocateSectorOffsets must ensure these
     assert(hf->SectorOffsets == NULL);
     assert(hf->pFileEntry != NULL);
+#ifdef FULL
     assert(hf->dwDataSize != 0);
+#endif
     assert(hf->ha != NULL);
 #ifdef FULL
     // If the file is stored as single unit, just set number of sectors to 1
@@ -1253,7 +1255,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     // Calculate the number of file sectors
     dwSectorOffsLen = (hf->dwSectorCount + 1) * sizeof(DWORD);
 #else
-    dwSectorCount = ((hf->dwDataSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+    dwSectorCount = ((pFileEntry->dwFileSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
     // Calculate the number of file sectors
     dwSectorOffsLen = (dwSectorCount + 1) * sizeof(DWORD);
 #endif

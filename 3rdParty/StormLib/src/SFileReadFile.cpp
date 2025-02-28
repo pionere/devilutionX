@@ -53,8 +53,13 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     // Note that files stored in single units are processed by a separate function
 
     // If there is not enough bytes remaining, cut dwBytesToRead
+#ifdef FULL
     if ((dwByteOffset + dwBytesToRead) > hf->dwDataSize)
         dwBytesToRead = hf->dwDataSize - dwByteOffset;
+#else
+    if ((dwByteOffset + dwBytesToRead) > pFileEntry->dwFileSize)
+        dwBytesToRead = pFileEntry->dwFileSize - dwByteOffset;
+#endif
     dwRawBytesToRead = dwBytesToRead;
 
     // Perform all necessary work to do with compressed files
@@ -820,7 +825,11 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
                 FileSize = (DWORD)FileStream_GetSize(hf->pStream);
 #endif
             } else {
+#ifdef FULL
                 FileSize = hf->dwDataSize;
+#else
+                FileSize = hf->pFileEntry->dwFileSize;
+#endif
             }
         }
 #ifdef FULL
