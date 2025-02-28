@@ -491,6 +491,8 @@ typedef enum _SFileInfoClass
 typedef void (WINAPI * SFILE_DOWNLOAD_CALLBACK)(void * pvUserData, ULONGLONG ByteOffset, DWORD dwTotalBytes);
 typedef void (WINAPI * SFILE_ADDFILE_CALLBACK)(void * pvUserData, DWORD dwBytesWritten, DWORD dwTotalBytes, bool bFinalCall);
 typedef void (WINAPI * SFILE_COMPACT_CALLBACK)(void * pvUserData, DWORD dwWorkType, ULONGLONG BytesProcessed, ULONGLONG TotalBytes);
+#else
+typedef DWORD FILESIZE_T;
 #endif
 typedef struct TFileStream TFileStream;
 typedef struct TMPQBits TMPQBits;
@@ -701,10 +703,10 @@ typedef struct _TFileEntry
 {
 #ifdef FULL
     ULONGLONG FileNameHash;                     // Jenkins hash of the file name. Only used when the MPQ has BET table.
-#endif
     ULONGLONG ByteOffset;                       // Position of the file content in the MPQ, relative to the MPQ header
-#ifdef FULL
     ULONGLONG FileTime;                         // FileTime from the (attributes) file. 0 if not present.
+#else
+    FILESIZE_T ByteOffset;                      // Position of the file content in the MPQ, relative to the MPQ header
 #endif
     DWORD     dwFileSize;                       // Decompressed size of the file
 #ifdef FULL
@@ -1009,7 +1011,7 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #else
-bool FileStream_Read(TFileStream * pStream, const ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+bool FileStream_Read(TFileStream * pStream, const FILESIZE_T * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #endif
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
@@ -1017,8 +1019,8 @@ bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize);
 bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize);
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset);
 #else
-ULONGLONG FileStream_GetSize(const TFileStream * pStream);
-ULONGLONG FileStream_GetPos(const TFileStream * pStream);
+FILESIZE_T FileStream_GetSize(const TFileStream * pStream);
+FILESIZE_T FileStream_GetPos(const TFileStream * pStream);
 #endif
 //bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFT);
 #ifdef fULL

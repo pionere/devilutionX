@@ -28,7 +28,11 @@ int WINAPI SCompDecompressX(TMPQArchive * ha, void * pvOutBuffer, int * pcbOutBu
 //  pdwBytesRead  - Stored number of bytes loaded
 static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
 {
+#ifdef FULL
     ULONGLONG RawFilePos;
+#else
+    FILESIZE_T RawFilePos;
+#endif
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
     LPBYTE pbRawSector = NULL;
@@ -661,9 +665,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
 static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
 #endif // FULL
 {
-    ULONGLONG FilePosition1;
 #ifdef FULL
+    ULONGLONG FilePosition1;
     ULONGLONG FilePosition2;
+#else
+    FILESIZE_T FilePosition1;
 #endif
     DWORD dwBytesRead = 0;
     DWORD dwErrCode = ERROR_SUCCESS;

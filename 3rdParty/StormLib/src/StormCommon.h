@@ -260,16 +260,16 @@ TMPQFile * IsValidFileHandle(HANDLE hFile);
 // Support for MPQ file tables
 #ifdef FULL
 ULONGLONG FileOffsetFromMpqOffset(TMPQArchive * ha, ULONGLONG MpqOffset);
-#else
-ULONGLONG FileOffsetFromMpqOffset(ULONGLONG MpqOffset);
-#endif
 ULONGLONG CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
-#ifndef FULL
+DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
+#else
+FILESIZE_T FileOffsetFromMpqOffset(FILESIZE_T MpqOffset);
+FILESIZE_T CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
 DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha);
+#endif
+#ifndef FULL
 int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
 #else
-DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
-
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
 
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
@@ -352,7 +352,7 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 #ifdef FULL
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
 #else
-void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
+void * LoadMpqTable(TMPQArchive * ha, FILESIZE_T ByteOffset, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
 #endif
 #ifdef FULL
 DWORD  AllocateSectorBuffer(TMPQFile * hf);

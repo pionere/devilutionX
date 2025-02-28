@@ -958,10 +958,12 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
 // Can be used for hash table, block table, sector offset table or sector checksum table
 void * LoadMpqTable(
     TMPQArchive * ha,
-    ULONGLONG ByteOffset,
 #ifdef FULL_COMP
+    ULONGLONG ByteOffset,
     LPBYTE pbTableHash,
     DWORD dwCompressedSize,
+#else
+    FILESIZE_T ByteOffset,
 #endif
     DWORD dwTableSize,
     DWORD dwKey,
@@ -1293,7 +1295,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                 RawFilePos += hf->pPatchInfo->dwLength;
             }
 #else
-            ULONGLONG RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
+            FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
 #endif
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->SectorOffsets, dwSectorOffsLen))

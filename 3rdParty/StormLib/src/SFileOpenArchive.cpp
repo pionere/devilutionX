@@ -101,12 +101,19 @@ static TMPQUserData * IsValidMpqUserData(ULONGLONG ByteOffset, ULONGLONG FileSiz
 
     return NULL;
 }
-#endif
+
 // This function gets the right positions of the hash table and the block table.
 static DWORD VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
+#else
+static DWORD VerifyMpqTablePositions(TMPQArchive * ha, FILESIZE_T FileSize)
+#endif
 {
     TMPQHeader * pHeader = &ha->pHeader;
+#ifdef FULL
     ULONGLONG ByteOffset;
+#else
+    FILESIZE_T ByteOffset;
+#endif
     //bool bMalformed = (ha->dwFlags & MPQ_FLAG_MALFORMED) ? true : false;
 #ifdef FULL
     // Check the begin of HET table
@@ -236,13 +243,12 @@ HANDLE WINAPI SFileOpenArchive(
     TMPQArchive * ha = NULL;            // Archive handle
 #ifdef FULL
     TFileEntry * pFileEntry;
-#endif
     ULONGLONG FileSize = 0;             // Size of the file
-#ifdef FULL
     LPBYTE pbHeaderBuffer = NULL;       // Buffer for searching MPQ header
     DWORD dwStreamFlags = (dwFlags & STREAM_FLAGS_MASK);
     MTYPE MapType = MapTypeNotChecked;
 #else
+    FILESIZE_T FileSize = 0;            // Size of the file
     DWORD dwStreamFlags = dwFlags;
 #endif
     DWORD dwErrCode = ERROR_SUCCESS;
@@ -284,7 +290,6 @@ HANDLE WINAPI SFileOpenArchive(
     {
         if((ha = STORM_ALLOC(TMPQArchive, 1)) == NULL)
 #ifdef FULL
-
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
 #else
             dwErrCode = ERROR_SUCCESS + 1;
@@ -302,8 +307,8 @@ HANDLE WINAPI SFileOpenArchive(
     // Find the position of MPQ header
     if(dwErrCode == ERROR_SUCCESS)
     {
-        ULONGLONG ByteOffset = 0;
 #ifdef FULL
+        ULONGLONG ByteOffset = 0;
         ULONGLONG EndOfSearch = FileSize;
         DWORD dwStrmFlags = 0;
         DWORD dwHeaderSize;
@@ -315,6 +320,7 @@ HANDLE WINAPI SFileOpenArchive(
         ha->dwValidFileFlags = MPQ_FILE_VALID_FLAGS;
         ha->pfnHashString = HashStringSlash;
 #else
+        FILESIZE_T ByteOffset = 0;
         ha->pFileTable = NULL;
         ha->pHashTable = NULL;
 #endif

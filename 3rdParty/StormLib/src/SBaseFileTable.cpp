@@ -397,19 +397,25 @@ ULONGLONG FileOffsetFromMpqOffset(TMPQArchive * ha, ULONGLONG MpqOffset)
         return ha->MpqPos + MpqOffset;
     }
 }
-#else
-ULONGLONG FileOffsetFromMpqOffset(ULONGLONG MpqOffset)
-{
-    // For MPQ archive v1, any file offset is only 32-bit
-    return (ULONGLONG)((DWORD)0 + (DWORD)MpqOffset);
-}
-#endif
 ULONGLONG CalculateRawSectorOffset(
     TMPQFile * hf,
     DWORD dwSectorOffset)
+#else
+FILESIZE_T FileOffsetFromMpqOffset(FILESIZE_T MpqOffset)
 {
+    // For MPQ archive v1, any file offset is only 32-bit
+    return (FILESIZE_T)((DWORD)0 + (DWORD)MpqOffset);
+}
+FILESIZE_T CalculateRawSectorOffset(
+    TMPQFile * hf,
+    DWORD dwSectorOffset)
+#endif
+{
+#ifdef FULL
     ULONGLONG RawFilePos;
-
+#else
+    FILESIZE_T RawFilePos;
+#endif
     // Must be used for files within a MPQ
     assert(hf->ha != NULL);
 #ifdef FULL
@@ -2367,7 +2373,11 @@ DWORD CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize)
 static TMPQHash * LoadHashTable(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = &ha->pHeader;
+#ifdef FULL
     ULONGLONG ByteOffset;
+#else
+    FILESIZE_T ByteOffset;
+#endif
     TMPQHash * pHashTable = NULL;
     DWORD dwTableSize;
 #ifdef FULL
@@ -2449,7 +2459,11 @@ static TMPQBlock * LoadBlockTable(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = &ha->pHeader;
     TMPQBlock * pBlockTable = NULL;
+#ifdef FULL
     ULONGLONG ByteOffset;
+#else
+    FILESIZE_T ByteOffset;
+#endif
     DWORD dwTableSize;
 #ifdef FULL
     DWORD dwCmpSize;

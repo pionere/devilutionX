@@ -152,8 +152,8 @@ union TBaseProviderData
 #else
     struct
     {
-        ULONGLONG FileSize;                 // Size of the file
-        ULONGLONG FilePos;                  // Current file position
+        FILESIZE_T FileSize;                // Size of the file
+        FILESIZE_T FilePos;                 // Current file position
         HANDLE hFile;                       // File handle
     } File;
 #endif // FULL

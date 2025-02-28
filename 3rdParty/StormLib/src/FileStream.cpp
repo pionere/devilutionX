@@ -153,13 +153,25 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                               NULL);
         if(pStream->Base.File.hFile == INVALID_HANDLE_VALUE)
             return false;
-
+#ifdef FULL
         // Query the file size
         FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
         pStream->Base.File.FileSize = FileSize.QuadPart;
-#ifdef FULL
+
         // Query last write time
         GetFileTime(pStream->Base.File.hFile, NULL, NULL, (LPFILETIME)&pStream->Base.File.FileTime);
+#else
+        // Query the file size
+        if (sizeof(FILESIZE_T) == sizeof(DWORD)) {
+            pStream->Base.File.FileSize = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
+            if (FileSize.HighPart != 0) {
+                CloseHandle(pStream->Base.File.hFile);
+                return false;
+            }
+        } else {
+            FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
+            pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
+        }
 #endif
     }
 #endif
@@ -192,8 +204,10 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         // 1 second = 10000000 (decimal) in FILETIME
         // Set the start to 1.1.1970 00:00:00
         pStream->Base.File.FileTime = 0x019DB1DED53E8000ULL + (10000000 * fileinfo.st_mtime);
-#endif // FULL
         pStream->Base.File.FileSize = (ULONGLONG)fileinfo.st_size;
+#else
+        pStream->Base.File.FileSize = (FILESIZE_T)fileinfo.st_size;
+#endif // FULL
         pStream->Base.File.hFile = (HANDLE)handle;
     }
 #endif
@@ -208,7 +222,7 @@ static bool BaseFile_Read(
 #ifdef FULL
     ULONGLONG * pByteOffset,                // Pointer to file byte offset. If NULL, it reads from the current position
 #else
-    const ULONGLONG * pByteOffset,          // Pointer to file byte offset
+    const FILESIZE_T * pByteOffset,          // Pointer to file byte offset
 #endif
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
@@ -216,7 +230,7 @@ static bool BaseFile_Read(
 #ifdef FULL
     ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
 #else
-    ULONGLONG ByteOffset = *pByteOffset;
+    FILESIZE_T ByteOffset = *pByteOffset;
 #endif
     DWORD dwBytesRead = 0;                  // Must be set by platform-specific code
 
@@ -234,8 +248,11 @@ static bool BaseFile_Read(
         if(dwBytesToRead != 0)
         {
             OVERLAPPED Overlapped;
-
+#ifdef FULL
             Overlapped.OffsetHigh = (DWORD)(ByteOffset >> 32);
+#else
+            Overlapped.OffsetHigh = (sizeof(FILESIZE_T) > sizeof(DWORD)) ? (ULONGLONG)ByteOffset >> 32 : 0;
+#endif
             Overlapped.Offset = (DWORD)ByteOffset;
             Overlapped.hEvent = NULL;
             if(!ReadFile(pStream->Base.File.hFile, pvBuffer, dwBytesToRead, &dwBytesRead, &Overlapped))
@@ -398,7 +415,7 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
 #endif
 #ifndef FULL
 // Gives the current file size
-static ULONGLONG BaseFile_GetSize(const TFileStream * pStream)
+static FILESIZE_T BaseFile_GetSize(const TFileStream * pStream)
 {
     // Note: Used by all thre base providers.
     // Requires the TBaseData union to have the same layout for all three base providers
@@ -406,7 +423,7 @@ static ULONGLONG BaseFile_GetSize(const TFileStream * pStream)
 }
 
 // Gives the current file position
-static ULONGLONG BaseFile_GetPos(const TFileStream * pStream)
+static FILESIZE_T BaseFile_GetPos(const TFileStream * pStream)
 {
     // Note: Used by all thre base providers.
     // Requires the TBaseData union to have the same layout for all three base providers
@@ -2822,7 +2839,7 @@ bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBu
     return pStream->StreamRead(pStream, pByteOffset, pvBuffer, dwBytesToRead);
 }
 #else
-bool FileStream_Read(TFileStream * pStream, const ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
+bool FileStream_Read(TFileStream * pStream, const FILESIZE_T * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
 {
     return BaseFile_Read(pStream, pByteOffset, pvBuffer, dwBytesToRead);
 }
@@ -2865,7 +2882,7 @@ bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
     return pStream->StreamGetSize(pStream, pFileSize);
 }
 #else
-ULONGLONG FileStream_GetSize(const TFileStream * pStream)
+FILESIZE_T FileStream_GetSize(const TFileStream * pStream)
 {
     return BaseFile_GetSize(pStream);
 }
@@ -2903,7 +2920,7 @@ bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
     return pStream->StreamGetPos(pStream, pByteOffset);
 }
 #else
-ULONGLONG FileStream_GetPos(const TFileStream * pStream)
+FILESIZE_T FileStream_GetPos(const TFileStream * pStream)
 {
     return BaseFile_GetPos(pStream);
 }
