@@ -15,7 +15,7 @@
 /*****************************************************************************/
 /* Local functions                                                           */
 /*****************************************************************************/
-
+#ifdef FULL
 static DWORD FindHashIndex(TMPQArchive * ha, DWORD dwFileIndex)
 {
     TMPQHash * pHashTableEnd;
@@ -40,7 +40,7 @@ static DWORD FindHashIndex(TMPQArchive * ha, DWORD dwFileIndex)
     // Return the hash table entry index
     return dwFirstIndex;
 }
-#ifdef FULL
+
 static const char * GetPatchFileName(TMPQArchive * ha, const char * szFileName, char * szBuffer)
 {
     TMPQNamePrefix * pPrefix;
@@ -240,8 +240,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     DWORD dwHashIndex = HASH_ENTRY_FREE;
     DWORD dwFileIndex = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
-    bool bOpenByIndex = false;
 #ifdef FULL
+    bool bOpenByIndex = false;
+
     // Don't accept NULL pointer to file handle
     if (szFileName == NULL || *szFileName == 0)
         dwErrCode = ERROR_INVALID_PARAMETER;
@@ -355,10 +356,12 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
         // Allocate file handle
         hf = CreateFileHandle(ha, pFileEntry);
         if(hf != NULL) {
+#ifdef FULL
             // Get the hash index for the file
             if(ha->pHashTable != NULL && dwHashIndex == HASH_ENTRY_FREE)
                 dwHashIndex = FindHashIndex(ha, dwFileIndex);
             if(dwHashIndex != HASH_ENTRY_FREE)
+#endif
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
 #ifdef FULL
             hf->dwHashIndex = dwHashIndex;
@@ -369,8 +372,8 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 hf->bCheckSectorCRCs = true;
 #endif
             // If we know the real file name, copy it to the file entry
-            if(bOpenByIndex == false) {
 #ifdef FULL
+            if(bOpenByIndex == false) {
                 // If there is no file name yet, allocate it
                 AllocateFileName(ha, pFileEntry, szFileName);
 #endif
@@ -381,10 +384,10 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                                                    pFileEntry->ByteOffset,
                                                    pFileEntry->dwFileSize,
                                                    pFileEntry->dwFlags);
+                }
 #else
                     hf->dwFileKey = DecryptFileKey(szFileName);
 #endif
-                }
             }
         } else {
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
