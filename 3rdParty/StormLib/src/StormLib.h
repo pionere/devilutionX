@@ -899,14 +899,14 @@ typedef struct _TMPQFile
     TMPQArchive  * ha;                          // Archive handle
     TMPQHash     * pHashEntry;                  // Pointer to hash table entry, if the file was open using hash table
     TFileEntry   * pFileEntry;                  // File entry for the file
-    ULONGLONG      RawFilePos;                  // Offset in MPQ archive (relative to file begin)
 #ifdef FULL
+    ULONGLONG      RawFilePos;                  // Offset in MPQ archive (relative to file begin)
     ULONGLONG      MpqFilePos;                  // Offset in MPQ archive (relative to MPQ header)
     DWORD          dwHashIndex;                 // Hash table index (0xFFFFFFFF if not used)
 #endif
     DWORD          dwFileKey;                   // Decryption key
-    DWORD          dwFilePos;                   // Current file position
 #ifdef FULL
+    DWORD          dwFilePos;                   // Current file position
     DWORD          dwMagic;                     // 'FILE'
 
     struct _TMPQFile * hfPatch;                 // Pointer to opened patch file

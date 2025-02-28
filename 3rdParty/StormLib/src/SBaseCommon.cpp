@@ -906,8 +906,6 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
 #ifdef FULL
             hf->RawFilePos = FileOffsetFromMpqOffset(ha, pFileEntry->ByteOffset);
             hf->MpqFilePos = pFileEntry->ByteOffset;
-#else
-            hf->RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
 #endif
 
             // Set the data size
@@ -1278,8 +1276,8 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             return ERROR_SUCCESS + 1;
 #endif
         {
-            ULONGLONG RawFilePos = hf->RawFilePos;
 #ifdef FULL
+            ULONGLONG RawFilePos = hf->RawFilePos;
             // Append the length of the patch info, if any
             if(hf->pPatchInfo != NULL)
             {
@@ -1287,6 +1285,8 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                     return ERROR_FILE_CORRUPT;
                 RawFilePos += hf->pPatchInfo->dwLength;
             }
+#else
+            ULONGLONG RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
 #endif
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->SectorOffsets, dwSectorOffsLen))
