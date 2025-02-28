@@ -237,7 +237,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     TFileEntry  * pFileEntry;
 #endif
     TMPQFile    * hf = NULL;
+#ifdef FULL
     DWORD dwHashIndex = HASH_ENTRY_FREE;
+#endif
     DWORD dwFileIndex = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
 #ifdef FULL
@@ -301,7 +303,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             return OpenLocalFile(szFileName, PtrFile);
         assert(dwSearchScope == SFILE_OPEN_FROM_MPQ || dwSearchScope == SFILE_OPEN_CHECK_EXISTS);
         ha = IsValidMpqHandle(hMpq);
-        pFileEntry = GetFileEntryLocale2(ha, szFileName, &dwHashIndex);
+        pFileEntry = GetFileEntryLocale2(ha, szFileName);
 #endif
     }
 
@@ -361,9 +363,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             if(ha->pHashTable != NULL && dwHashIndex == HASH_ENTRY_FREE)
                 dwHashIndex = FindHashIndex(ha, dwFileIndex);
             if(dwHashIndex != HASH_ENTRY_FREE)
-#endif
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
-#ifdef FULL
             hf->dwHashIndex = dwHashIndex;
 #endif
 #ifdef FULL_CRC

@@ -899,7 +899,9 @@ typedef struct _TMPQFile
 {
     TFileStream  * pStream;                     // File stream. Only used on local files
     TMPQArchive  * ha;                          // Archive handle
+#ifdef FULL
     TMPQHash     * pHashEntry;                  // Pointer to hash table entry, if the file was open using hash table
+#endif
     TFileEntry   * pFileEntry;                  // File entry for the file
 #ifdef FULL
     ULONGLONG      RawFilePos;                  // Offset in MPQ archive (relative to file begin)

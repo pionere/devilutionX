@@ -2004,7 +2004,7 @@ void FreeBetTable(TMPQBetTable * pBetTable)
 
 TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex)
 #else
-TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LPDWORD PtrHashIndex)
+TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName)
 #endif // FULL
 {
     TMPQHash * pHash;
@@ -2033,7 +2033,6 @@ TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LPDW
 #else
     int hashIdx = GetFirstHashEntry(ha, szFileName);
     if (hashIdx >= 0) {
-        PtrHashIndex[0] = hashIdx;
         pHash = &ha->pHashTable[hashIdx];
         return ha->pFileTable + MPQ_BLOCK_INDEX(pHash);
     }
