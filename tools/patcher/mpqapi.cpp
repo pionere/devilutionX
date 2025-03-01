@@ -260,13 +260,13 @@ struct Archive {
 		DoLog("Flushing %s", name.c_str());
 #endif
 		// assert(stream.IsOpen());
-		bool resize = stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
-		if (resize && this->archiveSize != 0) {
+		if (stream.seekp(0, SEEK_SET) && WriteHeaderAndTables()) {
+			// assert(archiveSize != 0);
 			stream.Close();
 #if DEBUG_MODE
-			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", this->name.c_str(), this->archiveSize);
+			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), archiveSize);
 #endif
-			ResizeFile(this->name.c_str(), this->archiveSize);
+			ResizeFile(name.c_str(), archiveSize);
 		}
 	}
 
