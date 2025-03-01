@@ -742,7 +742,7 @@ void NetClose()
 
 static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
-	int i, dlgresult, pnum;
+	int i, dlgresult;
 	int32_t seed;
 
 	while (true) {

@@ -199,14 +199,13 @@ struct Archive {
 	FileMpqHashEntry* sgpHashTbl;
 	FileMpqBlockEntry* sgpBlockTbl;
 
-	bool OpenArchive(const char* name, uint32_t* fileSize)
+	bool OpenArchive(const char* name)
 	{
 		// assert(!stream.IsOpen());
 #if DEBUG_MODE
 		DoLog("Opening %s", name);
 #endif
 		FILE* file = FileOpen(name, "r+b");
-		std::uintmax_t size;
 
 		if (file == NULL) {
 #if DEBUG_MODE
@@ -215,29 +214,7 @@ struct Archive {
 			return false;
 		}
 
-#if DEBUG_MODE
-			if (!GetFileSize(name, &size)) {
-				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
-				std::fclose(file);
-				return false;
-			} else {
-				DoLog("GetFileSize(\"%s\") = %" PRIuMAX, name, size);
-			}
-#else
-			if (!GetFileSize(name, &size)) {
-				DoLog("GetFileSize(\"%s\") failed. (%d)", name, errno);
-				std::fclose(file);
-				return false;
-			}
-#endif
-			if (size > UINT32_MAX) {
-				DoLog("OpenArchive(\"%s\") failed. File too large: %" PRIuMAX, name, size);
-				std::fclose(file);
-				return false;
-			}
-
 		this->stream.Open(file);
-		*fileSize = static_cast<uint32_t>(size);
 		this->name = name;
 		return true;
 	}
@@ -350,13 +327,12 @@ static uint32_t CalcHashOffset(DWORD blockCount)
 	return MPQ_BLOCK_OFFSET + blockCount * sizeof(FileMpqBlockEntry);
 }
 
-static bool IsValidMPQHeader(const FileMpqHeader* hdr, uint32_t fileSize)
+static bool IsValidMPQHeader(const FileMpqHeader* hdr)
 {
 	return hdr->pqSignature == ID_MPQ
 	 && hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1
 	 && hdr->pqVersion == MPQ_FORMAT_VERSION_1
 	 && hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1
-	 && hdr->pqFileSize == fileSize
 	 && hdr->pqHashOffset == CalcHashOffset(hdr->pqBlockCount)
 	 && hdr->pqBlockOffset == MPQ_BLOCK_OFFSET;
 }
@@ -643,9 +619,8 @@ bool mpqapi_has_entry(const char* pszName)
 bool OpenMPQ(const char* pszArchive)
 {
 	DWORD blockSize, hashSize, key;
-	uint32_t fileSize;
 
-	if (!cur_archive.OpenArchive(pszArchive, &fileSize)) {
+	if (!cur_archive.OpenArchive(pszArchive)) {
 		return false;
 	}
 	if (cur_archive.sgpBlockTbl == NULL/* || cur_archive.sgpHashTbl == NULL*/) {
@@ -657,7 +632,7 @@ bool OpenMPQ(const char* pszArchive)
 		if (!cur_archive.stream.read(&cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
 			goto on_error;
 		ByteSwapHdr(&cur_archive.mpqHeader);
-		if (!IsValidMPQHeader(&cur_archive.mpqHeader, fileSize))
+		if (!IsValidMPQHeader(&cur_archive.mpqHeader))
 			goto on_error;
 
 		blockSize = cur_archive.mpqHeader.pqBlockCount * sizeof(FileMpqBlockEntry);
@@ -666,6 +641,8 @@ bool OpenMPQ(const char* pszArchive)
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
 			goto on_error;
+		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqBlockOffset, SEEK_SET))
+			goto on_error;
 
 			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
 				goto on_error;
@@ -673,6 +650,8 @@ bool OpenMPQ(const char* pszArchive)
 			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
 			ByteSwapBlockTbl(cur_archive.sgpBlockTbl, cur_archive.mpqHeader.pqBlockCount);
 
+		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqHashOffset, SEEK_SET))
+			goto on_error;
 			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
 				goto on_error;
 			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
