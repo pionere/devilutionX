@@ -272,6 +272,9 @@ void UiMergerDialog()
 	// do the actual merge
 	workPhase = 0;
 	UiProgressDialog("...Merge in progress...", merger_callback);
+	// ensure mpq-archive is closed on error
+	// if (workProgress == RETURN_ERROR && workPhase == 2)
+		mpqapi_close();
 }
 
 DEVILUTION_END_NAMESPACE
