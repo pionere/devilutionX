@@ -305,9 +305,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
         }
 #else
     {
-        if (dwSearchScope == SFILE_OPEN_LOCAL_FILE)
-            // Open a local file
-            return OpenLocalFile(szFileName, PtrFile);
         assert(dwSearchScope == SFILE_OPEN_FROM_MPQ || dwSearchScope == SFILE_OPEN_CHECK_EXISTS);
         ha = IsValidMpqHandle(hMpq);
         pFileEntry = GetFileEntryLocale2(ha, szFileName);
@@ -361,7 +358,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     }
 
     // Did the caller just wanted to know if the file exists?
+#ifdef FULL
     if(dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
+#else
+    if(dwErrCode == ERROR_SUCCESS && dwSearchScope == SFILE_OPEN_FROM_MPQ) {
+#endif
         // Allocate file handle
 #ifdef FULL
         hf = CreateFileHandle(ha, pFileEntry);
@@ -419,7 +420,12 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 #endif
     return (dwErrCode == ERROR_SUCCESS);
 }
-
+#ifndef FULL
+bool WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * PtrFile)
+{
+    return OpenLocalFile(szFileName, PtrFile);
+}
+#endif
 //-----------------------------------------------------------------------------
 // SFileHasFile
 //

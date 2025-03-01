@@ -1109,6 +1109,9 @@ void   WINAPI SFileCloseArchive(HANDLE hMpq);
 bool   WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
 #endif
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
+#ifndef FULL
+bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * phFile);
+#endif
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
 #ifdef FULL
 DWORD  WINAPI SFileGetFilePointer(HANDLE hFile);

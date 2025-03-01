@@ -59,7 +59,7 @@ HANDLE SFileOpenFile(const char* filename)
 		const unsigned pathlen = (unsigned)path.size();
 		for (i = (unsigned)basePath->size(); i < pathlen; ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
-		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
+		SFileOpenLocalFileEx(path.c_str(), &result);
 	}
 #if USE_MPQONE
 	if (result == NULL)

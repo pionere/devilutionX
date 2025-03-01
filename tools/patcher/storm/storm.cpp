@@ -58,7 +58,7 @@ HANDLE SFileOpenFile(const char* filename)
 		std::string path = *basePath + filename;
 		for (i = basePath->size(); i < path.size(); ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
-		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
+		SFileOpenLocalFileEx(path.c_str(), &result);
 	}
 	for (i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == NULL; i++) {
 		if (diabdat_mpqs[i] == NULL)
