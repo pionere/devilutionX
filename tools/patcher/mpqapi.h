@@ -16,7 +16,7 @@ void mpqapi_remove_entry(const char* pszName);
 bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen);
 void mpqapi_rename_entry(char* pszOld, char* pszNew);
 bool mpqapi_has_entry(const char* pszName);
-bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount);
+bool OpenMPQ(const char* pszArchive);
 bool CreateMPQ(const char* pszArchive, int hashCount, int blockCount);
 void mpqapi_flush_and_close(bool bFree);
 void mpqapi_close();

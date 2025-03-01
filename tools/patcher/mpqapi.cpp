@@ -350,16 +350,14 @@ static uint32_t CalcHashOffset(DWORD blockCount)
 	return MPQ_BLOCK_OFFSET + blockCount * sizeof(FileMpqBlockEntry);
 }
 
-static bool IsValidMPQHeader(const FileMpqHeader* hdr, uint32_t fileSize, DWORD hashCount, DWORD blockCount)
+static bool IsValidMPQHeader(const FileMpqHeader* hdr, uint32_t fileSize)
 {
 	return hdr->pqSignature == ID_MPQ
 	 && hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1
 	 && hdr->pqVersion == MPQ_FORMAT_VERSION_1
 	 && hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1
 	 && hdr->pqFileSize == fileSize
-	 && hdr->pqHashCount == hashCount
-	 && hdr->pqBlockCount == blockCount
-	 && hdr->pqHashOffset == CalcHashOffset(blockCount)
+	 && hdr->pqHashOffset == CalcHashOffset(hdr->pqBlockCount)
 	 && hdr->pqBlockOffset == MPQ_BLOCK_OFFSET;
 }
 
@@ -642,7 +640,7 @@ bool mpqapi_has_entry(const char* pszName)
 	return FetchHandle(pszName) >= 0;
 }
 
-bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
+bool OpenMPQ(const char* pszArchive)
 {
 	DWORD blockSize, hashSize, key;
 	uint32_t fileSize;
@@ -659,12 +657,12 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		if (!cur_archive.stream.read(&cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
 			goto on_error;
 		ByteSwapHdr(&cur_archive.mpqHeader);
-		if (!IsValidMPQHeader(&cur_archive.mpqHeader, fileSize, hashCount, blockCount))
+		if (!IsValidMPQHeader(&cur_archive.mpqHeader, fileSize))
 			goto on_error;
 
-		blockSize = blockCount * sizeof(FileMpqBlockEntry);
+		blockSize = cur_archive.mpqHeader.pqBlockCount * sizeof(FileMpqBlockEntry);
 		cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
-		hashSize = hashCount * sizeof(FileMpqHashEntry);
+		hashSize = cur_archive.mpqHeader.pqHashCount * sizeof(FileMpqHashEntry);
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
 			goto on_error;

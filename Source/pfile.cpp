@@ -94,7 +94,7 @@ static void pfile_mpq_encode_hero(int pnum)
 
 static bool pfile_mpq_open_save(unsigned save_num)
 {
-	return OpenMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
+	return OpenMPQ(GetSavePath(save_num).c_str());
 }
 
 static bool pfile_mpq_create_save(unsigned save_num)
