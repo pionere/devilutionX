@@ -177,8 +177,8 @@ void InitArchives()
 	input.clear();                 // clear fail and eof bits
 	input.seekg(0, std::ios::beg); // back to the start!
 	std::string path = std::string(GetBasePath()) + MPQONE;
-	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
-		app_fatal("Unable to open MPQ file %s.", path.c_str());
+	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+		app_fatal("Unable to create MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {
 #ifdef NOSOUND
 		if (line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)

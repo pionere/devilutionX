@@ -4515,8 +4515,8 @@ static int patcher_callback()
 		// - remove previous work-file
 		RemoveFile(path.c_str());
 		// - open a new work-file
-		if (!OpenMPQ(path.c_str(), hashCount, hashCount)) {
-			app_warn("Unable to open MPQ file %s.", path.c_str());
+		if (!CreateMPQ(path.c_str(), hashCount, hashCount)) {
+			app_warn("Unable to create MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
 		}
 		hashCount = 0;

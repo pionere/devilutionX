@@ -101,8 +101,8 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	}
 
 	std::string path = std::string(GetBasePath()) + destMpqName;
-	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
-		app_fatal("Unable to open MPQ file %s.", path.c_str());
+	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+		app_fatal("Unable to create MPQ file %s.", path.c_str());
 
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {

@@ -150,8 +150,8 @@ static int merger_callback()
 	case 1:
 	{	// create the mpq file
 		std::string path = std::string(GetBasePath()) + MPQONE;
-		if (!OpenMPQ(path.c_str(), hashCount, hashCount)) {
-			app_warn("Unable to open MPQ file %s.", path.c_str());
+		if (!CreateMPQ(path.c_str(), hashCount, hashCount)) {
+			app_warn("Unable to create MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
 		}
 		hashCount = 0;

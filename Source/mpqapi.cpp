@@ -724,6 +724,58 @@ on_error:
 	return false;
 }
 
+bool CreateMPQ(const char* pszArchive, int hashCount, int blockCount)
+{
+	DWORD blockSize, hashSize;
+	// FileMpqHeader fhdr;
+
+	if (!cur_archive.OpenArchive(pszArchive)) {
+		return false;
+	}
+	// hashCount must be a power of two
+	// assert((hashCount & (hashCount - 1)) == 0); // required by mpqapi_get_hash_index / mpqapi_add_entry
+	// assert(hashCount <= INT_MAX); // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
+	cur_archive.hashCount = hashCount;
+	cur_archive.blockCount = blockCount;
+	// InitDefaultMpqHeader
+	//std::memset(hdr, 0, sizeof(*hdr));
+	//fhdr.pqSignature = ID_MPQ;
+	//fhdr.pqHeaderSize = MPQ_HEADER_SIZE_V1;
+	//fhdr.pqSectorSizeId = MPQ_SECTOR_SIZE_SHIFT_V1;
+	//fhdr.pqVersion = MPQ_FORMAT_VERSION_1;
+	//fhdr.pqBlockCount = blockCount;
+	//fhdr.pqHashCount = hashCount;
+	cur_archive.archiveSize = cur_archive.HashOffset() + cur_archive.hashCount * sizeof(FileMpqHashEntry);
+
+	blockSize = blockCount * sizeof(FileMpqBlockEntry);
+	cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
+	hashSize = hashCount * sizeof(FileMpqHashEntry);
+	cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
+	if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
+		goto on_error;
+
+	std::memset(cur_archive.sgpBlockTbl, 0, blockSize);
+	static_assert(HASH_ENTRY_FREE == 0xFFFFFFFF, "CreateMPQ initializes the hashtable with 0xFF to mark the entries as free.");
+	std::memset(cur_archive.sgpHashTbl, 0xFF, hashSize);
+
+#ifndef CAN_SEEKP_BEYOND_EOF
+	if (!cur_archive.stream.seekp(0, SEEK_SET))
+		goto on_error;
+
+	// Memorize stream begin, we'll need it for calculations later.
+	if (!cur_archive.stream.tellp(&cur_archive.stream_begin))
+		goto on_error;
+
+	// Write garbage header and tables because some platforms cannot `seekp` beyond EOF.
+	// The data is incorrect at this point, it will be overwritten on Close.
+	cur_archive.WriteHeaderAndTables();
+#endif
+	return true;
+on_error:
+	cur_archive.CloseArchive(true);
+	return false;
+}
+
 void mpqapi_flush_and_close(bool bFree)
 {
 	cur_archive.FlushArchive();

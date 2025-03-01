@@ -97,6 +97,11 @@ static bool pfile_mpq_open_save(unsigned save_num)
 	return OpenMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
 }
 
+static bool pfile_mpq_create_save(unsigned save_num)
+{
+	return CreateMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
+}
+
 static bool pfile_mpq_open_mysave()
 {
 	return pfile_mpq_open_save(mySaveIdx);
@@ -223,7 +228,7 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	}
 	if (save_num > MAX_CHARACTERS)
 		return NEWHERO_HERO_LIMIT;
-	if (!pfile_mpq_open_save(save_num))
+	if (!pfile_mpq_create_save(save_num))
 		return NEWHERO_FAIL;
 	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 	heroinfo->hiIdx = save_num;
