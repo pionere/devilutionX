@@ -317,7 +317,7 @@ private:
 	{
 		DWORD blockSize, key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 
-		ByteSwapBlockTbl(this->sgpBlockTbl, blockCount);
+		ByteSwapBlockTbl(this->sgpBlockTbl, this->blockCount);
 
 		blockSize = this->blockCount * sizeof(FileMpqBlockEntry);
 
@@ -522,7 +522,7 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 	h1 = HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX);
 	h2 = HashStringSlash(pszName, MPQ_HASH_NAME_A);
 	h3 = HashStringSlash(pszName, MPQ_HASH_NAME_B);
-	if (mpqapi_get_hash_index(h1, h2, h3) != -1)
+	if (mpqapi_get_hash_index(h1, h2, h3) >= 0)
 		app_fatal("Hash collision between \"%s\" and existing file\n", pszName);
 
 	hashCount = cur_archive.hashCount;
