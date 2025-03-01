@@ -332,9 +332,7 @@ static bool IsValidMPQHeader(const FileMpqHeader* hdr)
 	return hdr->pqSignature == ID_MPQ
 	 && hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1
 	 && hdr->pqVersion == MPQ_FORMAT_VERSION_1
-	 && hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1
-	 && hdr->pqHashOffset == CalcHashOffset(hdr->pqBlockCount)
-	 && hdr->pqBlockOffset == MPQ_BLOCK_OFFSET;
+	 && hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1;
 }
 
 } // namespace
