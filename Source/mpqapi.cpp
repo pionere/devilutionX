@@ -359,29 +359,6 @@ static bool IsValidMPQHeader(const Archive& archive, FileMpqHeader* hdr)
 	 && hdr->pqBlockCount == archive.blockCount;
 }
 
-// Read the header info from the archive, or setup a skeleton
-static bool ReadMPQHeader(Archive* archive, FileMpqHeader* hdr)
-{
-	const bool has_hdr = archive->archiveSize >= sizeof(*hdr);
-	if (has_hdr) {
-		if (!archive->stream.read(hdr, sizeof(*hdr)))
-			return false;
-		ByteSwapHdr(hdr);
-	}
-	if (!has_hdr || !IsValidMPQHeader(*archive, hdr)) {
-		// InitDefaultMpqHeader
-		//std::memset(hdr, 0, sizeof(*hdr));
-		//hdr->pqSignature = ID_MPQ;
-		//hdr->pqHeaderSize = MPQ_HEADER_SIZE_V1;
-		//hdr->pqSectorSizeId = MPQ_SECTOR_SIZE_SHIFT_V1;
-		//hdr->pqVersion = MPQ_FORMAT_VERSION_1;
-		hdr->pqBlockCount = 0;
-		hdr->pqHashCount = 0;
-		archive->archiveSize = archive->HashOffset() + archive->hashCount * sizeof(FileMpqHashEntry);
-	}
-	return true;
-}
-
 } // namespace
 
 static uint32_t mpqapi_new_block()
@@ -675,9 +652,12 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		// assert(hashCount <= INT_MAX); // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
 		cur_archive.hashCount = hashCount;
 		cur_archive.blockCount = blockCount;
-		if (!ReadMPQHeader(&cur_archive, &fhdr)) {
+		if (!cur_archive.stream.read(&fhdr, sizeof(fhdr)))
 			goto on_error;
-		}
+		ByteSwapHdr(&fhdr);
+		if (!IsValidMPQHeader(cur_archive, &fhdr))
+			goto on_error;
+
 		blockSize = blockCount * sizeof(FileMpqBlockEntry);
 		cur_archive.sgpBlockTbl = (FileMpqBlockEntry*)DiabloAllocPtr(blockSize);
 		hashSize = hashCount * sizeof(FileMpqHashEntry);
