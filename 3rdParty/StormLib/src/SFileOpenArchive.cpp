@@ -104,9 +104,6 @@ static TMPQUserData * IsValidMpqUserData(ULONGLONG ByteOffset, ULONGLONG FileSiz
 
 // This function gets the right positions of the hash table and the block table.
 static DWORD VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
-#else
-static DWORD VerifyMpqTablePositions(TMPQArchive * ha, FILESIZE_T FileSize)
-#endif
 {
     TMPQHeader * pHeader = &ha->pHeader;
 #ifdef FULL
@@ -175,7 +172,7 @@ static DWORD VerifyMpqTablePositions(TMPQArchive * ha, FILESIZE_T FileSize)
     // All OK.
     return ERROR_SUCCESS;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // Support for alternate markers. Call before opening an archive
 #ifdef FULL
@@ -248,7 +245,6 @@ HANDLE WINAPI SFileOpenArchive(
     DWORD dwStreamFlags = (dwFlags & STREAM_FLAGS_MASK);
     MTYPE MapType = MapTypeNotChecked;
 #else
-    FILESIZE_T FileSize = 0;            // Size of the file
     DWORD dwStreamFlags = dwFlags;
 #endif
     DWORD dwErrCode = ERROR_SUCCESS;
@@ -270,21 +266,15 @@ HANDLE WINAPI SFileOpenArchive(
     pStream = FileStream_OpenFile(szMpqName, dwStreamFlags);
     if(pStream == NULL)
         return NULL;
-
+#ifdef FULL
     // Check the file size. There must be at least 0x20 bytes
     if(dwErrCode == ERROR_SUCCESS)
     {
-#ifdef FULL
         FileStream_GetSize(pStream, &FileSize);
         if(FileSize < MPQ_HEADER_SIZE_V1)
             dwErrCode = ERROR_BAD_FORMAT;
-#else
-        FileSize = FileStream_GetSize(pStream);
-        if(FileSize < MPQ_HEADER_SIZE_V1)
-            dwErrCode = ERROR_SUCCESS + 1;
-#endif
     }
-
+#endif
     // Allocate the MPQhandle
     if(dwErrCode == ERROR_SUCCESS)
     {
@@ -448,11 +438,10 @@ HANDLE WINAPI SFileOpenArchive(
             }
 #endif // FULL
         }
-
+#ifdef FULL
         // Did we identify one of the supported headers?
         if(dwErrCode == ERROR_SUCCESS)
         {
-#ifdef FULL
             // Set the user data position to the MPQ header, if none
             if(ha->pUserData == NULL)
                 ha->UserDataPos = ByteOffset;
@@ -462,29 +451,27 @@ HANDLE WINAPI SFileOpenArchive(
 
             ha->MpqPos   = ByteOffset;
             ha->FileSize = FileSize;
-#endif
 
             // Sector size must be nonzero.
-#ifdef FULL
             if(ByteOffset >= FileSize || ha->pHeader->wSectorSize == 0)
                 dwErrCode = ERROR_BAD_FORMAT;
-#else
-            if(ha->pHeader.wSectorSize != MPQ_SECTOR_SIZE_SHIFT_V1)
-                dwErrCode = ERROR_SUCCESS + 1;
-#endif
         }
-#ifndef FULL
-    } else {
-        FileStream_Close(pStream);
+#else
+        if(dwErrCode == ERROR_SUCCESS)
+        {
+            if ((int)ha->pHeader.dwHashTableSize < 0                     // required by GetFirstHashEntry
+             || (ha->pHeader.dwHashTableSize & (ha->pHeader.dwHashTableSize - 1)) != 0)
+                dwErrCode = ERROR_BAD_FORMAT;
+        }
 #endif
     }
-
+#ifdef FULL
     // Fix table positions according to format
     if(dwErrCode == ERROR_SUCCESS)
     {
         // Dump the header
 //      DumpMpqHeader(ha->pHeader);
-#ifdef FULL
+
         // W3x Map Protectors use the fact that War3's Storm.dll ignores the MPQ user data,
         // and ignores the MPQ format version as well. The trick is to
         // fake MPQ format 2, with an improper hi-word position of hash table and block table
@@ -527,12 +514,11 @@ HANDLE WINAPI SFileOpenArchive(
         }
         // Set the size of file sector
         ha->dwSectorSize = (0x200 << ha->pHeader->wSectorSize);
-#endif
 
         // Verify if any of the tables doesn't start beyond the end of the file
         dwErrCode = VerifyMpqTablePositions(ha, FileSize);
     }
-
+#endif
     // Read the hash table. Ignore the result, as hash table is no longer required
     // Read HET table. Ignore the result, as HET table is no longer required
     if(dwErrCode == ERROR_SUCCESS)

@@ -344,10 +344,16 @@ static uint32_t CalcHashOffset(DWORD blockCount)
 
 static bool IsValidMPQHeader(const FileMpqHeader* hdr)
 {
-	return hdr->pqSignature == ID_MPQ
-	 && hdr->pqHeaderSize == MPQ_HEADER_SIZE_V1
-	 && hdr->pqVersion == MPQ_FORMAT_VERSION_1
-	 && hdr->pqSectorSizeId == MPQ_SECTOR_SIZE_SHIFT_V1;
+#if DEBUG_MODE
+	if (hdr->pqSignature != ID_MPQ
+	 || hdr->pqHeaderSize != MPQ_HEADER_SIZE_V1
+	 || hdr->pqVersion != MPQ_FORMAT_VERSION_1
+	 || hdr->pqSectorSizeId != MPQ_SECTOR_SIZE_SHIFT_V1)
+		DoLog("Invalid header format sig(%d vs. %d), hs(%d vs. %d) v(%d vs. %d) ss(%d vs. %d)", hdr->pqSignature, ID_MPQ, hdr->pqHeaderSize, MPQ_HEADER_SIZE_V1, hdr->pqVersion, MPQ_FORMAT_VERSION_1, hdr->pqSectorSizeId, MPQ_SECTOR_SIZE_SHIFT_V1);
+		return false;
+#endif
+	return (int)hdr->pqHashCount >= 0                     // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
+	 && (hdr->pqHashCount & (hdr->pqHashCount - 1)) == 0; // hashCount must be a power of two (required by mpqapi_get_hash_index / mpqapi_add_entry)
 }
 
 } // namespace
@@ -637,11 +643,6 @@ bool OpenMPQ(const char* pszArchive)
 		return false;
 	}
 	if (cur_archive.sgpBlockTbl == NULL/* || cur_archive.sgpHashTbl == NULL*/) {
-		// assert(hashCount != 0);
-		// assert(blockCount != 0);
-		// hashCount must be a power of two
-		// assert((hashCount & (hashCount - 1)) == 0); // required by mpqapi_get_hash_index / mpqapi_add_entry
-		// assert(hashCount <= INT_MAX); // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
 		if (!cur_archive.stream.read(&cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
 			goto on_error;
 		ByteSwapHdr(&cur_archive.mpqHeader);
