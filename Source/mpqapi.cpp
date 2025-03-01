@@ -195,7 +195,6 @@ struct Archive {
 	uint32_t blockCount;
 	uint32_t hashCount;
 #ifndef CAN_SEEKP_BEYOND_EOF
-	bool exists;
 	long stream_begin;
 #endif
 
@@ -209,18 +208,15 @@ struct Archive {
 		DoLog("Opening %s", name);
 #endif
 		FILE* file = FileOpen(name, "r+b");
-// 'x' mode requires a decent compiler (see: https://sourceforge.net/p/mingw-w64/bugs/493/ )
-#if __cplusplus >= 201703L && !defined(__MINGW32__)
-		const char* mode = "wbx";
-#else
-		const char* mode = "wb";
-#endif
 		std::uintmax_t size;
-		bool fileExists = file != NULL;
-#ifndef CAN_SEEKP_BEYOND_EOF
-		this->exists = fileExists;
+
+		if (file == NULL) {
+#if DEBUG_MODE
+			DoLog("Failed to open file (\"%s\")", name);
 #endif
-		if (fileExists) {
+			return false;
+		}
+
 #if DEBUG_MODE
 			if (!GetFileSize(name, &size)) {
 				DoLog("GetFileSize(\"%s\") failed with \"%s\"", name, std::strerror(errno));
@@ -241,15 +237,35 @@ struct Archive {
 				std::fclose(file);
 				return false;
 			}
-		} else {
-			file = FileOpen(name, mode);
-			if (file == NULL) {
-				return false;
-			}
-			size = 0;
-		}
+
 		this->stream.Open(file);
 		this->archiveSize = static_cast<uint32_t>(size);
+		this->name = name;
+		return true;
+	}
+
+	bool CreateArchive(const char* name)
+	{
+		// assert(!stream.IsOpen());
+#if DEBUG_MODE
+		DoLog("Creating %s", name);
+#endif
+// 'x' mode requires a decent compiler (see: https://sourceforge.net/p/mingw-w64/bugs/493/ )
+#if __cplusplus >= 201703L && !defined(__MINGW32__)
+		const char* mode = "wbx";
+#else
+		const char* mode = "wb";
+#endif
+		FILE* file = FileOpen(name, mode);
+		if (file == NULL) {
+#if DEBUG_MODE
+			DoLog("Failed to create file (\"%s\")", name);
+#endif
+			return false;
+		}
+
+		this->stream.Open(file);
+		this->archiveSize = 0;
 		this->name = name;
 		return true;
 	}
@@ -647,6 +663,8 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		return false;
 	}
 	if (cur_archive.sgpBlockTbl == NULL/* || cur_archive.sgpHashTbl == NULL*/) {
+		// assert(hashCount != 0);
+		// assert(blockCount != 0);
 		// hashCount must be a power of two
 		// assert((hashCount & (hashCount - 1)) == 0); // required by mpqapi_get_hash_index / mpqapi_add_entry
 		// assert(hashCount <= INT_MAX); // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
@@ -664,25 +682,18 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
 			goto on_error;
-		if (fhdr.pqBlockCount != 0) {
+
 			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
 				goto on_error;
 			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
 			ByteSwapBlockTbl(cur_archive.sgpBlockTbl, fhdr.pqBlockCount);
-		} else {
-			std::memset(cur_archive.sgpBlockTbl, 0, blockSize);
-		}
-		if (fhdr.pqHashCount != 0) {
+
 			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
 				goto on_error;
 			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
 			ByteSwapHashTbl(cur_archive.sgpHashTbl, fhdr.pqHashCount);
-		} else {
-			static_assert(HASH_ENTRY_FREE == 0xFFFFFFFF, "OpenMPQ initializes the hashtable with 0xFF to mark the entries as free.");
-			std::memset(cur_archive.sgpHashTbl, 0xFF, hashSize);
-		}
 
 #ifndef CAN_SEEKP_BEYOND_EOF
 		if (!cur_archive.stream.seekp(0, SEEK_SET))
@@ -691,11 +702,6 @@ bool OpenMPQ(const char* pszArchive, int hashCount, int blockCount)
 		// Memorize stream begin, we'll need it for calculations later.
 		if (!cur_archive.stream.tellp(&cur_archive.stream_begin))
 			goto on_error;
-
-		// Write garbage header and tables because some platforms cannot `seekp` beyond EOF.
-		// The data is incorrect at this point, it will be overwritten on Close.
-		if (!cur_archive.exists)
-			cur_archive.WriteHeaderAndTables();
 #endif
 	}
 	return true;
@@ -709,9 +715,11 @@ bool CreateMPQ(const char* pszArchive, int hashCount, int blockCount)
 	DWORD blockSize, hashSize;
 	// FileMpqHeader fhdr;
 
-	if (!cur_archive.OpenArchive(pszArchive)) {
+	if (!cur_archive.CreateArchive(pszArchive)) {
 		return false;
 	}
+	// assert(hashCount != 0);
+	// assert(blockCount != 0);
 	// hashCount must be a power of two
 	// assert((hashCount & (hashCount - 1)) == 0); // required by mpqapi_get_hash_index / mpqapi_add_entry
 	// assert(hashCount <= INT_MAX); // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
