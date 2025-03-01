@@ -194,7 +194,6 @@ struct Archive {
 	uint32_t archiveSize;
 	uint32_t blockCount;
 	uint32_t hashCount;
-	bool modified;
 #ifndef CAN_SEEKP_BEYOND_EOF
 	bool exists;
 	long stream_begin;
@@ -251,7 +250,6 @@ struct Archive {
 		}
 		this->stream.Open(file);
 		this->archiveSize = static_cast<uint32_t>(size);
-		this->modified = !fileExists;
 		this->name = name;
 		return true;
 	}
@@ -262,7 +260,7 @@ struct Archive {
 		DoLog("Flushing %s", name.c_str());
 #endif
 		// assert(stream.IsOpen());
-		bool resize = this->modified && stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
+		bool resize = stream.seekp(0, SEEK_SET) && WriteHeaderAndTables();
 		if (resize && this->archiveSize != 0) {
 			stream.Close();
 #if DEBUG_MODE
@@ -380,7 +378,6 @@ static bool ReadMPQHeader(Archive* archive, FileMpqHeader* hdr)
 		hdr->pqBlockCount = 0;
 		hdr->pqHashCount = 0;
 		archive->archiveSize = archive->HashOffset() + archive->hashCount * sizeof(FileMpqHashEntry);
-		archive->modified = true;
 	}
 	return true;
 }
@@ -514,7 +511,6 @@ void mpqapi_remove_entry(const char* pszName)
 		block_size = pBlock->bqSizeAlloc;
 		memset(pBlock, 0, sizeof(*pBlock));
 		mpqapi_alloc_block(block_offset, block_size);
-		cur_archive.modified = true;
 	}
 }
 
@@ -636,7 +632,6 @@ bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen)
 {
 	uint32_t block;
 
-	cur_archive.modified = true;
 	mpqapi_remove_entry(pszName);
 	block = mpqapi_add_entry(pszName, HASH_ENTRY_FREE);
 	if (!mpqapi_write_file_contents(pbData, dwLen, block)) {
@@ -658,7 +653,6 @@ void mpqapi_rename_entry(char* pszOld, char* pszNew)
 		block = pHash->hqBlock;
 		pHash->hqBlock = HASH_ENTRY_DELETED;
 		mpqapi_add_entry(pszNew, block);
-		cur_archive.modified = true;
 	}
 }
 
