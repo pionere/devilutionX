@@ -130,6 +130,15 @@ public:
 		return false;
 	}
 
+	void resize(uint32_t size) {
+#if defined(_WIN32)
+		SetEndOfFile(s_);
+#else
+		fflush(s_);
+		ftruncate(fileno(s_), size);
+#endif
+	}
+
 private:
 
 	FILE *s_ = nullptr;
@@ -190,7 +199,9 @@ static void ByteSwapHashTbl(FileMpqHashEntry* hashTbl, int hashCount)
 
 struct Archive {
 	FStreamWrapper stream;
+#if DEBUG_MODE
 	std::string name;
+#endif
 	FileMpqHeader mpqHeader;
 #ifndef CAN_SEEKP_BEYOND_EOF
 	long stream_begin;
@@ -215,7 +226,9 @@ struct Archive {
 		}
 
 		this->stream.Open(file);
+#if DEBUG_MODE
 		this->name = name;
+#endif
 		return true;
 	}
 
@@ -240,7 +253,9 @@ struct Archive {
 		}
 
 		this->stream.Open(file);
+#if DEBUG_MODE
 		this->name = name;
+#endif
 		return true;
 	}
 
@@ -252,11 +267,11 @@ struct Archive {
 		// assert(stream.IsOpen());
 		if (stream.seekp(0, SEEK_SET) && WriteHeaderAndTables()) {
 			// assert(mpqHeader.pqFileSize != 0);
-			stream.Close();
 #if DEBUG_MODE
 			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), mpqHeader.pqFileSize);
 #endif
-			ResizeFile(name.c_str(), mpqHeader.pqFileSize);
+			stream.resize(mpqHeader.pqFileSize);
+			stream.Close();
 		}
 	}
 
