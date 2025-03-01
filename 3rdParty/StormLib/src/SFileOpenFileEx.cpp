@@ -378,6 +378,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
             hf->dwHashIndex = dwHashIndex;
 #else
+            // Give the file entry
+            PtrFile[0] = hf;
+
             hf->ha = ha;
             hf->pFileEntry = pFileEntry;
             hf->SectorOffsets = NULL;
@@ -409,11 +412,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
         }
     }
-
+#ifdef FULL
     // Give the file entry
     if (PtrFile != NULL)
         PtrFile[0] = hf;
-#ifdef FULL
+
     // Return error code
     if (dwErrCode != ERROR_SUCCESS)
         SetLastError(dwErrCode);
