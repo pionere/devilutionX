@@ -958,15 +958,17 @@ void * LoadMpqTable(
     ULONGLONG ByteOffset,
     LPBYTE pbTableHash,
     DWORD dwCompressedSize,
-#else
-    FILESIZE_T ByteOffset,
-#endif
     DWORD dwTableSize,
     DWORD dwKey,
     DWORD * PtrRealTableSize)
+#else
+    FILESIZE_T ByteOffset,
+    DWORD dwTableSize,
+    DWORD dwKey)
+#endif
 {
-    ULONGLONG FileSize = 0;
 #ifdef FULL_COMP
+    ULONGLONG FileSize = 0;
     LPBYTE pbCompressed = NULL;
 #else
     const DWORD dwCompressedSize = dwTableSize;
@@ -1009,14 +1011,10 @@ void * LoadMpqTable(
         // Abused by NP_Protect in MPQs v4 as well
 
         if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
-#endif
         {
             // Cut the table size
-#ifdef FULL
             FileStream_GetSize(ha->pStream, &FileSize);
-#else
-            FileSize = FileStream_GetSize(ha->pStream);
-#endif
+
             if((ByteOffset + dwBytesToRead) > FileSize)
             {
                 // Fill the extra data with zeros
@@ -1024,13 +1022,12 @@ void * LoadMpqTable(
                 memset(pbMpqTable + dwBytesToRead, 0, (dwTableSize - dwBytesToRead));
             }
         }
-
         // Give the caller information that the table was cut
         if(PtrRealTableSize != NULL)
         {
             PtrRealTableSize[0] = dwBytesToRead;
         }
-
+#endif // FULL
         // If everything succeeded, read the raw table from the MPQ
         if(FileStream_Read(ha->pStream, &ByteOffset, pbToRead, dwBytesToRead))
         {
@@ -1055,7 +1052,9 @@ void * LoadMpqTable(
         if(dwErrCode == ERROR_SUCCESS)
         {
             // First of all, decrypt the table
+#ifdef FULL
             if(dwKey != 0)
+#endif
             {
                 BSWAP_ARRAY32_UNSIGNED(pbToRead, dwCompressedSize);
                 DecryptMpqBlock(pbToRead, dwCompressedSize, dwKey);

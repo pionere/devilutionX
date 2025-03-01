@@ -350,7 +350,7 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 //TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
 #else
-void * LoadMpqTable(TMPQArchive * ha, FILESIZE_T ByteOffset, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
+void * LoadMpqTable(TMPQArchive * ha, FILESIZE_T ByteOffset, DWORD dwRealSize, DWORD dwKey);
 #endif
 #ifdef FULL
 DWORD  AllocateSectorBuffer(TMPQFile * hf);

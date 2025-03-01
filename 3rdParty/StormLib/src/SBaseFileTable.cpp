@@ -2381,9 +2381,8 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
     DWORD dwTableSize;
 #ifdef FULL
     DWORD dwCmpSize;
-#endif
     DWORD dwRealTableSize;
-
+#endif
     // Note: It is allowed to load hash table if it is at offset 0.
     // Example: MPQ_2016_v1_ProtectedMap_HashOffsIsZero.w3x
 //  if(pHeader->dwHashTablePos == 0 && pHeader->wHashTablePosHi == 0)
@@ -2409,22 +2408,17 @@ static TMPQHash * LoadHashTable(TMPQArchive * ha)
             ByteOffset = FileOffsetFromMpqOffset(pHeader->dwHashTablePos);
             dwTableSize = pHeader->dwHashTableSize * sizeof(TMPQHash);
 
-            pHashTable = (TMPQHash *)LoadMpqTable(ha, ByteOffset, dwTableSize, g_dwHashTableKey, &dwRealTableSize);
+            pHashTable = (TMPQHash *)LoadMpqTable(ha, ByteOffset, dwTableSize, g_dwHashTableKey);
 #endif
 //          DumpHashTable(pHashTable, pHeader->dwHashTableSize);
-
+#ifdef FULL
             // If the hash table was cut, we can/have to defragment it
             if(pHashTable != NULL && dwRealTableSize != 0 && dwRealTableSize < dwTableSize)
             {
-#ifdef FULL
                 ha->dwRealHashTableSize = dwRealTableSize;
                 ha->dwFlags |= (MPQ_FLAG_MALFORMED | MPQ_FLAG_HASH_TABLE_CUT);
-#else
-                STORM_FREE(pHashTable);
-                pHashTable = NULL;
-#endif
             }
-#ifdef FULL
+
             break;
         case MPQ_SUBTYPE_SQP:
             pHashTable = LoadSqpHashTable(ha);
@@ -2466,9 +2460,8 @@ static TMPQBlock * LoadBlockTable(TMPQArchive * ha)
     DWORD dwTableSize;
 #ifdef FULL
     DWORD dwCmpSize;
-#endif
     DWORD dwRealTableSize;
-
+#endif
     // Note: It is possible that the block table starts at offset 0
     // Example: MPQ_2016_v1_ProtectedMap_HashOffsIsZero.w3x
 //  if(pHeader->dwBlockTablePos == 0 && pHeader->wBlockTablePosHi == 0)
@@ -2494,18 +2487,15 @@ static TMPQBlock * LoadBlockTable(TMPQArchive * ha)
             ByteOffset = FileOffsetFromMpqOffset(pHeader->dwBlockTablePos);
             dwTableSize = pHeader->dwBlockTableSize * sizeof(TMPQBlock);
 
-            pBlockTable = (TMPQBlock * )LoadMpqTable(ha, ByteOffset, dwTableSize, g_dwBlockTableKey, &dwRealTableSize);
+            pBlockTable = (TMPQBlock * )LoadMpqTable(ha, ByteOffset, dwTableSize, g_dwBlockTableKey);
 #endif
+#ifdef FULL
             // If the block table was cut, we need to remember it
             if(pBlockTable != NULL && dwRealTableSize && dwRealTableSize < dwTableSize) {
-#ifdef FULL
+
                 ha->dwFlags |= (MPQ_FLAG_MALFORMED | MPQ_FLAG_BLOCK_TABLE_CUT);
-#else
-                STORM_FREE(pBlockTable);
-                pBlockTable = NULL;
-#endif
             }
-#ifdef FULL
+
             break;
 
         case MPQ_SUBTYPE_SQP:
