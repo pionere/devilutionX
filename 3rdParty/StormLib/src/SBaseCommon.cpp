@@ -1717,10 +1717,12 @@ DWORD WriteMemDataMD5(
     STORM_FREE(md5_array);
     return dwErrCode;
 }*/
-#endif // FULL
 
 // Frees the structure for MPQ file
 void FreeFileHandle(TMPQFile *& hf)
+#else
+void FreeFileHandle(TMPQFile * hf)
+#endif // FULL
 {
     if(hf != NULL)
     {
@@ -1758,7 +1760,11 @@ void FreeFileHandle(TMPQFile *& hf)
 }
 
 // Frees the MPQ archive
+#ifdef FULL
 void FreeArchiveHandle(TMPQArchive *& ha)
+#else
+void FreeArchiveHandle(TMPQArchive * ha)
+#endif
 {
     if(ha != NULL)
     {

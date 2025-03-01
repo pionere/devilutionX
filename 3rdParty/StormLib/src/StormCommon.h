@@ -366,9 +366,12 @@ DWORD  AllocateSectorOffsets(TMPQFile * hf);
 #ifdef FULL
 DWORD  WriteMemDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, void * pvRawData, DWORD dwRawDataSize, DWORD dwChunkSize, LPDWORD pcbTotalSize);
 //DWORD  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
-#endif // FULL
 void FreeFileHandle(TMPQFile *& hf);
 void FreeArchiveHandle(TMPQArchive *& ha);
+#else
+void FreeFileHandle(TMPQFile * hf);
+void FreeArchiveHandle(TMPQArchive * ha);
+#endif // FULL
 
 //-----------------------------------------------------------------------------
 // Patch functions
