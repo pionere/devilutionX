@@ -25,7 +25,7 @@ int cursW;
 /** Pixel height of the current cursor image */
 int cursH;
 /** Current highlighted monster */
-int pcursmonst = MON_NONE;
+int pcursmonst;
 /** Cursor images CEL */
 BYTE* pCursCels;
 
@@ -163,13 +163,15 @@ void InitCursorGFX()
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
 #endif // HELLFIRE
 #endif // USE_PATCH
-	ClearCursor();
+	SDL_ShowCursor(SDL_DISABLE);
+	// ClearCursor(); -- unnecessary, because it is just a zero-initialization
 }
 
 void FreeCursorGFX()
 {
 	MemFreeDbg(pCursCels);
-	//ClearCursor();
+	// SDL_ShowCursor(SDL_ENABLE); -- unnecessary, because an exit is expected
+	// ClearCursor();
 }
 
 void NewCursor(int i)
@@ -290,16 +292,17 @@ void CheckCursMove()
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
-	//if (pcursinvitem != INVITEM_NONE) {
+	//if (INVIDX_VALID(pcursinvitem)) {
 	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
 	//}
 	pcursinvitem = INVITEM_NONE;
 	pcursplr = PLR_NONE;
-	pcurstrig = -1;
+	pcurstrig = TRIG_NONE;
 	pcurswnd = WND_NONE;
 
 	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
+	static_assert(CMAP_NONE == 0, "BitOr optimization of CheckCursMove expects CMAP_NONE to be zero.");
 	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag)
 		return;
 
@@ -342,7 +345,7 @@ void CheckCursMove()
 		}
 	}
 	// skip monster/player/object/etc targeting if hovering over a window.
-	if (pcurswnd != WND_NONE) {
+	if (WND_VALID(pcurswnd)) {
 		// skip item targeting if the cursor can not target an item (in inventory)
 		if (pcursicon == CURSOR_HAND || pcursicon == CURSOR_IDENTIFY || pcursicon == CURSOR_REPAIR || pcursicon == CURSOR_RECHARGE || pcursicon == CURSOR_OIL) {
 			if (pcurswnd == WND_INV)
@@ -479,7 +482,7 @@ void CheckCursMove()
 	switch (pcurstgt) {
 	case TGT_NORMAL:
 		// select the previous monster/npc
-		if (pcursmonst != MON_NONE) {
+		if (MON_VALID(pcursmonst)) {
 			for (i = 4; i >= 0; i--) {
 				mi = curmon[i];
 				if (mi != 0) {
@@ -503,7 +506,7 @@ void CheckCursMove()
 			mi = curmon[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
+				if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
 					continue;
 				}
 				// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
@@ -521,7 +524,7 @@ void CheckCursMove()
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
 					continue;
 				}
 				pcursplr = mi;
@@ -610,7 +613,7 @@ done:
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
 					continue;
 				}
 				pcursplr = mi;
@@ -625,7 +628,7 @@ done:
 				mi = curmon[i];
 				if (mi != 0) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints < (1 << 6)) {
+					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints == 0) {
 						continue;
 					}
 					pcursmonst = mi;

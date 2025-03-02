@@ -381,7 +381,6 @@ typedef enum item_effect_type {
 	IPL_LIFE,
 	IPL_MANA,
 	IPL_DUR,
-	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
 	//IPL_INVCURS,
@@ -425,17 +424,18 @@ typedef enum item_affix_range {
 } item_affix_range;
 
 typedef enum affix_item_type {
-	PLT_MISC   = 1 << 1,
-	PLT_BOW    = 1 << 2,
-	PLT_STAFF  = 1 << 3,
+	PLT_MISC   = 1 << 0,
+	PLT_BOW    = 1 << 1,
+	PLT_STAFF  = 1 << 2,
+	PLT_CHRG   = 1 << 3,
 	PLT_MELEE  = 1 << 4,
 	PLT_SHLD   = 1 << 5,
-	PLT_ARMO   = 1 << 6,
-	PLT_CHRG   = 1 << 7,
-	PLT_LARMOR = 1 << 8,
-	PLT_MARMOR = 1 << 9,
-	PLT_HARMOR = 1 << 10,
-	PLT_MAP    = 1 << 11,
+	PLT_HELM   = 1 << 6,
+	PLT_LARMOR = 1 << 7,
+	PLT_MARMOR = 1 << 8,
+	PLT_HARMOR = 1 << 9,
+	PLT_MAP    = 1 << 10,
+	PLT_ARMO   = (PLT_HELM | PLT_LARMOR | PLT_MARMOR | PLT_HARMOR),
 } affix_item_type;
 
 typedef enum item_base_bonus {
@@ -1972,6 +1972,7 @@ typedef enum missile_id {
 	//MIS_FARROW,
 	//MIS_DOOMSERP,
 	MIS_STONE,
+	MIS_EXSTONE,
 	MIS_SHROUD,
 	//MIS_INVISIBL,
 	MIS_GUARDIAN,
@@ -2084,23 +2085,29 @@ typedef enum missile_gfx_id {
 	MFILE_WIND,
 	MFILE_SHROUD,
 	MFILE_INFERNO,
-	MFILE_THINLGHT,
 	MFILE_FLARE,
 	MFILE_FLAREEXP,
-	MFILE_MAGBALL,
-	//MFILE_KRULL,
 	MFILE_MINILTNG,
 	MFILE_HOLY,
 	MFILE_HOLYEXPL,
 	//MFILE_FIRARWEX,
-	MFILE_ACIDBF,
-	MFILE_ACIDSPLA,
-	MFILE_ACIDPUD,
 	//MFILE_ETHRSHLD,
 	MFILE_FIRERUN,
 	MFILE_RESSUR1,
 	//MFILE_SKLBALL,
 	MFILE_RPORTAL,
+#ifdef HELLFIRE
+	MFILE_RGLOWS1,
+	//MFILE_REFLECT,
+#endif
+	MFILE_NONE,
+	MFILE_ACTOR,
+	MFILE_THINLGHT,
+	MFILE_MAGBALL,
+	//MFILE_KRULL,
+	MFILE_ACIDBF,
+	MFILE_ACIDSPLA,
+	MFILE_ACIDPUD,
 	MFILE_FIREPLAR,
 	MFILE_SCUBMISB,
 	MFILE_SCBSEXPB,
@@ -2112,8 +2119,6 @@ typedef enum missile_gfx_id {
 	MFILE_MAGEEXP,
 #ifdef HELLFIRE
 	MFILE_SPAWNS,
-	MFILE_RGLOWS1,
-	//MFILE_REFLECT,
 	//MFILE_MS_BLA,
 	//MFILE_MS_BLB,
 	MFILE_MS_ORA,
@@ -2132,22 +2137,17 @@ typedef enum missile_gfx_id {
 	MFILE_EXORA1_B,
 #endif
 	NUM_MFILE,
-	MFILE_NONE = NUM_MFILE,
+	NUM_FIXMFILE = MFILE_NONE,
 } missile_gfx_id;
 
 typedef enum missile_flags {
-	MIF_AREA    = 1 << 0, // alternative hit chance calculation
-	MIF_NOBLOCK = 1 << 1, // can not be blocked
-	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check multiple times
-	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
-	MIF_SHROUD  = 1 << 4, // interacts with MIS_SHROUD
+	MIF_AREA    = 1 << 0, // effect is spread over the area -> can not be blocked, alternative hit chance calculation (can not be evaded), damage is not directional
+	MIF_DOT     = 1 << 1, // IPL_GETHIT modifier is ignored, hit check multiple times
+	MIF_LEAD    = 1 << 2, // leads the monster to the player (on impact)
+	MIF_SHROUD  = 1 << 3, // interacts with MIS_SHROUD
+	MIF_GUIDED  = 1 << 4, // guided missile which is changing its direction
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;
-
-typedef enum missile_anim_flags {
-	MAFLAG_HIDDEN         = 1 << 0,
-	MAFLAG_LOCK_ANIMATION = 1 << 1,
-} missile_anim_flags;
 
 typedef enum missile_add_result {
 	MIRES_DONE,
@@ -2459,12 +2459,10 @@ typedef enum _monster_flag {
 	MFLAG_LIFESTEAL       = 0x0020,
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
-	MFLAG_TARGETS_MONSTER = 0x0100,
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
 	MFLAG_NODROP          = 0x1000,
-	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 	MFLAG_KNOCKBACK       = 0x00010000,
 	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
@@ -3918,8 +3916,8 @@ typedef enum _cmd_id {
 	CMD_DOOROPEN,
 	CMD_DOORCLOSE,
 	CMD_TRAPDISABLE,
-	CMD_TRAPOPEN,
-	CMD_TRAPCLOSE,
+	//CMD_TRAPOPEN,
+	//CMD_TRAPCLOSE,
 	CMD_SHRINE,
 	CMD_TELEKINITM,
 	CMD_TELEKINMON,
@@ -4633,17 +4631,17 @@ typedef enum game_logic_progress {
 	//GLP_OBJECTS_DONE,
 	//GLP_MISSILES_DONE,
 	//GLP_ITEMS_DONE,
-} game_logic_progress; 
+} game_logic_progress;
 
 typedef enum redraw_flags {
-	REDRAW_HP_FLASK      = 1 << 0,
-	REDRAW_MANA_FLASK    = 1 << 1,
-	REDRAW_SPELL_ICON    = 1 << 2,
-	REDRAW_CTRL_BUTTONS  = 1 << 3,
-	REDRAW_SPEED_BAR     = 1 << 4,
-	REDRAW_CTRL_PANEL    = 1 << 5,
-	REDRAW_ALL = REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPELL_ICON
-               | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL,
+	REDRAW_RECALC_HP       = 1 << 0,
+	REDRAW_RECALC_MANA     = 1 << 1,
+	//REDRAW_SPELL_ICON    = 1 << 2,
+	//REDRAW_CTRL_BUTTONS  = 1 << 3,
+	//REDRAW_SPEED_BAR     = 1 << 4,
+	//REDRAW_CTRL_PANEL    = 1 << 5,
+	//REDRAW_DRAW_ALL = REDRAW_SPELL_ICON | REDRAW_CTRL_BUTTONS | REDRAW_SPEED_BAR | REDRAW_CTRL_PANEL,
+	REDRAW_RECALC_FLASKS = REDRAW_RECALC_HP | REDRAW_RECALC_MANA,
 } redraw_flags;
 
 typedef enum input_key {
@@ -4698,11 +4696,10 @@ typedef enum input_key {
 	ACT_MSG1,
 	ACT_MSG2,
 	ACT_MSG3,
-	ACT_GAMMA_DEC, // decrease the gamma
-	ACT_GAMMA_INC, // increase the gamma
 	ACT_ZOOM,  // toggle the zoom
 	ACT_VER,   // print the game version
 	ACT_HELP,  // open the help text
+	ACT_SCRN,  // make a screenshot
 	ACT_PAUSE, // pause the game
 	ACT_ESCAPE,
 	ACT_TOOLTIP, // toggle the permanency of the tooltips
@@ -4744,7 +4741,6 @@ typedef enum app_sdl_error {
 	ERR_SDL_CREDIT_PRE_TEXT_COLOR,
 	ERR_SDL_CREDIT_PRE_SHADOW,
 	ERR_SDL_CREDIT_PRE_SHADOW_COLOR,
-	ERR_SDL_UI_CURSOR_DISABLE,
 	ERR_SDL_TDRAW_TEXT,
 	ERR_SDL_TDRAW_SHADOW,
 	ERR_SDL_DX_FLIP,

@@ -15,7 +15,6 @@ extern "C" {
 extern bool deltaload;
 extern DeltaData gsDeltaData;
 extern _msg_mode geBufferMsgs;
-extern char gbNetMsg[MAX_SEND_STR_LEN];
 
 // send level-delta
 void LevelDeltaExport();
@@ -101,9 +100,9 @@ void NetSendCmdNewLvl(BYTE fom, BYTE bLevel);
  * @param seed: the seed of the level
  */
 void NetSendCmdCreateLvl(int32_t seed, BYTE lvl, BYTE type);
-void NetSendCmdString(unsigned int pmask);
-unsigned ParseMsg(int pnum, TCmd* pCmd);
-unsigned ParseCmd(int pnum, TCmd* pCmd);
+void NetSendCmdString(TMsgString* msg, unsigned int pmask);
+unsigned ParseMsg(int pnum, const TCmd* pCmd);
+unsigned ParseCmd(int pnum, const TCmd* pCmd);
 
 void UnPackPkItem(const PkItemStruct* src);
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src);

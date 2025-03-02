@@ -47,6 +47,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAX_PLRS                 4
 #define MAX_MINIONS              MAX_PLRS
 #define PLR_NONE                 0xFF
+#define PLR_VALID(x) ((int8_t)x >= 0)
 
 #define MAX_CHARACTERS           99
 #define MAX_TOWNERS              16
@@ -59,6 +60,8 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #else
 #define MAXTRIGGERS              5
 #endif
+#define TRIG_NONE                -1
+#define TRIG_VALID(x) (x >= 0)
 
 // the maximum size of the turn packets
 #define NET_TURN_MSG_SIZE       512
@@ -102,14 +105,17 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define DEAD_MULTI              0xFF
 #define MAXITEMS                127
 #define ITEM_NONE               0xFF
+#define ITEM_VALID(x) ((int8_t)x >= 0)
 #define MAXBELTITEMS            8
 #define MAXLIGHTS               32
 #define MAXMISSILES             125
 #define MIS_MULTI               0xFF
 #define MAXMONSTERS             200
-#define MON_NONE                0xFF
+#define MON_NONE                -1
+#define MON_VALID(x) (x >= 0)
 #define MAXOBJECTS              127
 #define OBJ_NONE                0xFF
+#define OBJ_VALID(x) ((int8_t)x >= 0)
 #define MAXPORTAL               MAX_PLRS
 #define MAXTHEMES               8
 #define MAXTILES                255
@@ -318,6 +324,28 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define ENABLE_WARNING(gcc_unused, clang_unused, msvc_unused)  ;
 #endif
 #endif
+
+#if DEBUG_MODE
+#define DISABLE_SPEED_OPTIMIZATION
+#define ENABLE_SPEED_OPTIMIZATION
+#else
+#ifdef _MSC_VER
+#define DISABLE_SPEED_OPTIMIZATION \
+__pragma (optimize( "", off )) \
+__pragma (optimize( "gsy", on ))
+#define ENABLE_SPEED_OPTIMIZATION \
+__pragma (optimize( "", on ))
+#elif defined(__GNUC__) && !defined(__clang__)
+#define DISABLE_SPEED_OPTIMIZATION \
+_Pragma ("GCC push_options") \
+_Pragma ("GCC optimize(\"Os\")")
+#define ENABLE_SPEED_OPTIMIZATION \
+_Pragma ("GCC pop_options")
+#else
+#define DISABLE_SPEED_OPTIMIZATION
+#define ENABLE_SPEED_OPTIMIZATION
+#endif
+#endif // DEBUG_MODE
 
 #ifndef M_SQRT2
 #define M_SQRT2    1.41421356237309504880   // sqrt(2)

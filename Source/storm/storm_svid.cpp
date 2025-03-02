@@ -230,7 +230,7 @@ static void SVidUpdatePalette()
 	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, 0, NUM_COLORS) <= 0)
 		sdl_error(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
-	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
+	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
 		sdl_error(ERR_SDL_VIDEO_SURFACE);
 	}
 #endif
@@ -321,7 +321,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
-
+#ifdef USE_SDL1
 	SVidPalette = SDL_AllocPalette(NUM_COLORS);
 	if (SVidSurface == NULL || SVidPalette == NULL) {
 		if (SVidSurface == NULL) {
@@ -334,6 +334,14 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	//	assert(smk_palette_updated(SVidSMK));
 	//	SVidUpdatePalette();
 	}
+#else
+	if (SVidSurface == NULL) {
+		sdl_issue(ERR_SDL_VIDEO_CREATE);
+		SVidPlayEnd();
+	} else {
+		SVidPalette = SVidSurface->format->palette;
+	}
+#endif
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
 }
@@ -475,10 +483,10 @@ void SVidPlayEnd()
 	SVidSMK = NULL;
 
 	MemFreeDbg(SVidBuffer);
-
+#ifdef USE_SDL1
 	SDL_FreePalette(SVidPalette);
 	SVidPalette = NULL;
-
+#endif
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
 

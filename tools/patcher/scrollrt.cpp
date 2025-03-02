@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define BACK_CURSOR 0
+#if BACK_CURSOR
 /**
  * Cursor-size
  */
@@ -25,14 +27,16 @@ static int sgCursY;
 /**
  * Buffer to store the cursor image.
  */
-BYTE sgSaveBack[MAX_CURSOR_AREA];
-
+static BYTE sgSaveBack[MAX_CURSOR_AREA];
+#endif
 /**
  * @brief Clear cursor state
  */
 void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
 {
+#if BACK_CURSOR
 	sgCursWdt = 0;
+#endif
 }
 
 /**
@@ -40,6 +44,7 @@ void ClearCursor() // CODE_FIX: this was supposed to be in cursor.cpp
  */
 static void scrollrt_remove_back_buffer_cursor()
 {
+#if BACK_CURSOR
 	int i;
 	BYTE *src, *dst;
 
@@ -57,6 +62,7 @@ static void scrollrt_remove_back_buffer_cursor()
 	}
 
 	sgCursWdt = 0;
+#endif
 }
 
 /**
@@ -64,20 +70,17 @@ static void scrollrt_remove_back_buffer_cursor()
  */
 static void scrollrt_draw_cursor()
 {
-	int i, mx, my, frame;
-	BYTE *src, *dst, *cCels;
-
+	int mx, my, frame;
+	BYTE* cCels;
+#if BACK_CURSOR
+	int i, cx, cy, cw, ch;
+	BYTE *src, *dst;
 	assert(sgCursWdt == 0);
-
+#endif
 	if (pcursicon <= CURSOR_NONE) {
 		return;
 	}
 	assert(cursW != 0 && cursH != 0);
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive && !IsMovingMouseCursorWithController())
-		return;
-#endif
 
 	mx = MousePos.x;
 	my = MousePos.y;
@@ -95,47 +98,53 @@ static void scrollrt_draw_cursor()
 	if (my >= SCREEN_HEIGHT) {
 		return;
 	}
-
-	sgCursX = mx;
-	sgCursWdt = sgCursX + cursW;
+#if BACK_CURSOR
+	cx = mx;
+	cw = cx + cursW;
 	// cut the cursor on the right side
-	//if (sgCursWdt > SCREEN_WIDTH) {
-	//	sgCursWdt = SCREEN_WIDTH;
+	//if (cw > SCREEN_WIDTH) {
+	//	cw = SCREEN_WIDTH;
 	//}
 	// cut the cursor on the left side
-	//if (sgCursX <= 0) {
-	//	sgCursX = 0;
+	//if (cx <= 0) {
+	//	cx = 0;
 	//} else {
 		// draw to 4-byte aligned blocks
-		sgCursX &= ~3;
-		sgCursWdt -= sgCursX;
+		cx &= ~3;
+		cw -= cx;
 	//}
 	// draw with 4-byte alignment
-	sgCursWdt += 3;
-	sgCursWdt &= ~3;
+	cw += 3;
+	cw &= ~3;
 
-	sgCursY = my;
-	sgCursHgt = sgCursY + cursH;
+	cy = my;
+	ch = cy + cursH;
 	// cut the cursor on the bottom
-	//if (sgCursHgt > SCREEN_HEIGHT) {
-	//	sgCursHgt = SCREEN_HEIGHT;
+	//if (ch > SCREEN_HEIGHT) {
+	//	ch = SCREEN_HEIGHT;
 	//}
 	// cut the cursor on the top
-	//if (sgCursY <= 0) {
-	//	sgCursY = 0;
+	//if (cy <= 0) {
+	//	cy = 0;
 	//} else {
-		sgCursHgt -= sgCursY;
+		ch -= cy;
 	//}
 
-	assert((unsigned)(sgCursWdt * sgCursHgt) <= sizeof(sgSaveBack));
+	sgCursX = cx;
+	sgCursY = cy;
+
+	sgCursWdt = cw;
+	sgCursHgt = ch;
+
+	assert((unsigned)(cw * ch) <= sizeof(sgSaveBack));
 	assert(gpBuffer != NULL);
 	dst = sgSaveBack;
-	src = &gpBuffer[SCREENXY(sgCursX, sgCursY)];
+	src = &gpBuffer[SCREENXY(cx, cy)];
 
-	for (i = sgCursHgt; i != 0; i--, dst += sgCursWdt, src += BUFFER_WIDTH) {
-		memcpy(dst, src, sgCursWdt);
+	for (i = ch; i != 0; i--, dst += cw, src += BUFFER_WIDTH) {
+		memcpy(dst, src, cw);
 	}
-
+#endif
 	mx += SCREEN_X;
 	my += cursH + SCREEN_Y - 1;
 
@@ -149,26 +158,22 @@ static void scrollrt_draw_cursor()
  * @brief Redraw screen
  * @param draw_cursor
  */
-void scrollrt_draw_screen(bool draw_cursor)
+void scrollrt_render_screen(bool draw_cursor)
 {
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	if (sgbControllerActive)
-		draw_cursor = false;
-#endif
-	if (draw_cursor) {
-		lock_buf(0);
-		scrollrt_draw_cursor();
-		unlock_buf(0);
-	}
-
 	if (gbWndActive) {
-		BltFast();
-	}
+		if (draw_cursor) {
+			lock_buf(0);
+			scrollrt_draw_cursor();
+			unlock_buf(0);
+		}
 
-	if (draw_cursor) {
-		lock_buf(0);
-		scrollrt_remove_back_buffer_cursor();
-		unlock_buf(0);
+		BltFast();
+
+		if (draw_cursor) {
+			lock_buf(0);
+			scrollrt_remove_back_buffer_cursor();
+			unlock_buf(0);
+		}
 	}
 	RenderPresent();
 }

@@ -2,8 +2,8 @@
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selconn.h"
+#include "DiabloUI/selhero.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_cfg.h"
@@ -17,8 +17,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
-
-extern int provider;
 
 typedef struct ConnectionInfo {
 	const char *ci_GameName;
@@ -125,8 +123,6 @@ static void selgame_remove_event_handlers()
 
 static void SelgameInit()
 {
-	LoadScrollBar();
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
 	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
 }
 
@@ -140,8 +136,6 @@ static void SelgameFreeDlgItems()
 static void SelgameFree()
 {
 	FreeBackgroundArt();
-	MemFreeDbg(gbHerosCel);
-	UnloadScrollBar();
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
@@ -171,11 +165,10 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 	hosted = provider == SELCONN_TCPS || provider == SELCONN_TCPDS;
 #endif
 	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
-	// assert(mypnum == 0 || hosted);
-	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : plx(0)._pClass + 1, rect5, false));
+	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : selhero_heroInfo.hiClass + 1, rect5, false));
 	if (!hosted) {
 		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
-		gUiItems.push_back(new UiText(plx(0)._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(selhero_heroInfo.hiName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 	}
 #ifdef ZEROTIER
 	ztBlOckBtn = NULL;
@@ -210,74 +203,47 @@ static void SelgameModeFocus(unsigned index)
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
-static const char* SelgameDiffText(int difficulty)
+static std::pair<const char*, const char*> SelgameDiffText(int difficulty)
 {
-	const char* result = "Normal";
+	std::pair<const char*, const char*> result = { "Normal", "This is where a starting character should begin the quest to defeat Diablo" };
 	if (difficulty == DIFF_NIGHTMARE)
-		result = "Nightmare";
+		result = { "Nightmare", "The denizens of the Labyrinth have been bolstered and will prove to be a greater challenge" };
 	if (difficulty == DIFF_HELL)
-		result = "Hell";
+		result = { "Hell", "The most powerful of the underworld's creatures lurk at the gateway into Hell" };
 	return result;
 }
 
 static void SelgameDiffFocus(unsigned index)
 {
 	int diff = gUIListItems[index]->m_value;
-	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameDiffText(diff));
-	const char* txt;
-	switch (diff) {
-	case DIFF_NORMAL:
-		txt = "This is where a starting character should begin the quest to defeat Diablo";
-		break;
-	case DIFF_NIGHTMARE:
-		txt = "The denizens of the Labyrinth have been bolstered and will prove to be a greater challenge";
-		break;
-	case DIFF_HELL:
-		txt = "The most powerful of the underworld's creatures lurk at the gateway into Hell";
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", selgame_Label, txt);
+	const std::pair<const char*, const char*> diffTexts = SelgameDiffText(diff);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Label, sizeof(selgame_Label), diffTexts.first);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", diffTexts.first, diffTexts.second);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
-static const char* SelgameSpeedText(int speed)
+static std::pair<const char*, const char*> SelgameSpeedText(int speed)
 {
-	const char* result = "Normal";
+	std::pair<const char*, const char*> result = { "Normal", "This is where a starting character should begin the quest to defeat Diablo" };
 	if (speed == SPEED_FAST)
-		result = "Fast";
+		result = { "Fast", "The denizens of the Labyrinth have been hastened and will prove to be a greater challenge" };
 	if (speed == SPEED_FASTER)
-		result = "Faster";
+		result = { "Faster", "Most monsters of the dungeon will seek you out quicker than ever before" };
 	if (speed == SPEED_FASTEST)
-		result = "Fastest";
+		result = { "Fastest", "The minions of the underworld will rush to attack without hesitation" };
 	return result;
 }
 
 static void SelgameSpeedFocus(unsigned index)
 {
 	int speed = gUIListItems[index]->m_value;
-	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameSpeedText(speed));
-	const char* txt;
-	switch (speed) {
-	case SPEED_NORMAL:
-		txt = "This is where a starting character should begin the quest to defeat Diablo";
-		break;
-	case SPEED_FAST:
-		txt = "The denizens of the Labyrinth have been hastened and will prove to be a greater challenge";
-		break;
-	case SPEED_FASTER:
-		txt = "Most monsters of the dungeon will seek you out quicker than ever before";
-		break;
-	case SPEED_FASTEST:
-		txt = "The minions of the underworld will rush to attack without hesitation";
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", selgame_Label, txt);
+	const std::pair<const char*, const char*> speedTexts = SelgameSpeedText(speed);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Label, sizeof(selgame_Label), speedTexts.first);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", speedTexts.first, speedTexts.second);
 	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
 }
 
@@ -342,7 +308,7 @@ static void SelgameModeInit()
 	}
 #endif
 	if (provider == SELCONN_LOOPBACK) {
-		if (!gbValidSaveFile) {
+		if (!selhero_heroInfo.hiSaveFile) {
 			SelgameModeSet(SELGAME_CREATE);
 			return;
 		}
@@ -480,8 +446,8 @@ static void SelgameAddressListFocus(unsigned index)
 	} else {
 		if (index != selgame_connum) {
 			const SNetZtGame& ztGame = selgame_ztGames[index];
-			selgame_ztGameLabels.difficultyTxt->m_text = SelgameDiffText(ztGame.ngData.ngDifficulty);
-			selgame_ztGameLabels.speedTxt->m_text = SelgameSpeedText(ztGame.ngData.ngTickRate);
+			selgame_ztGameLabels.difficultyTxt->m_text = SelgameDiffText(ztGame.ngData.ngDifficulty).first;
+			selgame_ztGameLabels.speedTxt->m_text = SelgameSpeedText(ztGame.ngData.ngTickRate).first;
 
 			for (int i = 0; i < MAX_PLRS; i++) {
 				const SNetZtPlr &ztPlr = ztGame.ngPlayers[i];
@@ -765,7 +731,7 @@ static void SelgameDiffEsc()
 		return;
 	}
 #endif
-	if (provider == SELCONN_LOOPBACK && !gbValidSaveFile) {
+	if (provider == SELCONN_LOOPBACK && !selhero_heroInfo.hiSaveFile) {
 		SelgameModeEsc();
 		return;
 	}
@@ -874,7 +840,7 @@ int UiSelectGame(_uigamedata* game_data)
 			ztBlOckBtn->m_iFlags |= UIS_GOLD;
 			ztBlOckBtn = NULL;
 		}
-		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && ztNextRefresh < SDL_GetTicks()) {
+		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && SDL_TICKS_PASSED(SDL_GetTicks(), ztNextRefresh)) {
 			ztRefreshBtn->m_iFlags &= ~(UIS_SILVER | UIS_DISABLED);
 			ztRefreshBtn->m_iFlags |= UIS_GOLD;
 			ztRefreshBtn = NULL;

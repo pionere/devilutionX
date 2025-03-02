@@ -279,10 +279,10 @@ void Joystick::Add(int deviceIndex)
 	joysticks_.push_back(result);
 	sgbControllerActive = true;
 }
-
+#ifndef USE_SDL1
 void Joystick::Remove(SDL_JoystickID instanceId)
 {
-#ifndef USE_SDL1
+
 	DoLog("Removing joystick (instance id: %d)", instanceId);
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
 		const Joystick& joystick = joysticks_[i];
@@ -294,9 +294,8 @@ void Joystick::Remove(SDL_JoystickID instanceId)
 		return;
 	}
 	DoLog("Joystick not found with instance id: %d", instanceId);
-#endif
 }
-
+#endif
 Joystick* Joystick::Get(SDL_JoystickID instanceId)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i) {
@@ -331,14 +330,19 @@ Joystick* Joystick::Get(const SDL_Event& event)
 	}
 	return NULL;
 }
-
+#if 0
 void Joystick::ReleaseAll()
 {
+#ifndef USE_SDL1
 	while (!joysticks_.empty()) {
 		Joystick::Remove(joysticks_.front().instance_id_);
 	}
+#else
+	SDL_JoystickClose(joysticks_.front().instance_id_);
+	joysticks_.clear();
+#endif
 }
-
+#endif
 bool Joystick::IsPressedOnAnyJoystick(ControllerButton button)
 {
 	for (unsigned i = 0; i < joysticks_.size(); ++i)

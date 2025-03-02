@@ -33,7 +33,8 @@ bool gbCineflag;
 BYTE gbGameLogicProgress = GLP_NONE;
 /** Specifies which part of the screen should be redrawn. */
 int gbRedrawFlags;
-bool gbGamePaused;
+/** tick-count when the pause was started, zero if the game is not paused */
+Uint32 gnGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
 BYTE gbDeathflag = MDM_ALIVE;
 /** The state of the buttons for which might be repeated while held down. */
@@ -61,13 +62,13 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
   ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
 // SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,       
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_SCRN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    A,        B,           C,        D,        E,        F,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SKL0, ACT_SKLBOOK, ACT_CHAR, ACT_SKL2, ACT_SKL6, ACT_SKL3,
-// G,            H,                I,       J,        K,        L,        M,        N,        O,        P,
-  ACT_GAMMA_INC, ACT_GAMMA_DEC, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_VER, ACT_PAUSE,
+// G,         H,        I,       J,        K,        L,          M,        N,        O,       P,
+  ACT_NONE, ACT_NONE, ACT_INV, ACT_NONE, ACT_NONE, ACT_SKLLIST, ACT_TEAM, ACT_NONE, ACT_VER, ACT_PAUSE,
 // Q,         R,        S,           T,           U,        V,       W,        X,        Y,        Z,
   ACT_SKL4, ACT_SKL7, ACT_SKL1, ACT_TOOLTIP, ACT_QUESTS, ACT_TGT, ACT_SKL5, ACT_SWAP, ACT_NONE, ACT_ZOOM,
 // LWIN,    RWIN,     APPS,     UNDEF,    SLEEP,    NUM0,     NUM1,     NUM2,     NUM3,     NUM4,
@@ -208,7 +209,6 @@ static void diablo_deinit()
 {
 	NetClose();
 	SNetDestroy();
-	pfile_flush(true);
 	// FreeGameFX(); StopHelp/ClearPanels(); -- TODO: enable if the OS cares about non-freed memory
 	if (gbSndInited) {
 		StopSFX(); // stop click-effect
@@ -337,7 +337,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
-		if (pcursmonst != MON_NONE) {
+		if (MON_VALID(pcursmonst)) {
 			if (CanTalkToMonst(pcursmonst)) {
 				NetSendCmdParam1(CMD_TALKMON, pcursmonst);
 			} else {
@@ -345,7 +345,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			}
 			return;
 		}
-		if (pcursplr != PLR_NONE && myplr._pTeam != players[pcursplr]._pTeam) {
+		if (PLR_VALID(pcursplr) && myplr._pTeam != players[pcursplr]._pTeam) {
 			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
@@ -355,7 +355,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		}
 	} else if (moveSkill == SPL_INVALID) {
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
-			PlaySFX(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
+			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (asf == 0 && msf == 0)*/ {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
@@ -366,7 +366,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 	// assert(moveSkill != SPL_INVALID);
 	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
-	if (pcursmonst != MON_NONE) {
+	if (MON_VALID(pcursmonst)) {
 		if (CanTalkToMonst(pcursmonst)) {
 			NetSendCmdParam1(CMD_TALKMON, pcursmonst);
 			return;
@@ -376,12 +376,12 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		//return;
 	}
 
-	if (pcursplr != PLR_NONE) {
+	if (PLR_VALID(pcursplr)) {
 		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
 		//return;
 	}
 
-	if (pcursobj != OBJ_NONE) {
+	if (OBJ_VALID(pcursobj)) {
 		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
 		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
@@ -396,7 +396,7 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		return;
 	}
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
 		return;
 	}
@@ -419,12 +419,12 @@ static bool TryIconCurs()
 	case CURSOR_REPAIR:
 	case CURSOR_RECHARGE:
 	case CURSOR_OIL:
-		if (pcursinvitem != INVITEM_NONE) {
+		if (INVIDX_VALID(pcursinvitem)) {
 			NetSendCmdItemSkill(pcursinvitem, gbTSkillUse);
 		}
 		break;
 	case CURSOR_DISARM:
-		if (pcursobj != OBJ_NONE && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
+		if (OBJ_VALID(pcursobj) && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!(SDL_GetModState() & KMOD_SHIFT) ||
 			 (abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
@@ -434,22 +434,22 @@ static bool TryIconCurs()
 		break;
 	case CURSOR_TELEKINESIS: {
 		// assert(gbTSkillUse.skill == SPL_TELEKINESIS);
-		if (pcursobj != OBJ_NONE) {
+		if (OBJ_VALID(pcursobj)) {
 			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
-		} else if (pcursitem != ITEM_NONE) {
+		} else if (ITEM_VALID(pcursitem)) {
 			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
-		} else if (pcursmonst != MON_NONE) {
+		} else if (MON_VALID(pcursmonst)) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
-		} else if (pcursplr != MON_NONE) {
+		} else if (PLR_VALID(pcursplr)) {
 			NetSendCmdBParam2(CMD_TELEKINPLR, gbTSkillUse.from, pcursplr);
 		}
 	} break;
 	case CURSOR_TELEPORT:
 	case CURSOR_HEALOTHER:
 	case CURSOR_RESURRECT:
-		if (pcursmonst != MON_NONE)
+		if (MON_VALID(pcursmonst))
 			NetSendCmdMonSkill(pcursmonst, gbTSkillUse);
-		else if (pcursplr != PLR_NONE)
+		else if (PLR_VALID(pcursplr))
 			NetSendCmdPlrSkill(pcursplr, gbTSkillUse);
 		else if (pcursicon == CURSOR_TELEPORT)
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSkillUse);
@@ -463,12 +463,12 @@ static bool TryIconCurs()
 
 static void ActionBtnDown()
 {
-	assert(!gbDropGoldFlag);
+	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
-	// assert(!gbTalkflag || !control_check_talk_btn());
+	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
-	assert(!gbGamePaused);
+	assert(gnGamePaused == 0);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
@@ -540,10 +540,12 @@ static void AltActionBtnCmd()
 
 static void AltActionBtnDown()
 {
+//	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
 	assert(!gmenu_is_active());
 	assert(gnTimeoutCurs == CURSOR_NONE);
+//	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
-	assert(!gbGamePaused);
+	assert(gnGamePaused == 0);
 	//assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
@@ -568,7 +570,7 @@ static void AltActionBtnDown()
 	switch (pcurswnd) {
 	case WND_BELT:
 	case WND_INV:
-		if (pcursinvitem != INVITEM_NONE)
+		if (INVIDX_VALID(pcursinvitem))
 			InvUseItem(pcursinvitem);
 		break;
 	case WND_CHAR:
@@ -589,18 +591,28 @@ static void AltActionBtnDown()
 	}
 }
 
-static void diablo_pause_game()
+void diablo_pause_game(bool pause)
 {
-	if (!IsMultiGame) {
-		gbGamePaused = !gbGamePaused;
-		sound_pause(gbGamePaused);
-		//gbRedrawFlags = REDRAW_ALL;
+	if (!IsMultiGame && pause != (gnGamePaused != 0)) {
+		Uint32 now = SDL_GetTicks();
+		if (pause) {
+			if (now == 0)
+				now = 1;
+		} else {
+			extern Uint32 guNextTick;
+			guNextTick += now - gnGamePaused;
+			now = 0;
+		}
+		gnGamePaused = now;
+		sound_pause(pause);
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	}
 }
 
 static void diablo_hotkey_msg(int actKey)
 {
 	char entryKey[16];
+	TMsgString msg;
 
 	if (IsLocalGame)
 		return;
@@ -609,10 +621,11 @@ static void diablo_hotkey_msg(int actKey)
 	static_assert(ACT_MSG1 + 1 == ACT_MSG2, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 2.");
 	static_assert(ACT_MSG2 + 1 == ACT_MSG3, "diablo_hotkey_msg expects a continuous assignment of ACT_MSGx 3.");
 	snprintf(entryKey, sizeof(entryKey), "QuickMsg%02d", actKey - ACT_MSG0);
-	if (!getIniValue("NetMsg", entryKey, gbNetMsg, sizeof(gbNetMsg)))
-		return;
-
-	NetSendCmdString(SNPLAYER_ALL);
+	int len = getIniValue("NetMsg", entryKey, msg.str, sizeof(msg.str));
+	if (len > 0) {
+		msg.bsLen = len;
+		NetSendCmdString(&msg, SNPLAYER_ALL);
+	}
 }
 
 /*static bool PressSysKey(int wParam)
@@ -639,8 +652,6 @@ static void ReleaseKey(int vkey)
 		if (gbTalkflag)
 			plrmsg_HandleMouseReleaseEvent();
 		gbDragWnd = WND_NONE;
-	} else if (vkey == DVL_VK_SNAPSHOT) {
-		CaptureScreen();
 	}
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
@@ -681,7 +692,7 @@ bool PressEscKey()
 		msgdelay = 0;
 		rv = true;
 	}
-	if (gbDropGoldFlag) {
+	if (INVIDX_VALID(gbDropGoldIndex)) {
 		control_drop_gold(DVL_VK_ESCAPE);
 		rv = true;
 	}
@@ -710,9 +721,10 @@ void ClearPanels()
 	StopHelp();
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
+	gabPanbtn[PANBTN_MAINMENU] = false;
 	gbSkillListFlag = false;
 	gbCampaignMapFlag = CMAP_NONE;
-	gbDropGoldFlag = false;
+	gbDropGoldIndex = INVITEM_NONE;
 }
 
 static void ClearUI()
@@ -722,41 +734,39 @@ static void ClearUI()
 	assert(!gbQtextflag);
 	gbAutomapflag = AMM_NONE;
 	msgdelay = 0;
-	gabPanbtn[PANBTN_MAINMENU] = false;
 	//doom_close();
 }
 
 #if DEBUG_MODE
 static void PressDebugChar(int vkey)
 {
+	TMsgString msg;
 	switch (vkey) {
 	case 'R':
 	case 'r':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
-		NetSendCmdString(1 << mypnum);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "seed = %d", glSeedTbl[currLvl._dLevelIdx]);
 		break;
 	case 'T':
 	case 't':
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "PX = %d  PY = %d", myplr._px, myplr._py);
-		NetSendCmdString(1 << mypnum);
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
-		NetSendCmdString(1 << mypnum);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "PX = %d  PY = %d", myplr._px, myplr._py);
+		NetSendCmdString(&msg, 1 << mypnum);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
 		break;
 	case '[':
-		if (pcursitem != ITEM_NONE) {
-			snprintf(
-			    gbNetMsg,
-				sizeof(gbNetMsg),
+		if (ITEM_VALID(pcursitem)) {
+			msg.bsLen = snprintf(msg.str, sizeof(msg.str),
 			    "IDX = %d  :  Seed = %d  :  CF = %d",
 			    items[pcursitem]._iIdx,
 			    items[pcursitem]._iSeed,
 			    items[pcursitem]._iCreateInfo);
-			NetSendCmdString(1 << mypnum);
+			NetSendCmdString(&msg, 1 << mypnum);
 		}
-		snprintf(gbNetMsg, sizeof(gbNetMsg), "Numitems : %d", numitems);
-		NetSendCmdString(1 << mypnum);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "Numitems : %d", numitems);
 		break;
+	default:
+		return;
 	}
+	NetSendCmdString(&msg, 1 << mypnum);
 }
 #endif
 
@@ -867,14 +877,16 @@ void InputBtnDown(int transKey)
 	case ACT_ITEM5:
 	case ACT_ITEM6:
 	case ACT_ITEM7:
-		static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
-		static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
-		static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
-		static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
-		static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
-		static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
-		static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
-		InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
+			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
+			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
+			static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
+			static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
+			static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
+			static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
+			InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
+		}
 		break;
 	case ACT_AUTOMAP:
 		ToggleAutomap();
@@ -959,12 +971,6 @@ void InputBtnDown(int transKey)
 	case ACT_MSG3:
 		diablo_hotkey_msg(transKey);
 		break;
-	case ACT_GAMMA_DEC:
-		DecreaseGamma();
-		break;
-	case ACT_GAMMA_INC:
-		IncreaseGamma();
-		break;
 	case ACT_ZOOM:
 		gbZoomInFlag = !gbZoomInFlag;
 		CalcViewportGeometry();
@@ -981,6 +987,9 @@ void InputBtnDown(int transKey)
 			StartHelp();
 		}
 		break;
+	case ACT_SCRN:
+		CaptureScreen();
+		break;
 	case ACT_PAUSE:
 		break;
 	case ACT_ESCAPE:
@@ -996,10 +1005,14 @@ void InputBtnDown(int transKey)
 		PerformSpellAction();
 		break;
 	case ACT_CTRL_USE_HP:
-		UseBeltItem(false);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			UseBeltItem(false);
+		}
 		break;
 	case ACT_CTRL_USE_MP:
-		UseBeltItem(true);
+		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+			UseBeltItem(true);
+		}
 		break;
 #endif
 	default:
@@ -1048,14 +1061,14 @@ static void PressKey(int vkey)
 	}
 
 	if (transKey == ACT_PAUSE) {
-		diablo_pause_game();
+		diablo_pause_game(gnGamePaused == 0);
 		return;
 	}
-	if (gbGamePaused) {
+	if (gnGamePaused != 0) {
 		return;
 	}
 
-	if (gbDropGoldFlag) {
+	if (INVIDX_VALID(gbDropGoldIndex)) {
 		control_drop_gold(vkey);
 		return;
 	}
@@ -1128,7 +1141,7 @@ void DisableInputWndProc(const Dvl_Event* e)
 		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break; //  return;
 	// case DVL_WM_QUERYENDSESSION:
 	// case DVL_DWM_NEXTLVL:
@@ -1168,12 +1181,12 @@ void GameWndProc(const Dvl_Event* e)
 			gamemenu_off();
 		NetSendCmd(CMD_DISCONNECT);
 		gbRunGameResult = false;
-		gbGamePaused = false;
+		gnGamePaused = 0; // diablo_pause_game(false);
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
-		else if (gbDragWnd != WND_NONE)
+		else if (WND_VALID(gbDragWnd))
 			DoWndDrag();
 		else if (gbTalkflag)
 			plrmsg_HandleMouseMoveEvent();
@@ -1212,7 +1225,7 @@ void GameWndProc(const Dvl_Event* e)
 		gbActionBtnDown = 0;
 		break; //  return;
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break; //  return;
 	// case DVL_WM_QUERYENDSESSION:
 	//	break;
@@ -1236,9 +1249,8 @@ void GameWndProc(const Dvl_Event* e)
 			InitLevelCursor();
 			LoadPWaterPalette();
 			PaletteFadeIn(true);
-			gbRedrawFlags = REDRAW_ALL;
-			scrollrt_draw_game();
-			//gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags |= REDRAW_DRAW_ALL;
+			scrollrt_render_game();
 		}
 		break; //  return;
 	default:
@@ -1250,7 +1262,15 @@ void GameWndProc(const Dvl_Event* e)
 
 static bool ProcessInput()
 {
-	if (gbGamePaused) {
+	if (gmenu_is_active()) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		CheckMenuMove();
+#endif
+		// assert(!(IsMultiGame && gnGamePaused != 0));
+		return IsMultiGame;
+	}
+
+	if (gnGamePaused != 0) {
 		return false;
 	}
 
@@ -1258,23 +1278,13 @@ static bool ProcessInput()
 	plrctrls_every_frame();
 #endif
 
-	if (gmenu_is_active()) {
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
-#endif
-		return IsMultiGame;
-	}
-
-	if (gnTimeoutCurs == CURSOR_NONE && gbDragWnd == WND_NONE) {
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
+	if (gnTimeoutCurs == CURSOR_NONE && !WND_VALID(gbDragWnd)) {
 		CheckCursMove();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();
 #endif
-		Uint32 tick = SDL_GetTicks();
-		if ((myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && (tick - guLastRBD) >= gnTickDelay * 6 && gbDeathflag == MDM_ALIVE && gbActionBtnDown != 0) {
+		if (gbActionBtnDown != 0 && (myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && SDL_TICKS_AFTER(SDL_GetTicks(), guLastRBD, gnTickDelay * 6)) {
+			// assert(gbDeathflag == MDM_ALIVE);
 			int dx = 0, dy = 0;
 			for (int i = ACT_ACT; i <= ACT_W_SE; i++) {
 				if (gbActionBtnDown & ACTBTN_MASK(i)) {
@@ -1344,34 +1354,32 @@ static void game_loop()
 	i = IsMultiGame ? 3 : 1;
 
 	do {
-		if (!ProcessInput())
-			break;
 		if (!multi_handle_turn()) {
 			if (multi_check_timeout() && gnTimeoutCurs == CURSOR_NONE) {
 				gnTimeoutCurs = pcursicon;
 				NewCursor(CURSOR_HOURGLASS);
-				// gbRedrawFlags = REDRAW_ALL;
+				// gbRedrawFlags |= REDRAW_DRAW_ALL;
 			}
-			//scrollrt_draw_screen(true);
+			//scrollrt_render_screen(true);
 			break;
 		}
 		if (gnTimeoutCurs != CURSOR_NONE) {
 			NewCursor(gnTimeoutCurs);
 			gnTimeoutCurs = CURSOR_NONE;
-			// gbRedrawFlags = REDRAW_ALL;
+			// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		}
-		//if (ProcessInput()) {
-			game_logic();
+		game_logic();
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 			plrctrls_after_game_logic();
 #endif
 		//}
-	} while (--i != 0 && gbRunGame && nthread_has_50ms_passed());
+	} while (--i != 0 && gbRunGame && nthread_ticks2gameturn() <= 0);
 }
 
 static void diablo_color_cyc_logic()
 {
-	if (!gbColorCyclingEnabled || gbGamePaused)
+	// assert(gnGamePaused == 0);
+	if (!gbColorCyclingEnabled)
 		return;
 
 	if (currLvl._dType == DTYPE_HELL)
@@ -1456,31 +1464,31 @@ static void run_game()
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
+#if HAS_TOUCHPAD
+		finish_simulated_mouse_clicks();
+#endif
 		if (!gbRunGame)
 			break;
-		if (!nthread_has_50ms_passed()) {
-			ProcessInput();
-			scrollrt_draw_game();
+		if (!ProcessInput() || nthread_ticks2gameturn() > 0) {
+			scrollrt_render_game();
 			continue;
 		}
 		diablo_color_cyc_logic();
 		game_loop();
-		scrollrt_draw_game();
+		scrollrt_render_game();
 #ifdef GPERF_HEAP_FIRST_GAME_ITERATION
 		if (run_game_iteration++ == 0)
 			HeapProfilerDump("first_game_iteration");
 #endif
 	}
 	NetClose();
-	if (IsMultiGame)
-		pfile_write_hero(true);
-	//else
-	//	pfile_flush(true);
+
+	pfile_close();
 
 	PaletteFadeOut();
 	//NewCursor(CURSOR_NONE);
 	//ClearScreenBuffer();
-	//scrollrt_draw_screen(true);
+	//scrollrt_render_screen(true);
 	saveProc = SetWindowProc(NULL); // saveProc);
 	assert(saveProc == GameWndProc);
 	FreeGameFX();

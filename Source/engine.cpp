@@ -326,11 +326,16 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
  */
 void PlayInGameMovie(const char* pszMovie)
 {
+	// Uint32 currTc = SDL_GetTicks();
+
 	PaletteFadeOut();
 	play_movie(pszMovie, 0);
-	scrollrt_draw_game();
+	scrollrt_render_game();
 	PaletteFadeIn(false);
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	// skip time due to movie and fadein/out
+	extern Uint32 guNextTick;
+	guNextTick = SDL_GetTicks() + gnTickDelay; // += SDL_GetTicks() - currTc;
 }
 
 DEVILUTION_END_NAMESPACE

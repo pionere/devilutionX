@@ -308,39 +308,40 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 
 void InitPlayerGFX(int pnum)
 {
-	unsigned gfxflag;
+	unsigned gfx2load, gfxvalid;
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("InitPlayerGFX: illegal player %d", pnum);
 	}
+	gfxvalid = plr._pGFXLoad;
 	// reset gfx-flags which are no longer usable
 	if (currLvl._dType == DTYPE_TOWN)
-		plr._pGFXLoad &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+		gfxvalid &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
 	else
-		plr._pGFXLoad &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
+		gfxvalid &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
 	// select appropriate flags based on player-status and location
-	if (plr._pHitPoints >= (1 << 6)) {
-		gfxflag = PGF_NONDEATH;
+	if (plr._pHitPoints != 0) {
+		gfx2load = PGF_NONDEATH;
 		// commented out because it is preferable to load everything at once
 		//if (currLvl._dType == DTYPE_TOWN)
-		//	gfxflag &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
+		//	gfx2load &= ~(PGF_ATTACK | PGF_GOTHIT | PGF_FIRE | PGF_LIGHTNING | PGF_BLOCK);
 		//else if (!(plr._pSkillFlags & SFLAG_BLOCK))
-		//	gfxflag &= ~PGF_BLOCK;
-		if (plr._pGFXLoad & PGF_DEATH) // MEM_DEATH: gfxflag is either for death or non-death animations
-			plr._pGFXLoad = 0;
+		//	gfx2load &= ~PGF_BLOCK;
+		gfxvalid &= PGF_NONDEATH; // MEM_DEATH: _pAnimFileData is either for death or non-death animations
 	} else {
-		gfxflag = PGF_DEATH;
+		gfx2load = PGF_DEATH;
 		// protect against warping deads
 		if (plr._pgfxnum != ANIM_ID_UNARMED) {
 			plr._pgfxnum = ANIM_ID_UNARMED;
-			plr._pGFXLoad = 0;
+			gfxvalid = 0;
 		}
-		if (plr._pGFXLoad & PGF_NONDEATH) // MEM_DEATH
-			plr._pGFXLoad = 0;
+		gfxvalid &= PGF_DEATH; // MEM_DEATH
 	}
+	// update gfx-flags
+	plr._pGFXLoad = gfxvalid;
 	// mask gfx-flags which are already loaded
-	gfxflag &= ~plr._pGFXLoad;
+	gfx2load &= ~gfxvalid;
 
-	LoadPlrGFX(pnum, gfxflag);
+	LoadPlrGFX(pnum, gfx2load);
 }
 
 static unsigned GetPlrGFXSize(const char* szCel)
@@ -511,6 +512,7 @@ void SetPlrAnims(int pnum)
 		if (gn == ANIM_ID_BOW) {
 			plr._pAnims[PGX_STAND].paFrames = 8;
 			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
@@ -539,6 +541,7 @@ void SetPlrAnims(int pnum)
 		if (gn == ANIM_ID_UNARMED) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
 		} else if (gn == ANIM_ID_UNARMED_SHIELD) {
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 9;
 		} else if (gn == ANIM_ID_BOW) {
 			plr._pAnims[PGX_ATTACK].paFrames = 20;
@@ -603,9 +606,10 @@ void SetPlrAnims(int pnum)
 			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			//plr._pAnims[PGX_ATTACK].paFrames = 16;
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
+			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 8;
 		}
 		break;
@@ -616,7 +620,7 @@ void SetPlrAnims(int pnum)
 	}
 	if (currLvl._dType == DTYPE_TOWN) {
 		plr._pAnims[PGX_STAND].paFrames = 20;
-		//plr._pAnims[PGX_WALK].paFrames = 8;
+		// plr._pAnims[PGX_WALK].paFrames = 8;
 	}
 }
 
@@ -962,10 +966,10 @@ void AddPlrExperience(int pnum, int lvl, unsigned exp)
 		dev_fatal("AddPlrExperience: illegal player %d", pnum);
 	}
 
-	//if (plr._pHitPoints < (1 << 6)) {
+	//if (plr._pHitPoints == 0) {
 	//	return;
 	//}
-	// assert(plr._pmode != PM_DEATH);
+	// assert(plr._pmode != PM_DEATH && plr._pmode != PM_DYING);
 
 	// Add xp to the used skills
 	AddPlrSkillExp(pnum, lvl, exp);
@@ -1018,6 +1022,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 
 	if (pnum == mypnum) {
 		gbDeathflag = MDM_DYING;
+		gbActionBtnDown = 0;
 		NetSendCmdBParam1(CMD_PLRDEAD, dmgtype);
 	}
 
@@ -1160,7 +1165,7 @@ static void PlrChangeOffset(int pnum)
 		ScrollInfo._sxoff = -plr._pxoff;
 		ScrollInfo._syoff = -plr._pyoff;
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		//if (gbActionBtnDown && (px | py) != 0 && pcursmonst != MON_NONE)
+		// if (gbActionBtnDown != 0 && (px | py) != 0 && MON_VALID(pcursmonst))
 		//	SetCursorPos(MousePos.x + px, MousePos.y + py);
 	}
 
@@ -1417,10 +1422,12 @@ static void StartRangeAttack(int pnum)
 	AssertFixPlayerLocation(pnum);
 }
 
-static void StartTurn(int pnum)
+static void StartTurn(int pnum, int dir)
 {
-	plr._pdir = plr._pDestParam1;
-	StartStand(pnum);
+	// assert(plr._pmode == PM_STAND);
+	plr._pdir = dir;
+	plr._pAnimData = plr._pAnims[PGX_STAND].paAnimData[dir];
+	// StartStand(pnum);
 }
 
 static void StartBlock(int pnum, int dir)
@@ -1503,14 +1510,11 @@ static void StartPickItem(int pnum)
 
 static void StartTalk(int pnum)
 {
-	int mnum;
+	int mnum = plr._pDestParam1;
 
-	mnum = plr._pDestParam1;
-
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		if (pnum == mypnum)
-			TalkToTowner(mnum);
-	} else
+	if (currLvl._dLevelIdx == DLV_TOWN)
+		TalkToTowner(mnum, pnum);
+	else
 		TalktoMonster(mnum, pnum);
 }
 
@@ -1555,14 +1559,9 @@ static void PlrStartGetHit(int pnum, int dir)
 static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
-	// assert(plr._pHitPoints >= (1 << 6));
-	// if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
-	//	return;
+	// assert(plr._pHitPoints != 0);
+	// AssertFixPlayerLocation(pnum);
 
-	if (plr._pmode != PM_GOTHIT)
-		PlrStartGetHit(pnum, dir);
-
-	dir = OPPOSITE(dir);
 	oldx = plr._px;
 	oldy = plr._py;
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
@@ -1580,16 +1579,13 @@ static void PlrGetKnockback(int pnum, int dir)
 	}
 }
 
-void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy)
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 {
-	int dir;
-
+	bool knockback, stun;
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
-
-	// assert(plr._pHitPoints >= (1 << 6) && dam >= 0);
-
+	// assert(plr._pHitPoints != 0 && dam >= 0);
 	if (plr._pManaShield != 0) {
 		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
 		if (hitflags == 0)
@@ -1597,18 +1593,19 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 		// dam = 0;
 	}
 
-	dir = GetDirection(plr._px, plr._py, sx, sy);
-	PlaySfxLoc(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
+	PlaySfxLocN(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 64) == 0 : random_(48, 128) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
-
-	if (hitflags & ISPL_KNOCKBACK) {
-		PlrGetKnockback(pnum, dir);
-	} else if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
-		PlrStartGetHit(pnum, dir);
+	knockback = (hitflags & ISPL_KNOCKBACK) != 0;
+	stun = (hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP;
+	if (knockback || stun) {
+		if (stun || plr._pmode != PM_GOTHIT)
+			PlrStartGetHit(pnum, OPPOSITE(dir));
+		if (knockback)
+			PlrGetKnockback(pnum, dir);
 	}
 }
 
@@ -1729,7 +1726,6 @@ void UseTownPortal(int pnum, int pidx)
 		plr._pDunLevel = DLV_TOWN;
 	} else {
 		plr._pDunLevel = portals[pidx]._rlevel;
-		static_assert(MAXPORTAL == MAX_PLRS, "UseTownPortal uses pnum as portal-id.");
 		if (pidx == pnum) {
 			DeactivatePortal(pidx);
 		}
@@ -1780,7 +1776,7 @@ static void PlrDoWalk(int pnum)
 	}
 	assert(PlrAnimFrameLens[PGX_WALK] == 1);
 	if ((plr._pAnimFrame & 3) == 3) {
-		PlaySfxLoc(PS_WALK1, plr._px, plr._py);
+		PlayWalkSfx(pnum);
 	}
 
 	assert(PlrAnimFrameLens[PGX_WALK] == 1);
@@ -1942,7 +1938,7 @@ static bool PlrHitMonst(int pnum, int sn, int sl, int mnum)
 		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		//if (hitFlags & ISPL_NOHEALMON)
 		//	mon->_mFlags |= MFLAG_NOHEAL;
-		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._px, plr._py);
+		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._pdir);
 	}
 	return true;
 }
@@ -1966,7 +1962,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (!CheckHit(hper))
 		return false;
 
-	if (PlrCheckBlock(pnum, plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
+	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, OPPOSITE(plx(offp)._pdir)))
 		return true;
 
 	dam = 0;
@@ -2028,14 +2024,20 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._px, plx(offp)._py);
+		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._pdir);
 	}
 	return true;
 }
 
-static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
+static int PlrTryHit(int pnum, int dir)
 {
-	int mpo;
+	int dx, dy, mpo, sn, sl;
+
+	plr._pdir = dir;
+	dx = plr._px + offset_x[dir];
+	dy = plr._py + offset_y[dir];
+	sn = plr._pVar5; // ATTACK_SKILL
+	sl = plr._pVar6, // ATTACK_SKILL_LEVEL
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
@@ -2106,23 +2108,20 @@ static void PlrDoAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFNum - 1)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
-		plr._pVar7++;
-		PlaySfxLoc(PS_SWING, plr._px, plr._py, 2);
+		plr._pVar7 = 1;
+		PlaySfxLocN(PS_SWING, plr._px, plr._py, 2);
 	}
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;
 	}
 	if (plr._pVar7 == 1) {
-		plr._pVar7++;
-		dir = plr._pdir;
-		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
-			plr._px + offset_x[dir], plr._py + offset_y[dir]);
+		plr._pVar7 = 2;
+		hitcnt = PlrTryHit(pnum, plr._pdir);
 		if (plr._pVar5 == SPL_SWIPE) {
-			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[(dir + 1) & 7], plr._py + offset_y[(dir + 1) & 7]);
-
-			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[(dir + 7) & 7], plr._py + offset_y[(dir + 7) & 7]);
+			dir = plr._pdir;
+			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
+			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
+			plr._pdir = dir;
 		}
 
 		if (hitcnt != 0) {
@@ -2243,24 +2242,7 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-static void PlrStartBlock(int pnum, int sx, int sy)
-{
-	int dir;
-
-	dir = GetDirection(plr._px, plr._py, sx, sy);
-	if (plr._pmode != PM_BLOCK) {
-		assert(plr._pmode == PM_STAND);
-		AssertFixPlayerLocation(pnum);
-		StartBlock(pnum, dir);
-	}
-
-	PlaySfxLoc(IS_ISWORD, plr._px, plr._py);
-	if (random_(3, 10) == 0) {
-		ShieldDur(pnum);
-	}
-}
-
-bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
+bool PlrCheckBlock(int pnum, int bmod, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrCheckBlock: illegal player %d", pnum);
@@ -2273,7 +2255,15 @@ bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - bmod * 2;
 		if (CheckHit(blkper)) {
-			PlrStartBlock(pnum, sx, sy);
+			if (plr._pmode == PM_STAND) {
+				AssertFixPlayerLocation(pnum);
+				StartBlock(pnum, dir);
+			}
+
+			PlaySfxLoc(IS_ISWORD, plr._px, plr._py);
+			if (random_(3, 10) == 0) {
+				ShieldDur(pnum);
+			}
 			result = true;
 		}
 	}
@@ -2553,7 +2543,7 @@ static void CheckNewPath(int pnum)
 		StartSpell(pnum);
 		break;
 	case ACTION_TURN:
-		StartTurn(pnum);
+		StartTurn(pnum, plr._pDestParam1);
 		break;
 	case ACTION_BLOCK:
 		StartBlock(pnum, plr._pDestParam1);
@@ -2739,16 +2729,16 @@ void ProcessPlayers()
 			}
 			if (plr._pTimer[PLTR_INFRAVISION] != 0) {
 				plr._pTimer[PLTR_INFRAVISION]--;
-				if (plr._pTimer[PLTR_INFRAVISION] == 0) {
-					CalcPlrItemVals(pnum, false); // last parameter should not matter
-				}
+				//if (plr._pTimer[PLTR_INFRAVISION] == 0) {
+				//	CalcPlrItemVals(pnum, false); // last parameter should not matter
+				//}
 			}
 
-			int16_t nextTimer = plr._pTimer[PLTR_RAGE];
-			if (nextTimer != 0) {
-				plr._pTimer[PLTR_RAGE] = nextTimer + (nextTimer < 0 ? 1 : -1);
+			int16_t lastTimer = plr._pTimer[PLTR_RAGE];
+			if (lastTimer != 0) {
+				plr._pTimer[PLTR_RAGE] = lastTimer + (lastTimer < 0 ? 1 : -1);
 				if (plr._pTimer[PLTR_RAGE] == 0) {
-					if (nextTimer >= 0) {
+					if (lastTimer >= 0) {
 						plr._pTimer[PLTR_RAGE] = -RAGE_COOLDOWN_TICK;
 						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
 					}
@@ -2853,12 +2843,12 @@ void MissToPlr(int mi, bool hit)
 		FixPlayerLocation(pnum);*/
 	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
-	if (!hit || plr._pHitPoints < (1 << 6)) {
+	if (!hit || plr._pHitPoints == 0) {
 		PlrStartStand(pnum);
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._px + (plr._px - mis->_misx), plr._py + (plr._py - mis->_misy));
+		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
@@ -2909,7 +2899,7 @@ void MissToPlr(int mi, bool hit)
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
 			//if (hitFlags & ISPL_NOHEALMON)
 			//	mon->_mFlags |= MFLAG_NOHEAL;
-			MonHitByPlr(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			MonHitByPlr(mpnum, pnum, dam, hitFlags, plr._pdir);
 		}
 		return;
 	}
@@ -2926,7 +2916,7 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper))
 			return;
 
-		if (PlrCheckBlock(mpnum, plr._pLevel, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, OPPOSITE(plr._pdir)))
 			return;
 		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
 
@@ -2934,7 +2924,7 @@ void MissToPlr(int mi, bool hit)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
-			PlrHitByAny(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			PlrHitByAny(mpnum, pnum, dam, hitFlags, plr._pdir);
 		}
 		return;
 	}
@@ -2970,7 +2960,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 			//if (mpo < 0) {
 			//	return false;
 			//}
-			//if (monsters[mpo - 1]._mhitpoints >= (1 << 6)) {
+			//if (monsters[mpo - 1]._mhitpoints != 0) {
 				return false;
 			//}
 			//if (currLvl._dLevelIdx == DLV_TOWN) {
@@ -2988,7 +2978,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 		if (mpo != 0) {
 			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
 			// check commented out because a player should not walk over a dying player (looks bad)
-			return mpo == pnum /*|| plx(mpo)._pHitPoints < (1 << 6)*/;
+			return mpo == pnum /*|| plx(mpo)._pHitPoints == 0*/;
 		}
 
 		return true;
@@ -3087,7 +3077,7 @@ void PlrSetHp(int pnum, int val)
 	plr._pHPBase = val + plr._pMaxHPBase - plr._pMaxHP;
 
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrSetMana(int pnum, int val)
@@ -3101,7 +3091,7 @@ void PlrSetMana(int pnum, int val)
 	plr._pManaBase = val - (plr._pMaxMana - plr._pMaxManaBase);
 
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 void PlrFillHp(int pnum)
@@ -3112,7 +3102,7 @@ void PlrFillHp(int pnum)
 	plr._pHitPoints = plr._pMaxHP;
 	plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrFillMana(int pnum)
@@ -3125,7 +3115,7 @@ void PlrFillMana(int pnum)
 	plr._pMana = plr._pMaxMana;
 	plr._pManaBase = plr._pMaxManaBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 void PlrIncHp(int pnum, int hp)
@@ -3138,7 +3128,7 @@ void PlrIncHp(int pnum, int hp)
 	if (plr._pHPBase > plr._pMaxHPBase)
 		plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 }
 
 void PlrIncMana(int pnum, int mana)
@@ -3156,7 +3146,7 @@ void PlrIncMana(int pnum, int mana)
 		plr._pManaBase = plr._pMaxManaBase;
 	}
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 }
 
 bool PlrDecHp(int pnum, int hp, int dmgtype)
@@ -3181,7 +3171,7 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 		return true;
 	}
 	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_HP_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_HP;
 	return false;
 }
 
@@ -3194,7 +3184,7 @@ void PlrDecMana(int pnum, int mana)
 	if (pnum == mypnum) {
 		if (plr._pMana <= 0 && plr._pManaShield != 0)
 			NetSendCmd(CMD_REMSHIELD);
-		gbRedrawFlags |= REDRAW_MANA_FLASK;
+		gbRedrawFlags |= REDRAW_RECALC_MANA;
 	}
 }
 

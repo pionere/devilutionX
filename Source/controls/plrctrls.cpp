@@ -20,8 +20,8 @@ bool InGameMenu()
 	    || gbQtextflag
 	    //|| gbDoomflag
 	    || gmenu_is_active()
-	    || gbGamePaused
-	    || gbDeathflag;
+	    || gnGamePaused != 0
+	    || gbDeathflag != MDM_ALIVE;
 }
 
 /**
@@ -194,7 +194,7 @@ static void FindMonster(int mode, bool ranged)
 	}
 	for ( ; mnum < lastMon; mnum++) {
 		const MonsterStruct& mon = monsters[mnum];
-		if (mon._mmode > MM_INGAME_LAST || mon._mmode == MM_DEATH)
+		if (mon._mmode > MM_INGAME_LAST || mon._mhitpoints == 0)
 			continue;
 		if (mon._mFlags & MFLAG_HIDDEN)
 			continue;
@@ -240,7 +240,7 @@ static void FindPlayer(int mode, bool ranged)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (pnum == mypnum)
 			continue;
-		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
 			continue;
 		if ((mode == 2) != (plr._pHitPoints == 0))
 			continue;
@@ -285,7 +285,7 @@ static void FindTrigger()
 	int rotations;
 	int distance = 2 + 1;
 
-	if (pcursitem != ITEM_NONE || pcursobj != OBJ_NONE)
+	if (ITEM_VALID(pcursitem) || OBJ_VALID(pcursobj))
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
 	for (int i = 0; i < numtrigs; i++) {
@@ -321,7 +321,7 @@ static void FindTrigger()
 	}
 
 	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
-	if (pcursmonst != MON_NONE || pcursplr != PLR_NONE || pcurstrig == -1)
+	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || !TRIG_VALID(pcurstrig))
 		return; // Prefer monster/player info text
 
 	CheckTrigForce();
@@ -774,41 +774,6 @@ static void Movement()
 	}
 }
 
-struct RightStickAccumulator {
-
-	RightStickAccumulator()
-	{
-		lastTc = SDL_GetTicks();
-		hiresDX = 0;
-		hiresDY = 0;
-	}
-
-	void Pool(POS32& pos, int slowdown)
-	{
-		const Uint32 tc = SDL_GetTicks();
-		const int dtc = tc - lastTc;
-		hiresDX += rightStickX * dtc;
-		hiresDY += rightStickY * dtc;
-		const int dx = hiresDX / slowdown;
-		const int dy = hiresDY / slowdown;
-		pos.x = dx;
-		pos.y = dy;
-		lastTc = tc;
-		// keep track of remainder for sub-pixel motion
-		hiresDX -= dx * slowdown;
-		hiresDY -= dy * slowdown;
-	}
-
-	void Clear()
-	{
-		lastTc = SDL_GetTicks();
-	}
-
-	Uint32 lastTc;
-	float hiresDX;
-	float hiresDY;
-};
-
 void StoreSpellCoords()
 {
 	int pnum, i, j;
@@ -870,27 +835,62 @@ void StoreSpellCoords()
 	}
 }
 
+class StickAccumulator {
+public:
+	int Check(POS32& pos)
+	{
+		const Uint32 now = SDL_GetTicks();
+		// deadzone is handled in ScaleJoystickAxes() already
+		if (rightStickX == 0 && rightStickY == 0) {
+			lastTc = now;
+			return -1;
+		}
+		bool automap = IsAutomapActive();
+		// reset remainder on mode-switch
+		if (automapMode != automap) {
+			automapMode = automap;
+			hiresDX = 0;
+			hiresDY = 0;
+		}
+		{ // Pool
+			const int slowdown = automap ? 32 : 2;
+			const Sint32 dtc = now - lastTc;
+			const float fdx = hiresDX + rightStickX * dtc;
+			const float fdy = hiresDY + rightStickY * dtc;
+			const int dx = fdx / slowdown;
+			const int dy = fdy / slowdown;
+			lastTc = now;
+			// set the output
+			pos.x = dx;
+			pos.y = dy;
+			// keep track of remainder for sub-pixel motion
+			hiresDX = fdx - dx * slowdown;
+			hiresDY = fdy - dy * slowdown;
+		}
+		return automap ? 1 : 0;
+	}
+
+private:
+	Uint32 lastTc;
+	bool automapMode;
+	float hiresDX;
+	float hiresDY;
+};
+static StickAccumulator rStickAccumulator;
+
 // Moves the map if active, the cursor otherwise.
 static void HandleRightStickMotion()
 {
-	static RightStickAccumulator acc;
-	// deadzone is handled in ScaleJoystickAxes() already
-	if (rightStickX == 0 && rightStickY == 0) {
-		acc.Clear();
+	POS32 pos;
+	int mode = rStickAccumulator.Check(pos);
+	if (mode < 0)
 		return;
-	}
-
-	if (IsAutomapActive()) { // move map
-		POS32 pos;
-		acc.Pool(pos, 32);
+	if (mode != 0) {
+		// move map
 		SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, pos.x, pos.y);
-		return;
-	}
-
-	{ // move cursor
+	} else {
+		// move cursor
 		sgbControllerActive = false;
-		POS32 pos;
-		acc.Pool(pos, 2);
 		// We avoid calling `SetCursorPos` within the same SDL tick because
 		// that can cause all stick motion events to arrive before all
 		// cursor position events.
@@ -929,16 +929,19 @@ void plrctrls_after_check_curs_move()
 	// check for monsters first, then items, then towners.
 	if (sgbControllerActive) {
 		// Clear focus set by cursor
-		pcursplr = PLR_NONE;
 		pcursmonst = MON_NONE;
-		pcursitem = ITEM_NONE;
 		pcursobj = OBJ_NONE;
-		pcurstrig = -1;
+		pcursitem = ITEM_NONE;
+		// pcursinvitem = INVITEM_NONE;
+		pcursplr = PLR_NONE;
+		pcurstrig = TRIG_NONE;
+		// pcurswnd = WND_NONE;
 		pcurspos.x = -1;
 		pcurspos.y = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
-		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag) {
+		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
+		if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag) {
 			return;
 		}
 		if (!gbInvflag) {
@@ -951,10 +954,10 @@ void plrctrls_after_check_curs_move()
 					FindMonster(0, ranged);
 				else
 					FindTowner();
-				if (pcursmonst == MON_NONE)
+				if (!MON_VALID(pcursmonst))
 					FindPlayer(0, ranged);
 				FindItem();
-				if (pcursitem == ITEM_NONE)
+				if (!ITEM_VALID(pcursitem))
 					FindObject();
 				FindTrigger();
 				break;
@@ -967,7 +970,7 @@ void plrctrls_after_check_curs_move()
 			case TGT_OTHER:
 				assert(ranged);
 				FindPlayer(1, true);
-				if (pcursplr == PLR_NONE)
+				if (!PLR_VALID(pcursplr))
 					FindMonster(1, true);
 				break;
 			case TGT_DEAD:
@@ -989,6 +992,14 @@ void plrctrls_every_frame()
 	HandleRightStickMotion();
 }
 
+bool plrctrls_draw_cursor()
+{
+	if (sgbControllerActive && !IsMovingMouseCursorWithController() && pcursicon != CURSOR_TELEPORT
+	 && (gnNumActiveWindows == 0 || (gaActiveWindows[gnNumActiveWindows - 1] != WND_INV && (gaActiveWindows[gnNumActiveWindows - 1] != WND_CHAR || !gbLvlUp))))
+		return false;
+	return true;
+}
+
 void plrctrls_after_game_logic()
 {
 	Movement();
@@ -996,18 +1007,27 @@ void plrctrls_after_game_logic()
 
 void UseBeltItem(bool manaItem)
 {
+	int i, n = -1;
 	ItemStruct* pi;
 
-	pi = myplr._pSpdList;
-	for (int i = 0; i < MAXBELTITEMS; i++, pi++) {
+	pi = &myplr._pSpdList[0];
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;
 		const int spellId = pi->_iSpell;
 		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
-		    || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
-		    || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (InvUseItem(INVITEM_BELT_FIRST + i))
+		 || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
+		 || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
+			if (pi->_iStatFlag) {
+				// assert(pi->_iUsable);
+				InvUseItem(INVITEM_BELT_FIRST + i);
 				break;
+			}
+			n = i;
 		}
+	}
+	// add sfx if only unusable (due to _iStatFlag) items were found
+	if (i >= MAXBELTITEMS && n >= 0) {
+		InvUseItem(INVITEM_BELT_FIRST + n);
 	}
 }
 
@@ -1021,12 +1041,12 @@ static bool SpellHasActorTarget()
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
 
-	if (spl == SPL_FIREWALL && pcursmonst != MON_NONE) {
+	if (spl == SPL_FIREWALL && MON_VALID(pcursmonst)) {
 		pcurspos.x = monsters[pcursmonst]._mx;
 		pcurspos.y = monsters[pcursmonst]._my;
 	}
 
-	return pcursplr != PLR_NONE || pcursmonst != MON_NONE;
+	return PLR_VALID(pcursplr) || MON_VALID(pcursmonst);
 }
 
 static void UpdateSpellTarget()
@@ -1059,19 +1079,19 @@ static void TryDropItem()
 
 void PerformSpellAction()
 {
+	// assert(!INVIDX_VALID(gbDropGoldIndex));
 	assert(!gmenu_is_active());
-	// assert(!gbTalkflag || !control_check_talk_btn());
 	assert(gnTimeoutCurs == CURSOR_NONE);
+	// assert(!gbTalkflag || !plrmsg_presskey());
 	assert(gbDeathflag == MDM_ALIVE);
-	assert(!gbGamePaused);
-	assert(!gbDropGoldFlag);
-	//assert(!gbDoomflag);
+	assert(gnGamePaused == 0);
+	// assert(!gbDoomflag);
 	assert(!gbQtextflag);
 
 	if (!(gbActionBtnDown & ACTBTN_MASK(ACT_ALTACT))) {
 		static_assert(CMAP_NONE == 0, "BitOr optimization of PerformSpellAction expects CMAP_NONE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of PerformSpellAction expects STORE_NONE to be zero.");
-		if ((gbCampaignMapFlag | gbSkillListFlag | stextflag) == 0 && pcurswnd == WND_NONE) {
+		if ((gbCampaignMapFlag | gbSkillListFlag | stextflag) == 0 && !WND_VALID(pcurswnd)) {
 			if (pcursicon == CURSOR_HAND) {
 				// prepare for cast
 				UpdateSpellTarget();
@@ -1090,7 +1110,7 @@ static void CtrlUseInvItem()
 {
 	ItemStruct* is;
 
-	if (pcursinvitem == INVITEM_NONE)
+	if (!INVIDX_VALID(pcursinvitem))
 		return;
 
 	is = PlrItem(mypnum, pcursinvitem);
@@ -1104,8 +1124,21 @@ static void CtrlUseInvItem()
 
 void PerformSecondaryAction()
 {
-	if (InGameMenu())
+	// assert(!INVIDX_VALID(gbDropGoldIndex));
+	assert(!gmenu_is_active());
+	assert(gnTimeoutCurs == CURSOR_NONE);
+	// assert(!gbTalkflag || !plrmsg_presskey());
+	assert(gbDeathflag == MDM_ALIVE);
+	assert(gnGamePaused == 0);
+	// assert(!gbDoomflag);
+	assert(!gbQtextflag);
+
+	// if (InGameMenu())
+	//	return;
+	if (stextflag != STORE_NONE) {
+		STextESC();
 		return;
+	}
 
 	if (pcursicon >= CURSOR_FIRSTITEM) {
 		TryDropItem();
@@ -1129,11 +1162,11 @@ void PerformSecondaryAction()
 		return;
 	}
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
-	} else if (pcursobj != OBJ_NONE) {
+	} else if (OBJ_VALID(pcursobj)) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
-	} else if (pcurstrig != -1 && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
+	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
 	}
 }

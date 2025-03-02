@@ -8,9 +8,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-SDL_Color logical_palette[NUM_COLORS];
+static SDL_Color logical_palette[NUM_COLORS];
 SDL_Color system_palette[NUM_COLORS];
-SDL_Color orig_palette[NUM_COLORS];
+static SDL_Color orig_palette[NUM_COLORS];
 
 /** Specifies the gamma correction level. */
 int _gnGammaCorrection = 100;
@@ -29,22 +29,20 @@ void UpdatePalette()
 
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
 {
-	int i;
-	double g;
-
 	if (_gnGammaCorrection == 100) {
-		memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
-		return;
-	}
+		if (dst != src)
+			memcpy(dst, src, sizeof(SDL_Color) * NUM_COLORS);
+	} else {
+		int i;
+		double g = _gnGammaCorrection / 100.0;
 
-	g = _gnGammaCorrection / 100.0;
-
-	for (i = 0; i < NUM_COLORS; i++) {
-		dst[i].r = (Uint8)(pow(src[i].r / 256.0, g) * 256.0);
-		dst[i].g = (Uint8)(pow(src[i].g / 256.0, g) * 256.0);
-		dst[i].b = (Uint8)(pow(src[i].b / 256.0, g) * 256.0);
+		for (i = 0; i < NUM_COLORS; i++) {
+			dst[i].r = (Uint8)(pow(src[i].r / 255.0, g) * 255.0);
+			dst[i].g = (Uint8)(pow(src[i].g / 255.0, g) * 255.0);
+			dst[i].b = (Uint8)(pow(src[i].b / 255.0, g) * 255.0);
+		}
 	}
-	// gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
 
 void InitPalette()
@@ -81,6 +79,7 @@ void SetFadeLevel(unsigned fadeval)
 		system_palette[i].g = (fadeval * logical_palette[i].g) / FADE_LEVELS;
 		system_palette[i].b = (fadeval * logical_palette[i].b) / FADE_LEVELS;
 	}
+	ApplyGamma(system_palette, system_palette);
 	UpdatePalette();
 }
 
@@ -88,7 +87,7 @@ void PaletteFadeIn(bool instant)
 {
 	int i;
 
-	ApplyGamma(logical_palette, orig_palette);
+	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	if (!instant) {
 		Uint32 tc = SDL_GetTicks();
 		for (i = 0; i < FADE_LEVELS; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
@@ -98,7 +97,6 @@ void PaletteFadeIn(bool instant)
 		}
 	}
 	SetFadeLevel(FADE_LEVELS);
-	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	_gbFadedIn = true;
 }
 

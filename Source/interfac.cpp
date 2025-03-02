@@ -4,6 +4,7 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "plrctrls.h"
 #include "utils/display.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
@@ -137,22 +138,38 @@ static void DrawProgress()
 #endif
 }
 
-static void DrawCutscene()
+static void DrawCutsceneBack()
+{
+	lock_buf(1);
+
+	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+
+	unlock_buf(1);
+}
+
+static void RenderCutscene()
 {
 	Uint32 now = SDL_GetTicks();
-	if (sgdwProgress > 0 && sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
-		return; // skip drawing if the progression is too fast
+	bool skipRender = false;
+	// assert(sgdwProgress != 0);
+	if (/*sgdwProgress > 0 &&*/ !SDL_TICKS_PASSED(now, sgdwNextCut)) {
+		if (sgdwProgress < BAR_WIDTH)
+			return; // skip drawing if the progression is too fast
+		skipRender = true; // update the progress bar for fade-out
+	} else {
+		sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 	}
-	sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 
 	lock_buf(1);
-	if (sgdwProgress == 0)
-		CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	// if (sgdwProgress == 0)
+	//	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
 	unlock_buf(1);
-	scrollrt_draw_screen(false);
+
+	if (!skipRender)
+		scrollrt_render_screen(false);
 }
 
 void interface_msg_pump()
@@ -164,16 +181,19 @@ void interface_msg_pump()
 			DispatchMessage(&e);
 		//}
 	}
+#if HAS_TOUCHPAD
+	finish_simulated_mouse_clicks();
+#endif
 }
 
 void IncProgress()
 {
 	interface_msg_pump();
 	sgdwProgress += BAR_STEP;
-	assert(sgdwProgress <= BAR_WIDTH);
+	assert(sgdwProgress <= BAR_WIDTH); // || sgpBackCel == NULL
 	// do not draw in case of quick-load
-	if (sgpBackCel != NULL)
-		DrawCutscene();
+	// if (sgpBackCel != NULL)
+		RenderCutscene();
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
@@ -336,8 +356,8 @@ void ShowCutscene(unsigned uMsg)
 	nthread_run();
 	static_assert((unsigned)DVL_DWM_LOADGAME == (unsigned)DVL_DWM_NEWGAME + 1 && (unsigned)NUM_WNDMSGS == (unsigned)DVL_DWM_LOADGAME + 1, "Check to save hero/level in ShowCutscene must be adjusted.");
 	if (uMsg < DVL_DWM_NEWGAME) {
+		pfile_update(true);
 		if (IsMultiGame) {
-			pfile_write_hero(false);
 			DeltaSaveLevel();
 		} else {
 			SaveLevel();
@@ -352,11 +372,12 @@ void ShowCutscene(unsigned uMsg)
 	assert(saveProc == GameWndProc);
 	interface_msg_pump();
 	ClearScreenBuffer();
-	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutscene
+	// scrollrt_render_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
-	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
-	DrawCutscene();
+	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
+	DrawCutsceneBack();
 	PaletteFadeIn(false);
+	sgdwNextCut = SDL_GetTicks() + gnRefreshDelay; // calculate the next tick to draw the cutscene
 	IncProgress(); // "Memfree" (1)
 	FreeLevelMem();
 	IncProgress(); // "Music stop" (2)
@@ -392,6 +413,9 @@ void ShowCutscene(unsigned uMsg)
 		sgdwProgress = BAR_WIDTH - BAR_STEP;
 		IncProgress(); // "Fadeout" (16)
 		PaletteFadeOut();
+		// skip time due to fadein/out
+		extern Uint32 guNextTick;
+		guNextTick = SDL_GetTicks() + gnTickDelay; // += (uMsg < DVL_DWM_NEWGAME ? 2 : 1) * FADE_LEVELS;
 	}
 	FreeCutscene();
 

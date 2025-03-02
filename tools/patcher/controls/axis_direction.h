@@ -1,6 +1,7 @@
 #pragma once
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+#include <SDL.h>
 
 #include "../defs.h"
 
@@ -30,7 +31,7 @@ struct AxisDirection {
  */
 class AxisDirectionRepeater {
 public:
-	AxisDirectionRepeater(int min_interval_ms = 200)
+	AxisDirectionRepeater(Uint32 min_interval_ms = 200)
 	    : last_left_(0)
 	    , last_right_(0)
 	    , last_up_(0)
@@ -42,11 +43,11 @@ public:
 	AxisDirection Get(AxisDirection axis_direction);
 
 private:
-	int last_left_;
-	int last_right_;
-	int last_up_;
-	int last_down_;
-	int min_interval_ms_;
+	Uint32 last_left_;
+	Uint32 last_right_;
+	Uint32 last_up_;
+	Uint32 last_down_;
+	Uint32 min_interval_ms_;
 };
 
 extern AxisDirectionRepeater axisDirRepeater;

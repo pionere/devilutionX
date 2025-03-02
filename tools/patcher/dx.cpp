@@ -70,11 +70,12 @@ static void dx_create_back_buffer()
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
-	back_palette = SDL_AllocPalette(NUM_COLORS);
+	back_palette = back_surface->format->palette;
+	/*back_palette = SDL_AllocPalette(NUM_COLORS);
 	if (back_palette == NULL)
 		sdl_error(ERR_SDL_BACK_PALETTE_ALLOC);
 	if (SDL_SetSurfacePalette(back_surface, back_palette) < 0)
-		sdl_error(ERR_SDL_BACK_PALETTE_SET);
+		sdl_error(ERR_SDL_BACK_PALETTE_SET);*/
 #else
 	// In SDL1, `back_surface` owns its palette and we must update it every
 	// time the global `back_palette` is changed. No need to do anything here as
@@ -111,7 +112,9 @@ void dx_init()
 	dx_create_primary_surface();
 	dx_create_back_buffer();
 	InitPalette();
-
+#ifndef USE_SDL1
+	UpdatePalette();
+#endif
 	gbWndActive = true;
 }
 
@@ -190,7 +193,8 @@ void dx_cleanup()
 	SDL_FreeSurface(back_surface);
 	back_surface = NULL;
 #ifndef USE_SDL1
-	SDL_FreePalette(back_palette);
+	// SDL_FreePalette(back_palette);
+	// back_palette = NULL;
 	if (renderer != NULL) {
 		SDL_FreeSurface(renderer_surface);
 		renderer_surface = NULL;
@@ -229,7 +233,7 @@ void ToggleFullscreen()
 	}
 #endif
 	gbFullscreen = !gbFullscreen;
-	// gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
 #endif
 /**
@@ -338,9 +342,8 @@ static void LimitFrameRate()
 
 void RenderPresent()
 {
-	SDL_Surface* surface = GetOutputSurface();
-
 	if (gbWndActive) {
+		SDL_Surface* surface = GetOutputSurface();
 #ifndef USE_SDL1
 		if (renderer != NULL) {
 			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) {
@@ -370,9 +373,10 @@ void RenderPresent()
 			sdl_error(ERR_SDL_DX_FLIP);
 		}
 #endif
+		if (gbFrameRateControl != FRC_CPUSLEEP)
+			return;
 	}
-	if (gbFrameRateControl == FRC_CPUSLEEP)
-		LimitFrameRate();
+	LimitFrameRate();
 }
 
 DEVILUTION_END_NAMESPACE

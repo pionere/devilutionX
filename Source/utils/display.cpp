@@ -51,7 +51,7 @@ int gbFrameRateControl = FRC_VSYNC;    // use vsync
  * VSync is inactive (disabled or not available).
  * TODO: ensure gnRefreshDelay < gnTickDelay
  */
-int gnRefreshDelay;
+unsigned gnRefreshDelay;
 SDL_Window* ghMainWnd;
 SDL_Renderer* renderer;
 SDL_Texture* renderer_texture;
@@ -200,7 +200,7 @@ void SpawnWindow()
 
 #ifndef USE_SDL1
 	char mapping[1024];
-	if (getIniValue("Controller", "sdl2_controller_mapping", mapping, 1024)) {
+	if (getIniValue("Controller", "sdl2_controller_mapping", mapping, 1024) > 0) {
 		SDL_GameControllerAddMapping(mapping);
 	}
 #endif

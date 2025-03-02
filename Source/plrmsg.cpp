@@ -303,7 +303,7 @@ void StartPlrMsg()
 	gbTalkflag = true;
 	SDL_StartTextInput();
 	plr_msgs[PLRMSG_COUNT].str[0] = '\0';
-	// gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 	sguCursPos = 0;
 	sguSelPos = 0;
@@ -367,7 +367,7 @@ void StopPlrMsg()
 {
 	gbTalkflag = false;
 	SDL_StopTextInput();
-	//gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	// sguCursPos = 0;
 	// sguSelPos = 0;
 	// sgbSelecting = false;
@@ -419,8 +419,10 @@ static void SendPlrMsg()
 	}
 
 	if (*msg != '\0') {
-		SStrCopy(gbNetMsg, msg, sizeof(gbNetMsg));
-		NetSendCmdString(pmask);
+		TMsgString msgStr;
+		int len = SStrCopy(msgStr.str, msg, sizeof(msgStr.str));
+		msgStr.bsLen = len;
+		NetSendCmdString(&msgStr, pmask);
 
 		for (i = 0; i < lengthof(sgszTalkSave); i++) {
 			if (!strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
@@ -486,14 +488,15 @@ void plrmsg_CatToText(const char* inBuf)
 	}
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	const unsigned maxlen = MAX_SEND_STR_LEN;
-	// assert(maxLen - cp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
-	SStrCopy(&text[sp], output, maxlen - sp);
+	char tmpstr[MAX_SEND_STR_LEN];
+	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
+	int len = SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
-	sp = strlen(text);
+	// assert(strlen(text) == len + sp);
+	sp += len;
 	sguCursPos = sp;
 	sguSelPos = sp;
-	SStrCopy(&text[sp], tempstr, maxlen - sp);
+	SStrCopy(&text[sp], tmpstr, maxlen - sp);
 
 	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
@@ -654,16 +657,18 @@ bool plrmsg_presskey(int vkey)
 	SDL_Keymod mod = SDL_GetModState();
 	switch (vkey) {
 #ifndef USE_SDL1
-	case DVL_VK_MBUTTON:
 	case DVL_VK_V:
-		if (mod & KMOD_CTRL) {
-			char* clipboard = SDL_GetClipboardText();
-			if (clipboard != NULL) {
-				plrmsg_CatToText(clipboard);
-				SDL_free(clipboard);
-			}
+		if (!(mod & KMOD_CTRL)) {
+			break;
 		}
-		break;
+		// fall-through
+	case DVL_VK_MBUTTON: {
+		char* clipboard = SDL_GetClipboardText();
+		if (clipboard != NULL) {
+			plrmsg_CatToText(clipboard);
+			SDL_free(clipboard);
+		}
+	} break;
 	case DVL_VK_C:
 	case DVL_VK_X:
 		if (!(mod & KMOD_CTRL)) {

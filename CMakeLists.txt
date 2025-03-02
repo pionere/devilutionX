@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135)
+foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
@@ -452,7 +452,6 @@ set(devilutionx_SRCS
   Source/drlg_l4.cpp
   #Source/dthread.cpp
   Source/dx.cpp
-  Source/effects.cpp
   Source/encrypt.cpp
   Source/engine.cpp
   Source/error.cpp
@@ -493,6 +492,8 @@ set(devilutionx_SRCS
   Source/quests.cpp
   Source/scrollrt.cpp
   Source/sha.cpp
+  Source/sfx.cpp
+  Source/sfxdat.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
@@ -523,7 +524,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/hostgame.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
-  Source/DiabloUI/scrollbar.cpp
   Source/DiabloUI/selconn.cpp
   Source/DiabloUI/selgame.cpp
   Source/DiabloUI/selhero.cpp
@@ -613,7 +613,7 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/effects_test.cpp
+    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -663,7 +663,6 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/effects.cpp
     tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
@@ -674,6 +673,8 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
+    tools/patcher/sfx.cpp
+    tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
@@ -691,7 +692,6 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/DiabloUI/merger.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
-    tools/patcher/DiabloUI/scrollbar.cpp
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
@@ -775,14 +775,12 @@ endif()
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
   add_custom_command(
     TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
     COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 
   if(DEVIL_PATCHER)
     add_custom_command(
       TARGET ${DEVIL_PATCHER} POST_BUILD
-      DEPENDS ${DEVIL_PATCHER}
       COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
       ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
   endif()
@@ -799,6 +797,11 @@ if(is_multi_config)
   endif()
 else()
   set(CONFIG_PATH config.h)
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.25")
+    # This enables Edit & Continue support, see https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio#edit-and-continue-for-cmake-projects
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug>:EditAndContinue>") # Sets /ZI compiler option, see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_DEBUG_INFORMATION_FORMAT.html
+    add_link_options("$<$<CONFIG:Debug>:/INCREMENTAL>")
+  endif()
 endif()
 file(GENERATE OUTPUT ${CONFIG_PATH} CONTENT
 "#pragma once
@@ -1110,6 +1113,9 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
       )
     endforeach(SOURCE_FILE)
     target_compile_options(${BIN_TARGET} PRIVATE -Wno-builtin-macro-redefined)
+    if(DEVIL_PATCHER)
+      target_compile_options(${DEVIL_PATCHER} PRIVATE -Wno-builtin-macro-redefined)
+    endif()
   endif()
 
   # Note: For Valgrind support.
@@ -1132,8 +1138,13 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #target_compile_options(${BIN_TARGET} PRIVATE "/W1")
-  target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
+  if(TCPIP)
+    target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
+  endif()
   target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  if(DEVIL_PATCHER)
+    target_compile_options(${DEVIL_PATCHER} PRIVATE "/Zc:__cplusplus")
+  endif()
   # Disable Run-Time Type Information
   string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")

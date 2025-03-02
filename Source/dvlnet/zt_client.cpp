@@ -327,7 +327,7 @@ void zt_client::get_gamelist(std::vector<SNetZtGame>& games)
 	games.clear();
 	Uint32 now = SDL_GetTicks();
 	for (auto it = game_list.begin(); it != game_list.end(); ) {
-		if (it->second.timeout < now) {
+		if (SDL_TICKS_PASSED(now, it->second.timeout)) {
 			it = game_list.erase(it);
 		} else {
 			games.push_back(it->second.ztGamedata);

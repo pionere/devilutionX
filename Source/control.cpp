@@ -57,16 +57,12 @@ int camItemIndex;
 /** The 'selected' map on the campaign-map. */
 CampaignMapEntry selCamEntry;
 
-/** Specifies whether the Golddrop is displayed. */
-bool gbDropGoldFlag;
 /** Golddrop background CEL */
 static CelImageBuf* pGoldDropCel;
-/** The gold-stack index which is used as a source in Golddrop. */
-BYTE initialDropGoldIndex;
-/** The gold-stack size which is used as a source in Golddrop. */
-int initialDropGoldValue;
 /** The current value in Golddrop. */
-int dropGoldValue;
+int gnDropGoldValue;
+/** The gold-stack index which is used as a source in Golddrop (inv_item). */
+BYTE gbDropGoldIndex;
 BYTE infoclr;
 char tempstr[256];
 char infostr[256];
@@ -641,7 +637,7 @@ void SetSkill(bool altSkill)
 		gbSkillListFlag = false;
 	}
 
-	//gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_SPELL_ICON;
 }
 
 static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot, int sn)
@@ -697,7 +693,6 @@ static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4]
 {
 	*destSkill = hotKeyGroup[slot];
 	*destSkillType = hotKeyTypeGroup[slot];
-	//gbRedrawFlags = REDRAW_ALL;
 }
 
 /*
@@ -721,6 +716,7 @@ void SelectHotKeySkill(int slot, bool altSkill)
 		SelectHotKeySkill(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot,
 			&p->_pAltAtkSkill, &p->_pAltAtkSkillType);
 	}
+	// gbRedrawFlags |= REDRAW_SPELL_ICON;
 }
 
 /*void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
@@ -871,7 +867,7 @@ void DrawLifeFlask()
 	int maxHP, hp;
 	int x;
 
-	if (gbRedrawFlags & REDRAW_HP_FLASK) {
+	if (gbRedrawFlags & REDRAW_RECALC_HP) {
 		maxHP = myplr._pMaxHP;
 		hp = myplr._pHitPoints;
 		if (hp <= 0 || maxHP <= 0)
@@ -895,7 +891,7 @@ void DrawManaFlask()
 	int maxMana, mana;
 	int x;
 
-	if (gbRedrawFlags & REDRAW_MANA_FLASK) {
+	if (gbRedrawFlags & REDRAW_RECALC_MANA) {
 		maxMana = myplr._pMaxMana;
 		mana = myplr._pMana;
 
@@ -949,7 +945,7 @@ void InitControlPan()
 	pDurIconCels = CelLoadImage("Items\\DurIcons.CEL", DURICON_WIDTH);
 	// infostr[0] = '\0';
 	// tempstr[0] = '\0';
-	gbRedrawFlags |= REDRAW_HP_FLASK | REDRAW_MANA_FLASK | REDRAW_SPEED_BAR;
+	gbRedrawFlags = REDRAW_RECALC_FLASKS; // | REDRAW_DRAW_ALL;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
 	guBooktab = 0;
@@ -986,10 +982,8 @@ void InitControlPan()
 	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
-	gbDropGoldFlag = false;
-	dropGoldValue = 0;
-	initialDropGoldValue = 0;
-	initialDropGoldIndex = 0;
+	gbDropGoldIndex = INVITEM_NONE;
+	// gnDropGoldValue = 0;
 }
 
 void StartWndDrag(BYTE wnd)
@@ -1077,7 +1071,7 @@ static void control_set_button_down(int btn_id)
 		assert(gabPanbtn[PANBTN_MAINMENU]);
 		gabPanbtn[btn_id] = true;
 	}
-	//gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
+	// gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
 }
 
 static bool InLvlUpRect()
@@ -1223,7 +1217,7 @@ void ReleasePanBtn()
 		HandlePanBtn(i);
 
 		gabPanbtn[PANBTN_MAINMENU] = false;
-		//gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
+		// gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
 	}
 }
 
@@ -1738,19 +1732,19 @@ void DrawInfoStr()
 {
 	POS32 pos;
 
-	if (pcursitem != ITEM_NONE) {
+	if (ITEM_VALID(pcursitem)) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
 		pos = GetMousePos(is->_ix, is->_iy);
 		pos.y -= TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
-	} else if (pcursobj != OBJ_NONE) {
+	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
 		pos = GetMousePos(os->_ox, os->_oy);
 		pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
-	} else if (pcursmonst != MON_NONE) {
+	} else if (MON_VALID(pcursmonst)) {
 		MonsterStruct* mon = &monsters[pcursmonst];
 		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
@@ -1761,7 +1755,7 @@ void DrawInfoStr()
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
-	} else if (pcursplr != PLR_NONE) {
+	} else if (PLR_VALID(pcursplr)) {
 		PlayerStruct* p = &players[pcursplr];
 		pos = GetMousePos(p->_px, p->_py);
 		pos.x += p->_pxoff;
@@ -1831,9 +1825,9 @@ void DrawInfoStr()
 		}
 		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
-	} else if (pcursinvitem != INVITEM_NONE) {
+	} else if (INVIDX_VALID(pcursinvitem)) {
 		DrawInvItemDetails();
-	} else if (pcurstrig != -1) {
+	} else if (TRIG_VALID(pcurstrig)) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
@@ -2181,25 +2175,30 @@ const char* get_pieces_str(int nGold)
 	return nGold != 1 ? "pieces" : "piece";
 }
 
-void DrawGoldSplit(int amount)
+void DrawGoldSplit()
 {
-	int screen_x, screen_y;
+	int screen_x, screen_y, amount;
 
 	screen_x = SCREEN_X + gnWndInvX + (SPANEL_WIDTH - GOLDDROP_WIDTH) / 2;
 	screen_y = SCREEN_Y + gnWndInvY + 178;
-
+	// draw the background
 	CelDraw(screen_x, screen_y, pGoldDropCel, 1);
-	snprintf(tempstr, sizeof(tempstr), "You have %d gold", initialDropGoldValue);
+	// draw the info-text
+	amount = PlrItem(mypnum, gbDropGoldIndex)->_ivalue;
+	snprintf(tempstr, sizeof(tempstr), "You have %d gold", amount);
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 4), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
-	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(initialDropGoldValue));
+	snprintf(tempstr, sizeof(tempstr), "%s.  How many do", get_pieces_str(amount));
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 3), screen_x + GOLDDROP_WIDTH - 15, tempstr, COL_GOLD, FONT_KERN_SMALL);
 	PrintJustifiedString(screen_x + 15, screen_y - (18 + 18 * 2), screen_x + GOLDDROP_WIDTH - 15, "you want to remove?", COL_GOLD, FONT_KERN_SMALL);
+	// draw the edit-field
 	screen_x += 37;
 	screen_y -= 18 + 18 * 1;
+	amount = gnDropGoldValue;
 	if (amount > 0) {
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
-		PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
-		screen_x += GetSmallStringWidth(tempstr);
+		// PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
+		// screen_x += GetSmallStringWidth(tempstr);
+		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE);
 	}
 	screen_x += 2;
 	DrawSingleSmallPentSpn(screen_x, screen_y);
@@ -2207,42 +2206,45 @@ void DrawGoldSplit(int amount)
 
 static void control_remove_gold()
 {
-	int gi;
+	BYTE cii = gbDropGoldIndex;
 
-	assert(initialDropGoldIndex <= INVITEM_INV_LAST && initialDropGoldIndex >= INVITEM_INV_FIRST);
+	assert(cii >= INVITEM_INV_FIRST && cii <= INVITEM_INV_LAST);
 	static_assert((int)INVITEM_INV_LAST - (int)INVITEM_INV_FIRST < UCHAR_MAX, "control_remove_gold sends inv item index in BYTE field.");
-	gi = initialDropGoldIndex - INVITEM_INV_FIRST;
 	static_assert(GOLD_MAX_LIMIT <= UINT16_MAX, "control_remove_gold send gold pile value using uint16_t.");
-	NetSendCmdParamBW(CMD_SPLITPLRGOLD, gi, dropGoldValue);
+	NetSendCmdParamBW(CMD_SPLITPLRGOLD, cii - INVITEM_INV_FIRST, gnDropGoldValue);
+}
+
+static void control_inc_dropgold(int value)
+{
+	int newValue;
+	int maxValue = PlrItem(mypnum, gbDropGoldIndex)->_ivalue;
+
+	newValue = gnDropGoldValue * 10 + value;
+	if (newValue <= maxValue)
+		gnDropGoldValue = newValue;
 }
 
 void control_drop_gold(int vkey)
 {
-	int newValue;
-
-	assert(myplr._pHitPoints >= (1 << 6) || vkey == DVL_VK_ESCAPE);
+	// assert(myplr._pHitPoints != 0 || vkey == DVL_VK_ESCAPE);
 
 	if (vkey == DVL_VK_RETURN) {
-		if (dropGoldValue > 0)
+		if (gnDropGoldValue > 0)
 			control_remove_gold();
 	} else if (vkey == DVL_VK_BACK) {
-		dropGoldValue /= 10;
+		gnDropGoldValue /= 10;
 		return;
 	} else if (vkey == DVL_VK_DELETE) {
-		dropGoldValue = 0;
+		gnDropGoldValue = 0;
 		return;
 	} else if (vkey >= DVL_VK_0 && vkey <= DVL_VK_9) {
-		newValue = dropGoldValue * 10 + vkey - DVL_VK_0;
-		if (newValue <= initialDropGoldValue)
-			dropGoldValue = newValue;
+		control_inc_dropgold(vkey - DVL_VK_0);
 		return;
 	} else if (vkey >= DVL_VK_NUMPAD0 && vkey <= DVL_VK_NUMPAD9) {
-		newValue = dropGoldValue * 10 + vkey - DVL_VK_NUMPAD0;
-		if (newValue <= initialDropGoldValue)
-			dropGoldValue = newValue;
+		control_inc_dropgold(vkey - DVL_VK_NUMPAD0);
 		return;
 	}
-	gbDropGoldFlag = false;
+	gbDropGoldIndex = INVITEM_NONE;
 }
 
 static void DrawTeamButton(int x, int y, int width, bool pressed, const char* label, int txtoff)
@@ -2517,6 +2519,12 @@ void InitCampaignMap(int cii)
 	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
+/*
+ * @brief Manipulate the campaign map.
+ *   If shift is pressed:  the inventory is kept open
+ *            is released: the inventory is closed
+ * @param altAction: if set the map is just closed
+ */
 void TryCampaignMapClick(bool altAction)
 {
 	if (!altAction) {
@@ -2540,12 +2548,6 @@ void TryCampaignMapClick(bool altAction)
 	gbCampaignMapFlag = CMAP_NONE;
 }
 
-/*
- * @brief Manipulate the campaign map.
- *   If shift is pressed:  the inventory is kept open
- *            is released: the inventory is closed
- * @param altAction: if set the map is just closed
- */
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;

@@ -13,6 +13,7 @@
 #include "utils/file_util.h"
 #include "utils/md5.h"
 #include "storm/storm_cfg.h"
+#include "mpqapi.h"
 #include <string>
 #if DEV_MODE
 #include <fstream>
@@ -68,6 +69,7 @@ void FreeArchives()
 			diabdat_mpqs[i] = NULL;
 		}
 	}
+	// mpqapi_close();
 }
 
 #if DEV_MODE
@@ -99,8 +101,8 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	}
 
 	std::string path = std::string(GetBasePath()) + destMpqName;
-	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
-		app_fatal("Unable to open MPQ file %s.", path.c_str());
+	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+		app_fatal("Unable to create MPQ file %s.", path.c_str());
 
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
@@ -109,10 +111,12 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 		if (fp != NULL) {
 			uintmax_t fileSize;
 			GetFileSize(path.c_str(), &fileSize);
+			if (fileSize > UINT32_MAX)
+				app_fatal("File %s is too large to be included in an MPQ archive.", line.c_str());
 			BYTE* buf = DiabloAllocPtr(fileSize);
 			ReadFile(buf, fileSize, fp);
 			fclose(fp);
-			if (!mpqapi_write_entry(line.c_str(), buf, fileSize))
+			if (!mpqapi_write_entry(line.c_str(), buf, (DWORD)fileSize))
 				app_fatal("Unable to write %s to the MPQ.", line.c_str());
 			mem_free_dbg(buf);
 		}
