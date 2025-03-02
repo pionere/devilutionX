@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void mpqapi_remove_entry(const char* pszName);
-bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen);
+bool mpqapi_write_entry(const char* pszName, BYTE* pbData, DWORD dwLen);
 void mpqapi_rename_entry(char* pszOld, char* pszNew);
 bool mpqapi_has_entry(const char* pszName);
 bool OpenMPQ(const char* pszArchive);

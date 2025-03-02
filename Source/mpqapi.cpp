@@ -521,7 +521,7 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 	return 0;
 }
 
-static bool mpqapi_write_file_contents(const BYTE* pbData, DWORD dwLen, uint32_t block)
+static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block)
 {
 	FileMpqBlockEntry* pBlk = &cur_archive.sgpBlockTbl[block];
 
@@ -563,11 +563,10 @@ static bool mpqapi_write_file_contents(const BYTE* pbData, DWORD dwLen, uint32_t
 #endif
 
 	uint32_t destsize = offset_table_bytesize;
-	BYTE mpq_buf[MPQ_SECTOR_SIZE];
 	std::size_t cur_sector = 0;
 	while (true) {
 		uint32_t len = std::min(dwLen, MPQ_SECTOR_SIZE);
-		memcpy(mpq_buf, pbData, len);
+		BYTE* mpq_buf = pbData;
 		pbData += len;
 		len = PkwareCompress(mpq_buf, len);
 		if (!cur_archive.stream.write(reinterpret_cast<const char*>(mpq_buf), len))
@@ -603,7 +602,7 @@ on_error:
 	return false;
 }
 
-bool mpqapi_write_entry(const char* pszName, const BYTE* pbData, DWORD dwLen)
+bool mpqapi_write_entry(const char* pszName, BYTE* pbData, DWORD dwLen)
 {
 	uint32_t block;
 
