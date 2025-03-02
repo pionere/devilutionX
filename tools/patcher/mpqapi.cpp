@@ -562,7 +562,7 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 #endif
 
 	uint32_t destsize = offset_table_bytesize;
-	std::size_t cur_sector = 0;
+	unsigned cur_sector = 0;
 	while (true) {
 		uint32_t len = std::min(dwLen, MPQ_SECTOR_SIZE);
 		BYTE* mpq_buf = pbData;
