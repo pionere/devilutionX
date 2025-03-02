@@ -1220,7 +1220,7 @@ __AllocateAndLoadPatchInfo:
 // Allocates sector offset table
 DWORD AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
 #else
-DWORD AllocateSectorOffsets(TMPQFile * hf)
+LPDWORD AllocateSectorOffsets(TMPQFile * hf)
 #endif
 {
     TMPQArchive * ha = hf->ha;
@@ -1230,12 +1230,13 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     bool bSectorOffsetTableCorrupt = false;
 #else
     DWORD dwSectorCount;
+    LPDWORD SectorOffsets;
 #endif
 
     // Caller of AllocateSectorOffsets must ensure these
-    assert(hf->SectorOffsets == NULL);
     assert(hf->pFileEntry != NULL);
 #ifdef FULL
+    assert(hf->SectorOffsets == NULL);
     assert(hf->dwDataSize != 0);
 #endif
     assert(hf->ha != NULL);
@@ -1262,22 +1263,24 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     // in order to save additional read from the file.
     if(pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
         dwSectorOffsLen += sizeof(DWORD);
-#endif
+
     // Only allocate and load the table if the file is compressed
     if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
     {
         __LoadSectorOffsets:
 
         // Allocate the sector offset table
-        hf->SectorOffsets = STORM_ALLOC(DWORD, (dwSectorOffsLen / sizeof(DWORD)));
+        hf->SectorOffsets = STORM_ALLOC(1, dwSectorOffsLen);
         if(hf->SectorOffsets == NULL)
-#ifdef FULL
             return ERROR_NOT_ENOUGH_MEMORY;
-
+#else
+        SectorOffsets = (DWORD*)STORM_ALLOC(BYTE, dwSectorOffsLen);
+        if(SectorOffsets == NULL)
+            return NULL;
+#endif
+#ifdef FULL
         // Only read from the file if we are supposed to do so
         if(bLoadFromFile)
-#else
-            return ERROR_SUCCESS + 1;
 #endif
         {
 #ifdef FULL
@@ -1289,25 +1292,31 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                     return ERROR_FILE_CORRUPT;
                 RawFilePos += hf->pPatchInfo->dwLength;
             }
-#else
-            FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
-#endif
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->SectorOffsets, dwSectorOffsLen))
+#else
+            FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
+            // Load the sector offsets from the file
+            if(!FileStream_Read(ha->pStream, &RawFilePos, SectorOffsets, dwSectorOffsLen))
+#endif
             {
+#ifdef FULL
                 // Free the sector offsets
                 STORM_FREE(hf->SectorOffsets);
                 hf->SectorOffsets = NULL;
-#ifdef FULL
                 return GetLastError();
 #else
-                return ERROR_SUCCESS + 1;
+                STORM_FREE(SectorOffsets);
+                return NULL;
 #endif
             }
 
             // Swap the sector positions
+#ifdef FULL
             BSWAP_ARRAY32_UNSIGNED(hf->SectorOffsets, dwSectorOffsLen);
-
+#else
+            BSWAP_ARRAY32_UNSIGNED(SectorOffsets, dwSectorOffsLen);
+#endif
             // Decrypt loaded sector positions if necessary
             if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
             {
@@ -1323,9 +1332,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                         return ERROR_UNKNOWN_FILE_KEY;
                     }
                 }
-#endif // FULL
                 // Decrypt sector positions
                 DecryptMpqBlock(hf->SectorOffsets, dwSectorOffsLen, hf->dwFileKey - 1);
+#else
+                DecryptMpqBlock(SectorOffsets, dwSectorOffsLen, hf->dwFileKey - 1);
+#endif // FULL
             }
 #ifdef FULL
             //
@@ -1394,10 +1405,11 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             memset(hf->SectorOffsets, 0, dwSectorOffsLen);
             hf->SectorOffsets[0] = dwSectorOffsLen;
         }
-#endif
     }
-
     return ERROR_SUCCESS;
+#else
+    return SectorOffsets;
+#endif
 }
 #ifdef FULL
 DWORD AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile)
@@ -1734,9 +1746,6 @@ void FreeFileHandle(TMPQFile * hf)
         if(hf->pFileEntry == NULL)
             // local file
             FileStream_Close(hf->pStream);
-        else if(hf->SectorOffsets != NULL)
-            // archive file
-            STORM_FREE(hf->SectorOffsets);
 #endif
         STORM_FREE(hf);
         hf = NULL;

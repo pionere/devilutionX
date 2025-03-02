@@ -939,7 +939,6 @@ typedef struct _TMPQFile
         TFileStream  * pStream;                 // File stream. Only used on local files
         struct {
             TMPQArchive  * ha;                  // Archive handle
-            LPDWORD        SectorOffsets;       // Position of each file sector, relative to the begin of the file. Only for compressed files.
             DWORD          dwFileKey;           // Decryption key
         };
     };

@@ -26,6 +26,7 @@ int WINAPI SCompDecompressX(TMPQArchive * ha, void * pvOutBuffer, int * pcbOutBu
 //  dwByteOffset  - Position of sector in the file (relative to file begin)
 //  dwBytesToRead - Number of bytes to read. Must be multiplier of sector size.
 //  pdwBytesRead  - Stored number of bytes loaded
+#ifdef FULL
 static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
 {
 #ifdef FULL
@@ -242,6 +243,196 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     *pdwBytesRead = dwBytesRead;
     return dwErrCode;
 }
+#else
+static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
+{
+    FILESIZE_T RawFilePos;
+    TMPQArchive * ha = hf->ha;
+    TFileEntry * pFileEntry = hf->pFileEntry;
+    LPBYTE pbRawSector = NULL;
+    LPBYTE pbOutSector = pbBuffer;
+    LPBYTE pbInSector = pbBuffer;
+    DWORD dwRawBytesToRead;
+#ifdef FULL
+    DWORD dwRawSectorOffset = dwByteOffset;
+    DWORD dwSectorsToRead = dwBytesToRead / ha->dwSectorSize;
+    DWORD dwSectorIndex = dwByteOffset / ha->dwSectorSize;
+    DWORD dwBytesRead = 0;
+#else
+    DWORD dwRawSectorOffset = 0;
+    DWORD dwSectorsToRead = ((dwBytesToRead - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+    DWORD dwSectorIndex = 0;
+#endif
+    DWORD dwErrCode = ERROR_SUCCESS;
+    LPDWORD SectorOffsets = NULL;
+    // Note that dwByteOffset must be aligned to size of one sector
+    // Note that dwBytesToRead must be a multiplier of one sector size
+    // This is local function, so we won't check if that's true.
+    // Note that files stored in single units are processed by a separate function
+
+    // If there is not enough bytes remaining, cut dwBytesToRead
+#ifdef FULL
+    if ((dwByteOffset + dwBytesToRead) > hf->dwDataSize)
+        dwBytesToRead = hf->dwDataSize - dwByteOffset;
+#endif
+    dwRawBytesToRead = dwBytesToRead;
+
+    // Perform all necessary work to do with compressed files
+    if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
+        // If the sector positions are not loaded yet, do it
+        SectorOffsets = AllocateSectorOffsets(hf);
+        if (SectorOffsets == NULL)
+            return ERROR_SUCCESS + 1;
+#ifdef FULL
+        // If the sector checksums are not loaded yet, load them now.
+        if (hf->SectorChksums == NULL
+         && (pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
+         && hf->bLoadedSectorCRCs == false) {
+            //
+            // Sector CRCs is plain crap feature. It is almost never present,
+            // often it's empty, or the end offset of sector CRCs is zero.
+            // We only try to load sector CRCs once, and regardless if it fails
+            // or not, we won't try that again for the given file.
+            //
+            AllocateSectorChecksums(hf, true);
+            hf->bLoadedSectorCRCs = true;
+        }
+#endif
+        // TODO: If the raw data MD5s are not loaded yet, load them now
+        // Only do it if the MPQ is of format 4.0
+//      if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_4 && ha->pHeader->dwRawChunkSize != 0)
+//      {
+//          dwErrCode = AllocateRawMD5s(hf, true);
+//          if(dwErrCode != ERROR_SUCCESS)
+//              return dwErrCode;
+//      }
+
+        // Assign the temporary buffer as target for read operation
+        dwRawSectorOffset = SectorOffsets[dwSectorIndex];
+        dwRawBytesToRead = SectorOffsets[dwSectorIndex + dwSectorsToRead] - dwRawSectorOffset;
+
+        // If the file is compressed, also allocate secondary buffer
+        pbInSector = pbRawSector = STORM_ALLOC(BYTE, dwRawBytesToRead);
+        if (pbRawSector == NULL) {
+            STORM_FREE(SectorOffsets);
+            return ERROR_SUCCESS + 1;
+        }
+    }
+
+    // Calculate raw file offset where the sector(s) are stored.
+    RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
+
+    // Set file pointer and read all required sectors
+    if (FileStream_Read(ha->pStream, &RawFilePos, pbInSector, dwRawBytesToRead)) {
+        // Now we have to decrypt and decompress all file sectors that have been loaded
+        for (DWORD i = 0; i < dwSectorsToRead; i++) {
+#ifdef FULL
+            DWORD dwRawBytesInThisSector = ha->dwSectorSize;
+            DWORD dwBytesInThisSector = ha->dwSectorSize;
+#else
+            DWORD dwRawBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+            DWORD dwBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+#endif
+            DWORD dwIndex = dwSectorIndex + i;
+
+            // If there is not enough bytes in the last sector,
+            // cut the number of bytes in this sector
+            if (dwRawBytesInThisSector > dwBytesToRead)
+                dwRawBytesInThisSector = dwBytesToRead;
+            if (dwBytesInThisSector > dwBytesToRead)
+                dwBytesInThisSector = dwBytesToRead;
+
+            // If the file is compressed, we have to adjust the raw sector size
+            if (pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
+                dwRawBytesInThisSector = SectorOffsets[dwIndex + 1] - SectorOffsets[dwIndex];
+
+            // If the file is encrypted, we have to decrypt the sector
+            if (pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
+                BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
+#ifdef FULL
+                // If we don't know the key, try to detect it by file content
+                if (hf->dwFileKey == 0) {
+                    hf->dwFileKey = DetectFileKeyByContent(pbInSector, dwBytesInThisSector, hf->dwDataSize);
+                    if (hf->dwFileKey == 0) {
+                        dwErrCode = ERROR_UNKNOWN_FILE_KEY;
+                        break;
+                    }
+                }
+#endif
+                DecryptMpqBlock(pbInSector, dwRawBytesInThisSector, hf->dwFileKey + dwIndex);
+                BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
+            }
+
+#ifdef FULL_CRC
+            // If the file has sector CRC check turned on, perform it
+            if (hf->bCheckSectorCRCs && hf->SectorChksums != NULL) {
+                DWORD dwAdlerExpected = hf->SectorChksums[dwIndex];
+                DWORD dwAdlerValue = 0;
+
+                // We can only check sector CRC when it's not zero
+                // Neither can we check it if it's 0xFFFFFFFF.
+                if (dwAdlerExpected != 0 && dwAdlerExpected != 0xFFFFFFFF) {
+                    dwAdlerValue = adler32(0, pbInSector, dwRawBytesInThisSector);
+                    if (dwAdlerValue != dwAdlerExpected) {
+                        dwErrCode = ERROR_CHECKSUM_ERROR;
+                        break;
+                    }
+                }
+            }
+#endif
+
+            // If the sector is really compressed, decompress it.
+            // WARNING : Some sectors may not be compressed, it can be determined only
+            // by comparing uncompressed and compressed size !!!
+            if (dwRawBytesInThisSector < dwBytesInThisSector) {
+                int cbOutSector = dwBytesInThisSector;
+                int cbInSector = dwRawBytesInThisSector;
+                int nResult = 0;
+#ifdef FULL_COMP
+                // Is the file compressed by Blizzard's multiple compression ?
+                if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
+                    // Remember the last used compression
+                    hf->dwCompression0 = pbInSector[0];
+
+                    // Decompress the data. We need to perform MPQ-specific decompression,
+                    // as multiple Blizzard games may have their own decompression tables
+                    // and even decompression methods.
+                    nResult = SCompDecompressX(ha, pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                }
+                // Is the file compressed by PKWARE Data Compression Library ?
+                else if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
+#else
+                if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
+#endif
+                    nResult = SCompExplode(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                }
+
+                // Did the decompression fail ?
+                if (nResult == 0) {
+                    dwErrCode = ERROR_SUCCESS + 1;
+                    break;
+                }
+            } else {
+                if (pbOutSector != pbInSector)
+                    memcpy(pbOutSector, pbInSector, dwBytesInThisSector);
+            }
+
+            // Move pointers
+            dwBytesToRead -= dwBytesInThisSector;
+            pbOutSector += dwBytesInThisSector;
+            pbInSector += dwRawBytesInThisSector;
+        }
+    } else {
+        dwErrCode = ERROR_SUCCESS + 1;
+    }
+
+    // Free all used buffers
+    STORM_FREE(pbRawSector);
+    STORM_FREE(SectorOffsets);
+
+    return dwErrCode;
+}
+#endif
 #ifdef FULL
 static DWORD ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
@@ -460,18 +651,14 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 #ifdef FULL
     TMPQArchive * ha = hf->ha;
     DWORD dwFilePos = hf->dwFilePos;
-#else
-    DWORD dwFilePos = 0;
 #endif
     LPBYTE pbBuffer = (BYTE *)pvBuffer;
-    DWORD dwTotalBytesRead = 0;                         // Total bytes read in all three parts
 #ifdef FULL
+    DWORD dwTotalBytesRead = 0;                         // Total bytes read in all three parts
     DWORD dwSectorSizeMask = ha->dwSectorSize - 1;      // Mask for block size, usually 0x0FFF
-#else
-    const DWORD dwSectorSizeMask = MPQ_SECTOR_SIZE_V1 - 1;
-#endif
     DWORD dwFileSectorPos;                              // File offset of the loaded sector
     DWORD dwBytesRead;                                  // Number of bytes read (temporary variable)
+#endif
     DWORD dwErrCode;
 #ifdef FULL
     // If not enough bytes in the file remaining, cut them
@@ -479,10 +666,10 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
         dwBytesToRead = 0;
     else if (dwBytesToRead > (hf->dwDataSize - dwFilePos))
         dwBytesToRead = (hf->dwDataSize - dwFilePos);
-#endif
+
     // Compute sector position in the file
     dwFileSectorPos = dwFilePos & ~dwSectorSizeMask;  // Position in the block
-#ifdef FULL
+
     // If the file sector buffer is not allocated yet, do it now
     if (hf->pbFileSector == NULL) {
         dwErrCode = AllocateSectorBuffer(hf);
@@ -537,25 +724,29 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 #ifdef FULL
     if (dwBytesToRead >= ha->dwSectorSize) {
 #else
-    if (dwBytesToRead >= MPQ_SECTOR_SIZE_V1) {
+    if (dwBytesToRead > 0) {
 #endif
+#ifdef FULL
         DWORD dwBlockBytes = dwBytesToRead & ~dwSectorSizeMask;
 
         // Load all sectors to the output buffer
         dwErrCode = ReadMpqSectors(hf, pbBuffer, dwFileSectorPos, dwBlockBytes, &dwBytesRead);
         if(dwErrCode != ERROR_SUCCESS)
+#else
+        dwErrCode = ReadMpqSectors(hf, pbBuffer, dwBytesToRead);
+#endif
             return dwErrCode;
-
+#ifdef FULL
         // Update pointers
         dwTotalBytesRead += dwBytesRead;
         dwFileSectorPos  += dwBytesRead;
         pbBuffer         += dwBytesRead;
         dwBytesToRead    -= dwBytesRead;
+#endif
     }
-
+#ifdef FULL
     // Read the terminating sector
     if (dwBytesToRead > 0) {
-#ifdef FULL
         DWORD dwToCopy = ha->dwSectorSize;
 
         // Is the file sector already loaded ?
@@ -577,22 +768,8 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 
         // Update pointers
         dwTotalBytesRead += dwToCopy;
-#else
-        DWORD dwToCopy = MPQ_SECTOR_SIZE_V1;
-        LPBYTE pbFileSector = STORM_ALLOC(BYTE, MPQ_SECTOR_SIZE_V1);
-        if (pbFileSector == NULL)
-            return ERROR_SUCCESS + 1;
-        // Load one MPQ sector into archive buffer
-        dwErrCode = ReadMpqSectors(hf, pbFileSector, dwFileSectorPos, dwToCopy, &dwBytesRead);
-
-        // Copy the data from the cached last sector to the caller's buffer
-        memcpy(pbBuffer, pbFileSector, dwBytesToRead);
-
-        STORM_FREE(pbFileSector);
-        return dwErrCode;
-#endif
     }
-#ifdef FULL
+
     // Store total number of bytes read to the caller
     *pdwBytesRead = dwTotalBytesRead;
 #endif

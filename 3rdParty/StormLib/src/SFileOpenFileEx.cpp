@@ -312,8 +312,8 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     }
 
     // Check whether the file really exists in the MPQ
-    if (dwErrCode == ERROR_SUCCESS) {
 #ifdef FULL
+    if (dwErrCode == ERROR_SUCCESS) {
         // If we didn't find the file, try to open it using pseudo file name ("File
         if(pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0) {
             // Check the pseudo-file name  ("File00000001.ext")
@@ -354,9 +354,8 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 //              pFileEntry = NULL;
 //          }
         }
-#endif
     }
-
+#endif
     // Did the caller just wanted to know if the file exists?
 #ifdef FULL
     if(dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
@@ -383,7 +382,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 
             hf->ha = ha;
             hf->pFileEntry = pFileEntry;
-            hf->SectorOffsets = NULL;
 #endif
 #ifdef FULL_CRC
             // If the MPQ has sector CRC enabled, enable if for the file
