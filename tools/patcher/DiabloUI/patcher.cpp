@@ -4577,7 +4577,11 @@ static int patcher_callback()
 			if (buf == NULL) {
 				return RETURN_ERROR;
 			}
-			if (!mpqapi_write_entry(filesToPatch[i], buf, dwLen)) {
+			if (dwLen > UINT32_MAX) {
+				app_warn("Patched file %s is too large to be included in an MPQ archive.", filesToPatch[i]);
+				return RETURN_ERROR;
+			}
+			if (!mpqapi_write_entry(filesToPatch[i], buf, (DWORD)dwLen)) {
 				app_warn("Unable to write %s to the MPQ.", filesToPatch[i]);
 				return RETURN_ERROR;
 			}
