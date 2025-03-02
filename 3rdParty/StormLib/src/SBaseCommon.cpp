@@ -1226,8 +1226,9 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
     DWORD dwSectorOffsLen;
+#ifdef FULL
     bool bSectorOffsetTableCorrupt = false;
-#ifndef FULL
+#else
     DWORD dwSectorCount;
 #endif
 
@@ -1326,18 +1327,14 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                 // Decrypt sector positions
                 DecryptMpqBlock(hf->SectorOffsets, dwSectorOffsLen, hf->dwFileKey - 1);
             }
-
+#ifdef FULL
             //
             // Validate the sector offset table
             //
             // Note: Some MPQ protectors put the actual file data before the sector offset table.
             // In this case, the sector offsets are negative (> 0x80000000).
             //
-#ifdef FULL
             for(DWORD i = 0; i < hf->dwSectorCount; i++)
-#else
-            for(DWORD i = 0; i < dwSectorCount; i++)
-#endif
             {
                 DWORD dwSectorOffset1 = hf->SectorOffsets[i+1];
                 DWORD dwSectorOffset0 = hf->SectorOffsets[i];
@@ -1353,11 +1350,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
                 // Edit: Yes, but apparently, in original Storm.dll, the compressed
                 // size is not checked anywhere. However, we need to do this check
                 // in order to sector offset table malformed by MPQ protectors
-#ifdef FULL
                 if((dwSectorOffset1 - dwSectorOffset0) > ha->dwSectorSize)
-#else
-                if((dwSectorOffset1 - dwSectorOffset0) > MPQ_SECTOR_SIZE_V1)
-#endif
                 {
                     bSectorOffsetTableCorrupt = true;
                     break;
@@ -1369,11 +1362,7 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             {
                 STORM_FREE(hf->SectorOffsets);
                 hf->SectorOffsets = NULL;
-#ifdef FULL
                 return ERROR_FILE_CORRUPT;
-#else
-                return ERROR_SUCCESS + 1;
-#endif
             }
 
             //
@@ -1390,17 +1379,14 @@ DWORD AllocateSectorOffsets(TMPQFile * hf)
             {
                 // MPQ protectors put some ridiculous values there. We must limit the extra bytes
                 if(hf->SectorOffsets[0] > (dwSectorOffsLen + 0x400))
-#ifdef FULL
                     return ERROR_FILE_CORRUPT;
-#else
-                    return ERROR_SUCCESS + 1;
-#endif
 
                 // Free the old sector offset table
                 dwSectorOffsLen = hf->SectorOffsets[0];
                 STORM_FREE(hf->SectorOffsets);
                 goto __LoadSectorOffsets;
             }
+#endif
         }
 #ifdef FULL
         else
