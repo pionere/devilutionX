@@ -416,9 +416,9 @@ FILESIZE_T CalculateRawSectorOffset(
 #else
     FILESIZE_T RawFilePos;
 #endif
+#ifdef FULL
     // Must be used for files within a MPQ
     assert(hf->ha != NULL);
-#ifdef FULL
     assert(hf->ha->pHeader != NULL);
 
     //
@@ -456,7 +456,7 @@ DWORD ConvertMpqHeaderToFormat4(
     DWORD dwFlags,
     MTYPE MapType)
 #else
-DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
+void ConvertMpqHeaderToFormat4(TMPQArchive * ha)
 #endif
 {
 #ifndef FULL
@@ -470,8 +470,8 @@ DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
     USHORT wFormatVersion = BSWAP_INT16_UNSIGNED(pHeader->wFormatVersion);
     bool bHashBlockOffsetOK = false;
     bool bHetBetOffsetOK = false;
-#endif
     DWORD dwErrCode = ERROR_SUCCESS;
+#endif
 
     // If version 1.0 is forced, then the format version is forced to be 1.0
     // Reason: Storm.dll in Warcraft III ignores format version value
@@ -738,8 +738,9 @@ DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha)
     // Used by BOBA protector
     if(BlockTablePos64 < ByteOffset)
         ha->dwFlags |= MPQ_FLAG_MALFORMED;
-#endif
+
     return dwErrCode;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2562,10 +2563,10 @@ TMPQBetTable * LoadBetTable(TMPQArchive * ha)
 
 DWORD LoadAnyHashTable(TMPQArchive * ha)
 {
+#ifdef FULL
     TMPQHeader * pHeader = &ha->pHeader;
 
     // If the MPQ archive is empty, don't bother trying to load anything
-#ifdef FULL
     if(pHeader->dwHashTableSize == 0 && pHeader->HetTableSize64 == 0)
         return CreateHashTable(ha, HASH_TABLE_SIZE_DEFAULT);
 

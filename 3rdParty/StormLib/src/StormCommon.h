@@ -265,7 +265,7 @@ DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG
 #else
 FILESIZE_T FileOffsetFromMpqOffset(FILESIZE_T MpqOffset);
 FILESIZE_T CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
-DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha);
+void ConvertMpqHeaderToFormat4(TMPQArchive * ha);
 #endif
 #ifndef FULL
 int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);

@@ -1069,7 +1069,6 @@ void * LoadMpqTable(
 
                 if(!SCompDecompress2(pbMpqTable, &cbOutBuffer, pbCompressed, cbInBuffer))
                     dwErrCode = GetLastError();
-                dwErrCode = ERROR_FILE_CORRUPT;
             }
 #endif
             // Make sure that the table is properly byte-swapped

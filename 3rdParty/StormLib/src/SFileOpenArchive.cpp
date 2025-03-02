@@ -406,7 +406,7 @@ HANDLE WINAPI SFileOpenArchive(
                 {
                     dwErrCode = ERROR_SUCCESS + 1;
                 } else {
-                    dwErrCode = ConvertMpqHeaderToFormat4(ha);
+                    ConvertMpqHeaderToFormat4(ha);
 #endif // FULL
 #ifdef FULL
                     if(dwErrCode != ERROR_FAKE_MPQ_HEADER)
