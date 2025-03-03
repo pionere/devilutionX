@@ -523,8 +523,8 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block)
 {
 	FileMpqBlockEntry* pBlk = &cur_archive.sgpBlockTbl[block];
-
-	const uint32_t num_sectors = (dwLen + (MPQ_SECTOR_SIZE - 1)) / MPQ_SECTOR_SIZE;
+	// assert(dwLen != 0);
+	const uint32_t num_sectors = ((dwLen - 1) / MPQ_SECTOR_SIZE) + 1;
 	const uint32_t offset_table_bytesize = sizeof(uint32_t) * (num_sectors + 1);
 	pBlk->bqOffset = mpqapi_find_free_block(dwLen + offset_table_bytesize, &pBlk->bqSizeAlloc);
 	pBlk->bqSizeFile = dwLen;
