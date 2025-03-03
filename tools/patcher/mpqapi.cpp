@@ -656,19 +656,19 @@ bool OpenMPQ(const char* pszArchive)
 
 		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqBlockOffset, SEEK_SET))
 			goto on_error;
-			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
-				goto on_error;
-			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
-			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
-			ByteSwapBlockTbl(cur_archive.sgpBlockTbl, cur_archive.mpqHeader.pqBlockCount);
+		if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
+			goto on_error;
+		key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+		DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
+		ByteSwapBlockTbl(cur_archive.sgpBlockTbl, cur_archive.mpqHeader.pqBlockCount);
 
 		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqHashOffset, SEEK_SET))
 			goto on_error;
-			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
-				goto on_error;
-			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
-			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
-			ByteSwapHashTbl(cur_archive.sgpHashTbl, cur_archive.mpqHeader.pqHashCount);
+		if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
+			goto on_error;
+		key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+		DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
+		ByteSwapHashTbl(cur_archive.sgpHashTbl, cur_archive.mpqHeader.pqHashCount);
 
 #ifndef CAN_SEEKP_BEYOND_EOF
 		if (!cur_archive.stream.seekp(0, SEEK_SET))
