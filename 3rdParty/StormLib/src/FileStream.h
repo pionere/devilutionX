@@ -153,7 +153,9 @@ union TBaseProviderData
     struct
     {
         FILESIZE_T FileSize;                // Size of the file
+#ifndef STORMLIB_WINDOWS
         FILESIZE_T FilePos;                 // Current file position
+#endif
         HANDLE hFile;                       // File handle
     } File;
 #endif // FULL

@@ -209,11 +209,16 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         pStream->Base.File.FileSize = (FILESIZE_T)fileinfo.st_size;
 #endif // FULL
         pStream->Base.File.hFile = (HANDLE)handle;
+#ifndef FULL
+        // Reset the file position
+        pStream->Base.File.FilePos = 0;
+#endif
     }
 #endif
-
+#ifdef FULL
     // Reset the file position
     pStream->Base.File.FilePos = 0;
+#endif
     return true;
 }
 
@@ -240,10 +245,10 @@ static bool BaseFile_Read(
         // Thus, we can use the OVERLAPPED structure to specify
         // file offset to read from file. This allows us to skip
         // one system call to SetFilePointer
-
+#ifdef FULL
         // Update the byte offset
         pStream->Base.File.FilePos = ByteOffset;
-
+#endif
         // Read the data
         if(dwBytesToRead != 0)
         {
@@ -285,12 +290,18 @@ static bool BaseFile_Read(
 
             dwBytesRead = (DWORD)(size_t)bytes_read;
         }
+#ifndef FULL
+        // Increment the current file position by number of bytes read
+        // If the number of bytes read doesn't match to required amount, return false
+        pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+#endif
     }
 #endif
-
+#ifdef FULL
     // Increment the current file position by number of bytes read
     // If the number of bytes read doesn't match to required amount, return false
     pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+#endif
     if(dwBytesRead != dwBytesToRead)
         SetLastError(ERROR_HANDLE_EOF);
     return (dwBytesRead == dwBytesToRead);
