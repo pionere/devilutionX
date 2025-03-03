@@ -352,8 +352,8 @@ static bool IsValidMPQHeader(const FileMpqHeader* hdr)
 		DoLog("Invalid header format sig(%d vs. %d), hs(%d vs. %d) v(%d vs. %d) ss(%d vs. %d)", hdr->pqSignature, ID_MPQ, hdr->pqHeaderSize, MPQ_HEADER_SIZE_V1, hdr->pqVersion, MPQ_FORMAT_VERSION_1, hdr->pqSectorSizeId, MPQ_SECTOR_SIZE_SHIFT_V1);
 		return false;
 #endif
-	// hashCount must be a power of two
-	return (int)hdr->pqHashCount >= 0                     // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
+	return hdr->pqBlockCount != 0                         // required by OpenMPQ
+	 && (int)hdr->pqHashCount > 0                         // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry ( !=0 by OpenMPQ)
 	 && (hdr->pqHashCount & (hdr->pqHashCount - 1)) == 0; // hashCount must be a power of two (required by mpqapi_get_hash_index / mpqapi_add_entry)
 }
 

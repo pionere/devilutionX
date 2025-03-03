@@ -459,9 +459,12 @@ HANDLE WINAPI SFileOpenArchive(
 #else
         if(dwErrCode == ERROR_SUCCESS)
         {
-            if ((int)ha->pHeader.dwHashTableSize < 0                     // required by GetFirstHashEntry
+            if ((int)ha->pHeader.dwHashTableSize <= 0                     // required by GetFirstHashEntry ( != 0 by LoadAnyHashTable)
              || (ha->pHeader.dwHashTableSize & (ha->pHeader.dwHashTableSize - 1)) != 0)
-                dwErrCode = ERROR_BAD_FORMAT;
+                dwErrCode = ERROR_SUCCESS + 1;
+
+            if (ha->pHeader.dwBlockTableSize == 0) // required by BuildFileTable
+                dwErrCode = ERROR_SUCCESS + 1;
         }
 #endif
     }
