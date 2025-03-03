@@ -421,14 +421,6 @@ static FILESIZE_T BaseFile_GetSize(const TFileStream * pStream)
     // Requires the TBaseData union to have the same layout for all three base providers
     return pStream->Base.File.FileSize;
 }
-
-// Gives the current file position
-static FILESIZE_T BaseFile_GetPos(const TFileStream * pStream)
-{
-    // Note: Used by all thre base providers.
-    // Requires the TBaseData union to have the same layout for all three base providers
-    return pStream->Base.File.FilePos;
-}
 #else
 // Gives the current file size
 static bool BaseFile_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
@@ -2906,23 +2898,16 @@ bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize)
     assert(pStream->StreamResize != NULL);
     return pStream->StreamResize(pStream, NewFileSize);
 }
-#endif
 
 /**
  * This function returns the current file position
  * \a pStream
  * \a pByteOffset
  */
-#ifdef fULL
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
 {
     assert(pStream->StreamGetPos != NULL);
     return pStream->StreamGetPos(pStream, pByteOffset);
-}
-#else
-FILESIZE_T FileStream_GetPos(const TFileStream * pStream)
-{
-    return BaseFile_GetPos(pStream);
 }
 #endif
 

@@ -1026,7 +1026,6 @@ bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize);
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset);
 #else
 FILESIZE_T FileStream_GetSize(const TFileStream * pStream);
-FILESIZE_T FileStream_GetPos(const TFileStream * pStream);
 #endif
 //bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFT);
 #ifdef fULL

@@ -246,8 +246,8 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     TMPQFile    * hf = NULL;
 #ifdef FULL
     DWORD dwHashIndex = HASH_ENTRY_FREE;
-#endif
     DWORD dwFileIndex = 0;
+#endif
     DWORD dwErrCode = ERROR_SUCCESS;
 #ifdef FULL
     bool bOpenByIndex = false;
