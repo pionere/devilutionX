@@ -584,8 +584,6 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 		goto on_error;
 	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 		goto on_error;
-	if (!cur_archive.stream.seekp(destsize - offset_table_bytesize, SEEK_CUR))
-		goto on_error;
 
 	if (destsize < pBlk->bqSizeAlloc) {
 		const uint32_t emptyBlockSize = pBlk->bqSizeAlloc - destsize;
