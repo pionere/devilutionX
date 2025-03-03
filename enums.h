@@ -4609,16 +4609,16 @@ typedef enum mpq_files {
 #endif
 	MPQ_DEVILX,
 #ifdef HELLFIRE
-	MPQ_HF_OPT2,
-	MPQ_HF_OPT1,
+	//MPQ_HF_OPT2, - does not exist
+	//MPQ_HF_OPT1, - does not exist
 	MPQ_HF_VOICE,
 	MPQ_HF_MUSIC,
-	MPQ_HF_BARB,
-	MPQ_HF_BARD,
+	//MPQ_HF_BARB, - does not exist
+	//MPQ_HF_BARD, - does not exist
 	MPQ_HF_MONK,
 	MPQ_HELLFIRE,
 #endif
-	MPQ_PATCH_RT,
+	// MPQ_PATCH_RT, - does not contain relevant files
 	MPQ_DIABDAT,
 	NUM_MPQS
 } mpq_files;

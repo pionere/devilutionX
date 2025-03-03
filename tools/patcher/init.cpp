@@ -155,19 +155,19 @@ void InitArchives()
 		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT, MPQ_DIABDAT);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
-	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH, MPQ_PATCH_RT);
+	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH, MPQ_PATCH_RT);
 	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE
 	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq", MPQ_HELLFIRE);
 	diabdat_mpqs[MPQ_HF_MONK] = init_test_access("hfmonk.mpq", MPQ_HF_MONK);
-	diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq", MPQ_HF_BARD);
-	diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq", MPQ_HF_BARB);
+	//diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq", MPQ_HF_BARD);
+	//diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq", MPQ_HF_BARB);
 	diabdat_mpqs[MPQ_HF_MUSIC] = init_test_access("hfmusic.mpq", MPQ_HF_MUSIC);
 	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq", MPQ_HF_VOICE);
-	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq", MPQ_HF_OPT1);
-	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq", MPQ_HF_OPT2);
+	//diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq", MPQ_HF_OPT1);
+	//diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq", MPQ_HF_OPT2);
 #endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq", MPQ_DEVILX);
 	if (diabdat_mpqs[MPQ_DEVILX] == NULL)

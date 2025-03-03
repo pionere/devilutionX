@@ -41,16 +41,16 @@ static const FileMetaInfo filemetadata[] = {
 #endif
 	{ "DEVILX.MPQ", MPQDEVXP_HASH, "646be569d22f1d542851008ea6c9e22f", false },
 #ifdef HELLFIRE
-	{ "HF_OPT2.MPQ", "", "", true },
-	{ "HF_OPT1.MPQ", "", "", true },
+	//{ "HF_OPT2.MPQ", "", "", true },
+	//{ "HF_OPT1.MPQ", "", "", true },
 	{ "HF_VOICE.MPQ", "6ae6ce3e89ece92c1e3e912a91d0b186", "6ae6ce3e89ece92c1e3e912a91d0b186", false },
 	{ "HF_MUSIC.MPQ", "5f79b271b4a291fc8968df7e8aa80d52", "f40a5dede03e84b663a1ced6ddc1cc20", false },
-	{ "HF_BARB.MPQ", "", "", true },
-	{ "HF_BARD.MPQ", "", "", true },
+	//{ "HF_BARB.MPQ", "", "", true },
+	//{ "HF_BARD.MPQ", "", "", true },
 	{ "HF_MONK.MPQ", "5a6b8f1ef6d505d469c31aef6e48e89d", "5a6b8f1ef6d505d469c31aef6e48e89d", false },
 	{ "HELLFIRE.MPQ", "c996bd970df13ea7aa5e2417f8e78b9f", "c996bd970df13ea7aa5e2417f8e78b9f", false },
 #endif
-	{ "PATCH_RT.MPQ", "d2488b30310c1d293eaf068a29709e65", "", true },
+	//{ "PATCH_RT.MPQ", "d2488b30310c1d293eaf068a29709e65", "", true },
 	{ "DIABDAT.MPQ", "011bc6518e6166206231080a4440b373", "68f049866b44688a7af65ba766bef75a", false },
 	{ MPQONE, MPQONE_HASH, "", MPQONE_OPTIONAL },
 };
