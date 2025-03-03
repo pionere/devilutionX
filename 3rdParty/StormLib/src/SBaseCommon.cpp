@@ -1224,7 +1224,11 @@ LPDWORD AllocateSectorOffsets(TMPQFile * hf)
 #endif
 {
     TMPQArchive * ha = hf->ha;
+#ifdef FULL
     TFileEntry * pFileEntry = hf->pFileEntry;
+#else
+    TMPQBlock * pFileEntry = hf->pFileEntry;
+#endif
     DWORD dwSectorOffsLen;
 #ifdef FULL
     bool bSectorOffsetTableCorrupt = false;
@@ -1253,7 +1257,7 @@ LPDWORD AllocateSectorOffsets(TMPQFile * hf)
     // Calculate the number of file sectors
     dwSectorOffsLen = (hf->dwSectorCount + 1) * sizeof(DWORD);
 #else
-    dwSectorCount = ((pFileEntry->dwFileSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+    dwSectorCount = ((pFileEntry->dwFSize - 1) / MPQ_SECTOR_SIZE_V1) + 1;
     // Calculate the number of file sectors
     dwSectorOffsLen = (dwSectorCount + 1) * sizeof(DWORD);
 #endif
@@ -1295,7 +1299,7 @@ LPDWORD AllocateSectorOffsets(TMPQFile * hf)
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->SectorOffsets, dwSectorOffsLen))
 #else
-            FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->ByteOffset);
+            FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->dwFilePos);
             // Load the sector offsets from the file
             if(!FileStream_Read(ha->pStream, &RawFilePos, SectorOffsets, dwSectorOffsLen))
 #endif
@@ -1784,11 +1788,9 @@ void FreeArchiveHandle(TMPQArchive * ha)
                     STORM_FREE(ha->pFileTable[i].szFileName);
                 ha->pFileTable[i].szFileName = NULL;
             }
-#endif
 
             // Then free all buffers allocated in the archive structure
             STORM_FREE(ha->pFileTable);
-#ifdef FULL
         }
 
         if(ha->pHashTable != NULL)
@@ -1797,6 +1799,8 @@ void FreeArchiveHandle(TMPQArchive * ha)
 #ifdef FULL
         if(ha->pHetTable != NULL)
             FreeHetTable(ha->pHetTable);
+#else
+            STORM_FREE(ha->pBlockTable);
 #endif
         STORM_FREE(ha);
         ha = NULL;

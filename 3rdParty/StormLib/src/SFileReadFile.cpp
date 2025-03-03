@@ -248,7 +248,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
 {
     FILESIZE_T RawFilePos;
     TMPQArchive * ha = hf->ha;
+#ifdef FULL
     TFileEntry * pFileEntry = hf->pFileEntry;
+#else
+    TMPQBlock * pFileEntry = hf->pFileEntry;
+#endif
     LPBYTE pbRawSector = NULL;
     LPBYTE pbOutSector = pbBuffer;
     LPBYTE pbInSector = pbBuffer;
@@ -1013,7 +1017,7 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 #ifdef FULL
                 FileSize = hf->dwDataSize;
 #else
-                FileSize = hf->pFileEntry->dwFileSize;
+                FileSize = hf->pFileEntry->dwFSize;
 #endif
             }
         }

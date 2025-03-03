@@ -241,7 +241,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     TFileEntry  * pFileEntry = NULL;
 #else
     TMPQArchive * ha;
-    TFileEntry  * pFileEntry;
+    TMPQBlock   * pFileEntry;
 #endif
     TMPQFile    * hf = NULL;
 #ifdef FULL
@@ -326,13 +326,12 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                     pFileEntry = ha->pFileTable + dwFileIndex;
                 }
             }
-#endif
+
             // Still not found?
             if(pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0)
             {
                 dwErrCode = ERROR_FILE_NOT_FOUND;
             }
-#ifdef FULL
         }
 
         // Perform some checks of invalid files
@@ -355,6 +354,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 //          }
         }
     }
+#else
+            if(pFileEntry == NULL || pFileEntry->dwFSize == 0)
+            {
+                dwErrCode = ERROR_SUCCESS + 1;
+            }
 #endif
     // Did the caller just wanted to know if the file exists?
 #ifdef FULL

@@ -310,7 +310,7 @@ TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID
 TFileEntry * GetFileEntryLocale(TMPQArchive * ha, const char * szFileName, LCID lcLocale);
 TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
 #else
-TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName);
+TMPQBlock * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName);
 #endif
 #ifdef FULL
 // Allocates file name in the file entry

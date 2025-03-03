@@ -699,27 +699,20 @@ typedef struct _TPatchInfo
 // This is the combined file entry for maintaining file list in the MPQ.
 // This structure is combined from block table, hi-block table,
 // (attributes) file and from (listfile).
+#ifdef FULL
 typedef struct _TFileEntry
 {
-#ifdef FULL
     ULONGLONG FileNameHash;                     // Jenkins hash of the file name. Only used when the MPQ has BET table.
     ULONGLONG ByteOffset;                       // Position of the file content in the MPQ, relative to the MPQ header
     ULONGLONG FileTime;                         // FileTime from the (attributes) file. 0 if not present.
-#else
-    FILESIZE_T ByteOffset;                      // Position of the file content in the MPQ, relative to the MPQ header
-#endif
     DWORD     dwFileSize;                       // Decompressed size of the file
-#ifdef FULL
     DWORD     dwCmpSize;                        // Compressed size of the file (i.e., size of the file data in the MPQ)
-#endif
     DWORD     dwFlags;                          // File flags (from block table)
-#ifdef FULL
     DWORD     dwCrc32;                          // CRC32 from (attributes) file. 0 if not present.
     BYTE      md5[MD5_DIGEST_SIZE];             // File MD5 from the (attributes) file. 0 if not present.
     char * szFileName;                          // File name. NULL if not known.
-#endif
 } TFileEntry;
-#ifdef FULL
+
 // Common header for HET and BET tables
 typedef struct _TMPQExtHeader
 {
@@ -855,11 +848,12 @@ typedef struct _TMPQArchive
     TMPQHeader     pHeader;                     // MPQ file header
 #endif
     TMPQHash     * pHashTable;                  // Hash table
-#ifdef FULL
+#ifndef FULL
+    TMPQBlock    * pBlockTable;                 // Block table
+#else
     TMPQHetTable * pHetTable;                   // HET table
-#endif
     TFileEntry   * pFileTable;                  // File table
-#ifdef FULL
+
     HASH_STRING    pfnHashString;               // Hashing function that will convert the file name into hash
 
     TMPQUserData   UserData;                    // MPQ user data. Valid only when ID_MPQ_USERDATA has been found
@@ -934,7 +928,7 @@ typedef struct _TMPQFile
 #else
 typedef struct _TMPQFile
 {
-    TFileEntry   * pFileEntry;                  // File entry for the file. NULL in case of local files
+    TMPQBlock   * pFileEntry;                  // File entry for the file. NULL in case of local files
     union {
         TFileStream  * pStream;                 // File stream. Only used on local files
         struct {

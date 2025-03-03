@@ -311,7 +311,7 @@ HANDLE WINAPI SFileOpenArchive(
         ha->pfnHashString = HashStringSlash;
 #else
         FILESIZE_T ByteOffset = 0;
-        ha->pFileTable = NULL;
+        ha->pBlockTable = NULL;
         ha->pHashTable = NULL;
 #endif
         ha->pStream = pStream;
