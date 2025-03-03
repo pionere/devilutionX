@@ -587,10 +587,10 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 
 	if (destsize < pBlk->bqSizeAlloc) {
 		const uint32_t emptyBlockSize = pBlk->bqSizeAlloc - destsize;
-		if (emptyBlockSize >= (MPQ_SECTOR_SIZE / 4)) {
+		//if (emptyBlockSize >= (MPQ_SECTOR_SIZE / 4)) {
 			pBlk->bqSizeAlloc = destsize;
 			mpqapi_alloc_block(pBlk->bqSizeAlloc + pBlk->bqOffset, emptyBlockSize);
-		}
+		//}
 	}
 	mem_free_dbg(sectoroffsettable);
 	return true;
