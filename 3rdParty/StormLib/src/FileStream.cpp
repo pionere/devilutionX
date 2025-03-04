@@ -22,6 +22,10 @@
 #pragma comment(lib, "wininet.lib")             // Internet functions for HTTP stream
 #pragma warning(disable: 4800)                  // 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #endif // _MSC_VER
+#else
+#if !defined(STORMLIB_WINDOWS) && !defined(STORMLIB_MAC) && !defined(STORMLIB_LINUX)
+#error "Platform is unsupported by FileStream"
+#endif
 #endif // FULL
 //-----------------------------------------------------------------------------
 // Local defines
