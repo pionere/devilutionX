@@ -301,9 +301,9 @@ static bool BaseFile_Read(
     // Increment the current file position by number of bytes read
     // If the number of bytes read doesn't match to required amount, return false
     pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
-#endif
     if(dwBytesRead != dwBytesToRead)
         SetLastError(ERROR_HANDLE_EOF);
+#endif
     return (dwBytesRead == dwBytesToRead);
 }
 #ifdef FULL
