@@ -1192,14 +1192,14 @@ DWORD HashStringSlash(const char * szFileName, unsigned dwHashType);
 
 //-----------------------------------------------------------------------------
 // Non-Windows support for SetLastError/GetLastError
-
+#ifdef FULL
 #ifndef STORMLIB_WINDOWS
 
 void  SetLastError(DWORD dwErrCode);
 DWORD GetLastError();
 
 #endif
-
+#endif
 //-----------------------------------------------------------------------------
 // Functions from Storm.dll. They use slightly different names for keeping
 // possibility to use them together with StormLib (StormXXX instead of SFileXXX)

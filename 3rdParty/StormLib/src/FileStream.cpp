@@ -36,7 +36,7 @@
 
 //-----------------------------------------------------------------------------
 // Local functions - platform-specific functions
-
+#ifdef FULL
 #ifndef STORMLIB_WINDOWS
 #ifndef STORMLIB_WIIU
 static thread_local DWORD dwLastError = ERROR_SUCCESS;
@@ -54,7 +54,6 @@ void SetLastError(DWORD dwErrCode)
 }
 #endif /* !STORMLIB_WINDOWS */
 
-#ifdef FULL
 static DWORD StringToInt(const char * szString)
 {
     DWORD dwValue = 0;
@@ -190,16 +189,20 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         handle = open(szFileName, oflag | O_LARGEFILE);
         if(handle == -1)
         {
+#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
+#endif
             return false;
         }
 
         // Get the file size
         if(fstat64(handle, &fileinfo) == -1)
         {
+#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
+#endif
             close(handle);
             return false;
         }
@@ -288,7 +291,9 @@ static bool BaseFile_Read(
             bytes_read = read((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToRead);
             if(bytes_read == -1)
             {
+#ifdef FULL
                 dwLastError = errno;
+#endif
                 return false;
             }
 
