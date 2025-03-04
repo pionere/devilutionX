@@ -223,15 +223,13 @@ const char* getIniStr(const char* sectionName, const char* keyName)
 	return entry->value;
 }
 
-bool getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize)
+int getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize)
 {
 	const char* valueStr = getIniStr(sectionName, keyName);
 	if (valueStr == NULL)
-		return false;
+		return -1;
 
-	SStrCopy(string, valueStr, stringSize);
-
-	return true;
+	return SStrCopy(string, valueStr, stringSize);
 }
 
 void setIniValue(const char* sectionName, const char* keyName, const char* value)

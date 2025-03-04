@@ -111,14 +111,15 @@ static BYTE* CaptureEnc(BYTE* src, BYTE* dst, int width)
  */
 static bool CapturePix(uint16_t width, uint16_t height, uint16_t stride, BYTE* pixels, FILE* out)
 {
-	int i, writeSize;
+	int i;
+	size_t writeSize;
 	BYTE *pBuffer, *pBufferEnd;
 
 	pBuffer = (BYTE*)DiabloAllocPtr(2 * width);
 	for (i = height; i > 0; i--) {
 		pBufferEnd = CaptureEnc(pixels, pBuffer, width);
 		pixels += stride;
-		writeSize = pBufferEnd - pBuffer;
+		writeSize = (size_t)pBufferEnd - (size_t)pBuffer;
 		if (!WriteFile(pBuffer, writeSize, out))
 			break;
 	}
@@ -140,32 +141,14 @@ static FILE* CaptureFile(std::string* dst_path)
 	return NULL;
 }
 
-/**
- * @brief Make a red version of the given palette and apply it to the screen.
- */
-static void RedPalette()
-{
-	for (int i = 0; i < NUM_COLORS; i++) {
-		system_palette[i].g = 0;
-		system_palette[i].b = 0;
-	}
-	palette_update();
-	BltFast();
-	RenderPresent();
-}
-
 void CaptureScreen()
 {
-	SDL_Color bkp_palette[lengthof(system_palette)];
 	std::string FileName;
 	bool success;
 
 	FILE* out = CaptureFile(&FileName);
 	if (out == NULL)
 		return;
-	scrollrt_draw_game();
-	memcpy(bkp_palette, system_palette, sizeof(bkp_palette));
-	RedPalette();
 
 	lock_buf(2);
 	success = CaptureHdr(SCREEN_WIDTH, SCREEN_HEIGHT, out);
@@ -173,22 +156,18 @@ void CaptureScreen()
 		success = CapturePix(SCREEN_WIDTH, SCREEN_HEIGHT, BUFFER_WIDTH, &gpBuffer[SCREENXY(0, 0)], out);
 	}
 	if (success) {
-		success = CapturePal(bkp_palette, out);
+		success = CapturePal(system_palette, out);
 	}
 	unlock_buf(2);
 	std::fclose(out);
 
-	if (!success) {
+	if (success) {
+		DoLog("Screenshot saved at %s", FileName.c_str());
+		EventPlrMsg("%s is created", FileName.c_str());
+	} else {
 		DoLog("Failed to save screenshot at %s", FileName.c_str());
 		RemoveFile(FileName.c_str());
-	} else {
-		DoLog("Screenshot saved at %s", FileName.c_str());
 	}
-	SDL_Delay(300);
-	memcpy(system_palette, bkp_palette, sizeof(bkp_palette));
-	palette_update();
-	gbRedrawFlags = REDRAW_ALL;
-	delete out;
 }
 
 DEVILUTION_END_NAMESPACE

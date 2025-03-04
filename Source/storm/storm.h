@@ -42,23 +42,17 @@ extern "C" {
 #define MPQ_HASH_FILE_KEY        0x300
 #define HASH_ENTRY_DELETED       0xFFFFFFFE // Block index for deleted entry in the hash table
 #define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
-#define SFILE_OPEN_FROM_MPQ      0
-#define SFILE_OPEN_LOCAL_FILE    0xFFFFFFFF
-#define SFILE_OPEN_CHECK_EXISTS  0xFFFFFFFC
 
 void WINAPI SFileCloseArchive(HANDLE hArchive);
 void WINAPI SFileCloseFile(HANDLE hFile);
 
 DWORD WINAPI SFileGetFileSize(HANDLE hFile);
-DWORD WINAPI SFileGetFilePointer(HANDLE hFile);
-DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 
 HANDLE SFileOpenFile(const char* filename);
-bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, DWORD dwSearchScope, HANDLE* phFile);
-
+bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, HANDLE* phFile);
+bool WINAPI SFileOpenLocalFileEx(const char* szFileName, HANDLE* phFile);
 bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead);
-
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h
@@ -103,8 +97,9 @@ bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead
  *  src:          The source array.
  *  max_length:   The maximum length of dest.
  *
+ *  Returns the length of the string (without the trailing nul)
  */
-void SStrCopy(char* dest, const char* src, int max_length);
+int SStrCopy(char* dest, const char* src, int max_length);
 
 void InitializeMpqCryptography();
 void EncryptMpqBlock(void* pvDataBlock, DWORD dwLength, DWORD dwKey);

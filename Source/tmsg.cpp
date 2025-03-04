@@ -17,7 +17,7 @@ bool tmsg_get(TCmdGItem* pMsg)
 	if (head == NULL)
 		return false;
 
-	if ((int)(head->dwTime - SDL_GetTicks()) >= 0)
+	if (!SDL_TICKS_PASSED(SDL_GetTicks(), head->dwTime))
 		return false;
 	sgpTimedMsgHead = head->pNext;
 	//len = head->hdr.bLen;

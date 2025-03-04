@@ -13,7 +13,7 @@
 
 //-----------------------------------------------------------------------------
 // Function prototypes
-
+#ifdef FULL
 typedef void (*STREAM_INIT)(
     struct TFileStream * pStream        // Pointer to an unopened stream
 );
@@ -118,7 +118,7 @@ typedef struct _FILE_BITMAP_FOOTER
     DWORD BlockSize;                      // Size of one block (usually 0x4000 bytes)
 
 } FILE_BITMAP_FOOTER, *PFILE_BITMAP_FOOTER;
-
+#endif
 //-----------------------------------------------------------------------------
 // Structure for file stream
 
@@ -152,8 +152,10 @@ union TBaseProviderData
 #else
     struct
     {
-        ULONGLONG FileSize;                 // Size of the file
-        ULONGLONG FilePos;                  // Current file position
+        FILESIZE_T FileSize;                // Size of the file
+#ifndef STORMLIB_WINDOWS
+        FILESIZE_T FilePos;                 // Current file position
+#endif
         HANDLE hFile;                       // File handle
     } File;
 #endif // FULL
@@ -189,15 +191,12 @@ struct TFileStream
 #ifdef FULL
     // Stream provider data
     TFileStream * pMaster;                  // Master stream (e.g. MPQ on a web server)
-#endif
     TCHAR * szFileName;                     // File name (self-relative pointer)
-#ifdef FULL
     ULONGLONG StreamSize;                   // Stream size (can be less than file size)
     ULONGLONG StreamPos;                    // Stream position
     DWORD BuildNumber;                      // Game build number
-#endif
     DWORD dwFlags;                          // Stream flags
-
+#endif
     // Followed by stream provider data, with variable length
 };
 

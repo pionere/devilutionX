@@ -1,11 +1,13 @@
 #include <string>
 #include <fstream>
 
+#include "diablo.h"
 #include "diabloui.h"
 #include "selok.h"
 #include "selyesno.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
+#include "mpqapi.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -23,6 +25,7 @@ static constexpr int RETURN_CANCEL = 102;
 static constexpr int RETURN_DONE = 100;
 
 static const char* const filesToSkip[] = {
+	"Data\\Inv\\Objcurs2.CEL",
 #ifdef HELLFIRE
 	"gendata\\diablo1.smk",
 	"Levels\\TownData\\Town.DUN",
@@ -108,6 +111,22 @@ static void MergerSelect(unsigned index)
 	}
 }
 
+static bool merger_skipFile(const std::string &path)
+{
+	// skip files which are 'commented out'
+	if (path[0] == '_') return true;
+	// skip sound files if requested
+	if (noSound && path.size() >= 4 && SDL_strcasecmp(path.c_str() + path.size() - 4, ".wav") == 0)
+		return true;
+	// skip hellfire/vanilla files
+	for (int n = 0; n < lengthof(filesToSkip); n++) {
+		if (SDL_strcmp(path.c_str(), filesToSkip[n]) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
 static int merger_callback()
 {
 	switch (workPhase) {
@@ -122,18 +141,14 @@ static int merger_callback()
 		std::string line;
 		int entryCount = 0;
 		while (std::getline(input, line)) {
+			if (merger_skipFile(line)) continue;
 			for (int i = 0; i < NUM_MPQS; i++) {
-				//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
-				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
+				if (diabdat_mpqs[i] == NULL) continue;
+				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
 					entryCount++;
 					break;
 				}
 			}
-		}
-
-		if (entryCount == 0) {
-			// app_warn("Can not find/access '%s' in the game folder.", "listfiles.txt");
-			return RETURN_ERROR;
 		}
 
 		// calculate the required number of hashes
@@ -147,8 +162,8 @@ static int merger_callback()
 	case 1:
 	{	// create the mpq file
 		std::string path = std::string(GetBasePath()) + MPQONE;
-		if (!OpenMPQ(path.c_str(), hashCount, hashCount)) {
-			app_warn("Unable to open MPQ file %s.", path.c_str());
+		if (!CreateMPQ(path.c_str(), hashCount, hashCount)) {
+			app_warn("Unable to create MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
 		}
 		hashCount = 0;
@@ -166,19 +181,7 @@ static int merger_callback()
 		int skip = hashCount;
 		std::string line;
 		while (std::getline(input, line)) {
-			// skip sound files if requested
-			if (noSound && line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
-				continue;
-			// skip hellfire/vanilla files
-			int n = 0;
-			for ( ; n < lengthof(filesToSkip); n++) {
-				if (SDL_strcmp(line.c_str(), filesToSkip[n]) == 0) {
-					break;
-				}
-			}
-			if (n != lengthof(filesToSkip)) {
-				continue;
-			}
+			if (merger_skipFile(line)) continue;
 			// process only a bunch of files at a time to be more responsive
 			if (--skip >= 0) {
 				continue;
@@ -189,11 +192,12 @@ static int merger_callback()
 			// add the file to the mpq
 			for (int i = 0; i < NUM_MPQS; i++) {
 				HANDLE hFile;
-				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+				if (diabdat_mpqs[i] == NULL) continue;
+				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
 					DWORD dwLen = SFileGetFileSize(hFile);
 					BYTE* buf = DiabloAllocPtr(dwLen);
 					if (!SFileReadFile(hFile, buf, dwLen)) {
-						app_warn("Unable to open file archive");
+						app_warn("Unable to read file %s from archive %d.", line.c_str(), i);
 						return RETURN_ERROR;
 					}
 					if (!mpqapi_write_entry(line.c_str(), buf, dwLen)) {
@@ -221,6 +225,7 @@ static int merger_callback()
 			app_warn("Failed to create %s.", path.c_str());
 			return RETURN_ERROR;
 		}
+		diabdat_paths[NUM_MPQS] = path;
 	} return RETURN_DONE;
 	default:
 		ASSUME_UNREACHABLE
@@ -260,6 +265,7 @@ void UiMergerDialog()
 
 		SFileCloseArchive(diabdat_mpqs[NUM_MPQS]);
 		diabdat_mpqs[NUM_MPQS] = NULL;
+		diabdat_paths[NUM_MPQS].clear();
 		std::string path = std::string(GetBasePath()) + MPQONE;
 		RemoveFile(path.c_str());
 	}
@@ -267,6 +273,9 @@ void UiMergerDialog()
 	// do the actual merge
 	workPhase = 0;
 	UiProgressDialog("...Merge in progress...", merger_callback);
+	// ensure mpq-archive is closed on error
+	// if (workProgress == RETURN_ERROR && workPhase == 2)
+		mpqapi_close();
 }
 
 DEVILUTION_END_NAMESPACE

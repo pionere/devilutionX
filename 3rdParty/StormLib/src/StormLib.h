@@ -187,7 +187,7 @@ extern "C" {
 #define MPQ_FLAG_CHANGED            0x00000002  // If set, the MPQ tables have been changed
 #define MPQ_FLAG_MALFORMED          0x00000004  // Malformed data structure detected (W3M map protectors)
 #define MPQ_FLAG_HASH_TABLE_CUT     0x00000008  // The hash table goes beyond EOF
-#define MPQ_FLAG_BLOCK_TABLE_CUT    0x00000010  // The hash table goes beyond EOF
+#define MPQ_FLAG_BLOCK_TABLE_CUT    0x00000010  // The block table goes beyond EOF
 #define MPQ_FLAG_CHECK_SECTOR_CRC   0x00000020  // Checking sector CRC when reading files
 #define MPQ_FLAG_SAVING_TABLES      0x00000040  // If set, we are saving MPQ internal files and MPQ tables
 #define MPQ_FLAG_PATCH              0x00000080  // If set, this MPQ is a patch archive
@@ -487,11 +487,13 @@ typedef enum _SFileInfoClass
 #define CCB_COPYING_NON_MPQ_DATA            3   // Copying non-MPQ data: No params used
 #define CCB_COMPACTING_FILES                4   // Compacting archive (dwParam1 = current, dwParam2 = total)
 #define CCB_CLOSING_ARCHIVE                 5   // Closing archive: No params used
-
+#ifdef FULL
 typedef void (WINAPI * SFILE_DOWNLOAD_CALLBACK)(void * pvUserData, ULONGLONG ByteOffset, DWORD dwTotalBytes);
 typedef void (WINAPI * SFILE_ADDFILE_CALLBACK)(void * pvUserData, DWORD dwBytesWritten, DWORD dwTotalBytes, bool bFinalCall);
 typedef void (WINAPI * SFILE_COMPACT_CALLBACK)(void * pvUserData, DWORD dwWorkType, ULONGLONG BytesProcessed, ULONGLONG TotalBytes);
-
+#else
+typedef DWORD FILESIZE_T;
+#endif
 typedef struct TFileStream TFileStream;
 typedef struct TMPQBits TMPQBits;
 
@@ -513,6 +515,8 @@ typedef struct TMPQBits TMPQBits;
 #define MPQ_HEADER_DWORDS     (MPQ_HEADER_SIZE_V4 / 0x04)
 #else
 #define MPQ_HEADER_DWORDS     (MPQ_HEADER_SIZE_V1 / 0x04)
+#define MPQ_SECTOR_SIZE_SHIFT_V1 3
+#define MPQ_SECTOR_SIZE_V1    (0x200 << MPQ_SECTOR_SIZE_SHIFT_V1)
 #endif
 
 typedef struct _TMPQUserData
@@ -695,25 +699,18 @@ typedef struct _TPatchInfo
 // This is the combined file entry for maintaining file list in the MPQ.
 // This structure is combined from block table, hi-block table,
 // (attributes) file and from (listfile).
+#ifdef FULL
 typedef struct _TFileEntry
 {
-#ifdef FULL
     ULONGLONG FileNameHash;                     // Jenkins hash of the file name. Only used when the MPQ has BET table.
-#endif
     ULONGLONG ByteOffset;                       // Position of the file content in the MPQ, relative to the MPQ header
-#ifdef FULL
     ULONGLONG FileTime;                         // FileTime from the (attributes) file. 0 if not present.
-#endif
     DWORD     dwFileSize;                       // Decompressed size of the file
     DWORD     dwCmpSize;                        // Compressed size of the file (i.e., size of the file data in the MPQ)
     DWORD     dwFlags;                          // File flags (from block table)
     DWORD     dwCrc32;                          // CRC32 from (attributes) file. 0 if not present.
     BYTE      md5[MD5_DIGEST_SIZE];             // File MD5 from the (attributes) file. 0 if not present.
-#ifdef FULL
     char * szFileName;                          // File name. NULL if not known.
-#else
-    const char * szFileName;                    // File name. NULL if not known.
-#endif
 } TFileEntry;
 
 // Common header for HET and BET tables
@@ -831,53 +828,56 @@ typedef struct _TMPQNameCache
     // Followed by name cache (ANSI multistring)
 
 } TMPQNameCache;
-
+#endif
 // Archive handle structure
 typedef struct _TMPQArchive
 {
     TFileStream  * pStream;                     // Open stream for the MPQ
 #ifdef FULL
     ULONGLONG      UserDataPos;                 // Position of user data (relative to the begin of the file)
-#endif
     ULONGLONG      MpqPos;                      // MPQ header offset (relative to the begin of the file)
+
     ULONGLONG      FileSize;                    // Size of the file at the moment of file open
-#ifdef FULL
+
     struct _TMPQArchive * haPatch;              // Pointer to patch archive, if any
     struct _TMPQArchive * haBase;               // Pointer to base ("previous version") archive, if any
     TMPQNamePrefix * pPatchPrefix;              // Patch prefix to precede names of patch files
     TMPQUserData * pUserData;                   // MPQ user data (NULL if not present in the file)
-#endif
     TMPQHeader   * pHeader;                     // MPQ file header
-    TMPQHash     * pHashTable;                  // Hash table
-#ifdef FULL
-    TMPQHetTable * pHetTable;                   // HET table
+#else
+    TMPQHeader     pHeader;                     // MPQ file header
 #endif
+    TMPQHash     * pHashTable;                  // Hash table
+#ifndef FULL
+    TMPQBlock    * pBlockTable;                 // Block table
+#else
+    TMPQHetTable * pHetTable;                   // HET table
     TFileEntry   * pFileTable;                  // File table
+
     HASH_STRING    pfnHashString;               // Hashing function that will convert the file name into hash
 
-#ifdef FULL
     TMPQUserData   UserData;                    // MPQ user data. Valid only when ID_MPQ_USERDATA has been found
-#endif
+
     DWORD          HeaderData[MPQ_HEADER_DWORDS];  // Storage for MPQ header
-#ifdef FULL
+
     DWORD          dwHETBlockSize;
     DWORD          dwBETBlockSize;
-#endif
     DWORD          dwMaxFileCount;              // Maximum number of files in the MPQ. Also total size of the file table.
+
     DWORD          dwFileTableSize;             // Current size of the file table, e.g. index of the entry past the last occupied one
     DWORD          dwReservedFiles;             // Number of entries reserved for internal MPQ files (listfile, attributes)
+
     DWORD          dwSectorSize;                // Default size of one file sector
-#ifdef FULL
     DWORD          dwFileFlags1;                // Flags for (listfile)
     DWORD          dwFileFlags2;                // Flags for (attributes)
     DWORD          dwFileFlags3;                // Flags for (signature)
     DWORD          dwAttrFlags;                 // Flags for the (attributes) file, see MPQ_ATTRIBUTE_XXX
     DWORD          dwValidFileFlags;            // Valid flags for the current MPQ
     DWORD          dwRealHashTableSize;         // Real size of the hash table, if MPQ_FLAG_HASH_TABLE_CUT is zet in dwFlags
-#endif
+
     DWORD          dwFlags;                     // See MPQ_FLAG_XXXXX
     DWORD          dwSubType;                   // See MPQ_SUBTYPE_XXX
-#ifdef FULL
+
     SFILE_ADDFILE_CALLBACK pfnAddFileCB;        // Callback function for adding files
     void         * pvAddFileUserData;           // User data thats passed to the callback
 
@@ -887,7 +887,7 @@ typedef struct _TMPQArchive
     void         * pvCompactUserData;           // User data thats passed to the callback
 #endif
 } TMPQArchive;
-
+#ifdef FULL
 // File handle structure
 typedef struct _TMPQFile
 {
@@ -901,39 +901,43 @@ typedef struct _TMPQFile
     DWORD          dwFileKey;                   // Decryption key
     DWORD          dwFilePos;                   // Current file position
     DWORD          dwMagic;                     // 'FILE'
-#ifdef FULL
+
     struct _TMPQFile * hfPatch;                 // Pointer to opened patch file
 
     TPatchInfo   * pPatchInfo;                  // Patch info block, preceding the sector table
-#endif
     LPDWORD        SectorOffsets;               // Position of each file sector, relative to the begin of the file. Only for compressed files.
     LPDWORD        SectorChksums;               // Array of sector checksums (either ADLER32 or MD5) values for each file sector
-#ifdef FULL
     LPBYTE         pbFileData;                  // Data of the file (single unit files, patched files)
     DWORD          cbFileData;                  // Size of file data
     DWORD          dwCompression0;              // Compression that will be used on the first file sector
-#endif
     DWORD          dwSectorCount;               // Number of sectors in the file
-#ifdef FULL
     DWORD          dwPatchedFileSize;           // Size of patched file. Used when saving patch file to the MPQ
-#endif
     DWORD          dwDataSize;                  // Size of data in the file (on patch files, this differs from file size in block table entry)
-
     LPBYTE         pbFileSector;                // Last loaded file sector. For single unit files, entire file content
     DWORD          dwSectorOffs;                // File position of currently loaded file sector
     DWORD          dwSectorSize;                // Size of the file sector. For single unit files, this is equal to the file size
-#ifdef FULL
     void         * hctx;                        // Hash state for MD5. Used when saving file to MPQ
-#endif
+
     DWORD          dwCrc32;                     // CRC32 value, used when saving file to MPQ
-#ifdef FULL
     DWORD          dwAddFileError;              // Result of the "Add File" operations
-#endif
+
     bool           bLoadedSectorCRCs;           // If true, we already tried to load sector CRCs
     bool           bCheckSectorCRCs;            // If true, then SFileReadFile will check sector CRCs when reading the file
     bool           bIsWriteHandle;              // If true, this handle has been created by SFileCreateFile
 } TMPQFile;
-
+#else
+typedef struct _TMPQFile
+{
+    TMPQBlock   * pFileEntry;                  // File entry for the file. NULL in case of local files
+    union {
+        TFileStream  * pStream;                 // File stream. Only used on local files
+        struct {
+            TMPQArchive  * ha;                  // Archive handle
+            DWORD          dwFileKey;           // Decryption key
+        };
+    };
+} TMPQFile;
+#endif
 // Structure for SFileFindFirstFile and SFileFindNextFile
 typedef struct _SFILE_FIND_DATA
 {
@@ -979,7 +983,7 @@ typedef struct _SFILE_MARKERS
 // TMPQBits support - functions
 #ifdef FULL
 void GetMPQBits(TMPQBits * pBits, unsigned int nBitPosition, unsigned int nBitLength, void * pvBuffer, int nResultByteSize);
-#endif
+
 //-----------------------------------------------------------------------------
 // Stream support - functions
 
@@ -994,27 +998,33 @@ struct TStreamBitmap
 
     // Followed by the BYTE array, each bit means availability of one block
 };
-
+#endif
 // UNICODE versions of the file access functions
 //TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
 TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
-const TCHAR * FileStream_GetFileName(TFileStream * pStream);
 #ifdef FULL
+const TCHAR * FileStream_GetFileName(TFileStream * pStream);
 size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
 
 bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData);
 
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
-#endif
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+#else
+bool FileStream_Read(TFileStream * pStream, const FILESIZE_T * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+#endif
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
 bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize);
-#endif
 bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize);
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset);
+#else
+FILESIZE_T FileStream_GetSize(const TFileStream * pStream);
+#endif
 //bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFT);
+#ifdef fULL
 bool FileStream_GetFlags(TFileStream * pStream, LPDWORD pdwStreamFlags);
+#endif
 //bool FileStream_Replace(TFileStream * pStream, TFileStream * pNewStream);
 void FileStream_Close(TFileStream * pStream);
 
@@ -1089,11 +1099,16 @@ void   WINAPI SFileCloseArchive(HANDLE hMpq);
 // Reading from MPQ file
 #ifdef FULL
 bool   WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
-#endif
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
+#else
+bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * phFile);
+bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * phFile);
+#endif
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
+#ifdef FULL
 DWORD  WINAPI SFileGetFilePointer(HANDLE hFile);
 DWORD  WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
+#endif
 bool   WINAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/);
 void   WINAPI SFileCloseFile(HANDLE hFile);
 

@@ -14,7 +14,7 @@
 
 //-----------------------------------------------------------------------------
 // Private structure used for file search (search handle)
-
+/*
 // Used by searching in MPQ archives
 struct TMPQSearch
 {
@@ -29,7 +29,7 @@ struct TMPQSearch
 //-----------------------------------------------------------------------------
 // Local functions
 
-/*static TMPQSearch * IsValidSearchHandle(HANDLE hFind)
+static TMPQSearch * IsValidSearchHandle(HANDLE hFind)
 {
     TMPQSearch * hs = (TMPQSearch *)hFind;
 

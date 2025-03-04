@@ -70,12 +70,12 @@ endif()
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
 FetchContent_Declare(SDL2
-    #URL https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.0.18.tar.gz
-    #URL_HASH MD5=647e2890385e5f13b9aeee2e27fa26e7
+    #URL https://github.com/libsdl-org/SDL/releases/download/release-2.30.5/SDL2-2.30.5.tar.gz
+    #URL_HASH SHA256=f374f3fa29c37dfcc20822d4a7d7dc57e58924d1a5f2ad511bfab4c8193de63b
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 7262505555e6ecc4bfaae26d7ec2f0a42b3e6dd3
+    GIT_TAG f974e381644839c9c342dd80a1b41d583204a444
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
 

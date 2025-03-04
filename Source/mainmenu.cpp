@@ -10,7 +10,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** The active music track id for the main menu. */
-int menu_music_track_id = TMUSIC_INTRO;
+static int menu_music_track_id = TMUSIC_INTRO;
 
 static void mainmenu_refresh_music()
 {
@@ -70,7 +70,7 @@ void mainmenu_loop()
 {
 	mainmenu_refresh_music();
 
-	while (TRUE) {
+	while (true) {
 		switch (UiMainMenuDialog()) {
 		case MAINMENU_SINGLE_PLAYER:
 			if (mainmenu_single_player())

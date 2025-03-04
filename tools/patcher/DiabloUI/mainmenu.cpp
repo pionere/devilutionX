@@ -14,7 +14,7 @@ static void UiMainMenuSelect(unsigned index)
 
 static void MainmenuEsc()
 {
-	unsigned last = gUIListItems.size() - 1;
+	unsigned last = (unsigned)gUIListItems.size() - 1;
 	if (SelectedItem == last) {
 		UiMainMenuSelect(last);
 	} else {
@@ -24,11 +24,14 @@ static void MainmenuEsc()
 
 static void MainmenuLoad()
 {
-	int numOptions = 3;
+	const int numOptions = 3; // 4;
+	int currOption = 0;
 
-	gUIListItems.push_back(new UiListItem("Patch Assets", 0));
-	gUIListItems.push_back(new UiListItem("Merge Assets", 1));
-	gUIListItems.push_back(new UiListItem("Exit Patcher", 2));
+	gUIListItems.push_back(new UiListItem("Patch Assets", currOption++));
+	gUIListItems.push_back(new UiListItem("Merge Assets", currOption++));
+	// gUIListItems.push_back(new UiListItem("Check Assets", currOption++));
+	gUIListItems.push_back(new UiListItem("Exit Patcher", currOption++));
+	assert(numOptions == currOption);
 
 	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
 

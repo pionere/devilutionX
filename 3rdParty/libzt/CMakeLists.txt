@@ -11,7 +11,7 @@ FetchContent_Declare(libzt
   #GIT_REPOSITORY https://github.com/diasurgical/libzt.git
   #GIT_TAG db7b642a4ce9f0f5e0ba7f293bd7ffa7897e4831)
   GIT_REPOSITORY https://github.com/pionere/libzt.git
-  GIT_TAG b738557b538fc6948316c69312ced99d0ef495d4)
+  GIT_TAG fc82cd88c36eba2333550de190631689f2449c7a)
 FetchContent_MakeAvailableExcludeFromAll(libzt)
 
 #if(NOT ANDROID)
@@ -34,6 +34,7 @@ foreach(
   lwip_obj
   miniupnpc_obj
   zto_pic
+  zt_pic
   natpmp_pic
   lwip_pic
   miniupnpc_pic

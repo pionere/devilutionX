@@ -46,8 +46,8 @@ void AddMonster(int mtidx, int x, int y);
 void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y);
 int SummonMonster(int x, int y, int dir, int mtidx);
 void RemoveMonFromMap(int mnum);
-void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int sx, int sy);
-void MonHitByMon(int defm, int offm, int dam);
+void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir);
+void MonHitByMon(int defm, int offm, int dam, int dir);
 void MonKill(int mnum, int mpnum);
 void MonSyncKill(int mnum, int x, int y, int pnum);
 void MonLeaveLeader(int mnum);
@@ -59,7 +59,8 @@ void FreeMonsters();
 //bool CheckAllowMissile(int x, int y);
 bool LineClear(int x1, int y1, int x2, int y2);
 void SyncMonsterAnim(int mnum);
-void MissToMonst(int mnum);
+void MonHinder(int mnum, int spllvl, unsigned tick);
+void MissToMonst(int mi);
 /* Check if the monster can be displaced to the given position. (unwillingly) */
 bool PosOkMonster(int mnum, int x, int y);
 /* Check if the monster can be placed to the given position. (willingly) */

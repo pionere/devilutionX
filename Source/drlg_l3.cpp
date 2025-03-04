@@ -25,6 +25,32 @@ const BYTE themeTiles[NUM_DRT_TYPES] = { DEFAULT_MEGATILE_L3, 135, 134, 147, 146
  * where each cell either contains a SW wall or it doesn't.
  */
 const BYTE L3ConvTbl[16] = { BASE_MEGATILE_L3, 11, 3, 10, 1, 9, 12, 12, 6, 13, 4, 13, 2, 14, 5, 7 };
+
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L3DYNENTRY[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	9, 7, // search
+	9, 7,
+
+	109, 0, // replace
+	0, 0,
+	// clang-format on
+};
+#ifdef HELLFIRE
+const BYTE L6DYNENTRY[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	9, 7, // search
+	9, 7,
+
+	15, 0, // replace
+	0, 0,
+	// clang-format on
+};
+#endif
 /** Miniset: Stairs up. */
 const BYTE L3USTAIRS[] = {
 	// clang-format off
@@ -1920,7 +1946,7 @@ static void DRLG_L3Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L3BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -1988,7 +2014,7 @@ static void DRLG_L6Subs()
 				if (c != 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L6BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -2139,7 +2165,7 @@ static void DRLG_L3Wood()
 				if (InThemeRoom(i, j - 1))
 					continue; // in a theme room -> skip
 				y1 = j;
-				while (TRUE) {
+				while (true) {
 					y1--;
 					bv = dungeon[i][y1];
 					if (bv == 10) { // normal wall
@@ -2194,7 +2220,7 @@ static void DRLG_L3Wood()
 				if (InThemeRoom(i - 1, j))
 					continue; // in a theme room -> skip
 				x1 = i;
-				while (TRUE) {
+				while (true) {
 					x1--;
 					bv = dungeon[x1][j];
 					if (bv == 9) { // normal wall
@@ -2360,6 +2386,22 @@ static void DRLG_L3()
 			if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
 				DRLG_L3SetRoom(0);
 			}
+			if (currLvl._dDynLvl) {
+#ifdef HELLFIRE
+				POS32 warpPos = DRLG_PlaceMiniSet(currLvl._dType == DTYPE_NEST ? L6DYNENTRY : L3DYNENTRY);
+#else
+				POS32 warpPos = DRLG_PlaceMiniSet(L3DYNENTRY);
+#endif
+				if (warpPos.x < 0) {
+					continue;
+				}
+				pWarps[DWARP_ENTRY]._wx = warpPos.x;
+				pWarps[DWARP_ENTRY]._wy = warpPos.y;
+				pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 1;
+				pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY;
+				pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+				break;
+			}
 #ifdef HELLFIRE
 			if (currLvl._dType == DTYPE_NEST) {
 				POS32 warpPos = DRLG_PlaceMiniSet(L6USTAIRS); // L6USTAIRS(1, 3)
@@ -2507,7 +2549,7 @@ static void DRLG_L3()
 		// assert(currLvl._dType == DTYPE_CAVES);
 		FixL3HallofHeroes();
 		DRLG_L3River();
-		DRLG_PlaceThemeRooms(5, 10, themeTiles, 0, false);
+		DRLG_PlaceThemeRooms(5, 10, themeTiles, 0);
 
 		DRLG_L3Wood();
 		//DRLG_L3PlaceRndSet(L3LTITE1, 20); - commented out because of a graphical glitch
@@ -2596,7 +2638,7 @@ static void LoadL3Dungeon(const LevelData* lds)
 
 void CreateL3Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL3Dungeon(lds);
