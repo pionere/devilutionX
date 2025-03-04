@@ -165,15 +165,11 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         GetFileTime(pStream->Base.File.hFile, NULL, NULL, (LPFILETIME)&pStream->Base.File.FileTime);
 #else
         // Query the file size
-        if (sizeof(FILESIZE_T) == sizeof(DWORD)) {
-            pStream->Base.File.FileSize = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
-            if (FileSize.HighPart != 0) {
-                CloseHandle(pStream->Base.File.hFile);
-                return false;
-            }
-        } else {
-            FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
-            pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
+        FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
+        pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
+        if (sizeof(FILESIZE_T) < sizeof(FileSize.QuadPart) && FileSize.HighPart != 0) {
+            CloseHandle(pStream->Base.File.hFile);
+            return false;
         }
 #endif
     }
