@@ -536,9 +536,9 @@ static int fetch_pcm(WAV_Music* wave, Mix_BuffOps* buffOps, int length)
     return result;
 }
 #else
-static int fetch_pcm(Mix_RWops* src, Mix_BuffOps* buffOps, int length)
+static unsigned fetch_pcm(Mix_RWops* src, Mix_BuffOps* buffOps, int length)
 {
-    int result = Mix_RWread(src, buffOps->basePos, (size_t)length);
+    unsigned result = (unsigned)Mix_RWread(src, buffOps->basePos, (size_t)length);
     buffOps->endPos = (Uint8*)buffOps->basePos + result;
     return result;
 }
@@ -790,7 +790,8 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
     Sint64 loop_stop; // = wave->stop;
 #endif
 #else // FILE_INT
-    int pos, stop;
+    size_t pos, stop;
+    int len;
 #ifdef FULL // WAV_LOOP
     WAVLoopPoint* loop;
     int loop_start; // = wave->start;
@@ -809,7 +810,7 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
     Mix_BuffOps* buffOps = &channel->buffOps;
 
     cursor = (Uint8*)buffOps->currPos;
-    filled = (Uint8*)buffOps->endPos - cursor;
+    filled = (int)((Uint8*)buffOps->endPos - cursor);
     if (filled != 0) {
         if (filled > bytes)
             filled = bytes;
@@ -846,8 +847,8 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
     stop = wave->stop;
 #else
     playOps = &channel->playOps;
-    pos = (int)playOps->currPos;
-    stop = (int)playOps->endPos;
+    pos = (size_t)playOps->currPos;
+    stop = (size_t)playOps->endPos;
 #endif // MEM_OPS
 #ifdef FULL // WAV_LOOP
     loop = NULL;
@@ -871,9 +872,10 @@ static int WAV_GetSome(Mix_Channel* channel, void* stream, int bytes)
     audioSpec = &channel->chunk->asWAV.spec;
 #endif
     amount = (int)audioSpec->sampleSize;
-    at_end = (stop - pos) <= amount;
+    len = (int)(stop - pos);
+    at_end = len <= amount;
     if (at_end) {
-        amount = (stop - pos);
+        amount = len;
     }
 #ifdef FULL // MUS_ENC
     amount = wave->decode(wave, amount);
@@ -1065,7 +1067,7 @@ static int ParseFMT(WAV_Music *wave, Uint32 chunk_length)
     int freq;
 #endif
     WaveFMTEx fmt;
-    size_t size;
+    unsigned size;
     Uint16 bits, encoding;
 
     if (chunk_length < sizeof(fmt.format)) {
@@ -1214,7 +1216,7 @@ static int ParseFMT(WAV_Music *wave, Uint32 chunk_length)
 
 static SDL_bool ParseDATA(WAV_Music *wave, Uint32 chunk_length)
 {
-    wave->start = Mix_RWtell(&wave->src);
+    wave->start = (unsigned)Mix_RWtell(&wave->src);
     wave->stop = wave->start + chunk_length;
     return Mix_RWseek(&wave->src, chunk_length, RW_SEEK_CUR) >= 0 ? SDL_TRUE : SDL_FALSE;
 }

@@ -7,10 +7,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int _guCowMsg;
+static int _guCowMsg;
 int numtowners;
-unsigned _guCowClicks;
-BYTE* pCowCels;
+static unsigned _guCowClicks;
+static BYTE* pCowCels;
 
 /**
  * Maps from active cow sound effect index and player class to sound
@@ -19,7 +19,7 @@ BYTE* pCowCels;
  * ref: enum _sfx_id
  * ref: enum plr_class
  */
-const int snSFX[3][NUM_CLASSES] = {
+static const int snSFX[3][NUM_CLASSES] = {
 	// clang-format off
 #ifdef HELLFIRE
 	{ PS_WARR52, PS_ROGUE52, PS_MAGE52, PS_MONK52, PS_ROGUE52, PS_WARR52 },
@@ -34,7 +34,7 @@ const int snSFX[3][NUM_CLASSES] = {
 };
 
 /** Specifies the animation frame sequence of a given NPC. */
-const int8_t AnimOrder[6][144] = {
+static const int8_t AnimOrder[6][144] = {
 	// clang-format off
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
@@ -129,7 +129,7 @@ static int CowPlaying = SFX_NONE;
 
 static void CowSFX(MonsterStruct* cow, int pnum)
 {
-	if (CowPlaying != SFX_NONE && IsSFXPlaying(CowPlaying))
+	if (SFX_VALID(CowPlaying) && IsSfxStreaming(CowPlaying))
 		return;
 
 	_guCowClicks++;
@@ -207,9 +207,12 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	// set dMonster for CheckCursMove
 	dMonster[x][y] = tnum + 1;
 	tw->_mType = type; // TNR_TYPE
-	// set position for DrawInfoStr, On_TALKXY and CheckTownersNearby
+	// set position for DrawInfoStr and FindTowner
 	tw->_mx = x;
 	tw->_my = y;
+	// set future position for CheckNewPath
+	tw->_mfutx = x;
+	tw->_mfuty = y;
 	tw->_mgoal = MGOAL_TALKING;  // for CanTalkToMonst
 	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE for TalkToTowner
 #if DEBUG_MODE || DEV_MODE
@@ -616,12 +619,15 @@ void SyncTownerQ(int pnum, int idx)
 	SyncPlrStorageRemove(pnum, i);
 }
 
-void TalkToTowner(int tnum)
+void TalkToTowner(int tnum, int pnum)
 {
 	MonsterStruct* tw;
-	int i, qt, qn, pnum = mypnum;
+	int i, qt, qn;
 
 	tw = &monsters[tnum];
+	if (pnum != mypnum) {
+		return;
+	}
 	if (gbQtextflag) {
 		return;
 	}
@@ -800,16 +806,16 @@ void TalkToTowner(int tnum)
 			break;
 		case QUEST_ACTIVE:
 			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!IsSFXPlaying(i)) {
+			if (!IsSfxStreaming(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+				PlaySfx(i);
 			}
 			break;
 		case QUEST_DONE:
 			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
-			if (!IsSFXPlaying(i)) {
+			if (!IsSfxStreaming(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+				PlaySfx(i);
 			}
 			break;
 		}

@@ -392,7 +392,7 @@ void QuestlogUp()
 		} else {
 			qline--;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
@@ -406,13 +406,13 @@ void QuestlogDown()
 		} else {
 			qline++;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
 void QuestlogEnter()
 {
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		StartQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	else

@@ -297,7 +297,7 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	for (i = 1; i <= nCelA; i++) {
 		cData = nData;
 		nData = LOAD_LE32(celA + 4 * (i + 1));
-		*pHead = SwapLE32(pBuf - cel);
+		*pHead = SwapLE32((DWORD)((size_t)pBuf - (size_t)cel));
 		memcpy(pBuf, &celA[cData], nData - cData);
 		pBuf += nData - cData;
 		++*cel;
@@ -308,14 +308,14 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	for (i = 1; i <= nCelB; i++) {
 		cData = nData;
 		nData = LOAD_LE32(celB + 4 * (i + 1));
-		*pHead = SwapLE32(pBuf - cel);
+		*pHead = SwapLE32((DWORD)((size_t)pBuf - (size_t)cel));
 		memcpy(pBuf, &celB[cData], nData - cData);
 		pBuf += nData - cData;
 		++*cel;
 		pHead++;
 	}
 
-	*pHead = SwapLE32(pBuf - cel);
+	*pHead = SwapLE32((DWORD)((size_t)pBuf - (size_t)cel));
 	// assert(*pHead == nDataSize);
 	return cel;
 }
@@ -326,11 +326,16 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
  */
 void PlayInGameMovie(const char* pszMovie)
 {
+	// Uint32 currTc = SDL_GetTicks();
+
 	PaletteFadeOut();
 	play_movie(pszMovie, 0);
-	scrollrt_draw_game();
+	scrollrt_render_game();
 	PaletteFadeIn(false);
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	// skip time due to movie and fadein/out
+	extern Uint32 guNextTick;
+	guNextTick = SDL_GetTicks() + gnTickDelay; // += SDL_GetTicks() - currTc;
 }
 
 DEVILUTION_END_NAMESPACE

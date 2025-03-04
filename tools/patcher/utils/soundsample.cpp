@@ -21,7 +21,7 @@ void SoundSample::Release()
 /**
  * @brief Check if a the sound is being played atm
  */
-bool SoundSample::IsPlaying()
+bool SoundSample::IsPlaying() const
 {
 	assert(soundData != NULL);
 

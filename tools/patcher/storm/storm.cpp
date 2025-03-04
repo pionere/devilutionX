@@ -58,7 +58,7 @@ HANDLE SFileOpenFile(const char* filename)
 		std::string path = *basePath + filename;
 		for (i = basePath->size(); i < path.size(); ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
-		SFileOpenFileEx(NULL, path.c_str(), SFILE_OPEN_LOCAL_FILE, &result);
+		SFileOpenLocalFileEx(path.c_str(), &result);
 	}
 	for (i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == NULL; i++) {
 		if (diabdat_mpqs[i] == NULL)
@@ -81,15 +81,12 @@ HANDLE SFileOpenFile(const char* filename)
 //	::SetLastError(dwErrCode);
 //}
 
-void SStrCopy(char* dest, const char* src, int max_length)
+int SStrCopy(char* dest, const char* src, int max_length)
 {
-#ifndef NOMEMCCPY
-	if (memccpy(dest, src, '\0', max_length) == NULL)
-		dest[max_length - 1] = '\0';
-#else
-	strncpy(dest, src, max_length - 1);
-	dest[max_length - 1] = '\0';
-#endif
+	int result = snprintf(dest, max_length, "%s", src);
+	if (result >= max_length)
+		result = max_length - 1;
+	return result;
 }
 
 void SFileEnableDirectAccess(bool enable)

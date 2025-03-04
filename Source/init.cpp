@@ -11,6 +11,7 @@
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include "storm/storm_cfg.h"
+#include "mpqapi.h"
 #include <string>
 #if CREATE_MPQONE
 #include <fstream>
@@ -71,6 +72,7 @@ void FreeArchives()
 		}
 	}
 #endif
+	mpqapi_close();
 }
 
 static void ReadOnlyTest()
@@ -120,19 +122,19 @@ void InitArchives()
 		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
-	diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
+	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
 	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE
 	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq");
 	diabdat_mpqs[MPQ_HF_MONK] = init_test_access("hfmonk.mpq");
-	diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq");
-	diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq");
+	//diabdat_mpqs[MPQ_HF_BARD] = init_test_access("hfbard.mpq");
+	//diabdat_mpqs[MPQ_HF_BARB] = init_test_access("hfbarb.mpq");
 	diabdat_mpqs[MPQ_HF_MUSIC] = init_test_access("hfmusic.mpq");
 	diabdat_mpqs[MPQ_HF_VOICE] = init_test_access("hfvoice.mpq");
-	diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
-	diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
+	//diabdat_mpqs[MPQ_HF_OPT1] = init_test_access("hfopt1.mpq");
+	//diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
 #endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
 	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
@@ -175,8 +177,8 @@ void InitArchives()
 	input.clear();                 // clear fail and eof bits
 	input.seekg(0, std::ios::beg); // back to the start!
 	std::string path = std::string(GetBasePath()) + MPQONE;
-	if (!OpenMPQ(path.c_str(), hashCount, hashCount))
-		app_fatal("Unable to open MPQ file %s.", path.c_str());
+	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+		app_fatal("Unable to create MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {
 #ifdef NOSOUND
 		if (line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)

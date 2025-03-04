@@ -73,7 +73,7 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: 'f7423ee180c4b7f40d43402c2feb3859161ef625'
+        vcpkgGitCommitId: '74ec888e385d189b42d6b398d0bbaa6f1b1d3b0e'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     #- name: Install Required Packages
@@ -172,7 +172,7 @@ jobs:
         sudo apt-get update &&
         sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev dpkg-dev wget git sudo &&
         sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
-        sudo Packaging/windows/mingw-prep.sh
+        sudo Packaging/windows/mingw-prep64.sh
 
     - name: Configure CMake
       shell: bash
@@ -224,6 +224,52 @@ jobs:
       shell: bash
       working-directory: ${{ env.buildDir }}
       run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+
+    - name: Build
+      working-directory: ${{ env.buildDir }}
+      shell: bash
+      run: cmake --build . -j $(nproc) --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: ${{ matrix.artifact }}
+  #  MingW WinXP
+  build_wXP:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-MingW-WinXP
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # x86 builds
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON'
+            artifact: 'diablo-nightly-mingw-wxp.zip'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-mingw-wxp.zip'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep.sh
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
 
     - name: Build
       working-directory: ${{ env.buildDir }}
@@ -386,7 +432,7 @@ jobs:
           - name: hellfire+patch
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-macp.dmg'
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
       with:
@@ -398,7 +444,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -433,7 +479,7 @@ jobs:
           - name: hellfire+patch
             cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-iosp.ipa'
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
       with:
@@ -444,7 +490,7 @@ jobs:
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -484,7 +530,7 @@ jobs:
             cmakearg0: '-DUSE_PATCH=ON'
             cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Install gettext
       run: sudo apt-get update && sudo apt-get install -y gettext
@@ -503,15 +549,21 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    - name: Remove system CMake
-      run: rm /usr/local/bin/cmake
+    #- name: Remove system CMake
+    #  run: rm /usr/local/bin/cmake
+
+    #- name: Accept SDK licenses
+    #  run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+    - name: Install CMake
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "cmake;3.31.0"
 
     #- name: Cache CMake build folder
     #  uses: actions/cache@v3
     #  with:
     #    path: android-project/app/.cxx
-    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
-    #    restore-keys: ${{ github.workflow }}-v1-
+    #    key: ${{ github.workflow }}-v4-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v4-
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -706,7 +758,7 @@ jobs:
           - name: hellfire+patch
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4p.pkg'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -714,12 +766,18 @@ jobs:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: >
-        sudo apt-get update &&
-        sudo apt-get install -y wget cmake git gettext &&
-        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/v1.1/pacbrew-pacman-1.1.deb &&
-        sudo dpkg -i pacbrew-pacman-1.1.deb && sudo pacbrew-pacman -Sy &&
-        sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
+      run: |
+        sudo apt-get update && \
+        sudo apt-get install -y pacman-package-manager wget cmake git gettext && \
+        sudo tee -a /etc/pacman.conf > /dev/null <<TEXT
+        [pacbrew]
+        SigLevel = Optional TrustAll
+        Server = https://pacman.mydedibox.fr/pacbrew/packages/
+        TEXT
+    - name: Setup pacman packages
+      run: |
+        sudo pacman --noconfirm -Sy && \
+        sudo pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs && \
         echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
 
     - name: Build
@@ -767,7 +825,7 @@ jobs:
         sudo apt install cmake pkg-config clang-15 lld-15
         sudo apt install build-essential autoconf libtool yasm nasm
         sudo apt install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
-        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.8/ps5-payload-dev.tar.gz
+        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.18/ps5-payload-dev.tar.gz
         sudo tar -xf ps5-payload-dev.tar.gz -C /
 
     - name: Build
@@ -864,7 +922,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apt-get update && \
+        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+        deb http://deb.debian.org/debian bullseye-backports main
+        LIST
+        apt-get update
+        apt-get install -y -t bullseye-backports cmake
         apt-get install -y --no-install-recommends --no-install-suggests \
           ffmpeg \
           gettext
@@ -930,7 +992,11 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
-        apt-get update && \
+        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+        deb http://deb.debian.org/debian bullseye-backports main
+        LIST
+        apt-get update
+        apt-get install -y -t bullseye-backports cmake
         apt-get install -y --no-install-recommends --no-install-suggests \
           gettext
 
@@ -1598,7 +1664,7 @@ jobs:
       shell: bash
 
     - name: Release
-      uses: softprops/action-gh-release@v2.0.8
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
