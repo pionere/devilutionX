@@ -266,16 +266,21 @@ void pfile_ui_delete_hero(_uiheroinfo* hero_info)
 void pfile_read_hero()
 {
 	HANDLE archive;
-	PkPlayerStruct pkplr;
-
+	// const char* err = "Unable to open file archive";
+	bool success = false;
 	archive = pfile_archive_open_save(mySaveIdx);
-	if (archive == NULL)
-		app_fatal("Unable to open file archive");
-	if (!pfile_archive_read_hero(archive, &pkplr))
+	if (archive != NULL) {
+		PkPlayerStruct pkplr;
+		// err = "Unable to read save file";
+		if (pfile_archive_read_hero(archive, &pkplr)) {
+			UnPackPlayer(&pkplr, mypnum);
+			// err = NULL;
+			success = true;
+		}
+		SFileCloseArchive(archive);
+	}
+	if (!success)
 		app_fatal("Unable to read save file");
-
-	UnPackPlayer(&pkplr, mypnum);
-	SFileCloseArchive(archive);
 
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
