@@ -63,12 +63,12 @@ HANDLE SFileOpenFile(const char* filename)
 	}
 #if USE_MPQONE
 	if (result == NULL)
-		SFileOpenFileEx(diabdat_mpq, filename, SFILE_OPEN_FROM_MPQ, &result);
+		SFileOpenFileEx(diabdat_mpq, filename, &result);
 #else
 	for (i = 0; i < NUM_MPQS && result == NULL; i++) {
 		if (diabdat_mpqs[i] == NULL)
 			continue;
-		SFileOpenFileEx(diabdat_mpqs[i], filename, SFILE_OPEN_FROM_MPQ, &result);
+		SFileOpenFileEx(diabdat_mpqs[i], filename, &result);
 	}
 #endif
 	if (result == NULL) {

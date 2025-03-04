@@ -144,7 +144,7 @@ static int merger_callback()
 			if (merger_skipFile(line)) continue;
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (diabdat_mpqs[i] == NULL) continue;
-				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
+				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
 					entryCount++;
 					break;
 				}
@@ -193,7 +193,7 @@ static int merger_callback()
 			for (int i = 0; i < NUM_MPQS; i++) {
 				HANDLE hFile;
 				if (diabdat_mpqs[i] == NULL) continue;
-				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
 					DWORD dwLen = SFileGetFileSize(hFile);
 					BYTE* buf = DiabloAllocPtr(dwLen);
 					if (!SFileReadFile(hFile, buf, dwLen)) {

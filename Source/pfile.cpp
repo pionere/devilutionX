@@ -56,7 +56,7 @@ static bool pfile_archive_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 	HANDLE file;
 	bool ret = false;
 
-	if (SFileOpenFileEx(archive, SAVEFILE_HERO, SFILE_OPEN_FROM_MPQ, &file)) {
+	if (SFileOpenFileEx(archive, SAVEFILE_HERO, &file)) {
 		DWORD dwlen = SFileGetFileSize(file);
 		if (dwlen != 0) {
 			BYTE* buf = DiabloAllocPtr(dwlen);
@@ -175,7 +175,7 @@ static bool ValidPlayerName(const char* name)
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
+	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, NULL);
 }
 
 void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
@@ -365,10 +365,10 @@ void pfile_read_save_file(bool full)
 		if (!full) {
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
 		}
-		if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
+		if (!SFileOpenFileEx(archive, pszName, &save)) {
 			if (!full) {
 				GetPermLevelNames(currLvl._dLevelIdx, pszName);
-				SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save);
+				SFileOpenFileEx(archive, pszName, &save);
 			}
 		}
 		// err = "Unable to open save file";

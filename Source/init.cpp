@@ -123,7 +123,7 @@ void InitArchives()
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
 	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
-	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", SFILE_OPEN_CHECK_EXISTS, NULL))
+	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL))
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE
@@ -160,7 +160,7 @@ void InitArchives()
 	while (std::getline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
 			//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
+			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
 				entryCount++;
 				break;
 			}
@@ -186,7 +186,7 @@ void InitArchives()
 #endif
 		for (i = 0; i < NUM_MPQS; i++) {
 			HANDLE hFile;
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
 				DWORD dwLen = SFileGetFileSize(hFile);
 				BYTE* buf = DiabloAllocPtr(dwLen);
 				if (!SFileReadFile(hFile, buf, dwLen))
