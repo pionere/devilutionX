@@ -56,7 +56,7 @@ static bool pfile_archive_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 	HANDLE file;
 	bool ret = false;
 
-	if (SFileOpenFileEx(archive, SAVEFILE_HERO, SFILE_OPEN_FROM_MPQ, &file)) {
+	if (SFileOpenFileEx(archive, SAVEFILE_HERO, &file)) {
 		DWORD dwlen = SFileGetFileSize(file);
 		if (dwlen != 0) {
 			BYTE* buf = DiabloAllocPtr(dwlen);
@@ -175,7 +175,7 @@ static bool ValidPlayerName(const char* name)
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, SFILE_OPEN_CHECK_EXISTS, NULL);
+	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, NULL);
 }
 
 void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
@@ -234,34 +234,24 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	return NEWHERO_HERO_LIMIT;
 }
 
-static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[PFILE_ENTRY_MAX_PATH])
+static void GetPermLevelNames(unsigned dwIndex, char (&szPerm)[PFILE_ENTRY_MAX_PATH])
 {
-	const char* fmt;
+	const char* fmt = "plvl%02d";
 
 	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
 	static_assert(PFILE_ENTRY_MAX_PATH >= sizeof("plvl**"), "PermSaveName can not be written to the path");
-	if (dwIndex < NUM_LEVELS) {
-		fmt = "plvl%02d";
-	} else
-		return false;
 
 	snprintf(szPerm, sizeof(szPerm), fmt, dwIndex);
-	return true;
 }
 
-static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[PFILE_ENTRY_MAX_PATH])
+static void GetTempLevelNames(unsigned dwIndex, char (&szTemp)[PFILE_ENTRY_MAX_PATH])
 {
-	const char* fmt;
+	const char* fmt = "tlvl%02d";
 
 	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
 	static_assert(PFILE_ENTRY_MAX_PATH >= sizeof("tlvl**"), "TempSaveName can not be written to the path");
-	if (dwIndex < NUM_LEVELS) {
-		fmt = "tlvl%02d";
-	} else
-		return false;
 
 	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
-	return true;
 }
 
 void pfile_ui_delete_hero(_uiheroinfo* hero_info)
@@ -276,24 +266,27 @@ void pfile_ui_delete_hero(_uiheroinfo* hero_info)
 void pfile_read_hero()
 {
 	HANDLE archive;
-	PkPlayerStruct pkplr;
-
+	// const char* err = "Unable to open file archive";
+	bool success = false;
 	archive = pfile_archive_open_save(mySaveIdx);
-	if (archive == NULL)
-		app_fatal("Unable to open file archive");
-	if (!pfile_archive_read_hero(archive, &pkplr))
+	if (archive != NULL) {
+		PkPlayerStruct pkplr;
+		// err = "Unable to read save file";
+		if (pfile_archive_read_hero(archive, &pkplr)) {
+			UnPackPlayer(&pkplr, mypnum);
+			// err = NULL;
+			success = true;
+		}
+		SFileCloseArchive(archive);
+	}
+	if (!success)
 		app_fatal("Unable to read save file");
-
-	UnPackPlayer(&pkplr, mypnum);
-	SFileCloseArchive(archive);
 
 	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
 
 static void pfile_mpq_rename_temp_to_perm()
 {
-	unsigned dwIndex;
-	bool bResult;
 	char szTemp[PFILE_ENTRY_MAX_PATH];
 	char szPerm[PFILE_ENTRY_MAX_PATH];
 
@@ -301,18 +294,15 @@ static void pfile_mpq_rename_temp_to_perm()
 	// if (!pfile_mpq_open_mysave())
 	//	app_fatal("Unable to open file archive");
 
-	dwIndex = 0;
-	while (GetTempLevelNames(dwIndex, szTemp)) {
-		bResult = GetPermLevelNames(dwIndex, szPerm);
-		assert(bResult);
-		dwIndex++;
+	for (int i = 0; i < NUM_LEVELS; i++) {
+		GetTempLevelNames(i, szTemp);
+		GetPermLevelNames(i, szPerm);
 		if (mpqapi_has_entry(szTemp)) {
 			// if (mpqapi_has_entry(szPerm))
 				mpqapi_remove_entry(szPerm);
 			mpqapi_rename_entry(szTemp, szPerm);
 		}
 	}
-	assert(!GetPermLevelNames(dwIndex, szPerm));
 }
 
 void pfile_write_save_file(bool full, DWORD dwLen)
@@ -353,12 +343,9 @@ void pfile_delete_save_file()
 	//	mpqapi_remove_entry(SAVEFILE_GAME);
 	// else
 	{
-		unsigned dwIndex;
 		char szTemp[PFILE_ENTRY_MAX_PATH];
-
-		dwIndex = 0;
-		while (GetTempLevelNames(dwIndex, szTemp)) {
-			dwIndex++;
+		for (int i = 0; i < NUM_LEVELS; i++) {
+			GetTempLevelNames(i, szTemp);
 			mpqapi_remove_entry(szTemp);
 		}
 	}
@@ -368,48 +355,47 @@ void pfile_delete_save_file()
 void pfile_read_save_file(bool full)
 {
 	DWORD len;
-	HANDLE archive, save;
-	char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
-	int source;
-
+	HANDLE archive;
+	// const char* err = "Unable to open file archive";
+	bool success = false;
 	archive = pfile_archive_open_save(mySaveIdx);
-	if (archive == NULL)
-		app_fatal("Unable to open file archive");
-
-	source = 0;
-nextSource:
-	if (!full) {
-		if (source == 0)
+	if (archive != NULL) {
+		char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
+		HANDLE save = NULL;
+		if (!full) {
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
-		else
-			GetPermLevelNames(currLvl._dLevelIdx, pszName);
-	}
-
-	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
-		if (source == 0) {
-			source++;
-			goto nextSource;
 		}
-		app_fatal("Unable to open save file");
+		if (!SFileOpenFileEx(archive, pszName, &save)) {
+			if (!full) {
+				GetPermLevelNames(currLvl._dLevelIdx, pszName);
+				SFileOpenFileEx(archive, pszName, &save);
+			}
+		}
+		// err = "Unable to open save file";
+		if (save != NULL) {
+			// err = "Invalid save file";
+			len = SFileGetFileSize(save);
+			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
+				// err = "Unable to read save file";
+				if (SFileReadFile(save, gsDeltaData.ddBuffer, len)) {
+					// err = "Invalid save file";
+					const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+
+					len = codec_decode(gsDeltaData.ddBuffer, len, password);
+					if (len != 0) {
+						// err = NULL;
+						success = true;
+					}
+				}
+			}
+			SFileCloseFile(save);
+		}
+		SFileCloseArchive(archive);
 	}
-
-	len = SFileGetFileSize(save);
-	if (len == 0 || len > sizeof(gsDeltaData.ddBuffer))
-		app_fatal("Invalid save file");
-
-	if (!SFileReadFile(save, gsDeltaData.ddBuffer, len))
+	//if (err != NULL)
+	//	app_fatal(err);
+	if (!success)
 		app_fatal("Unable to read save file");
-	SFileCloseFile(save);
-	SFileCloseArchive(archive);
-
-	{
-		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
-
-		len = codec_decode(gsDeltaData.ddBuffer, len, password);
-		if (len == 0) {
-			app_fatal("Invalid save file");
-		}
-	}
 }
 
 void pfile_update(bool force_save)

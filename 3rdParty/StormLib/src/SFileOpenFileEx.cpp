@@ -233,8 +233,11 @@ static bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
 //   szFileName    - Name of file to open
 //   dwSearchScope - Where to search
 //   PtrFile       - Pointer to store opened file handle
-
+#ifdef FULL
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * PtrFile)
+#else
+bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * PtrFile)
+#endif
 {
 #ifdef FULL
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
@@ -305,7 +308,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
         }
 #else
     {
-        assert(dwSearchScope == SFILE_OPEN_FROM_MPQ || dwSearchScope == SFILE_OPEN_CHECK_EXISTS);
         ha = IsValidMpqHandle(hMpq);
         pFileEntry = GetFileEntryLocale2(ha, szFileName);
 #endif
@@ -364,7 +366,7 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 #ifdef FULL
     if(dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
 #else
-    if(dwErrCode == ERROR_SUCCESS && dwSearchScope == SFILE_OPEN_FROM_MPQ) {
+    if(dwErrCode == ERROR_SUCCESS && PtrFile != NULL) {
 #endif
         // Allocate file handle
 #ifdef FULL

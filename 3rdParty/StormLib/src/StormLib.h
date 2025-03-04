@@ -1099,9 +1099,9 @@ void   WINAPI SFileCloseArchive(HANDLE hMpq);
 // Reading from MPQ file
 #ifdef FULL
 bool   WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
-#endif
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
-#ifndef FULL
+#else
+bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * phFile);
 bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * phFile);
 #endif
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
@@ -1192,14 +1192,14 @@ DWORD HashStringSlash(const char * szFileName, unsigned dwHashType);
 
 //-----------------------------------------------------------------------------
 // Non-Windows support for SetLastError/GetLastError
-
+#ifdef FULL
 #ifndef STORMLIB_WINDOWS
 
 void  SetLastError(DWORD dwErrCode);
 DWORD GetLastError();
 
 #endif
-
+#endif
 //-----------------------------------------------------------------------------
 // Functions from Storm.dll. They use slightly different names for keeping
 // possibility to use them together with StormLib (StormXXX instead of SFileXXX)

@@ -4489,7 +4489,7 @@ static int patcher_callback()
 		while (std::getline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
 				//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
-				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
+				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
 					entryCount++;
 					break;
 				}
@@ -4539,7 +4539,7 @@ static int patcher_callback()
 			}
 			for (int i = 0; i < NUM_MPQS; i++) {
 				HANDLE hFile;
-				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
+				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
 					DWORD dwLen = SFileGetFileSize(hFile);
 					BYTE* buf = DiabloAllocPtr(dwLen);
 					if (!SFileReadFile(hFile, buf, dwLen)) {

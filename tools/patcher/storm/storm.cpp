@@ -63,7 +63,7 @@ HANDLE SFileOpenFile(const char* filename)
 	for (i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == NULL; i++) {
 		if (diabdat_mpqs[i] == NULL)
 			continue;
-		SFileOpenFileEx(diabdat_mpqs[i], filename, SFILE_OPEN_FROM_MPQ, &result);
+		SFileOpenFileEx(diabdat_mpqs[i], filename, &result);
 	}
 	if (result == NULL) {
 		DoLog("File '%s' not found.", filename);
