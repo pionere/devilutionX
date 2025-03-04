@@ -243,6 +243,31 @@ static bool BaseFile_Read(
     DWORD dwBytesRead = 0;                  // Must be set by platform-specific code
 
 #ifdef STORMLIB_WINDOWS
+#if (WINVER == 0x0500 && _WIN32_WINNT == 0)
+    {
+        // If the byte offset is different from the current file position,
+        // we have to update the file position   xxx
+        if(ByteOffset != pStream->Base.File.FilePos)
+        {
+            if (SetFilePointer(pStream->Base.File.hFile, ByteOffset, 0, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+                // pStream->Base.File.FilePos = -1;
+                return false;
+            }
+
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset;
+        }
+        // Perform the read operation
+        if(dwBytesToRead != 0)
+        {
+            if(!ReadFile(pStream->Base.File.hFile, pvBuffer, dwBytesToRead, &dwBytesRead, NULL))
+                return false;
+
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+        }
+    }
+#else
     {
         // Note: StormLib no longer supports Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
@@ -267,7 +292,8 @@ static bool BaseFile_Read(
                 return false;
         }
     }
-#endif
+#endif // WIN98
+#endif // WIN
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {

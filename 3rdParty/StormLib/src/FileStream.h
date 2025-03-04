@@ -153,7 +153,7 @@ union TBaseProviderData
     struct
     {
         FILESIZE_T FileSize;                // Size of the file
-#ifndef STORMLIB_WINDOWS
+#if !defined(STORMLIB_WINDOWS) || (WINVER == 0x0500 && _WIN32_WINNT == 0)
         FILESIZE_T FilePos;                 // Current file position
 #endif
         HANDLE hFile;                       // File handle
