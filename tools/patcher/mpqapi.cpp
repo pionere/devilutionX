@@ -264,13 +264,7 @@ struct Archive {
 #if DEBUG_MODE
 		DoLog("Creating %s", name);
 #endif
-// 'x' mode requires a decent compiler (see: https://sourceforge.net/p/mingw-w64/bugs/493/ )
-#if __cplusplus >= 201703L && !defined(__MINGW32__)
-		const char* mode = "wbx";
-#else
-		const char* mode = "wb";
-#endif
-		FILE* file = FileOpen(name, mode);
+		FILE* file = FileOpen(name, "wb");
 		if (file == NULL) {
 #if DEBUG_MODE
 			DoLog("Failed to create file (\"%s\")", name);
