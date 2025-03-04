@@ -355,49 +355,47 @@ void pfile_delete_save_file()
 void pfile_read_save_file(bool full)
 {
 	DWORD len;
-	HANDLE archive, save;
-	char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
-	int source;
-
+	HANDLE archive;
+	// const char* err = "Unable to open file archive";
+	bool success = false;
 	archive = pfile_archive_open_save(mySaveIdx);
-	if (archive == NULL)
-		app_fatal("Unable to open file archive");
-
-	source = 0;
-nextSource:
-	if (!full) {
-		// assert(currLvl._dLevelIdx < NUM_LEVELS);
-		if (source == 0)
+	if (archive != NULL) {
+		char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
+		HANDLE save = NULL;
+		if (!full) {
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
-		else
-			GetPermLevelNames(currLvl._dLevelIdx, pszName);
-	}
-
-	if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
-		if (source == 0) {
-			source++;
-			goto nextSource;
 		}
-		app_fatal("Unable to open save file");
+		if (!SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save)) {
+			if (!full) {
+				GetPermLevelNames(currLvl._dLevelIdx, pszName);
+				SFileOpenFileEx(archive, pszName, SFILE_OPEN_FROM_MPQ, &save);
+			}
+		}
+		// err = "Unable to open save file";
+		if (save != NULL) {
+			// err = "Invalid save file";
+			len = SFileGetFileSize(save);
+			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
+				// err = "Unable to read save file";
+				if (SFileReadFile(save, gsDeltaData.ddBuffer, len)) {
+					// err = "Invalid save file";
+					const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+
+					len = codec_decode(gsDeltaData.ddBuffer, len, password);
+					if (len != 0) {
+						// err = NULL;
+						success = true;
+					}
+				}
+			}
+			SFileCloseFile(save);
+		}
+		SFileCloseArchive(archive);
 	}
-
-	len = SFileGetFileSize(save);
-	if (len == 0 || len > sizeof(gsDeltaData.ddBuffer))
-		app_fatal("Invalid save file");
-
-	if (!SFileReadFile(save, gsDeltaData.ddBuffer, len))
+	//if (err != NULL)
+	//	app_fatal(err);
+	if (!success)
 		app_fatal("Unable to read save file");
-	SFileCloseFile(save);
-	SFileCloseArchive(archive);
-
-	{
-		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
-
-		len = codec_decode(gsDeltaData.ddBuffer, len, password);
-		if (len == 0) {
-			app_fatal("Invalid save file");
-		}
-	}
 }
 
 void pfile_update(bool force_save)
