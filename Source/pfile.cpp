@@ -234,34 +234,24 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	return NEWHERO_HERO_LIMIT;
 }
 
-static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[PFILE_ENTRY_MAX_PATH])
+static void GetPermLevelNames(unsigned dwIndex, char (&szPerm)[PFILE_ENTRY_MAX_PATH])
 {
-	const char* fmt;
+	const char* fmt = "plvl%02d";
 
 	static_assert(NUM_LEVELS < 100, "PermSaveNames are too short to fit the number of levels.");
 	static_assert(PFILE_ENTRY_MAX_PATH >= sizeof("plvl**"), "PermSaveName can not be written to the path");
-	if (dwIndex < NUM_LEVELS) {
-		fmt = "plvl%02d";
-	} else
-		return false;
 
 	snprintf(szPerm, sizeof(szPerm), fmt, dwIndex);
-	return true;
 }
 
-static bool GetTempLevelNames(unsigned dwIndex, char (&szTemp)[PFILE_ENTRY_MAX_PATH])
+static void GetTempLevelNames(unsigned dwIndex, char (&szTemp)[PFILE_ENTRY_MAX_PATH])
 {
-	const char* fmt;
+	const char* fmt = "tlvl%02d";
 
 	static_assert(NUM_LEVELS < 100, "TempSaveNames are too short to fit the number of levels.");
 	static_assert(PFILE_ENTRY_MAX_PATH >= sizeof("tlvl**"), "TempSaveName can not be written to the path");
-	if (dwIndex < NUM_LEVELS) {
-		fmt = "tlvl%02d";
-	} else
-		return false;
 
 	snprintf(szTemp, sizeof(szTemp), fmt, dwIndex);
-	return true;
 }
 
 void pfile_ui_delete_hero(_uiheroinfo* hero_info)
@@ -292,8 +282,6 @@ void pfile_read_hero()
 
 static void pfile_mpq_rename_temp_to_perm()
 {
-	unsigned dwIndex;
-	bool bResult;
 	char szTemp[PFILE_ENTRY_MAX_PATH];
 	char szPerm[PFILE_ENTRY_MAX_PATH];
 
@@ -301,18 +289,15 @@ static void pfile_mpq_rename_temp_to_perm()
 	// if (!pfile_mpq_open_mysave())
 	//	app_fatal("Unable to open file archive");
 
-	dwIndex = 0;
-	while (GetTempLevelNames(dwIndex, szTemp)) {
-		bResult = GetPermLevelNames(dwIndex, szPerm);
-		assert(bResult);
-		dwIndex++;
+	for (int i = 0; i < NUM_LEVELS; i++) {
+		GetTempLevelNames(i, szTemp);
+		GetPermLevelNames(i, szPerm);
 		if (mpqapi_has_entry(szTemp)) {
 			// if (mpqapi_has_entry(szPerm))
 				mpqapi_remove_entry(szPerm);
 			mpqapi_rename_entry(szTemp, szPerm);
 		}
 	}
-	assert(!GetPermLevelNames(dwIndex, szPerm));
 }
 
 void pfile_write_save_file(bool full, DWORD dwLen)
@@ -353,12 +338,9 @@ void pfile_delete_save_file()
 	//	mpqapi_remove_entry(SAVEFILE_GAME);
 	// else
 	{
-		unsigned dwIndex;
 		char szTemp[PFILE_ENTRY_MAX_PATH];
-
-		dwIndex = 0;
-		while (GetTempLevelNames(dwIndex, szTemp)) {
-			dwIndex++;
+		for (int i = 0; i < NUM_LEVELS; i++) {
+			GetTempLevelNames(i, szTemp);
 			mpqapi_remove_entry(szTemp);
 		}
 	}
@@ -379,6 +361,7 @@ void pfile_read_save_file(bool full)
 	source = 0;
 nextSource:
 	if (!full) {
+		// assert(currLvl._dLevelIdx < NUM_LEVELS);
 		if (source == 0)
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
 		else
