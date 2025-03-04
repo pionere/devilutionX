@@ -36,7 +36,7 @@
 
 //-----------------------------------------------------------------------------
 // Local functions - platform-specific functions
-
+#ifdef FULL
 #ifndef STORMLIB_WINDOWS
 #ifndef STORMLIB_WIIU
 static thread_local DWORD dwLastError = ERROR_SUCCESS;
@@ -54,7 +54,6 @@ void SetLastError(DWORD dwErrCode)
 }
 #endif /* !STORMLIB_WINDOWS */
 
-#ifdef FULL
 static DWORD StringToInt(const char * szString)
 {
     DWORD dwValue = 0;
@@ -166,15 +165,11 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         GetFileTime(pStream->Base.File.hFile, NULL, NULL, (LPFILETIME)&pStream->Base.File.FileTime);
 #else
         // Query the file size
-        if (sizeof(FILESIZE_T) == sizeof(DWORD)) {
-            pStream->Base.File.FileSize = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
-            if (FileSize.HighPart != 0) {
-                CloseHandle(pStream->Base.File.hFile);
-                return false;
-            }
-        } else {
-            FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
-            pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
+        FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
+        pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
+        if (sizeof(FILESIZE_T) < sizeof(FileSize.QuadPart) && FileSize.HighPart != 0) {
+            CloseHandle(pStream->Base.File.hFile);
+            return false;
         }
 #endif
     }
@@ -190,16 +185,20 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         handle = open(szFileName, oflag | O_LARGEFILE);
         if(handle == -1)
         {
+#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
+#endif
             return false;
         }
 
         // Get the file size
         if(fstat64(handle, &fileinfo) == -1)
         {
+#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
+#endif
             close(handle);
             return false;
         }
@@ -244,6 +243,31 @@ static bool BaseFile_Read(
     DWORD dwBytesRead = 0;                  // Must be set by platform-specific code
 
 #ifdef STORMLIB_WINDOWS
+#if (WINVER == 0x0500 && _WIN32_WINNT == 0)
+    {
+        // If the byte offset is different from the current file position,
+        // we have to update the file position   xxx
+        if(ByteOffset != pStream->Base.File.FilePos)
+        {
+            if (SetFilePointer(pStream->Base.File.hFile, ByteOffset, 0, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+                // pStream->Base.File.FilePos = -1;
+                return false;
+            }
+
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset;
+        }
+        // Perform the read operation
+        if(dwBytesToRead != 0)
+        {
+            if(!ReadFile(pStream->Base.File.hFile, pvBuffer, dwBytesToRead, &dwBytesRead, NULL))
+                return false;
+
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+        }
+    }
+#else
     {
         // Note: StormLib no longer supports Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
@@ -268,7 +292,8 @@ static bool BaseFile_Read(
                 return false;
         }
     }
-#endif
+#endif // WIN98
+#endif // WIN
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
@@ -288,7 +313,9 @@ static bool BaseFile_Read(
             bytes_read = read((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToRead);
             if(bytes_read == -1)
             {
+#ifdef FULL
                 dwLastError = errno;
+#endif
                 return false;
             }
 
