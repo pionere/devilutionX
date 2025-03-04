@@ -477,7 +477,9 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 #endif // FULL
 static void BaseFile_Close(TFileStream * pStream)
 {
+#ifdef FULL
     if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
+#endif
     {
 #ifdef STORMLIB_WINDOWS
         CloseHandle(pStream->Base.File.hFile);
