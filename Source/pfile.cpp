@@ -97,11 +97,6 @@ static bool pfile_mpq_open_save(unsigned save_num)
 	return OpenMPQ(GetSavePath(save_num).c_str());
 }
 
-static bool pfile_mpq_create_save(unsigned save_num)
-{
-	return CreateMPQ(GetSavePath(save_num).c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
-}
-
 static bool pfile_mpq_open_mysave()
 {
 	return pfile_mpq_open_save(mySaveIdx);
@@ -215,29 +210,28 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 {
 	unsigned save_num;
-	HANDLE archive;
+	std::string path;
 
 	if (!ValidPlayerName(heroinfo->hiName))
 		return NEWHERO_INVALID_NAME;
 	assert(heroinfo->hiIdx == MAX_CHARACTERS + 1);
 	for (save_num = 0; save_num <= MAX_CHARACTERS; save_num++) {
-		archive = pfile_archive_open_save(save_num);
-		if (archive == NULL)
-			break;
-		SFileCloseArchive(archive);
-	}
-	if (save_num > MAX_CHARACTERS)
-		return NEWHERO_HERO_LIMIT;
-	if (!pfile_mpq_create_save(save_num))
+		path = GetSavePath(save_num);
+		if (FileExists(path.c_str())) continue;
+		if (CreateMPQ(path.c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT)) {
+			static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
+			heroinfo->hiIdx = save_num;
+			// heroinfo->hiSaveFile = FALSE;
+			//mpqapi_remove_entries(pfile_get_file_name);
+			CreatePlayer(*heroinfo);
+			pfile_mpq_encode_hero(0);
+			//pfile_player2hero(&players[0], heroinfo);
+			pfile_mpq_flush(true);
+			return NEWHERO_DONE;
+		}
 		return NEWHERO_FAIL;
-	static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
-	heroinfo->hiIdx = save_num;
-	// heroinfo->hiSaveFile = FALSE;
-	CreatePlayer(*heroinfo);
-	pfile_mpq_encode_hero(0);
-	//pfile_player2hero(&players[0], heroinfo);
-	pfile_mpq_flush(true);
-	return NEWHERO_DONE;
+	}
+	return NEWHERO_HERO_LIMIT;
 }
 
 static bool GetPermLevelNames(unsigned dwIndex, char (&szPerm)[PFILE_ENTRY_MAX_PATH])
