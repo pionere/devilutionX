@@ -327,7 +327,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
     RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
 
     // Set file pointer and read all required sectors
-    if (FileStream_Read(ha->pStream, &RawFilePos, pbInSector, dwRawBytesToRead)) {
+    if (FileStream_Read(ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
         // Now we have to decrypt and decompress all file sectors that have been loaded
         for (DWORD i = 0; i < dwSectorsToRead; i++) {
 #ifdef FULL
@@ -867,7 +867,7 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
     // and if they differ, we assume that number of bytes read
     // is the difference between them
 
-    if (!FileStream_Read(hf->pStream, &FilePosition1, pvBuffer, dwToRead)) {
+    if (!FileStream_Read(hf->pStream, FilePosition1, pvBuffer, dwToRead)) {
 #ifdef FULL
         // If not all bytes have been read, then return the number of bytes read
         if ((dwErrCode = GetLastError()) == ERROR_HANDLE_EOF) {

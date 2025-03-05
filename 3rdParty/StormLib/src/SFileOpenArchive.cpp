@@ -402,7 +402,7 @@ HANDLE WINAPI SFileOpenArchive(
                     // Now convert the header to version 4
                     dwErrCode = ConvertMpqHeaderToFormat4(ha, ByteOffset, FileSize, dwFlags, MapType);
 #else
-                if(!FileStream_Read(ha->pStream, &ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
+                if(!FileStream_Read(ha->pStream, ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
                 {
                     dwErrCode = ERROR_SUCCESS + 1;
                 } else {

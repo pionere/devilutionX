@@ -230,15 +230,13 @@ static bool BaseFile_Read(
 #ifdef FULL
     ULONGLONG * pByteOffset,                // Pointer to file byte offset. If NULL, it reads from the current position
 #else
-    const FILESIZE_T * pByteOffset,          // Pointer to file byte offset
+    FILESIZE_T ByteOffset,                  // Pointer to file byte offset
 #endif
     void * pvBuffer,                        // Pointer to data to be read
     DWORD dwBytesToRead)                    // Number of bytes to read from the file
 {
 #ifdef FULL
     ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
-#else
-    FILESIZE_T ByteOffset = *pByteOffset;
 #endif
     DWORD dwBytesRead = 0;                  // Must be set by platform-specific code
 
@@ -2875,9 +2873,9 @@ bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBu
     return pStream->StreamRead(pStream, pByteOffset, pvBuffer, dwBytesToRead);
 }
 #else
-bool FileStream_Read(TFileStream * pStream, const FILESIZE_T * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
+bool FileStream_Read(TFileStream * pStream, FILESIZE_T ByteOffset, void * pvBuffer, DWORD dwBytesToRead)
 {
-    return BaseFile_Read(pStream, pByteOffset, pvBuffer, dwBytesToRead);
+    return BaseFile_Read(pStream, ByteOffset, pvBuffer, dwBytesToRead);
 }
 #endif
 #ifdef FULL

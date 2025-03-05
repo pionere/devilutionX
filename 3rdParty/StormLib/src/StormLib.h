@@ -1011,7 +1011,7 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #else
-bool FileStream_Read(TFileStream * pStream, const FILESIZE_T * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+bool FileStream_Read(TFileStream * pStream, FILESIZE_T ByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #endif
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
