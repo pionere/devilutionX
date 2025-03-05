@@ -562,6 +562,8 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 	// Ensure we do not seekp beyond EOF by filling the missing space.
 	uint32_t curSize = cur_archive.stream.CurrentSize();
 	if (curSize < pBlk->bqOffset + offset_table_bytesize) {
+		if (!cur_archive.stream.seekp(curSize))
+			goto on_error;
 		if (curSize < pBlk->bqOffset) {
 			curSize = pBlk->bqOffset - curSize;
 			char* filler = (char*)DiabloAllocPtr(curSize);
