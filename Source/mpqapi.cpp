@@ -120,7 +120,7 @@ public:
 
 	bool read(void* out, size_t size)
 	{
-		if (ReadFile(out, size, s_) == 1) {
+		if (ReadFile(out, size, s_)) {
 #if DEBUG_MODE
 			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
