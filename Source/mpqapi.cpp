@@ -583,6 +583,7 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 
 	uint32_t destsize = offset_table_bytesize;
 	unsigned cur_sector = 0;
+	sectoroffsettable[0] = SwapLE32(destsize);
 	while (true) {
 		uint32_t len = std::min(dwLen, MPQ_SECTOR_SIZE);
 		BYTE* mpq_buf = pbData;
@@ -590,15 +591,14 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 		len = PkwareCompress(mpq_buf, len);
 		if (!cur_archive.stream.write(reinterpret_cast<const char*>(mpq_buf), len))
 			goto on_error;
-		sectoroffsettable[cur_sector++] = SwapLE32(destsize);
 		destsize += len; // compressed length
+		sectoroffsettable[++cur_sector] = SwapLE32(destsize);
 		if (dwLen > MPQ_SECTOR_SIZE)
 			dwLen -= MPQ_SECTOR_SIZE;
 		else
 			break;
 	}
 
-	sectoroffsettable[num_sectors] = SwapLE32(destsize);
 	if (!cur_archive.stream.seekp(pBlk->bqOffset))
 		goto on_error;
 	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
