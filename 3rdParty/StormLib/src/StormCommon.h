@@ -248,6 +248,7 @@ bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_
 void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
 #else
 DWORD DecryptFileKey(const char * szFileName);
+int    SCompExplode(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int cbInBuffer);
 #endif // FULL
 
 //-----------------------------------------------------------------------------

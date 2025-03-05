@@ -389,10 +389,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
             // WARNING : Some sectors may not be compressed, it can be determined only
             // by comparing uncompressed and compressed size !!!
             if (dwRawBytesInThisSector < dwBytesInThisSector) {
+#ifdef FULL_COMP
                 int cbOutSector = dwBytesInThisSector;
                 int cbInSector = dwRawBytesInThisSector;
                 int nResult = 0;
-#ifdef FULL_COMP
+
                 // Is the file compressed by Blizzard's multiple compression ?
                 if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
                     // Remember the last used compression
@@ -405,9 +406,6 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
                 }
                 // Is the file compressed by PKWARE Data Compression Library ?
                 else if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
-#else
-                if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
-#endif
                     nResult = SCompExplode(pbOutSector, &cbOutSector, pbInSector, cbInSector);
                 }
 
@@ -416,6 +414,14 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
                     dwErrCode = ERROR_SUCCESS + 1;
                     break;
                 }
+#else
+                dwErrCode = SCompExplode(pbOutSector, dwBytesInThisSector, pbInSector, dwRawBytesInThisSector);
+
+                // Did the decompression fail ?
+                if (dwErrCode != ERROR_SUCCESS) {
+                    break;
+                }
+#endif
             } else {
                 if (pbOutSector != pbInSector)
                     memcpy(pbOutSector, pbInSector, dwBytesInThisSector);
