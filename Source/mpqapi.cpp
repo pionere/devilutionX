@@ -558,20 +558,6 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 	// First offset is the start of the first sector, last offset is the end of the last sector.
 	uint32_t* sectoroffsettable = (uint32_t*)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
 	{
-#ifndef CAN_SEEKP_BEYOND_EOF
-	// Ensure we do not seekp beyond EOF by filling the missing space.
-	uint32_t curSize = cur_archive.stream.CurrentSize();
-	if (curSize < pBlk->bqOffset) {
-		if (!cur_archive.stream.seekp(curSize))
-			goto on_error;
-			curSize = pBlk->bqOffset - curSize;
-			char* filler = (char*)DiabloAllocPtr(curSize);
-			bool res = cur_archive.stream.write(filler, curSize);
-			mem_free_dbg(filler);
-			if (!res)
-				goto on_error;
-	}
-#endif
 
 	uint32_t destsize = offset_table_bytesize;
 	unsigned cur_sector = 0;
@@ -593,6 +579,21 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 		else
 			break;
 	}
+
+#ifndef CAN_SEEKP_BEYOND_EOF
+	// Ensure we do not seekp beyond EOF by filling the missing space.
+	uint32_t curSize = cur_archive.stream.CurrentSize();
+	if (curSize < pBlk->bqOffset) {
+		if (!cur_archive.stream.seekp(curSize))
+			goto on_error;
+		curSize = pBlk->bqOffset - curSize;
+		char* filler = (char*)DiabloAllocPtr(curSize);
+		bool res = cur_archive.stream.write(filler, curSize);
+		mem_free_dbg(filler);
+		if (!res)
+			goto on_error;
+	}
+#endif
 
 	if (!cur_archive.stream.seekp(pBlk->bqOffset))
 		goto on_error;
