@@ -558,10 +558,7 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 	// First offset is the start of the first sector, last offset is the end of the last sector.
 	uint32_t* sectoroffsettable = (uint32_t*)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
 	{
-#ifdef CAN_SEEKP_BEYOND_EOF
-	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize))
-		goto on_error;
-#else
+#ifndef CAN_SEEKP_BEYOND_EOF
 	// Ensure we do not seekp beyond EOF by filling the missing space.
 	uint32_t curSize = cur_archive.stream.CurrentSize();
 	if (curSize < pBlk->bqOffset + offset_table_bytesize) {
@@ -575,23 +572,23 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 		}
 		if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 			goto on_error;
-	} else {
-		if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize))
-			goto on_error;
 	}
 #endif
 
 	uint32_t destsize = offset_table_bytesize;
 	unsigned cur_sector = 0;
 	sectoroffsettable[0] = SwapLE32(destsize);
+	BYTE* src = pbData;
+	BYTE* dst = pbData;
 	while (true) {
 		uint32_t len = std::min(dwLen, MPQ_SECTOR_SIZE);
-		BYTE* mpq_buf = pbData;
-		pbData += len;
-		len = PkwareCompress(mpq_buf, len);
-		if (!cur_archive.stream.write(reinterpret_cast<const char*>(mpq_buf), len))
-			goto on_error;
-		destsize += len; // compressed length
+		uint32_t cmplen = PkwareCompress(src, len);
+		if (src != dst) {
+			memmove(dst, src, cmplen);
+		}
+		src += len;
+		dst += cmplen;
+		destsize += cmplen; // compressed length
 		sectoroffsettable[++cur_sector] = SwapLE32(destsize);
 		if (dwLen > MPQ_SECTOR_SIZE)
 			dwLen -= MPQ_SECTOR_SIZE;
@@ -602,6 +599,11 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 	if (!cur_archive.stream.seekp(pBlk->bqOffset))
 		goto on_error;
 	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
+		goto on_error;
+
+	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize))
+		goto on_error;
+	if (!cur_archive.stream.write(reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
 		goto on_error;
 
 	if (destsize < pBlk->bqSizeAlloc) {
