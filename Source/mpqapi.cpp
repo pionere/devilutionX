@@ -287,7 +287,7 @@ struct Archive {
 		DoLog("Flushing %s", name.c_str());
 #endif
 		// assert(stream.IsOpen());
-		if (stream.seekp(0) && WriteHeaderAndTables()) {
+		if (WriteHeaderAndTables()) {
 			// assert(mpqHeader.pqFileSize != 0);
 #if DEBUG_MODE
 			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), mpqHeader.pqFileSize);
@@ -321,7 +321,7 @@ private:
 	{
 		ByteSwapHdr(&mpqHeader);
 
-		const bool success = stream.write(reinterpret_cast<const char*>(&mpqHeader), sizeof(mpqHeader));
+		const bool success = stream.seekp(0) && stream.write(reinterpret_cast<const char*>(&mpqHeader), sizeof(mpqHeader));
 		ByteSwapHdr(&mpqHeader);
 		return success;
 	}
@@ -335,7 +335,7 @@ private:
 		blockSize = this->mpqHeader.pqBlockCount * sizeof(FileMpqBlockEntry);
 
 		EncryptMpqBlock(this->sgpBlockTbl, blockSize, key);
-		const bool success = stream.write(reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
+		const bool success = stream.seekp(this->mpqHeader.pqBlockOffset) && stream.write(reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
 		DecryptMpqBlock(this->sgpBlockTbl, blockSize, key);
 		ByteSwapBlockTbl(this->sgpBlockTbl, this->mpqHeader.pqBlockCount);
 		return success;
@@ -350,7 +350,7 @@ private:
 		hashSize = this->mpqHeader.pqHashCount * sizeof(FileMpqHashEntry);
 
 		EncryptMpqBlock(this->sgpHashTbl, hashSize, key);
-		const bool success = stream.write(reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
+		const bool success = stream.seekp(this->mpqHeader.pqHashOffset) && stream.write(reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
 		DecryptMpqBlock(this->sgpHashTbl, hashSize, key);
 		ByteSwapHashTbl(this->sgpHashTbl, this->mpqHeader.pqHashCount);
 		return success;
