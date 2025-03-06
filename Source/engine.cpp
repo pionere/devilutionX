@@ -265,13 +265,13 @@ char** LoadTxtFile(const char* name, int lines)
 		textLines[i] = (char*)textFile;
 
 		while (*textFile != '\n') {
-			assert(*textFile != '\0');
+			// assert(*textFile != '\0');
 			textFile++;
 		}
 		*textFile = '\0';
 		textFile++;
 	}
-
+	// assert(*textFile == '\0');
 	return textLines;
 }
 

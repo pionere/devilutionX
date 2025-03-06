@@ -30,7 +30,7 @@
 #define GAME_VERSION             42
 #define HELP_TITLE               "Diablo Help"
 #endif
-#define HELP_LINES_SIZE          62
+#define HELP_LINES_SIZE          65
 #define HELP_TXT                 "Meta\\help.txt"
 
 // MAXDUN = DSIZE + 2 * DBORDER
