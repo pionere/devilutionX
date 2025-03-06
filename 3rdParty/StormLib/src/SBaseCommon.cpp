@@ -1029,7 +1029,7 @@ void * LoadMpqTable(
         }
 #endif // FULL
         // If everything succeeded, read the raw table from the MPQ
-        if(FileStream_Read(ha->pStream, &ByteOffset, pbToRead, dwBytesToRead))
+        if(FileStream_Read(ha->pStream, ByteOffset, pbToRead, dwBytesToRead))
         {
 #ifdef FULL
             // Verify the MD5 of the table, if present
@@ -1301,7 +1301,7 @@ LPDWORD AllocateSectorOffsets(TMPQFile * hf)
 #else
             FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->dwFilePos);
             // Load the sector offsets from the file
-            if(!FileStream_Read(ha->pStream, &RawFilePos, SectorOffsets, dwSectorOffsLen))
+            if(!FileStream_Read(ha->pStream, RawFilePos, SectorOffsets, dwSectorOffsLen))
 #endif
             {
 #ifdef FULL
