@@ -88,6 +88,18 @@ public:
 
 	bool writeTo(uint32_t offset, const char* data, uint32_t len)
 	{
+#ifndef CAN_SEEKP_BEYOND_EOF
+		// Ensure we do not seekp beyond EOF by filling the missing space.
+		uint32_t curSize = sFileSize;
+		if (curSize < offset) {
+			uint32_t fillerSize = offset - curSize;
+			char* filler = (char*)DiabloAllocPtr(fillerSize);
+			bool res = writeTo(curSize, filler, fillerSize);
+			mem_free_dbg(filler);
+			if (!res)
+				return res;
+		}
+#endif
 		return seekp(offset) && write(data, len);
 	}
 
@@ -591,18 +603,6 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 			break;
 	}
 
-#ifndef CAN_SEEKP_BEYOND_EOF
-	// Ensure we do not seekp beyond EOF by filling the missing space.
-	uint32_t curSize = cur_archive.stream.CurrentSize();
-	if (curSize < pBlk->bqOffset) {
-		uint32_t fillerSize = pBlk->bqOffset - curSize;
-		char* filler = (char*)DiabloAllocPtr(fillerSize);
-		bool res = cur_archive.stream.writeTo(curSize, filler, fillerSize);
-		mem_free_dbg(filler);
-		if (!res)
-			goto on_error;
-	}
-#endif
 	if (!cur_archive.stream.writeTo(pBlk->bqOffset, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 		goto on_error;
 
