@@ -63,7 +63,7 @@ Gendata\diablo1.smk
 Gendata\DiabVic1.smk
 Gendata\DiabVic2.smk
 Gendata\DiabVic3.smk
-Gendata\doom.smk
+_Gendata\doom.smk
 Gendata\fprst3.smk
 Gendata\Hellfire.smk
 Gendata\logo.smk
