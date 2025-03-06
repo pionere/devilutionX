@@ -11,8 +11,6 @@ bool gbHelpflag;
 static char** gbHelpLines;
 static int helpFirstLine;
 
-#define HELP_LINES_SIZE 62
-#define HELP_TXT        "Meta\\help.txt"
 /*static const char gszHelpText[] = {
 	// clang-format off
 	"$Default Keyboard Shortcuts|"
