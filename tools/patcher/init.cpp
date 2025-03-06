@@ -87,10 +87,8 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 		if (line[0] == '_')
 			continue;
 		std::string path = basePath + line.c_str();
-		FILE* fp = FileOpen(path.c_str(), "r");
-		if (fp == NULL)
+		if (SFileReadLocalFile(path.c_str(), NULL) == 0)
 			app_fatal("Missing file: %s", path.c_str());
-		fclose(fp);
 		entryCount++;
 	}
 	input.close();
@@ -107,19 +105,14 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
 		std::string path = basePath + line.c_str();
-		FILE* fp = FileOpen(path.c_str(), "rb");
-		if (fp != NULL) {
-			uintmax_t fileSize;
-			GetFileSize(path.c_str(), &fileSize);
-			if (fileSize > UINT32_MAX)
-				app_fatal("File %s is too large to be included in an MPQ archive.", line.c_str());
-			BYTE* buf = DiabloAllocPtr(fileSize);
-			ReadFile(buf, fileSize, fp);
-			fclose(fp);
-			if (!mpqapi_write_entry(line.c_str(), buf, (DWORD)fileSize))
-				app_fatal("Unable to write %s to the MPQ.", line.c_str());
-			mem_free_dbg(buf);
-		}
+		BYTE* buf = NULL;
+		DWORD fileSize = SFileReadLocalFile(path.c_str(), &buf);
+		if (fileSize == 0)
+			app_fatal("Could not read file: %s", path.c_str());
+		bool success = mpqapi_write_entry(line.c_str(), buf, fileSize);
+		mem_free_dbg(buf);
+		if (!success)
+			app_fatal("Unable to write %s to the MPQ.", line.c_str());
 	}
 	input.close();
 	mpqapi_flush_and_close(true);
