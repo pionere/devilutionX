@@ -118,6 +118,11 @@ public:
 		return false;
 	}
 
+	bool writeTo(uint32_t offset, const char* data, uint32_t len)
+	{
+		return seekp(offset) && write(data, len);
+	}
+
 	bool read(void* out, size_t size)
 	{
 		if (ReadFile(out, size, s_)) {
@@ -131,6 +136,11 @@ public:
 		}
 		PrintError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 		return false;
+	}
+
+	bool readFrom(uint32_t offset, void* out, uint32_t len)
+	{
+		return seekp(offset) && read(out, len);
 	}
 #ifndef CAN_SEEKP_BEYOND_EOF
 	uint32_t CurrentSize() const {
@@ -321,7 +331,7 @@ private:
 	{
 		ByteSwapHdr(&mpqHeader);
 
-		const bool success = stream.seekp(0) && stream.write(reinterpret_cast<const char*>(&mpqHeader), sizeof(mpqHeader));
+		const bool success = stream.writeTo(0, reinterpret_cast<const char*>(&mpqHeader), sizeof(mpqHeader));
 		ByteSwapHdr(&mpqHeader);
 		return success;
 	}
@@ -335,7 +345,7 @@ private:
 		blockSize = this->mpqHeader.pqBlockCount * sizeof(FileMpqBlockEntry);
 
 		EncryptMpqBlock(this->sgpBlockTbl, blockSize, key);
-		const bool success = stream.seekp(this->mpqHeader.pqBlockOffset) && stream.write(reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
+		const bool success = stream.writeTo(this->mpqHeader.pqBlockOffset, reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
 		DecryptMpqBlock(this->sgpBlockTbl, blockSize, key);
 		ByteSwapBlockTbl(this->sgpBlockTbl, this->mpqHeader.pqBlockCount);
 		return success;
@@ -350,7 +360,7 @@ private:
 		hashSize = this->mpqHeader.pqHashCount * sizeof(FileMpqHashEntry);
 
 		EncryptMpqBlock(this->sgpHashTbl, hashSize, key);
-		const bool success = stream.seekp(this->mpqHeader.pqHashOffset) && stream.write(reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
+		const bool success = stream.writeTo(this->mpqHeader.pqHashOffset, reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
 		DecryptMpqBlock(this->sgpHashTbl, hashSize, key);
 		ByteSwapHashTbl(this->sgpHashTbl, this->mpqHeader.pqHashCount);
 		return success;
@@ -586,21 +596,16 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 	if (curSize < pBlk->bqOffset) {
 		uint32_t fillerSize = pBlk->bqOffset - curSize;
 		char* filler = (char*)DiabloAllocPtr(fillerSize);
-		bool res = cur_archive.stream.seekp(curSize) && cur_archive.stream.write(filler, fillerSize);
+		bool res = cur_archive.stream.writeTo(curSize, filler, fillerSize);
 		mem_free_dbg(filler);
 		if (!res)
 			goto on_error;
 	}
 #endif
-
-	if (!cur_archive.stream.seekp(pBlk->bqOffset))
-		goto on_error;
-	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
+	if (!cur_archive.stream.writeTo(pBlk->bqOffset, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 		goto on_error;
 
-	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize))
-		goto on_error;
-	if (!cur_archive.stream.write(reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
+	if (!cur_archive.stream.writeTo(pBlk->bqOffset + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
 		goto on_error;
 
 	if (destsize < pBlk->bqSizeAlloc) {
@@ -659,7 +664,7 @@ bool OpenMPQ(const char* pszArchive)
 		return false;
 	}
 	if (cur_archive.sgpBlockTbl == NULL/* || cur_archive.sgpHashTbl == NULL*/) {
-		if (!cur_archive.stream.read(&cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
+		if (!cur_archive.stream.readFrom(0, &cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
 			goto on_error;
 		ByteSwapHdr(&cur_archive.mpqHeader);
 		if (!IsValidMPQHeader(&cur_archive.mpqHeader))
@@ -671,18 +676,14 @@ bool OpenMPQ(const char* pszArchive)
 		cur_archive.sgpHashTbl = (FileMpqHashEntry*)DiabloAllocPtr(hashSize);
 		if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
 			goto on_error;
-		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqBlockOffset))
-			goto on_error;
 
-		if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
+		if (!cur_archive.stream.readFrom(cur_archive.mpqHeader.pqBlockOffset, cur_archive.sgpBlockTbl, blockSize))
 			goto on_error;
 		key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
 		DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
 		ByteSwapBlockTbl(cur_archive.sgpBlockTbl, cur_archive.mpqHeader.pqBlockCount);
 
-		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqHashOffset))
-			goto on_error;
-		if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
+		if (!cur_archive.stream.readFrom(cur_archive.mpqHeader.pqHashOffset, cur_archive.sgpHashTbl, hashSize))
 			goto on_error;
 		key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
 		DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
