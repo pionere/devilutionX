@@ -86,56 +86,9 @@ public:
 		return s_ != NULL;
 	}
 
-	bool seekp(long pos)
-	{
-		if (std::fseek(s_, pos, SEEK_SET) == 0) {
-#if DEBUG_MODE
-			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(SEEK_SET));
-#endif
-#ifndef CAN_SEEKP_BEYOND_EOF
-			sFilePos = pos;
-#endif
-			return true;
-		}
-		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), SEEK_SET);
-		return false;
-	}
-
-	bool write(const char* data, size_t size)
-	{
-		if (WriteFile(data, size, s_)) {
-#if DEBUG_MODE
-			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
-#endif
-#ifndef CAN_SEEKP_BEYOND_EOF
-			sFilePos += size;
-			if (sFilePos > sFileSize)
-				sFileSize = sFilePos;
-#endif
-			return true;
-		}
-		PrintError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
-		return false;
-	}
-
 	bool writeTo(uint32_t offset, const char* data, uint32_t len)
 	{
 		return seekp(offset) && write(data, len);
-	}
-
-	bool read(void* out, size_t size)
-	{
-		if (ReadFile(out, size, s_)) {
-#if DEBUG_MODE
-			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
-#endif
-#ifndef CAN_SEEKP_BEYOND_EOF
-			sFilePos += size;
-#endif
-			return true;
-		}
-		PrintError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
-		return false;
 	}
 
 	bool readFrom(uint32_t offset, void* out, uint32_t len)
@@ -166,6 +119,53 @@ private:
 	uint32_t sFilePos;
 	uint32_t sFileSize;
 #endif
+
+	bool seekp(long pos)
+	{
+		if (std::fseek(s_, pos, SEEK_SET) == 0) {
+#if DEBUG_MODE
+			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(SEEK_SET));
+#endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+			sFilePos = pos;
+#endif
+			return true;
+		}
+		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), SEEK_SET);
+		return false;
+	}
+
+	bool read(void* out, size_t size)
+	{
+		if (ReadFile(out, size, s_)) {
+#if DEBUG_MODE
+			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+			sFilePos += size;
+#endif
+			return true;
+		}
+		PrintError("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
+	}
+
+	bool write(const char* data, size_t size)
+	{
+		if (WriteFile(data, size, s_)) {
+#if DEBUG_MODE
+			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+			sFilePos += size;
+			if (sFilePos > sFileSize)
+				sFileSize = sFilePos;
+#endif
+			return true;
+		}
+		PrintError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
+	}
 };
 
 //#define MPQ_BLOCK_SIZE			0x8000
