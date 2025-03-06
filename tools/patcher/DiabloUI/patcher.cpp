@@ -4488,8 +4488,8 @@ static int patcher_callback()
 		int entryCount = lengthof(filesToPatch);
 		while (std::getline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
-				//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
-				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
+				if (diabdat_mpqs[i] == NULL) continue;
+				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					entryCount++;
 					break;
 				}
@@ -4538,20 +4538,16 @@ static int patcher_callback()
 				break;
 			}
 			for (int i = 0; i < NUM_MPQS; i++) {
-				HANDLE hFile;
-				if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
-					DWORD dwLen = SFileGetFileSize(hFile);
-					BYTE* buf = DiabloAllocPtr(dwLen);
-					if (!SFileReadFile(hFile, buf, dwLen)) {
-						app_warn("Unable to open file %s in the mpq.", line.c_str());
-						return RETURN_ERROR;
-					}
-					if (!mpqapi_write_entry(line.c_str(), buf, dwLen)) {
+				if (diabdat_mpqs[i] == NULL) continue;
+				BYTE* buf = NULL;
+				DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
+				if (dwLen != 0) {
+					bool success = mpqapi_write_entry(line.c_str(), buf, dwLen);
+					mem_free_dbg(buf);
+					if (!success) {
 						app_warn("Unable to write %s to the MPQ.", line.c_str());
 						return RETURN_ERROR;
 					}
-					mem_free_dbg(buf);
-					SFileCloseFile(hFile);
 					break;
 				}
 			}

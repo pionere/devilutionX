@@ -1065,6 +1065,8 @@ HANDLE   WINAPI SFileOpenArchive(const TCHAR* szMpqName, DWORD dwFlags);
 #ifdef FULL
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
+#else
+DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest);
 #endif
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 

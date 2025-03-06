@@ -156,7 +156,7 @@ void InitArchives()
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
 	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH, MPQ_PATCH_RT);
-	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL))
+	//if (SFileReadArchive(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL) == 0)
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE

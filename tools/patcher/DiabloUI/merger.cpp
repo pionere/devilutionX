@@ -144,7 +144,7 @@ static int merger_callback()
 			if (merger_skipFile(line)) continue;
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (diabdat_mpqs[i] == NULL) continue;
-				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
+				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					entryCount++;
 					break;
 				}
@@ -191,21 +191,16 @@ static int merger_callback()
 			}
 			// add the file to the mpq
 			for (int i = 0; i < NUM_MPQS; i++) {
-				HANDLE hFile;
 				if (diabdat_mpqs[i] == NULL) continue;
-				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
-					DWORD dwLen = SFileGetFileSize(hFile);
-					BYTE* buf = DiabloAllocPtr(dwLen);
-					if (!SFileReadFile(hFile, buf, dwLen)) {
-						app_warn("Unable to read file %s from archive %d.", line.c_str(), i);
-						return RETURN_ERROR;
-					}
-					if (!mpqapi_write_entry(line.c_str(), buf, dwLen)) {
+				BYTE* buf = NULL;
+				DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
+				if (dwLen != 0) {
+					bool success = mpqapi_write_entry(line.c_str(), buf, dwLen);
+					mem_free_dbg(buf);
+					if (!success) {
 						app_warn("Unable to write %s to the MPQ.", line.c_str());
 						return RETURN_ERROR;
 					}
-					mem_free_dbg(buf);
-					SFileCloseFile(hFile);
 					break;
 				}
 			}

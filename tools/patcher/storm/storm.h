@@ -48,6 +48,7 @@ void WINAPI SFileCloseFile(HANDLE hFile);
 
 DWORD WINAPI SFileGetFileSize(HANDLE hFile);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
+DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest);
 
 HANDLE SFileOpenFile(const char* filename);
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, HANDLE* phFile);

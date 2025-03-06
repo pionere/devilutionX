@@ -53,25 +53,17 @@ static std::string GetSavePath(unsigned save_num)
 
 static bool pfile_archive_read_hero(HANDLE archive, PkPlayerStruct* pPack)
 {
-	HANDLE file;
 	bool ret = false;
-
-	if (SFileOpenFileEx(archive, SAVEFILE_HERO, &file)) {
-		DWORD dwlen = SFileGetFileSize(file);
-		if (dwlen != 0) {
-			BYTE* buf = DiabloAllocPtr(dwlen);
-			if (SFileReadFile(file, buf, dwlen)) {
-				const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
-
-				int read = codec_decode(buf, dwlen, password);
-				if (read == sizeof(*pPack)) {
-					memcpy(pPack, buf, sizeof(*pPack));
-					ret = true;
-				}
-			}
-			mem_free_dbg(buf);
+	BYTE* buf = NULL;
+	DWORD dwLen = SFileReadArchive(archive, SAVEFILE_HERO, &buf);
+	if (dwLen != 0) {
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		int read = codec_decode(buf, dwLen, password);
+		if (read == sizeof(*pPack)) {
+			memcpy(pPack, buf, sizeof(*pPack));
+			ret = true;
 		}
-		SFileCloseFile(file);
+		mem_free_dbg(buf);
 	}
 	return ret;
 }
@@ -175,7 +167,7 @@ static bool ValidPlayerName(const char* name)
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, NULL);
+	return SFileReadArchive(hsArchive, SAVEFILE_GAME, NULL) != 0;
 }
 
 void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
@@ -361,34 +353,25 @@ void pfile_read_save_file(bool full)
 	archive = pfile_archive_open_save(mySaveIdx);
 	if (archive != NULL) {
 		char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
-		HANDLE save = NULL;
+		BYTE* buf = NULL;
 		if (!full) {
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
 		}
-		if (!SFileOpenFileEx(archive, pszName, &save)) {
-			if (!full) {
-				GetPermLevelNames(currLvl._dLevelIdx, pszName);
-				SFileOpenFileEx(archive, pszName, &save);
-			}
+		len = SFileReadArchive(archive, pszName, &buf);
+		if (len == 0 && !full) {
+			GetPermLevelNames(currLvl._dLevelIdx, pszName);
+			len = SFileReadArchive(archive, pszName, &buf);
 		}
-		// err = "Unable to open save file";
-		if (save != NULL) {
-			// err = "Invalid save file";
-			len = SFileGetFileSize(save);
-			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
-				// err = "Unable to read save file";
-				if (SFileReadFile(save, gsDeltaData.ddBuffer, len)) {
-					// err = "Invalid save file";
-					const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		if (len != 0) {
+			const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
 
-					len = codec_decode(gsDeltaData.ddBuffer, len, password);
-					if (len != 0) {
-						// err = NULL;
-						success = true;
-					}
-				}
+			len = codec_decode(buf, len, password);
+			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
+				// err = NULL;
+				memcpy(gsDeltaData.ddBuffer, buf, len);
+				success = true;
 			}
-			SFileCloseFile(save);
+			mem_free_dbg(buf);
 		}
 		SFileCloseArchive(archive);
 	}

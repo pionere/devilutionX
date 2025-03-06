@@ -123,7 +123,7 @@ void InitArchives()
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
 	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
-	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL))
+	//if (SFileReadArchive(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL) == 0)
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE
@@ -159,8 +159,8 @@ void InitArchives()
 	int entryCount = 0;
 	while (std::getline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
-			//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
+			if (diabdat_mpqs[i] == NULL) continue;
+			if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 				entryCount++;
 				break;
 			}
@@ -185,16 +185,14 @@ void InitArchives()
 			continue;
 #endif
 		for (i = 0; i < NUM_MPQS; i++) {
-			HANDLE hFile;
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
-				DWORD dwLen = SFileGetFileSize(hFile);
-				BYTE* buf = DiabloAllocPtr(dwLen);
-				if (!SFileReadFile(hFile, buf, dwLen))
-					app_fatal("Unable to open file archive");
-				if (!mpqapi_write_entry(line.c_str(), buf, dwLen))
-					app_fatal("Unable to write %s to the MPQ.", line.c_str());
+			if (diabdat_mpqs[i] == NULL) continue;
+			BYTE* buf = NULL;
+			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
+			if (dwLen != 0) {
+				bool success = mpqapi_write_entry(line.c_str(), buf, dwLen);
 				mem_free_dbg(buf);
-				SFileCloseFile(hFile);
+				if (!success)
+					app_fatal("Unable to write %s to the MPQ.", line.c_str());
 				break;
 			}
 		}
