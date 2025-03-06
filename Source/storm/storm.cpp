@@ -48,10 +48,10 @@ unsigned char AsciiToLowerTable_Path[256] = {
 	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
 
-HANDLE SFileOpenFile(const char* filename)
+DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 {
 	unsigned i;
-	HANDLE result = NULL;
+	DWORD result = 0;
 
 	if (directFileAccess) {
 		const std::string* basePath = GetBasePathStr();
@@ -59,19 +59,19 @@ HANDLE SFileOpenFile(const char* filename)
 		const unsigned pathlen = (unsigned)path.size();
 		for (i = (unsigned)basePath->size(); i < pathlen; ++i)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
-		SFileOpenLocalFileEx(path.c_str(), &result);
+		result = SFileReadLocalFile(path.c_str(), dest);
 	}
 #if USE_MPQONE
-	if (result == NULL)
-		SFileOpenFileEx(diabdat_mpq, filename, &result);
+	if (result == 0)
+		SFileReadArchive(diabdat_mpq, filename, dest);
 #else
-	for (i = 0; i < NUM_MPQS && result == NULL; i++) {
+	for (i = 0; i < NUM_MPQS && result == 0; i++) {
 		if (diabdat_mpqs[i] == NULL)
 			continue;
-		SFileOpenFileEx(diabdat_mpqs[i], filename, &result);
+		result = SFileReadArchive(diabdat_mpqs[i], filename, dest);
 	}
 #endif
-	if (result == NULL) {
+	if (result == 0) {
 		DoLog("File '%s' not found.", filename);
 	}
 	return result;

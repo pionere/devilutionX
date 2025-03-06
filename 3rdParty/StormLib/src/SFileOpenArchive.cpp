@@ -707,13 +707,45 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
     return (dwResultError == ERROR_SUCCESS);
 }
 #else
-DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest)
+DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
 {
     HANDLE file;
     BYTE* buf;
     DWORD fileLen = 0;
 
-    if (SFileOpenFileEx(hMpq, pszName, &file)) {
+    if (SFileOpenFileEx(hMpq, szFileName, &file)) {
+        fileLen = SFileGetFileSize(file);
+
+        if (fileLen != 0 && dest != NULL) {
+            buf = *dest;
+            if (buf == NULL) {
+                buf = STORM_ALLOC(BYTE, fileLen);
+            }
+            if (buf != NULL) {
+                if (!SFileReadFile(file, buf, fileLen)) {
+                    STORM_FREE(buf);
+                    // buf = NULL;
+                    fileLen = 0; // failure with -1 ?
+                }
+            } else {
+                fileLen = 0; // report out-of-memory with -1 ?
+            }
+            *dest = buf;
+        }
+
+        SFileCloseFile(file);
+    }
+
+    return fileLen;
+}
+
+DWORD WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest)
+{
+    HANDLE file;
+    BYTE* buf;
+    DWORD fileLen = 0;
+
+    if (SFileOpenLocalFileEx(szFileName, &file)) {
         fileLen = SFileGetFileSize(file);
 
         if (fileLen != 0 && dest != NULL) {

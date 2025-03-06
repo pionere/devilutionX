@@ -44,16 +44,12 @@ extern "C" {
 #define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
 
 void WINAPI SFileCloseArchive(HANDLE hArchive);
-void WINAPI SFileCloseFile(HANDLE hFile);
 
-DWORD WINAPI SFileGetFileSize(HANDLE hFile);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest);
+DWORD WINAPI SFileReadLocalFile(const char* pszName, BYTE** dest);
 
-HANDLE SFileOpenFile(const char* filename);
-bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, HANDLE* phFile);
-bool WINAPI SFileOpenLocalFileEx(const char* szFileName, HANDLE* phFile);
-bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead);
+DWORD SFileReadFileEx(const char* filename, BYTE** dest);
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h

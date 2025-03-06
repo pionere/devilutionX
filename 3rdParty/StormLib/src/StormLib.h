@@ -1066,7 +1066,7 @@ HANDLE   WINAPI SFileOpenArchive(const TCHAR* szMpqName, DWORD dwFlags);
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
 #else
-DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest);
+DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest);
 #endif
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
@@ -1105,6 +1105,7 @@ bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSear
 #else
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * phFile);
 bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * phFile);
+DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
 #endif
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
 #ifdef FULL
