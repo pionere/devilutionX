@@ -171,6 +171,10 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
             CloseHandle(pStream->Base.File.hFile);
             return false;
         }
+#if (WINVER == 0x0500 && _WIN32_WINNT == 0)
+        // Reset the file position
+        pStream->Base.File.FilePos = 0;
+#endif
 #endif
     }
 #endif
