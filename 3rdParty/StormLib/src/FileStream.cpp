@@ -247,7 +247,7 @@ static bool BaseFile_Read(
         // we have to update the file position   xxx
         if(ByteOffset != pStream->Base.File.FilePos)
         {
-            if (SetFilePointer(pStream->Base.File.hFile, ByteOffset, 0, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+            if (SetFilePointer(pStream->Base.File.hFile, ByteOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
                 // pStream->Base.File.FilePos = -1;
                 return false;
             }
@@ -318,12 +318,11 @@ static bool BaseFile_Read(
             }
 
             dwBytesRead = (DWORD)(size_t)bytes_read;
-        }
 #ifndef FULL
-        // Increment the current file position by number of bytes read
-        // If the number of bytes read doesn't match to required amount, return false
-        pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
 #endif
+        }
     }
 #endif
 #ifdef FULL
@@ -2909,7 +2908,7 @@ bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void
  * \a pStream Pointer to an open stream
  * \a FileSize Pointer where to store the file size
  */
-#ifdef fULL
+#ifdef FULL
 bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize)
 {
     assert(pStream->StreamGetSize != NULL);
@@ -2965,7 +2964,7 @@ bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
     *pFileTime = pStream->Base.File.FileTime;
     return true;
 }*/
-#ifdef fULL
+#ifdef FULL
 /**
  * Returns the stream flags
  *

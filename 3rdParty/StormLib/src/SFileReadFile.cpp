@@ -411,7 +411,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
 
                 // Did the decompression fail ?
                 if (nResult == 0) {
-                    dwErrCode = ERROR_SUCCESS + 1;
+                    dwErrCode = ERROR_FILE_CORRUPT;
                     break;
                 }
 #else

@@ -714,9 +714,7 @@ int WINAPI SCompExplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
     // Check for valid parameters
     if(!pcbOutBuffer || *pcbOutBuffer < cbInBuffer || !pvOutBuffer || !pvInBuffer)
     {
-#ifdef FULL
         SetLastError(ERROR_INVALID_PARAMETER);
-#endif
         return 0;
     }
 
@@ -735,9 +733,7 @@ int WINAPI SCompExplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
     // Perform decompression
     if(!Decompress_PKLIB(pvOutBuffer, &cbOutBuffer, pvInBuffer, cbInBuffer))
     {
-#ifdef FULL
         SetLastError(ERROR_FILE_CORRUPT);
-#endif
         return 0;
     }
 
