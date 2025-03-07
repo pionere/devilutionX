@@ -26,6 +26,15 @@
 #if !defined(STORMLIB_WINDOWS) && !defined(STORMLIB_MAC) && !defined(STORMLIB_LINUX)
 #error "Platform is unsupported by FileStream"
 #endif
+// Amiga cannot seekp beyond EOF.
+// See https://github.com/bebbo/libnix/issues/30
+#ifndef __AMIGA__
+#define CAN_SEEKP_BEYOND_EOF
+#else
+#ifdef STORMLIB_WINDOWS
+#error "!Seek beyond eof is not supported on windows"
+#endif
+#endif
 #endif // FULL
 //-----------------------------------------------------------------------------
 // Local defines
@@ -338,42 +347,76 @@ static bool BaseFile_Read(
 #endif
     return (dwBytesRead == dwBytesToRead);
 }
-#ifdef FULL
+
 /**
  * \a pStream Pointer to an open stream
  * \a pByteOffset Pointer to file byte offset. If NULL, writes to current position
  * \a pvBuffer Pointer to data to be written
  * \a dwBytesToWrite Number of bytes to write to the file
  */
-
+#ifdef FULL
 static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite)
+#else
+static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite)
+#endif
 {
+#ifdef FULL
     ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
+#endif
     DWORD dwBytesWritten = 0;               // Must be set by platform-specific code
 
 #ifdef STORMLIB_WINDOWS
+#if (WINVER == 0x0500 && _WIN32_WINNT == 0)
+    {
+        // If the byte offset is different from the current file position,
+        // we have to update the file position   xxx
+        if(ByteOffset != pStream->Base.File.FilePos)
+        {
+            if (SetFilePointer(pStream->Base.File.hFile, ByteOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
+                // pStream->Base.File.FilePos = -1;
+                return false;
+            }
+
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset;
+        }
+        // Perform the read operation
+        if(dwBytesToWrite != 0)
+        {
+            if(!WriteFile(pStream->Base.File.hFile, pvBuffer, dwBytesToWrite, &dwBytesWritten, NULL))
+                return false;
+
+            // Update the byte offset
+            pStream->Base.File.FilePos = ByteOffset + dwBytesWritten;
+        }
+    }
+#else
     {
         // Note: StormLib no longer supports Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
         // file offset to read from file. This allows us to skip
         // one system call to SetFilePointer
-
+#ifdef FULL
         // Update the byte offset
         pStream->Base.File.FilePos = ByteOffset;
-
+#endif
         // Read the data
         if(dwBytesToWrite != 0)
         {
             OVERLAPPED Overlapped;
-
+#ifdef FULL
             Overlapped.OffsetHigh = (DWORD)(ByteOffset >> 32);
+#else
+            Overlapped.OffsetHigh = (sizeof(FILESIZE_T) > sizeof(DWORD)) ? (ULONGLONG)ByteOffset >> 32 : 0;
+#endif
             Overlapped.Offset = (DWORD)ByteOffset;
             Overlapped.hEvent = NULL;
             if(!WriteFile(pStream->Base.File.hFile, pvBuffer, dwBytesToWrite, &dwBytesWritten, &Overlapped))
                 return false;
         }
     }
-#endif
+#endif // WIN98
+#endif // WIN
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
@@ -383,22 +426,45 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
         // we have to update the file position
         if(ByteOffset != pStream->Base.File.FilePos)
         {
+#ifndef CAN_SEEKP_BEYOND_EOF
+            FILESIZE_T curSize = pStream->Base.File.FileSize;
+            if(ByteOffset > curSize) {
+                FILESIZE_T fillerSize = ByteOffset - curSize;
+                char* filler = STORM_ALLOC(char, fillerSize);
+                bool res = BaseFile_Write(pStream, curSize, filler, fillerSize);
+                STORM_FREE(filler);
+                if (!res)
+                    return res;
+            } else
+#endif
+            {
             lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
             pStream->Base.File.FilePos = ByteOffset;
+            }
         }
 
         // Perform the write operation
         bytes_written = write((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToWrite);
         if(bytes_written == -1)
         {
+#ifdef FULL
             dwLastError = errno;
+#endif
             return false;
         }
 
         dwBytesWritten = (DWORD)(size_t)bytes_written;
+#ifndef FULL
+        // Update the byte offset
+        pStream->Base.File.FilePos = ByteOffset + dwBytesWritten;
+
+        // Also modify the file size, if needed
+        if(pStream->Base.File.FilePos > pStream->Base.File.FileSize)
+            pStream->Base.File.FileSize = pStream->Base.File.FilePos;
+#endif
     }
 #endif
-
+#ifdef FULL
     // Increment the current file position by number of bytes read
     pStream->Base.File.FilePos = ByteOffset + dwBytesWritten;
 
@@ -408,6 +474,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
 
     if(dwBytesWritten != dwBytesToWrite)
         SetLastError(ERROR_DISK_FULL);
+#endif
     return (dwBytesWritten == dwBytesToWrite);
 }
 
@@ -415,10 +482,15 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
  * \a pStream Pointer to an open stream
  * \a NewFileSize New size of the file
  */
+#ifdef FULL
 static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
+#else
+static void BaseFile_Resize(TFileStream * pStream, FILESIZE_T NewFileSize)
+#endif
 {
 #ifdef STORMLIB_WINDOWS
     {
+#ifdef FULL
         LONG FileSizeHi = (LONG)(NewFileSize >> 32);
         LONG FileSizeLo;
         DWORD dwNewPos;
@@ -439,6 +511,10 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
         FileSizeLo = (LONG)(pStream->Base.File.FilePos);
         SetFilePointer(pStream->Base.File.hFile, FileSizeLo, &FileSizeHi, FILE_BEGIN);
         return bResult;
+#else
+        SetFilePointer(pStream->Base.File.hFile, (LONG)NewFileSize, NULL, FILE_BEGIN);
+        SetEndOfFile(pStream->Base.File.hFile);
+#endif
     }
 #endif
 
@@ -446,16 +522,21 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
     {
         if(ftruncate64((intptr_t)pStream->Base.File.hFile, (off64_t)NewFileSize) == -1)
         {
+#ifdef FULL
             dwLastError = errno;
             return false;
+#else
+            return;
+#endif
         }
-
+#ifdef FULL
         pStream->Base.File.FileSize = NewFileSize;
         return true;
+#endif
     }
 #endif
 }
-#endif
+
 #ifndef FULL
 // Gives the current file size
 static FILESIZE_T BaseFile_GetSize(const TFileStream * pStream)
@@ -2905,6 +2986,11 @@ bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void
     assert(pStream->StreamWrite != NULL);
     return pStream->StreamWrite(pStream, pByteOffset, pvBuffer, dwBytesToWrite);
 }
+#else
+bool FileStream_Write(TFileStream * pStream, FILESIZE_T pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite)
+{
+    return BaseFile_Write(pStream, pByteOffset, pvBuffer, dwBytesToWrite);
+}
 #endif
 /**
  * Returns the size of a file
@@ -2943,7 +3029,13 @@ bool FileStream_SetSize(TFileStream * pStream, ULONGLONG NewFileSize)
     assert(pStream->StreamResize != NULL);
     return pStream->StreamResize(pStream, NewFileSize);
 }
-
+#else
+void FileStream_SetSize(TFileStream * pStream, FILESIZE_T NewFileSize)
+{
+    BaseFile_Resize(pStream, NewFileSize);
+}
+#endif
+#ifdef FULL
 /**
  * This function returns the current file position
  * \a pStream

@@ -48,6 +48,8 @@ void WINAPI SFileCloseArchive(HANDLE hArchive);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest);
 DWORD WINAPI SFileReadLocalFile(const char* pszName, BYTE** dest);
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName);
+void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
 
 DWORD SFileReadFileEx(const char* filename, BYTE** dest);
 

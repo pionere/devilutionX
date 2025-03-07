@@ -99,9 +99,9 @@ static void pfile_mpq_flush(bool bFree)
 	mpqapi_flush_and_close(bFree);
 }
 
-static HANDLE pfile_archive_open_save(unsigned save_num)
+static HANDLE pfile_archive_open_save(unsigned save_num, DWORD dwFlags)
 {
-	return SFileOpenArchive(GetSavePath(save_num).c_str(), MPQ_OPEN_READ_ONLY);
+	return SFileOpenArchive(GetSavePath(save_num).c_str(), dwFlags);
 }
 
 static void pfile_mpq_write_hero(bool bFree)
@@ -152,7 +152,7 @@ static bool ValidPlayerName(const char* name)
 	bool result = false;
 
 	if (ValidPlayerName(name_2)) {
-		HANDLE archive = pfile_archive_open_save(heroinfo->hiIdx);
+		HANDLE archive = pfile_archive_open_save(heroinfo->hiIdx, MPQ_OPEN_READ_ONLY);
 		if (archive != NULL) {
 			PkPlayerStruct pkplr;
 			if (pfile_archive_read_hero(archive, &pkplr)) {
@@ -175,7 +175,7 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 	int i;
 
 	for (i = MAX_CHARACTERS; i >= 0; i--) {
-		HANDLE archive = pfile_archive_open_save(i);
+		HANDLE archive = pfile_archive_open_save(i, MPQ_OPEN_READ_ONLY);
 		if (archive != NULL) {
 			PkPlayerStruct pkplr;
 			if (pfile_archive_read_hero(archive, &pkplr)) {
@@ -260,7 +260,7 @@ void pfile_read_hero()
 	HANDLE archive;
 	// const char* err = "Unable to open file archive";
 	bool success = false;
-	archive = pfile_archive_open_save(mySaveIdx);
+	archive = pfile_archive_open_save(mySaveIdx, MPQ_OPEN_READ_ONLY);
 	if (archive != NULL) {
 		PkPlayerStruct pkplr;
 		// err = "Unable to read save file";
@@ -328,20 +328,25 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 
 void pfile_delete_save_file()
 {
-	// assert(!IsMultiGame);
-	if (!pfile_mpq_open_mysave())
+	HANDLE archive;
+	bool change = false;
+	archive = pfile_archive_open_save(mySaveIdx, 0);
+	if (archive == NULL)
 		app_fatal("Unable to open file archive");
 	// if (full)
-	//	mpqapi_remove_entry(SAVEFILE_GAME);
+	//	SFileRemoveFile(archive, SAVEFILE_GAME);
 	// else
 	{
 		char szTemp[PFILE_ENTRY_MAX_PATH];
 		for (int i = 0; i < NUM_LEVELS; i++) {
 			GetTempLevelNames(i, szTemp);
-			mpqapi_remove_entry(szTemp);
+			change |= SFileRemoveFile(archive, szTemp);
 		}
 	}
-	pfile_mpq_flush(true);
+	if (change)
+		SFileFlushAndCloseArchive(archive);
+	else
+		SFileCloseArchive(archive);
 }
 
 void pfile_read_save_file(bool full)
@@ -350,7 +355,7 @@ void pfile_read_save_file(bool full)
 	HANDLE archive;
 	// const char* err = "Unable to open file archive";
 	bool success = false;
-	archive = pfile_archive_open_save(mySaveIdx);
+	archive = pfile_archive_open_save(mySaveIdx, MPQ_OPEN_READ_ONLY);
 	if (archive != NULL) {
 		char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
 		BYTE* buf = NULL;

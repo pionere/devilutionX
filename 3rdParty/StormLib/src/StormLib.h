@@ -1012,6 +1012,8 @@ bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #else
 bool FileStream_Read(TFileStream * pStream, FILESIZE_T ByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+bool FileStream_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
+void FileStream_SetSize(TFileStream * pStream, FILESIZE_T NewFileSize);
 #endif
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
@@ -1067,6 +1069,7 @@ bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK Down
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
 #else
 DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest);
+void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
 #endif
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
@@ -1166,7 +1169,11 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 //bool   WINAPI SFileAddFileEx(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwCompression, DWORD dwCompressionNext);
 //bool   WINAPI SFileAddFile(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags); 
 //bool   WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality);
-//bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
+#ifdef FULL
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
+#else
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName);
+#endif
 //bool   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
 //bool   WINAPI SFileSetFileLocale(HANDLE hFile, LCID lcNewLocale);
 //bool   WINAPI SFileSetDataCompression(DWORD DataCompression);
