@@ -387,7 +387,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
             pStream->Base.File.FilePos = ByteOffset;
         }
 
-        // Perform the read operation
+        // Perform the write operation
         bytes_written = write((intptr_t)pStream->Base.File.hFile, pvBuffer, (size_t)dwBytesToWrite);
         if(bytes_written == -1)
         {
@@ -426,7 +426,7 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
 
         // Set the position at the new file size
         dwNewPos = SetFilePointer(pStream->Base.File.hFile, (LONG)NewFileSize, &FileSizeHi, FILE_BEGIN);
-        if(dwNewPos == INVALID_SET_FILE_POINTER && GetLastError() != ERROR_SUCCESS)
+        if(dwNewPos == INVALID_SET_FILE_POINTER)
             return false;
 
         // Set the current file pointer as the end of the file
