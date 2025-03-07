@@ -27,7 +27,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define MPQ_OPEN_READ_ONLY       0x00000100
+#define MPQ_OPEN_READ_ONLY       0x00000001
 #define MPQ_FILE_IMPLODE         0x00000100
 #define MPQ_FILE_EXISTS          0x80000000
 #define ID_MPQ                   0x1A51504D // MPQ archive header ID ('MPQ\x1A')
