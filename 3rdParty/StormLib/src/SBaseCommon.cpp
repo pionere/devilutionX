@@ -732,7 +732,7 @@ TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
     DWORD dwName1 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_A);
     DWORD dwName2 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_B);
 #else
-int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
+TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
 {
     DWORD dwHashIndexMask = ha->pHeader.dwHashTableSize - 1;
     DWORD dwStartIndex = HashStringSlash(szFileName, MPQ_HASH_TABLE_INDEX);
@@ -775,11 +775,11 @@ int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
         TMPQHash * pHash = &ha->pHashTable[dwIndex];
         if (pHash->dwName1 == dwName1 && pHash->dwName2 == dwName2 && MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
 //            /*&& pHash->lcid == locale*/ && pHash->dwBlockIndex != HASH_ENTRY_DELETED)
-            return dwIndex;
+            return pHash;
         if (pHash->dwBlockIndex == HASH_ENTRY_FREE)
             break;
     }
-    return -1;
+    return NULL;
 #endif
 }
 #ifdef FULL

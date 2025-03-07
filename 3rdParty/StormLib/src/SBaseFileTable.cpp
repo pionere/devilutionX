@@ -2016,9 +2016,8 @@ TMPQBlock * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName)
             return ha->pFileTable + dwFileIndex;
     }
 #else
-    int hashIdx = GetFirstHashEntry(ha, szFileName);
-    if (hashIdx >= 0) {
-        pHash = &ha->pHashTable[hashIdx];
+    pHash = GetFirstHashEntry(ha, szFileName);
+    if (pHash != NULL) {
         return ha->pBlockTable + MPQ_BLOCK_INDEX(pHash);
     }
 #endif // FULL

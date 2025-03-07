@@ -268,13 +268,13 @@ FILESIZE_T FileOffsetFromMpqOffset(FILESIZE_T MpqOffset);
 FILESIZE_T CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
 void ConvertMpqHeaderToFormat4(TMPQArchive * ha);
 #endif
-#ifndef FULL
-int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
-#else
+#ifdef FULL
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
 
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
+#endif
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
+#ifdef FULL
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
 TMPQHash * AllocateHashEntry(TMPQArchive * ha, TFileEntry * pFileEntry, LCID lcLocale);
 
