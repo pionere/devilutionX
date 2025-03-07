@@ -114,6 +114,7 @@ public:
 #endif
 	void resize(uint32_t size) {
 #if defined(_WIN32)
+		seekp(size);
 		SetEndOfFile(s_);
 #else
 		fflush(s_);
