@@ -1975,10 +1975,11 @@ void ConvertUInt32Buffer(void * ptr, size_t length)
 void ConvertTMPQHeader(void *header, uint16_t version)
 {
 	TMPQHeader * theHeader = (TMPQHeader *)header;
-
+#ifdef FULL
     // Swap header part version 1
     if(version >= MPQ_FORMAT_VERSION_1)
     {
+#endif
 	    theHeader->dwID = SwapUInt32(theHeader->dwID);
 	    theHeader->dwHeaderSize = SwapUInt32(theHeader->dwHeaderSize);
 	    theHeader->dwArchiveSize = SwapUInt32(theHeader->dwArchiveSize);
@@ -1988,6 +1989,7 @@ void ConvertTMPQHeader(void *header, uint16_t version)
 	    theHeader->dwBlockTablePos = SwapUInt32(theHeader->dwBlockTablePos);
 	    theHeader->dwHashTableSize = SwapUInt32(theHeader->dwHashTableSize);
 	    theHeader->dwBlockTableSize = SwapUInt32(theHeader->dwBlockTableSize);
+#ifdef FULL
     }
 
 	if(version >= MPQ_FORMAT_VERSION_2)
@@ -2012,6 +2014,7 @@ void ConvertTMPQHeader(void *header, uint16_t version)
         theHeader->HetTableSize64     = SwapUInt64(theHeader->HetTableSize64);
         theHeader->BetTableSize64     = SwapUInt64(theHeader->BetTableSize64);
     }
+#endif
 }
 
 #endif  // STORMLIB_LITTLE_ENDIAN
