@@ -84,6 +84,23 @@ static void pfile_mpq_encode_hero(int pnum)
 	mem_free_dbg(packed);
 }
 
+static bool pfile_archive_encode_hero(HANDLE archive, int pnum)
+{
+	const DWORD packed_len = codec_get_encoded_len(sizeof(PkPlayerStruct));
+	BYTE* packed;
+
+	packed = (BYTE*)DiabloAllocPtr(packed_len);
+	PackPlayer((PkPlayerStruct*)packed, pnum);
+	{
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+
+		codec_encode(packed, sizeof(PkPlayerStruct), packed_len, password);
+	}
+	const bool success = SFileWriteFile(archive, SAVEFILE_HERO, packed, packed_len);
+	mem_free_dbg(packed);
+	return success;
+}
+
 static bool pfile_mpq_open_save(unsigned save_num)
 {
 	return OpenMPQ(GetSavePath(save_num).c_str());
@@ -210,15 +227,15 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	for (save_num = 0; save_num <= MAX_CHARACTERS; save_num++) {
 		path = GetSavePath(save_num);
 		if (FileExists(path.c_str())) continue;
-		if (CreateMPQ(path.c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT)) {
+		HANDLE ha = SFileCreateArchive(path.c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
+		if (ha != NULL) {
 			static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 			heroinfo->hiIdx = save_num;
 			// heroinfo->hiSaveFile = FALSE;
-			//mpqapi_remove_entries(pfile_get_file_name);
 			CreatePlayer(*heroinfo);
-			pfile_mpq_encode_hero(0);
+			pfile_archive_encode_hero(ha, 0);
 			//pfile_player2hero(&players[0], heroinfo);
-			pfile_mpq_flush(true);
+			SFileFlushAndCloseArchive(ha);
 			return NEWHERO_DONE;
 		}
 		return NEWHERO_FAIL;

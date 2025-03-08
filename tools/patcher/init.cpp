@@ -99,7 +99,8 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	}
 
 	std::string path = std::string(GetBasePath()) + destMpqName;
-	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+	HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+	if (ha == NULL)
 		app_fatal("Unable to create MPQ file %s.", path.c_str());
 
 	input = std::ifstream(std::string(GetBasePath()) + files);
@@ -111,13 +112,13 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 		DWORD fileSize = SFileReadLocalFile(path.c_str(), &buf);
 		if (fileSize == 0)
 			app_fatal("Could not read file: %s", path.c_str());
-		bool success = mpqapi_write_entry(line.c_str(), buf, fileSize);
+		bool success = SFileWriteFile(ha, line.c_str(), buf, fileSize);
 		mem_free_dbg(buf);
 		if (!success)
 			app_fatal("Unable to write %s to the MPQ.", line.c_str());
 	}
 	input.close();
-	mpqapi_flush_and_close(true);
+	SFileFlushAndCloseArchive(ha);
 }
 #endif
 

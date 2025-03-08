@@ -18,7 +18,7 @@ static bool noSound = true;
 #else
 static bool noSound = false;
 #endif
-
+static HANDLE archive;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_CANCEL = 102;
@@ -162,7 +162,8 @@ static int merger_callback()
 	case 1:
 	{	// create the mpq file
 		std::string path = std::string(GetBasePath()) + MPQONE;
-		if (!CreateMPQ(path.c_str(), hashCount, hashCount)) {
+		archive = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+		if (archive == NULL) {
 			app_warn("Unable to create MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
 		}
@@ -195,7 +196,7 @@ static int merger_callback()
 				BYTE* buf = NULL;
 				DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
 				if (dwLen != 0) {
-					bool success = mpqapi_write_entry(line.c_str(), buf, dwLen);
+					bool success = SFileWriteFile(archive, line.c_str(), buf, dwLen);
 					mem_free_dbg(buf);
 					if (!success) {
 						app_warn("Unable to write %s to the MPQ.", line.c_str());
@@ -209,7 +210,8 @@ static int merger_callback()
 		input.close();
 		if (skip <= -10)
 			break;
-		mpqapi_flush_and_close(true);
+		SFileFlushAndCloseArchive(archive);
+		archive = NULL;
 		workPhase++;
 	} break;
 	case 3:
@@ -269,8 +271,10 @@ void UiMergerDialog()
 	workPhase = 0;
 	UiProgressDialog("...Merge in progress...", merger_callback);
 	// ensure mpq-archive is closed on error
-	// if (workProgress == RETURN_ERROR && workPhase == 2)
-		mpqapi_close();
+	// if (workProgress == RETURN_ERROR && workPhase == 2) {
+		SFileCloseArchive(archive);
+		archive = NULL;
+	// }
 }
 
 DEVILUTION_END_NAMESPACE

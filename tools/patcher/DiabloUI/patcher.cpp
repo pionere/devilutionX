@@ -15,6 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static unsigned workProgress;
 static unsigned workPhase;
+static HANDLE archive;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
@@ -4513,7 +4514,8 @@ static int patcher_callback()
 	{	// create the mpq file
 		std::string path = std::string(GetBasePath()) + "devilx.mpq.foo";
 		// - open a new work-file
-		if (!CreateMPQ(path.c_str(), hashCount, hashCount)) {
+		archive = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+		if (archive == NULL) {
 			app_warn("Unable to create MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
 		}
@@ -4542,7 +4544,7 @@ static int patcher_callback()
 				BYTE* buf = NULL;
 				DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
 				if (dwLen != 0) {
-					bool success = mpqapi_write_entry(line.c_str(), buf, dwLen);
+					bool success = SFileWriteFile(archive, line.c_str(), buf, dwLen);
 					mem_free_dbg(buf);
 					if (!success) {
 						app_warn("Unable to write %s to the MPQ.", line.c_str());
@@ -4575,7 +4577,7 @@ static int patcher_callback()
 				app_warn("Patched file %s is too large to be included in an MPQ archive.", filesToPatch[i]);
 				return RETURN_ERROR;
 			}
-			if (!mpqapi_write_entry(filesToPatch[i], buf, (DWORD)dwLen)) {
+			if (!SFileWriteFile(archive, filesToPatch[i], buf, (DWORD)dwLen)) {
 				app_warn("Unable to write %s to the MPQ.", filesToPatch[i]);
 				return RETURN_ERROR;
 			}
@@ -4584,7 +4586,8 @@ static int patcher_callback()
 		hashCount += 10;
 		if (i >= hashCount)
 			break;
-		mpqapi_flush_and_close(true);
+		SFileFlushAndCloseArchive(archive);
+		archive = NULL;
 		workPhase++;
 	} break;
 	case 4:
@@ -4643,7 +4646,8 @@ void UiPatcherDialog()
 
 	if (!result) {
 		// if (workPhase == 2 || workPhase == 3) {
-			mpqapi_close();
+			SFileCloseArchive(archive);
+			archive = NULL;
 		// }
 		return;
 	}

@@ -1012,6 +1012,7 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #else
+TFileStream * FileStream_CreateFile(const TCHAR * szFileName);
 bool FileStream_Read(TFileStream * pStream, FILESIZE_T ByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 bool FileStream_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
 void FileStream_SetSize(TFileStream * pStream, FILESIZE_T NewFileSize);
@@ -1068,6 +1069,7 @@ bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCr
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
 #else
+HANDLE WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwHashCount, DWORD dwBlockCount);
 DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char * szFileName, BYTE ** dest);
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
 #endif
@@ -1172,6 +1174,7 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 #ifdef FULL
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
 #else
+bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData, DWORD dwSize);
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName);
 #endif
 //bool   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);

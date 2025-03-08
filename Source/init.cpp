@@ -177,7 +177,8 @@ void InitArchives()
 	input.clear();                 // clear fail and eof bits
 	input.seekg(0, std::ios::beg); // back to the start!
 	std::string path = std::string(GetBasePath()) + MPQONE;
-	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+	HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+	if (ha == NULL)
 		app_fatal("Unable to create MPQ file %s.", path.c_str());
 	while (std::getline(input, line)) {
 #ifdef NOSOUND
@@ -189,7 +190,7 @@ void InitArchives()
 			BYTE* buf = NULL;
 			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
 			if (dwLen != 0) {
-				bool success = mpqapi_write_entry(line.c_str(), buf, dwLen);
+				bool success = SFileWriteFile(ha, line.c_str(), buf, dwLen);
 				mem_free_dbg(buf);
 				if (!success)
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());
@@ -198,7 +199,7 @@ void InitArchives()
 		}
 	}
 	input.close();
-	mpqapi_flush_and_close(true);
+	SFileFlushAndCloseArchive(ha);
 
 	// cleanup
 	for (i = 0; i < NUM_MPQS; i++) {

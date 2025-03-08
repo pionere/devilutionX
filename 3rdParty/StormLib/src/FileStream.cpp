@@ -104,12 +104,21 @@ static void BaseNone_Init(TFileStream *)
 // Local functions - base file support
 
 static bool BaseFile_Create(TFileStream * pStream)
+#else
+static bool BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
+#endif
 {
 #ifdef STORMLIB_WINDOWS
     {
+#ifdef FULL
         DWORD dwWriteShare = (pStream->dwFlags & STREAM_FLAG_WRITE_SHARE) ? FILE_SHARE_WRITE : 0;
 
         pStream->Base.File.hFile = CreateFile(pStream->szFileName,
+#else
+        DWORD dwWriteShare = 0;
+
+        pStream->Base.File.hFile = CreateFile(szFileName,
+#endif
                                               GENERIC_READ | GENERIC_WRITE,
                                               dwWriteShare | FILE_SHARE_READ,
                                               NULL,
@@ -118,31 +127,46 @@ static bool BaseFile_Create(TFileStream * pStream)
                                               NULL);
         if(pStream->Base.File.hFile == INVALID_HANDLE_VALUE)
             return false;
+#if (WINVER == 0x0500 && _WIN32_WINNT == 0)
+        // Reset the file position
+        pStream->Base.File.FilePos = 0;
+#endif
     }
 #endif
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
         intptr_t handle;
-
+#ifdef FULL
         handle = open(pStream->szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+#else
+        handle = open(szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+#endif
         if(handle == -1)
         {
+#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
+#endif
             return false;
         }
 
         pStream->Base.File.hFile = (HANDLE)handle;
+#ifndef FULL
+        // Reset the file size and position
+        pStream->Base.File.FilePos = 0;
+#endif
     }
 #endif
 
     // Reset the file size and position
     pStream->Base.File.FileSize = 0;
+#ifdef FULL
     pStream->Base.File.FilePos = 0;
+#endif
     return true;
 }
-#endif // FULL
+
 static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
 {
 #ifdef STORMLIB_WINDOWS
@@ -2608,7 +2632,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
 
     return pStream;
 }
-#endif
+
 //-----------------------------------------------------------------------------
 // Public functions
 
@@ -2629,7 +2653,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
  * \a szFileName Name of the file to create
  */
 
-/*TFileStream * FileStream_CreateFile(
+TFileStream * FileStream_CreateFile(
     const TCHAR * szFileName,
     DWORD dwStreamFlags)
 {
@@ -2666,7 +2690,23 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
 
     // Return the stream
     return pStream;
-}*/
+}
+#else
+TFileStream * FileStream_CreateFile(
+    const TCHAR * szFileName)
+{
+    TFileStream * pStream = AllocateFileStream();
+    if(pStream != NULL)
+    {
+        if (!BaseFile_Create(pStream, szFileName)) {
+            // File create failed, delete the stream
+            STORM_FREE(pStream);
+            pStream = NULL;
+        }
+    }
+    return pStream;
+}
+#endif
 
 /**
  * This function opens an existing file for read or read-write access
