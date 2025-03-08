@@ -43,15 +43,14 @@ extern "C" {
 #define HASH_ENTRY_DELETED       0xFFFFFFFE // Block index for deleted entry in the hash table
 #define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
 
-void WINAPI SFileCloseArchive(HANDLE hArchive);
-
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
-DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* pszName, BYTE** dest);
-DWORD WINAPI SFileReadLocalFile(const char* pszName, BYTE** dest);
-bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName);
+DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest);
+DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char* szFileName);
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
+void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
-DWORD SFileReadFileEx(const char* filename, BYTE** dest);
+DWORD SFileReadFileEx(const char* szFileName, BYTE** dest);
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h
