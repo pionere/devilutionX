@@ -1132,6 +1132,25 @@ bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName)
     }
     return bResult;
 }
+
+void   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+    TMPQHash * pHash;
+    DWORD block;
+
+    pHash = GetFirstHashEntry(ha, szOldFileName);
+    if (pHash != NULL) {
+        // if (mpqapi_has_entry(ha, szNewFileName))
+            SFileRemoveFile(ha, szNewFileName);
+        // assert(pHash->dwBlockIndex != HASH_ENTRY_DELETED);
+        block = MPQ_BLOCK_INDEX(pHash);
+        pHash->dwBlockIndex = HASH_ENTRY_DELETED;
+        pHash = mpqapi_add_hash_entry(ha, szNewFileName);
+        // assert(pHash != NULL);
+        pHash->dwBlockIndex = block;
+    }
+}
 #endif // FULL
 
 //-----------------------------------------------------------------------------

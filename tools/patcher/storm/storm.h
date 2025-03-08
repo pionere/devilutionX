@@ -49,6 +49,7 @@ DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
 DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
 bool   WINAPI SFileWriteFile(HANDLE hMpq, const char* szFileName, void* pvData, DWORD dwSize);
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char* szFileName);
+void   WINAPI SFileRenameFile(HANDLE hMpq, const char* szOldFileName, const char* szNewFileName);
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 

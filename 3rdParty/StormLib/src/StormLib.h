@@ -1173,11 +1173,12 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 //bool   WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality);
 #ifdef FULL
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
+bool   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
 #else
 bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData, DWORD dwSize);
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName);
+void   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
 #endif
-//bool   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
 //bool   WINAPI SFileSetFileLocale(HANDLE hFile, LCID lcNewLocale);
 //bool   WINAPI SFileSetDataCompression(DWORD DataCompression);
 
