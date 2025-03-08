@@ -998,9 +998,10 @@ struct TStreamBitmap
 
     // Followed by the BYTE array, each bit means availability of one block
 };
-#endif
+
 // UNICODE versions of the file access functions
-//TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
+TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
+#endif
 TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
 #ifdef FULL
 const TCHAR * FileStream_GetFileName(TFileStream * pStream);
@@ -1054,21 +1055,20 @@ typedef bool  (WINAPI * SFILEREADFILE)(HANDLE, void *, DWORD, LPDWORD, LPOVERLAP
 //LCID   STORMAPI SFileSetLocale(LCID lcNewLocale);
 
 // Call before SFileOpenFileEx
-LCID   WINAPI SFileGetLocale();
-LCID   WINAPI SFileSetLocale(LCID lcNewLocale);
+//LCID   WINAPI SFileGetLocale();
+//LCID   WINAPI SFileSetLocale(LCID lcNewLocale);
 
 //-----------------------------------------------------------------------------
 // Functions for archive manipulation
 
-HANDLE   WINAPI SFileOpenArchive(const TCHAR* szMpqName, DWORD dwFlags);
-//bool   WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWORD dwMaxFileCount, HANDLE * phMpq);
-//bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCreateInfo, HANDLE * phMpq);
-
+HANDLE   WINAPI SFileOpenArchive(const TCHAR * szMpqName, DWORD dwFlags);
 #ifdef FULL
+bool   WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWORD dwMaxFileCount, HANDLE * phMpq);
+bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCreateInfo, HANDLE * phMpq);
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
 #else
-DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest);
+DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char * szFileName, BYTE ** dest);
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
 #endif
 void   WINAPI SFileCloseArchive(HANDLE hMpq);

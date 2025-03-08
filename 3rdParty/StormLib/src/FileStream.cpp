@@ -493,12 +493,10 @@ static void BaseFile_Resize(TFileStream * pStream, FILESIZE_T NewFileSize)
 #ifdef FULL
         LONG FileSizeHi = (LONG)(NewFileSize >> 32);
         LONG FileSizeLo;
-        DWORD dwNewPos;
         bool bResult;
 
         // Set the position at the new file size
-        dwNewPos = SetFilePointer(pStream->Base.File.hFile, (LONG)NewFileSize, &FileSizeHi, FILE_BEGIN);
-        if(dwNewPos == INVALID_SET_FILE_POINTER)
+        if(SetFilePointer(pStream->Base.File.hFile, (LONG)NewFileSize, &FileSizeHi, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
             return false;
 
         // Set the current file pointer as the end of the file
