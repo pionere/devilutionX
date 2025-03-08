@@ -4642,6 +4642,9 @@ void UiPatcherDialog()
 	gpBufEnd = bufend;
 
 	if (!result) {
+		// if (workPhase == 2 || workPhase == 3) {
+			mpqapi_close();
+		// }
 		return;
 	}
 
