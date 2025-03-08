@@ -104,6 +104,8 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
+		if (line[0] == '_')
+			continue;
 		std::string path = basePath + line.c_str();
 		BYTE* buf = NULL;
 		DWORD fileSize = SFileReadLocalFile(path.c_str(), &buf);
