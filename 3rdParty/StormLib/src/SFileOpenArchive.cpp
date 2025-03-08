@@ -1063,13 +1063,13 @@ static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dw
         src += len;
         dst += cmplen;
         destsize += cmplen; // compressed length
-        sectoroffsettable[++cur_sector] = BSWAP_INT32_UNSIGNED(destsize);
+        sectoroffsettable[++cur_sector] = destsize;
         if (dwLen > MPQ_SECTOR_SIZE_V1)
             dwLen -= MPQ_SECTOR_SIZE_V1;
         else
             break;
     }
-
+    BSWAP_ARRAY32_UNSIGNED(sectoroffsettable, num_sectors);
     if (!FileStream_Write(ha->pStream, pBlk->dwFilePos, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
         goto on_error;
 
