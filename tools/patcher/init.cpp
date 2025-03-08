@@ -110,12 +110,16 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 		std::string path = basePath + line.c_str();
 		BYTE* buf = NULL;
 		DWORD fileSize = SFileReadLocalFile(path.c_str(), &buf);
-		if (fileSize == 0)
+		if (fileSize == 0) {
+			SFileCloseArchive(ha);
 			app_fatal("Could not read file: %s", path.c_str());
+		}
 		bool success = SFileWriteFile(ha, line.c_str(), buf, fileSize);
 		mem_free_dbg(buf);
-		if (!success)
+		if (!success) {
+			SFileCloseArchive(ha);
 			app_fatal("Unable to write %s to the MPQ.", line.c_str());
+		}
 	}
 	input.close();
 	SFileFlushAndCloseArchive(ha);

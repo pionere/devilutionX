@@ -192,8 +192,10 @@ void InitArchives()
 			if (dwLen != 0) {
 				bool success = SFileWriteFile(ha, line.c_str(), buf, dwLen);
 				mem_free_dbg(buf);
-				if (!success)
+				if (!success) {
+					SFileCloseArchive(ha);
 					app_fatal("Unable to write %s to the MPQ.", line.c_str());
+				}
 				break;
 			}
 		}
