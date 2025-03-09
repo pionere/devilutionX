@@ -1077,7 +1077,7 @@ static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dw
     // We can't pre-populate it because we don't know the compressed sector sizes yet.
     // First offset is the start of the first sector, last offset is the end of the last sector.
     DWORD * sectoroffsettable = (DWORD*)STORM_ALLOC(BYTE, offset_table_bytesize);
-    {
+    bool bResult;
     DWORD destsize = offset_table_bytesize;
     unsigned cur_sector = 0;
     sectoroffsettable[0] = destsize;
@@ -1099,11 +1099,8 @@ static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dw
             break;
     }
     BSWAP_ARRAY32_UNSIGNED(sectoroffsettable, num_sectors);
-    if (!FileStream_Write(&ha->pStream, pBlk->dwFilePos, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
-        goto on_error;
-
-    if (!FileStream_Write(&ha->pStream, pBlk->dwFilePos + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
-        goto on_error;
+    bResult = FileStream_Write(&ha->pStream, pBlk->dwFilePos, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize)
+           && FileStream_Write(&ha->pStream, pBlk->dwFilePos + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize);
 
     if (destsize < pBlk->dwCSize) {
         const DWORD emptyBlockSize = pBlk->dwCSize - destsize;
@@ -1113,11 +1110,7 @@ static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dw
         //}
     }
     STORM_FREE(sectoroffsettable);
-    return true;
-    }
-on_error:
-    STORM_FREE(sectoroffsettable);
-    return false;
+    return bResult;
 }
 
 bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData, DWORD dwSize)
