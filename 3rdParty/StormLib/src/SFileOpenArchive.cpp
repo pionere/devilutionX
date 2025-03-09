@@ -1033,33 +1033,33 @@ static DWORD mpqapi_find_free_block(TMPQArchive * ha, DWORD size)
     return result;
 }
 
-static DWORD SCompImplode(BYTE * srcData, DWORD size)
+static DWORD SCompImplode(BYTE * srcData, DWORD dwSize)
 {
     BYTE * destData;
     char * work_buf;
     unsigned int destSize;
 
     work_buf = STORM_ALLOC(char, CMP_BUFFER_SIZE);
-    destSize = 2 * size;
+    destSize = 2 * dwSize;
     if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
         destSize = 2 * CMP_IMPLODE_DICT_SIZE3;
 
     destData = STORM_ALLOC(BYTE, destSize);
     if (work_buf != NULL && destData != NULL) {
-        TDataInfo info = TDataInfo(srcData, size, destData, destSize);
+        TDataInfo info = TDataInfo(srcData, dwSize, destData, destSize);
 
         implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
         // copy the result only if the compression reduces the size of the data
         destSize = (size_t)info.pbOutBuff - (size_t)destData;
-        if (destSize < size) {
-            size = destSize;
-            memcpy(srcData, destData, size);
+        if (destSize < dwSize) {
+            dwSize = destSize;
+            memcpy(srcData, destData, dwSize);
         }
     }
     STORM_FREE(work_buf);
     STORM_FREE(destData);
 
-    return size;
+    return dwSize;
 }
 
 static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dwLen, DWORD block)
@@ -1132,13 +1132,12 @@ bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData
     return bResult;
 }
 
-// was in SFileAddFile.cpp
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName)
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
 
-    TMPQHash* pHash;
-    TMPQBlock* pBlock;
+    TMPQHash * pHash;
+    TMPQBlock * pBlock;
     int block_offset, block_size;
     bool bResult = false;
 
