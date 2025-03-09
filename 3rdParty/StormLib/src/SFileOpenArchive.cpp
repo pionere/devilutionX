@@ -901,9 +901,7 @@ void WINAPI SFileFlushArchive(HANDLE hMpq)
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq)
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
-    if (WriteHeaderAndTables(ha)) {
-        FileStream_SetSize(&ha->pStream, ha->pHeader.dwArchiveSize);
-    }
+    SFileFlushArchive(ha);
     FreeArchiveHandle(ha);
 }
 
