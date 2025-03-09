@@ -146,7 +146,9 @@ static bool ValidPlayerName(const char* name)
 			PkPlayerStruct pkplr;
 			if (pfile_archive_read_hero(ha, &pkplr)) {
 				SStrCopy(pkplr.pName, name_2, lengthof(pkplr.pName));
-				...
+				UnPackPlayer(&pkplr, 0);
+				pfile_archive_encode_hero(ha, 0);
+				SFileFlushAndCloseArchive(ha);
 				result = true;
 			}
 		}
