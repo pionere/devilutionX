@@ -272,7 +272,8 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	qwLen = codec_get_encoded_len(dwLen);
 
 	{
-		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		// assert(!IsMultiGame);
+		const char* password = /*IsMultiGame ? PASSWORD_MULTI :*/ PASSWORD_SINGLE;
 
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
@@ -342,7 +343,8 @@ void pfile_read_save_file(bool full)
 			len = SFileReadArchive(ha, pszName, &buf);
 		}
 		if (len != 0) {
-			const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+			// assert(!IsMultiGame);
+			const char* password = /*IsMultiGame ? PASSWORD_MULTI :*/ PASSWORD_SINGLE;
 
 			len = codec_decode(buf, len, password);
 			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
