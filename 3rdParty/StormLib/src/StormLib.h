@@ -1085,9 +1085,12 @@ bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCr
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
 #else
+bool WINAPI SFileReopenArchive(HANDLE hMpq, const TCHAR * szMpqName);
 HANDLE WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwHashCount, DWORD dwBlockCount);
 DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char * szFileName, BYTE ** dest);
+void   WINAPI SFileFlushArchive(HANDLE hMpq);
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
+void   WINAPI SFileReleaseArchive(HANDLE hMpq);
 #endif
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 

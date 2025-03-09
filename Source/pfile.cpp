@@ -26,6 +26,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static_assert(DATA_ARCHIVE_MAX_PATH >= PFILE_ENTRY_MAX_PATH, "pfile can not write to the mpq archive.");
 
 unsigned mySaveIdx;
+static HANDLE archive;
 static uint32_t guNextSaveTc;
 
 #define PASSWORD_SINGLE "xrgyrkj1"
@@ -126,6 +127,14 @@ static void pfile_mpq_write_hero(bool bFree)
 	if (pfile_mpq_open_mysave()) {
 		pfile_mpq_encode_hero(mypnum);
 		pfile_mpq_flush(bFree);
+	}
+}
+
+static void pfile_archive_write_hero()
+{
+	if (SFileReopenArchive(archive, GetSavePath(mySaveIdx).c_str())) {
+		pfile_archive_encode_hero(archive, mypnum);
+		SFileFlushArchive(archive);
 	}
 }
 
@@ -285,6 +294,11 @@ void pfile_read_hero()
 			UnPackPlayer(&pkplr, mypnum);
 			// err = NULL;
 			success = true;
+			if (IsMultiGame) {
+				SFileReleaseArchive(ha);
+				archive = ha;
+				ha = NULL;
+			}
 		}
 		SFileCloseArchive(ha);
 	}
@@ -397,7 +411,7 @@ void pfile_update(bool force_save)
 		uint32_t currTc = time(NULL);
 		if (force_save || currTc > guNextSaveTc) {
 			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
-			pfile_mpq_write_hero(false);
+			pfile_archive_write_hero();
 		}
 	}
 }
@@ -405,7 +419,9 @@ void pfile_update(bool force_save)
 void pfile_close()
 {
 	if (IsMultiGame) {
-		pfile_mpq_write_hero(true);
+		pfile_archive_write_hero();
+		SFileCloseArchive(archive);
+		archive = NULL;
 	} else {
 		mpqapi_close();
 	}

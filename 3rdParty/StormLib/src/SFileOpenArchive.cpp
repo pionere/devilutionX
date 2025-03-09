@@ -714,6 +714,13 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
     return (dwResultError == ERROR_SUCCESS);
 }
 #else
+bool WINAPI SFileReopenArchive(HANDLE hMpq, const TCHAR * szMpqName)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    return FileStream_OpenFile(&ha->pStream, szMpqName, 0) == ERROR_SUCCESS;
+}
+
 DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
 {
     HANDLE file;
@@ -881,6 +888,16 @@ HANDLE WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwHashCount, DWO
     return ha;
 }
 
+void WINAPI SFileFlushArchive(HANDLE hMpq)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    if (WriteHeaderAndTables(ha)) {
+        FileStream_SetSize(&ha->pStream, ha->pHeader.dwArchiveSize);
+    }
+    FileStream_Close(&ha->pStream);
+}
+
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq)
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
@@ -888,6 +905,13 @@ void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq)
         FileStream_SetSize(&ha->pStream, ha->pHeader.dwArchiveSize);
     }
     FreeArchiveHandle(ha);
+}
+
+void   WINAPI SFileReleaseArchive(HANDLE hMpq)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    FileStream_Close(&ha->pStream);
 }
 
 static DWORD mpqapi_new_block(TMPQArchive * ha)

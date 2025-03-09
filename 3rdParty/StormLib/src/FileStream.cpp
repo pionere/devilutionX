@@ -148,8 +148,8 @@ static DWORD BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
 #endif
         if(handle == -1)
         {
-#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
+#ifdef FULL
             dwLastError = errno;
             return false;
 #else
@@ -217,6 +217,7 @@ static DWORD BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWOR
         pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
         if (sizeof(FILESIZE_T) < sizeof(FileSize.QuadPart) && FileSize.HighPart != 0) {
             CloseHandle(pStream->Base.File.hFile);
+            pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             return ERROR_SUCCESS + 1;
         }
 #if (WINVER == 0x0500 && _WIN32_WINNT == 0)
@@ -237,8 +238,8 @@ static DWORD BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWOR
         handle = open(szFileName, oflag | O_LARGEFILE);
         if(handle == -1)
         {
-#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
+#ifdef FULL
             dwLastError = errno;
             return false;
 #else
@@ -249,8 +250,8 @@ static DWORD BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWOR
         // Get the file size
         if(fstat64(handle, &fileinfo) == -1)
         {
-#ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
+#ifdef FULL
             dwLastError = errno;
             close(handle);
             return false;
@@ -635,9 +636,7 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 #endif // FULL
 static void BaseFile_Close(TFileStream * pStream)
 {
-#ifdef FULL
     if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
-#endif
     {
 #ifdef STORMLIB_WINDOWS
         CloseHandle(pStream->Base.File.hFile);

@@ -44,13 +44,16 @@ extern "C" {
 #define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
 
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
+bool   WINAPI SFileReopenArchive(HANDLE hMpq, const char* szMpqName);
 HANDLE WINAPI SFileCreateArchive(const char* szMpqName, DWORD dwHashCount, DWORD dwBlockCount);
 DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest);
 DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
 bool   WINAPI SFileWriteFile(HANDLE hMpq, const char* szFileName, void* pvData, DWORD dwSize);
 bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char* szFileName);
 void   WINAPI SFileRenameFile(HANDLE hMpq, const char* szOldFileName, const char* szNewFileName);
+void   WINAPI SFileFlushArchive(HANDLE hMpq);
 void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
+void   WINAPI SFileReleaseArchive(HANDLE hMpq);
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
 DWORD SFileReadFileEx(const char* szFileName, BYTE** dest);
