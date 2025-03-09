@@ -364,7 +364,8 @@ void pfile_read_save_file(bool full)
 
 void pfile_update(bool force_save)
 {
-	if (IsMultiGame) {
+	if (archive != NULL) {
+		// assert(IsMultiGame);
 		uint32_t currTurn = gdwGameLogicTurn;
 		if (force_save || ((currTurn - guLastSaveTurn) % PFILE_SAVE_INTERVAL) == 0) {
 			guLastSaveTurn = currTurn;
@@ -375,7 +376,8 @@ void pfile_update(bool force_save)
 
 void pfile_close()
 {
-	if (IsMultiGame) {
+	if (archive != NULL) {
+		// assert(IsMultiGame);
 		pfile_archive_write_hero();
 		SFileCloseArchive(archive);
 		archive = NULL;
