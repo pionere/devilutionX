@@ -475,7 +475,7 @@ set(devilutionx_SRCS
   Source/monstdat.cpp
   Source/monster.cpp
   Source/movie.cpp
-  Source/mpqapi.cpp
+  #Source/mpqapi.cpp
   Source/msg.cpp
   Source/multi.cpp
   Source/nthread.cpp
@@ -491,9 +491,9 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
-  Source/sha.cpp
   Source/sfx.cpp
   Source/sfxdat.cpp
+  Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
@@ -669,7 +669,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
     tools/patcher/mainmenu.cpp
-    tools/patcher/mpqapi.cpp
+    #tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp

@@ -13,7 +13,6 @@
 #include "utils/file_util.h"
 #include "utils/md5.h"
 #include "storm/storm_cfg.h"
-#include "mpqapi.h"
 #include <string>
 #if DEV_MODE
 #include <fstream>
@@ -69,7 +68,6 @@ void FreeArchives()
 			diabdat_mpqs[i] = NULL;
 		}
 	}
-	// mpqapi_close();
 }
 
 #if DEV_MODE

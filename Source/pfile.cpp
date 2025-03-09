@@ -9,7 +9,6 @@
 #include "engine/render/text_render.h"
 #include "utils/paths.h"
 #include "diabloui.h"
-#include "mpqapi.h"
 #include "utils/file_util.h"
 #include "DiabloUI/diablo.h"
 #include <ctime>
@@ -69,22 +68,6 @@ static bool pfile_archive_read_hero(HANDLE ha, PkPlayerStruct* pPack)
 	return ret;
 }
 
-static void pfile_mpq_encode_hero(int pnum)
-{
-	const DWORD packed_len = codec_get_encoded_len(sizeof(PkPlayerStruct));
-	BYTE* packed;
-
-	packed = (BYTE*)DiabloAllocPtr(packed_len);
-	PackPlayer((PkPlayerStruct*)packed, pnum);
-	{
-		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
-
-		codec_encode(packed, sizeof(PkPlayerStruct), packed_len, password);
-	}
-	mpqapi_write_entry(SAVEFILE_HERO, packed, packed_len);
-	mem_free_dbg(packed);
-}
-
 static bool pfile_archive_encode_hero(HANDLE ha, int pnum)
 {
 	const DWORD packed_len = codec_get_encoded_len(sizeof(PkPlayerStruct));
@@ -102,32 +85,9 @@ static bool pfile_archive_encode_hero(HANDLE ha, int pnum)
 	return success;
 }
 
-static bool pfile_mpq_open_save(unsigned save_num)
-{
-	return OpenMPQ(GetSavePath(save_num).c_str());
-}
-
-static bool pfile_mpq_open_mysave()
-{
-	return pfile_mpq_open_save(mySaveIdx);
-}
-
-static void pfile_mpq_flush(bool bFree)
-{
-	mpqapi_flush_and_close(bFree);
-}
-
 static HANDLE pfile_archive_open_save(unsigned save_num, DWORD dwFlags)
 {
 	return SFileOpenArchive(GetSavePath(save_num).c_str(), dwFlags);
-}
-
-static void pfile_mpq_write_hero(bool bFree)
-{
-	if (pfile_mpq_open_mysave()) {
-		pfile_mpq_encode_hero(mypnum);
-		pfile_mpq_flush(bFree);
-	}
 }
 
 static void pfile_archive_write_hero()
@@ -216,14 +176,6 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 		}
 	}
 }
-
-/*void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats* class_stats)
-{
-	class_stats->dsStrength = StrengthTbl[player_class_nr];
-	class_stats->dsMagic = MagicTbl[player_class_nr];
-	class_stats->dsDexterity = DexterityTbl[player_class_nr];
-	class_stats->dsVitality = VitalityTbl[player_class_nr];
-}*/
 
 int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 {
@@ -422,8 +374,6 @@ void pfile_close()
 		pfile_archive_write_hero();
 		SFileCloseArchive(archive);
 		archive = NULL;
-	} else {
-		mpqapi_close();
 	}
 }
 

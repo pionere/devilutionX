@@ -28,20 +28,6 @@ extern "C" {
 #endif
 
 #define MPQ_OPEN_READ_ONLY       0x00000001
-#define MPQ_FILE_IMPLODE         0x00000100
-#define MPQ_FILE_EXISTS          0x80000000
-#define ID_MPQ                   0x1A51504D // MPQ archive header ID ('MPQ\x1A')
-#define MPQ_HEADER_SIZE_V1       0x20
-#define MPQ_FORMAT_VERSION_1     0
-#define MPQ_SECTOR_SIZE_SHIFT_V1 3
-#define MPQ_KEY_HASH_TABLE       0xC3AF3770 // Obtained by HashString("(hash table)", MPQ_HASH_FILE_KEY)
-#define MPQ_KEY_BLOCK_TABLE      0xEC83B3A3 // Obtained by HashString("(block table)", MPQ_HASH_FILE_KEY)
-#define MPQ_HASH_TABLE_INDEX     0x000
-#define MPQ_HASH_NAME_A          0x100
-#define MPQ_HASH_NAME_B          0x200
-#define MPQ_HASH_FILE_KEY        0x300
-#define HASH_ENTRY_DELETED       0xFFFFFFFE // Block index for deleted entry in the hash table
-#define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
 
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
 bool   WINAPI SFileReopenArchive(HANDLE hMpq, const char* szMpqName);
