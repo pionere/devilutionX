@@ -18,11 +18,19 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVEFILE_GAME             "game"
 #define SAVEFILE_HERO             "hero"
 #define PFILE_ENTRY_MAX_PATH      8
-#define PFILE_SAVE_MPQ_HASHCOUNT  2048
-#define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
+#define PFILE_MPQ_HASHCOUNT_SINGLE  2048
+#define PFILE_MPQ_BLOCKCOUNT_SINGLE 128
+#define PFILE_MPQ_HASHCOUNT_MULTI   1
+#define PFILE_MPQ_BLOCKCOUNT_MULTI  1
 #define PFILE_SAVE_INTERVAL       2048
 
 static_assert(DATA_ARCHIVE_MAX_PATH >= PFILE_ENTRY_MAX_PATH, "pfile can not write to the mpq archive.");
+static_assert((PFILE_MPQ_HASHCOUNT_SINGLE & (PFILE_MPQ_HASHCOUNT_SINGLE - 1)) == 0, "hash count must be a power of 2 (single).");
+static_assert(PFILE_MPQ_HASHCOUNT_SINGLE >= PFILE_MPQ_BLOCKCOUNT_SINGLE, "not enough hash entry to store the blocks of a single-player game");
+static_assert(PFILE_MPQ_BLOCKCOUNT_SINGLE >= 2 * (2 * NUM_FIXLVLS + 1 + 1) + 1, "block table is too small to store every entry of a single-player game."); // 2 * entries_with_dynamic_size + entries_with_fix_size
+static_assert((PFILE_MPQ_HASHCOUNT_MULTI & (PFILE_MPQ_HASHCOUNT_MULTI - 1)) == 0, "hash count must be a power of 2 (multi).");
+static_assert(PFILE_MPQ_HASHCOUNT_MULTI >= PFILE_MPQ_BLOCKCOUNT_MULTI, "not enough hash entry to store the blocks of a multi-player game");
+static_assert(PFILE_MPQ_BLOCKCOUNT_MULTI >= 1, "block table is too small to store every entry of a multi-player game.");
 
 /* the selected hero of the local player */
 unsigned mySaveIdx;
@@ -193,7 +201,9 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	for (save_num = 0; save_num <= MAX_CHARACTERS; save_num++) {
 		path = GetSavePath(save_num);
 		if (FileExists(path.c_str())) continue;
-		HANDLE ha = SFileCreateArchive(path.c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT);
+		const int hashCount = IsMultiGame ? PFILE_MPQ_HASHCOUNT_MULTI : PFILE_MPQ_HASHCOUNT_SINGLE;
+		const int blockCount = IsMultiGame ? PFILE_MPQ_BLOCKCOUNT_MULTI : PFILE_MPQ_BLOCKCOUNT_SINGLE;
+		HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, blockCount);
 		if (ha != NULL) {
 			static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 			heroinfo->hiIdx = save_num;
