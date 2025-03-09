@@ -22,10 +22,6 @@ void pfile_read_hero();
  */
 void pfile_write_save_file(bool full, DWORD dwLen);
 /*
- * Delete save file (temp-levels)
- */
-void pfile_delete_save_file();
-/*
  * Read save file (game or level) into gsDeltaData.ddBuffer
  */
 void pfile_read_save_file(bool full);

@@ -311,39 +311,25 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	SFileFlushAndCloseArchive(ha);
 }
 
-void pfile_delete_save_file()
-{
-	HANDLE ha;
-	bool change = false;
-	ha = pfile_archive_open_save(mySaveIdx, 0);
-	if (ha == NULL)
-		app_fatal("Unable to open file archive");
-	// if (full)
-	//	SFileRemoveFile(ha, SAVEFILE_GAME);
-	// else
-	{
-		char szTemp[PFILE_ENTRY_MAX_PATH];
-		for (int i = 0; i < NUM_LEVELS; i++) {
-			GetTempLevelNames(i, szTemp);
-			change |= SFileRemoveFile(ha, szTemp);
-		}
-	}
-	if (change)
-		SFileFlushAndCloseArchive(ha);
-	else
-		SFileCloseArchive(ha);
-}
-
 void pfile_read_save_file(bool full)
 {
 	DWORD len;
 	HANDLE ha;
 	// const char* err = "Unable to open file archive";
 	bool success = false;
-	ha = pfile_archive_open_save(mySaveIdx, MPQ_OPEN_READ_ONLY);
+	ha = pfile_archive_open_save(mySaveIdx, 0); // full ? 0 : MPQ_OPEN_READ_ONLY
 	if (ha != NULL) {
+		bool change = false;
 		char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
 		BYTE* buf = NULL;
+		if (full) {
+			// delete the temp entries
+			char szTemp[PFILE_ENTRY_MAX_PATH];
+			for (int i = 0; i < NUM_LEVELS; i++) {
+				GetTempLevelNames(i, szTemp);
+				change |= SFileRemoveFile(ha, szTemp);
+			}
+		}
 		if (!full) {
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
 		}
@@ -364,7 +350,10 @@ void pfile_read_save_file(bool full)
 			}
 			mem_free_dbg(buf);
 		}
-		SFileCloseArchive(ha);
+		if (change)
+			SFileFlushAndCloseArchive(ha);
+		else
+			SFileCloseArchive(ha);
 	}
 	//if (err != NULL)
 	//	app_fatal(err);
