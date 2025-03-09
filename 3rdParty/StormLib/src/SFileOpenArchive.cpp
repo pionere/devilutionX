@@ -1117,17 +1117,17 @@ bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
     DWORD block;
-    bool bResult = true;
+    bool bResult;
 
     SFileRemoveFile(ha, szFileName);
-    TMPQHash* pHash = mpqapi_add_hash_entry(ha, szFileName);
+    TMPQHash * pHash = mpqapi_add_hash_entry(ha, szFileName);
     // if (pHash == NULL) bResult = false;
     block = mpqapi_new_block(ha);
     // if (block == -1) bResult = false;
     pHash->dwBlockIndex = block;
-    if (!mpqapi_write_file_contents(ha, pvData, dwSize, block)) {
+    bResult = mpqapi_write_file_contents(ha, pvData, dwSize, block);
+    if (!bResult) {
         SFileRemoveFile(ha, szFileName);
-        bResult = false;
     }
     return bResult;
 }
