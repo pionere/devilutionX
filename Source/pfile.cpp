@@ -20,13 +20,16 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PFILE_ENTRY_MAX_PATH      8
 #define PFILE_SAVE_MPQ_HASHCOUNT  2048
 #define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
-#define PFILE_SAVE_INTERVAL       60
+#define PFILE_SAVE_INTERVAL       2048
 
 static_assert(DATA_ARCHIVE_MAX_PATH >= PFILE_ENTRY_MAX_PATH, "pfile can not write to the mpq archive.");
 
+/* the selected hero of the local player */
 unsigned mySaveIdx;
+/* the handle of the archive containing the hero of the multiplayer game */
 static HANDLE archive;
-static uint32_t guNextSaveTc;
+/* the last turn when the hero of the multiplayer game was saved. */
+uint32_t guLastSaveTurn;
 
 #define PASSWORD_SINGLE "xrgyrkj1"
 #define PASSWORD_MULTI  "szqnlsk1"
@@ -256,8 +259,6 @@ void pfile_read_hero()
 	}
 	if (!success)
 		app_fatal("Unable to read save file");
-
-	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
 }
 
 void pfile_write_save_file(bool full, DWORD dwLen)
@@ -360,9 +361,9 @@ void pfile_read_save_file(bool full)
 void pfile_update(bool force_save)
 {
 	if (IsMultiGame) {
-		uint32_t currTc = time(NULL);
-		if (force_save || currTc > guNextSaveTc) {
-			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
+		uint32_t currTurn = gdwGameLogicTurn;
+		if (force_save || ((currTurn - guLastSaveTurn) % PFILE_SAVE_INTERVAL) == 0) {
+			guLastSaveTurn = currTurn;
 			pfile_archive_write_hero();
 		}
 	}

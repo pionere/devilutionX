@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern unsigned mySaveIdx;
+extern uint32_t guLastSaveTurn;
 
 void pfile_read_hero();
 //bool pfile_rename_hero(const char* name_1, const char* name_2);
