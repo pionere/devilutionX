@@ -828,12 +828,28 @@ typedef struct _TMPQNameCache
     // Followed by name cache (ANSI multistring)
 
 } TMPQNameCache;
+#else
+union TBaseProviderData
+{
+    struct
+    {
+        FILESIZE_T FileSize;                // Size of the file
+#if !defined(STORMLIB_WINDOWS) || (WINVER == 0x0500 && _WIN32_WINNT == 0)
+        FILESIZE_T FilePos;                 // Current file position
+#endif
+        HANDLE hFile;                       // File handle
+    } File;
+};
+struct TFileStream
+{
+    TBaseProviderData Base;
+};
 #endif
 // Archive handle structure
 typedef struct _TMPQArchive
 {
-    TFileStream  * pStream;                     // Open stream for the MPQ
 #ifdef FULL
+    TFileStream  * pStream;                     // Open stream for the MPQ
     ULONGLONG      UserDataPos;                 // Position of user data (relative to the begin of the file)
     ULONGLONG      MpqPos;                      // MPQ header offset (relative to the begin of the file)
 
@@ -845,6 +861,7 @@ typedef struct _TMPQArchive
     TMPQUserData * pUserData;                   // MPQ user data (NULL if not present in the file)
     TMPQHeader   * pHeader;                     // MPQ file header
 #else
+    TFileStream    pStream;                     // Open stream for the MPQ
     TMPQHeader     pHeader;                     // MPQ file header
 #endif
     TMPQHash     * pHashTable;                  // Hash table
@@ -930,7 +947,7 @@ typedef struct _TMPQFile
 {
     TMPQBlock   * pFileEntry;                  // File entry for the file. NULL in case of local files
     union {
-        TFileStream  * pStream;                 // File stream. Only used on local files
+        TFileStream  pStream;                 // File stream. Only used on local files
         struct {
             TMPQArchive  * ha;                  // Archive handle
             DWORD          dwFileKey;           // Decryption key
@@ -1001,9 +1018,7 @@ struct TStreamBitmap
 
 // UNICODE versions of the file access functions
 TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
-#endif
 TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
-#ifdef FULL
 const TCHAR * FileStream_GetFileName(TFileStream * pStream);
 size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
 
@@ -1012,7 +1027,8 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #else
-TFileStream * FileStream_CreateFile(const TCHAR * szFileName);
+DWORD FileStream_CreateFile(TFileStream * pStream, const TCHAR * szFileName);
+DWORD FileStream_OpenFile(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags);
 bool FileStream_Read(TFileStream * pStream, FILESIZE_T ByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 bool FileStream_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
 void FileStream_SetSize(TFileStream * pStream, FILESIZE_T NewFileSize);

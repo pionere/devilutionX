@@ -67,7 +67,11 @@ static const char * GetPatchFileName(TMPQArchive * ha, const char * szFileName, 
 #endif
 static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
 {
+#ifdef FULL
     TFileStream * pStream;
+#else
+    bool bResult = false;
+#endif
     TMPQFile * hf = NULL;
 #if defined(FULL) || defined(_UNICODE)
     TCHAR szFileNameT[MAX_PATH];
@@ -78,30 +82,35 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
     const char * szFileNameT = szFileName;
 #endif
     // Open the file and create the TMPQFile structure
+#ifdef FULL
     pStream = FileStream_OpenFile(szFileNameT, STREAM_FLAG_READ_ONLY);
     if (pStream != NULL) {
         // Allocate and initialize file handle
-#ifdef FULL
         hf = CreateFileHandle(NULL, NULL);
-#else
-        hf = STORM_ALLOC(TMPQFile, 1);
-#endif
         if (hf != NULL) {
             hf->pStream = pStream;
-#ifndef FULL
-            hf->pFileEntry = NULL;
-#endif
             *PtrFile = hf;
             return true;
         } else {
             FileStream_Close(pStream);
-#ifdef FULL
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-#endif
         }
     }
     *PtrFile = NULL;
     return false;
+#else
+        hf = STORM_ALLOC(TMPQFile, 1);
+        if (hf != NULL) {
+            if (FileStream_OpenFile(&hf->pStream, szFileNameT, STREAM_FLAG_READ_ONLY) == ERROR_SUCCESS) {
+                hf->pFileEntry = NULL;
+                *PtrFile = hf;
+                hf = NULL;
+                bResult = true;
+            }
+            STORM_FREE(hf);
+        }
+        return bResult;
+#endif
 }
 
 #ifdef FULL

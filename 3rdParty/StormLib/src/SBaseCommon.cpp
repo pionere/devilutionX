@@ -1027,11 +1027,10 @@ void * LoadMpqTable(
         {
             PtrRealTableSize[0] = dwBytesToRead;
         }
-#endif // FULL
+
         // If everything succeeded, read the raw table from the MPQ
-        if(FileStream_Read(ha->pStream, ByteOffset, pbToRead, dwBytesToRead))
+        if(FileStream_Read(ha->pStream, &ByteOffset, pbToRead, dwBytesToRead))
         {
-#ifdef FULL
             // Verify the MD5 of the table, if present
             if(!VerifyDataBlockHash(pbToRead, dwBytesToRead, pbTableHash))
             {
@@ -1041,13 +1040,11 @@ void * LoadMpqTable(
         else
         {
             dwErrCode = GetLastError();
-#else
         }
-        else
-        {
+#else
+        if(!FileStream_Read(&ha->pStream, ByteOffset, pbToRead, dwBytesToRead))
             dwErrCode = ERROR_SUCCESS + 1;
 #endif // FULL
-        }
 
         if(dwErrCode == ERROR_SUCCESS)
         {
@@ -1301,7 +1298,7 @@ LPDWORD AllocateSectorOffsets(TMPQFile * hf)
 #else
             FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->dwFilePos);
             // Load the sector offsets from the file
-            if(!FileStream_Read(ha->pStream, RawFilePos, SectorOffsets, dwSectorOffsLen))
+            if(!FileStream_Read(&ha->pStream, RawFilePos, SectorOffsets, dwSectorOffsLen))
 #endif
             {
 #ifdef FULL
@@ -1749,7 +1746,7 @@ void FreeFileHandle(TMPQFile * hf)
 #else
         if(hf->pFileEntry == NULL)
             // local file
-            FileStream_Close(hf->pStream);
+            FileStream_Close(&hf->pStream);
 #endif
         STORM_FREE(hf);
         hf = NULL;
@@ -1775,7 +1772,7 @@ void FreeArchiveHandle(TMPQArchive * ha)
             STORM_FREE(ha->pPatchPrefix);
 #endif
         // Close the file stream
-        FileStream_Close(ha->pStream);
+        FileStream_Close(&ha->pStream);
 #ifdef FULL
         ha->pStream = NULL;
 

@@ -105,7 +105,7 @@ static void BaseNone_Init(TFileStream *)
 
 static bool BaseFile_Create(TFileStream * pStream)
 #else
-static bool BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
+static DWORD BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
 #endif
 {
 #ifdef STORMLIB_WINDOWS
@@ -126,7 +126,11 @@ static bool BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
                                               0,
                                               NULL);
         if(pStream->Base.File.hFile == INVALID_HANDLE_VALUE)
+#ifdef FULL
             return false;
+#else
+            return ERROR_SUCCESS + 1;
+#endif
 #if (WINVER == 0x0500 && _WIN32_WINNT == 0)
         // Reset the file position
         pStream->Base.File.FilePos = 0;
@@ -147,8 +151,10 @@ static bool BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
 #ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
-#endif
             return false;
+#else
+            return ERROR_SUCCESS + 1;
+#endif
         }
 
         pStream->Base.File.hFile = (HANDLE)handle;
@@ -163,11 +169,17 @@ static bool BaseFile_Create(TFileStream * pStream, const TCHAR * szFileName)
     pStream->Base.File.FileSize = 0;
 #ifdef FULL
     pStream->Base.File.FilePos = 0;
-#endif
     return true;
+#else
+    return ERROR_SUCCESS;
+#endif
 }
 
+#ifdef FULL
 static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
+#else
+static DWORD BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
+#endif // FULL
 {
 #ifdef STORMLIB_WINDOWS
     {
@@ -188,8 +200,9 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                               0,
                                               NULL);
         if(pStream->Base.File.hFile == INVALID_HANDLE_VALUE)
-            return false;
 #ifdef FULL
+            return false;
+
         // Query the file size
         FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
         pStream->Base.File.FileSize = FileSize.QuadPart;
@@ -197,12 +210,14 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         // Query last write time
         GetFileTime(pStream->Base.File.hFile, NULL, NULL, (LPFILETIME)&pStream->Base.File.FileTime);
 #else
+            return ERROR_SUCCESS + 1;
+
         // Query the file size
         FileSize.LowPart = GetFileSize(pStream->Base.File.hFile, &FileSize.HighPart);
         pStream->Base.File.FileSize = (FILESIZE_T)FileSize.QuadPart;
         if (sizeof(FILESIZE_T) < sizeof(FileSize.QuadPart) && FileSize.HighPart != 0) {
             CloseHandle(pStream->Base.File.hFile);
-            return false;
+            return ERROR_SUCCESS + 1;
         }
 #if (WINVER == 0x0500 && _WIN32_WINNT == 0)
         // Reset the file position
@@ -225,8 +240,10 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 #ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
-#endif
             return false;
+#else
+            return ERROR_SUCCESS + 1;
+#endif
         }
 
         // Get the file size
@@ -235,9 +252,12 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 #ifdef FULL
             pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             dwLastError = errno;
-#endif
             close(handle);
             return false;
+#else
+            close(handle);
+            return ERROR_SUCCESS + 1;
+#endif
         }
 #ifdef FULL
         // time_t is number of seconds since 1.1.1970, UTC.
@@ -258,8 +278,11 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 #ifdef FULL
     // Reset the file position
     pStream->Base.File.FilePos = 0;
-#endif
+
     return true;
+#else
+    return ERROR_SUCCESS;
+#endif
 }
 
 static bool BaseFile_Read(
@@ -1634,25 +1657,21 @@ static bool FlatStream_CreateMirror(TBlockStream * pStream)
     // which would take long time on larger files.
     return true;
 }
-#endif // FULL
+
 static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFlags)
+#else
+static DWORD FlatStream_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags)
+#endif // FULL
 {
 #ifdef FULL
     TBlockStream * pStream;
     ULONGLONG ByteOffset = 0;
-#else
-    TFileStream * pStream;
-#endif
 
     // Create new empty stream
-#ifdef FULL
     pStream = (TBlockStream *)AllocateFileStream(szFileName, sizeof(TBlockStream), dwStreamFlags);
-#else
-    pStream = AllocateFileStream();
-#endif
     if(pStream == NULL)
         return NULL;
-#ifdef FULL
+
     // Do we have a master stream?
     if(pStream->pMaster != NULL)
     {
@@ -1676,17 +1695,7 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
         if(dwStreamFlags & STREAM_FLAG_USE_BITMAP)
             FlatStream_LoadBitmap(pStream);
     }
-#else
-    {
-        // Attempt to open the base stream
-        if(!BaseFile_Open(pStream, szFileName, dwStreamFlags))
-        {
-            STORM_FREE(pStream);
-            return NULL;
-        }
-    }
-#endif // FULL
-#ifdef FULL
+
     // If we have a stream bitmap, set the reading functions
     // which check presence of each file block
     if(pStream->FileBitmap != NULL)
@@ -1723,8 +1732,13 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
         pStream->StreamGetPos  = pStream->BaseGetPos;
         pStream->StreamClose   = pStream->BaseClose;
     }
-#endif // FULL
     return pStream;
+#else
+    {
+        // Attempt to open the base stream
+        return BaseFile_Open(pStream, szFileName, dwStreamFlags);
+    }
+#endif // FULL
 }
 
 //-----------------------------------------------------------------------------
@@ -2692,19 +2706,11 @@ TFileStream * FileStream_CreateFile(
     return pStream;
 }
 #else
-TFileStream * FileStream_CreateFile(
+DWORD FileStream_CreateFile(
+    TFileStream * pStream,
     const TCHAR * szFileName)
 {
-    TFileStream * pStream = AllocateFileStream();
-    if(pStream != NULL)
-    {
-        if (!BaseFile_Create(pStream, szFileName)) {
-            // File create failed, delete the stream
-            STORM_FREE(pStream);
-            pStream = NULL;
-        }
-    }
-    return pStream;
+    return BaseFile_Create(pStream, szFileName);
 }
 #endif
 
@@ -2724,10 +2730,16 @@ TFileStream * FileStream_CreateFile(
  * \a szFileName Name of the file to open
  * \a dwStreamFlags specifies the provider and base storage type
  */
-
+#ifdef FULL
 TFileStream * FileStream_OpenFile(
     const TCHAR * szFileName,
     DWORD dwStreamFlags)
+#else
+DWORD FileStream_OpenFile(
+    TFileStream *pStream,
+    const TCHAR * szFileName,
+    DWORD dwStreamFlags)
+#endif
 {
 #ifdef FULL
     DWORD dwProvider = dwStreamFlags & STREAM_PROVIDERS_MASK;
@@ -2741,9 +2753,8 @@ TFileStream * FileStream_OpenFile(
     switch(dwStreamFlags & STREAM_PROVIDER_MASK)
     {
         case STREAM_PROVIDER_FLAT:
-#endif
             return FlatStream_Open(szFileName, dwStreamFlags);
-#ifdef FULL
+
         case STREAM_PROVIDER_PARTIAL:
             return PartStream_Open(szFileName, dwStreamFlags);
 
@@ -2756,6 +2767,8 @@ TFileStream * FileStream_OpenFile(
             SetLastError(ERROR_INVALID_PARAMETER);
             return NULL;
     }
+#else
+            return FlatStream_Open(pStream, szFileName, dwStreamFlags);
 #endif
 }
 #ifdef FULL
@@ -3165,10 +3178,10 @@ bool FileStream_GetFlags(TFileStream * pStream, LPDWORD pdwStreamFlags)
  */
 void FileStream_Close(TFileStream * pStream)
 {
+#ifdef FULL
     // Check if the stream structure is allocated at all
     if(pStream != NULL)
     {
-#ifdef FULL
         // Free the master stream, if any
         if(pStream->pMaster != NULL)
             FileStream_Close(pStream->pMaster);
@@ -3181,10 +3194,10 @@ void FileStream_Close(TFileStream * pStream)
         // ... or close base stream, if any
         else if(pStream->BaseClose != NULL)
             pStream->BaseClose(pStream);
-#else
-        BaseFile_Close(pStream);
-#endif
         // Free the stream itself
         STORM_FREE(pStream);
     }
+#else
+        BaseFile_Close(pStream);
+#endif
 }

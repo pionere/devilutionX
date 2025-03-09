@@ -327,7 +327,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
     RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
 
     // Set file pointer and read all required sectors
-    if (FileStream_Read(ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
+    if (FileStream_Read(&ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
         // Now we have to decrypt and decompress all file sectors that have been loaded
         for (DWORD i = 0; i < dwSectorsToRead; i++) {
 #ifdef FULL
@@ -861,8 +861,8 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
     DWORD dwBytesRead = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
 
-    assert(hf->pStream != NULL);
 #ifdef FULL
+    assert(hf->pStream != NULL);
     FileStream_GetPos(hf->pStream, &FilePosition1);
 #else
     FilePosition1 = 0;
@@ -872,9 +872,8 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
     // "all or nothing", we compare file position before and after,
     // and if they differ, we assume that number of bytes read
     // is the difference between them
-
-    if (!FileStream_Read(hf->pStream, FilePosition1, pvBuffer, dwToRead)) {
 #ifdef FULL
+    if (!FileStream_Read(hf->pStream, &FilePosition1, pvBuffer, dwToRead)) {
         // If not all bytes have been read, then return the number of bytes read
         if ((dwErrCode = GetLastError()) == ERROR_HANDLE_EOF) {
             FileStream_GetPos(hf->pStream, &FilePosition2);
@@ -882,10 +881,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
         }
     } else {
         dwBytesRead = dwToRead;
+    }
 #else
+    if (!FileStream_Read(&hf->pStream, FilePosition1, pvBuffer, dwToRead))
         dwErrCode = ERROR_SUCCESS + 1;
 #endif
-    }
 #ifdef FULL
     *pdwBytesRead = dwBytesRead;
 #endif
@@ -1017,7 +1017,7 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
                 FileStream_GetSize(hf->pStream, &FileSize);
 #else
             if (hf->pFileEntry == NULL) {
-                FileSize = (DWORD)FileStream_GetSize(hf->pStream);
+                FileSize = (DWORD)FileStream_GetSize(&hf->pStream);
 #endif
             } else {
 #ifdef FULL

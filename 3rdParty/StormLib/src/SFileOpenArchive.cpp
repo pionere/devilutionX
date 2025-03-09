@@ -235,8 +235,8 @@ HANDLE WINAPI SFileOpenArchive(
 {
 #ifdef FULL
     TMPQUserData * pUserData;
-#endif
     TFileStream * pStream = NULL;       // Open file stream
+#endif
     TMPQArchive * ha = NULL;            // Archive handle
 #ifdef FULL
     TFileEntry * pFileEntry;
@@ -261,12 +261,12 @@ HANDLE WINAPI SFileOpenArchive(
 
     // If not forcing MPQ v 1.0, also use file bitmap
     dwStreamFlags |= (dwFlags & MPQ_OPEN_FORCE_MPQ_V1) ? 0 : STREAM_FLAG_USE_BITMAP;
-#endif
+
     // Open the MPQ archive file
     pStream = FileStream_OpenFile(szMpqName, dwStreamFlags);
     if(pStream == NULL)
         return NULL;
-#ifdef FULL
+
     // Check the file size. There must be at least 0x20 bytes
     if(dwErrCode == ERROR_SUCCESS)
     {
@@ -285,15 +285,22 @@ HANDLE WINAPI SFileOpenArchive(
             dwErrCode = ERROR_SUCCESS + 1;
 #endif
     }
-#ifdef FULL
+
     // Allocate buffer for searching MPQ header
     if(dwErrCode == ERROR_SUCCESS)
     {
+#ifdef FULL
         pbHeaderBuffer = STORM_ALLOC(BYTE, HEADER_SEARCH_BUFFER_SIZE);
         if(pbHeaderBuffer == NULL)
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
-    }
+#else
+        dwErrCode = FileStream_OpenFile(&ha->pStream, szMpqName, dwStreamFlags);
+        if (dwErrCode != ERROR_SUCCESS) {
+            STORM_FREE(ha);
+            ha = NULL;
+        }
 #endif
+    }
     // Find the position of MPQ header
     if(dwErrCode == ERROR_SUCCESS)
     {
@@ -314,8 +321,8 @@ HANDLE WINAPI SFileOpenArchive(
         ha->pBlockTable = NULL;
         ha->pHashTable = NULL;
 #endif
-        ha->pStream = pStream;
 #ifdef FULL
+        ha->pStream = pStream;
         pStream = NULL;
 
         // Set the archive read only if the stream is read-only
@@ -402,7 +409,7 @@ HANDLE WINAPI SFileOpenArchive(
                     // Now convert the header to version 4
                     dwErrCode = ConvertMpqHeaderToFormat4(ha, ByteOffset, FileSize, dwFlags, MapType);
 #else
-                if(!FileStream_Read(ha->pStream, ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
+                if(!FileStream_Read(&ha->pStream, ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
                 {
                     dwErrCode = ERROR_SUCCESS + 1;
                 } else {
@@ -775,7 +782,7 @@ static bool WriteHeader(TMPQArchive * ha)
 {
     BSWAP_TMPQHEADER(&ha->pHeader, MPQ_FORMAT_VERSION_1);
 
-    const bool success = FileStream_Write(ha->pStream, 0, &ha->pHeader, sizeof(ha->pHeader));
+    const bool success = FileStream_Write(&ha->pStream, 0, &ha->pHeader, sizeof(ha->pHeader));
     BSWAP_TMPQHEADER(&ha->pHeader, MPQ_FORMAT_VERSION_1);
     return success;
 }
@@ -789,7 +796,7 @@ static bool WriteBlockTable(TMPQArchive * ha)
     BSWAP_ARRAY32_UNSIGNED(ha->pBlockTable, blockSize / sizeof(DWORD));
 
     EncryptMpqBlock(ha->pBlockTable, blockSize, key);
-    const bool success = FileStream_Write(ha->pStream, ha->pHeader.dwBlockTablePos, reinterpret_cast<const char*>(ha->pBlockTable), blockSize);
+    const bool success = FileStream_Write(&ha->pStream, ha->pHeader.dwBlockTablePos, reinterpret_cast<const char*>(ha->pBlockTable), blockSize);
     DecryptMpqBlock(ha->pBlockTable, blockSize, key);
     BSWAP_ARRAY32_UNSIGNED(ha->pBlockTable, blockSize / sizeof(DWORD));
     return success;
@@ -804,7 +811,7 @@ static bool WriteHashTable(TMPQArchive * ha)
     BSWAP_ARRAY32_UNSIGNED(ha->pHashTable, hashSize / sizeof(DWORD));
 
     EncryptMpqBlock(ha->pHashTable, hashSize, key);
-    const bool success = FileStream_Write(ha->pStream, ha->pHeader.dwHashTablePos, reinterpret_cast<const char*>(ha->pHashTable), hashSize);
+    const bool success = FileStream_Write(&ha->pStream, ha->pHeader.dwHashTablePos, reinterpret_cast<const char*>(ha->pHashTable), hashSize);
     DecryptMpqBlock(ha->pHashTable, hashSize, key);
     BSWAP_ARRAY32_UNSIGNED(ha->pHashTable, hashSize / sizeof(DWORD));
     return success;
@@ -822,20 +829,18 @@ HANDLE WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwHashCount, DWO
     DWORD dwErrCode = ERROR_SUCCESS;
     DWORD blockSize, hashSize;
 
-    // Open the MPQ archive file
-    pStream = FileStream_CreateFile(szMpqName);
-    if(pStream == NULL)
+    if(dwErrCode == ERROR_SUCCESS)
     {
-        dwErrCode = ERROR_SUCCESS + 1;
+        if((ha = STORM_ALLOC(TMPQArchive, 1)) == NULL)
+            dwErrCode = ERROR_SUCCESS + 1;
     }
 
     if(dwErrCode == ERROR_SUCCESS)
     {
-        if((ha = STORM_ALLOC(TMPQArchive, 1)) != NULL) {
-            ha->pStream = pStream;
-        } else {
-            dwErrCode = ERROR_SUCCESS + 1;
-            FileStream_Close(pStream);
+        dwErrCode = FileStream_CreateFile(&ha->pStream, szMpqName);
+        if (dwErrCode != ERROR_SUCCESS) {
+            STORM_FREE(ha);
+            ha = NULL;
         }
     }
     if(dwErrCode == ERROR_SUCCESS)
@@ -880,7 +885,7 @@ void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq)
 {
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
     if (WriteHeaderAndTables(ha)) {
-        FileStream_SetSize(ha->pStream, ha->pHeader.dwArchiveSize);
+        FileStream_SetSize(&ha->pStream, ha->pHeader.dwArchiveSize);
     }
     FreeArchiveHandle(ha);
 }
@@ -1070,10 +1075,10 @@ static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dw
             break;
     }
     BSWAP_ARRAY32_UNSIGNED(sectoroffsettable, num_sectors);
-    if (!FileStream_Write(ha->pStream, pBlk->dwFilePos, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
+    if (!FileStream_Write(&ha->pStream, pBlk->dwFilePos, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
         goto on_error;
 
-    if (!FileStream_Write(ha->pStream, pBlk->dwFilePos + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
+    if (!FileStream_Write(&ha->pStream, pBlk->dwFilePos + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
         goto on_error;
 
     if (destsize < pBlk->dwCSize) {
