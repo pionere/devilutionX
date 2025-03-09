@@ -1721,9 +1721,9 @@ void FreeFileHandle(TMPQFile *& hf)
 void FreeFileHandle(TMPQFile * hf)
 #endif // FULL
 {
+#ifdef FULL
     if(hf != NULL)
     {
-#ifdef FULL
         // If we have patch file attached to this one, free it first
         if(hf->hfPatch != NULL)
             FreeFileHandle(hf->hfPatch);
@@ -1743,14 +1743,13 @@ void FreeFileHandle(TMPQFile * hf)
             STORM_FREE(hf->pbFileSector);
         if(hf->pStream != NULL)
             FileStream_Close(hf->pStream);
-#else
-        if(hf->pFileEntry == NULL)
-            // local file
-            FileStream_Close(&hf->pStream);
-#endif
         STORM_FREE(hf);
         hf = NULL;
     }
+#else
+            // assert(local file)
+            FileStream_Close(&hf->pStream);
+#endif
 }
 
 // Frees the MPQ archive

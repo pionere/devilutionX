@@ -894,15 +894,11 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
 
 //-----------------------------------------------------------------------------
 // SFileReadFile
-
+#ifdef FULL
 bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/)
 {
-#ifdef FULL
     TMPQFile * hf;
     DWORD dwBytesRead = 0;                      // Number of bytes read
-#else
-    TMPQFile * hf = IsValidFileHandle(hFile);
-#endif
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Always zero the result
@@ -980,10 +976,24 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
 #endif
     return (dwErrCode == ERROR_SUCCESS);
 }
+#else
+DWORD   WINAPI SFileReadMpqFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead)
+{
+    TMPQFile *hf = IsValidFileHandle(hFile);
 
+    return ReadMpqFileSectorFile(hf, lpBuffer, dwToRead);
+}
+
+DWORD   WINAPI SFileReadLocalFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead)
+{
+    TMPQFile *hf = IsValidFileHandle(hFile);
+
+    return ReadMpqFileLocalFile(hf, lpBuffer, dwToRead);
+}
+#endif
 //-----------------------------------------------------------------------------
 // SFileGetFileSize
-
+#ifdef FULL
 DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 {
 #ifdef FULL
@@ -1039,6 +1049,24 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
     return FileSize;
 #endif
 }
+#else
+DWORD WINAPI SFileGetLocalFileSize(HANDLE hFile)
+{
+    DWORD FileSize = 0;
+    TMPQFile *hf = IsValidFileHandle(hFile);
+
+    FileSize = (DWORD)FileStream_GetSize(&hf->pStream);
+    return FileSize;
+}
+DWORD WINAPI SFileGetMpqFileSize(HANDLE hFile)
+{
+    DWORD FileSize = 0;
+    TMPQFile *hf = IsValidFileHandle(hFile);
+
+    FileSize = hf->pFileEntry->dwFSize;
+    return FileSize;
+}
+#endif
 #ifdef FULL
 DWORD WINAPI SFileGetFilePointer(HANDLE hFile)
 {

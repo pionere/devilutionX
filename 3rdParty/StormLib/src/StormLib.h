@@ -1126,17 +1126,22 @@ void   WINAPI SFileCloseArchive(HANDLE hMpq);
 #ifdef FULL
 bool   WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
-#else
-bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * phFile);
-bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * phFile);
-DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
-#endif
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
+#else
+bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, TMPQFile * pFile);
+bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, TMPQFile * pFile);
+DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
+DWORD  WINAPI SFileGetLocalFileSize(HANDLE hFile);
+DWORD  WINAPI SFileGetMpqFileSize(HANDLE hFile);
+#endif
 #ifdef FULL
 DWORD  WINAPI SFileGetFilePointer(HANDLE hFile);
 DWORD  WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
-#endif
 bool   WINAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/);
+#else
+DWORD  WINAPI SFileReadMpqFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead);
+DWORD  WINAPI SFileReadLocalFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead);
+#endif
 void   WINAPI SFileCloseFile(HANDLE hFile);
 
 // Retrieving info about a file in the archive

@@ -723,12 +723,12 @@ bool WINAPI SFileReopenArchive(HANDLE hMpq, const TCHAR * szMpqName)
 
 DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
 {
-    HANDLE file;
+    TMPQFile file;
     BYTE* buf;
     DWORD fileLen = 0;
 
     if (SFileOpenFileEx(hMpq, szFileName, &file)) {
-        fileLen = SFileGetFileSize(file);
+        fileLen = SFileGetMpqFileSize(&file);
 
         if (fileLen != 0 && dest != NULL) {
             buf = *dest;
@@ -736,7 +736,7 @@ DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
                 buf = STORM_ALLOC(BYTE, fileLen);
             }
             if (buf != NULL) {
-                if (!SFileReadFile(file, buf, fileLen)) {
+                if (SFileReadMpqFileEx(&file, buf, fileLen) != ERROR_SUCCESS) {
                     STORM_FREE(buf);
                     // buf = NULL;
                     fileLen = 0; // failure with -1 ?
@@ -747,7 +747,7 @@ DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
             *dest = buf;
         }
 
-        SFileCloseFile(file);
+        // SFileCloseFile(&file);
     }
 
     return fileLen;
@@ -755,12 +755,12 @@ DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
 
 DWORD WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest)
 {
-    HANDLE file;
+    TMPQFile file;
     BYTE* buf;
     DWORD fileLen = 0;
 
     if (SFileOpenLocalFileEx(szFileName, &file)) {
-        fileLen = SFileGetFileSize(file);
+        fileLen = SFileGetLocalFileSize(&file);
 
         if (fileLen != 0 && dest != NULL) {
             buf = *dest;
@@ -768,7 +768,7 @@ DWORD WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest)
                 buf = STORM_ALLOC(BYTE, fileLen);
             }
             if (buf != NULL) {
-                if (!SFileReadFile(file, buf, fileLen)) {
+                if (SFileReadLocalFileEx(&file, buf, fileLen) != ERROR_SUCCESS) {
                     STORM_FREE(buf);
                     // buf = NULL;
                     fileLen = 0; // failure with -1 ?
@@ -779,7 +779,7 @@ DWORD WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest)
             *dest = buf;
         }
 
-        SFileCloseFile(file);
+        SFileCloseFile(&file);
     }
 
     return fileLen;
