@@ -71,6 +71,17 @@ void FreeArchives()
 }
 
 #if DEV_MODE
+static std::string assetPath(const std::string &basePath, std::string &entry)
+{
+#ifndef _WIN32
+	int i;
+	for (i = 0; i < entry.size(); ++i)
+		if (entry[i] == '\\')
+			entry[i] = '/';
+#endif
+	return basePath + entry;
+}
+
 static void CreateMpq(const char* destMpqName, const char* folder, const char* files)
 {
 	if (FileExists(destMpqName))
@@ -84,7 +95,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	while (std::getline(input, line)) {
 		if (line[0] == '_')
 			continue;
-		std::string path = basePath + line.c_str();
+		std::string path = assetPath(basePath, line);
 		if (SFileReadLocalFile(path.c_str(), NULL) == 0)
 			app_fatal("Missing file: %s", path.c_str());
 		entryCount++;
@@ -105,7 +116,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	while (std::getline(input, line)) {
 		if (line[0] == '_')
 			continue;
-		std::string path = basePath + line.c_str();
+		std::string path = assetPath(basePath, line);
 		BYTE* buf = NULL;
 		DWORD fileSize = SFileReadLocalFile(path.c_str(), &buf);
 		if (fileSize == 0) {
