@@ -60,7 +60,7 @@ DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 			path[i] = AsciiToLowerTable_Path[static_cast<unsigned char>(path[i])];
 		result = SFileReadLocalFile(path.c_str(), dest);
 	}
-	for (i = 0; i < NUM_MPQS && result == 0; i++) {
+	for (i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == 0; i++) {
 		if (diabdat_mpqs[i] == NULL)
 			continue;
 		result = SFileReadArchive(diabdat_mpqs[i], filename, dest);
