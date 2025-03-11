@@ -18,14 +18,14 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth)
 {
-	int i;
-	int8_t width;
 	const BYTE *src, *end;
 	BYTE* dst;
+	int i;
+	int8_t width;
 
-	assert(pDecodeTo != NULL);
-	assert(pRLEBytes != NULL);
-	assert(gpBuffer != NULL);
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
@@ -59,14 +59,14 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
  */
 static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, const BYTE* tbl)
 {
-	int i;
-	int8_t width;
 	const BYTE *src, *end;
 	BYTE* dst;
+	int i;
+	int8_t width;
 
-	assert(pDecodeTo != NULL);
-	assert(pRLEBytes != NULL);
-	assert(gpBuffer != NULL);
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
@@ -173,16 +173,15 @@ void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const 
  */
 static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth)
 {
+	const BYTE *tbl, *src, *end;
+	BYTE* dst;
 	int i;
 	BOOLEAN shift;
 	int8_t width;
-	const BYTE *tbl, *src, *end;
-	BYTE* dst;
 
-	assert(pDecodeTo != NULL);
-	assert(pRLEBytes != NULL);
-	assert(gpBuffer != NULL);
-
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
@@ -354,9 +353,9 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 	int i;
 	int8_t width;
 
-	assert(gpBuffer != NULL);
-	assert(pDecodeTo != NULL);
-	assert(pRLEBytes != NULL);
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
@@ -417,8 +416,8 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
 	const BYTE* pRLEBytes;
 	BYTE* pDecodeTo;
 
-	assert(pCelBuff != NULL);
 	assert(gpBuffer != NULL);
+	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
