@@ -347,28 +347,20 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 	}
 }*/
 
-/**
- * @brief Blit CEL sprite with an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates
- * @param col color of the sprite and the outline (Color index from current palette)
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- * @param pCelBuff CEL buffer
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
+static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, BYTE col)
 {
-	int nDataSize, i;
 	const BYTE *src, *end;
 	BYTE* dst;
+	int i;
 	int8_t width;
 
-	assert(pCelBuff != NULL);
 	assert(gpBuffer != NULL);
+	assert(pDecodeTo != NULL);
+	assert(pRLEBytes != NULL);
 
-	src = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	end = &src[nDataSize];
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	src = pRLEBytes;
+	end = &pRLEBytes[nDataSize];
+	dst = pDecodeTo;
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
@@ -408,6 +400,30 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
 			}
 		}
 	}
+}
+
+/**
+ * @brief Blit CEL sprite with an outline one pixel larger then the given sprite shape to the target buffer at the given coordinates
+ * @param col color of the sprite and the outline (Color index from current palette)
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
+ * @param pCelBuff CEL buffer
+ * @param nCel CEL frame number
+ * @param nWidth Width of sprite
+ */
+void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
+{
+	int nDataSize;
+	const BYTE* pRLEBytes;
+	BYTE* pDecodeTo;
+
+	assert(pCelBuff != NULL);
+	assert(gpBuffer != NULL);
+
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
+	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+
+	CelBlitOutline(pDecodeTo, pRLEBytes, nDataSize, nWidth, col);
 }
 
 DEVILUTION_END_NAMESPACE
