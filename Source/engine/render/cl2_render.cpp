@@ -169,7 +169,6 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 								dst[-1] = col;
 								dst[1] = col;
 								dst[-BUFFER_WIDTH] = col;
-								// BUGFIX: only set `if (dst+BUFFER_WIDTH < gpBufEnd)`
 								dst[BUFFER_WIDTH] = col;
 							}
 							dst++;
@@ -290,8 +289,10 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
+	gpBufStart += BUFFER_WIDTH;
 	gpBufEnd -= BUFFER_WIDTH;
 	Cl2BlitOutline(pDecodeTo, pRLEBytes, nDataSize, nWidth, col);
+	gpBufStart -= BUFFER_WIDTH;
 	gpBufEnd += BUFFER_WIDTH;
 }
 
