@@ -269,20 +269,17 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
 {
 	int nDataSize;
 	const BYTE* pRLEBytes;
+	BYTE* pDecodeTo;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
+	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
 	gpBufEnd -= BUFFER_WIDTH;
-	Cl2BlitOutline(
-	    &gpBuffer[sx + BUFFER_WIDTH * sy],
-	    pRLEBytes,
-	    nDataSize,
-	    nWidth,
-	    col);
+	Cl2BlitOutline(pDecodeTo, pRLEBytes, nDataSize, nWidth, col);
 	gpBufEnd += BUFFER_WIDTH;
 }
 
