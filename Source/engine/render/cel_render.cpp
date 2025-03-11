@@ -366,7 +366,7 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 			width = *src++;
 			if (width >= 0) {
 				i -= width;
-				if (dst < gpBufEnd && dst >= gpBufStart) {
+				//if (dst < gpBufEnd && dst >= gpBufStart) {
 					//if (dst >= gpBufEnd - BUFFER_WIDTH) {
 					//	while (width != 0) {
 					//		if (*src++) {
@@ -389,10 +389,10 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 							width--;
 						}
 					//}
-				} else {
-					src += width;
-					dst += width;
-				}
+				//} else {
+				//	src += width;
+				//	dst += width;
+				//}
 			} else {
 				dst -= width;
 				i += width;
@@ -422,11 +422,11 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
 	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	gpBufStart += BUFFER_WIDTH;
-	gpBufEnd -= BUFFER_WIDTH;
+	// gpBufStart += BUFFER_WIDTH;
+	// gpBufEnd -= BUFFER_WIDTH;
 	CelBlitOutline(pDecodeTo, pRLEBytes, nDataSize, nWidth, col);
-	gpBufStart -= BUFFER_WIDTH;
-	gpBufEnd += BUFFER_WIDTH;
+	// gpBufStart -= BUFFER_WIDTH;
+	// gpBufEnd += BUFFER_WIDTH;
 }
 
 DEVILUTION_END_NAMESPACE
