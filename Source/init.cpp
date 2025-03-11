@@ -90,14 +90,15 @@ void InitArchives()
 {
 	InitializeMpqCryptography();
 	ReadOnlyTest();
-	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
-
+	bool directFileAccess = getIniBool("Diablo", "Direct FileAccess", false);
+	SFileEnableDirectAccess(directFileAccess);
 #if USE_MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
 		return;
 #if !CREATE_MPQONE
-	app_fatal("Can not find/access '%s' in the game folder.", MPQONE);
+	//if (!directFileAccess)
+	//	app_fatal("Can not find/access '%s' in the game folder.", MPQONE);
 	return;
 #endif
 	HANDLE diabdat_mpqs[NUM_MPQS];
@@ -118,8 +119,8 @@ void InitArchives()
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT);
-	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
+	//if (!directFileAccess && diabdat_mpqs[MPQ_DIABDAT] == NULL)
+	//	app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
 	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
 	//if (SFileReadArchive(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL) == 0)
 	//	InsertCDDlg();
@@ -135,14 +136,14 @@ void InitArchives()
 	//diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
 #endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
-	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
+	//if (!directFileAccess && diabdat_mpqs[MPQ_DEVILX] == NULL)
+	//	app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
 #if ASSET_MPL != 1
 	char tmpstr[32];
 	snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
 	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr);
-	if (diabdat_mpqs[MPQ_DEVILHD] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
+	//if (!directFileAccess && diabdat_mpqs[MPQ_DEVILHD] == NULL)
+	//	app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif
 
 #if CREATE_MPQONE

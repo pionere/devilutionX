@@ -41,7 +41,7 @@ DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 		result = SFileReadLocalFile(path.c_str(), dest);
 	}
 #if USE_MPQONE
-	if (result == 0)
+	if (result == 0 && diabdat_mpq != NULL)
 		SFileReadArchive(diabdat_mpq, filename, dest);
 #else
 	for (i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == 0; i++) {
