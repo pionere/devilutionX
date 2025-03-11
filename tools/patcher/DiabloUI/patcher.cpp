@@ -122,6 +122,30 @@ typedef enum filenames {
 	FILE_MON_GOATLD,
 #endif
 #endif // HELLFIRE
+#if ASSET_MPL == 1
+	FILE_ITEM_ARMOR2,
+	FILE_ITEM_GOLDFLIP,
+	FILE_ITEM_MACE,
+	FILE_ITEM_STAFF,
+	FILE_ITEM_RING,
+	FILE_ITEM_CROWNF,
+	FILE_ITEM_LARMOR,
+	FILE_ITEM_WSHIELD,
+	FILE_ITEM_SCROLL,
+	FILE_ITEM_FEAR,
+	FILE_ITEM_FBRAIN,
+	FILE_ITEM_FMUSH,
+	FILE_ITEM_INNSIGN,
+	FILE_ITEM_BLDSTN,
+	FILE_ITEM_FANVIL,
+	FILE_ITEM_FLAZSTAF,
+#ifdef HELLFIRE
+	FILE_ITEM_TEDDYS1,
+	FILE_ITEM_COWS1,
+	FILE_ITEM_DONKYS1,
+	FILE_ITEM_MOOSES1,
+#endif
+#endif
 	FILE_OBJCURS_CEL,
 	NUM_FILENAMES
 } filenames;
@@ -228,6 +252,30 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_GOATLD*/    "Monsters\\GoatLord\\GoatLd.CL2",
 #endif
 #endif // HELLFIRE
+#if ASSET_MPL == 1
+/*FILE_ITEM_ARMOR2*/   "Items\\Armor2.CEL",
+/*FILE_ITEM_GOLDFLIP*/ "Items\\GoldFlip.CEL",
+/*FILE_ITEM_MACE*/     "Items\\Mace.CEL",
+/*FILE_ITEM_STAFF*/    "Items\\Staff.CEL",
+/*FILE_ITEM_RING*/     "Items\\Ring.CEL",
+/*FILE_ITEM_CROWNF*/   "Items\\CrownF.CEL",
+/*FILE_ITEM_LARMOR*/   "Items\\LArmor.CEL",
+/*FILE_ITEM_WSHIELD*/  "Items\\WShield.CEL",
+/*FILE_ITEM_SCROLL*/   "Items\\Scroll.CEL",
+/*FILE_ITEM_FEAR*/     "Items\\FEar.CEL",
+/*FILE_ITEM_FBRAIN*/   "Items\\FBrain.CEL",
+/*FILE_ITEM_FMUSH*/    "Items\\FMush.CEL",
+/*FILE_ITEM_INNSIGN*/  "Items\\Innsign.CEL",
+/*FILE_ITEM_BLDSTN*/   "Items\\Bldstn.CEL",
+/*FILE_ITEM_FANVIL*/   "Items\\Fanvil.CEL",
+/*FILE_ITEM_FLAZSTAF*/ "Items\\FLazStaf.CEL",
+#ifdef HELLFIRE
+/*FILE_ITEM_TEDDYS1*/  "Items\\teddys1.CEL",
+/*FILE_ITEM_COWS1*/    "Items\\cows1.CEL",
+/*FILE_ITEM_DONKYS1*/  "Items\\donkys1.CEL",
+/*FILE_ITEM_MOOSES1*/  "Items\\mooses1.CEL",
+#endif
+#endif
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 };
 
@@ -3900,6 +3948,392 @@ BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	return resCl2Buf;
 }
 
+static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr int FRAME_WIDTH = 96;
+	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) ? 128 : 160;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	// create the new CEL file
+	size_t maxCelSize = 2 * *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(srcCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
+	for (int i = 0; i < srcCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+
+		// center frames
+		// - shift crown, larmor, wshield (-12;0), ear (-16;0)
+		if (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) {
+			// check if it is already done
+			if (i == 0) {
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH / 2 - 1; x++) {
+						if (gpBuffer[x + y * BUFFER_WIDTH] == TRANS_COLOR) continue;
+						mem_free_dbg(resCelBuf);
+						return celBuf; // assume it is already done
+					}
+				}
+			}
+			for (int y = 0; y < FRAME_HEIGHT; y++) {
+				for (int x = 16; x < FRAME_WIDTH; x++) {
+					gpBuffer[(x - (fileIndex == FILE_ITEM_FEAR ? 16 : 12)) + y * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift mace (+2;-2)
+		if (fileIndex == FILE_ITEM_MACE) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[41 + 91 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = 2; y < FRAME_HEIGHT; y++) {
+				for (int x = FRAME_WIDTH - 1 - 2; x >= 0; x--) {
+					gpBuffer[(x + 2) + (y - 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift scroll (0;-2)
+		if (fileIndex == FILE_ITEM_SCROLL) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[51 + 94 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = 2; y < FRAME_HEIGHT; y++) {
+				for (int x = FRAME_WIDTH - 1 - 0; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y - 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift ring (0;-3)
+		if (fileIndex == FILE_ITEM_RING) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[45 + 87 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = 3; y < FRAME_HEIGHT; y++) {
+				for (int x = FRAME_WIDTH - 1 - 0; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y - 3) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift staff (-7;+5)
+		if (fileIndex == FILE_ITEM_STAFF) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[53 + 52 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 5; y >= 0; y--) {
+				for (int x = 7; x < FRAME_WIDTH; x++) {
+					gpBuffer[(x - 7) + (y + 5) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift brain (+5;+11)
+		if (fileIndex == FILE_ITEM_FBRAIN) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[40 + 85 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 11; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 5; x >= 0; x--) {
+					gpBuffer[(x + 5) + (y + 11) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift mushroom (0;+6)
+		if (fileIndex == FILE_ITEM_FMUSH) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[43 + 83 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 6; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 0; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y + 6) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift innsign (+14;+8)
+		if (fileIndex == FILE_ITEM_INNSIGN) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[18 + 96 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 8; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 14; x >= 0; x--) {
+					gpBuffer[(x + 14) + (y + 8) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift bloodstone (0;+5)
+		if (fileIndex == FILE_ITEM_BLDSTN) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[45 + 75 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 5; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 0; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y + 5) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift anvil (+3;+6)
+		if (fileIndex == FILE_ITEM_FANVIL) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[22 + 80 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 6; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 3; x >= 0; x--) {
+					gpBuffer[(x + 3) + (y + 6) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift lazarus's staff (-3;+8)
+		if (fileIndex == FILE_ITEM_FLAZSTAF) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[30 + 58 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 8; y >= 0; y--) {
+				for (int x = 3; x < FRAME_WIDTH; x++) {
+					gpBuffer[(x - 3) + (y + 8) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+			// fix the shadow of the staff
+			if (i == 6) {
+				gpBuffer[51 + 127 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[63 + 131 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[64 + 131 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[35 + 140 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[36 + 140 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[39 + 140 * BUFFER_WIDTH] = 0;
+			}
+			if (i == 7) {
+				for (int x = 27; x < 38; x++)
+					gpBuffer[x + 140 * BUFFER_WIDTH] = TRANS_COLOR;
+				for (int x = 62; x < 66; x++)
+					gpBuffer[x + 139 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[73 + 140 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[74 + 140 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[81 + 139 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[48 + 140 * BUFFER_WIDTH] = 0;
+				gpBuffer[49 + 140 * BUFFER_WIDTH] = 0;
+			}
+		}
+		// - shift armor (0;-2)
+		if (fileIndex == FILE_ITEM_ARMOR2) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[29 + 111 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = 2; y < FRAME_HEIGHT; y++) {
+				for (int x = FRAME_WIDTH - 1; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y - 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+			// mask shadow
+			if (i == 14) {
+				gpBuffer[22 + 147 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[23 + 147 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[20 + 148 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[21 + 148 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[22 + 148 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[23 + 148 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[23 + 149 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[24 + 149 * BUFFER_WIDTH] = TRANS_COLOR;
+				gpBuffer[25 + 149 * BUFFER_WIDTH] = TRANS_COLOR;
+			}
+		}
+#ifdef HELLFIRE
+		// - shift cowhide (+2;+4)
+		if (fileIndex == FILE_ITEM_COWS1) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[30 + 78 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 4; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 2; x >= 0; x--) {
+					gpBuffer[(x + 2) + (y + 4) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift last frame of donkeyhide (+2;+4)
+		if (i == 14 && fileIndex == FILE_ITEM_DONKYS1) {
+			// check if it is already done
+			if (gpBuffer[40 + 119 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 4; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 2; x >= 0; x--) {
+					gpBuffer[(x + 2) + (y + 4) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift moosehide (0;+3)
+		if (fileIndex == FILE_ITEM_MOOSES1) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[44 + 83 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 3; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 0; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y + 3) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+		// - shift teddy (0;+6)
+		if (fileIndex == FILE_ITEM_TEDDYS1) {
+			// check if it is already done
+			if (i == 0 && gpBuffer[46 + 100 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			for (int y = FRAME_HEIGHT - 1 - 6; y >= 0; y--) {
+				for (int x = FRAME_WIDTH - 1 - 0; x >= 0; x--) {
+					gpBuffer[(x + 0) + (y + 6) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
+					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+				}
+			}
+		}
+#endif
+		// reduce gold stack
+		if (fileIndex == FILE_ITEM_GOLDFLIP) {
+			// check if it is already done
+			if (i == 4 && gpBuffer[22 + 147 * BUFFER_WIDTH] == TRANS_COLOR) {
+				mem_free_dbg(resCelBuf);
+				return celBuf; // assume it is already done
+			}
+			if (i == 4) {
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH; x++) {
+						if (y >= 144 + x - 27)
+							gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			if (i == 5) {
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH; x++) {
+						if (x <= 23)
+							gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			if (i == 6) {
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH; x++) {
+						if (y >= 150 - x + 63 || y >= 146 + x - 24)
+							gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			if (i == 7) {
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH; x++) {
+						if (x <= 23 || y >= 152 - x + 63 || y >= 146 + x - 23 || (x <= 34 && y >= 150))
+							gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			if (i == 8 || i == 9) {
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH; x++) {
+						if (y >= 152 - x + 63 || y >= 146 + x - 23 || (x <= 34 && y >= 150) || (x <= 39 && y >= 152) || (x >= 57 && y >= 153) || (x <= 34 && y <= 136))
+							gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+			if (i == 9) {
+				gpBuffer[37 + 149 * BUFFER_WIDTH] = 203; // (was color204)
+				gpBuffer[38 + 149 * BUFFER_WIDTH] = 198; // (was color204)
+				gpBuffer[37 + 150 * BUFFER_WIDTH] = 199; // (was transparent)
+				gpBuffer[38 + 150 * BUFFER_WIDTH] = 196; // (was transparent)
+				gpBuffer[39 + 150 * BUFFER_WIDTH] = 196; // (was color204)
+				gpBuffer[40 + 150 * BUFFER_WIDTH] = 197; // (was color204)
+				gpBuffer[37 + 151 * BUFFER_WIDTH] = 204; // (was transparent)
+				gpBuffer[38 + 151 * BUFFER_WIDTH] = 201; // (was transparent)
+				gpBuffer[39 + 151 * BUFFER_WIDTH] = 198; // (was transparent)
+				gpBuffer[40 + 151 * BUFFER_WIDTH] = 204; // (was transparent)
+				gpBuffer[40 + 153 * BUFFER_WIDTH] = TRANS_COLOR; // (was color203)
+				gpBuffer[41 + 153 * BUFFER_WIDTH] = TRANS_COLOR; // (was color198)
+				gpBuffer[42 + 153 * BUFFER_WIDTH] = TRANS_COLOR; // (was color198)
+				gpBuffer[44 + 153 * BUFFER_WIDTH] = 202; // (was color198)
+				gpBuffer[40 + 154 * BUFFER_WIDTH] = TRANS_COLOR; // (was color197)
+				gpBuffer[41 + 154 * BUFFER_WIDTH] = TRANS_COLOR; // (was color196)
+				gpBuffer[42 + 154 * BUFFER_WIDTH] = TRANS_COLOR; // (was color196)
+				gpBuffer[43 + 154 * BUFFER_WIDTH] = TRANS_COLOR; // (was color196)
+				gpBuffer[44 + 154 * BUFFER_WIDTH] = TRANS_COLOR; // (was color202)
+				gpBuffer[40 + 155 * BUFFER_WIDTH] = TRANS_COLOR; // (was color199)
+				gpBuffer[41 + 155 * BUFFER_WIDTH] = TRANS_COLOR; // (was color196)
+				gpBuffer[42 + 155 * BUFFER_WIDTH] = TRANS_COLOR; // (was color196)
+				gpBuffer[43 + 155 * BUFFER_WIDTH] = TRANS_COLOR; // (was color197)
+				gpBuffer[44 + 155 * BUFFER_WIDTH] = TRANS_COLOR; // (was color204)
+				gpBuffer[40 + 156 * BUFFER_WIDTH] = TRANS_COLOR; // (was color204)
+				gpBuffer[41 + 156 * BUFFER_WIDTH] = TRANS_COLOR; // (was color201)
+				gpBuffer[42 + 156 * BUFFER_WIDTH] = TRANS_COLOR; // (was color198)
+				gpBuffer[43 + 156 * BUFFER_WIDTH] = TRANS_COLOR; // (was color204
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
+
+	return resCelBuf;
+}
+
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -4421,6 +4855,33 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 #endif // ASSET_MPL
 #endif // HELLFIRE
+#if ASSET_MPL == 1
+	case FILE_ITEM_ARMOR2:
+	case FILE_ITEM_GOLDFLIP:
+	case FILE_ITEM_MACE:
+	case FILE_ITEM_STAFF:
+	case FILE_ITEM_RING:
+	case FILE_ITEM_CROWNF:
+	case FILE_ITEM_LARMOR:
+	case FILE_ITEM_WSHIELD:
+	case FILE_ITEM_SCROLL:
+	case FILE_ITEM_FEAR:
+	case FILE_ITEM_FBRAIN:
+	case FILE_ITEM_FMUSH:
+	case FILE_ITEM_INNSIGN:
+	case FILE_ITEM_BLDSTN:
+	case FILE_ITEM_FANVIL:
+	case FILE_ITEM_FLAZSTAF:
+#ifdef HELLFIRE
+	case FILE_ITEM_TEDDYS1:
+	case FILE_ITEM_COWS1:
+	case FILE_ITEM_DONKYS1:
+	case FILE_ITEM_MOOSES1:
+#endif
+	{	// fix item gfx files to improve the drop-animations
+		buf = patchFloorItems(index, buf, dwLen);
+	} break;
+#endif // ASSET_MPL
 	case FILE_OBJCURS_CEL:
 	{
 #ifdef HELLFIRE
