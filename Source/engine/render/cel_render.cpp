@@ -124,14 +124,16 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
 {
 	int nDataSize;
+	BYTE* pDecodeTo;
 	const BYTE* pRLEBytes;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
+	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
 
-	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, pCelBuff->ciWidth);
+	CelBlit(pDecodeTo, pRLEBytes, nDataSize, pCelBuff->ciWidth);
 }
 
 /**
