@@ -727,7 +727,7 @@ DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
     BYTE* buf;
     DWORD fileLen = 0;
 
-    if (SFileOpenFileEx(hMpq, szFileName, &file)) {
+    if (hMpq != NULL && SFileOpenFileEx(hMpq, szFileName, &file)) {
         fileLen = SFileGetMpqFileSize(&file);
 
         if (fileLen != 0 && dest != NULL) {

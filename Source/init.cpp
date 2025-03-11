@@ -158,7 +158,6 @@ void InitArchives()
 	int entryCount = 0;
 	while (std::getline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
-			if (diabdat_mpqs[i] == NULL) continue;
 			if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 				entryCount++;
 				break;
@@ -185,7 +184,6 @@ void InitArchives()
 			continue;
 #endif
 		for (i = 0; i < NUM_MPQS; i++) {
-			if (diabdat_mpqs[i] == NULL) continue;
 			BYTE* buf = NULL;
 			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
 			if (dwLen != 0) {
