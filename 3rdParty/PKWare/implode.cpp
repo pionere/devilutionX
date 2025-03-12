@@ -99,24 +99,34 @@ static void SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begin, unsigne
 
 static void FlushBuf(TCmpStruct * pWork)
 {
+#ifdef FULL
     unsigned char save_ch1;
     unsigned char save_ch2;
     unsigned int size = 0x800;
-#ifdef FULL
+
     pWork->write_buf(pWork->out_buff, &size, pWork->param);
-#else
-    pWork->write_buf(pWork->out_buff, size, pWork->param);
-#endif
+
     save_ch1 = pWork->out_buff[0x800];
     save_ch2 = pWork->out_buff[pWork->out_bytes];
     pWork->out_bytes -= 0x800;
+#else
+    unsigned char save_chs[2];
+    unsigned int size = sizeof(pWork->out_buff) - 2;
 
+    pWork->write_buf(pWork->out_buff, size, pWork->param);
+
+    memcpy(save_chs, &pWork->out_buff[size], 2);
+    pWork->out_bytes -= size;
+#endif
     memset(pWork->out_buff, 0, sizeof(pWork->out_buff));
-
+#ifdef FULL
     if(pWork->out_bytes != 0)
         pWork->out_buff[0] = save_ch1;
     if(pWork->out_bits != 0)
         pWork->out_buff[pWork->out_bytes] = save_ch2;
+#else
+    memcpy(&pWork->out_buff[0], save_chs, 2);
+#endif
 }
 
 static void OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit_buff)
@@ -507,7 +517,7 @@ static void WriteCmpData(TCmpStruct * pWork)
             rep_length = FindRep(pWork, input_data);
             while(rep_length != 0)
             {
-                // If we found repetition of 2 bytes, that is 0x100 or fuhrter back,
+                // If we found repetition of 2 bytes, that is 0x100 or further back,
                 // don't bother. Storing the distance of 0x100 bytes would actually
                 // take more space than storing the 2 bytes as-is.
                 if(rep_length == 2 && pWork->distance >= 0x100)
