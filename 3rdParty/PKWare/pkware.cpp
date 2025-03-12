@@ -18,7 +18,11 @@
 //   char * buf          - Pointer to a buffer where to store loaded data
 //   unsigned int * size - Max. number of bytes to read
 //   void * param        - Custom pointer, parameter of implode/explode
+#ifdef FULL
 unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int* size, void* param)
+#else
+unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int size, void* param)
+#endif
 {
     /*TDataInfo* pInfo;
     size_t sSize;
@@ -35,7 +39,11 @@ unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int* size, void* par
     return sSize;*/
     TDataInfo * pInfo = (TDataInfo *)param;
     unsigned int nMaxAvail = (unsigned int)(pInfo->pbInBuffEnd - pInfo->pbInBuff);
+#ifdef FULL
     unsigned int nToRead = *size;
+#else
+    unsigned int nToRead = size;
+#endif
 
     // Check the case when not enough data available
     if(nToRead > nMaxAvail)
@@ -53,7 +61,11 @@ unsigned int PKWAREAPI PkwareBufferRead(char* buf, unsigned int* size, void* par
 //   char * buf          - Pointer to data to be written
 //   unsigned int * size - Number of bytes to write
 //   void * param        - Custom pointer, parameter of implode/explode
+#ifdef FULL
 void PKWAREAPI PkwareBufferWrite(char* buf, unsigned int* size, void* param)
+#else
+void PKWAREAPI PkwareBufferWrite(char* buf, unsigned int size, void* param)
+#endif
 {
     /*TDataInfo* pInfo;
     size_t sSize;
@@ -65,7 +77,11 @@ void PKWAREAPI PkwareBufferWrite(char* buf, unsigned int* size, void* param)
     pInfo->destOffset += sSize;*/
     TDataInfo * pInfo = (TDataInfo *)param;
     unsigned int nMaxWrite = (unsigned int)(pInfo->pbOutBuffEnd - pInfo->pbOutBuff);
+#ifdef FULL
     unsigned int nToWrite = *size;
+#else
+    unsigned int nToWrite = size;
+#endif
 
     // Check the case when not enough space in the output buffer
     if(nToWrite > nMaxWrite)

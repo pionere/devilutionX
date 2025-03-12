@@ -66,9 +66,13 @@ typedef struct TCmpStruct
     unsigned short offs09AE;                // 09AE: 
 #endif
     void         * param;                   // 09B0: User parameter
+#ifdef FULL
     unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param);  // 9B4
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param); // 9B8
-
+#else
+    unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int size, void *param);  // 9B4
+    void         (PKWAREAPI *write_buf)(char *buf, unsigned int size, void *param); // 9B8
+#endif
     unsigned short offs09BC[0x204];         // 09BC:
 #ifdef FULL
     unsigned long  offs0DC4;                // 0DC4: 
@@ -103,8 +107,13 @@ typedef struct
     unsigned int  in_pos;                   // 001C: Position in in_buff
     unsigned long in_bytes;                 // 0020: Number of bytes in input buffer
     void        * param;                    // 0024: Custom parameter
+#ifdef FULL
     unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param); // Pointer to function that reads data from the input stream
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param);// Pointer to function that writes data to the output stream
+#else
+    unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int size, void *param); // Pointer to function that reads data from the input stream
+    void         (PKWAREAPI *write_buf)(char *buf, unsigned int size, void *param);// Pointer to function that writes data to the output stream
+#endif
 
     unsigned char out_buff[0x2204];         // 0030: Output circle buffer.
                                             //       0x0000 - 0x0FFF: Previous uncompressed data, kept for repetitions
@@ -165,8 +174,13 @@ extern const unsigned short ChCodeAsc[0x100];
 #endif
 
 unsigned int PKWAREAPI implode(
+#if FULL
    unsigned int (*read_buf)(char *buf, unsigned int *size, void *param),
    void         (*write_buf)(char *buf, unsigned int *size, void *param),
+#else
+   unsigned int (*read_buf)(char *buf, unsigned int size, void *param),
+   void         (*write_buf)(char *buf, unsigned int size, void *param),
+#endif
    char         *work_buf,
 #if FULL
    void         *param,
@@ -178,14 +192,19 @@ unsigned int PKWAREAPI implode(
 
 
 unsigned int PKWAREAPI explode(
+#if FULL
    unsigned int (*read_buf)(char *buf, unsigned  int *size, void *param),
    void         (*write_buf)(char *buf, unsigned  int *size, void *param),
+#else
+   unsigned int (*read_buf)(char *buf, unsigned  int size, void *param),
+   void         (*write_buf)(char *buf, unsigned  int size, void *param),
+#endif
    char         *work_buf,
    void         *param);
 
 #ifndef FULL
-unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param);
-void PkwareBufferWrite(char* buf, unsigned int* size, void* param);
+unsigned int PkwareBufferRead(char* buf, unsigned int size, void* param);
+void PkwareBufferWrite(char* buf, unsigned int size, void* param);
 #endif
 
 #ifdef __cplusplus

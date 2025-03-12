@@ -102,9 +102,11 @@ static void FlushBuf(TCmpStruct * pWork)
     unsigned char save_ch1;
     unsigned char save_ch2;
     unsigned int size = 0x800;
-
+#ifdef FULL
     pWork->write_buf(pWork->out_buff, &size, pWork->param);
-
+#else
+    pWork->write_buf(pWork->out_buff, size, pWork->param);
+#endif
     save_ch1 = pWork->out_buff[0x800];
     save_ch2 = pWork->out_buff[pWork->out_bytes];
     pWork->out_bytes -= 0x800;
@@ -444,7 +446,11 @@ static void WriteCmpData(TCmpStruct * pWork)
         while(bytes_to_load != 0)
         {
             bytes_loaded = pWork->read_buf((char *)pWork->work_buff + pWork->dsize_bytes + MAX_REP_LENGTH + total_loaded,
+#ifdef FULL
                                                   &bytes_to_load,
+#else
+                                                  bytes_to_load,
+#endif
                                                    pWork->param);
             if(bytes_loaded == 0)
             {
@@ -603,7 +609,11 @@ __Exit:
     OutputBits(pWork, pWork->nChBits[0x305], pWork->nChCodes[0x305]);
     if(pWork->out_bits != 0)
         pWork->out_bytes++;
+#ifdef FULL
     pWork->write_buf(pWork->out_buff, &pWork->out_bytes, pWork->param);
+#else
+    pWork->write_buf(pWork->out_buff, pWork->out_bytes, pWork->param);
+#endif
     return;
 }
 
@@ -611,8 +621,13 @@ __Exit:
 // Main imploding function
 
 unsigned int PKWAREAPI implode(
+#ifdef FULL
     unsigned int (*read_buf)(char *buf, unsigned int *size, void *param),
     void         (*write_buf)(char *buf, unsigned int *size, void *param),
+#else
+    unsigned int (*read_buf)(char *buf, unsigned int size, void *param),
+    void         (*write_buf)(char *buf, unsigned int size, void *param),
+#endif
     char         *work_buf,
 #ifdef FULL
     void         *param,
