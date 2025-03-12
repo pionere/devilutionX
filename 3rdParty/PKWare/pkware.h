@@ -54,14 +54,16 @@ typedef struct TCmpStruct
     unsigned int   dsize_bytes;             // 0018: Dictionary size in bytes
     unsigned char  dist_bits[0x40];         // 001C: Distance bits
     unsigned char  dist_codes[0x40];        // 005C: Distance codes
+    unsigned char  nChBits[0x306];          // 009C: Table of literal bit lengths to be put to the output stream
+    unsigned short nChCodes[0x306];         // 03A2: Table of literal codes to be put to the output stream
 #else
     static const unsigned int dsize_bits = 4 + 2;  // 000C: Number of bits needed for dictionary size. 4 = 0x400, 5 = 0x800, 6 = 0x1000
     static const unsigned int dsize_mask = 0x0F | 0x20 | 0x10; // 0010: Bit mask for dictionary. 0x0F = 0x400, 0x1F = 0x800, 0x3F = 0x1000
     static const unsigned int ctype = CMP_BINARY;  // 0014: Compression type (CMP_ASCII or CMP_BINARY)
     static const unsigned int dsize_bytes = CMP_IMPLODE_DICT_SIZE3; // 0018: Dictionary size in bytes
+    unsigned char  nChBits[0x206];          // 009C: Table of literal bit lengths to be put to the output stream
+    unsigned short nChCodes[0x206];         // 03A2: Table of literal codes to be put to the output stream
 #endif
-    unsigned char  nChBits[0x306];          // 009C: Table of literal bit lengths to be put to the output stream
-    unsigned short nChCodes[0x306];         // 03A2: Table of literal codes to be put to the output stream
 #ifdef FULL
     unsigned short offs09AE;                // 09AE: 
 #endif

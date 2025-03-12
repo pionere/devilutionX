@@ -548,7 +548,11 @@ static void WriteCmpData(TCmpStruct * pWork)
                     if(rep_length > save_rep_length + 1 || save_distance > 0x80)
                     {
                         // Flush one byte, so that input_data will point to the secondary repetition
+#ifdef FULL
                         OutputBits(pWork, pWork->nChBits[*input_data], pWork->nChCodes[*input_data]);
+#else
+                        OutputBits(pWork, 9, 2 * (*input_data));
+#endif
                         input_data++;
                         continue;
                     }
@@ -559,8 +563,11 @@ static void WriteCmpData(TCmpStruct * pWork)
                 pWork->distance = save_distance;
 
                 __FlushRepetition:
-
+#ifdef FULL
                 OutputBits(pWork, pWork->nChBits[rep_length + 0xFE], pWork->nChCodes[rep_length + 0xFE]);
+#else
+                OutputBits(pWork, pWork->nChBits[rep_length - 2], pWork->nChCodes[rep_length - 2]);
+#endif
                 if(rep_length == 2)
                 {
 #ifdef FULL
@@ -591,7 +598,11 @@ static void WriteCmpData(TCmpStruct * pWork)
 
             // If there was no previous repetition for the current position in the input data,
             // just output the 9-bit literal for the one character
+#ifdef FULL
             OutputBits(pWork, pWork->nChBits[*input_data], pWork->nChCodes[*input_data]);
+#else
+            OutputBits(pWork, 9, 2 * (*input_data));
+#endif
             input_data++;
 _00402252:;
         }
@@ -606,7 +617,11 @@ _00402252:;
 __Exit:
 
     // Write the termination literal
+#ifdef FULL
     OutputBits(pWork, pWork->nChBits[0x305], pWork->nChCodes[0x305]);
+#else
+    OutputBits(pWork, pWork->nChBits[0x205], pWork->nChCodes[0x205]);
+#endif
     if(pWork->out_bits != 0)
         pWork->out_bytes++;
 #ifdef FULL
@@ -681,13 +696,11 @@ unsigned int PKWAREAPI implode(
     switch(*type)
     {
         case CMP_BINARY: // We will compress data with binary compression type
-#endif
             for(nCount = 0; nCount < 0x100; nCount++)
             {
                 pWork->nChBits[nCount]  = 9;
                 pWork->nChCodes[nCount] = nCount * 2;
             }
-#ifdef FULL
             break;
 
 
@@ -702,6 +715,8 @@ unsigned int PKWAREAPI implode(
         default:
             return CMP_INVALID_MODE;
     }
+#else
+    nCount = 0;
 #endif
 
     for(i = 0; i < 0x10; i++)
