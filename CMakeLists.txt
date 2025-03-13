@@ -663,7 +663,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
