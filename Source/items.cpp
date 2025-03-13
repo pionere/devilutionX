@@ -2624,8 +2624,13 @@ static void DoRecharge(int pnum, int cii)
 static void CraftItem(ItemStruct* pi, uint16_t ci, uint16_t idx, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
 {
 	int seed = pi->_iSeed;
-
+	int ac = -1;
 	while (true) {
+		SetRndSeed(seed);
+		int nac = AllItemList[idx].iMinAC == AllItemList[idx].iMaxAC ? AllItemList[idx].iMinAC : RandRangeLow(AllItemList[idx].iMinAC, AllItemList[idx].iMaxAC);
+		if (ac < 0)
+			ac = nac;
+		if (ac == nac) {
 		RecreateItem(seed, idx, ci);
 		// assert(items[MAXITEMS]._iIdx == idx);
 		if (items[MAXITEMS]._iSpell == spell
@@ -2633,6 +2638,7 @@ static void CraftItem(ItemStruct* pi, uint16_t ci, uint16_t idx, int spell, BYTE
 		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
 		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
 			break;
+		}
 		seed = NextRndSeed();
 	}
 	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
