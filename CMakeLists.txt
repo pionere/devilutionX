@@ -436,6 +436,8 @@ add_library(PKWare STATIC
   3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
+target_link_libraries(StormLib PRIVATE PKWare)
+
 set(devilutionx_SRCS
   Source/appfat.cpp
   Source/automap.cpp
@@ -663,7 +665,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
@@ -746,7 +748,7 @@ if(USE_PATCH AND NOT ANDROID)
     ${PATCHER_SOURCES})
 
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
-    PKWare
+    #PKWare
     StormLib
     #smacker
     Radon)
