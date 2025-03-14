@@ -9,13 +9,6 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 static bool _gbCreditsEnd;
-#ifdef HELLFIRE
-#define CREDITS_LINES_SIZE 91
-#define CREDITS_TXT        "Meta\\credits_hf.txt"
-#else
-#define CREDITS_LINES_SIZE 455
-#define CREDITS_TXT        "Meta\\credits.txt"
-#endif
 
 static void CreditsEsc()
 {

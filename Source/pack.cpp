@@ -266,10 +266,10 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 
 	// reset fields which are used even by non-local players, but not part of pPack
 	plr._pGFXLoad = 0;
+	plr._pmode = PM_NEWLVL; // used by CalcPlrInv
 	// commented out, because these should not matter
 	//plr._pDestAction = ACTION_NONE;
 	//plr._pInvincible = 0;
-	//plr._pmode = PM_NEWLVL;
 	//plr._plid = NO_LIGHT;
 	//plr._pvid = NO_VISION;
 

@@ -173,7 +173,7 @@ In addition to the 32-bit MinGW build tools, the build process depends on the 32
 
 ```bash
 # Install the 32-bit MinGW build tools
-sudo apt install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686
+sudo apt install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 git wget
 
 # Download the 32-bit development libraries for SDL2 and libsodium
 # and place them in subfolders under /usr/i686-w64-mingw32
@@ -182,15 +182,15 @@ Packaging/windows/mingw-prep.sh
 
 ### 64-bit
 
-In addition to the 64-bit MinGW build tools, the build process depends on the 64-bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [libsodium](https://github.com/jedisct1/libsodium/releases). These dependencies will need to be placed in the appropriate subfolders under `/usr/x86_64-w64-mingw32`. This can be done automatically by running [`Packaging/windows/mingw-prep.sh`](/Packaging/windows/mingw-prep.sh).
+In addition to the 64-bit MinGW build tools, the build process depends on the 64-bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [libsodium](https://github.com/jedisct1/libsodium/releases). These dependencies will need to be placed in the appropriate subfolders under `/usr/x86_64-w64-mingw32`. This can be done automatically by running [`Packaging/windows/mingw-prep64.sh`](/Packaging/windows/mingw-prep64.sh).
 
 ```bash
 # Install the 64-bit MinGW build tools
-sudo apt install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64
+sudo apt install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 git wget
 
 # Download the 64-bit development libraries for SDL2 and libsodium
 # and place them in subfolders under /usr/x86_64-w64-mingw32
-Packaging/windows/mingw-prep.sh
+Packaging/windows/mingw-prep64.sh
 ```
 
 ### Compiling

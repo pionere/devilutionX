@@ -26,9 +26,14 @@ int WINAPI SCompDecompressX(TMPQArchive * ha, void * pvOutBuffer, int * pcbOutBu
 //  dwByteOffset  - Position of sector in the file (relative to file begin)
 //  dwBytesToRead - Number of bytes to read. Must be multiplier of sector size.
 //  pdwBytesRead  - Stored number of bytes loaded
+#ifdef FULL
 static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
 {
+#ifdef FULL
     ULONGLONG RawFilePos;
+#else
+    FILESIZE_T RawFilePos;
+#endif
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
     LPBYTE pbRawSector = NULL;
@@ -36,8 +41,13 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     LPBYTE pbInSector = pbBuffer;
     DWORD dwRawBytesToRead;
     DWORD dwRawSectorOffset = dwByteOffset;
+#ifdef FULL
     DWORD dwSectorsToRead = dwBytesToRead / ha->dwSectorSize;
     DWORD dwSectorIndex = dwByteOffset / ha->dwSectorSize;
+#else
+    DWORD dwSectorsToRead = dwBytesToRead / MPQ_SECTOR_SIZE_V1;
+    DWORD dwSectorIndex = dwByteOffset / MPQ_SECTOR_SIZE_V1;
+#endif
     DWORD dwSectorsDone = 0;
     DWORD dwBytesRead = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
@@ -48,8 +58,13 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     // Note that files stored in single units are processed by a separate function
 
     // If there is not enough bytes remaining, cut dwBytesToRead
+#ifdef FULL
     if ((dwByteOffset + dwBytesToRead) > hf->dwDataSize)
         dwBytesToRead = hf->dwDataSize - dwByteOffset;
+#else
+    if ((dwByteOffset + dwBytesToRead) > pFileEntry->dwFileSize)
+        dwBytesToRead = pFileEntry->dwFileSize - dwByteOffset;
+#endif
     dwRawBytesToRead = dwBytesToRead;
 
     // Perform all necessary work to do with compressed files
@@ -64,7 +79,7 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             if (dwErrCode != ERROR_SUCCESS || hf->SectorOffsets == NULL)
                 return dwErrCode;
         }
-
+#ifdef FULL
         // If the sector checksums are not loaded yet, load them now.
         if (hf->SectorChksums == NULL
          && (pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
@@ -75,14 +90,10 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             // We only try to load sector CRCs once, and regardless if it fails
             // or not, we won't try that again for the given file.
             //
-#ifdef FULL
             AllocateSectorChecksums(hf, true);
-#else
-            AllocateSectorChecksums(hf);
-#endif
             hf->bLoadedSectorCRCs = true;
         }
-
+#endif
         // TODO: If the raw data MD5s are not loaded yet, load them now
         // Only do it if the MPQ is of format 4.0
 //      if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_4 && ha->pHeader->dwRawChunkSize != 0)
@@ -99,7 +110,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
         // If the file is compressed, also allocate secondary buffer
         pbInSector = pbRawSector = STORM_ALLOC(BYTE, dwRawBytesToRead);
         if (pbRawSector == NULL)
+#ifdef FULL
             return ERROR_NOT_ENOUGH_MEMORY;
+#else
+            return ERROR_SUCCESS + 1;
+#endif
     }
 
     // Calculate raw file offset where the sector(s) are stored.
@@ -109,8 +124,13 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     if (FileStream_Read(ha->pStream, &RawFilePos, pbInSector, dwRawBytesToRead)) {
         // Now we have to decrypt and decompress all file sectors that have been loaded
         for (DWORD i = 0; i < dwSectorsToRead; i++) {
+#ifdef FULL
             DWORD dwRawBytesInThisSector = ha->dwSectorSize;
             DWORD dwBytesInThisSector = ha->dwSectorSize;
+#else
+            DWORD dwRawBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+            DWORD dwBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+#endif
             DWORD dwIndex = dwSectorIndex + i;
 
             // If there is not enough bytes in the last sector,
@@ -187,7 +207,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
 
                 // Did the decompression fail ?
                 if (nResult == 0) {
+#ifdef FULL
                     dwErrCode = ERROR_FILE_CORRUPT;
+#else
+                    dwErrCode = ERROR_SUCCESS + 1;
+#endif
                     break;
                 }
             } else {
@@ -204,7 +228,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
             dwSectorsDone++;
         }
     } else {
+#ifdef FULL
         dwErrCode = GetLastError();
+#else
+        dwErrCode = ERROR_SUCCESS + 1;
+#endif
     }
 
     // Free all used buffers
@@ -215,6 +243,206 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
     *pdwBytesRead = dwBytesRead;
     return dwErrCode;
 }
+#else
+static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
+{
+    FILESIZE_T RawFilePos;
+    TMPQArchive * ha = hf->ha;
+#ifdef FULL
+    TFileEntry * pFileEntry = hf->pFileEntry;
+#else
+    TMPQBlock * pFileEntry = hf->pFileEntry;
+#endif
+    LPBYTE pbRawSector = NULL;
+    LPBYTE pbOutSector = pbBuffer;
+    LPBYTE pbInSector = pbBuffer;
+    DWORD dwRawBytesToRead;
+#ifdef FULL
+    DWORD dwRawSectorOffset = dwByteOffset;
+    DWORD dwSectorsToRead = dwBytesToRead / ha->dwSectorSize;
+    DWORD dwSectorIndex = dwByteOffset / ha->dwSectorSize;
+    DWORD dwBytesRead = 0;
+#else
+    DWORD dwRawSectorOffset = 0;
+    DWORD dwSectorsToRead = ((dwBytesToRead - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+    DWORD dwSectorIndex = 0;
+#endif
+    DWORD dwErrCode = ERROR_SUCCESS;
+    LPDWORD SectorOffsets = NULL;
+    // Note that dwByteOffset must be aligned to size of one sector
+    // Note that dwBytesToRead must be a multiplier of one sector size
+    // This is local function, so we won't check if that's true.
+    // Note that files stored in single units are processed by a separate function
+
+    // If there is not enough bytes remaining, cut dwBytesToRead
+#ifdef FULL
+    if((dwByteOffset + dwBytesToRead) > hf->dwDataSize)
+        dwBytesToRead = hf->dwDataSize - dwByteOffset;
+#endif
+    dwRawBytesToRead = dwBytesToRead;
+
+    // Perform all necessary work to do with compressed files
+    if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
+        // If the sector positions are not loaded yet, do it
+        SectorOffsets = AllocateSectorOffsets(hf);
+        if(SectorOffsets == NULL)
+            return ERROR_SUCCESS + 1;
+#ifdef FULL
+        // If the sector checksums are not loaded yet, load them now.
+        if(hf->SectorChksums == NULL
+         && (pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
+         && hf->bLoadedSectorCRCs == false) {
+            //
+            // Sector CRCs is plain crap feature. It is almost never present,
+            // often it's empty, or the end offset of sector CRCs is zero.
+            // We only try to load sector CRCs once, and regardless if it fails
+            // or not, we won't try that again for the given file.
+            //
+            AllocateSectorChecksums(hf, true);
+            hf->bLoadedSectorCRCs = true;
+        }
+#endif
+        // TODO: If the raw data MD5s are not loaded yet, load them now
+        // Only do it if the MPQ is of format 4.0
+//      if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_4 && ha->pHeader->dwRawChunkSize != 0)
+//      {
+//          dwErrCode = AllocateRawMD5s(hf, true);
+//          if(dwErrCode != ERROR_SUCCESS)
+//              return dwErrCode;
+//      }
+
+        // Assign the temporary buffer as target for read operation
+        dwRawSectorOffset = SectorOffsets[dwSectorIndex];
+        dwRawBytesToRead = SectorOffsets[dwSectorIndex + dwSectorsToRead] - dwRawSectorOffset;
+
+        // If the file is compressed, also allocate secondary buffer
+        pbInSector = pbRawSector = STORM_ALLOC(BYTE, dwRawBytesToRead);
+        if(pbRawSector == NULL) {
+            STORM_FREE(SectorOffsets);
+            return ERROR_SUCCESS + 1;
+        }
+    }
+
+    // Calculate raw file offset where the sector(s) are stored.
+    RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
+
+    // Set file pointer and read all required sectors
+    if(FileStream_Read(&ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
+        // Now we have to decrypt and decompress all file sectors that have been loaded
+        for (DWORD i = 0; i < dwSectorsToRead; i++) {
+#ifdef FULL
+            DWORD dwRawBytesInThisSector = ha->dwSectorSize;
+            DWORD dwBytesInThisSector = ha->dwSectorSize;
+#else
+            DWORD dwRawBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+            DWORD dwBytesInThisSector = MPQ_SECTOR_SIZE_V1;
+#endif
+            DWORD dwIndex = dwSectorIndex + i;
+
+            // If there is not enough bytes in the last sector,
+            // cut the number of bytes in this sector
+            if(dwRawBytesInThisSector > dwBytesToRead)
+                dwRawBytesInThisSector = dwBytesToRead;
+            if(dwBytesInThisSector > dwBytesToRead)
+                dwBytesInThisSector = dwBytesToRead;
+
+            // If the file is compressed, we have to adjust the raw sector size
+            if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
+                dwRawBytesInThisSector = SectorOffsets[dwIndex + 1] - SectorOffsets[dwIndex];
+
+            // If the file is encrypted, we have to decrypt the sector
+            if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
+                BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
+#ifdef FULL
+                // If we don't know the key, try to detect it by file content
+                if (hf->dwFileKey == 0) {
+                    hf->dwFileKey = DetectFileKeyByContent(pbInSector, dwBytesInThisSector, hf->dwDataSize);
+                    if (hf->dwFileKey == 0) {
+                        dwErrCode = ERROR_UNKNOWN_FILE_KEY;
+                        break;
+                    }
+                }
+#endif
+                DecryptMpqBlock(pbInSector, dwRawBytesInThisSector, hf->dwFileKey + dwIndex);
+                BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
+            }
+
+#ifdef FULL_CRC
+            // If the file has sector CRC check turned on, perform it
+            if(hf->bCheckSectorCRCs && hf->SectorChksums != NULL) {
+                DWORD dwAdlerExpected = hf->SectorChksums[dwIndex];
+                DWORD dwAdlerValue = 0;
+
+                // We can only check sector CRC when it's not zero
+                // Neither can we check it if it's 0xFFFFFFFF.
+                if (dwAdlerExpected != 0 && dwAdlerExpected != 0xFFFFFFFF) {
+                    dwAdlerValue = adler32(0, pbInSector, dwRawBytesInThisSector);
+                    if (dwAdlerValue != dwAdlerExpected) {
+                        dwErrCode = ERROR_CHECKSUM_ERROR;
+                        break;
+                    }
+                }
+            }
+#endif
+
+            // If the sector is really compressed, decompress it.
+            // WARNING : Some sectors may not be compressed, it can be determined only
+            // by comparing uncompressed and compressed size !!!
+            if(dwRawBytesInThisSector < dwBytesInThisSector) {
+#ifdef FULL_COMP
+                int cbOutSector = dwBytesInThisSector;
+                int cbInSector = dwRawBytesInThisSector;
+                int nResult = 0;
+
+                // Is the file compressed by Blizzard's multiple compression ?
+                if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS) {
+                    // Remember the last used compression
+                    hf->dwCompression0 = pbInSector[0];
+
+                    // Decompress the data. We need to perform MPQ-specific decompression,
+                    // as multiple Blizzard games may have their own decompression tables
+                    // and even decompression methods.
+                    nResult = SCompDecompressX(ha, pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                }
+                // Is the file compressed by PKWARE Data Compression Library ?
+                else if (pFileEntry->dwFlags & MPQ_FILE_IMPLODE) {
+                    nResult = SCompExplode(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                }
+
+                // Did the decompression fail ?
+                if (nResult == 0) {
+                    dwErrCode = ERROR_FILE_CORRUPT;
+                    break;
+                }
+#else
+                dwErrCode = SCompExplode(pbOutSector, dwBytesInThisSector, pbInSector, dwRawBytesInThisSector);
+
+                // Did the decompression fail ?
+                if(dwErrCode != ERROR_SUCCESS) {
+                    break;
+                }
+#endif
+            } else {
+                if(pbOutSector != pbInSector)
+                    memcpy(pbOutSector, pbInSector, dwBytesInThisSector);
+            }
+
+            // Move pointers
+            dwBytesToRead -= dwBytesInThisSector;
+            pbOutSector += dwBytesInThisSector;
+            pbInSector += dwRawBytesInThisSector;
+        }
+    } else {
+        dwErrCode = ERROR_SUCCESS + 1;
+    }
+
+    // Free all used buffers
+    STORM_FREE(pbRawSector);
+    STORM_FREE(SectorOffsets);
+
+    return dwErrCode;
+}
+#endif
 #ifdef FULL
 static DWORD ReadMpqFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
@@ -424,27 +652,29 @@ static DWORD ReadMpkFileSingleUnit(TMPQFile *hf, void *pvBuffer, DWORD dwToRead,
     // An error, sorry
     return ERROR_CAN_NOT_COMPLETE;
 }
-#endif
 
 static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesToRead, LPDWORD pdwBytesRead)
+#else
+static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesToRead)
+#endif
 {
+#ifdef FULL
     TMPQArchive * ha = hf->ha;
     DWORD dwFilePos = hf->dwFilePos;
+#endif
     LPBYTE pbBuffer = (BYTE *)pvBuffer;
+#ifdef FULL
     DWORD dwTotalBytesRead = 0;                         // Total bytes read in all three parts
     DWORD dwSectorSizeMask = ha->dwSectorSize - 1;      // Mask for block size, usually 0x0FFF
     DWORD dwFileSectorPos;                              // File offset of the loaded sector
     DWORD dwBytesRead;                                  // Number of bytes read (temporary variable)
+#endif
     DWORD dwErrCode;
-
-    // If the file position is at or beyond end of file, do nothing
-    if (dwFilePos >= hf->dwDataSize) {
-        *pdwBytesRead = 0;
-        return ERROR_SUCCESS;
-    }
-
+#ifdef FULL
     // If not enough bytes in the file remaining, cut them
-    if (dwBytesToRead > (hf->dwDataSize - dwFilePos))
+    if (dwFilePos >= hf->dwDataSize)
+        dwBytesToRead = 0;
+    else if (dwBytesToRead > (hf->dwDataSize - dwFilePos))
         dwBytesToRead = (hf->dwDataSize - dwFilePos);
 
     // Compute sector position in the file
@@ -459,14 +689,22 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 
     // Load the first (incomplete) file sector
     if (dwFilePos & dwSectorSizeMask) {
+#ifdef FULL
         DWORD dwBytesInSector = ha->dwSectorSize;
+#else
+        DWORD dwBytesInSector = MPQ_SECTOR_SIZE_V1;
+#endif
         DWORD dwBufferOffs = dwFilePos & dwSectorSizeMask;
         DWORD dwToCopy;
 
         // Is the file sector already loaded ?
         if (hf->dwSectorOffs != dwFileSectorPos) {
             // Load one MPQ sector into archive buffer
+#ifdef FULL
             dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, ha->dwSectorSize, &dwBytesInSector);
+#else
+            dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, dwBytesInSector, &dwBytesInSector);
+#endif
             if(dwErrCode != ERROR_SUCCESS)
                 return dwErrCode;
 
@@ -491,23 +729,32 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
         pbBuffer         += dwToCopy;
         dwBytesToRead    -= dwToCopy;
     }
-
+#endif
     // Load the whole ("middle") sectors only if there is at least one full sector to be read
+#ifdef FULL
     if (dwBytesToRead >= ha->dwSectorSize) {
+#else
+    if (dwBytesToRead > 0) {
+#endif
+#ifdef FULL
         DWORD dwBlockBytes = dwBytesToRead & ~dwSectorSizeMask;
 
         // Load all sectors to the output buffer
         dwErrCode = ReadMpqSectors(hf, pbBuffer, dwFileSectorPos, dwBlockBytes, &dwBytesRead);
         if(dwErrCode != ERROR_SUCCESS)
+#else
+        dwErrCode = ReadMpqSectors(hf, pbBuffer, dwBytesToRead);
+#endif
             return dwErrCode;
-
+#ifdef FULL
         // Update pointers
         dwTotalBytesRead += dwBytesRead;
         dwFileSectorPos  += dwBytesRead;
         pbBuffer         += dwBytesRead;
         dwBytesToRead    -= dwBytesRead;
+#endif
     }
-
+#ifdef FULL
     // Read the terminating sector
     if (dwBytesToRead > 0) {
         DWORD dwToCopy = ha->dwSectorSize;
@@ -516,13 +763,12 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
         if (hf->dwSectorOffs != dwFileSectorPos) {
             // Load one MPQ sector into archive buffer
             dwErrCode = ReadMpqSectors(hf, hf->pbFileSector, dwFileSectorPos, ha->dwSectorSize, &dwBytesRead);
+            // Load one MPQ sector into archive buffer
             if(dwErrCode != ERROR_SUCCESS)
                 return dwErrCode;
-
             // Remember that the data loaded to the sector have new file offset
             hf->dwSectorOffs = dwFileSectorPos;
         }
-
         // Check number of bytes read
         if (dwToCopy > dwBytesToRead)
             dwToCopy = dwBytesToRead;
@@ -536,6 +782,7 @@ static DWORD ReadMpqFileSectorFile(TMPQFile *hf, void *pvBuffer, DWORD dwBytesTo
 
     // Store total number of bytes read to the caller
     *pdwBytesRead = dwTotalBytesRead;
+#endif
     return ERROR_SUCCESS;
 }
 
@@ -599,24 +846,33 @@ static DWORD ReadMpqFilePatchFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
         *pdwBytesRead = dwBytesRead;
     return dwErrCode;
 }
-#endif // FULL
 
 static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, LPDWORD pdwBytesRead)
+#else
+static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead)
+#endif // FULL
 {
+#ifdef FULL
     ULONGLONG FilePosition1;
     ULONGLONG FilePosition2;
+#else
+    FILESIZE_T FilePosition1;
+#endif
     DWORD dwBytesRead = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
 
+#ifdef FULL
     assert(hf->pStream != NULL);
-
     FileStream_GetPos(hf->pStream, &FilePosition1);
+#else
+    FilePosition1 = 0;
+#endif
 
     // Because stream I/O functions are designed to read
     // "all or nothing", we compare file position before and after,
     // and if they differ, we assume that number of bytes read
     // is the difference between them
-
+#ifdef FULL
     if (!FileStream_Read(hf->pStream, &FilePosition1, pvBuffer, dwToRead)) {
         // If not all bytes have been read, then return the number of bytes read
         if ((dwErrCode = GetLastError()) == ERROR_HANDLE_EOF) {
@@ -626,14 +882,19 @@ static DWORD ReadMpqFileLocalFile(TMPQFile *hf, void *pvBuffer, DWORD dwToRead, 
     } else {
         dwBytesRead = dwToRead;
     }
-
+#else
+    if(!FileStream_Read(&hf->pStream, FilePosition1, pvBuffer, dwToRead))
+        dwErrCode = ERROR_SUCCESS + 1;
+#endif
+#ifdef FULL
     *pdwBytesRead = dwBytesRead;
+#endif
     return dwErrCode;
 }
 
 //-----------------------------------------------------------------------------
 // SFileReadFile
-
+#ifdef FULL
 bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/)
 {
     TMPQFile * hf;
@@ -643,7 +904,7 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     // Always zero the result
     //if (pdwRead != NULL)
     //    *pdwRead = 0;
-
+#ifdef FULL
     // Check valid parameters
     if((hf = IsValidFileHandle(hFile)) == NULL)
     {
@@ -656,7 +917,6 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
         return false;
     }
 
-#ifdef FULL
     // If we didn't load the patch info yet, do it now
     if (hf->pFileEntry != NULL
      && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
@@ -670,11 +930,10 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
 
     // Clear the last used compression
     hf->dwCompression0 = 0;
-#endif
+
     // If the file is local file, read the data directly from the stream
     if (hf->pStream != NULL) {
         dwErrCode = ReadMpqFileLocalFile(hf, pvBuffer, dwToRead, &dwBytesRead);
-#ifdef FULL
     // If the file is a patch file, we have to read it special way
     } else if (hf->hfPatch != NULL
      && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE) == 0) {
@@ -685,12 +944,20 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     // If the file is single unit file, redirect it to read file
     } else if(hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) {
         dwErrCode = ReadMpqFileSingleUnit(hf, pvBuffer, dwToRead, &dwBytesRead);
+#else
+    // If the file is local file, read the data directly from the stream
+    if (hf->pFileEntry == NULL) {
+        dwErrCode = ReadMpqFileLocalFile(hf, pvBuffer, dwToRead);
 #endif
     // Otherwise read it as sector based MPQ file
     } else {
+#ifdef FULL
         dwErrCode = ReadMpqFileSectorFile(hf, pvBuffer, dwToRead, &dwBytesRead);
+#else
+        dwErrCode = ReadMpqFileSectorFile(hf, pvBuffer, dwToRead);
+#endif
     }
-
+#ifdef FULL
     // Increment the file position
     hf->dwFilePos += dwBytesRead;
 
@@ -706,23 +973,42 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead/*, LPDWO
     // If something failed, set the last error value
     if (dwErrCode != ERROR_SUCCESS)
         SetLastError(dwErrCode);
+#endif
     return (dwErrCode == ERROR_SUCCESS);
 }
+#else
+DWORD   WINAPI SFileReadMpqFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead)
+{
+    TMPQFile *hf = IsValidFileHandle(hFile);
 
+    return ReadMpqFileSectorFile(hf, lpBuffer, dwToRead);
+}
+
+DWORD   WINAPI SFileReadLocalFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead)
+{
+    TMPQFile *hf = IsValidFileHandle(hFile);
+
+    return ReadMpqFileLocalFile(hf, lpBuffer, dwToRead);
+}
+#endif
 //-----------------------------------------------------------------------------
 // SFileGetFileSize
-
+#ifdef FULL
 DWORD WINAPI SFileGetFileSize(HANDLE hFile)
 {
+#ifdef FULL
     ULONGLONG FileSize;
+#else
+    DWORD FileSize = 0;
+#endif
     TMPQFile *hf = IsValidFileHandle(hFile);
 
     // Validate the file handle before we go on
     if (hf != NULL) {
+#ifdef FULL
         // Make sure that the variable is initialized
         FileSize = 0;
 
-#ifdef FULL
         // If the file is patched file, we have to get the size of the last version
         if (hf->hfPatch != NULL) {
             // Walk through the entire patch chain, take the last version
@@ -736,27 +1022,52 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile)
         } else {
 #endif // FULL
             // Is it a local file ?
+#ifdef FULL
             if (hf->pStream != NULL) {
                 FileStream_GetSize(hf->pStream, &FileSize);
-            } else {
-                FileSize = hf->dwDataSize;
-            }
-#ifdef FULL
-        }
+#else
+            if (hf->pFileEntry == NULL) {
+                FileSize = (DWORD)FileStream_GetSize(&hf->pStream);
 #endif
+            } else {
+#ifdef FULL
+                FileSize = hf->dwDataSize;
+#else
+                FileSize = hf->pFileEntry->dwFSize;
+#endif
+            }
+        }
+#ifdef FULL
         // If opened from archive, return file size
         //if (pdwFileSizeHigh != NULL)
         //    *pdwFileSizeHigh = (DWORD)(FileSize >> 32);
-        return (DWORD)FileSize;
+        return FileSize;
     }
-#ifdef FULL
     SetLastError(ERROR_INVALID_HANDLE);
     return SFILE_INVALID_SIZE;
 #else
-    return 0;
+    return FileSize;
 #endif
 }
+#else
+DWORD WINAPI SFileGetLocalFileSize(HANDLE hFile)
+{
+    DWORD FileSize = 0;
+    TMPQFile *hf = IsValidFileHandle(hFile);
 
+    FileSize = (DWORD)FileStream_GetSize(&hf->pStream);
+    return FileSize;
+}
+DWORD WINAPI SFileGetMpqFileSize(HANDLE hFile)
+{
+    DWORD FileSize = 0;
+    TMPQFile *hf = IsValidFileHandle(hFile);
+
+    FileSize = hf->pFileEntry->dwFSize;
+    return FileSize;
+}
+#endif
+#ifdef FULL
 DWORD WINAPI SFileGetFilePointer(HANDLE hFile)
 {
     TMPQFile *hf = IsValidFileHandle(hFile);
@@ -864,3 +1175,4 @@ DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMet
     //    *plFilePosHigh = (LONG)(NewPosition >> 32);
     return (DWORD)NewPosition;
 }
+#endif

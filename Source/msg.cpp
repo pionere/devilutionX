@@ -75,7 +75,7 @@ static void DeltaProcessMegaPkts()
 		while (data != dataEnd) {
 			pnum = *data;
 			data++;
-			pktSize = ParseMsg(pnum, (TCmd*)data);
+			pktSize = ParseMsg(pnum, (const TCmd*)data);
 			// only known drop/send_plrinfo msgs are in the queue
 			assert(pktSize != 0);
 			data += pktSize;
@@ -387,6 +387,7 @@ static void DeltaDecompressData()
 void DeltaExportData(int pmask)
 {
 	DBuffer* buff = &gsDeltaData.ddSendRecvPkt.apMsg.tpData;
+	BYTE* lvlData = buff->content;
 	BYTE* dstEnd;
 	int i;
 	BYTE numChunks = 0;
@@ -395,26 +396,29 @@ void DeltaExportData(int pmask)
 	for (i = 0; i < lengthof(gsDeltaData.ddLevel); i++) {
 		if (gsDeltaData.ddLevelPlrs[i] == 0)
 			continue;
-		dstEnd = DeltaExportLevel(i, buff->content);
-		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, (size_t)dstEnd - (size_t)buff->content);
+		dstEnd = DeltaExportLevel(i, lvlData);
+		static_assert(NET_LARGE_MSG_SIZE <= UINT_MAX, "Size of large message can not be sent in an unsigned parameter II.");
+		multi_send_large_msg(pmask, NMSG_DLEVEL_DATA, static_cast<unsigned>((size_t)dstEnd - (size_t)lvlData));
 		numChunks++;
 	}
 	{ // junk
-		dstEnd = DeltaExportJunk(buff->content);
-		multi_send_large_msg(pmask, NMSG_DLEVEL_JUNK, (size_t)dstEnd - (size_t)buff->content);
+		dstEnd = DeltaExportJunk(lvlData);
+		static_assert(NET_LARGE_MSG_SIZE <= UINT_MAX, "Size of large message can not be sent in an unsigned parameter II.");
+		multi_send_large_msg(pmask, NMSG_DLEVEL_JUNK, static_cast<unsigned>((size_t)dstEnd - (size_t)lvlData));
 		numChunks++;
 	}
 	// players
 	for (i = 0; i < MAX_PLRS; i++) {
 		if (plx(i)._pActive) {
-			dstEnd = DeltaExportPlr(i, buff->content);
-			multi_send_large_msg(pmask, NMSG_DLEVEL_PLR, (size_t)dstEnd - (size_t)buff->content);
+			dstEnd = DeltaExportPlr(i, lvlData);
+			// assert((size_t)dstEnd - (size_t)lvlData == 1 + sizeof(PkPlayerStruct));
+			multi_send_large_msg(pmask, NMSG_DLEVEL_PLR, 1 + sizeof(PkPlayerStruct)); // (size_t)dstEnd - (size_t)lvlData);
 			numChunks++;
 		}
 	}
 	static_assert(lengthof(gsDeltaData.ddLevel) + 1 + MAX_PLRS < UCHAR_MAX, "DeltaExportData sends the number of chunks in a BYTE field.");
 	// current number of chunks sent + turn-id + end
-	DeltaDataEnd* deltaEnd = (DeltaDataEnd*)buff->content;
+	DeltaDataEnd* deltaEnd = (DeltaDataEnd*)lvlData;
 	deltaEnd->numChunks = numChunks;
 	deltaEnd->turn = gdwLastGameTurn;
 	assert(gdwLastGameTurn * gbNetUpdateRate == gdwGameLogicTurn);
@@ -437,9 +441,9 @@ static void DeltaImportData()
 	}
 }
 
-static void DeltaImportEnd(TMsgLarge* cmd)
+static void DeltaImportEnd(const TMsgLarge* cmd)
 {
-	DeltaDataEnd* buf;
+	const DeltaDataEnd* buf;
 
 	// stop nthread from processing the delta messages
 	geBufferMsgs = MSG_NORMAL;
@@ -447,7 +451,7 @@ static void DeltaImportEnd(TMsgLarge* cmd)
 	net_assert(cmd->tpHdr.wBytes == sizeof(cmd->tpData.compressed) + sizeof(DeltaDataEnd));
 	static_assert(NET_COMP_MSG_SIZE > sizeof(DeltaDataEnd), "DeltaImportEnd does not decompress the final message.");
 	net_assert(!cmd->tpData.compressed);
-	buf = (DeltaDataEnd*)cmd->tpData.content;
+	buf = (const DeltaDataEnd*)cmd->tpData.content;
 	if (gbGameDeltaChunks != buf->numChunks) {
 		// not all chunks arrived -> quit
 		gbGameDeltaChunks = DELTA_ERROR_FAIL_3;
@@ -457,9 +461,9 @@ static void DeltaImportEnd(TMsgLarge* cmd)
 	gbGameDeltaChunks = MAX_CHUNKS - 1;
 }
 
-static unsigned On_DLEVEL(TCmd* pCmd, int pnum)
+static unsigned On_DLEVEL(const TCmd* pCmd, int pnum)
 {
-	TMsgLarge* cmd = (TMsgLarge*)pCmd;
+	const TMsgLarge* cmd = (const TMsgLarge*)pCmd;
 
 	if (geBufferMsgs != MSG_GAME_DELTA_LOAD)
 		goto done; // the player is already active -> drop the packet
@@ -663,7 +667,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	net_assert(wLen == 0);
 }
 
-static void delta_awake_golem(TCmdGolem* pG, int mnum)
+static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 {
 	DDMonster* pD;
 	BYTE bLevel;
@@ -916,7 +920,7 @@ void UnPackPkItem(const PkItemStruct* src)
 			src->wCI);
 		net_assert(items[MAXITEMS]._iMaxCharges >= src->bMCh);
 		net_assert(src->bCh <= src->bMCh);
-		net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur);
+		// net_assert(items[MAXITEMS]._iMaxDur >= src->bMDur); -- HIDDEN_SHRINE
 		net_assert(src->bDur <= src->bMDur);
 		if (items[MAXITEMS]._iClass == ICLASS_ARMOR || items[MAXITEMS]._iClass == ICLASS_WEAPON) {
 			net_assert(src->bDur != 0);
@@ -981,7 +985,6 @@ void DeltaLoadLevel()
 	DDItem* itm;
 	int ii;
 	int i;
-	POS32 pos;
 	bool monInGame;
 
 	assert(IsMultiGame);
@@ -1000,9 +1003,7 @@ void DeltaLoadLevel()
 				// skip minions and prespawn skeletons
 				if (monInGame)
 					RemoveMonFromMap(i);
-				pos.x = mstr->dmx;
-				pos.y = mstr->dmy;
-				SetMonsterLoc(mon, pos.x, pos.y);
+				SetMonsterLoc(mon, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
 				UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 				if (mstr->dmSIdx != 0) {
@@ -1102,11 +1103,9 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
 			ii = FindGetItem(&itm->item);
-			if (ii != -1) {
-				if (dItem[items[ii]._ix][items[ii]._iy] == ii + 1)
-					dItem[items[ii]._ix][items[ii]._iy] = 0;
-				DeleteItems(ii);
-			}
+			assert(ii != -1);
+			assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
+			DeleteItem(ii);
 		}
 	}
 	//  II. place items
@@ -1114,18 +1113,7 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_DROPPED || itm->bCmd == DCMD_ITM_MOVED) {
 			UnPackPkItem(&itm->item);
-			pos.x = itm->x;
-			pos.y = itm->y;
-			if (!CanPut(pos.x, pos.y))
-				FindItemLocation(pos.x, pos.y, pos, DSIZEX / 2);
-
-			ii = itemactive[numitems];
-			copy_pod(items[ii], items[MAXITEMS]);
-			items[ii]._ix = pos.x;
-			items[ii]._iy = pos.y;
-			dItem[pos.x][pos.y] = ii + 1;
-			RespawnItem(ii, false);
-			numitems++;
+			SyncPutItem(-1, itm->x, itm->y, &items[MAXITEMS], false);
 		}
 	}
 
@@ -1155,7 +1143,7 @@ static void ValidateDurability(ItemStruct* is, int pnum, int dur)
 	}
 }
 #endif
-static void ImportItemDurabilities(int pnum, BYTE (&itemsDur)[NUM_INVELEM + 1])
+static void ImportItemDurabilities(int pnum, const BYTE (&itemsDur)[NUM_INVELEM + 1])
 {
 	ItemStruct* is = &plr._pHoldItem;
 	int i, dur;
@@ -1202,7 +1190,7 @@ void LevelDeltaExport()
 	MissileStruct* mis;
 	bool validDelta, completeDelta;
 	BYTE* dst;
-	unsigned recipients = 0;
+	unsigned recipients = 0, ulen;
 
 	validDelta = currLvl._dLevelIdx != DLV_INVALID;
 	completeDelta = false;
@@ -1349,12 +1337,12 @@ void LevelDeltaExport()
 			//BYTE _miFlags;
 			//BYTE _miResist;
 			tmis->smiFileNum = mis->_miFileNum;
-			tmis->smiDrawFlag = mis->_miDrawFlag;
-			tmis->smiUniqTrans = mis->_miUniqTrans;
 			//BOOLEAN _miDelFlag;
-			tmis->smiLightFlag = mis->_miLightFlag;
-			tmis->smiPreFlag = mis->_miPreFlag;
+			//int _miUniqTrans;
+			//BOOLEAN _miDrawFlag;
 			//BOOLEAN _miAnimFlag;
+			//BOOLEAN _miLightFlag;
+			//BOOLEAN _miPreFlag;
 			//BYTE* _miAnimData;
 			//int _miAnimFrameLen;
 			//int _miAnimLen;
@@ -1368,8 +1356,8 @@ void LevelDeltaExport()
 			tmis->smisy = mis->_misy;
 			tmis->smix = mis->_mix;
 			tmis->smiy = mis->_miy;
-			tmis->smixoff = mis->_mixoff;
-			tmis->smiyoff = mis->_miyoff;
+			tmis->smixoff = mis->_mixoff / ASSET_MPL;
+			tmis->smiyoff = mis->_miyoff / ASSET_MPL;
 			tmis->smixvel = mis->_mixvel;
 			tmis->smiyvel = mis->_miyvel;
 			tmis->smitxoff = mis->_mitxoff;
@@ -1395,10 +1383,11 @@ void LevelDeltaExport()
 
 			dst += sizeof(TSyncLvlMissile);
 		}
-
-		lvlData->wLen = static_cast<uint16_t>((size_t)dst - (size_t)&lvlData->ldContent[0]);
+		ulen = (unsigned)((size_t)dst - (size_t)&lvlData->ldContent[0]);
+		static_assert(sizeof(lvlData->ldContent) <= UINT16_MAX, "Length of ldContent can not be sent with a WORD field.");
+		lvlData->wLen = static_cast<uint16_t>(ulen);
 		// send the data to the recipients
-		multi_send_large_msg(recipients, NMSG_LVL_DELTA, (size_t)dst - (size_t)buff->content);
+		multi_send_large_msg(recipients, NMSG_LVL_DELTA, offsetof(LDLevel, ldContent) + ulen);
 	}
 	// current number of chunks sent + level + turn-id + end
 	LevelDeltaEnd* deltaEnd = (LevelDeltaEnd*)buff->content;
@@ -1535,7 +1524,7 @@ void LevelDeltaLoad()
 	}
 
 	wLen = lvlData->wLen;
-	wLen -= ((size_t)src - (size_t)(&lvlData->ldContent[0]));
+	wLen -= static_cast<uint16_t>((size_t)src - (size_t)(&lvlData->ldContent[0]));
 	// load monsters
 	for ( ; wLen >= sizeof(TSyncLvlMonster); wLen -= sizeof(TSyncLvlMonster)) {
 		TSyncLvlMonster* DVL_RESTRICT tmon = (TSyncLvlMonster*)src;
@@ -1674,12 +1663,15 @@ void LevelDeltaLoad()
 		memset(mis, 0, sizeof(*mis));
 
 		mis->_miType = tmis->smiType;
+		//BYTE _miFlags;
+		//BYTE _miResist;
 		mis->_miFileNum = tmis->smiFileNum;
-		mis->_miDrawFlag = tmis->smiDrawFlag;   // could be calculated
-		mis->_miUniqTrans = tmis->smiUniqTrans; //
-		mis->_miLightFlag = tmis->smiLightFlag; // could be calculated
-		mis->_miPreFlag = tmis->smiPreFlag;     // could be calculated
-		//BOOL _miAnimFlag;
+		//BOOLEAN _miDelFlag;
+		//int _miUniqTrans;
+		//BOOLEAN _miDrawFlag;
+		//BOOLEAN _miAnimFlag;
+		//BOOLEAN _miLightFlag;
+		//BOOLEAN _miPreFlag;
 		mis->_miAnimCnt = tmis->smiAnimCnt;
 		mis->_miAnimAdd = tmis->smiAnimAdd;
 		mis->_miAnimFrame = tmis->smiAnimFrame;
@@ -1687,8 +1679,8 @@ void LevelDeltaLoad()
 		mis->_misy = tmis->smisy;
 		mis->_mix = tmis->smix;
 		mis->_miy = tmis->smiy;
-		mis->_mixoff = tmis->smixoff;
-		mis->_miyoff = tmis->smiyoff;
+		mis->_mixoff = tmis->smixoff * ASSET_MPL;
+		mis->_miyoff = tmis->smiyoff * ASSET_MPL;
 		mis->_mixvel = tmis->smixvel;
 		mis->_miyvel = tmis->smiyvel;
 		mis->_mitxoff = tmis->smitxoff;
@@ -1843,16 +1835,16 @@ void LevelDeltaLoad()
 	// ProcessVisionList();
 }
 
-static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)
+static void LevelDeltaImportEnd(const TMsgLarge* cmd, int pnum)
 {
-	LevelDeltaEnd* buf;
+	const LevelDeltaEnd* buf;
 
 	guOweLevelDelta &= ~(1 << pnum);
 
 	net_assert(cmd->tpHdr.wBytes == sizeof(cmd->tpData.compressed) + sizeof(LevelDeltaEnd));
 	static_assert(NET_COMP_MSG_SIZE > sizeof(LevelDeltaEnd), "LevelDeltaImportEnd does not decompress the final message.");
 	net_assert(!cmd->tpData.compressed);
-	buf = (LevelDeltaEnd*)cmd->tpData.content;
+	buf = (const LevelDeltaEnd*)cmd->tpData.content;
 	if (buf->numChunks == 0)
 		return; // empty delta -> not done yet
 	net_assert(buf->level == myplr._pDunLevel);
@@ -1873,9 +1865,9 @@ static void LevelDeltaImportEnd(TMsgLarge* cmd, int pnum)
 	geBufferMsgs = MSG_LVL_DELTA_PROC;
 }
 
-static unsigned On_LVL_DELTA(TCmd* pCmd, int pnum)
+static unsigned On_LVL_DELTA(const TCmd* pCmd, int pnum)
 {
-	TMsgLarge* cmd = (TMsgLarge*)pCmd;
+	const TMsgLarge* cmd = (const TMsgLarge*)pCmd;
 
 	if (geBufferMsgs != MSG_LVL_DELTA_WAIT)
 		goto done; // the player is already active -> drop the packet
@@ -2246,17 +2238,18 @@ void NetSendCmdString(TMsgString* cmd, unsigned int pmask)
 	multi_send_direct_msg(pmask, (BYTE*)cmd, cmd->bsLen + 3); // length of string + nul terminator + sizeof(cmd->bCmd) + sizeof(cmd->bsLen)
 }
 
-static void check_update_plr(int pnum)
+static bool check_update_plr(int pnum)
 {
-	if (IsMultiGame) {
-		assert(pnum == mypnum);
+	bool result = pnum == mypnum;
+	if (result && IsMultiGame) {
 		pfile_update(true);
 	}
+	return result;
 }
 
-static unsigned On_SYNCDATA(TCmd* pCmd, int pnum)
+static unsigned On_SYNCDATA(const TCmd* pCmd, int pnum)
 {
-	TSyncHeader* pHdr = (TSyncHeader*)pCmd;
+	const TSyncHeader* pHdr = (const TSyncHeader*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == pHdr->bLevel)
 	//	sync_update(pnum, pHdr);
@@ -2265,9 +2258,9 @@ static unsigned On_SYNCDATA(TCmd* pCmd, int pnum)
 	return pHdr->wLen + sizeof(*pHdr);
 }
 
-static unsigned On_WALKXY(TCmd* pCmd, int pnum)
+static unsigned On_WALKXY(const TCmd* pCmd, int pnum)
 {
-	TCmdLoc* cmd = (TCmdLoc*)pCmd;
+	const TCmdLoc* cmd = (const TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
@@ -2279,9 +2272,9 @@ static unsigned On_WALKXY(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_WALKDIR(TCmd* pCmd, int pnum)
+static unsigned On_WALKDIR(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		if (cmd->bParam1 < NUM_DIRS) {
@@ -2295,44 +2288,44 @@ static unsigned On_WALKDIR(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_ADDSTR(TCmd* pCmd, int pnum)
+static unsigned On_ADDSTR(const TCmd* pCmd, int pnum)
 {
 	IncreasePlrStr(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_ADDMAG(TCmd* pCmd, int pnum)
+static unsigned On_ADDMAG(const TCmd* pCmd, int pnum)
 {
 	IncreasePlrMag(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_ADDDEX(TCmd* pCmd, int pnum)
+static unsigned On_ADDDEX(const TCmd* pCmd, int pnum)
 {
 	IncreasePlrDex(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_ADDVIT(TCmd* pCmd, int pnum)
+static unsigned On_ADDVIT(const TCmd* pCmd, int pnum)
 {
 	IncreasePlrVit(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_DECHP(TCmd* pCmd, int pnum)
+static unsigned On_DECHP(const TCmd* pCmd, int pnum)
 {
 	DecreasePlrMaxHp(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_TURN(TCmd* pCmd, int pnum)
+static unsigned On_TURN(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	int dir;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
@@ -2345,9 +2338,9 @@ static unsigned On_TURN(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_BLOCK(TCmd* pCmd, int pnum)
+static unsigned On_BLOCK(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	int dir;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
@@ -2360,9 +2353,9 @@ static unsigned On_BLOCK(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
+static unsigned On_GOTOGETITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	const TCmdLocParam1* cmd = (const TCmdLocParam1*)pCmd;
 	int ii;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
@@ -2378,9 +2371,9 @@ static unsigned On_GOTOGETITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_GETITEM(TCmd* pCmd, int pnum)
+static unsigned On_GETITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdGItem* cmd = (TCmdGItem*)pCmd;
+	const TCmdGItem* cmd = (const TCmdGItem*)pCmd;
 	int ii;
 
 	if (delta_get_item(cmd)) {
@@ -2396,17 +2389,16 @@ static unsigned On_GETITEM(TCmd* pCmd, int pnum)
 			InvGetItem(pnum, ii);
 		} else {
 			UnPackPkItem(&cmd->item);
-			copy_pod(plr._pHoldItem, items[MAXITEMS]);
-			// assert(!plr._pHoldItem._iFloorFlag);
+			SyncAutoGetItem(pnum, MAXITEMS);
 		}
 	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_AUTOGETITEM(TCmd* pCmd, int pnum)
+static unsigned On_AUTOGETITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdGItem* cmd = (TCmdGItem*)pCmd;
+	const TCmdGItem* cmd = (const TCmdGItem*)pCmd;
 	int ii;
 	bool result;
 
@@ -2474,9 +2466,9 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 }
 #endif
 
-static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
+static unsigned On_PUTITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdPItem* cmd = (TCmdPItem*)pCmd;
+	const TCmdPItem* cmd = (const TCmdPItem*)pCmd;
 	ItemStruct* pi;
 	int x, y, pr;
 
@@ -2485,62 +2477,54 @@ static unsigned On_PUTITEM(TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 #ifdef HELLFIRE
-		if (cmd->bLevel == DLV_TOWN && CheckTownTrigs(pnum, x, y, pi->_iIdx)) {
-			pi->_itype = ITYPE_NONE;
-			if (pnum == mypnum) {
-				check_update_plr(pnum);
-				NewCursor(CURSOR_HAND);
-			}
-			return sizeof(*cmd);
-		}
+		if (cmd->bLevel != DLV_TOWN || !CheckTownTrigs(pnum, x, y, pi->_iIdx))
 #endif
-		PkItemStruct pkItem;
-		PackPkItem(&pkItem, pi);
-		pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
-		if (pr >= 0) {
-			if (pr == 0 && currLvl._dLevelIdx == cmd->bLevel) {
-				copy_pod(items[MAXITEMS], *pi);
-				pi->_itype = ITYPE_NONE;
-				SyncPutItem(pnum, x, y, true);
-				if (pnum == mypnum) {
-					check_update_plr(pnum);
-					// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
-					NewCursor(CURSOR_HAND);
-				}
-			} else {
-				pi->_itype = ITYPE_NONE;
+		{
+			PkItemStruct pkItem;
+			PackPkItem(&pkItem, pi);
+			pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
+			if (pr < 0) {
+				return sizeof(*cmd);
 			}
+			if (pr == 0 && currLvl._dLevelIdx == cmd->bLevel) {
+				SyncPutItem(pnum, x, y, pi, true);
+			}
+		}
+		pi->_itype = ITYPE_NONE;
+		if (check_update_plr(pnum)) {
+			// SetCursorPos(MousePos.x + (cursW >> 1), MousePos.y + (cursH >> 1));
+			NewCursor(CURSOR_HAND);
 		}
 	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_SPAWNITEM(TCmd* pCmd, int pnum)
+static unsigned On_SPAWNITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdRPItem* cmd = (TCmdRPItem*)pCmd;
+	const TCmdRPItem* cmd = (const TCmdRPItem*)pCmd;
 
 	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) == 0 && currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
-		SyncPutItem(-1, cmd->x, cmd->y, cmd->bFlipFlag);
+		SyncPutItem(-1, cmd->x, cmd->y, &items[MAXITEMS], cmd->bFlipFlag);
 	}
 
 	return sizeof(*cmd);
 }
 
-static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
+static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 {
 	int ma;
-	BYTE sn = su.skill;
+	BYTE sn = su.skill, slvl;
 	int8_t sf = su.from;
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
 	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
 
 	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		su.from = plr._pSkillLvl[sn];
+		slvl = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
-			if (su.from == 0)
+			if (slvl == 0)
 				return false;
 			net_assert(plr._pMemSkills & SPELL_MASK(sn));
 			// always grant skill-activity to prevent de-sync
@@ -2559,30 +2543,32 @@ static bool CheckPlrSkillUse(int pnum, CmdSkillUse& su)
 			if (!SyncUseItem(pnum, sf, sn))
 				return false;
 		}
+		plr._pDestParam3 = sn;
+		plr._pDestParam4 = slvl;
 		return sameLvl;
 	}
 	return false;
 }
 
-static unsigned On_SKILLXY(TCmd* pCmd, int pnum)
+static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
 {
-	TCmdLocSkill* cmd = (TCmdLocSkill*)pCmd;
+	const TCmdLocSkill* cmd = (const TCmdLocSkill*)pCmd;
 
 	if (CheckPlrSkillUse(pnum, cmd->lsu)) {
 		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		plr._pDestAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
-		plr._pDestParam3 = cmd->lsu.skill;      // spell/skill
-		plr._pDestParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
+		// plr._pDestParam3 = cmd->lsu.skill;      // spell/skill
+		// plr._pDestParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
+static unsigned On_OPERATEITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdItemOp* cmd = (TCmdItemOp*)pCmd;
+	const TCmdItemOp* cmd = (const TCmdItemOp*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE skill = cmd->iou.skill;
@@ -2590,7 +2576,7 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 		const BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
-	net_assert(skill < NUM_SPELLS && spelldata[skill].sMissile == MIS_OPITEM);
+	net_assert(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
 	net_assert((BYTE)from < NUM_INVELEM ||
 		(from == SPLFROM_ABILITY && skill != SPL_OIL));
 	net_assert(cii < NUM_INVELEM);
@@ -2612,9 +2598,9 @@ static unsigned On_OPERATEITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
+static unsigned On_OPOBJXY(const TCmd* pCmd, int pnum)
 {
-	TCmdLocParam1* cmd = (TCmdLocParam1*)pCmd;
+	const TCmdLocParam1* cmd = (const TCmdLocParam1*)pCmd;
 	int oi;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
@@ -2634,9 +2620,9 @@ static unsigned On_OPOBJXY(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
+static unsigned On_DISARMXY(const TCmd* pCmd, int pnum)
 {
-	TCmdLocDisarm* cmd = (TCmdLocDisarm*)pCmd;
+	const TCmdLocDisarm* cmd = (const TCmdLocDisarm*)pCmd;
 	int oi;
 	CmdSkillUse su;
 
@@ -2653,16 +2639,16 @@ static unsigned On_DISARMXY(TCmd* pCmd, int pnum)
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
-		plr._pDestParam3 = SPL_DISARM; // spell
+		// plr._pDestParam3 = SPL_DISARM; // spell
 		plr._pDestParam4 = oi;         // fake spllvl
 	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
+static unsigned On_SKILLMON(const TCmd* pCmd, int pnum)
 {
-	TCmdMonSkill* cmd = (TCmdMonSkill*)pCmd;
+	const TCmdMonSkill* cmd = (const TCmdMonSkill*)pCmd;
 	int mnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->msu)) {
@@ -2671,16 +2657,16 @@ static unsigned On_SKILLMON(TCmd* pCmd, int pnum)
 		net_assert(mnum < MAXMONSTERS);
 		plr._pDestAction = spelldata[cmd->msu.skill].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[cmd->msu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
 		plr._pDestParam1 = mnum;                // target id
-		plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
-		plr._pDestParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
+		// plr._pDestParam3 = cmd->msu.skill;      // attack spell/skill
+		// plr._pDestParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
+static unsigned On_SKILLPLR(const TCmd* pCmd, int pnum)
 {
-	TCmdPlrSkill* cmd = (TCmdPlrSkill*)pCmd;
+	const TCmdPlrSkill* cmd = (const TCmdPlrSkill*)pCmd;
 	int tnum;
 
 	if (CheckPlrSkillUse(pnum, cmd->psu)) {
@@ -2689,16 +2675,16 @@ static unsigned On_SKILLPLR(TCmd* pCmd, int pnum)
 		net_assert(tnum < MAX_PLRS);
 		plr._pDestAction = spelldata[cmd->psu.skill].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[cmd->psu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
 		plr._pDestParam1 = tnum;                // target id
-		plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
-		plr._pDestParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
+		// plr._pDestParam3 = cmd->psu.skill;      // attack spell/skill
+		// plr._pDestParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
 	}
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_TALKMON(TCmd* pCmd, int pnum)
+static unsigned On_TALKMON(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 	int mnum;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
@@ -2712,9 +2698,9 @@ static unsigned On_TALKMON(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
+static unsigned On_NEWLVL(const TCmd* pCmd, int pnum)
 {
-	TCmdNewLvl* cmd = (TCmdNewLvl*)pCmd;
+	const TCmdNewLvl* cmd = (const TCmdNewLvl*)pCmd;
 	BYTE bLevel, bPlayers;
 	
 	bLevel = cmd->bLevel;
@@ -2731,9 +2717,9 @@ static unsigned On_NEWLVL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
+static unsigned On_CREATELVL(const TCmd* pCmd, int pnum)
 {
-	TCmdCreateLvl* cmd = (TCmdCreateLvl*)pCmd;
+	const TCmdCreateLvl* cmd = (const TCmdCreateLvl*)pCmd;
 	BYTE bLevel, bPlayers;
 	if (plr._pDunLevel == DLV_TOWN && !plr._pLvlChanging && plr._pmode != PM_DEATH) {
 	for (bLevel = NUM_FIXLVLS; bLevel < NUM_LEVELS; bLevel++) {
@@ -2774,9 +2760,9 @@ static unsigned On_CREATELVL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_USEPORTAL(TCmd* pCmd, int pnum)
+static unsigned On_USEPORTAL(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	BYTE idx = cmd->bParam1;
 
 	net_assert(idx < MAX_PLRS);
@@ -2786,9 +2772,9 @@ static unsigned On_USEPORTAL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_MONSTDEATH(TCmd* pCmd, int pnum)
+static unsigned On_MONSTDEATH(const TCmd* pCmd, int pnum)
 {
-	TCmdMonstKill* cmd = (TCmdMonstKill*)pCmd;
+	const TCmdMonstKill* cmd = (const TCmdMonstKill*)pCmd;
 	int i, lvl;
 	unsigned totplrs, xp;
 	BYTE whoHit, mask;
@@ -2816,36 +2802,36 @@ static unsigned On_MONSTDEATH(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_AWAKEGOLEM(TCmd* pCmd, int pnum)
+static unsigned On_AWAKEGOLEM(const TCmd* pCmd, int pnum)
 {
-	TCmdGolem* cmd = (TCmdGolem*)pCmd;
+	const TCmdGolem* cmd = (const TCmdGolem*)pCmd;
 
 	delta_awake_golem(cmd, pnum);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_MONSTDAMAGE(TCmd* pCmd, int pnum)
+static unsigned On_MONSTDAMAGE(const TCmd* pCmd, int pnum)
 {
-	TCmdMonstDamage* cmd = (TCmdMonstDamage*)pCmd;
+	const TCmdMonstDamage* cmd = (const TCmdMonstDamage*)pCmd;
 
 	delta_monster_hp(cmd, pnum);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_MONSTCORPSE(TCmd* pCmd, int pnum)
+static unsigned On_MONSTCORPSE(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	const TCmdBParam2* cmd = (const TCmdBParam2*)pCmd;
 
 	delta_monster_corpse(cmd);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_MONSTSUMMON(TCmd* pCmd, int pnum)
+static unsigned On_MONSTSUMMON(const TCmd* pCmd, int pnum)
 {
-	TCmdMonstSummon* cmd = (TCmdMonstSummon*)pCmd;
+	const TCmdMonstSummon* cmd = (const TCmdMonstSummon*)pCmd;
 
 	delta_monster_summon(cmd);
 
@@ -2868,16 +2854,15 @@ static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 	if (pr < 0)
 		return false;
 	if (pr == 0 && currLvl._dLevelIdx == plr._pDunLevel) {
-		UnPackPkItem(&pkItem);
-		SyncPutItem(pnum, x, y, true);
+		SyncPutItem(pnum, x, y, pi, true);
 	}
 	pi->_itype = ITYPE_NONE;
 	return true;
 }
 
-static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
+static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	int i, dmgtype = cmd->bParam1;
 
 	// TODO: reset cursor if not an item?
@@ -2917,24 +2902,23 @@ static unsigned On_PLRDEAD(TCmd* pCmd, int pnum)
 
 	SyncPlrKill(pnum);
 
-	if (pnum == mypnum)
-		check_update_plr(pnum);
+	check_update_plr(pnum);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_PLRRESURRECT(TCmd* pCmd, int pnum)
+static unsigned On_PLRRESURRECT(const TCmd* pCmd, int pnum)
 {
 	SyncPlrResurrect(pnum);
-	if (pnum == mypnum)
-		check_update_plr(pnum);
+
+	check_update_plr(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_DOOROPEN(TCmd* pCmd, int pnum)
+static unsigned On_DOOROPEN(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncDoorOpen(cmd->wParam1);
@@ -2943,9 +2927,9 @@ static unsigned On_DOOROPEN(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_DOORCLOSE(TCmd* pCmd, int pnum)
+static unsigned On_DOORCLOSE(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncDoorClose(cmd->wParam1);
@@ -2954,9 +2938,9 @@ static unsigned On_DOORCLOSE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TRAPDISABLE(TCmd* pCmd, int pnum)
+static unsigned On_TRAPDISABLE(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapDisable(cmd->wParam1);
@@ -2965,9 +2949,9 @@ static unsigned On_TRAPDISABLE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-/*static unsigned On_TRAPOPEN(TCmd* pCmd, int pnum)
+/*static unsigned On_TRAPOPEN(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapOpen(cmd->wParam1);
@@ -2976,9 +2960,9 @@ static unsigned On_TRAPDISABLE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TRAPCLOSE(TCmd* pCmd, int pnum)
+static unsigned On_TRAPCLOSE(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapClose(cmd->wParam1);
@@ -2987,9 +2971,9 @@ static unsigned On_TRAPCLOSE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }*/
 
-static unsigned On_OPERATEOBJ(TCmd* pCmd, int pnum)
+static unsigned On_OPERATEOBJ(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncOpObject(pnum, cmd->wParam1);
@@ -3001,9 +2985,9 @@ static unsigned On_OPERATEOBJ(TCmd* pCmd, int pnum)
 /**
  * Sync Shrine effect with every player
  */
-static unsigned On_SHRINE(TCmd* pCmd, int pnum)
+static unsigned On_SHRINE(const TCmd* pCmd, int pnum)
 {
-	TCmdShrine* cmd = (TCmdShrine*)pCmd;
+	const TCmdShrine* cmd = (const TCmdShrine*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE type = cmd->shType;
@@ -3016,9 +3000,9 @@ static unsigned On_SHRINE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
+static unsigned On_SPLITPLRGOLD(const TCmd* pCmd, int pnum)
 {
-	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
+	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
 	const BYTE r = cmd->byteParam;
 
 	net_assert(r < NUM_INV_GRID_ELEM);
@@ -3029,9 +3013,9 @@ static unsigned On_SPLITPLRGOLD(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
+static unsigned On_PASTEPLRITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE r = cmd->bParam1;
@@ -3044,9 +3028,9 @@ static unsigned On_PASTEPLRITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
+static unsigned On_PASTEPLRBELTITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE r = cmd->bParam1;
@@ -3059,9 +3043,9 @@ static unsigned On_PASTEPLRBELTITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_CUTPLRITEM(TCmd* pCmd, int pnum)
+static unsigned On_CUTPLRITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	const TCmdBParam2* cmd = (const TCmdBParam2*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE cii = cmd->bParam1;
@@ -3074,9 +3058,9 @@ static unsigned On_CUTPLRITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_DELPLRITEM(TCmd* pCmd, int pnum)
+static unsigned On_DELPLRITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	const BYTE cii = cmd->bParam1;
 
 	net_assert(cii < NUM_INVELEM);
@@ -3086,9 +3070,9 @@ static unsigned On_DELPLRITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
+static unsigned On_USEPLRITEM(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE cii = cmd->bParam1;
@@ -3101,9 +3085,9 @@ static unsigned On_USEPLRITEM(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_USEPLRMAP(TCmd* pCmd, int pnum)
+static unsigned On_USEPLRMAP(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	const TCmdBParam2* cmd = (const TCmdBParam2*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
 		const BYTE cii = cmd->bParam1;
@@ -3118,9 +3102,9 @@ static unsigned On_USEPLRMAP(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
+static unsigned On_PLRINFO(const TCmd* pCmd, int pnum)
 {
-	TMsgLarge* cmd = (TMsgLarge*)pCmd;
+	const TMsgLarge* cmd = (const TMsgLarge*)pCmd;
 
 	net_assert((unsigned)pnum < MAX_PLRS);
 
@@ -3132,9 +3116,9 @@ static unsigned On_PLRINFO(TCmd* pCmd, int pnum)
 	return cmd->tpHdr.wBytes + sizeof(cmd->tpHdr);
 }
 
-static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
+static unsigned On_JOINLEVEL(const TCmd* pCmd, int pnum)
 {
-	TCmdJoinLevel* cmd = (TCmdJoinLevel*)pCmd;
+	const TCmdJoinLevel* cmd = (const TCmdJoinLevel*)pCmd;
 
 	// reqister request only if not processing level-delta
 	//if (geBufferMsgs != MSG_LVL_DELTA_PROC) { -- does not cover all cases...
@@ -3199,7 +3183,7 @@ static unsigned On_JOINLEVEL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
+static unsigned On_DISCONNECT(const TCmd* pCmd, int pnum)
 {
 	if (geBufferMsgs == MSG_LVL_DELTA_WAIT) {
 		guOweLevelDelta &= ~(1 << pnum);
@@ -3210,7 +3194,7 @@ static unsigned On_DISCONNECT(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static unsigned On_REQDELTA(TCmd* pCmd, int pnum)
+static unsigned On_REQDELTA(const TCmd* pCmd, int pnum)
 {
 	if (pnum != mypnum) {
 		guSendGameDelta |= 1 << pnum;
@@ -3230,23 +3214,23 @@ static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = x;
 		plr._pDestParam2 = y;
-		plr._pDestParam3 = SPL_TELEKINESIS; // spell
+		// plr._pDestParam3 = SPL_TELEKINESIS; // spell
 		plr._pDestParam4 = id;              // fake spllvl
 	}
 }
 
-static unsigned On_TELEKINITM(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINITM(const TCmd* pCmd, int pnum)
 {
-	TCmdLocBParam2* cmd = (TCmdLocBParam2*)pCmd;
+	const TCmdLocBParam2* cmd = (const TCmdLocBParam2*)pCmd;
 
 	DoTelekinesis(pnum, cmd->x, cmd->y, cmd->bParam1, (MTT_ITEM << 16) | cmd->bParam2);
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_TELEKINMON(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINMON(const TCmd* pCmd, int pnum)
 {
-	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
+	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
 	int mnum = cmd->wordParam;
 
 	net_assert(mnum < MAXMONSTERS);
@@ -3256,9 +3240,9 @@ static unsigned On_TELEKINMON(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TELEKINPLR(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINPLR(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam2* cmd = (TCmdBParam2*)pCmd;
+	const TCmdBParam2* cmd = (const TCmdBParam2*)pCmd;
 	int tnum = cmd->bParam2;
 
 	net_assert(tnum < MAX_PLRS);
@@ -3268,9 +3252,9 @@ static unsigned On_TELEKINPLR(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_TELEKINOBJ(TCmd* pCmd, int pnum)
+static unsigned On_TELEKINOBJ(const TCmd* pCmd, int pnum)
 {
-	TCmdParamBW* cmd = (TCmdParamBW*)pCmd;
+	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
 	int oi = cmd->wordParam;
 
 	net_assert(oi < MAXOBJECTS);
@@ -3280,9 +3264,9 @@ static unsigned On_TELEKINOBJ(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_ACTIVATEPORTAL(TCmd* pCmd, int pnum)
+static unsigned On_ACTIVATEPORTAL(const TCmd* pCmd, int pnum)
 {
-	TCmdLocBParam1* cmd = (TCmdLocBParam1*)pCmd;
+	const TCmdLocBParam1* cmd = (const TCmdLocBParam1*)pCmd;
 	BYTE bLevel = cmd->bParam1;
 
 	net_assert(bLevel != DLV_TOWN);
@@ -3300,16 +3284,16 @@ static unsigned On_ACTIVATEPORTAL(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_RETOWN(TCmd* pCmd, int pnum)
+static unsigned On_RETOWN(const TCmd* pCmd, int pnum)
 {
 	RestartTownLvl(pnum);
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_STRING(TCmd* pCmd, int pnum)
+static unsigned On_STRING(const TCmd* pCmd, int pnum)
 {
-	TMsgString* cmd = (TMsgString*)pCmd;
+	const TMsgString* cmd = (const TMsgString*)pCmd;
 
 	//if (geBufferMsgs != MSG_GAME_DELTA_LOAD && geBufferMsgs != MSG_GAME_DELTA_WAIT) {
 		net_assert(cmd->bsLen < MAX_SEND_STR_LEN && cmd->str[cmd->bsLen] == '\0');
@@ -3325,9 +3309,9 @@ static unsigned On_STRING(TCmd* pCmd, int pnum)
 	return cmd->bsLen + 3; // length of string + nul terminator + sizeof(cmd->bCmd) + sizeof(cmd->bsLen)
 }
 
-static unsigned On_INVITE(TCmd* pCmd, int pnum)
+static unsigned On_INVITE(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	// TODO: check (cmd->bParam1 == mypnum) should not be necessary in a server/client solution
 	if (cmd->bParam1 == mypnum && plr._pTeam == pnum) {
@@ -3338,9 +3322,9 @@ static unsigned On_INVITE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_ACK_INVITE(TCmd* pCmd, int pnum)
+static unsigned On_ACK_INVITE(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	guTeamInviteRec &= ~(1 << pnum);
 	guTeamInviteSent &= ~(1 << pnum);
@@ -3362,9 +3346,9 @@ static unsigned On_ACK_INVITE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_DEC_INVITE(TCmd* pCmd, int pnum)
+static unsigned On_DEC_INVITE(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	if (cmd->bParam1 == mypnum) { // TODO: check should not be necessary in a server/client solution
 		guTeamInviteSent &= ~(1 << pnum);
@@ -3375,9 +3359,9 @@ static unsigned On_DEC_INVITE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_REV_INVITE(TCmd* pCmd, int pnum)
+static unsigned On_REV_INVITE(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	if (cmd->bParam1 == mypnum) { // TODO: check should not be necessary in a server/client solution
 		guTeamInviteRec &= ~(1 << pnum);
@@ -3388,9 +3372,9 @@ static unsigned On_REV_INVITE(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_KICK_PLR(TCmd* pCmd, int pnum)
+static unsigned On_KICK_PLR(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	int teamplr, team;
 
 	teamplr = cmd->bParam1;
@@ -3436,9 +3420,9 @@ static unsigned On_KICK_PLR(TCmd* pCmd, int pnum)
 /**
  * Execute store transactions I.
  */
-static unsigned On_STORE_1(TCmd* pCmd, int pnum)
+static unsigned On_STORE_1(const TCmd* pCmd, int pnum)
 {
-	TCmdStore1* cmd = (TCmdStore1*)pCmd;
+	const TCmdStore1* cmd = (const TCmdStore1*)pCmd;
 	BYTE c = cmd->stCmd, cii = cmd->stLoc;
 
 	net_assert(plr._pmode != PM_DEATH);
@@ -3454,9 +3438,9 @@ static unsigned On_STORE_1(TCmd* pCmd, int pnum)
 /**
  * Execute store transactions II.
  */
-static unsigned On_STORE_2(TCmd* pCmd, int pnum)
+static unsigned On_STORE_2(const TCmd* pCmd, int pnum)
 {
-	TCmdStore2* cmd = (TCmdStore2*)pCmd;
+	const TCmdStore2* cmd = (const TCmdStore2*)pCmd;
 	BYTE c = cmd->stCmd;
 
 	net_assert(plr._pmode != PM_DEATH);
@@ -3470,9 +3454,9 @@ static unsigned On_STORE_2(TCmd* pCmd, int pnum)
 }
 
 /* Sync item rewards in town. */
-static unsigned On_QTOWNER(TCmd* pCmd, int pnum)
+static unsigned On_QTOWNER(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	net_assert(plr._pmode != PM_DEATH);
 	net_assert(plr._pDunLevel == DLV_TOWN);
@@ -3483,9 +3467,9 @@ static unsigned On_QTOWNER(TCmd* pCmd, int pnum)
 }
 
 /* Sync item rewards in dungeon. */
-static unsigned On_QMONSTER(TCmd* pCmd, int pnum)
+static unsigned On_QMONSTER(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	if (plr._pmode != PM_DEATH)
 		SyncMonsterQ(pnum, cmd->wParam1);
@@ -3496,9 +3480,9 @@ static unsigned On_QMONSTER(TCmd* pCmd, int pnum)
 /**
  * Sync Quest with every player.
  */
-static unsigned On_SYNCQUEST(TCmd* pCmd, int pnum)
+static unsigned On_SYNCQUEST(const TCmd* pCmd, int pnum)
 {
-	TCmdQuest* cmd = (TCmdQuest*)pCmd;
+	const TCmdQuest* cmd = (const TCmdQuest*)pCmd;
 
 	if (pnum != mypnum)
 		SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
@@ -3509,9 +3493,9 @@ static unsigned On_SYNCQUEST(TCmd* pCmd, int pnum)
 /**
  * Same as On_SYNCQUEST, but sends the message only to players on other levels.
  */
-static unsigned On_SYNCQUESTEXT(TCmd* pCmd, int pnum)
+static unsigned On_SYNCQUESTEXT(const TCmd* pCmd, int pnum)
 {
-	TCmdQuest* cmd = (TCmdQuest*)pCmd;
+	const TCmdQuest* cmd = (const TCmdQuest*)pCmd;
 
 	if (currLvl._dLevelIdx != plr._pDunLevel)
 		SetMultiQuest(cmd->q, cmd->qstate, cmd->qlog, cmd->qvar1);
@@ -3521,7 +3505,7 @@ static unsigned On_SYNCQUESTEXT(TCmd* pCmd, int pnum)
 
 #if DEV_MODE
 #define msg_errorf(fmt, ...) EventPlrMsg(fmt, __VA_ARGS__);
-static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
+static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 {
 	int mnum;
 	MonsterStruct* mon;
@@ -3701,7 +3685,7 @@ static unsigned On_DUMP_MONSTERS(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
+static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 {
 	BYTE plrdata[256];
 	BYTE* buf = plrdata;
@@ -3838,7 +3822,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 		// LogErrorF("Player base-data %d", (size_t)buf - (size_t)plrdata);
 
 		assert((size_t)buf - (size_t)plrdata == 114);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 114); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes I.
 		buf = &plrdata[1];
@@ -3864,7 +3848,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 
 		//LogErrorF("Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 219);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 219); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes II.
 		buf = &plrdata[1];
@@ -3879,7 +3863,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 
 		// LogErrorF("Player skill-data II. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 131); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes III.
 		buf = &plrdata[1];
@@ -3894,7 +3878,7 @@ static unsigned On_REQUEST_PLRCHECK(TCmd* pCmd, int pnum)
 
 		//LogErrorF("Player skill-data III. %d", (size_t)buf - (size_t)plrdata);
 		assert((size_t)buf - (size_t)plrdata == 131);
-		NetSendChunk(plrdata, (size_t)buf - (size_t)plrdata);
+		NetSendChunk(plrdata, 131); // (size_t)buf - (size_t)plrdata);
 		/*PlrAnimStruct _pAnims[NUM_PGXS];*/
 		/*BOOLEAN _pInfraFlag;
 		BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
@@ -3948,10 +3932,15 @@ static void PrintPlrMismatch(const char* field, int myval, int extval, int sp, i
 	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
 }
 
-static void CmpPlrArray(const char* field, void* src, void* data, int size, int len, int ip, int pnum)
+static void PrintPlrMismatch64(const char* field, uint64_t myval, uint64_t extval, int sp, int pnum)
 {
-	BYTE* sbuf = (BYTE*)src;
-	BYTE* dbuf = (BYTE*)data;
+	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
+}
+
+static void CmpPlrArray(const char* field, const void* src, const void* data, int size, int len, int ip, int pnum)
+{
+	const BYTE* sbuf = (const BYTE*)src;
+	const BYTE* dbuf = (const BYTE*)data;
 	for (int i = 0; i < len; i++) {
 
 		if (size == 1) {
@@ -3961,22 +3950,22 @@ static void CmpPlrArray(const char* field, void* src, void* data, int size, int 
 				PrintPlrMismatch(tmp, *dbuf, *sbuf, pnum, ip);
 			}
 		} else if (size == 2) {
-			if (*(uint16_t*)sbuf != *(uint16_t*)dbuf) {
+			if (*(const uint16_t*)sbuf != *(const uint16_t*)dbuf) {
 				char tmp[256];
 				snprintf(tmp, 256, "%s[%d]", field, i);
-				PrintPlrMismatch(tmp, *(uint16_t*)dbuf, *(uint16_t*)sbuf, pnum, ip);
+				PrintPlrMismatch(tmp, *(const uint16_t*)dbuf, *(const uint16_t*)sbuf, pnum, ip);
 			}
 		} else if (size == 4) {
-			if (*(uint32_t*)sbuf != *(uint32_t*)dbuf) {
+			if (*(const uint32_t*)sbuf != *(const uint32_t*)dbuf) {
 				char tmp[256];
 				snprintf(tmp, 256, "%s[%d]", field, i);
-				PrintPlrMismatch(tmp, *(uint32_t*)dbuf, *(uint32_t*)sbuf, pnum, ip);
+				PrintPlrMismatch(tmp, *(const uint32_t*)dbuf, *(const uint32_t*)sbuf, pnum, ip);
 			}
 		} else if (size == 8) {
-			if (*(uint64_t*)sbuf != *(uint64_t*)dbuf) {
+			if (*(const uint64_t*)sbuf != *(const uint64_t*)dbuf) {
 				char tmp[256];
 				snprintf(tmp, 256, "%s[%d]", field, i);
-				PrintPlrMismatch(tmp, *(uint64_t*)dbuf, *(uint64_t*)sbuf, pnum, ip);
+				PrintPlrMismatch64(tmp, *(const uint64_t*)dbuf, *(const uint64_t*)sbuf, pnum, ip);
 			}
 		}
 		sbuf += size;
@@ -3984,9 +3973,9 @@ static void CmpPlrArray(const char* field, void* src, void* data, int size, int 
 	}
 }
 
-static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
+static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 {
-	BYTE* src = (BYTE*)pCmd;
+	const BYTE* src = (const BYTE*)pCmd;
 	src++;
 	int i = *src, k;
 	src++;
@@ -4010,17 +3999,17 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 			PrintPlrMismatch("destaction", plx(i)._pDestAction, *src, pnum, i);
 		src++;
 
-		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam1 != *(INT*)src)
-			PrintPlrMismatch("destparam1", plx(i)._pDestParam1, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam1 != *(const INT*)src)
+			PrintPlrMismatch("destparam1", plx(i)._pDestParam1, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam2 != *(INT*)src)
-			PrintPlrMismatch("destparam2", plx(i)._pDestParam2, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam2 != *(const INT*)src)
+			PrintPlrMismatch("destparam2", plx(i)._pDestParam2, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam3 != *(INT*)src)
-			PrintPlrMismatch("destparam3", plx(i)._pDestParam3, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam3 != *(const INT*)src)
+			PrintPlrMismatch("destparam3", plx(i)._pDestParam3, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam4 != *(INT*)src)
-			PrintPlrMismatch("destparam4", plx(i)._pDestParam4, *(INT*)src, pnum, i);
+		if (plx(i)._pDestAction != ACTION_NONE && plx(i)._pDestParam4 != *(const INT*)src)
+			PrintPlrMismatch("destparam4", plx(i)._pDestParam4, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
 
 		if (plx(i)._pInvincible != *src)
@@ -4041,8 +4030,8 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 			PrintPlrMismatch("team", plx(i)._pTeam, *src, pnum, i);
 		src++;
 
-		if (plx(i)._pStatPts != *(WORD*)src)
-			PrintPlrMismatch("statpts", plx(i)._pStatPts, *(WORD*)src, pnum, i);
+		if (plx(i)._pStatPts != *(const WORD*)src)
+			PrintPlrMismatch("statpts", plx(i)._pStatPts, *(const WORD*)src, pnum, i);
 		src += sizeof(WORD);
 
 		//BYTE _pLightRad;
@@ -4053,12 +4042,12 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		//memcpy(buf, plx(i)._pTimer, sizeof(plx(i)._pTimer));
 		//buf += sizeof(plx(i)._pTimer);
 
-		if (plx(i)._pExperience != *(UINT*)src)
-			PrintPlrMismatch("expr", plx(i)._pExperience, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pNextExper != *(UINT*)src)
-			PrintPlrMismatch("nexpr", plx(i)._pNextExper, *(INT*)src, pnum, i);
-		src += sizeof(INT);
+		if (plx(i)._pExperience != *(const UINT*)src)
+			PrintPlrMismatch("expr", plx(i)._pExperience, *(const UINT*)src, pnum, i);
+		src += sizeof(UINT);
+		if (plx(i)._pNextExper != *(const UINT*)src)
+			PrintPlrMismatch("nexpr", plx(i)._pNextExper, *(const UINT*)src, pnum, i);
+		src += sizeof(UINT);
 
 		if (plx(i)._px != *src)
 			PrintPlrMismatch("px", plx(i)._px, *src, pnum, i);
@@ -4093,70 +4082,70 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		//unsigned _plid;
 		//unsigned _pvid;
 		// char _pName[PLR_NAME_LEN];
-		if (plx(i)._pBaseStr != *(WORD*)src)
-			PrintPlrMismatch("basestr", plx(i)._pBaseStr, *(WORD*)src, pnum, i);
+		if (plx(i)._pBaseStr != *(const WORD*)src)
+			PrintPlrMismatch("basestr", plx(i)._pBaseStr, *(const WORD*)src, pnum, i);
 		src += sizeof(WORD);
-		if (plx(i)._pBaseMag != *(WORD*)src)
-			PrintPlrMismatch("basemag", plx(i)._pBaseMag, *(WORD*)src, pnum, i);
+		if (plx(i)._pBaseMag != *(const WORD*)src)
+			PrintPlrMismatch("basemag", plx(i)._pBaseMag, *(const WORD*)src, pnum, i);
 		src += sizeof(WORD);
-		if (plx(i)._pBaseDex != *(WORD*)src)
-			PrintPlrMismatch("basedex", plx(i)._pBaseDex, *(WORD*)src, pnum, i);
+		if (plx(i)._pBaseDex != *(const WORD*)src)
+			PrintPlrMismatch("basedex", plx(i)._pBaseDex, *(const WORD*)src, pnum, i);
 		src += sizeof(WORD);
-		if (plx(i)._pBaseVit != *(WORD*)src)
-			PrintPlrMismatch("basevit", plx(i)._pBaseVit, *(WORD*)src, pnum, i);
+		if (plx(i)._pBaseVit != *(const WORD*)src)
+			PrintPlrMismatch("basevit", plx(i)._pBaseVit, *(const WORD*)src, pnum, i);
 		src += sizeof(WORD);
 
-		if (plx(i)._pHPBase != *(INT*)src)
-			PrintPlrMismatch("HPBase", plx(i)._pHPBase, *(INT*)src, pnum, i);
+		if (plx(i)._pHPBase != *(const INT*)src)
+			PrintPlrMismatch("HPBase", plx(i)._pHPBase, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pMaxHPBase != *(INT*)src)
-			PrintPlrMismatch("MaxHPBase", plx(i)._pMaxHPBase, *(INT*)src, pnum, i);
+		if (plx(i)._pMaxHPBase != *(const INT*)src)
+			PrintPlrMismatch("MaxHPBase", plx(i)._pMaxHPBase, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pManaBase != *(INT*)src)
-			PrintPlrMismatch("ManaBase", plx(i)._pManaBase, *(INT*)src, pnum, i);
+		if (plx(i)._pManaBase != *(const INT*)src)
+			PrintPlrMismatch("ManaBase", plx(i)._pManaBase, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
-		if (plx(i)._pMaxManaBase != *(INT*)src)
-			PrintPlrMismatch("MaxManaBase", plx(i)._pMaxManaBase, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-
-		if (plx(i)._pVar1 != *(INT*)src)
-			PrintPlrMismatch("Var1", plx(i)._pVar1, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar2 != *(INT*)src)
-			PrintPlrMismatch("Var2", plx(i)._pVar2, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar3 != *(INT*)src)
-			PrintPlrMismatch("Var3", plx(i)._pVar3, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar4 != *(INT*)src)
-			PrintPlrMismatch("Var4", plx(i)._pVar4, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar5 != *(INT*)src)
-			PrintPlrMismatch("Var5", plx(i)._pVar5, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar6 != *(INT*)src)
-			PrintPlrMismatch("Var6", plx(i)._pVar6, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar7 != *(INT*)src)
-			PrintPlrMismatch("Var7", plx(i)._pVar7, *(INT*)src, pnum, i);
-		src += sizeof(INT);
-		if (plx(i)._pVar8 != *(INT*)src)
-			PrintPlrMismatch("Var8", plx(i)._pVar8, *(INT*)src, pnum, i);
+		if (plx(i)._pMaxManaBase != *(const INT*)src)
+			PrintPlrMismatch("MaxManaBase", plx(i)._pMaxManaBase, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
 
-		if (plx(i)._pGold != *(INT*)src)
-			PrintPlrMismatch("Gold", plx(i)._pGold, *(INT*)src, pnum, i);
+		if (plx(i)._pVar1 != *(const INT*)src)
+			PrintPlrMismatch("Var1", plx(i)._pVar1, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar2 != *(const INT*)src)
+			PrintPlrMismatch("Var2", plx(i)._pVar2, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar3 != *(const INT*)src)
+			PrintPlrMismatch("Var3", plx(i)._pVar3, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar4 != *(const INT*)src)
+			PrintPlrMismatch("Var4", plx(i)._pVar4, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar5 != *(const INT*)src)
+			PrintPlrMismatch("Var5", plx(i)._pVar5, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar6 != *(const INT*)src)
+			PrintPlrMismatch("Var6", plx(i)._pVar6, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar7 != *(const INT*)src)
+			PrintPlrMismatch("Var7", plx(i)._pVar7, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+		if (plx(i)._pVar8 != *(const INT*)src)
+			PrintPlrMismatch("Var8", plx(i)._pVar8, *(const INT*)src, pnum, i);
+		src += sizeof(INT);
+
+		if (plx(i)._pGold != *(const INT*)src)
+			PrintPlrMismatch("Gold", plx(i)._pGold, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
 		//int _pStrength;
 		//int _pMagic;
 		//int _pDexterity;
 		//int _pVitality;
-		if (plx(i)._pHitPoints != *(INT*)src)
-			PrintPlrMismatch("HitPoints", plx(i)._pHitPoints, *(INT*)src, pnum, i);
+		if (plx(i)._pHitPoints != *(const INT*)src)
+			PrintPlrMismatch("HitPoints", plx(i)._pHitPoints, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
 		//int _pMaxHP;     // the maximum hp of the player
-		if (plx(i)._pMana != *(INT*)src)
-			PrintPlrMismatch("Mana", plx(i)._pMana, *(INT*)src, pnum, i);
+		if (plx(i)._pMana != *(const INT*)src)
+			PrintPlrMismatch("Mana", plx(i)._pMana, *(const INT*)src, pnum, i);
 		src += sizeof(INT);
 		//int _pMaxMana;   // the maximum mana of the player
 		break;
@@ -4168,14 +4157,14 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		CmpPlrArray("SkillActivity", src, plx(i)._pSkillActivity, sizeof(plx(i)._pSkillActivity[0]), lengthof(plx(i)._pSkillActivity), i, pnum);
 		src += sizeof(plx(i)._pSkillActivity);
 
-		if (plx(i)._pMemSkills != *(uint64_t*)src)
-			PrintPlrMismatch("MemSkills", plx(i)._pMemSkills, *(uint64_t*)src, pnum, i);
+		if (plx(i)._pMemSkills != *(const uint64_t*)src)
+			PrintPlrMismatch64("MemSkills", plx(i)._pMemSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
-		if (plx(i)._pAblSkills != *(uint64_t*)src)
-			PrintPlrMismatch("AblSkills", plx(i)._pAblSkills, *(uint64_t*)src, pnum, i);
+		if (plx(i)._pAblSkills != *(const uint64_t*)src)
+			PrintPlrMismatch64("AblSkills", plx(i)._pAblSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
-		if (plx(i)._pInvSkills != *(uint64_t*)src)
-			PrintPlrMismatch("InvSkills", plx(i)._pInvSkills, *(uint64_t*)src, pnum, i);
+		if (plx(i)._pInvSkills != *(const uint64_t*)src)
+			PrintPlrMismatch64("InvSkills", plx(i)._pInvSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		break;
 	case 2: // skill data
@@ -4188,11 +4177,11 @@ static unsigned On_DO_PLRCHECK(TCmd* pCmd, int pnum)
 		break;
 	}
 
-	return (size_t)src - (size_t)pCmd;
+	return (unsigned)((size_t)src - (size_t)pCmd);
 }
 
 static const int ITEMCHECK_LEN = 4 + 2 + 2 + 1 + 1 + 1 + 1 + 4 + 4 + 4;
-static BYTE* SendItem(ItemStruct* is, BYTE* dst)
+static BYTE* SendItem(const ItemStruct* is, BYTE* dst)
 {
 	BYTE* dstStart = dst;
 
@@ -4225,7 +4214,7 @@ static BYTE* SendItem(ItemStruct* is, BYTE* dst)
 	return dst;
 }
 
-static unsigned On_REQUEST_ITEMCHECK(TCmd* pCmd, int pnum)
+static unsigned On_REQUEST_ITEMCHECK(const TCmd* pCmd, int pnum)
 {
 	BYTE items[256];
 	BYTE* buf = items;
@@ -4275,7 +4264,7 @@ static unsigned On_REQUEST_ITEMCHECK(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static void PrintItemMismatch(ItemStruct* is, const char* field, int myval, int extval, int sp, int pnum, int locId, int subloc)
+static void PrintItemMismatch(const ItemStruct* is, const char* field, int myval, int extval, int sp, int pnum, int locId, int subloc)
 {
 	const char* loc = locId == 0 ? (subloc < 0 ? "hand" : "body") : (locId == 1 ? "belt" : "inv");
 	int row = locId >= 2 ? locId - 2 : 0;
@@ -4283,39 +4272,39 @@ static void PrintItemMismatch(ItemStruct* is, const char* field, int myval, int 
 		msg_errorf("%d received %s (%d vs. %d) from %d for plr%d %s item at %d:%d", mypnum, field, myval, extval, sp, pnum, loc, row, subloc);
 }
 
-static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc, int sp)
+static const BYTE* CheckItem(const ItemStruct* is, const BYTE* src, int pnum, int loc, int subloc, int sp)
 {
-	BYTE* srcStart = src;
+	const BYTE* srcStart = src;
 	bool placeholder, none;
 
-	if (is->_itype != *(BYTE*)src) {
-		PrintItemMismatch(is, "type", is->_itype, *(BYTE*)src, sp, pnum, loc, subloc);
+	if (is->_itype != *(const BYTE*)src) {
+		PrintItemMismatch(is, "type", is->_itype, *(const BYTE*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(BYTE);
 
 	placeholder = is->_itype == ITYPE_PLACEHOLDER;
 	none = is->_itype == ITYPE_NONE;
 
-	if (!none && !placeholder && is->_iSeed != *(INT*)src) {
-		PrintItemMismatch(is, "seed", is->_iSeed, *(INT*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iSeed != *(const INT*)src) {
+		PrintItemMismatch(is, "seed", is->_iSeed, *(const INT*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(INT);
 
-	if (!none && !placeholder && is->_iIdx != *(WORD*)src) {
-		PrintItemMismatch(is, "idx", is->_iIdx, *(WORD*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iIdx != *(const WORD*)src) {
+		PrintItemMismatch(is, "idx", is->_iIdx, *(const WORD*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(WORD);
-	if (!none && !placeholder && is->_iCreateInfo != *(WORD*)src) {
-		PrintItemMismatch(is, "ci", is->_iCreateInfo, *(WORD*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iCreateInfo != *(const WORD*)src) {
+		PrintItemMismatch(is, "ci", is->_iCreateInfo, *(const WORD*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(WORD);
 
-	if (placeholder && is->_ix != *(BYTE*)src) {
-		PrintItemMismatch(is, "x", is->_ix, *(BYTE*)src, sp, pnum, loc, subloc);
+	if (placeholder && is->_ix != *(const BYTE*)src) {
+		PrintItemMismatch(is, "x", is->_ix, *(const BYTE*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(BYTE);
-	//if (!none && !placeholder && is->_iy != *(BYTE*)src) {
-	//	PrintItemMismatch(is, "x", is->_iy, *(BYTE*)src, sp, pnum, loc, subloc);
+	//if (!none && !placeholder && is->_iy != *(const BYTE*)src) {
+	//	PrintItemMismatch(is, "x", is->_iy, *(const BYTE*)src, sp, pnum, loc, subloc);
 	//}
 	src += sizeof(BYTE);
 	if (!none && !placeholder && is->_iIdentified != *(BOOLEAN*)src) {
@@ -4323,16 +4312,16 @@ static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc,
 	}
 	src += sizeof(BOOLEAN);
 
-	if (!none && !placeholder && is->_iCharges != *(INT*)src) {
-		PrintItemMismatch(is, "chg", is->_iCharges, *(INT*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iCharges != *(const INT*)src) {
+		PrintItemMismatch(is, "chg", is->_iCharges, *(const INT*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(INT);
-	if (!none && !placeholder && is->_iDurability != *(INT*)src) {
-		PrintItemMismatch(is, "dur", is->_iDurability, *(INT*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iDurability != *(const INT*)src) {
+		PrintItemMismatch(is, "dur", is->_iDurability, *(const INT*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(INT);
-	if (!none && !placeholder && is->_ivalue != *(INT*)src) {
-		PrintItemMismatch(is, "value", is->_ivalue, *(INT*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_ivalue != *(const INT*)src) {
+		PrintItemMismatch(is, "value", is->_ivalue, *(const INT*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(INT);
 
@@ -4340,9 +4329,9 @@ static BYTE* CheckItem(ItemStruct* is, BYTE* src, int pnum, int loc, int subloc,
 	return src;
 }
 
-static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
+static unsigned On_DO_ITEMCHECK(const TCmd* pCmd, int pnum)
 {
-	BYTE* src = (BYTE*)pCmd;
+	const BYTE* src = (const BYTE*)pCmd;
 	src++;
 	int i = *src, k;
 	src++;
@@ -4372,30 +4361,30 @@ static unsigned On_DO_ITEMCHECK(TCmd* pCmd, int pnum)
 	}
 
 	//	LogErrorF("ItemCheck done. %d", (size_t)src - (size_t)pCmd);
-	return (size_t)src - (size_t)pCmd;
+	return (unsigned)((size_t)src - (size_t)pCmd);
 }
 
 #endif
 
-static unsigned On_SETSHIELD(TCmd* pCmd, int pnum)
+static unsigned On_SETSHIELD(const TCmd* pCmd, int pnum)
 {
-	TCmdBParam1* cmd = (TCmdBParam1*)pCmd;
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 
 	plr._pManaShield = cmd->bParam1;
 
 	return sizeof(*cmd);
 }
 
-static unsigned On_REMSHIELD(TCmd* pCmd, int pnum)
+static unsigned On_REMSHIELD(const TCmd* pCmd, int pnum)
 {
 	plr._pManaShield = 0;
 
 	return sizeof(*pCmd);
 }
 
-static unsigned On_BLOODPASS(TCmd* pCmd, int pnum)
+static unsigned On_BLOODPASS(const TCmd* pCmd, int pnum)
 {
-	TCmdParam1* cmd = (TCmdParam1*)pCmd;
+	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	if (SyncBloodPass(pnum, cmd->wParam1))
 		delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr._pDunLevel);
@@ -4403,7 +4392,7 @@ static unsigned On_BLOODPASS(TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
-static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
+static unsigned On_OPENSPIL(const TCmd* pCmd, int pnum)
 {
 	net_assert(quests[Q_BANNER]._qactive != QUEST_NOTAVAIL);
 
@@ -4419,7 +4408,7 @@ static unsigned On_OPENSPIL(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 #ifdef HELLFIRE
-static unsigned On_OPENNAKRUL(TCmd* pCmd, int pnum)
+static unsigned On_OPENNAKRUL(const TCmd* pCmd, int pnum)
 {
 	// net_assert(quests[Q_NAKRUL]._qactive != QUEST_NOTAVAIL);
 	net_assert(plr._pDunLevel == questlist[Q_NAKRUL]._qdlvl);
@@ -4436,7 +4425,7 @@ static unsigned On_OPENNAKRUL(TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 #endif
-unsigned ParseMsg(int pnum, TCmd* pCmd)
+unsigned ParseMsg(int pnum, const TCmd* pCmd)
 {
 //#ifndef NOHOSTING
 	if ((unsigned)pnum >= MAX_PLRS && pnum != SNPLAYER_MASTER) {
@@ -4464,7 +4453,7 @@ unsigned ParseMsg(int pnum, TCmd* pCmd)
 	return 0;
 }
 
-unsigned ParseCmd(int pnum, TCmd* pCmd)
+unsigned ParseCmd(int pnum, const TCmd* pCmd)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("ParseCmd: illegal player %d", pnum);

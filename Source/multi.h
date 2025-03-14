@@ -41,7 +41,7 @@ bool multi_check_timeout();
 void multi_rnd_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg);
+void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg);
 bool multi_plrinfo_received(int pnum);
 
 #ifdef NONET

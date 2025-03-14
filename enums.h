@@ -381,7 +381,6 @@ typedef enum item_effect_type {
 	IPL_LIFE,
 	IPL_MANA,
 	IPL_DUR,
-	IPL_DUR_CURSE,
 	IPL_INDESTRUCTIBLE,
 	IPL_LIGHT,
 	//IPL_INVCURS,
@@ -1973,6 +1972,7 @@ typedef enum missile_id {
 	//MIS_FARROW,
 	//MIS_DOOMSERP,
 	MIS_STONE,
+	MIS_EXSTONE,
 	MIS_SHROUD,
 	//MIS_INVISIBL,
 	MIS_GUARDIAN,
@@ -2085,23 +2085,29 @@ typedef enum missile_gfx_id {
 	MFILE_WIND,
 	MFILE_SHROUD,
 	MFILE_INFERNO,
-	MFILE_THINLGHT,
 	MFILE_FLARE,
 	MFILE_FLAREEXP,
-	MFILE_MAGBALL,
-	//MFILE_KRULL,
 	MFILE_MINILTNG,
 	MFILE_HOLY,
 	MFILE_HOLYEXPL,
 	//MFILE_FIRARWEX,
-	MFILE_ACIDBF,
-	MFILE_ACIDSPLA,
-	MFILE_ACIDPUD,
 	//MFILE_ETHRSHLD,
 	MFILE_FIRERUN,
 	MFILE_RESSUR1,
 	//MFILE_SKLBALL,
 	MFILE_RPORTAL,
+#ifdef HELLFIRE
+	MFILE_RGLOWS1,
+	//MFILE_REFLECT,
+#endif
+	MFILE_NONE,
+	MFILE_ACTOR,
+	MFILE_THINLGHT,
+	MFILE_MAGBALL,
+	//MFILE_KRULL,
+	MFILE_ACIDBF,
+	MFILE_ACIDSPLA,
+	MFILE_ACIDPUD,
 	MFILE_FIREPLAR,
 	MFILE_SCUBMISB,
 	MFILE_SCBSEXPB,
@@ -2113,8 +2119,6 @@ typedef enum missile_gfx_id {
 	MFILE_MAGEEXP,
 #ifdef HELLFIRE
 	MFILE_SPAWNS,
-	MFILE_RGLOWS1,
-	//MFILE_REFLECT,
 	//MFILE_MS_BLA,
 	//MFILE_MS_BLB,
 	MFILE_MS_ORA,
@@ -2133,23 +2137,17 @@ typedef enum missile_gfx_id {
 	MFILE_EXORA1_B,
 #endif
 	NUM_MFILE,
-	MFILE_NONE = NUM_MFILE,
+	NUM_FIXMFILE = MFILE_NONE,
 } missile_gfx_id;
 
 typedef enum missile_flags {
-	MIF_AREA    = 1 << 0, // alternative hit chance calculation
-	MIF_NOBLOCK = 1 << 1, // can not be blocked
-	MIF_DOT     = 1 << 2, // IPL_GETHIT modifier is ignored, hit check multiple times, hit direction is ignored
-	MIF_LEAD    = 1 << 3, // leads the monster to the player (on impact)
-	MIF_SHROUD  = 1 << 4, // interacts with MIS_SHROUD
-	MIF_GUIDED  = 1 << 5, // guided missile which is changing its direction
+	MIF_AREA    = 1 << 0, // effect is spread over the area -> can not be blocked, alternative hit chance calculation (can not be evaded), damage is not directional
+	MIF_DOT     = 1 << 1, // IPL_GETHIT modifier is ignored, hit check multiple times
+	MIF_LEAD    = 1 << 2, // leads the monster to the player (on impact)
+	MIF_SHROUD  = 1 << 3, // interacts with MIS_SHROUD
+	MIF_GUIDED  = 1 << 4, // guided missile which is changing its direction
 	MIF_ARROW   = 1 << 7, // alternative hit chance/damage calculation (for physical arrows)
 } missile_flags;
-
-typedef enum missile_anim_flags {
-	MAFLAG_HIDDEN         = 1 << 0,
-	MAFLAG_LOCK_ANIMATION = 1 << 1,
-} missile_anim_flags;
 
 typedef enum missile_add_result {
 	MIRES_DONE,
@@ -2461,12 +2459,10 @@ typedef enum _monster_flag {
 	MFLAG_LIFESTEAL       = 0x0020,
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
-	MFLAG_TARGETS_MONSTER = 0x0100,
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
 	MFLAG_NODROP          = 0x1000,
-	// MFLAG_NO_ENEMY        = 0x0800,
 	// MFLAG_NOHEAL          = 0x1000,
 	MFLAG_KNOCKBACK       = 0x00010000,
 	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
@@ -4613,16 +4609,16 @@ typedef enum mpq_files {
 #endif
 	MPQ_DEVILX,
 #ifdef HELLFIRE
-	MPQ_HF_OPT2,
-	MPQ_HF_OPT1,
+	//MPQ_HF_OPT2, - does not exist
+	//MPQ_HF_OPT1, - does not exist
 	MPQ_HF_VOICE,
 	MPQ_HF_MUSIC,
-	MPQ_HF_BARB,
-	MPQ_HF_BARD,
+	//MPQ_HF_BARB, - does not exist
+	//MPQ_HF_BARD, - does not exist
 	MPQ_HF_MONK,
 	MPQ_HELLFIRE,
 #endif
-	MPQ_PATCH_RT,
+	// MPQ_PATCH_RT, - does not contain relevant files
 	MPQ_DIABDAT,
 	NUM_MPQS
 } mpq_files;
@@ -4700,8 +4696,6 @@ typedef enum input_key {
 	ACT_MSG1,
 	ACT_MSG2,
 	ACT_MSG3,
-	ACT_GAMMA_DEC, // decrease the gamma
-	ACT_GAMMA_INC, // increase the gamma
 	ACT_ZOOM,  // toggle the zoom
 	ACT_VER,   // print the game version
 	ACT_HELP,  // open the help text

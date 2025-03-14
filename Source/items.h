@@ -58,9 +58,12 @@ void PlaceRock();
 void SpawnAmulet(uint16_t wCI, int x, int y /*, bool sendmsg*/);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
-void DeleteItems(int ii);
+void DeleteItem(int ii);
 void ProcessItems();
 void SyncItemAnim(int ii);
+int FindGetItem(const PkItemStruct* pkItem);
+void DropItem();
+void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag);
 ItemStruct* PlrItem(int pnum, int cii);
 void DoAbility(int pnum, int8_t from, BYTE cii);
 void DoOil(int pnum, int8_t from, BYTE cii);

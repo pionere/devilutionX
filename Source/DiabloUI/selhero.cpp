@@ -1,3 +1,5 @@
+#include "selhero.h"
+
 #include <ctime>
 
 #include "../all.h"
@@ -13,7 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
-static _uiheroinfo selhero_heroInfo;
+_uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
@@ -181,10 +183,9 @@ static void SelheroInit()
 static void SelheroInitHeros()
 {
 	selhero_heros.clear();
-	pfile_ui_load_hero_infos(selhero_heros);
+	pfile_ui_load_heros(selhero_heros);
 	static_assert(MAX_CHARACTERS <= UINT32_MAX, "Check overflow in SelheroInitHeros.");
 	selhero_SaveCount = (unsigned)selhero_heros.size();
-	std::reverse(selhero_heros.begin(), selhero_heros.end());
 	{
 		_uiheroinfo newHero;
 		copy_cstr(newHero.hiName, "New Hero");
@@ -259,7 +260,7 @@ static void SelheroListFocus(unsigned index)
 static void SelheroListDeleteYesNo(unsigned index)
 {
 	if (index == 0)
-		pfile_ui_delete_save(&selhero_heroInfo);
+		pfile_ui_delete_hero(&selhero_heroInfo);
 	SelheroInitHeros();
 }
 
@@ -329,10 +330,10 @@ static void SelheroClassSelectorFocus(unsigned index)
 	//pfile_ui_default_stats(index, &defaults);
 	assert((unsigned)gUIListItems[index]->m_value == index);
 
-	selhero_heroInfo.hiIdx = MAX_CHARACTERS;
+	selhero_heroInfo.hiIdx = MAX_CHARACTERS + 1;
 	selhero_heroInfo.hiLevel = 1;
 	selhero_heroInfo.hiClass = index;
-	//selhero_heroInfo.hiRank = 0;
+	selhero_heroInfo.hiSaveFile = FALSE;
 	selhero_heroInfo.hiStrength = StrengthTbl[index];   //defaults.dsStrength;
 	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
@@ -414,7 +415,7 @@ static void SelheroNameInit(unsigned index)
 static void SelheroNameSelect(unsigned index)
 {
 	const char* err;
-	int result = pfile_ui_create_save(&selhero_heroInfo);
+	int result = pfile_ui_create_hero(&selhero_heroInfo);
 
 	switch (result) {
 	case NEWHERO_DONE:

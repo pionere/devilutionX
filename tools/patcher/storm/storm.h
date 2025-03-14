@@ -27,37 +27,22 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-#define MPQ_OPEN_READ_ONLY       0x00000100
-#define MPQ_FILE_IMPLODE         0x00000100
-#define MPQ_FILE_EXISTS          0x80000000
-#define ID_MPQ                   0x1A51504D // MPQ archive header ID ('MPQ\x1A')
-#define MPQ_HEADER_SIZE_V1       0x20
-#define MPQ_FORMAT_VERSION_1     0
-#define MPQ_SECTOR_SIZE_SHIFT_V1 3
-#define MPQ_KEY_HASH_TABLE       0xC3AF3770 // Obtained by HashString("(hash table)", MPQ_HASH_FILE_KEY)
-#define MPQ_KEY_BLOCK_TABLE      0xEC83B3A3 // Obtained by HashString("(block table)", MPQ_HASH_FILE_KEY)
-#define MPQ_HASH_TABLE_INDEX     0x000
-#define MPQ_HASH_NAME_A          0x100
-#define MPQ_HASH_NAME_B          0x200
-#define MPQ_HASH_FILE_KEY        0x300
-#define HASH_ENTRY_DELETED       0xFFFFFFFE // Block index for deleted entry in the hash table
-#define HASH_ENTRY_FREE          0xFFFFFFFF // Block index for free entry in the hash table
-#define SFILE_OPEN_FROM_MPQ      0
-#define SFILE_OPEN_LOCAL_FILE    0xFFFFFFFF
-#define SFILE_OPEN_CHECK_EXISTS  0xFFFFFFFC
+#define MPQ_OPEN_READ_ONLY       0x00000001
 
-void WINAPI SFileCloseArchive(HANDLE hArchive);
-void WINAPI SFileCloseFile(HANDLE hFile);
-
-DWORD WINAPI SFileGetFileSize(HANDLE hFile);
-DWORD WINAPI SFileGetFilePointer(HANDLE hFile);
-DWORD WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
 HANDLE WINAPI SFileOpenArchive(const char* szMpqName, DWORD dwFlags);
+bool   WINAPI SFileReopenArchive(HANDLE hMpq, const char* szMpqName);
+HANDLE WINAPI SFileCreateArchive(const char* szMpqName, DWORD dwHashCount, DWORD dwBlockCount);
+DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest);
+DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
+bool   WINAPI SFileWriteFile(HANDLE hMpq, const char* szFileName, void* pvData, DWORD dwSize);
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char* szFileName);
+void   WINAPI SFileRenameFile(HANDLE hMpq, const char* szOldFileName, const char* szNewFileName);
+void   WINAPI SFileFlushArchive(HANDLE hMpq);
+void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
+void   WINAPI SFileReleaseArchive(HANDLE hMpq);
+void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
-HANDLE SFileOpenFile(const char* filename);
-bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char* szFileName, DWORD dwSearchScope, HANDLE* phFile);
-
-bool WINAPI SFileReadFile(HANDLE hFile, void* buffer, DWORD nNumberOfBytesToRead);
+DWORD SFileReadFileEx(const char* szFileName, BYTE** dest);
 
 // These error codes are used and returned by StormLib.
 // See StormLib/src/StormPort.h

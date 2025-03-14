@@ -496,12 +496,12 @@ typedef struct MissileData {
 	BYTE mdFlags; // missile_flags
 	BYTE mResist; // missile_resistance
 	BYTE mFileNum; // missile_gfx_id
-	BOOLEAN mDrawFlag;
 	int mlSFX; // sound effect when a missile is launched (_sfx_id)
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
 	BYTE mdPrSpeed; // speed of the projectile
+	BYTE mdRange; // default range of the missile
 	ALIGNMENT32(2)
 } MissileData;
 
@@ -510,15 +510,18 @@ static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mi
 #endif
 
 typedef struct MisFileData {
-	int mfAnimFAmt;
 	const char* mfName;
 	const char* mfAnimTrans;
-	int mfFlags; // missile_anim_flags
+	int mfAnimFAmt;
+	BOOLEAN mfDrawFlag;
+	BOOLEAN mfAnimFlag;
+	BOOLEAN mfLightFlag;
+	BOOLEAN mfPreFlag;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset; // could be calculated
-	ALIGNMENT(2, 14)
+	ALIGNMENT32(2)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
@@ -529,12 +532,12 @@ typedef struct MissileStruct {
 	BYTE _miFlags; // missile_flags
 	BYTE _miResist; // missile_resistance
 	BYTE _miFileNum; // missile_gfx_id
-	BOOLEAN _miDrawFlag; // should be drawn
-	int _miUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN _miDelFlag; // should be deleted
+	int _miUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN _miDrawFlag; // should be drawn
+	BOOLEAN _miAnimFlag;
 	BOOLEAN _miLightFlag; // use light-transformation when drawing
 	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
-	BOOLEAN _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
@@ -599,11 +602,13 @@ typedef struct SoundSample final {
 	//int TrackLength();
 } SoundSample;
 
-typedef struct SFXStruct {
+typedef struct SFXData {
 	BYTE bFlags; // sfx_flag
+} SFXData;
+
+typedef struct SFXFileData {
 	const char* pszName;
-	SoundSample pSnd;
-} SFXStruct;
+} SFXFileData;
 
 //////////////////////////////////////////////////
 // monster
@@ -730,7 +735,7 @@ typedef struct MonsterStruct {
 	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
 	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	int _mdir;         // Direction faced by monster (direction enum)
-	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	int _menemy;       // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
 	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
@@ -1452,12 +1457,12 @@ typedef struct LSaveMissileStruct {
 	BYTE vmiFlags; // missile_flags
 	BYTE vmiResist; // missile_resistance
 	BYTE vmiFileNum; // missile_gfx_id
-	BOOLEAN vmiDrawFlag; // should be drawn
-	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN vmiDelFlag; // should be deleted
-	BOOLEAN vmiLightFlag; // use light-transformation when drawing
-	BOOLEAN vmiPreFlag; // should be drawn in the pre-phase
-	BOOLEAN vmiAnimFlag;
+	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN vmiDrawFlagAlign; // should be drawn
+	BOOLEAN vmiAnimFlagAlign;
+	BOOLEAN vmiLightFlagAlign; // use light-transformation when drawing
+	BOOLEAN vmiPreFlagAlign; // should be drawn in the pre-phase
 	INT vmiAnimDataAlign;
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation
@@ -1924,10 +1929,6 @@ typedef struct TSyncLvlMissile {
 	LE_UINT16 smiMi;
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
-	BOOLEAN smiDrawFlag;
-	BYTE smiUniqTrans;
-	BOOLEAN smiLightFlag;
-	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int8_t smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
@@ -2533,7 +2534,7 @@ typedef struct _uiheroinfo {
 	BYTE hiIdx;
 	BYTE hiLevel;
 	BYTE hiClass;
-	BYTE hiRank;
+	BOOLEAN hiSaveFile;
 	char hiName[16];
 	int16_t hiStrength;
 	int16_t hiMagic;

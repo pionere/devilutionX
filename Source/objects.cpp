@@ -1462,7 +1462,7 @@ static void Obj_Circle(int oi)
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
-			AddMissile(0, 0, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
+			AddMissile(DBORDERX + 19, DBORDERY + 20, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
 			gbActionBtnDown = 0;
 			// StartTurn(mypnum, DIR_NW); ?
 			myplr._pdir = DIR_NW;
@@ -1908,7 +1908,7 @@ static void OperateLever(int oi, bool sendmsg)
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
-	int dx, dy, on;
+	int dx, dy;
 
 	// assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 
@@ -1917,19 +1917,14 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	// assert(plr._pmode == PM_STAND && !deltaload);
 	if (plr._px != os->_ox || plr._py != os->_oy + 1)
 		return;
-	if (os->_ox == DBORDERX + 10) {
-		dx = DBORDERX + 11;
-		dy = DBORDERY + 13;
-	} else {
-		assert(os->_ox == DBORDERX + 29);
-		dx = DBORDERX + 27;
-		dy = DBORDERY + 13;
-	}
-	on = dObject[dx][dy] - 1;
-	assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
+	// assert(os->_ox == DBORDERX + 10 || os->_ox == DBORDERX + 29);
+	dx = DBORDERX + ((os->_ox == DBORDERX + 10) ? 11 : 27);
+	dy = DBORDERY + 13;
+	// int on = dObject[dx][dy] - 1;
+	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
 
 	FindClosestPlr(&dx, &dy);
-	AddMissile(0, 0, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+	AddMissile(os->_ox, os->_oy + 1, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 	objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
@@ -2386,20 +2381,26 @@ static void ConvertPotion(ItemStruct* pi)
 	}
 }
 
+DISABLE_SPEED_OPTIMIZATION
 void SyncShrineCmd(int pnum, BYTE type, int seed)
 {
 	ItemStruct* pi;
-	int i, cnt, r;
+	int i, cnt, r, lvl;
+
+	SetRndSeed(seed);
 
 	switch (type) {
 	case SHRINE_HIDDEN:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		cnt = 0;
+		lvl = plr._pDunLevel;
+		lvl = lvl < NUM_FIXLVLS ? AllLevels[lvl].dLevel : gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE
-			 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
-			 && pi->_iMaxDur != 0)
+			 && pi->_iMaxDur < DUR_INDESTRUCTIBLE
+			 && pi->_iMaxDur > 0
+			 && (pi->_iCreateInfo & CF_LEVEL) <= lvl)
 				cnt++;
 		}
 		if (cnt != 0) {
@@ -2407,14 +2408,16 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 			pi = plr._pInvBody;
 			for (i = NUM_INVLOC; i != 0; i--, pi++) {
 				if (pi->_itype != ITYPE_NONE
-				 && pi->_iMaxDur != DUR_INDESTRUCTIBLE
-				 && pi->_iMaxDur != 0) {
+				 && pi->_iMaxDur < DUR_INDESTRUCTIBLE
+				 && pi->_iMaxDur > 0
+				 && (pi->_iCreateInfo & CF_LEVEL) <= lvl) {
+					cnt = 1 + pi->_iMaxDur / 32u;
 					if (r == 0) {
-						pi->_iMaxDur = pi->_iMaxDur > 10 ? pi->_iMaxDur - 10 : 1;
-						pi->_iDurability = pi->_iDurability > 10 ? pi->_iDurability - 10 : 1;
+						pi->_iMaxDur = pi->_iMaxDur > 1 ? pi->_iMaxDur - cnt : pi->_iMaxDur;
+						pi->_iDurability = pi->_iDurability > 1 ? pi->_iDurability - cnt : pi->_iDurability;
 					} else {
-						pi->_iMaxDur = std::min(pi->_iMaxDur + 10, DUR_INDESTRUCTIBLE - 1);
-						pi->_iDurability = std::min(pi->_iDurability + 10, pi->_iMaxDur);
+						pi->_iMaxDur = std::min(pi->_iMaxDur + cnt, DUR_INDESTRUCTIBLE - 1);
+						pi->_iDurability = std::min(pi->_iDurability + cnt, pi->_iMaxDur);
 					}
 					r--;
 				}
@@ -2470,7 +2473,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		PlrFillMana(pnum);
 		break;
 	case SHRINE_ELDRITCH:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		pi = plr._pInvList;
 		for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++)
 			ConvertPotion(pi);
@@ -2506,7 +2509,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		AddRaiseSkill(pnum, SPL_HBOLT);
 		break;
 	case SHRINE_SPIRITUAL:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		cnt = plr._pDunLevel;
 		// assert(cnt != 0);
 		pi = plr._pInvList;
@@ -2537,7 +2540,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		AddPlrExperience(pnum, plr._pLevel, 500 * plr._pDunLevel);
 		break;
 	case SHRINE_MURPHYS:
-		SetRndSeed(seed);
+		// SetRndSeed(seed);
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype == ITYPE_NONE)
@@ -2563,6 +2566,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	CalcPlrInv(pnum, true);
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 }
+ENABLE_SPEED_OPTIMIZATION
 
 static void OperateShrine(int pnum, int oi, bool sendmsg)
 {

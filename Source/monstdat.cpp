@@ -213,7 +213,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_HELLBAT*/  {     850, "Monsters\\Hellbat\\Helbat%c.CL2",  "Monsters\\newsfx\\HelBat%c%d.WAV",  { 18, 16, 14,  6, 18,  0 }, { 2, 1, 1, 1, 1, 0 },      96, FALSE,              8,        0 },
 /*MOFILE_LICH*/     {     800, "Monsters\\Lich\\Lich%c.CL2",       "Monsters\\newsfx\\Lich%c%d.WAV",    { 12, 10, 10,  7, 21,  0 }, { 2, 1, 1, 1, 2, 0 },      96, FALSE,              8,        0 }, // moImage = 1087 ?
 /*MOFILE_BUBBA*/    {     800, "Monsters\\Bubba\\Bubba%c.CL2",     "Monsters\\newsfx\\Crypt%c%d.WAV",   {  8, 18, 12,  8, 21,  0 }, { 3, 1, 1, 1, 1, 0 },     154, FALSE,              8,        0 }, // moImage = 1096 ?
-/*MOFILE_HELLBAT2*/ {     800, "Monsters\\Hellbat2\\bhelbt%c.CL2", "Monsters\\newsfx\\HelBat%c%d.WAV",  { 18, 16, 14,  6, 18, 11 }, { 2, 1, 1, 1, 1, 1 },      96, FALSE,              8,        0 },
+/*MOFILE_HELLBAT2*/ {     800, "Monsters\\Hellbat2\\bhelbt%c.CL2", "Monsters\\newsfx\\HelBat%c%d.WAV",  { 18, 16, 14,  6, 18,  0 }, { 2, 1, 1, 1, 1, 0 },      96, FALSE,              8,        0 },
 /*MOFILE_DEMSKEL*/  {    1740, "Monsters\\Demskel\\Demskl%c.CL2",  "Monsters\\newsfx\\SWing%c%d.WAV",   { 10,  8, 20,  6, 24, 16 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               7,       12 }, // moImage = 1673 ?
 /*MOFILE_LICH2*/    {     800, "Monsters\\Lich2\\Lich2%c.CL2",     "Monsters\\newsfx\\Lich%c%d.WAV",    { 12, 10, 10,  7, 21,  0 }, { 2, 1, 1, 1, 2, 0 },     136, FALSE,              8,        0 }, // moImage = 1040 ? moSndSpecial was TRUE, but unused
 /*MOFILE_BYCLPS*/   {     800, "Monsters\\Byclps\\Byclps%c.CL2",   "Monsters\\newsfx\\Biclop%c%d.WAV",  { 10, 11, 16,  6, 16,  0 }, { 2, 1, 1, 1, 2, 0 },     180, FALSE,              8,        0 }, // moImage = 974 ?

@@ -452,7 +452,6 @@ set(devilutionx_SRCS
   Source/drlg_l4.cpp
   #Source/dthread.cpp
   Source/dx.cpp
-  Source/effects.cpp
   Source/encrypt.cpp
   Source/engine.cpp
   Source/error.cpp
@@ -476,7 +475,7 @@ set(devilutionx_SRCS
   Source/monstdat.cpp
   Source/monster.cpp
   Source/movie.cpp
-  Source/mpqapi.cpp
+  #Source/mpqapi.cpp
   Source/msg.cpp
   Source/multi.cpp
   Source/nthread.cpp
@@ -492,6 +491,8 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
+  Source/sfx.cpp
+  Source/sfxdat.cpp
   Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
@@ -612,7 +613,7 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/effects_test.cpp
+    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -662,17 +663,18 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/effects.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
     tools/patcher/mainmenu.cpp
-    tools/patcher/mpqapi.cpp
+    #tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
+    tools/patcher/sfx.cpp
+    tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
@@ -773,14 +775,12 @@ endif()
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
   add_custom_command(
     TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
     COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 
   if(DEVIL_PATCHER)
     add_custom_command(
       TARGET ${DEVIL_PATCHER} POST_BUILD
-      DEPENDS ${DEVIL_PATCHER}
       COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
       ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
   endif()

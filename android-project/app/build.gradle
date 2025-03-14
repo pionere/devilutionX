@@ -7,7 +7,7 @@ if (buildAsApplication) {
 }
 
 android {
-	ndkVersion '27.2.12479018'
+	ndkVersion '28.0.13004108'
 	// ndkVersion '25.2.9519653'
 	compileSdk 35
 	aaptOptions { // probably does not matter...

@@ -25,8 +25,6 @@ void LoadLvlPalette();
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src);
 int GetGamma();
 void SetGamma(int gamma);
-void IncreaseGamma();
-void DecreaseGamma();
 void SetFadeLevel(unsigned fadeval);
 void PaletteFadeIn(bool instant);
 void PaletteFadeOut();

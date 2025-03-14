@@ -19,13 +19,19 @@
 #define INTRO_ARCHIVE            "gendata\\Hellfire.smk"
 #define GAME_ID                  ((int)'HRTL')
 #define GAME_VERSION             34
+#define CREDITS_LINES_SIZE       91
+#define CREDITS_TXT              "Meta\\credits_hf.txt"
 #define HELP_TITLE               "Hellfire Help"
 #else
 #define INTRO_ARCHIVE            "gendata\\diablo1.smk"
 #define GAME_ID                  ((int)'DRTL')
+#define CREDITS_LINES_SIZE       455
+#define CREDITS_TXT              "Meta\\credits.txt"
 #define GAME_VERSION             42
 #define HELP_TITLE               "Diablo Help"
 #endif
+#define HELP_LINES_SIZE          65
+#define HELP_TXT                 "Meta\\help.txt"
 
 // MAXDUN = DSIZE + 2 * DBORDER
 // DSIZE = 2 * DMAX
@@ -335,12 +341,15 @@ __pragma (optimize( "", off )) \
 __pragma (optimize( "gsy", on ))
 #define ENABLE_SPEED_OPTIMIZATION \
 __pragma (optimize( "", on ))
-#else
+#elif defined(__GNUC__) && !defined(__clang__)
 #define DISABLE_SPEED_OPTIMIZATION \
 _Pragma ("GCC push_options") \
 _Pragma ("GCC optimize(\"Os\")")
 #define ENABLE_SPEED_OPTIMIZATION \
 _Pragma ("GCC pop_options")
+#else
+#define DISABLE_SPEED_OPTIMIZATION
+#define ENABLE_SPEED_OPTIMIZATION
 #endif
 #endif // DEBUG_MODE
 

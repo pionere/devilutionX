@@ -324,8 +324,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	int dadd = 0; // added dexterity
 	int vadd = 0; // added vitality
 
-	uint64_t spl = 0; // bitarray for all enabled/active spells
-
 	int br = gnDifficulty * -10;
 	int fr = br; // fire resistance
 	int lr = br; // lightning resistance
@@ -370,9 +368,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
 		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
-			if (pi->_iSpell != SPL_NULL) {
-				spl |= SPELL_MASK(pi->_iSpell);
-			}
 			cac = pi->_iAC;
 			cdmod = 0;
 			cdmodp = 0;
@@ -453,48 +448,28 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	if (plr._pTimer[PLTR_RAGE] > 0) {
-		sadd += 2 * plr._pLevel;
-		dadd += plr._pLevel;
-		vadd += 2 * plr._pLevel;
-	}
-	plr._pStrength = std::max(0, sadd + plr._pBaseStr);
-	plr._pMagic = std::max(0, madd + plr._pBaseMag);
-	plr._pDexterity = std::max(0, dadd + plr._pBaseDex);
-	plr._pVitality = std::max(0, vadd + plr._pBaseVit);
-
-	plr._pIFlags = iflgs;
-	// plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
 	plr._pHasUnidItem = !idi;
 	plr._pIGetHit = ghit << 6;
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
 
-	pdmod = (1 << 9) + (32 * plr._pMagic);
-	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
-	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
-	plr._pILMinDam = lmin * pdmod >> (-6 + 9);
-	plr._pILMaxDam = lmax * pdmod >> (-6 + 9);
-	plr._pIMMinDam = mmin * pdmod >> (-6 + 9);
-	plr._pIMMaxDam = mmax * pdmod >> (-6 + 9);
-	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
-	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
-
-	plr._pISpells = spl;
-	if (pnum == mypnum)
-		ValidateActionSkills(pnum, RSPLTYPE_CHARGES, spl);
-
-	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
-	if (plr._pLightRad != lrad) {
-		plr._pLightRad = lrad;
-		if (Loadgfx) {
-			ChangeLightRadius(plr._plid, lrad);
-			ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
-		}
-	}
-
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
 	imana += madd << (6 + 1);
+
+	plr._pIFlags = iflgs;
+	// plr._pInfraFlag = (iflgs & ISPL_INFRAVISION) != 0 || plr._pTimer[PLTR_INFRAVISION] > 0;
+
+	// calculate walk speed
+	plr._pIWalkSpeed = WalkSpeed(iflgs);
+
+	// calculate (hit-)recovery speed
+	plr._pIRecoverySpeed = RecoverySpeed(iflgs);
+
+	// calculate base attack speed
+	plr._pIBaseAttackSpeed = BaseAttackSpeed(iflgs);
+
+	// calculate base cast speed
+	plr._pIBaseCastSpeed = BaseCastSpeed(iflgs);
 
 	if (iflgs & ISPL_LIFETOMANA) {
 		ihp -= plr._pMaxHPBase >> 1;
@@ -536,6 +511,30 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
+
+	sadd += plr._pBaseStr;
+	madd += plr._pBaseMag;
+	dadd += plr._pBaseDex;
+	vadd += plr._pBaseVit;
+	plr._pStrength = std::max(0, sadd);
+	plr._pMagic = std::max(0, madd);
+	plr._pDexterity = std::max(0, dadd);
+	plr._pVitality = std::max(0, vadd);
+	if (plr._pTimer[PLTR_RAGE] > 0) {
+		sadd += 2 * plr._pLevel;
+		dadd += plr._pLevel;
+		vadd += 2 * plr._pLevel;
+	}
+
+	pdmod = (1 << 9) + (32 * plr._pMagic);
+	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
+	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
+	plr._pILMinDam = lmin * pdmod >> (-6 + 9);
+	plr._pILMaxDam = lmax * pdmod >> (-6 + 9);
+	plr._pIMMinDam = mmin * pdmod >> (-6 + 9);
+	plr._pIMMaxDam = mmax * pdmod >> (-6 + 9);
+	plr._pIAMinDam = amin * pdmod >> (-6 + 9);
+	plr._pIAMaxDam = amax * pdmod >> (-6 + 9);
 
 	wLeft = &plr._pInvBody[INVLOC_HAND_LEFT];
 	wRight = &plr._pInvBody[INVLOC_HAND_RIGHT];
@@ -582,7 +581,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	maxdam = plr._pMaxHP >> (2 + 1 - 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
 	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag
 	 && (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_SWORD || gfx == ANIM_ID_MACE)) {
-		tac += ((plr._pDexterity - (1 << 7)) * wRight->_iAC) >> 7;
+		tac += ((dadd - (1 << 7)) * wRight->_iAC) >> 7;
 		bf = true;
 		static_assert((int)ANIM_ID_UNARMED + 1 == (int)ANIM_ID_UNARMED_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield I.");
 		static_assert((int)ANIM_ID_SWORD + 1 == (int)ANIM_ID_SWORD_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield II.");
@@ -616,14 +615,14 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate bonuses
 	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
-	plr._pIEvasion = plr._pDexterity / 5 + 2 * plr._pLevel;
+	plr._pIEvasion = dadd / 5 + 2 * plr._pLevel;
 	plr._pIAC = tac + plr._pIEvasion;
 	btohit += 50; // + plr._pLevel;
 	if (wt == SFLAG_MELEE) {
-		btohit += 20 + (plr._pDexterity >> 1);
+		btohit += 20 + (dadd >> 1);
 	} else {
 		// assert(wt == SFLAG_RANGED);
-		btohit += plr._pDexterity;
+		btohit += dadd;
 	}
 	plr._pIHitChance = btohit;
 
@@ -638,23 +637,23 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// calculate the damages for each type
 	if (maxsl != 0) {
-		pdmod = 512 + plr._pStrength * 6 + plr._pDexterity * 2;
+		pdmod = 512 + sadd * 6 + dadd * 2;
 		minsl = minsl * pdmod / (100 * 512 / 64);
 		maxsl = maxsl * pdmod / (100 * 512 / 64);
 	}
 	if (maxbl != 0) {
 		if (wLeft->_itype == ITYPE_STAFF)
-			pdmod = 512 + plr._pStrength * 4 + plr._pDexterity * 4;
+			pdmod = 512 + sadd * 4 + dadd * 4;
 		else
-			pdmod = 512 + plr._pStrength * 6 + plr._pVitality * 2;
+			pdmod = 512 + sadd * 6 + vadd * 2;
 		minbl = minbl * pdmod / (100 * 512 / 64);
 		maxbl = maxbl * pdmod / (100 * 512 / 64);
 	}
 	if (maxpc != 0) {
 		if (wLeft->_itype == ITYPE_BOW)
-			pdmod = 512 + plr._pDexterity * 8;
+			pdmod = 512 + dadd * 8;
 		else // dagger
-			pdmod = 512 + plr._pStrength * 2 + plr._pDexterity * 6;
+			pdmod = 512 + sadd * 2 + dadd * 6;
 		minpc = minpc * pdmod / (100 * 512 / 64);
 		maxpc = maxpc * pdmod / (100 * 512 / 64);
 	}
@@ -683,19 +682,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pICritChance = cc;
 
 	// calculate block chance
-	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(plr._pStrength, plr._pDexterity) : 0;
-
-	// calculate walk speed
-	plr._pIWalkSpeed = WalkSpeed(plr._pIFlags);
-
-	// calculate (hit-)recovery speed
-	plr._pIRecoverySpeed = RecoverySpeed(plr._pIFlags);
-
-	// calculate base attack speed
-	plr._pIBaseAttackSpeed = BaseAttackSpeed(plr._pIFlags);
-
-	// calculate base cast speed
-	plr._pIBaseCastSpeed = BaseCastSpeed(plr._pIFlags);
+	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(sadd, dadd) : 0;
 
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
 	for (i = 1; i < NUM_SPELLS; i++) {
@@ -708,6 +695,16 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		plr._pSkillLvl[i] = skillLvl;
 	}
 
+	lrad = std::max(2, std::min(MAX_LIGHT_RAD, lrad));
+	if (plr._pLightRad != lrad) {
+		plr._pLightRad = lrad;
+		if (Loadgfx) {
+			ChangeLightRadius(plr._plid, lrad);
+			ChangeVisionRadius(plr._pvid, std::max(PLR_MIN_VISRAD, lrad));
+		}
+	}
+
+	CalcPlrCharges(pnum);
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING) {
 		PlrSetHp(pnum, 0);
 		PlrSetMana(pnum, 0);
@@ -775,7 +772,7 @@ void CalcPlrCharges(int pnum)
 
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iCharges > 0 && pi->_iStatFlag)
+		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0 && pi->_iSpell != NULL*/ && pi->_iStatFlag)
 			mask |= SPELL_MASK(pi->_iSpell);
 	}
 	plr._pISpells = mask;
@@ -865,10 +862,13 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 
 void SetItemData(int ii, int idata)
 {
-	ItemStruct* is;
+	SetItemSData(&items[ii], idata);
+}
+
+void SetItemSData(ItemStruct* is, int idata)
+{
 	const ItemData* ids;
 
-	is = &items[ii];
 	// zero-initialize struct
 	memset(is, 0, sizeof(*is));
 
@@ -908,12 +908,6 @@ void SetItemData(int ii, int idata)
 	//is->_iMagical = ITEM_QUALITY_NORMAL;
 	static_assert(SPL_NULL == 0, "Zero-fill expects SPL_NULL == 0.");
 	//is->_iPLSkill = SPL_NULL;
-}
-
-void SetItemSData(ItemStruct* is, int idata)
-{
-	SetItemData(MAXITEMS, idata);
-	copy_pod(*is, items[MAXITEMS]);
 }
 
 /**
@@ -1023,6 +1017,47 @@ void CreatePlrItems(int pnum)
 	plr._pGold = 100;
 
 	CalcPlrItemVals(pnum, false);
+}
+
+/**
+ * Check the location if an item can be placed there while generating the dungeon.
+ */
+static bool CanPut(int x, int y)
+{
+	int oi; // , oi2;
+
+	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
+		return false;
+
+	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	/*oi = dObject[x + 1][y + 1];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSelFlag != 0)
+			return false;
+	}
+
+	oi = dObject[x + 1][y];
+	if (oi > 0) {
+		oi2 = dObject[x][y + 1];
+		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
+			return false;
+	}*/
+
+	if (currLvl._dType == DTYPE_TOWN)
+		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
+			return false;
+
+	return true;
 }
 
 /**
@@ -1486,8 +1521,6 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		break;
 	case IPL_CRYSTALLINE:
 		is->_iPLDam = r * 2;
-		// no break
-	case IPL_DUR_CURSE:
 		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_INDESTRUCTIBLE:
@@ -2315,25 +2348,21 @@ void RespawnItem(int ii, bool FlipFlag)
 		is->_iSelFlag = 1;*/
 }
 
-static void DeleteItem(int ii, int idx)
-{
-	numitems--;
-	assert(itemactive[idx] == ii);
-	itemactive[idx] = itemactive[numitems];
-	itemactive[numitems] = ii;
-}
-
-void DeleteItems(int ii)
+void DeleteItem(int ii)
 {
 	int i;
 
-	for (i = 0; i < numitems; ) {
+	for (i = 0; ; i++) {
 		if (itemactive[i] == ii) {
-			DeleteItem(ii, i);
-		} else {
-			i++;
+			break;
 		}
 	}
+	// assert(i < numitems);
+	numitems--;
+	itemactive[i] = itemactive[numitems];
+	itemactive[numitems] = ii;
+
+	dItem[items[ii]._ix][items[ii]._iy] = 0;
 }
 
 static void ItemDoppel()
@@ -2399,6 +2428,122 @@ void SyncItemAnim(int ii)
 {
 	items[ii]._iAnimData = itemanims[ItemCAnimTbl[items[ii]._iCurs]];
 	items[ii]._iAnimFrameLen = 1;
+}
+
+int FindGetItem(const PkItemStruct* pkItem)
+{
+	int i, ii;
+
+	for (i = 0; i < numitems; i++) {
+		ii = itemactive[i];
+		if (pkItem->PkItemEq(items[ii]))
+			return ii;
+	}
+
+	return -1;
+}
+
+static bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
+{
+	int dir;
+	int xx, yy, i, j, k;
+
+	if (sx != pos.x || sy != pos.y) {
+		dir = GetDirection(sx, sy, pos.x, pos.y);
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
+			return true;
+
+		dir = (dir - 1) & 7;
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
+			return true;
+
+		dir = (dir + 2) & 7;
+		pos.x = sx + offset_x[dir];
+		pos.y = sy + offset_y[dir];
+		if (CanPut(pos.x, pos.y))
+			return true;
+
+		pos.x = sx;
+		pos.y = sy;
+	}
+
+	if (CanPut(pos.x, pos.y))
+		return true;
+
+	xx = pos.x;
+	yy = pos.y;
+	for (k = 1; k <= rad; k++) {
+		for (j = -k; j <= k; j++) {
+			yy = j + sy;
+			for (i = -k; i <= k; i++) {
+				xx = i + sx;
+				if (CanPut(xx, yy)) {
+					pos.x = xx;
+					pos.y = yy;
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void DropItem()
+{
+	POS32 pos;
+
+	if (numitems >= MAXITEMS)
+		return; // false;
+
+	pos.x = pcurspos.x;
+	pos.y = pcurspos.y;
+	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
+		return; // false;
+
+	NetSendCmdPutItem(pos.x, pos.y);
+	return; // true;
+}
+
+/**
+ * Place an item around the given position.
+ *
+ * @param pnum the id of the player who places the item (might not be valid)
+ * @param x tile coordinate to place the item
+ * @param y tile coordinate to place the item
+ * @param is the item to be placed
+ * @param flipFlag whether the item is dropped
+ */
+void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag)
+{
+	int ii;
+	POS32 tpos, pos = { x, y };
+
+	// assert(plr._pDunLevel == currLvl._dLevelIdx);
+	if (numitems >= MAXITEMS)
+		return; // -1;
+
+	if ((unsigned)pnum < MAX_PLRS) {
+		tpos.x = plr._px;
+		tpos.y = plr._py;
+	} else {
+		tpos.x = pos.x;
+		tpos.y = pos.y;
+	}
+	if (!FindItemLocation(tpos.x, tpos.y, pos, DSIZEX / 2))
+		return; // -1;
+
+	ii = itemactive[numitems];
+	dItem[pos.x][pos.y] = ii + 1;
+	numitems++;
+	copy_pod(items[ii], *is);
+	items[ii]._ix = pos.x;
+	items[ii]._iy = pos.y;
+	RespawnItem(ii, flipFlag);
+	//return ii;
 }
 
 static void DoIdentify(int pnum, int cii)
@@ -2476,12 +2621,36 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
+static void CraftItem(ItemStruct* pi, uint16_t ci, uint16_t idx, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
+{
+	int seed = pi->_iSeed;
+	int ac = -1;
+	while (true) {
+		SetRndSeed(seed);
+		int nac = AllItemList[idx].iMinAC == AllItemList[idx].iMaxAC ? AllItemList[idx].iMinAC : RandRangeLow(AllItemList[idx].iMinAC, AllItemList[idx].iMaxAC);
+		if (ac < 0)
+			ac = nac;
+		if (ac == nac) {
+		RecreateItem(seed, idx, ci);
+		// assert(items[MAXITEMS]._iIdx == idx);
+		if (items[MAXITEMS]._iSpell == spell
+		 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iPrePower == IPL_INVALID && items[MAXITEMS]._iSufPower == IPL_INVALID)
+		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
+		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
+			break;
+		}
+		seed = NextRndSeed();
+	}
+	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
+	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
+	copy_pod(*pi, items[MAXITEMS]);
+}
+
 static void DoClean(ItemStruct* pi, bool whittle)
 {
-	int seed, spell;
+	int spell;
 	uint16_t ci, idx, ll;
 
-	seed = pi->_iSeed;
 	spell = pi->_iSpell;
 	idx = pi->_iIdx;
 
@@ -2499,18 +2668,7 @@ static void DoClean(ItemStruct* pi, bool whittle)
 		ci--;
 	ci |= CF_CRAFTED;
 
-	while (true) {
-		RecreateItem(seed, idx, ci);
-		assert(items[MAXITEMS]._iIdx == idx);
-		if (items[MAXITEMS]._iPrePower == IPL_INVALID
-		 && items[MAXITEMS]._iSufPower == IPL_INVALID
-		 && items[MAXITEMS]._iSpell == spell)
-			break;
-		seed = NextRndSeed();
-	}
-	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
-	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
-	copy_pod(*pi, items[MAXITEMS]);
+	CraftItem(pi, ci, idx, spell, IPL_INVALID, 0);
 }
 
 #ifdef HELLFIRE
@@ -2643,7 +2801,7 @@ void DoAbility(int pnum, int8_t from, BYTE cii)
 void DoOil(int pnum, int8_t from, BYTE cii)
 {
 	ItemStruct *pi, *is;
-	int oilType, seed, spell;
+	int oilType, spell;
 	uint16_t idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
@@ -2738,21 +2896,8 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	idx = pi->_iIdx;
 	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
 	spell = pi->_iSpell;
-	seed = pi->_iSeed;
 
-	while (true) {
-		RecreateItem(seed, idx, ci);
-		assert(items[MAXITEMS]._iIdx == idx);
-		if (items[MAXITEMS]._iSpell == spell
-		 && ((items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
-		  || (items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
-			break;
-		seed = NextRndSeed();
-	}
-
-	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
-	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
-	copy_pod(*pi, items[MAXITEMS]);
+	CraftItem(pi, ci, idx, spell, targetPowerFrom, targetPowerTo);
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, true);
@@ -2864,7 +3009,6 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "mana: %+d", is->_iPLMana >> 6);
 		break;
 	case IPL_DUR:
-	case IPL_DUR_CURSE:
 	case IPL_SETDUR:
 		copy_cstr(tempstr, "altered durability");
 		break;
@@ -2957,7 +3101,7 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "armor class: %d", is->_iAC);
 		break;
 	case IPL_CRYSTALLINE:
-		snprintf(tempstr, sizeof(tempstr), "low dur, %+d%% damage", is->_iPLDam);
+		snprintf(tempstr, sizeof(tempstr), "alt. dur, %+d%% damage", is->_iPLDam);
 		break;
 	case IPL_MANATOLIFE:
 		copy_cstr(tempstr, "50% Mana moved to Health");

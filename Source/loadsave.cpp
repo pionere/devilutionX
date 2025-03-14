@@ -458,14 +458,14 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miFlags = savedMis->vmiFlags;
 	mis->_miResist = savedMis->vmiResist;
 	mis->_miFileNum = savedMis->vmiFileNum;
-	mis->_miDrawFlag = savedMis->vmiDrawFlag;
+	mis->_miDelFlag = savedMis->vmiDelFlag;
 
 	mis->_miUniqTrans = savedMis->vmiUniqTrans;
 
-	mis->_miDelFlag = savedMis->vmiDelFlag;
-	mis->_miLightFlag = savedMis->vmiLightFlag;
-	mis->_miPreFlag = savedMis->vmiPreFlag;
-	mis->_miAnimFlag = savedMis->vmiAnimFlag;
+	// mis->_miDrawFlag = savedMis->vmiDrawFlagAlign;
+	// mis->_miAnimFlag = savedMis->vmiAnimFlagAlign;
+	// mis->_miLightFlag = savedMis->vmiLightFlagAlign;
+	// mis->_miPreFlag = savedMis->vmiPreFlagAlign;
 
 	// mis->_miAnimData = savedMis->vmiAnimDataAlign;
 	// mis->_miAnimFrameLen = savedMis->vmiAnimFrameLenAlign;
@@ -743,7 +743,6 @@ void LoadGame()
 	// TODO: UIDisconnectGame() ?
 	SNetLeaveGame();
 
-	pfile_delete_save_file(false);
 	pfile_read_save_file(true);
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
@@ -1280,14 +1279,14 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiFlags = mis->_miFlags;
 	misSave->vmiResist = mis->_miResist;
 	misSave->vmiFileNum = mis->_miFileNum;
-	misSave->vmiDrawFlag = mis->_miDrawFlag;
+	misSave->vmiDelFlag = mis->_miDelFlag;
 
 	misSave->vmiUniqTrans = mis->_miUniqTrans;
 
-	misSave->vmiDelFlag = mis->_miDelFlag;
-	misSave->vmiLightFlag = mis->_miLightFlag;
-	misSave->vmiPreFlag = mis->_miPreFlag;
-	misSave->vmiAnimFlag = mis->_miAnimFlag; // could be skipped
+	// misSave->vmiDrawFlagAlign = mis->_miDrawFlag;
+	// misSave->vmiAnimFlagAlign = mis->_miAnimFlag;
+	// misSave->vmiLightFlagAlign = mis->_miLightFlag;
+	// misSave->vmiPreFlagAlign = mis->_miPreFlag;
 
 	// misSave->vmiAnimDataAlign = mis->_miAnimData;
 	// misSave->vmiAnimFrameLenAlign = mis->_miAnimFrameLen;

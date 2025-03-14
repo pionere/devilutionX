@@ -15,8 +15,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
-/* Buffer to hold the received player-info. */
-static PkPlayerStruct netplr[MAX_PLRS];
 /* Specifies whether the player-info is received. */
 static bool sgbPackPlrTbl[MAX_PLRS];
 /** Specifies whether a game should be loaded. */
@@ -240,7 +238,7 @@ void multi_deactivate_player(int pnum)
 		// ClearPlrMsg(pnum);
 		RemoveLvlPlayer(pnum);
 		// if (reason != LEAVE_NONE) {
-		if (pnum == mypnum) {
+		if (pnum != mypnum) {
 			const char* pszFmt = "Player '%s' left the game";
 			//switch (reason) {
 			//case LEAVE_NORMAL:
@@ -744,7 +742,7 @@ void NetClose()
 
 static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
-	int i, dlgresult, pnum;
+	int i, dlgresult;
 	int32_t seed;
 
 	while (true) {
@@ -777,13 +775,7 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			}
 		}
 		gbSelectHero = bSinglePlayer;
-		if (IsGameSrv) {
-			gameData.aePlayerId = SNPLAYER_MASTER;
-			mypnum = SNPLAYER_MASTER;
-		} else {
-			gameData.aePlayerId = 0;
-			pfile_read_hero_from_save();
-		}
+		gameData.aePlayerId = IsGameSrv ? SNPLAYER_MASTER : 0;
 
 		// select game
 		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
@@ -799,13 +791,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 		}
 		gbLoadGame = dlgresult == SELGAME_LOAD;
 		gbJoinGame = dlgresult == SELGAME_JOIN;
-		if (gbJoinGame) {
-			pnum = gameData.aePlayerId;
-			if (mypnum != pnum) {
-				copy_pod(plr, myplr);
-				mypnum = pnum;
-				//pfile_read_player_from_save();
-			}
+		mypnum = gameData.aePlayerId;
+		if (!IsGameSrv) {
+			pfile_read_hero();
 		}
 		break;
 	}
@@ -890,12 +878,12 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
+void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
 	if (sgbPackPlrTbl[pnum]) {
-		// invalid data -> drop
+		// player info received already -> drop
 		return;
 	}
 	if (plr._pActive) {
@@ -908,11 +896,11 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 		// invalid data -> drop
 		return;
 	}
-
-	memcpy(&netplr[pnum], piMsg->tpData.content, size);
+	PkPlayerStruct netplr;
+	memcpy(&netplr, piMsg->tpData.content, size);
 	// DeltaDecompressData
 	if (piMsg->tpData.compressed) {
-		PkwareDecompress((BYTE*)&netplr[pnum], size, sizeof(PkPlayerStruct));
+		PkwareDecompress((BYTE*)&netplr, size, sizeof(PkPlayerStruct));
 	}
 	// TODO: check (decompressed) size ?
 	//if (size != sizeof(PkPlayerStruct)) {
@@ -921,19 +909,18 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 	//}
 #if INET_MODE
 	// TODO: extend validation of PkPlayerStruct?
-	if (netplr[pnum].pName[0] == '\0'
-	 || netplr[pnum].pTeam != pnum
-	 || netplr[pnum].pDunLevel != DLV_TOWN
-	 //|| !netplr[pnum].pLvlChanging
-	 || netplr[pnum].pLevel > MAXCHARLEVEL
-	 || netplr[pnum].pClass >= NUM_CLASSES) {
+	if (netplr.pName[0] == '\0'
+	 || netplr.pTeam != pnum
+	 || netplr.pDunLevel != DLV_TOWN
+	 //|| !netplr.pLvlChanging
+	 || netplr.pLevel > MAXCHARLEVEL
+	 || netplr.pClass >= NUM_CLASSES) {
 		// invalid data -> drop
 		return;
 	}
-	netplr[pnum].pName[lengthof(netplr[pnum].pName) - 1] = '\0'; // ensure the name is null terminated
 #endif
 	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
-	UnPackPlayer(&netplr[pnum], pnum);
+	UnPackPlayer(&netplr, pnum);
 }
 
 bool multi_plrinfo_received(int pnum)

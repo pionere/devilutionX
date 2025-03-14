@@ -349,7 +349,6 @@ static unsigned GetPlrGFXSize(const char* szCel)
 	int c;
 	const char *chrArmor, *chrWeapon, *chrClass, *strClass;
 	DWORD dwSize, dwMaxSize;
-	HANDLE hsFile;
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	char prefix[4];
 
@@ -371,13 +370,9 @@ static unsigned GetPlrGFXSize(const char* szCel)
 				prefix[2] = *chrWeapon;
 				prefix[3] = '\0';
 				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
-				hsFile = SFileOpenFile(pszName);
-				if (hsFile != NULL) {
-					dwSize = SFileGetFileSize(hsFile);
-					SFileCloseFile(hsFile);
-					if (dwMaxSize < dwSize) {
-						dwMaxSize = dwSize;
-					}
+				dwSize = SFileReadFileEx(pszName, NULL);
+				if (dwMaxSize < dwSize) {
+					dwMaxSize = dwSize;
 				}
 			}
 		}
@@ -1510,14 +1505,11 @@ static void StartPickItem(int pnum)
 
 static void StartTalk(int pnum)
 {
-	int mnum;
+	int mnum = plr._pDestParam1;
 
-	mnum = plr._pDestParam1;
-
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		if (pnum == mypnum)
-			TalkToTowner(mnum);
-	} else
+	if (currLvl._dLevelIdx == DLV_TOWN)
+		TalkToTowner(mnum, pnum);
+	else
 		TalktoMonster(mnum, pnum);
 }
 
@@ -1563,13 +1555,8 @@ static void PlrGetKnockback(int pnum, int dir)
 {
 	int oldx, oldy, newx, newy;
 	// assert(plr._pHitPoints != 0);
-	// if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING)
-	//	return;
+	// AssertFixPlayerLocation(pnum);
 
-	if (plr._pmode != PM_GOTHIT)
-		PlrStartGetHit(pnum, dir);
-
-	dir = OPPOSITE(dir);
 	oldx = plr._px;
 	oldy = plr._py;
 	if (PathWalkable(oldx, oldy, dir2pdir[dir])) {
@@ -1587,16 +1574,13 @@ static void PlrGetKnockback(int pnum, int dir)
 	}
 }
 
-void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy)
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 {
-	int dir;
-
+	bool knockback, stun;
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHitByAny: illegal player %d", pnum);
 	}
-
 	// assert(plr._pHitPoints != 0 && dam >= 0);
-
 	if (plr._pManaShield != 0) {
 		hitflags &= (ISPL_FAKE_FORCE_STUN | ISPL_KNOCKBACK);
 		if (hitflags == 0)
@@ -1604,18 +1588,19 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy
 		// dam = 0;
 	}
 
-	dir = GetDirection(plr._px, plr._py, sx, sy);
 	PlaySfxLocN(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && ((hitflags & ISPL_BLEED) ? random_(47, 64) == 0 : random_(48, 128) == 0))
 		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
-
-	if (hitflags & ISPL_KNOCKBACK) {
-		PlrGetKnockback(pnum, dir);
-	} else if ((hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP) {
-		PlrStartGetHit(pnum, dir);
+	knockback = (hitflags & ISPL_KNOCKBACK) != 0;
+	stun = (hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP;
+	if (knockback || stun) {
+		if (stun || plr._pmode != PM_GOTHIT)
+			PlrStartGetHit(pnum, OPPOSITE(dir));
+		if (knockback)
+			PlrGetKnockback(pnum, dir);
 	}
 }
 
@@ -1736,7 +1721,6 @@ void UseTownPortal(int pnum, int pidx)
 		plr._pDunLevel = DLV_TOWN;
 	} else {
 		plr._pDunLevel = portals[pidx]._rlevel;
-		static_assert(MAXPORTAL == MAX_PLRS, "UseTownPortal uses pnum as portal-id.");
 		if (pidx == pnum) {
 			DeactivatePortal(pidx);
 		}
@@ -1973,7 +1957,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if (!CheckHit(hper))
 		return false;
 
-	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, plx(offp)._px, plx(offp)._py))
+	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel, OPPOSITE(plx(offp)._pdir)))
 		return true;
 
 	dam = 0;
@@ -2035,14 +2019,20 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
-		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._px, plx(offp)._py);
+		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._pdir);
 	}
 	return true;
 }
 
-static int PlrTryHit(int pnum, int sn, int sl, int dx, int dy)
+static int PlrTryHit(int pnum, int dir)
 {
-	int mpo;
+	int dx, dy, mpo, sn, sl;
+
+	plr._pdir = dir;
+	dx = plr._px + offset_x[dir];
+	dy = plr._py + offset_y[dir];
+	sn = plr._pVar5; // ATTACK_SKILL
+	sl = plr._pVar6, // ATTACK_SKILL_LEVEL
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
@@ -2113,29 +2103,20 @@ static void PlrDoAttack(int pnum)
 	if (plr._pAnimFrame < plr._pAFNum - 1)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
-		plr._pVar7++;
+		plr._pVar7 = 1;
 		PlaySfxLocN(PS_SWING, plr._px, plr._py, 2);
 	}
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;
 	}
 	if (plr._pVar7 == 1) {
-		plr._pVar7++;
-		dir = plr._pdir;
-		hitcnt = PlrTryHit(pnum, plr._pVar5, plr._pVar6, // ATTACK_SKILL, ATTACK_SKILL_LEVEL
-			plr._px + offset_x[dir], plr._py + offset_y[dir]);
+		plr._pVar7 = 2;
+		hitcnt = PlrTryHit(pnum, plr._pdir);
 		if (plr._pVar5 == SPL_SWIPE) {
-			int pdir;
-			pdir = (dir + 1) & 7;
-			plr._pdir = pdir;
-			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
-			pdir = (pdir + 6) & 7;
-			plr._pdir = pdir;
-			hitcnt += PlrTryHit(pnum, SPL_SWIPE, plr._pVar6,
-				plr._px + offset_x[pdir], plr._py + offset_y[pdir]);
-			pdir = (pdir + 1) & 7;
-			plr._pdir = pdir;
+			dir = plr._pdir;
+			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
+			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
+			plr._pdir = dir;
 		}
 
 		if (hitcnt != 0) {
@@ -2256,7 +2237,7 @@ static void ShieldDur(int pnum)
 //#endif
 }
 
-bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
+bool PlrCheckBlock(int pnum, int bmod, int dir)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrCheckBlock: illegal player %d", pnum);
@@ -2269,7 +2250,6 @@ bool PlrCheckBlock(int pnum, int bmod, int sx, int sy)
 		// assert(plr._pSkillFlags & SFLAG_BLOCK);
 		blkper = blkper - bmod * 2;
 		if (CheckHit(blkper)) {
-			int dir = GetDirection(plr._px, plr._py, sx, sy);
 			if (plr._pmode == PM_STAND) {
 				AssertFixPlayerLocation(pnum);
 				StartBlock(pnum, dir);
@@ -2749,11 +2729,11 @@ void ProcessPlayers()
 				//}
 			}
 
-			int16_t nextTimer = plr._pTimer[PLTR_RAGE];
-			if (nextTimer != 0) {
-				plr._pTimer[PLTR_RAGE] = nextTimer + (nextTimer < 0 ? 1 : -1);
+			int16_t lastTimer = plr._pTimer[PLTR_RAGE];
+			if (lastTimer != 0) {
+				plr._pTimer[PLTR_RAGE] = lastTimer + (lastTimer < 0 ? 1 : -1);
 				if (plr._pTimer[PLTR_RAGE] == 0) {
-					if (nextTimer >= 0) {
+					if (lastTimer >= 0) {
 						plr._pTimer[PLTR_RAGE] = -RAGE_COOLDOWN_TICK;
 						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
 					}
@@ -2863,7 +2843,7 @@ void MissToPlr(int mi, bool hit)
 		return;
 	}
 	//if (mis->_miSpllvl < 10)
-		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, plr._px + (plr._px - mis->_misx), plr._py + (plr._py - mis->_misy));
+		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, x, y);
 	dist = (int)mis->_miRange - 24; // MISRANGE
@@ -2931,7 +2911,7 @@ void MissToPlr(int mi, bool hit)
 		if (!CheckHit(hper))
 			return;
 
-		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, mis->_misx, mis->_misy))
+		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, OPPOSITE(plr._pdir)))
 			return;
 		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
 
@@ -2939,7 +2919,7 @@ void MissToPlr(int mi, bool hit)
 		//	dam <<= 1;
 		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
 			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
-			PlrHitByAny(mpnum, pnum, dam, hitFlags, mis->_misx, mis->_misy);
+			PlrHitByAny(mpnum, pnum, dam, hitFlags, plr._pdir);
 		}
 		return;
 	}
