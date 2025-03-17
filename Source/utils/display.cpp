@@ -99,7 +99,7 @@ void SetVideoModeToPrimary(int width, int height)
 	// gbFullscreen = (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 }
 #else
-void RecreateDisplay(int width, int height)
+static void RecreateDisplay(int width, int height)
 {
 	if (renderer_texture != NULL)
 		SDL_DestroyTexture(renderer_texture);
