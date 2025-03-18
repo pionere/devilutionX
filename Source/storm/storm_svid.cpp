@@ -446,12 +446,12 @@ bool SVidPlayContinue()
 #else
 		SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, outputFormat->format, 0);
 #endif
-		if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-			SDL_FreeSurface(tmp);
+		int result = SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect);
+		SDL_FreeSurface(tmp);
+		if (result < 0) {
 			sdl_issue(ERR_SDL_VIDEO_BLIT_SCALED);
 			return false;
 		}
-		SDL_FreeSurface(tmp);
 	}
 
 	RenderPresent();
