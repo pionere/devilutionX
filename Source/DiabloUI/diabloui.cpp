@@ -408,7 +408,6 @@ void UiAddLogo()
 static void UiClearScreen()
 {
 	if (SCREEN_WIDTH > PANEL_WIDTH) { // Background size
-		// SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
 		ClearScreenBuffer();
 	}
 }
