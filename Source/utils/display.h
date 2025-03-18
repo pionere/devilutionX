@@ -32,16 +32,7 @@ extern int screenHeight;
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
 void SetVideoModeToPrimary(int width, int height);
-// Whether the output surface requires software scaling.
-// Always returns false on SDL2.
-bool OutputRequiresScaling();
-// Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect* rect);
-// If the output requires software scaling, replaces the given surface with a scaled one.
-void ScaleSurfaceToOutput(SDL_Surface** surface);
-#else // SDL2, scaling handled by renderer.
-inline void ScaleOutputRect(SDL_Rect* rect) { };
-inline void ScaleSurfaceToOutput(SDL_Surface** surface) { };
+SDL_Surface* OutputSurfaceToScale();
 #endif
 
 // Returns:
@@ -73,9 +64,8 @@ void OutputToLogical(T* x, T* y)
 	*x -= view.x;
 	*y -= view.y;
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * SCREEN_WIDTH / surface->w;
 	*y = *y * SCREEN_HEIGHT / surface->h;
 #endif
@@ -110,9 +100,8 @@ void LogicalToOutput(T* x, T* y)
 	//*x = (T)(*x * scaleX);
 	//*y = (T)(*y * scaleX);
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * surface->w / SCREEN_WIDTH;
 	*y = *y * surface->h / SCREEN_HEIGHT;
 #endif

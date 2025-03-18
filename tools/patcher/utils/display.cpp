@@ -89,6 +89,12 @@ void SetVideoModeToPrimary(int width, int height)
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 	// gbFullscreen = (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 }
+
+SDL_Surface* OutputSurfaceToScale()
+{
+	SDL_Surface* surface = GetOutputSurface();
+	return (SCREEN_WIDTH != surface->w || SCREEN_HEIGHT != surface->h) ? surface : NULL;
+}
 #else
 void RecreateDisplay(int width, int height)
 {
@@ -111,7 +117,7 @@ static void AdjustToScreenGeometry(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 #ifdef USE_SDL1
-	if (OutputRequiresScaling()) {
+	if (OutputSurfaceToScale() != NULL) {
 		DoLog("Using software scaling");
 	}
 #endif
@@ -309,52 +315,5 @@ SDL_Surface* GetOutputSurface()
 	return SDL_GetWindowSurface(ghMainWnd);
 #endif
 }
-
-#ifdef USE_SDL1
-bool OutputRequiresScaling()
-{
-	const SDL_Surface* surface = GetOutputSurface();
-	return SCREEN_WIDTH != surface->w || SCREEN_HEIGHT != surface->h;
-}
-
-void ScaleOutputRect(SDL_Rect* rect)
-{
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
-	rect->x = rect->x * surface->w / SCREEN_WIDTH;
-	rect->y = rect->y * surface->h / SCREEN_HEIGHT;
-	rect->w = rect->w * surface->w / SCREEN_WIDTH;
-	rect->h = rect->h * surface->h / SCREEN_HEIGHT;
-}
-
-static SDL_Surface* CreateScaledSurface(SDL_Surface* src)
-{
-	SDL_Rect stretched_rect = { 0, 0, static_cast<Uint16>(src->w), static_cast<Uint16>(src->h) };
-	ScaleOutputRect(&stretched_rect);
-	SDL_Surface* stretched = SDL_CreateRGBSurface(
-	    SDL_SWSURFACE, stretched_rect.w, stretched_rect.h, src->format->BitsPerPixel,
-	    src->format->Rmask, src->format->Gmask, src->format->Bmask, src->format->Amask);
-	if (SDL_HasColorKey(src)) {
-		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
-		if (src->format->palette != NULL)
-			SDL_SetPalette(stretched, SDL_LOGPAL, src->format->palette->colors, 0, src->format->palette->ncolors);
-	}
-	if (SDL_SoftStretch((src), NULL, stretched, &stretched_rect) < 0) {
-		SDL_FreeSurface(stretched);
-		sdl_error(ERR_SDL_WINDOW_STRETCH);
-	}
-	return stretched;
-}
-
-void ScaleSurfaceToOutput(SDL_Surface** surface)
-{
-	if (!OutputRequiresScaling())
-		return;
-	SDL_Surface* stretched = CreateScaledSurface(*surface);
-	SDL_FreeSurface((*surface));
-	*surface = stretched;
-}
-#endif // USE_SDL1
 
 DEVILUTION_END_NAMESPACE

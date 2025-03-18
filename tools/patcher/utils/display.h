@@ -30,14 +30,7 @@ extern int screenHeight;
 //extern int viewportHeight;
 
 #ifdef USE_SDL1
-// Whether the output surface requires software scaling.
-// Always returns false on SDL2.
-bool OutputRequiresScaling();
-// Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect* rect);
-#else // SDL2, scaling handled by renderer.
-void RecreateDisplay(int width, int height);
-inline void ScaleOutputRect(SDL_Rect* rect) { };
+SDL_Surface* OutputSurfaceToScale();
 #endif
 
 // Returns:
@@ -69,9 +62,8 @@ void OutputToLogical(T* x, T* y)
 	*x -= view.x;
 	*y -= view.y;
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * SCREEN_WIDTH / surface->w;
 	*y = *y * SCREEN_HEIGHT / surface->h;
 #endif
@@ -106,9 +98,8 @@ void LogicalToOutput(T* x, T* y)
 	//*x = (T)(*x * scaleX);
 	//*y = (T)(*y * scaleX);
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * surface->w / SCREEN_WIDTH;
 	*y = *y * surface->h / SCREEN_HEIGHT;
 #endif
