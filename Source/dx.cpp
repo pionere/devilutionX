@@ -37,6 +37,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #if DEBUG_MODE || DEV_MODE
 unsigned _guLockCount;
 #endif
+/** 8-bit surface wrapper around #gpBuffer */
+SDL_Surface* back_surface;
 /** Back buffer */
 BYTE* gpBuffer;
 /** Upper bound of back buffer. */
@@ -45,6 +47,8 @@ BYTE* gpBufStart;
 BYTE* gpBufEnd;
 /** The width of the back buffer. */
 int gnBufferWidth;
+/** Currently active palette */
+SDL_Palette* back_palette;
 
 #if DEBUG_MODE
 int locktbl[256];

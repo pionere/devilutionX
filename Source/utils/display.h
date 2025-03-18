@@ -25,9 +25,6 @@ extern SDL_Renderer* renderer;
 extern SDL_Texture* renderer_texture;
 extern SDL_Surface* renderer_surface;
 
-extern SDL_Palette* back_palette;
-extern SDL_Surface* back_surface;
-
 extern int screenWidth;
 extern int screenHeight;
 //extern int viewportHeight;

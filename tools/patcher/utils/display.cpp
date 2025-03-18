@@ -57,12 +57,6 @@ SDL_Texture* renderer_texture;
 /** 24-bit renderer texture surface */
 SDL_Surface* renderer_surface = NULL;
 
-/** Currently active palette */
-SDL_Palette* back_palette;
-
-/** 8-bit surface wrapper around #gpBuffer */
-SDL_Surface* back_surface;
-
 int screenWidth;
 int screenHeight;
 //int viewportHeight;
