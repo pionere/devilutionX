@@ -50,7 +50,7 @@
         android:dataExtractionRules="@xml/backup_rules"
         tools:targetApi="s"
         android:isGame="true"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+        android:theme="@style/AppTheme"
         android:hardwareAccelerated="true">
 
         <!--android:requestLegacyExternalStorage="true"-->

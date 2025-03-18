@@ -1,10 +1,11 @@
-#include <time.h>
+#include "selhero.h"
+
+#include <ctime>
 
 #include "../all.h"
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/selyesno.h"
 #include "DiabloUI/selconn.h"
@@ -14,7 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
-static _uiheroinfo selhero_heroInfo;
+_uiheroinfo selhero_heroInfo;
 static unsigned selhero_SaveCount = 0;
 static std::vector<_uiheroinfo> selhero_heros;
 static char textStats[5][4];
@@ -128,9 +129,7 @@ static void SelheroFreeDlgItems()
 
 static void SelheroFree()
 {
-	MemFreeDbg(gbBackCel);
-	MemFreeDbg(gbHerosCel);
-	UnloadScrollBar();
+	FreeBackgroundArt();
 
 	SelheroFreeDlgItems();
 }
@@ -178,18 +177,15 @@ static void SelheroUpdateViewportItems()
 
 static void SelheroInit()
 {
-	LoadScrollBar();
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
-
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
 }
 
 static void SelheroInitHeros()
 {
 	selhero_heros.clear();
-	pfile_ui_load_hero_infos(selhero_heros);
-	selhero_SaveCount = selhero_heros.size();
-	std::reverse(selhero_heros.begin(), selhero_heros.end());
+	pfile_ui_load_heros(selhero_heros);
+	static_assert(MAX_CHARACTERS <= UINT32_MAX, "Check overflow in SelheroInitHeros.");
+	selhero_SaveCount = (unsigned)selhero_heros.size();
 	{
 		_uiheroinfo newHero;
 		copy_cstr(newHero.hiName, "New Hero");
@@ -264,7 +260,7 @@ static void SelheroListFocus(unsigned index)
 static void SelheroListDeleteYesNo(unsigned index)
 {
 	if (index == 0)
-		pfile_ui_delete_save(&selhero_heroInfo);
+		pfile_ui_delete_hero(&selhero_heroInfo);
 	SelheroInitHeros();
 }
 
@@ -334,10 +330,10 @@ static void SelheroClassSelectorFocus(unsigned index)
 	//pfile_ui_default_stats(index, &defaults);
 	assert((unsigned)gUIListItems[index]->m_value == index);
 
-	selhero_heroInfo.hiIdx = MAX_CHARACTERS;
+	selhero_heroInfo.hiIdx = MAX_CHARACTERS + 1;
 	selhero_heroInfo.hiLevel = 1;
 	selhero_heroInfo.hiClass = index;
-	//selhero_heroInfo.hiRank = 0;
+	selhero_heroInfo.hiSaveFile = FALSE;
 	selhero_heroInfo.hiStrength = StrengthTbl[index];   //defaults.dsStrength;
 	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
@@ -369,6 +365,8 @@ static void SelheroClassSelectorInit()
 
 	SDL_Rect rect3 = { SELHERO_RPANEL_LEFT, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SELLIST_DIALOG_DELETE_BUTTON = NULL; // TODO: reset in SelheroFreeDlgItems?
 
 	SDL_Rect rect4 = { SELHERO_RPANEL_LEFT + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
@@ -406,6 +404,7 @@ static void SelheroNameInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + 24, SELHERO_RPANEL_TOP + (SELHERO_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELHERO_RPANEL_WIDTH - 2 * 24, FOCUS_MEDIUM };
+	static_assert(sizeof(selhero_heroInfo.hiName) <= UIEDIT_MAXLENGTH, "The edit field of SelheroNameInit must fit to UIEdit.");
 	UiEdit* edit = new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName), rect2);
 	gUiItems.push_back(edit);
 
@@ -416,7 +415,7 @@ static void SelheroNameInit(unsigned index)
 static void SelheroNameSelect(unsigned index)
 {
 	const char* err;
-	int result = pfile_ui_create_save(&selhero_heroInfo);
+	int result = pfile_ui_create_hero(&selhero_heroInfo);
 
 	switch (result) {
 	case NEWHERO_DONE:
@@ -436,7 +435,7 @@ static void SelheroNameSelect(unsigned index)
 		break;
 	}
 
-	MemFreeDbg(gbBackCel);
+	FreeBackgroundArt();
 	SelheroFreeDlgItems();
 	UiSelOkDialog("Unable to create hero", err);
 	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");

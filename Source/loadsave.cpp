@@ -83,7 +83,7 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_ivalue = savedItem->vivalue;
 	is->_iIvalue = savedItem->viIvalue;
 	is->_iAC = savedItem->viAC;
-	is->_iFlags = savedItem->viFlags;
+	is->_iPLFlags = savedItem->viPLFlags;
 	is->_iCharges = savedItem->viCharges;
 	is->_iMaxCharges = savedItem->viMaxCharges;
 	is->_iDurability = savedItem->viDurability;
@@ -125,12 +125,9 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLMMaxDam = savedItem->viPLMMaxDam;
 	is->_iPLAMinDam = savedItem->viPLAMinDam;
 	is->_iPLAMaxDam = savedItem->viPLAMaxDam;
-
-	is->_iVAdd = savedItem->viVAdd;
-	is->_iVMult = savedItem->viVMult;
 #else
-	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viVMult) + sizeof(savedItem->viVMult)
-	 && offsetof(ItemStruct, _iVMult) == offsetof(LSaveItemStruct, viVMult), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
+	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viPLAMaxDam) + sizeof(savedItem->viPLAMaxDam)
+	 && offsetof(ItemStruct, _iPLAMaxDam) == offsetof(LSaveItemStruct, viPLAMaxDam), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
 	memcpy(is, savedItem, sizeof(LSaveItemStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	src += sizeof(LSaveItemStruct);
@@ -145,7 +142,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	LSavePlayerStruct* DVL_RESTRICT savedPlr = (LSavePlayerStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	pr->_pmode = savedPlr->vpmode;
-	memcpy(pr->_pWalkpath, savedPlr->vpWalkpath, lengthof(pr->_pWalkpath));
 	pr->_pDestAction = savedPlr->vpDestAction;
 	pr->_pDestParam1 = savedPlr->vpDestParam1;
 	pr->_pDestParam2 = savedPlr->vpDestParam2;
@@ -279,10 +275,11 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
+	tbuff += 8; // _pISpells
+	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
-	tbuff += 1; // _pAlign_B0
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -298,12 +295,10 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 1; // _pLghtResist
 	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
-	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
-	tbuff += 1; // _pIBlockChance
+	tbuff += 2; // _pIBlockChance
 
-	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
 	tbuff += 1; // _pIWalkSpeed
 	tbuff += 1; // _pIRecoverySpeed
@@ -311,7 +306,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pIBaseAttackSpeed
-	tbuff += 1; // _pIArrowVelBonus
+	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
 	tbuff += 4; // _pIFMinDam
@@ -463,14 +458,14 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miFlags = savedMis->vmiFlags;
 	mis->_miResist = savedMis->vmiResist;
 	mis->_miFileNum = savedMis->vmiFileNum;
-	mis->_miDrawFlag = savedMis->vmiDrawFlag;
+	mis->_miDelFlag = savedMis->vmiDelFlag;
 
 	mis->_miUniqTrans = savedMis->vmiUniqTrans;
 
-	mis->_miDelFlag = savedMis->vmiDelFlag;
-	mis->_miLightFlag = savedMis->vmiLightFlag;
-	mis->_miPreFlag = savedMis->vmiPreFlag;
-	mis->_miAnimFlag = savedMis->vmiAnimFlag;
+	// mis->_miDrawFlag = savedMis->vmiDrawFlagAlign;
+	// mis->_miAnimFlag = savedMis->vmiAnimFlagAlign;
+	// mis->_miLightFlag = savedMis->vmiLightFlagAlign;
+	// mis->_miPreFlag = savedMis->vmiPreFlagAlign;
 
 	// mis->_miAnimData = savedMis->vmiAnimDataAlign;
 	// mis->_miAnimFrameLen = savedMis->vmiAnimFrameLenAlign;
@@ -748,7 +743,6 @@ void LoadGame()
 	// TODO: UIDisconnectGame() ?
 	SNetLeaveGame();
 
-	pfile_delete_save_file(false);
 	pfile_read_save_file(true);
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
@@ -765,6 +759,10 @@ void LoadGame()
 		glSeedTbl[i] = ghs->vhSeeds[i];
 	}
 	_CurrSeed = ghs->vhCurrSeed;
+	for (i = 0; i < NUM_DYNLVLS; i++) {
+		gDynLevels[i]._dnLevel = ghs->vhDynLvls[i].vdLevel;
+		gDynLevels[i]._dnType = ghs->vhDynLvls[i].vdType;
+	}
 	// load player-data
 	_ViewX = ghs->vhViewX;
 	_ViewY = ghs->vhViewY;
@@ -790,8 +788,6 @@ void LoadGame()
 	AutoMapScale = ghs->vhAutoMapScale;
 	MiniMapScale = ghs->vhMiniMapScale;
 	NormalMapScale = ghs->vhNormalMapScale;
-	AutoMapXOfs = ghs->vhAutoMapXOfs;
-	AutoMapYOfs = ghs->vhAutoMapYOfs;
 
 	guLvlVisited = ghs->vhLvlVisited;
 
@@ -821,6 +817,8 @@ void LoadGame()
 	boylevel = gms->vaboylevel;
 	numpremium = gms->vanumpremium;
 	premiumlevel = gms->vapremiumlevel;
+	AutoMapXOfs = gms->vaAutoMapXOfs;
+	AutoMapYOfs = gms->vaAutoMapYOfs;
 	numlights = gms->vanumlights;
 	numvision = gms->vanumvision;
 
@@ -923,7 +921,7 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->vivalue = is->_ivalue;
 	itemSave->viIvalue = is->_iIvalue;
 	itemSave->viAC = is->_iAC;
-	itemSave->viFlags = is->_iFlags;
+	itemSave->viPLFlags = is->_iPLFlags;
 	itemSave->viCharges = is->_iCharges;
 	itemSave->viMaxCharges = is->_iMaxCharges;
 	itemSave->viDurability = is->_iDurability;
@@ -965,12 +963,9 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLMMaxDam = is->_iPLMMaxDam;
 	itemSave->viPLAMinDam = is->_iPLAMinDam;
 	itemSave->viPLAMaxDam = is->_iPLAMaxDam;
-
-	itemSave->viVAdd = is->_iVAdd;
-	itemSave->viVMult = is->_iVMult;
 #else
-	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viVMult) + sizeof(itemSave->viVMult)
-	 && offsetof(ItemStruct, _iVMult) == offsetof(LSaveItemStruct, viVMult), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
+	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viPLAMaxDam) + sizeof(itemSave->viPLAMaxDam)
+	 && offsetof(ItemStruct, _iPLAMaxDam) == offsetof(LSaveItemStruct, viPLAMaxDam), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
 	memcpy(itemSave, is, sizeof(LSaveItemStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	dest += sizeof(LSaveItemStruct);
@@ -985,7 +980,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	LSavePlayerStruct* DVL_RESTRICT plrSave = (LSavePlayerStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
 	plrSave->vpmode = pr->_pmode;
-	memcpy(plrSave->vpWalkpath, pr->_pWalkpath, lengthof(pr->_pWalkpath));
 	plrSave->vpDestAction = pr->_pDestAction;
 	plrSave->vpDestParam1 = pr->_pDestParam1;
 	plrSave->vpDestParam2 = pr->_pDestParam2;
@@ -1120,10 +1114,11 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
+	tbuff += 8; // _pISpells
+	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
 	tbuff += 1; // _pHasUnidItem
-	tbuff += 1; // _pAlign_B0
 	tbuff += 4; // _pISlMinDam
 	tbuff += 4; // _pISlMaxDam
 	tbuff += 4; // _pIBlMinDam
@@ -1139,12 +1134,10 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 1; // _pLghtResist
 	tbuff += 1; // _pAcidResist
 	tbuff += 4; // _pIHitChance
-	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pIBaseHitBonus
 	tbuff += 1; // _pICritChance
-	tbuff += 1; // _pIBlockChance
+	tbuff += 2; // _pIBlockChance
 
-	tbuff += 8; // _pISpells
 	tbuff += 4; // _pIFlags
 	tbuff += 1; // _pIWalkSpeed
 	tbuff += 1; // _pIRecoverySpeed
@@ -1152,7 +1145,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIGetHit
 	tbuff += 1; // _pIBaseAttackSpeed
-	tbuff += 1; // _pIArrowVelBonus
+	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
 	tbuff += 1; // _pIManaSteal
 	tbuff += 4; // _pIFMinDam
@@ -1286,14 +1279,14 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiFlags = mis->_miFlags;
 	misSave->vmiResist = mis->_miResist;
 	misSave->vmiFileNum = mis->_miFileNum;
-	misSave->vmiDrawFlag = mis->_miDrawFlag;
+	misSave->vmiDelFlag = mis->_miDelFlag;
 
 	misSave->vmiUniqTrans = mis->_miUniqTrans;
 
-	misSave->vmiDelFlag = mis->_miDelFlag;
-	misSave->vmiLightFlag = mis->_miLightFlag;
-	misSave->vmiPreFlag = mis->_miPreFlag;
-	misSave->vmiAnimFlag = mis->_miAnimFlag; // could be skipped
+	// misSave->vmiDrawFlagAlign = mis->_miDrawFlag;
+	// misSave->vmiAnimFlagAlign = mis->_miAnimFlag;
+	// misSave->vmiLightFlagAlign = mis->_miLightFlag;
+	// misSave->vmiPreFlagAlign = mis->_miPreFlag;
 
 	// misSave->vmiAnimDataAlign = mis->_miAnimData;
 	// misSave->vmiAnimFrameLenAlign = mis->_miAnimFrameLen;
@@ -1601,6 +1594,10 @@ void SaveGame()
 	for (i = 0; i < NUM_LEVELS; i++) {
 		ghs->vhSeeds[i] = glSeedTbl[i];
 	}
+	for (i = 0; i < NUM_DYNLVLS; i++) {
+		ghs->vhDynLvls[i].vdLevel = gDynLevels[i]._dnLevel;
+		ghs->vhDynLvls[i].vdType = gDynLevels[i]._dnType;
+	}
 	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data
 	ghs->vhViewX = ViewX;
@@ -1627,8 +1624,6 @@ void SaveGame()
 	ghs->vhAutoMapScale = AutoMapScale;
 	ghs->vhMiniMapScale = MiniMapScale;
 	ghs->vhNormalMapScale = NormalMapScale;
-	ghs->vhAutoMapXOfs = AutoMapXOfs;
-	ghs->vhAutoMapYOfs = AutoMapYOfs;
 
 	ghs->vhLvlVisited = guLvlVisited;
 
@@ -1662,6 +1657,8 @@ void SaveGame()
 	gms->vaboylevel = boylevel;
 	gms->vanumpremium = numpremium;
 	gms->vapremiumlevel = premiumlevel;
+	gms->vaAutoMapXOfs = AutoMapXOfs;
+	gms->vaAutoMapYOfs = AutoMapYOfs;
 	gms->vanumlights = numlights;
 	gms->vanumvision = numvision;
 
@@ -1698,11 +1695,9 @@ void SaveGame()
 	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/;
 	static_assert(tst < mss, "Town might not fit to the preallocated buffer.");
 	static_assert(tsd < mss, "Dungeon might not fit to the preallocated buffer.");
+	static_assert(mss <= UINT32_MAX, "File is to large to be written by pfile_write_save_file I.");
 	assert((size_t)tbuff - (size_t)fileBuff < mss);
-	pfile_write_save_file(true, (size_t)tbuff - (size_t)fileBuff);
-	gbValidSaveFile = true;
-	pfile_rename_temp_to_perm();
-	pfile_write_hero(true);
+	pfile_write_save_file(true, (DWORD)((size_t)tbuff - (size_t)fileBuff));
 }
 
 void SaveLevel()
@@ -1718,8 +1713,11 @@ void SaveLevel()
 	tbuff = SaveLevelData(tbuff, false);
 	//tbuff = SaveMonstersLight(tbuff); -- assuming there are no moving monsters with light
 
-	assert((size_t)tbuff - (size_t)fileBuff < sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/);
-	pfile_write_save_file(false, (size_t)tbuff - (size_t)fileBuff);
+	constexpr size_t mss = sizeof(gsDeltaData.ddBuffer) - SHA1BlockSize - 8 /*sizeof(CodecSignature)*/;
+	// static_assert(max(sld, slt) < mss, "Dungeon might not fit to the preallocated buffer.");
+	static_assert(mss <= UINT32_MAX, "File is to large to be written by pfile_write_save_file II.");
+	assert((size_t)tbuff - (size_t)fileBuff < mss);
+	pfile_write_save_file(false, (DWORD)((size_t)tbuff - (size_t)fileBuff));
 }
 
 void LoadLevel()

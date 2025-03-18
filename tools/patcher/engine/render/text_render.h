@@ -31,9 +31,9 @@ int GetHugeStringWidth(const char* text);
 int GetBigStringWidth(const char* text);
 int GetSmallStringWidth(const char* text);
 
-int PrintSmallChar(int sx, int sy, BYTE text, BYTE col);
-int PrintBigChar(int sx, int sy, BYTE text, BYTE col);
-int PrintHugeChar(int sx, int sy, BYTE text, BYTE col);
+int PrintSmallChar(int sx, int sy, BYTE chr, BYTE col);
+int PrintBigChar(int sx, int sy, BYTE chr, BYTE col);
+int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col);
 
 #ifdef __cplusplus
 }

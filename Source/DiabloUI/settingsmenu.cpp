@@ -1,6 +1,7 @@
 
 #include "DiabloUI/diabloui.h"
 #include "all.h"
+#include "plrctrls.h"
 #include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -21,7 +22,9 @@ void UiSettingsDialog()
 	// initialize the UI
 	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
 	UiAddBackground();
-	UiInitScreen(0);
+	SDL_Rect rect0 = { 0, 0, 0, 0 };
+	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
+	UiInitScreen(0, NULL, NULL, NULL);
 	// initialize gamemenu
 	InitGMenu();
 	gamemenu_settings(true);
@@ -29,10 +32,7 @@ void UiSettingsDialog()
 
 	Dvl_Event event;
 	while (settingsMenu == gpCurrentMenu) {
-		UiClearScreen();
-		UiRenderItems();
-		gmenu_draw();
-		UiFadeIn();
+		UiRender();
 		while (UiPeekAndHandleEvents(&event)) {
 			switch (event.type) {
 			case DVL_WM_MOUSEMOVE:
@@ -49,11 +49,14 @@ void UiSettingsDialog()
 				break;
 			}
 		}
+#if HAS_TOUCHPAD
+		finish_simulated_mouse_clicks();
+#endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		CheckMenuMove();
 #endif
 	}
-	PlaySFX(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
+	PlaySfx(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
 	//PaletteFadeOut();
 	// free gamemenu
 	gmenu_set_items(NULL, 0, NULL);

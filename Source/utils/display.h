@@ -15,18 +15,15 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+#if !FULLSCREEN_ONLY
 extern bool gbFullscreen;
-extern bool gbVsyncEnabled;
-extern bool gbFPSLimit;
-extern int gnRefreshDelay;
+#endif
+extern int gbFrameRateControl;
+extern unsigned gnRefreshDelay;
 extern SDL_Window* ghMainWnd;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* renderer_texture;
 extern SDL_Surface* renderer_surface;
-
-extern SDL_Palette* back_palette;
-extern SDL_Surface* back_surface;
-extern unsigned int back_surface_palette_version;
 
 extern int screenWidth;
 extern int screenHeight;
@@ -34,19 +31,8 @@ extern int screenHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
-bool IsFullScreen();
-void SetVideoModeToPrimary(bool fullscreen, int width, int height);
-// Whether the output surface requires software scaling.
-// Always returns false on SDL2.
-bool OutputRequiresScaling();
-// Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect* rect);
-// If the output requires software scaling, replaces the given surface with a scaled one.
-void ScaleSurfaceToOutput(SDL_Surface** surface);
-#else // SDL2, scaling handled by renderer.
-void RecreateDisplay(int width, int height);
-inline void ScaleOutputRect(SDL_Rect* rect) { };
-inline void ScaleSurfaceToOutput(SDL_Surface** surface) { };
+void SetVideoModeToPrimary(int width, int height);
+SDL_Surface* OutputSurfaceToScale();
 #endif
 
 // Returns:
@@ -78,9 +64,8 @@ void OutputToLogical(T* x, T* y)
 	*x -= view.x;
 	*y -= view.y;
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * SCREEN_WIDTH / surface->w;
 	*y = *y * SCREEN_HEIGHT / surface->h;
 #endif
@@ -115,9 +100,8 @@ void LogicalToOutput(T* x, T* y)
 	//*x = (T)(*x * scaleX);
 	//*y = (T)(*y * scaleX);
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * surface->w / SCREEN_WIDTH;
 	*y = *y * surface->h / SCREEN_HEIGHT;
 #endif

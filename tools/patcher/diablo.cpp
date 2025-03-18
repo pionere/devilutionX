@@ -33,8 +33,10 @@ static int diablo_parse_flags(int argc, char** argv)
 			i++;
 			if (i < argc)
 				SetPrefPath(argv[i]);
+#if !FULLSCREEN_ONLY
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
+#endif
 		}
 	}
 	return EX_OK;
@@ -42,8 +44,8 @@ static int diablo_parse_flags(int argc, char** argv)
 
 static void diablo_init_screen()
 {
-	MousePos.x = SCREEN_WIDTH / 2;
-	MousePos.y = SCREEN_HEIGHT / 2;
+	MousePos.x = SCREEN_WIDTH / 2u;
+	MousePos.y = MAINMENU_TOP + MAINMENU_ITEM_HEIGHT / 2;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (!sgbControllerActive)
 #endif

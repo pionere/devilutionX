@@ -12,7 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
 
 /** The pseudo random seeds to generate the levels. */
-uint32_t glSeedTbl[NUM_LEVELS];
+int32_t glSeedTbl[NUM_LEVELS];
+/** Contains the informations to recreate the dynamic levels. */
+DynLevelStruct gDynLevels[NUM_DYNLVLS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -27,7 +29,7 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
+/** the masks of the visited levels */
 uint32_t guLvlVisited;
 int gnSfxDelay;
 int gnSfxNum;
@@ -390,7 +392,7 @@ void QuestlogUp()
 		} else {
 			qline--;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
@@ -404,13 +406,13 @@ void QuestlogDown()
 		} else {
 			qline++;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
 void QuestlogEnter()
 {
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		StartQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	else

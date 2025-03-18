@@ -85,7 +85,7 @@ void tcp_server::endpoint_to_buffer(const scc& con, buffer_t& buf)
 
 void tcp_server::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
-	if (!getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1)) {
+	if (getIniValue("Network", "Bind Address", gamename, sizeof(gamename) - 1) <= 0) {
 		copy_cstr(gamename, "127.0.0.1");
 		//SStrCopy(gamename, asio::ip::address_v4::loopback().to_string().c_str(), sizeof(gamename));
 	}

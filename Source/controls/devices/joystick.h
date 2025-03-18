@@ -17,22 +17,19 @@ class Joystick {
 
 public:
 	static void Add(int device_index);
+#ifndef USE_SDL1
 	static void Remove(SDL_JoystickID instance_id);
-	static void ReleaseAll();
-	static Joystick* Get(const SDL_Event& event);
+#endif
+	// static void ReleaseAll();
 	static bool IsPressedOnAnyJoystick(ControllerButton button);
 
 	static ControllerButton ToControllerButton(const SDL_Event& event);
 	static bool ProcessAxisMotion(const SDL_Event& event);
 
-	SDL_JoystickID instance_id() const
-	{
-		return instance_id_;
-	}
-
 private:
 	static int ToSdlJoyButton(ControllerButton button);
 	static Joystick* Get(SDL_JoystickID instance_id);
+	static Joystick* Get(const SDL_Event& event);
 
 	bool IsPressed(ControllerButton button) const;
 	bool IsHatButtonPressed(ControllerButton button) const;

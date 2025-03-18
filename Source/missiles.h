@@ -21,8 +21,9 @@ unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxda
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);
 int CheckPlrCol(int _pnum_);
-int AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
+int AddElementalExplosion(int fdam, int ldam, int mdam, int hdam, bool isMonster, int mpnum);
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl);
+void RemovePortalMissile(int pnum);
 void LoadMissileGFX(BYTE midx);
 void InitGameMissileGFX();
 void FreeGameMissileGFX();

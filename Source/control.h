@@ -8,40 +8,65 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static_assert(NUM_WNDS <= INT8_MAX, "WND_VALID checks only the sign of the WND_-value I.");
+static_assert((int8_t)WND_NONE < 0, "WND_VALID checks only the sign of the WND_-value II.");
+#define WND_VALID(x) ((int8_t)x >= 0)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** Scrollbar graphics */
-extern CelImageBuf* pSTextSlidCels;
-
+/** The number of buttons in the menu. */
+extern int numpanbtns;
+/** Specifies whether the menu-button is pressed. */
+extern bool gabPanbtn[NUM_PANBTNS];
+/** Specifies how much the life flask is filled (percentage). */
 extern int gnHPPer;
+/** Specifies how much the mana flask is filled (percentage). */
 extern int gnManaPer;
-extern bool gbDropGoldFlag;
-extern int dropGoldValue;
-extern int initialDropGoldValue;
-extern BYTE initialDropGoldIndex;
-extern bool gbChrbtnactive;
+/** Graphics for the scrollbar of text boxes. */
+extern CelImageBuf* pSTextSlidCels;
+/** The mask of players who invited to their team. */
+extern unsigned guTeamInviteRec;
+/** The mask of players who were invited to the current players team. */
+extern unsigned guTeamInviteSent;
+/** The mask of players who were muted. */
+extern unsigned guTeamMute;
+
+/** Specifies the campaign-map status. */
+extern BYTE gbCampaignMapFlag;
+/** The index of the campaign-map in the inventory. */
+extern int camItemIndex;
+/** The 'selected' map on the campaign-map. */
+extern CampaignMapEntry selCamEntry;
+
+/** The current value in Golddrop. */
+extern int gnDropGoldValue;
+/** The gold-stack index which is used as a source in Golddrop (inv_item). */
+extern BYTE gbDropGoldIndex;
 extern BYTE infoclr;
-extern char infostr[256];
 extern char tempstr[256];
-extern unsigned guBooktab;
+extern char infostr[256];
+/** Number of active windows on the screen. */
 extern int gnNumActiveWindows;
+/** The list of active windows on the screen. */
 extern BYTE gaActiveWindows[NUM_WNDS];
 extern BYTE gbDragWnd;
 extern int gnDragWndX;
 extern int gnDragWndY;
+/** The current tab in the Spell-Book. */
+extern unsigned guBooktab;
+/** Specifies whether the LevelUp button is displayed. */
 extern bool gbLvlUp;
+/** Specifies whether the LevelUp button is pressed. */
 extern bool gbLvlbtndown;
-extern unsigned guTeamInviteRec;
-extern unsigned guTeamInviteSent;
-extern unsigned guTeamMute;
-extern bool gabPanbtn[NUM_PANBTNS];
-extern int numpanbtns;
+/** Specifies whether any attribute-button is pressed on Character-Panel. */
+extern bool gbChrbtnactive;
+/** Specifies whether the Skill-List is displayed. */
 extern bool gbSkillListFlag;
 
 void DrawSkillList();
-void SetSkill(bool shift, bool altSkill);
+void SetSkill(bool altSkill);
 void SetSkillHotKey(int slot, bool altSkill);
 void SelectHotKeySkill(int slot, bool altSkill);
 void DrawLifeFlask();
@@ -64,18 +89,21 @@ void DrawLevelUpIcon();
 void DrawInfoStr();
 void CheckChrBtnClick();
 void ReleaseChrBtn();
-void DrawTextBox();
+void DrawTextBox(unsigned separators);
 void DrawSTextBox(int x, int y);
 void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
-void CheckBookClick(bool shift, bool altSkill);
+void CheckBookClick(bool altSkill);
 const char* get_pieces_str(int nGold);
-void DrawGoldSplit(int amount);
+void DrawGoldSplit();
 void control_drop_gold(int vkey);
 void DrawTeamBook();
-void CheckTeamClick(bool shift);
+void CheckTeamClick();
 void DrawGolemBar();
+void InitCampaignMap(int cii);
+void DrawCampaignMap();
+void TryCampaignMapClick(bool altAction);
 
 #ifdef __cplusplus
 }

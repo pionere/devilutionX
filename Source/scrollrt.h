@@ -37,8 +37,8 @@ void CalcViewportGeometry();
 void ScrollView();
 #endif
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
-void scrollrt_draw_screen(bool draw_cursor);
-void scrollrt_draw_game();
+void scrollrt_render_screen(bool draw_cursor);
+void scrollrt_render_game();
 
 #ifdef __cplusplus
 }

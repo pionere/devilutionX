@@ -57,6 +57,9 @@ static void InitTownTriggers()
 static void InitDunTriggers()
 {
 	numtrigs = 0;
+	if (currLvl._dDynLvl) {
+		return;
+	}
 	for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0) {
 			continue;
@@ -207,6 +210,7 @@ void InitView(int entry)
 		type = DWARP_EXIT;
 		break;
 	case ENTRY_SETLVL:
+	case ENTRY_DYNLVL:
 		type = DWARP_ENTRY;
 		break;
 	case ENTRY_RTNLVL:

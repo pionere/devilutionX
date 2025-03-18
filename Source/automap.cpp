@@ -430,7 +430,8 @@ static BYTE GetAutomapType(int x, int y, bool view)
  */
 static void DrawAutomapText()
 {
-	PrintGameStr(SCREEN_X + 8, SCREEN_Y + 20, AllLevels[currLvl._dLevelIdx].dLevelName, COL_GOLD);
+	if (!currLvl._dDynLvl)
+		PrintGameStr(SCREEN_X + 8, SCREEN_Y + 20, AllLevels[currLvl._dLevelNum].dLevelName, COL_GOLD);
 }
 
 /**
@@ -560,7 +561,7 @@ static void DrawAutomapContent()
 #if INET_MODE
 			else
 #else
-			else if ((dFlags[plr._px][plr._py] & BFLAG_VISIBLE) || myplr._pInfraFlag)
+			else if ((dFlags[plr._px][plr._py] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/* || myplr._pInfraFlag*/)
 #endif
 				DrawAutomapPlr(pnum, COLOR_ENEMY);
 		}

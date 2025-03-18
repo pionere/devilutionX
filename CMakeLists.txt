@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135)
+foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
@@ -56,7 +56,7 @@ if(VITA)
 endif()
 
 set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh windows9x)
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh windows9x windowsXP)
 if(TARGET_PLATFORM STREQUAL "lepus")
   include(lepus_defs)
 elseif(TARGET_PLATFORM STREQUAL "retrofw")
@@ -69,6 +69,8 @@ elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
   include(cpigamesh_defs)
 elseif(TARGET_PLATFORM STREQUAL "windows9x")
   include(windows9x_defs)
+elseif(TARGET_PLATFORM STREQUAL "windowsXP")
+  include(windowsXP_defs)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
@@ -79,6 +81,20 @@ if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
     set(UBSAN OFF)
   endif()
   set(ASAN OFF)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  # Some notable Darwin (macOS kernel) versions are:
+  #   8.x == macOS 10.4 (Tiger)
+  #   9.x == macOS 10.5 (Leopard)
+  #
+  # Importantly, a lot of the APIs first appeared in version 9, including
+  # the feature availability API (the <Availability.h> header).
+  #
+  # For Darwin 8 and below, we have to rely on the kernel version
+  # to detect available APIs.
+  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\1" DARWIN_MAJOR_VERSION "${CMAKE_SYSTEM_VERSION}")
+  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\2" DARWIN_MINOR_VERSION "${CMAKE_SYSTEM_VERSION}")
 endif()
 
 if(WIN32)
@@ -93,6 +109,11 @@ if(WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
   set(USE_PATCH ON)
+  if(WINDOWS_STORE)
+    if(NTDDI_VERSION < NTDDI_WIN10)
+      set(FULLSCREEN_ONLY ON)
+    endif()
+  endif()
 endif()
 
 if(HAIKU)
@@ -110,6 +131,10 @@ endif()
 
 if(PS4)
   include(ps4_defs)
+endif()
+
+if(PS5)
+  include(ps5_defs)
 endif()
 
 if(ANDROID)
@@ -155,6 +180,7 @@ option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
+option(FULLSCREEN_ONLY "Disable windowed mode" OFF)
 option(NONET "Disable network support" OFF)
 cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NOT NONET" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
@@ -171,18 +197,18 @@ option(CREATE_MPQONE "Merge assets if necessary" OFF)
 cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
-option(HAS_KBCTRL "Enable keyboard controller support" ON)
+option(HAS_KBCTRL "Enable keyboard controller support" OFF)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
 option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
-  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" ON)
+  option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" OFF)
   cmake_conditional_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" NOT ${DEVILUTIONX_SYSTEM_LIBSODIUM})
 endif()
 
 if(NOT USE_SDL1)
-  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" ON)
+  option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" OFF)
   cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
 endif()
 
@@ -412,6 +438,8 @@ add_library(PKWare STATIC
   3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
+target_link_libraries(StormLib PRIVATE PKWare)
+
 set(devilutionx_SRCS
   Source/appfat.cpp
   Source/automap.cpp
@@ -428,7 +456,6 @@ set(devilutionx_SRCS
   Source/drlg_l4.cpp
   #Source/dthread.cpp
   Source/dx.cpp
-  Source/effects.cpp
   Source/encrypt.cpp
   Source/engine.cpp
   Source/error.cpp
@@ -452,7 +479,7 @@ set(devilutionx_SRCS
   Source/monstdat.cpp
   Source/monster.cpp
   Source/movie.cpp
-  Source/mpqapi.cpp
+  #Source/mpqapi.cpp
   Source/msg.cpp
   Source/multi.cpp
   Source/nthread.cpp
@@ -468,6 +495,8 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
+  Source/sfx.cpp
+  Source/sfxdat.cpp
   Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
@@ -499,7 +528,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/hostgame.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
-  Source/DiabloUI/scrollbar.cpp
   Source/DiabloUI/selconn.cpp
   Source/DiabloUI/selgame.cpp
   Source/DiabloUI/selhero.cpp
@@ -589,7 +617,7 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/effects_test.cpp
+    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -639,17 +667,18 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/effects.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
     tools/patcher/mainmenu.cpp
-    tools/patcher/mpqapi.cpp
+    #tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
+    tools/patcher/sfx.cpp
+    tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
@@ -660,13 +689,13 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/controls/devices/kbcontroller.cpp
     tools/patcher/controls/game_controls.cpp
     tools/patcher/controls/touch.cpp
+    tools/patcher/DiabloUI/checker.cpp
     tools/patcher/DiabloUI/diabloui.cpp
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp
     tools/patcher/DiabloUI/merger.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
-    tools/patcher/DiabloUI/scrollbar.cpp
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
@@ -721,7 +750,7 @@ if(USE_PATCH AND NOT ANDROID)
     ${PATCHER_SOURCES})
 
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
-    PKWare
+    #PKWare
     StormLib
     #smacker
     Radon)
@@ -750,14 +779,12 @@ endif()
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
   add_custom_command(
     TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
     COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 
   if(DEVIL_PATCHER)
     add_custom_command(
       TARGET ${DEVIL_PATCHER} POST_BUILD
-      DEPENDS ${DEVIL_PATCHER}
       COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
       ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
   endif()
@@ -774,6 +801,11 @@ if(is_multi_config)
   endif()
 else()
   set(CONFIG_PATH config.h)
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.25")
+    # This enables Edit & Continue support, see https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio#edit-and-continue-for-cmake-projects
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug>:EditAndContinue>") # Sets /ZI compiler option, see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_DEBUG_INFORMATION_FORMAT.html
+    add_link_options("$<$<CONFIG:Debug>:/INCREMENTAL>")
+  endif()
 endif()
 file(GENERATE OUTPUT ${CONFIG_PATH} CONTENT
 "#pragma once
@@ -847,6 +879,7 @@ foreach(
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
+  FULLSCREEN_ONLY
   NONET
   INET_MODE
   NETENCRYPT
@@ -862,6 +895,7 @@ foreach(
   HAS_JOYSTICK
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
+  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF
@@ -935,6 +969,8 @@ foreach(
   JOY_BUTTON_TRIGGERRIGHT
   JOY_BUTTON_START
   JOY_BUTTON_BACK
+  DARWIN_MAJOR_VERSION
+  DARWIN_MINOR_VERSION
 )
   if(DEFINED ${def_name})
     list(APPEND def_list ${def_name}=${${def_name}})
@@ -1081,6 +1117,9 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
       )
     endforeach(SOURCE_FILE)
     target_compile_options(${BIN_TARGET} PRIVATE -Wno-builtin-macro-redefined)
+    if(DEVIL_PATCHER)
+      target_compile_options(${DEVIL_PATCHER} PRIVATE -Wno-builtin-macro-redefined)
+    endif()
   endif()
 
   # Note: For Valgrind support.
@@ -1103,8 +1142,13 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #target_compile_options(${BIN_TARGET} PRIVATE "/W1")
-  target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
+  if(TCPIP)
+    target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
+  endif()
   target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  if(DEVIL_PATCHER)
+    target_compile_options(${DEVIL_PATCHER} PRIVATE "/Zc:__cplusplus")
+  endif()
   # Disable Run-Time Type Information
   string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
@@ -1135,7 +1179,7 @@ if(APPLE)
     set(MACOSX_BUNDLE_REQUIRED_PLATFORM IPhoneOS)
     set_target_properties(${BIN_TARGET} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "9.0")
-  else()
+  elseif(DARWIN_MAJOR_VERSION GREATER_EQUAL 16)
     set(MACOSX_BUNDLE_REQUIRED_PLATFORM Carbon)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12.0")
   endif()
@@ -1557,6 +1601,7 @@ foreach(
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
+  FULLSCREEN_ONLY
   NONET
   INET_MODE
   NETENCRYPT
@@ -1690,15 +1735,17 @@ else()
     message(STATUS " Using dynamically linked SDL2.")
   endif()
 endif()
-if(DEVILUTIONX_STATIC_LIBSODIUM)
-  set(_LINK_MODE "statically")
-else()
-  set(_LINK_MODE "dynamically")
+if(NOT NONET)
+  if(DEVILUTIONX_STATIC_LIBSODIUM)
+    set(_LINK_MODE "statically")
+  else()
+    set(_LINK_MODE "dynamically")
+  endif()
+  if(DEVILUTIONX_SYSTEM_LIBSODIUM)
+    set(_SOURCE "system ")
+  else()
+    set(_SOURCE "")
+  endif()
+  message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
 endif()
-if(DEVILUTIONX_SYSTEM_LIBSODIUM)
-  set(_SOURCE "system ")
-else()
-  set(_SOURCE "")
-endif()
-message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
 message(STATUS "")

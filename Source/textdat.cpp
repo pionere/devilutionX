@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file textdat.cpp
  *
  * Implementation of all dialog texts.
@@ -94,7 +94,7 @@ const TextData alltext[NUM_TEXTS] = {
 	    TRUE, FALSE, TxS(0), TSFX_PEGBOY3 },
 	{ NULL/*"Abandon your foolish quest. All that awaits you is the wrath of my Master! You are too late to save the child. Now you will join him in Hell!"*/,
 	    FALSE, FALSE, 0, USFX_LAZ1 },
-//	{ NULL/*" "*/, FALSE, FALSE, 0, USFX_LAZ1 },
+//	{ NULL/*" "*/, FALSE, FALSE, 0, USFX_LAZ2 },
 	{ "Hmm, I don't know what I can really tell you about this that will be of any help. The water that fills our wells comes from an underground spring. I have heard of a tunnel that leads to a great lake - perhaps they are one and the same. Unfortunately, I do not know what would cause our water supply to be tainted.",
 /* TEXT_POISON1 */ TRUE, FALSE, TxS(0), TSFX_STORY4 },
 	{ "I have always tried to keep a large supply of foodstuffs and drink in our storage cellar, but with the entire town having no source of fresh water, even our stores will soon run dry.\n\nPlease, do what you can or I don't know what we will do.",

@@ -25,7 +25,6 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 	return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
 }
 
-// From SDL 2.0.9.
 inline SDL_Surface*
 SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
     int width, int height, int depth, int pitch,

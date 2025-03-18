@@ -16,19 +16,15 @@ extern "C" {
 
 extern bool gbColorCyclingEnabled;
 
-extern SDL_Color logical_palette[NUM_COLORS];
 extern SDL_Color system_palette[NUM_COLORS];
-extern SDL_Color orig_palette[NUM_COLORS];
 
-void palette_update();
-void palette_init();
+void UpdatePalette();
+void InitPalette();
 void LoadPalette(const char* pszFileName);
 void LoadLvlPalette();
-void IncreaseGamma();
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src);
-void DecreaseGamma();
-void UpdateGamma(int gamma);
 int GetGamma();
+void SetGamma(int gamma);
 void SetFadeLevel(unsigned fadeval);
 void PaletteFadeIn(bool instant);
 void PaletteFadeOut();

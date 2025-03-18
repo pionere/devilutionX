@@ -768,7 +768,7 @@ extern DECLSPEC int SDLCALL Mix_Playing(int channel);
 #ifdef FULL // CHUNK_ALIAS
 extern DECLSPEC int SDLCALL Mix_PlayingChunk(Mix_Chunk* chunk);
 #else
-extern DECLSPEC int SDLCALL Mix_PlayingChunk(Mix_Audio* chunk);
+extern DECLSPEC int SDLCALL Mix_PlayingChunk(const Mix_Audio* chunk);
 #endif
 #ifdef FULL
 extern DECLSPEC int SDLCALL Mix_PlayingMusic(void);

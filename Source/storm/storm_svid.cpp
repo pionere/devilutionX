@@ -213,7 +213,7 @@ static AudioQueue* sVidAudioQueue = new AudioQueue();
 #endif
 #endif // !NOSOUND
 
-static void UpdatePalette()
+static void SVidUpdatePalette()
 {
 	SDL_Color* colors = SVidPalette->colors;
 
@@ -230,7 +230,7 @@ static void UpdatePalette()
 	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, 0, NUM_COLORS) <= 0)
 		sdl_error(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
-	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
+	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
 		sdl_error(ERR_SDL_VIDEO_SURFACE);
 	}
 #endif
@@ -321,7 +321,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
-
+#ifdef USE_SDL1
 	SVidPalette = SDL_AllocPalette(NUM_COLORS);
 	if (SVidSurface == NULL || SVidPalette == NULL) {
 		if (SVidSurface == NULL) {
@@ -332,8 +332,16 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 		SVidPlayEnd();
 	//} else {
 	//	assert(smk_palette_updated(SVidSMK));
-	//	UpdatePalette();
+	//	SVidUpdatePalette();
 	}
+#else
+	if (SVidSurface == NULL) {
+		sdl_issue(ERR_SDL_VIDEO_CREATE);
+		SVidPlayEnd();
+	} else {
+		SVidPalette = SVidSurface->format->palette;
+	}
+#endif
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
 }
@@ -377,7 +385,7 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
-		UpdatePalette();
+		SVidUpdatePalette();
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
@@ -420,8 +428,8 @@ bool SVidPlayContinue()
 		outputRect.w = SVidWidth * outputSurface->h / SVidHeight;
 		outputRect.h = outputSurface->h;
 	}
-	outputRect.x = (outputSurface->w - outputRect.w) / 2;
-	outputRect.y = (outputSurface->h - outputRect.h) / 2;
+	outputRect.x = (outputSurface->w - outputRect.w) >> 1;
+	outputRect.y = (outputSurface->h - outputRect.h) >> 1;
 
 	if (isIndexedOutputFormat
 	 || outputSurface->w == static_cast<int>(SVidWidth)
@@ -438,12 +446,12 @@ bool SVidPlayContinue()
 #else
 		SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, outputFormat->format, 0);
 #endif
-		if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-			SDL_FreeSurface(tmp);
+		int result = SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect);
+		SDL_FreeSurface(tmp);
+		if (result < 0) {
 			sdl_issue(ERR_SDL_VIDEO_BLIT_SCALED);
 			return false;
 		}
-		SDL_FreeSurface(tmp);
 	}
 
 	RenderPresent();
@@ -475,16 +483,16 @@ void SVidPlayEnd()
 	SVidSMK = NULL;
 
 	MemFreeDbg(SVidBuffer);
-
+#ifdef USE_SDL1
 	SDL_FreePalette(SVidPalette);
 	SVidPalette = NULL;
-
+#endif
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
 
 #ifdef USE_SDL1
 	if (IsSVidVideoMode) {
-		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
+		SetVideoModeToPrimary(SCREEN_WIDTH, SCREEN_HEIGHT);
 		IsSVidVideoMode = false;
 	}
 #endif

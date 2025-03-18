@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.method.LinkMovementMethod;
@@ -65,6 +66,16 @@ public class DataActivity extends Activity {
 				.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
 
 		request.setDestinationInExternalFilesDir(this, null, fileName);
+
+		if (mReceiver == null) {
+			mReceiver = new DownloadReceiver();
+			IntentFilter filter = new IntentFilter("android.intent.action.DOWNLOAD_COMPLETE");
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				registerReceiver(mReceiver, filter, Context.RECEIVER_EXPORTED);
+			} else {
+				registerReceiver(mReceiver, filter);
+			}
+		}
 
 		DownloadManager downloadManager = (DownloadManager)this.getSystemService(Context.DOWNLOAD_SERVICE);
 		downloadManager.enqueue(request);

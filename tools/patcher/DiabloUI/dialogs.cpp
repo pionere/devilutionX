@@ -158,15 +158,12 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 {
 	//if (renderBehind == NULL) {
 		UiClearListItems();
-		//UiClearItems();
-		//FreeBackgroundArt();
-		if (gbBackCel == NULL) {
-			LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-			UiAddBackground();
-		}
-	//}
+		UiClearItems();
+		FreeBackgroundArt();
 
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
+		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+		UiAddBackground();
+	//}
 
 	/*if (caption == NULL) {
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
@@ -205,39 +202,30 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	//if (renderBehind == NULL) {
 		FreeBackgroundArt();
 	//}
-	MemFreeDbg(gbDialogBackCel);
-	MemFreeDbg(gbSmlButtonCel)
-
 	UiClearItems();
+	MemFreeDbg(gbDialogBackCel);
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
-	SetFadeLevel(FADE_LEVELS);
-
 	_gbDialogEnd = false;
 	do {
 		UiRenderAndPoll();
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char* caption, const char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
+static void UiOkDialog(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
-	char dialogText[256];
-
 	if (gbWndActive && gbWasUiInit && !gbInDialog) {
 		gbInDialog = true;
-		SStrCopy(dialogText, text, sizeof(dialogText));
-		Init(caption, dialogText, error/*, renderBehind*/);
+		Init(caption, text, error/*, renderBehind*/);
 		DialogLoop(/*renderBehind*/);
 		Deinit(/*, renderBehind*/);
 		gbInDialog = false;
 		return;
 	}
 
-	if (SDL_ShowCursor(SDL_ENABLE) < 0) {
-		DoLog(SDL_GetError());
-	}
+	SDL_ShowCursor(SDL_ENABLE);
 #ifndef RUN_TESTS
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, caption, text, NULL) < 0) {
 		DoLog(SDL_GetError());
@@ -249,7 +237,7 @@ static void UiOkDialog(const char* caption, const char* text, bool error/*, cons
 	}
 }
 
-void UiErrorOkDialog(const char* caption, const char* text, bool error)
+void UiErrorOkDialog(const char* caption, char* text, bool error)
 {
 	UiOkDialog(caption, text, error/*, NULL*/);
 }

@@ -11,8 +11,6 @@ bool gbHelpflag;
 static char** gbHelpLines;
 static int helpFirstLine;
 
-#define HELP_LINES_SIZE 62
-#define HELP_TXT        "Meta\\help.txt"
 /*static const char gszHelpText[] = {
 	// clang-format off
 	"$Default Keyboard Shortcuts|"
@@ -91,13 +89,12 @@ void DrawHelp()
 	BYTE col;
 	const char* s;
 
-	DrawTextBox();
+	DrawTextBox(1);
 
-	PrintSString(0, 2, true, HELP_TITLE, COL_GOLD);
-	DrawTextBoxSLine(LTPANEL_X, LTPANEL_Y, 5 * 12 + 14, true);
+	PrintSString(0, 1, true, HELP_TITLE, COL_GOLD);
 
-	for (i = 7; i < 22; i++) {
-		s = gbHelpLines[helpFirstLine + i - 7];
+	for (i = 5; i < 22; i++) {
+		s = gbHelpLines[helpFirstLine + i - 5];
 		if (*s == '$') {
 			s++;
 			col = COL_RED;
@@ -136,7 +133,7 @@ void HelpScrollUp()
 
 void HelpScrollDown()
 {
-	if (helpFirstLine < (HELP_LINES_SIZE - (22 - 7)))
+	if (helpFirstLine < (HELP_LINES_SIZE - (22 - 5)))
 		helpFirstLine++;
 }
 

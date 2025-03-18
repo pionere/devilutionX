@@ -6,9 +6,10 @@ set(UBSAN OFF)
 # The 3ds build handles the stripping in a custom way.
 set(USE_SDL1 ON)
 set(DISABLE_STRIP ON)
+set(NONET ON)
 #set(ZEROTIER OFF)
 # Disable system dependencies.
-set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
+#set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
 # additional compilation definitions
 add_definitions(-D__3DS__)

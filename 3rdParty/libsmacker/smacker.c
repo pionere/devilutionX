@@ -1148,7 +1148,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	/* clean up */
 	smk_free(hufftree_chunk);
 	/* Go ahead and malloc storage for the video frame */
-	smk_malloc(s->video.frame, s->video.w * s->video.h);
+	smk_malloc(s->video.frame, (size_t)s->video.w * s->video.h);
 #ifdef FULL
 	/* final processing: depending on ProcessMode, handle what to do with rest of file data */
 	s->mode = process_mode;
