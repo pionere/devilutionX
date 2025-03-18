@@ -19,12 +19,7 @@ bool _gbFadedIn = false;
 
 void UpdatePalette()
 {
-#ifndef USE_SDL1
-	assert(back_palette != NULL);
-#endif
-	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, NUM_COLORS) < 0) {
-		sdl_error(ERR_SDL_PALETTE_UPDATE);
-	}
+	SetSurfaceAndPaletteColors(system_palette, 0, NUM_COLORS);
 }
 
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src)

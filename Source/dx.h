@@ -12,8 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-/** 8-bit surface wrapper around #gpBuffer */
-extern SDL_Surface* back_surface;
 /** Back buffer */
 extern BYTE* gpBuffer;
 /** Upper bound of back buffer. */
@@ -22,8 +20,6 @@ extern BYTE* gpBufStart;
 extern BYTE* gpBufEnd;
 /** The width of the back buffer. */
 extern int gnBufferWidth;
-/** Currently active palette */
-extern SDL_Palette* back_palette;
 
 void dx_init();
 void lock_buf(BYTE idx);
@@ -36,6 +32,7 @@ void ClearScreenBuffer();
 void RedBack();
 void BltFast();
 void RenderPresent();
+void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors);
 
 #ifdef __cplusplus
 }
