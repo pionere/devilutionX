@@ -313,7 +313,8 @@ SDL_Surface* GetOutputSurface()
 #ifdef USE_SDL1
 bool OutputRequiresScaling()
 {
-	return SCREEN_WIDTH != GetOutputSurface()->w || SCREEN_HEIGHT != GetOutputSurface()->h;
+	const SDL_Surface* surface = GetOutputSurface();
+	return SCREEN_WIDTH != surface->w || SCREEN_HEIGHT != surface->h;
 }
 
 void ScaleOutputRect(SDL_Rect* rect)
