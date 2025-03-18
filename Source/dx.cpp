@@ -68,9 +68,9 @@ static void dx_create_back_buffer()
 	}
 	assert(back_surface->pitch == gnBufferWidth);
 	gpBuffer = (BYTE*)back_surface->pixels;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y]; // SCREENXY(0, 0)
 	//gpBufEnd = (BYTE )(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)]; // SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
@@ -250,8 +250,10 @@ void ClearScreenBuffer()
 	//assert(back_surface != NULL);
 
 	//SDL_FillRect(back_surface, NULL, 0x000000);
-	BYTE *dst = &gpBuffer[SCREENXY(0, 0)];
-	BYTE *dstEnd = &gpBuffer[SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)];
+	// BYTE *dst = &gpBuffer[SCREENXY(0, 0)];
+	// BYTE *dstEnd = &gpBuffer[SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)];
+	BYTE* dst = gpBufStart;
+	BYTE* dstEnd = gpBufEnd;
 	memset(dst, 0, (size_t)dstEnd - (size_t)dst);
 
 	//unlock_buf(3);
