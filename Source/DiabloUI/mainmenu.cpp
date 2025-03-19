@@ -62,10 +62,10 @@ int UiMainMenuDialog()
 {
 	MainmenuLoad();
 
-	_gnMainMenuResult = NUM_MAINMENU;
+	_gnMainMenuResult = -1;
 	do {
 		UiRenderAndPoll();
-	} while (_gnMainMenuResult == NUM_MAINMENU);
+	} while (_gnMainMenuResult < 0);
 
 	MainmenuFree();
 	return _gnMainMenuResult;
