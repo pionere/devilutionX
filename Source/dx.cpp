@@ -361,6 +361,18 @@ void BltFast()
 #endif
 }
 
+void BltStretched(SDL_Surface* surface)
+{
+	SDL_Rect outputRect;
+	SCALE_AREA(surface->w, surface->h, SCREEN_WIDTH, SCREEN_HEIGHT, outputRect.w, outputRect.h)
+	outputRect.x = SCREEN_X + ((SCREEN_WIDTH - outputRect.w) >> 1);
+	outputRect.y = SCREEN_Y + ((SCREEN_HEIGHT - outputRect.h) >> 1);
+
+	SDL_SoftStretch(surface, NULL, back_surface, &outputRect);
+
+	BltFast();
+}
+
 /**
  * @brief Limit FPS to avoid high CPU load, use when v-sync isn't available
  */

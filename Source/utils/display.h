@@ -108,4 +108,18 @@ void LogicalToOutput(T* x, T* y)
 #endif
 }
 
+#define SCALE_AREA(sw, sh, dw, dh, rw, rh) \
+{ \
+	unsigned long srcW = sw, srcH = sh, dstW = dw, dstH = dh; \
+	unsigned long mul0 = srcW * dstH; \
+	unsigned long mul1 = srcH * dstW; \
+	if (mul0 > mul1) { \
+		rw = dstW; \
+		rh = mul1 / srcW; \
+	} else { \
+		rw = mul0 / srcH; \
+		rh = dstH; \
+	} \
+}
+
 DEVILUTION_END_NAMESPACE
