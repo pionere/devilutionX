@@ -313,6 +313,9 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	TrySetVideoModeToSVidForSDL1();
 #endif
 
+	// Set the background to black (for videos which are smaller than full-screen).
+	ClearScreenBuffer();
+
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(
 	    (unsigned char*)smk_get_video(SVidSMK),
@@ -496,6 +499,7 @@ void SVidPlayEnd()
 		IsSVidVideoMode = false;
 	}
 #endif
+	// ClearScreenBuffer(); -- unnecessary, because the proceeding screens are either fading in or clearing the screen anyway
 }
 
 DEVILUTION_END_NAMESPACE

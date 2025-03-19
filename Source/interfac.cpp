@@ -371,9 +371,9 @@ void ShowCutscene(unsigned uMsg)
 	saveProc = SetWindowProc(DisableInputWndProc);
 	assert(saveProc == GameWndProc);
 	interface_msg_pump();
-	ClearScreenBuffer();
 	// scrollrt_render_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
+	ClearScreenBuffer(); // must be after InitCutscene in case gbCineflag is set to clear after video-playback
 	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
 	DrawCutsceneBack();
 	PaletteFadeIn(false);
