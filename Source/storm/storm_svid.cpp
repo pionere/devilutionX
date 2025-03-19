@@ -228,10 +228,10 @@ static void SVidUpdatePalette()
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
 	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, 0, NUM_COLORS) <= 0)
-		sdl_error(ERR_SDL_VIDEO_SURFACE);
+		sdl_issue(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
 	/*if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
-		sdl_error(ERR_SDL_VIDEO_SURFACE);
+		sdl_issue(ERR_SDL_VIDEO_SURFACE);
 	}
 	SetSurfaceAndPaletteColors(colors, 0, NUM_COLORS);*/
 
@@ -239,8 +239,8 @@ static void SVidUpdatePalette()
 	ApplyGamma(system_palette, system_palette);
 	UpdatePalette();
 #endif
-	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, NUM_COLORS) < 0) {
-	//	sdl_error(ERR_SDL_VIDEO_SURFACE);
+	//if (SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, NUM_COLORS) < 0) {
+	//	sdl_issue(ERR_SDL_VIDEO_SURFACE);
 	//}
 }
 
