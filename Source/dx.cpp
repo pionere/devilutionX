@@ -235,7 +235,8 @@ void ToggleFullscreen()
 		flags = renderer != NULL ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
 	}
 	if (SDL_SetWindowFullscreen(ghMainWnd, flags) < 0) {
-		sdl_error(ERR_SDL_FULLSCREEN_SDL2);
+		sdl_issue(ERR_SDL_FULLSCREEN_SDL2);
+		return;
 	}
 #endif
 	gbFullscreen = !gbFullscreen;
@@ -308,7 +309,7 @@ void BltFast()
 	};
 
 	if (SDL_LowerBlit(src, &src_rect, dst, &dst_rect) < 0)
-		sdl_error(ERR_SDL_DX_BLIT_SDL2);
+		sdl_issue(ERR_SDL_DX_BLIT_SDL2);
 #else
 	int result;
 	// ScaleOutputRect(dst, &dst_rect);
@@ -321,14 +322,14 @@ void BltFast()
 
 	if (src_rect.w == dst_rect.w && src_rect.h == dst_rect.h) {
 		if (SDL_BlitSurface(src, &src_rect, dst, &dst_rect) < 0)
-			sdl_error(ERR_SDL_DX_BLIT_SDL1);
+			sdl_issue(ERR_SDL_DX_BLIT_SDL1);
 		return;
 	}
 
 	// Same pixel format: We can call BlitScaled directly.
 	if (SDLBackport_PixelFormatFormatEq(src->format, dst->format)) {
 		if (SDL_BlitScaled(src, &src_rect, dst, &dst_rect) < 0)
-			sdl_error(ERR_SDL_DX_BLIT_SCALE);
+			sdl_issue(ERR_SDL_DX_BLIT_SCALE);
 		return;
 	}
 
@@ -346,7 +347,7 @@ void BltFast()
 		}
 		SDL_FreeSurface(stretched);
 		if (result < 0)
-			sdl_error(ERR_SDL_DX_BLIT_STRETCH);
+			sdl_issue(ERR_SDL_DX_BLIT_STRETCH);
 		return;
 	}
 
@@ -356,7 +357,7 @@ void BltFast()
 	result = SDL_BlitScaled(converted, &src_rect, dst, &dst_rect);
 	SDL_FreeSurface(converted);
 	if (result < 0)
-		sdl_error(ERR_SDL_DX_BLIT_CONVERTED);
+		sdl_issue(ERR_SDL_DX_BLIT_CONVERTED);
 #endif
 }
 
@@ -382,30 +383,30 @@ void RenderPresent()
 #ifndef USE_SDL1
 		if (renderer != NULL) {
 			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) {
-				sdl_error(ERR_SDL_DX_UPDATE_TEXTURE);
+				sdl_issue(ERR_SDL_DX_UPDATE_TEXTURE);
 			}
 
 			// Clear buffer to avoid artifacts in case the window was resized
 			/* skip SDL_RenderClear since the whole screen is redrawn anyway
 			if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
-				sdl_error(ERR_SDL_DX_DRAW_COLOR);
+				sdl_issue(ERR_SDL_DX_DRAW_COLOR);
 			}
 
 			if (SDL_RenderClear(renderer) < 0) {
-				sdl_error(ERR_SDL_DX_RENDER_CLEAR);
+				sdl_issue(ERR_SDL_DX_RENDER_CLEAR);
 			}*/
 			if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
-				sdl_error(ERR_SDL_DX_RENDER_COPY);
+				sdl_issue(ERR_SDL_DX_RENDER_COPY);
 			}
 			SDL_RenderPresent(renderer);
 		} else {
 			if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
-				sdl_error(ERR_SDL_DX_RENDER_SURFACE);
+				sdl_issue(ERR_SDL_DX_RENDER_SURFACE);
 			}
 		}
 #else
 		if (SDL_Flip(surface) < 0) {
-			sdl_error(ERR_SDL_DX_FLIP);
+			sdl_issue(ERR_SDL_DX_FLIP);
 		}
 #endif
 		if (gbFrameRateControl != FRC_CPUSLEEP)
@@ -449,7 +450,7 @@ void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors)
 	result = SDL_SetPaletteColors(palette, colors, firstcolor, ncolors);
 #endif
 	if (result < 0)
-		sdl_error(ERR_SDL_PALETTE_UPDATE);
+		sdl_issue(ERR_SDL_PALETTE_UPDATE);
 }
 
 DEVILUTION_END_NAMESPACE

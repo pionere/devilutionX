@@ -277,7 +277,7 @@ void SpawnWindow()
 		}
 
 		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
-			sdl_error(ERR_SDL_RENDERER_SCALE);
+			sdl_issue(ERR_SDL_RENDERER_SCALE);
 		}
 
 		RecreateDisplay(width, height);
