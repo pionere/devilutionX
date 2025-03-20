@@ -397,7 +397,7 @@ void RenderPresent()
 }
 
 /*
- * SDL1: Sets the color of the video-surface and the palette of the back_surface.
+ * SDL1: Sets the colors of the video-surface and the palette of the back_surface.
  * SDL2: Sets the palette's colors.
  */
 void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors)
@@ -405,33 +405,25 @@ void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors)
 	int result;
 #ifdef USE_SDL1
 	SDL_Surface* surface = back_surface;
-	//if (ncolors > (palette->ncolors - firstcolor)) {
-	//	SDL_SetError("ncolors > (palette->ncolors - firstcolor)");
-	//	return -1;
-	//}
-	//if (colors != (palette->colors + firstcolor))
-	//	SDL_memcpy(palette->colors + firstcolor, colors, ncolors * sizeof(*colors));
-
 #if SDL1_VIDEO_MODE_BPP == 8
 	// When the video surface is 8bit, we need to set the output palette as well.
 	SDL_Surface *videoSurface = SDL_GetVideoSurface();
-	SDL_SetColors(videoSurface, colors, firstcolor, ncolors);
+	result = SDL_SetColors(videoSurface, colors, firstcolor, ncolors);
+	if (result == 0)
+		sdl_issue(ERR_SDL_PALETTE_UPDATE);
 	if (videoSurface == surface) return;
 #endif
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
-	result = SDL_SetPalette(surface, SDL_LOGPAL, colors, firstcolor, ncolors) - 1;
+	result = SDL_SetPalette(surface, SDL_LOGPAL, colors, firstcolor, ncolors);
+	if (result == 0)
+		sdl_issue(ERR_SDL_PALETTE_UPDATE);
 #else // !USE_SDL1
 	SDL_Palette* palette = back_palette;
-	//if (SDL_SetPaletteColors(palette, colors, firstcolor, ncolors) < 0)
-	//	return -1;
-	//if (surface->format->palette != palette)
-	//	return SDL_SetSurfacePalette(surface, palette);
-	//return 0;
 	result = SDL_SetPaletteColors(palette, colors, firstcolor, ncolors);
-#endif
 	if (result < 0)
 		sdl_issue(ERR_SDL_PALETTE_UPDATE);
+#endif
 }
 
 DEVILUTION_END_NAMESPACE
