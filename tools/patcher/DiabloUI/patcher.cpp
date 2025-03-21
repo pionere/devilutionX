@@ -25,6 +25,7 @@ typedef enum filenames {
 	FILE_MOVIE_VIC2,
 	FILE_MOVIE_VIC3,
 #if ASSET_MPL == 1
+//	FILE_TOWN_SCEL,
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
 	FILE_L1DOORS_CEL,
@@ -155,6 +156,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MOVIE_VIC2*/    "gendata\\DiabVic2.smk",
 /*FILE_MOVIE_VIC3*/    "gendata\\DiabVic3.smk",
 #if ASSET_MPL == 1
+///*FILE_TOWN_SCEL*/     "Levels\\TownData\\TownS.CEL",
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
 /*FILE_L1DOORS_CEL*/   "Objects\\L1Doors.CEL",
@@ -4350,6 +4352,36 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		patchMovie(index, buf, dwLen);
 	} break;
 #if ASSET_MPL == 1
+#if 0
+	case FILE_TOWN_SCEL:
+	{	// patch pSpecialsCel - TownS.CEL
+		size_t minLen;
+		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_TOWN_MIN], &minLen);
+		if (minBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
+			return NULL;
+		}
+		if (minLen < 1258 * BLOCK_SIZE_TOWN * 2) {
+			mem_free_dbg(minBuf);
+			// mem_free_dbg(buf);
+			// app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_TOWN_MIN]);
+			// return NULL;
+			return buf; // -- assume it is already done
+		}
+		size_t celLen;
+		BYTE* celBuf = LoadFileInMem(filesToPatch[FILE_TOWN_CEL], &celLen);
+		if (celBuf == NULL) {
+			mem_free_dbg(minBuf);
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", filesToPatch[FILE_TOWN_CEL]);
+			return NULL;
+		}
+		buf = Town_PatchSpec(minBuf, minLen, celBuf, celLen, buf, dwLen);
+		mem_free_dbg(celBuf);
+		mem_free_dbg(minBuf);
+	} break;
+#endif
 	case FILE_TOWN_CEL:
 	{	// patch dMicroCels - TOWN.CEL
 		size_t minLen;
@@ -4957,7 +4989,6 @@ static int patcher_callback()
 		int entryCount = lengthof(filesToPatch);
 		while (std::getline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
-				if (diabdat_mpqs[i] == NULL) continue;
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					entryCount++;
 					break;
@@ -5008,7 +5039,6 @@ static int patcher_callback()
 				break;
 			}
 			for (int i = 0; i < NUM_MPQS; i++) {
-				if (diabdat_mpqs[i] == NULL) continue;
 				BYTE* buf = NULL;
 				DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
 				if (dwLen != 0) {

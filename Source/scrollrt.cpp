@@ -1130,22 +1130,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	//if (bv != 0)
 	//	DrawItem(bv, dx, dy);
 
-	if (currLvl._dType != DTYPE_TOWN) {
-		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
-		if (bv != 0) {
-			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
-			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
-		}
-	} else {
-		// Tree leaves should always cover player when entering or leaving the tile,
-		// So delay the rendering until after the next row is being drawn.
-		// This could probably have been better solved by sprites in screen space.
-		if (sx > 0 && sy > 0) {
-			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & PST_SPEC_TYPE;
-			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
-			}
-		}
+	bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
+	if (bv != 0) {
+		CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 	}
 }
 
