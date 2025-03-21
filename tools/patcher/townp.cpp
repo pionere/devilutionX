@@ -2638,8 +2638,8 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		Blk2Mcr(1030, 2);
 		SetFrameType(221, 0, MET_TRANSPARENT);
 		ReplaceMcr(220, 0, 17, 0);
-		SetMcr(221, 2, 220, 1);
-		SetMcr(220, 1, 17, 1);
+		SetMcr(221, 2, 223, 2);
+		ReplaceMcr(220, 1, 17, 1);
 		SetFrameType(219, 1, MET_TRANSPARENT);
 		ReplaceMcr(218, 1, 25, 1);
 		SetMcr(219, 3, 218, 0);
