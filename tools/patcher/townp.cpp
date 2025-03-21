@@ -265,26 +265,26 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		int res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-		{ 731 - 1, 9, MET_TRANSPARENT }, // move micro
-		{ 755 - 1, 0, MET_LTRIANGLE },   // change type
-		{ 974 - 1, 0, MET_LTRIANGLE },   // change type
-		{ 1030 - 1, 0, MET_LTRIANGLE },  // change type
-		{ 220 - 1, 1, MET_TRANSPARENT }, // move micro
-		{ 221 - 1, 0, MET_TRANSPARENT },
-		{ 962 - 1, 1, MET_TRANSPARENT },
-		{ 218 - 1, 0, MET_TRANSPARENT }, // move micro
-		{ 219 - 1, 1, MET_TRANSPARENT },
-		{ 1166 - 1, 0, MET_TRANSPARENT }, // move micro
-		{ 1167 - 1, 1, MET_TRANSPARENT },
-		{ 1171 - 1, 1, MET_TRANSPARENT },
-		{ 1172 - 1, 0, MET_TRANSPARENT },
-		{ 1175 - 1, 1, MET_TRANSPARENT },
-		{ 1176 - 1, 0, MET_TRANSPARENT },
-		{  845 - 1, 4, MET_TRANSPARENT },
-		{  128 - 1, 0, MET_LTRIANGLE },
-		{  128 - 1, 1, MET_RTRIANGLE },
-		{  156 - 1, 1, MET_RTRIANGLE },
-		{  212 - 1, 1, MET_RTRIANGLE },
+/*  0 */{ 731 - 1, 9, MET_TRANSPARENT }, // move micro
+/*  1 */{ 755 - 1, 0, MET_LTRIANGLE },   // change type
+/*  2 */{ 974 - 1, 0, MET_LTRIANGLE },   // change type
+/*  3 */{ 1030 - 1, 0, MET_LTRIANGLE },  // change type
+/*  4 */{ 220 - 1, 1, MET_TRANSPARENT }, // move micro
+/*  5 */{ 221 - 1, 0, MET_TRANSPARENT },
+/*  6 */{ 962 - 1, 1, MET_TRANSPARENT },
+/*  7 */{ 218 - 1, 0, MET_TRANSPARENT }, // move micro
+/*  8 */{ 219 - 1, 1, MET_TRANSPARENT },
+/*  9 */{ 1166 - 1, 0, MET_TRANSPARENT }, // move micro
+/* 10 */{ 1167 - 1, 1, MET_TRANSPARENT },
+/* 11 */{ 1171 - 1, 1, MET_TRANSPARENT },
+/* 12 */{ 1172 - 1, 0, MET_TRANSPARENT },
+/* 13 */{ 1175 - 1, 1, MET_TRANSPARENT },
+/* 14 */{ 1176 - 1, 0, MET_TRANSPARENT },
+/* 15 */{  845 - 1, 4, MET_TRANSPARENT },
+/* 16 */{  128 - 1, 0, MET_LTRIANGLE },
+/* 17 */{  128 - 1, 1, MET_RTRIANGLE },
+/* 18 */{  156 - 1, 1, MET_RTRIANGLE },
+/* 19 */{  212 - 1, 1, MET_RTRIANGLE },
 		//{ 493 - 1, 0, MET_LTRIANGLE },   // TODO: fix light?
 		//{ 290 - 1, 0, MET_LTRIANGLE },   // TODO: fix grass?
 		//{ 290 - 1, 1, MET_RTRIANGLE },
