@@ -61,7 +61,6 @@ UiEdit* gUiEditField;
 bool gUiDrawCursor;
 
 static Uint32 _gdwFadeTc;
-static int _gnFadeValue;
 
 UiProgressBar::UiProgressBar(const SDL_Rect& rect)
 		: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
@@ -393,7 +392,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	LoadPalette(palette);
 
 	// initiate fading
-	_gnFadeValue = -1;
+	gnFadeValue = -1;
 }
 
 void FreeBackgroundArt()
@@ -424,21 +423,23 @@ static void UiClearScreen()
 
 static void UiFadeIn()
 {
+	int fv;
 	Uint32 currTc;
 	bool draw_cursor;
 
-	if (_gnFadeValue < FADE_LEVELS) {
+	fv = gnFadeValue;
+	if (fv < FADE_LEVELS) {
 		currTc = SDL_GetTicks();
-		if (_gnFadeValue < 0) {
+		if (fv < 0) {
 			_gdwFadeTc = currTc;
 			PaletteFadeIn(true);
 		}
-		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
-		if ((unsigned)_gnFadeValue > FADE_LEVELS) {
-			_gnFadeValue = FADE_LEVELS;
+		fv = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
+		if ((unsigned)fv > FADE_LEVELS) {
+			fv = FADE_LEVELS;
 			//_gdwFadeTc = 0;
 		}
-		SetFadeLevel(_gnFadeValue);
+		SetFadeLevel(fv);
 	}
 
 	draw_cursor = gUiDrawCursor;

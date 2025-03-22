@@ -14,6 +14,8 @@ extern "C" {
 
 #define FADE_LEVELS 256
 
+extern int gnFadeValue;
+
 extern SDL_Color system_palette[NUM_COLORS];
 
 void UpdatePalette();
