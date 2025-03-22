@@ -416,7 +416,7 @@ void UiAddLogo()
 
 static void UiClearScreen()
 {
-	if (SCREEN_WIDTH > PANEL_WIDTH) { // Background size
+	if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > PANEL_HEIGHT) { // Background size
 		ClearScreenBuffer();
 	}
 }
