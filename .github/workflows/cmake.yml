@@ -1,4 +1,4 @@
-name: CMake
+name: Aarch-x64
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -9,58 +9,56 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: macos-13
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: diablo
-            cmakeargs: ''
-            artifact: 'diablo-push-macp.dmg'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-aarch64.tar.xz'
+          #- name: hellfire
+          #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+          #  artifact: 'hellfire-nightly-aarch64.tar.xz'
+          #- name: diablo+patch
+          #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
+          #  artifact: 'diablo-nightly-aarch64p.tar.xz'
           - name: hellfire+patch
-            cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
-            artifact: 'hellfire-push-macp.dmg'
-
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-aarch64p.tar.xz'
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: brew bundle install
-
-    - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake ..
-      working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -D DEVILUTIONX_SYSTEM_SDL2=OFF -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12
+      run: |
+        # Work around the somewhat broken packages in the GitHub Actions Ubuntu 20.04 image.
+        # https://github.com/actions/runner-images/issues/4620#issuecomment-981333260
+        sudo apt-get -y install --allow-downgrades libpcre2-8-0=10.34-7
+        Packaging/nix/debian-cross-aarch64-prep.sh
 
     - name: Build
-      shell: bash
-      #working-directory: ${{github.workspace}}/build
-      #run: cmake --build . -j $(sysctl -n hw.physicalcpu) --target package
       working-directory: ${{github.workspace}}
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+      shell: bash
+      env:
+        CMAKE_BUILD_TYPE: ${{github.event_name == 'release' && 'Release' || 'RelWithDebInfo'}}
+      run: |
+        cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/aarch64-linux-gnu.toolchain.cmake \
+          ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.CMAKE_BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
+        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
 
-    #- name: Release
-    #  uses: softprops/action-gh-release@v1
-    #  if: startsWith(github.ref, 'refs/tags/')
-    #  with:
-    #    files: ${{github.workspace}}/build/devilutionx.dmg
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # Upload the created artifact
-    - name: Upload
+    - name: Package
+      run: Packaging/nix/LinuxReleasePackaging.sh && mv devilutionx.tar.xz devilutionx-aarch64.tar.xz
+
+    # AppImage cross-packaging is not implemented yet.
+    # - name: Package AppImage
+    #   run: Packaging/nix/AppImage.sh && mv devilutionx.appimage devilutionx-aarch64.appimage
+
+    - name: Upload Package
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        path: ${{github.workspace}}/build/devilutionx.dmg
+        path: devilutionx-aarch64.tar.xz
         name: ${{ matrix.artifact }}
