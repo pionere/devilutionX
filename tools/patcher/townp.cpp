@@ -6568,14 +6568,14 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	} CelMicro;
 
 	const CelMicro micros[] = {
-/*  0 */{ 168  - 1, 0 }, // 111
-/*  1 */{ 168  - 1, 2 }, // 111
-/*  2 */{ 168  - 1, 4 }, // 111
-/*  3 */{ 168  - 1, 6 }, // 111
-/*  4 */{ 168  - 1, 1 }, // 111
-/*  5 */{ 168  - 1, 3 }, // 111
-/*  6 */{ 168  - 1, 5 }, // 111
-/*  7 */{ 168  - 1, 7 }, // 111
+/*  0 */{ 1171  - 1, 0 }, // 745 -- catacombs
+/*  1 */{ 1171  - 1, 2 }, // 745
+/*  2 */{ 1171  - 1, 1 }, // 745
+/*  3 */{ 1171  - 1, 3 }, // 745
+/*  4 */{ 1172  - 1, 0 }, // 746
+/*  5 */{ 1173  - 1, 1 }, // 747
+/*  6 */{ 1174  - 1, 0 }, // 748
+/*  7 */{ 1174  - 1, 1 }, // 748
 /*  8 */{ 169  - 1, 5 }, // 112
 /*  9 */{ 169  - 1, 7 }, // 112
 /* 10 */{ 170  - 1, 4 }, // 113
@@ -6590,7 +6590,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 /* 19 */{ 181  - 1, 5 }, // 120
 /* 20 */{ 182  - 1, 4 }, // 121
 /* 21 */{ 182  - 1, 6 }, // 121
-/* 22 */{ 359  - 1, 1 }, // 236
+/* 22 */{ 359  - 1, 1 }, // 236 -- trees
 /* 23 */{ 359  - 1, 3 }, // 236
 /* 24 */{ 359  - 1, 5 }, // 236
 /* 25 */{ 359  - 1, 7 }, // 236
@@ -6672,7 +6672,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	};
 
 	constexpr BYTE TRANS_COLOR = 128;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
+	constexpr BYTE SUB_HEADER_SIZE = 14;
 	constexpr int FRAME_WIDTH = TILE_WIDTH;
 	constexpr int FRAME_HEIGHT = 7 * TILE_HEIGHT;
 
@@ -6685,7 +6685,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	}
 
 	// calculate the number of frames in the result
-	int resCelEntries = 18 + 3;// 10;
+	int resCelEntries = 18 + 5;
 	// render template micros
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
 	// TODO: check minLen
@@ -6723,6 +6723,12 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 		}
 	}
 
+	bool clippedSource = *(WORD*)(sCelBuf + 4 * (srcCelEntries + 2)) == SwapLE16(SUB_HEADER_SIZE);
+	CelImageBuf* sCelBuff = (CelImageBuf*)sCelBuf;
+	if (!clippedSource) {
+		sCelBuff->ciWidth = FRAME_WIDTH;
+	}
+
 	// create the new CEL file
 	size_t maxCelSize = 2 * *sCelLen;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
@@ -6737,8 +6743,12 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
-		if (i != 3 - 1 && i != 4 - 1 && i != 5 - 1 && i != 9 - 1 && i != 18 - 1 && i < srcCelEntries)
-		CelClippedDraw(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH);
+		if (i != 3 - 1 && i != 4 - 1 && i != 5 - 1 && i != 9 - 1 && i != 18 - 1 && i < srcCelEntries) {
+			if (clippedSource)
+				CelClippedDraw(0, FRAME_HEIGHT - 1, sCelBuf, i + 1, FRAME_WIDTH);
+			else
+				CelDraw(0, FRAME_HEIGHT - 1, sCelBuff, i + 1);
+		}
 
 		// shift the frame by (0; -HEIGHT) to add to a new subtile based on 10?
 		if (i == 6 - 1) {
@@ -6758,7 +6768,10 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 				}
 			}
 			// add frame 9
-			CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 9, FRAME_WIDTH);
+			if (clippedSource)
+				CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 9, FRAME_WIDTH);
+			else
+				CelDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuff, 9);
 			for (int y = TILE_HEIGHT; y < FRAME_HEIGHT; y++) {
 				for (int x = FRAME_WIDTH / 2; x < FRAME_WIDTH; x++) {
 					gpBuffer[(x - FRAME_WIDTH / 2) + (y - TILE_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[(x + FRAME_WIDTH) + y * BUFFER_WIDTH];
@@ -6784,7 +6797,10 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 		}
 		// add part of frame 12 shifted by (-HEIGHT/2, -WIDTH/2)
 		if (i == 10 - 1) {
-			CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 12, FRAME_WIDTH);
+			if (clippedSource)
+				CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 12, FRAME_WIDTH);
+			else
+				CelDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuff, 12);
 			for (int y = TILE_HEIGHT; y < FRAME_HEIGHT; y++) {
 				for (int x = FRAME_WIDTH / 2; x < FRAME_WIDTH; x++) {
 					if ((y - TILE_HEIGHT / 2) < 174) // y < 110 || x < 36)
@@ -6838,7 +6854,10 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 		}
 		// add left side of frame 16 shifted by (-HEIGHT/2, WIDTH/2)
 		if (i == 15 - 1) {
-			CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 16, FRAME_WIDTH);
+			if (clippedSource)
+				CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 16, FRAME_WIDTH);
+			else
+				CelDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuff, 16);
 			for (int y = TILE_HEIGHT; y < FRAME_HEIGHT; y++) {
 				for (int x = 0; x < FRAME_WIDTH / 2; x++) {
 					gpBuffer[(x + FRAME_WIDTH / 2) + (y - TILE_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[(x + FRAME_WIDTH) + y * BUFFER_WIDTH];
@@ -6869,7 +6888,10 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 		// add frame 18 shifted by (-HEIGHT/2, WIDTH/2)
 		if (i == 17 - 1) {
 			// add frame 18
-			CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 18, FRAME_WIDTH);
+			if (clippedSource)
+				CelClippedDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuf, 18, FRAME_WIDTH);
+			else
+				CelDraw(FRAME_WIDTH, FRAME_HEIGHT - 1, sCelBuff, 18);
 			for (int y = TILE_HEIGHT; y < FRAME_HEIGHT; y++) {
 				for (int x = 0; x < FRAME_WIDTH / 2; x++) {
 					gpBuffer[(x + FRAME_WIDTH / 2) + (y - TILE_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[(x + FRAME_WIDTH) + y * BUFFER_WIDTH];
@@ -6959,7 +6981,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 				}
 			}
 		}
-		// create new frame from 416 shifted by (WIDTH/2; -HEIGHT - HEIGHT/2) and 418 shifted by (0; -TILE_HEIGHT) to add to 398
+		// create new frame from 416 shifted by (WIDTH/2; -HEIGHT -HEIGHT/2) and 418 shifted by (0; -HEIGHT) to add to 398
 		if (i == 18 - 1) {
 			for (int j = 0; j < 5; j++) {
 				for (int y = 0; y < MICRO_HEIGHT; y++) {
@@ -7108,6 +7130,130 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 			for (int j = 0; j < lengthof(trans22); j++)
 				gpBuffer[trans22[j].x + trans22[j].y * BUFFER_WIDTH] = TRANS_COLOR;
 		}
+		// catacombs
+		// create new frame from 745 747 to add to 747
+		if (i == 22 - 1) {
+			// 745
+			for (int j = 0; j < 2; j++) {
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						bool grate = false;
+						// vertical grates
+						if ((x >= 7 && x <= 9) || (x >= 15 && x <= 17) || (x >= 23 && x <= 25) || x >= 31) {
+							// if (j == 0 || y > 2 + x / 2)
+							if (j == 0 || (y > 6 + 2 * ((x - 7) / 4)))
+								grate = true;
+						}
+						// horizontal grates
+						if (j == 1 && x >= 2 && y >= 15 + x / 2 && y <= 17 + x / 2)
+							grate = true;
+						if (j == 0 && x >= 2) {
+							if (y >= 4 + x / 2 && y <= 6 + x / 2)
+								grate = true;
+							if (y >= -17 + x / 2 && y <= -15 + x / 2)
+								grate = true;
+						}
+						BYTE color = gpBuffer[(x + ((0 + j) / DRAW_HEIGHT) * MICRO_WIDTH) + (y + ((0 + j) % DRAW_HEIGHT) * MICRO_HEIGHT + FRAME_HEIGHT) * BUFFER_WIDTH];
+						if (grate)
+							gpBuffer[(x + MICRO_WIDTH) + (y + FRAME_HEIGHT - TILE_HEIGHT - MICRO_HEIGHT / 2 - MICRO_HEIGHT * (j + 0)) * BUFFER_WIDTH] = color;
+					}
+				}
+			}
+			// 747
+			for (int j = 0; j < 1; j++) {
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						bool grate = false;
+						// vertical grates
+						if ((x >= 7 && x <= 9) || (x >= 15 && x <= 17) || (x >= 23 && x <= 25) || x >= 31) {
+							// if (y <= 6 + x / 2)
+							if (y <= 9 + 2 * ((x - 7) / 4))
+								grate = true;
+						}
+						BYTE color = gpBuffer[(x + ((5 + j) / DRAW_HEIGHT) * MICRO_WIDTH) + (y + ((5 + j) % DRAW_HEIGHT) * MICRO_HEIGHT + FRAME_HEIGHT) * BUFFER_WIDTH];
+						if (grate && color != TRANS_COLOR)
+							gpBuffer[(x + MICRO_WIDTH) + (y + FRAME_HEIGHT - MICRO_HEIGHT - (MICRO_HEIGHT / 2) * (j + 0)) * BUFFER_WIDTH] = color;
+					}
+				}
+			}
+		}
+
+		// create new frame from 745 746 748 to add to 748
+		if (i == 23 - 1) {
+			// 745
+			for (int j = 0; j < 2; j++) {
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						bool grate = false;
+						// vertical grates
+						if ((x >= 0 && x <= 1) || (x >= 8 && x <= 10) || (x >= 16 && x <= 18)) {
+							if (j == 0 || y > 18 + x / 2)
+								grate = true;
+						}
+						// horizontal grates
+						if (j == 0 && x <= 20) {
+							if (y >= -1 + x / 2 && y <= 1 + x / 2)
+								grate = true;
+							if (y >= 20 + x / 2 && y <= 22 + x / 2)
+								grate = true;
+						}
+						BYTE color = gpBuffer[(x + ((2 + j) / DRAW_HEIGHT) * MICRO_WIDTH) + (y + ((2 + j) % DRAW_HEIGHT) * MICRO_HEIGHT + FRAME_HEIGHT) * BUFFER_WIDTH];
+						if (grate)
+							gpBuffer[(x + MICRO_WIDTH) + (y + FRAME_HEIGHT - TILE_HEIGHT - MICRO_HEIGHT - MICRO_HEIGHT * (j + 0)) * BUFFER_WIDTH] = color;
+					}
+				}
+			}
+			// 746
+			for (int j = 0; j < 1; j++) {
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						bool grate = false;
+						// vertical grates
+						if ((x >= 0 && x <= 1) || (x >= 8 && x <= 10) || (x >= 16 && x <= 18)) {
+							grate = true;
+						}
+						// horizontal grates
+						if (j == 0 && y >= 4 + x / 2 && y <= 6 + x / 2)
+							grate = true;
+						BYTE color = gpBuffer[(x + ((4 + j) / DRAW_HEIGHT) * MICRO_WIDTH) + (y + ((4 + j) % DRAW_HEIGHT) * MICRO_HEIGHT + FRAME_HEIGHT) * BUFFER_WIDTH];
+						if (grate && color != TRANS_COLOR && color != 107)
+							gpBuffer[(x + MICRO_WIDTH) + (y + FRAME_HEIGHT - MICRO_HEIGHT - (MICRO_HEIGHT / 2) * (j + 1)) * BUFFER_WIDTH] = color;
+					}
+				}
+			}
+			// 748
+			for (int j = 0; j < 1; j++) {
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						bool grate = false;
+						// vertical grates
+						if (x >= 31 && y <= 5) {
+							grate = true;
+						}
+						BYTE color = gpBuffer[(x + ((6 + j) / DRAW_HEIGHT) * MICRO_WIDTH) + (y + ((6 + j) % DRAW_HEIGHT) * MICRO_HEIGHT + FRAME_HEIGHT) * BUFFER_WIDTH];
+						if (grate && color != TRANS_COLOR)
+							gpBuffer[(x + 0) + (y + FRAME_HEIGHT - MICRO_HEIGHT - (MICRO_HEIGHT / 2) * (j + 0)) * BUFFER_WIDTH] = color;
+					}
+				}
+			}
+			// 748
+			for (int j = 0; j < 1; j++) {
+				for (int y = 0; y < MICRO_HEIGHT; y++) {
+					for (int x = 0; x < MICRO_WIDTH; x++) {
+						bool grate = false;
+						// vertical grates
+						//if ((x >= 0 && x <= 1) || (x >= 8 && x <= 10) || (x >= 16 && x <= 18)) {
+						//	if (y <= 5 + x / 2) {
+						if (((x >= 0 && x <= 1) && y <= 5) || ((x >= 8 && x <= 10) && y <= 9) || ((x >= 16 && x <= 18) && y <= 13)) {
+								grate = true;
+						}
+						BYTE color = gpBuffer[(x + ((7 + j) / DRAW_HEIGHT) * MICRO_WIDTH) + (y + ((7 + j) % DRAW_HEIGHT) * MICRO_HEIGHT + FRAME_HEIGHT) * BUFFER_WIDTH];
+						if (grate && color != TRANS_COLOR)
+							gpBuffer[(x + MICRO_WIDTH) + (y + FRAME_HEIGHT - MICRO_HEIGHT - (MICRO_HEIGHT / 2) * (j + 0)) * BUFFER_WIDTH] = color;
+					}
+				}
+			}
+		}
 
 		// write to the new SCEL file
 		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
@@ -7122,6 +7268,8 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	// add file-size
 	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
 	dstHeaderCursor[0] = SwapLE32((DWORD)(*sCelLen));
+
+	mem_free_dbg(sCelBuf);
 
 	return resCelBuf;
 }
@@ -7621,6 +7769,17 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 	}
 	// prepare new subtiles for Town_PatchSpec
 	{
+		// catacombs
+		ReplaceMcr(1171, 0, 1175, 0); // 745 <- 749
+		ReplaceMcr(1171, 1, 1175, 1);
+		ReplaceMcr(1171, 2, 1175, 2);
+		ReplaceMcr(1171, 3, 1175, 3);
+		ReplaceMcr(1172, 0, 1176, 0); // 746 <- 750
+		ReplaceMcr(1173, 1, 1177, 1); // 747 <- 751
+		ReplaceMcr(1174, 0, 1178, 0); // 748 <- 752
+		ReplaceMcr(1174, 1, 1178, 1);
+
+		// trees
 		Blk2Mcr(1216, 8);
 		HideMcr(1216, 10);
 		HideMcr(1216, 2);
@@ -7692,7 +7851,7 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		ReplaceMcr(128, 0, 138, 0); // 94[0] -> 86[0]
 		ReplaceMcr(128, 1, 138, 1); // 94[1] -> 86[1]
 
-		// TODO: eliminate unused subtiles 773 (520), 774 (521), 775 (522), 779 (526)
+		// TODO: eliminate unused subtiles 773 (520), 774 (521), 775 (522), 779 (526), 1171 (745), 1172 (746)
 	}
 	// better shadows
 	ReplaceMcr(555, 0, 493, 0); // TODO: reduce edges on the right
