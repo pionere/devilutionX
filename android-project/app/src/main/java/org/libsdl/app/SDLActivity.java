@@ -60,8 +60,8 @@ import java.util.Locale;
 public class SDLActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
     private static final String TAG = "SDL";
     private static final int SDL_MAJOR_VERSION = 2;
-    private static final int SDL_MINOR_VERSION = 27;
-    private static final int SDL_MICRO_VERSION = 1;
+    private static final int SDL_MINOR_VERSION = 30;
+    private static final int SDL_MICRO_VERSION = 10;
 /*
     // Display InputType.SOURCE/CLASS of events and devices
     //
@@ -89,11 +89,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 | InputDevice.SOURCE_CLASS_POSITION
                 | InputDevice.SOURCE_CLASS_TRACKBALL);
 
-        if (s2 != 0) cls += "Some_Unkown";
+        if (s2 != 0) cls += "Some_Unknown";
 
         s2 = s_copy & InputDevice.SOURCE_ANY; // keep source only, no class;
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23 / * Android 6.0 (M) * /) {
             tst = InputDevice.SOURCE_BLUETOOTH_STYLUS;
             if ((s & tst) == tst) src += " BLUETOOTH_STYLUS";
             s2 &= ~tst;
@@ -107,7 +107,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & tst) == tst) src += " GAMEPAD";
         s2 &= ~tst;
 
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21 / * Android 5.0 (LOLLIPOP) * /) {
             tst = InputDevice.SOURCE_HDMI;
             if ((s & tst) == tst) src += " HDMI";
             s2 &= ~tst;
@@ -125,7 +125,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & tst) == tst) src += " MOUSE";
         s2 &= ~tst;
 
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 26 / * Android 8.0 (O) * /) {
             tst = InputDevice.SOURCE_MOUSE_RELATIVE;
             if ((s & tst) == tst) src += " MOUSE_RELATIVE";
             s2 &= ~tst;
@@ -146,7 +146,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & tst) == tst) src += " TOUCHSCREEN";
         s2 &= ~tst;
 
-        if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 18 / * Android 4.3 (JELLY_BEAN_MR2) * /) {
             tst = InputDevice.SOURCE_TOUCH_NAVIGATION;
             if ((s & tst) == tst) src += " TOUCH_NAVIGATION";
             s2 &= ~tst;
@@ -163,7 +163,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (s == FLAG_TAINTED) src += " FLAG_TAINTED";
         s2 &= ~FLAG_TAINTED;
 
-        if (s2 != 0) src += " Some_Unkown";
+        if (s2 != 0) src += " Some_Unknown";
 
         Log.v(TAG, prefix + "int=" + s_copy + " CLASS={" + cls + " } source(s):" + src);
     }
@@ -281,7 +281,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     // Load the .so
     public void loadLibraries() {
        for (String lib : getLibraries()) {
-          SDL.loadLibrary(lib);
+          SDL.loadLibrary(lib, this);
        }
     }
 
@@ -790,6 +790,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                                 SDLActivity.mFullscreenModeActive = false;
                             }
+                            if (Build.VERSION.SDK_INT >= 28 /* Android 9 (Pie) */) {
+                                window.getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                            }
                         }
                     } else {
                         Log.e(TAG, "error handling message, getContext() returned no Activity");
@@ -995,8 +998,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         /* No valid hint, nothing is explicitly allowed */
         if (!is_portrait_allowed && !is_landscape_allowed) {
             if (resizable) {
-                /* All orientations are allowed */
-                req = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
+                /* All orientations are allowed, respecting user orientation lock setting */
+                req = ActivityInfo.SCREEN_ORIENTATION_FULL_USER;
             } else {
                 /* Fixed window and nothing specified. Get orientation from w/h of created window */
                 req = (w > h ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
@@ -1005,8 +1008,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             /* At least one orientation is allowed */
             if (resizable) {
                 if (is_portrait_allowed && is_landscape_allowed) {
-                    /* hint allows both landscape and portrait, promote to full sensor */
-                    req = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
+                    /* hint allows both landscape and portrait, promote to full user */
+                    req = ActivityInfo.SCREEN_ORIENTATION_FULL_USER;
                 } else {
                     /* Use the only one allowed "orientation" */
                     req = (is_landscape_allowed ? orientation_landscape : orientation_portrait);
@@ -1046,7 +1049,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean shouldMinimizeOnFocusLoss() {
 /*
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 24 / * Android 7.0 (N) * /) {
             if (mSingleton == null) {
                 return true;
             }
@@ -1345,23 +1348,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             }
         }
 
-        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (isTextInputEvent(event)) {
-                    if (ic != null) {
-                        ic.commitText(String.valueOf((char) event.getUnicodeChar()), 1);
-                    } else {
-                        SDLInputConnection.nativeCommitText(String.valueOf((char) event.getUnicodeChar()), 1);
-                    }
-                }
-                onNativeKeyDown(keyCode);
-                return true;
-            } else if (event.getAction() == KeyEvent.ACTION_UP) {
-                onNativeKeyUp(keyCode);
-                return true;
-            }
-        }
-
         if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
             // on some devices key events are sent for mouse BUTTON_BACK/FORWARD presses
             // they are ignored here because sending them as mouse input to SDL is messy
@@ -1374,6 +1360,21 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     return true;
                 }
             }
+        }
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (isTextInputEvent(event)) {
+                if (ic != null) {
+                    ic.commitText(String.valueOf((char) event.getUnicodeChar()), 1);
+                } else {
+                    SDLInputConnection.nativeCommitText(String.valueOf((char) event.getUnicodeChar()), 1);
+                }
+            }
+            onNativeKeyDown(keyCode);
+            return true;
+        } else if (event.getAction() == KeyEvent.ACTION_UP) {
+            onNativeKeyUp(keyCode);
+            return true;
         }
 
         return false;
@@ -1766,6 +1767,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             } catch (Exception e) {
                 return false;
             }
+        } else {
+            return false;
         }
         return true;
     }

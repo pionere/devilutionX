@@ -100,7 +100,7 @@ cmake_configure() {
 		"-DTARGET_PLATFORM=$TARGET" \
 		-DCMAKE_VERBOSE_MAKEFILE=ON \
 		-DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}/usr/share/buildroot/toolchainfile.cmake" \
-		"${CMAKE_ARGS}" \
+		${CMAKE_ARGS} \
 		"$@"
 }
 

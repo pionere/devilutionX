@@ -10,6 +10,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
+import android.view.WindowManager;
 
 import org.libsdl.app.SDLActivity;
 
@@ -29,6 +30,10 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		// for fullscreen apps after Android 7.0
 		if (Build.VERSION.SDK_INT >= 25)
 			trackVisibleSpace();
+
+		// Force app to overlap with the display cutout
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
 		externalDir = chooseExternalFilesDir();
 

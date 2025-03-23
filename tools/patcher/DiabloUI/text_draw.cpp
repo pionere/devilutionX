@@ -9,14 +9,14 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
 {
-	if (flags & UIS_CENTER)
-		return (dest.w - w) / 2;
+	if (flags & UIS_HCENTER)
+		return (dest.w - w) >> 1;
 	if (flags & UIS_RIGHT)
 		return dest.w - w;
 	return 0;
 }
 
-void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawTextCursor)
+void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
 	unsigned size = (flags & UIS_SIZE) >> 0;
 	unsigned color = (flags & UIS_COLOR) >> 7;
@@ -24,27 +24,31 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawText
 	static int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
 	color = color == AFC_SILVER ? COL_WHITE : COL_GOLD;
+	if (flags & UIS_LIGHT) {
+		color = COL_GOLD + 2;
+	}
 	switch (size) {
 	case AFT_SMALL:
 		w = GetSmallStringWidth(text);
 		dy = 1;
-		h = 11 - dy;
-		//h = 11;
+		h = SMALL_FONT_HEIGHT - dy;
+		//h = SMALL_FONT_HEIGHT;
 		pChar = PrintSmallChar;
 		break;
 	case AFT_MED:
+		static_assert(MED_FONT_HEIGHT == BIG_FONT_HEIGHT, "DrawArtStr handles medium and big characters the same way.");
 	case AFT_BIG:
 		w = GetBigStringWidth(text);
 		dy = 5 - 2;
-		h = 22 - dy;
-		//h = 22;
+		h = BIG_FONT_HEIGHT - dy;
+		//h = BIG_FONT_HEIGHT;
 		pChar = PrintBigChar;
 		break;
 	case AFT_HUGE:
 		w = GetHugeStringWidth(text);
 		dy = 10 - 4;
-		h = 46 - dy;
-		//h = 46;
+		h = HUGE_FONT_HEIGHT - dy;
+		//h = HUGE_FONT_HEIGHT;
 		pChar = PrintHugeChar;
 		break;
 	default:
@@ -53,7 +57,7 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawText
 	}
 
 	int x = rect.x + AlignXOffset(flags, rect, w) + SCREEN_X;
-	int y = rect.y + ((flags & UIS_VCENTER) ? (rect.h - h) / 2 : 0) + SCREEN_Y + h;
+	int y = rect.y + ((flags & UIS_VCENTER) ? ((rect.h - h) >> 1) : 0) + SCREEN_Y + h;
 
 	y += dy;
 	h += dy;
@@ -66,9 +70,6 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags, bool drawText
 			continue;
 		}
 		sx += pChar(sx, sy, (BYTE)*text, color);
-	}
-	if (drawTextCursor && GetAnimationFrame(2, 512) != 0) {
-		sx += pChar(sx, sy, '|', color);
 	}
 }
 

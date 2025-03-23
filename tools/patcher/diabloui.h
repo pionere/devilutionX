@@ -18,7 +18,9 @@ void UiDestroy();
 /* Defined in title.cpp */
 bool UiTitleDialog();
 /* Defined in mainmenu.cpp */
-int UiMainMenuDialog(void (*fnSound)(int sfx, int rndCnt));
+int UiMainMenuDialog();
+/* Defined in checker.cpp */
+void UiCheckerDialog();
 /* Defined in merger.cpp */
 void UiMergerDialog();
 /* Defined in patcher.cpp */
@@ -27,7 +29,7 @@ void UiPatcherDialog();
 bool UiProgressDialog(const char* msg, int (*fnfunc)());
 
 /* Defined in dialogs.cpp */
-void UiErrorOkDialog(const char* caption, const char* text, bool error = true);
+void UiErrorOkDialog(const char* caption, char* text, bool error = true);
 
 #ifdef __cplusplus
 }

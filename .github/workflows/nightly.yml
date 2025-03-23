@@ -17,7 +17,7 @@ jobs:
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
@@ -37,57 +37,56 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           # x86 builds
           - name: diablo-x86
-            packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+            #packages: 'sdl2:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x86.zip'
           - name: hellfire-x86
-            packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+            #packages: 'sdl2:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0600 -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86.zip'
           - name: hellmini-x86
-            packages: 'sdl2:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NONET=ON -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            #packages: 'sdl2:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNONET=ON -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellmini-nightly-x86.zip'
           - name: hellsrv-x86
-            packages: 'sdl2:x86-windows libsodium:x86-windows'
-            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -D NOHOSTING=OFF -D HOSTONLY=ON -D INET_MODE=ON -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON -D HAS_JOYSTICK=OFF -D HAS_DPAD=OFF -D HAS_GAMECTRL=OFF -D HAS_TOUCHPAD=OFF -D HAS_KBCTRL=OFF -D NOSOUND=ON -D SCREEN_WIDTH=640 -D SCREEN_HEIGHT=480 -D NOWIDESCREEN=ON'
+            #packages: 'sdl2:x86-windows libsodium:x86-windows'
+            cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -DNOHOSTING=OFF -DHOSTONLY=ON -DINET_MODE=ON -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
-          - name: diablo
-            packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          - name: diablo+patch
+            #packages: 'sdl2:x64-windows libsodium:x64-windows'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x64.zip'
-          - name: hellfire
-            packages: 'sdl2:x64-windows libsodium:x64-windows'
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            #packages: 'sdl2:x64-windows libsodium:x64-windows'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v11.1
+      uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
+        vcpkgGitCommitId: '74ec888e385d189b42d6b398d0bbaa6f1b1d3b0e'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
-    - name: Install Required Packages
-      run: |
-        vcpkg install ${{ matrix.packages }}
-      #  Start-Process -Wait -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
-      #  $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
-      #shell: bash
+    #- name: Install Required Packages
+    #  run: |
+    #    vcpkg install ${{ matrix.packages }}
+    #  #  Start-Process -Wait -NoNewWindow -FilePath "$env:VCPKG_ROOT\vcpkg" -ArgumentList "install ${{ matrix.packages }}"
+    #  #  $VCPKG_ROOT/vcpkg install ${{ matrix.packages }}
+    #  #shell: bash
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}
@@ -97,7 +96,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -110,17 +109,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo-x86, hellfire-x86]
         include:
           # x86 builds
-          - name: diablo-x86
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-mingw-x86.zip'
-          - name: hellfire-x86
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -134,7 +132,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -143,7 +141,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -156,17 +154,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           # x64 builds
-          - name: diablo-x64
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-mingw-x64.zip'
-          - name: hellfire-x64
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -175,12 +172,12 @@ jobs:
         sudo apt-get update &&
         sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev dpkg-dev wget git sudo &&
         sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
-        sudo Packaging/windows/mingw-prep.sh
+        sudo Packaging/windows/mingw-prep64.sh
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -D CMAKE_BUILD_TYPE="Release" -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -189,9 +186,101 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/devilutionx.zip
+        name: ${{ matrix.artifact }}
+  #  MingW Win9x
+  build_w98:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-MingW-Win9x
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # x86 builds
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON'
+            artifact: 'diablo-nightly-mingw-w9x.zip'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-mingw-w9x.zip'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw9x-prep.sh
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+
+    - name: Build
+      working-directory: ${{ env.buildDir }}
+      shell: bash
+      run: cmake --build . -j $(nproc) --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ env.buildDir }}/devilutionx.zip
+        name: ${{ matrix.artifact }}
+  #  MingW WinXP
+  build_wXP:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-MingW-WinXP
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # x86 builds
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON'
+            artifact: 'diablo-nightly-mingw-wxp.zip'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-mingw-wxp.zip'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: >
+        sudo apt-get update &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo Packaging/windows/mingw-prep.sh
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{ env.buildDir }}
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
+
+    - name: Build
+      working-directory: ${{ env.buildDir }}
+      shell: bash
+      run: cmake --build . -j $(nproc) --target package
+
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
   # Linux-builds
   # 64bit
@@ -202,30 +291,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-x86_64-linux-gnu.tar.xz'
             appimage: 'diablo-nightly-x86_64-linux-gnu.appimage'
           - name: hellfire
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnu.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnu.appimage'
-          - name: diablo-uxp
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-x86_64-linux-gnup.tar.xz'
             appimage: 'diablo-nightly-x86_64-linux-gnup.appimage'
-          - name: hellfire-uxp
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnup.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnup.appimage'
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Create Build Environment
       run: Packaging/nix/debian-host-prep.sh
 
@@ -253,14 +341,14 @@ jobs:
 
     - name: Upload Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: devilutionx-x86_64-linux-gnu.tar.xz
         name: ${{ matrix.artifact }}
 
     - name: Upload AppImage
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: devilutionx-x86_64-linux-gnu.appimage
         name: ${{ matrix.appimage }}
@@ -273,24 +361,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
-          - name: diablo-aa64
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF'
+          - name: diablo
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-aarch64.tar.xz'
-          - name: hellfire-aa64
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
+          - name: hellfire
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64.tar.xz'
-          - name: diablo-aa64p
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-aarch64p.tar.xz'
-          - name: hellfire-aa64p
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64p.tar.xz'
     runs-on: ubuntu-20.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -320,7 +407,7 @@ jobs:
 
     - name: Upload Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: devilutionx-aarch64.tar.xz
         name: ${{ matrix.artifact }}
@@ -332,23 +419,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
-          - name: diablo-mac
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+          - name: diablo
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-mac.dmg'
-          - name: hellfire-mac
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D HELLFIRE=ON'
+          - name: hellfire
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mac.dmg'
-          - name: diablo-macp
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-macp.dmg'
-          - name: hellfire-macp
-            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-macp.dmg'
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -358,7 +444,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D MACOSX_STANDALONE_APP_BUNDLE=ON ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -368,7 +454,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
@@ -380,23 +466,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
-          - name: diablo-ios
+          - name: diablo
             cmakeargs: ''
             artifact: 'diablo-nightly-ios.ipa'
-          - name: hellfire-ios
-            cmakeargs: '-D HELLFIRE=ON'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ios.ipa'
-          - name: diablo-iosp
-            cmakeargs: '-D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-iosp.ipa'
-          - name: hellfire-iosp
-            cmakeargs: '-D USE_PATCH=ON -D HELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-iosp.ipa'
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -405,7 +490,7 @@ jobs:
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -420,7 +505,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
@@ -432,32 +517,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
             artifact: 'diablo-nightly-android.apk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
-          - name: diablo-adrp
-            cmakeargs: '-D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakearg0: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-androidp.apk'
-          - name: hellfire-adrp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+          - name: hellfire+patch
+            cmakearg0: '-DUSE_PATCH=ON'
+            cmakearg1: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-androidp.apk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Install gettext
       run: sudo apt-get update && sudo apt-get install -y gettext
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -465,23 +549,29 @@ jobs:
 
     # CMake version 3.21.3 causes gradle to throw a NullPointerException during the build
     # Removing it will cause gradle to fall back on 3.18.1 installed by the Android SDK
-    - name: Remove system CMake
-      run: rm /usr/local/bin/cmake
+    #- name: Remove system CMake
+    #  run: rm /usr/local/bin/cmake
+
+    #- name: Accept SDK licenses
+    #  run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+    - name: Install CMake
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "cmake;3.31.0"
 
     #- name: Cache CMake build folder
     #  uses: actions/cache@v3
     #  with:
     #    path: android-project/app/.cxx
-    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
-    #    restore-keys: ${{ github.workflow }}-v1-
+    #    key: ${{ github.workflow }}-v4-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v4-
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakeargs="${{ matrix.cmakeargs }}"
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
@@ -496,24 +586,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-DZEROTIER=OFF'
             artifact: 'diablo-nightly-rg350.opk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350.opk'
-          - name: diablo-rgp
-            cmakeargs: '-D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-rg350p.opk'
-          - name: hellfire-rgp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350p.opk'
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -536,7 +625,7 @@ jobs:
         TOOLCHAIN: /opt/gcw0-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: build-rg350/devilutionx-rg350.opk
@@ -549,7 +638,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
             cmakeargs: ''
@@ -557,16 +645,16 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-lepus.opk'
-          - name: diablo-lepp
-            cmakeargs: '-D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DUSE_PATCH=ON'
             artifact: 'diablo-nightly-lepusp.opk'
-          - name: hellfire-lepp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-lepusp.opk'
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -589,7 +677,7 @@ jobs:
         TOOLCHAIN: /opt/lepus-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: build-lepus/devilutionx-lepus.opk
@@ -602,24 +690,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-DZEROTIER=OFF'
             artifact: 'diablo-nightly-retrofw.opk'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofw.opk'
-          - name: diablo-rtrp
-            cmakeargs: '-D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-retrofwp.opk'
-          - name: hellfire-rtrp
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-DZEROTIER=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofwp.opk'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -644,7 +731,7 @@ jobs:
         TOOLCHAIN: /opt/retrofw-toolchain
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-retrofw.opk.zip
         name: ${{ matrix.artifact }}
@@ -658,34 +745,39 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #name: [diablo, hellfire]
         include:
           - name: diablo
-            cmakeargs: ''
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-ps4.pkg'
           - name: hellfire
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4.pkg'
-          - name: diablo-ps4p
-            cmakeargs: '-D USE_PATCH=ON'
+          - name: diablo+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
             artifact: 'diablo-nightly-ps4p.pkg'
-          - name: hellfire-ps4p
-            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+          - name: hellfire+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps4p.pkg'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: >
-        sudo apt-get update &&
-        sudo apt-get install -y wget cmake git gettext &&
-        wget https://github.com/PacBrew/pacbrew-pacman/releases/download/v1.1/pacbrew-pacman-1.1.deb &&
-        sudo dpkg -i pacbrew-pacman-1.1.deb && sudo pacbrew-pacman -Sy &&
-        sudo pacbrew-pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs &&
+      run: |
+        sudo apt-get update && \
+        sudo apt-get install -y pacman-package-manager wget cmake git gettext && \
+        sudo tee -a /etc/pacman.conf > /dev/null <<TEXT
+        [pacbrew]
+        SigLevel = Optional TrustAll
+        Server = https://pacman.mydedibox.fr/pacbrew/packages/
+        TEXT
+    - name: Setup pacman packages
+      run: |
+        sudo pacman --noconfirm -Sy && \
+        sudo pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs && \
         echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
 
     - name: Build
@@ -694,254 +786,737 @@ jobs:
       run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
 
     - name: Upload-Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
 
+  # ps5-builds
+  build_ps5:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-PS5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-ps5.zip'
+          - name: hellfire
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-ps5.zip'
+          - name: diablo+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON'
+            artifact: 'diablo-nightly-ps5p.zip'
+          - name: hellfire+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-ps5p.zip'
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: |
+        sudo apt update
+        sudo apt install cmake pkg-config clang-15 lld-15
+        sudo apt install build-essential autoconf libtool yasm nasm
+        sudo apt install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
+        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.18/ps5-payload-dev.tar.gz
+        sudo tar -xf ps5-payload-dev.tar.gz -C /
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: Packaging/ps5/build.sh "${{ matrix.cmakeargs }}"
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v4
+      with:
+        path: build-ps5/devilutionx-ps5.zip
+        name: ${{ matrix.artifact }}
+
+  # vita-builds
+  build_vita:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-VITA
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-vita.vpk'
+          - name: hellfire
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-vita.vpk'
+          - name: diablo+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+            artifact: 'diablo-nightly-vitap.vpk'
+          - name: hellfire+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-vitap.vpk'
+    runs-on: ubuntu-latest
+    container: vitasdk/vitasdk:latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Build Environment
+      run: apk add git ninja gettext
+
+    - name: Configure CMake
+      run: |
+        cmake -S. -Bbuild -GNinja \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
+          -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
+
+    - name: Build
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu)
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: build/devilutionx.vpk
+
+  # n3ds-builds
+  build_n3ds:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-Nintendo 3DS
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-3ds.3dsx'
+            cia: 'diablo-nightly-3ds.cia'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-3ds.3dsx'
+            cia: 'hellfire-nightly-3ds.cia'
+          - name: diablo+patch
+            cmakeargs: '-D USE_PATCH=ON'
+            artifact: 'diablo-nightly-3dsp.3dsx'
+            cia: 'diablo-nightly-3dsp.cia'
+          - name: hellfire+patch
+            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-3dsp.3dsx'
+            cia: 'hellfire-nightly-3dsp.cia'
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+        deb http://deb.debian.org/debian bullseye-backports main
+        LIST
+        apt-get update
+        apt-get install -y -t bullseye-backports cmake
+        apt-get install -y --no-install-recommends --no-install-suggests \
+          ffmpeg \
+          gettext
+
+    - name: Get external dependencies
+      run: |
+        wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
+        unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
+        wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
+        unzip "makerom-v0.18-ubuntu_x86_64.zip" "makerom" -d "/opt/devkitpro/tools/bin"
+        chmod a+x /opt/devkitpro/tools/bin/makerom
+
+    - name: Configure CMake
+      run: |
+        cmake -S. -Bbuild -GNinja \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} -DNINTENDO_3DS=ON \
+          -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
+
+    - name: Build DevilutionX
+      run: cmake --build build -j$(nproc)
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: build/devilutionx.3dsx
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.cia }}
+        path: build/devilutionx.cia
+
+  # switch-builds
+  build_switch:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-Nintendo Switch
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-switch.nro'
+          - name: hellfire
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-switch.nro'
+          - name: diablo+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON'
+            artifact: 'diablo-nightly-switchp.nro'
+          - name: hellfire+patch
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -D USE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-switchp.nro'
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64:latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+        deb http://deb.debian.org/debian bullseye-backports main
+        LIST
+        apt-get update
+        apt-get install -y -t bullseye-backports cmake
+        apt-get install -y --no-install-recommends --no-install-suggests \
+          gettext
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build \
+          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
+          -D CMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
+
+    - name: Build DevilutionX
+      run: cmake --build build -j$(nproc)
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ./build/devilutionx.nro
+
+  # amiga-builds
+  build_amiga:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-Amiga M68K
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-amiga'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-amiga'
+          - name: diablo+patch
+            cmakeargs: '-D USE_PATCH=ON'
+            artifact: 'diablo-nightly-amigap'
+          - name: hellfire+patch
+            cmakeargs: '-D USE_PATCH=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-amigap'
+    runs-on: ubuntu-latest
+    container: amigadev/crosstools:m68k-amigaos-gcc10
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run prep.sh script
+      run: Packaging/amiga/prep.sh
+
+    - name: Configure CMake
+      run: |
+        cmake -S. -Bbuild -GNinja \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
+          -DM68K_COMMON="-s -ffast-math -O3" \
+          -DM68K_CPU=68040 \
+          -DM68K_FPU=hard
+
+    - name: Build DevilutionX
+      run: cmake --build build
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ./build/devilutionx
+
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_vita, build_n3ds, build_switch, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
     steps:
     # Windows-builds (x86)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellmini-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellmini-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellsrv-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellsrv-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
 
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-mingw-w9x.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-w9x.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-mingw-w9x.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
+
     # Windows-builds (x64)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
 
+    # Linux-builds (x64)
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnu.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/diablo-nightly-x86_64-linux-gnu.tar.xz
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnu.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/diablo-nightly-x86_64-linux-gnu.appimage
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnu.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnu.tar.xz
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnu.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnu.appimage
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnup.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/diablo-nightly-x86_64-linux-gnup.tar.xz
+
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-x86_64-linux-gnup.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/diablo-nightly-x86_64-linux-gnup.appimage
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnup.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnup.tar.xz
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-x86_64-linux-gnup.appimage
+    - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnup.appimage
+
+    # Aarch64-builds (x64)
+    - name: Download a diablo aarch64-artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-aarch64.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
+
+    - name: Download a diablo aarch64-artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-aarch64p.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/diablo-nightly-aarch64p.tar.xz
+
+    - name: Download a hellfire aarch64-artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-aarch64.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
+
+    - name: Download a hellfire aarch64-artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-aarch64p.tar.xz
+    - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/hellfire-nightly-aarch64p.tar.xz
+
     # Mac-builds
     - name: Download a diablo mac-artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-mac.dmg
 
     - name: Download a diablo mac-artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-macp.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-macp.dmg
 
     - name: Download a hellfire mac-artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
 
     - name: Download a hellfire mac-artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-macp.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-macp.dmg
 
     # iOS-builds
     - name: Download a diablo iOS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-ios.ipa
 
     - name: Download a diablo iOS artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-iosp.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-iosp.ipa
 
     - name: Download a hellfire iOS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     - name: Download a hellfire iOS artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-iosp.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-iosp.ipa
 
     # Android-builds
     - name: Download a diablo android artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-android.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
 
     - name: Download a diablo android artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-androidp.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-androidp.apk
 
     - name: Download a hellfire android artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-android.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     - name: Download a hellfire android artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-androidp.apk
     - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-androidp.apk
 
     # rg350-builds
     - name: Download a diablo rg350 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350.opk
 
     - name: Download a diablo rg350 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-rg350p.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350p.opk
 
     - name: Download a hellfire rg350 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350.opk
 
     - name: Download a hellfire rg350 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-rg350p.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350p.opk
 
     # lepus-builds
     - name: Download a diablo lepus artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepus.opk
 
     - name: Download a diablo lepus artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-lepusp.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepusp.opk
 
     - name: Download a hellfire lepus artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepus.opk
 
     - name: Download a hellfire lepus artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-lepusp.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepusp.opk
 
     # retrofw-builds
     - name: Download a diablo retrofw artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/diablo-nightly-retrofw.opk
 
     - name: Download a diablo retrofw artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-retrofwp.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/diablo-nightly-retrofwp.opk
 
     - name: Download a hellfire retrofw artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
     - name: Download a hellfire retrofw artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-retrofwp.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofwp.opk
 
     # ps4-builds
     - name: Download a diablo ps4 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4.pkg
 
     - name: Download a diablo ps4 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ps4p.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4p.pkg
 
     - name: Download a hellfire ps4 artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
 
     - name: Download a hellfire ps4 artifact using patched assets
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ps4p.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4p.pkg
+
+    # vita-builds
+    - name: Download a diablo vita artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-vita.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vita.vpk
+
+    - name: Download a diablo vita artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-vitap.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vitap.vpk
+
+    - name: Download a hellfire vita artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-vita.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/hellfire-nightly-vita.vpk
+
+    - name: Download a hellfire vita artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-vitap.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/hellfire-nightly-vitap.vpk
+
+    # n3ds-builds
+    - name: Download a diablo n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3ds.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3ds.3dsx
+
+    - name: Download a diablo n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3ds.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3ds.cia
+
+    - name: Download a diablo n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3dsp.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3dsp.3dsx
+
+    - name: Download a diablo n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-3dsp.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3dsp.cia
+
+    - name: Download a hellfire n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3ds.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3ds.3dsx
+
+    - name: Download a hellfire n3ds artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3ds.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3ds.cia
+
+    - name: Download a hellfire n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3dsp.3dsx
+    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3dsp.3dsx
+
+    - name: Download a hellfire n3ds artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-3dsp.cia
+    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3dsp.cia
+
+    # switch-builds
+    - name: Download a diablo switch artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-switch.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switch.nro
+
+    - name: Download a diablo switch artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-switchp.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switchp.nro
+
+    - name: Download a hellfire switch artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-switch.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
+
+    - name: Download a hellfire switch artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-switchp.nro
+    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switchp.nro
+
+    # amiga-builds
+    - name: Download a diablo amiga artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-amiga
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/diablo-nightly-amiga
+
+    - name: Download a diablo amiga artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-amigap
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/diablo-nightly-amigap
+
+    - name: Download a hellfire amiga artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-amiga
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/hellfire-nightly-amiga
+
+    - name: Download a hellfire amiga artifact using patched assets
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-amigap
+    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/hellfire-nightly-amigap
 
     # release notes
     - name: Create release notes
@@ -950,77 +1525,131 @@ jobs:
         echo ''                             >> RELEASE_NOTE.md
         echo 'For the list of changes see [changelog](docs/CHANGELOG.md#DevilX).' >> RELEASE_NOTE.md
         echo ''                             >> RELEASE_NOTE.md
-        echo '### **Diablo**'               >> RELEASE_NOTE.md
-        echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
-        echo '------------ | -------------' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-android.apk](../../releases/download/devilx-nightly/diablo-nightly-android.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-lepus.opk](../../releases/download/devilx-nightly/diablo-nightly-lepus.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-retrofw.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-rg350.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-ps4.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-mac.dmg](../../releases/download/devilx-nightly/diablo-nightly-mac.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-ios.ipa](../../releases/download/devilx-nightly/diablo-nightly-ios.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
-        echo ''                             >> RELEASE_NOTE.md
-        echo '### **Diablo: Hellfire**'     >> RELEASE_NOTE.md
-        echo '_Filename_ | _Description_'   >> RELEASE_NOTE.md
-        echo '------------ | -------------' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-android.apk](../../releases/download/devilx-nightly/hellfire-nightly-android.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-lepus.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-retrofw.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-rg350.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-ps4.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mac.dmg](../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-ios.ipa](../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
-        echo '[hellmini-nightly-x86.zip](../../releases/download/devilx-nightly/hellmini-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support'                                         >> RELEASE_NOTE.md
-        echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                     >> RELEASE_NOTE.md
-        echo ''                                    >> RELEASE_NOTE.md
-        echo '### **Diablo** using patched assets' >> RELEASE_NOTE.md
-        echo '_Filename_ | _Description_'          >> RELEASE_NOTE.md
-        echo '------------ | -------------'        >> RELEASE_NOTE.md
-        echo '[diablo-nightly-androidp.apk](../../releases/download/devilx-nightly/diablo-nightly-androidp.apk)   | Diablo package for `Android`' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-lepusp.opk](../../releases/download/devilx-nightly/diablo-nightly-lepusp.opk)   | Diablo package for `Lepus`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-retrofwp.opk](../../releases/download/devilx-nightly/diablo-nightly-retrofwp.opk)   | Diablo package for `RetroFW`' >> RELEASE_NOTE.md
-        echo '[diablo-nightly-rg350p.opk](../../releases/download/devilx-nightly/diablo-nightly-rg350p.opk)   | Diablo package for `RG350`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-ps4p.pkg](../../releases/download/devilx-nightly/diablo-nightly-ps4p.pkg)   | Diablo package for `PS4`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-macp.dmg](../../releases/download/devilx-nightly/diablo-nightly-macp.dmg)   | Diablo package for `Mac`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-iosp.ipa](../../releases/download/devilx-nightly/diablo-nightly-iosp.ipa)   | Diablo package for `iOS`'             >> RELEASE_NOTE.md
-        echo '[diablo-nightly-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-x64.zip)   | Diablo build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip)   | Diablo build for `Windows x64`'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-x86.zip)   | Diablo build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))'       >> RELEASE_NOTE.md
-        echo '[diablo-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip)   | Diablo build for `Windows x86`'       >> RELEASE_NOTE.md
-        echo ''                                              >> RELEASE_NOTE.md
-        echo '### **Diablo: Hellfire** using patched assets' >> RELEASE_NOTE.md
-        echo '_Filename_ | _Description_'                    >> RELEASE_NOTE.md
-        echo '------------ | -------------'                  >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-androidp.apk](../../releases/download/devilx-nightly/hellfire-nightly-androidp.apk)   | Hellfire package for `Android`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-lepusp.opk](../../releases/download/devilx-nightly/hellfire-nightly-lepusp.opk)   | Hellfire package for `Lepus`'       >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-retrofwp.opk](../../releases/download/devilx-nightly/hellfire-nightly-retrofwp.opk)   | Hellfire package for `RetroFW`' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-rg350p.opk](../../releases/download/devilx-nightly/hellfire-nightly-rg350p.opk)   | Hellfire package for `RG350`'       >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-ps4p.pkg](../../releases/download/devilx-nightly/hellfire-nightly-ps4p.pkg)   | Hellfire package for `PS4`'             >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-macp.dmg](../../releases/download/devilx-nightly/hellfire-nightly-macp.dmg) | Hellfire package for `Mac`'               >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-iosp.ipa](../../releases/download/devilx-nightly/hellfire-nightly-iosp.ipa) | Hellfire package for `iOS`'               >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x64.zip](../../releases/download/devilx-nightly/hellfire-nightly-x64.zip) | Hellfire build for `Windows x64` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86`'         >> RELEASE_NOTE.md
-        echo '[hellfire-nightly-mingw-x86.zip](../../releases/download/devilx-nightly/hellfire-nightly-x86.zip) | Hellfire build for `Windows x86` (requires [VC++ Runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist))' >> RELEASE_NOTE.md
-        echo '[hellmini-nightly-x86.zip](../../releases/download/devilx-nightly/hellmini-nightly-x86.zip) | Minimal Hellfire build for `Windows x86`<br>- no internet, controller, sound or widescreen support'                                         >> RELEASE_NOTE.md
-        echo '[hellsrv-nightly-x86.zip](../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip) | Minimal Hellfire server for `Windows x86`<br>- no controller, sound or widescreen support<br>- only server functionality'                     >> RELEASE_NOTE.md
+        echo '### **Packages**'             >> RELEASE_NOTE.md
+        echo '<table><thead><tr>'                   >> RELEASE_NOTE.md
+        echo '<th colspan=2><em>Diablo</em></th>'   >> RELEASE_NOTE.md
+        echo '<th rowspan=2>Environment</th>'       >> RELEASE_NOTE.md
+        echo '<th colspan=2><em>Hellfire</em></th>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                            >> RELEASE_NOTE.md
+        echo '<th>Base</th>'                        >> RELEASE_NOTE.md
+        echo '<th>Patched</th>'                     >> RELEASE_NOTE.md
+        echo '<th>Base</th>'                        >> RELEASE_NOTE.md
+        echo '<th>Patched</th>'                     >> RELEASE_NOTE.md
+        echo '</tr></thead><tbody><tr>'                                    >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-android.apk">android.apk</a></td>'           >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-androidp.apk">androidp.apk</a></td>'         >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Android</code></td>'                                                                                  >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-android.apk">android.apk</a></td>'         >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-androidp.apk">androidp.apk</a></td>'       >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-lepus.opk">lepus.opk</a></td>'               >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-lepusp.opk">lepusp.opk</a></td>'             >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Lepus</code></td>'                                                                                    >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-lepus.opk">lepus.opk</a></td>'             >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-lepusp.opk">lepusp.opk</a></td>'           >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-retrofw.opk">retrofw.opk</a></td>'           >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-retrofwp.opk">retrofwp.opk</a></td>'         >> RELEASE_NOTE.md
+        echo '<td align="center"><code>RetroFW</code></td>'                                                                                  >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-retrofw.opk">retrofw.opk</a></td>'         >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-retrofwp.opk">retrofwp.opk</a></td>'       >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-rg350.opk">rg350.opk</a></td>'               >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-rg350p.opk">rg350p.opk</a></td>'             >> RELEASE_NOTE.md
+        echo '<td align="center"><code>RG350</code></td>'                                                                                    >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-rg350.opk">rg350.opk</a></td>'             >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-rg350p.opk">rg350p.opk</a></td>'           >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg">ps4.pkg</a></td>'                   >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-ps4p.pkg">ps4p.pkg</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td align="center"><code>PS4</code></td>'                                                                                      >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg">ps4.pkg</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-ps4p.pkg">ps4p.pkg</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-aarch64.tar.xz">aarch64.tar.xz</a></td>'     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-aarch64p.tar.xz">aarch64p.tar.xz</a></td>'   >> RELEASE_NOTE.md
+        echo '<td align="center"><code>aarch64</code></td>'                                                                                  >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-aarch64.tar.xz">aarch64.tar.xz</a></td>'   >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-aarch64p.tar.xz">aarch64p.tar.xz</a></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-mac.dmg">mac.dmg</a></td>'                   >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-macp.dmg">macp.dmg</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Mac</code></td>'                                                                                      >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-mac.dmg">mac.dmg</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-macp.dmg">macp.dmg</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-ios.ipa">ios.ipa</a></td>'                   >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-iosp.ipa">iosp.ipa</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td align="center"><code>iOS</code></td>'                                                                                      >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa">ios.ipa</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-iosp.ipa">iosp.ipa</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-vita.vpk">vita.vpk</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-vitap.vpk">vitap.vpk</a></td>'               >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Vita</code></td>'                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-vita.vpk">vita.vpk</a></td>'               >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-vitap.vpk">vitap.vpk</a></td>'             >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-3ds.3dsx">3ds.3dsx</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-3dsp.3dsx">3dsp.3dsx</a></td>'               >> RELEASE_NOTE.md
+        echo '<td align="center" rowspan=2><code>Nintendo 3DS</code></td>'                                                                   >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-3ds.3dsx">3ds.3dsx</a></td>'               >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-3dsp.3dsx">3dsp.3dsx</a></td>'             >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-3ds.cia">3ds.cia</a></td>'                   >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-3dsp.cia">3dsp.cia</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-3ds.cia">3ds.cia</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-3dsp.cia">3dsp.cia</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-switch.nro">switch.nro</a></td>'             >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-switchp.nro">switchp.nro</a></td>'           >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Nintendo Switch</code></td>'                                                                          >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-switch.nro">switch.nro</a></td>'           >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-switchp.nro">switchp.nro</a></td>'         >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-amiga">amiga</a></td>'                       >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/diablo-nightly-amigap">amigap</a></td>'                     >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Amiga</code></td>'                                                                                    >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-amiga">amiga</a></td>'                     >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellfire-nightly-amigap">amigap</a></td>'                   >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/diablo-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
+        echo '<td rowspan=2 align="center"><code>Windows x64</code></td>'                                                                                                                                                             >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/hellfire-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                                                                                                              >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip">mingw-x64.zip</a></td>'   >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-x64.zip">mingw-x64.zip</a></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                                                  >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/diablo-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
+        echo '<td rowspan=3 align="center"><code>Windows x86</code></td>'                                                                                                                                                             >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/hellfire-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                                                                                                              >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip">mingw-x86.zip</a></td>'   >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-x86.zip">mingw-x86.zip</a></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                                                  >> RELEASE_NOTE.md
+        echo '<td colspan=2></td>'                                                                                                                                                                                >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellmini-nightly-x86.zip">mini-x86.zip</a> <sup><a href="#fn-2" id="user-content-fnref-2" data-footnote-ref="">2</a></sup></td>' >> RELEASE_NOTE.md
+        echo '<td><a href="../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip">srv-x86.zip</a> <sup><a href="#fn-3" id="user-content-fnref-3" data-footnote-ref="">3</a></sup></td>'   >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                                                                                          >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-w9x.zip">mingw-w9x.zip</a></td>'   >> RELEASE_NOTE.md
+        echo '<td align="center"><code>Windows 98</code></td>'                                                                                                    >> RELEASE_NOTE.md
+        echo '<td colspan=2 align="center"><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-w9x.zip">mingw-w9x.zip</a></td>' >> RELEASE_NOTE.md
+        echo '</tr></tbody></table>'                                                                                                                              >> RELEASE_NOTE.md
+        echo '<section data-footnotes=""><ol><li id="user-content-fn-1">'                                                                         >> RELEASE_NOTE.md
+        echo '<p>requires <a href="https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" rel="nofollow">VC++ Runtime</a></p>' >> RELEASE_NOTE.md
+        echo '</li><li id="user-content-fn-2">'                                                                                                   >> RELEASE_NOTE.md
+        echo '<p>minimal build - no internet, controller or sound support</p>'                                                                    >> RELEASE_NOTE.md
+        echo '</li><li id="user-content-fn-3">'                                                                                                   >> RELEASE_NOTE.md
+        echo '<p>server build - no controller or sound support</p>'                                                                               >> RELEASE_NOTE.md
+        echo '</li></ol></section>'                                                                                                               >> RELEASE_NOTE.md
 
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
 
-    # uses: dev-drprasad/delete-tag-and-release@v0.2.0
+    # uses: pionere/delete-tag-and-release@v1
     - name: Delete tag and release
-      uses: pionere/delete-tag-and-release@v1
+      uses: dev-drprasad/delete-tag-and-release@v1.1
       with:
         delete_release: true
         tag_name: devilx-nightly
@@ -1035,35 +1664,50 @@ jobs:
       shell: bash
 
     - name: Release
-      uses: softprops/action-gh-release@v0.1.15
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
         draft: false
         prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
         files: |
           ${{github.workspace}}/diablo-nightly-android.apk
           ${{github.workspace}}/diablo-nightly-lepus.opk
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
           ${{github.workspace}}/diablo-nightly-ps4.pkg
+          ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
+          ${{github.workspace}}/diablo-nightly-vita.vpk
+          ${{github.workspace}}/diablo-nightly-3ds.3dsx
+          ${{github.workspace}}/diablo-nightly-3ds.cia
+          ${{github.workspace}}/diablo-nightly-switch.nro
+          ${{github.workspace}}/diablo-nightly-amiga
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
           ${{github.workspace}}/diablo-nightly-mingw-x86.zip
+          ${{github.workspace}}/diablo-nightly-mingw-w9x.zip
           ${{github.workspace}}/hellfire-nightly-android.apk
           ${{github.workspace}}/hellfire-nightly-lepus.opk
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
           ${{github.workspace}}/hellfire-nightly-ps4.pkg
+          ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
+          ${{github.workspace}}/hellfire-nightly-vita.vpk
+          ${{github.workspace}}/hellfire-nightly-3ds.3dsx
+          ${{github.workspace}}/hellfire-nightly-3ds.cia
+          ${{github.workspace}}/hellfire-nightly-switch.nro
+          ${{github.workspace}}/hellfire-nightly-amiga
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
+          ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
           ${{github.workspace}}/hellmini-nightly-x86.zip
           ${{github.workspace}}/hellsrv-nightly-x86.zip
           ${{github.workspace}}/diablo-nightly-androidp.apk
@@ -1071,15 +1715,27 @@ jobs:
           ${{github.workspace}}/diablo-nightly-retrofwp.opk
           ${{github.workspace}}/diablo-nightly-rg350p.opk
           ${{github.workspace}}/diablo-nightly-ps4p.pkg
+          ${{github.workspace}}/diablo-nightly-aarch64p.tar.xz
           ${{github.workspace}}/diablo-nightly-macp.dmg
           ${{github.workspace}}/diablo-nightly-iosp.ipa
+          ${{github.workspace}}/diablo-nightly-vitap.vpk
+          ${{github.workspace}}/diablo-nightly-3dsp.3dsx
+          ${{github.workspace}}/diablo-nightly-3dsp.cia
+          ${{github.workspace}}/diablo-nightly-switchp.nro
+          ${{github.workspace}}/diablo-nightly-amigap
           ${{github.workspace}}/hellfire-nightly-androidp.apk
           ${{github.workspace}}/hellfire-nightly-lepusp.opk
           ${{github.workspace}}/hellfire-nightly-retrofwp.opk
           ${{github.workspace}}/hellfire-nightly-rg350p.opk
           ${{github.workspace}}/hellfire-nightly-ps4p.pkg
+          ${{github.workspace}}/hellfire-nightly-aarch64p.tar.xz
           ${{github.workspace}}/hellfire-nightly-macp.dmg
           ${{github.workspace}}/hellfire-nightly-iosp.ipa
+          ${{github.workspace}}/hellfire-nightly-vitap.vpk
+          ${{github.workspace}}/hellfire-nightly-3dsp.3dsx
+          ${{github.workspace}}/hellfire-nightly-3dsp.cia
+          ${{github.workspace}}/hellfire-nightly-switchp.nro
+          ${{github.workspace}}/hellfire-nightly-amigap
         fail_on_unmatched_files: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #env:
+      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

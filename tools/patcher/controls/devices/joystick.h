@@ -6,12 +6,7 @@
 #include <vector>
 
 #include <SDL.h>
-
-#ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
-#endif
-
-#include "../defs.h"
 
 #include "../controller_buttons.h"
 

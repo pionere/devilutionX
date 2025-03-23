@@ -11,6 +11,10 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
 
+/** The pseudo random seeds to generate the levels. */
+int32_t glSeedTbl[NUM_LEVELS];
+/** Contains the informations to recreate the dynamic levels. */
+DynLevelStruct gDynLevels[NUM_DYNLVLS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -25,7 +29,7 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
+/** the masks of the visited levels */
 uint32_t guLvlVisited;
 int gnSfxDelay;
 int gnSfxNum;
@@ -88,26 +92,18 @@ void InitQuests()
 
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
 	quests[Q_DIABLO]._qvar1 = random_(0, 3);
-#if DEBUG_MODE
-	if (!allquests) {
-#endif
-		quests[random_(0, 2) != 0 ? Q_SKELKING : Q_PWATER]._qactive = QUEST_NOTAVAIL;
+	quests[random_(0, 2) != 0 ? Q_SKELKING : Q_PWATER]._qactive = QUEST_NOTAVAIL;
 #ifdef HELLFIRE
-		if (random_(0, 2) != 0)
-			quests[Q_GIRL]._qactive = QUEST_NOTAVAIL;
+	if (random_(0, 2) != 0)
+		quests[Q_GIRL]._qactive = QUEST_NOTAVAIL;
 #endif
 
-		quests[QuestGroup1[random_(0, lengthof(QuestGroup1))]]._qactive = QUEST_NOTAVAIL;
-		quests[QuestGroup2[random_(0, lengthof(QuestGroup2))]]._qactive = QUEST_NOTAVAIL;
-		quests[QuestGroup3[random_(0, lengthof(QuestGroup3))]]._qactive = QUEST_NOTAVAIL;
-		quests[random_(0, 2) != 0 ? Q_VEIL : Q_WARLORD]._qactive = QUEST_NOTAVAIL;
+	quests[QuestGroup1[random_(0, lengthof(QuestGroup1))]]._qactive = QUEST_NOTAVAIL;
+	quests[QuestGroup2[random_(0, lengthof(QuestGroup2))]]._qactive = QUEST_NOTAVAIL;
+	quests[QuestGroup3[random_(0, lengthof(QuestGroup3))]]._qactive = QUEST_NOTAVAIL;
+	quests[random_(0, 2) != 0 ? Q_VEIL : Q_WARLORD]._qactive = QUEST_NOTAVAIL;
 #ifdef HELLFIRE
-		quests[random_(0, 2) != 0 ? Q_FARMER : Q_JERSEY]._qactive = QUEST_NOTAVAIL;
-#endif
-#if DEBUG_MODE
-	}
-	if (questdebug != -1)
-		quests[questdebug]._qactive = QUEST_ACTIVE;
+	quests[random_(0, 2) != 0 ? Q_FARMER : Q_JERSEY]._qactive = QUEST_NOTAVAIL;
 #endif
 
 	if (quests[Q_PWATER]._qactive == QUEST_NOTAVAIL)
@@ -197,6 +193,10 @@ void CheckQuestKill(int mnum, bool sendmsg)
 		gnSfxDelay = 30;
 		gnSfxNum = TEXT_QM_BUTCHER;
 		qn = Q_BUTCHER;
+		break;
+	case UMT_DIABLO:
+		quests[Q_DIABLO]._qactive = QUEST_DONE;
+		qn = Q_DIABLO;
 		break;
 #ifdef HELLFIRE
 	case UMT_NAKRUL:
@@ -392,7 +392,7 @@ void QuestlogUp()
 		} else {
 			qline--;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
@@ -406,13 +406,13 @@ void QuestlogDown()
 		} else {
 			qline++;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
 void QuestlogEnter()
 {
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		StartQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	else

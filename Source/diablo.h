@@ -8,11 +8,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define ACTBTN_MASK(btn)     (1 << (btn))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern uint32_t glSeedTbl[NUM_LEVELS];
 // current mouse position
 extern POS32 MousePos;
 extern bool gbWasUiInit;
@@ -20,48 +21,30 @@ extern bool gbSndInited;
 extern bool gbRunGame;
 extern bool gbRunGameResult;
 extern bool gbZoomInFlag;
-extern bool gbLoadGame;
 extern bool gbCineflag;
 extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;
-extern bool gbGamePaused;
+extern Uint32 gnGamePaused;
 extern BYTE gbDeathflag;
-extern bool gbActionBtnDown;
-extern bool gbAltActionBtnDown;
+extern unsigned gbActionBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 extern int gnTimeoutCurs;
+extern bool gbShowTooltip;
 
 void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);
+void diablo_pause_game(bool pause);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-void ActionBtnCmd(bool bShift);
-void AltActionBtnCmd(bool bShift);
+void InputBtnDown(int transKey);
 #endif
-bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(UINT uMsg, WPARAM wParam);
+void GameWndProc(const Dvl_Event* event);
+void DisableInputWndProc(const Dvl_Event* event);
 void game_logic();
-
-/* rdata */
-
-extern bool gbShowTooltip;
-#if DEBUG_MODE
-extern int DebugMonsters[10];
-extern BOOL visiondebug;
-extern bool lightflag;
-extern BOOL leveldebug;
-extern BOOL monstdebug;
-extern int setseed;
-extern int debugmonsttypes;
-extern bool allquests;
-extern int questdebug;
-extern int debug_mode_key_w;
-extern int debug_mode_key_i;
-#endif
 
 #ifdef __cplusplus
 }

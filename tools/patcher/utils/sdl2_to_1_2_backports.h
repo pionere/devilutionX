@@ -10,6 +10,14 @@
 #include <cmath>
 #include <cstddef>
 
+// SDL1.dll was compiled assuming an strdup function available.
+// Some compilers might have removed it in the meantime -> provide SDL_strdup for backwards compatibility
+#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
+#ifndef SDL_strdup
+#define SDL_strdup _strdup
+#endif
+#endif
+
 #define WINDOW_ICON_NAME 0
 
 //== Utility
@@ -25,6 +33,8 @@
 #define SDLCALL
 #endif
 typedef int(SDLCALL* SDL_ThreadFunction)(void* data);
+
+#define SDL_TICKS_PASSED(A, B)  ((Sint32)((B) - (A)) <= 0)
 
 #define SDL_Keysym  SDL_keysym
 #define SDL_Keycode SDLKey
@@ -324,5 +334,10 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 char* SDL_GetBasePath();
 char* SDL_GetPrefPath(const char* org, const char* app);
+
+//== Audio
+
+// Audio flags are not supported in SDL1.
+#define SDL_AUDIO_ALLOW_SAMPLES_CHANGE 0
 
 #endif // USE_SDL1

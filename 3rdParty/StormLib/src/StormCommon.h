@@ -56,24 +56,31 @@
 
 // For HashStringJenkins
 #include "jenkins/lookup.h"
-#endif // FULL
 
 //-----------------------------------------------------------------------------
 // StormLib private defines
 
 #define ID_MPQ_FILE            0x46494c45     // Used internally for checking TMPQFile ('FILE')
-
+#endif // FULL
 // Prevent problems with CRT "min" and "max" functions,
 // as they are not defined on all platforms
 #define STORMLIB_MIN(a, b) ((a < b) ? a : b)
 #define STORMLIB_MAX(a, b) ((a > b) ? a : b)
 #define STORMLIB_UNUSED(p) ((void)(p))
+#ifdef FULL
+// Check for masked flags
+#define STORMLIB_TEST_FLAGS(dwFlags, dwMask, dwValue)  ((dwFlags & (dwMask)) == (dwValue))
 
 // Macro for building 64-bit file offset from two 32-bit
-#define MAKE_OFFSET64(hi, lo)      (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+#define MAKE_OFFSET64(hi, lo)       (((ULONGLONG)hi << 32) | (ULONGLONG)lo)
+
+// Macro for checking a valid, non-empty ASCIIZ string
+#ifndef IS_VALID_STRING
+#define IS_VALID_STRING(str)    (str && str[0])
+#endif
 
 //-----------------------------------------------------------------------------
-// MTYPE definition - specifies what kind of MPQ is the map type
+// MTYPE definition - specifies what kind of MPQ is the file
 
 typedef enum _MTYPE
 {
@@ -107,7 +114,7 @@ typedef struct _MPQ_SIGNATURE_INFO
     DWORD SignatureTypes;                       // See SIGNATURE_TYPE_XXX
 
 } MPQ_SIGNATURE_INFO, *PMPQ_SIGNATURE_INFO;
-
+#endif // FULL
 //-----------------------------------------------------------------------------
 // Memory management
 //
@@ -128,6 +135,7 @@ typedef struct _MPQ_SIGNATURE_INFO
 //
 //#else
 
+#define STORM_CALLOC(type, nitems)        (type *)calloc(nitems, sizeof(type))
 #define STORM_ALLOC(type, nitems)        (type *)malloc((nitems) * sizeof(type))
 #define STORM_REALLOC(type, ptr, nitems) (type *)realloc(ptr, ((nitems) * sizeof(type)))
 #define STORM_FREE(ptr)                  free(ptr)
@@ -217,30 +225,31 @@ void StringCopy(TCHAR * szTarget, size_t cchTarget, const TCHAR * szSource);
 
 DWORD HashString(const char * szFileName, unsigned dwHashType);
 DWORD HashStringSlash(const char * szFileName, unsigned dwHashType);
+#ifdef FULL
 DWORD HashStringLower(const char * szFileName, unsigned dwHashType);
-
+#endif
 void  InitializeMpqCryptography();
 
 DWORD GetNearestPowerOfTwo(DWORD dwFileCount);
-
-bool IsPseudoFileName(const char * szFileName, LPDWORD pdwFileIndex);
 #ifdef FULL
+bool IsPseudoFileName(const char * szFileName, LPDWORD pdwFileIndex);
 ULONGLONG HashStringJenkins(const char * szFileName);
 DWORD GetDefaultSpecialFileFlags(DWORD dwFileSize, USHORT wFormatVersion);
 #endif // FULL
 
 void  EncryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvDataBlock, DWORD dwLength, DWORD dwKey);
-
+#ifdef FULL
 DWORD DetectFileKeyBySectorSize(LPDWORD EncryptedData, DWORD dwSectorSize, DWORD dwSectorOffsLen);
 DWORD DetectFileKeyByContent(void * pvEncryptedData, DWORD dwSectorSize, DWORD dwFileSize);
 DWORD DecryptFileKey(const char * szFileName, ULONGLONG MpqPos, DWORD dwFileSize, DWORD dwFlags);
-
 bool IsValidMD5(LPBYTE pbMd5);
 bool IsValidSignature(LPBYTE pbSignature);
-#ifdef FULL
 bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5);
 void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
+#else
+DWORD DecryptFileKey(const char * szFileName);
+int    SCompExplode(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int cbInBuffer);
 #endif // FULL
 
 //-----------------------------------------------------------------------------
@@ -251,35 +260,37 @@ TMPQFile * IsValidFileHandle(HANDLE hFile);
 
 //-----------------------------------------------------------------------------
 // Support for MPQ file tables
-
+#ifdef FULL
 ULONGLONG FileOffsetFromMpqOffset(TMPQArchive * ha, ULONGLONG MpqOffset);
 ULONGLONG CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
-
 DWORD ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG MpqOffset, ULONGLONG FileSize, DWORD dwFlags, MTYPE MapType);
-
+#else
+FILESIZE_T FileOffsetFromMpqOffset(FILESIZE_T MpqOffset);
+FILESIZE_T CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
+void ConvertMpqHeaderToFormat4(TMPQArchive * ha);
+#endif
 #ifdef FULL
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
-#endif
+
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
+#endif
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
+#ifdef FULL
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
 TMPQHash * AllocateHashEntry(TMPQArchive * ha, TFileEntry * pFileEntry, LCID lcLocale);
 
-#ifdef FULL
 TMPQExtHeader * LoadExtTable(TMPQArchive * ha, ULONGLONG ByteOffset, size_t Size, DWORD dwSignature, DWORD dwKey);
 TMPQHetTable * LoadHetTable(TMPQArchive * ha);
 TMPQBetTable * LoadBetTable(TMPQArchive * ha);
-#endif
 
 TMPQBlock * LoadBlockTable(TMPQArchive * ha, bool bDontFixEntries = false);
-#ifdef FULL
 TMPQBlock * TranslateBlockTable(TMPQArchive * ha, ULONGLONG * pcbTableSize, bool * pbNeedHiBlockTable);
-#endif
 
 //ULONGLONG FindFreeMpqSpace(TMPQArchive * ha);
 
 // Functions that load the HET and BET tables
 DWORD  CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize);
+#endif
 DWORD  LoadAnyHashTable(TMPQArchive * ha);
 DWORD  BuildFileTable(TMPQArchive * ha);
 #ifdef FULL
@@ -295,18 +306,18 @@ void FreeHetTable(TMPQHetTable * pHetTable);
 
 TMPQBetTable * CreateBetTable(DWORD dwMaxFileCount);
 void FreeBetTable(TMPQBetTable * pBetTable);
-#endif // FULL
 
 // Functions for finding files in the file table
 TFileEntry * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
 TFileEntry * GetFileEntryLocale(TMPQArchive * ha, const char * szFileName, LCID lcLocale);
-#ifdef FULL
 TFileEntry * GetFileEntryExact(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
+#else
+TMPQBlock * GetFileEntryLocale2(TMPQArchive * ha, const char * szFileName);
 #endif
-
+#ifdef FULL
 // Allocates file name in the file entry
 void AllocateFileName(TMPQArchive * ha, TFileEntry * pFileEntry, const char * szFileName);
-
+#endif
 // Allocates new file entry in the MPQ tables. Reuses existing, if possible
 //TFileEntry * AllocateFileEntry(TMPQArchive * ha, const char * szFileName, LCID lcLocale, LPDWORD PtrHashIndex);
 //DWORD  RenameFileEntry(TMPQArchive * ha, TMPQFile * hf, const char * szNewFileName);
@@ -322,7 +333,7 @@ bool QueryMpqSignatureInfo(TMPQArchive * ha, PMPQ_SIGNATURE_INFO pSignatureInfo)
 
 //-----------------------------------------------------------------------------
 // Support for alternate file formats (SBaseSubTypes.cpp)
-
+#ifdef FULL
 DWORD ConvertSqpHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
 TMPQHash * LoadSqpHashTable(TMPQArchive * ha);
 TMPQBlock * LoadSqpBlockTable(TMPQArchive * ha);
@@ -331,9 +342,8 @@ DWORD ConvertMpkHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFl
 void DecryptMpkTable(void * pvMpkTable, size_t cbSize);
 TMPQHash * LoadMpkHashTable(TMPQArchive * ha);
 TMPQBlock * LoadMpkBlockTable(TMPQArchive * ha);
-#ifdef FULL
+
 int SCompDecompressMpk(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
-#endif // FULL
 
 //-----------------------------------------------------------------------------
 // Common functions - MPQ File
@@ -341,21 +351,29 @@ int SCompDecompressMpk(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer
 TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry);
 //TMPQFile * CreateWritableHandle(TMPQArchive * ha, DWORD dwFileSize);
 void * LoadMpqTable(TMPQArchive * ha, ULONGLONG ByteOffset, LPBYTE pbTableHash, DWORD dwCompressedSize, DWORD dwRealSize, DWORD dwKey, DWORD * PtrRealTableSize);
-DWORD  AllocateSectorBuffer(TMPQFile * hf);
-#ifdef FULL
-DWORD  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
+#else
+void * LoadMpqTable(TMPQArchive * ha, FILESIZE_T ByteOffset, DWORD dwRealSize, DWORD dwKey);
 #endif
+#ifdef FULL
+DWORD  AllocateSectorBuffer(TMPQFile * hf);
+DWORD  AllocatePatchInfo(TMPQFile * hf, bool bLoadFromFile);
 DWORD  AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile);
 DWORD  AllocateSectorChecksums(TMPQFile * hf, bool bLoadFromFile);
+#else
+LPDWORD  AllocateSectorOffsets(TMPQFile * hf);
+#endif
 //DWORD  WritePatchInfo(TMPQFile * hf);
 //DWORD  WriteSectorOffsets(TMPQFile * hf);
 //DWORD  WriteSectorChecksums(TMPQFile * hf);
 #ifdef FULL
 DWORD  WriteMemDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, void * pvRawData, DWORD dwRawDataSize, DWORD dwChunkSize, LPDWORD pcbTotalSize);
 //DWORD  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
-#endif // FULL
 void FreeFileHandle(TMPQFile *& hf);
 void FreeArchiveHandle(TMPQArchive *& ha);
+#else
+void FreeFileHandle(TMPQFile * hf);
+void FreeArchiveHandle(TMPQArchive * ha);
+#endif // FULL
 
 //-----------------------------------------------------------------------------
 // Patch functions
@@ -391,7 +409,11 @@ const XCHAR * GetPlainFileName(const XCHAR * szFileName)
 
     while(*szFileName != 0)
     {
+#ifdef FULL
         if(*szFileName == '\\' || *szFileName == '/')
+#else
+        if(*szFileName == '\\')
+#endif
             szPlainName = szFileName + 1;
         szFileName++;
     }

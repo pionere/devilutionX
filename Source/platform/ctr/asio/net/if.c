@@ -1,3 +1,4 @@
+#ifdef TCPIP
 #include <stddef.h>
 #include <errno.h>
 #include <net/if.h>
@@ -20,3 +21,4 @@ struct if_nameindex *if_nameindex()
 void if_freenameindex(struct if_nameindex *__ptr)
 {
 }
+#endif

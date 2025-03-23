@@ -10,6 +10,8 @@
 #endif
 #ifdef __vita__
 #include <psp2/power.h>
+#include "platform/vita/network.h"
+#include "platform/vita/random.hpp"
 #endif
 #ifdef RUN_TESTS
 #include <gtest/gtest.h>

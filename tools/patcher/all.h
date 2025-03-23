@@ -20,12 +20,8 @@
 
 #include <SDL.h>
 
-#ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
-#else
 #include "utils/sdl2_backports.h"
-#endif
-
 #include "utils/sdl_compat.h"
 #include "utils/log.h"
 
@@ -62,7 +58,6 @@
 #include "drlp_l3.h"
 #include "drlp_l4.h"
 //#include "dthread.h"
-#include "effects.h"
 #include "encrypt.h"
 #include "engine.h"
 //#include "error.h"
@@ -84,7 +79,6 @@
 //#include "monstdat.h"
 //#include "monster.h"
 //#include "movie.h"
-#include "mpqapi.h"
 //#include "msg.h"
 //#include "multi.h"
 //#include "nthread.h"
@@ -101,6 +95,7 @@
 //#include "questdat.h"
 //#include "quests.h"
 #include "scrollrt.h"
+#include "sfx.h"
 //#include "sha.h"
 //#include "spelldat.h"
 //#include "spells.h"

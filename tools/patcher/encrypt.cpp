@@ -75,42 +75,15 @@ void InitHash()
 	}
 }*/
 
-static unsigned int PkwareBufferRead(char* buf, unsigned int* size, void* param)
-{
-	TDataInfo* pInfo;
-	size_t sSize;
-
-	pInfo = (TDataInfo*)param;
-
-	sSize = pInfo->size - pInfo->srcOffset;
-	if (*size < sSize)
-		sSize = *size;
-
-	memcpy(buf, pInfo->srcData + pInfo->srcOffset, sSize);
-	pInfo->srcOffset += sSize;
-
-	return sSize;
-}
-
-static void PkwareBufferWrite(char* buf, unsigned int* size, void* param)
-{
-	TDataInfo* pInfo;
-	size_t sSize;
-
-	pInfo = (TDataInfo*)param;
-
-	sSize = *size;
-	memcpy(pInfo->destData + pInfo->destOffset, buf, sSize);
-	pInfo->destOffset += sSize;
-}
-
 DWORD PkwareCompress(BYTE* srcData, DWORD size)
 {
 	BYTE* destData;
-	char* ptr;
-	unsigned int destSize, type, dsize;
+	char* work_buf;
+	unsigned int destSize; // , type, dsize;
 
-	ptr = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	work_buf = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	// zfill the work-buffer to make the result consistent (see Warning in WriteCmpData(TCmpStruct * pWork) / (implode.cpp)
+	memset(work_buf, 0, CMP_BUFFER_SIZE);
 
 	destSize = 2 * size;
 	if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
@@ -118,39 +91,40 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 
 	destData = DiabloAllocPtr(destSize);
 
-	TDataInfo info = TDataInfo(srcData, destData, size);
+	TDataInfo info = TDataInfo(srcData, size, destData, destSize);
 
-	type = CMP_BINARY;
-	dsize = CMP_IMPLODE_DICT_SIZE3;
-	implode(PkwareBufferRead, PkwareBufferWrite, ptr, &info, type, dsize);
-
-	// size = info.size;
-	if (info.destOffset < size) {
-		size = info.destOffset;
-		memcpy(info.srcData, info.destData, size);
+	// type = CMP_BINARY;
+	// dsize = CMP_IMPLODE_DICT_SIZE3;
+	implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+	// ignore the result if the compression was unsuccessful
+	destSize = (size_t)info.pbOutBuff - (size_t)destData;
+	if (destSize < size) {
+		memcpy(srcData, destData, size);
+		size = destSize;
 	}
-	mem_free_dbg(ptr);
-	mem_free_dbg(info.destData);
+	mem_free_dbg(work_buf);
+	mem_free_dbg(destData);
 
 	return size;
 }
 
-void PkwareDecompress(BYTE* srcData, unsigned recv_size, unsigned dwMaxBytes)
+void PkwareDecompress(BYTE* srcData, unsigned size, unsigned dwMaxBytes)
 {
 	BYTE* destData;
-	char* ptr;
+	char* work_buf;
 
-	ptr = (char*)DiabloAllocPtr(EXP_BUFFER_SIZE);
+	work_buf = (char*)DiabloAllocPtr(EXP_BUFFER_SIZE);
 	destData = DiabloAllocPtr(dwMaxBytes);
 
-	TDataInfo info = TDataInfo(srcData, destData, recv_size);
+	TDataInfo info = TDataInfo(srcData, size, destData, dwMaxBytes);
 
-	explode(PkwareBufferRead, PkwareBufferWrite, ptr, &info);
-	//if (info.destOffset > info.size) {
-		memcpy(info.srcData, info.destData, info.destOffset);
-	//}
-	mem_free_dbg(ptr);
-	mem_free_dbg(info.destData);
+	explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+
+	size = (size_t)info.pbOutBuff - (size_t)destData;
+	memcpy(srcData, destData, size);
+
+	mem_free_dbg(work_buf);
+	mem_free_dbg(destData);
 }
 
 DEVILUTION_END_NAMESPACE

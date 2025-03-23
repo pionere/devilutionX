@@ -25,9 +25,8 @@ void plrctrls_after_game_logic();
 // Runs every frame.
 // Handles menu movement.
 void plrctrls_every_frame();
-
-// defined in controller_motion.cpp
-bool IsMovingMouseCursorWithController();
+// return whether the ingame-cursor should be drawn
+bool plrctrls_draw_cursor();
 
 void FocusOnInventory();
 
@@ -39,10 +38,7 @@ void finish_simulated_mouse_clicks();
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
 
-void UseBeltItem(int type);
-
-// Talk to towners, click on inv items, attack, etc.
-void PerformPrimaryAction();
+void UseBeltItem(bool manaItem);
 
 // Open chests, doors, pickup items.
 void PerformSecondaryAction();

@@ -255,6 +255,34 @@
 #endif
 
 //-----------------------------------------------------------------------------
+// Defines for Wii U platform
+
+#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(__WIIU__)
+
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  #include <unistd.h>
+  #include <stdint.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <stdarg.h>
+  #include <string.h>
+  #include <strings.h>
+  #include <ctype.h>
+  #include <assert.h>
+  #include <errno.h>
+  #include <malloc.h>
+
+  #undef STORMLIB_LITTLE_ENDIAN                     // Wii U is always big endian
+
+  #define STORMLIB_MAC                              // Use Mac compatible code
+  #define STORMLIB_WIIU
+  #define STORMLIB_PLATFORM_DEFINED
+
+#endif
+
+//-----------------------------------------------------------------------------
 // Assumption: If the platform is not defined, assume a Linux-like platform
 
 #if !defined(STORMLIB_PLATFORM_DEFINED)
@@ -398,48 +426,34 @@
 
 #ifdef STORMLIB_LITTLE_ENDIAN
     #define    BSWAP_INT16_UNSIGNED(a)          (a)
-    #define    BSWAP_INT16_SIGNED(a)            (a)
     #define    BSWAP_INT32_UNSIGNED(a)          (a)
-    #define    BSWAP_INT32_SIGNED(a)            (a)
-    #define    BSWAP_INT64_SIGNED(a)            (a)
     #define    BSWAP_INT64_UNSIGNED(a)          (a)
     #define    BSWAP_ARRAY16_UNSIGNED(a,b)      {}
     #define    BSWAP_ARRAY32_UNSIGNED(a,b)      {}
-    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      {}
-    #define    BSWAP_PART_HEADER(a)             {}
+//    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      {}
     #define    BSWAP_TMPQHEADER(a,b)            {}
-    #define    BSWAP_TMPKHEADER(a)              {}
 #else
 
 #ifdef __cplusplus
   extern "C" {
 #endif
-    int16_t  SwapInt16(uint16_t);
     uint16_t SwapUInt16(uint16_t);
-    int32_t  SwapInt32(uint32_t);
     uint32_t SwapUInt32(uint32_t);
-    int64_t  SwapInt64(uint64_t);
     uint64_t SwapUInt64(uint64_t);
     void ConvertUInt16Buffer(void * ptr, size_t length);
     void ConvertUInt32Buffer(void * ptr, size_t length);
-    void ConvertUInt64Buffer(void * ptr, size_t length);
-    void ConvertTMPQUserData(void *userData);
+//    void ConvertUInt64Buffer(void * ptr, size_t length);
     void ConvertTMPQHeader(void *header, uint16_t wPart);
-    void ConvertTMPKHeader(void *header);
 #ifdef __cplusplus
   }
 #endif
-    #define    BSWAP_INT16_SIGNED(a)            SwapInt16((a))
     #define    BSWAP_INT16_UNSIGNED(a)          SwapUInt16((a))
-    #define    BSWAP_INT32_SIGNED(a)            SwapInt32((a))
     #define    BSWAP_INT32_UNSIGNED(a)          SwapUInt32((a))
-    #define    BSWAP_INT64_SIGNED(a)            SwapInt64((a))
     #define    BSWAP_INT64_UNSIGNED(a)          SwapUInt64((a))
     #define    BSWAP_ARRAY16_UNSIGNED(a,b)      ConvertUInt16Buffer((a),(b))
     #define    BSWAP_ARRAY32_UNSIGNED(a,b)      ConvertUInt32Buffer((a),(b))
-    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      ConvertUInt64Buffer((a),(b))
+//    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      ConvertUInt64Buffer((a),(b))
     #define    BSWAP_TMPQHEADER(a,b)            ConvertTMPQHeader((a),(b))
-    #define    BSWAP_TMPKHEADER(a)              ConvertTMPKHeader((a))
 #endif
 
 #endif // __STORMPORT_H__

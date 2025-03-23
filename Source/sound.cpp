@@ -4,11 +4,11 @@
  * Implementation of functions setting up the audio pipeline.
  */
 #include "all.h"
-#include <SDL.h>
 #ifndef NOSOUND
 #include <SDL_mixer.h>
 #include "utils/soundsample.h"
 #endif
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -71,9 +71,9 @@ void sound_play(SoundSample* pSnd, int lVolume, int lPan)
 		return;
 	assert(lVolume <= VOLUME_MAX);
 	currTc = SDL_GetTicks();
-	if (currTc < pSnd->nextTc)
+	if (/*pSnd->lastTc != 0 && */!SDL_TICKS_AFTER(currTc, pSnd->lastTc, 80))
 		return;
-	pSnd->nextTc = currTc + 80;
+	pSnd->lastTc = currTc;
 	pSnd->Play(lVolume, lPan, -1);
 }
 
@@ -120,14 +120,14 @@ void sound_file_load(const char* path, SoundSample* pSnd)
 
 	wave_file = LoadFileInMem(path, &dwBytes);
 
-	pSnd->nextTc = 0;
+	pSnd->lastTc = 0;
 	pSnd->SetChunk(wave_file, dwBytes, false);
 	mem_free_dbg(wave_file);
 }
 
 void RestartMixer()
 {
-	if (Mix_OpenAudio(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024) < 0) {
+	if (Mix_OpenAudioDevice(SND_DEFAULT_FREQUENCY, SND_DEFAULT_FORMAT, SND_DEFAULT_CHANNELS, 1024, NULL, SDL_AUDIO_ALLOW_SAMPLES_CHANGE) < 0) {
 		DoLog(Mix_GetError());
 	}
 	Mix_VolumeMusic(MIX_VOLUME(gnMusicVolume));

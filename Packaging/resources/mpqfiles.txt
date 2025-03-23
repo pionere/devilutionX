@@ -3,8 +3,10 @@ CtrlPan\Menu.CEL
 CtrlPan\SmalText.CEL
 Data\BigTGold.CEL
 Data\Char.CEL
+Data\CharBut.CEL
 Data\Inv\Belt.CEL
 Data\Inv\Inv.CEL
+Data\MapIcon.CEL
 Data\MedTextS.CEL
 Data\SpellBk.CEL
 Data\Quest.CEL

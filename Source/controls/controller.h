@@ -31,8 +31,6 @@ ControllerButtonEvent ToControllerButtonEvent(const SDL_Event& event);
 
 bool IsControllerButtonPressed(ControllerButton button);
 
-bool HandleControllerAddedOrRemovedEvent(const SDL_Event& event);
-
 #ifdef __cplusplus
 }
 #endif

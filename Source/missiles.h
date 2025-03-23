@@ -17,12 +17,13 @@ extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 
 void GetDamageAmt(int sn, int sl, int* mind, int* maxd);
-unsigned CalcMonsterDam(uint16_t mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
+unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);
 int CheckPlrCol(int _pnum_);
-void AddElementalExplosion(int dx, int dy, int fdam, int ldam, int mdam, int hdam);
+int AddElementalExplosion(int fdam, int ldam, int mdam, int hdam, bool isMonster, int mpnum);
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl);
+void RemovePortalMissile(int pnum);
 void LoadMissileGFX(BYTE midx);
 void InitGameMissileGFX();
 void FreeGameMissileGFX();

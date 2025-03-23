@@ -3,8 +3,10 @@ set(ASAN OFF)
 set(UBSAN OFF)
 
 # General build options.
-set(NONET ON)
+set(NOMEMCCPY ON)
 set(USE_SDL1 ON)
+set(NONET ON)
+#set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 
 #set(TTF_FONT_NAME \"LiberationSerif-Bold.ttf\")
 # Enable exception support as they are used in dvlnet code

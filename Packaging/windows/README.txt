@@ -3,7 +3,7 @@ DevilutionX is a source port of Diablo and Hellfire that strives to make it simp
 
 ## Installation
 
-1. Extract the files in the zip
+1. Extract the files in the zip.
 2. Copy DIABDAT.MPQ from the CD or GOG-installation (or extract it from the GoG installer) to the DevilutionX folder.
  - To run the Diablo: Hellfire expansion you will need to also copy hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
 
@@ -22,7 +22,6 @@ C:\Users\[username]\AppData\Roaming\diasurgical\devilx
  - See list of contributors https://github.com/pionere/devilutionX/graphs/contributors
 
 ## Resources
-
 Discord: https://discord.gg/YQKCAYQ
 GitHub: https://github.com/pionere/devilutionX
 

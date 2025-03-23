@@ -4,14 +4,17 @@
  * Implementation of the in-game menu functions.
  */
 #include "all.h"
+#include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 // Forward-declare menu handlers, used by the global menu structs below.
 static void gamemenu_previous(bool bActivate);
 static void gamemenu_new_game(bool bActivate);
+#if !defined(__ANDROID__)
 static void gamemenu_exit_game(bool bActivate);
-static void gamemenu_load_game(bool bActivate);
+#endif
+//static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
 //void gamemenu_settings(bool bActivate);
@@ -24,11 +27,13 @@ static void gamemenu_speed(bool bActivate);
 static TMenuItem sgSingleMenu[] = {
 	// clang-format off
 	// pszStr,     fnMenu,              dwFlags, wMenuParam*
-	{ "Save Game", &gamemenu_save_game, GMF_ENABLED, 0, 0 },
 	{ "Settings",  &gamemenu_settings,  GMF_ENABLED, 0, 0 },
 	{ "New Game",  &gamemenu_new_game,  GMF_ENABLED, 0, 0 },
-	{ "Load Game", &gamemenu_load_game, GMF_ENABLED, 0, 0 },
+	// { "Load Game", &gamemenu_load_game, GMF_ENABLED, 0, 0 },
+	{ "Save Game", &gamemenu_save_game, GMF_ENABLED, 0, 0 },
+#if !defined(__ANDROID__)
 	{ "Exit Game", &gamemenu_exit_game, GMF_ENABLED, 0, 0 },
+#endif
 	// clang-format on
 };
 /** Contains the game menu items of the multi player menu. */
@@ -38,7 +43,9 @@ static TMenuItem sgMultiMenu[] = {
 	{ "Settings",        &gamemenu_settings,     GMF_ENABLED, 0, 0 },
 	{ "New Game",        &gamemenu_new_game,     GMF_ENABLED, 0, 0 },
 	{ "Restart In Town", &gamemenu_restart_town, GMF_ENABLED, 0, 0 },
+#if !defined(__ANDROID__)
 	{ "Exit Game",       &gamemenu_exit_game,    GMF_ENABLED, 0, 0 },
+#endif
 	// clang-format on
 };
 /** Contains the menu items of the settings menu. */
@@ -62,11 +69,10 @@ static void gamemenu_update_single()
 {
 	bool enable;
 
-	gmenu_enable(&sgSingleMenu[3], gbValidSaveFile);
 	// disable saving in case the player died, the player is changing the level, or diablo is dying
 	enable = /*pcursicon == CURSOR_HAND &&*/ gbDeathflag == MDM_ALIVE && !myplr._pLvlChanging;
 	// TODO: disable saving if there is a live turn in transit? (SNetGetLiveTurnsInTransit)
-	gmenu_enable(&sgSingleMenu[0], enable);
+	gmenu_enable(&sgSingleMenu[2], enable);
 }
 
 static void gamemenu_update_multi()
@@ -106,49 +112,51 @@ static void gamemenu_new_game(bool bActivate)
 	gamemenu_off();
 	NetSendCmd(CMD_DISCONNECT);
 }
-
+#if !defined(__ANDROID__)
 static void gamemenu_exit_game(bool bActivate)
 {
 	gamemenu_new_game(bActivate);
 	gbRunGameResult = false;
 }
-
-static void gamemenu_load_game(bool bActivate)
+#endif
+/*static void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();
 	NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_LOADING);
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	gbDeathflag = MDM_ALIVE;
 	// gbZoomInFlag = false;
+	FreeLevelMem();
 	LoadGame();
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	InitLevelCursor();
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	gbRedrawFlags = REDRAW_RECALC_FLASKS; // | REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	LoadPWaterPalette();
 	PaletteFadeIn(false);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
-}
+}*/
 
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
+	assert(saveProc == GameWndProc);
 	gamemenu_off();
 	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	SaveGame();
 	ClrDiabloMsg();
 	// InitLevelCursor();
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	interface_msg_pump();
-	SetWindowProc(saveProc);
+	SetWindowProc(GameWndProc); // saveProc);
 }
 
 static void gamemenu_restart_town(bool bActivate)
@@ -186,7 +194,7 @@ static void gamemenu_get_sound()
 static void gamemenu_get_gamma()
 {
 	gmenu_slider_steps(&sgSettingsMenu[2], 14 /*(100 - 30) / 5*/);
-	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, GetGamma());
+	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, 130 - GetGamma());
 }
 
 static void gamemenu_get_speed()
@@ -247,10 +255,10 @@ static void gamemenu_music_volume(bool bActivate)
 	} else {
 		// assert(gbMusicOn);
 		if (!musicOn)
-			music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+			music_start(AllLevels[currLvl._dLevelNum].dMusic);
 	}
 	gamemenu_get_music();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -277,7 +285,7 @@ static void gamemenu_sound_volume(bool bActivate)
 		; // assert(gbSoundOn);
 	}
 	gamemenu_get_sound();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -287,32 +295,35 @@ static void gamemenu_gamma(bool bActivate)
 
 	if (bActivate) {
 		gamma = GetGamma();
-		if (gamma == 30)
-			gamma = 100;
-		else
+		if (gamma == 100)
 			gamma = 30;
+		else
+			gamma = 100;
 	} else {
-		gamma = gmenu_slider_get(&sgSettingsMenu[2], 30, 100);
+		gamma = gmenu_slider_get(&sgSettingsMenu[2], 100, 30);
 	}
-	UpdateGamma(gamma);
+	SetGamma(gamma);
 	gamemenu_get_gamma();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 static void gamemenu_speed(bool bActivate)
 {
+	int speed;
+
 	if (bActivate) {
 		if (gnTicksRate == SPEED_NORMAL)
-			gnTicksRate = SPEED_FASTEST;
+			speed = SPEED_FASTEST;
 		else
-			gnTicksRate = SPEED_NORMAL;
+			speed = SPEED_NORMAL;
 	} else {
-		gnTicksRate = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
+		speed = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
 	}
-	setIniInt("Diablo", "Game Speed", gnTicksRate);
-	gnTickDelay = 1000 / gnTicksRate;
+	gnTicksRate = speed;
+	gnTickDelay = 1000 / speed;
+	setIniInt("Diablo", "Game Speed", speed);
 	gamemenu_get_speed();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 DEVILUTION_END_NAMESPACE

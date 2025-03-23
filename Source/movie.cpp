@@ -4,19 +4,11 @@
  * Implementation of video playback.
  */
 #include "all.h"
+#include "plrctrls.h"
 #include "storm/storm_svid.h"
 #include "utils/display.h"
 
 DEVILUTION_BEGIN_NAMESPACE
-
-/** Should the movie continue playing. */
-bool gbMoviePlaying = false;
-
-static void GetMousePos(WPARAM wParam)
-{
-	MousePos.x = (int16_t)(wParam & 0xFFFF);
-	MousePos.y = (int16_t)((wParam >> 16) & 0xFFFF);
-}
 
 /**
  * @brief Start playback of a given video.
@@ -29,25 +21,27 @@ int play_movie(const char* pszMovie, int movieFlags)
 	int result = MPR_DONE;
 	HANDLE video_stream;
 
-	gbMoviePlaying = true;
-
 	sound_disable_music();
 	StopSFX();
 
 	//video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	video_stream = SVidPlayBegin(pszMovie, movieFlags);
-	MSG Msg;
+	Dvl_Event e;
 	while (video_stream != NULL) {
-		while (PeekMessage(&Msg)) {
-			switch (Msg.message) {
-			case DVL_WM_MOUSEMOVE:
-				GetMousePos(Msg.wParam);
-				continue;
+		while (PeekMessage(e)) {
+			switch (e.type) {
 			case DVL_WM_KEYDOWN:
-				if (Msg.wParam == DVL_VK_ESCAPE) {
+				if (e.vkcode == DVL_VK_ESCAPE) {
 					result = MPR_CANCEL;
 					break;
 				}
+#if !FULLSCREEN_ONLY
+				if (SDL_GetModState() & KMOD_ALT) {
+					if (e.vkcode == DVL_VK_RETURN)
+						ToggleFullscreen();
+					continue;
+				}
+#endif
 			case DVL_WM_LBUTTONDOWN:
 			case DVL_WM_RBUTTONDOWN:
 				if (movieFlags & MOV_SKIP) {
@@ -65,18 +59,18 @@ int play_movie(const char* pszMovie, int movieFlags)
 			default:
 				continue;
 			}
-			gbMoviePlaying = false;
 			break;
 		}
-		if (!SVidPlayContinue() || !gbMoviePlaying) {
+#if HAS_TOUCHPAD
+		finish_simulated_mouse_clicks();
+#endif
+		if (!SVidPlayContinue() || result != MPR_DONE) {
 			SVidPlayEnd();
 			break;
 		}
 	}
 
 	sound_restart_music();
-
-	gbMoviePlaying = false;
 
 	return result;
 }

@@ -13,31 +13,20 @@ extern "C" {
 #endif
 
 extern unsigned mySaveIdx;
-extern bool gbValidSaveFile;
+extern uint32_t guLastSaveTurn;
 
-void pfile_write_hero(bool bFree);
-void pfile_read_hero_from_save();
+void pfile_read_hero();
 //bool pfile_rename_hero(const char* name_1, const char* name_2);
-void pfile_flush(bool bFree);
-void pfile_ui_set_hero_infos(void (*ui_add_hero_info)(_uiheroinfo*));
-//void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats *class_stats);
-int pfile_ui_create_save(_uiheroinfo* heroinfo);
-void pfile_ui_delete_save(_uiheroinfo* hero_info);
-//bool pfile_get_file_name(unsigned lvl, char (&dst)[DATA_ARCHIVE_MAX_PATH]);
-void pfile_rename_temp_to_perm();
 /*
  * Write save file (game or level) from gsDeltaData.ddBuffer
  */
 void pfile_write_save_file(bool full, DWORD dwLen);
 /*
- * Delete save file (game or temp-levels)
- */
-void pfile_delete_save_file(bool full);
-/*
  * Read save file (game or level) into gsDeltaData.ddBuffer
  */
 void pfile_read_save_file(bool full);
 void pfile_update(bool force_save);
+void pfile_close();
 
 #ifdef __cplusplus
 }

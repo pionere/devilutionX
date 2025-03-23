@@ -1,7 +1,9 @@
+#include "platform/switch/network.h"
+
+#ifndef NONET
 #include <cstdlib>
 #include <unistd.h>
 #include <switch.h>
-#include "platform/switch/network.h"
 
 static int nxlink_sock = -1; // for stdio on Switch
 
@@ -21,3 +23,11 @@ void switch_disable_network()
 		close(nxlink_sock);
 	socketExit();
 }
+#else
+void switch_enable_network()
+{
+}
+void switch_disable_network()
+{
+}
+#endif

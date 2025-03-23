@@ -2,20 +2,11 @@
 #ifdef ZEROTIER
 #include <random>
 
-#include <SDL.h>
-
-#ifdef USE_SDL1
-#include "utils/sdl2_to_1_2_backports.h"
-#else
-#include "utils/sdl2_backports.h"
-#endif
-
-#include <lwip/igmp.h>
-#include <lwip/mld6.h>
 #include <lwip/sockets.h>
-#include <lwip/tcpip.h>
 
+#include "dvlnet/zerotier_lwip.h"
 #include "dvlnet/zerotier_native.h"
+#include "dvlnet/zt_client.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 namespace net {
@@ -28,9 +19,10 @@ protocol_zt::protocol_zt()
 void protocol_zt::set_nonblock(int fd)
 {
 	static_assert(O_NONBLOCK == 1, "O_NONBLOCK == 1 not satisfied");
-	auto mode = lwip_fcntl(fd, F_GETFL, 0);
-	mode |= O_NONBLOCK;
-	lwip_fcntl(fd, F_SETFL, mode);
+	// auto mode = lwip_fcntl(fd, F_GETFL, 0);
+	// mode |= O_NONBLOCK;
+	// lwip_fcntl(fd, F_SETFL, mode);
+	lwip_fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
 void protocol_zt::set_nodelay(int fd)
@@ -59,36 +51,35 @@ bool protocol_zt::network_online()
 	if (fd_udp == -1) {
 		fd_udp = lwip_socket(AF_INET6, SOCK_DGRAM, 0);
 		set_reuseaddr(fd_udp);
+		set_nonblock(fd_udp);
 		auto ret = lwip_bind(fd_udp, (struct sockaddr*)&in6, sizeof(in6));
 		if (ret < 0) {
-			DoLog("lwip, (udp) bind: %s\n", strerror(errno));
-			throw protocol_exception();
+			DoLog("lwip, (udp) bind: %s", strerror(errno));
+			return false;
 		}
-		set_nonblock(fd_udp);
 	}
 	if (fd_tcp == -1) {
 		fd_tcp = lwip_socket(AF_INET6, SOCK_STREAM, 0);
 		set_reuseaddr(fd_tcp);
-		auto r1 = lwip_bind(fd_tcp, (struct sockaddr*)&in6, sizeof(in6));
-		if (r1 < 0) {
-			DoLog("lwip, (tcp) bind: %s\n", strerror(errno));
-			throw protocol_exception();
-		}
-		auto r2 = lwip_listen(fd_tcp, 10);
-		if (r2 < 0) {
-			DoLog("lwip, listen: %s\n", strerror(errno));
-			throw protocol_exception();
-		}
 		set_nonblock(fd_tcp);
 		set_nodelay(fd_tcp);
+		auto r1 = lwip_bind(fd_tcp, (struct sockaddr*)&in6, sizeof(in6));
+		if (r1 < 0) {
+			DoLog("lwip, (tcp) bind: %s", strerror(errno));
+			return false;
+		}
+		auto r2 = lwip_listen(fd_tcp, 2 * MAX_PLRS);
+		if (r2 < 0) {
+			DoLog("lwip, listen: %s", strerror(errno));
+			return false;
+		}
 	}
 	return true;
 }
 
-bool protocol_zt::send(const endpoint& peer, const buffer_t& data)
+void protocol_zt::send(int pnum, const buffer_t& data)
 {
-	peer_list[peer].send_queue.push_back(frame_queue::make_frame(data));
-	return true;
+	active_connections[pnum].send_frame_queue.push_back(frame_queue::make_frame(data));
 }
 
 bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
@@ -97,7 +88,7 @@ bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 	};
 	in6.sin6_port = htons(DEFAULT_PORT);
 	in6.sin6_family = AF_INET6;
-	std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
+	peer.to_addr(in6.sin6_addr.un.u8_addr);
 	lwip_sendto(fd_udp, data.data(), data.size(), 0, (const struct sockaddr*)&in6, sizeof(in6));
 	return true;
 }
@@ -105,99 +96,83 @@ bool protocol_zt::send_oob(const endpoint& peer, const buffer_t& data) const
 bool protocol_zt::send_oob_mc(const buffer_t& data) const
 {
 	endpoint mc;
-	std::copy(dvl_multicast_addr, dvl_multicast_addr + 16, mc.addr.begin());
+	mc.from_addr(dvl_multicast_addr);
 	return send_oob(mc, data);
 }
 
-bool protocol_zt::send_queued_peer(const endpoint& peer)
+void protocol_zt::send_queued_peer(peer_connection& pc)
 {
-	if (peer_list[peer].fd == -1) {
-		peer_list[peer].fd = lwip_socket(AF_INET6, SOCK_STREAM, 0);
-		set_nodelay(peer_list[peer].fd);
-		set_nonblock(peer_list[peer].fd);
-		struct sockaddr_in6 in6 {
-		};
-		in6.sin6_port = htons(DEFAULT_PORT);
-		in6.sin6_family = AF_INET6;
-		std::copy(peer.addr.begin(), peer.addr.end(), in6.sin6_addr.s6_addr);
-		lwip_connect(peer_list[peer].fd, (const struct sockaddr*)&in6, sizeof(in6));
-	}
-	while (!peer_list[peer].send_queue.empty()) {
-		buffer_t* frame = peer_list[peer].send_queue.front();
+	while (!pc.send_frame_queue.empty()) {
+		buffer_t* frame = pc.send_frame_queue.front();
 		size_t len = frame->size();
-		auto r = lwip_send(peer_list[peer].fd, frame->data(), len, 0);
+		auto r = lwip_send(pc.sock, frame->data(), len, 0);
 		if (r < 0) {
-			// handle error
-			return false;
+			break; // handle error?
 		}
 		if (decltype(len)(r) < len) {
 			// partial send
 			auto it = frame->begin();
 			frame->erase(it, it + r);
-			return true;
+			break;
 		}
-		if (decltype(len)(r) == len) {
-			delete frame;
-			peer_list[peer].send_queue.pop_front();
-		} else {
-			throw protocol_exception();
-		}
+		// assert(decltype(len)(r) == len);
+		delete frame;
+		pc.send_frame_queue.pop_front();
 	}
-	return true;
 }
 
-bool protocol_zt::recv_peer(const endpoint& peer)
+void protocol_zt::recv_peer(peer_connection& pc)
 {
-	BYTE buf[PKTBUF_LEN];
 	while (true) {
-		auto len = lwip_recv(peer_list[peer].fd, buf, sizeof(buf), 0);
+		auto len = lwip_recv(pc.sock, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0);
 		if (len >= 0) {
-			peer_list[peer].recv_queue.write(buffer_t(buf, buf + len));
+			pc.recv_queue.write(recv_buffer, len);
 		} else {
-			return errno == EAGAIN || errno == EWOULDBLOCK;
+			break; // handle error? errno == EAGAIN || errno == EWOULDBLOCK || errno == ENOTCONN;
 		}
 	}
 }
 
-bool protocol_zt::send_queued_all()
+void protocol_zt::send_queued_all()
 {
-	for (auto& peer : peer_list) {
-		if (!send_queued_peer(peer.first)) {
-			// handle error?
+	for (peer_connection& ap : active_connections) {
+		if (ap.sock != -1) {
+			send_queued_peer(ap);
 		}
 	}
-	return true;
 }
 
-bool protocol_zt::recv_from_peers()
+void protocol_zt::recv_from_peers(zt_client* client)
 {
-	for (auto& peer : peer_list) {
-		if (peer.second.fd != -1) {
-			if (!recv_peer(peer.first)) {
-				disconnect_queue.push_back(peer.first);
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		peer_connection& ap = active_connections[pnum];
+		if (ap.sock != -1) {
+			recv_peer(ap);
+			while (ap.recv_queue.packet_ready()) {
+				buffer_t pkt_buf = ap.recv_queue.read_packet();
+				client->handle_recv(pkt_buf, pnum);
 			}
 		}
 	}
-	return true;
 }
 
-bool protocol_zt::recv_from_udp()
+void protocol_zt::recv_from_udp(zt_client* client)
 {
-	BYTE buf[PKTBUF_LEN];
 	struct sockaddr_in6 in6 {
 	};
 	socklen_t addrlen = sizeof(in6);
-	auto len = lwip_recvfrom(fd_udp, buf, sizeof(buf), 0, (struct sockaddr*)&in6, &addrlen);
-	if (len < 0)
-		return false;
-	buffer_t data(buf, buf + len);
-	endpoint ep;
-	std::copy(in6.sin6_addr.s6_addr, in6.sin6_addr.s6_addr + 16, ep.addr.begin());
-	oob_recv_queue.emplace_back(ep, std::move(data));
-	return true;
+	while (true) {
+		auto len = lwip_recvfrom(fd_udp, recv_buffer.data(), frame_queue::MAX_FRAME_SIZE, 0, (struct sockaddr*)&in6, &addrlen);
+		if (len < 0)
+			break;
+		endpoint ep;
+		ep.from_addr(in6.sin6_addr.un.u8_addr);
+		buffer_t pkt_buf = buffer_t(recv_buffer.begin(), recv_buffer.begin() + len);
+		client->handle_recv_oob(pkt_buf, ep);
+	}
 }
 
-bool protocol_zt::accept_all()
+void protocol_zt::accept_all()
 {
 	struct sockaddr_in6 in6 {
 	};
@@ -206,66 +181,118 @@ bool protocol_zt::accept_all()
 		auto newfd = lwip_accept(fd_tcp, (struct sockaddr*)&in6, &addrlen);
 		if (newfd < 0)
 			break;
-		endpoint ep;
-		std::copy(in6.sin6_addr.s6_addr, in6.sin6_addr.s6_addr + 16, ep.addr.begin());
-		if (peer_list[ep].fd != -1) {
-			DoLog("protocol_zt::accept_all: WARNING: overwriting connection\n");
-			lwip_close(peer_list[ep].fd);
-		}
 		set_nonblock(newfd);
 		set_nodelay(newfd);
-		peer_list[ep].fd = newfd;
-	}
-	return true;
-}
 
-bool protocol_zt::recv(endpoint& peer, buffer_t& data)
-{
-	accept_all();
-	send_queued_all();
-	recv_from_peers();
-	recv_from_udp();
-
-	if (!oob_recv_queue.empty()) {
-		peer = oob_recv_queue.front().first;
-		data = oob_recv_queue.front().second;
-		oob_recv_queue.pop_front();
-		return true;
-	}
-
-	for (auto& p : peer_list) {
-		if (p.second.recv_queue.packet_ready()) {
-			peer = p.first;
-			data = p.second.recv_queue.read_packet();
-			return true;
-		}
-	}
-	return false;
-}
-
-bool protocol_zt::get_disconnected(endpoint& peer)
-{
-	if (!disconnect_queue.empty()) {
-		peer = disconnect_queue.front();
-		disconnect_queue.pop_front();
-		return true;
-	}
-	return false;
-}
-
-void protocol_zt::disconnect(const endpoint& peer)
-{
-	if (peer_list.count(peer) != 0) {
-		if (peer_list[peer].fd != -1) {
-			if (lwip_close(peer_list[peer].fd) < 0) {
-				DoLog("lwip_close: %s\n", strerror(errno));
+		int i;
+		for (i = 0; i < MAX_PLRS; i++) {
+			if (pending_connections[i].sock == 0) {
+				pending_connections[i].sock = newfd + 1;
+				pending_connections[i].peer.from_addr(in6.sin6_addr.un.u8_addr);
+				pending_connections[i].timeout = SDL_GetTicks() + NET_TIMEOUT_SOCKET;
+				break;
 			}
 		}
-		peer_list.erase(peer);
+		if (i >= MAX_PLRS) {
+			lwip_close(newfd);
+		}
+	}
+
+	for (pending_connection &pc : pending_connections) {
+		if (pc.sock == 0)
+			continue;
+		for (peer_connection &ac : active_connections) {
+			if (ac.status != CS_PENDING)
+				continue;
+			if (ac.peer == pc.peer) {
+				ac.sock = pc.sock - 1;
+				ac.status = CS_ACTIVE;
+				pc.sock = 0;
+				break;
+			}
+		}
+		if (pc.sock != 0 && SDL_TICKS_PASSED(SDL_GetTicks(), pc.timeout)) {
+			lwip_close(pc.sock);
+			pc.sock = 0;
+		}
 	}
 }
 
-void protocol_zt::close_all()
+void protocol_zt::accept_self(int pnum)
+{
+	zts_sockaddr_storage myaddr;
+	if (!zerotier_current_addr(&myaddr)) {
+		DoLog("protocol_zt::get_local_addr zts_addr_get failed: %s", strerror(errno));
+		return;
+	}
+	active_connections[pnum].peer.from_addr(((zts_sockaddr_in6*)&myaddr)->sin6_addr.un.u8_addr);
+	active_connections[pnum].status = CS_ACTIVE_SELF;
+	// assert(active_connections[pnum].sock == -1);
+}
+
+void protocol_zt::accept_ep(const unsigned char* addr, int pnum)
+{
+	// assert(active_connections[pnum].status == CS_INACTIVE);
+	// assert(active_connections[pnum].sock == -1);
+	active_connections[pnum].status = CS_PENDING;
+	active_connections[pnum].peer.from_addr(addr);
+}
+
+void protocol_zt::connect_ep(const unsigned char* addr, int pnum)
+{
+	if (active_connections[pnum].status != CS_INACTIVE)
+		return;
+
+	accept_ep(addr, pnum);
+
+	auto sock = lwip_socket(AF_INET6, SOCK_STREAM, 0);
+	set_nodelay(sock);
+	set_nonblock(sock);
+	struct sockaddr_in6 in6 {
+	};
+	in6.sin6_port = htons(DEFAULT_PORT);
+	in6.sin6_family = AF_INET6;
+	memcpy(in6.sin6_addr.s6_addr, addr, sizeof(in6.sin6_addr.s6_addr));
+	// print_ip6_addr(&in6);
+	lwip_connect(sock, (const struct sockaddr*)&in6, sizeof(in6));
+	active_connections[pnum].sock = sock;
+	active_connections[pnum].status = CS_ACTIVE;
+}
+
+void protocol_zt::poll(zt_client* client)
+{
+	accept_all();
+
+	recv_from_peers(client);
+	recv_from_udp(client);
+
+	send_queued_all();
+}
+
+void protocol_zt::disconnect(int pnum)
+{
+	peer_connection& ap = active_connections[pnum];
+	if (ap.sock != -1) {
+		lwip_close(ap.sock);
+		ap.sock = -1;
+	}
+	for (auto frame : ap.send_frame_queue) {
+		delete frame;
+	}
+	ap.peer.clear_addr();
+	ap.send_frame_queue.clear();
+	ap.status = CS_INACTIVE;
+	ap.recv_queue.clear();
+}
+
+void protocol_zt::close()
+{
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		disconnect(pnum);
+	}
+}
+
+protocol_zt::~protocol_zt()
 {
 	if (fd_tcp != -1) {
 		lwip_close(fd_tcp);
@@ -275,20 +302,13 @@ void protocol_zt::close_all()
 		lwip_close(fd_udp);
 		fd_udp = -1;
 	}
-	for (auto frame : send_queue) {
-		delete frame;
-	}
-	send_queue.clear();
-	for (auto& peer : peer_list) {
-		if (peer.second.fd != -1)
-			lwip_close(peer.second.fd);
-	}
-	peer_list.clear();
+	zerotier_network_stop();
+	close();
 }
 
-protocol_zt::~protocol_zt()
+void protocol_zt::endpoint::clear_addr()
 {
-	close_all();
+	memset(addr.data(), 0, endpoint::str_len());
 }
 
 void protocol_zt::endpoint::from_string(const std::string& str)
@@ -298,26 +318,34 @@ void protocol_zt::endpoint::from_string(const std::string& str)
 		return;
 	if (!IP_IS_V6_VAL(a))
 		return;
-	const auto* r = reinterpret_cast<const unsigned char*>(a.u_addr.ip6.addr);
-	std::copy(r, r + 16, addr.begin());
+	from_addr(reinterpret_cast<const unsigned char*>(a.u_addr.ip6.addr));
 }
 
-uint64_t protocol_zt::current_ms()
+void protocol_zt::endpoint::from_addr(const unsigned char* src_addr)
 {
-	return 0;
+	memcpy(addr.data(), src_addr, endpoint::str_len());
 }
 
-void protocol_zt::make_default_gamename(char (&gamename)[128])
+void protocol_zt::endpoint::to_addr(unsigned char* dest_addr) const
+{
+	memcpy(dest_addr, addr.data(), endpoint::str_len());
+}
+
+void protocol_zt::endpoint::to_buffer(buffer_t& buf) const
+{
+	buf.insert(buf.end(), addr.cbegin(), addr.cend());
+}
+
+void protocol_zt::make_default_gamename(char (&gamename)[NET_MAX_GAMENAME_LEN + 1])
 {
 	int i;
 
-	std::string allowedChars = "abcdefghkopqrstuvwxyz";
 	std::random_device rd;
-	std::uniform_int_distribution<int> dist(0, allowedChars.size() - 1);
-	for (i = 0; i < 5; i++) {
-		gamename[i] = allowedChars.at(dist(rd));
+	std::uniform_int_distribution<int> dist((int)'a', (int)'z');
+	for (i = 0; i < NET_ZT_GAMENAME_LEN; i++) {
+		gamename[i] = dist(rd);
 	}
-	gamename[i] = '\0';
+	gamename[NET_ZT_GAMENAME_LEN] = '\0';
 }
 
 } // namespace net

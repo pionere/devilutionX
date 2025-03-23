@@ -31,6 +31,7 @@ void StartQTextMsg(int m, bool showText)
 		// gamemenu_off();
 		// StopQTextMsg();
 		gbQtextflag = true;
+		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
 		scrolltexty = tds->txtspd;
@@ -40,7 +41,7 @@ void StartQTextMsg(int m, bool showText)
 	if (tds->txtsfxset) {
 		sfxnr = sgSFXSets[sfxnr][myplr._pClass];
 	}
-	PlaySFX(sfxnr);
+	PlaySfx(sfxnr);
 }
 
 void StopQTextMsg()
@@ -57,7 +58,7 @@ void DrawQText()
 	Uint32 currTime;
 	BYTE *pStart, *pEnd;
 
-	DrawTextBox();
+	DrawTextBox(0);
 
 	/// ASSERT: assert(gpBuffer != NULL);
 	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
@@ -73,7 +74,7 @@ void DrawQText()
 	while (*str != '\0') {
 		len = 0;
 		sstr = endstr = str;
-		while (TRUE) {
+		while (true) {
 			if (*sstr == '\0') {
 				endstr = sstr;
 				break;
@@ -92,6 +93,7 @@ void DrawQText()
 
 		tx = LTPANEL_X + 24;
 		while (str < endstr) {
+			// tx += PrintBigChar(tx, ty, (BYTE)*str++, COL_GOLD);
 			c = gbStdFontFrame[(BYTE)*str++];
 			if (c != 0) {
 				CelDraw(tx, ty, pBigTextCels, c);
@@ -110,8 +112,8 @@ void DrawQText()
 	gpBufStart = pStart;
 	gpBufEnd = pEnd;
 
-	for (currTime = SDL_GetTicks(); qtextTime < currTime; qtextTime += scrolltexty) {
-		if (gbGamePaused)
+	for (currTime = SDL_GetTicks(); SDL_TICKS_PASSED(currTime, qtextTime); qtextTime += scrolltexty) {
+		if (gnGamePaused != 0)
 			continue;
 		qtexty--;
 		if (qtexty <= LTPANEL_Y + 25) {

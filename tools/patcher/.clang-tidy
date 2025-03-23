@@ -46,6 +46,8 @@ Checks: >
   performance-*,
   portability-*,
   readability-*,
+  -readability-identifier-length,
+  -bugprone-easily-swappable-parameters,
   -readability-magic-numbers,
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,

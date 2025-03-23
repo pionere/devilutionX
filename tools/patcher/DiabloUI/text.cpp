@@ -24,7 +24,7 @@ unsigned GetArtStrWidth(const char* str, unsigned size)
 
 void WordWrapArtStr(char* text, unsigned width, unsigned size)
 {
-	const int len = strlen(text);
+	const int len = (unsigned)strlen(text);
 	int lineStart = 0;
 	for (int i = 0; i <= len; i++) {
 		if (text[i] == '\n') {

@@ -1,6 +1,5 @@
 #include "dialogs.h"
 
-#include "controls/menu_controls.h"
 #include "diabloui.h"
 //#include "errorart.h"
 #include "text.h"
@@ -159,14 +158,12 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 {
 	//if (renderBehind == NULL) {
 		UiClearListItems();
-		UiClearItems(gUiItems);
+		UiClearItems();
 		FreeBackgroundArt();
 
 		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-		UiAddBackground(&gUiItems);
+		UiAddBackground();
 	//}
-
-	gbSmlButtonCel = CelLoadImage("ui_art\\smbutton.CEL", SML_BUTTON_WIDTH);
 
 	/*if (caption == NULL) {
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
@@ -188,7 +185,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
 		SDL_Rect rect2 = { PANEL_LEFT + 0, PANEL_MIDY(LARGE_POPUP_HEIGHT) + 10, PANEL_WIDTH, 20 };
-		gUiItems.push_back(new UiText(caption, rect2, UIS_CENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(caption, rect2, UIS_HCENTER | UIS_MED | UIS_GOLD));
 
 		SDL_Rect rect3 = { PANEL_MIDX(LARGE_POPUP_TEXT_WIDTH), PANEL_MIDY(LARGE_POPUP_HEIGHT) + 41, LARGE_POPUP_TEXT_WIDTH, LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17 - 17 };
 		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
@@ -205,39 +202,30 @@ static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 	//if (renderBehind == NULL) {
 		FreeBackgroundArt();
 	//}
+	UiClearItems();
 	MemFreeDbg(gbDialogBackCel);
-	MemFreeDbg(gbSmlButtonCel)
-
-	UiClearItems(gUiItems);
 }
 
 static void DialogLoop(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
-	SetFadeLevel(FADE_LEVELS);
-
 	_gbDialogEnd = false;
 	do {
-		UiRenderAndPoll(NULL /*renderBehind*/);
+		UiRenderAndPoll();
 	} while (!_gbDialogEnd);
 }
 
-static void UiOkDialog(const char* caption, const char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
+static void UiOkDialog(const char* caption, char* text, bool error/*, const std::vector<UiItemBase*>* renderBehind*/)
 {
-	char dialogText[256];
-
 	if (gbWndActive && gbWasUiInit && !gbInDialog) {
 		gbInDialog = true;
-		SStrCopy(dialogText, text, sizeof(dialogText));
-		Init(caption, dialogText, error/*, renderBehind*/);
+		Init(caption, text, error/*, renderBehind*/);
 		DialogLoop(/*renderBehind*/);
 		Deinit(/*, renderBehind*/);
 		gbInDialog = false;
 		return;
 	}
 
-	if (SDL_ShowCursor(SDL_ENABLE) < 0) {
-		DoLog(SDL_GetError());
-	}
+	SDL_ShowCursor(SDL_ENABLE);
 #ifndef RUN_TESTS
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, caption, text, NULL) < 0) {
 		DoLog(SDL_GetError());
@@ -249,7 +237,7 @@ static void UiOkDialog(const char* caption, const char* text, bool error/*, cons
 	}
 }
 
-void UiErrorOkDialog(const char* caption, const char* text, bool error)
+void UiErrorOkDialog(const char* caption, char* text, bool error)
 {
 	UiOkDialog(caption, text, error/*, NULL*/);
 }

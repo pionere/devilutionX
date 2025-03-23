@@ -7,32 +7,41 @@ if (buildAsApplication) {
 }
 
 android {
-	ndkVersion '25.2.9519653'
-	compileSdk 33
+	ndkVersion '28.0.13004108'
+	// ndkVersion '25.2.9519653'
+	compileSdk 35
 	aaptOptions { // probably does not matter...
 		noCompress 'mpq'
 	}
+	// if (buildAsApplication) {
 	namespace 'org.diasurgical.devilutionx'
+	// }
 	defaultConfig {
 		if (buildAsApplication) {
-			applicationId "org.diasurgical.devilutionx"
+			applicationId "org.diasurgical.devilx"
 		}
-		minSdkVersion 18
-		targetSdkVersion 33
-		versionCode 20
-		versionName "1.3.0"
+		minSdkVersion 21
+		targetSdkVersion 35
+		versionCode 666
+		versionName "1.0.0"
 		externalNativeBuild {
 			cmake {
-				arguments "-DANDROID_STL=c++_static", project.findProperty("cmakeargs")
+				arguments "-DANDROID_STL=c++_static", project.findProperty("cmakearg0"), project.findProperty("cmakearg1"), project.findProperty("cmakearg2")
 				abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
 			}
 		}
 	}
 	buildTypes {
+		debug {
+			applicationIdSuffix "dev"
+		}
 		release {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
+	}
+	buildFeatures {
+		buildConfig true
 	}
 	applicationVariants.all { variant ->
 		tasks["merge${variant.name.capitalize()}Assets"]
@@ -45,7 +54,7 @@ android {
 		externalNativeBuild {
 			cmake {
 				path '../../CMakeLists.txt'
-				version "3.13.0+"
+				version "3.31.0+"
 				buildStagingDirectory System.env.DevilutionX_Android_StagingDirectory
 			}
 		}

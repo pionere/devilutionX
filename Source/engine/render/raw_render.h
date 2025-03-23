@@ -29,13 +29,14 @@ void DrawPixel(int sx, int sy, BYTE col);
  */
 void DrawLine(int x0, int y0, int x1, int y1, BYTE col);
 /**
- * @brief Draw a half-transparent, black rectangle using stippled-transparency
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @brief Draw a half-transparent rectangle using stippled-transparency
+ * @param sx left side of the rectangle (back buffer coordinate)
+ * @param sy top of the rectangle (back buffer coordinate)
  * @param width Rectangle width
  * @param height Rectangle height
+ * @param color the color of the rectangle
  */
-void DrawRectTrans(int sx, int sy, int width, int height);
+void DrawRectTrans(int sx, int sy, int width, int height, BYTE col);
 
 #ifdef __cplusplus
 }

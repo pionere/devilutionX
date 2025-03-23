@@ -2,9 +2,6 @@
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
-//#include <cstdint>
-#include <SDL.h>
-
 #include "./axis_direction.h"
 #include "./controller.h"
 
@@ -16,11 +13,6 @@ extern "C" {
 
 typedef enum GameActionType {
 	GameActionType_NONE = 0,
-	GameActionType_USE_HEALTH_POTION,
-	GameActionType_USE_MANA_POTION,
-	GameActionType_PRIMARY_ACTION,   // Talk to towners, click on inv items, attack, etc.
-	GameActionType_SECONDARY_ACTION, // Open chests, doors, pickup items.
-	GameActionType_CAST_SPELL,
 	GameActionType_SEND_KEY,
 	GameActionType_SEND_MOUSE_CLICK,
 } GameActionType;
@@ -70,7 +62,7 @@ typedef struct GameAction {
 	};
 } GameAction;
 
-bool GetGameAction(const SDL_Event& event, ControllerButtonEvent ctrlEvent, GameAction* action);
+bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action);
 
 AxisDirection GetMoveDirection();
 

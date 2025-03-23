@@ -35,11 +35,11 @@ public:
 	/* Read the next packet from the queue. Assumes the packet is ready (packet_ready returns true). */
 	buffer_t read_packet();
 	/* Append the content of a buffer to the frame. */
-	void write(buffer_t buf);
+	void write(const buffer_t& buf, unsigned len);
 	/* Clear the content of the frame. */
 	void clear();
 
-	static buffer_t* make_frame(buffer_t packetbuf);
+	static buffer_t* make_frame(const buffer_t packetbuf);
 };
 
 } // namespace net

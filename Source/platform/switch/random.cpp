@@ -1,3 +1,6 @@
+#include "random.hpp"
+
+#ifndef NONET
 #include <sys/types.h>
 #include <sodium.h>
 
@@ -52,3 +55,8 @@ void randombytes_switchrandom_init()
 	randombytes_set_implementation(&randombytes_switchrandom_implementation);
 	atexit(csrngExit);
 }
+#else
+void randombytes_switchrandom_init()
+{
+}
+#endif // !NONET

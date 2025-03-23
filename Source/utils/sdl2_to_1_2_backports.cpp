@@ -1,6 +1,14 @@
-#include "./sdl2_to_1_2_backports.h"
+#include "sdl2_to_1_2_backports.h"
 
 #ifdef USE_SDL1
+
+#if defined(_WIN32)
+// Suppress definitions of `min` and `max` macros by <windows.h>:
+#define NOMINMAX 1
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #define DEFAULT_PRIORITY             SDL_LOG_PRIORITY_CRITICAL
 #define DEFAULT_ASSERT_PRIORITY      SDL_LOG_PRIORITY_WARN
 #define DEFAULT_APPLICATION_PRIORITY SDL_LOG_PRIORITY_INFO
@@ -485,7 +493,7 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 // = Filesystem
 
-#if !defined(__QNXNTO__) && !defined(__amigaos__)
+#if !defined(__3DS__) && !defined(__QNXNTO__) && !defined(__amigaos__) && !defined(_WIN32)
 static char* readSymLink(const char* path)
 {
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
@@ -493,7 +501,7 @@ static char* readSymLink(const char* path)
 	ssize_t len = 64;
 	ssize_t rc = -1;
 
-	while (1) {
+	while (true) {
 		char* ptr = (char*)SDL_realloc(retval, (size_t)len);
 		if (ptr == NULL) {
 			SDL_OutOfMemory();
@@ -524,6 +532,28 @@ char* SDL_GetBasePath()
 	return SDL_strdup("file:sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
+#elif defined(_WIN32)
+	char buffer[MAX_PATH];
+	::DWORD len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	if (len == 0) {
+		SDL_SetError("SDL_GetBasePath failed.");
+		return NULL;
+	}
+	/* chop off filename. */
+	for ( ; len > 0; len--) {
+		if (buffer[len] == '\\') {
+			break;
+		}
+	}
+	len++;
+	char* retval = static_cast<char *>(SDL_malloc(len + 1));
+	if (retval == NULL) {
+		SDL_OutOfMemory();
+		return NULL;
+	}
+	SDL_memcpy(retval, buffer, len);
+	retval[len] = '\0';
+	return retval;
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 
@@ -540,8 +570,7 @@ char* SDL_GetBasePath()
 			return NULL;
 		}
 	}
-#endif
-#if defined(__OPENBSD__)
+#elif defined(__OPENBSD__)
 	char** retvalargs;
 	size_t len;
 	const int mib[] = { CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV };
@@ -558,8 +587,7 @@ char* SDL_GetBasePath()
 
 		SDL_free(retvalargs);
 	}
-#endif
-#if defined(__SOLARIS__)
+#elif defined(__SOLARIS__)
 	const char* path = getexecname();
 	if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
 		retval = SDL_strdup(path);
@@ -626,6 +654,13 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 	return SDL_strdup("sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
 	return SDL_strdup("PROGDIR:");
+#elif defined(_WIN32)
+//#if (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
+	// On Windows9x there is no such thing as PrefPath. Simply use the current directory.
+	char *result = (char *)SDL_malloc(1);
+	*result = '\0';
+	return result;
+//#endif
 #else
 	// From sdl2-2.0.9/src/filesystem/unix/SDL_sysfilesystem.c
 	/*
@@ -637,72 +672,62 @@ char* SDL_GetPrefPath(const char* org, const char* app)
      */
 	const char* envr = SDL_getenv("XDG_DATA_HOME");
 	const char* append;
-	char* retval = NULL;
-	char* ptr = NULL;
-	size_t len = 0;
+	char *retval, *ptr;
+	size_t len, elen;
 
-	if (!app) {
+	if (app == NULL) {
 		SDL_InvalidParamError("app");
 		return NULL;
 	}
-	if (!org) {
+	if (org == NULL) {
 		org = "";
 	}
 
-	if (!envr) {
+	append = "/";
+	len = sizeof("/") - 1;
+	if (envr == NULL) {
 		/* You end up with "$HOME/.local/share/Game Name 2" */
 		envr = SDL_getenv("HOME");
-		if (!envr) {
+		if (envr == NULL) {
 			/* we could take heroic measures with /etc/passwd, but oh well. */
 			SDL_SetError("neither XDG_DATA_HOME nor HOME environment is set");
 			return NULL;
 		}
 #if defined(__unix__) || defined(__unix)
 		append = "/.local/share/";
-#else
-		append = "/";
+		len = sizeof("/.local/share/") - 1;
 #endif
-	} else {
-		append = "/";
 	}
 
-	len = SDL_strlen(envr);
-	if (envr[len - 1] == '/')
+	elen = SDL_strlen(envr);
+	if (envr[elen - 1] == '/') {
 		append += 1;
+		len--;
+	}
 
-	len += SDL_strlen(append) + SDL_strlen(org) + SDL_strlen(app) + 3;
+	len = elen + len + SDL_strlen(org) + SDL_strlen(app) + 3;
 	retval = (char*)SDL_malloc(len);
-	if (!retval) {
+	if (retval == NULL) {
 		SDL_OutOfMemory();
 		return NULL;
 	}
 
 	if (*org) {
-		SDL_snprintf(retval, len, "%s%s%s/%s", envr, append, org, app);
+		SDL_snprintf(retval, len, "%s%s%s/%s/", envr, append, org, app);
 	} else {
-		SDL_snprintf(retval, len, "%s%s%s", envr, append, app);
+		SDL_snprintf(retval, len, "%s%s%s/", envr, append, app);
 	}
 
 	for (ptr = retval + 1; *ptr; ptr++) {
 		if (*ptr == '/') {
 			*ptr = '\0';
-			if (mkdir(retval, 0700) != 0 && errno != EEXIST)
-				goto error;
+			if (mkdir(retval, 0700) != 0 && errno != EEXIST) {
+				SDL_SetError("Couldn't create directory '%s': '%s'", retval, strerror(errno));
+				SDL_free(retval);
+				return NULL;
+			}
 			*ptr = '/';
 		}
-	}
-	if (mkdir(retval, 0700) != 0 && errno != EEXIST) {
-	error:
-		SDL_SetError("Couldn't create directory '%s': '%s'", retval, strerror(errno));
-		SDL_free(retval);
-		return NULL;
-	}
-
-	// Append trailing /
-	size_t final_len = SDL_strlen(retval);
-	if (final_len + 1 < len) {
-		retval[final_len++] = '/';
-		retval[final_len] = '\0';
 	}
 
 	return retval;

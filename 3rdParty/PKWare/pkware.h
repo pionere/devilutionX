@@ -42,28 +42,39 @@
 // Internal structures
 
 // Compression structure
-typedef struct
+typedef struct TCmpStruct
 {
     unsigned int   distance;                // 0000: Backward distance of the currently found repetition, decreased by 1
     unsigned int   out_bytes;               // 0004: # bytes available in out_buff            
     unsigned int   out_bits;                // 0008: # of bits available in the last out byte
+#ifdef FULL
     unsigned int   dsize_bits;              // 000C: Number of bits needed for dictionary size. 4 = 0x400, 5 = 0x800, 6 = 0x1000
     unsigned int   dsize_mask;              // 0010: Bit mask for dictionary. 0x0F = 0x400, 0x1F = 0x800, 0x3F = 0x1000
     unsigned int   ctype;                   // 0014: Compression type (CMP_ASCII or CMP_BINARY)
     unsigned int   dsize_bytes;             // 0018: Dictionary size in bytes
-#ifdef FULL
     unsigned char  dist_bits[0x40];         // 001C: Distance bits
     unsigned char  dist_codes[0x40];        // 005C: Distance codes
-#endif
     unsigned char  nChBits[0x306];          // 009C: Table of literal bit lengths to be put to the output stream
     unsigned short nChCodes[0x306];         // 03A2: Table of literal codes to be put to the output stream
+#else
+    static const unsigned int dsize_bits = 4 + 2;  // 000C: Number of bits needed for dictionary size. 4 = 0x400, 5 = 0x800, 6 = 0x1000
+    static const unsigned int dsize_mask = 0x0F | 0x20 | 0x10; // 0010: Bit mask for dictionary. 0x0F = 0x400, 0x1F = 0x800, 0x3F = 0x1000
+    static const unsigned int ctype = CMP_BINARY;  // 0014: Compression type (CMP_ASCII or CMP_BINARY)
+    static const unsigned int dsize_bytes = CMP_IMPLODE_DICT_SIZE3; // 0018: Dictionary size in bytes
+    unsigned char  nChBits[0x206];          // 009C: Table of literal bit lengths to be put to the output stream
+    unsigned short nChCodes[0x206];         // 03A2: Table of literal codes to be put to the output stream
+#endif
 #ifdef FULL
     unsigned short offs09AE;                // 09AE: 
 #endif
     void         * param;                   // 09B0: User parameter
+#ifdef FULL
     unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param);  // 9B4
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param); // 9B8
-
+#else
+    unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int size, void *param);  // 9B4
+    void         (PKWAREAPI *write_buf)(char *buf, unsigned int size, void *param); // 9B8
+#endif
     unsigned short offs09BC[0x204];         // 09BC:
 #ifdef FULL
     unsigned long  offs0DC4;                // 0DC4: 
@@ -98,8 +109,13 @@ typedef struct
     unsigned int  in_pos;                   // 001C: Position in in_buff
     unsigned long in_bytes;                 // 0020: Number of bytes in input buffer
     void        * param;                    // 0024: Custom parameter
+#ifdef FULL
     unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param); // Pointer to function that reads data from the input stream
     void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param);// Pointer to function that writes data to the output stream
+#else
+    unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int size, void *param); // Pointer to function that reads data from the input stream
+    void         (PKWAREAPI *write_buf)(char *buf, unsigned int size, void *param);// Pointer to function that writes data to the output stream
+#endif
 
     unsigned char out_buff[0x2204];         // 0030: Output circle buffer.
                                             //       0x0000 - 0x0FFF: Previous uncompressed data, kept for repetitions
@@ -123,7 +139,22 @@ typedef struct
 
 #define EXP_BUFFER_SIZE sizeof(TDcmpStruct) // Size of decompression structure
                                             // Defined as 12596 in pkware headers
-
+#ifndef FULL
+typedef struct TDataInfo {
+    /*unsigned char * const pbInBuff;
+    size_t srcOffset;
+    unsigned char * const pbOutBuff;
+    size_t destOffset;
+    const size_t size;
+    TDataInfo(unsigned char * src, unsigned char * dst, size_t s) : pbInBuff(src), srcOffset(0), pbOutBuff(dst), destOffset(0), size(s) {*/
+    unsigned char * pbInBuff;
+    unsigned char * const pbInBuffEnd;
+    unsigned char * pbOutBuff;
+    unsigned char * const pbOutBuffEnd;
+    TDataInfo(unsigned char * src, size_t inSize, unsigned char * dst, size_t outSize) : pbInBuff(src), pbInBuffEnd(src + inSize), pbOutBuff(dst), pbOutBuffEnd(dst + outSize) {
+    }
+} TDataInfo;
+#endif // !FULL
 //-----------------------------------------------------------------------------
 // Tables (in explode.c)
 
@@ -145,24 +176,38 @@ extern const unsigned short ChCodeAsc[0x100];
 #endif
 
 unsigned int PKWAREAPI implode(
-   unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned int *size, void *param),
-   void         (PKWAREAPI *write_buf)(char *buf, unsigned int *size, void *param),
-   char         *work_buf,
-   void         *param,
 #if FULL
+   unsigned int (*read_buf)(char *buf, unsigned int *size, void *param),
+   void         (*write_buf)(char *buf, unsigned int *size, void *param),
+#else
+   unsigned int (*read_buf)(char *buf, unsigned int size, void *param),
+   void         (*write_buf)(char *buf, unsigned int size, void *param),
+#endif
+   char         *work_buf,
+#if FULL
+   void         *param,
    unsigned int *type,
    unsigned int *dsize);
 #else
-   unsigned int type,
-   unsigned int dsize);
+   void         *param);
 #endif
 
 
 unsigned int PKWAREAPI explode(
-   unsigned int (PKWAREAPI *read_buf)(char *buf, unsigned  int *size, void *param),
-   void         (PKWAREAPI *write_buf)(char *buf, unsigned  int *size, void *param),
+#if FULL
+   unsigned int (*read_buf)(char *buf, unsigned  int *size, void *param),
+   void         (*write_buf)(char *buf, unsigned  int *size, void *param),
+#else
+   unsigned int (*read_buf)(char *buf, unsigned  int size, void *param),
+   void         (*write_buf)(char *buf, unsigned  int size, void *param),
+#endif
    char         *work_buf,
    void         *param);
+
+#ifndef FULL
+unsigned int PkwareBufferRead(char* buf, unsigned int size, void* param);
+void PkwareBufferWrite(char* buf, unsigned int size, void* param);
+#endif
 
 #ifdef __cplusplus
    }                         // End of 'extern "C"' declaration

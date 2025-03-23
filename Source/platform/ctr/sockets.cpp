@@ -1,5 +1,9 @@
+#include "sockets.hpp"
+#ifndef NONET
 #include <malloc.h>
+#include <cstdlib>
 #include <3ds.h>
+#include "utils/log.h"
 
 constexpr auto SOC_ALIGN = 0x1000;
 constexpr auto SOC_BUFFERSIZE = 0x100000;
@@ -59,4 +63,11 @@ void n3ds_socInit()
 		atexit([]() { n3ds_socExit(); });
 	initialized = true;
 }
-
+#else
+void n3ds_socExit()
+{
+}
+void n3ds_socInit()
+{
+}
+#endif // !NONET

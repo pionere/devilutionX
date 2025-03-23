@@ -7,13 +7,15 @@
 #include "engine/render/cel_render.h"
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
+#include <ctime>
 
 DEVILUTION_BEGIN_NAMESPACE
 
-char msgtable[NUM_EMSGS];
-Uint32 msgdelay;
+static char msgtable[NUM_EMSGS];
+uint32_t msgdelay;
 BYTE currmsg;
-BYTE msgcnt;
+static_assert(NUM_EMSGS <= UINT8_MAX, "msgcnt might overflow.");
+static BYTE msgcnt;
 
 /** Maps from error_id to error message. */
 const char* const MsgStrings[NUM_EMSGS] = {
@@ -101,7 +103,7 @@ void InitDiabloMsg(BYTE e)
 	msgcnt++;
 
 	currmsg = msgtable[0];
-	msgdelay = SDL_GetTicks();
+	msgdelay = time(NULL);
 }
 
 void ClrDiabloMsg()
@@ -140,12 +142,11 @@ void DrawDiabloMsg()
 		}
 	}
 	// make the center transparent
-	DrawRectTrans(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER));
+	DrawRectTrans(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER), PAL_BLACK);
 	// print the message
-	SStrCopy(tempstr, MsgStrings[currmsg], sizeof(tempstr));
-	PrintString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, tempstr, true, COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, MsgStrings[currmsg], COL_GOLD, FONT_KERN_SMALL);
 
-	if (msgdelay > 0 && msgdelay <= SDL_GetTicks() - 3500) {
+	if (msgdelay > 0 && msgdelay <= time(NULL) - 4) {
 		msgdelay = 0;
 	}
 	if (msgdelay == 0) {
@@ -154,7 +155,7 @@ void DrawDiabloMsg()
 			currmsg = EMSG_NONE;
 		} else {
 			currmsg = msgtable[msgcnt];
-			msgdelay = SDL_GetTicks();
+			msgdelay = time(NULL);
 		}
 	}
 }

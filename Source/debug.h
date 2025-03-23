@@ -14,19 +14,6 @@ extern "C" {
 
 #if DEBUG_MODE
 void CheckDungeonClear();
-extern BYTE* pSquareCel;
-
-void LoadDebugGFX();
-void FreeDebugGFX();
-void GiveGoldCheat();
-void StoresCheat();
-void TakeGoldCheat();
-void MaxSpellsCheat();
-void SetAllSpellsCheat();
-void PrintDebugPlayer(bool bNextPlayer);
-void PrintDebugQuest();
-void GetDebugMonster();
-void NextDebugMonster();
 #endif
 
 #if DEBUG_MODE || DEV_MODE
@@ -34,7 +21,9 @@ void ValidateData();
 #endif
 
 #if DEV_MODE
-void LogErrorF(const char* type, const char* msg, ...);
+void LogErrorF(const char* msg, ...);
+void LogErrorQ(const char* msg, ...);
+void LogDumpQ();
 #endif
 
 #ifdef __cplusplus

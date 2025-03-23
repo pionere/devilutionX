@@ -9,8 +9,6 @@ static_assert(false, "GameController is not supported in SDL1.");
 
 #include <SDL.h>
 
-#include "../defs.h"
-
 #include "../controller_buttons.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -21,9 +19,7 @@ class GameController {
 public:
 	static void Add(int joystick_index);
 	static void Remove(SDL_JoystickID instance_id);
-	static void ReleaseAll();
-	static GameController* Get(const SDL_Event& event);
-	static GameController* Get(SDL_JoystickID instance_id);
+	// static void ReleaseAll();
 	static bool IsPressedOnAnyController(ControllerButton button);
 
 	// NOTE: Not idempotent.
@@ -33,6 +29,8 @@ public:
 
 private:
 	static SDL_GameControllerButton ToSdlGameControllerButton(ControllerButton button);
+	static GameController* Get(const SDL_Event& event);
+	static GameController* Get(SDL_JoystickID instance_id);
 
 	bool IsPressed(ControllerButton button) const;
 

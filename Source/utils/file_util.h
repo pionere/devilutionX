@@ -5,14 +5,11 @@
 #include <cstdint>
 
 #include <SDL.h>
-
-#ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
-#endif
 
 #include "log.h"
 
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32)
 // Suppress definitions of `min` and `max` macros by <windows.h>:
 #define NOMINMAX 1
 #define WIN32_LEAN_AND_MEAN
@@ -33,11 +30,13 @@ DEVILUTION_BEGIN_NAMESPACE
 inline FILE* FileOpen(const char* path, const char* mode)
 {
 	FILE* file;
-#if (defined(_MSC_VER) && (_MSC_VER >= 1400))
-	fopen_s(&file, path, mode);
-#else
+// #if (defined(_MSC_VER) && (_MSC_VER >= 1400))
+//	fopen_s(&file, path, mode);
+// #else
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	file = std::fopen(path, mode);
-#endif
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
+// #endif
 	return file;
 }
 
@@ -56,7 +55,22 @@ inline bool FileExists(const char* path)
 
 inline bool GetFileSize(const char* path, std::uintmax_t* size)
 {
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
+	HANDLE handle = ::CreateFileA(path, GENERIC_READ,
+	    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+	    FILE_ATTRIBUTE_NORMAL, NULL);
+	if (handle == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+	::DWORD fileSizeHigh;
+	const DWORD fileSizeLow = ::GetFileSize(handle, &fileSizeHigh);
+	::CloseHandle(handle);
+	if (fileSizeLow == INVALID_FILE_SIZE) {
+		return false;
+	}
+	*size = (static_cast<uintmax_t>(fileSizeHigh) << 32) | fileSizeLow;
+	return true;
+#elif defined(_WIN32)
 	WIN32_FILE_ATTRIBUTE_DATA attr;
 	/*int path_utf16_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
 	wchar_t *path_utf16 = new wchar_t[path_utf16_size];
@@ -95,7 +109,17 @@ inline bool WriteFile(const void* data, size_t size, FILE* f)
 
 inline bool ResizeFile(const char* path, std::uintmax_t size)
 {
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
+	HANDLE file = ::CreateFileA(path, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (file == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+	::LONG fileSizeHigh = size >> 32;
+	::LONG fileSizeLow = size;
+	bool result = ::SetFilePointer(file, fileSizeLow, &fileSizeHigh, FILE_BEGIN) != 0 && ::SetEndOfFile(file) != 0;
+	::CloseHandle(file);
+	return result;
+#elif defined(_WIN32)
 	LARGE_INTEGER lisize;
 	lisize.QuadPart = static_cast<LONGLONG>(size);
 	if (lisize.QuadPart < 0) {
@@ -112,12 +136,10 @@ inline bool ResizeFile(const char* path, std::uintmax_t size)
 	HANDLE file = ::CreateFileA(path, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (file == INVALID_HANDLE_VALUE) {
 		return false;
-	} else if (::SetFilePointerEx(file, lisize, NULL, FILE_BEGIN) == 0 || ::SetEndOfFile(file) == 0) {
-		::CloseHandle(file);
-		return false;
 	}
+	bool result = ::SetFilePointerEx(file, lisize, NULL, FILE_BEGIN) != 0 && ::SetEndOfFile(file) != 0;
 	::CloseHandle(file);
-	return true;
+	return result;
 #else
 	return ::truncate(path, static_cast<off_t>(size)) == 0;
 #endif

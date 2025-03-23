@@ -35,6 +35,7 @@ void MAI_Golem(int mnum);
 void MAI_SkelKing(int mnum);
 void MAI_Rhino(int mnum);
 void MAI_Counselor(int mnum);
+void MAI_Mage(int mnum);
 void MAI_Garbud(int mnum);
 void MAI_Zhar(int mnum);
 void MAI_SnotSpil(int mnum);

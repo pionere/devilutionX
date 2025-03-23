@@ -9,17 +9,18 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-// NOTE: A, B, X, Y refer to physical positions on an XBox 360 controller.
-// A<->B and X<->Y are reversed on a Nintendo controller.
+// NOTE: FACE-buttons on a VITA controller:     X O [] /\
+//                    on a XBox 360 controller: A, B, X, Y
+//                    on a Nintendo controller: B, A, Y, X
 typedef enum ControllerButton {
 	ControllerButton_NONE = 0,
 	ControllerButton_IGNORE,
-	ControllerButton_AXIS_TRIGGERLEFT,  // ZL (aka L2)
-	ControllerButton_AXIS_TRIGGERRIGHT, // ZR (aka R2)
-	ControllerButton_BUTTON_A,          // Bottom button
-	ControllerButton_BUTTON_B,          // Right button
-	ControllerButton_BUTTON_X,          // Left button
-	ControllerButton_BUTTON_Y,          // TOP button
+	ControllerButton_AXIS_TRIGGERLEFT,   // ZL (aka L2)
+	ControllerButton_AXIS_TRIGGERRIGHT,  // ZR (aka R2)
+	ControllerButton_BUTTON_FACE_BOTTOM, // SDL_CONTROLLER_BUTTON_A
+	ControllerButton_BUTTON_FACE_RIGHT,  // SDL_CONTROLLER_BUTTON_B
+	ControllerButton_BUTTON_FACE_LEFT,   // SDL_CONTROLLER_BUTTON_X
+	ControllerButton_BUTTON_FACE_TOP,    // SDL_CONTROLLER_BUTTON_Y
 	ControllerButton_BUTTON_LEFTSTICK,
 	ControllerButton_BUTTON_RIGHTSTICK,
 	ControllerButton_BUTTON_LEFTSHOULDER,

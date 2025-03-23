@@ -127,7 +127,7 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 			}
 		}
 
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -137,12 +137,12 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
 
-BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
+BYTE* DRLP_L1_PatchSpec(BYTE* sCelBuf, size_t* sCelLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SUB_HEADER_SIZE = 10;
@@ -219,7 +219,7 @@ BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		}
 
 		// write to the new SCEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -230,7 +230,7 @@ BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 
 	// add file-size
 	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*sCelLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*sCelLen));
 
 	return resCelBuf;
 }
@@ -1227,7 +1227,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	uint16_t* pSubtiles = (uint16_t*)buf;
 	constexpr int blockSize = BLOCK_SIZE_L1;
 	// use micros created by patchCathedralFloorCel
-	if (pSubtiles[MICRO_IDX(108 - 1, blockSize, 1)] != NULL) {
+	if (pSubtiles[MICRO_IDX(108 - 1, blockSize, 1)] != 0) {
 		Blk2Mcr(108, 1);
 		SetFrameType(137, 5, MET_SQUARE);
 		SetFrameType(286, 1, MET_RTRIANGLE);
@@ -2563,7 +2563,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		// if (frame.subtileIndex0 < 0) {
 		// 	continue;
 		// }
-		for (int n = 0; n < lengthof(frame.microIndices0); n++) {
+		for (int n = 0; n < lengthof(frame.microIndices0) && frame.subtileIndex0 >= 0; n++) {
 			if (frame.microIndices0[n] < 0) {
 				continue;
 			}
@@ -2956,7 +2956,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		}
 
 		// write to the new SCEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -2968,7 +2968,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 
 	// copy the remaining content
 	/*while (idx < srcCelEntries) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 		memcpy(dstDataCursor, sCelBuf + srcHeaderCursor[0], len);
@@ -2980,7 +2980,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 
 	// add file-size
 	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*sCelLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*sCelLen));
 
 	return resCelBuf;
 }

@@ -1,22 +1,19 @@
 #pragma once
 
-//#include <cstdint>
+#include "../all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-//
-// Everything else
-//
 extern WNDPROC CurrentWndProc;
 
 void SetCursorPos(int X, int Y);
 
-bool PeekMessage(LPMSG lpMsg);
+bool PeekMessage(Dvl_Event &event);
 
 #if defined(USE_SDL1) || DEBUG_MODE
 int TranslateKey2Char(int vkey);
 #endif
-void DispatchMessage(const MSG* lpMsg);
+void DispatchMessage(const Dvl_Event* event);
 void PostMessage(UINT Msg /*, WPARAM wParam*/);
 WNDPROC SetWindowProc(WNDPROC NewProc);
 
@@ -25,35 +22,34 @@ WNDPROC SetWindowProc(WNDPROC NewProc);
 //
 typedef enum window_messages {
 	DVL_WM_NONE,
-	DVL_WM_QUIT,        // 0x0012,
-	DVL_WM_MOUSEMOVE,   // 0x0200
-	DVL_WM_LBUTTONDOWN, // 0x0201
-	DVL_WM_LBUTTONUP,   // 0x0202
-	DVL_WM_RBUTTONDOWN, // 0x0204
-	DVL_WM_RBUTTONUP,   // 0x0205
+	DVL_WM_QUIT,
+	DVL_WM_MOUSEMOVE,
+	DVL_WM_LBUTTONDOWN,
+	DVL_WM_LBUTTONUP,
+	DVL_WM_RBUTTONDOWN,
+	DVL_WM_RBUTTONUP,
 
-	DVL_WM_KEYDOWN, // 0x0100
-	DVL_WM_KEYUP,   // 0x0101
-	// DVL_WM_SYSKEYDOWN 0x0104
-	// DVL_WM_SYSCOMMAND 0x0112
-	DVL_WM_CHAR, // 0x0102
+	DVL_WM_KEYDOWN,
+	DVL_WM_KEYUP,
+	DVL_WM_TEXT,
 
-	DVL_WM_CAPTURECHANGED,  // 0x0215
-	DVL_WM_PAINT,           // 0x000F
-	DVL_WM_QUERYENDSESSION, // 0x0011
+	DVL_WM_CAPTURECHANGED,
+	DVL_WM_PAINT,
+	// DVL_WM_QUERYENDSESSION,
 
-	DVL_DWM_NEXTLVL, //  = 0x402, // dungeon -> next level  WM_USER+2
-	DVL_DWM_PREVLVL, //  = 0x403, // dungeon -> previous level
-	DVL_DWM_RTNLVL,  //   = 0x404, // setlevel -> dungeon
-	DVL_DWM_SETLVL,  //   = 0x405, // dungeon -> setlevel
-	DVL_DWM_TWARPDN, //  = 0x407, // town -> dungeon
-	DVL_DWM_TWARPUP, //  = 0x408, // dungeon -> town
-	DVL_DWM_WARPLVL, //  = 0x406, // portal
-	DVL_DWM_RETOWN,  //   = 0x409, // restart in town
-	DVL_DWM_NEWGAME, //  = 0x40A,
+	DVL_DWM_NEXTLVL,  // dungeon -> next level
+	DVL_DWM_PREVLVL,  // dungeon -> previous level
+	DVL_DWM_SETLVL,   // dungeon -> setlevel
+	DVL_DWM_RTNLVL,   // setlevel -> dungeon
+	DVL_DWM_DYNLVL,   // town -> custom dungeon
+	DVL_DWM_PORTLVL,  // portal (town <-> dungeon)
+	DVL_DWM_TWARPDN,  // town -> dungeon
+	DVL_DWM_TWARPUP,  // dungeon -> town
+	DVL_DWM_RETOWN,   // restart in town
+	DVL_DWM_NEWGAME,  // new game
+	DVL_DWM_LOADGAME, // load game
 
-	// WM_LEIGHSKIP = 0x40C, // psx only
-	// WM_DIAVNEWLVL = 0x40D, // psx only
+	NUM_WNDMSGS
 } window_messages;
 
 //#define DVL_SC_CLOSE 0xF060
@@ -64,6 +60,8 @@ typedef enum window_messages {
 #define DVL_VK_LBUTTON    0x01 // Left-Mouse button
 #define DVL_VK_RBUTTON    0x02 // Right-Mouse button
 #define DVL_VK_CANCEL     0x03 // Cancel key
+#define DVL_VK_MBUTTON    0x04 // Middle-Mouse button
+#define DVL_VK_XBUTTON1   0x05 // X1-Mouse button
 #define DVL_VK_BACK       0x08 // BACKSPACE key
 #define DVL_VK_TAB        0x09 // TAB key
 #define DVL_VK_RETURN     0x0D // ENTER key
@@ -125,6 +123,7 @@ typedef enum window_messages {
 #define DVL_VK_U                   0x55
 #define DVL_VK_V                   0x56
 #define DVL_VK_W                   0x57
+#define DVL_VK_X                   0x58
 #define DVL_VK_Z                   0x5A
 #define DVL_VK_LWIN                0x5B // Left Windows key (Natural keyboard)
 #define DVL_VK_RWIN                0x5C // Right Windows key (Natural keyboard)
@@ -193,6 +192,12 @@ typedef enum window_messages {
 #define DVL_VK_OEM_PERIOD          0xBE // For any country/region, the '.' key
 #define DVL_VK_OEM_2               0xBF // For the US standard keyboard, the '/?' key
 #define DVL_VK_OEM_3               0xC0 // For the US standard keyboard, the '`~' key
+// -- non standard virtual key-codes for the controllers
+#define DVL_VK_CONTROLLER_1        0xC1
+#define DVL_VK_CONTROLLER_2        0xC2
+#define DVL_VK_CONTROLLER_3        0xC3
+#define DVL_VK_CONTROLLER_4        0xC4
+// --
 #define DVL_VK_OEM_4               0xDB // For the US standard keyboard, the '[{' key
 #define DVL_VK_OEM_5               0xDC // For the US standard keyboard, the '\|' key
 #define DVL_VK_OEM_6               0xDD // For the US standard keyboard, the ']}' key

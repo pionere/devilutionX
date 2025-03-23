@@ -6,8 +6,10 @@ set(UBSAN OFF)
 # If the executable is stripped, create-fself fails with:
 # Failed to build FSELF: no symbol section
 set(DISABLE_STRIP ON)
-set(DISABLE_LTO ON)
+#set(DISABLE_LTO ON)
 set(NONET ON)
+#set(ZEROTIER OFF)
+#set(DEVILUTIONX_SYSTEM_LIBSODIUM OFF)
 #set(DISCORD_INTEGRATION OFF)
 #set(BUILD_TESTING OFF)
 #set(NOEXIT ON)
