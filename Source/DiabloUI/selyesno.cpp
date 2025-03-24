@@ -1,11 +1,11 @@
 #include "selyesno.h"
 
-#include "storm/storm.h"
-
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include "../gameui.h"
+//#include "../engine.h"
+//#include "storm/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

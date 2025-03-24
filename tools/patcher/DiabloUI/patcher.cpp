@@ -9,7 +9,6 @@
 #include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
-#include "mpqapi.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
