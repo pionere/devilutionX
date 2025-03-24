@@ -103,7 +103,6 @@ PlrGFX\SNone.TRN
 PlrGFX\SOrange.TRN
 PlrGFX\SRed.TRN
 Sfx\Misc\Wallloop.wav
-ui_art\black.CEL
 ui_art\credits.CEL
 ui_art\credits.pal
 ui_art\focus.CEL

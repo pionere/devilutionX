@@ -161,8 +161,8 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 		UiClearItems();
 		FreeBackgroundArt();
 
-		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-		UiAddBackground();
+		LoadBackgroundArt(NULL, "ui_art\\menu.pal");
+		// UiAddBackground();
 	//}
 
 	/*if (caption == NULL) {
@@ -200,7 +200,7 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 static void Deinit(/*const std::vector<UiItemBase*>* renderBehind*/)
 {
 	//if (renderBehind == NULL) {
-		FreeBackgroundArt();
+		// FreeBackgroundArt();
 	//}
 	UiClearItems();
 	MemFreeDbg(gbDialogBackCel);

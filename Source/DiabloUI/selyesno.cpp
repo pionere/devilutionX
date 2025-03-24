@@ -16,7 +16,7 @@ static bool _gbYNValue;
 
 static void SelyesnoFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearListItems();
 
 	UiClearItems();
@@ -38,8 +38,8 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 {
 	char selyesno_confirmationMessage[256];
 
-	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	UiAddBackground();
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
+	// UiAddBackground();
 	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELYNOK_TITLE_TOP, PANEL_WIDTH, 35 };

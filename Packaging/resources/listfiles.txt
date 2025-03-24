@@ -4205,7 +4205,6 @@ _ui_art\spopup.pcx
 _ui_art\srpopup.pcx
 _ui_art\swmmenu.pcx
 _ui_art\title.pcx
-ui_art\black.CEL
 ui_art\credits.CEL
 ui_art\credits.pal
 ui_art\focus.CEL

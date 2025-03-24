@@ -15,7 +15,7 @@ static bool _gbSelokEndMenu;
 
 static void SelokFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 
 	UiClearListItems();
 
@@ -37,12 +37,12 @@ void UiSelOkDialog(const char* title, const char* body)
 	char dialogText[256];
 
 	//if (!background) {
-		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+		LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 	//} else {
 	//	LoadBackgroundArt(background);
 	//}
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
 	//if (title != NULL) {
