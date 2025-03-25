@@ -20,9 +20,9 @@ fi
 
 
 PACKAGES=(
-  cmake git smpq gettext
+  cmake git
   libsdl2-dev:arm64 libsodium-dev:arm64
-  libpng-dev:arm64 libbz2-dev:arm64 libspeechd-dev:arm64
+  libbz2-dev:arm64 libspeechd-dev:arm64
 )
 
 if (( $# < 1 )) || [[ "$1" != --no-gcc ]]; then
