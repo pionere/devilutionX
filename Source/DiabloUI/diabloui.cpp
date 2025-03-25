@@ -376,9 +376,10 @@ void UiDestroy()
 void LoadBackgroundArt(const char* pszFile, const char* palette)
 {
 	assert(gbBackCel == NULL);
-	//FreeBackgroundArt();
-	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
-
+	// FreeBackgroundArt();
+	if (pszFile != NULL)
+		gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
+	// assert(palette != NULL);
 	LoadPalette(palette);
 
 	// initiate fading
@@ -406,9 +407,9 @@ void UiAddLogo()
 
 static void UiClearScreen()
 {
-	if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > PANEL_HEIGHT) { // Background size
+	// if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > PANEL_HEIGHT) { // Background size
 		ClearScreenBuffer();
-	}
+	// }
 }
 
 static void UiFadeIn()

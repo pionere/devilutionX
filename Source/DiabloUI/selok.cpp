@@ -1,11 +1,11 @@
 #include "selok.h"
 
-#include "storm/storm.h"
-
 #include "diabloui.h"
 #include "text.h"
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include "../gameui.h"
+//#include "../engine.h"
+//#include "storm/storm.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -15,7 +15,7 @@ static bool _gbSelokEndMenu;
 
 static void SelokFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 
 	UiClearListItems();
 
@@ -37,12 +37,12 @@ void UiSelOkDialog(const char* title, const char* body)
 	char dialogText[256];
 
 	//if (!background) {
-		LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+		LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 	//} else {
 	//	LoadBackgroundArt(background);
 	//}
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
 	//if (title != NULL) {

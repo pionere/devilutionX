@@ -31,9 +31,9 @@ static void HostGameLoad()
 {
 	int y;
 
-	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 
-	UiAddBackground();
+	// UiAddBackground();
 
 	// y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
 	y = PANEL_BOTTOM - SMALL_POPUP_HEIGHT;
@@ -53,7 +53,7 @@ static void HostGameLoad()
 
 static void HostGameFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearItems();
 }
 

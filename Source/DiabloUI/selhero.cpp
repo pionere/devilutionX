@@ -2,7 +2,7 @@
 
 #include <ctime>
 
-#include "../all.h"
+#include "all.h"
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/dialogs.h"

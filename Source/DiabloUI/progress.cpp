@@ -22,9 +22,9 @@ static void ProgressLoad(const char* msg)
 {
 	int y;
 
-	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 
-	UiAddBackground();
+	// UiAddBackground();
 
 	y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
 
@@ -41,7 +41,7 @@ static void ProgressLoad(const char* msg)
 
 static void ProgressFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearItems();
 }
 

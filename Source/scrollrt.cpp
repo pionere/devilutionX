@@ -1256,11 +1256,8 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 static void Zoom()
 {
 	int wdt = SCREEN_WIDTH / 2u;
-	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1);
-	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
-
-	BYTE* src = &gpBuffer[nSrcOff];
-	BYTE* dst = &gpBuffer[nDstOff];
+	BYTE* src = &gpBuffer[SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1)];
+	BYTE* dst = &gpBuffer[SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1)];
 
 	for (unsigned hgt = 0; hgt < VIEWPORT_HEIGHT / 2u; hgt++) {
 		for (int i = 0; i < wdt; i++) {

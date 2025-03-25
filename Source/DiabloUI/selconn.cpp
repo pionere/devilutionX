@@ -3,10 +3,10 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"
-//#include "all.h"
-#include <algorithm>
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include <algorithm>
+//#include "../gameui.h"
+//#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

@@ -1,10 +1,11 @@
-#include <algorithm>
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text_draw.h"
-#include "../gameui.h"
-#include "../engine.h"
-#include "../dx.h"
+#include "all.h"
+//#include <algorithm>
+//#include "../gameui.h"
+//#include "../engine.h"
+//#include "../dx.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

@@ -308,7 +308,7 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnup.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnup.appimage'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
       with:
