@@ -3,8 +3,9 @@ set -euo pipefail
 set -x
 
 PACKAGES=(
-  rpm pkg-config cmake git smpq gettext libsdl2-dev libsodium-dev
-  libpng-dev libbz2-dev libspeechd-dev
+  rpm pkg-config cmake git
+  libsdl2-dev libsodium-dev
+  libbz2-dev libspeechd-dev
 )
 
 if (( $# < 1 )) || [[ "$1" != --no-gcc ]]; then
