@@ -57,7 +57,6 @@ extern "C" {
 #define PANEL_LEFT       ((int)((unsigned)SCREEN_WIDTH / 2 - PANEL_WIDTH / 2))
 #define PANEL_RIGHT      ((int)((unsigned)SCREEN_WIDTH / 2 + PANEL_WIDTH / 2))
 #define PANEL_TOP        ((int)((unsigned)SCREEN_HEIGHT / 2 - PANEL_HEIGHT / 2))
-#define PANEL_BOTTOM     ((int)((unsigned)SCREEN_HEIGHT / 2 + PANEL_HEIGHT / 2))
 #define PANEL_MIDX(x)    ((SCREEN_WIDTH - (x)) >> 1)
 #define PANEL_MIDY(y)    ((SCREEN_HEIGHT - (y)) >> 1)
 #define PANEL_X          (SCREEN_X + PANEL_LEFT)
@@ -136,7 +135,7 @@ extern "C" {
 #define PLRMSG_PANEL_BORDER 3
 #define PLRMSG_TEXT_HEIGHT  12
 #define PLRMSG_TEXT_X       (PANEL_X + 10)
-#define PLRMSG_TEXT_BOTTOM  (SCREEN_Y + PANEL_BOTTOM - 140)
+#define PLRMSG_TEXT_BOTTOM  (SCREEN_Y + SCREEN_HEIGHT - 140)
 #define PLRMSG_TEXT_TOP     (PANEL_Y + 2 * PLRMSG_TEXT_HEIGHT + 2 * PLRMSG_PANEL_BORDER)
 
 #define SBOOK_CELWIDTH    37
@@ -155,7 +154,7 @@ extern "C" {
 #define BELT_WIDTH       60
 #define BELT_HEIGHT      118
 #define BELT_LEFT        PANEL_LEFT
-#define BELT_TOP         (PANEL_BOTTOM - (MENUBTN_HEIGHT + BELT_HEIGHT))
+#define BELT_TOP         (SCREEN_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
 
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261

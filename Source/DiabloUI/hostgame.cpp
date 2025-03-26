@@ -36,7 +36,7 @@ static void HostGameLoad()
 	// UiAddBackground();
 
 	// y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
-	y = PANEL_BOTTOM - SMALL_POPUP_HEIGHT;
+	y = SCREEN_HEIGHT - SMALL_POPUP_HEIGHT;
 
 	SDL_Rect rect0 = { PANEL_MIDX(SMALL_POPUP_WIDTH), y, 0, 0 };
 	_gbHostPb = new UiProgressBar(rect0);
