@@ -4,6 +4,7 @@
 
 #include "diabloui.h"
 #include "selok.h"
+#include "utils/display.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include "engine/render/cel_render.h"
@@ -14,6 +15,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static unsigned workProgress;
 static unsigned workPhase;
+static Uint32 sgRenderTc;
+static std::vector<std::string> mpqfiles;
 static HANDLE archive;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
@@ -4975,6 +4978,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 
 static int patcher_callback()
 {
+restart:
 	switch (workPhase) {
 	case 0:
 	{	// first round - read the content and prepare the metadata
@@ -4984,17 +4988,18 @@ static int patcher_callback()
 			app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
 			return RETURN_ERROR;
 		}
+		// mpqfiles.clear();
 		std::string line;
-		int entryCount = lengthof(filesToPatch);
 		while (std::getline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
-					entryCount++;
+					mpqfiles.push_back(line);
 					break;
 				}
 			}
 		}
 
+		int entryCount = mpqfiles.size() + lengthof(filesToPatch);
 		if (entryCount == 0) {
 			// app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
 			return RETURN_ERROR;
@@ -5021,39 +5026,23 @@ static int patcher_callback()
 		workPhase++;
 	} break;
 	case 2:
-	{	// add the current content of devilx.mpq
-		std::string listpath = std::string(GetBasePath()) + "mpqfiles.txt";
-		std::ifstream input(listpath);
-		if (input.fail()) {
-			app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
-			return RETURN_ERROR;
-		}		
-		int skip = hashCount;
-		std::string line;
-		while (std::getline(input, line)) {
-			if (--skip >= 0) {
-				continue;
-			}
-			if (skip <= -10) {
+	{	// add the next file from devilx.mpq
+		const char* fileName = mpqfiles[hashCount].c_str();
+		for (int i = 0; i < NUM_MPQS; i++) {
+			BYTE* buf = NULL;
+			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
+			if (dwLen != 0) {
+				bool success = SFileWriteFile(archive, fileName, buf, dwLen);
+				mem_free_dbg(buf);
+				if (!success) {
+					app_warn("Unable to write %s to the MPQ.", fileName);
+					return RETURN_ERROR;
+				}
 				break;
 			}
-			for (int i = 0; i < NUM_MPQS; i++) {
-				BYTE* buf = NULL;
-				DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
-				if (dwLen != 0) {
-					bool success = SFileWriteFile(archive, line.c_str(), buf, dwLen);
-					mem_free_dbg(buf);
-					if (!success) {
-						app_warn("Unable to write %s to the MPQ.", line.c_str());
-						return RETURN_ERROR;
-					}
-					break;
-				}
-			}
-			hashCount++;
 		}
-		input.close();
-		if (skip <= -10)
+		hashCount++;
+		if (hashCount < mpqfiles.size())
 			break;
 		hashCount = 0;
 		workPhase++;
@@ -5061,10 +5050,7 @@ static int patcher_callback()
 	case 3:
 	{	// add patches
 		int i = hashCount;
-		for ( ; i < lengthof(filesToPatch); i++) {
-			if (i >= hashCount + 10) {
-				break;
-			}
+		{
 			size_t dwLen;
 			BYTE* buf = patchFile(i, &dwLen);
 			if (buf == NULL) {
@@ -5080,8 +5066,8 @@ static int patcher_callback()
 			}
 			mem_free_dbg(buf);
 		}
-		hashCount += 10;
-		if (i >= hashCount)
+		hashCount++;
+		if (hashCount < lengthof(filesToPatch))
 			break;
 		SFileFlushAndCloseArchive(archive);
 		archive = NULL;
@@ -5114,6 +5100,11 @@ static int patcher_callback()
 	} return RETURN_DONE;
 	}
 
+	Uint32 now = SDL_GetTicks();
+	if (!SDL_TICKS_PASSED(now, sgRenderTc + gnRefreshDelay))
+		goto restart;
+	sgRenderTc = now;
+
 	while (++workProgress >= 100)
 		workProgress -= 100;
 	return workProgress;
@@ -5123,6 +5114,7 @@ void UiPatcherDialog()
 {
 	workProgress = 0;
 	workPhase = 0;
+	sgRenderTc = SDL_GetTicks();
 
 	// ignore the merged mpq during the patch
 	HANDLE mpqone = diabdat_mpqs[NUM_MPQS];
@@ -5134,7 +5126,8 @@ void UiPatcherDialog()
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * BUFFER_HEIGHT];
 
 	bool result = UiProgressDialog("...Patch in progress...", patcher_callback);
-
+	// cleanup
+	mpqfiles.clear();
 	// restore the merged mpq
 	diabdat_mpqs[NUM_MPQS] = mpqone;
 	// restore buffer start/end
