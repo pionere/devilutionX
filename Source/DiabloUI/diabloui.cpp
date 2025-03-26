@@ -70,9 +70,9 @@ UiProgressBar::UiProgressBar(const SDL_Rect& rect)
 
 	m_ProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
 	progFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
-	CelDraw(PANEL_X, PANEL_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
+	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
 	for (i = 0; i < PRBAR_HEIGHT; i++) {
-		memcpy(&m_ProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[PANEL_X + (PANEL_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
+		memcpy(&m_ProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[SCREENXY(0, i)], PRBAR_WIDTH);
 	}
 	mem_free_dbg(progFillCel);
 }
