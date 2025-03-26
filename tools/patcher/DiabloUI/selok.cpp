@@ -46,13 +46,13 @@ void UiSelOkDialog(const char* title, const char* body)
 	UiAddLogo();
 
 	//if (title != NULL) {
-		SDL_Rect rect1 = { PANEL_LEFT + 0, SELYNOK_TITLE_TOP, PANEL_WIDTH, 35 };
+		SDL_Rect rect1 = { 0, SELYNOK_TITLE_TOP, SCREEN_WIDTH, 35 };
 		gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
-		SDL_Rect rect2 = { PANEL_LEFT + 60, SELYNOK_CONTENT_TOP, MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
+		SDL_Rect rect2 = { PANEL_MIDX(MESSAGE_WIDTH), SELYNOK_CONTENT_TOP, MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
 		gUiItems.push_back(new UiText(dialogText, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//} else {
-	//	SDL_Rect rect1 = { PANEL_LEFT + 140, (PANEL_TOP + 197), MESSAGE_WIDTH, 168 };
+	//	SDL_Rect rect1 = { PANEL_MIDX(MESSAGE_WIDTH), PANEL_MIDY(86), MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
 	//	gUiItems.push_back(new UiText(dialogText, rect1, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//}
 
