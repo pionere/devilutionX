@@ -160,6 +160,7 @@ extern "C" {
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261
 //#define DOOM_WIDTH   640
+//#define DOOM_HEIGHT  352
 
 #define GAMEMENU_HEADER_Y    (102 * ASSET_MPL)
 #define GAMEMENU_ITEM_HEIGHT 45
