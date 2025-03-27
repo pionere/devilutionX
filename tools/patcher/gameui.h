@@ -162,14 +162,20 @@ extern "C" {
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261
 //#define DOOM_WIDTH   640
+//#define DOOM_HEIGHT  352
 
-#define GAMEMENU_HEADER_Y    (102 * ASSET_MPL)
-#define GAMEMENU_ITEM_HEIGHT 45
-#if ASSET_MPL == 1
-#define GAMEMENU_HEADER_OFF  13
+#ifdef HELLFIRE
+#define LOGO_DATA  "Data\\hf_logo3.CEL"
+#define LOGO_WIDTH 430
 #else
-#define GAMEMENU_HEADER_OFF  (PANEL_MIDY(GAMEMENU_ITEM_HEIGHT * 5) - GAMEMENU_HEADER_Y)
+#define LOGO_DATA  "Data\\Diabsmal.CEL"
+#define LOGO_WIDTH 296
 #endif
+#define LOGO_HEIGHT 100
+
+#define GAMEMENU_ITEM_HEIGHT 45
+#define GAMEMENU_HEADER_OFF  14
+#define GAMEMENU_HEIGHT    (LOGO_HEIGHT + GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT * 8)
 
 #define SLIDER_ROW_WIDTH    490
 #define SLIDER_BOX_WIDTH    287
@@ -208,14 +214,6 @@ extern "C" {
 //////////////////////////////////////////////////
 // DIABLO UI (MENU)
 //////////////////////////////////////////////////
-
-#ifdef HELLFIRE
-#define LOGO_DATA  "Data\\hf_logo3.CEL"
-#define LOGO_WIDTH 430
-#else
-#define LOGO_DATA  "Data\\Diabsmal.CEL"
-#define LOGO_WIDTH 296
-#endif
 
 #define SMALL_LOGO_WIDTH  390
 #define SMALL_LOGO_HEIGHT 154
