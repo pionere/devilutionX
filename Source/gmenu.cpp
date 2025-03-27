@@ -31,19 +31,6 @@ static void (*gmUpdateFunc)();
 /** The index of currently selected menu item. */
 static int guCurrItemIdx;
 
-void gmenu_draw_pause()
-{
-	int x, light;
-
-	if (!gmenu_is_active()) {
-		// assert(GetHugeStringWidth("Pause") == 135);
-		x = PANEL_CENTERX(135);
-		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
-		light = (SDL_GetTicks() / 256) % 4;
-		PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
-	}
-}
-
 void FreeGMenu()
 {
 	MemFreeDbg(gpLogoCel);

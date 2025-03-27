@@ -1465,6 +1465,17 @@ static void DrawGame()
 	}
 }
 
+static void DrawPause()
+{
+	int x, light;
+
+	// assert(GetHugeStringWidth("Pause") == 135);
+	x = PANEL_CENTERX(135);
+	static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
+	light = (SDL_GetTicks() / 256) % 4;
+	PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
+}
+
 /**
  * @brief Start rendering of screen, town variation
  */
@@ -1527,8 +1538,8 @@ static void DrawView()
 	}
 	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
-	} else if (gnGamePaused != 0) {
-		gmenu_draw_pause();
+	} else if (gnGamePaused != 0 && !gmenu_is_active()) {
+		DrawPause();
 	}
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
