@@ -11,7 +11,7 @@ FetchContent_Declare(libzt
   #GIT_REPOSITORY https://github.com/diasurgical/libzt.git
   #GIT_TAG db7b642a4ce9f0f5e0ba7f293bd7ffa7897e4831)
   GIT_REPOSITORY https://github.com/pionere/libzt.git
-  GIT_TAG fc82cd88c36eba2333550de190631689f2449c7a)
+  GIT_TAG 70ea658a8faa878e2f6545d1cea2d590622946cc)
 FetchContent_MakeAvailableExcludeFromAll(libzt)
 
 #if(NOT ANDROID)
