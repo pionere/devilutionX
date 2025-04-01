@@ -1529,7 +1529,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
-		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		if (i == 0 && gpBuffer[5 + 70 *  BUFFER_WIDTH] == TRANS_COLOR) {
@@ -1733,7 +1733,7 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
-		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		if (i == 0 && gpBuffer[32 + 65 *  BUFFER_WIDTH] == TRANS_COLOR) {
@@ -1795,7 +1795,7 @@ static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
-		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		// use the more rounded shrine-graphics
@@ -1855,7 +1855,7 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
-		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		gpBuffer[85 + 101 * BUFFER_WIDTH] = TRANS_COLOR;
@@ -1908,7 +1908,7 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
-		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		// remove shadow
@@ -3975,7 +3975,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
 	for (int i = 0; i < srcCelEntries; i++) {
 		// draw the frame to the back-buffer
-		memset(&gpBuffer[0], TRANS_COLOR, FRAME_HEIGHT * BUFFER_WIDTH);
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
 		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
 
 		// center frames
