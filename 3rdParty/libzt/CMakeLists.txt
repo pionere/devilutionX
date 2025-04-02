@@ -69,8 +69,11 @@ if(MINGW_CROSS)
   option(MINGW_STDTHREADS_GENERATE_STDHEADERS "" ON)
 
   FetchContent_Declare(mingw-std-threads
-    GIT_REPOSITORY https://github.com/meganz/mingw-std-threads
-    GIT_TAG bee085c0a6cb32c59f0b55c7bba976fe6dcfca7f)
+    #GIT_REPOSITORY https://github.com/meganz/mingw-std-threads
+    #GIT_TAG bee085c0a6cb32c59f0b55c7bba976fe6dcfca7f
+    GIT_REPOSITORY https://github.com/pionere/mingw-std-threads
+    GIT_TAG fc4127c956734f6a18f6fa3236d19484ce97f8d9
+  )
   FetchContent_MakeAvailableExcludeFromAll(mingw-std-threads)
 
   target_compile_definitions(libnatpmp_obj PRIVATE -D_WIN32_WINNT=0x601 -DSTATICLIB)
