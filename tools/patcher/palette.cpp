@@ -14,17 +14,12 @@ static SDL_Color orig_palette[NUM_COLORS];
 
 /** Specifies the gamma correction level. */
 int _gnGammaCorrection = 100;
-/** Specifies whether the game-screen is active with max brightness. */
-bool _gbFadedIn = false;
+/** Specifies the current fade level. */
+int gnFadeValue;
 
 void UpdatePalette()
 {
-#ifndef USE_SDL1
-	assert(back_palette != NULL);
-#endif
-	if (SDLC_SetSurfaceAndPaletteColors(back_surface, back_palette, system_palette, 0, NUM_COLORS) < 0) {
-		sdl_error(ERR_SDL_PALETTE_UPDATE);
-	}
+	SetSurfaceAndPaletteColors(system_palette, 0, NUM_COLORS);
 }
 
 void ApplyGamma(SDL_Color* dst, const SDL_Color* src)
@@ -74,6 +69,8 @@ void SetFadeLevel(unsigned fadeval)
 {
 	int i;
 
+	gnFadeValue = fadeval;
+
 	for (i = 0; i < NUM_COLORS; i++) { // BUGFIX: should be 256 (fixed)
 		system_palette[i].r = (fadeval * logical_palette[i].r) / FADE_LEVELS;
 		system_palette[i].g = (fadeval * logical_palette[i].g) / FADE_LEVELS;
@@ -89,30 +86,30 @@ void PaletteFadeIn(bool instant)
 
 	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	if (!instant) {
+		int fv = 0; // gnFadeValue;
 		Uint32 tc = SDL_GetTicks();
-		for (i = 0; i < FADE_LEVELS; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
+		for (i = fv; i < FADE_LEVELS; i = fv + ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
 			BltFast();
 			RenderPresent();
 		}
 	}
 	SetFadeLevel(FADE_LEVELS);
-	_gbFadedIn = true;
 }
 
 void PaletteFadeOut()
 {
 	int i;
 
-	if (_gbFadedIn) {
+	if (gnFadeValue != 0) {
+		int fv = FADE_LEVELS; // gnFadeValue;
 		Uint32 tc = SDL_GetTicks();
-		for (i = FADE_LEVELS; i > 0; i = FADE_LEVELS - ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
+		for (i = fv; i > 0; i = fv - ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
 			BltFast();
 			RenderPresent();
 		}
 		SetFadeLevel(0);
-		_gbFadedIn = false;
 	}
 }
 

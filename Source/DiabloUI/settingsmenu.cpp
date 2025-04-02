@@ -20,8 +20,8 @@ void UiSettingsDialog()
 			gnTicksRate = SPEED_FASTEST;
 	}
 	// initialize the UI
-	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
-	UiAddBackground();
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
+	// UiAddBackground();
 	SDL_Rect rect0 = { 0, 0, 0, 0 };
 	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
 	UiInitScreen(0, NULL, NULL, NULL);
@@ -62,7 +62,7 @@ void UiSettingsDialog()
 	gmenu_set_items(NULL, 0, NULL);
 	FreeGMenu();
 	// free the UI
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearItems();
 }
 

@@ -53,6 +53,11 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__);        \
 		app_fatal("SDL Error %d: '%s' @ %s:%d", ec, SDL_GetError(), __FILE__, __LINE__); \
 	}
+#define asio_error(ec, msg)                                                        \
+	if (ec == ec) {                                                                \
+		DoLog("ABORT(asio.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+		app_fatal("ASIO Error %d: '%s' @ %s:%d", ec, msg, __FILE__, __LINE__);     \
+	}
 #else
 #define app_error(ec)                                                             \
 	if (ec == ec) {                                                               \
@@ -64,7 +69,25 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 		DoLog("ABORT(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
 		app_fatal("SDL Error %d", ec);                                            \
 	}
+#define asio_error(ec, msg)                                               \
+	if (ec == ec) {                                                       \
+		DoLog("ABORT(asio.%d): %s @ %s:%d", ec, msg, __FILE__, __LINE__); \
+		dvl::app_fatal("ASIO Error");                                     \
+	}
 #endif // DEBUG_MODE
+
+#define app_issue(ec)                                                             \
+	if (ec == ec) {                                                               \
+		DoLog("ERROR(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
+#define sdl_issue(ec)                                                             \
+	if (ec == ec) {                                                               \
+		DoLog("ERROR(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
+#define asio_issue(ec, msg)                                                        \
+	if (ec == ec) {                                                                \
+		DoLog("ERROR(asio.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
 
 #ifdef __cplusplus
 }

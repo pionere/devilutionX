@@ -31,6 +31,7 @@ void ToggleFullscreen();
 void ClearScreenBuffer();
 void BltFast();
 void RenderPresent();
+void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors);
 
 #ifdef __cplusplus
 }

@@ -31,19 +31,6 @@ static void (*gmUpdateFunc)();
 /** The index of currently selected menu item. */
 static int guCurrItemIdx;
 
-void gmenu_draw_pause()
-{
-	int x, light;
-
-	if (!gmenu_is_active()) {
-		// assert(GetHugeStringWidth("Pause") == 135);
-		x = PANEL_CENTERX(135);
-		static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
-		light = (SDL_GetTicks() / 256) % 4;
-		PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
-	}
-}
-
 void FreeGMenu()
 {
 	MemFreeDbg(gpLogoCel);
@@ -168,7 +155,7 @@ static TMenuItem* current_menu_item(bool activate)
 	int i, w;
 	TMenuItem* pItem;
 
-	i = MousePos.y - (PANEL_TOP + GAMEMENU_HEADER_Y + GAMEMENU_HEADER_OFF);
+	i = MousePos.y - (PANEL_MIDY(GAMEMENU_HEIGHT) + LOGO_HEIGHT + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return NULL;
 	}
@@ -241,7 +228,7 @@ void gmenu_draw()
 #else
 	nCel = 1;
 #endif
-	y = PANEL_Y + GAMEMENU_HEADER_Y;
+	y = PANEL_CENTERY(GAMEMENU_HEIGHT) + LOGO_HEIGHT;
 	CelDraw(PANEL_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
 	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)

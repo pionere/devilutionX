@@ -25,22 +25,12 @@ extern SDL_Renderer* renderer;
 extern SDL_Texture* renderer_texture;
 extern SDL_Surface* renderer_surface;
 
-extern SDL_Palette* back_palette;
-extern SDL_Surface* back_surface;
-
 extern int screenWidth;
 extern int screenHeight;
 //extern int viewportHeight;
 
 #ifdef USE_SDL1
-// Whether the output surface requires software scaling.
-// Always returns false on SDL2.
-bool OutputRequiresScaling();
-// Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect* rect);
-#else // SDL2, scaling handled by renderer.
-void RecreateDisplay(int width, int height);
-inline void ScaleOutputRect(SDL_Rect* rect) { };
+SDL_Surface* OutputSurfaceToScale();
 #endif
 
 // Returns:
@@ -62,19 +52,19 @@ void OutputToLogical(T* x, T* y)
 #ifndef USE_SDL1
 	if (!renderer)
 		return;
-	float scaleX;
-	SDL_RenderGetScale(renderer, &scaleX, NULL);
+	float scaleX, scaleY;
+	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 	*x = (T)(*x / scaleX);
-	*y = (T)(*y / scaleX);
+	*y = (T)(*y / scaleY);
 
-	SDL_Rect view;
-	SDL_RenderGetViewport(renderer, &view);
-	*x -= view.x;
-	*y -= view.y;
+	//SDL_Rect view;
+	//SDL_RenderGetViewport(renderer, &view);
+	//assert(view.x == 0 && view.y == 0);
+	//*x -= view.x;
+	//*y -= view.y;
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * SCREEN_WIDTH / surface->w;
 	*y = *y * SCREEN_HEIGHT / surface->h;
 #endif
@@ -96,22 +86,21 @@ void LogicalToOutput(T* x, T* y)
 
 	float scaleX, scaleY;
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
-	T xx = (T)(*x * scaleX);
-	if ((T)(xx / scaleX) != *x) {
-		xx++;
-	}
-	*x = xx;
-	T yy = (T)(*y * scaleY);
-	if ((T)(yy / scaleY) != *y) {
-		yy++;
-	}
-	*y = yy;
-	//*x = (T)(*x * scaleX);
-	//*y = (T)(*y * scaleX);
+#if 0
+	T xx = (T)SDL_ceilf(*x * scaleX);
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	T xx = (T)(*x * scaleX);
+#endif
+	*x = xx;
+#if 0
+	T yy = (T)SDL_ceilf(*y * scaleY);
+#else
+	T yy = (T)(*y * scaleY);
+#endif
+	*y = yy;
+#else
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * surface->w / SCREEN_WIDTH;
 	*y = *y * surface->h / SCREEN_HEIGHT;
 #endif

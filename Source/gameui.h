@@ -57,7 +57,6 @@ extern "C" {
 #define PANEL_LEFT       ((int)((unsigned)SCREEN_WIDTH / 2 - PANEL_WIDTH / 2))
 #define PANEL_RIGHT      ((int)((unsigned)SCREEN_WIDTH / 2 + PANEL_WIDTH / 2))
 #define PANEL_TOP        ((int)((unsigned)SCREEN_HEIGHT / 2 - PANEL_HEIGHT / 2))
-#define PANEL_BOTTOM     ((int)((unsigned)SCREEN_HEIGHT / 2 + PANEL_HEIGHT / 2))
 #define PANEL_MIDX(x)    ((SCREEN_WIDTH - (x)) >> 1)
 #define PANEL_MIDY(y)    ((SCREEN_HEIGHT - (y)) >> 1)
 #define PANEL_X          (SCREEN_X + PANEL_LEFT)
@@ -136,8 +135,8 @@ extern "C" {
 #define PLRMSG_PANEL_BORDER 3
 #define PLRMSG_TEXT_HEIGHT  12
 #define PLRMSG_TEXT_X       (PANEL_X + 10)
-#define PLRMSG_TEXT_BOTTOM  (SCREEN_Y + PANEL_BOTTOM - 140)
-#define PLRMSG_TEXT_TOP     (PANEL_Y + 2 * PLRMSG_TEXT_HEIGHT + 2 * PLRMSG_PANEL_BORDER)
+#define PLRMSG_TEXT_BOTTOM  (SCREEN_Y + SCREEN_HEIGHT - 140)
+#define PLRMSG_TEXT_TOP     (SCREEN_Y + 30)
 
 #define SBOOK_CELWIDTH    37
 #define SBOOK_CELHEIGHT   38
@@ -155,19 +154,25 @@ extern "C" {
 #define BELT_WIDTH       60
 #define BELT_HEIGHT      118
 #define BELT_LEFT        PANEL_LEFT
-#define BELT_TOP         (PANEL_BOTTOM - (MENUBTN_HEIGHT + BELT_HEIGHT))
+#define BELT_TOP         (SCREEN_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
 
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261
 //#define DOOM_WIDTH   640
+//#define DOOM_HEIGHT  352
 
-#define GAMEMENU_HEADER_Y    (102 * ASSET_MPL)
-#define GAMEMENU_ITEM_HEIGHT 45
-#if ASSET_MPL == 1
-#define GAMEMENU_HEADER_OFF  13
+#ifdef HELLFIRE
+#define LOGO_DATA  "Data\\hf_logo3.CEL"
+#define LOGO_WIDTH 430
 #else
-#define GAMEMENU_HEADER_OFF  (PANEL_MIDY(GAMEMENU_ITEM_HEIGHT * 5) - GAMEMENU_HEADER_Y)
+#define LOGO_DATA  "Data\\Diabsmal.CEL"
+#define LOGO_WIDTH 296
 #endif
+#define LOGO_HEIGHT 100
+
+#define GAMEMENU_ITEM_HEIGHT 45
+#define GAMEMENU_HEADER_OFF  14
+#define GAMEMENU_HEIGHT    (LOGO_HEIGHT + GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT * 8)
 
 #define SLIDER_ROW_WIDTH    490
 #define SLIDER_BOX_WIDTH    287
@@ -207,14 +212,6 @@ extern "C" {
 // DIABLO UI (MENU)
 //////////////////////////////////////////////////
 
-#ifdef HELLFIRE
-#define LOGO_DATA  "Data\\hf_logo3.CEL"
-#define LOGO_WIDTH 430
-#else
-#define LOGO_DATA  "Data\\Diabsmal.CEL"
-#define LOGO_WIDTH 296
-#endif
-
 #define SMALL_LOGO_WIDTH  390
 #define SMALL_LOGO_HEIGHT 154
 #define SMALL_LOGO_TOP    (PANEL_TOP + (ASSET_MPL - 1) * 100)
@@ -236,8 +233,8 @@ extern "C" {
 #define MAINMENU_TOP         PANEL_MIDY(MAINMENU_HEIGHT)
 #endif /* ASSET_MPL == 1 */
 
-#define CREDITS_TOP    (PANEL_TOP + 100 * ASSET_MPL)
 #define CREDITS_HEIGHT (280 * ASSET_MPL)
+#define CREDITS_TOP    (PANEL_MIDY(CREDITS_HEIGHT))
 #define CREDITS_LEFT   (PANEL_MIDX(620))
 #define CREDITS_LINE_H 22
 

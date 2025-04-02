@@ -1,7 +1,8 @@
 
 #include "diabloui.h"
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include "../gameui.h"
+//#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -14,12 +15,14 @@ static void UiMainMenuSelect(unsigned index)
 
 static void MainmenuEsc()
 {
+#if !defined(__ANDROID__)
 	unsigned last = (unsigned)gUIListItems.size() - 1;
 	if (SelectedItem == last) {
 		UiMainMenuSelect(last);
 	} else {
 		SelectedItem = last;
 	}
+#endif
 }
 
 static void MainmenuLoad()
@@ -34,7 +37,11 @@ static void MainmenuLoad()
 	gUIListItems.push_back(new UiListItem("Settings", MAINMENU_SETTINGS));
 	gUIListItems.push_back(new UiListItem("Replay Intro", MAINMENU_REPLAY_INTRO));
 	gUIListItems.push_back(new UiListItem("Show Credits", MAINMENU_SHOW_CREDITS));
+#if !defined(__ANDROID__)
 	gUIListItems.push_back(new UiListItem("Exit Game", MAINMENU_EXIT_DIABLO));
+#else
+	numOptions--;
+#endif
 
 	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
 
@@ -62,10 +69,10 @@ int UiMainMenuDialog()
 {
 	MainmenuLoad();
 
-	_gnMainMenuResult = NUM_MAINMENU;
+	_gnMainMenuResult = -1;
 	do {
 		UiRenderAndPoll();
-	} while (_gnMainMenuResult == NUM_MAINMENU);
+	} while (_gnMainMenuResult < 0);
 
 	MainmenuFree();
 	return _gnMainMenuResult;

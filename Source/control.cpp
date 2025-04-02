@@ -313,7 +313,7 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
 			st = RSPLTYPE_INVALID;
 	}
-	y = PANEL_Y + PANEL_HEIGHT - 1 - offset;
+	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
 	CelDrawTrnTbl(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, pSpellCels,
 		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
 	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, spl, st);
@@ -396,7 +396,7 @@ void DrawSkillIcons()
 	}
 	// PrintSmallVerticalStr centered
 	int sx = PANEL_X + PANEL_WIDTH - SMALL_FONT_HEIGHT - 2;
-	int sy = PANEL_Y + PANEL_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2u;
+	int sy = SCREEN_Y + SCREEN_HEIGHT - 2 * SPLICON_WIDTH + (2 * SPLICON_WIDTH - numchar * SMALL_FONT_HEIGHT) / 2u;
 	for (unsigned i = 0; i < numchar; i++) {
 		sy += SMALL_FONT_HEIGHT;
 		BYTE nCel = gbStdFontFrame[str[i]];
@@ -458,7 +458,7 @@ void DrawSkillList()
 	currSkill = SPL_INVALID;
 	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
-	y = SCREEN_Y + PANEL_BOTTOM - (128 + 17);
+	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
 	//y = PANEL_CENTERY(190) + 190;
 	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
@@ -804,7 +804,7 @@ static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w
 	int sy, dataSize, i;
 	int8_t width;
 
-	sy = PANEL_Y + PANEL_HEIGHT - 1;
+	sy = SCREEN_Y + SCREEN_HEIGHT - 1;
 
 	filled += FLASK_TOTAL_HEIGHT - FLASK_BULB_HEIGHT;
 	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
@@ -1022,11 +1022,11 @@ void DrawCtrlBtns()
 	i = 0;
 	x = PANEL_X + PanBtnPos[i][0];
 	pb = gabPanbtn[PANBTN_MAINMENU];
-	CelDraw(x, PANEL_Y + PANEL_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT - 1, pPanelButtonCels, pb ? 4 : 3);
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT - 1, pPanelButtonCels, pb ? 4 : 3);
 	if (!pb)
 		return;
 	for (i = 1; i < numpanbtns; i++) {
-		y = PANEL_Y + PANEL_HEIGHT - PanBtnPos[i][1];
+		y = SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1];
 		pb = gabPanbtn[i];
 		CelDraw(x, y + MENUBTN_HEIGHT - 1, pPanelButtonCels, 2);
 		// print the text of the button
@@ -1077,7 +1077,7 @@ static void control_set_button_down(int btn_id)
 static bool InLvlUpRect()
 {
 	return POS_IN_RECT(MousePos.x, MousePos.y,
-		LVLUP_LEFT, PANEL_BOTTOM - LVLUP_OFFSET - CHRBTN_HEIGHT,
+		LVLUP_LEFT, SCREEN_HEIGHT - LVLUP_OFFSET - CHRBTN_HEIGHT,
 		CHRBTN_WIDTH, CHRBTN_HEIGHT);
 }
 
@@ -1099,16 +1099,16 @@ bool TryPanBtnClick()
 	my = MousePos.y;
 	for (i = gabPanbtn[PANBTN_MAINMENU] ? numpanbtns - 1 : 0; i >= 0; i--) {
 		if (POS_IN_RECT(mx, my,
-			PANEL_LEFT + PanBtnPos[i][0],  PANEL_BOTTOM - PanBtnPos[i][1],
+			PANEL_LEFT + PanBtnPos[i][0],  SCREEN_HEIGHT - PanBtnPos[i][1],
 			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			control_set_button_down(i);
 			return true;
 		}
 	}
 	if (POS_IN_RECT(mx, my,
-		PANEL_LEFT + PANEL_WIDTH - SPLICON_WIDTH,  PANEL_BOTTOM - 2 * SPLICON_HEIGHT,
+		PANEL_LEFT + PANEL_WIDTH - SPLICON_WIDTH,  SCREEN_HEIGHT - 2 * SPLICON_HEIGHT,
 		SPLICON_WIDTH + 1, 2 * SPLICON_HEIGHT + 1)) {
-		HandleSkillBtn(my < PANEL_BOTTOM - SPLICON_HEIGHT);
+		HandleSkillBtn(my < SCREEN_HEIGHT - SPLICON_HEIGHT);
 		return true;
 	}
 	if (gbLvlUp && InLvlUpRect())
@@ -1119,12 +1119,12 @@ bool TryPanBtnClick()
 void TryLimitedPanBtnClick()
 {
 	if (POS_IN_RECT(MousePos.x, MousePos.y,
-		PANEL_LEFT + PanBtnPos[PANBTN_MAINMENU][0],  PANEL_BOTTOM - PanBtnPos[PANBTN_MAINMENU][1],
+		PANEL_LEFT + PanBtnPos[PANBTN_MAINMENU][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1],
 		MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 		control_set_button_down(PANBTN_MAINMENU);
 	} else if (gabPanbtn[PANBTN_MAINMENU] && !IsLocalGame) {
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			PANEL_LEFT + PanBtnPos[PANBTN_SENDMSG][0],  PANEL_BOTTOM - PanBtnPos[PANBTN_SENDMSG][1],
+			PANEL_LEFT + PanBtnPos[PANBTN_SENDMSG][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1],
 			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			control_set_button_down(PANBTN_SENDMSG);
 		}
@@ -1209,7 +1209,7 @@ void ReleasePanBtn()
 
 		gabPanbtn[i] = false;
 		if (!POS_IN_RECT(MousePos.x, MousePos.y,
-			PANEL_LEFT + PanBtnPos[i][0],  PANEL_BOTTOM - PanBtnPos[i][1],
+			PANEL_LEFT + PanBtnPos[i][0],  SCREEN_HEIGHT - PanBtnPos[i][1],
 			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
 			continue;
 		}
@@ -1443,7 +1443,7 @@ void DrawLevelUpIcon()
 	int screen_x, screen_y;
 
 	screen_x = SCREEN_X + LVLUP_LEFT;
-	screen_y = PANEL_Y + PANEL_HEIGHT - LVLUP_OFFSET;
+	screen_y = SCREEN_Y + SCREEN_HEIGHT - LVLUP_OFFSET;
 	PrintJustifiedString(screen_x - 38, screen_y + 20, screen_x - 38 + 120, "Level Up", COL_WHITE, FONT_KERN_SMALL);
 	CelDraw(screen_x, screen_y, pChrButtonCels, gbLvlbtndown ? 2 : 1);
 }
@@ -1990,7 +1990,7 @@ static int DrawDurIcon4Item(ItemStruct* pItem, int x)
 	}
 	if (pItem->_iDurability > 2)
 		c += 8;
-	CelDraw(x, SCREEN_Y + PANEL_BOTTOM - 8, pDurIconCels, c);
+	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c);
 	return x - DURICON_WIDTH - 8;
 }
 
@@ -2428,7 +2428,7 @@ void DrawGolemBar()
 	MonsterStruct* mon = &monsters[mypnum];
 
 	if (mon->_mmode <= MM_INGAME_LAST) {
-		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, LIFE_FLASK_X + LIFE_FLASK_WIDTH / 2 - SCREEN_X, PANEL_Y + PANEL_HEIGHT - 1 - HEALTHBAR_HEIGHT + 2 - SCREEN_Y);
+		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, LIFE_FLASK_X + LIFE_FLASK_WIDTH / 2 - SCREEN_X, SCREEN_Y + SCREEN_HEIGHT - 1 - HEALTHBAR_HEIGHT + 2 - SCREEN_Y);
 	}
 }
 

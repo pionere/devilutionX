@@ -5,7 +5,6 @@
 #include <SDL.h>
 
 #include "ui_item.h"
-#include "utils/display.h"
 #include "../diabloui.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -22,7 +21,7 @@ extern unsigned SelectedItem;
 extern unsigned ListOffset;
 extern bool gUiDrawCursor;
 
-inline SDL_Surface* DiabloUiSurface()
+/*inline SDL_Surface* DiabloUiSurface()
 {
 // commented out, because:
 //		1. no need to optimize drawing in the menu
@@ -40,7 +39,7 @@ inline SDL_Surface* DiabloUiSurface()
 //#endif
 
 //	return output_surface;
-}
+}*/
 
 bool UiPeekAndHandleEvents(Dvl_Event* event);
 void LoadBackgroundArt(const char* pszFile, const char* palette);

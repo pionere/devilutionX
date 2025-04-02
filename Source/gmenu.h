@@ -15,7 +15,6 @@ extern "C" {
 extern CelImageBuf* gpOptbarCel;
 extern TMenuItem* gpCurrentMenu;
 
-void gmenu_draw_pause();
 void FreeGMenu();
 void InitGMenu();
 bool gmenu_is_active();

@@ -37,6 +37,8 @@ DEVILUTION_BEGIN_NAMESPACE
 #if DEBUG_MODE || DEV_MODE
 unsigned _guLockCount;
 #endif
+/** 8-bit surface wrapper around #gpBuffer */
+static SDL_Surface* back_surface;
 /** Back buffer */
 BYTE* gpBuffer;
 /** Upper bound of back buffer. */
@@ -45,6 +47,10 @@ BYTE* gpBufStart;
 BYTE* gpBufEnd;
 /** The width of the back buffer. */
 int gnBufferWidth;
+#ifndef USE_SDL1
+/** Currently active palette */
+static SDL_Palette* back_palette;
+#endif
 
 #if DEBUG_MODE
 int locktbl[256];
@@ -64,9 +70,9 @@ static void dx_create_back_buffer()
 	}
 	assert(back_surface->pitch == gnBufferWidth);
 	gpBuffer = (BYTE*)back_surface->pixels;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y]; // SCREENXY(0, 0)
 	//gpBufEnd = (BYTE )(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)]; // SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.
@@ -229,7 +235,8 @@ void ToggleFullscreen()
 		flags = renderer != NULL ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
 	}
 	if (SDL_SetWindowFullscreen(ghMainWnd, flags) < 0) {
-		sdl_error(ERR_SDL_FULLSCREEN_SDL2);
+		sdl_issue(ERR_SDL_FULLSCREEN_SDL2);
+		return;
 	}
 #endif
 	gbFullscreen = !gbFullscreen;
@@ -246,83 +253,93 @@ void ClearScreenBuffer()
 	//assert(back_surface != NULL);
 
 	//SDL_FillRect(back_surface, NULL, 0x000000);
-	BYTE *dst = &gpBuffer[SCREENXY(0, 0)];
-	BYTE *dstEnd = &gpBuffer[SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)];
+	// BYTE *dst = &gpBuffer[SCREENXY(0, 0)];
+	// BYTE *dstEnd = &gpBuffer[SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)];
+	BYTE* dst = gpBufStart;
+	BYTE* dstEnd = gpBufEnd;
 	memset(dst, 0, (size_t)dstEnd - (size_t)dst);
 
 	//unlock_buf(3);
 }
-
-static void Blit(SDL_Surface* src, const SDL_Rect* src_rect, SDL_Rect* dst_rect)
+#ifdef USE_SDL1
+/*static void ScaleOutputRect(const SDL_Surface* dst, SDL_Rect* rect)
 {
-	SDL_Surface* dst = GetOutputSurface();
-#ifndef USE_SDL1
-	if (SDL_LowerBlit(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
-		sdl_error(ERR_SDL_DX_BLIT_SDL2);
-#else
-	if (!OutputRequiresScaling()) {
-		if (SDL_BlitSurface(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
-			sdl_error(ERR_SDL_DX_BLIT_SDL1);
-		return;
-	}
-
-	SDL_Rect scaled_dst_rect;
-	if (dst_rect != NULL) {
-		scaled_dst_rect = *dst_rect;
-		ScaleOutputRect(&scaled_dst_rect);
-		dst_rect = &scaled_dst_rect;
-	}
-
-	// Same pixel format: We can call BlitScaled directly.
-	if (SDLBackport_PixelFormatFormatEq(src->format, dst->format)) {
-		if (SDL_BlitScaled(src, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0)
-			sdl_error(ERR_SDL_DX_BLIT_SCALE);
-		return;
-	}
-
-	// If the surface has a color key, we must stretch first and can then call BlitSurface.
-	if (SDL_HasColorKey(src)) {
-		SDL_Surface* stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect->w, dst_rect->h, src->format->BitsPerPixel,
-		    src->format->Rmask, src->format->Gmask, src->format->BitsPerPixel, src->format->Amask);
-		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
-		if (src->format->palette != NULL)
-			SDL_SetPalette(stretched, SDL_LOGPAL, src->format->palette->colors, 0, src->format->palette->ncolors);
-		SDL_Rect stretched_rect = { 0, 0, dst_rect->w, dst_rect->h };
-		if (SDL_SoftStretch(src, src_rect, stretched, &stretched_rect) < 0
-		    || SDL_BlitSurface(stretched, &stretched_rect, dst, dst_rect) < 0) {
-			SDL_FreeSurface(stretched);
-			sdl_error(ERR_SDL_DX_BLIT_STRETCH);
-		}
-		SDL_FreeSurface(stretched);
-		return;
-	}
-
-	// A surface with a non-output pixel format but without a color key needs scaling.
-	// We can convert the format and then call BlitScaled.
-	SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
-	if (SDL_BlitScaled(converted, const_cast<SDL_Rect*>(src_rect), dst, dst_rect) < 0) {
-		SDL_FreeSurface(converted);
-		sdl_error(ERR_SDL_DX_BLIT_CONVERTED);
-	}
-	SDL_FreeSurface(converted);
+	rect->x = rect->x * dst->w / SCREEN_WIDTH;
+	rect->y = rect->y * dst->h / SCREEN_HEIGHT;
+	rect->w = rect->w * dst->w / SCREEN_WIDTH;
+	rect->h = rect->h * dst->h / SCREEN_HEIGHT;
+}*/
 #endif
-}
-
 void BltFast()
 {
+	SDL_Surface* src = back_surface;
 	SDL_Rect src_rect = {
 		SCREEN_X,
 		SCREEN_Y,
 		SCREEN_WIDTH,
 		SCREEN_HEIGHT,
 	};
+
+	SDL_Surface* dst = GetOutputSurface();
+#ifndef USE_SDL1
 	SDL_Rect dst_rect = {
 		0,
 		0,
 		SCREEN_WIDTH,
 		SCREEN_HEIGHT,
 	};
-	Blit(back_surface, &src_rect, &dst_rect);
+
+	if (SDL_LowerBlit(src, &src_rect, dst, &dst_rect) < 0)
+		sdl_issue(ERR_SDL_DX_BLIT_SDL2);
+#else
+	int result;
+	// ScaleOutputRect(dst, &dst_rect);
+	SDL_Rect dst_rect = {
+		0,
+		0,
+		dst->w,
+		dst->h,
+	};
+
+	if (src_rect.w == dst_rect.w && src_rect.h == dst_rect.h) {
+		if (SDL_BlitSurface(src, &src_rect, dst, &dst_rect) < 0)
+			sdl_issue(ERR_SDL_DX_BLIT_SDL1);
+		return;
+	}
+
+	// Same pixel format: We can call BlitScaled directly.
+	if (SDLBackport_PixelFormatFormatEq(src->format, dst->format)) {
+		if (SDL_BlitScaled(src, &src_rect, dst, &dst_rect) < 0)
+			sdl_issue(ERR_SDL_DX_BLIT_SCALE);
+		return;
+	}
+
+	// If the surface has a color key, we must stretch first and can then call BlitSurface.
+	if (SDL_HasColorKey(src)) {
+		SDL_Surface* stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect.w, dst_rect.h, src->format->BitsPerPixel,
+		    src->format->Rmask, src->format->Gmask, src->format->BitsPerPixel, src->format->Amask);
+		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
+		if (src->format->palette != NULL)
+			SDL_SetPalette(stretched, SDL_LOGPAL, src->format->palette->colors, 0, src->format->palette->ncolors);
+		SDL_Rect stretched_rect = dst_rect;
+		result = SDL_SoftStretch(src, &src_rect, stretched, &stretched_rect);
+		if (result >= 0) {
+			result = SDL_BlitSurface(stretched, &stretched_rect, dst, &dst_rect);
+		}
+		SDL_FreeSurface(stretched);
+		if (result < 0)
+			sdl_issue(ERR_SDL_DX_BLIT_STRETCH);
+		return;
+	}
+
+	// A surface with a non-output pixel format but without a color key needs scaling.
+	// We can convert the format and then call BlitScaled.
+	SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
+	result = SDL_BlitScaled(converted, &src_rect, dst, &dst_rect);
+	SDL_FreeSurface(converted);
+	if (result < 0)
+		sdl_issue(ERR_SDL_DX_BLIT_CONVERTED);
+#endif
 }
 
 /**
@@ -347,36 +364,66 @@ void RenderPresent()
 #ifndef USE_SDL1
 		if (renderer != NULL) {
 			if (SDL_UpdateTexture(renderer_texture, NULL, surface->pixels, surface->pitch) < 0) {
-				sdl_error(ERR_SDL_DX_UPDATE_TEXTURE);
+				sdl_issue(ERR_SDL_DX_UPDATE_TEXTURE);
 			}
 
 			// Clear buffer to avoid artifacts in case the window was resized
 			/* skip SDL_RenderClear since the whole screen is redrawn anyway
 			if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) < 0) { // TODO only do this if window was resized
-				sdl_error(ERR_SDL_DX_DRAW_COLOR);
+				sdl_issue(ERR_SDL_DX_DRAW_COLOR);
 			}
 
 			if (SDL_RenderClear(renderer) < 0) {
-				sdl_error(ERR_SDL_DX_RENDER_CLEAR);
+				sdl_issue(ERR_SDL_DX_RENDER_CLEAR);
 			}*/
 			if (SDL_RenderCopy(renderer, renderer_texture, NULL, NULL) < 0) {
-				sdl_error(ERR_SDL_DX_RENDER_COPY);
+				sdl_issue(ERR_SDL_DX_RENDER_COPY);
 			}
 			SDL_RenderPresent(renderer);
 		} else {
 			if (SDL_UpdateWindowSurface(ghMainWnd) < 0) {
-				sdl_error(ERR_SDL_DX_RENDER_SURFACE);
+				sdl_issue(ERR_SDL_DX_RENDER_SURFACE);
 			}
 		}
 #else
 		if (SDL_Flip(surface) < 0) {
-			sdl_error(ERR_SDL_DX_FLIP);
+			sdl_issue(ERR_SDL_DX_FLIP);
 		}
 #endif
 		if (gbFrameRateControl != FRC_CPUSLEEP)
 			return;
 	}
 	LimitFrameRate();
+}
+
+/*
+ * SDL1: Sets the colors of the video-surface and the palette of the back_surface.
+ * SDL2: Sets the palette's colors.
+ */
+void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors)
+{
+	int result;
+#ifdef USE_SDL1
+	SDL_Surface* surface = back_surface;
+#if SDL1_VIDEO_MODE_BPP == 8
+	// When the video surface is 8bit, we need to set the output palette as well.
+	SDL_Surface *videoSurface = SDL_GetVideoSurface();
+	result = SDL_SetColors(videoSurface, colors, firstcolor, ncolors);
+	if (result == 0)
+		sdl_issue(ERR_SDL_PALETTE_UPDATE);
+	if (videoSurface == surface) return;
+#endif
+	// In SDL1, the surface always has its own distinct palette, so we need to
+	// update it as well.
+	result = SDL_SetPalette(surface, SDL_LOGPAL, colors, firstcolor, ncolors);
+	if (result == 0)
+		sdl_issue(ERR_SDL_PALETTE_UPDATE);
+#else // !USE_SDL1
+	SDL_Palette* palette = back_palette;
+	result = SDL_SetPaletteColors(palette, colors, firstcolor, ncolors);
+	if (result < 0)
+		sdl_issue(ERR_SDL_PALETTE_UPDATE);
+#endif
 }
 
 DEVILUTION_END_NAMESPACE

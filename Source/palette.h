@@ -15,6 +15,7 @@ extern "C" {
 #define FADE_LEVELS 256
 
 extern bool gbColorCyclingEnabled;
+extern int gnFadeValue;
 
 extern SDL_Color system_palette[NUM_COLORS];
 
