@@ -1,17 +1,21 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10...3.30)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141)
+# Projects added via `add_subdirectory` or `FetchContent` may have a lower
+# `cmake_minimum_required` than we set here. Set policies that we require
+# to their new value so that they still apply.
+foreach(_policy CMP0069 CMP0077 CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141 CMP0177)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
   endif()
 endforeach()
 
-# Projects added via `add_subdirectory` or `FetchContent` may have a lower
-# `cmake_minimum_required` than we set here. Set policies that we require
-# to their new value so that they still apply.
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+foreach(_policy CMP0169)
+  if(POLICY ${_policy})
+    cmake_policy(SET ${_policy} OLD)
+    set(CMAKE_POLICY_DEFAULT_${_policy} OLD)
+  endif()
+endforeach()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 if(NINTENDO_3DS)

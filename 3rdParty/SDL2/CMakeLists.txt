@@ -78,7 +78,3 @@ FetchContent_Declare(SDL2
     GIT_TAG ea4214e093a0fcbabe483b1d03ddae5c9aaf38e5
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
-
-if(TARGET SDL2::SDL2-static)
-  add_library(SDL2::SDL2 ALIAS SDL2-static)
-endif()
