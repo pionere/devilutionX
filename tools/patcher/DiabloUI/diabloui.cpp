@@ -495,15 +495,16 @@ static void UiDraw(const UiImage* uiImage)
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
 
-static int UIItemFlags(int flags, const SDL_Rect& rect)
-{
-	const SDL_Point point = { MousePos.x, MousePos.y };
-	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
-}
-
 static void UiDrawStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	DrawArtStr(text, rect, UIItemFlags(flags, rect));
+	const SDL_Point point = { MousePos.x, MousePos.y };
+	if (SDL_PointInRect(&point, &rect)) {
+		flags |= UIS_LIGHT;
+#if SCREEN_READER_INTEGRATION
+		SpeakText(text);
+#endif
+	}
+	DrawArtStr(text, rect, flags);
 }
 #if FULL_UI
 static void UiDraw(const UiTxtButton* uiButton)
