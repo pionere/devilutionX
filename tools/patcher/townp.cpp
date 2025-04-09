@@ -152,7 +152,7 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	return resCelBuf;
 }
 
-static void copyUpperCathedralMicro(int src, int dst, int TRANS_COLOR, int DRAW_HEIGHT)
+static void moveUpperMicroPixels(int src, int dst, int TRANS_COLOR, int DRAW_HEIGHT)
 {
 	for (int x = 0; x < MICRO_WIDTH; x++) {
 		for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
@@ -166,7 +166,7 @@ static void copyUpperCathedralMicro(int src, int dst, int TRANS_COLOR, int DRAW_
 	}
 }
 
-static void copyLowerCathedralMicro(int src, int dst, int TRANS_COLOR, int DRAW_HEIGHT)
+static void moveLowerMicroPixels(int src, int dst, int TRANS_COLOR, int DRAW_HEIGHT)
 {
 	for (int x = 0; x < MICRO_WIDTH; x++) {
 		for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
@@ -180,7 +180,7 @@ static void copyLowerCathedralMicro(int src, int dst, int TRANS_COLOR, int DRAW_
 	}
 }
 
-static void copyLimitedUpperCathedralMicro(int src, int dst, int x0, int x1, int TRANS_COLOR, int DRAW_HEIGHT)
+static void moveLimitedUpperMicroPixels(int src, int dst, int x0, int x1, int TRANS_COLOR, int DRAW_HEIGHT)
 {
 	for (int x = x0; x < x1; x++) {
 		for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
@@ -194,7 +194,7 @@ static void copyLimitedUpperCathedralMicro(int src, int dst, int x0, int x1, int
 	}
 }
 
-static void copyLimitedLowerCathedralMicro(int src, int dst, int x0, int x1, int TRANS_COLOR, int DRAW_HEIGHT)
+static void moveLimitedLowerMicroPixels(int src, int dst, int x0, int x1, int TRANS_COLOR, int DRAW_HEIGHT)
 {
 	for (int x = x0; x < x1; x++) {
 		for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
@@ -208,7 +208,7 @@ static void copyLimitedLowerCathedralMicro(int src, int dst, int x0, int x1, int
 	}
 }
 
-static void shiftCathedralMicrosDown(int m0, int m1, int TRANS_COLOR, int DRAW_HEIGHT)
+static void shiftMicrosDown(int m0, int m1, int TRANS_COLOR, int DRAW_HEIGHT)
 {
 	for (int i = m0; i < m1; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
@@ -607,9 +607,9 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 		gpBuffer[addr2 - 3 + 1 * BUFFER_WIDTH] = gpBuffer[addr2 + 3];
 	}
 	// copy lower half 811[0] to 727[9]
-	copyLowerCathedralMicro(5, 4, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(5, 4, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 811[2..] by half
-	shiftCathedralMicrosDown(5, 9, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(5, 9, TRANS_COLOR, DRAW_HEIGHT);
 	// copy 728[9] to 716[13]
 	// copy 728[7] to 716[11]
 	for (int i = 11; i < 13; i++) {
@@ -623,61 +623,61 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 		}
 	}
 	// copy lower half of 812[0] to 716[13]
-	copyLowerCathedralMicro(14, 9, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(14, 9, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 812[0] to 811[1]
-	copyUpperCathedralMicro(14, 13, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(14, 13, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy lower half of 809[0] to 811[1]
-	copyLowerCathedralMicro(15, 13, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(15, 13, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 809[2..] by half
-	shiftCathedralMicrosDown(15, 19, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(15, 19, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 818[0] to 719[13]
-	copyLowerCathedralMicro(20, 19, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(20, 19, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 818[12] to 838[1]
-	copyUpperCathedralMicro(26, 60, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(26, 60, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 818[2..] by half
-	shiftCathedralMicrosDown(20, 27, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(20, 27, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 810[1] to 719[12]
-	copyLowerCathedralMicro(28, 27, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(28, 27, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 810[3..] by half
-	shiftCathedralMicrosDown(28, 33, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(28, 33, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 812[1] to 721[12]
-	copyLowerCathedralMicro(35, 33, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(35, 33, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 812[1] to 810[0]
-	copyUpperCathedralMicro(35, 34, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(35, 34, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy lower half of 809[1] to 810[0]
-	copyLowerCathedralMicro(36, 34, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(36, 34, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 809[3..] by half
-	shiftCathedralMicrosDown(36, 40, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(36, 40, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 818[1] to 819[0]
-	copyLowerCathedralMicro(42, 40, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(42, 40, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 818[1] to 816[0]
-	copyUpperCathedralMicro(42, 41, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(42, 41, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 817[0] to 819[1]
-	copyLowerCathedralMicro(45, 43, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(45, 43, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 817[0] to 816[1]
-	copyUpperCathedralMicro(45, 44, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(45, 44, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 837[1] to 816[12]
-	copyLowerCathedralMicro(48, 46, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(48, 46, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 837[5] to 846[0]
-	copyUpperCathedralMicro(50, 47, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(50, 47, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 845[1] to 846[0]
-	copyLowerCathedralMicro(52, 47, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(52, 47, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 845[1] to 843[0]
-	copyUpperCathedralMicro(52, 51, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(52, 51, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 837[3..] by half
-	shiftCathedralMicrosDown(48, 51, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(48, 51, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 841[0] to 816[13]
-	copyLowerCathedralMicro(57, 53, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(57, 53, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 844[0] to 846[1]
-	copyLowerCathedralMicro(56, 54, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(56, 54, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 844[0] to 843[1]
-	copyUpperCathedralMicro(56, 55, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(56, 55, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 841[4] to 846[1]
-	copyUpperCathedralMicro(59, 54, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(59, 54, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 841[2..] by half
-	shiftCathedralMicrosDown(57, 60, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(57, 60, TRANS_COLOR, DRAW_HEIGHT);
 	// mask 836[1] and 838[1]
 	for (int i = 60; i < 62; i++) {
 		for (int x = 0; x < 10; x++) {
@@ -687,11 +687,11 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 		}
 	}
 	// copy lower half of 837[0] to 838[1]
-	copyLimitedLowerCathedralMicro(63, 60, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedLowerMicroPixels(63, 60, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 837[0] to 836[1]
-	copyLimitedUpperCathedralMicro(63, 61, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedUpperMicroPixels(63, 61, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 	// copy part of lower half of 845[0] to 836[5]
-	copyLimitedLowerCathedralMicro(64, 62, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedLowerMicroPixels(64, 62, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 	// mask 845[0]
 	for (int i = 64; i < 65; i++) {
 		for (int x = 0; x < 10; x++) {
@@ -709,29 +709,29 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 		}
 	}
 	// shift 845[2..] by half
-	shiftCathedralMicrosDown(64, 69, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(64, 69, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 844[1] to 839[4]
-	copyLowerCathedralMicro(70, 69, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(70, 69, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 844[3..] by half
-	shiftCathedralMicrosDown(70, 76, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(70, 76, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 817[1] to 805[12]
-	copyLowerCathedralMicro(79, 1, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(79, 1, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 841[1] to 842[0]
-	copyLowerCathedralMicro(78, 77, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(78, 77, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 841[1] to 839[0]
-	copyUpperCathedralMicro(78, 76, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(78, 76, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 817[13] to 842[0]
-	copyUpperCathedralMicro(85, 77, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(85, 77, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 817[3..] by half
-	shiftCathedralMicrosDown(79, 86, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(79, 86, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 840[0] to 842[1]
-	copyLowerCathedralMicro(88, 86, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(88, 86, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 840[0] to 839[1]
-	copyUpperCathedralMicro(88, 87, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(88, 87, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 848[0] to 839[5]
-	copyLowerCathedralMicro(90, 89, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(90, 89, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 848[2..] by half
-	shiftCathedralMicrosDown(90, 96, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(90, 96, TRANS_COLOR, DRAW_HEIGHT);
 	// mask 847[0] and 849[0]
 	for (int i = 96; i < 98; i++) {
 		for (int x = 30; x < MICRO_WIDTH; x++) {
@@ -741,133 +741,133 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 		}
 	}
 	// copy lower half of 848[1] to 849[0]
-	copyLimitedLowerCathedralMicro(98, 96, 0, 30, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedLowerMicroPixels(98, 96, 0, 30, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 848[1] to 847[0]
-	copyLimitedUpperCathedralMicro(98, 97, 0, 30, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedUpperMicroPixels(98, 97, 0, 30, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy lower half of 840[0] to 559[12]
-	copyLowerCathedralMicro(100, 99, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(100, 99, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 840[5] to 849[0]
-	copyUpperCathedralMicro(102, 96, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(102, 96, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 840[3..] by half
-	shiftCathedralMicrosDown(100, 103, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(100, 103, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 822[12] to 842[1]
-	copyUpperCathedralMicro(109, 86, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(109, 86, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 822[0] to 805[13]
-	copyLowerCathedralMicro(103, 2, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(103, 2, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 822[2..] by half
-	shiftCathedralMicrosDown(103, 110, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(103, 110, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 821[0] to 823[1]
-	copyLowerCathedralMicro(112, 110, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(112, 110, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 821[0] to 820[1]
-	copyUpperCathedralMicro(112, 111, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(112, 111, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 826[0] to 820[1]
-	copyLowerCathedralMicro(113, 111, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(113, 111, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 826[2..] by half
-	shiftCathedralMicrosDown(113, 120, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(113, 120, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 822[1] to 823[0]
-	copyLowerCathedralMicro(122, 120, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(122, 120, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 822[1] to 820[0]
-	copyUpperCathedralMicro(122, 121, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(122, 121, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 806[13] to 823[0]
-	copyUpperCathedralMicro(130, 120, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(130, 120, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 806[1] to 781[0]
-	copyLowerCathedralMicro(124, 123, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(124, 123, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 806[3..] by half
-	shiftCathedralMicrosDown(124, 131, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(124, 131, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 787[12] to 823[1]
-	copyUpperCathedralMicro(139, 110, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(139, 110, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 787[0] to 781[1]
-	copyLowerCathedralMicro(133, 132, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(133, 132, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 787[2..] by half
-	shiftCathedralMicrosDown(133, 140, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(133, 140, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 826[1] to 827[0]
-	copyLowerCathedralMicro(142, 140, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(142, 140, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 826[1] to 824[0]
-	copyUpperCathedralMicro(142, 141, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(142, 141, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 821[1] to 785[12]
-	copyLowerCathedralMicro(144, 143, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(144, 143, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 821[1] to 827[0]
-	copyUpperCathedralMicro(144, 140, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(144, 140, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 825[0] to 827[1]
-	copyLowerCathedralMicro(147, 145, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(147, 145, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 825[0] to 824[1]
-	copyUpperCathedralMicro(147, 146, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(147, 146, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 791[12] to 827[1]
-	copyUpperCathedralMicro(155, 145, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(155, 145, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 791[0] to 785[1]
-	copyLowerCathedralMicro(149, 148, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(149, 148, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 830[0] to 824[1]
-	copyLowerCathedralMicro(156, 146, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(156, 146, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 791[2..] by half
-	shiftCathedralMicrosDown(149, 156, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(149, 156, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 830[2..] by half
-	shiftCathedralMicrosDown(156, 163, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(156, 163, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 825[1] to 789[12]
-	copyLowerCathedralMicro(165, 163, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(165, 163, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 825[1] to 831[0]
-	copyUpperCathedralMicro(165, 164, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(165, 164, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 830[1] to 831[0]
-	copyLowerCathedralMicro(167, 164, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(167, 164, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 830[1] to 828[0]
-	copyUpperCathedralMicro(167, 166, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(167, 166, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 829[0] to 831[1]
-	copyLowerCathedralMicro(170, 168, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(170, 168, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 829[0] to 828[1]
-	copyUpperCathedralMicro(170, 169, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(170, 169, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 834[0] to 828[1]
-	copyLowerCathedralMicro(171, 169, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(171, 169, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 834[2..] by half
-	shiftCathedralMicrosDown(171, 178, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(171, 178, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 834[1] to 835[0]
-	copyLowerCathedralMicro(180, 178, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(180, 178, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 834[1] to 832[0]
-	copyUpperCathedralMicro(180, 179, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(180, 179, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 829[1] to 793[12]
-	copyLowerCathedralMicro(182, 181, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(182, 181, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 829[1] to 835[0]
-	copyUpperCathedralMicro(182, 178, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(182, 178, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 795[12] to 831[1]
-	copyUpperCathedralMicro(190, 168, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(190, 168, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 795[0] to 789[1]
-	copyLowerCathedralMicro(184, 183, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(184, 183, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 795[2..] by half
-	shiftCathedralMicrosDown(184, 191, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(184, 191, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 833[0] to 835[1]
-	copyLowerCathedralMicro(193, 191, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(193, 191, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 833[0] to 832[1]
-	copyUpperCathedralMicro(193, 192, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(193, 192, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 833[1] to 797[12]
-	copyLowerCathedralMicro(195, 194, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(195, 194, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 833[3..] by half
-	shiftCathedralMicrosDown(195, 200, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(195, 200, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 799[12] to 835[1]
-	copyUpperCathedralMicro(207, 191, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(207, 191, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 799[0] to 793[1]
-	copyLowerCathedralMicro(201, 200, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(201, 200, TRANS_COLOR, DRAW_HEIGHT);
 	// shift 799[2..] by half
-	shiftCathedralMicrosDown(201, 208, TRANS_COLOR, DRAW_HEIGHT);
+	shiftMicrosDown(201, 208, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy lower half of 806[0] to 808[1]
-	copyLowerCathedralMicro(217, 215, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(217, 215, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 806[0] to 805[1]
-	copyUpperCathedralMicro(217, 216, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(217, 216, TRANS_COLOR, DRAW_HEIGHT);
 	// copy lower half of 807[1] to 808[0]
-	copyLowerCathedralMicro(220, 218, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(220, 218, TRANS_COLOR, DRAW_HEIGHT);
 	// copy upper half of 807[1] to 805[0]
-	copyUpperCathedralMicro(220, 219, TRANS_COLOR, DRAW_HEIGHT);
+	moveUpperMicroPixels(220, 219, TRANS_COLOR, DRAW_HEIGHT);
 	// copy part of lower half of 803[0] to 797[1]
-	copyLimitedLowerCathedralMicro(210, 208, 0, 17, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedLowerMicroPixels(210, 208, 0, 17, TRANS_COLOR, DRAW_HEIGHT);
 	// copy part of upper half of 803[0] to 815[1]
-	copyLimitedUpperCathedralMicro(210, 209, 0, 17, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedUpperMicroPixels(210, 209, 0, 17, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy part of lower half of 814[0] to 815[1]
-	copyLimitedLowerCathedralMicro(211, 209, 0, 16, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedLowerMicroPixels(211, 209, 0, 16, TRANS_COLOR, DRAW_HEIGHT);
 	// copy part of upper half of 814[0] to 813[1]
-	copyLimitedUpperCathedralMicro(211, 212, 0, 16, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedUpperMicroPixels(211, 212, 0, 16, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy part of lower half of 813[1] to 814[0]
-	copyLimitedLowerCathedralMicro(212, 211, 16, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
+	moveLimitedLowerMicroPixels(212, 211, 16, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 	// copy part of upper half of 813[1] to 799[12]
 	for (int i = 212; i < 213; i++) {
 		for (int x = 16; x < MICRO_WIDTH; x++) {
@@ -909,7 +909,7 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	}
 
 	// copy lower half of 813[5] to 795[12]
-	copyLowerCathedralMicro(214, 190, TRANS_COLOR, DRAW_HEIGHT);
+	moveLowerMicroPixels(214, 190, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy part of 815[1] to 791[12]
 	for (int i = 209; i < 210; i++) {
