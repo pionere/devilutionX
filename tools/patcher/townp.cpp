@@ -712,9 +712,9 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	// mask 836[1] and 838[1]
 	maskMicro(60, 0, 10, 0, MICRO_HEIGHT, TRANS_COLOR, DRAW_HEIGHT);
 	maskMicro(61, 0, 10, 0, MICRO_HEIGHT, TRANS_COLOR, DRAW_HEIGHT);
-	// copy lower half of 837[0] to 838[1]
+	// copy part of lower half of 837[0] to 838[1]
 	moveLimitedLowerMicroPixels(63, 60, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
-	// copy upper half of 837[0] to 836[1]
+	// copy part of upper half of 837[0] to 836[1]
 	moveLimitedUpperMicroPixels(63, 61, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 	// copy part of lower half of 845[0] to 836[5]
 	moveLimitedLowerMicroPixels(64, 62, 10, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
@@ -749,9 +749,9 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	// mask 847[0] and 849[0]
 	maskMicro(96, 30, MICRO_WIDTH, 0, MICRO_HEIGHT, TRANS_COLOR, DRAW_HEIGHT);
 	maskMicro(97, 30, MICRO_WIDTH, 0, MICRO_HEIGHT, TRANS_COLOR, DRAW_HEIGHT);
-	// copy lower half of 848[1] to 849[0]
+	// copy part of lower half of 848[1] to 849[0]
 	moveLimitedLowerMicroPixels(98, 96, 0, 30, TRANS_COLOR, DRAW_HEIGHT);
-	// copy upper half of 848[1] to 847[0]
+	// copy part of upper half of 848[1] to 847[0]
 	moveLimitedUpperMicroPixels(98, 97, 0, 30, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy lower half of 840[0] to 559[12]
@@ -960,7 +960,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 		int res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-/*  0 */{ 731 - 1, 9, MET_TRANSPARENT }, // move micro
+/*  0 */{ 731 - 1, 9, MET_TRANSPARENT }, // move micro 495
 /*  1 */{ 755 - 1, 0, MET_LTRIANGLE },   // change type
 /*  2 */{ 974 - 1, 0, MET_LTRIANGLE },   // change type
 /*  3 */{ 1030 - 1, 0, MET_LTRIANGLE },  // change type
@@ -1284,7 +1284,7 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 /* 17 */{ 725 - 1, 2, MET_TRANSPARENT },
 /* 18 */{ 725 - 1, 0, MET_TRANSPARENT },
 
-/* 19 */{ 428 - 1, 4, -1 },
+/* 19 */{ 428 - 1, 4, -1 }, // 286
 /* 20 */{ 428 - 1, 2, -1 },
 /* 21 */{ 428 - 1, 0, -1 },
 /* 22 */{ 418 - 1, 5, MET_SQUARE },
@@ -1353,12 +1353,12 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 /* 79 */{ 529 - 1, 4, MET_SQUARE },
 /* 80 */{ 531 - 1, 4, MET_SQUARE },
 
-/* 81 */{ 478 - 1, 0, -1 },
-/* 82 */{ 477 - 1, 1, MET_SQUARE }, // 317
-/* 83 */{ 480 - 1, 1, MET_RTRAPEZOID },
-/* 84 */{ 479 - 1, 1, -1 },
-/* 85 */{ 477 - 1, 0, MET_SQUARE }, // 317
-/* 86 */{ 480 - 1, 0, MET_LTRAPEZOID },
+/* 81 */{ 478 - 1, 0, -1 },             // 317
+/* 82 */{ 477 - 1, 1, MET_SQUARE },     // 316
+/* 83 */{ 480 - 1, 1, MET_RTRAPEZOID }, // 319
+/* 84 */{ 479 - 1, 1, -1 },             // 318
+/* 85 */{ 477 - 1, 0, MET_SQUARE },     // 316
+/* 86 */{ 480 - 1, 0, MET_LTRAPEZOID }, // 319
 
 /* 87 */{ 517 - 1, 0, -1 },             // move micros for better light propagation
 /* 88 */{ 519 - 1, 1, MET_RTRAPEZOID },
@@ -1421,9 +1421,9 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	// copy 715[9] to 727[5]
 	moveMicroPixels(5, 15, TRANS_COLOR, DRAW_HEIGHT);
 
-	// copy 715[3] to 725[2]
+	// copy part of 715[3] to 725[2]
 	moveLimitedUpperMicroPixels(8, 17, 9, 24, TRANS_COLOR, DRAW_HEIGHT);
-	// copy 715[3] to 725[0]
+	// copy part of 715[3] to 725[0]
 	moveLimitedLowerMicroPixels(8, 18, 9, 24, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy 715[1] to 725[0]
@@ -1445,17 +1445,17 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	// copy 428[2] to 418[3]
 	moveLowerMicroPixels(20, 23, TRANS_COLOR, DRAW_HEIGHT);
 
-	// copy 428[0] to 418[3]
+	// copy part of 428[0] to 418[3]
 	moveLimitedUpperMicroPixels(21, 23, 8, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
-	// copy 428[0] to 418[1]
+	// copy part of 428[0] to 418[1]
 	moveLimitedLowerMicroPixels(21, 24, 8, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy 426[2] to 419[5]
 	moveLowerMicroPixels(25, 29, TRANS_COLOR, DRAW_HEIGHT);
 
-	// copy 426[0] to 419[5]
+	// copy part of 426[0] to 419[5]
 	moveLimitedUpperMicroPixels(26, 29, 0, 9, TRANS_COLOR, DRAW_HEIGHT);
-	// copy 426[0] to 419[3]
+	// copy part of 426[0] to 419[3]
 	moveLimitedLowerMicroPixels(26, 30, 0, 9, TRANS_COLOR, DRAW_HEIGHT);
 
 	// mask 428[1]
@@ -1463,9 +1463,9 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	// copy 428[1] to 419[3]
 	moveMicroPixels(27, 30, TRANS_COLOR, DRAW_HEIGHT);
 
-	// copy 429[0] to 419[3]
+	// copy part of 429[0] to 419[3]
 	moveLimitedUpperMicroPixels(28, 30, 0, 9, TRANS_COLOR, DRAW_HEIGHT);
-	// copy 429[0] to 419[1]
+	// copy part of 429[0] to 419[1]
 	moveLimitedLowerMicroPixels(28, 31, 0, 9, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy 911[9] to 931[5]
@@ -1633,21 +1633,21 @@ static BYTE* patchTownLightCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 /* 17 */{ 523 - 1, 10, -1 },
 
 /* 18 */{ 386 - 1, 9, MET_SQUARE },
-/* 19 */{ 432 - 1, 0, MET_SQUARE },
+/* 19 */{ 432 - 1, 0, MET_SQUARE }, // 290
 /* 20 */{ 432 - 1, 2, MET_SQUARE },
 /* 21 */{ 432 - 1, 4, MET_TRANSPARENT },
 /* 22 */{ 432 - 1, 6, MET_TRANSPARENT },
 
-/* 23 */{ 433 - 1, 0, -1 },
+/* 23 */{ 433 - 1, 0, -1 },  // 291
 /* 24 */{ 387 - 1, 9, MET_SQUARE },
 /* 25 */{ 432 - 1, 1, MET_SQUARE },
-/* 26 */{ 430 - 1, 0, MET_SQUARE },
+/* 26 */{ 430 - 1, 0, MET_SQUARE }, // 288
 /* 27 */{ 430 - 1, 2, MET_SQUARE },
 /* 28 */{ 430 - 1, 4, MET_TRANSPARENT },
 
 /* 29 */{ 433 - 1, 1, -1 },
 /* 30 */{ 424 - 1, 8, MET_SQUARE },
-/* 31 */{ 431 - 1, 0, MET_SQUARE },
+/* 31 */{ 431 - 1, 0, MET_SQUARE }, // 289
 /* 32 */{ 430 - 1, 1, MET_SQUARE },
 /* 33 */{ 430 - 1, 3, MET_SQUARE },
 /* 34 */{ 430 - 1, 5, MET_TRANSPARENT },
@@ -1683,19 +1683,19 @@ static BYTE* patchTownLightCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 /* 58 */{ 408 - 1, 12, MET_SQUARE },
 
 /* 59 */{ 440 - 1, 1, -1 },
-/* 60 */{ 441 - 1, 0, -1 },
+/* 60 */{ 441 - 1, 0, -1 },          // 299
 /* 61 */{ 406 - 1, 10, MET_SQUARE }, // 268
-/* 62 */{ 438 - 1, 0, MET_SQUARE },
+/* 62 */{ 438 - 1, 0, MET_SQUARE },  // 296
 
 /* 63 */{ 441 - 1, 1, -1 },
 /* 64 */{ 412 - 1, 8, MET_SQUARE },
 /* 65 */{ 439 - 1, 0, MET_SQUARE },
-/* 66 */{ 438 - 1, 1, MET_SQUARE },
+/* 66 */{ 438 - 1, 1, MET_SQUARE }, // 296
 /* 67 */{ 438 - 1, 3, MET_SQUARE },
 /* 68 */{ 438 - 1, 5, MET_TRANSPARENT },
 
 /* 69 */{ 410 - 1, 8, MET_SQUARE },
-/* 70 */{ 439 - 1, 1, MET_SQUARE },
+/* 70 */{ 439 - 1, 1, MET_SQUARE }, // 297
 /* 71 */{ 439 - 1, 3, MET_TRANSPARENT },
 /* 72 */{ 439 - 1, 5, MET_TRANSPARENT },
 /* 73 */{ 439 - 1, 7, -1 },
@@ -7273,7 +7273,7 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 	}
 	// use the micros created by patchTownFloorCel
 	if (pSubtiles[MICRO_IDX(731 - 1, blockSize, 9)] != 0) {
-		MoveMcr(732, 8, 731, 9);
+		MoveMcr(732, 8, 731, 9); // 495 -> 496
 		SetFrameType(755, 0, MET_LTRIANGLE);
 		SetFrameType(974, 0, MET_LTRIANGLE);
 		SetFrameType(1030, 0, MET_LTRIANGLE);
@@ -7416,7 +7416,7 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		SetFrameType(480, 1, MET_RTRAPEZOID);
 		SetFrameType(477, 0, MET_SQUARE);
 		SetFrameType(480, 0, MET_LTRAPEZOID);
-		MoveMcr(480, 2, 477, 0); // 317 -> 319
+		MoveMcr(480, 2, 477, 0); // 316 -> 319
 		MoveMcr(480, 3, 477, 1);
 		MoveMcr(480, 4, 477, 2);
 		MoveMcr(480, 5, 477, 3);
@@ -7451,7 +7451,7 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		MoveMcr(531, 12, 539, 8);
 		MoveMcr(531, 14, 539, 10);
 
-		MoveMcr(551, 7, 522, 3);
+		MoveMcr(551, 7, 522, 3); // 352 -> 374
 		MoveMcr(551, 9, 522, 5);
 		MoveMcr(551, 11, 522, 7);
 		MoveMcr(551, 13, 522, 9);
@@ -7460,7 +7460,7 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		// SetFrameType(551, 1, MET_SQUARE);
 		SetFrameType(519, 1, MET_RTRAPEZOID);
 		Blk2Mcr(517, 0);
-		MoveMcr(519, 3, 551, 1);
+		MoveMcr(519, 3, 551, 1); // 374[1] -> 349[3]
 		// SetFrameType(524, 0, MET_LTRAPEZOID);
 		// SetFrameType(521, 0, MET_SQUARE);
 		Blk2Mcr(523, 1);
@@ -7512,7 +7512,7 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 		// SetFrameType(431, 3, MET_SQUARE);
 		// SetFrameType(431, 5, MET_SQUARE);
 		SetFrameType(431, 7, MET_TRANSPARENT);
-		MoveMcr(422, 10, 431, 1);
+		MoveMcr(422, 10, 431, 1); // 289 ->
 		MoveMcr(422, 12, 431, 3);
 		MoveMcr(422, 14, 431, 5);
 
