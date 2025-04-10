@@ -1043,18 +1043,7 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 
 	// move the image up - 731[9]
 	for (int i = 0; i < 1; i++) {
-		for (int x = 0; x < MICRO_WIDTH; x++) {
-			for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
-				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-				BYTE color = gpBuffer[addr + BUFFER_WIDTH * MICRO_HEIGHT / 2];
-				if (color != TRANS_COLOR)
-					gpBuffer[addr] = color;
-			}
-			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
-				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-				gpBuffer[addr] = TRANS_COLOR;
-			}
-		}
+		shiftMicrosUp(0, 1, TRANS_COLOR, DRAW_HEIGHT);
 	}
 
 	// mask and move down the image - 220[1], 221[0]
