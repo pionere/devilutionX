@@ -61,6 +61,20 @@ static void moveLowerMicroPixels(int src, int dst, int TRANS_COLOR, int DRAW_HEI
 	}
 }
 
+static void moveLimitedMicroPixels(int src, int dst, int x0, int x1, int TRANS_COLOR, int DRAW_HEIGHT)
+{
+	for (int x = x0; x < x1; x++) {
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			unsigned addr = x + MICRO_WIDTH * (src / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (src % DRAW_HEIGHT)) * BUFFER_WIDTH;
+			BYTE color = gpBuffer[addr];
+			if (color != TRANS_COLOR) {
+				gpBuffer[addr] = TRANS_COLOR;
+				gpBuffer[x + MICRO_WIDTH * (dst / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (dst % DRAW_HEIGHT)) * BUFFER_WIDTH] = color;
+			}
+		}
+	}
+}
+
 static void moveLimitedUpperMicroPixels(int src, int dst, int x0, int x1, int TRANS_COLOR, int DRAW_HEIGHT)
 {
 	for (int x = x0; x < x1; x++) {
@@ -907,18 +921,7 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	moveLowerMicroPixels(214, 190, TRANS_COLOR, DRAW_HEIGHT);
 
 	// copy part of 815[1] to 791[12]
-	for (int i = 209; i < 210; i++) {
-		for (int x = 17; x < MICRO_WIDTH; x++) {
-			for (int y = 0; y < MICRO_HEIGHT; y++) {
-				unsigned addr = x + MICRO_WIDTH * (i / DRAW_HEIGHT) + (y + MICRO_HEIGHT * (i % DRAW_HEIGHT)) * BUFFER_WIDTH;
-				BYTE color = gpBuffer[addr];
-				if (color != TRANS_COLOR) {
-					gpBuffer[addr] = TRANS_COLOR;
-					gpBuffer[x + MICRO_WIDTH * ((i - 54) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i - 54) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color;
-				}
-			}
-		}
-	}
+	moveLimitedMicroPixels(209, 155, 17, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 
 	// create the new CEL file
 	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
