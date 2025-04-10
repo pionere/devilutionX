@@ -129,6 +129,32 @@ static void shiftMicrosDown(int m0, int m1, int TRANS_COLOR, int DRAW_HEIGHT)
 	}
 }
 
+static void shiftMicrosUp(int m0, int m1, int TRANS_COLOR, int DRAW_HEIGHT)
+{
+	for (int i = m0; i < m1; i++) {
+		for (int x = 0; x < MICRO_WIDTH; x++) {
+			if (i != m0) {
+				for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
+					unsigned addr = x + MICRO_WIDTH * ((i - 0) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i - 0) % DRAW_HEIGHT)) * BUFFER_WIDTH;
+					BYTE color = gpBuffer[addr];
+					// if (color != TRANS_COLOR) {
+						gpBuffer[addr] = TRANS_COLOR;
+						gpBuffer[x + MICRO_WIDTH * ((i - 1) / DRAW_HEIGHT) + (y + MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i - 1) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color;
+					// }
+				}
+			}
+			for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
+				unsigned addr = x + MICRO_WIDTH * ((i - 0) / DRAW_HEIGHT) + (y + MICRO_HEIGHT * ((i - 0) % DRAW_HEIGHT)) * BUFFER_WIDTH;
+				BYTE color = gpBuffer[addr];
+				// if (color != TRANS_COLOR) {
+					gpBuffer[addr] = TRANS_COLOR;
+					gpBuffer[x + MICRO_WIDTH * ((i - 0) / DRAW_HEIGHT) + (y - MICRO_HEIGHT / 2 + MICRO_HEIGHT * ((i - 0) % DRAW_HEIGHT)) * BUFFER_WIDTH] = color;
+				// }
+			}
+		}
+	}
+}
+
 static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
 {
 	const unsigned blockSize = BLOCK_SIZE_TOWN;
@@ -171,6 +197,7 @@ static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potR
 	pSubtiles[rightIndex0] = (pSubtiles[rightIndex0] & 0xFFF) | (MET_TRANSPARENT << 12);
 }
 
+// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it I.
 static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
 	typedef struct {
@@ -179,10 +206,10 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		int res_encoding;
 	} CelMicro;
 	const CelMicro micros[] = {
-		{ 553 - 1, 5, MET_TRANSPARENT },
-		{ 553 - 1, 3, MET_TRANSPARENT },
-		{ 553 - 1, 1, MET_RTRIANGLE },
-		{ 554 - 1, 0, MET_TRANSPARENT },
+/*  0 */{ 553 - 1, 5, MET_TRANSPARENT }, // 376
+/*  1 */{ 553 - 1, 3, MET_TRANSPARENT },
+/*  2 */{ 553 - 1, 1, MET_RTRIANGLE },
+/*  3 */{ 554 - 1, 0, MET_TRANSPARENT }, // 377
 	};
 
 	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
@@ -221,27 +248,12 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		}
 	}
 
-	// move the image up 553[5] and 553[3]
-	for (int x = MICRO_WIDTH / 2; x < MICRO_WIDTH; x++) {
-		for (int y = MICRO_HEIGHT / 2; y < 2 * MICRO_HEIGHT; y++) {
-			gpBuffer[x + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = gpBuffer[x + y * BUFFER_WIDTH];
-			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
-		}
-	}
-	// copy image to the other micros 553[1] -> 553[3], 554[0]
-	for (int x = MICRO_WIDTH / 2 + 2; x < MICRO_WIDTH - 4; x++) {
-		for (int y = 2 * MICRO_HEIGHT; y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2 + 8; y++) {
-			BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
-			if (color == TRANS_COLOR)
-				continue;
-			if (y < 2 * MICRO_HEIGHT + MICRO_HEIGHT / 2) {
-				gpBuffer[x + (y - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color; // 553[3]
-			} else {
-				gpBuffer[x + MICRO_WIDTH + (y - 2 * MICRO_HEIGHT - MICRO_HEIGHT / 2) * BUFFER_WIDTH] = color; // 554[0]
-			}
-			gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
-		}
-	}
+	// copy part of 553[1] to 554[0]
+	moveLimitedLowerMicroPixels(2, 3, 18, 28, TRANS_COLOR, DRAW_HEIGHT);
+	// shift 553[3..] up by half
+	shiftMicrosUp(0, 2, TRANS_COLOR, DRAW_HEIGHT);
+	// copy part of 553[1] to 553[3]
+	moveLimitedUpperMicroPixels(2, 1, 18, 28, TRANS_COLOR, DRAW_HEIGHT);
 
 	// create the new CEL file
 	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
@@ -7248,8 +7260,14 @@ BYTE* Town_PatchMin(BYTE* buf, size_t* dwLen, bool isHellfireTown)
 	// - overwrite subtile 237 with subtile 402 to make the inner tile of Griswold's house non-walkable
 	// ReplaceMcr(237, 0, 402, 0);
 	// ReplaceMcr(237, 1, 402, 1);
-	// patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it I.
-	patchTownPotMin(pSubtiles, 553, 554);
+	// use the micros created by patchTownPotCel
+	if (pSubtiles[MICRO_IDX(553 - 1, blockSize, 3)] != 0) {
+		SetFrameType(553, 1, MET_RTRIANGLE);
+		SetFrameType(554, 0, MET_TRANSPARENT);
+
+		MoveMcr(554, 2, 553, 3); // 376[3] -> 377[2]
+		MoveMcr(554, 4, 553, 5);
+	}
 	// eliminate micros after patchTownChopCel
 	{
 		Blk2Mcr(362, 11);
