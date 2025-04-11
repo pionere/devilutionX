@@ -158,7 +158,7 @@ extern "C" {
 #define BELT_WIDTH       60
 #define BELT_HEIGHT      118
 #define BELT_LEFT        PANEL_LEFT
-#define BELT_TOP         (PANEL_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
+#define BELT_TOP         (SCREEN_HEIGHT - (MENUBTN_HEIGHT + BELT_HEIGHT))
 
 #define DURICON_WIDTH  32
 #define GOLDDROP_WIDTH 261
