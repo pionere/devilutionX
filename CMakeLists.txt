@@ -704,7 +704,7 @@ if(USE_PATCH)
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
     tools/patcher/DiabloUI/text_draw.cpp
-    tools/patcher/DiabloUI/title.cpp
+    #tools/patcher/DiabloUI/title.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
