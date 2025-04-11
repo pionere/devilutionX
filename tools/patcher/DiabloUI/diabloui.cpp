@@ -4,7 +4,6 @@
 
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/text_draw.h"
-#include "DiabloUI/dialogs.h"
 //#include "controls/plrctrls.h"
 #include "controls/touch.h"
 #include "all.h"
