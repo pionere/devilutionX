@@ -659,7 +659,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH AND NOT ANDROID)
+if(USE_PATCH)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -735,6 +735,9 @@ if(USE_PATCH AND NOT ANDROID)
       tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
+  if(ANDROID)
+    add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
+  else()
   set(PATCHER_SOURCES ${devil_patcher_SRCS})
   if(APPLE)
     list(APPEND PATCHER_SOURCES
@@ -752,7 +755,7 @@ if(USE_PATCH AND NOT ANDROID)
     WIN32
     MACOSX_BUNDLE
     ${PATCHER_SOURCES})
-
+  endif()
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
     #PKWare
     StormLib
