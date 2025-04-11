@@ -128,7 +128,7 @@ static void SelheroFreeDlgItems()
 
 static void SelheroFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 
 	SelheroFreeDlgItems();
 }
@@ -176,7 +176,7 @@ static void SelheroUpdateViewportItems()
 
 static void SelheroInit()
 {
-	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 }
 
 static void SelheroInitHeros()
@@ -203,8 +203,14 @@ static void SelheroResetScreen(const char* title, const char* rheader)
 {
 	SelheroFreeDlgItems();
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
+
+	gUiItems.push_back(new UiTextBox({ SELHERO_HEROS_LEFT - BOXBORDER_WIDTH, SELHERO_PNL_TOP - BOXBORDER_WIDTH, SELHERO_HEROS_WIDTH + 2 * BOXBORDER_WIDTH, SELHERO_HEROS_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELHERO_HEROS_LEFT - BOXBORDER_WIDTH, SELHERO_LPANEL_TOP - BOXBORDER_WIDTH, SELHERO_HEROS_WIDTH + 2 * BOXBORDER_WIDTH, SELHERO_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELHERO_RPANEL_LEFT - BOXBORDER_WIDTH, SELHERO_PNL_TOP - BOXBORDER_WIDTH, SELHERO_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELHERO_RHEADER_HEIGHT + SELHERO_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
 
 	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
@@ -434,10 +440,10 @@ static void SelheroNameSelect(unsigned index)
 		break;
 	}
 
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	SelheroFreeDlgItems();
 	UiSelOkDialog("Unable to create hero", err);
-	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 	SelheroNameInit(0);
 }
 

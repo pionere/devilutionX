@@ -484,7 +484,15 @@ static void UiDraw(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
+#if FULL_UI
+static void UiDraw(const UiTextBox* uiTextBox)
+{
+	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags & UIS_COLOR) == UIS_SILVER ? COL_WHITE : COL_GOLD);
 
+	if (uiTextBox->m_iFlags & UIS_HCENTER)
+		DrawColorTextBoxSLine(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, SELGAME_HEADER_HEIGHT);
+}
+#endif
 static void UiDraw(const UiImage* uiImage)
 {
 	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame, 64) : uiImage->m_frame;
@@ -657,6 +665,11 @@ static void UiDrawItem(const UiItemBase* item)
 	case UI_TEXT:
 		UiDraw(static_cast<const UiText*>(item));
 		break;
+#if FULL_UI
+	case UI_TEXTBOX:
+		UiDraw(static_cast<const UiTextBox*>(item));
+		break;
+#endif
 	case UI_IMAGE:
 		UiDraw(static_cast<const UiImage*>(item));
 		break;

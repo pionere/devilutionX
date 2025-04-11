@@ -122,7 +122,7 @@ static void selgame_remove_event_handlers()
 
 static void SelgameInit()
 {
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 }
 
 static void SelgameFreeDlgItems()
@@ -134,7 +134,7 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
@@ -144,8 +144,12 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 {
 	SelgameFreeDlgItems();
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
+
+	gUiItems.push_back(new UiTextBox({ SELGAME_LPANEL_LEFT - BOXBORDER_WIDTH, SELGAME_PNL_TOP - BOXBORDER_WIDTH, SELGAME_LPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELGAME_RPANEL_LEFT - BOXBORDER_WIDTH, SELGAME_PNL_TOP - BOXBORDER_WIDTH, SELGAME_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));

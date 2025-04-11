@@ -4221,9 +4221,9 @@ ui_art\prog_fil.CEL
 ui_art\sb_arrow.CEL
 ui_art\sb_bg.CEL
 ui_art\sb_thumb.CEL
-ui_art\selconn.CEL
-ui_art\selgame.CEL
-ui_art\selhero.CEL
+_ui_art\selconn.CEL
+_ui_art\selgame.CEL
+_ui_art\selhero.CEL
 ui_art\smbutton.CEL
 ui_art\smlogo.CEL
 ui_art\spopup.CEL

@@ -14,6 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 enum UiType : uint8_t {
 	UI_TEXT,
+	UI_TEXTBOX,
 	UI_TXT_BUTTON,
 	UI_TXT_SCROLL,
 	UI_IMAGE,
@@ -99,6 +100,18 @@ public:
 
 	//private:
 	const char* m_text;
+};
+
+//=============================================================================
+
+class UiTextBox : public UiItemBase {
+public:
+	UiTextBox(const SDL_Rect& rect, int flags)
+	    : UiItemBase(UI_TEXTBOX, rect, flags)
+	{
+	}
+
+	~UiTextBox() = default;
 };
 
 //=============================================================================

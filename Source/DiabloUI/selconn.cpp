@@ -69,7 +69,7 @@ static void SelconnLoad()
 {
 	int numOptions = 0;
 
-	LoadBackgroundArt("ui_art\\selconn.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 #ifndef HOSTONLY
 	gUIListItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 	numOptions++;
@@ -93,8 +93,12 @@ static void SelconnLoad()
 #endif // NOHOSTING
 #endif // TCPIP
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
+
+	gUiItems.push_back(new UiTextBox({ SELCONN_LPANEL_LEFT - BOXBORDER_WIDTH, SELCONN_PNL_TOP - BOXBORDER_WIDTH, SELCONN_LPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELCONN_RPANEL_LEFT - BOXBORDER_WIDTH, SELCONN_PNL_TOP - BOXBORDER_WIDTH, SELCONN_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELCONN_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
 
 	SDL_Rect rect1 = { PANEL_LEFT + 0, SELCONN_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
@@ -127,7 +131,7 @@ static void SelconnLoad()
 
 static void SelconnFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearListItems();
 
 	UiClearItems();
