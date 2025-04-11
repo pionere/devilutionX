@@ -401,7 +401,7 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		AddSText(40, l++, false, sstr, iclr, false);
 }
 
-static void AddStoreItem(ItemStruct* is, int l, bool noid)
+static void AddStoreItem(ItemStruct* is, unsigned l, bool noid)
 {
 	// StorePrepareItemBuy(is);
 	if (!noid && is->_iMagical != ITEM_QUALITY_NORMAL)
@@ -410,7 +410,7 @@ static void AddStoreItem(ItemStruct* is, int l, bool noid)
 	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 	stextdown = line;
 	AddSItem(60, line, l % STORE_LINE_ITEMS, is, TRUE);
-	if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
+	if (stextsel == line && stextselx == (int)(l % STORE_LINE_ITEMS)) {
 		// StorePrepareItemBuy(is);
 		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
 		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
