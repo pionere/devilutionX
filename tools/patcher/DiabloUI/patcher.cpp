@@ -1982,9 +1982,9 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || (char)*pHead <= -127) {
+				if (colMatches < RLE_LEN || (int8_t)*pHead <= -127) {
 					// bmp encoding
-					if (alpha || (char)*pHead <= -65 || first) {
+					if (alpha || (int8_t)*pHead <= -65 || first) {
 						pHead = pBuf;
 						pBuf++;
 						colMatches = 1;
@@ -2011,7 +2011,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 				alpha = false;
 			} else {
 				// add transparent pixel
-				if (!alpha || (char)*pHead >= 127) {
+				if (!alpha || (int8_t)*pHead >= 127) {
 					pHead = pBuf;
 					pBuf++;
 				}
