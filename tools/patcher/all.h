@@ -25,9 +25,9 @@
 #include "utils/sdl_compat.h"
 #include "utils/log.h"
 
-#include "../defs.h"
-#include "../enums.h"
-#include "../structs.h"
+#include "../../defs.h"
+#include "../../enums.h"
+#include "../../structs.h"
 
 #include "miniwin/miniwin.h"
 //#include "utils/thread.h"

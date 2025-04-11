@@ -23,7 +23,7 @@
 #include <cstdio>
 #endif
 
-#include "../defs.h"
+#include "../../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

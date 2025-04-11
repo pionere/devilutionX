@@ -1,5 +1,3 @@
-#include "dialogs.h"
-
 #include "diabloui.h"
 //#include "errorart.h"
 #include "text.h"
