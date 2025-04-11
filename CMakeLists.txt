@@ -198,7 +198,8 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-option(USE_PATCH "Create executable to patch assets" ON)
+option(USE_PATCH "Build to use patched assets" ON)
+cmake_conditional_option(CREATE_PATCHER "Create executable to patch assets" ${USE_PATCH})
 option(CREATE_MPQONE "Merge assets if necessary" OFF)
 cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
@@ -659,7 +660,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH)
+if(CREATE_PATCHER)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -1603,6 +1604,7 @@ foreach(
   def_name
   HELLFIRE
   USE_PATCH
+  CREATE_PATCHER
   USE_MPQONE
   CREATE_MPQONE
   NOSOUND
