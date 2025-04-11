@@ -621,7 +621,6 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -629,6 +628,7 @@ if(RUN_TESTS)
     test/player_test.cpp
     test/projectile_test.cpp
     test/scrollrt_test.cpp
+    test/sfx_test.cpp
     test/stores_test.cpp)
 endif()
 
@@ -738,23 +738,23 @@ if(USE_PATCH)
   if(ANDROID)
     add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
   else()
-  set(PATCHER_SOURCES ${devil_patcher_SRCS})
-  if(APPLE)
-    list(APPEND PATCHER_SOURCES
-      Packaging/apple/AppIcon.icns
-      Packaging/apple/LaunchScreen.storyboard)
-  elseif(WIN32)
-    list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
-    if(HELLFIRE)
-      list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
-    else()
-      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+    set(PATCHER_SOURCES ${devil_patcher_SRCS})
+    if(APPLE)
+      list(APPEND PATCHER_SOURCES
+         Packaging/apple/AppIcon.icns
+        Packaging/apple/LaunchScreen.storyboard)
+    elseif(WIN32)
+      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
+      if(HELLFIRE)
+        list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
+      else()
+        list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+      endif()
     endif()
-  endif()
-  add_executable(${DEVIL_PATCHER}
-    WIN32
-    MACOSX_BUNDLE
-    ${PATCHER_SOURCES})
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      MACOSX_BUNDLE
+      ${PATCHER_SOURCES})
   endif()
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
     #PKWare
