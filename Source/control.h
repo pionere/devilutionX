@@ -91,7 +91,6 @@ void CheckChrBtnClick();
 void ReleaseChrBtn();
 void DrawTextBox(unsigned separators);
 void DrawSTextBox(int x, int y);
-void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
 void CheckBookClick(bool altSkill);

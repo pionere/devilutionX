@@ -12,7 +12,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern CelImageBuf* gpOptbarCel;
 extern TMenuItem* gpCurrentMenu;
 
 void FreeGMenu();

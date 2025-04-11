@@ -1438,7 +1438,7 @@ void DrawStore()
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
-		//	DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
+		//	DrawColorTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
@@ -1459,7 +1459,7 @@ void DrawStore()
 
 					if (stextsel == i && stextselx == n) {
 						// assert(gbWidePanel);
-						// DrawTextBoxSLine(px, py, 20 + i * 12, false);
+						// DrawColorTextBoxSLine(px, py, 20 + i * 12, false);
 						/*
 						// top-left corner
 						DrawStoreLineX(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);

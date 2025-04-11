@@ -16,8 +16,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Logo CEL above the menu */
 static CelImageBuf* gpLogoCel;
-/** Slider CEL */
-CelImageBuf* gpOptbarCel;
 /** Slider button CEL */
 static CelImageBuf* gpOptionCel;
 /** Speficifies whether the mouse is pressed while navigating the menu. */
@@ -35,7 +33,6 @@ void FreeGMenu()
 {
 	MemFreeDbg(gpLogoCel);
 	MemFreeDbg(gpOptionCel);
-	MemFreeDbg(gpOptbarCel);
 }
 
 void InitGMenu()
@@ -49,8 +46,6 @@ void InitGMenu()
 	gpLogoCel = CelLoadImage(LOGO_DATA, LOGO_WIDTH);
 	assert(gpOptionCel == NULL);
 	gpOptionCel = CelLoadImage("Data\\option.CEL", SLIDER_BUTTON_WIDTH);
-	assert(gpOptbarCel == NULL);
-	gpOptbarCel = CelLoadImage("Data\\optbar.CEL", SLIDER_BOX_WIDTH);
 }
 
 static void gmenu_up_down(bool isDown)
@@ -189,7 +184,7 @@ static void gmenu_draw_menu_item(int i, int y)
 		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMF_SLIDER) {
 		x += SLIDER_OFFSET;
-		CelDraw(x, y - 10, gpOptbarCel, 1);
+		DrawColorTextBox(x, y - 10 - 32 + 1, SLIDER_BOX_WIDTH, 32, COL_GOLD);
 		x += SLIDER_BORDER;
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;

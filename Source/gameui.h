@@ -123,7 +123,8 @@ extern "C" {
 #define STORE_PNL_X (PANEL_X + 344 * ASSET_MPL)
 #define STORE_LINES 24
 
-#define SCREENXY(x, y) ((x) + SCREEN_X + ((y) + SCREEN_Y) * BUFFER_WIDTH)
+#define BUFFERXY(x, y) ((x) + (y) * BUFFER_WIDTH)
+#define SCREENXY(x, y) BUFFERXY((x) + SCREEN_X, (y) + SCREEN_Y)
 
 #define QPNL_LINE_SPACING 24
 #define QPNL_BORDER       10
@@ -182,6 +183,8 @@ extern "C" {
 #define SLIDER_BUTTON_WIDTH 27
 #define SLIDER_INNER_WIDTH  (SLIDER_BOX_WIDTH - SLIDER_BUTTON_WIDTH - 2 * SLIDER_BORDER)
 
+#define ERRORMSG_WIDTH      432
+
 #define SMALL_SCROLL_WIDTH  12
 #define SMALL_SCROLL_HEIGHT 12
 
@@ -207,6 +210,11 @@ extern "C" {
 #define FOCUS_MEDIUM 30
 #define FOCUS_BIG    42
 #define FOCUS_HUGE   48
+
+#define BOXBORDER_WIDTH 2
+#define BOXTEMPLATE_WIDTH 256
+#define BORDERBMP_WIDTH (BOXBORDER_WIDTH + BOXTEMPLATE_WIDTH + BOXBORDER_WIDTH)
+#define BORDERBMP_HEIGHT BORDERBMP_WIDTH
 
 //////////////////////////////////////////////////
 // DIABLO UI (MENU)

@@ -45,6 +45,9 @@ void DrawHugePentSpn(int x1, int x2, int y);
 void DrawSmallPentSpn(int x1, int x2, int y);
 void DrawSingleSmallPentSpn(int x, int y);
 
+void DrawColorTextBox(int x, int y, int w, int h, BYTE col);
+void DrawColorTextBoxSLine(int x, int y, int w, int dy);
+
 #ifdef __cplusplus
 }
 #endif
