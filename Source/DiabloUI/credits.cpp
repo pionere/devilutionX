@@ -1,21 +1,15 @@
-#include <algorithm>
 
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text_draw.h"
-#include "../gameui.h"
-#include "../engine.h"
-#include "../dx.h"
+#include "all.h"
+//#include <algorithm>
+//#include "../gameui.h"
+//#include "../engine.h"
+//#include "../dx.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 static bool _gbCreditsEnd;
-#ifdef HELLFIRE
-#define CREDITS_LINES_SIZE 91
-#define CREDITS_TXT        "Meta\\credits_hf.txt"
-#else
-#define CREDITS_LINES_SIZE 455
-#define CREDITS_TXT        "Meta\\credits.txt"
-#endif
 
 static void CreditsEsc()
 {

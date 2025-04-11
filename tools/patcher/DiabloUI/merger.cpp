@@ -5,20 +5,22 @@
 #include "diabloui.h"
 #include "selok.h"
 #include "selyesno.h"
+#include "utils/display.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
-#include "mpqapi.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 static unsigned workProgress;
 static unsigned workPhase;
+static Uint32 sgMergerRenderTc;
+static std::vector<std::string> listfiles;
 #ifdef NOSOUND
 static bool noSound = true;
 #else
 static bool noSound = false;
 #endif
-
+static HANDLE archive;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_CANCEL = 102;
@@ -129,6 +131,7 @@ static bool merger_skipFile(const std::string &path)
 
 static int merger_callback()
 {
+restart:
 	switch (workPhase) {
 	case 0:
 	{	// first round - read the content and prepare the metadata
@@ -139,18 +142,19 @@ static int merger_callback()
 			return RETURN_ERROR;
 		}
 		std::string line;
-		int entryCount = 0;
+		// listfiles.clear();
 		while (std::getline(input, line)) {
 			if (merger_skipFile(line)) continue;
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (diabdat_mpqs[i] == NULL) continue;
-				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_CHECK_EXISTS, NULL)) {
-					entryCount++;
+				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
+					listfiles.push_back(line);
 					break;
 				}
 			}
 		}
 
+		int entryCount = listfiles.size();
 		// calculate the required number of hashes
 		// TODO: use GetNearestPowerOfTwo of StormCommon.h?
 		hashCount = 1;
@@ -162,7 +166,8 @@ static int merger_callback()
 	case 1:
 	{	// create the mpq file
 		std::string path = std::string(GetBasePath()) + MPQONE;
-		if (!CreateMPQ(path.c_str(), hashCount, hashCount)) {
+		archive = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+		if (archive == NULL) {
 			app_warn("Unable to create MPQ file %s.", path.c_str());
 			return RETURN_ERROR;
 		}
@@ -170,51 +175,27 @@ static int merger_callback()
 		workPhase++;
 	} break;
 	case 2:
-	{	// add the content
-		std::string listpath = std::string(GetBasePath()) + "listfiles.txt";
-		std::ifstream input(listpath);
-		if (input.fail()) {
-			app_warn("Can not find/access '%s' in the game folder.", "listfiles.txt");
-			return RETURN_ERROR;
-		}
-		// create the mpq file
-		int skip = hashCount;
-		std::string line;
-		while (std::getline(input, line)) {
-			if (merger_skipFile(line)) continue;
-			// process only a bunch of files at a time to be more responsive
-			if (--skip >= 0) {
-				continue;
-			}
-			if (skip <= -10) {
+	{	// add the next file to the mpq
+		const char* fileName = listfiles[hashCount].c_str();
+		for (int i = 0; i < NUM_MPQS; i++) {
+			if (diabdat_mpqs[i] == NULL) continue;
+			BYTE* buf = NULL;
+			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
+			if (dwLen != 0) {
+				bool success = SFileWriteFile(archive, fileName, buf, dwLen);
+				mem_free_dbg(buf);
+				if (!success) {
+					app_warn("Unable to write %s to the MPQ.", fileName);
+					return RETURN_ERROR;
+				}
 				break;
 			}
-			// add the file to the mpq
-			for (int i = 0; i < NUM_MPQS; i++) {
-				HANDLE hFile;
-				if (diabdat_mpqs[i] == NULL) continue;
-				if (SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), SFILE_OPEN_FROM_MPQ, &hFile)) {
-					DWORD dwLen = SFileGetFileSize(hFile);
-					BYTE* buf = DiabloAllocPtr(dwLen);
-					if (!SFileReadFile(hFile, buf, dwLen)) {
-						app_warn("Unable to read file %s from archive %d.", line.c_str(), i);
-						return RETURN_ERROR;
-					}
-					if (!mpqapi_write_entry(line.c_str(), buf, dwLen)) {
-						app_warn("Unable to write %s to the MPQ.", line.c_str());
-						return RETURN_ERROR;
-					}
-					mem_free_dbg(buf);
-					SFileCloseFile(hFile);
-					break;
-				}
-			}
-			hashCount++;
 		}
-		input.close();
-		if (skip <= -10)
+		hashCount++;
+		if (hashCount < listfiles.size())
 			break;
-		mpqapi_flush_and_close(true);
+		SFileFlushAndCloseArchive(archive);
+		archive = NULL;
 		workPhase++;
 	} break;
 	case 3:
@@ -231,6 +212,11 @@ static int merger_callback()
 		ASSUME_UNREACHABLE
 		break;
 	}
+
+	Uint32 now = SDL_GetTicks();
+	if (!SDL_TICKS_PASSED(now, sgMergerRenderTc + gnRefreshDelay))
+		goto restart;
+	sgMergerRenderTc = now;
 
 	while (++workProgress >= 100)
 		workProgress -= 100;
@@ -272,10 +258,16 @@ void UiMergerDialog()
 
 	// do the actual merge
 	workPhase = 0;
+	sgMergerRenderTc = SDL_GetTicks();
+
 	UiProgressDialog("...Merge in progress...", merger_callback);
+	// cleanup
+	listfiles.clear();
 	// ensure mpq-archive is closed on error
-	// if (workProgress == RETURN_ERROR && workPhase == 2)
-		mpqapi_close();
+	// if (workProgress == RETURN_ERROR && workPhase == 2) {
+		SFileCloseArchive(archive);
+		archive = NULL;
+	// }
 }
 
 DEVILUTION_END_NAMESPACE

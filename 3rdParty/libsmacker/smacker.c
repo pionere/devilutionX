@@ -1205,14 +1205,12 @@ smk smk_open_memory(const unsigned char * buffer, const unsigned long size)
 	smk s = NULL;
 	union smk_read_t fp;
 
-#ifdef FULL
 	if (buffer == NULL) {
+#ifdef FULL
 		LogErrorMsg("libsmacker::smk_open_memory() - ERROR: buffer pointer is NULL\n");
+#endif
 		return NULL;
 	}
-#else
-	assert(buffer);
-#endif
 
 	/* set up the read union for Memory mode */
 	fp.ram = (unsigned char *)buffer;

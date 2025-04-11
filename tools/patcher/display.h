@@ -19,8 +19,6 @@ extern int screenHeight;
 extern bool gbWndActive;
 
 extern SDL_Window* ghMainWnd;
-extern SDL_Palette* back_palette;
-extern SDL_Surface* back_surface;
 
 void SpawnWindow();
 

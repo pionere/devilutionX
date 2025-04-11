@@ -2621,12 +2621,36 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
+static void CraftItem(ItemStruct* pi, uint16_t ci, uint16_t idx, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
+{
+	int seed = pi->_iSeed;
+	int ac = -1;
+	while (true) {
+		SetRndSeed(seed);
+		int nac = AllItemList[idx].iMinAC == AllItemList[idx].iMaxAC ? AllItemList[idx].iMinAC : RandRangeLow(AllItemList[idx].iMinAC, AllItemList[idx].iMaxAC);
+		if (ac < 0)
+			ac = nac;
+		if (ac == nac) {
+		RecreateItem(seed, idx, ci);
+		// assert(items[MAXITEMS]._iIdx == idx);
+		if (items[MAXITEMS]._iSpell == spell
+		 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iPrePower == IPL_INVALID && items[MAXITEMS]._iSufPower == IPL_INVALID)
+		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
+		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
+			break;
+		}
+		seed = NextRndSeed();
+	}
+	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
+	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
+	copy_pod(*pi, items[MAXITEMS]);
+}
+
 static void DoClean(ItemStruct* pi, bool whittle)
 {
-	int seed, spell;
+	int spell;
 	uint16_t ci, idx, ll;
 
-	seed = pi->_iSeed;
 	spell = pi->_iSpell;
 	idx = pi->_iIdx;
 
@@ -2644,18 +2668,7 @@ static void DoClean(ItemStruct* pi, bool whittle)
 		ci--;
 	ci |= CF_CRAFTED;
 
-	while (true) {
-		RecreateItem(seed, idx, ci);
-		assert(items[MAXITEMS]._iIdx == idx);
-		if (items[MAXITEMS]._iPrePower == IPL_INVALID
-		 && items[MAXITEMS]._iSufPower == IPL_INVALID
-		 && items[MAXITEMS]._iSpell == spell)
-			break;
-		seed = NextRndSeed();
-	}
-	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
-	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
-	copy_pod(*pi, items[MAXITEMS]);
+	CraftItem(pi, ci, idx, spell, IPL_INVALID, 0);
 }
 
 #ifdef HELLFIRE
@@ -2788,7 +2801,7 @@ void DoAbility(int pnum, int8_t from, BYTE cii)
 void DoOil(int pnum, int8_t from, BYTE cii)
 {
 	ItemStruct *pi, *is;
-	int oilType, seed, spell;
+	int oilType, spell;
 	uint16_t idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
@@ -2883,21 +2896,8 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	idx = pi->_iIdx;
 	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
 	spell = pi->_iSpell;
-	seed = pi->_iSeed;
 
-	while (true) {
-		RecreateItem(seed, idx, ci);
-		assert(items[MAXITEMS]._iIdx == idx);
-		if (items[MAXITEMS]._iSpell == spell
-		 && ((items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
-		  || (items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
-			break;
-		seed = NextRndSeed();
-	}
-
-	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
-	items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
-	copy_pod(*pi, items[MAXITEMS]);
+	CraftItem(pi, ci, idx, spell, targetPowerFrom, targetPowerTo);
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, true);

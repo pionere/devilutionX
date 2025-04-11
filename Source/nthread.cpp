@@ -546,6 +546,8 @@ fail:
 		guDeltaTurn = 0;
 		// reset geBufferMsgs to normal (in case of failure)
 		geBufferMsgs = MSG_NORMAL;
+		// reset pfile timer
+		guLastSaveTurn = gdwGameLogicTurn;
 		// enter the dungeon level
 		PlayDungMsgs();
 		guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);

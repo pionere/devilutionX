@@ -310,6 +310,7 @@ extern "C" {
 #define MPQ_ATTRIBUTES_V1                  100  // (attributes) format version 1.00
 
 // Flags for SFileOpenArchive
+#ifdef FULL
 #define BASE_PROVIDER_FILE          0x00000000  // Base data source is a file
 #define BASE_PROVIDER_MAP           0x00000001  // Base data source is memory-mapped file
 #define BASE_PROVIDER_HTTP          0x00000002  // Base data source is a file on web server
@@ -332,14 +333,13 @@ extern "C" {
 #define MPQ_OPEN_NO_LISTFILE        0x00010000  // Don't load the internal listfile
 #define MPQ_OPEN_NO_ATTRIBUTES      0x00020000  // Don't open the attributes
 #define MPQ_OPEN_NO_HEADER_SEARCH   0x00040000  // Don't search for the MPQ header past the begin of the file
-#ifdef FULL
 #define MPQ_OPEN_FORCE_MPQ_V1       0x00080000  // Always open the archive as MPQ v 1.00, ignore the "wFormatVersion" variable in the header
-#else
-#define MPQ_OPEN_FORCE_MPQ_V1       0x00000000
-#endif
 #define MPQ_OPEN_CHECK_SECTOR_CRC   0x00100000  // On files with MPQ_FILE_SECTOR_CRC, the CRC will be checked when reading file
 #define MPQ_OPEN_PATCH              0x00200000  // This archive is a patch MPQ. Used internally.
 #define MPQ_OPEN_FORCE_LISTFILE     0x00400000  // Force add listfile even if there is none at the moment of opening
+#else
+#define STREAM_FLAG_READ_ONLY       0x00000001  // Stream is read only
+#endif
 #define MPQ_OPEN_READ_ONLY          STREAM_FLAG_READ_ONLY
 
 // Flags for SFileCreateArchive
@@ -699,27 +699,20 @@ typedef struct _TPatchInfo
 // This is the combined file entry for maintaining file list in the MPQ.
 // This structure is combined from block table, hi-block table,
 // (attributes) file and from (listfile).
+#ifdef FULL
 typedef struct _TFileEntry
 {
-#ifdef FULL
     ULONGLONG FileNameHash;                     // Jenkins hash of the file name. Only used when the MPQ has BET table.
     ULONGLONG ByteOffset;                       // Position of the file content in the MPQ, relative to the MPQ header
     ULONGLONG FileTime;                         // FileTime from the (attributes) file. 0 if not present.
-#else
-    FILESIZE_T ByteOffset;                      // Position of the file content in the MPQ, relative to the MPQ header
-#endif
     DWORD     dwFileSize;                       // Decompressed size of the file
-#ifdef FULL
     DWORD     dwCmpSize;                        // Compressed size of the file (i.e., size of the file data in the MPQ)
-#endif
     DWORD     dwFlags;                          // File flags (from block table)
-#ifdef FULL
     DWORD     dwCrc32;                          // CRC32 from (attributes) file. 0 if not present.
     BYTE      md5[MD5_DIGEST_SIZE];             // File MD5 from the (attributes) file. 0 if not present.
     char * szFileName;                          // File name. NULL if not known.
-#endif
 } TFileEntry;
-#ifdef FULL
+
 // Common header for HET and BET tables
 typedef struct _TMPQExtHeader
 {
@@ -835,12 +828,28 @@ typedef struct _TMPQNameCache
     // Followed by name cache (ANSI multistring)
 
 } TMPQNameCache;
+#else
+union TBaseProviderData
+{
+    struct
+    {
+        FILESIZE_T FileSize;                // Size of the file
+#if !defined(STORMLIB_WINDOWS) || (WINVER == 0x0500 && _WIN32_WINNT == 0)
+        FILESIZE_T FilePos;                 // Current file position
+#endif
+        HANDLE hFile;                       // File handle
+    } File;
+};
+struct TFileStream
+{
+    TBaseProviderData Base;
+};
 #endif
 // Archive handle structure
 typedef struct _TMPQArchive
 {
-    TFileStream  * pStream;                     // Open stream for the MPQ
 #ifdef FULL
+    TFileStream  * pStream;                     // Open stream for the MPQ
     ULONGLONG      UserDataPos;                 // Position of user data (relative to the begin of the file)
     ULONGLONG      MpqPos;                      // MPQ header offset (relative to the begin of the file)
 
@@ -852,14 +861,16 @@ typedef struct _TMPQArchive
     TMPQUserData * pUserData;                   // MPQ user data (NULL if not present in the file)
     TMPQHeader   * pHeader;                     // MPQ file header
 #else
+    TFileStream    pStream;                     // Open stream for the MPQ
     TMPQHeader     pHeader;                     // MPQ file header
 #endif
     TMPQHash     * pHashTable;                  // Hash table
-#ifdef FULL
+#ifndef FULL
+    TMPQBlock    * pBlockTable;                 // Block table
+#else
     TMPQHetTable * pHetTable;                   // HET table
-#endif
     TFileEntry   * pFileTable;                  // File table
-#ifdef FULL
+
     HASH_STRING    pfnHashString;               // Hashing function that will convert the file name into hash
 
     TMPQUserData   UserData;                    // MPQ user data. Valid only when ID_MPQ_USERDATA has been found
@@ -934,9 +945,9 @@ typedef struct _TMPQFile
 #else
 typedef struct _TMPQFile
 {
-    TFileEntry   * pFileEntry;                  // File entry for the file. NULL in case of local files
+    TMPQBlock   * pFileEntry;                  // File entry for the file. NULL in case of local files
     union {
-        TFileStream  * pStream;                 // File stream. Only used on local files
+        TFileStream  pStream;                 // File stream. Only used on local files
         struct {
             TMPQArchive  * ha;                  // Archive handle
             DWORD          dwFileKey;           // Decryption key
@@ -1004,11 +1015,10 @@ struct TStreamBitmap
 
     // Followed by the BYTE array, each bit means availability of one block
 };
-#endif
+
 // UNICODE versions of the file access functions
-//TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
+TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
 TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
-#ifdef FULL
 const TCHAR * FileStream_GetFileName(TFileStream * pStream);
 size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
 
@@ -1017,7 +1027,11 @@ bool FileStream_SetCallback(TFileStream * pStream, SFILE_DOWNLOAD_CALLBACK pfnCa
 bool FileStream_GetBitmap(TFileStream * pStream, void * pvBitmap, DWORD cbBitmap, LPDWORD pcbLengthNeeded);
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
 #else
-bool FileStream_Read(TFileStream * pStream, const FILESIZE_T * pByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+DWORD FileStream_CreateFile(TFileStream * pStream, const TCHAR * szFileName);
+DWORD FileStream_OpenFile(TFileStream * pStream, const TCHAR * szFileName, DWORD dwStreamFlags);
+bool FileStream_Read(TFileStream * pStream, FILESIZE_T ByteOffset, void * pvBuffer, DWORD dwBytesToRead);
+bool FileStream_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
+void FileStream_SetSize(TFileStream * pStream, FILESIZE_T NewFileSize);
 #endif
 #ifdef FULL
 bool FileStream_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const void * pvBuffer, DWORD dwBytesToWrite);
@@ -1026,7 +1040,6 @@ bool FileStream_GetSize(TFileStream * pStream, ULONGLONG * pFileSize);
 bool FileStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset);
 #else
 FILESIZE_T FileStream_GetSize(const TFileStream * pStream);
-FILESIZE_T FileStream_GetPos(const TFileStream * pStream);
 #endif
 //bool FileStream_GetTime(TFileStream * pStream, ULONGLONG * pFT);
 #ifdef fULL
@@ -1059,19 +1072,25 @@ typedef bool  (WINAPI * SFILEREADFILE)(HANDLE, void *, DWORD, LPDWORD, LPOVERLAP
 //LCID   STORMAPI SFileSetLocale(LCID lcNewLocale);
 
 // Call before SFileOpenFileEx
-LCID   WINAPI SFileGetLocale();
-LCID   WINAPI SFileSetLocale(LCID lcNewLocale);
+//LCID   WINAPI SFileGetLocale();
+//LCID   WINAPI SFileSetLocale(LCID lcNewLocale);
 
 //-----------------------------------------------------------------------------
 // Functions for archive manipulation
 
-HANDLE   WINAPI SFileOpenArchive(const TCHAR* szMpqName, DWORD dwFlags);
-//bool   WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWORD dwMaxFileCount, HANDLE * phMpq);
-//bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCreateInfo, HANDLE * phMpq);
-
+HANDLE   WINAPI SFileOpenArchive(const TCHAR * szMpqName, DWORD dwFlags);
 #ifdef FULL
+bool   WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWORD dwMaxFileCount, HANDLE * phMpq);
+bool   WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCreateInfo, HANDLE * phMpq);
 bool   WINAPI SFileSetDownloadCallback(HANDLE hMpq, SFILE_DOWNLOAD_CALLBACK DownloadCB, void * pvUserData);
 bool   WINAPI SFileFlushArchive(HANDLE hMpq);
+#else
+bool WINAPI SFileReopenArchive(HANDLE hMpq, const TCHAR * szMpqName);
+HANDLE WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwHashCount, DWORD dwBlockCount);
+DWORD  WINAPI SFileReadArchive(HANDLE hMpq, const char * szFileName, BYTE ** dest);
+void   WINAPI SFileFlushArchive(HANDLE hMpq);
+void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq);
+void   WINAPI SFileReleaseArchive(HANDLE hMpq);
 #endif
 void   WINAPI SFileCloseArchive(HANDLE hMpq);
 
@@ -1106,17 +1125,23 @@ void   WINAPI SFileCloseArchive(HANDLE hMpq);
 // Reading from MPQ file
 #ifdef FULL
 bool   WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName);
-#endif
 bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * phFile);
-#ifndef FULL
-bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * phFile);
-#endif
 DWORD  WINAPI SFileGetFileSize(HANDLE hFile);
+#else
+bool   WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, TMPQFile * pFile);
+bool   WINAPI SFileOpenLocalFileEx(const char * szFileName, TMPQFile * pFile);
+DWORD  WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest);
+DWORD  WINAPI SFileGetLocalFileSize(HANDLE hFile);
+DWORD  WINAPI SFileGetMpqFileSize(HANDLE hFile);
+#endif
 #ifdef FULL
 DWORD  WINAPI SFileGetFilePointer(HANDLE hFile);
 DWORD  WINAPI SFileSetFilePointer(HANDLE hFile, long lFilePos, unsigned dwMoveMethod);
-#endif
 bool   WINAPI SFileReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead/*, LPDWORD pdwRead*/);
+#else
+DWORD  WINAPI SFileReadMpqFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead);
+DWORD  WINAPI SFileReadLocalFileEx(HANDLE hFile, void * lpBuffer, DWORD dwToRead);
+#endif
 void   WINAPI SFileCloseFile(HANDLE hFile);
 
 // Retrieving info about a file in the archive
@@ -1169,9 +1194,15 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 
 //bool   WINAPI SFileAddFileEx(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwCompression, DWORD dwCompressionNext);
 //bool   WINAPI SFileAddFile(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags); 
-//bool   WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality); 
-//bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
-//bool   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
+//bool   WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality);
+#ifdef FULL
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope);
+bool   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
+#else
+bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData, DWORD dwSize);
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName);
+void   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName);
+#endif
 //bool   WINAPI SFileSetFileLocale(HANDLE hFile, LCID lcNewLocale);
 //bool   WINAPI SFileSetDataCompression(DWORD DataCompression);
 
@@ -1181,9 +1212,7 @@ bool   WINAPI SFileFreeFileInfo(void * pvFileInfo, SFileInfoClass InfoClass);
 // Compression and decompression
 #ifdef FULL
 int    WINAPI SCompImplode    (void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
-#endif
 int    WINAPI SCompExplode    (void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
-#ifdef FULL_COMP
 int    WINAPI SCompCompress   (void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer, unsigned uCompressionMask, int nCmpType, int nCmpLevel);
 int    WINAPI SCompDecompress (void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
 int    WINAPI SCompDecompress2(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer);
@@ -1199,14 +1228,14 @@ DWORD HashStringSlash(const char * szFileName, unsigned dwHashType);
 
 //-----------------------------------------------------------------------------
 // Non-Windows support for SetLastError/GetLastError
-
+#ifdef FULL
 #ifndef STORMLIB_WINDOWS
 
 void  SetLastError(DWORD dwErrCode);
 DWORD GetLastError();
 
 #endif
-
+#endif
 //-----------------------------------------------------------------------------
 // Functions from Storm.dll. They use slightly different names for keeping
 // possibility to use them together with StormLib (StormXXX instead of SFileXXX)

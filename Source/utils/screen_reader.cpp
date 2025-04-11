@@ -2,15 +2,22 @@
 
 #ifdef SCREEN_READER_INTEGRATION
 
-#ifdef _WIN32
-#include <stdlib.h>
+#include "all.h"
+#include <string>
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Tolk.h>
+#else
+#include <speech-dispatcher/libspeechd.h>
+#endif
 
-namespace dvl {
+DEVILUTION_BEGIN_NAMESPACE
 
+static std::string SpokenText;
+
+#ifdef _WIN32
 void InitScreenReader()
 {
 	Tolk_Load();
@@ -23,29 +30,22 @@ void FreeScreenReader()
 
 void SpeakText(const char* text)
 {
-	static const char* SpokenText;
-
 	if (SpokenText == text)
 		return;
 
 	SpokenText = text;
 
-	int textLen = MultiByteToWideChar(CP_UTF8, 0, SpokenText, -1, NULL, 0);
+	int textLen = MultiByteToWideChar(CP_UTF8, 0, text, -1, NULL, 0);
 	wchar_t* wText = new wchar_t[textLen];
-	if (MultiByteToWideChar(CP_UTF8, 0, SpokenText, -1, &wText[0], textLen) == textLen) {
+	if (MultiByteToWideChar(CP_UTF8, 0, text, -1, &wText[0], textLen) == textLen) {
 		Tolk_Output(&wText[0], true);
 	}
 	free(wText);
 }
 
-} // namespace dvl
-
 #else
-#include <speech-dispatcher/libspeechd.h>
 
-namespace dvl {
-
-SPDConnection* Speechd;
+static SPDConnection* Speechd;
 
 void InitScreenReader()
 {
@@ -59,18 +59,16 @@ void FreeScreenReader()
 
 void SpeakText(const char* text)
 {
-	static const char* SpokenText;
-
 	if (SpokenText == text)
 		return;
 
 	SpokenText = text;
 
-	spd_say(Speechd, SPD_TEXT, SpokenText);
+	spd_say(Speechd, SPD_TEXT, text);
 }
 
-} // namespace dvl
-
 #endif // _WIN32
+
+DEVILUTION_END_NAMESPACE
 
 #endif // SCREEN_READER_INTEGRATION

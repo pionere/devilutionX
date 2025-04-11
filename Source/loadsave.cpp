@@ -743,7 +743,6 @@ void LoadGame()
 	// TODO: UIDisconnectGame() ?
 	SNetLeaveGame();
 
-	pfile_delete_save_file();
 	pfile_read_save_file(true);
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;

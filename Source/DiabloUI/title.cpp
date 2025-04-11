@@ -1,6 +1,7 @@
 #include "DiabloUI/diabloui.h"
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include "../gameui.h"
+//#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

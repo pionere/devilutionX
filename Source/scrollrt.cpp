@@ -1130,22 +1130,9 @@ static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
 	//if (bv != 0)
 	//	DrawItem(bv, dx, dy);
 
-	if (currLvl._dType != DTYPE_TOWN) {
-		bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
-		if (bv != 0) {
-			assert(currLvl._dDunType == DGT_CATHEDRAL || currLvl._dDunType == DGT_CATACOMBS); // TODO: use dType instead?
-			CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
-		}
-	} else {
-		// Tree leaves should always cover player when entering or leaving the tile,
-		// So delay the rendering until after the next row is being drawn.
-		// This could probably have been better solved by sprites in screen space.
-		if (sx > 0 && sy > 0) {
-			bv = nSpecTrapTable[dPiece[sx - 1][sy - 1]] & PST_SPEC_TYPE;
-			if (bv != 0 && dy > TILE_HEIGHT + SCREEN_Y) {
-				CelClippedDrawLightTrans(dx, (dy - TILE_HEIGHT), pSpecialsCel, bv, TILE_WIDTH);
-			}
-		}
+	bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
+	if (bv != 0) {
+		CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 	}
 }
 
@@ -1269,11 +1256,8 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 static void Zoom()
 {
 	int wdt = SCREEN_WIDTH / 2u;
-	int nSrcOff = SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1);
-	int nDstOff = SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1);
-
-	BYTE* src = &gpBuffer[nSrcOff];
-	BYTE* dst = &gpBuffer[nDstOff];
+	BYTE* src = &gpBuffer[SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1)];
+	BYTE* dst = &gpBuffer[SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1)];
 
 	for (unsigned hgt = 0; hgt < VIEWPORT_HEIGHT / 2u; hgt++) {
 		for (int i = 0; i < wdt; i++) {
@@ -1481,6 +1465,17 @@ static void DrawGame()
 	}
 }
 
+static void DrawPause()
+{
+	int x, light;
+
+	// assert(GetHugeStringWidth("Pause") == 135);
+	x = PANEL_CENTERX(135);
+	static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
+	light = (SDL_GetTicks() / 256) % 4;
+	PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
+}
+
 /**
  * @brief Start rendering of screen, town variation
  */
@@ -1543,8 +1538,8 @@ static void DrawView()
 	}
 	if (gbDeathflag == MDM_DEAD) {
 		RedBack();
-	} else if (gnGamePaused != 0) {
-		gmenu_draw_pause();
+	} else if (gnGamePaused != 0 && !gmenu_is_active()) {
+		DrawPause();
 	}
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD

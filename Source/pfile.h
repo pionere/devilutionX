@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern unsigned mySaveIdx;
+extern uint32_t guLastSaveTurn;
 
 void pfile_read_hero();
 //bool pfile_rename_hero(const char* name_1, const char* name_2);
@@ -20,10 +21,6 @@ void pfile_read_hero();
  * Write save file (game or level) from gsDeltaData.ddBuffer
  */
 void pfile_write_save_file(bool full, DWORD dwLen);
-/*
- * Delete save file (temp-levels)
- */
-void pfile_delete_save_file();
 /*
  * Read save file (game or level) into gsDeltaData.ddBuffer
  */

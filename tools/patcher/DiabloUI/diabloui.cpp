@@ -61,7 +61,6 @@ UiEdit* gUiEditField;
 bool gUiDrawCursor;
 
 static Uint32 _gdwFadeTc;
-static int _gnFadeValue;
 
 UiProgressBar::UiProgressBar(const SDL_Rect& rect)
 		: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
@@ -74,9 +73,9 @@ UiProgressBar::UiProgressBar(const SDL_Rect& rect)
 
 	m_ProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
 	progFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
-	CelDraw(PANEL_X, PANEL_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
+	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
 	for (i = 0; i < PRBAR_HEIGHT; i++) {
-		memcpy(&m_ProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[PANEL_X + (PANEL_Y + i) * BUFFER_WIDTH], PRBAR_WIDTH);
+		memcpy(&m_ProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[SCREENXY(0, i)], PRBAR_WIDTH);
 	}
 	mem_free_dbg(progFillCel);
 }
@@ -387,13 +386,14 @@ void UiDestroy()
 void LoadBackgroundArt(const char* pszFile, const char* palette)
 {
 	assert(gbBackCel == NULL);
-	//FreeBackgroundArt();
-	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
-
+	// FreeBackgroundArt();
+	if (pszFile != NULL)
+		gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
+	// assert(palette != NULL);
 	LoadPalette(palette);
 
 	// initiate fading
-	_gnFadeValue = -1;
+	gnFadeValue = -1;
 }
 
 void FreeBackgroundArt()
@@ -417,29 +417,30 @@ void UiAddLogo()
 
 static void UiClearScreen()
 {
-	if (SCREEN_WIDTH > PANEL_WIDTH) { // Background size
-		// SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
+	// if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > PANEL_HEIGHT) { // Background size
 		ClearScreenBuffer();
-	}
+	// }
 }
 
 static void UiFadeIn()
 {
+	int fv;
 	Uint32 currTc;
 	bool draw_cursor;
 
-	if (_gnFadeValue < FADE_LEVELS) {
+	fv = gnFadeValue;
+	if (fv < FADE_LEVELS) {
 		currTc = SDL_GetTicks();
-		if (_gnFadeValue < 0) {
+		if (fv < 0) {
 			_gdwFadeTc = currTc;
 			PaletteFadeIn(true);
 		}
-		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
-		if ((unsigned)_gnFadeValue > FADE_LEVELS) {
-			_gnFadeValue = FADE_LEVELS;
+		fv = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
+		if ((unsigned)fv > FADE_LEVELS) {
+			fv = FADE_LEVELS;
 			//_gdwFadeTc = 0;
 		}
-		SetFadeLevel(_gnFadeValue);
+		SetFadeLevel(fv);
 	}
 
 	draw_cursor = gUiDrawCursor;
@@ -494,15 +495,16 @@ static void UiDraw(const UiImage* uiImage)
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
 
-static int UIItemFlags(int flags, const SDL_Rect& rect)
-{
-	const SDL_Point point = { MousePos.x, MousePos.y };
-	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
-}
-
 static void UiDrawStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	DrawArtStr(text, rect, UIItemFlags(flags, rect));
+	const SDL_Point point = { MousePos.x, MousePos.y };
+	if (SDL_PointInRect(&point, &rect)) {
+		flags |= UIS_LIGHT;
+#if SCREEN_READER_INTEGRATION
+		SpeakText(text);
+#endif
+	}
+	DrawArtStr(text, rect, flags);
 }
 #if FULL_UI
 static void UiDraw(const UiTxtButton* uiButton)

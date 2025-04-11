@@ -1,17 +1,23 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10...3.30)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141)
+# Projects added via `add_subdirectory` or `FetchContent` may have a lower
+# `cmake_minimum_required` than we set here. Set policies that we require
+# to their new value so that they still apply.
+foreach(_policy CMP0069 CMP0077 CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141 CMP0177)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
   endif()
 endforeach()
 
-# Projects added via `add_subdirectory` or `FetchContent` may have a lower
-# `cmake_minimum_required` than we set here. Set policies that we require
-# to their new value so that they still apply.
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+foreach(_policy CMP0169)
+  if(POLICY ${_policy})
+    cmake_policy(SET ${_policy} OLD)
+    set(CMAKE_POLICY_DEFAULT_${_policy} OLD)
+  endif()
+endforeach()
+
+message(STATUS "CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 if(NINTENDO_3DS)
@@ -436,6 +442,8 @@ add_library(PKWare STATIC
   3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
+target_link_libraries(StormLib PRIVATE PKWare)
+
 set(devilutionx_SRCS
   Source/appfat.cpp
   Source/automap.cpp
@@ -475,7 +483,7 @@ set(devilutionx_SRCS
   Source/monstdat.cpp
   Source/monster.cpp
   Source/movie.cpp
-  Source/mpqapi.cpp
+  #Source/mpqapi.cpp
   Source/msg.cpp
   Source/multi.cpp
   Source/nthread.cpp
@@ -491,9 +499,9 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
-  Source/sha.cpp
   Source/sfx.cpp
   Source/sfxdat.cpp
+  Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
@@ -663,13 +671,13 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
     tools/patcher/mainmenu.cpp
-    tools/patcher/mpqapi.cpp
+    #tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
@@ -746,7 +754,7 @@ if(USE_PATCH AND NOT ANDROID)
     ${PATCHER_SOURCES})
 
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
-    PKWare
+    #PKWare
     StormLib
     #smacker
     Radon)

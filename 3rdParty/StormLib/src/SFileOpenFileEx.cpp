@@ -64,11 +64,17 @@ static const char * GetPatchFileName(TMPQArchive * ha, const char * szFileName, 
 
     return szFileName;
 }
-#endif
 static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
+#else
+static bool OpenLocalFile(const char * szFileName, TMPQFile * pFile)
+#endif
 {
+#ifdef FULL
     TFileStream * pStream;
     TMPQFile * hf = NULL;
+#else
+    bool bResult = false;
+#endif
 #if defined(FULL) || defined(_UNICODE)
     TCHAR szFileNameT[MAX_PATH];
 
@@ -78,30 +84,29 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
     const char * szFileNameT = szFileName;
 #endif
     // Open the file and create the TMPQFile structure
+#ifdef FULL
     pStream = FileStream_OpenFile(szFileNameT, STREAM_FLAG_READ_ONLY);
     if (pStream != NULL) {
         // Allocate and initialize file handle
-#ifdef FULL
         hf = CreateFileHandle(NULL, NULL);
-#else
-        hf = STORM_ALLOC(TMPQFile, 1);
-#endif
         if (hf != NULL) {
             hf->pStream = pStream;
-#ifndef FULL
-            hf->pFileEntry = NULL;
-#endif
             *PtrFile = hf;
             return true;
         } else {
             FileStream_Close(pStream);
-#ifdef FULL
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-#endif
         }
     }
     *PtrFile = NULL;
     return false;
+#else
+            if (FileStream_OpenFile(&pFile->pStream, szFileNameT, STREAM_FLAG_READ_ONLY) == ERROR_SUCCESS) {
+                pFile->pFileEntry = NULL;
+                bResult = true;
+            }
+        return bResult;
+#endif
 }
 
 #ifdef FULL
@@ -233,21 +238,25 @@ static bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
 //   szFileName    - Name of file to open
 //   dwSearchScope - Where to search
 //   PtrFile       - Pointer to store opened file handle
-
+#ifdef FULL
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * PtrFile)
+#else
+bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, TMPQFile * pFile)
+#endif
 {
 #ifdef FULL
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
     TFileEntry  * pFileEntry = NULL;
-#else
-    TMPQArchive * ha;
-    TFileEntry  * pFileEntry;
-#endif
     TMPQFile    * hf = NULL;
+#else
+    TMPQFile    * hf = pFile;
+    TMPQArchive * ha;
+    TMPQBlock   * pFileEntry;
+#endif
 #ifdef FULL
     DWORD dwHashIndex = HASH_ENTRY_FREE;
-#endif
     DWORD dwFileIndex = 0;
+#endif
     DWORD dwErrCode = ERROR_SUCCESS;
 #ifdef FULL
     bool bOpenByIndex = false;
@@ -305,7 +314,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
         }
 #else
     {
-        assert(dwSearchScope == SFILE_OPEN_FROM_MPQ || dwSearchScope == SFILE_OPEN_CHECK_EXISTS);
         ha = IsValidMpqHandle(hMpq);
         pFileEntry = GetFileEntryLocale2(ha, szFileName);
 #endif
@@ -326,13 +334,12 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                     pFileEntry = ha->pFileTable + dwFileIndex;
                 }
             }
-#endif
+
             // Still not found?
             if(pFileEntry == NULL || (pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0)
             {
                 dwErrCode = ERROR_FILE_NOT_FOUND;
             }
-#ifdef FULL
         }
 
         // Perform some checks of invalid files
@@ -355,21 +362,22 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 //          }
         }
     }
+#else
+            if(pFileEntry == NULL || pFileEntry->dwFSize == 0)
+            {
+                dwErrCode = ERROR_SUCCESS + 1;
+            }
 #endif
     // Did the caller just wanted to know if the file exists?
 #ifdef FULL
     if(dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
 #else
-    if(dwErrCode == ERROR_SUCCESS && dwSearchScope == SFILE_OPEN_FROM_MPQ) {
+    if(dwErrCode == ERROR_SUCCESS) {
 #endif
         // Allocate file handle
 #ifdef FULL
         hf = CreateFileHandle(ha, pFileEntry);
-#else
-        hf = STORM_ALLOC(TMPQFile, 1);
-#endif
         if(hf != NULL) {
-#ifdef FULL
             // Get the hash index for the file
             if(ha->pHashTable != NULL && dwHashIndex == HASH_ENTRY_FREE)
                 dwHashIndex = FindHashIndex(ha, dwFileIndex);
@@ -377,9 +385,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
             hf->dwHashIndex = dwHashIndex;
 #else
-            // Give the file entry
-            PtrFile[0] = hf;
-
             hf->ha = ha;
             hf->pFileEntry = pFileEntry;
 #endif
@@ -406,9 +411,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
                     hf->dwFileKey = DecryptFileKey(szFileName);
 #endif
             }
+#ifdef FULL
         } else {
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
         }
+#endif
     }
 #ifdef FULL
     // Give the file entry
@@ -422,9 +429,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     return (dwErrCode == ERROR_SUCCESS);
 }
 #ifndef FULL
-bool WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * PtrFile)
+bool WINAPI SFileOpenLocalFileEx(const char * szFileName, TMPQFile * pFile)
 {
-    return OpenLocalFile(szFileName, PtrFile);
+    return OpenLocalFile(szFileName, pFile);
 }
 #endif
 //-----------------------------------------------------------------------------

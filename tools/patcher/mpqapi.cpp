@@ -58,11 +58,21 @@ void PrintError(const char* fmt, PrintFArgs... args)
 #endif /* DEBUG_MODE */
 struct FStreamWrapper {
 public:
+#ifdef CAN_SEEKP_BEYOND_EOF
 	void Open(FILE* file)
 	{
 		// assert(file != NULL);
 		s_ = file;
 	}
+#else
+	void Open(FILE* file, uint32_t size)
+	{
+		// assert(file != NULL);
+		s_ = file;
+		sFileSize = size;
+		sFilePos = 0;
+	}
+#endif
 
 	void Close()
 	{
@@ -75,54 +85,78 @@ public:
 	{
 		return s_ != NULL;
 	}
-#ifdef FULL
-	bool seekp(long pos)
+
+	bool writeTo(uint32_t offset, const char* data, uint32_t len)
 	{
-		return seekp(pos, SEEK_SET);
-	}
-#endif
-	bool seekp(long pos, int dir)
-	{
-		if (std::fseek(s_, pos, dir) == 0) {
-#if DEBUG_MODE
-			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(dir));
-#endif
-			return true;
+#ifndef CAN_SEEKP_BEYOND_EOF
+		// Ensure we do not seekp beyond EOF by filling the missing space.
+		uint32_t curSize = sFileSize;
+		if (curSize < offset) {
+			uint32_t fillerSize = offset - curSize;
+			char* filler = (char*)DiabloAllocPtr(fillerSize);
+			bool res = writeTo(curSize, filler, fillerSize);
+			mem_free_dbg(filler);
+			if (!res)
+				return res;
 		}
-		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), dir);
-		return false;
+#endif
+		return seekp(offset) && write(data, len);
+	}
+
+	bool readFrom(uint32_t offset, void* out, uint32_t len)
+	{
+		return seekp(offset) && read(out, len);
 	}
 #ifndef CAN_SEEKP_BEYOND_EOF
-	bool tellp(long* result)
-	{
-		*result = std::ftell(s_);
-		if (*result != -1) {
-#if DEBUG_MODE
-			DoLog("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
-#endif
-			return true;
-		}
-		PrintError("tellp() = %" PRIuMAX, static_cast<std::uintmax_t>(*result));
-		return false;
+	uint32_t CurrentSize() const {
+		return sFileSize;
 	}
-#endif // !CAN_SEEKP_BEYOND_EOF
-	bool write(const char* data, size_t size)
+#endif
+	void resize(uint32_t size) {
+#if defined(_WIN32)
+		seekp(size);
+		SetEndOfFile(s_);
+#else
+		fflush(s_);
+		ftruncate(fileno(s_), size);
+#endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+		// sFilePos = ?;
+		// sFileSize = size;
+#endif
+	}
+
+private:
+
+	FILE *s_ = nullptr;
+#ifndef CAN_SEEKP_BEYOND_EOF
+	uint32_t sFilePos;
+	uint32_t sFileSize;
+#endif
+
+	bool seekp(long pos)
 	{
-		if (WriteFile(data, size, s_)) {
+		if (std::fseek(s_, pos, SEEK_SET) == 0) {
 #if DEBUG_MODE
-			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+			DoLog("seekp(%" PRIdMAX ", %s)", static_cast<std::intmax_t>(pos), DirToString(SEEK_SET));
+#endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+			sFilePos = pos;
 #endif
 			return true;
 		}
-		PrintError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		PrintError("seekp(%" PRIdMAX ", %d)", static_cast<std::intmax_t>(pos), SEEK_SET);
 		return false;
 	}
 
 	bool read(void* out, size_t size)
 	{
-		if (ReadFile(out, size, s_) == 1) {
+		if (ReadFile(out, size, s_)) {
 #if DEBUG_MODE
 			DoLog("read(out, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+#endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+			sFilePos += size;
 #endif
 			return true;
 		}
@@ -130,18 +164,22 @@ public:
 		return false;
 	}
 
-	void resize(uint32_t size) {
-#if defined(_WIN32)
-		SetEndOfFile(s_);
-#else
-		fflush(s_);
-		ftruncate(fileno(s_), size);
+	bool write(const char* data, size_t size)
+	{
+		if (WriteFile(data, size, s_)) {
+#if DEBUG_MODE
+			DoLog("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
 #endif
+#ifndef CAN_SEEKP_BEYOND_EOF
+			sFilePos += size;
+			if (sFilePos > sFileSize)
+				sFileSize = sFilePos;
+#endif
+			return true;
+		}
+		PrintError("write(data, %" PRIuMAX ")", static_cast<std::uintmax_t>(size));
+		return false;
 	}
-
-private:
-
-	FILE *s_ = nullptr;
 };
 
 //#define MPQ_BLOCK_SIZE			0x8000
@@ -224,8 +262,19 @@ struct Archive {
 #endif
 			return false;
 		}
-
+#ifdef CAN_SEEKP_BEYOND_EOF
 		this->stream.Open(file);
+#else
+		std::uintmax_t size;
+		if (!GetFileSize(name, &size) || size > UINT32_MAX) {
+#if DEBUG_MODE
+			DoLog("Failed to get a valid file-size (\"%s\")", name, size);
+#endif
+			fclose(file);
+			return false;
+		}
+		this->stream.Open(file, (uint32_t)size);
+#endif
 #if DEBUG_MODE
 		this->name = name;
 #endif
@@ -238,21 +287,18 @@ struct Archive {
 #if DEBUG_MODE
 		DoLog("Creating %s", name);
 #endif
-// 'x' mode requires a decent compiler (see: https://sourceforge.net/p/mingw-w64/bugs/493/ )
-#if __cplusplus >= 201703L && !defined(__MINGW32__)
-		const char* mode = "wbx";
-#else
-		const char* mode = "wb";
-#endif
-		FILE* file = FileOpen(name, mode);
+		FILE* file = FileOpen(name, "wb");
 		if (file == NULL) {
 #if DEBUG_MODE
 			DoLog("Failed to create file (\"%s\")", name);
 #endif
 			return false;
 		}
-
+#ifdef CAN_SEEKP_BEYOND_EOF
 		this->stream.Open(file);
+#else
+		this->stream.Open(file, 0);
+#endif
 #if DEBUG_MODE
 		this->name = name;
 #endif
@@ -265,7 +311,7 @@ struct Archive {
 		DoLog("Flushing %s", name.c_str());
 #endif
 		// assert(stream.IsOpen());
-		if (stream.seekp(0, SEEK_SET) && WriteHeaderAndTables()) {
+		if (WriteHeaderAndTables()) {
 			// assert(mpqHeader.pqFileSize != 0);
 #if DEBUG_MODE
 			DoLog("ResizeFile(\"%s\", %" PRIuMAX ")", name.c_str(), mpqHeader.pqFileSize);
@@ -299,7 +345,7 @@ private:
 	{
 		ByteSwapHdr(&mpqHeader);
 
-		const bool success = stream.write(reinterpret_cast<const char*>(&mpqHeader), sizeof(mpqHeader));
+		const bool success = stream.writeTo(0, reinterpret_cast<const char*>(&mpqHeader), sizeof(mpqHeader));
 		ByteSwapHdr(&mpqHeader);
 		return success;
 	}
@@ -313,7 +359,7 @@ private:
 		blockSize = this->mpqHeader.pqBlockCount * sizeof(FileMpqBlockEntry);
 
 		EncryptMpqBlock(this->sgpBlockTbl, blockSize, key);
-		const bool success = stream.write(reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
+		const bool success = stream.writeTo(this->mpqHeader.pqBlockOffset, reinterpret_cast<const char*>(this->sgpBlockTbl), blockSize);
 		DecryptMpqBlock(this->sgpBlockTbl, blockSize, key);
 		ByteSwapBlockTbl(this->sgpBlockTbl, this->mpqHeader.pqBlockCount);
 		return success;
@@ -328,7 +374,7 @@ private:
 		hashSize = this->mpqHeader.pqHashCount * sizeof(FileMpqHashEntry);
 
 		EncryptMpqBlock(this->sgpHashTbl, hashSize, key);
-		const bool success = stream.write(reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
+		const bool success = stream.writeTo(this->mpqHeader.pqHashOffset, reinterpret_cast<const char*>(this->sgpHashTbl), hashSize);
 		DecryptMpqBlock(this->sgpHashTbl, hashSize, key);
 		ByteSwapHashTbl(this->sgpHashTbl, this->mpqHeader.pqHashCount);
 		return success;
@@ -352,7 +398,8 @@ static bool IsValidMPQHeader(const FileMpqHeader* hdr)
 		DoLog("Invalid header format sig(%d vs. %d), hs(%d vs. %d) v(%d vs. %d) ss(%d vs. %d)", hdr->pqSignature, ID_MPQ, hdr->pqHeaderSize, MPQ_HEADER_SIZE_V1, hdr->pqVersion, MPQ_FORMAT_VERSION_1, hdr->pqSectorSizeId, MPQ_SECTOR_SIZE_SHIFT_V1);
 		return false;
 #endif
-	return (int)hdr->pqHashCount >= 0                     // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry
+	return hdr->pqBlockCount != 0                         // required by OpenMPQ
+	 && (int)hdr->pqHashCount > 0                         // required by mpqapi_has_entry / mpqapi_rename_entry / mpqapi_remove_entry ( !=0 by OpenMPQ)
 	 && (hdr->pqHashCount & (hdr->pqHashCount - 1)) == 0; // hashCount must be a power of two (required by mpqapi_get_hash_index / mpqapi_add_entry)
 }
 
@@ -523,8 +570,8 @@ static uint32_t mpqapi_add_entry(const char* pszName, uint32_t block_index)
 static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block)
 {
 	FileMpqBlockEntry* pBlk = &cur_archive.sgpBlockTbl[block];
-
-	const uint32_t num_sectors = (dwLen + (MPQ_SECTOR_SIZE - 1)) / MPQ_SECTOR_SIZE;
+	// assert(dwLen != 0);
+	const uint32_t num_sectors = ((dwLen - 1) / MPQ_SECTOR_SIZE) + 1;
 	const uint32_t offset_table_bytesize = sizeof(uint32_t) * (num_sectors + 1);
 	pBlk->bqOffset = mpqapi_find_free_block(dwLen + offset_table_bytesize, &pBlk->bqSizeAlloc);
 	pBlk->bqSizeFile = dwLen;
@@ -535,63 +582,40 @@ static bool mpqapi_write_file_contents(BYTE* pbData, DWORD dwLen, uint32_t block
 	// First offset is the start of the first sector, last offset is the end of the last sector.
 	uint32_t* sectoroffsettable = (uint32_t*)DiabloAllocPtr((num_sectors + 1) * sizeof(uint32_t));
 	{
-#ifdef CAN_SEEKP_BEYOND_EOF
-	if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, SEEK_SET))
-		goto on_error;
-#else
-	// Ensure we do not seekp beyond EOF by filling the missing space.
-	long stream_end;
-	if (!cur_archive.stream.seekp(0, SEEK_END) || !cur_archive.stream.tellp(&stream_end))
-		goto on_error;
-	std::size_t curSize = stream_end - cur_archive.stream_begin;
-	if (curSize < pBlk->bqOffset + offset_table_bytesize) {
-		if (curSize < pBlk->bqOffset) {
-			curSize = pBlk->bqOffset - curSize;
-			char* filler = (char*)DiabloAllocPtr(curSize);
-			bool res = cur_archive.stream.write(filler, curSize);
-			mem_free_dbg(filler);
-			if (!res)
-				goto on_error;
-		}
-		if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
-			goto on_error;
-	} else {
-		if (!cur_archive.stream.seekp(pBlk->bqOffset + offset_table_bytesize, SEEK_SET))
-			goto on_error;
-	}
-#endif
 
 	uint32_t destsize = offset_table_bytesize;
 	unsigned cur_sector = 0;
+	sectoroffsettable[0] = SwapLE32(destsize);
+	BYTE* src = pbData;
+	BYTE* dst = pbData;
 	while (true) {
 		uint32_t len = std::min(dwLen, MPQ_SECTOR_SIZE);
-		BYTE* mpq_buf = pbData;
-		pbData += len;
-		len = PkwareCompress(mpq_buf, len);
-		if (!cur_archive.stream.write(reinterpret_cast<const char*>(mpq_buf), len))
-			goto on_error;
-		sectoroffsettable[cur_sector++] = SwapLE32(destsize);
-		destsize += len; // compressed length
+		uint32_t cmplen = PkwareCompress(src, len);
+		if (src != dst) {
+			memmove(dst, src, cmplen);
+		}
+		src += len;
+		dst += cmplen;
+		destsize += cmplen; // compressed length
+		sectoroffsettable[++cur_sector] = SwapLE32(destsize);
 		if (dwLen > MPQ_SECTOR_SIZE)
 			dwLen -= MPQ_SECTOR_SIZE;
 		else
 			break;
 	}
 
-	sectoroffsettable[num_sectors] = SwapLE32(destsize);
-	if (!cur_archive.stream.seekp(pBlk->bqOffset, SEEK_SET))
+	if (!cur_archive.stream.writeTo(pBlk->bqOffset, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
 		goto on_error;
-	if (!cur_archive.stream.write(reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize))
-		goto on_error;
-	if (!cur_archive.stream.seekp(destsize - offset_table_bytesize, SEEK_CUR))
+
+	if (!cur_archive.stream.writeTo(pBlk->bqOffset + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize))
 		goto on_error;
 
 	if (destsize < pBlk->bqSizeAlloc) {
 		const uint32_t emptyBlockSize = pBlk->bqSizeAlloc - destsize;
-		if (emptyBlockSize >= (MPQ_SECTOR_SIZE / 4)) {
+		//if (emptyBlockSize >= (MPQ_SECTOR_SIZE / 4)) {
 			pBlk->bqSizeAlloc = destsize;
 			mpqapi_alloc_block(pBlk->bqSizeAlloc + pBlk->bqOffset, emptyBlockSize);
-		}
+		//}
 	}
 	mem_free_dbg(sectoroffsettable);
 	return true;
@@ -642,7 +666,7 @@ bool OpenMPQ(const char* pszArchive)
 		return false;
 	}
 	if (cur_archive.sgpBlockTbl == NULL/* || cur_archive.sgpHashTbl == NULL*/) {
-		if (!cur_archive.stream.read(&cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
+		if (!cur_archive.stream.readFrom(0, &cur_archive.mpqHeader, sizeof(cur_archive.mpqHeader)))
 			goto on_error;
 		ByteSwapHdr(&cur_archive.mpqHeader);
 		if (!IsValidMPQHeader(&cur_archive.mpqHeader))
@@ -655,30 +679,17 @@ bool OpenMPQ(const char* pszArchive)
 		if (cur_archive.sgpBlockTbl == NULL || cur_archive.sgpHashTbl == NULL)
 			goto on_error;
 
-		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqBlockOffset, SEEK_SET))
+		if (!cur_archive.stream.readFrom(cur_archive.mpqHeader.pqBlockOffset, cur_archive.sgpBlockTbl, blockSize))
 			goto on_error;
-			if (!cur_archive.stream.read(cur_archive.sgpBlockTbl, blockSize))
-				goto on_error;
-			key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
-			DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
-			ByteSwapBlockTbl(cur_archive.sgpBlockTbl, cur_archive.mpqHeader.pqBlockCount);
+		key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+		DecryptMpqBlock(cur_archive.sgpBlockTbl, blockSize, key);
+		ByteSwapBlockTbl(cur_archive.sgpBlockTbl, cur_archive.mpqHeader.pqBlockCount);
 
-		if (!cur_archive.stream.seekp(cur_archive.mpqHeader.pqHashOffset, SEEK_SET))
+		if (!cur_archive.stream.readFrom(cur_archive.mpqHeader.pqHashOffset, cur_archive.sgpHashTbl, hashSize))
 			goto on_error;
-			if (!cur_archive.stream.read(cur_archive.sgpHashTbl, hashSize))
-				goto on_error;
-			key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
-			DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
-			ByteSwapHashTbl(cur_archive.sgpHashTbl, cur_archive.mpqHeader.pqHashCount);
-
-#ifndef CAN_SEEKP_BEYOND_EOF
-		if (!cur_archive.stream.seekp(0, SEEK_SET))
-			goto on_error;
-
-		// Memorize stream begin, we'll need it for calculations later.
-		if (!cur_archive.stream.tellp(&cur_archive.stream_begin))
-			goto on_error;
-#endif
+		key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+		DecryptMpqBlock(cur_archive.sgpHashTbl, hashSize, key);
+		ByteSwapHashTbl(cur_archive.sgpHashTbl, cur_archive.mpqHeader.pqHashCount);
 	}
 	return true;
 on_error:
@@ -721,18 +732,6 @@ bool CreateMPQ(const char* pszArchive, int hashCount, int blockCount)
 	static_assert(HASH_ENTRY_FREE == 0xFFFFFFFF, "CreateMPQ initializes the hashtable with 0xFF to mark the entries as free.");
 	std::memset(cur_archive.sgpHashTbl, 0xFF, hashSize);
 
-#ifndef CAN_SEEKP_BEYOND_EOF
-	if (!cur_archive.stream.seekp(0, SEEK_SET))
-		goto on_error;
-
-	// Memorize stream begin, we'll need it for calculations later.
-	if (!cur_archive.stream.tellp(&cur_archive.stream_begin))
-		goto on_error;
-
-	// Write garbage header and tables because some platforms cannot `seekp` beyond EOF.
-	// The data is incorrect at this point, it will be overwritten on Close.
-	cur_archive.WriteHeaderAndTables();
-#endif
 	return true;
 on_error:
 	cur_archive.CloseArchive(true);
