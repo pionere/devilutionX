@@ -1343,7 +1343,7 @@ static void StoreUpdateSelection()
 	src = &gpBuffer[sxy];
 	dst = &gpBuffer[dxy];
 
-	for (i = 0; i < TPANEL_BORDER; i++, src += width, dst += width)
+	for (i = 0; i < BOXBORDER_WIDTH; i++, src += width, dst += width)
 		memcpy(dst, src, length);
 }
 void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
@@ -1363,7 +1363,7 @@ void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
 	dst = &gpBuffer[dxy];
 
 	for (i = 0; i < height; i++, src += width, dst += width)
-		memcpy(dst, src, TPANEL_BORDER);
+		memcpy(dst, src, BOXBORDER_WIDTH);
 }*/
 static int current_store_index()
 {
@@ -1466,13 +1466,13 @@ void DrawStore()
 						DrawStoreLineY(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
 						// top-right corner
 						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px + LTPANEL_WIDTH - TPANEL_BORDER, py, sx + 2 * INV_SLOT_SIZE_PX - TPANEL_BORDER, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
 						// bottom-left corner
-						DrawStoreLineX(px, py + TPANEL_HEIGHT - TPANEL_BORDER, sx + 0 * INV_SLOT_SIZE_PX, sy - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px, py + TPANEL_HEIGHT - TPANEL_BORDER - INV_SLOT_SIZE_PX / 2, sx + 0 * INV_SLOT_SIZE_PX, sy - INV_SLOT_SIZE_PX / 2 - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineX(px, py + TPANEL_HEIGHT - BOXBORDER_WIDTH, sx + 0 * INV_SLOT_SIZE_PX, sy - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 0 * INV_SLOT_SIZE_PX, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
 						// bottom-right corner
-						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py + TPANEL_HEIGHT - TPANEL_BORDER, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px + LTPANEL_WIDTH - TPANEL_BORDER, py + TPANEL_HEIGHT - TPANEL_BORDER - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - TPANEL_BORDER, sy - INV_SLOT_SIZE_PX / 2 - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py + TPANEL_HEIGHT - BOXBORDER_WIDTH, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
 						*/
 						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
 					}

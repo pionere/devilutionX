@@ -3160,19 +3160,19 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 
 static void PrintItemString(int x, int& y)
 {
-	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), tempstr, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * BOXBORDER_WIDTH), tempstr, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int& y, const char* str)
 {
-	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, COL_WHITE, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * BOXBORDER_WIDTH), str, COL_WHITE, FONT_KERN_SMALL);
 	y += 24;
 }
 
 static void PrintItemString(int x, int& y, const char* str, int col)
 {
-	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * TPANEL_BORDER), str, col, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * BOXBORDER_WIDTH), str, col, FONT_KERN_SMALL);
 	y += 24;
 }
 
@@ -3400,7 +3400,7 @@ void DrawInvItemDetails()
 	// draw the background
 	DrawSTextBox(x, y);
 
-	x += TPANEL_BORDER;
+	x += BOXBORDER_WIDTH;
 	y += 44;
 
 	is = PlrItem(mypnum, pcursinvitem);
