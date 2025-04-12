@@ -1886,7 +1886,7 @@ void DrawTextBox(unsigned separators)
 	DrawColorTextBox(x, y, LTPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
 	if (separators & 1)
 		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 3 * 12 + 14);
-	if (separators & 1)
+	if (separators & 2)
 		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 21 * 12 + 14);
 }
 
