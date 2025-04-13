@@ -26,7 +26,7 @@ void StartQTextMsg(int m, bool showText)
 	int speed, sfxnr;
 
 	tds = &minitxtdata[m];
-	if (tds->scrlltxt && showText) {
+	if (tds->txtstr && showText) {
 		// ClearPanels();
 		// gamemenu_off();
 		// StopQTextMsg();
