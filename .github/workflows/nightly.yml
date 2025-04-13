@@ -56,11 +56,11 @@ jobs:
             cmakeargs: '-A Win32 -D_WIN32_WINNT=0x0501 -DNOHOSTING=OFF -DHOSTONLY=ON -DINET_MODE=ON -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellsrv-nightly-x86.zip'
           # x64 builds
-          - name: diablo+patch
+          - name: diablo
             #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-x64.zip'
-          - name: hellfire+patch
+          - name: hellfire
             #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x64.zip'
@@ -111,10 +111,10 @@ jobs:
       matrix:
         include:
           # x86 builds
-          - name: diablo+patch
+          - name: diablo
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-mingw-x86.zip'
-          - name: hellfire+patch
+          - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
@@ -156,10 +156,10 @@ jobs:
       matrix:
         include:
           # x64 builds
-          - name: diablo+patch
+          - name: diablo
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF'
             artifact: 'diablo-nightly-mingw-x64.zip'
-          - name: hellfire+patch
+          - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
@@ -201,10 +201,10 @@ jobs:
       matrix:
         include:
           # x86 builds
-          - name: diablo+patch
+          - name: diablo
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF'
             artifact: 'diablo-nightly-mingw-w9x.zip'
-          - name: hellfire+patch
+          - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-w9x.zip'
     steps:
@@ -491,7 +491,7 @@ jobs:
         include:
           - name: diablo
             artifact: 'diablo-nightly-android.apk'
-          - name: hellfire+patch
+          - name: hellfire
             cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
     runs-on: ubuntu-24.04
@@ -1255,10 +1255,10 @@ jobs:
         echo ''                             >> RELEASE_NOTE.md
         echo '### **Packages**'             >> RELEASE_NOTE.md
         echo '<table><thead><tr>'                   >> RELEASE_NOTE.md
-        echo '<th colspan=1><em>Diablo</em></th>'   >> RELEASE_NOTE.md
-        echo '<th rowspan=1>Environment</th>'       >> RELEASE_NOTE.md
-        echo '<th colspan=1><em>Hellfire</em></th>' >> RELEASE_NOTE.md
-        echo '</tr></thead><tbody><tr>'                                    >> RELEASE_NOTE.md
+        echo '<th><em>Diablo</em></th>'   >> RELEASE_NOTE.md
+        echo '<th>Environment</th>'       >> RELEASE_NOTE.md
+        echo '<th><em>Hellfire</em></th>' >> RELEASE_NOTE.md
+        echo '</tr></thead><tbody><tr>'                                                                                                      >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-android.apk">android.apk</a></td>'           >> RELEASE_NOTE.md
         echo '<td align=center><code>Android</code></td>'                                                                                  >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-android.apk">android.apk</a></td>'         >> RELEASE_NOTE.md
@@ -1310,30 +1310,30 @@ jobs:
         echo '<td align=center><code>Amiga</code></td>'                                                                                    >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-amiga">amiga</a></td>'                     >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
-        echo '<td rowspan=2 align=center><code>Windows x64</code></td>'                                                                                                                                                             >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                                                                                                              >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip">mingw-x64.zip</a></td>'   >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-x64.zip">mingw-x64.zip</a></td>' >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                                                  >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
-        echo '<td rowspan=4 align=center><code>Windows x86</code></td>'                                                                                                                                                             >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                                                                                                              >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip">mingw-x86.zip</a></td>'   >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-x86.zip">mingw-x86.zip</a></td>' >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                                                  >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center></td>'                                                                                                                                                                                >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellmini-nightly-x86.zip">mini-x86.zip</a> <sup><a href="#fn-2" id="user-content-fnref-2" data-footnote-ref="">2</a></sup></td>' >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                                                  >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center></td>'                                                                                                                                                                                >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip">srv-x86.zip</a> <sup><a href="#fn-3" id="user-content-fnref-3" data-footnote-ref="">3</a></sup></td>'   >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                                                                                          >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-w9x.zip">mingw-w9x.zip</a></td>'   >> RELEASE_NOTE.md
-        echo '<td align=center><code>Windows 98</code></td>'                                                                                                    >> RELEASE_NOTE.md
-        echo '<td colspan=1 align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-w9x.zip">mingw-w9x.zip</a></td>' >> RELEASE_NOTE.md
-        echo '</tr></tbody></table>'                                                                                                                              >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
+        echo '<td rowspan=2 align=center><code>Windows x64</code></td>'                                                                                                                                    >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-x64.zip">mingw-x64.zip</a></td>'   >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-x64.zip">mingw-x64.zip</a></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
+        echo '<td rowspan=4 align=center><code>Windows x86</code></td>'                                                                                                                                    >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-x86.zip">mingw-x86.zip</a></td>'   >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-x86.zip">mingw-x86.zip</a></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center></td>'                                                                                                                                                                                >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellmini-nightly-x86.zip">mini-x86.zip</a> <sup><a href="#fn-2" id="user-content-fnref-2" data-footnote-ref="">2</a></sup></td>' >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center></td>'                                                                                                                                                                                >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellsrv-nightly-x86.zip">srv-x86.zip</a> <sup><a href="#fn-3" id="user-content-fnref-3" data-footnote-ref="">3</a></sup></td>'   >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-mingw-w9x.zip">mingw-w9x.zip</a></td>'   >> RELEASE_NOTE.md
+        echo '<td align=center><code>Windows 98</code></td>'                                                                           >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-mingw-w9x.zip">mingw-w9x.zip</a></td>' >> RELEASE_NOTE.md
+        echo '</tr></tbody></table>'                                                                                                         >> RELEASE_NOTE.md
         echo '<section data-footnotes=""><ol><li id="user-content-fn-1">'                                                                         >> RELEASE_NOTE.md
         echo '<p>requires <a href="https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" rel="nofollow">VC++ Runtime</a></p>' >> RELEASE_NOTE.md
         echo '</li><li id="user-content-fn-2">'                                                                                                   >> RELEASE_NOTE.md
