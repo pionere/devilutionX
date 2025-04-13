@@ -59,20 +59,23 @@ void StopQTextMsg()
 
 void DrawQText()
 {
-	int len, tx, ty;
+	int len, sx, sy, tx, ty;
 	BYTE c;
 	const char *pnl, *str, *sstr, *endstr;
 	Uint32 currTime;
 	BYTE *pStart, *pEnd;
 
-	DrawTextBox(0);
+	sx = LTPANEL_X;
+	sy = LTPANEL_Y;
+
+	DrawColorTextBox(sx, sy, LTPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
 
 	/// ASSERT: assert(gpBuffer != NULL);
 	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (LTPANEL_Y + 25)];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (sy + 25)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (LTPANEL_Y + TPANEL_HEIGHT - 18)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + TPANEL_HEIGHT - 18)];
 
 	str = qtextptr;
 	pnl = NULL;
@@ -98,7 +101,7 @@ void DrawQText()
 				break;
 		}
 
-		tx = LTPANEL_X + 24;
+		tx = sx + 24;
 		while (str < endstr) {
 			// tx += PrintBigChar(tx, ty, (BYTE)*str++, COL_GOLD);
 			c = gbStdFontFrame[(BYTE)*str++];
@@ -111,7 +114,7 @@ void DrawQText()
 			pnl = endstr;
 		}
 		ty += MINITEXT_LINE_HEIGHT;
-		if (ty >= LTPANEL_Y + TPANEL_HEIGHT - 18 + BIG_FONT_HEIGHT) {
+		if (ty >= sy + TPANEL_HEIGHT - 18 + BIG_FONT_HEIGHT) {
 			break;
 		}
 	}
@@ -123,7 +126,7 @@ void DrawQText()
 		if (gnGamePaused != 0)
 			continue;
 		qtexty--;
-		if (qtexty <= LTPANEL_Y + 25) {
+		if (qtexty <= sy + 25) {
 			qtexty += MINITEXT_LINE_HEIGHT;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
