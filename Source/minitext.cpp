@@ -20,6 +20,8 @@ bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 static int scrolltexty;
 
+#define MINITEXT_LINE_HEIGHT  38
+
 void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
@@ -108,7 +110,7 @@ void DrawQText()
 		if (pnl == NULL) {
 			pnl = endstr;
 		}
-		ty += 38;
+		ty += MINITEXT_LINE_HEIGHT;
 		if (ty >= LTPANEL_Y + TPANEL_HEIGHT - 18 + BIG_FONT_HEIGHT) {
 			break;
 		}
@@ -122,7 +124,7 @@ void DrawQText()
 			continue;
 		qtexty--;
 		if (qtexty <= LTPANEL_Y + 25) {
-			qtexty += 38;
+			qtexty += MINITEXT_LINE_HEIGHT;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
 				// StopQTextMsg(); ?
