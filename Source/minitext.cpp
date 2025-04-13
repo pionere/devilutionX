@@ -82,6 +82,7 @@ void DrawQText()
 	str = qtextptr;
 	pnl = NULL;
 	ty = sy + qtexty;
+	sx += MINITEXT_PNL_X_OFFSET;
 
 	while (*str != '\0') {
 		len = 0;
@@ -103,7 +104,7 @@ void DrawQText()
 				break;
 		}
 
-		tx = sx + MINITEXT_PNL_X_OFFSET;
+		tx = sx;
 		while (str < endstr) {
 			// tx += PrintBigChar(tx, ty, (BYTE)*str++, COL_GOLD);
 			c = gbStdFontFrame[(BYTE)*str++];
