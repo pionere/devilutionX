@@ -9,7 +9,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Current y position of text in px */
+/** Current y offset of the text in px */
 static int qtexty;
 /** Pointer to the current text being displayed */
 static const char* qtextptr;
@@ -37,7 +37,7 @@ void StartQTextMsg(int m, bool showText)
 		gbQtextflag = true;
 		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
-		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
+		qtexty = TPANEL_HEIGHT + 13;
 		speed = tds->txtspd;
 		if (speed <= 0)
 			speed = 50 / -(speed - 1);
@@ -81,7 +81,7 @@ void DrawQText()
 
 	str = qtextptr;
 	pnl = NULL;
-	ty = qtexty;
+	ty = sy + qtexty;
 
 	while (*str != '\0') {
 		len = 0;
@@ -128,7 +128,7 @@ void DrawQText()
 		if (gnGamePaused != 0)
 			continue;
 		qtexty--;
-		if (qtexty <= sy + MINITEXT_PNL_Y_OFFSET) {
+		if (qtexty <= MINITEXT_PNL_Y_OFFSET) {
 			qtexty += MINITEXT_LINE_HEIGHT;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
