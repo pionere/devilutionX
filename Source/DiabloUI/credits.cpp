@@ -28,9 +28,9 @@ static void CreditsRender(const UiItemBase* _THIS)
 
 	int offsetY = -CREDITS_HEIGHT + (SDL_GetTicks() - _this->m_ticks_begin) / 32;
 	int linesBegin = std::max(offsetY / CREDITS_LINE_H, 0);
-	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINES_SIZE);
+	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINE_COUNT);
 
-	if (linesBegin >= CREDITS_LINES_SIZE) {
+	if (linesBegin >= CREDITS_LINE_COUNT) {
 		_gbCreditsEnd = true;
 		return;
 	}
@@ -56,7 +56,7 @@ void UiCreditsDialog()
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground();
 	SDL_Rect rect1 = { 0, 0, 0, 0 };
-	gUiItems.push_back(new UiTextScroll(CREDITS_TXT, CREDITS_LINES_SIZE, SDL_GetTicks(), CreditsRender, rect1));
+	gUiItems.push_back(new UiTextScroll(CREDITS_TXT, CREDITS_LINE_COUNT, SDL_GetTicks(), CreditsRender, rect1));
 	UiInitScreen(0, NULL, CreditsSelect, CreditsEsc);
 	gUiDrawCursor = false;
 

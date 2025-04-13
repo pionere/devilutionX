@@ -111,7 +111,7 @@ void StartHelp()
 {
 	gbHelpflag = true;
 	helpFirstLine = 0;
-	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINES_SIZE);
+	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINE_COUNT);
 
 	InitSTextHelp();
 }
@@ -133,7 +133,7 @@ void HelpScrollUp()
 
 void HelpScrollDown()
 {
-	if (helpFirstLine < (HELP_LINES_SIZE - (22 - 5)))
+	if (helpFirstLine < (HELP_LINE_COUNT - (22 - 5)))
 		helpFirstLine++;
 }
 
