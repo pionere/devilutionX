@@ -201,7 +201,7 @@ const TextData minitxtdata[NUM_TEXTS] = {
 	{ "If you were to find this artifact for Griswold, it could put a serious damper on my business here. Awwww, you'll never find it.",
 	    FALSE, -1, TSFX_PEGBOY13 },
 	{ "The Gateway of Blood and the Halls of Fire are landmarks of mystic origin. Wherever this book you read from resides it is surely a place of great power.\n\nLegends speak of a pedestal that is carved from obsidian stone and has a pool of boiling blood atop its bone encrusted surface. There are also allusions to Stones of Blood that will open a door that guards an ancient treasure...\n\nThe nature of this treasure is shrouded in speculation, my friend, but it is said that the ancient hero Arkaine placed the holy armor Valor in a secret vault. Arkaine was the first mortal to turn the tide of the Sin War and chase the legions of darkness back to the Burning Hells.\n\nJust before Arkaine died, his armor was hidden away in a secret vault. It is said that when this holy armor is again needed, a hero will arise to don Valor once more. Perhaps you are that hero...",
-/* TEXT_BLOOD1 */ FALSE, 6, TSFX_STORY15 },
+/* TEXT_BLOOD1 */ FALSE, 5, TSFX_STORY15 },
 	{ "Every child hears the story of the warrior Arkaine and his mystic armor known as Valor. If you could find its resting place, you would be well protected against the evil in the Labyrinth.",
 	    FALSE, -1, TSFX_TAVERN13 },
 	{ "Hmm... it sounds like something I should remember, but I've been so busy learning new cures and creating better elixirs that I must have forgotten. Sorry...",
