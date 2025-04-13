@@ -21,6 +21,8 @@ bool gbQtextflag;
 static int scrolltexty;
 
 #define MINITEXT_LINE_HEIGHT  38
+#define MINITEXT_PNL_X_OFFSET 24
+#define MINITEXT_PNL_Y_OFFSET 25
 
 void StartQTextMsg(int m, bool showText)
 {
@@ -73,7 +75,7 @@ void DrawQText()
 	/// ASSERT: assert(gpBuffer != NULL);
 	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (sy + 25)];
+	gpBufStart = &gpBuffer[BUFFER_WIDTH * (sy + MINITEXT_PNL_Y_OFFSET)];
 	pEnd = gpBufEnd;
 	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + TPANEL_HEIGHT - 18)];
 
@@ -97,11 +99,11 @@ void DrawQText()
 			len += bigFontWidth[c] + FONT_KERN_BIG;
 			if (c == 0) // allow wordwrap on blank glyph
 				endstr = sstr;
-			else if (len >= LTPANEL_WIDTH - 2 * 24)
+			else if (len >= LTPANEL_WIDTH - 2 * MINITEXT_PNL_X_OFFSET)
 				break;
 		}
 
-		tx = sx + 24;
+		tx = sx + MINITEXT_PNL_X_OFFSET;
 		while (str < endstr) {
 			// tx += PrintBigChar(tx, ty, (BYTE)*str++, COL_GOLD);
 			c = gbStdFontFrame[(BYTE)*str++];
@@ -126,7 +128,7 @@ void DrawQText()
 		if (gnGamePaused != 0)
 			continue;
 		qtexty--;
-		if (qtexty <= sy + 25) {
+		if (qtexty <= sy + MINITEXT_PNL_Y_OFFSET) {
 			qtexty += MINITEXT_LINE_HEIGHT;
 			qtextptr = pnl;
 			if (*pnl == '\0') {
