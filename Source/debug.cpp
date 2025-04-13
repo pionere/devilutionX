@@ -508,18 +508,20 @@ void ValidateData()
 		}
 		for (i = 0; i < lengthof(minitxtdata); i++) {
 			int n = minitxtdata[i].sfxnr;
+			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr == '\0')
+				app_fatal("Scrolling text of minitext %d is empty.", n, i);
 			if (minitxtdata[i].txtsfxset) {
 				if ((unsigned)n >= NUM_SFXS)
-					app_fatal("Sfx-set (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr);
+					app_fatal("Sfx-set (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr);
 				for (int c = 0; c < NUM_CLASSES; c++) {
 					if (!(sfxdata[sgSFXSets[n][c]].bFlags & sfx_STREAM))
-						app_fatal("Sfx-set (%d) of minitext %d is not streamed (%s) for class %d.", n, i, minitxtdata[i].txtstr, c); // required by MonDoTalk, SpawnLoot
+						app_fatal("Sfx-set (%d) of minitext %d is not streamed (%s) for class %d.", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr, c); // required by MonDoTalk, SpawnLoot
 				}
 			} else {
 				if ((unsigned)n >= NUM_SFXS)
-					app_fatal("Sfx (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr);
+					app_fatal("Sfx (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr);
 				if (!(sfxdata[n].bFlags & sfx_STREAM))
-					app_fatal("Sfx (%d) of minitext %d is not streamed (%s).", n, i, minitxtdata[i].txtstr); // required by MonDoTalk, SpawnLoot
+					app_fatal("Sfx (%d) of minitext %d is not streamed (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr); // required by MonDoTalk, SpawnLoot
 			}
 		}
 		assert(sfxdata[USFX_GARBUD4].bFlags & sfx_STREAM); // required by MAI_Garbud
