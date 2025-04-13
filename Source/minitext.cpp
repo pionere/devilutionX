@@ -109,7 +109,7 @@ void DrawQText()
 			pnl = endstr;
 		}
 		ty += 38;
-		if (ty > LTPANEL_Y + TPANEL_HEIGHT + 14) {
+		if (ty >= LTPANEL_Y + TPANEL_HEIGHT - 18 + BIG_FONT_HEIGHT) {
 			break;
 		}
 	}
