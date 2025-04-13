@@ -219,7 +219,7 @@ void InitLvlStores()
 	SpawnPremium(l);
 }
 
-void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val)
+static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val)
 {
 	int sx, sy, px;
 	int width, limit;
@@ -276,15 +276,6 @@ static void DrawSSlider(/*int y1, int y2*/)
 		yd3 = yd3 * stextsidx / stextsmax;
 		CelDraw(x, yd1 + yd3, pSTextSlidCels, 13);
 	}
-}
-
-void InitSTextHelp()
-{
-	stextsel = -1;
-	gbWidePanel = true;
-	// assert(gbRenderGold == false); - not necessary since it is not used in PrintSString
-	// assert(gbHasScroll == false); - not necessary since it is not used in PrintSString
-	// ClearSText(0, STORE_LINES); // necessary to reset the _syoff values -- should be zero at the moment...
 }
 
 /*static void AddSLine(int y)
@@ -1489,7 +1480,7 @@ void DrawStore()
 	if (gbWidePanel) {
 		snprintf(tempstr, sizeof(tempstr), "Your gold: %d", myplr._pGold);
 		// assert(gbWidePanel);
-		PrintSString(LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD);
+		PrintSString(LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD, 0);
 	}
 	if (gbHasScroll)
 		DrawSSlider();

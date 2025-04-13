@@ -125,7 +125,6 @@ void StartHelp()
 		gnVisibleHelpLines = HELP_LINE_COUNT;
 	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINE_COUNT);
 	helpFirstLine = 0;
-	InitSTextHelp();
 }
 
 void StopHelp()
