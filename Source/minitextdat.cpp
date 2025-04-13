@@ -1,5 +1,5 @@
 /**
- * @file textdat.cpp
+ * @file minitextdat.cpp
  *
  * Implementation of all dialog texts.
  */

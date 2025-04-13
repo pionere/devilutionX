@@ -479,6 +479,7 @@ set(devilutionx_SRCS
   Source/main.cpp
   Source/mainmenu.cpp
   Source/minitext.cpp
+  Source/minitextdat.cpp
   Source/misdat.cpp
   Source/missiles.cpp
   Source/monstdat.cpp
@@ -508,7 +509,6 @@ set(devilutionx_SRCS
   Source/spells.cpp
   Source/stores.cpp
   Source/sync.cpp
-  Source/textdat.cpp
   Source/themes.cpp
   #Source/tmsg.cpp
   Source/town.cpp
