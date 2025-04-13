@@ -1529,7 +1529,7 @@ static void DrawView()
 		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
 			DrawInfoStr();
 		}
-		if (gbHelpflag) {
+		if (gnVisibleHelpLines != 0) {
 			DrawHelp();
 		}
 	}

@@ -8,8 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-bool gbHelpflag;
-int gnVisibleHelpLines;
+int gnVisibleHelpLines = 0;
 static char** gbHelpLines;
 static int helpFirstLine;
 
@@ -82,7 +81,6 @@ static int helpFirstLine;
 
 //void InitHelp()
 //{
-//	gbHelpflag = false;
 //	gnVisibleHelpLines = 0;
 //}
 
@@ -118,22 +116,22 @@ void DrawHelp()
 
 void StartHelp()
 {
-	gbHelpflag = true;
-	helpFirstLine = 0;
 	gnVisibleHelpLines = HELP_LINES;
+	if (gnVisibleHelpLines <= 0) {
+		gnVisibleHelpLines = 0;
+		return;
+	}
 	if (gnVisibleHelpLines > HELP_LINE_COUNT)
 		gnVisibleHelpLines = HELP_LINE_COUNT;
 	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINE_COUNT);
-
+	helpFirstLine = 0;
 	InitSTextHelp();
 }
 
 void StopHelp()
 {
-	if (!gbHelpflag)
+	if (gnVisibleHelpLines == 0)
 		return;
-
-	gbHelpflag = false;
 	gnVisibleHelpLines = 0;
 	MemFreeTxtFile(gbHelpLines);
 }
