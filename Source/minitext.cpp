@@ -23,6 +23,7 @@ static int scrolltexty;
 #define MINITEXT_LINE_HEIGHT  38
 #define MINITEXT_PNL_X_OFFSET 24
 #define MINITEXT_PNL_Y_OFFSET 25
+#define MINITEXT_PNL_Y_OFFSET_BOTTOM 18
 
 void StartQTextMsg(int m, bool showText)
 {
@@ -77,7 +78,7 @@ void DrawQText()
 	pStart = gpBufStart;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * (sy + MINITEXT_PNL_Y_OFFSET)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + TPANEL_HEIGHT - 18)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM)];
 
 	str = qtextptr;
 	pnl = NULL;
@@ -117,7 +118,7 @@ void DrawQText()
 			pnl = endstr;
 		}
 		ty += MINITEXT_LINE_HEIGHT;
-		if (ty >= sy + TPANEL_HEIGHT - 18 + BIG_FONT_HEIGHT) {
+		if (ty >= sy + TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM + BIG_FONT_HEIGHT) {
 			break;
 		}
 	}
