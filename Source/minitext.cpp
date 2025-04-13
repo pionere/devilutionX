@@ -23,7 +23,7 @@ static int scrolltexty;
 void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
-	int sfxnr;
+	int speed, sfxnr;
 
 	tds = &alltext[m];
 	if (tds->scrlltxt && showText) {
@@ -34,7 +34,12 @@ void StartQTextMsg(int m, bool showText)
 		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
 		qtexty = LTPANEL_Y + TPANEL_HEIGHT + 13;
-		scrolltexty = tds->txtspd;
+		speed = tds->txtspd;
+		if (speed <= 0)
+			speed = 50 / -(speed - 1);
+		else
+			speed = ((speed + 1) * 50) / speed;
+		scrolltexty = speed;
 		qtextTime = SDL_GetTicks() + scrolltexty;
 	}
 	sfxnr = tds->sfxnr;

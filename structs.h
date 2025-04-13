@@ -482,7 +482,7 @@ typedef struct TextData {
 	const char* txtstr;
 	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
-	int txtspd;
+	int8_t txtspd;
 	int sfxnr;  // _sfx_id or sfx_set if txtsfxset is true
 } TextData;
 
