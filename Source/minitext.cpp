@@ -25,7 +25,7 @@ void StartQTextMsg(int m, bool showText)
 	const TextData* tds;
 	int speed, sfxnr;
 
-	tds = &alltext[m];
+	tds = &minitxtdata[m];
 	if (tds->scrlltxt && showText) {
 		// ClearPanels();
 		// gamemenu_off();

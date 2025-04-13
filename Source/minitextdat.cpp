@@ -17,7 +17,7 @@ DEVILUTION_BEGIN_NAMESPACE
  *         negative numbers will scroll 1+(-n) pixels.
  * sfxnr: the corresponding sfx number
  */
-const TextData alltext[NUM_TEXTS] = {
+const TextData minitxtdata[NUM_TEXTS] = {
 	// clang-format off
 	{ "Ahh, the story of our King, is it? The tragic fall of Leoric was a harsh blow to this land. The people always loved the King, and now they live in mortal fear of him. The question that I keep asking myself is how he could have fallen so far from the Light, as Leoric had always been the holiest of men. Only the vilest powers of Hell could so utterly destroy a man from within...",
 /* TEXT_KING1 */ TRUE, FALSE, 0, TSFX_STORY1 },
