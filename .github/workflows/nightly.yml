@@ -1408,6 +1408,8 @@ jobs:
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
           ${{github.workspace}}/diablo-nightly-mingw-x86.zip
+          ${{github.workspace}}/diablo-nightly-mini-x86.zip
+          ${{github.workspace}}/diablo-nightly-server-x86.zip
           ${{github.workspace}}/diablo-nightly-mingw-w9x.zip
           ${{github.workspace}}/hellfire-nightly-android.apk
           ${{github.workspace}}/hellfire-nightly-lepus.opk
@@ -1426,11 +1428,9 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
-          ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
-          ${{github.workspace}}/diablo-nightly-mini-x86.zip
           ${{github.workspace}}/hellfire-nightly-mini-x86.zip
-          ${{github.workspace}}/diablo-nightly-server-x86.zip
           ${{github.workspace}}/hellfire-nightly-server-x86.zip
+          ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
         fail_on_unmatched_files: true
       #env:
       #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
