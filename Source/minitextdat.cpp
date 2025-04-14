@@ -15,6 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
  * txtdelay: vertical speed of the scrolling text in ms/px
  * sfxnr: the corresponding sfx number
  */
+static_assert(1900 / MINITEXT_LINE_HEIGHT == 50, "minitxtdata must be timed.");
 const TextData minitxtdata[NUM_TEXTS] = {
 	// clang-format off
 	{ "Ahh, the story of our King, is it? The tragic fall of Leoric was a harsh blow to this land. The people always loved the King, and now they live in mortal fear of him. The question that I keep asking myself is how he could have fallen so far from the Light, as Leoric had always been the holiest of men. Only the vilest powers of Hell could so utterly destroy a man from within...",

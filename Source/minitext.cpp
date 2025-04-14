@@ -20,16 +20,6 @@ bool gbQtextflag;
 /** Vertical speed of the scrolling text in ms/px */
 static int scrolltexty;
 
-#define MINITEXT_LINE_HEIGHT  38
-#define MINITEXT_PNL_X_OFFSET 24
-#define MINITEXT_PNL_Y_OFFSET 18
-#define MINITEXT_PANEL_WIDTH  591
-#define MINITEXT_PANEL_HEIGHT (MINITEXT_LINE_HEIGHT * 6 + 2 * MINITEXT_PNL_Y_OFFSET)
-#define MINITEXT_PANEL_X      PANEL_CENTERX(MINITEXT_PANEL_WIDTH)
-#define MINITEXT_PANEL_Y      (PANEL_CENTERY(MINITEXT_PANEL_HEIGHT + (MENUBTN_HEIGHT + BELT_HEIGHT)))
-
-static_assert(1900 / MINITEXT_LINE_HEIGHT == 50, "minitxtdata must be timed.");
-
 void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
