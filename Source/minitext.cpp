@@ -22,18 +22,18 @@ static int scrolltexty;
 
 #define MINITEXT_LINE_HEIGHT  38
 #define MINITEXT_PNL_X_OFFSET 24
-#define MINITEXT_PNL_Y_OFFSET 21
+#define MINITEXT_PNL_Y_OFFSET 18
 #define MINITEXT_PANEL_WIDTH  591
-#define MINITEXT_PANEL_HEIGHT 303
+#define MINITEXT_PANEL_HEIGHT (MINITEXT_LINE_HEIGHT * 6 + 2 * MINITEXT_PNL_Y_OFFSET)
 #define MINITEXT_PANEL_X      PANEL_CENTERX(MINITEXT_PANEL_WIDTH)
-#define MINITEXT_PANEL_Y      (PANEL_CENTERY(MINITEXT_PANEL_HEIGHT) - 64)
+#define MINITEXT_PANEL_Y      (PANEL_CENTERY(MINITEXT_PANEL_HEIGHT + (MENUBTN_HEIGHT + BELT_HEIGHT)))
 
 static_assert(1900 / MINITEXT_LINE_HEIGHT == 50, "minitxtdata must be timed.");
 
 void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
-	int speed, sfxnr;
+	int sfxnr;
 
 	tds = &minitxtdata[m];
 	if (tds->txtstr && showText) {
@@ -43,7 +43,8 @@ void StartQTextMsg(int m, bool showText)
 		gbQtextflag = true;
 		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
-		qtexty = (MINITEXT_PANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET) + MINITEXT_LINE_HEIGHT - 7;
+		static_assert(MINITEXT_LINE_HEIGHT - 11 >= BIG_FONT_HEIGHT, "Text should be completely hidden when the minitext starts.");
+		qtexty = MINITEXT_PANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET + MINITEXT_LINE_HEIGHT - 11;
 		scrolltexty = tds->txtdelay;
 		qtextTime = SDL_GetTicks() + scrolltexty;
 	}
