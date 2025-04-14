@@ -89,7 +89,6 @@ void DrawLevelUpIcon();
 void DrawInfoStr();
 void CheckChrBtnClick();
 void ReleaseChrBtn();
-void DrawTextBox(unsigned separators);
 void DrawSTextBox(int x, int y);
 void DrawDurIcon();
 void DrawSpellBook();
