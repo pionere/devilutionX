@@ -22,8 +22,7 @@ static int scrolltexty;
 
 #define MINITEXT_LINE_HEIGHT  38
 #define MINITEXT_PNL_X_OFFSET 24
-#define MINITEXT_PNL_Y_OFFSET 25
-#define MINITEXT_PNL_Y_OFFSET_BOTTOM 18
+#define MINITEXT_PNL_Y_OFFSET 21
 
 static_assert(1900 / MINITEXT_LINE_HEIGHT == 50, "minitxtdata must be timed.");
 
@@ -40,7 +39,7 @@ void StartQTextMsg(int m, bool showText)
 		gbQtextflag = true;
 		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
-		qtexty = (TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM) + MINITEXT_LINE_HEIGHT - 7;
+		qtexty = (TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET) + MINITEXT_LINE_HEIGHT - 7;
 		scrolltexty = tds->txtdelay;
 		qtextTime = SDL_GetTicks() + scrolltexty;
 	}
@@ -75,7 +74,7 @@ void DrawQText()
 	pStart = gpBufStart;
 	gpBufStart = &gpBuffer[BUFFER_WIDTH * (sy + MINITEXT_PNL_Y_OFFSET)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM)];
+	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET)];
 
 	str = qtextptr;
 	pnl = NULL;
@@ -115,7 +114,7 @@ void DrawQText()
 			pnl = endstr;
 		}
 		ty += MINITEXT_LINE_HEIGHT;
-		if (ty >= sy + TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM + BIG_FONT_HEIGHT) {
+		if (ty >= sy + TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET + BIG_FONT_HEIGHT) {
 			break;
 		}
 	}
