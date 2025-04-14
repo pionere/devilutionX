@@ -1386,19 +1386,19 @@ static int current_store_index()
 void DrawStore()
 {
 	STextStruct* sts;
-	int i;
+	int i, x, y;
 
+	y = LTPANEL_Y;
 	if (gbWidePanel) {
-		int x, y;
-
 		x = LTPANEL_X;
-		y = LTPANEL_Y;
 
 		DrawColorTextBox(x, y, LTPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
 		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 3 * 12 + 14);
 		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 21 * 12 + 14);
 	} else {
-		DrawSTextBox(STORE_PNL_X, LTPANEL_Y);
+		x = STORE_PNL_X;
+
+		DrawSTextBox(x, y);
 	}
 
 	if (gbHasScroll) {
@@ -1431,20 +1431,20 @@ void DrawStore()
 		StoreUpdateSelection(); // check maxx
 	}
 
-	int y = current_store_index();
-	STextStruct* stc = &stextlines[y];
+	int csi = current_store_index();
+	STextStruct* stc = &stextlines[csi];
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
-		//	DrawColorTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
+		//	DrawColorTextBoxSLine(x, y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
 				int frame = sts->_siCurs[n];
 				if (frame != CURSOR_NONE) {
-					// int sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + sts->_sx;
-					int px = LTPANEL_X, py = LTPANEL_Y + 1;
+					// int sx = sx + 7 + sts->_sx;
+					int px = x, py = y + 1;
 					int sx = px + 7 + sts->_sx;
 					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
