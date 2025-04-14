@@ -25,6 +25,8 @@ static int scrolltexty;
 #define MINITEXT_PNL_Y_OFFSET 25
 #define MINITEXT_PNL_Y_OFFSET_BOTTOM 18
 
+static_assert(1900 / MINITEXT_LINE_HEIGHT == 50, "minitxtdata must be timed.");
+
 void StartQTextMsg(int m, bool showText)
 {
 	const TextData* tds;
@@ -38,7 +40,7 @@ void StartQTextMsg(int m, bool showText)
 		gbQtextflag = true;
 		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
-		qtexty = TPANEL_HEIGHT + 13;
+		qtexty = (TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM) + MINITEXT_LINE_HEIGHT - 7;
 		speed = tds->txtspd;
 		if (speed <= 0)
 			speed = 50 / -(speed - 1);
