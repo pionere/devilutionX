@@ -481,7 +481,7 @@ static_warning((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align 
 typedef struct TextData {
 	const char* txtstr;
 	BOOLEAN txtsfxset;
-	int8_t txtspd;
+	BYTE txtdelay;
 	int sfxnr;  // _sfx_id or sfx_set if txtsfxset is true
 } TextData;
 

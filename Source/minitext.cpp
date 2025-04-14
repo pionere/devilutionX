@@ -41,12 +41,7 @@ void StartQTextMsg(int m, bool showText)
 		gbActionBtnDown = 0;
 		qtextptr = tds->txtstr;
 		qtexty = (TPANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET_BOTTOM) + MINITEXT_LINE_HEIGHT - 7;
-		speed = tds->txtspd;
-		if (speed <= 0)
-			speed = 50 / -(speed - 1);
-		else
-			speed = ((speed + 1) * 50) / speed;
-		scrolltexty = speed;
+		scrolltexty = tds->txtdelay;
 		qtextTime = SDL_GetTicks() + scrolltexty;
 	}
 	sfxnr = tds->sfxnr;
