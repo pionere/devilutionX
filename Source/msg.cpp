@@ -3932,7 +3932,7 @@ static void PrintPlrMismatch(const char* field, int myval, int extval, int sp, i
 
 static void PrintPlrMismatch64(const char* field, uint64_t myval, uint64_t extval, int sp, int pnum)
 {
-	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
+	msg_errorf("%d received %s (%ull vs. %ull) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
 }
 
 static void CmpPlrArray(const char* field, const void* src, const void* data, int size, int len, int ip, int pnum)
