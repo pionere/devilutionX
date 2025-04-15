@@ -1182,6 +1182,9 @@ void ValidateData()
 		if (ids.iClass == ICLASS_QUEST && ids.itype != ITYPE_MISC)
 			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
+#if 0
+	LogErrorF("Max drop %d vs %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
+#endif
 #if UNOPTIMIZED_RNDITEMS
 	if (rnddrops[0][0][0] > ITEM_RNDDROP_MAX)
 		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
@@ -1318,12 +1321,17 @@ void ValidateData()
 			}
 		}
 	}
+	int maxAffix = -1;
 	for (int ii = 0; ii < NUM_IARS; ii++) {
 		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
 		for (int n = 0; n <= ILVLMAX; n++) {
 			for (int k = 0; k < 10; k++) {
-				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
-					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+				int dropts = rnddrops[n][ii][k];
+				if (dropts > maxAffix) {
+					maxAffix = dropts;
+				}
+				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
 			}
 		}
 	}
@@ -1445,12 +1453,18 @@ void ValidateData()
 		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
 		for (int n = 0; n <= ILVLMAX; n++) {
 			for (int k = 0; k < 10; k++) {
-				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
-					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+				int dropts = rnddrops[n][ii][k];
+				if (dropts > maxAffix) {
+					maxAffix = dropts;
+				}
+				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
 			}
 		}
 	}
-
+#if 0
+	LogErrorF("Max affix %d vs %d", maxAffix, ITEM_RNDAFFIX_MAX);
+#endif
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
 		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
