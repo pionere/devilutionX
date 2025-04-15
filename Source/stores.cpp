@@ -232,9 +232,9 @@ static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col
 	if (cjustflag) {
 		// assert(x == 0); -- otherwise limit -= x; ?
 		width = GetSmallStringWidth(str);
-		if (width < limit) {
+		// if (width < limit) {
 			sx += (limit - width) >> 1;
-		}
+		// }
 	}
 	tx = sx;
 	sx = PrintLimitedString(sx, sy, str, limit, col);
