@@ -681,8 +681,6 @@ Monsters\Zombie\Zombien.CL2
 _Monsters\Zombie\Zombies.CL2
 Monsters\Zombie\Zombiew.CL2
 NLevels\Cutl5.CEL
-NLevels\Cutl5.CEL
-NLevels\Cutl6.CEL
 NLevels\Cutl6.CEL
 NLevels\L5Data\L5.CEL
 NLevels\L5Data\L5.MIN
