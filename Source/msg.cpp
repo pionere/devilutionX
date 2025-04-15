@@ -1626,8 +1626,6 @@ void LevelDeltaLoad()
 			}
 			// InitLvlMonster
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
-			if (mi == MM_STONE)
-				mi = mon->_mVar3;
 			if (mi == MM_WALK2) {
 				dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
 			} else if (mi == MM_WALK) {
