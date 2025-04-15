@@ -247,8 +247,8 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
 static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
 {
     FILESIZE_T RawFilePos;
-    TMPQArchive * ha = hf->ha;
 #ifdef FULL
+    TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
 #else
     DWORD dwFlags = hf->pFileEntry->dwFlags;
@@ -331,7 +331,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
     RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
 
     // Set file pointer and read all required sectors
+#ifdef FULL
     if(FileStream_Read(&ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
+#else
+    if(FileStream_Read(&hf->ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
+#endif
         // Now we have to decrypt and decompress all file sectors that have been loaded
         for (DWORD i = 0; i < dwSectorsToRead; i++) {
 #ifdef FULL
