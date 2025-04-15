@@ -806,7 +806,7 @@ static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w
 	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
 	full = CelGetFrameClippedAt(pFlaskCels, fullCel, 0, &dataSize);
 
-	BYTE* dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* dst = &gpBuffer[BUFFERXY(sx, sy)];
 	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
 		for (i = w; i != 0; ) {
 			width = *full++;

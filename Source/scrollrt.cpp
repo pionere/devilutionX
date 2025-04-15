@@ -653,7 +653,7 @@ static void drawCell(int pn, int sx, int sy)
 		if (i >= limit)
 			return; // not enough microtiles to affect the screen -> skip
 	}
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
@@ -990,7 +990,7 @@ static void drawFloor(int pn, int sx, int sy)
 	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
 		return; // starting from above the top or below the bottom -> skip
 
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];

@@ -131,7 +131,7 @@ static void gmenu_draw_rectangle(int x, int y, int width, int height)
 	int i;
 	BYTE* dst;
 
-	dst = &gpBuffer[x + BUFFER_WIDTH * y];
+	dst = &gpBuffer[BUFFERXY(x, y)];
 	for (i = height; i != 0; i--) {
 		memset(dst, PAL16_YELLOW + 13, width);
 		dst -= BUFFER_WIDTH;

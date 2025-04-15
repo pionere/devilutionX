@@ -443,7 +443,7 @@ static void DrawAutomapContent()
 	int i, j, cells;
 	unsigned d64 = AmLine64;
 
-	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
+	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + VIEWPORT_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
 	mapx = ViewX & ~1;
@@ -568,7 +568,7 @@ static void DrawAutomapContent()
 	}
 	//if (AutoMapShowItems)
 	//	SearchAutomapItem();
-	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
+	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 }
 
 void DrawAutomap()

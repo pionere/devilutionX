@@ -70,9 +70,9 @@ static void dx_create_back_buffer()
 	}
 	assert(back_surface->pitch == gnBufferWidth);
 	gpBuffer = (BYTE*)back_surface->pixels;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * SCREEN_Y]; // SCREENXY(0, 0)
-	//gpBufEnd = (BYTE )(BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT));
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)]; // SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)
+	gpBufStart = &gpBuffer[BUFFERXY(0, SCREEN_Y)]; // SCREENXY(0, 0)
+	//gpBufEnd = (BYTE )BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT);
+	gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)]; // SCREENXY(SCREEN_WIDTH, SCREEN_HEIGHT - 1)
 
 #ifndef USE_SDL1
 	// In SDL2, `back_surface` points to the global `back_palette`.

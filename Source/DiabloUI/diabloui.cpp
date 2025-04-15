@@ -557,7 +557,7 @@ static void UiDraw(const UiProgressBar* uiPb)
 		dx = 100;
 	dx = PRBAR_WIDTH * dx / 100;
 	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
-		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
+		memcpy(&gpBuffer[BUFFERXY(x, y + i - PRBAR_HEIGHT)], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
 	}
 }
 

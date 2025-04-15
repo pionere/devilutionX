@@ -103,7 +103,7 @@ static void DrawProgress()
 
 	screen_x = PANEL_CENTERX(BAR_WIDTH);
 	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
-	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
+	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
 	for (j = 0; j < BAR_HEIGHT; j++) {

@@ -67,9 +67,9 @@ void DrawQText()
 	/// ASSERT: assert(gpBuffer != NULL);
 	// TODO: create a function in engine to draw with a given height? (similar to DrawFlask2 in control.cpp)
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (sy + MINITEXT_PNL_Y_OFFSET)];
+	gpBufStart = &gpBuffer[BUFFERXY(0, sy + MINITEXT_PNL_Y_OFFSET)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (sy + MINITEXT_PANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET)];
+	gpBufEnd = &gpBuffer[BUFFERXY(0, sy + MINITEXT_PANEL_HEIGHT - MINITEXT_PNL_Y_OFFSET)];
 
 	str = qtextptr;
 	pnl = NULL;

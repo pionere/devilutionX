@@ -209,9 +209,9 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 {
 	BYTE* dst;
 
-	assert(gpBuffer != NULL);
+	// assert(gpBuffer != NULL);
 
-	dst = &gpBuffer[X + BUFFER_WIDTH * Y];
+	dst = &gpBuffer[BUFFERXY(X, Y)];
 
 	int wdt, hgt;
 	BYTE pix;

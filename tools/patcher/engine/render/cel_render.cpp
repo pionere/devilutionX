@@ -129,7 +129,7 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
 
 	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
 
-	CelBlit(&gpBuffer[sx + BUFFER_WIDTH * sy], pRLEBytes, nDataSize, pCelBuff->ciWidth);
+	CelBlit(&gpBuffer[BUFFERXY(sx, sy)], pRLEBytes, nDataSize, pCelBuff->ciWidth);
 }
 
 /**
@@ -150,7 +150,7 @@ void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const 
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	CelBlitTrnTbl(pDecodeTo, pRLEBytes, nDataSize, pCelBuff->ciWidth, tbl);
 }
@@ -173,7 +173,7 @@ void CelClippedDraw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }

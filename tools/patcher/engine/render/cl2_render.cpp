@@ -94,7 +94,7 @@ void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 	assert(nCel > 0);
 
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }

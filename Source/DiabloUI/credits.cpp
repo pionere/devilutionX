@@ -36,9 +36,9 @@ static void CreditsRender(const UiItemBase* _THIS)
 	}
 
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP)];
+	gpBufStart = &gpBuffer[BUFFERXY(0, SCREEN_Y + CREDITS_TOP)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
+	gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
 
 	int destY = CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
