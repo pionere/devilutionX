@@ -1356,19 +1356,19 @@ void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
 	for (i = 0; i < height; i++, src += width, dst += width)
 		memcpy(dst, src, BOXBORDER_WIDTH);
 }*/
-static int current_store_index()
+static int current_store_index(int px, int py)
 {
 	int mx, my, y;
 
 	mx = MousePos.x;
 	my = MousePos.y;
 
-	y = (my - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
+	y = (my - (py - SCREEN_Y + 8)) / 12;
 	if (gbWidePanel) {
-		if (mx < LTPANEL_X - SCREEN_X || mx > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
+		if (mx < px - SCREEN_X || mx > px + LTPANEL_WIDTH - SCREEN_X)
 			y = 0;
 	} else {
-		if (mx < STORE_PNL_X - SCREEN_X || mx > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
+		if (mx < px - SCREEN_X || mx > px + STPANEL_WIDTH - SCREEN_X)
 			y = 0;
 	}
 
@@ -1431,7 +1431,7 @@ void DrawStore()
 		StoreUpdateSelection(); // check maxx
 	}
 
-	int csi = current_store_index();
+	int csi = current_store_index(x, y);
 	STextStruct* stc = &stextlines[csi];
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
@@ -2735,12 +2735,14 @@ void TryStoreBtnClick()
 
 	assert(!gbQtextflag);
 	if (stextsel != -1 && stextflag != STORE_WAIT) {
-		y = current_store_index();
+		int px = gbWidePanel ? LTPANEL_X : STORE_PNL_X;
+		int py = LTPANEL_Y;
+		y = current_store_index(px, py);
 		if (y == 0)
 			return;
 		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 		//if (MousePos.x >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
-		if (MousePos.x >= LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
+		if (MousePos.x >= px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
 			assert(gbWidePanel);
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
 				if (y == STORE_SCROLL_DOWN) {
@@ -2787,7 +2789,7 @@ void TryStoreBtnClick()
 			//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
 			if (stextlines[y]._ssel) {
 				if (stextlines[y]._sitemlist) {
-					int x = MousePos.x - (LTPANEL_X + 7 + 60 - SCREEN_X);
+					int x = MousePos.x - (px + 7 + 60 - SCREEN_X);
 					if (x >= 0) {
 						x /= (2 * INV_SLOT_SIZE_PX);
 						if (x < lengthof(stextlines[y]._siCurs)) {
