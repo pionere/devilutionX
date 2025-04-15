@@ -245,7 +245,7 @@ void DrawInv()
 	cCels = pCursCels;
 
 	pnum = mypnum;
-	pi = /*pcursinvitem == ITEM_NONE ? NULL :*/ PlrItem(pnum, pcursinvitem);
+	pi = /*!INVIDX_VALID(pcursinvitem) ? NULL :*/ PlrItem(pnum, pcursinvitem);
 	is = &plr._pInvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HEAD_FIRST].X, screen_y + InvRect[SLOTXY_HEAD_LAST].Y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
@@ -379,7 +379,7 @@ void DrawInvBelt()
 
 	pnum = mypnum;
 	pi = NULL;
-	if (pcursinvitem != ITEM_NONE)
+	if (INVIDX_VALID(pcursinvitem))
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		if (!sgbControllerActive || gbInvflag)
 #endif
@@ -1111,7 +1111,7 @@ static bool CheckInvCut()
 	}
 
 	cii = pcursinvitem;
-	if (cii == INVITEM_NONE)
+	if (!INVIDX_VALID(cii))
 		return false;
 
 	static_assert(KMOD_SHIFT <= UCHAR_MAX, "CheckInvCut send the state of the shift in a byte field.");

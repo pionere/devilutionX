@@ -990,7 +990,7 @@ void DoWndDrag()
 	int dx = MousePos.x - gnDragWndX;
 	int dy = MousePos.y - gnDragWndY;
 
-	// assert(gbDragWnd != WND_NONE);
+	// assert(WND_VALID(gbDragWnd));
 	if (dx == 0 && dy == 0)
 		return;
 
