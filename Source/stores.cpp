@@ -221,7 +221,7 @@ void InitLvlStores()
 
 static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val)
 {
-	int sx, sy, px;
+	int sx, sy, tx;
 	int width, limit;
 	char valstr[32];
 
@@ -236,17 +236,17 @@ static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col
 			sx += (limit - width) >> 1;
 		}
 	}
-	px = stextsel == y ? sx : INT_MAX;
+	tx = sx;
 	sx = PrintLimitedString(sx, sy, str, limit, col);
+	if (stextsel == y) {
+		DEBUG_ASSERT(cjustflag || gbWidePanel);
+		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
+	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
 		snprintf(valstr, sizeof(valstr), "%d", val);
 		sx = LTPANEL_X + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
 		PrintGameStr(sx, sy, valstr, col);
-	}
-	if (px != INT_MAX) {
-		DEBUG_ASSERT(cjustflag || gbWidePanel);
-		DrawSmallPentSpn(px - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
 	}
 }
 
