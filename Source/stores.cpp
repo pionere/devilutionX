@@ -225,9 +225,9 @@ static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col
 	int width, limit;
 	char valstr[32];
 
-	sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + x;
+	sx = (gbWidePanel ? LTPANEL_X + STORE_PNL_X_OFFSET : STORE_PNL_X + STORE_PNL_X_OFFSET) + x;
 	sy = LTPANEL_Y + 20 + y * 12 + stextlines[y]._syoff;
-	limit = gbWidePanel ? LTPANEL_WIDTH - 7 * 2 : STPANEL_WIDTH - 7 * 2;
+	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= x;
 	if (cjustflag) {
 		// assert(x == 0); -- otherwise limit -= x; ?
@@ -1443,9 +1443,9 @@ void DrawStore()
 			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
 				int frame = sts->_siCurs[n];
 				if (frame != CURSOR_NONE) {
-					// int sx = sx + 7 + sts->_sx;
+					// int sx = sx + STORE_PNL_X_OFFSET + sts->_sx;
 					int px = x, py = y + 1;
-					int sx = px + 7 + sts->_sx;
+					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
 					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
 
@@ -2789,7 +2789,7 @@ void TryStoreBtnClick()
 			//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
 			if (stextlines[y]._ssel) {
 				if (stextlines[y]._sitemlist) {
-					int x = MousePos.x - (px + 7 + 60 - SCREEN_X);
+					int x = MousePos.x - (px + STORE_PNL_X_OFFSET + 60 - SCREEN_X);
 					if (x >= 0) {
 						x /= (2 * INV_SLOT_SIZE_PX);
 						if (x < lengthof(stextlines[y]._siCurs)) {
