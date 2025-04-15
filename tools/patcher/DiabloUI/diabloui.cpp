@@ -62,7 +62,7 @@ bool gUiDrawCursor;
 static Uint32 _gdwFadeTc;
 
 UiProgressBar::UiProgressBar(const SDL_Rect& rect)
-		: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
+	: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
 {
 	int i;
 	CelImageBuf* progFillCel;
@@ -1049,7 +1049,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				}
 			} break;
 			case DVL_VK_END: {
-				unsigned pos = strlen(gUiEditField->m_value);
+				unsigned pos = (unsigned)strlen(gUiEditField->m_value);
 				gUiEditField->m_curpos = pos;
 				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
 					gUiEditField->m_selpos = pos;

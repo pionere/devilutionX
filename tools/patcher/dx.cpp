@@ -302,15 +302,17 @@ void BltFast()
 	};
 
 	if (src_rect.w == dst_rect.w && src_rect.h == dst_rect.h) {
-		if (SDL_BlitSurface(src, &src_rect, dst, &dst_rect) < 0)
+		if (SDL_BlitSurface(src, &src_rect, dst, &dst_rect) < 0) {
 			sdl_issue(ERR_SDL_DX_BLIT_SDL1);
+		}
 		return;
 	}
 
 	// Same pixel format: We can call BlitScaled directly.
 	if (SDLBackport_PixelFormatFormatEq(src->format, dst->format)) {
-		if (SDL_BlitScaled(src, &src_rect, dst, &dst_rect) < 0)
+		if (SDL_BlitScaled(src, &src_rect, dst, &dst_rect) < 0) {
 			sdl_issue(ERR_SDL_DX_BLIT_SCALE);
+		}
 		return;
 	}
 
@@ -319,16 +321,18 @@ void BltFast()
 		SDL_Surface* stretched = SDL_CreateRGBSurface(SDL_SWSURFACE, dst_rect.w, dst_rect.h, src->format->BitsPerPixel,
 		    src->format->Rmask, src->format->Gmask, src->format->BitsPerPixel, src->format->Amask);
 		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
-		if (src->format->palette != NULL)
+		if (src->format->palette != NULL) {
 			SDL_SetPalette(stretched, SDL_LOGPAL, src->format->palette->colors, 0, src->format->palette->ncolors);
+		}
 		SDL_Rect stretched_rect = dst_rect;
 		result = SDL_SoftStretch(src, &src_rect, stretched, &stretched_rect);
 		if (result >= 0) {
 			result = SDL_BlitSurface(stretched, &stretched_rect, dst, &dst_rect);
 		}
 		SDL_FreeSurface(stretched);
-		if (result < 0)
+		if (result < 0) {
 			sdl_issue(ERR_SDL_DX_BLIT_STRETCH);
+		}
 		return;
 	}
 
@@ -337,8 +341,9 @@ void BltFast()
 	SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
 	result = SDL_BlitScaled(converted, &src_rect, dst, &dst_rect);
 	SDL_FreeSurface(converted);
-	if (result < 0)
+	if (result < 0) {
 		sdl_issue(ERR_SDL_DX_BLIT_CONVERTED);
+	}
 #endif
 }
 
@@ -390,8 +395,9 @@ void RenderPresent()
 			sdl_issue(ERR_SDL_DX_FLIP);
 		}
 #endif
-		if (gbFrameRateControl != FRC_CPUSLEEP)
+		if (gbFrameRateControl != FRC_CPUSLEEP) {
 			return;
+		}
 	}
 	LimitFrameRate();
 }
@@ -409,20 +415,25 @@ void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors)
 	// When the video surface is 8bit, we need to set the output palette as well.
 	SDL_Surface *videoSurface = SDL_GetVideoSurface();
 	result = SDL_SetColors(videoSurface, colors, firstcolor, ncolors);
-	if (result == 0)
+	if (result == 0) {
 		sdl_issue(ERR_SDL_PALETTE_UPDATE);
-	if (videoSurface == surface) return;
+	}
+	if (videoSurface == surface) {
+		return;
+	}
 #endif
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
 	result = SDL_SetPalette(surface, SDL_LOGPAL, colors, firstcolor, ncolors);
-	if (result == 0)
+	if (result == 0) {
 		sdl_issue(ERR_SDL_PALETTE_UPDATE);
+	}
 #else // !USE_SDL1
 	SDL_Palette* palette = back_palette;
 	result = SDL_SetPaletteColors(palette, colors, firstcolor, ncolors);
-	if (result < 0)
+	if (result < 0) {
 		sdl_issue(ERR_SDL_PALETTE_UPDATE);
+	}
 #endif
 }
 

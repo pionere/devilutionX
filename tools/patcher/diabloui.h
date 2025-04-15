@@ -15,8 +15,6 @@ extern "C" {
 void UiInitialize();
 void UiDestroy();
 
-/* Defined in title.cpp */
-bool UiTitleDialog();
 /* Defined in mainmenu.cpp */
 int UiMainMenuDialog();
 /* Defined in checker.cpp */

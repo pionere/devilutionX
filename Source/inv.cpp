@@ -1705,7 +1705,7 @@ void InvUseItem(int cii)
 	} break;
 	//case IMISC_MAPOFDOOM:
 	//	doom_init();
-	//	return true;
+	//	break;
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
 	case IMISC_OILSTR:

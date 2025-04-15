@@ -1465,8 +1465,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		//plr._pxoff = tplr->spxoff;
-		//plr._pyoff = tplr->spyoff;
+		// plr._pxoff = tplr->spxoff;
+		// plr._pyoff = tplr->spyoff;
 		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
 		plr._pdir = tplr->spdir;
 		plr._pAnimFrame = tplr->spAnimFrame;
@@ -2571,9 +2571,9 @@ static unsigned On_OPERATEITEM(const TCmd* pCmd, int pnum)
 	const TCmdItemOp* cmd = (const TCmdItemOp*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
-		const BYTE skill = cmd->iou.skill;
-		const int8_t from = cmd->iou.from;
-		const BYTE cii = cmd->ioIdx;
+		BYTE skill = cmd->iou.skill;
+		int8_t from = cmd->iou.from;
+		BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
 	net_assert(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
@@ -4307,8 +4307,8 @@ static const BYTE* CheckItem(const ItemStruct* is, const BYTE* src, int pnum, in
 	//	PrintItemMismatch(is, "x", is->_iy, *(const BYTE*)src, sp, pnum, loc, subloc);
 	//}
 	src += sizeof(BYTE);
-	if (!none && !placeholder && is->_iIdentified != *(BOOLEAN*)src) {
-		PrintItemMismatch(is, "iden", is->_iIdentified, *(BOOLEAN*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iIdentified != *(const BOOLEAN*)src) {
+		PrintItemMismatch(is, "iden", is->_iIdentified, *(const BOOLEAN*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(BOOLEAN);
 
