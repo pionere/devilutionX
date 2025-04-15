@@ -473,9 +473,9 @@ void DrawColorTextBoxSLine(int x, int y, int w, int dy)
 	int sxy, dxy, width, length;
 
 	width = BUFFER_WIDTH;
-	sxy = x + 2 + width * (y + 1);
-	dxy = x + 2 + width * (y + dy);
-	length = w - 4;
+	sxy = x + BOXBORDER_WIDTH + width * (y + 1);
+	dxy = x + BOXBORDER_WIDTH + width * (y + dy);
+	length = w - 2 * BOXBORDER_WIDTH;
 
 	/// ASSERT: assert(gpBuffer != NULL);
 
@@ -485,7 +485,7 @@ void DrawColorTextBoxSLine(int x, int y, int w, int dy)
 	src = &gpBuffer[sxy];
 	dst = &gpBuffer[dxy];
 
-	for (i = 0; i < 2; i++, src += width, dst += width)
+	for (i = 0; i < BOXBORDER_WIDTH; i++, src += width, dst += width)
 		memcpy(dst, src, length);
 }
 
