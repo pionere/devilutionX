@@ -219,14 +219,14 @@ void InitLvlStores()
 	SpawnPremium(l);
 }
 
-static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val)
+static void PrintSString(int px, int py, int x, int y, bool cjustflag, const char* str, BYTE col, int val)
 {
 	int sx, sy, tx;
 	int width, limit;
 	char valstr[32];
 
-	sx = (gbWidePanel ? LTPANEL_X + STORE_PNL_X_OFFSET : STORE_PNL_X + STORE_PNL_X_OFFSET) + x;
-	sy = LTPANEL_Y + 20 + y * 12 + stextlines[y]._syoff;
+	sx = px + STORE_PNL_X_OFFSET + x;
+	sy = py + 20 + y * 12 + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= x;
 	if (cjustflag) {
@@ -240,27 +240,26 @@ static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col
 	sx = PrintLimitedString(sx, sy, str, limit, col, FONT_KERN_SMALL);
 	if (stextsel == y) {
 		DEBUG_ASSERT(cjustflag || gbWidePanel);
-		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
+		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
 	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		sx = LTPANEL_X + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
+		sx = px + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
 		PrintGameStr(sx, sy, valstr, col);
 	}
 }
 
-static void DrawSSlider(/*int y1, int y2*/)
+static void DrawSSlider(int px, int py)
 {
 	const int y1 = STORE_SCROLL_UP, y2 = STORE_SCROLL_DOWN;
 	int x, i, yd1, yd2, yd3;
 
-	//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
-	//x = STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
+	//x = px + (gbWidePanel ? LTPANEL_WIDTH : STPANEL_WIDTH) - (SMALL_SCROLL_WIDTH + 2);
 	DEBUG_ASSERT(gbWidePanel);
-	x = LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
-	yd1 = y1 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20; // top position of the scrollbar
-	yd2 = y2 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20; // bottom position of the scrollbar
+	x = px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
+	yd1 = y1 * SMALL_SCROLL_HEIGHT + py + 20; // top position of the scrollbar
+	yd2 = y2 * SMALL_SCROLL_HEIGHT + py + 20; // bottom position of the scrollbar
 	yd3 = ((y2 - y1 - 2) * SMALL_SCROLL_HEIGHT);     // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
@@ -1438,7 +1437,7 @@ void DrawStore()
 		// if (sts->_sline)
 		//	DrawColorTextBoxSLine(x, y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
-			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
+			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
 				int frame = sts->_siCurs[n];
@@ -1487,10 +1486,10 @@ void DrawStore()
 	if (gbWidePanel) {
 		snprintf(tempstr, sizeof(tempstr), "Your gold: %d", myplr._pGold);
 		// assert(gbWidePanel);
-		PrintSString(LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD, 0);
+		PrintSString(x, y, LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD, 0);
 	}
 	if (gbHasScroll)
-		DrawSSlider();
+		DrawSSlider(x, y);
 }
 
 void STextESC()
