@@ -540,7 +540,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/selyesno.cpp
   Source/DiabloUI/settingsmenu.cpp
   Source/DiabloUI/text.cpp
-  Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base_client.cpp
@@ -704,7 +703,6 @@ if(CREATE_PATCHER)
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
-    tools/patcher/DiabloUI/text_draw.cpp
     #tools/patcher/DiabloUI/title.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp

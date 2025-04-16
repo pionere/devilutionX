@@ -3,14 +3,13 @@
 #include "controls/controller_motion.h"
 
 #include "DiabloUI/diablo.h"
-#include "DiabloUI/text_draw.h"
 //#include "controls/plrctrls.h"
 #include "controls/touch.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 #include "utils/screen_reader.hpp"
 #if FULL_UI
-#include "engine/render/text_render.h"
 #include "engine/render/raw_render.h"
 #include "utils/utf8.h"
 #ifdef __SWITCH__
@@ -478,6 +477,12 @@ static void UiDrawSelector(const SDL_Rect& rect)
 	CelDraw(x, y, selCel, frame);
 	x += rect.w - size;
 	CelDraw(x, y, selCel, frame);
+}
+
+static void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
+{
+	flags &= ~(UIS_OPTIONAL | UIS_DISABLED | UIS_HIDDEN),
+	PrintString(flags, text, SCREEN_X + rect.x, SCREEN_Y + rect.y, rect.w, rect.h);
 }
 
 static void UiDraw(const UiText* uiArtText)
