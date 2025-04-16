@@ -134,7 +134,7 @@ static void DrawProgress()
 	};
 	static_assert(((BAR_WIDTH + lengthof(progession) - 1) / lengthof(progession)) == BAR_STEP, "Progression steps and labels are not in sync.");
 	unsigned progress = sgdwProgress / BAR_STEP;
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", COL_WHITE, FONT_KERN_SMALL);
+	PrintLimitedString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", BAR_WIDTH - 20, COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 

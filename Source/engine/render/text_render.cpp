@@ -369,30 +369,6 @@ void PrintGameStr(int x, int y, const char* text, BYTE col)
 }
 
 /**
- * @brief Render text string to back buffer
- * @param x Screen coordinate
- * @param y Screen coordinate
- * @param endX End of line in screen coordinate
- * @param text String to print, in Windows-1252 encoding
- * @param col text_color color value
- * @param kern Letter spacing
- */
-void PrintString(int x, int y, int endX, const char* text, BYTE col, int kern)
-{
-	BYTE c;
-	int k;
-	// TODO: preselect color-trn if performance is required
-	while (*text != '\0') {
-		c = gbStdFontFrame[(BYTE)*text++];
-		k = smallFontWidth[c] + kern;
-		if (x + k < endX && c != 0) {
-			PrintSmallColorChar(x, y, c, col);
-		}
-		x += k;
-	}
-}
-
-/**
  * @brief Render text string justified to the back buffer
  * @param x Screen coordinate
  * @param y Screen coordinate
@@ -420,7 +396,7 @@ restart:
 		goto restart;
 	}
 
-	PrintString(x, y, endX, text, col, kern);
+	PrintLimitedString(x, y, text, endX - x, col, kern);
 }
 
 int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col, int kern)
