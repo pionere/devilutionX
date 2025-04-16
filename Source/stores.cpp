@@ -1484,8 +1484,11 @@ void DrawStore()
 	// if (gbRenderGold) {
 	if (gbWidePanel) {
 		char valstr[32];
-		snprintf(valstr, sizeof(valstr), "Your gold: %d", myplr._pGold);
-		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << 7), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + 10), 0);
+		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
+		const int cursor = CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
+		const int cw = InvItemWidth[cursor];
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << 7), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
+		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 20 + (InvItemHeight[cursor] + 12) / 2, pCursCels, cursor, cw, 0);
 	}
 	if (gbHasScroll)
 		DrawSSlider(x, y);
