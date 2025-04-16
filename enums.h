@@ -4041,9 +4041,9 @@ enum UiFlags : uint16_t {
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,
 
-	UIS_SIZE = 7 << 0,
-	UIS_XALIGN = 3 << 4,
-	UIS_COLOR = 0xF << 7,
+	UIS_SIZE   = 0x7 << 0,
+	UIS_XALIGN = 0x3 << 4,
+	UIS_COLOR  = 0xF << 7,
 	// clang-format on
 };
 
