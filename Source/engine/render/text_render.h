@@ -39,6 +39,12 @@ void PrintJustifiedString(int x, int y, int endX, const char* text, BYTE col, in
 void PrintGameStr(int x, int y, const char* text, BYTE col);
 int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col, int kern);
 void PrintHugeString(int x, int y, const char* text, BYTE col);
+/** print the given text to the rectangle using the flags.
+ * @param flags: _artFontFlags
+ * @param text: the string to be printed
+ * @param x, y, w, h: the containing rectangle for the text (screen coordinates)
+ */
+void PrintString(int flags, const char* text, int x, int y, int w, int h);
 
 void DrawHugePentSpn(int x1, int x2, int y);
 void DrawSmallPentSpn(int x1, int x2, int y);
