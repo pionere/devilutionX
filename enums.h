@@ -4018,21 +4018,15 @@ enum _artFontTables {
 	AFT_HUGE,
 };
 
-enum UiAlignment {
-	UIA_LEFT,
-	UIA_CENTER,
-	UIA_RIGHT,
-};
-
 enum UiFlags : uint16_t {
 	// clang-format off
 	UIS_SMALL       = AFT_SMALL << 0,
 	UIS_MED         = AFT_MED << 0,
 	UIS_BIG         = AFT_BIG << 0,
 	UIS_HUGE        = AFT_HUGE << 0,
-	UIS_LEFT        = UIA_LEFT << 4,
-	UIS_HCENTER     = UIA_CENTER << 4,
-	UIS_RIGHT       = UIA_RIGHT << 4,
+	UIS_LEFT        = 0 << 4,
+	UIS_HCENTER     = 1 << 4,
+	UIS_RIGHT       = 2 << 4,
 	UIS_VCENTER     = 1 << 6,
 	UIS_SILVER      = COL_WHITE << 7,
 	UIS_GOLD        = COL_GOLD << 7,
