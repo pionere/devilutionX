@@ -203,7 +203,7 @@ static void SelgameModeFocus(unsigned index)
 	DISABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), txt);
 	ENABLE_WARNING(format-security, format-security, 4774)
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static std::pair<const char*, const char*> SelgameDiffText(int difficulty)
@@ -224,7 +224,7 @@ static void SelgameDiffFocus(unsigned index)
 	snprintf(selgame_Label, sizeof(selgame_Label), diffTexts.first);
 	ENABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", diffTexts.first, diffTexts.second);
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static std::pair<const char*, const char*> SelgameSpeedText(int speed)
@@ -247,7 +247,7 @@ static void SelgameSpeedFocus(unsigned index)
 	snprintf(selgame_Label, sizeof(selgame_Label), speedTexts.first);
 	ENABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", speedTexts.first, speedTexts.second);
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static void SelgameNoFocus()

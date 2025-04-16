@@ -54,7 +54,7 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));
-	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH, AFT_MED);
+	WordWrapArtStr(selyesno_confirmationMessage, MESSAGE_WIDTH, (unsigned)UIS_MED >> 0);
 
 	//assert(gUIListItems.size() == 2);
 	UiInitScreen(2, NULL, SelyesnoSelect, SelyesnoEsc);

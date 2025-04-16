@@ -61,7 +61,7 @@ void UiSelOkDialog(const char* title, const char* body)
 	gUiItems.push_back(new UiList(&gUIListItems, 1, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(dialogText, body, sizeof(dialogText));
-	WordWrapArtStr(dialogText, MESSAGE_WIDTH, AFT_MED);
+	WordWrapArtStr(dialogText, MESSAGE_WIDTH, (unsigned)UIS_MED >> 0);
 
 	UiInitScreen(0, NULL, SelokSelect, SelokEsc);
 
