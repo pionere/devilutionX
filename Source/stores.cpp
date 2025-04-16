@@ -223,7 +223,6 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 {
 	int sx, sy, tx;
 	int width, limit;
-	char valstr[32];
 
 	sx = px + STORE_PNL_X_OFFSET + x;
 	sy = py + 20 + y * 12 + stextlines[y]._syoff;
@@ -244,9 +243,9 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
+		char valstr[32];
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		sx = px + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
-		PrintGameStr(sx, sy, valstr, col);
+		PrintString(AFF_SMALL | AFF_RIGHT | (col << 7), valstr, px, sy - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x), 0);
 	}
 }
 
