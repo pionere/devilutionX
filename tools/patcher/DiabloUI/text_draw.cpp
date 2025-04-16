@@ -7,44 +7,43 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static int AlignXOffset(int flags, const SDL_Rect& dest, int w)
+static int AlignXOffset(int flags, int rw, int sw)
 {
 	if (flags & UIS_HCENTER)
-		return (dest.w - w) >> 1;
+		return (rw - sw) >> 1;
 	if (flags & UIS_RIGHT)
-		return dest.w - w;
+		return rw - sw;
 	return 0;
 }
 
 void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	unsigned size = (flags & UIS_SIZE) >> 0;
-	unsigned color = (flags & UIS_COLOR) >> 7;
-	int w, h, dy;
+	unsigned size = (flags & UIS_SIZE) >> 0, color;
+	int sw, lh, dy, sx, sy, cx, cy;
 	static int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
 	switch (size) {
 	case AFT_SMALL:
-		w = GetSmallStringWidth(text);
+		sw = GetSmallStringWidth(text);
 		dy = 1;
-		h = SMALL_FONT_HEIGHT - dy;
-		//h = SMALL_FONT_HEIGHT;
+		lh = SMALL_FONT_HEIGHT - dy;
+		//lh = SMALL_FONT_HEIGHT;
 		pChar = PrintSmallChar;
 		break;
 	case AFT_MED:
 		static_assert(MED_FONT_HEIGHT == BIG_FONT_HEIGHT, "DrawArtStr handles medium and big characters the same way.");
 	case AFT_BIG:
-		w = GetBigStringWidth(text);
+		sw = GetBigStringWidth(text);
 		dy = 5 - 2;
-		h = BIG_FONT_HEIGHT - dy;
-		//h = BIG_FONT_HEIGHT;
+		lh = BIG_FONT_HEIGHT - dy;
+		//lh = BIG_FONT_HEIGHT;
 		pChar = PrintBigChar;
 		break;
 	case AFT_HUGE:
-		w = GetHugeStringWidth(text);
+		sw = GetHugeStringWidth(text);
 		dy = 10 - 4;
-		h = HUGE_FONT_HEIGHT - dy;
-		//h = HUGE_FONT_HEIGHT;
+		lh = HUGE_FONT_HEIGHT - dy;
+		//lh = HUGE_FONT_HEIGHT;
 		pChar = PrintHugeChar;
 		break;
 	default:
@@ -52,20 +51,22 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 		break;
 	}
 
-	int x = rect.x + AlignXOffset(flags, rect, w) + SCREEN_X;
-	int y = rect.y + ((flags & UIS_VCENTER) ? ((rect.h - h) >> 1) : 0) + SCREEN_Y + h;
+	sx = rect.x + AlignXOffset(flags, rect.w, sw) + SCREEN_X;
+	sy = rect.y + ((flags & UIS_VCENTER) ? ((rect.h - lh) >> 1) : 0) + SCREEN_Y + lh;
 
-	y += dy;
-	h += dy;
+	sy += dy;
+	lh += dy;
+	color = (flags & UIS_COLOR) >> 7;
 
-	int sx = x, sy = y;
+	cx = sx;
+	cy = sy;
 	for ( ; *text != '\0'; text++) {
 		if (*text == '\n') {
-			sx = x;
-			sy += h;
+			cx = sx;
+			cy += lh;
 			continue;
 		}
-		sx += pChar(sx, sy, (BYTE)*text, color);
+		cx += pChar(cx, cy, (BYTE)*text, color);
 	}
 }
 
