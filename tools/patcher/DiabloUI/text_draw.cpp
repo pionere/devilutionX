@@ -20,7 +20,7 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
 	unsigned size = (flags & AFF_SIZE) >> 0, color;
 	int sw, lh, dy, sx, sy, cx, cy;
-	static int (*pChar)(int sx, int sy, BYTE text, BYTE col);
+	int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
 	switch (size) {
 	case AFT_SMALL:
