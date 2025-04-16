@@ -8,7 +8,6 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-unsigned GetArtStrWidth(const char* str, unsigned size);
 void WordWrapArtStr(char* text, unsigned width, unsigned size);
 
 #ifdef __cplusplus
