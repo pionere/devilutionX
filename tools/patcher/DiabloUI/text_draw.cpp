@@ -9,16 +9,16 @@ DEVILUTION_BEGIN_NAMESPACE
 
 static int AlignXOffset(int flags, int rw, int sw)
 {
-	if (flags & UIS_HCENTER)
+	if (flags & AFF_HCENTER)
 		return (rw - sw) >> 1;
-	if (flags & UIS_RIGHT)
+	if (flags & AFF_RIGHT)
 		return rw - sw;
 	return 0;
 }
 
 void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	unsigned size = (flags & UIS_SIZE) >> 0, color;
+	unsigned size = (flags & AFF_SIZE) >> 0, color;
 	int sw, lh, dy, sx, sy, cx, cy;
 	static int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
@@ -52,7 +52,7 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 	}
 
 	sx = rect.x + AlignXOffset(flags, rect.w, sw) + SCREEN_X;
-	sy = rect.y + ((flags & UIS_VCENTER) ? ((rect.h - lh) >> 1) : 0) + SCREEN_Y + lh;
+	sy = rect.y + ((flags & AFF_VCENTER) ? ((rect.h - lh) >> 1) : 0) + SCREEN_Y + lh;
 
 	sy += dy;
 	lh += dy;

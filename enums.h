@@ -4018,16 +4018,30 @@ enum _artFontTables {
 	AFT_HUGE,
 };
 
-enum UiFlags : uint16_t {
+enum _artFontFlags {
+	AFF_SMALL       = AFT_SMALL << 0,
+	AFF_MED         = AFT_MED << 0,
+	AFF_BIG         = AFT_BIG << 0,
+	AFF_HUGE        = AFT_HUGE << 0,
+	AFF_LEFT        = 0 << 4,
+	AFF_HCENTER     = 1 << 4,
+	AFF_RIGHT       = 2 << 4,
+	AFF_VCENTER     = 1 << 6,
+
+	AFF_SIZE        = 0x7 << 0,
+	AFF_COLOR       = 0xFF << 7,
+};
+
+enum UiFlags {
 	// clang-format off
-	UIS_SMALL       = AFT_SMALL << 0,
-	UIS_MED         = AFT_MED << 0,
-	UIS_BIG         = AFT_BIG << 0,
-	UIS_HUGE        = AFT_HUGE << 0,
-	UIS_LEFT        = 0 << 4,
-	UIS_HCENTER     = 1 << 4,
-	UIS_RIGHT       = 2 << 4,
-	UIS_VCENTER     = 1 << 6,
+	UIS_SMALL       = AFF_SMALL,
+	UIS_MED         = AFF_MED,
+	UIS_BIG         = AFF_BIG,
+	UIS_HUGE        = AFF_HUGE,
+	UIS_LEFT        = AFF_LEFT,
+	UIS_HCENTER     = AFF_HCENTER,
+	UIS_RIGHT       = AFF_RIGHT,
+	UIS_VCENTER     = AFF_VCENTER,
 	UIS_SILVER      = COL_WHITE << 7,
 	UIS_GOLD        = COL_GOLD << 7,
 	UIS_LIGHT       = (COL_GOLD + 2) << 7,
@@ -4035,8 +4049,6 @@ enum UiFlags : uint16_t {
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,
 
-	UIS_SIZE   = 0x7 << 0,
-	UIS_XALIGN = 0x3 << 4,
 	UIS_COLOR  = 0xF << 7,
 	// clang-format on
 };
