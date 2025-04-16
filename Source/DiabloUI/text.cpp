@@ -6,7 +6,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-void WordWrapArtStr(char* text, unsigned width, unsigned size)
+void WordWrapArtStr(char* text, int width, unsigned size)
 {
 	const int len = (unsigned)strlen(text);
 	int (*pStrWidth)(const char* str);
