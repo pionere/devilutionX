@@ -40,10 +40,11 @@ static void CreditsRender(const UiItemBase* _THIS)
 	pEnd = gpBufEnd;
 	gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
 
-	int destY = CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
+	int destX = SCREEN_X + CREDITS_LEFT;
+	int destY = SCREEN_Y + CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
 		const char* text = _this->m_text[i];
-		PrintString(UIS_LEFT | UIS_SMALL | UIS_GOLD, text, SCREEN_X + CREDITS_LEFT, SCREEN_Y + destY, 0, 0);
+		PrintString(UIS_LEFT | UIS_SMALL | UIS_GOLD, text, destX, destY, 0, 0);
 	}
 
 	gpBufStart = pStart;
