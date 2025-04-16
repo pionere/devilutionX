@@ -487,7 +487,7 @@ static void UiDraw(const UiText* uiArtText)
 #if FULL_UI
 static void UiDraw(const UiTextBox* uiTextBox)
 {
-	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags & UIS_COLOR) == UIS_SILVER ? COL_WHITE : COL_GOLD);
+	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags & UIS_COLOR) >> 7);
 
 	if (uiTextBox->m_iFlags & UIS_HCENTER)
 		DrawColorTextBoxSLine(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, SELGAME_HEADER_HEIGHT);

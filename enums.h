@@ -4018,11 +4018,6 @@ enum _artFontTables {
 	AFT_HUGE,
 };
 
-enum _artFontColors {
-	AFC_SILVER,
-	AFC_GOLD,
-};
-
 enum UiAlignment {
 	UIA_LEFT,
 	UIA_CENTER,
@@ -4039,16 +4034,16 @@ enum UiFlags : uint16_t {
 	UIS_HCENTER     = UIA_CENTER << 4,
 	UIS_RIGHT       = UIA_RIGHT << 4,
 	UIS_VCENTER     = 1 << 6,
-	UIS_SILVER      = AFC_SILVER << 7,
-	UIS_GOLD        = AFC_GOLD << 7,
-	UIS_LIGHT       = 1 << 8,
+	UIS_SILVER      = COL_WHITE << 7,
+	UIS_GOLD        = COL_GOLD << 7,
+	UIS_LIGHT       = (COL_GOLD + 2) << 7,
 	UIS_OPTIONAL    = 1 << 11,
 	UIS_DISABLED    = 1 << 12,
 	UIS_HIDDEN      = 1 << 13,
 
 	UIS_SIZE = 7 << 0,
 	UIS_XALIGN = 3 << 4,
-	UIS_COLOR = 1 << 7,
+	UIS_COLOR = 0xF << 7,
 	// clang-format on
 };
 
