@@ -349,7 +349,7 @@ static void PrintQLString(unsigned y, const char* str)
 		sx += (QPNL_LINE_WIDTH - width) >> 1;
 	}
 	px = qline == y ? sx : INT_MAX;
-	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE);
+	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE, FONT_KERN_SMALL);
 	if (px != INT_MAX) {
 		DrawSmallPentSpn(px - FOCUS_SMALL, sx + 6, sy + 1);
 	}

@@ -2135,7 +2135,7 @@ void DrawGoldSplit()
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
 		// PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
 		// screen_x += GetSmallStringWidth(tempstr);
-		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE);
+		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE, FONT_KERN_SMALL);
 	}
 	screen_x += 2;
 	DrawSingleSmallPentSpn(screen_x, screen_y);

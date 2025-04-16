@@ -38,7 +38,7 @@ int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col);
 void PrintString(int x, int y, int endX, const char* text, BYTE col, int kern);
 void PrintJustifiedString(int x, int y, int endX, const char* text, BYTE col, int kern);
 void PrintGameStr(int x, int y, const char* text, BYTE col);
-int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col);
+int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col, int kern);
 void PrintHugeString(int x, int y, const char* text, BYTE col);
 
 void DrawHugePentSpn(int x1, int x2, int y);

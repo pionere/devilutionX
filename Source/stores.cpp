@@ -237,7 +237,7 @@ static void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col
 		// }
 	}
 	tx = sx;
-	sx = PrintLimitedString(sx, sy, str, limit, col);
+	sx = PrintLimitedString(sx, sy, str, limit, col, FONT_KERN_SMALL);
 	if (stextsel == y) {
 		DEBUG_ASSERT(cjustflag || gbWidePanel);
 		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);

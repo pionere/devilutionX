@@ -423,17 +423,17 @@ restart:
 	PrintString(x, y, endX, text, col, kern);
 }
 
-int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
+int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col, int kern)
 {
 	BYTE c;
 	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
 		c = gbStdFontFrame[(BYTE)*text++];
-		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
+		limit -= smallFontWidth[c] + kern;
 		if (limit >= 0 && c != 0) {
 			PrintSmallColorChar(x, y, c, col);
 		}
-		x += smallFontWidth[c] + FONT_KERN_SMALL;
+		x += smallFontWidth[c] + kern;
 	}
 	return x;
 }
