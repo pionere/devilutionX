@@ -1483,9 +1483,9 @@ void DrawStore()
 
 	// if (gbRenderGold) {
 	if (gbWidePanel) {
-		snprintf(tempstr, sizeof(tempstr), "Your gold: %d", myplr._pGold);
-		// assert(gbWidePanel);
-		PrintSString(x, y, LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD, 0);
+		char valstr[32];
+		snprintf(valstr, sizeof(valstr), "Your gold: %d", myplr._pGold);
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << 7), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + 10), 0);
 	}
 	if (gbHasScroll)
 		DrawSSlider(x, y);
