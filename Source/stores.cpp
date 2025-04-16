@@ -245,7 +245,7 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
 		char valstr[32];
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		PrintString(AFF_SMALL | AFF_RIGHT | (col << 7), valstr, px, sy - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x), 0);
+		PrintString(AFF_SMALL | AFF_RIGHT | (col << 7), valstr, px, sy - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH), 0);
 	}
 }
 
