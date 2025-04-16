@@ -1,7 +1,7 @@
 
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/text_draw.h"
 #include "all.h"
+#include "engine/render/text_render.h"
 //#include <algorithm>
 //#include "../gameui.h"
 //#include "../engine.h"
@@ -43,8 +43,7 @@ static void CreditsRender(const UiItemBase* _THIS)
 	int destY = CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
 		const char* text = _this->m_text[i];
-		SDL_Rect dstRect = { CREDITS_LEFT, destY, 0, 0 };
-		DrawArtStr(text, dstRect, UIS_LEFT | UIS_SMALL | UIS_GOLD);
+		PrintString(UIS_LEFT | UIS_SMALL | UIS_GOLD, text, SCREEN_X + CREDITS_LEFT, SCREEN_Y + destY, 0, 0);
 	}
 
 	gpBufStart = pStart;
