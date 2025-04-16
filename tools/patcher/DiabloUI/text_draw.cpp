@@ -30,8 +30,6 @@ void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 		//lh = SMALL_FONT_HEIGHT;
 		pChar = PrintSmallChar;
 		break;
-	case AFT_MED:
-		static_assert(MED_FONT_HEIGHT == BIG_FONT_HEIGHT, "DrawArtStr handles medium and big characters the same way.");
 	case AFT_BIG:
 		sw = GetBigStringWidth(text);
 		dy = 5 - 2;

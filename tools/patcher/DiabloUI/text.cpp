@@ -13,7 +13,6 @@ void WordWrapArtStr(char* text, unsigned width, unsigned size)
 	int lineStart = 0;
 	switch (size) {
 	case AFT_SMALL: pStrWidth = GetSmallStringWidth; break;
-	case AFT_MED:
 	case AFT_BIG:   pStrWidth = GetBigStringWidth;   break;
 	case AFT_HUGE:  pStrWidth = GetHugeStringWidth;  break;
 	default:

@@ -321,7 +321,6 @@ extern "C" {
 #define BOTTOM_BAR_Y (421 * ASSET_MPL)
 
 #define SMALL_FONT_HEIGHT 11
-#define MED_FONT_HEIGHT   22
 #define BIG_FONT_HEIGHT   22
 #define HUGE_FONT_HEIGHT  46
 

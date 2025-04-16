@@ -4013,14 +4013,12 @@ typedef enum _music_id {
 
 enum _artFontTables {
 	AFT_SMALL,
-	AFT_MED,
 	AFT_BIG,
 	AFT_HUGE,
 };
 
 enum _artFontFlags {
 	AFF_SMALL       = AFT_SMALL << 0,
-	AFF_MED         = AFT_MED << 0,
 	AFF_BIG         = AFT_BIG << 0,
 	AFF_HUGE        = AFT_HUGE << 0,
 	AFF_LEFT        = 0 << 4,
@@ -4035,7 +4033,7 @@ enum _artFontFlags {
 enum UiFlags {
 	// clang-format off
 	UIS_SMALL       = AFF_SMALL,
-	UIS_MED         = AFF_MED,
+	UIS_MED         = AFF_BIG,
 	UIS_BIG         = AFF_BIG,
 	UIS_HUGE        = AFF_HUGE,
 	UIS_LEFT        = AFF_LEFT,
