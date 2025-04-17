@@ -1098,35 +1098,41 @@ static void S_StartIdShow()
 
 static void S_StartTalk()
 {
-	int i, sn, la;
-
+	int sn, la;
+	int tqs[NUM_QUESTS];
+	unsigned i, qn;
+	static_assert(STORE_LINES >= 22, "S_StartTalk does not fit to the store.");
 	// gbWidePanel = false;
 	// gbRenderGold = false;
 	// gbHasScroll = false;
 	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
 	AddSText(0, 2, true, tempstr, COL_GOLD, false);
 	// AddSLine(5);
-	sn = 0;
+	qn = 0;
 	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
-			sn++;
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
+			tqs[qn] = i;
+			qn++;
+		}
 	}
 
-	if (sn > 7) {
-		sn = 13 - std::min((qn + 1) >> 1, 7);
+	if (qn > 7) {
+		if (qn > 14)
+			qn = 14;
+		sn = 13 - ((qn + 1) >> 1);
 		la = 1;
 	} else {
-		sn = 13 - sn;
+		sn = 13 - qn;
 		la = 2;
 	}
 
 	AddSText(0, sn, true, "Gossip", COL_BLUE, true);
+	AddSTextVal(sn, -(int)NUM_QUESTS);
 	sn += 2;
-	for (i = 0; i < NUM_QUESTS && sn < 22; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
-			AddSText(0, sn, true, questlist[i]._qlstr, COL_WHITE, true);
-			sn += la;
-		}
+	for (i = 0; i < (int)qn; i++) {
+		AddSText(0, sn, true, questlist[tqs[i]]._qlstr, COL_WHITE, true);
+		AddSTextVal(sn, -tqs[i]);
+		sn += la;
 	}
 	AddSText(0, 22, true, "Back", COL_WHITE, true);
 }
@@ -2494,44 +2500,22 @@ static void S_SIDEnter()
 
 static void S_TalkEnter()
 {
-	int i, tq, sn, la;
-
 	if (stextsel == 22) {
 		STextESC();
 		// StartStore(stextshold);
 		// stextsel = stextlhold;
 		return;
 	}
-
-	sn = 0;
-	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
-			sn++;
-	}
-	if (sn > 7) {
-		sn = 13 - std::min((qn + 1) >> 1, 7);
-		la = 1;
+	DEBUG_ASSERT(stextsel != -1);
+	int qn = -stextlines[stextsel]._sval;
+	if (qn < NUM_QUESTS) {
+		qn = Qtalklist[talker][qn];
 	} else {
-		sn = 13 - sn;
-		la = 2;
-	}
-
-	if (stextsel == sn) {
 		assert(monsters[MAX_MINIONS + talker]._mType == talker);
 		SetRndSeed(monsters[MAX_MINIONS + talker]._mRndSeed); // TNR_SEED
-		tq = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
-		StartQTextMsg(tq);
-		return;
+		qn = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
 	}
-	sn += 2;
-	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
-			if (sn == stextsel) {
-				StartQTextMsg(Qtalklist[talker][i]);
-			}
-			sn += la;
-		}
-	}
+	StartQTextMsg(qn);
 }
 
 static void S_TavernEnter()
