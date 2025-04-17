@@ -1414,8 +1414,10 @@ static int PLVal(const AffixData* affix, int pv)
 
 static int SaveItemPower(int ii, int power, int param1, int param2)
 {
-	ItemStruct* is = &items[ii];
-	int r2;	
+	ItemStruct* is;
+	int r2;
+
+	is = &items[ii];
 	const int r = param1 == param2 ? param1 : RandRangeLow(param1, param2);
 	switch (power) {
 	case IPL_TOHIT:
@@ -2631,13 +2633,13 @@ static void CraftItem(ItemStruct* pi, uint16_t ci, uint16_t idx, int spell, BYTE
 		if (ac < 0)
 			ac = nac;
 		if (ac == nac) {
-		RecreateItem(seed, idx, ci);
-		// assert(items[MAXITEMS]._iIdx == idx);
-		if (items[MAXITEMS]._iSpell == spell
-		 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iPrePower == IPL_INVALID && items[MAXITEMS]._iSufPower == IPL_INVALID)
-		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
-		   || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
-			break;
+			RecreateItem(seed, idx, ci);
+			// assert(items[MAXITEMS]._iIdx == idx);
+			if (items[MAXITEMS]._iSpell == spell
+			 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iPrePower == IPL_INVALID && items[MAXITEMS]._iSufPower == IPL_INVALID)
+			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
+			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
+				break;
 		}
 		seed = NextRndSeed();
 	}
@@ -3369,11 +3371,13 @@ void DrawInvItemDetails()
 		x = gnWndInvX;
 		y = gnWndInvY;
 		if (x > PANEL_MIDX(SPANEL_WIDTH)) {
+			// inv-window on right side -> draw the details to the left of the inv-window
 			x -= STPANEL_WIDTH;
 			dx = std::min(x, 76);
 			if (dx > 0)
 				x -= (dx >> 1);
 		} else {
+			// inv-window on left side -> draw the details to the right of the inv-window
 			x += SPANEL_WIDTH;
 			dx = std::min(PANEL_RIGHT - (x + STPANEL_WIDTH), 76);
 			if (dx > 0)
@@ -3386,8 +3390,10 @@ void DrawInvItemDetails()
 		x = gnWndBeltX;
 		y = gnWndBeltY;
 		if (x > PANEL_MIDX(BELT_WIDTH)) {
+			// belt on right side -> draw the details to the left of the belt
 			x -= STPANEL_WIDTH - (76 >> 1);
 		} else {
+			// belt on left side -> draw the details to the right of the belt
 			x += BELT_WIDTH + (76 >> 1);
 		}
 		if (y > PANEL_MIDY(BELT_HEIGHT)) {
@@ -3397,7 +3403,7 @@ void DrawInvItemDetails()
 	x += SCREEN_X;
 	y += SCREEN_Y;
 
-	// draw the background
+	// draw the box
 	DrawSTextBox(x, y);
 
 	x += BOXBORDER_WIDTH;

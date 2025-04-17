@@ -740,7 +740,7 @@ if(CREATE_PATCHER)
     set(PATCHER_SOURCES ${devil_patcher_SRCS})
     if(APPLE)
       list(APPEND PATCHER_SOURCES
-         Packaging/apple/AppIcon.icns
+        Packaging/apple/AppIcon.icns
         Packaging/apple/LaunchScreen.storyboard)
     elseif(WIN32)
       list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
@@ -901,7 +901,6 @@ foreach(
   HAS_JOYSTICK
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
-  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF

@@ -30,18 +30,8 @@ extern "C" {
 #define ITEM_ANIM_XOFFSET ((ITEM_ANIM_WIDTH - TILE_WIDTH) / 2)
 
 #define BORDER_LEFT    TILE_WIDTH
-// maximum of
-//  1. max(height of a player  - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT) + 1 (outline) = (~80 * ASSET_MPL - 128, 32) + 1  = 33 -- cl2_render
-//  2. max(height of a monster - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT) + 1 (outline) = (160 * ASSET_MPL - 128, 32) + 1  = 33 -- cl2_render
-//  3. max(height of a towner  - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT) + 1 (outline) = (160 * ASSET_MPL - 128, 32) + 1  = 33 -- cel_render
-//  4. max(height of a missile - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT)               = (~100 * ASSET_MPL - 128, 32)     = 32 -- cl2_render
-//  5. max(height of a object  - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT) + 1 (outline) = (~110 * ASSET_MPL - 128, 32) + 1 = 33 -- cel_render
-//  6. max(height of a item    - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT)               = (160 * ASSET_MPL - 128, 32)      = 32 -- cel_render
-//  7. max(height of a special tile - CEL_BLOCK_MAX * CEL_BLOCK_HEIGHT, CEL_BLOCK_HEIGHT)          = (160 * ASSET_MPL - 128, 32)      = 32 -- cel_render
-//  7. (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4 = 128 * 64 * ASSET_MPL / 128 / 4 = 16                                                        -- automap_render
-//  8. MICRO_HEIGHT = 32                                                                                                                   -- dun_render
-#define BORDER_TOP     (160 * ASSET_MPL - 128 + 16)
-#define BORDER_BOTTOM  (160 * ASSET_MPL - 128 + 16)
+#define BORDER_TOP     (160 * ASSET_MPL)
+#define BORDER_BOTTOM  (TILE_HEIGHT * ASSET_MPL)
 
 #define SCREEN_X       BORDER_LEFT
 #define SCREEN_Y       BORDER_TOP
@@ -82,8 +72,11 @@ extern "C" {
 
 #define MENUBTN_WIDTH  71
 #define MENUBTN_HEIGHT 19
-#define CHRBTN_WIDTH   41
-#define CHRBTN_HEIGHT  22
+#define CHRBTN_WIDTH   40
+#define CHRBTN_HEIGHT  21
+#define CHRBTN_LEFT    132
+#define CHRBTN_ALT     85
+#define CHRBTN_TOP(x) (104 + (CHRBTN_HEIGHT + 7) * x)
 #if ASSET_MPL == 1
 #define SPLICON_WIDTH  37
 #define SPLICON_HEIGHT 38
@@ -115,15 +108,19 @@ extern "C" {
 #define LVLUP_LEFT   (PANEL_LEFT + 175)
 #define LVLUP_OFFSET 24
 
+#define CAMICON_WIDTH  37
+#define CAMICON_HEIGHT 38
+#define CAMICONLAST    7
+
 #define LTPANEL_WIDTH 591
 #define STPANEL_WIDTH 271
 #define TPANEL_HEIGHT 303
-#define TPANEL_BORDER 3
 
 #define LTPANEL_X PANEL_CENTERX(LTPANEL_WIDTH)
 #define LTPANEL_Y (PANEL_CENTERY(TPANEL_HEIGHT) - 64)
 
 #define STORE_PNL_X (PANEL_X + 344 * ASSET_MPL)
+#define STORE_PNL_X_OFFSET 7
 #define STORE_LINES 24
 
 #define BUFFERXY(x, y) ((x) + (y) * BUFFER_WIDTH)
