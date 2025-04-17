@@ -88,6 +88,14 @@ jobs:
             #packages: 'sdl2:x64-windows libsodium:x64-windows'
             cmakeargs: '-DNOHOSTING=OFF -DHOSTONLY=ON -DINET_MODE=ON -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DHAS_KBCTRL=OFF -DNOSOUND=ON -DSCREEN_WIDTH=640 -DSCREEN_HEIGHT=480 -DNOWIDESCREEN=ON'
             artifact: 'hellfire-nightly-server-x64.zip'
+          - name: diablo-screen-reader
+            #packages: 'sdl2:x64-windows libsodium:x64-windows'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DSCREEN_READER_INTEGRATION=ON'
+            artifact: 'diablo-nightly-scr-x64.zip'
+          - name: hellfire-screen-reader
+            #packages: 'sdl2:x64-windows libsodium:x64-windows'
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DSCREEN_READER_INTEGRATION=ON -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-scr-x64.zip'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -1113,6 +1121,18 @@ jobs:
         name: hellfire-nightly-server-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-server-x64.zip
 
+    - name: Download a diablo artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-scr-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-scr-x64.zip
+
+    - name: Download a hellfire artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-scr-x64.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-scr-x64.zip
+
     # Linux-builds (x64)
     - name: Download a diablo artifact
       uses: actions/download-artifact@v4
@@ -1383,6 +1403,10 @@ jobs:
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-server-x64.zip">srv-x64.zip</a> <sup><a href="#fn-3" id="user-content-fnref-3" data-footnote-ref="">3</a></sup></td>'   >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-server-x64.zip">srv-x64.zip</a> <sup><a href="#fn-3" id="user-content-fnref-3" data-footnote-ref="">3</a></sup></td>' >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-scr-x64.zip">scr-x64.zip</a> <sup><a href="#fn-4" id="user-content-fnref-4" data-footnote-ref="">4</a></sup></td>'      >> RELEASE_NOTE.md
+        echo '<td align=center><img align=center src="https://github.githubassets.com/assets/accessibility-317cd9a9f485.png" width=20 height=20/></td>'                                                                                                                                    >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-scr-x64.zip">scr-x64.zip</a> <sup><a href="#fn-4" id="user-content-fnref-4" data-footnote-ref="">4</a></sup></td>'    >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
         echo '<td rowspan=4 align=center><code>Windows x86</code></td>'                                                                                                                                    >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-x86.zip">x86.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>' >> RELEASE_NOTE.md
@@ -1406,6 +1430,8 @@ jobs:
         echo '<p>minimal build - no internet, controller or sound support</p>'                                                                    >> RELEASE_NOTE.md
         echo '</li><li id="user-content-fn-3">'                                                                                                   >> RELEASE_NOTE.md
         echo '<p>server build - no controller or sound support</p>'                                                                               >> RELEASE_NOTE.md
+        echo '</li><li id="user-content-fn-4">'                                                                                                   >> RELEASE_NOTE.md
+        echo '<p>build with screen-reader support</p>'                                                                                            >> RELEASE_NOTE.md
         echo '</li></ol></section>'                                                                                                               >> RELEASE_NOTE.md
 
     #- name: Show content of workspace
@@ -1454,6 +1480,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
           ${{github.workspace}}/diablo-nightly-mini-x64.zip
           ${{github.workspace}}/diablo-nightly-server-x64.zip
+          ${{github.workspace}}/diablo-nightly-scr-x64.zip
           ${{github.workspace}}/diablo-nightly-x86.zip
           ${{github.workspace}}/diablo-nightly-mingw-x86.zip
           ${{github.workspace}}/diablo-nightly-mini-x86.zip
@@ -1476,6 +1503,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
           ${{github.workspace}}/hellfire-nightly-mini-x64.zip
           ${{github.workspace}}/hellfire-nightly-server-x64.zip
+          ${{github.workspace}}/hellfire-nightly-scr-x64.zip
           ${{github.workspace}}/hellfire-nightly-x86.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
           ${{github.workspace}}/hellfire-nightly-mini-x86.zip
