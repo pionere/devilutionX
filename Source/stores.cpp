@@ -1112,7 +1112,7 @@ static void S_StartTalk()
 			sn++;
 	}
 
-	if (sn > 6) {
+	if (sn > 7) {
 		sn = 13 - std::min((qn + 1) >> 1, 7);
 		la = 1;
 	} else {
@@ -2508,7 +2508,7 @@ static void S_TalkEnter()
 		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
 			sn++;
 	}
-	if (sn > 6) {
+	if (sn > 7) {
 		sn = 13 - std::min((qn + 1) >> 1, 7);
 		la = 1;
 	} else {
