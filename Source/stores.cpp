@@ -2509,7 +2509,7 @@ static void S_TalkEnter()
 			sn++;
 	}
 	if (sn > 6) {
-		sn = 12 - (sn >> 1);
+		sn = 12 - std::min(sn >> 1, 12);
 		la = 1;
 	} else {
 		sn = 13 - sn;
