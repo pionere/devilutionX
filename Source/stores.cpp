@@ -1113,7 +1113,7 @@ static void S_StartTalk()
 	}
 
 	if (sn > 6) {
-		sn = 12 - std::min(sn >> 1, 12);
+		sn = 13 - std::min((qn + 1) >> 1, 7);
 		la = 1;
 	} else {
 		sn = 13 - sn;
@@ -2509,7 +2509,7 @@ static void S_TalkEnter()
 			sn++;
 	}
 	if (sn > 6) {
-		sn = 12 - std::min(sn >> 1, 12);
+		sn = 13 - std::min((qn + 1) >> 1, 7);
 		la = 1;
 	} else {
 		sn = 13 - sn;
