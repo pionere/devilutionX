@@ -2501,8 +2501,7 @@ void DropItem()
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	pos.x = pcurspos.x;
-	pos.y = pcurspos.y;
+	pos = pcurspos;
 	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 
@@ -2532,8 +2531,7 @@ void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag)
 		tpos.x = plr._px;
 		tpos.y = plr._py;
 	} else {
-		tpos.x = pos.x;
-		tpos.y = pos.y;
+		tpos = pos;
 	}
 	if (!FindItemLocation(tpos.x, tpos.y, pos, DSIZEX / 2))
 		return; // -1;
