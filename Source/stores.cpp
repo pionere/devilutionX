@@ -1113,14 +1113,15 @@ static void S_StartTalk()
 	}
 
 	if (sn > 6) {
-		sn = 14 - std::min(sn >> 1, 12);
+		sn = 12 - std::min(sn >> 1, 12);
 		la = 1;
 	} else {
-		sn = 15 - sn;
+		sn = 13 - sn;
 		la = 2;
 	}
 
-	AddSText(0, sn - 2, true, "Gossip", COL_BLUE, true);
+	AddSText(0, sn, true, "Gossip", COL_BLUE, true);
+	sn += 2;
 	for (i = 0; i < NUM_QUESTS && sn < 22; i++) {
 		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
 			AddSText(0, sn, true, questlist[i]._qlstr, COL_WHITE, true);
@@ -1430,18 +1431,17 @@ void DrawStore()
 	}
 
 	int csi = current_store_index(x, y);
-	STextStruct* stc = &stextlines[csi];
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
 		//	DrawColorTextBoxSLine(x, y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
-			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
+			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
 				int frame = sts->_siCurs[n];
 				if (frame != CURSOR_NONE) {
-					// int sx = sx + STORE_PNL_X_OFFSET + sts->_sx;
+					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
 					int px = x, py = y + 1;
 					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
 					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
@@ -2509,21 +2509,21 @@ static void S_TalkEnter()
 			sn++;
 	}
 	if (sn > 6) {
-		sn = 14 - (sn >> 1);
+		sn = 12 - (sn >> 1);
 		la = 1;
 	} else {
-		sn = 15 - sn;
+		sn = 13 - sn;
 		la = 2;
 	}
 
-	if (stextsel == sn - 2) {
+	if (stextsel == sn) {
 		assert(monsters[MAX_MINIONS + talker]._mType == talker);
 		SetRndSeed(monsters[MAX_MINIONS + talker]._mRndSeed); // TNR_SEED
 		tq = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
 		StartQTextMsg(tq);
 		return;
 	}
-
+	sn += 2;
 	for (i = 0; i < NUM_QUESTS; i++) {
 		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
 			if (sn == stextsel) {
