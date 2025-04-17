@@ -234,6 +234,9 @@ extern "C" {
 #define MINITEXT_PANEL_X      PANEL_CENTERX(MINITEXT_PANEL_WIDTH)
 #define MINITEXT_PANEL_Y      (PANEL_CENTERY(MINITEXT_PANEL_HEIGHT + (MENUBTN_HEIGHT + BELT_HEIGHT)))
 
+#define ITEMDETAILS_LINE_HEIGHT 12
+#define ITEMDETAILS_PNL_WIDTH   271
+
 //////////////////////////////////////////////////
 // DIABLO UI (MENU)
 //////////////////////////////////////////////////

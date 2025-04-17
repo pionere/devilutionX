@@ -3160,20 +3160,20 @@ void PrintItemPower(BYTE plidx, const ItemStruct* is)
 
 static void PrintItemString(int x, int& y)
 {
-	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * BOXBORDER_WIDTH), tempstr, COL_WHITE, FONT_KERN_SMALL);
-	y += 24;
+	PrintJustifiedString(x, y, x + (ITEMDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), tempstr, COL_WHITE, FONT_KERN_SMALL);
+	y += ITEMDETAILS_LINE_HEIGHT;
 }
 
 static void PrintItemString(int x, int& y, const char* str)
 {
-	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * BOXBORDER_WIDTH), str, COL_WHITE, FONT_KERN_SMALL);
-	y += 24;
+	PrintJustifiedString(x, y, x + (ITEMDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), str, COL_WHITE, FONT_KERN_SMALL);
+	y += ITEMDETAILS_LINE_HEIGHT;
 }
 
 static void PrintItemString(int x, int& y, const char* str, int col)
 {
-	PrintJustifiedString(x, y, x + (STPANEL_WIDTH - 2 * BOXBORDER_WIDTH), str, col, FONT_KERN_SMALL);
-	y += 24;
+	PrintJustifiedString(x, y, x + (ITEMDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), str, col, FONT_KERN_SMALL);
+	y += ITEMDETAILS_LINE_HEIGHT;
 }
 
 static void PrintUniquePower(BYTE plidx, ItemStruct* is, int x, int& y)
@@ -3332,7 +3332,6 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		PrintItemString(x, y, desc);
 		break;
 	case IMISC_MAP:
-		y += 24;
 		desc = "right-click to use";
 		PrintItemString(x, y, desc);
 		desc = "(only in town)";
@@ -3360,71 +3359,189 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 	return;
 }
 
+static int LinesOfMiscInfo(const ItemStruct* is)
+{
+	int result = 0;
+	switch (is->_iMiscId) {
+	case IMISC_NONE:
+	case IMISC_UNIQUE:
+		break;
+	case IMISC_HEAL:
+	case IMISC_FULLHEAL:
+	case IMISC_MANA:
+	case IMISC_FULLMANA:
+	case IMISC_REJUV:
+	case IMISC_FULLREJUV:
+	case IMISC_MAP:
+	case IMISC_RUNE:
+		result++;
+		result++;
+		break;
+	case IMISC_SCROLL:
+	case IMISC_BOOK:
+#ifdef HELLFIRE
+	case IMISC_NOTE:
+	//case IMISC_MAPOFDOOM:
+#endif
+	case IMISC_EAR:
+	case IMISC_SPECELIX:
+		result++;
+		break;
+	case IMISC_OILQLTY:
+		result++;
+		result++;
+		result++;
+		result++;
+		break;
+	case IMISC_OILZEN:
+	case IMISC_OILSTR:
+	case IMISC_OILDEX:
+	case IMISC_OILVIT:
+	case IMISC_OILMAG:
+	case IMISC_OILRESIST:
+	case IMISC_OILCHANCE:
+	case IMISC_OILCLEAN:
+		result++;
+		result++;
+		result++;
+		break;
+	default:
+		ASSUME_UNREACHABLE;
+	}
+	return result;
+}
+
+static int LinesOfUniqInfo(const ItemStruct* is)
+{
+	int result = 1;
+	const UniqItemData* uis;
+
+	uis = &UniqueItemList[is->_iUid];
+	if (uis->UIPower2 == IPL_INVALID)
+		return result;
+	result++;
+	if (uis->UIPower3 == IPL_INVALID)
+		return result;
+	result++;
+	if (uis->UIPower4 == IPL_INVALID)
+		return result;
+	result++;
+	if (uis->UIPower5 == IPL_INVALID)
+		return result;
+	result++;
+	if (uis->UIPower6 == IPL_INVALID)
+		return result;
+	result++;
+	return result;
+}
+
+static int LinesOfItemDetails(ItemStruct* is)
+{
+	int result = 0;
+
+	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
+		result++;
+		return result;
+	}
+	if (is->_iClass == ICLASS_GOLD) {
+		result++;
+	} else if (is->_iClass == ICLASS_WEAPON) {
+		result++;
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
+			result++;
+		}
+		if (is->_iMaxCharges != 0) {
+			result++;
+		}
+	} else if (is->_iClass == ICLASS_ARMOR) {
+		result++;
+		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
+			result++;
+		}
+	}
+	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
+		if (is->_iPrePower != IPL_INVALID) {
+			result++;
+		}
+		if (is->_iSufPower != IPL_INVALID) {
+			result++;
+		}
+		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
+			result += LinesOfUniqInfo(is);
+		}
+	}
+	result += LinesOfMiscInfo(is);
+	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+		result++;
+	}
+	return result;
+}
+
 void DrawInvItemDetails()
 {
 	ItemStruct* is;
-	int x, y, dx;
+	int x, y, dx, wh;
 	// assert(INVIDX_VALID(pcursinvitem));
+	is = PlrItem(mypnum, pcursinvitem);
+	wh = BOXBORDER_WIDTH + 3 * ITEMDETAILS_LINE_HEIGHT + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2 + LinesOfItemDetails(is) * ITEMDETAILS_LINE_HEIGHT + ITEMDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
 	if (pcursinvitem <= INVITEM_INV_LAST) {
 		x = gnWndInvX;
 		y = gnWndInvY;
 		if (x > PANEL_MIDX(SPANEL_WIDTH)) {
 			// inv-window on right side -> draw the details to the left of the inv-window
-			x -= STPANEL_WIDTH;
+			x -= ITEMDETAILS_PNL_WIDTH;
 			dx = std::min(x, 76);
 			if (dx > 0)
 				x -= (dx >> 1);
 		} else {
 			// inv-window on left side -> draw the details to the right of the inv-window
 			x += SPANEL_WIDTH;
-			dx = std::min(PANEL_RIGHT - (x + STPANEL_WIDTH), 76);
+			dx = std::min(PANEL_RIGHT - (x + ITEMDETAILS_PNL_WIDTH), 76);
 			if (dx > 0)
 				x += dx >> 1;
-		}
-		if (y > PANEL_MIDY(SPANEL_HEIGHT)) {
-			y -= TPANEL_HEIGHT - SPANEL_HEIGHT;
 		}
 	} else {
 		x = gnWndBeltX;
 		y = gnWndBeltY;
 		if (x > PANEL_MIDX(BELT_WIDTH)) {
 			// belt on right side -> draw the details to the left of the belt
-			x -= STPANEL_WIDTH - (76 >> 1);
+			x -= ITEMDETAILS_PNL_WIDTH - (76 >> 1);
 		} else {
 			// belt on left side -> draw the details to the right of the belt
 			x += BELT_WIDTH + (76 >> 1);
 		}
-		if (y > PANEL_MIDY(BELT_HEIGHT)) {
-			y -= TPANEL_HEIGHT - BELT_HEIGHT;
+		dx = SCREEN_HEIGHT - (wh + MENUBTN_HEIGHT);
+		if (y > dx) {
+			y = dx;
 		}
 	}
 	x += SCREEN_X;
 	y += SCREEN_Y;
 
 	// draw the box
-	DrawSTextBox(x, y);
+	DrawColorTextBox(x, y, ITEMDETAILS_PNL_WIDTH, wh, COL_GOLD);
+	// add separator
+	DrawColorTextBoxSLine(x, y, ITEMDETAILS_PNL_WIDTH, BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT * 3);
 
 	x += BOXBORDER_WIDTH;
-	y += 44;
-
-	is = PlrItem(mypnum, pcursinvitem);
-	// print the name as title
-	PrintItemString(x, y, ItemName(is), ItemColor(is));
+	y += BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT / 2 + ITEMDETAILS_LINE_HEIGHT + ITEMDETAILS_LINE_HEIGHT - 1;
 
 	// add item-level info or stack-size
+	bool twoLines = false;
 	if ((is->_itype != ITYPE_MISC || is->_iMiscId == IMISC_MAP) && is->_itype != ITYPE_GOLD) {
 		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_iCreateInfo & CF_LEVEL);
-		y -= 6;
 		PrintItemString(x, y);
-		y += 12;
+		twoLines = true;
 	} else if (is->_itype == ITYPE_MISC && is->_iMaxDur > 1) { // STACK
 		snprintf(tempstr, sizeof(tempstr), "%d/%d", is->_iDurability, is->_iMaxDur);
-		y -= 6;
 		PrintItemString(x, y);
-		y += 12;
-	} else {
-		y += 30;
+		twoLines = true;
 	}
+	y -= twoLines ? 2 * ITEMDETAILS_LINE_HEIGHT : (ITEMDETAILS_LINE_HEIGHT / 2);
+
+	// print the name as title
+	PrintItemString(x, y, ItemName(is), ItemColor(is));
+	y += twoLines ? ITEMDETAILS_LINE_HEIGHT + ITEMDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2 : (ITEMDETAILS_LINE_HEIGHT + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2);
 
 	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
 		copy_cstr(tempstr, "Not Identified");
@@ -3455,8 +3572,6 @@ void DrawInvItemDetails()
 			snprintf(tempstr, sizeof(tempstr), "Durability: %d/%d", is->_iDurability, is->_iMaxDur);
 			PrintItemString(x, y);
 		}
-	} else {
-		y += 12 * 2;
 	}
 	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 		if (is->_iPrePower != IPL_INVALID) {
