@@ -2621,7 +2621,7 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
-static void CraftItem(ItemStruct* pi, uint16_t ci, uint16_t idx, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
+static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t ci, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
 {
 	int seed = pi->_iSeed;
 	int ac = -1;
@@ -2668,7 +2668,7 @@ static void DoClean(ItemStruct* pi, bool whittle)
 		ci--;
 	ci |= CF_CRAFTED;
 
-	CraftItem(pi, ci, idx, spell, IPL_INVALID, 0);
+	CraftItem(pi, idx, ci, spell, IPL_INVALID, 0);
 }
 
 #ifdef HELLFIRE
@@ -2897,7 +2897,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
 	spell = pi->_iSpell;
 
-	CraftItem(pi, ci, idx, spell, targetPowerFrom, targetPowerTo);
+	CraftItem(pi, idx, ci, spell, targetPowerFrom, targetPowerTo);
 
 	pi->_iIdentified = TRUE;
 	CalcPlrInv(pnum, true);
