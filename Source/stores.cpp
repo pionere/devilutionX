@@ -144,17 +144,17 @@ static int8_t stextscrlubtn;
 /** Count down for the push state of the scroll down button */
 static int8_t stextscrldbtn;
 
-/** Maps from towner IDs to NPC names. */
+/** Maps from towner IDs to 'Talk to [NPC]'. */
 static const char* const talkname[] = {
 	// clang-format off
-/*TOWN_SMITH*/  "Griswold",
-/*TOWN_HEALER*/ "Pepin",
-/*TOWN_TAVERN*/ "Ogden",
-/*TOWN_STORY*/  "Cain",
-/*TOWN_DRUNK*/  "Farnham",
-/*TOWN_WITCH*/  "Adria",
-/*TOWN_BARMAID*/"Gillian",
-/*TOWN_PEGBOY*/ "Wirt"
+/*TOWN_SMITH*/  "Talk to Griswold",
+/*TOWN_HEALER*/ "Talk to Pepin",
+/*TOWN_TAVERN*/ "Talk to Ogden",
+/*TOWN_STORY*/  "Talk to Cain",
+/*TOWN_DRUNK*/  "Talk to Farnham",
+/*TOWN_WITCH*/  "Talk to Adria",
+/*TOWN_BARMAID*/"Talk to Gillian",
+/*TOWN_PEGBOY*/ "Talk to Wirt"
 	// clang-format on
 };
 
@@ -423,7 +423,7 @@ static void S_StartSmith()
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Blacksmith's shop", COL_GOLD, false);
 	AddSText(0, 7, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_SMITH_GOSSIP, true, "Talk to Griswold", COL_BLUE, true);
+	AddSText(0, STORE_SMITH_GOSSIP, true, talkname[TOWN_SMITH], COL_BLUE, true);
 	AddSText(0, STORE_SMITH_BUY, true, "Buy basic items", COL_WHITE, true);
 	AddSText(0, STORE_SMITH_SPBUY, true, "Buy premium items", COL_WHITE, true);
 	AddSText(0, STORE_SMITH_SELL, true, "Sell items", COL_WHITE, true);
@@ -696,7 +696,7 @@ static void S_StartWitch()
 
 	AddSText(0, 2, true, "Witch's shack", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_WITCH_GOSSIP, true, "Talk to Adria", COL_BLUE, true);
+	AddSText(0, STORE_WITCH_GOSSIP, true, talkname[TOWN_WITCH], COL_BLUE, true);
 	AddSText(0, STORE_WITCH_BUY, true, "Buy items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_SELL, true, "Sell items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_RECHARGE, true, "Recharge staves", COL_WHITE, true);
@@ -926,7 +926,7 @@ static void S_StartBoy()
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
 	// AddSLine(5);
 	if (boyitem._itype != ITYPE_NONE) {
-		AddSText(0, STORE_PEGBOY_GOSSIP1, true, "Talk to Wirt", COL_BLUE, true);
+		AddSText(0, STORE_PEGBOY_GOSSIP1, true, talkname[TOWN_PEGBOY], COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
 		if (!boyitem._iIdentified) {
 			static_assert(STORE_PEGBOY_PRICE == 50, "Hardcoded boy price is 50.");
@@ -936,7 +936,7 @@ static void S_StartBoy()
 		AddSText(0, STORE_PEGBOY_QUERY, true, "What have you got?", COL_WHITE, true);
 		AddSText(0, STORE_PEGBOY_EXIT1, true, "Say goodbye", COL_WHITE, true);
 	} else {
-		AddSText(0, STORE_PEGBOY_GOSSIP2, true, "Talk to Wirt", COL_BLUE, true);
+		AddSText(0, STORE_PEGBOY_GOSSIP2, true, talkname[TOWN_PEGBOY], COL_BLUE, true);
 		AddSText(0, STORE_PEGBOY_EXIT2, true, "Say goodbye", COL_WHITE, true);
 	}
 }
@@ -969,7 +969,7 @@ static void S_StartHealer()
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Healer's home", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_HEALER_GOSSIP, true, "Talk to Pepin", COL_BLUE, true);
+	AddSText(0, STORE_HEALER_GOSSIP, true, talkname[TOWN_HEALER], COL_BLUE, true);
 	AddSText(0, STORE_HEALER_HEAL, true, "Receive healing", COL_WHITE, true);
 	AddSText(0, STORE_HEALER_BUY, true, "Buy items", COL_WHITE, true);
 	AddSText(0, STORE_HEALER_EXIT, true, "Leave Healer's home", COL_WHITE, true);
@@ -1022,7 +1022,7 @@ static void S_StartStory()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "The Town Elder", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_STORY_GOSSIP, true, "Talk to Cain", COL_BLUE, true);
+	AddSText(0, STORE_STORY_GOSSIP, true, talkname[TOWN_STORY], COL_BLUE, true);
 	AddSText(0, STORE_STORY_IDENTIFY, true, "Identify an item", COL_WHITE, true);
 	AddSText(0, STORE_STORY_EXIT, true, "Say goodbye", COL_WHITE, true);
 	// AddSLine(5);
@@ -1106,8 +1106,7 @@ static void S_StartTalk()
 	// gbWidePanel = false;
 	// gbRenderGold = false;
 	// gbHasScroll = false;
-	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
-	AddSText(0, 2, true, tempstr, COL_GOLD, false);
+	AddSText(0, 2, true, talkname[talker], COL_GOLD, false);
 	// AddSLine(5);
 	qn = 0;
 	for (i = 0; i < NUM_QUESTS; i++) {
@@ -1146,7 +1145,7 @@ static void S_StartTavern()
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Rising Sun", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_TAVERN_GOSSIP, true, "Talk to Ogden", COL_BLUE, true);
+	AddSText(0, STORE_TAVERN_GOSSIP, true, talkname[TOWN_TAVERN], COL_BLUE, true);
 	AddSText(0, STORE_TAVERN_EXIT, true, "Leave the tavern", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1158,7 +1157,7 @@ static void S_StartBarMaid()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "Gillian", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_BARMAID_GOSSIP, true, "Talk to Gillian", COL_BLUE, true);
+	AddSText(0, STORE_BARMAID_GOSSIP, true, talkname[TOWN_BARMAID], COL_BLUE, true);
 	AddSText(0, STORE_BARMAID_EXIT, true, "Say goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1170,7 +1169,7 @@ static void S_StartDrunk()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_DRUNK_GOSSIP, true, "Talk to Farnham", COL_BLUE, true);
+	AddSText(0, STORE_DRUNK_GOSSIP, true, talkname[TOWN_DRUNK], COL_BLUE, true);
 	AddSText(0, STORE_DRUNK_EXIT, true, "Say Goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
