@@ -3480,40 +3480,21 @@ static int LinesOfItemDetails(ItemStruct* is)
 void DrawInvItemDetails()
 {
 	ItemStruct* is;
-	int x, y, dx, wh;
+	int x, y, wh;
 	// assert(INVIDX_VALID(pcursinvitem));
 	is = PlrItem(mypnum, pcursinvitem);
 	wh = BOXBORDER_WIDTH + 3 * ITEMDETAILS_LINE_HEIGHT + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2 + LinesOfItemDetails(is) * ITEMDETAILS_LINE_HEIGHT + ITEMDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
-	if (pcursinvitem <= INVITEM_INV_LAST) {
-		x = gnWndInvX;
-		y = gnWndInvY;
-		if (x > PANEL_MIDX(SPANEL_WIDTH)) {
-			// inv-window on right side -> draw the details to the left of the inv-window
-			x -= ITEMDETAILS_PNL_WIDTH;
-			dx = std::min(x, 76);
-			if (dx > 0)
-				x -= (dx >> 1);
-		} else {
-			// inv-window on left side -> draw the details to the right of the inv-window
-			x += SPANEL_WIDTH;
-			dx = std::min(PANEL_RIGHT - (x + ITEMDETAILS_PNL_WIDTH), 76);
-			if (dx > 0)
-				x += dx >> 1;
-		}
+	x = MousePos.x;
+	y = MousePos.y;
+	if (x > PANEL_MIDX(0)) {
+		x -= ITEMDETAILS_PNL_WIDTH + ITEMDETAILS_POPUP_OFFSET;
 	} else {
-		x = gnWndBeltX;
-		y = gnWndBeltY;
-		if (x > PANEL_MIDX(BELT_WIDTH)) {
-			// belt on right side -> draw the details to the left of the belt
-			x -= ITEMDETAILS_PNL_WIDTH - (76 >> 1);
-		} else {
-			// belt on left side -> draw the details to the right of the belt
-			x += BELT_WIDTH + (76 >> 1);
-		}
-		dx = SCREEN_HEIGHT - (wh + MENUBTN_HEIGHT);
-		if (y > dx) {
-			y = dx;
-		}
+		x += ITEMDETAILS_POPUP_OFFSET;
+	}
+	if (y > PANEL_MIDY(0)) {
+		y -= wh + ITEMDETAILS_POPUP_OFFSET;
+	} else {
+		y += ITEMDETAILS_POPUP_OFFSET;
 	}
 	x += SCREEN_X;
 	y += SCREEN_Y;
