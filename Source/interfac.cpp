@@ -104,6 +104,9 @@ static void DrawProgress()
 	screen_x = PANEL_CENTERX(BAR_WIDTH);
 	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
 	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
+	if (dst >= gpBufEnd)
+		return;
+	static_assert(BORDER_BOTTOM >= BAR_HEIGHT, "DrawProgress needs larger border.");
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
 	for (j = 0; j < BAR_HEIGHT; j++) {
