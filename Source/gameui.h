@@ -119,9 +119,9 @@ extern "C" {
 #define LTPANEL_X PANEL_CENTERX(LTPANEL_WIDTH)
 #define LTPANEL_Y (PANEL_CENTERY(TPANEL_HEIGHT) - 64)
 
-#define STORE_PNL_X (PANEL_X + 344 * ASSET_MPL)
+#define STORE_PNL_X        (PANEL_CENTERX(0) + 24)
 #define STORE_PNL_X_OFFSET 7
-#define STORE_LINES 24
+#define STORE_LINES        24
 
 #define BUFFERXY(x, y) ((x) + (y) * BUFFER_WIDTH)
 #define SCREENXY(x, y) BUFFERXY((x) + SCREEN_X, (y) + SCREEN_Y)
