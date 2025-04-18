@@ -76,7 +76,7 @@ static void MergerInit()
 {
 	MergerFreeDlgItems();
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
 	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
@@ -225,7 +225,7 @@ restart:
 
 void UiMergerDialog()
 {
-	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 	workPhase = 0;
 	MergerInit();
 
@@ -234,7 +234,7 @@ void UiMergerDialog()
 		UiRenderAndPoll();
 	} while (workProgress == RETURN_DONE);
 	MergerFreeDlgItems();
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 
 	if (workProgress != 0)
 		return;

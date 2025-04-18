@@ -34,9 +34,9 @@ static void MainmenuLoad()
 	gUIListItems.push_back(new UiListItem("Exit Patcher", currOption++));
 	assert(numOptions == currOption);
 
-	LoadBackgroundArt("ui_art\\mainmenu.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
 	//assert(gUIListItems.size() == numOptions);
@@ -49,7 +49,7 @@ static void MainmenuLoad()
 
 static void MainmenuFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 
 	UiClearItems();
 
