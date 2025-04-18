@@ -885,34 +885,35 @@ static void S_StartConfirm()
 	// AddSLine(3);
 	// AddSLine(21);
 
+	const char* msg;
 	switch (stextshold) {
 	case STORE_PBUY:
-		copy_cstr(tempstr, "Do we have a deal?");
+		msg = "Do we have a deal?";
 		break;
 	case STORE_SIDENTIFY:
-		copy_cstr(tempstr, "Are you sure you want to identify this item?");
+		msg = "Are you sure you want to identify this item?";
 		break;
 	case STORE_HBUY:
 	case STORE_SPBUY:
 	case STORE_WBUY:
 	case STORE_SBUY:
-		copy_cstr(tempstr, "Are you sure you want to buy this item?");
+		msg = "Are you sure you want to buy this item?";
 		break;
 	case STORE_WRECHARGE:
-		copy_cstr(tempstr, "Are you sure you want to recharge this item?");
+		msg = "Are you sure you want to recharge this item?";
 		break;
 	case STORE_SSELL:
 	case STORE_WSELL:
-		copy_cstr(tempstr, "Are you sure you want to sell this item?");
+		msg = "Are you sure you want to sell this item?";
 		break;
 	case STORE_SREPAIR:
-		copy_cstr(tempstr, "Are you sure you want to repair this item?");
+		msg = "Are you sure you want to repair this item?";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddSText(0, 15, true, tempstr, COL_WHITE, false);
+	AddSText(0, 15, true, msg, COL_WHITE, false);
 	AddSText(0, STORE_CONFIRM_YES, true, "Yes", COL_WHITE, true);
 	AddSText(0, STORE_CONFIRM_NO, true, "No", COL_WHITE, true);
 }
