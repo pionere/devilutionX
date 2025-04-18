@@ -1499,7 +1499,7 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 	} break;
 	}
 }
-
+#if ASSET_MPL == 1
 static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -2232,7 +2232,7 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
-
+#endif // ASSET_MPL == 1
 static void moveImage(int width, int height, int dx, int dy, BYTE TRANS_COLOR)
 {
 	if (dx > 0) {
@@ -2463,7 +2463,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#if ASSET_MPL == 1
 BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -4337,7 +4337,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#endif // ASSET_MPL == 1
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
