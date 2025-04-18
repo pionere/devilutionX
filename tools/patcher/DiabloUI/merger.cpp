@@ -74,6 +74,9 @@ static void MergerEsc()
 
 static void MergerInit()
 {
+	const int numOptions = 3;
+	int currOption = 0;
+
 	MergerFreeDlgItems();
 
 	// UiAddBackground();
@@ -82,15 +85,16 @@ static void MergerInit()
 	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Merge MPQ files", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
-	gUIListItems.push_back(new UiListItem("Start merge", 0));
-	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", 1));
-	gUIListItems.push_back(new UiListItem("Cancel", 2));
+	gUIListItems.push_back(new UiListItem("Start merge", currOption++));
+	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", currOption++));
+	gUIListItems.push_back(new UiListItem("Cancel", currOption++));
+	assert(numOptions == currOption);
 
-	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * 3 };
+	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
-	//assert(gUIListItems.size() == 3);
-	UiInitScreen(3, NULL, MergerSelect, MergerEsc);
+	//assert(gUIListItems.size() == numOptions);
+	UiInitScreen(numOptions, NULL, MergerSelect, MergerEsc);
 
 	UiFocus(workPhase);
 }
