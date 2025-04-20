@@ -15,6 +15,16 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+typedef enum _merger_selections {
+	MERGER_RUN,
+#if ASSET_MPL != 1
+	MERGER_HDONLY,
+#endif
+	MERGER_NOSOUND,
+	MERGER_CANCEL,
+	NUM_MERGER,
+} _merger_selections;
+
 static unsigned workProgress;
 static unsigned workPhase;
 static Uint32 sgMergerRenderTc;
@@ -82,13 +92,6 @@ static void MergerEsc()
 
 static void MergerInit()
 {
-#if ASSET_MPL != 1
-	const int numOptions = 4;
-#else
-	const int numOptions = 3;
-#endif
-	int currOption = 0;
-
 	MergerFreeDlgItems();
 
 	// UiAddBackground();
@@ -97,19 +100,18 @@ static void MergerInit()
 	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Merge MPQ files", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
-	gUIListItems.push_back(new UiListItem("Start merge", currOption++));
+	gUIListItems.push_back(new UiListItem("Start merge", MERGER_RUN));
 #if ASSET_MPL != 1
-	gUIListItems.push_back(new UiListItem(!hdOnly ? "Only HD Assets: No" : "Only HD Assets: Yes", currOption++));
+	gUIListItems.push_back(new UiListItem(!hdOnly ? "Only HD Assets: No" : "Only HD Assets: Yes", MERGER_HDONLY));
 #endif
-	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", currOption++));
-	gUIListItems.push_back(new UiListItem("Cancel", currOption++));
-	assert(numOptions == currOption);
+	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", MERGER_NOSOUND));
+	gUIListItems.push_back(new UiListItem("Cancel", MERGER_CANCEL));
 
-	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * NUM_MERGER };
+	gUiItems.push_back(new UiList(&gUIListItems, NUM_MERGER, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
-	UiInitScreen(numOptions, NULL, MergerSelect, MergerEsc);
+	UiInitScreen(NUM_MERGER, NULL, MergerSelect, MergerEsc);
 
 	UiFocus(workPhase);
 }
@@ -119,24 +121,20 @@ static void MergerSelect(unsigned index)
 	workPhase = index;
 
 	switch (index) {
-	case 0:
+	case MERGER_RUN:
 		workProgress = 0;
 		break;
-	case 1:
 #if ASSET_MPL != 1
+	case MERGER_HDONLY:
 		hdOnly = !hdOnly;
 		MergerInit();
 		break;
-	case 2:
 #endif
+	case MERGER_NOSOUND:
 		noSound = !noSound;
 		MergerInit();
 		break;
-#if ASSET_MPL != 1
-	case 3:
-#else
-	case 2:
-#endif
+	case MERGER_CANCEL:
 		workProgress = RETURN_CANCEL;
 		break;
 	}
