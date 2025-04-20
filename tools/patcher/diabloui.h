@@ -8,6 +8,14 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+typedef enum _patchermenu_selections {
+	PATCHERMENU_PATCH,
+	PATCHERMENU_MERGE,
+	// PATCHERMENU_CHECK,
+	PATCHERMENU_EXIT,
+	NUM_PATCHERMENU,
+} _patchermenu_selections;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

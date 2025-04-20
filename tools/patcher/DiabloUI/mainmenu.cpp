@@ -25,14 +25,10 @@ static void MainmenuEsc()
 
 static void MainmenuLoad()
 {
-	const int numOptions = 3; // 4;
-	int currOption = 0;
-
-	gUIListItems.push_back(new UiListItem("Patch Assets", currOption++));
-	gUIListItems.push_back(new UiListItem("Merge Assets", currOption++));
-	// gUIListItems.push_back(new UiListItem("Check Assets", currOption++));
-	gUIListItems.push_back(new UiListItem("Exit Patcher", currOption++));
-	assert(numOptions == currOption);
+	gUIListItems.push_back(new UiListItem("Patch Assets", PATCHERMENU_PATCH));
+	gUIListItems.push_back(new UiListItem("Merge Assets", PATCHERMENU_MERGE));
+	// gUIListItems.push_back(new UiListItem("Check Assets", PATCHERMENU_CHECK));
+	gUIListItems.push_back(new UiListItem("Exit Patcher", PATCHERMENU_EXIT));
 
 	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 
@@ -40,11 +36,11 @@ static void MainmenuLoad()
 	UiAddLogo();
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_HCENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
+	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * NUM_PATCHERMENU };
+	gUiItems.push_back(new UiList(&gUIListItems, NUM_PATCHERMENU, rect1, UIS_HCENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
-	UiInitScreen(numOptions, NULL, UiMainMenuSelect, MainmenuEsc);
+	UiInitScreen(NUM_PATCHERMENU, NULL, UiMainMenuSelect, MainmenuEsc);
 }
 
 static void MainmenuFree()
