@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <vector>
 
 #include "diablo.h"
 #include "diabloui.h"
@@ -139,10 +140,12 @@ restart:
 	switch (workPhase) {
 	case 0:
 	{	// first round - read the content and prepare the metadata
-		std::string listpath = std::string(GetBasePath()) + "listfiles.txt";
+		std::string basePath = std::string(GetBasePath());
 		std::ifstream input(listpath);
+		std::string listPath = basePath + "listfiles.txt";
+		std::ifstream input(listPath);
 		if (input.fail()) {
-			app_warn("Can not find/access '%s' in the game folder.", "listfiles.txt");
+			app_warn("Can not find/access '%s'.", listPath.c_str());
 			return RETURN_ERROR;
 		}
 		std::string line;
