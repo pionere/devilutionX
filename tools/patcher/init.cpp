@@ -156,7 +156,7 @@ void InitArchives()
 	SFileEnableDirectAccess(directFileAccess);
 #if DEV_MODE
 	CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
-	CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
+	// CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
 #endif
 	diabdat_mpqs[NUM_MPQS] = init_test_access(MPQONE, NUM_MPQS);
 

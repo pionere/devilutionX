@@ -1,5 +1,8 @@
 #include <string>
 #include <fstream>
+#if ASSET_MPL != 1
+#include <set>
+#endif
 #include <vector>
 
 #include "diablo.h"
@@ -16,6 +19,10 @@ static unsigned workProgress;
 static unsigned workPhase;
 static Uint32 sgMergerRenderTc;
 static std::vector<std::string> listfiles;
+#if ASSET_MPL != 1
+static std::set<std::string> hdfiles;
+static bool hdOnly = false;
+#endif
 #ifdef NOSOUND
 static bool noSound = true;
 #else
@@ -75,7 +82,11 @@ static void MergerEsc()
 
 static void MergerInit()
 {
+#if ASSET_MPL != 1
+	const int numOptions = 4;
+#else
 	const int numOptions = 3;
+#endif
 	int currOption = 0;
 
 	MergerFreeDlgItems();
@@ -87,12 +98,15 @@ static void MergerInit()
 	gUiItems.push_back(new UiText("Merge MPQ files", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Start merge", currOption++));
+#if ASSET_MPL != 1
+	gUIListItems.push_back(new UiListItem(!hdOnly ? "Only HD Assets: No" : "Only HD Assets: Yes", currOption++));
+#endif
 	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", currOption++));
 	gUIListItems.push_back(new UiListItem("Cancel", currOption++));
 	assert(numOptions == currOption);
 
 	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * numOptions };
-	gUiItems.push_back(new UiList(&gUIListItems, 3, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
 	UiInitScreen(numOptions, NULL, MergerSelect, MergerEsc);
@@ -109,10 +123,20 @@ static void MergerSelect(unsigned index)
 		workProgress = 0;
 		break;
 	case 1:
-		noSound = !noSound;
+#if ASSET_MPL != 1
+		hdOnly = !hdOnly;
 		MergerInit();
 		break;
 	case 2:
+#endif
+		noSound = !noSound;
+		MergerInit();
+		break;
+#if ASSET_MPL != 1
+	case 3:
+#else
+	case 2:
+#endif
 		workProgress = RETURN_CANCEL;
 		break;
 	}
@@ -133,6 +157,35 @@ static bool merger_skipFile(const std::string &path)
 	}
 	return false;
 }
+#if ASSET_MPL != 1
+static std::string assetPath(const std::string &basePath, std::string &entry)
+{
+#ifndef _WIN32
+	int i;
+	for (i = 0; i < entry.size(); ++i)
+		if (entry[i] == '\\')
+			entry[i] = '/';
+#endif
+	return basePath + entry;
+}
+#endif
+
+static std::string mpqPath(int *mpqIdx)
+{
+	std::string path = std::string(GetBasePath());
+	*mpqIdx = NUM_MPQS;
+#if ASSET_MPL != 1
+	if (hdOnly) {
+		*mpqIdx = MPQ_DEVILHD;
+
+		char tmpstr[32];
+		snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
+		path += tmpstr;
+	} else
+#endif
+		path += MPQONE;
+	return path;
+}
 
 static int merger_callback()
 {
@@ -141,7 +194,22 @@ restart:
 	case 0:
 	{	// first round - read the content and prepare the metadata
 		std::string basePath = std::string(GetBasePath());
-		std::ifstream input(listpath);
+#if ASSET_MPL != 1
+		if (diabdat_mpqs[MPQ_DEVILHD] == NULL) {
+			std::string hdPath = basePath + "hdfiles.txt";
+			std::ifstream input(hdPath);
+			if (input.fail()) {
+				app_warn("Can not find/access '%s'.", hdPath.c_str());
+				return RETURN_ERROR;
+			}
+			std::string line;
+			// hdfiles.clear();
+			while (std::getline(input, line)) {
+				if (merger_skipFile(line)) continue;
+				hdfiles.insert(line);
+			}
+		}
+#endif
 		std::string listPath = basePath + "listfiles.txt";
 		std::ifstream input(listPath);
 		if (input.fail()) {
@@ -152,6 +220,17 @@ restart:
 		// listfiles.clear();
 		while (std::getline(input, line)) {
 			if (merger_skipFile(line)) continue;
+#if ASSET_MPL != 1
+			if (hdfiles.count(line) != 0) {
+				std::string path = assetPath(basePath, line);
+				if (SFileReadLocalFile(path.c_str(), NULL) != 0) {
+					listfiles.push_back(line);
+				}
+				continue;
+			}
+			if (hdOnly)
+				continue;
+#endif
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (diabdat_mpqs[i] == NULL) continue;
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
@@ -172,7 +251,8 @@ restart:
 	} break;
 	case 1:
 	{	// create the mpq file
-		std::string path = std::string(GetBasePath()) + MPQONE;
+		int mpqIdx;
+		std::string path = mpqPath(&mpqIdx);
 		archive = SFileCreateArchive(path.c_str(), hashCount, hashCount);
 		if (archive == NULL) {
 			app_warn("Unable to create MPQ file %s.", path.c_str());
@@ -184,20 +264,42 @@ restart:
 	case 2:
 	{	// add the next file to the mpq
 		const char* fileName = listfiles[hashCount].c_str();
+		BYTE* buf = NULL;
+		DWORD dwLen = 0;
+#if ASSET_MPL != 1
+		if (hdfiles.count(listfiles[hashCount]) != 0) {
+			std::string basePath = std::string(GetBasePath());
+			std::string path = assetPath(basePath, listfiles[hashCount]);
+			dwLen = SFileReadLocalFile(path.c_str(), &buf);
+			if (dwLen == 0) {
+				mem_free_dbg(buf);
+				app_warn("Could not read file: '%s'.", path.c_str());
+				return RETURN_ERROR;
+			}
+		} else {
+#else
+		{
+#endif
 		for (int i = 0; i < NUM_MPQS; i++) {
 			if (diabdat_mpqs[i] == NULL) continue;
-			BYTE* buf = NULL;
-			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
+			dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
 			if (dwLen != 0) {
-				bool success = SFileWriteFile(archive, fileName, buf, dwLen);
-				mem_free_dbg(buf);
-				if (!success) {
-					app_warn("Unable to write %s to the MPQ.", fileName);
-					return RETURN_ERROR;
-				}
 				break;
 			}
+			MemFreeDbg(buf);
 		}
+		if (dwLen == 0) {
+			app_warn("Failed to read %s from the MPQs.", fileName);
+			return RETURN_ERROR;
+		}
+		}
+		bool success = SFileWriteFile(archive, fileName, buf, dwLen);
+		mem_free_dbg(buf);
+		if (!success) {
+			app_warn("Unable to write %s to the MPQ.", fileName);
+			return RETURN_ERROR;
+		}
+
 		hashCount++;
 		if (hashCount < listfiles.size())
 			break;
@@ -207,13 +309,14 @@ restart:
 	} break;
 	case 3:
 	{	// test the result
-		std::string path = std::string(GetBasePath()) + MPQONE;
-		diabdat_mpqs[NUM_MPQS] = SFileOpenArchive(path.c_str(), MPQ_OPEN_READ_ONLY);
-		if (diabdat_mpqs[NUM_MPQS] == NULL) {
+		int mpqIdx;
+		std::string path = mpqPath(&mpqIdx);
+		diabdat_mpqs[mpqIdx] = SFileOpenArchive(path.c_str(), MPQ_OPEN_READ_ONLY);
+		if (diabdat_mpqs[mpqIdx] == NULL) {
 			app_warn("Failed to create %s.", path.c_str());
 			return RETURN_ERROR;
 		}
-		diabdat_paths[NUM_MPQS] = path;
+		diabdat_paths[mpqIdx] = path;
 	} return RETURN_DONE;
 	default:
 		ASSUME_UNREACHABLE
@@ -247,7 +350,9 @@ void UiMergerDialog()
 		return;
 
 	// check if the mpq already exists
-	if (diabdat_mpqs[NUM_MPQS] != NULL) {
+	int mpqIdx;
+	std::string path = mpqPath(&mpqIdx);
+	if (diabdat_mpqs[mpqIdx] != NULL) {
 		char dialogTitle[32];
 		char dialogText[256];
 		snprintf(dialogTitle, sizeof(dialogTitle), "Merged MPQ exists");
@@ -256,12 +361,14 @@ void UiMergerDialog()
 		if (!UiSelYesNoDialog(dialogTitle, dialogText))
 			return;
 
-		SFileCloseArchive(diabdat_mpqs[NUM_MPQS]);
-		diabdat_mpqs[NUM_MPQS] = NULL;
-		diabdat_paths[NUM_MPQS].clear();
-		std::string path = std::string(GetBasePath()) + MPQONE;
+		SFileCloseArchive(diabdat_mpqs[mpqIdx]);
+		diabdat_mpqs[mpqIdx] = NULL;
+		diabdat_paths[mpqIdx].clear();
 		RemoveFile(path.c_str());
 	}
+	// ensure the merged mpq is not used as a source
+	HANDLE mergedHandle = diabdat_mpqs[NUM_MPQS];
+	diabdat_mpqs[NUM_MPQS] = NULL;
 
 	// do the actual merge
 	workPhase = 0;
@@ -270,10 +377,19 @@ void UiMergerDialog()
 	UiProgressDialog("...Merge in progress...", merger_callback);
 	// cleanup
 	listfiles.clear();
+#if ASSET_MPL != 1
+	hdfiles.clear();
+#endif
 	// ensure mpq-archive is closed on error
 	// if (workProgress == RETURN_ERROR && workPhase == 2) {
 		SFileCloseArchive(archive);
 		archive = NULL;
+	// }
+	// restore merged mpq if the target was hd-only
+	// if (hdOnly) {
+		if (mergedHandle != NULL) {
+			diabdat_mpqs[NUM_MPQS] = mergedHandle;
+		}
 	// }
 }
 
