@@ -376,7 +376,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	assert(gbBackCel == NULL);
 	// FreeBackgroundArt();
 	if (pszFile != NULL)
-		gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
+		gbBackCel = CelLoadImage(pszFile, BACKGROUND_ART_WIDTH);
 	// assert(palette != NULL);
 	LoadPalette(palette);
 
@@ -392,7 +392,7 @@ void FreeBackgroundArt()
 void UiAddBackground()
 {
 	assert(gbBackCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
+	SDL_Rect rect = { PANEL_MIDX(BACKGROUND_ART_WIDTH), BACKGROUND_ART_TOP, BACKGROUND_ART_WIDTH, BACKGROUND_ART_HEIGHT };
 	gUiItems.push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 

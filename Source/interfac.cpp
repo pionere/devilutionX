@@ -33,7 +33,7 @@ static void InitLvlCutscene(BYTE lvl)
 {
 	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
 	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
-	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, PANEL_WIDTH);
+	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, BACKGROUND_ART_WIDTH);
 	LoadPalette(AllLevels[lvl].dLoadPal);
 }
 
@@ -65,14 +65,14 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case DVL_DWM_DYNLVL:
 	case DVL_DWM_PORTLVL:
-		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
+		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", BACKGROUND_ART_WIDTH);
 		LoadPalette("Gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
 	case DVL_DWM_LOADGAME:
-		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
+		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", BACKGROUND_ART_WIDTH);
 		LoadPalette("Gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
@@ -102,7 +102,7 @@ static void DrawProgress()
 	unsigned w, i, j;
 
 	screen_x = PANEL_CENTERX(BAR_WIDTH);
-	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
+	screen_y = BACKGROUND_ART_TOP + (sgbLoadBarOnTop ? SCREEN_Y + TOP_BAR_Y : SCREEN_Y + BOTTOM_BAR_Y);
 	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
 	if (dst >= gpBufEnd)
 		return;
@@ -145,7 +145,7 @@ static void DrawCutsceneBack()
 {
 	lock_buf(1);
 
-	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
 
 	unlock_buf(1);
 }
@@ -165,7 +165,7 @@ static void RenderCutscene()
 
 	lock_buf(1);
 	// if (sgdwProgress == 0)
-	//	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	//	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
