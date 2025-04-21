@@ -42,7 +42,7 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 	// UiAddBackground();
 	UiAddLogo();
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELYNOK_TITLE_TOP, PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { 0, SELYNOK_TITLE_TOP, SCREEN_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { PANEL_LEFT + 130, SELYNOK_CONTENT_TOP, MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };

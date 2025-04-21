@@ -31,7 +31,7 @@ static void ProgressLoad(const char* msg)
 	SDL_Rect rect0 = { SCREEN_MIDX(SMALL_POPUP_WIDTH), y, 0, 0 };
 	_gbPb = new UiProgressBar(rect0);
 	gUiItems.push_back(_gbPb);
-	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
+	SDL_Rect rect1 = { 0, y + 20, SCREEN_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText(msg, rect1, UIS_HCENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { SCREEN_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &ProgressEsc, rect2));

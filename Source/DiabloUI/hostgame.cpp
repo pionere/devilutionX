@@ -43,7 +43,7 @@ static void HostGameLoad()
 	gUiItems.push_back(_gbHostPb);
 	SDL_Rect rect01 = { 0, 0, 0, 0 };
 	gUiItems.push_back(new UiCustom(HostGameOverlay, rect01));
-	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
+	SDL_Rect rect1 = { 0, y + 20, SCREEN_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText("...Server is running...", rect1, UIS_HCENTER | UIS_SMALL | UIS_GOLD));
 	SDL_Rect rect2 = { SCREEN_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &HostGameCancel, rect2));

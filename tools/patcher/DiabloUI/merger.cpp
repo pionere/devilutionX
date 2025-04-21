@@ -97,7 +97,7 @@ static void MergerInit()
 	// UiAddBackground();
 	UiAddLogo();
 
-	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
+	SDL_Rect rect1 = { 0, SELHERO_TITLE_TOP, SCREEN_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Merge MPQ files", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	gUIListItems.push_back(new UiListItem("Start merge", MERGER_RUN));
