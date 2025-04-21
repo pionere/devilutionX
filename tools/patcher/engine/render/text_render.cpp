@@ -375,8 +375,8 @@ void PrintString(int flags, const char* text, int x, int y, int w, int h)
 		break;
 	}
 
-	sx = x + AlignXOffset(flags, w, sw) + SCREEN_X;
-	sy = y + ((flags & AFF_VCENTER) ? ((h - lh) >> 1) : 0) + SCREEN_Y + lh;
+	sx = x + AlignXOffset(flags, w, sw);
+	sy = y + ((flags & AFF_VCENTER) ? ((h - lh) >> 1) : 0) + lh;
 
 	sy += dy;
 	lh += dy;
