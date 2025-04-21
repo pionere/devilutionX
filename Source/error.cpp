@@ -121,8 +121,8 @@ void DrawDiabloMsg()
 	//assert(currmsg != EMSG_NONE);
 	//assert(msgcnt > 0);
 
-	x = PANEL_CENTERX(ERRORMSG_WIDTH);
-	y = PANEL_CENTERY(SLIDER_BOX_HEIGHT + 2 * TILE_HEIGHT);
+	x = SCREEN_CENTERX(ERRORMSG_WIDTH);
+	y = SCREEN_CENTERY(SLIDER_BOX_HEIGHT + 2 * TILE_HEIGHT);
 	DrawColorTextBox(x, y - SLIDER_BOX_HEIGHT, ERRORMSG_WIDTH, SLIDER_BOX_HEIGHT, COL_GOLD);
 
 	// print the message

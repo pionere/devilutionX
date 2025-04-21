@@ -1470,10 +1470,10 @@ static void DrawPause()
 	int x, light;
 
 	// assert(GetHugeStringWidth("Pause") == 135);
-	x = PANEL_CENTERX(135);
+	x = SCREEN_CENTERX(135);
 	static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 	light = (SDL_GetTicks() / 256) % 4;
-	PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
+	PrintHugeString(x, SCREEN_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
 }
 
 /**

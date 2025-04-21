@@ -101,7 +101,7 @@ static void DrawProgress()
 	int screen_x, screen_y;
 	unsigned w, i, j;
 
-	screen_x = PANEL_CENTERX(BAR_WIDTH);
+	screen_x = SCREEN_CENTERX(BAR_WIDTH);
 	screen_y = BACKGROUND_ART_TOP + (sgbLoadBarOnTop ? SCREEN_Y + TOP_BAR_Y : SCREEN_Y + BOTTOM_BAR_Y);
 	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
 	if (dst >= gpBufEnd)

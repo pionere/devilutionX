@@ -178,7 +178,7 @@ static void gmenu_draw_menu_item(int i, int y)
 	unsigned w, x, nSteps, step, pos;
 
 	w = gmenu_get_lfont(pItem);
-	x = PANEL_CENTERX(w);
+	x = SCREEN_CENTERX(w);
 	PrintHugeString(x, y, pItem->pszStr, COL_GOLD + ((pItem->dwFlags & GMF_ENABLED) ? (pItem == mItem ? 2 : 0) : MAXDARKNESS));
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
 		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
@@ -223,8 +223,8 @@ void gmenu_draw()
 #else
 	nCel = 1;
 #endif
-	y = PANEL_CENTERY(GAMEMENU_HEIGHT) + LOGO_HEIGHT;
-	CelDraw(PANEL_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
+	y = SCREEN_CENTERY(GAMEMENU_HEIGHT) + LOGO_HEIGHT;
+	CelDraw(SCREEN_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
 	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);

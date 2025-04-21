@@ -344,8 +344,8 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
 
 	if (gbAutomapflag == AMM_NORMAL) {
-		x = PANEL_CENTERX(0);
-		y = PANEL_CENTERY(0);
+		x = SCREEN_CENTERX(0);
+		y = SCREEN_CENTERY(0);
 	} else {
 		x = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
 		y = SCREEN_Y + MAP_MINI_HEIGHT / 2;
@@ -495,8 +495,8 @@ static void DrawAutomapContent()
 
 	// calculate the center of the tile on the screen
 	if (gbAutomapflag == AMM_NORMAL) {
-		sx = PANEL_CENTERX(0);
-		sy = PANEL_CENTERY(0);
+		sx = SCREEN_CENTERX(0);
+		sy = SCREEN_CENTERY(0);
 	} else {
 		sx = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
 		sy = SCREEN_Y + MAP_MINI_HEIGHT / 2;

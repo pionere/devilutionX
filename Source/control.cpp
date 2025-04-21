@@ -452,10 +452,10 @@ void DrawSkillList()
 	BYTE prevSkill = currSkill;
 #endif
 	currSkill = SPL_INVALID;
-	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
+	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
-	//y = PANEL_CENTERY(190) + 190;
+	//y = SCREEN_CENTERY(190) + 190;
 	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
@@ -2488,8 +2488,8 @@ void TryCampaignMapClick(bool altAction)
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;
-	sx = PANEL_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
-	sy = PANEL_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
+	sx = SCREEN_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
+	sy = SCREEN_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
 
 	sx += CAMICON_WIDTH * (CAM_RADIUS - lengthof(camEntries) / 2);
 	sy += CAMICON_HEIGHT * (CAM_RADIUS - lengthof(camEntries[0]) / 2);
