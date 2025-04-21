@@ -52,7 +52,7 @@ void UiSelOkDialog(const char* title, const char* body)
 		SDL_Rect rect2 = { SCREEN_MIDX(MESSAGE_WIDTH), SELYNOK_CONTENT_TOP, MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
 		gUiItems.push_back(new UiText(dialogText, rect2, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//} else {
-	//	SDL_Rect rect1 = { SCREEN_MIDX(MESSAGE_WIDTH), PANEL_MIDY(86), MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
+	//	SDL_Rect rect1 = { SCREEN_MIDX(MESSAGE_WIDTH), SCREEN_MIDY(86), MESSAGE_WIDTH, SELYNOK_CONTENT_HEIGHT };
 	//	gUiItems.push_back(new UiText(dialogText, rect1, UIS_LEFT | UIS_MED | UIS_SILVER));
 	//}
 
