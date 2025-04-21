@@ -107,7 +107,7 @@ static void MergerInit()
 	gUIListItems.push_back(new UiListItem(noSound ? "With Sound Assets: No" : "With Sound Assets: Yes", MERGER_NOSOUND));
 	gUIListItems.push_back(new UiListItem("Cancel", MERGER_CANCEL));
 
-	SDL_Rect rect5 = { PANEL_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * NUM_MERGER };
+	SDL_Rect rect5 = { SCREEN_MIDX(MAINMENU_WIDTH), SELGAME_LIST_TOP, MAINMENU_WIDTH, 26 * NUM_MERGER };
 	gUiItems.push_back(new UiList(&gUIListItems, NUM_MERGER, rect5, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);

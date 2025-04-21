@@ -392,14 +392,14 @@ void FreeBackgroundArt()
 void UiAddBackground()
 {
 	assert(gbBackCel != NULL);
-	SDL_Rect rect = { PANEL_MIDX(BACKGROUND_ART_WIDTH), BACKGROUND_ART_TOP, BACKGROUND_ART_WIDTH, BACKGROUND_ART_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(BACKGROUND_ART_WIDTH), BACKGROUND_ART_TOP, BACKGROUND_ART_WIDTH, BACKGROUND_ART_HEIGHT };
 	gUiItems.push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
 void UiAddLogo()
 {
 	assert(gbLogoCelSmall != NULL);
-	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 

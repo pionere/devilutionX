@@ -50,7 +50,7 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 
 	gUIListItems.push_back(new UiListItem("Yes", 0));
 	gUIListItems.push_back(new UiListItem("No", 1));
-	SDL_Rect rect3 = { PANEL_MIDX(180), SELYNOK_BUTTON_TOP, 180, 35 * 2 };
+	SDL_Rect rect3 = { SCREEN_MIDX(180), SELYNOK_BUTTON_TOP, 180, 35 * 2 };
 	gUiItems.push_back(new UiList(&gUIListItems, 2, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SStrCopy(selyesno_confirmationMessage, body, sizeof(selyesno_confirmationMessage));

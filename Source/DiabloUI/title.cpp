@@ -27,7 +27,7 @@ static void TitleLoad()
 
 	UiAddBackground();
 
-	SDL_Rect rect1 = { PANEL_MIDX(BIG_LOGO_WIDTH), BIG_LOGO_TOP, BIG_LOGO_WIDTH, BIG_LOGO_HEIGHT };
+	SDL_Rect rect1 = { SCREEN_MIDX(BIG_LOGO_WIDTH), BIG_LOGO_TOP, BIG_LOGO_WIDTH, BIG_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, true));
 
 	UiInitScreen(0, NULL, TitleSelect, TitleEsc);

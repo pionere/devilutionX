@@ -36,7 +36,7 @@ static void MainmenuLoad()
 	UiAddLogo();
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * NUM_PATCHERMENU };
+	SDL_Rect rect1 = { SCREEN_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * NUM_PATCHERMENU };
 	gUiItems.push_back(new UiList(&gUIListItems, NUM_PATCHERMENU, rect1, UIS_HCENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);

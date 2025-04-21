@@ -150,7 +150,7 @@ static TMenuItem* current_menu_item(bool activate)
 	int i, w;
 	TMenuItem* pItem;
 
-	i = MousePos.y - (PANEL_MIDY(GAMEMENU_HEIGHT) + LOGO_HEIGHT + GAMEMENU_HEADER_OFF);
+	i = MousePos.y - (SCREEN_MIDY(GAMEMENU_HEIGHT) + LOGO_HEIGHT + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return NULL;
 	}
@@ -265,7 +265,7 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MousePos.x - (PANEL_MIDX(SLIDER_ROW_WIDTH) + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (SCREEN_MIDX(SLIDER_ROW_WIDTH) + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;
