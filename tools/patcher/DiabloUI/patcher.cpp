@@ -22,6 +22,8 @@ static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
 
+#define SUB_HEADER_SIZE 0x0A
+
 typedef enum filenames {
 	FILE_MOVIE_VIC1,
 	FILE_MOVIE_VIC2,
@@ -1503,7 +1505,6 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	constexpr int FRAME_HEIGHT = 96;
 
@@ -1707,7 +1708,6 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	constexpr int FRAME_HEIGHT = 96;
 
@@ -1769,7 +1769,6 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 128;
 	constexpr int FRAME_HEIGHT = 128;
 
@@ -1829,7 +1828,6 @@ static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 128;
 	constexpr int FRAME_HEIGHT = 128;
 
@@ -1882,7 +1880,6 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	constexpr int FRAME_HEIGHT = 96;
 
@@ -1942,7 +1939,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 {
 	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
-	unsigned subHeaderSize = CEL_FRAME_HEADER_SIZE;
+	unsigned subHeaderSize = SUB_HEADER_SIZE;
 	unsigned hs = (height - 1) / CEL_BLOCK_HEIGHT;
 	hs = (hs + 1) * sizeof(WORD);
 	subHeaderSize = std::max(subHeaderSize, hs);
@@ -1952,7 +1949,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	BYTE* pHeader = pBuf;
 	if (clipped) {
 		// add CL2 FRAME HEADER
-		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize); // SUB_HEADER_SIZE
+		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize);
 		*(DWORD*)&pBuf[2] = 0;
 		*(DWORD*)&pBuf[6] = 0;
 		pBuf += subHeaderSize;
@@ -2272,7 +2269,6 @@ static void moveImage(int width, int height, int dx, int dy, BYTE TRANS_COLOR)
 static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 
 	DWORD* srcHeaderCursor = (DWORD*)celBuf;
 	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
@@ -3955,7 +3951,6 @@ BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) ? 128 : 160;
 
