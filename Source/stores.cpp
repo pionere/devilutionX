@@ -1129,7 +1129,7 @@ static void S_StartTalk()
 	AddSText(0, sn, true, "Gossip", COL_BLUE, true);
 	AddSTextVal(sn, -(int)NUM_QUESTS);
 	sn += 2;
-	for (i = 0; i < (int)qn; i++) {
+	for (i = 0; i < qn; i++) {
 		AddSText(0, sn, true, questlist[tqs[i]]._qlstr, COL_WHITE, true);
 		AddSTextVal(sn, -tqs[i]);
 		sn += la;
