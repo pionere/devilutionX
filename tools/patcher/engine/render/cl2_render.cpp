@@ -39,7 +39,6 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 				if (width > 65) {
 					width -= 65;
 					fill = *src++;
-					//if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = fill;
@@ -47,9 +46,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 							width--;
 						}
 						continue;
-					//}
 				} else {
-					//if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = *src;
@@ -58,9 +55,6 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 							width--;
 						}
 						continue;
-					//} else {
-					//	src += width;
-					//}
 				}
 			}
 			while (true) {
@@ -97,7 +91,7 @@ void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
 	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);

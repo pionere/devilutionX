@@ -30,8 +30,19 @@ extern "C" {
 #define ITEM_ANIM_XOFFSET ((ITEM_ANIM_WIDTH - TILE_WIDTH) / 2)
 
 #define BORDER_LEFT    TILE_WIDTH
-#define BORDER_TOP     (160 * ASSET_MPL)
-#define BORDER_BOTTOM  (TILE_HEIGHT * ASSET_MPL)
+// maximum of
+//  1. min(height of a player, CEL_BLOCK_HEIGHT) + 1 (outline)  = (~80 * ASSET_MPL, 32) + 1  = 33 -- cl2_render
+//  2. min(height of a monster, CEL_BLOCK_HEIGHT) + 1 (outline) = (160 * ASSET_MPL, 32) + 1  = 33 -- cl2_render
+//  3. min(height of a towner, CEL_BLOCK_HEIGHT) + 1 (outline)  = (160 * ASSET_MPL, 32) + 1  = 33 -- cel_render
+//  4. min(height of a missile, CEL_BLOCK_HEIGHT)               = (~100 * ASSET_MPL, 32)     = 32 -- cl2_render
+//  5. min(height of a object, CEL_BLOCK_HEIGHT) + 1 (outline)  = (~110 * ASSET_MPL, 32) + 1 = 33 -- cel_render
+//  6. min(height of a item, CEL_BLOCK_HEIGHT) + 1 (outline)    = (160 * ASSET_MPL, 32) + 1  = 32 -- cel_render
+//  7. min(height of a special tile, CEL_BLOCK_HEIGHT)          = (224 * ASSET_MPL, 32)      = 32 -- cel_render
+//  7. (MAP_SCALE_MAX * TILE_HEIGHT) / 128 / 2 = 128 * 32 * ASSET_MPL / 128 / 2 = 16 * ASSET_MPL  -- automap_render
+//  8. TILE_HEIGHT = (32 * ASSET_MPL)                                                             -- scrollrt
+//  9. BAR_HEIGHT = 22 * ASSET_MPL
+#define BORDER_TOP     (ASSET_MPL == 1 ? 36 : (32 * ASSET_MPL))
+#define BORDER_BOTTOM  (ASSET_MPL == 1 ? 36 : (32 * ASSET_MPL))
 
 #define SCREEN_X       BORDER_LEFT
 #define SCREEN_Y       BORDER_TOP

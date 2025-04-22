@@ -174,7 +174,7 @@ void CelClippedDraw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
 	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
