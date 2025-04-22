@@ -18,10 +18,14 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth)
 {
+	const BYTE *src, *end;
+	BYTE fill, *dst;
 	int i;
 	int8_t width;
-	BYTE fill, *dst;
-	const BYTE *src, *end;
+
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];

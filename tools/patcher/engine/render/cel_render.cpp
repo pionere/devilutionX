@@ -18,14 +18,14 @@ DEVILUTION_BEGIN_NAMESPACE
  */
 static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth)
 {
-	int i;
-	int8_t width;
 	const BYTE *src, *end;
 	BYTE* dst;
+	int i;
+	int8_t width;
 
-	assert(pDecodeTo != NULL);
-	assert(pRLEBytes != NULL);
-	assert(gpBuffer != NULL);
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
@@ -59,14 +59,14 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
  */
 static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, const BYTE* tbl)
 {
-	int i;
-	int8_t width;
 	const BYTE *src, *end;
 	BYTE* dst;
+	int i;
+	int8_t width;
 
-	assert(pDecodeTo != NULL);
-	assert(pRLEBytes != NULL);
-	assert(gpBuffer != NULL);
+	// assert(gpBuffer != NULL);
+	// assert(pDecodeTo != NULL);
+	// assert(pRLEBytes != NULL);
 
 	src = pRLEBytes;
 	end = &pRLEBytes[nDataSize];
@@ -122,14 +122,16 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
 {
 	int nDataSize;
+	BYTE* pDecodeTo;
 	const BYTE* pRLEBytes;
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 
 	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
-	CelBlit(&gpBuffer[BUFFERXY(sx, sy)], pRLEBytes, nDataSize, pCelBuff->ciWidth);
+	CelBlit(pDecodeTo, pRLEBytes, nDataSize, pCelBuff->ciWidth);
 }
 
 /**
