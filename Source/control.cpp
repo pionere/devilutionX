@@ -1034,6 +1034,7 @@ void DrawCtrlBtns()
 static void DoSkillList(bool altSkill)
 {
 	gbSkillListFlag = true;
+	currSkill = SPL_INVALID;
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	StoreSpellCoords();
