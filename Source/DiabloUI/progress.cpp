@@ -4,6 +4,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define PROGRESS_CANCEL 101
 
 static UiProgressBar* _gbPb;
@@ -61,5 +63,7 @@ bool UiProgressDialog(const char* msg, int (*fnfunc)())
 
 	return result;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

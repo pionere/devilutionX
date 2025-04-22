@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static bool _gbYNEndMenu;
 static bool _gbYNValue;
 
@@ -69,4 +71,7 @@ bool UiSelYesNoDialog(const char* title, const char* body)
 
 	return _gbYNValue;
 }
+
+ENABLE_SPEED_OPTIMIZATION
+
 DEVILUTION_END_NAMESPACE

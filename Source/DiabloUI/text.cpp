@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 void WordWrapArtStr(char* text, int width, unsigned size)
 {
 	const int len = (unsigned)strlen(text);
@@ -54,5 +56,7 @@ void WordWrapArtStr(char* text, int width, unsigned size)
 		lineStart = j + 1;
 	}
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

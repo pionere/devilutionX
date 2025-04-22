@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static int _gnMainMenuResult;
 
 static void UiMainMenuSelect(unsigned index)
@@ -77,5 +79,7 @@ int UiMainMenuDialog()
 	MainmenuFree();
 	return _gnMainMenuResult;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

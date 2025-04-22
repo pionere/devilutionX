@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 bool selconn_bMulti = false;
 int provider;
 #ifndef NONET
@@ -170,5 +172,7 @@ bool UiSelectProvider(bool bMulti)
 	SNetInitializeProvider(provider);
 	return true;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

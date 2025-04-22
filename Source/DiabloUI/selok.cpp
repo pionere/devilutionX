@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static bool _gbSelokEndMenu;
 
 #define MESSAGE_WIDTH (PANEL_WIDTH - 2 * 60)
@@ -72,4 +74,7 @@ void UiSelOkDialog(const char* title, const char* body)
 
 	SelokFree();
 }
+
+ENABLE_SPEED_OPTIMIZATION
+
 DEVILUTION_END_NAMESPACE

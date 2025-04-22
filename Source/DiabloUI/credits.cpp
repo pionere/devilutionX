@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static bool _gbCreditsEnd;
 
 static void CreditsEsc()
@@ -68,5 +70,7 @@ void UiCreditsDialog()
 	FreeBackgroundArt();
 	UiClearItems();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

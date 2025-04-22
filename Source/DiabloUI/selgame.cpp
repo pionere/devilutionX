@@ -15,6 +15,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
 
 typedef struct ConnectionInfo {
@@ -861,5 +863,7 @@ void UIDisconnectGame()
 	selgame_remove_event_handlers();
 	SNetLeaveGame();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

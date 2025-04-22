@@ -12,6 +12,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
 _uiheroinfo selhero_heroInfo;
@@ -463,5 +465,7 @@ int UiSelHeroDialog(unsigned* saveIdx)
 
 	return selhero_result;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

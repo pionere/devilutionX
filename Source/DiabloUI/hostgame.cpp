@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define PROGRESS_CANCEL 101
 
 static UiProgressBar* _gbHostPb;
@@ -99,6 +101,8 @@ void UiHostGameDialog()
 	} while (_gbHostPb->m_Progress < 100);
 	HostGameFree();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE
 #endif // !NOHOSTING

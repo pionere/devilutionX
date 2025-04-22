@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static CelImageBuf* gbDialogBackCel;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
@@ -244,5 +246,7 @@ void UiErrorOkDialog(const char* caption, char* text, bool error)
 {
 	UiOkDialog(caption, text, true, renderBehind);
 }*/
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

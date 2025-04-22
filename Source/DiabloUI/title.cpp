@@ -5,6 +5,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define TITLE_TIMEOUT_SEC 7
 static CelImageBuf* gbLogoBig;
 static bool _gbTitleEnd;
@@ -55,5 +57,7 @@ bool UiTitleDialog()
 
 	return true;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE
