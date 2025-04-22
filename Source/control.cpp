@@ -1027,30 +1027,25 @@ void DrawCtrlBtns()
 }
 
 /**
- * Opens the "Skill List": the rows of known spells for quick-setting a spell that
+ * Toggles the "Skill List": the rows of known spells for quick-setting a spell that
  * show up when you click the spell slot at the control panel.
  * @param altSkill whether the cursor is moved to the active skill or altSkill (controllers-only)
  */
-static void DoSkillList(bool altSkill)
-{
-	gbSkillListFlag = true;
-	currSkill = SPL_INVALID;
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	StoreSpellCoords();
-
-	_gbMoveCursor = 0;
-	if (sgbControllerActive)
-		_gbMoveCursor = altSkill ? 1 : 2;
-#endif
-}
-
 void HandleSkillBtn(bool altSkill)
 {
 	if (!gbSkillListFlag) {
 		ClearPanels();
 		// gamemenu_off();
-		DoSkillList(altSkill);
+		gbSkillListFlag = true;
+		currSkill = SPL_INVALID;
+
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		StoreSpellCoords();
+
+		_gbMoveCursor = 0;
+		if (sgbControllerActive)
+			_gbMoveCursor = altSkill ? 1 : 2;
+#endif
 	} else {
 		gbSkillListFlag = false;
 	}
