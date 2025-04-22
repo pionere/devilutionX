@@ -3,7 +3,7 @@
 
 using namespace dvl;
 
-TEST(Drlg_l4, IsDURWall)
+TEST(Drlg_l4, DRLG_L4InitTransVals)
 {
 	//EXPECT_EQ(dvl::IsDURWall(25), true);
 	//EXPECT_EQ(dvl::IsDURWall(28), true);
@@ -11,7 +11,7 @@ TEST(Drlg_l4, IsDURWall)
 	//EXPECT_EQ(dvl::IsDURWall(20), false);
 }
 
-TEST(Drlg_l4, IsDLLWall)
+TEST(Drlg_l4, CreateL4Dungeon)
 {
 	//EXPECT_EQ(dvl::IsDLLWall(27), true);
 	//EXPECT_EQ(dvl::IsDLLWall(26), true);
