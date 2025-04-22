@@ -307,46 +307,6 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
-/**
- * @brief Blit to a buffer at given coordinates
- * @param pBuff Target buffer
- * @param x Cordinate in pBuff buffer
- * @param y Cordinate in pBuff buffer
- * @param wdt Width of pBuff
- * @param pCelBuff Cel data
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-/*static void CelBlitWidth(BYTE* pBuff, int x, int y, int wdt, BYTE* pCelBuff, int nCel, int nWidth)
-{
-	BYTE *pRLEBytes, *dst, *end;
-
-	assert(pCelBuff != NULL);
-	assert(pBuff != NULL);
-
-	int i, nDataSize;
-	int8_t width;
-
-	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
-	end = &pRLEBytes[nDataSize];
-	dst = &pBuff[y * wdt + x];
-
-	for ( ; pRLEBytes != end; dst -= wdt + nWidth) {
-		for (i = nWidth; i != 0; ) {
-			width = *pRLEBytes++;
-			if (width >= 0) {
-				i -= width;
-				memcpy(dst, pRLEBytes, width);
-				dst += width;
-				pRLEBytes += width;
-			} else {
-				dst -= width;
-				i += width;
-			}
-		}
-	}
-}*/
-
 static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, BYTE col)
 {
 	const BYTE *src, *end;
