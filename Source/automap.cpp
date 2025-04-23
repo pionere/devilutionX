@@ -349,53 +349,53 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 	if (p->_pHitPoints != 0) {
-		BYTE playerColor = pnum == mypnum ? COLOR_PLAYER : (plr._pTeam == myplr._pTeam ? COLOR_FRIEND : COLOR_ENEMY);
+		BYTE col = pnum == mypnum ? COLOR_PLAYER : (plr._pTeam == myplr._pTeam ? COLOR_FRIEND : COLOR_ENEMY);
 
-	switch (p->_pdir) {
-	case DIR_N: {
-		DrawLine(x, y - d16, x, y, playerColor);
-		DrawLine(x, y - d16, x - d4, y - d8, playerColor);
-		DrawLine(x, y - d16, x + d4, y - d8, playerColor);
-	} break;
-	case DIR_NE: {
-		DrawLine(x, y, x + d16, y - d8, playerColor);
-		DrawLine(x + d4, y - d8, x + d16, y - d8, playerColor);
-		DrawLine(x + d16, y - d8, x + d16 - d4, y, playerColor);
-	} break;
-	case DIR_E: {
-		DrawLine(x, y, x + d16, y, playerColor);
-		DrawLine(x + d8, y - d4, x + d16, y, playerColor);
-		DrawLine(x + d8, y + d4, x + d16, y, playerColor);
-	} break;
-	case DIR_SE: {
-		DrawLine(x, y, x + d16, y + d8, playerColor);
-		DrawLine(x + d16 - d4, y, x + d16, y + d8, playerColor);
-		DrawLine(x + d4, y + d8, x + d16, y + d8, playerColor);
-	} break;
-	case DIR_S: {
-		DrawLine(x, y, x, y + d16, playerColor);
-		DrawLine(x, y + d16, x + d4, y + d8, playerColor);
-		DrawLine(x - d4, y + d8, x, y + d16, playerColor);
-	} break;
-	case DIR_SW: {
-		DrawLine(x - d16, y + d8, x, y, playerColor);
-		DrawLine(x - d16 + d4, y, x - d16, y + d8, playerColor);
-		DrawLine(x - d16, y + d8, x - d4, y + d8, playerColor);
-	} break;
-	case DIR_W: {
-		DrawLine(x - d16, y, x, y, playerColor);
-		DrawLine(x - d16, y, x - d8, y - d4, playerColor);
-		DrawLine(x - d16, y, x - d8, y + d4, playerColor);
-	} break;
-	case DIR_NW: {
-		DrawLine(x - d16, y - d8, x, y, playerColor);
-		DrawLine(x - d16, y - d8, x - d4, y - d8, playerColor);
-		DrawLine(x - d16, y - d8, x - d16 + d4, y, playerColor);
-	} break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+		switch (p->_pdir) {
+		case DIR_N: {
+			DrawLine(x, y - d16, x, y, col);
+			DrawLine(x, y - d16, x - d4, y - d8, col);
+			DrawLine(x, y - d16, x + d4, y - d8, col);
+		} break;
+		case DIR_NE: {
+			DrawLine(x, y, x + d16, y - d8, col);
+			DrawLine(x + d4, y - d8, x + d16, y - d8, col);
+			DrawLine(x + d16, y - d8, x + d16 - d4, y, col);
+		} break;
+		case DIR_E: {
+			DrawLine(x, y, x + d16, y, col);
+			DrawLine(x + d8, y - d4, x + d16, y, col);
+			DrawLine(x + d8, y + d4, x + d16, y, col);
+		} break;
+		case DIR_SE: {
+			DrawLine(x, y, x + d16, y + d8, col);
+			DrawLine(x + d16 - d4, y, x + d16, y + d8, col);
+			DrawLine(x + d4, y + d8, x + d16, y + d8, col);
+		} break;
+		case DIR_S: {
+			DrawLine(x, y, x, y + d16, col);
+			DrawLine(x, y + d16, x + d4, y + d8, col);
+			DrawLine(x - d4, y + d8, x, y + d16, col);
+		} break;
+		case DIR_SW: {
+			DrawLine(x - d16, y + d8, x, y, col);
+			DrawLine(x - d16 + d4, y, x - d16, y + d8, col);
+			DrawLine(x - d16, y + d8, x - d4, y + d8, col);
+		} break;
+		case DIR_W: {
+			DrawLine(x - d16, y, x, y, col);
+			DrawLine(x - d16, y, x - d8, y - d4, col);
+			DrawLine(x - d16, y, x - d8, y + d4, col);
+		} break;
+		case DIR_NW: {
+			DrawLine(x - d16, y - d8, x, y, col);
+			DrawLine(x - d16, y - d8, x - d4, y - d8, col);
+			DrawLine(x - d16, y - d8, x - d16 + d4, y, col);
+		} break;
+		default:
+			ASSUME_UNREACHABLE
+				break;
+		}
 	} else {
 		DrawLine(x - d8, y - d4, x + d8, y + d4, COLOR_DEAD);
 		DrawLine(x - d8, y + d4, x + d8, y - d4, COLOR_DEAD);
