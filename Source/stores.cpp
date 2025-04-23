@@ -245,7 +245,7 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
 		char valstr[32];
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		PrintString(AFF_SMALL | AFF_RIGHT | (col << 7), valstr, px, sy - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH), 0);
+		PrintString(AFF_SMALL | AFF_RIGHT | (col << AFF_COLOR_SHL), valstr, px, sy - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH), 0);
 	}
 }
 
@@ -1493,7 +1493,7 @@ void DrawStore()
 		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
 		const int cursor = CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
 		const int cw = InvItemWidth[cursor];
-		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << 7), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
 		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 20 + (InvItemHeight[cursor] + 12) / 2, pCursCels, cursor, cw, 0);
 	}
 	if (gbHasScroll)

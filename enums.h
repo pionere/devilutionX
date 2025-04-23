@@ -4026,12 +4026,14 @@ enum _artFontFlags {
 	AFF_RIGHT       = 2 << 4,
 	AFF_VCENTER     = 1 << 6,
 
-	AFF_SIZE        = 0x7 << 0,
-	AFF_COLOR       = 0xFF << 7,
+	AFF_SIZE_SHL    = 0, // left shift to create AFF_SIZE
+	AFF_COLOR_SHL   = 8, // left shift to create AFF_COLOR
+
+	AFF_SIZE        = 0x7 << AFF_SIZE_SHL,
+	AFF_COLOR       = 0xFF << AFF_COLOR_SHL,
 };
 
 enum UiFlags {
-	// clang-format off
 	UIS_SMALL       = AFF_SMALL,
 	UIS_MED         = AFF_BIG,
 	UIS_BIG         = AFF_BIG,
@@ -4040,15 +4042,14 @@ enum UiFlags {
 	UIS_HCENTER     = AFF_HCENTER,
 	UIS_RIGHT       = AFF_RIGHT,
 	UIS_VCENTER     = AFF_VCENTER,
-	UIS_SILVER      = COL_WHITE << 7,
-	UIS_GOLD        = COL_GOLD << 7,
-	UIS_LIGHT       = (COL_GOLD + 2) << 7,
-	UIS_OPTIONAL    = 1 << 11,
-	UIS_DISABLED    = 1 << 12,
-	UIS_HIDDEN      = 1 << 13,
+	UIS_SILVER      = COL_WHITE << AFF_COLOR_SHL,
+	UIS_GOLD        = COL_GOLD << AFF_COLOR_SHL,
+	UIS_LIGHT       = (COL_GOLD + 2) << AFF_COLOR_SHL,
+	UIS_OPTIONAL    = 1 << 13,
+	UIS_DISABLED    = 1 << 14,
+	UIS_HIDDEN      = 1 << 15,
 
-	UIS_COLOR  = 0xF << 7,
-	// clang-format on
+	UIS_COLOR  = 0xF << AFF_COLOR_SHL,
 };
 
 typedef enum _mainmenu_selections {

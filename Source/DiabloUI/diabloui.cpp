@@ -484,7 +484,7 @@ static void UiDraw(const UiText* uiArtText)
 
 static void UiDraw(const UiTextBox* uiTextBox)
 {
-	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags & UIS_COLOR) >> 7);
+	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags & UIS_COLOR) >> AFF_COLOR_SHL);
 
 	if (uiTextBox->m_iFlags & UIS_HCENTER)
 		DrawColorTextBoxSLine(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, SELGAME_HEADER_HEIGHT);
