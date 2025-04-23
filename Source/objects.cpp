@@ -2320,6 +2320,8 @@ void DisarmObject(int pnum, int oi)
 	}
 }
 
+DISABLE_SPEED_OPTIMIZATION
+
 static void CloseChest(int oi)
 {
 	ObjectStruct* os;
@@ -2396,7 +2398,6 @@ static void HelpLvlPlayers(int lvl, unsigned mask, int flags)
 	}
 }
 
-DISABLE_SPEED_OPTIMIZATION
 void SyncShrineCmd(int pnum, BYTE type, int seed)
 {
 	ItemStruct* pi;
@@ -2544,7 +2545,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		//		pi->_iIdentified = TRUE; // belt items can't be magical?
 		break;
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, plr._pLevel, 500 * lvl);
+		AddPlrExperience(pnum, plr._pLevel, 512 * lvl);
 		break;
 	case SHRINE_MURPHYS:
 		// SetRndSeed(seed);
