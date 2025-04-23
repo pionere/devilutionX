@@ -2381,6 +2381,21 @@ static void ConvertPotion(ItemStruct* pi)
 	}
 }
 
+static void HelpLvlPlayers(int lvl, unsigned mask, int flags)
+{
+	static_assert(MAX_PLRS < sizeof(mask) * 8, "HelpLvlPlayers uses unsigned mask for pnum.");
+
+	for (int pnum = 0; mask != 0; pnum++, mask >>= 1) {
+		if ((mask & 1) == 0) continue;
+		if (!plr._pActive || plr._pDunLevel != lvl)
+			continue;
+		if (flags & 1)
+			PlrFillHp(pnum);
+		if (flags & 2)
+			PlrFillMana(pnum);
+	}
+}
+
 DISABLE_SPEED_OPTIMIZATION
 void SyncShrineCmd(int pnum, BYTE type, int seed)
 {
@@ -2471,7 +2486,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	case SHRINE_SHIMMERING:
 	case SHRINE_CRYPTIC:
-		PlrFillMana(pnum);
+		HelpLvlPlayers(lvl, 1 << pnum, 2);
 		break;
 	case SHRINE_ELDRITCH:
 		// SetRndSeed(seed);
@@ -2483,25 +2498,16 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 			ConvertPotion(pi);
 		break;
 	case SHRINE_EERIE:
-		for (i = 0; i < MAX_PLRS; i++)
-			if (i != pnum && lvl == plx(i)._pDunLevel)
-				PlrFillMana(i);
+		HelpLvlPlayers(lvl, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 2);
 		break;
 	case SHRINE_SPOOKY:
-		for (i = 0; i < MAX_PLRS; i++)
-			if (i != pnum && lvl == plx(i)._pDunLevel) {
-				PlrFillHp(i);
-				PlrFillMana(i);
-			}
+		HelpLvlPlayers(lvl, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 3);
 		break;
 	case SHRINE_QUIET:
-		for (i = 0; i < MAX_PLRS; i++)
-			if (i != pnum && lvl == plx(i)._pDunLevel)
-				PlrFillHp(i);
+		HelpLvlPlayers(lvl, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 1);
 		break;
 	case SHRINE_DIVINE:
-		PlrFillHp(pnum);
-		PlrFillMana(pnum);
+		HelpLvlPlayers(lvl, 1 << pnum, 3);
 		break;
 	case SHRINE_SACRED:
 		AddRaiseSkill(pnum, SPL_CBOLT);
