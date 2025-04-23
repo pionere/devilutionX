@@ -328,7 +328,7 @@ static void SearchAutomapItem()
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
  */
-static void DrawAutomapPlr(int pnum, int sx, int sy, int playerColor)
+static void DrawAutomapPlr(int pnum, int sx, int sy)
 {
 	PlayerStruct* p;
 	int x, y;
@@ -349,6 +349,8 @@ static void DrawAutomapPlr(int pnum, int sx, int sy, int playerColor)
 
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 	if (p->_pHitPoints != 0) {
+		BYTE playerColor = pnum == mypnum ? COLOR_PLAYER : (plr._pTeam == myplr._pTeam ? COLOR_FRIEND : COLOR_ENEMY);
+
 	switch (p->_pdir) {
 	case DIR_N: {
 		DrawLine(x, y - d16, x, y, playerColor);
@@ -524,20 +526,16 @@ static void DrawAutomapContent()
 				int8_t pnum = dPlayer[mapx][mapy];
 				if (pnum > 0) {
 					pnum--;
-					if (plr._pTeam == myplr._pTeam)
-						DrawAutomapPlr(pnum, x, sy, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
-#if INET_MODE
-					else
-#else
-					else if ((dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/)
+#if !INET_MODE
+					if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/)
 #endif
-						DrawAutomapPlr(pnum, x, sy, COLOR_ENEMY);
+						DrawAutomapPlr(pnum, x, sy);
 				}
 				BYTE flags = dFlags[mapx][mapy];
 				if (flags & BFLAG_DEAD_PLAYER) {
 					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 						if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
-							DrawAutomapPlr(pnum, x, sy, 0);
+							DrawAutomapPlr(pnum, x, sy);
 						}
 					}
 				}
