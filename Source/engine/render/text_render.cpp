@@ -433,7 +433,8 @@ static int AlignXOffset(int flags, int rw, int sw)
 
 void PrintString(int flags, const char* text, int x, int y, int w, int h)
 {
-	unsigned size = (flags & AFF_SIZE) >> AFF_SIZE_SHL, color;
+	unsigned size = (flags >> AFF_SIZE_SHL) & AFF_SIZES;
+	unsigned color;
 	int sw, lh, dy, sx, sy, cx, cy;
 	int (*pChar)(int sx, int sy, BYTE text, BYTE col);
 
@@ -469,7 +470,7 @@ void PrintString(int flags, const char* text, int x, int y, int w, int h)
 
 	sy += dy;
 	lh += dy;
-	color = (flags & AFF_COLOR) >> AFF_COLOR_SHL;
+	color = (flags >> AFF_COLOR_SHL) & AFF_COLORS;
 
 	cx = sx;
 	cy = sy;

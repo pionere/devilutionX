@@ -4026,11 +4026,11 @@ enum _artFontFlags {
 	AFF_RIGHT       = 2 << 4,
 	AFF_VCENTER     = 1 << 6,
 
-	AFF_SIZE_SHL    = 0, // left shift to create AFF_SIZE
-	AFF_COLOR_SHL   = 8, // left shift to create AFF_COLOR
+	AFF_SIZE_SHL    = 0, // left shift to create AFF_size
+	AFF_COLOR_SHL   = 8, // left shift to create AFF_color
 
-	AFF_SIZE        = 0x7 << AFF_SIZE_SHL,
-	AFF_COLOR       = 0xFF << AFF_COLOR_SHL,
+	AFF_SIZES       = 0x7,
+	AFF_COLORS      = 0xFF,
 };
 
 enum UiFlags {
@@ -4049,7 +4049,9 @@ enum UiFlags {
 	UIS_DISABLED    = 1 << 14,
 	UIS_HIDDEN      = 1 << 15,
 
-	UIS_COLOR  = 0xF << AFF_COLOR_SHL,
+	UIS_COLOR_SHL   = AFF_COLOR_SHL, // left shift to create UIS_color
+
+	UIS_COLORS  = 0xF,
 };
 
 typedef enum _mainmenu_selections {
