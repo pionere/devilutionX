@@ -2389,7 +2389,7 @@ static void HelpLvlPlayers(int lvl, unsigned mask, int flags)
 
 	for (int pnum = 0; mask != 0; pnum++, mask >>= 1) {
 		if ((mask & 1) == 0) continue;
-		if (!plr._pActive || plr._pDunLevel != lvl)
+		if (!plr._pActive || plr._pDunLevel != lvl || plr._pLvlChanging || plr._pHitPoints == 0)
 			continue;
 		if (flags & 1)
 			PlrFillHp(pnum);
