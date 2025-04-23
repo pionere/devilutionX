@@ -1303,8 +1303,8 @@ static void CalcTileOffset(int* offsetX, int* offsetY)
  */
 static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 {
-	unsigned columns = (unsigned)(SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
-	unsigned rows = (unsigned)(VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
+	unsigned columns = (unsigned)(SCREEN_WIDTH - 1) / TILE_WIDTH + 1;
+	unsigned rows = (unsigned)(VIEWPORT_HEIGHT - 1) / TILE_HEIGHT + 1;
 
 	if (gbZoomInFlag) {
 		// Half the number of tiles, rounded up
