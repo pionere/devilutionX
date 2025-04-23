@@ -38,6 +38,7 @@ unsigned AmLine16;
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
 #define COLOR_FRIEND (PAL8_BLUE + 0)
 #define COLOR_ENEMY  (PAL8_RED + 2)
+#define COLOR_DEAD   (PAL16_GRAY + 0)
 /** color for bright map lines (doors, stairs etc.) */
 #define COLOR_BRIGHT PAL8_YELLOW
 /** color for dim map lines/dots */
@@ -363,6 +364,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
 
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
+	if (p->_pHitPoints != 0) {
 	switch (p->_pdir) {
 	case DIR_N: {
 		DrawLine(x, y - d16, x, y, playerColor);
@@ -407,6 +409,10 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	default:
 		ASSUME_UNREACHABLE
 		break;
+	}
+	} else {
+		DrawLine(x - d8, y - d4, x + d8, y + d4, COLOR_DEAD);
+		DrawLine(x - d8, y + d4, x + d8, y - d4, COLOR_DEAD);
 	}
 }
 
@@ -554,7 +560,9 @@ static void DrawAutomapContent()
 
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pDunLevel == myplr._pDunLevel && plr._pActive && !plr._pLvlChanging) {
-			if (plr._pTeam == myplr._pTeam)
+			if (plr._pHitPoints == 0)
+				DrawAutomapPlr(pnum, 0);
+			 else if (plr._pTeam == myplr._pTeam)
 				DrawAutomapPlr(pnum, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
 #if INET_MODE
 			else
