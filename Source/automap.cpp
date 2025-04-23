@@ -471,15 +471,13 @@ static void DrawAutomapContent()
 	//static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
 	//static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
 
-	// find an odd number of tiles which fits to the width
+	// find an odd number of tiles which fits to the screen
 	// assert(SCREEN_WIDTH >= d64);
 	if (gbAutomapflag == AMM_NORMAL)
-		cells = SCREEN_WIDTH;
+		cells = std::min(SCREEN_WIDTH, SCREEN_HEIGHT * 2);
 	else
 		cells = MAP_MINI_WIDTH;
 	cells = 2 * ((cells - d64) / (2 * d64)) + 1;
-	// make sure it fits to height as well
-	// assert(cells < 2 * (SCREEN_HEIGHT - (d64 >> 1)) / (2 * (d64 >> 1))) + 1);
 
 	/*if ((SCREEN_WIDTH / 2) % d64)
 		cells++;

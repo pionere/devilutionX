@@ -47,7 +47,6 @@ extern "C" {
 #define SCREEN_X       BORDER_LEFT
 #define SCREEN_Y       BORDER_TOP
 
-// automap expects a lower than 2:1 SCREEN_WIDTH to SCREEN_HEIGHT ratio
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH   dvl::screenWidth
 #define BUFFER_WIDTH   dvl::gnBufferWidth
