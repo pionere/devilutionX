@@ -328,36 +328,20 @@ static void SearchAutomapItem()
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
  */
-static void DrawAutomapPlr(int pnum, int playerColor)
+static void DrawAutomapPlr(int pnum, int sx, int sy, int playerColor)
 {
 	PlayerStruct* p;
-	int px, py;
 	int x, y;
 	unsigned d16 = AmLine16;
 
 	p = &plr;
-	px = p->_px;
-	py = p->_py;
-	px -= AutoMapXOfs + ViewX;
-	py -= AutoMapYOfs + ViewY;
 
-	//x = (p->_pxoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + (px - py) * d16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y;
+	x = sx;
+	y = sy;
+	x += p->_pxoff * (int)AutoMapScale / 128 >> 1;
+	y += p->_pyoff * (int)AutoMapScale / 128 >> 1;
 
-	if (gbAutomapflag == AMM_NORMAL) {
-		x = SCREEN_CENTERX(0);
-		y = SCREEN_CENTERY(0);
-	} else {
-		x = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
-		y = SCREEN_Y + MAP_MINI_HEIGHT / 2;
-	}
-	x += ((p->_pxoff + ScrollInfo._sxoff) * (int)AutoMapScale / 128 >> 1) + (px - py) * d16;
-	y += ((p->_pyoff + ScrollInfo._syoff) * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1);
-
-	//y -= (d16 >> 1);
-
-	if (y < SCREEN_Y || y >= SCREEN_HEIGHT + SCREEN_Y || x < SCREEN_X || x >= SCREEN_WIDTH + SCREEN_X)
-		return;
+	y -= d16;
 
 	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
 	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
@@ -537,6 +521,26 @@ static void DrawAutomapContent()
 				BYTE maptype = GetAutomapType(mapx, mapy);
 				if (maptype != MAT_NONE)
 					DrawAutomapTile(x, sy, maptype);
+				int8_t pnum = dPlayer[mapx][mapy];
+				if (pnum > 0) {
+					pnum--;
+					if (plr._pTeam == myplr._pTeam)
+						DrawAutomapPlr(pnum, x, sy, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
+#if INET_MODE
+					else
+#else
+					else if ((dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/)
+#endif
+						DrawAutomapPlr(pnum, x, sy, COLOR_ENEMY);
+				}
+				BYTE flags = dFlags[mapx][mapy];
+				if (flags & BFLAG_DEAD_PLAYER) {
+					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+						if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
+							DrawAutomapPlr(pnum, x, sy, 0);
+						}
+					}
+				}
 			}
 			SHIFT_GRID(mapx, mapy, 1, 0);
 			x += d32;
@@ -555,21 +559,6 @@ static void DrawAutomapContent()
 
 			sx += (d32 >> 1);
 			sy += (d32 >> 2);
-		}
-	}
-
-	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pDunLevel == myplr._pDunLevel && plr._pActive && !plr._pLvlChanging) {
-			if (plr._pHitPoints == 0)
-				DrawAutomapPlr(pnum, 0);
-			 else if (plr._pTeam == myplr._pTeam)
-				DrawAutomapPlr(pnum, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
-#if INET_MODE
-			else
-#else
-			else if ((dFlags[plr._px][plr._py] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/* || myplr._pInfraFlag*/)
-#endif
-				DrawAutomapPlr(pnum, COLOR_ENEMY);
 		}
 	}
 	//if (AutoMapShowItems)
