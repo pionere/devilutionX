@@ -2511,12 +2511,13 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	case SHRINE_SPIRITUAL:
 		// SetRndSeed(seed);
+		lvl = lvl < NUM_FIXLVLS ? AllLevels[lvl].dLevel : gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
 		// assert(lvl != 0);
 		pi = plr._pInvList;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 			if (pi->_itype == ITYPE_NONE) {
 				CreateBaseItem(pi, IDI_GOLD);
-				r = lvl + random_low(160, 2 * lvl);
+				r = (lvl >> 1) + random_low(160, lvl);
 				plr._pGold += r;
 				SetGoldItemValue(pi, r);
 			}
