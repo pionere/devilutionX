@@ -413,12 +413,10 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 /**
  * @brief Returns the automap shape at the given coordinate.
  */
-static BYTE GetAutomapType(int x, int y, bool view)
+static BYTE GetAutomapType(int x, int y)
 {
-	if ((unsigned)x >= MAXDUNX || (unsigned)y >= MAXDUNY) {
-		return MAT_NONE;
-	}
-	if (view && !(dFlags[x][y] & BFLAG_EXPLORED)) {
+	// assert(IN_DUNGEON_AREA(x, y));
+	if (!(dFlags[x][y] & BFLAG_EXPLORED)) {
 		return MAT_NONE;
 	}
 
@@ -529,9 +527,11 @@ static void DrawAutomapContent()
 		int x = sx;
 
 		for (j = 0; j < cells; j++) { // foreach xcells
-			BYTE maptype = GetAutomapType(mapx, mapy, true);
-			if (maptype != MAT_NONE)
-				DrawAutomapTile(x, sy, maptype);
+			if (IN_DUNGEON_AREA(mapx, mapy)) {
+				BYTE maptype = GetAutomapType(mapx, mapy);
+				if (maptype != MAT_NONE)
+					DrawAutomapTile(x, sy, maptype);
+			}
 			SHIFT_GRID(mapx, mapy, 1, 0);
 			x += d32;
 		}
@@ -586,7 +586,7 @@ void SetAutomapView(int xx, int yy)
 	// assert(IN_DUNGEON_AREA(xx, yy));
 	dFlags[xx][yy] |= BFLAG_EXPLORED;
 
-	BYTE maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy, false);
+	BYTE maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy);
 
 	static_assert(DBORDERX != 0 && DBORDERY != 0, "SetAutomapView skips border checks.");
 	BYTE mapftr = maptype & MAT_TYPE;
