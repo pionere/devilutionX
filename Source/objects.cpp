@@ -2389,11 +2389,12 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 
 	SetRndSeed(seed);
 
+	lvl = plr._pDunLevel;
+
 	switch (type) {
 	case SHRINE_HIDDEN:
 		// SetRndSeed(seed);
 		cnt = 0;
-		lvl = plr._pDunLevel;
 		lvl = lvl < NUM_FIXLVLS ? AllLevels[lvl].dLevel : gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
@@ -2483,19 +2484,19 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	case SHRINE_EERIE:
 		for (i = 0; i < MAX_PLRS; i++)
-			if (i != pnum && plr._pDunLevel == plx(i)._pDunLevel)
+			if (i != pnum && lvl == plx(i)._pDunLevel)
 				PlrFillMana(i);
 		break;
 	case SHRINE_SPOOKY:
 		for (i = 0; i < MAX_PLRS; i++)
-			if (i != pnum && plr._pDunLevel == plx(i)._pDunLevel) {
+			if (i != pnum && lvl == plx(i)._pDunLevel) {
 				PlrFillHp(i);
 				PlrFillMana(i);
 			}
 		break;
 	case SHRINE_QUIET:
 		for (i = 0; i < MAX_PLRS; i++)
-			if (i != pnum && plr._pDunLevel == plx(i)._pDunLevel)
+			if (i != pnum && lvl == plx(i)._pDunLevel)
 				PlrFillHp(i);
 		break;
 	case SHRINE_DIVINE:
@@ -2510,13 +2511,12 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	case SHRINE_SPIRITUAL:
 		// SetRndSeed(seed);
-		cnt = plr._pDunLevel;
-		// assert(cnt != 0);
+		// assert(lvl != 0);
 		pi = plr._pInvList;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
 			if (pi->_itype == ITYPE_NONE) {
 				CreateBaseItem(pi, IDI_GOLD);
-				r = cnt + random_low(160, 2 * cnt);
+				r = lvl + random_low(160, 2 * lvl);
 				plr._pGold += r;
 				SetGoldItemValue(pi, r);
 			}
@@ -2537,7 +2537,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		//		pi->_iIdentified = TRUE; // belt items can't be magical?
 		break;
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, plr._pLevel, 500 * plr._pDunLevel);
+		AddPlrExperience(pnum, plr._pLevel, 500 * lvl);
 		break;
 	case SHRINE_MURPHYS:
 		// SetRndSeed(seed);
