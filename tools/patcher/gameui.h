@@ -47,7 +47,7 @@ extern "C" {
 #define SCREEN_X       BORDER_LEFT
 #define SCREEN_Y       BORDER_TOP
 
-// automap expects a lower than 2:1 SCREEN_WIDTH to VIEWPORT_HEIGHT ratio
+// automap expects a lower than 2:1 SCREEN_WIDTH to SCREEN_HEIGHT ratio
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH   dvl::screenWidth
 #define BUFFER_WIDTH   dvl::gnBufferWidth
@@ -57,9 +57,6 @@ extern "C" {
 #ifndef SCREEN_HEIGHT
 #define SCREEN_HEIGHT  dvl::screenHeight
 #endif
-
-//#define VIEWPORT_HEIGHT dvl::viewportHeight
-#define VIEWPORT_HEIGHT dvl::screenHeight
 
 #define BUFFER_HEIGHT (BORDER_TOP + SCREEN_HEIGHT + BORDER_BOTTOM)
 

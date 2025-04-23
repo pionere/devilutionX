@@ -639,11 +639,11 @@ static void drawCell(int pn, int sx, int sy)
 		limit -= (TILE_WIDTH / MICRO_WIDTH);
 	}*/
 	/*i = 0;
-	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT) {
+	while (sy > SCREEN_Y + SCREEN_HEIGHT + MICRO_HEIGHT) {
 		sy -= MICRO_HEIGHT;
 		i += (TILE_WIDTH / MICRO_WIDTH);
 	}*/
-	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1);
+	tmp = sy - (SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1);
 	i = 0;
 	if (tmp >= 0) {
 		// starting from below the bottom -> skip tiles
@@ -987,7 +987,7 @@ static void drawFloor(int pn, int sx, int sy)
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return; // starting from too far to the left or right -> skip
 
-	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
+	if (sy < SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1)
 		return; // starting from above the top or below the bottom -> skip
 
 	dst = &gpBuffer[BUFFERXY(sx, sy)];
@@ -1256,10 +1256,10 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 static void Zoom()
 {
 	int wdt = SCREEN_WIDTH / 2u;
-	BYTE* src = &gpBuffer[SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1)];
-	BYTE* dst = &gpBuffer[SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1)];
+	BYTE* src = &gpBuffer[SCREENXY(SCREEN_WIDTH / 2u - 1, SCREEN_HEIGHT / 2u - 1)];
+	BYTE* dst = &gpBuffer[SCREENXY(SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1)];
 
-	for (unsigned hgt = 0; hgt < VIEWPORT_HEIGHT / 2u; hgt++) {
+	for (unsigned hgt = 0; hgt < SCREEN_HEIGHT / 2u; hgt++) {
 		for (int i = 0; i < wdt; i++) {
 			*dst-- = *src;
 			*dst-- = *src;
@@ -1281,7 +1281,7 @@ static void CalcTileOffset(int* offsetX, int* offsetY)
 	unsigned x, y;
 
 	x = SCREEN_WIDTH;
-	y = VIEWPORT_HEIGHT;
+	y = SCREEN_HEIGHT;
 	if (gbZoomInFlag) {
 		x >>= 1;
 		y >>= 1;
@@ -1304,7 +1304,7 @@ static void CalcTileOffset(int* offsetX, int* offsetY)
 static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 {
 	unsigned columns = (unsigned)(SCREEN_WIDTH - 1) / TILE_WIDTH + 1;
-	unsigned rows = (unsigned)(VIEWPORT_HEIGHT - 1) / TILE_HEIGHT + 1;
+	unsigned rows = (unsigned)(SCREEN_HEIGHT - 1) / TILE_HEIGHT + 1;
 
 	if (gbZoomInFlag) {
 		// Half the number of tiles, rounded up
@@ -1409,9 +1409,9 @@ static void DrawGame()
 
 	// Limit rendering to the view area
 	//if (!gbZoomInFlag)
-	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT)];
+	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
 	//else
-	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT / 2)];
+	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT / 2)];
 
 	// Adjust by player offset and tile grid alignment
 	sx = ScrollInfo._sxoff - gsTileVp._vOffsetX;

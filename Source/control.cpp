@@ -1517,7 +1517,7 @@ static POS32 GetMousePos(int x, int y)
 	}
 
 	pos.x += SCREEN_WIDTH / 2u;
-	pos.y += VIEWPORT_HEIGHT / 2u;
+	pos.y += SCREEN_HEIGHT / 2u;
 
 	return pos;
 }

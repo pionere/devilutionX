@@ -286,7 +286,7 @@ static void SearchAutomapItem()
 	x = AutoMapXOfs + ViewX;
 	y = AutoMapYOfs + ViewY;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
+	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {
@@ -341,7 +341,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 	py -= AutoMapYOfs + ViewY;
 
 	//x = (p->_pxoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + (px - py) * d16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
+	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y;
 
 	if (gbAutomapflag == AMM_NORMAL) {
 		x = SCREEN_CENTERX(0);
@@ -355,7 +355,7 @@ static void DrawAutomapPlr(int pnum, int playerColor)
 
 	//y -= (d16 >> 1);
 
-	if (y < SCREEN_Y || y >= VIEWPORT_HEIGHT + SCREEN_Y || x < SCREEN_X || x >= SCREEN_WIDTH + SCREEN_X)
+	if (y < SCREEN_Y || y >= SCREEN_HEIGHT + SCREEN_Y || x < SCREEN_X || x >= SCREEN_WIDTH + SCREEN_X)
 		return;
 
 	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
@@ -443,7 +443,7 @@ static void DrawAutomapContent()
 	int i, j, cells;
 	unsigned d64 = AmLine64;
 
-	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + VIEWPORT_HEIGHT)];
+	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
 	mapx = ViewX & ~1;
@@ -479,7 +479,7 @@ static void DrawAutomapContent()
 		cells = MAP_MINI_WIDTH;
 	cells = 2 * ((cells - d64) / (2 * d64)) + 1;
 	// make sure it fits to height as well
-	// assert(cells < 2 * (VIEWPORT_HEIGHT - (d64 >> 1)) / (2 * (d64 >> 1))) + 1);
+	// assert(cells < 2 * (SCREEN_HEIGHT - (d64 >> 1)) / (2 * (d64 >> 1))) + 1);
 
 	/*if ((SCREEN_WIDTH / 2) % d64)
 		cells++;

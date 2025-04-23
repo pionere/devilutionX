@@ -272,7 +272,7 @@ void RedBack()
 
 	dst = &gpBuffer[SCREENXY(0, 0)];
 	tbl = ColorTrns[COLOR_TRN_CORAL];
-	for (h = VIEWPORT_HEIGHT; h > 0; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
+	for (h = SCREEN_HEIGHT; h > 0; h--, dst += BUFFER_WIDTH - SCREEN_WIDTH) {
 		for (w = SCREEN_WIDTH; w > 0; w--) {
 			if (!inHell || *dst >= 32)
 				*dst = tbl[*dst];
