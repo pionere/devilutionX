@@ -11,7 +11,9 @@ DEVILUTION_BEGIN_NAMESPACE
 // Forward-declare menu handlers, used by the global menu structs below.
 static void gamemenu_previous(bool bActivate);
 static void gamemenu_new_game(bool bActivate);
+#if !defined(__ANDROID__)
 static void gamemenu_exit_game(bool bActivate);
+#endif
 //static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
@@ -29,7 +31,9 @@ static TMenuItem sgSingleMenu[] = {
 	{ "New Game",  &gamemenu_new_game,  GMF_ENABLED, 0, 0 },
 	// { "Load Game", &gamemenu_load_game, GMF_ENABLED, 0, 0 },
 	{ "Save Game", &gamemenu_save_game, GMF_ENABLED, 0, 0 },
+#if !defined(__ANDROID__)
 	{ "Exit Game", &gamemenu_exit_game, GMF_ENABLED, 0, 0 },
+#endif
 	// clang-format on
 };
 /** Contains the game menu items of the multi player menu. */
@@ -39,7 +43,9 @@ static TMenuItem sgMultiMenu[] = {
 	{ "Settings",        &gamemenu_settings,     GMF_ENABLED, 0, 0 },
 	{ "New Game",        &gamemenu_new_game,     GMF_ENABLED, 0, 0 },
 	{ "Restart In Town", &gamemenu_restart_town, GMF_ENABLED, 0, 0 },
+#if !defined(__ANDROID__)
 	{ "Exit Game",       &gamemenu_exit_game,    GMF_ENABLED, 0, 0 },
+#endif
 	// clang-format on
 };
 /** Contains the menu items of the settings menu. */
@@ -106,13 +112,13 @@ static void gamemenu_new_game(bool bActivate)
 	gamemenu_off();
 	NetSendCmd(CMD_DISCONNECT);
 }
-
+#if !defined(__ANDROID__)
 static void gamemenu_exit_game(bool bActivate)
 {
 	gamemenu_new_game(bActivate);
 	gbRunGameResult = false;
 }
-
+#endif
 /*static void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);

@@ -1,12 +1,15 @@
-#include <algorithm>
 
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/text_draw.h"
-#include "../gameui.h"
-#include "../engine.h"
-#include "../dx.h"
+#include "all.h"
+#include "engine/render/text_render.h"
+//#include <algorithm>
+//#include "../gameui.h"
+//#include "../engine.h"
+//#include "../dx.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+DISABLE_SPEED_OPTIMIZATION
 
 static bool _gbCreditsEnd;
 
@@ -27,23 +30,23 @@ static void CreditsRender(const UiItemBase* _THIS)
 
 	int offsetY = -CREDITS_HEIGHT + (SDL_GetTicks() - _this->m_ticks_begin) / 32;
 	int linesBegin = std::max(offsetY / CREDITS_LINE_H, 0);
-	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINES_SIZE);
+	int linesEnd = std::min((CREDITS_HEIGHT + offsetY + CREDITS_LINE_H - 1) / CREDITS_LINE_H, (int)CREDITS_LINE_COUNT);
 
-	if (linesBegin >= CREDITS_LINES_SIZE) {
+	if (linesBegin >= CREDITS_LINE_COUNT) {
 		_gbCreditsEnd = true;
 		return;
 	}
 
 	pStart = gpBufStart;
-	gpBufStart = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP)];
+	gpBufStart = &gpBuffer[BUFFERXY(0, SCREEN_Y + CREDITS_TOP)];
 	pEnd = gpBufEnd;
-	gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
+	gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + CREDITS_TOP + CREDITS_HEIGHT)];
 
-	int destY = CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
+	int destX = SCREEN_X + CREDITS_LEFT;
+	int destY = SCREEN_Y + CREDITS_TOP - (offsetY - linesBegin * CREDITS_LINE_H);
 	for (int i = linesBegin; i < linesEnd; ++i, destY += CREDITS_LINE_H) {
 		const char* text = _this->m_text[i];
-		SDL_Rect dstRect = { CREDITS_LEFT, destY, 0, 0 };
-		DrawArtStr(text, dstRect, UIS_LEFT | UIS_SMALL | UIS_GOLD);
+		PrintString(UIS_LEFT | UIS_SMALL | UIS_GOLD, text, destX, destY, 0, 0);
 	}
 
 	gpBufStart = pStart;
@@ -55,7 +58,7 @@ void UiCreditsDialog()
 	LoadBackgroundArt("ui_art\\credits.CEL", "ui_art\\credits.pal");
 	UiAddBackground();
 	SDL_Rect rect1 = { 0, 0, 0, 0 };
-	gUiItems.push_back(new UiTextScroll(CREDITS_TXT, CREDITS_LINES_SIZE, SDL_GetTicks(), CreditsRender, rect1));
+	gUiItems.push_back(new UiTextScroll(CREDITS_TXT, CREDITS_LINE_COUNT, SDL_GetTicks(), CreditsRender, rect1));
 	UiInitScreen(0, NULL, CreditsSelect, CreditsEsc);
 	gUiDrawCursor = false;
 
@@ -67,5 +70,7 @@ void UiCreditsDialog()
 	FreeBackgroundArt();
 	UiClearItems();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

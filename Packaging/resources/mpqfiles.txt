@@ -10,6 +10,7 @@ Data\MapIcon.CEL
 Data\MedTextS.CEL
 Data\SpellBk.CEL
 Data\Quest.CEL
+Data\TextBox.CEL
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
 Levels\L1Data\Butcher.DUN
@@ -103,7 +104,6 @@ PlrGFX\SNone.TRN
 PlrGFX\SOrange.TRN
 PlrGFX\SRed.TRN
 Sfx\Misc\Wallloop.wav
-ui_art\black.CEL
 ui_art\credits.CEL
 ui_art\credits.pal
 ui_art\focus.CEL
@@ -120,9 +120,6 @@ ui_art\prog_fil.CEL
 ui_art\sb_arrow.CEL
 ui_art\sb_bg.CEL
 ui_art\sb_thumb.CEL
-ui_art\selconn.CEL
-ui_art\selgame.CEL
-ui_art\selhero.CEL
 ui_art\smbutton.CEL
 ui_art\smlogo.CEL
 ui_art\spopup.CEL

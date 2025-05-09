@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../defs.h"
+#include "../../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

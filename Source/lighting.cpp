@@ -1259,7 +1259,8 @@ void lighting_update_caves()
 
 void lighting_update_hell()
 {
-	int i, j, l;
+	lighting_update_caves();
+	/*int i, j, l;
 	BYTE col;
 	BYTE* tbl;
 
@@ -1277,7 +1278,7 @@ void lighting_update_hell()
 		}
 		*tbl = col;
 		tbl += NUM_COLORS - 31;
-	}
+	}*/
 }
 
 #ifdef HELLFIRE

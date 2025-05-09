@@ -4,10 +4,11 @@
  * Implementation of the in-game help text.
  */
 #include "all.h"
+#include "engine/render/text_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-bool gbHelpflag;
+int gnVisibleHelpLines = 0;
 static char** gbHelpLines;
 static int helpFirstLine;
 
@@ -80,48 +81,57 @@ static int helpFirstLine;
 
 //void InitHelp()
 //{
-//	gbHelpflag = false;
+//	gnVisibleHelpLines = 0;
 //}
 
 void DrawHelp()
 {
-	int i;
+	int i, sx, sy, wh;
 	BYTE col;
 	const char* s;
 
-	DrawTextBox(1);
+	sx = HELP_PANEL_X;
+	sy = HELP_PANEL_Y;
 
-	PrintSString(0, 1, true, HELP_TITLE, COL_GOLD);
+	wh = HELP_PANEL_HEIGHT;
 
-	for (i = 5; i < 22; i++) {
-		s = gbHelpLines[helpFirstLine + i - 5];
+	DrawColorTextBox(sx, sy, HELP_PANEL_WIDTH, wh, COL_GOLD);
+	DrawColorTextBoxSLine(sx, sy, HELP_PANEL_WIDTH, 3 * HELP_LINE_HEIGHT + BOXBORDER_WIDTH);
+
+	PrintJustifiedString(0, sy + BOXBORDER_WIDTH + 2 * HELP_LINE_HEIGHT, BUFFER_WIDTH, HELP_TITLE, COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(0, sy + wh - BOXBORDER_WIDTH - HELP_FOOTER_OFF_Y, BUFFER_WIDTH, "Press ESC to end or the arrow keys to scroll.", COL_GOLD, FONT_KERN_SMALL);
+
+	sx += HELP_PNL_X_OFFSET;
+	for (i = 0; i < gnVisibleHelpLines; i++) {
+		s = gbHelpLines[helpFirstLine + i];
 		if (*s == '$') {
 			s++;
 			col = COL_RED;
 		} else {
 			col = COL_WHITE;
 		}
-		PrintSString(0, i, false, s, col);
+		PrintGameStr(sx, sy + BOXBORDER_WIDTH + 3 * HELP_LINE_HEIGHT + BOXBORDER_WIDTH + HELP_LINE_HEIGHT /*+ HELP_LINE_HEIGHT*/ + i * HELP_LINE_HEIGHT, s, col);
 	}
-	static_assert(STORE_LINES > 23, "Help text must fit to the store lines.");
-	PrintSString(0, 23, true, "Press ESC to end or the arrow keys to scroll.", COL_GOLD);
 }
 
 void StartHelp()
 {
-	gbHelpflag = true;
+	gnVisibleHelpLines = HELP_LINES;
+	if (gnVisibleHelpLines <= 0) {
+		gnVisibleHelpLines = 0;
+		return;
+	}
+	if (gnVisibleHelpLines > HELP_LINE_COUNT)
+		gnVisibleHelpLines = HELP_LINE_COUNT;
+	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINE_COUNT);
 	helpFirstLine = 0;
-	gbHelpLines = LoadTxtFile(HELP_TXT, HELP_LINES_SIZE);
-
-	InitSTextHelp();
 }
 
 void StopHelp()
 {
-	if (!gbHelpflag)
+	if (gnVisibleHelpLines == 0)
 		return;
-
-	gbHelpflag = false;
+	gnVisibleHelpLines = 0;
 	MemFreeTxtFile(gbHelpLines);
 }
 
@@ -133,7 +143,7 @@ void HelpScrollUp()
 
 void HelpScrollDown()
 {
-	if (helpFirstLine < (HELP_LINES_SIZE - (22 - 5)))
+	if (helpFirstLine < (HELP_LINE_COUNT - gnVisibleHelpLines))
 		helpFirstLine++;
 }
 

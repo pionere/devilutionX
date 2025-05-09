@@ -36,8 +36,6 @@ extern ItemStruct healitem[HEALER_ITEMS];
 
 void InitStoresOnce();
 void InitLvlStores();
-void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val = 0);
-void InitSTextHelp();
 void StartStore(int s);
 void DrawStore();
 void STextESC();

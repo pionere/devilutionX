@@ -191,9 +191,9 @@ void PlayMonSfx(int mnum, int mode)
 	sound_play(snd, lVolume, lPan);
 }
 
-void PlaySfx(int psfx)
+void PlaySfx(int nsfx)
 {
-	PlaySfx_priv(psfx, false, 0, 0);
+	PlaySfx_priv(nsfx, false, 0, 0);
 }
 
 void PlaySfxN(int nsfx, int rndCnt)

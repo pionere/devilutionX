@@ -16,8 +16,8 @@ static SDL_Color orig_palette[NUM_COLORS];
 static int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
 bool gbColorCyclingEnabled = true;
-/** Specifies whether the game-screen is active with max brightness. */
-static bool _gbFadedIn = false;
+/** Specifies the current fade level. */
+int gnFadeValue = 0;
 
 void UpdatePalette()
 {
@@ -96,6 +96,8 @@ void SetFadeLevel(unsigned fadeval)
 {
 	int i;
 
+	gnFadeValue = fadeval;
+
 	for (i = 0; i < NUM_COLORS; i++) { // BUGFIX: should be 256 (fixed)
 		system_palette[i].r = (fadeval * logical_palette[i].r) / FADE_LEVELS;
 		system_palette[i].g = (fadeval * logical_palette[i].g) / FADE_LEVELS;
@@ -111,30 +113,30 @@ void PaletteFadeIn(bool instant)
 
 	memcpy(logical_palette, orig_palette, sizeof(orig_palette));
 	if (!instant) {
+		int fv = 0; // gnFadeValue;
 		Uint32 tc = SDL_GetTicks();
-		for (i = 0; i < FADE_LEVELS; i = (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
+		for (i = fv; i < FADE_LEVELS; i = fv + ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
 			BltFast();
 			RenderPresent();
 		}
 	}
 	SetFadeLevel(FADE_LEVELS);
-	_gbFadedIn = true;
 }
 
 void PaletteFadeOut()
 {
 	int i;
 
-	if (_gbFadedIn) {
+	if (gnFadeValue != 0) {
+		int fv = FADE_LEVELS; // gnFadeValue;
 		Uint32 tc = SDL_GetTicks();
-		for (i = FADE_LEVELS; i > 0; i = FADE_LEVELS - ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
+		for (i = fv; i > 0; i = fv - ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
 			BltFast();
 			RenderPresent();
 		}
 		SetFadeLevel(0);
-		_gbFadedIn = false;
 	}
 }
 

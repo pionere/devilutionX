@@ -59,7 +59,6 @@ SDL_Surface* renderer_surface = NULL;
 
 int screenWidth;
 int screenHeight;
-//int viewportHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
@@ -277,7 +276,7 @@ void SpawnWindow()
 		}
 
 		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
-			sdl_error(ERR_SDL_RENDERER_SCALE);
+			sdl_issue(ERR_SDL_RENDERER_SCALE);
 		}
 
 		RecreateDisplay(width, height);

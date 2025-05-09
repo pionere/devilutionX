@@ -39,15 +39,48 @@ inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 	return &pCelBuff[nCellStart];
 }
 
-inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize)
+inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, int* sy)
 {
-	const uint16_t* pFrameTable;
-	uint16_t nDataStart;
+	int dy, startblock, endblock, headerSize;
+	uint16_t nDataStart, nDataEnd;
 	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
+	// check if it is too high on the screen
+	dy = *sy - SCREEN_Y;
+	if (dy < 0) {
+		*nDataSize = 0;
+		return pRLEBytes;
+	}
+	// limit blocks to the top of the screen
+	endblock = ((unsigned)dy / CEL_BLOCK_HEIGHT + 1) * 2;
+	// limit blocks to the bottom of the screen
+	startblock = 0;
+	dy = dy - (SCREEN_HEIGHT + CEL_BLOCK_HEIGHT);
+	if (dy >= 0) {
+		startblock = ((unsigned)dy / CEL_BLOCK_HEIGHT + 1) * 2;
+		*sy -= startblock * (CEL_BLOCK_HEIGHT / 2);
+	}
+	
+	// check if it is too down on the screen
+	headerSize = SwapLE16(*(const uint16_t*)(&pRLEBytes[0]));
+	if (startblock >= headerSize) {
+		*nDataSize = 0;
+		return pRLEBytes;
+	}
 
-	pFrameTable = (const uint16_t*)&pRLEBytes[0];
-	nDataStart = SwapLE16(pFrameTable[0]);
-	*nDataSize -= nDataStart;
+	nDataStart = SwapLE16(*(const uint16_t*)(&pRLEBytes[startblock]));
+	if (endblock >= headerSize) {
+		nDataEnd = 0;
+	} else {
+		nDataEnd = SwapLE16(*(const uint16_t*)(&pRLEBytes[endblock]));
+	}
+
+	if (nDataEnd != 0) {
+		*nDataSize = nDataEnd - nDataStart;
+	} else if (nDataStart != 0) {
+		*nDataSize -= nDataStart;
+	} else {
+		*nDataSize = 0;
+	}
 
 	return &pRLEBytes[nDataStart];
 }
