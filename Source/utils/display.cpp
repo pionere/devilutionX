@@ -144,7 +144,7 @@ static AREA32 CalculatePreferredWindowSize()
 	getIniInt("Graphics", "Height", &height);
 	{
 #ifdef USE_SDL1
-		const SDL_GetVideoInfo* mode = SDL_GetVideoInfo();
+		const SDL_VideoInfo* mode = SDL_GetVideoInfo();
 		mode_w = mode->current_w;
 		mode_h = mode->current_h;
 #else
