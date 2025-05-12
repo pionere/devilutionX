@@ -2461,237 +2461,6 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 }
 #if ASSET_MPL == 1
 #ifdef HELLFIRE
-static BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
-{
-	constexpr BYTE TRANS_COLOR = 1;
-	constexpr int numGroups = NUM_DIRS;
-	constexpr int frameCount = 16;
-	constexpr bool groupped = true;
-	constexpr int height = 128;
-	constexpr int width = 160;
-
-	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
-	memset(resCl2Buf, 0, 2 * *dwLen);
-
-	int headerSize = 0;
-	for (int i = 0; i < numGroups; i++) {
-		int ni = frameCount;
-		headerSize += 4 + 4 * (ni + 1);
-	}
-	if (groupped) {
-		headerSize += sizeof(DWORD) * numGroups;
-	}
-
-	DWORD* hdr = (DWORD*)resCl2Buf;
-	if (groupped) {
-		// add optional {CL2 GROUP HEADER}
-		int offset = numGroups * 4;
-		for (int i = 0; i < numGroups; i++, hdr++) {
-			hdr[0] = offset;
-			int ni = frameCount;
-			offset += 4 + 4 * (ni + 1);
-		}
-	}
-
-	BYTE* pBuf = &resCl2Buf[headerSize];
-	bool needsPatch = false;
-	for (int ii = 0; ii < numGroups; ii++) {
-		int ni = frameCount;
-		hdr[0] = SwapLE32(ni);
-		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
-
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
-
-		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
-			// draw the frame to the buffer
-			Cl2Draw(0, height - 1, frameBuf, n, width);
-			// test if the animation is already patched
-			if (ii == 1 && n == 9) {
-				needsPatch = gpBuffer[71 + BUFFER_WIDTH * 127] != TRANS_COLOR; // assume it is already done
-			}
-
-			if (needsPatch) {
-				switch (ii) {
-				case DIR_SW: {
-					switch (n) {
-					case 9:
-					case 10:
-					case 11:
-					case 12: {
-						// shift the monster with (0;16) up
-						for (int y = 16; y < height; y++) {
-							for (int x = 0; x < width; x++) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-						// copy pixels from the followup frames
-						if (n != 9) {
-							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
-							for (int y = 4 - 1; y >= 0; y--) {
-								for (int x = 0; x < width; x++) {
-									unsigned addr = width + x + BUFFER_WIDTH * y;
-									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
-									BYTE color = gpBuffer[addr];
-									if (color == TRANS_COLOR)
-										continue;
-									gpBuffer[addr2] = color;
-								}
-							}
-						}
-					} break;
-					case 14:
-					case 15:
-					case 16: {
-						// clear pixels from the first rows
-						for (int y = 4 - 1; y >= 0; y--) {
-							for (int x = 0; x < width; x++) {
-								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
-				case DIR_W: {
-					switch (n) {
-					case 9:
-					case 10:
-					case 11:
-					case 12: {
-						// shift the monster with (0;16) up
-						for (int y = 16; y < height; y++) {
-							for (int x = 0; x < width; x++) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-						// copy pixels from the followup frames
-						{
-							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
-							for (int y = 16 - 1; y >= 0; y--) {
-								for (int x = 0; x < width; x++) {
-									unsigned addr = width + x + BUFFER_WIDTH * y;
-									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
-									BYTE color = gpBuffer[addr];
-									if (color == TRANS_COLOR)
-										continue;
-									gpBuffer[addr2] = color;
-								}
-							}
-						}
-					} break;
-					case 13:
-					case 14:
-					case 15:
-					case 16: {
-						// shift the monster with (1;9) up/right
-						for (int y = 16; y < height; y++) {
-							for (int x = width - 1 - 1; x >= 0; x--) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + 1 + BUFFER_WIDTH * (y - 9);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-						// clear pixels from the first rows
-						for (int y = 16 - 1; y >= 0; y--) {
-							for (int x = 0; x < width; x++) {
-								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
-				case DIR_NW: {
-					switch (n) {
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16: {
-						// shift the monster with (0;4) down
-						for (int y = height - 4 - 1; y >= 0; y--) {
-							for (int x = width - 1; x >= 0; x--) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y + 4);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
-				case DIR_E: {
-					switch (n) {
-					case 9:
-					case 10:
-					case 11:
-					case 12: {
-						// clear pixels from the first rows
-						for (int y = 4 - 1; y >= 0; y--) {
-							for (int x = 0; x < width; x++) {
-								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
-				case DIR_SE: {
-					switch (n) {
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16: {
-						// shift the monster with (0;16) up
-						for (int y = 16; y < height; y++) {
-							for (int x = 0; x < width; x++) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
-				}
-			}
-
-			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
-
-			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
-			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
-		}
-		hdr += ni + 2;
-	}
-
-	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
-
-	mem_free_dbg(cl2Buf);
-	return resCl2Buf;
-}
-
 static BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -3948,6 +3717,238 @@ static BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
+
+static BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 16;
+	constexpr bool groupped = true;
+	constexpr int height = 128;
+	constexpr int width = 160;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			if (ii == 1 && n == 9) {
+				needsPatch = gpBuffer[71 + BUFFER_WIDTH * 127] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				switch (ii) {
+				case DIR_SW: {
+					switch (n) {
+					case 9:
+					case 10:
+					case 11:
+					case 12: {
+						// shift the monster with (0;16) up
+						for (int y = 16; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+						// copy pixels from the followup frames
+						if (n != 9) {
+							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
+							for (int y = 4 - 1; y >= 0; y--) {
+								for (int x = 0; x < width; x++) {
+									unsigned addr = width + x + BUFFER_WIDTH * y;
+									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
+									BYTE color = gpBuffer[addr];
+									if (color == TRANS_COLOR)
+										continue;
+									gpBuffer[addr2] = color;
+								}
+							}
+						}
+					} break;
+					case 14:
+					case 15:
+					case 16: {
+						// clear pixels from the first rows
+						for (int y = 4 - 1; y >= 0; y--) {
+							for (int x = 0; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case DIR_W: {
+					switch (n) {
+					case 9:
+					case 10:
+					case 11:
+					case 12: {
+						// shift the monster with (0;16) up
+						for (int y = 16; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+						// copy pixels from the followup frames
+						{
+							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
+							for (int y = 16 - 1; y >= 0; y--) {
+								for (int x = 0; x < width; x++) {
+									unsigned addr = width + x + BUFFER_WIDTH * y;
+									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
+									BYTE color = gpBuffer[addr];
+									if (color == TRANS_COLOR)
+										continue;
+									gpBuffer[addr2] = color;
+								}
+							}
+						}
+					} break;
+					case 13:
+					case 14:
+					case 15:
+					case 16: {
+						// shift the monster with (1;9) up/right
+						for (int y = 16; y < height; y++) {
+							for (int x = width - 1 - 1; x >= 0; x--) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + 1 + BUFFER_WIDTH * (y - 9);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+						// clear pixels from the first rows
+						for (int y = 16 - 1; y >= 0; y--) {
+							for (int x = 0; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case DIR_NW: {
+					switch (n) {
+					case 12:
+					case 13:
+					case 14:
+					case 15:
+					case 16: {
+						// shift the monster with (0;4) down
+						for (int y = height - 4 - 1; y >= 0; y--) {
+							for (int x = width - 1; x >= 0; x--) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y + 4);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case DIR_E: {
+					switch (n) {
+					case 9:
+					case 10:
+					case 11:
+					case 12: {
+						// clear pixels from the first rows
+						for (int y = 4 - 1; y >= 0; y--) {
+							for (int x = 0; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case DIR_SE: {
+					switch (n) {
+					case 12:
+					case 13:
+					case 14:
+					case 15:
+					case 16: {
+						// shift the monster with (0;16) up
+						for (int y = 16; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
 #endif // HELLFIRE
 static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
