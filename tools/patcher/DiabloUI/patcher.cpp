@@ -2460,7 +2460,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 #if ASSET_MPL == 1
-BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
+static BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
@@ -2691,7 +2691,7 @@ BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 	return resCl2Buf;
 }
 
-BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
+static BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
