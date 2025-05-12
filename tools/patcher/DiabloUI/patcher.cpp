@@ -2460,6 +2460,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 #if ASSET_MPL == 1
+#ifdef HELLFIRE
 static BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -3947,7 +3948,7 @@ static BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
-
+#endif // HELLFIRE
 static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
