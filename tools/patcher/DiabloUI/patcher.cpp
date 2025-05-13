@@ -150,7 +150,7 @@ typedef enum filenames {
 	FILE_ITEM_DONKYS1,
 	FILE_ITEM_MOOSES1,
 #endif
-#endif
+#endif // ASSET_MPL
 	FILE_OBJCURS_CEL,
 	NUM_FILENAMES
 } filenames;
@@ -281,7 +281,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_ITEM_DONKYS1*/  "Items\\donkys1.CEL",
 /*FILE_ITEM_MOOSES1*/  "Items\\mooses1.CEL",
 #endif
-#endif
+#endif // ASSET_MPL
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 };
 
@@ -2083,8 +2083,8 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 	constexpr int numGroups = NUM_DIRS;
 	constexpr int frameCount = 10;
 	constexpr bool groupped = true;
-	constexpr int height = 96;
 	constexpr int width = 96;
+	constexpr int height = 96;
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -2229,7 +2229,7 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
-#endif // ASSET_MPL == 1
+#endif // ASSET_MPL
 static void moveImage(int width, int height, int dx, int dy, BYTE TRANS_COLOR)
 {
 	if (dx > 0) {
@@ -2467,8 +2467,8 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	constexpr int numGroups = NUM_DIRS;
 	constexpr int frameCount = 8;
 	constexpr bool groupped = true;
-	constexpr int height = 128;
 	constexpr int width = 128;
+	constexpr int height = 128;
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -3724,8 +3724,8 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 	constexpr int numGroups = NUM_DIRS;
 	constexpr int frameCount = 16;
 	constexpr bool groupped = true;
-	constexpr int height = 128;
 	constexpr int width = 160;
+	constexpr int height = 128;
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -3948,8 +3948,8 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
-
 #endif // HELLFIRE
+
 static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -4334,7 +4334,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-#endif // ASSET_MPL == 1
+#endif // ASSET_MPL
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -4875,7 +4875,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = fixL5Light(buf, dwLen);
 	} break;
 	case FILE_MON_FALLGW:
-	{
+	{	// fix monster gfx file - Fallgw.CL2",
 		size_t stdLen;
 		const char* stdFileName = "Monsters\\BigFall\\Fallgn.CL2";
 		BYTE* stdBuf = LoadFileInMem(stdFileName, &stdLen);
