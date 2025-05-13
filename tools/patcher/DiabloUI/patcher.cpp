@@ -2461,7 +2461,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 }
 #if ASSET_MPL == 1
 #ifdef HELLFIRE
-static BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
+static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
@@ -3718,7 +3718,7 @@ static BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	return resCl2Buf;
 }
 
-static BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
+static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
@@ -4884,12 +4884,12 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", stdFileName);
 			return NULL;
 		}
-		buf = createFallgwAnim(buf, dwLen, stdBuf);
+		buf = patchFallGWalk(buf, dwLen, stdBuf);
 		mem_free_dbg(stdBuf);
 	} break;
 	case FILE_MON_GOATLD:
 	{	// fix monster gfx file - GoatLd.CL2
-		buf = fixGoatLdAnim(buf, dwLen);
+		buf = patchGoatLDie(buf, dwLen);
 	} break;
 #endif // ASSET_MPL
 #endif // HELLFIRE
