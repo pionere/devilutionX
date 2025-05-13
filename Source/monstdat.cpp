@@ -166,7 +166,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_SKELAX*/   {     553, "Monsters\\SkelAxe\\SklAx%c.CL2",   "Monsters\\SkelAxe\\SklAx%c%d.WAV",  { 12,  8, 13,  6, 17, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
 /*MOFILE_FALLSD*/   {     623, "Monsters\\FalSword\\Fall%c.CL2",   "Monsters\\FalSword\\Fall%c%d.WAV",  { 12, 12, 13, 11, 14, 15 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               8,        5 },
 /*MOFILE_SCAV*/     {     410, "Monsters\\Scav\\Scav%c.CL2",       "Monsters\\Scav\\Scav%c%d.WAV",      { 12,  8, 12,  6, 20, 11 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              7,        0 },
-/*MOFILE_SKELBW*/   {     567, "Monsters\\SkelBow\\SklBw%c.CL2",   "Monsters\\SkelBow\\SklBw%c%d.WAV",  {  9,  8, 16,  5, 16, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,             12,        0 },
+/*MOFILE_SKELBW*/   {     567, "Monsters\\SkelBow\\SklBw%c.CL2",   "Monsters\\SkelBow\\SklBw%c%d.WAV",  {  9,  8, 16,  5, 13, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,             12,        0 },
 /*MOFILE_SKELSD*/   {     575, "Monsters\\SkelSd\\SklSr%c.CL2",    "Monsters\\SkelSd\\SklSr%c%d.WAV",   { 13,  8, 12,  7, 15, 16 }, { 4, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
 /*MOFILE_TSNEAK*/// {     800, "Monsters\\TSneak\\TSneak%c.CL2",   "Monsters\\TSneak\\Sneakl%c%d.WAV",  { 13, 13, 15, 11, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
 /*MOFILE_SNEAK*/    {     992, "Monsters\\Sneak\\Sneak%c.CL2",     "Monsters\\Sneak\\Sneak%c%d.WAV",    { 16,  8, 12,  8, 24, 15 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
