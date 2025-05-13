@@ -125,11 +125,6 @@ static void AdjustToScreenGeometry(int width, int height)
 #endif
 }
 
-static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
-{
-	return srcW * dstH > dstW * srcH;
-}
-
 static AREA32 CalculatePreferredWindowSize()
 {
 	int width = 0, height = 0;
