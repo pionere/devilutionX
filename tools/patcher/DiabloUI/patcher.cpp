@@ -126,10 +126,12 @@ typedef enum filenames {
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
+	FILE_MON_GOATBD,
 	FILE_MON_MAGMAD,
 	FILE_MON_SKLAXD,
 	FILE_MON_SKLBWD,
 	FILE_MON_SKLSRD,
+	FILE_MON_ZOMBIED,
 #ifdef HELLFIRE
 	FILE_MON_FALLGD,
 	FILE_MON_FALLGW,
@@ -264,10 +266,12 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
+/*FILE_MON_GOATBD*/    "Monsters\\GoatBow\\GoatBd.CL2",
 /*FILE_MON_MAGMAD*/    "Monsters\\Magma\\Magmad.CL2",
 /*FILE_MON_SKLAXD*/    "Monsters\\SkelAxe\\SklAxd.CL2",
 /*FILE_MON_SKLBWD*/    "Monsters\\SkelBow\\SklBwd.CL2",
 /*FILE_MON_SKLSRD*/    "Monsters\\SkelSd\\SklSrd.CL2",
+/*FILE_MON_ZOMBIED*/   "Monsters\\Zombie\\Zombied.CL2",
 #ifdef HELLFIRE
 /*FILE_MON_FALLGD*/    "Monsters\\BigFall\\Fallgd.CL2",
 /*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
@@ -3639,6 +3643,79 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	return resCl2Buf;
 }
 
+static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 20;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 1 && i + 1 == 4) {
+				needsPatch = gpBuffer[50 + BUFFER_WIDTH * 126] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				// fix bouncying bow
+				if (i + 1 == 4) {
+					ShiftFrame(width, height, -1, -3, 0, 106, width, height, TRANS_COLOR);
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
 static BYTE* patchSklAxDie(BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -4481,6 +4558,124 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 					}
 					break;
 				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchZombieDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 16;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 2 && i + 1 == 1) {
+				needsPatch = gpBuffer[40 + BUFFER_WIDTH * 74] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (ii + 1) {
+				case 2:
+					if (i + 1 == 1) {
+						dx = 8;
+						dy = -3;
+					} else if (i + 1 == 2) {
+						dx = 4;
+						dy = 0;
+					} else {
+						dx = 2;
+						dy = 0;
+					}
+					break;
+				case 3:
+					if (i + 1 == 1) {
+						dx = 10;
+						dy = -3;
+					} else if (i + 1 == 2) {
+						dx = 5;
+						dy = 0;
+					} else {
+						dx = 4;
+						dy = 0;
+					}
+					break;
+				case 4:
+					switch (i + 1) {
+					case 1: dx = 6; dy = 13; break;
+					case 2: dx = 6; dy = 10; break;
+					case 3: dx = 6; dy = 7; break;
+					case 4: dx = 5; dy = 4; break;
+					case 5: dx = 5; dy = 3; break;
+					default:dx = 4; dy = 2; break; // 6.. 16
+					}
+					break;
+				case 5:
+					switch (i + 1) {
+					case 1: dx = -1; dy = 13; break;
+					case 2: dx = -1; dy = 10; break;
+					case 3: dx = -1; dy = 7; break;
+					case 4: dx = -1; dy = 4; break;
+					case 5: dx = -1; dy = 2; break;
+					default: dx = -1; dy = 0; break; // 6.. 16
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
 			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
@@ -7202,6 +7397,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #endif // ASSET_MPL
 #endif // HELLFIRE
 #if ASSET_MPL == 1
+	case FILE_MON_GOATBD:
+	{	// fix monster gfx file - GoatBd.CL2",
+		buf = patchGoatBDie(buf, dwLen);
+	} break;
 	case FILE_MON_MAGMAD:
 	{	// fix monster gfx file - Magmad.CL2",
 		size_t stdLen;
@@ -7226,6 +7425,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_MON_SKLSRD:
 	{	// fix monster gfx file - SklSrd.CL2",
 		buf = patchSklSrDie(buf, dwLen);
+	} break;
+	case FILE_MON_ZOMBIED:
+	{	// fix monster gfx file - Zombied.CL2",
+		buf = patchZombieDie(buf, dwLen);
 	} break;
 #ifdef HELLFIRE
 	case FILE_MON_FALLGD:
