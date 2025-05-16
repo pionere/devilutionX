@@ -136,6 +136,11 @@ typedef enum filenames {
 	FILE_MON_FALLGD,
 	FILE_MON_FALLGW,
 	FILE_MON_GOATLD,
+	FILE_MON_UNRAVA,
+	FILE_MON_UNRAVD,
+	FILE_MON_UNRAVH,
+	FILE_MON_UNRAVN,
+	FILE_MON_UNRAVW,
 #endif // HELLFIRE
 	FILE_MIS_ACIDBF1,
 	FILE_MIS_ACIDBF10,
@@ -302,6 +307,11 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_FALLGD*/    "Monsters\\BigFall\\Fallgd.CL2",
 /*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
 /*FILE_MON_GOATLD*/    "Monsters\\GoatLord\\GoatLd.CL2",
+/*FILE_MON_UNRAVA*/    "Monsters\\Unrav\\Unrava.CL2",
+/*FILE_MON_UNRAVD*/    "Monsters\\Unrav\\Unravd.CL2",
+/*FILE_MON_UNRAVH*/    "Monsters\\Unrav\\Unravh.CL2",
+/*FILE_MON_UNRAVN*/    "Monsters\\Unrav\\Unravn.CL2",
+/*FILE_MON_UNRAVW*/    "Monsters\\Unrav\\Unravw.CL2",
 #endif // HELLFIRE
 /*FILE_MIS_ACIDBF1*/   "Missiles\\Acidbf1.CL2",
 /*FILE_MIS_ACIDBF10*/  "Missiles\\Acidbf10.CL2",
@@ -6489,6 +6499,109 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
+
+static BYTE* patchUnrav(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+	constexpr int width = 96;
+	constexpr int height = 128;
+
+	int frameCount = 0;
+	switch (index) {
+	case FILE_MON_UNRAVA: frameCount = 12; break;
+	case FILE_MON_UNRAVD: frameCount = 16; break;
+	case FILE_MON_UNRAVH: frameCount =  5; break;
+	case FILE_MON_UNRAVN: frameCount = 10; break;
+	case FILE_MON_UNRAVW: frameCount = 10; break;
+	}
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			if (ii + 1 == 1 && n == 1) {
+				int x, y;
+				switch (index) {
+				case FILE_MON_UNRAVA: x = 79; y = 76; break;
+				case FILE_MON_UNRAVD: x = 80; y = 74; break;
+				case FILE_MON_UNRAVH: x = 78; y = 66; break;
+				case FILE_MON_UNRAVN: x = 80; y = 76; break;
+				case FILE_MON_UNRAVW: x = 79; y = 76; break;
+				}
+				needsPatch = gpBuffer[x + BUFFER_WIDTH * y] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (index) {
+				case FILE_MON_UNRAVA: dx = -15; dy = 0; break;
+				case FILE_MON_UNRAVD: dx = -16; dy = 0; break;
+				case FILE_MON_UNRAVH: dx = -16; dy = 0; break;
+				case FILE_MON_UNRAVN: dx = -16; dy = 0; break;
+				case FILE_MON_UNRAVW: dx = -15; dy = 0; break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						BYTE pixel = gpBuffer[x + BUFFER_WIDTH * y];
+						if (pixel == 0) {
+							gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+						}
+					}
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
 #endif // HELLFIRE
 
 static BYTE* patchAcidbf(int index, BYTE* cl2Buf, size_t *dwLen)
@@ -7732,6 +7845,14 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_MON_GOATLD:
 	{	// fix monster gfx file - GoatLd.CL2
 		buf = patchGoatLDie(buf, dwLen);
+	} break;
+	case FILE_MON_UNRAVA:
+	case FILE_MON_UNRAVD:
+	case FILE_MON_UNRAVH:
+	case FILE_MON_UNRAVN:
+	case FILE_MON_UNRAVW:
+	{	// fix monster gfx file - Unrav*.CL2
+		buf = patchUnrav(index, buf, dwLen);
 	} break;
 #endif // HELLFIRE
 	case FILE_MIS_ACIDBF1:
