@@ -137,6 +137,32 @@ typedef enum filenames {
 	FILE_MON_FALLGW,
 	FILE_MON_GOATLD,
 #endif // HELLFIRE
+	FILE_MIS_ACIDBF1,
+	FILE_MIS_ACIDBF10,
+	FILE_MIS_ACIDBF11,
+	FILE_MIS_FIREBA2,
+	FILE_MIS_FIREBA3,
+	FILE_MIS_FIREBA5,
+	FILE_MIS_FIREBA6,
+	FILE_MIS_FIREBA8,
+	FILE_MIS_FIREBA9,
+	FILE_MIS_FIREBA10,
+	FILE_MIS_FIREBA11,
+	FILE_MIS_FIREBA12,
+	FILE_MIS_FIREBA15,
+	FILE_MIS_FIREBA16,
+	FILE_MIS_HOLY2,
+	FILE_MIS_HOLY3,
+	FILE_MIS_HOLY5,
+	FILE_MIS_HOLY6,
+	FILE_MIS_HOLY8,
+	FILE_MIS_HOLY9,
+	FILE_MIS_HOLY10,
+	FILE_MIS_HOLY11,
+	FILE_MIS_HOLY12,
+	FILE_MIS_HOLY15,
+	FILE_MIS_HOLY16,
+	FILE_MIS_MAGBALL2,
 	FILE_ITEM_ARMOR2,
 	FILE_ITEM_GOLDFLIP,
 	FILE_ITEM_MACE,
@@ -277,6 +303,32 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
 /*FILE_MON_GOATLD*/    "Monsters\\GoatLord\\GoatLd.CL2",
 #endif // HELLFIRE
+/*FILE_MIS_ACIDBF1*/   "Missiles\\Acidbf1.CL2",
+/*FILE_MIS_ACIDBF10*/  "Missiles\\Acidbf10.CL2",
+/*FILE_MIS_ACIDBF11*/  "Missiles\\Acidbf11.CL2",
+/*FILE_MIS_FIREBA2*/   "Missiles\\Fireba2.CL2",
+/*FILE_MIS_FIREBA3*/   "Missiles\\Fireba3.CL2",
+/*FILE_MIS_FIREBA5*/   "Missiles\\Fireba5.CL2",
+/*FILE_MIS_FIREBA6*/   "Missiles\\Fireba6.CL2",
+/*FILE_MIS_FIREBA8*/   "Missiles\\Fireba8.CL2",
+/*FILE_MIS_FIREBA9*/   "Missiles\\Fireba9.CL2",
+/*FILE_MIS_FIREBA10*/  "Missiles\\Fireba10.CL2",
+/*FILE_MIS_FIREBA11*/  "Missiles\\Fireba11.CL2",
+/*FILE_MIS_FIREBA12*/  "Missiles\\Fireba12.CL2",
+/*FILE_MIS_FIREBA15*/  "Missiles\\Fireba15.CL2",
+/*FILE_MIS_FIREBA16*/  "Missiles\\Fireba16.CL2",
+/*FILE_MIS_HOLY2*/     "Missiles\\Holy2.CL2",
+/*FILE_MIS_HOLY3*/     "Missiles\\Holy3.CL2",
+/*FILE_MIS_HOLY5*/     "Missiles\\Holy5.CL2",
+/*FILE_MIS_HOLY6*/     "Missiles\\Holy6.CL2",
+/*FILE_MIS_HOLY8*/     "Missiles\\Holy8.CL2",
+/*FILE_MIS_HOLY9*/     "Missiles\\Holy9.CL2",
+/*FILE_MIS_HOLY10*/    "Missiles\\Holy10.CL2",
+/*FILE_MIS_HOLY11*/    "Missiles\\Holy11.CL2",
+/*FILE_MIS_HOLY12*/    "Missiles\\Holy12.CL2",
+/*FILE_MIS_HOLY15*/    "Missiles\\Holy15.CL2",
+/*FILE_MIS_HOLY16*/    "Missiles\\Holy16.CL2",
+/*FILE_MIS_MAGBALL2*/  "Missiles\\Magball2.CL2",
 /*FILE_ITEM_ARMOR2*/   "Items\\Armor2.CEL",
 /*FILE_ITEM_GOLDFLIP*/ "Items\\GoldFlip.CEL",
 /*FILE_ITEM_MACE*/     "Items\\Mace.CEL",
@@ -2048,7 +2100,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
 
-	bool groupped = true;
+	bool groupped = numGroups != 1;
 	int headerSize = 0;
 	for (int i = 0; i < numGroups; i++) {
 		int ni = frameCount;
@@ -2075,7 +2127,12 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf;
+		if (groupped) {
+			frameBuf = CelGetFrameStart(cl2Buf, ii);
+		} else {
+			frameBuf = cl2Buf;
+		}
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
@@ -6434,6 +6491,266 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 }
 #endif // HELLFIRE
 
+static BYTE* patchAcidbf(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	return ReEncodeCL2(cl2Buf, dwLen, 1, 9 - 1, 96, 96);
+}
+
+static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = 1;
+	constexpr int frameCount = 14;
+	constexpr bool groupped = false;
+	constexpr int width = 96;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = cl2Buf;
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			int nn = 0, x, y;
+			switch (index) {
+			case FILE_MIS_FIREBA2:  nn = 1; x = 41; y = 66; break;
+			case FILE_MIS_FIREBA3:  nn = 2; x = 37; y = 65; break;
+			case FILE_MIS_FIREBA11: nn = 4; x = 49; y = 54; break;
+			case FILE_MIS_FIREBA15: nn = 2; x = 55; y = 63; break;
+			case FILE_MIS_FIREBA16: nn = 1; x = 54; y = 66; break;
+
+			case FILE_MIS_HOLY2:  nn = 1; x = 41; y = 66; break;
+			case FILE_MIS_HOLY3:  nn = 2; x = 37; y = 65; break;
+			case FILE_MIS_HOLY11: nn = 4; x = 49; y = 54; break;
+			case FILE_MIS_HOLY15: nn = 2; x = 55; y = 63; break;
+			case FILE_MIS_HOLY16: nn = 1; x = 54; y = 66; break;
+			default: needsPatch = true; break;
+			}
+			if (nn != 0 && nn == n) {
+				needsPatch = gpBuffer[x + BUFFER_WIDTH * y] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int i = n - 1;
+				int dx = 0, dy = 0;
+				switch (index) {
+				case FILE_MIS_FIREBA2:
+				case FILE_MIS_HOLY2:
+					switch (i + 1) {
+					case 1:
+					case 2:
+					case 7:
+					case 8:
+					case 13:
+					case 14: dx = 1; dy = 0; break;
+					}
+					break;
+				case FILE_MIS_FIREBA3:
+				case FILE_MIS_HOLY3:
+					if (i + 1 == 2) {
+						dx = 3;
+						dy = 0;
+					}
+					break;
+				case FILE_MIS_FIREBA5:
+				case FILE_MIS_HOLY5:
+					if (i + 1 == 6) {
+						gpBuffer[0 + BUFFER_WIDTH * 57] = TRANS_COLOR;
+						gpBuffer[0 + BUFFER_WIDTH * 58] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA6:
+				case FILE_MIS_HOLY6:
+					if (i + 1 == 10 || i + 1 == 11) {
+						for (int y = 63; y < 68; y++) {
+							for (int x = 81; x < 84; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					}
+					break;
+				case FILE_MIS_FIREBA8:
+				case FILE_MIS_HOLY8:
+					if (i + 1 == 2) {
+						gpBuffer[37 + BUFFER_WIDTH * 59] = TRANS_COLOR;
+						gpBuffer[37 + BUFFER_WIDTH * 60] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA9:
+				case FILE_MIS_HOLY9:
+					if (i + 1 == 5) {
+						gpBuffer[49 + BUFFER_WIDTH * 42] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA10:
+				case FILE_MIS_HOLY10:
+					if (i + 1 == 2) {
+						gpBuffer[58 + BUFFER_WIDTH * 59] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 60] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA11:
+				case FILE_MIS_HOLY11:
+					switch (i + 1) {
+					case 4: dx = 0; dy = 1; break;
+					case 5:
+					case 6: dx = 0; dy = 2; break;
+					case 7:
+					case 8:
+					case 9:
+					case 10: dx = 0; dy = -1; break;
+					}
+					break;
+				case FILE_MIS_FIREBA12:
+				case FILE_MIS_HOLY12:
+					if (i + 1 == 5) {
+						for (int y = 66; y < 72; y++) {
+							for (int x = 91; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					}
+					break;
+				case FILE_MIS_FIREBA15:
+				case FILE_MIS_HOLY15:
+					if (i + 1 == 2) {
+						dx = -3;
+						dy = 0;
+					}
+					break;
+				case FILE_MIS_FIREBA16:
+				case FILE_MIS_HOLY16:
+					switch (i + 1) {
+					case 1:
+					case 2:
+					case 7:
+					case 8:
+					case 13:
+					case 14: dx = -1; dy = 0; break;
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchMagball(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = 1;
+	constexpr int frameCount = 16;
+	constexpr bool groupped = false;
+	constexpr int width = 128;
+	constexpr int height = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = cl2Buf;
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			if (ii + 1 == 1 && n == 6) {
+				needsPatch = true; // assume it is already done
+			}
+
+			if (needsPatch) {
+				if (n == 6) {
+					gpBuffer[52 + BUFFER_WIDTH * 99] = TRANS_COLOR;
+					gpBuffer[52 + BUFFER_WIDTH * 100] = TRANS_COLOR;
+					gpBuffer[52 + BUFFER_WIDTH * 101] = TRANS_COLOR;
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
 static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -7417,6 +7734,41 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = patchGoatLDie(buf, dwLen);
 	} break;
 #endif // HELLFIRE
+	case FILE_MIS_ACIDBF1:
+	case FILE_MIS_ACIDBF10:
+	case FILE_MIS_ACIDBF11:
+	{	// fix missile gfx file - Holy*.CL2
+		buf = patchAcidbf(index, buf, dwLen);
+	} break;
+	case FILE_MIS_FIREBA2:
+	case FILE_MIS_FIREBA3:
+	case FILE_MIS_FIREBA5:
+	case FILE_MIS_FIREBA6:
+	case FILE_MIS_FIREBA8:
+	case FILE_MIS_FIREBA9:
+	case FILE_MIS_FIREBA10:
+	case FILE_MIS_FIREBA11:
+	case FILE_MIS_FIREBA12:
+	case FILE_MIS_FIREBA15:
+	case FILE_MIS_FIREBA16:
+	case FILE_MIS_HOLY2:
+	case FILE_MIS_HOLY3:
+	case FILE_MIS_HOLY5:
+	case FILE_MIS_HOLY6:
+	case FILE_MIS_HOLY8:
+	case FILE_MIS_HOLY9:
+	case FILE_MIS_HOLY10:
+	case FILE_MIS_HOLY11:
+	case FILE_MIS_HOLY12:
+	case FILE_MIS_HOLY15:
+	case FILE_MIS_HOLY16:
+	{	// fix missile gfx file - Holy*.CL2
+		buf = patchFireba(index, buf, dwLen);
+	} break;
+	case FILE_MIS_MAGBALL2:
+	{	// fix missile gfx file - Magball2.CL2
+		buf = patchMagball(buf, dwLen);
+	} break;
 	case FILE_ITEM_ARMOR2:
 	case FILE_ITEM_GOLDFLIP:
 	case FILE_ITEM_MACE:
