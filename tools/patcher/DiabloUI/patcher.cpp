@@ -2162,7 +2162,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	return resCl2Buf;
 }
 
-BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const BYTE* stdBuf)
+static BYTE* patchWarriorStand(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
@@ -7639,7 +7639,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", stdFileName);
 			return NULL;
 		}
-		buf = createWarriorAnim(buf, dwLen, atkBuf, stdBuf);
+		buf = patchWarriorStand(buf, dwLen, atkBuf, stdBuf);
 		mem_free_dbg(atkBuf);
 		mem_free_dbg(stdBuf);
 	} break;
