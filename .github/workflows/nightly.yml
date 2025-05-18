@@ -145,7 +145,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -190,7 +190,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-x64
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -235,7 +235,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-Win9x
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -281,7 +281,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-WinXP
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -340,7 +340,7 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnu.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnu.appimage'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
       with:
@@ -400,7 +400,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64.tar.xz'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -597,7 +597,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350.opk'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -643,7 +643,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-lepus.opk'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -689,7 +689,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofw.opk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -786,7 +786,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps5.zip'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -828,7 +828,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vita.vpk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: vitasdk/vitasdk:latest
     steps:
     - name: Checkout
@@ -871,7 +871,7 @@ jobs:
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-3ds.3dsx'
             cia: 'hellfire-nightly-3ds.cia'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: devkitpro/devkitarm:latest
 
     steps:
@@ -935,7 +935,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-switch.nro'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: devkitpro/devkita64:latest
     steps:
     - name: Checkout
@@ -984,7 +984,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-amiga'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
     - name: Checkout
