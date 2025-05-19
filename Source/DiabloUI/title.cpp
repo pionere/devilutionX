@@ -1,8 +1,11 @@
 #include "DiabloUI/diabloui.h"
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include "../gameui.h"
+//#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+DISABLE_SPEED_OPTIMIZATION
 
 #define TITLE_TIMEOUT_SEC 7
 static CelImageBuf* gbLogoBig;
@@ -26,7 +29,7 @@ static void TitleLoad()
 
 	UiAddBackground();
 
-	SDL_Rect rect1 = { PANEL_MIDX(BIG_LOGO_WIDTH), BIG_LOGO_TOP, BIG_LOGO_WIDTH, BIG_LOGO_HEIGHT };
+	SDL_Rect rect1 = { SCREEN_MIDX(BIG_LOGO_WIDTH), BIG_LOGO_TOP, BIG_LOGO_WIDTH, BIG_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoBig, 15, rect1, true));
 
 	UiInitScreen(0, NULL, TitleSelect, TitleEsc);
@@ -54,5 +57,7 @@ bool UiTitleDialog()
 
 	return true;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

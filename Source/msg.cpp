@@ -1356,8 +1356,8 @@ void LevelDeltaExport()
 			tmis->smisy = mis->_misy;
 			tmis->smix = mis->_mix;
 			tmis->smiy = mis->_miy;
-			tmis->smixoff = mis->_mixoff;
-			tmis->smiyoff = mis->_miyoff;
+			tmis->smixoff = mis->_mixoff / ASSET_MPL;
+			tmis->smiyoff = mis->_miyoff / ASSET_MPL;
 			tmis->smixvel = mis->_mixvel;
 			tmis->smiyvel = mis->_miyvel;
 			tmis->smitxoff = mis->_mitxoff;
@@ -1465,8 +1465,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		//plr._pxoff = tplr->spxoff;
-		//plr._pyoff = tplr->spyoff;
+		// plr._pxoff = tplr->spxoff;
+		// plr._pyoff = tplr->spyoff;
 		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
 		plr._pdir = tplr->spdir;
 		plr._pAnimFrame = tplr->spAnimFrame;
@@ -1626,8 +1626,6 @@ void LevelDeltaLoad()
 			}
 			// InitLvlMonster
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
-			if (mi == MM_STONE)
-				mi = mon->_mVar3;
 			if (mi == MM_WALK2) {
 				dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
 			} else if (mi == MM_WALK) {
@@ -1679,8 +1677,8 @@ void LevelDeltaLoad()
 		mis->_misy = tmis->smisy;
 		mis->_mix = tmis->smix;
 		mis->_miy = tmis->smiy;
-		mis->_mixoff = tmis->smixoff;
-		mis->_miyoff = tmis->smiyoff;
+		mis->_mixoff = tmis->smixoff * ASSET_MPL;
+		mis->_miyoff = tmis->smiyoff * ASSET_MPL;
 		mis->_mixvel = tmis->smixvel;
 		mis->_miyvel = tmis->smiyvel;
 		mis->_mitxoff = tmis->smitxoff;
@@ -2571,9 +2569,9 @@ static unsigned On_OPERATEITEM(const TCmd* pCmd, int pnum)
 	const TCmdItemOp* cmd = (const TCmdItemOp*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
-		const BYTE skill = cmd->iou.skill;
-		const int8_t from = cmd->iou.from;
-		const BYTE cii = cmd->ioIdx;
+		BYTE skill = cmd->iou.skill;
+		int8_t from = cmd->iou.from;
+		BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
 	net_assert(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
@@ -3934,7 +3932,7 @@ static void PrintPlrMismatch(const char* field, int myval, int extval, int sp, i
 
 static void PrintPlrMismatch64(const char* field, uint64_t myval, uint64_t extval, int sp, int pnum)
 {
-	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
+	msg_errorf("%d received %s (%ull vs. %ull) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
 }
 
 static void CmpPlrArray(const char* field, const void* src, const void* data, int size, int len, int ip, int pnum)
@@ -4307,8 +4305,8 @@ static const BYTE* CheckItem(const ItemStruct* is, const BYTE* src, int pnum, in
 	//	PrintItemMismatch(is, "x", is->_iy, *(const BYTE*)src, sp, pnum, loc, subloc);
 	//}
 	src += sizeof(BYTE);
-	if (!none && !placeholder && is->_iIdentified != *(BOOLEAN*)src) {
-		PrintItemMismatch(is, "iden", is->_iIdentified, *(BOOLEAN*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iIdentified != *(const BOOLEAN*)src) {
+		PrintItemMismatch(is, "iden", is->_iIdentified, *(const BOOLEAN*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(BOOLEAN);
 

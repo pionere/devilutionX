@@ -425,7 +425,7 @@ static void SendPlrMsg()
 		NetSendCmdString(&msgStr, pmask);
 
 		for (i = 0; i < lengthof(sgszTalkSave); i++) {
-			if (!strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
+			if (!SDL_strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
 				break;
 		}
 		static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in SendPlrMsg.");

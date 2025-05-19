@@ -15,7 +15,7 @@ static int speedspellcount = 0;
 bool InGameMenu()
 {
 	return stextflag != STORE_NONE
-	    || gbHelpflag
+	    || gnVisibleHelpLines != 0
 	    || gbTalkflag
 	    || gbQtextflag
 	    //|| gbDoomflag
@@ -778,9 +778,9 @@ void StoreSpellCoords()
 {
 	int pnum, i, j;
 	uint64_t mask;
-	const int START_X = PANEL_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
+	const int START_X = SCREEN_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
 	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
-	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICON_HEIGHT / 2;
+	const int END_Y = SCREEN_HEIGHT - (128 + 17) - SPLICON_HEIGHT / 2;
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;

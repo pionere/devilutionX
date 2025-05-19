@@ -64,11 +64,17 @@ static const char * GetPatchFileName(TMPQArchive * ha, const char * szFileName, 
 
     return szFileName;
 }
-#endif
 static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
+#else
+static bool OpenLocalFile(const char * szFileName, TMPQFile * pFile)
+#endif
 {
+#ifdef FULL
     TFileStream * pStream;
     TMPQFile * hf = NULL;
+#else
+    bool bResult = false;
+#endif
 #if defined(FULL) || defined(_UNICODE)
     TCHAR szFileNameT[MAX_PATH];
 
@@ -78,30 +84,29 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * PtrFile)
     const char * szFileNameT = szFileName;
 #endif
     // Open the file and create the TMPQFile structure
+#ifdef FULL
     pStream = FileStream_OpenFile(szFileNameT, STREAM_FLAG_READ_ONLY);
     if (pStream != NULL) {
         // Allocate and initialize file handle
-#ifdef FULL
         hf = CreateFileHandle(NULL, NULL);
-#else
-        hf = STORM_ALLOC(TMPQFile, 1);
-#endif
         if (hf != NULL) {
             hf->pStream = pStream;
-#ifndef FULL
-            hf->pFileEntry = NULL;
-#endif
             *PtrFile = hf;
             return true;
         } else {
             FileStream_Close(pStream);
-#ifdef FULL
             SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-#endif
         }
     }
     *PtrFile = NULL;
     return false;
+#else
+            if (FileStream_OpenFile(&pFile->pStream, szFileNameT, STREAM_FLAG_READ_ONLY) == ERROR_SUCCESS) {
+                pFile->pFileEntry = NULL;
+                bResult = true;
+            }
+        return bResult;
+#endif
 }
 
 #ifdef FULL
@@ -236,17 +241,18 @@ static bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
 #ifdef FULL
 bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, DWORD dwSearchScope, HANDLE * PtrFile)
 #else
-bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * PtrFile)
+bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, TMPQFile * pFile)
 #endif
 {
 #ifdef FULL
     TMPQArchive * ha = IsValidMpqHandle(hMpq);
     TFileEntry  * pFileEntry = NULL;
+    TMPQFile    * hf = NULL;
 #else
+    TMPQFile    * hf = pFile;
     TMPQArchive * ha;
     TMPQBlock   * pFileEntry;
 #endif
-    TMPQFile    * hf = NULL;
 #ifdef FULL
     DWORD dwHashIndex = HASH_ENTRY_FREE;
     DWORD dwFileIndex = 0;
@@ -366,16 +372,12 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
 #ifdef FULL
     if(dwErrCode == ERROR_SUCCESS && dwSearchScope != SFILE_OPEN_CHECK_EXISTS) {
 #else
-    if(dwErrCode == ERROR_SUCCESS && PtrFile != NULL) {
+    if(dwErrCode == ERROR_SUCCESS) {
 #endif
         // Allocate file handle
 #ifdef FULL
         hf = CreateFileHandle(ha, pFileEntry);
-#else
-        hf = STORM_ALLOC(TMPQFile, 1);
-#endif
         if(hf != NULL) {
-#ifdef FULL
             // Get the hash index for the file
             if(ha->pHashTable != NULL && dwHashIndex == HASH_ENTRY_FREE)
                 dwHashIndex = FindHashIndex(ha, dwFileIndex);
@@ -383,9 +385,6 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
                 hf->pHashEntry = ha->pHashTable + dwHashIndex;
             hf->dwHashIndex = dwHashIndex;
 #else
-            // Give the file entry
-            PtrFile[0] = hf;
-
             hf->ha = ha;
             hf->pFileEntry = pFileEntry;
 #endif
@@ -412,9 +411,11 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
                     hf->dwFileKey = DecryptFileKey(szFileName);
 #endif
             }
+#ifdef FULL
         } else {
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
         }
+#endif
     }
 #ifdef FULL
     // Give the file entry
@@ -428,9 +429,9 @@ bool WINAPI SFileOpenFileEx(HANDLE hMpq, const char * szFileName, HANDLE * PtrFi
     return (dwErrCode == ERROR_SUCCESS);
 }
 #ifndef FULL
-bool WINAPI SFileOpenLocalFileEx(const char * szFileName, HANDLE * PtrFile)
+bool WINAPI SFileOpenLocalFileEx(const char * szFileName, TMPQFile * pFile)
 {
-    return OpenLocalFile(szFileName, PtrFile);
+    return OpenLocalFile(szFileName, pFile);
 }
 #endif
 //-----------------------------------------------------------------------------

@@ -21,6 +21,7 @@ __Data\Inv\Inv_rog.CEL
 __Data\Inv\Inv_Sor.CEL
 _Data\Inv\Objcurs.CEL
 _Data\Inv\Objcurs2.CEL
+_Data\MapIcon.CEL
 _Data\MedTextS.CEL
 _Data\optbar.CEL
 _Data\option.CEL
@@ -525,7 +526,7 @@ Monsters\Hellbat2\bhelbta.CL2
 Monsters\Hellbat2\bhelbtd.CL2
 Monsters\Hellbat2\bhelbth.CL2
 Monsters\Hellbat2\bhelbtn.CL2
-Monsters\Hellbat2\bhelbts.CL2
+_Monsters\Hellbat2\bhelbts.CL2
 Monsters\Hellbat2\bhelbtw.CL2
 Monsters\Hellbug\Hellbga.CL2
 Monsters\Hellbug\Hellbgd.CL2
@@ -679,9 +680,7 @@ Monsters\Zombie\Zombieh.CL2
 Monsters\Zombie\Zombien.CL2
 _Monsters\Zombie\Zombies.CL2
 Monsters\Zombie\Zombiew.CL2
-NLevels\cutl5.CEL
 NLevels\Cutl5.CEL
-NLevels\cutl6.CEL
 NLevels\Cutl6.CEL
 NLevels\L5Data\L5.CEL
 NLevels\L5Data\L5.MIN
@@ -2507,12 +2506,11 @@ Towners\TownBoy\PegKid1.CEL
 Towners\TownWmn1\Witch.CEL
 Towners\TownWmn1\WmnN.CEL
 Towners\TwnF\TwnFN.CEL
-ui_art\black.CEL
 ui_art\credits.CEL
 _ui_art\focus.CEL
 _ui_art\focus16.CEL
 _ui_art\focus42.CEL
-ui_art\heros.CEL
+_ui_art\heros.CEL
 _ui_art\logo.CEL
 _ui_art\lpopup.CEL
 _ui_art\lrpopup.CEL
@@ -2522,9 +2520,9 @@ _ui_art\prog_fil.CEL
 _ui_art\sb_arrow.CEL
 _ui_art\sb_bg.CEL
 _ui_art\sb_thumb.CEL
-ui_art\selconn.CEL
-ui_art\selgame.CEL
-ui_art\selhero.CEL
+_ui_art\selconn.CEL
+_ui_art\selgame.CEL
+_ui_art\selhero.CEL
 _ui_art\smbutton.CEL
 _ui_art\smlogo.CEL
 _ui_art\spopup.CEL

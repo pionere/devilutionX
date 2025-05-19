@@ -19,13 +19,19 @@
 #define INTRO_ARCHIVE            "gendata\\Hellfire.smk"
 #define GAME_ID                  ((int)'HRTL')
 #define GAME_VERSION             34
+#define CREDITS_LINE_COUNT       91
+#define CREDITS_TXT              "Meta\\credits_hf.txt"
 #define HELP_TITLE               "Hellfire Help"
 #else
 #define INTRO_ARCHIVE            "gendata\\diablo1.smk"
 #define GAME_ID                  ((int)'DRTL')
+#define CREDITS_LINE_COUNT       455
+#define CREDITS_TXT              "Meta\\credits.txt"
 #define GAME_VERSION             42
 #define HELP_TITLE               "Diablo Help"
 #endif
+#define HELP_LINE_COUNT          65
+#define HELP_TXT                 "Meta\\help.txt"
 
 // MAXDUN = DSIZE + 2 * DBORDER
 // DSIZE = 2 * DMAX

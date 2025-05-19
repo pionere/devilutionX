@@ -349,7 +349,6 @@ static unsigned GetPlrGFXSize(const char* szCel)
 	int c;
 	const char *chrArmor, *chrWeapon, *chrClass, *strClass;
 	DWORD dwSize, dwMaxSize;
-	HANDLE hsFile;
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	char prefix[4];
 
@@ -371,13 +370,9 @@ static unsigned GetPlrGFXSize(const char* szCel)
 				prefix[2] = *chrWeapon;
 				prefix[3] = '\0';
 				snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
-				hsFile = SFileOpenFile(pszName);
-				if (hsFile != NULL) {
-					dwSize = SFileGetFileSize(hsFile);
-					SFileCloseFile(hsFile);
-					if (dwMaxSize < dwSize) {
-						dwMaxSize = dwSize;
-					}
+				dwSize = SFileReadFileEx(pszName, NULL);
+				if (dwMaxSize < dwSize) {
+					dwMaxSize = dwSize;
 				}
 			}
 		}

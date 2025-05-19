@@ -506,20 +506,22 @@ void ValidateData()
 				assert(sfxdata[snSFX[n][i]].bFlags & sfx_STREAM); // required by CowSFX
 			}
 		}
-		for (i = 0; i < lengthof(alltext); i++) {
-			int n = alltext[i].sfxnr;
-			if (alltext[i].txtsfxset) {
+		for (i = 0; i < lengthof(minitxtdata); i++) {
+			int n = minitxtdata[i].sfxnr;
+			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr == '\0')
+				app_fatal("Scrolling text of minitext %d is empty.", n, i);
+			if (minitxtdata[i].txtsfxset) {
 				if ((unsigned)n >= NUM_SFXS)
-					app_fatal("Sfx-set (%d) of minitext %d is invalid (%s).", n, i, alltext[i].txtstr);
+					app_fatal("Sfx-set (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr);
 				for (int c = 0; c < NUM_CLASSES; c++) {
 					if (!(sfxdata[sgSFXSets[n][c]].bFlags & sfx_STREAM))
-						app_fatal("Sfx-set (%d) of minitext %d is not streamed (%s) for class %d.", n, i, alltext[i].txtstr, c); // required by MonDoTalk, SpawnLoot
+						app_fatal("Sfx-set (%d) of minitext %d is not streamed (%s) for class %d.", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr, c); // required by MonDoTalk, SpawnLoot
 				}
 			} else {
 				if ((unsigned)n >= NUM_SFXS)
-					app_fatal("Sfx (%d) of minitext %d is invalid (%s).", n, i, alltext[i].txtstr);
+					app_fatal("Sfx (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr);
 				if (!(sfxdata[n].bFlags & sfx_STREAM))
-					app_fatal("Sfx (%d) of minitext %d is not streamed (%s).", n, i, alltext[i].txtstr); // required by MonDoTalk, SpawnLoot
+					app_fatal("Sfx (%d) of minitext %d is not streamed (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr); // required by MonDoTalk, SpawnLoot
 			}
 		}
 		assert(sfxdata[USFX_GARBUD4].bFlags & sfx_STREAM); // required by MAI_Garbud
@@ -594,7 +596,9 @@ void ValidateData()
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonHitByMon and MonHitByPlr
 	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	assert(monsterdata[MT_GBAT].mAI.aiType == AI_BAT); // required by MAI_Bat
+#ifdef HELLFIRE
 	assert(missiledata[MIS_HORKDMN].mFileNum == MFILE_SPAWNS); // required by MAI_Horkdemon/InitMonsterGFX
+#endif
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
@@ -1178,6 +1182,9 @@ void ValidateData()
 		if (ids.iClass == ICLASS_QUEST && ids.itype != ITYPE_MISC)
 			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
+#if 0
+	LogErrorF("Max drop %d vs %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
+#endif
 #if UNOPTIMIZED_RNDITEMS
 	if (rnddrops[0][0][0] > ITEM_RNDDROP_MAX)
 		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
@@ -1314,12 +1321,17 @@ void ValidateData()
 			}
 		}
 	}
+	int maxAffix = -1;
 	for (int ii = 0; ii < NUM_IARS; ii++) {
 		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
 		for (int n = 0; n <= ILVLMAX; n++) {
 			for (int k = 0; k < 10; k++) {
-				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
-					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+				int dropts = rnddrops[n][ii][k];
+				if (dropts > maxAffix) {
+					maxAffix = dropts;
+				}
+				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
 			}
 		}
 	}
@@ -1441,12 +1453,18 @@ void ValidateData()
 		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
 		for (int n = 0; n <= ILVLMAX; n++) {
 			for (int k = 0; k < 10; k++) {
-				if (rnddrops[n][ii][k] > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
-					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", rnddrops[n][ii], n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+				int dropts = rnddrops[n][ii][k];
+				if (dropts > maxAffix) {
+					maxAffix = dropts;
+				}
+				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
 			}
 		}
 	}
-
+#if 0
+	LogErrorF("Max affix %d vs %d", maxAffix, ITEM_RNDAFFIX_MAX);
+#endif
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
 		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {

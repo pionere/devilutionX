@@ -5,9 +5,9 @@ using namespace dvl;
 
 TEST(Cursor, SetCursor)
 {
-	int i = ICURS_SPIKED_CLUB + CURSOR_FIRSTITEM;
+	int i = dvl::CURSOR_FIRSTITEM + dvl::ICURS_SPIKED_CLUB;
 	NewCursor(i);
-	EXPECT_EQ(pcurs, i);
-	EXPECT_EQ(cursW, 1 * 28);
-	EXPECT_EQ(cursH, 3 * 28);
+	EXPECT_EQ(dvl::pcursicon, i);
+	EXPECT_EQ(dvl::cursW, 1 * 28);
+	EXPECT_EQ(dvl::cursH, 3 * 28);
 }

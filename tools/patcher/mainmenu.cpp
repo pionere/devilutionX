@@ -32,18 +32,18 @@ void mainmenu_loop()
 
 	while (true) {
 		switch (UiMainMenuDialog()) {
-		case 0:
+		case PATCHERMENU_PATCH:
 			UiPatcherDialog();
 			continue;
-		case 1:
+		case PATCHERMENU_MERGE:
 			UiMergerDialog();
 			continue;
-		case 2:
 #if 0
+		case PATCHERMENU_CHECK:
 			UiCheckerDialog();
 			continue;
-		case 3:
 #endif
+		case PATCHERMENU_EXIT:
 			break;
 		default:
 			ASSUME_UNREACHABLE

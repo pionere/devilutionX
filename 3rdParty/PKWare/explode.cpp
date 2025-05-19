@@ -242,7 +242,11 @@ static int WasteBits(TDcmpStruct * pWork, unsigned int nBits)
     if(pWork->in_pos == pWork->in_bytes)
     {
         pWork->in_pos = sizeof(pWork->in_buff);
+#ifdef FULL
         if((pWork->in_bytes = pWork->read_buf((char *)pWork->in_buff, &pWork->in_pos, pWork->param)) == 0)
+#else
+        if((pWork->in_bytes = pWork->read_buf((char *)pWork->in_buff, pWork->in_pos, pWork->param)) == 0)
+#endif
             return PKDCL_STREAM_END;
         pWork->in_pos = 0;
     }
@@ -468,7 +472,11 @@ static unsigned int Expand(TDcmpStruct * pWork)
         {
             // Copy decompressed data into user buffer
             copyBytes = 0x1000;
+#ifdef FULL
             pWork->write_buf((char *)&pWork->out_buff[0x1000], &copyBytes, pWork->param);
+#else
+            pWork->write_buf((char *)&pWork->out_buff[0x1000], copyBytes, pWork->param);
+#endif
 
             // Now copy the decompressed data to the first half of the buffer.
             // This is needed because the decompression might reuse them as repetitions.
@@ -482,7 +490,11 @@ static unsigned int Expand(TDcmpStruct * pWork)
 
     // Flush any remaining decompressed bytes
     copyBytes = pWork->outputPos - 0x1000;
+#ifdef FULL
     pWork->write_buf((char *)&pWork->out_buff[0x1000], &copyBytes, pWork->param);
+#else
+    pWork->write_buf((char *)&pWork->out_buff[0x1000], copyBytes, pWork->param);
+#endif
     return result;
 }
 
@@ -491,8 +503,13 @@ static unsigned int Expand(TDcmpStruct * pWork)
 // Main exploding function.
 
 unsigned int PKWAREAPI explode(
+#ifdef FULL
         unsigned int (*read_buf)(char *buf, unsigned  int *size, void *param),
         void         (*write_buf)(char *buf, unsigned  int *size, void *param),
+#else
+        unsigned int (*read_buf)(char *buf, unsigned  int size, void *param),
+        void         (*write_buf)(char *buf, unsigned  int size, void *param),
+#endif
         char         *work_buf,
         void         *param)
 {
@@ -503,7 +520,11 @@ unsigned int PKWAREAPI explode(
     pWork->write_buf  = write_buf;
     pWork->param      = param;
     pWork->in_pos     = sizeof(pWork->in_buff);
+#ifdef FULL
     pWork->in_bytes   = pWork->read_buf((char *)pWork->in_buff, &pWork->in_pos, pWork->param);
+#else
+    pWork->in_bytes   = pWork->read_buf((char *)pWork->in_buff, pWork->in_pos, pWork->param);
+#endif
     if(pWork->in_bytes <= 4)
         return CMP_BAD_DATA;
 

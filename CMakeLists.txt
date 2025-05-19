@@ -1,17 +1,23 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10...3.30)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141)
+# Projects added via `add_subdirectory` or `FetchContent` may have a lower
+# `cmake_minimum_required` than we set here. Set policies that we require
+# to their new value so that they still apply.
+foreach(_policy CMP0069 CMP0077 CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141 CMP0177)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
   endif()
 endforeach()
 
-# Projects added via `add_subdirectory` or `FetchContent` may have a lower
-# `cmake_minimum_required` than we set here. Set policies that we require
-# to their new value so that they still apply.
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+foreach(_policy CMP0169)
+  if(POLICY ${_policy})
+    cmake_policy(SET ${_policy} OLD)
+    set(CMAKE_POLICY_DEFAULT_${_policy} OLD)
+  endif()
+endforeach()
+
+message(STATUS "CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 if(NINTENDO_3DS)
@@ -192,7 +198,8 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-option(USE_PATCH "Create executable to patch assets" OFF)
+option(USE_PATCH "Build to use patched assets" ON)
+cmake_conditional_option(CREATE_PATCHER "Create executable to patch assets" ${USE_PATCH})
 option(CREATE_MPQONE "Merge assets if necessary" OFF)
 cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
@@ -436,6 +443,8 @@ add_library(PKWare STATIC
   3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
+target_link_libraries(StormLib PRIVATE PKWare)
+
 set(devilutionx_SRCS
   Source/appfat.cpp
   Source/automap.cpp
@@ -470,12 +479,13 @@ set(devilutionx_SRCS
   Source/main.cpp
   Source/mainmenu.cpp
   Source/minitext.cpp
+  Source/minitextdat.cpp
   Source/misdat.cpp
   Source/missiles.cpp
   Source/monstdat.cpp
   Source/monster.cpp
   Source/movie.cpp
-  Source/mpqapi.cpp
+  #Source/mpqapi.cpp
   Source/msg.cpp
   Source/multi.cpp
   Source/nthread.cpp
@@ -491,15 +501,14 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
-  Source/sha.cpp
   Source/sfx.cpp
   Source/sfxdat.cpp
+  Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
   Source/stores.cpp
   Source/sync.cpp
-  Source/textdat.cpp
   Source/themes.cpp
   #Source/tmsg.cpp
   Source/town.cpp
@@ -531,7 +540,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/selyesno.cpp
   Source/DiabloUI/settingsmenu.cpp
   Source/DiabloUI/text.cpp
-  Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base_client.cpp
@@ -613,7 +621,6 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -621,6 +628,7 @@ if(RUN_TESTS)
     test/player_test.cpp
     test/projectile_test.cpp
     test/scrollrt_test.cpp
+    test/sfx_test.cpp
     test/stores_test.cpp)
 endif()
 
@@ -651,7 +659,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH AND NOT ANDROID)
+if(CREATE_PATCHER)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -663,13 +671,13 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
     tools/patcher/mainmenu.cpp
-    tools/patcher/mpqapi.cpp
+    #tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
@@ -695,8 +703,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
-    tools/patcher/DiabloUI/text_draw.cpp
-    tools/patcher/DiabloUI/title.cpp
+    #tools/patcher/DiabloUI/title.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
@@ -727,26 +734,29 @@ if(USE_PATCH AND NOT ANDROID)
       tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
-  set(PATCHER_SOURCES ${devil_patcher_SRCS})
-  if(APPLE)
-    list(APPEND PATCHER_SOURCES
-      Packaging/apple/AppIcon.icns
-      Packaging/apple/LaunchScreen.storyboard)
-  elseif(WIN32)
-    list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
-    if(HELLFIRE)
-      list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
-    else()
-      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+  if(ANDROID)
+    add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
+  else()
+    set(PATCHER_SOURCES ${devil_patcher_SRCS})
+    if(APPLE)
+      list(APPEND PATCHER_SOURCES
+        Packaging/apple/AppIcon.icns
+        Packaging/apple/LaunchScreen.storyboard)
+    elseif(WIN32)
+      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
+      if(HELLFIRE)
+        list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
+      else()
+        list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+      endif()
     endif()
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      MACOSX_BUNDLE
+      ${PATCHER_SOURCES})
   endif()
-  add_executable(${DEVIL_PATCHER}
-    WIN32
-    MACOSX_BUNDLE
-    ${PATCHER_SOURCES})
-
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
-    PKWare
+    #PKWare
     StormLib
     #smacker
     Radon)
@@ -891,7 +901,6 @@ foreach(
   HAS_JOYSTICK
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
-  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF
@@ -1592,6 +1601,7 @@ foreach(
   def_name
   HELLFIRE
   USE_PATCH
+  CREATE_PATCHER
   USE_MPQONE
   CREATE_MPQONE
   NOSOUND

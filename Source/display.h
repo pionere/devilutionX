@@ -14,13 +14,10 @@ extern "C" {
 
 extern int screenWidth;
 extern int screenHeight;
-//extern int viewportHeight;
 
 extern bool gbWndActive;
 
 extern SDL_Window* ghMainWnd;
-extern SDL_Palette* back_palette;
-extern SDL_Surface* back_surface;
 
 void SpawnWindow();
 

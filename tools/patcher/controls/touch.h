@@ -6,7 +6,7 @@ static_assert(false, "Touchpad is not supported in SDL1.");
 #endif
 #include <SDL.h>
 
-#include "../defs.h"
+#include "../../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

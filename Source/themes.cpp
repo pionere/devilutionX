@@ -60,62 +60,62 @@ static int TFit_Shrine(int themeId)
 	numMatches = 0;
 	yy = themes[themeId]._tsy1;
 	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
-			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx - 1][yy] == themes[themeId]._tsTransVal && dTransVal[xx + 1][yy] == themes[themeId]._tsTransVal);
-			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
-				if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) != PST_NONE
-				 // make sure the place is wide enough
-				 // - on the inside
-				 && !nSolidTable[dPiece[xx - 1][yy]]
-				 && !nSolidTable[dPiece[xx + 1][yy]]
-				 // - on the wall (to avoid doors)
-				 && nSolidTable[dPiece[xx - 1][yy - 1]]
-				 && nSolidTable[dPiece[xx + 1][yy - 1]]
-				 // make sure it is in the same room
-				 /*&& dTransVal[xx - 1][yy] == tv
-				 && dTransVal[xx + 1][yy] == tv*/) {
-					// assert(dObject[xx][yy] == 0);
-					// assert(dObject[xx - 1][yy] == 0);
-					// assert(dObject[xx + 1][yy] == 0);
-					drlg.thLocs[numMatches].tpdx = xx;
-					drlg.thLocs[numMatches].tpdy = yy;
-					drlg.thLocs[numMatches].tpdvar1 = 1;
-					drlg.thLocs[numMatches].tpdvar2 = 0;
-					numMatches++;
-					static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (1 + 1)) * (10 - 2 - (1 + 1)), "TFit_Shrine skips limit checks assuming enough thLocs entries I.");
-					// if (numMatches == lengthof(drlg.thLocs))
-					//	goto done;
-				}
-			}
-	}
-	xx = themes[themeId]._tsx1;
-		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
-			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx][yy - 1] == themes[themeId]._tsTransVal && dTransVal[xx][yy + 1] == themes[themeId]._tsTransVal);
-			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
-				if ((nSpecTrapTable[dPiece[xx - 1][yy]] & PST_TRAP_TYPE) != PST_NONE
-				 // make sure the place is wide enough
-				 // - on the inside
-				 && !nSolidTable[dPiece[xx][yy - 1]]
-				 && !nSolidTable[dPiece[xx][yy + 1]]
-				 // - on the wall (to avoid doors)
-				 && nSolidTable[dPiece[xx - 1][yy - 1]]
-				 && nSolidTable[dPiece[xx - 1][yy + 1]]
-				 // make sure it is in the same room
-				 /*&& dTransVal[xx][yy - 1] == tv
-				 && dTransVal[xx][yy + 1] == tv*/) {
-					// assert(dObject[xx][yy] == 0);
-					// assert(dObject[xx][yy - 1] == 0);
-					// assert(dObject[xx][yy + 1] == 0);
-					drlg.thLocs[numMatches].tpdx = xx;
-					drlg.thLocs[numMatches].tpdy = yy;
-					drlg.thLocs[numMatches].tpdvar1 = 0;
-					drlg.thLocs[numMatches].tpdvar2 = 0;
-					numMatches++;
-					static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (1 + 1)) * (10 - 2 - (1 + 1)), "TFit_Shrine skips limit checks assuming enough thLocs entries II.");
-					// if (numMatches == lengthof(drlg.thLocs))
-					//	goto done;
-				}
+		// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx - 1][yy] == themes[themeId]._tsTransVal && dTransVal[xx + 1][yy] == themes[themeId]._tsTransVal);
+		if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
+			if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) != PST_NONE
+			 // make sure the place is wide enough
+			 // - on the inside
+			 && !nSolidTable[dPiece[xx - 1][yy]]
+			 && !nSolidTable[dPiece[xx + 1][yy]]
+			 // - on the wall (to avoid doors)
+			 && nSolidTable[dPiece[xx - 1][yy - 1]]
+			 && nSolidTable[dPiece[xx + 1][yy - 1]]
+			 // make sure it is in the same room
+			 /*&& dTransVal[xx - 1][yy] == tv
+			 && dTransVal[xx + 1][yy] == tv*/) {
+				// assert(dObject[xx][yy] == 0);
+				// assert(dObject[xx - 1][yy] == 0);
+				// assert(dObject[xx + 1][yy] == 0);
+				drlg.thLocs[numMatches].tpdx = xx;
+				drlg.thLocs[numMatches].tpdy = yy;
+				drlg.thLocs[numMatches].tpdvar1 = 1;
+				drlg.thLocs[numMatches].tpdvar2 = 0;
+				numMatches++;
+				static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (1 + 1)) * (10 - 2 - (1 + 1)), "TFit_Shrine skips limit checks assuming enough thLocs entries I.");
+				// if (numMatches == lengthof(drlg.thLocs))
+				//	goto done;
 			}
 		}
+	}
+	xx = themes[themeId]._tsx1;
+	for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
+		// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx][yy - 1] == themes[themeId]._tsTransVal && dTransVal[xx][yy + 1] == themes[themeId]._tsTransVal);
+		if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
+			if ((nSpecTrapTable[dPiece[xx - 1][yy]] & PST_TRAP_TYPE) != PST_NONE
+			 // make sure the place is wide enough
+			 // - on the inside
+			 && !nSolidTable[dPiece[xx][yy - 1]]
+			 && !nSolidTable[dPiece[xx][yy + 1]]
+			 // - on the wall (to avoid doors)
+			 && nSolidTable[dPiece[xx - 1][yy - 1]]
+			 && nSolidTable[dPiece[xx - 1][yy + 1]]
+			 // make sure it is in the same room
+			 /*&& dTransVal[xx][yy - 1] == tv
+			 && dTransVal[xx][yy + 1] == tv*/) {
+				// assert(dObject[xx][yy] == 0);
+				// assert(dObject[xx][yy - 1] == 0);
+				// assert(dObject[xx][yy + 1] == 0);
+				drlg.thLocs[numMatches].tpdx = xx;
+				drlg.thLocs[numMatches].tpdy = yy;
+				drlg.thLocs[numMatches].tpdvar1 = 0;
+				drlg.thLocs[numMatches].tpdvar2 = 0;
+				numMatches++;
+				static_assert(lengthof(drlg.thLocs) >= (10 - 2 - (1 + 1)) * (10 - 2 - (1 + 1)), "TFit_Shrine skips limit checks assuming enough thLocs entries II.");
+				// if (numMatches == lengthof(drlg.thLocs))
+				//	goto done;
+			}
+		}
+	}
 // done:
 	if (numMatches == 0)
 		return -1;

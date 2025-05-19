@@ -13,7 +13,6 @@
 #include "utils/file_util.h"
 #include "utils/md5.h"
 #include "storm/storm_cfg.h"
-#include "mpqapi.h"
 #include <string>
 #if DEV_MODE
 #include <fstream>
@@ -69,10 +68,20 @@ void FreeArchives()
 			diabdat_mpqs[i] = NULL;
 		}
 	}
-	// mpqapi_close();
 }
 
 #if DEV_MODE
+static std::string assetPath(const std::string &basePath, std::string &entry)
+{
+#ifndef _WIN32
+	int i;
+	for (i = 0; i < entry.size(); ++i)
+		if (entry[i] == '\\')
+			entry[i] = '/';
+#endif
+	return basePath + entry;
+}
+
 static void CreateMpq(const char* destMpqName, const char* folder, const char* files)
 {
 	if (FileExists(destMpqName))
@@ -86,11 +95,9 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	while (std::getline(input, line)) {
 		if (line[0] == '_')
 			continue;
-		std::string path = basePath + line.c_str();
-		FILE* fp = FileOpen(path.c_str(), "r");
-		if (fp == NULL)
+		std::string path = assetPath(basePath, line);
+		if (SFileReadLocalFile(path.c_str(), NULL) == 0)
 			app_fatal("Missing file: %s", path.c_str());
-		fclose(fp);
 		entryCount++;
 	}
 	input.close();
@@ -101,28 +108,30 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 	}
 
 	std::string path = std::string(GetBasePath()) + destMpqName;
-	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+	HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+	if (ha == NULL)
 		app_fatal("Unable to create MPQ file %s.", path.c_str());
 
 	input = std::ifstream(std::string(GetBasePath()) + files);
 	while (std::getline(input, line)) {
-		std::string path = basePath + line.c_str();
-		FILE* fp = FileOpen(path.c_str(), "rb");
-		if (fp != NULL) {
-			uintmax_t fileSize;
-			GetFileSize(path.c_str(), &fileSize);
-			if (fileSize > UINT32_MAX)
-				app_fatal("File %s is too large to be included in an MPQ archive.", line.c_str());
-			BYTE* buf = DiabloAllocPtr(fileSize);
-			ReadFile(buf, fileSize, fp);
-			fclose(fp);
-			if (!mpqapi_write_entry(line.c_str(), buf, (DWORD)fileSize))
-				app_fatal("Unable to write %s to the MPQ.", line.c_str());
-			mem_free_dbg(buf);
+		if (line[0] == '_')
+			continue;
+		std::string path = assetPath(basePath, line);
+		BYTE* buf = NULL;
+		DWORD fileSize = SFileReadLocalFile(path.c_str(), &buf);
+		if (fileSize == 0) {
+			SFileCloseArchive(ha);
+			app_fatal("Could not read file: %s", path.c_str());
+		}
+		bool success = SFileWriteFile(ha, line.c_str(), buf, fileSize);
+		mem_free_dbg(buf);
+		if (!success) {
+			SFileCloseArchive(ha);
+			app_fatal("Unable to write %s to the MPQ.", line.c_str());
 		}
 	}
 	input.close();
-	mpqapi_flush_and_close(true);
+	SFileFlushAndCloseArchive(ha);
 }
 #endif
 
@@ -143,20 +152,21 @@ void InitArchives()
 {
 	InitializeMpqCryptography();
 	ReadOnlyTest();
-	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
+	bool directFileAccess = getIniBool("Diablo", "Direct FileAccess", false);
+	SFileEnableDirectAccess(directFileAccess);
 #if DEV_MODE
 	CreateMpq("devilx.mpq", "Work\\", "mpqfiles.txt");
-	CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
+	// CreateMpq("devilx_hd2.mpq", "WorkHd\\", "hdfiles.txt");
 #endif
 	diabdat_mpqs[NUM_MPQS] = init_test_access(MPQONE, NUM_MPQS);
 
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN, MPQ_DIABDAT);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT, MPQ_DIABDAT);
-	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
+	//if (!directFileAccess && diabdat_mpqs[MPQ_DIABDAT] == NULL)
+	//	app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
 	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH, MPQ_PATCH_RT);
-	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL))
+	//if (SFileReadArchive(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL) == 0)
 	//	InsertCDDlg();
 
 #ifdef HELLFIRE
@@ -170,14 +180,14 @@ void InitArchives()
 	//diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq", MPQ_HF_OPT2);
 #endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq", MPQ_DEVILX);
-	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
+	//if (!directFileAccess && diabdat_mpqs[MPQ_DEVILX] == NULL)
+	//	app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
 #if ASSET_MPL != 1
 	char tmpstr[32];
 	snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
 	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr, MPQ_DEVILHD);
-	if (diabdat_mpqs[MPQ_DEVILHD] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
+	//if (!directFileAccess && diabdat_mpqs[MPQ_DEVILHD] == NULL)
+	//	app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif
 }
 

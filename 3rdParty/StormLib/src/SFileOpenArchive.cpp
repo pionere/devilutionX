@@ -235,8 +235,8 @@ HANDLE WINAPI SFileOpenArchive(
 {
 #ifdef FULL
     TMPQUserData * pUserData;
-#endif
     TFileStream * pStream = NULL;       // Open file stream
+#endif
     TMPQArchive * ha = NULL;            // Archive handle
 #ifdef FULL
     TFileEntry * pFileEntry;
@@ -261,12 +261,12 @@ HANDLE WINAPI SFileOpenArchive(
 
     // If not forcing MPQ v 1.0, also use file bitmap
     dwStreamFlags |= (dwFlags & MPQ_OPEN_FORCE_MPQ_V1) ? 0 : STREAM_FLAG_USE_BITMAP;
-#endif
+
     // Open the MPQ archive file
     pStream = FileStream_OpenFile(szMpqName, dwStreamFlags);
     if(pStream == NULL)
         return NULL;
-#ifdef FULL
+
     // Check the file size. There must be at least 0x20 bytes
     if(dwErrCode == ERROR_SUCCESS)
     {
@@ -285,15 +285,22 @@ HANDLE WINAPI SFileOpenArchive(
             dwErrCode = ERROR_SUCCESS + 1;
 #endif
     }
-#ifdef FULL
+
     // Allocate buffer for searching MPQ header
     if(dwErrCode == ERROR_SUCCESS)
     {
+#ifdef FULL
         pbHeaderBuffer = STORM_ALLOC(BYTE, HEADER_SEARCH_BUFFER_SIZE);
         if(pbHeaderBuffer == NULL)
             dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
-    }
+#else
+        dwErrCode = FileStream_OpenFile(&ha->pStream, szMpqName, dwStreamFlags);
+        if (dwErrCode != ERROR_SUCCESS) {
+            STORM_FREE(ha);
+            ha = NULL;
+        }
 #endif
+    }
     // Find the position of MPQ header
     if(dwErrCode == ERROR_SUCCESS)
     {
@@ -314,8 +321,8 @@ HANDLE WINAPI SFileOpenArchive(
         ha->pBlockTable = NULL;
         ha->pHashTable = NULL;
 #endif
-        ha->pStream = pStream;
 #ifdef FULL
+        ha->pStream = pStream;
         pStream = NULL;
 
         // Set the archive read only if the stream is read-only
@@ -402,7 +409,7 @@ HANDLE WINAPI SFileOpenArchive(
                     // Now convert the header to version 4
                     dwErrCode = ConvertMpqHeaderToFormat4(ha, ByteOffset, FileSize, dwFlags, MapType);
 #else
-                if(!FileStream_Read(ha->pStream, ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
+                if(!FileStream_Read(&ha->pStream, ByteOffset, &ha->pHeader, sizeof(ha->pHeader)))
                 {
                     dwErrCode = ERROR_SUCCESS + 1;
                 } else {
@@ -459,11 +466,11 @@ HANDLE WINAPI SFileOpenArchive(
 #else
         if(dwErrCode == ERROR_SUCCESS)
         {
-            if ((int)ha->pHeader.dwHashTableSize <= 0                     // required by GetFirstHashEntry ( != 0 by LoadAnyHashTable)
+            if(ha->pHeader.dwHashTableSize == 0   // required by LoadAnyHashTable
              || (ha->pHeader.dwHashTableSize & (ha->pHeader.dwHashTableSize - 1)) != 0)
                 dwErrCode = ERROR_SUCCESS + 1;
 
-            if (ha->pHeader.dwBlockTableSize == 0) // required by BuildFileTable
+            if(ha->pHeader.dwBlockTableSize == 0) // required by BuildFileTable
                 dwErrCode = ERROR_SUCCESS + 1;
         }
 #endif
@@ -705,6 +712,463 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
     if(dwResultError != ERROR_SUCCESS)
         SetLastError(dwResultError);
     return (dwResultError == ERROR_SUCCESS);
+}
+#else
+bool WINAPI SFileReopenArchive(HANDLE hMpq, const TCHAR * szMpqName)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    return FileStream_OpenFile(&ha->pStream, szMpqName, 0) == ERROR_SUCCESS;
+}
+
+DWORD WINAPI SFileReadArchive(HANDLE hMpq, const char* szFileName, BYTE** dest)
+{
+    TMPQFile file;
+    BYTE* buf;
+    DWORD fileLen = 0;
+
+    if (hMpq != NULL && SFileOpenFileEx(hMpq, szFileName, &file)) {
+        fileLen = SFileGetMpqFileSize(&file);
+
+        if (fileLen != 0 && dest != NULL) {
+            buf = *dest;
+            if (buf == NULL) {
+                buf = STORM_ALLOC(BYTE, fileLen);
+            }
+            if (buf != NULL) {
+                if (SFileReadMpqFileEx(&file, buf, fileLen) != ERROR_SUCCESS) {
+                    STORM_FREE(buf);
+                    // buf = NULL;
+                    fileLen = 0; // failure with -1 ?
+                }
+            } else {
+                fileLen = 0; // report out-of-memory with -1 ?
+            }
+            *dest = buf;
+        }
+
+        // SFileCloseFile(&file);
+    }
+
+    return fileLen;
+}
+
+DWORD WINAPI SFileReadLocalFile(const char* szFileName, BYTE** dest)
+{
+    TMPQFile file;
+    BYTE* buf;
+    DWORD fileLen = 0;
+
+    if (SFileOpenLocalFileEx(szFileName, &file)) {
+        fileLen = SFileGetLocalFileSize(&file);
+
+        if (fileLen != 0 && dest != NULL) {
+            buf = *dest;
+            if (buf == NULL) {
+                buf = STORM_ALLOC(BYTE, fileLen);
+            }
+            if (buf != NULL) {
+                if (SFileReadLocalFileEx(&file, buf, fileLen) != ERROR_SUCCESS) {
+                    STORM_FREE(buf);
+                    // buf = NULL;
+                    fileLen = 0; // failure with -1 ?
+                }
+            } else {
+                fileLen = 0; // report out-of-memory with -1 ?
+            }
+            *dest = buf;
+        }
+
+        SFileCloseFile(&file);
+    }
+
+    return fileLen;
+}
+
+static bool WriteHeader(TMPQArchive * ha)
+{
+    BSWAP_TMPQHEADER(&ha->pHeader, MPQ_FORMAT_VERSION_1);
+
+    const bool success = FileStream_Write(&ha->pStream, 0, &ha->pHeader, sizeof(ha->pHeader));
+    BSWAP_TMPQHEADER(&ha->pHeader, MPQ_FORMAT_VERSION_1);
+    return success;
+}
+
+static bool WriteBlockTable(TMPQArchive * ha)
+{
+    DWORD blockSize, key = MPQ_KEY_BLOCK_TABLE; //HashStringSlash("(block table)", MPQ_HASH_FILE_KEY);
+
+    blockSize = ha->pHeader.dwBlockTableSize * sizeof(TMPQBlock);
+
+    BSWAP_ARRAY32_UNSIGNED(ha->pBlockTable, blockSize / sizeof(DWORD));
+
+    EncryptMpqBlock(ha->pBlockTable, blockSize, key);
+    const bool success = FileStream_Write(&ha->pStream, ha->pHeader.dwBlockTablePos, reinterpret_cast<const char*>(ha->pBlockTable), blockSize);
+    DecryptMpqBlock(ha->pBlockTable, blockSize, key);
+    BSWAP_ARRAY32_UNSIGNED(ha->pBlockTable, blockSize / sizeof(DWORD));
+    return success;
+}
+
+static bool WriteHashTable(TMPQArchive * ha)
+{
+    DWORD hashSize, key = MPQ_KEY_HASH_TABLE; //HashStringSlash("(hash table)", MPQ_HASH_FILE_KEY);
+
+    hashSize = ha->pHeader.dwHashTableSize * sizeof(TMPQHash);
+
+    BSWAP_ARRAY32_UNSIGNED(ha->pHashTable, hashSize / sizeof(DWORD));
+
+    EncryptMpqBlock(ha->pHashTable, hashSize, key);
+    const bool success = FileStream_Write(&ha->pStream, ha->pHeader.dwHashTablePos, reinterpret_cast<const char*>(ha->pHashTable), hashSize);
+    DecryptMpqBlock(ha->pHashTable, hashSize, key);
+    BSWAP_ARRAY32_UNSIGNED(ha->pHashTable, hashSize / sizeof(DWORD));
+    return success;
+}
+
+static bool WriteHeaderAndTables(TMPQArchive * ha)
+{
+    return WriteHeader(ha) && WriteBlockTable(ha) && WriteHashTable(ha);
+}
+
+HANDLE WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwHashCount, DWORD dwBlockCount)
+{
+    TFileStream * pStream = NULL;       // Open file stream
+    TMPQArchive * ha = NULL;            // Archive handle
+    DWORD dwErrCode = ERROR_SUCCESS;
+    DWORD blockSize, hashSize;
+
+    if(dwErrCode == ERROR_SUCCESS)
+    {
+        if((ha = STORM_ALLOC(TMPQArchive, 1)) == NULL)
+            dwErrCode = ERROR_SUCCESS + 1;
+    }
+
+    if(dwErrCode == ERROR_SUCCESS)
+    {
+        dwErrCode = FileStream_CreateFile(&ha->pStream, szMpqName);
+        if (dwErrCode != ERROR_SUCCESS) {
+            STORM_FREE(ha);
+            ha = NULL;
+        }
+    }
+    if(dwErrCode == ERROR_SUCCESS)
+    {
+        // assert(dwHashCount != 0); required by LoadAnyHashTable
+        // assert(blockCount != 0);  required by BuildFileTable
+        // dwHashCount must be a power of two
+        // assert((dwHashCount & (dwHashCount - 1)) == 0); // required by GetFirstHashEntry / mpqapi_add_hash_entry
+        // InitDefaultMpqHeader
+        // std::memset(&ha->pHeader, 0, sizeof(ha->pHeader));
+        ha->pHeader.dwID = ID_MPQ;
+        ha->pHeader.dwHeaderSize = MPQ_HEADER_SIZE_V1;
+        ha->pHeader.wSectorSize = MPQ_SECTOR_SIZE_SHIFT_V1;
+        ha->pHeader.wFormatVersion = MPQ_FORMAT_VERSION_1;
+        ha->pHeader.dwHashTableSize = dwHashCount;
+        ha->pHeader.dwBlockTableSize = dwBlockCount;
+        ha->pHeader.dwHashTablePos = MPQ_HEADER_SIZE_V1 + dwBlockCount * sizeof(TMPQBlock);
+        ha->pHeader.dwBlockTablePos = MPQ_HEADER_SIZE_V1;
+        ha->pHeader.dwArchiveSize = ha->pHeader.dwHashTablePos + dwHashCount * sizeof(TMPQHash);
+
+        blockSize = dwBlockCount * sizeof(TMPQBlock);
+        ha->pBlockTable = STORM_ALLOC(TMPQBlock, dwBlockCount);
+        hashSize = dwHashCount * sizeof(TMPQHash);
+        ha->pHashTable = STORM_ALLOC(TMPQHash, dwHashCount);
+        if (ha->pBlockTable != NULL && ha->pHashTable != NULL) {
+            memset(ha->pBlockTable, 0, blockSize);
+            // static_assert(HASH_ENTRY_FREE == 0xFFFFFFFF, "SFileCreateArchive initializes the hashtable with 0xFF to mark the entries as free.");
+            memset(ha->pHashTable, 0xFF, hashSize);
+        } else {
+            dwErrCode = ERROR_SUCCESS + 1;
+        }
+    }
+    if(dwErrCode != ERROR_SUCCESS)
+    {
+        FreeArchiveHandle(ha);
+        ha = NULL;
+    }
+    return ha;
+}
+
+void WINAPI SFileFlushArchive(HANDLE hMpq)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    if (WriteHeaderAndTables(ha)) {
+        FileStream_SetSize(&ha->pStream, ha->pHeader.dwArchiveSize);
+    }
+    FileStream_Close(&ha->pStream);
+}
+
+void   WINAPI SFileFlushAndCloseArchive(HANDLE hMpq)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+    SFileFlushArchive(ha);
+    FreeArchiveHandle(ha);
+}
+
+void   WINAPI SFileReleaseArchive(HANDLE hMpq)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    FileStream_Close(&ha->pStream);
+}
+
+static DWORD mpqapi_new_block(TMPQArchive * ha)
+{
+    TMPQBlock* pBlock;
+    DWORD i, blockCount;
+
+    pBlock = ha->pBlockTable;
+    blockCount = ha->pHeader.dwBlockTableSize;
+    for (i = 0; i < blockCount; i++, pBlock++) {
+        if (pBlock->dwFilePos == 0) {
+            // assert((pBlock->dwCSize | pBlock->dwFlags | pBlock->dwFSize) == 0);
+            return i;
+        }
+    }
+
+    // app_fatal("Out of free block entries");
+    return 0;
+}
+
+static void mpqapi_alloc_block(TMPQArchive * ha, DWORD block_offset, DWORD block_size)
+{
+    TMPQBlock* pBlock;
+    DWORD i;
+//restart:
+
+    pBlock = ha->pBlockTable;
+    for (i = ha->pHeader.dwBlockTableSize; i != 0; i--, pBlock++) {
+        if (pBlock->dwFilePos != 0 && pBlock->dwFlags == 0 && pBlock->dwFSize == 0) {
+            if (pBlock->dwFilePos + pBlock->dwCSize == block_offset) {
+                // preceeding empty block -> mark the block-entry as unallocated and restart(?) with the merged region
+                block_offset = pBlock->dwFilePos;
+                block_size += pBlock->dwCSize;
+                pBlock->dwFilePos = 0;
+                pBlock->dwCSize = 0;
+                //goto restart;
+            }
+            if (block_offset + block_size == pBlock->dwFilePos) {
+                // succeeding empty block -> mark the block-entry as unallocated and restart(?) with the merged region
+                block_size += pBlock->dwCSize;
+                pBlock->dwFilePos = 0;
+                pBlock->dwCSize = 0;
+                //goto restart;
+            }
+        }
+    }
+#if DEBUG_MODE
+    if (block_offset + block_size > ha->pHeader.dwArchiveSize) {
+        app_fatal("MPQ free list error");
+    }
+#endif
+    if (block_offset + block_size == ha->pHeader.dwArchiveSize) {
+        ha->pHeader.dwArchiveSize = block_offset;
+    } else {
+        i = mpqapi_new_block(ha);
+        // if (i == -1) return false;
+        pBlock = &ha->pBlockTable[i];
+        pBlock->dwFilePos = block_offset;
+        pBlock->dwCSize = block_size;
+        pBlock->dwFSize = 0;
+        pBlock->dwFlags = 0;
+    }
+}
+
+static TMPQHash * mpqapi_add_hash_entry(TMPQArchive * ha, const char * pszName)
+{
+    TMPQHash * pHash;
+    DWORD i, h1, h2, h3, hashCount;
+
+#if DEBUG_MODE
+    if (GetFirstHashEntry(ha, pszName) != NULL)
+        app_fatal("Hash collision between \"%s\" and existing file\n", pszName);
+#endif
+    h1 = HashStringSlash(pszName, MPQ_HASH_TABLE_INDEX);
+    h2 = HashStringSlash(pszName, MPQ_HASH_NAME_A);
+    h3 = HashStringSlash(pszName, MPQ_HASH_NAME_B);
+    hashCount = ha->pHeader.dwHashTableSize;
+    for (i = hashCount; i != 0; i--, h1++) {
+        h1 &= hashCount - 1;
+        pHash = &ha->pHashTable[h1];
+        if (pHash->dwBlockIndex == HASH_ENTRY_FREE || pHash->dwBlockIndex == HASH_ENTRY_DELETED) {
+            pHash->dwName1 = h2;
+            pHash->dwName2 = h3;
+            pHash->lcLocale = 0;
+            pHash->Platform = 0;
+            // pHash->hqBlock = block_index;
+            return pHash;
+        }
+    }
+
+    // app_fatal("Out of hash space");
+    return NULL;
+}
+
+static DWORD mpqapi_find_free_block(TMPQArchive * ha, DWORD size)
+{
+    TMPQBlock * pBlock;
+    DWORD i, result;
+
+    pBlock = ha->pBlockTable;
+    for (i = ha->pHeader.dwBlockTableSize; i != 0; i--, pBlock++) {
+        result = pBlock->dwFilePos;
+        if (result != 0 && pBlock->dwFlags == 0
+         && pBlock->dwFSize == 0 && pBlock->dwCSize >= size) {
+            pBlock->dwFilePos += size;
+            pBlock->dwCSize -= size;
+
+            if (pBlock->dwCSize == 0) {
+                pBlock->dwFilePos = 0;
+                // memset(pBlock, 0, sizeof(*pBlock));
+            }
+
+            return result;
+        }
+    }
+
+    result = ha->pHeader.dwArchiveSize;
+    ha->pHeader.dwArchiveSize = result + size;
+    return result;
+}
+
+static DWORD SCompImplode(BYTE * srcData, DWORD dwSize)
+{
+    BYTE * destData;
+    char * work_buf;
+    unsigned int destSize;
+
+    work_buf = STORM_ALLOC(char, CMP_BUFFER_SIZE);
+    destSize = 2 * dwSize;
+    if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
+        destSize = 2 * CMP_IMPLODE_DICT_SIZE3;
+
+    destData = STORM_ALLOC(BYTE, destSize);
+    if (work_buf != NULL && destData != NULL) {
+        TDataInfo info = TDataInfo(srcData, dwSize, destData, destSize);
+
+        implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+        // copy the result only if the compression reduces the size of the data
+        destSize = (size_t)info.pbOutBuff - (size_t)destData;
+        if (destSize < dwSize) {
+            dwSize = destSize;
+            memcpy(srcData, destData, dwSize);
+        }
+    }
+    STORM_FREE(work_buf);
+    STORM_FREE(destData);
+
+    return dwSize;
+}
+
+static bool mpqapi_write_file_contents(TMPQArchive * ha, void * pbData, DWORD dwLen, DWORD block)
+{
+    TMPQBlock * pBlk = &ha->pBlockTable[block];
+    // assert(dwLen != 0);
+    const DWORD num_sectors = ((dwLen - 1) / MPQ_SECTOR_SIZE_V1) + 1;
+    const DWORD offset_table_bytesize = sizeof(DWORD) * (num_sectors + 1);
+    pBlk->dwCSize = dwLen + offset_table_bytesize;
+    pBlk->dwFilePos = mpqapi_find_free_block(ha, pBlk->dwCSize);
+    pBlk->dwFSize = dwLen;
+    pBlk->dwFlags = MPQ_FILE_EXISTS | MPQ_FILE_IMPLODE;
+
+    // We populate the table of sector offset while we write the data.
+    // We can't pre-populate it because we don't know the compressed sector sizes yet.
+    // First offset is the start of the first sector, last offset is the end of the last sector.
+    DWORD * sectoroffsettable = (DWORD*)STORM_ALLOC(BYTE, offset_table_bytesize);
+    bool bResult;
+    DWORD destsize = offset_table_bytesize;
+    unsigned cur_sector = 0;
+    sectoroffsettable[0] = destsize;
+    BYTE * src = (BYTE*)pbData;
+    BYTE * dst = (BYTE*)pbData;
+    while (true) {
+        DWORD len = STORMLIB_MIN(dwLen, MPQ_SECTOR_SIZE_V1);
+        DWORD cmplen = SCompImplode(src, len);
+        if (src != dst) {
+            memmove(dst, src, cmplen);
+        }
+        src += len;
+        dst += cmplen;
+        destsize += cmplen; // compressed length
+        sectoroffsettable[++cur_sector] = destsize;
+        if (dwLen > MPQ_SECTOR_SIZE_V1)
+            dwLen -= MPQ_SECTOR_SIZE_V1;
+        else
+            break;
+    }
+    BSWAP_ARRAY32_UNSIGNED(sectoroffsettable, num_sectors);
+    bResult = FileStream_Write(&ha->pStream, pBlk->dwFilePos, reinterpret_cast<const char*>(sectoroffsettable), offset_table_bytesize)
+           && FileStream_Write(&ha->pStream, pBlk->dwFilePos + offset_table_bytesize, reinterpret_cast<const char*>(pbData), destsize - offset_table_bytesize);
+
+    if (destsize < pBlk->dwCSize) {
+        const DWORD emptyBlockSize = pBlk->dwCSize - destsize;
+        //if (emptyBlockSize >= (MPQ_SECTOR_SIZE_V1 / 4)) {
+            pBlk->dwCSize = destsize;
+            mpqapi_alloc_block(ha, pBlk->dwCSize + pBlk->dwFilePos, emptyBlockSize);
+        //}
+    }
+    STORM_FREE(sectoroffsettable);
+    return bResult;
+}
+
+bool   WINAPI SFileWriteFile(HANDLE hMpq, const char * szFileName, void * pvData, DWORD dwSize)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+    DWORD block;
+    bool bResult;
+
+    SFileRemoveFile(ha, szFileName);
+    TMPQHash * pHash = mpqapi_add_hash_entry(ha, szFileName);
+    // if (pHash == NULL) bResult = false;
+    block = mpqapi_new_block(ha);
+    // if (block == -1) bResult = false;
+    pHash->dwBlockIndex = block;
+    bResult = mpqapi_write_file_contents(ha, pvData, dwSize, block);
+    if (!bResult) {
+        SFileRemoveFile(ha, szFileName);
+    }
+    return bResult;
+}
+
+bool   WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+
+    TMPQHash * pHash;
+    TMPQBlock * pBlock;
+    int block_offset, block_size;
+    bool bResult = false;
+
+    pHash = GetFirstHashEntry(ha, szFileName);
+    if (pHash != NULL) {
+        pBlock = ha->pBlockTable + MPQ_BLOCK_INDEX(pHash);
+        pHash->dwBlockIndex = HASH_ENTRY_DELETED;
+        block_offset = pBlock->dwFilePos;
+        block_size = pBlock->dwCSize;
+        memset(pBlock, 0, sizeof(*pBlock));
+        mpqapi_alloc_block(ha, block_offset, block_size);
+        bResult = true;
+    }
+    return bResult;
+}
+
+void   WINAPI SFileRenameFile(HANDLE hMpq, const char * szOldFileName, const char * szNewFileName)
+{
+    TMPQArchive * ha = IsValidMpqHandle(hMpq);
+    TMPQHash * pHash;
+    DWORD block;
+
+    pHash = GetFirstHashEntry(ha, szOldFileName);
+    if (pHash != NULL) {
+        // if (mpqapi_has_entry(ha, szNewFileName))
+            SFileRemoveFile(ha, szNewFileName);
+        // assert(pHash->dwBlockIndex != HASH_ENTRY_DELETED);
+        block = MPQ_BLOCK_INDEX(pHash);
+        pHash->dwBlockIndex = HASH_ENTRY_DELETED;
+        pHash = mpqapi_add_hash_entry(ha, szNewFileName);
+        // assert(pHash != NULL);
+        pHash->dwBlockIndex = block;
+    }
 }
 #endif // FULL
 

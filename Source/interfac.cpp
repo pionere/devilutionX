@@ -33,7 +33,7 @@ static void InitLvlCutscene(BYTE lvl)
 {
 	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
 	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
-	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, PANEL_WIDTH);
+	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, BACKGROUND_ART_WIDTH);
 	LoadPalette(AllLevels[lvl].dLoadPal);
 }
 
@@ -65,14 +65,14 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case DVL_DWM_DYNLVL:
 	case DVL_DWM_PORTLVL:
-		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
+		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", BACKGROUND_ART_WIDTH);
 		LoadPalette("Gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
 	case DVL_DWM_LOADGAME:
-		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
+		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", BACKGROUND_ART_WIDTH);
 		LoadPalette("Gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
@@ -101,9 +101,12 @@ static void DrawProgress()
 	int screen_x, screen_y;
 	unsigned w, i, j;
 
-	screen_x = PANEL_CENTERX(BAR_WIDTH);
-	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
-	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
+	screen_x = SCREEN_CENTERX(BAR_WIDTH);
+	screen_y = BACKGROUND_ART_TOP + (sgbLoadBarOnTop ? SCREEN_Y + TOP_BAR_Y : SCREEN_Y + BOTTOM_BAR_Y);
+	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
+	if (dst >= gpBufEnd)
+		return;
+	static_assert(BORDER_BOTTOM >= BAR_HEIGHT, "DrawProgress needs larger border.");
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
 	for (j = 0; j < BAR_HEIGHT; j++) {
@@ -134,7 +137,7 @@ static void DrawProgress()
 	};
 	static_assert(((BAR_WIDTH + lengthof(progession) - 1) / lengthof(progession)) == BAR_STEP, "Progression steps and labels are not in sync.");
 	unsigned progress = sgdwProgress / BAR_STEP;
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", COL_WHITE, FONT_KERN_SMALL);
+	PrintLimitedString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", BAR_WIDTH - 20, COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 
@@ -142,7 +145,7 @@ static void DrawCutsceneBack()
 {
 	lock_buf(1);
 
-	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
 
 	unlock_buf(1);
 }
@@ -162,7 +165,7 @@ static void RenderCutscene()
 
 	lock_buf(1);
 	// if (sgdwProgress == 0)
-	//	CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	//	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
@@ -371,9 +374,9 @@ void ShowCutscene(unsigned uMsg)
 	saveProc = SetWindowProc(DisableInputWndProc);
 	assert(saveProc == GameWndProc);
 	interface_msg_pump();
-	ClearScreenBuffer();
 	// scrollrt_render_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
+	ClearScreenBuffer(); // must be after InitCutscene in case gbCineflag is set to clear after video-playback
 	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
 	DrawCutsceneBack();
 	PaletteFadeIn(false);

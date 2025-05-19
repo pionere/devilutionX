@@ -57,15 +57,8 @@ SDL_Texture* renderer_texture;
 /** 24-bit renderer texture surface */
 SDL_Surface* renderer_surface = NULL;
 
-/** Currently active palette */
-SDL_Palette* back_palette;
-
-/** 8-bit surface wrapper around #gpBuffer */
-SDL_Surface* back_surface;
-
 int screenWidth;
 int screenHeight;
-//int viewportHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
@@ -95,6 +88,12 @@ void SetVideoModeToPrimary(int width, int height)
 	SetVideoMode(width, height, SDL1_VIDEO_MODE_BPP, flags);
 	// gbFullscreen = (SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0;
 }
+
+SDL_Surface* OutputSurfaceToScale()
+{
+	SDL_Surface* surface = GetOutputSurface();
+	return (SCREEN_WIDTH != surface->w || SCREEN_HEIGHT != surface->h) ? surface : NULL;
+}
 #else
 void RecreateDisplay(int width, int height)
 {
@@ -117,7 +116,7 @@ static void AdjustToScreenGeometry(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 #ifdef USE_SDL1
-	if (OutputRequiresScaling()) {
+	if (OutputSurfaceToScale() != NULL) {
 		DoLog("Using software scaling");
 	}
 #endif
@@ -127,28 +126,30 @@ static void AdjustToScreenGeometry(int width, int height)
 static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
 {
 	SDL_DisplayMode mode;
-	if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
-		sdl_error(ERR_SDL_DISPLAY_MODE_GET);
-	}
+	SDL_GetDesktopDisplayMode(0, &mode);
 
 	if (mode.w < mode.h) {
 		std::swap(mode.w, mode.h);
 	}
 
 	if (useIntegerScaling) {
-		int factor = std::min(mode.w / width, mode.h / height);
-		width = mode.w / factor;
-		height = mode.h / factor;
-		return;
-	}
-
-	float wFactor = (float)mode.w / width;
-	float hFactor = (float)mode.h / height;
-
-	if (wFactor > hFactor) {
-		width = mode.w * height / mode.h;
+		int wFactor = mode.w / width;
+		int hFactor = mode.h / height;
+		if (wFactor > hFactor) {
+			if (hFactor != 0)
+				width *= wFactor / hFactor;
+		} else { // if (hFactor > wFactor) {
+			if (wFactor != 0)
+				height *= hFactor / wFactor;
+		}
 	} else {
-		height = mode.h * width / mode.w;
+		float wFactor = (float)mode.w / width;
+		float hFactor = (float)mode.h / height;
+		if (wFactor > hFactor) {
+			width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
+		} else { // if (hFactor > wFactor) {
+			height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
+		}
 	}
 }
 #endif
@@ -211,30 +212,9 @@ void SpawnWindow()
 #endif
 	int width = DEFAULT_WIDTH;
 	int height = DEFAULT_HEIGHT;
-#if 0
-	int smode = 0; 
-	switch (smode) {
-	case 0: // oe
-		width = DEFAULT_WIDTH + 64;			// 704
-		height = DEFAULT_HEIGHT + 48;		// 528
-		break;
-	case 1: // oo
-		width = DEFAULT_WIDTH + 64 + 32;	// 736
-		height = DEFAULT_HEIGHT;			// 552
-		break;
-	case 2: // EE
-		width = DEFAULT_WIDTH + (32 * 4 + 2) / 3 + 1;	// 684
-		height = DEFAULT_HEIGHT;						// 513
-		break;
-	case 3:// EO
-		width = DEFAULT_WIDTH;
-		height = DEFAULT_HEIGHT;
-		break;
-	}
-#else
 	getIniInt("Graphics", "Width", &width);
 	getIniInt("Graphics", "Height", &height);
-#endif
+
 #if !FULLSCREEN_ONLY
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
@@ -296,7 +276,7 @@ void SpawnWindow()
 		}
 
 		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
-			sdl_error(ERR_SDL_RENDERER_SCALE);
+			sdl_issue(ERR_SDL_RENDERER_SCALE);
 		}
 
 		RecreateDisplay(width, height);
@@ -313,8 +293,9 @@ void SpawnWindow()
 	int refreshRate = 60;
 #ifndef USE_SDL1
 	SDL_DisplayMode mode;
-	// TODO: use SDL_GetCurrentDisplayMode after window is shown?
-	if (SDL_GetDesktopDisplayMode(0, &mode) == 0) {
+	// TODO: use SDL_GetWindowDisplayMode?
+	SDL_GetDesktopDisplayMode(0, &mode);
+	if (mode.refresh_rate != 0) {
 		refreshRate = mode.refresh_rate;
 	}
 #endif
@@ -333,51 +314,5 @@ SDL_Surface* GetOutputSurface()
 	return SDL_GetWindowSurface(ghMainWnd);
 #endif
 }
-
-#ifdef USE_SDL1
-bool OutputRequiresScaling()
-{
-	return SCREEN_WIDTH != GetOutputSurface()->w || SCREEN_HEIGHT != GetOutputSurface()->h;
-}
-
-void ScaleOutputRect(SDL_Rect* rect)
-{
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
-	rect->x = rect->x * surface->w / SCREEN_WIDTH;
-	rect->y = rect->y * surface->h / SCREEN_HEIGHT;
-	rect->w = rect->w * surface->w / SCREEN_WIDTH;
-	rect->h = rect->h * surface->h / SCREEN_HEIGHT;
-}
-
-static SDL_Surface* CreateScaledSurface(SDL_Surface* src)
-{
-	SDL_Rect stretched_rect = { 0, 0, static_cast<Uint16>(src->w), static_cast<Uint16>(src->h) };
-	ScaleOutputRect(&stretched_rect);
-	SDL_Surface* stretched = SDL_CreateRGBSurface(
-	    SDL_SWSURFACE, stretched_rect.w, stretched_rect.h, src->format->BitsPerPixel,
-	    src->format->Rmask, src->format->Gmask, src->format->Bmask, src->format->Amask);
-	if (SDL_HasColorKey(src)) {
-		SDL_SetColorKey(stretched, SDL_SRCCOLORKEY, src->format->colorkey);
-		if (src->format->palette != NULL)
-			SDL_SetPalette(stretched, SDL_LOGPAL, src->format->palette->colors, 0, src->format->palette->ncolors);
-	}
-	if (SDL_SoftStretch((src), NULL, stretched, &stretched_rect) < 0) {
-		SDL_FreeSurface(stretched);
-		sdl_error(ERR_SDL_WINDOW_STRETCH);
-	}
-	return stretched;
-}
-
-void ScaleSurfaceToOutput(SDL_Surface** surface)
-{
-	if (!OutputRequiresScaling())
-		return;
-	SDL_Surface* stretched = CreateScaledSurface(*surface);
-	SDL_FreeSurface((*surface));
-	*surface = stretched;
-}
-#endif // USE_SDL1
 
 DEVILUTION_END_NAMESPACE
