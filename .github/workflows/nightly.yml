@@ -145,7 +145,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -190,7 +190,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-x64
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -235,7 +235,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-Win9x
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -281,7 +281,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-WinXP
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -400,7 +400,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64.tar.xz'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
