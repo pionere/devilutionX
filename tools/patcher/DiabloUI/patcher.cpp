@@ -2086,7 +2086,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || (int8_t)*pHead <= -127) {
+				if (colMatches < RLE_LEN || (int8_t)*pHead == -128) {
 					// bmp encoding
 					if (alpha || (int8_t)*pHead <= -65 || first) {
 						pHead = pBuf;
