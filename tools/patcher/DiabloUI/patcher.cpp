@@ -2057,22 +2057,22 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	if (clipped) {
 		// add CL2 FRAME HEADER
 		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize);
-		*(DWORD*)&pBuf[2] = 0;
-		*(DWORD*)&pBuf[6] = 0;
+		//*(DWORD*)&pBuf[2] = 0;
+		//*(DWORD*)&pBuf[6] = 0;
 		pBuf += subHeaderSize;
 	}
 
 	BYTE* pHead = pBuf;
 	BYTE col, lastCol;
-	BYTE colMatches = 0;
+	BYTE colMatches = 0; // does not matter
 	bool alpha = false;
-	bool first = true;
+	bool first = false; // true; - does not matter
 	for (int i = 1; i <= height; i++) {
 		if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
 			pHead = pBuf;
 			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16((WORD)((size_t)pHead - (size_t)pHeader)); // pHead - buf - SUB_HEADER_SIZE;
 
-			colMatches = 0;
+			// colMatches = 0;
 			alpha = false;
 			// first = true;
 		}
@@ -2086,9 +2086,9 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || (int8_t)*pHead == -128) {
+				if (colMatches < RLE_LEN || *pHead == 0x80u) {
 					// bmp encoding
-					if (alpha || (int8_t)*pHead <= -65 || first) {
+					if (/*alpha ||*/ *pHead <= 0xBFu || first) {
 						pHead = pBuf;
 						pBuf++;
 						colMatches = 1;
@@ -2103,7 +2103,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 						if (*pHead != 0) {
 							pHead = pBuf - (RLE_LEN - 1);
 						}
-						*pHead = -65 - (RLE_LEN - 1);
+						*pHead = 0xBFu - (RLE_LEN - 1);
 						pBuf = pHead + 1;
 						*pBuf = col;
 						pBuf++;
@@ -2115,7 +2115,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 				alpha = false;
 			} else {
 				// add transparent pixel
-				if (!alpha || (int8_t)*pHead >= 127) {
+				if (!alpha || *pHead == 0x7Fu) {
 					pHead = pBuf;
 					pBuf++;
 				}
