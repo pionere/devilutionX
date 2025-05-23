@@ -6532,13 +6532,13 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 			// test if the animation is already patched
-			if (ii == 1 && n == 9) {
+			if (ii + 1 == 2 && n == 9) {
 				needsPatch = gpBuffer[71 + BUFFER_WIDTH * 127] != TRANS_COLOR; // assume it is already done
 			}
 
 			if (needsPatch) {
-				switch (ii) {
-				case DIR_SW: {
+				switch (ii + 1) {
+				case 2: {
 					switch (n) {
 					case 9:
 					case 10:
@@ -6583,7 +6583,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_W: {
+				case 3: {
 					switch (n) {
 					case 9:
 					case 10:
@@ -6641,7 +6641,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_NW: {
+				case 4: {
 					switch (n) {
 					case 12:
 					case 13:
@@ -6663,7 +6663,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_E: {
+				case 7: {
 					switch (n) {
 					case 9:
 					case 10:
@@ -6678,7 +6678,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_SE: {
+				case 8: {
 					switch (n) {
 					case 12:
 					case 13:
