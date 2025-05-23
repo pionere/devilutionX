@@ -698,6 +698,7 @@ if(CREATE_PATCHER)
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp
     tools/patcher/DiabloUI/merger.cpp
+    tools/patcher/DiabloUI/patchdat.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
     tools/patcher/DiabloUI/selok.cpp

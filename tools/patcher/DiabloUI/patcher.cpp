@@ -3,6 +3,7 @@
 #include <set>
 
 #include "diabloui.h"
+#include "patchdat.h"
 #include "selok.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -111,6 +112,12 @@ typedef enum filenames {
 	FILE_PLR_RMTAT,
 	FILE_PLR_RHUQM,
 	FILE_PLR_RHUHT,
+	FILE_PLR_RLMAT,
+	FILE_PLR_RMHAT,
+	FILE_PLR_RMMAT,
+	FILE_PLR_RMBFM,
+	FILE_PLR_RMBLM,
+	FILE_PLR_RMBQM,
 #endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
@@ -289,6 +296,12 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_PLR_RMTAT*/     "PlrGFX\\Rogue\\RMT\\RMTAT.CL2",
 /*FILE_PLR_RHUQM*/     "PlrGFX\\Rogue\\RHU\\RHUQM.CL2",
 /*FILE_PLR_RHUHT*/     "PlrGFX\\Rogue\\RHU\\RHUHT.CL2",
+/*FILE_PLR_RLMAT*/     "PlrGFX\\Rogue\\RLM\\RLMAT.CL2",
+/*FILE_PLR_RMHAT*/     "PlrGFX\\Rogue\\RMH\\RMHAT.CL2",
+/*FILE_PLR_RMMAT*/     "PlrGFX\\Rogue\\RMM\\RMMAT.CL2",
+/*FILE_PLR_RMBFM*/     "PlrGFX\\Rogue\\RMB\\RMBFM.CL2",
+/*FILE_PLR_RMBLM*/     "PlrGFX\\Rogue\\RMB\\RMBLM.CL2",
+/*FILE_PLR_RMBQM*/     "PlrGFX\\Rogue\\RMB\\RMBQM.CL2",
 #endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
@@ -2238,6 +2251,119 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 				}
 			}
 			Cl2Draw(0, height - 1, frameBuf, nn, width);
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+
+	int frameCount = 0, width = 0, height = 0;
+    switch (index) {
+	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
+    case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBLM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBQM: frameCount = 16; width = 96; height = 96; break;
+    }
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int nn = ii * frameCount + n - 1;
+            switch (index) {
+            case FILE_PLR_RLMAT:
+				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
+					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
+					}
+				}
+                break;
+			case FILE_PLR_RMHAT:
+				for (int i = 0; i < lengthof(deltaRMHAT); i++) {
+					if (deltaRMHAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMHAT[i].dfx + BUFFER_WIDTH * deltaRMHAT[i].dfy] = deltaRMHAT[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMMAT:
+				for (int i = 0; i < lengthof(deltaRMMAT); i++) {
+					if (deltaRMMAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMMAT[i].dfx + BUFFER_WIDTH * deltaRMMAT[i].dfy] = deltaRMMAT[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMBFM:
+				for (int i = 0; i < lengthof(deltaRMBFM); i++) {
+					if (deltaRMBFM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBFM[i].dfx + BUFFER_WIDTH * deltaRMBFM[i].dfy] = deltaRMBFM[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMBLM:
+				for (int i = 0; i < lengthof(deltaRMBLM); i++) {
+					if (deltaRMBLM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBLM[i].dfx + BUFFER_WIDTH * deltaRMBLM[i].dfy] = deltaRMBLM[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMBQM:
+				for (int i = 0; i < lengthof(deltaRMBQM); i++) {
+					if (deltaRMBQM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBQM[i].dfx + BUFFER_WIDTH * deltaRMBQM[i].dfy] = deltaRMBQM[i].color;
+					}
+				}
+				break;
+            }
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
@@ -7720,6 +7846,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_PLR_RMTAT:
 	{	// eliminate extra frames of player gfx files
 		buf = patchPlrFrames(index, buf, dwLen);
+	} break;
+	case FILE_PLR_RLMAT:
+	case FILE_PLR_RMHAT:
+	case FILE_PLR_RMMAT:
+	case FILE_PLR_RMBFM:
+	case FILE_PLR_RMBLM:
+	case FILE_PLR_RMBQM:
+	{	// fix extra bits of rogue gfx files
+		buf = patchRogueExtraPixels(index, buf, dwLen);
 	} break;
 	case FILE_PLR_WMHAS:
 	{	// fix player gfx file - WMHAS.CL2
