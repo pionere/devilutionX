@@ -2044,7 +2044,7 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
-	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
+	const int RLE_LEN = 3; // number of matching colors to switch from bmp encoding to RLE
 
 	unsigned subHeaderSize = SUB_HEADER_SIZE;
 	unsigned hs = (height - 1) / CEL_BLOCK_HEIGHT;
