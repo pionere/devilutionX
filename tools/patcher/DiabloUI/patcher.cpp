@@ -2042,6 +2042,28 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 }
 #endif // HELLFIRE
 
+static void pushHead(BYTE** prevHead, BYTE** lastHead, BYTE *head)
+{
+	if (*lastHead != NULL && *prevHead != NULL && head != NULL) {
+		// check for [len0 col0 .. coln] [rle3 col] [len1 col00 .. colnn] -> [(len0 + 3 + len1) col0 .. coln col col col col00 .. colnn]
+		if (**lastHead == 0xBF - 3 && *head >= 0xBF && **prevHead >= 0xBF) {
+			unsigned len = 3 + (256 - *head) + (256 - **prevHead);
+			if (len <= (256 - 0xBF)) {
+				**prevHead = 256 - len;
+				BYTE col = *((*lastHead) + 1);
+				**lastHead = col;
+				*head = col;
+				*lastHead = *prevHead;
+				*prevHead = NULL;
+				return;
+			}
+		}
+	}
+
+	*prevHead = *lastHead;
+	*lastHead = head;
+}
+
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
 	const int RLE_LEN = 3; // number of matching colors to switch from bmp encoding to RLE
@@ -2067,8 +2089,14 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	BYTE colMatches = 0; // does not matter
 	bool alpha = false;
 	bool first = false; // true; - does not matter
+	BYTE* pPrevHead = NULL;
+	BYTE* pLastHead = NULL;
 	for (int i = 1; i <= height; i++) {
 		if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+			pushHead(&pPrevHead, &pLastHead, pHead);
+			//if (first) {
+				pLastHead = nullptr;
+			//}
 			pHead = pBuf;
 			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16((WORD)((size_t)pHead - (size_t)pHeader)); // pHead - buf - SUB_HEADER_SIZE;
 
@@ -2089,6 +2117,10 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 				if (colMatches < RLE_LEN || *pHead == 0x80u) {
 					// bmp encoding
 					if (/*alpha ||*/ *pHead <= 0xBFu || first) {
+						pushHead(&pPrevHead, &pLastHead, pHead);
+						if (first) {
+							pLastHead = NULL;
+						}
 						pHead = pBuf;
 						pBuf++;
 						colMatches = 1;
@@ -2101,6 +2133,10 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 						memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
 						*pHead += RLE_LEN - 1;
 						if (*pHead != 0) {
+							pushHead(&pPrevHead, &pLastHead, pHead);
+							//if (first) {
+							//	pLastHead = NULL;
+							//}
 							pHead = pBuf - (RLE_LEN - 1);
 						}
 						*pHead = 0xBFu - (RLE_LEN - 1);
@@ -2116,6 +2152,10 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 			} else {
 				// add transparent pixel
 				if (!alpha || *pHead == 0x7Fu) {
+					pushHead(&pPrevHead, &pLastHead, pHead);
+					//if (first) {
+					//	pLastHead = NULL;
+					//}
 					pHead = pBuf;
 					pBuf++;
 				}
@@ -2126,6 +2166,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 		}
 		pSrc -= BUFFER_WIDTH + width;
 	}
+	pushHead(&pPrevHead, &pLastHead, pHead);
 	return pBuf;
 }
 
