@@ -16,8 +16,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Logo CEL above the menu */
 static CelImageBuf* gpLogoCel;
-/** Slider CEL */
-CelImageBuf* gpOptbarCel;
 /** Slider button CEL */
 static CelImageBuf* gpOptionCel;
 /** Speficifies whether the mouse is pressed while navigating the menu. */
@@ -35,7 +33,6 @@ void FreeGMenu()
 {
 	MemFreeDbg(gpLogoCel);
 	MemFreeDbg(gpOptionCel);
-	MemFreeDbg(gpOptbarCel);
 }
 
 void InitGMenu()
@@ -49,8 +46,6 @@ void InitGMenu()
 	gpLogoCel = CelLoadImage(LOGO_DATA, LOGO_WIDTH);
 	assert(gpOptionCel == NULL);
 	gpOptionCel = CelLoadImage("Data\\option.CEL", SLIDER_BUTTON_WIDTH);
-	assert(gpOptbarCel == NULL);
-	gpOptbarCel = CelLoadImage("Data\\optbar.CEL", SLIDER_BOX_WIDTH);
 }
 
 static void gmenu_up_down(bool isDown)
@@ -136,7 +131,7 @@ static void gmenu_draw_rectangle(int x, int y, int width, int height)
 	int i;
 	BYTE* dst;
 
-	dst = &gpBuffer[x + BUFFER_WIDTH * y];
+	dst = &gpBuffer[BUFFERXY(x, y)];
 	for (i = height; i != 0; i--) {
 		memset(dst, PAL16_YELLOW + 13, width);
 		dst -= BUFFER_WIDTH;
@@ -155,7 +150,7 @@ static TMenuItem* current_menu_item(bool activate)
 	int i, w;
 	TMenuItem* pItem;
 
-	i = MousePos.y - (PANEL_MIDY(GAMEMENU_HEIGHT) + LOGO_HEIGHT + GAMEMENU_HEADER_OFF);
+	i = MousePos.y - (SCREEN_MIDY(GAMEMENU_HEIGHT) + LOGO_HEIGHT + GAMEMENU_HEADER_OFF);
 	if (i < 0) {
 		return NULL;
 	}
@@ -183,13 +178,13 @@ static void gmenu_draw_menu_item(int i, int y)
 	unsigned w, x, nSteps, step, pos;
 
 	w = gmenu_get_lfont(pItem);
-	x = PANEL_CENTERX(w);
+	x = SCREEN_CENTERX(w);
 	PrintHugeString(x, y, pItem->pszStr, COL_GOLD + ((pItem->dwFlags & GMF_ENABLED) ? (pItem == mItem ? 2 : 0) : MAXDARKNESS));
 	if (pItem == &gpCurrentMenu[guCurrItemIdx])
 		DrawHugePentSpn(x - (FOCUS_HUGE + 6), x + 4 + w, y + 1);
 	if (pItem->dwFlags & GMF_SLIDER) {
 		x += SLIDER_OFFSET;
-		CelDraw(x, y - 10, gpOptbarCel, 1);
+		DrawColorTextBox(x, y - 10 - 32 + 1, SLIDER_BOX_WIDTH, 32, COL_GOLD);
 		x += SLIDER_BORDER;
 		step = pItem->wMenuParam2;
 		nSteps = pItem->wMenuParam1;
@@ -228,8 +223,8 @@ void gmenu_draw()
 #else
 	nCel = 1;
 #endif
-	y = PANEL_CENTERY(GAMEMENU_HEIGHT) + LOGO_HEIGHT;
-	CelDraw(PANEL_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
+	y = SCREEN_CENTERY(GAMEMENU_HEIGHT) + LOGO_HEIGHT;
+	CelDraw(SCREEN_CENTERX(LOGO_WIDTH), y, gpLogoCel, nCel);
 	y += GAMEMENU_HEADER_OFF + GAMEMENU_ITEM_HEIGHT;
 	for (i = 0; i < guCurrentMenuSize; i++, y += GAMEMENU_ITEM_HEIGHT)
 		gmenu_draw_menu_item(i, y);
@@ -270,7 +265,7 @@ static void gmenu_mouse_slider()
 	TMenuItem* pItem;
 	int offset;
 
-	offset = MousePos.x - (PANEL_MIDX(SLIDER_ROW_WIDTH) + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
+	offset = MousePos.x - (SCREEN_MIDX(SLIDER_ROW_WIDTH) + SLIDER_OFFSET + SLIDER_BORDER + SLIDER_BUTTON_WIDTH / 2);
 	if (offset < 0) {
 		if (offset < -(SLIDER_BUTTON_WIDTH / 2))
 			return;

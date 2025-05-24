@@ -468,7 +468,7 @@ static int ForceTrig()
 		return i;
 	}
 
-	return -1;
+	return TRIG_NONE;
 }
 
 void InitTriggers()
@@ -486,7 +486,7 @@ void InitTriggers()
 void CheckTrigForce()
 {
 	pcurstrig = ForceTrig();
-	if (pcurstrig != -1) {
+	if (TRIG_VALID(pcurstrig)) {
 		pcurspos.x = trigs[pcurstrig]._tx;
 		pcurspos.y = trigs[pcurstrig]._ty;
 	}

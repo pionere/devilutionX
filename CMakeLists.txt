@@ -198,7 +198,8 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-option(USE_PATCH "Create executable to patch assets" ON)
+option(USE_PATCH "Build to use patched assets" ON)
+cmake_conditional_option(CREATE_PATCHER "Create executable to patch assets" ${USE_PATCH})
 option(CREATE_MPQONE "Merge assets if necessary" OFF)
 cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
@@ -478,6 +479,7 @@ set(devilutionx_SRCS
   Source/main.cpp
   Source/mainmenu.cpp
   Source/minitext.cpp
+  Source/minitextdat.cpp
   Source/misdat.cpp
   Source/missiles.cpp
   Source/monstdat.cpp
@@ -507,7 +509,6 @@ set(devilutionx_SRCS
   Source/spells.cpp
   Source/stores.cpp
   Source/sync.cpp
-  Source/textdat.cpp
   Source/themes.cpp
   #Source/tmsg.cpp
   Source/town.cpp
@@ -539,7 +540,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/selyesno.cpp
   Source/DiabloUI/settingsmenu.cpp
   Source/DiabloUI/text.cpp
-  Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base_client.cpp
@@ -659,7 +659,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH)
+if(CREATE_PATCHER)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -698,13 +698,13 @@ if(USE_PATCH)
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp
     tools/patcher/DiabloUI/merger.cpp
+    tools/patcher/DiabloUI/patchdat.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
-    tools/patcher/DiabloUI/text_draw.cpp
-    tools/patcher/DiabloUI/title.cpp
+    #tools/patcher/DiabloUI/title.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
@@ -741,7 +741,7 @@ if(USE_PATCH)
     set(PATCHER_SOURCES ${devil_patcher_SRCS})
     if(APPLE)
       list(APPEND PATCHER_SOURCES
-         Packaging/apple/AppIcon.icns
+        Packaging/apple/AppIcon.icns
         Packaging/apple/LaunchScreen.storyboard)
     elseif(WIN32)
       list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
@@ -902,7 +902,6 @@ foreach(
   HAS_JOYSTICK
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
-  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF
@@ -1603,6 +1602,7 @@ foreach(
   def_name
   HELLFIRE
   USE_PATCH
+  CREATE_PATCHER
   USE_MPQONE
   CREATE_MPQONE
   NOSOUND

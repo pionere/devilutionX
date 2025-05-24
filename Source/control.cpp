@@ -25,10 +25,6 @@ static BYTE* pFlaskCels;
 int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
 int gnManaPer;
-/** Graphics for the (transparent) text box */
-static CelImageBuf* pTextBoxCels;
-/** Graphics for the (transparent) small text box */
-static CelImageBuf* pSTextBoxCels;
 /** Graphics for the scrollbar of text boxes. */
 CelImageBuf* pSTextSlidCels;
 /** Low-Durability images CEL */
@@ -456,10 +452,10 @@ void DrawSkillList()
 	BYTE prevSkill = currSkill;
 #endif
 	currSkill = SPL_INVALID;
-	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
+	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
-	//y = PANEL_CENTERY(190) + 190;
+	//y = SCREEN_CENTERY(190) + 190;
 	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
@@ -810,7 +806,7 @@ static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w
 	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
 	full = CelGetFrameClippedAt(pFlaskCels, fullCel, 0, &dataSize);
 
-	BYTE* dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* dst = &gpBuffer[BUFFERXY(sx, sy)];
 	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
 		for (i = w; i != 0; ) {
 			width = *full++;
@@ -935,10 +931,6 @@ void InitControlPan()
 	for (i = 0; i < lengthof(gabChrbtn); i++)
 		gabChrbtn[i] = false;
 	gbChrbtnactive = false;
-	assert(pTextBoxCels == NULL);
-	pTextBoxCels = CelLoadImage("Data\\TextBox.CEL", LTPANEL_WIDTH);
-	assert(pSTextBoxCels == NULL);
-	pSTextBoxCels = CelLoadImage("Data\\TextBox2.CEL", STPANEL_WIDTH);
 	assert(pSTextSlidCels == NULL);
 	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", SMALL_SCROLL_WIDTH);
 	assert(pDurIconCels == NULL);
@@ -998,7 +990,7 @@ void DoWndDrag()
 	int dx = MousePos.x - gnDragWndX;
 	int dy = MousePos.y - gnDragWndY;
 
-	// assert(gbDragWnd != WND_NONE);
+	// assert(WND_VALID(gbDragWnd));
 	if (dx == 0 && dy == 0)
 		return;
 
@@ -1035,29 +1027,25 @@ void DrawCtrlBtns()
 }
 
 /**
- * Opens the "Skill List": the rows of known spells for quick-setting a spell that
+ * Toggles the "Skill List": the rows of known spells for quick-setting a spell that
  * show up when you click the spell slot at the control panel.
  * @param altSkill whether the cursor is moved to the active skill or altSkill (controllers-only)
  */
-static void DoSkillList(bool altSkill)
-{
-	gbSkillListFlag = true;
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	StoreSpellCoords();
-
-	_gbMoveCursor = 0;
-	if (sgbControllerActive)
-		_gbMoveCursor = altSkill ? 1 : 2;
-#endif
-}
-
 void HandleSkillBtn(bool altSkill)
 {
 	if (!gbSkillListFlag) {
 		ClearPanels();
 		// gamemenu_off();
-		DoSkillList(altSkill);
+		gbSkillListFlag = true;
+		currSkill = SPL_INVALID;
+
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		StoreSpellCoords();
+
+		_gbMoveCursor = 0;
+		if (sgbControllerActive)
+			_gbMoveCursor = altSkill ? 1 : 2;
+#endif
 	} else {
 		gbSkillListFlag = false;
 	}
@@ -1227,9 +1215,7 @@ void FreeControlPan()
 	MemFreeDbg(pChrPanelCel);
 	MemFreeDbg(pPanelButtonCels);
 	MemFreeDbg(pChrButtonCels);
-	MemFreeDbg(pSTextBoxCels);
 	MemFreeDbg(pSTextSlidCels);
-	MemFreeDbg(pTextBoxCels);
 	MemFreeDbg(pDurIconCels);
 	MemFreeDbg(pSpellBkCel);
 #if ASSET_MPL == 1
@@ -1531,7 +1517,7 @@ static POS32 GetMousePos(int x, int y)
 	}
 
 	pos.x += SCREEN_WIDTH / 2u;
-	pos.y += VIEWPORT_HEIGHT / 2u;
+	pos.y += SCREEN_HEIGHT / 2u;
 
 	return pos;
 }
@@ -1883,28 +1869,6 @@ void ReleaseChrBtn()
 }
 
 /**
- * @brief Draw a large text box with transparent background with separators.
- *  used as background to quest dialog window and in stores.
- */
-void DrawTextBox(unsigned separators)
-{
-	int x, y;
-
-	x = LTPANEL_X;
-	y = LTPANEL_Y;
-
-	// draw the box
-	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
-	// draw the background
-	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
-	// add separator
-	if (separators & 1)
-		DrawTextBoxSLine(x, y, 3 * 12 + 14, true);
-	if (separators & 2)
-		DrawTextBoxSLine(x, y, 21 * 12 + 14, true);
-}
-
-/**
  * @brief Draw a small text box with transparent background with a separator.
  *  used as background to items and in stores.
  * @param x: the starting x-coordinate of the text box
@@ -1913,40 +1877,9 @@ void DrawTextBox(unsigned separators)
 void DrawSTextBox(int x, int y)
 {
 	// draw the box
-	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
-	// draw the background
-	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
+	DrawColorTextBox(x, y, STPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
 	// add separator
-	DrawTextBoxSLine(x, y, 5 * 12 + 14, false);
-}
-
-/**
- * @brief Draw a separator line into the text box.
- *  used with items and in stores.
- * @param x: the starting x-coordinate of the text box
- * @param y: the starting y-coordinate of the text box
- * @param dy: the distance from the top of the box where the separator should be drawn
- * @param widePanel: true if large text box is used, false if small text box
- */
-void DrawTextBoxSLine(int x, int y, int dy, bool widePanel)
-{
-	int sxy, dxy, width, length;
-
-	width = BUFFER_WIDTH;
-	sxy = x + 2 + width * (y + 1);
-	dxy = x + 2 + width * (y + dy);
-	length = widePanel ? LTPANEL_WIDTH - 4 : STPANEL_WIDTH - 4;
-
-	/// ASSERT: assert(gpBuffer != NULL);
-
-	int i;
-	BYTE *src, *dst;
-
-	src = &gpBuffer[sxy];
-	dst = &gpBuffer[dxy];
-
-	for (i = 0; i < TPANEL_BORDER; i++, src += width, dst += width)
-		memcpy(dst, src, length);
+	DrawColorTextBoxSLine(x, y, STPANEL_WIDTH, 5 * 12 + 14);
 }
 
 static int DrawDurIcon4Item(ItemStruct* pItem, int x)
@@ -2198,7 +2131,7 @@ void DrawGoldSplit()
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
 		// PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
 		// screen_x += GetSmallStringWidth(tempstr);
-		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE);
+		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE, FONT_KERN_SMALL);
 	}
 	screen_x += 2;
 	DrawSingleSmallPentSpn(screen_x, screen_y);
@@ -2307,7 +2240,7 @@ void DrawTeamBook()
 		if (!plr._pActive)
 			continue;
 		// name
-		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, COL_WHITE, 0);
+		PrintLimitedString(sx + SBOOK_LINE_TAB, yp - 25, plr._pName, SBOOK_LINE_LENGTH, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
@@ -2551,8 +2484,8 @@ void TryCampaignMapClick(bool altAction)
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;
-	sx = PANEL_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
-	sy = PANEL_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
+	sx = SCREEN_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
+	sy = SCREEN_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
 
 	sx += CAMICON_WIDTH * (CAM_RADIUS - lengthof(camEntries) / 2);
 	sy += CAMICON_HEIGHT * (CAM_RADIUS - lengthof(camEntries[0]) / 2);

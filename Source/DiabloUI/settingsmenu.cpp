@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 void UiSettingsDialog()
 {
 	TMenuItem* settingsMenu;
@@ -65,5 +67,7 @@ void UiSettingsDialog()
 	// FreeBackgroundArt();
 	UiClearItems();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

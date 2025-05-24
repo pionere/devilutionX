@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static CelImageBuf* gbDialogBackCel;
 static bool _gbDialogEnd;
 static bool gbInDialog = false;
@@ -165,30 +167,30 @@ static void Init(const char* caption, char* text, bool error/*, const std::vecto
 
 	/*if (caption == NULL) {
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\srpopup.CEL" : "ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
-		WordWrapArtStr(text, 240, AFT_SMALL);
+		WordWrapArtStr(text, 240, (unsigned)UIS_SMALL >> 0);
 
-		SDL_Rect rect1 = { PANEL_MIDX(SMALL_POPUP_WIDTH), PANEL_MIDY(SMALL_POPUP_HEIGHT), SMALL_POPUP_WIDTH, SMALL_POPUP_HEIGHT };
+		SDL_Rect rect1 = { SCREEN_MIDX(SMALL_POPUP_WIDTH), SCREEN_MIDY(SMALL_POPUP_HEIGHT), SMALL_POPUP_WIDTH, SMALL_POPUP_HEIGHT };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
-		SDL_Rect rect2 = { PANEL_MIDX(SMALL_POPUP_WIDTH - 40), PANEL_MIDY(SMALL_POPUP_HEIGHT) + 43, SMALL_POPUP_WIDTH - 40, SMALL_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 19 - 17 };
+		SDL_Rect rect2 = { SCREEN_MIDX(SMALL_POPUP_WIDTH - 40), SCREEN_MIDY(SMALL_POPUP_HEIGHT) + 43, SMALL_POPUP_WIDTH - 40, SMALL_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 19 - 17 };
 		gUiItems.push_back(new UiText(text, rect2, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_MIDX(SML_BUTTON_WIDTH), (PANEL_MIDY(SMALL_POPUP_HEIGHT) + SMALL_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 19), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect3 = { SCREEN_MIDX(SML_BUTTON_WIDTH), (SCREEN_MIDY(SMALL_POPUP_HEIGHT) + SMALL_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 19), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogActionOK, rect3));
 	} else {*/
 		gbDialogBackCel = CelLoadImage(error ? "ui_art\\lrpopup.CEL" : "ui_art\\lpopup.CEL", LARGE_POPUP_WIDTH);
-		WordWrapArtStr(text, LARGE_POPUP_TEXT_WIDTH, AFT_SMALL);
+		WordWrapArtStr(text, LARGE_POPUP_TEXT_WIDTH, (unsigned)UIS_SMALL >> 0);
 
-		SDL_Rect rect1 = { PANEL_MIDX(LARGE_POPUP_WIDTH), PANEL_MIDY(LARGE_POPUP_HEIGHT), LARGE_POPUP_WIDTH, LARGE_POPUP_HEIGHT };
+		SDL_Rect rect1 = { SCREEN_MIDX(LARGE_POPUP_WIDTH), SCREEN_MIDY(LARGE_POPUP_HEIGHT), LARGE_POPUP_WIDTH, LARGE_POPUP_HEIGHT };
 		gUiItems.push_back(new UiImage(gbDialogBackCel, 0, rect1, false));
 
-		SDL_Rect rect2 = { 0, PANEL_MIDY(LARGE_POPUP_HEIGHT) + 10, SCREEN_WIDTH, 20 };
+		SDL_Rect rect2 = { 0, SCREEN_MIDY(LARGE_POPUP_HEIGHT) + 10, SCREEN_WIDTH, 20 };
 		gUiItems.push_back(new UiText(caption, rect2, UIS_HCENTER | UIS_MED | UIS_GOLD));
 
-		SDL_Rect rect3 = { PANEL_MIDX(LARGE_POPUP_TEXT_WIDTH), PANEL_MIDY(LARGE_POPUP_HEIGHT) + 41, LARGE_POPUP_TEXT_WIDTH, LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17 - 17 };
+		SDL_Rect rect3 = { SCREEN_MIDX(LARGE_POPUP_TEXT_WIDTH), SCREEN_MIDY(LARGE_POPUP_HEIGHT) + 41, LARGE_POPUP_TEXT_WIDTH, LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17 - 17 };
 		gUiItems.push_back(new UiText(text, rect3, UIS_LEFT | UIS_SMALL | UIS_GOLD));
 
-		SDL_Rect rect4 = { PANEL_MIDX(SML_BUTTON_WIDTH), (PANEL_MIDY(LARGE_POPUP_HEIGHT) + LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+		SDL_Rect rect4 = { SCREEN_MIDX(SML_BUTTON_WIDTH), (SCREEN_MIDY(LARGE_POPUP_HEIGHT) + LARGE_POPUP_HEIGHT - SML_BUTTON_HEIGHT - 17), SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 		gUiItems.push_back(new UiButton("OK", &DialogEsc, rect4));
 	//}
 
@@ -244,5 +246,7 @@ void UiErrorOkDialog(const char* caption, char* text, bool error)
 {
 	UiOkDialog(caption, text, true, renderBehind);
 }*/
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

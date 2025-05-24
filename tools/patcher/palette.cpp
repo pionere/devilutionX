@@ -15,7 +15,7 @@ static SDL_Color orig_palette[NUM_COLORS];
 /** Specifies the gamma correction level. */
 int _gnGammaCorrection = 100;
 /** Specifies the current fade level. */
-int gnFadeValue;
+int gnFadeValue = 0;
 
 void UpdatePalette()
 {

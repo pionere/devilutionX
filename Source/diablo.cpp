@@ -677,7 +677,7 @@ bool PressEscKey()
 		doom_close();
 		rv = true;
 	}*/
-	if (gbHelpflag) {
+	if (gnVisibleHelpLines != 0) {
 		StopHelp();
 		rv = true;
 	}
@@ -909,7 +909,7 @@ void InputBtnDown(int transKey)
 			STextUp();
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogUp();
-		} else if (gbHelpflag) {
+		} else if (gnVisibleHelpLines != 0) {
 			HelpScrollUp();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapUp();
@@ -920,7 +920,7 @@ void InputBtnDown(int transKey)
 			STextDown();
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogDown();
-		} else if (gbHelpflag) {
+		} else if (gnVisibleHelpLines != 0) {
 			HelpScrollDown();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapDown();
@@ -979,7 +979,7 @@ void InputBtnDown(int transKey)
 		VersionPlrMsg();
 		break;
 	case ACT_HELP:
-		if (gbHelpflag) {
+		if (gnVisibleHelpLines != 0) {
 			StopHelp();
 		} else if (stextflag == STORE_NONE) {
 			ClearPanels();

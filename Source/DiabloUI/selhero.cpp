@@ -12,6 +12,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELHERO_RPANEL_HEIGHT - 22) / 26))
 
 _uiheroinfo selhero_heroInfo;
@@ -128,7 +130,7 @@ static void SelheroFreeDlgItems()
 
 static void SelheroFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 
 	SelheroFreeDlgItems();
 }
@@ -176,7 +178,7 @@ static void SelheroUpdateViewportItems()
 
 static void SelheroInit()
 {
-	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 }
 
 static void SelheroInitHeros()
@@ -203,10 +205,16 @@ static void SelheroResetScreen(const char* title, const char* rheader)
 {
 	SelheroFreeDlgItems();
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
-	SDL_Rect rect1 = { PANEL_LEFT, SELHERO_TITLE_TOP, PANEL_WIDTH, 35 };
+	gUiItems.push_back(new UiTextBox({ SELHERO_HEROS_LEFT - BOXBORDER_WIDTH, SELHERO_PNL_TOP - BOXBORDER_WIDTH, SELHERO_HEROS_WIDTH + 2 * BOXBORDER_WIDTH, SELHERO_HEROS_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELHERO_HEROS_LEFT - BOXBORDER_WIDTH, SELHERO_LPANEL_TOP - BOXBORDER_WIDTH, SELHERO_HEROS_WIDTH + 2 * BOXBORDER_WIDTH, SELHERO_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELHERO_RPANEL_LEFT - BOXBORDER_WIDTH, SELHERO_PNL_TOP - BOXBORDER_WIDTH, SELHERO_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELHERO_RHEADER_HEIGHT + SELHERO_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
+
+	SDL_Rect rect1 = { 0, SELHERO_TITLE_TOP, SCREEN_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELHERO_HEROS_LEFT, SELHERO_PNL_TOP, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
@@ -434,10 +442,10 @@ static void SelheroNameSelect(unsigned index)
 		break;
 	}
 
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	SelheroFreeDlgItems();
 	UiSelOkDialog("Unable to create hero", err);
-	LoadBackgroundArt("ui_art\\selhero.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 	SelheroNameInit(0);
 }
 
@@ -457,5 +465,7 @@ int UiSelHeroDialog(unsigned* saveIdx)
 
 	return selhero_result;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

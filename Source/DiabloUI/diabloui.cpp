@@ -5,7 +5,6 @@
 #include "controls/controller_motion.h"
 
 #include "DiabloUI/diablo.h"
-#include "DiabloUI/text_draw.h"
 #include "controls/plrctrls.h"
 #include "controls/touch.h"
 #include "all.h"
@@ -27,6 +26,8 @@
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
+
+DISABLE_SPEED_OPTIMIZATION
 
 #define FOCUS_FRAME_COUNT   8
 #define EDIT_SELECTOR_WIDTH 43
@@ -377,7 +378,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	assert(gbBackCel == NULL);
 	// FreeBackgroundArt();
 	if (pszFile != NULL)
-		gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
+		gbBackCel = CelLoadImage(pszFile, BACKGROUND_ART_WIDTH);
 	// assert(palette != NULL);
 	LoadPalette(palette);
 
@@ -393,20 +394,20 @@ void FreeBackgroundArt()
 void UiAddBackground()
 {
 	assert(gbBackCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(BACKGROUND_ART_WIDTH), BACKGROUND_ART_TOP, BACKGROUND_ART_WIDTH, BACKGROUND_ART_HEIGHT };
 	gUiItems.push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
 void UiAddLogo()
 {
 	assert(gbLogoCelSmall != NULL);
-	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
 static void UiClearScreen()
 {
-	// if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > PANEL_HEIGHT) { // Background size
+	// if (SCREEN_WIDTH > BACKGROUND_ART_WIDTH || SCREEN_HEIGHT > BACKGROUND_ART_HEIGHT) { // Background size
 		ClearScreenBuffer();
 	// }
 }
@@ -470,9 +471,23 @@ static void UiDrawSelector(const SDL_Rect& rect)
 	CelDraw(x, y, selCel, frame);
 }
 
+static void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
+{
+	flags &= ~(UIS_OPTIONAL | UIS_DISABLED | UIS_HIDDEN),
+	PrintString(flags, text, SCREEN_X + rect.x, SCREEN_Y + rect.y, rect.w, rect.h);
+}
+
 static void UiDraw(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
+}
+
+static void UiDraw(const UiTextBox* uiTextBox)
+{
+	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags >> UIS_COLOR_SHL) & UIS_COLORS);
+
+	if (uiTextBox->m_iFlags & UIS_HCENTER)
+		DrawColorTextBoxSLine(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, SELGAME_HEADER_HEIGHT);
 }
 
 static void UiDraw(const UiImage* uiImage)
@@ -549,7 +564,7 @@ static void UiDraw(const UiProgressBar* uiPb)
 		dx = 100;
 	dx = PRBAR_WIDTH * dx / 100;
 	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
-		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
+		memcpy(&gpBuffer[BUFFERXY(x, y + i - PRBAR_HEIGHT)], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
 	}
 }
 
@@ -646,6 +661,9 @@ static void UiDrawItem(const UiItemBase* item)
 	switch (item->m_type) {
 	case UI_TEXT:
 		UiDraw(static_cast<const UiText*>(item));
+		break;
+	case UI_TEXTBOX:
+		UiDraw(static_cast<const UiTextBox*>(item));
 		break;
 	case UI_IMAGE:
 		UiDraw(static_cast<const UiImage*>(item));
@@ -1111,5 +1129,7 @@ void UiClearListItems()
 	}
 	gUIListItems.clear();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

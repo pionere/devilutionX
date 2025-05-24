@@ -14,7 +14,6 @@ extern "C" {
 
 extern int screenWidth;
 extern int screenHeight;
-//extern int viewportHeight;
 
 extern bool gbWndActive;
 

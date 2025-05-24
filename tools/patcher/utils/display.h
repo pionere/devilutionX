@@ -27,7 +27,6 @@ extern SDL_Surface* renderer_surface;
 
 extern int screenWidth;
 extern int screenHeight;
-//extern int viewportHeight;
 
 #ifdef USE_SDL1
 SDL_Surface* OutputSurfaceToScale();

@@ -15,6 +15,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
 
 typedef struct ConnectionInfo {
@@ -122,7 +124,7 @@ static void selgame_remove_event_handlers()
 
 static void SelgameInit()
 {
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 }
 
 static void SelgameFreeDlgItems()
@@ -134,7 +136,7 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
@@ -144,10 +146,14 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 {
 	SelgameFreeDlgItems();
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
+	gUiItems.push_back(new UiTextBox({ SELGAME_LPANEL_LEFT - BOXBORDER_WIDTH, SELGAME_PNL_TOP - BOXBORDER_WIDTH, SELGAME_LPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELGAME_RPANEL_LEFT - BOXBORDER_WIDTH, SELGAME_PNL_TOP - BOXBORDER_WIDTH, SELGAME_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
+
+	SDL_Rect rect1 = { 0, SELGAME_TITLE_TOP, SCREEN_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -199,7 +205,7 @@ static void SelgameModeFocus(unsigned index)
 	DISABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), txt);
 	ENABLE_WARNING(format-security, format-security, 4774)
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static std::pair<const char*, const char*> SelgameDiffText(int difficulty)
@@ -220,7 +226,7 @@ static void SelgameDiffFocus(unsigned index)
 	snprintf(selgame_Label, sizeof(selgame_Label), diffTexts.first);
 	ENABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", diffTexts.first, diffTexts.second);
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static std::pair<const char*, const char*> SelgameSpeedText(int speed)
@@ -243,7 +249,7 @@ static void SelgameSpeedFocus(unsigned index)
 	snprintf(selgame_Label, sizeof(selgame_Label), speedTexts.first);
 	ENABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", speedTexts.first, speedTexts.second);
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static void SelgameNoFocus()
@@ -857,5 +863,7 @@ void UIDisconnectGame()
 	selgame_remove_event_handlers();
 	SNetLeaveGame();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

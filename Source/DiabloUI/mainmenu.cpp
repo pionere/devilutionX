@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 static int _gnMainMenuResult;
 
 static void UiMainMenuSelect(unsigned index)
@@ -49,7 +51,7 @@ static void MainmenuLoad()
 	UiAddLogo();
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
+	SDL_Rect rect1 = { SCREEN_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_HCENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
@@ -77,5 +79,7 @@ int UiMainMenuDialog()
 	MainmenuFree();
 	return _gnMainMenuResult;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

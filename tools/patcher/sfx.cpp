@@ -14,6 +14,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /** Specifies the currently streamed sound effect. */
 static int sgpStreamSFX = SFX_NONE;
 
+/** Audio data of the sound effects. */
 static SoundSample sgSndSamples[61] = { };
 
 void StopStreamSFX()

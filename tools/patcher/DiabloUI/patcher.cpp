@@ -3,6 +3,7 @@
 #include <set>
 
 #include "diabloui.h"
+#include "patchdat.h"
 #include "selok.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -21,6 +22,8 @@ static HANDLE archive;
 static int hashCount;
 static constexpr int RETURN_ERROR = 101;
 static constexpr int RETURN_DONE = 100;
+
+#define SUB_HEADER_SIZE 0x0A
 
 typedef enum filenames {
 	FILE_MOVIE_VIC1,
@@ -102,6 +105,19 @@ typedef enum filenames {
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
 	FILE_PLR_WMHAS,
+	FILE_PLR_WHMAT,
+	FILE_PLR_WMDLM,
+	FILE_PLR_WLNLM,
+	FILE_PLR_RHTAT,
+	FILE_PLR_RMTAT,
+	FILE_PLR_RHUQM,
+	FILE_PLR_RHUHT,
+	FILE_PLR_RLMAT,
+	FILE_PLR_RMHAT,
+	FILE_PLR_RMMAT,
+	FILE_PLR_RMBFM,
+	FILE_PLR_RMBLM,
+	FILE_PLR_RMBQM,
 #endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
@@ -121,11 +137,51 @@ typedef enum filenames {
 	FILE_NEST_TIL,
 #if ASSET_MPL == 1
 	FILE_L5LIGHT_CEL,
-	FILE_MON_FALLGW,
-	FILE_MON_GOATLD,
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
+	FILE_MON_GOATBD,
+	FILE_MON_MAGMAD,
+	FILE_MON_SKLAXD,
+	FILE_MON_SKLBWD,
+	FILE_MON_SKLSRD,
+	FILE_MON_ZOMBIED,
+#ifdef HELLFIRE
+	FILE_MON_FALLGD,
+	FILE_MON_FALLGW,
+	FILE_MON_GOATLD,
+	FILE_MON_UNRAVA,
+	FILE_MON_UNRAVD,
+	FILE_MON_UNRAVH,
+	FILE_MON_UNRAVN,
+	FILE_MON_UNRAVW,
+#endif // HELLFIRE
+	FILE_MIS_ACIDBF1,
+	FILE_MIS_ACIDBF10,
+	FILE_MIS_ACIDBF11,
+	FILE_MIS_FIREBA2,
+	FILE_MIS_FIREBA3,
+	FILE_MIS_FIREBA5,
+	FILE_MIS_FIREBA6,
+	FILE_MIS_FIREBA8,
+	FILE_MIS_FIREBA9,
+	FILE_MIS_FIREBA10,
+	FILE_MIS_FIREBA11,
+	FILE_MIS_FIREBA12,
+	FILE_MIS_FIREBA15,
+	FILE_MIS_FIREBA16,
+	FILE_MIS_HOLY2,
+	FILE_MIS_HOLY3,
+	FILE_MIS_HOLY5,
+	FILE_MIS_HOLY6,
+	FILE_MIS_HOLY8,
+	FILE_MIS_HOLY9,
+	FILE_MIS_HOLY10,
+	FILE_MIS_HOLY11,
+	FILE_MIS_HOLY12,
+	FILE_MIS_HOLY15,
+	FILE_MIS_HOLY16,
+	FILE_MIS_MAGBALL2,
 	FILE_ITEM_ARMOR2,
 	FILE_ITEM_GOLDFLIP,
 	FILE_ITEM_MACE,
@@ -148,7 +204,7 @@ typedef enum filenames {
 	FILE_ITEM_DONKYS1,
 	FILE_ITEM_MOOSES1,
 #endif
-#endif
+#endif // ASSET_MPL
 	FILE_OBJCURS_CEL,
 	NUM_FILENAMES
 } filenames;
@@ -233,6 +289,19 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
 /*FILE_PLR_WMHAS*/     "PlrGFX\\Warrior\\WMH\\WMHAS.CL2",
+/*FILE_PLR_WHMAT*/     "PlrGFX\\Warrior\\WHM\\WHMAT.CL2",
+/*FILE_PLR_WMDLM*/     "PlrGFX\\Warrior\\WMD\\WMDLM.CL2",
+/*FILE_PLR_WLNLM*/     "PlrGFX\\Warrior\\WLN\\WLNLM.CL2",
+/*FILE_PLR_RHTAT*/     "PlrGFX\\Rogue\\RHT\\RHTAT.CL2",
+/*FILE_PLR_RMTAT*/     "PlrGFX\\Rogue\\RMT\\RMTAT.CL2",
+/*FILE_PLR_RHUQM*/     "PlrGFX\\Rogue\\RHU\\RHUQM.CL2",
+/*FILE_PLR_RHUHT*/     "PlrGFX\\Rogue\\RHU\\RHUHT.CL2",
+/*FILE_PLR_RLMAT*/     "PlrGFX\\Rogue\\RLM\\RLMAT.CL2",
+/*FILE_PLR_RMHAT*/     "PlrGFX\\Rogue\\RMH\\RMHAT.CL2",
+/*FILE_PLR_RMMAT*/     "PlrGFX\\Rogue\\RMM\\RMMAT.CL2",
+/*FILE_PLR_RMBFM*/     "PlrGFX\\Rogue\\RMB\\RMBFM.CL2",
+/*FILE_PLR_RMBLM*/     "PlrGFX\\Rogue\\RMB\\RMBLM.CL2",
+/*FILE_PLR_RMBQM*/     "PlrGFX\\Rogue\\RMB\\RMBQM.CL2",
 #endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
@@ -252,11 +321,51 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
 #if ASSET_MPL == 1
 /*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
-/*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
-/*FILE_MON_GOATLD*/    "Monsters\\GoatLord\\GoatLd.CL2",
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
+/*FILE_MON_GOATBD*/    "Monsters\\GoatBow\\GoatBd.CL2",
+/*FILE_MON_MAGMAD*/    "Monsters\\Magma\\Magmad.CL2",
+/*FILE_MON_SKLAXD*/    "Monsters\\SkelAxe\\SklAxd.CL2",
+/*FILE_MON_SKLBWD*/    "Monsters\\SkelBow\\SklBwd.CL2",
+/*FILE_MON_SKLSRD*/    "Monsters\\SkelSd\\SklSrd.CL2",
+/*FILE_MON_ZOMBIED*/   "Monsters\\Zombie\\Zombied.CL2",
+#ifdef HELLFIRE
+/*FILE_MON_FALLGD*/    "Monsters\\BigFall\\Fallgd.CL2",
+/*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
+/*FILE_MON_GOATLD*/    "Monsters\\GoatLord\\GoatLd.CL2",
+/*FILE_MON_UNRAVA*/    "Monsters\\Unrav\\Unrava.CL2",
+/*FILE_MON_UNRAVD*/    "Monsters\\Unrav\\Unravd.CL2",
+/*FILE_MON_UNRAVH*/    "Monsters\\Unrav\\Unravh.CL2",
+/*FILE_MON_UNRAVN*/    "Monsters\\Unrav\\Unravn.CL2",
+/*FILE_MON_UNRAVW*/    "Monsters\\Unrav\\Unravw.CL2",
+#endif // HELLFIRE
+/*FILE_MIS_ACIDBF1*/   "Missiles\\Acidbf1.CL2",
+/*FILE_MIS_ACIDBF10*/  "Missiles\\Acidbf10.CL2",
+/*FILE_MIS_ACIDBF11*/  "Missiles\\Acidbf11.CL2",
+/*FILE_MIS_FIREBA2*/   "Missiles\\Fireba2.CL2",
+/*FILE_MIS_FIREBA3*/   "Missiles\\Fireba3.CL2",
+/*FILE_MIS_FIREBA5*/   "Missiles\\Fireba5.CL2",
+/*FILE_MIS_FIREBA6*/   "Missiles\\Fireba6.CL2",
+/*FILE_MIS_FIREBA8*/   "Missiles\\Fireba8.CL2",
+/*FILE_MIS_FIREBA9*/   "Missiles\\Fireba9.CL2",
+/*FILE_MIS_FIREBA10*/  "Missiles\\Fireba10.CL2",
+/*FILE_MIS_FIREBA11*/  "Missiles\\Fireba11.CL2",
+/*FILE_MIS_FIREBA12*/  "Missiles\\Fireba12.CL2",
+/*FILE_MIS_FIREBA15*/  "Missiles\\Fireba15.CL2",
+/*FILE_MIS_FIREBA16*/  "Missiles\\Fireba16.CL2",
+/*FILE_MIS_HOLY2*/     "Missiles\\Holy2.CL2",
+/*FILE_MIS_HOLY3*/     "Missiles\\Holy3.CL2",
+/*FILE_MIS_HOLY5*/     "Missiles\\Holy5.CL2",
+/*FILE_MIS_HOLY6*/     "Missiles\\Holy6.CL2",
+/*FILE_MIS_HOLY8*/     "Missiles\\Holy8.CL2",
+/*FILE_MIS_HOLY9*/     "Missiles\\Holy9.CL2",
+/*FILE_MIS_HOLY10*/    "Missiles\\Holy10.CL2",
+/*FILE_MIS_HOLY11*/    "Missiles\\Holy11.CL2",
+/*FILE_MIS_HOLY12*/    "Missiles\\Holy12.CL2",
+/*FILE_MIS_HOLY15*/    "Missiles\\Holy15.CL2",
+/*FILE_MIS_HOLY16*/    "Missiles\\Holy16.CL2",
+/*FILE_MIS_MAGBALL2*/  "Missiles\\Magball2.CL2",
 /*FILE_ITEM_ARMOR2*/   "Items\\Armor2.CEL",
 /*FILE_ITEM_GOLDFLIP*/ "Items\\GoldFlip.CEL",
 /*FILE_ITEM_MACE*/     "Items\\Mace.CEL",
@@ -279,7 +388,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_ITEM_DONKYS1*/  "Items\\donkys1.CEL",
 /*FILE_ITEM_MOOSES1*/  "Items\\mooses1.CEL",
 #endif
-#endif
+#endif // ASSET_MPL
 /*FILE_OBJCURS_CEL*/   "Data\\Inv\\Objcurs.CEL",
 };
 
@@ -1499,11 +1608,10 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 	} break;
 	}
 }
-
+#if ASSET_MPL == 1
 static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	constexpr int FRAME_HEIGHT = 96;
 
@@ -1707,7 +1815,6 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	constexpr int FRAME_HEIGHT = 96;
 
@@ -1769,7 +1876,6 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 128;
 	constexpr int FRAME_HEIGHT = 128;
 
@@ -1829,7 +1935,6 @@ static BYTE* fixObjLShrine(BYTE* celBuf, size_t* celLen)
 static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 128;
 	constexpr int FRAME_HEIGHT = 128;
 
@@ -1882,7 +1987,6 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	constexpr int FRAME_HEIGHT = 96;
 
@@ -1938,11 +2042,33 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 }
 #endif // HELLFIRE
 
+static void pushHead(BYTE** prevHead, BYTE** lastHead, BYTE *head)
+{
+	if (*lastHead != NULL && *prevHead != NULL && head != NULL) {
+		// check for [len0 col0 .. coln] [rle3 col] [len1 col00 .. colnn] -> [(len0 + 3 + len1) col0 .. coln col col col col00 .. colnn]
+		if (**lastHead == 0xBF - 3 && *head >= 0xBF && **prevHead >= 0xBF) {
+			unsigned len = 3 + (256 - *head) + (256 - **prevHead);
+			if (len <= (256 - 0xBF)) {
+				**prevHead = 256 - len;
+				BYTE col = *((*lastHead) + 1);
+				**lastHead = col;
+				*head = col;
+				*lastHead = *prevHead;
+				*prevHead = NULL;
+				return;
+			}
+		}
+	}
+
+	*prevHead = *lastHead;
+	*lastHead = head;
+}
+
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
-	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
+	const int RLE_LEN = 3; // number of matching colors to switch from bmp encoding to RLE
 
-	unsigned subHeaderSize = CEL_FRAME_HEADER_SIZE;
+	unsigned subHeaderSize = SUB_HEADER_SIZE;
 	unsigned hs = (height - 1) / CEL_BLOCK_HEIGHT;
 	hs = (hs + 1) * sizeof(WORD);
 	subHeaderSize = std::max(subHeaderSize, hs);
@@ -1952,23 +2078,29 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	BYTE* pHeader = pBuf;
 	if (clipped) {
 		// add CL2 FRAME HEADER
-		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize); // SUB_HEADER_SIZE
-		*(DWORD*)&pBuf[2] = 0;
-		*(DWORD*)&pBuf[6] = 0;
+		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize);
+		//*(DWORD*)&pBuf[2] = 0;
+		//*(DWORD*)&pBuf[6] = 0;
 		pBuf += subHeaderSize;
 	}
 
 	BYTE* pHead = pBuf;
 	BYTE col, lastCol;
-	BYTE colMatches = 0;
+	BYTE colMatches = 0; // does not matter
 	bool alpha = false;
-	bool first = true;
+	bool first = false; // true; - does not matter
+	BYTE* pPrevHead = NULL;
+	BYTE* pLastHead = NULL;
 	for (int i = 1; i <= height; i++) {
 		if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+			pushHead(&pPrevHead, &pLastHead, pHead);
+			//if (first) {
+				pLastHead = nullptr;
+			//}
 			pHead = pBuf;
 			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16((WORD)((size_t)pHead - (size_t)pHeader)); // pHead - buf - SUB_HEADER_SIZE;
 
-			colMatches = 0;
+			// colMatches = 0;
 			alpha = false;
 			// first = true;
 		}
@@ -1982,9 +2114,13 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || (int8_t)*pHead <= -127) {
+				if (colMatches < RLE_LEN || *pHead == 0x80u) {
 					// bmp encoding
-					if (alpha || (int8_t)*pHead <= -65 || first) {
+					if (/*alpha ||*/ *pHead <= 0xBFu || first) {
+						pushHead(&pPrevHead, &pLastHead, pHead);
+						if (first) {
+							pLastHead = NULL;
+						}
 						pHead = pBuf;
 						pBuf++;
 						colMatches = 1;
@@ -1997,9 +2133,13 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 						memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
 						*pHead += RLE_LEN - 1;
 						if (*pHead != 0) {
+							pushHead(&pPrevHead, &pLastHead, pHead);
+							//if (first) {
+							//	pLastHead = NULL;
+							//}
 							pHead = pBuf - (RLE_LEN - 1);
 						}
-						*pHead = -65 - (RLE_LEN - 1);
+						*pHead = 0xBFu - (RLE_LEN - 1);
 						pBuf = pHead + 1;
 						*pBuf = col;
 						pBuf++;
@@ -2011,7 +2151,11 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 				alpha = false;
 			} else {
 				// add transparent pixel
-				if (!alpha || (int8_t)*pHead >= 127) {
+				if (!alpha || *pHead == 0x7Fu) {
+					pushHead(&pPrevHead, &pLastHead, pHead);
+					//if (first) {
+					//	pLastHead = NULL;
+					//}
 					pHead = pBuf;
 					pBuf++;
 				}
@@ -2022,6 +2166,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 		}
 		pSrc -= BUFFER_WIDTH + width;
 	}
+	pushHead(&pPrevHead, &pLastHead, pHead);
 	return pBuf;
 }
 
@@ -2033,7 +2178,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
 
-	bool groupped = true;
+	bool groupped = numGroups != 1;
 	int headerSize = 0;
 	for (int i = 0; i < numGroups; i++) {
 		int ni = frameCount;
@@ -2060,7 +2205,12 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf;
+		if (groupped) {
+			frameBuf = CelGetFrameStart(cl2Buf, ii);
+		} else {
+			frameBuf = cl2Buf;
+		}
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
@@ -2080,14 +2230,204 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	return resCl2Buf;
 }
 
-BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const BYTE* stdBuf)
+static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+
+	int frameCount = 0, width = 0, height = 0;
+	switch (index) {
+	case FILE_PLR_RHTAT: frameCount = 18 - 2; width = 128; height = 128; break;
+	case FILE_PLR_RHUHT: frameCount =  8 - 1; width =  96; height =  96; break;
+	case FILE_PLR_RHUQM: frameCount = 17 - 1; width =  96; height =  96; break;
+	case FILE_PLR_RMTAT: frameCount = 17 - 1; width = 128; height = 128; break;
+	case FILE_PLR_WHMAT: frameCount = 17 - 1; width = 128; height =  96; break;
+	case FILE_PLR_WLNLM: frameCount = 21 - 1; width =  96; height =  96; break;
+	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
+	}
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			int nn = n;
+			if (index == FILE_PLR_RHTAT || index == FILE_PLR_RMTAT) {
+				if (nn >= 12) {
+					nn++;
+				}
+				if (nn >= 14) {
+					nn++;
+				}
+			}
+			Cl2Draw(0, height - 1, frameBuf, nn, width);
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+
+	int frameCount = 0, width = 0, height = 0;
+    switch (index) {
+	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
+    case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBLM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBQM: frameCount = 16; width = 96; height = 96; break;
+    }
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int nn = ii * frameCount + n - 1;
+            switch (index) {
+            case FILE_PLR_RLMAT:
+				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
+					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
+					}
+				}
+                break;
+			case FILE_PLR_RMHAT:
+				for (int i = 0; i < lengthof(deltaRMHAT); i++) {
+					if (deltaRMHAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMHAT[i].dfx + BUFFER_WIDTH * deltaRMHAT[i].dfy] = deltaRMHAT[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMMAT:
+				for (int i = 0; i < lengthof(deltaRMMAT); i++) {
+					if (deltaRMMAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMMAT[i].dfx + BUFFER_WIDTH * deltaRMMAT[i].dfy] = deltaRMMAT[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMBFM:
+				for (int i = 0; i < lengthof(deltaRMBFM); i++) {
+					if (deltaRMBFM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBFM[i].dfx + BUFFER_WIDTH * deltaRMBFM[i].dfy] = deltaRMBFM[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMBLM:
+				for (int i = 0; i < lengthof(deltaRMBLM); i++) {
+					if (deltaRMBLM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBLM[i].dfx + BUFFER_WIDTH * deltaRMBLM[i].dfy] = deltaRMBLM[i].color;
+					}
+				}
+				break;
+            case FILE_PLR_RMBQM:
+				for (int i = 0; i < lengthof(deltaRMBQM); i++) {
+					if (deltaRMBQM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBQM[i].dfx + BUFFER_WIDTH * deltaRMBQM[i].dfy] = deltaRMBQM[i].color;
+					}
+				}
+				break;
+            }
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchWarriorStand(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
 	constexpr int frameCount = 10;
 	constexpr bool groupped = true;
-	constexpr int height = 96;
 	constexpr int width = 96;
+	constexpr int height = 96;
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -2232,38 +2572,73 @@ BYTE* createWarriorAnim(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, const B
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
-
-static void moveImage(int width, int height, int dx, int dy, BYTE TRANS_COLOR)
+#endif // ASSET_MPL
+static void ShiftFrame(int width, int height, int dx, int dy, int sx, int sy, int ex, int ey, BYTE TRANS_COLOR)
 {
-	if (dx > 0) {
-		for (int y = 0; y < height; y++) {
-			for (int x = width - dx - 1; x >= 0; x--) {
-				gpBuffer[x + dx + BUFFER_WIDTH * y] = gpBuffer[x + BUFFER_WIDTH * y];
-				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+	if (dx == 0 && dy == 0)
+		return;
+	if (dx <= 0) {
+		if (dy <= 0) {
+			// for (int y = std::max(sy, -dy); y < ey; y++) {
+			for (int y = sy; y < ey; y++) {
+				// for (int x = std::max(sx, -dx); x < ex; x++) {
+				for (int x = sx; x < ex; x++) {
+					if (x + dx >= 0 /*&& x + dx < width*/ && y + dy >= 0 /*&& y + dy < height*/)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
+			}
+		} else {
+			// for (int y = std::min(ey, height - dy) - 1; y >= sy; y--) {
+			for (int y = ey - 1; y >= sy; y--) {
+				// for (int x = std::max(sx, -dx); x < ex; x++) {
+				for (int x = sx; x < ex; x++) {
+					if (x + dx >= 0 /*&& x + dx < width && y + dy >= 0 */&& y + dy < height)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
 			}
 		}
-	}
-	if (dx < 0) {
-		for (int y = 0; y < height; y++) {
-			for (int x = -dx; x < width; x++) {
-				gpBuffer[x + dx + BUFFER_WIDTH * y] = gpBuffer[x + BUFFER_WIDTH * y];
-				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+	} else {
+		if (dy <= 0) {
+			// for (int y = std::max(sy, -dy); y < ey; y++) {
+			for (int y = sy; y < ey; y++) {
+				// for (int x = std::min(ex, width - dx) - 1; x >= sx; x--) {
+				for (int x = ex - 1; x >= sx; x--) {
+					if (/*x + dx >= 0 && */x + dx < width && y + dy >= 0 /*&& y + dy < height*/)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
 			}
-		}
-	}
-	if (dy > 0) {
-		for (int y = height - dy - 1; y >= 0; y--) {
-			for (int x = 0; x < width; x++) {
-				gpBuffer[x + BUFFER_WIDTH * (y + dy)] = gpBuffer[x + BUFFER_WIDTH * y];
-				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-			}
-		}
-	}
-	if (dy < 0) {
-		for (int y = -dy; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				gpBuffer[x + BUFFER_WIDTH * (y + dy)] = gpBuffer[x + BUFFER_WIDTH * y];
-				gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+		} else {
+			// for (int y = std::min(ey, height - dy) - 1; y >= sy; y--) {
+			for (int y = ey - 1; y >= sy; y--) {
+				// for (int x = std::min(ex, width - dx) - 1; x >= sx; x--) {
+				for (int x = ex - 1; x >= sx; x--) {
+					if (/*x + dx >= 0 && */x + dx < width /*&& y + dy >= 0 */&& y + dy < height)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
 			}
 		}
 	}
@@ -2272,7 +2647,6 @@ static void moveImage(int width, int height, int dx, int dy, BYTE TRANS_COLOR)
 static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 
 	DWORD* srcHeaderCursor = (DWORD*)celBuf;
 	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
@@ -2444,7 +2818,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 		}
 
 		if (needsPatch) {
-			moveImage(InvItemWidth[i + 1], InvItemHeight[i + 1], dx, dy, TRANS_COLOR);
+			ShiftFrame(InvItemWidth[i + 1], InvItemHeight[i + 1], dx, dy, 0, 0, InvItemWidth[i + 1], InvItemHeight[i + 1], TRANS_COLOR);
 		}
 
 		// write to the new CEL file
@@ -2463,15 +2837,29 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
+#if ASSET_MPL == 1
+static void CopyFrame(unsigned dstAddr, int dx, int dy, unsigned srcAddr, int sx, int sy, int ex, int ey, BYTE TRANS_COLOR)
+{
+	for (int y = sy; y < ey; y++) {
+		for (int x = sx; x < ex; x++) {
+			unsigned addr = srcAddr + x + BUFFER_WIDTH * y;
+			BYTE color = gpBuffer[addr];
+			if (color == TRANS_COLOR)
+				continue;
+			unsigned addr2 = dstAddr + (x + dx) + BUFFER_WIDTH * (y + dy);
+			gpBuffer[addr2] = color;
+		}
+	}
+}
 
-BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
+static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
-	constexpr int frameCount = 16;
+	constexpr int frameCount = 18;
 	constexpr bool groupped = true;
+	constexpr int width = 128;
 	constexpr int height = 128;
-	constexpr int width = 160;
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -2509,175 +2897,1024 @@ BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
 			// test if the animation is already patched
-			if (ii == 1 && n == 9) {
-				needsPatch = gpBuffer[71 + BUFFER_WIDTH * 127] != TRANS_COLOR; // assume it is already done
+			if (ii + 1 == 1 && i + 1 == 1) {
+				needsPatch = gpBuffer[51 + BUFFER_WIDTH * 51] != TRANS_COLOR; // assume it is already done
 			}
 
 			if (needsPatch) {
-				switch (ii) {
-				case DIR_SW: {
-					switch (n) {
-					case 9:
-					case 10:
-					case 11:
-					case 12: {
-						// shift the monster with (0;16) up
-						for (int y = 16; y < height; y++) {
+				if (ii + 1 == 1) {
+					if (i + 1 <= 3) {
+						int si;
+						switch (i + 1) {
+						case 1: si = 1 - 1; break;
+						case 2: si = 6 - 1; break;
+						case 3: si = 7 - 1; break;
+						}
+
+						const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+						Cl2Draw(width, height - 1, stdFrameBuf, si + 1, width);
+
+						for (int y = 0; y < height; y++) {
 							for (int x = 0; x < width; x++) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
+								// preserve pixels
+								if (i + 1 == 3) {
+									if (y < 51 || (x > 65 && y < 55) || (x >= 57 && x < 60 && y < 54 + 57 - x) || (x == 56 && y == 52))
+										continue;
+								}
+								if (i + 1 == 2) {
+									if (x >= 72 && y < 72 && y < 64 + x - 72) {
+										unsigned addr = x + BUFFER_WIDTH * y;
+										BYTE color = gpBuffer[addr];
+										if (color != TRANS_COLOR) {
+											gpBuffer[addr - 16] = color;
+											gpBuffer[addr] = TRANS_COLOR;
+											continue;
+										}
+									}
+								}
+								// copy pixels with 'trn'
+								BYTE color = gpBuffer[x + width + BUFFER_WIDTH * y];
+								if (color != TRANS_COLOR) {
+									if (color != 0) {
+										if (color < 188)
+											color = color - 1;
+										else if (color >= 214 && color <= 217)
+											color = 155;
+										else if (color >= 218 && color <= 220)
+											color = 140 + color - 218;
+										else if (color >= 221 && color <= 222)
+											color = 142;
+										else if (color >= 232 && color <= 233)
+											color = 154;
+										else if (color >= 234 && color <= 235)
+											color = 156;
+										else if (color >= 236 && color <= 239)
+											color = color - 4;
+									}
+								}
+								gpBuffer[x + BUFFER_WIDTH * y] = color;
 							}
 						}
-						// copy pixels from the followup frames
-						if (n != 9) {
-							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
-							for (int y = 4 - 1; y >= 0; y--) {
-								for (int x = 0; x < width; x++) {
-									unsigned addr = width + x + BUFFER_WIDTH * y;
-									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
-									BYTE color = gpBuffer[addr];
+
+						if (i + 1 == 3) {
+							// add bits from frame 4
+							Cl2Draw(width, height - 1, frameBuf, n + 1, width);
+							for (int y = 62; y < 73; y++) {
+								for (int x = 93; x < 106; x++) {
+									BYTE color = gpBuffer[width + x + BUFFER_WIDTH * y];
 									if (color == TRANS_COLOR)
 										continue;
-									gpBuffer[addr2] = color;
+									int dx = 59 - 93, dy = 88 - 62;
+									unsigned addr = x + dx + BUFFER_WIDTH * (y + dy);
+									BYTE currColor = gpBuffer[addr];
+									if (currColor == TRANS_COLOR || currColor == 0)
+										gpBuffer[addr] = color;
+								}
+							}
+							for (int y = 79; y < 88; y++) {
+								for (int x = 88; x < 98; x++) {
+									BYTE color = gpBuffer[width + x + BUFFER_WIDTH * y];
+									if (color == TRANS_COLOR)
+										continue;
+									int dx = 56 - 88, dy = 95 - 79;
+									unsigned addr = x + dx + BUFFER_WIDTH * (y + dy);
+									BYTE currColor = gpBuffer[addr];
+									if (currColor == TRANS_COLOR || currColor == 0)
+										gpBuffer[addr] = color;
 								}
 							}
 						}
-					} break;
-					case 14:
-					case 15:
-					case 16: {
-						// clear pixels from the first rows
-						for (int y = 4 - 1; y >= 0; y--) {
-							for (int x = 0; x < width; x++) {
-								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-							}
-						}
-					} break;
 					}
-				} break;
-				case DIR_W: {
-					switch (n) {
-					case 9:
-					case 10:
-					case 11:
-					case 12: {
-						// shift the monster with (0;16) up
-						for (int y = 16; y < height; y++) {
-							for (int x = 0; x < width; x++) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
-								BYTE color = gpBuffer[addr];
+				} else {
+					if (i + 1 == 1) {
+						// draw leg
+						int si = 1 - 1;
+
+						const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+						Cl2Draw(width, height - 1, stdFrameBuf, si + 1, width);
+
+						int sx = 0, sy = 0, ex = 0, ey = 0;
+						switch (ii + 1) {
+						case 2: sx = 53; sy = 87; ex = 62, ey = 97; break;
+						case 3: sx = 69; sy = 94; ex = 72, ey = 101; break;
+						case 4: sx = 66; sy = 80; ex = 79, ey = 92; break;
+						case 5: sx = 56; sy = 83; ex = 78, ey = 115; break;
+						case 6: sx = 56; sy = 89; ex = 76, ey = 113; break;
+						case 7: sx = 66; sy = 94; ex = 69, ey = 101; break;
+						case 8: sx = 39; sy = 80; ex = 62, ey = 114; break;
+						}
+						for (int y = sy; y < ey; y++) {
+							for (int x = sx; x < ex; x++) {
+								BYTE color = gpBuffer[x + width + BUFFER_WIDTH * y];
 								if (color == TRANS_COLOR)
 									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
+								int dx = 0, dy = 0;
+								unsigned addr = x + dx + BUFFER_WIDTH * (y + dy);
+								BYTE currColor = gpBuffer[addr];
+								if (currColor == TRANS_COLOR || currColor == 0)
+									gpBuffer[addr] = color;
 							}
 						}
-						// copy pixels from the followup frames
-						{
-							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
-							for (int y = 16 - 1; y >= 0; y--) {
-								for (int x = 0; x < width; x++) {
-									unsigned addr = width + x + BUFFER_WIDTH * y;
-									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
-									BYTE color = gpBuffer[addr];
-									if (color == TRANS_COLOR)
-										continue;
-									gpBuffer[addr2] = color;
-								}
-							}
-						}
-					} break;
-					case 13:
-					case 14:
-					case 15:
-					case 16: {
-						// shift the monster with (1;9) up/right
-						for (int y = 16; y < height; y++) {
-							for (int x = width - 1 - 1; x >= 0; x--) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + 1 + BUFFER_WIDTH * (y - 9);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-						// clear pixels from the first rows
-						for (int y = 16 - 1; y >= 0; y--) {
-							for (int x = 0; x < width; x++) {
-								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-							}
-						}
-					} break;
 					}
-				} break;
-				case DIR_NW: {
-					switch (n) {
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16: {
-						// shift the monster with (0;4) down
-						for (int y = height - 4 - 1; y >= 0; y--) {
-							for (int x = width - 1; x >= 0; x--) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y + 4);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-					} break;
+
+					int nn = ii * frameCount + i;
+					switch (nn + 1) {
+					case 19:
+						gpBuffer[54 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[41 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[42 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
+					case 20:
+						gpBuffer[40 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[41 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[41 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[42 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[42 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[41 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[42 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
+					case 21:
+						gpBuffer[53 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[41 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[42 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[43 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
+					case 37:
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						break;
+					case 38:
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						break;
+					case 39:
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						break;
+					case 55:
+						gpBuffer[68 + BUFFER_WIDTH * 102] = 0;
+						gpBuffer[70 + BUFFER_WIDTH * 103] = 0;
+						gpBuffer[71 + BUFFER_WIDTH * 103] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 108] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 108] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 108] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 108] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						break;
+					case 56:
+						gpBuffer[65 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[64 + BUFFER_WIDTH * 108] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[68 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[69 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[71 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						break;
+					case 57:
+						gpBuffer[69 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						break;
+					case 58:
+						gpBuffer[71 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						break;
+					case 91:
+						gpBuffer[45 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[44 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[45 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						break;
+					case 92:
+						gpBuffer[59 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[59 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[64 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[46 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[64 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[65 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[47 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[47 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[47 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						break;
+					case 93:
+						gpBuffer[45 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[64 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[65 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[66 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[67 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[44 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[56 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[57 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[58 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[59 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[64 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[65 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[66 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[67 + BUFFER_WIDTH * 110] = 0;
+						gpBuffer[45 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[46 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[59 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[61 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[64 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[47 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[47 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 113] = 0;
+						gpBuffer[47 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[54 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[55 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[48 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[49 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[50 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[51 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[52 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[53 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						break;
+					case 127:
+						gpBuffer[67 + BUFFER_WIDTH * 105] = 0;
+						gpBuffer[67 + BUFFER_WIDTH * 106] = 0;
+						gpBuffer[67 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[67 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[68 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[69 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[66 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 109] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 110] = TRANS_COLOR;
+						gpBuffer[56 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[57 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[58 + BUFFER_WIDTH * 111] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[57 + BUFFER_WIDTH * 112] = 0;
+						gpBuffer[60 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
+					case 128:
+						gpBuffer[67 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[67 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[68 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[69 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[70 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[71 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[62 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 111] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 112] = TRANS_COLOR;
+						gpBuffer[59 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[60 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[61 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[62 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[63 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 113] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 114] = 0;
+						gpBuffer[63 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 114] = TRANS_COLOR;
+						gpBuffer[64 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[65 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[66 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[67 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[68 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[69 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[70 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[71 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
+					case 129:
+						gpBuffer[73 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
+					case 130:
+						gpBuffer[73 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 115] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 116] = TRANS_COLOR;
+						gpBuffer[72 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[73 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[74 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[75 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[76 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[77 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[78 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[79 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						gpBuffer[80 + BUFFER_WIDTH * 117] = TRANS_COLOR;
+						break;
 					}
-				} break;
-				case DIR_E: {
-					switch (n) {
-					case 9:
-					case 10:
-					case 11:
-					case 12: {
-						// clear pixels from the first rows
-						for (int y = 4 - 1; y >= 0; y--) {
-							for (int x = 0; x < width; x++) {
-								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
-				case DIR_SE: {
-					switch (n) {
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16: {
-						// shift the monster with (0;16) up
-						for (int y = 16; y < height; y++) {
-							for (int x = 0; x < width; x++) {
-								unsigned addr = x + BUFFER_WIDTH * y;
-								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
-								BYTE color = gpBuffer[addr];
-								if (color == TRANS_COLOR)
-									continue;
-								gpBuffer[addr2] = color;
-								gpBuffer[addr] = TRANS_COLOR;
-							}
-						}
-					} break;
-					}
-				} break;
 				}
 			}
 
@@ -2695,14 +3932,1352 @@ BYTE* fixGoatLdAnim(BYTE* cl2Buf, size_t *dwLen)
 	return resCl2Buf;
 }
 
-BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
+static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 20;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 1 && i + 1 == 4) {
+				needsPatch = gpBuffer[50 + BUFFER_WIDTH * 126] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				// fix bouncying bow
+				if (i + 1 == 4) {
+					ShiftFrame(width, height, -1, -3, 0, 106, width, height, TRANS_COLOR);
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchSklAxDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 17;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 1 && i + 1 == 1) {
+				needsPatch = gpBuffer[49 + BUFFER_WIDTH * 12] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (i + 1) {
+				case 1: dx = 0; dy = 15; break;
+				case 2: dx = 0; dy = 12; break;
+				case 3: dx = 0; dy = 10; break;
+				case 4: dx = 0; dy = 6; break;
+				case 5:
+				case 6:
+				case 7: dx = 0; dy = 5; break;
+				case 8:
+				case 9:
+				case 10: dx = 0; dy = 3; break;
+				case 11:
+					if (ii + 1 != 4) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 12:
+					if (ii + 1 != 4) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 13:
+					if (ii + 1 != 4 && ii + 1 != 5) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 14:
+					if (ii + 1 != 4 && ii + 1 != 5) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 15:
+					if (ii + 1 != 4 && ii + 1 != 5) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 16:
+					if (ii + 1 != 4 && ii + 1 != 5) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 17:
+					if (ii + 1 != 1 && ii + 1 != 2 && ii + 1 != 3 && ii + 1 != 4 && ii + 1 != 5 && ii + 1 != 6 && ii + 1 != 8) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+
+				switch (ii + 1) {
+				case 1:
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 82, TRANS_COLOR);
+					}
+					break;
+				case 2:
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 82, TRANS_COLOR);
+					}
+					break;
+				case 3:
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 88, TRANS_COLOR);
+					}
+					break;
+				case 4:
+					if (i + 1 == 11) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);
+					}
+					if (i + 1 == 12) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 82, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 89, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 67, 87, 70, 88, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 87, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 67, 85, 70, 87, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 91, 85, 93, 86, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 85, TRANS_COLOR);
+					}
+					if (i + 1 == 16) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 67, 87, 70, 89, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 87, TRANS_COLOR);
+					}
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 65, 83, 67, 87, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 88, 83, 97, 85, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);
+					}
+					break;
+				case 5:
+					if (i + 1 == 13) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 67, 85, 75, 89, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 85, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 67, 83, 75, 88, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 56, 81, 76, 90, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 81, TRANS_COLOR);
+					}
+					if (i + 1 == 16) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 57, 85, 67, 90, TRANS_COLOR); // axe
+						ShiftFrame(width, height, 0, 3, 70, 83, width, height, TRANS_COLOR); // right arm
+						ShiftFrame(width, height, 0, 3, 40, 77, width, 83, TRANS_COLOR); // body
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 77, TRANS_COLOR); // body
+
+						ShiftFrame(width, height, 0, -3, 48, 87, 54, 92, TRANS_COLOR); // left arm
+					}
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 57, 85, 67, 91, TRANS_COLOR); // axe
+						ShiftFrame(width, height, 0, 3, 65, 83, 74, 85, TRANS_COLOR); // axe
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);  // body
+					}
+					break;
+				case 6:
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 72, 83, 74, 85, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);
+					}
+					break;
+				case 8:
+					if (i + 1 == 17) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 65, 83, 67, 85, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);
+					}
+					break;
+				}
+
+				// shift bone
+				if (ii + 1 == 6) {
+					if (i + 1 == 9) {
+						ShiftFrame(width, height, 0, -10, 52, 78, 54, 80, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -10, 49, 79, 52, 81, TRANS_COLOR);
+					}
+					if (i + 1 == 10) {
+						ShiftFrame(width, height, 0, -10, 50, 83, 53, 85, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -10, 48, 85, 52, 89, TRANS_COLOR);
+					}
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, 4, -6, 48, 87, 53, 93, TRANS_COLOR);
+						ShiftFrame(width, height, 4, -6, 47, 91, 48, 92, TRANS_COLOR);
+					}
+				} else {
+					if (i + 1 == 9) {
+						if (ii + 1 == 1 || ii + 1 == 2) {
+							ShiftFrame(width, height, 0, -10, 51, 77, 54, 79, TRANS_COLOR);
+							ShiftFrame(width, height, 0, -10, 48, 79, 53, 82, TRANS_COLOR);
+						} else if (ii + 1 == 4) {
+							ShiftFrame(width, height, 0, -10, 49, 78, 54, 82, TRANS_COLOR);
+						} else {
+							ShiftFrame(width, height, 0, -10, 48, 77, 54, 82, TRANS_COLOR);
+						}
+					}
+					if (i + 1 == 10) {
+						if (ii + 1 == 3) {
+							// TODO:....
+						} else {
+							ShiftFrame(width, height, 0, -10, 47, 83, 53, 89, TRANS_COLOR);
+						}
+					}
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, 4, -6, 47, 87, 53, 93, TRANS_COLOR);
+					}
+				}
+
+				if (i + 1 == 12) {
+					ShiftFrame(width, height, 7, -2, 49, 89, 53, 94, TRANS_COLOR);
+				}
+				if (i + 1 == 13) {
+					ShiftFrame(width, height, 7, -2, 50, 92, 53, 95, TRANS_COLOR);
+				}
+				if (i + 1 == 14) {
+					ShiftFrame(width, height, 7, -2, 50, 91, 53, 93, TRANS_COLOR);
+				}
+				if (i + 1 == 15) {
+					ShiftFrame(width, height, 7, -2, 49, 88, 54, 92, TRANS_COLOR);
+				}
+				if (i + 1 == 16) {
+					ShiftFrame(width, height, 7, -2, 48, 90, 54, 95, TRANS_COLOR);
+				}
+				if (i + 1 == 17) {
+					if (ii + 1 == 3) {
+						for (int y = 92; y < 96; y++) {
+							for (int x = 49; x < 65; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+
+						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
+
+						CopyFrame(0, 0, 0, width, 56, 90, 61, 93, TRANS_COLOR);
+					} else {
+						ShiftFrame(width, height, 7, -2, 49, 92, 54, 95, TRANS_COLOR);
+					}
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchSklBwDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 16 - 3;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 1 && i + 1 == 2) {
+				needsPatch = gpBuffer[76 + BUFFER_WIDTH * 92] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (ii + 1) {
+				case 1:
+					if (i + 1 == 2) {
+						dx = -3;
+						dy = -3;
+					}
+					if (i + 1 == 3) {
+						dx = -3;
+						dy = -7;
+					}
+					if (i + 1 == 4 || i + 1 == 5 || i + 1 == 6) {
+						dx = -3;
+						dy = -5;
+					}
+					if (i + 1 == 7 || i + 1 == 8 || i + 1 == 9 || i + 1 == 10 || i + 1 == 11 || i + 1 == 12 || i + 1 == 13) {
+						dx = -2;
+						dy = -6;
+					}
+					break;
+				case 2:
+					if (i + 1 == 2) {
+						dx = -3;
+						dy = -3;
+					}
+					if (i + 1 == 3) {
+						dx = -3;
+						dy = -7;
+					}
+					if (i + 1 == 4 || i + 1 == 5 || i + 1 == 6) {
+						dx = -3;
+						dy = -6;
+					}
+					if (i + 1 == 7 || i + 1 == 8 || i + 1 == 9 || i + 1 == 10 || i + 1 == 11 || i + 1 == 12 || i + 1 == 13) {
+						dx = -3;
+						dy = -7;
+					}
+					break;
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					if (i + 1 == 2) {
+						dx = 0;
+						dy = -3;
+					}
+					if (i + 1 == 3) {
+						dx = 0;
+						dy = -5;
+					}
+					if (i + 1 == 4 || i + 1 == 5 || i + 1 == 6) {
+						dx = 0;
+						dy = -6;
+					}
+					if (i + 1 == 7 || i + 1 == 8 || i + 1 == 9 || i + 1 == 10 || i + 1 == 11 || i + 1 == 12 || i + 1 == 13) {
+						dx = 0;
+						dy = -7;
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 15;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 1 && i + 1 == 1) {
+				needsPatch = gpBuffer[31 + BUFFER_WIDTH * 14] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (i + 1) {
+				case 1: dx = 0; dy = 15; break;
+				case 2: dx = 0; dy = 12; break;
+				case 3: dx = 0; dy = 10; break;
+				case 4: dx = 0; dy = 6;  break;
+				case 5:
+				case 6:
+				case 7: dx = 0; dy = 5; break;
+				case 8:
+				case 9:
+				case 10:
+				case 11: dx = 0; dy = 3; break;
+				case 12:
+					if (ii + 1 != 7 && ii + 1 != 8) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 13:
+					if (ii + 1 != 5 && ii + 1 != 7 && ii + 1 != 8) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 14:
+					if (ii + 1 != 4 && ii + 1 != 5 && ii + 1 != 6 && ii + 1 != 7 && ii + 1 != 8) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				case 15:
+					if (ii + 1 != 1 && ii + 1 != 4 && ii + 1 != 5 && ii + 1 != 6 && ii + 1 != 7 && ii + 1 != 8) {
+						dx = 0;
+						dy = 3;
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+
+				switch (ii + 1) {
+				case 1:
+					// shift the sword
+					if (i + 1 == 9) {
+						ShiftFrame(width, height, -1, 3, 47, 50, 61, 60, TRANS_COLOR);
+					}
+					if (i + 1 == 10) {
+						ShiftFrame(width, height, -2, 9, 47, 41, 64, 58, TRANS_COLOR);
+					}
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, 1, 14, 42, 37, 60, 53, TRANS_COLOR);
+					}
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, 5, 15, 37, 36, 55, 52, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 7, 15, 34, 34, 51, 52, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 9, 14, 34, 39, 50, 54, TRANS_COLOR);
+					}
+					// shift the shadow of the sword
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 3, 1, 25, 63, 43, 70, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 3, 0, 26, 65, 43, 70, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						// shift the main body
+						ShiftFrame(width, height, 0, 3, 28, 66, 30, 68, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 30, 56, 76, 87, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 76, 56, 109, 80, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 73, 37, 95, 56, TRANS_COLOR);
+						// shift the sword
+						ShiftFrame(width, height, 9, 13, 34, 41, 50, 56, TRANS_COLOR);
+						// shift the shadow of the sword
+						ShiftFrame(width, height, 2, 0, 28, 66, 38, 71, TRANS_COLOR);
+					}
+					// shift the left-leg
+					if (i + 1 == 14 || i + 1 == 15) {
+						ShiftFrame(width, height, -1, -1, 69, 78, 75, 90, TRANS_COLOR);
+						ShiftFrame(width, height, -1, -4, 75, 78, 82, 96, TRANS_COLOR);
+						ShiftFrame(width, height, -1, -4, 74, 92, 75, 96, TRANS_COLOR);
+					}
+					// shift the right-leg
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, 3, -3, 17, 72, 40, 80, TRANS_COLOR);
+					}
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, 6, -6, 13, 78, 16, 79, TRANS_COLOR);
+						ShiftFrame(width, height, 6, -6, 32, 77, 36, 79, TRANS_COLOR);
+						ShiftFrame(width, height, 6, -6, 14, 79, 36, 85, TRANS_COLOR);
+						// eliminate shadow(?)
+						gpBuffer[16 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+						gpBuffer[17 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 10, -6, 30, 77, 33, 79, TRANS_COLOR);
+						ShiftFrame(width, height, 10, -6, 9, 79, 33, 85, TRANS_COLOR);
+						// eliminate shadow(?)
+						gpBuffer[9 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+						gpBuffer[10 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+						gpBuffer[11 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+						gpBuffer[12 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+						gpBuffer[13 + BUFFER_WIDTH * 78] = TRANS_COLOR;
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 11, -6, 8, 79, 32, 87, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 13, -3, 6, 76, 30, 85, TRANS_COLOR);
+					}
+					break;
+				case 2:
+					// shift the right-leg
+					if (i + 1 == 9) {
+						ShiftFrame(width, height, 0, 3, 24, 57, 43, 67, TRANS_COLOR);
+					}
+					if (i + 1 == 10) {
+						ShiftFrame(width, height, 0, 6, 23, 53, 41, 65, TRANS_COLOR);
+					}
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, 1, 6, 19, 54, 38, 64, TRANS_COLOR);
+					}
+					if (i + 1 == 12) {
+						// shadow
+						ShiftFrame(width, height, 5, 0, 9, 71, 30, 74, TRANS_COLOR);
+						// leg
+						ShiftFrame(width, height, 5, 6, 14, 57, 33, 66, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						// shadow
+						ShiftFrame(width, height, 9, 0, 5, 71, 26, 74, TRANS_COLOR);
+						// leg
+						ShiftFrame(width, height, 8, 7, 10, 57, 29, 65, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						// shadow
+						ShiftFrame(width, height, 10, 0, 3, 71, 24, 74, TRANS_COLOR);
+						// leg
+						ShiftFrame(width, height, 9, 7, 8, 58, 27, 66, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						// shadow
+						ShiftFrame(width, height, 12, 0, 1, 71, 23, 74, TRANS_COLOR);
+						// leg
+						ShiftFrame(width, height, 10, 7, 6, 59, 26, 66, TRANS_COLOR);
+					}
+
+					// shift the left-leg
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 2, -2, 35, 76, 58, 93, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 2, -2, 36, 76, 58, 96, TRANS_COLOR);
+						ShiftFrame(width, height, 2, -2, 38, 82, 49, 94, TRANS_COLOR);
+					}
+					// shift the shield
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 0, -2, 93, 76, 97, 78, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -2, 82, 78, 97, 79, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -2, 79, 79, 97, 81, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -2, 70, 81, 97, 85, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, -4, 83, 79, 85, 80, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -4, 79, 80, 95, 81, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -4, 70, 81, 97, 87, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -4, 75, 87, 88, 88, TRANS_COLOR);
+					}
+					break;
+				case 4:
+					// shift the main body
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 85, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 85, TRANS_COLOR);
+					}
+					// shift the shield
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, -2, 30, 72, 46, 85, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -2, 46, 76, 47, 77, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -2, 46, 77, 48, 85, TRANS_COLOR);
+						ShiftFrame(width, height, 0, -2, 48, 78, 50, 81, TRANS_COLOR);
+					}
+					break;
+				case 5:
+					// shift the main body
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 0, 3, 0, 0, 70, 77, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 70, 0, width, 68, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 0, 3, 0, 0, 70, 79, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 70, 0, width, 69, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, 3, 0, 0, 70, 80, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 70, 0, width, 69, TRANS_COLOR);
+					}
+					// shift the sword
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, -2, -1, 62, 73, width, height, TRANS_COLOR);
+						ShiftFrame(width, height, -2, 0, 79, 72, width, height, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, -3, 0, 64, 75, width, height, TRANS_COLOR);
+						ShiftFrame(width, height, -4, 0, 83, 75, width, height, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, -2, -2, 64, 77, width, height, TRANS_COLOR);
+						ShiftFrame(width, height, -4, 0, 84, 75, width, height, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, -2, -5, 64, 81, width, height, TRANS_COLOR);
+						ShiftFrame(width, height, -4, 0, 84, 76, width, height, TRANS_COLOR);
+					}
+					// complete the sword
+					if (i + 1 == 14) {
+						gpBuffer[87 + BUFFER_WIDTH * 94] = 248;
+						gpBuffer[88 + BUFFER_WIDTH * 94] = 164;
+					}
+					if (i + 1 == 15) {
+						CopyFrame(0, -2, 3, 0, 88, 88, 92, 91, TRANS_COLOR);
+						gpBuffer[86 + BUFFER_WIDTH * 94] = 248;
+						gpBuffer[87 + BUFFER_WIDTH * 94] = 247;
+					}
+					break;
+				case 6:
+					// shift the main body
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 80, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 79, TRANS_COLOR);
+					}
+					// shift the sword
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, 3, -4, 66, 81, 68, 93, TRANS_COLOR);
+						ShiftFrame(width, height, 3, -4, 40, 82, 68, 93, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 4, -7, 39, 86, 68, 96, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 6, -7, 38, 87, 68, 96, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 9, -12, 54, 92, 67, 96, TRANS_COLOR);
+					}
+					// complete the sword
+					if (i + 1 == 15) {
+						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
+
+						CopyFrame(0, 2, 0, width, 44, 84, 71, 89, TRANS_COLOR);
+					}
+					break;
+				case 7:
+					// shift the main body
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 79, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 79, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 0, 3, 73, 79, 76, 81, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 29, 74, 76, 79, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 74, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, 3, 29, 79, 76, 84, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 79, TRANS_COLOR);
+					}
+					// shift the sword
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, -1, -5, 4, 78, 38, 87, TRANS_COLOR);
+					}
+					// shift the right-leg
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, -1, -3, 81, 78, 91, 92, TRANS_COLOR);
+					}
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, -5, -6, 85, 79, 94, 94, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, -8, -7, 88, 80, 97, 88, TRANS_COLOR);
+						ShiftFrame(width, height, -9, -7, 88, 88, 97, 95, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, -8, -8, 90, 81, 99, 83, TRANS_COLOR);
+						ShiftFrame(width, height, -9, -8, 90, 83, 99, 84, TRANS_COLOR);
+						ShiftFrame(width, height, -10, -8, 90, 84, 99, 87, TRANS_COLOR);
+						ShiftFrame(width, height, -11, -8, 90, 87, 99, 89, TRANS_COLOR);
+						ShiftFrame(width, height, -12, -8, 90, 89, 99, 96, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, -8, -8, 90, 82, 99, 84, TRANS_COLOR);
+						ShiftFrame(width, height, -9, -8, 90, 84, 99, 85, TRANS_COLOR);
+						ShiftFrame(width, height, -10, -8, 90, 85, 99, 88, TRANS_COLOR);
+						ShiftFrame(width, height, -11, -8, 90, 88, 99, 90, TRANS_COLOR);
+						ShiftFrame(width, height, -12, -8, 90, 90, 99, 91, TRANS_COLOR);
+						ShiftFrame(width, height, -13, -8, 90, 91, 99, 96, TRANS_COLOR);
+					}
+					break;
+				case 8:
+					// shift the main body
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, 0, 3, 61, 82, width, height, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 82, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 0, 3, 61, 83, width, height, TRANS_COLOR);
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 83, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 85, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, 0, 3, 0, 0, width, 86, TRANS_COLOR);
+					}
+					// shift the left-leg
+					if (i + 1 == 11) {
+						ShiftFrame(width, height, 2, -3, 45, 81, 61, 93, TRANS_COLOR);
+					}
+					if (i + 1 == 12) {
+						ShiftFrame(width, height, 1, -6, 44, 82, 60, 96, TRANS_COLOR);
+					}
+					if (i + 1 == 13) {
+						ShiftFrame(width, height, 0, -7, 43, 83, 61, 96, TRANS_COLOR);
+					}
+					if (i + 1 == 14) {
+						ShiftFrame(width, height, -2, -8, 45, 85, 61, 96, TRANS_COLOR);
+					}
+					if (i + 1 == 15) {
+						ShiftFrame(width, height, -1, -9, 49, 86, 60, 96, TRANS_COLOR);
+					}
+					// complete the left-leg
+					if (i + 1 == 14) {
+						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
+
+						CopyFrame(0, 0, 0, width, 44, 86, 48, 87, TRANS_COLOR);
+						CopyFrame(0, 0, 1, width, 45, 87, 49, 88, TRANS_COLOR);
+						gpBuffer[45 + BUFFER_WIDTH * 87] = 165;
+					}
+					if (i + 1 == 15) {
+						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
+
+						CopyFrame(0, 0, 0, width, 43, 86, 51, 89, TRANS_COLOR);
+					}
+					break;
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchZombieDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 16;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 2 && i + 1 == 1) {
+				needsPatch = gpBuffer[40 + BUFFER_WIDTH * 74] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (ii + 1) {
+				case 2:
+					if (i + 1 == 1) {
+						dx = 8;
+						dy = -3;
+					} else if (i + 1 == 2) {
+						dx = 4;
+						dy = 0;
+					} else {
+						dx = 2;
+						dy = 0;
+					}
+					break;
+				case 3:
+					if (i + 1 == 1) {
+						dx = 10;
+						dy = -3;
+					} else if (i + 1 == 2) {
+						dx = 5;
+						dy = 0;
+					} else {
+						dx = 4;
+						dy = 0;
+					}
+					break;
+				case 4:
+					switch (i + 1) {
+					case 1: dx = 6; dy = 13; break;
+					case 2: dx = 6; dy = 10; break;
+					case 3: dx = 6; dy = 7; break;
+					case 4: dx = 5; dy = 4; break;
+					case 5: dx = 5; dy = 3; break;
+					default:dx = 4; dy = 2; break; // 6.. 16
+					}
+					break;
+				case 5:
+					switch (i + 1) {
+					case 1: dx = -1; dy = 13; break;
+					case 2: dx = -1; dy = 10; break;
+					case 3: dx = -1; dy = 7; break;
+					case 4: dx = -1; dy = 4; break;
+					case 5: dx = -1; dy = 2; break;
+					default: dx = -1; dy = 0; break; // 6.. 16
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+#ifdef HELLFIRE
+static BYTE* patchFallGDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 17;
+	constexpr bool groupped = true;
+	constexpr int width = 128;
+	constexpr int height = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int i = n - 1;
+			// test if the animation is already patched
+			if (ii + 1 == 1 && i + 1 == 1) {
+				needsPatch = gpBuffer[28 + BUFFER_WIDTH * 108] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 9, dy = -2;
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+
+				// add missing pixels
+				if (ii + 1 == 1) {
+					if (i + 1 >= 13) {
+						// draw leg
+						gpBuffer[50 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[51 + BUFFER_WIDTH * 126] = 237;
+						gpBuffer[52 + BUFFER_WIDTH * 126] = 238;
+						gpBuffer[53 + BUFFER_WIDTH * 126] = 237;
+						gpBuffer[54 + BUFFER_WIDTH * 126] = 237;
+						gpBuffer[55 + BUFFER_WIDTH * 126] = 235;
+						gpBuffer[56 + BUFFER_WIDTH * 126] = 234;
+						gpBuffer[57 + BUFFER_WIDTH * 126] = 172;
+						gpBuffer[58 + BUFFER_WIDTH * 126] = 238;
+						gpBuffer[51 + BUFFER_WIDTH * 127] = 174;
+						gpBuffer[52 + BUFFER_WIDTH * 127] = 237;
+						gpBuffer[53 + BUFFER_WIDTH * 127] = 235;
+						gpBuffer[54 + BUFFER_WIDTH * 127] = 238;
+						gpBuffer[55 + BUFFER_WIDTH * 127] = 238;
+					}
+				}
+				if (ii + 1 == 2) {
+					if (i + 1 >= 13) {
+						// draw club
+						gpBuffer[71 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[72 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[73 + BUFFER_WIDTH * 126] = 237;
+						gpBuffer[74 + BUFFER_WIDTH * 126] = 237;
+						gpBuffer[75 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[76 + BUFFER_WIDTH * 126] = 188;
+						gpBuffer[77 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[78 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[79 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[80 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[81 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[82 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[83 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[84 + BUFFER_WIDTH * 126] = 175;
+						gpBuffer[85 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[86 + BUFFER_WIDTH * 126] = 175;
+						gpBuffer[95 + BUFFER_WIDTH * 126] = 175;
+						gpBuffer[96 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[97 + BUFFER_WIDTH * 126] = 174;
+						gpBuffer[98 + BUFFER_WIDTH * 126] = 252;
+						gpBuffer[99 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[100 + BUFFER_WIDTH * 126] = 188;
+						gpBuffer[101 + BUFFER_WIDTH * 126] = 188;
+						gpBuffer[73 + BUFFER_WIDTH * 127] = 174;
+						gpBuffer[74 + BUFFER_WIDTH * 127] = 174;
+						gpBuffer[75 + BUFFER_WIDTH * 127] = 237;
+						gpBuffer[76 + BUFFER_WIDTH * 127] = 174;
+						gpBuffer[77 + BUFFER_WIDTH * 127] = 174;
+						gpBuffer[78 + BUFFER_WIDTH * 127] = 188;
+					}
+				}
+				if (ii + 1 == 3) {
+					// add shadow
+					if (i + 1 == 6) {
+						gpBuffer[8 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 108] = 0;
+					}
+					if (i + 1 == 7) {
+						gpBuffer[7 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 106] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 108] = 0;
+					}
+					if (i + 1 == 8) {
+						gpBuffer[8 + BUFFER_WIDTH * 107] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 109] = 0;
+					}
+					if (i + 1 == 9) {
+						gpBuffer[8 + BUFFER_WIDTH * 108] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 109] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 110] = 0;
+					}
+					if (i + 1 >= 13) {
+						// draw club based on frame 1 of group 8
+						for (int y = 123; y < 126; y++) {
+							for (int x = 40; x < 46; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+						const BYTE* baseFrameBuf = CelGetFrameStart(cl2Buf, 8 - 1);
+						Cl2Draw(width, height - 1, baseFrameBuf, 1, width);
+
+						for (int y = 97 + 2; y < 110 + 2 - 2; y++) {
+							for (int x = 83 - 9; x < 103 - 9; x++) {
+								unsigned addr = x + width + BUFFER_WIDTH * y;
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[37 + x - (83 - 9) + BUFFER_WIDTH * (y + 18)] = color;
+							}
+						}
+					}
+				}
+				if (ii + 1 == 4) {
+					// add shadow
+					if (i + 1 == 3) {
+						gpBuffer[7 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 101] = 0;
+					}
+					if (i + 1 == 4) {
+						gpBuffer[5 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[5 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 101] = 0;
+					}
+					if (i + 1 == 5) {
+						gpBuffer[6 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 101] = 0;
+					}
+					if (i + 1 == 6) {
+						gpBuffer[5 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[5 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 97] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 97] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 100] = 0;
+					}
+					if (i + 1 == 7) {
+						gpBuffer[6 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 97] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 99] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 97] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 99] = 0;
+					}
+					if (i + 1 == 8) {
+						gpBuffer[8 + BUFFER_WIDTH * 98] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 99] = 0;
+					}
+					if (i + 1 == 10) {
+						gpBuffer[8 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 101] = 0;
+					}
+					if (i + 1 == 11) {
+						gpBuffer[8 + BUFFER_WIDTH * 100] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 102] = 0;
+						gpBuffer[6 + BUFFER_WIDTH * 103] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 102] = 0;
+						gpBuffer[7 + BUFFER_WIDTH * 103] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 101] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 102] = 0;
+						gpBuffer[8 + BUFFER_WIDTH * 103] = 0;
+					}
+					// draw club
+					if (i + 1 >= 13) {
+						gpBuffer[24 + BUFFER_WIDTH * 126] = 173;
+						gpBuffer[25 + BUFFER_WIDTH * 126] = 173;
+						gpBuffer[26 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[27 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[28 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[29 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[30 + BUFFER_WIDTH * 126] = 202;
+						gpBuffer[31 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[32 + BUFFER_WIDTH * 126] = 203;
+						gpBuffer[33 + BUFFER_WIDTH * 126] = 204;
+						gpBuffer[24 + BUFFER_WIDTH * 127] = 254;
+						gpBuffer[25 + BUFFER_WIDTH * 127] = 173;
+						gpBuffer[26 + BUFFER_WIDTH * 127] = 204;
+						gpBuffer[27 + BUFFER_WIDTH * 127] = 204;
+						gpBuffer[28 + BUFFER_WIDTH * 127] = 203;
+						gpBuffer[29 + BUFFER_WIDTH * 127] = 203;
+						gpBuffer[30 + BUFFER_WIDTH * 127] = 203;
+						gpBuffer[31 + BUFFER_WIDTH * 127] = 203;
+						gpBuffer[32 + BUFFER_WIDTH * 127] = 204;
+						gpBuffer[33 + BUFFER_WIDTH * 127] = 204;
+					}
+				}
+				if (ii + 1 == 5) {
+					// draw club
+					if (i + 1 >= 13) {
+						gpBuffer[8 + BUFFER_WIDTH * 107] = 190;
+						gpBuffer[8 + BUFFER_WIDTH * 108] = 173;
+						gpBuffer[8 + BUFFER_WIDTH * 109] = 253;
+						gpBuffer[8 + BUFFER_WIDTH * 110] = 254;
+						gpBuffer[8 + BUFFER_WIDTH * 111] = 223;
+						gpBuffer[7 + BUFFER_WIDTH * 108] = 223;
+						gpBuffer[7 + BUFFER_WIDTH * 109] = 190;
+					}
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int numGroups = NUM_DIRS;
 	constexpr int frameCount = 8;
 	constexpr bool groupped = true;
-	constexpr int height = 128;
 	constexpr int width = 128;
+	constexpr int height = 128;
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -3952,10 +6527,604 @@ BYTE* createFallgwAnim(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 	return resCl2Buf;
 }
 
+static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr int frameCount = 16;
+	constexpr bool groupped = true;
+	constexpr int width = 160;
+	constexpr int height = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			if (ii + 1 == 2 && n == 9) {
+				needsPatch = gpBuffer[71 + BUFFER_WIDTH * 127] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				switch (ii + 1) {
+				case 2: {
+					switch (n) {
+					case 9:
+					case 10:
+					case 11:
+					case 12: {
+						// shift the monster with (0;16) up
+						for (int y = 16; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+						// copy pixels from the followup frames
+						if (n != 9) {
+							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
+							for (int y = 4 - 1; y >= 0; y--) {
+								for (int x = 0; x < width; x++) {
+									unsigned addr = width + x + BUFFER_WIDTH * y;
+									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
+									BYTE color = gpBuffer[addr];
+									if (color == TRANS_COLOR)
+										continue;
+									gpBuffer[addr2] = color;
+								}
+							}
+						}
+					} break;
+					case 14:
+					case 15:
+					case 16: {
+						// clear pixels from the first rows
+						for (int y = 4 - 1; y >= 0; y--) {
+							for (int x = 0; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case 3: {
+					switch (n) {
+					case 9:
+					case 10:
+					case 11:
+					case 12: {
+						// shift the monster with (0;16) up
+						for (int y = 16; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+						// copy pixels from the followup frames
+						{
+							Cl2Draw(width, height - 1, frameBuf, n + 4, width);
+							for (int y = 16 - 1; y >= 0; y--) {
+								for (int x = 0; x < width; x++) {
+									unsigned addr = width + x + BUFFER_WIDTH * y;
+									unsigned addr2 = x + BUFFER_WIDTH * (y + 112);
+									BYTE color = gpBuffer[addr];
+									if (color == TRANS_COLOR)
+										continue;
+									gpBuffer[addr2] = color;
+								}
+							}
+						}
+					} break;
+					case 13:
+					case 14:
+					case 15:
+					case 16: {
+						// shift the monster with (1;9) up/right
+						for (int y = 16; y < height; y++) {
+							for (int x = width - 1 - 1; x >= 0; x--) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + 1 + BUFFER_WIDTH * (y - 9);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+						// clear pixels from the first rows
+						for (int y = 16 - 1; y >= 0; y--) {
+							for (int x = 0; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case 4: {
+					switch (n) {
+					case 12:
+					case 13:
+					case 14:
+					case 15:
+					case 16: {
+						// shift the monster with (0;4) down
+						for (int y = height - 4 - 1; y >= 0; y--) {
+							for (int x = width - 1; x >= 0; x--) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y + 4);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case 7: {
+					switch (n) {
+					case 9:
+					case 10:
+					case 11:
+					case 12: {
+						// clear pixels from the first rows
+						for (int y = 4 - 1; y >= 0; y--) {
+							for (int x = 0; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				case 8: {
+					switch (n) {
+					case 12:
+					case 13:
+					case 14:
+					case 15:
+					case 16: {
+						// shift the monster with (0;16) up
+						for (int y = 16; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								unsigned addr = x + BUFFER_WIDTH * y;
+								unsigned addr2 = x + BUFFER_WIDTH * (y - 16);
+								BYTE color = gpBuffer[addr];
+								if (color == TRANS_COLOR)
+									continue;
+								gpBuffer[addr2] = color;
+								gpBuffer[addr] = TRANS_COLOR;
+							}
+						}
+					} break;
+					}
+				} break;
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchUnrav(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+	constexpr int width = 96;
+	constexpr int height = 128;
+
+	int frameCount = 0;
+	switch (index) {
+	case FILE_MON_UNRAVA: frameCount = 12; break;
+	case FILE_MON_UNRAVD: frameCount = 16; break;
+	case FILE_MON_UNRAVH: frameCount =  5; break;
+	case FILE_MON_UNRAVN: frameCount = 10; break;
+	case FILE_MON_UNRAVW: frameCount = 10; break;
+	}
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			if (ii + 1 == 1 && n == 1) {
+				int x, y;
+				switch (index) {
+				case FILE_MON_UNRAVA: x = 79; y = 76; break;
+				case FILE_MON_UNRAVD: x = 80; y = 74; break;
+				case FILE_MON_UNRAVH: x = 78; y = 66; break;
+				case FILE_MON_UNRAVN: x = 80; y = 76; break;
+				case FILE_MON_UNRAVW: x = 79; y = 76; break;
+				}
+				needsPatch = gpBuffer[x + BUFFER_WIDTH * y] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int dx = 0, dy = 0;
+				switch (index) {
+				case FILE_MON_UNRAVA: dx = -15; dy = 0; break;
+				case FILE_MON_UNRAVD: dx = -16; dy = 0; break;
+				case FILE_MON_UNRAVH: dx = -16; dy = 0; break;
+				case FILE_MON_UNRAVN: dx = -16; dy = 0; break;
+				case FILE_MON_UNRAVW: dx = -15; dy = 0; break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						BYTE pixel = gpBuffer[x + BUFFER_WIDTH * y];
+						if (pixel == 0) {
+							gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+						}
+					}
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+#endif // HELLFIRE
+
+static BYTE* patchAcidbf(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	return ReEncodeCL2(cl2Buf, dwLen, 1, 9 - 1, 96, 96);
+}
+
+static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = 1;
+	constexpr int frameCount = 14;
+	constexpr bool groupped = false;
+	constexpr int width = 96;
+	constexpr int height = 96;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = cl2Buf;
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			int nn = 0, x, y;
+			switch (index) {
+			case FILE_MIS_FIREBA2:  nn = 1; x = 41; y = 66; break;
+			case FILE_MIS_FIREBA3:  nn = 2; x = 37; y = 65; break;
+			case FILE_MIS_FIREBA11: nn = 4; x = 49; y = 54; break;
+			case FILE_MIS_FIREBA15: nn = 2; x = 55; y = 63; break;
+			case FILE_MIS_FIREBA16: nn = 1; x = 54; y = 66; break;
+
+			case FILE_MIS_HOLY2:  nn = 1; x = 41; y = 66; break;
+			case FILE_MIS_HOLY3:  nn = 2; x = 37; y = 65; break;
+			case FILE_MIS_HOLY11: nn = 4; x = 49; y = 54; break;
+			case FILE_MIS_HOLY15: nn = 2; x = 55; y = 63; break;
+			case FILE_MIS_HOLY16: nn = 1; x = 54; y = 66; break;
+			default: needsPatch = true; break;
+			}
+			if (nn != 0 && nn == n) {
+				needsPatch = gpBuffer[x + BUFFER_WIDTH * y] != TRANS_COLOR; // assume it is already done
+			}
+
+			if (needsPatch) {
+				int i = n - 1;
+				int dx = 0, dy = 0;
+				switch (index) {
+				case FILE_MIS_FIREBA2:
+				case FILE_MIS_HOLY2:
+					switch (i + 1) {
+					case 1:
+					case 2:
+					case 7:
+					case 8:
+					case 13:
+					case 14: dx = 1; dy = 0; break;
+					}
+					break;
+				case FILE_MIS_FIREBA3:
+				case FILE_MIS_HOLY3:
+					if (i + 1 == 2) {
+						dx = 3;
+						dy = 0;
+					}
+					break;
+				case FILE_MIS_FIREBA5:
+				case FILE_MIS_HOLY5:
+					if (i + 1 == 6) {
+						gpBuffer[0 + BUFFER_WIDTH * 57] = TRANS_COLOR;
+						gpBuffer[0 + BUFFER_WIDTH * 58] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA6:
+				case FILE_MIS_HOLY6:
+					if (i + 1 == 10 || i + 1 == 11) {
+						for (int y = 63; y < 68; y++) {
+							for (int x = 81; x < 84; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					}
+					break;
+				case FILE_MIS_FIREBA8:
+				case FILE_MIS_HOLY8:
+					if (i + 1 == 2) {
+						gpBuffer[37 + BUFFER_WIDTH * 59] = TRANS_COLOR;
+						gpBuffer[37 + BUFFER_WIDTH * 60] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA9:
+				case FILE_MIS_HOLY9:
+					if (i + 1 == 5) {
+						gpBuffer[49 + BUFFER_WIDTH * 42] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA10:
+				case FILE_MIS_HOLY10:
+					if (i + 1 == 2) {
+						gpBuffer[58 + BUFFER_WIDTH * 59] = TRANS_COLOR;
+						gpBuffer[58 + BUFFER_WIDTH * 60] = TRANS_COLOR;
+					}
+					break;
+				case FILE_MIS_FIREBA11:
+				case FILE_MIS_HOLY11:
+					switch (i + 1) {
+					case 4: dx = 0; dy = 1; break;
+					case 5:
+					case 6: dx = 0; dy = 2; break;
+					case 7:
+					case 8:
+					case 9:
+					case 10: dx = 0; dy = -1; break;
+					}
+					break;
+				case FILE_MIS_FIREBA12:
+				case FILE_MIS_HOLY12:
+					if (i + 1 == 5) {
+						for (int y = 66; y < 72; y++) {
+							for (int x = 91; x < width; x++) {
+								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+							}
+						}
+					}
+					break;
+				case FILE_MIS_FIREBA15:
+				case FILE_MIS_HOLY15:
+					if (i + 1 == 2) {
+						dx = -3;
+						dy = 0;
+					}
+					break;
+				case FILE_MIS_FIREBA16:
+				case FILE_MIS_HOLY16:
+					switch (i + 1) {
+					case 1:
+					case 2:
+					case 7:
+					case 8:
+					case 13:
+					case 14: dx = -1; dy = 0; break;
+					}
+					break;
+				}
+
+				ShiftFrame(width, height, dx, dy, 0, 0, width, height, TRANS_COLOR);
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchMagball(BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = 1;
+	constexpr int frameCount = 16;
+	constexpr bool groupped = false;
+	constexpr int width = 128;
+	constexpr int height = 128;
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = cl2Buf;
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+			// test if the animation is already patched
+			if (ii + 1 == 1 && n == 6) {
+				needsPatch = true; // assume it is already done
+			}
+
+			if (needsPatch) {
+				if (n == 6) {
+					gpBuffer[52 + BUFFER_WIDTH * 99] = TRANS_COLOR;
+					gpBuffer[52 + BUFFER_WIDTH * 100] = TRANS_COLOR;
+					gpBuffer[52 + BUFFER_WIDTH * 101] = TRANS_COLOR;
+				}
+			}
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
 static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
-	constexpr BYTE SUB_HEADER_SIZE = 10;
 	constexpr int FRAME_WIDTH = 96;
 	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) ? 128 : 160;
 
@@ -4337,7 +7506,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#endif // ASSET_MPL
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -4709,6 +7878,25 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// reencode player gfx files - W*BAT.CL2
 		buf = ReEncodeCL2(buf, dwLen, NUM_DIRS, 16, 128, 96);
 	} break;
+	case FILE_PLR_WHMAT:
+	case FILE_PLR_WMDLM:
+	case FILE_PLR_WLNLM:
+	case FILE_PLR_RHUQM:
+	case FILE_PLR_RHUHT:
+	case FILE_PLR_RHTAT:
+	case FILE_PLR_RMTAT:
+	{	// eliminate extra frames of player gfx files
+		buf = patchPlrFrames(index, buf, dwLen);
+	} break;
+	case FILE_PLR_RLMAT:
+	case FILE_PLR_RMHAT:
+	case FILE_PLR_RMMAT:
+	case FILE_PLR_RMBFM:
+	case FILE_PLR_RMBLM:
+	case FILE_PLR_RMBQM:
+	{	// fix extra bits of rogue gfx files
+		buf = patchRogueExtraPixels(index, buf, dwLen);
+	} break;
 	case FILE_PLR_WMHAS:
 	{	// fix player gfx file - WMHAS.CL2
 		size_t atkLen;
@@ -4728,7 +7916,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", stdFileName);
 			return NULL;
 		}
-		buf = createWarriorAnim(buf, dwLen, atkBuf, stdBuf);
+		buf = patchWarriorStand(buf, dwLen, atkBuf, stdBuf);
 		mem_free_dbg(atkBuf);
 		mem_free_dbg(stdBuf);
 	} break;
@@ -4877,8 +8065,49 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);
 	} break;
+#endif // ASSET_MPL
+#endif // HELLFIRE
+#if ASSET_MPL == 1
+	case FILE_MON_GOATBD:
+	{	// fix monster gfx file - GoatBd.CL2",
+		buf = patchGoatBDie(buf, dwLen);
+	} break;
+	case FILE_MON_MAGMAD:
+	{	// fix monster gfx file - Magmad.CL2",
+		size_t stdLen;
+		const char* stdFileName = "Monsters\\Magma\\Magmah.CL2";
+		BYTE* stdBuf = LoadFileInMem(stdFileName, &stdLen);
+		if (stdBuf == NULL) {
+			mem_free_dbg(buf);
+			app_warn("Unable to open file %s in the mpq.", stdFileName);
+			return NULL;
+		}
+		buf = patchMagmaDie(buf, dwLen, stdBuf);
+		mem_free_dbg(stdBuf);
+	} break;
+	case FILE_MON_SKLAXD:
+	{	// fix monster gfx file - SklAxd.CL2",
+		buf = patchSklAxDie(buf, dwLen);
+	} break;
+	case FILE_MON_SKLBWD:
+	{	// fix monster gfx file - SklBwd.CL2",
+		buf = patchSklBwDie(buf, dwLen);
+	} break;
+	case FILE_MON_SKLSRD:
+	{	// fix monster gfx file - SklSrd.CL2",
+		buf = patchSklSrDie(buf, dwLen);
+	} break;
+	case FILE_MON_ZOMBIED:
+	{	// fix monster gfx file - Zombied.CL2",
+		buf = patchZombieDie(buf, dwLen);
+	} break;
+#ifdef HELLFIRE
+	case FILE_MON_FALLGD:
+	{	// fix monster gfx file - Fallgd.CL2",
+		buf = patchFallGDie(buf, dwLen);
+	} break;
 	case FILE_MON_FALLGW:
-	{
+	{	// fix monster gfx file - Fallgw.CL2",
 		size_t stdLen;
 		const char* stdFileName = "Monsters\\BigFall\\Fallgn.CL2";
 		BYTE* stdBuf = LoadFileInMem(stdFileName, &stdLen);
@@ -4887,16 +8116,57 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Unable to open file %s in the mpq.", stdFileName);
 			return NULL;
 		}
-		buf = createFallgwAnim(buf, dwLen, stdBuf);
+		buf = patchFallGWalk(buf, dwLen, stdBuf);
 		mem_free_dbg(stdBuf);
 	} break;
 	case FILE_MON_GOATLD:
 	{	// fix monster gfx file - GoatLd.CL2
-		buf = fixGoatLdAnim(buf, dwLen);
+		buf = patchGoatLDie(buf, dwLen);
 	} break;
-#endif // ASSET_MPL
+	case FILE_MON_UNRAVA:
+	case FILE_MON_UNRAVD:
+	case FILE_MON_UNRAVH:
+	case FILE_MON_UNRAVN:
+	case FILE_MON_UNRAVW:
+	{	// fix monster gfx file - Unrav*.CL2
+		buf = patchUnrav(index, buf, dwLen);
+	} break;
 #endif // HELLFIRE
-#if ASSET_MPL == 1
+	case FILE_MIS_ACIDBF1:
+	case FILE_MIS_ACIDBF10:
+	case FILE_MIS_ACIDBF11:
+	{	// fix missile gfx file - Holy*.CL2
+		buf = patchAcidbf(index, buf, dwLen);
+	} break;
+	case FILE_MIS_FIREBA2:
+	case FILE_MIS_FIREBA3:
+	case FILE_MIS_FIREBA5:
+	case FILE_MIS_FIREBA6:
+	case FILE_MIS_FIREBA8:
+	case FILE_MIS_FIREBA9:
+	case FILE_MIS_FIREBA10:
+	case FILE_MIS_FIREBA11:
+	case FILE_MIS_FIREBA12:
+	case FILE_MIS_FIREBA15:
+	case FILE_MIS_FIREBA16:
+	case FILE_MIS_HOLY2:
+	case FILE_MIS_HOLY3:
+	case FILE_MIS_HOLY5:
+	case FILE_MIS_HOLY6:
+	case FILE_MIS_HOLY8:
+	case FILE_MIS_HOLY9:
+	case FILE_MIS_HOLY10:
+	case FILE_MIS_HOLY11:
+	case FILE_MIS_HOLY12:
+	case FILE_MIS_HOLY15:
+	case FILE_MIS_HOLY16:
+	{	// fix missile gfx file - Holy*.CL2
+		buf = patchFireba(index, buf, dwLen);
+	} break;
+	case FILE_MIS_MAGBALL2:
+	{	// fix missile gfx file - Magball2.CL2
+		buf = patchMagball(buf, dwLen);
+	} break;
 	case FILE_ITEM_ARMOR2:
 	case FILE_ITEM_GOLDFLIP:
 	case FILE_ITEM_MACE:

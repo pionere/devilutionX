@@ -23,7 +23,7 @@ Data\Inv\Objcurs.CEL
 Data\Inv\Objcurs2.CEL
 Data\MapIcon.CEL
 Data\MedTextS.CEL
-Data\optbar.CEL
+_Data\optbar.CEL
 Data\option.CEL
 Data\PentSpin.CEL
 Data\PentSpn2.CEL
@@ -34,7 +34,7 @@ _Data\SpellBkB.CEL
 Data\SpellI2.CEL
 _Data\Square.CEL
 Data\TextBox.CEL
-Data\TextBox2.CEL
+_Data\TextBox2.CEL
 Data\TextSlid.CEL
 _Data\healthbox.pcx
 _Data\health.pcx
@@ -4221,9 +4221,9 @@ ui_art\prog_fil.CEL
 ui_art\sb_arrow.CEL
 ui_art\sb_bg.CEL
 ui_art\sb_thumb.CEL
-ui_art\selconn.CEL
-ui_art\selgame.CEL
-ui_art\selhero.CEL
+_ui_art\selconn.CEL
+_ui_art\selgame.CEL
+_ui_art\selhero.CEL
 ui_art\smbutton.CEL
 ui_art\smlogo.CEL
 ui_art\spopup.CEL
