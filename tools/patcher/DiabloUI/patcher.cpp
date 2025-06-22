@@ -2280,7 +2280,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			int nn = n;
 			if (index == FILE_PLR_RHTAT || index == FILE_PLR_RMTAT) {
@@ -2356,7 +2356,7 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 
