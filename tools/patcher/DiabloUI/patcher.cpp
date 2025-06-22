@@ -2314,14 +2314,14 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 	constexpr bool groupped = true;
 
 	int frameCount = 0, width = 0, height = 0;
-    switch (index) {
+	switch (index) {
 	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
-    case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
 	case FILE_PLR_RMBLM: frameCount = 16; width = 96; height = 96; break;
 	case FILE_PLR_RMBQM: frameCount = 16; width = 96; height = 96; break;
-    }
+	}
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -2361,14 +2361,14 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 
 			int nn = ii * frameCount + n - 1;
-            switch (index) {
-            case FILE_PLR_RLMAT:
+			switch (index) {
+			case FILE_PLR_RLMAT:
 				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
 					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
 					}
 				}
-                break;
+				break;
 			case FILE_PLR_RMHAT:
 				for (int i = 0; i < lengthof(deltaRMHAT); i++) {
 					if (deltaRMHAT[i].dfFrameNum == nn + 1) {
@@ -2376,35 +2376,35 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 					}
 				}
 				break;
-            case FILE_PLR_RMMAT:
+			case FILE_PLR_RMMAT:
 				for (int i = 0; i < lengthof(deltaRMMAT); i++) {
 					if (deltaRMMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMMAT[i].dfx + BUFFER_WIDTH * deltaRMMAT[i].dfy] = deltaRMMAT[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBFM:
+			case FILE_PLR_RMBFM:
 				for (int i = 0; i < lengthof(deltaRMBFM); i++) {
 					if (deltaRMBFM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBFM[i].dfx + BUFFER_WIDTH * deltaRMBFM[i].dfy] = deltaRMBFM[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBLM:
+			case FILE_PLR_RMBLM:
 				for (int i = 0; i < lengthof(deltaRMBLM); i++) {
 					if (deltaRMBLM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBLM[i].dfx + BUFFER_WIDTH * deltaRMBLM[i].dfy] = deltaRMBLM[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBQM:
+			case FILE_PLR_RMBQM:
 				for (int i = 0; i < lengthof(deltaRMBQM); i++) {
 					if (deltaRMBQM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBQM[i].dfx + BUFFER_WIDTH * deltaRMBQM[i].dfy] = deltaRMBQM[i].color;
 					}
 				}
 				break;
-            }
+			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
