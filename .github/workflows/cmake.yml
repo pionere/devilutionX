@@ -90,7 +90,7 @@ jobs:
         signingKey: ${{ secrets.ANDROID_SIGNING_KEY }}
         keyAlias: ${{ secrets.ANDROID_KEY_ALIAS }}
         keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        #keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
         #buildToolsVersion: 36.0.0
 
     # Example use of `signedReleaseFile` output -- not needed
