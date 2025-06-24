@@ -93,8 +93,8 @@ jobs:
         keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
         #buildToolsVersion: 36.0.0
 
-    # Example use of `signedReleaseFile` output -- not needed
+    # Upload the signed file
     - uses: actions/upload-artifact@v4
       with:
         name: Signed app bundle
-        path: ${{steps.sign_app.outputs.signedReleaseFile}}
+        path: ${{steps.sign_app.outputs.signedFile}}
