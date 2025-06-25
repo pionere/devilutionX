@@ -57,7 +57,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="-DHELLFIRE=ON" -Pcmakearg1="-DCREATE_PATCHER=OFF" -Pcmakearg2="-DNONET=ON"
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="-DHELLFIRE=OFF" -Pcmakearg1="-DCREATE_PATCHER=OFF" -Pcmakearg2="-DNONET=ON"
 
     - name: Upload-Package
       uses: actions/upload-artifact@v4
