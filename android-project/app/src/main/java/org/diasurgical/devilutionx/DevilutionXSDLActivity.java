@@ -35,7 +35,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
-		externalDir = chooseExternalFilesDir();
+		externalDir = chooseExternalFilesDir() + "/";
 
 		migrateSaveGames();
 
@@ -119,13 +119,13 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	 * Check if the game data is present
 	 */
 	private boolean missingGameData() {
-		File fileDev = new File(externalDir + "/devilx.mpq");
+		File fileDev = new File(externalDir + "devilx.mpq");
 		if (!fileDev.exists())
 			return true;
 
-		File fileLower = new File(externalDir + "/diabdat.mpq");
-		File fileUpper = new File(externalDir + "/DIABDAT.MPQ");
-		//File spawnFile = new File(externalDir + "/spawn.mpq");
+		File fileLower = new File(externalDir + "diabdat.mpq");
+		File fileUpper = new File(externalDir + "DIABDAT.MPQ");
+		//File spawnFile = new File(externalDir + "spawn.mpq");
 
 		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
@@ -185,7 +185,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		//if (!file.exists() || !file.canRead()) {
 		//	return;
 		//}
-		File newPath = new File(externalDir + "/" + file.getName());
+		File newPath = new File(externalDir + file.getName());
 		if (newPath.exists()) {
 			if (file.canWrite()) {
 				//noinspection ResultOfMethodCallIgnored
