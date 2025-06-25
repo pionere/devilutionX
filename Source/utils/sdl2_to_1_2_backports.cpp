@@ -531,7 +531,7 @@ char* SDL_GetBasePath()
 #if defined(__3DS__)
 	return SDL_strdup("file:sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
-	return SDL_strdup("PROGDIR:");
+	return SDL_strdup("PROGDIR:/");
 #elif defined(_WIN32)
 	char buffer[MAX_PATH];
 	::DWORD len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
@@ -653,7 +653,7 @@ char* SDL_GetPrefPath(const char* org, const char* app)
 #if defined(__3DS__)
 	return SDL_strdup("sdmc:/3ds/devilutionx/");
 #elif defined(__amigaos__)
-	return SDL_strdup("PROGDIR:");
+	return SDL_strdup("PROGDIR:/");
 #elif defined(_WIN32)
 //#if (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
 	// On Windows9x there is no such thing as PrefPath. Simply use the current directory.
