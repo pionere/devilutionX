@@ -169,6 +169,7 @@ static void diablo_init()
 	dx_init(); // inititalize SDL + create the window
 
 	InitArchives();
+	return;
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
@@ -258,13 +259,12 @@ static void LogErrorFF(const char* msg, ...)
 
 int DiabloMain(int argc, char** argv)
 {
-	return 0;
-	LogErrorFF("HelloBello");
 	int res = diablo_parse_flags(argc, argv);
 	if (res != EX_OK)
 		return res - 1;
 
 	diablo_init();
+	return 0;
 #ifndef HOSTONLY
 	if (_gbSkipIntro || diablo_splash())
 #endif
