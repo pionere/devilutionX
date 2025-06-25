@@ -89,7 +89,7 @@ jobs:
 
     - uses: ilharp/sign-android-release@v2 # Or use @nightly
       name: Sign app APK
-      #id: sign_app
+      id: sign_app
       with:
         releaseDir: android-project/app/build/outputs/apk/release
         signingKey: ${{ secrets.ANDROID_SIGNING_KEY }}
