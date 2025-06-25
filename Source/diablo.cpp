@@ -258,6 +258,7 @@ static void LogErrorFF(const char* msg, ...)
 
 int DiabloMain(int argc, char** argv)
 {
+	return 0;
 	LogErrorFF("HelloBello");
 	int res = diablo_parse_flags(argc, argv);
 	if (res != EX_OK)
