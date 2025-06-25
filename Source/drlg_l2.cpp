@@ -394,7 +394,7 @@ const BYTE Patterns[][16] = {
 /* 1*/	{ 0, 0, 0, 7, 1, 7, 0, 0, 0, 1 }, // vertical wall (on the left)
 /* 2*/	{ 0, 6, 0, 6, 1, 0, 0, 0, 0, 6 }, // concav (top-left)
 /* 3*/	{ 0, 6, 0, 0, 1, 6, 0, 0, 0, 9 }, // concav (top-right)
-/* 4*/	{ 0, 0, 0, 6, 1, 0, 0, 6, 0, 7 }, // concav (bottom-left) 
+/* 4*/	{ 0, 0, 0, 6, 1, 0, 0, 6, 0, 7 }, // concav (bottom-left)
 /* 5*/	{ 0, 0, 0, 0, 1, 6, 0, 6, 0, 8 }, // concav (bottom-right) / edge (top-left)
 /* 6*/	{ 0, 6, 0, 6, 1, 0, 8, 6, 0, 7 }, // { 0, 6, 0, 6, 6, 0, 8, 6, 0, 7 },
 /* 7*/	{ 0, 6, 8, 6, 1, 6, 0, 0, 0, 9 }, // { 0, 6, 8, 6, 6, 6, 0, 0, 0, 9 },
@@ -543,22 +543,22 @@ static void DRLG_L2Subs()
 #if DEBUG_MODE
 	for (int i = sizeof(L2BTYPES) - 1; i >= 0; i--) {
 		if (L2BTYPES[i] != 0) {
-			if (i >= NUM_L2TYPES)
+			if ((unsigned)i >= NUM_L2TYPES)
 				app_fatal("Value %d is ignored in L2BTYPES at %d", L2BTYPES[i], i);
 			break;
 		}
 	}
 
-	for (int i = 0; i < sizeof(L2BTYPES); i++) {
+	for (unsigned i = 0; i < sizeof(L2BTYPES); i++) {
 		c = L2BTYPES[i];
 		if (c == 0)
 			continue;
 		x = 0;
-		for (int j = 0; j < sizeof(L2BTYPES); j++) {
+		for (unsigned j = 0; j < sizeof(L2BTYPES); j++) {
 			if (c == L2BTYPES[j])
 				x++;
 		}
-		if (x > MAX_MATCH)
+		if ((unsigned)x > MAX_MATCH)
 			app_fatal("Too many(%d) matching('%d') values in L2BTYPES", x, c);
 	}
 #endif

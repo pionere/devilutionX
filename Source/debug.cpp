@@ -221,6 +221,10 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 	return false;
 }
 
+#define MIS_VELO_SHIFT      0
+#define MIS_BASE_VELO_SHIFT 16
+#define MIS_SHIFTEDVEL(x)   ((x) << MIS_VELO_SHIFT)
+
 /*static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
 {
 	if (abs(a->y) != abs(b->y))
@@ -354,7 +358,7 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	int i;
 #endif
-#if DEBUG_MODE
+#if !defined(NONET) && DEBUG_MODE
 	// dvlnet
 	{
 	net::packet_factory pktfty;
@@ -414,7 +418,7 @@ void ValidateData()
 	delete pkt;
 #endif
 	}
-#endif // DEBUG
+#endif // !NONET && DEBUG_MODE
 	// text
 	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
 #ifdef DEBUG_DATA
@@ -508,7 +512,7 @@ void ValidateData()
 		}
 		for (i = 0; i < lengthof(minitxtdata); i++) {
 			int n = minitxtdata[i].sfxnr;
-			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr == '\0')
+			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr[0] == '\0')
 				app_fatal("Scrolling text of minitext %d is empty.", n, i);
 			if (minitxtdata[i].txtsfxset) {
 				if ((unsigned)n >= NUM_SFXS)
@@ -778,8 +782,10 @@ void ValidateData()
 				}
 			}
 		} else {
+#if DEV_MODE
 			if (monfiledata[md.moFileNum].moAFNum2 != 0)
 				LogErrorF("moAFNum2 is set for %s (%d), but it is not used.", md.mName, i);
+#endif
 		}
 		if (altDamReq != 0) {
 			if (altDamReq & 1) {
@@ -791,10 +797,12 @@ void ValidateData()
 					app_fatal("mHit2 is not set for %s (%d).", md.mName, i);
 			}
 		} else {
+#if DEV_MODE
 			if (md.mHit2 != 0)
 				LogErrorF("mHit2 is set for %s (%d), but it is not used.", md.mName, i);
 			if (md.mMaxDamage2 != 0)
 				LogErrorF("mMaxDamage2 is set (%d) for %s (%d), but it is not used.", md.mMaxDamage2, md.mName, i);
+#endif
 		}
 		if (md.mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
@@ -916,6 +924,7 @@ void ValidateData()
 	}
 #endif
 #ifdef DEBUG_DATA
+	bool sklwingBoned = false;
 	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
 		if (um.mtype >= NUM_MTYPES)
@@ -972,10 +981,11 @@ void ValidateData()
 		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
 		if (um.mMaxDamage == 0 && monsterdata[um.mtype].mMaxDamage != 0)
-			if (um.mAI.aiType != AI_LACHDAN)
+			if (um.mAI.aiType != AI_LACHDAN) {
 				app_fatal("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
-			else
+			} else {
 				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
+			}
 		if (um.mMaxDamage2 == 0 && (um.mAI.aiType == AI_ROUND || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
 			app_fatal("mMaxDamage2 is not set for unique monster %s (%d).", um.mName, i);
 		if (um.mMaxDamage2 != 0 && (um.mAI.aiType == AI_SCAV || um.mAI.aiType == AI_GARG))
@@ -1366,7 +1376,6 @@ void ValidateData()
 		}
 		if (sufs->PLDouble)
 			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pow, sufs->PLParam1);
-		rnddrops++;
 		if (sufs->PLParam2 < sufs->PLParam1)
 			app_fatal("Invalid PLParam-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
 		if (sufs->PLParam2 - sufs->PLParam1 >= 0x7FFF) // required by SaveItemPower
@@ -1465,6 +1474,7 @@ void ValidateData()
 #if 0
 	LogErrorF("Max affix %d vs %d", maxAffix, ITEM_RNDAFFIX_MAX);
 #endif
+#if DEV_MODE
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
 		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
@@ -1496,7 +1506,7 @@ void ValidateData()
 		}
 		LogErrorF("Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
 	}
-
+#endif
 	// unique items
 	for (i = 0; i < NUM_UITEM; i++) {
 		const UniqItemData& ui = UniqueItemList[i];
@@ -1856,14 +1866,6 @@ void ValidateData()
 					assert(spelldata[n].sSkillFlags & SDFLAG_TARGETED);
 			}
 		}
-#ifdef HELLFIRE
-		if (md.mAddProc == AddHorkSpawn) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
-				assert(misfiledata[md.mFileNum].mfAnimLen[j] == 9);
-			}
-		}
-#endif
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
 		if (md.mProc == MI_Misexp) {
@@ -1913,7 +1915,7 @@ void ValidateData()
 			for (int j = 0; j < 16; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_PORTAL].mfAnimLen[j]);
 			}
-		}		
+		}
 		if (md.mProc == MI_Shroud)
 			assert(md.mFileNum == MFILE_SHROUD);
 		if (md.mProc == MI_Wind)
@@ -1944,7 +1946,7 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MFILE; i++) {
 		const MisFileData& mfd = misfiledata[i];
-		if (i != MFILE_NONE && !mfs.mfDrawFlag)
+		if (i != MFILE_NONE && !mfd.mfDrawFlag)
 			app_fatal("Missile-File %d is not rendered.", i);
 		if (mfd.mfAnimFAmt < 0)
 			app_fatal("Missile-File %d has negative mfAnimFAmt.", i);
@@ -2073,7 +2075,7 @@ void ValidateData()
 				SetPlrAnims(0);
 				if (wal < 0)
 					wal = plr._pAnims[PGX_WALK].paFrames;
-				else if (wal != plr._pAnims[PGX_WALK].paFrames)
+				else if (wal != (int)plr._pAnims[PGX_WALK].paFrames)
 					app_fatal("Inconsistent walk-animation for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by StartWalk
 				if (n != ANIM_ID_BOW && plr._pAFNum == 0) {
 					app_fatal("Invalid attack-actionframe number for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by PlrDoAttack

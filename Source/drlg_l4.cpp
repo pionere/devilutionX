@@ -1131,22 +1131,22 @@ static void DRLG_L4Subs()
 #if DEBUG_MODE
 	for (int i = sizeof(L4BTYPES) - 1; i >= 0; i--) {
 		if (L4BTYPES[i] != 0) {
-			if (i >= NUM_L4TYPES)
+			if ((unsigned)i >= NUM_L4TYPES)
 				app_fatal("Value %d is ignored in L4BTYPES at %d", L4BTYPES[i], i);
 			break;
 		}
 	}
 
-	for (int i = 0; i < sizeof(L4BTYPES); i++) {
+	for (unsigned i = 0; i < sizeof(L4BTYPES); i++) {
 		c = L4BTYPES[i];
 		if (c == 0)
 			continue;
 		x = 0;
-		for (int j = 0; j < sizeof(L4BTYPES); j++) {
+		for (unsigned j = 0; j < sizeof(L4BTYPES); j++) {
 			if (c == L4BTYPES[j])
 				x++;
 		}
-		if (x > MAX_MATCH)
+		if ((unsigned)x > MAX_MATCH)
 			app_fatal("Too many(%d) matching('%d') values in L4BTYPES", x, c);
 	}
 #endif

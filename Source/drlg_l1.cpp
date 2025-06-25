@@ -198,7 +198,7 @@ static const BYTE L1DSTAIRS[] = {
 	61, 59, 60,  0,
 	 0,  0,  0,  0,
 /*	  0,  0,     0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0,     0,  0, 
+	  0,  0,     0,  0,     0,  0,     0,  0,
 
 	124,  2,   106,107,   110,111,     0,  0,	// MegaTiles
 	125,126,   108,109,   112,113,     0,  0,
@@ -2129,22 +2129,22 @@ static void DRLG_L1Subs()
 #if DEBUG_MODE
 	for (int i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
 		if (L1BTYPES[i] != 0) {
-			if (i >= NUM_L1TYPES)
+			if ((unsigned)i >= NUM_L1TYPES)
 				app_fatal("Value %d is ignored in L1BTYPES at %d", L1BTYPES[i], i);
 			break;
 		}
 	}
 
-	for (int i = 0; i < sizeof(L1BTYPES); i++) {
+	for (unsigned i = 0; i < sizeof(L1BTYPES); i++) {
 		c = L1BTYPES[i];
 		if (c == 0)
 			continue;
 		x = 0;
-		for (int j = 0; j < sizeof(L1BTYPES); j++) {
+		for (unsigned j = 0; j < sizeof(L1BTYPES); j++) {
 			if (c == L1BTYPES[j])
 				x++;
 		}
-		if (x > MAX_MATCH)
+		if ((unsigned)x > MAX_MATCH)
 			app_fatal("Too many(%d) matching('%d') values in L1BTYPES", x, c);
 	}
 #endif
