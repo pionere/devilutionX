@@ -163,7 +163,7 @@ static void ClearSText(int s, int e)
 	// int i;
 
 	static_assert(COL_WHITE == 0, "ClearSText skips color initialization by expecting COL_WHITE to be zero.");
-	static_assert(CURSOR_NONE == 0, "ClearSText skips cursor initialization by expecting CURSOR_NONE to be zero.");	
+	static_assert(CURSOR_NONE == 0, "ClearSText skips cursor initialization by expecting CURSOR_NONE to be zero.");
 	memset(&stextlines[s], 0, (size_t)&stextlines[e] - (size_t)&stextlines[s]);
 	/*for (i = s; i < e; i++) {
 		stextlines[i]._sx = 0;
@@ -1491,7 +1491,7 @@ void DrawStore()
 	if (gbWidePanel) {
 		char valstr[32];
 		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
-		const int cursor = CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
+		const int cursor = (int)CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
 		const int cw = InvItemWidth[cursor];
 		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
 		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 20 + (InvItemHeight[cursor] + 12) / 2, pCursCels, cursor, cw, 0);
