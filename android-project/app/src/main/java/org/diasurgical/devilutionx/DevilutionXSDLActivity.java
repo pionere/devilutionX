@@ -222,22 +222,18 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	}
 
 	protected String[] getArguments() {
-		if (BuildConfig.DEBUG) {
+		/*if (BuildConfig.DEBUG) {
 			return new String[]{
 				"--data-dir",
-				externalDir,
-				"--config-dir",
 				externalDir,
 				"--save-dir",
 				externalDir,
 				"--verbose",
 			};
-		}
+		}*/
 
 		return new String[]{
 			"--data-dir",
-			externalDir,
-			"--config-dir",
 			externalDir,
 			"--save-dir",
 			externalDir
