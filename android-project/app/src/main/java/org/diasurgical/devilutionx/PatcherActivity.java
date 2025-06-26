@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
 
-public class PatchActivity extends SDLActivity {
+public class PatcherActivity extends SDLActivity {
 	private String externalDir;
 
 	protected void onCreate(Bundle savedInstanceState) {
