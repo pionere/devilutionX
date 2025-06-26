@@ -216,10 +216,10 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	/**
 	 * This method is called by SDL using JNI.
 	 */
-	public String getLocale()
+	/*public String getLocale()
 	{
 		return Locale.getDefault().toString();
-	}
+	}*/
 
 	protected String[] getArguments() {
 		/*if (BuildConfig.DEBUG) {
