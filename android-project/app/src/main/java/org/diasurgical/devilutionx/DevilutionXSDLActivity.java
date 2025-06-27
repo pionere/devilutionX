@@ -48,7 +48,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onStart() {
 		super.onStart();
 
-		if (missingGameData()) {
+		/*if (missingGameData()) {
 			Toast toast = Toast.makeText(DevilutionXSDLActivity.this, getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
 			toast.show();
 
@@ -72,7 +72,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				}, Toast.LENGTH_SHORT * 1000);
 			}
 			return;
-		}
+		}*/
 	}
 
 	/**

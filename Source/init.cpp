@@ -86,6 +86,15 @@ static void ReadOnlyTest()
 	}
 }
 
+static void ArchivesTest()
+{
+	BYTE* buf = LoadFileInMem("ui_art\\menu.pal");
+	if (buf == NULL) {
+		app_fatal("Missing game data");
+	}
+	mem_free_dbg(buf);
+}
+
 void InitArchives()
 {
 	InitializeMpqCryptography();
@@ -97,6 +106,7 @@ void InitArchives()
 	if (diabdat_mpq != NULL)
 		return;
 #if !CREATE_MPQONE
+	ArchivesTest();
 	//if (!directFileAccess)
 	//	app_fatal("Can not find/access '%s' in the game folder.", MPQONE);
 	return;
@@ -113,6 +123,7 @@ void InitArchives()
 	HANDLE diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL) {
 		diabdat_mpqs[0] = diabdat_mpq;
+		ArchivesTest();
 		return;
 	}
 #endif
@@ -209,6 +220,7 @@ void InitArchives()
 	diabdat_mpq = init_test_access(MPQONE);
 	assert(diabdat_mpq != NULL);
 #endif
+	ArchivesTest();
 }
 
 DEVILUTION_END_NAMESPACE
