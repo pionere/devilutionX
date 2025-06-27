@@ -89,10 +89,10 @@ static void ReadOnlyTest()
 static void ArchivesTest()
 {
 #if defined(__ANDROID__)
-	BYTE* buf = LoadFileInMem("ui_art\\menu.pal");
-	//if (buf == NULL) {
-		app_fatal("Missing game data 1");
-	//}
+	BYTE* buf = LoadFileInMem("Gendata\\Cuttt.pal");
+	if (buf == NULL) {
+		app_fatal("Missing game data");
+	}
 	mem_free_dbg(buf);
 #endif
 }
