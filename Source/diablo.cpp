@@ -1492,6 +1492,8 @@ static void run_game()
 	while (true) {
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
+			if (event.type == DVL_WM_MOUSEMOVE)
+				break;
 		}
 #if HAS_TOUCHPAD
 		finish_simulated_mouse_clicks();
