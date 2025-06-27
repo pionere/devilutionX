@@ -10,9 +10,10 @@ android {
 	ndkVersion '28.0.13004108'
 	// ndkVersion '25.2.9519653'
 	compileSdk 35
-	aaptOptions { // probably does not matter...
-		noCompress 'mpq'
-	}
+	// does not matter...
+	//androidResources { 
+	//	noCompress 'mpq'
+	//}
 	// if (buildAsApplication) {
 	namespace 'org.diasurgical.devilutionx'
 	// }
