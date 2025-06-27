@@ -810,7 +810,6 @@ void InputBtnDown(int transKey)
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
-		EventPlrMsg("Act m[%d:%d] c[%d:%d] p[%d:%d]", MousePos.x, MousePos.y, pcurspos.x, pcurspos.y, myplr._px, myplr._py);
 		ActionBtnDown();
 		break;
 	case ACT_ALTACT:
@@ -1117,6 +1116,9 @@ static void PressKey(int vkey)
 		return;
 	}
 #endif
+#if HAS_TOUCHPAD
+	CheckCursMove();
+#endif
 	InputBtnDown(transKey);
 }
 
@@ -1212,7 +1214,6 @@ void GameWndProc(const Dvl_Event* e)
 		gnGamePaused = 0; // diablo_pause_game(false);
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
-		EventPlrMsg("Move m[%d:%d] c[%d:%d] p[%d:%d]", MousePos.x, MousePos.y, pcurspos.x, pcurspos.y, myplr._px, myplr._py);
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
 		else if (WND_VALID(gbDragWnd))
@@ -1492,8 +1493,6 @@ static void run_game()
 	while (true) {
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
-			if (event.type == DVL_WM_MOUSEMOVE)
-				break;
 		}
 #if HAS_TOUCHPAD
 		finish_simulated_mouse_clicks();
