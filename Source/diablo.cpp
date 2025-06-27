@@ -263,6 +263,7 @@ int DiabloMain(int argc, char** argv)
 		return res - 1;
 
 	diablo_init();
+	app_fatal("Missing game data");
 #ifndef HOSTONLY
 	if (_gbSkipIntro || diablo_splash())
 #endif
