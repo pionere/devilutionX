@@ -35,7 +35,7 @@ public class PatcherActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
-		externalDir = chooseExternalFilesDir() + "/";
+		externalDir = chooseExternalFilesDir();
 
 		super.onCreate(savedInstanceState);
 	}
@@ -57,7 +57,7 @@ public class PatcherActivity extends SDLActivity {
 		System.exit(0);
 	}
 
-	private String chooseExternalFilesDir() {
+	private File chooseExternalFilesDirectory() {
 		if (Build.VERSION.SDK_INT >= 19) {
 			File[] externalDirs = getExternalFilesDirs(null);
 			if (externalDirs != null) {
@@ -67,7 +67,7 @@ public class PatcherActivity extends SDLActivity {
 					}
 					File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
 					if (iniFiles != null && iniFiles.length > 0) {
-						return dir.getAbsolutePath();
+						return dir;
 					}
 				}
 
@@ -77,14 +77,20 @@ public class PatcherActivity extends SDLActivity {
 					}
 					File[] anyFiles = dir.listFiles();
 					if (anyFiles != null && anyFiles.length > 0) {
-						return dir.getAbsolutePath();
+						return dir;
 					}
 				}
 			}
 		}
 
 		// Fallback to the primary external storage directory
-		return getExternalFilesDir(null).getAbsolutePath();
+		return getExternalFilesDir(null);
+	}
+
+	private String chooseExternalFilesDir() {
+		File dir = chooseExternalFilesDirectory();
+
+		return dir.getAbsolutePath() + "/";
 	}
 
 	private void trackVisibleSpace() {
@@ -102,14 +108,6 @@ public class PatcherActivity extends SDLActivity {
 			}
 		});
 	}
-
-	/**
-	 * This method is called by SDL using JNI.
-	 */
-	/*public String getLocale()
-	{
-		return Locale.getDefault().toString();
-	}*/
 
 	protected String[] getArguments() {
 		/*if (BuildConfig.DEBUG) {

@@ -61,7 +61,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ESCAPE, ACT_NONE, ACT_NONE, ACT_NONE,
 // CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
   ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
-// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,       
+// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_SCRN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
@@ -810,6 +810,7 @@ void InputBtnDown(int transKey)
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
+		EventPlrMsg("Act m[%d:%d] c[%d:%d] p[%d:%d]", MousePos.x, MousePos.y, pcurspos.x, pcurspos.y, myplr._px, myplr._py);
 		ActionBtnDown();
 		break;
 	case ACT_ALTACT:
@@ -1211,6 +1212,7 @@ void GameWndProc(const Dvl_Event* e)
 		gnGamePaused = 0; // diablo_pause_game(false);
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
+		EventPlrMsg("Move m[%d:%d] c[%d:%d] p[%d:%d]", MousePos.x, MousePos.y, pcurspos.x, pcurspos.y, myplr._px, myplr._py);
 		if (gmenu_is_active())
 			gmenu_on_mouse_move();
 		else if (WND_VALID(gbDragWnd))

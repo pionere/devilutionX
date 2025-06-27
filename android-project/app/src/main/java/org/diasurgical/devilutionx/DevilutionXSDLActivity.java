@@ -35,9 +35,9 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
-		externalDir = chooseExternalFilesDir() + "/";
+		externalDir = chooseExternalFilesDir();
 
-		migrateSaveGames();
+		// migrateSaveGames();
 
 		super.onCreate(savedInstanceState);
 	}
@@ -47,32 +47,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	 */
 	protected void onStart() {
 		super.onStart();
-
-		/*if (missingGameData()) {
-			Toast toast = Toast.makeText(DevilutionXSDLActivity.this, getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
-			toast.show();
-
-			if (Build.VERSION.SDK_INT >= 30) {
-				toast.addCallback(new android.widget.Toast.Callback(){
-					public void onToastShown() {
-						super.onToastShown();
-					}
-
-					public void onToastHidden() {
-						super.onToastHidden();
-						DevilutionXSDLActivity.this.finish();
-					}
-				  });
-			} else {
-				new Handler().postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						DevilutionXSDLActivity.this.finish();
-					}
-				}, Toast.LENGTH_SHORT * 1000);
-			}
-			return;
-		}*/
 	}
 
 	/**
@@ -85,7 +59,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		System.exit(0);
 	}
 
-	private String chooseExternalFilesDir() {
+	private File chooseExternalFilesDirectory() {
 		if (Build.VERSION.SDK_INT >= 19) {
 			File[] externalDirs = getExternalFilesDirs(null);
 			if (externalDirs != null) {
@@ -95,7 +69,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 					}
 					File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
 					if (iniFiles != null && iniFiles.length > 0) {
-						return dir.getAbsolutePath();
+						return dir;
 					}
 				}
 
@@ -105,29 +79,20 @@ public class DevilutionXSDLActivity extends SDLActivity {
 					}
 					File[] anyFiles = dir.listFiles();
 					if (anyFiles != null && anyFiles.length > 0) {
-						return dir.getAbsolutePath();
+						return dir;
 					}
 				}
 			}
 		}
 
 		// Fallback to the primary external storage directory
-		return getExternalFilesDir(null).getAbsolutePath();
+		return getExternalFilesDir(null);
 	}
 
-	/**
-	 * Check if the game data is present
-	 */
-	private boolean missingGameData() {
-		File fileDev = new File(externalDir + "devilx.mpq");
-		if (!fileDev.exists())
-			return true;
+	private String chooseExternalFilesDir() {
+		File dir = chooseExternalFilesDirectory();
 
-		File fileLower = new File(externalDir + "diabdat.mpq");
-		File fileUpper = new File(externalDir + "DIABDAT.MPQ");
-		//File spawnFile = new File(externalDir + "spawn.mpq");
-
-		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
+		return dir.getAbsolutePath() + "/";
 	}
 
 	private void trackVisibleSpace() {
@@ -146,7 +111,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		});
 	}
 
-	private boolean copyFile(File src, File dst) {
+	/*private boolean copyFile(File src, File dst) {
 		try {
 			InputStream in = new FileInputStream(src);
 			try {
@@ -211,7 +176,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		for (File internalFile : files) {
 			migrateFile(internalFile);
 		}
-	}
+	}*/
 
 	/**
 	 * This method is called by SDL using JNI.
