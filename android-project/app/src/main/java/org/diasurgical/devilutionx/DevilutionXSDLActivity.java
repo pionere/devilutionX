@@ -37,8 +37,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 
 		externalDir = chooseExternalFilesDir();
 
-		migrateSaveGames();
-
 		super.onCreate(savedInstanceState);
 	}
 
@@ -150,73 +148,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				holder.setFixedSize(visibleSpace.width(), visibleSpace.height());
 			}
 		});
-	}
-
-	private boolean copyFile(File src, File dst) {
-		try {
-			InputStream in = new FileInputStream(src);
-			try {
-				OutputStream out = new FileOutputStream(dst);
-				try {
-					// Transfer bytes from in to out
-					byte[] buf = new byte[1024];
-					int len;
-					while ((len = in.read(buf)) > 0) {
-						out.write(buf, 0, len);
-					}
-				} finally {
-					out.close();
-				}
-			} finally {
-				in.close();
-			}
-		} catch (IOException exception) {
-			String message = exception.getMessage();
-			if (message == null) {
-				Log.e("copyFile", "IOException", exception);
-			} else {
-				Log.e("copyFile", message);
-			}
-			if (dst.exists()) {
-				//noinspection ResultOfMethodCallIgnored
-				dst.delete();
-			}
-			return false;
-		}
-
-		return  true;
-	}
-
-	private void migrateFile(File file) {
-		//if (!file.exists() || !file.canRead()) {
-		//	return;
-		//}
-		File newPath = new File(externalDir + file.getName());
-		if (newPath.exists()) {
-			if (file.canWrite()) {
-				//noinspection ResultOfMethodCallIgnored
-				file.delete();
-			}
-			return;
-		}
-		//if (!new File(newPath.getParent()).canWrite()) {
-		//	return;
-		//}
-		if (!file.renameTo(newPath)) {
-			if (copyFile(file, newPath) && file.canWrite()) {
-				//noinspection ResultOfMethodCallIgnored
-				file.delete();
-			}
-		}
-	}
-
-	private void migrateSaveGames() {
-		File[] files = getFilesDir().listFiles();
-		if (files == null)
-			return;
-		for (File internalFile : files) {
-			migrateFile(internalFile);
-		}
 	}
 
 	protected String[] getArguments() {
