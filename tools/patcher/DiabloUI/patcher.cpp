@@ -8324,7 +8324,7 @@ restart:
 	} break;
 	case 3:
 	{	// add patches
-		int i = hashCount;
+		/*int i = hashCount;
 		{
 			size_t dwLen;
 			BYTE* buf = patchFile(i, &dwLen);
@@ -8342,8 +8342,8 @@ restart:
 			mem_free_dbg(buf);
 		}
 		hashCount++;
-		if (hashCount < 3) //lengthof(filesToPatch))
-			break;
+		if (hashCount < lengthof(filesToPatch))
+			break;*/
 		SFileFlushAndCloseArchive(archive);
 		archive = NULL;
 		workPhase++;
