@@ -4,6 +4,8 @@ In order to run the game you need access to these MPQ files:
 - The `DIABDAT.MPQ` on your CD or in the [GoG](https://www.gog.com/game/diablo) installation (you might [extract it from the GoG installer](https://github.com/diasurgical/devilutionX/wiki/Extracting-MPQs-from-the-GoG-installer)).
 - _Diablo: Hellfire_ expansion also needs `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, `hfvoice.mpq`.
 - [`devilx.mpq`](https://github.com/pionere/devilutionX/raw/master/Packaging/resources/devilx.mpq) from [GitHub](https://github.com/pionere/devilutionX/tree/master/Packaging/resources).
+  1. Most of the cases this is attached to the released package.
+  2. In case your gaming platform does not support the patcher, you need to create the patched mpq on a separate platform.
 
 Download the latest [DevilutionX release](https://github.com/pionere/devilutionX/releases) for your system (if available) and extract the contents to a location of your choosing, or [build from source](building.md). Then follow the system-specific instructions below.
 
@@ -11,7 +13,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 
 - Unzip the downloaded file to the desired folder
 - Copy the MPQ files to the folder containing the DevilutionX exe (`devilx.mpq` should be already there)
-- Run `devil_patcher.exe` to patch (and optionally merge) the `.mpq` files.
+- Run `devil_patcher.exe` to patch (and optionally merge) the assets in `.mpq` files. (`devilx.mpq` should be updated)
 - Run `devilutionx.exe`
 
 </details>
@@ -22,6 +24,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 - Install [SDL2](https://www.libsdl.org/download-2.0.php):
   - Ubuntu/Debian/Rasbian `sudo apt install libsdl2-2.0-0`
   - Fedora `sudo dnf install SDL2`
+- Run `./devil_patcher` to patch (and optionally merge) the assets in `.mpq` files. (`devilx.mpq` should be updated)
 - Run `./devilutionx`
 
 </details>
@@ -29,6 +32,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 <details><summary>MacOS X</summary>
 
 - Copy the MPQ files to the folder containing the DevilutionX application (or to the data folder, which is normally `~/Library/Application Support/diasurgical/devilx`
+- Double-click `devil_patcher` to patch (and optionally merge) the assets in `.mpq` files. (`devilx.mpq` should be updated)
 - Double-click `devilutionx`
 
 </details>
@@ -39,6 +43,7 @@ Download the latest [DevilutionX release](https://github.com/pionere/devilutionX
 - To install the port: `cd /usr/ports/games/devilutionX/ && make install clean`
 - To add the package, run one of these commands:
   `pkg install games/devilutionX` || `pkg install devilutionX`
+- Run `devil_patcher` to patch (and optionally merge) the assets in `.mpq` files. (`devilx.mpq` should be updated)
 - Run `devilutionx`
 
 </details>
@@ -95,7 +100,9 @@ Method 3: Using iTunes (Windows and older MacOS)
 <details><summary>Android</summary>
 
 - Copy the downloaded apk file to device and tap on it on device's file explorer or install via `adb install` (if USB debugging is enabled on device).
-- Place the MPQ-files in `/sdcard/Android/data/org.diasurgical.devilutionx/files` folder
+- Place the MPQ-files in `/sdcard/Android/data/org.diasurgical.devilx/files` folder
+- Run `devilx patcher` to patch (and optionally merge) the assets in `.mpq` files. (`devilx.mpq` should be updated)
+- Run `devilx`
 
 </details>
 

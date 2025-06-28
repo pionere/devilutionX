@@ -28,8 +28,9 @@ static void MainmenuLoad()
 	gUIListItems.push_back(new UiListItem("Patch Assets", PATCHERMENU_PATCH));
 	gUIListItems.push_back(new UiListItem("Merge Assets", PATCHERMENU_MERGE));
 	// gUIListItems.push_back(new UiListItem("Check Assets", PATCHERMENU_CHECK));
+#if !defined(__ANDROID__)
 	gUIListItems.push_back(new UiListItem("Exit Patcher", PATCHERMENU_EXIT));
-
+#endif
 	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 
 	// UiAddBackground();

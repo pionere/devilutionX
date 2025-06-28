@@ -43,8 +43,10 @@ void mainmenu_loop()
 			UiCheckerDialog();
 			continue;
 #endif
+#if !defined(__ANDROID__)
 		case PATCHERMENU_EXIT:
 			break;
+#endif
 		default:
 			ASSUME_UNREACHABLE
 			break;
