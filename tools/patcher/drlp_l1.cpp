@@ -3473,7 +3473,8 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	// draw the micros to the back-buffer
 	pMicrosCel = celBuf;
 	constexpr BYTE TRANS_COLOR = 128;
-	memset(&gpBuffer[0], TRANS_COLOR, 4 * BUFFER_WIDTH * MICRO_HEIGHT);
+	constexpr int DRAW_HEIGHT = 4;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
 
 	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
 	for (int i = 0; i < lengthof(micros); i++) {
@@ -3481,7 +3482,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
 		yy += MICRO_HEIGHT;
-		if (yy == 5 * MICRO_HEIGHT - 1) {
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
 			xx += MICRO_WIDTH;
 		}
@@ -3526,7 +3527,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			}
 		}
 		yy += MICRO_HEIGHT;
-		if (yy == 4 * MICRO_HEIGHT) {
+		if (yy == DRAW_HEIGHT * MICRO_HEIGHT) {
 			yy = 0;
 			xx += MICRO_WIDTH;
 		}
@@ -3546,7 +3547,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		entries[i].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
 		entries[i].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
 		yy += MICRO_HEIGHT;
-		if (yy == 5 * MICRO_HEIGHT - 1) {
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
 			xx += MICRO_WIDTH;
 		}

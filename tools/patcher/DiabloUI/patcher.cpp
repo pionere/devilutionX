@@ -7555,6 +7555,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #endif
 	case FILE_TOWN_CEL:
 	{	// patch dMicroCels - TOWN.CEL
+		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_TOWN_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -8337,7 +8338,7 @@ restart:
 			mem_free_dbg(buf);
 		}
 		hashCount++;
-		if (hashCount < 4) // lengthof(filesToPatch))
+		if (hashCount < lengthof(filesToPatch))
 			break;
 		SFileFlushAndCloseArchive(archive);
 		archive = NULL;
