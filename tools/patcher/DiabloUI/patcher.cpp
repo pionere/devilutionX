@@ -2652,7 +2652,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
 	srcHeaderCursor++;
 
-	const int resCelEntries = NUM_ICURS + CURSOR_FIRSTITEM - 1;
+	const int resCelEntries = (int)CURSOR_FIRSTITEM + NUM_ICURS - 1;
 	assert(srcCelEntries == resCelEntries);
 
 	// create the new CEL file
@@ -8204,7 +8204,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 
 		numA = SwapLE32(((DWORD*)buf)[0]);
 		if (numA != 179) {
-			if (numA != NUM_ICURS + CURSOR_FIRSTITEM - 1 /* 179 + 61 - 2*/) {
+			if (numA != (int)CURSOR_FIRSTITEM + NUM_ICURS - 1 /* 179 + 61 - 2*/) {
 				mem_free_dbg(buf);
 				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 				buf = NULL;
@@ -8337,7 +8337,7 @@ restart:
 			mem_free_dbg(buf);
 		}
 		hashCount++;
-		if (hashCount < lengthof(filesToPatch))
+		if (hashCount < 3) // lengthof(filesToPatch))
 			break;
 		SFileFlushAndCloseArchive(archive);
 		archive = NULL;
