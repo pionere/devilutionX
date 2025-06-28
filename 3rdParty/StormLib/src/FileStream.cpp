@@ -486,7 +486,8 @@ static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const v
             } else
 #endif
             {
-            lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
+            if (lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) != ByteOffset)
+                return false;
             pStream->Base.File.FilePos = ByteOffset;
             }
         }
