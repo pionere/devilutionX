@@ -1089,6 +1089,10 @@ static void PressKey(int vkey)
 		return;
 	}
 #endif
+#if HAS_TOUCHPAD
+	// update target for simulated mouse-clicks TODO: do this even if there is no touchpad to handle quick move/click event-pairs?
+	CheckCursMove();
+#endif
 	InputBtnDown(transKey);
 }
 
