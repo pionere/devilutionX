@@ -86,10 +86,6 @@
             </intent-filter>
             -->
         </activity>
-
-        <activity android:name=".DataActivity"
-                android:theme="@style/Theme.MyApplication">
-        </activity>
     </application>
 
 </manifest>
