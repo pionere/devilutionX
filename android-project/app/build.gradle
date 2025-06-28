@@ -10,6 +10,10 @@ android {
 	ndkVersion '28.0.13004108'
 	// ndkVersion '25.2.9519653'
 	compileSdk 35
+	// does not matter...
+	//androidResources { 
+	//	noCompress 'mpq'
+	//}
 	// if (buildAsApplication) {
 	namespace 'org.diasurgical.devilutionx'
 	// }
@@ -41,10 +45,6 @@ android {
 	buildFeatures {
 		buildConfig true
 	}
-	// does not matter...
-	//androidResources { 
-	//	noCompress 'mpq'
-	//}
 	applicationVariants.all { variant ->
 		tasks["merge${variant.name.capitalize()}Assets"]
 			.dependsOn("externalNativeBuild${variant.name.capitalize()}")
