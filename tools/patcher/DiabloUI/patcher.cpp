@@ -8337,7 +8337,7 @@ restart:
 			mem_free_dbg(buf);
 		}
 		hashCount++;
-		if (hashCount < 3) // lengthof(filesToPatch))
+		if (hashCount < 4) // lengthof(filesToPatch))
 			break;
 		SFileFlushAndCloseArchive(archive);
 		archive = NULL;
