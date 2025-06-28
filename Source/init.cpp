@@ -91,7 +91,7 @@ static void ArchivesTest()
 #if defined(__ANDROID__)
 	BYTE* buf = LoadFileInMem("Gendata\\Cuttt.pal");
 	if (buf == NULL) {
-		app_fatal("Missing game data");
+		app_fatal("Game data missing");
 	}
 	mem_free_dbg(buf);
 #endif
