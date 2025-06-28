@@ -9,7 +9,7 @@
 	<string name="game_data_retry">다시 확인</string>
 	<string name="title_activity_data">게임 데이터</string-->
 	<!--string name="download_spawn">체험판 데이터 다운로드</string-->
-	<string name="missing_game_data">게임 데이터 없음</string>
+	<!--string name="missing_game_data">게임 데이터 없음</string-->
 	<!--string name="download_started">다운로드 시작됨</string-->
 	<!--string name="shareware_data">디아블로 체험판 데이터</string-->
 </resources>

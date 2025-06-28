@@ -8,7 +8,7 @@
 	<string name="game_data_retry">Zkusit znovu</string>
 	<string name="title_activity_data">Herní data</string-->
 	<!--string name="download_spawn">Stáhnout Demo Data</string-->
-	<string name="missing_game_data">Chybí herní data</string>
+	<!--string name="missing_game_data">Chybí herní data</string-->
 	<!--string name="download_started">Stahování začalo</string-->
 	<!--string name="shareware_data">Diablo Demo Data</string-->
 </resources>

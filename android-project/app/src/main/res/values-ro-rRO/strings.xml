@@ -8,7 +8,7 @@
 	<string name="game_data_retry">Verifică din nou</string>
 	<string name="title_activity_data">Fișierele de date ale jocului</string-->
 	<!--string name="download_spawn">Descărcare fișiere de date versiune Demo</string-->
-	<string name="missing_game_data">Fișierele de date ale jocului lipsesc</string>
+	<!--string name="missing_game_data">Fișierele de date ale jocului lipsesc</string-->
 	<!--string name="download_started">Descărcarea a început</string-->
 	<!--string name="shareware_data">Date versiune Demo Diablo</string-->
 </resources>

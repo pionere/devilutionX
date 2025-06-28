@@ -8,7 +8,7 @@
 	<string name="game_data_retry">Проверить снова</string>
 	<string name="title_activity_data">Игровые данные</string-->
 	<!--string name="download_spawn">Загрузить данные Demo-версии</string-->
-	<string name="missing_game_data">Игровые данные отсутствуют</string>
+	<!--string name="missing_game_data">Игровые данные отсутствуют</string-->
 	<!--string name="download_started">Загрузка начата</string-->
 	<!--string name="shareware_data">Даннные Demo-версии</string-->
 </resources>

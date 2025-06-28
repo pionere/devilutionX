@@ -8,7 +8,7 @@
 	<string name="game_data_retry">Controlla di nuovo</string>
 	<string name="title_activity_data">Dati Gioco</string-->
 	<!--string name="download_spawn">Scarica Dati Demo</string-->
-	<string name="missing_game_data">Dati gioco mancanti</string>
+	<!--string name="missing_game_data">Dati gioco mancanti</string-->
 	<!--string name="download_started">Download iniziato</string-->
 	<!--string name="shareware_data">Dati Diablo Demo</string-->
 </resources>

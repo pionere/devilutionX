@@ -9,7 +9,7 @@
 	<string name="game_data_retry">Revérifier</string>
 	<string name="title_activity_data">Données du Jeu</string-->
 	<!--string name="download_spawn">Télécharger la Démo</string-->
-	<string name="missing_game_data">Données du Jeu manquantes</string>
+	<!--string name="missing_game_data">Données du Jeu manquantes</string-->
 	<!--string name="download_started">Le téléchargement a commencé</string-->
 	<!--string name="shareware_data">Démo Diablo</string-->
 </resources>

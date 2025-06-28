@@ -8,7 +8,7 @@
 	<string name="game_data_retry">Перевірити ще раз</string>
 	<string name="title_activity_data">Дані гри</string-->
 	<!--string name="download_spawn">Завантажити Демо-версію</string-->
-	<string name="missing_game_data">Дані гри відсутні</string>
+	<!--string name="missing_game_data">Дані гри відсутні</string-->
 	<!--string name="download_started">Завантаження почалось</string-->
 	<!--string name="shareware_data">Дані Демо-версії Diablo</string-->
 </resources>

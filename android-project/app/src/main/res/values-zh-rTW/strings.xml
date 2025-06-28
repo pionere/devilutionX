@@ -8,7 +8,7 @@
 	<string name="game_data_retry">再次檢查</string>
 	<string name="title_activity_data">遊戲資料</string-->
 	<!--string name="download_spawn">下載共享軟體資料</string-->
-	<string name="missing_game_data">遊戲資料遺失</string>
+	<!--string name="missing_game_data">遊戲資料遺失</string-->
 	<!--string name="download_started">開始下載</string-->
 	<!--string name="shareware_data">暗黑破壞神共享軟體資料</string-->
 </resources>

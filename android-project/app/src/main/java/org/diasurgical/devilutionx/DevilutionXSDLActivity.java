@@ -45,32 +45,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	 */
 	protected void onStart() {
 		super.onStart();
-
-		if (missingGameData()) {
-			Toast toast = Toast.makeText(DevilutionXSDLActivity.this, getString(R.string.missing_game_data), Toast.LENGTH_SHORT);
-			toast.show();
-
-			if (Build.VERSION.SDK_INT >= 30) {
-				toast.addCallback(new android.widget.Toast.Callback(){
-					public void onToastShown() {
-						super.onToastShown();
-					}
-
-					public void onToastHidden() {
-						super.onToastHidden();
-						DevilutionXSDLActivity.this.finish();
-					}
-				  });
-			} else {
-				new Handler().postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						DevilutionXSDLActivity.this.finish();
-					}
-				}, Toast.LENGTH_SHORT * 1000);
-			}
-			return;
-		}
 	}
 
 	/**
@@ -117,21 +91,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		File dir = chooseExternalFilesDirectory();
 
 		return dir.getAbsolutePath() + "/";
-	}
-
-	/**
-	 * Check if the game data is present
-	 */
-	private boolean missingGameData() {
-		File fileDev = new File(externalDir + "devilx.mpq");
-		if (!fileDev.exists())
-			return true;
-
-		File fileLower = new File(externalDir + "diabdat.mpq");
-		File fileUpper = new File(externalDir + "DIABDAT.MPQ");
-		//File spawnFile = new File(externalDir + "spawn.mpq");
-
-		return !fileUpper.exists() && !fileLower.exists(); // && (!spawnFile.exists() || isDownloading);
 	}
 
 	private void trackVisibleSpace() {
