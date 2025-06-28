@@ -99,6 +99,7 @@
             android:screenOrientation="landscape"
             android:maxAspectRatio="2.0"
             android:exported="true"
+            android:autoRemoveFromRecents="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

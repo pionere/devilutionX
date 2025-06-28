@@ -12,9 +12,9 @@ typedef enum _patchermenu_selections {
 	PATCHERMENU_PATCH,
 	PATCHERMENU_MERGE,
 	// PATCHERMENU_CHECK,
-#if !defined(__ANDROID__)
+//#if !defined(__ANDROID__)
 	PATCHERMENU_EXIT,
-#endif
+//#endif
 	NUM_PATCHERMENU,
 } _patchermenu_selections;
 

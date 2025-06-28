@@ -57,11 +57,15 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		super.onDestroy();
 
 		//super.finish();
-		//System.exit(0);
+		// if (Build.VERSION.SDK_INT >= 21 /* Build.VERSION_CODES.LOLLIPOP*/) {
+		//	finishAndRemoveTask();
+		// }
+		// System.exit(0);
+		// android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	private File chooseExternalFilesDirectory() {
-		if (Build.VERSION.SDK_INT >= 19) {
+		if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
 			File[] externalDirs = getExternalFilesDirs(null);
 			if (externalDirs != null) {
 				for (File dir : externalDirs) {
