@@ -7599,6 +7599,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATHEDRAL_CEL:
 	{	// patch dMicroCels - L1.CEL
+		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATHEDRAL_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7673,6 +7674,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATACOMBS_CEL:
 	{	// patch dMicroCels - L2.CEL
+		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATACOMBS_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7722,6 +7724,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CAVES_CEL:
 	{	// patch dMicroCels - L3.CEL
+		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CAVES_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7766,6 +7769,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 	case FILE_HELL_CEL:
 	{	// patch dMicroCels - L4.CEL
+		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_HELL_MIN], &minLen);
 		if (minBuf == NULL) {
