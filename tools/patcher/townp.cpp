@@ -6446,7 +6446,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	};
 
 	constexpr BYTE TRANS_COLOR = 128;
-	constexpr BYTE SUB_HEADER_SIZE = 14;
+	constexpr uint16_t SUB_HEADER_SIZE = 14;
 	constexpr int FRAME_WIDTH = TILE_WIDTH;
 	constexpr int FRAME_HEIGHT = 7 * TILE_HEIGHT;
 
@@ -6504,7 +6504,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = 2 * *sCelLen;
+	size_t maxCelSize = (2 * *sCelLen) + (resCelEntries - srcCelEntries) * FRAME_HEIGHT * FRAME_WIDTH;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
