@@ -396,31 +396,6 @@ static bool BaseFile_Read(
     return (dwBytesRead == dwBytesToRead);
 }
 
-static void LogErrorFF(const char* msg, ...)
-{
-	char tmp[256];
-
-	FILE* f0 = NULL;
-	while (f0 == NULL) {
-		f0 = fopen("/storage/0403-0201/Android/data/org.diasurgical.devilx/files/logdebug0.txt", "a+");
-	}
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
-
-
 /**
  * \a pStream Pointer to an open stream
  * \a pByteOffset Pointer to file byte offset. If NULL, writes to current position
@@ -433,7 +408,6 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
 static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite)
 #endif
 {
-    LogErrorFF("Write 0 o:%d (%d) b:%d(%d) -> s:%d", ByteOffset, pStream->Base.File.FilePos, dwBytesToWrite, pStream->Base.File.FileSize, ByteOffset + dwBytesToWrite);
 #ifdef FULL
     ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
 #endif
@@ -494,7 +468,6 @@ static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const v
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
-        LogErrorFF("Write o:%d (%d) b:%d(%d) -> s:%d", ByteOffset, pStream->Base.File.FilePos, dwBytesToWrite, pStream->Base.File.FileSize, ByteOffset + dwBytesToWrite);
         ssize_t bytes_written;
 
         // If the byte offset is different from the current file position,
@@ -513,8 +486,7 @@ static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const v
             } else
 #endif
             {
-            if (lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) != ByteOffset)
-                return false;
+            lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
             pStream->Base.File.FilePos = ByteOffset;
             }
         }
@@ -528,8 +500,6 @@ static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const v
 #endif
             return false;
         }
-        if (bytes_written != dwBytesToWrite)
-            return false;
 
         dwBytesWritten = (DWORD)(size_t)bytes_written;
 #ifndef FULL
@@ -566,7 +536,6 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
 static void BaseFile_Resize(TFileStream * pStream, FILESIZE_T NewFileSize)
 #endif
 {
-    LogErrorFF("Resize 0 s:%d (%d)", NewFileSize, pStream->Base.File.FileSize);
 #ifdef STORMLIB_WINDOWS
     {
 #ifdef FULL
@@ -597,7 +566,6 @@ static void BaseFile_Resize(TFileStream * pStream, FILESIZE_T NewFileSize)
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
-        LogErrorFF("Resize s:%d (%d)", NewFileSize, pStream->Base.File.FileSize);
         if(ftruncate64((intptr_t)pStream->Base.File.hFile, (off64_t)NewFileSize) == -1)
         {
 #ifdef FULL
@@ -668,7 +636,6 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 #endif // FULL
 static void BaseFile_Close(TFileStream * pStream)
 {
-    LogErrorFF("Close 0 s:%d", pStream->Base.File.FileSize);
     if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
     {
 #ifdef STORMLIB_WINDOWS
@@ -676,8 +643,6 @@ static void BaseFile_Close(TFileStream * pStream)
 #endif
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
-        LogErrorFF("Close s:%d", pStream->Base.File.FileSize);
-
         close((intptr_t)pStream->Base.File.hFile);
 #endif
     }

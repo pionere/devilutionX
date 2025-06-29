@@ -7556,7 +7556,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #endif
 	case FILE_TOWN_CEL:
 	{	// patch dMicroCels - TOWN.CEL
-		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_TOWN_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7600,7 +7599,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATHEDRAL_CEL:
 	{	// patch dMicroCels - L1.CEL
-		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATHEDRAL_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7675,7 +7673,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CATACOMBS_CEL:
 	{	// patch dMicroCels - L2.CEL
-		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CATACOMBS_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7725,7 +7722,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_CAVES_CEL:
 	{	// patch dMicroCels - L3.CEL
-		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_CAVES_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -7770,7 +7766,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 #if ASSET_MPL == 1
 	case FILE_HELL_CEL:
 	{	// patch dMicroCels - L4.CEL
-		break;
 		size_t minLen;
 		BYTE* minBuf = LoadFileInMem(filesToPatch[FILE_HELL_MIN], &minLen);
 		if (minBuf == NULL) {
@@ -8316,7 +8311,6 @@ bool first = true;
 		}
 
 		int entryCount = mpqfiles.size() + lengthof(filesToPatch);
-		LogErrorFFF("patcher_callback %d %d -> %d", mpqfiles.size(), lengthof(filesToPatch), entryCount);
 		if (entryCount == 0) {
 			// app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
 			return RETURN_ERROR;
@@ -8345,12 +8339,10 @@ bool first = true;
 	case 2:
 	{	// add the next file from devilx.mpq
 		const char* fileName = mpqfiles[hashCount].c_str();
-		int i;
-		for (i = 0; i < NUM_MPQS; i++) {
+		for (int i = 0; i < NUM_MPQS; i++) {
 			BYTE* buf = NULL;
 			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
 			if (dwLen != 0) {
-				LogErrorFFF("writing '%s' (%d)", fileName, dwLen);
 				bool success = SFileWriteFile(archive, fileName, buf, dwLen);
 				mem_free_dbg(buf);
 				if (!success) {
@@ -8360,11 +8352,6 @@ bool first = true;
 				break;
 			}
 		}
-		if (i == NUM_MPQS) {
-			LogErrorFFF("could not find %s", fileName);
-		} else {
-			LogErrorFFF("written %d of %d", hashCount + 1, mpqfiles.size());
-		}
 		hashCount++;
 		if (hashCount < mpqfiles.size())
 			break;
@@ -8373,7 +8360,7 @@ bool first = true;
 	} break;
 	case 3:
 	{	// add patches
-		/*int i = hashCount;
+		int i = hashCount;
 		{
 			size_t dwLen;
 			BYTE* buf = patchFile(i, &dwLen);
@@ -8392,7 +8379,7 @@ bool first = true;
 		}
 		hashCount++;
 		if (hashCount < lengthof(filesToPatch))
-			break;*/
+			break;
 		SFileFlushAndCloseArchive(archive);
 		archive = NULL;
 		workPhase++;
