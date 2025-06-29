@@ -501,6 +501,8 @@ static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const v
 #endif
             return false;
         }
+        if (bytes_written != dwBytesToWrite)
+            return false;
 
         dwBytesWritten = (DWORD)(size_t)bytes_written;
 #ifndef FULL

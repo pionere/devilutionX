@@ -105,12 +105,40 @@ static void diablo_deinit()
 	FreeConfig();
 }
 
+static void LogErrorFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
 int DiabloMain(int argc, char** argv)
 {
 	int res = diablo_parse_flags(argc, argv);
 	if (res != EX_OK)
 		return res - 1;
 
+	LogErrorFF("main entry: %s", GetBasePath());
 	diablo_init();
 	mainmenu_loop();
 	diablo_deinit();
