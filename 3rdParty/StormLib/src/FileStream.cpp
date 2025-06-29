@@ -403,10 +403,10 @@ static void LogErrorFF(const char* msg, ...)
     //const char* paths[2] = { GetBasePath(), GetPrefPath() };
     const char* paths[1] = { "/storage/0403-0201/Android/data/org.diasurgical.devilx/files/" };
 	FILE* f0 = NULL;
-	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+	for (int i = 0; f0 == NULL && i < 1 /*lengthof(paths)*/; i++) {
 		std::string filepath = paths[i];
 		filepath += "logdebug0.txt";
-		f0 = std::fopen(filepath.c_str(), "a+");
+		f0 = fopen(filepath.c_str(), "a+");
 	}
 
 	va_list va;
