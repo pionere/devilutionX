@@ -8293,7 +8293,7 @@ restart:
 		// mpqfiles.clear();
 		std::string line;
 bool first = true;
-		while (std::getline(input, line)) {
+		while (safeGetline(input, line)) {
 			int i;
 			for (i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
