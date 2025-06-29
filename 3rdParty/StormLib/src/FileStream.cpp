@@ -396,6 +396,35 @@ static bool BaseFile_Read(
     return (dwBytesRead == dwBytesToRead);
 }
 
+static void LogErrorFF(const char* msg, ...)
+{
+	char tmp[256];
+
+    //const char* paths[2] = { GetBasePath(), GetPrefPath() };
+    const char* paths[1] = { "/storage/0403-0201/Android/data/org.diasurgical.devilx/files/" };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
+
 /**
  * \a pStream Pointer to an open stream
  * \a pByteOffset Pointer to file byte offset. If NULL, writes to current position
@@ -468,6 +497,7 @@ static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const v
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
+        LogErrorFF("Write o:%d (%d) b:%d(%d) -> s:%d", ByteOffset, pStream->Base.File.FilePos, dwBytesToWrite, pStream->Base.File.FileSize, ByteOffset + dwBytesToWrite);
         ssize_t bytes_written;
 
         // If the byte offset is different from the current file position,
@@ -569,6 +599,7 @@ static void BaseFile_Resize(TFileStream * pStream, FILESIZE_T NewFileSize)
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
     {
+        LogErrorFF("Resize s:%d (%d)", NewFileSize, pStream->Base.File.FileSize);
         if(ftruncate64((intptr_t)pStream->Base.File.hFile, (off64_t)NewFileSize) == -1)
         {
 #ifdef FULL
@@ -646,6 +677,8 @@ static void BaseFile_Close(TFileStream * pStream)
 #endif
 
 #if defined(STORMLIB_MAC) || defined(STORMLIB_LINUX)
+        LogErrorFF("Close s:%d", pStream->Base.File.FileSize);
+
         close((intptr_t)pStream->Base.File.hFile);
 #endif
     }
