@@ -8292,12 +8292,25 @@ restart:
 		}
 		// mpqfiles.clear();
 		std::string line;
+bool first = true;
 		while (std::getline(input, line)) {
-			for (int i = 0; i < NUM_MPQS; i++) {
+			int i;
+			for (i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					mpqfiles.push_back(line);
 					break;
 				}
+			}
+			if (i >= NUM_MPQS) {
+				LogErrorFFF("patcher_callback %s not found", line.c_str());
+				if (first) {
+					first = false;
+					for (i = 0; i < NUM_MPQS; i++) {
+						LogErrorFFF("patcher_callback mpq %d: %d", i, diabdat_mpqs[i] != NULL);
+					}
+				}
+			} else {
+				LogErrorFFF("patcher_callback %s found", line.c_str());
 			}
 		}
 
