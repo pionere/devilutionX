@@ -66,6 +66,8 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 		is.setstate(std::ios::eofbit);
 	else if (t.empty()) {
 		LogErrorFFFF("empty line: %d %d %d", sb->sgetc() == std::streambuf::traits_type::eof(), sb->sgetc() == EOF, sb->sgetc());
+	} else if (sb->sgetc() == std::streambuf::traits_type::eof()) {
+		LogErrorFFFF("last line: %d %d %d", t.empty(), t.size(), t.length());
 	}
 	return is;
 }
