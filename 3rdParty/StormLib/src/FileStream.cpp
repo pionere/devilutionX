@@ -433,6 +433,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
 static bool BaseFile_Write(TFileStream * pStream, FILESIZE_T ByteOffset, const void * pvBuffer, DWORD dwBytesToWrite)
 #endif
 {
+    LogErrorFF("Write 0 o:%d (%d) b:%d(%d) -> s:%d", ByteOffset, pStream->Base.File.FilePos, dwBytesToWrite, pStream->Base.File.FileSize, ByteOffset + dwBytesToWrite);
 #ifdef FULL
     ULONGLONG ByteOffset = (pByteOffset != NULL) ? *pByteOffset : pStream->Base.File.FilePos;
 #endif
@@ -565,6 +566,7 @@ static bool BaseFile_Resize(TFileStream * pStream, ULONGLONG NewFileSize)
 static void BaseFile_Resize(TFileStream * pStream, FILESIZE_T NewFileSize)
 #endif
 {
+    LogErrorFF("Resize 0 s:%d (%d)", NewFileSize, pStream->Base.File.FileSize);
 #ifdef STORMLIB_WINDOWS
     {
 #ifdef FULL
@@ -666,6 +668,7 @@ static bool BaseFile_Replace(TFileStream * pStream, TFileStream * pNewStream)
 #endif // FULL
 static void BaseFile_Close(TFileStream * pStream)
 {
+    LogErrorFF("Close 0 s:%d", pStream->Base.File.FileSize);
     if(pStream->Base.File.hFile != INVALID_HANDLE_VALUE)
     {
 #ifdef STORMLIB_WINDOWS
