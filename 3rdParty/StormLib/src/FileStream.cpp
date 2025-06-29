@@ -400,13 +400,9 @@ static void LogErrorFF(const char* msg, ...)
 {
 	char tmp[256];
 
-    //const char* paths[2] = { GetBasePath(), GetPrefPath() };
-    const char* paths[1] = { "/storage/0403-0201/Android/data/org.diasurgical.devilx/files/" };
 	FILE* f0 = NULL;
-	for (int i = 0; f0 == NULL && i < 1 /*lengthof(paths)*/; i++) {
-		std::string filepath = paths[i];
-		filepath += "logdebug0.txt";
-		f0 = fopen(filepath.c_str(), "a+");
+	while (f0 == NULL) {
+		f0 = fopen("/storage/0403-0201/Android/data/org.diasurgical.devilx/files/logdebug0.txt", "a+");
 	}
 
 	va_list va;
