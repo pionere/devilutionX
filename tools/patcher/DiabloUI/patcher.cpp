@@ -7,6 +7,7 @@
 #include "selok.h"
 #include "utils/display.h"
 #include "utils/paths.h"
+#include "utils/filestream.h"
 #include "utils/file_util.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
