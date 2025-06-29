@@ -8336,7 +8336,7 @@ restart:
 			BYTE* buf = NULL;
 			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
 			if (dwLen != 0) {
-				LogErrorFFF("writing %s", fileName);
+				LogErrorFFF("writing '%s' (%d)", fileName, dwLen);
 				bool success = SFileWriteFile(archive, fileName, buf, dwLen);
 				mem_free_dbg(buf);
 				if (!success) {
@@ -8348,6 +8348,8 @@ restart:
 		}
 		if (i == NUM_MPQS) {
 			LogErrorFFF("could not find %s", fileName);
+		} else {
+			LogErrorFFF("written %d of %d", hashCount + 1, mpqfiles.size());
 		}
 		hashCount++;
 		if (hashCount < mpqfiles.size())
