@@ -105,7 +105,7 @@ static void diablo_deinit()
 	FreeConfig();
 }
 
-static void LogErrorFF(const char* msg, ...)
+static void LogErrorF(const char* msg, ...)
 {
 	char tmp[256];
 
@@ -138,7 +138,7 @@ int DiabloMain(int argc, char** argv)
 	if (res != EX_OK)
 		return res - 1;
 
-	LogErrorFF("main entry: %s", GetBasePath());
+	LogErrorF("main entry: %s", GetBasePath());
 	diablo_init();
 	mainmenu_loop();
 	diablo_deinit();

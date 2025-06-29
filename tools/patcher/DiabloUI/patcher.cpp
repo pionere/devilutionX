@@ -8251,6 +8251,33 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	return buf;
 }
 
+static void LogErrorFFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
 static int patcher_callback()
 {
 restart:
@@ -8275,6 +8302,7 @@ restart:
 		}
 
 		int entryCount = mpqfiles.size() + lengthof(filesToPatch);
+		LogErrorFFF("patcher_callback %d %d -> %d", mpqfiles.size(), lengthof(filesToPatch), entryCount);
 		if (entryCount == 0) {
 			// app_warn("Can not find/access '%s' in the game folder.", "mpqfiles.txt");
 			return RETURN_ERROR;
@@ -8303,10 +8331,12 @@ restart:
 	case 2:
 	{	// add the next file from devilx.mpq
 		const char* fileName = mpqfiles[hashCount].c_str();
-		for (int i = 0; i < NUM_MPQS; i++) {
+		int i;
+		for (i = 0; i < NUM_MPQS; i++) {
 			BYTE* buf = NULL;
 			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], fileName, &buf);
 			if (dwLen != 0) {
+				LogErrorFFF("writing %s", fileName);
 				bool success = SFileWriteFile(archive, fileName, buf, dwLen);
 				mem_free_dbg(buf);
 				if (!success) {
@@ -8315,6 +8345,9 @@ restart:
 				}
 				break;
 			}
+		}
+		if (i == NUM_MPQS) {
+			LogErrorFFF("could not find %s", fileName);
 		}
 		hashCount++;
 		if (hashCount < mpqfiles.size())
