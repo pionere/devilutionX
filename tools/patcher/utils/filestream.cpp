@@ -55,21 +55,12 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 			if (t.empty()) {
 				is.setstate(std::ios::failbit);
 			}
-			return is;
+			break;
 		default:
 			t += (char)c;
 			continue;
 		}
 		break;
-	}
-	// Ignore last empty line
-	if (t.empty() && sb->sgetc() == std::streambuf::traits_type::eof()) {
-		is.setstate(std::ios::failbit);
-		LogErrorFFFF("empty last line 1");
-	} else if (t.empty()) {
-		LogErrorFFFF("empty line: %d %d %d", sb->sgetc() == std::streambuf::traits_type::eof(), sb->sgetc() == EOF, sb->sgetc());
-	} else if (sb->sgetc() == std::streambuf::traits_type::eof()) {
-		LogErrorFFFF("last line: %d %d %d", t.empty(), t.size(), t.length());
 	}
 	return is;
 }

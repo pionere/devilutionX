@@ -4,6 +4,9 @@
  * Implementation of the catacombs level patching functionality.
  */
 #include "all.h"
+#include "utils/paths.h"
+#include "utils/filestream.h"
+#include "utils/file_util.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/dun_render.h"
 
@@ -1416,17 +1419,68 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	return resCelBuf;
 }
 
+static void LogErrorFFFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
+static void dumpCELdata(BYTE* celBuf, int idx)
+{
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+
+	LogErrorFFFF("micro %d: s:%d data:%d..%d (%x..%x)", idx, SwapLE32(srcHeaderCursor[idx + 1]) - SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1])
+		, SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1]));
+}
+
 BYTE* DRLP_L2_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {
+	LogErrorFFFF("L2Cat started len %d", celLen);
+	dumpCELdata(celBuf, 36);
+	dumpCELdata(celBuf, 37);
+	dumpCELdata(celBuf, 38);
 	celBuf = patchCatacombsStairs(/*tilBuf, tilLen, */minBuf, minLen, celBuf, celLen, 72 - 1, 158 - 1, 267, 559, 265, 556);
 	if (celBuf == NULL) {
 		return NULL;
 	}
+	LogErrorFFFF("L2Cat after patchCatacombsStairs len %d", celLen);
+	dumpCELdata(celBuf, 36);
+	dumpCELdata(celBuf, 37);
+	dumpCELdata(celBuf, 38);
 	celBuf = patchCatacombsFloorCel(minBuf, minLen, celBuf, celLen);
 	if (celBuf == NULL) {
 		return NULL;
 	}
+	LogErrorFFFF("L2Cat after patchCatacombsFloorCel len %d", celLen);
+	dumpCELdata(celBuf, 36);
+	dumpCELdata(celBuf, 37);
+	dumpCELdata(celBuf, 38);
 	celBuf = fixCatacombsShadows(minBuf, minLen, celBuf, celLen);
+	LogErrorFFFF("L2Cat ended len %d", celLen);
+	dumpCELdata(celBuf, 36);
+	dumpCELdata(celBuf, 37);
+	dumpCELdata(celBuf, 38);
 	return celBuf;
 }
 
