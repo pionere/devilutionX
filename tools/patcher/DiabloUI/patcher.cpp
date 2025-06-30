@@ -7509,6 +7509,33 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 }
 #endif // ASSET_MPL
 
+static void LogErrorFFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
 static void dumpCELdata(BYTE* celBuf, int idx)
 {
 	DWORD* srcHeaderCursor = (DWORD*)celBuf;
@@ -8262,33 +8289,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		break;
 	}
 	return buf;
-}
-
-static void LogErrorFFF(const char* msg, ...)
-{
-	char tmp[256];
-
-	const char* paths[2] = { GetBasePath(), GetPrefPath() };
-	FILE* f0 = NULL;
-	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
-		std::string filepath = paths[i];
-		filepath += "logdebug0.txt";
-		f0 = std::fopen(filepath.c_str(), "a+");
-	}
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
 }
 
 static int patcher_callback()
