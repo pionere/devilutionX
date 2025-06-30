@@ -442,8 +442,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		for (unsigned i = 0; i < numEntries; i++) {
 			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
-			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+			memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 			dstDataCursor += len;
 			srcHeaderCursor++;
 		}
@@ -456,8 +456,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 	for (unsigned i = 0; i < numEntries; i++) {
 		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
-		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+		memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 		dstDataCursor += len;
 		srcHeaderCursor++;
 	}
@@ -7508,6 +7508,14 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 #endif // ASSET_MPL
+
+static void dumpCELdata(BYTE* celBuf, int idx)
+{
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+
+	LogErrorFFF("micro %d: s:%d data:%d..%d", idx, SwapLE32(srcHeaderCursor[idx + 1]) - SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1]));
+}
+
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -7688,8 +7696,17 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		buf = DRLP_L2_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
+			LogErrorFFF("Cat removed before %d len %d", removeMicros.size(), dwLen);
+			dumpCELdata(buf, 36);
+			dumpCELdata(buf, 37);
+			dumpCELdata(buf, 38);
 			DRLP_L2_PatchMin(minBuf);
+			LogErrorFFF("Cat removed after %d", removeMicros.size());
 			buf = buildBlkCel(buf, dwLen);
+			dumpCELdata(buf, 31);
+			dumpCELdata(buf, 32);
+			dumpCELdata(buf, 33);
+			LogErrorFFF("Cat removed after len %d", dwLen);
 		}
 		mem_free_dbg(minBuf);
 	} break;
@@ -8288,7 +8305,6 @@ restart:
 		}
 		// mpqfiles.clear();
 		std::string line;
-bool first = true;
 		while (safeGetline(input, line)) {
 			int i;
 			for (i = 0; i < NUM_MPQS; i++) {
@@ -8299,14 +8315,8 @@ bool first = true;
 			}
 			if (i >= NUM_MPQS) {
 				LogErrorFFF("patcher_callback %s not found", line.c_str());
-				if (first) {
-					first = false;
-					for (i = 0; i < NUM_MPQS; i++) {
-						LogErrorFFF("patcher_callback mpq %d: %d", i, diabdat_mpqs[i] != NULL);
-					}
-				}
 			} else {
-				LogErrorFFF("patcher_callback %s found", line.c_str());
+				LogErrorFFF("patcher_callback %s found", line.c_str(), line.empty());
 			}
 		}
 
