@@ -71,7 +71,9 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 	BYTE* pHead = pDst;
 	pDst++;
 	int lines[MICRO_HEIGHT] = { 0 };
+	int ll[MICRO_HEIGHT];
 	for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
+		BYTE* llStart = pDst;
 		bool alpha = false;
 		for (x = 0; x < MICRO_WIDTH; x++, pSrc++) {
 			BYTE pixel = *pSrc;
@@ -97,14 +99,17 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 				lines[y] += 1;
 			}
 		}
+		ll[y] = (size_t)pDst - (size_t)llStart;
 		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
 		pHead = pDst;
 		pDst++;
 	}
 if (dodebug) {
 	LogErrorFFFFF("micro data from %ul..%ul len %ul size %d)", (size_t)pStart, (size_t)pHead, (size_t)pHead - (size_t)pStart, sizeof(size_t));
+	int total = 0;
 	for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
-		LogErrorFFFFF("line %d: %d", y, lines[y]);
+		total += ll[y];
+		LogErrorFFFFF("line %d: %d len %d -> %d", y, lines[y], ll[y], total);
 	}
 }
 	// if (!hasColor) {
