@@ -6,6 +6,7 @@
 #include "patchdat.h"
 #include "selok.h"
 #include "utils/display.h"
+#include "utils/filestream.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include "engine/render/cel_render.h"
@@ -8260,7 +8261,7 @@ restart:
 		}
 		// mpqfiles.clear();
 		std::string line;
-		while (std::getline(input, line)) {
+		while (safeGetline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					mpqfiles.push_back(line);

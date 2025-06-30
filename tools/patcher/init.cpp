@@ -15,7 +15,7 @@
 #include "storm/storm_cfg.h"
 #include <string>
 #if DEV_MODE
-#include <fstream>
+#include "utils/filestream.h"
 #endif
 
 #ifdef __vita__
@@ -92,7 +92,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 
 	int entryCount = 0;
 	std::string line;
-	while (std::getline(input, line)) {
+	while (safeGetline(input, line)) {
 		if (line[0] == '_')
 			continue;
 		std::string path = assetPath(basePath, line);
@@ -113,7 +113,7 @@ static void CreateMpq(const char* destMpqName, const char* folder, const char* f
 		app_fatal("Unable to create MPQ file %s.", path.c_str());
 
 	input = std::ifstream(std::string(GetBasePath()) + files);
-	while (std::getline(input, line)) {
+	while (safeGetline(input, line)) {
 		if (line[0] == '_')
 			continue;
 		std::string path = assetPath(basePath, line);

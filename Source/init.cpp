@@ -13,7 +13,7 @@
 #include "storm/storm_cfg.h"
 #include <string>
 #if CREATE_MPQONE
-#include <fstream>
+#include "utils/filestream.h"
 #endif
 
 #ifdef __vita__
@@ -153,7 +153,7 @@ static void LoadArchives()
 	}
 	std::string line;
 	int entryCount = 0;
-	while (std::getline(input, line)) {
+	while (safeGetline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
 			if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 				entryCount++;
@@ -175,7 +175,7 @@ static void LoadArchives()
 	HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, hashCount);
 	if (ha == NULL)
 		app_fatal("Unable to create MPQ file %s.", path.c_str());
-	while (std::getline(input, line)) {
+	while (safeGetline(input, line)) {
 #ifdef NOSOUND
 		if (line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
 			continue;

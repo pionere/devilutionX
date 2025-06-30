@@ -565,6 +565,7 @@ set(devilutionx_SRCS
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
+  Source/utils/filestream.cpp
   Source/utils/paths.cpp
   Source/utils/screen_reader.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
@@ -713,6 +714,7 @@ if(CREATE_PATCHER)
     tools/patcher/storm/storm.cpp
     tools/patcher/storm/storm_cfg.cpp
     tools/patcher/utils/display.cpp
+    tools/patcher/utils/filestream.cpp
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
