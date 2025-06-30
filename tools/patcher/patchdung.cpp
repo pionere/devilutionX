@@ -82,6 +82,7 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 				//if ((char)(*pHead) > 0) {
 				if (!alpha/* && x != 0*/) {
 					pHead = pDst;
+					*pHead = 0;
 					pDst++;
 				}
 				--*((char*)pHead);
@@ -91,6 +92,7 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 				if (alpha) {
 					alpha = false;
 					pHead = pDst;
+					*pHead = 0;
 					pDst++;
 				}
 				*pDst = pixel;
@@ -357,7 +359,7 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 		}
 		if (next == -1)
 			break;
-dodebug = debugIndex == next;
+//dodebug = debugIndex == next;
 		// copy entries till the next frame
 		int midEntries = entries[next].frameRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 		if (midEntries < 0) {
