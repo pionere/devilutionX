@@ -79,7 +79,8 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 			BYTE pixel = *pSrc;
 			if (pixel == transparentPixel) {
 				// add transparent pixel
-				if ((char)(*pHead) > 0) {
+				//if ((char)(*pHead) > 0) {
+				if (!alpha/* && x != 0*/) {
 					pHead = pDst;
 					pDst++;
 				}
