@@ -4,6 +4,9 @@
  * Implementation of the general level patching functionality.
  */
 #include "all.h"
+#include "utils/paths.h"
+#include "utils/filestream.h"
+#include "utils/file_util.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -348,7 +351,7 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 		}
 		if (next == -1)
 			break;
-dodebug = debugIndex == i;
+dodebug = debugIndex == next;
 		// copy entries till the next frame
 		int midEntries = entries[next].frameRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 		if (midEntries < 0) {
