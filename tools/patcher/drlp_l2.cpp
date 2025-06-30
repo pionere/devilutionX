@@ -710,17 +710,17 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /*  3 */{ 482 - 1, 1, MET_RTRIANGLE },  // change type
 
 /*  4 */{ 17 - 1, 1, MET_TRANSPARENT }, // mask door
-/*  5 */{ 17 - 1, 0, -1 }, // unused
-/*  6 */{ 17 - 1, 2, -1 }, // unused
-/*  7 */{ 17 - 1, 4, -1 }, // unused
+/*  5 */{ 17 - 1, 0, MET_TRANSPARENT }, // unused
+/*  6 */{ 17 - 1, 2, MET_TRANSPARENT }, // unused
+/*  7 */{ 17 - 1, 4, MET_TRANSPARENT }, // unused
 /*  8 */{ 551 - 1, 0, MET_TRANSPARENT },
 /*  9 */{ 551 - 1, 2, MET_TRANSPARENT },
 /* 10 */{ 551 - 1, 4, MET_TRANSPARENT },
 /* 11 */{ 551 - 1, 5, MET_TRANSPARENT },
 /* 12 */{ 13 - 1, 0, MET_TRANSPARENT },
-/* 13 */{ 13 - 1, 1, -1 }, // unused
-/* 14 */{ 13 - 1, 3, -1 }, // unused
-/* 15 */{ 13 - 1, 5, -1 }, // unused
+/* 13 */{ 13 - 1, 1, MET_TRANSPARENT }, // unused
+/* 14 */{ 13 - 1, 3, MET_TRANSPARENT }, // unused
+/* 15 */{ 13 - 1, 5, MET_TRANSPARENT }, // unused
 /* 16 */{ 553 - 1, 1, MET_TRANSPARENT },
 /* 17 */{ 553 - 1, 3, MET_TRANSPARENT },
 /* 18 */{ 553 - 1, 4, MET_TRANSPARENT },
@@ -1396,7 +1396,7 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-
+extern int debugIndex;
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
