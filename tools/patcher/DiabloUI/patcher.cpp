@@ -7722,23 +7722,23 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_CATACOMBS_MIN]);
 			return NULL;
 		}
-		LogErrorFFF("Cat started len %d", dwLen);
+		/*LogErrorFFF("Cat started len %d", dwLen);
 		dumpCELdata(buf, 36);
 		dumpCELdata(buf, 37);
-		dumpCELdata(buf, 38);
+		dumpCELdata(buf, 38);*/
 		buf = DRLP_L2_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
-			LogErrorFFF("Cat removed before %d len %d", removeMicros.size(), dwLen);
+			/*LogErrorFFF("Cat removed before %d len %d", removeMicros.size(), dwLen);
 			dumpCELdata(buf, 36);
 			dumpCELdata(buf, 37);
-			dumpCELdata(buf, 38);
+			dumpCELdata(buf, 38);*/
 			DRLP_L2_PatchMin(minBuf);
-			LogErrorFFF("Cat removed after %d", removeMicros.size());
+			//LogErrorFFF("Cat removed after %d", removeMicros.size());
 			buf = buildBlkCel(buf, dwLen);
-			dumpCELdata(buf, 31);
+			/*dumpCELdata(buf, 31);
 			dumpCELdata(buf, 32);
 			dumpCELdata(buf, 33);
-			LogErrorFFF("Cat removed after len %d", dwLen);
+			LogErrorFFF("Cat removed after len %d", dwLen);*/
 		}
 		mem_free_dbg(minBuf);
 	} break;
