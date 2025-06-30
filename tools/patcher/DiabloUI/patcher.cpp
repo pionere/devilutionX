@@ -7540,7 +7540,8 @@ static void dumpCELdata(BYTE* celBuf, int idx)
 {
 	DWORD* srcHeaderCursor = (DWORD*)celBuf;
 
-	LogErrorFFF("micro %d: s:%d data:%d..%d", idx, SwapLE32(srcHeaderCursor[idx + 1]) - SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1]));
+	LogErrorFFF("micro %d: s:%d data:%d..%d (%x..%x)", idx, SwapLE32(srcHeaderCursor[idx + 1]) - SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1])
+		, SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1]));
 }
 
 static BYTE* patchFile(int index, size_t *dwLen)
@@ -7721,6 +7722,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_CATACOMBS_MIN]);
 			return NULL;
 		}
+		LogErrorFFF("Cat started len %d", dwLen);
+		dumpCELdata(buf, 36);
+		dumpCELdata(buf, 37);
+		dumpCELdata(buf, 38);
 		buf = DRLP_L2_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			LogErrorFFF("Cat removed before %d len %d", removeMicros.size(), dwLen);

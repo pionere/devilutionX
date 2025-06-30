@@ -53,8 +53,7 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 		case EOF:
 			// Also handle the case when the last line has no line ending
 			if (t.empty()) {
-				is.setstate(std::ios::eofbit);
-				LogErrorFFFF("empty last line 0");
+				is.setstate(std::ios::failbit);
 			}
 			return is;
 		default:
@@ -65,7 +64,7 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 	}
 	// Ignore last empty line
 	if (t.empty() && sb->sgetc() == std::streambuf::traits_type::eof()) {
-		is.setstate(std::ios::eofbit);
+		is.setstate(std::ios::failbit);
 		LogErrorFFFF("empty last line 1");
 	} else if (t.empty()) {
 		LogErrorFFFF("empty line: %d %d %d", sb->sgetc() == std::streambuf::traits_type::eof(), sb->sgetc() == EOF, sb->sgetc());
