@@ -2115,7 +2115,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || *pHead == 0x80u) {
+				if (colMatches < RLE_LEN || *pHead == 0x81u) {
 					// bmp encoding
 					if (/*alpha ||*/ *pHead <= 0xBFu || first) {
 						pushHead(&pPrevHead, &pLastHead, pHead);
@@ -3975,8 +3975,6 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 	constexpr int width = 128;
 	constexpr int height = 128;
 
-	LogErrorFFF("patchGoatBDie 0 %d", *dwLen);
-
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
 
@@ -4008,21 +4006,16 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
-		LogErrorFFF("patchGoatBDie 1 %d", ii);
+
 		for (int n = 1; n <= ni; n++) {
-			LogErrorFFF("patchGoatBDie 2 %d %d p%d", ii, n, needsPatch);
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			// draw the frame to the buffer
-			LogErrorFFF("patchGoatBDie 3 y%d", height - 1);
-			extern bool doDebugg;
-			doDebugg = ii == 2 && n == 7;
 			Cl2Draw(0, height - 1, frameBuf, n, width);
-			LogErrorFFF("patchGoatBDie 4");
+
 			int i = n - 1;
 			// test if the animation is already patched
 			if (ii + 1 == 1 && i + 1 == 4) {
 				needsPatch = gpBuffer[50 + BUFFER_WIDTH * 126] != TRANS_COLOR; // assume it is already done
-				LogErrorFFF("patchGoatBDie needsPatch %d", needsPatch);
 			}
 
 			if (needsPatch) {
@@ -4033,16 +4026,15 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
-			LogErrorFFF("patchGoatBDie 5");
+
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
 			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
-			LogErrorFFF("patchGoatBDie 7", hdr[n + 1]);
 		}
 		hdr += ni + 2;
 	}
 
 	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
-	LogErrorFFF("patchGoatBDie done %d", *dwLen);
+
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
@@ -8365,12 +8357,10 @@ restart:
 		int i = hashCount;
 		{
 			size_t dwLen;
-			LogErrorFFF("patchFile %d: %s", i, filesToPatch[i]);
 			BYTE* buf = patchFile(i, &dwLen);
 			if (buf == NULL) {
 				return RETURN_ERROR;
 			}
-			LogErrorFFF("done");
 			if (dwLen > UINT32_MAX) {
 				app_warn("Patched file %s is too large to be included in an MPQ archive.", filesToPatch[i]);
 				return RETURN_ERROR;
