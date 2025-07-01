@@ -2269,7 +2269,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_RHTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_RHUHT: frameCount =  8 - 1; width =  96; height =  96; break;
 	case FILE_PLR_RHUQM: frameCount = 17 - 1; width =  96; height =  96; break;
-	case FILE_PLR_RMTAT: frameCount = 17 - 1; width = 128; height = 128; break;
+	case FILE_PLR_RMTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_WHMAT: frameCount = 17 - 1; width = 128; height =  96; break;
 	case FILE_PLR_WLNLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
@@ -2278,7 +2278,6 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
 	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
 	if (srcCelEntries <= frameCount) {
-		LogErrorFFF("PlrFrames %d done: %d vs %d", index, srcCelEntries, frameCount);
 		return cl2Buf; // assume it is already done
 	}
 
@@ -3976,6 +3975,8 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 	constexpr int width = 128;
 	constexpr int height = 128;
 
+	LogErrorFFF("patchGoatBDie 0 %d", *dwLen);
+
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
 
@@ -4007,8 +4008,9 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
-
+		LogErrorFFF("patchGoatBDie 1 %d", ii);
 		for (int n = 1; n <= ni; n++) {
+			LogErrorFFF("patchGoatBDie 2 %d %d p%d", ii, n, needsPatch);
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
@@ -4017,6 +4019,7 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 			// test if the animation is already patched
 			if (ii + 1 == 1 && i + 1 == 4) {
 				needsPatch = gpBuffer[50 + BUFFER_WIDTH * 126] != TRANS_COLOR; // assume it is already done
+				LogErrorFFF("patchGoatBDie needsPatch %d", needsPatch);
 			}
 
 			if (needsPatch) {
@@ -4035,7 +4038,7 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 	}
 
 	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
-
+	LogErrorFFF("patchGoatBDie done %d", *dwLen);
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
 }
