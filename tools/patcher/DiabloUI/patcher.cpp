@@ -8351,10 +8351,12 @@ restart:
 		int i = hashCount;
 		{
 			size_t dwLen;
+			LogErrorFFF("patchFile %d: %s", index, filesToPatch[i]);
 			BYTE* buf = patchFile(i, &dwLen);
 			if (buf == NULL) {
 				return RETURN_ERROR;
 			}
+			LogErrorFFF("done");
 			if (dwLen > UINT32_MAX) {
 				app_warn("Patched file %s is too large to be included in an MPQ archive.", filesToPatch[i]);
 				return RETURN_ERROR;
