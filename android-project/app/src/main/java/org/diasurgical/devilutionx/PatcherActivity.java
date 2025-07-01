@@ -28,11 +28,11 @@ public class PatcherActivity extends SDLActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// windowSoftInputMode=adjustPan stopped working
 		// for fullscreen apps after Android 7.0
-		if (Build.VERSION.SDK_INT >= 25)
+		if (Build.VERSION.SDK_INT >= 25 /* Android 7.1 (N_MR1) */ )
 			trackVisibleSpace();
 
 		// Force app to overlap with the display cutout
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+		if (Build.VERSION.SDK_INT >= 28 /* Android 9.0 (P) */ )
 			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
 		externalDir = chooseExternalFilesDir();
@@ -47,28 +47,6 @@ public class PatcherActivity extends SDLActivity {
 		super.onStart();
 	}
 
-/*private Activity.finishAndRemoveTaskCompat() {
-    if (android.os.Build.VERSION.SDK_INT >= 21) {
-        finishAndRemoveTask()
-    } else {
-        Intent intent = Intent(this, ExitAndRemoveFromRecentAppsDummyActivity.class)
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_NO_ANIMATION |
-                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-
-        startActivity(intent);
-    }
-}
-
-class ExitAndRemoveFromRecentAppsDummyActivity extends Activity {
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        finish();
-    }
-}*/
-
 	/**
 	 * When the user exits the game, use System.exit(0)
 	 * to clear memory and prevent errors on restart
@@ -76,12 +54,7 @@ class ExitAndRemoveFromRecentAppsDummyActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		//super.finish();
-		// if (Build.VERSION.SDK_INT >= 21 /* Build.VERSION_CODES.LOLLIPOP*/) {
-		//	finishAndRemoveTask();
-		// }
 		// System.exit(0);
-		// android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	private File chooseExternalFilesDirectory() {
