@@ -4013,8 +4013,9 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 			LogErrorFFF("patchGoatBDie 2 %d %d p%d", ii, n, needsPatch);
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			// draw the frame to the buffer
+			LogErrorFFF("patchGoatBDie 3");
 			Cl2Draw(0, height - 1, frameBuf, n, width);
-
+			LogErrorFFF("patchGoatBDie 4");
 			int i = n - 1;
 			// test if the animation is already patched
 			if (ii + 1 == 1 && i + 1 == 4) {
@@ -4030,9 +4031,10 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
-
+			LogErrorFFF("patchGoatBDie 5");
 			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
 			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+			LogErrorFFF("patchGoatBDie 7", hdr[n + 1]);
 		}
 		hdr += ni + 2;
 	}
