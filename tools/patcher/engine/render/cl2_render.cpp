@@ -8,7 +8,34 @@
 #include "all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+bool doDebugg = false;
 
+static void LogErrorFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
 /**
  * @brief Blit CL2 sprite to the given buffer
  * @param pDecodeTo The output buffer
@@ -39,6 +66,9 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 				if (width > 65) {
 					width -= 65;
 					fill = *src++;
+if (doDebugg) {
+	LogErrorFF("Cl2Blit fill w%d c%d", width, fill);
+}
 						i -= width;
 						while (width != 0) {
 							*dst = fill;
@@ -47,6 +77,9 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 						}
 						continue;
 				} else {
+if (doDebugg) {
+	LogErrorFF("Cl2Blit colors w%d", width);
+}
 						i -= width;
 						while (width != 0) {
 							*dst = *src;
@@ -59,10 +92,16 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 			}
 			while (true) {
 				if (width <= i) {
+if (doDebugg) {
+	LogErrorFF("Cl2Blit last transp w%d", width);
+}
 					dst += width;
 					i -= width;
 					break;
 				} else {
+if (doDebugg) {
+	LogErrorFF("Cl2Blit i transp w%d", i);
+}
 					dst += i;
 					width -= i;
 					i = nWidth;
@@ -70,6 +109,9 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 				}
 			}
 		}
+if (doDebugg) {
+	LogErrorFF("Cl2Blit new line");
+}
 	}
 }
 
@@ -90,8 +132,13 @@ void Cl2Draw(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth)
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
-
+if (doDebugg) {
+	LogErrorFF("Cl2Draw 0 to%d:%d", sx, sy);
+}
 	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+if (doDebugg) {
+	LogErrorFF("Cl2Draw 1 to%d:%d size:%d offset%d in buffer %d", sx, sy, nDataSize, (size_t)pRLEBytes - (size_t)pCelBuff, BUFFERXY(sx, sy));
+}
 	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);

@@ -4013,7 +4013,9 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 			LogErrorFFF("patchGoatBDie 2 %d %d p%d", ii, n, needsPatch);
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			// draw the frame to the buffer
-			LogErrorFFF("patchGoatBDie 3");
+			LogErrorFFF("patchGoatBDie 3 y%d", height - 1);
+			extern bool doDebugg;
+			doDebugg = ii == 2 && n == 7;
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 			LogErrorFFF("patchGoatBDie 4");
 			int i = n - 1;
