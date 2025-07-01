@@ -50,7 +50,7 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 					// *pHead = 0;
 					pDst++;
 				}
-				--*pHead);
+				--*pHead;
 				alpha = true;
 			} else {
 				// add opaque pixel
