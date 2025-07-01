@@ -2248,6 +2248,12 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	}
 
+	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
+	if (srcCelEntries <= frameCount) {
+		return cl2Buf; // assume it is already done
+	}
+
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
 
