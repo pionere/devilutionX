@@ -2231,6 +2231,33 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 	return resCl2Buf;
 }
 
+static void LogErrorFFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	const char* paths[2] = { GetBasePath(), GetPrefPath() };
+	FILE* f0 = NULL;
+	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
+		std::string filepath = paths[i];
+		filepath += "logdebug0.txt";
+		f0 = std::fopen(filepath.c_str(), "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
 static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -2247,7 +2274,6 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_WLNLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	}
-
 
 	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
 	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
@@ -7516,33 +7542,6 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 #endif // ASSET_MPL
-
-static void LogErrorFFF(const char* msg, ...)
-{
-	char tmp[256];
-
-	const char* paths[2] = { GetBasePath(), GetPrefPath() };
-	FILE* f0 = NULL;
-	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
-		std::string filepath = paths[i];
-		filepath += "logdebug0.txt";
-		f0 = std::fopen(filepath.c_str(), "a+");
-	}
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
 
 static BYTE* patchFile(int index, size_t *dwLen)
 {
