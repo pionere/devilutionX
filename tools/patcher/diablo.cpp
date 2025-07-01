@@ -138,7 +138,6 @@ int DiabloMain(int argc, char** argv)
 	if (res != EX_OK)
 		return res - 1;
 
-	LogErrorF("main entry: %s", GetBasePath());
 	diablo_init();
 	mainmenu_loop();
 	diablo_deinit();

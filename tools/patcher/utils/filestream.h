@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-std::istream& safeGetline(std::istream& is, std::string& t);
+/*std::istream&*/bool safeGetline(std::istream& is, std::string& t);
 
 #ifdef __cplusplus
 }

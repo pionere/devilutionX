@@ -6,9 +6,9 @@
 #include "patchdat.h"
 #include "selok.h"
 #include "utils/display.h"
-#include "utils/paths.h"
 #include "utils/filestream.h"
 #include "utils/file_util.h"
+#include "utils/paths.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
@@ -2281,7 +2281,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			int nn = n;
 			if (index == FILE_PLR_RHTAT || index == FILE_PLR_RMTAT) {
@@ -2315,14 +2315,14 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 	constexpr bool groupped = true;
 
 	int frameCount = 0, width = 0, height = 0;
-    switch (index) {
+	switch (index) {
 	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
-    case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
 	case FILE_PLR_RMBLM: frameCount = 16; width = 96; height = 96; break;
 	case FILE_PLR_RMBQM: frameCount = 16; width = 96; height = 96; break;
-    }
+	}
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -2357,19 +2357,19 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 
 			int nn = ii * frameCount + n - 1;
-            switch (index) {
-            case FILE_PLR_RLMAT:
+			switch (index) {
+			case FILE_PLR_RLMAT:
 				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
 					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
 					}
 				}
-                break;
+				break;
 			case FILE_PLR_RMHAT:
 				for (int i = 0; i < lengthof(deltaRMHAT); i++) {
 					if (deltaRMHAT[i].dfFrameNum == nn + 1) {
@@ -2377,35 +2377,35 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 					}
 				}
 				break;
-            case FILE_PLR_RMMAT:
+			case FILE_PLR_RMMAT:
 				for (int i = 0; i < lengthof(deltaRMMAT); i++) {
 					if (deltaRMMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMMAT[i].dfx + BUFFER_WIDTH * deltaRMMAT[i].dfy] = deltaRMMAT[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBFM:
+			case FILE_PLR_RMBFM:
 				for (int i = 0; i < lengthof(deltaRMBFM); i++) {
 					if (deltaRMBFM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBFM[i].dfx + BUFFER_WIDTH * deltaRMBFM[i].dfy] = deltaRMBFM[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBLM:
+			case FILE_PLR_RMBLM:
 				for (int i = 0; i < lengthof(deltaRMBLM); i++) {
 					if (deltaRMBLM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBLM[i].dfx + BUFFER_WIDTH * deltaRMBLM[i].dfy] = deltaRMBLM[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBQM:
+			case FILE_PLR_RMBQM:
 				for (int i = 0; i < lengthof(deltaRMBQM); i++) {
 					if (deltaRMBQM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBQM[i].dfx + BUFFER_WIDTH * deltaRMBQM[i].dfy] = deltaRMBQM[i].color;
 					}
 				}
 				break;
-            }
+			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
@@ -7536,14 +7536,6 @@ static void LogErrorFFF(const char* msg, ...)
 	fclose(f0);
 }
 
-static void dumpCELdata(BYTE* celBuf, int idx)
-{
-	DWORD* srcHeaderCursor = (DWORD*)celBuf;
-
-	LogErrorFFF("micro %d: s:%d data:%d..%d (%x..%x)", idx, SwapLE32(srcHeaderCursor[idx + 1]) - SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1])
-		, SwapLE32(srcHeaderCursor[idx]), SwapLE32(srcHeaderCursor[idx + 1]));
-}
-
 static BYTE* patchFile(int index, size_t *dwLen)
 {
 	BYTE* buf = LoadFileInMem(filesToPatch[index], dwLen);
@@ -7722,23 +7714,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 			app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_CATACOMBS_MIN]);
 			return NULL;
 		}
-		/*LogErrorFFF("Cat started len %d", dwLen);
-		dumpCELdata(buf, 36);
-		dumpCELdata(buf, 37);
-		dumpCELdata(buf, 38);*/
 		buf = DRLP_L2_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
-			/*LogErrorFFF("Cat removed before %d len %d", removeMicros.size(), dwLen);
-			dumpCELdata(buf, 36);
-			dumpCELdata(buf, 37);
-			dumpCELdata(buf, 38);*/
 			DRLP_L2_PatchMin(minBuf);
-			//LogErrorFFF("Cat removed after %d", removeMicros.size());
 			buf = buildBlkCel(buf, dwLen);
-			/*dumpCELdata(buf, 31);
-			dumpCELdata(buf, 32);
-			dumpCELdata(buf, 33);
-			LogErrorFFF("Cat removed after len %d", dwLen);*/
 		}
 		mem_free_dbg(minBuf);
 	} break;
@@ -8311,17 +8290,11 @@ restart:
 		// mpqfiles.clear();
 		std::string line;
 		while (safeGetline(input, line)) {
-			int i;
-			for (i = 0; i < NUM_MPQS; i++) {
+			for (int i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					mpqfiles.push_back(line);
 					break;
 				}
-			}
-			if (i >= NUM_MPQS) {
-				LogErrorFFF("patcher_callback %s not found", line.c_str());
-			} else {
-				LogErrorFFF("patcher_callback %s found", line.c_str(), line.empty());
 			}
 		}
 

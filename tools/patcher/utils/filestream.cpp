@@ -27,7 +27,7 @@ static void LogErrorFFFF(const char* msg, ...)
 }
 
 // See https://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
-std::istream& safeGetline(std::istream& is, std::string& t)
+/*std::istream&*/bool safeGetline(std::istream& is, std::string& t)
 {
 	t.clear();
 
@@ -62,7 +62,8 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 		}
 		break;
 	}
-	return is;
+	// return is;
+	return !is.fail();
 }
 
 DEVILUTION_END_NAMESPACE

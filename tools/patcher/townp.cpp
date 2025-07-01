@@ -2305,7 +2305,6 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	extern int debugIndex;
 	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.subtileIndex >= 0 && micro.res_encoding >= 0) {
@@ -2313,9 +2312,6 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 			entries[idx].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
 			entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
-			if (i == 1) {
-				debugIndex = idx;
-			}
 			idx++;
 		}
 		yy += MICRO_HEIGHT;
@@ -2326,7 +2322,7 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 	}
 
 	*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
-debugIndex = -1;
+
 	mem_free_dbg(celBuf);
 
 	return resCelBuf;

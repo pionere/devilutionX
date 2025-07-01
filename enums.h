@@ -4060,9 +4060,7 @@ typedef enum _mainmenu_selections {
 	MAINMENU_SETTINGS,
 	MAINMENU_REPLAY_INTRO,
 	MAINMENU_SHOW_CREDITS,
-#if !defined(__ANDROID__)
 	MAINMENU_EXIT_DIABLO,
-#endif
 	NUM_MAINMENU,
 } _mainmenu_selections;
 

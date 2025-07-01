@@ -4,9 +4,6 @@
  * Implementation of the general level patching functionality.
  */
 #include "all.h"
-#include "utils/paths.h"
-#include "utils/filestream.h"
-#include "utils/file_util.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -33,35 +30,6 @@ static BYTE* WriteSquare(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
 	return pDst;
 }
 
-bool dodebug = false;
-int debugIndex = -1;
-static void LogErrorFFFFF(const char* msg, ...)
-{
-	char tmp[256];
-
-	const char* paths[2] = { GetBasePath(), GetPrefPath() };
-	FILE* f0 = NULL;
-	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
-		std::string filepath = paths[i];
-		filepath += "logdebug0.txt";
-		f0 = std::fopen(filepath.c_str(), "a+");
-	}
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
-
 static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transparentPixel)
 {
 	int x, y;
@@ -70,51 +38,38 @@ static BYTE* WriteTransparentSquare(BYTE* pDst, const BYTE* pSrc, BYTE transpare
 	BYTE* pStart = pDst;
 	BYTE* pHead = pDst;
 	pDst++;
-	int lines[MICRO_HEIGHT] = { 0 };
-	int ll[MICRO_HEIGHT];
 	for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
-		BYTE* llStart = pDst;
 		bool alpha = false;
 		for (x = 0; x < MICRO_WIDTH; x++, pSrc++) {
 			BYTE pixel = *pSrc;
 			if (pixel == transparentPixel) {
 				// add transparent pixel
-				//if ((char)(*pHead) > 0) {
-				if (!alpha/* && x != 0*/) {
+				if ((char)(*pHead) > 0) {
+				//if (!alpha/* && x != 0*/) {
 					pHead = pDst;
-					*pHead = 0;
+					// *pHead = 0;
 					pDst++;
 				}
-				--*((char*)pHead);
+				--*pHead);
 				alpha = true;
 			} else {
 				// add opaque pixel
 				if (alpha) {
 					alpha = false;
 					pHead = pDst;
-					*pHead = 0;
+					// *pHead = 0;
 					pDst++;
 				}
 				*pDst = pixel;
 				pDst++;
 				++*pHead;
 				hasColor = true;
-				lines[y] += 1;
 			}
 		}
-		ll[y] = (size_t)pDst - (size_t)llStart;
 		pSrc -= BUFFER_WIDTH + MICRO_WIDTH;
 		pHead = pDst;
 		pDst++;
 	}
-if (dodebug) {
-	LogErrorFFFFF("micro data from %ul..%ul len %ul size %d)", (size_t)pStart, (size_t)pHead, (size_t)pHead - (size_t)pStart, sizeof(size_t));
-	int total = 0;
-	for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
-		total += ll[y];
-		LogErrorFFFFF("line %d: %d len %d -> %d", y, lines[y], ll[y], total);
-	}
-}
 	// if (!hasColor) {
 	//     qDebug() << "Empty transparent frame"; -- TODO: log empty frame?
 	// }
@@ -359,7 +314,6 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 		}
 		if (next == -1)
 			break;
-//dodebug = debugIndex == next;
 		// copy entries till the next frame
 		int midEntries = entries[next].frameRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 		if (midEntries < 0) {
