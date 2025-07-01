@@ -2242,7 +2242,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_RHTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_RHUHT: frameCount =  8 - 1; width =  96; height =  96; break;
 	case FILE_PLR_RHUQM: frameCount = 17 - 1; width =  96; height =  96; break;
-	case FILE_PLR_RMTAT: frameCount = 17 - 1; width = 128; height = 128; break;
+	case FILE_PLR_RMTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_WHMAT: frameCount = 17 - 1; width = 128; height =  96; break;
 	case FILE_PLR_WLNLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
