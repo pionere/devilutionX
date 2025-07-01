@@ -8351,7 +8351,7 @@ restart:
 		int i = hashCount;
 		{
 			size_t dwLen;
-			LogErrorFFF("patchFile %d: %s", index, filesToPatch[i]);
+			LogErrorFFF("patchFile %d: %s", i, filesToPatch[i]);
 			BYTE* buf = patchFile(i, &dwLen);
 			if (buf == NULL) {
 				return RETURN_ERROR;
