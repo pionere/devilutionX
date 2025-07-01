@@ -256,7 +256,9 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	moveLimitedUpperMicroPixels(2, 1, 18, 28, TRANS_COLOR, DRAW_HEIGHT);
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -936,7 +938,9 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	moveLimitedMicroPixels(209, 155, 17, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -1228,7 +1232,9 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 	}
 
 	// create the new CEL file
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[lengthof(micros)];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -1574,7 +1580,9 @@ static BYTE* patchTownDoorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 
 	// create the new CEL file
 	constexpr int newEntries = lengthof(micros);
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -1995,7 +2003,9 @@ blkmcr 439[7]
 
 	// create the new CEL file
 	constexpr int newEntries = lengthof(micros);
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
@@ -2285,7 +2295,9 @@ static BYTE* patchTownChopCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, s
 
 	// create the new CEL file
 	constexpr int newEntries = lengthof(micros);
-	BYTE* resCelBuf = DiabloAllocPtr(*celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
 
 	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
