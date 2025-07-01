@@ -442,8 +442,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		for (unsigned i = 0; i < numEntries; i++) {
 			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
-			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+			memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 			dstDataCursor += len;
 			srcHeaderCursor++;
 		}
@@ -456,8 +456,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 	for (unsigned i = 0; i < numEntries; i++) {
 		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
-		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+		memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 		dstDataCursor += len;
 		srcHeaderCursor++;
 	}
