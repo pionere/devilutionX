@@ -90,10 +90,8 @@ void mainmenu_loop()
 		case MAINMENU_SHOW_CREDITS:
 			UiCreditsDialog();
 			continue;
-#if !defined(__ANDROID__)
 		case MAINMENU_EXIT_DIABLO:
 			break;
-#endif
 		default:
 			ASSUME_UNREACHABLE
 			break;
