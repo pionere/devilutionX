@@ -6519,7 +6519,7 @@ BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = 2 * *sCelLen;
+	size_t maxCelSize = (2 * *sCelLen) + (resCelEntries - srcCelEntries) * FRAME_HEIGHT * FRAME_WIDTH;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
