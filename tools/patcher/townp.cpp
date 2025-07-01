@@ -256,14 +256,15 @@ static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	moveLimitedUpperMicroPixels(2, 1, 18, 28, TRANS_COLOR, DRAW_HEIGHT);
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		// if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
@@ -938,14 +939,15 @@ static BYTE* patchTownCathedralCel(const BYTE* minBuf, size_t minLen, BYTE* celB
 	moveLimitedMicroPixels(209, 155, 17, MICRO_WIDTH, TRANS_COLOR, DRAW_HEIGHT);
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
@@ -1232,14 +1234,15 @@ static BYTE* patchTownFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, 
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
