@@ -44,7 +44,7 @@ inline T clip(T v, T amin, T amax)
 // initiation time of last simulated left or right click (zero if no click)
 static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
 // pointer jumps to finger
-static bool direct_touch = true;
+static const bool direct_touch = true;
 
 struct Touch {
 	SDL_FingerID id; // -1: not touching
@@ -116,12 +116,6 @@ void InitTouch()
 #ifdef __vita__
 static void preprocess_back_finger_down(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
-
-	if (port != 1)
-		return;
-
 	event->type        = SDL_CONTROLLERAXISMOTION;
 	event->caxis.value = 32767;
 	event->caxis.which = 0;
@@ -130,12 +124,6 @@ static void preprocess_back_finger_down(SDL_Event* event)
 
 static void preprocess_back_finger_up(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
-
-	if (port != 1)
-		return;
-
 	event->type        = SDL_CONTROLLERAXISMOTION;
 	event->caxis.value = 0;
 	event->caxis.which = 0;
@@ -150,56 +138,54 @@ static void TouchToLogical(SDL_Event* event, int& x, int& y)
 	dvl::OutputToLogical(&x, &y);
 }
 
-static void PreprocessFingerDown(SDL_Event* event)
+static void preprocess_front_finger_down(SDL_Event* event)
 {
 	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
+	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
-	SDL_FingerID id = event->tfinger.fingerId;
+	const SDL_FingerID id = event->tfinger.fingerId;
 
-	int x = MousePos.x;
-	int y = MousePos.y;
-
-	if (direct_touch) {
-		TouchToLogical(event, x, y);
-	}
-
-	// make sure each finger is not reported down multiple times
-	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-		if (finger[port][i].id != id) {
-			continue;
-		}
-		finger[port][i].id = NO_TOUCH;
-	}
-
-	// we need the timestamps to decide later if the user performed a short tap (click)
-	// or a long tap (drag)
-	// we also need the last coordinates for each finger to keep track of dragging
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
-			continue;
+			// make sure each finger is not reported down multiple times
+			if (finger[port][i].id != id) {
+				continue;
+			}
 		}
 		finger[port][i].id             = id;
+		// we need the timestamps to decide later if the user performed a short tap (click)
+		// or a long tap (drag)
 		finger[port][i].time_last_down = event->tfinger.timestamp;
+		// we also need the last coordinates for each finger to keep track of dragging
 		finger[port][i].last_down_x    = event->tfinger.x;
 		finger[port][i].last_down_y    = event->tfinger.y;
+		int x = MousePos.x;
+		int y = MousePos.y;
+
+		if (direct_touch) {
+			TouchToLogical(event, x, y);
+		}
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
 		break;
 	}
 }
 
-static void PreprocessFingerUp(SDL_Event* event)
+static void preprocess_front_finger_up(SDL_Event* event)
 {
 	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
+	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
-	SDL_FingerID id = event->tfinger.fingerId;
+	const SDL_FingerID id = event->tfinger.fingerId;
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
+	int fingerIdx = NO_TOUCH;
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
+			if (finger[port][i].id == id) {
+				fingerIdx = i;
+			}
 			numFingersDown++;
 		}
 	}
@@ -207,28 +193,20 @@ static void PreprocessFingerUp(SDL_Event* event)
 	int x = MousePos.x;
 	int y = MousePos.y;
 
-	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-		if (finger[port][i].id != id) {
-			continue;
-		}
-
-		finger[port][i].id = NO_TOUCH;
+	if (fingerIdx != NO_TOUCH) {
+		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
-			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][i].time_last_down + MAX_TAP_TIME)) {
-				continue;
+			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][fingerIdx].time_last_down + MAX_TAP_TIME)) {
+				return; // continue;
 			}
 
 			// short (<MAX_TAP_TIME ms) tap is interpreted as right/left mouse click depending on # fingers already down
 			// but only if the finger hasn't moved since it was pressed down by more than MAX_TAP_MOTION_DISTANCE pixels
-			float xrel = ((event->tfinger.x * dvl::GetOutputSurface()->w) - (finger[port][i].last_down_x * dvl::GetOutputSurface()->w));
-			float yrel = ((event->tfinger.y * dvl::GetOutputSurface()->h) - (finger[port][i].last_down_y * dvl::GetOutputSurface()->h));
+			float xrel = ((event->tfinger.x * dvl::GetOutputSurface()->w) - (finger[port][fingerIdx].last_down_x * dvl::GetOutputSurface()->w));
+			float yrel = ((event->tfinger.y * dvl::GetOutputSurface()->h) - (finger[port][fingerIdx].last_down_y * dvl::GetOutputSurface()->h));
 			float maxRSquared = (float)(MAX_TAP_MOTION_DISTANCE * MAX_TAP_MOTION_DISTANCE);
 			if ((xrel * xrel + yrel * yrel) >= maxRSquared) {
-				continue;
-			}
-
-			if (numFingersDown != 2 && numFingersDown != 1) {
-				continue;
+				return; // continue;
 			}
 
 			Uint8 simulatedButton = 0;
@@ -243,33 +221,39 @@ static void PreprocessFingerUp(SDL_Event* event)
 				if (direct_touch) {
 					TouchToLogical(event, x, y);
 				}
+			} else {
+				return; // continue;
 			}
 			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, x, y);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
 			Uint8 simulatedButton = 0;
-			if (multi_finger_dragging[port] == DRAG_THREE_FINGER) {
-				simulatedButton = SDL_BUTTON_RIGHT;
-			} else {
+			if (multi_finger_dragging[port] == DRAG_TWO_FINGER) {
 				simulatedButton = SDL_BUTTON_LEFT;
+			} else /*if (multi_finger_dragging[port] == DRAG_THREE_FINGER) */{
+				simulatedButton = SDL_BUTTON_RIGHT;
 			}
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, x, y);
 			multi_finger_dragging[port] = DRAG_NONE;
+			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, x, y);
 		}
 	}
 }
 
-static void PreprocessFingerMotion(SDL_Event* event)
+static void preprocess_front_finger_motion(SDL_Event* event)
 {
 	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
+	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
-	SDL_FingerID id = event->tfinger.fingerId;
+	const SDL_FingerID id = event->tfinger.fingerId;
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
+	int fingerIdx = NO_TOUCH;
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
+			if (finger[port][i].id == id) {
+				fingerIdx = i;
+			}
 			numFingersDown++;
 		}
 	}
@@ -295,11 +279,9 @@ static void PreprocessFingerMotion(SDL_Event* event)
 		yrel = y - MousePos.y;
 
 		// update the current finger's coordinates so we can track it later
-		for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-			if (finger[port][i].id != id)
-				continue;
-			finger[port][i].last_x = x;
-			finger[port][i].last_y = y;
+		if (fingerIdx != NO_TOUCH) {
+			finger[port][fingerIdx].last_x = x;
+			finger[port][fingerIdx].last_y = y;
 		}
 
 		// If we are starting a multi-finger drag, start holding down the mouse button
@@ -318,11 +300,10 @@ static void PreprocessFingerMotion(SDL_Event* event)
 				int mouseDownX = MousePos.x;
 				int mouseDownY = MousePos.y;
 				if (direct_touch) {
-					for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-						if (finger[port][i].id == id) {
-							Uint32 earliestTime = finger[port][i].time_last_down;
+					if (fingerIdx != NO_TOUCH) {
+							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-								if (finger[port][j].id != NO_TOUCH && (i != j)) {
+								if (finger[port][j].id != NO_TOUCH && (fingerIdx != j)) {
 									if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
 										mouseDownX = finger[port][j].last_x;
 										mouseDownY = finger[port][j].last_y;
@@ -330,8 +311,6 @@ static void PreprocessFingerMotion(SDL_Event* event)
 									}
 								}
 							}
-							break;
-						}
 					}
 				}
 
@@ -359,15 +338,12 @@ static void PreprocessFingerMotion(SDL_Event* event)
 		// otherwise it will not affect mouse motion
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
-			for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-				if (finger[port][i].id != id) {
-					continue;
-				}
+			if (fingerIdx != NO_TOUCH) {
 				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-					if (finger[port][j].id == NO_TOUCH || (j == i)) {
+					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
 						continue;
 					}
-					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][i].time_last_down)) {
+					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][fingerIdx].time_last_down)) {
 						updatePointer = false;
 					}
 				}
@@ -388,7 +364,8 @@ static void PreprocessEvents(SDL_Event* event)
 	// pointer motion: single finger drag
 	// left button drag and drop: dual finger drag
 	// right button drag and drop: triple finger drag
-	if (event->type != SDL_FINGERDOWN && event->type != SDL_FINGERUP && event->type != SDL_FINGERMOTION) {
+	Uint32 type = event->type;
+	if (type != SDL_FINGERDOWN && type != SDL_FINGERUP && type != SDL_FINGERMOTION) {
 		return;
 	}
 
@@ -396,8 +373,8 @@ static void PreprocessEvents(SDL_Event* event)
 	SDL_TouchID port = event->tfinger.touchId;
 	if (port != 0) {
 #ifdef __vita__
-		if (back_touch) {
-			switch (event->type) {
+		if (port == 1 && back_touch) {
+			switch (type) {
 			case SDL_FINGERDOWN:
 				preprocess_back_finger_down(event);
 				break;
@@ -410,15 +387,15 @@ static void PreprocessEvents(SDL_Event* event)
 		return;
 	}
 
-	switch (event->type) {
+	switch (type) {
 	case SDL_FINGERDOWN:
-		PreprocessFingerDown(event);
+		preprocess_front_finger_down(event);
 		break;
 	case SDL_FINGERUP:
-		PreprocessFingerUp(event);
+		preprocess_front_finger_up(event);
 		break;
 	case SDL_FINGERMOTION:
-		PreprocessFingerMotion(event);
+		preprocess_front_finger_motion(event);
 		break;
 	}
 }
