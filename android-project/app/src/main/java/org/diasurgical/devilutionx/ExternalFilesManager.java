@@ -2,12 +2,11 @@ package org.diasurgical.devilutionx;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 
 import java.io.File;
 
 public class ExternalFilesManager {
-	
+
 	private static File chooseExternalFilesDirectory(Context context) {
 		if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
 			File[] externalDirs = context.getExternalFilesDirs(null);

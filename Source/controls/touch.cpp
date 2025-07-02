@@ -3,6 +3,7 @@
 #include "utils/display.h"
 #include "../gameui.h"
 #include "../diablo.h"
+#include "../plrmsg.h"
 #include <math.h>
 
 #ifdef __vita__
@@ -16,6 +17,30 @@ static int visible_width;
 static int visible_height;
 static int x_borderwidth;
 static int y_borderwidth;
+
+static void LogErrorFFFF(const char* msg, ...)
+{
+	char tmp[256];
+
+	FILE* f0 = NULL;
+	while (f0 == NULL) {
+		f0 = fopen("/storage/0403-0201/Android/data/org.diasurgical.devilx/files/logdebug0.txt", "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
 
 template <typename T>
 inline T clip(T v, T amin, T amax)
@@ -167,6 +192,8 @@ static void preprocess_front_finger_down(SDL_Event* event)
 		}
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
+	LogErrorFFFF("down: %d:%d idx: %d (%d)", x, y, i, id);
+	EventPlrMsg("down: %d:%d idx: %d (%d)", x, y, i, id);
 		break;
 	}
 }
@@ -193,6 +220,8 @@ static void preprocess_front_finger_up(SDL_Event* event)
 	int x = MousePos.x;
 	int y = MousePos.y;
 
+	LogErrorFFFF("up: %d:%d idx: %d (%d) fd %d", x, y, fingerIdx, fingerIdx != NO_TOUCH ? finger[port][fingerIdx].id : 0, numFingersDown);
+	EventPlrMsg("up: %d:%d idx: %d (%d) fd %d", x, y, fingerIdx, fingerIdx != NO_TOUCH ? finger[port][fingerIdx].id : 0, numFingersDown);
 	if (fingerIdx != NO_TOUCH) {
 		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
