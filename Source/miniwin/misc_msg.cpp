@@ -18,9 +18,6 @@
 #include <switch.h>
 #endif
 
-#include <set>
-#include "../plrmsg.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 /** The current input handler function */
@@ -805,31 +802,6 @@ static bool FalseAvail(const char* name, int value)
 }
 #endif
 
-static std::set<Uint32> gotEvents;
-static void LogErrorFFFF(const char* msg, ...)
-{
-	char tmp[256];
-
-	FILE* f0 = NULL;
-	while (f0 == NULL) {
-		f0 = fopen("/storage/0403-0201/Android/data/org.diasurgical.devilx/files/logdebug0.txt", "a+");
-	}
-
-	va_list va;
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
-
 bool PeekMessage(Dvl_Event &e)
 {
 #ifdef __SWITCH__
@@ -848,15 +820,6 @@ bool PeekMessage(Dvl_Event &e)
 	Uint32 type = e.type;
 	e.type = DVL_WM_NONE;
 
-	if (!gotEvents.contains(type)) {
-		gotEvents.insert(type);
-		LogErrorFFFF("new event type: %d", type);
-		EventPlrMsg("new event type: %d", type);
-#if HAS_TOUCHPAD
-#else
-		LogErrorFFFF("notouchpad");
-#endif
-	}
 #ifdef USE_SDL1
 	if (type == SDL_MOUSEMOTION) {
 		OutputToLogical(&e.motion.x, &e.motion.y);
