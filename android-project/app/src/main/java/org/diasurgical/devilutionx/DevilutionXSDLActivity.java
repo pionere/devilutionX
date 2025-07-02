@@ -54,7 +54,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		System.exit(0);
+		// System.exit(0);
 	}
 
 	private File chooseExternalFilesDirectory() {
