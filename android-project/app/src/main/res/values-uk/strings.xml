@@ -1,5 +1,6 @@
 <resources>
 	<string name="app_name" translatable="false">DevilutionX</string>
+	<string name="patcher_name" translatable="false">DevilX Patcher</string>
 	<!-- Strings used for fragments for navigation -->
 
 	<!--string name="guide_full_installation">Для того щоб зіграти в повну версію, Вам треба помістити файл з оригінальної гри DIABDAT.MPQ в папку Android/data/org.diasurgical.devilutionx/files.<br/>\n<br/>\nЯкщо у вас немає повної версії, то її можна купити в <a href="https://www.gog.com/game/diablo">GOG.com.</a></string-->

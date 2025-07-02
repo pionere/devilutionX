@@ -73,6 +73,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <!-- Let Android know that we can handle some USB devices and should receive this event -->
             <intent-filter>
@@ -86,6 +87,28 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
             -->
+        </activity>
+
+        <activity android:name="org.diasurgical.devilutionx.PatcherActivity"
+            android:label="@string/patcher_name"
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleInstance"
+            android:configChanges="layoutDirection|locale|orientation|uiMode|screenLayout|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation|colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|mcc|mnc|touchscreen"
+            android:preferMinimalPostProcessing="true"
+            android:screenOrientation="landscape"
+            android:maxAspectRatio="2.0"
+            android:exported="true"
+            >
+            <!--android:autoRemoveFromRecents="true"-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <!-- Let Android know that we can handle some USB devices and should receive this event -->
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
         </activity>
     </application>
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name" translatable="false">DevilX</string>
+	<string name="patcher_name" translatable="false">DevilX Patcher</string>
 	<!-- Strings used for fragments for navigation -->
 
 	<!--string name="guide_full_installation">For at spille den fulde version skal du placere DIABDAT.MPQ fra det originale spil i Android/data/org.diasurgical.devilutionx/files<br/>\n<br/>\nHvis du ikke har det originale spil, kan du købe Diablo på <a href="https://www.gog.com/game/diablo">GOG.com.</a></string-->

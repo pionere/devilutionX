@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name" translatable="false">DevilX</string>
+	<string name="patcher_name" translatable="false">DevilX Patcher</string>
 	<!-- Strings used for fragments for navigation -->
 
 	<!--string name="guide_full_installation">Pour jouer à la version complete, vous devez placer le fichier DIABDAT.MPQ du jeu original dans le dossier Android/data/org.diasurgical.devilutionx/files.<br />\n<br/>\nSi vous n\'avez pas le jeu original, vous pouvez l\'acheter chez <a href="https://www.gog.com/game/diablo">GOG.com.</a></string-->
