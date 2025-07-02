@@ -1,6 +1,7 @@
 #include "touch.h"
 #if HAS_TOUCHPAD
 #include "utils/display.h"
+#include "utils/sdl2_backports.h"
 #include "../gameui.h"
 #include "../diablo.h"
 #include "../plrmsg.h"
@@ -132,10 +133,10 @@ void InitTouch()
 	LogErrorFFFF("InitTouch %dx%d s%dx%d", current.w, current.h, SCREEN_WIDTH, SCREEN_HEIGHT);
 	visible_height = current.h;
 	visible_width = (current.h * SCREEN_WIDTH) / SCREEN_HEIGHT;
+	// SCALE_AREA(SCREEN_WIDTH, SCREEN_HEIGHT, current.w, current.h, visible_width, visible_height);
 	x_borderwidth = (current.w - visible_width) / 2;
 	y_borderwidth = (current.h - visible_height) / 2;
 	LogErrorFFFF("InitTouch v%dx%d b%dx%d", visible_width, visible_height, x_borderwidth, y_borderwidth);
-	// SCALE_AREA
 #ifdef __vita__
 	back_touch = dvl::getIniBool("Controller", "enable_second_touchscreen", true);
 #endif
@@ -161,9 +162,11 @@ static void preprocess_back_finger_up(SDL_Event* event)
 
 static void TouchToLogical(const SDL_Event* event, int& x, int& y)
 {
-	x = (int)(event->tfinger.x * visible_width + x_borderwidth);
+	/*x = (int)(event->tfinger.x * visible_width + x_borderwidth);
 	y = (int)(event->tfinger.y * visible_height + y_borderwidth);
-	dvl::OutputToLogical(&x, &y);
+	dvl::OutputToLogical(&x, &y);*/
+	x = event->tfinger.x * SCREEN_WIDTH;
+	y = event->tfinger.y * SCREEN_HEIGHT;
 }
 
 static void preprocess_front_finger_down(SDL_Event* event)
@@ -413,18 +416,23 @@ static void PreprocessEvents(SDL_Event* event)
 		LogErrorFFFF(" (h%d bw%d)", visible_height, y_borderwidth);
 		EventPlrMsg("touch event: %s on %d at %d:%d (%f:%f w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
 	}
+	SDL_TouchDeviceType devType;
 #if SDL_VERSION_ATLEAST(2, 0, 10)
-	if (SDL_GetTouchDeviceType(port) != SDL_TOUCH_DEVICE_DIRECT) {
+	devType = SDL_GetTouchDeviceType(port);
 #else
 #ifdef __vita__
-	// front (0) or back (1) panel
-	if (port != 0) {
+	devType = port == 0 ? SDL_TOUCH_DEVICE_DIRECT : SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE;
 #else
-	if (false) {
+	devType = SDL_TOUCH_DEVICE_DIRECT;
 #endif
-#endif // SDL >= 2.0.10
+#endif
+	if (devType != SDL_TOUCH_DEVICE_DIRECT) {
 #ifdef __vita__
-		if (/*port == 1 && */back_touch) {
+		if (!back_touch) {
+			return;
+		}
+#endif
+		if (devType == SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE) {
 			switch (type) {
 			case SDL_FINGERDOWN:
 				preprocess_back_finger_down(event);
@@ -434,7 +442,6 @@ static void PreprocessEvents(SDL_Event* event)
 				break;
 			}
 		}
-#endif
 		return;
 	}
 
