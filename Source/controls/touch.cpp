@@ -184,11 +184,12 @@ static void preprocess_front_finger_down(SDL_Event* event)
 		// we also need the last coordinates for each finger to keep track of dragging
 		finger[port][i].last_down_x    = event->tfinger.x;
 		finger[port][i].last_down_y    = event->tfinger.y;
-		int x = MousePos.x;
-		int y = MousePos.y;
-
+		int x, y;
 		if (direct_touch) {
 			TouchToLogical(event, x, y);
+		} else {
+			x = MousePos.x;
+			y = MousePos.y;
 		}
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
@@ -400,8 +401,12 @@ static void PreprocessEvents(SDL_Event* event)
 	}
 
 	SDL_TouchID port = event->tfinger.touchId;
-	//LogErrorFFFF("touch event: %d on %d", type, port);
-	//EventPlrMsg("touch event: %d on %d", type, port);
+	{
+		int x, y;
+		TouchToLogical(event, x, y);
+		LogErrorFFFF("touch event: %s on %d at %d:%d (%d:%d w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
+		EventPlrMsg("touch event: %s on %d at %d:%d (%d:%d w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
+	}
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	if (SDL_GetTouchDeviceType(port) != SDL_TOUCH_DEVICE_DIRECT) {
 #else
