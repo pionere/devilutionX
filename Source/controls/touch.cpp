@@ -400,6 +400,8 @@ static void PreprocessEvents(SDL_Event* event)
 
 	// front (0) or back (1) panel
 	SDL_TouchID port = event->tfinger.touchId;
+	LogErrorFFFF("touch event: %d on %d", type, port);
+	EventPlrMsg("touch event: %d on %d", type, port);
 	if (port != 0) {
 #ifdef __vita__
 		if (port == 1 && back_touch) {

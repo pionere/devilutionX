@@ -852,6 +852,10 @@ bool PeekMessage(Dvl_Event &e)
 		gotEvents.insert(type);
 		LogErrorFFFF("new event type: %d", type);
 		EventPlrMsg("new event type: %d", type);
+#if HAS_TOUCHPAD
+#else
+		LogErrorFFFF("notouchpad");
+#endif
 	}
 #ifdef USE_SDL1
 	if (type == SDL_MOUSEMOTION) {
