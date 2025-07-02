@@ -28,11 +28,11 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// windowSoftInputMode=adjustPan stopped working
 		// for fullscreen apps after Android 7.0
-		if (Build.VERSION.SDK_INT >= 25)
+		if (Build.VERSION.SDK_INT >= 25 /* Android 7.1 (N_MR1) */ )
 			trackVisibleSpace();
 
 		// Force app to overlap with the display cutout
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+		if (Build.VERSION.SDK_INT >= 28 /* Android 9.0 (P) */ )
 			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
 		externalDir = chooseExternalFilesDir();
@@ -58,7 +58,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 	}
 
 	private File chooseExternalFilesDirectory() {
-		if (Build.VERSION.SDK_INT >= 19) {
+		if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
 			File[] externalDirs = getExternalFilesDirs(null);
 			if (externalDirs != null) {
 				for (File dir : externalDirs) {
