@@ -113,7 +113,7 @@ static void gamemenu_exit_game(bool bActivate)
 	gbRunGameResult = false;
 }
 
-// f4fd271ef0f68e85dc84c0b907e9141bd9ffea30  * hide 'exit game' options on android/*static void gamemenu_load_game(bool bActivate)
+/*static void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();

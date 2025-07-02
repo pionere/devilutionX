@@ -156,7 +156,7 @@ static void preprocess_back_finger_up(SDL_Event* event)
 }
 #endif
 
-static void TouchToLogical(SDL_Event* event, int& x, int& y)
+static void TouchToLogical(const SDL_Event* event, int& x, int& y)
 {
 	x = (int)(event->tfinger.x * visible_width + x_borderwidth);
 	y = (int)(event->tfinger.y * visible_height + y_borderwidth);
@@ -342,7 +342,8 @@ static void preprocess_front_finger_motion(SDL_Event* event)
 							}
 					}
 				}
-
+	LogErrorFFFF("sim down: %d:%d lr: %d", mouseDownX, mouseDownY, numFingersDownlong == 2);
+	EventPlrMsg("sim down: %d:%d lr: %d", mouseDownX, mouseDownY, numFingersDownlong == 2);
 				Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
 					simulatedButton = SDL_BUTTON_LEFT;
@@ -398,13 +399,19 @@ static void PreprocessEvents(SDL_Event* event)
 		return;
 	}
 
-	// front (0) or back (1) panel
 	SDL_TouchID port = event->tfinger.touchId;
 	//LogErrorFFFF("touch event: %d on %d", type, port);
 	//EventPlrMsg("touch event: %d on %d", type, port);
-
+#if SDL_VERSION_ATLEAST(2, 0, 10)
 	if (SDL_GetTouchDeviceType(port) != SDL_TOUCH_DEVICE_DIRECT) {
-	// if (port != 0) {
+#else
+#ifdef __vita__
+	// front (0) or back (1) panel
+	if (port != 0) {
+#else
+	if (false) {
+#endif
+#endif // SDL >= 2.0.10
 #ifdef __vita__
 		if (/*port == 1 && */back_touch) {
 			switch (type) {
@@ -451,7 +458,8 @@ void finish_simulated_mouse_clicks()
 
 			if (!SDL_TICKS_PASSED(SDL_GetTicks(), simulated_click_start_time[port][i] + SIMULATED_CLICK_DURATION))
 				continue;
-
+	LogErrorFFFF("sim up: %d:%d lr: %d", mouse_x, mouse_y, i);
+	EventPlrMsg("sim up: %d:%d lr: %d", mouse_x, mouse_y, i);
 			int simulatedButton;
 			if (i == 0) {
 				simulatedButton = SDL_BUTTON_LEFT;
