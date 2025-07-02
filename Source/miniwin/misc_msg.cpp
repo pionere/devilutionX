@@ -868,8 +868,6 @@ bool PeekMessage(Dvl_Event &e)
 		break;
 	case SDL_MOUSEBUTTONDOWN: {
 		int button = e.button.button;
-	LogErrorFFFF("mouse down: %d", button);
-	EventPlrMsg("mouse down: %d", button);
 		if (button == SDL_BUTTON_LEFT) {
 			e.type = DVL_WM_LBUTTONDOWN;
 			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
