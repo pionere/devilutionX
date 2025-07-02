@@ -129,18 +129,12 @@ void InitTouch()
 
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
-#if SDL_VERSION_ATLEAST(2, 0, 9)
-	SDL_DisplayOrientation orientation = SDL_GetDisplayOrientation(0);
-	if (orientation == SDL_ORIENTATION_LANDSCAPE || orientation == SDL_ORIENTATION_LANDSCAPE_FLIPPED) {
-		// std::swap(current.w, current.h);
-	}
-	LogErrorFFFF("InitTouch %dx%d s%dx%d ori%d", current.w, current.h, SCREEN_WIDTH, SCREEN_HEIGHT, orientation);
-#endif
+	LogErrorFFFF("InitTouch %dx%d s%dx%d", current.w, current.h, SCREEN_WIDTH, SCREEN_HEIGHT);
 	visible_height = current.h;
 	visible_width = (current.h * SCREEN_WIDTH) / SCREEN_HEIGHT;
 	x_borderwidth = (current.w - visible_width) / 2;
 	y_borderwidth = (current.h - visible_height) / 2;
-	LogErrorFFFF("InitTouch %dx%d s%dx%d ori%d", visible_width, visible_height, x_borderwidth, y_borderwidth);
+	LogErrorFFFF("InitTouch v%dx%d b%dx%d", visible_width, visible_height, x_borderwidth, y_borderwidth);
 	// SCALE_AREA
 #ifdef __vita__
 	back_touch = dvl::getIniBool("Controller", "enable_second_touchscreen", true);
@@ -413,7 +407,10 @@ static void PreprocessEvents(SDL_Event* event)
 	{
 		int x, y;
 		TouchToLogical(event, x, y);
-		LogErrorFFFF("touch event: %s on %d at %d:%d (%d:%d w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
+		LogErrorFFFF("touch event: %s on %d at %d:%d", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y);
+		LogErrorFFFF(" (%d:%d)", event->tfinger.x, event->tfinger.y);
+		LogErrorFFFF(" (w%d lw%d)", visible_width, x_borderwidth);
+		LogErrorFFFF(" (h%d bw%d)", visible_height, y_borderwidth);
 		EventPlrMsg("touch event: %s on %d at %d:%d (%d:%d w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
 	}
 #if SDL_VERSION_ATLEAST(2, 0, 10)
