@@ -129,6 +129,9 @@ void InitTouch()
 
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
+	if (current.w < current.h) {
+		std::swap(current.w, current.h);
+	}
 	visible_height = current.h;
 	visible_width = (current.h * SCREEN_WIDTH) / SCREEN_HEIGHT;
 	x_borderwidth = (current.w - visible_width) / 2;
