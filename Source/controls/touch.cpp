@@ -129,9 +129,13 @@ void InitTouch()
 
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
-	if (current.w < current.h) {
+#if SDL_VERSION_ATLEAST(2, 0, 9)
+	SDL_DisplayOrientation orientation = SDL_GetDisplayOrientation(0);
+	if (orientation == SDL_ORIENTATION_LANDSCAPE || orientation == SDL_ORIENTATION_LANDSCAPE_FLIPPED) {
 		std::swap(current.w, current.h);
 	}
+	LogErrorFFFF("InitTouch %dx%d s%dx%d ori%d", current.w, current.h, SCREEN_WIDTH, SCREEN_HEIGHT, orientation);
+#endif
 	visible_height = current.h;
 	visible_width = (current.h * SCREEN_WIDTH) / SCREEN_HEIGHT;
 	x_borderwidth = (current.w - visible_width) / 2;
