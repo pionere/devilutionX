@@ -35,7 +35,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		if (Build.VERSION.SDK_INT >= 28 /* Android 9.0 (P) */ )
 			getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
 
-		externalDir = chooseExternalFilesDir();
+		externalDir = ExternalFilesManager.chooseExternalFilesDir(this);
 
 		super.onCreate(savedInstanceState);
 	}
@@ -55,42 +55,6 @@ public class DevilutionXSDLActivity extends SDLActivity {
 		super.onDestroy();
 
 		// System.exit(0);
-	}
-
-	private File chooseExternalFilesDirectory() {
-		if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
-			File[] externalDirs = getExternalFilesDirs(null);
-			if (externalDirs != null) {
-				for (File dir : externalDirs) {
-					if (dir == null) {
-						continue;
-					}
-					File[] iniFiles = dir.listFiles((dir1, name) -> name == "diablo.ini");
-					if (iniFiles != null && iniFiles.length > 0) {
-						return dir;
-					}
-				}
-
-				for (File dir : externalDirs) {
-					if (dir == null) {
-						continue;
-					}
-					File[] anyFiles = dir.listFiles();
-					if (anyFiles != null && anyFiles.length > 0) {
-						return dir;
-					}
-				}
-			}
-		}
-
-		// Fallback to the primary external storage directory
-		return getExternalFilesDir(null);
-	}
-
-	private String chooseExternalFilesDir() {
-		File dir = chooseExternalFilesDirectory();
-
-		return dir.getAbsolutePath() + "/";
 	}
 
 	private void trackVisibleSpace() {
