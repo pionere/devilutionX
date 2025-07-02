@@ -182,7 +182,7 @@ void SpawnWindow()
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	SDL_SetHint(SDL_HINT_IME_INTERNAL_EDITING, "1");
 #endif
-#if SDL_VERSION_ATLEAST(2, 0, 6) && defined(__vita__)
+#if SDL_VERSION_ATLEAST(2, 0, 6)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
 #if SDL_VERSION_ATLEAST(2, 0, 10)
