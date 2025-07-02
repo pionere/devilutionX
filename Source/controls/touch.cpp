@@ -196,8 +196,8 @@ static void preprocess_front_finger_down(SDL_Event* event)
 		}
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
-	LogErrorFFFF("down: %d:%d idx: %d (%d)", x, y, i, id);
-	EventPlrMsg("down: %d:%d idx: %d (%d)", x, y, i, id);
+	LogErrorFFFF("down: %d:%d idx: %d (%d) (%f:%f)", x, y, i, id, event->tfinger.x, event->tfinger.y);
+	EventPlrMsg("down: %d:%d idx: %d (%d) (%f:%f)", x, y, i, id, event->tfinger.x, event->tfinger.y);
 		break;
 	}
 }
@@ -408,10 +408,10 @@ static void PreprocessEvents(SDL_Event* event)
 		int x, y;
 		TouchToLogical(event, x, y);
 		LogErrorFFFF("touch event: %s on %d at %d:%d", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y);
-		LogErrorFFFF(" (%d:%d)", event->tfinger.x, event->tfinger.y);
+		LogErrorFFFF(" (%f:%f)", event->tfinger.x, event->tfinger.y);
 		LogErrorFFFF(" (w%d lw%d)", visible_width, x_borderwidth);
 		LogErrorFFFF(" (h%d bw%d)", visible_height, y_borderwidth);
-		EventPlrMsg("touch event: %s on %d at %d:%d (%d:%d w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
+		EventPlrMsg("touch event: %s on %d at %d:%d (%f:%f w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
 	}
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	if (SDL_GetTouchDeviceType(port) != SDL_TOUCH_DEVICE_DIRECT) {
