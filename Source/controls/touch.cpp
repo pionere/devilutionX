@@ -38,15 +38,17 @@ static void LogErrorFFFF(const char* msg, ...)
 	fclose(f0);
 }
 
+// number of handled 'direct' touch panels/screens
 #define TOUCH_PORT_MAX_NUM   1
+// number of simulated click-types (left or right)
 #define TOUCH_PORT_CLICK_NUM 2
-// finger id setting if finger is not touching the screen
+// finger id setting if finger is not touching the panel/screen
 #define NO_TOUCH (-1)
-// number of fingers to track per panel
+// number of fingers to track per panel/screen
 #define MAX_NUM_FINGERS 3
 // taps longer than this will not result in mouse click events (ms)
 #define MAX_TAP_TIME 250
-// max distance finger motion in Vita screen pixels to be considered a tap
+// max distance finger motion in screen pixels to be considered a tap
 #define MAX_TAP_MOTION_DISTANCE 10
 // duration of a simulated mouse click (ms)
 #define SIMULATED_CLICK_DURATION 50
@@ -294,12 +296,13 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 					if (fingerIdx != NO_TOUCH) {
 							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-								if (finger[port][j].id != NO_TOUCH && (fingerIdx != j)) {
-									if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
-										mouseDownX = finger[port][j].last_x;
-										mouseDownY = finger[port][j].last_y;
-										earliestTime = finger[port][j].time_last_down;
-									}
+								if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
+									continue;
+								}
+								if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
+									mouseDownX = finger[port][j].last_x;
+									mouseDownY = finger[port][j].last_y;
+									earliestTime = finger[port][j].time_last_down;
 								}
 							}
 					}
@@ -330,11 +333,12 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
 			if (fingerIdx != NO_TOUCH) {
+				Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
 						continue;
 					}
-					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][fingerIdx].time_last_down)) {
+					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
 						updatePointer = false;
 					}
 				}
@@ -445,7 +449,7 @@ void finish_simulated_mouse_clicks()
 			SDL_Event ev;
 			SetMouseMotionEvent(&ev, mouse_x, mouse_y, 0, 0); // TODO: xrel/yrel?
 		int res0 = SDL_PushEvent(&ev);
-			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, SDL_RELEASED, simulatedButton, mouse_x, mouse_y);
+			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, mouse_x, mouse_y);
 		int res1 = SDL_PushEvent(&ev);
 		LogErrorFFFF(" res: %d %d", res0, res1);
 		EventPlrMsg(" res: %d %d", res0, res1);
