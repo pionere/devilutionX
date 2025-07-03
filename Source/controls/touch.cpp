@@ -142,7 +142,6 @@ void InitTouch()
 #endif
 }
 
-#ifdef __vita__
 static void preprocess_back_finger_down(SDL_Event* event)
 {
 	event->type        = SDL_CONTROLLERAXISMOTION;
@@ -158,7 +157,6 @@ static void preprocess_back_finger_up(SDL_Event* event)
 	event->caxis.which = 0;
 	event->caxis.axis  = event->tfinger.x <= 0.5 ? SDL_CONTROLLER_AXIS_TRIGGERLEFT : SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
 }
-#endif
 
 static void TouchToLogical(const SDL_Event* event, int& x, int& y)
 {
@@ -389,6 +387,8 @@ static void preprocess_front_finger_motion(SDL_Event* event)
 		if (!updatePointer) {
 			return;
 		}
+LogErrorFFFF("move: %d:%d idx: %d (%d) (%f:%f)", x, y, fingerIdx, id, event->tfinger.x, event->tfinger.y);
+	EventPlrMsg("move: %d:%d idx: %d (%d) (%f:%f)", x, y, fingerIdx, id, event->tfinger.x, event->tfinger.y);
 		SetMouseMotionEvent(event, x, y, xrel, yrel);
 	}
 }
@@ -410,22 +410,10 @@ static void PreprocessEvents(SDL_Event* event)
 	{
 		int x, y;
 		TouchToLogical(event, x, y);
-		LogErrorFFFF("touch event: %s on %d at %d:%d", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y);
-		LogErrorFFFF(" (%f:%f)", event->tfinger.x, event->tfinger.y);
-		LogErrorFFFF(" (w%d lw%d)", visible_width, x_borderwidth);
-		LogErrorFFFF(" (h%d bw%d)", visible_height, y_borderwidth);
+		LogErrorFFFF("touch event: %s on %d at %d:%d (%f:%f w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
 		EventPlrMsg("touch event: %s on %d at %d:%d (%f:%f w%d lw%d h%d bw%d)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y, visible_width, x_borderwidth, visible_height, y_borderwidth);
 	}
-	SDL_TouchDeviceType devType;
-#if SDL_VERSION_ATLEAST(2, 0, 10)
-	devType = SDL_GetTouchDeviceType(port);
-#else
-#ifdef __vita__
-	devType = port == 0 ? SDL_TOUCH_DEVICE_DIRECT : SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE;
-#else
-	devType = SDL_TOUCH_DEVICE_DIRECT;
-#endif
-#endif
+	SDL_TouchDeviceType devType = SDL_GetTouchDeviceType(port);
 	if (devType != SDL_TOUCH_DEVICE_DIRECT) {
 #ifdef __vita__
 		if (!back_touch) {

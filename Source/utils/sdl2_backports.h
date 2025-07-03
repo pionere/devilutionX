@@ -53,5 +53,14 @@ typedef enum
 	SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE, /* trackpad with absolute device coordinates */
 	SDL_TOUCH_DEVICE_INDIRECT_RELATIVE  /* trackpad with screen cursor-relative coordinates */
 } SDL_TouchDeviceType;
+inline SDL_TouchDeviceType SDL_GetTouchDeviceType(SDL_TouchID touchID)
+{
+#ifdef __vita__
+	if (port != 0) {
+		return SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE;
+	}
+#endif
+	return SDL_TOUCH_DEVICE_DIRECT;
+}
 #endif
 #endif // !USE_SDL1
