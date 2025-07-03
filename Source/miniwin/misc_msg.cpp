@@ -895,6 +895,7 @@ bool PeekMessage(Dvl_Event &e)
 	} break;
 	case SDL_MOUSEBUTTONUP: {
 		int button = e.button.button;
+		LogErrorF("evt %d up", button);
 		if (button == SDL_BUTTON_LEFT) {
 			LogErrorF("evt left up");
 			e.type = DVL_WM_LBUTTONUP;

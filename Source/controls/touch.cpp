@@ -431,9 +431,11 @@ void finish_simulated_mouse_clicks()
 			}
 			SDL_Event ev;
 			SetMouseMotionEvent(&ev, mouse_x, mouse_y, 0, 0); // TODO: xrel/yrel?
-			SDL_PushEvent(&ev);
+		int res0 = SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, SDL_RELEASED, simulatedButton, mouse_x, mouse_y);
-			SDL_PushEvent(&ev);
+		int res1 = SDL_PushEvent(&ev);
+		LogErrorFFFF(" res: %d %d", res0, res1);
+		EventPlrMsg(" res: %d %d", res0, res1);
 		}
 	}
 }
