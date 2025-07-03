@@ -666,6 +666,7 @@ static void diablo_hotkey_msg(int actKey)
 static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
+		LogErrorF("ReleaseKey left");
 		if (gmenu_is_active())
 			gmenu_left_mouse(false);
 		if (gabPanbtn[PANBTN_MAINMENU])
@@ -682,6 +683,7 @@ static void ReleaseKey(int vkey)
 	}
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
+		LogErrorF("ReleaseKey action done %d", transKey);
 		gbActionBtnDown &= ~ACTBTN_MASK(transKey);
 	}
 }
@@ -1224,6 +1226,7 @@ void GameWndProc(const Dvl_Event* e)
 		break; //  return;
 	case DVL_WM_LBUTTONDOWN:
 		//GetMousePos(wParam); -- disabled to prevent inconsistent MousePos.x/y vs. CheckCursMove state
+		LogErrorF("presskey left");
 		PressKey(DVL_VK_LBUTTON);
 		break; //  return;
 	case DVL_WM_LBUTTONUP:

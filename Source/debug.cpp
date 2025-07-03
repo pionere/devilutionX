@@ -2187,4 +2187,28 @@ void LogDumpQ()
 
 #endif /* DEV_MODE */
 
+static void LogErrorF(const char* msg, ...)
+{
+	char tmp[256];
+
+	FILE* f0 = NULL;
+	while (f0 == NULL) {
+		f0 = fopen("/storage/0403-0201/Android/data/org.diasurgical.devilx/files/logdebug0.txt", "a+");
+	}
+
+	va_list va;
+
+	va_start(va, msg);
+
+	vsnprintf(tmp, sizeof(tmp), msg, va);
+
+	va_end(va);
+
+	fputs(tmp, f0);
+
+	fputc('\n', f0);
+
+	fclose(f0);
+}
+
 DEVILUTION_END_NAMESPACE
