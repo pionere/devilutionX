@@ -66,6 +66,7 @@
             android:configChanges="layoutDirection|locale|orientation|uiMode|screenLayout|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation|colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|mcc|mnc|touchscreen"
             android:preferMinimalPostProcessing="true"
             android:screenOrientation="landscape"
+            android:resizeableActivity="false"
             android:maxAspectRatio="2.0"
             android:exported="true"
             >
@@ -96,6 +97,7 @@
             android:configChanges="layoutDirection|locale|orientation|uiMode|screenLayout|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation|colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|mcc|mnc|touchscreen"
             android:preferMinimalPostProcessing="true"
             android:screenOrientation="landscape"
+            android:resizeableActivity="false"
             android:maxAspectRatio="2.0"
             android:exported="true"
             >
