@@ -44,8 +44,6 @@ inline T clip(T v, T amin, T amax)
 
 // initiation time of last simulated left or right click (zero if no click)
 static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
-// pointer jumps to finger
-static bool direct_touch = true;
 
 struct Touch {
 	SDL_FingerID id; // -1: not touching
@@ -146,9 +144,7 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 	int x = MousePos.x;
 	int y = MousePos.y;
 
-	if (direct_touch) {
-		TouchToLogical(event, x, y);
-	}
+	TouchToLogical(event, x, y);
 
 	// make sure each finger is not reported down multiple times
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
@@ -225,9 +221,7 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 				simulatedButton = SDL_BUTTON_LEFT;
 				// need to raise the button later
 				simulated_click_start_time[port][0] = event->tfinger.timestamp;
-				if (direct_touch) {
-					TouchToLogical(event, x, y);
-				}
+				TouchToLogical(event, x, y);
 			}
 			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, x, y);
 		} else if (numFingersDown == 1) {
@@ -261,17 +255,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 	if (numFingersDown != 0) {
 		int x, y, xrel, yrel;
 
-		if (direct_touch) {
-			TouchToLogical(event, x, y);
-		} else {
-			// for relative mode, use the pointer speed setting
-			float speedFactor = 1.0;
-
-			// convert touch events to relative mouse pointer events
-			// Whenever an SDL_event involving the mouse is processed,
-			x = MousePos.x + (int)(event->tfinger.dx * 1.25 * speedFactor * dvl::GetOutputSurface()->w);
-			y = MousePos.y + (int)(event->tfinger.dy * 1.25 * speedFactor * dvl::GetOutputSurface()->h);
-		}
+		TouchToLogical(event, x, y);
 
 		x = clip(x, 0, dvl::GetOutputSurface()->w);
 		y = clip(y, 0, dvl::GetOutputSurface()->h);
@@ -301,7 +285,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 			if (numFingersDownlong >= 2) {
 				int mouseDownX = MousePos.x;
 				int mouseDownY = MousePos.y;
-				if (direct_touch) {
 					for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 						if (finger[port][i].id == id) {
 							Uint32 earliestTime = finger[port][i].time_last_down;
@@ -317,7 +300,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 							break;
 						}
 					}
-				}
 
 				Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
