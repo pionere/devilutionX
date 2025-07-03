@@ -75,20 +75,20 @@ static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whe
 
 #define SetMouseButtonEvent(/*SDL_Event* */event, /*uint32_t */type, /*uint8_t */button, /*uint8_t */state, /*int32_t */x, /*int32_t */y) \
 {                                  \
-	event->type = type;            \
-	event->button.button = button; \
-	event->button.state = state;   \
-	event->button.x = x;           \
-	event->button.y = y;           \
+	(event)->type = type;            \
+	(event)->button.button = button; \
+	(event)->button.state = state;   \
+	(event)->button.x = x;           \
+	(event)->button.y = y;           \
 }
 
 #define SetMouseMotionEvent(/*SDL_Event* */event, /*int32_t */x, /*int32_t */y, /*int32_t */xrel, /*int32_t */yrel) \
 {                                  \
-	event->type = SDL_MOUSEMOTION; \
-	event->motion.x = x;           \
-	event->motion.y = y;           \
-	event->motion.xrel = xrel;     \
-	event->motion.yrel = yrel;     \
+	(event)->type = SDL_MOUSEMOTION; \
+	(event)->motion.x = x;           \
+	(event)->motion.y = y;           \
+	(event)->motion.xrel = xrel;     \
+	(event)->motion.yrel = yrel;     \
 }
 
 void InitTouch()
