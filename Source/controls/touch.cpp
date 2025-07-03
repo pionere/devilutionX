@@ -140,8 +140,7 @@ static void TouchToLogical(SDL_Event* event, int& x, int& y)
 
 static void PreprocessFingerDown(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
+	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
@@ -179,8 +178,7 @@ static void PreprocessFingerDown(SDL_Event* event)
 
 static void PreprocessFingerUp(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
+	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
@@ -249,8 +247,7 @@ static void PreprocessFingerUp(SDL_Event* event)
 
 static void PreprocessFingerMotion(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
+	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
