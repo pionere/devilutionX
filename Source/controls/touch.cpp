@@ -13,11 +13,6 @@ static bool back_touch = false;
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static int visible_width;
-static int visible_height;
-static int x_borderwidth;
-static int y_borderwidth;
-
 template <typename T>
 inline T clip(T v, T amin, T amax)
 {
@@ -101,12 +96,6 @@ void InitTouch()
 		}
 	}
 
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
-	visible_height = current.h;
-	visible_width = (current.h * SCREEN_WIDTH) / SCREEN_HEIGHT;
-	x_borderwidth = (current.w - visible_width) / 2;
-	y_borderwidth = (current.h - visible_height) / 2;
 #ifdef __vita__
 	back_touch = dvl::getIniBool("Controller", "enable_second_touchscreen", true);
 #endif
