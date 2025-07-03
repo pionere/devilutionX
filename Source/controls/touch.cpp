@@ -174,6 +174,17 @@ static void preprocess_front_finger_down(SDL_Event* event)
 	// id (for multitouch)
 	const SDL_FingerID id = event->tfinger.fingerId;
 
+	int numFingersDown = 0;
+	// int fingerIdx = NO_TOUCH;
+	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
+		if (finger[port][i].id != NO_TOUCH) {
+			//if (finger[port][i].id == id) {
+			//	fingerIdx = i;
+			//}
+			numFingersDown++;
+		}
+	}
+
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
 			// make sure each finger is not reported down multiple times
@@ -199,6 +210,9 @@ static void preprocess_front_finger_down(SDL_Event* event)
 		finger[port][i].last_y         = y;
 	LogErrorFFFF("down: %d:%d idx: %d (%d) (%f:%f)", x, y, i, id, event->tfinger.x, event->tfinger.y);
 	EventPlrMsg("down: %d:%d idx: %d (%d) (%f:%f)", x, y, i, id, event->tfinger.x, event->tfinger.y);
+		if (numFingersDown == 0) {
+			SetMouseMotionEvent(event, x, y, 0, 0); // TODO: xrel/yrel?
+		}
 		break;
 	}
 }

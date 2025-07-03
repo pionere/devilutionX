@@ -315,6 +315,14 @@ void gmenu_left_mouse(bool isDown)
 		} else {
 			pItem->fnMenu(true);
 		}
+#if HAS_TOUCHPAD
+	} else {
+		TryLimitedPanBtnClick();
+		if (gabPanbtn[PANBTN_MAINMENU]) {
+			gabPanbtn[PANBTN_MAINMENU] = false;
+			gamemenu_off();
+		}
+#endif
 	}
 }
 
