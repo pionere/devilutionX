@@ -265,13 +265,14 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 					if (fingerIdx != NO_TOUCH) {
 							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-								if (finger[port][j].id != NO_TOUCH && (fingerIdx != j)) {
+								if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
+									continue;
+								}
 									if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
 										mouseDownX = finger[port][j].last_x;
 										mouseDownY = finger[port][j].last_y;
 										earliestTime = finger[port][j].time_last_down;
 									}
-								}
 							}
 					}
 
@@ -300,11 +301,12 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
 			if (fingerIdx != NO_TOUCH) {
+				Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
 						continue;
 					}
-					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][fingerIdx].time_last_down)) {
+					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
 						updatePointer = false;
 					}
 				}
