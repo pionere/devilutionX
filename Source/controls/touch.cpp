@@ -229,7 +229,7 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 			} else {
 				return; // continue;
 			}
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, SDL_PRESSED, simulatedButton, x, y);
+			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
 			Uint8 simulatedButton = 0;
@@ -239,7 +239,7 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 				simulatedButton = SDL_BUTTON_RIGHT;
 			}
 			multi_finger_dragging[port] = DRAG_NONE;
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, SDL_RELEASED, simulatedButton, x, y);
+			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 		}
 	}
 }
@@ -316,7 +316,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				SDL_Event ev;
 				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY, 0, 0); // TODO: xrel/yrel?
 				SDL_PushEvent(&ev);
-				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, SDL_PRESSED, simulatedButton, mouseDownX, mouseDownY);
+				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
 			}
 		}
@@ -405,6 +405,19 @@ static void PreprocessEvents(SDL_Event* event)
 void handle_touch(SDL_Event* event)
 {
 	PreprocessEvents(event);
+}
+
+static void sendSimulatedMouseButtonEvent(int32_t x, int32_t y, uint32_t type, uint8_t button, uint8_t state)
+{
+	SDL_Event ev[2];
+	SetMouseMotionEvent(&ev[0], x, y, 0, 0); // TODO: xrel/yrel?
+	SetMouseButtonEvent(&ev[1], type, button, state, x, y);
+	Uint32 now = SDL_GetTicks();
+	ev[0].common.timestamp = now;
+	ev[1].common.timestamp = now;
+	int res0 = SDL_PeepEvents(ev, 2, SDL_ADDEVENT, 0, 0);
+	LogErrorFFFF(" res: %d %d", res0, res0);
+	EventPlrMsg(" res: %d %d", res0, res0);
 }
 
 void finish_simulated_mouse_clicks()
