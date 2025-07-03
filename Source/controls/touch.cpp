@@ -156,8 +156,12 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
+	int fingerIdx = NO_TOUCH;
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
+			if (finger[port][i].id == id) {
+				fingerIdx = i;
+			}
 			numFingersDown++;
 		}
 	}
@@ -165,28 +169,24 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 	int x = MousePos.x;
 	int y = MousePos.y;
 
-	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-		if (finger[port][i].id != id) {
-			continue;
-		}
-
-		finger[port][i].id = NO_TOUCH;
+	if (fingerIdx != NO_TOUCH) {
+		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
-			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][i].time_last_down + MAX_TAP_TIME)) {
-				continue;
+			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][fingerIdx].time_last_down + MAX_TAP_TIME)) {
+				return; // continue;
 			}
 
 			// short (<MAX_TAP_TIME ms) tap is interpreted as right/left mouse click depending on # fingers already down
 			// but only if the finger hasn't moved since it was pressed down by more than MAX_TAP_MOTION_DISTANCE pixels
-			float xrel = ((event->tfinger.x * dvl::GetOutputSurface()->w) - (finger[port][i].last_down_x * dvl::GetOutputSurface()->w));
-			float yrel = ((event->tfinger.y * dvl::GetOutputSurface()->h) - (finger[port][i].last_down_y * dvl::GetOutputSurface()->h));
+			float xrel = ((event->tfinger.x * dvl::GetOutputSurface()->w) - (finger[port][fingerIdx].last_down_x * dvl::GetOutputSurface()->w));
+			float yrel = ((event->tfinger.y * dvl::GetOutputSurface()->h) - (finger[port][fingerIdx].last_down_y * dvl::GetOutputSurface()->h));
 			float maxRSquared = (float)(MAX_TAP_MOTION_DISTANCE * MAX_TAP_MOTION_DISTANCE);
 			if ((xrel * xrel + yrel * yrel) >= maxRSquared) {
-				continue;
+				return; // continue;
 			}
 
 			if (numFingersDown != 2 && numFingersDown != 1) {
-				continue;
+				return; // continue;
 			}
 
 			Uint8 simulatedButton = 0;
@@ -223,8 +223,12 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
+	int fingerIdx = NO_TOUCH;
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
+			if (finger[port][i].id == id) {
+				fingerIdx = i;
+			}
 			numFingersDown++;
 		}
 	}
@@ -238,11 +242,9 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		yrel = y - MousePos.y;
 
 		// update the current finger's coordinates so we can track it later
-		for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-			if (finger[port][i].id != id)
-				continue;
-			finger[port][i].last_x = x;
-			finger[port][i].last_y = y;
+		if (fingerIdx != NO_TOUCH) {
+			finger[port][fingerIdx].last_x = x;
+			finger[port][fingerIdx].last_y = y;
 		}
 
 		// If we are starting a multi-finger drag, start holding down the mouse button
@@ -260,11 +262,10 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 			if (numFingersDownlong >= 2) {
 				int mouseDownX = MousePos.x;
 				int mouseDownY = MousePos.y;
-					for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-						if (finger[port][i].id == id) {
-							Uint32 earliestTime = finger[port][i].time_last_down;
+					if (fingerIdx != NO_TOUCH) {
+							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-								if (finger[port][j].id != NO_TOUCH && (i != j)) {
+								if (finger[port][j].id != NO_TOUCH && (fingerIdx != j)) {
 									if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
 										mouseDownX = finger[port][j].last_x;
 										mouseDownY = finger[port][j].last_y;
@@ -272,8 +273,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 									}
 								}
 							}
-							break;
-						}
 					}
 
 				Uint8 simulatedButton = 0;
@@ -300,15 +299,12 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		// otherwise it will not affect mouse motion
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
-			for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-				if (finger[port][i].id != id) {
-					continue;
-				}
+			if (fingerIdx != NO_TOUCH) {
 				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-					if (finger[port][j].id == NO_TOUCH || (j == i)) {
+					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
 						continue;
 					}
-					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][i].time_last_down)) {
+					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, finger[port][fingerIdx].time_last_down)) {
 						updatePointer = false;
 					}
 				}
