@@ -130,9 +130,8 @@ static void preprocess_indirect_finger_up(SDL_Event* event)
 
 static void TouchToLogical(SDL_Event* event, int& x, int& y)
 {
-	x = (int)(event->tfinger.x * visible_width + x_borderwidth);
-	y = (int)(event->tfinger.y * visible_height + y_borderwidth);
-	dvl::OutputToLogical(&x, &y);
+	x = event->tfinger.x * SCREEN_WIDTH;
+	y = event->tfinger.y * SCREEN_HEIGHT;
 }
 
 static void preprocess_direct_finger_down(SDL_Event* event)
