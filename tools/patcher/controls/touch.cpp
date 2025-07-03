@@ -114,7 +114,7 @@ void InitTouch()
 #endif
 }
 
-static void preprocess_back_finger_down(SDL_Event* event)
+static void preprocess_indirect_finger_down(SDL_Event* event)
 {
 	event->type        = SDL_CONTROLLERAXISMOTION;
 	event->caxis.value = 32767;
@@ -122,7 +122,7 @@ static void preprocess_back_finger_down(SDL_Event* event)
 	event->caxis.axis  = event->tfinger.x <= 0.5 ? SDL_CONTROLLER_AXIS_TRIGGERLEFT : SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
 }
 
-static void preprocess_back_finger_up(SDL_Event* event)
+static void preprocess_indirect_finger_up(SDL_Event* event)
 {
 	event->type        = SDL_CONTROLLERAXISMOTION;
 	event->caxis.value = 0;
@@ -137,7 +137,7 @@ static void TouchToLogical(SDL_Event* event, int& x, int& y)
 	dvl::OutputToLogical(&x, &y);
 }
 
-static void PreprocessFingerDown(SDL_Event* event)
+static void preprocess_direct_finger_down(SDL_Event* event)
 {
 	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
@@ -175,7 +175,7 @@ static void PreprocessFingerDown(SDL_Event* event)
 	}
 }
 
-static void PreprocessFingerUp(SDL_Event* event)
+static void preprocess_direct_finger_up(SDL_Event* event)
 {
 	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
@@ -244,7 +244,7 @@ static void PreprocessFingerUp(SDL_Event* event)
 	}
 }
 
-static void PreprocessFingerMotion(SDL_Event* event)
+static void preprocess_direct_finger_motion(SDL_Event* event)
 {
 	const SDL_TouchID port = 0; // event->tfinger.touchId;
 	// id (for multitouch)
@@ -386,10 +386,10 @@ static void PreprocessEvents(SDL_Event* event)
 		if (devType == SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE) {
 			switch (event->type) {
 			case SDL_FINGERDOWN:
-				preprocess_back_finger_down(event);
+				preprocess_indirect_finger_down(event);
 				break;
 			case SDL_FINGERUP:
-				preprocess_back_finger_up(event);
+				preprocess_indirect_finger_up(event);
 				break;
 			}
 		}
@@ -398,13 +398,13 @@ static void PreprocessEvents(SDL_Event* event)
 
 	switch (event->type) {
 	case SDL_FINGERDOWN:
-		PreprocessFingerDown(event);
+		preprocess_direct_finger_down(event);
 		break;
 	case SDL_FINGERUP:
-		PreprocessFingerUp(event);
+		preprocess_direct_finger_up(event);
 		break;
 	case SDL_FINGERMOTION:
-		PreprocessFingerMotion(event);
+		preprocess_direct_finger_motion(event);
 		break;
 	}
 }
