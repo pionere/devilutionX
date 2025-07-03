@@ -386,9 +386,6 @@ void handle_touch(SDL_Event* event)
 
 void finish_simulated_mouse_clicks()
 {
-	int mouse_x = MousePos.x;
-	int mouse_y = MousePos.y;
-
 	for (int port = 0; port < TOUCH_PORT_MAX_NUM; port++) {
 		for (int i = 0; i < TOUCH_PORT_CLICK_NUM; i++) {
 			if (simulated_click_start_time[port][i] == 0) {
@@ -397,6 +394,11 @@ void finish_simulated_mouse_clicks()
 
 			if (!SDL_TICKS_PASSED(SDL_GetTicks(), simulated_click_start_time[port][i] + SIMULATED_CLICK_DURATION))
 				continue;
+
+			simulated_click_start_time[port][i] = 0;
+
+			int mouse_x = MousePos.x;
+			int mouse_y = MousePos.y;
 
 			int simulatedButton;
 			if (i == 0) {
@@ -409,8 +411,6 @@ void finish_simulated_mouse_clicks()
 			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
-
-			simulated_click_start_time[port][i] = 0;
 		}
 	}
 }
