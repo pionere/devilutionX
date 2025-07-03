@@ -114,7 +114,7 @@ static void TouchToLogical(SDL_Event* event, int& x, int& y)
 
 static void preprocess_direct_finger_down(SDL_Event* event)
 {
-	const SDL_TouchID port = 0; // event->tfinger.touchId;
+	const int port = 0;
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
@@ -142,13 +142,13 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 
 static void preprocess_direct_finger_up(SDL_Event* event)
 {
-	const SDL_TouchID port = 0; // event->tfinger.touchId;
+	const int port = 0;
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
-	int fingerIdx = NO_TOUCH;
+	int fingerIdx = -1;
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
 			if (finger[port][i].id == id) {
@@ -161,7 +161,7 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 	int x = MousePos.x;
 	int y = MousePos.y;
 
-	if (fingerIdx != NO_TOUCH) {
+	if (fingerIdx >= 0) {
 		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
 			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][fingerIdx].time_last_down + MAX_TAP_TIME)) {
@@ -209,13 +209,13 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 
 static void preprocess_direct_finger_motion(SDL_Event* event)
 {
-	const SDL_TouchID port = 0; // event->tfinger.touchId;
+	const int port = 0;
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
-	int fingerIdx = NO_TOUCH;
+	int fingerIdx = -1;
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
 			if (finger[port][i].id == id) {
@@ -234,7 +234,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		yrel = y - MousePos.y;
 
 		// update the current finger's coordinates so we can track it later
-		if (fingerIdx != NO_TOUCH) {
+		if (fingerIdx >= 0) {
 			finger[port][fingerIdx].last_x = x;
 			finger[port][fingerIdx].last_y = y;
 		}
@@ -254,7 +254,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 			if (numFingersDownlong >= 2) {
 				int mouseDownX = MousePos.x;
 				int mouseDownY = MousePos.y;
-					if (fingerIdx != NO_TOUCH) {
+					if (fingerIdx >= 0) {
 							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 								if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
@@ -292,7 +292,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		// otherwise it will not affect mouse motion
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
-			if (fingerIdx != NO_TOUCH) {
+			if (fingerIdx >= 0) {
 				Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
