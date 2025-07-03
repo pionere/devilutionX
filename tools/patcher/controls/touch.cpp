@@ -1,6 +1,7 @@
 #include "touch.h"
 #if HAS_TOUCHPAD
 #include "utils/display.h"
+#include "utils/sdl2_backports.h"
 #include "../gameui.h"
 #include "../diablo.h"
 #include <math.h>
@@ -113,7 +114,6 @@ void InitTouch()
 #endif
 }
 
-#ifdef __vita__
 static void preprocess_back_finger_down(SDL_Event* event)
 {
 	event->type        = SDL_CONTROLLERAXISMOTION;
@@ -129,7 +129,6 @@ static void preprocess_back_finger_up(SDL_Event* event)
 	event->caxis.which = 0;
 	event->caxis.axis  = event->tfinger.x <= 0.5 ? SDL_CONTROLLER_AXIS_TRIGGERLEFT : SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
 }
-#endif
 
 static void TouchToLogical(SDL_Event* event, int& x, int& y)
 {
@@ -377,11 +376,14 @@ static void PreprocessEvents(SDL_Event* event)
 		return;
 	}
 
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
-	if (port != 0) {
+	SDL_TouchDeviceType devType = SDL_GetTouchDeviceType(event->tfinger.touchId);
+	if (devType != SDL_TOUCH_DEVICE_DIRECT) {
 #ifdef __vita__
-		if (port == 1 && back_touch) {
+		if (!back_touch) {
+			return;
+		}
+#endif
+		if (devType == SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE) {
 			switch (event->type) {
 			case SDL_FINGERDOWN:
 				preprocess_back_finger_down(event);
@@ -391,7 +393,6 @@ static void PreprocessEvents(SDL_Event* event)
 				break;
 			}
 		}
-#endif
 		return;
 	}
 
