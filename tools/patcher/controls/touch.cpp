@@ -13,17 +13,6 @@ static bool back_touch = false;
 
 DEVILUTION_BEGIN_NAMESPACE
 
-template <typename T>
-inline T clip(T v, T amin, T amax)
-{
-	if (v < amin)
-		return amin;
-	else if (v > amax)
-		return amax;
-	else
-		return v;
-}
-
 #define TOUCH_PORT_MAX_NUM   1
 #define TOUCH_PORT_CLICK_NUM 2
 // finger id setting if finger is not touching the screen
@@ -245,8 +234,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 
 		TouchToLogical(event, x, y);
 
-		x = clip(x, 0, dvl::GetOutputSurface()->w);
-		y = clip(y, 0, dvl::GetOutputSurface()->h);
 		xrel = x - MousePos.x;
 		yrel = y - MousePos.y;
 
