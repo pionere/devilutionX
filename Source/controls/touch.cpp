@@ -116,12 +116,6 @@ void InitTouch()
 #ifdef __vita__
 static void preprocess_back_finger_down(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
-
-	if (port != 1)
-		return;
-
 	event->type        = SDL_CONTROLLERAXISMOTION;
 	event->caxis.value = 32767;
 	event->caxis.which = 0;
@@ -130,12 +124,6 @@ static void preprocess_back_finger_down(SDL_Event* event)
 
 static void preprocess_back_finger_up(SDL_Event* event)
 {
-	// front (0) or back (1) panel
-	SDL_TouchID port = event->tfinger.touchId;
-
-	if (port != 1)
-		return;
-
 	event->type        = SDL_CONTROLLERAXISMOTION;
 	event->caxis.value = 0;
 	event->caxis.which = 0;
@@ -396,7 +384,7 @@ static void PreprocessEvents(SDL_Event* event)
 	SDL_TouchID port = event->tfinger.touchId;
 	if (port != 0) {
 #ifdef __vita__
-		if (back_touch) {
+		if (port == 1 && back_touch) {
 			switch (event->type) {
 			case SDL_FINGERDOWN:
 				preprocess_back_finger_down(event);
