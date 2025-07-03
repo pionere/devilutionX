@@ -118,30 +118,22 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
-	int x = MousePos.x;
-	int y = MousePos.y;
-
-	TouchToLogical(event, x, y);
-
-	// make sure each finger is not reported down multiple times
-	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-		if (finger[port][i].id != id) {
-			continue;
-		}
-		finger[port][i].id = NO_TOUCH;
-	}
-
-	// we need the timestamps to decide later if the user performed a short tap (click)
-	// or a long tap (drag)
-	// we also need the last coordinates for each finger to keep track of dragging
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
-			continue;
+			// make sure each finger is not reported down multiple times
+			if (finger[port][i].id != id) {
+				continue;
+			}
 		}
 		finger[port][i].id             = id;
+		// we need the timestamps to decide later if the user performed a short tap (click)
+		// or a long tap (drag)
 		finger[port][i].time_last_down = event->tfinger.timestamp;
+		// we also need the last coordinates for each finger to keep track of dragging
 		finger[port][i].last_down_x    = event->tfinger.x;
 		finger[port][i].last_down_y    = event->tfinger.y;
+		int x, y;
+		TouchToLogical(event, x, y);
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
 		break;
