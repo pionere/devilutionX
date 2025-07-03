@@ -2187,7 +2187,7 @@ void LogDumpQ()
 
 #endif /* DEV_MODE */
 
-static void LogErrorF(const char* msg, ...)
+void LogErrorF(const char* msg, ...)
 {
 	char tmp[256];
 
