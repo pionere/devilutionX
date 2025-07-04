@@ -575,6 +575,7 @@ void SetSkill(bool altSkill)
 	bool moveskill;
 
 	sn = currSkill;
+LogErrorF("SetSkill sn%d alt%d", sn, altSkill);
 	if (sn == SPL_INVALID) {
 		gbSkillListFlag = false;
 		return;
