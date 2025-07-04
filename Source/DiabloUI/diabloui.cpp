@@ -940,7 +940,6 @@ static void UiWndProc(const Dvl_Event* event)
 		diablo_quit(EX_OK);
 		break;
 	case DVL_WM_LBUTTONDOWN:
-		LogErrorF("UiWndProc btn down");
 		if (!gUiDrawCursor) {
 			UiFocusNavigationEsc();
 			break;
@@ -948,7 +947,6 @@ static void UiWndProc(const Dvl_Event* event)
 		HandleMouseEvent(*event);
 		break;
 	case DVL_WM_LBUTTONUP:
-		LogErrorF("UiWndProc btn up");
 		HandleMouseEvent(*event);
 
 		for (UiItemBase* item : gUiItems) {

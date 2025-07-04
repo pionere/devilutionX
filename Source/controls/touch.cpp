@@ -381,6 +381,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
 			int firstIdx = first_direct_finger_index();
+LogErrorFFFF("move? %d %d", firstIdx, fingerIdx);
+EventPlrMsg("move? %d %d", firstIdx, fingerIdx);
 			updatePointer = firstIdx == fingerIdx;
 				/*Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 				for (int i = 0; i < MAX_NUM_FINGERS; i++) {

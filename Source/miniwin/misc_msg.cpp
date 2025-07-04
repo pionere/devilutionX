@@ -870,7 +870,6 @@ bool PeekMessage(Dvl_Event &e)
 		int button = e.button.button;
 		if (button == SDL_BUTTON_LEFT) {
 			e.type = DVL_WM_LBUTTONDOWN;
-			LogErrorF("evt left down");
 			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
 			//lpMsg->lParam = KeystateForMouse(DVL_MK_LBUTTON); -- unused
 		} else if (button == SDL_BUTTON_RIGHT) {
@@ -895,9 +894,7 @@ bool PeekMessage(Dvl_Event &e)
 	} break;
 	case SDL_MOUSEBUTTONUP: {
 		int button = e.button.button;
-		LogErrorF("evt %d up", button);
 		if (button == SDL_BUTTON_LEFT) {
-			LogErrorF("evt left up");
 			e.type = DVL_WM_LBUTTONUP;
 			//lpMsg->wParam = PositionForMouse(e.button.x, e.button.y); -- BUTTON_POSITION
 			//lpMsg->lParam = KeystateForMouse(0); -- unused
