@@ -237,9 +237,9 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			MousePos.x = x;
 			MousePos.y = y;
 			ev.type = simulatedBtnIdx == 0 ? DVL_WM_LBUTTONDOWN : DVL_WM_RBUTTONDOWN;
-			DispatchEvent(&ev);
+			DispatchMessage(&ev);
 			ev.type = simulatedBtnIdx == 0 ? DVL_WM_LBUTTONUP : DVL_WM_RBUTTONUP;
-			DispatchEvent(&ev);
+			DispatchMessage(&ev);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
 			Uint8 simulatedButton = 0;
@@ -254,7 +254,7 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			Dvl_Event ev;
 			ev.type = simulatedButton == SDL_BUTTON_LEFT ? DVL_WM_LBUTTONUP : DVL_WM_RBUTTONUP;
-			DispatchEvent(&ev);
+			DispatchMessage(&ev);
 		}
 	}
 }
@@ -361,7 +361,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				MousePos.y = mouseDownY;
 				Dvl_Event ev;
 				ev.type = DVL_WM_LBUTTONDOWN;
-				DispatchEvent(&ev);
+				DispatchMessage(&ev);
 			}
 		}
 
