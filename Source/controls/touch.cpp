@@ -225,7 +225,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		}
 	}
 
-	if (numFingersDown != 0) {
+	if (fingerIdx >= 0) {
 		int x, y, xrel, yrel;
 
 		TouchToLogical(event, x, y);
@@ -234,10 +234,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		yrel = y - MousePos.y;
 
 		// update the current finger's coordinates so we can track it later
-		if (fingerIdx >= 0) {
 			finger[port][fingerIdx].last_x = x;
 			finger[port][fingerIdx].last_y = y;
-		}
 
 		// If we are starting a multi-finger drag, start holding down the mouse button
 		if (numFingersDown >= 2 && multi_finger_dragging[port] == DRAG_NONE) {
@@ -254,7 +252,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 			if (numFingersDownlong >= 2) {
 				int mouseDownX = MousePos.x;
 				int mouseDownY = MousePos.y;
-					if (fingerIdx >= 0) {
 							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 								if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
@@ -266,7 +263,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 										earliestTime = finger[port][j].time_last_down;
 									}
 							}
-					}
 
 				Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
@@ -292,7 +288,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		// otherwise it will not affect mouse motion
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
-			if (fingerIdx >= 0) {
 				Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
@@ -302,7 +297,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 						updatePointer = false;
 					}
 				}
-			}
 		}
 		if (!updatePointer) {
 			return;
