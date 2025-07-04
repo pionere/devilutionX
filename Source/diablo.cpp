@@ -582,6 +582,7 @@ static void AltActionBtnDown()
 	}
 
 	if (gbSkillListFlag) {
+LogErrorF("AltActionBtnDown skill list");
 		SetSkill(true);
 		return;
 	}
@@ -665,6 +666,7 @@ static void diablo_hotkey_msg(int actKey)
 
 static void ReleaseKey(int vkey)
 {
+LogErrorF("ReleaseKey %d", vkey);
 	if (vkey == DVL_VK_LBUTTON) {
 		if (gmenu_is_active())
 			gmenu_left_mouse(false);
@@ -1049,6 +1051,7 @@ void InputBtnDown(int transKey)
 
 static void PressKey(int vkey)
 {
+LogErrorF("PressKey %d", vkey);
 	if (gmenu_is_active()) {
 		gmenu_presskey(vkey);
 		return;
@@ -1232,9 +1235,11 @@ void GameWndProc(const Dvl_Event* e)
 		break; //  return;
 	case DVL_WM_RBUTTONDOWN:
 		//GetMousePos(wParam);
+LogErrorF("WndProp rdown");
 		PressKey(DVL_VK_RBUTTON);
 		break; //  return;
 	case DVL_WM_RBUTTONUP:
+LogErrorF("WndProp rup");
 		//GetMousePos(wParam);
 		ReleaseKey(DVL_VK_RBUTTON);
 		break; //  return;
