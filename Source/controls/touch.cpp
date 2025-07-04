@@ -234,9 +234,11 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
 			LogErrorFFFF("click%d: %d:%d", simulatedBtnIdx, x, y);
 			EventPlrMsg("click%d: %d:%d", simulatedBtnIdx, x, y);
-			Dvl_Event ev;
 			MousePos.x = x;
 			MousePos.y = y;
+			Dvl_Event ev;
+			ev.button.x = x;
+			ev.button.y = y;
 			ev.type = simulatedBtnIdx == 0 ? DVL_WM_LBUTTONDOWN : DVL_WM_RBUTTONDOWN;
 			DispatchMessage(&ev);
 			ev.type = simulatedBtnIdx == 0 ? DVL_WM_LBUTTONUP : DVL_WM_RBUTTONUP;
@@ -254,6 +256,8 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			int y = MousePos.y;
 			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			Dvl_Event ev;
+			ev.button.x = x;
+			ev.button.y = y;
 			ev.type = simulatedButton == SDL_BUTTON_LEFT ? DVL_WM_LBUTTONUP : DVL_WM_RBUTTONUP;
 			DispatchMessage(&ev);
 		}
@@ -361,6 +365,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				MousePos.x = mouseDownX;
 				MousePos.y = mouseDownY;
 				Dvl_Event ev;
+				ev.button.x = mouseDownX;
+				ev.button.y = mouseDownY;
 				ev.type = DVL_WM_LBUTTONDOWN;
 				DispatchMessage(&ev);
 			}
