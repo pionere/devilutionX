@@ -30,6 +30,7 @@ static void MovieWndProc(const Dvl_Event* e)
 #endif
 	case DVL_WM_LBUTTONDOWN:
 	case DVL_WM_RBUTTONDOWN:
+		LogErrorF("MovieWndProc btn down %d", e->type);
 		if (movieSkip) {
 			movieResult = MPR_CANCEL;
 			break;

@@ -201,8 +201,8 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 	int xx = MousePos.x;
 	int yy = MousePos.y;
 
-	LogErrorFFFF("up: %d:%d idx: %d (%d) fd %d", xx, yy, fingerIdx, fingerIdx != NO_TOUCH ? finger[port][fingerIdx].id : 0, numFingersDown);
-	EventPlrMsg("up: %d:%d idx: %d (%d) fd %d", xx, yy, fingerIdx, fingerIdx != NO_TOUCH ? finger[port][fingerIdx].id : 0, numFingersDown);
+	LogErrorFFFF("up: %d:%d idx: %d (%d) fd %d drag %d", xx, yy, fingerIdx, fingerIdx != NO_TOUCH ? finger[port][fingerIdx].id : 0, numFingersDown, multi_finger_dragging[port]);
+	EventPlrMsg("up: %d:%d idx: %d (%d) fd %d drag %d", xx, yy, fingerIdx, fingerIdx != NO_TOUCH ? finger[port][fingerIdx].id : 0, numFingersDown, multi_finger_dragging[port]);
 	if (fingerIdx >= 0) {
 		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
@@ -232,7 +232,8 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			// Uint8 simulatedButton = simulatedBtnIdx == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 			// SetMouseMotionEvent(event, x, y, 0, 0); // TODO: xrel/yrel?
 			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
-
+			LogErrorFFFF("click%d: %d:%d", simulatedBtnIdx, x, y);
+			EventPlrMsg("click%d: %d:%d", simulatedBtnIdx, x, y);
 			Dvl_Event ev;
 			MousePos.x = x;
 			MousePos.y = y;
