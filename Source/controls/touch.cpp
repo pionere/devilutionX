@@ -173,8 +173,8 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 		TouchToLogical(event, x, y);
 		finger[port][i].first_x        = x;
 		finger[port][i].first_y        = y;
-		finger[port][i].last_x         = x;
-		finger[port][i].last_y         = y;
+		finger[port][i].last_x         = -1;
+		finger[port][i].last_y         = -1;
 	// LogErrorFFFF("down: %d:%d idx: %d (%d) (%f:%f)", x, y, i, id, event->tfinger.x, event->tfinger.y);
 	// EventPlrMsg("down: %d:%d idx: %d (%d) (%f:%f)", x, y, i, id, event->tfinger.x, event->tfinger.y);
 		if (numFingersDown == 0) {
@@ -249,20 +249,21 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			DispatchMessage(&ev);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
-			Uint8 simulatedButton = 0;
+			/*Uint8 simulatedButton = 0;
 			if (multi_finger_dragging[port] == DRAG_TWO_FINGER) {
 				simulatedButton = SDL_BUTTON_LEFT;
-			} else /*if (multi_finger_dragging[port] == DRAG_THREE_FINGER) */{
+			} else /*if (multi_finger_dragging[port] == DRAG_THREE_FINGER) * /{
 				simulatedButton = SDL_BUTTON_RIGHT;
 			}
-			multi_finger_dragging[port] = DRAG_NONE;
+			multi_finger_dragging[port] = DRAG_NONE;*/
 			int x = MousePos.x;
 			int y = MousePos.y;
 			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			Dvl_Event ev;
 			ev.button.x = x;
 			ev.button.y = y;
-			ev.type = simulatedButton == SDL_BUTTON_LEFT ? DVL_WM_LBUTTONUP : DVL_WM_RBUTTONUP;
+			ev.type = multi_finger_dragging[port] == DRAG_TWO_FINGER ? DVL_WM_LBUTTONUP : DVL_WM_RBUTTONUP;
+			multi_finger_dragging[port] = DRAG_NONE;
 			DispatchMessage(&ev);
 		}
 	}
@@ -336,7 +337,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				int firstIdx = first_direct_finger_index();
 				int mouseDownX = finger[port][firstIdx].first_x;
 				int mouseDownY = finger[port][firstIdx].first_y;
-				
+
 				/*int mouseDownX = MousePos.x;
 				int mouseDownY = MousePos.y;
 
@@ -353,12 +354,12 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 							}*/
 	// LogErrorFFFF("sim down: %d:%d lr: %d", mouseDownX, mouseDownY, numFingersDownlong == 2);
 	// EventPlrMsg("sim down: %d:%d lr: %d", mouseDownX, mouseDownY, numFingersDownlong == 2);
-				Uint8 simulatedButton = 0;
+				// Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
-					simulatedButton = SDL_BUTTON_LEFT;
+					// simulatedButton = SDL_BUTTON_LEFT;
 					multi_finger_dragging[port] = DRAG_TWO_FINGER;
 				} else {
-					simulatedButton = SDL_BUTTON_RIGHT;
+					// simulatedButton = SDL_BUTTON_RIGHT;
 					multi_finger_dragging[port] = DRAG_THREE_FINGER;
 				}
 				/*SDL_Event ev;
@@ -371,7 +372,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				Dvl_Event ev;
 				ev.button.x = mouseDownX;
 				ev.button.y = mouseDownY;
-				ev.type = DVL_WM_LBUTTONDOWN;
+				ev.type = multi_finger_dragging[port] == DRAG_TWO_FINGER ? DVL_WM_LBUTTONDOWN : DVL_WM_RBUTTONDOWN;
 				DispatchMessage(&ev);
 			}
 		}
