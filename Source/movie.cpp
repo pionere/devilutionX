@@ -10,6 +10,41 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+static int movieResult;
+static bool movieSkip;
+
+static void MovieWndProc(const Dvl_Event* e)
+{
+	switch (e->type) {
+	case DVL_WM_KEYDOWN:
+		if (e->vkcode == DVL_VK_ESCAPE) {
+			movieResult = MPR_CANCEL;
+			break;
+		}
+#if !FULLSCREEN_ONLY
+		if (SDL_GetModState() & KMOD_ALT) {
+			if (e->vkcode == DVL_VK_RETURN)
+				ToggleFullscreen();
+			break;
+		}
+#endif
+	case DVL_WM_LBUTTONDOWN:
+	case DVL_WM_RBUTTONDOWN:
+		if (movieSkip) {
+			movieResult = MPR_CANCEL;
+			break;
+		}
+		break;
+	case DVL_WM_QUIT:
+		if (gbRunGame) {
+			NetSendCmd(CMD_DISCONNECT);
+			gbRunGameResult = false;
+		}
+		movieResult = MPR_QUIT;
+		break;
+	}
+}
+
 /**
  * @brief Start playback of a given video.
  * @param pszMovie The file name of the video
@@ -27,9 +62,12 @@ int play_movie(const char* pszMovie, int movieFlags)
 	//video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	video_stream = SVidPlayBegin(pszMovie, movieFlags);
 	Dvl_Event e;
+	movieResult = MPR_DONE;
+	movieSkip = (movieFlags & MOV_SKIP) != 0;
+	WNDPROC proc = SetWindowProc(MovieWndProc);
 	while (video_stream != NULL) {
 		while (PeekMessage(e)) {
-			switch (e.type) {
+			/*switch (e.type) {
 			case DVL_WM_KEYDOWN:
 				if (e.vkcode == DVL_VK_ESCAPE) {
 					result = MPR_CANCEL;
@@ -58,21 +96,25 @@ int play_movie(const char* pszMovie, int movieFlags)
 				break;
 			default:
 				continue;
-			}
+			}*/
+			DispatchMessage(&e);
+			if (movieResult == MPR_DONE)
+				continue;
 			break;
 		}
 #if HAS_TOUCHPAD
 		finish_simulated_mouse_clicks();
 #endif
-		if (!SVidPlayContinue() || result != MPR_DONE) {
+		if (movieResult != MPR_DONE || !SVidPlayContinue()) {
 			SVidPlayEnd();
 			break;
 		}
 	}
+	SetWindowProc(proc);
 
 	sound_restart_music();
 
-	return result;
+	return movieResult;
 }
 
 DEVILUTION_END_NAMESPACE

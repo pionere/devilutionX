@@ -189,13 +189,13 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     // Key events
     @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        return SDLActivity.handleKeyEvent(v, keyCode, event, null);
+    public boolean onKeyEvent(int keyCode, KeyEvent event) {
+        return SDLActivity.handleKeyEvent(this, keyCode, event, null);
     }
 
     // Touch events
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
         /* Ref: http://developer.android.com/training/gestures/multi.html */
         int touchDevId = event.getDeviceId();
         final int pointerCount = event.getPointerCount();

@@ -363,14 +363,19 @@ static void UnloadUiGFX()
 	MemFreeDbg(gbHerosCel);
 }
 
+static void UiWndProc(const Dvl_Event* event);
 void UiInitialize()
 {
 	LoadUiGFX();
+
+	SetWindowProc(UiWndProc);
 }
 
 void UiDestroy()
 {
 	UnloadUiGFX();
+
+	// SetWindowProc(NULL); - TODO: restore window-proc?
 }
 
 void LoadBackgroundArt(const char* pszFile, const char* palette)
@@ -925,12 +930,8 @@ static void UiDelFromText(bool back)
 	}
 }
 
-bool UiPeekAndHandleEvents(Dvl_Event* event)
+static void UiWndProc(const Dvl_Event* event)
 {
-	if (!PeekMessage(*event)) {
-		return false;
-	}
-
 	switch (event->type) {
 	case DVL_WM_MOUSEMOVE:
 		HandleMouseMoveEvent(*event);
@@ -1111,6 +1112,15 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 		break;
 #endif
 	}
+}
+
+bool UiPeekAndHandleEvents(Dvl_Event* event)
+{
+	if (!PeekMessage(*event)) {
+		return false;
+	}
+
+	DispatchMessage(event);
 	return true;
 }
 
