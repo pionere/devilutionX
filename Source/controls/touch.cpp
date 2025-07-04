@@ -236,8 +236,8 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			// Uint8 simulatedButton = simulatedBtnIdx == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 			// SetMouseMotionEvent(event, x, y, 0, 0); // TODO: xrel/yrel?
 			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
-			// LogErrorFFFF("click%d: %d:%d", simulatedBtnIdx, x, y);
-			// EventPlrMsg("click%d: %d:%d", simulatedBtnIdx, x, y);
+			LogErrorFFFF("click%d: %d:%d", simulatedBtnIdx, x, y);
+			EventPlrMsg("click%d: %d:%d", simulatedBtnIdx, x, y);
 			MousePos.x = x;
 			MousePos.y = y;
 			Dvl_Event ev;
