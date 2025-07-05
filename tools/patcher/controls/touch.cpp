@@ -50,20 +50,20 @@ enum DraggingType {
 
 static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whether we are currently drag-and-dropping
 
-static void SetMouseButtonEvent(SDL_Event* event, uint32_t type, uint8_t button, uint8_t state, int32_t x, int32_t y)
-{
-	event->type = type;
-	event->button.button = button;
-	event->button.state = state;
-	event->button.x = x;
-	event->button.y = y;
+#define SetMouseButtonEvent(/*SDL_Event* */evt, /*uint32_t */ev_type, /*uint8_t */btn, /*uint8_t */btn_state, /*int32_t */bx, /*int32_t */by) \
+{                                    \
+	(evt)->type = ev_type;           \
+	(evt)->button.button = btn;      \
+	(evt)->button.state = btn_state; \
+	(evt)->button.x = bx;            \
+	(evt)->button.y = by;            \
 }
 
-static void SetMouseMotionEvent(SDL_Event* event, int32_t x, int32_t y)
-{
-	event->type = SDL_MOUSEMOTION;
-	event->motion.x = x;
-	event->motion.y = y;
+#define SetMouseMotionEvent(/*SDL_Event* */evt, /*int32_t */mx, /*int32_t */my) \
+{                                  \
+	(evt)->type = SDL_MOUSEMOTION; \
+	(evt)->motion.x = mx;          \
+	(evt)->motion.y = my;          \
 }
 
 void InitTouch()
