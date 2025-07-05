@@ -63,13 +63,11 @@ static void SetMouseButtonEvent(SDL_Event* event, uint32_t type, uint8_t button,
 	event->button.y = y;
 }
 
-static void SetMouseMotionEvent(SDL_Event* event, int32_t x, int32_t y, int32_t xrel, int32_t yrel)
+static void SetMouseMotionEvent(SDL_Event* event, int32_t x, int32_t y)
 {
 	event->type = SDL_MOUSEMOTION;
 	event->motion.x = x;
 	event->motion.y = y;
-	event->motion.xrel = xrel;
-	event->motion.yrel = yrel;
 }
 
 void InitTouch()
@@ -275,7 +273,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 					multi_finger_dragging[port] = DRAG_THREE_FINGER;
 				}
 				SDL_Event ev;
-				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY, 0, 0); // TODO: xrel/yrel?
+				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
 				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
@@ -303,7 +301,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		if (!updatePointer) {
 			return;
 		}
-		SetMouseMotionEvent(event, x, y, xrel, yrel);
+		SetMouseMotionEvent(event, x, y);
 	}
 }
 
@@ -380,7 +378,7 @@ void finish_simulated_mouse_clicks()
 				simulatedButton = SDL_BUTTON_RIGHT;
 			}
 			SDL_Event ev;
-			SetMouseMotionEvent(&ev, mouse_x, mouse_y, 0, 0); // TODO: xrel/yrel?
+			SetMouseMotionEvent(&ev, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
