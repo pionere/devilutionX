@@ -13,11 +13,13 @@ static bool back_touch = false;
 
 DEVILUTION_BEGIN_NAMESPACE
 
+// number of handled 'direct' touch panels/screen
 #define TOUCH_PORT_MAX_NUM   1
+// number of simulated click-types (left or right)
 #define TOUCH_PORT_CLICK_NUM 2
-// finger id setting if finger is not touching the screen
+// finger id setting if finger is not touching the panel/screen
 #define NO_TOUCH (-1)
-// number of fingers to track per panel
+// number of fingers to track per panel/screen
 #define MAX_NUM_FINGERS 3
 // taps longer than this will not result in mouse click events (ms)
 #define MAX_TAP_TIME 250
@@ -32,8 +34,8 @@ static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NU
 struct Touch {
 	SDL_FingerID id; // -1: not touching
 	Uint32 time_last_down;
-	int last_x;        // last known screen coordinates
-	int last_y;        // last known screen coordinates
+	int last_x;        // last known screen x-coordinate
+	int last_y;        // last known screen y-coordinate
 	float last_down_x; // SDL touch coordinates when last pressed down
 	float last_down_y; // SDL touch coordinates when last pressed down
 };
@@ -126,14 +128,14 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 			}
 		}
 		finger[port][i].id             = id;
-		// we need the timestamps to decide later if the user performed a short tap (click)
-		// or a long tap (drag)
+		// preserve the timestamp to calculate the tap-length
 		finger[port][i].time_last_down = event->tfinger.timestamp;
 		// we also need the last coordinates for each finger to keep track of dragging
 		finger[port][i].last_down_x    = event->tfinger.x;
 		finger[port][i].last_down_y    = event->tfinger.y;
 		int x, y;
 		TouchToLogical(event, x, y);
+		// remember the last coordinates to keep track of dragging
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
 		break;
