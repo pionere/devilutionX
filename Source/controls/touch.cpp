@@ -153,10 +153,12 @@ void InitTouch()
 #ifdef __vita__
 	back_touch = dvl::getIniBool("Controller", "enable_second_touchscreen", true);
 #endif
-
+	LogErrorF("initTouch 0");
 	init_virtual_gamepad();
+	LogErrorF("initTouch 1");
 	assert(pTouchIconsCels == NULL);
 	pTouchIconsCels = CelLoadImage("Data\\TouchBtn.CEL", 0);
+	LogErrorF("initTouch 2");
 }
 
 void FreeTouch()
