@@ -184,6 +184,9 @@ void dx_cleanup()
 #ifndef USE_SDL1
 	SDL_HideWindow(ghMainWnd);
 #endif
+#if HAS_TOUCHPAD
+	FreeTouch();
+#endif
 #if DEBUG_MODE
 	sgMemCrit.Enter();
 	_guLockCount = 0;

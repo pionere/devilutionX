@@ -53,11 +53,12 @@ static void LogErrorFFFF(const char* msg, ...)
 //#define MAX_TAP_MOTION_DISTANCE 10
 // duration of a simulated mouse click (ms)
 // #define SIMULATED_CLICK_DURATION 50
+#define MAX_GAMEPAD_BUTTONS 16
 
 // initiation time of last simulated left or right click (zero if no click)
 //static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
 
-struct Touch {
+typedef struct FingerStruct {
 	SDL_FingerID id; // -1: not touching
 	Uint32 time_last_down;
 	int last_x;        // last known screen x-coordinate
@@ -66,9 +67,9 @@ struct Touch {
 	//float last_down_y; // SDL touch coordinates when last pressed down
 	int first_x; // first screen x-coordinate
 	int first_y; // first screen y-coordinate
-};
+} FingerStruct;
 
-static Touch finger[TOUCH_PORT_MAX_NUM][MAX_NUM_FINGERS]; // keep track of finger status
+static FingerStruct finger[TOUCH_PORT_MAX_NUM][MAX_NUM_FINGERS]; // keep track of finger status
 
 enum DraggingType {
 	DRAG_NONE,
@@ -78,6 +79,23 @@ enum DraggingType {
 };
 
 static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whether we are currently drag-and-dropping
+
+/** touchpad icons  CEL */
+static BYTE* pTouchIconsCels;
+
+typedef struct ButtonStruct {
+	int buType;
+	int buAction;
+	int buFrame;
+	int buPosX;
+	int buPosY;
+	int buSize;
+
+	bool buPressed;
+} ButtonStruct;
+
+static ButtonStruct gaButtons[MAX_GAMEPAD_BUTTONS];
+static unsigned numButtons;
 
 #define SetMouseButtonEvent(/*SDL_Event* */evt, /*uint32_t */ev_type, /*uint8_t */btn, /*uint8_t */btn_state, /*int32_t */bx, /*int32_t */by) \
 {                                    \
@@ -93,6 +111,27 @@ static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whe
 	(evt)->type = SDL_MOUSEMOTION; \
 	(evt)->motion.x = mx;          \
 	(evt)->motion.y = my;          \
+}
+
+static void init_virtual_gamepad()
+{
+	numButtons = 12;
+
+	gaButtons[0] = { 0, ACT_SKL0, 5, 0, 90, 87, false };
+	gaButtons[1] = { 0, ACT_SKL1, 5, 90, 90, 87, false };
+	gaButtons[2] = { 0, ACT_SKL2, 5, 0, 180, 87, false };
+	gaButtons[3] = { 0, ACT_SKL3, 5, 90, 180, 87, false };
+
+	gaButtons[4] = { 0, ACT_SKL4, 5, 780, 90, 87, false };
+	gaButtons[5] = { 0, ACT_SKL5, 5, 870, 90, 87, false };
+	gaButtons[6] = { 0, ACT_SKL6, 5, 780, 180, 87, false };
+	gaButtons[7] = { 0, ACT_SKL7, 5, 870, 180, 87, false };
+
+	gaButtons[8] = { 1, NUM_ACTS/*ACT_RLACT?*/11, 0, 90, 87, false };
+	gaButtons[9] = { 1, 0/*ACT_STANDACT*/12, 90, 90, 87, false };
+
+	gaButtons[10] = { 1, 1/*ACT_MODACT*/, 6, 0, 180, 87, false };
+	gaButtons[11] = { 1, 0/*ACT_STANDACT*/, 12, 90, 180, 87, false };
 }
 
 void InitTouch()
@@ -113,6 +152,15 @@ void InitTouch()
 #ifdef __vita__
 	back_touch = dvl::getIniBool("Controller", "enable_second_touchscreen", true);
 #endif
+
+	init_virtual_gamepad();
+	assert(pTouchIconsCels == NULL);
+	pTouchIconsCels = LoadFileInMem("Data\\TouchBtn.CEL");
+}
+
+void FreeTouch()
+{
+	MemFreeDbg(pTouchIconsCels);
 }
 
 static void preprocess_indirect_finger_down(SDL_Event* event)
@@ -474,8 +522,12 @@ void handle_touch(SDL_Event* event)
 	PreprocessEvents(event);
 }
 
-void finish_simulated_mouse_clicks()
+void DrawGamepad()
 {
+	for (unsigned i = 0; i < numButtons; i++) {
+		ButtonStruct& btn = gaButtons[i];
+		CelDrawTrnTbl(SCREEN_X + btn.buPosX, SCREEN_Y + btn.buPosY, pTouchIconsCels, ColorTrns[!btn.buPressed ? 0 : 3]);
+	}
 }
 
 DEVILUTION_END_NAMESPACE

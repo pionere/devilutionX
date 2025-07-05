@@ -1500,9 +1500,6 @@ static void run_game()
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 		if (!gbRunGame)
 			break;
 		if (!ProcessInput() || nthread_ticks2gameturn() > 0) {

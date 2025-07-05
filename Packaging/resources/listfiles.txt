@@ -36,6 +36,7 @@ _Data\Square.CEL
 Data\TextBox.CEL
 _Data\TextBox2.CEL
 Data\TextSlid.CEL
+Data\TouchBtn.CEL
 _Data\healthbox.pcx
 _Data\health.pcx
 _Data\resistance.pcx

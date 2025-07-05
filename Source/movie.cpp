@@ -102,9 +102,6 @@ int play_movie(const char* pszMovie, int movieFlags)
 				continue;
 			break;
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 		if (movieResult != MPR_DONE || !SVidPlayContinue()) {
 			SVidPlayEnd();
 			break;
