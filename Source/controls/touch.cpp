@@ -74,6 +74,7 @@ enum DraggingType {
 	DRAG_NONE,
 	DRAG_TWO_FINGER,
 	DRAG_THREE_FINGER,
+	DRAG_OVER,
 };
 
 static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whether we are currently drag-and-dropping
@@ -87,7 +88,7 @@ static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whe
 	(evt)->button.y = by;            \
 }
 
-#define SetMouseMotionEvent(/*SDL_Event* */evt, /*int32_t */mx, /*int32_t */my/) \
+#define SetMouseMotionEvent(/*SDL_Event* */evt, /*int32_t */mx, /*int32_t */my) \
 {                                  \
 	(evt)->type = SDL_MOUSEMOTION; \
 	(evt)->motion.x = mx;          \
@@ -228,11 +229,7 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			}
 			// ensure the other button is not triggering any more
 			if (simulatedBtnIdx != 0) {
-				for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-					if (finger[port][i].id != NO_TOUCH) {
-						finger[port][i].time_last_down = event->tfinger.timestamp - (MAX_TAP_TIME + 1);
-					}
-				}
+				multi_finger_dragging[port] = DRAG_OVER;
 			}
 			// need to raise the button later
 			// simulated_click_start_time[port][simulatedBtnIdx] = event->tfinger.timestamp;
@@ -273,13 +270,15 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			multi_finger_dragging[port] = DRAG_NONE;
 			DispatchMessage(&ev);
 #else
-			Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
+			Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : (multi_finger_dragging[port] == DRAG_THREE_FINGER ? SDL_BUTTON_RIGHT : 0);
 			multi_finger_dragging[port] = DRAG_NONE;
-			SDL_Event ev;
-			SetMouseMotionEvent(&ev, x, y);
-			SDL_PushEvent(&ev);
-			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
-			SDL_PushEvent(&ev);
+			if (simulatedButton != 0) {
+				SDL_Event ev;
+				SetMouseMotionEvent(&ev, x, y);
+				SDL_PushEvent(&ev);
+				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
+				SDL_PushEvent(&ev);
+			}
 #endif
 		}
 	}
