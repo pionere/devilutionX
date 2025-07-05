@@ -263,15 +263,15 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		int x, y, xrel, yrel;
 		TouchToLogical(event, x, y);
 
-		// update the current finger's coordinates so we can track it later
-		finger[port][fingerIdx].last_x = x;
-		finger[port][fingerIdx].last_y = y;
-
-		xrel = x - MousePos.x;
-		yrel = y - MousePos.y;
+		xrel = x - finger[port][fingerIdx].last_x;
+		yrel = y - finger[port][fingerIdx].last_y;
 		if (xrel == 0 && yrel == 0) {
 			return;
 		}
+
+		// update the current finger's coordinates so we can track it later
+		finger[port][fingerIdx].last_x = x;
+		finger[port][fingerIdx].last_y = y;
 
 		// check if this is the "oldest" finger down (or the only finger down)
 		// otherwise it will not affect mouse motion
