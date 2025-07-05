@@ -230,8 +230,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				}
 			}
 			if (numFingersDownlong >= 2) {
-				int mouseDownX = MousePos.x;
-				int mouseDownY = MousePos.y;
+				int mouseDownX = finger[port][fingerIdx].last_x;
+				int mouseDownY = finger[port][fingerIdx].last_y;
 							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
 							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
 								if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
