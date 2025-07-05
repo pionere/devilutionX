@@ -158,9 +158,6 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 		}
 	}
 
-	int x = MousePos.x;
-	int y = MousePos.y;
-
 	if (fingerIdx >= 0) {
 		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
@@ -190,11 +187,14 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 				simulatedButton = SDL_BUTTON_LEFT;
 				// need to raise the button later
 				simulated_click_start_time[port][0] = event->tfinger.timestamp;
-				TouchToLogical(event, x, y);
 			}
+			int x, y;
+			TouchToLogical(event, x, y);
 			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, x, y);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
+			int x = MousePos.x;
+			int y = MousePos.y;
 			Uint8 simulatedButton = 0;
 			if (multi_finger_dragging[port] == DRAG_THREE_FINGER) {
 				simulatedButton = SDL_BUTTON_RIGHT;
