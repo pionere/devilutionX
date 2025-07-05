@@ -527,7 +527,7 @@ void DrawGamepad()
 {
 	for (unsigned i = 0; i < numButtons; i++) {
 		ButtonStruct& btn = gaButtons[i];
-		CelDrawTrnTbl(SCREEN_X + btn.buPosX, SCREEN_Y + btn.buPosY, pTouchIconsCels, ColorTrns[!btn.buPressed ? 0 : 3]);
+		CelDrawTrnTbl(SCREEN_X + btn.buPosX, SCREEN_Y + btn.buPosY, pTouchIconsCels, btn.buFrame, ColorTrns[!btn.buPressed ? 0 : 3]);
 	}
 }
 
