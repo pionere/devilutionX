@@ -187,6 +187,23 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 	}
 }
 
+static int first_direct_finger_index()
+{
+	const int port = 0;
+	Uint32 earliestTime;
+	int firstIdx = -1;
+	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
+		if (finger[port][i].id == NO_TOUCH) {
+			continue;
+		}
+		if (firstIdx < 0 || !SDL_TICKS_PASSED(finger[port][i].time_last_down, earliestTime)) {
+			firstIdx = i;
+			earliestTime = finger[port][i].time_last_down;
+		}
+	}
+	return firstIdx;
+}
+
 static void preprocess_direct_finger_motion(SDL_Event* event)
 {
 	const int port = 0;
@@ -230,19 +247,9 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				}
 			}
 			if (numFingersDownlong >= 2) {
-				int mouseDownX = finger[port][fingerIdx].last_x;
-				int mouseDownY = finger[port][fingerIdx].last_y;
-							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
-							for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-								if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
-									continue;
-								}
-									if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
-										mouseDownX = finger[port][j].last_x;
-										mouseDownY = finger[port][j].last_y;
-										earliestTime = finger[port][j].time_last_down;
-									}
-							}
+				int firstIdx = first_direct_finger_index();
+				int mouseDownX = finger[port][firstIdx].last_x;
+				int mouseDownY = finger[port][firstIdx].last_y;
 
 				Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
@@ -268,15 +275,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		// otherwise it will not affect mouse motion
 		bool updatePointer = true;
 		if (numFingersDown > 1) {
-				Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
-				for (int j = 0; j < MAX_NUM_FINGERS; j++) {
-					if (finger[port][j].id == NO_TOUCH || (j == fingerIdx)) {
-						continue;
-					}
-					if (!SDL_TICKS_PASSED(finger[port][j].time_last_down, earliestTime)) {
-						updatePointer = false;
-					}
-				}
+			int firstIdx = first_direct_finger_index();
+			updatePointer = firstIdx == fingerIdx;
 		}
 		if (!updatePointer) {
 			return;
