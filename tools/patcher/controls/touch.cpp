@@ -34,6 +34,8 @@ struct Touch {
 	Uint32 time_last_down;
 	int last_x;      // last known screen x-coordinate
 	int last_y;      // last known screen y-coordinate
+	int first_x;     // first screen x-coordinate
+	int first_y;     // first screen y-coordinate
 };
 
 static Touch finger[TOUCH_PORT_MAX_NUM][MAX_NUM_FINGERS]; // keep track of finger status
@@ -122,6 +124,9 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 		finger[port][i].time_last_down = event->tfinger.timestamp;
 		int x, y;
 		TouchToLogical(event, x, y);
+		// remember the starting coordinates for multi-finger drag
+		finger[port][i].first_x        = x;
+		finger[port][i].first_y        = y;
 		// remember the last coordinates to keep track of dragging
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
@@ -248,8 +253,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 			}
 			if (numFingersDownlong >= 2) {
 				int firstIdx = first_direct_finger_index();
-				int mouseDownX = finger[port][firstIdx].last_x;
-				int mouseDownY = finger[port][firstIdx].last_y;
+				int mouseDownX = finger[port][firstIdx].first_x;
+				int mouseDownY = finger[port][firstIdx].first_y;
 
 				Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
