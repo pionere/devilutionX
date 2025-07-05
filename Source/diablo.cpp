@@ -174,6 +174,9 @@ static void diablo_init()
 #endif
 	InitLighting();
 	InitText();
+#if HAS_TOUCHPAD
+	InitTouchGFX();
+#endif
 	InitCursorGFX();
 	UiInitialize();
 	gbWasUiInit = true;
@@ -220,8 +223,11 @@ static void diablo_deinit()
 #endif
 	//if (gbWasUiInit)
 		UiDestroy();
-		FreeText();
 		FreeCursorGFX();
+#if HAS_TOUCHPAD
+		FreeTouchGFX();
+#endif
+		FreeText();
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {

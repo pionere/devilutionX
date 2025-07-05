@@ -15,7 +15,8 @@ extern "C" {
 #endif
 
 void InitTouch();
-void FreeTouch();
+void InitTouchGFX();
+void FreeTouchGFX();
 void handle_touch(SDL_Event* event);
 void DrawGamepad();
 
