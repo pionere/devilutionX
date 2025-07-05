@@ -50,15 +50,11 @@ enum DraggingType {
 
 static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whether we are currently drag-and-dropping
 
-static void SetMouseButtonEvent(SDL_Event* event, uint32_t type, uint8_t button, int32_t x, int32_t y)
+static void SetMouseButtonEvent(SDL_Event* event, uint32_t type, uint8_t button, uint8_t state, int32_t x, int32_t y)
 {
 	event->type = type;
 	event->button.button = button;
-	if (type == SDL_MOUSEBUTTONDOWN) {
-		event->button.state = SDL_PRESSED;
-	} else {
-		event->button.state = SDL_RELEASED;
-	}
+	event->button.state = state;
 	event->button.x = x;
 	event->button.y = y;
 }
@@ -190,7 +186,7 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 			}
 			int x, y;
 			TouchToLogical(event, x, y);
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, x, y);
+			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
 			int x = MousePos.x;
@@ -201,7 +197,7 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 			} else {
 				simulatedButton = SDL_BUTTON_LEFT;
 			}
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, x, y);
+			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			multi_finger_dragging[port] = DRAG_NONE;
 		}
 	}
@@ -275,7 +271,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				SDL_Event ev;
 				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
-				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, mouseDownX, mouseDownY);
+				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
 			}
 		}
@@ -380,7 +376,7 @@ void finish_simulated_mouse_clicks()
 			SDL_Event ev;
 			SetMouseMotionEvent(&ev, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
-			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, mouse_x, mouse_y);
+			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
 		}
 	}
