@@ -128,11 +128,11 @@ static void init_virtual_gamepad()
 	gaButtons[6] = { 0, ACT_SKL6, 5, 780, 180, 87, false };
 	gaButtons[7] = { 0, ACT_SKL7, 5, 870, 180, 87, false };
 
-	gaButtons[8] = { 1, NUM_ACTS/*ACT_RLACT?*/, 11, 0, 90, 87, false };
-	gaButtons[9] = { 1, 0/*ACT_STANDACT*/, 12, 90, 90, 87, false };
+	gaButtons[8] = { 1, NUM_ACTS/*ACT_RLACT?*/, 11, 0, 270, 87, false };
+	gaButtons[9] = { 1, 0/*ACT_STANDACT*/, 12, 0, 360, 87, false };
 
-	gaButtons[10] = { 1, 1/*ACT_MODACT*/, 6, 0, 180, 87, false };
-	gaButtons[11] = { 1, 0/*ACT_STANDACT*/, 12, 90, 180, 87, false };
+	gaButtons[10] = { 1, 1/*ACT_MODACT*/, 6, 870, 270, 87, false };
+	gaButtons[11] = { 1, 0/*ACT_STANDACT*/, 12, 870, 360, 87, false };
 }
 
 void InitTouch()

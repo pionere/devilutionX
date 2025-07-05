@@ -45,6 +45,9 @@ DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 #else
 	for (unsigned i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == 0; i++) {
 		result = SFileReadArchive(diabdat_mpqs[i], filename, dest);
+		if (result == 0) {
+			LogErrorF("File '%s' not found in %d.", filename, i);
+		}
 	}
 #endif
 	if (result == 0) {
