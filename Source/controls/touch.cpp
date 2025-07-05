@@ -82,7 +82,7 @@ enum DraggingType {
 static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whether we are currently drag-and-dropping
 
 /** touchpad icons  CEL */
-static BYTE* pTouchIconsCels;
+static CelImageBuf* pTouchIconsCels;
 
 typedef struct ButtonStruct {
 	int buType;
@@ -156,7 +156,7 @@ void InitTouch()
 
 	init_virtual_gamepad();
 	assert(pTouchIconsCels == NULL);
-	pTouchIconsCels = LoadFileInMem("Data\\TouchBtn.CEL");
+	pTouchIconsCels = CelLoadImage("Data\\TouchBtn.CEL", 0);
 }
 
 void FreeTouch()
@@ -527,6 +527,7 @@ void DrawGamepad()
 {
 	for (unsigned i = 0; i < numButtons; i++) {
 		ButtonStruct& btn = gaButtons[i];
+		pTouchIconsCels->ciWidth = btn.buSize;
 		CelDrawTrnTbl(SCREEN_X + btn.buPosX, SCREEN_Y + btn.buPosY, pTouchIconsCels, btn.buFrame, ColorTrns[!btn.buPressed ? 0 : 3]);
 	}
 }
