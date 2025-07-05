@@ -23,8 +23,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MAX_NUM_FINGERS 3
 // taps longer than this will not result in mouse click events (ms)
 #define MAX_TAP_TIME 250
-// max distance finger motion in Vita screen pixels to be considered a tap
-#define MAX_TAP_MOTION_DISTANCE 10
 // duration of a simulated mouse click (ms)
 #define SIMULATED_CLICK_DURATION 50
 
@@ -34,10 +32,8 @@ static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NU
 struct Touch {
 	SDL_FingerID id; // -1: not touching
 	Uint32 time_last_down;
-	int last_x;        // last known screen x-coordinate
-	int last_y;        // last known screen y-coordinate
-	float last_down_x; // SDL touch coordinates when last pressed down
-	float last_down_y; // SDL touch coordinates when last pressed down
+	int last_x;      // last known screen x-coordinate
+	int last_y;      // last known screen y-coordinate
 };
 
 static Touch finger[TOUCH_PORT_MAX_NUM][MAX_NUM_FINGERS]; // keep track of finger status
@@ -124,9 +120,6 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 		finger[port][i].id             = id;
 		// preserve the timestamp to calculate the tap-length
 		finger[port][i].time_last_down = event->tfinger.timestamp;
-		// we also need the last coordinates for each finger to keep track of dragging
-		finger[port][i].last_down_x    = event->tfinger.x;
-		finger[port][i].last_down_y    = event->tfinger.y;
 		int x, y;
 		TouchToLogical(event, x, y);
 		// remember the last coordinates to keep track of dragging
@@ -158,15 +151,6 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 		finger[port][fingerIdx].id = NO_TOUCH;
 		if (multi_finger_dragging[port] == DRAG_NONE) {
 			if (SDL_TICKS_PASSED(event->tfinger.timestamp, finger[port][fingerIdx].time_last_down + MAX_TAP_TIME)) {
-				return; // continue;
-			}
-
-			// short (<MAX_TAP_TIME ms) tap is interpreted as right/left mouse click depending on # fingers already down
-			// but only if the finger hasn't moved since it was pressed down by more than MAX_TAP_MOTION_DISTANCE pixels
-			float xrel = ((event->tfinger.x * dvl::GetOutputSurface()->w) - (finger[port][fingerIdx].last_down_x * dvl::GetOutputSurface()->w));
-			float yrel = ((event->tfinger.y * dvl::GetOutputSurface()->h) - (finger[port][fingerIdx].last_down_y * dvl::GetOutputSurface()->h));
-			float maxRSquared = (float)(MAX_TAP_MOTION_DISTANCE * MAX_TAP_MOTION_DISTANCE);
-			if ((xrel * xrel + yrel * yrel) >= maxRSquared) {
 				return; // continue;
 			}
 
