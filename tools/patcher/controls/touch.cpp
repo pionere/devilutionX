@@ -175,7 +175,11 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 			}
 			int x, y;
 			TouchToLogical(event, x, y);
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
+			SDL_Event ev;
+			SetMouseMotionEvent(&ev, x, y);
+			SDL_PushEvent(&ev);
+			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
+			SDL_PushEvent(&ev);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
 			int x = MousePos.x;
@@ -186,7 +190,11 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 			} else {
 				simulatedButton = SDL_BUTTON_LEFT;
 			}
-			SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
+			SDL_Event ev;
+			SetMouseMotionEvent(&ev, x, y);
+			SDL_PushEvent(&ev);
+			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
+			SDL_PushEvent(&ev);
 			multi_finger_dragging[port] = DRAG_NONE;
 		}
 	}
@@ -283,7 +291,9 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		if (!updatePointer) {
 			return;
 		}
-		SetMouseMotionEvent(event, x, y);
+		SDL_Event ev;
+		SetMouseMotionEvent(&ev, x, y);
+		SDL_PushEvent(&ev);
 	}
 }
 
