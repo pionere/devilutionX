@@ -112,6 +112,17 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 	// id (for multitouch)
 	SDL_FingerID id = event->tfinger.fingerId;
 
+	int numFingersDown = 0;
+	// int fingerIdx = -1;
+	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
+		if (finger[port][i].id != NO_TOUCH) {
+			//if (finger[port][i].id == id) {
+			//	fingerIdx = i;
+			//}
+			numFingersDown++;
+		}
+	}
+
 	for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 		if (finger[port][i].id != NO_TOUCH) {
 			// make sure each finger is not reported down multiple times
@@ -130,6 +141,12 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 		// remember the last coordinates to keep track of dragging
 		finger[port][i].last_x         = x;
 		finger[port][i].last_y         = y;
+		// update the mouse-position on first touch
+		if (numFingersDown == 0) {
+			SDL_Event ev;
+			SetMouseMotionEvent(&ev, x, y);
+			SDL_PushEvent(&ev);
+		}
 		break;
 	}
 }
