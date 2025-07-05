@@ -239,6 +239,14 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			if (simulatedBtnIdx >= TOUCH_PORT_CLICK_NUM) {
 				return; // continue;
 			}
+			// ensure the other button is not triggering any more
+			if (simulatedBtnIdx != 0) {
+				for (int i = 0; i < MAX_NUM_FINGERS; i++) {
+					if (finger[port][i].id != NO_TOUCH) {
+						finger[port][i].time_last_down = event->tfinger.timestamp - (MAX_TAP_TIME + 1);
+					}
+				}
+			}
 			// need to raise the button later
 			// simulated_click_start_time[port][simulatedBtnIdx] = event->tfinger.timestamp;
 			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types");
@@ -409,7 +417,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				DispatchMessage(&ev);
 #else
 				Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
-				multi_finger_dragging[port] = DRAG_NONE;
 				SDL_Event ev;
 				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY/*, 0, 0*/); // TODO: xrel/yrel?
 				SDL_PushEvent(&ev);
