@@ -163,16 +163,14 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 			}
 		}
 		finger[port][i].id             = id;
-		// we need the timestamps to decide later if the user performed a short tap (click)
-		// or a long tap (drag)
+		// preserve the timestamp to calculate the tap-length
 		finger[port][i].time_last_down = event->tfinger.timestamp;
-		// we also need the last coordinates for each finger to keep track of dragging
-		//finger[port][i].last_down_x    = event->tfinger.x;
-		//finger[port][i].last_down_y    = event->tfinger.y;
 		int x, y;
 		TouchToLogical(event, x, y);
+		// remember the starting coordinates for multi-finger drag
 		finger[port][i].first_x        = x;
 		finger[port][i].first_y        = y;
+		// remember the last coordinates to keep track of dragging
 #ifdef NOPOS
 		finger[port][i].last_x         = -1;
 		finger[port][i].last_y         = -1;
@@ -183,10 +181,10 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 		finger[port][i].last_y         = y;
 		if (numFingersDown == 0) {
 #ifdef ALTER_EVENTS
-			SetMouseMotionEvent(event, x, y/*, 0, 0*/); // TODO: xrel/yrel?
+			SetMouseMotionEvent(event, x, y);
 #else
 			SDL_Event ev;
-			SetMouseMotionEvent(&ev, x, y/*, 0, 0*/); // TODO: xrel/yrel?
+			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
 #endif
 		}
@@ -225,15 +223,6 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 				return; // continue;
 			}
 
-			// short (<MAX_TAP_TIME ms) tap is interpreted as right/left mouse click depending on # fingers already down
-			// but only if the finger hasn't moved since it was pressed down by more than MAX_TAP_MOTION_DISTANCE pixels
-			/*float xrel = ((event->tfinger.x * dvl::GetOutputSurface()->w) - (finger[port][fingerIdx].last_down_x * dvl::GetOutputSurface()->w));
-			float yrel = ((event->tfinger.y * dvl::GetOutputSurface()->h) - (finger[port][fingerIdx].last_down_y * dvl::GetOutputSurface()->h));
-			float maxRSquared = (float)(MAX_TAP_MOTION_DISTANCE * MAX_TAP_MOTION_DISTANCE);
-			if ((xrel * xrel + yrel * yrel) >= maxRSquared) {
-				return; // continue;
-			}*/
-
 			// assert(numFingersDown >= 1);
 			int simulatedBtnIdx = numFingersDown - 1;
 			if (simulatedBtnIdx >= TOUCH_PORT_CLICK_NUM) {
@@ -252,9 +241,6 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types");
 			int x, y;
 			TouchToLogical(event, x, y);
-			// Uint8 simulatedButton = simulatedBtnIdx == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
-			// SetMouseMotionEvent(event, x, y, 0, 0); // TODO: xrel/yrel?
-			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
 			LogErrorFFFF("click%d: %d:%d", simulatedBtnIdx, x, y);
 			EventPlrMsg("click%d: %d:%d", simulatedBtnIdx, x, y);
 #ifdef DISPATCH_TOUCH
@@ -270,7 +256,7 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 #else
 			Uint8 simulatedButton = simulatedBtnIdx == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 			SDL_Event ev;
-			SetMouseMotionEvent(&ev, x, y/*, 0, 0*/); // TODO: xrel/yrel?
+			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
 			SDL_PushEvent(&ev);
@@ -279,16 +265,8 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 #endif
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
-			/*Uint8 simulatedButton = 0;
-			if (multi_finger_dragging[port] == DRAG_TWO_FINGER) {
-				simulatedButton = SDL_BUTTON_LEFT;
-			} else /*if (multi_finger_dragging[port] == DRAG_THREE_FINGER) * /{
-				simulatedButton = SDL_BUTTON_RIGHT;
-			}
-			multi_finger_dragging[port] = DRAG_NONE;*/
 			int x = MousePos.x;
 			int y = MousePos.y;
-			// SetMouseButtonEvent(event, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 #ifdef DISPATCH_TOUCH
 			Dvl_Event ev;
 			ev.button.x = x;
@@ -300,7 +278,7 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 			multi_finger_dragging[port] = DRAG_NONE;
 			SDL_Event ev;
-			SetMouseMotionEvent(&ev, x, y/*, 0, 0*/); // TODO: xrel/yrel?
+			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			SDL_PushEvent(&ev);
@@ -326,7 +304,7 @@ static int first_direct_finger_index()
 	return firstIdx;
 }
 
-static void preprocess_direct_finger_motion(SDL_Event* event)
+static void preprocess_direct_finger_motion(const SDL_Event* event)
 {
 	const int port = 0;
 	// id (for multitouch)
@@ -377,21 +355,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				int firstIdx = first_direct_finger_index();
 				int mouseDownX = finger[port][firstIdx].first_x;
 				int mouseDownY = finger[port][firstIdx].first_y;
-
-				/*int mouseDownX = MousePos.x;
-				int mouseDownY = MousePos.y;
-
-							Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
-							for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-								if (finger[port][i].id == NO_TOUCH || (i == fingerIdx)) {
-									continue;
-								}
-								if (!SDL_TICKS_PASSED(finger[port][i].time_last_down, earliestTime)) {
-									mouseDownX = finger[port][i].last_x;
-									mouseDownY = finger[port][i].last_y;
-									earliestTime = finger[port][i].time_last_down;
-								}
-							}*/
 	// LogErrorFFFF("sim down: %d:%d lr: %d", mouseDownX, mouseDownY, numFingersDownlong == 2);
 	// EventPlrMsg("sim down: %d:%d lr: %d", mouseDownX, mouseDownY, numFingersDownlong == 2);
 				// Uint8 simulatedButton = 0;
@@ -402,11 +365,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 					// simulatedButton = SDL_BUTTON_RIGHT;
 					multi_finger_dragging[port] = DRAG_THREE_FINGER;
 				}
-				/*SDL_Event ev;
-				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY, 0, 0); // TODO: xrel/yrel?
-				SDL_PushEvent(&ev);
-				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, mouseDownX, mouseDownY);
-				SDL_PushEvent(&ev);*/
 #ifdef DISPATCH_TOUCH
 				MousePos.x = mouseDownX;
 				MousePos.y = mouseDownY;
@@ -418,9 +376,9 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 #else
 				Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 				SDL_Event ev;
-				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY/*, 0, 0*/); // TODO: xrel/yrel?
+				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
-				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_RELEASED, mouseDownX, mouseDownY);
+				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, mouseDownX, mouseDownY);
 				SDL_PushEvent(&ev);
 #endif
 			}
@@ -446,15 +404,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 		if (numFingersDown > 1) {
 			int firstIdx = first_direct_finger_index();
 			updatePointer = firstIdx == fingerIdx;
-				/*Uint32 earliestTime = finger[port][fingerIdx].time_last_down;
-				for (int i = 0; i < MAX_NUM_FINGERS; i++) {
-					if (finger[port][i].id == NO_TOUCH || (i == fingerIdx)) {
-						continue;
-					}
-					if (!SDL_TICKS_PASSED(finger[port][i].time_last_down, earliestTime)) {
-						updatePointer = false;
-					}
-				}*/
 		}
 		if (!updatePointer) {
 			return;
@@ -462,16 +411,16 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 	// LogErrorFFFF("move: %d:%d idx: %d (%d) (%f:%f)", x, y, fingerIdx, id, event->tfinger.x, event->tfinger.y);
 	// EventPlrMsg("move: %d:%d idx: %d (%d) (%f:%f)", x, y, fingerIdx, id, event->tfinger.x, event->tfinger.y);
 #ifdef ALTER_EVENTS
-		SetMouseMotionEvent(event, x, y/*, xrel, yrel*/);
+		SetMouseMotionEvent(event, x, y);
 #else
 		SDL_Event ev;
-		SetMouseMotionEvent(&ev, x, y/*, xrel, yrel*/); // TODO: xrel/yrel?
+		SetMouseMotionEvent(&ev, x, y);
 		SDL_PushEvent(&ev);
 #endif
 	}
 }
 
-static void PreprocessEvents(SDL_Event* event)
+static void PreprocessEvents(const SDL_Event* event)
 {
 	// Supported touch gestures:
 	// left mouse click: single finger short tap
@@ -479,8 +428,7 @@ static void PreprocessEvents(SDL_Event* event)
 	// pointer motion: single finger drag
 	// left button drag and drop: dual finger drag
 	// right button drag and drop: triple finger drag
-	Uint32 type = event->type;
-	if (type != SDL_FINGERDOWN && type != SDL_FINGERUP && type != SDL_FINGERMOTION) {
+	if (event->type != SDL_FINGERDOWN && event->type != SDL_FINGERUP && event->type != SDL_FINGERMOTION) {
 		return;
 	}
 
@@ -488,8 +436,8 @@ static void PreprocessEvents(SDL_Event* event)
 	{
 		int x, y;
 		TouchToLogical(event, x, y);
-		LogErrorFFFF("touch event: %s on %d at %d:%d (%f:%f)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y);
-		// EventPlrMsg("touch event: %s on %d at %d:%d (%f:%f)", type == SDL_FINGERDOWN ? "d" : (type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y);
+		LogErrorFFFF("touch event: %s on %d at %d:%d (%f:%f)", event->type == SDL_FINGERDOWN ? "d" : (event->type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y);
+		// EventPlrMsg("touch event: %s on %d at %d:%d (%f:%f)", event->type == SDL_FINGERDOWN ? "d" : (event->type == SDL_FINGERUP ? "u" : "m"), port, x, y, event->tfinger.x, event->tfinger.y);
 	}
 	SDL_TouchDeviceType devType = SDL_GetTouchDeviceType(port);
 	if (devType != SDL_TOUCH_DEVICE_DIRECT) {
@@ -499,7 +447,7 @@ static void PreprocessEvents(SDL_Event* event)
 		}
 #endif
 		if (devType == SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE) {
-			switch (type) {
+			switch (event->type) {
 			case SDL_FINGERDOWN:
 				preprocess_indirect_finger_down(event);
 				break;
@@ -511,7 +459,7 @@ static void PreprocessEvents(SDL_Event* event)
 		return;
 	}
 
-	switch (type) {
+	switch (event->type) {
 	case SDL_FINGERDOWN:
 		preprocess_direct_finger_down(event);
 		break;
@@ -529,50 +477,8 @@ void handle_touch(SDL_Event* event)
 	PreprocessEvents(event);
 }
 
-/*static void sendSimulatedMouseButtonEvent(int32_t x, int32_t y, uint32_t type, uint8_t button, uint8_t state)
-{
-	SDL_Event ev[2];
-	SetMouseMotionEvent(&ev[0], x, y, 0, 0); // TODO: xrel/yrel?
-	SetMouseButtonEvent(&ev[1], type, button, state, x, y);
-	Uint32 now = SDL_GetTicks();
-	ev[0].common.timestamp = now;
-	ev[1].common.timestamp = now;
-	int res0 = SDL_PeepEvents(ev, 2, SDL_ADDEVENT, 0, 0);
-	LogErrorFFFF(" res: %d %d", res0, res0);
-	EventPlrMsg(" res: %d %d", res0, res0);
-}*/
-
 void finish_simulated_mouse_clicks()
 {
-	/*for (int port = 0; port < TOUCH_PORT_MAX_NUM; port++) {
-		for (int i = 0; i < TOUCH_PORT_CLICK_NUM; i++) {
-			if (simulated_click_start_time[port][i] == 0) {
-				continue;
-			}
-
-			if (!SDL_TICKS_PASSED(SDL_GetTicks(), simulated_click_start_time[port][i] + SIMULATED_CLICK_DURATION))
-				continue;
-			simulated_click_start_time[port][i] = 0;
-
-			int mouse_x = MousePos.x;
-			int mouse_y = MousePos.y;
-	LogErrorFFFF("sim up: %d:%d lr: %d", mouse_x, mouse_y, i);
-	EventPlrMsg("sim up: %d:%d lr: %d", mouse_x, mouse_y, i);
-			int simulatedButton;
-			if (i == 0) {
-				simulatedButton = SDL_BUTTON_LEFT;
-			} else {
-				simulatedButton = SDL_BUTTON_RIGHT;
-			}
-			SDL_Event ev;
-			SetMouseMotionEvent(&ev, mouse_x, mouse_y, 0, 0); // TODO: xrel/yrel?
-		int res0 = SDL_PushEvent(&ev);
-			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, mouse_x, mouse_y);
-		int res1 = SDL_PushEvent(&ev);
-		LogErrorFFFF(" res: %d %d", res0, res1);
-		EventPlrMsg(" res: %d %d", res0, res1);
-		}
-	}*/
 }
 
 DEVILUTION_END_NAMESPACE
