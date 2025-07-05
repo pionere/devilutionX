@@ -228,17 +228,6 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 	}
 
 	if (fingerIdx >= 0) {
-		int x, y, xrel, yrel;
-
-		TouchToLogical(event, x, y);
-
-		xrel = x - MousePos.x;
-		yrel = y - MousePos.y;
-
-		// update the current finger's coordinates so we can track it later
-			finger[port][fingerIdx].last_x = x;
-			finger[port][fingerIdx].last_y = y;
-
 		// If we are starting a multi-finger drag, start holding down the mouse button
 		if (numFingersDown >= 2 && multi_finger_dragging[port] == DRAG_NONE) {
 			// only start a multi-finger drag if at least two fingers have been down long enough
@@ -253,8 +242,8 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 			}
 			if (numFingersDownlong >= 2) {
 				int firstIdx = first_direct_finger_index();
-				int mouseDownX = finger[port][firstIdx].first_x;
-				int mouseDownY = finger[port][firstIdx].first_y;
+				int x = finger[port][firstIdx].first_x;
+				int y = finger[port][firstIdx].first_y;
 
 				Uint8 simulatedButton = 0;
 				if (numFingersDownlong == 2) {
@@ -265,13 +254,21 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 					multi_finger_dragging[port] = DRAG_THREE_FINGER;
 				}
 				SDL_Event ev;
-				SetMouseMotionEvent(&ev, mouseDownX, mouseDownY);
+				SetMouseMotionEvent(&ev, x, y);
 				SDL_PushEvent(&ev);
-				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, mouseDownX, mouseDownY);
+				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
 				SDL_PushEvent(&ev);
 			}
 		}
+		int x, y, xrel, yrel;
+		TouchToLogical(event, x, y);
 
+		// update the current finger's coordinates so we can track it later
+		finger[port][fingerIdx].last_x = x;
+		finger[port][fingerIdx].last_y = y;
+
+		xrel = x - MousePos.x;
+		yrel = y - MousePos.y;
 		if (xrel == 0 && yrel == 0) {
 			return;
 		}
