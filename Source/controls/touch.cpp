@@ -157,6 +157,7 @@ void InitTouch()
 	init_virtual_gamepad();
 	LogErrorF("initTouch 1");
 	assert(pTouchIconsCels == NULL);
+	LogErrorF("initTouch 1.1");
 	pTouchIconsCels = CelLoadImage("Data\\TouchBtn.CEL", 0);
 	LogErrorF("initTouch 2");
 }

@@ -49,6 +49,7 @@ DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 #endif
 	if (result == 0) {
 		DoLog("File '%s' not found.", filename);
+		LogErrorF("File '%s' not found.", filename);
 	}
 	return result;
 }
