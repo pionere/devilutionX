@@ -100,17 +100,17 @@ static void preprocess_indirect_finger_up(SDL_Event* event)
 	event->caxis.axis  = event->tfinger.x <= 0.5 ? SDL_CONTROLLER_AXIS_TRIGGERLEFT : SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
 }
 
-static void TouchToLogical(SDL_Event* event, int& x, int& y)
+static void TouchToLogical(const SDL_Event* event, int& x, int& y)
 {
 	x = event->tfinger.x * SCREEN_WIDTH;
 	y = event->tfinger.y * SCREEN_HEIGHT;
 }
 
-static void preprocess_direct_finger_down(SDL_Event* event)
+static void preprocess_direct_finger_down(const SDL_Event* event)
 {
 	const int port = 0;
 	// id (for multitouch)
-	SDL_FingerID id = event->tfinger.fingerId;
+	const SDL_FingerID id = event->tfinger.fingerId;
 
 	int numFingersDown = 0;
 	// int fingerIdx = -1;
@@ -151,11 +151,11 @@ static void preprocess_direct_finger_down(SDL_Event* event)
 	}
 }
 
-static void preprocess_direct_finger_up(SDL_Event* event)
+static void preprocess_direct_finger_up(const SDL_Event* event)
 {
 	const int port = 0;
 	// id (for multitouch)
-	SDL_FingerID id = event->tfinger.fingerId;
+	const SDL_FingerID id = event->tfinger.fingerId;
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
@@ -176,22 +176,16 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 				return; // continue;
 			}
 
-			if (numFingersDown != 2 && numFingersDown != 1) {
+			// assert(numFingersDown >= 1);
+			int simulatedBtnIdx = numFingersDown - 1;
+			if (simulatedBtnIdx >= TOUCH_PORT_CLICK_NUM) {
 				return; // continue;
 			}
-
-			Uint8 simulatedButton = 0;
-			if (numFingersDown == 2) {
-				simulatedButton = SDL_BUTTON_RIGHT;
-				// need to raise the button later
-				simulated_click_start_time[port][1] = event->tfinger.timestamp;
-			} else if (numFingersDown == 1) {
-				simulatedButton = SDL_BUTTON_LEFT;
-				// need to raise the button later
-				simulated_click_start_time[port][0] = event->tfinger.timestamp;
-			}
+			simulated_click_start_time[port][simulatedBtnIdx] = event->tfinger.timestamp;
 			int x, y;
 			TouchToLogical(event, x, y);
+			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types I.");
+			Uint8 simulatedButton = simulatedBtnIdx == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 			SDL_Event ev;
 			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
@@ -201,18 +195,14 @@ static void preprocess_direct_finger_up(SDL_Event* event)
 			// when dragging, and the last finger is lifted, the drag is over
 			int x = MousePos.x;
 			int y = MousePos.y;
-			Uint8 simulatedButton = 0;
-			if (multi_finger_dragging[port] == DRAG_THREE_FINGER) {
-				simulatedButton = SDL_BUTTON_RIGHT;
-			} else {
-				simulatedButton = SDL_BUTTON_LEFT;
-			}
+			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types II.");
+			Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
+			multi_finger_dragging[port] = DRAG_NONE;
 			SDL_Event ev;
 			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			SDL_PushEvent(&ev);
-			multi_finger_dragging[port] = DRAG_NONE;
 		}
 	}
 }
@@ -234,11 +224,11 @@ static int first_direct_finger_index()
 	return firstIdx;
 }
 
-static void preprocess_direct_finger_motion(SDL_Event* event)
+static void preprocess_direct_finger_motion(const SDL_Event* event)
 {
 	const int port = 0;
 	// id (for multitouch)
-	SDL_FingerID id = event->tfinger.fingerId;
+	const SDL_FingerID id = event->tfinger.fingerId;
 
 	// find out how many fingers were down before this event
 	int numFingersDown = 0;
@@ -270,7 +260,7 @@ static void preprocess_direct_finger_motion(SDL_Event* event)
 				int x = finger[port][firstIdx].first_x;
 				int y = finger[port][firstIdx].first_y;
 
-				Uint8 simulatedButton = 0;
+				Uint8 simulatedButton;
 				if (numFingersDownlong == 2) {
 					simulatedButton = SDL_BUTTON_LEFT;
 					multi_finger_dragging[port] = DRAG_TWO_FINGER;
@@ -380,12 +370,8 @@ void finish_simulated_mouse_clicks()
 			int mouse_x = MousePos.x;
 			int mouse_y = MousePos.y;
 
-			int simulatedButton;
-			if (i == 0) {
-				simulatedButton = SDL_BUTTON_LEFT;
-			} else {
-				simulatedButton = SDL_BUTTON_RIGHT;
-			}
+			static_assert(TOUCH_PORT_CLICK_NUM == 2, "finish_simulated_mouse_clicks is limited to 2 simulated button-types");
+			Uint8 simulatedButton = i == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
 			SDL_Event ev;
 			SetMouseMotionEvent(&ev, mouse_x, mouse_y);
 			SDL_PushEvent(&ev);
