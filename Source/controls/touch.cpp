@@ -138,7 +138,7 @@ static void TouchToLogical(const SDL_Event* event, int& x, int& y)
 	y = event->tfinger.y * SCREEN_HEIGHT;
 }
 
-static void preprocess_direct_finger_down(SDL_Event* event)
+static void preprocess_direct_finger_down(const SDL_Event* event)
 {
 	const int port = 0;
 	// id (for multitouch)
@@ -420,7 +420,7 @@ static void preprocess_direct_finger_motion(const SDL_Event* event)
 	}
 }
 
-static void PreprocessEvents(const SDL_Event* event)
+static void PreprocessEvents(SDL_Event* event)
 {
 	// Supported touch gestures:
 	// left mouse click: single finger short tap
