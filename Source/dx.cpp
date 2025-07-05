@@ -25,9 +25,8 @@
 #include "all.h"
 #include "utils/display.h"
 #include <SDL.h>
-#if HAS_GAMECTRL
 #include "controls/controller.h"
-#endif
+#include "controls/touch.h"
 
 #ifdef __3DS__
 #include <3ds.h>
