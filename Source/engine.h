@@ -14,7 +14,6 @@
 #define __ENGINE_H__
 
 //#include "appfat.h"
-#include "debug.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -142,10 +141,6 @@ inline CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
 #if DEBUG_MODE
 	res->ciFrameCnt = SwapLE32(*((uint32_t*)res));
 #endif
-	if (res == NULL) {
-		LogErrorF("Cound not find '%s'", name);
-		return res;
-	}
 	res->ciWidth = nWidth;
 	return res;
 }

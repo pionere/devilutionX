@@ -4,6 +4,7 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
+#include "controls/touch.h"
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
