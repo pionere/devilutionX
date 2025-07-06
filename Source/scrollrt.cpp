@@ -1526,7 +1526,7 @@ static void DrawView()
 		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
-		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
+		if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
 			DrawInfoStr();
 		}
 		if (gnVisibleHelpLines != 0) {

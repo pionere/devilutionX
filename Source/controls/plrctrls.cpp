@@ -355,7 +355,7 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	else if (slot >= NUM_ATTRIBS)
 		slot = NUM_ATTRIBS - 1;
 	// move cursor to our new location
-	int x = gnWndCharX + ((SDL_GetModState() & KMOD_ALT) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
+	int x = gnWndCharX + ((gbModBtnDown & ACTBTN_MASK(ACT_MODCTX)) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
 	int y = gnWndCharY + CHRBTN_TOP(slot) + (CHRBTN_HEIGHT / 2);
 	if (abs(MousePos.x - x) >= CHRBTN_WIDTH / 2 || abs(MousePos.y - y) >= CHRBTN_HEIGHT / 2) // Avoid wobbling when scaled
 		SetCursorPos(x, y);
