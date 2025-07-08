@@ -1550,6 +1550,9 @@ static void DrawView()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	DrawControllerModifierHints();
 #endif
+#if HAS_TOUCHPAD
+	DrawGamepad();
+#endif
 	DrawPlrMsg(true);
 	if (gmenu_is_active())
 		gmenu_draw();

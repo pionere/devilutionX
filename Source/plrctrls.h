@@ -32,6 +32,9 @@ void FocusOnInventory();
 
 void FocusOnCharInfo();
 
+// defined in touch.cpp
+void DrawGamepad();
+
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
 

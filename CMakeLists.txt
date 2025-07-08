@@ -207,6 +207,7 @@ option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" OFF)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(VIRTUAL_GAMEPAD "Initialize default gamepad" OFF "NOT USE_SDL1" OFF)
 option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
@@ -902,6 +903,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   DEBUG_MODE
@@ -1624,6 +1626,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   ASAN

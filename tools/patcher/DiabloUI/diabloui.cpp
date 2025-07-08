@@ -724,6 +724,10 @@ void UiRender()
 	if (gbWndActive) {
 		UiClearScreen();
 		UiDrawItems();
+
+#if HAS_TOUCHPAD
+		DrawGamepad();
+#endif
 	}
 	UiFadeIn();
 }

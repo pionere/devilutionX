@@ -18,6 +18,9 @@ extern bool sgbControllerActive;
 // defined in controller_motion.cpp
 bool IsMovingMouseCursorWithController();
 
+// defined in touch.cpp
+void DrawGamepad();
+
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
 
