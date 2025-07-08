@@ -66,7 +66,8 @@ void InitTouch()
 		for (int i = 0; i < MAX_NUM_FINGERS; i++) {
 			finger[port][i].id = NO_TOUCH;
 		}
-		multi_finger_dragging[port] = DRAG_NONE;
+		static_assert(DRAG_NONE == 0, "InitTouch must initialize the drag-modes.");
+		// multi_finger_dragging[port] = DRAG_NONE;
 	}
 
 #ifdef __vita__
