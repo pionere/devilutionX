@@ -16,7 +16,6 @@ extern "C" {
 
 void InitTouch();
 void handle_touch(SDL_Event* event);
-void finish_simulated_mouse_clicks();
 
 #ifdef __cplusplus
 }

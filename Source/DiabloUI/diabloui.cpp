@@ -722,9 +722,6 @@ void UiRenderAndPoll()
 	while (UiPeekAndHandleEvents(&event)) {
 		;
 	}
-#if HAS_TOUCHPAD
-	finish_simulated_mouse_clicks();
-#endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleMenuMove();
 #endif

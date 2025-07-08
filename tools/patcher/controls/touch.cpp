@@ -23,11 +23,6 @@ DEVILUTION_BEGIN_NAMESPACE
 #define MAX_NUM_FINGERS 3
 // taps longer than this will not result in mouse click events (ms)
 #define MAX_TAP_TIME 250
-// duration of a simulated mouse click (ms)
-#define SIMULATED_CLICK_DURATION 50
-
-// initiation time of last simulated left or right click (zero if no click)
-static Uint32 simulated_click_start_time[TOUCH_PORT_MAX_NUM][TOUCH_PORT_CLICK_NUM];
 
 struct Touch {
 	SDL_FingerID id; // -1: not touching
@@ -71,12 +66,6 @@ void InitTouch()
 			finger[port][i].id = NO_TOUCH;
 		}
 		multi_finger_dragging[port] = DRAG_NONE;
-	}
-
-	for (int port = 0; port < TOUCH_PORT_MAX_NUM; port++) {
-		for (int i = 0; i < TOUCH_PORT_CLICK_NUM; i++) {
-			simulated_click_start_time[port][i] = 0;
-		}
 	}
 
 #ifdef __vita__
@@ -181,7 +170,6 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			if (simulatedBtnIdx >= TOUCH_PORT_CLICK_NUM) {
 				return; // continue;
 			}
-			simulated_click_start_time[port][simulatedBtnIdx] = event->tfinger.timestamp;
 			int x, y;
 			TouchToLogical(event, x, y);
 			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types I.");
@@ -190,6 +178,8 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
 			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONDOWN, simulatedButton, SDL_PRESSED, x, y);
+			SDL_PushEvent(&ev);
+			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
 			SDL_PushEvent(&ev);
 		} else if (numFingersDown == 1) {
 			// when dragging, and the last finger is lifted, the drag is over
@@ -352,33 +342,6 @@ static void PreprocessEvents(SDL_Event* event)
 void handle_touch(SDL_Event* event)
 {
 	PreprocessEvents(event);
-}
-
-void finish_simulated_mouse_clicks()
-{
-	for (int port = 0; port < TOUCH_PORT_MAX_NUM; port++) {
-		for (int i = 0; i < TOUCH_PORT_CLICK_NUM; i++) {
-			if (simulated_click_start_time[port][i] == 0) {
-				continue;
-			}
-
-			if (!SDL_TICKS_PASSED(SDL_GetTicks(), simulated_click_start_time[port][i] + SIMULATED_CLICK_DURATION))
-				continue;
-
-			simulated_click_start_time[port][i] = 0;
-
-			int mouse_x = MousePos.x;
-			int mouse_y = MousePos.y;
-
-			static_assert(TOUCH_PORT_CLICK_NUM == 2, "finish_simulated_mouse_clicks is limited to 2 simulated button-types");
-			Uint8 simulatedButton = i == 0 ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
-			SDL_Event ev;
-			SetMouseMotionEvent(&ev, mouse_x, mouse_y);
-			SDL_PushEvent(&ev);
-			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, mouse_x, mouse_y);
-			SDL_PushEvent(&ev);
-		}
-	}
 }
 
 DEVILUTION_END_NAMESPACE
