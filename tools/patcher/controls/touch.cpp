@@ -331,6 +331,11 @@ static void PreprocessEvents(SDL_Event* event)
 			case SDL_FINGERUP:
 				preprocess_indirect_finger_up(event);
 				break;
+			case SDL_FINGERMOTION:
+				break;
+			default:
+				ASSUME_UNREACHABLE
+				break;
 			}
 		}
 		return;
@@ -345,6 +350,9 @@ static void PreprocessEvents(SDL_Event* event)
 		break;
 	case SDL_FINGERMOTION:
 		preprocess_direct_finger_motion(event);
+		break;
+	default:
+		ASSUME_UNREACHABLE
 		break;
 	}
 }
