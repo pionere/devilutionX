@@ -71,7 +71,7 @@ void InitTouch()
 	}
 
 #ifdef __vita__
-	back_touch = dvl::getIniBool("Controller", "enable_second_touchscreen", true);
+	back_touch = getIniBool("Controller", "enable_second_touchscreen", true);
 #endif
 }
 
