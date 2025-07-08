@@ -39,6 +39,7 @@ enum DraggingType {
 	DRAG_NONE,
 	DRAG_TWO_FINGER,
 	DRAG_THREE_FINGER,
+	DRAG_OVER,
 };
 
 static DraggingType multi_finger_dragging[TOUCH_PORT_MAX_NUM]; // keep track whether we are currently drag-and-dropping
@@ -136,6 +137,8 @@ static void preprocess_direct_finger_down(const SDL_Event* event)
 			SetMouseMotionEvent(&ev, x, y);
 			SDL_PushEvent(&ev);
 		}
+		// reset DRAG_OVER states to allow sequent 'right' clicks while holding the other finger down
+		multi_finger_dragging[port] = DRAG_NONE;
 		break;
 	}
 }
@@ -170,6 +173,10 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			if (simulatedBtnIdx >= TOUCH_PORT_CLICK_NUM) {
 				return; // continue;
 			}
+			// ensure the other button is not triggering any more
+			if (simulatedBtnIdx != 0) {
+				multi_finger_dragging[port] = DRAG_OVER;
+			}
 			int x, y;
 			TouchToLogical(event, x, y);
 			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types I.");
@@ -186,13 +193,15 @@ static void preprocess_direct_finger_up(const SDL_Event* event)
 			int x = MousePos.x;
 			int y = MousePos.y;
 			static_assert(TOUCH_PORT_CLICK_NUM == 2, "preprocess_direct_finger_up is limited to 2 simulated button-types II.");
-			Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
+			Uint8 simulatedButton = multi_finger_dragging[port] == DRAG_TWO_FINGER ? SDL_BUTTON_LEFT : (multi_finger_dragging[port] == DRAG_THREE_FINGER ? SDL_BUTTON_RIGHT : 0);
 			multi_finger_dragging[port] = DRAG_NONE;
-			SDL_Event ev;
-			SetMouseMotionEvent(&ev, x, y);
-			SDL_PushEvent(&ev);
-			SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
-			SDL_PushEvent(&ev);
+			if (simulatedButton != 0) {
+				SDL_Event ev;
+				SetMouseMotionEvent(&ev, x, y);
+				SDL_PushEvent(&ev);
+				SetMouseButtonEvent(&ev, SDL_MOUSEBUTTONUP, simulatedButton, SDL_RELEASED, x, y);
+				SDL_PushEvent(&ev);
+			}
 		}
 	}
 }
