@@ -24,16 +24,16 @@ DEVILUTION_BEGIN_NAMESPACE
 // taps longer than this will not result in mouse click events (ms)
 #define MAX_TAP_TIME 250
 
-struct Touch {
+typedef struct FingerStruct {
 	SDL_FingerID id; // -1: not touching
 	Uint32 time_last_down;
 	int last_x;      // last known screen x-coordinate
 	int last_y;      // last known screen y-coordinate
 	int first_x;     // first screen x-coordinate
 	int first_y;     // first screen y-coordinate
-};
+} FingerStruct;
 
-static Touch finger[TOUCH_PORT_MAX_NUM][MAX_NUM_FINGERS]; // keep track of finger status
+static FingerStruct finger[TOUCH_PORT_MAX_NUM][MAX_NUM_FINGERS]; // keep track of finger status
 
 enum DraggingType {
 	DRAG_NONE,
