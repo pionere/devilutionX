@@ -14,6 +14,7 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-24.04
+    environment: android
     steps:
     - name: Install gettext
       run: sudo apt-get update && sudo apt-get install -y gettext
@@ -56,12 +57,49 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="-DHELLFIRE=ON" -Pcmakearg1="" -Pcmakearg2=""
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="-DHELLFIRE=OFF" -Pcmakearg1="-DCREATE_PATCHER=ON" -Pcmakearg2="-DNONET=OFF"
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    #- name: Upload-Package
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    #name: devilutionx-debug.apk
+    #    #path: android-project/app/build/outputs/apk/debug/app-debug.apk
+    #    name: hellfire-nightly-android-unsigned.apk
+    #    path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
+
+    #- name: Sign app APK
+    #  uses: upup-company/apksigner-android@v1
+    #  # ID used to access action output
+    #  id: sign_app
+    #  with:
+    #    releaseDirectory: android-project/app/build/outputs/apk/release
+    #    signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+    #    alias: ${{ secrets.ALIAS }}
+    #    keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+    #    keyPassword: ${{ secrets.KEY_PASSWORD }}
+    #    customArgs: --v1-signing-enabled,true,--v2-signing-enabled,true
+    #  #env:
+    #  #  # override default build-tools version (29.0.3) -- optional
+    #  #  BUILD_TOOLS_VERSION: "30.0.2"
+
+    - uses: ilharp/sign-android-release@v2 # Or use @nightly
+      name: Sign app APK
+      id: sign_app
       with:
-        #name: devilutionx-debug.apk
-        #path: android-project/app/build/outputs/apk/debug/app-debug.apk
+        releaseDir: android-project/app/build/outputs/apk/release
+        signingKey: ${{ secrets.ANDROID_SIGNING_KEY }}
+        keyAlias: ${{ secrets.ANDROID_KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        #buildToolsVersion: 36.0.0
+
+    - name: Rename
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/app-release.apk
+
+    # Upload the signed file
+    - uses: actions/upload-artifact@v4
+      with:
         name: hellfire-nightly-android.apk
-        path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: android-project/app/build/outputs/apk/release/app-release.apk
