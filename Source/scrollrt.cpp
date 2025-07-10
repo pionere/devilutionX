@@ -1526,7 +1526,7 @@ static void DrawView()
 		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
-		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
+		if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
 			DrawInfoStr();
 		}
 		if (gnVisibleHelpLines != 0) {
@@ -1542,17 +1542,20 @@ static void DrawView()
 		DrawPause();
 	}
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	DrawControllerModifierHints();
-#endif
-	DrawPlrMsg(true);
-	if (gmenu_is_active())
-		gmenu_draw();
 	//if (gbDoomflag)
 	//	doom_draw();
 	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	//}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	DrawControllerModifierHints();
+#endif
+#if HAS_TOUCHPAD
+	DrawGamepad();
+#endif
+	DrawPlrMsg(true);
+	if (gmenu_is_active())
+		gmenu_draw();
 }
 
 #if DEBUG_MODE

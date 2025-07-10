@@ -4688,6 +4688,8 @@ typedef enum input_key {
 	ACT_W_E,
 	ACT_W_SE,
 	ACT_STOP,
+	ACT_MODACT, // action modifier (attack in place, etc...)
+	ACT_MODCTX, // context modifier (show tooltip, etc...)
 	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,

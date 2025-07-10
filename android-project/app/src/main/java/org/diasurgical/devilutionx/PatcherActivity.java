@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
 
-public class DevilutionXSDLActivity extends SDLActivity {
+public class PatcherActivity extends SDLActivity {
 	private String externalDir;
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +97,7 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				//"SDL2",
 				//"SDL2_mixer",
 				//"SDL2_ttf",
-				"devilutionx"
+				"devil_patcher"
 		};
 	}
 }

@@ -535,6 +535,7 @@ jobs:
             cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
     runs-on: ubuntu-24.04
+    environment: android
     steps:
     - name: Install gettext
       run: sudo apt-get update && sudo apt-get install -y gettext
@@ -574,13 +575,30 @@ jobs:
       shell: bash
       run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
+    - uses: ilharp/sign-android-release@v2 # Or use @nightly
+      name: Sign app APK
+      id: sign_app
+      with:
+        releaseDir: android-project/app/build/outputs/apk/release
+        signingKey: ${{ secrets.ANDROID_SIGNING_KEY }}
+        keyAlias: ${{ secrets.ANDROID_KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        #buildToolsVersion: 36.0.0
+
+    - name: Rename
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/devilutionx.apk
+
     - name: Upload-Package
       uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
         name: ${{ matrix.artifact }}
-        path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
+        #path: android-project/app/build/outputs/apk/release/app-release-signed.apk
+        path: android-project/app/build/outputs/apk/release/devilutionx.apk
 
   # rg350-builds
   build_rg350:
@@ -1222,13 +1240,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
+    - run: mv ${{github.workspace}}/devilutionx.apk ${{github.workspace}}/diablo-nightly-android.apk
 
     - name: Download a hellfire android artifact
       uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
+    - run: mv ${{github.workspace}}/devilutionx.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     # rg350-builds
     - name: Download a diablo rg350 artifact

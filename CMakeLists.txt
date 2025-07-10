@@ -207,6 +207,7 @@ option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" OFF)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(VIRTUAL_GAMEPAD "Initialize default gamepad" OFF "NOT USE_SDL1" OFF)
 option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
@@ -565,6 +566,7 @@ set(devilutionx_SRCS
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
+  Source/utils/filestream.cpp
   Source/utils/paths.cpp
   Source/utils/screen_reader.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
@@ -713,6 +715,7 @@ if(CREATE_PATCHER)
     tools/patcher/storm/storm.cpp
     tools/patcher/storm/storm_cfg.cpp
     tools/patcher/utils/display.cpp
+    tools/patcher/utils/filestream.cpp
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
@@ -900,6 +903,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   DEBUG_MODE
@@ -1622,6 +1626,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   ASAN

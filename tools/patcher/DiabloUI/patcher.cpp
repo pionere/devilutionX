@@ -6,8 +6,9 @@
 #include "patchdat.h"
 #include "selok.h"
 #include "utils/display.h"
-#include "utils/paths.h"
+#include "utils/filestream.h"
 #include "utils/file_util.h"
+#include "utils/paths.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
@@ -441,8 +442,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		for (unsigned i = 0; i < numEntries; i++) {
 			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
-			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+			memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 			dstDataCursor += len;
 			srcHeaderCursor++;
 		}
@@ -455,8 +456,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 	for (unsigned i = 0; i < numEntries; i++) {
 		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
-		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+		memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 		dstDataCursor += len;
 		srcHeaderCursor++;
 	}
@@ -2114,7 +2115,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || *pHead == 0x80u) {
+				if (colMatches < RLE_LEN || *pHead == 0x81u) {
 					// bmp encoding
 					if (/*alpha ||*/ *pHead <= 0xBFu || first) {
 						pushHead(&pPrevHead, &pLastHead, pHead);
@@ -2241,10 +2242,16 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_RHTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_RHUHT: frameCount =  8 - 1; width =  96; height =  96; break;
 	case FILE_PLR_RHUQM: frameCount = 17 - 1; width =  96; height =  96; break;
-	case FILE_PLR_RMTAT: frameCount = 17 - 1; width = 128; height = 128; break;
+	case FILE_PLR_RMTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_WHMAT: frameCount = 17 - 1; width = 128; height =  96; break;
 	case FILE_PLR_WLNLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
+	if (srcCelEntries <= frameCount) {
+		return cl2Buf; // assume it is already done
 	}
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
@@ -2280,7 +2287,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			int nn = n;
 			if (index == FILE_PLR_RHTAT || index == FILE_PLR_RMTAT) {
@@ -2314,14 +2321,14 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 	constexpr bool groupped = true;
 
 	int frameCount = 0, width = 0, height = 0;
-    switch (index) {
+	switch (index) {
 	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
-    case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
+	case FILE_PLR_RMBFM: frameCount = 16; width = 96; height = 96; break;
 	case FILE_PLR_RMBLM: frameCount = 16; width = 96; height = 96; break;
 	case FILE_PLR_RMBQM: frameCount = 16; width = 96; height = 96; break;
-    }
+	}
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
 	memset(resCl2Buf, 0, 2 * *dwLen);
@@ -2356,19 +2363,19 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 
 			int nn = ii * frameCount + n - 1;
-            switch (index) {
-            case FILE_PLR_RLMAT:
+			switch (index) {
+			case FILE_PLR_RLMAT:
 				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
 					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
 					}
 				}
-                break;
+				break;
 			case FILE_PLR_RMHAT:
 				for (int i = 0; i < lengthof(deltaRMHAT); i++) {
 					if (deltaRMHAT[i].dfFrameNum == nn + 1) {
@@ -2376,35 +2383,35 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 					}
 				}
 				break;
-            case FILE_PLR_RMMAT:
+			case FILE_PLR_RMMAT:
 				for (int i = 0; i < lengthof(deltaRMMAT); i++) {
 					if (deltaRMMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMMAT[i].dfx + BUFFER_WIDTH * deltaRMMAT[i].dfy] = deltaRMMAT[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBFM:
+			case FILE_PLR_RMBFM:
 				for (int i = 0; i < lengthof(deltaRMBFM); i++) {
 					if (deltaRMBFM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBFM[i].dfx + BUFFER_WIDTH * deltaRMBFM[i].dfy] = deltaRMBFM[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBLM:
+			case FILE_PLR_RMBLM:
 				for (int i = 0; i < lengthof(deltaRMBLM); i++) {
 					if (deltaRMBLM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBLM[i].dfx + BUFFER_WIDTH * deltaRMBLM[i].dfy] = deltaRMBLM[i].color;
 					}
 				}
 				break;
-            case FILE_PLR_RMBQM:
+			case FILE_PLR_RMBQM:
 				for (int i = 0; i < lengthof(deltaRMBQM); i++) {
 					if (deltaRMBQM[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRMBQM[i].dfx + BUFFER_WIDTH * deltaRMBQM[i].dfy] = deltaRMBQM[i].color;
 					}
 				}
 				break;
-            }
+			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
@@ -2652,7 +2659,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
 	srcHeaderCursor++;
 
-	const int resCelEntries = NUM_ICURS + CURSOR_FIRSTITEM - 1;
+	const int resCelEntries = (int)CURSOR_FIRSTITEM + NUM_ICURS - 1;
 	assert(srcCelEntries == resCelEntries);
 
 	// create the new CEL file
@@ -8204,7 +8211,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 
 		numA = SwapLE32(((DWORD*)buf)[0]);
 		if (numA != 179) {
-			if (numA != NUM_ICURS + CURSOR_FIRSTITEM - 1 /* 179 + 61 - 2*/) {
+			if (numA != (int)CURSOR_FIRSTITEM + NUM_ICURS - 1 /* 179 + 61 - 2*/) {
 				mem_free_dbg(buf);
 				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 				buf = NULL;
@@ -8260,7 +8267,7 @@ restart:
 		}
 		// mpqfiles.clear();
 		std::string line;
-		while (std::getline(input, line)) {
+		while (safeGetline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					mpqfiles.push_back(line);

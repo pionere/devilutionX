@@ -585,7 +585,7 @@ void SetSkill(bool altSkill)
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
-	if (SDL_GetModState() & KMOD_SHIFT) {
+	if (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) {
 		if (!altSkill) {
 			if (moveskill) {
 				p->_pMoveSkill = sn;
@@ -1286,7 +1286,7 @@ void DrawChr()
 
 	showStats = p->_pStatPts <= 0;
 	if (!showStats) {
-		showStats = (SDL_GetModState() & KMOD_ALT) != 0;
+		showStats = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		PrintJustifiedString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, COL_RED, FONT_KERN_SMALL);
 		int sx = screen_x + (showStats ? CHRBTN_ALT : CHRBTN_LEFT);
@@ -1823,7 +1823,7 @@ void DrawInfoStr()
 
 static bool CheckInChrBtnRect(int i)
 {
-	int sx = (SDL_GetModState() & KMOD_ALT) ? CHRBTN_ALT : CHRBTN_LEFT;
+	int sx = (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX)) ? CHRBTN_ALT : CHRBTN_LEFT;
 	return POS_IN_RECT(MousePos.x, MousePos.y,
 			gnWndCharX + sx, gnWndCharY + CHRBTN_TOP(i),
 			CHRBTN_WIDTH, CHRBTN_HEIGHT);
@@ -2466,7 +2466,7 @@ void TryCampaignMapClick(bool altAction)
 			if (currCamEntry.ceAvailable) {
 				selCamEntry = currCamEntry;
 				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
-				if (!(SDL_GetModState() & KMOD_SHIFT)) {
+				if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 					if (gbInvflag) {
 						gbInvflag = false;
 						/* gbInvflag =*/ ToggleWindow(WND_INV);

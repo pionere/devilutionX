@@ -184,9 +184,6 @@ void interface_msg_pump()
 			DispatchMessage(&e);
 		//}
 	}
-#if HAS_TOUCHPAD
-	finish_simulated_mouse_clicks();
-#endif
 }
 
 void IncProgress()

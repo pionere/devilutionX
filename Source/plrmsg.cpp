@@ -323,7 +323,7 @@ void SetupPlrMsg(int pnum)
 
 	if (!gbTalkflag)
 		StartPlrMsg();
-	if (!(SDL_GetModState() & KMOD_SHIFT)) {
+	if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 		text = "/p%d ";
 		param = pnum;
 	} else {
@@ -346,7 +346,7 @@ void SetupPlrMsg(int pnum)
 void VersionPlrMsg()
 {
 	EventPlrMsg(gszProductName);
-	if (!(SDL_GetModState() & KMOD_SHIFT)) {
+	if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 		if (!IsLocalGame) {
 			const char *szGameName, *szGamePassword;
 			SNetGetGameInfo(&szGameName, &szGamePassword);

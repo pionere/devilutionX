@@ -15,8 +15,10 @@ extern "C" {
 #endif
 
 void InitTouch();
+void InitGamepadGFX();
+void FreeGamepadGFX();
 void handle_touch(SDL_Event* event);
-void finish_simulated_mouse_clicks();
+void DrawGamepad();
 
 #ifdef __cplusplus
 }
