@@ -93,24 +93,24 @@ static void init_virtual_gamepad()
 	gaButtons[0][2] = { 67,  70,  67, DVL_VK_UP,    1, 'U', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 	gaButtons[0][3] = { 67,  70, 207, DVL_VK_DOWN,  1, 'D', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 
-	gaButtons[0][4] = { 67, 893,  67, DVL_VK_RETURN, 10, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[0][5] = { 67, 893, 207, DVL_VK_ESCAPE,  9, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[0][4] = { 67, -67,  67, DVL_VK_RETURN, 10, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[0][5] = { 67, -67, 207, DVL_VK_ESCAPE,  9, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 
 	gaButtons[1][0] = { 67,   0,  67, DVL_VK_A, 1, 'A', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 	gaButtons[1][1] = { 67,  70,  67, DVL_VK_S, 1, 'S', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 	gaButtons[1][2] = { 67,   0, 137, DVL_VK_D, 1, 'D', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 	gaButtons[1][3] = { 67,  70, 137, DVL_VK_F, 1, 'F', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 
-	gaButtons[1][4] = { 67, 823,  67, DVL_VK_Q, 1, 'Q', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][5] = { 67, 893,  67, DVL_VK_W, 1, 'W', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][6] = { 67, 823, 137, DVL_VK_E, 1, 'E', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][7] = { 67, 893, 137, DVL_VK_R, 1, 'R', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][4] = { 67,-137,  67, DVL_VK_Q, 1, 'Q', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][5] = { 67, -67,  67, DVL_VK_W, 1, 'W', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][6] = { 67,-137, 137, DVL_VK_E, 1, 'E', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][7] = { 67, -67, 137, DVL_VK_R, 1, 'R', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 
 	gaButtons[1][8] = { 67,   0, 207, DVL_VK_LSHIFT, 6, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 	gaButtons[1][9] = { 67,   0, 277, DVL_VK_LMENU,  5, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 
-	gaButtons[1][10] = { 67, 893, 207, DVL_VK_RSHIFT, 6, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][11] = { 67, 893, 277, DVL_VK_ESCAPE, 9, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][10] = { 67, -67, 207, DVL_VK_RSHIFT, 6, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][11] = { 67, -67, 277, DVL_VK_ESCAPE, 9, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
 #endif
 	for (int i = 0; i < 2; i++) {
 		// overwrite gamepad from config
@@ -165,6 +165,14 @@ static void init_virtual_gamepad()
 			if (btn->buSize == 0) {
 				break;
 			}
+			// keep the buttons on the screen (support relative positions)
+			if (btn->buPosX < 0) {
+				btn->buPosX += SCREEN_WIDTH;
+			}
+			if (btn->buPosY < 0) {
+				btn->buPosY += SCREEN_HEIGHT;
+			}
+			// reset the state
 			// btn->buPressed = false;
 			for (int n = 0; n < MAX_GAMEPAD_FINGERS; n++) {
 				btn->buFinger[n] = NO_TOUCH;
