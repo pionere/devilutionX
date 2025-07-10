@@ -193,6 +193,20 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         return SDLActivity.handleKeyEvent(v, keyCode, event, null);
     }
 
+    private void touchEvent(int touchDevId, MotionEvent event, int i, int action) {
+        float x,y,p;
+        int pointerFingerId = event.getPointerId(i);
+        x = event.getX(i) / mWidth;
+        y = event.getY(i) / mHeight;
+        p = event.getPressure(i);
+        if (p > 1.0f) {
+            // may be larger than 1.0f on some devices
+            // see the documentation of getPressure(i)
+            p = 1.0f;
+        }
+        SDLActivity.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
+    }
+
     // Touch events
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -200,9 +214,8 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         int touchDevId = event.getDeviceId();
         final int pointerCount = event.getPointerCount();
         int action = event.getActionMasked();
-        int pointerFingerId;
         int i = -1;
-        float x,y,p;
+        float x,y;
 
         /*
          * Prevent id to be -1, since it's used in SDL internal for synthetic events
@@ -236,18 +249,12 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             SDLActivity.onNativeMouse(mouseButton, action, x, y, motionListener.inRelativeMode());
         } else {
             switch(action) {
+                case MotionEvent.ACTION_CANCEL:
+                    action = MotionEvent.ACTION_UP;
+                    /* fallthrough */
                 case MotionEvent.ACTION_MOVE:
                     for (i = 0; i < pointerCount; i++) {
-                        pointerFingerId = event.getPointerId(i);
-                        x = event.getX(i) / mWidth;
-                        y = event.getY(i) / mHeight;
-                        p = event.getPressure(i);
-                        if (p > 1.0f) {
-                            // may be larger than 1.0f on some devices
-                            // see the documentation of getPressure(i)
-                            p = 1.0f;
-                        }
-                        SDLActivity.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
+                        touchEvent(touchDevId, event, i, action);
                     }
                     break;
 
@@ -262,32 +269,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                     if (i == -1) {
                         i = event.getActionIndex();
                     }
-
-                    pointerFingerId = event.getPointerId(i);
-                    x = event.getX(i) / mWidth;
-                    y = event.getY(i) / mHeight;
-                    p = event.getPressure(i);
-                    if (p > 1.0f) {
-                        // may be larger than 1.0f on some devices
-                        // see the documentation of getPressure(i)
-                        p = 1.0f;
-                    }
-                    SDLActivity.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
-                    break;
-
-                case MotionEvent.ACTION_CANCEL:
-                    for (i = 0; i < pointerCount; i++) {
-                        pointerFingerId = event.getPointerId(i);
-                        x = event.getX(i) / mWidth;
-                        y = event.getY(i) / mHeight;
-                        p = event.getPressure(i);
-                        if (p > 1.0f) {
-                            // may be larger than 1.0f on some devices
-                            // see the documentation of getPressure(i)
-                            p = 1.0f;
-                        }
-                        SDLActivity.onNativeTouch(touchDevId, pointerFingerId, MotionEvent.ACTION_UP, x, y, p);
-                    }
+                    touchEvent(touchDevId, event, i, action);
                     break;
 
                 default:
