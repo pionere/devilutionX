@@ -124,6 +124,7 @@ typedef enum filenames {
 	FILE_PLR_RLHST,
 	FILE_PLR_RLHWL,
 	FILE_PLR_RLMAT,
+	FILE_PLR_RMDAW,
 	FILE_PLR_RMHAT,
 	FILE_PLR_RMMAT,
 	FILE_PLR_RMBFM,
@@ -318,6 +319,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_PLR_RLHST*/     "PlrGFX\\Rogue\\RLH\\RLHST.CL2",
 /*FILE_PLR_RLHWL*/     "PlrGFX\\Rogue\\RLH\\RLHWL.CL2",
 /*FILE_PLR_RLMAT*/     "PlrGFX\\Rogue\\RLM\\RLMAT.CL2",
+/*FILE_PLR_RMDAW*/     "PlrGFX\\Rogue\\RMD\\RMDAW.CL2",
 /*FILE_PLR_RMHAT*/     "PlrGFX\\Rogue\\RMH\\RMHAT.CL2",
 /*FILE_PLR_RMMAT*/     "PlrGFX\\Rogue\\RMM\\RMMAT.CL2",
 /*FILE_PLR_RMBFM*/     "PlrGFX\\Rogue\\RMB\\RMBFM.CL2",
@@ -2353,6 +2355,7 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_RLHST: frameCount = 20; width =  96; height =  96; break;
 	case FILE_PLR_RLHWL: frameCount =  8; width =  96; height =  96; break;
 	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMDAW: frameCount =  8; width =  96; height =  96; break;
 	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
 	case FILE_PLR_RMBFM: frameCount = 16; width =  96; height =  96; break;
@@ -2473,6 +2476,13 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
 					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
 						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMDAW:
+				for (int i = 0; i < lengthof(deltaRMDAW); i++) {
+					if (deltaRMDAW[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMDAW[i].dfx + BUFFER_WIDTH * deltaRMDAW[i].dfy] = deltaRMDAW[i].color;
 					}
 				}
 				break;
@@ -8006,6 +8016,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_PLR_RLHST:
 	case FILE_PLR_RLHWL:
 	case FILE_PLR_RLMAT:
+	case FILE_PLR_RMDAW:
 	case FILE_PLR_RMHAT:
 	case FILE_PLR_RMMAT:
 	case FILE_PLR_RMBFM:

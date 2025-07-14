@@ -32,6 +32,7 @@ extern const DeltaFrameData deltaRLHHT[1687];
 extern const DeltaFrameData deltaRLHQM[2993];
 extern const DeltaFrameData deltaRLHWL[3876];
 extern const DeltaFrameData deltaRLMAT[6037];
+extern const DeltaFrameData deltaRMDAW[180];
 extern const DeltaFrameData deltaRMHAT[5043];
 extern const DeltaFrameData deltaRMMAT[5280];
 extern const DeltaFrameData deltaRMBFM[1153];
