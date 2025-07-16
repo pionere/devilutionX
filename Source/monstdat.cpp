@@ -161,65 +161,65 @@ const MonsterData monsterdata[NUM_MTYPES] = {
 const MonFileData monfiledata[NUM_MOFILE] = {
 	// clang-format off
 //                    moImage, moGfxFile,                          moSndFile,                           moAnimFrames[6],            moAnimFrameLen[6],    moWidth, moSndSpecial, moAFNum, moAFNum2
-/*MOFILE_ZOMBIE*/   {     799, "Monsters\\Zombie\\Zombie%c.CL2",   "Monsters\\Zombie\\Zombie%c%d.WAV",  { 11, 24, 12,  6, 16,  0 }, { 4, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
-/*MOFILE_FALLSP*/   {     543, "Monsters\\FalSpear\\Phall%c.CL2",  "Monsters\\FalSpear\\Phall%c%d.WAV", { 11, 11, 13, 11, 18, 13 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               7,        5 },
-/*MOFILE_SKELAX*/   {     553, "Monsters\\SkelAxe\\SklAx%c.CL2",   "Monsters\\SkelAxe\\SklAx%c%d.WAV",  { 12,  8, 13,  6, 17, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
-/*MOFILE_FALLSD*/   {     623, "Monsters\\FalSword\\Fall%c.CL2",   "Monsters\\FalSword\\Fall%c%d.WAV",  { 12, 12, 13, 11, 14, 15 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               8,        5 },
-/*MOFILE_SCAV*/     {     410, "Monsters\\Scav\\Scav%c.CL2",       "Monsters\\Scav\\Scav%c%d.WAV",      { 12,  8, 12,  6, 20, 11 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              7,        0 },
-/*MOFILE_SKELBW*/   {     567, "Monsters\\SkelBow\\SklBw%c.CL2",   "Monsters\\SkelBow\\SklBw%c%d.WAV",  {  9,  8, 16,  5, 13, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,             12,        0 },
-/*MOFILE_SKELSD*/   {     575, "Monsters\\SkelSd\\SklSr%c.CL2",    "Monsters\\SkelSd\\SklSr%c%d.WAV",   { 13,  8, 12,  7, 15, 16 }, { 4, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
-/*MOFILE_TSNEAK*/// {     800, "Monsters\\TSneak\\TSneak%c.CL2",   "Monsters\\TSneak\\Sneakl%c%d.WAV",  { 13, 13, 15, 11, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
-/*MOFILE_SNEAK*/    {     992, "Monsters\\Sneak\\Sneak%c.CL2",     "Monsters\\Sneak\\Sneak%c%d.WAV",    { 16,  8, 12,  8, 24, 15 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
-/*MOFILE_GOATMC*/   {    1030, "Monsters\\GoatMace\\Goat%c.CL2",   "Monsters\\GoatMace\\Goat%c%d.WAV",  { 12,  8, 12,  6, 20, 12 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              8,        9 },
-/*MOFILE_BAT*/      {     364, "Monsters\\Bat\\Bat%c.CL2",         "Monsters\\Bat\\Bat%c%d.WAV",        {  9, 13, 10,  9, 13,  0 }, { 1, 1, 1, 1, 1, 0 },      96, FALSE,              5,        0 },
-/*MOFILE_GOATBW*/   {    1040, "Monsters\\GoatBow\\GoatB%c.CL2",   "Monsters\\GoatBow\\GoatB%c%d.WAV",  { 12,  8, 16,  6, 20,  0 }, { 3, 1, 1, 1, 1, 0 },     128, FALSE,             13,        0 },
-/*MOFILE_ACID*/     {     716, "Monsters\\Acid\\Acid%c.CL2",       "Monsters\\Acid\\Acid%c%d.WAV",      { 13,  8, 12,  8, 16, 12 }, { 1, 1, 1, 1, 1, 1 },     128, TRUE,               8,        8 },
-/*MOFILE_SKING*/    {    1010, "Monsters\\SKing\\SKing%c.CL2",     "Monsters\\SKing\\SKing%c%d.WAV",    {  8,  6, 16,  6, 16,  6 }, { 2, 1, 1, 1, 1, 2 },     160, TRUE,               8,        0 },
-/*MOFILE_CLEAVER*/  {     980, "Monsters\\FatC\\FatC%c.CL2",       "Monsters\\FatC\\FatC%c%d.WAV",      { 10,  8, 12,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
-/*MOFILE_FAT*/      {    1130, "Monsters\\Fat\\Fat%c.CL2",         "Monsters\\Fat\\Fat%c%d.WAV",        {  8, 10, 15,  6, 16, 10 }, { 4, 1, 1, 1, 1, 1 },     128, FALSE,              8,        6 },
-/*MOFILE_WORM*///   {    2420, "Monsters\\Worm\\Worm%c.CL2",       "Monsters\\Fat\\Fat%c%d.WAV",        { 13, 13, 13, 11, 19,  0 }, { 1, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
-/*MOFILE_MAGMA*/    {    1680, "Monsters\\Magma\\Magma%c.CL2",     "Monsters\\Magma\\Magma%c%d.WAV",    {  8, 10, 14,  7, 18, 18 }, { 2, 1, 1, 1, 1, 1 },     128, TRUE,               4,       13 },
-/*MOFILE_RHINO*/    {    1630, "Monsters\\Rhino\\Rhino%c.CL2",     "Monsters\\Rhino\\Rhino%c%d.WAV",    {  8,  8, 14,  6, 16,  6 }, { 2, 1, 1, 1, 1, 1 },     160, TRUE,               7,        0 },
-/*MOFILE_FIREMAN*///{    1460, "Monsters\\Fireman\\FireM%c.CL2",   "Monsters\\Acid\\Acid%c%d.WAV",      { 14, 19, 20,  8, 14, 23 }, { 1, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
-/*MOFILE_THIN*/     {    1740, "Monsters\\Thin\\Thin%c.CL2",       "Monsters\\Thin\\Thin%c%d.WAV",      {  8,  8, 18,  4, 17, 14 }, { 3, 1, 1, 1, 1, 1 },     160, TRUE,               5,        8 },
-/*MOFILE_GARGOYLE*/ {    1650, "Monsters\\Gargoyle\\Gargo%c.CL2",  "Monsters\\Gargoyle\\Gargo%c%d.WAV", { 14, 14, 14, 10, 18, 14 }, { 1, 1, 1, 1, 1, 1 },     160, FALSE,              7,        0 },
-/*MOFILE_MEGA*/     {    2220, "Monsters\\Mega\\Mega%c.CL2",       "Monsters\\Mega\\Mega%c%d.WAV",      {  6,  7, 14,  1, 24,  5 }, { 3, 1, 1, 1, 2, 1 },     160, TRUE,               8,        3 },
-/*MOFILE_SNAKE*/    {    1270, "Monsters\\Snake\\Snake%c.CL2",     "Monsters\\Snake\\Snake%c%d.WAV",    { 12, 11, 13,  5, 18,  0 }, { 2, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
-/*MOFILE_BLACK*/    {    2120, "Monsters\\Black\\Black%c.CL2",     "Monsters\\Black\\Black%c%d.WAV",    {  8,  8, 16,  4, 24,  0 }, { 2, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
-/*MOFILE_SUCC*/     {     980, "Monsters\\Succ\\Scbs%c.CL2",       "Monsters\\Succ\\Scbs%c%d.WAV",      { 14,  8, 16,  7, 24,  0 }, { 1, 1, 1, 1, 1, 0 },     128, FALSE,             10,        0 },
-/*MOFILE_MAGE*/     {    2000, "Monsters\\Mage\\Mage%c.CL2",       "Monsters\\Mage\\Mage%c%d.WAV",      { 12,  1, 20,  8, 28, 20 }, { 1, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 }, // moImage = 1311 ?
-/*MOFILE_GOLEM*/    {     386, "Monsters\\Golem\\Golem%c.CL2",     "Monsters\\Golem\\Golm%c%d.WAV",     {  0, 16, 12,  0, 12, 20 }, { 1, 1, 1, 1, 1, 1 },      96, FALSE,              7,        0 },
-/*MOFILE_DIABLO*/   {    2000, "Monsters\\Diablo\\Diablo%c.CL2",   "Monsters\\Diablo\\Diablo%c%d.WAV",  { 16,  6, 16,  6, 16, 16 }, { 1, 1, 1, 1, 1, 1 },     160, TRUE,               4,       11 }, // moImage = 3389 ?
-/*MOFILE_DARKMAGE*///{    1060, "Monsters\\DarkMage\\Dmage%c.CL2",  "Monsters\\DarkMage\\Dmag%c%d.WAV",  {  6,  1, 21,  6, 23, 18 }, { 1, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
+/*MOFILE_ZOMBIE*/   {     799, "Monsters\\Zombie\\Zombie%c.CL2",   "Monsters\\Zombie\\Zombie%c%d.wav",  { 11, 24, 12,  6, 16,  0 }, { 4, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
+/*MOFILE_FALLSP*/   {     543, "Monsters\\FalSpear\\Phall%c.CL2",  "Monsters\\FalSpear\\Phall%c%d.wav", { 11, 11, 13, 11, 18, 13 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               7,        5 },
+/*MOFILE_SKELAX*/   {     553, "Monsters\\SkelAxe\\SklAx%c.CL2",   "Monsters\\SkelAxe\\SklAx%c%d.wav",  { 12,  8, 13,  6, 17, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
+/*MOFILE_FALLSD*/   {     623, "Monsters\\FalSword\\Fall%c.CL2",   "Monsters\\FalSword\\Fall%c%d.wav",  { 12, 12, 13, 11, 14, 15 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               8,        5 },
+/*MOFILE_SCAV*/     {     410, "Monsters\\Scav\\Scav%c.CL2",       "Monsters\\Scav\\Scav%c%d.wav",      { 12,  8, 12,  6, 20, 11 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              7,        0 },
+/*MOFILE_SKELBW*/   {     567, "Monsters\\SkelBow\\SklBw%c.CL2",   "Monsters\\SkelBow\\SklBw%c%d.wav",  {  9,  8, 16,  5, 13, 16 }, { 3, 1, 1, 1, 1, 1 },     128, FALSE,             12,        0 },
+/*MOFILE_SKELSD*/   {     575, "Monsters\\SkelSd\\SklSr%c.CL2",    "Monsters\\SkelSd\\SklSr%c%d.wav",   { 13,  8, 12,  7, 15, 16 }, { 4, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
+/*MOFILE_TSNEAK*/// {     800, "Monsters\\TSneak\\TSneak%c.CL2",   "Monsters\\TSneak\\Sneakl%c%d.wav",  { 13, 13, 15, 11, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
+/*MOFILE_SNEAK*/    {     992, "Monsters\\Sneak\\Sneak%c.CL2",     "Monsters\\Sneak\\Sneak%c%d.wav",    { 16,  8, 12,  8, 24, 15 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
+/*MOFILE_GOATMC*/   {    1030, "Monsters\\GoatMace\\Goat%c.CL2",   "Monsters\\GoatMace\\Goat%c%d.wav",  { 12,  8, 12,  6, 20, 12 }, { 2, 1, 1, 1, 1, 1 },     128, FALSE,              8,        9 },
+/*MOFILE_BAT*/      {     364, "Monsters\\Bat\\Bat%c.CL2",         "Monsters\\Bat\\Bat%c%d.wav",        {  9, 13, 10,  9, 13,  0 }, { 1, 1, 1, 1, 1, 0 },      96, FALSE,              5,        0 },
+/*MOFILE_GOATBW*/   {    1040, "Monsters\\GoatBow\\GoatB%c.CL2",   "Monsters\\GoatBow\\GoatB%c%d.wav",  { 12,  8, 16,  6, 20,  0 }, { 3, 1, 1, 1, 1, 0 },     128, FALSE,             13,        0 },
+/*MOFILE_ACID*/     {     716, "Monsters\\Acid\\Acid%c.CL2",       "Monsters\\Acid\\Acid%c%d.wav",      { 13,  8, 12,  8, 16, 12 }, { 1, 1, 1, 1, 1, 1 },     128, TRUE,               8,        8 },
+/*MOFILE_SKING*/    {    1010, "Monsters\\SKing\\SKing%c.CL2",     "Monsters\\SKing\\SKing%c%d.wav",    {  8,  6, 16,  6, 16,  6 }, { 2, 1, 1, 1, 1, 2 },     160, TRUE,               8,        0 },
+/*MOFILE_CLEAVER*/  {     980, "Monsters\\FatC\\FatC%c.CL2",       "Monsters\\FatC\\FatC%c%d.wav",      { 10,  8, 12,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 },
+/*MOFILE_FAT*/      {    1130, "Monsters\\Fat\\Fat%c.CL2",         "Monsters\\Fat\\Fat%c%d.wav",        {  8, 10, 15,  6, 16, 10 }, { 4, 1, 1, 1, 1, 1 },     128, FALSE,              8,        6 },
+/*MOFILE_WORM*///   {    2420, "Monsters\\Worm\\Worm%c.CL2",       "Monsters\\Fat\\Fat%c%d.wav",        { 13, 13, 13, 11, 19,  0 }, { 1, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
+/*MOFILE_MAGMA*/    {    1680, "Monsters\\Magma\\Magma%c.CL2",     "Monsters\\Magma\\Magma%c%d.wav",    {  8, 10, 14,  7, 18, 18 }, { 2, 1, 1, 1, 1, 1 },     128, TRUE,               4,       13 },
+/*MOFILE_RHINO*/    {    1630, "Monsters\\Rhino\\Rhino%c.CL2",     "Monsters\\Rhino\\Rhino%c%d.wav",    {  8,  8, 14,  6, 16,  6 }, { 2, 1, 1, 1, 1, 1 },     160, TRUE,               7,        0 },
+/*MOFILE_FIREMAN*///{    1460, "Monsters\\Fireman\\FireM%c.CL2",   "Monsters\\Acid\\Acid%c%d.wav",      { 14, 19, 20,  8, 14, 23 }, { 1, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
+/*MOFILE_THIN*/     {    1740, "Monsters\\Thin\\Thin%c.CL2",       "Monsters\\Thin\\Thin%c%d.wav",      {  8,  8, 18,  4, 17, 14 }, { 3, 1, 1, 1, 1, 1 },     160, TRUE,               5,        8 },
+/*MOFILE_GARGOYLE*/ {    1650, "Monsters\\Gargoyle\\Gargo%c.CL2",  "Monsters\\Gargoyle\\Gargo%c%d.wav", { 14, 14, 14, 10, 18, 14 }, { 1, 1, 1, 1, 1, 1 },     160, FALSE,              7,        0 },
+/*MOFILE_MEGA*/     {    2220, "Monsters\\Mega\\Mega%c.CL2",       "Monsters\\Mega\\Mega%c%d.wav",      {  6,  7, 14,  1, 24,  5 }, { 3, 1, 1, 1, 2, 1 },     160, TRUE,               8,        3 },
+/*MOFILE_SNAKE*/    {    1270, "Monsters\\Snake\\Snake%c.CL2",     "Monsters\\Snake\\Snake%c%d.wav",    { 12, 11, 13,  5, 18,  0 }, { 2, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
+/*MOFILE_BLACK*/    {    2120, "Monsters\\Black\\Black%c.CL2",     "Monsters\\Black\\Black%c%d.wav",    {  8,  8, 16,  4, 24,  0 }, { 2, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
+/*MOFILE_SUCC*/     {     980, "Monsters\\Succ\\Scbs%c.CL2",       "Monsters\\Succ\\Scbs%c%d.wav",      { 14,  8, 16,  7, 24,  0 }, { 1, 1, 1, 1, 1, 0 },     128, FALSE,             10,        0 },
+/*MOFILE_MAGE*/     {    2000, "Monsters\\Mage\\Mage%c.CL2",       "Monsters\\Mage\\Mage%c%d.wav",      { 12,  1, 20,  8, 28, 20 }, { 1, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 }, // moImage = 1311 ?
+/*MOFILE_GOLEM*/    {     386, "Monsters\\Golem\\Golem%c.CL2",     "Monsters\\Golem\\Golm%c%d.wav",     {  0, 16, 12,  0, 12, 20 }, { 1, 1, 1, 1, 1, 1 },      96, FALSE,              7,        0 },
+/*MOFILE_DIABLO*/   {    2000, "Monsters\\Diablo\\Diablo%c.CL2",   "Monsters\\Diablo\\Diablo%c%d.wav",  { 16,  6, 16,  6, 16, 16 }, { 1, 1, 1, 1, 1, 1 },     160, TRUE,               4,       11 }, // moImage = 3389 ?
+/*MOFILE_DARKMAGE*///{    1060, "Monsters\\DarkMage\\Dmage%c.CL2",  "Monsters\\DarkMage\\Dmag%c%d.wav",  {  6,  1, 21,  6, 23, 18 }, { 1, 1, 1, 1, 1, 1 },     128, FALSE,              8,        0 },
 #ifdef HELLFIRE
-/*MOFILE_FORK*/     {    1300, "Monsters\\Fork\\Fork%c.CL2",       "Monsters\\newsfx\\HBoar%c%d.WAV",   { 10, 10, 15,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     188, FALSE,              7,        0 }, // moImage = 1210 ?
-/*MOFILE_SCORP*/    {     400, "Monsters\\Scorp\\Scorp%c.CL2",     "Monsters\\newsfx\\Stingr%c%d.WAV",  { 10, 10, 12,  6, 15,  0 }, { 2, 1, 1, 1, 1, 0 },      64, FALSE,              8,        0 }, // moImage = 301 ?
-/*MOFILE_EYE*/      {    1200, "Monsters\\Eye\\Eye%c.CL2",         "Monsters\\newsfx\\Psyco%c%d.WAV",   { 12, 13, 13,  7, 21,  0 }, { 2, 1, 1, 1, 1, 0 },     156, FALSE,              8,        0 }, // moImage = 1123 ?
-/*MOFILE_SPIDER*/   {    1080, "Monsters\\Spider\\Spider%c.CL2",   "Monsters\\newsfx\\SLord%c%d.WAV",   { 12, 10, 15,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 },     148, FALSE,              8,        0 },
-/*MOFILE_TSNEAK*/   {     800, "Monsters\\TSneak\\TSneak%c.CL2",   "Monsters\\newsfx\\FTwin%c%d.WAV",   { 13, 13, 15, 11, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 }, // moImage = 675 ?
-/*MOFILE_UNRAV*/    {     484, "Monsters\\Unrav\\Unrav%c.CL2",     "Monsters\\newsfx\\Shred%c%d.WAV",   { 10, 10, 12,  5, 16,  0 }, { 1, 1, 1, 1, 1, 0 },      96, FALSE,              7,        0 },
-/*MOFILE_SPAWN*/    {     520, "Monsters\\Spawn\\Spawn%c.CL2",     "Monsters\\newsfx\\HSpawn%c%d.WAV",  { 15, 12, 14, 11, 14,  0 }, { 1, 1, 1, 1, 1, 0 },     164, TRUE,               8,        0 },
-/*MOFILE_WSCORP*/   {     430, "Monsters\\WScorp\\WScorp%c.CL2",   "Monsters\\newsfx\\Stingr%c%d.WAV",  { 10, 10, 12,  6, 15,  0 }, { 2, 1, 1, 1, 1, 0 },      86, FALSE,              8,        0 },
-/*MOFILE_EYE2*/     {    1400, "Monsters\\Eye2\\Eye2%c.CL2",       "Monsters\\newsfx\\Psyco%c%d.WAV",   { 12, 13, 13,  7, 21,  0 }, { 2, 1, 1, 1, 1, 0 },     140, FALSE,              8,        0 },
-/*MOFILE_BSPIDR*/   {    1200, "Monsters\\bSpidr\\bSpidr%c.CL2",   "Monsters\\newsfx\\SLord%c%d.WAV",   { 12, 10, 15,  6, 20, 10 }, { 2, 1, 1, 1, 1, 1 },     148, TRUE,               8,        8 },
-/*MOFILE_CLASP*/    {     800, "Monsters\\Clasp\\Clasp%c.CL2",     "Monsters\\newsfx\\Lworm%c%d.WAV",   { 10, 12, 15,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     176, FALSE,              8,        0 }, // moImage = 687 ?
-/*MOFILE_ANTWORM*/  {    1080, "Monsters\\AntWorm\\Worm%c.CL2",    "Monsters\\newsfx\\TchAnt%c%d.WAV",  { 14, 12, 12,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 },     192, FALSE,              8,        0 },
-/*MOFILE_HORKD*/    {    1000, "Monsters\\HorkD\\HorkD%c.CL2",     "Monsters\\newsfx\\HDemon%c%d.WAV",  { 15,  8, 16,  6, 16,  9 }, { 2, 1, 1, 1, 1, 2 },     138, TRUE,               8,        8 }, // moImage = 1803 ?
-/*MOFILE_HELLBUG*/  {    1000, "Monsters\\Hellbug\\Hellbg%c.CL2",  "Monsters\\newsfx\\Defile%c%d.WAV",  {  8,  8, 14,  6, 14, 12 }, { 1, 1, 1, 1, 1, 1 },     198, TRUE,               8,        8 }, // moImage = 1840 ?
-/*MOFILE_GOATLORD*/ {    1240, "Monsters\\GoatLord\\GoatL%c.CL2",  "Monsters\\newsfx\\Satyr%c%d.WAV",   { 13, 13, 14,  9, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
-/*MOFILE_GRAVDG*/   {     980, "Monsters\\Gravdg\\Gravdg%c.CL2",   "Monsters\\newsfx\\GDiggr%c%d.WAV",  { 24, 24, 12,  6, 16, 16 }, { 2, 1, 1, 1, 1, 1 },     124, TRUE,               6,        0 },
-/*MOFILE_BIGFALL*/  {     800, "Monsters\\BigFall\\Fallg%c.CL2",   "Monsters\\newsfx\\KBrute%c%d.WAV",  { 10,  8, 11,  8, 17,  0 }, { 1, 1, 1, 1, 2, 0 },     128, FALSE,              6,        0 }, // moImage = 613 ?
-/*MOFILE_RAT*/      {     550, "Monsters\\Rat\\Rat%c.CL2",         "Monsters\\newsfx\\TmbRat%c%d.WAV",  { 11,  8, 12,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 },     104, FALSE,              8,        0 },
-/*MOFILE_HELLBAT*/  {     850, "Monsters\\Hellbat\\Helbat%c.CL2",  "Monsters\\newsfx\\HelBat%c%d.WAV",  { 18, 16, 14,  6, 18,  0 }, { 2, 1, 1, 1, 1, 0 },      96, FALSE,              8,        0 },
-/*MOFILE_LICH*/     {     800, "Monsters\\Lich\\Lich%c.CL2",       "Monsters\\newsfx\\Lich%c%d.WAV",    { 12, 10, 10,  7, 21,  0 }, { 2, 1, 1, 1, 2, 0 },      96, FALSE,              8,        0 }, // moImage = 1087 ?
-/*MOFILE_BUBBA*/    {     800, "Monsters\\Bubba\\Bubba%c.CL2",     "Monsters\\newsfx\\Crypt%c%d.WAV",   {  8, 18, 12,  8, 21,  0 }, { 3, 1, 1, 1, 1, 0 },     154, FALSE,              8,        0 }, // moImage = 1096 ?
-/*MOFILE_HELLBAT2*/ {     800, "Monsters\\Hellbat2\\bhelbt%c.CL2", "Monsters\\newsfx\\HelBat%c%d.WAV",  { 18, 16, 14,  6, 18,  0 }, { 2, 1, 1, 1, 1, 0 },      96, FALSE,              8,        0 },
-/*MOFILE_DEMSKEL*/  {    1740, "Monsters\\Demskel\\Demskl%c.CL2",  "Monsters\\newsfx\\SWing%c%d.WAV",   { 10,  8, 20,  6, 24, 16 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               7,       12 }, // moImage = 1673 ?
-/*MOFILE_LICH2*/    {     800, "Monsters\\Lich2\\Lich2%c.CL2",     "Monsters\\newsfx\\Lich%c%d.WAV",    { 12, 10, 10,  7, 21,  0 }, { 2, 1, 1, 1, 2, 0 },     136, FALSE,              8,        0 }, // moImage = 1040 ? moSndSpecial was TRUE, but unused
-/*MOFILE_BYCLPS*/   {     800, "Monsters\\Byclps\\Byclps%c.CL2",   "Monsters\\newsfx\\Biclop%c%d.WAV",  { 10, 11, 16,  6, 16,  0 }, { 2, 1, 1, 1, 2, 0 },     180, FALSE,              8,        0 }, // moImage = 974 ?
-/*MOFILE_FLESH*/    {     800, "Monsters\\Flesh\\Flesh%c.CL2",     "Monsters\\newsfx\\FleshT%c%d.WAV",  { 15, 24, 15,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     164, TRUE,               8,        0 }, // moImage = 1711 ?
-/*MOFILE_REAPER*/   {     800, "Monsters\\Reaper\\Reap%c.CL2",     "Monsters\\newsfx\\Reaper%c%d.WAV",  { 12, 10, 14,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     180, FALSE,              8,        0 }, // moImage = 1546 ?
-/*MOFILE_NKR*/      {    1200, "Monsters\\Nkr\\Nkr%c.CL2",         "Monsters\\newsfx\\Nakrul%c%d.WAV",  {  2,  6, 16,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     226, FALSE,              7,        0 }, // moImage = 2763 ? moSndSpecial was TRUE, but unused
+/*MOFILE_FORK*/     {    1300, "Monsters\\Fork\\Fork%c.CL2",       "Monsters\\newsfx\\HBoar%c%d.wav",   { 10, 10, 15,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     188, FALSE,              7,        0 }, // moImage = 1210 ?
+/*MOFILE_SCORP*/    {     400, "Monsters\\Scorp\\Scorp%c.CL2",     "Monsters\\newsfx\\Stingr%c%d.wav",  { 10, 10, 12,  6, 15,  0 }, { 2, 1, 1, 1, 1, 0 },      64, FALSE,              8,        0 }, // moImage = 301 ?
+/*MOFILE_EYE*/      {    1200, "Monsters\\Eye\\Eye%c.CL2",         "Monsters\\newsfx\\Psyco%c%d.wav",   { 12, 13, 13,  7, 21,  0 }, { 2, 1, 1, 1, 1, 0 },     156, FALSE,              8,        0 }, // moImage = 1123 ?
+/*MOFILE_SPIDER*/   {    1080, "Monsters\\Spider\\Spider%c.CL2",   "Monsters\\newsfx\\SLord%c%d.wav",   { 12, 10, 15,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 },     148, FALSE,              8,        0 },
+/*MOFILE_TSNEAK*/   {     800, "Monsters\\TSneak\\TSneak%c.CL2",   "Monsters\\newsfx\\FTwin%c%d.wav",   { 13, 13, 15, 11, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     128, FALSE,              8,        0 }, // moImage = 675 ?
+/*MOFILE_UNRAV*/    {     484, "Monsters\\Unrav\\Unrav%c.CL2",     "Monsters\\newsfx\\Shred%c%d.wav",   { 10, 10, 12,  5, 16,  0 }, { 1, 1, 1, 1, 1, 0 },      96, FALSE,              7,        0 },
+/*MOFILE_SPAWN*/    {     520, "Monsters\\Spawn\\Spawn%c.CL2",     "Monsters\\newsfx\\HSpawn%c%d.wav",  { 15, 12, 14, 11, 14,  0 }, { 1, 1, 1, 1, 1, 0 },     164, TRUE,               8,        0 },
+/*MOFILE_WSCORP*/   {     430, "Monsters\\WScorp\\WScorp%c.CL2",   "Monsters\\newsfx\\Stingr%c%d.wav",  { 10, 10, 12,  6, 15,  0 }, { 2, 1, 1, 1, 1, 0 },      86, FALSE,              8,        0 },
+/*MOFILE_EYE2*/     {    1400, "Monsters\\Eye2\\Eye2%c.CL2",       "Monsters\\newsfx\\Psyco%c%d.wav",   { 12, 13, 13,  7, 21,  0 }, { 2, 1, 1, 1, 1, 0 },     140, FALSE,              8,        0 },
+/*MOFILE_BSPIDR*/   {    1200, "Monsters\\bSpidr\\bSpidr%c.CL2",   "Monsters\\newsfx\\SLord%c%d.wav",   { 12, 10, 15,  6, 20, 10 }, { 2, 1, 1, 1, 1, 1 },     148, TRUE,               8,        8 },
+/*MOFILE_CLASP*/    {     800, "Monsters\\Clasp\\Clasp%c.CL2",     "Monsters\\newsfx\\Lworm%c%d.wav",   { 10, 12, 15,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     176, FALSE,              8,        0 }, // moImage = 687 ?
+/*MOFILE_ANTWORM*/  {    1080, "Monsters\\AntWorm\\Worm%c.CL2",    "Monsters\\newsfx\\TchAnt%c%d.wav",  { 14, 12, 12,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 },     192, FALSE,              8,        0 },
+/*MOFILE_HORKD*/    {    1000, "Monsters\\HorkD\\HorkD%c.CL2",     "Monsters\\newsfx\\HDemon%c%d.wav",  { 15,  8, 16,  6, 16,  9 }, { 2, 1, 1, 1, 1, 2 },     138, TRUE,               8,        8 }, // moImage = 1803 ?
+/*MOFILE_HELLBUG*/  {    1000, "Monsters\\Hellbug\\Hellbg%c.CL2",  "Monsters\\newsfx\\Defile%c%d.wav",  {  8,  8, 14,  6, 14, 12 }, { 1, 1, 1, 1, 1, 1 },     198, TRUE,               8,        8 }, // moImage = 1840 ?
+/*MOFILE_GOATLORD*/ {    1240, "Monsters\\GoatLord\\GoatL%c.CL2",  "Monsters\\newsfx\\Satyr%c%d.wav",   { 13, 13, 14,  9, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     160, FALSE,              8,        0 },
+/*MOFILE_GRAVDG*/   {     980, "Monsters\\Gravdg\\Gravdg%c.CL2",   "Monsters\\newsfx\\GDiggr%c%d.wav",  { 24, 24, 12,  6, 16, 16 }, { 2, 1, 1, 1, 1, 1 },     124, TRUE,               6,        0 },
+/*MOFILE_BIGFALL*/  {     800, "Monsters\\BigFall\\Fallg%c.CL2",   "Monsters\\newsfx\\KBrute%c%d.wav",  { 10,  8, 11,  8, 17,  0 }, { 1, 1, 1, 1, 2, 0 },     128, FALSE,              6,        0 }, // moImage = 613 ?
+/*MOFILE_RAT*/      {     550, "Monsters\\Rat\\Rat%c.CL2",         "Monsters\\newsfx\\TmbRat%c%d.wav",  { 11,  8, 12,  6, 20,  0 }, { 2, 1, 1, 1, 1, 0 },     104, FALSE,              8,        0 },
+/*MOFILE_HELLBAT*/  {     850, "Monsters\\Hellbat\\Helbat%c.CL2",  "Monsters\\newsfx\\HelBat%c%d.wav",  { 18, 16, 14,  6, 18,  0 }, { 2, 1, 1, 1, 1, 0 },      96, FALSE,              8,        0 },
+/*MOFILE_LICH*/     {     800, "Monsters\\Lich\\Lich%c.CL2",       "Monsters\\newsfx\\Lich%c%d.wav",    { 12, 10, 10,  7, 21,  0 }, { 2, 1, 1, 1, 2, 0 },      96, FALSE,              8,        0 }, // moImage = 1087 ?
+/*MOFILE_BUBBA*/    {     800, "Monsters\\Bubba\\Bubba%c.CL2",     "Monsters\\newsfx\\Crypt%c%d.wav",   {  8, 18, 12,  8, 21,  0 }, { 3, 1, 1, 1, 1, 0 },     154, FALSE,              8,        0 }, // moImage = 1096 ?
+/*MOFILE_HELLBAT2*/ {     800, "Monsters\\Hellbat2\\bhelbt%c.CL2", "Monsters\\newsfx\\HelBat%c%d.wav",  { 18, 16, 14,  6, 18,  0 }, { 2, 1, 1, 1, 1, 0 },      96, FALSE,              8,        0 },
+/*MOFILE_DEMSKEL*/  {    1740, "Monsters\\Demskel\\Demskl%c.CL2",  "Monsters\\newsfx\\SWing%c%d.wav",   { 10,  8, 20,  6, 24, 16 }, { 3, 1, 1, 1, 1, 1 },     128, TRUE,               7,       12 }, // moImage = 1673 ?
+/*MOFILE_LICH2*/    {     800, "Monsters\\Lich2\\Lich2%c.CL2",     "Monsters\\newsfx\\Lich%c%d.wav",    { 12, 10, 10,  7, 21,  0 }, { 2, 1, 1, 1, 2, 0 },     136, FALSE,              8,        0 }, // moImage = 1040 ? moSndSpecial was TRUE, but unused
+/*MOFILE_BYCLPS*/   {     800, "Monsters\\Byclps\\Byclps%c.CL2",   "Monsters\\newsfx\\Biclop%c%d.wav",  { 10, 11, 16,  6, 16,  0 }, { 2, 1, 1, 1, 2, 0 },     180, FALSE,              8,        0 }, // moImage = 974 ?
+/*MOFILE_FLESH*/    {     800, "Monsters\\Flesh\\Flesh%c.CL2",     "Monsters\\newsfx\\FleshT%c%d.wav",  { 15, 24, 15,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     164, TRUE,               8,        0 }, // moImage = 1711 ?
+/*MOFILE_REAPER*/   {     800, "Monsters\\Reaper\\Reap%c.CL2",     "Monsters\\newsfx\\Reaper%c%d.wav",  { 12, 10, 14,  6, 16,  0 }, { 2, 1, 1, 1, 1, 0 },     180, FALSE,              8,        0 }, // moImage = 1546 ?
+/*MOFILE_NKR*/      {    1200, "Monsters\\Nkr\\Nkr%c.CL2",         "Monsters\\newsfx\\Nakrul%c%d.wav",  {  2,  6, 16,  6, 16,  0 }, { 1, 1, 1, 1, 1, 0 },     226, FALSE,              7,        0 }, // moImage = 2763 ? moSndSpecial was TRUE, but unused
 #endif
 	// clang-format on
 };
