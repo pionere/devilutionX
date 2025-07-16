@@ -151,7 +151,7 @@ static void ReadOnlyTest()
 static void ArchivesTest()
 {
 #if defined(__ANDROID__)
-	BYTE* buf = LoadFileInMem("Gendata\\Cuttt.pal");
+	BYTE* buf = LoadFileInMem("gendata\\Cuttt.pal");
 	if (buf == NULL) {
 		app_fatal("Game data missing");
 	}
