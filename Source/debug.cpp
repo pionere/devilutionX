@@ -361,61 +361,61 @@ void ValidateData()
 #if !defined(NONET) && DEBUG_MODE
 	// dvlnet
 	{
-	net::packet_factory pktfty;
-	plr_t plr_self = 0;
-	plr_t plr_other = 1;
-	plr_t plr_mask = (1 << 0) | (1 << 1);
-	net::packet* pkt;
-	turn_t turn = 0;
-	cookie_t cookie = 123456;
-	const BYTE dynData[16] = "lwkejfwip";
-	const BYTE (&addr)[16] = dynData;
-	const BYTE (&addrs)[16] = dynData;
-	SNetGameData gameData;
+		net::packet_factory pktfty;
+		plr_t plr_self = 0;
+		plr_t plr_other = 1;
+		plr_t plr_mask = (1 << 0) | (1 << 1);
+		net::packet* pkt;
+		turn_t turn = 0;
+		cookie_t cookie = 123456;
+		const BYTE dynData[16] = "lwkejfwip";
+		const BYTE (&addr)[16] = dynData;
+		const BYTE (&addrs)[16] = dynData;
+		SNetGameData gameData;
 #ifdef ZEROTIER
-	SNetZtGame ztGameData;
+		SNetZtGame ztGameData;
 #endif
-	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
-	if (!pkt->validate()) {
-		app_fatal("PT_MESSAGE is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
-	if (!pkt->validate()) {
-		app_fatal("PT_TURN is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
-	if (!pkt->validate()) {
-		app_fatal("PT_JOIN_REQUEST is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
-	if (!pkt->validate()) {
-		app_fatal("PT_JOIN_ACCEPT is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
-	if (!pkt->validate()) {
-		app_fatal("PT_CONNECT is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
-	if (!pkt->validate()) {
-		app_fatal("PT_DISCONNECT is invalid");
-	}
-	delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
+		if (!pkt->validate()) {
+			app_fatal("PT_MESSAGE is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
+		if (!pkt->validate()) {
+			app_fatal("PT_TURN is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
+		if (!pkt->validate()) {
+			app_fatal("PT_JOIN_REQUEST is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
+		if (!pkt->validate()) {
+			app_fatal("PT_JOIN_ACCEPT is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
+		if (!pkt->validate()) {
+			app_fatal("PT_CONNECT is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
+		if (!pkt->validate()) {
+			app_fatal("PT_DISCONNECT is invalid");
+		}
+		delete pkt;
 #ifdef ZEROTIER
-	pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
-	if (!pkt->validate()) {
-		app_fatal("PT_INFO_REQUEST is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
-	if (!pkt->validate()) {
-		app_fatal("PT_INFO_REPLY is invalid");
-	}
-	delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
+		if (!pkt->validate()) {
+			app_fatal("PT_INFO_REQUEST is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
+		if (!pkt->validate()) {
+			app_fatal("PT_INFO_REPLY is invalid");
+		}
+		delete pkt;
 #endif
 	}
 #endif // !NONET && DEBUG_MODE
@@ -606,7 +606,7 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
-		if (strlen(md.mName) > sizeof(infostr)  - 1)
+		if (strlen(md.mName) > sizeof(infostr) - 1)
 			app_fatal("Too long name for %s, %d (maximum is %d).", md.mName, i, sizeof(infostr)); // required by DrawInfoStr
 		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
@@ -1336,12 +1336,12 @@ void ValidateData()
 		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
 		for (int n = 0; n <= ILVLMAX; n++) {
 			for (int k = 0; k < 10; k++) {
-				int dropts = rnddrops[n][ii][k];
-				if (dropts > maxAffix) {
-					maxAffix = dropts;
+				int drops = rnddrops[n][ii][k];
+				if (drops > maxAffix) {
+					maxAffix = drops;
 				}
-				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
-					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+				if (drops > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", drops, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
 			}
 		}
 	}
