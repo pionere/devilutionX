@@ -244,6 +244,35 @@ static bool lessCrawlTableEntryDist(const POS32 *a, const POS32 *b)
 	return da < db;
 }
 
+static bool lessCrawlTableEntryClockWise(const POS32 *a, const POS32 *b)
+{
+	int clockA = (a->x < 0 ? (a->y < 0 ? 3 : 2) : (a->y < 0 ? 0 : 1));
+	int clockB = (b->x < 0 ? (b->y < 0 ? 3 : 2) : (b->y < 0 ? 0 : 1));
+	if (clockA != clockB)
+		return clockA < clockB;
+	if (clockA & 1) {
+		if (clockA >= 2) {
+			if (a->x != b->x)
+				return a->x < b->x;
+			return a->y > b->y;
+		} else {
+			if (a->x != b->x)
+				return a->x > b->x;
+			return a->y < b->y;
+		}
+	} else {
+		if (clockA >= 2) {
+			if (a->x != b->x)
+				return a->x > b->x;
+			return a->y > b->y;
+		} else {
+			if (a->x != b->x)
+				return a->x < b->x;
+			return a->y < b->y;
+		}
+	}
+}
+
 static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const POS32 *a, const POS32 *b))
 {
 	if (entries <= 1)
@@ -272,7 +301,7 @@ static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const 
 
 static void recreateCrawlTable()
 {
-	constexpr int version = 1;
+	constexpr int version = 2;
 	constexpr int r = version == 0 ? 18 : 15;
 	int crns[r + 1];
 	memset(crns, 0, sizeof(crns));
@@ -304,8 +333,10 @@ static void recreateCrawlTable()
 	for (int n = 0; n <= r; n++) {
 		if (version == 0)
 			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntry);
-		else
+		if (version == 1)
 			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntryDist);
+		if (version == 2)
+			sortCrawlTable(ctableentries[n], crns[n], n == r ? lessCrawlTableEntryClockWise : lessCrawlTableEntryDist);
 	}
 	LogErrorF("const int8_t CrawlTable[%d] = {", total * 2 + r + 1);
 	LogErrorF("	// clang-format off");

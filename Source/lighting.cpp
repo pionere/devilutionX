@@ -261,27 +261,27 @@ const int8_t CrawlTable[1514] = {
 	-12, -8,  -12,  8,   -8,-12,   -8, 12,
 	  8,-12,    8, 12,   12, -8,   12,  8,
 	84,										// 15 - 1345
-	-14, -4,  -14,  4,   -4,-14,   -4, 14,
-	  4,-14,    4, 14,   14, -4,   14,  4,
-	-13, -7,  -13,  7,   -7,-13,   -7, 13,
-	  7,-13,    7, 13,   13, -7,   13,  7,
-	-14, -5,  -14,  5,  -11,-10,  -11, 10,
-	-10,-11,  -10, 11,   -5,-14,   -5, 14,
-	  5,-14,    5, 14,   10,-11,   10, 11,
-	 11,-10,   11, 10,   14, -5,   14,  5,
-	-15,  0,  -12, -9,  -12,  9,   -9,-12,
-	 -9, 12,    0,-15,    0, 15,    9,-12,
-	  9, 12,   12, -9,   12,  9,   15,  0,
-	-15, -1,  -15,  1,   -1,-15,   -1, 15,
-	  1,-15,    1, 15,   15, -1,   15,  1,
-	-15, -2,  -15,  2,   -2,-15,   -2, 15,
-	  2,-15,    2, 15,   15, -2,   15,  2,
-	-14, -6,  -14,  6,   -6,-14,   -6, 14,
-	  6,-14,    6, 14,   14, -6,   14,  6,
-	-13, -8,  -13,  8,   -8,-13,   -8, 13,
-	  8,-13,    8, 13,   13, -8,   13,  8,
-	-15, -3,  -15,  3,   -3,-15,   -3, 15,
-	  3,-15,    3, 15,   15, -3,   15,  3,
+	  0,-15,    1,-15,    2,-15,    3,-15,
+	  4,-14,    5,-14,    6,-14,    7,-13,
+	  8,-13,    9,-12,   10,-11,   11,-10,
+	 12, -9,   13, -8,   13, -7,   14, -6,
+	 14, -5,   14, -4,   15, -3,   15, -2,
+	 15, -1,   15,  0,   15,  1,   15,  2,
+	 15,  3,   14,  4,   14,  5,   14,  6,
+	 13,  7,   13,  8,   12,  9,   11, 10,
+	 10, 11,    9, 12,    8, 13,    7, 13,
+	  6, 14,    5, 14,    4, 14,    3, 15,
+	  2, 15,    1, 15,    0, 15,   -1, 15,
+	 -2, 15,   -3, 15,   -4, 14,   -5, 14,
+	 -6, 14,   -7, 13,   -8, 13,   -9, 12,
+	-10, 11,  -11, 10,  -12,  9,  -13,  8,
+	-13,  7,  -14,  6,  -14,  5,  -14,  4,
+	-15,  3,  -15,  2,  -15,  1,  -15,  0,
+	-15, -1,  -15, -2,  -15, -3,  -14, -4,
+	-14, -5,  -14, -6,  -13, -7,  -13, -8,
+	-12, -9,  -11,-10,  -10,-11,   -9,-12,
+	 -8,-13,   -7,-13,   -6,-14,   -5,-14,
+	 -4,-14,   -3,-15,   -2,-15,   -1,-15,
 	// clang-format on
 };
 
@@ -481,7 +481,7 @@ static void DoUnLight(LightListStruct* lis)
 }
 
 BYTE *srcDark;
-static bool LightPos(int x1, int y1, int radius_block)
+static bool LightPos(int x1, int y1, int radius_block, int idx)
 {
 	assert(IN_DUNGEON_AREA(x1, y1));
 
@@ -490,11 +490,22 @@ static bool LightPos(int x1, int y1, int radius_block)
 	// BYTE (&dist0)[MAX_TILE_DIST][MAX_TILE_DIST] = distMatrix[yoff][xoff];
 	// BYTE radius_block = dist0[abs(nYPos - y1)][abs(nXPos - x1)];
 	// BYTE v = srcDark[radius_block];
+	bool proceed = !nBlockTable[dPiece[x1][y1]];
+	if (!proceed) {
+		if ((automaptype[dPiece[x1][y1]] & MAT_TYPE) == MAT_EXTERN
+		 || ((automaptype[dPiece[x1][y1]] & (MAT_WALL_NW | MAT_WALL_SE)) && idx > 42)
+		 || ((automaptype[dPiece[x1][y1]] & (MAT_WALL_NE | MAT_WALL_SW)) && (idx < 63 && idx > 21)))
+			return false;
+	}
+	if (((((automaptype[dPiece[x1][y1]] & MAT_TYPE) == MAT_DOOR_WEST && currLvl._dDunType != DTYPE_CAVES) || (currLvl._dDunType == DTYPE_CATACOMBS && dPiece[x1][y1] == 551)) && idx > 42)
+	 || ((((automaptype[dPiece[x1][y1]] & MAT_TYPE) == MAT_DOOR_EAST && currLvl._dDunType != DTYPE_CAVES) || (currLvl._dDunType == DTYPE_CATACOMBS && dPiece[x1][y1] == 553)) && (idx < 63 && idx > 21)))
+		return false;
+
 	BYTE v = srcDark[radius_block];
 	if (v < dLight[x1][y1])
 		dLight[x1][y1] = v;
 
-	return !nBlockTable[dPiece[x1][y1]];
+	return proceed;
 }
 
 void TraceLightSource(int nXPos, int nYPos, int nRadius)
@@ -543,7 +554,7 @@ void TraceLightSource(int nXPos, int nYPos, int nRadius)
 				limit -= 2 * 8 * 16;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4))); // * MAX_OFFSET / (2 * 8 * 16)
+			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4), i)); // * MAX_OFFSET / (2 * 8 * 16)
 		} else {
 			// multiply by 2 so we round up
 			dx *= 2;
@@ -559,7 +570,7 @@ void TraceLightSource(int nXPos, int nYPos, int nRadius)
 				limit -= 2 * 8 * 16;
 				if (limit <= 0)
 					break;
-			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4))); // * MAX_OFFSET / (2 * 8 * 16)
+			} while (LightPos(x1, y1, (nRadius - limit) >> (1 + 4), i)); // * MAX_OFFSET / (2 * 8 * 16)
 		}
 	}
 }
