@@ -986,7 +986,7 @@ void ValidateData()
 			} else {
 				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
 			}
-		if (um.mMaxDamage2 == 0 && (um.mAI.aiType == AI_ROUND || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
+		if (um.mMaxDamage2 == 0 && ((um.mAI.aiType == AI_ROUND && um.mAI.aiParam1) || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
 			app_fatal("mMaxDamage2 is not set for unique monster %s (%d).", um.mName, i);
 		if (um.mMaxDamage2 != 0 && (um.mAI.aiType == AI_SCAV || um.mAI.aiType == AI_GARG))
 			app_fatal("Fake special attack of the unique monster %s (%d) might hurt someone because mMaxDamage2 is set.", um.mName, i);
@@ -1980,6 +1980,7 @@ void ValidateData()
 		}
 	}
 #endif // DEBUG_DATA
+	assert((missiledata[MIS_ASARROW].mdFlags & MIF_SHROUD) == 0); // required by MI_AsArrow
 	assert((missiledata[MIS_ARROW].mdFlags & MIF_ARROW) != 0);   // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_PBARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_ASARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
