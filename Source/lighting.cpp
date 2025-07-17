@@ -1206,14 +1206,12 @@ void ProcessVisionList()
 	// if (currLvl._dLevelIdx != DLV_TOWN) {
 		for (i = 0; i < numvision; i++) {
 			vis = &VisionList[visionactive[i]];
-			if (vis->_lunflag) {
+			if (vis->_lunflag | vis->_ldel) {
 				DoUnVision(vis->_lunx, vis->_luny, vis->_lunr);
 				vis->_lunflag = false;
 				vis->_lunx = vis->_lx;
 				vis->_luny = vis->_ly;
 				vis->_lunr = vis->_lradius;
-			} else if (vis->_ldel) {
-				DoUnVision(vis->_lx, vis->_ly, vis->_lradius);
 			}
 		}
 		for (i = 0; i < numtrans; i++) {
