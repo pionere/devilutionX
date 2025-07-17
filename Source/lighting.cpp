@@ -1260,24 +1260,23 @@ void lighting_update_caves()
 void lighting_update_hell()
 {
 	lighting_update_caves();
-	/*int i, j, l;
+	/*int i, j;
 	BYTE col;
 	BYTE* tbl;
 
 	// assert(currLvl._dType == DTYPE_HELL);
 
-	l = MAXDARKNESS; // + 1;
 	tbl = ColorTrns[0];
 
-	for (j = 0; j < l; j++) {
+	for (j = 0; j <= MAXDARKNESS; j++) {
 		tbl++;
 		col = *tbl;
 		for (i = 0; i < 30; i++) {
 			tbl[0] = tbl[1];
 			tbl++;
 		}
-		*tbl = col;
-		tbl += NUM_COLORS - 31;
+		*tbl++ = col;
+		tbl += NUM_COLORS - 32;
 	}*/
 }
 
