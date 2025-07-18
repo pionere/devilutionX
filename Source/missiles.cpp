@@ -1095,7 +1095,7 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	if (dam == 0)
 		return false;
 	if (!(mis->_miFlags & MIF_DOT)) {
-		dam += plr._pIGetHit;
+		dam -= plr._pIAbsAnyHit;
 		if (dam < 64)
 			dam = 64;
 	}
@@ -1221,7 +1221,7 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		return false;
 
 	if (!(mis->_miFlags & MIF_DOT)) {
-		dam += plr._pIGetHit;
+		dam -= plr._pIAbsAnyHit;
 		if (dam < 64)
 			dam = 64;
 	}

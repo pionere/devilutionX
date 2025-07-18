@@ -332,7 +332,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// temporary values to calculate armor class/damage of the current item
 	int cac, cdmod, cdmodp, mindam, maxdam;
-	int ghit = 0; // increased damage from enemies
+	int absAnyHit = 0; // absorbed hit-damage
 	BYTE manasteal = 0;
 	BYTE lifesteal = 0;
 
@@ -385,7 +385,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				lr += pi->_iPLLR;
 				mr += pi->_iPLMR;
 				ar += pi->_iPLAR;
-				ghit += pi->_iPLGetHit;
+				absAnyHit += pi->_iPLAbsAnyHit;
 				lrad += pi->_iPLLight;
 				ihp += pi->_iPLHP;
 				imana += pi->_iPLMana;
@@ -449,7 +449,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 
 	plr._pHasUnidItem = !idi;
-	plr._pIGetHit = ghit << 6;
+	plr._pIAbsAnyHit = absAnyHit << 6;
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
 
@@ -1508,8 +1508,8 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iPLDex = r;
 		is->_iPLVit = r;
 		break;
-	case IPL_GETHIT:
-		is->_iPLGetHit = -r;
+	case IPL_ABS_ANYHIT:
+		is->_iPLAbsAnyHit = r;
 		break;
 	case IPL_LIFE:
 		is->_iPLHP = r << 6;
@@ -2999,8 +2999,8 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	case IPL_ATTRIBS:
 		snprintf(tempstr, sizeof(tempstr), "%+d to all attributes", is->_iPLStr);
 		break;
-	case IPL_GETHIT:
-		snprintf(tempstr, sizeof(tempstr), "%+d damage from enemies", is->_iPLGetHit);
+	case IPL_ABS_ANYHIT:
+		snprintf(tempstr, sizeof(tempstr), "%+d damage taken", -is->_iPLAbsAnyHit);
 		break;
 	case IPL_LIFE:
 		snprintf(tempstr, sizeof(tempstr), "hit points: %+d", is->_iPLHP >> 6);

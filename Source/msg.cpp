@@ -3907,7 +3907,7 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		BYTE _pIRecoverySpeed;
 		BYTE _pIBaseCastSpeed;
 		BYTE _pAlign_B1;
-		int _pIGetHit;
+		int _pIAbsAnyHit;
 		BYTE _pIBaseAttackSpeed;
 		int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
 		BYTE _pILifeSteal;

@@ -377,7 +377,7 @@ typedef enum item_effect_type {
 	IPL_DEX,
 	IPL_VIT,
 	IPL_ATTRIBS,
-	IPL_GETHIT,
+	IPL_ABS_ANYHIT,
 	IPL_LIFE,
 	IPL_MANA,
 	IPL_DUR,

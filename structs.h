@@ -272,7 +272,7 @@ typedef struct ItemStruct {
 	int _iPLMana;
 	int _iPLHP;
 	int _iPLDamMod;
-	int _iPLGetHit;
+	int _iPLAbsAnyHit;
 	int8_t _iPLLight;
 	int8_t _iPLSkillLevels;
 	BYTE _iPLSkill;
@@ -453,7 +453,7 @@ typedef struct PlayerStruct {
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
 	BYTE _pAlign_B1;
-	int _pIGetHit;
+	int _pIAbsAnyHit;
 	BYTE _pIBaseAttackSpeed;
 	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
@@ -1261,7 +1261,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viPLMana;
 	LE_INT32 viPLHP;
 	LE_INT32 viPLDamMod;
-	LE_INT32 viPLGetHit;
+	LE_INT32 viPLAbsAnyHit;
 	int8_t viPLLight;
 	int8_t viPLSkillLevels;
 	BYTE viPLSkill;

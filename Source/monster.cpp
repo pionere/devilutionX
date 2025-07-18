@@ -2376,7 +2376,7 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 			MonHitByPlr(mnum, pnum, dam, OPPOSITE(mon->_mdir));
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
-	dam += plr._pIGetHit;
+	dam -= plr._pIAbsAnyHit;
 	if (dam < 64)
 		dam = 64;
 	if (mon->_mFlags & MFLAG_LIFESTEAL) {
