@@ -359,6 +359,7 @@ typedef enum item_effect_type {
 	IPL_DAMP,
 	IPL_TOHIT_DAMP,
 	IPL_ACP,
+	IPL_TOBLOCK,
 	IPL_FIRERES,
 	IPL_LIGHTRES,
 	IPL_MAGICRES,

@@ -272,7 +272,10 @@ typedef struct ItemStruct {
 	int _iPLMana;
 	int _iPLHP;
 	int _iPLDamMod;
-	int _iPLAbsAnyHit;
+	BYTE _iPLToBlk;
+	int8_t _iPLAlign0;
+	int8_t _iPLAbsAnyHit;
+	int8_t _iPLAlign1;
 	int8_t _iPLLight;
 	int8_t _iPLSkillLevels;
 	BYTE _iPLSkill;
@@ -1261,7 +1264,10 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viPLMana;
 	LE_INT32 viPLHP;
 	LE_INT32 viPLDamMod;
-	LE_INT32 viPLAbsAnyHit;
+	BYTE viPLToBlk;
+	int8_t viPLAlign0;
+	int8_t viPLAbsAnyHit;
+	int8_t viPLAlign1;
 	int8_t viPLLight;
 	int8_t viPLSkillLevels;
 	BYTE viPLSkill;

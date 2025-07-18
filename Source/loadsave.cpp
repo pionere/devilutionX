@@ -102,7 +102,11 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLMana = savedItem->viPLMana;
 	is->_iPLHP = savedItem->viPLHP;
 	is->_iPLDamMod = savedItem->viPLDamMod;
+
+	is->_iPLToBlk = savedItem->viPLToBlk;
+	is->_iPLAlign0 = savedItem->viPLAlign0;
 	is->_iPLAbsAnyHit = savedItem->viPLAbsAnyHit;
+	is->_iPLAlign1 = savedItem->viPLAlign1;
 
 	is->_iPLLight = savedItem->viPLLight;
 	is->_iPLSkillLevels = savedItem->viPLSkillLevels;
@@ -973,7 +977,11 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLMana = is->_iPLMana;
 	itemSave->viPLHP = is->_iPLHP;
 	itemSave->viPLDamMod = is->_iPLDamMod;
+
+	itemSave->viPLToBlk = is->_iPLToBlk;
+	itemSave->viPLAlign0 = is->_iPLAlign0;
 	itemSave->viPLAbsAnyHit = is->_iPLAbsAnyHit;
+	itemSave->viPLAlign1 = is->_iPLAlign1;
 
 	itemSave->viPLLight = is->_iPLLight;
 	itemSave->viPLSkillLevels = is->_iPLSkillLevels;

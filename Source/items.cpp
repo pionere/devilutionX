@@ -316,6 +316,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int tac = 0;    // armor class
 	int btohit = 0; // bonus chance to hit
+	int btoblk = 0; // bonus chance to block
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
 
@@ -375,6 +376,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
 				idi &= pi->_iIdentified;
 				btohit += pi->_iPLToHit;
+				btoblk += pi->_iPLToBlk;
 				iflgs |= pi->_iPLFlags;
 
 				sadd += pi->_iPLStr;
@@ -682,7 +684,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pICritChance = cc;
 
 	// calculate block chance
-	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? std::min(sadd, dadd) : 0;
+	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? btoblk + std::min(sadd, dadd) : 0;
 
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
 	for (i = 1; i < NUM_SPELLS; i++) {
@@ -1433,6 +1435,9 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		break;
 	case IPL_ACP:
 		is->_iPLAC = r;
+		break;
+	case IPL_TOBLOCK:
+		is->_iPLToBlk = r;
 		break;
 	case IPL_FIRERES:
 		is->_iPLFR = r;
@@ -2917,6 +2922,9 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		break;
 	case IPL_ACP:
 		snprintf(tempstr, sizeof(tempstr), "%+d%% armor", is->_iPLAC);
+		break;
+	case IPL_TOBLOCK:
+		snprintf(tempstr, sizeof(tempstr), "%+d%% block chance", is->_iPLToBlk);
 		break;
 	case IPL_FIRERES:
 		//if (is->_iPLFR < 75)
