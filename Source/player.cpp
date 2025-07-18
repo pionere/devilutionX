@@ -2017,7 +2017,7 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
 
-	dam -= plr._pIAbsAnyHit;
+	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
 	if (dam < 64) {
 		dam = 64;
 	}

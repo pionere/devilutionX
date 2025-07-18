@@ -106,7 +106,7 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLToBlk = savedItem->viPLToBlk;
 	is->_iPLAlign0 = savedItem->viPLAlign0;
 	is->_iPLAbsAnyHit = savedItem->viPLAbsAnyHit;
-	is->_iPLAlign1 = savedItem->viPLAlign1;
+	is->_iPLAbsPhyHit = savedItem->viPLAbsPhyHit;
 
 	is->_iPLLight = savedItem->viPLLight;
 	is->_iPLSkillLevels = savedItem->viPLSkillLevels;
@@ -320,6 +320,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 1; // _pIBaseCastSpeed
 	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIAbsAnyHit
+	tbuff += 4; // _pIAbsPhyHit
 	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
@@ -981,7 +982,7 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLToBlk = is->_iPLToBlk;
 	itemSave->viPLAlign0 = is->_iPLAlign0;
 	itemSave->viPLAbsAnyHit = is->_iPLAbsAnyHit;
-	itemSave->viPLAlign1 = is->_iPLAlign1;
+	itemSave->viPLAbsPhyHit = is->_iPLAbsPhyHit;
 
 	itemSave->viPLLight = is->_iPLLight;
 	itemSave->viPLSkillLevels = is->_iPLSkillLevels;
@@ -1196,6 +1197,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 1; // _pIBaseCastSpeed
 	tbuff += 1; // _pAlign_B1
 	tbuff += 4; // _pIAbsAnyHit
+	tbuff += 4; // _pIAbsPhyHit
 	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal

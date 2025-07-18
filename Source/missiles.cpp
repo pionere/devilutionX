@@ -1096,6 +1096,9 @@ static bool MissPlrHitByMon(int pnum, int mi)
 		return false;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam -= plr._pIAbsAnyHit;
+		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
+		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
+			dam -= plr._pIAbsPhyHit;
 		if (dam < 64)
 			dam = 64;
 	}
@@ -1222,6 +1225,9 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam -= plr._pIAbsAnyHit;
+		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
+		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
+			dam -= plr._pIAbsPhyHit;
 		if (dam < 64)
 			dam = 64;
 	}

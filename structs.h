@@ -275,7 +275,7 @@ typedef struct ItemStruct {
 	BYTE _iPLToBlk;
 	int8_t _iPLAlign0;
 	int8_t _iPLAbsAnyHit;
-	int8_t _iPLAlign1;
+	int8_t _iPLAbsPhyHit;
 	int8_t _iPLLight;
 	int8_t _iPLSkillLevels;
 	BYTE _iPLSkill;
@@ -456,7 +456,8 @@ typedef struct PlayerStruct {
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
 	BYTE _pAlign_B1;
-	int _pIAbsAnyHit;
+	int _pIAbsAnyHit; // absorbed hit damage
+	int _pIAbsPhyHit; // absorbed physical hit damage
 	BYTE _pIBaseAttackSpeed;
 	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
@@ -470,7 +471,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(185, 100)
+	ALIGNMENT(184, 98)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1267,7 +1268,7 @@ typedef struct LSaveItemStruct {
 	BYTE viPLToBlk;
 	int8_t viPLAlign0;
 	int8_t viPLAbsAnyHit;
-	int8_t viPLAlign1;
+	int8_t viPLAbsPhyHit;
 	int8_t viPLLight;
 	int8_t viPLSkillLevels;
 	BYTE viPLSkill;
