@@ -2017,6 +2017,11 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
 
+	dam -= plr._pIAbsAnyHit;
+	if (dam < 64) {
+		dam = 64;
+	}
+
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
 		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
 		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._pdir);
