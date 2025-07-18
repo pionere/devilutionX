@@ -11,10 +11,9 @@
 #include "utils/paths.h"
 #include "utils/file_util.h"
 #include "storm/storm_cfg.h"
-#include "mpqapi.h"
 #include <string>
 #if CREATE_MPQONE
-#include <fstream>
+#include "utils/filestream.h"
 #endif
 
 #ifdef __vita__
@@ -72,7 +71,6 @@ void FreeArchives()
 		}
 	}
 #endif
-	mpqapi_close();
 }
 
 static void ReadOnlyTest()
@@ -88,18 +86,24 @@ static void ReadOnlyTest()
 	}
 }
 
-void InitArchives()
+static void ArchivesTest()
 {
-	InitializeMpqCryptography();
-	ReadOnlyTest();
-	SFileEnableDirectAccess(getIniBool("Diablo", "Direct FileAccess", false));
+#if defined(__ANDROID__)
+	BYTE* buf = LoadFileInMem("gendata\\Cuttt.pal");
+	if (buf == NULL) {
+		app_fatal("Game data missing");
+	}
+	mem_free_dbg(buf);
+#endif
+}
 
+static void LoadArchives()
+{
 #if USE_MPQONE
 	diabdat_mpq = init_test_access(MPQONE);
 	if (diabdat_mpq != NULL)
 		return;
 #if !CREATE_MPQONE
-	app_fatal("Can not find/access '%s' in the game folder.", MPQONE);
 	return;
 #endif
 	HANDLE diabdat_mpqs[NUM_MPQS];
@@ -120,11 +124,7 @@ void InitArchives()
 	diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN);
 	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
 		diabdat_mpqs[MPQ_DIABDAT] = init_test_access(DATA_ARCHIVE_MAIN_ALT);
-	if (diabdat_mpqs[MPQ_DIABDAT] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", DATA_ARCHIVE_MAIN);
 	//diabdat_mpqs[MPQ_PATCH_RT] = init_test_access(DATA_ARCHIVE_PATCH);
-	//if (!SFileOpenFileEx(diabdat_mpqs[MPQ_DIABDAT], "ui_art\\title.pcx", NULL))
-	//	InsertCDDlg();
 
 #ifdef HELLFIRE
 	diabdat_mpqs[MPQ_HELLFIRE] = init_test_access("hellfire.mpq");
@@ -137,14 +137,10 @@ void InitArchives()
 	//diabdat_mpqs[MPQ_HF_OPT2] = init_test_access("hfopt2.mpq");
 #endif
 	diabdat_mpqs[MPQ_DEVILX] = init_test_access("devilx.mpq");
-	if (diabdat_mpqs[MPQ_DEVILX] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", "devilx.mpq");
 #if ASSET_MPL != 1
 	char tmpstr[32];
 	snprintf(tmpstr, lengthof(tmpstr), "devilx_hd%d.mpq", ASSET_MPL);
 	diabdat_mpqs[MPQ_DEVILHD] = init_test_access(tmpstr);
-	if (diabdat_mpqs[MPQ_DEVILHD] == NULL)
-		app_fatal("Can not find/access '%s' in the game folder.", tmpstr);
 #endif
 
 #if CREATE_MPQONE
@@ -157,10 +153,9 @@ void InitArchives()
 	}
 	std::string line;
 	int entryCount = 0;
-	while (std::getline(input, line)) {
+	while (safeGetline(input, line)) {
 		for (i = 0; i < NUM_MPQS; i++) {
-			//if (diabdat_mpqs[i] != NULL && SFileHasFile(diabdat_mpqs[i], line.c_str())) {
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), NULL)) {
+			if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 				entryCount++;
 				break;
 			}
@@ -177,30 +172,30 @@ void InitArchives()
 	input.clear();                 // clear fail and eof bits
 	input.seekg(0, std::ios::beg); // back to the start!
 	std::string path = std::string(GetBasePath()) + MPQONE;
-	if (!CreateMPQ(path.c_str(), hashCount, hashCount))
+	HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, hashCount);
+	if (ha == NULL)
 		app_fatal("Unable to create MPQ file %s.", path.c_str());
-	while (std::getline(input, line)) {
+	while (safeGetline(input, line)) {
 #ifdef NOSOUND
 		if (line.size() >= 4 && SDL_strcasecmp(line.c_str() + line.size() - 4, ".wav") == 0)
 			continue;
 #endif
 		for (i = 0; i < NUM_MPQS; i++) {
-			HANDLE hFile;
-			if (diabdat_mpqs[i] != NULL && SFileOpenFileEx(diabdat_mpqs[i], line.c_str(), &hFile)) {
-				DWORD dwLen = SFileGetFileSize(hFile);
-				BYTE* buf = DiabloAllocPtr(dwLen);
-				if (!SFileReadFile(hFile, buf, dwLen))
-					app_fatal("Unable to open file archive");
-				if (!mpqapi_write_entry(line.c_str(), buf, dwLen))
-					app_fatal("Unable to write %s to the MPQ.", line.c_str());
+			BYTE* buf = NULL;
+			DWORD dwLen = SFileReadArchive(diabdat_mpqs[i], line.c_str(), &buf);
+			if (dwLen != 0) {
+				bool success = SFileWriteFile(ha, line.c_str(), buf, dwLen);
 				mem_free_dbg(buf);
-				SFileCloseFile(hFile);
+				if (!success) {
+					SFileCloseArchive(ha);
+					app_fatal("Unable to write %s to the MPQ.", line.c_str());
+				}
 				break;
 			}
 		}
 	}
 	input.close();
-	mpqapi_flush_and_close(true);
+	SFileFlushAndCloseArchive(ha);
 
 	// cleanup
 	for (i = 0; i < NUM_MPQS; i++) {
@@ -211,6 +206,19 @@ void InitArchives()
 	diabdat_mpq = init_test_access(MPQONE);
 	assert(diabdat_mpq != NULL);
 #endif
+}
+
+void InitArchives()
+{
+	InitializeMpqCryptography();
+
+	bool directFileAccess = getIniBool("Diablo", "Direct FileAccess", false);
+	SFileEnableDirectAccess(directFileAccess);
+
+	ReadOnlyTest();
+
+	LoadArchives();
+	ArchivesTest();
 }
 
 DEVILUTION_END_NAMESPACE

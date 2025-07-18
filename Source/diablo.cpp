@@ -4,6 +4,7 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
+#include "controls/touch.h"
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -39,6 +40,8 @@ Uint32 gnGamePaused;
 BYTE gbDeathflag = MDM_ALIVE;
 /** The state of the buttons for which might be repeated while held down. */
 unsigned gbActionBtnDown;
+/** The state of the mod-buttons. */
+unsigned gbModBtnDown;
 /** tick counter when the last time an action was repeated because a button was held down. */
 static Uint32 guLastRBD;
 /** Specifies the speed of the game. */
@@ -61,7 +64,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ESCAPE, ACT_NONE, ACT_NONE, ACT_NONE,
 // CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
   ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
-// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,       
+// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_SCRN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
@@ -84,9 +87,9 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    NUMLOCK,  SCRLLOCK, UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    LSHIFT,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MODACT,
 // RSHIFT,  LCTRL,    RCTRL,    LMENU,    RMENU,    BBACK,    BFWD,     BREFRESH, BSTOP,    BSEARCH,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_MODACT, ACT_NONE, ACT_NONE, ACT_MODCTX, ACT_MODCTX, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // BFAV,    BHOME,    MUTE,     VOL_UP,   VOL_DOWN, NTRACK,   PTRACK,   STOP,     PLAYP,    MAIL,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // MSEL,    APP1,     APP2,     UNDEF,    UNDEF,    OEM_1,    OEM_PLUS,    OEM_COMMA, OEM_MINUS,    OEM_PERIOD,
@@ -174,6 +177,9 @@ static void diablo_init()
 #endif
 	InitLighting();
 	InitText();
+#if HAS_TOUCHPAD
+	InitGamepadGFX();
+#endif
 	InitCursorGFX();
 	UiInitialize();
 	gbWasUiInit = true;
@@ -220,8 +226,11 @@ static void diablo_deinit()
 #endif
 	//if (gbWasUiInit)
 		UiDestroy();
-		FreeText();
 		FreeCursorGFX();
+#if HAS_TOUCHPAD
+		FreeGamepadGFX();
+#endif
+		FreeText();
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {
@@ -303,7 +312,7 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 
 static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType)
 {
-	const bool bShift = SDL_GetModState() & KMOD_SHIFT;
+	const bool bShift = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
 	int8_t msf = 0, asf = 0;
 
 	if (bShift)
@@ -425,7 +434,7 @@ static bool TryIconCurs()
 		break;
 	case CURSOR_DISARM:
 		if (OBJ_VALID(pcursobj) && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
-			if (!(SDL_GetModState() & KMOD_SHIFT) ||
+			if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) ||
 			 (abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
 				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSkillUse.from);
@@ -657,6 +666,9 @@ static void ReleaseKey(int vkey)
 	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
 		gbActionBtnDown &= ~ACTBTN_MASK(transKey);
 	}
+	if (transKey >= ACT_MODACT && transKey <= ACT_MODCTX) {
+		gbModBtnDown &= ~ACTBTN_MASK(transKey);
+	}
 }
 
 bool PressEscKey()
@@ -677,7 +689,7 @@ bool PressEscKey()
 		doom_close();
 		rv = true;
 	}*/
-	if (gbHelpflag) {
+	if (gnVisibleHelpLines != 0) {
 		StopHelp();
 		rv = true;
 	}
@@ -808,6 +820,10 @@ void InputBtnDown(int transKey)
 			NetSendCmdBParam1(CMD_WALKDIR, dir);
 		}
 		break;
+	case ACT_MODCTX:
+	case ACT_MODACT:
+		gbModBtnDown |= ACTBTN_MASK(transKey);
+		break;
 	case ACT_STOP:
 		NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		break;
@@ -909,7 +925,7 @@ void InputBtnDown(int transKey)
 			STextUp();
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogUp();
-		} else if (gbHelpflag) {
+		} else if (gnVisibleHelpLines != 0) {
 			HelpScrollUp();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapUp();
@@ -920,7 +936,7 @@ void InputBtnDown(int transKey)
 			STextDown();
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogDown();
-		} else if (gbHelpflag) {
+		} else if (gnVisibleHelpLines != 0) {
 			HelpScrollDown();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapDown();
@@ -979,7 +995,7 @@ void InputBtnDown(int transKey)
 		VersionPlrMsg();
 		break;
 	case ACT_HELP:
-		if (gbHelpflag) {
+		if (gnVisibleHelpLines != 0) {
 			StopHelp();
 		} else if (stextflag == STORE_NONE) {
 			ClearPanels();
@@ -1089,6 +1105,10 @@ static void PressKey(int vkey)
 		return;
 	}
 #endif
+#if HAS_TOUCHPAD
+	// update target for simulated mouse-clicks TODO: do this even if there is no touchpad to handle quick move/click event-pairs?
+	CheckCursMove();
+#endif
 	InputBtnDown(transKey);
 }
 
@@ -1100,6 +1120,13 @@ static void UpdateActionBtnState(int vKey, bool dir)
 			gbActionBtnDown |= ACTBTN_MASK(transKey);
 		} else {
 			gbActionBtnDown &= ~ACTBTN_MASK(transKey);
+		}
+	}
+	if (transKey >= ACT_MODACT && transKey <= ACT_MODCTX) {
+		if (dir) {
+			gbModBtnDown |= ACTBTN_MASK(transKey);
+		} else {
+			gbModBtnDown &= ~ACTBTN_MASK(transKey);
 		}
 	}
 }
@@ -1464,9 +1491,6 @@ static void run_game()
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 		if (!gbRunGame)
 			break;
 		if (!ProcessInput() || nthread_ticks2gameturn() > 0) {

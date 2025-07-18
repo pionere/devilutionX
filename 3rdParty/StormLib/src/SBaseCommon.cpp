@@ -28,7 +28,7 @@ USHORT  wPlatform = 0;                          // File platform
 #endif
 //-----------------------------------------------------------------------------
 // Conversion to uppercase/lowercase
-
+#ifdef FULL
 // Converts ASCII characters to lowercase
 // Converts slash (0x2F) to backslash (0x5C)
 unsigned char AsciiToLowerTable[256] =
@@ -50,7 +50,7 @@ unsigned char AsciiToLowerTable[256] =
     0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-#ifdef FULL_HASH_TABLE
+
 // Converts ASCII characters to uppercase
 // Converts slash (0x2F) to backslash (0x5C)
 unsigned char AsciiToUpperTable[256] =
@@ -314,7 +314,7 @@ DWORD HashStringSlash(const char * szFileName, unsigned dwHashType)
 
     return dwSeed1;
 }
-
+#ifdef FULL
 DWORD HashStringLower(const char * szFileName, unsigned dwHashType)
 {
     LPBYTE pbKey   = (BYTE *)szFileName;
@@ -334,7 +334,7 @@ DWORD HashStringLower(const char * szFileName, unsigned dwHashType)
 
     return dwSeed1;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // Calculates the hash table size for a given amount of files
 
@@ -732,7 +732,7 @@ TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
     DWORD dwName1 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_A);
     DWORD dwName2 = ha->pfnHashString(szFileName, MPQ_HASH_NAME_B);
 #else
-int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
+TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
 {
     DWORD dwHashIndexMask = ha->pHeader.dwHashTableSize - 1;
     DWORD dwStartIndex = HashStringSlash(szFileName, MPQ_HASH_TABLE_INDEX);
@@ -775,11 +775,11 @@ int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName)
         TMPQHash * pHash = &ha->pHashTable[dwIndex];
         if (pHash->dwName1 == dwName1 && pHash->dwName2 == dwName2 && MPQ_BLOCK_INDEX(pHash) < ha->pHeader.dwBlockTableSize)
 //            /*&& pHash->lcid == locale*/ && pHash->dwBlockIndex != HASH_ENTRY_DELETED)
-            return dwIndex;
+            return pHash;
         if (pHash->dwBlockIndex == HASH_ENTRY_FREE)
             break;
     }
-    return -1;
+    return NULL;
 #endif
 }
 #ifdef FULL
@@ -1027,11 +1027,10 @@ void * LoadMpqTable(
         {
             PtrRealTableSize[0] = dwBytesToRead;
         }
-#endif // FULL
+
         // If everything succeeded, read the raw table from the MPQ
         if(FileStream_Read(ha->pStream, &ByteOffset, pbToRead, dwBytesToRead))
         {
-#ifdef FULL
             // Verify the MD5 of the table, if present
             if(!VerifyDataBlockHash(pbToRead, dwBytesToRead, pbTableHash))
             {
@@ -1041,13 +1040,11 @@ void * LoadMpqTable(
         else
         {
             dwErrCode = GetLastError();
-#else
         }
-        else
-        {
+#else
+        if(!FileStream_Read(&ha->pStream, ByteOffset, pbToRead, dwBytesToRead))
             dwErrCode = ERROR_SUCCESS + 1;
 #endif // FULL
-        }
 
         if(dwErrCode == ERROR_SUCCESS)
         {
@@ -1301,7 +1298,7 @@ LPDWORD AllocateSectorOffsets(TMPQFile * hf)
 #else
             FILESIZE_T RawFilePos = FileOffsetFromMpqOffset(pFileEntry->dwFilePos);
             // Load the sector offsets from the file
-            if(!FileStream_Read(ha->pStream, &RawFilePos, SectorOffsets, dwSectorOffsLen))
+            if(!FileStream_Read(&ha->pStream, RawFilePos, SectorOffsets, dwSectorOffsLen))
 #endif
             {
 #ifdef FULL
@@ -1724,9 +1721,9 @@ void FreeFileHandle(TMPQFile *& hf)
 void FreeFileHandle(TMPQFile * hf)
 #endif // FULL
 {
+#ifdef FULL
     if(hf != NULL)
     {
-#ifdef FULL
         // If we have patch file attached to this one, free it first
         if(hf->hfPatch != NULL)
             FreeFileHandle(hf->hfPatch);
@@ -1746,14 +1743,13 @@ void FreeFileHandle(TMPQFile * hf)
             STORM_FREE(hf->pbFileSector);
         if(hf->pStream != NULL)
             FileStream_Close(hf->pStream);
-#else
-        if(hf->pFileEntry == NULL)
-            // local file
-            FileStream_Close(hf->pStream);
-#endif
         STORM_FREE(hf);
         hf = NULL;
     }
+#else
+            // assert(local file)
+            FileStream_Close(&hf->pStream);
+#endif
 }
 
 // Frees the MPQ archive
@@ -1775,7 +1771,7 @@ void FreeArchiveHandle(TMPQArchive * ha)
             STORM_FREE(ha->pPatchPrefix);
 #endif
         // Close the file stream
-        FileStream_Close(ha->pStream);
+        FileStream_Close(&ha->pStream);
 #ifdef FULL
         ha->pStream = NULL;
 
@@ -1975,10 +1971,11 @@ void ConvertUInt32Buffer(void * ptr, size_t length)
 void ConvertTMPQHeader(void *header, uint16_t version)
 {
 	TMPQHeader * theHeader = (TMPQHeader *)header;
-
+#ifdef FULL
     // Swap header part version 1
     if(version >= MPQ_FORMAT_VERSION_1)
     {
+#endif
 	    theHeader->dwID = SwapUInt32(theHeader->dwID);
 	    theHeader->dwHeaderSize = SwapUInt32(theHeader->dwHeaderSize);
 	    theHeader->dwArchiveSize = SwapUInt32(theHeader->dwArchiveSize);
@@ -1988,6 +1985,7 @@ void ConvertTMPQHeader(void *header, uint16_t version)
 	    theHeader->dwBlockTablePos = SwapUInt32(theHeader->dwBlockTablePos);
 	    theHeader->dwHashTableSize = SwapUInt32(theHeader->dwHashTableSize);
 	    theHeader->dwBlockTableSize = SwapUInt32(theHeader->dwBlockTableSize);
+#ifdef FULL
     }
 
 	if(version >= MPQ_FORMAT_VERSION_2)
@@ -2012,6 +2010,7 @@ void ConvertTMPQHeader(void *header, uint16_t version)
         theHeader->HetTableSize64     = SwapUInt64(theHeader->HetTableSize64);
         theHeader->BetTableSize64     = SwapUInt64(theHeader->BetTableSize64);
     }
+#endif
 }
 
 #endif  // STORMLIB_LITTLE_ENDIAN

@@ -225,8 +225,9 @@ void StringCopy(TCHAR * szTarget, size_t cchTarget, const TCHAR * szSource);
 
 DWORD HashString(const char * szFileName, unsigned dwHashType);
 DWORD HashStringSlash(const char * szFileName, unsigned dwHashType);
+#ifdef FULL
 DWORD HashStringLower(const char * szFileName, unsigned dwHashType);
-
+#endif
 void  InitializeMpqCryptography();
 
 DWORD GetNearestPowerOfTwo(DWORD dwFileCount);
@@ -248,6 +249,7 @@ bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_
 void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
 #else
 DWORD DecryptFileKey(const char * szFileName);
+int    SCompExplode(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int cbInBuffer);
 #endif // FULL
 
 //-----------------------------------------------------------------------------
@@ -267,13 +269,13 @@ FILESIZE_T FileOffsetFromMpqOffset(FILESIZE_T MpqOffset);
 FILESIZE_T CalculateRawSectorOffset(TMPQFile * hf, DWORD dwSectorOffset);
 void ConvertMpqHeaderToFormat4(TMPQArchive * ha);
 #endif
-#ifndef FULL
-int GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
-#else
+#ifdef FULL
 bool IsValidHashEntry(TMPQArchive * ha, TMPQHash * pHash);
 
 TMPQHash * FindFreeHashEntry(TMPQArchive * ha, DWORD dwStartIndex, DWORD dwName1, DWORD dwName2, LCID lcLocale);
+#endif
 TMPQHash * GetFirstHashEntry(TMPQArchive * ha, const char * szFileName);
+#ifdef FULL
 TMPQHash * GetNextHashEntry(TMPQArchive * ha, TMPQHash * pFirstHash, TMPQHash * pPrevHash);
 TMPQHash * AllocateHashEntry(TMPQArchive * ha, TFileEntry * pFileEntry, LCID lcLocale);
 
@@ -407,7 +409,11 @@ const XCHAR * GetPlainFileName(const XCHAR * szFileName)
 
     while(*szFileName != 0)
     {
+#ifdef FULL
         if(*szFileName == '\\' || *szFileName == '/')
+#else
+        if(*szFileName == '\\')
+#endif
             szPlainName = szFileName + 1;
         szFileName++;
     }

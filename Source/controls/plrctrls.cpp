@@ -15,7 +15,7 @@ static int speedspellcount = 0;
 bool InGameMenu()
 {
 	return stextflag != STORE_NONE
-	    || gbHelpflag
+	    || gnVisibleHelpLines != 0
 	    || gbTalkflag
 	    || gbQtextflag
 	    //|| gbDoomflag
@@ -355,7 +355,7 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	else if (slot >= NUM_ATTRIBS)
 		slot = NUM_ATTRIBS - 1;
 	// move cursor to our new location
-	int x = gnWndCharX + ((SDL_GetModState() & KMOD_ALT) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
+	int x = gnWndCharX + ((gbModBtnDown & ACTBTN_MASK(ACT_MODCTX)) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
 	int y = gnWndCharY + CHRBTN_TOP(slot) + (CHRBTN_HEIGHT / 2);
 	if (abs(MousePos.x - x) >= CHRBTN_WIDTH / 2 || abs(MousePos.y - y) >= CHRBTN_HEIGHT / 2) // Avoid wobbling when scaled
 		SetCursorPos(x, y);
@@ -778,9 +778,9 @@ void StoreSpellCoords()
 {
 	int pnum, i, j;
 	uint64_t mask;
-	const int START_X = PANEL_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
+	const int START_X = SCREEN_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
 	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
-	const int END_Y = PANEL_BOTTOM - (128 + 17) - SPLICON_HEIGHT / 2;
+	const int END_Y = SCREEN_HEIGHT - (128 + 17) - SPLICON_HEIGHT / 2;
 	speedspellcount = 0;
 	int xo = END_X;
 	int yo = END_Y;

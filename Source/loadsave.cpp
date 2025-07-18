@@ -41,7 +41,7 @@ DEVILUTION_BEGIN_NAMESPACE
 static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 {
 	LSaveItemStruct* DVL_RESTRICT savedItem = (LSaveItemStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	is->_iSeed = savedItem->viSeed;
 	is->_iIdx = savedItem->viIdx;
 	is->_iCreateInfo = savedItem->viCreateInfo;
@@ -102,7 +102,11 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLMana = savedItem->viPLMana;
 	is->_iPLHP = savedItem->viPLHP;
 	is->_iPLDamMod = savedItem->viPLDamMod;
-	is->_iPLGetHit = savedItem->viPLGetHit;
+
+	is->_iPLToBlk = savedItem->viPLToBlk;
+	is->_iPLAlign0 = savedItem->viPLAlign0;
+	is->_iPLAbsAnyHit = savedItem->viPLAbsAnyHit;
+	is->_iPLAbsPhyHit = savedItem->viPLAbsPhyHit;
 
 	is->_iPLLight = savedItem->viPLLight;
 	is->_iPLSkillLevels = savedItem->viPLSkillLevels;
@@ -125,6 +129,11 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLMMaxDam = savedItem->viPLMMaxDam;
 	is->_iPLAMinDam = savedItem->viPLAMinDam;
 	is->_iPLAMaxDam = savedItem->viPLAMaxDam;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveItemStruct, viAnimDataAlign) == offsetof(ItemStruct, _iAnimData), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct I.");
+	memcpy(is, savedItem, offsetof(ItemStruct, _iAnimData));
+	static_assert(sizeof(LSaveItemStruct) - offsetof(LSaveItemStruct, viAnimCnt) == sizeof(ItemStruct) - offsetof(ItemStruct, _iAnimCnt) - sizeof(is->alignment), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct II.");
+	memcpy(&is->_iAnimCnt, &savedItem->viAnimCnt, sizeof(LSaveItemStruct) - offsetof(LSaveItemStruct, viAnimCnt));
 #else
 	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viPLAMaxDam) + sizeof(savedItem->viPLAMaxDam)
 	 && offsetof(ItemStruct, _iPLAMaxDam) == offsetof(LSaveItemStruct, viPLAMaxDam), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
@@ -140,7 +149,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	PlayerStruct* DVL_RESTRICT pr = &players[pnum];
 
 	LSavePlayerStruct* DVL_RESTRICT savedPlr = (LSavePlayerStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	pr->_pmode = savedPlr->vpmode;
 	pr->_pDestAction = savedPlr->vpDestAction;
 	pr->_pDestParam1 = savedPlr->vpDestParam1;
@@ -245,6 +254,12 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	//PlrAnimStruct _pAnims[NUM_PGXS];
 	//unsigned _pAFNum;
 	//unsigned _pSFNum;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSavePlayerStruct, vpAnimDataAlign) == offsetof(PlayerStruct, _pdir) + sizeof(pr->_pdir), "LoadPlayer uses memcpy to load most of the LSavePlayerStruct in PlayerStruct I.");
+	memcpy(pr, savedPlr, offsetof(PlayerStruct, _pdir) + sizeof(pr->_pdir));
+	static_assert((offsetof(LSavePlayerStruct, vpVar8) + sizeof(savedPlr->vpVar8)) - offsetof(LSavePlayerStruct, vpAnimCnt)
+		== (offsetof(PlayerStruct, _pVar8) + sizeof(pr->_pVar8)) - offsetof(PlayerStruct, _pAnimCnt), "LoadPlayer uses memcpy to load most of the LSavePlayerStruct in PlayerStruct II.");
+	memcpy(&pr->_pAnimCnt, &savedPlr->vpAnimCnt, (offsetof(PlayerStruct, _pVar8) + sizeof(pr->_pVar8)) - offsetof(PlayerStruct, _pAnimCnt));
 #else
 	static_assert(offsetof(LSavePlayerStruct, vpHoldItem) == offsetof(LSavePlayerStruct, vpVar8) + sizeof(savedPlr->vpVar8)
 	 && offsetof(PlayerStruct, _pVar8) == offsetof(LSavePlayerStruct, vpVar8), "LoadPlayer uses memcpy to load most of the LSavePlayerStruct in PlayerStruct.");
@@ -304,7 +319,8 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 1; // _pIRecoverySpeed
 	tbuff += 1; // _pIBaseCastSpeed
 	tbuff += 1; // _pAlign_B1
-	tbuff += 4; // _pIGetHit
+	tbuff += 4; // _pIAbsAnyHit
+	tbuff += 4; // _pIAbsPhyHit
 	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
@@ -326,7 +342,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	MonsterStruct* DVL_RESTRICT mon = &monsters[mnum];
 
 	LSaveMonsterStruct* DVL_RESTRICT savedMon = (LSaveMonsterStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	mon->_mmode = savedMon->vmmode;
 	mon->_msquelch = savedMon->vmsquelch;
 
@@ -408,6 +424,15 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 
 	mon->_mMagicRes = savedMon->vmMagicRes;
 	mon->_mExp = savedMon->vmExp;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveMonsterStruct, vmAnimDataAlign) == offsetof(MonsterStruct, _mDelFlag) + sizeof(mon->_mDelFlag), "LoadMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct I.");
+	memcpy(mon, savedMon, offsetof(MonsterStruct, _mDelFlag) + sizeof(mon->_mDelFlag));
+	static_assert((offsetof(LSaveMonsterStruct, vmvid) + sizeof(savedMon->vmvid)) - offsetof(LSaveMonsterStruct, vmAnimCnt)
+		== (offsetof(MonsterStruct, _mvid) + sizeof(mon->_mvid)) - offsetof(MonsterStruct, _mAnimCnt), "LoadMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct II.");
+	memcpy(&mon->_mAnimCnt, &savedMon->vmAnimCnt, (offsetof(MonsterStruct, _mvid) + sizeof(mon->_mvid)) - offsetof(MonsterStruct, _mAnimCnt));
+	static_assert((offsetof(LSaveMonsterStruct, vmExp) + sizeof(savedMon->vmExp)) - offsetof(LSaveMonsterStruct, vmFileNum)
+		== (offsetof(MonsterStruct, _mExp) + sizeof(mon->_mExp)) - offsetof(MonsterStruct, _mFileNum), "LoadMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct III.");
+	memcpy(&mon->_mFileNum, &savedMon->vmFileNum, (offsetof(MonsterStruct, _mExp) + sizeof(mon->_mExp)) - offsetof(MonsterStruct, _mFileNum));
 #else
 	// preserve AnimData, AnimFrameLen and Name members for towners to prevent the need for SyncTownerAnim
 	BYTE* tmpAnimData = mon->_mAnimData;
@@ -452,7 +477,7 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	MissileStruct* DVL_RESTRICT mis = &missile[mi];
 
 	LSaveMissileStruct* DVL_RESTRICT savedMis = (LSaveMissileStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	mis->_miType = savedMis->vmiType;
 
 	mis->_miFlags = savedMis->vmiFlags;
@@ -501,6 +526,12 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miVar6 = savedMis->vmiVar6;
 	mis->_miVar7 = savedMis->vmiVar7;
 	mis->_miVar8 = savedMis->vmiVar8;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveMissileStruct, vmiDrawFlagAlign) == offsetof(MissileStruct, _miUniqTrans) + sizeof(mis->_miUniqTrans), "LoadMissile uses memcpy to load the LSaveMissileStruct in MissileStruct I.");
+	memcpy(mis, savedMis, offsetof(MissileStruct, _miUniqTrans) + sizeof(mis->_miUniqTrans));
+	static_assert((offsetof(LSaveMissileStruct, vmiVar8) + sizeof(savedMis->vmiVar8)) - offsetof(LSaveMissileStruct, vmiAnimCnt)
+		== (offsetof(MissileStruct, _miVar8) + sizeof(mis->_miVar8)) - offsetof(MissileStruct, _miAnimCnt), "LoadMissile uses memcpy to load the LSaveMissileStruct in MissileStruct II.");
+	memcpy(&mis->_miAnimCnt, &savedMis->vmiAnimCnt, (offsetof(MissileStruct, _miVar8) + sizeof(mis->_miVar8)) - offsetof(MissileStruct, _miAnimCnt));
 #else
 	static_assert(sizeof(LSaveMissileStruct) == offsetof(LSaveMissileStruct, vmiVar8) + sizeof(savedMis->vmiVar8)
 	 && offsetof(MissileStruct, _miVar8) == offsetof(LSaveMissileStruct, vmiVar8), "LoadMissile uses memcpy to load the LSaveMissileStruct in MissileStruct.");
@@ -517,7 +548,7 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	ObjectStruct* DVL_RESTRICT os = &objects[oi];
 
 	LSaveObjectStruct* DVL_RESTRICT savedObj = (LSaveObjectStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	os->_otype = savedObj->votype;
 	os->_ox = savedObj->vox;
 	os->_oy = savedObj->voy;
@@ -556,6 +587,13 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oVar6 = savedObj->voVar6;
 	os->_oVar7 = savedObj->voVar7;
 	os->_oVar8 = savedObj->voVar8;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveObjectStruct, voAnimDataAlign) == offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct I.");
+	memcpy(os, savedObj, offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags));
+	static_assert((offsetof(LSaveObjectStruct, voVar8) + sizeof(savedObj->voVar8)) - offsetof(LSaveObjectStruct, voAnimFrameLen)
+		== (offsetof(ObjectStruct, _oVar8) + sizeof(os->_oVar8)) - offsetof(ObjectStruct, _oAnimFrameLen), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct II.");
+	static_assert(sizeof(LSaveObjectStruct) - offsetof(LSaveObjectStruct, voAnimFrameLen) == sizeof(ObjectStruct) - offsetof(ObjectStruct, _oAnimFrameLen) - sizeof(os->alignment), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct III.");
+	memcpy(&os->_oAnimFrameLen, &savedObj->voAnimFrameLen, (offsetof(ObjectStruct, _oVar8) + sizeof(os->_oVar8)) - offsetof(ObjectStruct, _oAnimFrameLen));
 #else
 	static_assert(sizeof(LSaveObjectStruct) == offsetof(LSaveObjectStruct, voVar8) + sizeof(savedObj->voVar8)
 	 && offsetof(ObjectStruct, _oVar8) == offsetof(LSaveObjectStruct, voVar8), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct.");
@@ -577,7 +615,7 @@ static BYTE* LoadQuest(BYTE* DVL_RESTRICT src, int i)
 	QuestStruct* DVL_RESTRICT pQuest = &quests[i];
 
 	LSaveQuestStruct* DVL_RESTRICT savedQuest = (LSaveQuestStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	pQuest->_qactive = savedQuest->vqactive;
 	pQuest->_qvar1 = savedQuest->vqvar1;
 	pQuest->_qvar2 = savedQuest->vqvar2;
@@ -598,7 +636,7 @@ static BYTE* LoadQuest(BYTE* DVL_RESTRICT src, int i)
 static BYTE* LoadLight(BYTE* src, LightListStruct* DVL_RESTRICT pLight)
 {
 	LSaveLightListStruct* DVL_RESTRICT savedLight = (LSaveLightListStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	pLight->_lx = savedLight->vlx;
 	pLight->_ly = savedLight->vly;
 	pLight->_lunx = savedLight->vlunx;
@@ -632,7 +670,7 @@ static BYTE* LoadPortal(BYTE* DVL_RESTRICT src, int i)
 	PortalStruct* DVL_RESTRICT pPortal = &portals[i];
 
 	LSavePortalStruct* DVL_RESTRICT savedPortal = (LSavePortalStruct*)src;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	pPortal->_rlevel = savedPortal->vrlevel;
 	pPortal->_rx = savedPortal->vrx;
 	pPortal->_ry = savedPortal->vry;
@@ -743,7 +781,6 @@ void LoadGame()
 	// TODO: UIDisconnectGame() ?
 	SNetLeaveGame();
 
-	pfile_delete_save_file();
 	pfile_read_save_file(true);
 	fileBuff = gsDeltaData.ddBuffer;
 	tbuff = fileBuff;
@@ -880,7 +917,7 @@ void LoadGame()
 static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 {
 	LSaveItemStruct* DVL_RESTRICT itemSave = (LSaveItemStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	itemSave->viSeed = is->_iSeed;
 	itemSave->viIdx = is->_iIdx;
 	itemSave->viCreateInfo = is->_iCreateInfo;
@@ -941,7 +978,11 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLMana = is->_iPLMana;
 	itemSave->viPLHP = is->_iPLHP;
 	itemSave->viPLDamMod = is->_iPLDamMod;
-	itemSave->viPLGetHit = is->_iPLGetHit;
+
+	itemSave->viPLToBlk = is->_iPLToBlk;
+	itemSave->viPLAlign0 = is->_iPLAlign0;
+	itemSave->viPLAbsAnyHit = is->_iPLAbsAnyHit;
+	itemSave->viPLAbsPhyHit = is->_iPLAbsPhyHit;
 
 	itemSave->viPLLight = is->_iPLLight;
 	itemSave->viPLSkillLevels = is->_iPLSkillLevels;
@@ -964,6 +1005,11 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLMMaxDam = is->_iPLMMaxDam;
 	itemSave->viPLAMinDam = is->_iPLAMinDam;
 	itemSave->viPLAMaxDam = is->_iPLAMaxDam;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveItemStruct, viAnimDataAlign) == offsetof(ItemStruct, _iAnimData), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct I.");
+	memcpy(itemSave, is, offsetof(ItemStruct, _iAnimData));
+	static_assert(sizeof(LSaveItemStruct) - offsetof(LSaveItemStruct, viAnimCnt) == sizeof(ItemStruct) - offsetof(ItemStruct, _iAnimCnt) - sizeof(is->alignment), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct II.");
+	memcpy(&itemSave->viAnimCnt, &is->_iAnimCnt, sizeof(LSaveItemStruct) - offsetof(LSaveItemStruct, viAnimCnt));
 #else
 	static_assert(sizeof(LSaveItemStruct) == offsetof(LSaveItemStruct, viPLAMaxDam) + sizeof(itemSave->viPLAMaxDam)
 	 && offsetof(ItemStruct, _iPLAMaxDam) == offsetof(LSaveItemStruct, viPLAMaxDam), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
@@ -979,7 +1025,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	PlayerStruct* DVL_RESTRICT pr = &players[pnum];
 
 	LSavePlayerStruct* DVL_RESTRICT plrSave = (LSavePlayerStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	plrSave->vpmode = pr->_pmode;
 	plrSave->vpDestAction = pr->_pDestAction;
 	plrSave->vpDestParam1 = pr->_pDestParam1;
@@ -1084,6 +1130,12 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	//PlrAnimStruct _pAnims[NUM_PGXS];
 	//unsigned _pAFNum;
 	//unsigned _pSFNum;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSavePlayerStruct, vpAnimDataAlign) == offsetof(PlayerStruct, _pdir) + sizeof(pr->_pdir), "SavePlayer uses memcpy to store most of the PlayerStruct in LSavePlayerStruct I.");
+	memcpy(plrSave, pr, offsetof(PlayerStruct, _pdir) + sizeof(pr->_pdir));
+	static_assert((offsetof(LSavePlayerStruct, vpVar8) + sizeof(plrSave->vpVar8)) - offsetof(LSavePlayerStruct, vpAnimCnt)
+		== (offsetof(PlayerStruct, _pVar8) + sizeof(pr->_pVar8)) - offsetof(PlayerStruct, _pAnimCnt), "SavePlayer uses memcpy to store most of the PlayerStruct in LSavePlayerStruct II.");
+	memcpy(&plrSave->vpAnimCnt, &pr->_pAnimCnt, (offsetof(PlayerStruct, _pVar8) + sizeof(pr->_pVar8)) - offsetof(PlayerStruct, _pAnimCnt));
 #else
 	static_assert(offsetof(LSavePlayerStruct, vpHoldItem) == offsetof(LSavePlayerStruct, vpVar8) + sizeof(plrSave->vpVar8)
 	 && offsetof(PlayerStruct, _pVar8) == offsetof(LSavePlayerStruct, vpVar8), "SavePlayer uses memcpy to store most of the PlayerStruct in LSavePlayerStruct.");
@@ -1144,7 +1196,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 1; // _pIRecoverySpeed
 	tbuff += 1; // _pIBaseCastSpeed
 	tbuff += 1; // _pAlign_B1
-	tbuff += 4; // _pIGetHit
+	tbuff += 4; // _pIAbsAnyHit
+	tbuff += 4; // _pIAbsPhyHit
 	tbuff += 1; // _pIBaseAttackSpeed
 	tbuff += 1; // _pAlign_B2
 	tbuff += 1; // _pILifeSteal
@@ -1169,7 +1222,7 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	MonsterStruct* DVL_RESTRICT mon = &monsters[mnum];
 
 	LSaveMonsterStruct* DVL_RESTRICT monSave = (LSaveMonsterStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	monSave->vmmode = mon->_mmode;
 	monSave->vmsquelch = mon->_msquelch;
 
@@ -1251,6 +1304,15 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 
 	monSave->vmMagicRes = mon->_mMagicRes;
 	monSave->vmExp = mon->_mExp;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveMonsterStruct, vmAnimDataAlign) == offsetof(MonsterStruct, _mDelFlag) + sizeof(mon->_mDelFlag), "SaveMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct I.");
+	memcpy(monSave, mon, offsetof(MonsterStruct, _mDelFlag) + sizeof(mon->_mDelFlag));
+	static_assert((offsetof(LSaveMonsterStruct, vmvid) + sizeof(monSave->vmvid)) - offsetof(LSaveMonsterStruct, vmAnimCnt)
+		== (offsetof(MonsterStruct, _mvid) + sizeof(mon->_mvid)) - offsetof(MonsterStruct, _mAnimCnt), "SaveMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct II.");
+	memcpy(&monSave->vmAnimCnt, &mon->_mAnimCnt, (offsetof(MonsterStruct, _mvid) + sizeof(mon->_mvid)) - offsetof(MonsterStruct, _mAnimCnt));
+	static_assert((offsetof(LSaveMonsterStruct, vmExp) + sizeof(monSave->vmExp)) - offsetof(LSaveMonsterStruct, vmFileNum)
+		== (offsetof(MonsterStruct, _mExp) + sizeof(mon->_mExp)) - offsetof(MonsterStruct, _mFileNum), "SaveMonster uses memcpy to load the LSaveMonsterStruct in MonsterStruct III.");
+	memcpy(&monSave->vmFileNum, &mon->_mFileNum, (offsetof(MonsterStruct, _mExp) + sizeof(mon->_mExp)) - offsetof(MonsterStruct, _mFileNum));
 #else
 	static_assert(sizeof(LSaveMonsterStruct) == offsetof(LSaveMonsterStruct, vmExp) + sizeof(monSave->vmExp)
 	 && offsetof(MonsterStruct, _mExp) == offsetof(LSaveMonsterStruct, vmExp), "SaveMonster uses memcpy to store the MonsterStruct in LSaveMonsterStruct.");
@@ -1274,7 +1336,7 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	MissileStruct* DVL_RESTRICT mis = &missile[mi];
 
 	LSaveMissileStruct* DVL_RESTRICT misSave = (LSaveMissileStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	misSave->vmiType = mis->_miType;
 
 	misSave->vmiFlags = mis->_miFlags;
@@ -1323,6 +1385,12 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiVar6 = mis->_miVar6;
 	misSave->vmiVar7 = mis->_miVar7;
 	misSave->vmiVar8 = mis->_miVar8;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveMissileStruct, vmiDrawFlagAlign) == offsetof(MissileStruct, _miUniqTrans) + sizeof(mis->_miUniqTrans), "SaveMissile uses memcpy to store the MissileStruct in LSaveMissileStruct I.");
+	memcpy(misSave, mis, offsetof(MissileStruct, _miUniqTrans) + sizeof(mis->_miUniqTrans));
+	static_assert((offsetof(LSaveMissileStruct, vmiVar8) + sizeof(misSave->vmiVar8)) - offsetof(LSaveMissileStruct, vmiAnimCnt)
+		== (offsetof(MissileStruct, _miVar8) + sizeof(mis->_miVar8)) - offsetof(MissileStruct, _miAnimCnt), "SaveMissile uses memcpy to store the MissileStruct in LSaveMissileStruct II.");
+	memcpy(&misSave->vmiAnimCnt, &mis->_miAnimCnt, (offsetof(MissileStruct, _miVar8) + sizeof(mis->_miVar8)) - offsetof(MissileStruct, _miAnimCnt));
 #else
 	static_assert(sizeof(LSaveMissileStruct) == offsetof(LSaveMissileStruct, vmiVar8) + sizeof(misSave->vmiVar8)
 	 && offsetof(MissileStruct, _miVar8) == offsetof(LSaveMissileStruct, vmiVar8), "SaveMissile uses memcpy to store the MissileStruct in LSaveMissileStruct.");
@@ -1339,7 +1407,7 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	ObjectStruct* DVL_RESTRICT os = &objects[oi];
 
 	LSaveObjectStruct* DVL_RESTRICT objSave = (LSaveObjectStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	objSave->votype = os->_otype;
 	objSave->vox = os->_ox;
 	objSave->voy = os->_oy;
@@ -1378,6 +1446,13 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voVar6 = os->_oVar6;
 	objSave->voVar7 = os->_oVar7;
 	objSave->voVar8 = os->_oVar8;
+#elif INTPTR_MAX != INT32_MAX
+	static_assert(offsetof(LSaveObjectStruct, voAnimDataAlign) == offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct I.");
+	memcpy(objSave, os, offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags));
+	static_assert((offsetof(LSaveObjectStruct, voVar8) + sizeof(objSave->voVar8)) - offsetof(LSaveObjectStruct, voAnimFrameLen)
+		== (offsetof(ObjectStruct, _oVar8) + sizeof(os->_oVar8)) - offsetof(ObjectStruct, _oAnimFrameLen), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct II.");
+	static_assert(sizeof(LSaveObjectStruct) - offsetof(LSaveObjectStruct, voAnimFrameLen) == sizeof(ObjectStruct) - offsetof(ObjectStruct, _oAnimFrameLen) - sizeof(os->alignment), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct III.");
+	memcpy(&objSave->voAnimFrameLen, &os->_oAnimFrameLen, (offsetof(ObjectStruct, _oVar8) + sizeof(os->_oVar8)) - offsetof(ObjectStruct, _oAnimFrameLen));
 #else
 	static_assert(sizeof(LSaveObjectStruct) == offsetof(LSaveObjectStruct, voVar8) + sizeof(objSave->voVar8)
 	 && offsetof(ObjectStruct, _oVar8) == offsetof(LSaveObjectStruct, voVar8), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct.");
@@ -1394,7 +1469,7 @@ static BYTE* SaveQuest(BYTE* DVL_RESTRICT dest, int i)
 	QuestStruct* DVL_RESTRICT pQuest = &quests[i];
 
 	LSaveQuestStruct* DVL_RESTRICT questSave = (LSaveQuestStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	questSave->vqactive = pQuest->_qactive;
 	questSave->vqvar1 = pQuest->_qvar1;
 	questSave->vqvar2 = pQuest->_qvar2;
@@ -1415,7 +1490,7 @@ static BYTE* SaveQuest(BYTE* DVL_RESTRICT dest, int i)
 static BYTE* SaveLight(BYTE* DVL_RESTRICT dest, LightListStruct* DVL_RESTRICT pLight)
 {
 	LSaveLightListStruct* DVL_RESTRICT lightSave = (LSaveLightListStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	lightSave->vlx = pLight->_lx;
 	lightSave->vly = pLight->_ly;
 	lightSave->vlunx = pLight->_lunx;
@@ -1449,7 +1524,7 @@ static BYTE* SavePortal(BYTE* DVL_RESTRICT dest, int i)
 	PortalStruct* DVL_RESTRICT pPortal = &portals[i];
 
 	LSavePortalStruct* DVL_RESTRICT portalSave = (LSavePortalStruct*)dest;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN || INTPTR_MAX != INT32_MAX
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	portalSave->vrlevel = pPortal->_rlevel;
 	portalSave->vrx = pPortal->_rx;
 	portalSave->vry = pPortal->_ry;

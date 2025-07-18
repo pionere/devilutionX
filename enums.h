@@ -359,6 +359,7 @@ typedef enum item_effect_type {
 	IPL_DAMP,
 	IPL_TOHIT_DAMP,
 	IPL_ACP,
+	IPL_TOBLOCK,
 	IPL_FIRERES,
 	IPL_LIGHTRES,
 	IPL_MAGICRES,
@@ -377,7 +378,8 @@ typedef enum item_effect_type {
 	IPL_DEX,
 	IPL_VIT,
 	IPL_ATTRIBS,
-	IPL_GETHIT,
+	IPL_ABS_ANYHIT,
+	IPL_ABS_PHYHIT,
 	IPL_LIFE,
 	IPL_MANA,
 	IPL_DUR,
@@ -4013,14 +4015,45 @@ typedef enum _music_id {
 
 enum _artFontTables {
 	AFT_SMALL,
-	AFT_MED,
 	AFT_BIG,
 	AFT_HUGE,
 };
 
-enum _artFontColors {
-	AFC_SILVER,
-	AFC_GOLD,
+enum _artFontFlags {
+	AFF_SMALL       = AFT_SMALL << 0,
+	AFF_BIG         = AFT_BIG << 0,
+	AFF_HUGE        = AFT_HUGE << 0,
+	AFF_LEFT        = 0 << 4,
+	AFF_HCENTER     = 1 << 4,
+	AFF_RIGHT       = 2 << 4,
+	AFF_VCENTER     = 1 << 6,
+
+	AFF_SIZE_SHL    = 0, // left shift to create AFF_size
+	AFF_COLOR_SHL   = 8, // left shift to create AFF_color
+
+	AFF_SIZES       = 0x7,
+	AFF_COLORS      = 0xFF,
+};
+
+enum UiFlags {
+	UIS_SMALL       = AFF_SMALL,
+	UIS_MED         = AFF_BIG,
+	UIS_BIG         = AFF_BIG,
+	UIS_HUGE        = AFF_HUGE,
+	UIS_LEFT        = AFF_LEFT,
+	UIS_HCENTER     = AFF_HCENTER,
+	UIS_RIGHT       = AFF_RIGHT,
+	UIS_VCENTER     = AFF_VCENTER,
+	UIS_SILVER      = COL_WHITE << AFF_COLOR_SHL,
+	UIS_GOLD        = COL_GOLD << AFF_COLOR_SHL,
+	UIS_LIGHT       = (COL_GOLD + 2) << AFF_COLOR_SHL,
+	UIS_OPTIONAL    = 1 << 13,
+	UIS_DISABLED    = 1 << 14,
+	UIS_HIDDEN      = 1 << 15,
+
+	UIS_COLOR_SHL   = AFF_COLOR_SHL, // left shift to create UIS_color
+
+	UIS_COLORS  = 0xF,
 };
 
 typedef enum _mainmenu_selections {
@@ -4657,6 +4690,8 @@ typedef enum input_key {
 	ACT_W_E,
 	ACT_W_SE,
 	ACT_STOP,
+	ACT_MODACT, // action modifier (attack in place, etc...)
+	ACT_MODCTX, // context modifier (show tooltip, etc...)
 	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,

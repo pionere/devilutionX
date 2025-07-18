@@ -323,7 +323,7 @@ void SetupPlrMsg(int pnum)
 
 	if (!gbTalkflag)
 		StartPlrMsg();
-	if (!(SDL_GetModState() & KMOD_SHIFT)) {
+	if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 		text = "/p%d ";
 		param = pnum;
 	} else {
@@ -346,7 +346,7 @@ void SetupPlrMsg(int pnum)
 void VersionPlrMsg()
 {
 	EventPlrMsg(gszProductName);
-	if (!(SDL_GetModState() & KMOD_SHIFT)) {
+	if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 		if (!IsLocalGame) {
 			const char *szGameName, *szGamePassword;
 			SNetGetGameInfo(&szGameName, &szGamePassword);
@@ -425,7 +425,7 @@ static void SendPlrMsg()
 		NetSendCmdString(&msgStr, pmask);
 
 		for (i = 0; i < lengthof(sgszTalkSave); i++) {
-			if (!strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
+			if (!SDL_strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
 				break;
 		}
 		static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in SendPlrMsg.");

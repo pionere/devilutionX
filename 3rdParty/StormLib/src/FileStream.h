@@ -118,13 +118,11 @@ typedef struct _FILE_BITMAP_FOOTER
     DWORD BlockSize;                      // Size of one block (usually 0x4000 bytes)
 
 } FILE_BITMAP_FOOTER, *PFILE_BITMAP_FOOTER;
-#endif
+
 //-----------------------------------------------------------------------------
 // Structure for file stream
-
 union TBaseProviderData
 {
-#ifdef FULL
     struct
     {
         ULONGLONG FileSize;                 // Size of the file
@@ -149,21 +147,16 @@ union TBaseProviderData
         HANDLE hInternet;                   // Internet handle
         HANDLE hConnect;                    // Connection to the internet server
     } Http;
-#else
     struct
     {
         FILESIZE_T FileSize;                // Size of the file
-#if !defined(STORMLIB_WINDOWS) || (WINVER == 0x0500 && _WIN32_WINNT == 0)
         FILESIZE_T FilePos;                 // Current file position
-#endif
         HANDLE hFile;                       // File handle
     } File;
-#endif // FULL
 };
 
 struct TFileStream
 {
-#ifdef FULL
     // Stream provider functions
     STREAM_READ    StreamRead;              // Pointer to stream read function for this archive. Do not use directly.
     STREAM_WRITE   StreamWrite;             // Pointer to stream write function for this archive. Do not use directly.
@@ -185,10 +178,10 @@ struct TFileStream
     STREAM_GETSIZE BaseGetSize;             // Pointer to function returning file size
     STREAM_GETPOS  BaseGetPos;              // Pointer to function that returns current file position
     STREAM_CLOSE   BaseClose;               // Pointer to function closing the stream
-#endif // FULL
+
     // Base provider data (file size, file position)
     TBaseProviderData Base;
-#ifdef FULL
+
     // Stream provider data
     TFileStream * pMaster;                  // Master stream (e.g. MPQ on a web server)
     TCHAR * szFileName;                     // File name (self-relative pointer)
@@ -196,13 +189,11 @@ struct TFileStream
     ULONGLONG StreamPos;                    // Stream position
     DWORD BuildNumber;                      // Game build number
     DWORD dwFlags;                          // Stream flags
-#endif
     // Followed by stream provider data, with variable length
 };
 
 //-----------------------------------------------------------------------------
 // Structures for block-oriented stream
-#ifdef FULL
 struct TBlockStream : public TFileStream
 {
     SFILE_DOWNLOAD_CALLBACK pfnCallback;    // Callback for downloading

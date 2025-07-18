@@ -131,17 +131,20 @@ static bool checkOneCl2(BYTE* cl2Data, int nCel, int nWidth, const char* filenam
 		//LogErrorF("PLR", "Checking %s (idx %d of %d, w:%d, group %d) anim:%d gfx:%d gxi:%d class%d", filename, iCel, nCel, nWidth, group, currAnim, currGfx, currGfxIdx, currClass);
 		memset(gpBuffer, 0, BUFFER_WIDTH * BUFFER_HEIGHT);
 
-		for (int cb = 0; cb <= CEL_BLOCK_MAX; cb++) {
-			int sx = 0;
-			int sy = 480 - cb * CEL_BLOCK_HEIGHT;
+		for (int cb = 0; ; cb++) {
+			int sx = SCREEN_X;
+			int sy = SCREEN_Y + 480 - cb * CEL_BLOCK_HEIGHT;
 			int nDataSize;
-			const BYTE* pRLEBytes = CelGetFrameClippedBlock(cl2Data, iCel, &nDataSize, cb);
-			BYTE* pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+			const BYTE* pRLEBytes = CelGetFrameClippedAt(cl2Data, iCel, cb, &nDataSize);
+			if (nDataSize <= 0) {
+				break;
+			}
+			BYTE* pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 			Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 
-			for (int yy = sy - CEL_BLOCK_HEIGHT; yy >= 0; yy--) {
-				for (int xx = 0; xx < 320; xx++) {
-					if (gpBuffer[xx + BUFFER_WIDTH * yy] != 0) {
+			for (int yy = sy - CEL_BLOCK_HEIGHT; yy >= SCREEN_Y; yy--) {
+				for (int xx = SCREEN_X; xx < SCREEN_X + 320; xx++) {
+					if (gpBuffer[BUFFERXY(xx, yy)] != 0) {
 						app_fatal("Failed to block-draw %s (%d of %d in group %d) with width %d. Current block %d", filename, iCel, nCel, group, nWidth, cb);
 						return false;
 					}
@@ -149,16 +152,16 @@ static bool checkOneCl2(BYTE* cl2Data, int nCel, int nWidth, const char* filenam
 			}
 		}
 
-		int sx = 320;
-		int sy = 480;
+		int sx = SCREEN_X + 320;
+		int sy = SCREEN_Y + 480;
 		int nDataSize;
-		const BYTE* pRLEBytes = CelGetFrameClipped(cl2Data, iCel, &nDataSize);
-		BYTE* pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+		const BYTE* pRLEBytes = CelGetFrameClipped(cl2Data, iCel, &nDataSize, &sy);
+		BYTE* pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 
-		for (int yy = sy; yy >= 0; yy--) {
-			for (int xx = 0; xx < 320; xx++) {
-				if (gpBuffer[xx + BUFFER_WIDTH * yy] != gpBuffer[(xx + 320) + BUFFER_WIDTH * yy]) {
+		for (int yy = sy; yy >= SCREEN_Y; yy--) {
+			for (int xx = SCREEN_X; xx < SCREEN_X + 320; xx++) {
+				if (gpBuffer[BUFFERXY(xx, yy)] != gpBuffer[BUFFERXY(xx + 320, yy)]) {
 					app_fatal("Mismatching draw %s (%d of %d in group %d) with width %d.", filename, iCel, nCel, group, nWidth);
 					return false;
 				}
@@ -229,17 +232,20 @@ static bool checkOneCel(BYTE* celData, int nCel, int nWidth, const char* filenam
 		//LogErrorF("PLR", "Checking %s (idx %d of %d, w:%d in group %d)", filename, iCel, nCel, nWidth, group);
 		memset(gpBuffer, 0, BUFFER_WIDTH * BUFFER_HEIGHT);
 
-		for (int cb = 0; cb <= CEL_BLOCK_MAX; cb++) {
-			int sx = 0;
-			int sy = 480 - cb * CEL_BLOCK_HEIGHT;
+		for (int cb = 0; ; cb++) {
+			int sx = SCREEN_X + 0;
+			int sy = SCREEN_Y + 480 - cb * CEL_BLOCK_HEIGHT;
 			int nDataSize;
-			const BYTE* pRLEBytes = CelGetFrameClippedBlock(celData, iCel, &nDataSize, cb);
-			BYTE* pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+			const BYTE* pRLEBytes = CelGetFrameClippedAt(celData, iCel, cb, &nDataSize);
+			if (nDataSize <= 0) {
+				break;
+			}
+			BYTE* pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 			CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 
-			for (int yy = sy - CEL_BLOCK_HEIGHT; yy >= 0; yy--) {
-				for (int xx = 0; xx < 320; xx++) {
-					if (gpBuffer[xx + BUFFER_WIDTH * yy] != 0) {
+			for (int yy = sy - CEL_BLOCK_HEIGHT; yy >= SCREEN_Y; yy--) {
+				for (int xx = SCREEN_X; xx < SCREEN_X + 320; xx++) {
+					if (gpBuffer[BUFFERXY(xx, yy)] != 0) {
 						app_fatal("Failed to block-draw %s (%d of %d in group %d) with width %d. Current block %d", filename, iCel, nCel, group, nWidth, cb);
 						return false;
 					}
@@ -247,16 +253,16 @@ static bool checkOneCel(BYTE* celData, int nCel, int nWidth, const char* filenam
 			}
 		}
 
-		int sx = 320;
-		int sy = 480;
+		int sx = SCREEN_X + 320;
+		int sy = SCREEN_Y + 480;
 		int nDataSize;
-		const BYTE* pRLEBytes = CelGetFrameClipped(celData, iCel, &nDataSize);
-		BYTE* pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+		const BYTE* pRLEBytes = CelGetFrameClipped(celData, iCel, &nDataSize, &sy);
+		BYTE* pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 
-		for (int yy = sy; yy >= 0; yy--) {
-			for (int xx = 0; xx < 320; xx++) {
-				if (gpBuffer[xx + BUFFER_WIDTH * yy] != gpBuffer[(xx + 320) + BUFFER_WIDTH * yy]) {
+		for (int yy = sy; yy >= SCREEN_Y; yy--) {
+			for (int xx = SCREEN_X; xx < SCREEN_X + 320; xx++) {
+				if (gpBuffer[BUFFERXY(xx, yy)] != gpBuffer[BUFFERXY(xx + 320, yy)]) {
 					app_fatal("Mismatching draw %s (%d of %d in group %d) with width %d.", filename, iCel, nCel, group, nWidth);
 					return false;
 				}
@@ -289,7 +295,7 @@ static bool checkCel(const char* filename, int nCel, int nWidth, int numGroups)
 
 TEST(Gfx, Missiles)
 {
-	for (i = 0; i < lengthof(misfiledata); i++) {
+	for (int i = 0; i < lengthof(misfiledata); i++) {
 		char pszName[DATA_ARCHIVE_MAX_PATH];
 		auto& mfd = misfiledata[i];
 		if (mfd.mfAnimFAmt == 1) {
@@ -308,7 +314,7 @@ TEST(Gfx, Missiles)
 
 TEST(Gfx, Monsters)
 {
-	for (i = 0; i < lengthof(monfiledata); i++) {
+	for (int i = 0; i < lengthof(monfiledata); i++) {
 		char strBuff[DATA_ARCHIVE_MAX_PATH];
 		auto& mfdata = monfiledata[i];
 		for (int anim = 0; anim < NUM_MON_ANIM; anim++) {
@@ -326,13 +332,14 @@ TEST(Gfx, Monsters)
 
 TEST(Gfx, Players)
 {
-	for (i = 0; i < NUM_CLASSES; i++) {
+	for (int i = 0; i < NUM_CLASSES; i++) {
+#ifdef HELLFIRE
 		if (i == PC_BARBARIAN || i == PC_BARD)
 			continue;
+#endif
 		char prefix[4];
 		char pszName[DATA_ARCHIVE_MAX_PATH];
 		const char *szCel, *chrArmor, *chrWeapon, *chrClass, *strClass;
-		HANDLE hsFile;
 
 		GetPlrGFXCells(i, &chrClass, &strClass);
 
@@ -351,10 +358,10 @@ TEST(Gfx, Players)
 					prefix[2] = *chrWeapon;
 					prefix[3] = '\0';
 					snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
-					hsFile = SFileOpenFile(pszName);
-					if (hsFile == NULL)
+					BYTE* fileData = LoadFileInMem(pszName);
+					if (fileData == NULL)
 						continue;
-					SFileCloseFile(hsFile);
+					mem_free_dbg(fileData);
 
 					int gfx = 0;
 					//switch (*chrArmor) {
@@ -398,7 +405,7 @@ TEST(Gfx, Players)
 
 TEST(Gfx, Objects)
 {
-	for (i = 0; i < lengthof(objfiledata); i++) {
+	for (int i = 0; i < lengthof(objfiledata); i++) {
 		char strBuff[DATA_ARCHIVE_MAX_PATH];
 		auto& ofdata = objfiledata[i];
 		snprintf(strBuff, sizeof(strBuff), "Objects\\%s.CEL", ofdata.ofName);
@@ -408,7 +415,7 @@ TEST(Gfx, Objects)
 
 TEST(Gfx, Items)
 {
-	for (i = 0; i < lengthof(itemfiledata); i++) {
+	for (int i = 0; i < lengthof(itemfiledata); i++) {
 		char strBuff[DATA_ARCHIVE_MAX_PATH];
 		auto& ifdata = itemfiledata[i];
 		snprintf(strBuff, sizeof(strBuff), "Items\\%s.CEL", ifdata.ifName);
@@ -435,7 +442,7 @@ TEST(Gfx, Towners)
 		{ "Towners\\Priest\\Priest8.CEL", 33 },
 	};
 
-	for (i = 0; i < lengthof(townerfiledata); i++) {
+	for (int i = 0; i < lengthof(townerfiledata); i++) {
 		auto& tfdata = townerfiledata[i];
 		checkCel(tfdata.tfName, tfdata.tAnimLen, 96 * ASSET_MPL, 0);
 	}

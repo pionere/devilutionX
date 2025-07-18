@@ -272,7 +272,10 @@ typedef struct ItemStruct {
 	int _iPLMana;
 	int _iPLHP;
 	int _iPLDamMod;
-	int _iPLGetHit;
+	BYTE _iPLToBlk;
+	int8_t _iPLAlign0;
+	int8_t _iPLAbsAnyHit;
+	int8_t _iPLAbsPhyHit;
 	int8_t _iPLLight;
 	int8_t _iPLSkillLevels;
 	BYTE _iPLSkill;
@@ -453,7 +456,8 @@ typedef struct PlayerStruct {
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
 	BYTE _pAlign_B1;
-	int _pIGetHit;
+	int _pIAbsAnyHit; // absorbed hit damage
+	int _pIAbsPhyHit; // absorbed physical hit damage
 	BYTE _pIBaseAttackSpeed;
 	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
@@ -467,7 +471,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(185, 100)
+	ALIGNMENT(184, 98)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -480,9 +484,8 @@ static_warning((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align 
 
 typedef struct TextData {
 	const char* txtstr;
-	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
-	int txtspd;
+	BYTE txtdelay;
 	int sfxnr;  // _sfx_id or sfx_set if txtsfxset is true
 } TextData;
 
@@ -1262,7 +1265,10 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viPLMana;
 	LE_INT32 viPLHP;
 	LE_INT32 viPLDamMod;
-	LE_INT32 viPLGetHit;
+	BYTE viPLToBlk;
+	int8_t viPLAlign0;
+	int8_t viPLAbsAnyHit;
+	int8_t viPLAbsPhyHit;
 	int8_t viPLLight;
 	int8_t viPLSkillLevels;
 	BYTE viPLSkill;

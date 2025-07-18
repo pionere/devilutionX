@@ -9,11 +9,11 @@ extern "C" {
 #endif
 
 #ifdef HELLFIRE
-#define CREDITS_LINES_SIZE 91
+#define CREDITS_LINE_COUNT 91
 #else
-#define CREDITS_LINES_SIZE 455
+#define CREDITS_LINE_COUNT 455
 #endif
-extern const char* const CREDITS_LINES[CREDITS_LINES_SIZE];
+extern const char* const CREDITS_LINES[CREDITS_LINE_COUNT];
 
 #ifdef __cplusplus
 }

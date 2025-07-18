@@ -386,7 +386,7 @@ BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE tra
 				alpha = false;
 			} else {
 				// add transparent pixel
-				if (j != 0 && (!alpha || (char)*pHead == -128)) {
+				if (j != 0 && (!alpha || (int8_t)*pHead == -128)) {
 					pHead = pBuf;
 					pBuf++;
 				}

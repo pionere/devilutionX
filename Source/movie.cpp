@@ -23,8 +23,6 @@ int play_movie(const char* pszMovie, int movieFlags)
 
 	sound_disable_music();
 	StopSFX();
-	// prepare background for videos which are smaller than full-screen
-	BltFast();
 
 	//video_stream = SVidPlayBegin(pszMovie, (movieFlags & MOV_LOOP) ? 0x100C0808 : 0x10280808);
 	video_stream = SVidPlayBegin(pszMovie, movieFlags);
@@ -63,9 +61,6 @@ int play_movie(const char* pszMovie, int movieFlags)
 			}
 			break;
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 		if (!SVidPlayContinue() || result != MPR_DONE) {
 			SVidPlayEnd();
 			break;

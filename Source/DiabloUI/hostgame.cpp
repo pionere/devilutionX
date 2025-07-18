@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 #define PROGRESS_CANCEL 101
 
 static UiProgressBar* _gbHostPb;
@@ -31,21 +33,21 @@ static void HostGameLoad()
 {
 	int y;
 
-	LoadBackgroundArt("ui_art\\black.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 
-	UiAddBackground();
+	// UiAddBackground();
 
-	// y = PANEL_MIDY(SMALL_POPUP_HEIGHT);
-	y = PANEL_BOTTOM - SMALL_POPUP_HEIGHT;
+	// y = SCREEN_MIDY(SMALL_POPUP_HEIGHT);
+	y = SCREEN_HEIGHT - SMALL_POPUP_HEIGHT;
 
-	SDL_Rect rect0 = { PANEL_MIDX(SMALL_POPUP_WIDTH), y, 0, 0 };
+	SDL_Rect rect0 = { SCREEN_MIDX(SMALL_POPUP_WIDTH), y, 0, 0 };
 	_gbHostPb = new UiProgressBar(rect0);
 	gUiItems.push_back(_gbHostPb);
 	SDL_Rect rect01 = { 0, 0, 0, 0 };
 	gUiItems.push_back(new UiCustom(HostGameOverlay, rect01));
-	SDL_Rect rect1 = { PANEL_LEFT, y + 20, PANEL_WIDTH, SML_BUTTON_HEIGHT };
+	SDL_Rect rect1 = { 0, y + 20, SCREEN_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiText("...Server is running...", rect1, UIS_HCENTER | UIS_SMALL | UIS_GOLD));
-	SDL_Rect rect2 = { PANEL_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
+	SDL_Rect rect2 = { SCREEN_MIDX(SML_BUTTON_WIDTH), y + 97, SML_BUTTON_WIDTH, SML_BUTTON_HEIGHT };
 	gUiItems.push_back(new UiButton("Cancel", &HostGameCancel, rect2));
 
 	UiInitScreen(0, NULL, NULL, HostGameEsc);
@@ -53,7 +55,7 @@ static void HostGameLoad()
 
 static void HostGameFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearItems();
 }
 
@@ -93,12 +95,11 @@ void UiHostGameDialog()
 					VersionPlrMsg();
 			}
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 	} while (_gbHostPb->m_Progress < 100);
 	HostGameFree();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE
 #endif // !NOHOSTING

@@ -31,7 +31,9 @@ void ToggleFullscreen();
 void ClearScreenBuffer();
 void RedBack();
 void BltFast();
+void BltStretched(SDL_Surface* surface);
 void RenderPresent();
+void SetSurfaceAndPaletteColors(SDL_Color* colors, int firstcolor, int ncolors);
 
 #ifdef __cplusplus
 }

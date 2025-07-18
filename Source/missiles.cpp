@@ -1095,7 +1095,10 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	if (dam == 0)
 		return false;
 	if (!(mis->_miFlags & MIF_DOT)) {
-		dam += plr._pIGetHit;
+		dam -= plr._pIAbsAnyHit;
+		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
+		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
+			dam -= plr._pIAbsPhyHit;
 		if (dam < 64)
 			dam = 64;
 	}
@@ -1221,7 +1224,10 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		return false;
 
 	if (!(mis->_miFlags & MIF_DOT)) {
-		dam += plr._pIGetHit;
+		dam -= plr._pIAbsAnyHit;
+		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
+		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
+			dam -= plr._pIAbsPhyHit;
 		if (dam < 64)
 			dam = 64;
 	}
@@ -2342,6 +2348,13 @@ static bool CheckIfTrig(int x, int y)
 {
 	int i;
 
+	for (i = 0; i < MAXPORTAL; i++) {
+		// if (portals[i]._rlevel == DLV_TOWN)
+		//	continue;
+		if (portals[i]._rlevel == currLvl._dLevelIdx && portals[i]._rx == x && portals[i]._ry == y)
+			return true;
+	}
+
 	for (i = 0; i < numtrigs; i++) {
 		if (abs(trigs[i]._tx - x) < 2 && abs(trigs[i]._ty - y) < 2)
 			return true;
@@ -2368,7 +2381,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
-				if (PosOkMissile(tx, ty) && !CheckIfTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				if (PosOkActor(tx, ty) && !CheckIfTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
 					goto done;
 				}
 			}
@@ -3218,7 +3231,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty);
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx)
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging/* || plr._pHitPoints == 0*/)
 			continue; // skip player if not on the current level
 		// assert(plr._pAnims[PGX_WALK].paFrames == plr._mAnimLen);
 		if (plr._pAnimFrame > (plr._pAnimLen >> 1)) {
@@ -3577,7 +3590,7 @@ void MI_Mage(int mi)
 		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
 			int pnum = mis->_miVar1;
 			pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
-			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
+			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
 				mis->_miVar5 = GetDirection8(mis->_mix, mis->_miy, plr._px, plr._py); // MIS_DIR
 				GetMissileVel(mi, mis->_mix, mis->_miy, plr._px, plr._py, MIS_SHIFTEDVEL(missiledata[MIS_MAGE].mdPrSpeed));
 			} else {

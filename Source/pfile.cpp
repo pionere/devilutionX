@@ -9,7 +9,6 @@
 #include "engine/render/text_render.h"
 #include "utils/paths.h"
 #include "diabloui.h"
-#include "mpqapi.h"
 #include "utils/file_util.h"
 #include "DiabloUI/diablo.h"
 #include <ctime>
@@ -19,14 +18,26 @@ DEVILUTION_BEGIN_NAMESPACE
 #define SAVEFILE_GAME             "game"
 #define SAVEFILE_HERO             "hero"
 #define PFILE_ENTRY_MAX_PATH      8
-#define PFILE_SAVE_MPQ_HASHCOUNT  2048
-#define PFILE_SAVE_MPQ_BLOCKCOUNT 2048
-#define PFILE_SAVE_INTERVAL       60
+#define PFILE_MPQ_HASHCOUNT_SINGLE  2048
+#define PFILE_MPQ_BLOCKCOUNT_SINGLE 128
+#define PFILE_MPQ_HASHCOUNT_MULTI   1
+#define PFILE_MPQ_BLOCKCOUNT_MULTI  1
+#define PFILE_SAVE_INTERVAL       2048
 
 static_assert(DATA_ARCHIVE_MAX_PATH >= PFILE_ENTRY_MAX_PATH, "pfile can not write to the mpq archive.");
+static_assert((PFILE_MPQ_HASHCOUNT_SINGLE & (PFILE_MPQ_HASHCOUNT_SINGLE - 1)) == 0, "hash count must be a power of 2 (single).");
+static_assert(PFILE_MPQ_HASHCOUNT_SINGLE >= PFILE_MPQ_BLOCKCOUNT_SINGLE, "not enough hash entry to store the blocks of a single-player game");
+static_assert(PFILE_MPQ_BLOCKCOUNT_SINGLE >= 2 * (2 * NUM_FIXLVLS + 1 + 1) + 1, "block table is too small to store every entry of a single-player game."); // 2 * entries_with_dynamic_size + entries_with_fix_size
+static_assert((PFILE_MPQ_HASHCOUNT_MULTI & (PFILE_MPQ_HASHCOUNT_MULTI - 1)) == 0, "hash count must be a power of 2 (multi).");
+static_assert(PFILE_MPQ_HASHCOUNT_MULTI >= PFILE_MPQ_BLOCKCOUNT_MULTI, "not enough hash entry to store the blocks of a multi-player game");
+static_assert(PFILE_MPQ_BLOCKCOUNT_MULTI >= 1, "block table is too small to store every entry of a multi-player game.");
 
+/* the selected hero of the local player */
 unsigned mySaveIdx;
-static uint32_t guNextSaveTc;
+/* the handle of the archive containing the hero of the multiplayer game */
+static HANDLE archive;
+/* the last turn when the hero of the multiplayer game was saved. */
+uint32_t guLastSaveTurn;
 
 #define PASSWORD_SINGLE "xrgyrkj1"
 #define PASSWORD_MULTI  "szqnlsk1"
@@ -51,32 +62,24 @@ static std::string GetSavePath(unsigned save_num)
 	return path;
 }
 
-static bool pfile_archive_read_hero(HANDLE archive, PkPlayerStruct* pPack)
+static bool pfile_archive_read_hero(HANDLE ha, PkPlayerStruct* pPack)
 {
-	HANDLE file;
 	bool ret = false;
-
-	if (SFileOpenFileEx(archive, SAVEFILE_HERO, &file)) {
-		DWORD dwlen = SFileGetFileSize(file);
-		if (dwlen != 0) {
-			BYTE* buf = DiabloAllocPtr(dwlen);
-			if (SFileReadFile(file, buf, dwlen)) {
-				const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
-
-				int read = codec_decode(buf, dwlen, password);
-				if (read == sizeof(*pPack)) {
-					memcpy(pPack, buf, sizeof(*pPack));
-					ret = true;
-				}
-			}
-			mem_free_dbg(buf);
+	BYTE* buf = NULL;
+	DWORD dwLen = SFileReadArchive(ha, SAVEFILE_HERO, &buf);
+	if (dwLen != 0) {
+		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		int read = codec_decode(buf, dwLen, password);
+		if (read == sizeof(*pPack)) {
+			memcpy(pPack, buf, sizeof(*pPack));
+			ret = true;
 		}
-		SFileCloseFile(file);
+		mem_free_dbg(buf);
 	}
 	return ret;
 }
 
-static void pfile_mpq_encode_hero(int pnum)
+static bool pfile_archive_encode_hero(HANDLE ha, int pnum)
 {
 	const DWORD packed_len = codec_get_encoded_len(sizeof(PkPlayerStruct));
 	BYTE* packed;
@@ -88,35 +91,21 @@ static void pfile_mpq_encode_hero(int pnum)
 
 		codec_encode(packed, sizeof(PkPlayerStruct), packed_len, password);
 	}
-	mpqapi_write_entry(SAVEFILE_HERO, packed, packed_len);
+	const bool success = SFileWriteFile(ha, SAVEFILE_HERO, packed, packed_len);
 	mem_free_dbg(packed);
+	return success;
 }
 
-static bool pfile_mpq_open_save(unsigned save_num)
+static HANDLE pfile_archive_open_save(unsigned save_num, DWORD dwFlags)
 {
-	return OpenMPQ(GetSavePath(save_num).c_str());
+	return SFileOpenArchive(GetSavePath(save_num).c_str(), dwFlags);
 }
 
-static bool pfile_mpq_open_mysave()
+static void pfile_archive_write_hero()
 {
-	return pfile_mpq_open_save(mySaveIdx);
-}
-
-static void pfile_mpq_flush(bool bFree)
-{
-	mpqapi_flush_and_close(bFree);
-}
-
-static HANDLE pfile_archive_open_save(unsigned save_num)
-{
-	return SFileOpenArchive(GetSavePath(save_num).c_str(), MPQ_OPEN_READ_ONLY);
-}
-
-static void pfile_mpq_write_hero(bool bFree)
-{
-	if (pfile_mpq_open_mysave()) {
-		pfile_mpq_encode_hero(mypnum);
-		pfile_mpq_flush(bFree);
+	if (SFileReopenArchive(archive, GetSavePath(mySaveIdx).c_str())) {
+		pfile_archive_encode_hero(archive, mypnum);
+		SFileFlushArchive(archive);
 	}
 }
 
@@ -160,12 +149,14 @@ static bool ValidPlayerName(const char* name)
 	bool result = false;
 
 	if (ValidPlayerName(name_2)) {
-		HANDLE archive = pfile_archive_open_save(heroinfo->hiIdx);
-		if (archive != NULL) {
+		HANDLE ha = pfile_archive_open_save(heroinfo->hiIdx, MPQ_OPEN_READ_ONLY);
+		if (ha != NULL) {
 			PkPlayerStruct pkplr;
-			if (pfile_archive_read_hero(archive, &pkplr)) {
+			if (pfile_archive_read_hero(ha, &pkplr)) {
 				SStrCopy(pkplr.pName, name_2, lengthof(pkplr.pName));
-				...
+				UnPackPlayer(&pkplr, 0);
+				pfile_archive_encode_hero(ha, 0);
+				SFileFlushAndCloseArchive(ha);
 				result = true;
 			}
 		}
@@ -175,7 +166,7 @@ static bool ValidPlayerName(const char* name)
 
 static bool pfile_archive_contains_game(HANDLE hsArchive)
 {
-	return SFileOpenFileEx(hsArchive, SAVEFILE_GAME, NULL);
+	return SFileReadArchive(hsArchive, SAVEFILE_GAME, NULL) != 0;
 }
 
 void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
@@ -183,29 +174,21 @@ void pfile_ui_load_heros(std::vector<_uiheroinfo> &hero_infos)
 	int i;
 
 	for (i = MAX_CHARACTERS; i >= 0; i--) {
-		HANDLE archive = pfile_archive_open_save(i);
-		if (archive != NULL) {
+		HANDLE ha = pfile_archive_open_save(i, MPQ_OPEN_READ_ONLY);
+		if (ha != NULL) {
 			PkPlayerStruct pkplr;
-			if (pfile_archive_read_hero(archive, &pkplr)) {
+			if (pfile_archive_read_hero(ha, &pkplr)) {
 				UnPackPlayer(&pkplr, 0);
 				_uiheroinfo uihero;
 				uihero.hiIdx = i;
-				uihero.hiSaveFile = pfile_archive_contains_game(archive);
+				uihero.hiSaveFile = pfile_archive_contains_game(ha);
 				pfile_player2hero(&players[0], &uihero);
 				hero_infos.push_back(uihero);
 			}
-			SFileCloseArchive(archive);
+			SFileCloseArchive(ha);
 		}
 	}
 }
-
-/*void pfile_ui_set_class_stats(unsigned int player_class_nr, _uidefaultstats* class_stats)
-{
-	class_stats->dsStrength = StrengthTbl[player_class_nr];
-	class_stats->dsMagic = MagicTbl[player_class_nr];
-	class_stats->dsDexterity = DexterityTbl[player_class_nr];
-	class_stats->dsVitality = VitalityTbl[player_class_nr];
-}*/
 
 int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 {
@@ -218,15 +201,17 @@ int pfile_ui_create_hero(_uiheroinfo* heroinfo)
 	for (save_num = 0; save_num <= MAX_CHARACTERS; save_num++) {
 		path = GetSavePath(save_num);
 		if (FileExists(path.c_str())) continue;
-		if (CreateMPQ(path.c_str(), PFILE_SAVE_MPQ_HASHCOUNT, PFILE_SAVE_MPQ_BLOCKCOUNT)) {
+		const int hashCount = IsMultiGame ? PFILE_MPQ_HASHCOUNT_MULTI : PFILE_MPQ_HASHCOUNT_SINGLE;
+		const int blockCount = IsMultiGame ? PFILE_MPQ_BLOCKCOUNT_MULTI : PFILE_MPQ_BLOCKCOUNT_SINGLE;
+		HANDLE ha = SFileCreateArchive(path.c_str(), hashCount, blockCount);
+		if (ha != NULL) {
 			static_assert(MAX_CHARACTERS <= UCHAR_MAX, "Save-file index does not fit to _uiheroinfo.");
 			heroinfo->hiIdx = save_num;
 			// heroinfo->hiSaveFile = FALSE;
-			//mpqapi_remove_entries(pfile_get_file_name);
 			CreatePlayer(*heroinfo);
-			pfile_mpq_encode_hero(0);
+			pfile_archive_encode_hero(ha, 0);
 			//pfile_player2hero(&players[0], heroinfo);
-			pfile_mpq_flush(true);
+			SFileFlushAndCloseArchive(ha);
 			return NEWHERO_DONE;
 		}
 		return NEWHERO_FAIL;
@@ -265,44 +250,27 @@ void pfile_ui_delete_hero(_uiheroinfo* hero_info)
 
 void pfile_read_hero()
 {
-	HANDLE archive;
+	HANDLE ha;
 	// const char* err = "Unable to open file archive";
 	bool success = false;
-	archive = pfile_archive_open_save(mySaveIdx);
-	if (archive != NULL) {
+	ha = pfile_archive_open_save(mySaveIdx, MPQ_OPEN_READ_ONLY);
+	if (ha != NULL) {
 		PkPlayerStruct pkplr;
 		// err = "Unable to read save file";
-		if (pfile_archive_read_hero(archive, &pkplr)) {
+		if (pfile_archive_read_hero(ha, &pkplr)) {
 			UnPackPlayer(&pkplr, mypnum);
 			// err = NULL;
 			success = true;
+			if (IsMultiGame) {
+				SFileReleaseArchive(ha);
+				archive = ha;
+				ha = NULL;
+			}
 		}
-		SFileCloseArchive(archive);
+		SFileCloseArchive(ha);
 	}
 	if (!success)
 		app_fatal("Unable to read save file");
-
-	guNextSaveTc = time(NULL) + PFILE_SAVE_INTERVAL;
-}
-
-static void pfile_mpq_rename_temp_to_perm()
-{
-	char szTemp[PFILE_ENTRY_MAX_PATH];
-	char szPerm[PFILE_ENTRY_MAX_PATH];
-
-	// assert(!IsMultiGame);
-	// if (!pfile_mpq_open_mysave())
-	//	app_fatal("Unable to open file archive");
-
-	for (int i = 0; i < NUM_LEVELS; i++) {
-		GetTempLevelNames(i, szTemp);
-		GetPermLevelNames(i, szPerm);
-		if (mpqapi_has_entry(szTemp)) {
-			// if (mpqapi_has_entry(szPerm))
-				mpqapi_remove_entry(szPerm);
-			mpqapi_rename_entry(szTemp, szPerm);
-		}
-	}
 }
 
 void pfile_write_save_file(bool full, DWORD dwLen)
@@ -314,83 +282,78 @@ void pfile_write_save_file(bool full, DWORD dwLen)
 	qwLen = codec_get_encoded_len(dwLen);
 
 	{
-		const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		// assert(!IsMultiGame);
+		const char* password = /*IsMultiGame ? PASSWORD_MULTI :*/ PASSWORD_SINGLE;
 
 		codec_encode(pbData, dwLen, qwLen, password);
 	}
-	if (!pfile_mpq_open_mysave())
+	HANDLE ha;
+	ha = pfile_archive_open_save(mySaveIdx, 0);
+	if (ha == NULL)
 		app_fatal("Unable to open file archive");
-
 	if (!full)
 		GetTempLevelNames(currLvl._dLevelIdx, pszName);
-	mpqapi_write_entry(pszName, pbData, qwLen);
-
+	SFileWriteFile(ha, pszName, pbData, qwLen);
 	if (full) {
-		pfile_mpq_rename_temp_to_perm();
-		// pfile_mpq_write_hero(true);
-		// assert(mypnum == 0);
-		pfile_mpq_encode_hero(0);
-	}
-	pfile_mpq_flush(true);
-}
-
-void pfile_delete_save_file()
-{
-	// assert(!IsMultiGame);
-	if (!pfile_mpq_open_mysave())
-		app_fatal("Unable to open file archive");
-	// if (full)
-	//	mpqapi_remove_entry(SAVEFILE_GAME);
-	// else
-	{
+		// gbValidSaveFile = true;
+		// rename temp to perm
 		char szTemp[PFILE_ENTRY_MAX_PATH];
+		char szPerm[PFILE_ENTRY_MAX_PATH];
+
 		for (int i = 0; i < NUM_LEVELS; i++) {
 			GetTempLevelNames(i, szTemp);
-			mpqapi_remove_entry(szTemp);
+			GetPermLevelNames(i, szPerm);
+			SFileRenameFile(ha, szTemp, szPerm);
 		}
+		// assert(mypnum == 0);
+		pfile_archive_encode_hero(ha, 0);
 	}
-	pfile_mpq_flush(true);
+	SFileFlushAndCloseArchive(ha);
 }
 
 void pfile_read_save_file(bool full)
 {
 	DWORD len;
-	HANDLE archive;
+	HANDLE ha;
 	// const char* err = "Unable to open file archive";
 	bool success = false;
-	archive = pfile_archive_open_save(mySaveIdx);
-	if (archive != NULL) {
+	ha = pfile_archive_open_save(mySaveIdx, 0); // full ? 0 : MPQ_OPEN_READ_ONLY
+	if (ha != NULL) {
+		bool change = false;
 		char pszName[PFILE_ENTRY_MAX_PATH] = SAVEFILE_GAME;
-		HANDLE save = NULL;
+		BYTE* buf = NULL;
+		if (full) {
+			// delete the temp entries
+			char szTemp[PFILE_ENTRY_MAX_PATH];
+			for (int i = 0; i < NUM_LEVELS; i++) {
+				GetTempLevelNames(i, szTemp);
+				change |= SFileRemoveFile(ha, szTemp);
+			}
+		}
 		if (!full) {
 			GetTempLevelNames(currLvl._dLevelIdx, pszName);
 		}
-		if (!SFileOpenFileEx(archive, pszName, &save)) {
-			if (!full) {
-				GetPermLevelNames(currLvl._dLevelIdx, pszName);
-				SFileOpenFileEx(archive, pszName, &save);
-			}
+		len = SFileReadArchive(ha, pszName, &buf);
+		if (len == 0 && !full) {
+			GetPermLevelNames(currLvl._dLevelIdx, pszName);
+			len = SFileReadArchive(ha, pszName, &buf);
 		}
-		// err = "Unable to open save file";
-		if (save != NULL) {
-			// err = "Invalid save file";
-			len = SFileGetFileSize(save);
-			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
-				// err = "Unable to read save file";
-				if (SFileReadFile(save, gsDeltaData.ddBuffer, len)) {
-					// err = "Invalid save file";
-					const char* password = IsMultiGame ? PASSWORD_MULTI : PASSWORD_SINGLE;
+		if (len != 0) {
+			// assert(!IsMultiGame);
+			const char* password = /*IsMultiGame ? PASSWORD_MULTI :*/ PASSWORD_SINGLE;
 
-					len = codec_decode(gsDeltaData.ddBuffer, len, password);
-					if (len != 0) {
-						// err = NULL;
-						success = true;
-					}
-				}
+			len = codec_decode(buf, len, password);
+			if (len != 0 && len <= sizeof(gsDeltaData.ddBuffer)) {
+				// err = NULL;
+				memcpy(gsDeltaData.ddBuffer, buf, len);
+				success = true;
 			}
-			SFileCloseFile(save);
+			mem_free_dbg(buf);
 		}
-		SFileCloseArchive(archive);
+		if (change)
+			SFileFlushAndCloseArchive(ha);
+		else
+			SFileCloseArchive(ha);
 	}
 	//if (err != NULL)
 	//	app_fatal(err);
@@ -400,21 +363,23 @@ void pfile_read_save_file(bool full)
 
 void pfile_update(bool force_save)
 {
-	if (IsMultiGame) {
-		uint32_t currTc = time(NULL);
-		if (force_save || currTc > guNextSaveTc) {
-			guNextSaveTc = currTc + PFILE_SAVE_INTERVAL;
-			pfile_mpq_write_hero(false);
+	if (archive != NULL) {
+		// assert(IsMultiGame);
+		uint32_t currTurn = gdwGameLogicTurn;
+		if (force_save || ((currTurn - guLastSaveTurn) % PFILE_SAVE_INTERVAL) == 0) {
+			guLastSaveTurn = currTurn;
+			pfile_archive_write_hero();
 		}
 	}
 }
 
 void pfile_close()
 {
-	if (IsMultiGame) {
-		pfile_mpq_write_hero(true);
-	} else {
-		mpqapi_close();
+	if (archive != NULL) {
+		// assert(IsMultiGame);
+		pfile_archive_write_hero();
+		SFileCloseArchive(archive);
+		archive = NULL;
 	}
 }
 

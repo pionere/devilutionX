@@ -1920,22 +1920,22 @@ static void DRLG_L3Subs()
 #if DEBUG_MODE
 	for (int i = sizeof(L3BTYPES) - 1; i >= 0; i--) {
 		if (L3BTYPES[i] != 0) {
-			if (i >= NUM_L3TYPES)
+			if ((unsigned)i >= NUM_L3TYPES)
 				app_fatal("Value %d is ignored in L3BTYPES at %d", L3BTYPES[i], i);
 			break;
 		}
 	}
 
-	for (int i = 0; i < sizeof(L3BTYPES); i++) {
+	for (unsigned i = 0; i < sizeof(L3BTYPES); i++) {
 		c = L3BTYPES[i];
 		if (c == 0)
 			continue;
 		x = 0;
-		for (int j = 0; j < sizeof(L3BTYPES); j++) {
+		for (unsigned j = 0; j < sizeof(L3BTYPES); j++) {
 			if (c == L3BTYPES[j])
 				x++;
 		}
-		if (x > MAX_MATCH)
+		if ((unsigned)x > MAX_MATCH)
 			app_fatal("Too many(%d) matching('%d') values in L3BTYPES", x, c);
 	}
 #endif
@@ -1986,22 +1986,22 @@ static void DRLG_L6Subs()
 #if DEBUG_MODE
 	for (int i = sizeof(L6BTYPES) - 1; i >= 0; i--) {
 		if (L6BTYPES[i] != 0) {
-			if (i >= NUM_L6TYPES)
+			if ((unsigned)i >= NUM_L6TYPES)
 				app_fatal("Value %d is ignored in L6BTYPES at %d", L6BTYPES[i], i);
 			break;
 		}
 	}
 
-	for (int i = 0; i < sizeof(L6BTYPES); i++) {
+	for (unsigned i = 0; i < sizeof(L6BTYPES); i++) {
 		c = L6BTYPES[i];
 		if (c == 0)
 			continue;
 		x = 0;
-		for (int j = 0; j < sizeof(L6BTYPES); j++) {
+		for (unsigned j = 0; j < sizeof(L6BTYPES); j++) {
 			if (c == L6BTYPES[j])
 				x++;
 		}
-		if (x > MAX_MATCH)
+		if ((unsigned)x > MAX_MATCH)
 			app_fatal("Too many(%d) matching('%d') values in L6BTYPES", x, c);
 	}
 #endif
