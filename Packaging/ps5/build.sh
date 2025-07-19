@@ -26,8 +26,8 @@ cp -r "${SCRIPTDIR}/sce_sys" "$BUILD_DIR"/DevilutionX/
 cp "${SCRIPTDIR}/homebrew.js" "$BUILD_DIR"/DevilutionX/
 cp "${SCRIPTDIR}/README.md" "$BUILD_DIR"/DevilutionX/
 cp "$BUILD_DIR"/devilx.mpq "$BUILD_DIR"/DevilutionX/
-cp "$BUILD_DIR"/listfiles.txt "$BUILD_DIR"/DevilutionX/
-cp "$BUILD_DIR"/mpgfiles.txt "$BUILD_DIR"/DevilutionX/
+cp "$BUILD_DIR"/../Packaging/resources/listfiles.txt "$BUILD_DIR"/DevilutionX/
+cp "$BUILD_DIR"/../Packaging/resources/mpqfiles.txt "$BUILD_DIR"/DevilutionX/
 cp "$BUILD_DIR"/devilutionx "$BUILD_DIR"/DevilutionX/devilutionx.elf
 
 # Let github actions do this?
