@@ -1,6 +1,6 @@
 name: PS5
 
-# When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
+# When creating a new workflow in GitHubâ€™s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
 
 env:
@@ -16,10 +16,10 @@ jobs:
         include:
           - name: diablo
             cmakeargs: '-DUSE_PATCH=OFF'
-            artifact: 'diablo-push-ps5.zip'
+            artifact: 'diablo-push-ps5'
           - name: hellfire+patch
             cmakeargs: '-DHELLFIRE=ON'
-            artifact: 'hellfire-push-ps5p.zip'
+            artifact: 'hellfire-push-ps5p'
 
     steps:
     - name: Checkout
@@ -40,6 +40,10 @@ jobs:
       working-directory: ${{github.workspace}}
       shell: bash
       run: Packaging/ps5/build.sh ${{ matrix.cmakeargs }}
+
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
 
     #- name: Release
     #  uses: softprops/action-gh-release@v1
