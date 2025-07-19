@@ -1298,9 +1298,9 @@ void LevelDeltaExport()
 			//tmon->smxoff = mon->_mxoff;
 			//tmon->smyoff = mon->_myoff;
 			tmon->smdir = mon->_mdir;
-			tmon->smEnemy = mon->_menemy;
-			tmon->smEnemyx = mon->_menemyx;
-			tmon->smEnemyy = mon->_menemyy;
+			tmon->smenemy = mon->_menemy;
+			tmon->smenemyx = mon->_menemyx;
+			tmon->smenemyy = mon->_menemyy;
 			tmon->smListener = mon->_mListener;
 			tmon->smDelFlag = mon->_mDelFlag; // unused
 			tmon->smAnimCnt = mon->_mAnimCnt;
@@ -1315,8 +1315,8 @@ void LevelDeltaExport()
 			tmon->smVar7 = mon->_mVar7;
 			tmon->smVar8 = mon->_mVar8;
 			tmon->smHitpoints = mon->_mhitpoints;
-			tmon->smLastx = mon->_mlastx;
-			tmon->smLasty = mon->_mlasty;
+			tmon->smlastx = mon->_mlastx;
+			tmon->smlasty = mon->_mlasty;
 			//tmon->smLeader = mon->_mleader;
 			tmon->smLeaderflag = mon->_mleaderflag;
 			//tmon->smPacksize = mon->_mpacksize;
@@ -1557,9 +1557,9 @@ void LevelDeltaLoad()
 		//mon->_myoff = tmon->smyoff;
 		mon->_mxoff = mon->_myoff = 0;        // no need to sync these values as they are recalculated when used
 		mon->_mdir = tmon->smdir;
-		mon->_menemy = tmon->smEnemy;
-		mon->_menemyx = tmon->smEnemyx;
-		mon->_menemyy = tmon->smEnemyy;
+		mon->_menemy = tmon->smenemy;
+		mon->_menemyx = tmon->smenemyx;
+		mon->_menemyy = tmon->smenemyy;
 		mon->_mListener = tmon->smListener;
 		mon->_mDelFlag = tmon->smDelFlag;
 		mon->_mAnimCnt = tmon->smAnimCnt;
@@ -1573,8 +1573,8 @@ void LevelDeltaLoad()
 		mon->_mVar7 = tmon->smVar7;
 		mon->_mVar8 = tmon->smVar8;
 		mon->_mhitpoints = tmon->smHitpoints;
-		mon->_mlastx = tmon->smLastx;
-		mon->_mlasty = tmon->smLasty;
+		mon->_mlastx = tmon->smlastx;
+		mon->_mlasty = tmon->smlasty;
 		//BYTE _mleader; // the leader of the monster
 		//mon->_mleaderflag = tmon->smLeaderflag; // the status of the monster's leader
 		//BYTE _mpacksize; // the number of 'pack'-monsters close to their leader

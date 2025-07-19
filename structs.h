@@ -566,7 +566,7 @@ typedef struct MissileStruct {
 	int _miMinDam;
 	int _miMaxDam;
 	// int _miRndSeed;
-	int _miRange;
+	int _miRange;    // Time to live for the missile in game ticks, when negative the missile will be deleted
 	unsigned _miLid; // light id of the missile
 	int _miVar1;
 	int _miVar2;
@@ -1219,9 +1219,9 @@ typedef struct LSaveItemStruct {
 	LE_INT32 vitype;   // item_type
 	LE_INT32 viMiscId; // item_misc_id
 	LE_INT32 viSpell;  // spell_id
-	BYTE viClass; // item_class enum
-	BYTE viLoc;   // item_equip_type
-	BYTE viDamType; // item_damage_type
+	BYTE viClass;      // item_class enum
+	BYTE viLoc;        // item_equip_type
+	BYTE viDamType;    // item_damage_type
 	BYTE viMinDam;
 	BYTE viMaxDam;
 	BYTE viBaseCrit;
@@ -1231,11 +1231,11 @@ typedef struct LSaveItemStruct {
 	BOOLEAN viUsable;
 	BYTE viPrePower; // item_effect_type
 	BYTE viSufPower; // item_effect_type
-	BYTE viMagical;	// item_quality
+	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BOOLEAN viFloorFlag;
 	BOOLEAN viAnimFlag;
-	int32_t viAnimDataAlign;        // PSX name -> ItemFrame
+	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
 	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
@@ -1493,8 +1493,8 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiCaster;
 	LE_INT32 vmiMinDam;
 	LE_INT32 vmiMaxDam;
-	LE_INT32 vmiRange;
-	LE_UINT32 vmiLid; // light id of the missile
+	LE_INT32 vmiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
+	LE_UINT32 vmiLid;  // light id of the missile
 	LE_INT32 vmiVar1;
 	LE_INT32 vmiVar2;
 	LE_INT32 vmiVar3;
@@ -1906,13 +1906,13 @@ typedef struct TSyncLvlMonster {
 //	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
 //	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)
-	LE_INT32 smEnemy;  // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
-	BYTE smEnemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE smEnemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
+	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE smenemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE smListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
-	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
-	BYTE smAnimFrame; // Current frame of animation.
+	BYTE smAnimCnt;    // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+	BYTE smAnimFrame;  // Current frame of animation.
 	LE_INT32 smVar1;
 	LE_INT32 smVar2;
 	LE_INT32 smVar3;
@@ -1922,8 +1922,8 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smVar7;
 	LE_INT32 smVar8;
 	LE_INT32 smHitpoints;
-	BYTE smLastx; // the last known (future) tile X-coordinate of the enemy
-	BYTE smLasty; // the last known (future) tile Y-coordinate of the enemy
+	BYTE smlastx; // the last known (future) tile X-coordinate of the enemy
+	BYTE smlasty; // the last known (future) tile Y-coordinate of the enemy
 	//BYTE smLeader; // the leader of the monster
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
@@ -1955,7 +1955,7 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiMinDam;
 	LE_INT32 smiMaxDam;
 	// LE_INT32 smiRndSeed;
-	LE_INT32 smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	LE_INT32 smiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
 	LE_INT32 smiVar1;
 	LE_INT32 smiVar2;
 	LE_INT32 smiVar3;
