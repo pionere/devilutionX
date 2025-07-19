@@ -2948,29 +2948,24 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		copy_cstr(tempstr, "extra charges");
 		break;
 	case IPL_FIREDAM:
-		if (is->_iPLFMinDam != is->_iPLFMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "fire damage: %d-%d", is->_iPLFMinDam, is->_iPLFMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "fire damage: %d", is->_iPLFMinDam);
-		break;
 	case IPL_LIGHTDAM:
-		if (is->_iPLLMinDam != is->_iPLLMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %d-%d", is->_iPLLMinDam, is->_iPLLMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "lightning damage: %d", is->_iPLLMinDam);
-		break;
 	case IPL_MAGICDAM:
-		if (is->_iPLMMinDam != is->_iPLMMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "magic damage: %d-%d", is->_iPLMMinDam, is->_iPLMMaxDam);
-		else
-			snprintf(tempstr, sizeof(tempstr), "magic damage: %d", is->_iPLMMinDam);
-		break;
 	case IPL_ACIDDAM:
-		if (is->_iPLAMinDam != is->_iPLAMaxDam)
-			snprintf(tempstr, sizeof(tempstr), "acid damage: %d-%d", is->_iPLAMinDam, is->_iPLAMaxDam);
+	{
+		const char* element;
+		BYTE mindam, maxdam;
+		switch (plidx) {
+		case IPL_FIREDAM:  element = "fire";      mindam = is->_iPLFMinDam; maxdam = is->_iPLFMaxDam; break;
+		case IPL_LIGHTDAM: element = "lightning"; mindam = is->_iPLLMinDam; maxdam = is->_iPLLMaxDam; break;
+		case IPL_MAGICDAM: element = "magic";     mindam = is->_iPLMMinDam; maxdam = is->_iPLMMaxDam; break;
+		case IPL_ACIDDAM:  element = "acid";      mindam = is->_iPLAMinDam; maxdam = is->_iPLAMaxDam; break;
+		default: ASSUME_UNREACHABLE;                                                                  break;
+		}
+		if (mindam != maxdam)
+			snprintf(tempstr, sizeof(tempstr), "%s damage: %d-%d", element, mindam, maxdam);
 		else
-			snprintf(tempstr, sizeof(tempstr), "acid damage: %d", is->_iPLAMinDam);
-		break;
+			snprintf(tempstr, sizeof(tempstr), "%s damage: %d", element, mindam);
+	} break;
 	case IPL_STR:
 		snprintf(tempstr, sizeof(tempstr), "%+d to strength", is->_iPLStr);
 		break;
