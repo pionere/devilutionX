@@ -1,6 +1,6 @@
 name: PS5
 
-# When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
+# When creating a new workflow in GitHubâ€™s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
 
 env:
@@ -16,10 +16,12 @@ jobs:
         include:
           - name: diablo
             cmakeargs: '-DUSE_PATCH=OFF'
-            artifact: 'diablo-push-macp.dmg'
+            artifact: 'diablo-push-ps5'
+            #artifact1: 'diablo-push'
           - name: hellfire+patch
             cmakeargs: '-DHELLFIRE=ON'
-            artifact: 'hellfire-push-macp.dmg'
+            artifact: 'hellfire-push-ps5p'
+            #artifact1: 'hellfire-push'
 
     steps:
     - name: Checkout
@@ -41,6 +43,10 @@ jobs:
       shell: bash
       run: Packaging/ps5/build.sh ${{ matrix.cmakeargs }}
 
+    #- name: Show content of workspace
+    #  run: find $RUNNER_WORKSPACE
+    #  shell: bash
+
     #- name: Release
     #  uses: softprops/action-gh-release@v1
     #  if: startsWith(github.ref, 'refs/tags/')
@@ -49,9 +55,16 @@ jobs:
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Upload the created artifact
+    #- name: Upload
+    #  if: ${{ !env.ACT }}
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    path: build-ps5/devilutionx-ps5.zip
+    #    name: ${{ matrix.artifact }}
+
     - name: Upload
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
-        path: build-ps5/devilutionx-ps5.zip
+        path: build-ps5/devilutionx.zip
         name: ${{ matrix.artifact }}

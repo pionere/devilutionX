@@ -2,14 +2,16 @@
 
 ## Prerequisites
 - A Playstation 5 capable of running the [ps5-payload-websrv][websrv] homebrew.
-- Game assets from the Diablo game (diabdat.mpq),
-  or its [shareware][shareware] (spawn.mpq)
+- Game assets from the Diablo game (diabdat.mpq).
+ + To run the Diablo: Hellfire expansion you will need hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
 
 ## Installation
 - Copy the game assets (e.g., via ftp) to /data/homebrew/devilutionX
 - Launch the [ps5-payload-websrv][websrv] homebrew
-- Launch the game from your browser at http://PS5-IP:8080, or using the
+- Launch the patcher and the game from your browser at http://PS5-IP:8080, or using the
   [companion launcher][launcher] from the PS5 menu system
+  1. Run the patcher to patch the assets in devilx.mpq
+  2. Run the game
 
 ## Controls
 - D-pad: move hero
@@ -34,7 +36,6 @@ Install the [PacBrew PS5 SDK][pacbrew], then run the following
 devilutionX$ ./Packaging/ps5/build.sh
 ```
 
-[shareware]: http://ftp.blizzard.com/pub/demos/diablosw.exe
 [pacbrew]: https://github.com/ps5-payload-dev/pacbrew-repo
 [websrv]: https://github.com/ps5-payload-dev/websrv
-[launcher]: https://github.com/ps5-payload-dev/websrv/blob/master/homebrew/IV9999-FAKE00001_00-HOMEBREWLOADER01.pkg?raw=true
+[launcher]: https://github.com/ps5-payload-dev/websrv/blob/master/homebrew/IV9999-FAKE00000_00-HOMEBREWLOADER01.pkg?raw=true
