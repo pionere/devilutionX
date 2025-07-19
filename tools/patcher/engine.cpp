@@ -66,27 +66,14 @@ void mem_free_dbg(void* p)
  * @brief Load a file in to a buffer
  * @param pszName Path of file
  * @param pdwFileLen Will be set to file size if non-NULL
- * @return Buffer with content of file
+ * @return Buffer with content of the file
  */
 BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
 {
-	HANDLE file;
 	BYTE* buf = NULL;
-	size_t fileLen;
-
-	file = SFileOpenFile(pszName);
-	fileLen = SFileGetFileSize(file);
-
+	DWORD fileLen = SFileReadFileEx(pszName, &buf);
 	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
-
-	if (fileLen != 0) {
-		buf = (BYTE*)DiabloAllocPtr(fileLen);
-		SFileReadFile(file, buf, fileLen);
-	}
-
-	SFileCloseFile(file);
-
 	return buf;
 }
 
@@ -97,27 +84,15 @@ BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
  */
 void LoadFileWithMem(const char* pszName, BYTE* p)
 {
-	DWORD dwFileLen;
-	HANDLE hsFile;
-
-	assert(pszName != NULL);
-	/*if (p == NULL) {
-		app_fatal("LoadFileWithMem(NULL):\n%s", pszName);
-	}*/
-
-	hsFile = SFileOpenFile(pszName);
-
-	dwFileLen = SFileGetFileSize(hsFile);
-	if (dwFileLen != 0) {
-		SFileReadFile(hsFile, p, dwFileLen);
-	}
-
-	SFileCloseFile(hsFile);
+	// assert(pszName != NULL);
+	// assert(p != NULL);
+	SFileReadFileEx(pszName, &p);
 }
 
 char** LoadTxtFile(const char* name, int lines)
 {
-	BYTE* textFile = LoadFileInMem(name, NULL);
+	BYTE* textFile = NULL;
+	SFileReadFileEx(name, &textFile);
 	char** textLines = (char**)DiabloAllocPtr(sizeof(char*) * lines);
 
 	for (int i = 0; i < lines; i++) {
@@ -156,7 +131,7 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	for (i = 1; i <= nCelA; i++) {
 		cData = nData;
 		nData = LOAD_LE32(celA + 4 * (i + 1));
-		*pHead = SwapLE32(pBuf - cel);
+		*pHead = SwapLE32((DWORD)((size_t)pBuf - (size_t)cel));
 		memcpy(pBuf, &celA[cData], nData - cData);
 		pBuf += nData - cData;
 		++*cel;
@@ -167,14 +142,14 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	for (i = 1; i <= nCelB; i++) {
 		cData = nData;
 		nData = LOAD_LE32(celB + 4 * (i + 1));
-		*pHead = SwapLE32(pBuf - cel);
+		*pHead = SwapLE32((DWORD)((size_t)pBuf - (size_t)cel));
 		memcpy(pBuf, &celB[cData], nData - cData);
 		pBuf += nData - cData;
 		++*cel;
 		pHead++;
 	}
 
-	*pHead = SwapLE32(pBuf - cel);
+	*pHead = SwapLE32((DWORD)((size_t)pBuf - (size_t)cel));
 	// assert(*pHead == nDataSize);
 	return cel;
 }

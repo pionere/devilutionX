@@ -401,7 +401,7 @@ int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx,
 bool PathWalkable(int sx, int sy, int pdir)
 {
 	bool rv = true;
-
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "PathWalkable expects a large enough border.");
 	switch (pdir) {
 	case PDIR_N:
 		rv = !(nSolidTable[dPiece[sx - 1][sy]] | nSolidTable[dPiece[sx][sy - 1]]);

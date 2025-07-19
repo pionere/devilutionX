@@ -70,15 +70,11 @@ endif()
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
 FetchContent_Declare(SDL2
-    #URL https://github.com/libsdl-org/SDL/releases/download/release-2.30.5/SDL2-2.30.5.tar.gz
-    #URL_HASH SHA256=f374f3fa29c37dfcc20822d4a7d7dc57e58924d1a5f2ad511bfab4c8193de63b
+    #URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.6/SDL2-2.32.6.tar.gz
+    #URL_HASH SHA256=6a7a40d6c2e00016791815e1a9f4042809210bdf10cc78d2c75b45c4f52f93ad
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 839e98c66a22f6792cf60f67002c22e1f40d3296
+    GIT_TAG 4f4a05f37a557481adabea9fea665f5b4b564bae
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
-
-if(TARGET SDL2::SDL2-static)
-  add_library(SDL2::SDL2 ALIAS SDL2-static)
-endif()

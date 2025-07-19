@@ -27,25 +27,25 @@ static double SVidFrameEnd;
 static double SVidFrameLength;
 static bool SVidLoop;
 static smk SVidSMK;
-static SDL_Palette* SVidPalette;
 static SDL_Surface* SVidSurface;
 static BYTE* SVidBuffer;
-static unsigned long SVidWidth, SVidHeight;
 #ifndef NOSOUND
 static BYTE SVidAudioDepth;
 /* 1: adjust the volume of a 16bit audio, 0: adjust the volume of a 8bit audio, -1: do not adjust the volume (on max sound or when looping) */
 static int8_t SVidAudioAdjust;
 #endif
 
+#ifdef USE_SDL1
+static SDL_Palette* SVidPalette;
+static unsigned long SVidWidth, SVidHeight;
+// Whether we've changed the video mode temporarily for SVid.
+// If true, we must restore it once the video has finished playing.
+static bool IsSVidVideoMode = false;
+
 static bool IsLandscapeFit(unsigned long srcW, unsigned long srcH, unsigned long dstW, unsigned long dstH)
 {
 	return srcW * dstH > dstW * srcH;
 }
-
-#ifdef USE_SDL1
-// Whether we've changed the video mode temporarily for SVid.
-// If true, we must restore it once the video has finished playing.
-static bool IsSVidVideoMode = false;
 
 // Set the video mode close to the SVid resolution while preserving aspect ratio.
 void TrySetVideoModeToSVidForSDL1()
@@ -213,14 +213,14 @@ static AudioQueue* sVidAudioQueue = new AudioQueue();
 #endif
 #endif // !NOSOUND
 
-static void UpdatePalette()
+static void SVidUpdatePalette()
 {
+#ifdef USE_SDL1
 	SDL_Color* colors = SVidPalette->colors;
 
 	palette_create_sdl_colors(*(SDL_Color(*)[NUM_COLORS])colors, *(BYTE(*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
 	ApplyGamma(colors, colors);
 
-#ifdef USE_SDL1
 #if SDL1_VIDEO_MODE_BPP == 8
 	// When the video surface is 8bit, we need to set the output palette as well.
 	SDL_SetColors(SDL_GetVideoSurface(), colors, 0, NUM_COLORS);
@@ -228,14 +228,19 @@ static void UpdatePalette()
 	// In SDL1, the surface always has its own distinct palette, so we need to
 	// update it as well.
 	if (SDL_SetPalette(SVidSurface, SDL_LOGPAL, colors, 0, NUM_COLORS) <= 0)
-		sdl_error(ERR_SDL_VIDEO_SURFACE);
+		sdl_issue(ERR_SDL_VIDEO_SURFACE);
 #else // !USE_SDL1
-	if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) <= -1) {
-		sdl_error(ERR_SDL_VIDEO_SURFACE);
+	/*if (SDL_SetSurfacePalette(SVidSurface, SVidPalette) < 0) {
+		sdl_issue(ERR_SDL_VIDEO_SURFACE);
 	}
+	SetSurfaceAndPaletteColors(colors, 0, NUM_COLORS);*/
+
+	palette_create_sdl_colors(system_palette, *(BYTE(*)[SMK_COLORS][3])smk_get_palette(SVidSMK));
+	ApplyGamma(system_palette, system_palette);
+	UpdatePalette();
 #endif
-	//if (SDLC_SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, NUM_COLORS) < 0) {
-	//	sdl_error(ERR_SDL_VIDEO_SURFACE);
+	//if (SetSurfaceAndPaletteColors(SVidSurface, SVidPalette, colors, 0, NUM_COLORS) < 0) {
+	//	sdl_issue(ERR_SDL_VIDEO_SURFACE);
 	//}
 }
 
@@ -305,6 +310,9 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 #endif // NOSOUND
 
 	smk_info_all(SVidSMK, NULL, NULL, &SVidFrameLength);
+#ifndef USE_SDL1
+	unsigned long SVidWidth, SVidHeight;
+#endif
 	smk_info_video(SVidSMK, &SVidWidth, &SVidHeight, NULL);
 
 	smk_enable_video(SVidSMK, enableVideo);
@@ -312,6 +320,9 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 #ifdef USE_SDL1
 	TrySetVideoModeToSVidForSDL1();
 #endif
+
+	// Set the background to black (for videos which are smaller than full-screen).
+	ClearScreenBuffer();
 
 	// Copy frame to buffer
 	SVidSurface = SDL_CreateRGBSurfaceWithFormatFrom(
@@ -321,7 +332,7 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 	    0,
 	    SVidWidth,
 	    SDL_PIXELFORMAT_INDEX8);
-
+#ifdef USE_SDL1
 	SVidPalette = SDL_AllocPalette(NUM_COLORS);
 	if (SVidSurface == NULL || SVidPalette == NULL) {
 		if (SVidSurface == NULL) {
@@ -332,8 +343,16 @@ HANDLE SVidPlayBegin(const char* filename, int flags)
 		SVidPlayEnd();
 	//} else {
 	//	assert(smk_palette_updated(SVidSMK));
-	//	UpdatePalette();
+	//	SVidUpdatePalette();
 	}
+#else
+	if (SVidSurface == NULL) {
+		sdl_issue(ERR_SDL_VIDEO_CREATE);
+		SVidPlayEnd();
+	} else {
+		//SDL_SetSurfacePalette(SVidSurface, back_palette);
+	}
+#endif
 	SVidFrameEnd = SDL_GetTicks() * 1000.0 + SVidFrameLength;
 	return SVidSMK;
 }
@@ -377,7 +396,7 @@ static BYTE* SVidApplyVolume(BYTE* raw, unsigned long rawLen)
 bool SVidPlayContinue()
 {
 	if (smk_palette_updated(SVidSMK)) {
-		UpdatePalette();
+		SVidUpdatePalette();
 	}
 
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
@@ -400,7 +419,7 @@ bool SVidPlayContinue()
 	if (SDL_GetTicks() * 1000.0 >= SVidFrameEnd) {
 		return SVidLoadNextFrame(); // Skip video if the system is too slow
 	}
-
+#ifdef USE_SDL1
 	SDL_Surface* outputSurface = GetOutputSurface();
 	SDL_PixelFormat* outputFormat = outputSurface->format;
 #ifdef USE_SDL1
@@ -438,13 +457,16 @@ bool SVidPlayContinue()
 #else
 		SDL_Surface* tmp = SDL_ConvertSurfaceFormat(SVidSurface, outputFormat->format, 0);
 #endif
-		if (SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect) < 0) {
-			SDL_FreeSurface(tmp);
+		int result = SDL_BlitScaled(tmp, NULL, outputSurface, &outputRect);
+		SDL_FreeSurface(tmp);
+		if (result < 0) {
 			sdl_issue(ERR_SDL_VIDEO_BLIT_SCALED);
 			return false;
 		}
-		SDL_FreeSurface(tmp);
 	}
+#else
+	BltStretched(SVidSurface);
+#endif
 
 	RenderPresent();
 
@@ -475,19 +497,22 @@ void SVidPlayEnd()
 	SVidSMK = NULL;
 
 	MemFreeDbg(SVidBuffer);
-
+#ifdef USE_SDL1
 	SDL_FreePalette(SVidPalette);
 	SVidPalette = NULL;
-
+#endif
 	SDL_FreeSurface(SVidSurface);
 	SVidSurface = NULL;
-
+	// restore previous dx-state
 #ifdef USE_SDL1
 	if (IsSVidVideoMode) {
-		SetVideoModeToPrimary(IsFullScreen(), SCREEN_WIDTH, SCREEN_HEIGHT);
+		SetVideoModeToPrimary(SCREEN_WIDTH, SCREEN_HEIGHT);
 		IsSVidVideoMode = false;
 	}
+#else
+	// SetGamma(GetGamma()); // UpdatePalette() / PaletteFadeIn(true) -- TODO: better solution (if it is necessary)?
 #endif
+	// ClearScreenBuffer(); -- unnecessary, because the proceeding screens are either fading in or clearing the screen anyway
 }
 
 DEVILUTION_END_NAMESPACE

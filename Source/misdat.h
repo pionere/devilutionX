@@ -13,8 +13,7 @@ extern "C" {
 #endif
 
 extern const MissileData missiledata[];
-extern const MisFileData misfiledata[NUM_MFILE + 1];
-extern BYTE* misanimdata[NUM_MFILE + 1][16];
+extern const MisFileData misfiledata[NUM_MFILE];
 
 #ifdef __cplusplus
 }

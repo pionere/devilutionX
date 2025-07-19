@@ -19,7 +19,7 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || (matrix.version == 'mac-x64' && 'macos-12') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || (matrix.version == 'mac-x64' && 'macos-12') || 'ubuntu-22.04' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
       # required for all workflows
@@ -43,22 +43,22 @@ jobs:
         #  language: c-cpp
         #  build-mode: manual
         #  version: win-x86
-        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake'
+        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake'
         - name: c-cpp (win-x64)
           language: c-cpp
           build-mode: manual
           version: win-x64
-          cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake'
+          cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake'
         #- name: c-cpp (linux-x64)
         #  language: c-cpp
         #  build-mode: manual
         #  version: linux-x64
-        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DCMAKE_INSTALL_PREFIX=/usr'
+        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON -DCMAKE_INSTALL_PREFIX=/usr'
         #- name: c-cpp (mac-x64)
         #  language: c-cpp
         #  build-mode: manual
         #  version: mac-x64
-        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DMACOSX_STANDALONE_APP_BUNDLE=ON'
+        #  cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON -DMACOSX_STANDALONE_APP_BUNDLE=ON'
         - name: java
           language: java-kotlin
           build-mode: none # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.

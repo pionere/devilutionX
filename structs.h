@@ -253,7 +253,7 @@ typedef struct ItemStruct {
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iFlags;	// item_special_effect
+	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
@@ -272,7 +272,10 @@ typedef struct ItemStruct {
 	int _iPLMana;
 	int _iPLHP;
 	int _iPLDamMod;
-	int _iPLGetHit;
+	BYTE _iPLToBlk;
+	int8_t _iPLAtkSpdMod;
+	int8_t _iPLAbsAnyHit;
+	int8_t _iPLAbsPhyHit;
 	int8_t _iPLLight;
 	int8_t _iPLSkillLevels;
 	BYTE _iPLSkill;
@@ -290,9 +293,7 @@ typedef struct ItemStruct {
 	BYTE _iPLMMaxDam;
 	BYTE _iPLAMinDam;
 	BYTE _iPLAMaxDam;
-	int _iVAdd;
-	int _iVMult;
-	ALIGNMENT(7, 6)
+	ALIGNMENT(9, 8)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -325,7 +326,6 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Ali
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	int8_t _pWalkpath[MAX_PATH_LENGTH + 1];
 	int _pDestAction;
 	int _pDestParam1;
 	int _pDestParam2;
@@ -430,7 +430,7 @@ typedef struct PlayerStruct {
 	BYTE _pSkillLvl[64]; // the skill levels of the player
 	uint64_t _pISpells;  // Bitmask of skills available via equipped items (staff)
 	BYTE _pSkillFlags;   // Bitmask of allowed skill-types (SFLAG_*)
-	BOOLEAN _pInfraFlag;
+	BOOLEAN _pInfraFlag; // unused
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
 	int _pISlMinDam; // min slash-damage (swords, axes)
@@ -456,9 +456,10 @@ typedef struct PlayerStruct {
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
 	BYTE _pAlign_B1;
-	int _pIGetHit;
-	BYTE _pIBaseAttackSpeed;
-	int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
+	int _pIAbsAnyHit; // absorbed hit damage
+	int _pIAbsPhyHit; // absorbed physical hit damage
+	int8_t _pIBaseAttackSpeed;
+	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
 	int _pIFMinDam; // min fire damage (item's added fire damage)
@@ -470,7 +471,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(179, 94)
+	ALIGNMENT(184, 98)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -483,9 +484,8 @@ static_warning((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align 
 
 typedef struct TextData {
 	const char* txtstr;
-	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
-	int txtspd;
+	BYTE txtdelay;
 	int sfxnr;  // _sfx_id or sfx_set if txtsfxset is true
 } TextData;
 
@@ -499,11 +499,12 @@ typedef struct MissileData {
 	BYTE mdFlags; // missile_flags
 	BYTE mResist; // missile_resistance
 	BYTE mFileNum; // missile_gfx_id
-	BOOLEAN mDrawFlag;
 	int mlSFX; // sound effect when a missile is launched (_sfx_id)
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
+	BYTE mdPrSpeed; // speed of the projectile
+	BYTE mdRange; // default range of the missile
 	ALIGNMENT32(2)
 } MissileData;
 
@@ -512,15 +513,18 @@ static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mi
 #endif
 
 typedef struct MisFileData {
-	int mfAnimFAmt;
 	const char* mfName;
 	const char* mfAnimTrans;
-	int mfFlags; // missile_anim_flags
+	int mfAnimFAmt;
+	BOOLEAN mfDrawFlag;
+	BOOLEAN mfAnimFlag;
+	BOOLEAN mfLightFlag;
+	BOOLEAN mfPreFlag;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset; // could be calculated
-	ALIGNMENT(2, 14)
+	ALIGNMENT32(2)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
@@ -531,12 +535,12 @@ typedef struct MissileStruct {
 	BYTE _miFlags; // missile_flags
 	BYTE _miResist; // missile_resistance
 	BYTE _miFileNum; // missile_gfx_id
-	BOOLEAN _miDrawFlag; // should be drawn
-	int _miUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN _miDelFlag; // should be deleted
+	int _miUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN _miDrawFlag; // should be drawn
+	BOOLEAN _miAnimFlag;
 	BOOLEAN _miLightFlag; // use light-transformation when drawing
 	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
-	BOOLEAN _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
@@ -562,7 +566,7 @@ typedef struct MissileStruct {
 	int _miMinDam;
 	int _miMaxDam;
 	// int _miRndSeed;
-	int _miRange;
+	int _miRange;    // Time to live for the missile in game ticks, when negative the missile will be deleted
 	unsigned _miLid; // light id of the missile
 	int _miVar1;
 	int _miVar2;
@@ -588,12 +592,12 @@ static_warning((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Alig
 typedef struct _Mix_Audio Mix_Audio;
 
 typedef struct SoundSample final {
-	Uint32 nextTc;
+	Uint32 lastTc;
 	Mix_Audio* soundData;
 
 	void Release();
-	bool IsPlaying();
-	bool IsLoaded() {
+	bool IsPlaying() const;
+	bool IsLoaded() const {
 		return soundData != NULL;
 	}
 	void Play(int lVolume, int lPan, int channel);
@@ -601,11 +605,13 @@ typedef struct SoundSample final {
 	//int TrackLength();
 } SoundSample;
 
-typedef struct SFXStruct {
+typedef struct SFXData {
 	BYTE bFlags; // sfx_flag
+} SFXData;
+
+typedef struct SFXFileData {
 	const char* pszName;
-	SoundSample pSnd;
-} SFXStruct;
+} SFXFileData;
 
 //////////////////////////////////////////////////
 // monster
@@ -732,7 +738,7 @@ typedef struct MonsterStruct {
 	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
 	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	int _mdir;         // Direction faced by monster (direction enum)
-	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	int _menemy;       // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
 	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
@@ -1183,8 +1189,6 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhAutoMapScale;
 	BYTE vhMiniMapScale;
 	BYTE vhNormalMapScale;
-	LE_INT32 vhAutoMapXOfs;
-	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;
 } LSaveGameHeaderStruct;
 
@@ -1192,6 +1196,8 @@ typedef struct LSaveGameMetaStruct {
 	LE_UINT32 vaboylevel;
 	LE_INT32 vanumpremium;
 	LE_INT32 vapremiumlevel;
+	LE_INT32 vaAutoMapXOfs;
+	LE_INT32 vaAutoMapYOfs;
 	LE_INT32 vanumlights;
 	LE_INT32 vanumvision;
 } LSaveGameMetaStruct;
@@ -1213,9 +1219,9 @@ typedef struct LSaveItemStruct {
 	LE_INT32 vitype;   // item_type
 	LE_INT32 viMiscId; // item_misc_id
 	LE_INT32 viSpell;  // spell_id
-	BYTE viClass; // item_class enum
-	BYTE viLoc;   // item_equip_type
-	BYTE viDamType; // item_damage_type
+	BYTE viClass;      // item_class enum
+	BYTE viLoc;        // item_equip_type
+	BYTE viDamType;    // item_damage_type
 	BYTE viMinDam;
 	BYTE viMaxDam;
 	BYTE viBaseCrit;
@@ -1225,11 +1231,11 @@ typedef struct LSaveItemStruct {
 	BOOLEAN viUsable;
 	BYTE viPrePower; // item_effect_type
 	BYTE viSufPower; // item_effect_type
-	BYTE viMagical;	// item_quality
+	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BOOLEAN viFloorFlag;
 	BOOLEAN viAnimFlag;
-	int32_t viAnimDataAlign;        // PSX name -> ItemFrame
+	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
 	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
@@ -1240,7 +1246,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 vivalue;
 	LE_INT32 viIvalue;
 	LE_INT32 viAC;
-	LE_INT32 viFlags;	// item_special_effect
+	LE_INT32 viPLFlags; // item_special_effect
 	LE_INT32 viCharges;
 	LE_INT32 viMaxCharges;
 	LE_INT32 viDurability;
@@ -1259,7 +1265,10 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viPLMana;
 	LE_INT32 viPLHP;
 	LE_INT32 viPLDamMod;
-	LE_INT32 viPLGetHit;
+	BYTE viPLToBlk;
+	int8_t viPLAtkSpdMod;
+	int8_t viPLAbsAnyHit;
+	int8_t viPLAbsPhyHit;
 	int8_t viPLLight;
 	int8_t viPLSkillLevels;
 	BYTE viPLSkill;
@@ -1277,13 +1286,10 @@ typedef struct LSaveItemStruct {
 	BYTE viPLMMaxDam;
 	BYTE viPLAMinDam;
 	BYTE viPLAMaxDam;
-	LE_INT32 viVAdd;
-	LE_INT32 viVMult;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
 	LE_INT32 vpmode; // PLR_MODE
-	int8_t vpWalkpath[MAX_PATH_LENGTH + 1];
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
@@ -1457,12 +1463,12 @@ typedef struct LSaveMissileStruct {
 	BYTE vmiFlags; // missile_flags
 	BYTE vmiResist; // missile_resistance
 	BYTE vmiFileNum; // missile_gfx_id
-	BOOLEAN vmiDrawFlag; // should be drawn
-	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN vmiDelFlag; // should be deleted
-	BOOLEAN vmiLightFlag; // use light-transformation when drawing
-	BOOLEAN vmiPreFlag; // should be drawn in the pre-phase
-	BOOLEAN vmiAnimFlag;
+	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN vmiDrawFlagAlign; // should be drawn
+	BOOLEAN vmiAnimFlagAlign;
+	BOOLEAN vmiLightFlagAlign; // use light-transformation when drawing
+	BOOLEAN vmiPreFlagAlign; // should be drawn in the pre-phase
 	INT vmiAnimDataAlign;
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation
@@ -1487,8 +1493,8 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiCaster;
 	LE_INT32 vmiMinDam;
 	LE_INT32 vmiMaxDam;
-	LE_INT32 vmiRange;
-	LE_UINT32 vmiLid; // light id of the missile
+	LE_INT32 vmiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
+	LE_UINT32 vmiLid;  // light id of the missile
 	LE_INT32 vmiVar1;
 	LE_INT32 vmiVar2;
 	LE_INT32 vmiVar3;
@@ -1793,6 +1799,7 @@ typedef struct TMsgLargeHdr {
 
 typedef struct TMsgString {
 	BYTE bCmd;
+	BYTE bsLen;
 	char str[MAX_SEND_STR_LEN];
 } TMsgString;
 
@@ -1847,7 +1854,6 @@ typedef struct TSyncMonster {
 
 typedef struct TSyncLvlPlayer {
 	BYTE spMode;
-	BYTE spWalkpath[MAX_PATH_LENGTH];
 	BYTE spManaShield;
 	BYTE spInvincible;
 	BYTE spDestAction;
@@ -1858,10 +1864,10 @@ typedef struct TSyncLvlPlayer {
 	LE_INT16 spTimer[NUM_PLRTIMERS];
 	BYTE spx;      // Tile X-position where the player should be drawn
 	BYTE spy;      // Tile Y-position where the player should be drawn
-	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
-	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
-	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
-	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
+//	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
+//	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
+//	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
+//	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
 //	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
 //	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)
@@ -1893,20 +1899,20 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar3;
 	BYTE smx;          // Tile X-position where the monster should be drawn
 	BYTE smy;          // Tile Y-position where the monster should be drawn
-	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
-	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
-	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
-	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
+//	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
+//	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
+//	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
+//	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
 //	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
 //	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)
-	LE_INT32 smEnemy;  // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
-	BYTE smEnemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE smEnemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
+	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE smenemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE smListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
-	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
-	BYTE smAnimFrame; // Current frame of animation.
+	BYTE smAnimCnt;    // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+	BYTE smAnimFrame;  // Current frame of animation.
 	LE_INT32 smVar1;
 	LE_INT32 smVar2;
 	LE_INT32 smVar3;
@@ -1916,8 +1922,8 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smVar7;
 	LE_INT32 smVar8;
 	LE_INT32 smHitpoints;
-	BYTE smLastx; // the last known (future) tile X-coordinate of the enemy
-	BYTE smLasty; // the last known (future) tile Y-coordinate of the enemy
+	BYTE smlastx; // the last known (future) tile X-coordinate of the enemy
+	BYTE smlasty; // the last known (future) tile Y-coordinate of the enemy
 	//BYTE smLeader; // the leader of the monster
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
@@ -1929,10 +1935,6 @@ typedef struct TSyncLvlMissile {
 	LE_UINT16 smiMi;
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
-	BOOLEAN smiDrawFlag;
-	BYTE smiUniqTrans;
-	BOOLEAN smiLightFlag;
-	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int8_t smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
@@ -1953,7 +1955,7 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiMinDam;
 	LE_INT32 smiMaxDam;
 	// LE_INT32 smiRndSeed;
-	LE_INT32 smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	LE_INT32 smiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
 	LE_INT32 smiVar1;
 	LE_INT32 smiVar2;
 	LE_INT32 smiVar3;
@@ -2453,6 +2455,15 @@ typedef struct SNetGameData {
 	BYTE ngTickRate;
 	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE ngMaxPlayers;
+	SNetGameData() {
+		memset(&ngVersionId, 0, sizeof(SNetGameData));
+	}
+	SNetGameData(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	}
+	void operator=(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	};
 } SNetGameData;
 
 /*typedef struct _SNETCAPS {
@@ -2529,7 +2540,7 @@ typedef struct _uiheroinfo {
 	BYTE hiIdx;
 	BYTE hiLevel;
 	BYTE hiClass;
-	BYTE hiRank;
+	BOOLEAN hiSaveFile;
 	char hiName[16];
 	int16_t hiStrength;
 	int16_t hiMagic;
@@ -2652,6 +2663,7 @@ typedef struct STextStruct {
 		struct {
 			char _schr;     // placeholder to differentiate from a normal text
 			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
+			BYTE _siClr[8]; // the list of light-translations to draw the items with
 		};
 	};
 	bool _sitemlist; // whether items should be drawn 

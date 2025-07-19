@@ -74,24 +74,18 @@ int codec_decode(BYTE* pbSrcDst, DWORD size, const char* pszPassword)
 	}
 
 	memset(buf, 0, sizeof(buf));
-	sig = (CodecSignature*)pbSrcDst;
-	if (sig->error > 0) {
-		goto error;
-	}
 
 	SHA1Result(/*0,*/ dst);
-	if (sig->checksum != *(uint32_t*)dst) {
-		goto error;
+	sig = (CodecSignature*)pbSrcDst;
+	if (sig->error == 0 && sig->checksum == *(uint32_t*)dst) {
+		size += sig->last_chunk_size - SHA1BlockSize;
+	} else {
+		size = 0;
 	}
 
-	size += sig->last_chunk_size - SHA1BlockSize;
 	memset(dst, 0, sizeof(dst));
 	SHA1Clear();
 	return size;
-error:
-	memset(dst, 0, sizeof(dst));
-	SHA1Clear();
-	return 0;
 }
 
 DWORD codec_get_encoded_len(DWORD dwSrcBytes)

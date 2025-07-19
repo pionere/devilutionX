@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 // #define DEBUG_STORES
 #ifdef DEBUG_STORES
 #define DEBUG_ASSERT(x) assert(x)
@@ -142,17 +144,17 @@ static int8_t stextscrlubtn;
 /** Count down for the push state of the scroll down button */
 static int8_t stextscrldbtn;
 
-/** Maps from towner IDs to NPC names. */
+/** Maps from towner IDs to 'Talk to [NPC]'. */
 static const char* const talkname[] = {
 	// clang-format off
-/*TOWN_SMITH*/  "Griswold",
-/*TOWN_HEALER*/ "Pepin",
-/*TOWN_TAVERN*/ "Ogden",
-/*TOWN_STORY*/  "Cain",
-/*TOWN_DRUNK*/  "Farnham",
-/*TOWN_WITCH*/  "Adria",
-/*TOWN_BARMAID*/"Gillian",
-/*TOWN_PEGBOY*/ "Wirt"
+/*TOWN_SMITH*/  "Talk to Griswold",
+/*TOWN_HEALER*/ "Talk to Pepin",
+/*TOWN_TAVERN*/ "Talk to Ogden",
+/*TOWN_STORY*/  "Talk to Cain",
+/*TOWN_DRUNK*/  "Talk to Farnham",
+/*TOWN_WITCH*/  "Talk to Adria",
+/*TOWN_BARMAID*/"Talk to Gillian",
+/*TOWN_PEGBOY*/ "Talk to Wirt"
 	// clang-format on
 };
 
@@ -161,7 +163,7 @@ static void ClearSText(int s, int e)
 	// int i;
 
 	static_assert(COL_WHITE == 0, "ClearSText skips color initialization by expecting COL_WHITE to be zero.");
-	static_assert(CURSOR_NONE == 0, "ClearSText skips cursor initialization by expecting CURSOR_NONE to be zero.");	
+	static_assert(CURSOR_NONE == 0, "ClearSText skips cursor initialization by expecting CURSOR_NONE to be zero.");
 	memset(&stextlines[s], 0, (size_t)&stextlines[e] - (size_t)&stextlines[s]);
 	/*for (i = s; i < e; i++) {
 		stextlines[i]._sx = 0;
@@ -217,48 +219,46 @@ void InitLvlStores()
 	SpawnPremium(l);
 }
 
-void PrintSString(int x, int y, bool cjustflag, const char* str, BYTE col, int val)
+static void PrintSString(int px, int py, int x, int y, bool cjustflag, const char* str, BYTE col, int val)
 {
-	int sx, sy, px;
+	int sx, sy, tx;
 	int width, limit;
-	char valstr[32];
 
-	sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + x;
-	sy = LTPANEL_Y + 20 + y * 12 + stextlines[y]._syoff;
-	limit = gbWidePanel ? LTPANEL_WIDTH - 7 * 2 : STPANEL_WIDTH - 7 * 2;
+	sx = px + STORE_PNL_X_OFFSET + x;
+	sy = py + 20 + y * 12 + stextlines[y]._syoff;
+	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= x;
 	if (cjustflag) {
 		// assert(x == 0); -- otherwise limit -= x; ?
 		width = GetSmallStringWidth(str);
-		if (width < limit) {
+		// if (width < limit) {
 			sx += (limit - width) >> 1;
-		}
+		// }
 	}
-	px = stextsel == y ? sx : INT_MAX;
-	sx = PrintLimitedString(sx, sy, str, limit, col);
+	tx = sx;
+	sx = PrintLimitedString(sx, sy, str, limit, col, FONT_KERN_SMALL);
+	if (stextsel == y) {
+		DEBUG_ASSERT(cjustflag || gbWidePanel);
+		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
+	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
+		char valstr[32];
 		snprintf(valstr, sizeof(valstr), "%d", val);
-		sx = LTPANEL_X + LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH + x + GetSmallStringWidth(valstr));
-		PrintGameStr(sx, sy, valstr, col);
-	}
-	if (px != INT_MAX) {
-		DEBUG_ASSERT(cjustflag || gbWidePanel);
-		DrawSmallPentSpn(px - FOCUS_SMALL, cjustflag ? sx + 6 : (LTPANEL_X + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
+		PrintString(AFF_SMALL | AFF_RIGHT | (col << AFF_COLOR_SHL), valstr, px, sy - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * SMALL_SCROLL_WIDTH), 0);
 	}
 }
 
-static void DrawSSlider(/*int y1, int y2*/)
+static void DrawSSlider(int px, int py)
 {
 	const int y1 = STORE_SCROLL_UP, y2 = STORE_SCROLL_DOWN;
 	int x, i, yd1, yd2, yd3;
 
-	//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
-	//x = STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
+	//x = px + (gbWidePanel ? LTPANEL_WIDTH : STPANEL_WIDTH) - (SMALL_SCROLL_WIDTH + 2);
 	DEBUG_ASSERT(gbWidePanel);
-	x = LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
-	yd1 = y1 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20; // top position of the scrollbar
-	yd2 = y2 * SMALL_SCROLL_HEIGHT + LTPANEL_Y + 20; // bottom position of the scrollbar
+	x = px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
+	yd1 = y1 * SMALL_SCROLL_HEIGHT + py + 20; // top position of the scrollbar
+	yd2 = y2 * SMALL_SCROLL_HEIGHT + py + 20; // bottom position of the scrollbar
 	yd3 = ((y2 - y1 - 2) * SMALL_SCROLL_HEIGHT);     // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
@@ -274,15 +274,6 @@ static void DrawSSlider(/*int y1, int y2*/)
 		yd3 = yd3 * stextsidx / stextsmax;
 		CelDraw(x, yd1 + yd3, pSTextSlidCels, 13);
 	}
-}
-
-void InitSTextHelp()
-{
-	stextsel = -1;
-	gbWidePanel = true;
-	// assert(gbRenderGold == false); - not necessary since it is not used in PrintSString
-	// assert(gbHasScroll == false); - not necessary since it is not used in PrintSString
-	// ClearSText(0, STORE_LINES); // necessary to reset the _syoff values -- should be zero at the moment...
 }
 
 /*static void AddSLine(int y)
@@ -314,14 +305,15 @@ static void AddSText(int x, int y, bool j, const char* str, BYTE clr, bool sel)
 	ss->_ssel = sel;
 }
 
-static void AddSItem(int x, int y, int idx, int iCurs, bool selectable)
+static void AddSItem(int x, int y, int idx, const ItemStruct* is, bool selectable)
 {
 	STextStruct* ss;
 
 	ss = &stextlines[y];
 	ss->_sx = x;
 	ss->_sitemlist = true;
-	ss->_siCurs[idx] = iCurs + CURSOR_FIRSTITEM;
+	ss->_siCurs[idx] = is->_iCurs + CURSOR_FIRSTITEM;
+	ss->_siClr[idx] = is->_iStatFlag ? 0 : COLOR_TRN_RED;
 	ss->_ssel = selectable;
 }
 
@@ -398,6 +390,22 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		AddSText(40, l++, false, sstr, iclr, false);
 }
 
+static void AddStoreItem(ItemStruct* is, unsigned l, bool noid)
+{
+	// StorePrepareItemBuy(is);
+	if (!noid && is->_iMagical != ITEM_QUALITY_NORMAL)
+		is->_iIdentified = TRUE;
+	ItemStatOk(mypnum, is);
+	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
+	stextdown = line;
+	AddSItem(60, line, l % STORE_LINE_ITEMS, is, TRUE);
+	if (stextsel == line && stextselx == (int)(l % STORE_LINE_ITEMS)) {
+		// StorePrepareItemBuy(is);
+		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
+		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+	}
+}
+
 static void AddStoreFrame(const char* title)
 {
 	AddSText(10, 1, false, title, COL_GOLD, false);
@@ -415,7 +423,7 @@ static void S_StartSmith()
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Blacksmith's shop", COL_GOLD, false);
 	AddSText(0, 7, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_SMITH_GOSSIP, true, "Talk to Griswold", COL_BLUE, true);
+	AddSText(0, STORE_SMITH_GOSSIP, true, talkname[TOWN_SMITH], COL_BLUE, true);
 	AddSText(0, STORE_SMITH_BUY, true, "Buy basic items", COL_WHITE, true);
 	AddSText(0, STORE_SMITH_SPBUY, true, "Buy premium items", COL_WHITE, true);
 	AddSText(0, STORE_SMITH_SELL, true, "Sell items", COL_WHITE, true);
@@ -426,9 +434,9 @@ static void S_StartSmith()
 
 static void StorePrepareItemBuy(ItemStruct* is)
 {
-	ItemStatOk(mypnum, is);
 	if (is->_iMagical != ITEM_QUALITY_NORMAL)
 		is->_iIdentified = TRUE;
+	ItemStatOk(mypnum, is);
 }
 
 static void S_ScrollSBuy()
@@ -441,15 +449,7 @@ static void S_ScrollSBuy()
 	is = &smithitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			is++;
 		}
 	}
@@ -504,15 +504,7 @@ static void S_ScrollSPBuy()
 	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
 		is = &premiumitems[idx];
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			l++;
 		}
 		idx++;
@@ -596,13 +588,7 @@ static void S_ScrollSSell()
 	is = &storehold[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue/*is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified ? is->_iIvalue : is->_ivalue*/);
-			}
+			AddStoreItem(is, l, true);
 			is++;
 		}
 	}
@@ -710,7 +696,7 @@ static void S_StartWitch()
 
 	AddSText(0, 2, true, "Witch's shack", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_WITCH_GOSSIP, true, "Talk to Adria", COL_BLUE, true);
+	AddSText(0, STORE_WITCH_GOSSIP, true, talkname[TOWN_WITCH], COL_BLUE, true);
 	AddSText(0, STORE_WITCH_BUY, true, "Buy items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_SELL, true, "Sell items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_RECHARGE, true, "Recharge staves", COL_WHITE, true);
@@ -728,15 +714,7 @@ static void S_ScrollWBuy()
 	is = &witchitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			is++;
 		}
 	}
@@ -901,40 +879,41 @@ static void S_StartConfirm()
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	// gbHasScroll = false;
-	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
+	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
 	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
 	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
 	// AddSLine(3);
 	// AddSLine(21);
 
+	const char* msg;
 	switch (stextshold) {
 	case STORE_PBUY:
-		copy_cstr(tempstr, "Do we have a deal?");
+		msg = "Do we have a deal?";
 		break;
 	case STORE_SIDENTIFY:
-		copy_cstr(tempstr, "Are you sure you want to identify this item?");
+		msg = "Are you sure you want to identify this item?";
 		break;
 	case STORE_HBUY:
 	case STORE_SPBUY:
 	case STORE_WBUY:
 	case STORE_SBUY:
-		copy_cstr(tempstr, "Are you sure you want to buy this item?");
+		msg = "Are you sure you want to buy this item?";
 		break;
 	case STORE_WRECHARGE:
-		copy_cstr(tempstr, "Are you sure you want to recharge this item?");
+		msg = "Are you sure you want to recharge this item?";
 		break;
 	case STORE_SSELL:
 	case STORE_WSELL:
-		copy_cstr(tempstr, "Are you sure you want to sell this item?");
+		msg = "Are you sure you want to sell this item?";
 		break;
 	case STORE_SREPAIR:
-		copy_cstr(tempstr, "Are you sure you want to repair this item?");
+		msg = "Are you sure you want to repair this item?";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddSText(0, 15, true, tempstr, COL_WHITE, false);
+	AddSText(0, 15, true, msg, COL_WHITE, false);
 	AddSText(0, STORE_CONFIRM_YES, true, "Yes", COL_WHITE, true);
 	AddSText(0, STORE_CONFIRM_NO, true, "No", COL_WHITE, true);
 }
@@ -947,7 +926,7 @@ static void S_StartBoy()
 	AddSText(0, 2, true, "Wirt the Peg-legged boy", COL_GOLD, false);
 	// AddSLine(5);
 	if (boyitem._itype != ITYPE_NONE) {
-		AddSText(0, STORE_PEGBOY_GOSSIP1, true, "Talk to Wirt", COL_BLUE, true);
+		AddSText(0, STORE_PEGBOY_GOSSIP1, true, talkname[TOWN_PEGBOY], COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
 		if (!boyitem._iIdentified) {
 			static_assert(STORE_PEGBOY_PRICE == 50, "Hardcoded boy price is 50.");
@@ -957,7 +936,7 @@ static void S_StartBoy()
 		AddSText(0, STORE_PEGBOY_QUERY, true, "What have you got?", COL_WHITE, true);
 		AddSText(0, STORE_PEGBOY_EXIT1, true, "Say goodbye", COL_WHITE, true);
 	} else {
-		AddSText(0, STORE_PEGBOY_GOSSIP2, true, "Talk to Wirt", COL_BLUE, true);
+		AddSText(0, STORE_PEGBOY_GOSSIP2, true, talkname[TOWN_PEGBOY], COL_BLUE, true);
 		AddSText(0, STORE_PEGBOY_EXIT2, true, "Say goodbye", COL_WHITE, true);
 	}
 }
@@ -975,7 +954,7 @@ static void S_StartBBoy()
 	// gbHasScroll = false;
 
 	StorePrepareItemBuy(&boyitem);
-	AddSItem(260, STORE_LIST_FIRST, 0, boyitem._iCurs, FALSE);
+	AddSItem(260, STORE_LIST_FIRST, 0, &boyitem, FALSE);
 	PrintStoreItem(&boyitem, STORE_PEGBOY_BUY, true);
 	AddSTextVal(STORE_PEGBOY_BUY, boyitem._iIvalue);
 
@@ -990,7 +969,7 @@ static void S_StartHealer()
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Healer's home", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_HEALER_GOSSIP, true, "Talk to Pepin", COL_BLUE, true);
+	AddSText(0, STORE_HEALER_GOSSIP, true, talkname[TOWN_HEALER], COL_BLUE, true);
 	AddSText(0, STORE_HEALER_HEAL, true, "Receive healing", COL_WHITE, true);
 	AddSText(0, STORE_HEALER_BUY, true, "Buy items", COL_WHITE, true);
 	AddSText(0, STORE_HEALER_EXIT, true, "Leave Healer's home", COL_WHITE, true);
@@ -1007,15 +986,7 @@ static void S_ScrollHBuy()
 	is = &healitem[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			StorePrepareItemBuy(is);
-			int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
-			AddSItem(60, line, l % STORE_LINE_ITEMS, is->_iCurs, TRUE);
-			stextdown = line;
-			if (stextsel == STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES && stextselx == l % STORE_LINE_ITEMS) {
-				// StorePrepareItemBuy(is);
-				PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-				AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
-			}
+			AddStoreItem(is, l, false);
 			is++;
 		}
 	}
@@ -1051,7 +1022,7 @@ static void S_StartStory()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "The Town Elder", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_STORY_GOSSIP, true, "Talk to Cain", COL_BLUE, true);
+	AddSText(0, STORE_STORY_GOSSIP, true, talkname[TOWN_STORY], COL_BLUE, true);
 	AddSText(0, STORE_STORY_IDENTIFY, true, "Identify an item", COL_WHITE, true);
 	AddSText(0, STORE_STORY_EXIT, true, "Say goodbye", COL_WHITE, true);
 	// AddSLine(5);
@@ -1120,7 +1091,7 @@ static void S_StartIdShow()
 	// gbRenderGold = true;
 	// gbHasScroll = false;
 
-	AddSItem(260, STORE_LIST_FIRST, 0, storeitem._iCurs, FALSE);
+	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
 	PrintStoreItem(&storeitem, 11, false);
 
 	AddStoreFrame("This item is:");
@@ -1128,34 +1099,40 @@ static void S_StartIdShow()
 
 static void S_StartTalk()
 {
-	int i, sn, la;
-
+	int sn, la;
+	int tqs[NUM_QUESTS];
+	unsigned i, qn;
+	static_assert(STORE_LINES >= 22, "S_StartTalk does not fit to the store.");
 	// gbWidePanel = false;
 	// gbRenderGold = false;
 	// gbHasScroll = false;
-	snprintf(tempstr, sizeof(tempstr), "Talk to %s", talkname[talker]);
-	AddSText(0, 2, true, tempstr, COL_GOLD, false);
+	AddSText(0, 2, true, talkname[talker], COL_GOLD, false);
 	// AddSLine(5);
-	sn = 0;
+	qn = 0;
 	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
-			sn++;
+		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
+			tqs[qn] = i;
+			qn++;
+		}
 	}
 
-	if (sn > 6) {
-		sn = 14 - std::min(sn >> 1, 12);
+	if (qn > 7) {
+		if (qn > 14)
+			qn = 14;
+		sn = 13 - ((qn + 1) >> 1);
 		la = 1;
 	} else {
-		sn = 15 - sn;
+		sn = 13 - qn;
 		la = 2;
 	}
 
-	AddSText(0, sn - 2, true, "Gossip", COL_BLUE, true);
-	for (i = 0; i < NUM_QUESTS && sn < 22; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
-			AddSText(0, sn, true, questlist[i]._qlstr, COL_WHITE, true);
-			sn += la;
-		}
+	AddSText(0, sn, true, "Gossip", COL_BLUE, true);
+	AddSTextVal(sn, -(int)NUM_QUESTS);
+	sn += 2;
+	for (i = 0; i < qn; i++) {
+		AddSText(0, sn, true, questlist[tqs[i]]._qlstr, COL_WHITE, true);
+		AddSTextVal(sn, -tqs[i]);
+		sn += la;
 	}
 	AddSText(0, 22, true, "Back", COL_WHITE, true);
 }
@@ -1168,7 +1145,7 @@ static void S_StartTavern()
 	AddSText(0, 1, true, "Welcome to the", COL_GOLD, false);
 	AddSText(0, 3, true, "Rising Sun", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_TAVERN_GOSSIP, true, "Talk to Ogden", COL_BLUE, true);
+	AddSText(0, STORE_TAVERN_GOSSIP, true, talkname[TOWN_TAVERN], COL_BLUE, true);
 	AddSText(0, STORE_TAVERN_EXIT, true, "Leave the tavern", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1180,7 +1157,7 @@ static void S_StartBarMaid()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "Gillian", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_BARMAID_GOSSIP, true, "Talk to Gillian", COL_BLUE, true);
+	AddSText(0, STORE_BARMAID_GOSSIP, true, talkname[TOWN_BARMAID], COL_BLUE, true);
 	AddSText(0, STORE_BARMAID_EXIT, true, "Say goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1192,7 +1169,7 @@ static void S_StartDrunk()
 	// gbHasScroll = false;
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
-	AddSText(0, STORE_DRUNK_GOSSIP, true, "Talk to Farnham", COL_BLUE, true);
+	AddSText(0, STORE_DRUNK_GOSSIP, true, talkname[TOWN_DRUNK], COL_BLUE, true);
 	AddSText(0, STORE_DRUNK_EXIT, true, "Say Goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1362,7 +1339,7 @@ static void StoreUpdateSelection()
 	src = &gpBuffer[sxy];
 	dst = &gpBuffer[dxy];
 
-	for (i = 0; i < TPANEL_BORDER; i++, src += width, dst += width)
+	for (i = 0; i < BOXBORDER_WIDTH; i++, src += width, dst += width)
 		memcpy(dst, src, length);
 }
 void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
@@ -1382,21 +1359,21 @@ void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
 	dst = &gpBuffer[dxy];
 
 	for (i = 0; i < height; i++, src += width, dst += width)
-		memcpy(dst, src, TPANEL_BORDER);
+		memcpy(dst, src, BOXBORDER_WIDTH);
 }*/
-static int current_store_index()
+static int current_store_index(int px, int py)
 {
 	int mx, my, y;
 
 	mx = MousePos.x;
 	my = MousePos.y;
 
-	y = (my - (LTPANEL_Y - SCREEN_Y + 8)) / 12;
+	y = (my - (py - SCREEN_Y + 8)) / 12;
 	if (gbWidePanel) {
-		if (mx < LTPANEL_X - SCREEN_X || mx > LTPANEL_X + LTPANEL_WIDTH - SCREEN_X)
+		if (mx < px - SCREEN_X || mx > px + LTPANEL_WIDTH - SCREEN_X)
 			y = 0;
 	} else {
-		if (mx < STORE_PNL_X - SCREEN_X || mx > STORE_PNL_X + STPANEL_WIDTH - SCREEN_X)
+		if (mx < px - SCREEN_X || mx > px + STPANEL_WIDTH - SCREEN_X)
 			y = 0;
 	}
 
@@ -1414,12 +1391,19 @@ static int current_store_index()
 void DrawStore()
 {
 	STextStruct* sts;
-	int i;
+	int i, x, y;
 
+	y = LTPANEL_Y;
 	if (gbWidePanel) {
-		DrawTextBox(3);
+		x = LTPANEL_X;
+
+		DrawColorTextBox(x, y, LTPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
+		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 3 * 12 + 14);
+		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 21 * 12 + 14);
 	} else {
-		DrawSTextBox(STORE_PNL_X, LTPANEL_Y);
+		x = STORE_PNL_X;
+
+		DrawSTextBox(x, y);
 	}
 
 	if (gbHasScroll) {
@@ -1452,21 +1436,20 @@ void DrawStore()
 		StoreUpdateSelection(); // check maxx
 	}
 
-	int y = current_store_index();
-	STextStruct* stc = &stextlines[y];
+	int csi = current_store_index(x, y);
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
-		//	DrawTextBoxSLine(gbWidePanel ? LTPANEL_X : STORE_PNL_X, LTPANEL_Y, i * 12 + 14, gbWidePanel);
+		//	DrawColorTextBoxSLine(x, y, i * 12 + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
-			PrintSString(sts->_sx, i, sts->_sjust, sts->_sstr, (sts == stc && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
+			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
 				int frame = sts->_siCurs[n];
 				if (frame != CURSOR_NONE) {
-					// int sx = (gbWidePanel ? LTPANEL_X + 7 : STORE_PNL_X + 7) + sts->_sx;
-					int px = LTPANEL_X, py = LTPANEL_Y + 1;
-					int sx = px + 7 + sts->_sx;
+					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
+					int px = x, py = y + 1;
+					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
 					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
 
@@ -1478,27 +1461,27 @@ void DrawStore()
 
 					if (stextsel == i && stextselx == n) {
 						// assert(gbWidePanel);
-						// DrawTextBoxSLine(px, py, 20 + i * 12, false);
+						// DrawColorTextBoxSLine(px, py, 20 + i * 12, false);
 						/*
 						// top-left corner
 						DrawStoreLineX(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
 						DrawStoreLineY(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
 						// top-right corner
 						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px + LTPANEL_WIDTH - TPANEL_BORDER, py, sx + 2 * INV_SLOT_SIZE_PX - TPANEL_BORDER, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
 						// bottom-left corner
-						DrawStoreLineX(px, py + TPANEL_HEIGHT - TPANEL_BORDER, sx + 0 * INV_SLOT_SIZE_PX, sy - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px, py + TPANEL_HEIGHT - TPANEL_BORDER - INV_SLOT_SIZE_PX / 2, sx + 0 * INV_SLOT_SIZE_PX, sy - INV_SLOT_SIZE_PX / 2 - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineX(px, py + TPANEL_HEIGHT - BOXBORDER_WIDTH, sx + 0 * INV_SLOT_SIZE_PX, sy - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 0 * INV_SLOT_SIZE_PX, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
 						// bottom-right corner
-						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py + TPANEL_HEIGHT - TPANEL_BORDER, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px + LTPANEL_WIDTH - TPANEL_BORDER, py + TPANEL_HEIGHT - TPANEL_BORDER - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - TPANEL_BORDER, sy - INV_SLOT_SIZE_PX / 2 - TPANEL_BORDER, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py + TPANEL_HEIGHT - BOXBORDER_WIDTH, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
+						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
 						*/
 						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
 					}
 
 					// sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
 					// sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
-					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, 0 /* COLOR_TRN_RED */);
+					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, sts->_siClr[n]);
 				}
 			}
 		}
@@ -1506,12 +1489,15 @@ void DrawStore()
 
 	// if (gbRenderGold) {
 	if (gbWidePanel) {
-		snprintf(tempstr, sizeof(tempstr), "Your gold: %d", myplr._pGold);
-		// assert(gbWidePanel);
-		PrintSString(LTPANEL_WIDTH - 178, 1, false, tempstr, COL_GOLD);
+		char valstr[32];
+		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
+		const int cursor = (int)CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
+		const int cw = InvItemWidth[cursor];
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
+		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 20 + (InvItemHeight[cursor] + 12) / 2, pCursCels, cursor, cw, 0);
 	}
 	if (gbHasScroll)
-		DrawSSlider();
+		DrawSSlider(x, y);
 }
 
 void STextESC()
@@ -1599,7 +1585,7 @@ void STextESC()
 
 void STextUp()
 {
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == STORE_LIST_FIRST) {
@@ -1619,7 +1605,7 @@ void STextUp()
 
 void STextDown()
 {
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 	DEBUG_ASSERT(stextsel != -1);
 
 	if (gbHasScroll && stextsel == stextdown) {
@@ -1643,7 +1629,7 @@ void STextRight()
 	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
 		return;
 	}
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 
 	do {
 		stextselx++;
@@ -1658,7 +1644,7 @@ void STextLeft()
 	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
 		return;
 	}
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 
 	do {
 		stextselx--;
@@ -1672,7 +1658,7 @@ void STextPageUp()
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
 		DEBUG_ASSERT(stextsidx == 0 || stextlines[stextsel]._sitemlist);
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 		stextsidx -= STORE_PAGE_ITEMS;
 		if (stextsidx < 0) {
 			stextsidx = 0;
@@ -1686,7 +1672,7 @@ void STextPageDown()
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
 		DEBUG_ASSERT(stextsmax == 0 || stextlines[stextsel]._sitemlist);
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 		stextsidx += STORE_PAGE_ITEMS;
 		if (stextsidx > stextsmax) {
 			stextsidx = stextsmax;
@@ -2431,7 +2417,7 @@ static void S_HealerEnter()
 	case STORE_HEALER_HEAL:
 		if (myplr._pHitPoints != myplr._pMaxHP) {
 			PlrFillHp(mypnum);
-			PlaySFX(IS_CAST8);
+			PlaySfx(IS_CAST8);
 		}
 		break;
 	case STORE_HEALER_BUY:
@@ -2514,44 +2500,22 @@ static void S_SIDEnter()
 
 static void S_TalkEnter()
 {
-	int i, tq, sn, la;
-
 	if (stextsel == 22) {
 		STextESC();
 		// StartStore(stextshold);
 		// stextsel = stextlhold;
 		return;
 	}
-
-	sn = 0;
-	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog)
-			sn++;
-	}
-	if (sn > 6) {
-		sn = 14 - (sn >> 1);
-		la = 1;
+	DEBUG_ASSERT(stextsel != -1);
+	int qn = -stextlines[stextsel]._sval;
+	if (qn < NUM_QUESTS) {
+		qn = Qtalklist[talker][qn];
 	} else {
-		sn = 15 - sn;
-		la = 2;
-	}
-
-	if (stextsel == sn - 2) {
 		assert(monsters[MAX_MINIONS + talker]._mType == talker);
 		SetRndSeed(monsters[MAX_MINIONS + talker]._mRndSeed); // TNR_SEED
-		tq = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
-		StartQTextMsg(tq);
-		return;
+		qn = RandRangeLow(GossipList[talker][0], GossipList[talker][1]);
 	}
-
-	for (i = 0; i < NUM_QUESTS; i++) {
-		if (quests[i]._qactive == QUEST_ACTIVE && Qtalklist[talker][i] != TEXT_NONE && quests[i]._qlog) {
-			if (sn == stextsel) {
-				StartQTextMsg(Qtalklist[talker][i]);
-			}
-			sn += la;
-		}
-	}
+	StartQTextMsg(qn);
 }
 
 static void S_TavernEnter()
@@ -2747,7 +2711,7 @@ void STextEnter()
 		ASSUME_UNREACHABLE
 		break;
 	}
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 }
 
 void TryStoreBtnClick()
@@ -2756,12 +2720,14 @@ void TryStoreBtnClick()
 
 	assert(!gbQtextflag);
 	if (stextsel != -1 && stextflag != STORE_WAIT) {
-		y = current_store_index();
+		int px = gbWidePanel ? LTPANEL_X : STORE_PNL_X;
+		int py = LTPANEL_Y;
+		y = current_store_index(px, py);
 		if (y == 0)
 			return;
 		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
 		//if (MousePos.x >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
-		if (MousePos.x >= LTPANEL_X + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
+		if (MousePos.x >= px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
 			assert(gbWidePanel);
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
 				if (y == STORE_SCROLL_DOWN) {
@@ -2808,7 +2774,7 @@ void TryStoreBtnClick()
 			//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
 			if (stextlines[y]._ssel) {
 				if (stextlines[y]._sitemlist) {
-					int x = MousePos.x - (LTPANEL_X + 7 + 60 - SCREEN_X);
+					int x = MousePos.x - (px + STORE_PNL_X_OFFSET + 60 - SCREEN_X);
 					if (x >= 0) {
 						x /= (2 * INV_SLOT_SIZE_PX);
 						if (x < lengthof(stextlines[y]._siCurs)) {
@@ -2837,5 +2803,7 @@ void ReleaseStoreBtn()
 	stextscrlubtn = -1;
 	stextscrldbtn = -1;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

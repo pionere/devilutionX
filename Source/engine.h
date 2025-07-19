@@ -39,15 +39,48 @@ inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 	return &pCelBuff[nCellStart];
 }
 
-inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize)
+inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, int* sy)
 {
-	const uint16_t* pFrameTable;
-	uint16_t nDataStart;
+	int dy, startblock, endblock, headerSize;
+	uint16_t nDataStart, nDataEnd;
 	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
+	// check if it is too high on the screen
+	dy = *sy - SCREEN_Y;
+	if (dy < 0) {
+		*nDataSize = 0;
+		return pRLEBytes;
+	}
+	// limit blocks to the top of the screen
+	endblock = ((unsigned)dy / CEL_BLOCK_HEIGHT + 1) * 2;
+	// limit blocks to the bottom of the screen
+	startblock = 0;
+	dy = dy - (SCREEN_HEIGHT + CEL_BLOCK_HEIGHT);
+	if (dy >= 0) {
+		startblock = ((unsigned)dy / CEL_BLOCK_HEIGHT + 1) * 2;
+		*sy -= startblock * (CEL_BLOCK_HEIGHT / 2);
+	}
+	
+	// check if it is too down on the screen
+	headerSize = SwapLE16(*(const uint16_t*)(&pRLEBytes[0]));
+	if (startblock >= headerSize) {
+		*nDataSize = 0;
+		return pRLEBytes;
+	}
 
-	pFrameTable = (const uint16_t*)&pRLEBytes[0];
-	nDataStart = SwapLE16(pFrameTable[0]);
-	*nDataSize -= nDataStart;
+	nDataStart = SwapLE16(*(const uint16_t*)(&pRLEBytes[startblock]));
+	if (endblock >= headerSize) {
+		nDataEnd = 0;
+	} else {
+		nDataEnd = SwapLE16(*(const uint16_t*)(&pRLEBytes[endblock]));
+	}
+
+	if (nDataEnd != 0) {
+		*nDataSize = nDataEnd - nDataStart;
+	} else if (nDataStart != 0) {
+		*nDataSize -= nDataStart;
+	} else {
+		*nDataSize = 0;
+	}
 
 	return &pRLEBytes[nDataStart];
 }
@@ -126,33 +159,6 @@ inline int RandRangeLow(int minVal, int maxVal)
 	return minVal + random_low(0, maxVal - minVal + 1);
 }
 
-#if defined(_MSC_VER)
-#define DIAG_PRAGMA(x)                                            __pragma(warning(x))
-#define DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode) DIAG_PRAGMA(push) DIAG_PRAGMA(disable:##msvc_errorcode)
-#define ENABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)  DIAG_PRAGMA(pop)
-//#define DISABLE_WARNING(gcc_unused,clang_unused,msvc_errorcode) __pragma(warning(suppress: msvc_errorcode))
-//#define ENABLE_WARNING(gcc_unused,clang_unused,msvc_unused) ((void)0)
-#else
-#define DIAG_STR(s)              #s
-#define DIAG_JOINSTR(x, y)       DIAG_STR(x ## y)
-#define DO_DIAG_PRAGMA(x)        _Pragma(#x)
-#define DIAG_PRAGMA(compiler, x) DO_DIAG_PRAGMA(compiler diagnostic x)
-#if defined(__clang__)
-# define DISABLE_WARNING(gcc_unused, clang_option, msvc_unused) DIAG_PRAGMA(clang, push) DIAG_PRAGMA(clang, ignored DIAG_JOINSTR(-W, clang_option))
-# define ENABLE_WARNING(gcc_unused, clang_option, msvc_unused)  DIAG_PRAGMA(clang, pop)
-#elif defined(__GNUC__)
-#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
-# define DISABLE_WARNING(gcc_option, clang_unused, msvc_unused) DIAG_PRAGMA(GCC, push) DIAG_PRAGMA(GCC, ignored DIAG_JOINSTR(-W, gcc_option))
-# define ENABLE_WARNING(gcc_option, clang_unused, msvc_unused)  DIAG_PRAGMA(GCC, pop)
-#else
-# define DISABLE_WARNING(gcc_option, clang_unused, msvc_unused) DIAG_PRAGMA(GCC, ignored DIAG_JOINSTR(-W, gcc_option))
-# define ENABLE_WARNING(gcc_option, clang_option, msvc_unused)  DIAG_PRAGMA(GCC, warning DIAG_JOINSTR(-W, gcc_option))
-#endif
-#else
-#define DISABLE_WARNING(gcc_unused, clang_unused, msvc_unused) ;
-#define ENABLE_WARNING(gcc_unused, clang_unused, msvc_unused)  ;
-#endif
-#endif
 /*
  * Copy string from src to dest.
  * The NULL terminated content of src is copied to dest.

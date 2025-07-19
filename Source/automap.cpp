@@ -38,6 +38,7 @@ unsigned AmLine16;
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
 #define COLOR_FRIEND (PAL8_BLUE + 0)
 #define COLOR_ENEMY  (PAL8_RED + 2)
+#define COLOR_DEAD   (PAL16_GRAY + 0)
 /** color for bright map lines (doors, stairs etc.) */
 #define COLOR_BRIGHT PAL8_YELLOW
 /** color for dim map lines/dots */
@@ -286,7 +287,7 @@ static void SearchAutomapItem()
 	x = AutoMapXOfs + ViewX;
 	y = AutoMapYOfs + ViewY;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
+	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {
@@ -327,98 +328,87 @@ static void SearchAutomapItem()
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
  */
-static void DrawAutomapPlr(int pnum, int playerColor)
+static void DrawAutomapPlr(int pnum, int sx, int sy)
 {
 	PlayerStruct* p;
-	int px, py;
 	int x, y;
 	unsigned d16 = AmLine16;
 
 	p = &plr;
-	px = p->_px;
-	py = p->_py;
-	px -= AutoMapXOfs + ViewX;
-	py -= AutoMapYOfs + ViewY;
 
-	//x = (p->_pxoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + (px - py) * d16 + SCREEN_WIDTH / 2 + SCREEN_X;
-	//y = (p->_pyoff * (int)AutoMapScale / 128 >> 1) + (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1) + VIEWPORT_HEIGHT / 2 + SCREEN_Y;
+	x = sx;
+	y = sy;
+	x += p->_pxoff * (int)AutoMapScale / 128 >> 1;
+	y += p->_pyoff * (int)AutoMapScale / 128 >> 1;
 
-	if (gbAutomapflag == AMM_NORMAL) {
-		x = PANEL_CENTERX(0);
-		y = PANEL_CENTERY(0);
-	} else {
-		x = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
-		y = SCREEN_Y + MAP_MINI_HEIGHT / 2;
-	}
-	x += ((p->_pxoff + ScrollInfo._sxoff) * (int)AutoMapScale / 128 >> 1) + (px - py) * d16;
-	y += ((p->_pyoff + ScrollInfo._syoff) * (int)AutoMapScale / 128 >> 1) + (px + py) * (d16 >> 1);
-
-	//y -= (d16 >> 1);
-
-	if (y < SCREEN_Y || y >= VIEWPORT_HEIGHT + SCREEN_Y || x < SCREEN_X || x >= SCREEN_WIDTH + SCREEN_X)
-		return;
+	y -= d16;
 
 	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
 	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
 	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
 
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
-	switch (p->_pdir) {
-	case DIR_N: {
-		DrawLine(x, y - d16, x, y, playerColor);
-		DrawLine(x, y - d16, x - d4, y - d8, playerColor);
-		DrawLine(x, y - d16, x + d4, y - d8, playerColor);
-	} break;
-	case DIR_NE: {
-		DrawLine(x, y, x + d16, y - d8, playerColor);
-		DrawLine(x + d4, y - d8, x + d16, y - d8, playerColor);
-		DrawLine(x + d16, y - d8, x + d16 - d4, y, playerColor);
-	} break;
-	case DIR_E: {
-		DrawLine(x, y, x + d16, y, playerColor);
-		DrawLine(x + d8, y - d4, x + d16, y, playerColor);
-		DrawLine(x + d8, y + d4, x + d16, y, playerColor);
-	} break;
-	case DIR_SE: {
-		DrawLine(x, y, x + d16, y + d8, playerColor);
-		DrawLine(x + d16 - d4, y, x + d16, y + d8, playerColor);
-		DrawLine(x + d4, y + d8, x + d16, y + d8, playerColor);
-	} break;
-	case DIR_S: {
-		DrawLine(x, y, x, y + d16, playerColor);
-		DrawLine(x, y + d16, x + d4, y + d8, playerColor);
-		DrawLine(x - d4, y + d8, x, y + d16, playerColor);
-	} break;
-	case DIR_SW: {
-		DrawLine(x - d16, y + d8, x, y, playerColor);
-		DrawLine(x - d16 + d4, y, x - d16, y + d8, playerColor);
-		DrawLine(x - d16, y + d8, x - d4, y + d8, playerColor);
-	} break;
-	case DIR_W: {
-		DrawLine(x - d16, y, x, y, playerColor);
-		DrawLine(x - d16, y, x - d8, y - d4, playerColor);
-		DrawLine(x - d16, y, x - d8, y + d4, playerColor);
-	} break;
-	case DIR_NW: {
-		DrawLine(x - d16, y - d8, x, y, playerColor);
-		DrawLine(x - d16, y - d8, x - d4, y - d8, playerColor);
-		DrawLine(x - d16, y - d8, x - d16 + d4, y, playerColor);
-	} break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+	if (p->_pHitPoints != 0) {
+		BYTE col = pnum == mypnum ? COLOR_PLAYER : (plr._pTeam == myplr._pTeam ? COLOR_FRIEND : COLOR_ENEMY);
+
+		switch (p->_pdir) {
+		case DIR_N: {
+			DrawLine(x, y - d16, x, y, col);
+			DrawLine(x, y - d16, x - d4, y - d8, col);
+			DrawLine(x, y - d16, x + d4, y - d8, col);
+		} break;
+		case DIR_NE: {
+			DrawLine(x, y, x + d16, y - d8, col);
+			DrawLine(x + d4, y - d8, x + d16, y - d8, col);
+			DrawLine(x + d16, y - d8, x + d16 - d4, y, col);
+		} break;
+		case DIR_E: {
+			DrawLine(x, y, x + d16, y, col);
+			DrawLine(x + d8, y - d4, x + d16, y, col);
+			DrawLine(x + d8, y + d4, x + d16, y, col);
+		} break;
+		case DIR_SE: {
+			DrawLine(x, y, x + d16, y + d8, col);
+			DrawLine(x + d16 - d4, y, x + d16, y + d8, col);
+			DrawLine(x + d4, y + d8, x + d16, y + d8, col);
+		} break;
+		case DIR_S: {
+			DrawLine(x, y, x, y + d16, col);
+			DrawLine(x, y + d16, x + d4, y + d8, col);
+			DrawLine(x - d4, y + d8, x, y + d16, col);
+		} break;
+		case DIR_SW: {
+			DrawLine(x - d16, y + d8, x, y, col);
+			DrawLine(x - d16 + d4, y, x - d16, y + d8, col);
+			DrawLine(x - d16, y + d8, x - d4, y + d8, col);
+		} break;
+		case DIR_W: {
+			DrawLine(x - d16, y, x, y, col);
+			DrawLine(x - d16, y, x - d8, y - d4, col);
+			DrawLine(x - d16, y, x - d8, y + d4, col);
+		} break;
+		case DIR_NW: {
+			DrawLine(x - d16, y - d8, x, y, col);
+			DrawLine(x - d16, y - d8, x - d4, y - d8, col);
+			DrawLine(x - d16, y - d8, x - d16 + d4, y, col);
+		} break;
+		default:
+			ASSUME_UNREACHABLE
+				break;
+		}
+	} else {
+		DrawLine(x - d8, y - d4, x + d8, y + d4, COLOR_DEAD);
+		DrawLine(x - d8, y + d4, x + d8, y - d4, COLOR_DEAD);
 	}
 }
 
 /**
  * @brief Returns the automap shape at the given coordinate.
  */
-static BYTE GetAutomapType(int x, int y, bool view)
+static BYTE GetAutomapType(int x, int y)
 {
-	if ((unsigned)x >= MAXDUNX || (unsigned)y >= MAXDUNY) {
-		return MAT_NONE;
-	}
-	if (view && !(dFlags[x][y] & BFLAG_EXPLORED)) {
+	// assert(IN_DUNGEON_AREA(x, y));
+	if (!(dFlags[x][y] & BFLAG_EXPLORED)) {
 		return MAT_NONE;
 	}
 
@@ -443,7 +433,7 @@ static void DrawAutomapContent()
 	int i, j, cells;
 	unsigned d64 = AmLine64;
 
-	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + VIEWPORT_HEIGHT)];
+	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
 	mapx = ViewX & ~1;
@@ -471,15 +461,13 @@ static void DrawAutomapContent()
 	//static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
 	//static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
 
-	// find an odd number of tiles which fits to the width
+	// find an odd number of tiles which fits to the screen
 	// assert(SCREEN_WIDTH >= d64);
 	if (gbAutomapflag == AMM_NORMAL)
-		cells = SCREEN_WIDTH;
+		cells = std::min(SCREEN_WIDTH, SCREEN_HEIGHT * 2);
 	else
 		cells = MAP_MINI_WIDTH;
 	cells = 2 * ((cells - d64) / (2 * d64)) + 1;
-	// make sure it fits to height as well
-	// assert(cells < 2 * (VIEWPORT_HEIGHT - (d64 >> 1)) / (2 * (d64 >> 1))) + 1);
 
 	/*if ((SCREEN_WIDTH / 2) % d64)
 		cells++;
@@ -495,8 +483,8 @@ static void DrawAutomapContent()
 
 	// calculate the center of the tile on the screen
 	if (gbAutomapflag == AMM_NORMAL) {
-		sx = PANEL_CENTERX(0);
-		sy = PANEL_CENTERY(0);
+		sx = SCREEN_CENTERX(0);
+		sy = SCREEN_CENTERY(0);
 	} else {
 		sx = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
 		sy = SCREEN_Y + MAP_MINI_HEIGHT / 2;
@@ -531,9 +519,28 @@ static void DrawAutomapContent()
 		int x = sx;
 
 		for (j = 0; j < cells; j++) { // foreach xcells
-			BYTE maptype = GetAutomapType(mapx, mapy, true);
-			if (maptype != MAT_NONE)
-				DrawAutomapTile(x, sy, maptype);
+			if (IN_DUNGEON_AREA(mapx, mapy)) {
+				BYTE maptype = GetAutomapType(mapx, mapy);
+				if (maptype != MAT_NONE)
+					DrawAutomapTile(x, sy, maptype);
+				int pnum;
+				BYTE flags = dFlags[mapx][mapy];
+				if (flags & BFLAG_DEAD_PLAYER) {
+					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+						if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
+							DrawAutomapPlr(pnum, x, sy);
+						}
+					}
+				}
+				pnum = dPlayer[mapx][mapy];
+				if (pnum > 0) {
+					pnum--;
+#if !INET_MODE
+					if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/)
+#endif
+						DrawAutomapPlr(pnum, x, sy);
+				}
+			}
 			SHIFT_GRID(mapx, mapy, 1, 0);
 			x += d32;
 		}
@@ -553,22 +560,9 @@ static void DrawAutomapContent()
 			sy += (d32 >> 2);
 		}
 	}
-
-	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pDunLevel == myplr._pDunLevel && plr._pActive && !plr._pLvlChanging) {
-			if (plr._pTeam == myplr._pTeam)
-				DrawAutomapPlr(pnum, pnum == mypnum ? COLOR_PLAYER : COLOR_FRIEND);
-#if INET_MODE
-			else
-#else
-			else if ((dFlags[plr._px][plr._py] & BFLAG_VISIBLE) || myplr._pInfraFlag)
-#endif
-				DrawAutomapPlr(pnum, COLOR_ENEMY);
-		}
-	}
 	//if (AutoMapShowItems)
 	//	SearchAutomapItem();
-	//gpBufEnd = &gpBuffer[BUFFER_WIDTH * (SCREEN_Y + SCREEN_HEIGHT)];
+	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 }
 
 void DrawAutomap()
@@ -588,7 +582,7 @@ void SetAutomapView(int xx, int yy)
 	// assert(IN_DUNGEON_AREA(xx, yy));
 	dFlags[xx][yy] |= BFLAG_EXPLORED;
 
-	BYTE maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy, false);
+	BYTE maptype = automaptype[dungeon[xx][yy]]; // GetAutomapType(xx, yy);
 
 	static_assert(DBORDERX != 0 && DBORDERY != 0, "SetAutomapView skips border checks.");
 	BYTE mapftr = maptype & MAT_TYPE;

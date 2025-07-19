@@ -29,7 +29,7 @@ void DrawPixel(int sx, int sy, BYTE col)
 	//if (sy < SCREEN_Y || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X)
 	//	return;
 
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	dst = &gpBuffer[BUFFERXY(sx, sy)];
 	//if (dst < gpBufEnd && dst > gpBufStart)
 		*dst = col;
 }
@@ -50,11 +50,11 @@ void DrawPixelSafe(int sx, int sy, BYTE col)
 	if (_gbRotateMap) {
 		if (sx < 0 || sx >= SCREEN_HEIGHT + SCREEN_Y || sy < SCREEN_X || sy >= SCREEN_WIDTH + SCREEN_X)
 			return;
-		dst = &gpBuffer[sy + BUFFER_WIDTH * sx];
+		dst = &gpBuffer[BUFFERXY(sy, sx)];
 	} else {
 		if (sy < 0 || sy >= SCREEN_HEIGHT + SCREEN_Y || sx < SCREEN_X || sx >= SCREEN_WIDTH + SCREEN_X)
 			return;
-		dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+		dst = &gpBuffer[BUFFERXY(sx, sy)];
 	}
 
 	if (dst < gpBufEnd && dst >= gpBufStart)
@@ -105,7 +105,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		dy++;
 		x1++;
 		// initialize the buffer-pointer
-		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
+		dst = &gpBuffer[BUFFERXY(x0, y0)];
 		while (true) {
 			*dst = col; // DrawPixel
 			d += dy;
@@ -145,7 +145,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 		dy++;
 		y1++;
 		// initialize the buffer-pointer
-		dst = &gpBuffer[x0 + BUFFER_WIDTH * y0];
+		dst = &gpBuffer[BUFFERXY(x0, y0)];
 		while (true) {
 			*dst = col; // DrawPixel
 			d += dx;
@@ -171,7 +171,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 /*void DrawRectTrans(int sx, int sy, int width, int height)
 {
 	int row, col;
-	BYTE* pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* pix = &gpBuffer[BUFFERXY(sx, sy)];
 	uint32_t mask;
 
 	for (row = height; row > 0; row--) {
@@ -206,7 +206,7 @@ void DrawLine(int x0, int y0, int x1, int y1, BYTE col)
 void DrawRectTrans(int sx, int sy, int width, int height, BYTE color)
 {
 	int y, x;
-	BYTE* pix = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* pix = &gpBuffer[BUFFERXY(sx, sy)];
 
 	for (y = 0; y < height; y++) {
 		for (x = width; x > 0; x -= 2, pix += 2) {

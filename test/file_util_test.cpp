@@ -38,7 +38,7 @@ TEST(FileUtil, GetFileSize)
 	WriteDummyFile(path.c_str(), 42);
 	std::uintmax_t result;
 	ASSERT_TRUE(GetFileSize(path.c_str(), &result));
-	EXPECT_EQ(result, 42);
+	EXPECT_EQ(result, 42u);
 }
 
 TEST(FileUtil, FileExists)
@@ -55,10 +55,10 @@ TEST(FileUtil, ResizeFile)
 	WriteDummyFile(path.c_str(), 42);
 	std::uintmax_t size;
 	ASSERT_TRUE(GetFileSize(path.c_str(), &size));
-	EXPECT_EQ(size, 42);
+	EXPECT_EQ(size, 42u);
 	ASSERT_TRUE(ResizeFile(path.c_str(), 30));
 	ASSERT_TRUE(GetFileSize(path.c_str(), &size));
-	EXPECT_EQ(size, 30);
+	EXPECT_EQ(size, 30u);
 }
 
 } // namespace

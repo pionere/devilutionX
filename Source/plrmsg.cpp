@@ -303,7 +303,7 @@ void StartPlrMsg()
 	gbTalkflag = true;
 	SDL_StartTextInput();
 	plr_msgs[PLRMSG_COUNT].str[0] = '\0';
-	// gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
 	sguCursPos = 0;
 	sguSelPos = 0;
@@ -311,14 +311,19 @@ void StartPlrMsg()
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
-void SetupPlrMsg(int pnum, bool shift)
+/*
+ * @brief Setup a new chat message.
+ *   If shift is pressed:  the message is prepared to be sent to the whole team of the player
+ *            is released: the message is prepared to be sent to the given player
+ */
+void SetupPlrMsg(int pnum)
 {
 	const char* text;
 	int param;
 
 	if (!gbTalkflag)
 		StartPlrMsg();
-	if (!shift) {
+	if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 		text = "/p%d ";
 		param = pnum;
 	} else {
@@ -333,10 +338,15 @@ void SetupPlrMsg(int pnum, bool shift)
 	sgpCurMsg = &plr_msgs[PLRMSG_COUNT];
 }
 
+/*
+ * @brief Show information about the current game to the player.
+ *   If shift is pressed:  the difficulty of the game is shown to the player
+ *            is released: the name and the password is shown to the player in multiplayer games
+ */
 void VersionPlrMsg()
 {
 	EventPlrMsg(gszProductName);
-	if (!(SDL_GetModState() & KMOD_SHIFT)) {
+	if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 		if (!IsLocalGame) {
 			const char *szGameName, *szGamePassword;
 			SNetGetGameInfo(&szGameName, &szGamePassword);
@@ -347,8 +357,7 @@ void VersionPlrMsg()
 				EventPlrMsg(desc);
 			}
 		}
-	}
-	else {
+	} else {
 		const char* difficulties[3] = { "Normal", "Nightmare", "Hell" };
 		EventPlrMsg(difficulties[gnDifficulty]);
 	}
@@ -358,7 +367,7 @@ void StopPlrMsg()
 {
 	gbTalkflag = false;
 	SDL_StopTextInput();
-	//gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	// sguCursPos = 0;
 	// sguSelPos = 0;
 	// sgbSelecting = false;
@@ -410,11 +419,13 @@ static void SendPlrMsg()
 	}
 
 	if (*msg != '\0') {
-		SStrCopy(gbNetMsg, msg, sizeof(gbNetMsg));
-		NetSendCmdString(pmask);
+		TMsgString msgStr;
+		int len = SStrCopy(msgStr.str, msg, sizeof(msgStr.str));
+		msgStr.bsLen = len;
+		NetSendCmdString(&msgStr, pmask);
 
 		for (i = 0; i < lengthof(sgszTalkSave); i++) {
-			if (!strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
+			if (!SDL_strcmp(sgszTalkSave[i], &plr_msgs[PLRMSG_COUNT].str[0]))
 				break;
 		}
 		static_assert(lengthof(sgszTalkSave) == 8, "Table sgszTalkSave does not work in SendPlrMsg.");
@@ -477,14 +488,15 @@ void plrmsg_CatToText(const char* inBuf)
 	}
 	char* text = plr_msgs[PLRMSG_COUNT].str;
 	const unsigned maxlen = MAX_SEND_STR_LEN;
-	// assert(maxLen - cp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
-	SStrCopy(&text[sp], output, maxlen - sp);
+	char tmpstr[MAX_SEND_STR_LEN];
+	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
+	int len = SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
-	sp = strlen(text);
+	// assert(strlen(text) == len + sp);
+	sp += len;
 	sguCursPos = sp;
 	sguSelPos = sp;
-	SStrCopy(&text[sp], tempstr, maxlen - sp);
+	SStrCopy(&text[sp], tmpstr, maxlen - sp);
 
 	plrmsg_WordWrap(&plr_msgs[PLRMSG_COUNT]);
 }
@@ -645,16 +657,18 @@ bool plrmsg_presskey(int vkey)
 	SDL_Keymod mod = SDL_GetModState();
 	switch (vkey) {
 #ifndef USE_SDL1
-	case DVL_VK_MBUTTON:
 	case DVL_VK_V:
-		if (mod & KMOD_CTRL) {
-			char* clipboard = SDL_GetClipboardText();
-			if (clipboard != NULL) {
-				plrmsg_CatToText(clipboard);
-				SDL_free(clipboard);
-			}
+		if (!(mod & KMOD_CTRL)) {
+			break;
 		}
-		break;
+		// fall-through
+	case DVL_VK_MBUTTON: {
+		char* clipboard = SDL_GetClipboardText();
+		if (clipboard != NULL) {
+			plrmsg_CatToText(clipboard);
+			SDL_free(clipboard);
+		}
+	} break;
 	case DVL_VK_C:
 	case DVL_VK_X:
 		if (!(mod & KMOD_CTRL)) {

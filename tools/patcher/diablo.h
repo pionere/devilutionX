@@ -16,6 +16,7 @@ extern "C" {
 extern POS32 MousePos;
 extern bool gbWasUiInit;
 extern bool gbSndInited;
+constexpr bool gbRunGame = false;
 
 extern BYTE* pMicrosCel;
 

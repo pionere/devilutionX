@@ -3,12 +3,14 @@
 #include "DiabloUI/diabloui.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_net.h"
-//#include "all.h"
-#include <algorithm>
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include <algorithm>
+//#include "../gameui.h"
+//#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+DISABLE_SPEED_OPTIMIZATION
 
 bool selconn_bMulti = false;
 int provider;
@@ -31,6 +33,7 @@ static void SelconnEsc()
 static void SelconnFocus(unsigned index)
 {
 	int numplayers = MAX_PLRS;
+	const char* txt;
 	switch (gUIListItems[index]->m_value) {
 #ifdef TCPIP
 	case SELCONN_TCP:
@@ -39,34 +42,36 @@ static void SelconnFocus(unsigned index)
 	case SELCONN_TCPS:
 	case SELCONN_TCPDS:
 #endif
-		copy_cstr(selconn_Description, "All computers must be connected to a TCP-compatible network.");
+		txt = "All computers must be connected to a TCP-compatible network.";
 		//numplayers = MAX_PLRS;
 		break;
 #endif
 #ifdef ZEROTIER
 	case SELCONN_ZT:
-		copy_cstr(selconn_Description, "All computers must be connected to the internet.");
+		txt = "All computers must be connected to the internet.";
 		//numplayers = MAX_PLRS;
 		break;
 #endif
 	case SELCONN_LOOPBACK:
-		snprintf(selconn_Description, sizeof(selconn_Description), "Play by yourself with no network exposure.");
+		txt = "Play by yourself with no network exposure.";
 		numplayers = 1;
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selconn_Description, sizeof(selconn_Description), txt);
+	ENABLE_WARNING(format-security, format-security, 4774)
 	snprintf(selconn_MaxPlayers, sizeof(selconn_MaxPlayers), "Players Supported: %d", numplayers);
-	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	WordWrapArtStr(selconn_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static void SelconnLoad()
 {
 	int numOptions = 0;
 
-	LoadBackgroundArt("ui_art\\selconn.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 #ifndef HOSTONLY
 	gUIListItems.push_back(new UiListItem("Loopback", SELCONN_LOOPBACK));
 	numOptions++;
@@ -90,10 +95,14 @@ static void SelconnLoad()
 #endif // NOHOSTING
 #endif // TCPIP
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELCONN_TITLE_TOP, PANEL_WIDTH, 35 };
+	gUiItems.push_back(new UiTextBox({ SELCONN_LPANEL_LEFT - BOXBORDER_WIDTH, SELCONN_PNL_TOP - BOXBORDER_WIDTH, SELCONN_LPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELCONN_RPANEL_LEFT - BOXBORDER_WIDTH, SELCONN_PNL_TOP - BOXBORDER_WIDTH, SELCONN_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELCONN_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
+
+	SDL_Rect rect1 = { 0, SELCONN_TITLE_TOP, SCREEN_WIDTH, 35 };
 	gUiItems.push_back(new UiText("Multi Player Game", rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELCONN_LPANEL_LEFT + 10, SELCONN_PNL_TOP, DESCRIPTION_WIDTH, SELCONN_HEADER_HEIGHT };
@@ -124,7 +133,7 @@ static void SelconnLoad()
 
 static void SelconnFree()
 {
-	FreeBackgroundArt();
+	// FreeBackgroundArt();
 	UiClearListItems();
 
 	UiClearItems();
@@ -163,5 +172,7 @@ bool UiSelectProvider(bool bMulti)
 	SNetInitializeProvider(provider);
 	return true;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

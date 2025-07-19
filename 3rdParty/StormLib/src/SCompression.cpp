@@ -282,8 +282,10 @@ static void Compress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBu
         STORM_FREE(work_buf);
     }
 }
-#endif /* FULL */
 static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer)
+#else
+static int Decompress_PKLIB(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int cbInBuffer)
+#endif /* FULL */
 {
 #ifdef FULL
     TDataInfo Info;                             // Data information
@@ -293,7 +295,11 @@ static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
 
     // Handle no-memory condition
     if(work_buf == NULL)
+#ifdef FULL
         return 0;
+#else
+        return ERROR_SUCCESS + 1;
+#endif
 
     // Fill data information structure
 #ifdef FULL
@@ -305,15 +311,16 @@ static int Decompress_PKLIB(void * pvOutBuffer, int * pcbOutBuffer, void * pvInB
 
     // Do the decompression
     if (explode(ReadInputData, WriteOutputData, work_buf, &Info) == CMP_NO_ERROR)
-#else
-    TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer, *pcbOutBuffer);
-    // Do the decompression
-    if (explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &Info) == CMP_NO_ERROR)
-#endif
         nResult = 1;
 
     // Give away the number of decompressed bytes
     *pcbOutBuffer = (int)(Info.pbOutBuff - (unsigned char *)pvOutBuffer);
+#else
+    TDataInfo Info = TDataInfo((unsigned char *)pvInBuffer, cbInBuffer, (unsigned char *)pvOutBuffer, cbOutBuffer);
+    // Do the decompression
+    nResult = explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &Info);
+    assert(CMP_NO_ERROR == ERROR_SUCCESS);
+#endif
     STORM_FREE(work_buf);
     return nResult;
 }
@@ -699,7 +706,7 @@ int WINAPI SCompImplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
 /*   SCompExplode                                                            */
 /*                                                                           */
 /*****************************************************************************/
-
+#ifdef FULL
 int WINAPI SCompExplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffer, int cbInBuffer)
 {
     int cbOutBuffer;
@@ -733,7 +740,13 @@ int WINAPI SCompExplode(void * pvOutBuffer, int * pcbOutBuffer, void * pvInBuffe
     *pcbOutBuffer = cbOutBuffer;
     return 1;
 }
-
+#else
+int SCompExplode(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int cbInBuffer)
+{
+    // Perform decompression
+    return Decompress_PKLIB(pvOutBuffer, cbOutBuffer, pvInBuffer, cbInBuffer);
+}
+#endif
 /*****************************************************************************/
 /*                                                                           */
 /*   SCompCompress                                                           */
