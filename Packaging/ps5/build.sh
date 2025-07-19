@@ -29,6 +29,7 @@ cp "$BUILD_DIR"/devilx.mpq "$BUILD_DIR"/DevilutionX/
 cp "$BUILD_DIR"/../Packaging/resources/listfiles.txt "$BUILD_DIR"/DevilutionX/
 cp "$BUILD_DIR"/../Packaging/resources/mpqfiles.txt "$BUILD_DIR"/DevilutionX/
 cp "$BUILD_DIR"/devilutionx "$BUILD_DIR"/DevilutionX/devilutionx.elf
+cp "$BUILD_DIR"/devil_patcher "$BUILD_DIR"/DevilutionX/devil_patcher.elf
 
 # Let github actions do this?
 cd "$BUILD_DIR"
