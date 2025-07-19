@@ -104,7 +104,7 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iPLDamMod = savedItem->viPLDamMod;
 
 	is->_iPLToBlk = savedItem->viPLToBlk;
-	is->_iPLAlign0 = savedItem->viPLAlign0;
+	is->_iPLAtkSpdMod = savedItem->viPLAtkSpdMod;
 	is->_iPLAbsAnyHit = savedItem->viPLAbsAnyHit;
 	is->_iPLAbsPhyHit = savedItem->viPLAbsPhyHit;
 
@@ -980,7 +980,7 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viPLDamMod = is->_iPLDamMod;
 
 	itemSave->viPLToBlk = is->_iPLToBlk;
-	itemSave->viPLAlign0 = is->_iPLAlign0;
+	itemSave->viPLAtkSpdMod = is->_iPLAtkSpdMod;
 	itemSave->viPLAbsAnyHit = is->_iPLAbsAnyHit;
 	itemSave->viPLAbsPhyHit = is->_iPLAbsPhyHit;
 

@@ -273,7 +273,7 @@ typedef struct ItemStruct {
 	int _iPLHP;
 	int _iPLDamMod;
 	BYTE _iPLToBlk;
-	int8_t _iPLAlign0;
+	int8_t _iPLAtkSpdMod;
 	int8_t _iPLAbsAnyHit;
 	int8_t _iPLAbsPhyHit;
 	int8_t _iPLLight;
@@ -458,7 +458,7 @@ typedef struct PlayerStruct {
 	BYTE _pAlign_B1;
 	int _pIAbsAnyHit; // absorbed hit damage
 	int _pIAbsPhyHit; // absorbed physical hit damage
-	BYTE _pIBaseAttackSpeed;
+	int8_t _pIBaseAttackSpeed;
 	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
@@ -1266,7 +1266,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viPLHP;
 	LE_INT32 viPLDamMod;
 	BYTE viPLToBlk;
-	int8_t viPLAlign0;
+	int8_t viPLAtkSpdMod;
 	int8_t viPLAbsAnyHit;
 	int8_t viPLAbsPhyHit;
 	int8_t viPLLight;

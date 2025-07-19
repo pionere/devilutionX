@@ -2149,13 +2149,28 @@ static void PlrDoAttack(int pnum)
 
 static void PlrDoRangeAttack(int pnum)
 {
-	bool stepAnim;
+	bool stepAnim = false;
 	int numarrows, sx, sy, dx, dy;
 
 	plr._pVar8++;         // RATTACK_TICK
 	switch (plr._pVar4) { // RATTACK_SPEED
+	case -4:
+		if ((plr._pVar8 & 1) == 1)
+			plr._pAnimCnt--;
+		break;
+	case -3:
+		if ((plr._pVar8 % 3u) == 0)
+			plr._pAnimCnt--;
+		break;
+	case -2:
+		if ((plr._pVar8 & 3) == 2)
+			plr._pAnimCnt--;
+		break;
+	case -1:
+		if ((plr._pVar8 & 7) == 4)
+			plr._pAnimCnt--;
+		break;
 	case 0:
-		stepAnim = false;
 		break;
 	case 1:
 		stepAnim = (plr._pVar8 & 7) == 4;

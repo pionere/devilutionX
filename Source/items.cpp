@@ -248,30 +248,6 @@ inline static BYTE BaseCastSpeed(unsigned flags)
 	return res;
 }
 
-/*
- * Calculate the base attack speed from attack-speed modifiers.
- *  ISPL_QUICKATTACK:   +1
- *  ISPL_FASTATTACK:    +2
- *  ISPL_FASTERATTACK:  +3
- *  ISPL_FASTESTATTACK: +4
- */
-inline static BYTE BaseAttackSpeed(unsigned flags)
-{
-	BYTE res = 0;
-
-	if (flags & ISPL_FASTESTATTACK) {
-		res = 4;
-	} else if (flags & ISPL_FASTERATTACK) {
-		res = 3;
-	} else if (flags & ISPL_FASTATTACK) {
-		res = 2;
-	} else if (flags & ISPL_QUICKATTACK) {
-		res = 1;
-	}
-
-	return res;
-}
-
 static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
 	PlayerStruct* p;
@@ -314,6 +290,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	BOOL idi = TRUE; // items are identified
 
+	int asb = 0;    // bonus to attack speed
 	int tac = 0;    // armor class
 	int btohit = 0; // bonus chance to hit
 	int btoblk = 0; // bonus chance to block
@@ -388,6 +365,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				lr += pi->_iPLLR;
 				mr += pi->_iPLMR;
 				ar += pi->_iPLAR;
+				asb += pi->_iPLAtkSpdMod;
 				absAnyHit += pi->_iPLAbsAnyHit;
 				absPhyHit += pi->_iPLAbsPhyHit;
 				lrad += pi->_iPLLight;
@@ -469,9 +447,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	// calculate (hit-)recovery speed
 	plr._pIRecoverySpeed = RecoverySpeed(iflgs);
-
-	// calculate base attack speed
-	plr._pIBaseAttackSpeed = BaseAttackSpeed(iflgs);
 
 	// calculate base cast speed
 	plr._pIBaseCastSpeed = BaseCastSpeed(iflgs);
@@ -677,6 +652,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			maxpc = maxpc * 5 / 8;
 		//}
 		cc >>= 1;
+		asb >>= 1;
 	}
 	plr._pISlMinDam = minsl;
 	plr._pISlMaxDam = maxsl;
@@ -685,6 +661,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIPcMinDam = minpc;
 	plr._pIPcMaxDam = maxpc;
 	plr._pICritChance = cc;
+	plr._pIBaseAttackSpeed = asb;
 
 	// calculate block chance
 	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? btoblk + std::min(sadd, dadd) : 0;
@@ -1576,12 +1553,7 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iPLFlags |= ISPL_PENETRATE_PHYS;
 		break;
 	case IPL_FASTATTACK:
-		static_assert((ISPL_QUICKATTACK & (ISPL_QUICKATTACK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like attack-speed modifiers.");
-		static_assert(ISPL_QUICKATTACK == ISPL_FASTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers I.");
-		static_assert(ISPL_FASTATTACK == ISPL_FASTERATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers II.");
-		static_assert(ISPL_FASTERATTACK == ISPL_FASTESTATTACK / 2, "SaveItemPower depends on ordered attack-speed modifiers III.");
-		// assert((unsigned)(r - 1) < 4);
-			is->_iPLFlags |= ISPL_QUICKATTACK << (r - 1);
+		is->_iPLAtkSpdMod = r;
 		break;
 	case IPL_FASTRECOVER:
 		static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
@@ -3069,15 +3041,10 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		copy_cstr(tempstr, "penetrates target's armor");
 		break;
 	case IPL_FASTATTACK:
-		if (is->_iPLFlags & ISPL_FASTESTATTACK)
-			copy_cstr(tempstr, "fastest attack");
-		else if (is->_iPLFlags & ISPL_FASTERATTACK)
-			copy_cstr(tempstr, "faster attack");
-		else if (is->_iPLFlags & ISPL_FASTATTACK)
-			copy_cstr(tempstr, "fast attack");
-		else // if (is->_iPLFlags & ISPL_QUICKATTACK)
-			copy_cstr(tempstr, "quick attack");
-		break;
+	{
+		int v = (is->_iPLAtkSpdMod < 0 ? 12 : 24) * is->_iPLAtkSpdMod;
+		snprintf(tempstr, sizeof(tempstr), "%+d%% attack speed", v);
+	} break;
 	case IPL_FASTRECOVER:
 		if (is->_iPLFlags & ISPL_FASTESTRECOVER)
 			copy_cstr(tempstr, "fastest hit recovery");
