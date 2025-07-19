@@ -703,7 +703,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 
 	if (pnum == mypnum)
-		gbRedrawFlags = REDRAW_RECALC_FLASKS; // gbRedrawFlags |= REDRAW_RECALC_FLASKS;
+		gbRedrawFlags = REDRAW_RECALC_FLASKS; // gbRedrawFlags |= REDRAW_RECALC_FLASKS | REDRAW_SPELL_ICON;
 }
 
 void CalcPlrSpells(int pnum)
@@ -1450,6 +1450,7 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		break;
 	case IPL_SKILLLVL:
 		is->_iPLSkillLvl = r;
+		static_assert(NUM_SPELLS < UINT8_MAX, "Skill-index can not be stored in a BYTE field.");
 		is->_iPLSkill = GetItemSpell();
 		break;
 	case IPL_SKILLLEVELS:
@@ -1508,10 +1509,6 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
 		is->_iDurability = is->_iMaxDur = is->_iMaxDur + r2;
-		break;
-	case IPL_CRYSTALLINE:
-		is->_iPLDam = r * 2;
-		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_INDESTRUCTIBLE:
 		is->_iDurability = is->_iMaxDur = DUR_INDESTRUCTIBLE;
@@ -1601,6 +1598,10 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		break;
 	case IPL_ACMOD:
 		is->_iAC += r;
+		break;
+	case IPL_CRYSTALLINE:
+		is->_iPLDam = r * 2;
+		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_MANATOLIFE:
 		is->_iPLFlags |= ISPL_MANATOLIFE;
