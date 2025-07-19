@@ -16,10 +16,10 @@ jobs:
         include:
           - name: diablo
             cmakeargs: '-DUSE_PATCH=OFF'
-            artifact: 'diablo-push-macp.dmg'
+            artifact: 'diablo-push-ps5.zip'
           - name: hellfire+patch
             cmakeargs: '-DHELLFIRE=ON'
-            artifact: 'hellfire-push-macp.dmg'
+            artifact: 'hellfire-push-ps5p.zip'
 
     steps:
     - name: Checkout
