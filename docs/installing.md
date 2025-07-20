@@ -140,9 +140,6 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 **Requires Playstation 4 capable of running homebrew**
 
-- Install the downloaded pkg file
-- Copy the MPQ files (e.g., using ftp) to `/user/data/diasurgical/devilution/`
-
 [PS4 manual](/docs/manual/platforms/ps4.md)
 
 </details>
