@@ -16,16 +16,18 @@ extern int numthemes;
 extern int zharlib;
 extern ThemeStruct themes[MAXTHEMES];
 
+/**
+ * @brief InitLvlThemes resets the global variables of the theme rooms.
+ */
 void InitLvlThemes();
+
+/**
+ * @brief InitThemes marks theme rooms as populated and selects their type.
+ */
 void InitThemes();
 
 /**
- * @brief HoldThemeRooms marks theme rooms as populated.
- */
-void HoldThemeRooms();
-
-/**
- * CreateThemeRooms adds thematic elements to rooms.
+ * @brief CreateThemeRooms adds thematic elements to rooms.
  */
 void CreateThemeRooms();
 

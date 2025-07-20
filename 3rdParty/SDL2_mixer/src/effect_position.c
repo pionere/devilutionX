@@ -33,25 +33,6 @@
 #define MIX_INTERNAL_EFFECT__
 #include "effects_internal.h"
 
-#ifndef FULL
-
-#ifdef __SSE2__
-#define HAVE_SSE2_INTRINSICS
-#endif
-
-#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
-#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
-#endif
-
-/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
-#ifndef NEED_SCALAR_CONVERTER_FALLBACKS
-#define NEED_SCALAR_CONVERTER_FALLBACKS 1
-#endif
-
-#endif // FULL
-
 /* profile code:
     #include <sys/time.h>
     #include <unistd.h>
@@ -762,9 +743,9 @@ static void SDLCALL _Eff_position_u16lsb_c6(int chan, void *stream, int len, voi
 #ifdef FULL // FIX_EFF
 static void SDLCALL _Eff_position_s16lsb(int chan, void *stream, int len, void *udata)
 #else
-//static_assert(SDL_MAX_SINT16 * MIX_MAX_POS_EFFECT * MIX_MAX_VOLUME <= SDL_MAX_SINT32, "Volume might overflow when the effects are calculated.");
+SDL_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_MIX_MAX_VOLUME, SDL_MAX_SINT16 * MIX_MAX_POS_EFFECT * MIX_MAX_VOLUME <= SDL_MAX_SINT32);
 #define ADJUST_SIDE_VOLUME(s, v) (s = (s*v)/(MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT))
-static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* udata)
+static SDL_bool _Eff_position_s16lsb(void* stream, unsigned len, void* udata)
 #endif
 {
     /* 16 signed bits (lsb) * 2 channels. */
@@ -784,9 +765,10 @@ static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* u
     //if (left_f < 1.0f / SDL_MAX_SINT16 && right_f < 1.0f / SDL_MAX_SINT16)
     //    return SDL_FALSE;
     int voll, volr;
-    const int left = channel->effect.left_vol * channel->volume;
-    const int right = channel->effect.right_vol * channel->volume;
-    if (left == 0 && right == 0)
+    const int volume = ((Mix_Channel*)udata)->volume;
+    const int left = channel->effect.left_vol * volume;
+    const int right = channel->effect.right_vol * volume;
+    if (volume == 0)
         return SDL_FALSE;
 #endif
 #if 0
@@ -836,32 +818,49 @@ static SDL_bool SDLCALL _Eff_position_s16lsb(void* stream, unsigned len, void* u
     }
     return SDL_TRUE;
 }
-#ifdef HAVE_SSE2_INTRINSICS
-static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
+#ifdef SDL_SSE2_INTRINSICS
+static SDL_bool SDL_TARGETING("sse2") _Eff_position_s16lsb_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
     Mix_Channel* channel = (Mix_Channel*)udata;
-    int left = channel->effect.left_vol * channel->volume;
-    int right = channel->effect.right_vol * channel->volume;
-    if (left == 0 && right == 0)
+    const int volume = ((Mix_Channel*)udata)->volume;
+    int left = channel->effect.left_vol * volume;
+    int right = channel->effect.right_vol * volume;
+    if (volume == 0)
         return SDL_FALSE;
 
-    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_SSE2 expects MIX_MAX_VOLUME to be a power of 2.");
-    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_SSE2 expects MIX_MAX_POS_EFFECT to be a power of 2.");
-    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_SSE2 expects MIX_MAX_VOLUME to be low.");
-    left *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
-    right *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
-
-    __m128i ma = _mm_set1_epi16(left);
-    __m128i mb = _mm_set1_epi16(right);
-    __m128i mm = _mm_unpacklo_epi16(ma, mb);
+#if 1
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_SSE2_MIX_MAX_VOLUME, (MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0);
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_SSE2_MIX_MAX_POS_EFFECT, (MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0);
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_SSE2_low, (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 15));
+    left *= (1 << 15) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
+    right *= (1 << 15) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
+    if ((int16_t)left < 0) {
+        left = INT16_MAX;
+    }
+    if ((int16_t)right < 0) {
+        right = INT16_MAX;
+    }
+#endif
+    __m128i mm = _mm_set1_epi32(left | (right << 16));
 
     while (len >= 16) {
         len -= 16;
         __m128i aa = _mm_loadu_si128((const __m128i*)ptr);
-        __m128i bb = _mm_mulhi_epi16(aa, mm);
-        _mm_storeu_si128(ptr, bb);
+#if 1
+        __m128i sm = _mm_mulhi_epi16(aa, mm);
+        __m128i cc = _mm_slli_epi16(sm, 1);
+#else
+        __m128i lo = _mm_mullo_epi16(aa, mm);
+        __m128i hi = _mm_mulhi_epi16(aa, mm);
+        __m128i c0 = _mm_unpacklo_epi16(lo, hi);
+        __m128i c1 = _mm_unpackhi_epi16(lo, hi);
+        __m128i d0 = _mm_srai_epi32(c0, 10 + 4);
+        __m128i d1 = _mm_srai_epi32(c1, 10 + 4);
+        __m128i cc = _mm_packs_epi32(d0, d1);
+#endif
+        _mm_storeu_si128((__m128i*)ptr, cc);
         ptr += 8;
     }
 
@@ -870,33 +869,54 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_SSE2(void* stream, unsigned len, vo
     }
     return SDL_TRUE;
 }
-#endif // HAVE_SSE2_INTRINSICS
-#ifdef __AVX__
-static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, void* udata)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static SDL_bool SDL_TARGETING("avx2") _Eff_position_s16lsb_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
     Mix_Channel* channel = (Mix_Channel*)udata;
-    int left = channel->effect.left_vol * channel->volume;
-    int right = channel->effect.right_vol * channel->volume;
-    if (left == 0 && right == 0)
+    const int volume = ((Mix_Channel*)udata)->volume;
+    int left = channel->effect.left_vol * volume;
+    int right = channel->effect.right_vol * volume;
+    if (volume == 0)
         return SDL_FALSE;
 
-    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be a power of 2.");
-    //static_assert((MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0, "_Eff_position_s16lsb_AVX expects MIX_MAX_POS_EFFECT to be a power of 2.");
-    //static_assert((MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 16), "_Eff_position_s16lsb_AVX expects MIX_MAX_VOLUME to be low.");
-    left *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
-    right *= (1 << 16) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
+#if 1
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_AVX2_MIX_MAX_VOLUME, (MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0);
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_AVX2_MIX_MAX_POS_EFFECT, (MIX_MAX_POS_EFFECT & (MIX_MAX_POS_EFFECT - 1)) == 0);
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_AVX2_low, (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT) <= (1 << 15));
+    left *= (1 << 15) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
+    right *= (1 << 15) / (MIX_MAX_VOLUME * MIX_MAX_POS_EFFECT);
+    if ((int16_t)left < 0) {
+        left = INT16_MAX;
+    }
+    if ((int16_t)right < 0) {
+        right = INT16_MAX;
+    }
+#else
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_AVX2_MIX_MAX_VOLUME, MIX_MAX_VOLUME == (1 << 10));
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_position_s16lsb_AVX2_MIX_MAX_POS_EFFECT, MIX_MAX_POS_EFFECT == (1 << 4));
+#endif
 
-    __m256i ma = _mm256_set1_epi16(left);
-    __m256i mb = _mm256_set1_epi16(right);
-    __m256i mm = _mm256_unpacklo_epi16(ma, mb);
+    __m256i mm = _mm256_set1_epi32(left | (right << 16));
 
     while (len >= 32) {
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
-        __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm_storeu_si256(ptr, bb);
+#if 1
+        __m256i sm = _mm256_mulhi_epi16(aa, mm);
+        __m256i cc = _mm256_slli_epi16(sm, 1);
+#else
+        __m256i lo = _mm256_mullo_epi16(aa, mm);
+        __m256i hi = _mm256_mulhi_epi16(aa, mm);
+        __m256i c0 = _mm256_unpacklo_epi16(lo, hi);
+        __m256i c1 = _mm256_unpackhi_epi16(lo, hi);
+        __m256i d0 = _mm256_srai_epi32(c0, 10 + 4);
+        __m256i d1 = _mm256_srai_epi32(c1, 10 + 4);
+        __m256i cc = _mm256_packs_epi32(d0, d1);
+#endif
+        _mm256_storeu_si256((__m256i*)ptr, cc);
         ptr += 16;
     }
 
@@ -905,7 +925,7 @@ static SDL_bool SDLCALL _Eff_position_s16lsb_AVX(void* stream, unsigned len, voi
     }
     return SDL_TRUE;
 }
-#endif // __AVX__
+#endif // SDL_AVX2_INTRINSICS
 #define ADJUST_VOLUME(s, v) (s = (s*v)/MIX_MAX_VOLUME)
 static SDL_bool _Eff_volume_s16lbs(void* stream, unsigned len, void* udata)
 {
@@ -925,8 +945,8 @@ static SDL_bool _Eff_volume_s16lbs(void* stream, unsigned len, void* udata)
     }
     return SDL_TRUE;
 }
-#ifdef HAVE_SSE2_INTRINSICS
-static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
+#ifdef SDL_SSE2_INTRINSICS
+static SDL_bool SDL_TARGETING("sse2") _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -936,21 +956,36 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
     if (volume == MIX_MAX_VOLUME)
         return SDL_TRUE;
 
-    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_volume_s16lbs_SSE2 expects MIX_MAX_VOLUME to be a power of 2.");
-    //static_assert(MIX_MAX_VOLUME <= (1 << 16), "_Eff_volume_s16lbs_SSE2 expects MIX_MAX_VOLUME to be low.");
-    volume *= (1 << 16) / MIX_MAX_VOLUME;
-
+#if 1
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_volume_s16lbs_SSE2_MIX_MAX_VOLUME, (MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0);
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_volume_s16lbs_SSE2_low, MIX_MAX_VOLUME <= (1 << 15));
+    volume *= (1 << 15) / MIX_MAX_VOLUME;
+#else
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_volume_s16lbs_SSE2_MIX_MAX_VOLUME, MIX_MAX_VOLUME == (1 << 10));
+#endif
     __m128i mm = _mm_set1_epi16(volume);
 
     while (len >= 16) {
         len -= 16;
         __m128i aa = _mm_loadu_si128((const __m128i*)ptr);
-        __m128i bb = _mm_mulhi_epi16(aa, mm);
-        _mm_storeu_si128(ptr, bb);
+#if 1
+        __m128i sm = _mm_mulhi_epi16(aa, mm);
+        __m128i cc = _mm_slli_epi16(sm, 1);
+#else
+        __m128i lo = _mm_mullo_epi16(aa, mm);
+        __m128i hi = _mm_mulhi_epi16(aa, mm);
+        __m128i c0 = _mm_unpacklo_epi16(lo, hi);
+        __m128i c1 = _mm_unpackhi_epi16(lo, hi);
+        __m128i d0 = _mm_srai_epi32(c0, 10);
+        __m128i d1 = _mm_srai_epi32(c1, 10);
+        __m128i cc = _mm_packs_epi32(d0, d1);
+#endif
+        _mm_storeu_si128((__m128i*)ptr, cc);
         ptr += 8;
     }
-
-    volume /= (1 << 16) / MIX_MAX_VOLUME;
+#if 1
+    volume /= (unsigned)((1 << 15) / MIX_MAX_VOLUME);
+#endif
     len /= sizeof(Sint16);
     while (len--) {
         vol = SDL_SwapLE16(*ptr);
@@ -960,9 +995,9 @@ static SDL_bool _Eff_volume_s16lbs_SSE2(void* stream, unsigned len, void* udata)
     }
     return SDL_TRUE;
 }
-#endif // HAVE_SSE2_INTRINSICS
-#ifdef __AVX__
-static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static SDL_bool SDL_TARGETING("avx2") _Eff_volume_s16lbs_AVX2(void* stream, unsigned len, void* udata)
 {
     /* 16 signed bits (lsb) * 2 channels. */
     Sint16* ptr = (Sint16*)stream;
@@ -972,21 +1007,36 @@ static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
     if (volume == MIX_MAX_VOLUME)
         return SDL_TRUE;
 
-    //static_assert((MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0, "_Eff_volume_s16lbs_AVX expects MIX_MAX_VOLUME to be a power of 2.");
-    //static_assert(MIX_MAX_VOLUME <= (1 << 16), "_Eff_volume_s16lbs_AVX expects MIX_MAX_VOLUME to be low.");
-    volume *= (1 << 16) / MIX_MAX_VOLUME;
-
+#if 1
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_volume_s16lbs_AVX2_MIX_MAX_VOLUME, (MIX_MAX_VOLUME & (MIX_MAX_VOLUME - 1)) == 0);
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_volume_s16lbs_AVX2_low, MIX_MAX_VOLUME <= (1 << 15));
+    volume *= (1 << 15) / MIX_MAX_VOLUME;
+#else
+    SDL_INLINE_COMPILE_TIME_ASSERT(_Eff_volume_s16lbs_AVX2_MIX_MAX_VOLUME, MIX_MAX_VOLUME == (1 << 10));
+#endif
     __m256i mm = _mm256_set1_epi16(volume);
 
     while (len >= 32) {
         len -= 32;
         __m256i aa = _mm256_loadu_si256((const __m256i*)ptr);
-        __m256i bb = _mm256_mulhi_epi16(aa, mm);
-        _mm_storeu_si256(ptr, bb);
+#if 1
+        __m256i sm = _mm256_mulhi_epi16(aa, mm);
+        __m256i cc = _mm256_slli_epi16(sm, 1);
+#else
+        __m256i lo = _mm256_mullo_epi16(aa, mm);
+        __m256i hi = _mm256_mulhi_epi16(aa, mm);
+        __m256i c0 = _mm256_unpacklo_epi16(lo, hi);
+        __m256i c1 = _mm256_unpackhi_epi16(lo, hi);
+        __m256i d0 = _mm256_srai_epi32(c0, 10);
+        __m256i d1 = _mm256_srai_epi32(c1, 10);
+        __m256i cc = _mm256_packs_epi32(d0, d1);
+#endif
+        _mm256_storeu_si256((__m256i*)ptr, cc);
         ptr += 16;
     }
-
-    volume /= (1 << 16) / MIX_MAX_VOLUME;
+#if 1
+    volume /= (unsigned)((1 << 15) / MIX_MAX_VOLUME);
+#endif
     len /= sizeof(Sint16);
     while (len--) {
         vol = SDL_SwapLE16(*ptr);
@@ -996,7 +1046,7 @@ static SDL_bool _Eff_volume_s16lbs_AVX(void* stream, unsigned len, void* udata)
     }
     return SDL_TRUE;
 }
-#endif // __AVX__
+#endif // SDL_AVX2_INTRINSICS
 #ifdef FULL // FIX_OUT
 static void SDLCALL _Eff_position_s16lsb_c4(int chan, void *stream, int len, void *udata)
 {
@@ -2376,27 +2426,27 @@ int Mix_SetPosition(int channel, Sint16 angle, Uint8 distance)
 
 void _Eff_PositionInit(void)
 {
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    _Eff_do_volume_s16lbs = _Eff_volume_s16lbs;
-    _Eff_do_position_s16lsb = _Eff_position_s16lsb;
+#if defined(SDL_AVX2_INTRINSICS) && SDL_VERSION_ATLEAST(2, 0, 2)
+    if (SDL_HasAVX2()) {
+        _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_AVX2;
+        _Eff_do_position_s16lsb = _Eff_position_s16lsb_AVX2;
+        return;
+    }
 #endif
-#ifdef HAVE_SSE2_INTRINSICS
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    if (SDL_HasSSE2()) {
-#else
+#ifdef SDL_SSE2_INTRINSICS
+#ifdef SDL_HAVE_SSE2_SUPPORT
     // SDL_assert(SDL_HasSSE2());
     if (1) {
+#else
+    if (SDL_HasSSE2()) {
 #endif
         _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_SSE2;
         _Eff_do_position_s16lsb = _Eff_position_s16lsb_SSE2;
+        return;
     }
 #endif
-#if defined(__AVX__) && SDL_VERSION_ATLEAST(2, 0, 2)
-    if (SDL_HasAVX()) {
-        _Eff_do_volume_s16lbs = _Eff_volume_s16lbs_AVX;
-        _Eff_do_position_s16lsb = _Eff_position_s16lsb_AVX;
-    }
-#endif
+    _Eff_do_volume_s16lbs = _Eff_volume_s16lbs;
+    _Eff_do_position_s16lsb = _Eff_position_s16lsb;
 }
 
 void _Eff_PositionDeinit(void)

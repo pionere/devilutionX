@@ -267,8 +267,8 @@ typedef struct {
     Sint64 samplesize;
 #endif
 #else
-    int start;
-    int stop;
+    unsigned start;
+    unsigned stop;
 #ifdef FULL // MUS_ENC, SEEK
     int samplesize;
 #endif
@@ -323,7 +323,7 @@ typedef struct _Mix_Audio {
     int lastChannel;
 #ifndef FULL // SELF_CONV
     void (*converters[3])(Mix_BuffOps* buf);
-    int convMpl;
+    unsigned convMpl;
 #endif
 } _Mix_Audio;
 #endif // FULL - FIX_MUS

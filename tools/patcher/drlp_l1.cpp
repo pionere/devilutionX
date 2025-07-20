@@ -127,7 +127,7 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 			}
 		}
 
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -137,12 +137,12 @@ BYTE* DRLP_L1_PatchDoors(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
 
-BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
+BYTE* DRLP_L1_PatchSpec(BYTE* sCelBuf, size_t* sCelLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SUB_HEADER_SIZE = 10;
@@ -219,7 +219,7 @@ BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		}
 
 		// write to the new SCEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -230,7 +230,7 @@ BYTE* DRLP_L1_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 
 	// add file-size
 	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*sCelLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*sCelLen));
 
 	return resCelBuf;
 }
@@ -720,14 +720,15 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
@@ -1180,14 +1181,15 @@ static BYTE* fixCathedralShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
@@ -2563,7 +2565,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		// if (frame.subtileIndex0 < 0) {
 		// 	continue;
 		// }
-		for (int n = 0; n < lengthof(frame.microIndices0); n++) {
+		for (int n = 0; n < lengthof(frame.microIndices0) && frame.subtileIndex0 >= 0; n++) {
 			if (frame.microIndices0[n] < 0) {
 				continue;
 			}
@@ -2956,7 +2958,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 		}
 
 		// write to the new SCEL file
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
@@ -2968,7 +2970,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 
 	// copy the remaining content
 	/*while (idx < srcCelEntries) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 		memcpy(dstDataCursor, sCelBuf + srcHeaderCursor[0], len);
@@ -2980,7 +2982,7 @@ BYTE* DRLP_L5_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, s
 
 	// add file-size
 	*sCelLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*sCelLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*sCelLen));
 
 	return resCelBuf;
 }
@@ -3402,13 +3404,14 @@ static BYTE* patchCryptFloorCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf,
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		entries[i].encoding = micro.res_encoding;
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
@@ -3473,7 +3476,8 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	// draw the micros to the back-buffer
 	pMicrosCel = celBuf;
 	constexpr BYTE TRANS_COLOR = 128;
-	memset(&gpBuffer[0], TRANS_COLOR, 4 * BUFFER_WIDTH * MICRO_HEIGHT);
+	constexpr int DRAW_HEIGHT = 4;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
 
 	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
 	for (int i = 0; i < lengthof(micros); i++) {
@@ -3481,7 +3485,7 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
 		yy += MICRO_HEIGHT;
-		if (yy == 5 * MICRO_HEIGHT - 1) {
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
 			xx += MICRO_WIDTH;
 		}
@@ -3526,27 +3530,28 @@ static BYTE* maskCryptBlacks(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 			}
 		}
 		yy += MICRO_HEIGHT;
-		if (yy == 4 * MICRO_HEIGHT) {
+		if (yy == DRAW_HEIGHT * MICRO_HEIGHT) {
 			yy = 0;
 			xx += MICRO_WIDTH;
 		}
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		entries[i].encoding = MET_TRANSPARENT;
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		entries[i].frameRef = SwapLE16(pSubtiles[index]) & 0xFFF;
 		entries[i].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
 		yy += MICRO_HEIGHT;
-		if (yy == 5 * MICRO_HEIGHT - 1) {
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
 			xx += MICRO_WIDTH;
 		}
@@ -3796,14 +3801,15 @@ static BYTE* fixCryptShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf, si
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;

@@ -312,12 +312,12 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 		if (next == -1)
 			break;
 		// copy entries till the next frame
-		int midEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		int midEntries = entries[next].frameRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 		if (midEntries < 0) {
 			app_fatal("Duplicate frame %d.: %d", next, entries[next].frameRef);
 		}
 		for (int i = 0; i < midEntries; i++) {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -325,7 +325,7 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 			srcHeaderCursor++;
 		}
 		// add the next frame
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 
 		BYTE* frameSrc = entries[next].frameSrc;
@@ -339,9 +339,9 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 		entries[next].frameRef = 0;
 	}
 	// add remaining entries
-	int remEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	int remEntries = celEntries + 1 - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 	for (int i = 0; i < remEntries; i++) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -349,7 +349,7 @@ int encodeCelMicros(CelFrameEntry* entries, int numEntries, BYTE* resCelBuf, con
 		srcHeaderCursor++;
 	}
 	// add file-size
-	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+	dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 
 	return SwapLE32(dstHeaderCursor[0]);
 }
@@ -371,7 +371,7 @@ BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE tra
 		bool alpha = false;
 		BYTE* data = &gpBuffer[(height - i) * BUFFER_WIDTH];
 		if (/*subHeaderSize != 0 &&*/ (i % CEL_BLOCK_HEIGHT) == 1 && (i / CEL_BLOCK_HEIGHT) * 2 < subHeaderSize) {
-			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader);//pHead - buf - SUB_HEADER_SIZE;
+			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16((WORD)((size_t)pHead - (size_t)pHeader));//pHead - buf - SUB_HEADER_SIZE;
 		}
 		for (int j = 0; j < width; j++) {
 			if (data[j] != transparentPixel) {
@@ -386,7 +386,7 @@ BYTE* EncodeFrame(BYTE* pBuf, int width, int height, int subHeaderSize, BYTE tra
 				alpha = false;
 			} else {
 				// add transparent pixel
-				if (j != 0 && (!alpha || (char)*pHead == -128)) {
+				if (j != 0 && (!alpha || (int8_t)*pHead == -128)) {
 					pHead = pBuf;
 					pBuf++;
 				}

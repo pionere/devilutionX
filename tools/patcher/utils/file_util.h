@@ -23,18 +23,20 @@
 #include <cstdio>
 #endif
 
-#include "../defs.h"
+#include "../../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
 inline FILE* FileOpen(const char* path, const char* mode)
 {
 	FILE* file;
-#if (defined(_MSC_VER) && (_MSC_VER >= 1400))
-	fopen_s(&file, path, mode);
-#else
+// #if (defined(_MSC_VER) && (_MSC_VER >= 1400))
+//	fopen_s(&file, path, mode);
+// #else
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	file = std::fopen(path, mode);
-#endif
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
+// #endif
 	return file;
 }
 

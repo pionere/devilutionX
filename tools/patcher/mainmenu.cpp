@@ -13,7 +13,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** The active music track id for the main menu. */
-int menu_music_track_id = TMUSIC_INTRO;
+static int menu_music_track_id = TMUSIC_INTRO;
 
 static void mainmenu_refresh_music()
 {
@@ -30,15 +30,20 @@ void mainmenu_loop()
 {
 	mainmenu_refresh_music();
 
-	while (TRUE) {
+	while (true) {
 		switch (UiMainMenuDialog()) {
-		case 0:
+		case PATCHERMENU_PATCH:
 			UiPatcherDialog();
 			continue;
-		case 1:
+		case PATCHERMENU_MERGE:
 			UiMergerDialog();
 			continue;
-		case 2:
+#if 0
+		case PATCHERMENU_CHECK:
+			UiCheckerDialog();
+			continue;
+#endif
+		case PATCHERMENU_EXIT:
 			break;
 		default:
 			ASSUME_UNREACHABLE

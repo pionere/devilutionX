@@ -2,8 +2,10 @@ include(FetchContent_MakeAvailableExcludeFromAll)
 
 include(FetchContent)
 FetchContent_Declare(Tolk
-    URL https://github.com/sig-a11y/tolk/archive/89de98779e3b6365dc1688538d5de4ecba3fdbab.tar.gz
-    URL_HASH MD5=724f6022186573dd9c5c2c92ed9e21e6
+  #URL https://github.com/sig-a11y/tolk/archive/89de98779e3b6365dc1688538d5de4ecba3fdbab.tar.gz
+  #URL_HASH MD5=724f6022186573dd9c5c2c92ed9e21e6
+  GIT_REPOSITORY https://github.com/pionere/tolk
+  GIT_TAG c9ec1cc0f52ae28cbe85647d8c32ac6361a759d1
 )
 FetchContent_MakeAvailableExcludeFromAll(Tolk)
 

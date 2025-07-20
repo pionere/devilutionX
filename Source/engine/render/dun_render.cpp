@@ -577,11 +577,11 @@ void world_draw_black_tile(int sx, int sy)
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return;
 
-	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT)
+	if (sy < SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT)
 		return;
 
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "world_draw_black_tile relies on fix width/height ratio of the floor-tile.");
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy] + TILE_WIDTH / 2 - 2;
+	dst = &gpBuffer[BUFFERXY(sx, sy)] + TILE_WIDTH / 2 - 2;
 
 	for (i = 1; i <= TILE_HEIGHT / 2; i++, dst -= BUFFER_WIDTH + 2) {
 //#ifdef NO_OVERDRAW

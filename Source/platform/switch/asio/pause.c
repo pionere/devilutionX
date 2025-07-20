@@ -6,4 +6,4 @@ int pause(void)
 	errno = ENOSYS;
 	return -1;
 }
-#endif
+#endif // TCPIP
