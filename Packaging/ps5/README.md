@@ -37,4 +37,4 @@ devilutionX$ ./Packaging/ps5/build.sh
 [shareware]: http://ftp.blizzard.com/pub/demos/diablosw.exe
 [pacbrew]: https://github.com/ps5-payload-dev/pacbrew-repo
 [websrv]: https://github.com/ps5-payload-dev/websrv
-[launcher]: https://github.com/ps5-payload-dev/websrv/blob/master/homebrew/IV9999-FAKE00001_00-HOMEBREWLOADER01.pkg?raw=true
+[launcher]: https://github.com/ps5-payload-dev/websrv/blob/master/homebrew/IV9999-FAKE00000_00-HOMEBREWLOADER01.pkg?raw=true
