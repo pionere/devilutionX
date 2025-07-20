@@ -1303,6 +1303,7 @@ if(PS4)
       "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt")
     add_custom_target(listfiles_txt
       COMMAND ${CMAKE_COMMAND} -E copy ${APP_TXT_FILES} ${APP_ASSETS_FOLDER})
+    add_self(${DEVIL_PATCHER})
     add_pkg(${DEVIL_PATCHER} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
       "${DVLX00002}" "${DEVIL_PATCHER}" "${PS4_VERSION}")
     add_dependencies(${DEVIL_PATCHER} mpq_file listfiles_txt)
