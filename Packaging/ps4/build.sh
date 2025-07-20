@@ -16,4 +16,4 @@ cmake -S. -B"$BUILD_DIR" \
 
 cmake --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN)
 mv "$BUILD_DIR"/IV0001-DVLX00001_00-*.pkg "$BUILD_DIR"/devilutionx-ps4.pkg
-mv "$BUILD_DIR"/IV0001-DVLX00002_00-*.pkg "$BUILD_DIR"/devil_patcher-ps4.pkg
+mv "$BUILD_DIR"/IV0001-DVLX00002_00-*.pkg "$BUILD_DIR"/devil_patcher-ps4.pkg | true
