@@ -2,13 +2,14 @@
 
 ## Prerequisites
 - A Playstation 4 capable of running homebrew.
-- Game assets from the Diablo game (diabdat.mpq),
-  or its [shareware][shareware] (spawn.mpq)
+- Game assets from the Diablo game (diabdat.mpq)
+ + To run the Diablo: Hellfire expansion you will need hellfire.mpq, hfmonk.mpq, hfmusic.mpq, hfvoice.mpq.
 
 ## Installation
 - Install the devilutionX PS4 pkg
 - Copy the game assets (e.g., via ftp) to /user/data/diasurgical/devilution/
-- Launch the game
+- Run the patcher to patch the assets in devilx.mpq
+- Run the game
 
 ## Known limitations
  - No networking
@@ -36,5 +37,4 @@ Install the [PacBrew openorbis SDK][pacbrew-openorbis], then run the following
 devilutionX$ ./Packaging/ps4/build.sh
 ```
 
-[shareware]: http://ftp.blizzard.com/pub/demos/diablosw.exe
 [pacbrew-openorbis]: https://github.com/PacBrew/pacbrew-packages

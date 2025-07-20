@@ -59,4 +59,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
-        path: build-ps4/devilutionx.pkg
+        path: build-ps4/devilutionx-ps4.pkg

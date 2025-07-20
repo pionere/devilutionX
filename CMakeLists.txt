@@ -1286,18 +1286,26 @@ if(PS4)
   if(NOT PS4_VERSION)
     set(PS4_VERSION "01.00")
   endif()
-  set(APP_MPQ_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
-  set(APP_MPQ_FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
-  #add_custom_target(mpq_folder
-  #  COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_MPQ_FOLDER})
-  add_custom_target(mpq_files
-    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILES} ${APP_MPQ_FOLDER})
+  set(APP_ASSETS_FOLDER  "${PROJECT_SOURCE_DIR}/Packaging/ps4")
+  set(APP_MPQ_FILE "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq")
+  add_custom_target(mpq_file
+    COMMAND ${CMAKE_COMMAND} -E copy ${APP_MPQ_FILE} ${APP_ASSETS_FOLDER})
   add_self(${BIN_TARGET})
   add_pkg(${BIN_TARGET} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
     "${PS4_TITLEID}" "${PS4_APP_NAME}" "${PS4_VERSION}")
   #get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
   #add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
   add_dependencies(${BIN_TARGET} mpq_files)
+  if(DEVIL_PATCHER)
+    set(LISTFILES_TXT "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt")
+    set(MPQFILES_TXT "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt")
+    add_custom_target(listfiles_txt
+      COMMAND ${CMAKE_COMMAND} -E copy ${LISTFILES_TXT} ${APP_ASSETS_FOLDER})
+    add_custom_target(mpqfiles_txt
+      COMMAND ${CMAKE_COMMAND} -E copy ${MPQFILES_TXT} ${APP_ASSETS_FOLDER})
+    add_pkg(${DEVIL_PATCHER} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
+      "${DVLX00002}" "${DEVIL_PATCHER}" "${PS4_VERSION}")
+  endif()
 endif()
 
 if(NINTENDO_3DS)
