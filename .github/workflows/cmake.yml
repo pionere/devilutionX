@@ -14,6 +14,16 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-push-vita.vpk'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-push-vita.vpk'
     container: vitasdk/vitasdk:latest
     steps:
       - name: Checkout
@@ -27,7 +37,7 @@ jobs:
       - name: Configure CMake
         run: |
           cmake -S. -Bbuild -GNinja \
-            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D DEVILUTIONX_SYSTEM_SDL2=OFF -DZEROTIER=OFF -DNONET=ON \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} -D DEVILUTIONX_SYSTEM_SDL2=OFF -DZEROTIER=OFF -DNONET=ON \
             -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
       - name: Build DevilutionX
@@ -37,7 +47,7 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v4
         with:
-          name: devilutionx.vpk
+          name: ${{ matrix.artifact }}
           path: ./build/devilutionx.vpk
 
     #- name: Release
@@ -74,7 +84,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
       - name: Build DevilutionX
-        run: cmake --build build -j$(nproc) --target package
+        run: cmake --build build -j$(nproc)
 
       - name: Upload Package
         if: ${{ !env.ACT }}
