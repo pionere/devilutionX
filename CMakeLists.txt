@@ -1577,6 +1577,26 @@ if(CPACK)
     set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
     set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
     set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
+
+  elseif(PS5)
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
+    set(CPACK_STRIP_FILES TRUE)
+
+    install(TARGETS ${BIN_TARGET} DESTINATION .)
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.md"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/homebrew.js"
+      DESTINATION "."
+    )
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/Packaging/ps5/sce_sys"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
+      DESTINATION "."
+    )
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})

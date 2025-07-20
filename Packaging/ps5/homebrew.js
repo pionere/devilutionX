@@ -1,6 +1,6 @@
 
 async function main() {
-	const PAYLOAD = window.workingDir + '/devilutionx.elf';
+	const PAYLOAD = window.workingDir + '/devilutionx';
 
 	return {
 		mainText: "DevilutionX",

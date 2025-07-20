@@ -828,7 +828,7 @@ jobs:
     - name: Upload-Package
       uses: actions/upload-artifact@v4
       with:
-        path: build-ps5/devilutionx-ps5.zip
+        path: build-ps5/devilutionx.zip
         name: ${{ matrix.artifact }}
 
   # vita-builds
