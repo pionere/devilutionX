@@ -1585,7 +1585,7 @@ if(CPACK)
     set(CPACK_STRIP_FILES TRUE)
 
     install(TARGETS ${BIN_TARGET} DESTINATION .)
-    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.md"
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.txt"
       DESTINATION "."
     )
     install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/homebrew.js"
