@@ -1577,6 +1577,46 @@ if(CPACK)
     set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
     set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
     set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
+
+  elseif(PS5)
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
+    set(CPACK_STRIP_FILES TRUE)
+
+    install(TARGETS ${BIN_TARGET} DESTINATION .)
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.txt"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/homebrew.js"
+      DESTINATION "."
+    )
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/Packaging/ps5/sce_sys"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
+      DESTINATION "."
+    )
+
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
+
+    if(ZEROTIER)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
+        DESTINATION "LICENSE"
+      )
+    endif()
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/README-SDL.txt"
+      DESTINATION "LICENSE"
+    )
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
