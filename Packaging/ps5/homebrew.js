@@ -1,6 +1,7 @@
 
 async function main() {
 	const PAYLOAD = window.workingDir + '/devilutionx';
+	const PATCHER = window.workingDir + '/devil_patcher';
 
 	return {
 		mainText: "DevilutionX",
@@ -18,6 +19,15 @@ async function main() {
 			return {
 			path: PAYLOAD,
 			args: '-n'
+			};
+		}
+		},
+		{
+		text: "Run Patcher",
+		onclick: async () => {
+			return {
+				path: PATCHER,
+				args: ''
 			};
 		}
 		}

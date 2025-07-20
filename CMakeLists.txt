@@ -1598,6 +1598,17 @@ if(CPACK)
       DESTINATION "."
     )
 
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
+
     if(ZEROTIER)
       install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
         DESTINATION "LICENSE"
