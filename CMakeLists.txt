@@ -1295,16 +1295,17 @@ if(PS4)
     "${PS4_TITLEID}" "${PS4_APP_NAME}" "${PS4_VERSION}")
   #get_filename_component(APP_TARGET_PREFIX ${BIN_TARGET} NAME_WE)
   #add_dependencies(${APP_TARGET_PREFIX}_pkg mpq_files)
-  add_dependencies(${BIN_TARGET} mpq_files)
+  add_dependencies(${BIN_TARGET} mpq_file)
   if(DEVIL_PATCHER)
-    set(LISTFILES_TXT "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt")
-    set(MPQFILES_TXT "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt")
+    set(APP_TXT_FILES
+      #APP_MPQ_FILE
+      "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+      "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt")
     add_custom_target(listfiles_txt
-      COMMAND ${CMAKE_COMMAND} -E copy ${LISTFILES_TXT} ${APP_ASSETS_FOLDER})
-    add_custom_target(mpqfiles_txt
-      COMMAND ${CMAKE_COMMAND} -E copy ${MPQFILES_TXT} ${APP_ASSETS_FOLDER})
+      COMMAND ${CMAKE_COMMAND} -E copy ${APP_TXT_FILES} ${APP_ASSETS_FOLDER})
     add_pkg(${DEVIL_PATCHER} "${PROJECT_SOURCE_DIR}/Packaging/ps4"
       "${DVLX00002}" "${DEVIL_PATCHER}" "${PS4_VERSION}")
+    add_dependencies(${DEVIL_PATCHER} mpq_file listfiles_txt)
   endif()
 endif()
 
