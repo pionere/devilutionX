@@ -21,9 +21,11 @@ jobs:
           - name: diablo
             cmakeargs: '-DUSE_PATCH=OFF'
             artifact: 'diablo-push-ps4.pkg'
+            artifact1: ''
           - name: hellfire+patch
             cmakeargs: '-DHELLFIRE=ON'
-            artifact: 'hellfire-push-ps4p.pkg'
+            artifact: 'hellfire-push-ps4.pkg'
+            artifact1: 'hellfire-push-ps4p.pkg'
 
     steps:
     - name: Checkout
@@ -62,7 +64,8 @@ jobs:
         path: build-ps4/devilutionx-ps4.pkg
 
     - name: Upload-Package (patcher)
+      if: ${{ matrix.artifact1 != '' }}
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.artifact }}
+        name: ${{ matrix.artifact1 }}
         path: build-ps4/devil_patcher-ps4.pkg
