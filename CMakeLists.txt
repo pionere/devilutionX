@@ -1269,17 +1269,34 @@ if(VITA)
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
   vita_create_self(${BIN_TARGET}.self ${BIN_TARGET} UNSAFE)
-  vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
-    VERSION ${VITA_VERSION}
-    NAME ${VITA_APP_NAME}
-    FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
-    FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-    FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-    FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/devilx.mpq devilx.mpq
+  if(DEVIL_PATCHER)
+    vita_create_self(${DEVIL_PATCHER}.self ${DEVIL_PATCHER} UNSAFE)
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self ${DEVIL_PATCHER}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+      FILE Packaging/resources/listfiles.txt listfiles.txt
+      FILE Packaging/resources/mpqfiles.txt mpqfiles.txt
   )
+  else()
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+  )
+  endif()
 endif()
 
 if(PS4)

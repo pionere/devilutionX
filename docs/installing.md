@@ -139,6 +139,8 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 <details><summary>Playstation 4</summary>
 
 **Requires Playstation 4 capable of running homebrew**
+- Install the downloaded pkg file
+- Copy the MPQ files (e.g., using ftp) to `/user/data/diasurgical/devilution/`
 
 [PS4 manual](/docs/manual/platforms/ps4.md)
 
@@ -146,7 +148,16 @@ You will no longer need `devilutionx.cia` after this step, and so it can be remo
 
 <details><summary>Playstation 5</summary>
 
-**Requires Playstation 5 capable of running homebrew**
+**Requires Playstation 5 capable of running the [ps5-payload-websrv][websrv] homebrew**
+- Copy the game assets (e.g., via ftp) to /data/homebrew/devilutionX
+- Launch the [ps5-payload-websrv][websrv] homebrew
+- Launch the patcher and the game from your browser at http://PS5-IP:8080, or using the
+  [companion launcher][launcher] from the PS5 menu system
+  1. Run the patcher to patch the assets in devilx.mpq
+  2. Run the game
+
+[websrv]: https://github.com/ps5-payload-dev/websrv
+[launcher]: https://github.com/ps5-payload-dev/websrv/blob/master/homebrew/IV9999-FAKE00000_00-HOMEBREWLOADER01.pkg?raw=true
 
 [PS5 manual](/docs/manual/platforms/ps5.md)
 
