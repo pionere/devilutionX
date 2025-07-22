@@ -99,6 +99,7 @@ static void SortBuffer(TCmpStruct * pWork, unsigned char * buffer_begin, unsigne
 
 static void FlushBuf(TCmpStruct * pWork)
 {
+#ifdef FULL
     unsigned char save_ch1;
     unsigned char save_ch2;
     unsigned int size = 0x800;
@@ -108,13 +109,24 @@ static void FlushBuf(TCmpStruct * pWork)
     save_ch1 = pWork->out_buff[0x800];
     save_ch2 = pWork->out_buff[pWork->out_bytes];
     pWork->out_bytes -= 0x800;
+#else
+    unsigned char save_chs[2];
+    unsigned int size = sizeof(pWork->out_buff) - 2;
 
+    pWork->write_buf(pWork->out_buff, size, pWork->param);
+
+    memcpy(save_chs, &pWork->out_buff[size], 2);
+    pWork->out_bytes -= size;
+#endif
     memset(pWork->out_buff, 0, sizeof(pWork->out_buff));
-
+#ifdef FULL
     if(pWork->out_bytes != 0)
         pWork->out_buff[0] = save_ch1;
     if(pWork->out_bits != 0)
         pWork->out_buff[pWork->out_bytes] = save_ch2;
+#else
+    memcpy(&pWork->out_buff[0], save_chs, 2);
+#endif
 }
 
 static void OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit_buff)
@@ -169,7 +181,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
     unsigned char * input_data_ptr;
     unsigned short phash_offs_index;            // Index to the table with PAIR_HASH positions
     unsigned short min_phash_offs;              // The lowest allowed hash offset
-    unsigned short offs_in_rep;                 // Offset within found repetition
+    unsigned int offs_in_rep;                   // Offset within found repetition
     unsigned int equal_byte_count;              // Number of bytes that are equal to the previous occurence
     unsigned int rep_length = 1;                // Length of the found repetition
     unsigned int rep_length2;                   // Secondary repetition
@@ -386,7 +398,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
         // Find out how many more characters are equal to the first repetition.
         while(*prev_rep_end == input_data[rep_length2])
         {
-            if(++rep_length2 >= 0x204)
+            if(++rep_length2 >= MAX_REP_LENGTH)
                 break;
             prev_rep_end++;
         }
@@ -396,7 +408,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
         {
             // Calculate the distance of the new repetition
             pWork->distance = (unsigned int)(input_data - prev_repetition - 1);
-            if((rep_length = rep_length2) == 0x204)
+            if((rep_length = rep_length2) == MAX_REP_LENGTH)
                 return rep_length;
 
             // Update the additional elements in the "offs09BC" table
@@ -418,7 +430,7 @@ static unsigned int FindRep(TCmpStruct * pWork, unsigned char * input_data)
 static void WriteCmpData(TCmpStruct * pWork)
 {
     unsigned char * input_data_end;         // Pointer to the end of the input data
-    unsigned char * input_data = pWork->work_buff + pWork->dsize_bytes + 0x204;
+    unsigned char * input_data = pWork->work_buff + pWork->dsize_bytes + MAX_REP_LENGTH;
     unsigned int input_data_ended = 0;      // If 1, then all data from the input stream have been already loaded
     unsigned int save_rep_length;           // Saved length of current repetition
     unsigned int save_distance = 0;         // Saved distance of current repetition
@@ -443,8 +455,12 @@ static void WriteCmpData(TCmpStruct * pWork)
         // Load the bytes from the input stream, up to 0x1000 bytes
         while(bytes_to_load != 0)
         {
-            bytes_loaded = pWork->read_buf((char *)pWork->work_buff + pWork->dsize_bytes + 0x204 + total_loaded,
+            bytes_loaded = pWork->read_buf((char *)pWork->work_buff + pWork->dsize_bytes + MAX_REP_LENGTH + total_loaded,
+#ifdef FULL
                                                   &bytes_to_load,
+#else
+                                                  bytes_to_load,
+#endif
                                                    pWork->param);
             if(bytes_loaded == 0)
             {
@@ -462,7 +478,7 @@ static void WriteCmpData(TCmpStruct * pWork)
 
         input_data_end = pWork->work_buff + pWork->dsize_bytes + total_loaded;
         if(input_data_ended)
-            input_data_end += 0x204;
+            input_data_end += MAX_REP_LENGTH;
 
         //
         // Warning: The end of the buffer passed to "SortBuffer" is actually 2 bytes beyond
@@ -485,7 +501,7 @@ static void WriteCmpData(TCmpStruct * pWork)
                 break;
 
             case 1:
-                SortBuffer(pWork, input_data - pWork->dsize_bytes + 0x204, input_data_end + 1);
+                SortBuffer(pWork, input_data - pWork->dsize_bytes + MAX_REP_LENGTH, input_data_end + 1);
                 phase++;
                 break;
 
@@ -501,7 +517,7 @@ static void WriteCmpData(TCmpStruct * pWork)
             rep_length = FindRep(pWork, input_data);
             while(rep_length != 0)
             {
-                // If we found repetition of 2 bytes, that is 0x100 or fuhrter back,
+                // If we found repetition of 2 bytes, that is 0x100 or further back,
                 // don't bother. Storing the distance of 0x100 bytes would actually
                 // take more space than storing the 2 bytes as-is.
                 if(rep_length == 2 && pWork->distance >= 0x100)
@@ -542,7 +558,11 @@ static void WriteCmpData(TCmpStruct * pWork)
                     if(rep_length > save_rep_length + 1 || save_distance > 0x80)
                     {
                         // Flush one byte, so that input_data will point to the secondary repetition
+#ifdef FULL
                         OutputBits(pWork, pWork->nChBits[*input_data], pWork->nChCodes[*input_data]);
+#else
+                        OutputBits(pWork, 9, 2 * (*input_data));
+#endif
                         input_data++;
                         continue;
                     }
@@ -553,8 +573,11 @@ static void WriteCmpData(TCmpStruct * pWork)
                 pWork->distance = save_distance;
 
                 __FlushRepetition:
-
+#ifdef FULL
                 OutputBits(pWork, pWork->nChBits[rep_length + 0xFE], pWork->nChCodes[rep_length + 0xFE]);
+#else
+                OutputBits(pWork, pWork->nChBits[rep_length - 2], pWork->nChCodes[rep_length - 2]);
+#endif
                 if(rep_length == 2)
                 {
 #ifdef FULL
@@ -585,7 +608,11 @@ static void WriteCmpData(TCmpStruct * pWork)
 
             // If there was no previous repetition for the current position in the input data,
             // just output the 9-bit literal for the one character
+#ifdef FULL
             OutputBits(pWork, pWork->nChBits[*input_data], pWork->nChCodes[*input_data]);
+#else
+            OutputBits(pWork, 9, 2 * (*input_data));
+#endif
             input_data++;
 _00402252:;
         }
@@ -593,17 +620,25 @@ _00402252:;
         if(input_data_ended == 0)
         {
             input_data -= 0x1000;
-            memmove(pWork->work_buff, pWork->work_buff + 0x1000, pWork->dsize_bytes + 0x204);
+            memmove(pWork->work_buff, pWork->work_buff + 0x1000, pWork->dsize_bytes + MAX_REP_LENGTH);
         }
     }
 
 __Exit:
 
     // Write the termination literal
+#ifdef FULL
     OutputBits(pWork, pWork->nChBits[0x305], pWork->nChCodes[0x305]);
+#else
+    OutputBits(pWork, pWork->nChBits[0x205], pWork->nChCodes[0x205]);
+#endif
     if(pWork->out_bits != 0)
         pWork->out_bytes++;
+#ifdef FULL
     pWork->write_buf(pWork->out_buff, &pWork->out_bytes, pWork->param);
+#else
+    pWork->write_buf(pWork->out_buff, pWork->out_bytes, pWork->param);
+#endif
     return;
 }
 
@@ -611,8 +646,13 @@ __Exit:
 // Main imploding function
 
 unsigned int PKWAREAPI implode(
+#ifdef FULL
     unsigned int (*read_buf)(char *buf, unsigned int *size, void *param),
     void         (*write_buf)(char *buf, unsigned int *size, void *param),
+#else
+    unsigned int (*read_buf)(char *buf, unsigned int size, void *param),
+    void         (*write_buf)(char *buf, unsigned int size, void *param),
+#endif
     char         *work_buf,
 #ifdef FULL
     void         *param,
@@ -666,13 +706,11 @@ unsigned int PKWAREAPI implode(
     switch(*type)
     {
         case CMP_BINARY: // We will compress data with binary compression type
-#endif
             for(nCount = 0; nCount < 0x100; nCount++)
             {
                 pWork->nChBits[nCount]  = 9;
                 pWork->nChCodes[nCount] = nCount * 2;
             }
-#ifdef FULL
             break;
 
 
@@ -687,6 +725,8 @@ unsigned int PKWAREAPI implode(
         default:
             return CMP_INVALID_MODE;
     }
+#else
+    nCount = 0;
 #endif
 
     for(i = 0; i < 0x10; i++)

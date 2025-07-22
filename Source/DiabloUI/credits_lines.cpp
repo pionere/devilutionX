@@ -1,8 +1,8 @@
-﻿#include "credits_lines.h"
+#include "credits_lines.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
-const char* const CREDITS_LINES[CREDITS_LINES_SIZE] = {
+const char* const CREDITS_LINES[CREDITS_LINE_COUNT] = {
 #ifdef HELLFIRE
 	"    Synergistic Software",
 	"",

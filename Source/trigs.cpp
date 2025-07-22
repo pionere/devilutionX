@@ -57,6 +57,9 @@ static void InitTownTriggers()
 static void InitDunTriggers()
 {
 	numtrigs = 0;
+	if (currLvl._dDynLvl) {
+		return;
+	}
 	for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0) {
 			continue;
@@ -207,6 +210,7 @@ void InitView(int entry)
 		type = DWARP_EXIT;
 		break;
 	case ENTRY_SETLVL:
+	case ENTRY_DYNLVL:
 		type = DWARP_ENTRY;
 		break;
 	case ENTRY_RTNLVL:
@@ -464,7 +468,7 @@ static int ForceTrig()
 		return i;
 	}
 
-	return -1;
+	return TRIG_NONE;
 }
 
 void InitTriggers()
@@ -482,7 +486,7 @@ void InitTriggers()
 void CheckTrigForce()
 {
 	pcurstrig = ForceTrig();
-	if (pcurstrig != -1) {
+	if (TRIG_VALID(pcurstrig)) {
 		pcurspos.x = trigs[pcurstrig]._tx;
 		pcurspos.y = trigs[pcurstrig]._ty;
 	}

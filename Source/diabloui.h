@@ -39,7 +39,7 @@ extern int provider;
 bool UiSelectProvider(bool bMulti);
 
 /* Defined in dialogs.cpp */
-void UiErrorOkDialog(const char* caption, const char* text, bool error = true);
+void UiErrorOkDialog(const char* caption, char* text, bool error = true);
 
 /* Defined in hostgame.cpp */
 void UiHostGameDialog();

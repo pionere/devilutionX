@@ -53,7 +53,7 @@ static void utf8_to_utf16(const uint8_t *src, uint16_t *dst)
 
 static int vita_input_thread(void *ime_buffer)
 {
-	while (1) {
+	while (true) {
 		// update IME status. Terminate, if finished
 		SceCommonDialogStatus dialogStatus = sceImeDialogGetStatus();
 		if (dialogStatus == SCE_COMMON_DIALOG_STATUS_FINISHED) {

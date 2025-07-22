@@ -35,12 +35,13 @@ typedef enum window_messages {
 
 	DVL_WM_CAPTURECHANGED,
 	DVL_WM_PAINT,
-	DVL_WM_QUERYENDSESSION,
+	// DVL_WM_QUERYENDSESSION,
 
 	DVL_DWM_NEXTLVL,  // dungeon -> next level
 	DVL_DWM_PREVLVL,  // dungeon -> previous level
 	DVL_DWM_SETLVL,   // dungeon -> setlevel
 	DVL_DWM_RTNLVL,   // setlevel -> dungeon
+	DVL_DWM_DYNLVL,   // town -> custom dungeon
 	DVL_DWM_PORTLVL,  // portal (town <-> dungeon)
 	DVL_DWM_TWARPDN,  // town -> dungeon
 	DVL_DWM_TWARPUP,  // dungeon -> town

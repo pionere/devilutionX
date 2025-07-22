@@ -1,7 +1,38 @@
 This is a slightly modified version of ladislav-zezula/StormLib@bf6a10b5e54c541ba5b17562ab139e58eac6393c (11.10.2023)
 except for 7da097c51323f15752f252e8c5ed0bd1a349ec75, 18e92b75928995dbd93be9a5774a62aa19042614, 8a16217c5167240cada465727f67fdaf23b08f86 and 6f89c7ba8530c37f1f5a6048406cb18c40e5a458
+there are no relevant modifications till ladislav-zezula/StormLib@539a04e06578ce9b0cf005446eff66e18753076d (25.07.2024)
 
 Changes:
 
 * Removed all files not used by DevilutionX.
-* Comment out unnecessary bits with `#ifndef FULL` or `#ifndef FULL_COMP`.
++ Comment out unnecessary bits with `#ifndef FULL` or `#ifndef FULL_COMP`.
+* hide support for other than MPQ_FORMAT_VERSION_1 (707a6ccc2074744a2c1b92f3d728beb69a58567e)
++ hide support for MPQ_FILE_SECTOR_CRC (SectorChksums and bLoadedSectorCRCs) (bb0506a22287b77dec37e0d0261cd08a6cab2226 + 560dc1c5c7f09bc2ece269c1b3040c79b80c9a0b)
++ hide support for MPQ_FILE_KEY_V2 (ca6a676f8997f3fd0a6e000162d624064a4edf26)
++ hide support for MPQ_FILE_SINGLE_UNIT (ddccbf26ad9185dc76ff91c1bb962ad4ad1454c9)
++ hide support for error-codes (7d6c6a81d5ec6f5e35d3c1a76f71a4a97c968b9f)
++ hide support for partial file-reads (792d938cd62415eb4dcbc89685d5646d85b1c39a + f15ed4f60953abfc751171e94ffe193a3d04bde4 + 31b8e4607983b6b97e27e87172a67a356a4099de)
++ hide support for patchfiles (... + dde36f8e7aeb5f2520fd1fdb394d3e22d599bc7a)
++ hide support for pseudo-names (... + a916a5a05647208ab3d609b507c6cb7f3927db8f)
++ hide support for large(64bit) files (2983a421ead300387552948689c6383e1570db61 + f6a40881acc8288fefd26e9aeffc58d5b03c5d59)
++ hide support for MPQ_OPEN_NO_HEADER_SEARCH (... d00c8fe8ccd144dfc87aa1b645e5c0dc09492416)
++ hide unused flags of SFileOpenArchive and use the minimal value for STREAM_FLAG_READ_ONLY (MPQ_OPEN_READ_ONLY) (63934f5c396be1cd36090d17caed814b9d4fdd14)+ hide support for Set/GetLastError (1db2c4e30760333c79e33253372d88b04c4c09b0 + 9d35892a16f73fe37b1b5e3f1c74737a4747da60)
+* do not validate sector-offsets (54b53217a0fea88974ee6e867bfb4a8afc65d279)
+* do not keep the filename in TFileStream (835ab07902ac6c2e085b5201ceec410f8e96bb6c)
+* SFileGetFileSize returns zero instead of SFILE_INVALID_SIZE
+* simplify ReadMpqFileSectorFile (e0444a517b778c48b17cd39b516343c26b4a13ba + 9906f67d32b357909a413116b6fadc02252c329d)
+* simplify SCompExplode (096e90002669fbc97c55202e7a9bca10f3a2afe6)
+* mark pByteOffset parameter of FileStream_Read constant (b557626ea56d07aeb4254ce5edbccf8d222ac786)
+* return fileSize/filePos from FileStream_GetSize/Pos (fd39e1ab0b0aecee71f05c06f682d5ad0b7eef87)
+* optimize GetFirstHashEntry (5e56ea490702e0dbf98356b9202187c36fb2d82b)
+* generic optimizations (aceb9335db417cc429761af88a5b7729debe5cc0)
+* reorganize the handling of TMPQFile (06585c5ba44fc104d242e0f7ecde6f6180d2efe2 + 7297a04741e6b6d697c1e4d38a877ea2f79ed393 + d3859b966c7f6ba6ef29b6d9e4b29588857c35f1)
+* reorganize the handling of TMPQArchive (ee52591f67de1c2a460b7a0c4701bbd9a80853e4 + d10bb1f4ef5e22df995a5b0610da2b8941b2528d)
+* better support for file-read operations (1c05e0e17cb8fe2f0674a4be5ad1e81371f274ce + e7e104dd32b7bdc4f5aab16045736230d1225883 + e9dbbe28f88d935aae627171617739fec32d12f3 + f7e49c844ecf1f039eff1b1ab26fff7f57e4e6cd + 4dd61ae365acfe9a0c6223887e75d3e2fae08c16 + 1687e6e6de06a908543044eded5723c48f339967)
+* add support for mpq-edit (75998b98a02826c1e4d414026f6935265938c053 + 998f1bdf64310520bd85741403df62a5d43281d2 + ea188e7d922d422dbfc564b7be097fd87e5023c9 + ead19403397d581df831493586530ce3ead1a451 + 60a4cc9a4ac9238cacd101232b9ce7df9070b10f + 08ba572035eef9ed67bb5f7ca6f3716a48fee6ea + 7cbfc61c7bc7faeb4cdf0831eae6f5f53a401f7a + f26a325d3286cd8a3c17526267fb8230781bff4d)
+* restore support for Win9x (cd50702f9b709506870def8c9251774e4e0ba622 + 5b7c908b4e382730ee4c4a3bb4a8e8c8982b35c7)
+
+* fix description of MPQ_FLAG_BLOCK_TABLE_CUT (37a3ff709247dabe80fdc7f85678e0a3d71e14a8)
+* simplify DecryptFileKey (d51fa6c3faaac88c0ad4d1d15f485e51e0f954a1)
+* minor fixes (3be148b04f2efd57df96b1cdd21e7bf31af8fcca)* ensure the platform is supported by FileStream (9c9c4502e13526d62f9882a2bdd787e8b7113a01)
+* set file-entry only on success (SFileOpenFileEx) (c28cf706d967d56a8b6df91ba4db6ab2f89e0838)* pass parameters by reference to the Free*Handle functions (af9a42e1aed9767915cde20b14ea89f7d0f6e7af)

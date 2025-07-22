@@ -25,7 +25,7 @@ int cursW;
 /** Pixel height of the current cursor image */
 int cursH;
 /** Current highlighted monster */
-int pcursmonst = MON_NONE;
+int pcursmonst;
 /** Cursor images CEL */
 BYTE* pCursCels;
 
@@ -47,7 +47,7 @@ int pcurstrig;
 /** Current highlighted tile row/column */
 POS32 pcurspos;
 /** Index of current cursor image */
-int pcursicon;
+int pcursicon = CURSOR_NONE;
 /** The targeting mode (TGT_*) */
 int pcurstgt;
 
@@ -163,20 +163,37 @@ void InitCursorGFX()
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
 #endif // HELLFIRE
 #endif // USE_PATCH
-	ClearCursor();
+	SDL_ShowCursor(SDL_DISABLE);
+	// ClearCursor(); -- unnecessary, because it is just a zero-initialization
 }
 
 void FreeCursorGFX()
 {
 	MemFreeDbg(pCursCels);
-	//ClearCursor();
+	// SDL_ShowCursor(SDL_ENABLE); -- unnecessary, because an exit is expected
+	// ClearCursor();
 }
 
 void NewCursor(int i)
 {
+#if 0 // CURSOR_HOTSPOT
+	int dx = 0, dy = 0;
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		dx += (cursW >> 1);
+		dy += (cursH >> 1);
+	}
+#endif
 	pcursicon = i;
 	cursW = InvItemWidth[i];
 	cursH = InvItemHeight[i];
+#if 0 // CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		dx -= (cursW >> 1);
+		dy -= (cursH >> 1);
+	}
+	if (dx != 0 || dy != 0)
+		SetCursorPos(MousePos.x + dx, MousePos.y + dy);
+#endif
 	pcurstgt = TGT_NORMAL;
 	switch (i) {
 	case CURSOR_NONE:
@@ -257,8 +274,8 @@ void CheckTownPortal()
 			 */
 			int dx = pcurspos.x - (mis->_mix - 1);
 			int dy = pcurspos.y - (mis->_miy - 1);
-			if (abs(dx) <= 1 && abs(dy) <= 1 // select the 3x3 square around (-1;-1)
-			 && abs(dx - dy) < 2) {          // exclude the top left and bottom right positions
+			if (abs(dx) < 2 && abs(dy) < 2 // select the 3x3 square around (-1;-1)
+			 && abs(dx - dy) < 2) {        // exclude the top left and bottom right positions
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				pcurspos.x = mis->_mix;
 				pcurspos.y = mis->_miy;
@@ -275,21 +292,28 @@ void CheckCursMove()
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
 	pcursitem = ITEM_NONE;
-	//if (pcursinvitem != INVITEM_NONE) {
+	//if (INVIDX_VALID(pcursinvitem)) {
 	//	gbRedrawFlags |= REDRAW_SPEED_BAR;
 	//}
 	pcursinvitem = INVITEM_NONE;
 	pcursplr = PLR_NONE;
-	pcurstrig = -1;
+	pcurstrig = TRIG_NONE;
 	pcurswnd = WND_NONE;
 
 	static_assert(MDM_ALIVE == 0, "BitOr optimization of CheckCursMove expects MDM_ALIVE to be zero.");
 	static_assert(STORE_NONE == 0, "BitOr optimization of CheckCursMove expects STORE_NONE to be zero.");
-	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag)
+	static_assert(CMAP_NONE == 0, "BitOr optimization of CheckCursMove expects CMAP_NONE to be zero.");
+	if (gbDeathflag /*| gbDoomflag*/ | gbSkillListFlag | gbQtextflag | stextflag | gbCampaignMapFlag)
 		return;
 
 	sx = MousePos.x;
 	sy = MousePos.y;
+#if 0 // CURSOR_HOTSPOT
+	if (pcursicon >= CURSOR_FIRSTITEM) {
+		sx += cursW >> 1;
+		sy += cursH >> 1;
+	}
+#endif
 
 	if (POS_IN_RECT(sx, sy, gnWndBeltX, gnWndBeltY, BELT_WIDTH, BELT_HEIGHT))
 		pcurswnd = WND_BELT;
@@ -321,7 +345,7 @@ void CheckCursMove()
 		}
 	}
 	// skip monster/player/object/etc targeting if hovering over a window.
-	if (pcurswnd != WND_NONE) {
+	if (WND_VALID(pcurswnd)) {
 		// skip item targeting if the cursor can not target an item (in inventory)
 		if (pcursicon == CURSOR_HAND || pcursicon == CURSOR_IDENTIFY || pcursicon == CURSOR_REPAIR || pcursicon == CURSOR_RECHARGE || pcursicon == CURSOR_OIL) {
 			if (pcurswnd == WND_INV)
@@ -330,11 +354,6 @@ void CheckCursMove()
 				pcursinvitem = CheckInvBelt();
 		}
 		return;
-	}
-
-	if (gbZoomInFlag) {
-		sx >>= 1;
-		sy >>= 1;
 	}
 
 	sx += gsMouseVp._vOffsetX;
@@ -352,6 +371,11 @@ void CheckCursMove()
 	//	sx -= fx;
 	//	sy -= fy;
 	//}
+
+	if (gbZoomInFlag) {
+		sx >>= 1;
+		sy >>= 1;
+	}
 
 	// Center player tile on screen
 	mx = ViewX + gsMouseVp._vShiftX;
@@ -413,11 +437,10 @@ void CheckCursMove()
 		curitem[1] = dItem[mx][my];
 		if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
 			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-				if (/*pnum != mypnum && */plr._pmode == PM_DEATH && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
+				if (/*pnum != mypnum && */plr._pmode == PM_DEATH/* && !plr._pLvlChanging*/ && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
 					deadplr[0] = pnum + 1;
 				}
 			}
-
 		}
 	}
 	if (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE) {
@@ -459,7 +482,7 @@ void CheckCursMove()
 	switch (pcurstgt) {
 	case TGT_NORMAL:
 		// select the previous monster/npc
-		if (pcursmonst != MON_NONE) {
+		if (MON_VALID(pcursmonst)) {
 			for (i = 4; i >= 0; i--) {
 				mi = curmon[i];
 				if (mi != 0) {
@@ -483,7 +506,7 @@ void CheckCursMove()
 			mi = curmon[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints < (1 << 6) || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
+				if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
 					continue;
 				}
 				// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
@@ -501,7 +524,7 @@ void CheckCursMove()
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
 					continue;
 				}
 				pcursplr = mi;
@@ -590,7 +613,7 @@ done:
 			mi = curplr[i];
 			if (mi != 0) {
 				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints < (1 << 6)) {
+				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
 					continue;
 				}
 				pcursplr = mi;
@@ -605,7 +628,7 @@ done:
 				mi = curmon[i];
 				if (mi != 0) {
 					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints < (1 << 6)) {
+					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints == 0) {
 						continue;
 					}
 					pcursmonst = mi;

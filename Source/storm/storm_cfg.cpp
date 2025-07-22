@@ -106,7 +106,7 @@ void InitConfig()
 	unsigned cursor = 0;
 	ConfigSection* section = NULL;
 	while (true) {
-		unsigned len = fread(&tmp[cursor], 1, sizeof(tmp) - cursor, f);
+		unsigned len = (unsigned)fread(&tmp[cursor], 1, sizeof(tmp) - cursor, f);
 		len += cursor;
 		if (len == 0) {
 			break;
@@ -243,15 +243,13 @@ const char* getIniStr(const char* sectionName, const char* keyName)
 	return entry->value;
 }
 
-bool getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize)
+int getIniValue(const char* sectionName, const char* keyName, char* string, int stringSize)
 {
 	const char* valueStr = getIniStr(sectionName, keyName);
 	if (valueStr == NULL)
-		return false;
+		return -1;
 
-	SStrCopy(string, valueStr, stringSize);
-
-	return true;
+	return SStrCopy(string, valueStr, stringSize);
 }
 
 void setIniValue(const char* sectionName, const char* keyName, const char* value)
@@ -314,9 +312,10 @@ void SLoadKeyMap(BYTE (&map)[256])
 			continue;
 		}
 		int i = SDL_strtol(&entry.key[sizeof("Button") - 1], NULL, 10);
-		BYTE act = SDL_strtol(entry.value, NULL, 10);
-		if (act < NUM_ACTS)
-			map[i] = act;
+		int act = SDL_strtol(entry.value, NULL, 10);
+		static_assert(NUM_ACTS <= UCHAR_MAX + 1, "Input keys do not fit to the KeyMap.");
+		if ((unsigned)act < NUM_ACTS)
+			map[i] = (BYTE)act;
 	}
 }
 

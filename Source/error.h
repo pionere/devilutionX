@@ -12,7 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern Uint32 msgdelay;
+extern uint32_t msgdelay;
 extern BYTE currmsg;
 
 void InitDiabloMsg(BYTE e);

@@ -12,7 +12,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define L3_WATER_PAL "Levels\\L3Data\\L3pwater.pal"
 
 /** The pseudo random seeds to generate the levels. */
-uint32_t glSeedTbl[NUM_LEVELS];
+int32_t glSeedTbl[NUM_LEVELS];
+/** Contains the informations to recreate the dynamic levels. */
+DynLevelStruct gDynLevels[NUM_DYNLVLS];
 /** Contains the quests of the current game. */
 QuestStruct quests[NUM_QUESTS];
 /** Quest-log panel CEL */
@@ -27,7 +29,7 @@ unsigned numqlines;
 unsigned qline;
 BYTE gbTownWarps;
 BYTE gbWaterDone;
-static_assert(NUM_LEVELS <= 32, "guLvlVisited can not maintain too many levels.");
+/** the masks of the visited levels */
 uint32_t guLvlVisited;
 int gnSfxDelay;
 int gnSfxNum;
@@ -336,32 +338,38 @@ void ResyncQuests()
 	deltaload = false;
 }
 
-static void PrintQLString(unsigned y, const char* str)
+static void PrintQLString(int px, int py, unsigned y, const char* str)
 {
-	int width, sx, sy, px;
+	int width, sx, sy, tx;
 
-	sx = /*x*/0 + QPNL_BORDER + SCREEN_X + gnWndQuestX;
-	sy = y * QPNL_LINE_SPACING + QPNL_BORDER + QPNL_TEXT_HEIGHT + SCREEN_Y + gnWndQuestY;
+	sx = px;
+	sy = py + y * QPNL_LINE_SPACING;
 	width = GetSmallStringWidth(str);
-	if (width < QPNL_LINE_WIDTH) {
+	// if (width < QPNL_LINE_WIDTH) {
 		sx += (QPNL_LINE_WIDTH - width) >> 1;
-	}
-	px = qline == y ? sx : INT_MAX;
-	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE);
-	if (px != INT_MAX) {
-		DrawSmallPentSpn(px - FOCUS_SMALL, sx + 6, sy + 1);
+	// }
+	tx = sx;
+	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE, FONT_KERN_SMALL);
+	if (qline == y) {
+		DrawSmallPentSpn(tx - FOCUS_SMALL, sx + 6, sy + 1);
 	}
 }
 
 void DrawQuestLog()
 {
+	int px, py;
 	unsigned i;
 
-	CelDraw(SCREEN_X + gnWndQuestX, SCREEN_Y + gnWndQuestY + SPANEL_HEIGHT - 1, pQLogCel, 1);
+	px = SCREEN_X + gnWndQuestX;
+	py = SCREEN_Y + gnWndQuestY;
+	CelDraw(px, py + SPANEL_HEIGHT - 1, pQLogCel, 1);
+
+	px += QPNL_BORDER;
+	py += QPNL_BORDER + QPNL_TEXT_HEIGHT;
 	for (i = 0; i < numqlines; i++) {
-		PrintQLString(qtopline + i, questlist[qlist[i]]._qlstr);
+		PrintQLString(px, py, qtopline + i, questlist[qlist[i]]._qlstr);
 	}
-	PrintQLString(QPNL_MAXENTRIES, "Close Quest Log");
+	PrintQLString(px, py, QPNL_MAXENTRIES, "Close Quest Log");
 }
 
 void StartQuestlog()
@@ -390,7 +398,7 @@ void QuestlogUp()
 		} else {
 			qline--;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
@@ -404,13 +412,13 @@ void QuestlogDown()
 		} else {
 			qline++;
 		}
-		PlaySFX(IS_TITLEMOV);
+		PlaySfx(IS_TITLEMOV);
 	}
 }
 
 void QuestlogEnter()
 {
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 	if (/*numqlines != 0 &&*/ qline != QPNL_MAXENTRIES)
 		StartQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	else
