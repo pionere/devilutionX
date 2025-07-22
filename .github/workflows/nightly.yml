@@ -898,19 +898,21 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install dependencies
-      run: |
-        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
-        deb http://deb.debian.org/debian bullseye-backports main
-        LIST
-        apt-get update
-        apt-get install -y -t bullseye-backports cmake
-        apt-get install -y --no-install-recommends --no-install-suggests \
-          ffmpeg \
-          gettext
+    #- name: Install dependencies
+    #  run: |
+    #    tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+    #    deb http://deb.debian.org/debian bullseye-backports main
+    #    LIST
+    #    apt-get update
+    #    apt-get install -y -t bullseye-backports cmake
+    #    apt-get install -y --no-install-recommends --no-install-suggests \
+    #      ffmpeg \
+    #      gettext
 
-    - name: Get external dependencies
+    - name: Create Build Environment
       run: |
+        sudo apt update
+        apt-get install -y cmake wget
         wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
         unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
         wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
@@ -961,16 +963,21 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install dependencies
-      shell: bash
+    #- name: Install dependencies
+    #  shell: bash
+    #  run: |
+    #    tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+    #    deb http://deb.debian.org/debian bullseye-backports main
+    #    LIST
+    #    apt-get update
+    #    apt-get install -y -t bullseye-backports cmake
+    #    apt-get install -y --no-install-recommends --no-install-suggests \
+    #      gettext
+
+    - name: Create Build Environment
       run: |
-        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
-        deb http://deb.debian.org/debian bullseye-backports main
-        LIST
-        apt-get update
-        apt-get install -y -t bullseye-backports cmake
-        apt-get install -y --no-install-recommends --no-install-suggests \
-          gettext
+        sudo apt update
+        apt-get install -y cmake
 
     - name: Configure CMake
       run: |
@@ -1010,7 +1017,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Run prep.sh script
+    - name: Create Build Environment
       run: Packaging/amiga/prep.sh
 
     - name: Configure CMake
