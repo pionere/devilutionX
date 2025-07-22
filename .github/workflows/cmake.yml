@@ -1,4 +1,4 @@
-﻿name: CMake
+name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -18,20 +18,30 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install dependencies
-      run: |
-        apt-get update && \
-        apt-get install -y --no-install-recommends --no-install-suggests \
-          ffmpeg \
-          gettext
+    #- name: Install dependencies
+    #  run: |
+    #    tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+    #    deb http://deb.debian.org/debian bullseye-backports main
+    #    LIST
+    #    apt-get update
+    #    apt-get install -y -t bullseye-backports cmake
+    #    apt-get install -y --no-install-recommends --no-install-suggests \
+    #      ffmpeg \
+    #      gettext
 
-    - name: Get external dependencies
+    #    sudo apt-get update
+    - name: Create Build Environment
       run: |
+        sudo apt-get install -y cmake wget
         wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
         unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
         wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
         unzip "makerom-v0.18-ubuntu_x86_64.zip" "makerom" -d "/opt/devkitpro/tools/bin"
         chmod a+x /opt/devkitpro/tools/bin/makerom
+
+    #- name: Print text
+    #  shell: bash
+    #  run: cat /opt/devkitpro/cmake/3DS.cmake
 
     - name: Configure CMake
       run: |
@@ -41,6 +51,10 @@ jobs:
 
     - name: Build DevilutionX
       run: cmake --build build -j$(nproc)
+
+    #- name: Show content of workspace
+    #  run: find $RUNNER_WORKSPACE
+    #  shell: bash
 
     - name: Upload
       uses: actions/upload-artifact@v4
@@ -68,7 +82,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apt-get update && \
         apt-get install -y --no-install-recommends --no-install-suggests \
           ffmpeg \
           gettext
@@ -93,13 +106,13 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: devilutionx-3ds.3dsx
+        name: devilutionx-3ds-net.3dsx
         path: |
           ./build/devilutionx.3dsx
 
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: devilutionx-3ds.cia
+        name: devilutionx-3ds-net.cia
         path: |
           ./build/devilutionx.cia
