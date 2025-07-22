@@ -1039,7 +1039,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_vita, build_n3ds, build_switch, build_amiga]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
@@ -1307,6 +1307,19 @@ jobs:
         name: hellfire-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
 
+    # ps5-builds
+    - name: Download a diablo ps5 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-ps5.zip
+    - run: mv ${{github.workspace}}/devilutionx-ps5.zip ${{github.workspace}}/diablo-nightly-ps5.zip
+
+    - name: Download a hellfire ps5 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-ps5.zip
+    - run: mv ${{github.workspace}}/devilutionx-ps5.zip ${{github.workspace}}/hellfire-nightly-ps5.zip
+
     # vita-builds
     - name: Download a diablo vita artifact
       uses: actions/download-artifact@v4
@@ -1403,6 +1416,10 @@ jobs:
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg">ps4.pkg</a></td>'                   >> RELEASE_NOTE.md
         echo '<td align=center><code>PS4</code></td>'                                                                                      >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg">ps4.pkg</a></td>'                 >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-ps5.zip">ps5.zip</a></td>'                   >> RELEASE_NOTE.md
+        echo '<td align=center><code>PS5</code></td>'                                                                                      >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-ps5.zip">ps5.zip</a></td>'                 >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-aarch64.tar.xz">aarch64.tar.xz</a></td>'     >> RELEASE_NOTE.md
         echo '<td align=center><code>aarch64</code></td>'                                                                                  >> RELEASE_NOTE.md
@@ -1518,6 +1535,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
           ${{github.workspace}}/diablo-nightly-ps4.pkg
+          ${{github.workspace}}/diablo-nightly-ps5.zip
           ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
@@ -1542,6 +1560,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
           ${{github.workspace}}/hellfire-nightly-ps4.pkg
+          ${{github.workspace}}/hellfire-nightly-ps5.zip
           ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
