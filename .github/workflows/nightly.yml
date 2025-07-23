@@ -165,7 +165,7 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
         sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
         sudo Packaging/windows/mingw-prep.sh
 
@@ -813,10 +813,10 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        sudo apt update
-        sudo apt install cmake pkg-config clang-15 lld-15
-        sudo apt install build-essential autoconf libtool yasm nasm
-        sudo apt install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
+        sudo apt-get update
+        sudo apt-get install cmake pkg-config clang-15 lld-15
+        sudo apt-get install build-essential autoconf libtool yasm nasm
+        sudo apt-get install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
         wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.27/ps5-payload-dev.tar.gz
         sudo tar -xf ps5-payload-dev.tar.gz -C /
 
@@ -855,7 +855,10 @@ jobs:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: apk add git ninja gettext
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+        apk add git ninja gettext
 
     - name: Configure CMake
       run: |
@@ -911,8 +914,8 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        sudo apt update
-        apt-get install -y cmake wget
+        sudo apt-get update
+        sudo apt-get install -y cmake wget
         wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
         unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
         wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
@@ -976,8 +979,8 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        sudo apt update
-        apt-get install -y cmake
+        sudo apt-get update
+        sudo apt-get install -y cmake
 
     - name: Configure CMake
       run: |
@@ -1018,7 +1021,10 @@ jobs:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: Packaging/amiga/prep.sh
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake wget
+        Packaging/amiga/prep.sh
 
     - name: Configure CMake
       run: |
