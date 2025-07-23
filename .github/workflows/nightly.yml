@@ -919,8 +919,7 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake wget
+        sudo apt-get install -t bullseye -y cmake wget
         wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
         unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
         wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
@@ -984,8 +983,7 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake
+        sudo apt-get install -t bullseye -y cmake
 
     - name: Configure CMake
       run: |
