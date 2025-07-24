@@ -537,13 +537,15 @@ jobs:
     runs-on: ubuntu-24.04
     environment: android
     steps:
-    - name: Install gettext
-      run: sudo apt-get update && sudo apt-get install -y gettext
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Create Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gettext
 
     - name: set up JDK 17
       uses: actions/setup-java@v4
@@ -846,7 +848,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vita.vpk'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: vitasdk/vitasdk:latest
     steps:
     - name: Checkout
@@ -855,10 +857,7 @@ jobs:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake
-        apk add git ninja gettext
+      run: apk add cmake ninja
 
     - name: Configure CMake
       run: |
@@ -892,7 +891,7 @@ jobs:
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-3ds.3dsx'
             cia: 'hellfire-nightly-3ds.cia'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: devkitpro/devkitarm:latest
 
     steps:
@@ -958,7 +957,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-switch.nro'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container: devkitpro/devkita64:latest
     steps:
     - name: Checkout
