@@ -69,4 +69,4 @@ jobs:
       with:
         name: ${{ matrix.artifact1 }}
         path: build-ps4/devil_patcher-ps4.pkg
-        compression-level: 0
+        #compression-level: 0
