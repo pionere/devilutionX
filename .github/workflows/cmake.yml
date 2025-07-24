@@ -1,4 +1,4 @@
-﻿name: CMake
+name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -74,8 +74,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      #apk --no-cache add git cmake ninja bash pkgconfig gettext
       - name: Install dependencies
-        run: apk --no-cache add git cmake ninja bash pkgconfig gettext
+        run: apk --no-cache add cmake ninja
 
       - name: Configure CMake
         run: |
