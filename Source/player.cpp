@@ -3099,7 +3099,8 @@ void PlrSetMana(int pnum, int val)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrSetMana: illegal player %d", pnum);
 	}
-	if (plr._pIFlags & ISPL_NOMANA)
+	// assert(val == 0);
+	// if (plr._pIFlags & ISPL_NOMANA)
 		val = 0;
 	plr._pMana = val;
 	plr._pManaBase = val - (plr._pMaxMana - plr._pMaxManaBase);
@@ -3113,6 +3114,7 @@ void PlrFillHp(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrFillHp: illegal player %d", pnum);
 	}
+	// assert(plr._pHitPoints != 0);
 	plr._pHitPoints = plr._pMaxHP;
 	plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
@@ -3122,8 +3124,9 @@ void PlrFillHp(int pnum)
 void PlrFillMana(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrSetMana: illegal player %d", pnum);
+		dev_fatal("PlrFillMana: illegal player %d", pnum);
 	}
+	// assert(plr._pHitPoints != 0);
 	if (plr._pIFlags & ISPL_NOMANA)
 		return;
 	plr._pMana = plr._pMaxMana;
