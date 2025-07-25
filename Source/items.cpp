@@ -3999,7 +3999,7 @@ static void RecreateCraftedItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
 }
 
-static void RecreateTownItem(int ii, int32_t iseed, uint16_t idx, uint16_t icreateinfo)
+static void RecreateTownItem(int ii, uint16_t idx, int32_t iseed, uint16_t icreateinfo)
 {
 	int loc;
 	unsigned lvl;
@@ -4104,7 +4104,7 @@ void RecreateItem(int32_t iseed, uint16_t wIndex, uint16_t wCI)
 			//items[MAXITEMS]._iCreateInfo = wCI;
 		} else {
 			if (wCI & CF_TOWN) {
-				RecreateTownItem(MAXITEMS, iseed, wIndex, wCI);
+				RecreateTownItem(MAXITEMS, wIndex, iseed, wCI);
 			//	items[MAXITEMS]._iSeed = iseed;
 			//	items[MAXITEMS]._iCreateInfo = wCI;
 			//} else if ((wCI & CF_USEFUL) == CF_USEFUL) {
