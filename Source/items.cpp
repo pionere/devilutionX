@@ -3646,21 +3646,21 @@ static void SortSmith()
 		j--;
 	}
 }
-
+static void RecreateTownItem(int ii, uint16_t idx, int32_t iseed, uint16_t icreateinfo);
 void SpawnSmith(unsigned lvl)
 {
 	int i, iCnt;
 	int32_t seed;
 
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
+	uint16_t wCI = lvl | CF_SMITH;
 	for (i = 0; i < iCnt; i++) {
 		do {
 			seed = NextRndSeed();
-			SetRndSeed(seed);
-			GetItemAttrs(0, RndSmithItem(lvl), lvl);
+			RecreateTownItem(0, 0, seed, wCI);
 		} while (items[0]._iIvalue > SMITH_MAX_VALUE);
 		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = lvl | CF_SMITH;
+		items[0]._iCreateInfo = wCI;
 		copy_pod(smithitem[i], items[0]);
 	}
 	for ( ; i < SMITH_ITEMS; i++)
@@ -3677,14 +3677,13 @@ static void SpawnOnePremium(int i, unsigned lvl)
 		lvl = 30;
 	if (lvl < 1)
 		lvl = 1;*/
+	uint16_t wCI = lvl | CF_SMITHPREMIUM;
 	do {
 		seed = NextRndSeed();
-		SetRndSeed(seed);
-		GetItemAttrs(0, RndSmithItem(lvl), lvl);
-		GetItemBonus(0, lvl, IAR_SHOP, true, false);
+		RecreateTownItem(0, 0, seed, wCI);
 	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
 	items[0]._iSeed = seed;
-	items[0]._iCreateInfo = lvl | CF_SMITHPREMIUM;
+	items[0]._iCreateInfo = wCI;
 	copy_pod(premiumitems[i], items[0]);
 }
 
@@ -3794,16 +3793,14 @@ void SpawnWitch(unsigned lvl)
 	SetItemSData(&witchitem[2], IDI_PORTAL);
 
 	iCnt = RandRange(10, WITCH_ITEMS - 1);
+	uint16_t wCI = lvl | CF_WITCH;
 	for (i = 3; i < iCnt; i++) {
 		do {
 			seed = NextRndSeed();
-			SetRndSeed(seed);
-			GetItemAttrs(0, RndWitchItem(lvl), lvl);
-			// if (random_(51, 100) <= 5 || items[0]._itype == ITYPE_STAFF)
-				GetItemBonus(0, lvl, IAR_SHOP, true, true);
+			RecreateTownItem(0, 0, seed, wCI);
 		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
 		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = lvl | CF_WITCH;
+		items[0]._iCreateInfo = wCI;
 		copy_pod(witchitem[i], items[0]);
 	}
 
@@ -3819,14 +3816,13 @@ void SpawnBoy(unsigned lvl)
 
 	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
 		boylevel = lvl >> 1;
+		uint16_t wCI = lvl | CF_BOY;
 		do {
 			seed = NextRndSeed();
-			SetRndSeed(seed);
-			GetItemAttrs(0, RndSmithItem(lvl), lvl);
-			GetItemBonus(0, lvl, IAR_SHOP, true, true);
+			RecreateTownItem(0, 0, seed, wCI);
 		} while (items[0]._iIvalue > BOY_MAX_VALUE);
 		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = lvl | CF_BOY;
+		items[0]._iCreateInfo = wCI;
 		copy_pod(boyitem, items[0]);
 	}
 }
@@ -3915,14 +3911,14 @@ void SpawnHealer(unsigned lvl)
 		srnd = 2;
 	}
 	iCnt = RandRange(10, HEALER_ITEMS - 1);
+	uint16_t wCI = lvl | CF_HEALER;
 	for (i = srnd; i < iCnt; i++) {
 		do {
 			seed = NextRndSeed();
-			SetRndSeed(seed);
-			GetItemAttrs(0, RndHealerItem(lvl), lvl);
+			RecreateTownItem(0, 0, seed, wCI);
 		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL && items[0]._iSpell != SPL_HEALOTHER);
 		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = lvl | CF_HEALER;
+		items[0]._iCreateInfo = wCI;
 		copy_pod(healitem[i], items[0]);
 	}
 	for ( ; i < HEALER_ITEMS; i++) {
