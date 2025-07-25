@@ -1993,7 +1993,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		break;
 	}
 
-	if (plx(offp)._pILifeSteal != 0) {
+	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
+	if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 	}
 
@@ -2016,8 +2017,6 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if ((fdam | ldam | mdam | adam) != 0) {
 		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
-
-	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
 	if (dam <= 0) {
 		dam = 1;
 	}

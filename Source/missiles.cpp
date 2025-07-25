@@ -1194,7 +1194,11 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 			break;
 		}
 
-		if (plx(offp)._pILifeSteal != 0) {
+		// assert(!(mis->_miFlags & MIF_DOT));
+		dam -= plr._pIAbsAnyHit;
+		// assert(mis->_miResist == MISR_SLASH || mis->_miResist == MISR_BLUNT || mis->_miResist == MISR_PUNCTURE);
+		dam -= plr._pIAbsPhyHit;
+		if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 			PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 		}
 
@@ -1218,14 +1222,14 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 	} else {
 		dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		dam >>= 1;
+		if (!(mis->_miFlags & MIF_DOT)) {
+			dam -= plr._pIAbsAnyHit;
+			// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
+			if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
+				dam -= plr._pIAbsPhyHit;
+		}
 	}
 
-	if (!(mis->_miFlags & MIF_DOT)) {
-		dam -= plr._pIAbsAnyHit;
-		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
-		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
-			dam -= plr._pIAbsPhyHit;
-	}
 	if (dam <= 0) {
 		dam = 1;
 	}
