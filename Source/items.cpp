@@ -1819,6 +1819,7 @@ static int RndDropItem(bool func(const ItemData& item, void* arg), void* arg, un
 
 static bool RndUItemOk(const ItemData& item, void* arg)
 {
+	// assert(item.itype != ITYPE_GOLD);
 	return item.itype != ITYPE_MISC || item.iMiscId == IMISC_BOOK || item.iMiscId == IMISC_MAP;
 }
 
@@ -1840,50 +1841,23 @@ static int RndAllItems(unsigned lvl)
 	return RndDropItem(RndItemOk, NULL, lvl);
 }
 
+typedef struct RndTypeItemParam {
+	int itype;
+	int imid;
+} RndTypeItemParam;
+
+static bool RndTypeItemOk(const ItemData& item, void* arg)
+{
+	RndTypeItemParam* param = (RndTypeItemParam*)arg;
+	return item.itype == param->itype && /*imid == IMISC_INVALID ||*/ item.iMiscId == param->imid;
+}
+
 static int RndTypeItems(int itype, int imid, unsigned lvl)
 {
-#if UNOPTIMIZED_RNDITEMS
-	int i, j, ri;
-	int ril[ITEM_RNDDROP_MAX];
-
+	RndTypeItemParam param = { itype, imid };
 	// assert(itype != ITYPE_GOLD);
 
-	ri = 0;
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (lvl < AllItemList[i].iMinMLvl
-		 || AllItemList[i].itype != itype
-		 || (/*imid != IMISC_INVALID &&*/ AllItemList[i].iMiscId != imid))
-			continue;
-		for (j = AllItemList[i].iRnd; j > 0; j--) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-	assert(ri != 0);
-	return ril[random_(27, ri)];
-#else
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
-
-	// assert(itype != ITYPE_GOLD);
-
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (lvl < AllItemList[i].iMinMLvl ||
-			AllItemList[i].itype != itype ||
-			(/*imid != IMISC_INVALID &&*/ AllItemList[i].iMiscId != imid)) ? 0 : AllItemList[i].iRnd;
-	}
-	ri = 0;
-	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
-		ri += ril[i];
-	// assert(ri != 0 && ri <= 0x7FFF);
-	ri = random_low(27, ri);
-	for (i = 0; ; i++) {
-		ri -= ril[i];
-		if (ri < 0)
-			break;
-	}
-	return i + IDI_RNDDROP_FIRST;
-#endif
+	return RndDropItem(RndTypeItemOk, &param, lvl);
 }
 
 static int CheckUnique(int ii, unsigned lvl, unsigned quality)
