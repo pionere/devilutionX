@@ -1981,36 +1981,11 @@ void SpawnUnique(int uid, int x, int y, int mode)
 		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 }
 
-void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
-{
-	MonsterStruct* mon;
-	int idx;
-	unsigned quality = CFDQ_NORMAL;
-
-	mon = &monsters[mnum];
-	if (mon->_muniqtype != 0) {
-		idx = RndUItem(mon->_mLevel);
-		quality = CFDQ_UNIQUE;
-	} else {
-		if (random_(24, 128) > (47 + currLvl._dLevelPlyrs * 4))
-			return;
-		idx = RndAnyItem(mon->_mLevel);
-	}
-
-	SetupItem(MAXITEMS, idx, NextRndSeed(), mon->_mLevel, quality);
-	GetSuperItemSpace(x, y, MAXITEMS);
-	if (sendmsg)
-		NetSendCmdSpawnItem(true);
-}
-
-void CreateRndItem(int x, int y, unsigned quality, int mode)
+static void SpawnRndItem(unsigned quality, unsigned lvl, int x, int y, int mode)
 {
 	int idx, ii;
-	unsigned lvl;
 
-	lvl = items_get_currlevel();
-
-	if (quality == CFDQ_GOOD)
+	if (quality >= CFDQ_GOOD)
 		idx = RndUItem(lvl);
 	else
 		idx = RndAnyItem(lvl);
@@ -2036,6 +2011,29 @@ void CreateRndItem(int x, int y, unsigned quality, int mode)
 		RespawnItem(ii, false);
 		DeltaAddItem(ii);
 	}
+}
+
+void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
+{
+	MonsterStruct* mon;
+	mon = &monsters[mnum];
+	unsigned quality = CFDQ_UNIQUE;
+
+	if (mon->_muniqtype == 0) {
+		if (random_(24, 128) > (47 + currLvl._dLevelPlyrs * 4))
+			return;
+		quality = CFDQ_NORMAL;
+	}
+	SpawnRndItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND : ICM_DUMMY);
+}
+
+void CreateRndItem(int x, int y, unsigned quality, int mode)
+{
+	unsigned lvl;
+
+	lvl = items_get_currlevel();
+
+	SpawnRndItem(quality, lvl, x, y, mode);
 }
 
 static void SetupUsefulItem(int ii, int32_t iseed, unsigned lvl)
