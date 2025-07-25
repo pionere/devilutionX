@@ -3711,49 +3711,16 @@ void SpawnBoy(unsigned lvl)
 	}
 }
 
-static bool HealerItemOk(int i)
+static bool HealerItemOk(const ItemData& item, void* arg)
 {
-	return AllItemList[i].iMiscId == IMISC_REJUV
-		|| AllItemList[i].iMiscId == IMISC_FULLREJUV
-		|| AllItemList[i].iMiscId == IMISC_SCROLL;
+	return item.iMiscId == IMISC_REJUV
+		|| item.iMiscId == IMISC_FULLREJUV
+		|| item.iMiscId == IMISC_SCROLL;
 }
 
 static int RndHealerItem(unsigned lvl)
 {
-#if UNOPTIMIZED_RNDITEMS
-	int i, j, ri;
-	int ril[ITEM_RNDDROP_MAX];
-
-	ri = 0;
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (!HealerItemOk(i) || lvl < AllItemList[i].iMinMLvl)
-			continue;
-		for (j = AllItemList[i].iRnd; j > 0; j--) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-
-	return ril[random_(50, ri)];
-#else
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
-
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (!HealerItemOk(i) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
-	}
-	ri = 0;
-	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
-		ri += ril[i];
-	// assert(ri != 0 && ri <= 0x7FFF);
-	ri = random_low(50, ri);
-	for (i = 0; ; i++) {
-		ri -= ril[i];
-		if (ri < 0)
-			break;
-	}
-	return i + IDI_RNDDROP_FIRST;
-#endif
+	return RndDropItem(HealerItemOk, NULL, lvl);
 }
 
 static void SortHealer()
