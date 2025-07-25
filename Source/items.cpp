@@ -1827,48 +1827,17 @@ static int RndUItem(unsigned lvl)
 	return RndDropItem(RndUItemOk, NULL, lvl);
 }
 
+static bool RndItemOk(const ItemData& item, void* arg)
+{
+	return true;
+}
+
 static int RndAllItems(unsigned lvl)
 {
-#if UNOPTIMIZED_RNDITEMS
-	int i, j, ri;
-	int ril[ITEM_RNDDROP_MAX];
-
 	if (random_(26, 128) > 32)
 		return IDI_GOLD;
 
-	ri = 0;
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (lvl < AllItemList[i].iMinMLvl)
-			continue;
-		for (j = AllItemList[i].iRnd; j > 0; j--) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-	assert(ri != 0);
-	return ril[random_(26, ri)];
-#else
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
-
-	if (random_(26, 128) > 32)
-		return IDI_GOLD;
-
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = lvl < AllItemList[i].iMinMLvl ? 0 : AllItemList[i].iRnd;
-	}
-	ri = 0;
-	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
-		ri += ril[i];
-	// assert(ri != 0 && ri <= 0x7FFF);
-	ri = random_low(26, ri);
-	for (i = 0; ; i++) {
-		ri -= ril[i];
-		if (ri < 0)
-			break;
-	}
-	return i + IDI_RNDDROP_FIRST;
-#endif
+	return RndDropItem(RndItemOk, NULL, lvl);
 }
 
 static int RndTypeItems(int itype, int imid, unsigned lvl)
