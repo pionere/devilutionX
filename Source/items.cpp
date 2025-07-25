@@ -1779,6 +1779,44 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 	GetItemPower(ii, lvl, range, flgs, onlygood);
 }
 
+static int RndDropItem(bool func(const ItemData& item, void* arg), void* arg, unsigned lvl)
+{
+#if UNOPTIMIZED_RNDITEMS
+	int i, j, ri;
+	int ril[ITEM_RNDDROP_MAX];
+
+	ri = 0;
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		if (!func(AllItemList[i], arg) || lvl < AllItemList[i].iMinMLvl)
+			continue;
+		for (j = AllItemList[i].iRnd; j > 0; j--) {
+			ril[ri] = i;
+			ri++;
+		}
+	}
+
+	return ril[random_(50, ri)];
+#else
+	int i, ri;
+	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
+
+	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
+		ril[i - IDI_RNDDROP_FIRST] = (!func(AllItemList[i], arg) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
+	}
+	ri = 0;
+	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
+		ri += ril[i];
+	// assert(ri != 0 && ri <= 0x7FFF);
+	ri = random_low(50, ri);
+	for (i = 0; ; i++) {
+		ri -= ril[i];
+		if (ri < 0)
+			break;
+	}
+	return i + IDI_RNDDROP_FIRST;
+#endif
+}
+
 static int RndUItem(unsigned lvl)
 {
 #if UNOPTIMIZED_RNDITEMS
@@ -3569,50 +3607,17 @@ void ItemStatOk(int pnum, ItemStruct* is)
 				  && plr._pMagic >= is->_iMinMag;
 }
 
-static bool SmithItemOk(int i)
+static bool SmithItemOk(const ItemData& item, void* arg)
 {
-	return AllItemList[i].itype != ITYPE_MISC
-	 && AllItemList[i].itype != ITYPE_GOLD
-	 && AllItemList[i].itype != ITYPE_RING
-	 && AllItemList[i].itype != ITYPE_AMULET;
+	return item.itype != ITYPE_MISC
+	 && item.itype != ITYPE_GOLD
+	 && item.itype != ITYPE_RING
+	 && item.itype != ITYPE_AMULET;
 }
 
 static int RndSmithItem(unsigned lvl)
 {
-#if UNOPTIMIZED_RNDITEMS
-	int i, j, ri;
-	int ril[ITEM_RNDDROP_MAX];
-
-	ri = 0;
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (!SmithItemOk(i) || lvl < AllItemList[i].iMinMLvl)
-			continue;
-		for (j = AllItemList[i].iRnd; j > 0; j--) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-
-	return ril[random_(50, ri)];
-#else
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
-
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (!SmithItemOk(i) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
-	}
-	ri = 0;
-	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
-		ri += ril[i];
-	// assert(ri != 0 && ri <= 0x7FFF);
-	ri = random_low(50, ri);
-	for (i = 0; ; i++) {
-		ri -= ril[i];
-		if (ri < 0)
-			break;
-	}
-	return i + IDI_RNDDROP_FIRST;
-#endif
+	return RndDropItem(SmithItemOk, NULL, lvl);
 }
 
 static void BubbleSwapItem(ItemStruct* a, ItemStruct* b)
