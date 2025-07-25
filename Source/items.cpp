@@ -1789,7 +1789,7 @@ static int RndUItem(unsigned lvl)
 	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
 		if (lvl < AllItemList[i].iMinMLvl
 		 // || AllItemList[i].itype == ITYPE_GOLD
-		 || (AllItemList[i].itype == ITYPE_MISC && AllItemList[i].iMiscId != IMISC_BOOK))
+		 || (AllItemList[i].itype == ITYPE_MISC && AllItemList[i].iMiscId != IMISC_BOOK && AllItemList[i].iMiscId != IMISC_MAP))
 			continue;
 		for (j = AllItemList[i].iRnd; j > 0; j--) {
 			ril[ri] = i;
