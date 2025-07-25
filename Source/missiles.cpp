@@ -2832,7 +2832,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (tnum != 0) {
 		// - player
 		tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-		if (tnum != misource && plx(tnum)._pHitPoints != 0)
+		if (tnum != misource)
 			PlrIncHp(tnum, hp);
 	} else {
 		// - minion

@@ -3135,6 +3135,8 @@ void PlrFillMana(int pnum)
 void PlrIncHp(int pnum, int hp)
 {
 	assert(hp >= 0);
+	if (plr._pHitPoints == 0)
+		return;
 	plr._pHitPoints += hp;
 	if (plr._pHitPoints > plr._pMaxHP)
 		plr._pHitPoints = plr._pMaxHP;
@@ -3148,7 +3150,7 @@ void PlrIncHp(int pnum, int hp)
 void PlrIncMana(int pnum, int mana)
 {
 	assert(mana >= 0);
-	if (plr._pIFlags & ISPL_NOMANA)
+	if (plr._pHitPoints == 0 || plr._pIFlags & ISPL_NOMANA)
 		return;
 
 	plr._pMana += mana;
