@@ -7,7 +7,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static void PackItem(PkItemStruct* pis, const ItemStruct* is)
+void PackItem(PkItemStruct* pis, const ItemStruct* is)
 {
 	if (is->_itype == ITYPE_NONE) {
 		pis->wIndx = static_cast<uint16_t>(IDI_NONE);
@@ -116,7 +116,7 @@ void PackPlayer(PkPlayerStruct* pPack, int pnum)
  * @param pis The source packed item
  * @param is The destination item
  */
-static void UnPackItem(const PkItemStruct* pis, ItemStruct* is)
+void UnPackItem(const PkItemStruct* pis, ItemStruct* is)
 {
 	uint16_t idx = pis->wIndx;
 

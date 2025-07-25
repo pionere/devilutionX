@@ -1210,27 +1210,9 @@ typedef struct LSaveGameLvlMetaStruct {
 } LSaveGameLvlMetaStruct;
 
 typedef struct LSaveItemStruct {
-	LE_INT32 viSeed;
-	LE_UINT16 viIdx;
-	LE_UINT16 viCreateInfo;
+	PkItemStruct viPkItem;
 	LE_INT32 vix;
 	LE_INT32 viy;
-	LE_INT32 viCurs;   // item_cursor_graphic
-	LE_INT32 vitype;   // item_type
-	LE_INT32 viMiscId; // item_misc_id
-	LE_INT32 viSpell;  // spell_id
-	BYTE viClass;      // item_class enum
-	BYTE viLoc;        // item_equip_type
-	BYTE viDamType;    // item_damage_type
-	BYTE viMinDam;
-	BYTE viMaxDam;
-	BYTE viBaseCrit;
-	BYTE viMinStr;
-	BYTE viMinMag;
-	BYTE viMinDex;
-	BOOLEAN viUsable;
-	BYTE viPrePower; // item_effect_type
-	BYTE viSufPower; // item_effect_type
 	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BOOLEAN viFloorFlag;
@@ -1240,52 +1222,7 @@ typedef struct LSaveItemStruct {
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
-	LE_INT32 viPostDraw;
-	LE_INT32 viIdentified;
-	char viName[32];
-	LE_INT32 vivalue;
-	LE_INT32 viIvalue;
-	LE_INT32 viAC;
-	LE_INT32 viPLFlags; // item_special_effect
-	LE_INT32 viCharges;
-	LE_INT32 viMaxCharges;
-	LE_INT32 viDurability;
-	LE_INT32 viMaxDur;
-	LE_INT32 viPLDam;
-	LE_INT32 viPLToHit;
-	LE_INT32 viPLAC;
-	LE_INT32 viPLStr;
-	LE_INT32 viPLMag;
-	LE_INT32 viPLDex;
-	LE_INT32 viPLVit;
-	LE_INT32 viPLFR;
-	LE_INT32 viPLLR;
-	LE_INT32 viPLMR;
-	LE_INT32 viPLAR;
-	LE_INT32 viPLMana;
-	LE_INT32 viPLHP;
-	LE_INT32 viPLDamMod;
-	BYTE viPLToBlk;
-	int8_t viPLAtkSpdMod;
-	int8_t viPLAbsAnyHit;
-	int8_t viPLAbsPhyHit;
-	int8_t viPLLight;
-	int8_t viPLSkillLevels;
-	BYTE viPLSkill;
-	int8_t viPLSkillLvl;
-	BYTE viPLManaSteal;
-	BYTE viPLLifeSteal;
-	BYTE viPLCrit;
-	BOOLEAN viStatFlag;
-	LE_INT32 viUid;
-	BYTE viPLFMinDam;
-	BYTE viPLFMaxDam;
-	BYTE viPLLMinDam;
-	BYTE viPLLMaxDam;
-	BYTE viPLMMinDam;
-	BYTE viPLMMaxDam;
-	BYTE viPLAMinDam;
-	BYTE viPLAMaxDam;
+	// LE_INT32 viPostDraw;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
