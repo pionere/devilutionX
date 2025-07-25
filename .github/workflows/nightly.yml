@@ -1044,7 +1044,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_amiga]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
@@ -1339,42 +1339,42 @@ jobs:
     - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/hellfire-nightly-vita.vpk
 
     # n3ds-builds
-    - name: Download a diablo n3ds artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: diablo-nightly-3ds.3dsx
-    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3ds.3dsx
+    #- name: Download a diablo n3ds artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: diablo-nightly-3ds.3dsx
+    #- run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3ds.3dsx
 
-    - name: Download a diablo n3ds artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: diablo-nightly-3ds.cia
-    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3ds.cia
+    #- name: Download a diablo n3ds artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: diablo-nightly-3ds.cia
+    #- run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3ds.cia
 
-    - name: Download a hellfire n3ds artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: hellfire-nightly-3ds.3dsx
-    - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3ds.3dsx
+    #- name: Download a hellfire n3ds artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: hellfire-nightly-3ds.3dsx
+    #- run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3ds.3dsx
 
-    - name: Download a hellfire n3ds artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: hellfire-nightly-3ds.cia
-    - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3ds.cia
+    #- name: Download a hellfire n3ds artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: hellfire-nightly-3ds.cia
+    #- run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3ds.cia
 
     # switch-builds
-    - name: Download a diablo switch artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: diablo-nightly-switch.nro
-    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switch.nro
+    #- name: Download a diablo switch artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: diablo-nightly-switch.nro
+    #- run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switch.nro
 
-    - name: Download a hellfire switch artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: hellfire-nightly-switch.nro
-    - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
+    #- name: Download a hellfire switch artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: hellfire-nightly-switch.nro
+    #- run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
 
     # amiga-builds
     - name: Download a diablo amiga artifact
@@ -1442,7 +1442,7 @@ jobs:
         echo '<td align=center><code>Vita</code></td>'                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-vita.vpk">vita.vpk</a></td>'               >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
-        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-3ds.3dsx">3ds.3dsx</a></td>'                 >> RELEASE_NOTE.md
+        echo '<!--td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-3ds.3dsx">3ds.3dsx</a></td>'                 >> RELEASE_NOTE.md
         echo '<td align=center rowspan=2><code>Nintendo 3DS</code></td>'                                                                   >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-3ds.3dsx">3ds.3dsx</a></td>'               >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
@@ -1452,7 +1452,7 @@ jobs:
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-switch.nro">switch.nro</a></td>'             >> RELEASE_NOTE.md
         echo '<td align=center><code>Nintendo Switch</code></td>'                                                                          >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-switch.nro">switch.nro</a></td>'           >> RELEASE_NOTE.md
-        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '</tr><tr-->'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-amiga">amiga</a></td>'                       >> RELEASE_NOTE.md
         echo '<td align=center><code>Amiga</code></td>'                                                                                    >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-amiga">amiga</a></td>'                     >> RELEASE_NOTE.md
@@ -1533,6 +1533,7 @@ jobs:
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
         draft: false
         prerelease: true
+        fail_on_unmatched_files: false
         token: ${{ secrets.GITHUB_TOKEN }}
         files: |
           ${{github.workspace}}/diablo-nightly-android.apk
