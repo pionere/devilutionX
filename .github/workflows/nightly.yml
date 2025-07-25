@@ -140,6 +140,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW 32bit
   build_mingw:
     needs: build_check
@@ -185,6 +186,7 @@ jobs:
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW 64bit
   build_mingw_x64:
     needs: build_check
@@ -230,6 +232,7 @@ jobs:
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW Win9x
   build_w98:
     needs: build_check
@@ -276,6 +279,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW WinXP
   build_wXP:
     needs: build_check
@@ -322,6 +326,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   # Linux-builds
   # 64bit
   build_linux64:
@@ -520,6 +525,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
+        compression-level: 0
   # Android-builds
   build_android:
     needs: build_check
@@ -832,7 +838,7 @@ jobs:
       with:
         path: build-ps5/devilutionx.zip
         name: ${{ matrix.artifact }}
-
+        compression-level: 0
   # vita-builds
   build_vita:
     needs: build_check
