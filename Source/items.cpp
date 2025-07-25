@@ -129,7 +129,8 @@ void InitLvlItems()
 
 static void PlaceInitItems()
 {
-	int ii, i, seed;
+	int ii, i;
+	int32_t seed;
 	unsigned lvl;
 
 	lvl = items_get_currlevel();
@@ -1975,7 +1976,7 @@ static void ItemRndDur(int ii)
 	}
 }
 
-static void SetupAllItems(int ii, int idx, int iseed, unsigned lvl, unsigned quality)
+static void SetupAllItems(int ii, int idx, int32_t iseed, unsigned lvl, unsigned quality)
 {
 	int uid;
 
@@ -2088,7 +2089,7 @@ void CreateRndItem(int x, int y, unsigned quality, int mode)
 	}
 }
 
-static void SetupAllUseful(int ii, int iseed, unsigned lvl)
+static void SetupAllUseful(int ii, int32_t iseed, unsigned lvl)
 {
 	int idx;
 
@@ -2607,7 +2608,7 @@ static void DoRecharge(int pnum, int cii)
 
 static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t ci, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
 {
-	int seed = pi->_iSeed;
+	int32_t seed = pi->_iSeed;
 	int ac = -1;
 	while (true) {
 		SetRndSeed(seed);
@@ -3648,7 +3649,8 @@ static void SortSmith()
 
 void SpawnSmith(unsigned lvl)
 {
-	int i, iCnt, seed;
+	int i, iCnt;
+	int32_t seed;
 
 	iCnt = RandRange(10, SMITH_ITEMS - 1);
 	for (i = 0; i < iCnt; i++) {
@@ -3669,7 +3671,7 @@ void SpawnSmith(unsigned lvl)
 
 static void SpawnOnePremium(int i, unsigned lvl)
 {
-	int seed;
+	int32_t seed;
 
 	/*if (lvl > 30)
 		lvl = 30;
@@ -3785,7 +3787,7 @@ static void SortWitch()
 void SpawnWitch(unsigned lvl)
 {
 	int i, iCnt;
-	int seed;
+	int32_t seed;
 
 	SetItemSData(&witchitem[0], IDI_MANA);
 	SetItemSData(&witchitem[1], IDI_FULLMANA);
@@ -3813,7 +3815,7 @@ void SpawnWitch(unsigned lvl)
 
 void SpawnBoy(unsigned lvl)
 {
-	int seed;
+	int32_t seed;
 
 	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
 		boylevel = lvl >> 1;
@@ -3899,7 +3901,8 @@ static void SortHealer()
 
 void SpawnHealer(unsigned lvl)
 {
-	int i, iCnt, srnd, seed;
+	int i, iCnt, srnd;
+	int32_t seed;
 
 	SetItemSData(&healitem[0], IDI_HEAL);
 	SetItemSData(&healitem[1], IDI_FULLHEAL);
@@ -3996,7 +3999,7 @@ static void RecreateCraftedItem(int ii/*, int iseed*/, int idx, unsigned lvl)
 	//items[ii]._iCreateInfo = lvl | CF_CRAFTED;
 }
 
-static void RecreateTownItem(int ii, int iseed, uint16_t idx, uint16_t icreateinfo)
+static void RecreateTownItem(int ii, int32_t iseed, uint16_t idx, uint16_t icreateinfo)
 {
 	int loc;
 	unsigned lvl;
@@ -4088,7 +4091,7 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
-void RecreateItem(int iseed, uint16_t wIndex, uint16_t wCI)
+void RecreateItem(int32_t iseed, uint16_t wIndex, uint16_t wCI)
 {
 	if (wIndex == IDI_GOLD) {
 		SetItemData(MAXITEMS, IDI_GOLD);
