@@ -3631,50 +3631,17 @@ void SpawnPremium(unsigned lvl)
 	}
 }
 
-static bool WitchItemOk(int i)
+static bool WitchItemOk(const ItemData& item, void* arg)
 {
-	return AllItemList[i].itype == ITYPE_STAFF
-	 || (AllItemList[i].itype == ITYPE_MISC
-	  && (AllItemList[i].iMiscId == IMISC_SCROLL
-	   || AllItemList[i].iMiscId == IMISC_RUNE));
+	return item.itype == ITYPE_STAFF
+	 || (item.itype == ITYPE_MISC
+	  && (item.iMiscId == IMISC_SCROLL
+	   || item.iMiscId == IMISC_RUNE));
 }
 
 static int RndWitchItem(unsigned lvl)
 {
-#if UNOPTIMIZED_RNDITEMS
-	int i, j, ri;
-	int ril[ITEM_RNDDROP_MAX];
-
-	ri = 0;
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		if (!WitchItemOk(i) || lvl < AllItemList[i].iMinMLvl)
-			continue;
-		for (j = AllItemList[i].iRnd; j > 0; j--) {
-			ril[ri] = i;
-			ri++;
-		}
-	}
-
-	return ril[random_(51, ri)];
-#else
-	int i, ri;
-	int ril[NUM_IDI - IDI_RNDDROP_FIRST];
-
-	for (i = IDI_RNDDROP_FIRST; i < NUM_IDI; i++) {
-		ril[i - IDI_RNDDROP_FIRST] = (!WitchItemOk(i) || lvl < AllItemList[i].iMinMLvl) ? 0 : AllItemList[i].iRnd;
-	}
-	ri = 0;
-	for (i = 0; i < (NUM_IDI - IDI_RNDDROP_FIRST); i++)
-		ri += ril[i];
-	// assert(ri != 0 && ri <= 0x7FFF);
-	ri = random_low(51, ri);
-	for (i = 0; ; i++) {
-		ri -= ril[i];
-		if (ri < 0)
-			break;
-	}
-	return i + IDI_RNDDROP_FIRST;
-#endif
+	return RndDropItem(WitchItemOk, NULL, lvl);
 }
 
 static void SortWitch()
