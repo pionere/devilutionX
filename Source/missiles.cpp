@@ -959,8 +959,9 @@ static bool MissMonHitByPlr(int mnum, int mi)
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
-	if (dam == 0)
-		return false;
+	if (dam <= 0) {
+		dam = 1;
+	}
 
 	if (!CheckMonsterHit(mnum, &ret))
 		return ret;
@@ -1092,15 +1093,14 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	}
 
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
-	if (dam == 0)
-		return false;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam -= plr._pIAbsAnyHit;
 		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
 		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
 			dam -= plr._pIAbsPhyHit;
-		if (dam < 64)
-			dam = 64;
+	}
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
@@ -1220,16 +1220,14 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		dam >>= 1;
 	}
 
-	if (dam == 0)
-		return false;
-
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam -= plr._pIAbsAnyHit;
 		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
 		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
 			dam -= plr._pIAbsPhyHit;
-		if (dam < 64)
-			dam = 64;
+	}
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {

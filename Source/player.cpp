@@ -2018,8 +2018,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	}
 
 	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
-	if (dam < 64) {
-		dam = 64;
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
