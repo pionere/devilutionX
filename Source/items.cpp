@@ -1118,7 +1118,7 @@ static void GetSuperItemSpace(int x, int y, int ii)
 		const int8_t* cr;
 		bool ignoreLine = false;
 restart:
-		for (i = 2; i < lengthof(CrawlNum); i--) {
+		for (i = 2; i < lengthof(CrawlNum); i++) {
 			cr = &CrawlTable[CrawlNum[i]];
 			for (j = (BYTE)*cr; j > 0; j--) {
 				xx = x + *++cr;
