@@ -2115,17 +2115,21 @@ static void PlrDoAttack(int pnum)
 	}
 	if (plr._pVar7 == 1) {
 		plr._pVar7 = 2;
-		hitcnt = PlrTryHit(pnum, plr._pdir);
+		dir = plr._pdir;
+		hitcnt = PlrTryHit(pnum, dir);
 		if (plr._pVar5 == SPL_SWIPE) {
-			dir = plr._pdir;
 			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
 			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
-			plr._pdir = dir;
 		}
 
 		if (hitcnt != 0) {
 			WeaponDur(pnum, 40 - hitcnt * 8);
 		}
+		// return early if the weapon is lost or triggered a got-hit/death animation
+		if (plr._pmode != PM_ATTACK) {
+			return;
+		}
+		plr._pdir = dir;
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
