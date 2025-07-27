@@ -68,6 +68,7 @@ ItemStruct* PlrItem(int pnum, int cii);
 void DoAbility(int pnum, int8_t from, BYTE cii);
 void DoOil(int pnum, int8_t from, BYTE cii);
 const char* ItemName(const ItemStruct* is);
+int ItemColor(const ItemStruct* is);
 void PrintItemPower(BYTE plidx, const ItemStruct* is);
 void DrawInvItemDetails();
 void SpawnSmith(unsigned lvl);

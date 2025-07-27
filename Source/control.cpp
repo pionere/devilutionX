@@ -1522,18 +1522,11 @@ static POS32 GetMousePos(int x, int y)
 	return pos;
 }
 
-static BYTE DrawItemColor(ItemStruct* is)
+static void GetItemInfo(const ItemStruct* is)
 {
-	if (is->_iMagical == ITEM_QUALITY_NORMAL)
-		return COL_WHITE;
-	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
-}
-
-static void GetItemInfo(ItemStruct* is)
-{
-	infoclr = DrawItemColor(is);
+	infoclr = ItemColor(is);
 	if (is->_itype != ITYPE_GOLD) {
-		copy_str(infostr, is->_iName);
+		snprintf(infostr, sizeof(infostr), "%s", ItemName(is));
 	} else {
 		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}

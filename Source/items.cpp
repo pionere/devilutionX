@@ -3145,13 +3145,13 @@ const char* ItemName(const ItemStruct* is)
 	return name;
 }
 
-static int ItemColor(ItemStruct* is)
+int ItemColor(const ItemStruct* is)
 {
+	if (is->_iMagical == ITEM_QUALITY_NORMAL)
+		return COL_WHITE;
 	if (is->_iMagical == ITEM_QUALITY_MAGIC)
 		return COL_BLUE;
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
-		return COL_GOLD;
-	return COL_WHITE;
+	return COL_GOLD;
 }
 
 static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
