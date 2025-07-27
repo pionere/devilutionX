@@ -321,11 +321,7 @@ static BYTE StoreItemColor(const ItemStruct* is)
 {
 	if (!is->_iStatFlag)
 		return COL_RED;
-	if (is->_iMagical == ITEM_QUALITY_MAGIC)
-		return COL_BLUE;
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
-		return COL_GOLD;
-	return COL_WHITE;
+	return ItemColor(is);
 }
 
 static void PrintStoreItem(const ItemStruct* is, int l, bool sel)

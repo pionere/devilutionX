@@ -3098,7 +3098,7 @@ static void PrintItemString(int x, int& y, const char* str)
 	y += ITEMDETAILS_LINE_HEIGHT;
 }
 
-static void PrintItemString(int x, int& y, const char* str, int col)
+static void PrintItemString(int x, int& y, const char* str, BYTE col)
 {
 	PrintJustifiedString(x, y, x + (ITEMDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), str, col, FONT_KERN_SMALL);
 	y += ITEMDETAILS_LINE_HEIGHT;
@@ -3145,7 +3145,7 @@ const char* ItemName(const ItemStruct* is)
 	return name;
 }
 
-int ItemColor(const ItemStruct* is)
+BYTE ItemColor(const ItemStruct* is)
 {
 	if (is->_iMagical == ITEM_QUALITY_NORMAL)
 		return COL_WHITE;
