@@ -1321,13 +1321,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-ps5.zip
-    - run: mv ${{github.workspace}}/devilutionx-ps5.zip ${{github.workspace}}/diablo-nightly-ps5.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-ps5.zip
 
     - name: Download a hellfire ps5 artifact
       uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-ps5.zip
-    - run: mv ${{github.workspace}}/devilutionx-ps5.zip ${{github.workspace}}/hellfire-nightly-ps5.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-ps5.zip
 
     # vita-builds
     - name: Download a diablo vita artifact
@@ -1538,6 +1538,7 @@ jobs:
         draft: false
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
+        fail_on_unmatched_files: true
         files: |
           ${{github.workspace}}/diablo-nightly-android.apk
           ${{github.workspace}}/diablo-nightly-lepus.opk
@@ -1589,6 +1590,5 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-mini-x86.zip
           ${{github.workspace}}/hellfire-nightly-server-x86.zip
           ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
-        fail_on_unmatched_files: true
       #env:
       #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
