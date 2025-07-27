@@ -1580,7 +1580,7 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iSpell = param1;
 		is->_iCharges = param2;
 		is->_iMaxCharges = param2;
-		// TODO: is->_iMinMag = spelldata[param1].sMinInt; ?
+		is->_iMinMag = spelldata[param1].sMinInt;
 		break;
 	case IPL_ONEHAND:
 		is->_iLoc = ILOC_ONEHAND;
