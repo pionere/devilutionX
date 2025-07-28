@@ -1805,12 +1805,18 @@ void DrawInfoStr()
 		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (INVIDX_VALID(pcursinvitem)) {
-		DrawInvItemDetails();
+		const ItemStruct* is = PlrItem(mypnum, pcursinvitem);
+		DrawItemDetails(is);
 	} else if (TRIG_VALID(pcurstrig)) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
 		DrawTooltip(infostr, MousePos.x + cursW / 2u, MousePos.y - TOOLTIP_OFFSET, infoclr);
+	} else if (stextflag != STORE_NONE) {
+		const ItemStruct* si = CurrentStoreItem();
+		if (si != NULL) {
+			DrawItemDetails(si);
+		}
 	}
 }
 

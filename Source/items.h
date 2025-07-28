@@ -70,7 +70,7 @@ void DoOil(int pnum, int8_t from, BYTE cii);
 const char* ItemName(const ItemStruct* is);
 BYTE ItemColor(const ItemStruct* is);
 void PrintItemPower(BYTE plidx, const ItemStruct* is);
-void DrawInvItemDetails();
+void DrawItemDetails(const ItemStruct* is);
 void SpawnSmith(unsigned lvl);
 void SpawnPremium(unsigned lvl);
 void SpawnWitch(unsigned lvl);

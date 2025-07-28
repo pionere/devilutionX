@@ -1526,12 +1526,12 @@ static void DrawView()
 		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
-		if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
-			DrawInfoStr();
-		}
 		if (gnVisibleHelpLines != 0) {
 			DrawHelp();
 		}
+	}
+	if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
+		DrawInfoStr();
 	}
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();

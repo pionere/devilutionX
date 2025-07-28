@@ -3104,7 +3104,7 @@ static void PrintItemString(int x, int& y, const char* str, BYTE col)
 	y += ITEMDETAILS_LINE_HEIGHT;
 }
 
-static void PrintUniquePower(BYTE plidx, ItemStruct* is, int x, int& y)
+static void PrintUniquePower(BYTE plidx, const ItemStruct* is, int x, int& y)
 {
 	// if (plidx != IPL_INVCURS) {
 		PrintItemPower(plidx, is);
@@ -3112,7 +3112,7 @@ static void PrintUniquePower(BYTE plidx, ItemStruct* is, int x, int& y)
 	// }
 }
 
-static void DrawUniqueInfo(ItemStruct* is, int x, int& y)
+static void DrawUniqueInfo(const ItemStruct* is, int x, int& y)
 {
 	const UniqItemData* uis;
 
@@ -3363,7 +3363,7 @@ static int LinesOfUniqInfo(const ItemStruct* is)
 	return result;
 }
 
-static int LinesOfItemDetails(ItemStruct* is)
+static int LinesOfItemDetails(const ItemStruct* is)
 {
 	int result = 0;
 
@@ -3405,12 +3405,9 @@ static int LinesOfItemDetails(ItemStruct* is)
 	return result;
 }
 
-void DrawInvItemDetails()
+void DrawItemDetails(const ItemStruct* is)
 {
-	ItemStruct* is;
 	int x, y, wh;
-	// assert(INVIDX_VALID(pcursinvitem));
-	is = PlrItem(mypnum, pcursinvitem);
 	wh = BOXBORDER_WIDTH + 3 * ITEMDETAILS_LINE_HEIGHT + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2 + LinesOfItemDetails(is) * ITEMDETAILS_LINE_HEIGHT + ITEMDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
 	x = MousePos.x;
 	y = MousePos.y;
