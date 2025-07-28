@@ -3754,29 +3754,6 @@ void SpawnPremium(unsigned lvl)
 	}
 }
 
-static void SortWitch()
-{
-	int j, k;
-	bool sorted;
-
-	j = 3;
-	while (witchitem[j + 1]._itype != ITYPE_NONE) {
-		j++;
-	}
-
-	sorted = false;
-	while (j > 3 && !sorted) {
-		sorted = true;
-		for (k = 3; k < j; k++) {
-			if (witchitem[k]._iIdx > witchitem[k + 1]._iIdx) {
-				BubbleSwapItem(&witchitem[k], &witchitem[k + 1]);
-				sorted = false;
-			}
-		}
-		j--;
-	}
-}
-
 void SpawnWitch(unsigned lvl)
 {
 	int i, iCnt;
@@ -3801,7 +3778,7 @@ void SpawnWitch(unsigned lvl)
 	for ( ; i < WITCH_ITEMS; i++)
 		witchitem[i]._itype = ITYPE_NONE;
 
-	SortWitch();
+	SortItems(&witchitem[3]);
 }
 
 void SpawnBoy(unsigned lvl)
@@ -3818,29 +3795,6 @@ void SpawnBoy(unsigned lvl)
 		items[0]._iSeed = seed;
 		items[0]._iCreateInfo = wCI;
 		copy_pod(boyitem, items[0]);
-	}
-}
-
-static void SortHealer()
-{
-	int j, k;
-	bool sorted;
-
-	j = 2;
-	while (healitem[j + 1]._itype != ITYPE_NONE) {
-		j++;
-	}
-
-	sorted = false;
-	while (j > 2 && !sorted) {
-		sorted = true;
-		for (k = 2; k < j; k++) {
-			if (healitem[k]._iIdx > healitem[k + 1]._iIdx) {
-				BubbleSwapItem(&healitem[k], &healitem[k + 1]);
-				sorted = false;
-			}
-		}
-		j--;
 	}
 }
 
@@ -3873,7 +3827,7 @@ void SpawnHealer(unsigned lvl)
 	for ( ; i < HEALER_ITEMS; i++) {
 		healitem[i]._itype = ITYPE_NONE;
 	}
-	SortHealer();
+	SortItems(&healitem[2]);
 }
 
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
