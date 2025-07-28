@@ -3827,7 +3827,7 @@ void SpawnHealer(unsigned lvl)
 	for ( ; i < HEALER_ITEMS; i++) {
 		healitem[i]._itype = ITYPE_NONE;
 	}
-	SortItems(&healitem[2]);
+	SortItems(&healitem[srnd]);
 }
 
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
