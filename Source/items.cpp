@@ -760,13 +760,6 @@ void CalcPlrCharges(int pnum)
 	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, mask);
 }
 
-static void ItemStatOk(ItemStruct* is, int sa, int ma, int da)
-{
-	is->_iStatFlag = sa >= is->_iMinStr
-				  && da >= is->_iMinDex
-				  && ma >= is->_iMinMag;
-}
-
 static void CalcItemReqs(int pnum)
 {
 	int i;
@@ -817,18 +810,19 @@ recheck:
 	dc = std::max(0, da);
 
 	plr._pStrength = sc;
+	plr._pMagic = mc;
 	plr._pDexterity = dc;
 
 	pi = &plr._pHoldItem;
-	ItemStatOk(pi, sc, mc, dc);
+	ItemStatOk(pnum, pi);
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--, pi++)
-		ItemStatOk(pi, sc, mc, dc);
+		ItemStatOk(pnum, pi);
 
 	pi = plr._pSpdList;
 	for (i = MAXBELTITEMS; i != 0; i--, pi++)
-		ItemStatOk(pi, sc, mc, dc);
+		ItemStatOk(pnum, pi);
 }
 
 void CalcPlrInv(int pnum, bool Loadgfx)
