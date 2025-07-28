@@ -703,28 +703,25 @@ static void WalkInDir(AxisDirection dir)
 	NetSendCmdBParam1(CMD_WALKDIR, pdir);
 }
 
+static void HandleRepeaterMove(AxisDirectionRepeater &repeater, AxisDirection moveDir)
+{
+	moveDir = repeater.Get(moveDir);
+	if (moveDir.y != AxisDirectionY_NONE)
+		InputBtnDown(moveDir.y == AxisDirectionY_UP ? ACT_UP : ACT_DOWN);
+	if (moveDir.x != AxisDirectionX_NONE)
+		InputBtnDown(moveDir.x == AxisDirectionX_LEFT ? ACT_LEFT : ACT_RIGHT);
+}
+
 static void QuestLogMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
-	moveDir = repeater.Get(moveDir);
-	if (moveDir.y == AxisDirectionY_UP)
-		QuestlogUp();
-	else if (moveDir.y == AxisDirectionY_DOWN)
-		QuestlogDown();
+	HandleRepeaterMove(repeater, moveDir);
 }
 
 static void StoreMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
-	moveDir = repeater.Get(moveDir);
-	if (moveDir.y == AxisDirectionY_UP)
-		STextUp();
-	else if (moveDir.y == AxisDirectionY_DOWN)
-		STextDown();
-	else if (moveDir.x == AxisDirectionX_LEFT)
-		STextLeft();
-	else if (moveDir.x == AxisDirectionX_RIGHT)
-		STextRight();
+	HandleRepeaterMove(repeater, moveDir);
 }
 
 typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
