@@ -298,9 +298,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int iflgs = ISPL_NONE; // item_special_effect flags
 
-	int sadd = 0; // added strength
 	int madd = 0; // added magic
-	int dadd = 0; // added dexterity
 	int vadd = 0; // added vitality
 
 	int br = gnDifficulty * -10;
@@ -358,9 +356,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 				btoblk += pi->_iPLToBlk;
 				iflgs |= pi->_iPLFlags;
 
-				sadd += pi->_iPLStr;
 				madd += pi->_iPLMag;
-				dadd += pi->_iPLDex;
 				vadd += pi->_iPLVit;
 				fr += pi->_iPLFR;
 				lr += pi->_iPLLR;
@@ -493,17 +489,14 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
 
-	sadd += plr._pBaseStr;
 	madd += plr._pBaseMag;
-	dadd += plr._pBaseDex;
 	vadd += plr._pBaseVit;
-	sadd = std::max(0, sadd);
 	madd = std::max(0, madd);
-	dadd = std::max(0, dadd);
 	vadd = std::max(0, vadd);
-	plr._pStrength = sadd;
+	// use calculated str/dex from CalcItemReqs
+	int sadd = plr._pStrength;
+	int dadd = plr._pDexterity;
 	plr._pMagic = madd;
-	plr._pDexterity = dadd;
 	plr._pVitality = vadd;
 	if (plr._pTimer[PLTR_RAGE] > 0) {
 		sadd += 2 * plr._pLevel;
@@ -822,6 +815,9 @@ recheck:
 	sc = std::max(0, sa);
 	mc = std::max(0, ma);
 	dc = std::max(0, da);
+
+	plr._pStrength = sc;
+	plr._pDexterity = dc;
 
 	pi = &plr._pHoldItem;
 	ItemStatOk(pi, sc, mc, dc);
