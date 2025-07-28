@@ -497,10 +497,14 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	madd += plr._pBaseMag;
 	dadd += plr._pBaseDex;
 	vadd += plr._pBaseVit;
-	plr._pStrength = std::max(0, sadd);
-	plr._pMagic = std::max(0, madd);
-	plr._pDexterity = std::max(0, dadd);
-	plr._pVitality = std::max(0, vadd);
+	sadd = std::max(0, sadd);
+	madd = std::max(0, madd);
+	dadd = std::max(0, dadd);
+	vadd = std::max(0, vadd);
+	plr._pStrength = sadd;
+	plr._pMagic = madd;
+	plr._pDexterity = dadd;
+	plr._pVitality = vadd;
 	if (plr._pTimer[PLTR_RAGE] > 0) {
 		sadd += 2 * plr._pLevel;
 		dadd += plr._pLevel;
