@@ -3529,105 +3529,6 @@ static int RndSmithItem(unsigned lvl)
 	return RndDropItem(SmithItemOk, NULL, lvl);
 }
 
-static void BubbleSwapItem(ItemStruct* a, ItemStruct* b)
-{
-	ItemStruct h;
-
-	copy_pod(h, *a);
-	copy_pod(*a, *b);
-	copy_pod(*b, h);
-}
-
-static void SortSmith()
-{
-	int j, k;
-	bool sorted;
-
-	j = 0;
-	while (smithitem[j + 1]._itype != ITYPE_NONE) {
-		j++;
-	}
-
-	sorted = false;
-	while (j > 0 && !sorted) {
-		sorted = true;
-		for (k = 0; k < j; k++) {
-			if (smithitem[k]._iIdx > smithitem[k + 1]._iIdx) {
-				BubbleSwapItem(&smithitem[k], &smithitem[k + 1]);
-				sorted = false;
-			}
-		}
-		j--;
-	}
-}
-static void RecreateTownItem(int ii, uint16_t idx, int32_t iseed, uint16_t icreateinfo);
-void SpawnSmith(unsigned lvl)
-{
-	int i, iCnt;
-	int32_t seed;
-
-	iCnt = RandRange(10, SMITH_ITEMS - 1);
-	uint16_t wCI = lvl | CF_SMITH;
-	for (i = 0; i < iCnt; i++) {
-		do {
-			seed = NextRndSeed();
-			RecreateTownItem(0, 0, seed, wCI);
-		} while (items[0]._iIvalue > SMITH_MAX_VALUE);
-		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = wCI;
-		copy_pod(smithitem[i], items[0]);
-	}
-	for ( ; i < SMITH_ITEMS; i++)
-		smithitem[i]._itype = ITYPE_NONE;
-
-	SortSmith();
-}
-
-static void SpawnOnePremium(int i, unsigned lvl)
-{
-	int32_t seed;
-
-	/*if (lvl > 30)
-		lvl = 30;
-	if (lvl < 1)
-		lvl = 1;*/
-	uint16_t wCI = lvl | CF_SMITHPREMIUM;
-	do {
-		seed = NextRndSeed();
-		RecreateTownItem(0, 0, seed, wCI);
-	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
-	items[0]._iSeed = seed;
-	items[0]._iCreateInfo = wCI;
-	copy_pod(premiumitems[i], items[0]);
-}
-
-void SpawnPremium(unsigned lvl)
-{
-	int i;
-
-	if (numpremium < SMITH_PREMIUM_ITEMS) {
-		//i = lvl - (premiumlvladd[lengthof(premiumlvladd) - 1] - premiumlvladd[0]);
-		//if (premiumlevel < i)
-		//	premiumlevel = i;
-		for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
-			if (premiumitems[i]._itype == ITYPE_NONE)
-				SpawnOnePremium(i, premiumlevel + premiumlvladd[i]);
-		}
-		numpremium = SMITH_PREMIUM_ITEMS;
-	}
-	while ((unsigned)premiumlevel < lvl) {
-		premiumlevel++;
-		copy_pod(premiumitems[0], premiumitems[3]);
-		copy_pod(premiumitems[1], premiumitems[4]);
-		copy_pod(premiumitems[2], premiumitems[5]);
-		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
-		copy_pod(premiumitems[4], premiumitems[6]);
-		copy_pod(premiumitems[5], premiumitems[7]);
-		SpawnOnePremium(6, premiumlevel + premiumlvladd[6]);
-		SpawnOnePremium(7, premiumlevel + premiumlvladd[7]);
-	}
-}
-
 static bool WitchItemOk(const ItemData& item, void* arg)
 {
 	return item.itype == ITYPE_STAFF
@@ -3641,73 +3542,6 @@ static int RndWitchItem(unsigned lvl)
 	return RndDropItem(WitchItemOk, NULL, lvl);
 }
 
-static void SortWitch()
-{
-	int j, k;
-	bool sorted;
-
-	j = 3;
-	while (witchitem[j + 1]._itype != ITYPE_NONE) {
-		j++;
-	}
-
-	sorted = false;
-	while (j > 3 && !sorted) {
-		sorted = true;
-		for (k = 3; k < j; k++) {
-			if (witchitem[k]._iIdx > witchitem[k + 1]._iIdx) {
-				BubbleSwapItem(&witchitem[k], &witchitem[k + 1]);
-				sorted = false;
-			}
-		}
-		j--;
-	}
-}
-
-void SpawnWitch(unsigned lvl)
-{
-	int i, iCnt;
-	int32_t seed;
-
-	SetItemSData(&witchitem[0], IDI_MANA);
-	SetItemSData(&witchitem[1], IDI_FULLMANA);
-	SetItemSData(&witchitem[2], IDI_PORTAL);
-
-	iCnt = RandRange(10, WITCH_ITEMS - 1);
-	uint16_t wCI = lvl | CF_WITCH;
-	for (i = 3; i < iCnt; i++) {
-		do {
-			seed = NextRndSeed();
-			RecreateTownItem(0, 0, seed, wCI);
-		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
-		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = wCI;
-		copy_pod(witchitem[i], items[0]);
-	}
-
-	for ( ; i < WITCH_ITEMS; i++)
-		witchitem[i]._itype = ITYPE_NONE;
-
-	SortWitch();
-}
-
-void SpawnBoy(unsigned lvl)
-{
-	int32_t seed;
-
-	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
-		boylevel = lvl >> 1;
-		uint16_t wCI = lvl | CF_BOY;
-		do {
-			seed = NextRndSeed();
-			RecreateTownItem(0, 0, seed, wCI);
-		} while (items[0]._iIvalue > BOY_MAX_VALUE);
-		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = wCI;
-		copy_pod(boyitem, items[0]);
-	}
-}
-
 static bool HealerItemOk(const ItemData& item, void* arg)
 {
 	return item.iMiscId == IMISC_REJUV
@@ -3718,61 +3552,6 @@ static bool HealerItemOk(const ItemData& item, void* arg)
 static int RndHealerItem(unsigned lvl)
 {
 	return RndDropItem(HealerItemOk, NULL, lvl);
-}
-
-static void SortHealer()
-{
-	int j, k;
-	bool sorted;
-
-	j = 2;
-	while (healitem[j + 1]._itype != ITYPE_NONE) {
-		j++;
-	}
-
-	sorted = false;
-	while (j > 2 && !sorted) {
-		sorted = true;
-		for (k = 2; k < j; k++) {
-			if (healitem[k]._iIdx > healitem[k + 1]._iIdx) {
-				BubbleSwapItem(&healitem[k], &healitem[k + 1]);
-				sorted = false;
-			}
-		}
-		j--;
-	}
-}
-
-void SpawnHealer(unsigned lvl)
-{
-	int i, iCnt, srnd;
-	int32_t seed;
-
-	SetItemSData(&healitem[0], IDI_HEAL);
-	SetItemSData(&healitem[1], IDI_FULLHEAL);
-
-	if (IsMultiGame) {
-		SetItemSData(&healitem[2], IDI_RESURRECT);
-
-		srnd = 3;
-	} else {
-		srnd = 2;
-	}
-	iCnt = RandRange(10, HEALER_ITEMS - 1);
-	uint16_t wCI = lvl | CF_HEALER;
-	for (i = srnd; i < iCnt; i++) {
-		do {
-			seed = NextRndSeed();
-			RecreateTownItem(0, 0, seed, wCI);
-		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL && items[0]._iSpell != SPL_HEALOTHER);
-		items[0]._iSeed = seed;
-		items[0]._iCreateInfo = wCI;
-		copy_pod(healitem[i], items[0]);
-	}
-	for ( ; i < HEALER_ITEMS; i++) {
-		healitem[i]._itype = ITYPE_NONE;
-	}
-	SortHealer();
 }
 
 static void RecreateSmithItem(int ii/*, int iseed*/, int idx, unsigned lvl)
@@ -3874,6 +3653,227 @@ static void RecreateTownItem(int ii, uint16_t idx, int32_t iseed, uint16_t icrea
 		ASSUME_UNREACHABLE;
 		break;
 	}
+}
+
+static void BubbleSwapItem(ItemStruct* a, ItemStruct* b)
+{
+	ItemStruct h;
+
+	copy_pod(h, *a);
+	copy_pod(*a, *b);
+	copy_pod(*b, h);
+}
+
+static void SortSmith()
+{
+	int j, k;
+	bool sorted;
+
+	j = 0;
+	while (smithitem[j + 1]._itype != ITYPE_NONE) {
+		j++;
+	}
+
+	sorted = false;
+	while (j > 0 && !sorted) {
+		sorted = true;
+		for (k = 0; k < j; k++) {
+			if (smithitem[k]._iIdx > smithitem[k + 1]._iIdx) {
+				BubbleSwapItem(&smithitem[k], &smithitem[k + 1]);
+				sorted = false;
+			}
+		}
+		j--;
+	}
+}
+
+void SpawnSmith(unsigned lvl)
+{
+	int i, iCnt;
+	int32_t seed;
+
+	iCnt = RandRange(10, SMITH_ITEMS - 1);
+	uint16_t wCI = lvl | CF_SMITH;
+	for (i = 0; i < iCnt; i++) {
+		do {
+			seed = NextRndSeed();
+			RecreateTownItem(0, 0, seed, wCI);
+		} while (items[0]._iIvalue > SMITH_MAX_VALUE);
+		items[0]._iSeed = seed;
+		items[0]._iCreateInfo = wCI;
+		copy_pod(smithitem[i], items[0]);
+	}
+	for ( ; i < SMITH_ITEMS; i++)
+		smithitem[i]._itype = ITYPE_NONE;
+
+	SortSmith();
+}
+
+static void SpawnOnePremium(int i, unsigned lvl)
+{
+	int32_t seed;
+
+	/*if (lvl > 30)
+		lvl = 30;
+	if (lvl < 1)
+		lvl = 1;*/
+	uint16_t wCI = lvl | CF_SMITHPREMIUM;
+	do {
+		seed = NextRndSeed();
+		RecreateTownItem(0, 0, seed, wCI);
+	} while (items[0]._iIvalue > SMITH_MAX_PREMIUM_VALUE);
+	items[0]._iSeed = seed;
+	items[0]._iCreateInfo = wCI;
+	copy_pod(premiumitems[i], items[0]);
+}
+
+void SpawnPremium(unsigned lvl)
+{
+	int i;
+
+	if (numpremium < SMITH_PREMIUM_ITEMS) {
+		//i = lvl - (premiumlvladd[lengthof(premiumlvladd) - 1] - premiumlvladd[0]);
+		//if (premiumlevel < i)
+		//	premiumlevel = i;
+		for (i = 0; i < SMITH_PREMIUM_ITEMS; i++) {
+			if (premiumitems[i]._itype == ITYPE_NONE)
+				SpawnOnePremium(i, premiumlevel + premiumlvladd[i]);
+		}
+		numpremium = SMITH_PREMIUM_ITEMS;
+	}
+	while ((unsigned)premiumlevel < lvl) {
+		premiumlevel++;
+		copy_pod(premiumitems[0], premiumitems[3]);
+		copy_pod(premiumitems[1], premiumitems[4]);
+		copy_pod(premiumitems[2], premiumitems[5]);
+		SpawnOnePremium(3, premiumlevel + premiumlvladd[3]);
+		copy_pod(premiumitems[4], premiumitems[6]);
+		copy_pod(premiumitems[5], premiumitems[7]);
+		SpawnOnePremium(6, premiumlevel + premiumlvladd[6]);
+		SpawnOnePremium(7, premiumlevel + premiumlvladd[7]);
+	}
+}
+
+static void SortWitch()
+{
+	int j, k;
+	bool sorted;
+
+	j = 3;
+	while (witchitem[j + 1]._itype != ITYPE_NONE) {
+		j++;
+	}
+
+	sorted = false;
+	while (j > 3 && !sorted) {
+		sorted = true;
+		for (k = 3; k < j; k++) {
+			if (witchitem[k]._iIdx > witchitem[k + 1]._iIdx) {
+				BubbleSwapItem(&witchitem[k], &witchitem[k + 1]);
+				sorted = false;
+			}
+		}
+		j--;
+	}
+}
+
+void SpawnWitch(unsigned lvl)
+{
+	int i, iCnt;
+	int32_t seed;
+
+	SetItemSData(&witchitem[0], IDI_MANA);
+	SetItemSData(&witchitem[1], IDI_FULLMANA);
+	SetItemSData(&witchitem[2], IDI_PORTAL);
+
+	iCnt = RandRange(10, WITCH_ITEMS - 1);
+	uint16_t wCI = lvl | CF_WITCH;
+	for (i = 3; i < iCnt; i++) {
+		do {
+			seed = NextRndSeed();
+			RecreateTownItem(0, 0, seed, wCI);
+		} while (items[0]._iIvalue > WITCH_MAX_VALUE);
+		items[0]._iSeed = seed;
+		items[0]._iCreateInfo = wCI;
+		copy_pod(witchitem[i], items[0]);
+	}
+
+	for ( ; i < WITCH_ITEMS; i++)
+		witchitem[i]._itype = ITYPE_NONE;
+
+	SortWitch();
+}
+
+void SpawnBoy(unsigned lvl)
+{
+	int32_t seed;
+
+	if (boylevel < (lvl >> 1) || boyitem._itype == ITYPE_NONE) {
+		boylevel = lvl >> 1;
+		uint16_t wCI = lvl | CF_BOY;
+		do {
+			seed = NextRndSeed();
+			RecreateTownItem(0, 0, seed, wCI);
+		} while (items[0]._iIvalue > BOY_MAX_VALUE);
+		items[0]._iSeed = seed;
+		items[0]._iCreateInfo = wCI;
+		copy_pod(boyitem, items[0]);
+	}
+}
+
+static void SortHealer()
+{
+	int j, k;
+	bool sorted;
+
+	j = 2;
+	while (healitem[j + 1]._itype != ITYPE_NONE) {
+		j++;
+	}
+
+	sorted = false;
+	while (j > 2 && !sorted) {
+		sorted = true;
+		for (k = 2; k < j; k++) {
+			if (healitem[k]._iIdx > healitem[k + 1]._iIdx) {
+				BubbleSwapItem(&healitem[k], &healitem[k + 1]);
+				sorted = false;
+			}
+		}
+		j--;
+	}
+}
+
+void SpawnHealer(unsigned lvl)
+{
+	int i, iCnt, srnd;
+	int32_t seed;
+
+	SetItemSData(&healitem[0], IDI_HEAL);
+	SetItemSData(&healitem[1], IDI_FULLHEAL);
+
+	if (IsMultiGame) {
+		SetItemSData(&healitem[2], IDI_RESURRECT);
+
+		srnd = 3;
+	} else {
+		srnd = 2;
+	}
+	iCnt = RandRange(10, HEALER_ITEMS - 1);
+	uint16_t wCI = lvl | CF_HEALER;
+	for (i = srnd; i < iCnt; i++) {
+		do {
+			seed = NextRndSeed();
+			RecreateTownItem(0, 0, seed, wCI);
+		} while (items[0]._iSpell != SPL_NULL && items[0]._iSpell != SPL_HEAL && items[0]._iSpell != SPL_HEALOTHER);
+		items[0]._iSeed = seed;
+		items[0]._iCreateInfo = wCI;
+		copy_pod(healitem[i], items[0]);
+	}
+	for ( ; i < HEALER_ITEMS; i++) {
+		healitem[i]._itype = ITYPE_NONE;
+	}
+	SortHealer();
 }
 
 void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
