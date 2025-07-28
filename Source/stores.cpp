@@ -1357,7 +1357,7 @@ void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
 	for (i = 0; i < height; i++, src += width, dst += width)
 		memcpy(dst, src, BOXBORDER_WIDTH);
 }*/
-static int current_store_index(int px, int py)
+static int current_store_line(int px, int py)
 {
 	int mx, my, y;
 
@@ -1374,7 +1374,7 @@ static int current_store_index(int px, int py)
 	}
 
 	if (y >= STORE_LIST_FIRST && y < STORE_LINES) {
-		static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to current_store_index.");
+		static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to current_store_line.");
 		// add some freedom to the back button since it has an offset
 		if (y >= 22)
 			y = 22;
@@ -1432,7 +1432,7 @@ void DrawStore()
 		StoreUpdateSelection(); // check maxx
 	}
 
-	int csi = current_store_index(x, y);
+	int csi = current_store_line(x, y);
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
@@ -2718,7 +2718,7 @@ void TryStoreBtnClick()
 	if (stextsel != -1 && stextflag != STORE_WAIT) {
 		int px = gbWidePanel ? LTPANEL_X : STORE_PNL_X;
 		int py = LTPANEL_Y;
-		y = current_store_index(px, py);
+		y = current_store_line(px, py);
 		if (y == 0)
 			return;
 		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);

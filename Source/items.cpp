@@ -3666,24 +3666,24 @@ static void BubbleSwapItem(ItemStruct* a, ItemStruct* b)
 
 static void SortItems(ItemStruct* aItems)
 {
-	int j, k;
+	int n, i;
 	bool sorted;
 
-	j = 0;
-	while (aItems[j + 1]._itype != ITYPE_NONE) {
-		j++;
+	n = 0;
+	while (aItems[n + 1]._itype != ITYPE_NONE) {
+		n++;
 	}
 
 	sorted = false;
-	while (j > 0 && !sorted) {
+	while (n > 0 && !sorted) {
 		sorted = true;
-		for (k = 0; k < j; k++) {
-			if (aItems[k]._iIdx > aItems[k + 1]._iIdx) {
-				BubbleSwapItem(&aItems[k], &aItems[k + 1]);
+		for (i = 0; i < n; i++) {
+			if (aItems[i]._iIdx > aItems[i + 1]._iIdx) {
+				BubbleSwapItem(&aItems[i], &aItems[i + 1]);
 				sorted = false;
 			}
 		}
-		j--;
+		n--;
 	}
 }
 
