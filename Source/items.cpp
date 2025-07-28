@@ -3664,13 +3664,13 @@ static void BubbleSwapItem(ItemStruct* a, ItemStruct* b)
 	copy_pod(*b, h);
 }
 
-static void SortSmith()
+static void SortItems(ItemStruct* aItems)
 {
 	int j, k;
 	bool sorted;
 
 	j = 0;
-	while (smithitem[j + 1]._itype != ITYPE_NONE) {
+	while (aItems[j + 1]._itype != ITYPE_NONE) {
 		j++;
 	}
 
@@ -3678,8 +3678,8 @@ static void SortSmith()
 	while (j > 0 && !sorted) {
 		sorted = true;
 		for (k = 0; k < j; k++) {
-			if (smithitem[k]._iIdx > smithitem[k + 1]._iIdx) {
-				BubbleSwapItem(&smithitem[k], &smithitem[k + 1]);
+			if (aItems[k]._iIdx > aItems[k + 1]._iIdx) {
+				BubbleSwapItem(&aItems[k], &aItems[k + 1]);
 				sorted = false;
 			}
 		}
@@ -3706,7 +3706,7 @@ void SpawnSmith(unsigned lvl)
 	for ( ; i < SMITH_ITEMS; i++)
 		smithitem[i]._itype = ITYPE_NONE;
 
-	SortSmith();
+	SortItems(&smithitem[0]);
 }
 
 static void SpawnOnePremium(int i, unsigned lvl)
