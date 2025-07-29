@@ -2960,11 +2960,10 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	//	copy_cstr(tempstr, "hit monster doesn't heal");
 	//	break;
 	case IPL_STEALMANA:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% mana", (is->_iPLManaSteal * 100 + 64) >> 7);
-		break;
-	case IPL_STEALLIFE:
-		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% life", (is->_iPLLifeSteal * 100 + 64) >> 7);
-		break;
+	case IPL_STEALLIFE: {
+		int v = plidx == IPL_STEALMANA ? is->_iPLManaSteal : is->_iPLLifeSteal;
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% %s", (v * 100 + 64) >> 7, plidx == IPL_STEALMANA ? "mana" : "life");
+	} break;
 	case IPL_PENETRATE_PHYS:
 		copy_cstr(tempstr, "penetrates target's armor");
 		break;
