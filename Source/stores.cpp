@@ -6,6 +6,7 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1504,12 +1505,13 @@ void DrawStore()
 					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
 					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
+					int frame_height = InvItemHeight[frame];
 
 					sx += n * 2 * INV_SLOT_SIZE_PX;
 					sy += (STORE_ITEM_LINES - (1 + 1)) * 12;
 
-					sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
-					sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
+					sx += (2 * INV_SLOT_SIZE_PX - frame_width) >> 1;
+					sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
 
 					if (stextsel == i && stextselx == n) {
 						// assert(gbWidePanel);
@@ -1529,10 +1531,12 @@ void DrawStore()
 						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
 						*/
 						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+						if (sgbControllerActive) {
+							SetCursorPos(sx + frame_width / 2 - SCREEN_X, sy - frame_height / 2 - SCREEN_Y);
+						}
+#endif
 					}
-
-					// sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
-					// sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
 					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, is->_iStatFlag ? 0 : COLOR_TRN_RED);
 				}
 			}
