@@ -2848,35 +2848,25 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "%+d%% block chance", is->_iPLToBlk);
 		break;
 	case IPL_FIRERES:
-		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "resist fire: %+d%%", is->_iPLFR);
-		//else
-		//	copy_cstr(tempstr, "Resist Fire: 75% MAX");
-		break;
 	case IPL_LIGHTRES:
-		//if (is->_iPLLR < 75)
-			snprintf(tempstr, sizeof(tempstr), "resist lightning: %+d%%", is->_iPLLR);
-		//else
-		//	copy_cstr(tempstr, "Resist Lightning: 75% MAX");
-		break;
 	case IPL_MAGICRES:
-		//if (is->_iPLMR < 75)
-			snprintf(tempstr, sizeof(tempstr), "resist magic: %+d%%", is->_iPLMR);
-		//else
-		//	copy_cstr(tempstr, "Resist Magic: 75% MAX");
-		break;
 	case IPL_ACIDRES:
-		//if (is->_iPLAR < 75)
-			snprintf(tempstr, sizeof(tempstr), "resist acid: %+d%%", is->_iPLAR);
+	case IPL_ALLRES: {
+		const char* element;
+		int res;
+		switch (plidx) {
+		case IPL_FIRERES:  element = "fire";      res = is->_iPLFR; break;
+		case IPL_LIGHTRES: element = "lightning"; res = is->_iPLLR; break;
+		case IPL_MAGICRES: element = "magic";     res = is->_iPLMR; break;
+		case IPL_ACIDRES:  element = "acid";      res = is->_iPLAR; break;
+		case IPL_ALLRES:   element = "all";       res = is->_iPLFR; break;
+		default: ASSUME_UNREACHABLE;              break;
+		}
+		//if (ias->asValue0 < 75)
+		snprintf(tempstr, sizeof(tempstr), "resist %s: %+d%%", element, res);
 		//else
-		//	copy_cstr(tempstr, "Resist Acid: 75% MAX");
-		break;
-	case IPL_ALLRES:
-		//if (is->_iPLFR < 75)
-			snprintf(tempstr, sizeof(tempstr), "resist all: %+d%%", is->_iPLFR);
-		//else
-		//	copy_cstr(tempstr, "Resist All: 75% MAX");
-		break;
+		//	copy_cstr(tempstr, "resist %s: 75% MAX", element);
+	} break;
 	case IPL_CRITP:
 		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", is->_iPLCrit);
 		break;
