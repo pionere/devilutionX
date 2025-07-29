@@ -3053,9 +3053,10 @@ static void PrintMapPower(BYTE plidx, const ItemStruct* is)
 	case IPL_SETAC:
 		snprintf(tempstr, sizeof(tempstr), "starting level %d", is->_iAC);
 		break;
-	case IPL_LIGHT:
-		snprintf(tempstr, sizeof(tempstr), (is->_iPLLight & 1) ? "%+d area" : "%+d areas", is->_iPLLight);
-		break;
+	case IPL_LIGHT: {
+		int v = is->_iPLLight;
+		snprintf(tempstr, sizeof(tempstr), abs(v) == 1 ? "%+d area" : "%+d areas", v);
+	} break;
 	default:
 		ASSUME_UNREACHABLE
 	}
