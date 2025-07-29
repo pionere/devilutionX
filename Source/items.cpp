@@ -419,10 +419,10 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 						absPhyHit += ias->asValue0;
 						break;
 					case IPL_LIFE:
-						ihp += ias->asValue0 << 6;
+						ihp += ias->asValue0;
 						break;
 					case IPL_MANA:
-						imana += ias->asValue0 << 6;
+						imana += ias->asValue0;
 						break;
 					case IPL_LIGHT:
 						lrad += ias->asValue0;
@@ -548,6 +548,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pILifeSteal = lifesteal;
 	plr._pIManaSteal = manasteal;
 
+	ihp <<= 6;
+	imana <<= 6;
+
 	ihp += vadd << (6 + 1); // BUGFIX: blood boil can cause negative shifts here (see line 557)
 	imana += madd << (6 + 1);
 
@@ -619,7 +622,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		vadd += 2 * plr._pLevel;
 	}
 
-	pdmod = (1 << 9) + (32 * plr._pMagic);
+	pdmod = (1 << 9) + (32 * madd);
 	plr._pIFMinDam = fmin * pdmod >> (-6 + 9);
 	plr._pIFMaxDam = fmax * pdmod >> (-6 + 9);
 	plr._pILMinDam = lmin * pdmod >> (-6 + 9);
