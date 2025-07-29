@@ -266,7 +266,6 @@ typedef struct ItemStruct {
 	BOOLEAN _iIdentified;
 	BYTE _iNumAffixes;
 	BYTE _iUid; // unique_item_indexes
-	char _iName[32];
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
@@ -280,8 +279,11 @@ typedef struct ItemStruct {
 	int _iPLMag;
 	int _iPLDex;
 	int _iPLVit;
-	ItemAffixStruct _iAffixes[6];
-	ALIGNMENT(6, 5)
+	union {
+		ItemAffixStruct _iAffixes[6];
+		char _iPlrName[PLR_NAME_LEN];
+	};
+	ALIGNMENT(14, 13)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
