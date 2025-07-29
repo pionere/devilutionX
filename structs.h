@@ -211,6 +211,20 @@ typedef struct ItemData {
 static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
+typedef struct ItemAffixStruct {
+	BYTE asPower;
+	union {
+		struct {
+			int asValue0;
+			int asValue1;
+		};
+		struct {
+			int asFrom;
+			int asTo;
+		};
+	};
+} ItemAffixStruct;
+
 typedef struct ItemStruct {
 	int32_t _iSeed;
 	uint16_t _iIdx;        // item_indexes
@@ -234,8 +248,8 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
-	BYTE _iPrePower; // item_effect_type
-	BYTE _iSufPower; // item_effect_type
+	BYTE _iPrePower; // item_effect_type -- unused
+	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
@@ -247,53 +261,27 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
-	BOOL _iIdentified;
+	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
+	BOOLEAN _iStatFlag;
+	BOOLEAN _iIdentified;
+	BYTE _iNumAffixes;
+	BYTE _iUid; // unique_item_indexes
 	char _iName[32];
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
 	int _iMaxDur;
 	int _iPLDam;
 	int _iPLToHit;
-	int _iPLAC;
 	int _iPLStr;
 	int _iPLMag;
 	int _iPLDex;
 	int _iPLVit;
-	int _iPLFR;
-	int _iPLLR;
-	int _iPLMR;
-	int _iPLAR;
-	int _iPLMana;
-	int _iPLHP;
-	int _iPLDamMod;
-	BYTE _iPLToBlk;
-	int8_t _iPLAtkSpdMod;
-	int8_t _iPLAbsAnyHit;
-	int8_t _iPLAbsPhyHit;
-	int8_t _iPLLight;
-	int8_t _iPLSkillLevels;
-	BYTE _iPLSkill;
-	int8_t _iPLSkillLvl;
-	BYTE _iPLManaSteal;
-	BYTE _iPLLifeSteal;
-	BYTE _iPLCrit;
-	BOOLEAN _iStatFlag;
-	int _iUid; // unique_item_indexes
-	BYTE _iPLFMinDam;
-	BYTE _iPLFMaxDam;
-	BYTE _iPLLMinDam;
-	BYTE _iPLLMaxDam;
-	BYTE _iPLMMinDam;
-	BYTE _iPLMMaxDam;
-	BYTE _iPLAMinDam;
-	BYTE _iPLAMaxDam;
-	ALIGNMENT(9, 8)
+	ItemAffixStruct _iAffixes[6];
+	ALIGNMENT(6, 5)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

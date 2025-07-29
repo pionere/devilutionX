@@ -353,43 +353,158 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
 				idi &= pi->_iIdentified;
 				btohit += pi->_iPLToHit;
-				btoblk += pi->_iPLToBlk;
-				iflgs |= pi->_iPLFlags;
 
 				madd += pi->_iPLMag;
 				vadd += pi->_iPLVit;
-				fr += pi->_iPLFR;
-				lr += pi->_iPLLR;
-				mr += pi->_iPLMR;
-				ar += pi->_iPLAR;
-				asb += pi->_iPLAtkSpdMod;
-				absAnyHit += pi->_iPLAbsAnyHit;
-				absPhyHit += pi->_iPLAbsPhyHit;
-				lrad += pi->_iPLLight;
-				ihp += pi->_iPLHP;
-				imana += pi->_iPLMana;
-				skillLvlAdds += pi->_iPLSkillLevels;
-				skillLvlMods[pi->_iPLSkill] += pi->_iPLSkillLvl;
-				lifesteal += pi->_iPLLifeSteal;
-				manasteal += pi->_iPLManaSteal;
-				btochit += pi->_iPLCrit;
-				fmin += pi->_iPLFMinDam;
-				fmax += pi->_iPLFMaxDam;
-				lmin += pi->_iPLLMinDam;
-				lmax += pi->_iPLLMaxDam;
-				mmin += pi->_iPLMMinDam;
-				mmax += pi->_iPLMMaxDam;
-				amin += pi->_iPLAMinDam;
-				amax += pi->_iPLAMaxDam;
-
-				cdmod = pi->_iPLDamMod;
-				cdmodp = pi->_iPLDam;
-				if (pi->_iPLAC != 0) {
-					int tmpac = pi->_iPLAC * cac / 100;
-					if (tmpac == 0)
-						tmpac = pi->_iPLAC >= 0 ? 1 : -1;
-					cac += tmpac;
+				for (unsigned n = 0; n < pi->_iNumAffixes; n++) {
+					const ItemAffixStruct* ias = &pi->_iAffixes[n];
+					switch (ias->asPower) {
+					case IPL_ACP: {
+						int tmpac = ias->asValue0 * cac / 100;
+						if (tmpac == 0)
+							tmpac = ias->asValue0 >= 0 ? 1 : -1;
+						cac += tmpac;
+					} break;
+					case IPL_TOBLOCK:
+						btoblk += ias->asValue0;
+						break;
+					case IPL_FIRERES:
+						fr += ias->asValue0;
+						break;
+					case IPL_LIGHTRES:
+						lr += ias->asValue0;
+						break;
+					case IPL_MAGICRES:
+						mr += ias->asValue0;
+						break;
+					case IPL_ACIDRES:
+						ar += ias->asValue0;
+						break;
+					case IPL_ALLRES: {
+						int v = ias->asValue0;
+						fr += v;
+						lr += v;
+						mr += v;
+						ar += v;
+					} break;
+					case IPL_CRITP:
+						btochit += ias->asValue0;
+						break;
+					case IPL_SKILLLVL:
+						skillLvlMods[ias->asValue1] += ias->asValue0;
+						break;
+					case IPL_SKILLLEVELS:
+						skillLvlAdds += ias->asValue0;
+						break;
+					case IPL_FIREDAM:
+						fmin += ias->asFrom;
+						fmax += ias->asTo;
+						break;
+					case IPL_LIGHTDAM:
+						lmin += ias->asFrom;
+						lmax += ias->asTo;
+						break;
+					case IPL_MAGICDAM:
+						mmin += ias->asFrom;
+						mmax += ias->asTo;
+						break;
+					case IPL_ACIDDAM:
+						amin += ias->asFrom;
+						amax += ias->asTo;
+						break;
+					case IPL_ABS_ANYHIT:
+						absAnyHit += ias->asValue0;
+						break;
+					case IPL_ABS_PHYHIT:
+						absPhyHit += ias->asValue0;
+						break;
+					case IPL_LIFE:
+						ihp += ias->asValue0 << 6;
+						break;
+					case IPL_MANA:
+						imana += ias->asValue0 << 6;
+						break;
+					case IPL_LIGHT:
+						lrad += ias->asValue0;
+						break;
+					//case IPL_THORNS:
+					//	iflgs |= ISPL_THORNS;
+					//	break;
+					case IPL_NOMANA:
+						iflgs |= ISPL_NOMANA;
+						break;
+					case IPL_KNOCKBACK:
+						iflgs |= ISPL_KNOCKBACK;
+						break;
+					case IPL_STUN:
+						iflgs |= ISPL_STUN;
+						break;
+					case IPL_NO_BLEED:
+						iflgs |= ISPL_NO_BLEED;
+						break;
+					case IPL_BLEED:
+						iflgs |= ISPL_BLEED;
+						break;
+					//case IPL_NOHEALMON:
+					//	iflgs |= ISPL_NOHEALMON;
+					//	break;
+					case IPL_STEALMANA:
+						manasteal += ias->asValue0;
+						break;
+					case IPL_STEALLIFE:
+						lifesteal += ias->asValue0;
+						break;
+					case IPL_PENETRATE_PHYS:
+						iflgs |= ISPL_PENETRATE_PHYS;
+						break;
+					case IPL_FASTATTACK:
+						asb += ias->asValue0;
+						break;
+					case IPL_FASTRECOVER:
+						static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
+						static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers I.");
+						static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers II.");
+						// assert((unsigned)(ias->asValue0 - 1) < 3);
+						iflgs |= ISPL_FASTRECOVER << (ias->asValue0 - 1);
+						break;
+					case IPL_FASTBLOCK:
+						iflgs |= ISPL_FASTBLOCK;
+						break;
+					case IPL_DAMMOD:
+						cdmod = ias->asValue0;
+						break;
+					case IPL_ALLRESZERO:
+						iflgs |= ISPL_ALLRESZERO;
+						break;
+					case IPL_DRAINLIFE:
+						iflgs |= ISPL_DRAINLIFE;
+						break;
+					//case IPL_INFRAVISION:
+					//	iflgs |= ISPL_INFRAVISION;
+					//	break;
+					case IPL_MANATOLIFE:
+						iflgs |= ISPL_MANATOLIFE;
+						break;
+					case IPL_LIFETOMANA:
+						iflgs |= ISPL_LIFETOMANA;
+						break;
+					case IPL_FASTCAST:
+						static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
+						static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
+						static_assert(ISPL_FASTERCAST == ISPL_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
+						// assert((unsigned)(ias->asValue0 - 1) < 3);
+						iflgs |= ISPL_FASTCAST << (ias->asValue0 - 1);
+						break;
+					case IPL_FASTWALK:
+						static_assert((ISPL_FASTWALK & (ISPL_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
+						static_assert(ISPL_FASTWALK == ISPL_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
+						static_assert(ISPL_FASTERWALK == ISPL_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
+						// assert((unsigned)(ias->asValue0 - 1) < 3);
+						iflgs |= ISPL_FASTWALK << (ias->asValue0 - 1);
+						break;
+					}
 				}
+				cdmodp = pi->_iPLDam;
 			}
 
 			tac += cac;
@@ -879,8 +994,6 @@ void SetItemSData(ItemStruct* is, int idata)
 		is->_iMaxCharges = is->_iCharges;
 	}
 
-	is->_iPrePower = IPL_INVALID;
-	is->_iSufPower = IPL_INVALID;
 	static_assert(ITEM_QUALITY_NORMAL == 0, "Zero-fill expects ITEM_QUALITY_NORMAL == 0.");
 	//is->_iMagical = ITEM_QUALITY_NORMAL;
 	static_assert(SPL_NULL == 0, "Zero-fill expects SPL_NULL == 0.");
@@ -1392,10 +1505,17 @@ static int PLVal(const AffixData* affix, int pv)
 static int SaveItemPower(int ii, int power, int param1, int param2)
 {
 	ItemStruct* is;
+	ItemAffixStruct* ias;
 	int r2;
 
 	is = &items[ii];
+	ias = &is->_iAffixes[is->_iNumAffixes];
+	is->_iNumAffixes++;
+	ias->asPower = power;
+
 	const int r = param1 == param2 ? param1 : RandRangeLow(param1, param2);
+	ias->asValue0 = r;
+
 	switch (power) {
 	case IPL_TOHIT:
 		is->_iPLToHit = r;
@@ -1409,67 +1529,29 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iPLToHit = r2;
 		break;
 	case IPL_ACP:
-		is->_iPLAC = r;
-		break;
 	case IPL_TOBLOCK:
-		is->_iPLToBlk = r;
-		break;
 	case IPL_FIRERES:
-		is->_iPLFR = r;
-		break;
 	case IPL_LIGHTRES:
-		is->_iPLLR = r;
-		break;
 	case IPL_MAGICRES:
-		is->_iPLMR = r;
-		break;
 	case IPL_ACIDRES:
-		is->_iPLAR = r;
-		break;
 	case IPL_ALLRES:
-		is->_iPLFR = r;
-		//if (is->_iPLFR < 0)
-		//	is->_iPLFR = 0;
-		is->_iPLLR = r;
-		//if (is->_iPLLR < 0)
-		//	is->_iPLLR = 0;
-		is->_iPLMR = r;
-		//if (is->_iPLMR < 0)
-		//	is->_iPLMR = 0;
-		is->_iPLAR = r;
-		//if (is->_iPLAR < 0)
-		//	is->_iPLAR = 0;
-		break;
 	case IPL_CRITP:
-		is->_iPLCrit = r;
 		break;
 	case IPL_SKILLLVL:
-		is->_iPLSkillLvl = r;
-		static_assert(NUM_SPELLS < UINT8_MAX, "Skill-index can not be stored in a BYTE field.");
-		is->_iPLSkill = GetItemSpell();
+		ias->asValue1 = GetItemSpell();
 		break;
 	case IPL_SKILLLEVELS:
-		is->_iPLSkillLevels = r;
 		break;
 	case IPL_CHARGES:
 		is->_iCharges *= r;
 		is->_iMaxCharges = is->_iCharges;
 		break;
 	case IPL_FIREDAM:
-		is->_iPLFMinDam = param1;
-		is->_iPLFMaxDam = param2;
-		break;
 	case IPL_LIGHTDAM:
-		is->_iPLLMinDam = param1;
-		is->_iPLLMaxDam = param2;
-		break;
 	case IPL_MAGICDAM:
-		is->_iPLMMinDam = param1;
-		is->_iPLMMaxDam = param2;
-		break;
 	case IPL_ACIDDAM:
-		is->_iPLAMinDam = param1;
-		is->_iPLAMaxDam = param2;
+		ias->asFrom = param1;
+		ias->asTo = param2;
 		break;
 	case IPL_STR:
 		is->_iPLStr = r;
@@ -1490,16 +1572,9 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iPLVit = r;
 		break;
 	case IPL_ABS_ANYHIT:
-		is->_iPLAbsAnyHit = r;
-		break;
 	case IPL_ABS_PHYHIT:
-		is->_iPLAbsPhyHit = r;
-		break;
 	case IPL_LIFE:
-		is->_iPLHP = r << 6;
-		break;
 	case IPL_MANA:
-		is->_iPLMana = r << 6;
 		break;
 	case IPL_DUR:
 		r2 = r * is->_iMaxDur / 100;
@@ -1509,56 +1584,25 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iDurability = is->_iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IPL_LIGHT:
-		is->_iPLLight = r;
 		break;
 	// case IPL_INVCURS:
 	//	is->_iCurs = param1;
 	//	break;
 	//case IPL_THORNS:
-	//	is->_iPLFlags |= ISPL_THORNS;
 	//	break;
 	case IPL_NOMANA:
-		is->_iPLFlags |= ISPL_NOMANA;
-		break;
 	case IPL_KNOCKBACK:
-		is->_iPLFlags |= ISPL_KNOCKBACK;
-		break;
 	case IPL_STUN:
-		is->_iPLFlags |= ISPL_STUN;
-		break;
 	case IPL_NO_BLEED:
-		is->_iPLFlags |= ISPL_NO_BLEED;
-		break;
 	case IPL_BLEED:
-		is->_iPLFlags |= ISPL_BLEED;
-		break;
 	//case IPL_NOHEALMON:
-	//	is->_iPLFlags |= ISPL_NOHEALMON;
-	//	break;
 	case IPL_STEALMANA:
-		is->_iPLManaSteal = r;
-		break;
 	case IPL_STEALLIFE:
-		is->_iPLLifeSteal = r;
-		break;
 	case IPL_PENETRATE_PHYS:
-		is->_iPLFlags |= ISPL_PENETRATE_PHYS;
-		break;
 	case IPL_FASTATTACK:
-		is->_iPLAtkSpdMod = r;
-		break;
 	case IPL_FASTRECOVER:
-		static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
-		static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers I.");
-		static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers II.");
-		// assert((unsigned)(r - 1) < 3);
-			is->_iPLFlags |= ISPL_FASTRECOVER << (r - 1);
-		break;
 	case IPL_FASTBLOCK:
-		is->_iPLFlags |= ISPL_FASTBLOCK;
-		break;
 	case IPL_DAMMOD:
-		is->_iPLDamMod = r;
 		break;
 	case IPL_SETDAM:
 		is->_iMinDam = param1;
@@ -1580,14 +1624,9 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iLoc = ILOC_ONEHAND;
 		break;
 	case IPL_ALLRESZERO:
-		is->_iPLFlags |= ISPL_ALLRESZERO;
-		break;
 	case IPL_DRAINLIFE:
-		is->_iPLFlags |= ISPL_DRAINLIFE;
-		break;
 	//case IPL_INFRAVISION:
-	//	is->_iPLFlags |= ISPL_INFRAVISION;
-	//	break;
+		break;
 	case IPL_SETAC:
 		is->_iAC = r;
 		break;
@@ -1599,24 +1638,9 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iDurability = is->_iMaxDur = r < 100 ? (is->_iMaxDur - r * is->_iMaxDur / 100) : 1;
 		break;
 	case IPL_MANATOLIFE:
-		is->_iPLFlags |= ISPL_MANATOLIFE;
-		break;
 	case IPL_LIFETOMANA:
-		is->_iPLFlags |= ISPL_LIFETOMANA;
-		break;
 	case IPL_FASTCAST:
-		static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
-		static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
-		static_assert(ISPL_FASTERCAST == ISPL_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
-		// assert((unsigned)(r - 1) < 3);
-			is->_iPLFlags |= ISPL_FASTCAST << (r - 1);
-		break;
 	case IPL_FASTWALK:
-		static_assert((ISPL_FASTWALK & (ISPL_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
-		static_assert(ISPL_FASTWALK == ISPL_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
-		static_assert(ISPL_FASTERWALK == ISPL_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
-		// assert((unsigned)(r - 1) < 3);
-			is->_iPLFlags |= ISPL_FASTWALK << (r - 1);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1661,7 +1685,6 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			// assert(nl <= 0x7FFF);
 			pres = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
-			items[ii]._iPrePower = pres->PLPower;
 			v = SaveItemPower(
 			    ii,
 			    pres->PLPower,
@@ -1686,7 +1709,6 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			// assert(nl <= 0x7FFF);
 			sufs = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
-			items[ii]._iSufPower = sufs->PLPower;
 			v = SaveItemPower(
 			    ii,
 			    sufs->PLPower,
@@ -1710,7 +1732,14 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 				v = 1;
 			}
 		} else {
-			v = ((1 << MAXCAMPAIGNSIZE) - 1) >> (6 - items[ii]._iPLLight);
+			v = 6;
+			for (unsigned i = 0; i < items[ii]._iNumAffixes; i++) {
+				const ItemAffixStruct* ias = &items[ii]._iAffixes[i];
+				if (ias->asPower == IPL_LIGHT) {
+					v -= ias->asValue0;
+				}
+			}
+			v = ((1 << MAXCAMPAIGNSIZE) - 1) >> v;
 			items[ii]._ivalue = v;
 		}
 		items[ii]._iIvalue = v;
@@ -2560,9 +2589,10 @@ static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t ci, int spell, BYTE
 			RecreateItem(seed, idx, ci);
 			// assert(items[MAXITEMS]._iIdx == idx);
 			if (items[MAXITEMS]._iSpell == spell
-			 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iPrePower == IPL_INVALID && items[MAXITEMS]._iSufPower == IPL_INVALID)
-			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iPrePower >= targetPowerFrom && items[MAXITEMS]._iPrePower <= targetPowerTo)
-			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iSufPower >= targetPowerFrom && items[MAXITEMS]._iSufPower <= targetPowerTo)))
+			 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_NORMAL)
+			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_MAGIC &&
+				   ((items[MAXITEMS]._iAffixes[0].asPower >= targetPowerFrom && items[MAXITEMS]._iAffixes[0].asPower <= targetPowerTo)
+					|| (items[MAXITEMS]._iNumAffixes >= 2 && items[MAXITEMS]._iAffixes[1].asPower >= targetPowerFrom && items[MAXITEMS]._iAffixes[1].asPower <= targetPowerTo)))))
 				break;
 		}
 		seed = NextRndSeed();
@@ -2829,8 +2859,10 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	CalcPlrInv(pnum, true);
 }
 
-static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
+static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 {
+	const ItemAffixStruct* ias = &is->_iAffixes[idx];
+	BYTE plidx = ias->asPower;
 	switch (plidx) {
 	case IPL_TOHIT:
 		snprintf(tempstr, sizeof(tempstr), "chance to hit: %+d%%", is->_iPLToHit);
@@ -2842,10 +2874,10 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "to hit: %+d%%, %+d%% damage", is->_iPLToHit, is->_iPLDam);
 		break;
 	case IPL_ACP:
-		snprintf(tempstr, sizeof(tempstr), "%+d%% armor", is->_iPLAC);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% armor", ias->asValue0);
 		break;
 	case IPL_TOBLOCK:
-		snprintf(tempstr, sizeof(tempstr), "%+d%% block chance", is->_iPLToBlk);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% block chance", ias->asValue0);
 		break;
 	case IPL_FIRERES:
 	case IPL_LIGHTRES:
@@ -2853,28 +2885,27 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	case IPL_ACIDRES:
 	case IPL_ALLRES: {
 		const char* element;
-		int res;
 		switch (plidx) {
-		case IPL_FIRERES:  element = "fire";      res = is->_iPLFR; break;
-		case IPL_LIGHTRES: element = "lightning"; res = is->_iPLLR; break;
-		case IPL_MAGICRES: element = "magic";     res = is->_iPLMR; break;
-		case IPL_ACIDRES:  element = "acid";      res = is->_iPLAR; break;
-		case IPL_ALLRES:   element = "all";       res = is->_iPLFR; break;
+		case IPL_FIRERES:  element = "fire";      break;
+		case IPL_LIGHTRES: element = "lightning"; break;
+		case IPL_MAGICRES: element = "magic";     break;
+		case IPL_ACIDRES:  element = "acid";      break;
+		case IPL_ALLRES:   element = "all";       break;
 		default: ASSUME_UNREACHABLE;              break;
 		}
 		//if (ias->asValue0 < 75)
-		snprintf(tempstr, sizeof(tempstr), "resist %s: %+d%%", element, res);
+		snprintf(tempstr, sizeof(tempstr), "resist %s: %+d%%", element, ias->asValue0);
 		//else
 		//	copy_cstr(tempstr, "resist %s: 75% MAX", element);
 	} break;
 	case IPL_CRITP:
-		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", is->_iPLCrit);
+		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", ias->asValue0);
 		break;
 	case IPL_SKILLLVL:
-		snprintf(tempstr, sizeof(tempstr), "%+d to %s", is->_iPLSkillLvl, spelldata[is->_iPLSkill].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%+d to %s", ias->asValue0, spelldata[ias->asValue1].sNameText);
 		break;
 	case IPL_SKILLLEVELS:
-		snprintf(tempstr, sizeof(tempstr), "%+d to skill levels", is->_iPLSkillLevels);
+		snprintf(tempstr, sizeof(tempstr), "%+d to skill levels", ias->asValue0);
 		break;
 	case IPL_CHARGES:
 		copy_cstr(tempstr, "extra charges");
@@ -2885,13 +2916,13 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	case IPL_ACIDDAM:
 	{
 		const char* element;
-		BYTE mindam, maxdam;
+		BYTE mindam = ias->asFrom, maxdam = ias->asTo;
 		switch (plidx) {
-		case IPL_FIREDAM:  element = "fire";      mindam = is->_iPLFMinDam; maxdam = is->_iPLFMaxDam; break;
-		case IPL_LIGHTDAM: element = "lightning"; mindam = is->_iPLLMinDam; maxdam = is->_iPLLMaxDam; break;
-		case IPL_MAGICDAM: element = "magic";     mindam = is->_iPLMMinDam; maxdam = is->_iPLMMaxDam; break;
-		case IPL_ACIDDAM:  element = "acid";      mindam = is->_iPLAMinDam; maxdam = is->_iPLAMaxDam; break;
-		default: ASSUME_UNREACHABLE;                                                                  break;
+		case IPL_FIREDAM:  element = "fire";      break;
+		case IPL_LIGHTDAM: element = "lightning"; break;
+		case IPL_MAGICDAM: element = "magic";     break;
+		case IPL_ACIDDAM:  element = "acid";      break;
+		default: ASSUME_UNREACHABLE;              break;
 		}
 		if (mindam != maxdam)
 			snprintf(tempstr, sizeof(tempstr), "%s damage: %d-%d", element, mindam, maxdam);
@@ -2914,16 +2945,16 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		snprintf(tempstr, sizeof(tempstr), "%+d to all attributes", is->_iPLStr);
 		break;
 	case IPL_ABS_ANYHIT:
-		snprintf(tempstr, sizeof(tempstr), "%+d damage taken", -is->_iPLAbsAnyHit);
+		snprintf(tempstr, sizeof(tempstr), "%+d damage taken", -ias->asValue0);
 		break;
 	case IPL_ABS_PHYHIT:
-		snprintf(tempstr, sizeof(tempstr), "%+d phys. damage taken", -is->_iPLAbsPhyHit);
+		snprintf(tempstr, sizeof(tempstr), "%+d phys. damage taken", -ias->asValue0);
 		break;
 	case IPL_LIFE:
-		snprintf(tempstr, sizeof(tempstr), "hit points: %+d", is->_iPLHP >> 6);
+		snprintf(tempstr, sizeof(tempstr), "hit points: %+d", ias->asValue0);
 		break;
 	case IPL_MANA:
-		snprintf(tempstr, sizeof(tempstr), "mana: %+d", is->_iPLMana >> 6);
+		snprintf(tempstr, sizeof(tempstr), "mana: %+d", ias->asValue0);
 		break;
 	case IPL_DUR:
 	case IPL_SETDUR:
@@ -2933,7 +2964,7 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		copy_cstr(tempstr, "indestructible");
 		break;
 	case IPL_LIGHT:
-		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * is->_iPLLight);
+		snprintf(tempstr, sizeof(tempstr), "%+d%% light radius", 10 * ias->asValue0);
 		break;
 	// case IPL_INVCURS:
 	//	copy_cstr(tempstr, " ");
@@ -2960,31 +2991,30 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	//	copy_cstr(tempstr, "hit monster doesn't heal");
 	//	break;
 	case IPL_STEALMANA:
-	case IPL_STEALLIFE: {
-		int v = plidx == IPL_STEALMANA ? is->_iPLManaSteal : is->_iPLLifeSteal;
-		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% %s", (v * 100 + 64) >> 7, plidx == IPL_STEALMANA ? "mana" : "life");
-	} break;
+	case IPL_STEALLIFE:
+		snprintf(tempstr, sizeof(tempstr), "hit steals %d%% %s", (ias->asValue0 * 100 + 64) >> 7, plidx == IPL_STEALMANA ? "mana" : "life");
+		break;
 	case IPL_PENETRATE_PHYS:
 		copy_cstr(tempstr, "penetrates target's armor");
 		break;
 	case IPL_FASTATTACK:
 	{
-		int v = (is->_iPLAtkSpdMod < 0 ? 12 : 24) * is->_iPLAtkSpdMod;
+		int v = (ias->asValue0 < 0 ? 12 : 24) * ias->asValue0;
 		snprintf(tempstr, sizeof(tempstr), "%+d%% attack speed", v);
 	} break;
 	case IPL_FASTRECOVER:
-		if (is->_iPLFlags & ISPL_FASTESTRECOVER)
+		if (ias->asValue0 == 3)
 			copy_cstr(tempstr, "fastest hit recovery");
-		else if (is->_iPLFlags & ISPL_FASTERRECOVER)
+		else if (ias->asValue0 == 2)
 			copy_cstr(tempstr, "faster hit recovery");
-		else // if (is->_iPLFlags & ISPL_FASTRECOVER)
+		else // if (ias->asValue0 == 1)
 			copy_cstr(tempstr, "fast hit recovery");
 		break;
 	case IPL_FASTBLOCK:
 		copy_cstr(tempstr, "fast block");
 		break;
 	case IPL_DAMMOD:
-		snprintf(tempstr, sizeof(tempstr), "adds %d points to damage", is->_iPLDamMod);
+		snprintf(tempstr, sizeof(tempstr), "adds %d points to damage", ias->asValue0);
 		break;
 	case IPL_SETDAM:
 		copy_cstr(tempstr, "unusual item damage");
@@ -3021,19 +3051,19 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 		copy_cstr(tempstr, "50% Health moved to Mana");
 		break;
 	case IPL_FASTCAST:
-		if (is->_iPLFlags & ISPL_FASTESTCAST)
+		if (ias->asValue0 == 3)
 			copy_cstr(tempstr, "fastest cast");
-		else if (is->_iPLFlags & ISPL_FASTERCAST)
+		else if (ias->asValue0 == 2)
 			copy_cstr(tempstr, "faster cast");
-		else // if (is->_iPLFlags & ISPL_FASTCAST)
+		else // if (ias->asValue0 == 1)
 			copy_cstr(tempstr, "fast cast");
 		break;
 	case IPL_FASTWALK:
-		if (is->_iPLFlags & ISPL_FASTESTWALK)
+		if (ias->asValue0 == 3)
 			copy_cstr(tempstr, "fastest walk");
-		else if (is->_iPLFlags & ISPL_FASTERWALK)
+		else if (ias->asValue0 == 2)
 			copy_cstr(tempstr, "faster walk");
-		else // if (is->_iPLFlags & ISPL_FASTWALK)
+		else // if (ias->asValue0 == 1)
 			copy_cstr(tempstr, "fast walk");
 		break;
 	default:
@@ -3041,20 +3071,22 @@ static void PrintEquipmentPower(BYTE plidx, const ItemStruct* is)
 	}
 }
 
-static void PrintMapPower(BYTE plidx, const ItemStruct* is)
+static void PrintMapPower(BYTE idx, const ItemStruct* is)
 {
+	const ItemAffixStruct* ias = &is->_iAffixes[idx];
+	BYTE plidx = ias->asPower;
 	switch (plidx) {
 	case IPL_SKILLLEVELS:
-		snprintf(tempstr, sizeof(tempstr), "%+d to map levels", is->_iPLSkillLevels);
+		snprintf(tempstr, sizeof(tempstr), "%+d to map levels", ias->asValue0);
 		break;
 	case IPL_ACP:
-		snprintf(tempstr, sizeof(tempstr), "%+d to level gain", is->_iPLAC);
+		snprintf(tempstr, sizeof(tempstr), "%+d to level gain", ias->asValue0);
 		break;
 	case IPL_SETAC:
 		snprintf(tempstr, sizeof(tempstr), "starting level %d", is->_iAC);
 		break;
 	case IPL_LIGHT: {
-		int v = is->_iPLLight;
+		int v = ias->asValue0;
 		snprintf(tempstr, sizeof(tempstr), abs(v) == 1 ? "%+d area" : "%+d areas", v);
 	} break;
 	default:
@@ -3088,35 +3120,12 @@ static void PrintItemString(int x, int& y, const char* str, BYTE col)
 	y += ITEMDETAILS_LINE_HEIGHT;
 }
 
-static void PrintUniquePower(BYTE plidx, const ItemStruct* is, int x, int& y)
+static void DrawBonusInfo(const ItemStruct* is, int x, int& y)
 {
-	// if (plidx != IPL_INVCURS) {
-		PrintItemPower(plidx, is);
+	for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+		PrintItemPower(i, is);
 		PrintItemString(x, y);
-	// }
-}
-
-static void DrawUniqueInfo(const ItemStruct* is, int x, int& y)
-{
-	const UniqItemData* uis;
-
-	uis = &UniqueItemList[is->_iUid];
-	PrintUniquePower(uis->UIPower1, is, x, y);
-	if (uis->UIPower2 == IPL_INVALID)
-		return;
-	PrintUniquePower(uis->UIPower2, is, x, y);
-	if (uis->UIPower3 == IPL_INVALID)
-		return;
-	PrintUniquePower(uis->UIPower3, is, x, y);
-	if (uis->UIPower4 == IPL_INVALID)
-		return;
-	PrintUniquePower(uis->UIPower4, is, x, y);
-	if (uis->UIPower5 == IPL_INVALID)
-		return;
-	PrintUniquePower(uis->UIPower5, is, x, y);
-	if (uis->UIPower6 == IPL_INVALID)
-		return;
-	PrintUniquePower(uis->UIPower6, is, x, y);
+	}
 }
 
 const char* ItemName(const ItemStruct* is)
@@ -3323,28 +3332,9 @@ static int LinesOfMiscInfo(const ItemStruct* is)
 	return result;
 }
 
-static int LinesOfUniqInfo(const ItemStruct* is)
+static int LinesOfBonusInfo(const ItemStruct* is)
 {
-	int result = 1;
-	const UniqItemData* uis;
-
-	uis = &UniqueItemList[is->_iUid];
-	if (uis->UIPower2 == IPL_INVALID)
-		return result;
-	result++;
-	if (uis->UIPower3 == IPL_INVALID)
-		return result;
-	result++;
-	if (uis->UIPower4 == IPL_INVALID)
-		return result;
-	result++;
-	if (uis->UIPower5 == IPL_INVALID)
-		return result;
-	result++;
-	if (uis->UIPower6 == IPL_INVALID)
-		return result;
-	result++;
-	return result;
+	return is->_iNumAffixes;
 }
 
 static int LinesOfItemDetails(const ItemStruct* is)
@@ -3371,17 +3361,7 @@ static int LinesOfItemDetails(const ItemStruct* is)
 			result++;
 		}
 	}
-	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-		if (is->_iPrePower != IPL_INVALID) {
-			result++;
-		}
-		if (is->_iSufPower != IPL_INVALID) {
-			result++;
-		}
-		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-			result += LinesOfUniqInfo(is);
-		}
-	}
+	result += LinesOfBonusInfo(is);
 	result += LinesOfMiscInfo(is);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		result++;
@@ -3463,19 +3443,7 @@ void DrawItemDetails(const ItemStruct* is)
 			PrintItemString(x, y);
 		}
 	}
-	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-		if (is->_iPrePower != IPL_INVALID) {
-			PrintItemPower(is->_iPrePower, is);
-			PrintItemString(x, y);
-		}
-		if (is->_iSufPower != IPL_INVALID) {
-			PrintItemPower(is->_iSufPower, is);
-			PrintItemString(x, y);
-		}
-		if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
-			DrawUniqueInfo(is, x, y);
-		}
-	}
+	DrawBonusInfo(is, x, y);
 	PrintItemMiscInfo(is, x, y);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		int cursor = 0;

@@ -336,13 +336,9 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		return;
 	l++;
 	cursor = 0;
-	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-		if (is->_iPrePower != IPL_INVALID) {
-			PrintItemPower(is->_iPrePower, is);
-			cat_str(sstr, cursor, "%s", tempstr);
-		}
-		if (is->_iSufPower != IPL_INVALID) {
-			PrintItemPower(is->_iSufPower, is);
+	if (is->_iMagical == ITEM_QUALITY_MAGIC) {
+		for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+			PrintItemPower(i, is);
 			if (cursor != 0)
 				cat_cstr(sstr, cursor, ",  ");
 			cat_str(sstr, cursor, "%s", tempstr);

@@ -2411,10 +2411,12 @@ void InitCampaignMap(int cii)
 	BYTE idx = 0;
 	WORD available;
 	int border = 1;
-	int numMaps = MAXCAMPAIGNSIZE;
+	int numMaps = MAXCAMPAIGNSIZE - 6;
 	// TODO: prevent map-open after CMD_USEPLRMAP?
 	camItemIndex = cii;
 	ItemStruct* is = PlrItem(mypnum, camItemIndex);
+	BYTE lvl = (is->_iAC == 0 ? (is->_iCreateInfo & CF_LEVEL) : is->_iAC) - HELL_LEVEL_BONUS;
+	BYTE dlvl = 2;
 	available = is->_ivalue;
 	// generate the map
 	SetRndSeed(is->_iSeed);
@@ -2423,7 +2425,15 @@ void InitCampaignMap(int cii)
 	static_assert(DTYPE_TOWN == 0, "InitCampaignMap must be adjusted.");
 	control_addmappos(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, random_(200, NUM_DTYPES - 1) + 1, ++idx, available, &border);
 
-	numMaps += is->_iPLLight - 6;
+	for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+		const ItemAffixStruct* ias = &is->_iAffixes[i];
+		int v = ias->asValue0;
+		switch (ias->asPower) {
+		case IPL_SKILLLEVELS: lvl += v;     break;
+		case IPL_LIGHT:       numMaps += v; break;
+		case IPL_ACP:         dlvl += v;    break;
+		}
+	}
 	for (int i = 0; i < numMaps - 1; i++) {
 		int step = random_low(201, border) + 1;
 		for (int x = 0; x < lengthof(camEntries); x++) {
@@ -2440,11 +2450,6 @@ void InitCampaignMap(int cii)
 			}
 		}
 	}
-
-	BYTE lvl = (is->_iAC == 0 ? (is->_iCreateInfo & CF_LEVEL) : is->_iAC) - HELL_LEVEL_BONUS;
-	lvl += is->_iPLSkillLevels;
-	BYTE dlvl = 2;
-	dlvl += is->_iPLAC;
 
 	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl, dlvl);
 
