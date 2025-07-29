@@ -344,14 +344,14 @@ const AffixData PL_Prefix[] = {
 /*fairy*/        { IPL_CRYSTALLINE,       30,       60,       32,  ILVLMAX,  PLR1LVL,  ILVLMAX,       32,  ILVLMAX,                       PLT_MELEE | PLT_STAFF | PLT_BOW           , FALSE,    TRUE,      1000,     4000,        14 },
 /*crystalline*/  { IPL_CRYSTALLINE,       61,      110,       60,  ILVLMAX,        0,        0,       60,  ILVLMAX,                       PLT_MELEE             | PLT_BOW           , FALSE,    TRUE,      4000,    20000,        28 },
 
-/*baselvl    */  { IPL_SKILLLEVELS,       -4,       -1,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*crystalline*/  { IPL_SKILLLEVELS,        1,        4,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*deltalvl   */  { IPL_ACP,               -2,       -1,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*crystalline*/  { IPL_ACP,                1,        2,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*setlvl     */  { IPL_SETAC,             60,       75,        0,  80 - 64,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*crystalline*/  { IPL_SETAC,             76,       90,  70 - 64,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*num area   */  { IPL_LIGHT,             -2,       -1,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
-/*crystalline*/  { IPL_LIGHT,              1,        6,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , TRUE,     TRUE,         0,        0,         1 },
+/*baselvl    */  { IMP_LVLMOD,            -4,       -1,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*crystalline*/  { IMP_LVLMOD,             1,        4,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*deltalvl   */  { IMP_LVLGAIN,           -2,       -1,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*crystalline*/  { IMP_LVLGAIN,            1,        2,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*setlvl     */  { IMP_SETLVL,            60,       75,        0,  80 - 64,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*crystalline*/  { IMP_SETLVL,            76,       90,  70 - 64,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*num area   */  { IMP_AREAMOD,           -2,       -1,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , FALSE,    TRUE,         0,        0,         1 },
+/*crystalline*/  { IMP_AREAMOD,            1,        6,        0,  ILVLMAX,        0,  ILVLMAX,        0,  ILVLMAX, PLT_MAP                                                         , TRUE,     TRUE,         0,        0,         1 },
                  { IPL_INVALID,            0,        0,        0,        0,        0,        0,        0,        0, 0                                                               , FALSE,    FALSE,        0,        0,         0 },
 	// clang-format on
 };

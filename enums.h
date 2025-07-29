@@ -423,6 +423,11 @@ typedef enum item_effect_type {
 	IPL_FASTCAST,
 	IPL_FASTWALK,
 	IPL_INVALID          = 0xFF,
+
+	IMP_LVLMOD  = 0,
+	IMP_LVLGAIN = 1,
+	IMP_SETLVL  = 2,
+	IMP_AREAMOD = 3,
 } item_effect_type;
 
 typedef enum item_affix_range {

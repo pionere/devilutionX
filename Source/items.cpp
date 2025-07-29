@@ -1738,7 +1738,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			v = 6;
 			for (unsigned i = 0; i < items[ii]._iNumAffixes; i++) {
 				const ItemAffixStruct* ias = &items[ii]._iAffixes[i];
-				if (ias->asPower == IPL_LIGHT) {
+				if (ias->asPower == IMP_AREAMOD) {
 					v -= ias->asValue0;
 				}
 			}
@@ -3078,18 +3078,18 @@ static void PrintMapPower(BYTE idx, const ItemStruct* is)
 {
 	const ItemAffixStruct* ias = &is->_iAffixes[idx];
 	BYTE plidx = ias->asPower;
+	int v = ias->asValue0;
 	switch (plidx) {
-	case IPL_SKILLLEVELS:
-		snprintf(tempstr, sizeof(tempstr), "%+d to map levels", ias->asValue0);
+	case IMP_LVLMOD:
+		snprintf(tempstr, sizeof(tempstr), "%+d to map levels", v);
 		break;
-	case IPL_ACP:
-		snprintf(tempstr, sizeof(tempstr), "%+d to level gain", ias->asValue0);
+	case IMP_LVLGAIN:
+		snprintf(tempstr, sizeof(tempstr), "%+d to level gain", v);
 		break;
-	case IPL_SETAC:
-		snprintf(tempstr, sizeof(tempstr), "starting level %d", is->_iAC);
+	case IMP_SETLVL:
+		snprintf(tempstr, sizeof(tempstr), "starting level %d", v);
 		break;
-	case IPL_LIGHT: {
-		int v = ias->asValue0;
+	case IMP_AREAMOD: {
 		snprintf(tempstr, sizeof(tempstr), abs(v) == 1 ? "%+d area" : "%+d areas", v);
 	} break;
 	default:
