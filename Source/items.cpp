@@ -2335,7 +2335,7 @@ static void ItemDoppel()
 		if (dItem[idoppelx][i] != 0) {
 			is = &items[dItem[idoppelx][i] - 1];
 			if (is->_ix != idoppelx || is->_iy != i)
-				dev_fatal("Item %s of type %d is at the wrong place %d:%d vs %d:%d", is->_iName, is->_itype, is->_ix, is->_iy, idoppelx, i);
+				dev_fatal("Item %s of type %d is at the wrong place %d:%d vs %d:%d", ItemName(is), is->_itype, is->_ix, is->_iy, idoppelx, i);
 		}
 	}
 	idoppelx++;
