@@ -854,10 +854,7 @@ void InputBtnDown(int transKey)
 		static_assert(ACT_SKL0 + 1 == ACT_SKL1, "PressKey expects a continuous assignment of ACT_SKLx 1.");
 		static_assert(ACT_SKL1 + 1 == ACT_SKL2, "PressKey expects a continuous assignment of ACT_SKLx 2.");
 		static_assert(ACT_SKL2 + 1 == ACT_SKL3, "PressKey expects a continuous assignment of ACT_SKLx 3.");
-		if (gbSkillListFlag)
-			SetSkillHotKey(transKey - ACT_SKL0, false);
-		else
-			SelectHotKeySkill(transKey - ACT_SKL0, false);
+		SkillHotKey(transKey - ACT_SKL0, false);
 		break;
 	case ACT_SKL4:
 	case ACT_SKL5:
@@ -866,10 +863,7 @@ void InputBtnDown(int transKey)
 		static_assert(ACT_SKL4 + 1 == ACT_SKL5, "PressKey expects a continuous assignment of ACT_SKLx 4.");
 		static_assert(ACT_SKL5 + 1 == ACT_SKL6, "PressKey expects a continuous assignment of ACT_SKLx 5.");
 		static_assert(ACT_SKL6 + 1 == ACT_SKL7, "PressKey expects a continuous assignment of ACT_SKLx 6.");
-		if (gbSkillListFlag)
-			SetSkillHotKey(transKey - ACT_SKL4, true);
-		else
-			SelectHotKeySkill(transKey - ACT_SKL4, true);
+		SkillHotKey(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
 		HandlePanBtn(PANBTN_INVENTORY);

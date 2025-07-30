@@ -657,7 +657,7 @@ static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], i
  * @param slot the index of the hotkey
  * @param altSkill type of the hotkey (true: alt-hotkey, false: normal hotkey)
  */
-void SetSkillHotKey(int slot, bool altSkill)
+static void SetSkillHotKey(int slot, bool altSkill)
 {
 	PlayerStruct* p;
 	int sn = currSkill;
@@ -696,7 +696,7 @@ static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4]
  * @param slot the index of the hotkey
  * @param altSkill type of the hotkey (true: alt-hotkey, false: normal hotkey)
  */
-void SelectHotKeySkill(int slot, bool altSkill)
+static void SelectHotKeySkill(int slot, bool altSkill)
 {
 	PlayerStruct* p;
 
@@ -713,6 +713,14 @@ void SelectHotKeySkill(int slot, bool altSkill)
 			&p->_pAltAtkSkill, &p->_pAltAtkSkillType);
 	}
 	// gbRedrawFlags |= REDRAW_SPELL_ICON;
+}
+
+void SkillHotKey(int slot, bool altSkill)
+{
+	if (gbSkillListFlag)
+		SetSkillHotKey(slot, altSkill);
+	else
+		SelectHotKeySkill(slot, altSkill);
 }
 
 /*void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
