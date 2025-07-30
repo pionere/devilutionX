@@ -53,6 +53,10 @@ int gnTimeoutCurs;
 static bool _gbSkipIntro = false;
 /** Specifies whether the in-game tooltip is always active. */
 bool gbShowTooltip = false;
+/** The last selected skill-slot using the next/previous action */
+static BYTE gbCurrActiveSkill;
+/** The last selected alt-skill-slot using the next/previous action */
+static BYTE gbCurrActiveAltSkill;
 /** Default controls. */
 // clang-format off
 BYTE WMButtonInputTransTbl[] = { ACT_NONE,
@@ -93,7 +97,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // BFAV,    BHOME,    MUTE,     VOL_UP,   VOL_DOWN, NTRACK,   PTRACK,   STOP,     PLAYP,    MAIL,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // MSEL,    APP1,     APP2,     UNDEF,    UNDEF,    OEM_1,    OEM_PLUS,    OEM_COMMA, OEM_MINUS,    OEM_PERIOD,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_NONE,  ACT_MAPZ_OUT, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_SPREV,  ACT_MAPZ_OUT, ACT_SNEXT,
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 // OEM_2,   OEM_3,    CONTROLLER_1,    CONTROLLER_2,     CONTROLLER_3,    CONTROLLER_4,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_CTRL_ALTACT, ACT_CTRL_CASTACT, ACT_CTRL_USE_HP, ACT_CTRL_USE_MP, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
@@ -104,9 +108,9 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    OEM_4,    OEM_5,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SAPREV, ACT_NONE,
 // OEM_6,   OEM_7,    OEM_8,    UNDEF,    UNDEF,    OEM_102,  UNDEF,    UNDEF,    PROC,     UNDEF,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_SANEXT, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // PACKET,  UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    ATTN,     CRSEL,    EREOF,    PLAY,
@@ -965,6 +969,22 @@ void InputBtnDown(int transKey)
 	case ACT_QUESTS:
 		HandlePanBtn(PANBTN_QLOG);
 		break;
+	case ACT_SNEXT:
+		gbCurrActiveSkill = (gbCurrActiveSkill + 1) % 4;
+		SkillHotKey(gbCurrActiveSkill, false);
+		break;
+	case ACT_SPREV:
+		gbCurrActiveSkill = (gbCurrActiveSkill + 5) % 4;
+		SkillHotKey(gbCurrActiveSkill, false);
+		break;
+	case ACT_SANEXT:
+		gbCurrActiveAltSkill = (gbCurrActiveAltSkill + 1) % 4;
+		SkillHotKey(gbCurrActiveAltSkill, true);
+		break;
+	case ACT_SAPREV:
+		gbCurrActiveAltSkill = (gbCurrActiveAltSkill + 5) % 4;
+		SkillHotKey(gbCurrActiveAltSkill, true);
+		break;
 	case ACT_MSG0:
 	case ACT_MSG1:
 	case ACT_MSG2:
@@ -1433,6 +1453,8 @@ static WNDPROC InitGameFX()
 
 	gnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = 0;
+	gbCurrActiveSkill = 0;
+	gbCurrActiveAltSkill = 0;
 	gbRunGame = true;
 	gbRunGameResult = true;
 

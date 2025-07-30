@@ -4747,6 +4747,10 @@ typedef enum input_key {
 	ACT_RETURN,
 	ACT_TEAM,   // toggle team book
 	ACT_QUESTS, // toggle quest book
+	ACT_SPREV,  // prev skill selection
+	ACT_SNEXT,  // next skill selection
+	ACT_SAPREV, // prev alt-skill selection
+	ACT_SANEXT, // next alt-skill selection
 	ACT_MSG0, // send quick message
 	ACT_MSG1,
 	ACT_MSG2,
