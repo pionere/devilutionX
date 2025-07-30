@@ -168,7 +168,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define GOLD_MEDIUM_LIMIT       2500
 #define GOLD_MAX_LIMIT          5000
 
-#define PLR_NAME_LEN            32
+#define PLR_NAME_LEN            16
 
 #define MAXPATHNODES            256
 

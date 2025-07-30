@@ -283,7 +283,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(14, 13)
+	ALIGNMENT(15, 13)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -461,7 +461,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(184, 98)
+	ALIGNMENT(188, 102)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -2468,7 +2468,7 @@ typedef struct _uiheroinfo {
 	BYTE hiLevel;
 	BYTE hiClass;
 	BOOLEAN hiSaveFile;
-	char hiName[16];
+	char hiName[PLR_NAME_LEN];
 	int16_t hiStrength;
 	int16_t hiMagic;
 	int16_t hiDexterity;

@@ -824,7 +824,7 @@ static void PackEar(PkItemStruct* dest, const ItemStruct* src)
 	static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
 	dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iPlrName[11] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
 	dest->dwBuff = *(uint32_t*)&src->_iPlrName[12];
-	static_assert(sizeof(src->_iPlrName) >= 12 + sizeof(dest->dwBuff), "packed ear-item is not stored correctly");
+	static_assert(sizeof(src->_iPlrName) == 12 + sizeof(dest->dwBuff), "packed ear-item is not stored correctly");
 }
 
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
