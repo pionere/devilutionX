@@ -455,7 +455,27 @@ static void StorePrepareItemBuy(ItemStruct* is)
 	ItemStatOk(mypnum, is);
 }
 
-static void S_ScrollSSell();
+static void S_ScrollSSell()
+{
+	ItemStruct* is;
+	unsigned l;
+
+	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
+
+	is = &storehold[stextsidx];
+	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
+		if (is->_itype != ITYPE_NONE) {
+			AddStoreItem(is, l);
+			is++;
+		}
+	}
+	stextsmax = storenumh - STORE_PAGE_ITEMS;
+	if (stextsmax <= 0)
+		stextsmax = 0;
+	else
+		stextsmax = ((stextsmax + STORE_LINE_ITEMS + 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
+}
+
 static void S_StartSBuy()
 {
 	int i;
@@ -544,27 +564,6 @@ static bool SmithSellOk(const ItemStruct* is)
 #endif
 	 && is->_iClass != ICLASS_QUEST*/
 		ITYPE_DURABLE(is->_itype) && (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
-}
-
-static void S_ScrollSSell()
-{
-	ItemStruct* is;
-	unsigned l;
-
-	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-
-	is = &storehold[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
-			AddStoreItem(is, l);
-			is++;
-		}
-	}
-	stextsmax = storenumh - STORE_PAGE_ITEMS;
-	if (stextsmax <= 0)
-		stextsmax = 0;
-	else
-		stextsmax = ((stextsmax + STORE_LINE_ITEMS + 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartSSell()
