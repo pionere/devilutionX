@@ -44,8 +44,6 @@ void STextUp();
 void STextDown();
 void STextRight();
 void STextLeft();
-void STextPageUp();
-void STextPageDown();
 void SyncStoreCmd(int pnum, int cmd, int ii, int price);
 bool TakePlrsMoney(int pnum, int cost);
 void STextEnter();

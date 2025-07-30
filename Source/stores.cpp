@@ -1609,7 +1609,7 @@ void STextLeft()
 	} while (stextlines[stextsel]._siItems[stextselx] == NULL);
 }
 
-void STextPageUp()
+static void STextPageUp()
 {
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {
@@ -1623,7 +1623,7 @@ void STextPageUp()
 	}
 }
 
-void STextPageDown()
+static void STextPageDown()
 {
 	DEBUG_ASSERT(stextsel != -1);
 	if (gbHasScroll) {

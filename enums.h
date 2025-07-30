@@ -4744,8 +4744,6 @@ typedef enum input_key {
 	ACT_DOWN,
 	ACT_LEFT,
 	ACT_RIGHT,
-	ACT_PGUP,
-	ACT_PGDOWN,
 	ACT_RETURN,
 	ACT_TEAM,   // toggle team book
 	ACT_QUESTS, // toggle quest book

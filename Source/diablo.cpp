@@ -63,7 +63,7 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // KANAH,   IMEON,    JUNJA,    FINAL,    HANJA,    IMEOFF,   ESCAPE,     CONVERT,  NONCONV,  ACCEPT,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ESCAPE, ACT_NONE, ACT_NONE, ACT_NONE,
 // CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
-  ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
+  ACT_NONE, ACT_CLEARUI, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
 // SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_SCRN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
@@ -954,16 +954,6 @@ void InputBtnDown(int transKey)
 			STextRight();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
-		}
-		break;
-	case ACT_PGUP:
-		if (stextflag != STORE_NONE) {
-			STextPageUp();
-		}
-		break;
-	case ACT_PGDOWN:
-		if (stextflag != STORE_NONE) {
-			STextPageDown();
 		}
 		break;
 	case ACT_RETURN:
