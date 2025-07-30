@@ -136,9 +136,9 @@ static int stextlhold;
 static int stextxhold;
 /** The maximum possible value of stextsidx */
 static int stextsmax;
-/** Copies of the players items as presented in the store */
+/** Copies of the items as presented in the store */
 static ItemStruct storehold[STORAGE_LIMIT];
-/** Map of inventory items being presented in the store */
+/** Map of items being presented in the store */
 static int8_t storehidx[STORAGE_LIMIT];
 /** The number of valid entries in storehidx/storehold */
 static int storenumh;
@@ -395,23 +395,28 @@ static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
 	itm = &storehold[storenumh];
 	copy_pod(*itm, *is);
 
+	ItemStatOk(mypnum, itm);
+
 	itm->_iIvalue = itm->_ivalue = value;
 
 	storehidx[storenumh] = i;
 	storenumh++;
 }
 
-static void AddStoreItem(ItemStruct* is, unsigned l, bool noid)
+static void AddStoreHoldItemBuy(ItemStruct* is, int i)
 {
-	// StorePrepareItemBuy(is);
-	if (!noid && is->_iMagical != ITEM_QUALITY_NORMAL)
+	if (is->_iMagical != ITEM_QUALITY_NORMAL)
 		is->_iIdentified = TRUE;
-	ItemStatOk(mypnum, is);
+
+	AddStoreHoldItem(is, i, is->_iIvalue);
+}
+
+static void AddStoreItem(const ItemStruct* is, unsigned l)
+{
 	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 	stextdown = line;
 	AddSItem(60, line, l % STORE_LINE_ITEMS, is, TRUE);
 	if (stextsel == line && stextselx == (int)(l % STORE_LINE_ITEMS)) {
-		// StorePrepareItemBuy(is);
 		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
 		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
 	}
@@ -450,36 +455,19 @@ static void StorePrepareItemBuy(ItemStruct* is)
 	ItemStatOk(mypnum, is);
 }
 
-static void S_ScrollSBuy()
-{
-	ItemStruct* is;
-	unsigned l;
-
-	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-
-	is = &smithitem[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
-			AddStoreItem(is, l, false);
-			is++;
-		}
-	}
-	static_assert(lengthof(smithitem) <= STORE_PAGE_ITEMS, "S_ScrollSBuy must fit to a single store-page.");
-	// stextsmax = storenumh - STORE_PAGE_ITEMS;
-	// if (stextsmax <= 0)
-	//	stextsmax = 0;
-	// else
-	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
-}
-
+static void S_ScrollSSell();
 static void S_StartSBuy()
 {
 	int i;
 	const char* msg;
 
 	storenumh = 0;
-	for (i = 0; smithitem[i]._itype != ITYPE_NONE; i++)
-		storenumh++;
+	for (i = 0; i < STORAGE_LIMIT; i++)
+		storehold[i]._itype = ITYPE_NONE;
+
+	for (i = 0; smithitem[i]._itype != ITYPE_NONE; i++) {
+		AddStoreHoldItemBuy(&smithitem[i], i);
+	}
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
@@ -492,40 +480,12 @@ static void S_StartSBuy()
 		msg = "I have no basic item for sale.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSBuy();
+		S_ScrollSSell();
 
 		msg = "I have these basic items for sale:";
 	}
 	AddStoreFrame(msg);
 	//return true;
-}
-
-static void S_ScrollSPBuy()
-{
-	ItemStruct* is;
-	unsigned idx, l, boughtitems;
-
-	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-
-	boughtitems = stextsidx;
-	for (idx = 0; boughtitems != 0; idx++)
-		if (premiumitems[idx]._itype != ITYPE_NONE)
-			boughtitems--;
-
-	for (l = 0; l < STORE_PAGE_ITEMS && idx < SMITH_PREMIUM_ITEMS; ) {
-		is = &premiumitems[idx];
-		if (is->_itype != ITYPE_NONE) {
-			AddStoreItem(is, l, false);
-			l++;
-		}
-		idx++;
-	}
-	static_assert(lengthof(premiumitems) <= STORE_PAGE_ITEMS, "S_ScrollSPBuy must fit to a single store-page.");
-	// stextsmax = storenumh - STORE_PAGE_ITEMS;
-	// if (stextsmax <= 0)
-	//	stextsmax = 0;
-	// else
-	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
 static void S_StartSPBuy()
@@ -534,9 +494,13 @@ static void S_StartSPBuy()
 	const char* msg;
 
 	storenumh = 0;
+	for (i = 0; i < STORAGE_LIMIT; i++)
+		storehold[i]._itype = ITYPE_NONE;
+
 	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		if (premiumitems[i]._itype != ITYPE_NONE)
-			storenumh++;
+		if (premiumitems[i]._itype != ITYPE_NONE) {
+			AddStoreHoldItemBuy(&premiumitems[i], i);
+		}
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
@@ -549,7 +513,7 @@ static void S_StartSPBuy()
 		msg = "I have no premium item for sale.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSPBuy();
+		S_ScrollSSell();
 
 		msg = "I have these premium items for sale:";
 	}
@@ -592,7 +556,7 @@ static void S_ScrollSSell()
 	is = &storehold[stextsidx];
 	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
 		if (is->_itype != ITYPE_NONE) {
-			AddStoreItem(is, l, true);
+			AddStoreItem(is, l);
 			is++;
 		}
 	}
@@ -702,40 +666,23 @@ static void S_StartWitch()
 	// AddSLine(5);
 }
 
-static void S_ScrollWBuy()
-{
-	ItemStruct* is;
-	unsigned l;
-
-	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-
-	is = &witchitem[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
-			AddStoreItem(is, l, false);
-			is++;
-		}
-	}
-	stextsmax = storenumh - STORE_PAGE_ITEMS;
-	if (stextsmax <= 0)
-		stextsmax = 0;
-	else
-		stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
-}
-
 static void S_StartWBuy()
 {
 	int i;
 
 	storenumh = 0;
-	for (i = 0; witchitem[i]._itype != ITYPE_NONE; i++)
-		storenumh++;
+	for (i = 0; i < STORAGE_LIMIT; i++)
+		storehold[i]._itype = ITYPE_NONE;
+
+	for (i = 0; witchitem[i]._itype != ITYPE_NONE; i++) {
+		AddStoreHoldItemBuy(&witchitem[i], i);
+	}
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	gbHasScroll = true;
 	// stextsidx = 0;
-	S_ScrollWBuy();
+	S_ScrollSSell();
 
 	AddStoreFrame("I have these items for sale:");
 }
@@ -970,41 +917,23 @@ static void S_StartHealer()
 	// AddSLine(5);
 }
 
-static void S_ScrollHBuy()
-{
-	ItemStruct* is;
-	unsigned l;
-
-	// ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-
-	is = &healitem[stextsidx];
-	for (l = 0; l < STORE_PAGE_ITEMS; l++) {
-		if (is->_itype != ITYPE_NONE) {
-			AddStoreItem(is, l, false);
-			is++;
-		}
-	}
-	static_assert(lengthof(healitem) <= STORE_PAGE_ITEMS, "S_ScrollHBuy must fit to a single store-page.");
-	// stextsmax = storenumh - STORE_PAGE_ITEMS;
-	// if (stextsmax <= 0)
-	//	stextsmax = 0;
-	// else
-	//	stextsmax = ((stextsmax + STORE_LINE_ITEMS - 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
-}
-
 static void S_StartHBuy()
 {
 	int i;
 
 	storenumh = 0;
-	for (i = 0; healitem[i]._itype != ITYPE_NONE; i++)
-		storenumh++;
+	for (i = 0; i < STORAGE_LIMIT; i++)
+		storehold[i]._itype = ITYPE_NONE;
+
+	for (i = 0; healitem[i]._itype != ITYPE_NONE; i++) {
+		AddStoreHoldItemBuy(&healitem[i], i);
+	}
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	gbHasScroll = true;
 	// stextsidx = 0;
-	S_ScrollHBuy();
+	S_ScrollSSell();
 
 	AddStoreFrame("I have these items for sale:");
 }
@@ -1456,30 +1385,7 @@ void DrawStore()
 	if (gbHasScroll) {
 		// update list entries (TODO: only if stextsmax != 0?)
 		ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-		switch (stextflag) {
-		case STORE_SBUY:
-			S_ScrollSBuy();
-			break;
-		case STORE_SSELL:
-		case STORE_SREPAIR:
-		case STORE_WSELL:
-		case STORE_WRECHARGE:
-		case STORE_SIDENTIFY:
-			S_ScrollSSell();
-			break;
-		case STORE_WBUY:
-			S_ScrollWBuy();
-			break;
-		case STORE_HBUY:
-			S_ScrollHBuy();
-			break;
-		case STORE_SPBUY:
-			S_ScrollSPBuy();
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
+		S_ScrollSSell();
 		StoreUpdateSelection(); // check maxx
 	}
 
@@ -1861,7 +1767,7 @@ static void S_SBuyEnter()
 		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&smithitem[idx]);
+		StoreStartBuy(&storehold[idx]);
 	}
 }
 
@@ -1870,27 +1776,20 @@ static void S_SBuyEnter()
  */
 static void SmithBuyPItem()
 {
-	int i, xx, idx;
+	int idx;
 
 	SendStoreCmd2(STORE_SPBUY);
 
 	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
-	xx = 0;
-	for (i = 0; idx >= 0; i++) {
-		if (premiumitems[i]._itype != ITYPE_NONE) {
-			idx--;
-			xx = i;
-		}
-	}
-
-	premiumitems[xx]._itype = ITYPE_NONE;
+	idx = storehidx[idx];
+	premiumitems[idx]._itype = ITYPE_NONE;
 	numpremium--;
 	//SpawnPremium(StoresLimitedItemLvl());
 }
 
 static void S_SPBuyEnter()
 {
-	int i, idx, xx;
+	int idx;
 
 	if (stextsel == STORE_BACK) {
 		STextESC();
@@ -1902,15 +1801,8 @@ static void S_SPBuyEnter()
 		stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_SPBUY;
-		xx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		idx = 0;
-		for (i = 0; xx >= 0; i++) {
-			if (premiumitems[i]._itype != ITYPE_NONE) {
-				xx--;
-				idx = i;
-			}
-		}
-		StoreStartBuy(&premiumitems[idx]);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
+		StoreStartBuy(&storehold[idx]);
 	}
 }
 
@@ -2255,7 +2147,7 @@ static void S_WBuyEnter()
 		stextshold = STORE_WBUY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 
-		StoreStartBuy(&witchitem[idx]);
+		StoreStartBuy(&storehold[idx]);
 	}
 }
 
@@ -2498,7 +2390,7 @@ static void S_HBuyEnter()
 		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&healitem[idx]);
+		StoreStartBuy(&storehold[idx]);
 	}
 }
 
