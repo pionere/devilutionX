@@ -59,7 +59,6 @@ DISABLE_SPEED_OPTIMIZATION
 #define STORE_PEGBOY_EXIT1   20
 #define STORE_PEGBOY_GOSSIP2 12
 #define STORE_PEGBOY_EXIT2   18
-#define STORE_PEGBOY_BUY     10
 
 #define STORE_TAVERN_GOSSIP 12
 #define STORE_TAVERN_EXIT   18
@@ -84,6 +83,11 @@ DISABLE_SPEED_OPTIMIZATION
 #define STORE_ITEM_LINES   ((3 * INV_SLOT_SIZE_PX + 11) / 12)
 #define STORE_LINE_ITEMS   8
 #define STORE_PAGE_ITEMS   (STORE_LINE_ITEMS * 2)
+
+// item positions
+#define STORE_CONFIRM_ITEM (STORE_LIST_FIRST - 1 + STORE_ITEM_LINES)
+#define STORE_STORY_ITEM   STORE_CONFIRM_ITEM
+#define STORE_PEGBOY_ITEM  STORE_CONFIRM_ITEM
 
 /* The current item in store. */
 ItemStruct storeitem;
@@ -239,8 +243,9 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	tx = sx;
 	sx = PrintLimitedString(sx, sy, str, limit, col, FONT_KERN_SMALL);
 	if (stextsel == y) {
+		DEBUG_ASSERT(cjustflag || !gbHasScroll);
 		DEBUG_ASSERT(cjustflag || gbWidePanel);
-		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - (x + FOCUS_SMALL)), sy + 1);
+		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (/*STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
 	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
@@ -873,8 +878,8 @@ static void S_StartConfirm()
 	// gbRenderGold = true;
 	// gbHasScroll = false;
 	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
-	PrintStoreItem(&storeitem, STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, false);
-	AddSTextVal(STORE_LIST_FIRST - 1 + STORE_ITEM_LINES, storeitem._iIvalue);
+	PrintStoreItem(&storeitem, STORE_CONFIRM_ITEM, false);
+	AddSTextVal(STORE_CONFIRM_ITEM, storeitem._iIvalue);
 	// AddSLine(3);
 	// AddSLine(21);
 
@@ -948,8 +953,8 @@ static void S_StartBBoy()
 
 	StorePrepareItemBuy(&boyitem);
 	AddSItem(260, STORE_LIST_FIRST, 0, &boyitem, FALSE);
-	PrintStoreItem(&boyitem, STORE_PEGBOY_BUY, true);
-	AddSTextVal(STORE_PEGBOY_BUY, boyitem._iIvalue);
+	PrintStoreItem(&boyitem, STORE_PEGBOY_ITEM, true);
+	AddSTextVal(STORE_PEGBOY_ITEM, boyitem._iIvalue);
 
 	AddStoreFrame("I have this item for sale:");
 }
@@ -1085,7 +1090,7 @@ static void S_StartIdShow()
 	// gbHasScroll = false;
 
 	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
-	PrintStoreItem(&storeitem, 11, false);
+	PrintStoreItem(&storeitem, STORE_STORY_ITEM, false);
 
 	AddStoreFrame("This item is:");
 }
@@ -2389,8 +2394,8 @@ static void S_BBuyEnter()
 		// stextsel = STORE_PEGBOY_QUERY;
 	} else {
 		DEBUG_ASSERT(stextflag == STORE_PBUY);
-		DEBUG_ASSERT(stextsel == STORE_PEGBOY_BUY);
-		stextlhold = STORE_PEGBOY_BUY;
+		DEBUG_ASSERT(stextsel == STORE_PEGBOY_ITEM);
+		stextlhold = STORE_PEGBOY_ITEM;
 		// stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_PBUY;
