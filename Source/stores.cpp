@@ -388,6 +388,19 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		AddSText(40, l++, false, sstr, iclr, false);
 }
 
+static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
+{
+	ItemStruct* itm;
+
+	itm = &storehold[storenumh];
+	copy_pod(*itm, *is);
+
+	itm->_iIvalue = itm->_ivalue = value;
+
+	storehidx[storenumh] = i;
+	storenumh++;
+}
+
 static void AddStoreItem(ItemStruct* is, unsigned l, bool noid)
 {
 	// StorePrepareItemBuy(is);
@@ -546,21 +559,14 @@ static void S_StartSPBuy()
 
 static void AddStoreSell(const ItemStruct* is, int i)
 {
-	ItemStruct* itm;
 	int value;
 
-	copy_pod(storehold[storenumh], *is);
-
-	itm = &storehold[storenumh];
-	value = (itm->_iMagical != ITEM_QUALITY_NORMAL && itm->_iIdentified) ? itm->_iIvalue : itm->_ivalue;
-
+	value = (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified) ? is->_iIvalue : is->_ivalue;
 	value >>= 3;
 	if (value == 0)
 		value = 1;
-	itm->_iIvalue = itm->_ivalue = value;
 
-	storehidx[storenumh] = i;
-	storenumh++;
+	AddStoreHoldItem(is, i, value);
 }
 
 static bool SmithSellOk(const ItemStruct* is)
@@ -635,20 +641,14 @@ static bool SmithRepairOk(const ItemStruct* is)
 
 static void AddStoreHoldRepair(const ItemStruct* is, int i)
 {
-	ItemStruct* itm;
 	int value;
 
-	itm = &storehold[storenumh];
-	copy_pod(*itm, *is);
-
-	value = std::max(itm->_ivalue, itm->_iIvalue / 3);
-	value = value * (itm->_iMaxDur - itm->_iDurability) / (itm->_iMaxDur * 2);
+	value = std::max(is->_ivalue, is->_iIvalue / 3);
+	value = value * (is->_iMaxDur - is->_iDurability) / (is->_iMaxDur * 2);
 	if (value == 0)
 		value = 1;
 
-	itm->_iIvalue = itm->_ivalue = value;
-	storehidx[storenumh] = i;
-	storenumh++;
+	AddStoreHoldItem(is, i, value);
 }
 
 static void S_StartSRepair()
@@ -790,16 +790,12 @@ static bool WitchRechargeOk(const ItemStruct* is)
 
 static void AddStoreHoldRecharge(const ItemStruct* is, int i)
 {
-	ItemStruct* itm;
 	int value;
 
-	itm = &storehold[storenumh];
-	copy_pod(*itm, *is);
-	value = itm->_ivalue + spelldata[itm->_iSpell].sStaffCost;
-	value = value * (itm->_iMaxCharges - itm->_iCharges) / itm->_iMaxCharges;
-	itm->_iIvalue = itm->_ivalue = value;
-	storehidx[storenumh] = i;
-	storenumh++;
+	value = is->_ivalue + spelldata[is->_iSpell].sStaffCost;
+	value = value * (is->_iMaxCharges - is->_iCharges) / is->_iMaxCharges;
+
+	AddStoreHoldItem(is, i, value);
 }
 
 static void S_StartWRecharge()
@@ -1035,13 +1031,7 @@ static bool IdItemOk(const ItemStruct* is)
 
 static void AddStoreHoldId(const ItemStruct* is, int i)
 {
-	ItemStruct* itm;
-
-	itm = &storehold[storenumh];
-	copy_pod(*itm, *is);
-	itm->_ivalue = itm->_iIvalue = STORE_ID_PRICE;
-	storehidx[storenumh] = i;
-	storenumh++;
+	AddStoreHoldItem(is, i, STORE_ID_PRICE);
 }
 
 static void S_StartSIdentify()
