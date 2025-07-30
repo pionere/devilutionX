@@ -1809,6 +1809,14 @@ static bool StoreAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 	return /*WeaponAutoPlace(pnum, is, saveflag) ||*/ AutoPlaceBelt(pnum, is, saveflag) || AutoPlaceInv(pnum, is, saveflag);
 }
 
+static void StoreShiftItems(ItemStruct *is)
+{
+	do {
+		copy_pod(is[0], is[1]);
+		is++;
+	} while (is->_itype != ITYPE_NONE);
+}
+
 /**
  * @brief Purchases an item from the smith.
  */
@@ -1819,10 +1827,8 @@ static void SmithBuyItem()
 	SendStoreCmd2(STORE_SBUY);
 
 	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
-	do {
-		copy_pod(smithitem[idx], smithitem[idx + 1]);
-		idx++;
-	} while (smithitem[idx]._itype != ITYPE_NONE);
+
+	StoreShiftItems(&smithitem[idx]);
 }
 
 static void StoreStartBuy(const ItemStruct* is)
@@ -2229,10 +2235,7 @@ static void WitchBuyItem()
 	SendStoreCmd2(STORE_WBUY);
 
 	if (idx >= 3) {
-		do {
-			copy_pod(witchitem[idx], witchitem[idx + 1]);
-			idx++;
-		} while (witchitem[idx]._itype != ITYPE_NONE);
+		StoreShiftItems(&witchitem[idx]);
 	}
 }
 
@@ -2367,13 +2370,9 @@ static void HealerBuyItem()
 
 	SendStoreCmd2(STORE_HBUY);
 
-	if (infinite)
-		return;
-
-	do {
-		copy_pod(healitem[idx], healitem[idx + 1]);
-		idx++;
-	} while (healitem[idx]._itype != ITYPE_NONE);
+	if (!infinite) {
+		StoreShiftItems(&healitem[idx]);
+	}
 }
 
 static void S_BBuyEnter()
