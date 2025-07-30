@@ -4723,7 +4723,7 @@ typedef enum input_key {
 	ACT_SKL6,
 	ACT_SKL7,
 	ACT_SWAP,    // skill-set swap
-	ACT_TGT,     // change target mode
+	ACT_TGT,     // change targeting mode
 	ACT_INV,     // toggle inventory
 	ACT_CHAR,    // toggle character sheet
 	ACT_SKLBOOK, // toggle skill book
