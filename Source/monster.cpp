@@ -2377,8 +2377,9 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	}*/
 	dam = RandRange(MinDam, MaxDam) << 6;
 	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
-	if (dam < 64)
-		dam = 64;
+	if (dam <= 0) {
+		dam = 1;
+	}
 	if (mon->_mFlags & MFLAG_LIFESTEAL) {
 		mon->_mhitpoints += dam;
 		if (mon->_mhitpoints > mon->_mmaxhp)

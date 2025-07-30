@@ -1522,18 +1522,11 @@ static POS32 GetMousePos(int x, int y)
 	return pos;
 }
 
-static BYTE DrawItemColor(ItemStruct* is)
+static void GetItemInfo(const ItemStruct* is)
 {
-	if (is->_iMagical == ITEM_QUALITY_NORMAL)
-		return COL_WHITE;
-	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
-}
-
-static void GetItemInfo(ItemStruct* is)
-{
-	infoclr = DrawItemColor(is);
+	infoclr = ItemColor(is);
 	if (is->_itype != ITYPE_GOLD) {
-		copy_str(infostr, is->_iName);
+		snprintf(infostr, sizeof(infostr), "%s", ItemName(is));
 	} else {
 		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
@@ -1812,12 +1805,18 @@ void DrawInfoStr()
 		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (INVIDX_VALID(pcursinvitem)) {
-		DrawInvItemDetails();
+		const ItemStruct* is = PlrItem(mypnum, pcursinvitem);
+		DrawItemDetails(is);
 	} else if (TRIG_VALID(pcurstrig)) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
 		DrawTooltip(infostr, MousePos.x + cursW / 2u, MousePos.y - TOOLTIP_OFFSET, infoclr);
+	} else if (stextflag != STORE_NONE) {
+		const ItemStruct* si = CurrentStoreItem();
+		if (si != NULL) {
+			DrawItemDetails(si);
+		}
 	}
 }
 
@@ -2412,7 +2411,6 @@ void InitCampaignMap(int cii)
 	BYTE idx = 0;
 	WORD available;
 	int border = 1;
-	int numMaps = MAXCAMPAIGNSIZE;
 	// TODO: prevent map-open after CMD_USEPLRMAP?
 	camItemIndex = cii;
 	ItemStruct* is = PlrItem(mypnum, camItemIndex);
@@ -2424,7 +2422,21 @@ void InitCampaignMap(int cii)
 	static_assert(DTYPE_TOWN == 0, "InitCampaignMap must be adjusted.");
 	control_addmappos(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, random_(200, NUM_DTYPES - 1) + 1, ++idx, available, &border);
 
-	numMaps += is->_iPLLight - 6;
+	int numMaps = MAXCAMPAIGNSIZE - 6;
+	BYTE lvl = (is->_iCreateInfo & CF_LEVEL);
+	BYTE dlvl = 2;
+	for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+		const ItemAffixStruct* ias = &is->_iAffixes[i];
+		int v = ias->asValue0;
+		switch (ias->asPower) {
+		case IMP_LVLMOD:  lvl += v;     break;
+		case IMP_AREAMOD: numMaps += v; break;
+		case IMP_LVLGAIN: dlvl += v;    break;
+		case IMP_SETLVL:  lvl = v;      break;
+		default: ASSUME_UNREACHABLE;    break;
+		}
+	}
+	lvl -= HELL_LEVEL_BONUS;
 	for (int i = 0; i < numMaps - 1; i++) {
 		int step = random_low(201, border) + 1;
 		for (int x = 0; x < lengthof(camEntries); x++) {
@@ -2441,11 +2453,6 @@ void InitCampaignMap(int cii)
 			}
 		}
 	}
-
-	BYTE lvl = (is->_iAC == 0 ? (is->_iCreateInfo & CF_LEVEL) : is->_iAC) - HELL_LEVEL_BONUS;
-	lvl += is->_iPLSkillLevels;
-	BYTE dlvl = 2;
-	dlvl += is->_iPLAC;
 
 	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl, dlvl);
 

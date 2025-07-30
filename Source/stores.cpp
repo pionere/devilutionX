@@ -6,6 +6,7 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
+#include "plrctrls.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -312,8 +313,8 @@ static void AddSItem(int x, int y, int idx, const ItemStruct* is, bool selectabl
 	ss = &stextlines[y];
 	ss->_sx = x;
 	ss->_sitemlist = true;
-	ss->_siCurs[idx] = is->_iCurs + CURSOR_FIRSTITEM;
-	ss->_siClr[idx] = is->_iStatFlag ? 0 : COLOR_TRN_RED;
+	ss->_siItems[idx] = is;
+	// ss->_sclr = 0;
 	ss->_ssel = selectable;
 }
 
@@ -321,11 +322,7 @@ static BYTE StoreItemColor(const ItemStruct* is)
 {
 	if (!is->_iStatFlag)
 		return COL_RED;
-	if (is->_iMagical == ITEM_QUALITY_MAGIC)
-		return COL_BLUE;
-	if (is->_iMagical == ITEM_QUALITY_UNIQUE)
-		return COL_GOLD;
-	return COL_WHITE;
+	return ItemColor(is);
 }
 
 static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
@@ -340,13 +337,9 @@ static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
 		return;
 	l++;
 	cursor = 0;
-	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
-		if (is->_iPrePower != IPL_INVALID) {
-			PrintItemPower(is->_iPrePower, is);
-			cat_str(sstr, cursor, "%s", tempstr);
-		}
-		if (is->_iSufPower != IPL_INVALID) {
-			PrintItemPower(is->_iSufPower, is);
+	if (is->_iMagical == ITEM_QUALITY_MAGIC) {
+		for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+			PrintItemPower(i, is);
 			if (cursor != 0)
 				cat_cstr(sstr, cursor, ",  ");
 			cat_str(sstr, cursor, "%s", tempstr);
@@ -1317,7 +1310,7 @@ static void StoreUpdateSelection()
 		DEBUG_ASSERT(stextsel != -1);
 	}
 	if (/*stextsel != -1 && */ stextlines[stextsel]._sitemlist) {
-		while (stextselx >= 0 && stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE) {
+		while (stextselx >= 0 && stextlines[stextsel]._siItems[stextselx] == NULL) {
 			stextselx--;
 		}
 	}
@@ -1361,7 +1354,7 @@ void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
 	for (i = 0; i < height; i++, src += width, dst += width)
 		memcpy(dst, src, BOXBORDER_WIDTH);
 }*/
-static int current_store_index(int px, int py)
+static int current_store_line(int px, int py)
 {
 	int mx, my, y;
 
@@ -1378,7 +1371,7 @@ static int current_store_index(int px, int py)
 	}
 
 	if (y >= STORE_LIST_FIRST && y < STORE_LINES) {
-		static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to current_store_index.");
+		static_assert(STORE_BACK <= 22, "STORE_BACK does not fit to current_store_line.");
 		// add some freedom to the back button since it has an offset
 		if (y >= 22)
 			y = 22;
@@ -1386,6 +1379,65 @@ static int current_store_index(int px, int py)
 		y = 0;
 	}
 	return y;
+}
+
+static int current_store_item(int y, int px)
+{
+	// assert(stextlines[y]._sitemlist);
+	int x = MousePos.x - (px + STORE_PNL_X_OFFSET + 60 - SCREEN_X);
+	if (x >= 0) {
+		x /= (2 * INV_SLOT_SIZE_PX);
+		if (x < lengthof(stextlines[y]._siItems)) {
+			if (stextlines[y]._siItems[x] != NULL) {
+				// EventPlrMsg("clicked pos %d:%d", x, y);
+				return x;
+			}
+		}
+	}
+	return -1;
+}
+
+static POS32 current_store_target(int y, int px)
+{
+	POS32 result = { -1, -1 };
+	// allow clicking on multi-line items
+	if (gbHasScroll && y < 21 /*&& !stextlines[y]._ssel*/) {
+		y++;
+		for (int n = 0; n < STORE_ITEM_LINES; n++) {
+			if (stextlines[y]._ssel)
+				break;
+			y--;
+			if (y == 0)
+				break;
+		}
+	}
+	//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
+	if (stextlines[y]._ssel) {
+		result.y = y;
+		if (stextlines[y]._sitemlist) {
+			result.x = current_store_item(y, px);
+			if (result.x < 0) {
+				result.y = -1;
+			}
+		}
+	}
+	return result;
+}
+
+const ItemStruct* CurrentStoreItem()
+{
+	const ItemStruct* result = NULL;
+	if (gbWidePanel) {
+		int px = LTPANEL_X, py = LTPANEL_Y;
+		int y = current_store_line(px, py);
+		if (y != 0) {
+			POS32 target = current_store_target(y, px);
+			if (target.x >= 0) {
+				result = stextlines[target.y]._siItems[target.x];
+			}
+		}
+	}
+	return result;
 }
 
 void DrawStore()
@@ -1436,7 +1488,7 @@ void DrawStore()
 		StoreUpdateSelection(); // check maxx
 	}
 
-	int csi = current_store_index(x, y);
+	int csi = current_store_line(x, y);
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
@@ -1444,20 +1496,22 @@ void DrawStore()
 		if (sts->_sstr[0] != '\0')
 			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
-			for (int n = 0; n < lengthof(sts->_siCurs); n++) {
-				int frame = sts->_siCurs[n];
-				if (frame != CURSOR_NONE) {
+			for (int n = 0; n < lengthof(sts->_siItems); n++) {
+				const ItemStruct* is = sts->_siItems[n];
+				if (is != NULL) {
+					int frame = is->_iCurs + CURSOR_FIRSTITEM;
 					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
 					int px = x, py = y + 1;
 					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
 					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
+					int frame_height = InvItemHeight[frame];
 
 					sx += n * 2 * INV_SLOT_SIZE_PX;
 					sy += (STORE_ITEM_LINES - (1 + 1)) * 12;
 
-					sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
-					sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
+					sx += (2 * INV_SLOT_SIZE_PX - frame_width) >> 1;
+					sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
 
 					if (stextsel == i && stextselx == n) {
 						// assert(gbWidePanel);
@@ -1477,11 +1531,13 @@ void DrawStore()
 						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
 						*/
 						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+						if (sgbControllerActive) {
+							SetCursorPos(sx + frame_width / 2 - SCREEN_X, sy - frame_height / 2 - SCREEN_Y);
+						}
+#endif
 					}
-
-					// sx += (2 * INV_SLOT_SIZE_PX - InvItemWidth[frame]) >> 1;
-					// sy -= (3 * INV_SLOT_SIZE_PX - InvItemHeight[frame]) >> 1;
-					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, sts->_siClr[n]);
+					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, is->_iStatFlag ? 0 : COLOR_TRN_RED);
 				}
 			}
 		}
@@ -1635,7 +1691,7 @@ void STextRight()
 		stextselx++;
 		if (stextselx == STORE_LINE_ITEMS)
 			stextselx = 0;
-	} while (stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE);
+	} while (stextlines[stextsel]._siItems[stextselx] == NULL);
 }
 
 void STextLeft()
@@ -1650,7 +1706,7 @@ void STextLeft()
 		stextselx--;
 		if (stextselx < 0)
 			stextselx = STORE_LINE_ITEMS - 1;
-	} while (stextlines[stextsel]._siCurs[stextselx] == CURSOR_NONE);
+	} while (stextlines[stextsel]._siItems[stextselx] == NULL);
 }
 
 void STextPageUp()
@@ -2722,7 +2778,7 @@ void TryStoreBtnClick()
 	if (stextsel != -1 && stextflag != STORE_WAIT) {
 		int px = gbWidePanel ? LTPANEL_X : STORE_PNL_X;
 		int py = LTPANEL_Y;
-		y = current_store_index(px, py);
+		y = current_store_line(px, py);
 		if (y == 0)
 			return;
 		//assert(LTPANEL_X + LTPANEL_WIDTH == STORE_PNL_X + STPANEL_WIDTH);
@@ -2760,38 +2816,12 @@ void TryStoreBtnClick()
 				}
 			}
 		} else {
-			// allow clicking on multi-line items
-			if (gbHasScroll && y < 21 /*&& !stextlines[y]._ssel*/) {
-				y++;
-				for (int n = 0; n < STORE_ITEM_LINES; n++) {
-					if (stextlines[y]._ssel)
-						break;
-					y--;
-					if (y == 0)
-						break;
+			POS32 target = current_store_target(y, px);
+			if (target.y >= 0) {
+				stextsel = target.y;
+				if (target.x >= 0) {
+					stextselx = target.x;
 				}
-			}
-			//if (stextlines[y]._ssel || (gbHasScroll && y == STORE_BACK)) {
-			if (stextlines[y]._ssel) {
-				if (stextlines[y]._sitemlist) {
-					int x = MousePos.x - (px + STORE_PNL_X_OFFSET + 60 - SCREEN_X);
-					if (x >= 0) {
-						x /= (2 * INV_SLOT_SIZE_PX);
-						if (x < lengthof(stextlines[y]._siCurs)) {
-							if (stextlines[y]._siCurs[x] != CURSOR_NONE) {
-								// EventPlrMsg("clicked pos %d:%d", x, y);
-								stextselx = x;
-							} else {
-								return;
-							}
-						} else {
-							return;
-						}
-					} else {
-						return;
-					}
-				}
-				stextsel = y;
 				STextEnter();
 			}
 		}

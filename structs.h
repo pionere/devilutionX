@@ -211,6 +211,20 @@ typedef struct ItemData {
 static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
+typedef struct ItemAffixStruct {
+	BYTE asPower;
+	union {
+		struct {
+			int asValue0;
+			int asValue1;
+		};
+		struct {
+			int asFrom;
+			int asTo;
+		};
+	};
+} ItemAffixStruct;
+
 typedef struct ItemStruct {
 	int32_t _iSeed;
 	uint16_t _iIdx;        // item_indexes
@@ -234,8 +248,8 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
-	BYTE _iPrePower; // item_effect_type
-	BYTE _iSufPower; // item_effect_type
+	BYTE _iPrePower; // item_effect_type -- unused
+	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
@@ -247,53 +261,29 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
-	BOOL _iIdentified;
-	char _iName[32];
+	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
+	BOOLEAN _iStatFlag;
+	BOOLEAN _iIdentified;
+	BYTE _iNumAffixes;
+	BYTE _iUid; // unique_item_indexes
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
 	int _iMaxDur;
 	int _iPLDam;
 	int _iPLToHit;
-	int _iPLAC;
 	int _iPLStr;
 	int _iPLMag;
 	int _iPLDex;
 	int _iPLVit;
-	int _iPLFR;
-	int _iPLLR;
-	int _iPLMR;
-	int _iPLAR;
-	int _iPLMana;
-	int _iPLHP;
-	int _iPLDamMod;
-	BYTE _iPLToBlk;
-	int8_t _iPLAlign0;
-	int8_t _iPLAbsAnyHit;
-	int8_t _iPLAbsPhyHit;
-	int8_t _iPLLight;
-	int8_t _iPLSkillLevels;
-	BYTE _iPLSkill;
-	int8_t _iPLSkillLvl;
-	BYTE _iPLManaSteal;
-	BYTE _iPLLifeSteal;
-	BYTE _iPLCrit;
-	BOOLEAN _iStatFlag;
-	int _iUid; // unique_item_indexes
-	BYTE _iPLFMinDam;
-	BYTE _iPLFMaxDam;
-	BYTE _iPLLMinDam;
-	BYTE _iPLLMaxDam;
-	BYTE _iPLMMinDam;
-	BYTE _iPLMMaxDam;
-	BYTE _iPLAMinDam;
-	BYTE _iPLAMaxDam;
-	ALIGNMENT(9, 8)
+	union {
+		ItemAffixStruct _iAffixes[6];
+		char _iPlrName[PLR_NAME_LEN];
+	};
+	ALIGNMENT(14, 13)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -458,7 +448,7 @@ typedef struct PlayerStruct {
 	BYTE _pAlign_B1;
 	int _pIAbsAnyHit; // absorbed hit damage
 	int _pIAbsPhyHit; // absorbed physical hit damage
-	BYTE _pIBaseAttackSpeed;
+	int8_t _pIBaseAttackSpeed;
 	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
@@ -566,7 +556,7 @@ typedef struct MissileStruct {
 	int _miMinDam;
 	int _miMaxDam;
 	// int _miRndSeed;
-	int _miRange;
+	int _miRange;    // Time to live for the missile in game ticks, when negative the missile will be deleted
 	unsigned _miLid; // light id of the missile
 	int _miVar1;
 	int _miVar2;
@@ -1210,82 +1200,19 @@ typedef struct LSaveGameLvlMetaStruct {
 } LSaveGameLvlMetaStruct;
 
 typedef struct LSaveItemStruct {
-	LE_INT32 viSeed;
-	LE_UINT16 viIdx;
-	LE_UINT16 viCreateInfo;
+	PkItemStruct viPkItem;
 	LE_INT32 vix;
 	LE_INT32 viy;
-	LE_INT32 viCurs;   // item_cursor_graphic
-	LE_INT32 vitype;   // item_type
-	LE_INT32 viMiscId; // item_misc_id
-	LE_INT32 viSpell;  // spell_id
-	BYTE viClass; // item_class enum
-	BYTE viLoc;   // item_equip_type
-	BYTE viDamType; // item_damage_type
-	BYTE viMinDam;
-	BYTE viMaxDam;
-	BYTE viBaseCrit;
-	BYTE viMinStr;
-	BYTE viMinMag;
-	BYTE viMinDex;
-	BOOLEAN viUsable;
-	BYTE viPrePower; // item_effect_type
-	BYTE viSufPower; // item_effect_type
-	BYTE viMagical;	// item_quality
+	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BOOLEAN viFloorFlag;
 	BOOLEAN viAnimFlag;
-	int32_t viAnimDataAlign;        // PSX name -> ItemFrame
+	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
 	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
-	LE_INT32 viPostDraw;
-	LE_INT32 viIdentified;
-	char viName[32];
-	LE_INT32 vivalue;
-	LE_INT32 viIvalue;
-	LE_INT32 viAC;
-	LE_INT32 viPLFlags; // item_special_effect
-	LE_INT32 viCharges;
-	LE_INT32 viMaxCharges;
-	LE_INT32 viDurability;
-	LE_INT32 viMaxDur;
-	LE_INT32 viPLDam;
-	LE_INT32 viPLToHit;
-	LE_INT32 viPLAC;
-	LE_INT32 viPLStr;
-	LE_INT32 viPLMag;
-	LE_INT32 viPLDex;
-	LE_INT32 viPLVit;
-	LE_INT32 viPLFR;
-	LE_INT32 viPLLR;
-	LE_INT32 viPLMR;
-	LE_INT32 viPLAR;
-	LE_INT32 viPLMana;
-	LE_INT32 viPLHP;
-	LE_INT32 viPLDamMod;
-	BYTE viPLToBlk;
-	int8_t viPLAlign0;
-	int8_t viPLAbsAnyHit;
-	int8_t viPLAbsPhyHit;
-	int8_t viPLLight;
-	int8_t viPLSkillLevels;
-	BYTE viPLSkill;
-	int8_t viPLSkillLvl;
-	BYTE viPLManaSteal;
-	BYTE viPLLifeSteal;
-	BYTE viPLCrit;
-	BOOLEAN viStatFlag;
-	LE_INT32 viUid;
-	BYTE viPLFMinDam;
-	BYTE viPLFMaxDam;
-	BYTE viPLLMinDam;
-	BYTE viPLLMaxDam;
-	BYTE viPLMMinDam;
-	BYTE viPLMMaxDam;
-	BYTE viPLAMinDam;
-	BYTE viPLAMaxDam;
+	// LE_INT32 viPostDraw;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
@@ -1493,8 +1420,8 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiCaster;
 	LE_INT32 vmiMinDam;
 	LE_INT32 vmiMaxDam;
-	LE_INT32 vmiRange;
-	LE_UINT32 vmiLid; // light id of the missile
+	LE_INT32 vmiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
+	LE_UINT32 vmiLid;  // light id of the missile
 	LE_INT32 vmiVar1;
 	LE_INT32 vmiVar2;
 	LE_INT32 vmiVar3;
@@ -1906,13 +1833,13 @@ typedef struct TSyncLvlMonster {
 //	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
 //	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)
-	LE_INT32 smEnemy;  // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
-	BYTE smEnemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE smEnemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
+	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE smenemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE smListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
-	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
-	BYTE smAnimFrame; // Current frame of animation.
+	BYTE smAnimCnt;    // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+	BYTE smAnimFrame;  // Current frame of animation.
 	LE_INT32 smVar1;
 	LE_INT32 smVar2;
 	LE_INT32 smVar3;
@@ -1922,8 +1849,8 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smVar7;
 	LE_INT32 smVar8;
 	LE_INT32 smHitpoints;
-	BYTE smLastx; // the last known (future) tile X-coordinate of the enemy
-	BYTE smLasty; // the last known (future) tile Y-coordinate of the enemy
+	BYTE smlastx; // the last known (future) tile X-coordinate of the enemy
+	BYTE smlasty; // the last known (future) tile Y-coordinate of the enemy
 	//BYTE smLeader; // the leader of the monster
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
@@ -1955,7 +1882,7 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiMinDam;
 	LE_INT32 smiMaxDam;
 	// LE_INT32 smiRndSeed;
-	LE_INT32 smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	LE_INT32 smiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
 	LE_INT32 smiVar1;
 	LE_INT32 smiVar2;
 	LE_INT32 smiVar3;
@@ -2662,8 +2589,7 @@ typedef struct STextStruct {
 		char _sstr[112]; // the text
 		struct {
 			char _schr;     // placeholder to differentiate from a normal text
-			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
-			BYTE _siClr[8]; // the list of light-translations to draw the items with
+			const ItemStruct* _siItems[8];
 		};
 	};
 	bool _sitemlist; // whether items should be drawn 

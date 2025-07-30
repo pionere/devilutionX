@@ -1270,17 +1270,34 @@ if(VITA)
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
   vita_create_self(${BIN_TARGET}.self ${BIN_TARGET} UNSAFE)
-  vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
-    VERSION ${VITA_VERSION}
-    NAME ${VITA_APP_NAME}
-    FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
-    FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-    FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-    FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/devilx.mpq devilx.mpq
+  if(DEVIL_PATCHER)
+    vita_create_self(${DEVIL_PATCHER}.self ${DEVIL_PATCHER} UNSAFE)
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self ${DEVIL_PATCHER}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+      FILE Packaging/resources/listfiles.txt listfiles.txt
+      FILE Packaging/resources/mpqfiles.txt mpqfiles.txt
   )
+  else()
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+  )
+  endif()
 endif()
 
 if(PS4)
@@ -1582,6 +1599,46 @@ if(CPACK)
     set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
     set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
     set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
+
+  elseif(PS5)
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
+    set(CPACK_STRIP_FILES TRUE)
+
+    install(TARGETS ${BIN_TARGET} DESTINATION .)
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.txt"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/homebrew.js"
+      DESTINATION "."
+    )
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/Packaging/ps5/sce_sys"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
+      DESTINATION "."
+    )
+
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
+
+    if(ZEROTIER)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
+        DESTINATION "LICENSE"
+      )
+    endif()
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/README-SDL.txt"
+      DESTINATION "LICENSE"
+    )
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
