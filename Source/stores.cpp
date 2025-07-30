@@ -1830,8 +1830,9 @@ static void SmithBuyItem()
 	} while (smithitem[idx]._itype != ITYPE_NONE);
 }
 
-static void StoreStartBuy(ItemStruct* is, int price)
+static void StoreStartBuy(const ItemStruct* is)
 {
+	int price = is->_iIvalue;
 	if (myplr._pGold < price) {
 		StartStore(STORE_NOMONEY);
 	} else {
@@ -1859,7 +1860,7 @@ static void S_SBuyEnter()
 		stextvhold = stextsidx;
 		stextshold = STORE_SBUY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&smithitem[idx], smithitem[idx]._iIvalue);
+		StoreStartBuy(&smithitem[idx]);
 	}
 }
 
@@ -1908,7 +1909,7 @@ static void S_SPBuyEnter()
 				idx = i;
 			}
 		}
-		StoreStartBuy(&premiumitems[idx], premiumitems[idx]._iIvalue);
+		StoreStartBuy(&premiumitems[idx]);
 	}
 }
 
@@ -2256,7 +2257,7 @@ static void S_WBuyEnter()
 		stextshold = STORE_WBUY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 
-		StoreStartBuy(&witchitem[idx], witchitem[idx]._iIvalue);
+		StoreStartBuy(&witchitem[idx]);
 	}
 }
 
@@ -2393,7 +2394,7 @@ static void S_BBuyEnter()
 		// stextxhold = stextselx;
 		stextvhold = stextsidx;
 		stextshold = STORE_PBUY;
-		StoreStartBuy(&boyitem, boyitem._iIvalue);
+		StoreStartBuy(&boyitem);
 	}
 }
 
@@ -2503,7 +2504,7 @@ static void S_HBuyEnter()
 		stextvhold = stextsidx;
 		stextshold = STORE_HBUY;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&healitem[idx], healitem[idx]._iIvalue);
+		StoreStartBuy(&healitem[idx]);
 	}
 }
 
