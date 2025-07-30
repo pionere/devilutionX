@@ -1293,9 +1293,9 @@ static bool StartWalk(int pnum, int dir)
 
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)
-			assert(dir2sdir[i] == 1 + OPPOSITE(i));
+			assert(dir2sdir[i] == 1 + i);
 #endif
-		dir = 1 + OPPOSITE(dir); // == dir2sdir[dir];
+		dir = 1 + dir; // == dir2sdir[dir];
 		/*if (!gbZoomInFlag) {
 			if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 				ScrollInfo._sdir = SDIR_NONE;

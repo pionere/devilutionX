@@ -2601,7 +2601,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
-		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir]
+		ScrollInfo._sdir = 1 + midir; // == dir2sdir[midir]
 	}
 	//mis->_miLid = mon->_mlid;
 	//PutMissile(mi);
