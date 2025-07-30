@@ -455,7 +455,7 @@ static void StorePrepareItemBuy(ItemStruct* is)
 	ItemStatOk(mypnum, is);
 }
 
-static void S_ScrollSSell()
+static void S_ScrollHold()
 {
 	ItemStruct* is;
 	unsigned l;
@@ -500,7 +500,7 @@ static void S_StartSBuy()
 		msg = "I have no basic item for sale.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 
 		msg = "I have these basic items for sale:";
 	}
@@ -533,7 +533,7 @@ static void S_StartSPBuy()
 		msg = "I have no premium item for sale.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 
 		msg = "I have these premium items for sale:";
 	}
@@ -590,7 +590,7 @@ static void S_StartSSell()
 		msg = "You have nothing I want.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 
 		msg = "Which item is for sale?";
 	}
@@ -642,7 +642,7 @@ static void S_StartSRepair()
 		msg = "You have nothing to repair.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 
 		msg = "Repair which item?";
 	}
@@ -681,7 +681,7 @@ static void S_StartWBuy()
 	// gbRenderGold = true;
 	gbHasScroll = true;
 	// stextsidx = 0;
-	S_ScrollSSell();
+	S_ScrollHold();
 
 	AddStoreFrame("I have these items for sale:");
 }
@@ -723,7 +723,7 @@ static void S_StartWSell()
 		msg = "You have nothing I want.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 		msg = "Which item is for sale?";
 	}
 	AddStoreFrame(msg);
@@ -772,7 +772,7 @@ static void S_StartWRecharge()
 		msg = "You have nothing to recharge.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 
 		msg = "Recharge which item?";
 	}
@@ -932,7 +932,7 @@ static void S_StartHBuy()
 	// gbRenderGold = true;
 	gbHasScroll = true;
 	// stextsidx = 0;
-	S_ScrollSSell();
+	S_ScrollHold();
 
 	AddStoreFrame("I have these items for sale:");
 }
@@ -990,7 +990,7 @@ static void S_StartSIdentify()
 		msg = "You have nothing to identify.";
 	} else {
 		// stextsidx = 0;
-		S_ScrollSSell();
+		S_ScrollHold();
 
 		msg = "Identify which item?";
 	}
@@ -1384,7 +1384,7 @@ void DrawStore()
 	if (gbHasScroll) {
 		// update list entries (TODO: only if stextsmax != 0?)
 		ClearSText(STORE_LIST_FIRST, STORE_LIST_FOOTER);
-		S_ScrollSSell();
+		S_ScrollHold();
 		StoreUpdateSelection(); // check maxx
 	}
 
