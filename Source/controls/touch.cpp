@@ -6,8 +6,10 @@
 #include "utils/display.h"
 #include "utils/sdl2_backports.h"
 #include "../gameui.h"
+#include "../debug.h"
 #include "../diablo.h"
 #include "../miniwin/miniwin.h"
+#include "../plrmsg.h"
 #include <math.h>
 
 #ifdef __vita__
@@ -463,6 +465,11 @@ static bool preprocess_gamepad_down(ButtonStruct* btn, SDL_Event* event)
 			for (int i = MAX_GAMEPAD_FINGERS - 1; i >= 0; i--) {
 				if (btn->buFinger[i] != NO_TOUCH) {
 					numFingersDown++;
+					if (btn->buFinger[i] == id) {
+						EventPlrMsg("re-touch");
+						n = -1;
+						break;
+					}
 				} else {
 					n = i;
 				}

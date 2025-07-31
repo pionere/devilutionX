@@ -25,6 +25,7 @@ void LogErrorF(const char* msg, ...);
 void LogErrorQ(const char* msg, ...);
 void LogDumpQ();
 #endif
+void LogErrorF(const char* msg, ...);
 
 #ifdef __cplusplus
 }
