@@ -343,21 +343,21 @@ void DrawSkillIcons()
 	BYTE spl, type;
 
 	pnum = mypnum;
-	if (plr._pAtkSkill == SPL_INVALID) {
-		spl = plr._pMoveSkill;
-		type = plr._pMoveSkillType;
+	if (plr._pMainSkill._psAttack == SPL_INVALID) {
+		spl = plr._pMainSkill._psMove;
+		type = plr._pMainSkill._psMoveType;
 	} else {
-		spl = plr._pAtkSkill;
-		type = plr._pAtkSkillType;
+		spl = plr._pMainSkill._psAttack;
+		type = plr._pMainSkill._psAtkType;
 	}
 	DrawSkillIcon(pnum, spl, type, 0);
 
-	if (plr._pAltAtkSkill == SPL_INVALID) {
-		spl = plr._pAltMoveSkill;
-		type = plr._pAltMoveSkillType;
+	if (plr._pAltSkill._psAttack == SPL_INVALID) {
+		spl = plr._pAltSkill._psMove;
+		type = plr._pAltSkill._psMoveType;
 	} else {
-		spl = plr._pAltAtkSkill;
-		type = plr._pAltAtkSkillType;
+		spl = plr._pAltSkill._psAttack;
+		type = plr._pAltSkill._psAtkType;
 	}
 	DrawSkillIcon(pnum, spl, type, SPLICON_WIDTH);
 
@@ -401,16 +401,14 @@ void DrawSkillIcons()
 	}
 }
 
-static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
-	BYTE (&hotKeyGroupA)[4], BYTE (&hotKeyTypeGroupA)[4],
-	BYTE (&hotKeyGroupB)[4], BYTE (&hotKeyTypeGroupB)[4])
+static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const PlrSkillStruct (&hotkey)[4])
 {
 	int i, col;
 
 	for (i = 0; i < 4; i++) {
-		if (hotKeyGroupA[i] == sn && hotKeyTypeGroupA[i] == st)
+		if (hotkey[i]._psAttack == sn && hotkey[i]._psAtkType == st)
 			col = COL_GOLD;
-		else if (hotKeyGroupB[i] == sn && hotKeyTypeGroupB[i] == st)
+		else if (hotkey[i]._psMove == sn && hotkey[i]._psMoveType == st)
 			col = COL_BLUE;
 		else
 			continue;
@@ -420,26 +418,18 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 }
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE move_sn, BYTE move_st)
+static bool MoveToAtkMoveSkill(int sn, int st, const PlrSkillStruct &skill)
 {
-	if (atk_sn != SPL_INVALID)
-		return sn == atk_sn && st == atk_st;
-	if (move_sn != SPL_INVALID)
-		return sn == move_sn && st == move_st;
+	if (skill._psAttack != SPL_INVALID)
+		return sn == skill._psAttack && st == skill._psAtkType;
+	if (skill._psMove != SPL_INVALID)
+		return sn == skill._psMove && st == skill._psMoveType;
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
 
 static bool CurrentSkill(int pnum, int sn, int st, bool altSkill)
 {
-	if (altSkill) {
-		return MoveToAtkMoveSkill(sn, st,
-			plr._pAltAtkSkill, plr._pAltAtkSkillType,
-			plr._pAltMoveSkill, plr._pAltMoveSkillType);
-	} else {
-		return MoveToAtkMoveSkill(sn, st,
-			plr._pAtkSkill, plr._pAtkSkillType,
-			plr._pMoveSkill, plr._pMoveSkillType);
-	}
+	return MoveToAtkMoveSkill(sn, st, altSkill ? plr._pAltSkill : plr._pMainSkill);
 }
 #endif
 
@@ -530,13 +520,9 @@ void DrawSkillList()
 
 				DrawSpellIconOverlay(x, y, sn, st);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_OVERX,
-					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
-					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_OVERX, plr._pSkillHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX),
-					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
-					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), plr._pAltSkillHotKey);
 			}
 			x -= SPLICON_WIDTH;
 			if (x == sx - SPLICON_WIDTH) {
@@ -585,71 +571,32 @@ void SetSkill(bool altSkill)
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
+	PlrSkillStruct* psSkill = altSkill ? &p->_pAltSkill : &p->_pMainSkill;
 	if (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) {
-		if (!altSkill) {
-			if (moveskill) {
-				p->_pMoveSkill = sn;
-				p->_pMoveSkillType = currSkillType;
-			} else {
-				p->_pAtkSkill = sn;
-				p->_pAtkSkillType = currSkillType;
-			}
+		if (moveskill) {
+			psSkill->_psMove = sn;
+			psSkill->_psMoveType = currSkillType;
 		} else {
-			if (moveskill) {
-				p->_pAltMoveSkill = sn;
-				p->_pAltMoveSkillType = currSkillType;
-			} else {
-				p->_pAltAtkSkill = sn;
-				p->_pAltAtkSkillType = currSkillType;
-			}
+			psSkill->_psAttack = sn;
+			psSkill->_psAtkType = currSkillType;
 		}
 	} else {
-		if (!altSkill) {
-			if (moveskill) {
-				p->_pMoveSkill = sn;
-				p->_pMoveSkillType = currSkillType;
-				p->_pAtkSkill = SPL_INVALID;
-				p->_pAtkSkillType = RSPLTYPE_INVALID;
-			} else {
-				p->_pAtkSkill = sn;
-				p->_pAtkSkillType = currSkillType;
-				p->_pMoveSkill = SPL_INVALID;
-				p->_pMoveSkillType = RSPLTYPE_INVALID;
-			}
+		if (moveskill) {
+			psSkill->_psMove = sn;
+			psSkill->_psMoveType = currSkillType;
+			psSkill->_psAttack = SPL_INVALID;
+			psSkill->_psAtkType = RSPLTYPE_INVALID;
 		} else {
-			if (moveskill) {
-				p->_pAltMoveSkill = sn;
-				p->_pAltMoveSkillType = currSkillType;
-				p->_pAltAtkSkill = SPL_INVALID;
-				p->_pAltAtkSkillType = RSPLTYPE_INVALID;
-			} else {
-				p->_pAltAtkSkill = sn;
-				p->_pAltAtkSkillType = currSkillType;
-				p->_pAltMoveSkill = SPL_INVALID;
-				p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-			}
+			psSkill->_psAttack = sn;
+			psSkill->_psAtkType = currSkillType;
+			psSkill->_psMove = SPL_INVALID;
+			psSkill->_psMoveType = RSPLTYPE_INVALID;
 		}
 
 		gbSkillListFlag = false;
 	}
 
 	// gbRedrawFlags |= REDRAW_SPELL_ICON;
-}
-
-static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot, int sn)
-{
-	int i;
-
-	for (i = 0; i < lengthof(hotKeyGroup); ++i) {
-		if (hotKeyGroup[i] == sn && hotKeyTypeGroup[i] == currSkillType) {
-			hotKeyGroup[i] = SPL_INVALID;
-			hotKeyTypeGroup[i] = RSPLTYPE_INVALID;
-			if (slot == i)
-				return;
-		}
-	}
-	hotKeyGroup[slot] = sn;
-	hotKeyTypeGroup[slot] = currSkillType;
 }
 
 /*
@@ -670,16 +617,22 @@ static void SetSkillHotKey(int slot, bool altSkill)
 			sn = SPL_INVALID;
 
 		p = &myplr;
-		if (!altSkill) {
-			if (moveskill)
-				SetSkillHotKey(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot, sn);
-			else
-				SetSkillHotKey(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot, sn);
-		} else {
-			if (moveskill)
-				SetSkillHotKey(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot, sn);
-			else
-				SetSkillHotKey(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot, sn);
+		PlrSkillStruct* ps = altSkill ? p->_pAltSkillHotKey : p->_pSkillHotKey;
+		ps = (PlrSkillStruct*)(moveskill ? &ps->_psMove : &ps->_psAttack);
+		{
+			int i;
+
+			for (i = 0; i < lengthof(p->_pSkillHotKey); ++i) {
+				static_assert(offsetof(PlrSkillStruct, _psAttack) == 0, "SetSkillHotKey sets the wrong skill");
+				if (ps[i]._psAttack == sn && ps[i]._psAtkType == currSkillType) {
+					ps[i]._psAttack = SPL_INVALID;
+					ps[i]._psAtkType = RSPLTYPE_INVALID;
+					if (slot == i)
+						return;
+				}
+			}
+			ps[slot]._psAttack = sn;
+			ps[slot]._psAtkType = currSkillType;
 		}
 	}
 }
@@ -701,17 +654,9 @@ static void SelectHotKeySkill(int slot, bool altSkill)
 	PlayerStruct* p;
 
 	p = &myplr;
-	if (!altSkill) {
-		SelectHotKeySkill(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot,
-			&p->_pMoveSkill, &p->_pMoveSkillType);
-		SelectHotKeySkill(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot,
-			&p->_pAtkSkill, &p->_pAtkSkillType);
-	} else {
-		SelectHotKeySkill(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot,
-			&p->_pAltMoveSkill, &p->_pAltMoveSkillType);
-		SelectHotKeySkill(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot,
-			&p->_pAltAtkSkill, &p->_pAltAtkSkillType);
-	}
+	PlrSkillStruct* ps = altSkill ? &p->_pAltSkill : &p->_pMainSkill;
+	PlrSkillStruct* pss = &(altSkill ? p->_pAltSkillHotKey : p->_pSkillHotKey)[slot];
+	*ps = *pss;
 	// gbRedrawFlags |= REDRAW_SPELL_ICON;
 }
 
@@ -2058,8 +2003,8 @@ void DrawSpellBook()
 				st = RSPLTYPE_INVALID;
 			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
-			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
-			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
+			if ((sn == plr._pAltSkill._psAttack && st == plr._pAltSkill._psAtkType)
+			 || (sn == plr._pAltSkill._psMove && st == plr._pAltSkill._psMoveType)) {
 				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
 			}
 		}

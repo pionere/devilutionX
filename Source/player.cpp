@@ -663,47 +663,21 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
 	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
-	//plr._pAtkSkill = SPL_ATTACK;
-	//plr._pAtkSkillType = RSPLTYPE_ABILITY;
-	//plr._pMoveSkill = SPL_WALK;
-	//plr._pMoveSkillType = RSPLTYPE_ABILITY;
-	//plr._pAltAtkSkill = SPL_INVALID;
-	//plr._pAltAtkSkillType = RSPLTYPE_INVALID;
-	//plr._pAltMoveSkill = SPL_INVALID;
-	//plr._pAltMoveSkillType = RSPLTYPE_INVALID;
-
-	for (i = 0; i < lengthof(plr._pAtkSkillHotKey); i++)
-		plr._pAtkSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillTypeHotKey); i++)
-		plr._pAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillHotKey); i++)
-		plr._pMoveSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillTypeHotKey); i++)
-		plr._pMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillHotKey); i++)
-		plr._pAltAtkSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeHotKey); i++)
-		plr._pAltAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillHotKey); i++)
-		plr._pAltMoveSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
-		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillSwapKey); i++)
-		plr._pAtkSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillTypeSwapKey); i++)
-		plr._pAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillSwapKey); i++)
-		plr._pMoveSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillTypeSwapKey); i++)
-		plr._pMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillSwapKey); i++)
-		plr._pAltAtkSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeSwapKey); i++)
-		plr._pAltAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillSwapKey); i++)
-		plr._pAltMoveSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeSwapKey); i++)
-		plr._pAltMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	//plr._pMainSkill = { SPL_ATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
+	//plr._pAltSkill = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
+	const PlrSkillStruct eps = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
+	for (i = 0; i < lengthof(plr._pSkillHotKey); i++) {
+		plr._pSkillHotKey[i] = eps;
+	}
+	for (i = 0; i < lengthof(plr._pAltSkillHotKey); i++) {
+		plr._pAltSkillHotKey[i] = eps;
+	}
+	for (i = 0; i < lengthof(plr._pSkillSwapKey); i++) {
+		plr._pSkillSwapKey[i] = eps;
+	}
+	for (i = 0; i < lengthof(plr._pAltSkillSwapKey); i++) {
+		plr._pAltSkillSwapKey[i] = eps;
+	}
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;

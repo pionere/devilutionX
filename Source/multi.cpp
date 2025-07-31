@@ -674,14 +674,10 @@ static void SetupLocalPlr()
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;
 	// reset skills
-	p->_pAtkSkill = (p->_pSkillFlags & SFLAG_MELEE) ? SPL_ATTACK : SPL_RATTACK;
-	p->_pAtkSkillType = RSPLTYPE_ABILITY;
-	p->_pMoveSkill = SPL_WALK;
-	p->_pMoveSkillType = RSPLTYPE_ABILITY;
-	p->_pAltAtkSkill = SPL_INVALID;
-	p->_pAltAtkSkillType = RSPLTYPE_INVALID;
-	p->_pAltMoveSkill = SPL_INVALID;
-	p->_pAltMoveSkillType = RSPLTYPE_INVALID;
+	const PlrSkillStruct psm = { SPL_ATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
+	const PlrSkillStruct psr = { SPL_RATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
+	p->_pMainSkill = (p->_pSkillFlags & SFLAG_MELEE) ? psm : psr;
+	p->_pAltSkill = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
 	if (p->_pHitPoints == 0)

@@ -125,30 +125,9 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_plid = savedPlr->vplid;
 	pr->_pvid = savedPlr->vpvid;
 
-	pr->_pAtkSkill = savedPlr->vpAtkSkill;
-	pr->_pAtkSkillType = savedPlr->vpAtkSkillType;
-	pr->_pMoveSkill = savedPlr->vpMoveSkill;
-	pr->_pMoveSkillType = savedPlr->vpMoveSkillType;
-
-	pr->_pAltAtkSkill = savedPlr->vpAltAtkSkill;
-	pr->_pAltAtkSkillType = savedPlr->vpAltAtkSkillType;
-	pr->_pAltMoveSkill = savedPlr->vpAltMoveSkill;
-	pr->_pAltMoveSkillType = savedPlr->vpAltMoveSkillType;
-
-	memcpy(pr->_pAtkSkillHotKey, savedPlr->vpAtkSkillHotKey, lengthof(pr->_pAtkSkillHotKey));
-	memcpy(pr->_pAtkSkillTypeHotKey, savedPlr->vpAtkSkillTypeHotKey, lengthof(pr->_pAtkSkillTypeHotKey));
-	memcpy(pr->_pMoveSkillHotKey, savedPlr->vpMoveSkillHotKey, lengthof(pr->_pMoveSkillHotKey));
-	memcpy(pr->_pMoveSkillTypeHotKey, savedPlr->vpMoveSkillTypeHotKey, lengthof(pr->_pMoveSkillTypeHotKey));
-
-	memcpy(pr->_pAltAtkSkillHotKey, savedPlr->vpAltAtkSkillHotKey, lengthof(pr->_pAltAtkSkillHotKey));
-	memcpy(pr->_pAltAtkSkillTypeHotKey, savedPlr->vpAltAtkSkillTypeHotKey, lengthof(pr->_pAltAtkSkillTypeHotKey));
-	memcpy(pr->_pAltMoveSkillHotKey, savedPlr->vpAltMoveSkillHotKey, lengthof(pr->_pAltMoveSkillHotKey));
-	memcpy(pr->_pAltMoveSkillTypeHotKey, savedPlr->vpAltMoveSkillTypeHotKey, lengthof(pr->_pAltMoveSkillTypeHotKey));
-
-	memcpy(pr->_pAltAtkSkillSwapKey, savedPlr->vpAltAtkSkillSwapKey, lengthof(pr->_pAltAtkSkillSwapKey));
-	memcpy(pr->_pAltAtkSkillTypeSwapKey, savedPlr->vpAltAtkSkillTypeSwapKey, lengthof(pr->_pAltAtkSkillTypeSwapKey));
-	memcpy(pr->_pAltMoveSkillSwapKey, savedPlr->vpAltMoveSkillSwapKey, lengthof(pr->_pAltMoveSkillSwapKey));
-	memcpy(pr->_pAltMoveSkillTypeSwapKey, savedPlr->vpAltMoveSkillTypeSwapKey, lengthof(pr->_pAltMoveSkillTypeSwapKey));
+	static_assert(offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(pr->_pAltSkillSwapKey) ==
+		offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey), "memcpy failes to load the skills of the player");
+	memcpy(&pr->_pMainSkill, &savedPlr->vpMainSkill, offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey));
 
 	memcpy(pr->_pSkillLvlBase, savedPlr->vpSkillLvlBase, lengthof(pr->_pSkillLvlBase));
 	memcpy(pr->_pSkillActivity, savedPlr->vpSkillActivity, lengthof(pr->_pSkillActivity));
@@ -931,30 +910,9 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vplid = pr->_plid;
 	plrSave->vpvid = pr->_pvid;
 
-	plrSave->vpAtkSkill = pr->_pAtkSkill;
-	plrSave->vpAtkSkillType = pr->_pAtkSkillType;
-	plrSave->vpMoveSkill = pr->_pMoveSkill;
-	plrSave->vpMoveSkillType = pr->_pMoveSkillType;
-
-	plrSave->vpAltAtkSkill = pr->_pAltAtkSkill;
-	plrSave->vpAltAtkSkillType = pr->_pAltAtkSkillType;
-	plrSave->vpAltMoveSkill = pr->_pAltMoveSkill;
-	plrSave->vpAltMoveSkillType = pr->_pAltMoveSkillType;
-
-	memcpy(plrSave->vpAtkSkillHotKey, pr->_pAtkSkillHotKey, lengthof(plrSave->vpAtkSkillHotKey));
-	memcpy(plrSave->vpAtkSkillTypeHotKey, pr->_pAtkSkillTypeHotKey, lengthof(plrSave->vpAtkSkillTypeHotKey));
-	memcpy(plrSave->vpMoveSkillHotKey, pr->_pMoveSkillHotKey, lengthof(plrSave->vpMoveSkillHotKey));
-	memcpy(plrSave->vpMoveSkillTypeHotKey, pr->_pMoveSkillTypeHotKey, lengthof(plrSave->vpMoveSkillTypeHotKey));
-
-	memcpy(plrSave->vpAltAtkSkillHotKey, pr->_pAltAtkSkillHotKey, lengthof(plrSave->vpAltAtkSkillHotKey));
-	memcpy(plrSave->vpAltAtkSkillTypeHotKey, pr->_pAltAtkSkillTypeHotKey, lengthof(plrSave->vpAltAtkSkillTypeHotKey));
-	memcpy(plrSave->vpAltMoveSkillHotKey, pr->_pAltMoveSkillHotKey, lengthof(plrSave->vpAltMoveSkillHotKey));
-	memcpy(plrSave->vpAltMoveSkillTypeHotKey, pr->_pAltMoveSkillTypeHotKey, lengthof(plrSave->vpAltMoveSkillTypeHotKey));
-
-	memcpy(plrSave->vpAltAtkSkillSwapKey, pr->_pAltAtkSkillSwapKey, lengthof(plrSave->vpAltAtkSkillSwapKey));
-	memcpy(plrSave->vpAltAtkSkillTypeSwapKey, pr->_pAltAtkSkillTypeSwapKey, lengthof(plrSave->vpAltAtkSkillTypeSwapKey));
-	memcpy(plrSave->vpAltMoveSkillSwapKey, pr->_pAltMoveSkillSwapKey, lengthof(plrSave->vpAltMoveSkillSwapKey));
-	memcpy(plrSave->vpAltMoveSkillTypeSwapKey, pr->_pAltMoveSkillTypeSwapKey, lengthof(plrSave->vpAltMoveSkillTypeSwapKey));
+	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey) ==
+		offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(plrSave->vpAltSkillSwapKey), "memcpy failes to save the skills of the player");
+	memcpy(&plrSave->vpMainSkill, &plr._pMainSkill, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey));
 
 	memcpy(plrSave->vpSkillLvlBase, pr->_pSkillLvlBase, lengthof(plrSave->vpSkillLvlBase));
 	memcpy(plrSave->vpSkillActivity, pr->_pSkillActivity, lengthof(plrSave->vpSkillActivity));

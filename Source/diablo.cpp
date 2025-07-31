@@ -314,35 +314,36 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 	return result;
 }
 
-static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType)
+static void DoActionBtnCmd(const PlrSkillStruct &plrSkill)
 {
+	PlrSkillStruct skill = plrSkill;
 	const bool bShift = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
 	int8_t msf = 0, asf = 0;
 
 	if (bShift)
-		moveSkill = SPL_INVALID;
-	else if (moveSkill != SPL_INVALID) {
-		msf = ValidateSkill(moveSkill, moveSkillType);
+		skill._psMove = SPL_INVALID;
+	else if (skill._psMove != SPL_INVALID) {
+		msf = ValidateSkill(skill._psMove, skill._psMoveType);
 		if (SPLFROM_INVALID(msf))
-			moveSkill = SPL_INVALID;
+			skill._psMove = SPL_INVALID;
 	}
 
-	if (atkSkill != SPL_INVALID) {
-		asf = ValidateSkill(atkSkill, atkSkillType);
+	if (skill._psAttack != SPL_INVALID) {
+		asf = ValidateSkill(skill._psAttack, skill._psAtkType);
 		if (SPLFROM_INVALID(asf))
-			atkSkill = SPL_INVALID;
+			skill._psAttack = SPL_INVALID;
 	}
 
-	if (atkSkill != SPL_INVALID) {
-		if (atkSkill == SPL_BLOCK) {
+	if (skill._psAttack != SPL_INVALID) {
+		if (skill._psAttack == SPL_BLOCK) {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
-		const CmdSkillUse skillUse = { atkSkill, asf };
-		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
+		const CmdSkillUse skillUse = { skill._psAttack, asf };
+		if (spelldata[skill._psAttack].spCurs != CURSOR_NONE) {
 			gbTSkillUse = skillUse;
-			NewCursor(spelldata[atkSkill].spCurs);
+			NewCursor(spelldata[skill._psAttack].spCurs);
 			return;
 		}
 
@@ -362,11 +363,11 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
-		if (moveSkill == SPL_INVALID) {
+		if (skill._psMove == SPL_INVALID) {
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
-	} else if (moveSkill == SPL_INVALID) {
+	} else if (skill._psMove == SPL_INVALID) {
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (asf == 0 && msf == 0)*/ {
@@ -376,8 +377,8 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		return;
 	}
 
-	// assert(moveSkill != SPL_INVALID);
-	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
+	// assert(skill._psMove != SPL_INVALID);
+	// assert(spelldata[skill._psAttack].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (MON_VALID(pcursmonst)) {
 		if (CanTalkToMonst(pcursmonst)) {
@@ -385,26 +386,26 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 
-		// TODO: move closer, execute moveSkill if not SPL_WALK?
+		// TODO: move closer, execute skill._psMove if not SPL_WALK?
 		//return;
 	}
 
 	if (PLR_VALID(pcursplr)) {
-		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
+		// TODO: move closer, execute skill._psMove if not SPL_WALK? Trade?
 		//return;
 	}
 
 	if (OBJ_VALID(pcursobj)) {
 		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
-		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
+		if (skill._psMove == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 			return;
 		}
-		//return; // TODO: proceed in case moveSkill != SPL_WALK?
+		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
 	}
-	if (moveSkill != SPL_WALK) {
+	if (skill._psMove != SPL_WALK) {
 		// TODO: check if pcurspos.x/y == _pfutx/y ?
-		const CmdSkillUse skillUse = { moveSkill, msf };
+		const CmdSkillUse skillUse = { skill._psMove, msf };
 		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 		return;
 	}
@@ -421,8 +422,7 @@ static void ActionBtnCmd()
 {
 	assert(pcursicon == CURSOR_HAND);
 
-	DoActionBtnCmd(myplr._pMoveSkill, myplr._pMoveSkillType,
-		myplr._pAtkSkill, myplr._pAtkSkillType);
+	DoActionBtnCmd(myplr._pMainSkill);
 }
 
 static bool TryIconCurs()
@@ -547,8 +547,7 @@ static void AltActionBtnCmd()
 {
 	assert(pcursicon == CURSOR_HAND);
 
-	DoActionBtnCmd(myplr._pAltMoveSkill, myplr._pAltMoveSkillType,
-		myplr._pAltAtkSkill, myplr._pAltAtkSkillType);
+	DoActionBtnCmd(myplr._pAltSkill);
 }
 
 static void AltActionBtnDown()
@@ -833,20 +832,14 @@ void InputBtnDown(int transKey)
 		break;
 	case ACT_SWAP: {
 		struct TmpKeys {
-			BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-			BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-			BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-			BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-			BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-			BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-			BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-			BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+			PlrSkillStruct _pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+			PlrSkillStruct _pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 		} tmpKeys;
-		static_assert(offsetof(PlayerStruct, _pAltMoveSkillTypeSwapKey) + sizeof(myplr._pAltMoveSkillTypeSwapKey) == offsetof(PlayerStruct, _pAtkSkillSwapKey) + sizeof(tmpKeys));
-		static_assert(offsetof(PlayerStruct, _pAltMoveSkillTypeHotKey) + sizeof(myplr._pAltMoveSkillTypeHotKey) == offsetof(PlayerStruct, _pAtkSkillHotKey) + sizeof(tmpKeys));
-		memcpy(&tmpKeys, myplr._pAtkSkillSwapKey, sizeof(tmpKeys));
-		memcpy(myplr._pAtkSkillSwapKey, myplr._pAtkSkillHotKey, sizeof(tmpKeys));
-		memcpy(myplr._pAtkSkillHotKey, &tmpKeys, sizeof(tmpKeys));
+		static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) + sizeof(myplr._pAltSkillSwapKey) == offsetof(PlayerStruct, _pSkillSwapKey) + sizeof(tmpKeys));
+		static_assert(offsetof(PlayerStruct, _pAltSkillHotKey) + sizeof(myplr._pAltSkillHotKey) == offsetof(PlayerStruct, _pSkillHotKey) + sizeof(tmpKeys));
+		memcpy(&tmpKeys, myplr._pSkillSwapKey, sizeof(tmpKeys));
+		memcpy(myplr._pSkillSwapKey, myplr._pSkillHotKey, sizeof(tmpKeys));
+		memcpy(myplr._pSkillHotKey, &tmpKeys, sizeof(tmpKeys));
 	} break;
 	case ACT_TGT:
 		ChangeTarget();

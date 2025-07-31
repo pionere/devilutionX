@@ -314,6 +314,14 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Ali
 static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #endif
 
+typedef struct PlrSkillStruct {
+	BYTE _psAttack;   // attack skill (spell_id)
+	BYTE _psAtkType;  // the (RSPLTYPE_)type of the attack skill
+	BYTE _psMove;     // the movement skill (spell_id)
+	BYTE _psMoveType; // the (RSPLTYPE_)type of the movement skill
+} PlrSkillStruct;
+static_assert(sizeof(PlrSkillStruct) == 4 * sizeof(BYTE), "PlrSkillStruct is not packed tightly");
+
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
 	int _pDestAction;
@@ -353,30 +361,12 @@ typedef struct PlayerStruct {
 	int _pAnimXOffset;
 	unsigned _plid; // light id of the player
 	unsigned _pvid; // vision id of the player
-	BYTE _pAtkSkill;         // the selected attack skill for the primary action
-	BYTE _pAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
-	BYTE _pMoveSkill;        // the selected movement skill for the primary action
-	BYTE _pMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
-	BYTE _pAltAtkSkill;      // the selected attack skill for the secondary action
-	BYTE _pAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
-	BYTE _pAltMoveSkill;     // the selected movement skill for the secondary action
-	BYTE _pAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE _pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE _pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE _pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE _pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE _pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct _pMainSkill; // the selected attack/movement skill for the primary action
+	PlrSkillStruct _pAltSkill;  // the selected attack/movement skill for the secondary action
+	PlrSkillStruct _pSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct _pAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct _pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct _pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE _pSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
@@ -1114,22 +1104,10 @@ typedef struct PkPlayerStruct {
 	LE_INT32 pMaxHPBase;
 	LE_INT32 pManaBase;
 	LE_INT32 pMaxManaBase;
-	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE pAltMoveSkillTypeHotKey[4]; // the movement skill selected by the alt-hotkey
-	BYTE pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltMoveSkillTypeSwapKey[4]; // the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct pSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct pAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE pSkillLvlBase[64];
 	BYTE pSkillActivity[64];
 	LE_UINT32 pSkillExp[64];
@@ -1254,30 +1232,12 @@ typedef struct LSavePlayerStruct {
 	INT vpAnimXOffsetAlign;
 	LE_UINT32 vplid; // light id of the player
 	LE_UINT32 vpvid; // vision id of the player
-	BYTE vpAtkSkill;         // the selected attack skill for the primary action
-	BYTE vpAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
-	BYTE vpMoveSkill;        // the selected movement skill for the primary action
-	BYTE vpMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
-	BYTE vpAltAtkSkill;      // the selected attack skill for the secondary action
-	BYTE vpAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
-	BYTE vpAltMoveSkill;     // the selected movement skill for the secondary action
-	BYTE vpAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE vpAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE vpAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE vpMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE vpMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE vpAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE vpAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE vpAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE vpAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE vpAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE vpAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE vpMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE vpMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE vpAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct vpMainSkill; // the selected attack/movement skill for the primary action
+	PlrSkillStruct vpAltSkill;  // the selected attack/movement skill for the secondary action
+	PlrSkillStruct vpSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct vpAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct vpSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct vpAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE vpSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE vpSkillActivity[64];
 	LE_UINT32 vpSkillExp[64];
