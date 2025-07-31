@@ -65,15 +65,15 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case DVL_DWM_DYNLVL:
 	case DVL_DWM_PORTLVL:
-		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", BACKGROUND_ART_WIDTH);
-		LoadPalette("Gendata\\Cutportl.pal");
+		sgpBackCel = CelLoadImage("gendata\\Cutportl.CEL", BACKGROUND_ART_WIDTH);
+		LoadPalette("gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
 	case DVL_DWM_LOADGAME:
-		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", BACKGROUND_ART_WIDTH);
-		LoadPalette("Gendata\\Cutstart.pal");
+		sgpBackCel = CelLoadImage("gendata\\Cutstart.CEL", BACKGROUND_ART_WIDTH);
+		LoadPalette("gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;

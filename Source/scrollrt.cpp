@@ -1038,13 +1038,13 @@ static void DrawItem(int ii, int sx, int sy)
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Item \"%s\": NULL Cel Buffer", is->_iName);
+		dev_fatal("Draw Item \"%d\": NULL Cel Buffer", is->_iIdx);
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
 	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
+		dev_fatal("Draw Item \"%d\": frame %d of %d, type %d, curs %d", is->_iIdx, nCel, frames, is->_itype, is->_iCurs);
 	}
 #endif
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
@@ -1526,12 +1526,12 @@ static void DrawView()
 		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
-		if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
-			DrawInfoStr();
-		}
 		if (gnVisibleHelpLines != 0) {
 			DrawHelp();
 		}
+	}
+	if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
+		DrawInfoStr();
 	}
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();

@@ -1,20 +1,17 @@
-# devilutionX (Diablo 1) for PS4
+# devilutionX (Diablo 1) for PS5
 
 ## Installation
 
 Installation instructions can be found on the [Installing](/docs/installing.md) page.
 
 ## Building from Source
-Install the [PacBrew openorbis SDK][pacbrew], then run the following
+Install the [PacBrew PS5 SDK][pacbrew], then run the following
  bash script:
 ```console
-devilutionX$ ./Packaging/ps4/build.sh
+devilutionX$ ./Packaging/ps5/build.sh
 ```
 
-[pacbrew]: https://github.com/PacBrew/pacbrew-packages
-
-## Multiplayer
- - Not supported
+[pacbrew]: https://github.com/ps5-payload-dev/pacbrew-repo
 
 ## Controls
 - D-pad: move hero
