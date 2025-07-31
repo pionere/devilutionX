@@ -249,32 +249,28 @@ inline static BYTE BaseCastSpeed(unsigned flags)
 	return res;
 }
 
+static void ValidateActionSkill(PlrSkillStruct &skill, BYTE type, uint64_t mask)
+{
+	if (skill._psAtkType == type && !(mask & SPELL_MASK(skill._psAttack))) {
+		skill._psAttack = SPL_INVALID;
+		skill._psAtkType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
+	if (skill._psMoveType == type && !(mask & SPELL_MASK(skill._psMove))) {
+		skill._psMove = SPL_INVALID;
+		skill._psMoveType = RSPLTYPE_INVALID;
+		//gbRedrawFlags |= REDRAW_SPELL_ICON;
+	}
+}
+
 static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
 {
 	PlayerStruct* p;
 
 	p = &plr;
 	// check if the current RSplType is a valid/allowed spell
-	if (p->_pAtkSkillType == type && !(mask & SPELL_MASK(p->_pAtkSkill))) {
-		p->_pAtkSkill = SPL_INVALID;
-		p->_pAtkSkillType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-	if (p->_pMoveSkillType == type && !(mask & SPELL_MASK(p->_pMoveSkill))) {
-		p->_pMoveSkill = SPL_INVALID;
-		p->_pMoveSkillType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-	if (p->_pAltAtkSkillType == type && !(mask & SPELL_MASK(p->_pAltAtkSkill))) {
-		p->_pAltAtkSkill = SPL_INVALID;
-		p->_pAltAtkSkillType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-	if (p->_pAltMoveSkillType == type && !(mask & SPELL_MASK(p->_pAltMoveSkill))) {
-		p->_pAltMoveSkill = SPL_INVALID;
-		p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
+	ValidateActionSkill(p->_pMainSkill, type, mask);
+	ValidateActionSkill(p->_pAltSkill, type, mask);
 }
 
 void CalcPlrItemVals(int pnum, bool Loadgfx)
@@ -829,15 +825,15 @@ void CalcPlrSpells(int pnum)
 	p = &plr;
 	// switch between normal attacks
 	if (p->_pSkillFlags & SFLAG_MELEE) {
-		if (p->_pAtkSkill == SPL_RATTACK)
-			p->_pAtkSkill = SPL_ATTACK;
-		if (p->_pAltAtkSkill == SPL_RATTACK)
-			p->_pAltAtkSkill = SPL_ATTACK;
+		if (p->_pMainSkill._psAttack == SPL_RATTACK)
+			p->_pMainSkill._psAttack = SPL_ATTACK;
+		if (p->_pAltSkill._psAttack == SPL_RATTACK)
+			p->_pAltSkill._psAttack = SPL_ATTACK;
 	} else {
-		if (p->_pAtkSkill == SPL_ATTACK)
-			p->_pAtkSkill = SPL_RATTACK;
-		if (p->_pAltAtkSkill == SPL_ATTACK)
-			p->_pAltAtkSkill = SPL_RATTACK;
+		if (p->_pMainSkill._psAttack == SPL_ATTACK)
+			p->_pMainSkill._psAttack = SPL_RATTACK;
+		if (p->_pAltSkill._psAttack == SPL_ATTACK)
+			p->_pAltSkill._psAttack = SPL_RATTACK;
 	}
 }
 
