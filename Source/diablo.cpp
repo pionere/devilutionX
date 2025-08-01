@@ -378,7 +378,7 @@ static void ActionBtnCmd(bool altSkill)
 	}
 
 	// assert(skill._psMove != SPL_INVALID);
-	// assert(spelldata[skill._psAttack].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
+	// assert(spelldata[skill._psMove].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (MON_VALID(pcursmonst)) {
 		if (CanTalkToMonst(pcursmonst)) {
