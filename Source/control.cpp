@@ -623,7 +623,7 @@ static void SetSkillHotKey(int slot, bool altSkill)
 			int i;
 
 			for (i = 0; i < lengthof(p->_pSkillHotKey); ++i) {
-				static_assert(offsetof(PlrSkillStruct, _psAttack) == 0, "SetSkillHotKey sets the wrong skill");
+				static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(ps[i]._psAttack), "SetSkillHotKey sets the wrong skill");
 				if (ps[i]._psAttack == sn && ps[i]._psAtkType == currSkillType) {
 					ps[i]._psAttack = SPL_INVALID;
 					ps[i]._psAtkType = RSPLTYPE_INVALID;
@@ -635,13 +635,6 @@ static void SetSkillHotKey(int slot, bool altSkill)
 			ps[slot]._psAtkType = currSkillType;
 		}
 	}
-}
-
-static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot,
-	BYTE* destSkill, BYTE* destSkillType)
-{
-	*destSkill = hotKeyGroup[slot];
-	*destSkillType = hotKeyTypeGroup[slot];
 }
 
 /*

@@ -127,7 +127,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 
 	static_assert(offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(pr->_pAltSkillSwapKey) ==
 		offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey), "memcpy failes to load the skills of the player");
-	memcpy(pr->_pMainSkill, savedPlr->vpMainSkill, offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey));
+	memcpy(&pr->_pMainSkill, &savedPlr->vpMainSkill, offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey));
 
 	memcpy(pr->_pSkillLvlBase, savedPlr->vpSkillLvlBase, lengthof(pr->_pSkillLvlBase));
 	memcpy(pr->_pSkillActivity, savedPlr->vpSkillActivity, lengthof(pr->_pSkillActivity));
@@ -911,8 +911,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpvid = pr->_pvid;
 
 	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey) ==
-		offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(pPack->vpAltSkillSwapKey), "memcpy failes to save the skills of the player");
-	memcpy(pPack->vpMainSkill, plr._pMainSkill, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey));
+		offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(plrSave->vpAltSkillSwapKey), "memcpy failes to save the skills of the player");
+	memcpy(&plrSave->vpMainSkill, &plr._pMainSkill, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey));
 
 	memcpy(plrSave->vpSkillLvlBase, pr->_pSkillLvlBase, lengthof(plrSave->vpSkillLvlBase));
 	memcpy(plrSave->vpSkillActivity, pr->_pSkillActivity, lengthof(plrSave->vpSkillActivity));
