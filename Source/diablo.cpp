@@ -274,66 +274,62 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static int8_t ValidateSkill(BYTE sn, BYTE splType)
+static void ValidateSkill(PlrSkillStruct* skill)
 {
-	int8_t result;
-	assert(sn != SPL_INVALID);
-
-	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) != spelldata[sn].sUseFlags) {
-		return SPLFROM_INVALID_TYPE;
+	int8_t result = SPLFROM_INVALID_TYPE;
+	static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(skill->_psAttack), "ValidateSkill checks the wrong skill");
+	int sn = skill->_psAttack;
+	if (sn == SPL_INVALID) {
+		return;
 	}
 
-	switch (splType) {
-	case RSPLTYPE_ABILITY:
-		// assert(spelldata[sn].sManaCost == 0);
-		result = SPLFROM_ABILITY;
-		break;
-	case RSPLTYPE_SPELL:
-		if (myplr._pMana < GetManaAmount(mypnum, sn))
-			result = SPLFROM_INVALID_MANA;
-		else if (myplr._pSkillLvl[sn] > 0)
-			result = SPLFROM_MANA;
-		else
-			result = SPLFROM_INVALID_LEVEL;
-		break;
-	case RSPLTYPE_INV:
-		result = SpellSourceInv(sn);
-		break;
-	case RSPLTYPE_CHARGES:
-		result = SpellSourceEquipment(sn);
-		break;
-	case RSPLTYPE_INVALID:
-		result = SPLFROM_INVALID_TYPE;
-		break;
-	default:
-		result = SPLFROM_ABILITY;
-		ASSUME_UNREACHABLE
-		break;
+	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
+		switch (skill->_psAtkType) {
+		case RSPLTYPE_ABILITY:
+			// assert(spelldata[sn].sManaCost == 0);
+			result = SPLFROM_ABILITY;
+			break;
+		case RSPLTYPE_SPELL:
+			if (myplr._pMana < GetManaAmount(mypnum, sn))
+				result = SPLFROM_INVALID_MANA;
+			else if (myplr._pSkillLvl[sn] > 0)
+				result = SPLFROM_MANA;
+			else
+				result = SPLFROM_INVALID_LEVEL;
+			break;
+		case RSPLTYPE_INV:
+			result = SpellSourceInv(sn);
+			break;
+		case RSPLTYPE_CHARGES:
+			result = SpellSourceEquipment(sn);
+			break;
+		case RSPLTYPE_INVALID:
+			result = SPLFROM_INVALID_TYPE;
+			break;
+		default:
+			result = SPLFROM_ABILITY;
+			ASSUME_UNREACHABLE
+			break;
+		}
 	}
-
-	return result;
+	if (SPLFROM_INVALID(result)) {
+		skill->_psAttack = SPL_INVALID;
+	}
+	skill->_psAtkType = result;
 }
 
 static void ActionBtnCmd(bool altSkill)
 {
 	PlrSkillStruct skill = altSkill ? myplr._pAltSkill : myplr._pMainSkill;
 	const bool bShift = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
-	int8_t msf = 0, asf = 0;
 
 	// assert(pcursicon == CURSOR_HAND);
 	if (bShift)
 		skill._psMove = SPL_INVALID;
-	else if (skill._psMove != SPL_INVALID) {
-		msf = ValidateSkill(skill._psMove, skill._psMoveType);
-		if (SPLFROM_INVALID(msf))
-			skill._psMove = SPL_INVALID;
-	}
+	else
+		ValidateSkill((PlrSkillStruct*)&skill._psMove);
 
-	if (skill._psAttack != SPL_INVALID) {
-		asf = ValidateSkill(skill._psAttack, skill._psAtkType);
-		if (SPLFROM_INVALID(asf))
-			skill._psAttack = SPL_INVALID;
-	}
+	ValidateSkill((PlrSkillStruct*)&skill._psAttack);
 
 	if (skill._psAttack != SPL_INVALID) {
 		if (skill._psAttack == SPL_BLOCK) {
@@ -341,7 +337,10 @@ static void ActionBtnCmd(bool altSkill)
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
-		const CmdSkillUse skillUse = { skill._psAttack, asf };
+		static_assert(offsetof(PlrSkillStruct, _psAtkType) > offsetof(PlrSkillStruct, _psAttack) &&
+			offsetof(CmdSkillUse, from) - offsetof(CmdSkillUse, skill) == offsetof(PlrSkillStruct, _psAtkType) - offsetof(PlrSkillStruct, _psAttack) &&
+			sizeof(CmdSkillUse) == sizeof(skill._psAttack) + sizeof(skill._psAtkType), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
+		const CmdSkillUse skillUse = *((CmdSkillUse*)&skill._psAttack);
 		if (spelldata[skill._psAttack].spCurs != CURSOR_NONE) {
 			gbTSkillUse = skillUse;
 			NewCursor(spelldata[skill._psAttack].spCurs);
@@ -369,9 +368,9 @@ static void ActionBtnCmd(bool altSkill)
 			return;
 		}
 	} else if (skill._psMove == SPL_INVALID) {
-		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
+		if ((int8_t)skill._psAtkType == SPLFROM_INVALID_MANA || (int8_t)skill._psMoveType == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
-		} else /*if (asf == 0 && msf == 0)*/ {
+		} else /*if ((int8_t)skill._psAtkType == 0 && (int8_t)skill._psMoveType == RSPLTYPE_INVALID)*/ {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}
@@ -406,8 +405,10 @@ static void ActionBtnCmd(bool altSkill)
 	}
 	if (skill._psMove != SPL_WALK) {
 		// TODO: check if pcurspos.x/y == _pfutx/y ?
-		const CmdSkillUse skillUse = { skill._psMove, msf };
-		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
+		static_assert(offsetof(PlrSkillStruct, _psMoveType) > offsetof(PlrSkillStruct, _psMove) &&
+			offsetof(CmdSkillUse, from) - offsetof(CmdSkillUse, skill) == offsetof(PlrSkillStruct, _psMoveType) - offsetof(PlrSkillStruct, _psMove) &&
+			sizeof(CmdSkillUse) == sizeof(skill._psMove) + sizeof(skill._psMoveType), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
+		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
 
