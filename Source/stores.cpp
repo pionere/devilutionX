@@ -245,7 +245,7 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	if (stextsel == y) {
 		DEBUG_ASSERT(cjustflag || !gbHasScroll);
 		DEBUG_ASSERT(cjustflag || gbWidePanel);
-		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (/*STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
+		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
 	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);
