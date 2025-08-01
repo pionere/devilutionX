@@ -314,12 +314,13 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 	return result;
 }
 
-static void DoActionBtnCmd(const PlrSkillStruct &plrSkill)
+static void ActionBtnCmd(bool altSkill)
 {
-	PlrSkillStruct skill = plrSkill;
+	PlrSkillStruct skill = altSkill ? myplr._pAltSkill : myplr._pMainSkill;
 	const bool bShift = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
 	int8_t msf = 0, asf = 0;
 
+	// assert(pcursicon == CURSOR_HAND);
 	if (bShift)
 		skill._psMove = SPL_INVALID;
 	else if (skill._psMove != SPL_INVALID) {
@@ -416,13 +417,6 @@ static void DoActionBtnCmd(const PlrSkillStruct &plrSkill)
 	}
 	if (!nSolidTable[dPiece[pcurspos.x][pcurspos.y]])
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
-}
-
-static void ActionBtnCmd()
-{
-	assert(pcursicon == CURSOR_HAND);
-
-	DoActionBtnCmd(myplr._pMainSkill);
 }
 
 static bool TryIconCurs()
@@ -538,16 +532,9 @@ static void ActionBtnDown()
 			break;
 		}
 
-		ActionBtnCmd();
+		ActionBtnCmd(false);
 		break;
 	}
-}
-
-static void AltActionBtnCmd()
-{
-	assert(pcursicon == CURSOR_HAND);
-
-	DoActionBtnCmd(myplr._pAltSkill);
 }
 
 static void AltActionBtnDown()
@@ -598,7 +585,7 @@ static void AltActionBtnDown()
 			break;
 		}
 
-		AltActionBtnCmd();
+		ActionBtnCmd(true);
 		break;
 	}
 }
