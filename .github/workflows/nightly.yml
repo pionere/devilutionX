@@ -113,7 +113,7 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: '3ef9a78b0e01bc54fa515ac83c266cbe57bf8f9b'
+        vcpkgGitCommitId: 'b91c3336aee7f32412508f7dd351ae2cabdb8819'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     #- name: Install Required Packages
@@ -140,6 +140,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW 32bit
   build_mingw:
     needs: build_check
@@ -165,7 +166,7 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
         sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
         sudo Packaging/windows/mingw-prep.sh
 
@@ -185,6 +186,7 @@ jobs:
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW 64bit
   build_mingw_x64:
     needs: build_check
@@ -230,6 +232,7 @@ jobs:
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW Win9x
   build_w98:
     needs: build_check
@@ -276,6 +279,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   #  MingW WinXP
   build_wXP:
     needs: build_check
@@ -322,6 +326,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
   # Linux-builds
   # 64bit
   build_linux64:
@@ -340,7 +345,7 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-x86_64-linux-gnu.tar.xz'
             appimage: 'hellfire-nightly-x86_64-linux-gnu.appimage'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
       with:
@@ -520,6 +525,7 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
+        compression-level: 0
   # Android-builds
   build_android:
     needs: build_check
@@ -535,14 +541,17 @@ jobs:
             cmakearg0: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-android.apk'
     runs-on: ubuntu-24.04
+    environment: android
     steps:
-    - name: Install gettext
-      run: sudo apt-get update && sudo apt-get install -y gettext
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Create Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gettext
 
     - name: set up JDK 17
       uses: actions/setup-java@v4
@@ -574,13 +583,30 @@ jobs:
       shell: bash
       run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
+    - uses: ilharp/sign-android-release@v2 # Or use @nightly
+      name: Sign app APK
+      id: sign_app
+      with:
+        releaseDir: android-project/app/build/outputs/apk/release
+        signingKey: ${{ secrets.ANDROID_SIGNING_KEY }}
+        keyAlias: ${{ secrets.ANDROID_KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        #buildToolsVersion: 36.0.0
+
+    - name: Rename
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/devilutionx.apk
+
     - name: Upload-Package
       uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
         name: ${{ matrix.artifact }}
-        path: android-project/app/build/outputs/apk/release/app-release-unsigned.apk
+        #path: android-project/app/build/outputs/apk/release/app-release-signed.apk
+        path: android-project/app/build/outputs/apk/release/devilutionx.apk
 
   # rg350-builds
   build_rg350:
@@ -597,7 +623,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-rg350.opk'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -643,7 +669,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-lepus.opk'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -689,7 +715,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DZEROTIER=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-retrofw.opk'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -786,7 +812,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ps5.zip'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -795,11 +821,11 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        sudo apt update
-        sudo apt install cmake pkg-config clang-15 lld-15
-        sudo apt install build-essential autoconf libtool yasm nasm
-        sudo apt install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
-        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.18/ps5-payload-dev.tar.gz
+        sudo apt-get update
+        sudo apt-get install cmake pkg-config clang-15 lld-15
+        sudo apt-get install build-essential autoconf libtool yasm nasm
+        sudo apt-get install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
+        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.27/ps5-payload-dev.tar.gz
         sudo tar -xf ps5-payload-dev.tar.gz -C /
 
     - name: Build
@@ -810,9 +836,9 @@ jobs:
     - name: Upload-Package
       uses: actions/upload-artifact@v4
       with:
-        path: build-ps5/devilutionx-ps5.zip
+        path: build-ps5/devilutionx.zip
         name: ${{ matrix.artifact }}
-
+        compression-level: 0
   # vita-builds
   build_vita:
     needs: build_check
@@ -837,7 +863,7 @@ jobs:
         fetch-depth: 0
 
     - name: Create Build Environment
-      run: apk add git ninja gettext
+      run: apk add cmake ninja
 
     - name: Configure CMake
       run: |
@@ -880,19 +906,20 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install dependencies
-      run: |
-        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
-        deb http://deb.debian.org/debian bullseye-backports main
-        LIST
-        apt-get update
-        apt-get install -y -t bullseye-backports cmake
-        apt-get install -y --no-install-recommends --no-install-suggests \
-          ffmpeg \
-          gettext
+    #- name: Install dependencies
+    #  run: |
+    #    tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+    #    deb http://deb.debian.org/debian bullseye-backports main
+    #    LIST
+    #    apt-get update
+    #    apt-get install -y -t bullseye-backports cmake
+    #    apt-get install -y --no-install-recommends --no-install-suggests \
+    #      ffmpeg \
+    #      gettext
 
-    - name: Get external dependencies
+    - name: Create Build Environment
       run: |
+        sudo apt-get install -y cmake wget
         wget https://github.com/diasurgical/bannertool/releases/download/1.2.0/bannertool.zip
         unzip -j "bannertool.zip" "linux-x86_64/bannertool" -d "/opt/devkitpro/tools/bin"
         wget https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18/makerom-v0.18-ubuntu_x86_64.zip
@@ -943,16 +970,20 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install dependencies
-      shell: bash
+    #- name: Install dependencies
+    #  shell: bash
+    #  run: |
+    #    tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
+    #    deb http://deb.debian.org/debian bullseye-backports main
+    #    LIST
+    #    apt-get update
+    #    apt-get install -y -t bullseye-backports cmake
+    #    apt-get install -y --no-install-recommends --no-install-suggests \
+    #      gettext
+
+    - name: Create Build Environment
       run: |
-        tee /etc/apt/sources.list.d/bullseye-backports.list <<LIST
-        deb http://deb.debian.org/debian bullseye-backports main
-        LIST
-        apt-get update
-        apt-get install -y -t bullseye-backports cmake
-        apt-get install -y --no-install-recommends --no-install-suggests \
-          gettext
+        sudo apt-get install -y cmake
 
     - name: Configure CMake
       run: |
@@ -984,7 +1015,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-amiga'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
     - name: Checkout
@@ -992,8 +1023,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Run prep.sh script
-      run: Packaging/amiga/prep.sh
+    - name: Create Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake wget
+        Packaging/amiga/prep.sh
 
     - name: Configure CMake
       run: |
@@ -1014,7 +1048,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_vita, build_n3ds, build_switch, build_amiga]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
@@ -1222,13 +1256,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: diablo-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/diablo-nightly-android.apk
+    - run: mv ${{github.workspace}}/devilutionx.apk ${{github.workspace}}/diablo-nightly-android.apk
 
     - name: Download a hellfire android artifact
       uses: actions/download-artifact@v4
       with:
         name: hellfire-nightly-android.apk
-    - run: mv ${{github.workspace}}/app-release-unsigned.apk ${{github.workspace}}/hellfire-nightly-android.apk
+    - run: mv ${{github.workspace}}/devilutionx.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     # rg350-builds
     - name: Download a diablo rg350 artifact
@@ -1281,6 +1315,19 @@ jobs:
       with:
         name: hellfire-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
+
+    # ps5-builds
+    - name: Download a diablo ps5 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: diablo-nightly-ps5.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-ps5.zip
+
+    - name: Download a hellfire ps5 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: hellfire-nightly-ps5.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-ps5.zip
 
     # vita-builds
     - name: Download a diablo vita artifact
@@ -1378,6 +1425,10 @@ jobs:
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-ps4.pkg">ps4.pkg</a></td>'                   >> RELEASE_NOTE.md
         echo '<td align=center><code>PS4</code></td>'                                                                                      >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-ps4.pkg">ps4.pkg</a></td>'                 >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-ps5.zip">ps5.zip</a></td>'                   >> RELEASE_NOTE.md
+        echo '<td align=center><code>PS5</code></td>'                                                                                      >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-ps5.zip">ps5.zip</a></td>'                 >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-aarch64.tar.xz">aarch64.tar.xz</a></td>'     >> RELEASE_NOTE.md
         echo '<td align=center><code>aarch64</code></td>'                                                                                  >> RELEASE_NOTE.md
@@ -1487,12 +1538,14 @@ jobs:
         draft: false
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
+        fail_on_unmatched_files: true
         files: |
           ${{github.workspace}}/diablo-nightly-android.apk
           ${{github.workspace}}/diablo-nightly-lepus.opk
           ${{github.workspace}}/diablo-nightly-retrofw.opk
           ${{github.workspace}}/diablo-nightly-rg350.opk
           ${{github.workspace}}/diablo-nightly-ps4.pkg
+          ${{github.workspace}}/diablo-nightly-ps5.zip
           ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
@@ -1517,6 +1570,7 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-retrofw.opk
           ${{github.workspace}}/hellfire-nightly-rg350.opk
           ${{github.workspace}}/hellfire-nightly-ps4.pkg
+          ${{github.workspace}}/hellfire-nightly-ps5.zip
           ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
           ${{github.workspace}}/hellfire-nightly-mac.dmg
           ${{github.workspace}}/hellfire-nightly-ios.ipa
@@ -1536,6 +1590,5 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-mini-x86.zip
           ${{github.workspace}}/hellfire-nightly-server-x86.zip
           ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
-        fail_on_unmatched_files: true
       #env:
       #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

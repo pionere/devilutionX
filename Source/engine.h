@@ -164,7 +164,7 @@ inline int RandRangeLow(int minVal, int maxVal)
  * The NULL terminated content of src is copied to dest.
  */
 template <size_t N1, size_t N2>
-inline void copy_str(char (&dest)[N1], char (&src)[N2])
+inline void copy_str(char (&dest)[N1], const char (&src)[N2])
 {
 	static_assert(N1 >= N2, "String does not fit the destination.");
 	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)

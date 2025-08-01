@@ -221,6 +221,10 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 	return false;
 }
 
+#define MIS_VELO_SHIFT      0
+#define MIS_BASE_VELO_SHIFT 16
+#define MIS_SHIFTEDVEL(x)   ((x) << MIS_VELO_SHIFT)
+
 /*static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
 {
 	if (abs(a->y) != abs(b->y))
@@ -238,6 +242,35 @@ static bool lessCrawlTableEntryDist(const POS32 *a, const POS32 *b)
 	int da = a->x * a->x + a->y * a->y;
 	int db = b->x * b->x + b->y * b->y;
 	return da < db;
+}
+
+static bool lessCrawlTableEntryClockWise(const POS32 *a, const POS32 *b)
+{
+	int clockA = (a->x < 0 ? (a->y < 0 ? 3 : 2) : (a->y < 0 ? 0 : 1));
+	int clockB = (b->x < 0 ? (b->y < 0 ? 3 : 2) : (b->y < 0 ? 0 : 1));
+	if (clockA != clockB)
+		return clockA < clockB;
+	if (clockA & 1) {
+		if (clockA >= 2) {
+			if (a->x != b->x)
+				return a->x < b->x;
+			return a->y > b->y;
+		} else {
+			if (a->x != b->x)
+				return a->x > b->x;
+			return a->y < b->y;
+		}
+	} else {
+		if (clockA >= 2) {
+			if (a->x != b->x)
+				return a->x > b->x;
+			return a->y > b->y;
+		} else {
+			if (a->x != b->x)
+				return a->x < b->x;
+			return a->y < b->y;
+		}
+	}
 }
 
 static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const POS32 *a, const POS32 *b))
@@ -268,7 +301,7 @@ static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const 
 
 static void recreateCrawlTable()
 {
-	constexpr int version = 1;
+	constexpr int version = 2;
 	constexpr int r = version == 0 ? 18 : 15;
 	int crns[r + 1];
 	memset(crns, 0, sizeof(crns));
@@ -300,8 +333,10 @@ static void recreateCrawlTable()
 	for (int n = 0; n <= r; n++) {
 		if (version == 0)
 			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntry);
-		else
+		if (version == 1)
 			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntryDist);
+		if (version == 2)
+			sortCrawlTable(ctableentries[n], crns[n], n == r ? lessCrawlTableEntryClockWise : lessCrawlTableEntryDist);
 	}
 	LogErrorF("const int8_t CrawlTable[%d] = {", total * 2 + r + 1);
 	LogErrorF("	// clang-format off");
@@ -354,67 +389,67 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	int i;
 #endif
-#if DEBUG_MODE
+#if !defined(NONET) && DEBUG_MODE
 	// dvlnet
 	{
-	net::packet_factory pktfty;
-	plr_t plr_self = 0;
-	plr_t plr_other = 1;
-	plr_t plr_mask = (1 << 0) | (1 << 1);
-	net::packet* pkt;
-	turn_t turn = 0;
-	cookie_t cookie = 123456;
-	const BYTE dynData[16] = "lwkejfwip";
-	const BYTE (&addr)[16] = dynData;
-	const BYTE (&addrs)[16] = dynData;
-	SNetGameData gameData;
+		net::packet_factory pktfty;
+		plr_t plr_self = 0;
+		plr_t plr_other = 1;
+		plr_t plr_mask = (1 << 0) | (1 << 1);
+		net::packet* pkt;
+		turn_t turn = 0;
+		cookie_t cookie = 123456;
+		const BYTE dynData[16] = "lwkejfwip";
+		const BYTE (&addr)[16] = dynData;
+		const BYTE (&addrs)[16] = dynData;
+		SNetGameData gameData;
 #ifdef ZEROTIER
-	SNetZtGame ztGameData;
+		SNetZtGame ztGameData;
 #endif
-	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
-	if (!pkt->validate()) {
-		app_fatal("PT_MESSAGE is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
-	if (!pkt->validate()) {
-		app_fatal("PT_TURN is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
-	if (!pkt->validate()) {
-		app_fatal("PT_JOIN_REQUEST is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
-	if (!pkt->validate()) {
-		app_fatal("PT_JOIN_ACCEPT is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
-	if (!pkt->validate()) {
-		app_fatal("PT_CONNECT is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
-	if (!pkt->validate()) {
-		app_fatal("PT_DISCONNECT is invalid");
-	}
-	delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
+		if (!pkt->validate()) {
+			app_fatal("PT_MESSAGE is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
+		if (!pkt->validate()) {
+			app_fatal("PT_TURN is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
+		if (!pkt->validate()) {
+			app_fatal("PT_JOIN_REQUEST is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
+		if (!pkt->validate()) {
+			app_fatal("PT_JOIN_ACCEPT is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
+		if (!pkt->validate()) {
+			app_fatal("PT_CONNECT is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
+		if (!pkt->validate()) {
+			app_fatal("PT_DISCONNECT is invalid");
+		}
+		delete pkt;
 #ifdef ZEROTIER
-	pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
-	if (!pkt->validate()) {
-		app_fatal("PT_INFO_REQUEST is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
-	if (!pkt->validate()) {
-		app_fatal("PT_INFO_REPLY is invalid");
-	}
-	delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
+		if (!pkt->validate()) {
+			app_fatal("PT_INFO_REQUEST is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
+		if (!pkt->validate()) {
+			app_fatal("PT_INFO_REPLY is invalid");
+		}
+		delete pkt;
 #endif
 	}
-#endif // DEBUG
+#endif // !NONET && DEBUG_MODE
 	// text
 	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
 #ifdef DEBUG_DATA
@@ -508,7 +543,7 @@ void ValidateData()
 		}
 		for (i = 0; i < lengthof(minitxtdata); i++) {
 			int n = minitxtdata[i].sfxnr;
-			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr == '\0')
+			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr[0] == '\0')
 				app_fatal("Scrolling text of minitext %d is empty.", n, i);
 			if (minitxtdata[i].txtsfxset) {
 				if ((unsigned)n >= NUM_SFXS)
@@ -602,7 +637,7 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
-		if (strlen(md.mName) > sizeof(infostr)  - 1)
+		if (strlen(md.mName) > sizeof(infostr) - 1)
 			app_fatal("Too long name for %s, %d (maximum is %d).", md.mName, i, sizeof(infostr)); // required by DrawInfoStr
 		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
@@ -778,8 +813,10 @@ void ValidateData()
 				}
 			}
 		} else {
+#if DEV_MODE
 			if (monfiledata[md.moFileNum].moAFNum2 != 0)
 				LogErrorF("moAFNum2 is set for %s (%d), but it is not used.", md.mName, i);
+#endif
 		}
 		if (altDamReq != 0) {
 			if (altDamReq & 1) {
@@ -791,10 +828,12 @@ void ValidateData()
 					app_fatal("mHit2 is not set for %s (%d).", md.mName, i);
 			}
 		} else {
+#if DEV_MODE
 			if (md.mHit2 != 0)
 				LogErrorF("mHit2 is set for %s (%d), but it is not used.", md.mName, i);
 			if (md.mMaxDamage2 != 0)
 				LogErrorF("mMaxDamage2 is set (%d) for %s (%d), but it is not used.", md.mMaxDamage2, md.mName, i);
+#endif
 		}
 		if (md.mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
@@ -916,6 +955,7 @@ void ValidateData()
 	}
 #endif
 #ifdef DEBUG_DATA
+	bool sklwingBoned = false;
 	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
 		if (um.mtype >= NUM_MTYPES)
@@ -972,11 +1012,12 @@ void ValidateData()
 		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
 		if (um.mMaxDamage == 0 && monsterdata[um.mtype].mMaxDamage != 0)
-			if (um.mAI.aiType != AI_LACHDAN)
+			if (um.mAI.aiType != AI_LACHDAN) {
 				app_fatal("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
-			else
+			} else {
 				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
-		if (um.mMaxDamage2 == 0 && (um.mAI.aiType == AI_ROUND || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
+			}
+		if (um.mMaxDamage2 == 0 && ((um.mAI.aiType == AI_ROUND && um.mAI.aiParam1) || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
 			app_fatal("mMaxDamage2 is not set for unique monster %s (%d).", um.mName, i);
 		if (um.mMaxDamage2 != 0 && (um.mAI.aiType == AI_SCAV || um.mAI.aiType == AI_GARG))
 			app_fatal("Fake special attack of the unique monster %s (%d) might hurt someone because mMaxDamage2 is set.", um.mName, i);
@@ -1326,12 +1367,12 @@ void ValidateData()
 		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
 		for (int n = 0; n <= ILVLMAX; n++) {
 			for (int k = 0; k < 10; k++) {
-				int dropts = rnddrops[n][ii][k];
-				if (dropts > maxAffix) {
-					maxAffix = dropts;
+				int drops = rnddrops[n][ii][k];
+				if (drops > maxAffix) {
+					maxAffix = drops;
 				}
-				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
-					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+				if (drops > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", drops, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
 			}
 		}
 	}
@@ -1366,7 +1407,6 @@ void ValidateData()
 		}
 		if (sufs->PLDouble)
 			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pow, sufs->PLParam1);
-		rnddrops++;
 		if (sufs->PLParam2 < sufs->PLParam1)
 			app_fatal("Invalid PLParam-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
 		if (sufs->PLParam2 - sufs->PLParam1 >= 0x7FFF) // required by SaveItemPower
@@ -1465,6 +1505,7 @@ void ValidateData()
 #if 0
 	LogErrorF("Max affix %d vs %d", maxAffix, ITEM_RNDAFFIX_MAX);
 #endif
+#if DEV_MODE
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
 		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
@@ -1496,7 +1537,7 @@ void ValidateData()
 		}
 		LogErrorF("Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
 	}
-
+#endif
 	// unique items
 	for (i = 0; i < NUM_UITEM; i++) {
 		const UniqItemData& ui = UniqueItemList[i];
@@ -1763,8 +1804,6 @@ void ValidateData()
 				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Rune of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetRuneSpell
 			hasRuneSpell = true;
 			continue;
 		}
@@ -1775,8 +1814,6 @@ void ValidateData()
 				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sBookCost <= 0)
 				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Book of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetBookSpell
 			hasBookSpell = true;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
@@ -1788,9 +1825,6 @@ void ValidateData()
 				app_fatal("Too high sStaffMax %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Staff of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetStaffSpell
 			hasStaffSpell = true;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
@@ -1798,8 +1832,6 @@ void ValidateData()
 				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetScrollSpell
 			if ((sd.sSkillFlags & SDFLAG_TARGETED) && sd.scCurs == CURSOR_NONE)
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			hasScrollSpell = true;
@@ -1832,7 +1864,11 @@ void ValidateData()
 		/*if ((md.mAddProc == AddBleed || md.mAddProc == AddBloodBoil || md.mAddProc == AddFireexp || md.mAddProc == AddInferno || md.mAddProc == AddMisexp)
 		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0])
 			app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);*/
-		if ((md.mProc == MI_Misexp || md.mProc == MI_MiniExp || md.mProc == MI_LongExp || md.mProc == MI_Bleed || md.mProc == MI_BloodBoil || md.mProc == MI_Inferno || md.mProc == MI_Acidsplat || md.mProc == MI_HorkSpawn)
+		if ((md.mProc == MI_Misexp || md.mProc == MI_MiniExp || md.mProc == MI_LongExp || md.mProc == MI_Bleed || md.mProc == MI_BloodBoil || md.mProc == MI_Inferno || md.mProc == MI_Acidsplat
+#ifdef HELLFIRE
+			 || md.mProc == MI_HorkSpawn
+#endif
+			)
 		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]) {
 			if (md.mAddProc != AddAttract)
 				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);
@@ -1856,14 +1892,6 @@ void ValidateData()
 					assert(spelldata[n].sSkillFlags & SDFLAG_TARGETED);
 			}
 		}
-#ifdef HELLFIRE
-		if (md.mAddProc == AddHorkSpawn) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
-				assert(misfiledata[md.mFileNum].mfAnimLen[j] == 9);
-			}
-		}
-#endif
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
 		if (md.mProc == MI_Misexp) {
@@ -1913,7 +1941,7 @@ void ValidateData()
 			for (int j = 0; j < 16; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_PORTAL].mfAnimLen[j]);
 			}
-		}		
+		}
 		if (md.mProc == MI_Shroud)
 			assert(md.mFileNum == MFILE_SHROUD);
 		if (md.mProc == MI_Wind)
@@ -1944,7 +1972,7 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MFILE; i++) {
 		const MisFileData& mfd = misfiledata[i];
-		if (i != MFILE_NONE && !mfs.mfDrawFlag)
+		if (i != MFILE_NONE && !mfd.mfDrawFlag)
 			app_fatal("Missile-File %d is not rendered.", i);
 		if (mfd.mfAnimFAmt < 0)
 			app_fatal("Missile-File %d has negative mfAnimFAmt.", i);
@@ -1974,6 +2002,7 @@ void ValidateData()
 		}
 	}
 #endif // DEBUG_DATA
+	assert((missiledata[MIS_ASARROW].mdFlags & MIF_SHROUD) == 0); // required by MI_AsArrow
 	assert((missiledata[MIS_ARROW].mdFlags & MIF_ARROW) != 0);   // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_PBARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_ASARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
@@ -2073,7 +2102,7 @@ void ValidateData()
 				SetPlrAnims(0);
 				if (wal < 0)
 					wal = plr._pAnims[PGX_WALK].paFrames;
-				else if (wal != plr._pAnims[PGX_WALK].paFrames)
+				else if (wal != (int)plr._pAnims[PGX_WALK].paFrames)
 					app_fatal("Inconsistent walk-animation for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by StartWalk
 				if (n != ANIM_ID_BOW && plr._pAFNum == 0) {
 					app_fatal("Invalid attack-actionframe number for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by PlrDoAttack

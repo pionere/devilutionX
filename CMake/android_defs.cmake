@@ -8,7 +8,7 @@ set(PIE ON)
 # The android build gives Permission denied error if stripping is enabled.
 set(DISABLE_STRIP ON)
 set(FULLSCREEN_ONLY ON)
-#set(VIRTUAL_GAMEPAD ON)
+set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)
 # Disable system dependencies.
 # All of these will be fetched via FetchContent and linked statically.

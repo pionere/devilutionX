@@ -10,6 +10,7 @@
 #include "selok.h"
 #include "selyesno.h"
 #include "utils/display.h"
+#include "utils/filestream.h"
 #include "utils/paths.h"
 #include "utils/file_util.h"
 
@@ -202,7 +203,7 @@ restart:
 			}
 			std::string line;
 			// hdfiles.clear();
-			while (std::getline(input, line)) {
+			while (safeGetline(input, line)) {
 				if (merger_skipFile(line)) continue;
 				hdfiles.insert(line);
 			}
@@ -216,7 +217,7 @@ restart:
 		}
 		std::string line;
 		// listfiles.clear();
-		while (std::getline(input, line)) {
+		while (safeGetline(input, line)) {
 			if (merger_skipFile(line)) continue;
 #if ASSET_MPL != 1
 			if (hdfiles.count(line) != 0) {

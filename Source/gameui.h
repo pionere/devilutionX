@@ -16,13 +16,6 @@ extern "C" {
 // IN-GAME UI
 //////////////////////////////////////////////////
 
-#ifndef DEFAULT_WIDTH
-#define DEFAULT_WIDTH  (640 * ASSET_MPL)
-#endif
-#ifndef DEFAULT_HEIGHT
-#define DEFAULT_HEIGHT (480 * ASSET_MPL)
-#endif
-
 #define TILE_WIDTH     (64 * ASSET_MPL)
 #define TILE_HEIGHT    (32 * ASSET_MPL)
 

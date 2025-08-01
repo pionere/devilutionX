@@ -3,10 +3,12 @@
 #include <set>
 
 #include "diabloui.h"
+#include "patchdat.h"
 #include "selok.h"
 #include "utils/display.h"
-#include "utils/paths.h"
+#include "utils/filestream.h"
 #include "utils/file_util.h"
+#include "utils/paths.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
@@ -111,6 +113,23 @@ typedef enum filenames {
 	FILE_PLR_RMTAT,
 	FILE_PLR_RHUQM,
 	FILE_PLR_RHUHT,
+	FILE_PLR_RLHAS,
+	FILE_PLR_RLHAT,
+	FILE_PLR_RLHAW,
+	FILE_PLR_RLHBL,
+	FILE_PLR_RLHFM,
+	FILE_PLR_RLHLM,
+	FILE_PLR_RLHHT,
+	FILE_PLR_RLHQM,
+	FILE_PLR_RLHST,
+	FILE_PLR_RLHWL,
+	FILE_PLR_RLMAT,
+	FILE_PLR_RMDAW,
+	FILE_PLR_RMHAT,
+	FILE_PLR_RMMAT,
+	FILE_PLR_RMBFM,
+	FILE_PLR_RMBLM,
+	FILE_PLR_RMBQM,
 #endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
@@ -289,6 +308,23 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_PLR_RMTAT*/     "PlrGFX\\Rogue\\RMT\\RMTAT.CL2",
 /*FILE_PLR_RHUQM*/     "PlrGFX\\Rogue\\RHU\\RHUQM.CL2",
 /*FILE_PLR_RHUHT*/     "PlrGFX\\Rogue\\RHU\\RHUHT.CL2",
+/*FILE_PLR_RLHAS*/     "PlrGFX\\Rogue\\RLH\\RLHAS.CL2",
+/*FILE_PLR_RLHAT*/     "PlrGFX\\Rogue\\RLH\\RLHAT.CL2",
+/*FILE_PLR_RLHAW*/     "PlrGFX\\Rogue\\RLH\\RLHAW.CL2",
+/*FILE_PLR_RLHBL*/     "PlrGFX\\Rogue\\RLH\\RLHBL.CL2",
+/*FILE_PLR_RLHFM*/     "PlrGFX\\Rogue\\RLH\\RLHFM.CL2",
+/*FILE_PLR_RLHLM*/     "PlrGFX\\Rogue\\RLH\\RLHLM.CL2",
+/*FILE_PLR_RLHHT*/     "PlrGFX\\Rogue\\RLH\\RLHHT.CL2",
+/*FILE_PLR_RLHQM*/     "PlrGFX\\Rogue\\RLH\\RLHQM.CL2",
+/*FILE_PLR_RLHST*/     "PlrGFX\\Rogue\\RLH\\RLHST.CL2",
+/*FILE_PLR_RLHWL*/     "PlrGFX\\Rogue\\RLH\\RLHWL.CL2",
+/*FILE_PLR_RLMAT*/     "PlrGFX\\Rogue\\RLM\\RLMAT.CL2",
+/*FILE_PLR_RMDAW*/     "PlrGFX\\Rogue\\RMD\\RMDAW.CL2",
+/*FILE_PLR_RMHAT*/     "PlrGFX\\Rogue\\RMH\\RMHAT.CL2",
+/*FILE_PLR_RMMAT*/     "PlrGFX\\Rogue\\RMM\\RMMAT.CL2",
+/*FILE_PLR_RMBFM*/     "PlrGFX\\Rogue\\RMB\\RMBFM.CL2",
+/*FILE_PLR_RMBLM*/     "PlrGFX\\Rogue\\RMB\\RMBLM.CL2",
+/*FILE_PLR_RMBQM*/     "PlrGFX\\Rogue\\RMB\\RMBQM.CL2",
 #endif
 #ifdef HELLFIRE
 #if ASSET_MPL == 1
@@ -428,8 +464,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 		for (unsigned i = 0; i < numEntries; i++) {
 			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
-			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+			DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+			memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 			dstDataCursor += len;
 			srcHeaderCursor++;
 		}
@@ -442,8 +478,8 @@ static BYTE* buildBlkCel(BYTE* celBuf, size_t *celLen)
 	for (unsigned i = 0; i < numEntries; i++) {
 		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
-		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
-		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
+		DWORD len = SwapLE32(srcHeaderCursor[1]) - SwapLE32(srcHeaderCursor[0]);
+		memcpy(dstDataCursor, celBuf + SwapLE32(srcHeaderCursor[0]), len);
 		dstDataCursor += len;
 		srcHeaderCursor++;
 	}
@@ -2029,9 +2065,31 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 }
 #endif // HELLFIRE
 
+static void pushHead(BYTE** prevHead, BYTE** lastHead, BYTE *head)
+{
+	if (*lastHead != NULL && *prevHead != NULL && head != NULL) {
+		// check for [len0 col0 .. coln] [rle3 col] [len1 col00 .. colnn] -> [(len0 + 3 + len1) col0 .. coln col col col col00 .. colnn]
+		if (**lastHead == 0xBF - 3 && *head >= 0xBF && **prevHead >= 0xBF) {
+			unsigned len = 3 + (256 - *head) + (256 - **prevHead);
+			if (len <= (256 - 0xBF)) {
+				**prevHead = 256 - len;
+				BYTE col = *((*lastHead) + 1);
+				**lastHead = col;
+				*head = col;
+				*lastHead = *prevHead;
+				*prevHead = NULL;
+				return;
+			}
+		}
+	}
+
+	*prevHead = *lastHead;
+	*lastHead = head;
+}
+
 static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE transparentPixel)
 {
-	const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
+	const int RLE_LEN = 3; // number of matching colors to switch from bmp encoding to RLE
 
 	unsigned subHeaderSize = SUB_HEADER_SIZE;
 	unsigned hs = (height - 1) / CEL_BLOCK_HEIGHT;
@@ -2044,22 +2102,28 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 	if (clipped) {
 		// add CL2 FRAME HEADER
 		*(WORD*)&pBuf[0] = SwapLE16((WORD)subHeaderSize);
-		*(DWORD*)&pBuf[2] = 0;
-		*(DWORD*)&pBuf[6] = 0;
+		//*(DWORD*)&pBuf[2] = 0;
+		//*(DWORD*)&pBuf[6] = 0;
 		pBuf += subHeaderSize;
 	}
 
 	BYTE* pHead = pBuf;
 	BYTE col, lastCol;
-	BYTE colMatches = 0;
+	BYTE colMatches = 0; // does not matter
 	bool alpha = false;
-	bool first = true;
+	bool first = false; // true; - does not matter
+	BYTE* pPrevHead = NULL;
+	BYTE* pLastHead = NULL;
 	for (int i = 1; i <= height; i++) {
 		if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+			pushHead(&pPrevHead, &pLastHead, pHead);
+			//if (first) {
+				pLastHead = nullptr;
+			//}
 			pHead = pBuf;
 			*(WORD*)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16((WORD)((size_t)pHead - (size_t)pHeader)); // pHead - buf - SUB_HEADER_SIZE;
 
-			colMatches = 0;
+			// colMatches = 0;
 			alpha = false;
 			// first = true;
 		}
@@ -2073,9 +2137,13 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 					colMatches = 1;
 				else
 					colMatches++;
-				if (colMatches < RLE_LEN || (int8_t)*pHead <= -127) {
+				if (colMatches < RLE_LEN || *pHead == 0x81u) {
 					// bmp encoding
-					if (alpha || (int8_t)*pHead <= -65 || first) {
+					if (/*alpha ||*/ *pHead <= 0xBFu || first) {
+						pushHead(&pPrevHead, &pLastHead, pHead);
+						if (first) {
+							pLastHead = NULL;
+						}
 						pHead = pBuf;
 						pBuf++;
 						colMatches = 1;
@@ -2088,9 +2156,13 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 						memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
 						*pHead += RLE_LEN - 1;
 						if (*pHead != 0) {
+							pushHead(&pPrevHead, &pLastHead, pHead);
+							//if (first) {
+							//	pLastHead = NULL;
+							//}
 							pHead = pBuf - (RLE_LEN - 1);
 						}
-						*pHead = -65 - (RLE_LEN - 1);
+						*pHead = 0xBFu - (RLE_LEN - 1);
 						pBuf = pHead + 1;
 						*pBuf = col;
 						pBuf++;
@@ -2102,7 +2174,11 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 				alpha = false;
 			} else {
 				// add transparent pixel
-				if (!alpha || (int8_t)*pHead >= 127) {
+				if (!alpha || *pHead == 0x7Fu) {
+					pushHead(&pPrevHead, &pLastHead, pHead);
+					//if (first) {
+					//	pLastHead = NULL;
+					//}
 					pHead = pBuf;
 					pBuf++;
 				}
@@ -2113,6 +2189,7 @@ static BYTE* EncodeCl2(BYTE* pBuf, const BYTE* pSrc, int width, int height, BYTE
 		}
 		pSrc -= BUFFER_WIDTH + width;
 	}
+	pushHead(&pPrevHead, &pLastHead, pHead);
 	return pBuf;
 }
 
@@ -2187,10 +2264,16 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 	case FILE_PLR_RHTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_RHUHT: frameCount =  8 - 1; width =  96; height =  96; break;
 	case FILE_PLR_RHUQM: frameCount = 17 - 1; width =  96; height =  96; break;
-	case FILE_PLR_RMTAT: frameCount = 17 - 1; width = 128; height = 128; break;
+	case FILE_PLR_RMTAT: frameCount = 18 - 2; width = 128; height = 128; break;
 	case FILE_PLR_WHMAT: frameCount = 17 - 1; width = 128; height =  96; break;
 	case FILE_PLR_WLNLM: frameCount = 21 - 1; width =  96; height =  96; break;
 	case FILE_PLR_WMDLM: frameCount = 21 - 1; width =  96; height =  96; break;
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
+	if (srcCelEntries <= frameCount) {
+		return cl2Buf; // assume it is already done
 	}
 
 	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
@@ -2226,7 +2309,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
-			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
 			// draw the frame to the buffer
 			int nn = n;
 			if (index == FILE_PLR_RHTAT || index == FILE_PLR_RMTAT) {
@@ -2238,6 +2321,207 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 				}
 			}
 			Cl2Draw(0, height - 1, frameBuf, nn, width);
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+
+	int frameCount = 0, width = 0, height = 0;
+	switch (index) {
+	case FILE_PLR_RLHAS: frameCount =  8; width =  96; height =  96; break;
+	case FILE_PLR_RLHAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RLHAW: frameCount =  8; width =  96; height =  96; break;
+	case FILE_PLR_RLHBL: frameCount =  4; width =  96; height =  96; break;
+	case FILE_PLR_RLHFM: frameCount = 16; width =  96; height =  96; break;
+	case FILE_PLR_RLHLM: frameCount = 16; width =  96; height =  96; break;
+	case FILE_PLR_RLHHT: frameCount =  7; width =  96; height =  96; break;
+	case FILE_PLR_RLHQM: frameCount = 16; width =  96; height =  96; break;
+	case FILE_PLR_RLHST: frameCount = 20; width =  96; height =  96; break;
+	case FILE_PLR_RLHWL: frameCount =  8; width =  96; height =  96; break;
+	case FILE_PLR_RLMAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMDAW: frameCount =  8; width =  96; height =  96; break;
+	case FILE_PLR_RMHAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMMAT: frameCount = 18; width = 128; height = 128; break;
+	case FILE_PLR_RMBFM: frameCount = 16; width =  96; height =  96; break;
+	case FILE_PLR_RMBLM: frameCount = 16; width =  96; height =  96; break;
+	case FILE_PLR_RMBQM: frameCount = 16; width =  96; height =  96; break;
+	}
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			Cl2Draw(0, height - 1, frameBuf, n, width);
+
+			int nn = ii * frameCount + n - 1;
+			switch (index) {
+			case FILE_PLR_RLHAS:
+				for (int i = 0; i < lengthof(deltaRLHAS); i++) {
+					if (deltaRLHAS[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHAS[i].dfx + BUFFER_WIDTH * deltaRLHAS[i].dfy] = deltaRLHAS[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHAT:
+				for (int i = 0; i < lengthof(deltaRLHAT); i++) {
+					if (deltaRLHAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHAT[i].dfx + BUFFER_WIDTH * deltaRLHAT[i].dfy] = deltaRLHAT[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHAW:
+				for (int i = 0; i < lengthof(deltaRLHAW); i++) {
+					if (deltaRLHAW[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHAW[i].dfx + BUFFER_WIDTH * deltaRLHAW[i].dfy] = deltaRLHAW[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHBL:
+				for (int i = 0; i < lengthof(deltaRLHBL); i++) {
+					if (deltaRLHBL[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHBL[i].dfx + BUFFER_WIDTH * deltaRLHBL[i].dfy] = deltaRLHBL[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHFM:
+				for (int i = 0; i < lengthof(deltaRLHFM); i++) {
+					if (deltaRLHFM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHFM[i].dfx + BUFFER_WIDTH * deltaRLHFM[i].dfy] = deltaRLHFM[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHLM:
+				for (int i = 0; i < lengthof(deltaRLHLM); i++) {
+					if (deltaRLHLM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHLM[i].dfx + BUFFER_WIDTH * deltaRLHLM[i].dfy] = deltaRLHLM[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHHT:
+				for (int i = 0; i < lengthof(deltaRLHHT); i++) {
+					if (deltaRLHHT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHHT[i].dfx + BUFFER_WIDTH * deltaRLHHT[i].dfy] = deltaRLHHT[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHQM:
+				for (int i = 0; i < lengthof(deltaRLHQM); i++) {
+					if (deltaRLHQM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHQM[i].dfx + BUFFER_WIDTH * deltaRLHQM[i].dfy] = deltaRLHQM[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHST:
+				for (int i = 0; i < lengthof(deltaRLHST); i++) {
+					if (deltaRLHST[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHST[i].dfx + BUFFER_WIDTH * deltaRLHST[i].dfy] = deltaRLHST[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLHWL:
+				for (int i = 0; i < lengthof(deltaRLHWL); i++) {
+					if (deltaRLHWL[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLHWL[i].dfx + BUFFER_WIDTH * deltaRLHWL[i].dfy] = deltaRLHWL[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RLMAT:
+				for (int i = 0; i < lengthof(deltaRLMAT); i++) {
+					if (deltaRLMAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRLMAT[i].dfx + BUFFER_WIDTH * deltaRLMAT[i].dfy] = deltaRLMAT[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMDAW:
+				for (int i = 0; i < lengthof(deltaRMDAW); i++) {
+					if (deltaRMDAW[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMDAW[i].dfx + BUFFER_WIDTH * deltaRMDAW[i].dfy] = deltaRMDAW[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMHAT:
+				for (int i = 0; i < lengthof(deltaRMHAT); i++) {
+					if (deltaRMHAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMHAT[i].dfx + BUFFER_WIDTH * deltaRMHAT[i].dfy] = deltaRMHAT[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMMAT:
+				for (int i = 0; i < lengthof(deltaRMMAT); i++) {
+					if (deltaRMMAT[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMMAT[i].dfx + BUFFER_WIDTH * deltaRMMAT[i].dfy] = deltaRMMAT[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMBFM:
+				for (int i = 0; i < lengthof(deltaRMBFM); i++) {
+					if (deltaRMBFM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBFM[i].dfx + BUFFER_WIDTH * deltaRMBFM[i].dfy] = deltaRMBFM[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMBLM:
+				for (int i = 0; i < lengthof(deltaRMBLM); i++) {
+					if (deltaRMBLM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBLM[i].dfx + BUFFER_WIDTH * deltaRMBLM[i].dfy] = deltaRMBLM[i].color;
+					}
+				}
+				break;
+			case FILE_PLR_RMBQM:
+				for (int i = 0; i < lengthof(deltaRMBQM); i++) {
+					if (deltaRMBQM[i].dfFrameNum == nn + 1) {
+						gpBuffer[deltaRMBQM[i].dfx + BUFFER_WIDTH * deltaRMBQM[i].dfy] = deltaRMBQM[i].color;
+					}
+				}
+				break;
+			}
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
 
@@ -2485,7 +2769,7 @@ static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
 	srcHeaderCursor++;
 
-	const int resCelEntries = NUM_ICURS + CURSOR_FIRSTITEM - 1;
+	const int resCelEntries = (int)CURSOR_FIRSTITEM + NUM_ICURS - 1;
 	assert(srcCelEntries == resCelEntries);
 
 	// create the new CEL file
@@ -6406,13 +6690,13 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 			// draw the frame to the buffer
 			Cl2Draw(0, height - 1, frameBuf, n, width);
 			// test if the animation is already patched
-			if (ii == 1 && n == 9) {
+			if (ii + 1 == 2 && n == 9) {
 				needsPatch = gpBuffer[71 + BUFFER_WIDTH * 127] != TRANS_COLOR; // assume it is already done
 			}
 
 			if (needsPatch) {
-				switch (ii) {
-				case DIR_SW: {
+				switch (ii + 1) {
+				case 2: {
 					switch (n) {
 					case 9:
 					case 10:
@@ -6457,7 +6741,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_W: {
+				case 3: {
 					switch (n) {
 					case 9:
 					case 10:
@@ -6515,7 +6799,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_NW: {
+				case 4: {
 					switch (n) {
 					case 12:
 					case 13:
@@ -6537,7 +6821,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_E: {
+				case 7: {
 					switch (n) {
 					case 9:
 					case 10:
@@ -6552,7 +6836,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 					} break;
 					}
 				} break;
-				case DIR_SE: {
+				case 8: {
 					switch (n) {
 					case 12:
 					case 13:
@@ -7721,6 +8005,26 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// eliminate extra frames of player gfx files
 		buf = patchPlrFrames(index, buf, dwLen);
 	} break;
+	case FILE_PLR_RLHAS:
+	case FILE_PLR_RLHAT:
+	case FILE_PLR_RLHAW:
+	case FILE_PLR_RLHBL:
+	case FILE_PLR_RLHFM:
+	case FILE_PLR_RLHLM:
+	case FILE_PLR_RLHHT:
+	case FILE_PLR_RLHQM:
+	case FILE_PLR_RLHST:
+	case FILE_PLR_RLHWL:
+	case FILE_PLR_RLMAT:
+	case FILE_PLR_RMDAW:
+	case FILE_PLR_RMHAT:
+	case FILE_PLR_RMMAT:
+	case FILE_PLR_RMBFM:
+	case FILE_PLR_RMBLM:
+	case FILE_PLR_RMBQM:
+	{	// fix extra bits of rogue gfx files
+		buf = patchRogueExtraPixels(index, buf, dwLen);
+	} break;
 	case FILE_PLR_WMHAS:
 	{	// fix player gfx file - WMHAS.CL2
 		size_t atkLen;
@@ -8028,7 +8332,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 
 		numA = SwapLE32(((DWORD*)buf)[0]);
 		if (numA != 179) {
-			if (numA != NUM_ICURS + CURSOR_FIRSTITEM - 1 /* 179 + 61 - 2*/) {
+			if (numA != (int)CURSOR_FIRSTITEM + NUM_ICURS - 1 /* 179 + 61 - 2*/) {
 				mem_free_dbg(buf);
 				app_warn("Invalid file %s in the mpq.", filesToPatch[index]);
 				buf = NULL;
@@ -8084,7 +8388,7 @@ restart:
 		}
 		// mpqfiles.clear();
 		std::string line;
-		while (std::getline(input, line)) {
+		while (safeGetline(input, line)) {
 			for (int i = 0; i < NUM_MPQS; i++) {
 				if (SFileReadArchive(diabdat_mpqs[i], line.c_str(), NULL) != 0) {
 					mpqfiles.push_back(line);

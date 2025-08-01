@@ -4,6 +4,7 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
+#include "controls/touch.h"
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -39,6 +40,8 @@ Uint32 gnGamePaused;
 BYTE gbDeathflag = MDM_ALIVE;
 /** The state of the buttons for which might be repeated while held down. */
 unsigned gbActionBtnDown;
+/** The state of the mod-buttons. */
+unsigned gbModBtnDown;
 /** tick counter when the last time an action was repeated because a button was held down. */
 static Uint32 guLastRBD;
 /** Specifies the speed of the game. */
@@ -50,6 +53,10 @@ int gnTimeoutCurs;
 static bool _gbSkipIntro = false;
 /** Specifies whether the in-game tooltip is always active. */
 bool gbShowTooltip = false;
+/** The last selected skill-slot using the next/previous action */
+static BYTE gbCurrActiveSkill;
+/** The last selected alt-skill-slot using the next/previous action */
+static BYTE gbCurrActiveAltSkill;
 /** Default controls. */
 // clang-format off
 BYTE WMButtonInputTransTbl[] = { ACT_NONE,
@@ -60,8 +67,8 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // KANAH,   IMEON,    JUNJA,    FINAL,    HANJA,    IMEOFF,   ESCAPE,     CONVERT,  NONCONV,  ACCEPT,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ESCAPE, ACT_NONE, ACT_NONE, ACT_NONE,
 // CHANGE,  SPACE,       PGUP,     PGDOWN,     END,      HOME,     LEFT,     UP,     RIGHT,     DOWN,
-  ACT_NONE, ACT_CLEARUI, ACT_PGUP, ACT_PGDOWN, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
-// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,       
+  ACT_NONE, ACT_CLEARUI, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_LEFT, ACT_UP, ACT_RIGHT, ACT_DOWN,
+// SELECT,  PRINT,    EXEC,     PRINTSCRN, INSERT,  DELETE,   HELP,     0,        1,         2,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_SCRN, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_ITEM0, ACT_ITEM1,
 // 3,        4,         5,         6,         7,         8,         9,        UNDEF,    UNDEF,    UNDEF,
   ACT_ITEM2, ACT_ITEM3, ACT_ITEM4, ACT_ITEM5, ACT_ITEM6, ACT_ITEM7, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
@@ -84,13 +91,13 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    NUMLOCK,  SCRLLOCK, UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    LSHIFT,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MODACT,
 // RSHIFT,  LCTRL,    RCTRL,    LMENU,    RMENU,    BBACK,    BFWD,     BREFRESH, BSTOP,    BSEARCH,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_MODACT, ACT_NONE, ACT_NONE, ACT_MODCTX, ACT_MODCTX, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // BFAV,    BHOME,    MUTE,     VOL_UP,   VOL_DOWN, NTRACK,   PTRACK,   STOP,     PLAYP,    MAIL,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // MSEL,    APP1,     APP2,     UNDEF,    UNDEF,    OEM_1,    OEM_PLUS,    OEM_COMMA, OEM_MINUS,    OEM_PERIOD,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_NONE,  ACT_MAPZ_OUT, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_MAPZ_IN, ACT_SPREV,  ACT_MAPZ_OUT, ACT_SNEXT,
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 // OEM_2,   OEM_3,    CONTROLLER_1,    CONTROLLER_2,     CONTROLLER_3,    CONTROLLER_4,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_CTRL_ALTACT, ACT_CTRL_CASTACT, ACT_CTRL_USE_HP, ACT_CTRL_USE_MP, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
@@ -101,9 +108,9 @@ BYTE WMButtonInputTransTbl[] = { ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    OEM_4,    OEM_5,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_SAPREV, ACT_NONE,
 // OEM_6,   OEM_7,    OEM_8,    UNDEF,    UNDEF,    OEM_102,  UNDEF,    UNDEF,    PROC,     UNDEF,
-  ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
+  ACT_SANEXT, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // PACKET,  UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,
   ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE, ACT_NONE,
 // UNDEF,   UNDEF,    UNDEF,    UNDEF,    UNDEF,    UNDEF,    ATTN,     CRSEL,    EREOF,    PLAY,
@@ -174,6 +181,9 @@ static void diablo_init()
 #endif
 	InitLighting();
 	InitText();
+#if HAS_TOUCHPAD
+	InitGamepadGFX();
+#endif
 	InitCursorGFX();
 	UiInitialize();
 	gbWasUiInit = true;
@@ -220,8 +230,11 @@ static void diablo_deinit()
 #endif
 	//if (gbWasUiInit)
 		UiDestroy();
-		FreeText();
 		FreeCursorGFX();
+#if HAS_TOUCHPAD
+		FreeGamepadGFX();
+#endif
+		FreeText();
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {
@@ -301,35 +314,36 @@ static int8_t ValidateSkill(BYTE sn, BYTE splType)
 	return result;
 }
 
-static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BYTE atkSkillType)
+static void DoActionBtnCmd(const PlrSkillStruct &plrSkill)
 {
-	const bool bShift = SDL_GetModState() & KMOD_SHIFT;
+	PlrSkillStruct skill = plrSkill;
+	const bool bShift = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
 	int8_t msf = 0, asf = 0;
 
 	if (bShift)
-		moveSkill = SPL_INVALID;
-	else if (moveSkill != SPL_INVALID) {
-		msf = ValidateSkill(moveSkill, moveSkillType);
+		skill._psMove = SPL_INVALID;
+	else if (skill._psMove != SPL_INVALID) {
+		msf = ValidateSkill(skill._psMove, skill._psMoveType);
 		if (SPLFROM_INVALID(msf))
-			moveSkill = SPL_INVALID;
+			skill._psMove = SPL_INVALID;
 	}
 
-	if (atkSkill != SPL_INVALID) {
-		asf = ValidateSkill(atkSkill, atkSkillType);
+	if (skill._psAttack != SPL_INVALID) {
+		asf = ValidateSkill(skill._psAttack, skill._psAtkType);
 		if (SPLFROM_INVALID(asf))
-			atkSkill = SPL_INVALID;
+			skill._psAttack = SPL_INVALID;
 	}
 
-	if (atkSkill != SPL_INVALID) {
-		if (atkSkill == SPL_BLOCK) {
+	if (skill._psAttack != SPL_INVALID) {
+		if (skill._psAttack == SPL_BLOCK) {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
-		const CmdSkillUse skillUse = { atkSkill, asf };
-		if (spelldata[atkSkill].spCurs != CURSOR_NONE) {
+		const CmdSkillUse skillUse = { skill._psAttack, asf };
+		if (spelldata[skill._psAttack].spCurs != CURSOR_NONE) {
 			gbTSkillUse = skillUse;
-			NewCursor(spelldata[atkSkill].spCurs);
+			NewCursor(spelldata[skill._psAttack].spCurs);
 			return;
 		}
 
@@ -349,11 +363,11 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
-		if (moveSkill == SPL_INVALID) {
+		if (skill._psMove == SPL_INVALID) {
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
-	} else if (moveSkill == SPL_INVALID) {
+	} else if (skill._psMove == SPL_INVALID) {
 		if (asf == SPLFROM_INVALID_MANA || msf == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (asf == 0 && msf == 0)*/ {
@@ -363,8 +377,8 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 		return;
 	}
 
-	// assert(moveSkill != SPL_INVALID);
-	// assert(spelldata[atkSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
+	// assert(skill._psMove != SPL_INVALID);
+	// assert(spelldata[skill._psAttack].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (MON_VALID(pcursmonst)) {
 		if (CanTalkToMonst(pcursmonst)) {
@@ -372,26 +386,26 @@ static void DoActionBtnCmd(BYTE moveSkill, BYTE moveSkillType, BYTE atkSkill, BY
 			return;
 		}
 
-		// TODO: move closer, execute moveSkill if not SPL_WALK?
+		// TODO: move closer, execute skill._psMove if not SPL_WALK?
 		//return;
 	}
 
 	if (PLR_VALID(pcursplr)) {
-		// TODO: move closer, execute moveSkill if not SPL_WALK? Trade?
+		// TODO: move closer, execute skill._psMove if not SPL_WALK? Trade?
 		//return;
 	}
 
 	if (OBJ_VALID(pcursobj)) {
 		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
-		if (moveSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
+		if (skill._psMove == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 			return;
 		}
-		//return; // TODO: proceed in case moveSkill != SPL_WALK?
+		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
 	}
-	if (moveSkill != SPL_WALK) {
+	if (skill._psMove != SPL_WALK) {
 		// TODO: check if pcurspos.x/y == _pfutx/y ?
-		const CmdSkillUse skillUse = { moveSkill, msf };
+		const CmdSkillUse skillUse = { skill._psMove, msf };
 		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 		return;
 	}
@@ -408,8 +422,7 @@ static void ActionBtnCmd()
 {
 	assert(pcursicon == CURSOR_HAND);
 
-	DoActionBtnCmd(myplr._pMoveSkill, myplr._pMoveSkillType,
-		myplr._pAtkSkill, myplr._pAtkSkillType);
+	DoActionBtnCmd(myplr._pMainSkill);
 }
 
 static bool TryIconCurs()
@@ -425,7 +438,7 @@ static bool TryIconCurs()
 		break;
 	case CURSOR_DISARM:
 		if (OBJ_VALID(pcursobj) && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
-			if (!(SDL_GetModState() & KMOD_SHIFT) ||
+			if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) ||
 			 (abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
 				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSkillUse.from);
@@ -534,8 +547,7 @@ static void AltActionBtnCmd()
 {
 	assert(pcursicon == CURSOR_HAND);
 
-	DoActionBtnCmd(myplr._pAltMoveSkill, myplr._pAltMoveSkillType,
-		myplr._pAltAtkSkill, myplr._pAltAtkSkillType);
+	DoActionBtnCmd(myplr._pAltSkill);
 }
 
 static void AltActionBtnDown()
@@ -656,6 +668,9 @@ static void ReleaseKey(int vkey)
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (transKey >= ACT_ACT && transKey <= ACT_W_SE) {
 		gbActionBtnDown &= ~ACTBTN_MASK(transKey);
+	}
+	if (transKey >= ACT_MODACT && transKey <= ACT_MODCTX) {
+		gbModBtnDown &= ~ACTBTN_MASK(transKey);
 	}
 }
 
@@ -808,25 +823,23 @@ void InputBtnDown(int transKey)
 			NetSendCmdBParam1(CMD_WALKDIR, dir);
 		}
 		break;
+	case ACT_MODCTX:
+	case ACT_MODACT:
+		gbModBtnDown |= ACTBTN_MASK(transKey);
+		break;
 	case ACT_STOP:
 		NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		break;
 	case ACT_SWAP: {
 		struct TmpKeys {
-			BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-			BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-			BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-			BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-			BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-			BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-			BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-			BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+			PlrSkillStruct _pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+			PlrSkillStruct _pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 		} tmpKeys;
-		static_assert(offsetof(PlayerStruct, _pAltMoveSkillTypeSwapKey) + sizeof(myplr._pAltMoveSkillTypeSwapKey) == offsetof(PlayerStruct, _pAtkSkillSwapKey) + sizeof(tmpKeys));
-		static_assert(offsetof(PlayerStruct, _pAltMoveSkillTypeHotKey) + sizeof(myplr._pAltMoveSkillTypeHotKey) == offsetof(PlayerStruct, _pAtkSkillHotKey) + sizeof(tmpKeys));
-		memcpy(&tmpKeys, myplr._pAtkSkillSwapKey, sizeof(tmpKeys));
-		memcpy(myplr._pAtkSkillSwapKey, myplr._pAtkSkillHotKey, sizeof(tmpKeys));
-		memcpy(myplr._pAtkSkillHotKey, &tmpKeys, sizeof(tmpKeys));
+		static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) + sizeof(myplr._pAltSkillSwapKey) == offsetof(PlayerStruct, _pSkillSwapKey) + sizeof(tmpKeys));
+		static_assert(offsetof(PlayerStruct, _pAltSkillHotKey) + sizeof(myplr._pAltSkillHotKey) == offsetof(PlayerStruct, _pSkillHotKey) + sizeof(tmpKeys));
+		memcpy(&tmpKeys, myplr._pSkillSwapKey, sizeof(tmpKeys));
+		memcpy(myplr._pSkillSwapKey, myplr._pSkillHotKey, sizeof(tmpKeys));
+		memcpy(myplr._pSkillHotKey, &tmpKeys, sizeof(tmpKeys));
 	} break;
 	case ACT_TGT:
 		ChangeTarget();
@@ -838,10 +851,7 @@ void InputBtnDown(int transKey)
 		static_assert(ACT_SKL0 + 1 == ACT_SKL1, "PressKey expects a continuous assignment of ACT_SKLx 1.");
 		static_assert(ACT_SKL1 + 1 == ACT_SKL2, "PressKey expects a continuous assignment of ACT_SKLx 2.");
 		static_assert(ACT_SKL2 + 1 == ACT_SKL3, "PressKey expects a continuous assignment of ACT_SKLx 3.");
-		if (gbSkillListFlag)
-			SetSkillHotKey(transKey - ACT_SKL0, false);
-		else
-			SelectHotKeySkill(transKey - ACT_SKL0, false);
+		SkillHotKey(transKey - ACT_SKL0, false);
 		break;
 	case ACT_SKL4:
 	case ACT_SKL5:
@@ -850,10 +860,7 @@ void InputBtnDown(int transKey)
 		static_assert(ACT_SKL4 + 1 == ACT_SKL5, "PressKey expects a continuous assignment of ACT_SKLx 4.");
 		static_assert(ACT_SKL5 + 1 == ACT_SKL6, "PressKey expects a continuous assignment of ACT_SKLx 5.");
 		static_assert(ACT_SKL6 + 1 == ACT_SKL7, "PressKey expects a continuous assignment of ACT_SKLx 6.");
-		if (gbSkillListFlag)
-			SetSkillHotKey(transKey - ACT_SKL4, true);
-		else
-			SelectHotKeySkill(transKey - ACT_SKL4, true);
+		SkillHotKey(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
 		HandlePanBtn(PANBTN_INVENTORY);
@@ -940,16 +947,6 @@ void InputBtnDown(int transKey)
 			AutomapRight();
 		}
 		break;
-	case ACT_PGUP:
-		if (stextflag != STORE_NONE) {
-			STextPageUp();
-		}
-		break;
-	case ACT_PGDOWN:
-		if (stextflag != STORE_NONE) {
-			STextPageDown();
-		}
-		break;
 	case ACT_RETURN:
 		if (stextflag != STORE_NONE) {
 			STextEnter();
@@ -964,6 +961,22 @@ void InputBtnDown(int transKey)
 		break;
 	case ACT_QUESTS:
 		HandlePanBtn(PANBTN_QLOG);
+		break;
+	case ACT_SNEXT:
+		gbCurrActiveSkill = (gbCurrActiveSkill + 1) % 4;
+		SkillHotKey(gbCurrActiveSkill, false);
+		break;
+	case ACT_SPREV:
+		gbCurrActiveSkill = (gbCurrActiveSkill + 5) % 4;
+		SkillHotKey(gbCurrActiveSkill, false);
+		break;
+	case ACT_SANEXT:
+		gbCurrActiveAltSkill = (gbCurrActiveAltSkill + 1) % 4;
+		SkillHotKey(gbCurrActiveAltSkill, true);
+		break;
+	case ACT_SAPREV:
+		gbCurrActiveAltSkill = (gbCurrActiveAltSkill + 5) % 4;
+		SkillHotKey(gbCurrActiveAltSkill, true);
 		break;
 	case ACT_MSG0:
 	case ACT_MSG1:
@@ -1089,6 +1102,10 @@ static void PressKey(int vkey)
 		return;
 	}
 #endif
+#if HAS_TOUCHPAD
+	// update target for simulated mouse-clicks TODO: do this even if there is no touchpad to handle quick move/click event-pairs?
+	CheckCursMove();
+#endif
 	InputBtnDown(transKey);
 }
 
@@ -1100,6 +1117,13 @@ static void UpdateActionBtnState(int vKey, bool dir)
 			gbActionBtnDown |= ACTBTN_MASK(transKey);
 		} else {
 			gbActionBtnDown &= ~ACTBTN_MASK(transKey);
+		}
+	}
+	if (transKey >= ACT_MODACT && transKey <= ACT_MODCTX) {
+		if (dir) {
+			gbModBtnDown |= ACTBTN_MASK(transKey);
+		} else {
+			gbModBtnDown &= ~ACTBTN_MASK(transKey);
 		}
 	}
 }
@@ -1422,6 +1446,8 @@ static WNDPROC InitGameFX()
 
 	gnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = 0;
+	gbCurrActiveSkill = 0;
+	gbCurrActiveAltSkill = 0;
 	gbRunGame = true;
 	gbRunGameResult = true;
 
@@ -1464,9 +1490,6 @@ static void run_game()
 		while (gbRunGame && PeekMessage(event)) {
 			DispatchMessage(&event);
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 		if (!gbRunGame)
 			break;
 		if (!ProcessInput() || nthread_ticks2gameturn() > 0) {

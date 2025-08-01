@@ -11,6 +11,7 @@ Data\MedTextS.CEL
 Data\SpellBk.CEL
 Data\Quest.CEL
 Data\TextBox.CEL
+Data\TouchBtn.CEL
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
 Levels\L1Data\Butcher.DUN

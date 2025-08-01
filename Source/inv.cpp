@@ -1115,7 +1115,7 @@ static bool CheckInvCut()
 		return false;
 
 	static_assert(KMOD_SHIFT <= UCHAR_MAX, "CheckInvCut send the state of the shift in a byte field.");
-	NetSendCmdBParam2(CMD_CUTPLRITEM, cii, SDL_GetModState() & KMOD_SHIFT);
+	NetSendCmdBParam2(CMD_CUTPLRITEM, cii, (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0);
 	return true;
 }
 
