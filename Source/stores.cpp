@@ -1917,6 +1917,9 @@ static void S_SSell()
 {
 	int idx;
 
+	if (stextsel == STORE_BACK) {
+		STextESC();
+	} else {
 	stextlhold = stextsel;
 	stextxhold = stextselx;
 	stextvhold = stextsidx;
@@ -1930,17 +1933,12 @@ static void S_SSell()
 		StartStore(STORE_CONFIRM);
 	else
 		StartStore(STORE_NOROOM);
+	}
 }
 
 static void S_SSellEnter()
 {
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_SMITH);
-		// stextsel = STORE_SMITH_SELL;
-	} else {
-		S_SSell();
-	}
+	S_SSell();
 }
 
 /**
@@ -2035,13 +2033,7 @@ static void S_WBuyEnter()
 
 static void S_WSellEnter()
 {
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_WITCH);
-		// stextsel = STORE_WITCH_SELL;
-	} else {
-		S_SSell();
-	}
+	S_SSell();
 }
 
 /**
