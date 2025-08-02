@@ -449,13 +449,6 @@ static void S_StartSmith()
 	// AddSLine(5);
 }
 
-static void StorePrepareItemBuy(ItemStruct* is)
-{
-	if (is->_iMagical != ITEM_QUALITY_NORMAL)
-		is->_iIdentified = TRUE;
-	ItemStatOk(mypnum, is);
-}
-
 static void S_ScrollHold()
 {
 	ItemStruct* is;
@@ -847,16 +840,8 @@ static void S_StartBBoy()
 		S_StartBoy();
 		return;
 	}
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	// gbHasScroll = false;
 
-	StorePrepareItemBuy(&boyitem);
-	AddSItem(260, STORE_LIST_FIRST, 0, &boyitem, FALSE);
-	PrintStoreItem(&boyitem, STORE_PEGBOY_ITEM, true);
-	AddSTextVal(STORE_PEGBOY_ITEM, boyitem._iIvalue);
-
-	AddStoreFrame("I have this item for sale:");
+	S_StartBuy(&boyitem, 1, "");
 }
 
 static void S_StartHealer()
@@ -1864,7 +1849,6 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		// assert(ii == MAXITEMS);
 		pi = &items[MAXITEMS];
 		// TODO: validate price?
-		//StorePrepareItemBuy(pi);
 		if (pi->_iMagical != ITEM_QUALITY_NORMAL)
 			pi->_iIdentified = TRUE;
 		ItemStatOk(pnum, pi);
