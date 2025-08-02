@@ -24,7 +24,6 @@ static bool directFileAccess = false;
 
 DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 {
-	unsigned i;
 	DWORD result = 0;
 
 	if (directFileAccess) {
@@ -33,14 +32,14 @@ DWORD SFileReadFileEx(const char* filename, BYTE** dest)
 		std::string path = *basePath + filename;
 #else
 		std::string path = filename;
-		for (i = 0; i < path.size(); ++i)
+		for (unsigned i = 0; i < path.size(); ++i)
 			if (path[i] == '\\')
 				path[i] = '/';
 		path = *basePath + path;
 #endif
 		result = SFileReadLocalFile(path.c_str(), dest);
 	}
-	for (i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == 0; i++) {
+	for (unsigned i = 0; i < (unsigned)lengthof(diabdat_mpqs) && result == 0; i++) {
 		result = SFileReadArchive(diabdat_mpqs[i], filename, dest);
 	}
 	if (result == 0) {

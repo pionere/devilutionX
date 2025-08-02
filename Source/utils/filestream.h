@@ -1,7 +1,8 @@
 #pragma once
 
-#include <SDL.h>
-#include "../defs.h"
+#include <string>
+#include <fstream>
+#include "../../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -9,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void DrawArtStr(const char* text, const SDL_Rect& rect, int flags);
+/*std::istream&*/bool safeGetline(std::istream& is, std::string& t);
 
 #ifdef __cplusplus
 }

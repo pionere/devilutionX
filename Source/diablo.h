@@ -27,6 +27,7 @@ extern int gbRedrawFlags;
 extern Uint32 gnGamePaused;
 extern BYTE gbDeathflag;
 extern unsigned gbActionBtnDown;
+extern unsigned gbModBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 extern int gnTimeoutCurs;

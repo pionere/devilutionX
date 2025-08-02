@@ -543,7 +543,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && plr._pHitPoints == 0 && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
+		if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #if DEBUG_MODE
 			BYTE* pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
@@ -639,11 +639,11 @@ static void drawCell(int pn, int sx, int sy)
 		limit -= (TILE_WIDTH / MICRO_WIDTH);
 	}*/
 	/*i = 0;
-	while (sy > SCREEN_Y + VIEWPORT_HEIGHT + MICRO_HEIGHT) {
+	while (sy > SCREEN_Y + SCREEN_HEIGHT + MICRO_HEIGHT) {
 		sy -= MICRO_HEIGHT;
 		i += (TILE_WIDTH / MICRO_WIDTH);
 	}*/
-	tmp = sy - (SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1);
+	tmp = sy - (SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1);
 	i = 0;
 	if (tmp >= 0) {
 		// starting from below the bottom -> skip tiles
@@ -653,7 +653,7 @@ static void drawCell(int pn, int sx, int sy)
 		if (i >= limit)
 			return; // not enough microtiles to affect the screen -> skip
 	}
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][i];
 	tmp = microFlags[pn];
@@ -987,10 +987,10 @@ static void drawFloor(int pn, int sx, int sy)
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return; // starting from too far to the left or right -> skip
 
-	if (sy < SCREEN_Y || sy >= SCREEN_Y + VIEWPORT_HEIGHT + TILE_HEIGHT - 1)
+	if (sy < SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1)
 		return; // starting from above the top or below the bottom -> skip
 
-	dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][0];
 	tmp = microFlags[pn];
@@ -1038,13 +1038,13 @@ static void DrawItem(int ii, int sx, int sy)
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
-		dev_fatal("Draw Item \"%s\": NULL Cel Buffer", is->_iName);
+		dev_fatal("Draw Item \"%d\": NULL Cel Buffer", is->_iIdx);
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
 	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Item \"%s\": frame %d of %d, type %d", is->_iName, nCel, frames, is->_itype);
+		dev_fatal("Draw Item \"%d\": frame %d of %d, type %d, curs %d", is->_iIdx, nCel, frames, is->_itype, is->_iCurs);
 	}
 #endif
 	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
@@ -1256,10 +1256,10 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 static void Zoom()
 {
 	int wdt = SCREEN_WIDTH / 2u;
-	BYTE* src = &gpBuffer[SCREENXY(SCREEN_WIDTH / 2u - 1, VIEWPORT_HEIGHT / 2u - 1)];
-	BYTE* dst = &gpBuffer[SCREENXY(SCREEN_WIDTH - 1, VIEWPORT_HEIGHT - 1)];
+	BYTE* src = &gpBuffer[SCREENXY(SCREEN_WIDTH / 2u - 1, SCREEN_HEIGHT / 2u - 1)];
+	BYTE* dst = &gpBuffer[SCREENXY(SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1)];
 
-	for (unsigned hgt = 0; hgt < VIEWPORT_HEIGHT / 2u; hgt++) {
+	for (unsigned hgt = 0; hgt < SCREEN_HEIGHT / 2u; hgt++) {
 		for (int i = 0; i < wdt; i++) {
 			*dst-- = *src;
 			*dst-- = *src;
@@ -1281,7 +1281,7 @@ static void CalcTileOffset(int* offsetX, int* offsetY)
 	unsigned x, y;
 
 	x = SCREEN_WIDTH;
-	y = VIEWPORT_HEIGHT;
+	y = SCREEN_HEIGHT;
 	if (gbZoomInFlag) {
 		x >>= 1;
 		y >>= 1;
@@ -1303,8 +1303,8 @@ static void CalcTileOffset(int* offsetX, int* offsetY)
  */
 static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 {
-	unsigned columns = (unsigned)(SCREEN_WIDTH + TILE_WIDTH - 1) / TILE_WIDTH;
-	unsigned rows = (unsigned)(VIEWPORT_HEIGHT + TILE_HEIGHT - 1) / TILE_HEIGHT;
+	unsigned columns = (unsigned)(SCREEN_WIDTH - 1) / TILE_WIDTH + 1;
+	unsigned rows = (unsigned)(SCREEN_HEIGHT - 1) / TILE_HEIGHT + 1;
 
 	if (gbZoomInFlag) {
 		// Half the number of tiles, rounded up
@@ -1409,9 +1409,9 @@ static void DrawGame()
 
 	// Limit rendering to the view area
 	//if (!gbZoomInFlag)
-	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT)];
+	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
 	//else
-	//	gpBufEnd = &gpBuffer[SCREENXY(0, VIEWPORT_HEIGHT / 2)];
+	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT / 2)];
 
 	// Adjust by player offset and tile grid alignment
 	sx = ScrollInfo._sxoff - gsTileVp._vOffsetX;
@@ -1470,10 +1470,10 @@ static void DrawPause()
 	int x, light;
 
 	// assert(GetHugeStringWidth("Pause") == 135);
-	x = PANEL_CENTERX(135);
+	x = SCREEN_CENTERX(135);
 	static_assert(MAXDARKNESS >= 4, "Blinking pause uses too many shades.");
 	light = (SDL_GetTicks() / 256) % 4;
-	PrintHugeString(x, PANEL_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
+	PrintHugeString(x, SCREEN_CENTERY(TILE_HEIGHT * 4), "Pause", COL_GOLD + light);
 }
 
 /**
@@ -1526,12 +1526,12 @@ static void DrawView()
 		if (gbCampaignMapFlag != CMAP_NONE) {
 			DrawCampaignMap();
 		}
-		if (gbShowTooltip || (SDL_GetModState() & KMOD_ALT)) {
-			DrawInfoStr();
-		}
-		if (gbHelpflag) {
+		if (gnVisibleHelpLines != 0) {
 			DrawHelp();
 		}
+	}
+	if (gbShowTooltip || (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX))) {
+		DrawInfoStr();
 	}
 	if (currmsg != EMSG_NONE) {
 		DrawDiabloMsg();
@@ -1542,17 +1542,20 @@ static void DrawView()
 		DrawPause();
 	}
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	DrawControllerModifierHints();
-#endif
-	DrawPlrMsg(true);
-	if (gmenu_is_active())
-		gmenu_draw();
 	//if (gbDoomflag)
 	//	doom_draw();
 	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
 		DrawCtrlBtns();
 	//}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	DrawControllerModifierHints();
+#endif
+#if HAS_TOUCHPAD
+	DrawGamepad();
+#endif
+	DrawPlrMsg(true);
+	if (gmenu_is_active())
+		gmenu_draw();
 }
 
 #if DEBUG_MODE

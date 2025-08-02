@@ -437,7 +437,7 @@ void CheckCursMove()
 		curitem[1] = dItem[mx][my];
 		if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
 			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-				if (/*pnum != mypnum && */plr._pmode == PM_DEATH && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
+				if (/*pnum != mypnum && */plr._pmode == PM_DEATH/* && !plr._pLvlChanging*/ && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
 					deadplr[0] = pnum + 1;
 				}
 			}

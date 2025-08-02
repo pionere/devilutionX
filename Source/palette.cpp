@@ -17,7 +17,7 @@ static int _gnGammaCorrection = 100;
 /** Specifies whether colour cycling is enabled. */
 bool gbColorCyclingEnabled = true;
 /** Specifies the current fade level. */
-int gnFadeValue;
+int gnFadeValue = 0;
 
 void UpdatePalette()
 {

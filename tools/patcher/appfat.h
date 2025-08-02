@@ -6,7 +6,7 @@
 #ifndef __APPFAT_H__
 #define __APPFAT_H__
 
-#include "../defs.h"
+#include "../../defs.h"
 #include "utils/log.h"
 
 DEVILUTION_BEGIN_NAMESPACE

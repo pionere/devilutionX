@@ -1005,7 +1005,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	smk_malloc(s, sizeof(struct smk_t));
 	smk_header *hdr = (smk_header*)fp.ram;
 	if (size < sizeof(smk_header)) {
-		LogError("libsmacker::smk_open_generic() - ERROR: SMK content is too short. (got: %d, required: %d)\n", size, sizeof(smk_header));
+		LogError("libsmacker::smk_open_generic() - ERROR: SMK content is too short. (got: %lu, required: %d)\n", size, sizeof(smk_header));
 #if DEBUG_MODE
 		goto error;
 #endif

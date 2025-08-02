@@ -25,10 +25,6 @@ static BYTE* pFlaskCels;
 int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
 int gnManaPer;
-/** Graphics for the (transparent) text box */
-static CelImageBuf* pTextBoxCels;
-/** Graphics for the (transparent) small text box */
-static CelImageBuf* pSTextBoxCels;
 /** Graphics for the scrollbar of text boxes. */
 CelImageBuf* pSTextSlidCels;
 /** Low-Durability images CEL */
@@ -347,21 +343,21 @@ void DrawSkillIcons()
 	BYTE spl, type;
 
 	pnum = mypnum;
-	if (plr._pAtkSkill == SPL_INVALID) {
-		spl = plr._pMoveSkill;
-		type = plr._pMoveSkillType;
+	if (plr._pMainSkill._psAttack == SPL_INVALID) {
+		spl = plr._pMainSkill._psMove;
+		type = plr._pMainSkill._psMoveType;
 	} else {
-		spl = plr._pAtkSkill;
-		type = plr._pAtkSkillType;
+		spl = plr._pMainSkill._psAttack;
+		type = plr._pMainSkill._psAtkType;
 	}
 	DrawSkillIcon(pnum, spl, type, 0);
 
-	if (plr._pAltAtkSkill == SPL_INVALID) {
-		spl = plr._pAltMoveSkill;
-		type = plr._pAltMoveSkillType;
+	if (plr._pAltSkill._psAttack == SPL_INVALID) {
+		spl = plr._pAltSkill._psMove;
+		type = plr._pAltSkill._psMoveType;
 	} else {
-		spl = plr._pAltAtkSkill;
-		type = plr._pAltAtkSkillType;
+		spl = plr._pAltSkill._psAttack;
+		type = plr._pAltSkill._psAtkType;
 	}
 	DrawSkillIcon(pnum, spl, type, SPLICON_WIDTH);
 
@@ -405,16 +401,14 @@ void DrawSkillIcons()
 	}
 }
 
-static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
-	BYTE (&hotKeyGroupA)[4], BYTE (&hotKeyTypeGroupA)[4],
-	BYTE (&hotKeyGroupB)[4], BYTE (&hotKeyTypeGroupB)[4])
+static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const PlrSkillStruct (&hotkey)[4])
 {
 	int i, col;
 
 	for (i = 0; i < 4; i++) {
-		if (hotKeyGroupA[i] == sn && hotKeyTypeGroupA[i] == st)
+		if (hotkey[i]._psAttack == sn && hotkey[i]._psAtkType == st)
 			col = COL_GOLD;
-		else if (hotKeyGroupB[i] == sn && hotKeyTypeGroupB[i] == st)
+		else if (hotkey[i]._psMove == sn && hotkey[i]._psMoveType == st)
 			col = COL_BLUE;
 		else
 			continue;
@@ -424,26 +418,18 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset,
 }
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-static bool MoveToAtkMoveSkill(int sn, int st, BYTE atk_sn, BYTE atk_st, BYTE move_sn, BYTE move_st)
+static bool MoveToAtkMoveSkill(int sn, int st, const PlrSkillStruct &skill)
 {
-	if (atk_sn != SPL_INVALID)
-		return sn == atk_sn && st == atk_st;
-	if (move_sn != SPL_INVALID)
-		return sn == move_sn && st == move_st;
+	if (skill._psAttack != SPL_INVALID)
+		return sn == skill._psAttack && st == skill._psAtkType;
+	if (skill._psMove != SPL_INVALID)
+		return sn == skill._psMove && st == skill._psMoveType;
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
 
 static bool CurrentSkill(int pnum, int sn, int st, bool altSkill)
 {
-	if (altSkill) {
-		return MoveToAtkMoveSkill(sn, st,
-			plr._pAltAtkSkill, plr._pAltAtkSkillType,
-			plr._pAltMoveSkill, plr._pAltMoveSkillType);
-	} else {
-		return MoveToAtkMoveSkill(sn, st,
-			plr._pAtkSkill, plr._pAtkSkillType,
-			plr._pMoveSkill, plr._pMoveSkillType);
-	}
+	return MoveToAtkMoveSkill(sn, st, altSkill ? plr._pAltSkill : plr._pMainSkill);
 }
 #endif
 
@@ -456,10 +442,10 @@ void DrawSkillList()
 	BYTE prevSkill = currSkill;
 #endif
 	currSkill = SPL_INVALID;
-	sx = PANEL_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
+	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
-	//y = PANEL_CENTERY(190) + 190;
+	//y = SCREEN_CENTERY(190) + 190;
 	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
@@ -534,13 +520,9 @@ void DrawSkillList()
 
 				DrawSpellIconOverlay(x, y, sn, st);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_OVERX,
-					plr._pAtkSkillHotKey, plr._pAtkSkillTypeHotKey,
-					plr._pMoveSkillHotKey, plr._pMoveSkillTypeHotKey);
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_OVERX, plr._pSkillHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX),
-					plr._pAltAtkSkillHotKey, plr._pAltAtkSkillTypeHotKey,
-					plr._pAltMoveSkillHotKey, plr._pAltMoveSkillTypeHotKey);
+				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), plr._pAltSkillHotKey);
 			}
 			x -= SPLICON_WIDTH;
 			if (x == sx - SPLICON_WIDTH) {
@@ -589,49 +571,26 @@ void SetSkill(bool altSkill)
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
 	p = &myplr;
-	if (SDL_GetModState() & KMOD_SHIFT) {
-		if (!altSkill) {
-			if (moveskill) {
-				p->_pMoveSkill = sn;
-				p->_pMoveSkillType = currSkillType;
-			} else {
-				p->_pAtkSkill = sn;
-				p->_pAtkSkillType = currSkillType;
-			}
+	PlrSkillStruct* psSkill = altSkill ? &p->_pAltSkill : &p->_pMainSkill;
+	if (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) {
+		if (moveskill) {
+			psSkill->_psMove = sn;
+			psSkill->_psMoveType = currSkillType;
 		} else {
-			if (moveskill) {
-				p->_pAltMoveSkill = sn;
-				p->_pAltMoveSkillType = currSkillType;
-			} else {
-				p->_pAltAtkSkill = sn;
-				p->_pAltAtkSkillType = currSkillType;
-			}
+			psSkill->_psAttack = sn;
+			psSkill->_psAtkType = currSkillType;
 		}
 	} else {
-		if (!altSkill) {
-			if (moveskill) {
-				p->_pMoveSkill = sn;
-				p->_pMoveSkillType = currSkillType;
-				p->_pAtkSkill = SPL_INVALID;
-				p->_pAtkSkillType = RSPLTYPE_INVALID;
-			} else {
-				p->_pAtkSkill = sn;
-				p->_pAtkSkillType = currSkillType;
-				p->_pMoveSkill = SPL_INVALID;
-				p->_pMoveSkillType = RSPLTYPE_INVALID;
-			}
+		if (moveskill) {
+			psSkill->_psMove = sn;
+			psSkill->_psMoveType = currSkillType;
+			psSkill->_psAttack = SPL_INVALID;
+			psSkill->_psAtkType = RSPLTYPE_INVALID;
 		} else {
-			if (moveskill) {
-				p->_pAltMoveSkill = sn;
-				p->_pAltMoveSkillType = currSkillType;
-				p->_pAltAtkSkill = SPL_INVALID;
-				p->_pAltAtkSkillType = RSPLTYPE_INVALID;
-			} else {
-				p->_pAltAtkSkill = sn;
-				p->_pAltAtkSkillType = currSkillType;
-				p->_pAltMoveSkill = SPL_INVALID;
-				p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-			}
+			psSkill->_psAttack = sn;
+			psSkill->_psAtkType = currSkillType;
+			psSkill->_psMove = SPL_INVALID;
+			psSkill->_psMoveType = RSPLTYPE_INVALID;
 		}
 
 		gbSkillListFlag = false;
@@ -640,28 +599,12 @@ void SetSkill(bool altSkill)
 	// gbRedrawFlags |= REDRAW_SPELL_ICON;
 }
 
-static void SetSkillHotKey(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot, int sn)
-{
-	int i;
-
-	for (i = 0; i < lengthof(hotKeyGroup); ++i) {
-		if (hotKeyGroup[i] == sn && hotKeyTypeGroup[i] == currSkillType) {
-			hotKeyGroup[i] = SPL_INVALID;
-			hotKeyTypeGroup[i] = RSPLTYPE_INVALID;
-			if (slot == i)
-				return;
-		}
-	}
-	hotKeyGroup[slot] = sn;
-	hotKeyTypeGroup[slot] = currSkillType;
-}
-
 /*
  * @brief Select the current skill to be activated by the given hotkey
  * @param slot the index of the hotkey
  * @param altSkill type of the hotkey (true: alt-hotkey, false: normal hotkey)
  */
-void SetSkillHotKey(int slot, bool altSkill)
+static void SetSkillHotKey(int slot, bool altSkill)
 {
 	PlayerStruct* p;
 	int sn = currSkill;
@@ -674,25 +617,24 @@ void SetSkillHotKey(int slot, bool altSkill)
 			sn = SPL_INVALID;
 
 		p = &myplr;
-		if (!altSkill) {
-			if (moveskill)
-				SetSkillHotKey(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot, sn);
-			else
-				SetSkillHotKey(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot, sn);
-		} else {
-			if (moveskill)
-				SetSkillHotKey(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot, sn);
-			else
-				SetSkillHotKey(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot, sn);
+		PlrSkillStruct* ps = altSkill ? p->_pAltSkillHotKey : p->_pSkillHotKey;
+		ps = (PlrSkillStruct*)(moveskill ? &ps->_psMove : &ps->_psAttack);
+		{
+			int i;
+
+			for (i = 0; i < lengthof(p->_pSkillHotKey); ++i) {
+				static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(ps[i]._psAttack), "SetSkillHotKey sets the wrong skill");
+				if (ps[i]._psAttack == sn && ps[i]._psAtkType == currSkillType) {
+					ps[i]._psAttack = SPL_INVALID;
+					ps[i]._psAtkType = RSPLTYPE_INVALID;
+					if (slot == i)
+						return;
+				}
+			}
+			ps[slot]._psAttack = sn;
+			ps[slot]._psAtkType = currSkillType;
 		}
 	}
-}
-
-static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4], int slot,
-	BYTE* destSkill, BYTE* destSkillType)
-{
-	*destSkill = hotKeyGroup[slot];
-	*destSkillType = hotKeyTypeGroup[slot];
 }
 
 /*
@@ -700,23 +642,23 @@ static void SelectHotKeySkill(BYTE (&hotKeyGroup)[4], BYTE (&hotKeyTypeGroup)[4]
  * @param slot the index of the hotkey
  * @param altSkill type of the hotkey (true: alt-hotkey, false: normal hotkey)
  */
-void SelectHotKeySkill(int slot, bool altSkill)
+static void SelectHotKeySkill(int slot, bool altSkill)
 {
 	PlayerStruct* p;
 
 	p = &myplr;
-	if (!altSkill) {
-		SelectHotKeySkill(p->_pMoveSkillHotKey, p->_pMoveSkillTypeHotKey, slot,
-			&p->_pMoveSkill, &p->_pMoveSkillType);
-		SelectHotKeySkill(p->_pAtkSkillHotKey, p->_pAtkSkillTypeHotKey, slot,
-			&p->_pAtkSkill, &p->_pAtkSkillType);
-	} else {
-		SelectHotKeySkill(p->_pAltMoveSkillHotKey, p->_pAltMoveSkillTypeHotKey, slot,
-			&p->_pAltMoveSkill, &p->_pAltMoveSkillType);
-		SelectHotKeySkill(p->_pAltAtkSkillHotKey, p->_pAltAtkSkillTypeHotKey, slot,
-			&p->_pAltAtkSkill, &p->_pAltAtkSkillType);
-	}
+	PlrSkillStruct* ps = altSkill ? &p->_pAltSkill : &p->_pMainSkill;
+	PlrSkillStruct* pss = &(altSkill ? p->_pAltSkillHotKey : p->_pSkillHotKey)[slot];
+	*ps = *pss;
 	// gbRedrawFlags |= REDRAW_SPELL_ICON;
+}
+
+void SkillHotKey(int slot, bool altSkill)
+{
+	if (gbSkillListFlag)
+		SetSkillHotKey(slot, altSkill);
+	else
+		SelectHotKeySkill(slot, altSkill);
 }
 
 /*void DrawPanelBox(int x, int y, int w, int h, int sx, int sy)
@@ -810,7 +752,7 @@ static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w
 	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
 	full = CelGetFrameClippedAt(pFlaskCels, fullCel, 0, &dataSize);
 
-	BYTE* dst = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	BYTE* dst = &gpBuffer[BUFFERXY(sx, sy)];
 	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
 		for (i = w; i != 0; ) {
 			width = *full++;
@@ -935,10 +877,6 @@ void InitControlPan()
 	for (i = 0; i < lengthof(gabChrbtn); i++)
 		gabChrbtn[i] = false;
 	gbChrbtnactive = false;
-	assert(pTextBoxCels == NULL);
-	pTextBoxCels = CelLoadImage("Data\\TextBox.CEL", LTPANEL_WIDTH);
-	assert(pSTextBoxCels == NULL);
-	pSTextBoxCels = CelLoadImage("Data\\TextBox2.CEL", STPANEL_WIDTH);
 	assert(pSTextSlidCels == NULL);
 	pSTextSlidCels = CelLoadImage("Data\\TextSlid.CEL", SMALL_SCROLL_WIDTH);
 	assert(pDurIconCels == NULL);
@@ -998,7 +936,7 @@ void DoWndDrag()
 	int dx = MousePos.x - gnDragWndX;
 	int dy = MousePos.y - gnDragWndY;
 
-	// assert(gbDragWnd != WND_NONE);
+	// assert(WND_VALID(gbDragWnd));
 	if (dx == 0 && dy == 0)
 		return;
 
@@ -1035,29 +973,25 @@ void DrawCtrlBtns()
 }
 
 /**
- * Opens the "Skill List": the rows of known spells for quick-setting a spell that
+ * Toggles the "Skill List": the rows of known spells for quick-setting a spell that
  * show up when you click the spell slot at the control panel.
  * @param altSkill whether the cursor is moved to the active skill or altSkill (controllers-only)
  */
-static void DoSkillList(bool altSkill)
-{
-	gbSkillListFlag = true;
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	StoreSpellCoords();
-
-	_gbMoveCursor = 0;
-	if (sgbControllerActive)
-		_gbMoveCursor = altSkill ? 1 : 2;
-#endif
-}
-
 void HandleSkillBtn(bool altSkill)
 {
 	if (!gbSkillListFlag) {
 		ClearPanels();
 		// gamemenu_off();
-		DoSkillList(altSkill);
+		gbSkillListFlag = true;
+		currSkill = SPL_INVALID;
+
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		StoreSpellCoords();
+
+		_gbMoveCursor = 0;
+		if (sgbControllerActive)
+			_gbMoveCursor = altSkill ? 1 : 2;
+#endif
 	} else {
 		gbSkillListFlag = false;
 	}
@@ -1227,9 +1161,7 @@ void FreeControlPan()
 	MemFreeDbg(pChrPanelCel);
 	MemFreeDbg(pPanelButtonCels);
 	MemFreeDbg(pChrButtonCels);
-	MemFreeDbg(pSTextBoxCels);
 	MemFreeDbg(pSTextSlidCels);
-	MemFreeDbg(pTextBoxCels);
 	MemFreeDbg(pDurIconCels);
 	MemFreeDbg(pSpellBkCel);
 #if ASSET_MPL == 1
@@ -1300,7 +1232,7 @@ void DrawChr()
 
 	showStats = p->_pStatPts <= 0;
 	if (!showStats) {
-		showStats = (SDL_GetModState() & KMOD_ALT) != 0;
+		showStats = (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0;
 		snprintf(chrstr, sizeof(chrstr), "%d", p->_pStatPts);
 		PrintJustifiedString(screen_x + 88, screen_y + 231, screen_x + 125, chrstr, COL_RED, FONT_KERN_SMALL);
 		int sx = screen_x + (showStats ? CHRBTN_ALT : CHRBTN_LEFT);
@@ -1531,23 +1463,16 @@ static POS32 GetMousePos(int x, int y)
 	}
 
 	pos.x += SCREEN_WIDTH / 2u;
-	pos.y += VIEWPORT_HEIGHT / 2u;
+	pos.y += SCREEN_HEIGHT / 2u;
 
 	return pos;
 }
 
-static BYTE DrawItemColor(ItemStruct* is)
+static void GetItemInfo(const ItemStruct* is)
 {
-	if (is->_iMagical == ITEM_QUALITY_NORMAL)
-		return COL_WHITE;
-	return is->_iMagical == ITEM_QUALITY_UNIQUE ? COL_GOLD : COL_BLUE;
-}
-
-static void GetItemInfo(ItemStruct* is)
-{
-	infoclr = DrawItemColor(is);
+	infoclr = ItemColor(is);
 	if (is->_itype != ITYPE_GOLD) {
-		copy_str(infostr, is->_iName);
+		snprintf(infostr, sizeof(infostr), "%s", ItemName(is));
 	} else {
 		snprintf(infostr, sizeof(infostr), "%d gold %s", is->_ivalue, get_pieces_str(is->_ivalue));
 	}
@@ -1826,18 +1751,24 @@ void DrawInfoStr()
 		snprintf(infostr, sizeof(infostr), gbCampaignMapFlag == CMAP_IDENTIFIED ? "(lvl: %d)" : "(lvl: \?\?)", lvl);
 		DrawTooltip2(type, infostr, MousePos.x, MousePos.y - (CAMICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (INVIDX_VALID(pcursinvitem)) {
-		DrawInvItemDetails();
+		const ItemStruct* is = PlrItem(mypnum, pcursinvitem);
+		DrawItemDetails(is);
 	} else if (TRIG_VALID(pcurstrig)) {
 		DrawTrigInfo();
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		GetItemInfo(&myplr._pHoldItem);
 		DrawTooltip(infostr, MousePos.x + cursW / 2u, MousePos.y - TOOLTIP_OFFSET, infoclr);
+	} else if (stextflag != STORE_NONE) {
+		const ItemStruct* si = CurrentStoreItem();
+		if (si != NULL) {
+			DrawItemDetails(si);
+		}
 	}
 }
 
 static bool CheckInChrBtnRect(int i)
 {
-	int sx = (SDL_GetModState() & KMOD_ALT) ? CHRBTN_ALT : CHRBTN_LEFT;
+	int sx = (gbModBtnDown & ACTBTN_MASK(ACT_MODCTX)) ? CHRBTN_ALT : CHRBTN_LEFT;
 	return POS_IN_RECT(MousePos.x, MousePos.y,
 			gnWndCharX + sx, gnWndCharY + CHRBTN_TOP(i),
 			CHRBTN_WIDTH, CHRBTN_HEIGHT);
@@ -1883,28 +1814,6 @@ void ReleaseChrBtn()
 }
 
 /**
- * @brief Draw a large text box with transparent background with separators.
- *  used as background to quest dialog window and in stores.
- */
-void DrawTextBox(unsigned separators)
-{
-	int x, y;
-
-	x = LTPANEL_X;
-	y = LTPANEL_Y;
-
-	// draw the box
-	CelDraw(x, y + TPANEL_HEIGHT, pTextBoxCels, 1);
-	// draw the background
-	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, LTPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
-	// add separator
-	if (separators & 1)
-		DrawTextBoxSLine(x, y, 3 * 12 + 14, true);
-	if (separators & 2)
-		DrawTextBoxSLine(x, y, 21 * 12 + 14, true);
-}
-
-/**
  * @brief Draw a small text box with transparent background with a separator.
  *  used as background to items and in stores.
  * @param x: the starting x-coordinate of the text box
@@ -1913,40 +1822,9 @@ void DrawTextBox(unsigned separators)
 void DrawSTextBox(int x, int y)
 {
 	// draw the box
-	CelDraw(x, y + TPANEL_HEIGHT, pSTextBoxCels, 1);
-	// draw the background
-	DrawRectTrans(x + TPANEL_BORDER, y + TPANEL_BORDER, STPANEL_WIDTH - 2 * TPANEL_BORDER, TPANEL_HEIGHT - 2 * TPANEL_BORDER, PAL_BLACK);
+	DrawColorTextBox(x, y, STPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
 	// add separator
-	DrawTextBoxSLine(x, y, 5 * 12 + 14, false);
-}
-
-/**
- * @brief Draw a separator line into the text box.
- *  used with items and in stores.
- * @param x: the starting x-coordinate of the text box
- * @param y: the starting y-coordinate of the text box
- * @param dy: the distance from the top of the box where the separator should be drawn
- * @param widePanel: true if large text box is used, false if small text box
- */
-void DrawTextBoxSLine(int x, int y, int dy, bool widePanel)
-{
-	int sxy, dxy, width, length;
-
-	width = BUFFER_WIDTH;
-	sxy = x + 2 + width * (y + 1);
-	dxy = x + 2 + width * (y + dy);
-	length = widePanel ? LTPANEL_WIDTH - 4 : STPANEL_WIDTH - 4;
-
-	/// ASSERT: assert(gpBuffer != NULL);
-
-	int i;
-	BYTE *src, *dst;
-
-	src = &gpBuffer[sxy];
-	dst = &gpBuffer[dxy];
-
-	for (i = 0; i < TPANEL_BORDER; i++, src += width, dst += width)
-		memcpy(dst, src, length);
+	DrawColorTextBoxSLine(x, y, STPANEL_WIDTH, 5 * 12 + 14);
 }
 
 static int DrawDurIcon4Item(ItemStruct* pItem, int x)
@@ -2118,8 +1996,8 @@ void DrawSpellBook()
 				st = RSPLTYPE_INVALID;
 			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
-			if ((sn == plr._pAltAtkSkill && st == plr._pAltAtkSkillType)
-			 || (sn == plr._pAltMoveSkill && st == plr._pAltMoveSkillType)) {
+			if ((sn == plr._pAltSkill._psAttack && st == plr._pAltSkill._psAtkType)
+			 || (sn == plr._pAltSkill._psMove && st == plr._pAltSkill._psMoveType)) {
 				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
 			}
 		}
@@ -2198,7 +2076,7 @@ void DrawGoldSplit()
 		snprintf(tempstr, sizeof(tempstr), "%d", amount);
 		// PrintGameStr(screen_x, screen_y, tempstr, COL_WHITE);
 		// screen_x += GetSmallStringWidth(tempstr);
-		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE);
+		screen_x = PrintLimitedString(screen_x, screen_y, tempstr, GOLDDROP_WIDTH - (37 * 2), COL_WHITE, FONT_KERN_SMALL);
 	}
 	screen_x += 2;
 	DrawSingleSmallPentSpn(screen_x, screen_y);
@@ -2307,7 +2185,7 @@ void DrawTeamBook()
 		if (!plr._pActive)
 			continue;
 		// name
-		PrintString(sx + SBOOK_LINE_TAB, yp - 25, sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH, plr._pName, COL_WHITE, 0);
+		PrintLimitedString(sx + SBOOK_LINE_TAB, yp - 25, plr._pName, SBOOK_LINE_LENGTH, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
@@ -2479,7 +2357,6 @@ void InitCampaignMap(int cii)
 	BYTE idx = 0;
 	WORD available;
 	int border = 1;
-	int numMaps = MAXCAMPAIGNSIZE;
 	// TODO: prevent map-open after CMD_USEPLRMAP?
 	camItemIndex = cii;
 	ItemStruct* is = PlrItem(mypnum, camItemIndex);
@@ -2491,7 +2368,21 @@ void InitCampaignMap(int cii)
 	static_assert(DTYPE_TOWN == 0, "InitCampaignMap must be adjusted.");
 	control_addmappos(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, random_(200, NUM_DTYPES - 1) + 1, ++idx, available, &border);
 
-	numMaps += is->_iPLLight - 6;
+	int numMaps = MAXCAMPAIGNSIZE - 6;
+	BYTE lvl = (is->_iCreateInfo & CF_LEVEL);
+	BYTE dlvl = 2;
+	for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+		const ItemAffixStruct* ias = &is->_iAffixes[i];
+		int v = ias->asValue0;
+		switch (ias->asPower) {
+		case IMP_LVLMOD:  lvl += v;     break;
+		case IMP_AREAMOD: numMaps += v; break;
+		case IMP_LVLGAIN: dlvl += v;    break;
+		case IMP_SETLVL:  lvl = v;      break;
+		default: ASSUME_UNREACHABLE;    break;
+		}
+	}
+	lvl -= HELL_LEVEL_BONUS;
 	for (int i = 0; i < numMaps - 1; i++) {
 		int step = random_low(201, border) + 1;
 		for (int x = 0; x < lengthof(camEntries); x++) {
@@ -2508,11 +2399,6 @@ void InitCampaignMap(int cii)
 			}
 		}
 	}
-
-	BYTE lvl = (is->_iAC == 0 ? (is->_iCreateInfo & CF_LEVEL) : is->_iAC) - HELL_LEVEL_BONUS;
-	lvl += is->_iPLSkillLevels;
-	BYTE dlvl = 2;
-	dlvl += is->_iPLAC;
 
 	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl, dlvl);
 
@@ -2533,7 +2419,7 @@ void TryCampaignMapClick(bool altAction)
 			if (currCamEntry.ceAvailable) {
 				selCamEntry = currCamEntry;
 				NetSendCmdBParam2(CMD_USEPLRMAP, camItemIndex, mIdx - 1);
-				if (!(SDL_GetModState() & KMOD_SHIFT)) {
+				if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT))) {
 					if (gbInvflag) {
 						gbInvflag = false;
 						/* gbInvflag =*/ ToggleWindow(WND_INV);
@@ -2551,8 +2437,8 @@ void TryCampaignMapClick(bool altAction)
 void DrawCampaignMap()
 {
 	int x, y, sx, sy, lx, ly;
-	sx = PANEL_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
-	sy = PANEL_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
+	sx = SCREEN_CENTERX(CAMICON_WIDTH * CAMROWICONLS);
+	sy = SCREEN_CENTERY(CAMICON_HEIGHT * CAMROWICONLS) + CAMICON_HEIGHT;
 
 	sx += CAMICON_WIDTH * (CAM_RADIUS - lengthof(camEntries) / 2);
 	sy += CAMICON_HEIGHT * (CAM_RADIUS - lengthof(camEntries[0]) / 2);

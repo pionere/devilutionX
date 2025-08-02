@@ -79,7 +79,6 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 				if (width > 65) {
 					width -= 65;
 					fill = *src++;
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = fill;
@@ -87,9 +86,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 							width--;
 						}
 						continue;
-					}
 				} else {
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = *src;
@@ -98,9 +95,6 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 							width--;
 						}
 						continue;
-					} else {
-						src += width;
-					}
 				}
 			}
 			while (true) {
@@ -227,7 +221,6 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 				if (width > 65) {
 					width -= 65;
 					fill = pTable[*src++];
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = fill;
@@ -235,9 +228,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 							width--;
 						}
 						continue;
-					}
 				} else {
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = pTable[*src];
@@ -246,9 +237,6 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 							width--;
 						}
 						continue;
-					} else {
-						src += width;
-					}
 				}
 			}
 			while (true) {
@@ -286,8 +274,8 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	// gpBufStart += BUFFER_WIDTH;
 	// gpBufEnd -= BUFFER_WIDTH;
@@ -315,8 +303,8 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	if (light != 0)
 		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light]);

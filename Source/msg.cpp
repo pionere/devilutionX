@@ -814,16 +814,17 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 static void PackEar(PkItemStruct* dest, const ItemStruct* src)
 {
 	dest->wIndx = static_cast<uint16_t>(IDI_EAR);
-	dest->wCI = *(uint16_t*)&src->_iName[7];
-	dest->dwSeed = *(int32_t*)&src->_iName[9];
-	dest->bId = src->_iName[13];
-	dest->bDur = src->_iName[14];
-	dest->bMDur = src->_iName[15];
-	dest->bCh = src->_iName[16];
-	dest->bMCh = src->_iName[17];
+	dest->wCI = *(uint16_t*)&src->_iPlrName[0];
+	dest->dwSeed = *(int32_t*)&src->_iPlrName[2];
+	dest->bId = src->_iPlrName[6];
+	dest->bDur = src->_iPlrName[7];
+	dest->bMDur = src->_iPlrName[8];
+	dest->bCh = src->_iPlrName[9];
+	dest->bMCh = src->_iPlrName[10];
 	static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
-	dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
-	dest->dwBuff = *(uint32_t*)&src->_iName[19];
+	dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iPlrName[11] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
+	dest->dwBuff = *(uint32_t*)&src->_iPlrName[12];
+	static_assert(sizeof(src->_iPlrName) == 12 + sizeof(dest->dwBuff), "packed ear-item is not stored correctly");
 }
 
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
@@ -887,8 +888,7 @@ void DeltaSaveLevel()
 
 static void UnPackEar(const PkItemStruct* src)
 {
-	static_assert(sizeof(items[MAXITEMS]._iName) >= sizeof("Ear of ") + 16, "UnPackEar might write too much data to _iName.");
-	char* cursor = &items[MAXITEMS]._iName[sizeof("Ear of ") - 1];
+	char* cursor = &items[MAXITEMS]._iPlrName[0];
 
 	*(uint16_t*)&cursor[0] = src->wCI;
 	*(int32_t*)&cursor[2] = src->dwSeed;
@@ -902,8 +902,8 @@ static void UnPackEar(const PkItemStruct* src)
 	cursor[16] = '\0';
 	items[MAXITEMS]._iCurs = ((src->wValue >> 6) & 3) + ICURS_EAR_SORCERER;
 	items[MAXITEMS]._ivalue = src->wValue & 0x3F;
-	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD*)&items[MAXITEMS]._iName[7]);
-	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD*)&items[MAXITEMS]._iName[9]);
+	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD*)&items[MAXITEMS]._iPlrName[0]);
+	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD*)&items[MAXITEMS]._iPlrName[2]);
 }
 
 void UnPackPkItem(const PkItemStruct* src)
@@ -1298,9 +1298,9 @@ void LevelDeltaExport()
 			//tmon->smxoff = mon->_mxoff;
 			//tmon->smyoff = mon->_myoff;
 			tmon->smdir = mon->_mdir;
-			tmon->smEnemy = mon->_menemy;
-			tmon->smEnemyx = mon->_menemyx;
-			tmon->smEnemyy = mon->_menemyy;
+			tmon->smenemy = mon->_menemy;
+			tmon->smenemyx = mon->_menemyx;
+			tmon->smenemyy = mon->_menemyy;
 			tmon->smListener = mon->_mListener;
 			tmon->smDelFlag = mon->_mDelFlag; // unused
 			tmon->smAnimCnt = mon->_mAnimCnt;
@@ -1315,8 +1315,8 @@ void LevelDeltaExport()
 			tmon->smVar7 = mon->_mVar7;
 			tmon->smVar8 = mon->_mVar8;
 			tmon->smHitpoints = mon->_mhitpoints;
-			tmon->smLastx = mon->_mlastx;
-			tmon->smLasty = mon->_mlasty;
+			tmon->smlastx = mon->_mlastx;
+			tmon->smlasty = mon->_mlasty;
 			//tmon->smLeader = mon->_mleader;
 			tmon->smLeaderflag = mon->_mleaderflag;
 			//tmon->smPacksize = mon->_mpacksize;
@@ -1465,8 +1465,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		//plr._pxoff = tplr->spxoff;
-		//plr._pyoff = tplr->spyoff;
+		// plr._pxoff = tplr->spxoff;
+		// plr._pyoff = tplr->spyoff;
 		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
 		plr._pdir = tplr->spdir;
 		plr._pAnimFrame = tplr->spAnimFrame;
@@ -1557,9 +1557,9 @@ void LevelDeltaLoad()
 		//mon->_myoff = tmon->smyoff;
 		mon->_mxoff = mon->_myoff = 0;        // no need to sync these values as they are recalculated when used
 		mon->_mdir = tmon->smdir;
-		mon->_menemy = tmon->smEnemy;
-		mon->_menemyx = tmon->smEnemyx;
-		mon->_menemyy = tmon->smEnemyy;
+		mon->_menemy = tmon->smenemy;
+		mon->_menemyx = tmon->smenemyx;
+		mon->_menemyy = tmon->smenemyy;
 		mon->_mListener = tmon->smListener;
 		mon->_mDelFlag = tmon->smDelFlag;
 		mon->_mAnimCnt = tmon->smAnimCnt;
@@ -1573,8 +1573,8 @@ void LevelDeltaLoad()
 		mon->_mVar7 = tmon->smVar7;
 		mon->_mVar8 = tmon->smVar8;
 		mon->_mhitpoints = tmon->smHitpoints;
-		mon->_mlastx = tmon->smLastx;
-		mon->_mlasty = tmon->smLasty;
+		mon->_mlastx = tmon->smlastx;
+		mon->_mlasty = tmon->smlasty;
 		//BYTE _mleader; // the leader of the monster
 		//mon->_mleaderflag = tmon->smLeaderflag; // the status of the monster's leader
 		//BYTE _mpacksize; // the number of 'pack'-monsters close to their leader
@@ -1626,8 +1626,6 @@ void LevelDeltaLoad()
 			}
 			// InitLvlMonster
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
-			if (mi == MM_STONE)
-				mi = mon->_mVar3;
 			if (mi == MM_WALK2) {
 				dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
 			} else if (mi == MM_WALK) {
@@ -2571,9 +2569,9 @@ static unsigned On_OPERATEITEM(const TCmd* pCmd, int pnum)
 	const TCmdItemOp* cmd = (const TCmdItemOp*)pCmd;
 
 	if (plr._pmode != PM_DEATH) {
-		const BYTE skill = cmd->iou.skill;
-		const int8_t from = cmd->iou.from;
-		const BYTE cii = cmd->ioIdx;
+		BYTE skill = cmd->iou.skill;
+		int8_t from = cmd->iou.from;
+		BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
 	net_assert(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
@@ -2885,7 +2883,7 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 	} else if (dmgtype == DMGTYPE_PLAYER) {
 		ItemStruct ear;
 		CreateBaseItem(&ear, IDI_EAR);
-		snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", plr._pName);
+		copy_cstr(ear._iPlrName, plr._pName);
 		const int earSets[NUM_CLASSES] = {
 				ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
 #ifdef HELLFIRE
@@ -2893,8 +2891,8 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 #endif
 		};
 		ear._iCurs = earSets[plr._pClass];
-		//ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
-		//ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
+		//ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iPlrName[0]);
+		//ear._iSeed = SwapLE32(*(DWORD *)&ear._iPlrName[2]);
 		ear._ivalue = plr._pLevel;
 
 		PlrDeadItem(pnum, &ear, DIR_S);
@@ -3909,7 +3907,7 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		BYTE _pIRecoverySpeed;
 		BYTE _pIBaseCastSpeed;
 		BYTE _pAlign_B1;
-		int _pIGetHit;
+		int _pIAbsAnyHit;
 		BYTE _pIBaseAttackSpeed;
 		int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
 		BYTE _pILifeSteal;
@@ -3934,7 +3932,7 @@ static void PrintPlrMismatch(const char* field, int myval, int extval, int sp, i
 
 static void PrintPlrMismatch64(const char* field, uint64_t myval, uint64_t extval, int sp, int pnum)
 {
-	msg_errorf("%d received %s (%d vs. %d) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
+	msg_errorf("%d received %s (%ull vs. %ull) from %d for plr%d", mypnum, field, myval, extval, sp, pnum);
 }
 
 static void CmpPlrArray(const char* field, const void* src, const void* data, int size, int len, int ip, int pnum)
@@ -4307,8 +4305,8 @@ static const BYTE* CheckItem(const ItemStruct* is, const BYTE* src, int pnum, in
 	//	PrintItemMismatch(is, "x", is->_iy, *(const BYTE*)src, sp, pnum, loc, subloc);
 	//}
 	src += sizeof(BYTE);
-	if (!none && !placeholder && is->_iIdentified != *(BOOLEAN*)src) {
-		PrintItemMismatch(is, "iden", is->_iIdentified, *(BOOLEAN*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iIdentified != *(const BOOLEAN*)src) {
+		PrintItemMismatch(is, "iden", is->_iIdentified, *(const BOOLEAN*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(BOOLEAN);
 

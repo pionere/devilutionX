@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 void UiSettingsDialog()
 {
 	TMenuItem* settingsMenu;
@@ -49,9 +51,6 @@ void UiSettingsDialog()
 				break;
 			}
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		CheckMenuMove();
 #endif
@@ -65,5 +64,7 @@ void UiSettingsDialog()
 	// FreeBackgroundArt();
 	UiClearItems();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

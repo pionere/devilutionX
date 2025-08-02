@@ -5,6 +5,8 @@ on: [push, pull_request]
 
 env:
   buildDir: '${{ github.workspace }}/build'
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -13,11 +15,21 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-DUSE_PATCH=OFF'
+            artifact: 'diablo-push-ming.zip'
+          - name: hellfire+patch
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-push-mingp.zip'
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
@@ -29,7 +41,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_STATIC_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D SCREEN_READER_INTEGRATION=ON -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_STATIC_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -D SCREEN_READER_INTEGRATION=ON -D CMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
     #  working-directory: ${{github.workspace}}
     #  run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=OFF -DCPACK=ON -DCMAKE_TOOLCHAIN_FILE=../CMake/platforms/mingwcc64.toolchain.cmake -DDEVILUTIONX_SYSTEM_BZIP2=OFF -DDEVILUTIONX_STATIC_LIBSODIUM=ON -DDISCORD_INTEGRATION=ON
 
@@ -37,7 +49,7 @@ jobs:
       working-directory: ${{ env.buildDir }}
       shell: bash
     # Execute the build (-j 2 : with two cores).
-      run: cmake --build . -j 2 --target package --config Release
+      run: cmake --build . -j 2 --target package --config ${{env.BUILD_TYPE}}
 
     - name: Show content of workspace
       run: find $RUNNER_WORKSPACE
@@ -49,4 +61,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
-        name: diablo-test-x86.zip
+        name: ${{ matrix.artifact }}
+        compression-level: 0

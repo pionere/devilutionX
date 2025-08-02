@@ -15,6 +15,7 @@ DEVILUTION_BEGIN_NAMESPACE
 enum UiType : uint8_t {
 	UI_TEXT,
 #if FULL_UI
+	UI_TEXTBOX,
 	UI_TXT_BUTTON,
 	UI_TXT_SCROLL,
 #endif
@@ -27,34 +28,6 @@ enum UiType : uint8_t {
 	UI_EDIT,
 #endif
 	UI_CUSTOM,
-};
-
-enum UiAlignment {
-	UIA_LEFT,
-	UIA_CENTER,
-	UIA_RIGHT,
-};
-
-enum UiFlags : uint16_t {
-	// clang-format off
-	UIS_SMALL       = AFT_SMALL << 0,
-	UIS_MED         = AFT_MED << 0,
-	UIS_BIG         = AFT_BIG << 0,
-	UIS_HUGE        = AFT_HUGE << 0,
-	UIS_LEFT        = UIA_LEFT << 4,
-	UIS_HCENTER     = UIA_CENTER << 4,
-	UIS_RIGHT       = UIA_RIGHT << 4,
-	UIS_VCENTER     = 1 << 6,
-	UIS_SILVER      = AFC_SILVER << 7,
-	UIS_GOLD        = AFC_GOLD << 7,
-	UIS_LIGHT       = 1 << 8,
-	UIS_DISABLED    = 1 << 12,
-	UIS_HIDDEN      = 1 << 13,
-
-	UIS_SIZE = 7 << 0,
-	UIS_XALIGN = 3 << 4,
-	UIS_COLOR = 1 << 7,
-	// clang-format on
 };
 
 class UiItemBase {
@@ -105,7 +78,19 @@ public:
 };
 
 //=============================================================================
+#if FULL_UI
+class UiTextBox : public UiItemBase {
+public:
+	UiTextBox(const SDL_Rect& rect, int flags)
+	    : UiItemBase(UI_TEXTBOX, rect, flags)
+	{
+	}
 
+	~UiTextBox() = default;
+};
+
+//=============================================================================
+#endif
 class UiProgressBar : public UiItemBase {
 public:
 	UiProgressBar(const SDL_Rect& rect);

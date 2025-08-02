@@ -60,7 +60,6 @@ SDL_Surface* renderer_surface = NULL;
 
 int screenWidth;
 int screenHeight;
-//int viewportHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags)
@@ -126,37 +125,49 @@ static void AdjustToScreenGeometry(int width, int height)
 #endif
 }
 
-#ifndef USE_SDL1
-static void CalculatePreferredWindowSize(int& width, int& height, bool useIntegerScaling)
+static AREA32 CalculatePreferredWindowSize()
 {
-	SDL_DisplayMode mode;
-	SDL_GetDesktopDisplayMode(0, &mode);
-
-	if (mode.w < mode.h) {
-		std::swap(mode.w, mode.h);
-	}
-
-	if (useIntegerScaling) {
-		int wFactor = mode.w / width;
-		int hFactor = mode.h / height;
-		if (wFactor > hFactor) {
-			if (hFactor != 0)
-				width *= wFactor / hFactor;
-		} else { // if (hFactor > wFactor) {
-			if (wFactor != 0)
-				height *= hFactor / wFactor;
-		}
-	} else {
-		float wFactor = (float)mode.w / width;
-		float hFactor = (float)mode.h / height;
-		if (wFactor > hFactor) {
-			width = mode.w * height / mode.h; // width = width * (wFactor / hFactor);
-		} else { // if (hFactor > wFactor) {
-			height = mode.h * width / mode.w; // height = height * (hFactor / wFactor);
-		}
-	}
-}
+	int width = 0, height = 0;
+	int mode_w, mode_h;
+#ifdef DEFAULT_WIDTH
+	width = DEFAULT_WIDTH;
 #endif
+#ifdef DEFAULT_HEIGHT
+	height = DEFAULT_HEIGHT;
+#endif
+	getIniInt("Graphics", "Width", &width);
+	getIniInt("Graphics", "Height", &height);
+	{
+#ifdef USE_SDL1
+		const SDL_VideoInfo* mode = SDL_GetVideoInfo();
+		mode_w = mode->current_w;
+		mode_h = mode->current_h;
+#else
+		SDL_DisplayMode mode;
+		SDL_GetDesktopDisplayMode(0, &mode);
+		mode_w = mode.w;
+		mode_h = mode.h;
+#endif
+	}
+	if (mode_w < mode_h) {
+		std::swap(mode_w, mode_h);
+	}
+	if (width <= 0) {
+		width = mode_w;
+	}
+	if (height <= 0) {
+		height = mode_h;
+	}
+	SCALE_AREA(width, height, 960 * ASSET_MPL, 480 * ASSET_MPL, width, height);
+
+	if (width & 3) {
+		width += 4 - (width & 3);
+	}
+	if (height & 3) {
+		height += 4 - (height & 3);
+	}
+	return { width, height };
+}
 
 void SpawnWindow()
 {
@@ -171,7 +182,7 @@ void SpawnWindow()
 #if SDL_VERSION_ATLEAST(2, 0, 4)
 	SDL_SetHint(SDL_HINT_IME_INTERNAL_EDITING, "1");
 #endif
-#if SDL_VERSION_ATLEAST(2, 0, 6) && defined(__vita__)
+#if SDL_VERSION_ATLEAST(2, 0, 6)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
 #if SDL_VERSION_ATLEAST(2, 0, 10)
@@ -217,11 +228,8 @@ void SpawnWindow()
 #endif
 #endif
 #endif
-	int width = DEFAULT_WIDTH;
-	int height = DEFAULT_HEIGHT;
-	getIniInt("Graphics", "Width", &width);
-	getIniInt("Graphics", "Height", &height);
-
+	AREA32 dimensions = CalculatePreferredWindowSize();
+	int width = dimensions.w, height = dimensions.h;
 #if !FULLSCREEN_ONLY
 	if (gbFullscreen)
 		gbFullscreen = getIniBool("Graphics", "Fullscreen", true);
@@ -240,17 +248,8 @@ void SpawnWindow()
 	if (surface == NULL) {
 		sdl_error(ERR_SDL_WINDOW_CREATE);
 	}
-	width = surface->w;
-	height = surface->h;
 #else
-	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
 	bool upscale = getIniBool("Graphics", "Upscale", true);
-	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
-
-	if (upscale && fitToScreen) {
-		CalculatePreferredWindowSize(width, height, integerScalingEnabled);
-	}
-
 	int flags = SDL_WINDOW_ALLOW_HIGHDPI;
 	if (grabInput) {
 		flags |= SDL_WINDOW_INPUT_GRABBED;
@@ -285,16 +284,13 @@ void SpawnWindow()
 			sdl_error(ERR_SDL_RENDERER_CREATE);
 		}
 
-		if (integerScalingEnabled && SDL_RenderSetIntegerScale(renderer, SDL_TRUE) < 0) {
-			sdl_issue(ERR_SDL_RENDERER_SCALE);
-		}
-
 		RecreateDisplay(width, height);
 	} else {
 		SDL_GetWindowSize(ghMainWnd, &width, &height);
 	}
 #endif
-
+	if (width > 960 * ASSET_MPL || height > 480 * ASSET_MPL)
+		app_fatal("Failed to adapt to the display.");
 	AdjustToScreenGeometry(width, height);
 
 #if HAS_TOUCHPAD

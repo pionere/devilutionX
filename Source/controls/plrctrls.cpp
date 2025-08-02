@@ -15,7 +15,7 @@ static int speedspellcount = 0;
 bool InGameMenu()
 {
 	return stextflag != STORE_NONE
-	    || gbHelpflag
+	    || gnVisibleHelpLines != 0
 	    || gbTalkflag
 	    || gbQtextflag
 	    //|| gbDoomflag
@@ -164,9 +164,9 @@ static bool HasRangedSkill()
 	if (myplr._pSkillFlags & SFLAG_RANGED)
 		return true;
 
-	int spl = myplr._pAltAtkSkill;
+	int spl = myplr._pAltSkill._psAttack;
 	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
+		spl = myplr._pAltSkill._psMove;
 
 	return spl != SPL_INVALID
 	    && spl != SPL_TOWN
@@ -355,7 +355,7 @@ static void AttrIncBtnSnap(AxisDirection dir)
 	else if (slot >= NUM_ATTRIBS)
 		slot = NUM_ATTRIBS - 1;
 	// move cursor to our new location
-	int x = gnWndCharX + ((SDL_GetModState() & KMOD_ALT) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
+	int x = gnWndCharX + ((gbModBtnDown & ACTBTN_MASK(ACT_MODCTX)) != 0 ? CHRBTN_ALT : CHRBTN_LEFT) + (CHRBTN_WIDTH / 2);
 	int y = gnWndCharY + CHRBTN_TOP(slot) + (CHRBTN_HEIGHT / 2);
 	if (abs(MousePos.x - x) >= CHRBTN_WIDTH / 2 || abs(MousePos.y - y) >= CHRBTN_HEIGHT / 2) // Avoid wobbling when scaled
 		SetCursorPos(x, y);
@@ -703,28 +703,25 @@ static void WalkInDir(AxisDirection dir)
 	NetSendCmdBParam1(CMD_WALKDIR, pdir);
 }
 
+static void HandleRepeaterMove(AxisDirectionRepeater &repeater, AxisDirection moveDir)
+{
+	moveDir = repeater.Get(moveDir);
+	if (moveDir.y != AxisDirectionY_NONE)
+		InputBtnDown(moveDir.y == AxisDirectionY_UP ? ACT_UP : ACT_DOWN);
+	if (moveDir.x != AxisDirectionX_NONE)
+		InputBtnDown(moveDir.x == AxisDirectionX_LEFT ? ACT_LEFT : ACT_RIGHT);
+}
+
 static void QuestLogMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
-	moveDir = repeater.Get(moveDir);
-	if (moveDir.y == AxisDirectionY_UP)
-		QuestlogUp();
-	else if (moveDir.y == AxisDirectionY_DOWN)
-		QuestlogDown();
+	HandleRepeaterMove(repeater, moveDir);
 }
 
 static void StoreMove(AxisDirection moveDir)
 {
 	static AxisDirectionRepeater repeater;
-	moveDir = repeater.Get(moveDir);
-	if (moveDir.y == AxisDirectionY_UP)
-		STextUp();
-	else if (moveDir.y == AxisDirectionY_DOWN)
-		STextDown();
-	else if (moveDir.x == AxisDirectionX_LEFT)
-		STextLeft();
-	else if (moveDir.x == AxisDirectionX_RIGHT)
-		STextRight();
+	HandleRepeaterMove(repeater, moveDir);
 }
 
 typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
@@ -778,7 +775,7 @@ void StoreSpellCoords()
 {
 	int pnum, i, j;
 	uint64_t mask;
-	const int START_X = PANEL_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
+	const int START_X = SCREEN_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
 	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
 	const int END_Y = SCREEN_HEIGHT - (128 + 17) - SPLICON_HEIGHT / 2;
 	speedspellcount = 0;
@@ -1033,9 +1030,9 @@ void UseBeltItem(bool manaItem)
 
 static bool SpellHasActorTarget()
 {
-	int spl = myplr._pAltAtkSkill;
+	int spl = myplr._pAltSkill._psAttack;
 	if (spl == SPL_INVALID)
-		spl = myplr._pAltMoveSkill;
+		spl = myplr._pAltSkill._psMove;
 	if (spl != SPL_INVALID && spelldata[spl].spCurs != CURSOR_NONE)
 		return true;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
@@ -1060,7 +1057,7 @@ static void UpdateSpellTarget()
 	const PlayerStruct& player = myplr;
 
 	int range = 1;
-	if (player._pAltMoveSkill == SPL_TELEPORT)
+	if (player._pAltSkill._psMove == SPL_TELEPORT)
 		range = 4;
 
 	pcurspos.x = player._pfutx + offset_x[player._pdir] * range;

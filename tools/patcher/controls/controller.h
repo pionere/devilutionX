@@ -4,7 +4,7 @@
 
 #include <SDL.h>
 
-#include "../defs.h"
+#include "../../defs.h"
 
 #include "devices/kbcontroller.h"
 #include "devices/joystick.h"

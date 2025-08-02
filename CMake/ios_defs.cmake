@@ -8,7 +8,7 @@ set(UBSAN OFF)
 if(__IPHONEOS__)
   set(FULLSCREEN_ONLY ON)
 endif()
-#set(VIRTUAL_GAMEPAD ON)
+set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)
 #set(NOSOUND ON)
 

@@ -247,11 +247,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, 
 static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
 {
     FILESIZE_T RawFilePos;
-    TMPQArchive * ha = hf->ha;
 #ifdef FULL
+    TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
 #else
-    TMPQBlock * pFileEntry = hf->pFileEntry;
+    DWORD dwFlags = hf->pFileEntry->dwFlags;
 #endif
     LPBYTE pbRawSector = NULL;
     LPBYTE pbOutSector = pbBuffer;
@@ -282,7 +282,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
     dwRawBytesToRead = dwBytesToRead;
 
     // Perform all necessary work to do with compressed files
+#ifdef FULL
     if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK) {
+#else
+    if(dwFlags & MPQ_FILE_COMPRESS_MASK) {
+#endif
         // If the sector positions are not loaded yet, do it
         SectorOffsets = AllocateSectorOffsets(hf);
         if(SectorOffsets == NULL)
@@ -327,7 +331,11 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
     RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
 
     // Set file pointer and read all required sectors
+#ifdef FULL
     if(FileStream_Read(&ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
+#else
+    if(FileStream_Read(&hf->ha->pStream, RawFilePos, pbInSector, dwRawBytesToRead)) {
+#endif
         // Now we have to decrypt and decompress all file sectors that have been loaded
         for (DWORD i = 0; i < dwSectorsToRead; i++) {
 #ifdef FULL
@@ -347,11 +355,19 @@ static DWORD ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwBytesToRead)
                 dwBytesInThisSector = dwBytesToRead;
 
             // If the file is compressed, we have to adjust the raw sector size
+#ifdef FULL
             if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
+#else
+            if(dwFlags & MPQ_FILE_COMPRESS_MASK)
+#endif
                 dwRawBytesInThisSector = SectorOffsets[dwIndex + 1] - SectorOffsets[dwIndex];
 
             // If the file is encrypted, we have to decrypt the sector
+#ifdef FULL
             if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED) {
+#else
+            if(dwFlags & MPQ_FILE_ENCRYPTED) {
+#endif
                 BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
 #ifdef FULL
                 // If we don't know the key, try to detect it by file content

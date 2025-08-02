@@ -663,47 +663,21 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
 	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
-	//plr._pAtkSkill = SPL_ATTACK;
-	//plr._pAtkSkillType = RSPLTYPE_ABILITY;
-	//plr._pMoveSkill = SPL_WALK;
-	//plr._pMoveSkillType = RSPLTYPE_ABILITY;
-	//plr._pAltAtkSkill = SPL_INVALID;
-	//plr._pAltAtkSkillType = RSPLTYPE_INVALID;
-	//plr._pAltMoveSkill = SPL_INVALID;
-	//plr._pAltMoveSkillType = RSPLTYPE_INVALID;
-
-	for (i = 0; i < lengthof(plr._pAtkSkillHotKey); i++)
-		plr._pAtkSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillTypeHotKey); i++)
-		plr._pAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillHotKey); i++)
-		plr._pMoveSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillTypeHotKey); i++)
-		plr._pMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillHotKey); i++)
-		plr._pAltAtkSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeHotKey); i++)
-		plr._pAltAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillHotKey); i++)
-		plr._pAltMoveSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
-		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillSwapKey); i++)
-		plr._pAtkSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillTypeSwapKey); i++)
-		plr._pAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillSwapKey); i++)
-		plr._pMoveSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillTypeSwapKey); i++)
-		plr._pMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillSwapKey); i++)
-		plr._pAltAtkSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeSwapKey); i++)
-		plr._pAltAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillSwapKey); i++)
-		plr._pAltMoveSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeSwapKey); i++)
-		plr._pAltMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	//plr._pMainSkill = { SPL_ATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
+	//plr._pAltSkill = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
+	const PlrSkillStruct eps = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
+	for (i = 0; i < lengthof(plr._pSkillHotKey); i++) {
+		plr._pSkillHotKey[i] = eps;
+	}
+	for (i = 0; i < lengthof(plr._pAltSkillHotKey); i++) {
+		plr._pAltSkillHotKey[i] = eps;
+	}
+	for (i = 0; i < lengthof(plr._pSkillSwapKey); i++) {
+		plr._pSkillSwapKey[i] = eps;
+	}
+	for (i = 0; i < lengthof(plr._pAltSkillSwapKey); i++) {
+		plr._pAltSkillSwapKey[i] = eps;
+	}
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;
@@ -1293,9 +1267,9 @@ static bool StartWalk(int pnum, int dir)
 
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)
-			assert(dir2sdir[i] == 1 + OPPOSITE(i));
+			assert(dir2sdir[i] == 1 + i);
 #endif
-		dir = 1 + OPPOSITE(dir); // == dir2sdir[dir];
+		dir = 1 + dir; // == dir2sdir[dir];
 		/*if (!gbZoomInFlag) {
 			if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 				ScrollInfo._sdir = SDIR_NONE;
@@ -1993,7 +1967,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		break;
 	}
 
-	if (plx(offp)._pILifeSteal != 0) {
+	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
+	if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 	}
 
@@ -2015,6 +1990,9 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	}
 	if ((fdam | ldam | mdam | adam) != 0) {
 		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
+	}
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
@@ -2111,17 +2089,21 @@ static void PlrDoAttack(int pnum)
 	}
 	if (plr._pVar7 == 1) {
 		plr._pVar7 = 2;
-		hitcnt = PlrTryHit(pnum, plr._pdir);
+		dir = plr._pdir;
+		hitcnt = PlrTryHit(pnum, dir);
 		if (plr._pVar5 == SPL_SWIPE) {
-			dir = plr._pdir;
 			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
 			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
-			plr._pdir = dir;
 		}
 
 		if (hitcnt != 0) {
 			WeaponDur(pnum, 40 - hitcnt * 8);
 		}
+		// return early if the weapon is lost or triggered a got-hit/death animation
+		if (plr._pmode != PM_ATTACK) {
+			return;
+		}
+		plr._pdir = dir;
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
@@ -2144,13 +2126,28 @@ static void PlrDoAttack(int pnum)
 
 static void PlrDoRangeAttack(int pnum)
 {
-	bool stepAnim;
+	bool stepAnim = false;
 	int numarrows, sx, sy, dx, dy;
 
 	plr._pVar8++;         // RATTACK_TICK
 	switch (plr._pVar4) { // RATTACK_SPEED
+	case -4:
+		if ((plr._pVar8 & 1) == 1)
+			plr._pAnimCnt--;
+		break;
+	case -3:
+		if ((plr._pVar8 % 3u) == 0)
+			plr._pAnimCnt--;
+		break;
+	case -2:
+		if ((plr._pVar8 & 3) == 2)
+			plr._pAnimCnt--;
+		break;
+	case -1:
+		if ((plr._pVar8 & 7) == 4)
+			plr._pAnimCnt--;
+		break;
 	case 0:
-		stepAnim = false;
 		break;
 	case 1:
 		stepAnim = (plr._pVar8 & 7) == 4;
@@ -3080,7 +3077,8 @@ void PlrSetMana(int pnum, int val)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrSetMana: illegal player %d", pnum);
 	}
-	if (plr._pIFlags & ISPL_NOMANA)
+	// assert(val == 0);
+	// if (plr._pIFlags & ISPL_NOMANA)
 		val = 0;
 	plr._pMana = val;
 	plr._pManaBase = val - (plr._pMaxMana - plr._pMaxManaBase);
@@ -3094,6 +3092,7 @@ void PlrFillHp(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrFillHp: illegal player %d", pnum);
 	}
+	// assert(plr._pHitPoints != 0);
 	plr._pHitPoints = plr._pMaxHP;
 	plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
@@ -3103,8 +3102,9 @@ void PlrFillHp(int pnum)
 void PlrFillMana(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrSetMana: illegal player %d", pnum);
+		dev_fatal("PlrFillMana: illegal player %d", pnum);
 	}
+	// assert(plr._pHitPoints != 0);
 	if (plr._pIFlags & ISPL_NOMANA)
 		return;
 	plr._pMana = plr._pMaxMana;
@@ -3116,6 +3116,8 @@ void PlrFillMana(int pnum)
 void PlrIncHp(int pnum, int hp)
 {
 	assert(hp >= 0);
+	if (plr._pHitPoints == 0)
+		return;
 	plr._pHitPoints += hp;
 	if (plr._pHitPoints > plr._pMaxHP)
 		plr._pHitPoints = plr._pMaxHP;
@@ -3129,7 +3131,7 @@ void PlrIncHp(int pnum, int hp)
 void PlrIncMana(int pnum, int mana)
 {
 	assert(mana >= 0);
-	if (plr._pIFlags & ISPL_NOMANA)
+	if (plr._pHitPoints == 0 || plr._pIFlags & ISPL_NOMANA)
 		return;
 
 	plr._pMana += mana;

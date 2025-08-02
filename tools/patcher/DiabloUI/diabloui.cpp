@@ -3,15 +3,13 @@
 #include "controls/controller_motion.h"
 
 #include "DiabloUI/diablo.h"
-#include "DiabloUI/text_draw.h"
-#include "DiabloUI/dialogs.h"
 //#include "controls/plrctrls.h"
 #include "controls/touch.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 #include "utils/screen_reader.hpp"
 #if FULL_UI
-#include "engine/render/text_render.h"
 #include "engine/render/raw_render.h"
 #include "utils/utf8.h"
 #ifdef __SWITCH__
@@ -63,7 +61,7 @@ bool gUiDrawCursor;
 static Uint32 _gdwFadeTc;
 
 UiProgressBar::UiProgressBar(const SDL_Rect& rect)
-		: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
+	: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
 {
 	int i;
 	CelImageBuf* progFillCel;
@@ -388,7 +386,7 @@ void LoadBackgroundArt(const char* pszFile, const char* palette)
 	assert(gbBackCel == NULL);
 	// FreeBackgroundArt();
 	if (pszFile != NULL)
-		gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
+		gbBackCel = CelLoadImage(pszFile, BACKGROUND_ART_WIDTH);
 	// assert(palette != NULL);
 	LoadPalette(palette);
 
@@ -404,20 +402,20 @@ void FreeBackgroundArt()
 void UiAddBackground()
 {
 	assert(gbBackCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(BACKGROUND_ART_WIDTH), BACKGROUND_ART_TOP, BACKGROUND_ART_WIDTH, BACKGROUND_ART_HEIGHT };
 	gUiItems.push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
 void UiAddLogo()
 {
 	assert(gbLogoCelSmall != NULL);
-	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
 static void UiClearScreen()
 {
-	// if (SCREEN_WIDTH > PANEL_WIDTH || SCREEN_HEIGHT > PANEL_HEIGHT) { // Background size
+	// if (SCREEN_WIDTH > BACKGROUND_ART_WIDTH || SCREEN_HEIGHT > BACKGROUND_ART_HEIGHT) { // Background size
 		ClearScreenBuffer();
 	// }
 }
@@ -481,11 +479,25 @@ static void UiDrawSelector(const SDL_Rect& rect)
 	CelDraw(x, y, selCel, frame);
 }
 
+static void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
+{
+	flags &= ~(UIS_OPTIONAL | UIS_DISABLED | UIS_HIDDEN),
+	PrintString(flags, text, SCREEN_X + rect.x, SCREEN_Y + rect.y, rect.w, rect.h);
+}
+
 static void UiDraw(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
+#if FULL_UI
+static void UiDraw(const UiTextBox* uiTextBox)
+{
+	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags >> UIS_COLOR_SHL) & UIS_COLORS);
 
+	if (uiTextBox->m_iFlags & UIS_HCENTER)
+		DrawColorTextBoxSLine(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, SELGAME_HEADER_HEIGHT);
+}
+#endif
 static void UiDraw(const UiImage* uiImage)
 {
 	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame, 64) : uiImage->m_frame;
@@ -495,15 +507,16 @@ static void UiDraw(const UiImage* uiImage)
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
 
-static int UIItemFlags(int flags, const SDL_Rect& rect)
-{
-	const SDL_Point point = { MousePos.x, MousePos.y };
-	return flags | (SDL_PointInRect(&point, &rect) ? UIS_LIGHT : 0);
-}
-
 static void UiDrawStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	DrawArtStr(text, rect, UIItemFlags(flags, rect));
+	const SDL_Point point = { MousePos.x, MousePos.y };
+	if (SDL_PointInRect(&point, &rect)) {
+		flags |= UIS_LIGHT;
+#if SCREEN_READER_INTEGRATION
+		SpeakText(text);
+#endif
+	}
+	DrawArtStr(text, rect, flags);
 }
 #if FULL_UI
 static void UiDraw(const UiTxtButton* uiButton)
@@ -559,7 +572,7 @@ static void UiDraw(const UiProgressBar* uiPb)
 		dx = 100;
 	dx = PRBAR_WIDTH * dx / 100;
 	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
-		memcpy(&gpBuffer[x + (y + i - PRBAR_HEIGHT) * BUFFER_WIDTH], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
+		memcpy(&gpBuffer[BUFFERXY(x, y + i - PRBAR_HEIGHT)], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
 	}
 }
 #if FULL_UI
@@ -657,6 +670,11 @@ static void UiDrawItem(const UiItemBase* item)
 	case UI_TEXT:
 		UiDraw(static_cast<const UiText*>(item));
 		break;
+#if FULL_UI
+	case UI_TEXTBOX:
+		UiDraw(static_cast<const UiTextBox*>(item));
+		break;
+#endif
 	case UI_IMAGE:
 		UiDraw(static_cast<const UiImage*>(item));
 		break;
@@ -706,6 +724,10 @@ void UiRender()
 	if (gbWndActive) {
 		UiClearScreen();
 		UiDrawItems();
+
+#if HAS_TOUCHPAD
+		DrawGamepad();
+#endif
 	}
 	UiFadeIn();
 }
@@ -718,9 +740,6 @@ void UiRenderAndPoll()
 	while (UiPeekAndHandleEvents(&event)) {
 		;
 	}
-#if HAS_TOUCHPAD
-	finish_simulated_mouse_clicks();
-#endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	HandleMenuMove();
 #endif
@@ -1036,7 +1055,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				}
 			} break;
 			case DVL_VK_END: {
-				unsigned pos = strlen(gUiEditField->m_value);
+				unsigned pos = (unsigned)strlen(gUiEditField->m_value);
 				gUiEditField->m_curpos = pos;
 				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
 					gUiEditField->m_selpos = pos;
