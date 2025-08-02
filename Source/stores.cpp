@@ -1652,13 +1652,9 @@ static void StoreShiftItems(ItemStruct *is)
 /**
  * @brief Purchases an item from the smith.
  */
-static void SmithBuyItem()
+static void SmithBuyItem(int idx)
 {
-	int idx;
-
 	SendStoreCmd2(STORE_SBUY);
-
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 
 	StoreShiftItems(&smithitem[idx]);
 }
@@ -1700,13 +1696,10 @@ static void S_SBuyEnter()
 /**
  * @brief Purchases a premium item from the smith.
  */
-static void SmithBuyPItem()
+static void SmithBuyPItem(int idx)
 {
-	int idx;
-
 	SendStoreCmd2(STORE_SPBUY);
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	idx = storehidx[idx];
 	premiumitems[idx]._itype = ITYPE_NONE;
 	numpremium--;
@@ -1920,11 +1913,10 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 /**
  * @brief Sells an item from the player's inventory or belt.
  */
-static void StoreSellItem()
+static void StoreSellItem(int idx)
 {
-	int i, idx, cost;
+	int i, cost;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	i = storehidx[idx];
 	if (i >= 0) {
 		i += INVITEM_INV_FIRST;
@@ -1968,11 +1960,9 @@ static void S_SSellEnter()
 /**
  * @brief Repairs an item in the player's inventory or body in the smith.
  */
-static void SmithRepairItem()
+static void SmithRepairItem(int idx)
 {
-	int i, idx;
-
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
+	int i;
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -2040,12 +2030,8 @@ static void S_WitchEnter()
 /**
  * @brief Purchases an item from the witch.
  */
-static void WitchBuyItem()
+static void WitchBuyItem(int idx)
 {
-	int idx;
-
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
-
 	if (idx < 3)
 		storeitem._iSeed = NextRndSeed();
 
@@ -2090,11 +2076,9 @@ static void S_WSellEnter()
 /**
  * @brief Recharges an item in the player's inventory or body in the witch.
  */
-static void WitchRechargeItem()
+static void WitchRechargeItem(int idx)
 {
-	int i, idx;
-
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
+	int i;
 
 	i = storehidx[idx];
 	if (i < 0) {
@@ -2165,8 +2149,9 @@ static void S_BoyEnter()
 	StartStore(STORE_GOSSIP);
 }
 
-static void BoyBuyItem()
+static void BoyBuyItem(int idx)
 {
+	// assert(idx == 0);
 	boyitem._itype = ITYPE_NONE;
 
 	SendStoreCmd2(STORE_PBUY);
@@ -2175,12 +2160,10 @@ static void BoyBuyItem()
 /**
  * @brief Purchases an item from the healer.
  */
-static void HealerBuyItem()
+static void HealerBuyItem(int idx)
 {
-	int idx;
 	bool infinite;
 
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	infinite = idx < (IsMultiGame ? 3 : 2);
 	if (infinite)
 		storeitem._iSeed = NextRndSeed();
@@ -2209,11 +2192,8 @@ static void S_BBuyEnter()
 	}
 }
 
-static void StoryIdItem()
+static void StoryIdItem(int idx)
 {
-	int idx;
-
-	idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
 	idx = storehidx[idx];
 	if (idx < 0)
 		idx = INVITEM_BODY_FIRST - (idx + 1);
@@ -2228,41 +2208,44 @@ static void S_ConfirmEnter()
 	int lastshold = stextshold;
 
 	if (stextsel == STORE_CONFIRM_YES) {
+		int idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
+		void (*func)(int);
 		switch (lastshold) {
 		case STORE_SBUY:
-			SmithBuyItem();
+			func = SmithBuyItem;
 			break;
 		case STORE_SSELL:
 		case STORE_WSELL:
-			StoreSellItem();
+			func = StoreSellItem;
 			break;
 		case STORE_SREPAIR:
-			SmithRepairItem();
+			func = SmithRepairItem;
 			break;
 		case STORE_WBUY:
-			WitchBuyItem();
+			func = WitchBuyItem;
 			break;
 		case STORE_WRECHARGE:
-			WitchRechargeItem();
+			func = WitchRechargeItem;
 			break;
 		case STORE_PBUY:
-			BoyBuyItem();
+			func = BoyBuyItem;
 			//lastshold = STORE_PEGBOY;
 			break;
 		case STORE_HBUY:
-			HealerBuyItem();
+			func = HealerBuyItem;
 			break;
 		case STORE_SIDENTIFY:
-			StoryIdItem();
+			func = StoryIdItem;
 			//lastshold = STORE_IDSHOW;
 			break;
 		case STORE_SPBUY:
-			SmithBuyPItem();
+			func = SmithBuyPItem;
 			break;
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
+		func(idx);
 		//lastshold = STORE_WAIT;
 		S_StartWait();
 		return;
