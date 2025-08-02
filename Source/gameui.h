@@ -122,6 +122,8 @@ extern "C" {
 
 #define STORE_PNL_X        (SCREEN_CENTERX(0) + 24)
 #define STORE_PNL_X_OFFSET 7
+#define STORE_PNL_Y_OFFSET 8
+#define STORE_LINE_HEIGHT  12
 #define STORE_LINES        24
 
 #define BUFFERXY(x, y) ((x) + (y) * BUFFER_WIDTH)

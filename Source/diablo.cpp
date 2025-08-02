@@ -329,27 +329,14 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	const int MAX_DIST = 16;
 	static_assert(MAX_DIST <= DBORDERX && MAX_DIST <= DBORDERY, "ActionDirCmd might target out-of-dungeon");
 
-	if (adx < md / 4 && ady < md / 4) {
+	if ((unsigned)adx < md / 4u && (unsigned)ady < md / 4u) {
 		NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		return;
 	}
-	// limit the vector to the button-rectangle
-	if (adx > md) {
-		adx = md;
-		dx = dx < 0 ? -md : md;
-	}
-	if (ady > md) {
-		ady = md;
-		dy = dy < 0 ? -md : md;
-	}
-	// stretch the vector to MAX_DIST
-	if (adx >= ady) {
-		dy = (MAX_DIST * dy) / adx;
-		dx = dx < 0 ? -MAX_DIST : MAX_DIST;
-	} else {
-		dx = (MAX_DIST * dx) / ady;
-		dy = dy < 0 ? -MAX_DIST : MAX_DIST;
-	}
+	// limit the vector to the MAX_DIST
+	int adm = adx >= ady ? adx : ady;
+	dy = (MAX_DIST * dy) / adm;
+	dx = (MAX_DIST * dx) / adm;
 
 	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
 	POS32 tpos = { myplr._pfutx, myplr._pfuty };
