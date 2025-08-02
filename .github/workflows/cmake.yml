@@ -52,7 +52,7 @@ jobs:
       shell: bash
       working-directory: ${{ env.buildDir }}
       run: |
-        cmake .. -D CMAKE_BUILD_TYPE="Release" -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DUSE_MPQONE=ON \
+        cmake .. -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D DEVILUTIONX_SYSTEM_LIBSODIUM=OFF -D DEVILUTIONX_SYSTEM_SDL2=OFF -DUSE_PATCH=ON -DHELLFIRE=ON -DUSE_MPQONE=ON \
           -DHAS_JOYSTICK=OFF -DHAS_DPAD=OFF -DHAS_KBCTRL=OFF -DHAS_GAMECTRL=OFF -DHAS_TOUCHPAD=OFF -DZEROTIER=OFF
       #-D CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
       #-D SCREEN_READER_INTEGRATION=ON
@@ -60,7 +60,7 @@ jobs:
       working-directory: ${{ env.buildDir }}
       shell: bash
     # Execute the build (-j 2 : with two cores).
-      run: cmake --build . -j 2 --target package --config Release
+      run: cmake --build . -j 2 --target package --config ${{env.BUILD_TYPE}}
 
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
@@ -73,3 +73,4 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
+        compression-level: 0
