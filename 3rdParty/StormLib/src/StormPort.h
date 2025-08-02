@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
-#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(_WIN32) && !defined(NXDK)
+#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(_WIN32)// && !defined(NXDK)
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #if _MSC_VER >= 1400
@@ -398,6 +398,30 @@
   #define ftruncate64 ftruncate
   #define off64_t off_t
   #define O_LARGEFILE 0
+#endif
+
+#if defined(NXDK)
+  // Typedefs for ANSI C
+  typedef unsigned char  BYTE;
+  typedef unsigned short USHORT;
+  typedef int            LONG;
+  typedef unsigned int   DWORD;
+  typedef unsigned long  DWORD_PTR;
+  typedef long           LONG_PTR;
+  typedef long           INT_PTR;
+  typedef long long      LONGLONG;
+  typedef unsigned long long ULONGLONG;
+  typedef void         * HANDLE;
+  typedef void         * LPOVERLAPPED; // Unsupported on Linux and Mac
+  typedef char           TCHAR;
+  typedef unsigned int   LCID;
+  typedef LONG         * PLONG;
+  typedef DWORD        * LPDWORD;
+  typedef BYTE         * LPBYTE;
+  typedef const char   * LPCTSTR;
+  typedef const char   * LPCSTR;
+  typedef char         * LPTSTR;
+  typedef char         * LPSTR;
 #endif
 
 // Platform-specific error codes for non-Windows platforms
