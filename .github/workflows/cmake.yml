@@ -47,7 +47,7 @@ jobs:
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
+      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DDEVILUTIONX_SYSTEM_SDL2=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
