@@ -477,69 +477,42 @@ static void S_ScrollHold()
 		stextsmax = ((stextsmax + STORE_LINE_ITEMS + 1) / STORE_LINE_ITEMS) * STORE_LINE_ITEMS;
 }
 
-static void S_StartSBuy()
+static void S_StartBuy(ItemStruct* items, int n, const char* prefix)
 {
 	int i;
-	const char* msg;
-
 	storenumh = 0;
 	for (i = 0; i < STORAGE_LIMIT; i++)
 		storehold[i]._itype = ITYPE_NONE;
-
-	for (i = 0; smithitem[i]._itype != ITYPE_NONE; i++) {
-		AddStoreHoldItemBuy(&smithitem[i], i);
+	for (i = 0; i < n; i++) {
+		if (items[i]._itype != ITYPE_NONE)
+			AddStoreHoldItemBuy(&items[i], i);
 	}
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	gbHasScroll = storenumh != 0;
+	char text[64];
+	char *msg;
 	if (storenumh == 0) {
-		//StartStore(STORE_SMITH);
-		//stextshold = STORE_SMITH;
-		//stextsel = STORE_SMITH_BUY;
-		//return false;
-		msg = "I have no basic item for sale.";
+		msg = "I have no %sitem for sale.";
 	} else {
 		// stextsidx = 0;
 		S_ScrollHold();
 
-		msg = "I have these basic items for sale:";
+		msg = "I have these %sitems for sale:";
 	}
-	AddStoreFrame(msg);
-	//return true;
+	snprintf(text, lengthof(text), msg, prefix);
+	AddStoreFrame(text);
+}
+
+static void S_StartSBuy()
+{
+	S_StartBuy(&smithitem[0], SMITH_ITEMS, "basic ");
 }
 
 static void S_StartSPBuy()
 {
-	int i;
-	const char* msg;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	for (i = 0; i < SMITH_PREMIUM_ITEMS; i++)
-		if (premiumitems[i]._itype != ITYPE_NONE) {
-			AddStoreHoldItemBuy(&premiumitems[i], i);
-		}
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = storenumh != 0;
-	if (storenumh == 0) {
-		//StartStore(STORE_SMITH);
-		//stextshold = STORE_SMITH;
-		//stextsel = STORE_SMITH_SPBUY;
-		//return false;
-		msg = "I have no premium item for sale.";
-	} else {
-		// stextsidx = 0;
-		S_ScrollHold();
-
-		msg = "I have these premium items for sale:";
-	}
-	AddStoreFrame(msg);
-	//return true;
+	S_StartBuy(&premiumitems[0], SMITH_PREMIUM_ITEMS, "premium ");
 }
 
 static void AddStoreSell(const ItemStruct* is, int i)
@@ -668,23 +641,7 @@ static void S_StartWitch()
 
 static void S_StartWBuy()
 {
-	int i;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	for (i = 0; witchitem[i]._itype != ITYPE_NONE; i++) {
-		AddStoreHoldItemBuy(&witchitem[i], i);
-	}
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = true;
-	// stextsidx = 0;
-	S_ScrollHold();
-
-	AddStoreFrame("I have these items for sale:");
+	S_StartBuy(&witchitem[0], WITCH_ITEMS, "");
 }
 
 static bool WitchSellOk(const ItemStruct* is)
@@ -919,23 +876,7 @@ static void S_StartHealer()
 
 static void S_StartHBuy()
 {
-	int i;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	for (i = 0; healitem[i]._itype != ITYPE_NONE; i++) {
-		AddStoreHoldItemBuy(&healitem[i], i);
-	}
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = true;
-	// stextsidx = 0;
-	S_ScrollHold();
-
-	AddStoreFrame("I have these items for sale:");
+	S_StartBuy(&healitem[0], HEALER_ITEMS, "");
 }
 
 static void S_StartStory()
