@@ -48,11 +48,12 @@
   #include <assert.h>
   #include <ctype.h>
   #include <stdio.h>
-#if !defined(NXDK)
+
   // Suppress definitions of `min` and `max` macros by <windows.h>:
   #define NOMINMAX 1
   #include <windows.h>
-  #include <wininet.h>
+#if !defined(NXDK)
+  // #include <wininet.h>
 #endif
   #define STORMLIB_LITTLE_ENDIAN
 
