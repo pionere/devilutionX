@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
-#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(_WIN32) && !defined(NXDK)
+#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(_WIN32)
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #if _MSC_VER >= 1400
@@ -48,12 +48,12 @@
   #include <assert.h>
   #include <ctype.h>
   #include <stdio.h>
-
+#if !defined(NXDK)
   // Suppress definitions of `min` and `max` macros by <windows.h>:
   #define NOMINMAX 1
   #include <windows.h>
-
   #include <wininet.h>
+#endif
   #define STORMLIB_LITTLE_ENDIAN
 
   #ifdef _WIN64
