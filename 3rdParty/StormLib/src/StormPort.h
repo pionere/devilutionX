@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
-#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(_WIN32)
+#if !defined(STORMLIB_PLATFORM_DEFINED) && defined(_WIN32) && !defined(NXDK)
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #if _MSC_VER >= 1400
