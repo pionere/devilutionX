@@ -291,9 +291,9 @@
 #if !defined(NXDK)
   #include <sys/types.h>
   #include <sys/stat.h>
-#endif
   #include <fcntl.h>
   #include <unistd.h>
+#endif
   #include <stdint.h>
   #include <stdlib.h>
   #include <stdio.h>
