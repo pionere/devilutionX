@@ -1323,9 +1323,9 @@ void DrawStore()
 		sts = &stextlines[i];
 		// if (sts->_sline)
 		//	DrawColorTextBoxSLine(x, y, i * STORE_LINE_HEIGHT + 14, gbWidePanel);
-		if (sts->_sstr[0] != '\0')
+		if (sts->_sstr[0] != '\0') {
 			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
-		else if (sts->_sitemlist) {
+		} else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siItems); n++) {
 				const ItemStruct* is = sts->_siItems[n];
 				if (is != NULL) {
@@ -1677,17 +1677,17 @@ static void StoreStartBuy(int mode)
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 
 		const ItemStruct* is = &storehold[idx];
-	int price = is->_iIvalue;
-	if (myplr._pGold < price) {
-		StartStore(STORE_NOMONEY);
-	} else {
-		copy_pod(storeitem, *is);
-		//storeitem._iIvalue = price; // only for boyitem
-		if (StoreAutoPlace(mypnum, &storeitem, false))
-			StartStore(STORE_CONFIRM);
-		else
-			StartStore(STORE_NOROOM);
-	}
+		int price = is->_iIvalue;
+		if (myplr._pGold < price) {
+			StartStore(STORE_NOMONEY);
+		} else {
+			copy_pod(storeitem, *is);
+			//storeitem._iIvalue = price; // only for boyitem
+			if (StoreAutoPlace(mypnum, &storeitem, false))
+				StartStore(STORE_CONFIRM);
+			else
+				StartStore(STORE_NOROOM);
+		}
 	}
 }
 
@@ -1923,19 +1923,19 @@ static void S_SSell()
 	if (stextsel == STORE_BACK) {
 		STextESC();
 	} else {
-	stextlhold = stextsel;
-	stextxhold = stextselx;
-	stextvhold = stextsidx;
-	stextshold = stextflag;
+		stextlhold = stextsel;
+		stextxhold = stextselx;
+		stextvhold = stextsidx;
+		stextshold = stextflag;
 
-	idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-	copy_pod(storeitem, storehold[idx]);
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
+		copy_pod(storeitem, storehold[idx]);
 
-	idx = storehidx[idx] >= 0 ? storeitem._iCurs + CURSOR_FIRSTITEM : CURSOR_NONE;
-	if (StoreGoldFit(storeitem._iIvalue, idx))
-		StartStore(STORE_CONFIRM);
-	else
-		StartStore(STORE_NOROOM);
+		idx = storehidx[idx] >= 0 ? storeitem._iCurs + CURSOR_FIRSTITEM : CURSOR_NONE;
+		if (StoreGoldFit(storeitem._iIvalue, idx))
+			StartStore(STORE_CONFIRM);
+		else
+			StartStore(STORE_NOROOM);
 	}
 }
 
