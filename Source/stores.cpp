@@ -230,7 +230,7 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	int width, limit;
 
 	sx = px + STORE_PNL_X_OFFSET + x;
-	sy = py + 20 + y * 12 + stextlines[y]._syoff;
+	sy = py + 8 + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= x;
 	if (cjustflag) {
@@ -263,9 +263,9 @@ static void DrawSSlider(int px, int py)
 	//x = px + (gbWidePanel ? LTPANEL_WIDTH : STPANEL_WIDTH) - (SMALL_SCROLL_WIDTH + 2);
 	DEBUG_ASSERT(gbWidePanel);
 	x = px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
-	yd1 = y1 * SMALL_SCROLL_HEIGHT + py + 20; // top position of the scrollbar
-	yd2 = y2 * SMALL_SCROLL_HEIGHT + py + 20; // bottom position of the scrollbar
-	yd3 = ((y2 - y1 - 2) * SMALL_SCROLL_HEIGHT);     // height of the scrollbar
+	yd1 = y1 * STORE_LINE_HEIGHT + py + 8 + SMALL_SCROLL_HEIGHT; // top position of the scrollbar
+	yd2 = y2 * STORE_LINE_HEIGHT + py + 8 + SMALL_SCROLL_HEIGHT; // bottom position of the scrollbar
+	yd3 = (y2 - y1) * STORE_LINE_HEIGHT - 2 * SMALL_SCROLL_HEIGHT;                // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
 	// draw the down arrow
@@ -1284,7 +1284,7 @@ static int current_store_line(int px, int py)
 	mx = MousePos.x;
 	my = MousePos.y;
 
-	y = (my - (py - SCREEN_Y + 8)) / 12;
+	y = (my - (py - SCREEN_Y + 8)) / STORE_LINE_HEIGHT;
 	if (gbWidePanel) {
 		if (mx < px - SCREEN_X || mx > px + LTPANEL_WIDTH - SCREEN_X)
 			y = 0;
@@ -1373,8 +1373,8 @@ void DrawStore()
 		x = LTPANEL_X;
 
 		DrawColorTextBox(x, y, LTPANEL_WIDTH, TPANEL_HEIGHT, COL_GOLD);
-		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 3 * 12 + 14);
-		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 21 * 12 + 14);
+		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 3 * STORE_LINE_HEIGHT + 14);
+		DrawColorTextBoxSLine(x, y, LTPANEL_WIDTH, 21 * STORE_LINE_HEIGHT + 14);
 	} else {
 		x = STORE_PNL_X;
 
@@ -1392,7 +1392,7 @@ void DrawStore()
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
-		//	DrawColorTextBoxSLine(x, y, i * 12 + 14, gbWidePanel);
+		//	DrawColorTextBoxSLine(x, y, i * STORE_LINE_HEIGHT + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0')
 			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		else if (sts->_sitemlist) {
@@ -1403,19 +1403,19 @@ void DrawStore()
 					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
 					int px = x, py = y + 1;
 					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
-					int sy = py + 19 + /* + 1*/ + i * 12 + sts->_syoff;
+					int sy = py + STORE_LINE_HEIGHT + 7 + /* + 1*/ + i * STORE_LINE_HEIGHT + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
 					int frame_height = InvItemHeight[frame];
 
 					sx += n * 2 * INV_SLOT_SIZE_PX;
-					sy += (STORE_ITEM_LINES - (1 + 1)) * 12;
+					sy += (STORE_ITEM_LINES - (1 + 1)) * STORE_LINE_HEIGHT;
 
 					sx += (2 * INV_SLOT_SIZE_PX - frame_width) >> 1;
 					sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
 
 					if (stextsel == i && stextselx == n) {
 						// assert(gbWidePanel);
-						// DrawColorTextBoxSLine(px, py, 20 + i * 12, false);
+						// DrawColorTextBoxSLine(px, py, 20 + i * STORE_LINE_HEIGHT, false);
 						/*
 						// top-left corner
 						DrawStoreLineX(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
@@ -1449,8 +1449,8 @@ void DrawStore()
 		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
 		const int cursor = (int)CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
 		const int cw = InvItemWidth[cursor];
-		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + 20 + 1 * 12 - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
-		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 20 + (InvItemHeight[cursor] + 12) / 2, pCursCels, cursor, cw, 0);
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + 8 + STORE_LINE_HEIGHT + 1 * STORE_LINE_HEIGHT - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
+		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 8 + STORE_LINE_HEIGHT + (InvItemHeight[cursor] + STORE_LINE_HEIGHT) / 2, pCursCels, cursor, cw, 0);
 	}
 	if (gbHasScroll)
 		DrawSSlider(x, y);
@@ -2671,6 +2671,7 @@ void TryStoreBtnClick()
 		//if (MousePos.x >= STORE_PNL_X + STPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
 		if (MousePos.x >= px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2) - SCREEN_X && gbHasScroll) {
 			assert(gbWidePanel);
+			static_assert(SMALL_SCROLL_HEIGHT == STORE_LINE_HEIGHT, "TryStoreBtnClick needs more complex check");
 			if (stextsmax != 0 && y >= STORE_SCROLL_UP && y <= STORE_SCROLL_DOWN) {
 				if (y == STORE_SCROLL_DOWN) {
 					// down arrow
