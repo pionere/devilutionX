@@ -211,6 +211,20 @@ typedef struct ItemData {
 static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
+typedef struct ItemAffixStruct {
+	BYTE asPower;
+	union {
+		struct {
+			int asValue0;
+			int asValue1;
+		};
+		struct {
+			int asFrom;
+			int asTo;
+		};
+	};
+} ItemAffixStruct;
+
 typedef struct ItemStruct {
 	int32_t _iSeed;
 	uint16_t _iIdx;        // item_indexes
@@ -234,8 +248,8 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
-	BYTE _iPrePower; // item_effect_type
-	BYTE _iSufPower; // item_effect_type
+	BYTE _iPrePower; // item_effect_type -- unused
+	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
@@ -247,53 +261,29 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
-	BOOL _iIdentified;
-	char _iName[32];
+	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
+	BOOLEAN _iStatFlag;
+	BOOLEAN _iIdentified;
+	BYTE _iNumAffixes;
+	BYTE _iUid; // unique_item_indexes
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iPLFlags; // item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
 	int _iMaxDur;
 	int _iPLDam;
 	int _iPLToHit;
-	int _iPLAC;
 	int _iPLStr;
 	int _iPLMag;
 	int _iPLDex;
 	int _iPLVit;
-	int _iPLFR;
-	int _iPLLR;
-	int _iPLMR;
-	int _iPLAR;
-	int _iPLMana;
-	int _iPLHP;
-	int _iPLDamMod;
-	BYTE _iPLToBlk;
-	int8_t _iPLAtkSpdMod;
-	int8_t _iPLAbsAnyHit;
-	int8_t _iPLAbsPhyHit;
-	int8_t _iPLLight;
-	int8_t _iPLSkillLevels;
-	BYTE _iPLSkill;
-	int8_t _iPLSkillLvl;
-	BYTE _iPLManaSteal;
-	BYTE _iPLLifeSteal;
-	BYTE _iPLCrit;
-	BOOLEAN _iStatFlag;
-	int _iUid; // unique_item_indexes
-	BYTE _iPLFMinDam;
-	BYTE _iPLFMaxDam;
-	BYTE _iPLLMinDam;
-	BYTE _iPLLMaxDam;
-	BYTE _iPLMMinDam;
-	BYTE _iPLMMaxDam;
-	BYTE _iPLAMinDam;
-	BYTE _iPLAMaxDam;
-	ALIGNMENT(9, 8)
+	union {
+		ItemAffixStruct _iAffixes[6];
+		char _iPlrName[PLR_NAME_LEN];
+	};
+	ALIGNMENT(15, 13)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -323,6 +313,14 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Ali
 #elif defined(X86_64bit_COMP)
 static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #endif
+
+typedef struct PlrSkillStruct {
+	BYTE _psAttack;   // attack skill (spell_id)
+	BYTE _psAtkType;  // the (RSPLTYPE_)type of the attack skill
+	BYTE _psMove;     // the movement skill (spell_id)
+	BYTE _psMoveType; // the (RSPLTYPE_)type of the movement skill
+} PlrSkillStruct;
+static_assert(sizeof(PlrSkillStruct) == 4 * sizeof(BYTE), "PlrSkillStruct is not packed tightly");
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
@@ -363,30 +361,12 @@ typedef struct PlayerStruct {
 	int _pAnimXOffset;
 	unsigned _plid; // light id of the player
 	unsigned _pvid; // vision id of the player
-	BYTE _pAtkSkill;         // the selected attack skill for the primary action
-	BYTE _pAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
-	BYTE _pMoveSkill;        // the selected movement skill for the primary action
-	BYTE _pMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
-	BYTE _pAltAtkSkill;      // the selected attack skill for the secondary action
-	BYTE _pAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
-	BYTE _pAltMoveSkill;     // the selected movement skill for the secondary action
-	BYTE _pAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE _pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE _pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE _pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE _pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE _pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct _pMainSkill; // the selected attack/movement skill for the primary action
+	PlrSkillStruct _pAltSkill;  // the selected attack/movement skill for the secondary action
+	PlrSkillStruct _pSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct _pAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct _pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct _pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE _pSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
@@ -471,7 +451,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(184, 98)
+	ALIGNMENT(188, 102)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1124,22 +1104,10 @@ typedef struct PkPlayerStruct {
 	LE_INT32 pMaxHPBase;
 	LE_INT32 pManaBase;
 	LE_INT32 pMaxManaBase;
-	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE pAltMoveSkillTypeHotKey[4]; // the movement skill selected by the alt-hotkey
-	BYTE pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltMoveSkillTypeSwapKey[4]; // the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct pSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct pAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE pSkillLvlBase[64];
 	BYTE pSkillActivity[64];
 	LE_UINT32 pSkillExp[64];
@@ -1210,27 +1178,9 @@ typedef struct LSaveGameLvlMetaStruct {
 } LSaveGameLvlMetaStruct;
 
 typedef struct LSaveItemStruct {
-	LE_INT32 viSeed;
-	LE_UINT16 viIdx;
-	LE_UINT16 viCreateInfo;
+	PkItemStruct viPkItem;
 	LE_INT32 vix;
 	LE_INT32 viy;
-	LE_INT32 viCurs;   // item_cursor_graphic
-	LE_INT32 vitype;   // item_type
-	LE_INT32 viMiscId; // item_misc_id
-	LE_INT32 viSpell;  // spell_id
-	BYTE viClass;      // item_class enum
-	BYTE viLoc;        // item_equip_type
-	BYTE viDamType;    // item_damage_type
-	BYTE viMinDam;
-	BYTE viMaxDam;
-	BYTE viBaseCrit;
-	BYTE viMinStr;
-	BYTE viMinMag;
-	BYTE viMinDex;
-	BOOLEAN viUsable;
-	BYTE viPrePower; // item_effect_type
-	BYTE viSufPower; // item_effect_type
 	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BOOLEAN viFloorFlag;
@@ -1240,52 +1190,7 @@ typedef struct LSaveItemStruct {
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
-	LE_INT32 viPostDraw;
-	LE_INT32 viIdentified;
-	char viName[32];
-	LE_INT32 vivalue;
-	LE_INT32 viIvalue;
-	LE_INT32 viAC;
-	LE_INT32 viPLFlags; // item_special_effect
-	LE_INT32 viCharges;
-	LE_INT32 viMaxCharges;
-	LE_INT32 viDurability;
-	LE_INT32 viMaxDur;
-	LE_INT32 viPLDam;
-	LE_INT32 viPLToHit;
-	LE_INT32 viPLAC;
-	LE_INT32 viPLStr;
-	LE_INT32 viPLMag;
-	LE_INT32 viPLDex;
-	LE_INT32 viPLVit;
-	LE_INT32 viPLFR;
-	LE_INT32 viPLLR;
-	LE_INT32 viPLMR;
-	LE_INT32 viPLAR;
-	LE_INT32 viPLMana;
-	LE_INT32 viPLHP;
-	LE_INT32 viPLDamMod;
-	BYTE viPLToBlk;
-	int8_t viPLAtkSpdMod;
-	int8_t viPLAbsAnyHit;
-	int8_t viPLAbsPhyHit;
-	int8_t viPLLight;
-	int8_t viPLSkillLevels;
-	BYTE viPLSkill;
-	int8_t viPLSkillLvl;
-	BYTE viPLManaSteal;
-	BYTE viPLLifeSteal;
-	BYTE viPLCrit;
-	BOOLEAN viStatFlag;
-	LE_INT32 viUid;
-	BYTE viPLFMinDam;
-	BYTE viPLFMaxDam;
-	BYTE viPLLMinDam;
-	BYTE viPLLMaxDam;
-	BYTE viPLMMinDam;
-	BYTE viPLMMaxDam;
-	BYTE viPLAMinDam;
-	BYTE viPLAMaxDam;
+	// LE_INT32 viPostDraw;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
@@ -1327,30 +1232,12 @@ typedef struct LSavePlayerStruct {
 	INT vpAnimXOffsetAlign;
 	LE_UINT32 vplid; // light id of the player
 	LE_UINT32 vpvid; // vision id of the player
-	BYTE vpAtkSkill;         // the selected attack skill for the primary action
-	BYTE vpAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
-	BYTE vpMoveSkill;        // the selected movement skill for the primary action
-	BYTE vpMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
-	BYTE vpAltAtkSkill;      // the selected attack skill for the secondary action
-	BYTE vpAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
-	BYTE vpAltMoveSkill;     // the selected movement skill for the secondary action
-	BYTE vpAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE vpAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE vpAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE vpMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE vpMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE vpAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE vpAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE vpAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE vpAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE vpAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE vpAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE vpMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE vpMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE vpAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct vpMainSkill; // the selected attack/movement skill for the primary action
+	PlrSkillStruct vpAltSkill;  // the selected attack/movement skill for the secondary action
+	PlrSkillStruct vpSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct vpAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct vpSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct vpAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE vpSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE vpSkillActivity[64];
 	LE_UINT32 vpSkillExp[64];
@@ -2541,7 +2428,7 @@ typedef struct _uiheroinfo {
 	BYTE hiLevel;
 	BYTE hiClass;
 	BOOLEAN hiSaveFile;
-	char hiName[16];
+	char hiName[PLR_NAME_LEN];
 	int16_t hiStrength;
 	int16_t hiMagic;
 	int16_t hiDexterity;
@@ -2662,8 +2549,7 @@ typedef struct STextStruct {
 		char _sstr[112]; // the text
 		struct {
 			char _schr;     // placeholder to differentiate from a normal text
-			int _siCurs[8]; // the list of item cursors (cursor_id) to be drawn
-			BYTE _siClr[8]; // the list of light-translations to draw the items with
+			const ItemStruct* _siItems[8];
 		};
 	};
 	bool _sitemlist; // whether items should be drawn 

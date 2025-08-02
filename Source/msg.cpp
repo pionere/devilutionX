@@ -814,16 +814,17 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 static void PackEar(PkItemStruct* dest, const ItemStruct* src)
 {
 	dest->wIndx = static_cast<uint16_t>(IDI_EAR);
-	dest->wCI = *(uint16_t*)&src->_iName[7];
-	dest->dwSeed = *(int32_t*)&src->_iName[9];
-	dest->bId = src->_iName[13];
-	dest->bDur = src->_iName[14];
-	dest->bMDur = src->_iName[15];
-	dest->bCh = src->_iName[16];
-	dest->bMCh = src->_iName[17];
+	dest->wCI = *(uint16_t*)&src->_iPlrName[0];
+	dest->dwSeed = *(int32_t*)&src->_iPlrName[2];
+	dest->bId = src->_iPlrName[6];
+	dest->bDur = src->_iPlrName[7];
+	dest->bMDur = src->_iPlrName[8];
+	dest->bCh = src->_iPlrName[9];
+	dest->bMCh = src->_iPlrName[10];
 	static_assert(MAXCHARLEVEL < (1 << 6), "PackPkItem stores the player level of ears in 6 bits.");
-	dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iName[18] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
-	dest->dwBuff = *(uint32_t*)&src->_iName[19];
+	dest->wValue = static_cast<uint16_t>(src->_ivalue | (src->_iPlrName[11] << 8) | ((src->_iCurs - ICURS_EAR_SORCERER) << 6));
+	dest->dwBuff = *(uint32_t*)&src->_iPlrName[12];
+	static_assert(sizeof(src->_iPlrName) == 12 + sizeof(dest->dwBuff), "packed ear-item is not stored correctly");
 }
 
 void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
@@ -887,8 +888,7 @@ void DeltaSaveLevel()
 
 static void UnPackEar(const PkItemStruct* src)
 {
-	static_assert(sizeof(items[MAXITEMS]._iName) >= sizeof("Ear of ") + 16, "UnPackEar might write too much data to _iName.");
-	char* cursor = &items[MAXITEMS]._iName[sizeof("Ear of ") - 1];
+	char* cursor = &items[MAXITEMS]._iPlrName[0];
 
 	*(uint16_t*)&cursor[0] = src->wCI;
 	*(int32_t*)&cursor[2] = src->dwSeed;
@@ -902,8 +902,8 @@ static void UnPackEar(const PkItemStruct* src)
 	cursor[16] = '\0';
 	items[MAXITEMS]._iCurs = ((src->wValue >> 6) & 3) + ICURS_EAR_SORCERER;
 	items[MAXITEMS]._ivalue = src->wValue & 0x3F;
-	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD*)&items[MAXITEMS]._iName[7]);
-	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD*)&items[MAXITEMS]._iName[9]);
+	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD*)&items[MAXITEMS]._iPlrName[0]);
+	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD*)&items[MAXITEMS]._iPlrName[2]);
 }
 
 void UnPackPkItem(const PkItemStruct* src)
@@ -2883,7 +2883,7 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 	} else if (dmgtype == DMGTYPE_PLAYER) {
 		ItemStruct ear;
 		CreateBaseItem(&ear, IDI_EAR);
-		snprintf(ear._iName, sizeof(ear._iName), "Ear of %s", plr._pName);
+		copy_cstr(ear._iPlrName, plr._pName);
 		const int earSets[NUM_CLASSES] = {
 				ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
 #ifdef HELLFIRE
@@ -2891,8 +2891,8 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 #endif
 		};
 		ear._iCurs = earSets[plr._pClass];
-		//ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iName[7]);
-		//ear._iSeed = SwapLE32(*(DWORD *)&ear._iName[9]);
+		//ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iPlrName[0]);
+		//ear._iSeed = SwapLE32(*(DWORD *)&ear._iPlrName[2]);
 		ear._ivalue = plr._pLevel;
 
 		PlrDeadItem(pnum, &ear, DIR_S);

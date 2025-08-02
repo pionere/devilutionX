@@ -959,8 +959,9 @@ static bool MissMonHitByPlr(int mnum, int mi)
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
-	if (dam == 0)
-		return false;
+	if (dam <= 0) {
+		dam = 1;
+	}
 
 	if (!CheckMonsterHit(mnum, &ret))
 		return ret;
@@ -1092,15 +1093,14 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	}
 
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
-	if (dam == 0)
-		return false;
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam -= plr._pIAbsAnyHit;
 		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
 		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
 			dam -= plr._pIAbsPhyHit;
-		if (dam < 64)
-			dam = 64;
+	}
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_NPC)) {
@@ -1194,7 +1194,11 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 			break;
 		}
 
-		if (plx(offp)._pILifeSteal != 0) {
+		// assert(!(mis->_miFlags & MIF_DOT));
+		dam -= plr._pIAbsAnyHit;
+		// assert(mis->_miResist == MISR_SLASH || mis->_miResist == MISR_BLUNT || mis->_miResist == MISR_PUNCTURE);
+		dam -= plr._pIAbsPhyHit;
+		if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 			PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 		}
 
@@ -1218,18 +1222,16 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 	} else {
 		dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
 		dam >>= 1;
+		if (!(mis->_miFlags & MIF_DOT)) {
+			dam -= plr._pIAbsAnyHit;
+			// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
+			if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
+				dam -= plr._pIAbsPhyHit;
+		}
 	}
 
-	if (dam == 0)
-		return false;
-
-	if (!(mis->_miFlags & MIF_DOT)) {
-		dam -= plr._pIAbsAnyHit;
-		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
-		if (/*mis->_miResist == MISR_SLASH || */mis->_miResist == MISR_BLUNT/* || mis->_miResist == MISR_PUNCTURE*/)
-			dam -= plr._pIAbsPhyHit;
-		if (dam < 64)
-			dam = 64;
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
@@ -2599,7 +2601,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
-		ScrollInfo._sdir = 1 + OPPOSITE(midir); // == dir2sdir[midir]
+		ScrollInfo._sdir = 1 + midir; // == dir2sdir[midir]
 	}
 	//mis->_miLid = mon->_mlid;
 	//PutMissile(mi);
@@ -2830,7 +2832,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (tnum != 0) {
 		// - player
 		tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-		if (tnum != misource && plx(tnum)._pHitPoints != 0)
+		if (tnum != misource)
 			PlrIncHp(tnum, hp);
 	} else {
 		// - minion

@@ -423,6 +423,11 @@ typedef enum item_effect_type {
 	IPL_FASTCAST,
 	IPL_FASTWALK,
 	IPL_INVALID          = 0xFF,
+
+	IMP_LVLMOD  = 0,
+	IMP_LVLGAIN = 1,
+	IMP_SETLVL  = 2,
+	IMP_AREAMOD = 3,
 } item_effect_type;
 
 typedef enum item_affix_range {
@@ -3766,14 +3771,14 @@ typedef enum direction {
 
 typedef enum _scroll_direction {
 	SDIR_NONE,
-	SDIR_N,
-	SDIR_NE,
-	SDIR_E,
-	SDIR_SE,
 	SDIR_S,
 	SDIR_SW,
 	SDIR_W,
 	SDIR_NW,
+	SDIR_N,
+	SDIR_NE,
+	SDIR_E,
+	SDIR_SE,
 } _scroll_direction;
 
 typedef enum _path_direction {
@@ -4718,7 +4723,7 @@ typedef enum input_key {
 	ACT_SKL6,
 	ACT_SKL7,
 	ACT_SWAP,    // skill-set swap
-	ACT_TGT,     // change target mode
+	ACT_TGT,     // change targeting mode
 	ACT_INV,     // toggle inventory
 	ACT_CHAR,    // toggle character sheet
 	ACT_SKLBOOK, // toggle skill book
@@ -4739,11 +4744,13 @@ typedef enum input_key {
 	ACT_DOWN,
 	ACT_LEFT,
 	ACT_RIGHT,
-	ACT_PGUP,
-	ACT_PGDOWN,
 	ACT_RETURN,
 	ACT_TEAM,   // toggle team book
 	ACT_QUESTS, // toggle quest book
+	ACT_SPREV,  // prev skill selection
+	ACT_SNEXT,  // next skill selection
+	ACT_SAPREV, // prev alt-skill selection
+	ACT_SANEXT, // next alt-skill selection
 	ACT_MSG0, // send quick message
 	ACT_MSG1,
 	ACT_MSG2,

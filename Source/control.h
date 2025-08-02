@@ -67,8 +67,7 @@ extern bool gbSkillListFlag;
 
 void DrawSkillList();
 void SetSkill(bool altSkill);
-void SetSkillHotKey(int slot, bool altSkill);
-void SelectHotKeySkill(int slot, bool altSkill);
+void SkillHotKey(int slot, bool altSkill);
 void DrawLifeFlask();
 void DrawManaFlask();
 void DrawSkillIcons();
