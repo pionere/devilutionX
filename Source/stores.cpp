@@ -536,7 +536,7 @@ static bool SmithSellOk(const ItemStruct* is)
 		ITYPE_DURABLE(is->_itype) && (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
 }
 
-static void S_StartSSell()
+static void S_StartSellOrUpdate(bool sell, void (*func)(const ItemStruct*, int), const char* title_0, const char* title_n)
 {
 	PlayerStruct* p;
 	ItemStruct* pi;
@@ -548,23 +548,39 @@ static void S_StartSSell()
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
+	if (!sell) {
+		pi = p->_pInvBody;
+		for (i = 0; i < NUM_INVLOC; i++, pi++)
+			func(pi, -(i + 1));
+	}
 	pi = p->_pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
-		if (SmithSellOk(pi))
-			AddStoreSell(pi, i);
+		func(pi, i);
 
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	gbHasScroll = storenumh != 0;
 	if (storenumh == 0) {
-		msg = "You have nothing I want.";
+		msg = title_0;
 	} else {
 		// stextsidx = 0;
 		S_ScrollHold();
 
-		msg = "Which item is for sale?";
+		msg = title_n;
 	}
 	AddStoreFrame(msg);
+}
+
+static void SmithSellItem(const ItemStruct* is, int i)
+{
+	if (SmithSellOk(is)) {
+		AddStoreSell(is, i);
+	}
+}
+
+static void S_StartSSell()
+{
+	S_StartSellOrUpdate(true, SmithSellItem, "You have nothing I want.", "Which item is for sale?");
 }
 
 static bool SmithRepairOk(const ItemStruct* is)
@@ -584,39 +600,16 @@ static void AddStoreHoldRepair(const ItemStruct* is, int i)
 	AddStoreHoldItem(is, i, value);
 }
 
+static void SmithRepairItem(const ItemStruct* is, int i)
+{
+	if (SmithRepairOk(is)) {
+		AddStoreHoldRepair(is, i);
+	}
+}
+
 static void S_StartSRepair()
 {
-	PlayerStruct* p;
-	ItemStruct* pi;
-	int i;
-	const char* msg;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	p = &myplr;
-	pi = p->_pInvBody;
-	for (i = 0; i < NUM_INVLOC; i++, pi++)
-		if (SmithRepairOk(pi))
-			AddStoreHoldRepair(pi, -(i + 1));
-	pi = p->_pInvList;
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
-		if (SmithRepairOk(pi))
-			AddStoreHoldRepair(pi, i);
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = storenumh != 0;
-	if (storenumh == 0) {
-		msg = "You have nothing to repair.";
-	} else {
-		// stextsidx = 0;
-		S_ScrollHold();
-
-		msg = "Repair which item?";
-	}
-	AddStoreFrame(msg);
+	S_StartSellOrUpdate(false, SmithRepairItem, "You have nothing to repair.", "Repair which item?");
 }
 
 static void S_StartWitch()
@@ -653,34 +646,16 @@ static bool WitchSellOk(const ItemStruct* is)
 	return (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL);
 }
 
+static void WitchSellItem(const ItemStruct* is, int i)
+{
+	if (WitchSellOk(is)) {
+		AddStoreSell(is, i);
+	}
+}
+
 static void S_StartWSell()
 {
-	PlayerStruct* p;
-	ItemStruct* pi;
-	int i;
-	const char* msg;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	p = &myplr;
-	pi = p->_pInvList;
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
-		if (WitchSellOk(pi))
-			AddStoreSell(pi, i);
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = storenumh != 0;
-	if (storenumh == 0) {
-		msg = "You have nothing I want.";
-	} else {
-		// stextsidx = 0;
-		S_ScrollHold();
-		msg = "Which item is for sale?";
-	}
-	AddStoreFrame(msg);
+	S_StartSellOrUpdate(true, WitchSellItem, "You have nothing I want.", "Which item is for sale?");
 }
 
 static bool WitchRechargeOk(const ItemStruct* is)
@@ -698,39 +673,16 @@ static void AddStoreHoldRecharge(const ItemStruct* is, int i)
 	AddStoreHoldItem(is, i, value);
 }
 
+static void WitchRechargeItem(const ItemStruct* is, int i)
+{
+	if (WitchRechargeOk(is)) {
+		AddStoreHoldRecharge(is, i);
+	}
+}
+
 static void S_StartWRecharge()
 {
-	PlayerStruct* p;
-	ItemStruct* pi;
-	int i;
-	const char* msg;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	p = &myplr;
-	pi = p->_pInvBody;
-	for (i = 0; i < NUM_INVLOC; i++, pi++)
-		if (WitchRechargeOk(pi))
-			AddStoreHoldRecharge(pi, -(i + 1));
-	pi = p->_pInvList;
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
-		if (WitchRechargeOk(pi))
-			AddStoreHoldRecharge(pi, i);
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = storenumh != 0;
-	if (storenumh == 0) {
-		msg = "You have nothing to recharge.";
-	} else {
-		// stextsidx = 0;
-		S_ScrollHold();
-
-		msg = "Recharge which item?";
-	}
-	AddStoreFrame(msg);
+	S_StartSellOrUpdate(false, WitchRechargeItem, "You have nothing to recharge.", "Recharge which item?");
 }
 
 static void S_StartNoMoney()
@@ -892,39 +844,16 @@ static void AddStoreHoldId(const ItemStruct* is, int i)
 	AddStoreHoldItem(is, i, STORE_ID_PRICE);
 }
 
+static void StoryIdItem(const ItemStruct* is, int i)
+{
+	if (IdItemOk(is)) {
+		AddStoreHoldId(is, i);
+	}
+}
+
 static void S_StartSIdentify()
 {
-	PlayerStruct* p;
-	ItemStruct* pi;
-	int i;
-	const char* msg;
-
-	storenumh = 0;
-	for (i = 0; i < STORAGE_LIMIT; i++)
-		storehold[i]._itype = ITYPE_NONE;
-
-	p = &myplr;
-	pi = p->_pInvBody;
-	for (i = 0; i < NUM_INVLOC; i++, pi++)
-		if (IdItemOk(pi))
-			AddStoreHoldId(pi, -(i + 1));
-	pi = p->_pInvList;
-	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
-		if (IdItemOk(pi))
-			AddStoreHoldId(pi, i);
-
-	gbWidePanel = true;
-	// gbRenderGold = true;
-	gbHasScroll = storenumh != 0;
-	if (storenumh == 0) {
-		msg = "You have nothing to identify.";
-	} else {
-		// stextsidx = 0;
-		S_ScrollHold();
-
-		msg = "Identify which item?";
-	}
-	AddStoreFrame(msg);
+	S_StartSellOrUpdate(false, StoryIdItem, "You have nothing to identify.", "Identify which item?");
 }
 
 static void S_StartIdShow()
