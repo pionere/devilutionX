@@ -26,15 +26,15 @@ jobs:
     - name: Create Build Environment
       run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git gettext smpq
 
-    #- name: Clone NXDK Repo
-    #  shell: bash
-    #  #run: git clone --recursive --depth 1 --branch devilutionx https://github.com/glebm/nxdk.git "$NXDK_DIR"
-    #  run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
     - name: Clone NXDK Repo
-      uses: actions/checkout@v4
-      with:
-        repository: XboxDev/nxdk
-        path: "$NXDK_DIR"
+      shell: bash
+    #  #run: git clone --recursive --depth 1 --branch devilutionx https://github.com/glebm/nxdk.git "$NXDK_DIR"
+      run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
+    #- name: Clone NXDK Repo
+    #  uses: actions/checkout@v4
+    #  with:
+    #    repository: XboxDev/nxdk
+    #    path: "$NXDK_DIR"
 
     - name: Build NXDK
       shell: bash
