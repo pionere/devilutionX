@@ -29,7 +29,7 @@ jobs:
     - name: Clone NXDK Repo
       shell: bash
       #run: git clone --recursive --depth 1 --branch devilutionx https://github.com/glebm/nxdk.git "$NXDK_DIR"
-      run: git clone --recursive --depth 0 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
+      run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
 
     - name: Build NXDK
       shell: bash
@@ -37,8 +37,8 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
