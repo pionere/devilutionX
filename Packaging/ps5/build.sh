@@ -18,7 +18,7 @@ ${CMAKE} -S "${SCRIPTDIR}/../../" -B"$BUILD_DIR" \
 	 ${CMAKE_ARGS} \
 	 "$@"
 #${MAKE} -C "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN)
-${CMAKE} --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN) --target package
+${CMAKE} --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN) --target package --config Release
 
 #rm -rf "$BUILD_DIR"/DevilutionX
 #mkdir "$BUILD_DIR"/DevilutionX
