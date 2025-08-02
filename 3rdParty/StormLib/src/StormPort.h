@@ -52,8 +52,8 @@
   // Suppress definitions of `min` and `max` macros by <windows.h>:
   #define NOMINMAX 1
   #include <windows.h>
-#if !defined(NXDK)
-  // #include <wininet.h>
+#if defined(NXDK)
+  #include <stdlib.h>
 #endif
   #define STORMLIB_LITTLE_ENDIAN
 
@@ -404,15 +404,15 @@
   // Typedefs for ANSI C
   typedef unsigned char  BYTE;
   typedef unsigned short USHORT;
-  typedef int            LONG;
-  typedef unsigned int   DWORD;
+  //typedef int            LONG;
+  //typedef unsigned int   DWORD;
   typedef unsigned long  DWORD_PTR;
   typedef long           LONG_PTR;
   typedef long           INT_PTR;
-  typedef long long      LONGLONG;
-  typedef unsigned long long ULONGLONG;
-  typedef void         * HANDLE;
-  typedef void         * LPOVERLAPPED; // Unsupported on Linux and Mac
+  //typedef long long      LONGLONG;
+  //typedef unsigned long long ULONGLONG;
+  //typedef void         * HANDLE;
+  //typedef void         * LPOVERLAPPED; // Unsupported on Linux and Mac
   typedef char           TCHAR;
   typedef unsigned int   LCID;
   typedef LONG         * PLONG;
