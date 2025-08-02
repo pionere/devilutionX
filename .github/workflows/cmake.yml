@@ -41,7 +41,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
       - name: Build DevilutionX
-        run: cmake --build build -j$(nproc)
+        run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
       - name: Upload Package
         if: ${{ !env.ACT }}
@@ -85,7 +85,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
       - name: Build DevilutionX
-        run: cmake --build build -j$(nproc)
+        run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
       - name: Upload Package
         if: ${{ !env.ACT }}
