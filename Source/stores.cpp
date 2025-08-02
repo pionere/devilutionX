@@ -1659,8 +1659,21 @@ static void SmithBuyItem(int idx)
 	StoreShiftItems(&smithitem[idx]);
 }
 
-static void StoreStartBuy(const ItemStruct* is)
+static void StoreStartBuy(int mode)
 {
+	int idx;
+
+	if (stextsel == STORE_BACK) {
+		STextESC();
+	} else {
+		DEBUG_ASSERT(stextflag == mode);
+		stextlhold = stextsel;
+		stextxhold = stextselx;
+		stextvhold = stextsidx;
+		stextshold = mode;
+		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
+
+		const ItemStruct* is = &storehold[idx];
 	int price = is->_iIvalue;
 	if (myplr._pGold < price) {
 		StartStore(STORE_NOMONEY);
@@ -1672,25 +1685,12 @@ static void StoreStartBuy(const ItemStruct* is)
 		else
 			StartStore(STORE_NOROOM);
 	}
+	}
 }
 
 static void S_SBuyEnter()
 {
-	int idx;
-
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_SMITH);
-		// stextsel = STORE_SMITH_BUY;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_SBUY);
-		stextlhold = stextsel;
-		stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_SBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&storehold[idx]);
-	}
+	StoreStartBuy(STORE_SBUY);
 }
 
 /**
@@ -1708,21 +1708,7 @@ static void SmithBuyPItem(int idx)
 
 static void S_SPBuyEnter()
 {
-	int idx;
-
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_SMITH);
-		// stextsel = STORE_SMITH_SPBUY;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_SPBUY);
-		stextlhold = stextsel;
-		stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_SPBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&storehold[idx]);
-	}
+	StoreStartBuy(STORE_SPBUY);
 }
 
 static bool StoreGoldFit(int cost, int slotCurs)
@@ -2044,22 +2030,7 @@ static void WitchBuyItem(int idx)
 
 static void S_WBuyEnter()
 {
-	int idx;
-
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_WITCH);
-		// stextsel = STORE_WITCH_BUY;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_WBUY);
-		stextlhold = stextsel;
-		stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_WBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-
-		StoreStartBuy(&storehold[idx]);
-	}
+	StoreStartBuy(STORE_WBUY);
 }
 
 static void S_WSellEnter()
@@ -2177,19 +2148,7 @@ static void HealerBuyItem(int idx)
 
 static void S_BBuyEnter()
 {
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_PEGBOY);
-		// stextsel = STORE_PEGBOY_QUERY;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_PBUY);
-		DEBUG_ASSERT(stextsel == STORE_PEGBOY_ITEM);
-		stextlhold = STORE_PEGBOY_ITEM;
-		// stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_PBUY;
-		StoreStartBuy(&boyitem);
-	}
+	StoreStartBuy(STORE_PBUY);
 }
 
 static void StoryIdItem(int idx)
@@ -2285,21 +2244,7 @@ static void S_HealerEnter()
 
 static void S_HBuyEnter()
 {
-	int idx;
-
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_HEALER);
-		// stextsel = STORE_HEALER_BUY;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_HBUY);
-		stextlhold = stextsel;
-		stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_HBUY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		StoreStartBuy(&storehold[idx]);
-	}
+	StoreStartBuy(STORE_HBUY);
 }
 
 static void S_StoryEnter()
