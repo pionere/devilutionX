@@ -20,7 +20,8 @@ DISABLE_SPEED_OPTIMIZATION
 #endif
 
 // required size of the store to accomodate the relevant items
-#define STORAGE_LIMIT (NUM_INV_GRID_ELEM + (MAXBELTITEMS > NUM_INVLOC ? MAXBELTITEMS : NUM_INVLOC))
+#define maxv(a, b) ((a) > (b) ? (a) : (b)) 
+constexpr int STORAGE_LIMIT = maxv(maxv(maxv(maxv(NUM_INV_GRID_ELEM + maxv(MAXBELTITEMS, (int)NUM_INVLOC), SMITH_ITEMS), SMITH_PREMIUM_ITEMS), WITCH_ITEMS), HEALER_ITEMS);
 
 // line numbers in stores:
 #define STORE_CONFIRM_YES 18
