@@ -230,7 +230,7 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	int width, limit;
 
 	sx = px + STORE_PNL_X_OFFSET + x;
-	sy = py + 8 + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
+	sy = py + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= x;
 	if (cjustflag) {
@@ -263,8 +263,8 @@ static void DrawSSlider(int px, int py)
 	//x = px + (gbWidePanel ? LTPANEL_WIDTH : STPANEL_WIDTH) - (SMALL_SCROLL_WIDTH + 2);
 	DEBUG_ASSERT(gbWidePanel);
 	x = px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
-	yd1 = y1 * STORE_LINE_HEIGHT + py + 8 + SMALL_SCROLL_HEIGHT; // top position of the scrollbar
-	yd2 = y2 * STORE_LINE_HEIGHT + py + 8 + SMALL_SCROLL_HEIGHT; // bottom position of the scrollbar
+	yd1 = y1 * STORE_LINE_HEIGHT + py + STORE_PNL_Y_OFFSET + SMALL_SCROLL_HEIGHT; // top position of the scrollbar
+	yd2 = y2 * STORE_LINE_HEIGHT + py + STORE_PNL_Y_OFFSET + SMALL_SCROLL_HEIGHT; // bottom position of the scrollbar
 	yd3 = (y2 - y1) * STORE_LINE_HEIGHT - 2 * SMALL_SCROLL_HEIGHT;                // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
@@ -1284,7 +1284,7 @@ static int current_store_line(int px, int py)
 	mx = MousePos.x;
 	my = MousePos.y;
 
-	y = (my - (py - SCREEN_Y + 8)) / STORE_LINE_HEIGHT;
+	y = (my - (py - SCREEN_Y + STORE_PNL_Y_OFFSET)) / STORE_LINE_HEIGHT;
 	if (gbWidePanel) {
 		if (mx < px - SCREEN_X || mx > px + LTPANEL_WIDTH - SCREEN_X)
 			y = 0;
@@ -1403,7 +1403,7 @@ void DrawStore()
 					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
 					int px = x, py = y + 1;
 					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
-					int sy = py + STORE_LINE_HEIGHT + 7 + /* + 1*/ + i * STORE_LINE_HEIGHT + sts->_syoff;
+					int sy = py + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT - 1 + i * STORE_LINE_HEIGHT + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
 					int frame_height = InvItemHeight[frame];
 
@@ -1449,8 +1449,8 @@ void DrawStore()
 		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
 		const int cursor = (int)CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
 		const int cw = InvItemWidth[cursor];
-		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + 8 + STORE_LINE_HEIGHT + 1 * STORE_LINE_HEIGHT - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
-		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + 8 + STORE_LINE_HEIGHT + (InvItemHeight[cursor] + STORE_LINE_HEIGHT) / 2, pCursCels, cursor, cw, 0);
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + 1 * STORE_LINE_HEIGHT - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
+		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + (InvItemHeight[cursor] + STORE_LINE_HEIGHT) / 2, pCursCels, cursor, cw, 0);
 	}
 	if (gbHasScroll)
 		DrawSSlider(x, y);
